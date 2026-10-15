@@ -12,14 +12,18 @@ use App\Actions\Comms\Mailbox\ConnectProcurementMailbox;
 use App\Actions\Comms\Mailbox\DisconnectProcurementMailbox;
 use App\Actions\GoodsIn\StockDelivery\ExportStockDeliveries;
 use App\Actions\GoodsIn\StockDelivery\PdfStockDelivery;
+use App\Actions\GoodsIn\StockDelivery\StoreAgentStockDelivery;
+use App\Actions\GoodsIn\StockDelivery\UI\CreateStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\UI\IndexStockDeliveries;
 use App\Actions\GoodsIn\StockDelivery\UI\ShowAgentContainersBoard;
+use App\Actions\GoodsIn\StockDelivery\UI\EditStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\UI\ShowStockDelivery;
 use App\Actions\Procurement\AgentLabel\DownloadAgentArtefactLabelPdf;
 use App\Actions\Procurement\AgentLabel\FetchAgentOrgStockBarcodeLabelOptions;
 use App\Actions\Procurement\AgentLabel\PdfAgentOrgStockBarcodeLabel;
 use App\Actions\Procurement\AgentLabel\UI\IndexAgentBarcodes;
 use App\Actions\Procurement\AgentLabel\UI\IndexAgentLabels;
+use App\Actions\Procurement\AgentWarehouseStock\UI\IndexAgentWarehouseStocks;
 use App\Actions\Procurement\OrgSupplier\ExportOrgSuppliers;
 use App\Actions\Procurement\OrgSupplier\UI\EditOrgSupplier;
 use App\Actions\Procurement\OrgSupplier\UI\IndexOrgSuppliers;
@@ -62,6 +66,8 @@ use App\Actions\SupplyChain\Supplier\UI\CreateSupplier;
 use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;
 use App\Actions\Procurement\AgentOrder\UI\IndexAgentOrders;
 use App\Actions\Procurement\AgentOrder\UI\ShowAgentOrder;
+use App\Actions\Procurement\OrgAgent\UI\IndexAgentSalesProducts;
+use App\Actions\Procurement\OrgAgent\UI\IndexAgentSalesSuppliers;
 use App\Actions\Procurement\OrgAgent\UI\ShowAgentSales;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\Procurement\OrgAgent\UI\ShowAgentOrderPipeline;
@@ -92,6 +98,9 @@ Route::prefix('supplier-products')->as('org_supplier_products.')->group(function
 });
 
 Route::get('sales', ShowAgentSales::class)->name('sales.dashboard');
+Route::get('sales/suppliers', IndexAgentSalesSuppliers::class)->name('sales.suppliers.index');
+Route::get('sales/suppliers/{supplier}', [ShowAgentSales::class, 'inSupplier'])->name('sales.suppliers.show');
+Route::get('sales/products', IndexAgentSalesProducts::class)->name('sales.products.index');
 
 Route::prefix('purchase-orders')->as('purchase_orders.')->group(function () {
     Route::get('', ShowAgentPurchaseOrdersDashboard::class)->name('dashboard');
@@ -111,13 +120,18 @@ Route::prefix('client-orders')->as('agent_supplier_purchase_orders.')->group(fun
 
 Route::prefix('containers')->as('stock_deliveries.')->group(function () {
     Route::get('', IndexStockDeliveries::class)->name('index');
+    Route::post('', StoreAgentStockDelivery::class)->name('store');
+    Route::get('create', [CreateStockDelivery::class, 'inAgent'])->name('create');
     Route::get('current', [IndexStockDeliveries::class, 'inAgentCurrent'])->name('current');
     Route::get('past', [IndexStockDeliveries::class, 'inAgentPast'])->name('past');
     Route::get('board', ShowAgentContainersBoard::class)->name('board');
     Route::get('export', ExportStockDeliveries::class)->name('export');
     Route::get('{stockDelivery}', ShowStockDelivery::class)->name('show');
+    Route::get('{stockDelivery}/edit', [EditStockDelivery::class, 'inAgent'])->name('edit');
     Route::get('{stockDelivery}/pdf/{filename?}', PdfStockDelivery::class)->name('pdf');
 });
+
+Route::get('warehouse', IndexAgentWarehouseStocks::class)->name('warehouse.index');
 
 Route::get('barcodes', IndexAgentBarcodes::class)->name('agent_barcodes.index');
 

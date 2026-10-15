@@ -8,6 +8,8 @@
 namespace App\Actions\Procurement\PurchaseOrder;
 
 use App\Actions\Comms\EmailAddress\StoreEmailAddress;
+use App\Actions\Procurement\SupplierAgreedTerm\GetPurchaseOrderAgreedTerms;
+use App\Models\Procurement\SupplierAgreedTerm;
 use App\Actions\Comms\Ses\SendSesEmail;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
@@ -105,6 +107,8 @@ class SendPurchaseOrderToSupplier
             'organisationName' => $organisation->name,
             'numberItems'      => $purchaseOrders->sum(fn (PurchaseOrder $order) => $order->purchaseOrderTransactions->count()),
             'supplierOrders'   => $purchaseOrders->count() > 1 ? $purchaseOrders->map(fn (PurchaseOrder $order) => ['reference' => $order->reference, 'supplier' => $order->parent_name])->all() : [],
+            'agreedTerms'      => $purchaseOrders->count() > 1 ? [] : GetPurchaseOrderAgreedTerms::run($purchaseOrder, forDocument: true)
+                ->map(fn (SupplierAgreedTerm $term) => ['term' => $term->term_type->label().($term->product_code ? ' ('.$term->product_code.')' : ''), 'value' => $term->valueLabel()])->all(),
         ])->render();
 
         $sender = app()->isProduction()

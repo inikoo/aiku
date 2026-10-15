@@ -8,6 +8,7 @@
 
 namespace App\Actions\Procurement\OrgAgent;
 
+use App\Actions\Procurement\GetOrganisationStockCoverBuckets;
 use App\Actions\Procurement\ProjectOrganisationStockOuts;
 use App\Enums\Catalogue\HealthRankEnum;
 use App\Enums\Goods\Stock\StockStateEnum;
@@ -59,19 +60,31 @@ class GetAgentStockCoverBuckets
      */
     private function bucketExpression(int $leadDays): string
     {
-        $lead       = "coalesce(sp.measured_lead_time_days, sp.estimated_lead_time_days, $leadDays)";
+        $lead       = self::leadTimeExpression($leadDays);
         $understock = "coalesce((stock_families.data->'stock_cover'->>'understock_days')::int, 2 * $lead)";
 
         return "case
             when os.id is null then 'never'
             when os.state <> '".OrgStockStateEnum::ACTIVE->value."' then 'gone'
-            when os.quantity_available < 1 then 'out'
-            when s.days_of_cover <= $lead then 'w1'
-            when s.days_of_cover <= $understock then 'w2'
-            when s.days_of_cover <= 3 * $lead then 'w3'
-            when s.days_of_cover <= greatest(4 * $lead, least(".ProjectOrganisationStockOuts::DAYS.", $lead + ".ProjectOrganisationStockOuts::REORDER_DAYS.")) then 'w4'
-            when coalesce(s.predicted_daily_usage, 0) = 0 and s.stock_value > 0 then 'dead'
-            else 'ok' end";
+            ".GetOrganisationStockCoverBuckets::outOfStockCase('os', 's', GetOrganisationStockCoverBuckets::make()->overstockDaysExpression())."
+            else ".GetOrganisationStockCoverBuckets::bucketOnCoverDaysExpression('os', 's', "greatest(4 * $lead, $understock, least(".ProjectOrganisationStockOuts::DAYS.", $lead + ".ProjectOrganisationStockOuts::REORDER_DAYS."))", "
+                ".GetOrganisationStockCoverBuckets::atRiskCases($lead, $understock, GetOrganisationStockCoverBuckets::make()->overstockDaysExpression(), "greatest(4 * $lead, least(".ProjectOrganisationStockOuts::DAYS.", $lead + ".ProjectOrganisationStockOuts::REORDER_DAYS."))")."
+                when coalesce(s.predicted_daily_usage, 0) = 0 and s.stock_value > 0 then 'dead'
+                else 'ok'").' end';
+    }
+
+    /**
+     * The lead time a row is judged on, the same order the ordering card reads it: the SKO's own,
+     * then the supplier product's, then the agent's.
+     */
+    public static function leadTimeExpression(int $agentLeadDays): string
+    {
+        return "coalesce(os.measured_lead_time_days, os.estimated_lead_time_days, sp.measured_lead_time_days, sp.estimated_lead_time_days, $agentLeadDays)";
+    }
+
+    public static function leadTimeMeasuredExpression(): string
+    {
+        return '(os.measured_lead_time_days is not null or (os.estimated_lead_time_days is null and sp.measured_lead_time_days is not null))';
     }
 
     /**
@@ -91,7 +104,7 @@ class GetAgentStockCoverBuckets
             ->whereRaw('link.status')
             ->orderByDesc('link.local_priority')
             ->orderByRaw("(org_stocks.state = '".OrgStockStateEnum::ACTIVE->value."') desc, org_stocks.quantity_available desc nulls last")
-            ->select(['org_stocks.id', 'org_stocks.stock_id', 'org_stocks.state', 'org_stocks.quantity_available', 'org_stocks.health_rank', 'org_stocks.is_excluded_from_auto_ordering'])
+            ->select(['org_stocks.id', 'org_stocks.stock_id', 'org_stocks.state', 'org_stocks.quantity_available', 'org_stocks.health_rank', 'org_stocks.is_excluded_from_auto_ordering', 'org_stocks.packed_in', 'org_stocks.measured_lead_time_days', 'org_stocks.estimated_lead_time_days'])
             ->limit(1);
     }
 

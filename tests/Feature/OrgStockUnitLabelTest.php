@@ -427,3 +427,19 @@ test('scanning the GS1-128 of a unified SKO label finds the SKO of that unit', f
     expect(ScanSkoBarcode::make()->handle($this->organisation, '(01) '.$gtin14.' (10) PKS202610')?->id)->toBe($orgStock->id)
         ->and(ScanSkoBarcode::make()->handle($this->organisation, '(01) '.$brokenGtin14.' (10) PKS202610'))->toBeNull();
 });
+
+test('HELP-3997 a unified label missing the ES or SK name offers to translate it and stops asking once it is there', function () {
+    \App\Actions\Helpers\Translations\Translate::mock()->shouldReceive('handle')->andReturnUsing(fn (string $text) => $text);
+
+    $orgStock  = ($this->makeOrgStock)([['name' => 'Small Stone Washed T-shirt', 'name_i8n' => []]]);
+    $tradeUnit = $orgStock->tradeUnits->first();
+
+    $translateNames = GetOrgStockLabelOptions::run($orgStock)['unified']['translate_names'];
+
+    expect($translateNames['route']['parameters'])->toBe(['tradeUnit' => $tradeUnit->id])
+        ->and(array_keys($translateNames['blockers']))->toBe(['es', 'sk']);
+
+    $tradeUnit->update(['name_i8n' => ['es' => 'Camiseta', 'sk' => 'Tričko']]);
+
+    expect(GetOrgStockLabelOptions::run($orgStock->fresh()->load('tradeUnits'))['unified']['translate_names'])->toBeNull();
+});

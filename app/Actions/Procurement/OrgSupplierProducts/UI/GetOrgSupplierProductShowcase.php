@@ -103,8 +103,10 @@ class GetOrgSupplierProductShowcase
      *
      * An agent sees the SKOs of every organisation it buys for, and the label carries the signature of
      * the SKO's organisation, so the page opens on the SKO of the organisation this product belongs to.
+     * When that organisation has no SKO of it the page falls back to another organisation's and says
+     * so, and the carton label still defaults to being commercialised by this product's organisation.
      *
-     * @return array{barcodes: array<int, array<string, mixed>>, label_org_stocks: array<int, array<string, mixed>>, selected_label_org_stock_id: int|null}
+     * @return array{barcodes: array<int, array<string, mixed>>, label_org_stocks: array<int, array<string, mixed>>, selected_label_org_stock_id: int|null, label_organisation: array{id: int, code: string, name: string, has_org_stock: bool}}
      */
     private function getBarcodesData(OrgSupplierProduct $orgSupplierProduct): array
     {
@@ -164,6 +166,12 @@ class GetOrgSupplierProductShowcase
             'barcodes'                    => $selectedLabelOrgStock['barcodes'] ?? ($masterStock ? GetStockBarcodes::run($masterStock) : []),
             'label_org_stocks'            => $labelOrgStocks,
             'selected_label_org_stock_id' => $selectedLabelOrgStock['id'] ?? null,
+            'label_organisation'          => [
+                'id'            => $orgSupplierProduct->organisation_id,
+                'code'          => $orgSupplierProduct->organisation->code,
+                'name'          => $orgSupplierProduct->organisation->name,
+                'has_org_stock' => collect($labelOrgStocks)->contains('organisation_id', $orgSupplierProduct->organisation_id),
+            ],
         ];
     }
 

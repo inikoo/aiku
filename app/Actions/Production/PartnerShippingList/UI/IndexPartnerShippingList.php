@@ -193,6 +193,7 @@ class IndexPartnerShippingList extends OrgAction
                 'job_orders.slug as job_order_slug',
                 'job_orders.state as job_order_state',
                 'job_order_artisans.contact_name as job_order_artisan',
+                DB::raw("job_orders.data->'hold'->>'reason' as job_order_hold_reason"),
                 DB::raw("(select json_agg(json_build_object('artisan', sub_job_artisans.contact_name, 'quantity', job_order_items.quantity) order by job_order_items.id) from job_order_items left join employees as sub_job_artisans on sub_job_artisans.id = job_order_items.employee_id where job_order_items.job_order_id = job_orders.id and job_order_items.artefact_id = artefacts.id) as job_order_sub_jobs"),
                 DB::raw('(select sum(quantity) from job_order_items where job_order_items.job_order_id = job_orders.id and job_order_items.artefact_id = artefacts.id) as job_order_quantity'),
                 DB::raw("exists(select 1 from job_order_item_tasks join job_order_items on job_order_items.id = job_order_item_tasks.job_order_item_id where job_order_items.job_order_id = job_orders.id and job_order_items.artefact_id = artefacts.id and job_order_items.deleted_at is null and job_order_item_tasks.state != 'todo') as is_in_progress"),

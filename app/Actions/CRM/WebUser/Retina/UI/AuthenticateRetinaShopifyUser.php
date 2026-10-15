@@ -26,7 +26,7 @@ class AuthenticateRetinaShopifyUser
             $shopifyUser = ShopifyUser::where('password', base64_decode($request->input('shopify')))->first();
 
             if ($shopifyUser) {
-                auth('retina')->login($shopifyUser->customer?->webUsers?->first());
+                auth('retina')->login($shopifyUser->customer?->webUsers?->first(), true);
                 $this->queueIrisAuthCookie();
                 return redirect()->intended($retinaHome);
             }

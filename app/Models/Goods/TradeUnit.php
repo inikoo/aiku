@@ -9,6 +9,7 @@
 namespace App\Models\Goods;
 
 use App\Enums\Catalogue\HealthRankEnum;
+use App\Enums\Goods\TradeUnit\TradeAttachmentScopeEnum;
 use App\Enums\Goods\TradeUnit\TradeUnitStatusEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Helpers\Barcode;
@@ -124,6 +125,7 @@ use Spatie\Translatable\HasTranslations;
  * @property int|null $art4_image_id
  * @property int|null $art5_image_id
  * @property int|null $trade_unit_family_id
+ * @property int|null $documents_trade_unit_id
  * @property int|null $origin_country_id
  * @property int|null $packaging_family_id
  * @property array<array-key, mixed> $compliance
@@ -168,6 +170,8 @@ use Spatie\Translatable\HasTranslations;
  * @property-read Collection<int, \App\Models\Goods\TradeUnitTimeSeries> $timeSeries
  * @property-read Media|null $topImage
  * @property-read \App\Models\Goods\TradeUnitFamily|null $tradeUnitFamily
+ * @property-read TradeUnit|null $documentsTradeUnit
+ * @property-read Collection<int, TradeUnit> $documentsSharers
  * @property-read mixed $translations
  * @method static \Database\Factories\Goods\TradeUnitFactory factory($count = null, $state = [])
  * @method static Builder<static>|TradeUnit newModelQuery()
@@ -422,6 +426,52 @@ class TradeUnit extends Model implements HasMedia, Auditable
     public function tradeUnitFamily(): BelongsTo
     {
         return $this->belongsTo(TradeUnitFamily::class);
+    }
+
+    public function documentsTradeUnit(): BelongsTo
+    {
+        return $this->belongsTo(TradeUnit::class, 'documents_trade_unit_id');
+    }
+
+    public function documentsSharers(): HasMany
+    {
+        return $this->hasMany(TradeUnit::class, 'documents_trade_unit_id');
+    }
+
+    /**
+     * @return Collection<int, Product>
+     */
+    public function productsShowingItsDocuments(): Collection
+    {
+        return $this->products()->get()->merge($this->productsOfDocumentsSharers())->unique('id')->values();
+    }
+
+    /**
+     * @return Collection<int, Product>
+     */
+    public function productsOfDocumentsSharers(): Collection
+    {
+        return Collection::make($this->documentsSharers()->with('products')->get()->flatMap->products)->unique('id')->values();
+    }
+
+    /**
+     * Its attachments, with the substance documents (IFRA, SDS, CLP, allergens) taken from its documents trade unit when it has one.
+     *
+     * @return Collection<int, Media>
+     */
+    public function attachmentsWithSharedDocuments(): Collection
+    {
+        $documentsTradeUnit = $this->documentsTradeUnit;
+        if (!$documentsTradeUnit) {
+            return $this->attachments;
+        }
+
+        $substanceScopes = TradeAttachmentScopeEnum::substanceScopes();
+
+        return $this->attachments
+            ->reject(fn (Media $attachment) => in_array($attachment->pivot->scope, $substanceScopes))
+            ->concat($documentsTradeUnit->attachments->filter(fn (Media $attachment) => in_array($attachment->pivot->scope, $substanceScopes)))
+            ->values();
     }
 
     public function brand(): ?Brand

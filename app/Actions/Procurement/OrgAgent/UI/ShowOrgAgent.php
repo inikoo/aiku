@@ -9,6 +9,11 @@
 namespace App\Actions\Procurement\OrgAgent\UI;
 
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
+use App\Actions\Procurement\ProcurementNote\UI\IndexProcurementNotes;
+use App\Actions\Procurement\SupplierAgreedTerm\UI\GetAgreement;
+use App\Actions\Procurement\SupplierAgreedTerm\UI\IndexSupplierAgreedTerms;
+use App\Http\Resources\Procurement\ProcurementNoteResource;
+use App\Http\Resources\Procurement\SupplierAgreedTermResource;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Enums\SupplyChain\SupplyChainAttachmentScopeEnum;
@@ -55,6 +60,8 @@ class ShowOrgAgent extends OrgAction
 
     public function htmlResponse(OrgAgent $orgAgent, ActionRequest $request): Response
     {
+        $forAgent = $this->organisation->type === OrganisationTypeEnum::AGENT || $orgAgent->organisation_id !== $this->organisation->id;
+
         return Inertia::render(
             'Procurement/OrgAgent',
             [
@@ -66,6 +73,11 @@ class ShowOrgAgent extends OrgAction
                 'navigation'  => [
                     'previous' => $this->getPrevious($orgAgent, $request),
                     'next'     => $this->getNext($orgAgent, $request),
+                ],
+                'suspended_alert' => $orgAgent->status ? null : [
+                    'status'      => 'warning',
+                    'title'       => __('Suspended agent'),
+                    'description' => __('We no longer work with this agent. Its suppliers, orders and deliveries stay here for reference.'),
                 ],
                 'pageHead'    => [
                     'model'         => __('Agent'),
@@ -139,11 +151,23 @@ class ShowOrgAgent extends OrgAction
                 ],
                 'attachmentScopes' => SupplyChainAttachmentScopeEnum::options(),
 
+                'agreement' => GetAgreement::run($orgAgent->agent, $orgAgent->organisation, $request->user(), $forAgent),
+
+                OrgAgentTabsEnum::AGREED_TERMS->value => $this->tab == OrgAgentTabsEnum::AGREED_TERMS->value ?
+                    fn () => SupplierAgreedTermResource::collection(IndexSupplierAgreedTerms::run($orgAgent->agent, OrgAgentTabsEnum::AGREED_TERMS->value, $orgAgent->organisation, $forAgent))
+                    : Inertia::optional(fn () => SupplierAgreedTermResource::collection(IndexSupplierAgreedTerms::run($orgAgent->agent, OrgAgentTabsEnum::AGREED_TERMS->value, $orgAgent->organisation, $forAgent))),
+
+                OrgAgentTabsEnum::NOTES->value => $this->tab == OrgAgentTabsEnum::NOTES->value ?
+                    fn () => ProcurementNoteResource::collection(IndexProcurementNotes::run($orgAgent->agent, OrgAgentTabsEnum::NOTES->value, $orgAgent->organisation, $forAgent))
+                    : Inertia::optional(fn () => ProcurementNoteResource::collection(IndexProcurementNotes::run($orgAgent->agent, OrgAgentTabsEnum::NOTES->value, $orgAgent->organisation, $forAgent))),
+
                 OrgAgentTabsEnum::HISTORY->value => $this->tab == OrgAgentTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($orgAgent, OrgAgentTabsEnum::HISTORY->value))
                     : Inertia::optional(fn () => HistoryResource::collection(IndexHistory::run($orgAgent, OrgAgentTabsEnum::HISTORY->value)))
             ]
-        )->table(IndexHistory::make()->tableStructure(prefix: OrgAgentTabsEnum::HISTORY->value))
+        )->table(IndexSupplierAgreedTerms::make()->tableStructure(prefix: OrgAgentTabsEnum::AGREED_TERMS->value))
+            ->table(IndexProcurementNotes::make()->tableStructure(prefix: OrgAgentTabsEnum::NOTES->value))
+            ->table(IndexHistory::make()->tableStructure(prefix: OrgAgentTabsEnum::HISTORY->value))
             ->table(IndexSupplierMessages::make()->tableStructure($orgAgent, prefix: OrgAgentTabsEnum::INBOX->value))
             ->table(IndexAttachments::make()->tableStructure(prefix: OrgAgentTabsEnum::ATTACHMENTS->value));
     }

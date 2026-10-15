@@ -51,6 +51,8 @@ class JobOrderPlanItemsResource extends JsonResource
                 'state'             => $task->state,
                 'quantity_made'     => (float) $task->quantity_made,
                 'quantity_required' => (float) $task->quantity_required,
+                'unit'              => $task->unit(),
+                'mix_batch_kg'      => $task->mixBatchKg(),
                 'employee_id'       => $task->employee_id,
                 'only_for'          => $task->manufactureTask->artisans->pluck('id')->all(),
                 'operator'          => $task->assignee()?->contact_name,

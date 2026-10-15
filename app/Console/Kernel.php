@@ -113,7 +113,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('server-metrics:aggregate')->hourlyAt(5)->onOneServer()->withoutOverlapping();
         $schedule->command('tickets:cancel_stale')->everyFifteenMinutes()->onOneServer();
         $schedule->command('staff-tasks:nudge')->hourly()->onOneServer();
+        $schedule->command('procurement:send-minimum-poke-digests')->everyFifteenMinutes()->onOneServer()->withoutOverlapping();
         $schedule->command('staff-tasks:remind-due')->hourly()->onOneServer();
+        $schedule->command('appointments:close-past')->everyFifteenMinutes()->onOneServer()->withoutOverlapping();
         $schedule->command('hr:sync-leave-cover-roles')->hourly()->onOneServer()->withoutOverlapping();
         $schedule->command('hr:add-leave-cover-collaborators')->hourly()->onOneServer()->withoutOverlapping();
         $schedule->command('currency:warm')->everyFourHours()->onOneServer()->withoutOverlapping(30);
@@ -142,6 +144,9 @@ class Kernel extends ConsoleKernel
         $schedule->call(fn () => \Illuminate\Support\Facades\DB::table('traffic_source_clicks')->where('created_at', '<', now()->subDays(90))->delete())
             ->name('prune-traffic-source-clicks')->dailyAt('04:30')->timezone('UTC')->onOneServer();
         $schedule->command('procurement:reprice_partner_purchase_orders')->dailyAt('01:00')->timezone('UTC')->onOneServer()->withoutOverlapping(60);
+        $schedule->command('procurement:send_stuck_purchase_orders_summary')->weeklyOn(1, '07:00')->timezone('Europe/London')->onOneServer();
+        $schedule->command('procurement:stamp_purchase_orders_online')->hourlyAt(20)->onOneServer()->withoutOverlapping(30);
+        $schedule->command('procurement:send_compliance_documents_reminders')->dailyAt('07:30')->timezone('Europe/London')->onOneServer()->withoutOverlapping(60);
         $schedule->command('search:propose-synonyms')->weeklyOn(1, '03:00')->onOneServer();
         $schedule->command('customers:product-suggestions')->weeklyOn(1, '02:00')->timezone('UTC')->onOneServer();
         $schedule->command('nightowl:prune')->dailyAt('04:00')->timezone('UTC')->onOneServer()->withoutOverlapping(180);
@@ -1391,6 +1396,17 @@ class Kernel extends ConsoleKernel
                         monitorSlug: 'FetchSearchConsoleAnalytics',
                     ),
                 name: 'FetchSearchConsoleAnalytics',
+                type: 'command',
+                scheduledAt: now()->format('H:i')
+            );
+
+            $this->logSchedule(
+                $schedule->command('google_tag_manager:fetch')
+                    ->dailyAt('02:50')
+                    ->timezone('UTC')->onOneServer()->withoutOverlapping()->sentryMonitor(
+                        monitorSlug: 'FetchGoogleTagManagerContainers',
+                    ),
+                name: 'FetchGoogleTagManagerContainers',
                 type: 'command',
                 scheduledAt: now()->format('H:i')
             );

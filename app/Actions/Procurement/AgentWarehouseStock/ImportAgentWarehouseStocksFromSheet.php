@@ -1,0 +1,256 @@
+<?php
+
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 14 Oct 2026 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2026, Raul A Perusquia Flores
+ */
+
+namespace App\Actions\Procurement\AgentWarehouseStock;
+
+use App\Enums\Procurement\AgentWarehouseStock\AgentWarehouseStockStateEnum;
+use App\Models\Procurement\AgentWarehouseStock;
+use App\Models\SupplyChain\Agent;
+use App\Models\SupplyChain\SupplierProduct;
+use App\Models\SysAdmin\Organisation;
+use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Laravel\Nightwatch\Facades\Nightwatch;
+use Lorisleiva\Actions\Concerns\AsAction;
+
+/**
+ * Replaces an agent's warehouse stock for one organisation with the Moving Stock and Packed tabs of its stock spreadsheet (HELP-3960).
+ */
+class ImportAgentWarehouseStocksFromSheet
+{
+    use AsAction;
+
+    public string $commandSignature = 'agent:import_warehouse_stocks {agent : agent organisation slug} {organisation : organisation the stock is for} {sheet : Google Sheet id, shared by link} {--dry-run}';
+
+    private const array TABS = [
+        'Moving Stock'     => AgentWarehouseStockStateEnum::RECEIVED,
+        'Packed Already'   => AgentWarehouseStockStateEnum::PACKED_FOR_NEXT_CONTAINER,
+        'Packed Already 2' => AgentWarehouseStockStateEnum::PACKED_FOR_LATER_CONTAINER,
+    ];
+
+    private const array TAB_ALIASES = [
+        'Packed Already 2' => ['Copy of Packed Already'],
+    ];
+
+    private const int NOTES = 0;
+    private const int CODE = 2;
+    private const int UNITS = 7;
+    private const int PO_NUMBER = 26;
+
+    /**
+     * @return array{rows: list<array<string, mixed>>, unmatched: list<string>}
+     */
+    public function handle(Agent $agent, Organisation $organisation, string $sheetId, bool $dryRun = false): array
+    {
+        $rows      = [];
+        $unmatched = [];
+        $sheetTabs = $this->tabNames($sheetId);
+
+        foreach (self::TABS as $tab => $state) {
+            $names    = array_map('mb_strtolower', [$tab, ...(self::TAB_ALIASES[$tab] ?? [])]);
+            $sheetTab = collect($sheetTabs)->first(fn (string $name) => in_array(mb_strtolower(trim($name)), $names, true));
+            if ($sheetTab === null) {
+                $unmatched[] = "$tab: tab not in the sheet";
+                continue;
+            }
+
+            foreach ($this->readTab($sheetId, $sheetTab) as $line) {
+                $rawCode = trim($line[self::CODE] ?? '');
+                if ($rawCode === '' || strcasecmp($rawCode, 'CODE') === 0 || $this->isExtraCarton($rawCode)) {
+                    continue;
+                }
+
+                $code  = trim(preg_replace('/\s*\(A\)$/i', '', $rawCode));
+                $units = (float) str_replace(',', '', $line[self::UNITS] ?? '');
+
+                $candidates = SupplierProduct::where('agent_id', $agent->id)
+                    ->whereRaw('lower(code) = ?', [mb_strtolower($code)])
+                    ->orderByRaw('(select count(*) from purchase_order_transactions where supplier_product_id = supplier_products.id) desc, id')
+                    ->get();
+                $orderIds        = $this->orderIds($organisation, $po = trim($line[self::PO_NUMBER] ?? ''));
+                $supplierProduct = $candidates->first(fn (SupplierProduct $candidate) => $this->orderWithLine($orderIds, $candidate)) ?? $candidates->first();
+
+                if (!$supplierProduct || $units <= 0) {
+                    $unmatched[] = "$tab: $code".($supplierProduct ? ' (no units)' : '');
+                    continue;
+                }
+
+                $rows[] = [
+                    'group_id'            => $agent->group_id,
+                    'agent_id'            => $agent->id,
+                    'organisation_id'     => $organisation->id,
+                    'supplier_product_id' => $supplierProduct->id,
+                    'state'               => $state->value,
+                    'quantity'            => $units,
+                    'purchase_order_id'   => ($purchaseOrderId = $this->orderWithLine($orderIds, $supplierProduct) ?? $this->orderOfSupplier($orderIds, $supplierProduct)) ?? $this->latestOrderWithProduct($organisation, $candidates),
+                    'notes'               => collect([trim($line[self::NOTES] ?? ''), $po && !$purchaseOrderId ? "PO: $po" : ''])->filter()->implode(' · ') ?: null,
+                    'created_at'          => now(),
+                    'updated_at'          => now(),
+                ];
+            }
+        }
+
+        if (!$dryRun) {
+            DB::transaction(function () use ($agent, $organisation, $rows) {
+                AgentWarehouseStock::where('agent_id', $agent->id)->where('organisation_id', $organisation->id)->delete();
+                AgentWarehouseStock::insert($rows);
+            });
+        }
+
+        return ['rows' => $rows, 'unmatched' => $unmatched];
+    }
+
+    /** @var array<string, list<int>> */
+    private array $purchaseOrderIds = [];
+
+    /**
+     * The sheet writes the agent's orders as "PO-230 UK", "PO-61 ES" or just "PO-050", aiku as AWIndo-230-UK or AWIndo-061-ES 26.08.26.
+     * Since INI-059 such an order is split into one purchase order per supplier (JMS-AWIndo-136-SK...) and the original
+     * is soft deleted with data->split_into. A row links to the split holding a line of its product, else to the split of
+     * its product's supplier. The same product can be recorded twice under one agent (ACShop-12 under GA and under Gloria,
+     * both Gloria Art), so the product on the order wins over its twin.
+     *
+     * @return list<int>
+     */
+    private function orderIds(Organisation $organisation, string $poNumber): array
+    {
+        if (!preg_match('/PO\s*-?\s*0*(\d+)\b/i', $poNumber, $match)) {
+            return [];
+        }
+
+        return $this->purchaseOrderIds["$organisation->id|$match[1]"] ??= $this->liveOrderIds($organisation, (int) $match[1]);
+    }
+
+    /**
+     * @param  list<int>  $orderIds
+     */
+    private function orderWithLine(array $orderIds, SupplierProduct $supplierProduct): ?int
+    {
+        return $orderIds ? DB::table('purchase_order_transactions')
+            ->whereIn('purchase_order_id', $orderIds)
+            ->where('supplier_product_id', $supplierProduct->id)
+            ->orderBy('purchase_order_id')
+            ->value('purchase_order_id') : null;
+    }
+
+    /**
+     * The UK runs each Indo cycle as a numbered order plus Production / Warehouse / Packing orders, and deletes the drafts
+     * when the next cycle starts, so the order the sheet names is often gone. Then the row links to the newest live Indo
+     * order of the organisation holding the product, open ones first, and the sheet's order stays in the notes.
+     *
+     * @param  Collection<int, SupplierProduct>  $candidates
+     */
+    private function latestOrderWithProduct(Organisation $organisation, Collection $candidates): ?int
+    {
+        return DB::table('purchase_orders')
+            ->join('purchase_order_transactions', 'purchase_order_transactions.purchase_order_id', 'purchase_orders.id')
+            ->where('purchase_orders.organisation_id', $organisation->id)
+            ->where('purchase_orders.reference', 'ilike', '%indo%')
+            ->whereNull('purchase_orders.deleted_at')
+            ->whereIn('purchase_order_transactions.supplier_product_id', $candidates->pluck('id'))
+            ->orderByRaw("purchase_orders.state in ('settled', 'cancelled', 'not_received'), purchase_orders.id desc")
+            ->value('purchase_orders.id');
+    }
+
+    /**
+     * @param  list<int>  $orderIds
+     */
+    private function orderOfSupplier(array $orderIds, SupplierProduct $supplierProduct): ?int
+    {
+        return $orderIds ? DB::table('purchase_orders')
+            ->join('org_suppliers', 'org_suppliers.id', 'purchase_orders.parent_id')
+            ->where('purchase_orders.parent_type', 'OrgSupplier')
+            ->whereIn('purchase_orders.id', $orderIds)
+            ->where('org_suppliers.supplier_id', $supplierProduct->supplier_id)
+            ->value('purchase_orders.id') : null;
+    }
+
+    /**
+     * Every order of the organisation numbered so, whatever the naming of its time: AWIndo-136-SK, AWIndo165_UK,
+     * AWIndo-12-ES, AWIndo-36-VAL250180. Deleted ones count for their splits.
+     *
+     * @return list<int>
+     */
+    private function liveOrderIds(Organisation $organisation, int $number): array
+    {
+        $orders = DB::table('purchase_orders')
+            ->where('organisation_id', $organisation->id)
+            ->whereRaw('reference ~* ?', ['^AWIndo[-_ ]?0*'.$number.'([^0-9]|$)'])
+            ->get(['id', 'deleted_at', 'data']);
+
+        $ids = $orders->flatMap(fn ($order) => json_decode($order->data ?? '{}', true)['split_into'] ?? [$order->id])->unique()->all();
+
+        return DB::table('purchase_orders')->whereIn('id', $ids)->whereNull('deleted_at')->pluck('id')->all();
+    }
+
+    /**
+     * A product shipped in several cartons has one row per carton: the main or (A) row holds the units, while
+     * "PART OF" and (B), (C)... rows are the other cartons and never add stock, even when units were typed in.
+     */
+    private function isExtraCarton(string $code): bool
+    {
+        return (bool) preg_match('/PART OF|\((?!A\))[A-Z]\)$/i', $code);
+    }
+
+    /**
+     * The gviz endpoint answers an unknown tab with the first one, so tabs are looked up by name first.
+     *
+     * @return list<string>
+     */
+    private function tabNames(string $sheetId): array
+    {
+        $html = Http::get("https://docs.google.com/spreadsheets/d/$sheetId/htmlview")->throw()->body();
+        preg_match_all('/\{name: "((?:[^"\\\\]|\\\\.)*)"/', $html, $matches);
+
+        return array_map('stripcslashes', $matches[1]);
+    }
+
+    /**
+     * @return list<list<string>>
+     */
+    private function readTab(string $sheetId, string $tab): array
+    {
+        $csv = Http::get("https://docs.google.com/spreadsheets/d/$sheetId/gviz/tq", ['tqx' => 'out:csv', 'sheet' => $tab])->throw()->body();
+
+        $lines = [];
+        $stream = fopen('php://memory', 'r+');
+        fwrite($stream, $csv);
+        rewind($stream);
+        fgetcsv($stream, escape: '\\');
+        while (($line = fgetcsv($stream, escape: '\\')) !== false) {
+            $lines[] = $line;
+        }
+        fclose($stream);
+
+        return $lines;
+    }
+
+    public function asCommand(Command $command): int
+    {
+        Nightwatch::dontSample();
+
+        $agent = Organisation::where('slug', $command->argument('agent'))->firstOrFail()->agent;
+        if (!$agent) {
+            $command->error('Not an agent organisation');
+
+            return 1;
+        }
+
+        $organisation = Organisation::where('slug', $command->argument('organisation'))->firstOrFail();
+        $result       = $this->handle($agent, $organisation, $command->argument('sheet'), (bool) $command->option('dry-run'));
+
+        $command->info(count($result['rows']).' rows '.($command->option('dry-run') ? 'would be imported' : 'imported'));
+        foreach ($result['unmatched'] as $line) {
+            $command->warn("Skipped $line");
+        }
+
+        return 0;
+    }
+}

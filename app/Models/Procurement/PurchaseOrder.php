@@ -23,6 +23,7 @@ use App\Models\Traits\HasAttachments;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\InOrganisation;
 use App\Models\Traits\HasSearch;
+use App\Models\Traits\HasStageMarks;
 use Eloquent;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
@@ -168,6 +169,7 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
     use InOrganisation;
     use HasAttachments;
     use HasSearch;
+    use HasStageMarks;
 
     protected $casts = [
         'data'            => 'array',
@@ -197,13 +199,16 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
         'approved_ready_at'      => 'datetime',
         'compliance_complete_at' => 'datetime',
         'chs_excluded'           => 'boolean',
+        'production_started_at'  => 'datetime',
+        'online_at'              => 'datetime',
+        'stage_marks'            => 'array',
     ];
 
 
     protected $attributes = [
-        'data'      => '{}',
-        'cost_data' => '{}',
-
+        'data'        => '{}',
+        'cost_data'   => '{}',
+        'stage_marks' => '{}',
     ];
 
     protected $guarded = [];
@@ -241,6 +246,7 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
         'deposit_amount',
         'deposit_paid_at',
         'deposit_paid_by_id',
+        'production_started_at',
         'produced_at',
         'qc_passed_at',
         'handed_over_at',
@@ -250,6 +256,24 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
         'chs_excluded',
         'chs_exclusion_reason',
     ];
+
+    public function stageMarkColumns(): array
+    {
+        return [
+            'submitted_at',
+            'confirmed_at',
+            'deposit_paid_at',
+            'balance_paid_at',
+            'sample_approved_at',
+            'production_started_at',
+            'proposed_ready_at',
+            'approved_ready_at',
+            'produced_at',
+            'qc_passed_at',
+            'handed_over_at',
+            'compliance_complete_at',
+        ];
+    }
 
     public function estimatedReceivingDate(): ?string
     {
@@ -355,5 +379,10 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
     public function depositPaidBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'deposit_paid_by_id');
+    }
+
+    public function depositPayments(): HasMany
+    {
+        return $this->hasMany(PurchaseOrderDepositPayment::class);
     }
 }

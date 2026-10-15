@@ -37,9 +37,7 @@ const generateLinkPalletReturn = (palletReturn: { slug?: string }): string | und
     const currentRoute = route().current() ?? ''
 
     if (currentRoute.startsWith('retina.')) {
-        return route('retina.fulfilment.storage.pallet_returns.with-stored-items.show', {
-            palletReturn: palletReturn.slug,
-        })
+        return undefined
     }
 
     if (params.organisation && params.warehouse) {

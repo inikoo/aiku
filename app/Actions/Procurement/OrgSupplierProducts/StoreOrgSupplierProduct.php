@@ -18,6 +18,7 @@ use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SupplyChain\SupplierProduct;
 use Illuminate\Support\Arr;
+use InvalidArgumentException;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreOrgSupplierProduct extends OrgAction
@@ -26,6 +27,10 @@ class StoreOrgSupplierProduct extends OrgAction
 
     public function handle(OrgSupplier $orgSupplier, SupplierProduct $supplierProduct, $modelData = []): OrgSupplierProduct
     {
+        if ($supplierProduct->supplier_id != $orgSupplier->supplier_id) {
+            throw new InvalidArgumentException("Supplier product $supplierProduct->id belongs to supplier $supplierProduct->supplier_id, not to org supplier $orgSupplier->id");
+        }
+
         data_set($modelData, 'group_id', $orgSupplier->group_id);
         data_set($modelData, 'organisation_id', $orgSupplier->organisation_id);
 
@@ -41,6 +46,7 @@ class StoreOrgSupplierProduct extends OrgAction
         data_set($modelData, 'state', $state);
         data_set($modelData, 'is_available', $supplierProduct->is_available);
 
+        $this->repointDriftedOrgSupplierProduct($orgSupplier, $supplierProduct);
 
         /** @var OrgSupplierProduct $orgSupplierProduct */
         $orgSupplierProduct = $supplierProduct->orgSupplierProducts()->firstOrCreate(['org_supplier_id' => $orgSupplier->id], $modelData);
@@ -65,6 +71,34 @@ class StoreOrgSupplierProduct extends OrgAction
 
 
         return $orgSupplierProduct;
+    }
+
+    protected function repointDriftedOrgSupplierProduct(OrgSupplier $orgSupplier, SupplierProduct $supplierProduct): void
+    {
+        if ($supplierProduct->orgSupplierProducts()->where('org_supplier_id', $orgSupplier->id)->exists()) {
+            return;
+        }
+
+        /** @var OrgSupplierProduct $driftedOrgSupplierProduct */
+        $driftedOrgSupplierProduct = $supplierProduct->orgSupplierProducts()
+            ->where('org_supplier_products.organisation_id', $orgSupplier->organisation_id)
+            ->whereHas('orgSupplier', fn ($query) => $query->where('supplier_id', '!=', $supplierProduct->supplier_id))
+            ->first();
+
+        if (!$driftedOrgSupplierProduct) {
+            return;
+        }
+
+        $previousOrgSupplier = $driftedOrgSupplierProduct->orgSupplier;
+
+        $driftedOrgSupplierProduct->update([
+            'org_supplier_id' => $orgSupplier->id,
+            'org_agent_id'    => $orgSupplier->org_agent_id,
+        ]);
+
+        if (!$this->skipHydrators && $previousOrgSupplier) {
+            OrgSupplierHydrateOrgSupplierProducts::dispatch($previousOrgSupplier)->delay($this->hydratorsDelay);
+        }
     }
 
 

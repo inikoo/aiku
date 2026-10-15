@@ -219,6 +219,7 @@ class StoreOfflineMessage
                 ? ChatSenderTypeEnum::USER->value
                 : ChatSenderTypeEnum::GUEST->value,
             'sender_id' => $data['web_user_id'] ?? null,
+            'page_url'  => $data['page_url'] ?? null,
         ];
 
         $message = SendChatMessage::run($session, $messageData);
@@ -269,6 +270,7 @@ class StoreOfflineMessage
                 'max:150',
             ],
             'message' => ['required', 'string', 'max:5000'],
+            'page_url' => ['nullable', 'url:http,https', 'max:2048'],
             'language_id' => ['required', 'integer', 'exists:languages,id'],
             'sender_type' => [
                 'required',

@@ -7,6 +7,7 @@ use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class GetGroupWarehouseDashboardData
@@ -28,11 +29,13 @@ class GetGroupWarehouseDashboardData
     public function handle(Group $group): array
     {
         $buckets       = GetOrganisationStockCoverBuckets::make();
-        $organisations = $group->organisations()->where('type', OrganisationTypeEnum::SHOP)->get()
+        $shops         = $group->organisations()->where('type', OrganisationTypeEnum::SHOP)->get();
+        $stockHealth   = $this->stockHealth($group, $shops->pluck('id')->all());
+        $organisations = $shops
             ->map(fn (Organisation $organisation) => [
                 'name'         => $organisation->name,
                 'slug'         => $organisation->slug,
-                'stock_health' => $this->stockHealth($organisation),
+                'stock_health' => $stockHealth[$organisation->id],
                 'routes'       => ['stock_health' => ['name' => 'grp.org.procurement.stock_cover.index', 'parameters' => ['organisation' => $organisation->slug]]],
             ]);
 
@@ -58,12 +61,41 @@ class GetGroupWarehouseDashboardData
     }
 
     /**
-     * @return array<string, int> bucket => SKOs
+     * @param array<int, int> $organisationIds
      */
-    private function stockHealth(Organisation $organisation): array
+    public static function cacheKey(Group $group, array $organisationIds): string
     {
-        return Cache::remember("warehouse-dashboard-stock-cover:$organisation->id", now()->addMinutes(10), fn () => collect(GetOrganisationStockCoverBuckets::run($organisation))
-            ->mapWithKeys(fn (array $bucket) => [$bucket['bucket'] => $bucket['count']])
-            ->all());
+        sort($organisationIds);
+
+        return "warehouse-dashboard-stock-cover:$group->id:".implode(',', $organisationIds);
+    }
+
+    /**
+     * One query for every organisation: the bucket is decided row by row, so grouping by organisation
+     * gives the same counts as asking each one apart.
+     *
+     * @param array<int, int> $organisationIds
+     *
+     * @return array<int, array<string, int>> organisation id => bucket => SKOs
+     */
+    private function stockHealth(Group $group, array $organisationIds): array
+    {
+        return Cache::remember(self::cacheKey($group, $organisationIds), now()->addMinutes(10), function () use ($organisationIds) {
+            $buckets    = GetOrganisationStockCoverBuckets::make();
+            $expression = $buckets->bucketExpression();
+
+            $rows = $buckets->scope(DB::table('org_stocks'), $organisationIds)
+                ->selectRaw("org_stocks.organisation_id, $expression as bucket, count(*) as total")
+                ->groupBy('org_stocks.organisation_id')
+                ->groupByRaw($expression)
+                ->get()
+                ->groupBy('organisation_id');
+
+            return collect($organisationIds)->mapWithKeys(fn (int $id) => [
+                $id => collect(array_keys(GetOrganisationStockCoverBuckets::BUCKETS))
+                    ->mapWithKeys(fn (string $bucket) => [$bucket => (int) ($rows->get($id)?->firstWhere('bucket', $bucket)->total ?? 0)])
+                    ->all(),
+            ])->all();
+        });
     }
 }

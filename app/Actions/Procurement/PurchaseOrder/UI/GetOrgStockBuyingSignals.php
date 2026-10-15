@@ -27,7 +27,7 @@ class GetOrgStockBuyingSignals
     /**
      * @return array{days: float|null, days_worst_case: float|null, out_of_stock_at: mixed, daily_usage: float|null, weekly_forecast: array<int, float>|null, lead_time_days: int, overstock_days: int}|null
      */
-    public function handle(?OrgStock $orgStock, ?SupplierProduct $supplierProduct = null, ?int $partnerLeadTimeDays = null): ?array
+    public function handle(?OrgStock $orgStock, ?SupplierProduct $supplierProduct = null, ?int $partnerLeadTimeDays = null, ?int $fallbackLeadTimeDays = null): ?array
     {
         $stats = $orgStock?->stats;
         if (!$stats) {
@@ -44,17 +44,22 @@ class GetOrgStockBuyingSignals
             'weekly_forecast' => $stats->forecast_source === 'timesfm' && is_array($weeks) && $weeks
                 ? array_map(fn ($week) => round(max(0.0, (float) ($week[0] ?? 0)), 2), $weeks)
                 : null,
-            'lead_time_days'  => $partnerLeadTimeDays ?? $this->leadTimeDays($orgStock, $supplierProduct),
+            'lead_time_days'  => $partnerLeadTimeDays ?? $this->leadTimeDays($orgStock, $supplierProduct, $fallbackLeadTimeDays),
             'overstock_days'  => (int) (Arr::get($orgStock->stock?->stockFamily?->data ?? [], 'stock_cover.overstock_days') ?: GetOrganisationStockCoverBuckets::EXCESS_DAYS),
         ];
     }
 
-    private function leadTimeDays(OrgStock $orgStock, ?SupplierProduct $supplierProduct): int
+    /**
+     * The order the stock groups judge a row on too, with the agent or supplier lead time as the
+     * fallback the group uses, so the card and its group never read different lead times.
+     */
+    private function leadTimeDays(OrgStock $orgStock, ?SupplierProduct $supplierProduct, ?int $fallbackLeadTimeDays): int
     {
         return (int) ($orgStock->measured_lead_time_days
             ?? $orgStock->estimated_lead_time_days
             ?? $supplierProduct?->measured_lead_time_days
             ?? $supplierProduct?->estimated_lead_time_days
+            ?? $fallbackLeadTimeDays
             ?? GetSupplierLeadTime::DEFAULT_DAYS);
     }
 }

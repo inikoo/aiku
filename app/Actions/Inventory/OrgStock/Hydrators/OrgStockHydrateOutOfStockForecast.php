@@ -61,6 +61,8 @@ class OrgStockHydrateOutOfStockForecast implements ShouldBeUnique
 
     private const float IN_STOCK_RATE_CAP_MULTIPLE = 2.0;
 
+    private const int CAP_YEAR_DAYS = 365;
+
     /** @var array<int, int> */
     private array $partnerLeadTimeDays = [];
 
@@ -291,13 +293,26 @@ class OrgStockHydrateOutOfStockForecast implements ShouldBeUnique
             $source = 'holt';
         }
 
-        $cap = $dispatchedByDay->sum() / self::WINDOW * self::IN_STOCK_RATE_CAP_MULTIPLE;
+        $cap = max($dispatchedByDay->sum() / self::WINDOW, $this->dispatchedOverCapYear($orgStock) / self::CAP_YEAR_DAYS) * self::IN_STOCK_RATE_CAP_MULTIPLE;
         if ($rate > $cap) {
             $sigma = $sigma !== null ? $sigma * $cap / $rate : null;
             $rate  = $cap;
         }
 
         return [$rate, $sigma, $source, $inStockShare];
+    }
+
+    /**
+     * The cap also reads the last year, so an item that sold steadily for months and then sat out
+     * of stock most of the window is not held to what trickled out while it was empty (HELP-4001).
+     */
+    private function dispatchedOverCapYear(OrgStock $orgStock): float
+    {
+        return (float) DB::table('delivery_note_items')
+            ->where('org_stock_id', $orgStock->id)
+            ->where('quantity_dispatched', '>', 0)
+            ->where('created_at', '>=', now()->subDays(self::CAP_YEAR_DAYS)->startOfDay())
+            ->sum('quantity_dispatched');
     }
 
     /**

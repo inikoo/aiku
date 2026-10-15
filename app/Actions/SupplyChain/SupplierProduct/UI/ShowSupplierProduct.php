@@ -9,6 +9,11 @@
 namespace App\Actions\SupplyChain\SupplierProduct\UI;
 
 use App\Actions\Helpers\History\UI\IndexHistory;
+use App\Actions\Procurement\ProcurementNote\UI\IndexProcurementNotes;
+use App\Actions\Procurement\SupplierAgreedTerm\UI\GetAgreement;
+use App\Actions\Procurement\SupplierAgreedTerm\UI\IndexSupplierAgreedTerms;
+use App\Http\Resources\Procurement\ProcurementNoteResource;
+use App\Http\Resources\Procurement\SupplierAgreedTermResource;
 use App\Actions\InertiaAction;
 use App\Actions\SupplyChain\Agent\UI\ShowAgent;
 use App\Actions\SupplyChain\Supplier\UI\ShowSupplier;
@@ -39,6 +44,8 @@ class ShowSupplierProduct extends InertiaAction
     {
         return [
             SupplierProductTabsEnum::SHOWCASE->value,
+            SupplierProductTabsEnum::AGREED_TERMS->value,
+            SupplierProductTabsEnum::NOTES->value,
             SupplierProductTabsEnum::HISTORY->value,
         ];
     }
@@ -90,8 +97,8 @@ class ShowSupplierProduct extends InertiaAction
                     'next'     => $this->getNext($supplierProduct, $request),
                 ],
                 'pageHead'    => [
-                    'title' => $supplierProduct->name,
-                    'model' => __('Supplier Product'),
+                    'title'      => $supplierProduct->code,
+                    'afterTitle' => ['label' => $supplierProduct->name],
                     'icon'  => [
                         'icon'  => ['fal', 'box-usd'],
                         'title' => __('Supplier Product'),
@@ -117,11 +124,23 @@ class ShowSupplierProduct extends InertiaAction
                     fn () => GetSupplierProductShowcase::run($supplierProduct)
                     : Inertia::optional(fn () => GetSupplierProductShowcase::run($supplierProduct)),
 
+                'agreement' => GetAgreement::run($supplierProduct, null, $request->user()),
+
+                SupplierProductTabsEnum::AGREED_TERMS->value => $this->tab == SupplierProductTabsEnum::AGREED_TERMS->value ?
+                    fn () => SupplierAgreedTermResource::collection(IndexSupplierAgreedTerms::run($supplierProduct, SupplierProductTabsEnum::AGREED_TERMS->value, null, false))
+                    : Inertia::optional(fn () => SupplierAgreedTermResource::collection(IndexSupplierAgreedTerms::run($supplierProduct, SupplierProductTabsEnum::AGREED_TERMS->value, null, false))),
+
+                SupplierProductTabsEnum::NOTES->value => $this->tab == SupplierProductTabsEnum::NOTES->value ?
+                    fn () => ProcurementNoteResource::collection(IndexProcurementNotes::run($supplierProduct, SupplierProductTabsEnum::NOTES->value, null, false))
+                    : Inertia::optional(fn () => ProcurementNoteResource::collection(IndexProcurementNotes::run($supplierProduct, SupplierProductTabsEnum::NOTES->value, null, false))),
+
                 SupplierProductTabsEnum::HISTORY->value => $this->tab == SupplierProductTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($supplierProduct, SupplierProductTabsEnum::HISTORY->value))
                     : Inertia::optional(fn () => HistoryResource::collection(IndexHistory::run($supplierProduct, SupplierProductTabsEnum::HISTORY->value))),
             ]
-        )->table(IndexHistory::make()->tableStructure(prefix: SupplierProductTabsEnum::HISTORY->value));
+        )->table(IndexSupplierAgreedTerms::make()->tableStructure(prefix: SupplierProductTabsEnum::AGREED_TERMS->value))
+            ->table(IndexProcurementNotes::make()->tableStructure(prefix: SupplierProductTabsEnum::NOTES->value))
+            ->table(IndexHistory::make()->tableStructure(prefix: SupplierProductTabsEnum::HISTORY->value));
     }
 
     public function jsonResponse(SupplierProduct $supplierProduct): SupplierProductResource

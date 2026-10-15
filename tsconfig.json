@@ -10,6 +10,7 @@
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
         "noEmit": true,
+        "allowImportingTsExtensions": true,
         "skipLibCheck": true,
         "paths": {
             "@/*": ["./resources/js/*"],

@@ -31,6 +31,7 @@ use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SupplyChain\Supplier\UpdateSupplier;
 use App\Actions\Procurement\OrgSupplierProducts\UI\GetOrgSupplierProductShowcase;
 use App\Actions\SupplyChain\SupplierProduct\StoreSupplierProduct;
+use App\Actions\SupplyChain\SupplierProduct\UpdateSupplierProduct;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\SysAdmin\GetSectionRoute;
@@ -141,7 +142,7 @@ test('agent org admin can log in with aurora legacy password', function (Agent $
     expect($user->auth_type)->toBe(UserAuthTypeEnum::DEFAULT)
         ->and($user->legacy_password)->toBeNull()
         ->and(Hash::check('aurora-password', $user->password))->toBeTrue()
-        ->and(array_keys(GetOrganisationsLayout::run($user)[$organisation->slug]))->toBe(['agent_suppliers', 'agent_products', 'agent_sales', 'agent_purchase_orders', 'agent_containers', 'agent_accounting', 'hr', 'agent_settings'])
+        ->and(array_keys(GetOrganisationsLayout::run($user)[$organisation->slug]))->toBe(['agent_suppliers', 'agent_products', 'agent_sales', 'agent_purchase_orders', 'agent_warehouse', 'agent_containers', 'agent_accounting', 'hr', 'agent_settings'])
         ->and($user->hasGroupAccess())->toBeFalse()
         ->and(array_keys(GetGroupNavigation::run($user)))->toBe(['tickets']);
 
@@ -173,7 +174,7 @@ test('update agent', function (Agent $agent) {
         'delivery_time' => 45,
         'payment_terms' => '50% upfront',
         'image'         => \Illuminate\Http\UploadedFile::fake()->image('agent.jpg', 200, 200),
-        'journey_days_production' => 40,
+        'journey_days_ready' => 40,
     ];
     $updatedAgent = UpdateAgent::make()->action(
         agent: $agent,
@@ -185,7 +186,7 @@ test('update agent', function (Agent $agent) {
         ->and(Arr::get($updatedAgent->data, 'delivery_type'))->toBe('parcel')
         ->and(Arr::get($updatedAgent->data, 'delivery_time'))->toBe(45)
         ->and(Arr::get($updatedAgent->settings, 'payment_terms'))->toBe('50% upfront')
-        ->and(Arr::get($updatedAgent->settings, 'journey_stage_days.production'))->toBe(40)
+        ->and(Arr::get($updatedAgent->settings, 'journey_stage_days.ready'))->toBe(40)
         ->and($updatedAgent->image_id)->not->toBeNull();
 
     return $updatedAgent;
@@ -282,6 +283,26 @@ test('create supplier product independent supplier', function ($supplier) {
 
     return $supplierProduct;
 })->depends('create independent supplier');
+
+test('a supplier product saved in another currency takes its supplier currency back', function (SupplierProduct $supplierProduct) {
+    $otherCurrency = Currency::where('id', '!=', $supplierProduct->supplier->currency_id)->firstOrFail();
+    $supplierProduct->updateQuietly(['currency_id' => $otherCurrency->id]);
+
+    $supplierProduct = UpdateSupplierProduct::make()->action($supplierProduct, ['cost' => 12.5]);
+
+    expect($supplierProduct->currency_id)->toBe($supplierProduct->supplier->currency_id);
+})->depends('create supplier product independent supplier');
+
+test('the minimum order is saved where purchase orders read it, and an emptied minimum is cleared', function (SupplierProduct $supplierProduct) {
+    $supplierProduct = UpdateSupplierProduct::make()->action($supplierProduct, ['minimum_carton_order' => 40]);
+
+    expect($supplierProduct->refresh()->minimum_carton_order)->toBe(40)
+        ->and($supplierProduct->data)->not->toHaveKey('minimum_carton_order');
+
+    $supplierProduct = UpdateSupplierProduct::make()->action($supplierProduct, ['minimum_carton_order' => null]);
+
+    expect($supplierProduct->refresh()->minimum_carton_order)->toBeNull();
+})->depends('create supplier product independent supplier');
 
 test('create supplier product independent supplier 2', function ($supplier) {
     $supplierProductData = SupplierProduct::factory()->definition();
@@ -1262,21 +1283,22 @@ test('UI supply chain PO journey', function (Supplier $supplier) {
                 ->has('quickStats')
                 ->where('active.journey', 'supplier')
                 ->where('ribbons', fn ($ribbons) => collect($ribbons)->contains(
-                    fn ($ribbon) => $ribbon['reference'] === $purchaseOrder->reference && $ribbon['current_stage'] === 'po_created'
+                    fn ($ribbon) => $ribbon['reference'] === $purchaseOrder->reference && $ribbon['current_stage'] === 'submitted'
                 ))));
 
+    $purchaseOrder->updateQuietly(['state' => \App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum::SUBMITTED, 'submitted_at' => now()]);
     $this->patch(route('grp.models.purchase-order.journey_stage', ['purchaseOrder' => $purchaseOrder->id]), [
-        'stage' => 'production',
+        'stage' => 'deposit_paid',
         'date'  => now()->toDateString(),
-    ])->assertRedirect();
+    ])->assertRedirect()->assertSessionHasNoErrors();
 
-    expect($purchaseOrder->fresh()->produced_at)->not->toBeNull();
+    expect($purchaseOrder->fresh()->deposit_paid_at)->not->toBeNull();
 
     $this->get(route('grp.supply-chain.dashboard', ['search' => $purchaseOrder->reference]))
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->loadDeferredProps('journey', fn (AssertableInertia $reload) => $reload
                 ->where('ribbons.0.reference', $purchaseOrder->reference)
-                ->where('ribbons.0.segments', fn ($segments) => collect($segments)->firstWhere('key', 'production')['state'] === 'done')));
+                ->where('ribbons.0.segments', fn ($segments) => collect($segments)->firstWhere('key', 'deposit_paid')['state'] === 'done')));
 
     $partial = $this->withHeaders([
         'X-Inertia'                   => 'true',
@@ -1588,6 +1610,7 @@ test('UI show agent', function () {
     $response->assertInertia(function (AssertableInertia $page) use ($agent) {
         $page
             ->component('SupplyChain/Agent')
+            ->where('suspended_alert', fn ($alert) => $agent->status ? $alert === null : $alert['title'] === __('Suspended agent'))
             ->has('title')
             ->has('breadcrumbs', 3)
             ->has(
@@ -2024,4 +2047,29 @@ test('v7 supplier product upload keeps the GPSR and EUDR answers, shares one pac
             ->where('declarations.0.signed_by', 'Sandya Rai')
             ->where('declarations.0.answers.1.is_yes', false)
             ->etc());
+});
+
+test('the minimum order modal lists the active suppliers of the SKO and saves the supplier minimum for every organisation', function () {
+    $link = App\Models\Inventory\OrgStockHasOrgSupplierProduct::query()
+        ->join('org_supplier_products', 'org_supplier_products.id', 'org_stock_has_org_supplier_products.org_supplier_product_id')
+        ->where('org_supplier_products.state', 'active')
+        ->select('org_stock_has_org_supplier_products.*')
+        ->firstOrFail();
+    $orgSupplierProduct = App\Models\Procurement\OrgSupplierProduct::findOrFail($link->org_supplier_product_id);
+    $sameSkoIds         = App\Models\Inventory\OrgStockHasOrgSupplierProduct::where('org_stock_id', $link->org_stock_id)->pluck('org_supplier_product_id')->all();
+
+    $this->patchJson(route('grp.models.org_supplier_product.minimum_carton_order.update', ['orgSupplierProduct' => $orgSupplierProduct->id]), ['minimum_carton_order' => 7])->assertOk();
+
+    expect($orgSupplierProduct->supplierProduct->refresh()->minimum_carton_order)->toBe(7);
+
+    $rows = $this->getJson(route('grp.json.org_supplier_product.minimum_orders', ['orgSupplierProduct' => $orgSupplierProduct->id]))->assertOk()->json();
+
+    expect($rows[0]['id'])->toBe($orgSupplierProduct->id)
+        ->and($rows[0]['minimum_carton_order'])->toBe(7)
+        ->and(array_diff(array_column($rows, 'id'), $sameSkoIds))->toBe([]);
+
+    $this->patchJson(route('grp.models.org_supplier_product.minimum_carton_order.update', ['orgSupplierProduct' => $orgSupplierProduct->id]), ['minimum_carton_order' => 0])->assertUnprocessable();
+    $this->patchJson(route('grp.models.org_supplier_product.minimum_carton_order.update', ['orgSupplierProduct' => $orgSupplierProduct->id]), ['minimum_carton_order' => null])->assertOk();
+
+    expect($orgSupplierProduct->supplierProduct->refresh()->minimum_carton_order)->toBeNull();
 });

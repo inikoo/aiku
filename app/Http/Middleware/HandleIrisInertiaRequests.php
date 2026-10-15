@@ -98,6 +98,7 @@ class HandleIrisInertiaRequests extends Middleware
             'website_dialogs' => $website ? GetIrisWebsiteDialogs::run($website) : [],
             'show_contact_options_panel' => Arr::get($website?->settings ?? [], 'view_contact_options_panel', false),
             'contact_options_panel'      => Arr::get($website?->settings ?? [], 'data_contact_options_panel', []),
+            'canonical_url' => $this->canonicalUrl($request),
             'phpComponent'  => app()->environment('local') ? str_replace('\\', '/', $request->route()->getActionName()) : null,
         ];
 
@@ -122,5 +123,17 @@ class HandleIrisInertiaRequests extends Middleware
     public function getAnnouncementsCacheTtl(Website $website): int
     {
         return GetIrisAnnouncements::make()->getCacheTtl($website);
+    }
+
+    public function canonicalUrl(Request $request): string
+    {
+        parse_str((string) $request->server('QUERY_STRING'), $queryString);
+
+        $paginationQuery = Arr::where(
+            $queryString,
+            fn ($value, $key) => is_string($value) && ($key === 'page' || str_ends_with($key, 'Page')) && ctype_digit($value) && (int) $value > 1
+        );
+
+        return $request->url().($paginationQuery ? '?'.http_build_query($paginationQuery) : '');
     }
 }

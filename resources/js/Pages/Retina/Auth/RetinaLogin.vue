@@ -28,7 +28,7 @@ defineProps<{
 const form = useForm({
     username: '',
     password: '',
-    remember: false,
+    remember: true,
 })
 const layout = inject('layout', retinaLayoutStructure)
 const isOpenMenuMobile = ref(false)

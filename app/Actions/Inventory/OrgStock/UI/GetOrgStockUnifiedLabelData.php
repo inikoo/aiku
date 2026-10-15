@@ -175,6 +175,23 @@ class GetOrgStockUnifiedLabelData
     }
 
     /**
+     * @return array<string, string> the blocker for each mandatory language the name is missing in
+     */
+    public function getMissingNameBlockers(TradeUnit $tradeUnit): array
+    {
+        $names    = $this->getNames($tradeUnit);
+        $blockers = [];
+
+        foreach (self::MANDATORY_LANGUAGES as $language) {
+            if (!isset($names[$language])) {
+                $blockers[$language] = __('The name in :language is missing', ['language' => strtoupper($language)]);
+            }
+        }
+
+        return $blockers;
+    }
+
+    /**
      * @return array<string, string>
      */
     private function getNames(?TradeUnit $tradeUnit): array
@@ -309,10 +326,8 @@ class GetOrgStockUnifiedLabelData
             $blockers[] = __('More than four pack sizes share the unit barcode :barcode', ['barcode' => $label['unit_ean13']]);
         }
 
-        foreach (self::MANDATORY_LANGUAGES as $language) {
-            if ($tradeUnit && !isset($label['names'][$language])) {
-                $blockers[] = __('The name in :language is missing', ['language' => strtoupper($language)]);
-            }
+        if ($tradeUnit) {
+            $blockers = array_merge($blockers, array_values($this->getMissingNameBlockers($tradeUnit)));
         }
 
         if (blank($label['batch'])) {

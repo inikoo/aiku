@@ -57,10 +57,16 @@ class ReceiveJobOrderIntoStock extends OrgAction
         $userId      = $modelData['user_id'] ?? $this->request?->user()?->id;
 
         DB::transaction(function () use ($jobOrder, $location, $allocations, $userId) {
-            $lockedState = JobOrder::lockForUpdate()->find($jobOrder->id)->state;
-            if ($lockedState != JobOrderStateEnum::CONFIRMED) {
+            $lockedJobOrder = JobOrder::lockForUpdate()->find($jobOrder->id);
+            if ($lockedJobOrder->state != JobOrderStateEnum::CONFIRMED) {
                 throw ValidationException::withMessages([
                     'state' => __('Only a confirmed job order can be received into stock'),
+                ]);
+            }
+
+            if ($hold = Arr::get($lockedJobOrder->data, 'hold')) {
+                throw ValidationException::withMessages([
+                    'location_id' => __('On hold: :reason. Clear the hold before receiving.', ['reason' => $hold['reason']]),
                 ]);
             }
 

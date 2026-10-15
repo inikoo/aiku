@@ -32,6 +32,7 @@ const props = defineProps<{
             pack_size?: number | null
             unit?: string | null
             kg_per_unit?: number | null
+            mix_batch_kg?: number | null
             continued_from?: string | null
         }
         carry?: null | { reference: string, units_per_artefact: number, quantity: number }
@@ -61,6 +62,12 @@ const quantityRejected = ref(0)
 const packSize = computed(() => props.session.task.pack_size ?? null)
 const unit = computed(() => props.session.task.unit ?? null)
 const kgInUnits = computed(() => unit.value && props.session.task.kg_per_unit && quantityMade.value !== null ? Math.floor(quantityMade.value / props.session.task.kg_per_unit + 1e-6).toLocaleString() : null)
+const mixBatch = computed(() => props.session.task.mix_batch_kg ?? null)
+const remainingBatches = computed(() => mixBatch.value ? Math.ceil(remaining.value / mixBatch.value - 1e-9) : null)
+const batchesMade = computed({
+    get: () => quantityMade.value === null || !mixBatch.value ? null : quantityMade.value / mixBatch.value,
+    set: (batches: number | string | null) => quantityMade.value = batches === null || batches === '' ? null : Math.max(0, Math.floor(Number(batches))) * (mixBatch.value ?? 1),
+})
 const inPieces = (packs: number) => Math.round(packs * (packSize.value ?? 1)).toLocaleString()
 const notWholePacks = computed(() => packSize.value !== null && quantityMade.value !== null && !Number.isInteger(quantityMade.value) && quantityMade.value !== remaining.value)
 
@@ -263,9 +270,10 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
                     type="button"
                     class="mt-3 rounded-lg border-2 border-dashed border-[--app-accent-muted] px-4 py-2 text-left hover:bg-[--app-accent-soft]"
                     :title="ctrans('Tap to fill quantity made')"
-                    @click="quantityMade = remaining"
+                    @click="quantityMade = remainingBatches !== null && mixBatch ? remainingBatches * mixBatch : remaining"
                 >
-                    <span class="text-7xl font-semibold tabular-nums text-[--app-accent-strong]">{{ remaining }}</span>
+                    <span v-if="remainingBatches !== null" class="text-7xl font-semibold tabular-nums text-[--app-accent-strong]">{{ ctrans(':batches × :size kg', { batches: remainingBatches, size: mixBatch ?? 0 }) }}</span>
+                    <span v-else class="text-7xl font-semibold tabular-nums text-[--app-accent-strong]">{{ remaining }}</span>
                     <span class="ml-3 text-xl text-gray-500"><template v-if="unit">{{ unit }} </template>{{ ctrans('to do') }} · {{ session.task.quantity_made }} / {{ session.task.quantity_required }}</span>
                 </button>
                 <div v-if="packSize" class="mt-2 text-2xl font-semibold text-amber-700">
@@ -303,8 +311,15 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
 
         <div v-else-if="!askOutcome" class="mt-6 flex items-end gap-4">
             <div>
-                <label class="block text-lg text-gray-600 mb-1">{{ packSize ? ctrans('Packs of :size made', { size: packSize }) : unit ? ctrans('Kg made') : ctrans('Quantity made') }}</label>
+                <label class="block text-lg text-gray-600 mb-1">{{ mixBatch ? ctrans('Batches of :size kg made', { size: mixBatch }) : packSize ? ctrans('Packs of :size made', { size: packSize }) : unit ? ctrans('Kg made') : ctrans('Quantity made') }}</label>
                 <input
+                    v-if="mixBatch"
+                    type="number" min="0" inputmode="numeric" step="1"
+                    v-model.number="batchesMade"
+                    class="w-52 rounded-lg border-gray-300 text-5xl text-center py-4 tabular-nums"
+                />
+                <input
+                    v-else
                     type="number" min="0" inputmode="numeric" :step="packSize ? 1 : 'any'"
                     v-model.number="quantityMade"
                     class="w-52 rounded-lg border-gray-300 text-5xl text-center py-4 tabular-nums"

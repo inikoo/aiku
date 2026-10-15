@@ -60,6 +60,13 @@ class StoreRefund extends OrgAction
         data_set($modelData, 'customer_id', $invoice->customer_id);
         data_set($modelData, 'currency_id', $invoice->currency_id);
         data_set($modelData, 'tax_category_id', $invoice->tax_category_id);
+        data_set($modelData, 'tax_number', $invoice->tax_number);
+        data_set($modelData, 'tax_number_status', $invoice->getRawOriginal('tax_number_status'));
+        data_set($modelData, 'tax_number_valid', $invoice->tax_number_valid);
+        data_set($modelData, 'identity_document_type', $invoice->identity_document_type);
+        data_set($modelData, 'identity_document_number', $invoice->identity_document_number);
+        data_set($modelData, 'identity_document_number_alt', $invoice->identity_document_number_alt);
+        data_set($modelData, 'fiscal_name', $invoice->fiscal_name);
 
         data_set($modelData, 'uuid', Str::uuid());
         data_set($modelData, 'invoice_category_id', $invoice->invoice_category_id);

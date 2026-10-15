@@ -7,6 +7,8 @@
 
 namespace App\Actions\Comms\DispatchedEmail;
 
+use App\Actions\Comms\EmailBulkRun\Hydrators\EmailBulkRunHydrateDispatchedEmails;
+use App\Actions\Comms\Mailshot\Hydrators\MailshotHydrateDispatchedEmails;
 use App\Models\Comms\EmailBulkRunStats;
 use App\Models\Comms\MailshotStats;
 use App\Models\Comms\OutboxStats;
@@ -143,15 +145,24 @@ class ArchiveDispatchedEmails
             }
             $this->copyReferencedEmailAddresses($dispatchedEmailIds);
 
-            DB::transaction(function () use ($dispatchedEmailIds, $children) {
-                $this->bankStatsBaselines($dispatchedEmailIds);
+            [$mailshotIds, $emailBulkRunIds] = DB::transaction(function () use ($dispatchedEmailIds, $children) {
+                $bankedIds = $this->bankStatsBaselines($dispatchedEmailIds);
                 foreach ($children as $child) {
                     if (!$child->cascades) {
                         DB::table($child->table)->whereIn($child->fk, $dispatchedEmailIds)->delete();
                     }
                 }
                 DB::table('dispatched_emails')->whereIn('id', $dispatchedEmailIds)->delete();
+
+                return $bankedIds;
             });
+
+            foreach ($mailshotIds as $mailshotId) {
+                MailshotHydrateDispatchedEmails::dispatch($mailshotId);
+            }
+            foreach ($emailBulkRunIds as $emailBulkRunId) {
+                EmailBulkRunHydrateDispatchedEmails::dispatch($emailBulkRunId);
+            }
 
             $archivedTotal += count($dispatchedEmailIds);
             $progress?->setMessage(Carbon::parse($lastCreatedAt)->format('M Y'));
@@ -250,8 +261,10 @@ class ArchiveDispatchedEmails
      * The counters these baselines feed are recounted from scratch by the hydrators, so the archived
      * figures must be banked in the same transaction as the delete or the first hydration after
      * archiving silently rewrites history (see WithArchivedDispatchedEmails).
+     *
+     * @return array{0: array<int, int>, 1: array<int, int>} ids of the mailshots and of the email bulk runs whose baseline changed
      */
-    private function bankStatsBaselines(array $dispatchedEmailIds): void
+    private function bankStatsBaselines(array $dispatchedEmailIds): array
     {
         $outboxIncrements = [];
         $outboxRows       = DB::table('dispatched_emails')
@@ -321,6 +334,8 @@ class ArchiveDispatchedEmails
         $this->applyIncrements(OutboxStats::class, 'outbox_id', $outboxIncrements);
         $this->applyIncrements(MailshotStats::class, 'mailshot_id', $mailshotIncrements);
         $this->applyIncrements(EmailBulkRunStats::class, 'email_bulk_run_id', $bulkRunIncrements);
+
+        return [array_keys($mailshotIncrements), array_keys($bulkRunIncrements)];
     }
 
     /**

@@ -14,7 +14,10 @@ use App\Models\SupplyChain\SupplierInvoice;
 use App\Models\SupplyChain\SupplierPayment;
 use App\Models\Procurement\PurchaseOrder;
 use App\Actions\SupplyChain\AgentInvoice\ApproveAgentInvoiceCharges;
+use App\Actions\Procurement\SupplierAgreedTerm\CheckAgainstAgreedTerms;
+use App\Actions\Procurement\SupplierAgreedTerm\UI\GetAgreement;
 use App\Actions\GoodsIn\StockDelivery\AddPurchaseOrdersToStockDelivery;
+use App\Actions\GoodsIn\StockDelivery\DispatchStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\CancelStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\RemovePurchaseOrderFromStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\DistributeStockDeliveryExtraCost;
@@ -189,10 +192,18 @@ class ShowStockDelivery extends OrgAction
 
     public function htmlResponse(StockDelivery $stockDelivery, ActionRequest $request): Response
     {
-        $editRoute = $this->canEdit && !$this->goodsIn && $stockDelivery->organisation_id === $this->organisation->id && !$stockDelivery->isManagedByPartner() ? [
-            'name'       => 'grp.org.procurement.stock_deliveries.edit',
-            'parameters' => [$this->organisation->slug, $stockDelivery->slug],
-        ] : null;
+        $editRoute = match (true) {
+            !$this->canEdit || $this->goodsIn || $stockDelivery->isManagedByPartner() => null,
+            $this->viewedByAgent => [
+                'name'       => 'grp.org.agent.stock_deliveries.edit',
+                'parameters' => [$this->organisation->slug, $stockDelivery->slug],
+            ],
+            $stockDelivery->organisation_id === $this->organisation->id => [
+                'name'       => 'grp.org.procurement.stock_deliveries.edit',
+                'parameters' => [$this->organisation->slug, $stockDelivery->slug],
+            ],
+            default => null,
+        };
 
         return Inertia::render(
             'Procurement/StockDelivery',
@@ -223,11 +234,13 @@ class ShowStockDelivery extends OrgAction
                     'navigation' => $this->getTabsNavigation($stockDelivery),
                 ],
                 'costing'          => $this->getCosting($stockDelivery),
+                'missing_evidence' => in_array($stockDelivery->state, [StockDeliveryStateEnum::IN_PROCESS, StockDeliveryStateEnum::CONFIRMED, StockDeliveryStateEnum::READY_TO_SHIP]) ? DispatchStockDelivery::missingEvidence($stockDelivery) : [],
                 'add_purchase_orders' => $this->canAddPurchaseOrders ? $this->getAddPurchaseOrders($stockDelivery) : null,
                 'remove_purchase_orders' => $this->canRemovePurchaseOrders ? $this->getRemovePurchaseOrders($stockDelivery) : null,
                 'attachmentScopes' => PurchaseOrderAttachmentScopeEnum::options(),
                 'invoice_costing'  => $this->viewedByAgent ? [] : GetStockDeliveryInvoiceCosting::run($stockDelivery),
                 'service_invoices' => $this->getServiceInvoices($stockDelivery),
+                'agreed_term_differences' => $this->viewedByAgent ? null : CheckAgainstAgreedTerms::make()->forPage($stockDelivery),
                 'agentInvoice'     => $stockDelivery->agent_id && $stockDelivery->agent_id === $this->getOrganisationAgent($this->organisation)?->id
                     ? GetAgentContainerInvoiceData::run($this->organisation, $stockDelivery)
                     : null,
@@ -276,8 +289,10 @@ class ShowStockDelivery extends OrgAction
                     : Inertia::optional(fn () => AttachmentsResource::collection(IndexAttachments::run($stockDelivery))),
 
                 StockDeliveryTabsEnum::NOTES->value => $this->tab == StockDeliveryTabsEnum::NOTES->value ?
-                    fn () => ProcurementNoteResource::collection(IndexProcurementNotes::run($stockDelivery, StockDeliveryTabsEnum::NOTES->value))
-                    : Inertia::optional(fn () => ProcurementNoteResource::collection(IndexProcurementNotes::run($stockDelivery, StockDeliveryTabsEnum::NOTES->value))),
+                    fn () => ProcurementNoteResource::collection(IndexProcurementNotes::run($stockDelivery, StockDeliveryTabsEnum::NOTES->value, forAgent: $stockDelivery->organisation_id !== $this->organisation->id))
+                    : Inertia::optional(fn () => ProcurementNoteResource::collection(IndexProcurementNotes::run($stockDelivery, StockDeliveryTabsEnum::NOTES->value, forAgent: $stockDelivery->organisation_id !== $this->organisation->id))),
+
+                'note_form' => GetAgreement::make()->noteForm($request->user(), $stockDelivery->group, $stockDelivery->organisation_id !== $this->organisation->id),
 
                 'note_store_route' => [
                     'name'       => 'grp.models.stock-delivery.note.store',
@@ -613,12 +628,10 @@ class ShowStockDelivery extends OrgAction
 
     private function getAllowedActions(StockDelivery $stockDelivery): array
     {
-        if ($this->canEdit) {
-            return $this->getActions($stockDelivery);
-        }
-
         if ($this->viewedByAgent) {
-            $allowedKeys = ['action'];
+            $allowedKeys = $this->canEdit ? ['dispatch_stock_delivery', 'action'] : ['action'];
+        } elseif ($this->canEdit) {
+            return $this->getActions($stockDelivery);
         } elseif (!$this->canBookIn || $stockDelivery->organisation_id !== $this->organisation->id) {
             return [];
         } else {
@@ -668,6 +681,7 @@ class ShowStockDelivery extends OrgAction
                     'delivery_address' => Arr::get($stockDelivery->data, 'delivery_address'),
                     'shipper_reference' => Arr::get($stockDelivery->data, 'shipper_reference'),
                     'tracking_number'   => Arr::get($stockDelivery->data, 'tracking_number'),
+                    'container_number'  => Arr::get($stockDelivery->data, 'container_number'),
                     'shipping_agent'    => Arr::get($stockDelivery->data, 'shipping_agent'),
                 ],
             ],
@@ -779,23 +793,30 @@ class ShowStockDelivery extends OrgAction
 
     /**
      * A purchase order's deposit is taken off the invoice of its first delivery only, so an order that arrives
-     * in several deliveries does not have it counted twice.
+     * in several deliveries does not have it counted twice. What counts is what was paid of it, instalment by
+     * instalment; an order paid before instalments were recorded counts its whole deposit.
      *
      * @return array<string, mixed>
      */
     private function getSupplierPayments(StockDelivery $stockDelivery, SupplierInvoice $invoice): array
     {
         $deposits = $stockDelivery->purchaseOrders()
-            ->whereNotNull('deposit_paid_at')
-            ->where('deposit_amount', '>', 0)
+            ->where(fn ($query) => $query->whereHas('depositPayments')->orWhere(fn ($query) => $query->whereNotNull('deposit_paid_at')->where('deposit_amount', '>', 0)))
             ->where('purchase_orders.currency_id', $invoice->currency_id)
+            ->with('depositPayments')
             ->get()
             ->filter(fn (PurchaseOrder $purchaseOrder) => $purchaseOrder->stockDeliveries()->min('stock_deliveries.id') === $stockDelivery->id)
-            ->map(fn (PurchaseOrder $purchaseOrder) => [
-                'reference' => $purchaseOrder->reference,
-                'date'      => $purchaseOrder->deposit_paid_at->toDateString(),
-                'amount'    => (float) $purchaseOrder->deposit_amount,
-            ])->values();
+            ->map(fn (PurchaseOrder $purchaseOrder) => $purchaseOrder->depositPayments->isNotEmpty()
+                ? [
+                    'reference' => $purchaseOrder->reference,
+                    'date'      => $purchaseOrder->depositPayments->max('date')->toDateString(),
+                    'amount'    => round((float) $purchaseOrder->depositPayments->sum('amount'), 2),
+                ]
+                : [
+                    'reference' => $purchaseOrder->reference,
+                    'date'      => $purchaseOrder->deposit_paid_at->toDateString(),
+                    'amount'    => (float) $purchaseOrder->deposit_amount,
+                ])->values();
 
         $payments = $stockDelivery->supplierPayments()->with('bankStatement:id,ulid')->orderBy('date')->get();
         $paid     = round((float) $deposits->sum('amount') + (float) $payments->sum('amount'), 2);

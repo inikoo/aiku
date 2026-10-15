@@ -17,6 +17,7 @@ use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
 use App\Actions\Traits\Authorisations\WithSupplyChainAuthorisation;
 use App\Http\Resources\SupplyChain\SuppliersResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\Procurement\ProcurementNote;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Group;
@@ -169,6 +170,7 @@ class IndexSuppliers extends OrgAction
                 'supplier_stats.number_purchase_orders',
                 'supplier_stats.number_stock_deliveries',
             ])
+            ->selectSub(ProcurementNote::openIncidentsOfSupplierQuery(), 'open_incidents')
             ->allowedSorts([
                 'code',
                 'name',

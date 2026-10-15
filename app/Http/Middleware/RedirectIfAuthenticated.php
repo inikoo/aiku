@@ -8,6 +8,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Actions\Traits\WithRetinaAuthRedirect;
 use App\Providers\RouteServiceProvider;
 use Closure;
 use Illuminate\Http\Request;
@@ -15,6 +16,8 @@ use Illuminate\Support\Facades\Auth;
 
 class RedirectIfAuthenticated
 {
+    use WithRetinaAuthRedirect;
+
     public function handle(Request $request, Closure $next, ...$guards)
     {
 
@@ -24,7 +27,7 @@ class RedirectIfAuthenticated
 
             if (Auth::guard($guard)->check()) {
                 if ($guard == 'retina') {
-                    $redirectTo = $request->query('ref') ?? '/app/dashboard';
+                    $redirectTo = $this->getRetinaRefUrl($request->input('website'), $request->query('ref')) ?? '/app/dashboard';
                 } else {
                     $redirectTo = RouteServiceProvider::HOME;
                 }

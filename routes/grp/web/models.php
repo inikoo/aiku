@@ -149,6 +149,17 @@ use App\Actions\CRM\CustomerNote\StoreCustomerNote;
 use App\Actions\Ordering\UpcomingTransaction\DeleteUpcomingTransaction;
 use App\Actions\Ordering\UpcomingTransaction\StoreUpcomingTransaction;
 use App\Actions\Ordering\UpcomingTransaction\UpdateUpcomingTransaction;
+use App\Actions\CRM\Appointment\AcceptAppointment;
+use App\Actions\CRM\Appointment\DeclineAppointment;
+use App\Actions\CRM\Appointment\RescheduleAppointment;
+use App\Actions\CRM\Appointment\StoreAppointment;
+use App\Actions\CRM\Appointment\UpdateAppointment;
+use App\Actions\CRM\AppointmentStaff\DeleteAppointmentStaff;
+use App\Actions\CRM\AppointmentStaff\StoreAppointmentStaff;
+use App\Actions\CRM\AppointmentStaff\UpdateAppointmentStaff;
+use App\Actions\CRM\AppointmentType\DeleteAppointmentType;
+use App\Actions\CRM\AppointmentType\StoreAppointmentType;
+use App\Actions\CRM\AppointmentType\UpdateAppointmentType;
 use App\Actions\CRM\Poll\DeletePoll;
 use App\Actions\CRM\Poll\StorePoll;
 use App\Actions\CRM\Poll\UpdatePoll;
@@ -471,6 +482,8 @@ use App\Actions\Procurement\OrgAgent\UpdateOrgAgent;
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplier;
 use App\Actions\Procurement\OrgSupplier\UpdateOrgSupplier;
 use App\Actions\Procurement\OrgSupplierProducts\UpdateOrgSupplierProduct;
+use App\Actions\Procurement\OrgSupplierProducts\UpdateOrgSupplierProductMinimumCartonOrder;
+use App\Actions\Procurement\PurchaseOrder\PokeOrganisationsForMinimumOrder;
 use App\Actions\Procurement\OrgSupplierProducts\UpdateOrgSupplierProductAgentDetails;
 use App\Actions\Procurement\OrgSupplierProducts\UpdateOrgSupplierProductCartonBarcode;
 use App\Actions\Procurement\OrgSupplierProducts\UpdateOrgSupplierProductCartonWeights;
@@ -478,13 +491,18 @@ use App\Actions\Procurement\PurchaseOrder\ConfirmPurchaseOrderPayment;
 use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrderTransaction;
 use App\Actions\Procurement\PurchaseOrder\ImportPurchaseOrderTransactions;
-use App\Actions\Procurement\PurchaseOrder\SetPurchaseOrderDeposit;
 use App\Actions\Procurement\PurchaseOrder\UndoPurchaseOrderPayment;
 use App\Actions\Procurement\PurchaseOrder\RevertPurchaseOrderToSubmitted;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\ProcurementNote\StoreProcurementNote;
+use App\Actions\Procurement\ProcurementNote\UpdateProcurementNote;
+use App\Actions\Procurement\SupplierAgreedTerm\AcceptAgreedTermDifferences;
+use App\Actions\Procurement\SupplierAgreedTerm\StoreSupplierAgreedTerm;
+use App\Actions\Procurement\SupplierAgreedTerm\WithdrawSupplierAgreedTerm;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderJourneyStage;
+use App\Actions\Procurement\PurchaseOrder\MarkPurchaseOrderStage;
+use App\Actions\Procurement\PurchaseOrder\AttachPurchaseOrderComplianceDocument;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToCancelled;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToConfirmed;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToInProcess;
@@ -527,6 +545,7 @@ use App\Actions\Production\Artefact\UpdateArtefactComplianceItem;
 use App\Actions\Production\ArtefactDepartment\StoreArtefactDepartment;
 use App\Actions\Production\ArtefactDepartment\UpdateArtefactDepartment;
 use App\Actions\Production\JobOrder\ConfirmJobOrder;
+use App\Actions\Production\JobOrder\HoldJobOrder;
 use App\Actions\Production\JobOrder\ReceiveJobOrderIntoStock;
 use App\Actions\Production\JobOrder\StoreJobOrder;
 use App\Actions\Production\JobOrderItem\StoreJobOrderItem;
@@ -1272,6 +1291,11 @@ Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
     Route::post('prospect/mailshot', StoreProspectMailshot::class)->name('prospect.mailshot.store');
     Route::post('prospect/mailshot/{mailshot:id}/send', SendProspectMailShot::class)->name('prospect.mailshot.send')->withoutScopedBindings();
     Route::post('prospect', StoreProspect::class)->name('prospect.store');
+    Route::post('appointment', StoreAppointment::class)->name('appointment.store');
+    Route::post('appointment-type', StoreAppointmentType::class)->name('appointment_type.store');
+    Route::post('appointment-staff', StoreAppointmentStaff::class)->name('appointment_staff.store');
+    Route::patch('appointment-staff/{user:id}', UpdateAppointmentStaff::class)->name('appointment_staff.update')->withoutScopedBindings();
+    Route::delete('appointment-staff/{user:id}', DeleteAppointmentStaff::class)->name('appointment_staff.delete')->withoutScopedBindings();
     Route::post('website', StoreWebsite::class)->name('website.store');
 
     Route::name('sender_email.')->prefix('sender-email')->group(function () {
@@ -1544,6 +1568,8 @@ Route::post('/supplier', StoreSupplier::class)->name('supplier.store');
 Route::patch('/supplier/{supplier:id}', UpdateSupplier::class)->name('supplier.update');
 Route::patch('/supplier-product/{supplierProduct:id}', UpdateSupplierProduct::class)->name('supplier-product.update');
 Route::patch('/org-supplier-product/{orgSupplierProduct:id}', UpdateOrgSupplierProduct::class)->name('org_supplier_product.update');
+Route::patch('/org-supplier-product/{orgSupplierProduct:id}/minimum-carton-order', UpdateOrgSupplierProductMinimumCartonOrder::class)->name('org_supplier_product.minimum_carton_order.update');
+Route::post('/org-supplier-product/{orgSupplierProduct:id}/minimum-poke', PokeOrganisationsForMinimumOrder::class)->name('org_supplier_product.minimum_poke');
 Route::post('/supplier-product/{supplierProduct:id}/upload-images', UploadImagesToSupplierProduct::class)->name('supplier-product.upload_images');
 Route::delete('/supplier-product/{supplierProduct:id}/detach-image/{media:id}', DeleteImageFromSupplierProduct::class)->name('supplier-product.detach_image')->withoutScopedBindings();
 Route::post('/org-supplier-product/{orgSupplierProduct:id}/upload-images', [UploadImagesToSupplierProduct::class, 'inOrgSupplierProduct'])->name('org_supplier_product.upload_images');
@@ -1589,6 +1615,7 @@ Route::patch('/job-order-item/{jobOrderItem:id}', UpdateJobOrderItem::class)->na
 Route::patch('/job-order-item/{jobOrderItem:id}/split', SplitJobOrderItem::class)->name('job-order-item.split')->withoutScopedBindings();
 Route::patch('/job-order/{jobOrder:id}/confirm', ConfirmJobOrder::class)->name('job-order.confirm')->withoutScopedBindings();
 Route::patch('/job-order/{jobOrder:id}/receive', ReceiveJobOrderIntoStock::class)->name('job-order.receive')->withoutScopedBindings();
+Route::patch('/job-order/{jobOrder:id}/hold', HoldJobOrder::class)->name('job-order.hold')->withoutScopedBindings();
 Route::patch('/manufacture-task-session/{manufactureTaskSession:id}/void', VoidManufactureTaskSession::class)->name('manufacture-task-session.void')->withoutScopedBindings();
 Route::patch('/manufacture-task-session/{manufactureTaskSession:id}/correct', CorrectManufactureTaskSessionQuantity::class)->name('manufacture-task-session.correct')->withoutScopedBindings();
 Route::patch('/manufacture-task-session/{manufactureTaskSession:id}/under-target-review', ReviewUnderTargetManufactureTaskSession::class)->name('manufacture-task-session.under_target_review')->withoutScopedBindings();
@@ -1671,8 +1698,18 @@ Route::name('purchase-order.')->prefix('purchase-order/{purchaseOrder:id}')->gro
 Route::delete('agent-payment/{agentPayment:id}', DeleteAgentPayment::class)->name('agent_payment.delete');
 Route::delete('supplier-payment/{supplierPayment:id}', DeleteSupplierPayment::class)->name('supplier_payment.delete');
 
+Route::post('supplier/{supplier:id}/procurement-note', [StoreProcurementNote::class, 'inSupplier'])->name('supplier.procurement_note.store');
+Route::post('supplier-product/{supplierProduct:id}/procurement-note', [StoreProcurementNote::class, 'inSupplierProduct'])->name('supplier-product.procurement_note.store');
+Route::post('agent/{agent:id}/procurement-note', [StoreProcurementNote::class, 'inAgent'])->name('agent.procurement_note.store');
+Route::patch('procurement-note/{procurementNote:id}', [UpdateProcurementNote::class, 'update'])->name('procurement_note.update');
+Route::post('supplier/{supplier:id}/agreed-term', [StoreSupplierAgreedTerm::class, 'inSupplier'])->name('supplier.agreed_term.store');
+Route::post('supplier-product/{supplierProduct:id}/agreed-term', [StoreSupplierAgreedTerm::class, 'inSupplierProduct'])->name('supplier-product.agreed_term.store');
+Route::post('agent/{agent:id}/agreed-term', [StoreSupplierAgreedTerm::class, 'inAgent'])->name('agent.agreed_term.store');
+Route::patch('supplier-agreed-term/{supplierAgreedTerm:id}/withdraw', [WithdrawSupplierAgreedTerm::class, 'withdraw'])->name('supplier_agreed_term.withdraw');
+
 Route::name('stock-delivery.')->prefix('stock-delivery/{stockDelivery:id}')->group(function () {
     Route::post('note', [StoreProcurementNote::class, 'inStockDelivery'])->name('note.store');
+    Route::post('agreed-terms/accept', [AcceptAgreedTermDifferences::class, 'inStockDelivery'])->name('agreed_terms.accept');
     Route::post('invoice', StoreActualStockDeliveryInvoice::class)->name('invoice.store');
     Route::post('agent-payment', StoreAgentPayment::class)->name('agent_payment.store');
     Route::post('supplier-payment', StoreSupplierPayment::class)->name('supplier_payment.store');
@@ -1751,15 +1788,17 @@ Route::name('org-partner.')->prefix('org-partner/{orgPartner:id}')->group(functi
 Route::name('purchase-order.')->prefix('purchase-order/{purchaseOrder:id}')->group(function () {
     Route::patch('update', UpdatePurchaseOrder::class)->name('update');
     Route::patch('journey-stage', UpdatePurchaseOrderJourneyStage::class)->name('journey_stage');
+    Route::patch('stage', MarkPurchaseOrderStage::class)->name('stage');
+    Route::post('compliance/{tradeUnit:id}', AttachPurchaseOrderComplianceDocument::class)->name('compliance.attach')->withoutScopedBindings();
     Route::post('deposit', StoreAspoDeposit::class)->name('deposit.store');
     Route::post('payment', ConfirmPurchaseOrderPayment::class)->name('payment.confirm');
-    Route::patch('payment/undo', UndoPurchaseOrderPayment::class)->name('payment.undo');
-    Route::patch('payment/deposit', SetPurchaseOrderDeposit::class)->name('payment.deposit');
+    Route::delete('payment/{depositPayment:id}', UndoPurchaseOrderPayment::class)->name('payment.undo');
     Route::delete('', DeletePurchaseOrder::class)->name('delete');
     Route::patch('submit', UpdatePurchaseOrderStateToSubmitted::class)->name('submit');
     Route::patch('ready-to-send', SetPurchaseOrderReadyToSend::class)->name('ready_to_send');
     Route::patch('undo-submit', UpdatePurchaseOrderStateToInProcess::class)->name('undo-submit');
     Route::post('note', [StoreProcurementNote::class, 'inPurchaseOrder'])->name('note.store');
+    Route::post('agreed-terms/accept', [AcceptAgreedTermDifferences::class, 'inPurchaseOrder'])->name('agreed_terms.accept');
     Route::patch('confirm', UpdatePurchaseOrderStateToConfirmed::class)->name('confirm');
     Route::patch('undo-confirm', RevertPurchaseOrderToSubmitted::class)->name('undo-confirm');
     Route::patch('cancel', UpdatePurchaseOrderStateToCancelled::class)->name('cancel');
@@ -1867,6 +1906,18 @@ Route::name('trade-unit.')->prefix('trade-unit/{tradeUnit}')->group(function () 
 Route::delete('access-token/{token:id}', DeleteUserAccessToken::class)->name('access_token.delete');
 
 Route::post('shops/{shop}/poll/store', StorePoll::class)->name('poll.store');
+
+Route::name('appointment.')->prefix('appointment/{appointment:id}')->group(function () {
+    Route::patch('', UpdateAppointment::class)->name('update');
+    Route::patch('accept', AcceptAppointment::class)->name('accept');
+    Route::patch('decline', DeclineAppointment::class)->name('decline');
+    Route::patch('reschedule', RescheduleAppointment::class)->name('reschedule');
+});
+
+Route::name('appointment_type.')->prefix('appointment-type/{appointmentType:id}')->group(function () {
+    Route::patch('', UpdateAppointmentType::class)->name('update');
+    Route::delete('', DeleteAppointmentType::class)->name('delete');
+});
 
 Route::name('poll.')->prefix('poll')->group(function () {
     Route::patch('{poll:id}/update', UpdatePoll::class)->name('update')->withoutScopedBindings();

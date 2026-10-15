@@ -15,6 +15,8 @@ import PageHeading from "@/Components/Headings/PageHeading.vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import Timeline from "@/Components/Utils/Timeline.vue"
 import ProcurementOrderData from "@/Components/Procurement/ProcurementOrderData.vue"
+import AgreementSummary from "@/Components/Procurement/AgreementSummary.vue"
+import AgreedTermDifferences from "@/Components/Procurement/AgreedTermDifferences.vue"
 import OrderSummary from "@/Components/Summary/OrderSummary.vue"
 import AgentOrderingItems from "@/Components/Procurement/AgentOrderingItems.vue"
 import PillFilterBar from "@/Components/Utils/PillFilterBar.vue"
@@ -22,6 +24,7 @@ import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import qs from "qs"
 import TablePurchaseOrderTransactions from "@/Components/Tables/Grp/Org/Procurement/TablePurchaseOrderTransactions.vue"
 import TableProcurementNotes from '@/Components/Tables/Grp/Org/Procurement/TableProcurementNotes.vue'
+import TablePurchaseOrderComplianceDocuments from "@/Components/Tables/Grp/Org/Procurement/TablePurchaseOrderComplianceDocuments.vue"
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue"
 import UploadAttachment from "@/Components/Upload/UploadAttachment.vue"
@@ -41,6 +44,8 @@ import Select from "primevue/select"
 import StaffTaskDialog from "@/Components/Tasks/StaffTaskDialog.vue"
 import AspoDepositsChecklist from "@/Components/Procurement/AspoDepositsChecklist.vue"
 import PurchaseOrderPayments from "@/Components/Procurement/PurchaseOrderPayments.vue"
+import PurchaseOrderDepositPayments, { type PurchaseOrderPaymentsData } from "@/Components/Procurement/PurchaseOrderDepositPayments.vue"
+import PurchaseOrderStages from "@/Components/Procurement/PurchaseOrderStages.vue"
 import ButtonDownloadWithOptions from "@/Components/Utils/ButtonDownloadWithOptions.vue"
 import { useConfirm } from "primevue/useconfirm"
 import { notify } from "@kyvg/vue3-notification"
@@ -52,13 +57,14 @@ import { capitalize } from "@/Composables/capitalize"
 import { useFormatTime } from "@/Composables/useFormatTime"
 
 import { PageHeadingTypes } from "@/types/PageHeading"
+import { Action } from "@/types/Action"
 import { routeType } from "@/types/route"
 import { Timeline as TSTimeline } from "@/types/Timeline"
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import Icon from "@/Components/Icon.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faIdCardAlt, faEnvelope, faPhone, faWeight, faCube, faShoppingCart, faStickyNote, faShip, faBox, faHandHoldingBox, faPaperPlane, faExclamationTriangle, faClipboardList, faPeopleArrows, faCalendarAlt, faDownload, faSearch, faChevronDown, faChevronRight, faTimes, faBan, faThLarge, faList } from "@fal"
+import { faIdCardAlt, faEnvelope, faPhone, faWeight, faCube, faShoppingCart, faStickyNote, faShip, faBox, faHandHoldingBox, faPaperPlane, faExclamationTriangle, faClipboardList, faPeopleArrows, faCalendarAlt, faDownload, faSearch, faChevronDown, faChevronRight, faTimes, faBan, faThLarge, faList, faFileExcel } from "@fal"
 import { faArrowCircleDown, faArrowCircleLeft, faArrowCircleRight, faBars, faExclamationCircle, faInventory, faPencil, faShare, faTruck } from "@fas"
 import { faPlus } from "@far"
 
@@ -125,8 +131,11 @@ const props = defineProps < {
         date: string | null
         number_purchase_orders: number
     }[]
+    stages?: { stages: InstanceType<typeof PurchaseOrderStages>["$props"]["stages"]; route: routeType; upload_route: routeType | null } | null
+    compliance?: object
+    compliance_summary?: InstanceType<typeof TablePurchaseOrderComplianceDocuments>["$props"]["compliance"]
     deposits?: object | null
-    payments?: InstanceType<typeof PurchaseOrderPayments>["$props"]["payments"] | null
+    payments?: PurchaseOrderPaymentsData | null
     delivery_items: {
         id: number
         code: string | null
@@ -135,6 +144,8 @@ const props = defineProps < {
         image_thumbnail: object | null
     }[]
     submit_problems?: SubmitProblem[]
+	agreement: { terms: object[], notes: object[], open_incidents: number, must_acknowledge: boolean }
+	agreed_term_differences?: InstanceType<typeof AgreedTermDifferences>["$props"]["differences"] | null
     tabs: {
         current: string
         navigation: {}
@@ -221,6 +232,7 @@ const props = defineProps < {
 	showcase?: { blueprint: any[]; updateRoute: routeType }
 	notes?: {}
 	note_store_route?: routeType
+	note_form?: object
 	attachments?: {}
 	attachmentRoutes: { attachRoute: routeType; detachRoute: routeType }
 	attachmentScopes: { name: string; code: string }[]
@@ -493,14 +505,34 @@ const submitDialogAction = ref<any>(null)
 const doNotSend = "none"
 const sendVia = ref<string>(doNotSend)
 
+const criticalNotesAcknowledged = ref(false)
+
 const submitPurchaseOrder = (action: any) => {
+	if (props.agreement.must_acknowledge && !criticalNotesAcknowledged.value) {
+		notify({
+			title: ctrans("Read the critical notes first"),
+			text: ctrans("Tick that you have read them, above the lines, and submit again."),
+			type: "warn",
+		})
+		return
+	}
+
+	if (props.agreed_term_differences?.flags.some((flag) => !flag.accepted)) {
+		notify({
+			title: ctrans("Different from what was agreed"),
+			text: ctrans("Accept each difference with a reason, above the lines, and submit again."),
+			type: "warn",
+		})
+		return
+	}
+
 	if (action.send_channels?.length && !submitDialogAction.value) {
 		sendVia.value = action.send_channels[0].channel
 		submitDialogAction.value = action
 		return
 	}
 
-	router.patch(route(action.route.name, action.route.parameters), { send_via: sendVia.value === doNotSend ? null : sendVia.value }, {
+	router.patch(route(action.route.name, action.route.parameters), { send_via: sendVia.value === doNotSend ? null : sendVia.value, critical_notes_acknowledged: criticalNotesAcknowledged.value }, {
 		onStart: () => { submitLoading.value = true },
 		onFinish: () => {
 			submitLoading.value = false
@@ -652,7 +684,7 @@ const saveEstimatedDeliveryDate = () => {
 		onStart: () => { confirmLoading.value = true },
 		onSuccess: () => {
 			estimatedDeliveryDateModalOpen.value = false
-			router.reload({ only: ["showcase", "pageHead", "timelines"] })
+			router.reload({ only: ["showcase", "pageHead", "timelines", "stages"] })
 		},
 		onFinish: () => { confirmLoading.value = false },
 		onError: () => {
@@ -764,6 +796,7 @@ const component = computed(() => {
 		items: TablePurchaseOrderTransactions,
 		products: TablePurchaseOrderTransactions,
 		notes: TableProcurementNotes,
+		compliance: TablePurchaseOrderComplianceDocuments,
 		attachments: TableAttachments,
 		dispatched_emails: TableDispatchedEmailsInOrder,
 		history: TableHistories,
@@ -802,12 +835,53 @@ const agentRoute = computed<string>(() => {
 	return viaAgent ? route("grp.org.procurement.org_agents.show", [route().params["organisation"], viaAgent.slug]) : ""
 })
 
+const pageHeadButtonGroups: Record<string, string[]> = {
+	pdf_excel: ["pdf", "excel"],
+	upload_add_products: ["upload_products", "add_product"],
+}
+
+const pageHeadWrappedActionKeys = ["edit", "delete_purchase_order"]
+
+const pageHeadWithGroupedActions = computed<PageHeadingTypes>(() => {
+	const actions: Action[] = (props.pageHead.actions ?? []).filter(Boolean)
+	const actionsByKey = Object.fromEntries(actions.map((action) => [action.key, action]))
+	const placedGroupKeys = new Set<string>()
+
+	return {
+		...props.pageHead,
+		actions: actions.flatMap((action) => {
+			if (pageHeadWrappedActionKeys.includes(action.key)) {
+				return []
+			}
+
+			const groupKey = Object.keys(pageHeadButtonGroups).find((key) => pageHeadButtonGroups[key].includes(action.key))
+			const members = groupKey ? pageHeadButtonGroups[groupKey].map((key) => actionsByKey[key]).filter(Boolean) : []
+
+			if (!groupKey || members.length < 2) {
+				return [action]
+			}
+
+			if (placedGroupKeys.has(groupKey)) {
+				return []
+			}
+
+			placedGroupKeys.add(groupKey)
+
+			return [{ type: "buttonGroup", key: groupKey, button: members } as Action]
+		}),
+		wrapped_actions: [
+			...(props.pageHead.wrapped_actions ?? []),
+			...actions.filter((action) => pageHeadWrappedActionKeys.includes(action.key)),
+		],
+	}
+})
+
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 </script>
 
 <template>
 	<Head :title="capitalize(title)" />
-	<PageHeading :data="pageHead">
+	<PageHeading :data="pageHeadWithGroupedActions">
 		<template #afterTitle2>
 			<span v-if="lastEdit" class="text-xs font-normal text-gray-500">
 				{{ ctrans("Last edited by :user on :date", { user: lastEdit.user ?? "?", date: useFormatTime(lastEdit.at, { formatTime: "short-datetime" }) }) }}
@@ -817,8 +891,75 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 			<Button v-if="currentTab === 'attachments'" :label="ctrans('Attach')" icon="upload" @click="() => (isModalUploadAttachmentOpen = true)" />
 		</template>
 
+		<template #button-whole-agent-order="{ action }">
+			<Link :href="route(action.route.name, action.route.parameters)">
+				<Button
+					type="tertiary"
+					:label="action.label"
+					icon="far fa-arrow-left"
+					:tooltip="action.tooltip"
+				/>
+			</Link>
+		</template>
+
 		<template #button-pdf="{ action }">
 			<ButtonDownloadWithOptions :action="action" />
+		</template>
+
+		<template #button-group-pdf="{ action }">
+			<ButtonDownloadWithOptions :action="action" class="[&>button]:rounded-r-none" />
+		</template>
+
+		<template #button-group-excel="{ action }">
+			<a :href="route(action.route.name, action.route.parameters)" :target="action.target" class="-ml-px">
+				<Button
+					type="tertiary"
+					:icon="faFileExcel"
+					:tooltip="`${action.label}: ${action.tooltip}`"
+					class="h-full rounded-l-none"
+				/>
+			</a>
+		</template>
+
+		<template #button-group-upload-products="{ action }">
+			<Button
+				type="tertiary"
+				:icon="action.icon"
+				:tooltip="action.tooltip"
+				class="h-full rounded-r-none"
+				@click="() => isModalUploadExcel = true"
+			/>
+		</template>
+
+		<template #button-group-add-product="{ action }">
+			<Button
+				type="tertiary"
+				:label="action.label"
+				:icon="action.icon"
+				:tooltip="action.tooltip"
+				class="-ml-px h-full rounded-l-none text-nowrap"
+				@click="() => openProductListModal(action)"
+			/>
+		</template>
+
+		<template #wrapped-edit="{ action }">
+			<Link :href="route(action.route.name, action.route.parameters)">
+				<Button type="tertiary" :label="action.label" icon="fal fa-pencil" />
+			</Link>
+		</template>
+
+		<template #wrapped-delete-purchase-order="{ action }">
+			<Button
+				type="tertiary"
+				:label="action.label"
+				:tooltip="action.tooltip"
+				:loading="deleteLoading"
+				@click="() => confirmDeletePurchaseOrder(action)"
+			>
+				<template #icon>
+					<FontAwesomeIcon :icon="action.icon" class="text-red-500" fixed-width aria-hidden="true" />
+				</template>
+			</Button>
 		</template>
 
 		<template #button-email-to-supplier="{ action }">
@@ -860,17 +1001,6 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 				:tooltip="action.tooltip"
 				:loading="submitLoading"
 				@click="() => submitPurchaseOrder(action)"
-			/>
-		</template>
-
-		<template #button-delete-purchase-order="{ action }">
-			<Button
-				:style="action.style"
-				:label="action.label"
-				:icon="action.icon"
-				:tooltip="action.tooltip"
-				:loading="deleteLoading"
-				@click="() => confirmDeletePurchaseOrder(action)"
 			/>
 		</template>
 
@@ -951,14 +1081,21 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 		</template>
 	</PageHeading>
 
-	<!-- Purchase Order Timeline -->
-	<div v-if="timelines" class="py-2 border-b border-gray-300">
+	<PurchaseOrderStages v-if="stages" :stages="stages.stages" :route="stages.route" :uploadRoute="stages.upload_route">
+		<template v-if="payments" #stage-deposit_paid>
+			<PurchaseOrderDepositPayments :payments="payments" :org-currency-code="box_stats.third_block.org_currency" :org-rate="paymentsOrgRate" />
+		</template>
+	</PurchaseOrderStages>
+	<div v-else-if="timelines" class="py-2 border-b border-gray-300">
 		<Timeline
 			:options="timelines"
 			:state="props.data.data.state"
 			:slidesPerView="6"
 			:format-time="'MMMM d yyyy, HH:mm'"
 		/>
+	</div>
+	<div v-if="!stages && payments" class="max-w-sm border-b border-gray-300 px-4 pb-3">
+		<PurchaseOrderDepositPayments :payments="payments" :org-currency-code="box_stats.third_block.org_currency" :org-rate="paymentsOrgRate" />
 	</div>
 
 	<div
@@ -1173,10 +1310,32 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
 	<AspoDepositsChecklist v-if="deposits" :deposits="deposits" />
 
+	<div v-if="agreement.terms.length || agreement.notes.length || agreement.open_incidents" class="px-4 pt-4">
+		<AgreementSummary :agreement="agreement" showLevel />
+		<label v-if="agreement.must_acknowledge" class="mt-2 flex items-center gap-2 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+			<Checkbox v-model="criticalNotesAcknowledged" binary />
+			<span>{{ ctrans("I have read the critical notes for this order") }}</span>
+		</label>
+	</div>
+
+	<div v-if="agreed_term_differences" class="px-4 pt-4">
+		<AgreedTermDifferences :differences="agreed_term_differences" />
+	</div>
+
 	<Tabs :current="currentTab" :navigation="tabs?.navigation" @update:tab="handleTabUpdate" />
 
 	<div class="pb-12">
-		<AgentOrderingItems v-if="agent_ordering && isOrderingLevelTab && props[currentTab as keyof typeof props]" :key="currentTab" :items="props[currentTab as keyof typeof props]" v-bind="agent_ordering" :tableName="currentTab" />
+		<template v-if="agent_ordering && isOrderingLevelTab && props[currentTab as keyof typeof props]">
+			<div v-if="currentTab === 'products' && products?.ordering" class="mx-4 mb-3 mt-4 flex flex-wrap items-center gap-2">
+				<PillFilterBar :label="ctrans('Stock group')" :options="products.ordering.cover" :selected="products.ordering.active.cover" @select="(value) => filterProducts('cover', value)" />
+				<PillFilterBar :label="ctrans('Rank')" :options="products.ordering.rank" :selected="products.ordering.active.rank" @select="(value) => filterProducts('rank', value)" />
+				<label class="inline-flex cursor-pointer items-center gap-2 rounded-md border px-2.5 py-1 text-xs" :class="products.ordering.active.hide_ordered ? 'border-gray-400 bg-gray-100 text-gray-800' : 'border-gray-200 bg-white text-gray-600'">
+					<Checkbox :modelValue="products.ordering.active.hide_ordered" binary size="small" @update:modelValue="(value: boolean) => filterProducts('hide_ordered', value ? '1' : null)" />
+					{{ ctrans("Hide what is already on order") }}
+				</label>
+			</div>
+			<AgentOrderingItems :key="currentTab === 'products' ? `products-${products?.ordering?.active.cover}-${products?.ordering?.active.rank}-${products?.ordering?.active.hide_ordered}` : currentTab" :items="props[currentTab as keyof typeof props]" v-bind="agent_ordering" :tableName="currentTab" />
+		</template>
 		<div v-else-if="currentTab === 'products' && products?.ordering" class="mt-4">
 			<div class="mx-4 mb-3 flex flex-wrap items-center gap-2">
 				<PillFilterBar :label="ctrans('Stock group')" :options="products.ordering.cover" :selected="products.ordering.active.cover" @select="(value) => filterProducts('cover', value)" />
@@ -1211,7 +1370,9 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 			:tab="currentTab"
 			:state="data.data.state"
 			:updateRoute="routes.updateOrderRoute"
-			:storeRoute="currentTab === 'notes' ? note_store_route : undefined"
+			:storeRoute="currentTab === 'notes' && note_form?.can_write !== false ? note_store_route : undefined"
+			:agreement="currentTab === 'notes' ? note_form : undefined"
+			:compliance="currentTab === 'compliance' ? compliance_summary : undefined"
 			:detachRoute="attachmentRoutes.detachRoute"
 			v-bind="isOrderingLevelTab ? {
 				level: currentLevel,

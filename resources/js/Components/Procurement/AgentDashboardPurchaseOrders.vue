@@ -3,13 +3,14 @@ import { computed, inject } from "vue"
 import { Link } from "@inertiajs/vue3"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faClipboardCheck, faExclamationTriangle, faBoxOpen, faClipboardList, faChevronRight, faPersonDolly, faTruckContainer, faShip } from "@fal"
+import { faClipboardCheck, faExclamationTriangle, faBoxOpen, faClipboardList, faChevronRight, faPersonDolly, faTruckContainer, faShip, faIndustryAlt } from "@fal"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 import { ctrans } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
+import InformationIcon from "@/Components/Utils/InformationIcon.vue"
 
-library.add(faClipboardCheck, faExclamationTriangle, faBoxOpen, faClipboardList, faChevronRight, faPersonDolly, faTruckContainer, faShip)
+library.add(faClipboardCheck, faExclamationTriangle, faBoxOpen, faClipboardList, faChevronRight, faPersonDolly, faTruckContainer, faShip, faIndustryAlt)
 
 export interface AgentDashboardPurchaseOrdersData {
 	currency: string
@@ -22,11 +23,14 @@ export interface AgentDashboardPurchaseOrdersData {
 		overdue: number
 		overdue_value: number
 		due_soon: number
+		in_production: number
+		in_production_value: number
+		in_production_products: number
 		confirmed_without_container: number
 		confirmed_without_container_value: number
 		confirmation_days: number
 		stale_days: number
-		routes: Record<"open" | "unconfirmed" | "unconfirmed_over_week" | "unconfirmed_stale" | "overdue" | "confirmed_without_container", routeType>
+		routes: Record<"open" | "unconfirmed" | "unconfirmed_over_week" | "unconfirmed_stale" | "overdue" | "in_production" | "confirmed_without_container", routeType>
 	}
 	attention: {
 		id: number
@@ -87,6 +91,7 @@ const tiles = computed(() => [
 	{
 		key: "unconfirmed",
 		label: ctrans("Waiting for your confirmation"),
+		information: ctrans("Orders sent to you that you have not confirmed yet. Confirm them so the buyer knows the supplier accepted the order."),
 		icon: "fal fa-clipboard-check",
 		value: props.data.summary.unconfirmed,
 		tone: props.data.summary.unconfirmed_stale ? "red" : props.data.summary.unconfirmed_over_week ? "amber" : "neutral",
@@ -100,6 +105,7 @@ const tiles = computed(() => [
 	{
 		key: "overdue",
 		label: ctrans("Past the expected date"),
+		information: ctrans("Open orders whose expected delivery date has passed and the goods have not arrived yet."),
 		icon: "fal fa-exclamation-triangle",
 		value: props.data.summary.overdue,
 		tone: props.data.summary.overdue ? "red" : "neutral",
@@ -112,8 +118,24 @@ const tiles = computed(() => [
 		route: props.data.summary.routes.overdue,
 	},
 	{
+		key: "in_production",
+		label: ctrans("In production"),
+		information: ctrans("Orders the supplier is making: production started or sample approved, and the quality check not passed yet."),
+		icon: "fal fa-industry-alt",
+		value: props.data.summary.in_production,
+		tone: "neutral",
+		detail: props.data.summary.in_production
+			? ctrans(":products products, :value being made", {
+					products: locale.number(props.data.summary.in_production_products),
+					value: money(props.data.summary.in_production_value),
+				})
+			: ctrans("No order is being made right now"),
+		route: props.data.summary.routes.in_production,
+	},
+	{
 		key: "no_container",
 		label: ctrans("Confirmed, not in a container"),
+		information: ctrans("Orders you confirmed that are not in a container yet, whatever their production stage. They are waiting for a shipment to be planned."),
 		icon: "fal fa-box-open",
 		value: props.data.summary.confirmed_without_container,
 		tone: props.data.summary.confirmed_without_container ? "amber" : "neutral",
@@ -125,6 +147,7 @@ const tiles = computed(() => [
 	{
 		key: "open",
 		label: ctrans("Open orders"),
+		information: ctrans("Every order sent to you that is not finished yet, confirmed or not, and its total value."),
 		icon: "fal fa-clipboard-list",
 		value: props.data.summary.open_count,
 		tone: "neutral",
@@ -142,7 +165,7 @@ const toneClasses: Record<string, string> = {
 
 <template>
 	<div class="space-y-4">
-		<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+		<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
 			<article
 				v-for="tile in tiles"
 				:key="tile.key"
@@ -154,6 +177,7 @@ const toneClasses: Record<string, string> = {
 								<FontAwesomeIcon :icon="tile.icon" class="text-sm" fixed-width aria-hidden="true" />
 							</span>
 							<h2 class="truncate text-sm font-semibold text-gray-600">{{ tile.label }}</h2>
+							<InformationIcon :information="tile.information" class="shrink-0 text-xs text-gray-500" @click.prevent />
 						</div>
 						<FontAwesomeIcon icon="fal fa-chevron-right" class="text-xs text-gray-300 transition group-hover:translate-x-0.5 group-hover:text-gray-500" fixed-width aria-hidden="true" />
 					</div>
@@ -174,6 +198,7 @@ const toneClasses: Record<string, string> = {
 			<span class="mr-2 flex items-center gap-2 text-sm font-semibold text-gray-600">
 				<FontAwesomeIcon icon="fal fa-ship" class="text-gray-400" fixed-width aria-hidden="true" />
 				{{ ctrans("Containers") }}
+				<InformationIcon :information="ctrans('Your containers by where they are, from being filled to arrived at the buyer\'s warehouse.')" class="text-xs font-normal text-gray-500" />
 			</span>
 			<template v-for="(step, index) in data.containers" :key="step.key">
 				<FontAwesomeIcon v-if="index" icon="fal fa-chevron-right" class="text-xs text-gray-300" fixed-width aria-hidden="true" />
@@ -187,7 +212,10 @@ const toneClasses: Record<string, string> = {
 		<div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
 			<section class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm lg:col-span-2">
 				<header class="flex items-center justify-between border-b border-gray-200 px-4 py-3">
-					<h2 class="text-sm font-semibold text-gray-700">{{ ctrans("Needs your attention") }}</h2>
+					<h2 class="flex items-center gap-1.5 text-sm font-semibold text-gray-700">
+						{{ ctrans("Needs your attention") }}
+						<InformationIcon :information="ctrans('Late orders first, then orders waiting longer than :days days for your confirmation.', { days: data.summary.confirmation_days })" class="text-xs font-normal text-gray-500" />
+					</h2>
 					<Link :href="href(data.summary.routes.open)" class="text-xs text-gray-500 hover:text-gray-900 hover:underline">
 						{{ ctrans("All open orders, oldest first") }}
 					</Link>
@@ -222,6 +250,7 @@ const toneClasses: Record<string, string> = {
 				<header class="flex items-center gap-2 border-b border-gray-200 px-4 py-3">
 					<FontAwesomeIcon icon="fal fa-person-dolly" class="text-gray-400" fixed-width aria-hidden="true" />
 					<h2 class="text-sm font-semibold text-gray-700">{{ ctrans("Sub-suppliers with most open value") }}</h2>
+					<InformationIcon :information="ctrans('The suppliers with the highest value of open orders, with how many are late or still unconfirmed.')" class="text-xs text-gray-500" />
 				</header>
 				<p v-if="!data.suppliers.length" class="px-4 py-8 text-center text-sm text-gray-400">{{ ctrans("No open orders") }}</p>
 				<ul v-else class="divide-y divide-gray-100">
@@ -241,7 +270,10 @@ const toneClasses: Record<string, string> = {
 				</ul>
 
 				<div v-if="data.organisations.length" class="border-t border-gray-200 px-4 py-3">
-					<h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400">{{ ctrans("Open value by organisation") }}</h3>
+					<h3 class="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
+						{{ ctrans("Open value by organisation") }}
+						<InformationIcon :information="ctrans('Value of open orders per buying organisation.')" class="normal-case text-gray-500" />
+					</h3>
 					<ul class="mt-2 space-y-1.5">
 						<li v-for="organisation in data.organisations" :key="organisation.code" class="text-xs">
 							<div class="flex items-center justify-between gap-2 text-gray-600">
@@ -261,6 +293,7 @@ const toneClasses: Record<string, string> = {
 			<header class="flex items-center gap-2 border-b border-gray-200 px-4 py-3">
 				<FontAwesomeIcon icon="fal fa-truck-container" class="text-gray-400" fixed-width aria-hidden="true" />
 				<h2 class="text-sm font-semibold text-gray-700">{{ ctrans("Agent orders still open, oldest first") }}</h2>
+				<InformationIcon :information="ctrans('Your orders grouped by agent order reference, with how many of their supplier orders are confirmed, unconfirmed or late.')" class="text-xs text-gray-500" />
 			</header>
 			<table class="w-full text-sm">
 				<thead class="bg-gray-50 text-xs text-gray-500">

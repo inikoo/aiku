@@ -8,6 +8,7 @@
 
 namespace App\Actions\Procurement\AgentLabel;
 
+use App\Actions\Inventory\OrgStock\UI\GetOrgStockLabelData;
 use App\Actions\Inventory\OrgStock\UI\GetOrgStockLabelOptions;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\WithAgentOrganisation;
@@ -25,10 +26,14 @@ class FetchAgentOrgStockBarcodeLabelOptions extends OrgAction
     /**
      * @return array<string, mixed>
      */
-    public function handle(Organisation $organisation, OrgStock $orgStock, ?int $supplierProductId = null): array
+    public function handle(Organisation $organisation, OrgStock $orgStock, ?int $supplierProductId = null, ?int $commercialisingOrganisationId = null): array
     {
         return [
-            'options'     => GetOrgStockLabelOptions::run($orgStock, $supplierProductId),
+            'options'     => GetOrgStockLabelOptions::run(
+                $orgStock,
+                $supplierProductId,
+                GetOrgStockLabelData::make()->getCommercialisingOrganisation($orgStock, $commercialisingOrganisationId)
+            ),
             'label_route' => [
                 'name'       => 'grp.org.procurement.agent_labels.barcode_label',
                 'parameters' => [
@@ -56,6 +61,6 @@ class FetchAgentOrgStockBarcodeLabelOptions extends OrgAction
         $this->initialisation($organisation, $request);
         $this->ensureAgentBuysOrgStock($organisation, $orgStock);
 
-        return $this->handle($organisation, $orgStock, $request->integer('supplier_product') ?: null);
+        return $this->handle($organisation, $orgStock, $request->integer('supplier_product') ?: null, $request->integer('commercialised_by') ?: null);
     }
 }

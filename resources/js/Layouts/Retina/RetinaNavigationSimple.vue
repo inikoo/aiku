@@ -10,10 +10,10 @@ import { isNavigationActive } from "@/Composables/useUrl";
 import { onMounted, ref, onUnmounted, inject, computed } from "vue";
 import { useEchoRetinaPersonal } from "@/Stores/echo-retina-personal.js";
 import RetinaTopBarSubsections from "@/Layouts/Retina/RetinaTopBarSubsections.vue";
-import { faRoute, faTachometerAlt, faFileInvoiceDollar, faHandHoldingBox, faPallet } from "@fal";
+import { faRoute, faTachometerAlt, faFileInvoiceDollar, faHandHoldingBox, faPallet, faCalendarCheck } from "@fal";
 import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
 
-library.add(faAsterisk, faTachometerAlt, faFileInvoiceDollar, faRoute, faPallet, faHandHoldingBox);
+library.add(faAsterisk, faTachometerAlt, faFileInvoiceDollar, faRoute, faPallet, faHandHoldingBox, faCalendarCheck);
 
 const props = defineProps<{
     navKey: string | number  // shops_navigation | warehouses_navigation

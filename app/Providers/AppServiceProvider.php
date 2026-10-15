@@ -16,6 +16,7 @@ use Gnikyt\BasicShopifyAPI\Options;
 use Illuminate\Console\Events\CommandStarting;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Queue\Events\JobProcessing;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\ParallelTesting;
 use Illuminate\Support\Facades\Vite;
@@ -126,6 +127,12 @@ class AppServiceProvider extends ServiceProvider
         ini_set('pcre.backtrack_limit', '10000000');
         ini_set('pcre.recursion_limit', '10000000');
 
+        Paginator::queryStringResolver(function (): array {
+            parse_str((string) request()->server('QUERY_STRING'), $queryString);
+
+            return $queryString;
+        });
+
         Event::listen(fn (Audited $event) => BroadcastPurchaseOrderLastEdited::fromAudited($event));
 
         Event::listen(function (CommandStarting $event) {
@@ -221,6 +228,8 @@ class AppServiceProvider extends ServiceProvider
                 'Favourite'                        => 'App\Models\CRM\Favourite',
                 'TrafficSourceCampaign'            => 'App\Models\CRM\TrafficSourceCampaign',
                 'Poll'                             => 'App\Models\CRM\Poll',
+                'Appointment'                      => 'App\Models\CRM\Appointment',
+                'AppointmentType'                  => 'App\Models\CRM\AppointmentType',
                 'PollOption'                       => 'App\Models\CRM\PollOption',
                 'PollReply'                        => 'App\Models\CRM\PollReply',
                 'Prospect'                         => 'App\Models\CRM\Prospect',
@@ -408,6 +417,8 @@ class AppServiceProvider extends ServiceProvider
                 'OrgSupplier'                      => 'App\Models\Procurement\OrgSupplier',
                 'OrgSupplierProduct'               => 'App\Models\Procurement\OrgSupplierProduct',
                 'PurchaseOrder'                    => 'App\Models\Procurement\PurchaseOrder',
+                'ProcurementNote'                  => 'App\Models\Procurement\ProcurementNote',
+                'SupplierAgreedTerm'               => 'App\Models\Procurement\SupplierAgreedTerm',
                 'PurchaseOrderTransaction'         => 'App\Models\Procurement\PurchaseOrderTransaction',
                 'OrgPartner'                       => 'App\Models\Procurement\OrgPartner',
 

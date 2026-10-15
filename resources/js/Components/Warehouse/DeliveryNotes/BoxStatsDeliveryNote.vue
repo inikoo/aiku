@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import BoxStatPallet from "@/Components/Pallet/BoxStatPallet.vue"
 import ShipmentSection from "@/Components/Warehouse/DeliveryNotes/ShipmentSection.vue"
+import CustomsExportLink from "@/Components/Warehouse/DeliveryNotes/CustomsExportLink.vue"
 import { ctrans } from "@/Composables/useTrans"
 import { parcelPresets, findParcelPreset, applyParcelPreset } from "@/Composables/useParcelPresets"
 import { Address, AddressOptions } from "@/types/PureComponent/Address"
@@ -86,6 +87,11 @@ const props = withDefaults(defineProps<{
             weight: number
             dimensions: [number, number, number]
         }[]
+        customs_export?: {
+            formats: { value: string, label: string }[]
+            preview_route: routeType
+            download_route: routeType
+        } | null
         box_packing_list?: {
             number_boxes: number
             missing_message: string | null
@@ -842,6 +848,11 @@ function returnNoteRoute(returnDeliveryNote) {
                             />
                         </dd>
                     </dl>
+
+                    <!-- Section: Customs items file -->
+                    <div v-if="['packed', 'finalised', 'dispatched'].includes(deliveryNote?.state) && !boxStats?.is_collection && boxStats.shipments" class="pl-6 mt-1">
+                        <CustomsExportLink :customsExport="boxStats.customs_export" />
+                    </div>
 
                 </div>
                 <div v-else class="space-y-0.5 pl-1">

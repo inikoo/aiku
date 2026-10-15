@@ -25,6 +25,9 @@ import TableSupplierProducts from "@/Components/Tables/Grp/SupplyChain/TableSupp
 import TablePurchaseOrders from "@/Components/Tables/Grp/Org/Procurement/TablePurchaseOrders.vue";
 import { capitalize } from "@/Composables/capitalize"
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
+import TableSupplierAgreedTerms from '@/Components/Tables/Grp/Org/Procurement/TableSupplierAgreedTerms.vue'
+import TableProcurementNotes from '@/Components/Tables/Grp/Org/Procurement/TableProcurementNotes.vue'
+import AgreementSummary from '@/Components/Procurement/AgreementSummary.vue'
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
 const props = defineProps<{
@@ -46,6 +49,9 @@ const props = defineProps<{
     purchase_orders?: object,
     errors?: object,
     history?: object
+    agreed_terms?: object
+    notes?: object
+    agreement: object
 }>()
 
 
@@ -72,6 +78,8 @@ const component = computed(() => {
         supplier_products: TableSupplierProducts,
         purchase_orders: TablePurchaseOrders,
         details: ModelDetails,
+        agreed_terms: TableSupplierAgreedTerms,
+        notes: TableProcurementNotes,
         history: TableHistories
     };
     return components[currentTab.value];
@@ -85,6 +93,9 @@ const component = computed(() => {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
-    <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
+    <div v-if="currentTab === 'showcase'" class="px-4 pt-4 max-w-4xl">
+        <AgreementSummary :agreement="agreement" showLevel />
+    </div>
+    <component :is="component" :data="props[currentTab]" :tab="currentTab" v-bind="['agreed_terms', 'notes'].includes(currentTab) ? { agreement } : {}"></component>
 </template>
 

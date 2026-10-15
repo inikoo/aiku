@@ -22,50 +22,49 @@ function segmentOf(array $journey, string $key): ?array
 it('runs an agent order nobody tracks on the dates the system records, with the agent stages only planned', function () {
     $journey = journeyFor(['delivery_time' => 90]);
 
-    expect($journey['current_stage'])->toBe('dispatched')
+    expect($journey['current_stage'])->toBe('shipped')
         ->and($journey['status'])->toBe('on_track')
-        ->and(segmentOf($journey, 'production')['state'])->toBe('untracked')
-        ->and(segmentOf($journey, 'clean_handover')['state'])->toBe('untracked')
-        ->and(segmentOf($journey, 'spec_sample'))->toBeNull()
-        ->and(Carbon::parse('2026-09-02')->diffInDays(Carbon::parse(segmentOf($journey, 'in_transit')['planned_at'])))->toBe(90.0);
+        ->and(segmentOf($journey, 'in_production')['state'])->toBe('untracked')
+        ->and(segmentOf($journey, 'ready')['state'])->toBe('untracked')
+        ->and(Carbon::parse('2026-09-02')->diffInDays(Carbon::parse(segmentOf($journey, 'received')['planned_at'])))->toBe(91.0);
 });
 
 it('holds a tracked agent order at the first stage nobody marked and counts the days it is late', function () {
     $journey = journeyFor([
         'deposit_paid_at' => '2026-07-01',
-        'stage_days'      => ['production' => 30],
+        'stage_days'      => ['in_production' => 30],
         'created_at'      => '2026-06-20',
         'submitted_at'    => '2026-06-25',
     ]);
 
-    expect($journey['current_stage'])->toBe('production')
+    expect($journey['current_stage'])->toBe('in_production')
         ->and($journey['status'])->toBe('overdue')
         ->and($journey['days_overdue'])->toBe(55)
-        ->and(segmentOf($journey, 'production')['planned_at'])->toBe('2026-07-31');
+        ->and(segmentOf($journey, 'in_production')['planned_at'])->toBe('2026-07-31');
 });
 
 it('marks earlier stages as done without a date once a later stage happened', function () {
     $journey = journeyFor(['delivery_state' => 'dispatched', 'dispatched_at' => '2026-09-20', 'deposit_paid_at' => '2026-09-05']);
 
-    expect(segmentOf($journey, 'production')['state'])->toBe('skipped')
-        ->and(segmentOf($journey, 'qc')['state'])->toBe('skipped')
-        ->and($journey['current_stage'])->toBe('in_transit');
+    expect(segmentOf($journey, 'in_production')['state'])->toBe('skipped')
+        ->and(segmentOf($journey, 'ready')['state'])->toBe('skipped')
+        ->and($journey['current_stage'])->toBe('arrived');
 });
 
-it('turns a draft that was never sent red at PO created', function () {
+it('turns a draft that was never sent red at PO submitted', function () {
     $journey = journeyFor(['journey' => 'supplier', 'state' => 'in_process', 'submitted_at' => null, 'created_at' => '2026-09-01']);
 
-    expect($journey['current_stage'])->toBe('po_created')
+    expect($journey['current_stage'])->toBe('submitted')
         ->and($journey['status'])->toBe('overdue')
         ->and($journey['days_overdue'])->toBe(20)
         ->and(segmentOf($journey, 'deposit_paid'))->toBeNull()
-        ->and(segmentOf($journey, 'production'))->toBeNull();
+        ->and(segmentOf($journey, 'in_production'))->toBeNull();
 });
 
-it('adds spec and sample only to new product orders, never to inter-company ones', function () {
-    expect(segmentOf(journeyFor(['is_npo' => true]), 'spec_sample'))->not->toBeNull()
-        ->and(segmentOf(journeyFor(['is_npo' => false]), 'spec_sample'))->toBeNull()
-        ->and(segmentOf(journeyFor(['is_npo' => true, 'journey' => 'partner']), 'spec_sample'))->toBeNull();
+it('shows production for agent orders and for suppliers that take production days', function () {
+    expect(segmentOf(journeyFor([]), 'in_production'))->not->toBeNull()
+        ->and(segmentOf(journeyFor(['journey' => 'supplier']), 'in_production'))->toBeNull()
+        ->and(segmentOf(journeyFor(['journey' => 'supplier', 'production_waiting_time' => 10]), 'in_production'))->not->toBeNull();
 });
 
 it('completes once every product from the order is online', function () {
@@ -89,9 +88,9 @@ it('completes once every product from the order is online', function () {
 });
 
 it('warns three days before a target', function () {
-    $journey = journeyFor(['journey' => 'supplier', 'estimated_received_at' => '2026-09-26', 'delivery_state' => 'dispatched', 'dispatched_at' => '2026-09-20']);
+    $journey = journeyFor(['journey' => 'supplier', 'estimated_received_at' => '2026-09-28', 'delivery_state' => 'dispatched', 'dispatched_at' => '2026-09-20']);
 
-    expect($journey['current_stage'])->toBe('in_transit')
+    expect($journey['current_stage'])->toBe('arrived')
         ->and($journey['status'])->toBe('at_risk');
 });
 
@@ -103,31 +102,31 @@ it('keeps the agreed plan on later stages and moves only the estimate when a sta
         'delivery_time' => 21,
     ]);
 
-    $inTransit = segmentOf($journey, 'in_transit');
+    $received = segmentOf($journey, 'received');
 
-    expect($journey['current_stage'])->toBe('dispatched')
+    expect($journey['current_stage'])->toBe('shipped')
         ->and($journey['status'])->toBe('overdue')
-        ->and($inTransit['planned_at'])->toBe('2026-06-22')
-        ->and($inTransit['behind_plan'])->toBeTrue()
-        ->and($inTransit['forecast_at'] > '2026-09-24')->toBeTrue()
+        ->and($received['planned_at'])->toBe('2026-06-22')
+        ->and($received['behind_plan'])->toBeTrue()
+        ->and($received['forecast_at'] > '2026-09-24')->toBeTrue()
         ->and($journey['eta'] > '2026-09-24')->toBeTrue();
 });
 
 it('does not count a draft as sent even when it carries a submitted date', function () {
     $journey = journeyFor(['journey' => 'partner', 'state' => 'in_process', 'submitted_at' => '2026-09-02', 'created_at' => '2026-09-01']);
 
-    expect(segmentOf($journey, 'po_created')['state'])->toBe('overdue')
-        ->and(segmentOf($journey, 'po_created')['done_at'])->toBeNull();
+    expect(segmentOf($journey, 'submitted')['state'])->toBe('overdue')
+        ->and(segmentOf($journey, 'submitted')['done_at'])->toBeNull();
 });
 
-it('targets QC on the approved ready date and the clean handover seven days after it', function () {
+it('targets QC on the approved ready date and shipping, after the clean handover, seven days after it', function () {
     $journey = journeyFor(['deposit_paid_at' => '2026-09-05', 'approved_ready_at' => '2026-10-20']);
 
-    expect(segmentOf($journey, 'qc')['planned_at'])->toBe('2026-10-20')
-        ->and(segmentOf($journey, 'clean_handover')['planned_at'])->toBe('2026-10-27');
+    expect(segmentOf($journey, 'ready')['planned_at'])->toBe('2026-10-20')
+        ->and(segmentOf($journey, 'shipped')['planned_at'])->toBe('2026-10-27');
 });
 
-it('works the dispatch target back from a recorded arrival date', function () {
+it('works the shipping target back from a recorded arrival date', function () {
     $journey = journeyFor([
         'journey'               => 'partner',
         'created_at'            => '2026-08-01',
@@ -135,8 +134,16 @@ it('works the dispatch target back from a recorded arrival date', function () {
         'estimated_received_at' => '2026-09-30',
     ]);
 
-    expect(segmentOf($journey, 'dispatched')['planned_at'])->toBe('2026-09-26')
+    expect(segmentOf($journey, 'shipped')['planned_at'])->toBe('2026-09-26')
         ->and($journey['status'])->toBe('at_risk');
+});
+
+it('counts the goods as arrived once every delivery reached the port', function () {
+    $journey = journeyFor(['journey' => 'supplier', 'delivery_state' => 'dispatched', 'dispatched_at' => '2026-09-10', 'arrived' => true, 'arrived_at' => '2026-09-20']);
+
+    expect(segmentOf($journey, 'arrived')['state'])->toBe('done')
+        ->and(segmentOf($journey, 'arrived')['done_at'])->toBe('2026-09-20')
+        ->and($journey['current_stage'])->toBe('received');
 });
 
 it('leaves the online date empty when the date the goods were placed is unknown', function () {

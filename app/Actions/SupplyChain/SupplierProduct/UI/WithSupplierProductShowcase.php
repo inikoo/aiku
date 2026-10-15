@@ -107,6 +107,8 @@ trait WithSupplierProductShowcase
                 'id'           => $media->id,
                 'is_main'      => $media->id === $supplierProduct->image_id,
                 'image'        => GetPictureSources::run($media->getImage()->resize(400, 400)),
+                'original_url' => route('grp.media.download', ['media' => $media->ulid, 'inline' => true]),
+                'download_url' => route('grp.media.download', ['media' => $media->ulid]),
                 'detach_route' => $canEdit ? [
                     'name'       => $routePrefix.'.detach_image',
                     'parameters' => array_merge($routeParameters, ['media' => $media->id]),
@@ -118,11 +120,15 @@ trait WithSupplierProductShowcase
 
     private function getSupplierProductDetails(SupplierProduct $supplierProduct, bool $withSupplyChainLink): array
     {
+        $imageMedia = $supplierProduct->image ?? $supplierProduct->tradeUnits->first()?->image;
+
         return [
             'code'         => $supplierProduct->code,
             'name'         => $supplierProduct->name,
             'description'  => $supplierProduct->description,
             'image'        => $supplierProduct->imageSources() ?? $supplierProduct->tradeUnits->first()?->imageSources(),
+            'original_url' => $imageMedia ? route('grp.media.download', ['media' => $imageMedia->ulid, 'inline' => true]) : null,
+            'download_url' => $imageMedia ? route('grp.media.download', ['media' => $imageMedia->ulid]) : null,
             'state'        => [
                 'label' => SupplierProductStateEnum::labels()[$supplierProduct->state->value],
                 'icon'  => SupplierProductStateEnum::stateIcon()[$supplierProduct->state->value],

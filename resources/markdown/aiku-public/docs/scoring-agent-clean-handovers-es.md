@@ -2,7 +2,7 @@
 title: Puntuar las entregas limpias de un agente
 summary: Para equipos de compras — por qué existe el Clean Handover Score, qué cinco datos hay que registrar en cada orden de compra a un agente, quién debe ser dueño de cada uno, y cómo leer la franja de higiene que te dice cuándo la puntuación se está gestionando en lugar de ganarse.
 date: 2026-09-01
-source_date: 2026-09-01
+source_date: 2026-10-15
 tags: procurement, agents, supply-chain
 category: procurement
 series: Clean Handover Score
@@ -73,7 +73,7 @@ Y una advertencia operativa: la puntuación solo existe para pedidos con una fec
 
 <aside class="wayfinder">
 <b>Dónde pulsar en aiku</b><br>
-Group → <b>Supply Chain → Agents</b> → elige el agente. El showcase muestra el panel <b>Clean Handover Score</b> con la franja de higiene. Para registrar los cinco datos: la lista de <b>Purchase Orders</b> del agente → abre una OC → <b>Edit</b> → la sección <b>Clean handover</b> (fechas de listo propuesta/aprobada, entregado, control de calidad superado, cumplimiento completo, interruptor de exclusión + motivo). El agente ve su puntuación, sin la franja de higiene, en su propio panel al iniciar sesión.
+Group → <b>Supply Chain → Agents</b> → elige el agente. El showcase muestra el panel <b>Clean Handover Score</b> con la franja de higiene. Para registrar los cinco datos: la lista de <b>Purchase Orders</b> del agente → abre una OC. <b>QC passed</b> es el botón <b>QC approved</b> de las etapas en la parte superior del pedido. El resto está en <b>Edit</b> → la sección <b>Clean handover</b> (fechas de listo propuesta/aprobada, entregado, cumplimiento completo, interruptor de exclusión + motivo). El agente ve su puntuación, sin la franja de higiene, en su propio panel al iniciar sesión.
 </aside>
 
 <aside class="wayfinder">

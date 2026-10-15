@@ -25,7 +25,7 @@ const isOpenGoogleRegistration = ref(false)
 const form = ref({
 	username: "",
 	password: "",
-	remember: false,
+	remember: true,
 })
 
 const queryParam = (name: string) => {
@@ -209,11 +209,10 @@ const loginWithGoogle = async () => {
 						</p>
 
 						<div class="mt-2 flex items-center justify-between">
-							<label v-if="fieldValue?.login?.remember?.visible" class="flex cursor-pointer select-none items-center gap-x-2 text-sm">
+							<label class="flex cursor-pointer select-none items-center gap-x-2 text-sm">
 								<input v-model="form.remember" type="checkbox" name="remember" class="cursor-pointer" />
-								{{ fieldValue?.login?.remember?.text }}
+								{{ fieldValue?.login?.remember?.text || ctrans("Remember me") }}
 							</label>
-							<span v-else />
 
 							<LinkIris
 								:href="forgotPasswordLink.href"

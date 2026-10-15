@@ -38,6 +38,7 @@ const props = defineProps<{
     data: {
         customs_mrn: string | null
         customs_released_at: string | null
+        arrived_at: string | null
         org_currency: string
         duty_cost: number | null
         can_edit: boolean
@@ -58,10 +59,12 @@ const toIso = (date: Date | null) => date ? `${date.getFullYear()}-${String(date
 const form = useForm<{
     customs_mrn: string | null
     customs_released_at: Date | null
+    arrived_at: Date | null
     lines: CustomsLine[]
 }>({
     customs_mrn: props.data.customs_mrn,
     customs_released_at: toDate(props.data.customs_released_at),
+    arrived_at: toDate(props.data.arrived_at),
     lines: props.data.lines.map(line => ({ ...line })),
 })
 
@@ -69,6 +72,7 @@ watch(() => props.data, (data) => {
     form.defaults({
         customs_mrn: data.customs_mrn,
         customs_released_at: toDate(data.customs_released_at),
+        arrived_at: toDate(data.arrived_at),
         lines: data.lines.map(line => ({ ...line })),
     })
     form.reset()
@@ -90,6 +94,7 @@ function save() {
         .transform((data) => ({
             customs_mrn: data.customs_mrn,
             customs_released_at: toIso(data.customs_released_at),
+            arrived_at: toIso(data.arrived_at),
             ...(props.data.can_edit ? {
                 lines: data.lines.map(({ id, tariff_code, description, duty_rate, customs_value, duty_amount, import_vat }) => ({ id, tariff_code, description, duty_rate, customs_value, duty_amount, import_vat })),
             } : {}),
@@ -123,6 +128,10 @@ async function setItemLine(item: any, lineId: number | null) {
 <template>
     <div class="space-y-6 p-4">
         <div class="flex flex-wrap items-end gap-4">
+            <label class="space-y-1">
+                <span class="block text-xs text-gray-500">{{ ctrans('Port arrival') }}</span>
+                <DatePicker v-model="form.arrived_at" dateFormat="yy-mm-dd" :maxDate="new Date()" showIcon />
+            </label>
             <label class="space-y-1">
                 <span class="block text-xs text-gray-500">{{ ctrans('MRN') }}</span>
                 <InputText v-model="form.customs_mrn" class="w-64" />

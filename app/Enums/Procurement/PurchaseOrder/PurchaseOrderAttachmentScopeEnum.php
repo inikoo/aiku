@@ -22,6 +22,10 @@ enum PurchaseOrderAttachmentScopeEnum: string
     case CUSTOMS      = 'Customs declaration';
     case SERVICE_INVOICE = 'Service invoice';
     case BANK_STATEMENT = 'Bank statement';
+    case SAMPLE_PHOTO = 'Sample photo';
+    case PRODUCTION_PHOTO = 'Production photo';
+    case QC_REPORT    = 'QC report';
+    case BILL_OF_LADING = 'Bill of lading';
     case OTHER        = 'Other';
 
     public static function labels(): array
@@ -34,6 +38,10 @@ enum PurchaseOrderAttachmentScopeEnum: string
             'Customs declaration' => __('Customs declaration'),
             'Service invoice' => __('Service invoice (freight, customs, local)'),
             'Bank statement' => __('Bank statement'),
+            'Sample photo' => __('Sample photo'),
+            'Production photo' => __('Production photo'),
+            'QC report'    => __('QC report'),
+            'Bill of lading' => __('Bill of lading'),
             'Other'        => __('Other'),
         ];
     }
@@ -59,6 +67,8 @@ enum PurchaseOrderAttachmentScopeEnum: string
         return match (true) {
             Str::contains($name, ['proforma', 'pro-forma', 'pro forma']) => self::PROFORMA,
             Str::contains($name, ['packing', 'packlist']) => self::PACKING_LIST,
+            Str::contains($name, ['bill of lading', 'bill_of_lading', 'bill-of-lading', 'b/l']) => self::BILL_OF_LADING,
+            Str::contains($name, ['qc report', 'qc_report', 'qc-report', 'inspection report']) => self::QC_REPORT,
             Str::contains($name, ['bank statement', 'bank_statement', 'bank-statement', 'swift', 'remittance']) => self::BANK_STATEMENT,
             Str::contains($name, ['customs', 'colny', 'colný', 'aduana', 'zoll']) => self::CUSTOMS,
             Str::contains($name, ['invoice', 'factura', 'faktura', 'rechnung', 'fattura']) => self::INVOICE,

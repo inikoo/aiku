@@ -10,6 +10,7 @@ import { nextTick, ref, watch } from 'vue'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faPlus, faTrashAlt } from '@fal'
 import InputNumber from 'primevue/inputnumber'
+import Select from 'primevue/select'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import PureMultiselectInfiniteScroll from '@/Components/Pure/PureMultiselectInfiniteScroll.vue'
 import InformationIcon from '@/Components/Utils/InformationIcon.vue'
@@ -39,6 +40,7 @@ interface RecipeRow {
     position: number
     units_per_artefact: number | string
     is_recorded_in_kg: boolean
+    mix_batch_kg: number | null
     standard_rate: number | string | null
     targets: { code: string, name: string, hourly_rate: number, units_per_hour: number }[]
     raw_materials: RecipeStepRawMaterial[]
@@ -100,7 +102,7 @@ function syncDraftsWithRecipe() {
 syncDraftsWithRecipe()
 watch(() => props.data.recipe, syncDraftsWithRecipe, { deep: true })
 
-function attach(taskId: number, position: number, units: number, standardRate?: number | null) {
+function attach(taskId: number, position: number, units: number, standardRate?: number | null, extra: Record<string, unknown> = {}) {
     processing.value = true
     router.post(
         route(props.data.routes.attach.name, props.data.routes.attach.parameters),
@@ -109,6 +111,7 @@ function attach(taskId: number, position: number, units: number, standardRate?: 
             position: position,
             units_per_artefact: units,
             ...(standardRate !== undefined ? { standard_rate: standardRate } : {}),
+            ...extra,
         },
         {
             preserveScroll: true,
@@ -142,6 +145,16 @@ async function commitStep(row: RecipeRow) {
     if (isSameNumber(position, row.position) && isSameNumber(units, row.units_per_artefact) && isSameNumber(standardRate, row.standard_rate)) return
 
     attach(row.id, position, units, standardRate)
+}
+
+const mixBatchOptions = [
+    { label: ctrans('Not in batches'), value: null },
+    { label: '25 kg', value: 25 },
+    { label: '50 kg', value: 50 },
+]
+
+function setMixBatch(row: RecipeRow, mixBatchKg: number | null) {
+    attach(row.id, Number(row.position), Number(row.units_per_artefact), undefined, { mix_batch_kg: mixBatchKg })
 }
 
 function stepMaterialsCost(row: RecipeRow): number {
@@ -200,7 +213,7 @@ function detachRawMaterial(stepId: number, rawMaterialId: number) {
 
         <article v-for="row in data.recipe" :key="row.id" class="xoverflow-hidden rounded-lg border border-gray-200 bg-white">
             <header class="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-gray-100 px-4 py-3">
-                <span class="flex size-7 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-xs font-semibold text-indigo-700">
+                <span class="flex size-7 shrink-0 items-center justify-center rounded-full bg-[--app-accent-soft] text-xs font-semibold text-[--app-accent-strong]">
                     {{ row.position }}
                 </span>
                 <div class="mr-auto min-w-0">
@@ -261,6 +274,21 @@ function detachRawMaterial(stepId: number, rawMaterialId: number) {
                         inputClass="w-24"
                         @blur="commitStep(row)"
                         @keyup.enter="commitStep(row)" />
+                </label>
+
+                <label v-if="row.is_recorded_in_kg" class="block">
+                    <span class="mb-1 flex items-center gap-1 text-xs text-gray-500">
+                        {{ ctrans('Mix batch size') }}
+                        <InformationIcon :information="ctrans('Mixes are made in whole batches of this size. The kg a job asks for is rounded up to whole batches, 94.1 kg in 50 kg batches is 2 batches = 100 kg, and the mixer records batches.')" />
+                    </span>
+                    <Select
+                        :modelValue="row.mix_batch_kg"
+                        :options="mixBatchOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                        size="small"
+                        :disabled="processing"
+                        @update:modelValue="setMixBatch(row, $event)" />
                 </label>
 
                 <label class="block">

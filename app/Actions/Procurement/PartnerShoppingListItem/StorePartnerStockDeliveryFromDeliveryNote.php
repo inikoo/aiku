@@ -118,10 +118,8 @@ class StorePartnerStockDeliveryFromDeliveryNote
         return OrgPartner::where('partner_id', $deliveryNote->organisation_id)
             ->get()
             ->first(function (OrgPartner $orgPartner) use ($order) {
-                return in_array(
-                    $order->customer_id,
-                    data_get($orgPartner->data, 'intercompany_customers', []),
-                );
+                return in_array($order->customer_id, data_get($orgPartner->data, 'intercompany_customers', []))
+                    || ($order->customer?->as_organisation_id && $order->customer->as_organisation_id === $orgPartner->organisation_id);
             });
     }
 }

@@ -10,6 +10,7 @@
 namespace App\Actions\Procurement\PurchaseOrder\UI;
 
 use App\Actions\Procurement\OrgPartner\GetPartnerSellingShopIds;
+use App\Actions\Procurement\OrgAgent\GetAgentLeadTimes;
 use App\Actions\Procurement\OrgAgent\UI\IndexAgentCoverBucketItems;
 use App\Actions\Procurement\OrgPartner\GetPartnerLeadTime;
 use App\Actions\Procurement\OrgSupplier\GetSupplierLeadTime;
@@ -98,6 +99,7 @@ class IndexPurchaseOrderOrgSupplierProducts extends OrgAction
 
         $this->attachOrgStockData($paginator, $purchaseOrder);
         $this->attachOtherOpenPurchaseOrders($paginator, $orgId, $purchaseOrder?->id);
+        $this->attachOtherOrganisationsDrafts($paginator, $orgId);
 
         if ($parent instanceof OrgAgent) {
             $paginator->getCollection()->each(fn ($row) => $row->agent_order = ['org_agent_id' => $parent->id, 'reference' => $agentOrderReference]);
@@ -188,6 +190,7 @@ class IndexPurchaseOrderOrgSupplierProducts extends OrgAction
             $query->where(fn ($query) => $query->where('org_supplier_products.state', OrgSupplierProductStateEnum::ACTIVE)
                 ->where('org_supplier_products.is_available', true)
                 ->where('supplier_products.is_available', true)
+                ->whereColumn('supplier_products.supplier_id', 'org_suppliers.supplier_id')
                 ->whereRaw("not $hasDiscontinuingSko"))
                 ->orWhereNotNull('purchase_order_transactions.id');
         });
@@ -368,19 +371,24 @@ class IndexPurchaseOrderOrgSupplierProducts extends OrgAction
         $orgStocks = OrgStock::with('tradeUnits.image', 'stats', 'stock.stockFamily')->whereIn('id', $orgStockIds)->get()->keyBy('id');
         $supplierProducts    = SupplierProduct::whereIn('id', $paginator->getCollection()->pluck('supplier_product_id')->filter()->unique())->get()->keyBy('id');
         $partnerLeadTimeDays = $purchaseOrder?->parent instanceof OrgPartner ? GetPartnerLeadTime::run($purchaseOrder->parent)['days'] : null;
+        $fallbackLeadTimeDays = match (true) {
+            $purchaseOrder?->parent instanceof OrgSupplier => GetSupplierLeadTime::run($purchaseOrder->parent)['days'],
+            $purchaseOrder?->parent instanceof OrgAgent    => GetAgentLeadTimes::run($purchaseOrder->parent)['agent']['days'],
+            default                                         => null,
+        };
 
         $quarterlyUsage  = GetOrgStocksQuarterlyUsage::run($orgStockIds);
         $stockDeliveries = GetOrgStocksStockDeliveries::run($orgStockIds);
         $discontinueSuggestions = OrgStockDiscontinueSuggestion::tallyForOrgStocks($orgStockIds);
 
-        $paginator->getCollection()->transform(function ($row) use ($orgStocks, $quarterlyUsage, $stockDeliveries, $discontinueSuggestions, $supplierProducts, $partnerLeadTimeDays) {
+        $paginator->getCollection()->transform(function ($row) use ($orgStocks, $quarterlyUsage, $stockDeliveries, $discontinueSuggestions, $supplierProducts, $partnerLeadTimeDays, $fallbackLeadTimeDays) {
             $orgStock  = $orgStocks->get($row->org_stock_id);
             $tradeUnit = $orgStock?->tradeUnits->first(fn ($tradeUnit) => $tradeUnit->image_id !== null);
 
             $row->image_sources      = $tradeUnit?->imageSources(240, 240);
             $row->stock_in_locations = $orgStock?->quantity_in_locations;
             $row->quarterly_usage    = $quarterlyUsage->get($row->org_stock_id) ?? collect();
-            $row->stock_cover        = GetOrgStockBuyingSignals::run($orgStock, $supplierProducts->get($row->supplier_product_id ?? null), $partnerLeadTimeDays);
+            $row->stock_cover        = GetOrgStockBuyingSignals::run($orgStock, $supplierProducts->get($row->supplier_product_id ?? null), $partnerLeadTimeDays, $fallbackLeadTimeDays);
             $row->stock_deliveries   = $stockDeliveries->get($row->org_stock_id);
             $row->discontinue_suggestions = $discontinueSuggestions->get($row->org_stock_id) ?? ['times' => 0, 'people' => 0];
 
@@ -441,6 +449,47 @@ class IndexPurchaseOrderOrgSupplierProducts extends OrgAction
                     'quantity_ordered' => (float) $lines->sum('quantity_ordered'),
                 ])
                 ->values();
+
+            return $row;
+        });
+    }
+
+    /**
+     * A supplier's minimum is met by every organisation's order together, so the drafts other
+     * organisations hold for the same supplier product count towards it.
+     */
+    public function attachOtherOrganisationsDrafts(LengthAwarePaginator $paginator, int $organisationId): void
+    {
+        $rows               = $paginator->getCollection();
+        $supplierProductIds = $rows->pluck('supplier_product_id')->filter()->unique()->values();
+
+        if ($supplierProductIds->isEmpty()) {
+            return;
+        }
+
+        $drafts = DB::table('purchase_orders as po')
+            ->join('purchase_order_transactions as pot', fn ($join) => $join->on('pot.purchase_order_id', 'po.id')->whereNull('pot.deleted_at'))
+            ->join('organisations as o', 'o.id', 'po.organisation_id')
+            ->leftJoin('users as buyer', 'buyer.id', 'po.buyer_id')
+            ->where('po.group_id', DB::table('organisations')->where('id', $organisationId)->select('group_id'))
+            ->where('po.organisation_id', '!=', $organisationId)
+            ->where('po.state', PurchaseOrderStateEnum::IN_PROCESS->value)
+            ->whereNull('po.deleted_at')
+            ->whereIn('pot.supplier_product_id', $supplierProductIds)
+            ->groupBy('pot.supplier_product_id', 'po.id', 'o.id', 'buyer.id')
+            ->orderBy('o.code')
+            ->selectRaw('pot.supplier_product_id, o.code as organisation_code, o.name as organisation_name, po.reference, buyer.contact_name as buyer_name, sum(pot.quantity_ordered) as units')
+            ->get()
+            ->groupBy('supplier_product_id');
+
+        $rows->transform(function ($row) use ($drafts) {
+            $row->other_organisations_drafts = ($drafts->get($row->supplier_product_id) ?? collect())->map(fn ($draft) => [
+                'organisation_code' => $draft->organisation_code,
+                'organisation_name' => $draft->organisation_name,
+                'reference'         => $draft->reference,
+                'buyer_name'        => $draft->buyer_name,
+                'units'             => (float) $draft->units,
+            ])->values();
 
             return $row;
         });

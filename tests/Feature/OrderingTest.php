@@ -3083,6 +3083,59 @@ test('paid then refunded order reads refunded not unpaid', function () {
         ->and((float)$order->payment_amount)->toBe(0.0);
 });
 
+test('dispatched order credited for part of its total has nothing left to pay', function () {
+    $billingAddress  = new Address(Address::factory()->definition());
+    $deliveryAddress = new Address(Address::factory()->definition());
+
+    $orderData = Order::factory()->definition();
+    data_set($orderData, 'billing_address', $billingAddress);
+    data_set($orderData, 'delivery_address', $deliveryAddress);
+
+    $order = StoreOrder::make()->action($this->customer, $orderData);
+
+    StoreTransaction::make()->action($order, $this->product->historicAsset, [
+        'quantity_ordered' => 2,
+    ]);
+
+    $order->refresh();
+    $total  = (float)$order->total_amount;
+    $credit = round($total / 2, 2);
+
+    $paymentAccount = StoreOrgPaymentServiceProviderAccount::make()->action(
+        $this->organisation,
+        PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::CASH->value)->first(),
+        [
+            'code' => 'CR'.mt_rand(1000, 9999),
+            'name' => 'Cash Account',
+        ]
+    );
+
+    PayOrder::make()->action($order, $paymentAccount, [
+        'amount'    => $total,
+        'reference' => 'PAY-'.uniqid(),
+        'status'    => PaymentStatusEnum::SUCCESS,
+        'state'     => PaymentStateEnum::COMPLETED,
+    ]);
+
+    StoreInvoice::make()->action($order, array_merge(Invoice::factory()->definition(), [
+        'type'         => InvoiceTypeEnum::REFUND,
+        'in_process'   => false,
+        'total_amount' => -$credit,
+        'net_amount'   => -$credit,
+    ]));
+
+    PayOrder::make()->action($order->refresh(), $paymentAccount, [
+        'amount'    => -$credit,
+        'reference' => 'REFUND-'.uniqid(),
+        'status'    => PaymentStatusEnum::SUCCESS,
+        'state'     => PaymentStateEnum::COMPLETED,
+    ]);
+    $order->refresh();
+
+    expect(round($total - (float)$order->payment_amount, 2))->toBe($credit)
+        ->and($order->amountStillToPay())->toBe(0.0);
+});
+
 test('paid order whose total drops to zero with nothing refunded reads overpaid not refunded', function () {
     $billingAddress  = new Address(Address::factory()->definition());
     $deliveryAddress = new Address(Address::factory()->definition());
@@ -4740,6 +4793,7 @@ test('a basket line may exceed stock, is zeroed while out of stock and restored 
     $lowStock->update(['status' => ProductStatusEnum::FOR_SALE]);
     $lowStockData                     = Transaction::factory()->definition();
     $lowStockData['quantity_ordered'] = 3;
+    $lowStockData['quantity_bonus']   = 0;
     $lowStockData['order_id']         = $basket->id;
     $lowStockLine                     = StoreTransaction::make()->action($basket, $lowStock->currentHistoricProduct, $lowStockData);
     DB::table('products')->where('id', $lowStock->id)->update(['available_quantity' => 5]);
@@ -4804,6 +4858,7 @@ test('a basket line may exceed stock, is zeroed while out of stock and restored 
     ));
     $goneData                     = Transaction::factory()->definition();
     $goneData['quantity_ordered'] = 4;
+    $goneData['quantity_bonus']   = 0;
     $goneData['order_id']         = $basket->id;
     $goneLine                     = StoreTransaction::make()->action($basket, $goneProduct->currentHistoricProduct, $goneData);
     DB::table('products')->where('id', $goneProduct->id)->update(['available_quantity' => 0]);
@@ -4811,11 +4866,18 @@ test('a basket line may exceed stock, is zeroed while out of stock and restored 
 
     expect($basket->fresh()->stats->number_item_transactions)->toBe(1);
 
+    $goneLine->update(['quantity_bonus' => 1]);
+    $lowStockLine->update(['quantity_bonus' => 2]);
+    $giftLine = StoreTransaction::make()->action($basket, $lowStock->currentHistoricProduct, ['quantity_ordered' => 0, 'quantity_bonus' => 1, 'is_gift' => true]);
+
     $submitted = SubmitOrder::run($basket->fresh());
 
     expect($submitted->state)->toBe(OrderStateEnum::SUBMITTED)
         ->and($goneLine->fresh()->trashed())->toBeTrue()
-        ->and($submitted->transactions()->where('model_type', 'Product')->count())->toBe(1);
+        ->and((float) $lowStockLine->fresh()->quantity_bonus)->toBe(0.0)
+        ->and($giftLine->fresh()->trashed())->toBeFalse()
+        ->and((float) $giftLine->fresh()->quantity_bonus)->toBe(1.0)
+        ->and($submitted->transactions()->where('model_type', 'Product')->where('is_gift', false)->count())->toBe(1);
 });
 
 test('a customer cannot raise a basket line of an out of stock product, nor change an order after it is submitted', function () {

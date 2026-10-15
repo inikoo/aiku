@@ -43,7 +43,7 @@ trait WithOrderingCustomerNotification
 
     public function getTrackingUrl(Order $order): ?string
     {
-        $deliveryNote = $order->deliveryNotes->first();
+        $deliveryNote = $order->currentDeliveryNote();
 
         if ($deliveryNote) {
             $shipment = $deliveryNote->shipments?->first();

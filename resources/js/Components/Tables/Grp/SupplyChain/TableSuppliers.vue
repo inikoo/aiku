@@ -7,6 +7,7 @@
 <script setup lang="ts">
 import { Link } from "@inertiajs/vue3"
 import Table from "@/Components/Table/Table.vue"
+import { ctrans } from "@/Composables/useTrans"
 import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue"
 import Icon from "@/Components/Icon.vue"
 import { useLocaleStore } from "@/Stores/locale"
@@ -48,6 +49,7 @@ function supplierRoute(supplier: Supplier) {
             <Link :href="supplierRoute(supplier)" class="primaryLink">
                 {{ supplier["code"] }}
             </Link>
+            <span v-if="supplier.open_incidents" class="ml-1 rounded-full bg-gray-800 px-1.5 py-0.5 text-xs font-medium text-white tabular-nums" :title="ctrans('Open incidents')">{{ supplier.open_incidents }}</span>
         </template>
         <template #cell(location)="{ item: supplier }">
             <AddressLocation :data="supplier['location']" />

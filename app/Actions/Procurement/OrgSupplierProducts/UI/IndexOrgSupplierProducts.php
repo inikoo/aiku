@@ -73,7 +73,7 @@ class IndexOrgSupplierProducts extends OrgAction
         }
 
         $counts = $query
-            ->selectRaw('supplier_products.state, count(*) as total')
+            ->selectRaw('supplier_products.state, count(distinct supplier_products.id) as total')
             ->groupBy('supplier_products.state')
             ->pluck('total', 'supplier_products.state');
 
@@ -159,7 +159,19 @@ class IndexOrgSupplierProducts extends OrgAction
         if ($organisationAgent) {
             $queryBuilder
                 ->leftJoin('organisations', 'org_supplier_products.organisation_id', 'organisations.id')
-                ->addSelect(['organisations.name as organisation_name']);
+                ->select([
+                    'supplier_products.code',
+                    'supplier_products.name',
+                    'supplier_products.cost',
+                    'supplier_products.units_per_carton',
+                    'currencies.code as currency_code',
+                    'suppliers.name as supplier_name',
+                ])
+                ->selectRaw('min(org_supplier_products.id) as id')
+                ->selectRaw('min(org_supplier_products.slug) as slug')
+                ->selectRaw('min(org_suppliers.slug) as org_supplier_slug')
+                ->selectRaw("string_agg(distinct organisations.code, ', ' order by organisations.code) as organisations")
+                ->groupBy('supplier_products.id', 'currencies.code', 'suppliers.name');
         }
 
         return $queryBuilder
@@ -199,7 +211,7 @@ class IndexOrgSupplierProducts extends OrgAction
             }
 
             if ($this->getParentOrganisationAgent($parent)) {
-                $table->column(key: 'organisation_name', label: __('Organisation'), canBeHidden: false, searchable: true);
+                $table->column(key: 'organisations', label: __('Organisations'), canBeHidden: false);
             }
 
             $table->column(key: 'cost', label: __('Cost'), canBeHidden: false, sortable: true, type: 'currency');

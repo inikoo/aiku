@@ -28,6 +28,7 @@ import StockDeliveryAgentPayments from "@/Components/Procurement/StockDeliveryAg
 import StockDeliverySupplierPayments from "@/Components/Procurement/StockDeliverySupplierPayments.vue"
 import StockDeliveryServiceInvoices from "@/Components/Procurement/StockDeliveryServiceInvoices.vue"
 import AgentContainerInvoicePanel from "@/Components/Procurement/AgentContainerInvoicePanel.vue"
+import AgreedTermDifferences from "@/Components/Procurement/AgreedTermDifferences.vue"
 import TableStockDeliveryItems from "@/Components/Tables/Grp/Org/Procurement/TableStockDeliveryItems.vue"
 import TableStockDeliveryDiscrepancies from "@/Components/Tables/Grp/Org/Procurement/TableStockDeliveryDiscrepancies.vue"
 import StockDeliveryCustoms from "@/Components/Procurement/StockDeliveryCustoms.vue"
@@ -50,11 +51,12 @@ import { Timeline as TSTimeline } from "@/types/Timeline"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faSpinnerThird } from "@fad"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faInventory, faWarehouse, faPersonDolly, faBoxUsd, faTruck, faTerminal, faCameraRetro, faPaperclip, faInfoCircle, faHandHoldingBox, faPeopleArrows, faExclamationTriangle, faBoxOpen, faClipboardList, faBalanceScale, faPassport, faCheckCircle, faTimes, faCheck, faSquare, faChevronRight, faChevronDown, faShip, faHashtag, faTrashAlt, faPlus } from "@fal"
+import { faInventory, faWarehouse, faPersonDolly, faBoxUsd, faTruck, faTerminal, faCameraRetro, faPaperclip, faInfoCircle, faHandHoldingBox, faPeopleArrows, faExclamationTriangle, faBoxOpen, faClipboardList, faBalanceScale, faPassport, faCheckCircle, faTimes, faCheck, faSquare, faChevronRight, faChevronDown, faShip, faHashtag, faTrashAlt, faPlus, faContainerStorage } from "@fal"
 import { faBars, faBoxCheck, faInventory as fasInventory, faShare, faArrowCircleRight, faArrowCircleLeft, faExclamationCircle, faBoxFull, faCheckSquare } from "@fas"
 
 library.add(
 	faShip,
+	faContainerStorage,
 	faHashtag,
 	faPlus,
 	faBalanceScale,
@@ -133,6 +135,7 @@ const props = defineProps<{
 				delivery_address: string | null
 				shipper_reference: string | null
 				tracking_number: string | null
+				container_number?: string | null
 				shipping_agent: string | null
 			}
 		}
@@ -172,7 +175,7 @@ const props = defineProps<{
 			source: "agent" | "actual" | "estimated"
 			reference: string | null
 			date: string
-			charges_list: { description: string; type?: "freight" | "other"; amount: number }[]
+			charges_list: { description: string; type?: string; amount: number }[]
 			currency: string
 			org_currency: string
 			org_exchange: number | null
@@ -200,6 +203,7 @@ const props = defineProps<{
 		attachRoute: routeType
 		detachRoute: routeType
 	}
+	missing_evidence?: string[]
 	costing: {
 		is_costed: boolean
 		is_partner: boolean
@@ -226,8 +230,10 @@ const props = defineProps<{
 	invoice_costing: InstanceType<typeof StockDeliveryInvoiceCosting>["$props"]["invoices"]
 	agentInvoice?: InstanceType<typeof AgentContainerInvoicePanel>["$props"]["data"] | null
 	service_invoices: InstanceType<typeof StockDeliveryServiceInvoices>["$props"]["data"] | null
+	agreed_term_differences?: InstanceType<typeof AgreedTermDifferences>["$props"]["differences"] | null
 	notes?: {}
 	note_store_route?: routeType
+	note_form?: object
 	history?: {}
 }>()
 
@@ -589,7 +595,30 @@ const receiveLoading = ref(false)
 const unreceiveLoading = ref(false)
 const cancelLoading = ref(false)
 
+const dispatchWithoutEvidenceAction = ref<any>(null)
+const dispatchReason = ref("")
+
+const dispatchStockDelivery = (action: any, data: { reason?: string } = {}) =>
+	router.patch(route(action.route.name, action.route.parameters), data, {
+		onStart: () => { dispatchLoading.value = true },
+		onFinish: () => { dispatchLoading.value = false },
+		onSuccess: () => { dispatchWithoutEvidenceAction.value = null; dispatchReason.value = "" },
+		onError: (errors) => {
+			notify({
+				title: ctrans("Something went wrong"),
+				text: errors?.invoice ?? errors?.reason ?? ctrans("Failed to dispatch stock delivery"),
+				type: "error",
+			})
+		},
+	})
+
 const confirmDispatchStockDelivery = (action: any) => {
+	if (props.missing_evidence?.length) {
+		dispatchReason.value = ""
+		dispatchWithoutEvidenceAction.value = action
+		return
+	}
+
 	confirm.require({
 		group: "stock-delivery",
 		message: props.costing.agent_invoice_missing
@@ -598,19 +627,7 @@ const confirmDispatchStockDelivery = (action: any) => {
 		header: ctrans("Dispatch Stock Delivery"),
 		rejectProps: { label: ctrans("Cancel"), severity: "secondary", outlined: true },
 		acceptProps: { label: ctrans("Mark as Dispatched"), severity: "primary" },
-		accept: () => {
-			router.patch(route(action.route.name, action.route.parameters), {}, {
-				onStart: () => { dispatchLoading.value = true },
-				onFinish: () => { dispatchLoading.value = false },
-				onError: (errors) => {
-					notify({
-						title: ctrans("Something went wrong"),
-						text: errors?.invoice ?? ctrans("Failed to dispatch stock delivery"),
-						type: "error",
-					})
-				},
-			})
-		},
+		accept: () => dispatchStockDelivery(action),
 	})
 }
 
@@ -981,6 +998,8 @@ const confirmDeleteStockDelivery = (action: any) => {
 		/>
 	</div>
 
+	<AgreedTermDifferences v-if="agreed_term_differences" :differences="agreed_term_differences" class="m-4" />
+
 	<AgentContainerInvoicePanel v-if="agentInvoice" :data="agentInvoice" :currencyCode="box_stats.third_block.currency ?? ''" class="mb-4" />
 
 	<div class="grid grid-cols-2 xl:grid-cols-4 text-gray-500 divide-x divide-gray-300 border-b border-gray-300">
@@ -1058,11 +1077,17 @@ const confirmDeleteStockDelivery = (action: any) => {
 
 				<div v-if="box_stats.first_block.delivery.tracking_number" class="flex items-center gap-2">
 					<dt>
-						<FontAwesomeIcon v-tooltip="ctrans('Tracking number')" icon="fal fa-ship" aria-hidden="true" fixed-width />
+						<FontAwesomeIcon v-tooltip="ctrans('Bill of lading number')" icon="fal fa-ship" aria-hidden="true" fixed-width />
 					</dt>
 					<dd>
 						<a :href="`https://www.track-trace.com/container?number=${encodeURIComponent(box_stats.first_block.delivery.tracking_number)}`" target="_blank" rel="noopener" class="underline decoration-dotted underline-offset-2">{{ box_stats.first_block.delivery.tracking_number }}</a>
 					</dd>
+				</div>
+				<div v-if="box_stats.first_block.delivery.container_number" class="flex items-center gap-2">
+					<dt>
+						<FontAwesomeIcon v-tooltip="ctrans('Container number')" icon="fal fa-container-storage" aria-hidden="true" fixed-width />
+					</dt>
+					<dd>{{ box_stats.first_block.delivery.container_number }}</dd>
 				</div>
 				<div v-if="box_stats.first_block.delivery.shipper_reference" class="flex items-center gap-2">
 					<dt>
@@ -1420,7 +1445,8 @@ const confirmDeleteStockDelivery = (action: any) => {
 		:tab="currentTab"
 		:costing="currentTab === 'items' ? costing : undefined"
 		:detachRoute="attachmentRoutes.detachRoute"
-		:storeRoute="currentTab === 'notes' ? note_store_route : undefined"
+		:storeRoute="currentTab === 'notes' && note_form?.can_write !== false ? note_store_route : undefined"
+			:agreement="currentTab === 'notes' ? note_form : undefined"
 		:removablePurchaseOrderIds="currentTab === 'purchase_orders' ? removablePurchaseOrderIds : undefined"
 		@removePurchaseOrder="(purchaseOrderId: number) => (purchaseOrderToRemoveId = purchaseOrderId)"
 	/>
@@ -1436,6 +1462,41 @@ const confirmDeleteStockDelivery = (action: any) => {
 		:attachmentRoutes="attachmentRoutes"
 		:options="attachmentScopes"
 	/>
+
+	<Dialog
+		:visible="!!dispatchWithoutEvidenceAction"
+		modal
+		:closable="false"
+		:style="{ width: '28rem', maxWidth: 'calc(100vw - 2rem)' }"
+		:pt="{ header: { class: '!px-4 !py-2.5 border-b border-gray-200' }, content: { class: '!p-4' } }"
+		@update:visible="(visible: boolean) => { if (!visible) dispatchWithoutEvidenceAction = null }"
+	>
+		<template #header>
+			<div class="flex items-center gap-2 text-sm font-semibold text-gray-900">
+				<FontAwesomeIcon :icon="faExclamationTriangle" class="text-amber-500" fixed-width aria-hidden="true" />
+				{{ ctrans("Shipping documents missing") }}
+			</div>
+		</template>
+		<div class="space-y-3 text-sm text-gray-700">
+			<p>{{ ctrans("Not uploaded yet: :documents. Upload them in the Attachments tab, or give a reason to dispatch without them.", { documents: (missing_evidence ?? []).join(", ") }) }}</p>
+			<label class="block">
+				<span class="text-gray-600">{{ ctrans("Reason (kept in the delivery's history)") }}</span>
+				<InputText v-model="dispatchReason" class="mt-1 w-full" autofocus maxlength="500" />
+			</label>
+		</div>
+		<template #footer>
+			<Button type="tertiary" :label="ctrans('Cancel')" @click="dispatchWithoutEvidenceAction = null">
+				<template #icon>
+					<FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" />
+				</template>
+			</Button>
+			<Button type="tertiary" :label="ctrans('Dispatch anyway')" :disabled="!dispatchReason.trim()" :loading="dispatchLoading" @click="dispatchStockDelivery(dispatchWithoutEvidenceAction, { reason: dispatchReason.trim() })">
+				<template #icon>
+					<FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" />
+				</template>
+			</Button>
+		</template>
+	</Dialog>
 
 	<Dialog
 		:visible="!!receiveWithoutCostsAction"

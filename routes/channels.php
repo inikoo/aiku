@@ -16,6 +16,7 @@ use App\Models\Chat\ChatSession;
 use App\Models\CRM\WebUser;
 use App\Models\Dropshipping\ShopifyUser;
 use App\Models\Helpers\Ticket;
+use App\Models\Goods\TradeUnit;
 use App\Models\Masters\MasterAsset;
 use App\Models\Masters\MasterProductCategory;
 use App\Models\Masters\MasterShop;
@@ -121,6 +122,10 @@ Broadcast::channel('grp.master-shop.{masterShopId}', function (User $user, int $
 
 Broadcast::channel('grp.master-asset.{masterAssetId}', function (User $user, int $masterAssetId) {
     return MasterAsset::where('id', $masterAssetId)->value('group_id') === $user->group_id;
+});
+
+Broadcast::channel('grp.trade-unit.{tradeUnitId}', function (User $user, int $tradeUnitId) {
+    return TradeUnit::where('id', $tradeUnitId)->value('group_id') === $user->group_id;
 });
 
 Broadcast::channel('grp.master-product-category.{masterProductCategoryId}', function (User $user, int $masterProductCategoryId) {

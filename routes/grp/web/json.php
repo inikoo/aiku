@@ -6,6 +6,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\CRM\Appointment\Json\GetAppointmentActionOptions;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexRecentPurchaseOrderTransactionUploads;
 use App\Actions\Procurement\PartnerShoppingListItem\UI\IndexRecentPartnerShoppingListUploads;
 use App\Actions\Helpers\Gallery\Json\IndexShopGalleryImages;
@@ -143,6 +144,7 @@ use App\Actions\Helpers\TimeZone\Json\IndexTimeZones;
 use App\Actions\Inventory\OrgStock\Json\FetchOrgStockLabelOptions;
 use App\Actions\Inventory\OrgStock\Json\FetchOrgStockStocksManagement;
 use App\Actions\Inventory\OrgStock\Json\GetOrgStocks;
+use App\Actions\Procurement\OrgSupplierProducts\Json\GetOrgSupplierProductMinimumOrders;
 use App\Actions\Procurement\OrgSupplierProducts\Json\GetOrgSupplierProducts;
 use App\Actions\Procurement\OrgSupplier\Json\GetOrgSuppliers;
 use App\Actions\Inventory\OrgStock\Json\ScanSkoBarcode;
@@ -230,6 +232,7 @@ Route::get('/mailshot/{mailshot:id}/merge-tags', GetMailshotMergeTags::class)->n
 Route::get('/mailshot/{mailshot:id}/convert-to-page', BeefreeConvertEmailJsonToPageJson::class)->name('mailshot.convert-to-page');
 
 Route::get('email/dispatched-email/{dispatchedEmail:id}/copy', GetEmailCopy::class)->name('email.dispatched-email.copy');
+Route::get('appointment/{appointment:id}/action-options', GetAppointmentActionOptions::class)->name('appointment.action_options')->withoutScopedBindings();
 Route::get('shop/{shop}/payment-accounts', GetShopPaymentAccounts::class)->name('shop.payment-accounts');
 Route::get('shop/{shop}/products-for-website-workshop', GetProductsInWorkshop::class)->name('shop.products_for_website_workshop');
 Route::get('shop/{shop}/products', GetProductsInShop::class)->name('shop.products');
@@ -300,6 +303,7 @@ Route::get('organisation/{organisation}/shippers', GetShippers::class)->name('sh
 Route::get('organisation/{organisation:id}/org-stocks', GetOrgStocks::class)->name('org_stocks.index');
 Route::get('organisation/{organisation}/org-suppliers', GetOrgSuppliers::class)->name('org_suppliers.index');
 Route::get('organisation/{organisation}/org-supplier-products', GetOrgSupplierProducts::class)->name('org_supplier_products.index');
+Route::get('org-supplier-product/{orgSupplierProduct:id}/minimum-orders', GetOrgSupplierProductMinimumOrders::class)->name('org_supplier_product.minimum_orders');
 Route::get('organisation/{organisation:id}/org-stock/{orgStock:id}/batch-codes', GetBatchCodes::class)->name('org_stock.batch_codes.index');
 Route::get('barcodes/next-free', GetNextFreeBarcode::class)->name('barcodes.next_free');
 Route::get('warehouse/{warehouse}/scan-sko-barcode', ScanSkoBarcode::class)->name('warehouse.scan_sko_barcode');

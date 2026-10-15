@@ -1,11 +1,7 @@
+import type { CssStyle, EmailColumn, EmailJson, EmailModule, EmailRow } from './emailWorkshopBlocks.ts'
 import {
-    CssStyle,
     DEFAULT_FONT_FAMILY,
     DEFAULT_MESSAGE_WIDTH,
-    EmailColumn,
-    EmailJson,
-    EmailModule,
-    EmailRow,
     MODULE_TYPES,
     UNSUBSCRIBE_URL_TAG,
     columnWidthPercent,
@@ -14,7 +10,7 @@ import {
     isUnsubscribeModule,
     tableColumnCount,
     hasCurrentVideoEmailThumbnail,
-} from './emailWorkshopBlocks'
+} from './emailWorkshopBlocks.ts'
 
 const PADDING_KEYS = ['padding-top', 'padding-right', 'padding-bottom', 'padding-left']
 const NON_CSS_KEYS = ['link-color']
@@ -27,6 +23,8 @@ export interface RenderContext {
     mobileRules: string[]
     moduleIndex: number
     isCanvas: boolean
+    isMobile: boolean
+    isLinkUnderlined: boolean
 }
 
 export const escapeAttribute = (value: unknown): string =>
@@ -45,8 +43,20 @@ export const styleToString = (style: CssStyle | undefined | null, excludedKeys: 
 const pickStyle = (style: CssStyle | undefined | null, keys: string[]): CssStyle =>
     Object.fromEntries(Object.entries(style ?? {}).filter(([key]) => keys.includes(key)))
 
-export const modulePaddingStyle = (module: EmailModule): string =>
-    styleToString(pickStyle(module.descriptor?.style, PADDING_KEYS))
+const omitStyle = (style: CssStyle | undefined | null, keys: string[]): CssStyle =>
+    Object.fromEntries(Object.entries(style ?? {}).filter(([key]) => !keys.includes(key)))
+
+export const moduleMobileStyle = (module: EmailModule): CssStyle => {
+    const mobileStyle = module.descriptor?.mobileStyle
+
+    return mobileStyle && typeof mobileStyle === 'object' && !Array.isArray(mobileStyle) ? mobileStyle : {}
+}
+
+export const responsiveContentStyle = (module: EmailModule, style: CssStyle | undefined | null, isMobile: boolean): CssStyle =>
+    isMobile ? { ...(style ?? {}), ...omitStyle(moduleMobileStyle(module), PADDING_KEYS) } : { ...(style ?? {}) }
+
+export const modulePaddingStyle = (module: EmailModule, isMobile = false): string =>
+    styleToString(pickStyle({ ...(module.descriptor?.style ?? {}), ...(isMobile ? moduleMobileStyle(module) : {}) }, PADDING_KEYS))
 
 export const pixels = (value: unknown, fallback = 0): number => {
     const parsed = parseFloat(String(value ?? ''))
@@ -56,13 +66,50 @@ export const pixels = (value: unknown, fallback = 0): number => {
 const horizontalPadding = (style: CssStyle | undefined | null): number =>
     pixels(style?.['padding-left']) + pixels(style?.['padding-right'])
 
-export const applyLinkColor = (html: string, linkColor: string | undefined): string => {
-    if (!linkColor) {
-        return html
-    }
+export const isLinkUnderlined = (blockSetting: unknown, bodySetting: unknown): boolean =>
+    (blockSetting ?? bodySetting) !== false
 
-    return html.replace(/<a\b(?![^>]*\sstyle=)/gi, `<a style="text-decoration:underline;color:${escapeAttribute(linkColor)}"`)
-}
+const TEXT_DECORATION_DECLARATION = /(^|;)\s*text-decoration(-line)?\s*:/i
+const COLOR_DECLARATION = /(^|;)\s*color\s*:/i
+
+const withoutTextDecoration = (style: string): string =>
+    style
+        .split(';')
+        .filter((declaration) => declaration.trim() && !TEXT_DECORATION_DECLARATION.test(declaration))
+        .join(';')
+
+export const withoutLinkUnderlineChoices = (html: string): string =>
+    html.replace(/<a\b([^>]*)>/gi, (tag, attributes: string) => {
+        const styleMatch = attributes.match(/\sstyle="([^"]*)"/i)
+        if (!styleMatch || !TEXT_DECORATION_DECLARATION.test(styleMatch[1])) {
+            return tag
+        }
+        const style = withoutTextDecoration(styleMatch[1])
+
+        return `<a${attributes.replace(styleMatch[0], style ? ` style="${style}"` : '')}>`
+    })
+
+export const applyLinkColor = (html: string, linkColor: string | undefined, isUnderlined = true): string =>
+    html.replace(/<a\b([^>]*)>/gi, (tag, attributes: string) => {
+        const styleMatch = attributes.match(/\sstyle="([^"]*)"/i)
+        if (!styleMatch) {
+            if (!linkColor && isUnderlined) {
+                return tag
+            }
+            const color = linkColor ? `;color:${escapeAttribute(linkColor)}` : ''
+
+            return `<a style="text-decoration:${isUnderlined ? 'underline' : 'none'}${color}"${attributes}>`
+        }
+        const additions = [
+            TEXT_DECORATION_DECLARATION.test(styleMatch[1]) ? '' : `text-decoration:${isUnderlined ? 'underline' : 'none'}`,
+            linkColor && !COLOR_DECLARATION.test(styleMatch[1]) ? `color:${escapeAttribute(linkColor)}` : '',
+        ].filter(Boolean)
+        if (additions.length === 0) {
+            return tag
+        }
+
+        return `<a${attributes.replace(styleMatch[0], ` style="${[...additions, styleMatch[1]].filter(Boolean).join(';')}"`)}>`
+    })
 
 const paragraphSpacingHtml = (html: string, spacing: string | undefined): string => {
     const paragraphs = html.match(/<p(?=[\s>])[^>]*>/gi) ?? []
@@ -95,14 +142,14 @@ const visibilityClasses = (module: EmailModule): string => {
 
 const blockTable = (blockClass: string, module: EmailModule, context: RenderContext, inner: string, extraPadStyle = ''): string => {
     const moduleClass = `block-${context.moduleIndex}`
-    const padStyle = [styleToString(pickStyle(module.descriptor?.style, PADDING_KEYS)), extraPadStyle].filter(Boolean).join(';')
+    const padStyle = [modulePaddingStyle(module, context.isMobile), extraPadStyle].filter(Boolean).join(';')
 
     return `<table class="${blockClass} ${moduleClass} ${visibilityClasses(module)}" ${PRESENTATION_TABLE} style="${MSO_TABLE};word-break:break-word"><tr><td class="pad" style="${padStyle}">${inner}</td></tr></table>`
 }
 
 const registerMobileStyle = (module: EmailModule, context: RenderContext, contentSelector: string): void => {
-    const mobileStyle: CssStyle = module.descriptor?.mobileStyle ?? {}
-    if (!mobileStyle || Array.isArray(mobileStyle) || Object.keys(mobileStyle).length === 0) {
+    const mobileStyle = moduleMobileStyle(module)
+    if (context.isMobile || Object.keys(mobileStyle).length === 0) {
         return
     }
 
@@ -138,6 +185,9 @@ export const imageDisplayWidth = (module: EmailModule, columnWidth: number): num
     if (String(descriptor.computedStyle?.class ?? '').includes('fixedwidth')) {
         return Math.min(Math.round(pixels(descriptor.computedStyle?.width, availableWidth)), Math.round(availableWidth))
     }
+    if (/^\s*[\d.]+px\s*$/i.test(String(descriptor.computedStyle?.width ?? ''))) {
+        return Math.min(Math.round(pixels(descriptor.computedStyle.width)), Math.round(availableWidth))
+    }
 
     return Math.round(availableWidth)
 }
@@ -164,25 +214,28 @@ const renderHeading = (module: EmailModule, context: RenderContext): string => {
     const heading = module.descriptor?.heading ?? {}
     const tag = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(heading.title) ? heading.title : 'h1'
     const linkColor = heading.style?.['link-color'] ?? context.linkColor
+    const isUnderlined = isLinkUnderlined(heading.computedStyle?.linkUnderline, context.isLinkUnderlined)
     registerMobileStyle(module, context, tag)
 
-    return blockTable('heading_block', module, context, `<${tag} style="margin:0;${styleToString(heading.style)}"><span>${applyLinkColor(heading.text ?? '', linkColor)}</span></${tag}>`, 'width:100%;text-align:center')
+    return blockTable('heading_block', module, context, `<${tag} style="margin:0;${styleToString(responsiveContentStyle(module, heading.style, context.isMobile))}"><span>${applyLinkColor(heading.text ?? '', linkColor, isUnderlined)}</span></${tag}>`, 'width:100%;text-align:center')
 }
 
 const renderParagraph = (module: EmailModule, context: RenderContext): string => {
     const paragraph = module.descriptor?.paragraph ?? {}
     const linkColor = paragraph.computedStyle?.linkColor ?? context.linkColor
-    const html = paragraphSpacingHtml(applyLinkColor(paragraph.html ?? '', linkColor), paragraph.computedStyle?.paragraphSpacing)
+    const isUnderlined = isLinkUnderlined(paragraph.computedStyle?.linkUnderline, context.isLinkUnderlined)
+    const html = paragraphSpacingHtml(applyLinkColor(paragraph.html ?? '', linkColor, isUnderlined), paragraph.computedStyle?.paragraphSpacing)
     registerMobileStyle(module, context, '.pad > div')
 
-    return blockTable('paragraph_block', module, context, `<div style="${styleToString(paragraph.style)}">${html}</div>`)
+    return blockTable('paragraph_block', module, context, `<div style="${styleToString(responsiveContentStyle(module, paragraph.style, context.isMobile))}">${html}</div>`)
 }
 
 const renderText = (module: EmailModule, context: RenderContext): string => {
     const text = module.descriptor?.text ?? {}
     const linkColor = text.computedStyle?.linkColor ?? context.linkColor
+    const isUnderlined = isLinkUnderlined(text.computedStyle?.linkUnderline, context.isLinkUnderlined)
 
-    return blockTable('text_block', module, context, `<div style="${styleToString(text.style)}">${applyLinkColor(text.html ?? '', linkColor)}</div>`)
+    return blockTable('text_block', module, context, `<div style="${styleToString(text.style)}">${applyLinkColor(text.html ?? '', linkColor, isUnderlined)}</div>`)
 }
 
 const withStyleAttribute = (attributes: string, style: string): string => {
@@ -211,10 +264,11 @@ const renderList = (module: EmailModule, context: RenderContext): string => {
     const list = module.descriptor?.list ?? {}
     const computedStyle = list.computedStyle ?? {}
     const linkColor = computedStyle.linkColor ?? context.linkColor
+    const isUnderlined = isLinkUnderlined(computedStyle.linkUnderline, context.isLinkUnderlined)
     const indent = computedStyle.liIndent ?? '24px'
     const position = computedStyle.listStylePosition === 'inside' ? 'inside' : 'outside'
     const itemStyle = `margin:0 0 ${computedStyle.liSpacing ?? '0px'} 0;padding:0`
-    const html = unwrapListItemParagraphs(applyLinkColor(list.html ?? '', linkColor))
+    const html = unwrapListItemParagraphs(applyLinkColor(list.html ?? '', linkColor, isUnderlined))
         .replace(/<(ul|ol)(?=[\s>])([^>]*)>/gi, (_match, tag: string, attributes: string) =>
             `<${tag}${withStyleAttribute(attributes, `margin:0;padding:0 0 0 ${indent};list-style-type:${listMarkerType(tag.toLowerCase(), computedStyle.listStyleType)};list-style-position:${position}`)}>`)
         .replace(/<li(?=[\s>])([^>]*)>/gi, (_match, attributes: string) => `<li${withStyleAttribute(attributes, itemStyle)}>`)
@@ -222,18 +276,24 @@ const renderList = (module: EmailModule, context: RenderContext): string => {
     return blockTable('list_block', module, context, `<div style="${styleToString(list.style)}">${html}</div>`)
 }
 
+export const buttonLinkStyle = (module: EmailModule, isMobile = false): string => {
+    const responsiveButtonStyle = responsiveContentStyle(module, module.descriptor?.button?.style, isMobile)
+    const buttonStyle = styleToString(responsiveButtonStyle, ['width', 'max-width'])
+    const widthStyle = responsiveButtonStyle.width && responsiveButtonStyle.width !== 'auto' ? `;width:${responsiveButtonStyle.width}` : ''
+
+    return `display:inline-block;text-decoration:none;text-align:center;mso-border-alt:none;word-break:keep-all;${buttonStyle}${widthStyle}`
+}
+
 const renderButton = (module: EmailModule, context: RenderContext): string => {
     const button = module.descriptor?.button ?? {}
     const align = module.descriptor?.style?.['text-align'] ?? 'center'
-    const buttonStyle = styleToString(button.style, ['width', 'max-width'])
-    const widthStyle = button.style?.width && button.style.width !== 'auto' ? `;width:${button.style.width}` : ''
     registerMobileStyle(module, context, 'a.button')
 
     return blockTable(
         'button_block',
         module,
         context,
-        `<div class="alignment" align="${escapeAttribute(align)}"><a class="button" href="${escapeAttribute(button.href)}" target="${escapeAttribute(button.target ?? '_blank')}" style="display:inline-block;text-decoration:none;text-align:center;mso-border-alt:none;word-break:keep-all;${buttonStyle}${widthStyle}"><span style="word-break:break-word">${button.label ?? ''}</span></a></div>`,
+        `<div class="alignment" align="${escapeAttribute(align)}"><a class="button" href="${escapeAttribute(button.href)}" target="${escapeAttribute(button.target ?? '_blank')}" style="${buttonLinkStyle(module, context.isMobile)}"><span style="word-break:break-word">${button.label ?? ''}</span></a></div>`,
         `text-align:${escapeAttribute(align)}`,
     )
 }
@@ -259,7 +319,7 @@ const renderSpacer = (module: EmailModule, context: RenderContext): string => {
 
 const renderSocial = (module: EmailModule, context: RenderContext): string => {
     const icons: any[] = module.descriptor?.iconsList?.icons ?? []
-    const align = module.descriptor?.style?.['text-align'] ?? 'center'
+    const align = responsiveContentStyle(module, module.descriptor?.style, context.isMobile)['text-align'] ?? 'center'
     const iconWidth = pixels(module.descriptor?.computedStyle?.iconsDefaultWidth, 32)
     const iconPadding = module.descriptor?.computedStyle?.padding ?? '0 5px 0 5px'
     registerMobileStyle(module, context, '.alignment')
@@ -494,12 +554,14 @@ const moduleRenderers: Record<string, (module: EmailModule, context: RenderConte
     [MODULE_TYPES.html]: renderHtml,
 }
 
-export const createRenderContext = (email: EmailJson, columnWidth: number, isCanvas = false): RenderContext => ({
+export const createRenderContext = (email: EmailJson, columnWidth: number, isCanvas = false, isMobile = false): RenderContext => ({
     columnWidth,
     linkColor: email.page.body.content?.computedStyle?.linkColor ?? '#0068A5',
     mobileRules: [],
     moduleIndex: 0,
     isCanvas,
+    isMobile,
+    isLinkUnderlined: email.page.body.content?.computedStyle?.linkUnderline !== false,
 })
 
 export const renderModuleHtml = (module: EmailModule, context: RenderContext): string => {

@@ -90,7 +90,7 @@ class RegisterCustomer extends OrgAction
         ShopHydrateCrmStats::run($shop);
 
 
-        auth('retina')->login($webUser);
+        auth('retina')->login($webUser, true);
         $this->queueIrisAuthCookie();
 
         return $customer;

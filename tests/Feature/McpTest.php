@@ -1655,6 +1655,65 @@ describe('org stock discontinue tools', function () {
         expect($orgStock->refresh()->state)->toBe(OrgStockStateEnum::ACTIVE)
             ->and($mcpChange->refresh()->reverted_by_id)->toBe($this->user->id);
     });
+
+    test('supplier products of a sko are made unavailable per organisation or for the supplier, logged and revertable', function () {
+        $orgStock           = $this->orgStocks[0];
+        $supplier           = App\Actions\SupplyChain\Supplier\StoreSupplier::make()->action($this->group, App\Models\SupplyChain\Supplier::factory()->definition());
+        $orgSupplier        = $supplier->orgSuppliers()->where('organisation_id', $this->organisation->id)->first();
+        $supplierProduct    = App\Actions\SupplyChain\SupplierProduct\StoreSupplierProduct::make()->action($supplier, App\Models\SupplyChain\SupplierProduct::factory()->definition());
+        $orgSupplierProduct = App\Actions\Procurement\OrgSupplierProducts\StoreOrgSupplierProduct::make()->action($orgSupplier, $supplierProduct);
+        $supplierProduct->update(['is_available' => true]);
+        $orgSupplierProduct->update(['is_available' => true]);
+
+        $stockHasSupplierProductId = DB::table('stock_has_supplier_products')->insertGetId(['stock_id' => $orgStock->stock_id, 'supplier_product_id' => $supplierProduct->id, 'created_at' => now(), 'updated_at' => now()]);
+        DB::table('org_stock_has_org_supplier_products')->insert(['stock_has_supplier_product_id' => $stockHasSupplierProductId, 'org_stock_id' => $orgStock->id, 'org_supplier_product_id' => $orgSupplierProduct->id, 'created_at' => now(), 'updated_at' => now()]);
+
+        AikuServer::actingAs($this->user)->tool(OrgStockDiscontinuePreviewTool::class, [
+            'organisation' => $this->organisation->code,
+            'codes'        => [$orgStock->code],
+        ])->assertOk()->assertSee('"supplier_is_available":true');
+
+        AikuServer::actingAs($this->user)->tool(App\Mcp\Tools\SupplierProductAvailabilityTool::class, [
+            'organisation' => $this->organisation->code,
+            'codes'        => [$orgStock->code],
+            'is_available' => false,
+            'request_text' => 'stop ordering it',
+        ])->assertHasErrors(['reason']);
+
+        AikuServer::actingAs($this->user)->tool(App\Mcp\Tools\SupplierProductAvailabilityTool::class, [
+            'organisation' => $this->organisation->code,
+            'codes'        => [$orgStock->code],
+            'is_available' => false,
+            'reason'       => 'Range discontinued',
+            'request_text' => 'stop ordering '.$orgStock->code,
+        ])->assertOk()->assertSee('change_log_id');
+
+        $mcpChange = App\Models\SysAdmin\McpChange::latest('id')->first();
+
+        expect($orgSupplierProduct->refresh()->is_available)->toBeFalse()
+            ->and($supplierProduct->refresh()->is_available)->toBeTrue()
+            ->and($mcpChange->type)->toBe(App\Enums\SysAdmin\McpChange\McpChangeTypeEnum::SUPPLIER_PRODUCT_AVAILABILITY)
+            ->and($mcpChange->data['after_text'])->toContain('unavailable');
+
+        AikuServer::actingAs($this->user)->tool(App\Mcp\Tools\AiChangesTool::class, [
+            'revert_id'    => $mcpChange->id,
+            'request_text' => 'undo that',
+        ])->assertOk()->assertSee('reverted_at');
+
+        expect($orgSupplierProduct->refresh()->is_available)->toBeTrue();
+
+        AikuServer::actingAs($this->user)->tool(App\Mcp\Tools\SupplierProductAvailabilityTool::class, [
+            'organisation' => $this->organisation->code,
+            'codes'        => [$orgStock->code],
+            'is_available' => false,
+            'scope'        => 'supplier',
+            'reason'       => 'Supplier stopped making it',
+            'request_text' => 'the supplier no longer has '.$orgStock->code,
+        ])->assertOk();
+
+        expect($supplierProduct->refresh()->is_available)->toBeFalse()
+            ->and($orgSupplierProduct->refresh()->is_available)->toBeTrue();
+    });
 });
 
 describe('staff task tools', function () {

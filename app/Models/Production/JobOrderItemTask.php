@@ -113,14 +113,50 @@ class JobOrderItemTask extends Model
 
     public function unitsPerArtefact(): float
     {
-        return (float) (ArtefactManufactureTask::where('artefact_id', $this->jobOrderItem->artefact_id)
+        return (float) ($this->recipeStep()?->units_per_artefact ?: 1);
+    }
+
+    public function mixBatchKg(): ?int
+    {
+        return $this->isRecordedInKg() ? ($this->recipeStep()?->mix_batch_kg ?: null) : null;
+    }
+
+    /**
+     * A combined mix is made in batches only when every line shares the same batch size.
+     *
+     * @param Collection<int, JobOrderItemTask> $members
+     */
+    public static function sharedMixBatchKg(Collection $members): ?int
+    {
+        $sizes = $members->map(fn (JobOrderItemTask $member) => $member->mixBatchKg())->unique();
+
+        return $sizes->count() == 1 ? $sizes->first() : null;
+    }
+
+    private ?ArtefactManufactureTask $recipeStep = null;
+
+    public function refresh()
+    {
+        $this->recipeStep = null;
+
+        return parent::refresh();
+    }
+
+    private function recipeStep(): ?ArtefactManufactureTask
+    {
+        return $this->recipeStep ??= ArtefactManufactureTask::where('artefact_id', $this->jobOrderItem->artefact_id)
             ->where('manufacture_task_id', $this->manufacture_task_id)
-            ->value('units_per_artefact') ?: 1);
+            ->first(['units_per_artefact', 'mix_batch_kg']);
     }
 
     public function isRecordedInKg(): bool
     {
         return (bool) $this->manufactureTask?->is_recorded_in_kg;
+    }
+
+    public function unit(): ?string
+    {
+        return $this->isRecordedInKg() ? 'kg' : null;
     }
 
     public function packSize(): ?int

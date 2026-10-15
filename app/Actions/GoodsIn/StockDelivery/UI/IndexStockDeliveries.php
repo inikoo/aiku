@@ -503,9 +503,21 @@ class IndexStockDeliveries extends OrgAction
                     'model'         => $model,
                     'afterTitle'    => $afterTitle,
                     'iconRight'     => $iconRight,
-                    'actions'       => $this->parent instanceof OrgSupplier
-                        ? [$this->getOrgSupplierPurchaseOrderAction($this->parent)]
-                        : [],
+                    'actions'       => match (true) {
+                        $this->parent instanceof OrgSupplier => [$this->getOrgSupplierPurchaseOrderAction($this->parent)],
+                        $this->canEdit && $this->onlyStagedContainers !== false && (bool) $this->getParentOrganisationAgent($this->parent) => [
+                            [
+                                'type'  => 'button',
+                                'style' => 'create',
+                                'label' => __('Container'),
+                                'route' => [
+                                    'name'       => 'grp.org.agent.stock_deliveries.create',
+                                    'parameters' => [$this->organisation->slug],
+                                ],
+                            ],
+                        ],
+                        default => [],
+                    },
                     'create'        => $this->canEdit && !$this->getParentOrganisationAgent($this->parent) && $request->route()->getName() == 'grp.org.procurement.stock_deliveries.index' ? [
                         'route' => [
                             'name'       => 'grp.org.procurement.stock_deliveries.create',

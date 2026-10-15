@@ -11,7 +11,9 @@ namespace App\Actions\SysAdmin\McpChange;
 use App\Actions\Catalogue\ProductCategory\RelatedProducts\SyncProductCategoryRelatedProducts;
 use App\Actions\Inventory\OrgStock\DiscontinueOrgStocks;
 use App\Actions\Inventory\OrgStock\UpdateOrgStock;
+use App\Actions\Procurement\OrgSupplierProducts\UpdateOrgSupplierProduct;
 use App\Actions\Procurement\PartnerShoppingListItem\DeletePartnerShoppingListItem;
+use App\Actions\SupplyChain\SupplierProduct\UpdateSupplierProduct;
 use App\Actions\Procurement\PartnerShoppingListItem\UpdatePartnerShoppingListItem;
 use App\Actions\Production\Artefact\DetachManufactureTaskFromArtefact;
 use App\Actions\Production\Artefact\SetArtefactsRecipe;
@@ -33,7 +35,9 @@ use App\Models\Inventory\OrgStock;
 use App\Actions\Masters\MasterAsset\UpdateMasterAssetPrices;
 use App\Models\Masters\MasterAsset;
 use App\Models\Masters\MasterProductCategory;
+use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\Procurement\PartnerShoppingListItem;
+use App\Models\SupplyChain\SupplierProduct;
 use App\Models\Production\Artefact;
 use App\Models\Production\ManufactureTask;
 use App\Models\Production\RawMaterial;
@@ -81,6 +85,7 @@ class RevertMcpChange
             match ($mcpChange->type) {
                 McpChangeTypeEnum::RELATED_PRODUCTS => $this->revertRelatedProducts($target, $mcpChange->before),
                 McpChangeTypeEnum::ORG_STOCK_STATE  => $this->revertOrgStockStates($mcpChange->before),
+                McpChangeTypeEnum::SUPPLIER_PRODUCT_AVAILABILITY => $this->revertSupplierProductAvailability($mcpChange->before),
                 McpChangeTypeEnum::PARTNER_SHOPPING_LIST => $this->revertPartnerShoppingList($mcpChange->before, $mcpChange->after),
                 McpChangeTypeEnum::PRODUCTION_RECORD => $this->revertProductionRecord($target, $mcpChange->before),
                 McpChangeTypeEnum::PRODUCTION_RECIPE => $this->revertProductionRecipes($mcpChange->before),
@@ -226,6 +231,17 @@ class RevertMcpChange
                 'artefacts' => [$artefact->id],
                 'steps'     => $steps,
             ]);
+        }
+    }
+
+    private function revertSupplierProductAvailability(array $before): void
+    {
+        foreach ($before['org_supplier_products'] as $orgSupplierProductId => $previous) {
+            UpdateOrgSupplierProduct::make()->action(OrgSupplierProduct::findOrFail($orgSupplierProductId), ['is_available' => $previous['is_available']]);
+        }
+
+        foreach ($before['supplier_products'] as $supplierProductId => $previous) {
+            UpdateSupplierProduct::make()->action(SupplierProduct::findOrFail($supplierProductId), ['is_available' => $previous['is_available']]);
         }
     }
 

@@ -207,7 +207,7 @@ class StoreWebpage extends OrgAction
                             $this->createWebBlockFromSavedTemplate($webpage, WebBlockTemplateEnum::FAMILY_DESCRIPTION, $code);
                         }
 
-                        if (in_array('family-2', $usedFamilyDescriptionTemplateCode) && $parent->shop->masterShop->slug == 'aroma') {
+                        if (in_array('family-2', $usedFamilyDescriptionTemplateCode) && $parent->shop->masterShop?->slug == 'aroma') {
                             $this->createWebBlock($webpage, 'category-comparison');
                         }
 

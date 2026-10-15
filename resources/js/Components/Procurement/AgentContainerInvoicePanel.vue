@@ -7,7 +7,8 @@ import InputText from "primevue/inputtext"
 import InputNumber from "primevue/inputnumber"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import PaymentDialog, { PaymentPayload } from "@/Components/Procurement/PaymentDialog.vue"
-import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
+import Select from "primevue/select"
+import { InvoiceChargeType, invoiceChargeTypeOptions } from "@/Components/Procurement/invoiceChargeTypes"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faFileInvoice, faFilePdf, faPlus, faTrashAlt, faPaperclip } from "@fal"
@@ -20,7 +21,7 @@ library.add(faFileInvoice, faFilePdf, faPlus, faTrashAlt, faPaperclip)
 
 interface Charge {
 	description: string
-	type?: "freight" | "other"
+	type?: InvoiceChargeType
 	amount: number | null
 }
 
@@ -131,10 +132,7 @@ const confirmRemakeInvoice = () =>
 
 const charges = ref<Charge[]>([])
 const syncCharges = () => (charges.value = (props.data.invoice?.charges ?? []).map(charge => ({ ...charge, type: charge.type ?? "other" })))
-const chargeTypeOptions = [
-	{ label: ctrans("Freight"), value: "freight" },
-	{ label: ctrans("Other"), value: "other" },
-]
+const chargeTypeOptions = invoiceChargeTypeOptions()
 watch(() => props.data.invoice?.charges, syncCharges, { immediate: true, deep: true })
 
 const chargesDirty = computed(() => JSON.stringify(charges.value) !== JSON.stringify((props.data.invoice?.charges ?? []).map(charge => ({ ...charge, type: charge.type ?? "other" }))))
@@ -220,7 +218,7 @@ const deposits = computed(() => props.data.invoice?.advance_payments.filter(paym
 					<p v-if="!charges.length" class="mt-2 text-sm text-gray-500">{{ ctrans("Commission, packing, freight: anything on top of the goods. Mark freight charges as Freight so they count as the container's shipping cost.") }}</p>
 					<div v-for="(charge, index) in charges" :key="index" class="mt-2 flex flex-wrap items-center gap-2">
 						<InputText v-model="charge.description" size="small" class="min-w-0 basis-full flex-1 sm:basis-auto" :class="fieldFocusClass" :placeholder="ctrans('Description')" :aria-label="ctrans('Description')" />
-						<SegmentedToggle v-model="charge.type" :options="chargeTypeOptions" :ariaLabel="ctrans('Charge type')" />
+						<Select v-model="charge.type" :options="chargeTypeOptions" optionLabel="label" optionValue="value" class="w-56" :aria-label="ctrans('Charge type')" />
 						<InputNumber v-model="charge.amount" mode="currency" :currency="data.invoice.currency_code" :min="0" size="small" :class="fieldFocusClass" :pt="{ pcInputText: { root: { class: '!w-32 !text-right' } } }" :aria-label="ctrans('Amount')" />
 						<button type="button" class="text-gray-400 hover:text-red-600" :title="ctrans('Remove')" :aria-label="ctrans('Remove')" @click="removeCharge(index)">
 							<FontAwesomeIcon icon="fal fa-trash-alt" fixed-width aria-hidden="true" />

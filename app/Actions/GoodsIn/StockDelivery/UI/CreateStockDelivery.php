@@ -8,8 +8,12 @@
 
 namespace App\Actions\GoodsIn\StockDelivery\UI;
 
+use App\Actions\GoodsIn\StockDelivery\StoreAgentStockDelivery;
 use App\Actions\OrgAction;
+use App\Actions\Procurement\WithAgentOrganisation;
 use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
+use App\Models\Procurement\OrgAgent;
+use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -18,6 +22,7 @@ use Lorisleiva\Actions\ActionRequest;
 class CreateStockDelivery extends OrgAction
 {
     use WithProcurementEditAuthorisation;
+    use WithAgentOrganisation;
 
     public function handle(ActionRequest $request): Response
     {
@@ -74,6 +79,94 @@ class CreateStockDelivery extends OrgAction
         $this->initialisation($organisation, $request);
 
         return $this->handle($request);
+    }
+
+    /**
+     * An agent opens an empty container for one of the organisations it buys for.
+     */
+    public function inAgent(Organisation $organisation, ActionRequest $request): Response
+    {
+        $this->initialisation($organisation, $request);
+        $agent = $this->getOrganisationAgent($organisation);
+        abort_unless($agent, 404);
+
+        return $this->agentContainerForm($agent, $request);
+    }
+
+    private function agentContainerForm(Agent $agent, ActionRequest $request): Response
+    {
+        $organisationOptions = StoreAgentStockDelivery::orgAgentsOfAgent($agent)
+            ->with('organisation:id,name')
+            ->get()
+            ->sortBy(fn (OrgAgent $orgAgent) => $orgAgent->organisation->name)
+            ->map(fn (OrgAgent $orgAgent) => [
+                'label' => $orgAgent->organisation->name,
+                'value' => $orgAgent->id,
+            ])
+            ->values();
+
+        return Inertia::render(
+            'CreateModel',
+            [
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
+                ),
+                'title'       => __('New container'),
+                'pageHead'    => [
+                    'title'   => __('New container'),
+                    'icon'    => [
+                        'icon'  => ['fal', 'fa-truck-container'],
+                        'title' => __('Container'),
+                    ],
+                    'actions' => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'cancel',
+                            'label' => __('Cancel'),
+                            'route' => [
+                                'name'       => 'grp.org.agent.stock_deliveries.current',
+                                'parameters' => [$this->organisation->slug],
+                            ],
+                        ],
+                    ],
+                ],
+                'formData'    => [
+                    'blueprint' => [
+                        [
+                            'title'  => __('Container'),
+                            'fields' => [
+                                'org_agent_id' => [
+                                    'type'        => 'select',
+                                    'label'       => __('Organisation'),
+                                    'information' => __('The organisation the goods in this container are for. Only its confirmed purchase orders can be added to it.'),
+                                    'required'    => true,
+                                    'options'     => $organisationOptions->all(),
+                                    'value'       => $organisationOptions->count() === 1 ? $organisationOptions->first()['value'] : null,
+                                ],
+                                'currency'     => [
+                                    'type'        => 'input',
+                                    'label'       => __('Currency'),
+                                    'information' => __('A container is always in the currency of the agent.'),
+                                    'disabled'    => true,
+                                    'value'       => $agent->organisation->currency->code.' ('.$agent->organisation->currency->name.')',
+                                ],
+                                'reference'    => [
+                                    'type'        => 'input',
+                                    'label'       => __('Name'),
+                                    'information' => __('Letters, numbers, dashes and underscores. Leave it empty to use the next reference of the organisation.'),
+                                    'value'       => '',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'route'     => [
+                        'name'       => 'grp.org.agent.stock_deliveries.store',
+                        'parameters' => [$this->organisation->slug],
+                    ],
+                ],
+            ]
+        );
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array

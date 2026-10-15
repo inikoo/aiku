@@ -24,12 +24,12 @@ export const initialiseIrisVarnish = async (layoutStore) => {
   let storageIris = {}
   if (typeof window !== "undefined") {
     storageIris = JSON.parse(localStorage.getItem("iris") || "{}")  // Get layout from localStorage
-    layout.iris.is_logged_in = resolveIsLoggedIn(storageIris?.is_logged_in)
+    layout.iris.is_logged_in = resolveIsLoggedIn()
 
     // Restore the cached user snapshot immediately so logged-in chrome (topbar
     // greeting, offer label) renders at first paint instead of popping in when
     // the first-hit response lands; the fetch below refreshes the same fields.
-    if (storageIris?.is_logged_in) {
+    if (layout.iris.is_logged_in && storageIris?.is_logged_in) {
       if (storageIris.iris_variables) {
         layout.iris_variables = storageIris.iris_variables
       }

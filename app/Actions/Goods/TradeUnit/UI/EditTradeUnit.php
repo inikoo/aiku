@@ -8,6 +8,7 @@
 
 namespace App\Actions\Goods\TradeUnit\UI;
 
+use App\Actions\Goods\TradeUnit\TranslateTradeUnitName;
 use App\Actions\Goods\TradeUnit\UI\Traits\WithTradeUnitEditSections;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithGoodsAuthorisation;
@@ -20,6 +21,7 @@ use Inertia\Response;
 use App\Actions\Traits\Authorisations\WithComplianceEditing;
 use Lorisleiva\Actions\ActionRequest;
 use App\Actions\Helpers\Country\UI\GetCountriesOptions;
+use App\Actions\Helpers\Language\UI\GetLanguagesOptions;
 
 class EditTradeUnit extends OrgAction
 {
@@ -176,6 +178,25 @@ class EditTradeUnit extends OrgAction
                                     'type'  => 'input',
                                     'label' => __('Name'),
                                     'value' => $tradeUnit->name
+                                ],
+                                'name_i8n' => [
+                                    'type'          => 'input_translation_use_option',
+                                    'label'         => __('Name translations'),
+                                    'information'   => __('Translated automatically from the English name into every shop language. The unified label needs Spanish (ES) and Slovak (SK).'),
+                                    'language_from' => 'en',
+                                    'languages'     => GetLanguagesOptions::make()->all(),
+                                    'statuses'      => TranslateTradeUnitName::make()->getStatuses($tradeUnit),
+                                    'trade_unit_id' => $tradeUnit->id,
+                                    'is_translating' => TranslateTradeUnitName::isRunning($tradeUnit),
+                                    'translate_route' => [
+                                        'name'       => 'grp.models.trade-unit.translate_names',
+                                        'parameters' => ['tradeUnit' => $tradeUnit->id],
+                                    ],
+                                    'approve_route' => [
+                                        'name'       => 'grp.models.trade-unit.approve_name_translations',
+                                        'parameters' => ['tradeUnit' => $tradeUnit->id],
+                                    ],
+                                    'value'         => $tradeUnit->getTranslations('name_i8n')
                                 ],
                                 'description_title' => [
                                     'type'  => 'input',

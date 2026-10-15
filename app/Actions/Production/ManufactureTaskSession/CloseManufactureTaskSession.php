@@ -14,6 +14,8 @@ use App\Actions\OrgAction;
 use App\Actions\Production\JobOrderItemTask\CalculateJobOrderItemTaskQuantities;
 use App\Actions\Production\JobOrderItemTask\SettleShortJobOrderItemTask;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
+use App\Enums\Production\Artisan\ArtisanPayTypeEnum;
+use App\Enums\Production\ManufactureTask\ManufactureTaskOperativeRewardTermsEnum;
 use App\Enums\Production\JobOrderItemTask\JobOrderItemTaskStateEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
@@ -56,8 +58,9 @@ class CloseManufactureTaskSession extends OrgAction
 
             if ($session->isNonProductive()) {
                 $session->update([
-                    'ended_at' => now(),
-                    'state'    => ManufactureTaskSessionStateEnum::CLOSED,
+                    'ended_at'         => now(),
+                    'state'            => ManufactureTaskSessionStateEnum::CLOSED,
+                    'artisan_pay_type' => $session->employee?->artisan_pay_type ?? ArtisanPayTypeEnum::PIECE_RATE,
                 ]);
 
                 return CalculateManufactureTaskSessionPay::run($session);
@@ -78,6 +81,12 @@ class CloseManufactureTaskSession extends OrgAction
             }
 
             $isRecordedInKg = (bool) $manufactureTask->is_recorded_in_kg;
+            $mixBatchKg     = JobOrderItemTask::sharedMixBatchKg($members);
+            if ($mixBatchKg && fmod((float) $modelData['quantity_made'], $mixBatchKg) != 0) {
+                throw ValidationException::withMessages([
+                    'quantity_made' => __('This mix is made in whole batches of :kg kg, enter :kg, :double, :triple…', ['kg' => $mixBatchKg, 'double' => 2 * $mixBatchKg, 'triple' => 3 * $mixBatchKg]),
+                ]);
+            }
             $overproduced   = $isRecordedInKg ? 0 : round((float) $modelData['quantity_made'] - $left, 3);
             $authorisedBy   = null;
             if ($overproduced > 0) {
@@ -96,15 +105,11 @@ class CloseManufactureTaskSession extends OrgAction
                 'quantity_rejected'               => $modelData['quantity_rejected'] ?? 0,
                 'ended_at'                        => now(),
                 'state'                           => ManufactureTaskSessionStateEnum::CLOSED,
-                'task_work_cost'                  => $manufactureTask->is_piece_rate ? $manufactureTask->task_work_cost : 0,
-                'operative_reward_terms'          => $manufactureTask->operative_reward_terms,
-                'operative_reward_allowance_type' => $manufactureTask->operative_reward_allowance_type,
-                'operative_reward_amount'         => $manufactureTask->is_piece_rate ? $manufactureTask->operative_reward_amount : 0,
                 'activity_type'                   => $modelData['activity_type'] ?? $session->activity_type ?? ManufactureTaskSessionActivityTypeEnum::PRODUCTION,
                 'non_productive_reason'           => $modelData['non_productive_reason'] ?? null,
                 'standard_rate'                   => $session->recipeStandardRate(),
             ]);
-            $session->is_under_target = $this->isUnderTarget($session);
+            $this->applyPayTerms($session, $session->employee?->artisan_pay_type ?? ArtisanPayTypeEnum::PIECE_RATE);
             $session->save();
 
             foreach ($members as $member) {
@@ -286,8 +291,30 @@ class CloseManufactureTaskSession extends OrgAction
         $jobOrder->update(['data' => $data]);
     }
 
+    /**
+     * The step sets the piece rate and reward terms; an hourly artisan earns neither, whatever step they pick.
+     */
+    public function applyPayTerms(ManufactureTaskSession $session, ArtisanPayTypeEnum $payType): void
+    {
+        $manufactureTask = $session->manufactureTask;
+        $isPieceRate     = $payType == ArtisanPayTypeEnum::PIECE_RATE && $manufactureTask?->is_piece_rate;
+
+        $session->fill([
+            'artisan_pay_type'                => $payType,
+            'task_work_cost'                  => $isPieceRate ? $manufactureTask->task_work_cost : 0,
+            'operative_reward_terms'          => $payType == ArtisanPayTypeEnum::HOURLY ? ManufactureTaskOperativeRewardTermsEnum::NEVER->value : $manufactureTask?->operative_reward_terms,
+            'operative_reward_allowance_type' => $payType == ArtisanPayTypeEnum::HOURLY ? null : $manufactureTask?->operative_reward_allowance_type,
+            'operative_reward_amount'         => $isPieceRate ? $manufactureTask->operative_reward_amount : 0,
+        ]);
+        $session->is_under_target = $this->isUnderTarget($session);
+    }
+
     public function isUnderTarget(ManufactureTaskSession $session): bool
     {
+        if ($session->artisan_pay_type == ArtisanPayTypeEnum::HOURLY) {
+            return false;
+        }
+
         if ($session->activity_type != ManufactureTaskSessionActivityTypeEnum::PRODUCTION || $session->standard_rate === null) {
             return false;
         }

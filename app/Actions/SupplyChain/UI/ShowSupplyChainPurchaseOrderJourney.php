@@ -11,6 +11,7 @@ namespace App\Actions\SupplyChain\UI;
 use App\Actions\OrgAction;
 use App\Actions\UI\WithInertia;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderJourneyStageEnum;
+use App\Models\SysAdmin\Group;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -54,9 +55,8 @@ class ShowSupplyChainPurchaseOrderJourney extends OrgAction
 
     public function handle(ActionRequest $request): array
     {
-        $today       = now()->startOfDay();
-        $this->rates = $this->latestRates();
-        $ribbons     = collect($this->rows())->map(fn (object $row) => $this->toRibbon($row, $today));
+        $today   = now()->startOfDay();
+        $ribbons = $this->ribbons($this->group);
 
         $active = collect(self::FILTER_GROUPS)->mapWithKeys(fn (string $group) => [$group => $request->query($group) ?: null])->all();
 
@@ -105,17 +105,29 @@ class ShowSupplyChainPurchaseOrderJourney extends OrgAction
     }
 
     /**
+     * Every open order of the group, or the one asked for, with its stages planned, as the board shows them.
+     */
+    public function ribbons(Group $group, ?int $purchaseOrderId = null): Collection
+    {
+        $this->group = $group;
+        $this->rates = $this->latestRates();
+        $today       = now()->startOfDay();
+
+        return collect($this->rows($purchaseOrderId))->map(fn (object $row) => $this->toRibbon($row, $today));
+    }
+
+    /**
      * @return array<int, object>
      */
-    private function rows(): array
+    private function rows(?int $purchaseOrderId = null): array
     {
         $finishedSince = now()->subDays(self::FINISHED_WINDOW_DAYS);
 
         return DB::select(
             "select po.id, po.slug, po.reference, po.parent_type, po.agent_id, po.state, po.delivery_state, po.data,
                 po.cost_total, po.cost_items, po.grp_exchange, po.created_at, po.submitted_at, po.settled_at,
-                po.deposit_amount, po.deposit_paid_at, po.sample_approved_at, po.produced_at, po.qc_passed_at,
-                po.handed_over_at, po.approved_ready_at,
+                po.deposit_amount, po.deposit_paid_at, po.production_started_at, po.produced_at, po.qc_passed_at,
+                po.approved_ready_at,
                 {$this->sharedColumns()},
                 suppliers.slug as supplier_slug, suppliers.code as supplier_code, suppliers.name as supplier_name,
                 suppliers.data as supplier_data,
@@ -132,11 +144,12 @@ class ShowSupplyChainPurchaseOrderJourney extends OrgAction
             left join countries on countries.id = coalesce(addresses.country_id, partners.country_id)
             {$this->deliveryLateral()}
             {$this->linesLateral('purchase_order_transactions.purchase_order_id = po.id')}
-            where {$this->openPurchaseOrderCondition()}",
+            where {$this->openPurchaseOrderCondition()}".($purchaseOrderId ? ' and po.id = :purchase_order_id' : ''),
             [
                 'group_id'                => $this->group->id,
                 'finished_since'          => $finishedSince,
                 'finished_since_unlinked' => $finishedSince,
+                ...($purchaseOrderId ? ['purchase_order_id' => $purchaseOrderId] : []),
             ]
         );
     }
@@ -152,7 +165,9 @@ class ShowSupplyChainPurchaseOrderJourney extends OrgAction
                     bool_and(stock_deliveries.state in ('dispatched', 'received', 'checked', 'booking_in', 'booked_in', 'placed')) as all_dispatched,
                     bool_and(stock_deliveries.state in ('received', 'checked', 'booking_in', 'booked_in', 'placed')) as all_received,
                     bool_and(stock_deliveries.state = 'placed') as all_placed,
+                    bool_and(stock_deliveries.arrived_at is not null or stock_deliveries.state in ('received', 'checked', 'booking_in', 'booked_in', 'placed')) as all_arrived,
                     max(stock_deliveries.dispatched_at) as dispatched_at,
+                    max(stock_deliveries.arrived_at) as arrived_at,
                     max(stock_deliveries.received_at) as received_at,
                     max(stock_deliveries.placed_at) as placed_at,
                     max(stock_deliveries.data ->> 'estimated_receiving_date')
@@ -166,8 +181,8 @@ class ShowSupplyChainPurchaseOrderJourney extends OrgAction
 
     private function deliveryColumns(): string
     {
-        return 'delivery.deliveries, delivery.all_dispatched, delivery.all_received, delivery.all_placed,
-            delivery.dispatched_at, delivery.received_at, delivery.placed_at';
+        return 'delivery.deliveries, delivery.all_dispatched, delivery.all_received, delivery.all_placed, delivery.all_arrived,
+            delivery.dispatched_at, delivery.arrived_at, delivery.received_at, delivery.placed_at';
     }
 
     private function sharedColumns(): string
@@ -297,15 +312,16 @@ class ShowSupplyChainPurchaseOrderJourney extends OrgAction
             'submitted_at'            => $row->submitted_at,
             'is_npo'                  => (bool) $row->is_npo,
             'has_deposit'             => (float) $row->deposit_amount > 0,
-            'sample_approved_at'      => $row->sample_approved_at,
             'deposit_paid_at'         => $row->deposit_paid_at,
+            'production_started_at'   => $row->production_started_at,
             'produced_at'             => $row->produced_at,
             'qc_passed_at'            => $row->qc_passed_at,
-            'handed_over_at'          => $row->handed_over_at,
             'estimated_production_at' => Arr::get($data, 'estimated_production_date'),
             'approved_ready_at'       => $row->approved_ready_at,
             'estimated_received_at'   => $row->estimated_received_at,
             'dispatched_at'           => $delivery['dispatched_at'],
+            'arrived'                 => $delivery['arrived'],
+            'arrived_at'              => $delivery['arrived_at'],
             'received_at'             => $delivery['received_at'],
             'placed_at'               => $delivery['placed_at'],
             'sellable_products'       => (int) $row->sellable_products,
@@ -368,7 +384,7 @@ class ShowSupplyChainPurchaseOrderJourney extends OrgAction
      * With deliveries, a stage is reached only when every delivery reached it; without any, the order's own delivery
      * state stands, and its settled date is the best date known for the goods arriving.
      *
-     * @return array{state: ?string, dispatched_at: ?string, received_at: ?string, placed_at: ?string}
+     * @return array{state: ?string, dispatched_at: ?string, arrived: bool, arrived_at: ?string, received_at: ?string, placed_at: ?string}
      */
     private function deliveryProgress(object $row): array
     {
@@ -381,6 +397,8 @@ class ShowSupplyChainPurchaseOrderJourney extends OrgAction
                     default                     => 'in_process',
                 },
                 'dispatched_at' => $row->all_dispatched ? $row->dispatched_at : null,
+                'arrived'       => (bool) $row->all_arrived,
+                'arrived_at'    => $row->all_arrived ? $row->arrived_at : null,
                 'received_at'   => $row->all_received ? $row->received_at : null,
                 'placed_at'     => $row->all_placed ? $row->placed_at : null,
             ];
@@ -389,6 +407,8 @@ class ShowSupplyChainPurchaseOrderJourney extends OrgAction
         return [
             'state'         => $row->delivery_state,
             'dispatched_at' => null,
+            'arrived'       => false,
+            'arrived_at'    => null,
             'received_at'   => in_array($row->delivery_state, self::RECEIVED_STATES) ? $row->settled_at : null,
             'placed_at'     => $row->delivery_state === 'placed' ? $row->settled_at : null,
         ];
@@ -551,11 +571,19 @@ class ShowSupplyChainPurchaseOrderJourney extends OrgAction
         $placed   = $filtered->filter(fn (array $ribbon) => $ribbon['placed_at'] !== null);
         $dueSoon  = $open->filter(fn (array $ribbon) => $ribbon['status'] !== 'overdue' && $ribbon['eta'] && Carbon::parse($ribbon['eta'])->lte($today->copy()->addDays(30)));
         $oldest   = $open->min('created_at');
+        $online   = $placed->map(function (array $ribbon) {
+            $segment = collect($ribbon['segments'])->firstWhere('key', 'products_online');
+
+            return $segment && $segment['state'] === 'done' && $segment['done_at']
+                ? Carbon::parse($ribbon['placed_at'])->diffInDays(Carbon::parse($segment['done_at']))
+                : null;
+        })->filter(fn ($days) => $days !== null);
 
         return [
             'average_lead_days'  => $placed->count()
                 ? (int) round($placed->avg(fn (array $ribbon) => Carbon::parse($ribbon['created_at'])->diffInDays(Carbon::parse($ribbon['placed_at']))))
                 : null,
+            'average_online_days' => $online->count() ? (int) round($online->avg()) : null,
             'oldest_open_days'   => $oldest ? (int) Carbon::parse($oldest)->diffInDays($today) : null,
             'open_value'         => round($open->sum('amount_grp'), 2),
             'due_30_days'        => $dueSoon->count(),

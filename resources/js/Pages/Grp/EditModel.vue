@@ -268,6 +268,24 @@ const tabActive: any = ref({})
 const fieldGroupAnimateSection = ref()
 const _fieldForm = ref()
 
+const savedFieldValue = (fieldName: string) => {
+    const section: any = Object.values(props.formData?.blueprint ?? {}).find((sectionData: any) => sectionData?.fields && fieldName in sectionData.fields)
+
+    return section?.fields[fieldName]?.value
+}
+
+const isShownByCondition = (fieldData: any) => {
+    if (!fieldData?.showIf) {
+        return true
+    }
+
+    const fieldForms = Array.isArray(_fieldForm.value) ? _fieldForm.value : []
+    const sourceField = fieldForms.find((fieldForm: any) => fieldForm?.form && fieldData.showIf.field in fieldForm.form)
+    const currentValue = sourceField ? sourceField.form[fieldData.showIf.field] : savedFieldValue(fieldData.showIf.field)
+
+    return currentValue === fieldData.showIf.value
+}
+
 const updateViewportWidth = () => {
     isMobile.value = window.innerWidth <= 768
 }
@@ -475,7 +493,7 @@ const getSeverity = (type?: string) => {
                                 <template v-for="(fieldData, fieldName, index) in sectionData.fields" :key="index">
                                     <!-- Field: is not hidden and skip price when TBC -->
 
-                                    <div v-if="fieldData && !fieldData?.hidden && !( ['price','territories'].includes(fieldName) && sectionData.fields?.price?.value?.type === 'TBC')"
+                                    <div v-if="fieldData && !fieldData?.hidden && isShownByCondition(fieldData) && !( ['price','territories'].includes(fieldName) && sectionData.fields?.price?.value?.type === 'TBC')"
                                         class="py-2 mt-1 flex text-sm text-gray-700 sm:mt-0">
 
                                         <Action v-if="fieldData.type === 'action'" :action="fieldData.action"
@@ -535,7 +553,7 @@ const getSeverity = (type?: string) => {
                     <div v-show="!isMobileSectionCollapsed(key)" class="bg-white px-4">
                         <template v-for="(fieldData, fieldName, index) in formData.blueprint[key].fields">
                             <!-- Field: is not hidden and skip price when TBC -->
-                            <div v-if="!fieldData?.hidden && !(['price', 'territories'].includes(fieldName) && sectionData.fields?.price?.value?.type === 'TBC')"
+                            <div v-if="!fieldData?.hidden && isShownByCondition(fieldData) && !(['price', 'territories'].includes(fieldName) && sectionData.fields?.price?.value?.type === 'TBC')"
                                 class="py-4">
                                 <Action v-if="fieldData.type === 'action'" :action="fieldData.action"
                                     :dataToSubmit="fieldData.action?.data" />

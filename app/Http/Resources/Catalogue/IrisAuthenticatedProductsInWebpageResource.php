@@ -16,6 +16,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Pagination\AbstractPaginator;
 use App\Http\Resources\Traits\HasCardWebImages;
 use App\Http\Resources\Traits\HasPriceMetrics;
+use App\Http\Resources\Traits\HasProductBadge;
 use App\Http\Resources\Traits\HasProductOfferPrices;
 
 /**
@@ -61,6 +62,7 @@ class IrisAuthenticatedProductsInWebpageResource extends JsonResource
 {
     use HasSelfCall;
     use HasPriceMetrics;
+    use HasProductBadge;
     use HasCardWebImages;
     use HasProductOfferPrices;
 
@@ -137,6 +139,7 @@ class IrisAuthenticatedProductsInWebpageResource extends JsonResource
             'unit'                       => $this->unit,
             'url'                        => $this->canonical_url,
             'top_seller'                 => $this->top_seller,
+            ...$this->getProductBadgeData(),
             'web_images'                 => $this->getCardWebImages($this->web_images),
             'audio'                      => $this->audio_ulid ? '/audio/'.$this->audio_ulid : null,
             'transaction_id'             => $this->transaction_id ?? null,

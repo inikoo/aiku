@@ -136,6 +136,18 @@ class SubmitOrder extends OrgAction
         }
 
         /**
+         * Aiku gives a free unit only on a gift line. A bonus on any other line is an Aurora deal
+         * carried over with the basket when it was fetched, with no offer behind it here, and would
+         * ship free (HELP-3991).
+         */
+        $order->transactions()
+            ->where('state', TransactionStateEnum::CREATING)
+            ->where('model_type', 'Product')
+            ->where('is_gift', false)
+            ->where('quantity_bonus', '>', 0)
+            ->update(['quantity_bonus' => 0]);
+
+        /**
          * A product line at zero quantity with no bonus is nothing to pick: it was zeroed while out
          * of stock, or the customer typed 0. It leaves with the basket rather than reaching the
          * warehouse as an empty pick line.

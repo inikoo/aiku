@@ -32,6 +32,7 @@ use App\Actions\Inventory\Location\Hydrators\LocationHydrateStockValue;
 use App\Actions\Inventory\Location\Hydrators\LocationHydrateTotalWeight;
 use App\Actions\Helpers\CreateSortCode;
 use App\Actions\Inventory\Location\StoreLocation;
+use App\Actions\Inventory\OrgStock\UI\GetOrgStockLabelInformation;
 use App\Actions\Inventory\OrgStock\UI\IndexOrgStocksInLocation;
 use Illuminate\Routing\Route;
 use App\Actions\Inventory\Location\UpdateLocation;
@@ -2307,7 +2308,7 @@ test('UI Show org stock labels and compliance tabs', function () {
             ->where('labels.abilities.edit', false)
             ->where('pageHead.actions.0.route.name', 'grp.goods.stocks.show.labels')
             ->where('pageHead.actions.0.route.parameters.stock', $orgStock->stock->slug)
-            ->has('labels.information_options', 24)
+            ->has('labels.information_options', count(GetOrgStockLabelInformation::run($orgStock)))
             ->has('labels.labels');
     });
     get($route('compliance'))->assertInertia(function (AssertableInertia $page) {
@@ -2315,12 +2316,12 @@ test('UI Show org stock labels and compliance tabs', function () {
             ->where('compliance.routes.store.name', 'grp.models.org_stock.compliance-item.store');
     });
 
-    get(route('grp.goods.stocks.show.labels', [$orgStock->stock->slug, 'tab' => 'labels']))->assertInertia(function (AssertableInertia $page) {
+    get(route('grp.goods.stocks.show.labels', [$orgStock->stock->slug, 'tab' => 'labels']))->assertInertia(function (AssertableInertia $page) use ($orgStock) {
         $page->component('Org/Inventory/OrgStockLabels')
             ->where('pageHead.model', 'Master SKO')
             ->where('labels.store_route.name', 'grp.models.org_stock.labels.store')
             ->where('labels.abilities.edit', true)
-            ->has('labels.information_options', 24);
+            ->has('labels.information_options', count(GetOrgStockLabelInformation::run($orgStock)));
     });
 })->depends('create warehouse', 'create org stock');
 
@@ -4814,6 +4815,52 @@ describe('out of stock forecast', function () {
         $calendarRate = 9000 / 91;
         expect($stats->forecast_source)->toBe('holt')
             ->and((float) $stats->predicted_daily_usage)->toEqualWithDelta($calendarRate * 2, 0.01);
+    });
+
+    test('an item that sold all year and then ran out keeps its in-stock selling rate', function () {
+        [, $deliveryNoteItem] = packedDeliveryNote($this);
+        $orgStock             = $deliveryNoteItem->orgStock;
+        $orgStock->update(['state' => OrgStockStateEnum::ACTIVE, 'quantity_available' => 0]);
+        DB::table('delivery_note_items')->where('org_stock_id', $orgStock->id)->delete();
+
+        $movementBase = [
+            'group_id'        => $orgStock->group_id,
+            'organisation_id' => $orgStock->organisation_id,
+            'warehouse_id'    => $this->warehouse->id,
+            'org_stock_id'    => $orgStock->id,
+            'class'           => OrgStockMovementClassEnum::MOVEMENT->value,
+            'type'            => OrgStockMovementTypeEnum::PURCHASE->value,
+            'flow'            => OrgStockMovementFlowEnum::IN->value,
+            'quantity'        => 1,
+            'org_amount'      => 0,
+            'grp_amount'      => 0,
+            'data'            => '{}',
+        ];
+        DB::table('org_stock_movements')->insert([
+            [...$movementBase, 'date' => now()->subDays(60)->startOfDay()->addHours(8), 'running_quantity_org_stock' => 30],
+            [...$movementBase, 'date' => now()->subDays(57)->startOfDay()->addHours(8), 'running_quantity_org_stock' => 0],
+        ]);
+        foreach ([200 => 2700, 60 => 10, 59 => 10, 58 => 10] as $daysAgo => $quantity) {
+            DB::table('delivery_note_items')->insert([
+                'group_id'            => $deliveryNoteItem->group_id,
+                'organisation_id'     => $deliveryNoteItem->organisation_id,
+                'shop_id'             => $deliveryNoteItem->shop_id,
+                'delivery_note_id'    => $deliveryNoteItem->delivery_note_id,
+                'org_stock_id'        => $orgStock->id,
+                'quantity_required'   => $quantity,
+                'quantity_dispatched' => $quantity,
+                'data'                => '{}',
+                'created_at'          => now()->subDays($daysAgo)->startOfDay()->addHours(10),
+                'updated_at'          => now(),
+            ]);
+        }
+
+        OrgStockHydrateOutOfStockForecast::run($orgStock->fresh());
+        $stats = $orgStock->stats->refresh();
+
+        expect($stats->forecast_source)->toBe('holt')
+            ->and((float) $stats->predicted_daily_usage)->toBeGreaterThan(30 / 91 * 2 * 5)
+            ->and((float) $stats->predicted_daily_usage)->toBeLessThanOrEqual(2730 / 365 * 2);
     });
 });
 

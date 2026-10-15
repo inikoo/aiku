@@ -226,6 +226,10 @@ class StorePurchaseOrderTransaction extends OrgAction
             $fail(__(':code is not active for this supplier', ['code' => $orgSupplierProduct->supplierProduct->code]));
         }
 
+        if (!$orgSupplierProduct->is_available || !$orgSupplierProduct->supplierProduct->is_available) {
+            $fail(__(':code is not available from this supplier', ['code' => $orgSupplierProduct->supplierProduct->code]));
+        }
+
         if (!$orgSupplierProduct->supplierProduct->historicSupplierProduct) {
             $fail(__(':code has no price history, save the supplier product again', ['code' => $orgSupplierProduct->supplierProduct->code]));
         }

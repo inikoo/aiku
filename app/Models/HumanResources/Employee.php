@@ -10,6 +10,7 @@ namespace App\Models\HumanResources;
 
 use App\Audits\Redactors\EmployeePinRedactor;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
+use App\Enums\Production\Artisan\ArtisanPayTypeEnum;
 use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Enums\HumanResources\Employee\EmploymentTypeEnum;
 use App\Enums\Miscellaneous\GenderEnum;
@@ -60,6 +61,7 @@ use App\Models\Traits\HasSearch;
  * @property string|null $job_title
  * @property EmployeeTypeEnum $type
  * @property EmployeeStateEnum $state
+ * @property ArtisanPayTypeEnum $artisan_pay_type
  * @property \Illuminate\Support\Carbon|null $employment_start_at
  * @property \Illuminate\Support\Carbon|null $employment_end_at
  * @property array<array-key, mixed>|null $emergency_contact
@@ -166,6 +168,7 @@ class Employee extends Model implements HasMedia, Auditable
         'contract_end_date' => 'date',
         'religion' => 'string',
         'emergency_contact' => 'array',
+        'artisan_pay_type' => ArtisanPayTypeEnum::class,
     ];
     //ss
 
@@ -173,6 +176,7 @@ class Employee extends Model implements HasMedia, Auditable
         'data' => '{}',
         'errors' => '{}',
         'salary' => '{}',
+        'artisan_pay_type' => 'piece_rate',
         'working_hours' => '{}',
         'migration_data' => '{}',
         'emergency_contact' => '{}'

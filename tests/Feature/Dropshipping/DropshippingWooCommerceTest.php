@@ -949,6 +949,37 @@ test('a listing the store no longer has is reported missing and the sku match is
         ->and(Arr::get($portfolio->data, 'woo_product'))->toBeNull();
 });
 
+test('the stock push sends a binned listing to the check, which marks it missing', function () {
+    $wooCommerceUser = wooConnect(wooCustomer($this->shop));
+    $portfolio       = wooPortfolio($wooCommerceUser->customerSalesChannel, $this->product, '794', 'binned-sku');
+
+    wooFake([
+        'POST products/batch' => Http::response(['update' => [wooProduct(794, ['status' => 'trash'])]]),
+        'GET products/794'    => Http::response(wooProduct(794, ['status' => 'trash'])),
+        'GET products'        => Http::response([]),
+    ]);
+
+    UpdateWooCustomerSalesChannelPortfolio::run($wooCommerceUser->customerSalesChannel, true);
+
+    expect($portfolio->refresh()->platform_status)->toBeFalse()
+        ->and($portfolio->stock_last_updated_at)->toBeNull();
+});
+
+test('a listing the store has in the bin is reported missing', function () {
+    $wooCommerceUser = wooConnect(wooCustomer($this->shop));
+    $portfolio       = wooPortfolio($wooCommerceUser->customerSalesChannel, $this->product, '794', 'binned-sku');
+
+    wooFake([
+        'GET products/794' => Http::response(wooProduct(794, ['status' => 'trash'])),
+        'GET products'     => Http::response([]),
+    ]);
+
+    $portfolio = CheckWooPortfolio::run($portfolio)->refresh();
+
+    expect($portfolio->exist_in_platform)->toBeFalse()
+        ->and($portfolio->platform_status)->toBeFalse();
+});
+
 test('an error while searching the catalogue offers no matches instead of the error body', function () {
     $wooCommerceUser = wooConnect(wooCustomer($this->shop));
     $portfolio       = wooPortfolio($wooCommerceUser->customerSalesChannel, $this->product, null, 'err-sku');
@@ -1092,6 +1123,8 @@ test('the stock push batches the channel portfolios and records each product res
             ],
             'delete' => [],
         ]),
+        'GET products/795' => wooError('woocommerce_rest_product_invalid_id', 'Invalid ID.', 404),
+        'GET products'     => Http::response([]),
     ]);
 
     UpdateWooCustomerSalesChannelPortfolio::run($channel, true);
@@ -1106,6 +1139,9 @@ test('the stock push batches the channel portfolios and records each product res
         ->and($live->stock_last_updated_at)->not->toBeNull()
         ->and($dead->refresh()->stock_last_fail_updated_at)->not->toBeNull()
         ->and($dead->last_stock_value)->toBeNull()
+        ->and($dead->platform_status)->toBeFalse()
+        ->and($dead->exist_in_platform)->toBeFalse()
+        ->and($live->platform_status)->toBeTrue()
         ->and($channel->refresh()->ban_stock_update_util)->toBeNull();
 });
 

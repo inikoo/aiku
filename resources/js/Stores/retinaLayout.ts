@@ -59,7 +59,7 @@ export const useLayoutStore = defineStore("retinaLayout", () => {
         isFetching : false
     }
     const iris = {
-        is_logged_in : resolveIsLoggedIn(getLocalStorage().is_logged_in)
+        is_logged_in : resolveIsLoggedIn()
     }
     const iris_variables = getLocalStorage().iris_variables || {}
 

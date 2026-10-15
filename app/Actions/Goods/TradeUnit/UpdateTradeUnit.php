@@ -177,6 +177,10 @@ class UpdateTradeUnit extends OrgAction
             GroupHydrateTradeUnits::dispatch($tradeUnit->group)->delay(10);
         }
 
+        if ($tradeUnit->wasChanged('name')) {
+            TranslateTradeUnitName::queue($tradeUnit);
+        }
+
         if ($tradeUnit->wasChanged('cpnp_number')) {
             SyncStockCosmeticFromCpnp::run($tradeUnit);
         }

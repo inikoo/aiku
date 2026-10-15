@@ -4,7 +4,7 @@ import { retinaLayoutStructure } from "@/Composables/useRetinaLayoutStructure"
 
 // ponytail: spectrum logic mirrors Components/Pure/AudioWaveform.vue; extract a composable if a third user appears
 const props = withDefaults(
-    defineProps<{ src: string, topSeller?: number | null, placement?: 'auto' | 'bottom-left' }>(),
+    defineProps<{ src: string, topSeller?: number | string | null, placement?: 'auto' | 'bottom-left' }>(),
     { placement: 'auto' }
 )
 
@@ -21,7 +21,7 @@ const MONO_COLOR = '#334155'
 
 // Logged out cards show the "Login or Register" call to action under the image, which the
 // bottom-left button overlaps on narrow screens, so it moves to the top-left corner there.
-// The bestseller badge already sits at top-2 left-2, so drop below it when one is shown.
+// The product badge already sits at top-2 left-2, so drop below it when one is shown.
 const cornerClass = computed(() => {
     if (props.placement === 'bottom-left') {
         return 'left-2 bottom-2'

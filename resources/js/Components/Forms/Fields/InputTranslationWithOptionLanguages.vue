@@ -1,13 +1,33 @@
 <script setup lang="ts">
-import { ref, computed, watch } from "vue"
+import { ref, computed, watch, onUnmounted } from "vue"
+import { router } from "@inertiajs/vue3"
 import InputText from "primevue/inputtext"
 import Dialog from "primevue/dialog"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { faRobot, faSyncAlt, faTimes, faCheck, faPlus, faExclamationTriangle, faSpinnerThird } from "@fal"
+import { notify } from "@kyvg/vue3-notification"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
+import { ctrans } from "@/Composables/useTrans"
+import { routeType } from "@/types/route"
+library.add(faRobot, faSyncAlt, faTimes, faCheck, faPlus, faExclamationTriangle, faSpinnerThird)
 
 interface Language {
   code: string
   name?: string
+}
+
+interface TranslationStatus {
+  state: "missing" | "outdated" | "review" | "ok"
+  auto: boolean
+}
+
+interface TranslationProgress {
+  state: "running" | "done"
+  done: number
+  total: number
+  failed: string[]
 }
 
 const props = defineProps<{
@@ -15,26 +35,26 @@ const props = defineProps<{
   fieldName: string
   fieldData: {
     languages: Record<string, Language>
+    statuses?: Record<string, TranslationStatus>
+    translate_route?: routeType
+    approve_route?: routeType
+    trade_unit_id?: number
+    is_translating?: boolean
   }
 }>()
 
-/* OPTIONS */
 const languageOptions = computed(() => {
   return Object.values(props.fieldData.languages || {})
 })
 
-/* LOCAL STATE */
 const localValues = ref<Record<string, string>>({})
 
-/* 🔥 GUARD FLAG */
 const isSyncing = ref(false)
 
-/* OPTIONAL: equality check */
 const isEqual = (a: any, b: any) => {
   return JSON.stringify(a) === JSON.stringify(b)
 }
 
-/* FROM FORM → LOCAL */
 watch(
   () => props.form[props.fieldName],
   (val) => {
@@ -51,7 +71,6 @@ watch(
   { immediate: true, deep: true }
 )
 
-/* FROM LOCAL → FORM */
 watch(
   localValues,
   (val) => {
@@ -66,9 +85,10 @@ watch(
   { deep: true }
 )
 
-/* TAG DATA */
-const editedLanguages = computed(() => {
-  return Object.keys(localValues.value)
+const statuses = computed(() => props.fieldData.statuses ?? {})
+
+const languageCodes = computed(() => {
+  return [...new Set([...Object.keys(statuses.value), ...Object.keys(localValues.value)])]
 })
 
 const getLabel = (code: string) => {
@@ -81,20 +101,38 @@ const isFilled = (code: string) => {
   return typeof v === "string" && v.trim().length > 0
 }
 
-/* DIALOG */
+const isOutdated = (code: string) => isFilled(code) && statuses.value[code]?.state === "outdated"
+
+const isAuto = (code: string) => isFilled(code) && !!statuses.value[code]?.auto
+
+const needsReview = (code: string) => isFilled(code) && statuses.value[code]?.state === "review"
+
+const stateLabel = (code: string) => {
+  if (!isFilled(code)) return ctrans("Missing")
+  if (isOutdated(code)) return ctrans("Outdated")
+  if (needsReview(code)) return ctrans("Needs review")
+  return ctrans("Filled")
+}
+
+const chipClass = (code: string) => {
+  if (!isFilled(code)) return "bg-gray-50 border-dashed border-gray-300 text-gray-500"
+  if (isOutdated(code) || needsReview(code)) return "bg-amber-50 border-amber-300 text-amber-700"
+  return "bg-green-50 border-green-200 text-green-700"
+}
+
+const missingCount = computed(() => Object.keys(statuses.value).filter(code => !isFilled(code)).length)
+
+const outdatedCount = computed(() => Object.keys(statuses.value).filter(code => isOutdated(code)).length)
+
+const reviewCodes = computed(() => Object.keys(statuses.value).filter(code => needsReview(code)))
+
 const showDialog = ref(false)
 const tempLanguage = ref<string | null>(null)
 const tempValue = ref("")
 
 const openDialog = (code: string | null = null) => {
-  if (code) {
-    tempLanguage.value = code
-    tempValue.value = localValues.value[code] || ""
-  } else {
-    tempLanguage.value = null
-    tempValue.value = ""
-  }
-
+  tempLanguage.value = code
+  tempValue.value = code ? localValues.value[code] || "" : ""
   showDialog.value = true
 }
 
@@ -114,87 +152,181 @@ const removeLanguage = (code: string) => {
   delete newVal[code]
   localValues.value = newVal
 }
+
+const isTranslating = ref(!!props.fieldData.is_translating)
+const progress = ref<TranslationProgress | null>(null)
+const showRetranslateConfirm = ref(false)
+const isApproving = ref(false)
+
+const channelName = computed(() => props.fieldData.trade_unit_id ? `grp.trade-unit.${props.fieldData.trade_unit_id}` : null)
+
+if (channelName.value && window.Echo) {
+  window.Echo.private(channelName.value)
+    .listen(".name-translation-progress", (event: TranslationProgress) => {
+      progress.value = event
+      isTranslating.value = event.state === "running"
+
+      if (event.state === "done") {
+        router.reload({ preserveScroll: true } as any)
+        if (event.failed.length) {
+          notify({
+            title: ctrans("Some names could not be translated"),
+            text: `${event.failed.join(", ").toUpperCase()}. ${ctrans("Please try again or type them in.")}`,
+            type: "error",
+          })
+        }
+      }
+    })
+}
+
+onUnmounted(() => {
+  if (channelName.value && window.Echo) {
+    window.Echo.leave(channelName.value)
+  }
+})
+
+const translate = (includeOutdated: boolean) => {
+  if (!props.fieldData.translate_route) return
+
+  router.post(
+    route(props.fieldData.translate_route.name, props.fieldData.translate_route.parameters),
+    { include_outdated: includeOutdated },
+    {
+      preserveScroll: true,
+      onSuccess: () => {
+        isTranslating.value = true
+        progress.value = null
+      },
+      onFinish: () => {
+        showRetranslateConfirm.value = false
+      },
+    }
+  )
+}
+
+const approve = (languages: string[]) => {
+  if (!props.fieldData.approve_route || !languages.length) return
+
+  router.post(
+    route(props.fieldData.approve_route.name, props.fieldData.approve_route.parameters),
+    { languages },
+    {
+      preserveScroll: true,
+      onStart: () => { isApproving.value = true },
+      onFinish: () => {
+        isApproving.value = false
+        showDialog.value = false
+      },
+    }
+  )
+}
 </script>
 
 <template>
   <div class="space-y-4">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <p class="text-xs text-gray-400">
+        {{ ctrans("Add and manage language content") }}
+      </p>
 
-    <!-- HEADER -->
-    <div class="flex items-center justify-between">
-      <div>
-        <p class="text-sm font-medium text-gray-700">
-          Translations
-        </p>
-        <p class="text-xs text-gray-400">
-          Add and manage language content
-        </p>
+      <div class="flex flex-wrap gap-2">
+        <Button
+          v-if="fieldData.translate_route"
+          type="tertiary"
+          :label="missingCount ? `${ctrans('Translate missing')} (${missingCount})` : ctrans('Translate missing')"
+          :disabled="isTranslating || (!missingCount && !outdatedCount)"
+          @click="translate(false)"
+        >
+          <template #icon>
+            <FontAwesomeIcon icon="fal fa-robot" class="text-[--app-accent]" fixed-width aria-hidden="true" />
+          </template>
+        </Button>
+        <Button
+          v-if="fieldData.translate_route && outdatedCount"
+          type="tertiary"
+          :label="`${ctrans('Retranslate outdated')} (${outdatedCount})`"
+          :disabled="isTranslating"
+          @click="showRetranslateConfirm = true"
+        >
+          <template #icon>
+            <FontAwesomeIcon icon="fal fa-sync-alt" class="text-amber-500" fixed-width aria-hidden="true" />
+          </template>
+        </Button>
+        <Button
+          v-if="fieldData.approve_route && reviewCodes.length"
+          v-tooltip="ctrans('Mark every machine translation as checked by you')"
+          type="tertiary"
+          :label="`${ctrans('Approve all')} (${reviewCodes.length})`"
+          :disabled="isTranslating"
+          :loading="isApproving"
+          @click="approve(reviewCodes)"
+        >
+          <template #icon>
+            <FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" />
+          </template>
+        </Button>
+        <Button type="tertiary" :label="ctrans('Language')" @click="openDialog()">
+          <template #icon>
+            <FontAwesomeIcon icon="fal fa-plus" class="text-green-600" fixed-width aria-hidden="true" />
+          </template>
+        </Button>
       </div>
-
-      <Button
-        label="Language"
-        type="create"
-        @click="openDialog()"
-      />
     </div>
 
-    <!-- TAGS -->
-    <div
-      v-if="editedLanguages.length"
-      class="flex flex-wrap gap-2"
-    >
+    <div v-if="isTranslating" class="flex items-center gap-2 rounded-md border border-gray-200 px-3 py-2 text-xs text-gray-600">
+      <FontAwesomeIcon icon="fal fa-spinner-third" class="animate-spin text-[--app-accent]" fixed-width aria-hidden="true" />
+      <span>{{ ctrans("Translating names in the background, you can keep working") }}</span>
+      <span v-if="progress?.total" class="ml-auto tabular-nums">{{ progress.done }} / {{ progress.total }}</span>
+    </div>
+
+    <div v-if="languageCodes.length" class="flex flex-wrap gap-2">
       <div
-        v-for="code in editedLanguages"
+        v-for="code in languageCodes"
         :key="code"
         class="flex items-center gap-2 px-3 py-1.5 text-xs rounded-full border"
-        :class="isFilled(code)
-          ? 'bg-green-50 border-green-200 text-green-700'
-          : 'bg-gray-50 border-gray-200 text-gray-500'"
+        :class="chipClass(code)"
       >
-        <!-- EDIT -->
-        <span
-          class="cursor-pointer font-medium"
-          @click="openDialog(code)"
-        >
+        <span class="cursor-pointer font-medium" @click="openDialog(code)">
           {{ getLabel(code) }}
         </span>
 
-        <!-- STATUS -->
+        <FontAwesomeIcon
+          v-if="isAuto(code)"
+          v-tooltip="ctrans('Translated automatically, edit it to make it yours')"
+          icon="fal fa-robot"
+          fixed-width
+          aria-hidden="true"
+        />
+
         <span class="text-[10px] opacity-70">
-          {{ isFilled(code) ? 'Filled' : 'Empty' }}
+          {{ stateLabel(code) }}
         </span>
 
-        <!-- DELETE -->
         <span
+          v-if="isFilled(code)"
           class="cursor-pointer text-red-400 hover:text-red-600"
           @click.stop="removeLanguage(code)"
         >
-          ✕
+          <FontAwesomeIcon icon="fal fa-times" fixed-width aria-hidden="true" />
         </span>
       </div>
     </div>
 
-    <!-- EMPTY -->
-    <div
-      v-else
-      class="text-sm text-gray-400 border border-dashed rounded p-3 text-center"
-    >
-      No translations added yet
+    <div v-else class="text-sm text-gray-400 border border-dashed rounded p-3 text-center">
+      {{ ctrans("No translations added yet") }}
     </div>
 
-    <!-- DIALOG -->
     <Dialog
       v-model:visible="showDialog"
       modal
-      header="Language Content"
+      :header="ctrans('Language Content')"
       :style="{ width: '420px' }"
       :content-style="{ overflow: 'visible', paddingLeft: '20px', paddingRight: '20px' }"
     >
       <div class="space-y-4">
-
-        <!-- SELECT -->
         <div>
           <label class="text-xs text-gray-500 block mb-1">
-            Language
+            {{ ctrans("Language") }}
           </label>
 
           <PureMultiselect
@@ -208,35 +340,66 @@ const removeLanguage = (code: string) => {
           />
         </div>
 
-        <!-- INPUT -->
         <div>
           <label class="text-xs text-gray-500 block mb-1">
-            Content
+            {{ ctrans("Content") }}
           </label>
 
           <InputText
             v-model="tempValue"
-            :placeholder="tempLanguage
-              ? `Input for ${tempLanguage}`
-              : 'Enter content'"
+            :placeholder="tempLanguage ? `${ctrans('Input for')} ${tempLanguage}` : ctrans('Enter content')"
             class="w-full"
           />
         </div>
 
-        <!-- ACTION -->
         <div class="flex justify-end gap-2 pt-2">
-          <Button as="div" type="gray" label="Cancel" @click="showDialog = false" />
+          <Button as="div" type="tertiary" :label="ctrans('Cancel')" @click="showDialog = false">
+            <template #icon>
+              <FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" />
+            </template>
+          </Button>
           <Button
+            v-if="fieldData.approve_route && tempLanguage && needsReview(tempLanguage) && tempValue === localValues[tempLanguage]"
             as="div"
-            label="Save"
-            type="save"
-            :disabled="!tempLanguage"
-            @click="saveLanguage"
-          />
+            type="tertiary"
+            :label="ctrans('Approve')"
+            :loading="isApproving"
+            @click="approve([tempLanguage])"
+          >
+            <template #icon>
+              <FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" />
+            </template>
+          </Button>
+          <Button as="div" type="tertiary" :label="ctrans('Save')" :disabled="!tempLanguage" @click="saveLanguage">
+            <template #icon>
+              <FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" />
+            </template>
+          </Button>
         </div>
-
       </div>
     </Dialog>
 
+    <Dialog
+      v-model:visible="showRetranslateConfirm"
+      modal
+      :header="ctrans('Retranslate outdated names')"
+      :style="{ width: '28rem' }"
+    >
+      <p class="text-sm text-gray-600">
+        {{ ctrans("The English name changed after these names were written. Retranslating replaces them, including the ones a person typed in.") }}
+      </p>
+      <div class="flex justify-end gap-2 pt-4">
+        <Button type="tertiary" :label="ctrans('Cancel')" @click="showRetranslateConfirm = false">
+          <template #icon>
+            <FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" />
+          </template>
+        </Button>
+        <Button type="tertiary" :label="ctrans('Retranslate')" @click="translate(true)">
+          <template #icon>
+            <FontAwesomeIcon icon="fal fa-exclamation-triangle" class="text-amber-500" fixed-width aria-hidden="true" />
+          </template>
+        </Button>
+      </div>
+    </Dialog>
   </div>
 </template>

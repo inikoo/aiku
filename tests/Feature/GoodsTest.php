@@ -34,6 +34,8 @@ use App\Enums\Goods\StockFamily\StockFamilyStateEnum;
 use App\Models\Goods\Ingredient;
 use App\Models\Goods\Stock;
 use App\Models\Goods\StockFamily;
+use App\Actions\Goods\TradeUnit\StoreTradeUnit;
+use App\Actions\Goods\TradeUnit\UpdateTradeUnit;
 use App\Models\Goods\TradeUnit;
 use Inertia\Testing\AssertableInertia;
 use Illuminate\Validation\ValidationException;
@@ -652,9 +654,15 @@ test("UI Edit Trade Unit", function () {
                     expect($language['label'])->toBe('('.strtoupper($language['code']).') '.$language['name']);
                 }
 
+                $nameTranslationsField = collect($blueprint)->pluck('fields.name_i8n')->filter()->first();
+                expect($nameTranslationsField['type'])->toBe('input_translation_use_option');
+
                 return true;
             });
     });
+
+    $tradeUnit = UpdateTradeUnit::make()->action($tradeUnit, ['name_i8n' => ['es' => 'Camiseta', 'sk' => 'Tričko']]);
+    expect($tradeUnit->refresh()->getTranslations('name_i8n'))->toMatchArray(['es' => 'Camiseta', 'sk' => 'Tričko']);
 });
 
 test("UI Show Trade Units Dashboard", function () {
@@ -1887,4 +1895,187 @@ test('products get their trade unit family documents when their trade unit joins
     \App\Actions\Catalogue\Product\SyncProductTradeUnits::run($product, [['id' => $tradeUnit->id, 'quantity' => 1]]);
 
     expect($product->attachments()->where('media.id', $familyDocument->id)->count())->toBe(1);
+});
+
+test('sizes sharing documents show the source trade unit IFRA, SDS and allergen documents instead of their own', function () {
+    [, $fixtureProduct] = createProduct($this->shop);
+    $number             = (string) random_int(100000, 999999);
+    $sizeOf             = function (string $code) use ($fixtureProduct) {
+        $tradeUnit = \App\Actions\Goods\TradeUnit\StoreTradeUnit::make()->action($this->group, array_merge(TradeUnit::factory()->definition(), ['code' => $code]));
+        $tradeUnit->update(['status' => \App\Enums\Goods\TradeUnit\TradeUnitStatusEnum::ACTIVE]);
+        $product = \App\Actions\Catalogue\Product\StoreProduct::make()->action($fixtureProduct->family, array_merge(\App\Models\Catalogue\Product::factory()->definition(), [
+            'trade_units' => [['id' => $tradeUnit->id, 'quantity' => 1]],
+            'price'       => 100,
+        ]));
+
+        return [$tradeUnit->fresh(), $product];
+    };
+    [$sourceTradeUnit, $sourceProduct] = $sizeOf('EOKGT-'.$number);
+    [$sizeTradeUnit, $sizeProduct]     = $sizeOf('EOT-'.$number);
+
+    $pdf = fn (string $name) => \Illuminate\Http\UploadedFile::fake()->createWithContent($name, "%PDF-1.4\n% ".uniqid()."\n%%EOF");
+
+    \App\Actions\Helpers\Media\AttachAttachmentToModel::make()->action($sizeTradeUnit, ['attachments' => [$pdf('old-sds.pdf')], 'scope' => 'sds']);
+    \App\Actions\Helpers\Media\AttachAttachmentToModel::make()->action($sizeTradeUnit, ['attachments' => [$pdf('how-to-use.pdf')], 'scope' => 'how_to_use']);
+    \App\Actions\Helpers\Media\AttachAttachmentToModel::make()->action($sourceTradeUnit, ['attachments' => [$pdf('new-sds.pdf')], 'scope' => 'sds']);
+    $oldSds    = $sizeTradeUnit->attachments()->wherePivot('scope', 'sds')->first();
+    $howToUse  = $sizeTradeUnit->attachments()->wherePivot('scope', 'how_to_use')->first();
+    $newSds    = $sourceTradeUnit->attachments()->wherePivot('scope', 'sds')->first();
+    $sizeMedia = fn () => $sizeProduct->attachments()->pluck('media.id')->sort()->values()->all();
+
+    $attachmentsTab = fn (TradeUnit $tradeUnit) => get(route('grp.trade_units.units.show', [$tradeUnit->slug, 'tab' => 'attachments']))->viewData('page')['props']['attachments'];
+
+    $suggestions = collect($attachmentsTab($sourceTradeUnit)['documents_sharing']['suggestions']);
+    expect($suggestions->pluck('id'))->toContain($sizeTradeUnit->id);
+
+    \Pest\Laravel\withHeaders(['X-Inertia' => 'true'])->post(route('grp.models.trade-unit.share_documents', $sourceTradeUnit->id), ['trade_units' => [$sizeTradeUnit->id]])->assertRedirect();
+    $this->flushHeaders();
+
+    expect($sizeMedia())->toBe(collect([$newSds->id, $howToUse->id])->sort()->values()->all())
+        ->and($sizeTradeUnit->fresh()->attachments()->where('media.id', $oldSds->id)->exists())->toBeTrue()
+        ->and(\App\Actions\Iris\Media\DownloadIrisAttachment::isPublic($oldSds))->toBeFalse()
+        ->and(\App\Actions\Iris\Media\DownloadIrisAttachment::isPublic($newSds))->toBeTrue();
+
+    $sizeTab   = $attachmentsTab($sizeTradeUnit);
+    $sizeBoxes = collect($sizeTab['attachment_category_box']['public'])->keyBy('scope');
+    expect($sizeBoxes['sds']['attachment']['id'])->toBe($newSds->id)
+        ->and($sizeTab['documents_sharing']['source']['code'])->toBe($sourceTradeUnit->code)
+        ->and(collect($attachmentsTab($sourceTradeUnit)['documents_sharing']['sharers'])->pluck('id')->all())->toBe([$sizeTradeUnit->id])
+        ->and($sizeBoxes['sds']['shared_from'])->toBe($sourceTradeUnit->code)
+        ->and($sizeBoxes['how_to_use']['shared_from'])->toBeNull();
+
+    $documentSources = collect(\App\Actions\Goods\TradeUnit\UI\GetTradeUnitDocuments::run(collect([$sizeTradeUnit->fresh()])))->pluck('source.label', 'media_id');
+    expect($documentSources[$newSds->id])->toContain($sourceTradeUnit->code)
+        ->and($documentSources->has($oldSds->id))->toBeFalse();
+
+    \App\Actions\Helpers\Media\AttachAttachmentToModel::make()->action($sourceTradeUnit, ['attachments' => [$pdf('ifra.pdf')], 'scope' => 'ifra']);
+    $ifra = $sourceTradeUnit->attachments()->wherePivot('scope', 'ifra')->first();
+    expect($sizeProduct->attachments()->where('media.id', $ifra->id)->exists())->toBeTrue();
+
+    expect(fn () => \App\Actions\Helpers\Media\AttachAttachmentToModel::make()->action($sizeTradeUnit->fresh(), ['attachments' => [$pdf('stray-ifra.pdf')], 'scope' => 'ifra']))
+        ->toThrow(\Illuminate\Validation\ValidationException::class);
+
+    [$otherTradeUnit] = $sizeOf('EOOT-'.$number);
+    expect(fn () => \App\Actions\Goods\TradeUnit\ShareTradeUnitDocuments::make()->action($sizeTradeUnit->fresh(), ['trade_units' => [$otherTradeUnit->id]]))
+        ->toThrow(\Illuminate\Validation\ValidationException::class)
+        ->and(fn () => \App\Actions\Goods\TradeUnit\ShareTradeUnitDocuments::make()->action($otherTradeUnit, ['trade_units' => [$sourceTradeUnit->id]]))
+        ->toThrow(\Illuminate\Validation\ValidationException::class);
+
+    \App\Actions\Helpers\Media\DetachAttachmentFromModel::make()->action($sourceTradeUnit, $ifra);
+    expect($sizeProduct->attachments()->where('media.id', $ifra->id)->exists())->toBeFalse();
+
+    [$secondSourceTradeUnit] = $sizeOf('EOST-'.$number);
+    expect(fn () => \App\Actions\Goods\TradeUnit\ShareTradeUnitDocuments::make()->action($secondSourceTradeUnit, ['trade_units' => [$sizeTradeUnit->id]]))
+        ->toThrow(\Illuminate\Validation\ValidationException::class);
+
+    \Pest\Laravel\withHeaders(['X-Inertia' => 'true'])->delete(route('grp.models.trade-unit.stop_sharing_documents', $sizeTradeUnit->id))->assertRedirect();
+    $this->flushHeaders();
+
+    expect($sizeMedia())->toBe(collect([$oldSds->id, $howToUse->id])->sort()->values()->all())
+        ->and(\App\Actions\Iris\Media\DownloadIrisAttachment::isPublic($oldSds))->toBeTrue();
+
+    \App\Actions\Goods\TradeUnit\ShareTradeUnitDocuments::make()->action($sourceTradeUnit, ['trade_units' => [$sizeTradeUnit->id]]);
+    expect($sizeMedia())->toContain($newSds->id);
+
+    \App\Actions\Goods\TradeUnit\DeleteTradeUnit::run($sourceTradeUnit->fresh(), ['force' => true]);
+
+    expect($sizeTradeUnit->fresh()->documents_trade_unit_id)->toBeNull()
+        ->and($sizeMedia())->toBe(collect([$oldSds->id, $howToUse->id])->sort()->values()->all());
+});
+
+test('HELP-3997 a trade unit name is translated into every open shop language and a new English name retranslates only the machine ones', function () {
+    $spanish = \App\Models\Helpers\Language::where('code', 'es')->firstOrFail();
+    $shopBefore = $this->shop->only(['state', 'language_id']);
+    $this->shop->update(['state' => \App\Enums\Catalogue\Shop\ShopStateEnum::OPEN, 'language_id' => $spanish->id]);
+
+    \Illuminate\Support\Facades\Event::fake([\App\Events\TradeUnitNameTranslationProgressEvent::class]);
+    \App\Actions\Helpers\Translations\Translate::mock()->shouldReceive('handle')
+        ->andReturnUsing(fn (string $text, $from, $to) => strtoupper($to->code).' '.$text);
+
+    $tradeUnit = StoreTradeUnit::make()->action($this->group, array_merge(TradeUnit::factory()->definition(), [
+        'code' => 'SWTS-H3997-'.Str::random(4),
+        'name' => 'Small Stone Washed T-shirt',
+    ]))->fresh();
+
+    $languages = \App\Actions\Goods\TradeUnit\GetTradeUnitNameTranslationLanguages::run($this->group);
+
+    expect($languages)->toContain('es')->not->toContain('en')
+        ->and($tradeUnit->getTranslation('name_i8n', 'es'))->toBe('ES Small Stone Washed T-shirt')
+        ->and(array_keys(array_filter($tradeUnit->getTranslations('name_i8n'))))->toEqualCanonicalizing($languages)
+        ->and(data_get($tradeUnit->data, 'name_i8n_status.es'))->toEqual(['source' => 'Small Stone Washed T-shirt', 'auto' => true])
+        ->and(\App\Actions\Goods\TradeUnit\TranslateTradeUnitName::make()->getStatuses($tradeUnit)['es'])->toBe(['state' => 'review', 'auto' => true])
+        ->and(\App\Actions\Goods\TradeUnit\TranslateTradeUnitName::isRunning($tradeUnit))->toBeFalse();
+
+    \Illuminate\Support\Facades\Event::assertDispatched(
+        \App\Events\TradeUnitNameTranslationProgressEvent::class,
+        fn ($event) => $event->tradeUnit->id === $tradeUnit->id && $event->progress['state'] === 'done' && $event->progress['done'] === count($languages)
+    );
+
+    $otherLanguage = collect($languages)->first(fn (string $code) => $code !== 'es');
+
+    UpdateTradeUnit::make()->action($tradeUnit, ['name_i8n' => array_merge($tradeUnit->getTranslations('name_i8n'), ['es' => 'Camiseta escrita a mano'])]);
+    UpdateTradeUnit::make()->action($tradeUnit->fresh(), ['name' => 'Large Stone Washed T-shirt']);
+    $tradeUnit->refresh();
+
+    $statuses = \App\Actions\Goods\TradeUnit\TranslateTradeUnitName::make()->getStatuses($tradeUnit);
+
+    expect($tradeUnit->getTranslation('name_i8n', 'es'))->toBe('Camiseta escrita a mano')
+        ->and($statuses['es'])->toBe(['state' => 'outdated', 'auto' => false]);
+
+    if ($otherLanguage) {
+        expect($tradeUnit->getTranslation('name_i8n', $otherLanguage))->toBe(strtoupper($otherLanguage).' Large Stone Washed T-shirt')
+            ->and($statuses[$otherLanguage])->toBe(['state' => 'ok', 'auto' => true]);
+    }
+
+    $this->postJson(route('grp.models.trade-unit.translate_names', $tradeUnit->id))
+        ->assertOk()->assertJson(['queued' => true]);
+    expect($tradeUnit->fresh()->getTranslation('name_i8n', 'es'))->toBe('Camiseta escrita a mano');
+
+    $this->postJson(route('grp.models.trade-unit.translate_names', $tradeUnit->id), ['include_outdated' => true])
+        ->assertOk()->assertJson(['queued' => true]);
+    expect($tradeUnit->fresh()->getTranslation('name_i8n', 'es'))->toBe('ES Large Stone Washed T-shirt');
+
+    \Pest\Laravel\withHeaders(['X-Inertia' => 'true'])
+        ->post(route('grp.models.trade-unit.approve_name_translations', $tradeUnit->id), ['languages' => ['es']])
+        ->assertRedirect();
+    $this->flushHeaders();
+
+    $tradeUnit->refresh();
+    expect(\App\Actions\Goods\TradeUnit\TranslateTradeUnitName::make()->getStatuses($tradeUnit)['es'])->toBe(['state' => 'ok', 'auto' => false]);
+
+    UpdateTradeUnit::make()->action($tradeUnit, ['name' => 'Medium Stone Washed T-shirt']);
+    expect($tradeUnit->fresh()->getTranslation('name_i8n', 'es'))->toBe('ES Large Stone Washed T-shirt');
+
+    $this->shop->update($shopBefore);
+});
+
+test('HELP-3997 a name the translator hands back in English is reported and left missing, and the list translates a selection', function () {
+    $slovak = \App\Models\Helpers\Language::where('code', 'sk')->firstOrFail();
+    $shopBefore = $this->shop->only(['state', 'language_id']);
+    $this->shop->update(['state' => \App\Enums\Catalogue\Shop\ShopStateEnum::OPEN, 'language_id' => $slovak->id]);
+
+    $translatorWorks = false;
+    \App\Actions\Helpers\Translations\Translate::mock()->shouldReceive('handle')
+        ->andReturnUsing(function (string $text, $from, $to) use (&$translatorWorks) {
+            return $translatorWorks ? strtoupper($to->code).' '.$text : $text;
+        });
+
+    $tradeUnit = StoreTradeUnit::make()->action($this->group, array_merge(TradeUnit::factory()->definition(), [
+        'code' => 'SWTS-H3997F-'.Str::random(4),
+        'name' => 'Everything is Magic T-shirt',
+    ]));
+
+    expect($tradeUnit->fresh()->getTranslation('name_i8n', 'sk', false))->toBe('')
+        ->and(\App\Actions\Goods\TradeUnit\TranslateTradeUnitName::run($tradeUnit->fresh()))->toContain('sk');
+
+    $translatorWorks = true;
+
+    \Pest\Laravel\withHeaders(['X-Inertia' => 'true'])
+        ->post(route('grp.models.trade_units.bulk_translate_names'), ['trade_units' => [$tradeUnit->id]])
+        ->assertRedirect();
+    $this->flushHeaders();
+
+    expect($tradeUnit->fresh()->getTranslation('name_i8n', 'sk'))->toBe('SK Everything is Magic T-shirt');
+
+    $this->shop->update($shopBefore);
 });

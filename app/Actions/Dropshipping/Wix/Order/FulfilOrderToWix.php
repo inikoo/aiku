@@ -29,7 +29,7 @@ class FulfilOrderToWix extends RetinaAction
         }
 
         try {
-            $deliveryNote = $order->deliveryNotes->first();
+            $deliveryNote = $order->currentDeliveryNote();
 
             /** @var Shipment $shipment */
             $shipment = $deliveryNote?->shipments()->first();

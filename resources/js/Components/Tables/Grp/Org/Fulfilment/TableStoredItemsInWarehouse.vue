@@ -37,9 +37,7 @@ const storedItemInPalletRoute = (palletStoredItem: { stored_item_slug?: string, 
     const currentRoute = route().current() ?? ''
 
     if (currentRoute.startsWith('retina.')) {
-        return route().has('retina.fulfilment.itemised_storage.stored_items.show')
-            ? route('retina.fulfilment.itemised_storage.stored_items.show', [palletStoredItem.stored_item_slug])
-            : undefined
+        return undefined
     }
 
     if (params.organisation && params.warehouse) {

@@ -42,7 +42,12 @@ class DownloadIrisAttachment
             ->where(function (Builder $query) {
                 $query->where(function (Builder $query) {
                     $query->whereIn('model_type', ['Product', 'TradeUnit', 'TradeUnitFamily'])
-                        ->whereIn('scope', TradeAttachmentScopeEnum::publicScopes());
+                        ->whereIn('scope', TradeAttachmentScopeEnum::publicScopes())
+                        ->whereNot(function (Builder $query) {
+                            $query->where('model_type', 'TradeUnit')
+                                ->whereIn('scope', TradeAttachmentScopeEnum::substanceScopes())
+                                ->whereIn('model_id', DB::table('trade_units')->select('id')->whereNotNull('documents_trade_unit_id'));
+                        });
                 })->orWhere(function (Builder $query) {
                     $query->whereIn('model_type', ['ProductCategory', 'TradeUnitFamily'])
                         ->where('scope', 'labeling_guide');

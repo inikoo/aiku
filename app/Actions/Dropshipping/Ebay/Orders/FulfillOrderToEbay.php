@@ -41,7 +41,7 @@ class FulfillOrderToEbay extends OrgAction
         $ebayUser = $order->customerSalesChannel->user;
 
         /** @var DeliveryNote|null $deliveryNote */
-        $deliveryNote = $order->deliveryNotes->first();
+        $deliveryNote = $order->currentDeliveryNote();
 
         $shipment  = $deliveryNote?->shipments()->first();
         $lineItems = [];

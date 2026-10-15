@@ -14,6 +14,8 @@ use App\Actions\Dispatching\DeliveryNoteLeaflet\PullDeliveryNoteLeafletMediaFrom
 use App\Actions\Dispatching\DeliveryNoteLeaflet\PrintDeliveryNoteLeaflets;
 use App\Http\Middleware\EnsureNotHandledInAurora;
 use App\Actions\Dispatching\DeliveryNote\UI\ExportDeliveryNoteTariffCodes;
+use App\Actions\Dispatching\DeliveryNote\CustomsExport\ExportDeliveryNoteCustomsItems;
+use App\Actions\Dispatching\DeliveryNote\CustomsExport\PreviewDeliveryNoteCustomsItems;
 use App\Actions\Dispatching\DeliveryNote\UndispatchDeliveryNote;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNote;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteDeliveryAddress;
@@ -53,6 +55,8 @@ Route::name('delivery_note.')->prefix('delivery-note/{deliveryNote:id}')->middle
     });
 
     Route::get('tariff-codes/export', ExportDeliveryNoteTariffCodes::class)->name('tariff_codes.export');
+    Route::get('customs-items/export', ExportDeliveryNoteCustomsItems::class)->name('customs_items.export');
+    Route::get('customs-items/preview', PreviewDeliveryNoteCustomsItems::class)->name('customs_items.preview');
 
     Route::patch('update', UpdateDeliveryNote::class)->name('update');
     Route::patch('update-packaging', UpdateDeliveryNotePackaging::class)->name('update_packaging');

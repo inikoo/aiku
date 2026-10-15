@@ -46,7 +46,7 @@ class FulfillOrderToTiktok extends OrgAction
             $shipment = $order->shipments()->first();
         } else {
             /** @var DeliveryNote|null $deliveryNote */
-            $deliveryNote = $order->deliveryNotes->first();
+            $deliveryNote = $order->currentDeliveryNote();
 
             /** @var Shipment|null $shipment */
             $shipment = $deliveryNote?->shipments()->first();

@@ -96,6 +96,8 @@ Only the artisans named on the step see it and can start it; it is not on anybod
 
 The next step stays locked with **Waiting for** and the name of the mixing step until some mix has been recorded, and opens as soon as the first mix is entered. One mix for several lines works as in the section above: a manager combines the mixing lines, the mixer types the kg once, and each line gets its share.
 
+**Mixes made in whole batches.** When the product has a mix batch size (25 kg or 50 kg), the kg asked is rounded up to whole batches and shown as batches: 94.1 kg in 50 kg batches shows *2 × 50 kg batches = 100 kg*. The box is called **Batches of 50 kg made** and you type the number of batches, 2, not the kg. For a combined mix the rounding is on the total of all the lines. The extra over what the job asked for does not change the job, the forming quantities or the pay. Managers set it on the recipe step of the product, under **Mix batch size**.
+
 **Setting it up (managers).** On the page of the manufacture task, **Only these artisans can do it** lists who may do it; add or remove people there. Its edit form has **Paid by piece rate** (off for hourly work) and **Recorded in kg**. The kg of mix one unit takes goes on the recipe step of each product.
 
 ## Things worth knowing

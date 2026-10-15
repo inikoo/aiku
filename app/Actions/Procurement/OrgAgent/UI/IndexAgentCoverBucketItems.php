@@ -15,6 +15,7 @@ use App\Actions\OrgAction;
 use App\Actions\Procurement\PurchaseOrder\UI\GetOrgStockBuyingSignals;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrderOrgSupplierProducts;
 use App\InertiaTable\InertiaTable;
+use App\Actions\Procurement\OrgAgent\GetAgentLeadTimes;
 use App\Actions\Procurement\OrgAgent\GetAgentOrderCapacity;
 use App\Actions\Procurement\OrgAgent\GetAgentStockCoverBuckets;
 use App\Actions\Procurement\OrgAgent\WithAgentShoppingSubNavigation;
@@ -60,6 +61,8 @@ class IndexAgentCoverBucketItems extends OrgAction
 
     private ?string $prefix = null;
 
+    private int $agentLeadDays = 0;
+
     /**
      * The Ordering rows of one supplier, kept to the products any organisation of the group has on a
      * draft: a supplier goes to the agent as one job, so a draft is read next to what the others stack on it.
@@ -90,14 +93,51 @@ class IndexAgentCoverBucketItems extends OrgAction
         $this->prefix     = $prefix;
 
         InertiaTable::updateQueryBuilderParameters($prefix);
+        $this->readOrderingFilters($prefix);
 
-        return $this->handle($orgAgent, null, null, $supplierId);
+        return $this->handle($orgAgent, $this->bucket, $this->rank, $supplierId);
+    }
+
+    private function readOrderingFilters(string $prefix): void
+    {
+        $cover             = request()->input($prefix.'_filter.cover');
+        $rank              = request()->input($prefix.'_filter.rank');
+        $this->bucket      = array_key_exists((string) $cover, GetAgentStockCoverBuckets::BUCKETS) ? $cover : null;
+        $this->rank        = in_array($rank, ['A', 'B', 'C', 'D', 'Z'], true) ? $rank : null;
+        $this->hideOnOrder = request()->boolean($prefix.'_filter.hide_ordered');
+    }
+
+    /**
+     * The stock group and rank capsules above a supplier's products on an agent purchase order, in the
+     * shape the supplier purchase order uses.
+     *
+     * @return array{currency: string, cover: array<int, array{value: string, label: string, title: string, tone: string, count: int}>, rank: array<int, array{value: string, label: string, count: int}>, active: array{cover: string|null, rank: string|null, hide_ordered: bool}}
+     */
+    public function orderingFilters(OrgAgent $orgAgent, int $supplierId, string $currency, string $prefix): array
+    {
+        $this->orgAgent   = $orgAgent;
+        $this->supplierId = $supplierId;
+        $this->readOrderingFilters($prefix);
+
+        $options = $this->filterOptions(request()->input($prefix.'_filter.global', ''));
+
+        return [
+            'currency' => $currency,
+            'cover'    => collect($options['cover'])->map(fn (array $option) => [
+                ...$option,
+                'title' => GetAgentStockCoverBuckets::make()->bucketLabel($option['value']),
+                'tone'  => GetAgentStockCoverBuckets::BUCKETS[$option['value']]['tone'],
+            ])->all(),
+            'rank'     => $options['rank'],
+            'active'   => ['cover' => $this->bucket, 'rank' => $this->rank, 'hide_ordered' => $this->hideOnOrder],
+        ];
     }
 
     public function handle(OrgAgent $orgAgent, ?string $bucket, ?string $rank, ?int $supplierId): LengthAwarePaginator
     {
-        $buckets   = GetAgentStockCoverBuckets::make();
-        $bucketSql = $buckets->bucketSql($orgAgent);
+        $buckets             = GetAgentStockCoverBuckets::make();
+        $bucketSql           = $buckets->bucketSql($orgAgent);
+        $this->agentLeadDays = GetAgentLeadTimes::run($orgAgent)['agent']['days'];
 
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $like = '%'.addcslashes((string) $value, '%_\\').'%';
@@ -134,8 +174,6 @@ class IndexAgentCoverBucketItems extends OrgAction
                 'sp.units_per_pack',
                 'sp.units_per_carton',
                 'sp.minimum_carton_order',
-                'sp.measured_lead_time_days',
-                'sp.estimated_lead_time_days',
                 'sup.code as supplier_code',
                 'sup.slug as supplier_slug',
                 'cur.code as currency',
@@ -145,7 +183,9 @@ class IndexAgentCoverBucketItems extends OrgAction
                 's.days_of_cover',
                 's.recommended_order_quantity',
             ])
-            ->selectRaw("$bucketSql as bucket");
+            ->selectRaw("$bucketSql as bucket")
+            ->selectRaw(GetAgentStockCoverBuckets::leadTimeExpression($this->agentLeadDays).' as lead_time_days')
+            ->selectRaw(GetAgentStockCoverBuckets::leadTimeMeasuredExpression().' as lead_time_measured');
 
         if (!request()->filled(($this->prefix ? $this->prefix.'_' : '').'sort')) {
             $queryBuilder
@@ -166,7 +206,7 @@ class IndexAgentCoverBucketItems extends OrgAction
                     $sortBy('name', 'sp.name'),
                     $sortBy('supplier_code', 'sup.code collate "C"'),
                 ])
-                ->allowedFilters([$globalSearch, $supplierFilter])
+                ->allowedFilters([$globalSearch, $supplierFilter, ...array_map(fn (string $applied) => AllowedFilter::callback($applied, fn () => null), ['cover', 'rank', 'hide_ordered'])])
                 ->orderBy('osp.id')
                 ->withPaginator($this->prefix, tableName: request()->route()?->getName())
                 ->withQueryString()
@@ -196,10 +236,11 @@ class IndexAgentCoverBucketItems extends OrgAction
             ->where('po.organisation_id', '!=', $this->orgAgent->organisation_id)
             ->join('purchase_order_transactions as pot', fn ($join) => $join->on('pot.purchase_order_id', 'po.id')->whereNull('pot.deleted_at'))
             ->join('organisations as o', 'o.id', 'po.organisation_id')
+            ->leftJoin('users as buyer', 'buyer.id', 'po.buyer_id')
             ->whereIn('pot.supplier_product_id', $rows->pluck('supplier_product_id'))
-            ->groupBy('pot.supplier_product_id', 'o.id', 'o.code', 'o.name')
+            ->groupBy('pot.supplier_product_id', 'po.id', 'po.reference', 'o.id', 'o.code', 'o.name', 'buyer.id', 'buyer.contact_name')
             ->orderBy('o.code')
-            ->selectRaw('pot.supplier_product_id, o.code, o.name, sum(pot.quantity_ordered) as units')
+            ->selectRaw('pot.supplier_product_id, o.code, o.name, po.reference, buyer.contact_name as buyer_name, sum(pot.quantity_ordered) as units')
             ->get()
             ->groupBy('supplier_product_id');
 
@@ -230,8 +271,8 @@ class IndexAgentCoverBucketItems extends OrgAction
                 'bucket'               => $row->bucket,
                 'supplier_code'        => $row->supplier_code,
                 'supplier_slug'        => $row->supplier_slug,
-                'lead_time_days'       => $row->measured_lead_time_days ?? $row->estimated_lead_time_days,
-                'lead_time_measured'   => $row->measured_lead_time_days !== null,
+                'lead_time_days'       => (int) $row->lead_time_days,
+                'lead_time_measured'   => (bool) $row->lead_time_measured,
                 'our_stock'            => $row->quantity_available !== null ? (float) $row->quantity_available : null,
                 'our_days_of_cover'    => $row->days_of_cover !== null ? (int) $row->days_of_cover : null,
                 'recommended_quantity' => $row->recommended_order_quantity !== null ? (int) ceil((float) $row->recommended_order_quantity) : null,
@@ -248,12 +289,14 @@ class IndexAgentCoverBucketItems extends OrgAction
                 'discontinue_suggestions' => $discontinueSuggestions->get($row->org_stock_id) ?? ['times' => 0, 'people' => 0],
                 'stock_in_locations'   => $orgStock?->quantity_in_locations === null ? null : trimDecimalZeros($orgStock->quantity_in_locations),
                 'quarterly_usage'      => $quarterlyUsage->get($row->org_stock_id) ?? [],
-                'stock_cover'          => GetOrgStockBuyingSignals::run($orgStock, $supplierProducts->get($row->supplier_product_id)),
+                'stock_cover'          => GetOrgStockBuyingSignals::run($orgStock, $supplierProducts->get($row->supplier_product_id), fallbackLeadTimeDays: $this->agentLeadDays),
                 'stock_deliveries'     => $stockDeliveries->get($row->org_stock_id),
                 'other_open_purchase_orders' => $row->other_open_purchase_orders ?? [],
                 'other_organisations_drafts' => ($otherOrganisationsDrafts->get($row->supplier_product_id) ?? collect())->map(fn ($draft) => [
                     'organisation_code' => $draft->code,
                     'organisation_name' => $draft->name,
+                    'reference'         => $draft->reference,
+                    'buyer_name'        => $draft->buyer_name,
                     'units'             => (float) $draft->units,
                 ])->values()->all(),
             ];
@@ -364,11 +407,11 @@ class IndexAgentCoverBucketItems extends OrgAction
      *
      * @return array{cover: array<int, array{value: string, label: string, count: int}>, rank: array<int, array{value: string, label: string, count: int}>, supplier: array<int, array{value: int, label: string}>}
      */
-    private function filterOptions(ActionRequest $request): array
+    private function filterOptions(?string $search): array
     {
         $buckets = GetAgentStockCoverBuckets::make();
 
-        $search = trim((string) $request->input('filter.global', ''));
+        $search = trim((string) $search);
         $like   = '%'.addcslashes($search, '%_\\').'%';
 
         $counts = $buckets->scopedQuery($this->orgAgent)
@@ -407,8 +450,9 @@ class IndexAgentCoverBucketItems extends OrgAction
     public function asController(Organisation $organisation, OrgAgent $orgAgent, ActionRequest $request): LengthAwarePaginator
     {
         $this->orgAgent   = $orgAgent;
-        $cover            = $request->input('cover', 'out');
-        $this->bucket     = $request->routeIs('*.shopping.browse.index') ? null : (array_key_exists($cover, GetAgentStockCoverBuckets::BUCKETS) ? $cover : 'out');
+        $isBrowse         = $request->routeIs('*.shopping.browse.index');
+        $cover            = (string) $request->input('cover', $isBrowse ? '' : 'out');
+        $this->bucket     = array_key_exists($cover, GetAgentStockCoverBuckets::BUCKETS) ? $cover : ($isBrowse ? null : 'out');
         $rank             = $request->input('rank');
         $this->rank       = in_array($rank, ['A', 'B', 'C', 'D', 'Z'], true) ? $rank : null;
         $this->supplierId   = ((int) ($request->input('filter.supplier') ?: $request->input('supplier'))) ?: null;
@@ -450,7 +494,7 @@ class IndexAgentCoverBucketItems extends OrgAction
                 'bucket'      => $this->bucket,
                 'bucketLabel' => $this->bucketLabel(),
                 'bucketLabels' => collect(GetAgentStockCoverBuckets::BUCKETS)->map(fn (array $meta) => ['label' => __($meta['label']), 'tone' => $meta['tone']])->all(),
-                'filterOptions' => fn () => $this->filterOptions($request),
+                'filterOptions' => fn () => $this->filterOptions($request->input('filter.global')),
                 'active'      => [
                     'cover'    => $this->bucket,
                     'rank'     => $this->rank,

@@ -53,6 +53,7 @@ class GetMcpChangeSnapshot
         return match ($type) {
             McpChangeTypeEnum::RELATED_PRODUCTS => $this->relatedProducts($target),
             McpChangeTypeEnum::ORG_STOCK_STATE  => $this->orgStockStates($target),
+            McpChangeTypeEnum::SUPPLIER_PRODUCT_AVAILABILITY => $this->supplierProductAvailability($target),
             McpChangeTypeEnum::PARTNER_SHOPPING_LIST => $this->partnerShoppingList($target),
             McpChangeTypeEnum::PRODUCTION_RECORD => $this->productionRecord($target),
             McpChangeTypeEnum::PRODUCTION_RECIPE => $this->productionRecipes($target),
@@ -68,6 +69,13 @@ class GetMcpChangeSnapshot
         if ($type === McpChangeTypeEnum::ORG_STOCK_STATE) {
             return collect($snapshot['org_stocks'])
                 ->map(fn (array $orgStock) => $orgStock['code'].': '.$orgStock['state'].($orgStock['scheduled'] ? ' (scheduled '.$orgStock['scheduled']['to_state'].')' : ''))
+                ->implode(', ');
+        }
+
+        if ($type === McpChangeTypeEnum::SUPPLIER_PRODUCT_AVAILABILITY) {
+            return collect($snapshot['org_supplier_products'])
+                ->map(fn (array $row) => $row['code'].' ('.$row['organisation'].'): '.($row['is_available'] ? 'available' : 'unavailable'))
+                ->merge(collect($snapshot['supplier_products'])->map(fn (array $row) => $row['code'].' (supplier): '.($row['is_available'] ? 'available' : 'unavailable')))
                 ->implode(', ');
         }
 
@@ -334,6 +342,26 @@ class GetMcpChangeSnapshot
                         ])->values()->all(),
                     ])->values()->all(),
                 ])
+                ->all(),
+        ];
+    }
+
+    private function supplierProductAvailability(array $target): array
+    {
+        return [
+            'org_supplier_products' => DB::table('org_supplier_products')
+                ->join('supplier_products', 'supplier_products.id', '=', 'org_supplier_products.supplier_product_id')
+                ->join('organisations', 'organisations.id', '=', 'org_supplier_products.organisation_id')
+                ->whereIn('org_supplier_products.id', $target['org_supplier_product_ids'])
+                ->orderBy('org_supplier_products.id')
+                ->get(['org_supplier_products.id', 'supplier_products.code', 'organisations.code as organisation', 'org_supplier_products.is_available'])
+                ->mapWithKeys(fn ($row) => [$row->id => ['code' => $row->code, 'organisation' => $row->organisation, 'is_available' => (bool) $row->is_available]])
+                ->all(),
+            'supplier_products'     => DB::table('supplier_products')
+                ->whereIn('id', $target['supplier_product_ids'])
+                ->orderBy('id')
+                ->get(['id', 'code', 'is_available'])
+                ->mapWithKeys(fn ($row) => [$row->id => ['code' => $row->code, 'is_available' => (bool) $row->is_available]])
                 ->all(),
         ];
     }

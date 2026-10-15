@@ -13,6 +13,7 @@ use App\Actions\HumanResources\Timesheet\GetTimesheet;
 use App\Actions\HumanResources\Timesheet\Hydrators\TimesheetHydrateTimeTrackers;
 use App\Actions\HumanResources\TimeTracker\AddClockingToTimeTracker;
 use App\Actions\OrgAction;
+use App\Actions\Production\ManufactureBreak\PauseManufactureTaskSessionOnClocking;
 use App\Actions\SysAdmin\Guest\Hydrators\GuestHydrateClockings;
 use App\Actions\Traits\WithBase64FileConverter;
 use App\Actions\Traits\WithUpdateModelImage;
@@ -132,6 +133,10 @@ class StoreClocking extends OrgAction
         $isSelfScannedQrCode = $parent instanceof ClockingMachine && $parent->type === ClockingMachineTypeEnum::QR_CODE->value;
 
         if ($subject instanceof Employee) {
+            if ($parent instanceof ClockingMachine && $clocking->wasRecentlyCreated) {
+                PauseManufactureTaskSessionOnClocking::run($subject, $clocking);
+            }
+
             EmployeeHydrateClockings::dispatch($subject)->delay($this->hydratorsDelay);
 
             if (!$isSelfScannedQrCode) {

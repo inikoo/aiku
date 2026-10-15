@@ -69,10 +69,13 @@ class UpdateSupplierProduct extends OrgAction
 
         $modelData = $this->pullSupplierProductJsonColumns($modelData);
         $modelData = $this->fillUnitsPerSupplierUnitFromWeight($supplierProduct, $modelData);
+        $modelData['currency_id'] = $supplierProduct->supplier?->currency_id ?? $supplierProduct->currency_id;
 
         $supplierProduct = $this->update($supplierProduct, $modelData, ['data', 'settings']);
+        $changedFields = array_keys($supplierProduct->getChanges());
+        $wasChanged    = fn (array $fields): bool => array_intersect($fields, $changedFields) !== [];
 
-        if (!$skipHistoric && $supplierProduct->wasChanged(self::HISTORIC_FIELDS)) {
+        if (!$skipHistoric && $wasChanged(self::HISTORIC_FIELDS)) {
             $historicProduct = StoreHistoricSupplierProduct::make()->action($supplierProduct, [
                 'status' => true,
             ]);
@@ -82,20 +85,20 @@ class UpdateSupplierProduct extends OrgAction
             ]);
         }
 
-        if ($supplierProduct->wasChanged('state')) {
+        if ($wasChanged(['state'])) {
             foreach ($supplierProduct->orgSupplierProducts as $orgSupplierProduct) {
                 UpdateOrgSupplierProduct::run($orgSupplierProduct, ['state' => $supplierProduct->state]);
             }
         }
 
-        if ($supplierProduct->wasChanged(['cost', 'extra_costs', 'currency_id'])) {
+        if ($wasChanged(['cost', 'extra_costs', 'currency_id'])) {
             $orgStocks = OrgStock::whereHas('orgSupplierProducts', fn ($query) => $query->where('supplier_product_id', $supplierProduct->id))->get();
             foreach ($orgStocks as $orgStock) {
                 OrgStockHydrateCurrentSupplierSkuCost::dispatch($orgStock);
             }
         }
 
-        if ($supplierProduct->wasChanged(self::STATS_FIELDS)) {
+        if ($wasChanged(self::STATS_FIELDS)) {
             GroupHydrateSupplierProducts::dispatch($supplierProduct->group)->delay($this->hydratorsDelay);
             SupplierHydrateSupplierProducts::dispatch($supplierProduct->supplier)->delay($this->hydratorsDelay);
             AgentHydrateSupplierProducts::dispatchIf((bool)$supplierProduct->agent_id, $supplierProduct->agent)->delay($this->hydratorsDelay);

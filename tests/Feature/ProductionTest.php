@@ -2113,6 +2113,18 @@ test('completed job order is received into stock with a batch code', function ()
     $session = StartManufactureTaskSession::make()->action($user, $task);
     CloseManufactureTaskSession::make()->action($session, ['quantity_made' => 10]);
 
+    \App\Actions\Production\JobOrder\HoldJobOrder::make()->action($jobOrder, ['on_hold' => true, 'kind' => 'missing_label', 'reason' => 'Labels out of stock'], $user);
+
+    expect(fn () => \App\Actions\Production\JobOrder\ReceiveJobOrderIntoStock::make()->action($jobOrder->refresh(), ['location_id' => $location->id]))
+        ->toThrow(ValidationException::class, 'On hold: Labels out of stock. Clear the hold before receiving.')
+        ->and(\App\Actions\Production\JobOrder\UI\IndexJobOrders::make()->getElementGroups($this->production)['hold']['elements']['on_hold'][1])->toBeGreaterThanOrEqual(1);
+
+    \App\Actions\Production\JobOrder\HoldJobOrder::make()->action($jobOrder->refresh(), ['on_hold' => false], $user);
+
+    expect($jobOrder->refresh()->data)->not->toHaveKey('hold')
+        ->and($jobOrder->data['holds'])->toHaveCount(1)
+        ->and($jobOrder->data['holds'][0])->toMatchArray(['reason' => 'Labels out of stock', 'kind' => 'missing_label', 'cleared_user_id' => $user->id]);
+
     $jobOrder = \App\Actions\Production\JobOrder\ReceiveJobOrderIntoStock::make()->action($jobOrder, [
         'location_id' => $location->id,
     ]);
@@ -2733,6 +2745,66 @@ describe('production reward pay bands', function () {
         expect(fn () => \App\Actions\Production\ManufactureTaskSession\ReviewUnderTargetManufactureTaskSession::make()->action($onTarget, auth()->user(), [
             'under_target_reason' => 'other',
         ]))->toThrow(\Illuminate\Validation\ValidationException::class);
+    });
+
+    test('an hourly artisan gets no tier, bonus or under-target flag, and their sessions this week follow the pay type', function () {
+        AttachManufactureTaskToArtefact::make()->action($this->artefact, [
+            'manufacture_task_id' => $this->manufactureTask->id,
+            'position'            => 1,
+            'units_per_artefact'  => 1,
+            'standard_rate'       => 152,
+        ]);
+        $this->manufactureTask->update(['operative_reward_terms' => 'above_lower_limit']);
+
+        $modelData                    = Employee::factory()->make(['organisation_id' => $this->organisation->id])->toArray();
+        $modelData['worker_number']   = 'W'.rand(1000, 9999);
+        $modelData['alias']           = 'Alias '.rand(1000, 9999);
+        $modelData['type']            = \App\Enums\HumanResources\Employee\EmployeeTypeEnum::EMPLOYEE;
+        $modelData['employment_type'] = \App\Enums\HumanResources\Employee\EmploymentTypeEnum::FULL_TIME;
+        $modelData['state']           = \App\Enums\HumanResources\Employee\EmployeeStateEnum::WORKING;
+        $artisan                      = StoreEmployee::make()->action($this->organisation, $modelData);
+
+        $closeOpen = function (float $quantityMade) use ($artisan) {
+            $session = makePayBandSession($this->payBandJobOrderItemTask, 0, 1);
+            $session->update(['state' => \App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum::OPEN, 'employee_id' => $artisan->id, 'started_at' => now()->subHour(), 'ended_at' => null]);
+
+            return CloseManufactureTaskSession::make()->action($session, ['quantity_made' => $quantityMade])->refresh();
+        };
+
+        $pieceRate = $closeOpen(40);
+        expect($artisan->artisan_pay_type)->toBe(\App\Enums\Production\Artisan\ArtisanPayTypeEnum::PIECE_RATE)
+            ->and($pieceRate->is_under_target)->toBeTrue()
+            ->and($pieceRate->operative_reward_terms)->toBe('above_lower_limit');
+
+        \App\Actions\Production\Artisan\SetArtisanPayType::make()->action($this->production, $artisan, ['artisan_pay_type' => 'hourly']);
+
+        $pieceRate->refresh();
+        expect($artisan->refresh()->artisan_pay_type)->toBe(\App\Enums\Production\Artisan\ArtisanPayTypeEnum::HOURLY)
+            ->and($pieceRate->artisan_pay_type)->toBe(\App\Enums\Production\Artisan\ArtisanPayTypeEnum::HOURLY)
+            ->and($pieceRate->is_under_target)->toBeFalse()
+            ->and($pieceRate->operative_reward_terms)->toBe('never')
+            ->and((float) $pieceRate->task_work_cost)->toBe(0.0);
+
+        $fast = $closeOpen(900);
+        expect($fast->artisan_pay_type)->toBe(\App\Enums\Production\Artisan\ArtisanPayTypeEnum::HOURLY)
+            ->and($fast->band_code)->toBe('0')
+            ->and((float) $fast->bonus)->toBe(0.0)
+            ->and($fast->is_under_target)->toBeFalse()
+            ->and((float) $fast->standard_rate)->toBe(152.0)
+            ->and((float) $fast->units_per_hour)->toBeGreaterThan(152.0)
+            ->and($fast->operative_reward_terms)->toBe('never');
+
+        $development = makePayBandSession($this->payBandJobOrderItemTask, 0, 2, 0, \App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum::DEVELOPMENT->value);
+        $development->update(['artisan_pay_type' => \App\Enums\Production\Artisan\ArtisanPayTypeEnum::HOURLY]);
+        $development = \App\Actions\Production\ManufactureTaskSession\CalculateManufactureTaskSessionPay::run($development);
+        expect($development->band_code)->toBe('0')
+            ->and((float) $development->bonus)->toBe(0.0);
+
+        $artisans = collect(get(route('grp.org.productions.show.artisans.index', [$this->organisation->slug, $this->production->slug, 'artisan_pay_type' => 'hourly']))
+            ->viewData('page')['props']['artisans']);
+        $sessions = $artisans->pluck('jobs')->flatten(1)->pluck('steps')->flatten(1)->pluck('sessions')->flatten(1);
+        expect($sessions->pluck('id'))->toContain($fast->id)
+            ->and($sessions->every(fn (array $session) => $session['is_hourly']))->toBeTrue();
     });
 
     test('job lines that share a step are made as one combined batch and the quantity and time are shared back to each line', function () {
@@ -5442,6 +5514,78 @@ test('a break clocks a clocked in artisan out and back in, and leaves one who is
     $this->travelBack();
 });
 
+test('an hourly artisan clocking out at the kiosk pauses their job until they clock back in, and gets no timed breaks', function () {
+    $this->travelTo(now($this->organisation->timezone?->name ?? 'UTC')->setTime(9, 0));
+    $this->artefact->manufactureTasks()->sync([
+        $this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1],
+    ]);
+    $jobOrder     = StoreJobOrder::make()->action($this->production, []);
+    $jobOrderItem = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 10]);
+    ConfirmJobOrder::make()->action($jobOrder);
+    $task = $jobOrderItem->tasks()->first();
+
+    $employee = StoreEmployee::make()->action($this->organisation, array_merge(Employee::factory()->definition(), [
+        'worker_number'   => 'HRL-'.uniqid(),
+        'alias'           => 'hrl'.uniqid(),
+        'username'        => 'hrl'.uniqid(),
+        'password'        => 'secret-password',
+        'state'           => \App\Enums\HumanResources\Employee\EmployeeStateEnum::WORKING,
+        'type'            => \App\Enums\HumanResources\Employee\EmployeeTypeEnum::EMPLOYEE,
+        'employment_type' => \App\Enums\HumanResources\Employee\EmploymentTypeEnum::FULL_TIME,
+    ]));
+    $employee->update(['artisan_pay_type' => \App\Enums\Production\Artisan\ArtisanPayTypeEnum::HOURLY]);
+    $task->update(['employee_id' => $employee->id]);
+    $user      = $employee->getUser();
+    $workplace = \App\Actions\HumanResources\Workplace\StoreWorkplace::make()->action($this->organisation, [
+        'name' => 'Floor '.uniqid(),
+        'type' => \App\Enums\HumanResources\Workplace\WorkplaceTypeEnum::HQ,
+    ]);
+    $kiosk = \App\Actions\HumanResources\ClockingMachine\StoreClockingMachine::make()->action($workplace, [
+        'name' => 'Kiosk '.uniqid(),
+        'type' => \App\Enums\HumanResources\ClockingMachine\ClockingMachineTypeEnum::QR_CODE->value,
+    ]);
+    $scan   = fn () => \App\Actions\HumanResources\Clocking\StoreClocking::make()->action($user, $kiosk, $employee, []);
+    $breaks = fn () => \App\Models\Production\ManufactureBreak::where('user_id', $user->id);
+
+    $scan();
+    expect($breaks()->count())->toBe(0);
+
+    expect(fn () => \App\Actions\Production\ManufactureBreak\StartManufactureBreak::make()->action($user, $this->production, ['planned_minutes' => 20]))
+        ->toThrow(ValidationException::class);
+
+    $session = StartManufactureTaskSession::make()->action($user, $task);
+    $this->travel(30)->minutes();
+    $clockOut = $scan();
+    $pause    = $breaks()->open()->first();
+    expect($pause->planned_minutes)->toBeNull()
+        ->and($pause->clock_out_clocking_id)->toBe($clockOut->id);
+
+    $this->travel(15)->minutes();
+    $clockIn = $scan();
+    expect($pause->refresh()->ended_at)->not->toBeNull()
+        ->and($pause->minutes)->toBe(15)
+        ->and($pause->clock_in_clocking_id)->toBe($clockIn->id)
+        ->and($session->refresh()->break_minutes)->toBe(15);
+
+    $this->travel(10)->minutes();
+    $session = CloseManufactureTaskSession::make()->action($session, ['quantity_made' => 4]);
+    expect($session->break_minutes)->toBe(15)
+        ->and(round($session->paidHours(), 4))->toBe(round(40 / 60, 4));
+
+    $this->travel(5)->minutes();
+    $scan();
+    expect($breaks()->count())->toBe(1);
+
+    $employee->update(['artisan_pay_type' => \App\Enums\Production\Artisan\ArtisanPayTypeEnum::PIECE_RATE]);
+    $this->travel(5)->minutes();
+    $scan();
+    StartManufactureTaskSession::make()->action($user, $task);
+    $this->travel(5)->minutes();
+    $scan();
+    expect($breaks()->count())->toBe(1);
+    $this->travelBack();
+});
+
 test('a batch size change flags open jobs raised with the old one and their quantity can be corrected', function () {
     $stocks   = createStocks($this->group);
     $orgStock = createOrgStocks($this->organisation, [$stocks[0]])[0];
@@ -6514,4 +6658,64 @@ test('an hourly mixing step is for its named artisans only, is recorded in kg, p
     \Pest\Laravel\delete(route('grp.models.manufacture_task.artisans.detach', [$mixTask->id, $mixer->id]))->assertRedirect();
     expect($mixTask->artisans()->count())->toBe(0)
         ->and($mixA->refresh()->assigneeId())->toBe($pieceWorker->id);
+});
+
+test('a mix with a batch size is asked and recorded in whole batches, rounded on the combined total, without growing the job', function () {
+    $user = $this->guest->getUser();
+    ManufactureTaskSession::where('user_id', $user->id)->where('state', ManufactureTaskSessionStateEnum::OPEN)
+        ->update(['state' => ManufactureTaskSessionStateEnum::CLOSED, 'ended_at' => now()]);
+
+    $suffix  = rand(10000, 99999);
+    $mixTask = StoreManufactureTask::make()->action($this->production, [
+        'code'              => 'MXB'.$suffix,
+        'name'              => 'Mixing '.$suffix,
+        'is_piece_rate'     => false,
+        'is_recorded_in_kg' => true,
+    ]);
+    $artefact = StoreArtefact::make()->action($this->production, ['code' => 'BB'.$suffix, 'name' => 'Bath bomb '.$suffix]);
+    $artefact->manufactureTasks()->sync([$mixTask->id => ['position' => 1, 'units_per_artefact' => 0.1]]);
+
+    \Pest\Laravel\post(route('grp.models.artefact.manufacture-task.attach', ['artefact' => $artefact->id]), ['manufacture_task_id' => $mixTask->id, 'position' => 1, 'units_per_artefact' => 0.1, 'mix_batch_kg' => 30])
+        ->assertSessionHasErrors('mix_batch_kg');
+    \Pest\Laravel\post(route('grp.models.artefact.manufacture-task.attach', ['artefact' => $artefact->id]), ['manufacture_task_id' => $mixTask->id, 'position' => 1, 'units_per_artefact' => 0.1, 'mix_batch_kg' => 50])
+        ->assertSessionHasNoErrors();
+    expect($artefact->manufactureTasks()->first()->pivot->mix_batch_kg)->toBe(50);
+
+    [$mixA, $mixB] = collect([541, 400])->map(function (int $quantity) use ($artefact) {
+        $jobOrder = StoreJobOrder::make()->action($this->production, []);
+        $item     = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $artefact->id, 'quantity' => $quantity]);
+        ConfirmJobOrder::make()->action($jobOrder);
+
+        return $item->tasks()->first();
+    })->all();
+    expect((float) $mixA->quantity_required)->toBe(54.1)
+        ->and($mixA->mixBatchKg())->toBe(50);
+
+    \Pest\Laravel\post(route('grp.models.production.combined_task.store', ['production' => $this->production->id]), ['job_order_item_task_ids' => [$mixA->id, $mixB->id]])->assertSessionHasNoErrors();
+    $floorTask = collect(get(route('grp.org.productions.show.floor', [$this->organisation->slug, $this->production->slug]))->viewData('page')['props']['tasks'])
+        ->first(fn (array $task) => in_array($mixA->id, array_column($task['combined'] ?? [], 'id')));
+    expect($floorTask)->toMatchArray(['mix_batch_kg' => 50, 'quantity_required' => 94.1])
+        ->and($floorTask['steps'][0])->toMatchArray(['unit' => 'kg', 'mix_batch_kg' => 50]);
+
+    $jobOrderMix = collect(get(route('grp.org.productions.show.operations.job-orders.show', [$this->organisation->slug, $this->production->slug, $mixA->jobOrder->slug]))
+        ->viewData('page')['props']['items'])->first()['tasks'][0];
+    expect($jobOrderMix)->toMatchArray(['quantity_required' => 54.1, 'unit' => 'kg', 'mix_batch_kg' => 50]);
+
+    $session = StartManufactureTaskSession::make()->action($user, $mixA->refresh());
+    expect(fn () => CloseManufactureTaskSession::make()->action($session, ['quantity_made' => 94.1]))->toThrow(ValidationException::class, 'whole batches of 50 kg');
+    CloseManufactureTaskSession::make()->action($session, ['quantity_made' => 100]);
+
+    expect((float) $mixA->refresh()->quantity_made + (float) $mixB->refresh()->quantity_made)->toBe(100.0)
+        ->and($mixA->state)->toBe(JobOrderItemTaskStateEnum::DONE)
+        ->and($mixB->state)->toBe(JobOrderItemTaskStateEnum::DONE)
+        ->and((int) $mixA->jobOrderItem->quantity)->toBe(541)
+        ->and((int) $mixB->jobOrderItem->quantity)->toBe(400);
+
+    $soloOrder = StoreJobOrder::make()->action($this->production, []);
+    $soloItem  = StoreJobOrderItem::make()->action($soloOrder, ['artefact_id' => $artefact->id, 'quantity' => 900]);
+    ConfirmJobOrder::make()->action($soloOrder);
+    $solo        = StartManufactureTaskSession::make()->action($user, $soloItem->tasks()->first());
+    $soloSession = CloseManufactureTaskSession::make()->action($solo, ['quantity_made' => 100]);
+    expect(fn () => \App\Actions\Production\ManufactureTaskSession\CorrectManufactureTaskSessionQuantity::make()->action($soloSession, ['quantity_made' => 75], 'Supervisor'))->toThrow(ValidationException::class, 'whole batches of 50 kg');
+    expect((float) \App\Actions\Production\ManufactureTaskSession\CorrectManufactureTaskSessionQuantity::make()->action($soloSession, ['quantity_made' => 50], 'Supervisor')->quantity_made)->toBe(50.0);
 });

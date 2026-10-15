@@ -60,11 +60,23 @@ class IndexJobOrders extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        return QueryBuilder::for(JobOrder::class)
-            ->where('job_orders.production_id', $production->id)
+        $queryBuilder = QueryBuilder::for(JobOrder::class)
+            ->where('job_orders.production_id', $production->id);
+
+        foreach ($this->getElementGroups($production) as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine'],
+                prefix: $prefix
+            );
+        }
+
+        return $queryBuilder
             ->leftJoin('job_order_item_tasks', 'job_order_item_tasks.job_order_id', 'job_orders.id')
             ->leftJoin('employees', 'employees.id', 'job_orders.employee_id')
             ->select('job_orders.id', 'job_orders.slug', 'job_orders.reference', 'job_orders.state', 'job_orders.date', 'employees.contact_name as artisan')
+            ->selectRaw("job_orders.data->'hold'->>'reason' as hold_reason")
             ->selectRaw('count(job_order_item_tasks.id) as number_tasks')
             ->selectRaw("count(job_order_item_tasks.id) filter (where job_order_item_tasks.state = 'done') as number_tasks_done")
             ->groupBy('job_orders.id', 'employees.contact_name')
@@ -75,6 +87,29 @@ class IndexJobOrders extends OrgAction
             ->withQueryString();
     }
 
+    /** @return array<string, array{label: string, elements: array<string, array{0: string, 1: int}>, engine: Closure}> */
+    public function getElementGroups(Production $production): array
+    {
+        $onHold = JobOrder::where('production_id', $production->id)->whereRaw("data->'hold' is not null")->count();
+
+        return [
+            'hold' => [
+                'label'    => __('Hold'),
+                'elements' => [
+                    'on_hold'     => [__('On hold'), $onHold],
+                    'not_on_hold' => [__('Not on hold'), JobOrder::where('production_id', $production->id)->count() - $onHold],
+                ],
+                'engine' => function ($query, $elements) {
+                    if (in_array('on_hold', $elements) && !in_array('not_on_hold', $elements)) {
+                        $query->whereRaw("job_orders.data->'hold' is not null");
+                    } elseif (in_array('not_on_hold', $elements) && !in_array('on_hold', $elements)) {
+                        $query->whereRaw("job_orders.data->'hold' is null");
+                    }
+                },
+            ],
+        ];
+    }
+
     public function tableStructure(Production $production, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($production, $prefix) {
@@ -82,6 +117,9 @@ class IndexJobOrders extends OrgAction
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
+            }
+            foreach ($this->getElementGroups($production) as $key => $elementGroup) {
+                $table->elementGroup(key: $key, label: $elementGroup['label'], elements: $elementGroup['elements']);
             }
             $table
                 ->withGlobalSearch()

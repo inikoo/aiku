@@ -44,6 +44,7 @@ import JsBarcode from "jsbarcode"
 import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
 import InformationIcon from "@/Components/Utils/InformationIcon.vue"
+import ProductImageViewerDialog from "@/Components/Product/ProductImageViewerDialog.vue"
 
 library.add(
     faBarcode,
@@ -89,6 +90,8 @@ const props = defineProps<{
             name: string | null
             description: string | null
             image: object | null
+            original_url: string | null
+            download_url: string | null
             state: {
                 label: string
                 icon: { icon: string; class?: string; tooltip?: string }
@@ -180,6 +183,12 @@ const props = defineProps<{
             carton_barcode_update_route: routeType | null
         }[]
         selected_label_org_stock_id?: number | null
+        label_organisation?: {
+            id: number
+            code: string
+            name: string
+            has_org_stock: boolean
+        }
         carton?: {
             supplier_product_id: number
             net_weight: number | null
@@ -192,6 +201,8 @@ const props = defineProps<{
                 id: number
                 is_main: boolean
                 image: object
+                original_url: string
+                download_url: string
                 detach_route: routeType | null
             }[]
         }
@@ -304,6 +315,24 @@ const selectedLabelOrgStockOption = computed<string | undefined>({
     },
 })
 
+const selectedLabelOrgStock = computed(() =>
+    labelOrgStocks.value.find((orgStock) => orgStock.id === selectedLabelOrgStockId.value) ?? null)
+
+const labelOrganisationNotice = computed(() => {
+    const labelOrganisation = props.data.label_organisation
+
+    if (!labelOrganisation || labelOrganisation.has_org_stock || !selectedLabelOrgStock.value) {
+        return null
+    }
+
+    return ctrans(":organisation has no SKO of this product, so these barcodes and labels are :sko_organisation's. The carton label lets you pick who it is commercialised by.", {
+        organisation: labelOrganisation.code,
+        sko_organisation: selectedLabelOrgStock.value.organisation_code,
+    })
+})
+
+const labelQuery = computed(() => props.data.carton ? { supplier_product: props.data.carton.supplier_product_id } : {})
+
 const shownBarcodes = computed<Barcode[]>(() =>
     labelOrgStocks.value.find((orgStock) => orgStock.id === selectedLabelOrgStockId.value)?.barcodes ?? props.data.barcodes ?? [])
 
@@ -364,13 +393,12 @@ const openLabelModal = async (level: string) => {
     try {
         const { data } = await axios.get(route(orgStock.label_options_route.name, {
             ...orgStock.label_options_route.parameters,
-            ...(props.data.carton ? { supplier_product: props.data.carton.supplier_product_id } : {}),
+            ...labelQuery.value,
+            ...(props.data.label_organisation ? { commercialised_by: props.data.label_organisation.id } : {}),
         }))
 
         labelOptions.value = data.options
-        labelRoute.value = props.data.carton
-            ? { ...data.label_route, parameters: { ...data.label_route.parameters, supplier_product: props.data.carton.supplier_product_id } }
-            : data.label_route
+        labelRoute.value = { ...data.label_route, parameters: { ...data.label_route.parameters, ...labelQuery.value } }
         labelLevel.value = level
         isLabelModalOpen.value = true
     } catch (error) {
@@ -521,6 +549,41 @@ const removeInternalImage = (detachRoute: routeType) => {
     })
 }
 
+const viewerImages = computed(() => {
+    const internalImages = props.data.internal_images?.images ?? []
+
+    if (internalImages.length) {
+        return internalImages.map((internalImage) => ({
+            source: internalImage.image,
+            original_url: internalImage.original_url,
+            download_url: internalImage.download_url,
+            alt: props.data.product.code,
+        }))
+    }
+
+    return props.data.product.image
+        ? [{
+            source: props.data.product.image,
+            original_url: props.data.product.original_url,
+            download_url: props.data.product.download_url,
+            alt: props.data.product.code,
+        }]
+        : []
+})
+
+const isImageViewerVisible = ref(false)
+const imageViewerIndex = ref(0)
+
+const openImageViewer = (index: number) => {
+    imageViewerIndex.value = index
+    isImageViewerVisible.value = true
+}
+
+const openMainImageViewer = () => {
+    const mainIndex = (props.data.internal_images?.images ?? []).findIndex((internalImage) => internalImage.is_main)
+    openImageViewer(Math.max(mainIndex, 0))
+}
+
 const availabilityBadge = (isAvailable: boolean) =>
     isAvailable
         ? { label: ctrans("Available"), class: "bg-green-50 text-green-700 ring-green-600/20" }
@@ -531,7 +594,10 @@ const availabilityBadge = (isAvailable: boolean) =>
     <div class="grid gap-6 p-6 md:grid-cols-3">
         <section class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
             <div class="flex gap-4">
-                <Image v-if="data.product.image" :src="data.product.image" class="h-28 w-28 shrink-0" />
+                <button v-if="data.product.image" type="button" class="h-28 w-28 shrink-0 cursor-zoom-in"
+                    v-tooltip="ctrans('View image')" @click="openMainImageViewer">
+                    <Image :src="data.product.image" class="h-full w-full" />
+                </button>
                 <div class="min-w-0">
                     <div class="flex items-center gap-2">
                         <Icon :data="data.product.state.icon" v-tooltip="data.product.state.label" />
@@ -572,10 +638,13 @@ const availabilityBadge = (isAvailable: boolean) =>
                     </label>
                 </div>
                 <div v-if="data.internal_images.images.length" class="mt-2 flex flex-wrap gap-2">
-                    <div v-for="internalImage in data.internal_images.images" :key="internalImage.id"
+                    <div v-for="(internalImage, index) in data.internal_images.images" :key="internalImage.id"
                         class="group relative h-16 w-16 overflow-hidden rounded border"
                         :class="internalImage.is_main ? 'border-gray-500' : 'border-gray-200'">
-                        <Image :src="internalImage.image" class="h-full w-full" />
+                        <button type="button" class="h-full w-full cursor-zoom-in" v-tooltip="ctrans('View image')"
+                            @click="openImageViewer(index)">
+                            <Image :src="internalImage.image" class="h-full w-full" />
+                        </button>
                         <button v-if="internalImage.detach_route" type="button"
                             class="absolute right-0.5 top-0.5 hidden rounded bg-white/90 px-1 text-xs text-red-500 group-hover:block"
                             v-tooltip="ctrans('Remove picture')"
@@ -678,11 +747,15 @@ const availabilityBadge = (isAvailable: boolean) =>
                     {{ ctrans("Barcodes") }}
                 </h3>
                 <div v-if="labelOrgStocks.length > 1" class="ml-auto flex flex-wrap items-center gap-2 text-sm">
-                    <span class="text-gray-500" v-tooltip="ctrans('The label prints the name and address of the organisation that owns the SKO')">
+                    <span class="text-gray-500" v-tooltip="ctrans('The SKO and unit labels print the name and address of the organisation that owns the SKO')">
                         {{ ctrans("SKO of") }}
                     </span>
                     <SegmentedToggle v-model="selectedLabelOrgStockOption" :options="labelOrgStockOptions" :ariaLabel="ctrans('SKO of')" />
                 </div>
+            </div>
+            <div v-if="labelOrganisationNotice" class="mb-3 flex items-start gap-2 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                <Icon :data="{ icon: 'fal fa-exclamation-triangle' }" class="mt-0.5 shrink-0" />
+                <span>{{ labelOrganisationNotice }}</span>
             </div>
             <div class="grid grid-cols-1 gap-3 xl:grid-cols-[auto_auto_auto_1fr] xl:items-center xl:gap-x-4 xl:gap-y-3">
                 <template v-for="barcode in shownBarcodes" :key="selectedLabelOrgStockId + '-' + barcode.level">
@@ -899,5 +972,11 @@ const availabilityBadge = (isAvailable: boolean) =>
             :labelRoute="labelRoute"
             :options="labelOptions"
             @onClose="isLabelModalOpen = false" />
+
+        <ProductImageViewerDialog
+            v-if="viewerImages.length"
+            v-model:visible="isImageViewerVisible"
+            v-model:index="imageViewerIndex"
+            :images="viewerImages" />
     </div>
 </template>

@@ -8,10 +8,12 @@
 
 namespace App\Actions\GoodsIn\StockDelivery\UI;
 
+use App\Actions\GoodsIn\StockDelivery\UpdateStockDelivery;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -25,12 +27,40 @@ class EditStockDelivery extends OrgAction
         return $stockDelivery;
     }
 
+    private bool $editedByAgent = false;
+
     public function asController(Organisation $organisation, StockDelivery $stockDelivery, ActionRequest $request): StockDelivery
     {
         $this->initialisation($organisation, $request);
         abort_unless($stockDelivery->organisation_id === $organisation->id && !$stockDelivery->isManagedByPartner(), 404);
 
         return $this->handle($stockDelivery);
+    }
+
+    /**
+     * The agent of a container edits its shipping references and dates from its own organisation.
+     */
+    public function inAgent(Organisation $organisation, StockDelivery $stockDelivery, ActionRequest $request): StockDelivery
+    {
+        $this->editedByAgent = true;
+        $this->initialisation($organisation, $request);
+        abort_unless($stockDelivery->agent?->organisation_id === $organisation->id && !$stockDelivery->isManagedByPartner(), 404);
+
+        return $this->handle($stockDelivery);
+    }
+
+    private function agentFields(StockDelivery $stockDelivery, array $fields): array
+    {
+        $fields = Arr::only($fields, UpdateStockDelivery::AGENT_FIELDS);
+
+        if (!$stockDelivery->isStaged()) {
+            unset($fields['reference']);
+        } elseif (isset($fields['reference'])) {
+            $fields['reference']['label']       = __('Name');
+            $fields['reference']['information'] = __('Letters, numbers, dashes and underscores.');
+        }
+
+        return $fields;
     }
 
     public function htmlResponse(StockDelivery $stockDelivery, ActionRequest $request): Response
@@ -55,7 +85,7 @@ class EditStockDelivery extends OrgAction
                             'type'  => 'button',
                             'style' => 'exitEdit',
                             'route' => [
-                                'name'       => 'grp.org.procurement.stock_deliveries.show',
+                                'name'       => $this->editedByAgent ? 'grp.org.agent.stock_deliveries.show' : 'grp.org.procurement.stock_deliveries.show',
                                 'parameters' => [$this->organisation->slug, $stockDelivery->slug],
                             ],
                         ],
@@ -67,8 +97,9 @@ class EditStockDelivery extends OrgAction
                             'label'  => $section['title'],
                             'title'  => $section['title'],
                             'icon'   => $icons[array_key_first($section['fields'])] ?? 'fal fa-info-circle',
-                            'fields' => $section['fields'],
+                            'fields' => $this->editedByAgent ? $this->agentFields($stockDelivery, $section['fields']) : $section['fields'],
                         ])
+                        ->filter(fn (array $section) => $section['fields'])
                         ->values()
                         ->all(),
                     'args'      => [

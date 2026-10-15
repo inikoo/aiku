@@ -18,6 +18,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Validator;
@@ -45,6 +46,7 @@ class UpdateRetinaWebUserPassword extends RetinaAction
         data_set($modelData, 'password', Hash::make($modelData['password']));
         data_set($modelData, 'auth_type', 'default');
         data_set($modelData, 'reset_password', false);
+        data_set($modelData, 'remember_token', Str::random(60));
 
         return $this->update($webUser, $modelData, 'settings');
     }
@@ -88,7 +90,7 @@ class UpdateRetinaWebUserPassword extends RetinaAction
     public function htmlResponse(WebUser $webUser): RedirectResponse
     {
         Session::put('reloadLayout', '1');
-        Auth::guard('retina')->login($webUser);
+        Auth::guard('retina')->login($webUser, true);
         $this->queueIrisAuthCookie();
 
         return Redirect::route('retina.dashboard.show');

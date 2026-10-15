@@ -109,6 +109,7 @@ import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import Toggle from "@/Components/Pure/Toggle.vue"
 import { Icon as IconTS } from "@/types/Utils/Icon"
 import ShipmentSection from "@/Components/Warehouse/DeliveryNotes/ShipmentSection.vue"
+import CustomsExportLink from "@/Components/Warehouse/DeliveryNotes/CustomsExportLink.vue"
 import { ctrans } from "@/Composables/useTrans"
 
 library.add(faParachuteBox, faEllipsisH, faSortNumericDown, fadExclamationTriangle, faExclamationTriangle, faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faEdit, faWeight, faStickyNote, faExclamation, faTruck, faFilePdf, faPaperclip, faSpinnerThird, faMapMarkerAlt, faUndo, faStar, faShieldAlt, faPlus, faCopy, faMoneyCheckEditAlt, faSackDollar, faInfoCircle)
@@ -267,6 +268,11 @@ const props = defineProps<{
             state: string
             state_icon: IconTS
             shipments: {}
+            customs_export?: {
+                formats: { value: string, label: string }[]
+                preview_route: routeType
+                download_route: routeType
+            } | null
         },
         shipping_notes: string
     }
@@ -336,6 +342,7 @@ const props = defineProps<{
         icon: string
     }
     is_faire_order: boolean
+    can_edit_faire_label_shipping?: boolean
     allow_order_modification: boolean
 }>()
 
@@ -990,7 +997,7 @@ const isEditLocked = computed(() => isPreOrderLocked.value || !props.can_edit)
 const isChargeEditable = computed(() => !['finalised', 'dispatched', 'cancelled'].includes(props.data?.data?.state || '') && !isEditLocked.value)
 
 const isShippingEditable = computed(() => {
-    if (props.state === 'cancelled' || isEditLocked.value || (props.is_faire_order && isShippingExternal.value)) {
+    if (props.state === 'cancelled' || isEditLocked.value || (props.is_faire_order && isShippingExternal.value && !props.can_edit_faire_label_shipping)) {
         return false
     }
 
@@ -2525,6 +2532,10 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
                                 </dd>
                             </dl>
 
+                            <div v-if="['packed', 'finalised', 'dispatched'].includes(note?.state) && !note.is_shipping_by_external && note.shipments" class="pl-6 mt-1">
+                                <CustomsExportLink :customsExport="note.customs_export" />
+                            </div>
+
                             <!--                            <div v-else class="mt-1 text-xs italic text-gray-400">
                                 {{ ctrans('No shipments') }}
                             </div>-->
@@ -3025,7 +3036,7 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
                 </div>
                 <div>
                     <dt class="font-semibold">{{ ctrans("Sent with a Faire label") }}</dt>
-                    <dd>{{ ctrans("Faire pays no shipping for the order, so there is no shipping amount and none can be added.") }}</dd>
+                    <dd>{{ ctrans("Faire charges the retailer for shipping but does not say how much, so accounts type the shipping Faire invoiced before the order is invoiced. It is not sent to Faire.") }}</dd>
                 </div>
             </dl>
             <p class="mt-4 text-gray-500">

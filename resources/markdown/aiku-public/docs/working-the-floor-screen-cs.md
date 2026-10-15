@@ -96,6 +96,8 @@ Krok vidí a mohou ho začít jen řemeslníci, kteří jsou u něj uvedeni; v s
 
 Další krok zůstává zamčený s **Waiting for** (Čeká se na) a názvem kroku míchání, dokud se nezapíše nějaká směs, a otevře se hned po zadání první. Jedna směs pro několik řádků funguje jako v části výše: manažer spojí řádky míchání, míchač zadá kg jednou a každý řádek dostane svůj podíl.
 
+**Směsi v celých várkách.** Když má výrobek nastavenou velikost várky směsi (25 kg nebo 50 kg), požadované kg se zaokrouhlí nahoru na celé várky a ukáží se jako várky: 94,1 kg ve várkách po 50 kg se ukáže jako *2 × 50 kg batches = 100 kg* (2 várky po 50 kg = 100 kg). Políčko se jmenuje **Batches of 50 kg made** (Hotové várky po 50 kg) a píšete počet várek, 2, ne kg. U spojené směsi se zaokrouhluje celkový součet všech řádků. Navíc oproti zakázce nemění zakázku, množství na tvarování ani mzdu. Manažeři to nastaví v kroku receptury výrobku v **Mix batch size** (Velikost várky směsi).
+
 **Nastavení (manažeři).** Na stránce výrobního úkolu je v **Only these artisans can do it** (Mohou ho dělat jen tito řemeslníci) seznam lidí, kteří ho smějí dělat; tam je přidáte nebo odeberete. Formulář úprav má **Paid by piece rate** (Placeno od kusu; vypnuto u hodinové práce) a **Recorded in kg** (Zapisuje se v kg). Kolik kg směsi jde na jeden kus, se zadává v kroku receptury každého výrobku.
 
 ## Co je dobré vědět

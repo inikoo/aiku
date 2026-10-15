@@ -287,13 +287,16 @@ test('bundle action rules return expected keys', function () {
 });
 
 test('delete bundle discontinues product and clears flags', function (Bundle $bundle) {
+    expect($bundle->bundleable->portfolios()->where('status', true)->exists())->toBeTrue();
+
     DeleteBundle::make()->handle($bundle);
 
     $bundle->refresh();
     expect($bundle->status)->toBeFalse()
         ->and($bundle->platform_status)->toBeFalse()
         ->and($bundle->exist_in_platform)->toBeFalse()
-        ->and($bundle->bundleable->state)->toBe(ProductStateEnum::DISCONTINUED);
+        ->and($bundle->bundleable->state)->toBe(ProductStateEnum::DISCONTINUED)
+        ->and($bundle->bundleable->portfolios()->where('status', true)->exists())->toBeFalse();
 })->depends('store or update bundle dispatches to store when no id given');
 
 test('two components made of the same trade unit both count towards the bundle instead of one replacing the other', function () {

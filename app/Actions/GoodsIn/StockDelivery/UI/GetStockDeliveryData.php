@@ -78,8 +78,13 @@ class GetStockDeliveryData
                     ],
                     'tracking_number'   => [
                         'type'  => 'input',
-                        'label' => __('Tracking number (from the bill of lading)'),
+                        'label' => __('Bill of lading number'),
                         'value' => Arr::get($data, 'tracking_number'),
+                    ],
+                    'container_number'  => [
+                        'type'  => 'input',
+                        'label' => __('Container number'),
+                        'value' => Arr::get($data, 'container_number'),
                     ],
                     'shipping_agent'    => [
                         'type'  => 'input',

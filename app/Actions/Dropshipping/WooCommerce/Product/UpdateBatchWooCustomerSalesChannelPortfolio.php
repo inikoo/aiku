@@ -52,6 +52,7 @@ class UpdateBatchWooCustomerSalesChannelPortfolio
 
         $processedQuantities = [];
         $erroredPlatformProductIds = [];
+        $missingPlatformProductIds = [];
         $storeIgnoresStock = false;
 
         foreach ($responseItems as $responseItem) {
@@ -63,6 +64,12 @@ class UpdateBatchWooCustomerSalesChannelPortfolio
 
             if (Arr::has($responseItem, 'error')) {
                 $erroredPlatformProductIds[] = (int) $platformProductId;
+                if (Arr::get($responseItem, 'error.code') === 'woocommerce_rest_product_invalid_id') {
+                    $missingPlatformProductIds[] = (string) $platformProductId;
+                }
+            } elseif (Arr::get($responseItem, 'status') === 'trash') {
+                $erroredPlatformProductIds[] = (int) $platformProductId;
+                $missingPlatformProductIds[] = (string) $platformProductId;
             } elseif (Arr::get($responseItem, 'manage_stock') === false) {
                 $storeIgnoresStock = true;
             } else {
@@ -99,6 +106,14 @@ class UpdateBatchWooCustomerSalesChannelPortfolio
                 ->update([
                     'stock_last_fail_updated_at' => $updatedAt
                 ]);
+        }
+
+        if (filled($missingPlatformProductIds)) {
+            Portfolio::query()
+                ->where('customer_sales_channel_id', $customerSalesChannel->id)
+                ->whereIn('platform_product_id', $missingPlatformProductIds)
+                ->get()
+                ->each(fn (Portfolio $portfolio) => CheckWooPortfolio::dispatch($portfolio));
         }
 
         if ($storeIgnoresStock || filled($processedQuantities)) {

@@ -24,6 +24,7 @@ use App\Models\Production\JobOrderItemTask;
 use App\Models\Production\ManufacturePayBand;
 use App\Actions\Production\ManufactureBreak\StartManufactureBreak;
 use App\Models\Production\ManufactureBreak;
+use App\Enums\Production\Artisan\ArtisanPayTypeEnum;
 use App\Models\Production\ManufactureTaskSession;
 use App\Models\Production\Production;
 use App\Models\SysAdmin\User;
@@ -221,7 +222,7 @@ class ShowManufactureFloor extends OrgAction
                     'title' => __('My tasks'),
                 ],
                 'production_id' => $this->production->id,
-                'break_options' => StartManufactureBreak::ALLOWED_MINUTES,
+                'break_options' => $this->employee?->artisan_pay_type === ArtisanPayTypeEnum::HOURLY ? [] : StartManufactureBreak::ALLOWED_MINUTES,
                 'break_route'   => [
                     'name'       => 'grp.models.production.break.store',
                     'parameters' => ['production' => $this->production->id],
@@ -401,6 +402,8 @@ class ShowManufactureFloor extends OrgAction
                 'state'             => $step->state,
                 'quantity_made'     => (float)$step->quantity_made,
                 'quantity_required' => (float)$step->quantity_required,
+                'unit'              => $step->unit(),
+                'mix_batch_kg'      => $step->mixBatchKg(),
                 'blocked_by_step'   => $step->blockingStep($steps)?->manufactureTask->name,
                 'worked_by'         => $closedWork->map(fn (array $work) => $work['user']->contact_name ?: $work['user']->username)->unique()->values()->all(),
                 'working_on_by'     => $step->sessions->where('state', ManufactureTaskSessionStateEnum::OPEN)->map($userName)->values()->all(),
@@ -436,8 +439,9 @@ class ShowManufactureFloor extends OrgAction
             'quantity_required'   => (float)$members->sum('quantity_required'),
             'quantity_made'       => (float)$members->sum('quantity_made'),
             'pack_size'           => $this->packSize($members),
-            'unit'                => $task->isRecordedInKg() ? 'kg' : null,
+            'unit'                => $task->unit(),
             'kg_per_unit'         => $task->isRecordedInKg() ? $this->kgPerUnit($members) : null,
+            'mix_batch_kg'        => JobOrderItemTask::sharedMixBatchKg($members),
             'only_for'            => $task->manufactureTask->artisans->pluck('contact_name')->all(),
             'combined'            => $isCombined ? $members->map(fn (JobOrderItemTask $member) => [
                 'id'                  => $member->id,

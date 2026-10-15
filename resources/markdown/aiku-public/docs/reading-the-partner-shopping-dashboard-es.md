@@ -32,8 +32,8 @@ Empieza con un **gráfico de donut**: todos los productos del catálogo, una por
 Debajo del gráfico, los cubos se agrupan en dos. **Needs ordering** (necesitan pedido) reúne los cinco que piden tu atención:
 
 - **Out of stock** — nada en la estantería.
-- **Doomed** — todavía tienes stock, pero se agotará antes de que pudiera llegar una entrega, aunque pidieras ahora mismo.
-- **Critical / Danger / Watch** — se agota dentro de dos, tres o cuatro plazos de entrega.
+- **Doomed** — todavía tienes stock, pero se agotará antes de que pudiera llegar una entrega, aunque pidieras ahora mismo. El stock que ya está en camino, en entregas abiertas y pedidos de compra enviados, cuenta en todos los grupos: un producto con suficiente en camino no aparece como en riesgo.
+- **Critical / Danger / Watch** — se agota dentro de dos, tres o cuatro plazos de entrega. Un producto que ya dura más que el límite de sobrestock nunca está en estos grupos: no hay nada que pedir.
 
 **Not for ordering** (no necesitan pedido) reúne los otros tres:
 
@@ -71,7 +71,7 @@ La misma regla se aplica dondequiera que añadas — a mano, en bloque o desde A
 
 ## Medido, o etiquetado honestamente como estimación
 
-Dos números mueven casi toda esta pantalla: el plazo de entrega y el presupuesto. La regla es la misma para ambos. **Si tenemos el historial, el número está medido y no se puede editar.** Si no lo tenemos, la tarjeta lo dice, y la estimación sí es editable — pero en los ajustes, nunca directamente en el panel: un **estimated delivery time** (plazo de entrega estimado) por producto, en el producto de proveedor o en los propios ajustes del SKO. En cuanto existen suficientes entregas reales, la medición toma el relevo y el campo de estimación desaparece. Nadie puede sobrescribir lo que de verdad ocurrió.
+Dos números mueven casi toda esta pantalla: el plazo de entrega y el presupuesto. La regla es la misma para ambos. **Si tenemos el historial, el número está medido y no se puede editar.** El plazo de entrega es un solo número para todo el socio: los días desde nuestro pedido de compra hasta que se da entrada en nuestro almacén. Nunca es el tiempo que el propio socio espera a sus proveedores. Hasta que se den entrada cinco de nuestras entregas de este socio, la tarjeta indica que es una estimación y usa 14 días. Nadie puede sobrescribir lo que de verdad ocurrió.
 
 <aside class="wayfinder"><strong>Dónde pulsar en aiku</strong>
 <ul>
@@ -79,6 +79,6 @@ Dos números mueven casi toda esta pantalla: el plazo de entrega y el presupuest
 <li><b>Saltar desde el donut:</b> pulsa una porción, o una fila en la leyenda, para navegar por ese cubo en el catálogo.</li>
 <li><b>Trabajar un cubo:</b> pulsa el número de la casilla para ver la tabla de artículos, una letra de rango para navegar por esos productos, o <b>Fill</b> para una propuesta de Auto-fill acotada.</li>
 <li><b>Limpiar la lista:</b> <b>remove</b> en la casilla de Covered o Dead stock.</li>
-<li><b>Corregir una estimación de plazo:</b> los ajustes del SKO, o los del producto de proveedor — solo mientras siga diciendo <i>estimate</i>.</li>
+<li><b>Plazo de entrega:</b> medido con nuestros propios pedidos a este socio; sustituye la <i>estimate</i> de 14 días en cuanto se da entrada a cinco entregas.</li>
 </ul>
 </aside>

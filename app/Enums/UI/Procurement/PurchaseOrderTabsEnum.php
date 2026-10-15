@@ -19,6 +19,7 @@ enum PurchaseOrderTabsEnum: string
     case ITEMS        = 'items';
     case PRODUCTS     = 'products';
     case NOTES = 'notes';
+    case COMPLIANCE = 'compliance';
     case ATTACHMENTS = 'attachments';
     case DISPATCHED_EMAILS = 'dispatched_emails';
     case HISTORY      = 'history';
@@ -37,6 +38,10 @@ enum PurchaseOrderTabsEnum: string
             PurchaseOrderTabsEnum::NOTES => [
                 'title' => __('Notes'),
                 'icon'  => 'fal fa-sticky-note',
+            ],
+            PurchaseOrderTabsEnum::COMPLIANCE => [
+                'title' => __('Compliance'),
+                'icon'  => 'fal fa-clipboard-check',
             ],
             PurchaseOrderTabsEnum::ATTACHMENTS => [
                 'title' => __('Attachments'),

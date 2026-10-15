@@ -73,7 +73,8 @@ const AUTOSAVE_DEBOUNCE_MS = 3000
 const AUTOSAVE_MAX_WAIT_MS = 20000
 const HISTORY_DEBOUNCE_MS = 400
 const HISTORY_LIMIT = 50
-const MOBILE_CANVAS_WIDTH = 375
+const MOBILE_CANVAS_WIDTH = 320
+const MOBILE_CANVAS_BACKDROP = '#8C8C8C'
 
 setSocialIconSources(props.socialIcons)
 
@@ -178,6 +179,11 @@ const clearSelection = () => {
     selectedRowUuid.value = null
 }
 
+const openSidebarTab = (tab: 'content' | 'rows' | 'settings') => {
+    clearSelection()
+    sidebarTab.value = tab
+}
+
 const propertiesTitle = computed(() => {
     if (selectedModule.value) {
         const type = moduleDisplayName(selectedModule.value)
@@ -200,7 +206,7 @@ const stripUnsafePreviewTags = (html: string): string =>
     html.replace(/<style[\s\S]*?<\/style>/gi, '').replace(/<script[\s\S]*?<\/script>/gi, '')
 
 const modulePreviewHtml = (row: EmailRow, column: EmailColumn, module: EmailModule): string => {
-    const context = createRenderContext(email.value, columnWidth(email.value, row, column), true)
+    const context = createRenderContext(email.value, columnWidth(email.value, row, column), true, device.value === 'mobile')
     return stripUnsafePreviewTags(renderModuleHtml(module, context))
 }
 
@@ -221,11 +227,34 @@ const isHiddenOnCurrentDevice = (computedStyle: Record<string, any> | undefined)
     device.value === 'mobile' ? !!computedStyle?.hideContentOnMobile : !!computedStyle?.hideContentOnDesktop
 
 const bodyLinkColor = computed(() => email.value.page.body.content?.computedStyle?.linkColor ?? '#0068A5')
+const isBodyLinkUnderlined = computed(() => email.value.page.body.content?.computedStyle?.linkUnderline !== false)
 const isInlineEditing = (module: EmailModule): boolean =>
     selectedModuleUuid.value === module.uuid && INLINE_EDITABLE_TYPES.includes(module.type)
 
 const bodyStyle = computed(() => styleToString(email.value.page.body.content?.style))
+const webFontUrls = computed(() => [...new Set((email.value.page.body.webFonts ?? []).map((font) => font.url).filter((url): url is string => !!url))])
+const loadedWebFontLinks: HTMLLinkElement[] = []
+
+watch(webFontUrls, (urls) => {
+    for (const url of urls) {
+        if (document.head.querySelector(`link[href="${CSS.escape(url)}"]`)) {
+            continue
+        }
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        document.head.appendChild(link)
+        loadedWebFontLinks.push(link)
+    }
+}, { immediate: true })
+
+onBeforeUnmount(() => loadedWebFontLinks.forEach((link) => link.remove()))
+
 const bodyBackground = computed(() => email.value.page.body.container?.style?.['background-color'] ?? '#FFFFFF')
+const canvasBackground = computed(() => device.value === 'mobile' ? MOBILE_CANVAS_BACKDROP : bodyBackground.value)
+const emailFrameStyle = computed(() => device.value === 'mobile'
+    ? [bodyStyle.value, { width: `${MOBILE_CANVAS_WIDTH}px`, maxWidth: '100%', margin: '0 auto', minHeight: '100%', backgroundColor: bodyBackground.value }]
+    : bodyStyle.value)
 
 const addRow = (gridColumns: number[]) => {
     const row = createRow(gridColumns, `${contentWidth.value}px`)
@@ -898,8 +927,8 @@ defineExpose({
             </div>
 
             <div class="flex min-h-0 flex-1">
-                <main class="min-h-0 flex-1 overflow-auto py-1" :class="{ 'show-structure': isStructureVisible, 'mobile-canvas': device === 'mobile', 'desktop-canvas': device === 'desktop' }" :style="{ backgroundColor: bodyBackground }" @click.self="clearSelection">
-                    <div :style="bodyStyle">
+                <main class="min-h-0 flex-1 overflow-auto py-1" :class="{ 'show-structure': isStructureVisible, 'mobile-canvas': device === 'mobile', 'desktop-canvas': device === 'desktop' }" :style="{ backgroundColor: canvasBackground }" @click.self="clearSelection">
+                    <div :style="emailFrameStyle">
                         <draggable v-model="email.page.rows" item-key="uuid" group="email-rows" handle=".row-handle" ghost-class="opacity-40" class="min-h-[200px]">
                             <template #item="{ element: row }">
                                 <div class="email-row group/row relative"
@@ -940,7 +969,7 @@ defineExpose({
                                                         </div>
                                                         <EmailWorkshopTableEditor v-else-if="selectedModuleUuid === module.uuid && isTableModule(module)" :module="module" />
                                                         <EmailWorkshopInlineEditor v-else-if="isInlineEditing(module)" :key="`${module.uuid}-${editorRevision}-${canvasTextRevision}`"
-                                                            :module="module" :linkColor="bodyLinkColor" :mergeTags="editorMergeTags"
+                                                            :module="module" :linkColor="bodyLinkColor" :isLinkUnderlined="isBodyLinkUnderlined" :isMobile="device === 'mobile'" :mergeTags="editorMergeTags"
                                                             @edited="scheduleTextSync('panel')" />
                                                         <EmailWorkshopPlaceholder v-else-if="modulePlaceholder(module)" :placeholder="modulePlaceholder(module)!" />
                                                         <div v-else class="pointer-events-none" v-html="modulePreviewHtml(row, column, module)" />
@@ -993,9 +1022,19 @@ defineExpose({
                 </main>
 
                 <aside class="flex w-[360px] shrink-0 flex-col border-l border-gray-200 bg-white">
-                    <template v-if="selectedModule || selectedRow">
-                        <div class="flex h-12 shrink-0 items-center justify-between border-b border-gray-200 px-4">
-                            <span class="text-[13px] font-semibold text-gray-800">{{ propertiesTitle }}</span>
+                    <div class="flex h-12 shrink-0 border-b border-gray-200">
+                        <button v-for="tab in sidebarTabs" :key="tab.key" type="button"
+                            class="flex flex-1 items-center justify-center gap-x-1.5 border-b-2 text-[13px]"
+                            :class="!hasSelection() && sidebarTab === tab.key ? 'border-[var(--theme-color-4)] font-medium text-[var(--theme-color-4)]' : 'border-transparent text-gray-500 hover:text-gray-800'"
+                            @click="openSidebarTab(tab.key)">
+                            <FontAwesomeIcon :icon="tab.icon" fixed-width aria-hidden="true" />
+                            {{ ctrans(tab.label) }}
+                        </button>
+                    </div>
+
+                    <template v-if="hasSelection()">
+                        <div class="flex h-12 shrink-0 items-center justify-between border-b border-gray-200 bg-gray-50 px-4">
+                            <span class="text-[12px] font-semibold uppercase tracking-wider text-gray-800">{{ propertiesTitle }}</span>
                             <div class="flex items-center gap-x-1 text-gray-500">
                                 <template v-if="!isSelectionLocked">
                                     <button type="button" class="h-7 w-7 rounded hover:bg-gray-100 hover:text-red-500" v-tooltip="ctrans('Delete')" @click="deleteSelection">
@@ -1014,7 +1053,7 @@ defineExpose({
                             </div>
                         </div>
                         <div class="min-h-0 flex-1 overflow-y-auto">
-                            <EmailWorkshopProperties :module="selectedModule" :row="selectedModule ? null : selectedRow" :body="email.page.body"
+                            <EmailWorkshopProperties :module="selectedModule" :row="selectedModule ? null : selectedRow" :body="email.page.body" :rows="email.page.rows"
                                 :imagesUploadRoute="imagesUploadRoute" :imageCategories="imageCategories" :mergeTags="editorMergeTags" :textRevision="editorRevision + panelTextRevision"
                                 :videoThumbnailState="selectedModule ? videoThumbnailStates[selectedModule.uuid!] : undefined"
                                 @textEdited="scheduleTextSync('canvas')"
@@ -1023,16 +1062,6 @@ defineExpose({
                     </template>
 
                     <template v-else>
-                        <div class="flex h-12 shrink-0 border-b border-gray-200">
-                            <button v-for="tab in sidebarTabs" :key="tab.key" type="button"
-                                class="flex flex-1 items-center justify-center gap-x-1.5 border-b-2 text-[13px]"
-                                :class="sidebarTab === tab.key ? 'border-[var(--theme-color-4)] font-medium text-[var(--theme-color-4)]' : 'border-transparent text-gray-500 hover:text-gray-800'"
-                                @click="sidebarTab = tab.key">
-                                <FontAwesomeIcon :icon="tab.icon" fixed-width aria-hidden="true" />
-                                {{ ctrans(tab.label) }}
-                            </button>
-                        </div>
-
                         <div class="min-h-0 flex-1 overflow-y-auto">
                             <div v-if="sidebarTab === 'content'" class="p-4">
                                 <draggable :list="availablePaletteModuleTypes" item-key="type" :group="{ name: 'email-modules', pull: 'clone', put: false }"

@@ -127,18 +127,49 @@ router.on("beforeUpdate", (event) => {
   nextWebpagePreload = startWebpagePreload(event.detail.page);
 });
 
+const failedPageReloadKey = "retina_failed_page_reload";
+let isAppMounted = false;
+
+const reloadOnceAfterFailedPageLoad = () => {
+  try {
+    if (sessionStorage.getItem(failedPageReloadKey) === window.location.href) {
+      return false;
+    }
+    sessionStorage.setItem(failedPageReloadKey, window.location.href);
+  } catch {
+    return false;
+  }
+  window.location.reload();
+  return true;
+};
+
 createInertiaApp(
   {
     resolve: async name => {
       const pages = import.meta.glob("./Pages/Retina/**/*.vue");
-      let page = await pages?.[`./Pages/Retina/${name}.vue`]?.();
+      const recoverFromFailedLoad = (error) => {
+        if (!isAppMounted && reloadOnceAfterFailedPageLoad()) {
+          return new Promise(() => {});
+        }
+        throw error;
+      };
+      let page;
+      try {
+        page = await pages?.[`./Pages/Retina/${name}.vue`]?.();
+      } catch (error) {
+        return recoverFromFailedLoad(error);
+      }
       if (!page) console.error(`File './Pages/Retina/${name}.vue' is not exist`);
       page.default.layout = page.default?.layout || Layout;
       if (name === "RetinaWebpage" && nextWebpagePreload?.webBlocks) {
         const { webBlocks, shopType, fontsReady } = nextWebpagePreload;
         nextWebpagePreload = null;
-        const { preloadIrisBlocks } = await import("@/Iris/Composables/getIrisComponents");
-        await Promise.all([preloadIrisBlocks(webBlocks, shopType), fontsReady]);
+        try {
+          const { preloadIrisBlocks } = await import("@/Iris/Composables/getIrisComponents");
+          await Promise.all([preloadIrisBlocks(webBlocks, shopType), fontsReady]);
+        } catch (error) {
+          return recoverFromFailedLoad(error);
+        }
       }
       return page;
     },
@@ -184,6 +215,11 @@ createInertiaApp(
           }
         }).
         mount(el);
+      isAppMounted = true;
+      try {
+        sessionStorage.removeItem(failedPageReloadKey);
+      } catch {
+      }
 
     },
     progress: {

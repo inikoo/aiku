@@ -754,15 +754,22 @@ test('tickets dashboard counts created, done, status and assignees', function ()
         ->and($stats)->not->toHaveKey('by_hour')
         ->and($stats['by_quarter_hour'])->toHaveCount(96)
         ->and(collect($stats['by_quarter_hour'])->pluck('slot')->all())->toBe(range(0, 95))
-        ->and(collect($stats['by_quarter_hour'])->sum('created'))->toBe($stats['created'])
-        ->and(collect($stats['by_quarter_hour'])->sum('done'))->toBe($stats['done'])
+        ->and(collect($stats['by_quarter_hour'])->sum('created'))->toBeLessThanOrEqual($stats['created'])
+        ->and(collect($stats['by_quarter_hour'])->sum('done'))->toBeLessThanOrEqual($stats['done'])
+        ->and($stats['weekdays'])->toBeGreaterThanOrEqual(5)->toBeLessThanOrEqual(6)
         ->and(ShowTicketsReports::make()->handle($this->group, '1w', timezone: 'Asia/Kuala_Lumpur')['by_quarter_hour'])->not->toBe($stats['by_quarter_hour'])
         ->and($stats['resolvers_total']['done'])->toBe($before['resolvers_total']['done']);
 
     $forSomeoneWithNoTickets = ShowTicketsReports::make()->handle($this->group, '1w', assignee: User::factory()->create(['group_id' => $this->group->id]));
 
+    $onlyCustomer = ShowTicketsReports::make()->handle($this->group, '1w', types: ['customer']);
+    $helpAndEngineer = ShowTicketsReports::make()->handle($this->group, '1w', types: ['help', 'engineer']);
+
+    expect($onlyCustomer['types'])->toBe(['customer'])
+        ->and($onlyCustomer['created'] + $helpAndEngineer['created'])->toBe($stats['created']);
+
     expect($forSomeoneWithNoTickets['created'])->toBe(0)
-        ->and(collect($forSomeoneWithNoTickets['by_quarter_hour'])->sum('created'))->toBe($stats['created'])
+        ->and(collect($forSomeoneWithNoTickets['by_quarter_hour'])->sum('created'))->toBeLessThanOrEqual($stats['created'])
         ->and(collect($forSomeoneWithNoTickets['by_quarter_hour'])->sum('started'))->toBe(0)
         ->and(collect($forSomeoneWithNoTickets['by_quarter_hour'])->sum('done'))->toBe(0);
 

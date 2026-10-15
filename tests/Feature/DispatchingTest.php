@@ -1142,6 +1142,29 @@ it('hydrates delivery note tracking number from shipments', function () {
     expect($deliveryNote->tracking_number)->toBe('TRK123, TRK456')->and($deliveryNote->shipping_data)->toBeArray()->toHaveCount(2);
 });
 
+it('uses the live delivery note, not the cancelled one, for the dispatch email tracking, HELP-3994', function () {
+    loadDB();
+    Artisan::call('migrate');
+    $shop      = createShop()[2];
+    $warehouse = createWarehouse();
+    $order     = createOrder(createCustomer($shop), createProduct($shop)[1]);
+
+    $deliveryNoteData = fn (string $reference, DeliveryNoteStateEnum $state) => [
+        'reference'        => $reference,
+        'state'            => $state,
+        'email'            => 'test@email.com',
+        'phone'            => '+62081353890000',
+        'date'             => date('Y-m-d'),
+        'delivery_address' => new Address(Address::factory()->definition()),
+        'warehouse_id'     => $warehouse->id
+    ];
+
+    StoreDeliveryNote::make()->action($order, $deliveryNoteData('B123456-CANCELLED', DeliveryNoteStateEnum::CANCELLED));
+    $liveDeliveryNote = StoreDeliveryNote::make()->action($order, $deliveryNoteData('B123456', DeliveryNoteStateEnum::DISPATCHED));
+
+    expect($order->refresh()->currentDeliveryNote()->id)->toBe($liveDeliveryNote->id);
+});
+
 it('nullifies delivery note tracking number when no shipments exist', function () {
     loadDB();
     Artisan::call('migrate');

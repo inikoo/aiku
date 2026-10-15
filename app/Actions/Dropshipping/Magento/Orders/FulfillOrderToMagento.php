@@ -36,7 +36,7 @@ class FulfillOrderToMagento extends OrgAction
         $magentoUser = $order->customerSalesChannel->user;
 
         /** @var DeliveryNote $deliveryNote */
-        $deliveryNote = $order->deliveryNotes->first();
+        $deliveryNote = $order->currentDeliveryNote();
 
         $shipmentData = [];
         $shipments = $deliveryNote->shipments;

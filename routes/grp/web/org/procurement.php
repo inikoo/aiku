@@ -7,6 +7,7 @@
  */
 
 use App\Actions\Procurement\AgentLabel\DownloadAgentArtefactLabelPdf;
+use App\Actions\Procurement\SupplierAgreedTerm\PdfSupplierAgreement;
 use App\Actions\Procurement\AgentLabel\FetchAgentOrgStockBarcodeLabelOptions;
 use App\Actions\Procurement\AgentLabel\PdfAgentOrgStockBarcodeLabel;
 use App\Actions\Procurement\AgentLabel\UI\IndexAgentLabels;
@@ -21,6 +22,7 @@ use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;
 use App\Actions\Procurement\OrgAgent\ExportOrgAgents;
 use App\Actions\Procurement\OrgAgent\UI\EditOrgAgent;
 use App\Actions\Procurement\OrgAgent\UI\IndexOrgAgents;
+use App\Actions\Procurement\OrgAgent\UI\IndexSuspendedOrgAgents;
 use App\Actions\Procurement\OrgAgent\PrepareAgentPurchaseOrders;
 use App\Actions\Procurement\OrgAgent\SendAgentDraftsToAgent;
 use App\Actions\Procurement\OrgAgent\SetAgentDraftLine;
@@ -141,6 +143,7 @@ Route::prefix('emails')->as('supplier_messages.')->group(function () {
 Route::prefix('agents')->as('org_agents.')->group(function () {
     Route::get('', IndexOrgAgents::class)->name('index');
     Route::get('export', ExportOrgAgents::class)->name('export');
+    Route::get('suspended', IndexSuspendedOrgAgents::class)->name('suspended');
 
     Route::prefix('{orgAgent}')->as('show')->group(function () {
         Route::get('', ShowOrgAgent::class);
@@ -191,6 +194,7 @@ Route::prefix('suppliers')->as('org_suppliers.')->group(function () {
     Route::get('create', CreateOrgSupplier::class)->name('create');
     Route::get('create-new', [CreateSupplier::class, 'inOrganisation'])->name('create_new');
     Route::get('{orgSupplier}', ShowOrgSupplier::class)->name('show');
+    Route::get('{orgSupplier}/agreement/pdf', PdfSupplierAgreement::class)->name('show.agreement.pdf');
     Route::get('{orgSupplier}/edit', EditOrgSupplier::class)->name('edit');
     Route::get('{orgSupplier}/purchase-order/{purchaseOrder}', [ShowPurchaseOrder::class, 'inOrgSupplier'])->name('show.purchase-orders.show');
     Route::get('{orgSupplier}/supplier-products', [IndexOrgSupplierProducts::class, 'inOrgSupplier'])->name('show.supplier_products.index');

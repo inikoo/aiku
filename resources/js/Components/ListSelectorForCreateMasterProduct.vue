@@ -486,7 +486,7 @@ defineExpose({
         </div>
 
         <!-- Dialog -->
-        <Dialog v-model:visible="showDialog" modal :header="ctrans('Select products')"
+        <Dialog v-model:visible="showDialog" modal :header="ctrans('Select trade units')"
             :style="{ width: '80vw', maxWidth: '1200px' }"
             :content-style="{ overflow: 'hidden', paddingLeft: '20px', paddingRight: '20px', }" @hide="$emit('close')">
 
@@ -615,7 +615,7 @@ defineExpose({
                                         </div>
                                     </template>
                                     <div v-else class="text-center text-gray-500 col-span-3">
-                                        {{ ctrans("No products found") }}
+                                        {{ ctrans("No trade units found") }}
                                     </div>
                                 </template>
                                 <div v-else v-for="(item, index) in 6" :key="index"

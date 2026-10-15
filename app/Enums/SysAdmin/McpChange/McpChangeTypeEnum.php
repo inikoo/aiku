@@ -16,6 +16,7 @@ enum McpChangeTypeEnum: string
 
     case RELATED_PRODUCTS = 'related_products';
     case ORG_STOCK_STATE = 'org_stock_state';
+    case SUPPLIER_PRODUCT_AVAILABILITY = 'supplier_product_availability';
     case PARTNER_SHOPPING_LIST = 'partner_shopping_list';
     case PRODUCTION_RECORD = 'production_record';
     case PRODUCTION_RECIPE = 'production_recipe';
@@ -29,6 +30,7 @@ enum McpChangeTypeEnum: string
         return [
             'related_products' => __('Related products'),
             'org_stock_state'       => __('SKO state'),
+            'supplier_product_availability' => __('Supplier product availability'),
             'partner_shopping_list' => __('Hub shopping list'),
             'production_record'     => __('Artefact, raw material or task'),
             'production_recipe'     => __('Artefact recipe'),
@@ -46,7 +48,7 @@ enum McpChangeTypeEnum: string
     {
         return match ($this) {
             McpChangeTypeEnum::RELATED_PRODUCTS => 'can_use_mcp_web',
-            McpChangeTypeEnum::ORG_STOCK_STATE  => 'can_use_mcp_discontinue',
+            McpChangeTypeEnum::ORG_STOCK_STATE, McpChangeTypeEnum::SUPPLIER_PRODUCT_AVAILABILITY => 'can_use_mcp_discontinue',
             McpChangeTypeEnum::PARTNER_SHOPPING_LIST => 'can_use_mcp_procurement',
             McpChangeTypeEnum::PRODUCTION_RECORD, McpChangeTypeEnum::PRODUCTION_RECIPE => 'can_use_mcp_production',
             McpChangeTypeEnum::PLACED_ORDER => 'can_use_mcp_place_orders',

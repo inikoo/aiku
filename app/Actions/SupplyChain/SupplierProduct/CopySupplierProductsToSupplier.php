@@ -40,7 +40,6 @@ class CopySupplierProductsToSupplier extends OrgAction
     ];
 
     private const COPIED_DATA_FIELDS = [
-        'minimum_carton_order',
         'delivery_time',
         'unit_expense',
     ];

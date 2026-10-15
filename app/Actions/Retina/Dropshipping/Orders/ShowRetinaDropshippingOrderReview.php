@@ -36,8 +36,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\Actions\Ordering\Order\UI\GetOrderDeliveryAddressManagement;
-use App\Models\Accounting\Invoice;
-use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Http\Resources\CRM\CustomerClientResource;
 
 class ShowRetinaDropshippingOrderReview extends RetinaAction
@@ -319,14 +317,7 @@ class ShowRetinaDropshippingOrderReview extends RetinaAction
     }
     public function getOrderBoxStats(Order $order): array
     {
-        $totalToPay = $order->total_amount;
-        /** @var Invoice $refund */
-        foreach (Invoice::where('order_id', $order->id)->where('type', InvoiceTypeEnum::REFUND)->where('in_process', false)->get() as $refund) {
-            $totalToPay += $refund->total_amount;
-        };
-
-        $payAmount   = $totalToPay - $order->payment_amount;
-        $roundedDiff = round($payAmount, 2);
+        $roundedDiff = $order->amountStillToPay();
 
         $estWeight = ($order->estimated_weight ?? 0) / 1000;
 
