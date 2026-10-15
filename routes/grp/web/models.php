@@ -315,6 +315,7 @@ use App\Actions\Goods\TradeUnitFamily\UI\AssignBrandTagsToTradeUnitFamily;
 use App\Actions\Goods\TradeUnitFamily\UpdateTradeUnitFamily;
 use App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryFromPurchaseOrder;
 use App\Actions\GoodsIn\StockDelivery\AddPurchaseOrdersToStockDelivery;
+use App\Actions\GoodsIn\StockDelivery\AddPurchaseOrderItemsToStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\RemovePurchaseOrderFromStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\DeleteStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\CancelStockDelivery;
@@ -1719,6 +1720,7 @@ Route::name('stock-delivery.')->prefix('stock-delivery/{stockDelivery:id}')->gro
     Route::patch('unreceive', UnreceiveStockDelivery::class)->name('unreceive');
     Route::patch('cancel', CancelStockDelivery::class)->name('cancel');
     Route::post('purchase-orders', AddPurchaseOrdersToStockDelivery::class)->name('purchase_orders.add');
+    Route::post('purchase-order-items', AddPurchaseOrderItemsToStockDelivery::class)->name('purchase_order_items.add');
     Route::delete('purchase-orders/{purchaseOrder:id}', RemovePurchaseOrderFromStockDelivery::class)->name('purchase_orders.remove')->withoutScopedBindings();
     Route::patch('start-costing', StartStockDeliveryCosting::class)->name('start-costing');
     Route::patch('reopen-costing', ReopenStockDeliveryCosting::class)->name('reopen-costing');

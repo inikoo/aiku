@@ -4,14 +4,15 @@ import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
 import Dialog from "primevue/dialog"
 import Select from "primevue/select"
+import InputText from "primevue/inputtext"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faDownload, faFileCsv } from "@fal"
+import { faDownload, faFileCsv, faQuestionCircle } from "@fal"
 import { ctrans } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 
-library.add(faDownload, faFileCsv)
+library.add(faDownload, faFileCsv, faQuestionCircle)
 
 const props = defineProps<{
     customsExport: {
@@ -23,6 +24,8 @@ const props = defineProps<{
 
 const isOpen = ref(false)
 const format = ref<string | null>(null)
+const delimiter = ref("|")
+const textDelimiter = ref("")
 const problems = ref<string[]>([])
 const preview = ref<{
     columns: string[]
@@ -33,11 +36,16 @@ const isLoadingPreview = ref(false)
 const isDownloading = ref(false)
 
 const urlFor = (target: routeType | undefined) => {
-    if (!target || !format.value) {
+    if (!target || !format.value || delimiter.value.length !== 1) {
         return null
     }
 
-    return route(target.name, { ...target.parameters, format: format.value })
+    return route(target.name, {
+        ...target.parameters,
+        format: format.value,
+        delimiter: delimiter.value,
+        ...(textDelimiter.value ? { text_delimiter: textDelimiter.value } : {}),
+    })
 }
 
 const rowFailures = computed(() => (preview.value?.rows ?? []).flatMap((row, rowIndex) =>
@@ -84,8 +92,8 @@ const openDialog = () => {
     isOpen.value = true
 }
 
-watch([isOpen, format], ([open]) => {
-    if (open) {
+watch([isOpen, format, delimiter, textDelimiter], ([open]) => {
+    if (open && delimiter.value.length === 1) {
         loadPreview()
     }
 })
@@ -138,9 +146,29 @@ const onDownload = async () => {
             :breakpoints="{ '1199px': '90vw', '575px': '95vw' }"
         >
             <div class="space-y-4">
-                <div class="max-w-sm">
-                    <label class="block text-sm text-gray-600 mb-1">{{ ctrans("Format") }}</label>
-                    <Select v-model="format" :options="customsExport.formats" optionLabel="label" optionValue="value" class="w-full" />
+                <div class="flex flex-wrap items-end gap-4">
+                    <div class="w-full max-w-sm">
+                        <label class="block text-sm text-gray-600 mb-1">{{ ctrans("Format") }}</label>
+                        <Select v-model="format" :options="customsExport.formats" optionLabel="label" optionValue="value" class="w-full" />
+                    </div>
+                    <div>
+                        <label for="customs-export-delimiter" class="flex items-center gap-1 text-sm text-gray-600 mb-1">
+                            {{ ctrans("Field delimiter") }}
+                            <FontAwesomeIcon
+                                v-tooltip="ctrans('Must match the Field Delimiter set in DHL\'s item upload settings, otherwise DHL will not read the file into separate columns.')"
+                                icon="fal fa-question-circle" class="text-gray-400 cursor-help" fixed-width aria-hidden="true" />
+                        </label>
+                        <InputText id="customs-export-delimiter" v-model="delimiter" maxlength="1" class="w-16 text-center" />
+                    </div>
+                    <div>
+                        <label for="customs-export-text-delimiter" class="flex items-center gap-1 text-sm text-gray-600 mb-1">
+                            {{ ctrans("Text delimiter") }}
+                            <FontAwesomeIcon
+                                v-tooltip="ctrans('Must match the Text Delimiter set in DHL\'s item upload settings. Leave it empty when DHL\'s is empty, so the file is written without quotes around the text.')"
+                                icon="fal fa-question-circle" class="text-gray-400 cursor-help" fixed-width aria-hidden="true" />
+                        </label>
+                        <InputText id="customs-export-text-delimiter" v-model="textDelimiter" maxlength="1" class="w-16 text-center" />
+                    </div>
                 </div>
 
                 <div v-if="problems.length || preview?.file_errors.length || rowFailures.length"

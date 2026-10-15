@@ -21,14 +21,14 @@ class PreviewDeliveryNoteCustomsItems extends OrgAction
     use WithDeliveryNoteShipmentAuthorisation;
 
     /**
-     * @param array{format: string} $modelData
+     * @param array{format: string, delimiter?: string, text_delimiter?: string|null} $modelData
      *
      * @return array{columns: array<int, string>, rows: array<int, array{cells: array<int, string>, errors: array<int, array<int, string>>}>, file_errors: array<int, string>}
      */
     public function handle(DeliveryNote $deliveryNote, array $modelData): array
     {
         $export = DeliveryNoteCustomsExportFormatEnum::from($modelData['format'])
-            ->exporter(GetDeliveryNoteCustomsItems::run($deliveryNote)['lines']);
+            ->exporter(GetDeliveryNoteCustomsItems::run($deliveryNote)['lines'], $modelData['delimiter'] ?? '|', $modelData['text_delimiter'] ?? '');
 
         $rows   = $export->rows();
         $errors = $export->validate();
@@ -46,7 +46,9 @@ class PreviewDeliveryNoteCustomsItems extends OrgAction
     public function rules(): array
     {
         return [
-            'format' => ['required', 'string', Rule::enum(DeliveryNoteCustomsExportFormatEnum::class)],
+            'format'         => ['required', 'string', Rule::enum(DeliveryNoteCustomsExportFormatEnum::class)],
+            'delimiter'      => ['sometimes', 'string', 'size:1', 'not_regex:/^[A-Za-z0-9.\s"]$/'],
+            'text_delimiter' => ['nullable', 'string', 'size:1', 'different:delimiter', 'not_regex:/^[A-Za-z0-9.\s]$/'],
         ];
     }
 
