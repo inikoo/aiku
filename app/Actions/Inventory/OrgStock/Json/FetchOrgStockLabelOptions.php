@@ -9,6 +9,7 @@
 
 namespace App\Actions\Inventory\OrgStock\Json;
 
+use App\Actions\Inventory\OrgStock\UI\GetOrgStockLabelData;
 use App\Actions\Inventory\OrgStock\UI\GetOrgStockLabelOptions;
 use App\Actions\OrgAction;
 use App\Models\Inventory\OrgStock;
@@ -27,10 +28,14 @@ class FetchOrgStockLabelOptions extends OrgAction
     /**
      * @return array<string, mixed>
      */
-    public function handle(Warehouse $warehouse, OrgStock $orgStock, ?int $supplierProductId = null): array
+    public function handle(Warehouse $warehouse, OrgStock $orgStock, ?int $supplierProductId = null, ?int $commercialisingOrganisationId = null): array
     {
         return [
-            'options'     => GetOrgStockLabelOptions::run($orgStock, $supplierProductId),
+            'options'     => GetOrgStockLabelOptions::run(
+                $orgStock,
+                $supplierProductId,
+                GetOrgStockLabelData::make()->getCommercialisingOrganisation($orgStock, $commercialisingOrganisationId)
+            ),
             'label_route' => [
                 'name'       => 'grp.org.warehouses.show.inventory.org_stocks.label',
                 'parameters' => [
@@ -64,6 +69,6 @@ class FetchOrgStockLabelOptions extends OrgAction
             403
         );
 
-        return $this->handle($warehouse, $orgStock, $request->integer('supplier_product') ?: null);
+        return $this->handle($warehouse, $orgStock, $request->integer('supplier_product') ?: null, $request->integer('commercialised_by') ?: null);
     }
 }

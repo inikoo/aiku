@@ -11,6 +11,7 @@ namespace App\Actions\Inventory\OrgStock\UI;
 
 use App\Models\Inventory\OrgStock;
 use App\Models\SupplyChain\SupplierProduct;
+use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -33,14 +34,14 @@ class GetOrgStockLabelOptions
     /**
      * @return array<string, mixed>
      */
-    public function handle(OrgStock $orgStock, ?int $supplierProductId = null): array
+    public function handle(OrgStock $orgStock, ?int $supplierProductId = null, ?Organisation $commercialisingOrganisation = null): array
     {
         $supplierProduct = GetOrgStockLabelData::make()->getSupplierProduct($orgStock, $supplierProductId);
 
         $labels = [
             'sko'    => GetOrgStockLabelData::run($orgStock, 'sko', $supplierProduct),
             'unit'   => GetOrgStockLabelData::run($orgStock, 'unit', $supplierProduct),
-            'carton' => GetOrgStockLabelData::run($orgStock, 'carton', $supplierProduct),
+            'carton' => GetOrgStockLabelData::run($orgStock, 'carton', $supplierProduct, $commercialisingOrganisation),
         ];
 
         return [
@@ -51,6 +52,11 @@ class GetOrgStockLabelOptions
             'levels'        => $this->getLevels($labels),
             'custom_text_max_length' => 255,
             'unified'       => $this->getUnified($orgStock, $supplierProduct),
+            'carton_organisations' => GetOrgStockLabelData::make()->getCartonOrganisations($orgStock)
+                ->map(fn (Organisation $organisation) => ['id' => $organisation->id, 'code' => $organisation->code, 'name' => $organisation->name])
+                ->values()
+                ->all(),
+            'carton_organisation_id' => $commercialisingOrganisation->id ?? $orgStock->organisation_id,
         ];
     }
 

@@ -231,7 +231,12 @@ class PdfOrgStockLabel
             return PdfOrgStockUnifiedLabel::run($orgStock, $level, $this->getSupplierProduct($orgStock, $options), $options['batch'] ?? null);
         }
 
-        $label = GetOrgStockLabelData::run($orgStock, $level, $this->getSupplierProduct($orgStock, $options));
+        $label = GetOrgStockLabelData::run(
+            $orgStock,
+            $level,
+            $this->getSupplierProduct($orgStock, $options),
+            GetOrgStockLabelData::make()->getCommercialisingOrganisation($orgStock, (int) ($options['commercialised_by'] ?? 0) ?: null)
+        );
 
         /* The unit label is built around its barcode, so without one there is nothing to print. The
            SKO label never carries one, and prints for a box that has not been given a number yet. */
@@ -617,6 +622,7 @@ class PdfOrgStockLabel
             'standard'               => ['sometimes', 'string', 'in:unified,localised'],
             'batch'                  => ['sometimes', 'nullable', 'string', 'max:20'],
             'supplier_product'       => ['sometimes', 'nullable', 'integer'],
+            'commercialised_by'      => ['sometimes', 'nullable', 'integer'],
             'with_ingredients'       => ['sometimes', 'boolean'],
             'layout'                 => ['sometimes', 'string', 'in:single,sheet'],
             'size'                   => ['sometimes', 'string', 'in:'.implode(',', array_keys(self::SIZES))],

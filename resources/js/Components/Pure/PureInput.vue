@@ -150,7 +150,7 @@ const checkNumber = (event: KeyboardEvent) => {
                     text-gray-600 sm:text-sm placeholder:text-gray-400
                     border-transparent
                     focus:ring-0 focus:ring-gray-500 focus:outline-0 focus:border-transparent
-                    rounded-md read-only:bg-gray-100 read-only:ring-0 read-only:ring-transparent read-only:focus:border-transparent read-only:focus:border-gray-300 read-only:text-gray-500
+                    rounded-md read-only:bg-gray-100 read-only:ring-0 read-only:ring-transparent read-only:focus:border-transparent read-only:focus:border-gray-300 read-only:text-gray-500 disabled:cursor-not-allowed
                 "
                 :class="[
                     caret ? '' : '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',

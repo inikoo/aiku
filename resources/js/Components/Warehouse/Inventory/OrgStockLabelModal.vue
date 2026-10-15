@@ -44,6 +44,8 @@ type LabelOptions = {
     fields: Record<string, LabelField[]>
     levels: LabelLevel[]
     custom_text_max_length: number
+    carton_organisations?: { id: number; code: string; name: string }[]
+    carton_organisation_id?: number
     unified?: {
         batch: string | null
         batch_pattern: string
@@ -167,6 +169,16 @@ const sizeOptions = computed(() => levelSizes.value.map((option) => ({ label: op
 
 const layoutOptions = computed(() => layouts.value.map((option) => ({ label: option.label, value: option.key })))
 
+const cartonOrganisationId = ref<string | undefined>()
+
+const cartonOrganisations = computed(() => props.options?.carton_organisations ?? [])
+
+const cartonOrganisationOptions = computed(() =>
+    cartonOrganisations.value.map((organisation) => ({ label: organisation.code, value: String(organisation.id) })))
+
+const cartonOrganisationName = computed(() =>
+    cartonOrganisations.value.find((organisation) => String(organisation.id) === cartonOrganisationId.value)?.name)
+
 const resetFromOptions = () => {
     selected.value = Object.fromEntries(fields.value.map((field) => [field.key, field.available && field.checked]))
 
@@ -176,6 +188,7 @@ const resetFromOptions = () => {
         : sizes[0]?.key
 
     layout.value = "single"
+    cartonOrganisationId.value = props.options?.carton_organisation_id ? String(props.options.carton_organisation_id) : undefined
 }
 
 const pickLevel = () => {
@@ -230,6 +243,10 @@ const pdfUrl = computed(() => {
     fields.value.forEach((field) => {
         query[field.key] = selected.value[field.key] ? "1" : "0"
     })
+
+    if (activeLevel.value === "carton" && cartonOrganisationId.value) {
+        query.commercialised_by = cartonOrganisationId.value
+    }
 
     if (selected.value.with_custom_text && customText.value.trim()) {
         query.custom_text = customText.value.trim()
@@ -312,6 +329,19 @@ const checkboxPt = {
             </template>
 
             <template v-else>
+            <div v-if="activeLevel === 'carton' && cartonOrganisationName">
+                <div class="mb-1.5 text-xs font-medium uppercase tracking-wide text-gray-400">
+                    {{ ctrans("Commercialised by") }}
+                </div>
+                <SegmentedToggle
+                    v-if="cartonOrganisationOptions.length > 1"
+                    v-model="cartonOrganisationId"
+                    :options="cartonOrganisationOptions"
+                    :ariaLabel="ctrans('Commercialised by')"
+                    class="flex-wrap" />
+                <div class="mt-1 text-sm text-gray-600">{{ cartonOrganisationName }}</div>
+            </div>
+
             <div class="flex flex-col gap-1.5">
                 <div v-for="field in fields" :key="field.key" class="flex flex-col gap-1.5">
                     <label

@@ -12,6 +12,8 @@ use App\Actions\Comms\Mailbox\ConnectProcurementMailbox;
 use App\Actions\Comms\Mailbox\DisconnectProcurementMailbox;
 use App\Actions\GoodsIn\StockDelivery\ExportStockDeliveries;
 use App\Actions\GoodsIn\StockDelivery\PdfStockDelivery;
+use App\Actions\GoodsIn\StockDelivery\StoreAgentStockDelivery;
+use App\Actions\GoodsIn\StockDelivery\UI\CreateStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\UI\IndexStockDeliveries;
 use App\Actions\GoodsIn\StockDelivery\UI\ShowAgentContainersBoard;
 use App\Actions\GoodsIn\StockDelivery\UI\EditStockDelivery;
@@ -118,6 +120,8 @@ Route::prefix('client-orders')->as('agent_supplier_purchase_orders.')->group(fun
 
 Route::prefix('containers')->as('stock_deliveries.')->group(function () {
     Route::get('', IndexStockDeliveries::class)->name('index');
+    Route::post('', StoreAgentStockDelivery::class)->name('store');
+    Route::get('create', [CreateStockDelivery::class, 'inAgent'])->name('create');
     Route::get('current', [IndexStockDeliveries::class, 'inAgentCurrent'])->name('current');
     Route::get('past', [IndexStockDeliveries::class, 'inAgentPast'])->name('past');
     Route::get('board', ShowAgentContainersBoard::class)->name('board');
