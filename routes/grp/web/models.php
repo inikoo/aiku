@@ -6,6 +6,8 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
+use App\Actions\Goods\ProductDevelopment\MoveProductDevelopmentToNextStage;
+use App\Actions\Goods\ProductDevelopment\StoreProductDevelopment;
 use App\Http\Middleware\EnsureHubPartnerOrderFromShoppingList;
 use App\Actions\SupplyChain\StockDeliveryInvoice\StoreActualStockDeliveryInvoice;
 use App\Actions\SupplyChain\AgentInvoice\ApproveAgentInvoiceCharges;
@@ -1948,6 +1950,11 @@ Route::name('brand.')->prefix('brand')->group(function () {
 Route::name('barcodes.')->prefix('barcode')->group(function () {
     Route::post('store', StoreBarcode::class)->name('store');
     Route::patch('{barcode:id}/update', UpdateBarcode::class)->name('update')->withoutScopedBindings();
+});
+
+Route::name('product_development.')->prefix('product-development')->group(function () {
+    Route::post('store', StoreProductDevelopment::class)->name('store');
+    Route::patch('{productDevelopment:id}/next-stage', MoveProductDevelopmentToNextStage::class)->name('next_stage')->withoutScopedBindings();
 });
 
 Route::name('trade_unit_family.')->prefix('trade-unit-family')->group(function () {

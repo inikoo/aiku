@@ -136,6 +136,9 @@ Route::middleware(
     Route::prefix("masters")
         ->name("masters.")
         ->group(__DIR__."/masters.php");
+    Route::prefix("product-developments")
+        ->name("product_developments.")
+        ->group(__DIR__."/product_developments.php");
     Route::prefix("trade-units")
         ->name("trade_units.")
         ->group(__DIR__."/trade_units.php");

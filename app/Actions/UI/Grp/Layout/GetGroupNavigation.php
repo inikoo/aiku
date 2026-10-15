@@ -8,6 +8,7 @@
 
 namespace App\Actions\UI\Grp\Layout;
 
+use App\Models\Goods\ProductDevelopmentMember;
 use App\Models\Helpers\Ticket;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\SysAdmin\User;
@@ -54,6 +55,10 @@ class GetGroupNavigation
                 ],
             ]
         ];
+        if ($user->hasAnyPermission(['goods.view', 'masters.view', 'compliance.view']) || ProductDevelopmentMember::where('user_id', $user->id)->exists()) {
+            $groupNavigation['product-developments'] = $this->getProductDevelopmentsNavs();
+        }
+
         if ($user->hasAnyPermission(['goods.view','masters.view'])) {
             $groupNavigation['trade-units'] = $this->getTradeUnitsNavs();
         }
@@ -281,6 +286,34 @@ class GetGroupNavigation
         }
 
         return $groupNavigation;
+    }
+
+    private function getProductDevelopmentsNavs(): array
+    {
+        return [
+            'label'   => __('Product development'),
+            'icon'    => ['fal', 'fa-lightbulb-on'],
+            'root'    => 'grp.product_developments.',
+            'route'   => [
+                'name' => 'grp.product_developments.index',
+            ],
+            'topMenu' => [
+                'subSections' => [
+                    [
+                        'label' => __('List'),
+                        'icon'  => ['fal', 'fa-list'],
+                        'root'  => 'grp.product_developments.index',
+                        'route' => ['name' => 'grp.product_developments.index', 'parameters' => []],
+                    ],
+                    [
+                        'label' => __('Board'),
+                        'icon'  => ['fal', 'fa-columns'],
+                        'root'  => 'grp.product_developments.board',
+                        'route' => ['name' => 'grp.product_developments.board', 'parameters' => []],
+                    ],
+                ],
+            ],
+        ];
     }
 
     private function getTradeUnitsNavs(): array
