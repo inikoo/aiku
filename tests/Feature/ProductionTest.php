@@ -10,6 +10,7 @@
 
 namespace Tests\Feature;
 
+use App\Actions\Inventory\OrgStock\UI\GetOrgStockShowcase;
 use App\Actions\Production\Artefact\StoreArtefact;
 use App\Actions\Production\Artefact\MoveArtefactsToDepartment;
 use App\Actions\Production\Artefact\UpdateArtefact;
@@ -5830,6 +5831,9 @@ test('production for stock is flagged on the backlog and booking it in fulfils t
         ->assertOk()->viewData('page')['props']['groups'])->firstWhere('label', 'Backlog')['items'];
 
     expect(collect($backlog())->firstWhere('id', $older->id)['pipeline'] ?? null)->toBe(['pending_booking' => 0.0, 'in_production' => 1.0, 'job_orders' => [$jobOrder->reference]]);
+    expect(collect(GetArtefactShowcase::run($artefact->refresh())['todo_batches'])->pluck('id'))->toContain($jobOrderItem->id);
+    get(route('grp.org.productions.show.crafts.artefacts.show', $routeParameters + [2 => $artefact->slug, 'tab' => 'current_orders']))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('current_orders.data.0.id', $jobOrderItem->id));
 
     $session = StartManufactureTaskSession::make()->action($this->guest->getUser(), $jobOrderItem->tasks()->first());
     CloseManufactureTaskSession::make()->action($session, ['quantity_made' => 100]);
@@ -5844,6 +5848,28 @@ test('production for stock is flagged on the backlog and booking it in fulfils t
     expect($older->refresh()->state)->toBe(\App\Enums\Procurement\ShoppingListItem\ShoppingListItemStateEnum::DISMISSED)
         ->and($newer->refresh()->state)->toBe(\App\Enums\Procurement\ShoppingListItem\ShoppingListItemStateEnum::OPEN)
         ->and((float) $newer->quantity)->toBe(3.0);
+
+    $showcase = GetArtefactShowcase::run($artefact);
+    expect(collect($showcase['todo_batches'])->pluck('id'))->not->toContain($jobOrderItem->id)
+        ->and(collect($showcase['recent_batches'])->firstWhere('id', $jobOrderItem->id))->toMatchArray(['reference' => $jobOrder->reference, 'quantity_made' => 100.0, 'quantity_received' => 100.0]);
+
+    get(route('grp.org.productions.show.crafts.artefacts.show', $routeParameters + [2 => $artefact->slug, 'tab' => 'batches']))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('batches.data.0.id', $jobOrderItem->id)
+            ->where('tabs.navigation.batches.number', 1)
+            ->where('tabs.navigation.current_orders.number', 0));
+
+    $isHub = $this->organisation->is_manufacturing_hub;
+    $this->organisation->update(['is_manufacturing_hub' => true]);
+    get(route('grp.org.warehouses.show.inventory.org_stocks.all_org_stocks.show', [$this->organisation->slug, $location->warehouse->slug, $orgStock->slug, 'tab' => 'artefact_batches']))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('artefact_batches.data.0.id', $jobOrderItem->id)
+            ->where('tabs.navigation.artefact_batches.number', 1)
+            ->where('tabs.navigation.artefact_batches.type', 'icon'));
+    expect(GetOrgStockShowcase::run($location->warehouse, $orgStock->refresh())['production'])->toMatchArray(['code' => $artefact->code, 'open_jobs' => 0, 'jobs_done' => 1]);
+    $this->organisation->update(['is_manufacturing_hub' => false]);
+    get(route('grp.org.warehouses.show.inventory.org_stocks.all_org_stocks.show', [$this->organisation->slug, $location->warehouse->slug, $orgStock->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->missing('tabs.navigation.artefact_batches'));
+    expect(GetOrgStockShowcase::run($location->warehouse, $orgStock->refresh())['production'])->toBeNull();
+    $this->organisation->update(['is_manufacturing_hub' => $isHub]);
 });
 
 test('a job order planned by hand is one job with its lines on the board, even for a product already there', function () {

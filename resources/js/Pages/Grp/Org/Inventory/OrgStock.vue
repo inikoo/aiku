@@ -53,6 +53,10 @@ import { faWarning } from "@fortawesome/free-solid-svg-icons"
 import { Message } from "primevue"
 import StockIssues from "@/Components/Warehouse/Inventory/StockIssues.vue"
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
+import TableArtefactBatches from "@/Components/Tables/Grp/Org/Production/TableArtefactBatches.vue"
+import TableArtefactRecipe from "@/Components/Tables/Grp/Org/Production/TableArtefactRecipe.vue"
+import TableArtefactCompliance from "@/Components/Tables/Grp/Org/Production/TableArtefactCompliance.vue"
+import ArtefactLabels from "@/Components/Production/Artefact/ArtefactLabels.vue"
 import StocksManagement from "@/Components/Warehouse/Inventory/StocksManagement/StocksManagement.vue"
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/vue"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
@@ -102,6 +106,11 @@ const props = defineProps<{
     master: {}
     masterRoute: routeType | null
     history?: {}
+    artefact_current_orders?: {}
+    artefact_batches?: {}
+    artefact_manufacture_tasks?: {}
+    artefact_labels?: {}
+    artefact_compliance?: {}
     reasons: {
         increase: [],
         decrease: [],
@@ -139,6 +148,11 @@ const component = computed(() => {
         details: ModelDetails,
         history: TableHistories,
         purchase_orders: TablePurchaseOrders,
+        artefact_current_orders: TableArtefactBatches,
+        artefact_batches: TableArtefactBatches,
+        artefact_manufacture_tasks: TableArtefactRecipe,
+        artefact_labels: ArtefactLabels,
+        artefact_compliance: TableArtefactCompliance,
     }
     return components[currentTab.value]
 

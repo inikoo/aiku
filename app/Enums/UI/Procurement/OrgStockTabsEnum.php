@@ -25,6 +25,21 @@ enum OrgStockTabsEnum: string
     case FEEDBACKS = 'feedbacks';
     case PURCHASE_ORDERS = 'purchase_orders';
     case SUPPLIER_PRODUCTS = 'supplier_products';
+    case ARTEFACT_CURRENT_ORDERS = 'artefact_current_orders';
+    case ARTEFACT_BATCHES = 'artefact_batches';
+    case ARTEFACT_MANUFACTURE_TASKS = 'artefact_manufacture_tasks';
+    case ARTEFACT_LABELS = 'artefact_labels';
+    case ARTEFACT_COMPLIANCE = 'artefact_compliance';
+
+    /**
+     * Production tabs, only for the stock a manufacturing hub makes itself.
+     *
+     * @return array<int, OrgStockTabsEnum>
+     */
+    public static function artefactTabs(): array
+    {
+        return [self::ARTEFACT_CURRENT_ORDERS, self::ARTEFACT_BATCHES, self::ARTEFACT_MANUFACTURE_TASKS, self::ARTEFACT_LABELS, self::ARTEFACT_COMPLIANCE];
+    }
 
     public function blueprint(): array
     {
@@ -78,6 +93,41 @@ enum OrgStockTabsEnum: string
             OrgStockTabsEnum::SUPPLIER_PRODUCTS => [
                 'title' => __("Supplier's products"),
                 'icon'  => 'fal fa-hand-receiving',
+            ],
+
+            OrgStockTabsEnum::ARTEFACT_CURRENT_ORDERS => [
+                'align' => 'right',
+                'type'  => 'icon',
+                'title' => __('Current orders'),
+                'icon'  => 'fal fa-clipboard-list',
+            ],
+
+            OrgStockTabsEnum::ARTEFACT_BATCHES => [
+                'align' => 'right',
+                'type'  => 'icon',
+                'title' => __('Jobs done'),
+                'icon'  => 'fal fa-layer-group',
+            ],
+
+            OrgStockTabsEnum::ARTEFACT_MANUFACTURE_TASKS => [
+                'align' => 'right',
+                'type'  => 'icon',
+                'title' => __('Manufacture tasks'),
+                'icon'  => 'fal fa-hamsa',
+            ],
+
+            OrgStockTabsEnum::ARTEFACT_LABELS => [
+                'align' => 'right',
+                'type'  => 'icon',
+                'title' => __('Labels'),
+                'icon'  => 'fal fa-tags',
+            ],
+
+            OrgStockTabsEnum::ARTEFACT_COMPLIANCE => [
+                'align' => 'right',
+                'type'  => 'icon',
+                'title' => __('Compliance'),
+                'icon'  => 'fal fa-clipboard-check',
             ],
         };
     }

@@ -34,6 +34,7 @@ import { useConfirm } from "primevue/useconfirm"
 import ConfirmDialog from "primevue/confirmdialog"
 import SalesAnalysisTeaser from "@/Components/SalesAnalysis/SalesAnalysisTeaser.vue"
 import SalesAnalysisMovers from "@/Components/SalesAnalysis/SalesAnalysisMovers.vue"
+import OrgStockProductionOverview from "@/Components/Production/OrgStockProductionOverview.vue"
 library.add(faChevronDown, faExclamationTriangle, faFireAlt, faCircle, faTrash, falTrash, faShoppingBasket, fasInventory, fasShoppingCart, fasShoppingBasket, faEdit, faExternalLink, faStickyNote, faPlay, faPlus, faStopCircle, faFilePdf, faWeightHanging, faRulerCombined)
 
 const props = defineProps < {
@@ -116,6 +117,7 @@ const props = defineProps < {
             reason_label: string | null
         }[]
         stock_history_route?: routeType
+        production?: Record<string, any> | null
         future_orders?: {
             id: string
             reference: string
@@ -389,6 +391,8 @@ const saveBarcode = (value: string | null) => {
                             </div>
                         </div>
                     </div>
+
+                    <OrgStockProductionOverview v-if="data.production" :data="data.production" />
 
                     <template v-if="salesAnalysisTeaser !== undefined">
                         <SalesAnalysisTeaser :teaser="salesAnalysisTeaser" :compact="compact" :onOpenAnalysis="onOpenAnalysis" />
