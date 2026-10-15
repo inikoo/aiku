@@ -619,10 +619,10 @@ test('agent login can propose a ready date but not set management-only clean han
     expect($purchaseOrder->proposed_ready_at->toDateString())->toBe('2026-10-01')
         ->and($purchaseOrder->approved_ready_at)->toBeNull()
         ->and($purchaseOrder->notes)->toBe($notes)
-        ->and($purchaseOrder->sample_approved_at->toDateString())->toBe('2026-09-10')
+        ->and($purchaseOrder->sample_approved_at)->toBeNull()
         ->and($purchaseOrder->produced_at->toDateString())->toBe('2026-09-28');
 
-    $purchaseOrder->update(['sample_approved_at' => null, 'produced_at' => null]);
+    $purchaseOrder->update(['produced_at' => null]);
 
     actingAs($this->adminGuest->getUser());
 })->depends('create purchase order through an agent');
@@ -832,6 +832,21 @@ test('PO journey board marks stages on an agent purchase order and keeps handove
 
     $this->patch($route, ['stage' => 'clean_handover', 'date' => null])->assertRedirect();
     expect($purchaseOrder->refresh()->handed_over_at)->toBeNull();
+
+    $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::SUBMITTED, 'deposit_paid_at' => null]);
+    $this->patch($route, ['stage' => 'deposit_paid', 'date' => now()->subDays(3)->toDateString()])->assertSessionHasErrors('reason');
+    expect($purchaseOrder->refresh()->deposit_paid_at)->toBeNull();
+
+    $this->patch($route, ['stage' => 'deposit_paid', 'date' => now()->subDays(3)->toDateString(), 'reason' => 'Paid last week'])->assertSessionHasNoErrors();
+    expect($purchaseOrder->refresh()->deposit_paid_at->toDateString())->toBe(now()->subDays(3)->toDateString())
+        ->and(Audit::where('auditable_type', 'PurchaseOrder')->where('auditable_id', $purchaseOrder->id)->where('event', 'stage_override')->latest('id')->first()?->new_values['reason'])->toBe('Paid last week');
+
+    actingAs(User::where('username', 'agent-clerk')->firstOrFail());
+    $this->patch($route, ['stage' => 'spec_sample', 'date' => now()->toDateString(), 'reason' => 'x'])->assertForbidden();
+    actingAs($this->adminGuest->getUser());
+
+    $this->patch(route('grp.models.purchase-order.update', $purchaseOrder->id), ['qc_passed_at' => now()->toDateString(), 'notes' => 'qc via edit page'])->assertSessionHasNoErrors();
+    expect($purchaseOrder->refresh()->qc_passed_at)->toBeNull();
 })->depends('create purchase order through an agent');
 
 test('purchase order stages go in order and ask a reason to skip, backdate or clear', function () {

@@ -10,8 +10,10 @@ namespace App\Actions\Procurement\PurchaseOrder;
 
 use App\Actions\OrgAction;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderJourneyStageEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStageEnum;
 use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -25,7 +27,11 @@ class UpdatePurchaseOrderJourneyStage extends OrgAction
 
         if ($this->order->isAgentOrder()) {
             $column = PurchaseOrderJourneyStageEnum::tryFrom((string) $request->input('stage'))?->markColumn();
-            if (in_array($column, UpdatePurchaseOrder::MANAGEMENT_ONLY_FIELDS) && $user->authorisedShopOrganisations()->doesntExist()) {
+            $agentStaff = $user->authorisedShopOrganisations()->doesntExist();
+            if ($agentStaff && in_array($column, UpdatePurchaseOrder::MANAGEMENT_ONLY_FIELDS)) {
+                return false;
+            }
+            if ($agentStaff && array_key_exists($column, PurchaseOrderStageEnum::MARKABLE_FIELDS) && !in_array($column, PurchaseOrderStageEnum::AGENT_MARKABLE_FIELDS)) {
                 return false;
             }
         }
@@ -36,6 +42,14 @@ class UpdatePurchaseOrderJourneyStage extends OrgAction
     public function handle(PurchaseOrder $order, array $modelData): PurchaseOrder
     {
         $column = PurchaseOrderJourneyStageEnum::from($modelData['stage'])->markColumn();
+
+        if (array_key_exists($column, PurchaseOrderStageEnum::MARKABLE_FIELDS)) {
+            return MarkPurchaseOrderStage::make()->action($order, [
+                'field'  => $column,
+                'date'   => $modelData['date'],
+                'reason' => Arr::get($modelData, 'reason'),
+            ]);
+        }
 
         return UpdatePurchaseOrder::make()->action($order, [$column => $modelData['date']]);
     }
@@ -51,7 +65,8 @@ class UpdatePurchaseOrderJourneyStage extends OrgAction
                     ->values()
                     ->all()),
             ],
-            'date'  => ['present', 'nullable', 'date', 'before_or_equal:tomorrow'],
+            'date'   => ['present', 'nullable', 'date', 'before_or_equal:tomorrow'],
+            'reason' => ['sometimes', 'nullable', 'string', 'max:500'],
         ];
     }
 

@@ -104,12 +104,6 @@ class EditPurchaseOrder extends OrgAction
                             'icon'   => 'fal fa-money-bill',
                             'fields' => [
                                 'deposit_amount'  => $this->depositAmountField($purchaseOrder),
-                                'deposit_paid_at' => [
-                                    'type'        => 'date',
-                                    'label'       => __('Deposit paid'),
-                                    'information' => __('The day the deposit was paid to the supplier. Ticks the Deposit paid step of the order journey.'),
-                                    'value'       => $purchaseOrder->deposit_paid_at,
-                                ],
                                 'balance_paid_at' => [
                                     'type'        => 'date',
                                     'label'       => __('Balance paid'),
@@ -174,12 +168,6 @@ class EditPurchaseOrder extends OrgAction
                 'icon'   => 'fal fa-money-bill',
                 'fields' => [
                     'deposit_amount'  => $this->depositAmountField($purchaseOrder),
-                    'deposit_paid_at' => [
-                        'type'        => 'date',
-                        'label'       => __('Deposit paid'),
-                        'information' => __('The day the deposit was paid to the supplier. Ticks the Deposit paid step of the order journey.'),
-                        'value'       => $purchaseOrder->deposit_paid_at,
-                    ],
                 ],
             ],
         ];
@@ -221,12 +209,6 @@ class EditPurchaseOrder extends OrgAction
                 'title'  => __('Production'),
                 'icon'   => 'fal fa-industry',
                 'fields' => [
-                    'sample_approved_at' => [
-                        'type'        => 'date',
-                        'label'       => __('Sample approved'),
-                        'information' => __('New products only: the day we approved the specification and the sample, so the supplier can start production. Leave empty for products we have bought before. Ticks the Spec / Sample step of the order journey.'),
-                        'value'       => $purchaseOrder->sample_approved_at,
-                    ],
                     'produced_at'        => [
                         'type'        => 'date',
                         'label'       => __('Production done'),
@@ -292,12 +274,6 @@ class EditPurchaseOrder extends OrgAction
                     'label'       => __('Approved ready date'),
                     'information' => __('The ready date management agreed. The handover counts as clean when it happens within 7 days of this date, and the order counts in the quarter of this date.'),
                     'value'       => $purchaseOrder->approved_ready_at,
-                ],
-                'qc_passed_at'           => [
-                    'type'        => 'date',
-                    'label'       => __('QC passed'),
-                    'information' => __('The day the goods passed the quality check. Ticks the QC step of the order journey and is needed for a clean handover.'),
-                    'value'       => $purchaseOrder->qc_passed_at,
                 ],
                 'handed_over_at'         => [
                     'type'        => 'date',
