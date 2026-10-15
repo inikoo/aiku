@@ -762,6 +762,12 @@ test('tickets dashboard counts created, done, status and assignees', function ()
 
     $forSomeoneWithNoTickets = ShowTicketsReports::make()->handle($this->group, '1w', assignee: User::factory()->create(['group_id' => $this->group->id]));
 
+    $onlyCustomer = ShowTicketsReports::make()->handle($this->group, '1w', types: ['customer']);
+    $helpAndEngineer = ShowTicketsReports::make()->handle($this->group, '1w', types: ['help', 'engineer']);
+
+    expect($onlyCustomer['types'])->toBe(['customer'])
+        ->and($onlyCustomer['created'] + $helpAndEngineer['created'])->toBe($stats['created']);
+
     expect($forSomeoneWithNoTickets['created'])->toBe(0)
         ->and(collect($forSomeoneWithNoTickets['by_quarter_hour'])->sum('created'))->toBeLessThanOrEqual($stats['created'])
         ->and(collect($forSomeoneWithNoTickets['by_quarter_hour'])->sum('started'))->toBe(0)

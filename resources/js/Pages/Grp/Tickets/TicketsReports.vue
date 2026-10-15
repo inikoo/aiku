@@ -14,6 +14,7 @@ import PageHeading from "@/Components/Headings/PageHeading.vue"
 import TicketUserAvatar from "@/Components/Tickets/TicketUserAvatar.vue"
 import Chart from "primevue/chart"
 import Select from "primevue/select"
+import MultiSelect from "primevue/multiselect"
 import TicketsCreatedInterval from "@/Components/Tickets/TicketsCreatedInterval.vue"
 import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import { useLiveTickets } from "@/Composables/useLiveTickets"
@@ -31,9 +32,11 @@ const props = defineProps<{
     title: string
     createdIntervals: Record<string, string>
     assigneeOptions: { label: string; value: string }[]
+    typeOptions: { label: string; value: string }[]
     stats: {
         interval: string
         assignee: string | null
+        types: string[]
         days: number
         weekdays: number
         bucket: "day" | "week" | "month"
@@ -65,6 +68,7 @@ type Metrics = { created: number; open: number; assigned: number; in_progress: n
 const peopleTab = ref<"assignees" | "reporters">("assignees")
 
 const filterByAssignee = (username: string) => router.reload({ data: { assignee: username || undefined }, preserveScroll: true })
+const filterByTypes = (types: string[] | null) => router.reload({ data: { types: types?.length ? types.join(",") : undefined }, preserveScroll: true })
 
 useLiveTickets(["stats"])
 
@@ -597,6 +601,20 @@ const dashboardBoxes = computed(() => (props.stats.interval === "all" ? (["peopl
             <TicketsCreatedInterval :options="createdIntervals" :selected="stats.interval" compact class="min-w-0 flex-1" />
             <label class="ml-auto flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-gray-400">
                 {{ ctrans("Filter by") }}
+                <MultiSelect
+                    :modelValue="stats.types"
+                    :options="typeOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    :placeholder="ctrans('All tickets')"
+                    :aria-label="ctrans('Filter by ticket type')"
+                    size="small"
+                    display="chip"
+                    :showToggleAll="false"
+                    class="w-48 normal-case tracking-normal"
+                    :pt="{ label: { class: '!text-xs' }, option: { class: '!text-xs' } }"
+                    :class="stats.types.length && '!border-[--app-accent] !bg-[--app-accent-soft]'"
+                    @update:modelValue="filterByTypes" />
                 <Select
                     :modelValue="stats.assignee"
                     :options="assigneeOptions"

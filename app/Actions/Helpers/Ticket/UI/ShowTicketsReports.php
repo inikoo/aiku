@@ -13,6 +13,7 @@ use App\Actions\OrgAction;
 use App\Enums\Helpers\Ticket\TicketKindEnum;
 use App\Enums\Helpers\Ticket\TicketModuleEnum;
 use App\Enums\Helpers\Ticket\TicketStatusEnum;
+use App\Enums\Helpers\Ticket\TicketTypeEnum;
 use App\Models\Helpers\Ticket;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\User;
@@ -34,10 +35,11 @@ class ShowTicketsReports extends OrgAction
         return $request->user() !== null;
     }
 
-    public function handle(Group $group, string $interval, ?User $viewer = null, ?User $assignee = null, string $timezone = 'UTC'): array
+    public function handle(Group $group, string $interval, ?User $viewer = null, ?User $assignee = null, string $timezone = 'UTC', array $types = []): array
     {
         $base = Ticket::where('tickets.group_id', $group->id)
             ->when($viewer, fn ($query) => $query->visibleTo($viewer))
+            ->when($types, fn ($query) => $query->whereIn('tickets.type', $types))
             ->when($assignee, fn ($query) => $query->where(
                 fn ($involved) => $involved->where('tickets.assignee_id', $assignee->id)
                     ->orWhereExists(fn ($collaborators) => $collaborators->selectRaw('1')->from('ticket_collaborators')->whereColumn('ticket_collaborators.ticket_id', 'tickets.id')->where('ticket_collaborators.user_id', $assignee->id))
@@ -161,6 +163,7 @@ class ShowTicketsReports extends OrgAction
         return [
             'interval'      => $interval,
             'assignee'      => $assignee?->username,
+            'types'         => $types,
             'days'          => $days,
             'bucket'        => $bucket,
             'from'          => $from->copy()->setTimezone($timezone)->toDateString(),
@@ -343,7 +346,14 @@ class ShowTicketsReports extends OrgAction
             ? GetTicketBadgeData::engineers($this->group->id)->firstWhere('username', $request->query('assignee'))
             : null;
 
-        return $this->handle($this->group, IndexTickets::make()->createdInterval(), $request->user(), $assignee, $request->user()->timezone_name);
+        $types = collect(explode(',', (string) $request->query('types')))
+            ->map(fn (string $type) => TicketTypeEnum::tryFrom($type)?->value)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        return $this->handle($this->group, IndexTickets::make()->createdInterval(), $request->user(), $assignee, $request->user()->timezone_name, $types);
     }
 
     public function htmlResponse(array $stats): Response
@@ -365,6 +375,9 @@ class ShowTicketsReports extends OrgAction
                 'assigneeOptions'  => GetTicketBadgeData::engineers($this->group->id)
                     ->map(fn (User $engineer) => ['label' => $engineer->contact_name ?: $engineer->username, 'value' => $engineer->username])
                     ->sortBy('label')
+                    ->values(),
+                'typeOptions'      => collect(TicketTypeEnum::cases())
+                    ->map(fn (TicketTypeEnum $type) => ['label' => $type->prefix(), 'value' => $type->value])
                     ->values(),
             ]
         );
