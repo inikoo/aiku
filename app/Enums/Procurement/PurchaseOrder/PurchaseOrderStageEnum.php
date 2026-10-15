@@ -27,19 +27,23 @@ enum PurchaseOrderStageEnum: string
     case RECEIVED = 'received';
 
     /**
-     * Dates a person records on the purchase order, with the stage each belongs to.
+     * Dates a person records on the purchase order, with the stage each belongs to. The deposit is recorded as a
+     * payment on the order, never marked.
      */
     public const array MARKABLE_FIELDS = [
-        'deposit_paid_at'       => self::DEPOSIT_PAID,
         'sample_approved_at'    => self::IN_PRODUCTION,
         'production_started_at' => self::IN_PRODUCTION,
         'qc_passed_at'          => self::READY,
     ];
 
     public const array AGENT_MARKABLE_FIELDS = [
-        'deposit_paid_at',
         'production_started_at',
     ];
+
+    public static function ofField(string $field): ?self
+    {
+        return self::MARKABLE_FIELDS[$field] ?? collect(self::cases())->first(fn (self $stage) => $stage->column() === $field);
+    }
 
     /**
      * Open purchase orders whose goods the supplier is making: production recorded, quality check not passed yet

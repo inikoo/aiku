@@ -631,13 +631,9 @@ test('PO journey board marks stages on an agent purchase order and keeps QC for 
     $this->patch($route, ['stage' => 'ready', 'date' => now()->toDateString(), 'reason' => 'x'])->assertForbidden();
     actingAs($this->adminGuest->getUser());
 
-    $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::SUBMITTED, 'deposit_paid_at' => null]);
-    $this->patch($route, ['stage' => 'deposit_paid', 'date' => now()->subDays(3)->toDateString()])->assertSessionHasErrors('reason');
-    expect($purchaseOrder->refresh()->deposit_paid_at)->toBeNull();
-
-    $this->patch($route, ['stage' => 'deposit_paid', 'date' => now()->subDays(3)->toDateString(), 'reason' => 'Paid last week'])->assertSessionHasNoErrors();
-    expect($purchaseOrder->refresh()->deposit_paid_at->toDateString())->toBe(now()->subDays(3)->toDateString())
-        ->and(Audit::where('auditable_type', 'PurchaseOrder')->where('auditable_id', $purchaseOrder->id)->where('event', 'stage_override')->latest('id')->first()?->new_values['reason'])->toBe('Paid last week');
+    $this->patch($route, ['stage' => 'deposit_paid', 'date' => now()->toDateString()])->assertSessionHasErrors('stage');
+    expect($purchaseOrder->refresh()->deposit_paid_at)->toBeNull()
+        ->and(Audit::where('auditable_type', 'PurchaseOrder')->where('auditable_id', $purchaseOrder->id)->where('event', 'stage_override')->latest('id')->first()?->new_values['reason'])->toBe('Started before the deposit');
 
     $this->patch(route('grp.models.purchase-order.update', $purchaseOrder->id), ['qc_passed_at' => now()->toDateString(), 'notes' => 'qc via edit page'])->assertSessionHasNoErrors();
     expect($purchaseOrder->refresh()->qc_passed_at)->toBeNull();
@@ -656,18 +652,19 @@ test('purchase order stages go in order and ask a reason to skip, backdate or cl
     $this->patch($route, ['field' => 'production_started_at', 'date' => $today])->assertSessionHasErrors('reason');
     expect($purchaseOrder->refresh()->production_started_at)->toBeNull();
 
-    $this->patch($route, ['field' => 'deposit_paid_at', 'date' => $today])->assertSessionHasNoErrors();
+    $this->patch($route, ['field' => 'deposit_paid_at', 'date' => $today])->assertSessionHasErrors('field');
+    $purchaseOrder->refresh()->updateQuietly(['deposit_paid_at' => now()]);
     $this->patch($route, ['field' => 'production_started_at', 'date' => $today])->assertSessionHasNoErrors();
     $this->patch($route, ['field' => 'qc_passed_at', 'date' => $today])->assertSessionHasErrors('reason');
-    $this->patch($route, ['field' => 'deposit_paid_at', 'date' => now()->subDays(3)->toDateString()])->assertSessionHasErrors('reason');
-    $this->patch($route, ['field' => 'deposit_paid_at', 'date' => now()->addDays(2)->toDateString()])->assertSessionHasErrors('date');
+    $this->patch($route, ['field' => 'production_started_at', 'date' => now()->subDays(3)->toDateString()])->assertSessionHasErrors('reason');
+    $this->patch($route, ['field' => 'production_started_at', 'date' => now()->addDays(2)->toDateString()])->assertSessionHasErrors('date');
 
     $this->patch($route, ['field' => 'qc_passed_at', 'date' => $today, 'reason' => 'Repeat order, no sample'])->assertSessionHasNoErrors();
 
     $purchaseOrder->refresh();
     expect($purchaseOrder->qc_passed_at)->not->toBeNull()
         ->and($purchaseOrder->stageMarkUserId('qc_passed_at'))->toBe($user->id)
-        ->and($purchaseOrder->stageMarkUserId('deposit_paid_at'))->toBe($user->id)
+        ->and($purchaseOrder->stageMarkUserId('production_started_at'))->toBe($user->id)
         ->and(Audit::where('auditable_type', 'PurchaseOrder')->where('auditable_id', $purchaseOrder->id)->where('event', 'stage_override')->latest('id')->first()?->new_values['reason'])->toBe('Repeat order, no sample');
 
     $this->patch($route, ['field' => 'qc_passed_at', 'date' => null])->assertSessionHasErrors('reason');
@@ -682,6 +679,42 @@ test('purchase order stages go in order and ask a reason to skip, backdate or cl
             ->where('stages.stages.2.by', $user->contact_name ?: $user->username)
             ->where('stages.stages.3.reached', false)
             ->where('stages.stages.3.marks.0.skipped', [__('Sample approved'), __('Production photo'), __('QC report')]));
+});
+
+test('a direct order owes no deposit, an order without deliveries follows its own delivery state, and stamps follow who wrote the date', function () {
+    $supplier = StoreSupplier::make()->action(parent: $this->group, modelData: Supplier::factory()->definition());
+    StoreSupplierProduct::make()->action($supplier, [
+        'code'             => 'DIRECT-'.Str::upper(Str::random(8)),
+        'name'             => 'Direct supplier product',
+        'cost'             => 100,
+        'stock_id'         => $this->stocks[0]->id,
+        'units_per_pack'   => 10,
+        'units_per_carton' => 100,
+    ]);
+    $orgSupplier   = $supplier->orgSuppliers()->where('organisation_id', $this->organisation->id)->firstOrFail();
+    $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier->refresh(), PurchaseOrder::factory()->definition());
+    $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::SUBMITTED, 'submitted_at' => now()->subDays(5), 'deposit_amount' => null]);
+    $route    = route('grp.models.purchase-order.stage', $purchaseOrder->id);
+    $today    = now($purchaseOrder->organisation->timezone?->name)->toDateString();
+    $tomorrow = now($purchaseOrder->organisation->timezone?->name)->addDay()->toDateString();
+
+    expect($purchaseOrder->refresh()->isAgentOrder())->toBeFalse();
+    $this->patch($route, ['field' => 'production_started_at', 'date' => $today])->assertSessionHasNoErrors();
+    $this->patch($route, ['field' => 'production_started_at', 'date' => $tomorrow])->assertSessionHasNoErrors();
+    expect($purchaseOrder->refresh()->production_started_at->toDateString())->toBe($tomorrow)
+        ->and($purchaseOrder->stageMarkUserId('production_started_at'))->toBe($this->adminGuest->getUser()->id);
+
+    \Illuminate\Support\Facades\Auth::logout();
+    UpdatePurchaseOrder::make()->action($purchaseOrder, ['production_started_at' => now()->subDay()->toDateString()]);
+    expect($purchaseOrder->refresh()->stage_marks)->not->toHaveKey('production_started_at');
+    actingAs($this->adminGuest->getUser());
+
+    $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::SETTLED, 'delivery_state' => PurchaseOrderDeliveryStateEnum::PLACED, 'settled_at' => now()->subDays(2)]);
+    $stages = GetPurchaseOrderStages::run($purchaseOrder->refresh());
+    expect($purchaseOrder->stockDeliveries()->count())->toBe(0)
+        ->and($stages['shipped']['recorded'])->toBeTrue()
+        ->and($stages['received']['recorded'])->toBeTrue()
+        ->and($stages['received']['date']->toDateString())->toBe(now()->subDays(2)->toDateString());
 });
 
 test('a purchase order with no deposit needed counts the deposit stage as done', function () {
@@ -723,19 +756,23 @@ test('agent marks only its own stages and the order shows its slowest delivery',
     $agent = User::where('username', 'agent-clerk')->firstOrFail();
 
     actingAs($agent);
-    $this->patch($route, ['field' => 'deposit_paid_at', 'date' => $today])->assertSessionHasNoErrors();
+    $this->patch($route, ['field' => 'deposit_paid_at', 'date' => $today])->assertSessionHasErrors('field');
+    $this->patch($route, ['field' => 'production_started_at', 'date' => $today])->assertSessionHasErrors('reason');
+    $this->patch($route, ['field' => 'production_started_at', 'date' => $today, 'reason' => 'Supplier started before the deposit'])->assertSessionHasNoErrors();
     $this->patch($route, ['field' => 'qc_passed_at', 'date' => $today, 'reason' => 'x'])->assertSessionHasErrors('field');
     $this->patch($route, ['field' => 'sample_approved_at', 'date' => $today])->assertSessionHasErrors('field');
     actingAs($this->adminGuest->getUser());
 
-    expect($purchaseOrder->refresh()->stageMarkUserId('deposit_paid_at'))->toBe($agent->id);
+    expect($purchaseOrder->refresh()->stageMarkUserId('production_started_at'))->toBe($agent->id);
 
     $stages = GetPurchaseOrderStages::run($purchaseOrder);
     expect($stages['deposit_paid']['reached'])->toBeTrue()
+        ->and($stages['deposit_paid']['recorded'])->toBeFalse()
+        ->and($stages['in_production']['recorded'])->toBeTrue()
         ->and($stages['shipped']['reached'])->toBeFalse()
         ->and($stages['shipped']['deliveries'])->toBe(['reached' => 0, 'total' => $purchaseOrder->stockDeliveries()->count()]);
 
-    $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::IN_PROCESS, 'deposit_paid_at' => null]);
+    $purchaseOrder->refresh()->updateQuietly(['state' => PurchaseOrderStateEnum::IN_PROCESS, 'deposit_paid_at' => null, 'production_started_at' => null]);
 })->depends('create purchase order through an agent');
 
 test('stage gates ask for the sample photo, production photo and QC report', function () {
@@ -835,8 +872,10 @@ test('stages carry expected dates, late orders reach the weekly summary and agen
     $route = route('grp.models.purchase-order.stage', $purchaseOrder->id);
     $today = now($purchaseOrder->organisation->timezone?->name)->toDateString();
 
-    $this->patch($route, ['field' => 'deposit_paid_at', 'date' => $today])->assertSessionHasNoErrors();
+    $purchaseOrder->refresh()->updateQuietly(['deposit_paid_at' => now()]);
+    $this->patch($route, ['field' => 'production_started_at', 'date' => $today])->assertSessionHasNoErrors();
     \Illuminate\Support\Facades\Notification::assertNothingSent();
+    $purchaseOrder->refresh()->updateQuietly(['production_started_at' => null]);
 
     actingAs($agentUser);
     $this->patch($route, ['field' => 'production_started_at', 'date' => $today])->assertSessionHasNoErrors();
@@ -845,8 +884,20 @@ test('stages carry expected dates, late orders reach the weekly summary and agen
     \Illuminate\Support\Facades\Notification::assertSentTo(
         $admin,
         \App\Notifications\PurchaseOrderStageChangedByAgentNotification::class,
-        fn ($notification) => $notification->purchaseOrder->is($purchaseOrder) && str_contains($notification->change, __('Production started'))
+        fn ($notification) => $notification->purchaseOrder->is($purchaseOrder) && str_contains($notification->change, __('Production started')) && $notification->byEmail === (bool) $admin->email
     );
+
+    $settings = $admin->settings;
+    $admin->update(['settings' => array_merge($settings ?? [], ['notifications' => ['purchase_order_stage_by_agent' => []]])]);
+    actingAs($agentUser);
+    $this->patch($route, ['field' => 'production_started_at', 'date' => null, 'reason' => 'Marked on the wrong order'])->assertSessionHasNoErrors();
+    actingAs($admin);
+    \Illuminate\Support\Facades\Notification::assertSentTo(
+        $admin,
+        \App\Notifications\PurchaseOrderStageChangedByAgentNotification::class,
+        fn ($notification) => str_contains($notification->change, __('cleared')) && $notification->byEmail === false && $notification->via($admin) === ['database']
+    );
+    $admin->update(['settings' => $settings]);
 
     $purchaseOrder->refresh()->updateQuietly(['buyer_id' => $agentUser->id, 'deposit_paid_at' => now()->subDays(190), 'production_started_at' => null, 'produced_at' => null, 'qc_passed_at' => null, 'handed_over_at' => null]);
     \App\Actions\Procurement\PurchaseOrder\SendStuckPurchaseOrdersSummary::run($purchaseOrder->group);

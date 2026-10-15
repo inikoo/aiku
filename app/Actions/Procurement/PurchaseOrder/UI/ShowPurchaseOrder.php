@@ -818,8 +818,6 @@ class ShowPurchaseOrder extends OrgAction
             default             => [],
         };
 
-        $markableFields = array_values(array_diff($markableFields, ['deposit_paid_at']));
-
         return [
             'stages'       => GetPurchaseOrderStages::make()->forUi($purchaseOrder, $markableFields),
             'route'        => [

@@ -629,7 +629,7 @@ class ShowStockDelivery extends OrgAction
     private function getAllowedActions(StockDelivery $stockDelivery): array
     {
         if ($this->viewedByAgent) {
-            $allowedKeys = $this->canEdit ? ['dispatch_stock_delivery', 'action'] : ['action'];
+            $allowedKeys = $this->canEdit ? ['dispatch_stock_delivery', 'edit_estimated_delivery_date', 'action'] : ['action'];
         } elseif ($this->canEdit) {
             return $this->getActions($stockDelivery);
         } elseif (!$this->canBookIn || $stockDelivery->organisation_id !== $this->organisation->id) {

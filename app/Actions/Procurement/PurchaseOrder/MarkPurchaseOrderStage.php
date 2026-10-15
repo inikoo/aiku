@@ -170,6 +170,6 @@ class MarkPurchaseOrderStage extends OrgAction
             return null;
         }
 
-        return Carbon::parse($date)->toDateString() >= self::today($this->organisation) ? now() : Carbon::parse($date);
+        return Carbon::parse($date)->toDateString() === self::today($this->organisation) ? now() : Carbon::parse($date);
     }
 }

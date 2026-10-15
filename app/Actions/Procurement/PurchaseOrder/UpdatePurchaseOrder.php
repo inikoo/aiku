@@ -142,7 +142,7 @@ class UpdatePurchaseOrder extends OrgAction
         ];
 
         if (!$this->asAction) {
-            $rules = Arr::except($rules, array_keys(PurchaseOrderStageEnum::MARKABLE_FIELDS));
+            $rules = Arr::except($rules, [...array_keys(PurchaseOrderStageEnum::MARKABLE_FIELDS), 'deposit_paid_at']);
         }
 
         if ($this->actingAsAgent) {

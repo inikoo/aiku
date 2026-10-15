@@ -1288,17 +1288,17 @@ test('UI supply chain PO journey', function (Supplier $supplier) {
 
     $purchaseOrder->updateQuietly(['state' => \App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum::SUBMITTED, 'submitted_at' => now()]);
     $this->patch(route('grp.models.purchase-order.journey_stage', ['purchaseOrder' => $purchaseOrder->id]), [
-        'stage' => 'deposit_paid',
+        'stage' => 'in_production',
         'date'  => now()->toDateString(),
     ])->assertRedirect()->assertSessionHasNoErrors();
 
-    expect($purchaseOrder->fresh()->deposit_paid_at)->not->toBeNull();
+    expect($purchaseOrder->fresh()->production_started_at)->not->toBeNull();
 
     $this->get(route('grp.supply-chain.dashboard', ['search' => $purchaseOrder->reference]))
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->loadDeferredProps('journey', fn (AssertableInertia $reload) => $reload
                 ->where('ribbons.0.reference', $purchaseOrder->reference)
-                ->where('ribbons.0.segments', fn ($segments) => collect($segments)->firstWhere('key', 'deposit_paid')['state'] === 'done')));
+                ->where('ribbons.0.segments', fn ($segments) => collect($segments)->firstWhere('key', 'in_production')['state'] === 'done')));
 
     $partial = $this->withHeaders([
         'X-Inertia'                   => 'true',
