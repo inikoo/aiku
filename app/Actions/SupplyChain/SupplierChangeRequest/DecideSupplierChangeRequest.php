@@ -57,7 +57,31 @@ class DecideSupplierChangeRequest extends OrgAction
             'decision_note'      => Arr::get($modelData, 'decision_note'),
         ]);
 
+        if ($approve) {
+            $this->closeOtherSuggestions($supplierChangeRequest, Arr::get($modelData, 'decided_by_user_id'));
+        }
+
         return $supplierChangeRequest;
+    }
+
+    /**
+     * Once a supplier is deactivated or merged away, the other suggestions on it, or merging into it, no
+     * longer apply.
+     */
+    private function closeOtherSuggestions(SupplierChangeRequest $supplierChangeRequest, ?int $userId): void
+    {
+        SupplierChangeRequest::where('state', SupplierChangeRequestStateEnum::PENDING)
+            ->where('id', '!=', $supplierChangeRequest->id)
+            ->where(fn ($query) => $query->where('supplier_id', $supplierChangeRequest->supplier_id)->orWhere('target_supplier_id', $supplierChangeRequest->supplier_id))
+            ->update([
+                'state'              => SupplierChangeRequestStateEnum::REJECTED,
+                'decided_by_user_id' => $userId,
+                'decided_at'         => now(),
+                'decision_note'      => __(':code was :decision in another suggestion', [
+                    'code'     => $supplierChangeRequest->supplier->code,
+                    'decision' => $supplierChangeRequest->type === SupplierChangeRequestTypeEnum::MERGE ? __('merged') : __('deactivated'),
+                ]),
+            ]);
     }
 
     public function rules(): array
@@ -73,6 +97,13 @@ class DecideSupplierChangeRequest extends OrgAction
     {
         if ($this->supplierChangeRequest->state !== SupplierChangeRequestStateEnum::PENDING) {
             $validator->errors()->add('approve', __('This suggestion was already decided'));
+
+            return;
+        }
+
+        $inactive = collect([$this->supplierChangeRequest->supplier, $this->supplierChangeRequest->targetSupplier])->filter()->reject(fn ($supplier) => $supplier->status);
+        if ($this->get('approve') && $inactive->isNotEmpty()) {
+            $validator->errors()->add('approve', __(':codes is no longer active', ['codes' => $inactive->pluck('code')->implode(', ')]));
         }
     }
 

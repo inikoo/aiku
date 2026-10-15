@@ -78,6 +78,9 @@ class MergeSuppliers
             DB::table('supplier_stock_families')->where('supplier_id', $duplicate->id)
                 ->whereNotIn('stock_family_id', DB::table('supplier_stock_families')->where('supplier_id', $kept->id)->select('stock_family_id'))
                 ->update(['supplier_id' => $kept->id]);
+            foreach (['suppliers', 'supplier_products'] as $table) {
+                DB::table($table)->where('packaging_supplier_id', $duplicate->id)->update(['packaging_supplier_id' => $kept->id]);
+            }
             DB::table('model_has_attachments')->where('model_type', 'Supplier')->where('model_id', $duplicate->id)->update(['model_id' => $kept->id]);
             foreach (['supplier_agreed_terms', 'procurement_notes'] as $table) {
                 DB::table($table)->where('subject_type', 'Supplier')->where('subject_id', $duplicate->id)->update(['subject_id' => $kept->id]);
@@ -107,13 +110,30 @@ class MergeSuppliers
             throw ValidationException::withMessages(['target_supplier_id' => __('The two suppliers price in different currencies')]);
         }
 
-        $sharedCodes = $duplicate->supplierProducts()
-            ->whereIn('code', $kept->supplierProducts()->select('code'))
+        $sharedCodes = $duplicate->supplierProducts()->withTrashed()
+            ->whereIn('code', $kept->supplierProducts()->withTrashed()->select('code'))
             ->pluck('code');
 
         if ($sharedCodes->isNotEmpty()) {
             throw ValidationException::withMessages([
                 'target_supplier_id' => __('Both suppliers have products with the codes :codes, merge those products first', ['codes' => $sharedCodes->implode(', ')]),
+            ]);
+        }
+
+        $sharedAgentOrders = DB::table('agent_supplier_purchase_orders as duplicate_orders')
+            ->join('agent_supplier_purchase_orders as kept_orders', function ($join) use ($kept) {
+                $join->on('kept_orders.purchase_order_id', '=', 'duplicate_orders.purchase_order_id')
+                    ->where('kept_orders.supplier_id', $kept->id)
+                    ->whereNull('kept_orders.deleted_at');
+            })
+            ->join('purchase_orders', 'purchase_orders.id', '=', 'duplicate_orders.purchase_order_id')
+            ->where('duplicate_orders.supplier_id', $duplicate->id)
+            ->whereNull('duplicate_orders.deleted_at')
+            ->pluck('purchase_orders.reference');
+
+        if ($sharedAgentOrders->isNotEmpty()) {
+            throw ValidationException::withMessages([
+                'target_supplier_id' => __('Both suppliers are on the agent orders :references, sort those orders out first', ['references' => $sharedAgentOrders->implode(', ')]),
             ]);
         }
     }

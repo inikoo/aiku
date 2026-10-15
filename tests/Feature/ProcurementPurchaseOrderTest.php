@@ -1426,6 +1426,26 @@ test('supplier score weighs on time, accuracy with logged issues and factory spe
         ])))->toBe(25);
 });
 
+test('approving a deactivation closes the other suggestions on that supplier, and nothing merges into an archived one', function () {
+    [$orgSupplier]      = createAgentOrgSupplierWithProduct($this);
+    [$otherOrgSupplier] = createAgentOrgSupplierWithProduct($this);
+    $supplier = $orgSupplier->supplier;
+    $other    = $otherOrgSupplier->supplier;
+    $other->update(['currency_id' => $supplier->currency_id]);
+
+    $merge        = StoreSupplierChangeRequest::make()->action($other, ['type' => 'merge', 'target_supplier_id' => $supplier->id, 'reason' => 'Same factory']);
+    $deactivation = StoreSupplierChangeRequest::make()->action($supplier, ['type' => 'deactivate', 'reason' => 'Closed down']);
+    DecideSupplierChangeRequest::make()->action($deactivation, ['approve' => true]);
+
+    expect($merge->refresh()->state)->toBe(SupplierChangeRequestStateEnum::REJECTED)
+        ->and($merge->decision_note)->toContain($supplier->code)
+        ->and(fn () => DecideSupplierChangeRequest::make()->action($merge, ['approve' => true]))->toThrow(ValidationException::class);
+
+    $late = SupplierChangeRequest::create(['group_id' => $other->group_id, 'agent_id' => $other->agent_id, 'supplier_id' => $other->id, 'target_supplier_id' => $supplier->id, 'type' => 'merge', 'state' => 'pending', 'reason' => 'Raised before the deactivation']);
+    expect(fn () => DecideSupplierChangeRequest::make()->action($late, ['approve' => true]))->toThrow(ValidationException::class)
+        ->and($other->refresh()->status)->toBeTrue();
+});
+
 test('merging a duplicate supplier moves its products and orders to the supplier kept and archives it', function () {
     [$keptOrgSupplier, $keptProduct]           = createAgentOrgSupplierWithProduct($this);
     [$duplicateOrgSupplier, $duplicateProduct] = createAgentOrgSupplierWithProduct($this);

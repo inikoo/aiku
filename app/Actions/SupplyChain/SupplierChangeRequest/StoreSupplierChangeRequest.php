@@ -59,7 +59,7 @@ class StoreSupplierChangeRequest extends OrgAction
                 Rule::requiredIf(fn () => $this->get('type') === SupplierChangeRequestTypeEnum::MERGE->value),
                 'nullable',
                 'integer',
-                Rule::exists('suppliers', 'id')->where('agent_id', $this->supplier->agent_id)->where('status', true)->whereNull('deleted_at'),
+                Rule::exists('suppliers', 'id')->where('group_id', $this->supplier->group_id)->where('agent_id', $this->supplier->agent_id)->where('status', true)->whereNull('deleted_at'),
                 Rule::notIn([$this->supplier->id]),
             ],
             'requested_by_user_id' => ['sometimes', 'nullable', 'integer'],

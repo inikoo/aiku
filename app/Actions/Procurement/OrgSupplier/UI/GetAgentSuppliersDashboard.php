@@ -329,7 +329,7 @@ class GetAgentSuppliersDashboard
                 (select min(stock_deliveries.received_at) from purchase_order_stock_delivery
                     join stock_deliveries on stock_deliveries.id = purchase_order_stock_delivery.stock_delivery_id
                     where purchase_order_stock_delivery.purchase_order_id = purchase_orders.id
-                        and stock_deliveries.deleted_at is null and stock_deliveries.state <> 'cancelled') as received_at,
+                        and stock_deliveries.deleted_at is null and stock_deliveries.state not in ('cancelled', 'not_received')) as received_at,
                 ".$this->amountSql()
             )
             ->get();

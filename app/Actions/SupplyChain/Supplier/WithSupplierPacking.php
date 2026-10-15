@@ -29,7 +29,7 @@ trait WithSupplierPacking
                 'nullable',
                 Rule::requiredIf(fn () => $this->get('packing_method') === SupplierPackingMethodEnum::THIRD_PARTY->value),
                 'integer',
-                Rule::exists('suppliers', 'id')->where('group_id', $supplier->group_id)->whereNull('deleted_at'),
+                Rule::exists('suppliers', 'id')->where('group_id', $supplier->group_id)->where('agent_id', $supplier->agent_id)->whereNull('deleted_at'),
                 Rule::notIn([$supplier->id]),
             ],
         ];
@@ -68,7 +68,7 @@ trait WithSupplierPacking
                 'options'     => Supplier::where('group_id', $supplier->group_id)
                     ->where('status', true)
                     ->where('id', '!=', $supplier->id)
-                    ->when($supplier->agent_id, fn ($query) => $query->where('agent_id', $supplier->agent_id))
+                    ->where('agent_id', $supplier->agent_id)
                     ->orderBy('code')
                     ->get(['id', 'code', 'name'])
                     ->map(fn (Supplier $packagingSupplier) => ['value' => $packagingSupplier->id, 'label' => $packagingSupplier->code.' · '.$packagingSupplier->name])
