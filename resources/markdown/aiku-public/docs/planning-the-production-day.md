@@ -1,10 +1,10 @@
 ---
 title: Planning the production day
 summary: For the production manager and the floor supervisor - putting jobs on a day's plan without naming anyone, giving each step to an operator, and what happens to work not finished on its day.
-date: 2026-10-12
+date: 2026-10-15
 tags: production, planning, floor
 category: production
-help_routes: grp.org.productions.show.operations.day_plan
+help_routes: grp.org.productions.show.operations.day_plan, grp.org.productions.show.operations.materials_check
 series: Ordering from partners
 order: 13
 ---
@@ -72,6 +72,34 @@ Until one of the two is pressed, the job stays in front of you every day. Its st
 
 When an operator closes a job short and moves the rest to a new job (see [Working the floor screen](/docs/working-the-floor-screen)), the new job keeps the planned day, the place in the order and the operator of each step.
 
+## The morning materials check
+
+The warehouse brings materials to the factory in whole boxes, not in exact amounts for the day. **Factory → Operations → Materials check** lists what the day plan still needs, so the factory checks what is there and asks the warehouse for the rest in one clear list.
+
+Each line is one material, added up over every job of the day, with the jobs that need it (*JOaroma-0141, JOaroma-0145*). It counts only the steps not done yet: when the making is finished and only the packing is left, the line shows the boxes and labels and no longer the bottles. Mixes are made in the factory and are not on the list. Quantities come from the recipes, so a job whose recipe lists no materials needs nothing: the amber bar above the list names those jobs, so the gap in the recipe is seen.
+
+| Column | What it means |
+| --- | --- |
+| Material | the material and the warehouse stock code |
+| For jobs | the jobs of the day that need it |
+| Needed | how many the steps still to do use up |
+| At the factory | how many are in the factory location now, and how many were already asked for today |
+| Check | tick **Have enough**, or type roughly how many are missing |
+
+When a missing number is typed, the line shows what the warehouse will bring, rounded up to its boxes: 1,200 missing with 500 to a box is *bring 3 boxes (1,500)*. A red *Warehouse short* means the warehouse does not hold that many, so you know straight away.
+
+Press **Send to warehouse**. The missing lines go to the warehouse as one request, and the request appears above the list with each material marked *To bring*, *Delivered* or *Warehouse short*. Ticking everything as enough and sending records that the check was done. A second check later in the day only adds what is still missing.
+
+The manager or the supervisor does the check, or gives it to an operator with **Checked by** at the top. That operator then sees a reminder on the floor screen that opens the check.
+
+## The warehouse brings the materials
+
+In the warehouse, **Goods out → For production** lists every material the factory asked for, in walking order of the shelf to take it from, with the stock code, the boxes to bring and the factory location they go to. The picker chooses the shelf, checks the quantity and presses **Delivered**. When the warehouse cannot bring it, **Warehouse short** tells the factory.
+
+Delivered stock moves from the shelf to the factory location. It stays stock: it is counted and seen as before, and a customer order can still pick it there when the warehouse shelves are empty, the shelves always first. Materials not used can be moved back to a shelf from the factory location's page, like any other move between locations.
+
+When a finished job is received into stock, its materials are used up from the factory location first, using the recipe quantities, and only then from other locations. Count the factory location now and then to correct breakages and waste.
+
 <aside class="wayfinder"><strong>Where to click in aiku</strong>
 <ul>
 <li><b>Plan a job for a day:</b> <b>Factory</b> → <b>To produce</b> → drop the card on <b>Assigned</b> → pick the day → <b>Plan for this day</b>.</li>
@@ -79,6 +107,9 @@ When an operator closes a job short and moves the rest to a new job (see [Workin
 <li><b>Change the order of the day:</b> type a number in <b>Order</b>.</li>
 <li><b>Yesterday's unfinished job:</b> <b>Confirm for</b> the day, or <b>Take off the plan</b>.</li>
 <li><b>From the board to the plan:</b> the <b>Day plan</b> link above the board.</li>
+<li><b>Check the day's materials:</b> <b>Factory</b> → <b>Operations</b> → <b>Materials check</b> → <b>Have enough</b> or a missing number → <b>Send to warehouse</b>.</li>
+<li><b>Give the check to an operator:</b> <b>Materials check</b> → <b>Checked by</b>.</li>
+<li><b>Bring the materials (warehouse):</b> <b>Goods out</b> → <b>For production</b> → <b>Delivered</b>, or <b>Warehouse short</b>.</li>
 </ul>
 </aside>
 
@@ -88,5 +119,7 @@ When an operator closes a job short and moves the rest to a new job (see [Workin
 <li>Planning a day, giving out steps, changing the order: <b>Floor supervisor</b> for the factory.</li>
 <li>Seeing the Day plan without changing it: <b>Foreman</b>.</li>
 <li>Working a step given to you: <b>Operative</b>, on the floor screen.</li>
+<li>The materials check: <b>Floor supervisor</b>, or the operator it was given to.</li>
+<li>Bringing materials to the factory: a warehouse position that works on goods out.</li>
 </ul>
 </aside>

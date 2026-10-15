@@ -11,6 +11,7 @@ namespace App\Actions\Production\JobOrderItemTask\UI;
 use App\Actions\Production\JobOrderItem\GetJobOrderItemMissingMixes;
 use App\Actions\Production\JobOrderItemTask\SettleShortJobOrderItemTask;
 use App\Actions\OrgAction;
+use App\Actions\Production\MaterialRequest\MaterialsCheckAuthorisation;
 use App\Actions\Production\Production\UI\ShowProduction;
 use App\Actions\SysAdmin\User\GetUserCurrentEmployee;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
@@ -266,6 +267,10 @@ class ShowManufactureFloor extends OrgAction
                     'carry'         => $openSession->is_combined ? null : SettleShortJobOrderItemTask::make()->preview($openSession->jobOrderItemTask),
                 ] : null),
                 'artisan'      => $this->employee?->contact_name,
+                'materials_check_route' => $this->employee && MaterialsCheckAuthorisation::checkingRequest($production, now()->toDateString())?->checker_employee_id === $this->employee->id ? [
+                    'name'       => 'grp.org.productions.show.operations.materials_check',
+                    'parameters' => [$production->organisation->slug, $production->slug],
+                ] : null,
                 'can_pick_open_jobs' => $canPickOpenJobs,
                 'combine_route'      => $this->canCombine ? [
                     'name'       => 'grp.models.production.combined_task.store',

@@ -42,6 +42,7 @@ use App\Actions\Production\JobOrder\UI\ShowJobOrder;
 use App\Actions\Production\JobOrder\PdfJobOrder;
 use App\Actions\Production\JobOrderItemTask\UI\ShowManufactureFloor;
 use App\Actions\Production\JobOrder\UI\IndexJobOrderPlan;
+use App\Actions\Production\MaterialRequest\UI\IndexDayMaterialsCheck;
 use App\Actions\Production\ManufactureTaskSession\ExportManufacturePayroll;
 use App\Actions\Production\ManufactureTaskSession\UI\IndexArtisans;
 use App\Actions\Production\ManufactureTaskSession\UI\ShowManufacturePayroll;
@@ -78,6 +79,7 @@ Route::prefix('{production}')
                     ->group(function () {
                         Route::get('', ShowOperationsDashboard::class)->name('dashboard');
                         Route::get('day-plan', IndexJobOrderPlan::class)->name('day_plan');
+                        Route::get('materials-check', IndexDayMaterialsCheck::class)->name('materials_check');
                         Route::get('job-orders', IndexJobOrders::class)->name('job-orders.index');
                         Route::get('job-orders/{jobOrder}', ShowJobOrder::class)->name('job-orders.show');
                         Route::get('job-orders/{jobOrder}/pdf', PdfJobOrder::class)->name('job-orders.pdf');

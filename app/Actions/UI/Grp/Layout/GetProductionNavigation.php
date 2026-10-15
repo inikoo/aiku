@@ -135,6 +135,16 @@ class GetProductionNavigation
                             ],
                         ],
                         [
+                            'label'   => __('Materials check'),
+                            'tooltip' => __('Materials the day plan needs, checked in the morning and asked from the warehouse'),
+                            'icon'    => ['fal', 'fa-clipboard-check'],
+                            'root'    => 'grp.org.productions.show.operations.materials_check',
+                            'route'   => [
+                                'name'       => 'grp.org.productions.show.operations.materials_check',
+                                'parameters' => [$production->organisation->slug, $production->slug]
+                            ],
+                        ],
+                        [
                             'label'   => __('Job orders'),
                             'tooltip' => __('Job Orders'),
                             'icon'    => ['fal', 'fa-sort-shapes-down-alt'],

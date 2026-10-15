@@ -562,6 +562,8 @@ use App\Actions\Production\ManufactureTaskSession\StartManufactureNonProductiveS
 use App\Actions\Production\ManufactureBreak\EndManufactureBreak;
 use App\Actions\Production\ManufactureTaskSession\StartManufactureTaskSession;
 use App\Actions\Production\JobOrderItemTask\AssignJobOrderItemTask;
+use App\Actions\Production\MaterialRequest\AssignMaterialsChecker;
+use App\Actions\Production\MaterialRequest\SubmitMaterialsCheck;
 use App\Actions\Production\JobOrderItemTask\CombineJobOrderItemTasks;
 use App\Actions\Production\JobOrderItemTask\SeparateJobOrderItemTasks;
 use App\Actions\Production\JobOrder\UpdateJobOrder;
@@ -1636,6 +1638,8 @@ Route::patch('/compliance-item/{artefactComplianceItem:id}', UpdateArtefactCompl
 Route::delete('/compliance-item/{artefactComplianceItem:id}', DeleteArtefactComplianceItem::class)->name('artefact.compliance-item.delete')->withoutScopedBindings();
 Route::post('/job-order-item-task/{jobOrderItemTask:id}/session', StartManufactureTaskSession::class)->name('job-order-item-task.session.store')->withoutScopedBindings();
 Route::post('/production/{production:id}/combined-task', CombineJobOrderItemTasks::class)->name('production.combined_task.store')->withoutScopedBindings();
+Route::post('/production/{production:id}/materials-check', SubmitMaterialsCheck::class)->name('production.materials_check.submit')->withoutScopedBindings();
+Route::patch('/production/{production:id}/materials-check/checker', AssignMaterialsChecker::class)->name('production.materials_check.checker')->withoutScopedBindings();
 Route::patch('/job-order-item-task/{jobOrderItemTask:id}/assign', AssignJobOrderItemTask::class)->name('job-order-item-task.assign')->withoutScopedBindings();
 Route::patch('/job-order-item-task/{jobOrderItemTask:id}/separate', SeparateJobOrderItemTasks::class)->name('job-order-item-task.separate')->withoutScopedBindings();
 Route::patch('/manufacture-task-session/{manufactureTaskSession:id}/close', CloseManufactureTaskSession::class)->name('manufacture-task-session.close')->withoutScopedBindings();
