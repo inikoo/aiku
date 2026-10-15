@@ -37,6 +37,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property \Illuminate\Support\Collection|null $quarterly_usage
  * @property array{days: float|null, days_worst_case: float|null, out_of_stock_at: string|null}|null $stock_cover
  * @property \Illuminate\Support\Collection|null $other_open_purchase_orders
+ * @property \Illuminate\Support\Collection|null $other_organisations_drafts
  * @property array|null $stock_deliveries
  * @property bool|null $is_partner_org_stock
  * @property array{org_agent_id: int, reference: string}|null $agent_order
@@ -100,7 +101,7 @@ class PurchaseOrderOrgSupplierProductsResource extends JsonResource
             'minimum_carton_order' => $this->minimum_carton_order ? (int) $this->minimum_carton_order : null,
             'lead_time_days'   => $this->measured_lead_time_days ?? $this->estimated_lead_time_days,
             'lead_time_measured' => $this->measured_lead_time_days !== null,
-            'other_organisations_drafts' => [],
+            'other_organisations_drafts' => $this->other_organisations_drafts ?? [],
             'stock_in_locations' => $this->stock_in_locations === null ? null : trimDecimalZeros($this->stock_in_locations),
             'quarterly_usage'  => $this->quarterly_usage ?? [],
             'discontinue_suggestions' => $this->discontinue_suggestions,

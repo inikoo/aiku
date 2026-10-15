@@ -963,7 +963,7 @@ class CheckSupplierProductSheet
         return $this->supplierAverages ??= (array)$this->supplier->supplierProducts()
             ->toBase()
             ->selectRaw("percentile_cont(0.5) within group (order by (data->>'delivery_time')::numeric) filter (where data->>'delivery_time' ~ '^[0-9.]+$') as delivery_time")
-            ->selectRaw("percentile_cont(0.5) within group (order by (data->>'minimum_carton_order')::numeric) filter (where data->>'minimum_carton_order' ~ '^[0-9.]+$') as minimum_carton_order")
+            ->selectRaw('percentile_cont(0.5) within group (order by minimum_carton_order) as minimum_carton_order')
             ->selectRaw('percentile_cont(0.5) within group (order by extra_costs) filter (where extra_costs > 0) as extra_costs')
             ->selectRaw('percentile_cont(0.5) within group (order by cbm) filter (where cbm > 0) as cbm')
             ->first();

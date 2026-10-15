@@ -15,12 +15,13 @@ import NumberWithButtonSave from "@/Components/NumberWithButtonSave.vue"
 import PurchaseOrderItemStockInfo from "@/Components/Procurement/PurchaseOrderItemStockInfo.vue"
 import PurchaseOrderSuggestButton from "@/Components/Procurement/PurchaseOrderSuggestButton.vue"
 import Table from "@/Components/Table/Table.vue"
+import ModalMinimumCartonOrder from "@/Components/Procurement/ModalMinimumCartonOrder.vue"
 import { useLocaleStore } from "@/Stores/locale"
 import { notify } from "@kyvg/vue3-notification"
 import axios from "axios"
 import { ctrans, ctransChoice } from "@/Composables/useTrans"
-import { faCheckCircle } from "@fas"
-import { faTrashAlt } from "@fal"
+import { faCheckCircle, faExclamationCircle } from "@fas"
+import { faTrashAlt, faHandPointRight } from "@fal"
 
 type BucketItem = {
     id: number
@@ -30,6 +31,7 @@ type BucketItem = {
     image: object | null
     bucket: string | null
     supplier_code: string | null
+    supplier_name?: string | null
     lead_time_days: number | null
     lead_time_measured: boolean
     our_stock: number | null
@@ -44,7 +46,7 @@ type BucketItem = {
     org_exchange: number | null
     has_org_stock: boolean
     stock_in_locations: string | null
-    other_organisations_drafts: { organisation_code: string, organisation_name: string, units: number }[]
+    other_organisations_drafts: { organisation_code: string, organisation_name: string, reference?: string, buyer_name?: string | null, units: number }[]
     stock_deliveries?: { coming?: { slug: string, reference: string, state_label: string, quantity: number }[], recent_received?: { slug: string, reference: string, received_at: string, quantity: number }[] } | null
     other_open_purchase_orders?: { slug: string | null, reference: string, stage?: string | null, state: string, quantity_ordered: number }[]
     saveRoute?: LineRoute
@@ -167,8 +169,70 @@ const applySuggestion = (item: BucketItem, skos: number) => {
     setCartons(item, suggestedCartons(item, skos))
 }
 
-const moqLabel = (item: BucketItem) =>
-    `${ctrans("MOQ")} ${item.minimum_carton_order ? ctransChoice(":number carton|:number cartons", item.minimum_carton_order, { number: locale.number(item.minimum_carton_order) }) : `(${ctrans("not set")})`}`
+const editMinimumOf = ref<BucketItem | null>(null)
+const isMinimumModalOpen = computed({
+    get: () => editMinimumOf.value !== null,
+    set: (isOpen: boolean) => {
+        if (!isOpen) {
+            editMinimumOf.value = null
+        }
+    },
+})
+const reloadItems = () => router.reload(props.reloadOnly ? { only: props.reloadOnly } : {})
+
+const roundCartons = (cartons: number) => locale.number(Math.round(cartons * 100) / 100)
+
+const moqLabel = (item: BucketItem) => {
+    if (!item.minimum_carton_order) {
+        return `${ctrans("MOQ")} (${ctrans("not set")})`
+    }
+    if (!groupCartons(item)) {
+        return `${ctrans("MOQ")} ${ctransChoice(":number carton|:number cartons", item.minimum_carton_order, { number: locale.number(item.minimum_carton_order) })}`
+    }
+
+    return ctrans(":ours:others / :moq MOQ", {
+        ours: roundCartons(cartonsFor(item)),
+        others: otherCartons(item) ? ` (${roundCartons(otherCartons(item))})` : "",
+        moq: locale.number(item.minimum_carton_order),
+    })
+}
+
+const isMoqShort = (item: BucketItem) => groupCartons(item) > 0 && !isMoqMet(item)
+
+const pokingId = ref<number | null>(null)
+
+const pokeOtherOrganisations = async (item: BucketItem) => {
+    pokingId.value = item.id
+    try {
+        const response = await axios.post(route("grp.models.org_supplier_product.minimum_poke", { orgSupplierProduct: item.id }), {
+            cartons_short: Math.round((item.minimum_carton_order! - groupCartons(item)) * 100) / 100,
+        })
+        const notified = response.data.notified as number
+        notify(notified
+            ? { title: ctrans("Asked"), text: ctransChoice(":count buyer asked to add to their draft|:count buyers asked to add to their drafts", notified, { count: notified }), type: "success" }
+            : { title: ctrans("Nobody to ask"), text: ctrans("No other organisation has a draft with this supplier, or its buyer was asked in the last 15 minutes"), type: "info" })
+    } catch {
+        notify({ title: ctrans("Something went wrong"), text: ctrans("The other organisations could not be asked"), type: "error" })
+    } finally {
+        pokingId.value = null
+    }
+}
+
+const otherDraftsSummary = (item: BucketItem) => (item.other_organisations_drafts ?? [])
+    .map((draft) => [draft.organisation_code, draft.reference, draft.buyer_name, draftCartonsLabel(item, draft.units)].filter(Boolean).join(" · "))
+    .join("; ")
+
+const moqLineTooltip = (item: BucketItem) => [
+    isMoqShort(item)
+        ? ctrans("Short of the supplier's minimum of :moq by :short: :ours on this order", {
+            moq: ctransChoice(":number carton|:number cartons", item.minimum_carton_order!, { number: locale.number(item.minimum_carton_order!) }),
+            short: ctransChoice(":number carton|:number cartons", item.minimum_carton_order! - groupCartons(item), { number: roundCartons(item.minimum_carton_order! - groupCartons(item)) }),
+            ours: ctransChoice(":number carton|:number cartons", cartonsFor(item), { number: roundCartons(cartonsFor(item)) }),
+        })
+        : (cartonsFor(item) && item.minimum_carton_order ? moqTooltip(item) : ""),
+    otherDraftsSummary(item) ? ctrans("Other organisations' drafts: :drafts", { drafts: otherDraftsSummary(item) }) : "",
+    ctrans("Double-click to change the minimum order"),
+].filter(Boolean).join(". ")
 
 const draftCartonsLabel = (item: BucketItem, units: number) => {
     const cartons = Math.round((units / unitsPerCarton(item)) * 100) / 100
@@ -195,7 +259,7 @@ const onTheWayRows = (item: BucketItem): OnTheWayRow[] => [
         label: ctrans("Draft"),
         tone: "text-gray-500",
         reference: draft.organisation_code,
-        tooltip: draft.organisation_name,
+        tooltip: [draft.organisation_name, draft.reference, draft.buyer_name].filter(Boolean).join(" · "),
         href: null,
         units: draft.units,
     })),
@@ -289,10 +353,16 @@ const quantityBreakdown = (item: BucketItem) => {
 </div>
                                 <div v-if="isPartCarton(item) && cartons[item.id] === undefined" class="text-amber-600">{{ ctrans("The draft holds :units units, not whole cartons", { units: locale.number(item.ordered_quantity) }) }}</div>
                                 </div>
-<div v-if="cartonsFor(item) || item.minimum_carton_order" class="flex items-center gap-1 pt-1.5 tabular-nums" :class="cartonsFor(item) && !isMoqMet(item) ? 'text-amber-600' : 'text-gray-500'">
-    <FontAwesomeIcon v-if="cartonsFor(item) && isMoqMet(item)" v-tooltip="moqTooltip(item)" :icon="faCheckCircle" class="text-green-600" aria-hidden="true" />
+<div v-if="cartonsFor(item) || item.minimum_carton_order" v-tooltip="moqLineTooltip(item)" class="flex cursor-pointer select-none items-center gap-1 pt-1.5 tabular-nums" :class="isMoqShort(item) ? 'font-medium text-red-600' : 'text-gray-500'" @dblclick="editMinimumOf = item">
+    <FontAwesomeIcon v-if="isMoqShort(item)" :icon="faExclamationCircle" class="text-red-600" aria-hidden="true" />
+    <FontAwesomeIcon v-else-if="cartonsFor(item) && isMoqMet(item)" :icon="faCheckCircle" class="text-green-600" aria-hidden="true" />
     <span>{{ moqLabel(item) }}</span>
 </div>
+<Button v-if="isMoqShort(item)" type="tertiary" size="xxs" class="mt-1" :label="ctrans('Ask other organisations')" :tooltip="ctrans('Asks the buyers of the other organisations\' drafts with this supplier to add some, so the orders together reach the minimum')" :loading="pokingId === item.id" @click="pokeOtherOrganisations(item)">
+    <template #icon>
+        <FontAwesomeIcon :icon="faHandPointRight" fixed-width aria-hidden="true" />
+    </template>
+</Button>
                             </div>
                             <div class="flex flex-col items-end">
                                 <NumberWithButtonSave
@@ -379,10 +449,16 @@ const quantityBreakdown = (item: BucketItem) => {
 </div>
                                 <div v-if="isPartCarton(item) && cartons[item.id] === undefined" class="text-amber-600">{{ ctrans("The draft holds :units units, not whole cartons", { units: locale.number(item.ordered_quantity) }) }}</div>
                     </div>
-<div v-if="cartonsFor(item) || item.minimum_carton_order" class="flex items-center gap-1 pt-1.5 tabular-nums" :class="cartonsFor(item) && !isMoqMet(item) ? 'text-amber-600' : 'text-gray-500'">
-    <FontAwesomeIcon v-if="cartonsFor(item) && isMoqMet(item)" v-tooltip="moqTooltip(item)" :icon="faCheckCircle" class="text-green-600" aria-hidden="true" />
+<div v-if="cartonsFor(item) || item.minimum_carton_order" v-tooltip="moqLineTooltip(item)" class="flex cursor-pointer select-none items-center gap-1 pt-1.5 tabular-nums" :class="isMoqShort(item) ? 'font-medium text-red-600' : 'text-gray-500'" @dblclick="editMinimumOf = item">
+    <FontAwesomeIcon v-if="isMoqShort(item)" :icon="faExclamationCircle" class="text-red-600" aria-hidden="true" />
+    <FontAwesomeIcon v-else-if="cartonsFor(item) && isMoqMet(item)" :icon="faCheckCircle" class="text-green-600" aria-hidden="true" />
     <span>{{ moqLabel(item) }}</span>
 </div>
+<Button v-if="isMoqShort(item)" type="tertiary" size="xxs" class="mt-1" :label="ctrans('Ask other organisations')" :tooltip="ctrans('Asks the buyers of the other organisations\' drafts with this supplier to add some, so the orders together reach the minimum')" :loading="pokingId === item.id" @click="pokeOtherOrganisations(item)">
+    <template #icon>
+        <FontAwesomeIcon :icon="faHandPointRight" fixed-width aria-hidden="true" />
+    </template>
+</Button>
                 </template>
                 <template #cell(cartons)="{ item }">
                     <div class="flex flex-col items-end">
@@ -429,5 +505,6 @@ const quantityBreakdown = (item: BucketItem) => {
                     </div>
                 </template>
             </Table>
+        <ModalMinimumCartonOrder v-model:visible="isMinimumModalOpen" :product="editMinimumOf && { id: editMinimumOf.id, code: editMinimumOf.code, name: editMinimumOf.name, supplier_name: editMinimumOf.supplier_name ?? editMinimumOf.supplier_code, minimum_carton_order: editMinimumOf.minimum_carton_order }" @saved="reloadItems" />
     </div>
 </template>

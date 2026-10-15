@@ -99,6 +99,7 @@ class IndexPurchaseOrderOrgSupplierProducts extends OrgAction
 
         $this->attachOrgStockData($paginator, $purchaseOrder);
         $this->attachOtherOpenPurchaseOrders($paginator, $orgId, $purchaseOrder?->id);
+        $this->attachOtherOrganisationsDrafts($paginator, $orgId);
 
         if ($parent instanceof OrgAgent) {
             $paginator->getCollection()->each(fn ($row) => $row->agent_order = ['org_agent_id' => $parent->id, 'reference' => $agentOrderReference]);
@@ -448,6 +449,47 @@ class IndexPurchaseOrderOrgSupplierProducts extends OrgAction
                     'quantity_ordered' => (float) $lines->sum('quantity_ordered'),
                 ])
                 ->values();
+
+            return $row;
+        });
+    }
+
+    /**
+     * A supplier's minimum is met by every organisation's order together, so the drafts other
+     * organisations hold for the same supplier product count towards it.
+     */
+    public function attachOtherOrganisationsDrafts(LengthAwarePaginator $paginator, int $organisationId): void
+    {
+        $rows               = $paginator->getCollection();
+        $supplierProductIds = $rows->pluck('supplier_product_id')->filter()->unique()->values();
+
+        if ($supplierProductIds->isEmpty()) {
+            return;
+        }
+
+        $drafts = DB::table('purchase_orders as po')
+            ->join('purchase_order_transactions as pot', fn ($join) => $join->on('pot.purchase_order_id', 'po.id')->whereNull('pot.deleted_at'))
+            ->join('organisations as o', 'o.id', 'po.organisation_id')
+            ->leftJoin('users as buyer', 'buyer.id', 'po.buyer_id')
+            ->where('po.group_id', DB::table('organisations')->where('id', $organisationId)->select('group_id'))
+            ->where('po.organisation_id', '!=', $organisationId)
+            ->where('po.state', PurchaseOrderStateEnum::IN_PROCESS->value)
+            ->whereNull('po.deleted_at')
+            ->whereIn('pot.supplier_product_id', $supplierProductIds)
+            ->groupBy('pot.supplier_product_id', 'po.id', 'o.id', 'buyer.id')
+            ->orderBy('o.code')
+            ->selectRaw('pot.supplier_product_id, o.code as organisation_code, o.name as organisation_name, po.reference, buyer.contact_name as buyer_name, sum(pot.quantity_ordered) as units')
+            ->get()
+            ->groupBy('supplier_product_id');
+
+        $rows->transform(function ($row) use ($drafts) {
+            $row->other_organisations_drafts = ($drafts->get($row->supplier_product_id) ?? collect())->map(fn ($draft) => [
+                'organisation_code' => $draft->organisation_code,
+                'organisation_name' => $draft->organisation_name,
+                'reference'         => $draft->reference,
+                'buyer_name'        => $draft->buyer_name,
+                'units'             => (float) $draft->units,
+            ])->values();
 
             return $row;
         });

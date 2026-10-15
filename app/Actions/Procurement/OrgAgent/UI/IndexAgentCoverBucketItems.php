@@ -236,10 +236,11 @@ class IndexAgentCoverBucketItems extends OrgAction
             ->where('po.organisation_id', '!=', $this->orgAgent->organisation_id)
             ->join('purchase_order_transactions as pot', fn ($join) => $join->on('pot.purchase_order_id', 'po.id')->whereNull('pot.deleted_at'))
             ->join('organisations as o', 'o.id', 'po.organisation_id')
+            ->leftJoin('users as buyer', 'buyer.id', 'po.buyer_id')
             ->whereIn('pot.supplier_product_id', $rows->pluck('supplier_product_id'))
-            ->groupBy('pot.supplier_product_id', 'o.id', 'o.code', 'o.name')
+            ->groupBy('pot.supplier_product_id', 'po.id', 'po.reference', 'o.id', 'o.code', 'o.name', 'buyer.id', 'buyer.contact_name')
             ->orderBy('o.code')
-            ->selectRaw('pot.supplier_product_id, o.code, o.name, sum(pot.quantity_ordered) as units')
+            ->selectRaw('pot.supplier_product_id, o.code, o.name, po.reference, buyer.contact_name as buyer_name, sum(pot.quantity_ordered) as units')
             ->get()
             ->groupBy('supplier_product_id');
 
@@ -294,6 +295,8 @@ class IndexAgentCoverBucketItems extends OrgAction
                 'other_organisations_drafts' => ($otherOrganisationsDrafts->get($row->supplier_product_id) ?? collect())->map(fn ($draft) => [
                     'organisation_code' => $draft->code,
                     'organisation_name' => $draft->name,
+                    'reference'         => $draft->reference,
+                    'buyer_name'        => $draft->buyer_name,
                     'units'             => (float) $draft->units,
                 ])->values()->all(),
             ];

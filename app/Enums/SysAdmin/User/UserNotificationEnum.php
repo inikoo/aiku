@@ -20,11 +20,13 @@ enum UserNotificationEnum: string
     case PURCHASE_ORDER_STAGE_BY_AGENT = 'purchase_order_stage_by_agent';
     case PURCHASE_ORDERS_STUCK = 'purchase_orders_stuck';
     case PURCHASE_ORDER_COMPLIANCE_DUE = 'purchase_order_compliance_due';
+    case PURCHASE_ORDER_MINIMUM_POKE = 'purchase_order_minimum_poke';
 
     public const array PROCUREMENT_EVENTS = [
         self::PURCHASE_ORDER_STAGE_BY_AGENT,
         self::PURCHASE_ORDERS_STUCK,
         self::PURCHASE_ORDER_COMPLIANCE_DUE,
+        self::PURCHASE_ORDER_MINIMUM_POKE,
     ];
 
     public const array CHANNELS = ['email', 'slack', 'browser'];
@@ -39,6 +41,7 @@ enum UserNotificationEnum: string
             self::PURCHASE_ORDER_STAGE_BY_AGENT => __('An agent moves one of my purchase orders to another stage'),
             self::PURCHASE_ORDERS_STUCK         => __('The weekly list of purchase orders past their expected date'),
             self::PURCHASE_ORDER_COMPLIANCE_DUE => __('Compliance documents of my purchase order are due'),
+            self::PURCHASE_ORDER_MINIMUM_POKE   => __('Another organisation asks me to add to my draft to reach a supplier minimum (email and Slack come grouped every 15 minutes)'),
         };
     }
 
@@ -78,6 +81,7 @@ enum UserNotificationEnum: string
             self::PURCHASE_ORDER_STAGE_BY_AGENT => 'fal fa-truck-loading',
             self::PURCHASE_ORDERS_STUCK         => 'fal fa-hourglass-half',
             self::PURCHASE_ORDER_COMPLIANCE_DUE => 'fal fa-clipboard-check',
+            self::PURCHASE_ORDER_MINIMUM_POKE   => 'fal fa-hand-point-right',
         };
     }
 

@@ -9,7 +9,6 @@ use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
 use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\SysAdmin\Organisation;
-use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateOrgSupplierProductAgentDetails extends OrgAction
@@ -25,18 +24,9 @@ class UpdateOrgSupplierProductAgentDetails extends OrgAction
         'cbm',
     ];
 
-    /**
-     * UpdateSupplierProduct leaves an emptied minimum as it was, so an agent lifting the minimum is cleared here.
-     */
     public function handle(OrgSupplierProduct $orgSupplierProduct, array $modelData): SupplierProduct
     {
-        $supplierProduct = UpdateSupplierProduct::make()->action($orgSupplierProduct->supplierProduct, $modelData);
-
-        if (Arr::exists($modelData, 'minimum_carton_order') && $modelData['minimum_carton_order'] === null && Arr::has($supplierProduct->data, 'minimum_carton_order')) {
-            $supplierProduct->update(['data' => Arr::except($supplierProduct->data, 'minimum_carton_order')]);
-        }
-
-        return $supplierProduct;
+        return UpdateSupplierProduct::make()->action($orgSupplierProduct->supplierProduct, $modelData);
     }
 
     public function rules(): array

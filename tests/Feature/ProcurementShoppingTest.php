@@ -1672,7 +1672,7 @@ test('UI agent browse shows what the other organisations hold on their drafts fo
     $item = $ourItem();
 
     expect($item['other_organisations_drafts'])->toBe([
-        ['organisation_code' => $otherOrganisation->code, 'organisation_name' => $otherOrganisation->name, 'units' => 300],
+        ['organisation_code' => $otherOrganisation->code, 'organisation_name' => $otherOrganisation->name, 'reference' => $theirDraft->reference, 'buyer_name' => DB::table('users')->where('id', $theirDraft->buyer_id)->value('contact_name'), 'units' => 300],
     ])->and($item['ordered_quantity'])->toBe(0);
 
     $ourDraft = StorePurchaseOrder::make()->action($orgSupplierProduct->orgSupplier, [], strict: false);
@@ -1694,6 +1694,15 @@ test('UI agent browse shows what the other organisations hold on their drafts fo
             ->etc());
 
     $productsUrl = route('grp.org.procurement.org_agents.show.purchase-orders.show', [$this->organisation->slug, $this->orgAgent->slug, $ourDraft->slug]).'?tab=products';
+
+    expect(collect($this->get($productsUrl)->viewData('page')['props']['products']['data'])->firstWhere('code', $supplierProduct->code)['other_organisations_drafts'])->toEqual([[
+        'organisation_code' => $otherOrganisation->code,
+        'organisation_name' => $otherOrganisation->name,
+        'reference'         => $theirDraft->reference,
+        'buyer_name'        => DB::table('users')->where('id', $theirDraft->buyer_id)->value('contact_name'),
+        'units'             => 300,
+    ]]);
+
     $bucket      = collect($this->get($productsUrl)->viewData('page')['props']['products']['data'])->firstWhere('code', $supplierProduct->code)['bucket'];
     $otherBucket = collect(array_keys(App\Actions\Procurement\OrgAgent\GetAgentStockCoverBuckets::BUCKETS))->first(fn ($cover) => $cover !== $bucket);
 
@@ -1702,6 +1711,47 @@ test('UI agent browse shows what the other organisations hold on their drafts fo
             ->where('products.ordering.active.cover', $otherBucket)
             ->where('products.data', fn ($products) => !collect($products)->pluck('code')->contains($supplierProduct->code))
             ->etc());
+});
+
+test('a buyer short of a supplier minimum asks the other organisations, who see it at once and get email and Slack grouped', function () {
+    $otherOrganisation = Organisation::where('code', 'prc2')->first()
+        ?? StoreOrganisation::make()->action($this->group, array_merge(Organisation::factory()->definition(), ['code' => 'prc2', 'type' => OrganisationTypeEnum::SHOP]));
+
+    OrgAgent::where('organisation_id', $otherOrganisation->id)->where('agent_id', $this->orgAgent->agent_id)->first()
+        ?? StoreOrgAgent::make()->action($otherOrganisation, $this->orgAgent->agent, []);
+
+    [, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $supplierProduct        = $orgSupplierProduct->supplierProduct;
+    $supplierProduct->update(['minimum_carton_order' => 20]);
+    $theirOrgSupplier = OrgSupplier::where('supplier_id', $supplierProduct->supplier_id)->where('organisation_id', $otherOrganisation->id)->firstOrFail();
+
+    $theirBuyer = App\Actions\SysAdmin\Guest\StoreGuest::make()->action($this->group, array_merge(App\Models\SysAdmin\Guest::factory()->definition(), ['positions' => []]))->getUser();
+    $theirBuyer->update(['settings' => array_merge($theirBuyer->settings ?? [], ['notifications' => ['purchase_order_minimum_poke' => ['email']]])]);
+    $theirDraft = StorePurchaseOrder::make()->action($theirOrgSupplier, [], strict: false);
+    $theirDraft->updateQuietly(['buyer_id' => $theirBuyer->id]);
+
+    Illuminate\Support\Facades\Notification::fake();
+    $poke = fn () => $this->postJson(route('grp.models.org_supplier_product.minimum_poke', ['orgSupplierProduct' => $orgSupplierProduct->id]), ['cartons_short' => 6])->assertOk()->json('notified');
+
+    expect($poke())->toBe(1)
+        ->and($poke())->toBe(0);
+
+    Illuminate\Support\Facades\Notification::assertSentTo(
+        $theirBuyer,
+        App\Notifications\PurchaseOrderMinimumPokeNotification::class,
+        fn ($notification) => $notification->purchaseOrder->is($theirDraft) && str_contains($notification->body, $theirDraft->reference)
+    );
+    Illuminate\Support\Facades\Notification::assertNotSentTo($theirBuyer, App\Notifications\PurchaseOrderMinimumPokeDigestNotification::class);
+
+    expect(App\Actions\Procurement\PurchaseOrder\SendPurchaseOrderMinimumPokeDigests::run())->toBeGreaterThanOrEqual(1)
+        ->and(App\Actions\Procurement\PurchaseOrder\SendPurchaseOrderMinimumPokeDigests::run())->toBe(0)
+        ->and(DB::table('purchase_order_minimum_pokes')->where('recipient_id', $theirBuyer->id)->whereNull('digested_at')->exists())->toBeFalse();
+
+    Illuminate\Support\Facades\Notification::assertSentTo(
+        $theirBuyer,
+        App\Notifications\PurchaseOrderMinimumPokeDigestNotification::class,
+        fn ($notification) => count($notification->requests) === 1 && str_contains($notification->requests[0]['line'], $supplierProduct->code)
+    );
 });
 
 test('agent misplaced shopping list cleanup only accepts non-orderable buckets', function () {

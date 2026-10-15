@@ -147,7 +147,7 @@ class EditSupplierProduct extends OrgAction
                                 'minimum_carton_order' => [
                                     'type'    => 'input',
                                     'label'   => __('Minimum order (cartons)'),
-                                    'value'   => Arr::get($supplierProduct->data, 'minimum_carton_order'),
+                                    'value'   => $supplierProduct->minimum_carton_order,
                                     'options' => ['inputType' => 'number']
                                 ],
                                 ...($supplierProduct->measured_lead_time_days !== null ? [] : [

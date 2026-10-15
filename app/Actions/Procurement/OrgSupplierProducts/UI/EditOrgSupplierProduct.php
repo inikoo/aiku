@@ -15,7 +15,6 @@ use App\Enums\Procurement\OrgSupplierProduct\OrgSupplierProductStateEnum;
 use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\SysAdmin\Organisation;
-use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -131,7 +130,7 @@ class EditOrgSupplierProduct extends OrgAction
                             'type'        => 'input',
                             'label'       => __('Minimum order (cartons)'),
                             'information' => __('The fewest cartons that can be ordered at once. Leave empty when there is no minimum.'),
-                            'value'       => Arr::get($supplierProduct->data, 'minimum_carton_order'),
+                            'value'       => $supplierProduct->minimum_carton_order,
                             'options'     => ['inputType' => 'number']
                         ],
                         ...($supplierProduct->measured_lead_time_days !== null ? [] : [

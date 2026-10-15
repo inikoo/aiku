@@ -293,6 +293,17 @@ test('a supplier product saved in another currency takes its supplier currency b
     expect($supplierProduct->currency_id)->toBe($supplierProduct->supplier->currency_id);
 })->depends('create supplier product independent supplier');
 
+test('the minimum order is saved where purchase orders read it, and an emptied minimum is cleared', function (SupplierProduct $supplierProduct) {
+    $supplierProduct = UpdateSupplierProduct::make()->action($supplierProduct, ['minimum_carton_order' => 40]);
+
+    expect($supplierProduct->refresh()->minimum_carton_order)->toBe(40)
+        ->and($supplierProduct->data)->not->toHaveKey('minimum_carton_order');
+
+    $supplierProduct = UpdateSupplierProduct::make()->action($supplierProduct, ['minimum_carton_order' => null]);
+
+    expect($supplierProduct->refresh()->minimum_carton_order)->toBeNull();
+})->depends('create supplier product independent supplier');
+
 test('create supplier product independent supplier 2', function ($supplier) {
     $supplierProductData = SupplierProduct::factory()->definition();
     data_set($supplierProductData, 'stock_id', $this->stocks[1]->id);
@@ -2036,4 +2047,29 @@ test('v7 supplier product upload keeps the GPSR and EUDR answers, shares one pac
             ->where('declarations.0.signed_by', 'Sandya Rai')
             ->where('declarations.0.answers.1.is_yes', false)
             ->etc());
+});
+
+test('the minimum order modal lists the active suppliers of the SKO and saves the supplier minimum for every organisation', function () {
+    $link = App\Models\Inventory\OrgStockHasOrgSupplierProduct::query()
+        ->join('org_supplier_products', 'org_supplier_products.id', 'org_stock_has_org_supplier_products.org_supplier_product_id')
+        ->where('org_supplier_products.state', 'active')
+        ->select('org_stock_has_org_supplier_products.*')
+        ->firstOrFail();
+    $orgSupplierProduct = App\Models\Procurement\OrgSupplierProduct::findOrFail($link->org_supplier_product_id);
+    $sameSkoIds         = App\Models\Inventory\OrgStockHasOrgSupplierProduct::where('org_stock_id', $link->org_stock_id)->pluck('org_supplier_product_id')->all();
+
+    $this->patchJson(route('grp.models.org_supplier_product.minimum_carton_order.update', ['orgSupplierProduct' => $orgSupplierProduct->id]), ['minimum_carton_order' => 7])->assertOk();
+
+    expect($orgSupplierProduct->supplierProduct->refresh()->minimum_carton_order)->toBe(7);
+
+    $rows = $this->getJson(route('grp.json.org_supplier_product.minimum_orders', ['orgSupplierProduct' => $orgSupplierProduct->id]))->assertOk()->json();
+
+    expect($rows[0]['id'])->toBe($orgSupplierProduct->id)
+        ->and($rows[0]['minimum_carton_order'])->toBe(7)
+        ->and(array_diff(array_column($rows, 'id'), $sameSkoIds))->toBe([]);
+
+    $this->patchJson(route('grp.models.org_supplier_product.minimum_carton_order.update', ['orgSupplierProduct' => $orgSupplierProduct->id]), ['minimum_carton_order' => 0])->assertUnprocessable();
+    $this->patchJson(route('grp.models.org_supplier_product.minimum_carton_order.update', ['orgSupplierProduct' => $orgSupplierProduct->id]), ['minimum_carton_order' => null])->assertOk();
+
+    expect($orgSupplierProduct->supplierProduct->refresh()->minimum_carton_order)->toBeNull();
 });
