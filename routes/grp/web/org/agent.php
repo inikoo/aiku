@@ -37,6 +37,7 @@ use App\Actions\Procurement\PurchaseOrder\ExportPurchaseOrders;
 use App\Actions\Procurement\PurchaseOrder\ExportPurchaseOrderTransactions;
 use App\Actions\Procurement\PurchaseOrder\PdfPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UI\EditPurchaseOrder;
+use App\Actions\Procurement\PurchaseOrder\UI\GetPurchaseOrderChasePanel;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\PurchaseOrder\UI\ShowAgentPurchaseOrdersBoard;
 use App\Actions\Procurement\PurchaseOrder\UI\ShowAgentPurchaseOrdersDashboard;
@@ -110,6 +111,7 @@ Route::prefix('purchase-orders')->as('purchase_orders.')->group(function () {
     Route::get('board', ShowAgentPurchaseOrdersBoard::class)->name('board');
     Route::get('reports', ShowAgentPurchaseOrdersReports::class)->name('reports');
     Route::get('export', ExportPurchaseOrders::class)->name('export');
+    Route::get('{purchaseOrder:id}/chase-panel', GetPurchaseOrderChasePanel::class)->name('chase_panel')->withoutScopedBindings();
     Route::get('{purchaseOrder}', ShowPurchaseOrder::class)->name('show');
     Route::get('{purchaseOrder}/edit', EditPurchaseOrder::class)->name('edit');
     Route::get('{purchaseOrder}/pdf/{filename?}', PdfPurchaseOrder::class)->name('pdf');

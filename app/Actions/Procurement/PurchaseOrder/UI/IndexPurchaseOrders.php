@@ -41,6 +41,7 @@ use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -81,6 +82,8 @@ class IndexPurchaseOrders extends OrgAction
             default => null,
         };
 
+        $organisationAgent = $this->getParentOrganisationAgent($parent);
+
         return [
             'state'          => [
                 'label'    => __('State'),
@@ -113,6 +116,8 @@ class IndexPurchaseOrders extends OrgAction
                     'unconfirmed_over_30_days' => [__('Unconfirmed over 30 days'), null],
                     'past_expected_date'       => [__('Past expected date'), null],
                     'in_production'            => [__('In production'), null],
+                    'past_eta'                 => [__('Past ETA, no container'), null],
+                    'unconfirmed_over_14_days' => [__('Not confirmed after 14 days'), null],
                 ],
                 'engine'   => function ($query, $elements) {
                     $query->where(function ($query) use ($elements) {
@@ -128,9 +133,36 @@ class IndexPurchaseOrders extends OrgAction
                         if (in_array('in_production', $elements)) {
                             $query->orWhereRaw(PurchaseOrderStageEnum::inProductionSql());
                         }
+                        if (in_array('past_eta', $elements)) {
+                            $query->orWhereRaw(PurchaseOrderStageEnum::pastEtaSql());
+                        }
+                        if (in_array('unconfirmed_over_14_days', $elements)) {
+                            $query->orWhereRaw(PurchaseOrderStageEnum::unconfirmedSql(14));
+                        }
                     });
                 },
             ],
+            ...($organisationAgent ? [
+                'progress'     => [
+                    'label'    => __('Progress'),
+                    'elements' => collect(PurchaseOrderStageEnum::progressLabels())->except('draft')->map(fn ($label) => [$label, null])->all(),
+                    'engine'   => function ($query, $elements) {
+                        $query->whereIn('purchase_orders.state', [PurchaseOrderStateEnum::SUBMITTED, PurchaseOrderStateEnum::CONFIRMED])
+                            ->whereIn(DB::raw(PurchaseOrderStageEnum::progressSql()), $elements);
+                    },
+                ],
+                'organisation' => [
+                    'label'    => __('Buying company'),
+                    'elements' => $organisationAgent->orgAgents()->join('organisations', 'organisations.id', '=', 'org_agents.organisation_id')
+                        ->orderBy('organisations.id')
+                        ->pluck('organisations.code', 'organisations.slug')
+                        ->map(fn ($code) => [$code, null])
+                        ->all(),
+                    'engine'   => function ($query, $elements) {
+                        $query->whereIn('purchase_orders.organisation_id', Organisation::whereIn('slug', $elements)->select('id'));
+                    },
+                ],
+            ] : []),
         ];
     }
 
@@ -204,7 +236,7 @@ class IndexPurchaseOrders extends OrgAction
                 allowedElements: array_keys($elementGroup['elements']),
                 engine: $elementGroup['engine'],
                 prefix: $prefix,
-                optional: $key === 'attention',
+                optional: in_array($key, ['attention', 'progress']),
             );
         }
 

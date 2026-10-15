@@ -52,6 +52,12 @@ use App\Actions\GoodsIn\StockDeliveryItem\UpdateStockDeliveryItem;
 use App\Actions\Procurement\OrgAgent\StoreOrgAgent;
 use App\Actions\Procurement\OrgPartner\StoreOrgPartner;
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplier;
+use App\Actions\Procurement\OrgSupplier\UI\GetAgentSuppliersDashboard;
+use App\Actions\Procurement\PurchaseOrderChase\StorePurchaseOrderChase;
+use App\Actions\SupplyChain\SupplierChangeRequest\DecideSupplierChangeRequest;
+use App\Actions\SupplyChain\SupplierChangeRequest\StoreSupplierChangeRequest;
+use App\Enums\SupplyChain\SupplierChangeRequest\SupplierChangeRequestStateEnum;
+use App\Models\SupplyChain\SupplierChangeRequest;
 use App\Actions\Procurement\OrgSupplier\Hydrators\OrgSupplierHydrateOrgSupplierProducts;
 use App\Actions\Inventory\OrgStockHasOrgSupplierProduct\AttachOrgSupplierProductToOrgStock;
 use App\Actions\Procurement\OrgSupplierProducts\StoreOrgSupplierProduct;
@@ -93,6 +99,7 @@ use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\GoodsIn\StockDeliveryItem\StockDeliveryItemStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStageEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Enums\Procurement\OrgSupplierProduct\OrgSupplierProductStateEnum;
 use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
@@ -544,8 +551,38 @@ test('agent manager only sees their own agent organisation', function () {
         ->and(\App\Models\Procurement\AgentWarehouseStock::where('agent_id', $this->agent->id)->where('organisation_id', $this->organisation->id)->whereNull('notes')->exists())->toBeTrue();
     $this->get(route('grp.org.agent.warehouse.index', $this->organisation->slug))->assertForbidden();
     $this->get(route('grp.org.agent.sales.products.index', $this->organisation->slug))->assertForbidden();
+    $this->get(route('grp.org.agent.org_suppliers.index', [$organisation->slug, 'tab' => 'index']))
+        ->assertInertia(fn ($page) => $page->where('index.meta.total', Supplier::where('agent_id', $this->agent->id)->where('status', true)->count()));
     $this->get(route('grp.org.agent.org_suppliers.index', $organisation->slug))
-        ->assertInertia(fn ($page) => $page->where('data.meta.total', Supplier::where('agent_id', $this->agent->id)->where('status', true)->count()));
+        ->assertInertia(fn ($page) => $page
+            ->where('tabs.current', 'dashboard')
+            ->missing('index')
+            ->where('dashboard.kpis.active_suppliers.value', Supplier::where('agent_id', $this->agent->id)->where('status', true)->count())
+            ->has('dashboard.chase.rows')
+            ->has('dashboard.stages', 6));
+
+    [$chaseSupplier] = createAgentOrgSupplierWithProduct($this);
+    $chased          = tap(StorePurchaseOrder::make()->action($chaseSupplier, PurchaseOrder::factory()->definition()))
+        ->update(['state' => PurchaseOrderStateEnum::CONFIRMED, 'submitted_at' => now()->subDays(60), 'estimated_received_at' => now()->subDays(3)]);
+    $chaseList = fn (array $elements) => collect($this->get(route('grp.org.agent.purchase_orders.index', [
+        $organisation->slug,
+        'elements' => ['organisation' => $chased->organisation->slug, ...$elements],
+        'filter'   => ['global' => $chased->reference],
+    ]))->viewData('page')['props']['data']['data'])->pluck('slug')->all();
+    expect($chaseList(['attention' => 'past_eta,unconfirmed_over_14_days', 'progress' => 'confirmed']))->toBe([$chased->slug])
+        ->and($chaseList(['progress' => 'dispatched']))->toBe([]);
+
+    $panel = $this->getJson(route('grp.org.agent.purchase_orders.chase_panel', [$organisation->slug, $chased->id]))->assertOk()->json();
+    $markable = collect($panel['stages'])->pluck('marks')->flatten(1)->pluck('field')->unique()->values()->all();
+    expect($panel['can_edit'])->toBeTrue()
+        ->and($markable)->not->toBeEmpty()
+        ->and(array_diff($markable, PurchaseOrderStageEnum::AGENT_MARKABLE_FIELDS))->toBe([]);
+    $this->postJson(route('grp.models.purchase-order.chase.store', $chased->id), ['channel' => 'wechat', 'contact' => 'Mr Li', 'promised_at' => now()->addDays(10)->toDateString()])->assertCreated();
+    expect($chased->refresh()->estimated_received_at->toDateString())->toBe(now()->addDays(10)->toDateString())
+        ->and($chaseList(['attention' => 'past_eta']))->toBe([])
+        ->and($chased->chases()->first()->user_id)->toBe($agentUser->id);
+    $this->postJson(route('grp.models.supplier.change_request.store', $chaseSupplier->supplier_id), ['type' => 'deactivate', 'reason' => 'No longer answers'])->assertCreated();
+    $this->patchJson(route('grp.models.supplier_change_request.decide', SupplierChangeRequest::where('supplier_id', $chaseSupplier->supplier_id)->value('id')), ['approve' => true])->assertForbidden();
 
     $orgSupplierOfAnotherOrganisation = OrgSupplier::where('organisation_id', '!=', $organisation->id)
         ->whereHas('supplier', fn ($query) => $query->where('agent_id', $this->agent->id))
@@ -1267,6 +1304,113 @@ test('UI index org agent purchase orders lists the orders through the agent', fu
         ->and($row['parent_type'])->toBe('OrgSupplier')
         ->and($row['agent_slug'])->toBe($orgAgent->agent->slug)
         ->and($row['org_agent_slug'])->toBe($orgAgent->slug);
+});
+
+test('agent suppliers dashboard counts open orders, the orders to chase and their stage, for one buying company', function () {
+    [$orgSupplier] = createAgentOrgSupplierWithProduct($this);
+    $agent         = $orgSupplier->orgAgent->agent;
+    $buyer         = $orgSupplier->organisation;
+    $dashboard     = fn (?Organisation $buyer = null) => GetAgentSuppliersDashboard::run($agent, $agent->organisation, $buyer);
+    $stage         = fn (array $dashboard, string $key) => collect($dashboard['stages'])->firstWhere('key', $key)['value'];
+    $otherBuyer    = OrgAgent::where('agent_id', $agent->id)->where('organisation_id', '!=', $buyer->id)->first()?->organisation;
+    $before        = $dashboard($buyer);
+    $beforeAll     = $dashboard();
+    $beforeOther   = $otherBuyer ? $dashboard($otherBuyer) : null;
+
+    $order = fn (array $data) => tap(StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition()))->update($data);
+    $order(['state' => PurchaseOrderStateEnum::SUBMITTED, 'submitted_at' => now()->subDays(20), 'estimated_received_at' => null]);
+    $order(['state' => PurchaseOrderStateEnum::CONFIRMED, 'submitted_at' => now()->subDays(60), 'estimated_received_at' => now()->subDays(3)]);
+    $order(['state' => PurchaseOrderStateEnum::SUBMITTED, 'submitted_at' => now()->subDays(2), 'estimated_received_at' => now()->addDays(30)]);
+    $order(['state' => PurchaseOrderStateEnum::SUBMITTED, 'submitted_at' => now()->subDays(25), 'estimated_received_at' => now()->addDays(30), 'handed_over_at' => now()->subDay()]);
+
+    $after = $dashboard($buyer);
+
+    expect($after['kpis']['open']['value'] - $before['kpis']['open']['value'])->toBe(4)
+        ->and($after['kpis']['open']['without_eta'] - $before['kpis']['open']['without_eta'])->toBe(1)
+        ->and($after['kpis']['chase']['past_eta'] - $before['kpis']['chase']['past_eta'])->toBe(1)
+        ->and($after['kpis']['chase']['unconfirmed'] - $before['kpis']['chase']['unconfirmed'])->toBe(2)
+        ->and($stage($after, 'submitted') - $stage($before, 'submitted'))->toBe(2)
+        ->and($stage($after, 'confirmed') - $stage($before, 'confirmed'))->toBe(1)
+        ->and($stage($after, 'at_factory') - $stage($before, 'at_factory'))->toBe(1)
+        ->and($dashboard()['kpis']['open']['value'] - $beforeAll['kpis']['open']['value'])->toBe(4)
+        ->and($after['filters']['currencies']->first())->toBe($agent->organisation->group->currency->code)
+        ->and($after['filters']['buyer'])->toBe($buyer->slug);
+
+    if ($otherBuyer) {
+        expect($dashboard($otherBuyer)['kpis']['open']['value'])->toBe($beforeOther['kpis']['open']['value']);
+    }
+});
+
+test('a chase with a later promised date moves the expected date, an earlier one leaves it', function () {
+    [$orgSupplier] = createAgentOrgSupplierWithProduct($this);
+    $purchaseOrder = tap(StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition()))
+        ->update(['state' => PurchaseOrderStateEnum::SUBMITTED, 'submitted_at' => now()->subDays(40), 'estimated_received_at' => now()->addDays(20)]);
+
+    StorePurchaseOrderChase::make()->action($purchaseOrder, ['channel' => 'phone', 'promised_at' => now()->addDays(5)->toDateString()]);
+    expect($purchaseOrder->refresh()->estimated_received_at->toDateString())->toBe(now()->addDays(20)->toDateString());
+
+    StorePurchaseOrderChase::make()->action($purchaseOrder, ['channel' => 'email', 'promised_at' => now()->addDays(30)->toDateString(), 'note' => 'Factory holiday']);
+    expect($purchaseOrder->refresh()->estimated_received_at->toDateString())->toBe(now()->addDays(30)->toDateString())
+        ->and($purchaseOrder->chases()->count())->toBe(2);
+
+    $purchaseOrder->update(['state' => PurchaseOrderStateEnum::SETTLED]);
+    expect(fn () => StorePurchaseOrderChase::make()->action($purchaseOrder, ['channel' => 'phone']))->toThrow(ValidationException::class);
+});
+
+test('directors approve deactivating a dormant supplier or keep it with a reason, one suggestion at a time', function () {
+    [$orgSupplier] = createAgentOrgSupplierWithProduct($this);
+    $supplier      = $orgSupplier->supplier;
+
+    $request = StoreSupplierChangeRequest::make()->action($supplier, ['type' => 'deactivate', 'reason' => 'Nothing ordered in three years']);
+    expect(fn () => StoreSupplierChangeRequest::make()->action($supplier, ['type' => 'deactivate', 'reason' => 'Again']))->toThrow(ValidationException::class)
+        ->and(fn () => DecideSupplierChangeRequest::make()->action($request, ['approve' => false]))->toThrow(ValidationException::class);
+
+    DecideSupplierChangeRequest::make()->action($request, ['approve' => false, 'decision_note' => 'Seasonal supplier']);
+    expect($request->refresh()->state)->toBe(SupplierChangeRequestStateEnum::REJECTED)
+        ->and($supplier->refresh()->status)->toBeTrue();
+
+    $open = tap(StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition()))->update(['state' => PurchaseOrderStateEnum::SUBMITTED]);
+    $second = StoreSupplierChangeRequest::make()->action($supplier, ['type' => 'deactivate', 'reason' => 'Really gone']);
+    expect(fn () => DecideSupplierChangeRequest::make()->action($second, ['approve' => true]))->toThrow(ValidationException::class)
+        ->and($second->refresh()->state)->toBe(SupplierChangeRequestStateEnum::PENDING);
+
+    $open->update(['state' => PurchaseOrderStateEnum::CANCELLED]);
+    DecideSupplierChangeRequest::make()->action($second, ['approve' => true]);
+    expect($second->refresh()->state)->toBe(SupplierChangeRequestStateEnum::APPROVED)
+        ->and($supplier->refresh()->status)->toBeFalse()
+        ->and($supplier->archived_at)->not->toBeNull()
+        ->and($orgSupplier->refresh()->status)->toBeFalse();
+});
+
+test('merging a duplicate supplier moves its products and orders to the supplier kept and archives it', function () {
+    [$keptOrgSupplier, $keptProduct]           = createAgentOrgSupplierWithProduct($this);
+    [$duplicateOrgSupplier, $duplicateProduct] = createAgentOrgSupplierWithProduct($this);
+    $kept      = $keptOrgSupplier->supplier;
+    $duplicate = $duplicateOrgSupplier->supplier;
+    $duplicate->update(['currency_id' => $kept->currency_id]);
+    $order = StorePurchaseOrder::make()->action($duplicateOrgSupplier, PurchaseOrder::factory()->definition());
+
+    $request = StoreSupplierChangeRequest::make()->action($duplicate, ['type' => 'merge', 'target_supplier_id' => $kept->id, 'reason' => 'Same factory entered twice']);
+    DecideSupplierChangeRequest::make()->action($request, ['approve' => true]);
+
+    expect($request->refresh()->state)->toBe(SupplierChangeRequestStateEnum::APPROVED)
+        ->and($duplicateProduct->supplierProduct->refresh()->supplier_id)->toBe($kept->id)
+        ->and($duplicateProduct->refresh()->org_supplier_id)->toBe($keptOrgSupplier->id)
+        ->and($order->refresh()->supplier_id)->toBe($kept->id)
+        ->and($order->parent_id)->toBe($keptOrgSupplier->id)
+        ->and($order->parent_name)->toBe($kept->name)
+        ->and($duplicate->refresh()->status)->toBeFalse()
+        ->and($duplicate->data['merged_into_supplier_id'])->toBe($kept->id)
+        ->and($duplicateOrgSupplier->refresh()->status)->toBeFalse()
+        ->and($kept->refresh()->stats->number_current_supplier_products)->toBe(2);
+
+    [$otherOrgSupplier] = createAgentOrgSupplierWithProduct($this);
+    $other              = $otherOrgSupplier->supplier;
+    $other->update(['currency_id' => $kept->currency_id]);
+    $other->supplierProducts()->first()->update(['code' => $keptProduct->supplierProduct->code]);
+    $clash = StoreSupplierChangeRequest::make()->action($other, ['type' => 'merge', 'target_supplier_id' => $kept->id, 'reason' => 'Same factory']);
+    expect(fn () => DecideSupplierChangeRequest::make()->action($clash, ['approve' => true]))->toThrow(ValidationException::class)
+        ->and($other->refresh()->status)->toBeTrue();
 });
 
 test('UI show agent purchase order', function (PurchaseOrder $purchaseOrder) {

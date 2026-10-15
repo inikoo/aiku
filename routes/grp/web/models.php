@@ -506,6 +506,9 @@ use App\Actions\Procurement\SupplierAgreedTerm\WithdrawSupplierAgreedTerm;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderJourneyStage;
 use App\Actions\Procurement\PurchaseOrder\MarkPurchaseOrderStage;
+use App\Actions\Procurement\PurchaseOrderChase\StorePurchaseOrderChase;
+use App\Actions\SupplyChain\SupplierChangeRequest\DecideSupplierChangeRequest;
+use App\Actions\SupplyChain\SupplierChangeRequest\StoreSupplierChangeRequest;
 use App\Actions\Procurement\PurchaseOrder\AttachPurchaseOrderComplianceDocument;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToCancelled;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToConfirmed;
@@ -1574,6 +1577,8 @@ Route::name('customer_client.')->prefix('customer-client/{customerClient:id}')->
 
 Route::post('/supplier', StoreSupplier::class)->name('supplier.store');
 Route::patch('/supplier/{supplier:id}', UpdateSupplier::class)->name('supplier.update');
+Route::post('/supplier/{supplier:id}/change-request', StoreSupplierChangeRequest::class)->name('supplier.change_request.store');
+Route::patch('/supplier-change-request/{supplierChangeRequest:id}/decide', DecideSupplierChangeRequest::class)->name('supplier_change_request.decide');
 Route::patch('/supplier-product/{supplierProduct:id}', UpdateSupplierProduct::class)->name('supplier-product.update');
 Route::patch('/org-supplier-product/{orgSupplierProduct:id}', UpdateOrgSupplierProduct::class)->name('org_supplier_product.update');
 Route::patch('/org-supplier-product/{orgSupplierProduct:id}/minimum-carton-order', UpdateOrgSupplierProductMinimumCartonOrder::class)->name('org_supplier_product.minimum_carton_order.update');
@@ -1801,6 +1806,7 @@ Route::name('purchase-order.')->prefix('purchase-order/{purchaseOrder:id}')->gro
     Route::patch('update', UpdatePurchaseOrder::class)->name('update');
     Route::patch('journey-stage', UpdatePurchaseOrderJourneyStage::class)->name('journey_stage');
     Route::patch('stage', MarkPurchaseOrderStage::class)->name('stage');
+    Route::post('chase', StorePurchaseOrderChase::class)->name('chase.store');
     Route::post('compliance/{tradeUnit:id}', AttachPurchaseOrderComplianceDocument::class)->name('compliance.attach')->withoutScopedBindings();
     Route::post('deposit', StoreAspoDeposit::class)->name('deposit.store');
     Route::post('payment', ConfirmPurchaseOrderPayment::class)->name('payment.confirm');
