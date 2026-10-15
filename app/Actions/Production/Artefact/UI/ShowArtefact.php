@@ -18,6 +18,7 @@ use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Enums\UI\Production\ArtefactTabsEnum;
+use App\Http\Resources\Production\ArtefactBatchesResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Production\ArtefactResource;
 use App\Models\Production\Artefact;
@@ -141,11 +142,19 @@ class ShowArtefact extends OrgAction
                 'artisans'                             => GetArtisanAssignmentProps::run($artefact, $this->canEdit),
                 'tabs'                                 => [
                     'current'    => $this->tab,
-                    'navigation' => ArtefactTabsEnum::navigation()
+                    'navigation' => $this->getTabsNavigation($artefact)
                 ],
                 ArtefactTabsEnum::SHOWCASE->value => $this->tab == ArtefactTabsEnum::SHOWCASE->value ?
                     fn () => GetArtefactShowcase::run($artefact)
                     : Inertia::optional(fn () => GetArtefactShowcase::run($artefact)),
+
+                ArtefactTabsEnum::CURRENT_ORDERS->value => $this->tab == ArtefactTabsEnum::CURRENT_ORDERS->value
+                    ? fn () => ArtefactBatchesResource::collection(IndexArtefactBatches::run($artefact, ArtefactTabsEnum::CURRENT_ORDERS->value, true))
+                    : Inertia::optional(fn () => ArtefactBatchesResource::collection(IndexArtefactBatches::run($artefact, ArtefactTabsEnum::CURRENT_ORDERS->value, true))),
+
+                ArtefactTabsEnum::BATCHES->value => $this->tab == ArtefactTabsEnum::BATCHES->value
+                    ? fn () => ArtefactBatchesResource::collection(IndexArtefactBatches::run($artefact, ArtefactTabsEnum::BATCHES->value))
+                    : Inertia::optional(fn () => ArtefactBatchesResource::collection(IndexArtefactBatches::run($artefact, ArtefactTabsEnum::BATCHES->value))),
 
                 ArtefactTabsEnum::MANUFACTURE_TASKS->value => $this->tab == ArtefactTabsEnum::MANUFACTURE_TASKS->value
                     ? fn () => GetArtefactManufactureTasks::run($artefact)
@@ -184,9 +193,36 @@ class ShowArtefact extends OrgAction
             //         parent: $artefact,
             //         prefix: ArtefactTabsEnum::LOCATIONS->value
             //     )
-        )->table(IndexHistory::make()->tableStructure(prefix: ArtefactTabsEnum::HISTORY->value));
+        )->table(IndexArtefactBatches::make()->tableStructure(prefix: ArtefactTabsEnum::CURRENT_ORDERS->value, open: true))
+            ->table(IndexArtefactBatches::make()->tableStructure(prefix: ArtefactTabsEnum::BATCHES->value))
+            ->table(IndexHistory::make()->tableStructure(prefix: ArtefactTabsEnum::HISTORY->value));
     }
 
+
+    private function getTabsNavigation(Artefact $artefact): array
+    {
+        $navigation = ArtefactTabsEnum::navigation();
+
+        foreach ($this->getTabNumbers($artefact) as $tab => $number) {
+            $navigation[$tab]['number'] = $number;
+        }
+
+        return $navigation;
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    public function getTabNumbers(Artefact $artefact): array
+    {
+        return [
+            ArtefactTabsEnum::CURRENT_ORDERS->value    => IndexArtefactBatches::make()->toDo($artefact)->reorder()->count(),
+            ArtefactTabsEnum::BATCHES->value           => IndexArtefactBatches::make()->query($artefact)->where('job_order_items.quantity_received', '>', 0)->count(),
+            ArtefactTabsEnum::MANUFACTURE_TASKS->value => $artefact->manufactureTasks()->count(),
+            ArtefactTabsEnum::LABELS->value            => $artefact->labels()->count(),
+            ArtefactTabsEnum::COMPLIANCE->value        => $artefact->complianceItems()->count(),
+        ];
+    }
 
     public function jsonResponse(Artefact $artefact): ArtefactResource
     {

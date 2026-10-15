@@ -5,6 +5,21 @@ import { Link, router } from "@inertiajs/vue3"
 import { notify } from "@kyvg/vue3-notification"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { ctrans } from "@/Composables/useTrans"
+import { useFormatTime } from "@/Composables/useFormatTime"
+
+interface ArtefactBatch {
+    id: number
+    job_order_route: { name: string, parameters: string[] }
+    reference: string
+    state_label: string
+    artisan: string | null
+    date: string | null
+    quantity: number
+    quantity_made: number
+    quantity_received: number
+    number_tasks: number
+    number_tasks_done: number
+}
 
 interface ArtefactShowcaseData {
     code: string
@@ -25,6 +40,9 @@ interface ArtefactShowcaseData {
         quantity_in_locations: number | string
         route: { name: string, parameters: any } | null
     } | null
+    recent_batches: ArtefactBatch[]
+    todo_batches: ArtefactBatch[]
+    partners: { code: string, name: string, ordered: number, in_bay: number }[]
     manufacture_tasks: {
         id: number
         code: string
@@ -38,6 +56,11 @@ interface ArtefactShowcaseData {
 const props = defineProps<{
     data: ArtefactShowcaseData
 }>()
+
+const batchSections = [
+    { key: "todo_batches", title: ctrans("To do"), empty: ctrans("Nothing on open job orders") },
+    { key: "recent_batches", title: ctrans("Last batches produced"), empty: ctrans("No batches produced yet") },
+] as const
 
 const batchSize = ref<number | string>(props.data.recommended_batch_size ?? '')
 const isSavingBatchSize = ref(false)
@@ -177,6 +200,57 @@ const onSaveBatchSize = async () => {
                     <dd class="text-sm">{{ data.org_stock ? data.org_stock.quantity_in_locations : '-' }}</dd>
                 </div>
             </dl>
+
+            <section v-if="data.partners.length" class="mt-8" aria-labelledby="artefact-partners-title">
+                <h3 id="artefact-partners-title" class="text-sm font-semibold mb-3">{{ ctrans('Partners') }}</h3>
+                <table class="w-full text-sm" aria-labelledby="artefact-partners-title">
+                    <thead>
+                        <tr class="text-left text-xs text-gray-500 uppercase tracking-wide">
+                            <th scope="col" class="pb-2">{{ ctrans('Partner') }}</th>
+                            <th scope="col" class="pb-2 text-right">{{ ctrans('Ordered (SKOs)') }}</th>
+                            <th scope="col" class="pb-2 text-right">{{ ctrans('In goods out bay (SKOs)') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="partner in data.partners" :key="partner.code" class="border-t border-gray-100">
+                            <td class="py-2">{{ partner.name }}</td>
+                            <td class="py-2 text-right tabular-nums">{{ partner.ordered }}</td>
+                            <td class="py-2 text-right tabular-nums">{{ partner.in_bay }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section v-for="section in batchSections" :key="section.key" class="mt-8" :aria-labelledby="`artefact-${section.key}-title`">
+                <h3 :id="`artefact-${section.key}-title`" class="text-sm font-semibold mb-3">{{ section.title }}</h3>
+                <table v-if="data[section.key].length" class="w-full text-sm" :aria-labelledby="`artefact-${section.key}-title`">
+                    <thead>
+                        <tr class="text-left text-xs text-gray-500 uppercase tracking-wide">
+                            <th scope="col" class="pb-2">{{ ctrans('Job order') }}</th>
+                            <th scope="col" class="pb-2">{{ ctrans('Artisan') }}</th>
+                            <th scope="col" class="pb-2">{{ ctrans('State') }}</th>
+                            <th scope="col" class="pb-2">{{ ctrans('Date') }}</th>
+                            <th scope="col" class="pb-2">{{ ctrans('Tasks done') }}</th>
+                            <th scope="col" class="pb-2 text-right">{{ ctrans('Batch') }}</th>
+                            <th scope="col" class="pb-2 text-right">{{ ctrans('Made') }}</th>
+                            <th scope="col" class="pb-2 text-right">{{ ctrans('Received') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="batch in data[section.key]" :key="batch.id" class="border-t border-gray-100">
+                            <td class="py-2"><Link :href="route(batch.job_order_route.name, batch.job_order_route.parameters)" class="primaryLink">{{ batch.reference }}</Link></td>
+                            <td class="py-2">{{ batch.artisan ?? '-' }}</td>
+                            <td class="py-2">{{ batch.state_label }}</td>
+                            <td class="py-2">{{ useFormatTime(batch.date) }}</td>
+                            <td class="py-2 tabular-nums">{{ batch.number_tasks_done }} / {{ batch.number_tasks }}</td>
+                            <td class="py-2 text-right tabular-nums">{{ batch.quantity }}</td>
+                            <td class="py-2 text-right tabular-nums">{{ batch.quantity_made }}</td>
+                            <td class="py-2 text-right tabular-nums">{{ batch.quantity_received }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p v-else class="text-sm text-gray-500">{{ section.empty }}</p>
+            </section>
 
             <section class="mt-8" v-if="data.manufacture_tasks.length" aria-labelledby="artefact-recipe-steps-title">
                 <h3 id="artefact-recipe-steps-title" class="text-sm font-semibold mb-3">{{ ctrans('Recipe steps') }}</h3>
