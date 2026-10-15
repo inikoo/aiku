@@ -398,7 +398,7 @@ class GenerateMasterAssetPriceTips
 
         $orgStockIds = $orgStocks->pluck('org_stock_id')->unique()->values();
         $incoming    = collect(GetProductIncomingStock::make()->forOrgStocks($orgStockIds->all()))->groupBy('org_stock_id')->map(fn ($lines) => $lines->sum('quantity'));
-        $usage       = GetOrgStocksQuarterlyUsage::make()->handle($orgStockIds);
+        $usage       = GetOrgStocksQuarterlyUsage::make()->handle($orgStockIds, 4);
         $orgStocks   = $orgStocks->groupBy('master_asset_id');
 
         $offers       = $this->offers($masterAssetIds);

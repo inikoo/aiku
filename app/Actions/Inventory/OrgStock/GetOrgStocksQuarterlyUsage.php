@@ -18,19 +18,20 @@ class GetOrgStocksQuarterlyUsage
     use AsObject;
 
     /**
-     * SKOs dispatched, days out of stock and the customer who took the most in each of the last four quarters (the current one included), keyed by org stock id.
+     * SKOs dispatched, days out of stock and the customer who took the most in each of the last $quarters quarters (the current one included), keyed by org stock id.
      *
      * @param  Collection<int, int>  $orgStockIds
+     * @param  int  $quarters
      * @return Collection<int, Collection<int, array{period: string, sales: float, days_out_of_stock: int, top_customer: array{id: int, name: string, sales: float}|null}>>
      */
-    public function handle(Collection $orgStockIds): Collection
+    public function handle(Collection $orgStockIds, int $quarters = 8): Collection
     {
         if ($orgStockIds->isEmpty()) {
             return collect();
         }
 
-        $from    = now()->firstOfQuarter()->subQuarters(3)->startOfDay();
-        $periods = collect(range(0, 3))->map(fn (int $quarter) => $from->copy()->addQuarters($quarter))
+        $from    = now()->firstOfQuarter()->subQuarters($quarters - 1)->startOfDay();
+        $periods = collect(range(0, $quarters - 1))->map(fn (int $quarter) => $from->copy()->addQuarters($quarter))
             ->map(fn ($start) => $start->year.'Q'.$start->quarter);
 
         $sales = DB::table('delivery_note_items')
