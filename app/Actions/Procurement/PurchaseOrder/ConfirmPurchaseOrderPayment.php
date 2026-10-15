@@ -10,11 +10,11 @@ namespace App\Actions\Procurement\PurchaseOrder;
 
 use App\Actions\Helpers\Media\SaveModelAttachment;
 use App\Actions\OrgAction;
-use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderAttachmentScopeEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderPaymentMethodEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Models\Procurement\PurchaseOrder;
+use App\Models\Procurement\PurchaseOrderDepositPayment;
 use App\Models\SysAdmin\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\UploadedFile;
@@ -25,8 +25,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ConfirmPurchaseOrderPayment extends OrgAction
 {
-    use WithActionUpdate;
-
     private PurchaseOrder $purchaseOrder;
 
     /**
@@ -49,44 +47,42 @@ class ConfirmPurchaseOrderPayment extends OrgAction
     }
 
     /**
-     * Only what is paid before the goods ship is confirmed on the purchase order: a deposit, up to the whole
-     * total. The rest is paid on the stock delivery, against the supplier's invoice.
+     * Records one deposit: a payment towards the total of the purchase order including the supplier's estimated
+     * expenses. Deposits add up until nothing is left to pay.
      *
-     * @param  array{ paid_at: string, method: string, reference?: string|null, bank_statement?: UploadedFile|null, user_id?: int|null, reason?: string|null}  $modelData
+     * @param  array{ paid_at: string, amount: float|string, method: string, reference?: string|null, bank_statement?: UploadedFile|null, user_id?: int|null, reason?: string|null}  $modelData
      */
-    public function handle(PurchaseOrder $purchaseOrder, array $modelData): PurchaseOrder
+    public function handle(PurchaseOrder $purchaseOrder, array $modelData): PurchaseOrderDepositPayment
     {
-        $file = Arr::get($modelData, 'bank_statement');
+        $file  = Arr::get($modelData, 'bank_statement');
+        $media = $file ? SaveModelAttachment::make()->action($purchaseOrder, [
+            'path'         => $file->getPathName(),
+            'originalName' => $file->getClientOriginalName(),
+            'extension'    => $file->getClientOriginalExtension(),
+            'scope'        => PurchaseOrderAttachmentScopeEnum::BANK_STATEMENT->value,
+            'sub_scope'    => 'deposit',
+            'caption'      => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
+        ]) : null;
 
-        $purchaseOrder = $this->update($purchaseOrder, [
-            'deposit_paid_at'    => $modelData['paid_at'],
-            'deposit_paid_by_id' => Arr::get($modelData, 'user_id'),
-            'data'               => [
-                'payments' => [
-                    'deposit' => [
-                        'method'    => $modelData['method'],
-                        'reference' => Arr::get($modelData, 'reference'),
-                    ],
-                ],
-            ],
-        ], ['data']);
+        $payment = $purchaseOrder->depositPayments()->create([
+            'group_id'        => $purchaseOrder->group_id,
+            'organisation_id' => $purchaseOrder->organisation_id,
+            'currency_id'     => $purchaseOrder->currency_id,
+            'date'            => $modelData['paid_at'],
+            'amount'          => round((float) $modelData['amount'], 2),
+            'method'          => $modelData['method'],
+            'reference'       => Arr::get($modelData, 'reference'),
+            'media_id'        => $media?->id,
+            'created_by'      => Arr::get($modelData, 'user_id'),
+        ]);
+
+        SyncPurchaseOrderDepositPaid::run($purchaseOrder);
 
         if ($reason = Arr::get($modelData, 'reason')) {
-            MarkPurchaseOrderStage::auditOverride($purchaseOrder, 'deposit_paid_at', null, $purchaseOrder->deposit_paid_at?->toDateString(), $reason);
+            MarkPurchaseOrderStage::auditOverride($purchaseOrder, 'deposit_paid_at', null, $payment->date->toDateString(), $reason);
         }
 
-        if ($file) {
-            SaveModelAttachment::make()->action($purchaseOrder, [
-                'path'         => $file->getPathName(),
-                'originalName' => $file->getClientOriginalName(),
-                'extension'    => $file->getClientOriginalExtension(),
-                'scope'        => PurchaseOrderAttachmentScopeEnum::BANK_STATEMENT->value,
-                'sub_scope'    => 'deposit',
-                'caption'      => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
-            ]);
-        }
-
-        return $purchaseOrder;
+        return $payment;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -98,6 +94,7 @@ class ConfirmPurchaseOrderPayment extends OrgAction
     {
         return [
             'paid_at'        => ['required', 'date', 'before_or_equal:tomorrow'],
+            'amount'         => ['required', 'numeric', 'gt:0', 'max:999999999999'],
             'method'         => ['required', Rule::enum(PurchaseOrderPaymentMethodEnum::class)],
             'reference'      => ['sometimes', 'nullable', 'string', 'max:255'],
             'bank_statement' => ['required_unless:method,cash', 'nullable', 'file', 'max:20480', 'mimes:pdf,jpg,jpeg,png,webp,heic'],
@@ -110,10 +107,10 @@ class ConfirmPurchaseOrderPayment extends OrgAction
     {
         if (!self::acceptsPayments($this->purchaseOrder)) {
             $validator->errors()->add('paid_at', __('A payment can only be confirmed once the purchase order is submitted'));
-        } elseif ($this->purchaseOrder->deposit_paid_at) {
-            $validator->errors()->add('paid_at', __('This payment is already confirmed'));
-        } elseif ((float) $this->purchaseOrder->deposit_amount <= 0) {
-            $validator->errors()->add('paid_at', __('Set the deposit before paying it'));
+        } elseif (($left = SyncPurchaseOrderDepositPaid::leftToPay($this->purchaseOrder)) <= 0) {
+            $validator->errors()->add('paid_at', __('Nothing is left to pay on this purchase order'));
+        } elseif ($validator->errors()->isEmpty() && round((float) $this->get('amount'), 2) > $left) {
+            $validator->errors()->add('amount', __('The payment cannot be more than what is left to pay: :amount', ['amount' => number_format($left, 2)]));
         } elseif (!$this->asAction && $validator->errors()->isEmpty() && !trim((string) $this->get('reason'))) {
             $reasons = MarkPurchaseOrderStage::make()->reasonsNeeded($this->purchaseOrder, 'deposit_paid_at', $this->get('paid_at'));
             if ($reasons) {
@@ -122,7 +119,7 @@ class ConfirmPurchaseOrderPayment extends OrgAction
         }
     }
 
-    public function asController(PurchaseOrder $purchaseOrder, ActionRequest $request): PurchaseOrder
+    public function asController(PurchaseOrder $purchaseOrder, ActionRequest $request): PurchaseOrderDepositPayment
     {
         $this->purchaseOrder = $purchaseOrder;
         $this->initialisation($purchaseOrder->organisation, $request);
@@ -130,7 +127,7 @@ class ConfirmPurchaseOrderPayment extends OrgAction
         return $this->handle($purchaseOrder, [...$this->validatedData, 'user_id' => $request->user()->id]);
     }
 
-    public function action(PurchaseOrder $purchaseOrder, array $modelData): PurchaseOrder
+    public function action(PurchaseOrder $purchaseOrder, array $modelData): PurchaseOrderDepositPayment
     {
         $this->asAction      = true;
         $this->purchaseOrder = $purchaseOrder;

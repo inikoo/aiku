@@ -44,6 +44,7 @@ import Select from "primevue/select"
 import StaffTaskDialog from "@/Components/Tasks/StaffTaskDialog.vue"
 import AspoDepositsChecklist from "@/Components/Procurement/AspoDepositsChecklist.vue"
 import PurchaseOrderPayments from "@/Components/Procurement/PurchaseOrderPayments.vue"
+import PurchaseOrderDepositPayments, { type PurchaseOrderPaymentsData } from "@/Components/Procurement/PurchaseOrderDepositPayments.vue"
 import PurchaseOrderStages from "@/Components/Procurement/PurchaseOrderStages.vue"
 import ButtonDownloadWithOptions from "@/Components/Utils/ButtonDownloadWithOptions.vue"
 import { useConfirm } from "primevue/useconfirm"
@@ -134,7 +135,7 @@ const props = defineProps < {
     compliance?: object
     compliance_summary?: InstanceType<typeof TablePurchaseOrderComplianceDocuments>["$props"]["compliance"]
     deposits?: object | null
-    payments?: InstanceType<typeof PurchaseOrderPayments>["$props"]["payments"] | null
+    payments?: PurchaseOrderPaymentsData | null
     delivery_items: {
         id: number
         code: string | null
@@ -1080,7 +1081,11 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 		</template>
 	</PageHeading>
 
-	<PurchaseOrderStages v-if="stages" :stages="stages.stages" :route="stages.route" :uploadRoute="stages.upload_route" />
+	<PurchaseOrderStages v-if="stages" :stages="stages.stages" :route="stages.route" :uploadRoute="stages.upload_route">
+		<template v-if="payments" #stage-deposit_paid>
+			<PurchaseOrderDepositPayments :payments="payments" :org-currency-code="box_stats.third_block.org_currency" :org-rate="paymentsOrgRate" />
+		</template>
+	</PurchaseOrderStages>
 	<div v-else-if="timelines" class="py-2 border-b border-gray-300">
 		<Timeline
 			:options="timelines"
@@ -1088,6 +1093,9 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 			:slidesPerView="6"
 			:format-time="'MMMM d yyyy, HH:mm'"
 		/>
+	</div>
+	<div v-if="!stages && payments" class="max-w-sm border-b border-gray-300 px-4 pb-3">
+		<PurchaseOrderDepositPayments :payments="payments" :org-currency-code="box_stats.third_block.org_currency" :org-rate="paymentsOrgRate" />
 	</div>
 
 	<div

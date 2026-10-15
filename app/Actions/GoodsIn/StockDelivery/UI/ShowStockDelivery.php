@@ -793,23 +793,30 @@ class ShowStockDelivery extends OrgAction
 
     /**
      * A purchase order's deposit is taken off the invoice of its first delivery only, so an order that arrives
-     * in several deliveries does not have it counted twice.
+     * in several deliveries does not have it counted twice. What counts is what was paid of it, instalment by
+     * instalment; an order paid before instalments were recorded counts its whole deposit.
      *
      * @return array<string, mixed>
      */
     private function getSupplierPayments(StockDelivery $stockDelivery, SupplierInvoice $invoice): array
     {
         $deposits = $stockDelivery->purchaseOrders()
-            ->whereNotNull('deposit_paid_at')
-            ->where('deposit_amount', '>', 0)
+            ->where(fn ($query) => $query->whereHas('depositPayments')->orWhere(fn ($query) => $query->whereNotNull('deposit_paid_at')->where('deposit_amount', '>', 0)))
             ->where('purchase_orders.currency_id', $invoice->currency_id)
+            ->with('depositPayments')
             ->get()
             ->filter(fn (PurchaseOrder $purchaseOrder) => $purchaseOrder->stockDeliveries()->min('stock_deliveries.id') === $stockDelivery->id)
-            ->map(fn (PurchaseOrder $purchaseOrder) => [
-                'reference' => $purchaseOrder->reference,
-                'date'      => $purchaseOrder->deposit_paid_at->toDateString(),
-                'amount'    => (float) $purchaseOrder->deposit_amount,
-            ])->values();
+            ->map(fn (PurchaseOrder $purchaseOrder) => $purchaseOrder->depositPayments->isNotEmpty()
+                ? [
+                    'reference' => $purchaseOrder->reference,
+                    'date'      => $purchaseOrder->depositPayments->max('date')->toDateString(),
+                    'amount'    => round((float) $purchaseOrder->depositPayments->sum('amount'), 2),
+                ]
+                : [
+                    'reference' => $purchaseOrder->reference,
+                    'date'      => $purchaseOrder->deposit_paid_at->toDateString(),
+                    'amount'    => (float) $purchaseOrder->deposit_amount,
+                ])->values();
 
         $payments = $stockDelivery->supplierPayments()->with('bankStatement:id,ulid')->orderBy('date')->get();
         $paid     = round((float) $deposits->sum('amount') + (float) $payments->sum('amount'), 2);

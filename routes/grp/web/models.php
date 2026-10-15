@@ -487,7 +487,6 @@ use App\Actions\Procurement\PurchaseOrder\ConfirmPurchaseOrderPayment;
 use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrderTransaction;
 use App\Actions\Procurement\PurchaseOrder\ImportPurchaseOrderTransactions;
-use App\Actions\Procurement\PurchaseOrder\SetPurchaseOrderDeposit;
 use App\Actions\Procurement\PurchaseOrder\UndoPurchaseOrderPayment;
 use App\Actions\Procurement\PurchaseOrder\RevertPurchaseOrderToSubmitted;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
@@ -1785,8 +1784,7 @@ Route::name('purchase-order.')->prefix('purchase-order/{purchaseOrder:id}')->gro
     Route::post('compliance/{tradeUnit:id}', AttachPurchaseOrderComplianceDocument::class)->name('compliance.attach')->withoutScopedBindings();
     Route::post('deposit', StoreAspoDeposit::class)->name('deposit.store');
     Route::post('payment', ConfirmPurchaseOrderPayment::class)->name('payment.confirm');
-    Route::patch('payment/undo', UndoPurchaseOrderPayment::class)->name('payment.undo');
-    Route::patch('payment/deposit', SetPurchaseOrderDeposit::class)->name('payment.deposit');
+    Route::delete('payment/{depositPayment:id}', UndoPurchaseOrderPayment::class)->name('payment.undo');
     Route::delete('', DeletePurchaseOrder::class)->name('delete');
     Route::patch('submit', UpdatePurchaseOrderStateToSubmitted::class)->name('submit');
     Route::patch('ready-to-send', SetPurchaseOrderReadyToSend::class)->name('ready_to_send');

@@ -103,7 +103,6 @@ class EditPurchaseOrder extends OrgAction
                             'title'  => __('Payments'),
                             'icon'   => 'fal fa-money-bill',
                             'fields' => [
-                                'deposit_amount'  => $this->depositAmountField($purchaseOrder),
                                 'balance_paid_at' => [
                                     'type'        => 'date',
                                     'label'       => __('Balance paid'),
@@ -162,35 +161,6 @@ class EditPurchaseOrder extends OrgAction
                     ],
                 ],
             ],
-            [
-                'label'  => __('Payments'),
-                'title'  => __('Payments'),
-                'icon'   => 'fal fa-money-bill',
-                'fields' => [
-                    'deposit_amount'  => $this->depositAmountField($purchaseOrder),
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function depositAmountField(PurchaseOrder $purchaseOrder): array
-    {
-        return [
-            'type'        => 'input_number',
-            'label'       => __('Deposit amount'),
-            'information' => __('The deposit paid to the supplier before production, in the currency of the order.'),
-            'bind'        => [
-                'mode'              => 'currency',
-                'currency'          => $purchaseOrder->currency->code,
-                'min'               => 0,
-                'step'              => 0.25,
-                'minFractionDigits' => 2,
-                'maxFractionDigits' => 2,
-            ],
-            'value'       => $purchaseOrder->deposit_amount === null ? null : (float) $purchaseOrder->deposit_amount,
         ];
     }
 
