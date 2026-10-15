@@ -52,11 +52,12 @@ import { Timeline as TSTimeline } from "@/types/Timeline"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faSpinnerThird } from "@fad"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faInventory, faWarehouse, faPersonDolly, faBoxUsd, faTruck, faTerminal, faCameraRetro, faPaperclip, faInfoCircle, faHandHoldingBox, faPeopleArrows, faExclamationTriangle, faBoxOpen, faClipboardList, faBalanceScale, faPassport, faCheckCircle, faTimes, faCheck, faSquare, faChevronRight, faChevronDown, faShip, faHashtag, faTrashAlt, faPlus, faContainerStorage } from "@fal"
+import { faInventory, faWarehouse, faPersonDolly, faBoxUsd, faTruck, faTerminal, faCameraRetro, faPaperclip, faInfoCircle, faHandHoldingBox, faPeopleArrows, faExclamationTriangle, faBoxOpen, faClipboardList, faBalanceScale, faPassport, faCheckCircle, faTimes, faCheck, faSquare, faChevronRight, faChevronDown, faShip, faHashtag, faTrashAlt, faPlus, faContainerStorage, faUpload } from "@fal"
 import { faBars, faBoxCheck, faInventory as fasInventory, faShare, faArrowCircleRight, faArrowCircleLeft, faExclamationCircle, faBoxFull, faCheckSquare } from "@fas"
 
 library.add(
 	faShip,
+	faUpload,
 	faContainerStorage,
 	faHashtag,
 	faPlus,
@@ -202,8 +203,10 @@ const props = defineProps<{
 		navigation: {}
 	}
 	attachmentRoutes: {
+		canChange: boolean
 		attachRoute: routeType
 		detachRoute: routeType
+		updateRoute: routeType
 	}
 	missing_evidence?: string[]
 	costing: {
@@ -905,11 +908,15 @@ const confirmDeleteStockDelivery = (action: any) => {
 		</template>
 		<template #other>
 			<Button
-				v-if="currentTab === 'attachments'"
-				label="Attach"
-				icon="upload"
+				v-if="currentTab === 'attachments' && attachmentRoutes.canChange"
+				type="tertiary"
+				:label="ctrans('Upload files')"
 				@click="() => (isModalUploadOpen = true)"
-			/>
+			>
+				<template #icon>
+					<FontAwesomeIcon icon="fal fa-upload" class="text-green-600" fixed-width aria-hidden="true" />
+				</template>
+			</Button>
 		</template>
 
 		<template #button-dispatch-stock-delivery="{ action }">
@@ -1466,20 +1473,39 @@ const confirmDeleteStockDelivery = (action: any) => {
 		:tab="currentTab"
 		:costing="currentTab === 'items' ? costing : undefined"
 		:detachRoute="attachmentRoutes.detachRoute"
+		:updateRoute="currentTab === 'attachments' ? attachmentRoutes.updateRoute : undefined"
+		:scopeOptions="currentTab === 'attachments' ? attachmentScopes : undefined"
+		:readonly="currentTab === 'attachments' ? !attachmentRoutes.canChange : undefined"
 		:storeRoute="currentTab === 'notes' && note_form?.can_write !== false ? note_store_route : undefined"
 			:agreement="currentTab === 'notes' ? note_form : undefined"
 		:removablePurchaseOrderIds="currentTab === 'purchase_orders' ? removablePurchaseOrderIds : undefined"
 		@removePurchaseOrder="(purchaseOrderId: number) => (purchaseOrderToRemoveId = purchaseOrderId)"
-	/>
+	>
+		<template #button-empty-state-attachments>
+			<Button
+				v-if="currentTab === 'attachments' && attachmentRoutes.canChange"
+				type="tertiary"
+				class="mt-4"
+				:label="ctrans('Upload files')"
+				@click="() => (isModalUploadOpen = true)"
+			>
+				<template #icon>
+					<FontAwesomeIcon icon="fal fa-upload" class="text-green-600" fixed-width aria-hidden="true" />
+				</template>
+			</Button>
+		</template>
+	</component>
 
 	<UploadAttachment
 		v-model="isModalUploadOpen"
 		scope="attachment"
 		:title="{
-			label: 'Upload your file',
-			information: 'The list of column file: customer_reference, notes, stored_items',
+			label: ctrans('Upload files'),
+			information: '',
 		}"
 		progressDescription="Adding Stock Delivery Attachments"
+		withCaption
+		multiple
 		:attachmentRoutes="attachmentRoutes"
 		:options="attachmentScopes"
 	/>

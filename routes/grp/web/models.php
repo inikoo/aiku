@@ -363,6 +363,7 @@ use App\Actions\GoodsIn\StockDelivery\ApplyStockDeliveryInvoiceCosting;
 use App\Actions\GoodsIn\StockDelivery\ApplyStockDeliveryServiceInvoiceReading;
 use App\Actions\Helpers\Media\AttachImagesToModel;
 use App\Actions\Helpers\Media\DetachAttachmentFromModel;
+use App\Actions\Helpers\Media\UpdateModelAttachment;
 use App\Actions\Helpers\Snapshot\ApplyWebsiteMenuSnapshot;
 use App\Actions\Helpers\Snapshot\SetSnapshotAsLive;
 use App\Actions\Helpers\Snapshot\UpdateSnapshot;
@@ -1737,6 +1738,7 @@ Route::name('stock-delivery.')->prefix('stock-delivery/{stockDelivery:id}')->gro
     Route::post('service-invoice/{media:id}/read', ReadStockDeliveryServiceInvoice::class)->name('service-invoice.read')->withoutScopedBindings();
     Route::post('service-invoice/{media:id}/apply', ApplyStockDeliveryServiceInvoiceReading::class)->name('service-invoice.apply')->withoutScopedBindings();
     Route::delete('attachment/{attachment:id}/detach', [DetachAttachmentFromModel::class, 'inStockDelivery'])->name('attachment.detach')->withoutScopedBindings();
+    Route::patch('attachment/{attachment:id}', [UpdateModelAttachment::class, 'inStockDelivery'])->name('attachment.update')->withoutScopedBindings();
 });
 
 Route::name('stock_delivery_service_invoice.')->prefix('stock-delivery-service-invoice/{serviceInvoice:id}')->group(function () {
