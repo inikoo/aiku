@@ -161,7 +161,7 @@ const tabIconClass = function (
 	// console.log(isCurrent, type, align, extraIconClass)
 	let iconClass = "-ml-0.5 h-5 w-5 " + extraIconClass + " "
 	// iconClass += isCurrent ? 'text-indigo-500 ' : 'text-gray-400 group-hover:text-gray-500 ';
-	iconClass += type == "icon" && align == "right" ? "ml-2 " : "mr-2 "
+	iconClass += type == "icon" && align == "right" ? "xml-2 " : "mr-2 "
 	return iconClass
 }
 
@@ -358,11 +358,12 @@ const placeMobileTabOptions = () => {
 							class="relative group inline-flex gap-x-1.5 justify-center items-center py-2 px-2 border-b-2 font-medium text-sm focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
 							:aria-current="tabSlug === currentTab ? 'page' : undefined"
 							v-tooltip="tab.title">
-							<FontAwesomeIcon
-								v-if="tabLoading === tabSlug"
-								icon="fad fa-spinner-third"
-								class="animate-spin h-5 w-5"
-								fixed-width aria-hidden="true" />
+							<span v-if="tabLoading === tabSlug">
+								<FontAwesomeIcon
+									icon="fad fa-spinner-third"
+									class="animate-spin h-5 w-5"
+									fixed-width aria-hidden="true" />
+							</span>
 							<span v-else-if="tab.icon" class="relative inline-flex">
 								<FontAwesomeIcon
 									:icon="tab.icon"
