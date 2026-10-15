@@ -1428,6 +1428,26 @@ test('reactivating a discontinued supplier product makes it available again unle
     expect($supplierProduct->refresh()->is_available)->toBeFalse();
 });
 
+test('discontinuing a supplier product together with a historic field still discontinues it in every organisation', function () {
+    $supplier        = StoreSupplier::make()->action(
+        parent: $this->group,
+        modelData: Supplier::factory()->definition()
+    );
+    $supplierProduct = StoreSupplierProduct::make()->action($supplier, [
+        'code'             => 'STATECBM',
+        'name'             => 'State with CBM',
+        'cost'             => 200,
+        'stock_id'         => $this->stocks[0]->id,
+        'units_per_pack'   => 10,
+        'units_per_carton' => 100
+    ]);
+
+    UpdateSupplierProduct::make()->action($supplierProduct, ['state' => SupplierProductStateEnum::DISCONTINUED->value, 'cbm' => 0.123]);
+
+    expect($supplierProduct->refresh()->orgSupplierProducts)->not->toBeEmpty()
+        ->and($supplierProduct->orgSupplierProducts->pluck('state')->unique()->values()->all())->toBe([SupplierProductStateEnum::DISCONTINUED->value]);
+});
+
 test('a supplier product without any SKO is refused on a purchase order with how to create its SKO', function () {
     $supplier           = StoreSupplier::make()->action(parent: $this->group, modelData: Supplier::factory()->definition());
     $orgSupplier        = $supplier->orgSuppliers()->where('organisation_id', $this->organisation->id)->first();
