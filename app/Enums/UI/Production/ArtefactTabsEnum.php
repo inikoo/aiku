@@ -40,7 +40,7 @@ enum ArtefactTabsEnum: string
                 'icon'  => 'fal fa-clipboard-list',
             ],
             ArtefactTabsEnum::BATCHES => [
-                'title' => __('Jobs done'),
+                'title' => __('Production history'),
                 'icon'  => 'fal fa-layer-group',
             ],
             ArtefactTabsEnum::MANUFACTURE_TASKS => [

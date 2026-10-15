@@ -105,7 +105,7 @@ enum OrgStockTabsEnum: string
             OrgStockTabsEnum::ARTEFACT_BATCHES => [
                 'align' => 'right',
                 'type'  => 'icon',
-                'title' => __('Jobs done'),
+                'title' => __('Production history'),
                 'icon'  => 'fal fa-layer-group',
             ],
 

@@ -153,8 +153,8 @@ class ShowArtefact extends OrgAction
                     : Inertia::optional(fn () => ArtefactBatchesResource::collection(IndexArtefactBatches::run($artefact, ArtefactTabsEnum::CURRENT_ORDERS->value, true))),
 
                 ArtefactTabsEnum::BATCHES->value => $this->tab == ArtefactTabsEnum::BATCHES->value
-                    ? fn () => ArtefactBatchesResource::collection(IndexArtefactBatches::run($artefact, ArtefactTabsEnum::BATCHES->value))
-                    : Inertia::optional(fn () => ArtefactBatchesResource::collection(IndexArtefactBatches::run($artefact, ArtefactTabsEnum::BATCHES->value))),
+                    ? fn () => IndexArtefactBatches::make()->jobsDone($artefact, ArtefactTabsEnum::BATCHES->value)
+                    : Inertia::optional(fn () => IndexArtefactBatches::make()->jobsDone($artefact, ArtefactTabsEnum::BATCHES->value)),
 
                 ArtefactTabsEnum::MANUFACTURE_TASKS->value => $this->tab == ArtefactTabsEnum::MANUFACTURE_TASKS->value
                     ? fn () => GetArtefactManufactureTasks::run($artefact)
@@ -194,7 +194,7 @@ class ShowArtefact extends OrgAction
             //         prefix: ArtefactTabsEnum::LOCATIONS->value
             //     )
         )->table(IndexArtefactBatches::make()->tableStructure(prefix: ArtefactTabsEnum::CURRENT_ORDERS->value, open: true))
-            ->table(IndexArtefactBatches::make()->tableStructure(prefix: ArtefactTabsEnum::BATCHES->value))
+            ->table(IndexArtefactBatches::make()->tableStructure(artefact: $artefact, prefix: ArtefactTabsEnum::BATCHES->value))
             ->table(IndexHistory::make()->tableStructure(prefix: ArtefactTabsEnum::HISTORY->value));
     }
 
@@ -217,7 +217,7 @@ class ShowArtefact extends OrgAction
     {
         return [
             ArtefactTabsEnum::CURRENT_ORDERS->value    => IndexArtefactBatches::make()->toDo($artefact)->reorder()->count(),
-            ArtefactTabsEnum::BATCHES->value           => IndexArtefactBatches::make()->query($artefact)->where('job_order_items.quantity_received', '>', 0)->count(),
+            ArtefactTabsEnum::BATCHES->value           => IndexArtefactBatches::make()->history($artefact)->whereNull('job_orders.deleted_at')->count(),
             ArtefactTabsEnum::MANUFACTURE_TASKS->value => $artefact->manufactureTasks()->count(),
             ArtefactTabsEnum::LABELS->value            => $artefact->labels()->count(),
             ArtefactTabsEnum::COMPLIANCE->value        => $artefact->complianceItems()->count(),

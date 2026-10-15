@@ -13,7 +13,7 @@ interface ProductionBatch {
     id: number
     job_order_route: routeType
     reference: string
-    state_label: string
+    status_label: string
     artisan: string | null
     date: string | null
     quantity: number

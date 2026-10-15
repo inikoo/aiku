@@ -11,7 +11,7 @@ interface ArtefactBatch {
     id: number
     job_order_route: { name: string, parameters: string[] }
     reference: string
-    state_label: string
+    status_label: string
     artisan: string | null
     date: string | null
     quantity: number
@@ -240,7 +240,7 @@ const onSaveBatchSize = async () => {
                         <tr v-for="batch in data[section.key]" :key="batch.id" class="border-t border-gray-100">
                             <td class="py-2"><Link :href="route(batch.job_order_route.name, batch.job_order_route.parameters)" class="primaryLink">{{ batch.reference }}</Link></td>
                             <td class="py-2">{{ batch.artisan ?? '-' }}</td>
-                            <td class="py-2">{{ batch.state_label }}</td>
+                            <td class="py-2">{{ batch.status_label }}</td>
                             <td class="py-2">{{ useFormatTime(batch.date) }}</td>
                             <td class="py-2 tabular-nums">{{ batch.number_tasks_done }} / {{ batch.number_tasks }}</td>
                             <td class="py-2 text-right tabular-nums">{{ batch.quantity }}</td>

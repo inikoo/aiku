@@ -5855,8 +5855,25 @@ test('production for stock is flagged on the backlog and booking it in fulfils t
 
     get(route('grp.org.productions.show.crafts.artefacts.show', $routeParameters + [2 => $artefact->slug, 'tab' => 'batches']))
         ->assertInertia(fn (AssertableInertia $page) => $page->where('batches.data.0.id', $jobOrderItem->id)
+            ->where('batches.data.0.status', 'received')
+            ->where('batches.data.0.batch_code', $jobOrder->reference.'-'.$artefact->code)
+            ->where('batches.data.0.quantity_made', 100)
+            ->where('batches.data.0.started_at', fn ($startedAt) => $startedAt !== null)
+            ->where('batches.data.0.finished_at', fn ($finishedAt) => $finishedAt !== null)
+            ->where('batches.data.0.steps.0.quantity_made', 100)
+            ->where('batches.totals.all_time', 100)
+            ->where('batches.totals.last_30_days', 100)
             ->where('tabs.navigation.batches.number', 1)
             ->where('tabs.navigation.current_orders.number', 0));
+
+    $cancelledJobOrder = StoreJobOrder::make()->action($this->production, []);
+    StoreJobOrderItem::make()->action($cancelledJobOrder, ['artefact_id' => $artefact->id, 'quantity' => 50])->delete();
+    $cancelledJobOrder->delete();
+
+    get(route('grp.org.productions.show.crafts.artefacts.show', $routeParameters + [2 => $artefact->slug, 'tab' => 'batches']))
+        ->assertInertia(fn (AssertableInertia $page) => $page->has('batches.data', 1)->where('tabs.navigation.batches.number', 1));
+    get(route('grp.org.productions.show.crafts.artefacts.show', $routeParameters + [2 => $artefact->slug, 'tab' => 'batches', 'batches_elements' => ['cancelled' => 'cancelled']]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->has('batches.data', 1)->where('batches.data.0.status', 'cancelled'));
 
     $isHub = $this->organisation->is_manufacturing_hub;
     $this->organisation->update(['is_manufacturing_hub' => true]);

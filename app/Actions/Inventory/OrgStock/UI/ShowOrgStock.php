@@ -234,7 +234,7 @@ class ShowOrgStock extends OrgAction
                     : Inertia::optional(fn () => PurchaseOrdersResource::collection(IndexPurchaseOrders::make()->inOrgStock($this->organisation, $orgStock, $request, OrgStockTabsEnum::PURCHASE_ORDERS->value))),
 
                 OrgStockTabsEnum::ARTEFACT_CURRENT_ORDERS->value => $this->artefactTab($artefact, OrgStockTabsEnum::ARTEFACT_CURRENT_ORDERS, fn () => ArtefactBatchesResource::collection(IndexArtefactBatches::run($artefact, OrgStockTabsEnum::ARTEFACT_CURRENT_ORDERS->value, true))),
-                OrgStockTabsEnum::ARTEFACT_BATCHES->value => $this->artefactTab($artefact, OrgStockTabsEnum::ARTEFACT_BATCHES, fn () => ArtefactBatchesResource::collection(IndexArtefactBatches::run($artefact, OrgStockTabsEnum::ARTEFACT_BATCHES->value))),
+                OrgStockTabsEnum::ARTEFACT_BATCHES->value => $this->artefactTab($artefact, OrgStockTabsEnum::ARTEFACT_BATCHES, fn () => IndexArtefactBatches::make()->jobsDone($artefact, OrgStockTabsEnum::ARTEFACT_BATCHES->value)),
                 OrgStockTabsEnum::ARTEFACT_MANUFACTURE_TASKS->value => $this->artefactTab($artefact, OrgStockTabsEnum::ARTEFACT_MANUFACTURE_TASKS, fn () => GetArtefactManufactureTasks::run($artefact)),
                 OrgStockTabsEnum::ARTEFACT_LABELS->value => $this->artefactTab($artefact, OrgStockTabsEnum::ARTEFACT_LABELS, fn () => GetArtefactLabels::run($artefact)),
                 OrgStockTabsEnum::ARTEFACT_COMPLIANCE->value => $this->artefactTab($artefact, OrgStockTabsEnum::ARTEFACT_COMPLIANCE, fn () => GetArtefactCompliance::run($artefact)),
@@ -249,7 +249,7 @@ class ShowOrgStock extends OrgAction
         ->table(IndexPurchaseOrders::make()->tableStructure(parent: $orgStock, prefix: OrgStockTabsEnum::PURCHASE_ORDERS->value))
         ->table(IndexOrgStockSupplierProducts::make()->tableStructure(prefix: OrgStockTabsEnum::SUPPLIER_PRODUCTS->value))
         ->table(IndexArtefactBatches::make()->tableStructure(prefix: OrgStockTabsEnum::ARTEFACT_CURRENT_ORDERS->value, open: true))
-        ->table(IndexArtefactBatches::make()->tableStructure(prefix: OrgStockTabsEnum::ARTEFACT_BATCHES->value));
+        ->table(IndexArtefactBatches::make()->tableStructure(artefact: $artefact, prefix: OrgStockTabsEnum::ARTEFACT_BATCHES->value));
     }
 
     private function artefactTab(?Artefact $artefact, OrgStockTabsEnum $tab, Closure $data): mixed
