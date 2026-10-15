@@ -18,25 +18,25 @@ defineProps<{
 	tab?: string
 }>()
 
-const organisation = () => route().params["organisation"]
-const productRoute = (slug: string) => route("grp.org.agent.org_supplier_products.show", [organisation(), slug])
-const supplierRoute = (slug: string) => route("grp.org.agent.org_suppliers.show", [organisation(), slug])
-const purchaseOrderRoute = (slug: string) => route("grp.org.agent.purchase_orders.show", [organisation(), slug])
+const organisation = route().params["organisation"]
+const productRoute = (slug: string) => route("grp.org.agent.org_supplier_products.show", [organisation, slug])
+const supplierRoute = (slug: string) => route("grp.org.agent.org_suppliers.show", [organisation, slug])
+const purchaseOrderRoute = (slug: string) => route("grp.org.agent.purchase_orders.show", [organisation, slug])
 </script>
 
 <template>
 	<Table :resource="data" :name="tab" class="mt-5">
 		<template #cell(state)="{ item: stock }"><Icon :data="stock.state_icon" /></template>
 		<template #cell(code)="{ item: stock }">
-			<Link v-if="stock.org_supplier_product_slug" :href="productRoute(stock.org_supplier_product_slug)" class="font-medium text-gray-500 hover:text-gray-700">{{ stock.code }}</Link>
+			<Link v-if="stock.org_supplier_product_slug" :href="productRoute(stock.org_supplier_product_slug)" class="primaryLink">{{ stock.code }}</Link>
 			<span v-else>{{ stock.code }}</span>
 		</template>
 		<template #cell(supplier_code)="{ item: stock }">
-			<Link v-if="stock.org_supplier_slug" :href="supplierRoute(stock.org_supplier_slug)" class="text-gray-500 hover:text-gray-700">{{ stock.supplier_code }}</Link>
+			<Link v-if="stock.org_supplier_slug" :href="supplierRoute(stock.org_supplier_slug)" class="secondaryLink">{{ stock.supplier_code }}</Link>
 			<span v-else>{{ stock.supplier_code }}</span>
 		</template>
 		<template #cell(purchase_order_reference)="{ item: stock }">
-			<Link v-if="stock.purchase_order_slug" :href="purchaseOrderRoute(stock.purchase_order_slug)" class="text-gray-500 hover:text-gray-700">{{ stock.purchase_order_reference }}</Link>
+			<Link v-if="stock.purchase_order_slug" :href="purchaseOrderRoute(stock.purchase_order_slug)" class="secondaryLink">{{ stock.purchase_order_reference }}</Link>
 		</template>
 		<template #cell(quantity)="{ item: stock }"><span class="tabular-nums">{{ stock.quantity.toLocaleString() }}</span></template>
 	</Table>
