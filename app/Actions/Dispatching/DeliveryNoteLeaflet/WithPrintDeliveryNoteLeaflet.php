@@ -36,38 +36,50 @@ trait WithPrintDeliveryNoteLeaflet
      */
     protected function printDeliveryNoteLeaflet(DeliveryNoteLeaflet $deliveryNoteLeaflet, int $printerId): ?PrintJob
     {
-        $media = $deliveryNoteLeaflet->media;
+        $pdf = $this->leafletPdf($deliveryNoteLeaflet);
 
-        if (!$media && !filled($deliveryNoteLeaflet->message)) {
+        if ($pdf === null) {
             return null;
-        }
-
-        if (!$media) {
-            $pdfBase64 = base64_encode(
-                PDF::loadHTML($this->personalisedMessageHtml($deliveryNoteLeaflet->message))->output()
-            );
-        } else {
-            $bytes = Storage::disk($media->disk)->get($media->getPathRelativeToRoot());
-
-            $pdfBase64 = base64_encode(
-                $media->mime_type && str_starts_with($media->mime_type, 'image/') ? $this->imageLeafletPdf($bytes) : $bytes
-            );
         }
 
         $result = $this->printPdf(
             title: $deliveryNoteLeaflet->name,
             printId: $printerId,
-            pdfBase64: $pdfBase64,
-            options: ($media ? $this->leafletPaperOption($printerId) : []) + [PrintJobOption::FitToPage->value => false]
+            pdfBase64: base64_encode($pdf),
+            options: $this->leafletPaperOption($printerId) + [PrintJobOption::FitToPage->value => false]
         );
 
+        $this->markLeafletPrinted($deliveryNoteLeaflet);
+
+        return $result;
+    }
+
+    /**
+     * The leaflet as the PDF that goes on the A6 card: the uploaded PDF as it is, an uploaded image
+     * laid on an A6 page, or the personalised message written on an A6 page.
+     */
+    protected function leafletPdf(DeliveryNoteLeaflet $deliveryNoteLeaflet): ?string
+    {
+        $media = $deliveryNoteLeaflet->media;
+
+        if (!$media) {
+            return filled($deliveryNoteLeaflet->message)
+                ? PDF::loadHTML($this->personalisedMessageHtml($deliveryNoteLeaflet->message), ['format' => 'A6', 'margin_left' => 10, 'margin_right' => 10, 'margin_top' => 12, 'margin_bottom' => 12])->output()
+                : null;
+        }
+
+        $bytes = Storage::disk($media->disk)->get($media->getPathRelativeToRoot());
+
+        return $media->mime_type && str_starts_with($media->mime_type, 'image/') ? $this->imageLeafletPdf($bytes) : $bytes;
+    }
+
+    protected function markLeafletPrinted(DeliveryNoteLeaflet $deliveryNoteLeaflet): void
+    {
         $deliveryNoteLeaflet->update([
             'state'              => DeliveryNoteLeafletStateEnum::PRINTED,
             'printed_at'         => now(),
             'printed_by_user_id' => request()->user()?->id,
         ]);
-
-        return $result;
     }
 
     /**
@@ -171,7 +183,7 @@ trait WithPrintDeliveryNoteLeaflet
 
     protected function personalisedMessageHtml(string $message): string
     {
-        return '<div style="font-family: sans-serif; font-size: 14pt; line-height: 1.6; padding: 24pt; white-space: pre-wrap;">'
+        return '<div style="font-family: sans-serif; font-size: 14pt; line-height: 1.6; white-space: pre-wrap;">'
             .e($message)
             .'</div>';
     }

@@ -2,6 +2,7 @@
 
 use App\Actions\Dispatching\DeliveryNoteLeaflet\WithPrintDeliveryNoteLeaflet;
 use App\Actions\Traits\WithPrintNode;
+use App\Models\Dispatching\DeliveryNoteLeaflet;
 use Illuminate\Validation\ValidationException;
 
 function leafletImagePdf(string $bytes): string
@@ -83,3 +84,27 @@ test('a printer without A6 gets its nearest paper', function (array $papers, ?st
     'only 4 x 6'   => [['102 x 152 mm (4 x 6 in)' => [1016, 1524], 'A4' => [2100, 2970]], '102 x 152 mm (4 x 6 in)'],
     'nothing near' => [['A4' => [2100, 2970], 'A5' => [1480, 2100], 'Custom' => [null, null]], null],
 ]);
+
+function leafletPdfOf(DeliveryNoteLeaflet $deliveryNoteLeaflet): ?string
+{
+    return (new class () {
+        use WithPrintDeliveryNoteLeaflet;
+
+        public function build(DeliveryNoteLeaflet $deliveryNoteLeaflet): ?string
+        {
+            return $this->leafletPdf($deliveryNoteLeaflet);
+        }
+    })->build($deliveryNoteLeaflet);
+}
+
+test('a personalised message leaflet is written on one A6 page', function () {
+    $pdf = leafletPdfOf(new DeliveryNoteLeaflet(['message' => "Thank you for your order\nSee you soon"]));
+
+    expect($pdf)->toStartWith('%PDF')
+        ->and(preg_match_all('/\/Type\s*\/Page\b/', $pdf))->toBe(1)
+        ->and($pdf)->toMatch('/\/MediaBox\s*\[0 0 297\.6\d* 419\.5\d*\]/');
+});
+
+test('a leaflet with neither file nor message has nothing to print', function () {
+    expect(leafletPdfOf(new DeliveryNoteLeaflet()))->toBeNull();
+});
