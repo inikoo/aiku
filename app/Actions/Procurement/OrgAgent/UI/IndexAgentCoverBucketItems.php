@@ -447,8 +447,9 @@ class IndexAgentCoverBucketItems extends OrgAction
     public function asController(Organisation $organisation, OrgAgent $orgAgent, ActionRequest $request): LengthAwarePaginator
     {
         $this->orgAgent   = $orgAgent;
-        $cover            = $request->input('cover', 'out');
-        $this->bucket     = $request->routeIs('*.shopping.browse.index') ? null : (array_key_exists($cover, GetAgentStockCoverBuckets::BUCKETS) ? $cover : 'out');
+        $isBrowse         = $request->routeIs('*.shopping.browse.index');
+        $cover            = (string) $request->input('cover', $isBrowse ? '' : 'out');
+        $this->bucket     = array_key_exists($cover, GetAgentStockCoverBuckets::BUCKETS) ? $cover : ($isBrowse ? null : 'out');
         $rank             = $request->input('rank');
         $this->rank       = in_array($rank, ['A', 'B', 'C', 'D', 'Z'], true) ? $rank : null;
         $this->supplierId   = ((int) ($request->input('filter.supplier') ?: $request->input('supplier'))) ?: null;

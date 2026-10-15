@@ -15,6 +15,7 @@ use App\Actions\Procurement\WithNoStrictProcurementOrderRules;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStageEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Models\Procurement\PurchaseOrder;
@@ -50,8 +51,6 @@ class UpdatePurchaseOrder extends OrgAction
     public const array AGENT_FIELDS = [
         'proposed_ready_at',
         'deposit_amount',
-        'deposit_paid_at',
-        'sample_approved_at',
         'produced_at',
         'estimated_production_date',
         'estimated_receiving_date',
@@ -141,6 +140,10 @@ class UpdatePurchaseOrder extends OrgAction
             'chs_excluded'              => ['sometimes', 'boolean'],
             'chs_exclusion_reason'      => ['sometimes', 'nullable', 'string'],
         ];
+
+        if (!$this->asAction) {
+            $rules = Arr::except($rules, array_keys(PurchaseOrderStageEnum::MARKABLE_FIELDS));
+        }
 
         if ($this->actingAsAgent) {
             return Arr::only($rules, self::AGENT_FIELDS);

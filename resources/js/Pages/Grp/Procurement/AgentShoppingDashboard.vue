@@ -25,7 +25,6 @@ import {
     faStopwatch,
     faLayerGroup,
     faChevronDown,
-    faMagic,
     faTrashAlt,
     faCheck,
     faSkullCrossbones,
@@ -37,7 +36,6 @@ import {
     faList,
     faArrowRight,
 } from "@fal"
-import ModalAutoFillAgentShoppingList from "@/Components/Procurement/ModalAutoFillAgentShoppingList.vue"
 
 library.add(
     faExclamationTriangle,
@@ -46,7 +44,6 @@ library.add(
     faStopwatch,
     faLayerGroup,
     faChevronDown,
-    faMagic,
     faTrashAlt,
     faCheck,
     faSkullCrossbones,
@@ -336,13 +333,7 @@ const prepare = () => {
     )
 }
 
-const autoFillOpen = ref(false)
-const autoFillScope = ref<{ bucket: string, rank: string | null, supplierId: number | null, label: string } | null>(null)
 
-const openAutoFill = (bucket: CoverBucket) => {
-    autoFillScope.value = { bucket: bucket.bucket, rank: null, supplierId: null, label: bucket.label }
-    autoFillOpen.value = true
-}
 </script>
 
 <template>
@@ -500,16 +491,14 @@ const openAutoFill = (bucket: CoverBucket) => {
                                     >
                                         <b class="font-bold text-gray-800">{{ rank.rank }}</b> {{ rank.count }}
                                     </Link>
-                                    <button
+                                    <Link
                                         v-if="canPrepareOrder && canAutoFill(bucket)"
-                                        type="button"
-                                        v-tooltip="ctrans('Pick the products to add from this group one by one')"
+                                        :href="`${browseRoute}?cover=${bucket.bucket}`"
                                         class="ml-auto inline-flex items-center gap-1 rounded-md border border-gray-300 px-2 py-0.5 text-[11px] font-medium text-gray-700 hover:bg-gray-50"
-                                        @click="openAutoFill(bucket)"
                                     >
-                                        <FontAwesomeIcon :icon="faMagic" fixed-width aria-hidden="true" />
-                                        {{ ctrans("Choose lines") }}
-                                    </button>
+                                        {{ ctrans("Go ordering") }}
+                                        <FontAwesomeIcon :icon="faArrowRight" fixed-width aria-hidden="true" />
+                                    </Link>
                                 </div>
                             </div>
                         </div>
@@ -748,14 +737,4 @@ const openAutoFill = (bucket: CoverBucket) => {
             </div>
         </section>
     </div>
-
-    <ModalAutoFillAgentShoppingList
-        v-model="autoFillOpen"
-        :orgAgentSlug="orgAgent.slug"
-        :currency="orgAgent.currency"
-        :bucket="autoFillScope?.bucket"
-        :rank="autoFillScope?.rank"
-        :supplierId="autoFillScope?.supplierId"
-        :scopeLabel="autoFillScope?.label"
-    />
 </template>

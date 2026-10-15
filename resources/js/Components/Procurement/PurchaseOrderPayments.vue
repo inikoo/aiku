@@ -14,6 +14,7 @@ import InputNumber from "primevue/inputnumber"
 import InputText from "primevue/inputtext"
 import Select from "primevue/select"
 import FileUpload from "primevue/fileupload"
+import Textarea from "primevue/textarea"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -85,17 +86,17 @@ const setDeposit = (amount: number | null) =>
 	})
 
 const isPayDialogOpen = ref(false)
-const form = ref<{ paid_at: Date | null; method: string; reference: string; file: File | null }>({ paid_at: new Date(), method: "bank_transfer", reference: "", file: null })
+const form = ref<{ paid_at: Date | null; method: string; reference: string; file: File | null; reason: string }>({ paid_at: new Date(), method: "bank_transfer", reference: "", file: null, reason: "" })
 
 const openPayDialog = () => {
-	form.value = { paid_at: new Date(), method: "bank_transfer", reference: "", file: null }
+	form.value = { paid_at: new Date(), method: "bank_transfer", reference: "", file: null, reason: "" }
 	isPayDialogOpen.value = true
 }
 
 const needsStatement = computed(() => form.value.method !== "cash")
-const canSubmit = computed(() => !!form.value.paid_at && !!form.value.method && (!needsStatement.value || !!form.value.file))
-
 const toIsoDate = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
+const needsReason = computed(() => !!form.value.paid_at && toIsoDate(form.value.paid_at) < toIsoDate(new Date(Date.now() - 86400000)))
+const canSubmit = computed(() => !!form.value.paid_at && !!form.value.method && (!needsStatement.value || !!form.value.file) && (!needsReason.value || !!form.value.reason.trim()))
 
 const confirmPayment = () => {
 	if (!canSubmit.value) return
@@ -106,6 +107,7 @@ const confirmPayment = () => {
 			method: form.value.method,
 			reference: form.value.reference || null,
 			bank_statement: form.value.file,
+			reason: needsReason.value ? form.value.reason.trim() : null,
 		},
 		{
 			...visit,
@@ -251,6 +253,10 @@ const undoPayment = () => router.patch(route(props.payments.undo_route.name, pro
 				<label class="block text-sm">
 					<span class="text-gray-600">{{ ctrans("Date the payment was sent") }}</span>
 					<DatePicker v-model="form.paid_at" dateFormat="dd/mm/yy" :maxDate="new Date()" :manualInput="false" showIcon iconDisplay="input" class="mt-1 w-full" :class="fieldFocusClass" :pt="{ pcInputText: { root: { class: '!w-full' } } }" />
+				</label>
+				<label v-if="needsReason" class="block text-sm">
+					<span class="text-gray-600">{{ ctrans("Reason for the past date (kept in the order's history)") }}</span>
+					<Textarea v-model="form.reason" rows="2" autoResize maxlength="500" class="mt-1 w-full" :class="fieldFocusClass" />
 				</label>
 				<label class="block text-sm">
 					<span class="text-gray-600">{{ ctrans("Payment method") }}</span>

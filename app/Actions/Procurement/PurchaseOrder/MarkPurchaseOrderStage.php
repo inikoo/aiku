@@ -13,6 +13,7 @@ use App\Actions\Procurement\PurchaseOrder\UI\GetPurchaseOrderStages;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStageEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Models\Procurement\PurchaseOrder;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
@@ -58,16 +59,21 @@ class MarkPurchaseOrderStage extends OrgAction
         $purchaseOrder = UpdatePurchaseOrder::make()->action($purchaseOrder, [$field => $date]);
 
         if ($reason = Arr::get($modelData, 'reason')) {
-            $purchaseOrder->auditEvent     = 'stage_override';
-            $purchaseOrder->isCustomEvent  = true;
-            $purchaseOrder->auditCustomOld = [$field => $old];
-            $purchaseOrder->auditCustomNew = [$field => $date?->toDateString(), 'reason' => $reason];
-            Event::dispatch(new AuditCustom($purchaseOrder));
-            $purchaseOrder->isCustomEvent  = false;
-            $purchaseOrder->auditCustomOld = $purchaseOrder->auditCustomNew = [];
+            self::auditOverride($purchaseOrder, $field, $old, $date?->toDateString(), $reason);
         }
 
         return $purchaseOrder;
+    }
+
+    public static function auditOverride(PurchaseOrder $purchaseOrder, string $field, ?string $old, ?string $new, string $reason): void
+    {
+        $purchaseOrder->auditEvent     = 'stage_override';
+        $purchaseOrder->isCustomEvent  = true;
+        $purchaseOrder->auditCustomOld = [$field => $old];
+        $purchaseOrder->auditCustomNew = [$field => $new, 'reason' => $reason];
+        Event::dispatch(new AuditCustom($purchaseOrder));
+        $purchaseOrder->isCustomEvent  = false;
+        $purchaseOrder->auditCustomOld = $purchaseOrder->auditCustomNew = [];
     }
 
     /**
@@ -82,8 +88,8 @@ class MarkPurchaseOrderStage extends OrgAction
         }
 
         $reasons = [];
-        if (Carbon::parse($date)->toDateString() < $this->today()) {
-            $reasons[] = __('the date is in the past');
+        if (Carbon::parse($date)->toDateString() < Carbon::parse(self::today($purchaseOrder->organisation))->subDay()->toDateString()) {
+            $reasons[] = __('the date is more than a day in the past');
         }
 
         $skipped = GetPurchaseOrderStages::make()->skippedBy($purchaseOrder, $field, GetPurchaseOrderStages::run($purchaseOrder));
@@ -100,7 +106,7 @@ class MarkPurchaseOrderStage extends OrgAction
 
         return [
             'field'  => ['required', Rule::in($fields)],
-            'date'   => ['present', 'nullable', 'date', 'before_or_equal:'.$this->today()],
+            'date'   => ['present', 'nullable', 'date', 'before_or_equal:'.self::today($this->organisation)],
             'reason' => ['sometimes', 'nullable', 'string', 'max:500'],
         ];
     }
@@ -145,9 +151,9 @@ class MarkPurchaseOrderStage extends OrgAction
         return back();
     }
 
-    private function today(): string
+    public static function today(Organisation $organisation): string
     {
-        return now($this->organisation->timezone?->name)->toDateString();
+        return now($organisation->timezone?->name)->toDateString();
     }
 
     private function stamp(?string $date): ?Carbon
@@ -156,6 +162,6 @@ class MarkPurchaseOrderStage extends OrgAction
             return null;
         }
 
-        return Carbon::parse($date)->toDateString() === $this->today() ? now() : Carbon::parse($date);
+        return Carbon::parse($date)->toDateString() === self::today($this->organisation) ? now() : Carbon::parse($date);
     }
 }

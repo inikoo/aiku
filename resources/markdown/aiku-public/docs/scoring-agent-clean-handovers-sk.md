@@ -2,7 +2,7 @@
 title: Bodovanie čistých odovzdávok agenta
 summary: Pre nákupné tímy — prečo existuje Clean Handover Score, ktorých päť faktov musíte zaznamenať pri každej objednávke cez agenta, kto by mal mať na starosti ktoré pole, a ako čítať hygienický pás, ktorý vám povie, kedy je skóre riadené namiesto zaslúžené.
 date: 2026-09-01
-source_date: 2026-09-01
+source_date: 2026-10-15
 tags: procurement, agents, supply-chain
 category: procurement
 series: Clean Handover Score
@@ -73,7 +73,7 @@ A ešte jedna prevádzková poznámka: skóre existuje len pre objednávky so sc
 
 <aside class="wayfinder">
 <b>Kam kliknúť v aiku</b><br>
-Skupina → <b>Supply Chain → Agents</b> → vyberte agenta. Prehľad zobrazuje panel <b>Clean Handover Score</b> s hygienickým pásom. Na zaznamenanie piatich faktov: zoznam agenta <b>Purchase Orders</b> → otvorte objednávku → <b>Edit</b> → sekcia <b>Clean handover</b> (navrhovaný/schválený dátum pripravenosti, odovzdané, kontrola kvality prešla, súlad kompletný, prepínač výnimky + dôvod). Agent vidí svoje skóre bez hygienického pásu na svojom vlastnom prehľade po prihlásení.
+Skupina → <b>Supply Chain → Agents</b> → vyberte agenta. Prehľad zobrazuje panel <b>Clean Handover Score</b> s hygienickým pásom. Na zaznamenanie piatich faktov: zoznam agenta <b>Purchase Orders</b> → otvorte objednávku. <b>Kontrola kvality prešla</b> je tlačidlo <b>QC approved</b> na fázach v hornej časti objednávky. Ostatné sú v <b>Edit</b> → sekcia <b>Clean handover</b> (navrhovaný/schválený dátum pripravenosti, odovzdané, súlad kompletný, prepínač výnimky + dôvod). Agent vidí svoje skóre bez hygienického pásu na svojom vlastnom prehľade po prihlásení.
 </aside>
 
 <aside class="wayfinder">
