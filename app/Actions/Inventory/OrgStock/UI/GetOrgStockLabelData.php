@@ -30,8 +30,6 @@ class GetOrgStockLabelData
 
     public const ES_IMPORTER = "Imported to Spain by: AW Artisan S.L, 39 Caleta de\nVelez Street 29004 Málaga, Spain,\nhola@awartisan.es";
 
-    public const CARTON_ORGANISATION_CODE = 'SK';
-
     /**
      * @return array<string, mixed>
      */
@@ -75,7 +73,7 @@ class GetOrgStockLabelData
         $unitsPerPack   = $supplierProduct?->units_per_pack ?? (int) ($orgStock->packed_in ?? 1);
         $unitsPerCarton = $supplierProduct?->units_per_carton;
         $supplierCode   = $supplierProduct?->supplier?->code;
-        $organisation   = $this->getCartonOrganisation($orgStock);
+        $organisation   = $orgStock->organisation;
 
         return [
             'commercialised_by' => $organisation->name,
@@ -89,12 +87,6 @@ class GetOrgStockLabelData
             'origin'            => strtoupper((string) $this->getSharedTradeUnit($tradeUnits, 'country_of_origin')?->country_of_origin) ?: null,
             'signature'         => ($signature = $this->getSignature($organisation)) ? str_replace("\n", ', ', $signature) : null,
         ];
-    }
-
-    private function getCartonOrganisation(OrgStock $orgStock): Organisation
-    {
-        return Organisation::where('code', self::CARTON_ORGANISATION_CODE)->with('address')->first()
-            ?? $orgStock->organisation;
     }
 
     /**
