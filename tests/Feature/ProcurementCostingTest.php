@@ -2965,7 +2965,7 @@ test('purchase orders list shows the agent order of a supplier order and searche
         ->etc());
 });
 
-test('purchase order edit form takes the deposit amount as a number in the order currency and rejects text', function () {
+test('purchase order edit form leaves the deposit to the deposit payments, and the update still rejects a deposit amount that is text or negative', function () {
     $orgAgent      = createFreshOrgAgent($this);
     [$orgSupplier] = createAgentOrgSupplierWithProduct($this, $orgAgent);
     $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, []);
@@ -2973,14 +2973,7 @@ test('purchase order edit form takes the deposit amount as a number in the order
     $this->get(route('grp.org.procurement.purchase_orders.edit', [$purchaseOrder->organisation->slug, $purchaseOrder->slug]))
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->component('EditModel')
-            ->where('formData.blueprint', function ($blueprint) use ($purchaseOrder) {
-                $field = collect($blueprint)->pluck('fields')->collapse()->get('deposit_amount');
-
-                return $field['type'] === 'input_number'
-                    && $field['bind']['mode'] === 'currency'
-                    && $field['bind']['currency'] === $purchaseOrder->currency->code
-                    && $field['bind']['min'] === 0;
-            }));
+            ->where('formData.blueprint', fn ($blueprint) => !collect($blueprint)->pluck('fields')->collapse()->has('deposit_amount')));
 
     $this->patch(route('grp.models.purchase-order.update', $purchaseOrder->id), ['deposit_amount' => 'a lot'])
         ->assertSessionHasErrors('deposit_amount');
