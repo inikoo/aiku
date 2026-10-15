@@ -10320,6 +10320,11 @@ test('UI agent browse lists the whole catalogue as a standard table and searches
     $this->get($url.'?'.http_build_query(['filter' => ['global' => 'no-such-product-zzz']]))->assertInertia(fn (AssertableInertia $page) => $page->where('items.meta.total', 0));
 
     $this->get($url.'?'.http_build_query(['filter' => ['supplier' => $supplierId]]))->assertInertia(fn (AssertableInertia $page) => $page
+    $this->get($url.'?cover=w1')->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('bucket', 'w1')
+        ->where('active.cover', 'w1')
+        ->where('items.data', fn ($items) => collect($items)->every(fn (array $item) => $item['bucket'] === 'w1')));
+
         ->where('items.data', fn ($items) => collect($items)->contains('code', $code)));
 
     $this->get($url.'?drafts=1&'.http_build_query(['filter' => ['supplier' => $supplierId]]))->assertInertia(fn (AssertableInertia $page) => $page
