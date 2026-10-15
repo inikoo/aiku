@@ -38,7 +38,7 @@ it('writes the 14 DHL fields in order, per pack', function () {
 it('counts a multi unit product in packs and says how many it holds', function () {
     $row = (new DhlItemUploadCsvExport([dhlLine(['pack_units' => 16.0, 'description' => 'Bath balls, lavender'])]))->rows()[0];
 
-    expect($row[2])->toBe('Bath balls lavender - pack of 16')
+    expect($row[2])->toBe('Bath balls, lavender - pack of 16')
         ->and($row[4])->toBe('2')
         ->and($row[5])->toBe('SET');
 });
@@ -108,4 +108,24 @@ it('rejects DHL rule breaks in any field', function () {
 
         expect(array_keys($validator->validate([$bad])['rows'][0] ?? []))->toBe([$column]);
     }
+});
+
+it('takes the delimiter out of the description and flags it anywhere else', function () {
+    $export = new DhlItemUploadCsvExport([dhlLine(['description' => 'Bath balls, lavender', 'product_code' => 'JBB,01'])], ',');
+
+    expect($export->rows()[0][2])->toBe('Bath balls lavender')
+        ->and(array_keys($export->validate()['rows'][0]))->toBe([12])
+        ->and((new DhlItemUploadCsvExport([dhlLine(['product_code' => 'JBB|01'])]))->validate()['rows'][0][12][0])->toContain('|');
+});
+
+it('writes rows without quotes unless a text delimiter is given', function () {
+    $csv = fn (DhlItemUploadCsvExport $export) => (function () use ($export) {
+        ob_start();
+        $export->download('items.csv')->sendContent();
+
+        return ob_get_clean();
+    })();
+
+    expect($csv(new DhlItemUploadCsvExport([dhlLine()])))->toBe("1|INV_ITEM|Jelly bath balls|33073000|2|EA|12.5|EUR|0.48||CN|ABW|JBB-01|N\n")
+        ->and($csv(new DhlItemUploadCsvExport([dhlLine()], ';', '"')))->toBe("1;INV_ITEM;\"Jelly bath balls\";33073000;2;EA;12.5;EUR;0.48;;CN;ABW;JBB-01;N\n");
 });

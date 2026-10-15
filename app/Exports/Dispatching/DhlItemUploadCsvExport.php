@@ -36,7 +36,7 @@ class DhlItemUploadCsvExport
      *     tax_paid: bool
      * }> $lines
      */
-    public function __construct(public array $lines)
+    public function __construct(public array $lines, public string $delimiter = '|', public string $textDelimiter = '')
     {
     }
 
@@ -68,7 +68,7 @@ class DhlItemUploadCsvExport
      */
     public function validate(): array
     {
-        return (new DhlItemUploadValidator())->validate($this->rows());
+        return (new DhlItemUploadValidator($this->delimiter))->validate($this->rows());
     }
 
     /**
@@ -101,7 +101,11 @@ class DhlItemUploadCsvExport
         return response()->streamDownload(function () use ($rows) {
             $handle = fopen('php://output', 'w');
             foreach ($rows as $row) {
-                fputcsv($handle, $row, ',', '"', '');
+                if ($this->textDelimiter === '') {
+                    fwrite($handle, implode($this->delimiter, $row)."\n");
+                } else {
+                    fputcsv($handle, $row, $this->delimiter, $this->textDelimiter, '');
+                }
             }
             fclose($handle);
         }, $filename, [
@@ -111,7 +115,7 @@ class DhlItemUploadCsvExport
 
     private function description(array $line): string
     {
-        $description = trim(preg_replace('/\s+/', ' ', str_replace(',', ' ', (string) $line['description'])));
+        $description = trim(preg_replace('/\s+/', ' ', str_replace($this->delimiter, ' ', (string) $line['description'])));
         $packSuffix  = $line['pack_units'] > 1 ? ' - pack of '.trimDecimalZeros($line['pack_units']) : '';
 
         return Str::limit($description, 170 - strlen($packSuffix), '').$packSuffix;
