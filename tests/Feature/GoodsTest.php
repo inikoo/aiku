@@ -1900,8 +1900,8 @@ test('products get their trade unit family documents when their trade unit joins
 test('sizes sharing documents show the source trade unit IFRA, SDS and allergen documents instead of their own', function () {
     [, $fixtureProduct] = createProduct($this->shop);
     $number             = (string) random_int(100000, 999999);
-    $sizeOf             = function (string $code) use ($fixtureProduct) {
-        $tradeUnit = \App\Actions\Goods\TradeUnit\StoreTradeUnit::make()->action($this->group, array_merge(TradeUnit::factory()->definition(), ['code' => $code]));
+    $sizeOf             = function (string $code, string $name) use ($fixtureProduct) {
+        $tradeUnit = \App\Actions\Goods\TradeUnit\StoreTradeUnit::make()->action($this->group, array_merge(TradeUnit::factory()->definition(), ['code' => $code, 'name' => $name]));
         $tradeUnit->update(['status' => \App\Enums\Goods\TradeUnit\TradeUnitStatusEnum::ACTIVE]);
         $product = \App\Actions\Catalogue\Product\StoreProduct::make()->action($fixtureProduct->family, array_merge(\App\Models\Catalogue\Product::factory()->definition(), [
             'trade_units' => [['id' => $tradeUnit->id, 'quantity' => 1]],
@@ -1910,8 +1910,10 @@ test('sizes sharing documents show the source trade unit IFRA, SDS and allergen 
 
         return [$tradeUnit->fresh(), $product];
     };
-    [$sourceTradeUnit, $sourceProduct] = $sizeOf('EOKGT-'.$number);
-    [$sizeTradeUnit, $sizeProduct]     = $sizeOf('EOT-'.$number);
+    [$sourceTradeUnit, $sourceProduct] = $sizeOf('EOKGT-'.$number, 'Lavendertest 40/42 (KG)');
+    [$sizeTradeUnit, $sizeProduct]     = $sizeOf('EOT-'.$number, '10ml Lavendertest Essential Oil Unbranded Label');
+    [$sameNameOtherLine]               = $sizeOf('ABCT-'.$number, 'Lavendertest Soap');
+    [$sameLineOtherOil]                = $sizeOf('EOXT-'.$number, 'Teatreetest Essential Oil');
 
     $pdf = fn (string $name) => \Illuminate\Http\UploadedFile::fake()->createWithContent($name, "%PDF-1.4\n% ".uniqid()."\n%%EOF");
 
@@ -1926,10 +1928,18 @@ test('sizes sharing documents show the source trade unit IFRA, SDS and allergen 
     $attachmentsTab = fn (TradeUnit $tradeUnit) => get(route('grp.trade_units.units.show', [$tradeUnit->slug, 'tab' => 'attachments']))->viewData('page')['props']['attachments'];
 
     $suggestions = collect($attachmentsTab($sourceTradeUnit)['documents_sharing']['suggestions']);
-    expect($suggestions->pluck('id'))->toContain($sizeTradeUnit->id);
+    expect($suggestions->pluck('id'))->toContain($sizeTradeUnit->id)
+        ->and($suggestions->pluck('id'))->not->toContain($sameNameOtherLine->id)
+        ->and($suggestions->pluck('id'))->not->toContain($sameLineOtherOil->id);
 
     \Pest\Laravel\withHeaders(['X-Inertia' => 'true'])->post(route('grp.models.trade-unit.share_documents', $sourceTradeUnit->id), ['trade_units' => [$sizeTradeUnit->id]])->assertRedirect();
     $this->flushHeaders();
+
+    $nextNumber                  = (string) ($number + 1);
+    [$misnamedSourceTradeUnit]   = $sizeOf('EOKGT-'.$nextNumber, 'Not for re-sale');
+    [$nextSizeTradeUnit]         = $sizeOf('EOT-'.$nextNumber, 'Garlictest Essential Oil');
+    $misnamedSourceSuggestion    = collect($attachmentsTab($misnamedSourceTradeUnit)['documents_sharing']['suggestions'])->firstWhere('id', $nextSizeTradeUnit->id);
+    expect($misnamedSourceSuggestion['checked'] ?? null)->toBeTrue();
 
     expect($sizeMedia())->toBe(collect([$newSds->id, $howToUse->id])->sort()->values()->all())
         ->and($sizeTradeUnit->fresh()->attachments()->where('media.id', $oldSds->id)->exists())->toBeTrue()
@@ -1955,7 +1965,7 @@ test('sizes sharing documents show the source trade unit IFRA, SDS and allergen 
     expect(fn () => \App\Actions\Helpers\Media\AttachAttachmentToModel::make()->action($sizeTradeUnit->fresh(), ['attachments' => [$pdf('stray-ifra.pdf')], 'scope' => 'ifra']))
         ->toThrow(\Illuminate\Validation\ValidationException::class);
 
-    [$otherTradeUnit] = $sizeOf('EOOT-'.$number);
+    [$otherTradeUnit] = $sizeOf('EOOT-'.$number, 'Lavendertest 50ml');
     expect(fn () => \App\Actions\Goods\TradeUnit\ShareTradeUnitDocuments::make()->action($sizeTradeUnit->fresh(), ['trade_units' => [$otherTradeUnit->id]]))
         ->toThrow(\Illuminate\Validation\ValidationException::class)
         ->and(fn () => \App\Actions\Goods\TradeUnit\ShareTradeUnitDocuments::make()->action($otherTradeUnit, ['trade_units' => [$sourceTradeUnit->id]]))
@@ -1964,7 +1974,7 @@ test('sizes sharing documents show the source trade unit IFRA, SDS and allergen 
     \App\Actions\Helpers\Media\DetachAttachmentFromModel::make()->action($sourceTradeUnit, $ifra);
     expect($sizeProduct->attachments()->where('media.id', $ifra->id)->exists())->toBeFalse();
 
-    [$secondSourceTradeUnit] = $sizeOf('EOST-'.$number);
+    [$secondSourceTradeUnit] = $sizeOf('EOST-'.$number, 'Lavendertest 0.5Kg');
     expect(fn () => \App\Actions\Goods\TradeUnit\ShareTradeUnitDocuments::make()->action($secondSourceTradeUnit, ['trade_units' => [$sizeTradeUnit->id]]))
         ->toThrow(\Illuminate\Validation\ValidationException::class);
 

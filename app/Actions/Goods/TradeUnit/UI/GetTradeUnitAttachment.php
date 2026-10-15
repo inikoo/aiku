@@ -70,7 +70,7 @@ class GetTradeUnitAttachment
     }
 
     /**
-     * Other sizes of the same substance: trade units whose code ends with the same "-number".
+     * Other sizes of the same substance: trade units whose code ends with the same "-number" and whose name shares a substance word, or whose line already shares from this line, closest first.
      * Ticked when its code prefix already shares from a trade unit with this one's prefix (e.g. EO-02 from EOKG-02 once EO-01 shares from EOKG-01).
      *
      * @return list<array{id: int, code: string, name: string|null, checked: bool}>
@@ -93,22 +93,83 @@ class GetTradeUnitAttachment
             ->unique()
             ->all();
 
+        $substanceWords = $this->substanceWords($tradeUnit->name);
+        if ($substanceWords === [] && $sharingPrefixes === []) {
+            return [];
+        }
+        $isSharingLine = fn (TradeUnit $candidate) => in_array(Str::lower(Str::beforeLast($candidate->code, '-')), $sharingPrefixes);
+
         return TradeUnit::where('group_id', $tradeUnit->group_id)
             ->whereLike('code', '%-'.$this->escapeLike($suffix), caseSensitive: false)
+            ->where(function ($query) use ($substanceWords, $sharingPrefixes, $suffix) {
+                foreach ($substanceWords as $word) {
+                    $query->orWhereLike('name', '%'.$this->escapeLike($word).'%', caseSensitive: false);
+                }
+                foreach ($sharingPrefixes as $sharingPrefix) {
+                    $query->orWhereLike('code', $this->escapeLike($sharingPrefix.'-'.$suffix), caseSensitive: false);
+                }
+            })
             ->whereNot('id', $tradeUnit->id)
             ->whereNull('documents_trade_unit_id')
             ->whereDoesntHave('documentsSharers')
             ->where('status', TradeUnitStatusEnum::ACTIVE)
-            ->orderBy('code')
-            ->limit(30)
             ->get(['id', 'code', 'name'])
+            ->filter(fn (TradeUnit $candidate) => $isSharingLine($candidate) || $this->prefixesOverlap($prefix, Str::beforeLast($candidate->code, '-')))
+            ->sortBy([
+                fn (TradeUnit $a, TradeUnit $b) => $isSharingLine($b) <=> $isSharingLine($a),
+                fn (TradeUnit $a, TradeUnit $b) => $this->sharedWordCount($b->name, $substanceWords) <=> $this->sharedWordCount($a->name, $substanceWords),
+                fn (TradeUnit $a, TradeUnit $b) => strcasecmp($a->code, $b->code),
+            ])
+            ->take(30)
+            ->values()
             ->map(fn (TradeUnit $suggestion) => [
                 'id'      => $suggestion->id,
                 'code'    => $suggestion->code,
                 'name'    => $suggestion->name,
-                'checked' => in_array(Str::lower(Str::beforeLast($suggestion->code, '-')), $sharingPrefixes),
+                'checked' => $isSharingLine($suggestion),
             ])
             ->all();
+    }
+
+    /**
+     * Words of the name that tell the substance apart (Lavender, Tea, Tree), leaving out sizes, packing and generic words.
+     *
+     * @return list<string>
+     */
+    private function substanceWords(?string $name): array
+    {
+        $genericWords = ['essential', 'oil', 'oils', 'bulk', 'unbranded', 'label', 'labelled', 'unlabelled', 'pure', 'dilute', 'diluted', 'absolute', 'and', 'the', 'with', 'for'];
+
+        return collect(preg_split('/[^\p{L}]+/u', Str::lower((string) $name), flags: PREG_SPLIT_NO_EMPTY))
+            ->filter(fn (string $word) => mb_strlen($word) >= 3 && !in_array($word, $genericWords))
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Code prefixes of sizes of one product line share two letters in a row (EOKG, EO, EOB, PrEO, PrEOUL, EOUL).
+     */
+    private function prefixesOverlap(string $prefix, string $candidatePrefix): bool
+    {
+        $prefix          = Str::lower($prefix);
+        $candidatePrefix = Str::lower($candidatePrefix);
+
+        for ($position = 0; $position < mb_strlen($prefix) - 1; $position++) {
+            if (str_contains($candidatePrefix, mb_substr($prefix, $position, 2))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param  list<string>  $substanceWords
+     */
+    private function sharedWordCount(?string $name, array $substanceWords): int
+    {
+        return count(array_intersect($substanceWords, $this->substanceWords($name)));
     }
 
     private function escapeLike(string $value): string
