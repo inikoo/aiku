@@ -9,6 +9,12 @@
 import { ctrans } from "@/Composables/useTrans"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import ProductDevelopmentChecklist from "@/Components/Goods/ProductDevelopment/ProductDevelopmentChecklist.vue"
+import TicketUserHoverCard from "@/Components/Tickets/TicketUserHoverCard.vue"
+import { productDevelopmentColor } from "@/Components/Goods/ProductDevelopment/productDevelopmentColors"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { faShoppingBag, faUserTie, faFileInvoiceDollar, faShieldCheck, faPencilRuler, faGlobe, faStamp } from "@fal"
+library.add(faShoppingBag, faUserTie, faFileInvoiceDollar, faShieldCheck, faPencilRuler, faGlobe, faStamp)
 
 defineProps<{
     data: {
@@ -17,7 +23,7 @@ defineProps<{
         target_landing_date: string | null
         target_online_date: string | null
         packaging_family: string | null
-        members: { name: string, roles: string[] }[]
+        members: { id: number, user_id: number, name: string, username: string | null, avatar: Record<string, string> | null, profile_url: string | null, role: { label: string, icon: string, color: string } }[]
         checklist: any[]
     }
 }>()
@@ -26,8 +32,8 @@ const formatDate = (date: string | null) => date ? useFormatTime(date, { formatT
 </script>
 
 <template>
-    <div v-if="data" class="grid gap-6 p-4 lg:grid-cols-3">
-        <div class="lg:col-span-2">
+    <div v-if="data" class="grid gap-6 p-4 xl:grid-cols-[minmax(0,1fr)_16rem]">
+        <div class="min-w-0">
             <h3 class="text-sm font-medium text-gray-700">{{ ctrans("Brief") }}</h3>
             <p v-if="data.brief" class="mt-2 whitespace-pre-line text-sm text-gray-800">{{ data.brief }}</p>
             <p v-else class="mt-2 text-sm text-gray-400">{{ ctrans("No brief written yet") }}</p>
@@ -56,10 +62,25 @@ const formatDate = (date: string | null) => date ? useFormatTime(date, { formatT
             <div>
                 <dt class="text-gray-500">{{ ctrans("Members") }}</dt>
                 <dd>
-                    <ul class="mt-1 space-y-1">
-                        <li v-for="member in data.members" :key="member.name" class="flex justify-between gap-2">
-                            <span class="text-gray-800">{{ member.name }}</span>
-                            <span class="text-xs text-gray-500">{{ member.roles.join(", ") }}</span>
+                    <ul class="mt-1 space-y-1.5">
+                        <li
+                            v-for="member in data.members"
+                            :key="member.id"
+                            class="flex items-center gap-2 rounded-md border px-2 py-1.5"
+                            :class="productDevelopmentColor(member.role.color).soft"
+                        >
+                            <TicketUserHoverCard
+                                :name="member.name"
+                                :avatar="member.avatar"
+                                :username="member.username"
+                                :profileUrl="member.profile_url"
+                                :messageUserId="member.user_id"
+                                :canMention="false"
+                                size="sm"
+                                avatarOnly
+                            />
+                            <span class="min-w-0 flex-1 truncate text-sm text-gray-800">{{ member.name }}</span>
+                            <FontAwesomeIcon :icon="member.role.icon" :class="productDevelopmentColor(member.role.color).icon" v-tooltip="member.role.label" fixed-width :aria-label="member.role.label" />
                         </li>
                         <li v-if="!data.members.length" class="text-gray-400">{{ ctrans("No members yet") }}</li>
                     </ul>

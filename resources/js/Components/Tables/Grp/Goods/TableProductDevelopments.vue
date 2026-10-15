@@ -13,8 +13,8 @@ import { useFormatTime } from "@/Composables/useFormatTime"
 import { ctrans } from "@/Composables/useTrans"
 import ProductDevelopmentMissingBadge from "@/Components/Goods/ProductDevelopment/ProductDevelopmentMissingBadge.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faSeedling, faPauseCircle, faCheckCircle, faBan } from "@fal"
-library.add(faSeedling, faPauseCircle, faCheckCircle, faBan)
+import { faPlayCircle, faPauseCircle, faCheckCircle, faBan } from "@fal"
+library.add(faPlayCircle, faPauseCircle, faCheckCircle, faBan)
 
 defineProps<{
     data: object
@@ -27,7 +27,7 @@ const formatDate = (date: string | null) => date ? useFormatTime(date, { formatT
 </script>
 
 <template>
-    <Table :resource="data" :name="tab" class="mt-5">
+    <Table :resource="data" :name="tab" :useTopPagination="true">
         <template #cell(status)="{ item }">
             <FontAwesomeIcon v-tooltip="item.status_icon.tooltip" :icon="item.status_icon.icon" :class="item.status_icon.class" fixed-width aria-hidden="true" />
         </template>

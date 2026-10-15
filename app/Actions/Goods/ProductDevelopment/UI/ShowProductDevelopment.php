@@ -11,13 +11,13 @@ namespace App\Actions\Goods\ProductDevelopment\UI;
 
 use App\Actions\Goods\ProductDevelopment\GetProductDevelopmentStageGate;
 use App\Actions\Goods\ProductDevelopment\UI\Traits\WithProductDevelopmentsIndex;
-use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithProductDevelopmentAuthorisation;
+use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStageEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStatusEnum;
+use App\Enums\Goods\TradeUnit\TradeUnitMarketEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentTypeEnum;
 use App\Enums\UI\Goods\ProductDevelopmentTabsEnum;
-use App\Http\Resources\History\HistoryResource;
 use App\Models\Goods\ProductDevelopment;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -47,6 +47,10 @@ class ShowProductDevelopment extends OrgAction
         $tabData = GetProductDevelopmentTabData::make();
         $gate    = GetProductDevelopmentStageGate::run($productDevelopment);
         $brand   = $productDevelopment->brand();
+        $overview = GetProductDevelopmentOverview::run($productDevelopment);
+
+        $navigation = ProductDevelopmentTabsEnum::navigation();
+        $navigation[ProductDevelopmentTabsEnum::PRODUCTS->value]['number'] = count($overview['products']);
 
         $tab = fn (ProductDevelopmentTabsEnum $tabEnum, callable $resolver) => $this->tab === $tabEnum->value
             ? $resolver
@@ -58,39 +62,73 @@ class ShowProductDevelopment extends OrgAction
                 'title'       => $productDevelopment->code.' '.$productDevelopment->name,
                 'breadcrumbs' => $this->getShowBreadcrumbs($productDevelopment),
                 'pageHead'    => [
-                    'icon'       => [
+                    'icon'  => [
                         'title' => __('Product development'),
                         'icon'  => 'fal fa-lightbulb-on',
                     ],
-                    'model'      => __('Product development'),
-                    'title'      => $productDevelopment->code.' · '.$productDevelopment->name,
-                    'afterTitle' => [
-                        'label' => ProductDevelopmentStatusEnum::labels()[$productDevelopment->status->value],
-                    ],
+                    'model' => $productDevelopment->code,
+                    'title' => $productDevelopment->name,
                 ],
                 'header'      => [
-                    'type'               => ProductDevelopmentTypeEnum::labels()[$productDevelopment->type->value],
-                    'status'             => $productDevelopment->status->value,
-                    'status_icon'        => ProductDevelopmentStatusEnum::stateIcon()[$productDevelopment->status->value],
-                    'brand'              => $brand?->name,
+                    'code'               => $productDevelopment->code,
+                    'name'               => $productDevelopment->name,
+                    'type'               => [
+                        'label' => ProductDevelopmentTypeEnum::labels()[$productDevelopment->type->value],
+                        'icon'  => $productDevelopment->type->icon(),
+                        'color' => $productDevelopment->type->color(),
+                    ],
+                    'status'             => [
+                        'label' => ProductDevelopmentStatusEnum::labels()[$productDevelopment->status->value],
+                        'icon'  => $productDevelopment->status->icon(),
+                        'color' => $productDevelopment->status->color(),
+                    ],
+                    'brand'              => $brand ? [
+                        'label' => $brand->name,
+                        'color' => 'rose',
+                        'route' => ['name' => 'grp.trade_units.brands.show', 'parameters' => ['brand' => $brand->slug]],
+                    ] : null,
                     'family'             => $productDevelopment->tradeUnitFamily ? [
-                        'code'  => $productDevelopment->tradeUnitFamily->code,
+                        'label' => $productDevelopment->tradeUnitFamily->code,
                         'name'  => $productDevelopment->tradeUnitFamily->name,
+                        'color' => 'cyan',
                         'route' => ['name' => 'grp.trade_units.families.show', 'parameters' => ['tradeUnitFamily' => $productDevelopment->tradeUnitFamily->slug]],
                     ] : null,
-                    'supplier'           => $productDevelopment->supplier?->name,
-                    'agent'              => $productDevelopment->agent?->name,
-                    'owner'              => $productDevelopment->owner?->contact_name ?? $productDevelopment->owner?->username,
+                    'supplier'           => $productDevelopment->supplier ? [
+                        'label' => $productDevelopment->supplier->name,
+                        'color' => 'orange',
+                        'route' => ['name' => 'grp.supply-chain.suppliers.show', 'parameters' => ['supplier' => $productDevelopment->supplier->getRouteKey()]],
+                    ] : null,
+                    'agent'              => $productDevelopment->agent ? [
+                        'label' => $productDevelopment->agent->name,
+                        'color' => 'sky',
+                        'route' => ['name' => 'grp.supply-chain.agents.show', 'parameters' => ['agent' => $productDevelopment->agent->getRouteKey()]],
+                    ] : null,
+                    'owner'              => $productDevelopment->owner ? [
+                        'id'          => $productDevelopment->owner->id,
+                        'name'        => $productDevelopment->owner->contact_name ?: $productDevelopment->owner->username,
+                        'username'    => $productDevelopment->owner->username,
+                        'avatar'      => $productDevelopment->owner->image_id ? $productDevelopment->owner->imageSources(48, 48) : null,
+                        'profile_url' => $request->user()->authTo('sysadmin.view') ? route('grp.sysadmin.users.show', ['user' => $productDevelopment->owner->slug]) : null,
+                    ] : null,
+                    'markets'            => collect($productDevelopment->markets)->map(fn (string $market) => TradeUnitMarketEnum::labels()[$market] ?? $market)->values()->all(),
+                    'target_landing_date' => $productDevelopment->target_landing_date?->toDateString(),
                     'target_online_date' => $productDevelopment->target_online_date?->toDateString(),
-                    'number_items'       => (int) $productDevelopment->stats?->number_items,
+                    'can_edit'           => $this->canEditProductDevelopment($request->user(), $productDevelopment),
+                    'update_route'       => [
+                        'method'     => 'patch',
+                        'name'       => 'grp.models.product_development.update',
+                        'parameters' => ['productDevelopment' => $productDevelopment->id],
+                    ],
+                    'number_purchase_orders' => $productDevelopment->purchaseOrders()->count(),
                     'number_missing'     => (int) $productDevelopment->stats?->number_required_missing,
                 ],
-                'stages'      => GetProductDevelopmentStages::run($productDevelopment),
+                'overview'    => $overview,
                 'stageMove'   => [
                     'can_move'   => $gate['can_move'],
                     'reason'     => $gate['reason'],
                     'is_allowed' => $this->canMoveProductDevelopmentStage($request->user(), $productDevelopment),
                     'is_done'    => $productDevelopment->status === ProductDevelopmentStatusEnum::COMPLETED,
+                    'next_label' => ProductDevelopmentStageEnum::positionLabel($productDevelopment->current_position + 1),
                     'route'      => [
                         'method'     => 'patch',
                         'name'       => 'grp.models.product_development.next_stage',
@@ -99,15 +137,16 @@ class ShowProductDevelopment extends OrgAction
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
-                    'navigation' => ProductDevelopmentTabsEnum::navigation(),
+                    'navigation' => $navigation,
                 ],
 
-                ProductDevelopmentTabsEnum::BRIEF->value      => $tab(ProductDevelopmentTabsEnum::BRIEF, fn () => $tabData->brief($productDevelopment)),
-                ProductDevelopmentTabsEnum::PRODUCTS->value   => $tab(ProductDevelopmentTabsEnum::PRODUCTS, fn () => $tabData->products($productDevelopment)),
+                ProductDevelopmentTabsEnum::BRIEF->value      => $tab(ProductDevelopmentTabsEnum::BRIEF, fn () => $tabData->brief($productDevelopment, $request->user())),
+                ProductDevelopmentTabsEnum::PRODUCTS->value   => $tab(ProductDevelopmentTabsEnum::PRODUCTS, fn () => $overview['products']),
                 ProductDevelopmentTabsEnum::COMPLIANCE->value => $tab(ProductDevelopmentTabsEnum::COMPLIANCE, fn () => $tabData->compliance($productDevelopment)),
-                ProductDevelopmentTabsEnum::ACTIVITY->value   => $tab(ProductDevelopmentTabsEnum::ACTIVITY, fn () => HistoryResource::collection(IndexHistory::run($productDevelopment, ProductDevelopmentTabsEnum::ACTIVITY->value))),
+                ProductDevelopmentTabsEnum::ACTIVITY->value   => $tab(ProductDevelopmentTabsEnum::ACTIVITY, fn () => GetProductDevelopmentActivity::run($productDevelopment, GetProductDevelopmentActivity::LIMIT, $request->user())),
+                'recentActivity' => fn () => GetProductDevelopmentActivity::run($productDevelopment, 5, $request->user()),
             ]
-        )->table(IndexHistory::make()->tableStructure(prefix: ProductDevelopmentTabsEnum::ACTIVITY->value, model: $productDevelopment));
+        );
     }
 
     public function getShowBreadcrumbs(ProductDevelopment $productDevelopment): array

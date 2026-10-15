@@ -58,24 +58,14 @@ class IndexProductDevelopments extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Group $group, ?string $prefix = null): Closure
+    public function tableStructure(?string $prefix = null): Closure
     {
-        $filterOptions = $this->productDevelopmentFilterOptions($group);
-
-        return function (InertiaTable $table) use ($prefix, $filterOptions) {
+        return function (InertiaTable $table) use ($prefix) {
             if ($prefix) {
                 $table->name($prefix)->pageName($prefix.'Page');
             }
 
             $table
-                ->withGlobalSearch()
-                ->selectFilter('status', $filterOptions['status'], __('Status'))
-                ->selectFilter('stage', $filterOptions['stage'], __('Stage'))
-                ->selectFilter('agent', $filterOptions['agent'], __('Agent'))
-                ->selectFilter('designer', $filterOptions['designer'], __('Designer'))
-                ->selectFilter('brand', $filterOptions['brand'], __('Brand'))
-                ->selectFilter('missing', $filterOptions['missing'], __('Missing info'))
-                ->selectFilter('overdue', $filterOptions['overdue'], __('Overdue'))
                 ->withEmptyState([
                     'title'       => __('No product developments yet'),
                     'description' => __('Start one for each new or redesigned product family'),
@@ -117,8 +107,9 @@ class IndexProductDevelopments extends OrgAction
                     ],
                 ],
                 'viewSwitch'  => $this->viewSwitch('list'),
+                'filterBar'   => $this->productDevelopmentFilterBar($this->group, $request->user()),
                 'data'        => ProductDevelopmentsResource::collection($productDevelopments),
             ]
-        )->table($this->tableStructure($this->group));
+        )->table($this->tableStructure());
     }
 }

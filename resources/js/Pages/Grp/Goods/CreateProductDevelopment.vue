@@ -6,31 +6,32 @@
   -->
 
 <script setup lang="ts">
-import { reactive, ref } from "vue"
+import { onBeforeUnmount, onMounted, reactive, ref } from "vue"
 import { Head, router } from "@inertiajs/vue3"
-import axios from "axios"
+import PageHeading from "@/Components/Headings/PageHeading.vue"
+import Button from "@/Components/Elements/Buttons/Button.vue"
 import InputText from "primevue/inputtext"
+import Textarea from "primevue/textarea"
 import Select from "primevue/select"
 import MultiSelect from "primevue/multiselect"
 import DatePicker from "primevue/datepicker"
-import Textarea from "primevue/textarea"
-import AutoComplete from "primevue/autocomplete"
-import SelectButton from "primevue/selectbutton"
-import PageHeading from "@/Components/Headings/PageHeading.vue"
-import Button from "@/Components/Elements/Buttons/Button.vue"
+import ProductDevelopmentRemoteSelect from "@/Components/Goods/ProductDevelopment/ProductDevelopmentRemoteSelect.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { ctrans } from "@/Composables/useTrans"
+import { productDevelopmentColor } from "@/Components/Goods/ProductDevelopment/productDevelopmentColors"
 import { PageHeadingTypes } from "@/types/PageHeading"
 import { routeType } from "@/types/route"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faPlus, faTimes, faCheck, faLightbulbOn } from "@fal"
-library.add(faPlus, faTimes, faCheck, faLightbulbOn)
+import { faPlus, faTimes, faSave, faLightbulbOn, faArrowLeft, faSparkles, faPaintBrush, faTag } from "@fal"
+library.add(faPlus, faTimes, faSave, faLightbulbOn, faArrowLeft, faSparkles, faPaintBrush, faTag)
 
 interface Option {
     value: string | number
     label: string
     agent_id?: number | null
+    icon?: string
+    color?: string
 }
 
 const props = defineProps<{
@@ -54,15 +55,15 @@ interface SkuRow {
     mode: "new" | "existing"
     code: string
     name: string
-    tradeUnit: Option | null
+    trade_unit_id: number | null
 }
 
 const form = reactive({
     name: "",
     type: "new",
     brand_id: null as number | null,
-    tradeUnitFamily: null as Option | null,
-    packagingFamily: null as Option | null,
+    trade_unit_family_id: null as number | null,
+    packaging_family_id: null as number | null,
     supplier_id: null as number | null,
     agent_id: null as number | null,
     owner_id: props.currentUserId as number | null,
@@ -72,7 +73,7 @@ const form = reactive({
     brief: "",
 })
 
-const skus = ref<SkuRow[]>([{ mode: "new", code: "", name: "", tradeUnit: null }])
+const skus = ref<SkuRow[]>([{ mode: "new", code: "", name: "", trade_unit_id: null }])
 const members = ref<{ user_id: number | null, role: string | null }[]>([{ user_id: null, role: null }])
 const errors = ref<Record<string, string>>({})
 const saving = ref(false)
@@ -82,42 +83,60 @@ const skuModes = [
     { value: "existing", label: ctrans("Existing") },
 ]
 
-const suggestions = reactive<Record<string, Option[]>>({ trade_units: [], trade_unit_families: [], packaging_families: [] })
-
-async function search(scope: keyof typeof props.searchRoutes, query: string) {
-    const searchRoute = props.searchRoutes[scope]
-    const { data } = await axios.get(route(searchRoute.name, searchRoute.parameters), { params: { q: query } })
-    suggestions[scope] = data
-}
-
-function onSupplierChange() {
-    const supplier = props.options.suppliers.find((option) => option.value === form.supplier_id)
+function onSupplierChange(value: unknown) {
+    const supplierId = value as number | null
+    form.supplier_id = supplierId
+    const supplier = props.options.suppliers.find((option) => option.value === supplierId)
     if (supplier?.agent_id) {
         form.agent_id = supplier.agent_id
     }
 }
 
-const toIso = (date: Date | null) => date ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}` : null
+const toIso = (date: Date | string | null) => {
+    if (!date) {
+        return null
+    }
+    const value = typeof date === "string" ? new Date(date) : date
+
+    return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, "0")}-${String(value.getDate()).padStart(2, "0")}`
+}
 
 const error = (key: string) => errors.value[key]
 
+const formElement = ref<HTMLFormElement | null>(null)
+const formHeight = ref<string | undefined>(undefined)
+const MAIN_BOTTOM_PADDING = 24
+
+function fitFormToViewport() {
+    if (!formElement.value || !window.matchMedia("(min-width: 1024px)").matches) {
+        formHeight.value = undefined
+
+        return
+    }
+    const top = formElement.value.getBoundingClientRect().top + window.scrollY
+    formHeight.value = `${Math.max(window.innerHeight - top - MAIN_BOTTOM_PADDING, 320)}px`
+}
+
+onMounted(() => {
+    fitFormToViewport()
+    window.addEventListener("resize", fitFormToViewport)
+})
+
+onBeforeUnmount(() => window.removeEventListener("resize", fitFormToViewport))
+
+const choiceClass = (active: boolean) => active
+    ? "border-[--app-accent] bg-[--app-accent-soft] text-[--app-accent-deep]"
+    : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+
 function submit() {
     const payload = {
-        name: form.name,
-        type: form.type,
-        brand_id: form.brand_id,
-        trade_unit_family_id: form.tradeUnitFamily?.value ?? null,
-        packaging_family_id: form.packagingFamily?.value ?? null,
-        supplier_id: form.supplier_id,
-        agent_id: form.agent_id,
-        owner_id: form.owner_id,
+        ...form,
         target_landing_date: toIso(form.target_landing_date),
         target_online_date: toIso(form.target_online_date),
-        markets: form.markets,
         brief: form.brief || null,
         items: skus.value
-            .filter((sku) => sku.mode === "existing" ? sku.tradeUnit : (sku.code || sku.name))
-            .map((sku) => sku.mode === "existing" ? { trade_unit_id: sku.tradeUnit?.value } : { code: sku.code, name: sku.name }),
+            .filter((sku) => sku.mode === "existing" ? sku.trade_unit_id : (sku.code || sku.name))
+            .map((sku) => sku.mode === "existing" ? { trade_unit_id: sku.trade_unit_id } : { code: sku.code, name: sku.name }),
         members: members.value.filter((member) => member.user_id && member.role),
     }
 
@@ -133,116 +152,182 @@ function submit() {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead" />
 
-    <form class="mx-auto max-w-5xl space-y-8 p-4" @submit.prevent="submit">
-        <section class="grid gap-4 md:grid-cols-2">
-            <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700">{{ ctrans("Family name") }}</label>
-                <InputText v-model="form.name" class="mt-1 w-full" :invalid="!!error('name')" />
-                <p v-if="error('name')" class="mt-1 text-xs text-red-600">{{ error("name") }}</p>
-            </div>
+    <form ref="formElement" class="product-development-form flex flex-col bg-white" :style="{ height: formHeight }" @submit.prevent="submit">
+        <div class="flex-1 lg:grid lg:min-h-0 lg:grid-cols-[minmax(0,65fr)_minmax(0,35fr)] lg:grid-rows-[minmax(0,1fr)]">
+            <div class="space-y-8 p-4 md:p-6 lg:overflow-y-auto lg:[scrollbar-width:thin]">
+                <section class="space-y-4">
+                    <h2 class="text-sm font-semibold text-gray-800">{{ ctrans("Product family") }}</h2>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700">{{ ctrans("Type") }}</label>
-                <SelectButton v-model="form.type" :options="options.types" optionLabel="label" optionValue="value" :allowEmpty="false" class="mt-1" />
-            </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Family name") }} <span class="text-red-500">*</span></label>
+                        <InputText v-model="form.name" class="w-full" :invalid="!!error('name')" />
+                        <p v-if="error('name')" class="mt-1 text-xs text-red-600">{{ error("name") }}</p>
+                    </div>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700">{{ ctrans("Brand") }}</label>
-                <Select v-model="form.brand_id" :options="options.brands" optionLabel="label" optionValue="value" filter showClear class="mt-1 w-full" />
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700">{{ ctrans("Trade unit family") }}</label>
-                <AutoComplete v-model="form.tradeUnitFamily" :suggestions="suggestions.trade_unit_families" optionLabel="label" forceSelection dropdown class="mt-1 w-full" inputClass="w-full" @complete="search('trade_unit_families', $event.query)" />
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700">{{ ctrans("Packaging family") }}</label>
-                <AutoComplete v-model="form.packagingFamily" :suggestions="suggestions.packaging_families" optionLabel="label" forceSelection dropdown class="mt-1 w-full" inputClass="w-full" @complete="search('packaging_families', $event.query)" />
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700">{{ ctrans("Supplier") }}</label>
-                <Select v-model="form.supplier_id" :options="options.suppliers" optionLabel="label" optionValue="value" filter showClear class="mt-1 w-full" @change="onSupplierChange" />
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700">{{ ctrans("Agent") }}</label>
-                <Select v-model="form.agent_id" :options="options.agents" optionLabel="label" optionValue="value" showClear class="mt-1 w-full" />
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700">{{ ctrans("Owner") }}</label>
-                <Select v-model="form.owner_id" :options="options.users" optionLabel="label" optionValue="value" filter class="mt-1 w-full" />
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700">{{ ctrans("Markets") }}</label>
-                <MultiSelect v-model="form.markets" :options="options.markets" optionLabel="label" optionValue="value" display="chip" class="mt-1 w-full" />
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700">{{ ctrans("Target landing date") }}</label>
-                <DatePicker v-model="form.target_landing_date" dateFormat="dd M yy" showIcon class="mt-1 w-full" />
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700">{{ ctrans("Target online date") }}</label>
-                <DatePicker v-model="form.target_online_date" dateFormat="dd M yy" showIcon class="mt-1 w-full" :invalid="!!error('target_online_date')" />
-                <p v-if="error('target_online_date')" class="mt-1 text-xs text-red-600">{{ error("target_online_date") }}</p>
-            </div>
-
-            <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700">{{ ctrans("Brief") }}</label>
-                <Textarea v-model="form.brief" rows="5" autoResize class="mt-1 w-full" />
-            </div>
-        </section>
-
-        <section>
-            <h2 class="text-sm font-semibold text-gray-800">{{ ctrans("SKUs") }}</h2>
-            <p class="text-xs text-gray-500">{{ ctrans("New SKUs are created as trade units in process") }}</p>
-            <div class="mt-3 space-y-2">
-                <div v-for="(sku, index) in skus" :key="index" class="flex flex-wrap items-start gap-2">
-                    <SelectButton v-model="sku.mode" :options="skuModes" optionLabel="label" optionValue="value" :allowEmpty="false" size="small" />
-                    <template v-if="sku.mode === 'new'">
-                        <div class="w-40">
-                            <InputText v-model="sku.code" :placeholder="ctrans('Code')" class="w-full" :invalid="!!error(`items.${index}.code`)" />
-                            <p v-if="error(`items.${index}.code`)" class="mt-1 text-xs text-red-600">{{ error(`items.${index}.code`) }}</p>
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Type") }}</label>
+                            <div class="flex flex-wrap gap-2">
+                                <button
+                                    v-for="type in options.types"
+                                    :key="type.value"
+                                    type="button"
+                                    class="flex h-10 items-center gap-1.5 rounded-md border px-3 text-sm"
+                                    :class="form.type === type.value ? productDevelopmentColor(type.color).active : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'"
+                                    @click="form.type = String(type.value)"
+                                >
+                                    <FontAwesomeIcon v-if="type.icon" :icon="type.icon" :class="productDevelopmentColor(type.color).icon" fixed-width aria-hidden="true" />
+                                    {{ type.label }}
+                                </button>
+                            </div>
                         </div>
-                        <InputText v-model="sku.name" :placeholder="ctrans('Name')" class="min-w-48 flex-1" :invalid="!!error(`items.${index}.name`)" />
-                    </template>
-                    <AutoComplete v-else v-model="sku.tradeUnit" :suggestions="suggestions.trade_units" optionLabel="label" forceSelection dropdown class="min-w-64 flex-1" inputClass="w-full" :placeholder="ctrans('Search trade units')" @complete="search('trade_units', $event.query)" />
-                    <Button type="tertiary" :tooltip="ctrans('Remove')" @click="skus.splice(index, 1)">
-                        <template #icon><FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" /></template>
-                    </Button>
-                </div>
-            </div>
-            <Button type="tertiary" :label="ctrans('Add SKU')" class="mt-2" @click="skus.push({ mode: 'new', code: '', name: '', tradeUnit: null })">
-                <template #icon><FontAwesomeIcon icon="fal fa-plus" fixed-width aria-hidden="true" /></template>
-            </Button>
-        </section>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Brand") }}</label>
+                            <Select v-model="form.brand_id" :options="options.brands" optionLabel="label" optionValue="value" filter showClear :placeholder="ctrans('Select a brand')" class="w-full" overlayClass="text-sm" />
+                        </div>
+                    </div>
 
-        <section>
-            <h2 class="text-sm font-semibold text-gray-800">{{ ctrans("Members") }}</h2>
-            <p class="text-xs text-gray-500">{{ ctrans("One person can hold several roles: add a row for each role") }}</p>
-            <div class="mt-3 space-y-2">
-                <div v-for="(member, index) in members" :key="index" class="flex flex-wrap items-center gap-2">
-                    <Select v-model="member.user_id" :options="options.users" optionLabel="label" optionValue="value" filter :placeholder="ctrans('Person')" class="min-w-56 flex-1" />
-                    <Select v-model="member.role" :options="options.roles" optionLabel="label" optionValue="value" :placeholder="ctrans('Role')" class="w-44" />
-                    <Button type="tertiary" :tooltip="ctrans('Remove')" @click="members.splice(index, 1)">
-                        <template #icon><FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" /></template>
-                    </Button>
-                </div>
-            </div>
-            <Button type="tertiary" :label="ctrans('Add member')" class="mt-2" @click="members.push({ user_id: null, role: null })">
-                <template #icon><FontAwesomeIcon icon="fal fa-plus" fixed-width aria-hidden="true" /></template>
-            </Button>
-        </section>
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Trade unit family") }}</label>
+                            <ProductDevelopmentRemoteSelect v-model="form.trade_unit_family_id" :searchRoute="searchRoutes.trade_unit_families" :placeholder="ctrans('Search trade unit families')" />
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Packaging family") }}</label>
+                            <ProductDevelopmentRemoteSelect v-model="form.packaging_family_id" :searchRoute="searchRoutes.packaging_families" :placeholder="ctrans('Search packaging families')" />
+                        </div>
+                    </div>
 
-        <div class="flex justify-end">
-            <Button type="tertiary" nativeType="submit" :label="ctrans('Create development')" :loading="saving">
-                <template #icon><FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" /></template>
-            </Button>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Brief") }}</label>
+                        <Textarea v-model="form.brief" rows="6" autoResize class="w-full" />
+                    </div>
+                </section>
+
+                <section class="border-t border-gray-200 pt-6">
+                    <h2 class="text-sm font-semibold text-gray-800">{{ ctrans("SKUs") }}</h2>
+                    <p class="text-xs text-gray-500">{{ ctrans("New SKUs are created as trade units in process") }}</p>
+
+                    <div class="mt-3 space-y-3">
+                        <div v-for="(sku, index) in skus" :key="index" class="grid gap-2 md:grid-cols-[auto_1fr_auto] md:items-start">
+                            <div class="flex gap-1.5">
+                                <button
+                                    v-for="mode in skuModes"
+                                    :key="mode.value"
+                                    type="button"
+                                    class="h-10 rounded-md border px-3 text-sm"
+                                    :class="choiceClass(sku.mode === mode.value)"
+                                    @click="sku.mode = mode.value as SkuRow['mode']"
+                                >
+                                    {{ mode.label }}
+                                </button>
+                            </div>
+
+                            <div v-if="sku.mode === 'new'" class="grid gap-2 sm:grid-cols-[10rem_1fr]">
+                                <div>
+                                    <InputText v-model="sku.code" :placeholder="ctrans('Code')" class="w-full" :invalid="!!error(`items.${index}.code`)" />
+                                    <p v-if="error(`items.${index}.code`)" class="mt-1 text-xs text-red-600">{{ error(`items.${index}.code`) }}</p>
+                                </div>
+                                <InputText v-model="sku.name" :placeholder="ctrans('Name')" class="w-full" :invalid="!!error(`items.${index}.name`)" />
+                            </div>
+                            <ProductDevelopmentRemoteSelect v-else v-model="sku.trade_unit_id" :searchRoute="searchRoutes.trade_units" :placeholder="ctrans('Search trade units')" />
+
+                            <Button type="tertiary" :tooltip="ctrans('Remove')" class="h-10 w-10 justify-center justify-self-end" @click="skus.splice(index, 1)">
+                                <template #icon><FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" /></template>
+                            </Button>
+                        </div>
+                    </div>
+
+                    <Button type="tertiary" :label="ctrans('Add SKU')" class="mt-3" @click="skus.push({ mode: 'new', code: '', name: '', trade_unit_id: null })">
+                        <template #icon><FontAwesomeIcon icon="fal fa-plus" fixed-width aria-hidden="true" /></template>
+                    </Button>
+                </section>
+            </div>
+
+            <aside class="border-t border-gray-200 lg:overflow-y-auto lg:border-l lg:border-t-0 lg:[scrollbar-width:thin]">
+                <div class="space-y-8 p-4 md:p-6">
+                    <section class="space-y-4">
+                        <h2 class="text-sm font-semibold text-gray-800">{{ ctrans("Sourcing and planning") }}</h2>
+
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Supplier") }}</label>
+                            <Select :modelValue="form.supplier_id" :options="options.suppliers" optionLabel="label" optionValue="value" filter showClear :placeholder="ctrans('Select a supplier')" class="w-full" overlayClass="text-sm" @update:modelValue="onSupplierChange" />
+                        </div>
+
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Agent") }}</label>
+                            <Select v-model="form.agent_id" :options="options.agents" optionLabel="label" optionValue="value" showClear :placeholder="ctrans('Select an agent')" class="w-full" overlayClass="text-sm" />
+                        </div>
+
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Owner") }}</label>
+                            <Select v-model="form.owner_id" :options="options.users" optionLabel="label" optionValue="value" filter class="w-full" overlayClass="text-sm" />
+                        </div>
+
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Markets") }}</label>
+                            <MultiSelect v-model="form.markets" :options="options.markets" optionLabel="label" optionValue="value" display="comma" :placeholder="ctrans('Select markets')" class="w-full" overlayClass="text-sm" />
+                        </div>
+
+                        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                            <div>
+                                <label class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Target landing date") }}</label>
+                                <DatePicker v-model="form.target_landing_date" dateFormat="dd M yy" showIcon iconDisplay="input" showButtonBar class="w-full" panelClass="text-sm" />
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Target online date") }}</label>
+                                <DatePicker v-model="form.target_online_date" dateFormat="dd M yy" showIcon iconDisplay="input" showButtonBar class="w-full" panelClass="text-sm" :invalid="!!error('target_online_date')" />
+                                <p v-if="error('target_online_date')" class="mt-1 text-xs text-red-600">{{ error("target_online_date") }}</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="border-t border-gray-200 pt-6">
+                        <h2 class="text-sm font-semibold text-gray-800">{{ ctrans("Members") }}</h2>
+                        <p class="text-xs text-gray-500">{{ ctrans("One person can hold several roles: add a row for each role") }}</p>
+
+                        <div class="mt-3 space-y-2">
+                            <div v-for="(member, index) in members" :key="index" class="grid grid-cols-[1fr_auto] gap-2">
+                                <div class="grid gap-2 sm:grid-cols-[1fr_9rem]">
+                                    <Select v-model="member.user_id" :options="options.users" optionLabel="label" optionValue="value" filter :placeholder="ctrans('Person')" class="w-full" overlayClass="text-sm" />
+                                    <Select v-model="member.role" :options="options.roles" optionLabel="label" optionValue="value" :placeholder="ctrans('Role')" class="w-full" overlayClass="text-sm" />
+                                </div>
+                                <Button type="tertiary" :tooltip="ctrans('Remove')" class="h-10 w-10 justify-center" @click="members.splice(index, 1)">
+                                    <template #icon><FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" /></template>
+                                </Button>
+                            </div>
+                        </div>
+
+                        <Button type="tertiary" :label="ctrans('Add member')" class="mt-3" @click="members.push({ user_id: null, role: null })">
+                            <template #icon><FontAwesomeIcon icon="fal fa-plus" fixed-width aria-hidden="true" /></template>
+                        </Button>
+                    </section>
+                </div>
+            </aside>
+        </div>
+
+        <div class="sticky bottom-0 z-10 flex items-center justify-end gap-3 border-t border-gray-200 bg-white px-4 py-3 md:px-6">
+            <Button type="primary" nativeType="submit" icon="fal fa-save" :label="ctrans('Create development')" :loading="saving" />
         </div>
     </form>
 </template>
+
+<style scoped>
+.product-development-form :deep(.p-inputtext),
+.product-development-form :deep(.p-select-label),
+.product-development-form :deep(.p-multiselect-label),
+.product-development-form :deep(.p-textarea) {
+    font-size: 0.875rem;
+}
+.product-development-form :deep(.p-select),
+.product-development-form :deep(.p-multiselect),
+.product-development-form :deep(.p-datepicker),
+.product-development-form :deep(input.p-inputtext) {
+    height: 2.5rem;
+}
+.product-development-form :deep(.p-select-label),
+.product-development-form :deep(.p-multiselect-label) {
+    display: flex;
+    align-items: center;
+}
+</style>

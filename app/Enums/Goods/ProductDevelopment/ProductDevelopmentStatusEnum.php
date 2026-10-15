@@ -30,10 +30,20 @@ enum ProductDevelopmentStatusEnum: string
         ];
     }
 
+    public function icon(): string
+    {
+        return self::stateIcon()[$this->value]['icon'];
+    }
+
+    public function color(): string
+    {
+        return self::stateIcon()[$this->value]['color'];
+    }
+
     public static function stateIcon(): array
     {
         return [
-            'active'    => ['tooltip' => __('Active'), 'icon' => 'fal fa-seedling', 'class' => 'text-green-500', 'color' => 'green'],
+            'active'    => ['tooltip' => __('Active'), 'icon' => 'fal fa-play-circle', 'class' => 'text-blue-500', 'color' => 'blue'],
             'on_hold'   => ['tooltip' => __('On hold'), 'icon' => 'fal fa-pause-circle', 'class' => 'text-amber-500', 'color' => 'amber'],
             'completed' => ['tooltip' => __('Completed'), 'icon' => 'fal fa-check-circle', 'class' => 'text-green-600', 'color' => 'green'],
             'cancelled' => ['tooltip' => __('Cancelled'), 'icon' => 'fal fa-ban', 'class' => 'text-red-500', 'color' => 'red'],

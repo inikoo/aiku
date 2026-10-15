@@ -36,6 +36,32 @@ enum ProductDevelopmentMemberRoleEnum: string
         ];
     }
 
+    public function icon(): string
+    {
+        return match ($this) {
+            self::BUYER => 'fal fa-shopping-bag',
+            self::AGENT => 'fal fa-user-tie',
+            self::PURCHASING => 'fal fa-file-invoice-dollar',
+            self::COMPLIANCE => 'fal fa-shield-check',
+            self::DESIGNER => 'fal fa-pencil-ruler',
+            self::WEBMASTER => 'fal fa-globe',
+            self::APPROVER => 'fal fa-stamp',
+        };
+    }
+
+    public function color(): string
+    {
+        return match ($this) {
+            self::BUYER => 'blue',
+            self::AGENT => 'sky',
+            self::PURCHASING => 'orange',
+            self::COMPLIANCE => 'green',
+            self::DESIGNER => 'purple',
+            self::WEBMASTER => 'cyan',
+            self::APPROVER => 'rose',
+        };
+    }
+
     public function statsColumn(): string
     {
         return 'number_required_missing_'.$this->value;

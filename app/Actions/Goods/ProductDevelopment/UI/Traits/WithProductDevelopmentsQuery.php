@@ -22,9 +22,9 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 trait WithProductDevelopmentsQuery
 {
-    public function productDevelopmentsQuery(Group $group, User $user): QueryBuilder
+    public function baseProductDevelopmentsQuery(Group $group, User $user): Builder
     {
-        $queryBuilder = QueryBuilder::for(ProductDevelopment::class)
+        $query = ProductDevelopment::query()
             ->where('product_developments.group_id', $group->id)
             ->leftJoin('product_development_stats', 'product_development_stats.product_development_id', '=', 'product_developments.id')
             ->leftJoin('users as owners', 'owners.id', '=', 'product_developments.owner_id')
@@ -33,13 +33,18 @@ trait WithProductDevelopmentsQuery
             ->leftJoin('trade_unit_families', 'trade_unit_families.id', '=', 'product_developments.trade_unit_family_id');
 
         if (!$this->isProductDevelopmentStaff($user)) {
-            $queryBuilder->whereExists(fn ($query) => $query->select(DB::raw(1))
+            $query->whereExists(fn ($subQuery) => $subQuery->select(DB::raw(1))
                 ->from('product_development_members')
                 ->whereColumn('product_development_members.product_development_id', 'product_developments.id')
                 ->where('product_development_members.user_id', $user->id));
         }
 
-        return $queryBuilder
+        return $query;
+    }
+
+    public function productDevelopmentsQuery(Group $group, User $user): QueryBuilder
+    {
+        return QueryBuilder::for($this->baseProductDevelopmentsQuery($group, $user))
             ->select([
                 'product_developments.id',
                 'product_developments.slug',
@@ -61,6 +66,27 @@ trait WithProductDevelopmentsQuery
             ->selectSub($this->currentStageStartedAtSubQuery(), 'current_stage_started_at')
             ->selectSub($this->isOverdueSubQuery(), 'is_overdue')
             ->allowedFilters($this->productDevelopmentFilters());
+    }
+
+    /**
+     * @return array{all: int, status: array<string, int>, missing: int, overdue: int}
+     */
+    public function productDevelopmentCounts(Group $group, User $user): array
+    {
+        $base = $this->baseProductDevelopmentsQuery($group, $user);
+
+        $statusCounts = $base->clone()
+            ->selectRaw('product_developments.status, count(*) as number')
+            ->groupBy('product_developments.status')
+            ->pluck('number', 'status')
+            ->all();
+
+        return [
+            'all'     => $base->clone()->count(),
+            'status'  => collect(ProductDevelopmentStatusEnum::values())->mapWithKeys(fn (string $status) => [$status => (int) ($statusCounts[$status] ?? 0)])->all(),
+            'missing' => $base->clone()->where('product_development_stats.number_required_missing', '>', 0)->count(),
+            'overdue' => $base->clone()->whereRaw('('.$this->isOverdueSql().')')->count(),
+        ];
     }
 
     /**
@@ -89,12 +115,8 @@ trait WithProductDevelopmentsQuery
                 ->whereColumn('product_development_members.product_development_id', 'product_developments.id')
                 ->where('product_development_members.role', ProductDevelopmentMemberRoleEnum::DESIGNER->value)
                 ->where('product_development_members.user_id', (int) $value))),
-            AllowedFilter::callback('missing', fn (Builder $query, $value) => $value === 'yes'
-                ? $query->where('product_development_stats.number_required_missing', '>', 0)
-                : $query->where('product_development_stats.number_required_missing', 0)),
-            AllowedFilter::callback('overdue', fn (Builder $query, $value) => $value === 'yes'
-                ? $query->whereRaw('('.$this->isOverdueSql().')')
-                : $query->whereRaw('not ('.$this->isOverdueSql().')')),
+            AllowedFilter::callback('missing', fn (Builder $query) => $query->where('product_development_stats.number_required_missing', '>', 0)),
+            AllowedFilter::callback('overdue', fn (Builder $query) => $query->whereRaw('('.$this->isOverdueSql().')')),
         ];
     }
 

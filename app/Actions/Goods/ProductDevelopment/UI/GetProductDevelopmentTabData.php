@@ -17,6 +17,7 @@ use App\Models\Goods\ProductDevelopment;
 use App\Models\Goods\ProductDevelopmentChecklistItem;
 use App\Models\Goods\ProductDevelopmentItem;
 use App\Models\Goods\ProductDevelopmentMember;
+use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetProductDevelopmentTabData
@@ -26,8 +27,9 @@ class GetProductDevelopmentTabData
     /**
      * @return array<string, mixed>
      */
-    public function brief(ProductDevelopment $productDevelopment): array
+    public function brief(ProductDevelopment $productDevelopment, ?User $viewer = null): array
     {
+        $canOpenProfiles = (bool) $viewer?->authTo('sysadmin.view');
         $roleLabels   = ProductDevelopmentMemberRoleEnum::labels();
         $marketLabels = TradeUnitMarketEnum::labels();
 
@@ -39,10 +41,19 @@ class GetProductDevelopmentTabData
             'packaging_family'    => $productDevelopment->packagingFamily?->name ?? $productDevelopment->packagingFamily?->code,
             'members'             => $productDevelopment->members
                 ->load('user')
-                ->groupBy('user_id')
-                ->map(fn ($memberships) => [
-                    'name'  => $memberships->first()->user?->contact_name ?? $memberships->first()->user?->username,
-                    'roles' => $memberships->map(fn (ProductDevelopmentMember $member) => $roleLabels[$member->role->value])->values()->all(),
+                ->sortBy(fn (ProductDevelopmentMember $member) => array_search($member->role, ProductDevelopmentMemberRoleEnum::cases(), true))
+                ->map(fn (ProductDevelopmentMember $member) => [
+                    'id'          => $member->id,
+                    'user_id'     => $member->user_id,
+                    'name'        => $member->user?->contact_name ?: $member->user?->username,
+                    'username'    => $member->user?->username,
+                    'avatar'      => $member->user?->image_id ? $member->user->imageSources(48, 48) : null,
+                    'profile_url' => $canOpenProfiles && $member->user ? route('grp.sysadmin.users.show', ['user' => $member->user->slug]) : null,
+                    'role'   => [
+                        'label' => $roleLabels[$member->role->value],
+                        'icon'  => $member->role->icon(),
+                        'color' => $member->role->color(),
+                    ],
                 ])
                 ->values()
                 ->all(),
@@ -53,32 +64,6 @@ class GetProductDevelopmentTabData
                     ->get()
             ),
         ];
-    }
-
-    /**
-     * @return array<int, array<string, mixed>>
-     */
-    public function products(ProductDevelopment $productDevelopment): array
-    {
-        $productDevelopment->load(['items.tradeUnit', 'items.supplierProduct', 'items.checklistItems']);
-
-        return $productDevelopment->items->map(function (ProductDevelopmentItem $item) {
-            $missing = $item->checklistItems->filter(fn (ProductDevelopmentChecklistItem $checklistItem) => $checklistItem->isMissing());
-
-            return [
-                'id'               => $item->id,
-                'code'             => $item->tradeUnit->code,
-                'name'             => $item->tradeUnit->name,
-                'status'           => $item->tradeUnit->status->labels()[$item->tradeUnit->status->value],
-                'route'            => [
-                    'name'       => 'grp.trade_units.units.show',
-                    'parameters' => ['tradeUnit' => $item->tradeUnit->slug],
-                ],
-                'supplier_product' => $item->supplierProduct?->code,
-                'number_missing'   => $missing->count(),
-                'missing_by_role'  => $missing->countBy(fn (ProductDevelopmentChecklistItem $checklistItem) => $checklistItem->role->value)->all(),
-            ];
-        })->values()->all();
     }
 
     /**

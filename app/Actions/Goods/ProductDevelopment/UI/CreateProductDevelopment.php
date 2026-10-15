@@ -56,18 +56,45 @@ class CreateProductDevelopment extends OrgAction
         return Inertia::render(
             'Goods/CreateProductDevelopment',
             [
-                'breadcrumbs' => $this->getBreadcrumbs('grp.product_developments.create', __('New')),
+                'breadcrumbs' => array_merge(
+                    $this->getBreadcrumbs(),
+                    [
+                        [
+                            'type'          => 'creatingModel',
+                            'creatingModel' => [
+                                'label' => __('Creating'),
+                            ],
+                        ],
+                    ]
+                ),
                 'title'       => __('New product development'),
                 'pageHead'    => [
-                    'title' => __('New product development'),
-                    'icon'  => [
+                    'title'   => __('New product development'),
+                    'icon'    => [
                         'title' => __('Product development'),
                         'icon'  => 'fal fa-lightbulb-on',
+                    ],
+                    'actions' => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'negative',
+                            'icon'  => 'fal fa-arrow-left',
+                            'label' => __('Back'),
+                            'route' => [
+                                'name'       => 'grp.product_developments.index',
+                                'parameters' => [],
+                            ],
+                        ],
                     ],
                 ],
                 'currentUserId' => $request->user()->id,
                 'options'     => [
-                    'types'     => $this->enumOptions(ProductDevelopmentTypeEnum::labels()),
+                    'types'     => collect(ProductDevelopmentTypeEnum::cases())->map(fn (ProductDevelopmentTypeEnum $type) => [
+                        'value' => $type->value,
+                        'label' => ProductDevelopmentTypeEnum::labels()[$type->value],
+                        'icon'  => $type->icon(),
+                        'color' => $type->color(),
+                    ])->all(),
                     'roles'     => $this->enumOptions(ProductDevelopmentMemberRoleEnum::labels()),
                     'markets'   => $this->enumOptions(TradeUnitMarketEnum::labels()),
                     'users'     => User::where('group_id', $group->id)->where('status', true)->orderBy('contact_name')

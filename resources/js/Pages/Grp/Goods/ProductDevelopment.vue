@@ -7,46 +7,51 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue"
-import { Head, Link } from "@inertiajs/vue3"
+import { Head, router } from "@inertiajs/vue3"
+import { notify } from "@kyvg/vue3-notification"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
-import Tabs from "@/Components/Navigation/Tabs.vue"
+import ProductDevelopmentTabs from "@/Components/Goods/ProductDevelopment/ProductDevelopmentTabs.vue"
+import Button from "@/Components/Elements/Buttons/Button.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { useTabChange } from "@/Composables/tab-change"
-import { useFormatTime } from "@/Composables/useFormatTime"
 import { ctrans } from "@/Composables/useTrans"
 import { PageHeadingTypes } from "@/types/PageHeading"
 import { routeType } from "@/types/route"
 import type { Navigation } from "@/types/Tabs"
-import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
-import ProductDevelopmentStageBar from "@/Components/Goods/ProductDevelopment/ProductDevelopmentStageBar.vue"
+import ProductDevelopmentActivity from "@/Components/Goods/ProductDevelopment/ProductDevelopmentActivity.vue"
+import ProductDevelopmentActivityOrder from "@/Components/Goods/ProductDevelopment/ProductDevelopmentActivityOrder.vue"
+import ProductDevelopmentSidePanel from "@/Components/Goods/ProductDevelopment/ProductDevelopmentSidePanel.vue"
+import ProductDevelopmentHeaderMeta from "@/Components/Goods/ProductDevelopment/ProductDevelopmentHeaderMeta.vue"
+import ProductDevelopmentStageStrip from "@/Components/Goods/ProductDevelopment/ProductDevelopmentStageStrip.vue"
+import ProductDevelopmentRoleCards from "@/Components/Goods/ProductDevelopment/ProductDevelopmentRoleCards.vue"
+import ProductDevelopmentWaitingOn from "@/Components/Goods/ProductDevelopment/ProductDevelopmentWaitingOn.vue"
 import ProductDevelopmentBrief from "@/Components/Goods/ProductDevelopment/ProductDevelopmentBrief.vue"
 import ProductDevelopmentProducts from "@/Components/Goods/ProductDevelopment/ProductDevelopmentProducts.vue"
 import ProductDevelopmentCompliance from "@/Components/Goods/ProductDevelopment/ProductDevelopmentCompliance.vue"
 import ProductDevelopmentComingSoon from "@/Components/Goods/ProductDevelopment/ProductDevelopmentComingSoon.vue"
-import ProductDevelopmentMissingBadge from "@/Components/Goods/ProductDevelopment/ProductDevelopmentMissingBadge.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faLightbulbOn, faClipboard, faAtom, faShieldCheck, faPencilRuler, faPaperclip, faTasks, faClock } from "@fal"
-library.add(faLightbulbOn, faClipboard, faAtom, faShieldCheck, faPencilRuler, faPaperclip, faTasks, faClock)
+import { faPlayCircle, faPauseCircle, faCheckCircle, faBan, faSparkles, faPaintBrush, faTag, faLightbulbOn, faClipboard, faAtom, faShieldCheck, faPencilRuler, faPaperclip, faTasks, faClock, faLock, faArrowRight } from "@fal"
+library.add(faPlayCircle, faPauseCircle, faCheckCircle, faBan, faSparkles, faPaintBrush, faTag, faLightbulbOn, faClipboard, faAtom, faShieldCheck, faPencilRuler, faPaperclip, faTasks, faClock, faLock, faArrowRight)
 
 const props = defineProps<{
     title: string
     pageHead: PageHeadingTypes
-    header: {
-        type: string
-        status: string
-        status_icon: { icon: string, class: string, tooltip: string }
-        brand: string | null
-        family: { code: string, name: string, route: routeType } | null
-        supplier: string | null
-        agent: string | null
-        owner: string | null
-        target_online_date: string | null
-        number_items: number
-        number_missing: number
+    header: any
+    overview: {
+        strip: any[]
+        roles: any[]
+        products: any[]
+        waiting_on: any[]
     }
-    stages: any[]
-    stageMove: any
+    stageMove: {
+        can_move: boolean
+        reason: string | null
+        is_allowed: boolean
+        is_done: boolean
+        next_label: string
+        route: routeType & { method: string }
+    }
     tabs: {
         current: string
         navigation: Navigation
@@ -55,6 +60,7 @@ const props = defineProps<{
     products?: object
     compliance?: object
     activity?: object
+    recentActivity: any[]
 }>()
 
 const currentTab = ref(props.tabs.current)
@@ -68,56 +74,64 @@ const component = computed(() => {
         design: ProductDevelopmentComingSoon,
         files: ProductDevelopmentComingSoon,
         tasks: ProductDevelopmentComingSoon,
-        activity: TableHistories,
+        activity: ProductDevelopmentActivity,
     }
 
     return components[currentTab.value]
 })
 
-const formatDate = (date: string | null) => date ? useFormatTime(date, { formatTime: "d MMM yyyy" }) : "—"
+const moving = ref(false)
+const recentOrder = ref<"newest" | "oldest">("newest")
+
+function moveToNextStage() {
+    router.patch(route(props.stageMove.route.name, props.stageMove.route.parameters), {}, {
+        preserveScroll: true,
+        onStart: () => moving.value = true,
+        onFinish: () => moving.value = false,
+        onError: (errors) => notify({ title: ctrans("Stage not moved"), text: Object.values(errors).join(" "), type: "error" }),
+    })
+}
 </script>
 
 <template>
     <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead" />
+    <PageHeading :data="pageHead">
+        <template #otherBefore>
+            <div v-if="!stageMove.is_done && stageMove.is_allowed" class="flex flex-col items-end gap-1">
+                <Button
+                    type="primary"
+                    :icon="stageMove.can_move ? 'fal fa-arrow-right' : 'fal fa-lock'"
+                    :label="ctrans('Move to :stage', { stage: stageMove.next_label })"
+                    :disabled="!stageMove.can_move"
+                    :loading="moving"
+                    :tooltip="!stageMove.can_move ? stageMove.reason ?? undefined : undefined"
+                    @click="moveToNextStage"
+                />
+                <span v-if="!stageMove.can_move && stageMove.reason" class="text-xs text-amber-700">{{ stageMove.reason }}</span>
+            </div>
+        </template>
+    </PageHeading>
 
-    <dl class="grid grid-cols-2 gap-x-6 gap-y-2 border-b border-gray-200 px-4 py-3 text-sm sm:grid-cols-3 lg:grid-cols-6">
-        <div>
-            <dt class="text-gray-500">{{ ctrans("Type") }}</dt>
-            <dd class="flex items-center gap-1.5 text-gray-800">
-                <FontAwesomeIcon :icon="header.status_icon.icon" :class="header.status_icon.class" v-tooltip="header.status_icon.tooltip" fixed-width aria-hidden="true" />
-                {{ header.type }}
-            </dd>
+    <ProductDevelopmentHeaderMeta :header="header" />
+    <ProductDevelopmentStageStrip :segments="overview.strip" />
+    <ProductDevelopmentRoleCards :roles="overview.roles" />
+
+    <div class="grid gap-4 px-4 pb-6 md:px-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <div class="min-w-0 space-y-3">
+            <ProductDevelopmentTabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
+            <div class="overflow-hidden rounded-lg border border-gray-200 bg-white">
+                <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" />
+            </div>
         </div>
-        <div>
-            <dt class="text-gray-500">{{ ctrans("Brand / family") }}</dt>
-            <dd class="text-gray-800">
-                {{ header.brand ?? "—" }}
-                <template v-if="header.family">
-                    · <Link :href="route(header.family.route.name, header.family.route.parameters)" class="primaryLink">{{ header.family.code }}</Link>
+
+        <aside class="space-y-4">
+            <ProductDevelopmentWaitingOn :rows="overview.waiting_on" />
+            <ProductDevelopmentSidePanel :title="ctrans('Recent activity')">
+                <template #actions>
+                    <ProductDevelopmentActivityOrder v-model="recentOrder" />
                 </template>
-            </dd>
-        </div>
-        <div>
-            <dt class="text-gray-500">{{ ctrans("Supplier / agent") }}</dt>
-            <dd class="text-gray-800">{{ [header.supplier, header.agent].filter(Boolean).join(" · ") || "—" }}</dd>
-        </div>
-        <div>
-            <dt class="text-gray-500">{{ ctrans("Owner") }}</dt>
-            <dd class="text-gray-800">{{ header.owner ?? "—" }}</dd>
-        </div>
-        <div>
-            <dt class="text-gray-500">{{ ctrans("Target online") }}</dt>
-            <dd class="tabular-nums text-gray-800">{{ formatDate(header.target_online_date) }}</dd>
-        </div>
-        <div>
-            <dt class="text-gray-500">{{ ctrans(":count SKUs", { count: String(header.number_items) }) }}</dt>
-            <dd><ProductDevelopmentMissingBadge :count="header.number_missing" /></dd>
-        </div>
-    </dl>
-
-    <ProductDevelopmentStageBar :stages="stages" :stageMove="stageMove" />
-
-    <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" />
+                <ProductDevelopmentActivity :data="recentActivity" :order="recentOrder" compact />
+            </ProductDevelopmentSidePanel>
+        </aside>
+    </div>
 </template>

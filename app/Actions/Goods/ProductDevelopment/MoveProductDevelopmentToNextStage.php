@@ -75,7 +75,14 @@ class MoveProductDevelopmentToNextStage extends OrgAction
                 $modelData['status'] = ProductDevelopmentStatusEnum::COMPLETED;
             }
 
-            $productDevelopment->update($modelData);
+            $productDevelopment->updateQuietly($modelData);
+
+            RecordProductDevelopmentActivity::record(
+                $productDevelopment,
+                RecordProductDevelopmentActivity::STAGE_MOVED,
+                ['stage' => ProductDevelopmentStageEnum::positionLabel($currentPosition)],
+                ['stage' => ProductDevelopmentStageEnum::positionLabel($nextPosition)],
+            );
 
             return $productDevelopment;
         });

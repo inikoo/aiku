@@ -13,10 +13,13 @@ use App\Actions\Goods\ProductDevelopment\GetProductDevelopmentStageGate;
 use App\Actions\Goods\ProductDevelopment\Hydrators\ProductDevelopmentHydrateChecklist;
 use App\Actions\Goods\ProductDevelopment\MoveProductDevelopmentToNextStage;
 use App\Actions\Goods\ProductDevelopment\StoreProductDevelopment;
+use App\Actions\Goods\ProductDevelopment\UI\GetProductDevelopmentActivity;
+use App\Actions\Goods\ProductDevelopment\UI\ShowProductDevelopmentsBoard;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentChecklistItemStateEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentMemberRoleEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStageEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStageStateEnum;
+use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStatusEnum;
 use App\Enums\Goods\TradeUnit\TradeUnitStatusEnum;
 use App\Models\Goods\ProductDevelopment;
 use App\Actions\UI\Grp\Layout\GetGroupNavigation;
@@ -26,6 +29,7 @@ use Illuminate\Validation\ValidationException;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
+use function Pest\Laravel\patch;
 use function Pest\Laravel\post;
 
 beforeAll(function () {
@@ -117,6 +121,12 @@ test('stage moves once the gated items are complete or N/A', function (ProductDe
     expect($stages->firstWhere('stage', ProductDevelopmentStageEnum::BRIEF)->state)->toBe(ProductDevelopmentStageStateEnum::COMPLETED)
         ->and($stages->where('position', 2)->every(fn ($stage) => $stage->state === ProductDevelopmentStageStateEnum::IN_PROGRESS))->toBeTrue();
 
+    $sentences = collect(GetProductDevelopmentActivity::run($productDevelopment))->pluck('sentence');
+    expect($sentences)->toContain(__('Moved from :from to :to', ['from' => ProductDevelopmentStageEnum::positionLabel(1), 'to' => ProductDevelopmentStageEnum::positionLabel(2)]))
+        ->and($sentences)->toContain(__('Created :code', ['code' => $productDevelopment->code]))
+        ->and($sentences)->toContain(trans_choice('Added :count SKU|Added :count SKUs', 4, ['count' => 4]))
+        ->and(collect(GetProductDevelopmentActivity::run($productDevelopment))->pluck('changes')->flatten(1)->pluck('label'))->not->toContain('Current Position');
+
     $gate = GetProductDevelopmentStageGate::run($productDevelopment);
     expect($gate['can_move'])->toBeFalse()
         ->and($gate['missing'])->toHaveKeys([
@@ -157,6 +167,10 @@ test('the list page shows developments with stage and missing count', function (
             ->component('Goods/ProductDevelopments')
             ->has('pageHead')
             ->has('viewSwitch', 2)
+            ->has('filterBar.counts.status')
+            ->where('filterBar.statuses', fn ($statuses) => collect($statuses)->pluck('color', 'key')->all() === collect(ProductDevelopmentStatusEnum::cases())->mapWithKeys(fn ($status) => [$status->value => $status->color()])->all())
+            ->where('filterBar.flags', fn ($flags) => collect($flags)->pluck('color', 'key')->all() === ['missing' => 'amber', 'overdue' => 'red'])
+            ->has('filterBar.options.stage', ProductDevelopmentStageEnum::lastPosition())
             ->has('data.data', 1)
             ->where('data.data.0.code', $productDevelopment->code)
             ->where('data.data.0.stage_position', 1)
@@ -185,12 +199,18 @@ test('the development page shows the header, stage bar and a blocked move with i
             ->component('Goods/ProductDevelopment')
             ->has('breadcrumbs', 3)
             ->has('header')
-            ->has('stages', ProductDevelopmentStageEnum::lastPosition())
+            ->has('overview.strip', count(ProductDevelopmentStageEnum::cases()) + 1)
+            ->has('overview.roles', 5)
+            ->has('overview.products', 2)
+            ->where('overview.waiting_on', fn ($rows) => count($rows) > 0)
+            ->where('header.type.color', 'teal')
+            ->where('recentActivity', fn ($entries) => count($entries) > 0 && count($entries) <= 5)
             ->where('stageMove.can_move', false)
             ->where('stageMove.reason', fn ($reason) => str_contains($reason, __('Buyer')))
             ->where('tabs.current', 'brief')
-            ->has('brief.members', 1)
-            ->has('tabs.navigation', 7));
+            ->has('brief.members', 2)
+            ->has('tabs.navigation', 7)
+            ->where('tabs.navigation.products.number', 2));
 });
 
 test('the create page and the store endpoint create a development', function () {
@@ -219,4 +239,42 @@ test('the group menu shows Product development just above Trade Units', function
 
     expect($keys)->toContain('product-developments')
         ->and(array_search('product-developments', $keys))->toBe(array_search('trade-units', $keys) - 1);
+});
+
+test('the filter bar counts match the list when a quick filter is applied', function () {
+    storeDevelopmentWithNewSkus($this, 1);
+
+    $response = get(route('grp.product_developments.index'));
+    $counts   = $response->viewData('page')['props']['filterBar']['counts'];
+
+    get(route('grp.product_developments.index', ['filter' => ['missing' => 'yes'], 'perPage' => 500]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('data.meta.total', $counts['missing'])
+            ->where('data.data', fn ($rows) => collect($rows)->every(fn ($row) => $row['number_required_missing'] > 0)));
+
+    get(route('grp.product_developments.board', ['filter' => ['status' => 'active']]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('columns', fn ($columns) => collect($columns)->sum(fn ($column) => count($column['cards'])) === min($counts['status']['active'], ShowProductDevelopmentsBoard::MAX_CARDS)));
+});
+
+test('the owner changes the target dates and the change shows in the activity feed', function () {
+    $productDevelopment = storeDevelopmentWithNewSkus($this, 1);
+
+    patch(route('grp.models.product_development.update', ['productDevelopment' => $productDevelopment->id]), [
+        'target_landing_date' => '2026-11-02',
+        'target_online_date'  => '2026-11-20',
+    ])->assertRedirect();
+
+    $productDevelopment->refresh();
+    expect($productDevelopment->target_online_date->toDateString())->toBe('2026-11-20');
+
+    $changes = collect(GetProductDevelopmentActivity::run($productDevelopment))->pluck('changes')->flatten(1);
+    expect($changes->firstWhere('label', __('Target online'))['new'])->toBe('20 Nov 2026');
+
+    patch(route('grp.models.product_development.update', ['productDevelopment' => $productDevelopment->id]), [
+        'target_landing_date' => '2026-12-01',
+        'target_online_date'  => '2026-11-20',
+    ])->assertSessionHasErrors('target_online_date');
 });

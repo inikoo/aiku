@@ -27,4 +27,22 @@ enum ProductDevelopmentTypeEnum: string
             'label_only' => __('Label only'),
         ];
     }
+
+    public function icon(): string
+    {
+        return match ($this) {
+            self::NEW => 'fal fa-sparkles',
+            self::REDESIGN => 'fal fa-paint-brush',
+            self::LABEL_ONLY => 'fal fa-tag',
+        };
+    }
+
+    public function color(): string
+    {
+        return match ($this) {
+            self::NEW => 'teal',
+            self::REDESIGN => 'purple',
+            self::LABEL_ONLY => 'blue',
+        };
+    }
 }

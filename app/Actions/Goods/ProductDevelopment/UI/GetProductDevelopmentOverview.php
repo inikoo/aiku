@@ -1,0 +1,193 @@
+<?php
+
+/*
+ * Author Louis Perez
+ * Created on 16-10-2026-00h-10m
+ * GitHub: https://github.com/louis-perez
+ * Copyright 2026
+*/
+
+namespace App\Actions\Goods\ProductDevelopment\UI;
+
+use App\Enums\Goods\ProductDevelopment\ProductDevelopmentChecklistItemStateEnum;
+use App\Enums\Goods\ProductDevelopment\ProductDevelopmentMemberRoleEnum;
+use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStageEnum;
+use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStageStateEnum;
+use App\Models\Goods\ProductDevelopment;
+use App\Models\Goods\ProductDevelopmentChecklistItem;
+use App\Models\Goods\ProductDevelopmentItem;
+use App\Models\Goods\ProductDevelopmentStage;
+use Illuminate\Support\Collection;
+use Lorisleiva\Actions\Concerns\AsAction;
+
+class GetProductDevelopmentOverview
+{
+    use AsAction;
+
+    public const array ROLE_CARDS = [
+        ProductDevelopmentMemberRoleEnum::BUYER,
+        ProductDevelopmentMemberRoleEnum::AGENT,
+        ProductDevelopmentMemberRoleEnum::PURCHASING,
+        ProductDevelopmentMemberRoleEnum::COMPLIANCE,
+        ProductDevelopmentMemberRoleEnum::DESIGNER,
+    ];
+
+    public const int GATE_POSITION = 2;
+
+    public const int WAITING_ON_LIMIT = 8;
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function handle(ProductDevelopment $productDevelopment): array
+    {
+        $productDevelopment->loadMissing(['stages', 'items.tradeUnit', 'items.supplierProduct']);
+        $checklistItems = $productDevelopment->checklistItems()->with('item.tradeUnit')->get();
+        $required       = $checklistItems->where('required', true);
+
+        return [
+            'strip'      => $this->strip($productDevelopment, $required),
+            'roles'      => $this->roleCards($productDevelopment, $required),
+            'products'   => $this->products($productDevelopment, $required),
+            'waiting_on' => $this->waitingOn($productDevelopment, $required),
+        ];
+    }
+
+    /**
+     * @param Collection<int, ProductDevelopmentChecklistItem> $items
+     *
+     * @return array{done: int, total: int, missing: int}
+     */
+    private function tally(Collection $items): array
+    {
+        $missing = $items->filter(fn (ProductDevelopmentChecklistItem $item) => $item->state === ProductDevelopmentChecklistItemStateEnum::MISSING)->count();
+
+        return ['done' => $items->count() - $missing, 'total' => $items->count(), 'missing' => $missing];
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function strip(ProductDevelopment $productDevelopment, Collection $required): array
+    {
+        $stageLabels = ProductDevelopmentStageEnum::labels();
+        $segments    = [];
+
+        foreach ($productDevelopment->stages as $stage) {
+            /** @var ProductDevelopmentStage $stage */
+            $tally = $stage->position <= self::GATE_POSITION
+                ? $this->tally($required->where('role', $stage->role))
+                : null;
+
+            $segments[] = [
+                'key'       => $stage->stage->value,
+                'number'    => $stage->position.($stage->sub_position ?? ''),
+                'label'     => $stageLabels[$stage->stage->value],
+                'state'     => $stage->state->value,
+                'is_late'   => $stage->state === ProductDevelopmentStageStateEnum::IN_PROGRESS && $stage->due_at?->isPast() && !$stage->due_at->isToday(),
+                'due_at'    => $stage->due_at?->toDateString(),
+                'progress'  => $tally,
+            ];
+
+            if ($stage->stage === ProductDevelopmentStageEnum::PACK_CONTENT) {
+                $gateOpen   = $productDevelopment->current_position > self::GATE_POSITION;
+                $segments[] = [
+                    'key'      => 'gate',
+                    'number'   => '—',
+                    'label'    => __('Gate'),
+                    'state'    => $gateOpen ? ProductDevelopmentStageStateEnum::COMPLETED->value : 'locked',
+                    'is_late'  => false,
+                    'due_at'   => null,
+                    'progress' => null,
+                ];
+            }
+        }
+
+        return $segments;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function roleCards(ProductDevelopment $productDevelopment, Collection $required): array
+    {
+        $roleLabels = ProductDevelopmentMemberRoleEnum::labels();
+
+        return collect(self::ROLE_CARDS)->map(function (ProductDevelopmentMemberRoleEnum $role) use ($productDevelopment, $required, $roleLabels) {
+            $tally          = $this->tally($required->where('role', $role));
+            $startsAfterGate = $role === ProductDevelopmentMemberRoleEnum::DESIGNER && $productDevelopment->current_position <= self::GATE_POSITION;
+
+            return [
+                'role'              => $role->value,
+                'label'             => $roleLabels[$role->value],
+                'starts_after_gate' => $startsAfterGate,
+                ...$tally,
+            ];
+        })->values()->all();
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function products(ProductDevelopment $productDevelopment, Collection $required): array
+    {
+        $waitingForGate = $productDevelopment->current_position <= self::GATE_POSITION;
+        $stageLabel     = ProductDevelopmentStageEnum::positionLabel($productDevelopment->current_position);
+
+        return $productDevelopment->items->map(function (ProductDevelopmentItem $item) use ($required, $waitingForGate, $stageLabel) {
+            $itemRequired = $required->where('product_development_item_id', $item->id);
+
+            return [
+                'id'               => $item->id,
+                'code'             => $item->tradeUnit->code,
+                'name'             => $item->tradeUnit->name,
+                'route'            => [
+                    'name'       => 'grp.trade_units.units.show',
+                    'parameters' => ['tradeUnit' => $item->tradeUnit->slug],
+                ],
+                'supplier_product' => $item->supplierProduct?->code,
+                'specs'            => $this->tally($itemRequired->where('role', ProductDevelopmentMemberRoleEnum::AGENT)),
+                'compliance'       => $this->tally($itemRequired->where('role', ProductDevelopmentMemberRoleEnum::COMPLIANCE)),
+                'label_status'     => $waitingForGate ? __('Waiting for gate') : $stageLabel,
+                'still_missing'    => $itemRequired
+                    ->filter(fn (ProductDevelopmentChecklistItem $checklistItem) => $checklistItem->state === ProductDevelopmentChecklistItemStateEnum::MISSING)
+                    ->pluck('label')
+                    ->values()
+                    ->all(),
+            ];
+        })->values()->all();
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function waitingOn(ProductDevelopment $productDevelopment, Collection $required): array
+    {
+        $roleLabels = ProductDevelopmentMemberRoleEnum::labels();
+        $roleDueAt  = $productDevelopment->stages
+            ->groupBy(fn (ProductDevelopmentStage $stage) => $stage->role->value)
+            ->map(fn (Collection $stages) => $stages->sortBy('position')->first()?->due_at);
+
+        return $required
+            ->filter(fn (ProductDevelopmentChecklistItem $item) => $item->state === ProductDevelopmentChecklistItemStateEnum::MISSING)
+            ->groupBy(fn (ProductDevelopmentChecklistItem $item) => $item->role->value.'|'.$item->key)
+            ->map(function (Collection $items) use ($roleLabels, $roleDueAt) {
+                /** @var ProductDevelopmentChecklistItem $first */
+                $first = $items->first();
+                $dueAt = $roleDueAt->get($first->role->value);
+                $skus  = $items->map(fn (ProductDevelopmentChecklistItem $item) => $item->item?->tradeUnit?->code)->filter()->values();
+
+                return [
+                    'label'   => $first->label,
+                    'role'    => $roleLabels[$first->role->value],
+                    'skus'    => $skus->count() > 3 ? __(':count SKUs', ['count' => $skus->count()]) : $skus->implode(', '),
+                    'due_at'  => $dueAt?->toDateString(),
+                    'is_late' => $dueAt?->isPast() && !$dueAt->isToday(),
+                ];
+            })
+            ->sortBy(fn (array $row) => $row['due_at'] ?? '9999-12-31')
+            ->take(self::WAITING_ON_LIMIT)
+            ->values()
+            ->all();
+    }
+}

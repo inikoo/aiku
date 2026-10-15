@@ -1,0 +1,194 @@
+<?php
+
+/*
+ * Author Louis Perez
+ * Created on 16-10-2026-01h-30m
+ * GitHub: https://github.com/louis-perez
+ * Copyright 2026
+*/
+
+namespace App\Actions\Goods\ProductDevelopment\UI;
+
+use App\Actions\Goods\ProductDevelopment\RecordProductDevelopmentActivity;
+use App\Enums\Goods\ProductDevelopment\ProductDevelopmentChecklistItemStateEnum;
+use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStatusEnum;
+use App\Enums\Goods\ProductDevelopment\ProductDevelopmentTypeEnum;
+use App\Enums\Goods\TradeUnit\TradeUnitMarketEnum;
+use App\Models\Goods\PackagingFamily;
+use App\Models\Goods\ProductDevelopment;
+use App\Models\Goods\ProductDevelopmentChecklistItem;
+use App\Models\Goods\TradeUnitFamily;
+use App\Models\Helpers\Audit;
+use App\Models\SupplyChain\Agent;
+use App\Models\SupplyChain\Supplier;
+use App\Models\SysAdmin\User;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
+use Lorisleiva\Actions\Concerns\AsAction;
+
+class GetProductDevelopmentActivity
+{
+    use AsAction;
+
+    public const int LIMIT = 100;
+
+    private bool $canOpenProfiles = false;
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function handle(ProductDevelopment $productDevelopment, int $limit = self::LIMIT, ?User $viewer = null): array
+    {
+        $this->canOpenProfiles = (bool) $viewer?->authTo('sysadmin.view');
+
+        $checklistItemIds = $productDevelopment->checklistItems()->pluck('id');
+
+        $audits = Audit::query()
+            ->where(function (Builder $query) use ($productDevelopment, $checklistItemIds) {
+                $query->where(fn (Builder $query) => $query
+                    ->where('auditable_type', 'ProductDevelopment')
+                    ->where('auditable_id', $productDevelopment->id))
+                    ->orWhere(fn (Builder $query) => $query
+                        ->where('auditable_type', 'ProductDevelopmentChecklistItem')
+                        ->whereIn('auditable_id', $checklistItemIds)
+                        ->where('event', '!=', 'created'));
+            })
+            ->with('user')
+            ->orderByDesc('id')
+            ->limit($limit)
+            ->get();
+
+        $checklistItems = ProductDevelopmentChecklistItem::with('item.tradeUnit')
+            ->whereIn('id', $audits->where('auditable_type', 'ProductDevelopmentChecklistItem')->pluck('auditable_id'))
+            ->get()
+            ->keyBy('id');
+
+        return $audits
+            ->map(fn (Audit $audit) => $this->entry($audit, $productDevelopment, $checklistItems->get($audit->auditable_id)))
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function entry(Audit $audit, ProductDevelopment $productDevelopment, ?ProductDevelopmentChecklistItem $checklistItem): ?array
+    {
+        $old = $audit->old_values ?? [];
+        $new = $audit->new_values ?? [];
+
+        if ($audit->auditable_type === 'ProductDevelopmentChecklistItem') {
+            [$sentence, $changes] = $this->checklistSentence($checklistItem, $new);
+        } else {
+            [$sentence, $changes] = match ($audit->event) {
+                'created' => [__('Created :code', ['code' => $productDevelopment->code]), []],
+                RecordProductDevelopmentActivity::STAGE_MOVED => [__('Moved from :from to :to', ['from' => $old['stage'] ?? '—', 'to' => $new['stage'] ?? '—']), []],
+                RecordProductDevelopmentActivity::SKUS_ADDED => [trans_choice('Added :count SKU|Added :count SKUs', count($new['skus'] ?? []), ['count' => count($new['skus'] ?? [])]), [['label' => __('SKUs'), 'old' => null, 'new' => implode(', ', $new['skus'] ?? [])]]],
+                RecordProductDevelopmentActivity::MEMBERS_ADDED => [__('Added members'), [['label' => __('Members'), 'old' => null, 'new' => implode(', ', $new['members'] ?? [])]]],
+                'updated' => [__('Updated the development'), $this->fieldChanges($old, $new)],
+                default => [Str::headline($audit->event), []],
+            };
+        }
+
+        if ($sentence === null) {
+            return null;
+        }
+
+        $user     = $audit->user instanceof User ? $audit->user : null;
+        $userName = $user ? ($user->contact_name ?: $user->username) : __('System');
+
+        return [
+            'id'          => $audit->id,
+            'user'        => $userName,
+            'user_id'     => $user?->id,
+            'username'    => $user?->username,
+            'avatar'      => $user?->image_id ? $user->imageSources(48, 48) : null,
+            'profile_url' => $user && $this->canOpenProfiles ? route('grp.sysadmin.users.show', ['user' => $user->slug]) : null,
+            'initials'   => Str::upper(Str::substr(Str::of($userName)->explode(' ')->map(fn ($part) => Str::substr($part, 0, 1))->implode(''), 0, 2)),
+            'created_at' => $audit->created_at?->toIso8601String(),
+            'sentence'   => $sentence,
+            'changes'    => $changes,
+        ];
+    }
+
+    /**
+     * @return array{0: string|null, 1: array<int, array<string, mixed>>}
+     */
+    private function checklistSentence(?ProductDevelopmentChecklistItem $checklistItem, array $new): array
+    {
+        if (!$checklistItem || !array_key_exists('state', $new)) {
+            return [null, []];
+        }
+
+        $target = $checklistItem->item?->tradeUnit?->code;
+        $label  = $target ? $checklistItem->label.' ('.$target.')' : $checklistItem->label;
+
+        $sentence = match ($new['state']) {
+            ProductDevelopmentChecklistItemStateEnum::COMPLETE->value => __(':item is done', ['item' => $label]),
+            ProductDevelopmentChecklistItemStateEnum::NOT_APPLICABLE->value => __(':item marked N/A', ['item' => $label]),
+            default => __(':item is missing again', ['item' => $label]),
+        };
+
+        $changes = filled($new['na_reason'] ?? null) ? [['label' => __('Reason'), 'old' => null, 'new' => $new['na_reason']]] : [];
+
+        return [$sentence, $changes];
+    }
+
+    /**
+     * @return array<int, array{label: string, old: string|null, new: string|null}>
+     */
+    private function fieldChanges(array $old, array $new): array
+    {
+        $labels = [
+            'name'                 => __('Name'),
+            'type'                 => __('Type'),
+            'status'               => __('Status'),
+            'brief'                => __('Brief'),
+            'markets'              => __('Markets'),
+            'owner_id'             => __('Owner'),
+            'supplier_id'          => __('Supplier'),
+            'agent_id'             => __('Agent'),
+            'trade_unit_family_id' => __('Trade unit family'),
+            'packaging_family_id'  => __('Packaging family'),
+            'target_landing_date'  => __('Target landing'),
+            'target_online_date'   => __('Target online'),
+            'checklist_category'   => __('Checklist category'),
+        ];
+
+        return collect($new)
+            ->keys()
+            ->merge(array_keys($old))
+            ->unique()
+            ->filter(fn (string $field) => isset($labels[$field]))
+            ->map(fn (string $field) => [
+                'label' => $labels[$field],
+                'old'   => $this->displayValue($field, $old[$field] ?? null),
+                'new'   => $this->displayValue($field, $new[$field] ?? null),
+            ])
+            ->values()
+            ->all();
+    }
+
+    private function displayValue(string $field, mixed $value): ?string
+    {
+        if ($value === null || $value === '' || $value === []) {
+            return null;
+        }
+
+        return match ($field) {
+            'type' => ProductDevelopmentTypeEnum::labels()[$value] ?? (string) $value,
+            'status' => ProductDevelopmentStatusEnum::labels()[$value] ?? (string) $value,
+            'markets' => collect(is_string($value) ? json_decode($value, true) : $value)->map(fn ($market) => TradeUnitMarketEnum::labels()[$market] ?? $market)->implode(', '),
+            'owner_id' => User::find($value)?->contact_name ?? (string) $value,
+            'supplier_id' => Supplier::find($value)?->name ?? (string) $value,
+            'agent_id' => Agent::find($value)?->name ?? (string) $value,
+            'trade_unit_family_id' => TradeUnitFamily::find($value)?->code ?? (string) $value,
+            'packaging_family_id' => PackagingFamily::find($value)?->name ?? (string) $value,
+            'target_landing_date', 'target_online_date' => Carbon::parse($value)->format('j M Y'),
+            'brief' => Str::limit((string) $value, 140),
+            default => (string) $value,
+        };
+    }
+}

@@ -64,6 +64,6 @@ class SearchProductDevelopmentOptions extends OrgAction
     {
         $this->initialisationFromGroup(group(), $request);
 
-        return $this->handle($this->group, $scope, trim((string) $request->query('q', '')));
+        return $this->handle($this->group, $scope, trim((string) ($request->input('filter.global') ?? $request->query('q', ''))));
     }
 }

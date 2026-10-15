@@ -6,15 +6,14 @@
   -->
 
 <script setup lang="ts">
-import { reactive } from "vue"
-import { Head, Link, router } from "@inertiajs/vue3"
-import Select from "primevue/select"
+import { Head, Link } from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { ctrans } from "@/Composables/useTrans"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { PageHeadingTypes } from "@/types/PageHeading"
 import ProductDevelopmentViewSwitch from "@/Components/Goods/ProductDevelopment/ProductDevelopmentViewSwitch.vue"
+import ProductDevelopmentFilterBar from "@/Components/Goods/ProductDevelopment/ProductDevelopmentFilterBar.vue"
 import ProductDevelopmentMissingBadge from "@/Components/Goods/ProductDevelopment/ProductDevelopmentMissingBadge.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -43,36 +42,14 @@ interface Column {
     cards: Card[]
 }
 
-const props = defineProps<{
+defineProps<{
     title: string
     pageHead: PageHeadingTypes
     viewSwitch: any[]
     columns: Column[]
-    filters: Record<string, string>
-    filterOptions: Record<string, Record<string, string>>
+    filterBar: any
     truncated: boolean
 }>()
-
-const filterLabels: Record<string, string> = {
-    status: ctrans("Status"),
-    stage: ctrans("Stage"),
-    agent: ctrans("Agent"),
-    designer: ctrans("Designer"),
-    brand: ctrans("Brand"),
-    missing: ctrans("Missing info"),
-    overdue: ctrans("Overdue"),
-}
-
-const selected = reactive<Record<string, string | null>>(
-    Object.fromEntries(Object.keys(filterLabels).map((key) => [key, props.filters?.[key] ?? null]))
-)
-
-const asOptions = (options: Record<string, string>) => Object.entries(options ?? {}).map(([value, label]) => ({ value, label }))
-
-function applyFilters() {
-    const filter = Object.fromEntries(Object.entries(selected).filter(([, value]) => value !== null && value !== ""))
-    router.get(route("grp.product_developments.board"), { filter }, { preserveState: true, preserveScroll: true })
-}
 
 const formatDate = (date: string | null) => date ? useFormatTime(date, { formatTime: "d MMM" }) : null
 </script>
@@ -85,21 +62,7 @@ const formatDate = (date: string | null) => date ? useFormatTime(date, { formatT
         </template>
     </PageHeading>
 
-    <div class="flex flex-wrap gap-2 px-4 pt-3">
-        <Select
-            v-for="(label, key) in filterLabels"
-            :key="key"
-            v-model="selected[key]"
-            :options="asOptions(filterOptions[key])"
-            optionLabel="label"
-            optionValue="value"
-            :placeholder="label"
-            showClear
-            size="small"
-            class="min-w-36"
-            @change="applyFilters"
-        />
-    </div>
+    <ProductDevelopmentFilterBar :filterBar="filterBar" routeName="grp.product_developments.board" />
 
     <p v-if="truncated" class="px-4 pt-2 text-xs text-amber-700">
         {{ ctrans("Showing the first 500 developments, use the filters to narrow down") }}

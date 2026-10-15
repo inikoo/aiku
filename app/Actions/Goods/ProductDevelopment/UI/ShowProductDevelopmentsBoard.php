@@ -75,8 +75,7 @@ class ShowProductDevelopmentsBoard extends OrgAction
                 ],
                 'viewSwitch'    => $this->viewSwitch('board'),
                 'columns'       => $columns,
-                'filters'       => $request->input('filter', []),
-                'filterOptions' => $this->productDevelopmentFilterOptions($this->group),
+                'filterBar'     => $this->productDevelopmentFilterBar($this->group, $request->user()),
                 'truncated'     => $productDevelopments->count() >= self::MAX_CARDS,
             ]
         );

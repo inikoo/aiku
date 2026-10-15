@@ -116,11 +116,33 @@ class StoreProductDevelopment extends OrgAction
                 ]);
             }
 
+            $this->recordCreationActivity($productDevelopment);
             $this->createChecklistItems($productDevelopment);
             ProductDevelopmentHydrateChecklist::run($productDevelopment);
 
             return $productDevelopment;
         });
+    }
+
+    private function recordCreationActivity(ProductDevelopment $productDevelopment): void
+    {
+        $productDevelopment->load(['items.tradeUnit', 'members.user']);
+
+        if ($productDevelopment->items->isNotEmpty()) {
+            RecordProductDevelopmentActivity::record($productDevelopment, RecordProductDevelopmentActivity::SKUS_ADDED, [], [
+                'skus' => $productDevelopment->items->map(fn (ProductDevelopmentItem $item) => $item->tradeUnit->code)->values()->all(),
+            ]);
+        }
+
+        if ($productDevelopment->members->isNotEmpty()) {
+            $roleLabels = ProductDevelopmentMemberRoleEnum::labels();
+            RecordProductDevelopmentActivity::record($productDevelopment, RecordProductDevelopmentActivity::MEMBERS_ADDED, [], [
+                'members' => $productDevelopment->members
+                    ->map(fn (ProductDevelopmentMember $member) => ($member->user?->contact_name ?? $member->user?->username).' ('.$roleLabels[$member->role->value].')')
+                    ->values()
+                    ->all(),
+            ]);
+        }
     }
 
     private function createStages(ProductDevelopment $productDevelopment): void

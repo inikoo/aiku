@@ -74,6 +74,15 @@ trait WithProductDevelopmentAuthorisation
             ->all();
     }
 
+    public function canEditProductDevelopment(User $user, ProductDevelopment $productDevelopment): bool
+    {
+        if ($productDevelopment->owner_id === $user->id) {
+            return true;
+        }
+
+        return in_array(ProductDevelopmentMemberRoleEnum::PURCHASING, $this->memberRoles($user, $productDevelopment), true);
+    }
+
     public function canMoveProductDevelopmentStage(User $user, ProductDevelopment $productDevelopment): bool
     {
         if ($productDevelopment->owner_id === $user->id) {
