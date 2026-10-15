@@ -58,10 +58,18 @@ enum PurchaseOrderJourneyStageEnum: string
         ];
     }
 
+    /**
+     * Stages a person records, so the board can not see them by itself: the deposit (as a payment), production
+     * start and QC.
+     */
+    public function isRecordedByPeople(): bool
+    {
+        return in_array($this, [self::DEPOSIT_PAID, self::IN_PRODUCTION, self::READY]);
+    }
+
     public function markColumn(): ?string
     {
         return match ($this) {
-            self::DEPOSIT_PAID  => 'deposit_paid_at',
             self::IN_PRODUCTION => 'production_started_at',
             self::READY         => 'qc_passed_at',
             default             => null,

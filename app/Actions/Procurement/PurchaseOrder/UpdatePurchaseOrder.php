@@ -49,9 +49,9 @@ class UpdatePurchaseOrder extends OrgAction
     ];
 
     public const array AGENT_FIELDS = [
+        'agent_reference',
         'proposed_ready_at',
         'deposit_amount',
-        'produced_at',
         'estimated_production_date',
         'estimated_receiving_date',
     ];
@@ -135,6 +135,7 @@ class UpdatePurchaseOrder extends OrgAction
             'handed_over_at'            => ['sometimes', 'nullable', 'date'],
             'buyer_id'                  => ['sometimes', 'nullable', 'integer', 'exists:users,id'],
             'proposed_ready_at'         => ['sometimes', 'nullable', 'date'],
+            'agent_reference'           => ['sometimes', 'nullable', 'string', 'max:64'],
             'approved_ready_at'         => ['sometimes', 'nullable', 'date'],
             'compliance_complete_at'    => ['sometimes', 'nullable', 'date'],
             'chs_excluded'              => ['sometimes', 'boolean'],
@@ -142,7 +143,7 @@ class UpdatePurchaseOrder extends OrgAction
         ];
 
         if (!$this->asAction) {
-            $rules = Arr::except($rules, array_keys(PurchaseOrderStageEnum::MARKABLE_FIELDS));
+            $rules = Arr::except($rules, [...array_keys(PurchaseOrderStageEnum::MARKABLE_FIELDS), 'deposit_paid_at', 'balance_paid_at']);
         }
 
         if ($this->actingAsAgent) {

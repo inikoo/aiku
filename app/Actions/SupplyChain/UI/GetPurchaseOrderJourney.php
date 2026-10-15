@@ -39,6 +39,7 @@ class GetPurchaseOrderJourney
      *     submitted_at?: ?string,
      *     is_npo?: bool,
      *     has_deposit?: bool,
+     *     no_deposit?: bool,
      *     deposit_paid_at?: ?string,
      *     production_started_at?: ?string,
      *     produced_at?: ?string,
@@ -79,7 +80,7 @@ class GetPurchaseOrderJourney
             }
         }
 
-        $isTracked = collect($stages)->contains(fn (array $stage, string $key) => Stage::from($key)->markColumn() !== null && $stage['done']);
+        $isTracked = collect($stages)->contains(fn (array $stage, string $key) => Stage::from($key)->isRecordedByPeople() && $stage['done']);
 
         $labels       = Stage::labels();
         $descriptions = Stage::descriptions();
@@ -102,7 +103,7 @@ class GetPurchaseOrderJourney
                 $state      = $stage['done'] ? 'done' : 'skipped';
                 $anchor     = $doneAt ?? $planned->copy()->min($today);
                 $forecastAt = $anchor->copy();
-            } elseif (!$isTracked && Stage::from($key)->markColumn() !== null) {
+            } elseif (!$isTracked && Stage::from($key)->isRecordedByPeople()) {
                 $state      = 'untracked';
                 $forecastAt = $planned->copy()->max($forecast->copy()->addDays($days[$key]));
             } elseif ($current === null) {
@@ -168,7 +169,7 @@ class GetPurchaseOrderJourney
         ];
         $readyAt = !empty($facts['approved_ready_at']) ? Carbon::parse($facts['approved_ready_at']) : null;
 
-        if ($isAgent || ($facts['has_deposit'] ?? false) || !empty($facts['deposit_paid_at'])) {
+        if (($isAgent && !($facts['no_deposit'] ?? false)) || ($facts['has_deposit'] ?? false) || !empty($facts['deposit_paid_at'])) {
             $stages['deposit_paid'] = $this->stage(false, $facts['deposit_paid_at'] ?? null);
         }
         if ($isAgent || !empty($facts['production_started_at']) || ($journey === 'supplier' && ($facts['production_waiting_time'] ?? 0) > 0)) {

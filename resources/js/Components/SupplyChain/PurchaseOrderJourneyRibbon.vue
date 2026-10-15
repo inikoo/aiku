@@ -117,6 +117,9 @@ function tracksAbsent(stage: { key: string; markable: boolean }): boolean {
 }
 
 function absentTitle(key: string): string {
+    if (key === "deposit_paid") {
+        return ctrans("No deposit on this order")
+    }
     if (key === "products_online") {
         return ctrans("No products for sale on this order")
     }

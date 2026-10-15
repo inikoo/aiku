@@ -1,6 +1,6 @@
 ---
 title: 代理商如何记录订单进度
-summary: 面向代理商 — 您需要在每张发给供应商的订单上记录的日期（定金已付、生产开始、生产完成、建议就绪日期）、记录的时机与位置、采购方另外记录哪些内容，以及缺失日期为何会显示为延误。
+summary: 面向代理商 — 您需要在每张发给供应商的订单上记录的日期（定金已付、生产开始、生产完成、建议就绪日期）以及您自己的订单号、记录的时机与位置、采购方另外记录哪些内容，以及缺失日期为何会显示为延误。
 date: 2026-10-15
 source_date: 2026-10-15
 tags: procurement, agents, supply-chain
@@ -25,10 +25,11 @@ order: 2
 
 | 日期 | 记录时机 | 位置 |
 |---|---|---|
-| Deposit paid（定金已付） | 供应商收到定金时。 | 订单顶部各阶段上的 **Deposit paid** 按钮。定金金额在订单的 **Edit**（编辑）页面记录。 |
+| Deposit paid（定金已付） | 供应商收到定金时。 | 订单付款面板中的 **Pay deposit**，填写金额并附上银行对账单。记录的第一笔付款即为定金，之后的付款为尾款。 |
 | Production started（生产开始） | 供应商开始生产货物时。 | 订单顶部各阶段上的 **Production started** 按钮。 |
-| Production done（生产完成） | 供应商完成货物生产时。“完成”指整张订单全部完成，而非第一批。 | 订单 **Edit** 页面的 **Production**（生产）部分。 |
+| Production done（生产完成） | 供应商完成货物生产时。“完成”指整张订单全部完成，而非第一批。 | 订单顶部各阶段上的 **Production done** 按钮。 |
 | Proposed ready date（建议就绪日期） | 您知道货物何时能够准备好交接时。这是您认为可信的日期，采购方会核准它。 | 订单 **Edit** 页面的 **Clean handover**（干净交接）部分。 |
+| Your order number（您的订单号） | 您有自己的订单编号时。 | 订单 **Edit** 页面的 **Agent's order number**。它显示在 PO submitted 下方。 |
 
 各阶段按顺序进行。每个日期都要在发生当天记录。如果日期早于今天超过一天、记录的阶段先于它的前一阶段，或者您清除了某个日期，系统会要求您填写原因。原因连同您的姓名一起保存在订单历史中，采购方可以看到。
 
@@ -38,7 +39,7 @@ order: 2
 
 - **样品已核准（Sample approved）。** 由采购方核准样品。仅适用于新产品，返单没有样品环节。
 - **核准就绪日期（Approved ready date）。** 采购方核准您提议的日期后，该日期即被锁定，并据此设定后续目标：质检须于当天完成，干净交接须在其后七天内完成。
-- **质检通过（QC passed）**与**干净交接（clean handover）。** 这两项由采购方确认，通常依据您提供的质检证据与货运代理的收货凭证。
+- **质检通过（QC passed）**与**干净交接（clean handover）。** 这两项由采购方确认，通常依据您提供的质检证据与货运代理的收货凭证。批准质检会放行尾款：在此之前支付尾款，系统会要求您填写原因。
 - **合规文件包完整。**
 
 这些正是计算您 <a href="/docs/your-clean-handover-score-zh-hans">交接合格率（CHS）</a> 的依据。一个您自己就能编辑的分数，是没有任何价值的 —— 对您自己也是如此。
@@ -51,10 +52,10 @@ order: 2
 
 <aside class="wayfinder">
 <b>在 aiku 中的位置</b><br>
-登录 → <b>Purchase Orders</b>（采购订单）→ 打开该订单。每份采购订单对应您的一家供应商。七个阶段位于页面顶部：在那里使用 <b>Deposit paid</b> 和 <b>Production started</b> 按钮。然后打开 <b>Edit</b>：<b>Deposit amount</b>（定金金额）在 <b>Payments</b>（付款）部分，<b>Production done</b> 在 <b>Production</b>（生产）部分，<b>Proposed ready date</b> 在 <b>Clean handover</b>（干净交接）部分。
+登录 → <b>Purchase Orders</b>（采购订单）→ 打开该订单。每份采购订单对应您的一家供应商。七个阶段位于页面顶部：在那里使用 <b>Production started</b> 和 <b>Production done</b> 按钮。定金通过付款面板中的 <b>Pay deposit</b> 记录。然后打开 <b>Edit</b>：<b>Proposed ready date</b> 和 <b>Agent's order number</b> 在 <b>Clean handover</b>（干净交接）部分。
 </aside>
 
 <aside class="wayfinder">
 <b>需要的权限</b><br>
-您所属代理商组织的登录账号。您只能在自己的订单上标记自己负责的阶段：定金已付和生产开始，以及在编辑页面填写生产完成、建议就绪日期和定金金额。样品核准、核准就绪日期、QC、干净交接和合规相关项目不对您开放，因为这些由采购方记录。
+您所属代理商组织的登录账号。您只能在自己的订单上标记自己负责的阶段：阶段上的生产开始和生产完成、以付款形式记录的定金，以及在编辑页面填写的建议就绪日期和您的订单号。样品核准、核准就绪日期、QC、干净交接和合规相关项目不对您开放，因为这些由采购方记录。
 </aside>

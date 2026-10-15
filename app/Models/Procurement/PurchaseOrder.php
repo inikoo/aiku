@@ -235,6 +235,7 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
 
     protected array $auditInclude = [
         'reference',
+        'agent_reference',
         'state',
         'notes',
         'cost_total',

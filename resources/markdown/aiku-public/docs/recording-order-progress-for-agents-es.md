@@ -1,6 +1,6 @@
 ---
 title: Registrar el progreso de un pedido como agente
-summary: Para agentes — las fechas que registras en cada pedido a un proveedor (depósito pagado, producción iniciada, producción terminada, fecha de listo propuesta), cuándo y dónde registrarlas, qué registra en su lugar la empresa compradora, y por qué una fecha que falta aparece como un retraso.
+summary: Para agentes — las fechas que registras en cada pedido a un proveedor (depósito pagado, producción iniciada, producción terminada, fecha de listo propuesta) y tu propio número de pedido, cuándo y dónde registrarlas, qué registra en su lugar la empresa compradora, y por qué una fecha que falta aparece como un retraso.
 date: 2026-10-15
 source_date: 2026-10-15
 tags: procurement, agents, supply-chain
@@ -25,10 +25,11 @@ En cuanto registras la primera fecha en un pedido, se esperan las siguientes. Si
 
 | Fecha | Regístrala cuando | Dónde |
 |---|---|---|
-| Deposit paid | El proveedor ya tiene el depósito. | El botón **Deposit paid** en las etapas de la parte superior del pedido. Registra el importe del depósito en la página **Edit** del pedido. |
+| Deposit paid | El proveedor ya tiene el depósito. | **Pay deposit** en el panel de pagos del pedido, con el importe y el extracto bancario. El primer pago registrado es el depósito; lo que se paga después es el saldo. |
 | Production started | El proveedor empieza a fabricar la mercancía. | El botón **Production started** en las etapas de la parte superior del pedido. |
-| Production done | La mercancía está terminada en el proveedor. Terminada significa todo el pedido, no el primer lote. | La sección **Production** de la página **Edit** del pedido. |
+| Production done | La mercancía está terminada en el proveedor. Terminada significa todo el pedido, no el primer lote. | El botón **Production done** en las etapas de la parte superior del pedido. |
 | Proposed ready date | Sabes cuándo estará lista la mercancía para la entrega. Una fecha en la que confías. El comprador la aprueba. | La sección **Clean handover** de la página **Edit** del pedido. |
+| Your order number | Tienes tu propio número para el pedido. | **Agent's order number** en la página **Edit** del pedido. Se muestra bajo PO submitted. |
 
 Las etapas van en orden. Registra cada fecha el mismo día en que ocurre. Una fecha de más de un día en el pasado, una etapa registrada antes de la anterior o una fecha que borras te pide un motivo. El motivo queda guardado en el historial del pedido, con tu nombre, para que el comprador vea por qué.
 
@@ -38,7 +39,7 @@ Hay fechas que no puedes introducir tú, y es intencionado:
 
 - **Sample approved.** El comprador aprueba la muestra. Solo productos nuevos; los pedidos repetidos no tienen muestra.
 - **Approved ready date.** El comprador aprueba tu fecha propuesta. A partir de ahí queda fijada, y marca los plazos: el control de calidad debe completarse ese día, y la entrega limpia dentro de los siete días siguientes.
-- **QC passed** y **clean handover.** El comprador las confirma, normalmente a partir de tu evidencia de calidad y del recibo del agente de transporte.
+- **QC passed** y **clean handover.** El comprador las confirma, normalmente a partir de tu evidencia de calidad y del recibo del agente de transporte. Aprobar el control de calidad libera el pago del saldo: hasta entonces, pagar el saldo pide un motivo.
 - **Compliance pack complete.**
 
 Estos son los datos con los que se calcula tu <a href="/docs/your-clean-handover-score-es">Clean Handover Score</a>. Un score que pudieras editar tú mismo no valdría nada, ni siquiera para ti.
@@ -51,10 +52,10 @@ Estos son los datos con los que se calcula tu <a href="/docs/your-clean-handover
 
 <aside class="wayfinder">
 <b>Dónde pulsar en aiku</b><br>
-Inicia sesión → <b>Purchase Orders</b> → abre el pedido. Cada orden de compra es para uno de tus proveedores. Las siete etapas están en la parte superior de la página: usa ahí los botones <b>Deposit paid</b> y <b>Production started</b>. Después abre <b>Edit</b>: <b>Deposit amount</b> está en la sección <b>Payments</b>, <b>Production done</b> en la sección <b>Production</b> y <b>Proposed ready date</b> en la sección <b>Clean handover</b>.
+Inicia sesión → <b>Purchase Orders</b> → abre el pedido. Cada orden de compra es para uno de tus proveedores. Las siete etapas están en la parte superior de la página: usa ahí los botones <b>Production started</b> y <b>Production done</b>. El depósito se registra con <b>Pay deposit</b> en el panel de pagos. Después abre <b>Edit</b>: <b>Proposed ready date</b> y <b>Agent's order number</b> están en la sección <b>Clean handover</b>.
 </aside>
 
 <aside class="wayfinder">
 <b>Permisos que necesitas</b><br>
-Un acceso para tu organización de agente. Solo puedes marcar tus propias etapas, en tus propios pedidos: depósito pagado y producción iniciada, además de producción terminada, fecha de listo propuesta e importe del depósito en la página de edición. La aprobación de la muestra, la fecha de listo aprobada, el control de calidad, la entrega limpia y el cumplimiento normativo no están abiertos para ti, porque los registra la empresa compradora.
+Un acceso para tu organización de agente. Solo puedes marcar tus propias etapas, en tus propios pedidos: producción iniciada y producción terminada en las etapas, el depósito como pago, y tu fecha de listo propuesta y tu número de pedido en la página de edición. La aprobación de la muestra, la fecha de listo aprobada, el control de calidad, la entrega limpia y el cumplimiento normativo no están abiertos para ti, porque los registra la empresa compradora.
 </aside>

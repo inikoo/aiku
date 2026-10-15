@@ -28,6 +28,8 @@ interface Mark {
     label: string
     date: string | null
     skipped: string[]
+    planned?: boolean
+    suggested?: string | null
 }
 
 interface Evidence {
@@ -49,6 +51,7 @@ interface Stage {
     days_late: number
     deliveries: { reached: number, total: number } | null
     not_required?: boolean
+    note?: string | null
     steps: Step[]
     evidence: Evidence[]
     marks: Mark[]
@@ -92,7 +95,8 @@ const errors = ref<Record<string, string>>({})
 
 function openMark(mark: Mark) {
     editing.value = mark
-    date.value = mark.date ? new Date(mark.date) : new Date()
+    const initial = mark.date ?? mark.suggested
+    date.value = initial ? new Date(initial) : new Date()
     reason.value = ""
     errors.value = {}
 }
@@ -106,7 +110,8 @@ const needsReason = computed(() => {
     }
     const yesterday = new Date()
     yesterday.setDate(yesterday.getDate() - 1)
-    return (toIso(date.value) as string) < (toIso(yesterday) as string) || editing.value.skipped.length > 0
+    const isPast = !editing.value.planned && (toIso(date.value) as string) < (toIso(yesterday) as string)
+    return isPast || editing.value.skipped.length > 0
 })
 
 function save() {
@@ -154,6 +159,8 @@ function save() {
                 {{ ctrans("Expected :date", { date: formatDate(stage.expected) as string }) }}
                 <template v-if="stage.days_late"> · {{ ctrans(":days days late", { days: stage.days_late }) }}</template>
             </div>
+
+            <div v-if="stage.note" class="mt-0.5 text-xs text-gray-500">{{ stage.note }}</div>
 
             <div v-if="stage.deliveries && stage.deliveries.total" class="mt-1 flex items-center gap-1 text-xs text-gray-500">
                 <FontAwesomeIcon icon="fal fa-truck" fixed-width aria-hidden="true" />
@@ -212,7 +219,7 @@ function save() {
         <div class="space-y-4 text-sm">
             <label class="block space-y-1">
                 <span class="block text-xs text-gray-500">{{ ctrans("Date") }}</span>
-                <DatePicker v-model="date" dateFormat="yy-mm-dd" :maxDate="new Date()" showIcon showButtonBar class="w-full" />
+                <DatePicker v-model="date" dateFormat="yy-mm-dd" :maxDate="editing?.planned ? undefined : new Date()" showIcon showButtonBar class="w-full" />
                 <span v-if="errors.date" class="block text-xs text-red-600">{{ errors.date }}</span>
             </label>
 

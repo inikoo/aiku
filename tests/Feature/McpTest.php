@@ -2054,6 +2054,85 @@ describe('master prices tool', function () {
     });
 });
 
+describe('trade unit properties tool', function () {
+    beforeEach(function () {
+        $this->tradeUnit      = App\Actions\Goods\TradeUnit\StoreTradeUnit::make()->action($this->group, App\Models\Goods\TradeUnit::factory()->definition());
+        $this->otherTradeUnit = App\Actions\Goods\TradeUnit\StoreTradeUnit::make()->action($this->group, App\Models\Goods\TradeUnit::factory()->definition());
+        $this->ean            = function (): string {
+            $digits = '50'.str_pad((string) random_int(0, 9999999999), 10, '0', STR_PAD_LEFT);
+            $sum    = 0;
+            foreach (array_reverse(str_split($digits)) as $position => $digit) {
+                $sum += (int) $digit * ($position % 2 === 0 ? 3 : 1);
+            }
+
+            return $digits.((10 - $sum % 10) % 10);
+        };
+        $this->user->update(['can_use_mcp_goods' => true]);
+    });
+
+    test('a user not enrolled is refused and nothing changes', function () {
+        $this->user->update(['can_use_mcp_goods' => false]);
+
+        AikuServer::actingAs($this->user)->tool(App\Mcp\Tools\TradeUnitPropertiesTool::class, [
+            'code'         => $this->tradeUnit->code,
+            'changes'      => ['gross_weight' => 123],
+            'request_text' => 'set it to 123g',
+        ])->assertHasErrors(['Editing trade units is not enabled for this user']);
+
+        expect($this->tradeUnit->fresh()->gross_weight)->not->toBe(123);
+    });
+
+    test('shows, saves properties with the origin by ISO code and can be reverted', function () {
+        $grossWeight = $this->tradeUnit->gross_weight;
+
+        AikuServer::actingAs($this->user)->tool(App\Mcp\Tools\TradeUnitPropertiesTool::class, [
+            'code' => strtolower($this->tradeUnit->code),
+        ])->assertOk()->assertSee('marketing_ingredients');
+
+        AikuServer::actingAs($this->user)->tool(App\Mcp\Tools\TradeUnitPropertiesTool::class, [
+            'code'         => $this->tradeUnit->code,
+            'changes'      => ['gross_weight' => 777, 'marketing_ingredients' => 'Lavandula angustifolia oil', 'origin_country' => 'GB'],
+            'request_text' => 'yes, 777g, lavender, made in the UK',
+        ])->assertOk()->assertSee('gross_weight=777');
+
+        $tradeUnit = $this->tradeUnit->fresh();
+        expect($tradeUnit->gross_weight)->toBe(777)
+            ->and($tradeUnit->marketing_ingredients)->toBe('Lavandula angustifolia oil')
+            ->and($tradeUnit->country_of_origin)->toBe('GBR');
+
+        $change = App\Models\SysAdmin\McpChange::where('type', App\Enums\SysAdmin\McpChange\McpChangeTypeEnum::TRADE_UNIT_PROPERTIES)->latest('id')->first();
+        expect($change->request_text)->toBe('yes, 777g, lavender, made in the UK')
+            ->and($change->canBeRevertedBy($this->user))->toBeTrue();
+
+        App\Actions\SysAdmin\McpChange\RevertMcpChange::run($change, $this->user);
+        expect($this->tradeUnit->fresh()->gross_weight)->toBe($grossWeight)
+            ->and($this->tradeUnit->fresh()->marketing_ingredients)->toBeNull();
+    });
+
+    test('a barcode goes only to a trade unit without one and is never taken from another item', function () {
+        $tool = fn (string $code, string $barcode) => AikuServer::actingAs($this->user)->tool(App\Mcp\Tools\TradeUnitPropertiesTool::class, [
+            'code'         => $code,
+            'barcode'      => $barcode,
+            'request_text' => 'the label says '.$barcode,
+        ]);
+
+        $taken = ($this->ean)();
+        $tool($this->otherTradeUnit->code, $taken)->assertOk();
+        expect($this->otherTradeUnit->fresh()->barcode)->toBe($taken);
+
+        $tool($this->tradeUnit->code, substr($taken, 0, -1).((int) substr($taken, -1) + 1) % 10)->assertHasErrors(['not a valid EAN']);
+        $tool($this->tradeUnit->code, $taken)->assertHasErrors([$this->otherTradeUnit->code]);
+        expect($this->tradeUnit->fresh()->barcode)->toBeNull()
+            ->and($this->otherTradeUnit->fresh()->barcode)->toBe($taken);
+
+        $tool($this->otherTradeUnit->code, ($this->ean)())->assertHasErrors(['already has barcode']);
+
+        $change = App\Models\SysAdmin\McpChange::where('type', App\Enums\SysAdmin\McpChange\McpChangeTypeEnum::TRADE_UNIT_PROPERTIES)->latest('id')->first();
+        expect(fn () => App\Actions\SysAdmin\McpChange\RevertMcpChange::run($change, $this->user))->toThrow(Illuminate\Validation\ValidationException::class);
+        expect($this->otherTradeUnit->fresh()->barcode)->toBe($taken);
+    });
+});
+
 describe('ai changes log', function () {
     beforeEach(function () {
         [, $this->product] = createProduct($this->shop);

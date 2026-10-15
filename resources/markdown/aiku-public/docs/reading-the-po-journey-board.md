@@ -68,8 +68,9 @@ The days come from, in this order:
 
 The system sees for itself when an order is sent, when goods leave and are received, when they are placed, and when products go online. The port arrival is entered on the shipment's customs panel. It cannot see when a deposit is paid, production starts or the goods pass the quality check. Somebody has to mark those.
 
-- **Agents** mark deposit paid and production started on their own orders.
-- **Buyers** can mark every stage, and they alone approve the sample and the QC.
+- **The deposit** is the first payment recorded on the order, with its bank statement.
+- **Agents** mark production started and done on their own orders.
+- **Buyers** can mark every stage, and they alone approve the sample, the ready date and the QC. Approving the QC releases the balance payment.
 
 Until any of these is marked on an order, its cells stay blank and the order is followed on shipping and arrival only. Once one is marked, the order waits at the next unmarked stage, so start from the first one and keep going.
 

@@ -38,6 +38,7 @@ export interface PurchaseOrderPaymentsData {
 	total: number
 	paid: number
 	left: number
+	balance_awaits_qc?: boolean
 	paid_at: string | null
 	deposits: DepositPayment[]
 	confirm_route: routeType
@@ -78,7 +79,8 @@ const openPayDialog = () => {
 
 const needsStatement = computed(() => form.value.method !== "cash")
 const toIsoDate = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
-const needsReason = computed(() => !!form.value.paid_at && toIsoDate(form.value.paid_at) < toIsoDate(new Date(Date.now() - 86400000)))
+const isPastDate = computed(() => !!form.value.paid_at && toIsoDate(form.value.paid_at) < toIsoDate(new Date(Date.now() - 86400000)))
+const needsReason = computed(() => isPastDate.value || !!props.payments.balance_awaits_qc)
 const canSubmit = computed(
 	() =>
 		!!form.value.amount &&
@@ -219,7 +221,7 @@ const undoPayment = () => {
 					<DatePicker v-model="form.paid_at" dateFormat="dd/mm/yy" :maxDate="new Date()" :manualInput="false" showIcon iconDisplay="input" class="mt-1 w-full" :class="fieldFocusClass" :pt="{ pcInputText: { root: { class: '!w-full' } } }" />
 				</label>
 				<label v-if="needsReason" class="block text-sm">
-					<span class="text-gray-600">{{ ctrans("Reason for the past date (kept in the order's history)") }}</span>
+					<span class="text-gray-600">{{ payments.balance_awaits_qc ? ctrans("The QC is not approved yet. Why is the balance paid now? (kept in the order's history)") : ctrans("Reason for the past date (kept in the order's history)") }}</span>
 					<Textarea v-model="form.reason" rows="2" autoResize maxlength="500" class="mt-1 w-full" :class="fieldFocusClass" />
 				</label>
 				<label class="block text-sm">

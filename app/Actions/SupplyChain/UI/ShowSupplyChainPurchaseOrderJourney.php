@@ -110,7 +110,7 @@ class ShowSupplyChainPurchaseOrderJourney extends OrgAction
     public function ribbons(Group $group, ?int $purchaseOrderId = null): Collection
     {
         $this->group = $group;
-        $this->rates = $this->latestRates();
+        $this->rates = $purchaseOrderId ? [] : $this->latestRates();
         $today       = now()->startOfDay();
 
         return collect($this->rows($purchaseOrderId))->map(fn (object $row) => $this->toRibbon($row, $today));
@@ -312,6 +312,7 @@ class ShowSupplyChainPurchaseOrderJourney extends OrgAction
             'submitted_at'            => $row->submitted_at,
             'is_npo'                  => (bool) $row->is_npo,
             'has_deposit'             => (float) $row->deposit_amount > 0,
+            'no_deposit'              => $row->deposit_amount !== null && (float) $row->deposit_amount == 0,
             'deposit_paid_at'         => $row->deposit_paid_at,
             'production_started_at'   => $row->production_started_at,
             'produced_at'             => $row->produced_at,

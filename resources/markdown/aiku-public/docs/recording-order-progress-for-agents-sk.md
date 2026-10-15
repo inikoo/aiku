@@ -1,6 +1,6 @@
 ---
 title: Zaznamenávanie postupu objednávky ako agent
-summary: Pre agentov — dátumy, ktoré zaznamenávate na každej objednávke dodávateľovi (zaplatená záloha, začatie výroby, dokončená výroba, navrhovaný dátum pripravenosti), kedy a kde ich zaznamenať, čo namiesto toho zaznamenáva nakupujúca spoločnosť, a prečo sa chýbajúci dátum zobrazuje ako meškanie.
+summary: Pre agentov — dátumy, ktoré zaznamenávate na každej objednávke dodávateľovi (zaplatená záloha, začatie výroby, dokončená výroba, navrhovaný dátum pripravenosti) a vaše vlastné číslo objednávky, kedy a kde ich zaznamenať, čo namiesto toho zaznamenáva nakupujúca spoločnosť, a prečo sa chýbajúci dátum zobrazuje ako meškanie.
 date: 2026-10-15
 source_date: 2026-10-15
 tags: procurement, agents, supply-chain
@@ -25,10 +25,11 @@ Len čo na objednávke zaznamenáte prvý dátum, ďalšie sa očakávajú. Ak c
 
 | Dátum | Kedy ho zaznamenať | Kde |
 |---|---|---|
-| Deposit paid (zaplatená záloha) | Keď dodávateľ dostane zálohu. | Tlačidlo <b>Deposit paid</b> na fázach v hornej časti objednávky. Výšku zálohy zaznamenajte na stránke <b>Edit</b> objednávky. |
+| Deposit paid (zaplatená záloha) | Keď dodávateľ dostane zálohu. | <b>Pay deposit</b> v paneli platieb objednávky, so sumou a bankovým výpisom. Prvá zaznamenaná platba je záloha; to, čo sa zaplatí po nej, je doplatok. |
 | Production started (začatie výroby) | Keď dodávateľ začne tovar vyrábať. | Tlačidlo <b>Production started</b> na fázach v hornej časti objednávky. |
-| Production done (dokončená výroba) | Keď je tovar u dodávateľa hotový. Hotový znamená celá objednávka, nie prvá dávka. | Sekcia <b>Production</b> na stránke <b>Edit</b> objednávky. |
+| Production done (dokončená výroba) | Keď je tovar u dodávateľa hotový. Hotový znamená celá objednávka, nie prvá dávka. | Tlačidlo <b>Production done</b> na fázach v hornej časti objednávky. |
 | Proposed ready date (navrhovaný dátum pripravenosti) | Keď viete, kedy bude tovar pripravený na odovzdanie. Dátum, ktorému veríte. Nákupca ho schvaľuje. | Sekcia <b>Clean handover</b> na stránke <b>Edit</b> objednávky. |
+| Vaše číslo objednávky (your order number) | Keď máte pre objednávku vlastné číslo. | <b>Agent's order number</b> na stránke <b>Edit</b> objednávky. Zobrazuje sa pod PO submitted. |
 
 Fázy idú v poradí. Každý dátum zaznamenajte v deň, keď nastane. Dátum starší ako jeden deň, fáza zaznamenaná pred predchádzajúcou fázou alebo vymazanie dátumu si od vás vyžiada dôvod. Dôvod sa uchová v histórii objednávky spolu s vaším menom, aby nákupca videl, prečo.
 
@@ -38,7 +39,7 @@ Niektoré dátumy nemôžete zadať vy — je to zámer:
 
 - **Sample approved (schválená vzorka).** Vzorku schvaľuje nákupca. Len pri nových produktoch; opakované objednávky vzorku nemajú.
 - **Schválený dátum pripravenosti (Approved ready date).** Nákupca schváli váš navrhovaný dátum. Odvtedy je uzamknutý a určuje termíny: kontrola kvality má termín v ten deň a <b>Clean handover</b> do siedmich dní od neho.
-- **Kontrola kvality (QC passed)** a <b>Clean handover</b>. Toto potvrdzuje nákupca, zvyčajne na základe vášho dôkazu o kvalite a potvrdenia prepravného agenta o prevzatí.
+- **Kontrola kvality (QC passed)** a <b>Clean handover</b>. Toto potvrdzuje nákupca, zvyčajne na základe vášho dôkazu o kvalite a potvrdenia prepravného agenta o prevzatí. Schválenie QC uvoľní doplatok: kým nie je schválené, platba doplatku si vyžiada dôvod.
 - **Kompletný compliance balík.**
 
 Toto sú fakty, z ktorých sa počíta vaše <a href="/docs/your-clean-handover-score-sk">Clean Handover Score</a>. Skóre, ktoré by ste si mohli upraviť sami, by nemalo cenu — ani pre vás.
@@ -51,10 +52,10 @@ Toto sú fakty, z ktorých sa počíta vaše <a href="/docs/your-clean-handover-
 
 <aside class="wayfinder">
 <b>Kde kliknúť v aiku</b><br>
-Prihláste sa → <b>Purchase Orders</b> → otvorte objednávku. Každá objednávka je pre jedného z vašich dodávateľov. Sedem fáz je v hornej časti stránky: použite tam tlačidlá <b>Deposit paid</b> a <b>Production started</b>. Potom otvorte <b>Edit</b>: <b>Deposit amount</b> je v sekcii <b>Payments</b>, <b>Production done</b> v sekcii <b>Production</b> a <b>Proposed ready date</b> v sekcii <b>Clean handover</b>.
+Prihláste sa → <b>Purchase Orders</b> → otvorte objednávku. Každá objednávka je pre jedného z vašich dodávateľov. Sedem fáz je v hornej časti stránky: použite tam tlačidlá <b>Production started</b> a <b>Production done</b>. Záloha sa zaznamenáva cez <b>Pay deposit</b> v paneli platieb. Potom otvorte <b>Edit</b>: <b>Proposed ready date</b> a <b>Agent's order number</b> sú v sekcii <b>Clean handover</b>.
 </aside>
 
 <aside class="wayfinder">
 <b>Aké práva potrebujete</b><br>
-Prihlásenie pre vašu agentskú organizáciu. Môžete označovať len svoje vlastné fázy na svojich vlastných objednávkach: zaplatenú zálohu a začatie výroby, a na stránke Edit dokončenú výrobu, navrhovaný dátum pripravenosti a výšku zálohy. Schválenie vzorky, schválený dátum pripravenosti, QC, clean handover a compliance pre vás otvorené nie sú, pretože ich zaznamenáva nakupujúca spoločnosť.
+Prihlásenie pre vašu agentskú organizáciu. Môžete označovať len svoje vlastné fázy na svojich vlastných objednávkach: začatie výroby a dokončenú výrobu na fázach, zálohu ako platbu a na stránke Edit svoj navrhovaný dátum pripravenosti a číslo objednávky. Schválenie vzorky, schválený dátum pripravenosti, QC, clean handover a compliance pre vás otvorené nie sú, pretože ich zaznamenáva nakupujúca spoločnosť.
 </aside>

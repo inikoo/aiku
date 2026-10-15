@@ -55,7 +55,7 @@ class GetPurchaseOrderStages
         $stages = [];
         foreach (Stage::cases() as $stage) {
             $stages[$stage->value] = $stage->isDeliveryStage()
-                ? $this->deliveryStage($stage, $deliveries)
+                ? $this->deliveryStage($purchaseOrder, $stage, $deliveries)
                 : [
                     'recorded'   => $purchaseOrder->{$stage->column()} !== null
                         || ($stage === Stage::SUBMITTED && $purchaseOrder->state !== PurchaseOrderStateEnum::IN_PROCESS)
@@ -82,7 +82,7 @@ class GetPurchaseOrderStages
      */
     public function skippedBy(PurchaseOrder $purchaseOrder, string $field, array $stages): array
     {
-        $stage   = Stage::MARKABLE_FIELDS[$field];
+        $stage   = Stage::ofField($field);
         $skipped = [];
 
         if ($field === $stage->column()) {
@@ -110,12 +110,25 @@ class GetPurchaseOrderStages
             array_push($skipped, ...GetPurchaseOrderCompliance::make()->missingSupplierOnly($purchaseOrder));
         }
 
+        if ($field === 'compliance_complete_at') {
+            array_push($skipped, ...GetPurchaseOrderCompliance::make()->missingRequired($purchaseOrder));
+        }
+
         return $skipped;
     }
 
+    /**
+     * No deposit is owed when the buyer set it to none, or, on an order straight to a supplier, when none was set.
+     */
     public function depositNotRequired(PurchaseOrder $purchaseOrder): bool
     {
-        return $purchaseOrder->deposit_paid_at === null && $purchaseOrder->deposit_amount !== null && (float) $purchaseOrder->deposit_amount == 0;
+        if ($purchaseOrder->deposit_paid_at !== null) {
+            return false;
+        }
+
+        return $purchaseOrder->deposit_amount === null
+            ? !$purchaseOrder->isAgentOrder()
+            : (float) $purchaseOrder->deposit_amount == 0;
     }
 
     public function evidenceCount(PurchaseOrder $purchaseOrder, PurchaseOrderAttachmentScopeEnum $scope): int
@@ -142,7 +155,7 @@ class GetPurchaseOrderStages
         $userIds = collect($stages)->pluck('user_id')
             ->merge(collect($steps)->flatten(1)->pluck('user_id'))
             ->filter()->unique();
-        $names = User::whereIn('id', $userIds)->get(['id', 'contact_name', 'username'])
+        $names = $userIds->isEmpty() ? collect() : User::whereIn('id', $userIds)->get(['id', 'contact_name', 'username'])
             ->mapWithKeys(fn (User $user) => [$user->id => $user->contact_name ?: $user->username]);
 
         $current  = collect($stages)->filter(fn (array $stage) => $stage['reached'])->keys()->last();
@@ -163,6 +176,7 @@ class GetPurchaseOrderStages
                 ? (int) Carbon::parse($expected[$stage->value])->diffInDays($today)
                 : 0,
             'deliveries'  => $stages[$stage->value]['deliveries'],
+            'note'        => $stage === Stage::SUBMITTED && $purchaseOrder->agent_reference ? __('Agent\'s number: :number', ['number' => $purchaseOrder->agent_reference]) : null,
             'not_required' => $stage === Stage::DEPOSIT_PAID && $this->depositNotRequired($purchaseOrder),
             'steps'       => collect($steps[$stage->value] ?? [])->map(fn (array $step) => [
                 'key'   => $step['key'],
@@ -177,14 +191,17 @@ class GetPurchaseOrderStages
                 'count' => $this->evidenceCount($purchaseOrder, $scope),
             ])->all(),
             'marks'       => collect(Stage::MARKABLE_FIELDS)
-                ->filter(fn (Stage $fieldStage, string $field) => $fieldStage === $stage && in_array($field, $markableFields)
-                    && !($field === 'deposit_paid_at' && $this->depositNotRequired($purchaseOrder)))
+                ->filter(
+                    fn (Stage $fieldStage, string $field) => $fieldStage === $stage && in_array($field, $markableFields)
+                )
                 ->keys()
                 ->map(fn (string $field) => [
                     'field'   => $field,
                     'label'   => $fieldLabels[$field],
                     'date'    => $purchaseOrder->{$field},
                     'skipped' => $this->skippedBy($purchaseOrder, $field, $stages),
+                    'planned' => in_array($field, Stage::PLANNED_FIELDS),
+                    'suggested' => $field === 'approved_ready_at' ? $purchaseOrder->proposed_ready_at : null,
                 ])->values()->all(),
         ])->all();
     }
@@ -240,15 +257,30 @@ class GetPurchaseOrderStages
             ->get();
     }
 
-    private function deliveryStage(Stage $stage, Collection $deliveries): array
+    /**
+     * Without a live delivery the order's own delivery state stands, as on the PO journey board, and its settled
+     * date is the best date known for the goods arriving.
+     */
+    private function deliveryStage(PurchaseOrder $purchaseOrder, Stage $stage, Collection $deliveries): array
     {
+        if ($deliveries->isEmpty()) {
+            $state   = StockDeliveryStateEnum::tryFrom((string) $purchaseOrder->delivery_state?->value);
+            $reached = $state && ($stage === Stage::SHIPPED ? in_array($state, self::SHIPPED_STATES) : in_array($state, self::RECEIVED_STATES));
+
+            return [
+                'recorded'   => $reached,
+                'date'       => $reached && $stage === Stage::RECEIVED ? $purchaseOrder->settled_at : null,
+                'user_id'    => null,
+                'deliveries' => ['reached' => 0, 'total' => 0],
+            ];
+        }
+
         $reached = $deliveries->filter(fn (StockDelivery $delivery) => $this->deliveryReached($delivery, $stage));
-        $all     = $deliveries->isNotEmpty() && $reached->count() === $deliveries->count();
-        $dates   = $reached->pluck($stage->column());
+        $all     = $reached->count() === $deliveries->count();
 
         return [
             'recorded'   => $all,
-            'date'       => $all && $dates->every(fn ($date) => $date !== null) ? $dates->max() : null,
+            'date'       => $all ? $reached->pluck($stage->column())->filter()->max() : null,
             'user_id'    => $all && $deliveries->count() === 1 ? $deliveries->first()->stageMarkUserId($stage->column()) : null,
             'deliveries' => ['reached' => $reached->count(), 'total' => $deliveries->count()],
         ];
@@ -257,7 +289,7 @@ class GetPurchaseOrderStages
     private function deliveryReached(StockDelivery $delivery, Stage $stage): bool
     {
         return match ($stage) {
-            Stage::SHIPPED  => $delivery->dispatched_at !== null || in_array($delivery->state, self::SHIPPED_STATES),
+            Stage::SHIPPED  => in_array($delivery->state, self::SHIPPED_STATES),
             Stage::ARRIVED  => $delivery->arrived_at !== null || in_array($delivery->state, self::RECEIVED_STATES),
             Stage::RECEIVED => in_array($delivery->state, self::RECEIVED_STATES),
             default         => false,

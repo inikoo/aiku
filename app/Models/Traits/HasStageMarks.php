@@ -13,25 +13,22 @@ use Illuminate\Support\Arr;
 
 /**
  * Stamps who set each stage date and when, whichever screen or action wrote it, in stage_marks.
- * A date written without a signed-in user (fetches, scheduled commands) keeps no stamp.
+ * A date written without a signed-in user (fetches, scheduled commands) drops the stamp it had.
  */
 trait HasStageMarks
 {
     public static function bootHasStageMarks(): void
     {
         static::saving(function (self $model) {
-            $user = auth()->user();
-            if (!$user instanceof User) {
-                return;
-            }
-
+            $user  = auth()->user();
+            $user  = $user instanceof User ? $user : null;
             $marks = $model->stage_marks ?? [];
             foreach ($model->stageMarkColumns() as $column) {
                 if (!$model->isDirty($column)) {
                     continue;
                 }
 
-                if ($model->{$column} === null) {
+                if ($model->{$column} === null || !$user) {
                     Arr::forget($marks, $column);
                 } else {
                     $marks[$column] = [
