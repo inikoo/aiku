@@ -17,6 +17,8 @@ import { ref, inject } from 'vue';
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import InputVolDiscount from '@/Components/Forms/Fields/InputVolDiscount.vue';
 import MasterFamilyBestSellers from '@/Components/Master/MasterFamilyBestSellers.vue';
+import MasterFamilyShopsStatus from '@/Components/Master/MasterFamilyShopsStatus.vue';
+import MasterFamilyCompleteness from '@/Components/Master/MasterFamilyCompleteness.vue';
 
 const screenType = inject('screenType', ref('desktop'))
 
@@ -33,6 +35,8 @@ const props = defineProps<{
             currency: string
             route: { name: string, parameters: Record<string, any> }
         }
+        shopsStatus?: any
+        completeness?: any
     },
     master_vol_gr_reward?: {
         show_gr_vol: boolean
@@ -125,6 +129,9 @@ const saveGROffer = () => {
                     </Link>.
                 </div>
             </Message>
+
+            <MasterFamilyShopsStatus v-if="data.shopsStatus" :data="data.shopsStatus" />
+            <MasterFamilyCompleteness v-if="data.completeness" :data="data.completeness" :shopsTotal="data.shopsStatus?.total ?? 0" @edit="navigateTo" />
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-8 2xl:grid-cols-[5fr_11fr_minmax(18rem,4fr)] gap-4 mt-4">
