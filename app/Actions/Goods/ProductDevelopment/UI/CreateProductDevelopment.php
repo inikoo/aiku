@@ -95,11 +95,16 @@ class CreateProductDevelopment extends OrgAction
                         'icon'  => $type->icon(),
                         'color' => $type->color(),
                     ])->all(),
-                    'roles'     => $this->enumOptions(ProductDevelopmentMemberRoleEnum::labels()),
+                    'roles'     => collect(ProductDevelopmentMemberRoleEnum::cases())->map(fn (ProductDevelopmentMemberRoleEnum $role) => [
+                        'value' => $role->value,
+                        'label' => ProductDevelopmentMemberRoleEnum::labels()[$role->value],
+                        'icon'  => $role->icon(),
+                        'color' => $role->color(),
+                    ])->all(),
                     'markets'   => $this->enumOptions(TradeUnitMarketEnum::labels()),
                     'users'     => User::where('group_id', $group->id)->where('status', true)->orderBy('contact_name')
-                        ->get(['id', 'contact_name', 'username'])
-                        ->map(fn (User $user) => ['value' => $user->id, 'label' => $user->contact_name ?: $user->username])
+                        ->get(['id', 'contact_name', 'username', 'image_id'])
+                        ->map(fn (User $user) => ['value' => $user->id, 'label' => $user->contact_name ?: $user->username, 'avatar' => $user->image_id ? $user->imageSources(48, 48) : null])
                         ->all(),
                     'brands'    => Brand::where('group_id', $group->id)->orderBy('name')->get(['id', 'name'])
                         ->map(fn (Brand $brand) => ['value' => $brand->id, 'label' => $brand->name])->all(),

@@ -12,6 +12,7 @@ namespace App\Actions\Goods\ProductDevelopment\UI;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentChecklistItemStateEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentChecklistLevelEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentMemberRoleEnum;
+use App\Enums\Goods\ProductDevelopment\ProductDevelopmentTargetFieldEnum;
 use App\Enums\Goods\TradeUnit\TradeUnitMarketEnum;
 use App\Models\Goods\ProductDevelopment;
 use App\Models\Goods\ProductDevelopmentChecklistItem;
@@ -24,11 +25,14 @@ class GetProductDevelopmentTabData
 {
     use AsAction;
 
+    private bool $canSeeCosts = true;
+
     /**
      * @return array<string, mixed>
      */
-    public function brief(ProductDevelopment $productDevelopment, ?User $viewer = null): array
+    public function brief(ProductDevelopment $productDevelopment, ?User $viewer = null, bool $canSeeCosts = true): array
     {
+        $this->canSeeCosts = $canSeeCosts;
         $canOpenProfiles = (bool) $viewer?->authTo('sysadmin.view');
         $roleLabels   = ProductDevelopmentMemberRoleEnum::labels();
         $marketLabels = TradeUnitMarketEnum::labels();
@@ -69,8 +73,9 @@ class GetProductDevelopmentTabData
     /**
      * @return array<int, array<string, mixed>>
      */
-    public function compliance(ProductDevelopment $productDevelopment): array
+    public function compliance(ProductDevelopment $productDevelopment, bool $canSeeCosts = true): array
     {
+        $this->canSeeCosts = $canSeeCosts;
         $productDevelopment->load(['items.tradeUnit']);
         $checklistItems = $productDevelopment->checklistItems()
             ->where('role', ProductDevelopmentMemberRoleEnum::COMPLIANCE->value)
@@ -93,7 +98,9 @@ class GetProductDevelopmentTabData
         $roleLabels  = ProductDevelopmentMemberRoleEnum::labels();
         $stateLabels = ProductDevelopmentChecklistItemStateEnum::labels();
 
-        return collect($checklistItems)->map(fn (ProductDevelopmentChecklistItem $checklistItem) => [
+        return collect($checklistItems)
+            ->reject(fn (ProductDevelopmentChecklistItem $checklistItem) => !$this->canSeeCosts && (bool) ProductDevelopmentTargetFieldEnum::tryFrom((string) $checklistItem->target_field)?->isCost())
+            ->map(fn (ProductDevelopmentChecklistItem $checklistItem) => [
             'id'          => $checklistItem->id,
             'label'       => $checklistItem->label,
             'role'        => $roleLabels[$checklistItem->role->value],

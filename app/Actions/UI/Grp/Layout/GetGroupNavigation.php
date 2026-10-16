@@ -8,7 +8,7 @@
 
 namespace App\Actions\UI\Grp\Layout;
 
-use App\Models\Goods\ProductDevelopmentMember;
+use App\Actions\Goods\ProductDevelopment\ProductDevelopmentAccess;
 use App\Models\Helpers\Ticket;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\SysAdmin\User;
@@ -55,7 +55,8 @@ class GetGroupNavigation
                 ],
             ]
         ];
-        if ($user->hasAnyPermission(['goods.view', 'masters.view', 'compliance.view']) || ProductDevelopmentMember::where('user_id', $user->id)->exists()) {
+        $canSeeProductDevelopments = (new ProductDevelopmentAccess())->canSeeAny($user);
+        if ($canSeeProductDevelopments) {
             $groupNavigation['product-developments'] = $this->getProductDevelopmentsNavs();
         }
 
@@ -281,6 +282,9 @@ class GetGroupNavigation
 
         if (!$user->hasGroupAccess()) {
             $modules = $user->worksOnlyForAgents() ? ['tickets'] : ['tickets', 'projects'];
+            if ($canSeeProductDevelopments) {
+                $modules[] = 'product-developments';
+            }
 
             return Arr::only($groupNavigation, $user->canViewSales() ? ['dashboard', ...$modules] : $modules);
         }

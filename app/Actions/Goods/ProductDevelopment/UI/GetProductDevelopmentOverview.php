@@ -13,6 +13,7 @@ use App\Enums\Goods\ProductDevelopment\ProductDevelopmentChecklistItemStateEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentMemberRoleEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStageEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStageStateEnum;
+use App\Enums\Goods\ProductDevelopment\ProductDevelopmentTargetFieldEnum;
 use App\Models\Goods\ProductDevelopment;
 use App\Models\Goods\ProductDevelopmentChecklistItem;
 use App\Models\Goods\ProductDevelopmentItem;
@@ -36,11 +37,19 @@ class GetProductDevelopmentOverview
 
     public const int WAITING_ON_LIMIT = 8;
 
+    private bool $canSeeCosts = true;
+
+    private function isHiddenCost(ProductDevelopmentChecklistItem $item): bool
+    {
+        return !$this->canSeeCosts && (bool) ProductDevelopmentTargetFieldEnum::tryFrom((string) $item->target_field)?->isCost();
+    }
+
     /**
      * @return array<string, mixed>
      */
-    public function handle(ProductDevelopment $productDevelopment): array
+    public function handle(ProductDevelopment $productDevelopment, bool $canSeeCosts = true): array
     {
+        $this->canSeeCosts = $canSeeCosts;
         $productDevelopment->loadMissing(['stages', 'items.tradeUnit', 'items.supplierProduct']);
         $checklistItems = $productDevelopment->checklistItems()->with('item.tradeUnit')->get();
         $required       = $checklistItems->where('required', true);
@@ -150,7 +159,7 @@ class GetProductDevelopmentOverview
                 'compliance'       => $this->tally($itemRequired->where('role', ProductDevelopmentMemberRoleEnum::COMPLIANCE)),
                 'label_status'     => $waitingForGate ? __('Waiting for gate') : $stageLabel,
                 'still_missing'    => $itemRequired
-                    ->filter(fn (ProductDevelopmentChecklistItem $checklistItem) => $checklistItem->state === ProductDevelopmentChecklistItemStateEnum::MISSING)
+                    ->filter(fn (ProductDevelopmentChecklistItem $checklistItem) => $checklistItem->state === ProductDevelopmentChecklistItemStateEnum::MISSING && !$this->isHiddenCost($checklistItem))
                     ->pluck('label')
                     ->values()
                     ->all(),
@@ -169,7 +178,7 @@ class GetProductDevelopmentOverview
             ->map(fn (Collection $stages) => $stages->sortBy('position')->first()?->due_at);
 
         return $required
-            ->filter(fn (ProductDevelopmentChecklistItem $item) => $item->state === ProductDevelopmentChecklistItemStateEnum::MISSING)
+            ->filter(fn (ProductDevelopmentChecklistItem $item) => $item->state === ProductDevelopmentChecklistItemStateEnum::MISSING && !$this->isHiddenCost($item))
             ->groupBy(fn (ProductDevelopmentChecklistItem $item) => $item->role->value.'|'.$item->key)
             ->map(function (Collection $items) use ($roleLabels, $roleDueAt) {
                 /** @var ProductDevelopmentChecklistItem $first */

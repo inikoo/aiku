@@ -187,7 +187,17 @@ test('the board shows the same development in its stage column with the same mis
             ->component('Goods/ProductDevelopmentsBoard')
             ->has('columns', 8)
             ->where('columns.0.position', 1)
-            ->where('columns.0.cards', fn ($cards) => collect($cards)->contains(fn ($card) => $card['code'] === $productDevelopment->code && $card['number_required_missing'] === $missing)));
+            ->where('columns.0.cards', fn ($cards) => collect($cards)->contains(fn ($card) => $card['code'] === $productDevelopment->code && $card['number_required_missing'] === $missing))
+            ->where('columns.0.cards', function ($cards) use ($productDevelopment, $missing) {
+                $card = collect($cards)->firstWhere('code', $productDevelopment->code);
+
+                return array_sum($card['missing_by_role']) === $missing
+                    && $card['number_done'] === $card['number_required'] - $missing
+                    && $card['owner_user']['id'] === $this->user->id
+                    && $card['type_color'] === 'teal'
+                    && $card['current_stage_due_at'] !== null;
+            })
+            ->has('roles.agent.icon'));
 });
 
 test('the development page shows the header, stage bar and a blocked move with its reason', function () {
@@ -277,4 +287,37 @@ test('the owner changes the target dates and the change shows in the activity fe
         'target_landing_date' => '2026-12-01',
         'target_online_date'  => '2026-11-20',
     ])->assertSessionHasErrors('target_online_date');
+});
+
+test('the owner adds and removes members and edits markets from the brief, and it shows in the activity feed', function () {
+    $productDevelopment = StoreProductDevelopment::make()->action($this->group, $this->user, [
+        'name'  => 'No members yet '.Str::upper(Str::random(5)),
+        'type'  => 'new',
+        'items' => [['code' => 'NM-'.Str::upper(Str::random(5)), 'name' => 'No members SKU']],
+    ]);
+    expect($productDevelopment->members()->count())->toBe(0);
+
+    get(route('grp.product_developments.show', ['productDevelopment' => $productDevelopment->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->has('editor.options.users')
+            ->where('editor.values.members', []));
+
+    patch(route('grp.models.product_development.members.sync', ['productDevelopment' => $productDevelopment->id]), [
+        'members' => [['user_id' => $this->user->id, 'role' => ProductDevelopmentMemberRoleEnum::BUYER->value]],
+    ])->assertRedirect();
+    expect($productDevelopment->members()->count())->toBe(1);
+
+    patch(route('grp.models.product_development.update', ['productDevelopment' => $productDevelopment->id]), [
+        'markets' => ['uk', 'eu'],
+    ])->assertRedirect();
+    expect($productDevelopment->fresh()->markets)->toBe(['uk', 'eu']);
+
+    patch(route('grp.models.product_development.members.sync', ['productDevelopment' => $productDevelopment->id]), [
+        'members' => [],
+    ])->assertRedirect();
+    expect($productDevelopment->members()->count())->toBe(0);
+
+    $sentences = collect(GetProductDevelopmentActivity::run($productDevelopment))->pluck('sentence');
+    expect($sentences)->toContain(__('Added members'))
+        ->and($sentences)->toContain(__('Removed members'));
 });

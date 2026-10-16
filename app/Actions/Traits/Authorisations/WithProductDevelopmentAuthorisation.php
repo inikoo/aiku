@@ -9,6 +9,7 @@
 
 namespace App\Actions\Traits\Authorisations;
 
+use App\Actions\Goods\ProductDevelopment\ProductDevelopmentAccess;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentMemberRoleEnum;
 use App\Models\Goods\ProductDevelopment;
 use App\Models\SysAdmin\User;
@@ -16,6 +17,13 @@ use Lorisleiva\Actions\ActionRequest;
 
 trait WithProductDevelopmentAuthorisation
 {
+    private ?ProductDevelopmentAccess $productDevelopmentAccess = null;
+
+    public function productDevelopmentAccess(): ProductDevelopmentAccess
+    {
+        return $this->productDevelopmentAccess ??= new ProductDevelopmentAccess();
+    }
+
     public function authorize(ActionRequest $request): bool
     {
         if ($this->asAction) {
@@ -30,32 +38,22 @@ trait WithProductDevelopmentAuthorisation
             return $this->canViewProductDevelopment($user, $productDevelopment);
         }
 
-        return $this->isProductDevelopmentStaff($user) || $this->isProductDevelopmentMember($user);
+        return $this->productDevelopmentAccess()->canSeeAny($user);
     }
 
     public function isProductDevelopmentStaff(User $user): bool
     {
-        return $user->authTo(['goods.view', 'masters.view', 'compliance.view']);
-    }
-
-    public function isProductDevelopmentMember(User $user, ?ProductDevelopment $productDevelopment = null): bool
-    {
-        if ($productDevelopment) {
-            return $productDevelopment->members->contains('user_id', $user->id);
-        }
-
-        return ProductDevelopment::where('group_id', $user->group_id)
-            ->whereHas('members', fn ($query) => $query->where('user_id', $user->id))
-            ->exists();
+        return $this->productDevelopmentAccess()->isStaff($user);
     }
 
     public function canViewProductDevelopment(User $user, ProductDevelopment $productDevelopment): bool
     {
-        if ($productDevelopment->group_id !== $user->group_id) {
-            return false;
-        }
+        return $this->productDevelopmentAccess()->canView($user, $productDevelopment);
+    }
 
-        return $this->isProductDevelopmentStaff($user) || $this->isProductDevelopmentMember($user, $productDevelopment);
+    public function canSeeProductDevelopmentCosts(User $user, ProductDevelopment $productDevelopment): bool
+    {
+        return $this->productDevelopmentAccess()->canSeeCosts($user, $productDevelopment);
     }
 
     public function canCreateProductDevelopment(User $user): bool
@@ -63,42 +61,32 @@ trait WithProductDevelopmentAuthorisation
         return $user->authTo('goods.edit');
     }
 
+    public function canEditProductDevelopment(User $user, ProductDevelopment $productDevelopment): bool
+    {
+        return $this->productDevelopmentAccess()->canEdit($user, $productDevelopment);
+    }
+
     /**
      * @return array<int, ProductDevelopmentMemberRoleEnum>
      */
     public function memberRoles(User $user, ProductDevelopment $productDevelopment): array
     {
-        return $productDevelopment->members
-            ->where('user_id', $user->id)
-            ->pluck('role')
-            ->all();
-    }
-
-    public function canEditProductDevelopment(User $user, ProductDevelopment $productDevelopment): bool
-    {
-        if ($productDevelopment->owner_id === $user->id) {
-            return true;
-        }
-
-        return in_array(ProductDevelopmentMemberRoleEnum::PURCHASING, $this->memberRoles($user, $productDevelopment), true);
+        return $this->productDevelopmentAccess()->memberRoles($user, $productDevelopment);
     }
 
     public function canMoveProductDevelopmentStage(User $user, ProductDevelopment $productDevelopment): bool
     {
-        if ($productDevelopment->owner_id === $user->id) {
+        if ($this->canEditProductDevelopment($user, $productDevelopment)) {
             return true;
         }
 
-        $roles = $this->memberRoles($user, $productDevelopment);
-        if (in_array(ProductDevelopmentMemberRoleEnum::PURCHASING, $roles, true)) {
-            return true;
-        }
+        $roles = array_map(fn (ProductDevelopmentMemberRoleEnum $role) => $role->value, $this->memberRoles($user, $productDevelopment));
 
         $currentStageRoles = $productDevelopment->stages
             ->where('position', $productDevelopment->current_position)
-            ->pluck('role')
+            ->map(fn ($stage) => $stage->role->value)
             ->all();
 
-        return count(array_intersect(array_map(fn ($role) => $role->value, $roles), array_map(fn ($role) => $role->value, $currentStageRoles))) > 0;
+        return count(array_intersect($roles, $currentStageRoles)) > 0;
     }
 }

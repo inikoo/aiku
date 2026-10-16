@@ -13,6 +13,7 @@ use App\Actions\Goods\ProductDevelopment\UI\Traits\WithProductDevelopmentsIndex;
 use App\Actions\Goods\ProductDevelopment\UI\Traits\WithProductDevelopmentsQuery;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithProductDevelopmentAuthorisation;
+use App\Enums\Goods\ProductDevelopment\ProductDevelopmentMemberRoleEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStageEnum;
 use App\Http\Resources\Goods\ProductDevelopmentsResource;
 use App\Models\SysAdmin\Group;
@@ -76,6 +77,13 @@ class ShowProductDevelopmentsBoard extends OrgAction
                 'viewSwitch'    => $this->viewSwitch('board'),
                 'columns'       => $columns,
                 'filterBar'     => $this->productDevelopmentFilterBar($this->group, $request->user()),
+                'roles'         => collect(ProductDevelopmentMemberRoleEnum::cases())->mapWithKeys(fn (ProductDevelopmentMemberRoleEnum $role) => [
+                    $role->value => [
+                        'label' => ProductDevelopmentMemberRoleEnum::labels()[$role->value],
+                        'icon'  => $role->icon(),
+                        'color' => $role->color(),
+                    ],
+                ])->all(),
                 'truncated'     => $productDevelopments->count() >= self::MAX_CARDS,
             ]
         );

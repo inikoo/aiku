@@ -6,7 +6,10 @@
   -->
 
 <script setup lang="ts">
+import { ref } from "vue"
 import type { Navigation } from "@/types/Tabs"
+import { useScrollArrows } from "@/Composables/useScrollArrows"
+import ScrollFadeArrow from "@/Components/Utils/ScrollFadeArrow.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
 defineProps<{
@@ -17,10 +20,14 @@ defineProps<{
 const emits = defineEmits<{
     (e: "update:tab", value: string): void
 }>()
+
+const scroller = ref<HTMLElement | null>(null)
+const { canScrollLeft, canScrollRight, scrollBy } = useScrollArrows(scroller)
 </script>
 
 <template>
-    <nav class="flex gap-1 overflow-x-auto overflow-y-hidden border-b border-gray-200 [scrollbar-width:thin]" :aria-label="'Tabs'">
+    <div class="relative isolate">
+    <nav ref="scroller" class="flex gap-1 overflow-x-auto overflow-y-hidden border-b border-gray-200 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" :aria-label="'Tabs'">
         <button
             v-for="(tab, tabKey) in navigation"
             :key="tabKey"
@@ -37,4 +44,7 @@ const emits = defineEmits<{
             <span v-if="typeof tab.number === 'number'" class="ml-0.5 tabular-nums" :class="String(tabKey) === current ? 'text-[--app-accent]' : 'text-gray-400'">{{ tab.number }}</span>
         </button>
     </nav>
+    <ScrollFadeArrow direction="left" :visible="canScrollLeft" @click="scrollBy(-1)" />
+    <ScrollFadeArrow direction="right" :visible="canScrollRight" @click="scrollBy(1)" />
+    </div>
 </template>

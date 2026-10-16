@@ -6,7 +6,7 @@
   -->
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, reactive, ref } from "vue"
+import { reactive, ref } from "vue"
 import { Head, router } from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
@@ -15,7 +15,10 @@ import Textarea from "primevue/textarea"
 import Select from "primevue/select"
 import MultiSelect from "primevue/multiselect"
 import DatePicker from "primevue/datepicker"
+import { useFitToViewport } from "@/Components/Goods/ProductDevelopment/useFitToViewport"
 import ProductDevelopmentRemoteSelect from "@/Components/Goods/ProductDevelopment/ProductDevelopmentRemoteSelect.vue"
+import ProductDevelopmentUserSelect from "@/Components/Goods/ProductDevelopment/ProductDevelopmentUserSelect.vue"
+import ProductDevelopmentRoleSelect from "@/Components/Goods/ProductDevelopment/ProductDevelopmentRoleSelect.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { ctrans } from "@/Composables/useTrans"
 import { productDevelopmentColor } from "@/Components/Goods/ProductDevelopment/productDevelopmentColors"
@@ -32,6 +35,7 @@ interface Option {
     agent_id?: number | null
     icon?: string
     color?: string
+    avatar?: Record<string, string> | null
 }
 
 const props = defineProps<{
@@ -104,25 +108,7 @@ const toIso = (date: Date | string | null) => {
 const error = (key: string) => errors.value[key]
 
 const formElement = ref<HTMLFormElement | null>(null)
-const formHeight = ref<string | undefined>(undefined)
-const MAIN_BOTTOM_PADDING = 24
-
-function fitFormToViewport() {
-    if (!formElement.value || !window.matchMedia("(min-width: 1024px)").matches) {
-        formHeight.value = undefined
-
-        return
-    }
-    const top = formElement.value.getBoundingClientRect().top + window.scrollY
-    formHeight.value = `${Math.max(window.innerHeight - top - MAIN_BOTTOM_PADDING, 320)}px`
-}
-
-onMounted(() => {
-    fitFormToViewport()
-    window.addEventListener("resize", fitFormToViewport)
-})
-
-onBeforeUnmount(() => window.removeEventListener("resize", fitFormToViewport))
+const { height: formHeight } = useFitToViewport(formElement)
 
 const choiceClass = (active: boolean) => active
     ? "border-[--app-accent] bg-[--app-accent-soft] text-[--app-accent-deep]"
@@ -288,9 +274,9 @@ function submit() {
 
                         <div class="mt-3 space-y-2">
                             <div v-for="(member, index) in members" :key="index" class="grid grid-cols-[1fr_auto] gap-2">
-                                <div class="grid gap-2 sm:grid-cols-[1fr_9rem]">
-                                    <Select v-model="member.user_id" :options="options.users" optionLabel="label" optionValue="value" filter :placeholder="ctrans('Person')" class="w-full" overlayClass="text-sm" />
-                                    <Select v-model="member.role" :options="options.roles" optionLabel="label" optionValue="value" :placeholder="ctrans('Role')" class="w-full" overlayClass="text-sm" />
+                                <div class="grid gap-2 sm:grid-cols-[1fr_11rem]">
+                                    <ProductDevelopmentUserSelect v-model="member.user_id" :options="options.users as any" :placeholder="ctrans('Person')" />
+                                    <ProductDevelopmentRoleSelect v-model="member.role" :options="options.roles as any" :placeholder="ctrans('Role')" />
                                 </div>
                                 <Button type="tertiary" :tooltip="ctrans('Remove')" class="h-10 w-10 justify-center" @click="members.splice(index, 1)">
                                     <template #icon><FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" /></template>

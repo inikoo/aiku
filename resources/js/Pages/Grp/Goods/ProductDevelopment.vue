@@ -61,6 +61,7 @@ const props = defineProps<{
     compliance?: object
     activity?: object
     recentActivity: any[]
+    editor: any
 }>()
 
 const currentTab = ref(props.tabs.current)
@@ -120,7 +121,7 @@ function moveToNextStage() {
         <div class="min-w-0 space-y-3">
             <ProductDevelopmentTabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
             <div class="overflow-hidden rounded-lg border border-gray-200 bg-white">
-                <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" />
+                <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" v-bind="currentTab === 'brief' ? { editor } : {}" />
             </div>
         </div>
 

@@ -32,14 +32,7 @@ trait WithProductDevelopmentsQuery
             ->leftJoin('agents', 'agents.id', '=', 'product_developments.agent_id')
             ->leftJoin('trade_unit_families', 'trade_unit_families.id', '=', 'product_developments.trade_unit_family_id');
 
-        if (!$this->isProductDevelopmentStaff($user)) {
-            $query->whereExists(fn ($subQuery) => $subQuery->select(DB::raw(1))
-                ->from('product_development_members')
-                ->whereColumn('product_development_members.product_development_id', 'product_developments.id')
-                ->where('product_development_members.user_id', $user->id));
-        }
-
-        return $query;
+        return $this->productDevelopmentAccess()->restrictToVisible($query, $user);
     }
 
     public function productDevelopmentsQuery(Group $group, User $user): QueryBuilder
@@ -54,8 +47,16 @@ trait WithProductDevelopmentsQuery
                 'product_developments.status',
                 'product_developments.current_position',
                 'product_developments.target_online_date',
+                'product_developments.owner_id',
                 'product_development_stats.number_required_missing',
                 'product_development_stats.number_items',
+                'product_development_stats.number_required_missing_buyer',
+                'product_development_stats.number_required_missing_agent',
+                'product_development_stats.number_required_missing_purchasing',
+                'product_development_stats.number_required_missing_compliance',
+                'product_development_stats.number_required_missing_designer',
+                'product_development_stats.number_required_missing_webmaster',
+                'product_development_stats.number_required_missing_approver',
                 'owners.contact_name as owner_name',
                 'suppliers.name as supplier_name',
                 'agents.name as agent_name',
@@ -65,6 +66,9 @@ trait WithProductDevelopmentsQuery
             ->selectSub($this->brandNameSubQuery(), 'brand_name')
             ->selectSub($this->currentStageStartedAtSubQuery(), 'current_stage_started_at')
             ->selectSub($this->isOverdueSubQuery(), 'is_overdue')
+            ->selectSub($this->requiredChecklistCountSubQuery(), 'number_required')
+            ->selectSub($this->currentStageDueAtSubQuery(), 'current_stage_due_at')
+            ->with('owner')
             ->allowedFilters($this->productDevelopmentFilters());
     }
 
@@ -136,6 +140,22 @@ trait WithProductDevelopmentsQuery
             ->whereColumn('product_development_stages.product_development_id', 'product_developments.id')
             ->whereColumn('product_development_stages.position', 'product_developments.current_position')
             ->selectRaw('min(product_development_stages.started_at)');
+    }
+
+    private function requiredChecklistCountSubQuery(): \Illuminate\Database\Query\Builder
+    {
+        return DB::table('product_development_checklist_items')
+            ->whereColumn('product_development_checklist_items.product_development_id', 'product_developments.id')
+            ->where('product_development_checklist_items.required', true)
+            ->selectRaw('count(*)');
+    }
+
+    private function currentStageDueAtSubQuery(): \Illuminate\Database\Query\Builder
+    {
+        return DB::table('product_development_stages')
+            ->whereColumn('product_development_stages.product_development_id', 'product_developments.id')
+            ->whereColumn('product_development_stages.position', 'product_developments.current_position')
+            ->selectRaw('min(product_development_stages.due_at)');
     }
 
     private function isOverdueSubQuery(): \Illuminate\Database\Query\Builder

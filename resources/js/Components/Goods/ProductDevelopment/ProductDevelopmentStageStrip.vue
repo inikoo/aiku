@@ -6,7 +6,10 @@
   -->
 
 <script setup lang="ts">
+import { ref } from "vue"
 import { ctrans } from "@/Composables/useTrans"
+import { useScrollArrows } from "@/Composables/useScrollArrows"
+import ScrollFadeArrow from "@/Components/Utils/ScrollFadeArrow.vue"
 import { useFormatTime } from "@/Composables/useFormatTime"
 
 interface Segment {
@@ -22,6 +25,9 @@ interface Segment {
 defineProps<{
     segments: Segment[]
 }>()
+
+const scroller = ref<HTMLElement | null>(null)
+const { canScrollLeft, canScrollRight, scrollBy } = useScrollArrows(scroller)
 
 const barClass = (segment: Segment) => {
     if (segment.state === "completed" || segment.state === "skipped") {
@@ -67,7 +73,8 @@ const statusClass = (segment: Segment) => {
 </script>
 
 <template>
-    <div class="overflow-x-auto border-b border-gray-200 px-4 py-3 [scrollbar-width:thin] md:px-6">
+    <div class="relative isolate border-b border-gray-200">
+    <div ref="scroller" class="overflow-x-auto px-4 py-3 [scrollbar-width:none] md:px-6 [&::-webkit-scrollbar]:hidden">
         <ol class="grid min-w-[56rem] grid-cols-10 gap-2">
             <li v-for="segment in segments" :key="segment.key" class="min-w-0">
                 <div class="h-1 rounded-full" :class="barClass(segment)" />
@@ -78,5 +85,8 @@ const statusClass = (segment: Segment) => {
                 <div class="text-xs tabular-nums" :class="statusClass(segment)">{{ statusLine(segment) }}</div>
             </li>
         </ol>
+    </div>
+    <ScrollFadeArrow direction="left" :visible="canScrollLeft" @click="scrollBy(-1)" />
+    <ScrollFadeArrow direction="right" :visible="canScrollRight" @click="scrollBy(1)" />
     </div>
 </template>

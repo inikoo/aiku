@@ -12,10 +12,12 @@ namespace App\Actions\Goods\ProductDevelopment;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithProductDevelopmentAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Goods\TradeUnit\TradeUnitMarketEnum;
 use App\Models\Goods\ProductDevelopment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -51,6 +53,8 @@ class UpdateProductDevelopment extends OrgAction
         return [
             'target_landing_date' => ['sometimes', 'nullable', 'date'],
             'target_online_date'  => ['sometimes', 'nullable', 'date'],
+            'markets'             => ['sometimes', 'array'],
+            'markets.*'           => [Rule::enum(TradeUnitMarketEnum::class)],
         ];
     }
 

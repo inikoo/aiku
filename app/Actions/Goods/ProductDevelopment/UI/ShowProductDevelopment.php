@@ -13,12 +13,14 @@ use App\Actions\Goods\ProductDevelopment\GetProductDevelopmentStageGate;
 use App\Actions\Goods\ProductDevelopment\UI\Traits\WithProductDevelopmentsIndex;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithProductDevelopmentAuthorisation;
+use App\Enums\Goods\ProductDevelopment\ProductDevelopmentMemberRoleEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStageEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStatusEnum;
 use App\Enums\Goods\TradeUnit\TradeUnitMarketEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentTypeEnum;
 use App\Enums\UI\Goods\ProductDevelopmentTabsEnum;
 use App\Models\Goods\ProductDevelopment;
+use App\Models\SysAdmin\User;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -47,7 +49,8 @@ class ShowProductDevelopment extends OrgAction
         $tabData = GetProductDevelopmentTabData::make();
         $gate    = GetProductDevelopmentStageGate::run($productDevelopment);
         $brand   = $productDevelopment->brand();
-        $overview = GetProductDevelopmentOverview::run($productDevelopment);
+        $canSeeCosts = $this->canSeeProductDevelopmentCosts($request->user(), $productDevelopment);
+        $overview    = GetProductDevelopmentOverview::run($productDevelopment, $canSeeCosts);
 
         $navigation = ProductDevelopmentTabsEnum::navigation();
         $navigation[ProductDevelopmentTabsEnum::PRODUCTS->value]['number'] = count($overview['products']);
@@ -123,6 +126,7 @@ class ShowProductDevelopment extends OrgAction
                     'number_missing'     => (int) $productDevelopment->stats?->number_required_missing,
                 ],
                 'overview'    => $overview,
+                'editor'      => $this->canEditProductDevelopment($request->user(), $productDevelopment) ? $this->editor($productDevelopment) : null,
                 'stageMove'   => [
                     'can_move'   => $gate['can_move'],
                     'reason'     => $gate['reason'],
@@ -140,13 +144,51 @@ class ShowProductDevelopment extends OrgAction
                     'navigation' => $navigation,
                 ],
 
-                ProductDevelopmentTabsEnum::BRIEF->value      => $tab(ProductDevelopmentTabsEnum::BRIEF, fn () => $tabData->brief($productDevelopment, $request->user())),
+                ProductDevelopmentTabsEnum::BRIEF->value      => $tab(ProductDevelopmentTabsEnum::BRIEF, fn () => $tabData->brief($productDevelopment, $request->user(), $canSeeCosts)),
                 ProductDevelopmentTabsEnum::PRODUCTS->value   => $tab(ProductDevelopmentTabsEnum::PRODUCTS, fn () => $overview['products']),
-                ProductDevelopmentTabsEnum::COMPLIANCE->value => $tab(ProductDevelopmentTabsEnum::COMPLIANCE, fn () => $tabData->compliance($productDevelopment)),
+                ProductDevelopmentTabsEnum::COMPLIANCE->value => $tab(ProductDevelopmentTabsEnum::COMPLIANCE, fn () => $tabData->compliance($productDevelopment, $canSeeCosts)),
                 ProductDevelopmentTabsEnum::ACTIVITY->value   => $tab(ProductDevelopmentTabsEnum::ACTIVITY, fn () => GetProductDevelopmentActivity::run($productDevelopment, GetProductDevelopmentActivity::LIMIT, $request->user())),
                 'recentActivity' => fn () => GetProductDevelopmentActivity::run($productDevelopment, 5, $request->user()),
             ]
         );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function editor(ProductDevelopment $productDevelopment): array
+    {
+        $asOptions = fn (array $labels) => collect($labels)->map(fn (string $label, string $value) => ['value' => $value, 'label' => $label])->values()->all();
+
+        return [
+            'values'  => [
+                'markets'             => $productDevelopment->markets ?? [],
+                'target_landing_date' => $productDevelopment->target_landing_date?->toDateString(),
+                'target_online_date'  => $productDevelopment->target_online_date?->toDateString(),
+                'members'             => $productDevelopment->members()->get(['user_id', 'role'])->map(fn ($member) => ['user_id' => $member->user_id, 'role' => $member->role->value])->all(),
+            ],
+            'options' => [
+                'markets' => $asOptions(TradeUnitMarketEnum::labels()),
+                'roles'   => collect(ProductDevelopmentMemberRoleEnum::cases())->map(fn (ProductDevelopmentMemberRoleEnum $role) => [
+                    'value' => $role->value,
+                    'label' => ProductDevelopmentMemberRoleEnum::labels()[$role->value],
+                    'icon'  => $role->icon(),
+                    'color' => $role->color(),
+                ])->all(),
+                'users'   => User::where('group_id', $productDevelopment->group_id)->where('status', true)->orderBy('contact_name')
+                    ->get(['id', 'contact_name', 'username', 'image_id'])
+                    ->map(fn (User $user) => [
+                        'value'  => $user->id,
+                        'label'  => $user->contact_name ?: $user->username,
+                        'avatar' => $user->image_id ? $user->imageSources(48, 48) : null,
+                    ])
+                    ->all(),
+            ],
+            'routes'  => [
+                'update'  => ['name' => 'grp.models.product_development.update', 'parameters' => ['productDevelopment' => $productDevelopment->id]],
+                'members' => ['name' => 'grp.models.product_development.members.sync', 'parameters' => ['productDevelopment' => $productDevelopment->id]],
+            ],
+        ];
     }
 
     public function getShowBreadcrumbs(ProductDevelopment $productDevelopment): array

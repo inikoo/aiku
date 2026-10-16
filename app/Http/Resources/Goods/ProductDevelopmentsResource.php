@@ -9,6 +9,7 @@
 
 namespace App\Http\Resources\Goods;
 
+use App\Enums\Goods\ProductDevelopment\ProductDevelopmentMemberRoleEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStageEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStatusEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentTypeEnum;
@@ -61,6 +62,22 @@ class ProductDevelopmentsResource extends JsonResource
             'target_online_date'      => $this->target_online_date ? Carbon::parse($this->target_online_date)->toDateString() : null,
             'days_in_stage'           => $this->current_stage_started_at ? (int) Carbon::parse($this->current_stage_started_at)->startOfDay()->diffInDays(Carbon::today()) : null,
             'is_overdue'              => (bool) $this->is_overdue,
+            'type_icon'               => $this->type->icon(),
+            'type_color'              => $this->type->color(),
+            'number_required'         => (int) $this->number_required,
+            'number_done'             => max((int) $this->number_required - (int) $this->number_required_missing, 0),
+            'missing_by_role'         => collect(ProductDevelopmentMemberRoleEnum::cases())
+                ->mapWithKeys(fn (ProductDevelopmentMemberRoleEnum $role) => [$role->value => (int) $this->{$role->statsColumn()}])
+                ->filter()
+                ->all(),
+            'current_stage_due_at'    => $this->current_stage_due_at ? Carbon::parse($this->current_stage_due_at)->toDateString() : null,
+            'is_stage_late'           => $this->current_stage_due_at && Carbon::parse($this->current_stage_due_at)->lt(Carbon::today()) && $this->status === ProductDevelopmentStatusEnum::ACTIVE,
+            'owner_user'              => $this->owner ? [
+                'id'       => $this->owner->id,
+                'name'     => $this->owner->contact_name ?: $this->owner->username,
+                'username' => $this->owner->username,
+                'avatar'   => $this->owner->image_id ? $this->owner->imageSources(48, 48) : null,
+            ] : null,
         ];
     }
 }

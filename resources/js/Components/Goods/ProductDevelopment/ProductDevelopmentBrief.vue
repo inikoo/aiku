@@ -10,13 +10,16 @@ import { ctrans } from "@/Composables/useTrans"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import ProductDevelopmentChecklist from "@/Components/Goods/ProductDevelopment/ProductDevelopmentChecklist.vue"
 import TicketUserHoverCard from "@/Components/Tickets/TicketUserHoverCard.vue"
+import ProductDevelopmentEditDialog, { type ProductDevelopmentEditKind, type ProductDevelopmentEditor } from "@/Components/Goods/ProductDevelopment/ProductDevelopmentEditDialog.vue"
+import { ref } from "vue"
 import { productDevelopmentColor } from "@/Components/Goods/ProductDevelopment/productDevelopmentColors"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faShoppingBag, faUserTie, faFileInvoiceDollar, faShieldCheck, faPencilRuler, faGlobe, faStamp } from "@fal"
-library.add(faShoppingBag, faUserTie, faFileInvoiceDollar, faShieldCheck, faPencilRuler, faGlobe, faStamp)
+import { faShoppingBag, faUserTie, faFileInvoiceDollar, faShieldCheck, faPencilRuler, faGlobe, faStamp, faPencil } from "@fal"
+library.add(faShoppingBag, faUserTie, faFileInvoiceDollar, faShieldCheck, faPencilRuler, faGlobe, faStamp, faPencil)
 
 defineProps<{
+    editor?: ProductDevelopmentEditor | null
     data: {
         brief: string | null
         markets: string[]
@@ -27,6 +30,9 @@ defineProps<{
         checklist: any[]
     }
 }>()
+
+const editDialog = ref<InstanceType<typeof ProductDevelopmentEditDialog> | null>(null)
+const edit = (kind: ProductDevelopmentEditKind) => editDialog.value?.open(kind)
 
 const formatDate = (date: string | null) => date ? useFormatTime(date, { formatTime: "d MMM yyyy" }) : "—"
 </script>
@@ -44,15 +50,30 @@ const formatDate = (date: string | null) => date ? useFormatTime(date, { formatT
 
         <dl class="space-y-3 text-sm">
             <div>
-                <dt class="text-gray-500">{{ ctrans("Markets") }}</dt>
+                <dt class="flex items-center justify-between gap-2 text-gray-500">
+                    {{ ctrans("Markets") }}
+                    <button v-if="editor" type="button" class="flex h-6 w-6 items-center justify-center rounded text-[--app-accent] transition-colors hover:bg-[--app-accent-soft] hover:text-[--app-accent-strong]" :aria-label="ctrans('Edit')" @click="edit('markets')">
+                        <FontAwesomeIcon icon="fal fa-pencil" fixed-width aria-hidden="true" />
+                    </button>
+                </dt>
                 <dd class="text-gray-800">{{ data.markets.length ? data.markets.join(", ") : "—" }}</dd>
             </div>
             <div>
-                <dt class="text-gray-500">{{ ctrans("Target landing") }}</dt>
+                <dt class="flex items-center justify-between gap-2 text-gray-500">
+                    {{ ctrans("Target landing") }}
+                    <button v-if="editor" type="button" class="flex h-6 w-6 items-center justify-center rounded text-[--app-accent] transition-colors hover:bg-[--app-accent-soft] hover:text-[--app-accent-strong]" :aria-label="ctrans('Edit')" @click="edit('dates')">
+                        <FontAwesomeIcon icon="fal fa-pencil" fixed-width aria-hidden="true" />
+                    </button>
+                </dt>
                 <dd class="tabular-nums text-gray-800">{{ formatDate(data.target_landing_date) }}</dd>
             </div>
             <div>
-                <dt class="text-gray-500">{{ ctrans("Target online") }}</dt>
+                <dt class="flex items-center justify-between gap-2 text-gray-500">
+                    {{ ctrans("Target online") }}
+                    <button v-if="editor" type="button" class="flex h-6 w-6 items-center justify-center rounded text-[--app-accent] transition-colors hover:bg-[--app-accent-soft] hover:text-[--app-accent-strong]" :aria-label="ctrans('Edit')" @click="edit('dates')">
+                        <FontAwesomeIcon icon="fal fa-pencil" fixed-width aria-hidden="true" />
+                    </button>
+                </dt>
                 <dd class="tabular-nums text-gray-800">{{ formatDate(data.target_online_date) }}</dd>
             </div>
             <div>
@@ -60,7 +81,12 @@ const formatDate = (date: string | null) => date ? useFormatTime(date, { formatT
                 <dd class="text-gray-800">{{ data.packaging_family ?? "—" }}</dd>
             </div>
             <div>
-                <dt class="text-gray-500">{{ ctrans("Members") }}</dt>
+                <dt class="flex items-center justify-between gap-2 text-gray-500">
+                    {{ ctrans("Members") }}
+                    <button v-if="editor" type="button" class="flex h-6 w-6 items-center justify-center rounded text-[--app-accent] transition-colors hover:bg-[--app-accent-soft] hover:text-[--app-accent-strong]" :aria-label="ctrans('Edit')" @click="edit('members')">
+                        <FontAwesomeIcon icon="fal fa-pencil" fixed-width aria-hidden="true" />
+                    </button>
+                </dt>
                 <dd>
                     <ul class="mt-1 space-y-1.5">
                         <li
@@ -87,5 +113,7 @@ const formatDate = (date: string | null) => date ? useFormatTime(date, { formatT
                 </dd>
             </div>
         </dl>
+
+        <ProductDevelopmentEditDialog v-if="editor" ref="editDialog" :editor="editor" />
     </div>
 </template>

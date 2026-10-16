@@ -21,6 +21,8 @@ class RecordProductDevelopmentActivity
 
     public const string MEMBERS_ADDED = 'members_added';
 
+    public const string MEMBERS_REMOVED = 'members_removed';
+
     /**
      * @param array<string, mixed> $old
      * @param array<string, mixed> $new

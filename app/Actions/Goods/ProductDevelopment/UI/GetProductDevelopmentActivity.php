@@ -9,9 +9,11 @@
 
 namespace App\Actions\Goods\ProductDevelopment\UI;
 
+use App\Actions\Goods\ProductDevelopment\ProductDevelopmentAccess;
 use App\Actions\Goods\ProductDevelopment\RecordProductDevelopmentActivity;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentChecklistItemStateEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStatusEnum;
+use App\Enums\Goods\ProductDevelopment\ProductDevelopmentTargetFieldEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentTypeEnum;
 use App\Enums\Goods\TradeUnit\TradeUnitMarketEnum;
 use App\Models\Goods\PackagingFamily;
@@ -35,12 +37,15 @@ class GetProductDevelopmentActivity
 
     private bool $canOpenProfiles = false;
 
+    private bool $canSeeCosts = true;
+
     /**
      * @return array<int, array<string, mixed>>
      */
     public function handle(ProductDevelopment $productDevelopment, int $limit = self::LIMIT, ?User $viewer = null): array
     {
         $this->canOpenProfiles = (bool) $viewer?->authTo('sysadmin.view');
+        $this->canSeeCosts     = !$viewer || (new ProductDevelopmentAccess())->canSeeCosts($viewer, $productDevelopment);
 
         $checklistItemIds = $productDevelopment->checklistItems()->pluck('id');
 
@@ -87,6 +92,7 @@ class GetProductDevelopmentActivity
                 RecordProductDevelopmentActivity::STAGE_MOVED => [__('Moved from :from to :to', ['from' => $old['stage'] ?? '—', 'to' => $new['stage'] ?? '—']), []],
                 RecordProductDevelopmentActivity::SKUS_ADDED => [trans_choice('Added :count SKU|Added :count SKUs', count($new['skus'] ?? []), ['count' => count($new['skus'] ?? [])]), [['label' => __('SKUs'), 'old' => null, 'new' => implode(', ', $new['skus'] ?? [])]]],
                 RecordProductDevelopmentActivity::MEMBERS_ADDED => [__('Added members'), [['label' => __('Members'), 'old' => null, 'new' => implode(', ', $new['members'] ?? [])]]],
+                RecordProductDevelopmentActivity::MEMBERS_REMOVED => [__('Removed members'), [['label' => __('Members'), 'old' => implode(', ', $old['members'] ?? []), 'new' => null]]],
                 'updated' => [__('Updated the development'), $this->fieldChanges($old, $new)],
                 default => [Str::headline($audit->event), []],
             };
@@ -119,6 +125,10 @@ class GetProductDevelopmentActivity
     private function checklistSentence(?ProductDevelopmentChecklistItem $checklistItem, array $new): array
     {
         if (!$checklistItem || !array_key_exists('state', $new)) {
+            return [null, []];
+        }
+
+        if (!$this->canSeeCosts && ProductDevelopmentTargetFieldEnum::tryFrom((string) $checklistItem->target_field)?->isCost()) {
             return [null, []];
         }
 
