@@ -2349,6 +2349,67 @@ test('repair supplier drift moves open purchase order lines to the twin and disc
         ->and($twin->refresh()->state)->toBe(OrgSupplierProductStateEnum::ACTIVE->value);
 });
 
+test('repair supplier drift only treats a drifted row as a redundant copy when its org supplier keeps the product live through a same code copy', function () {
+    $supplierA = StoreSupplier::make()->action(
+        parent: $this->group,
+        modelData: Supplier::factory()->definition()
+    );
+    $supplierB = StoreSupplier::make()->action(
+        parent: $this->group,
+        modelData: Supplier::factory()->definition()
+    );
+
+    $orgSupplierA = $supplierA->orgSuppliers()->where('organisation_id', $this->organisation->id)->first();
+
+    $productData = [
+        'code'             => 'DRIFT-COPY-'.Str::random(4),
+        'name'             => 'Drifted Copy',
+        'cost'             => 100,
+        'stock_id'         => $this->stocks[0]->id,
+        'units_per_pack'   => 10,
+        'units_per_carton' => 100
+    ];
+
+    $copyUnderA = StoreSupplierProduct::make()->action($supplierA, $productData);
+    $copyUnderB = StoreSupplierProduct::make()->action($supplierB, $productData);
+
+    $twin = OrgSupplierProduct::where('org_supplier_id', $orgSupplierA->id)
+        ->where('supplier_product_id', $copyUnderA->id)
+        ->firstOrFail();
+
+    $drifted = $twin->replicate()->fill([
+        'supplier_product_id' => $copyUnderB->id,
+        'slug'                => 'drift-copy-'.Str::random(6),
+        'state'               => OrgSupplierProductStateEnum::ACTIVE->value,
+    ]);
+    $drifted->saveQuietly();
+
+    $repair = RepairOrgSupplierProductsSupplierDrift::make();
+
+    expect($repair->isRedundantCopy($drifted->refresh()))->toBeTrue();
+
+    $twin->updateQuietly(['state' => OrgSupplierProductStateEnum::DISCONTINUED->value]);
+    expect($repair->isRedundantCopy($drifted->refresh()))->toBeFalse();
+    $twin->updateQuietly(['state' => OrgSupplierProductStateEnum::ACTIVE->value]);
+
+    $copyUnderA->updateQuietly(['is_available' => false]);
+    expect($repair->isRedundantCopy($drifted->refresh()))->toBeFalse();
+    $copyUnderA->updateQuietly(['is_available' => true]);
+
+    $stockLink = StockHasSupplierProduct::firstOrCreate(['stock_id' => $this->stocks[0]->id, 'supplier_product_id' => $copyUnderB->id], ['available' => true]);
+    $link      = OrgStockHasOrgSupplierProduct::create([
+        'org_stock_id'                  => $this->orgStocks[0]->id,
+        'org_supplier_product_id'       => $drifted->id,
+        'stock_has_supplier_product_id' => $stockLink->id,
+        'status'                        => true,
+        'local_priority'                => 0,
+    ]);
+    expect($repair->isRedundantCopy($drifted->refresh()))->toBeFalse();
+    $link->delete();
+
+    expect($repair->isRedundantCopy($drifted->refresh()))->toBeTrue();
+});
+
 test('storing an org supplier product for a moved supplier product repoints the organisation row instead of adding a second one', function () {
     $supplierA = StoreSupplier::make()->action(
         parent: $this->group,
