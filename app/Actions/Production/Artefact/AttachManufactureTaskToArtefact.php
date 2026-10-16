@@ -10,6 +10,7 @@ namespace App\Actions\Production\Artefact;
 
 use App\Actions\OrgAction;
 use App\Actions\Production\JobOrderItemTask\GenerateJobOrderItemTasks;
+use App\Actions\Production\ManufactureTaskSession\RecalculateUntargetedManufactureTaskSessions;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
 use App\Models\Production\JobOrderItem;
 use App\Models\Production\Artefact;
@@ -39,6 +40,10 @@ class AttachManufactureTaskToArtefact extends OrgAction
         $previousUnits = $artefact->manufactureTasks()->get()->mapWithKeys(fn (ManufactureTask $manufactureTask) => [$manufactureTask->id => $manufactureTask->pivot->units_per_artefact])->all();
 
         $artefact->manufactureTasks()->syncWithoutDetaching([$modelData['manufacture_task_id'] => $step]);
+
+        if (!empty($step['standard_rate'])) {
+            RecalculateUntargetedManufactureTaskSessions::run($artefact);
+        }
 
         JobOrderItem::where('artefact_id', $artefact->id)
             ->whereHas('jobOrder', fn ($query) => $query->whereNotIn('state', [JobOrderStateEnum::RECEIVED, JobOrderStateEnum::NOT_RECEIVED]))

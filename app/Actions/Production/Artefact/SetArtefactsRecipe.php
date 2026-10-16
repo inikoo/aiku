@@ -12,6 +12,7 @@ namespace App\Actions\Production\Artefact;
 use App\Actions\OrgAction;
 use App\Actions\Production\RawMaterial\Hydrators\RawMaterialHydrateFromOrgStock;
 use App\Actions\Production\JobOrderItemTask\GenerateJobOrderItemTasks;
+use App\Actions\Production\ManufactureTaskSession\RecalculateUntargetedManufactureTaskSessions;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
 use App\Models\Production\Artefact;
 use App\Models\Production\ArtefactManufactureTask;
@@ -86,6 +87,7 @@ class SetArtefactsRecipe extends OrgAction
             ->all();
 
         $artefact->manufactureTasks()->syncWithoutDetaching($recipe);
+        RecalculateUntargetedManufactureTaskSessions::run($artefact);
 
         foreach ($steps as $step) {
             $recipeStep = ArtefactManufactureTask::where('artefact_id', $artefact->id)

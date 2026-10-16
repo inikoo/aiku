@@ -2697,6 +2697,42 @@ describe('production reward pay bands', function () {
             ->and($closed->is_under_target)->toBeFalse();
     });
 
+    test('a step given its first target repays this week\'s sessions made without one and leaves earlier weeks alone', function () {
+        $this->manufactureTask->update(['standard_rate' => null]);
+        $recipe = fn (?float $standardRate) => SetArtefactsRecipe::make()->action($this->production, [
+            'artefacts' => [$this->artefact->id],
+            'steps'     => [[
+                'manufacture_task_id' => $this->manufactureTask->id,
+                'position'            => 1,
+                'units_per_artefact'  => 1,
+                'standard_rate'       => $standardRate,
+            ]],
+        ]);
+        $recipe(null);
+
+        $thisWeek = \App\Actions\Production\ManufactureTaskSession\CalculateManufactureTaskSessionPay::run(makePayBandSession($this->payBandJobOrderItemTask, 900, 4.9333));
+        $lastWeek = makePayBandSession($this->payBandJobOrderItemTask, 900, 4.9333);
+        $lastWeek->update(['started_at' => now()->startOfWeek()->subDays(3), 'ended_at' => now()->startOfWeek()->subDays(3)->addSeconds(17760)]);
+        $lastWeek = \App\Actions\Production\ManufactureTaskSession\CalculateManufactureTaskSessionPay::run($lastWeek);
+
+        expect($thisWeek->band_code)->toBe('0')
+            ->and($lastWeek->band_code)->toBe('0');
+
+        $recipe(152);
+
+        $thisWeek->refresh();
+        $lastWeek->refresh();
+
+        expect((float) $thisWeek->standard_rate)->toBe(152.0)
+            ->and($thisWeek->band_code)->toBe('3')
+            ->and((float) $thisWeek->pay)->toBe(74.0)
+            ->and((float) $thisWeek->bonus)->toBe(11.3)
+            ->and($thisWeek->is_under_target)->toBeFalse()
+            ->and($lastWeek->standard_rate)->toBeNull()
+            ->and($lastWeek->band_code)->toBe('0')
+            ->and((float) $lastWeek->bonus)->toBe(0.0);
+    });
+
     test('a short session well above a low step target is not flagged', function () {
         AttachManufactureTaskToArtefact::make()->action($this->artefact, [
             'manufacture_task_id' => $this->manufactureTask->id,
