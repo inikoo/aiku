@@ -1737,6 +1737,65 @@ test('UI agent browse shows what the other organisations hold on their drafts fo
             ->etc());
 });
 
+test('agent purchase order products tab hides products whose SKO is discontinued or the supplier no longer has, unless already on the draft', function () {
+    [$orgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $orgSupplierProduct->update(['state' => OrgSupplierProductStateEnum::ACTIVE, 'is_available' => true]);
+    $supplierProduct = $orgSupplierProduct->supplierProduct;
+
+    $orgStockId = DB::table('org_stock_has_org_supplier_products')->where('org_supplier_product_id', $orgSupplierProduct->id)->where('status', true)->value('org_stock_id');
+    if (!$orgStockId) {
+        $orgStockId = $this->orgStocks[0]->id;
+        DB::table('org_stock_has_org_supplier_products')->insert([
+            'stock_has_supplier_product_id' => DB::table('stock_has_supplier_products')->where('stock_id', $this->orgStocks[0]->stock_id)->where('supplier_product_id', $supplierProduct->id)->value('id')
+                ?? DB::table('stock_has_supplier_products')->insertGetId(['stock_id' => $this->orgStocks[0]->stock_id, 'supplier_product_id' => $supplierProduct->id]),
+            'org_stock_id'            => $orgStockId,
+            'org_supplier_product_id' => $orgSupplierProduct->id,
+            'status'                  => true,
+            'local_priority'          => 100,
+            'created_at'              => now(),
+            'updated_at'              => now(),
+        ]);
+    }
+    $originalState = DB::table('org_stocks')->where('id', $orgStockId)->value('state');
+
+    $draft       = StorePurchaseOrder::make()->action($orgSupplier, [], strict: false);
+    $productsUrl = route('grp.org.procurement.org_agents.show.purchase-orders.show', [$this->organisation->slug, $this->orgAgent->slug, $draft->slug]).'?'.http_build_query(['tab' => 'products', 'products_filter' => ['global' => $supplierProduct->code]]);
+    $listed      = fn () => collect($this->get($productsUrl)->viewData('page')['props']['products']['data'])->pluck('code')->contains($supplierProduct->code);
+
+    try {
+        DB::table('org_stocks')->where('id', $orgStockId)->update(['state' => OrgStockStateEnum::ACTIVE->value]);
+        expect($listed())->toBeTrue();
+
+        $supplierProduct->updateQuietly(['is_available' => false]);
+        expect($listed())->toBeFalse();
+        $supplierProduct->updateQuietly(['is_available' => true]);
+
+        foreach ([OrgStockStateEnum::DISCONTINUING, OrgStockStateEnum::DISCONTINUED] as $state) {
+            DB::table('org_stocks')->where('id', $orgStockId)->update(['state' => $state->value]);
+            expect($listed())->toBeFalse();
+        }
+
+        DB::table('purchase_order_transactions')->insert([
+            'group_id'                => $draft->group_id,
+            'organisation_id'         => $draft->organisation_id,
+            'purchase_order_id'       => $draft->id,
+            'supplier_product_id'     => $supplierProduct->id,
+            'org_supplier_product_id' => $orgSupplierProduct->id,
+            'org_stock_id'            => $orgStockId,
+            'state'                   => PurchaseOrderTransactionStateEnum::IN_PROCESS->value,
+            'delivery_state'          => App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStateEnum::IN_PROCESS->value,
+            'quantity_ordered'        => 100,
+            'net_amount'              => 100,
+            'data'                    => '{}',
+            'created_at'              => now(),
+            'updated_at'              => now(),
+        ]);
+        expect($listed())->toBeTrue();
+    } finally {
+        DB::table('org_stocks')->where('id', $orgStockId)->update(['state' => $originalState]);
+    }
+});
+
 test('a buyer short of a supplier minimum asks the other organisations, who see it at once and get email and Slack grouped', function () {
     $otherOrganisation = Organisation::where('code', 'prc2')->first()
         ?? StoreOrganisation::make()->action($this->group, array_merge(Organisation::factory()->definition(), ['code' => 'prc2', 'type' => OrganisationTypeEnum::SHOP]));

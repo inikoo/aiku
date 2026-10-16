@@ -35,25 +35,37 @@ trait WithOrderVisits
             "SELECT ce.id AS purchase_id, v.id AS visit_id, v.first_seen_at, v.last_seen_at, v.traffic_source_type, v.traffic_source_reference, v.landing_page
             FROM website_conversion_events ce
             JOIN orders o ON o.id = ce.order_id
-            JOIN LATERAL (
-                SELECT w.id, w.first_seen_at, w.last_seen_at, w.traffic_source_type, w.traffic_source_reference, w.landing_page
-                FROM website_visitors w
-                WHERE w.website_id = ce.website_id
-                  AND w.first_seen_at <= o.submitted_at
-                  AND w.last_seen_at >= o.submitted_at - interval '".self::VISIT_LOOKBACK_DAYS." days'
-                  AND (
-                      w.id = ce.website_visitor_id
-                      OR w.web_user_id IN (SELECT wu.id FROM web_users wu WHERE wu.customer_id = o.customer_id)
-                  )
-                ORDER BY w.first_seen_at DESC
-                LIMIT ".self::MAX_VISITS."
-            ) v ON true
+            JOIN LATERAL (".$this->orderVisitsSql().") v ON true
             WHERE ce.id IN ($placeholders)
             ORDER BY ce.id, v.first_seen_at",
             $purchaseIds
         );
 
         return collect($visits)->groupBy('purchase_id');
+    }
+
+    /**
+     * The visits of the order `o` behind the purchase `ce`, latest first, for a LATERAL join. The
+     * visit the order was placed in and the visits of the customer's accounts are read apart and
+     * put together, so each read uses its own index.
+     */
+    protected function orderVisitsSql(): string
+    {
+        $columns = 'w.id, w.first_seen_at, w.last_seen_at, w.traffic_source_type, w.traffic_source_reference, w.landing_page';
+
+        return "SELECT ov.id, ov.first_seen_at, ov.last_seen_at, ov.traffic_source_type, ov.traffic_source_reference, ov.landing_page
+                FROM (
+                    SELECT $columns FROM website_visitors w
+                    WHERE w.id = ce.website_visitor_id AND w.website_id = ce.website_id
+                    UNION
+                    SELECT $columns FROM website_visitors w
+                    WHERE w.web_user_id IN (SELECT wu.id FROM web_users wu WHERE wu.customer_id = o.customer_id)
+                      AND w.website_id = ce.website_id
+                ) ov
+                WHERE ov.first_seen_at <= o.submitted_at
+                  AND ov.last_seen_at >= o.submitted_at - interval '".self::VISIT_LOOKBACK_DAYS." days'
+                ORDER BY ov.first_seen_at DESC, ov.id DESC
+                LIMIT ".self::MAX_VISITS;
     }
 
     /**
