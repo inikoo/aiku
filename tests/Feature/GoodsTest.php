@@ -332,12 +332,66 @@ test("UI Show Stock Family sales and history tabs render their tables", function
             ->component('Goods/StockFamily')
             ->where('sales.data.0.sales_grp_currency_external', 321)
             ->where('sales.data.0.invoices', 4)
+            ->where('sales.data.0.organisations_route.name', 'grp.json.stock_family.time_series_organisations')
             ->has('sales.data.0.period'));
 
     get(route('grp.goods.stock-families.show', ['stockFamily' => $stockFamily->slug, 'tab' => \App\Enums\UI\SupplyChain\StockFamilyTabsEnum::HISTORY->value]))
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->component('Goods/StockFamily')
             ->has('history.data'));
+});
+
+test("stock family sales split by organisation", function () {
+    $stockFamily = StoreStockFamily::make()->action($this->group, array_merge(StockFamily::factory()->definition(), ['code' => 'GSORGS']));
+    $stock       = StoreStock::make()->action($stockFamily, array_merge(Stock::factory()->definition(), ['code' => 'GSORGS-1']));
+
+    $customer             = createCustomer($this->shop);
+    $invoiceTransactionId = DB::table('invoice_transactions')->insertGetId([
+        'group_id'        => $this->group->id,
+        'organisation_id' => $this->organisation->id,
+        'shop_id'         => $this->shop->id,
+        'customer_id'     => $customer->id,
+        'date'            => '2013-06-11 10:00:00',
+        'tax_category_id' => DB::table('tax_categories')->value('id'),
+        'net_amount'      => 12.5,
+        'data'            => '{}',
+    ]);
+    DB::table('invoice_transaction_has_stocks')->insert([
+        'invoice_transaction_id' => $invoiceTransactionId,
+        'stock_id'               => $stock->id,
+        'stock_family_id'        => $stockFamily->id,
+        'grp_net_amount'         => 12.5,
+        'org_net_amount'         => 12.5,
+        'created_at'             => now(),
+        'updated_at'             => now(),
+    ]);
+
+    $date         = \Carbon\Carbon::parse('2013-06-11');
+    $timeSeriesId = DB::table('stock_family_time_series')->insertGetId([
+        'stock_family_id' => $stockFamily->id,
+        'frequency'       => 'monthly',
+        'created_at'      => now(),
+        'updated_at'      => now(),
+    ]);
+    $recordId = DB::table('stock_family_time_series_records')->insertGetId([
+        'stock_family_time_series_id' => $timeSeriesId,
+        'frequency'                   => 'M',
+        'sales_grp_currency_external' => 12.5,
+        'from'                        => $date->copy()->startOfMonth(),
+        'to'                          => $date->copy()->endOfMonth(),
+        'created_at'                  => now(),
+        'updated_at'                  => now(),
+    ]);
+
+    get(route('grp.json.stock_family.time_series_organisations', ['stockFamily' => $stockFamily->id, 'record' => $recordId]))
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.organisation_id', $this->organisation->id)
+        ->assertJsonPath('data.0.sales_grp_currency_external', 12.5)
+        ->assertJsonPath('data.0.customers_invoiced', 1);
+
+    get(route('grp.json.stock_family.time_series_organisations', ['stockFamily' => $stockFamily->id, 'record' => 0]))
+        ->assertNotFound();
 });
 
 test("UI Show Stocks sales and history tabs render their tables", function () {

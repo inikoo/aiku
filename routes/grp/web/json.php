@@ -129,6 +129,7 @@ use App\Actions\Fulfilment\PalletDelivery\UI\IndexRecentPalletDeliveryUploads;
 use App\Actions\Fulfilment\PalletReturn\Json\GetPalletsInReturnPalletWholePallets;
 use App\Actions\Fulfilment\StoredItem\Json\GetPalletAuditStoredItems;
 use App\Actions\Goods\Ingredient\Json\ParseIngredientsList;
+use App\Actions\Goods\StockFamily\Json\GetStockFamilyTimeSeriesOrganisations;
 use App\Actions\Goods\TradeUnit\UI\GetTradeUnitsForTradeUnitFamily;
 use App\Actions\Helpers\Address\GetGeocode;
 use App\Actions\Helpers\Brand\Json\GetBrands;
@@ -404,6 +405,7 @@ Route::get('master-product-category/{masterProductCategory:id}/recommended-trade
 Route::get('master-product-category/{masterProductCategory:id}/taken-trade-units', GetTakenTradeUnits::class)->name('master-product-category.taken-trade-units')->withoutScopedBindings();
 Route::get('master-product-category/all-trade-units', GetAllTradeUnitsInGroup::class)->name('master_product_category.all_trade_units');
 Route::get('master-product-category/{masterProductCategory:id}/time-series-organisations', GetMasterProductCategoryTimeSeriesOrganisations::class)->name('master_product_category.time_series_organisations')->withoutScopedBindings();
+Route::get('stock-family/{stockFamily:id}/time-series-organisations', GetStockFamilyTimeSeriesOrganisations::class)->name('stock_family.time_series_organisations')->withoutScopedBindings();
 
 Route::get('brand/{brand:id}/all-trade-units/', [GetAllTradeUnitsInGroup::class, 'inBrand'])->name('brand.all_trade_units');
 
