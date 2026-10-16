@@ -8,22 +8,30 @@
 <script setup lang="ts">
 import { computed } from "vue"
 import { ctrans } from "@/Composables/useTrans"
-import { PT_TO_MM, type DesignElement, type DesignFace } from "@/Components/Goods/ProductDevelopment/Design/boxNet"
+import { PT_TO_MM, coverBox, ensureImageRatio, imageRatios, type DesignElement, type DesignFace } from "@/Components/Goods/ProductDevelopment/Design/boxNet"
 
 const props = defineProps<{
     face: DesignFace
     scale: number
     images: Record<number, string | null>
+    size: { w: number, h: number }
 }>()
 
-const backgroundStyle = computed(() => {
-    const imageUrl = props.face.background.image_file_id ? props.images[props.face.background.image_file_id] : null
+const backgroundUrl = computed(() => props.face.background.image_file_id ? props.images[props.face.background.image_file_id] ?? null : null)
+
+const backgroundImageStyle = computed(() => {
+    const url = backgroundUrl.value
+    if (!url) {
+        return null
+    }
+    ensureImageRatio(url)
+    const box = coverBox(props.size.w, props.size.h, imageRatios[url] ?? 0, props.face.background.zoom ?? 1, props.face.background.x ?? 0.5, props.face.background.y ?? 0.5)
 
     return {
-        backgroundColor: props.face.background.color ?? "#ffffff",
-        backgroundImage: imageUrl ? `url("${imageUrl}")` : undefined,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
+        left: `${box.left * props.scale}px`,
+        top: `${box.top * props.scale}px`,
+        width: `${box.width * props.scale}px`,
+        height: `${box.height * props.scale}px`,
     }
 })
 
@@ -53,7 +61,8 @@ const zoneLabel = (element: DesignElement) => element.label || (element.zone ===
 </script>
 
 <template>
-    <div class="absolute inset-0 overflow-hidden" :style="backgroundStyle">
+    <div class="absolute inset-0 overflow-hidden" :style="{ backgroundColor: face.background.color ?? '#ffffff' }">
+        <img v-if="backgroundUrl && backgroundImageStyle" :src="backgroundUrl" alt="" class="pointer-events-none absolute max-w-none select-none" :style="backgroundImageStyle" draggable="false" />
         <div v-for="element in face.elements" :key="element.id" class="absolute" :style="boxStyle(element)" :data-element="element.id">
             <div v-if="element.type === 'text'" class="h-full w-full overflow-hidden whitespace-pre-wrap break-words" :style="textStyle(element)">{{ element.text }}</div>
             <img v-else-if="element.type === 'image' && element.image_file_id && images[element.image_file_id]" :src="images[element.image_file_id]!" alt="" class="pointer-events-none h-full w-full select-none object-contain" draggable="false" />

@@ -6,23 +6,23 @@
   -->
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue"
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue"
 import axios from "axios"
-import Moveable from "vue3-moveable"
+import Slider from "primevue/slider"
 import InputNumber from "primevue/inputnumber"
 import Textarea from "primevue/textarea"
 import Select from "primevue/select"
-import ColorPicker from "primevue/colorpicker"
+import DesignColorField from "@/Components/Goods/ProductDevelopment/Design/DesignColorField.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import DesignFaceRender from "@/Components/Goods/ProductDevelopment/Design/DesignFaceRender.vue"
 import { ctrans } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
-import { newElementId, type DesignElement, type DesignFace, type DesignImage } from "@/Components/Goods/ProductDevelopment/Design/boxNet"
+import { coverBox, ensureImageRatio, imageRatios, newElementId, type DesignElement, type DesignFace, type DesignImage } from "@/Components/Goods/ProductDevelopment/Design/boxNet"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faFont, faImage, faBarcode, faShieldCheck, faSquare, faTrashAlt, faClone, faArrowUp, faArrowDown, faUndo, faRedo, faBold, faItalic, faAlignLeft, faAlignCenter, faAlignRight, faFillDrip, faTimes } from "@fal"
-library.add(faFont, faImage, faBarcode, faShieldCheck, faSquare, faTrashAlt, faClone, faArrowUp, faArrowDown, faUndo, faRedo, faBold, faItalic, faAlignLeft, faAlignCenter, faAlignRight, faFillDrip, faTimes)
+import { faFont, faImage, faBarcode, faShieldCheck, faSquare, faTrashAlt, faClone, faArrowUp, faArrowDown, faUndo, faRedo, faBold, faItalic, faAlignLeft, faAlignCenter, faAlignRight, faFillDrip, faTimes, faArrows } from "@fal"
+library.add(faFont, faImage, faBarcode, faShieldCheck, faSquare, faTrashAlt, faClone, faArrowUp, faArrowDown, faUndo, faRedo, faBold, faItalic, faAlignLeft, faAlignCenter, faAlignRight, faFillDrip, faTimes, faArrows)
 
 const props = defineProps<{
     size: { w: number, h: number }
@@ -67,8 +67,6 @@ const scale = computed(() => {
 
 const selectedId = ref<string | null>(null)
 const selected = computed(() => face.value.elements.find((element) => element.id === selectedId.value) ?? null)
-const hitBoxes = ref<Record<string, HTMLElement | null>>({})
-const moveable = ref<InstanceType<typeof Moveable> | null>(null)
 const uploading = ref(false)
 const uploadError = ref<string | null>(null)
 const imageInput = ref<HTMLInputElement | null>(null)
@@ -217,21 +215,24 @@ function clearBackgroundImage() {
 }
 
 const backgroundColor = computed({
-    get: () => (face.value.background.color ?? "#ffffff").replace("#", ""),
+    get: () => face.value.background.color ?? "#ffffff",
     set: (value: string) => {
-        face.value = { ...face.value, background: { ...face.value.background, color: `#${value}` } }
+        face.value = { ...face.value, background: { ...face.value.background, color: value.toLowerCase() } }
     },
 })
 
 const textColor = computed({
-    get: () => (selected.value?.color ?? "#111827").replace("#", ""),
-    set: (value: string) => selected.value && patchElement(selected.value.id, { color: `#${value}` }),
+    get: () => selected.value?.color ?? "#111827",
+    set: (value: string) => {
+        if (selected.value) {
+            patchElement(selected.value.id, { color: value.toLowerCase() })
+        }
+    },
 })
 
 function setField<K extends keyof DesignElement>(key: K, value: DesignElement[K]) {
     if (selected.value) {
         patchElement(selected.value.id, { [key]: value } as Partial<DesignElement>)
-        nextTick(() => moveable.value?.updateRect())
     }
 }
 
@@ -267,39 +268,218 @@ function moveLayer(direction: 1 | -1) {
     face.value = { ...face.value, elements }
 }
 
-function onDragStart() {
+type Gesture =
+    | { kind: "move" | "resize" | "rotate", start: DesignElement, pointer: { x: number, y: number }, handle?: [number, number] }
+    | { kind: "background", start: { x: number, y: number }, pointer: { x: number, y: number } }
+
+const faceEl = ref<HTMLElement | null>(null)
+const gesture = ref<Gesture | null>(null)
+const guides = ref<{ v: number[], h: number[] }>({ v: [], h: [] })
+const editingBackground = ref(false)
+
+const SNAP_PX = 6
+const ROTATE_STEP = 15
+const handles: [number, number][] = [[-1, -1], [0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0]]
+
+const backgroundUrl = computed(() => face.value.background.image_file_id ? props.images[face.value.background.image_file_id] ?? null : null)
+
+function backgroundBox() {
+    const url = backgroundUrl.value
+    if (!url) {
+        return null
+    }
+    ensureImageRatio(url)
+    return coverBox(props.size.w, props.size.h, imageRatios[url] ?? 0, face.value.background.zoom ?? 1, face.value.background.x ?? 0.5, face.value.background.y ?? 0.5)
+}
+
+const backgroundGhostStyle = computed(() => {
+    const box = backgroundBox()
+    return box ? { left: `${box.left * scale.value}px`, top: `${box.top * scale.value}px`, width: `${box.width * scale.value}px`, height: `${box.height * scale.value}px` } : null
+})
+
+function pointerMm(event: PointerEvent): { x: number, y: number } {
+    const bounds = faceEl.value!.getBoundingClientRect()
+    return { x: (event.clientX - bounds.left) / scale.value, y: (event.clientY - bounds.top) / scale.value }
+}
+
+function startGesture(event: PointerEvent, next: Gesture) {
+    event.preventDefault()
+    event.stopPropagation()
     remember()
+    gesture.value = next
+    window.addEventListener("pointermove", onPointerMove)
+    window.addEventListener("pointerup", endGesture, { once: true })
 }
 
-function onDrag(event: { left: number, top: number }) {
+function startMove(event: PointerEvent, element: DesignElement) {
+    selectedId.value = element.id
+    editingBackground.value = false
+    startGesture(event, { kind: "move", start: { ...element }, pointer: pointerMm(event) })
+}
+
+function startResize(event: PointerEvent, handle: [number, number]) {
     if (selected.value) {
-        patchElement(selected.value.id, { x: round1(event.left / scale.value), y: round1(event.top / scale.value) })
+        startGesture(event, { kind: "resize", start: { ...selected.value }, pointer: pointerMm(event), handle })
     }
 }
 
-function onResize(event: { width: number, height: number, drag: { left: number, top: number } }) {
+function startRotate(event: PointerEvent) {
     if (selected.value) {
-        patchElement(selected.value.id, {
-            w: round1(Math.max(event.width / scale.value, 1)),
-            h: round1(Math.max(event.height / scale.value, 1)),
-            x: round1(event.drag.left / scale.value),
-            y: round1(event.drag.top / scale.value),
-        })
+        startGesture(event, { kind: "rotate", start: { ...selected.value }, pointer: pointerMm(event) })
     }
 }
 
-function onRotate(event: { rotation: number }) {
-    if (selected.value) {
-        patchElement(selected.value.id, { rotate: Math.round(((event.rotation % 360) + 360) % 360) })
+function startBackgroundPan(event: PointerEvent) {
+    startGesture(event, { kind: "background", start: { x: face.value.background.x ?? 0.5, y: face.value.background.y ?? 0.5 }, pointer: pointerMm(event) })
+}
+
+/**
+ * Moves the box so the nearest of its edges or centre lines meets a face edge, the face centre or
+ * another unrotated item, when it is within a few pixels.
+ */
+function snap(start: number, length: number, targets: number[]): { value: number, line: number | null } {
+    const threshold = SNAP_PX / scale.value
+    let best: { delta: number, line: number } | null = null
+    for (const edge of [start, start + length / 2, start + length]) {
+        for (const target of targets) {
+            const delta = target - edge
+            if (Math.abs(delta) <= threshold && (!best || Math.abs(delta) < Math.abs(best.delta))) {
+                best = { delta, line: target }
+            }
+        }
+    }
+    return best ? { value: start + best.delta, line: best.line } : { value: start, line: null }
+}
+
+function snapTargets(axis: "x" | "y", excludeId: string): number[] {
+    const length = axis === "x" ? props.size.w : props.size.h
+    const others = face.value.elements.filter((element) => element.id !== excludeId && !element.rotate)
+        .flatMap((element) => axis === "x" ? [element.x, element.x + element.w / 2, element.x + element.w] : [element.y, element.y + element.h / 2, element.y + element.h])
+    return [0, length / 2, length, ...others]
+}
+
+function onPointerMove(event: PointerEvent) {
+    const current = gesture.value
+    if (!current || !faceEl.value) {
+        return
+    }
+    const pointer = pointerMm(event)
+    const dx = pointer.x - current.pointer.x
+    const dy = pointer.y - current.pointer.y
+
+    if (current.kind === "background") {
+        const box = backgroundBox()
+        if (!box) {
+            return
+        }
+        const overflowX = box.width - props.size.w
+        const overflowY = box.height - props.size.h
+        const clamp = (value: number) => Math.min(Math.max(value, 0), 1)
+        face.value = {
+            ...face.value,
+            background: {
+                ...face.value.background,
+                x: overflowX > 0 ? Math.round(clamp(current.start.x - dx / overflowX) * 10000) / 10000 : 0.5,
+                y: overflowY > 0 ? Math.round(clamp(current.start.y - dy / overflowY) * 10000) / 10000 : 0.5,
+            },
+        }
+        return
+    }
+
+    const start = current.start
+    if (current.kind === "move") {
+        let x = start.x + dx
+        let y = start.y + dy
+        const lines = { v: [] as number[], h: [] as number[] }
+        if (!start.rotate && !event.altKey) {
+            const snappedX = snap(x, start.w, snapTargets("x", start.id))
+            const snappedY = snap(y, start.h, snapTargets("y", start.id))
+            x = snappedX.value
+            y = snappedY.value
+            if (snappedX.line !== null) {
+                lines.v.push(snappedX.line)
+            }
+            if (snappedY.line !== null) {
+                lines.h.push(snappedY.line)
+            }
+        }
+        guides.value = lines
+        patchElement(start.id, { x: round1(x), y: round1(y) })
+        return
+    }
+
+    if (current.kind === "rotate") {
+        const centreX = start.x + start.w / 2
+        const centreY = start.y + start.h / 2
+        let angle = Math.atan2(pointer.y - centreY, pointer.x - centreX) * 180 / Math.PI + 90
+        if (!event.altKey) {
+            const nearest = Math.round(angle / ROTATE_STEP) * ROTATE_STEP
+            if (Math.abs(nearest - angle) <= 4 || event.shiftKey) {
+                angle = nearest
+            }
+        }
+        patchElement(start.id, { rotate: Math.round(((angle % 360) + 360) % 360) })
+        return
+    }
+
+    const [handleX, handleY] = current.handle ?? [1, 1]
+    const radians = ((start.rotate ?? 0) * Math.PI) / 180
+    const cos = Math.cos(radians)
+    const sin = Math.sin(radians)
+    const localX = dx * cos + dy * sin
+    const localY = -dx * sin + dy * cos
+
+    let width = Math.max(start.w + handleX * localX, 1)
+    let height = Math.max(start.h + handleY * localY, 1)
+    if ((start.type === "image" || event.shiftKey) && handleX && handleY) {
+        const ratio = start.h / start.w
+        if (width * ratio > height) {
+            height = width * ratio
+        } else {
+            width = height / ratio
+        }
+    }
+
+    const shiftX = handleX * (width - start.w) / 2
+    const shiftY = handleY * (height - start.h) / 2
+    const centreX = start.x + start.w / 2 + shiftX * cos - shiftY * sin
+    const centreY = start.y + start.h / 2 + shiftX * sin + shiftY * cos
+
+    patchElement(start.id, { w: round1(width), h: round1(height), x: round1(centreX - width / 2), y: round1(centreY - height / 2) })
+}
+
+function endGesture() {
+    window.removeEventListener("pointermove", onPointerMove)
+    gesture.value = null
+    guides.value = { v: [], h: [] }
+}
+
+function toggleBackgroundEditing() {
+    editingBackground.value = !editingBackground.value && !!backgroundUrl.value
+    if (editingBackground.value) {
+        selectedId.value = null
     }
 }
 
-const hitStyle = (element: DesignElement) => ({
+const backgroundZoom = computed({
+    get: () => face.value.background.zoom ?? 1,
+    set: (zoom: number) => {
+        face.value = { ...face.value, background: { ...face.value.background, zoom: Math.round(zoom * 100) / 100 } }
+    },
+})
+
+const boxStyle = (element: DesignElement) => ({
     left: `${element.x * scale.value}px`,
     top: `${element.y * scale.value}px`,
     width: `${element.w * scale.value}px`,
     height: `${element.h * scale.value}px`,
     transform: element.rotate ? `rotate(${element.rotate}deg)` : "",
+})
+
+const handleStyle = ([handleX, handleY]: [number, number]) => ({
+    left: `${(handleX + 1) * 50}%`,
+    top: `${(handleY + 1) * 50}%`,
+    cursor: handleX === 0 ? "ns-resize" : handleY === 0 ? "ew-resize" : handleX === handleY ? "nwse-resize" : "nesw-resize",
 })
 
 const isTyping = (event: KeyboardEvent) => {
@@ -330,10 +510,10 @@ function onKeydown(event: KeyboardEvent) {
         event.preventDefault()
         remember()
         patchElement(selected.value.id, { x: round1(selected.value.x + moves[event.key][0]), y: round1(selected.value.y + moves[event.key][1]) })
-        nextTick(() => moveable.value?.updateRect())
     }
     if (event.key === "Escape") {
         selectedId.value = null
+        editingBackground.value = false
     }
 }
 
@@ -350,9 +530,7 @@ onBeforeUnmount(() => {
     window.removeEventListener("keydown", onKeydown)
 })
 
-watch(scale, () => nextTick(() => moveable.value?.updateRect()))
-
-const otherHitBoxes = computed(() => face.value.elements.filter((element) => element.id !== selectedId.value).map((element) => hitBoxes.value[element.id]).filter(Boolean) as HTMLElement[])
+onBeforeUnmount(endGesture)
 </script>
 
 <template>
@@ -375,45 +553,63 @@ const otherHitBoxes = computed(() => face.value.elements.filter((element) => ele
         <div class="flex min-h-0 flex-1 flex-col md:flex-row">
             <div ref="stage" class="relative flex min-h-[18rem] flex-1 items-center justify-center overflow-hidden bg-gray-100" @pointerdown.self="selectedId = null">
                 <div
+                    ref="faceEl"
                     class="relative shadow-md"
                     :style="{ width: `${size.w * scale}px`, height: `${size.h * scale}px` }"
                     @pointerdown.self="selectedId = null"
+                    @dblclick.self="toggleBackgroundEditing"
                 >
-                    <DesignFaceRender :face="face" :scale="scale" :images="images" />
+                    <img
+                        v-if="editingBackground && backgroundUrl && backgroundGhostStyle"
+                        :src="backgroundUrl"
+                        alt=""
+                        class="pointer-events-none absolute max-w-none select-none opacity-30"
+                        :style="backgroundGhostStyle"
+                        draggable="false"
+                    />
+                    <DesignFaceRender :face="face" :scale="scale" :images="images" :size="size" />
+
                     <div
-                        v-for="element in face.elements"
-                        :key="element.id"
-                        :ref="(el) => hitBoxes[element.id] = el as HTMLElement | null"
-                        class="absolute cursor-move"
-                        :class="element.id === selectedId ? '' : 'hover:outline hover:outline-1 hover:outline-[--app-accent]'"
-                        :style="hitStyle(element)"
-                        @pointerdown="selectedId = element.id"
-                        @dblclick="element.type === 'text' && focusText()"
+                        v-if="editingBackground"
+                        class="absolute inset-0 z-20 cursor-grab ring-2 ring-[--app-accent] active:cursor-grabbing"
+                        @pointerdown="startBackgroundPan"
+                        @dblclick="editingBackground = false"
                     />
-                    <Moveable
-                        v-if="selected && hitBoxes[selected.id]"
-                        ref="moveable"
-                        :key="selected.id"
-                        :target="hitBoxes[selected.id]"
-                        :draggable="true"
-                        :resizable="true"
-                        :rotatable="true"
-                        :keepRatio="selected.type === 'image'"
-                        :snappable="true"
-                        :snapThreshold="6"
-                        :verticalGuidelines="[0, (size.w * scale) / 2, size.w * scale]"
-                        :horizontalGuidelines="[0, (size.h * scale) / 2, size.h * scale]"
-                        :elementGuidelines="otherHitBoxes"
-                        :snapDirections="{ top: true, left: true, bottom: true, right: true, center: true, middle: true }"
-                        :elementSnapDirections="{ top: true, left: true, bottom: true, right: true, center: true, middle: true }"
-                        :origin="false"
-                        @dragStart="onDragStart"
-                        @drag="onDrag"
-                        @resizeStart="onDragStart"
-                        @resize="onResize"
-                        @rotateStart="onDragStart"
-                        @rotate="onRotate"
-                    />
+
+                    <template v-else>
+                        <div
+                            v-for="element in face.elements"
+                            :key="element.id"
+                            class="absolute cursor-move touch-none"
+                            :class="element.id === selectedId ? '' : 'hover:outline hover:outline-1 hover:outline-[--app-accent]'"
+                            :style="boxStyle(element)"
+                            @pointerdown="startMove($event, element)"
+                            @dblclick="element.type === 'text' && focusText()"
+                        />
+
+                        <div v-if="selected" class="pointer-events-none absolute z-10" :style="boxStyle(selected)">
+                            <div class="absolute inset-0 outline outline-1 outline-[--app-accent]" />
+                            <span class="absolute left-1/2 top-0 h-5 w-px -translate-y-full bg-[--app-accent]" />
+                            <button
+                                type="button"
+                                class="pointer-events-auto absolute left-1/2 top-0 h-3.5 w-3.5 -translate-x-1/2 -translate-y-[calc(100%+1.25rem)] cursor-grab touch-none rounded-full border-2 border-[--app-accent] bg-white"
+                                :aria-label="ctrans('Rotate')"
+                                @pointerdown="startRotate"
+                            />
+                            <button
+                                v-for="handle in handles"
+                                :key="handle.join()"
+                                type="button"
+                                class="pointer-events-auto absolute h-3 w-3 -translate-x-1/2 -translate-y-1/2 touch-none rounded-sm border border-white bg-[--app-accent] shadow"
+                                :style="handleStyle(handle)"
+                                :aria-label="ctrans('Resize')"
+                                @pointerdown="startResize($event, handle)"
+                            />
+                        </div>
+
+                        <span v-for="line in guides.v" :key="`v${line}`" class="pointer-events-none absolute inset-y-0 z-30 w-px bg-pink-500" :style="{ left: `${line * scale}px` }" />
+                        <span v-for="line in guides.h" :key="`h${line}`" class="pointer-events-none absolute inset-x-0 z-30 h-px bg-pink-500" :style="{ top: `${line * scale}px` }" />
+                    </template>
                 </div>
             </div>
 
@@ -438,10 +634,7 @@ const otherHitBoxes = computed(() => face.value.elements.filter((element) => ele
                             </label>
                             <label class="space-y-1">
                                 <span class="text-xs text-gray-500">{{ ctrans("Colour") }}</span>
-                                <span class="flex h-[2.15rem] items-center gap-2 rounded-md border border-gray-300 px-2">
-                                    <ColorPicker v-model="textColor" format="hex" />
-                                    <span class="text-xs uppercase text-gray-600">#{{ textColor }}</span>
-                                </span>
+                                <DesignColorField v-model="textColor" @open="remember" />
                             </label>
                         </div>
                         <Select :modelValue="selected.font_family ?? ''" :options="fonts" optionLabel="label" optionValue="value" size="small" class="w-full" overlayClass="text-sm" @update:modelValue="(value) => setField('font_family', value)">
@@ -474,17 +667,20 @@ const otherHitBoxes = computed(() => face.value.elements.filter((element) => ele
                 <template v-else>
                     <div class="font-medium text-gray-800">{{ ctrans("Background") }}</div>
                     <div class="flex items-center gap-2">
-                        <span class="flex h-[2.15rem] items-center gap-2 rounded-md border border-gray-300 px-2">
-                            <ColorPicker v-model="backgroundColor" format="hex" @show="remember" />
-                            <span class="text-xs uppercase text-gray-600">#{{ backgroundColor }}</span>
-                        </span>
+                        <DesignColorField v-model="backgroundColor" @open="remember" />
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
+                        <Button v-if="face.background.image_file_id" :type="editingBackground ? 'primary' : 'tertiary'" size="xs" icon="fal fa-arrows" :label="editingBackground ? ctrans('Done moving') : ctrans('Move background')" @click="toggleBackgroundEditing" />
                         <Button type="tertiary" size="xs" icon="fal fa-fill-drip" :label="face.background.image_file_id ? ctrans('Change image') : ctrans('Background image')" :loading="uploading" @click="backgroundInput?.click()" />
                         <Button v-if="face.background.image_file_id" type="negative" size="xs" icon="fal fa-times" :label="ctrans('Remove')" @click="clearBackgroundImage" />
                     </div>
+                    <label v-if="face.background.image_file_id" class="block space-y-2">
+                        <span class="flex justify-between text-xs text-gray-500"><span>{{ ctrans("Zoom") }}</span><span class="tabular-nums">{{ Math.round(backgroundZoom * 100) }}%</span></span>
+                        <Slider v-model="backgroundZoom" :min="1" :max="3" :step="0.05" @slideend="remember" />
+                    </label>
+                    <p v-if="editingBackground" class="rounded-md bg-[--app-accent-soft] px-2 py-1.5 text-xs text-[--app-accent-deep]">{{ ctrans("Drag the image to choose which part shows. It always covers the whole side.") }}</p>
                     <p class="text-xs leading-relaxed text-gray-500">
-                        {{ ctrans("Click an item to move, resize or rotate it. Arrow keys nudge by 1 mm (Shift: 5 mm), Delete removes it, Ctrl+Z undoes.") }}
+                        {{ ctrans("Drag an item to move it, its corners to resize (Shift keeps the shape) and the round handle to rotate. Hold Alt to stop snapping. Arrow keys nudge by 1 mm (Shift: 5 mm), Delete removes it, Ctrl+Z undoes. Double-click the side to move its background.") }}
                     </p>
                 </template>
             </aside>

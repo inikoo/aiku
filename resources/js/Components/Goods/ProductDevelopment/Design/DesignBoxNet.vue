@@ -120,7 +120,7 @@ function onPanelClick(panel: NetPanel) {
                 @click="onPanelClick(panel)"
             >
                 <template v-if="panel.face">
-                    <DesignFaceRender :face="layout.faces[panel.face]" :scale="scale" :images="images" />
+                    <DesignFaceRender :face="layout.faces[panel.face]" :scale="scale" :images="images" :size="{ w: panel.w, h: panel.h }" />
                     <span
                         v-if="!layout.faces[panel.face].elements.length"
                         class="pointer-events-none absolute inset-0 flex items-center justify-center text-xs text-gray-400"

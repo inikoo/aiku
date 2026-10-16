@@ -5,6 +5,8 @@
  * Copyright 2026
 */
 
+import { reactive } from "vue"
+
 export type FaceKey = "front" | "back" | "left" | "right" | "top" | "bottom"
 
 export const FACE_KEYS: FaceKey[] = ["front", "back", "left", "right", "top", "bottom"]
@@ -32,7 +34,7 @@ export interface DesignElement {
 }
 
 export interface DesignFace {
-    background: { color: string | null, image_file_id: number | null }
+    background: { color: string | null, image_file_id: number | null, x?: number, y?: number, zoom?: number }
     elements: DesignElement[]
 }
 
@@ -128,4 +130,42 @@ export function hasSize(layout: Pick<DesignLayout, "width" | "length" | "height"
 
 export function newElementId(): string {
     return Math.random().toString(36).slice(2, 10)
+}
+
+
+/** height ÷ width of each image, loaded once per URL */
+export const imageRatios = reactive<Record<string, number>>({})
+
+export function ensureImageRatio(url: string | null | undefined): void {
+    if (!url || imageRatios[url] !== undefined) {
+        return
+    }
+    imageRatios[url] = 0
+    const image = new Image()
+    image.onload = () => imageRatios[url] = image.naturalWidth ? image.naturalHeight / image.naturalWidth : 1
+    image.onerror = () => imageRatios[url] = 1
+    image.src = url
+}
+
+/**
+ * Where a background image sits on a face, in millimetres: it always covers the face, `zoom` enlarges it
+ * and `x` / `y` (0 to 1) choose which part shows, so it can never be dragged out of the face.
+ */
+export function coverBox(faceWidth: number, faceHeight: number, ratio: number, zoom = 1, x = 0.5, y = 0.5): { left: number, top: number, width: number, height: number } {
+    const safeRatio = ratio > 0 ? ratio : faceHeight / Math.max(faceWidth, 1)
+    let width = faceWidth
+    let height = faceWidth * safeRatio
+    if (height < faceHeight) {
+        height = faceHeight
+        width = faceHeight / safeRatio
+    }
+    width *= zoom
+    height *= zoom
+
+    return {
+        width,
+        height,
+        left: -(width - faceWidth) * x,
+        top: -(height - faceHeight) * y,
+    }
 }

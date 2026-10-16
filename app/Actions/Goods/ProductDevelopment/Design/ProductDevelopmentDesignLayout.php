@@ -41,7 +41,7 @@ class ProductDevelopmentDesignLayout
             'length' => null,
             'height' => null,
             ...self::sizeFromFirstSku($productDevelopment),
-            'faces'  => collect(self::FACES)->mapWithKeys(fn (string $face) => [$face => ['background' => ['color' => '#ffffff', 'image_file_id' => null], 'elements' => []]])->all(),
+            'faces'  => collect(self::FACES)->mapWithKeys(fn (string $face) => [$face => ['background' => ['color' => '#ffffff', 'image_file_id' => null, 'x' => 0.5, 'y' => 0.5, 'zoom' => 1], 'elements' => []]])->all(),
         ];
     }
 
@@ -88,6 +88,9 @@ class ProductDevelopmentDesignLayout
             $prefix.'.faces.*.background'                 => ['nullable', 'array'],
             $prefix.'.faces.*.background.color'           => ['nullable', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
             $prefix.'.faces.*.background.image_file_id'   => ['nullable', 'integer'],
+            $prefix.'.faces.*.background.x'               => ['nullable', 'numeric', 'between:0,1'],
+            $prefix.'.faces.*.background.y'               => ['nullable', 'numeric', 'between:0,1'],
+            $prefix.'.faces.*.background.zoom'            => ['nullable', 'numeric', 'between:1,5'],
             $prefix.'.faces.*.elements'      => ['present', 'array', 'max:'.self::MAX_ELEMENTS_PER_FACE],
             $element.'.id'                   => ['required', 'string', 'max:40'],
             $element.'.type'                 => ['required', Rule::in(self::ELEMENT_TYPES)],
@@ -129,6 +132,9 @@ class ProductDevelopmentDesignLayout
                 'background' => [
                     'color'         => Arr::get($layout, "faces.$face.background.color", '#ffffff'),
                     'image_file_id' => Arr::get($layout, "faces.$face.background.image_file_id"),
+                    'x'             => self::fraction(Arr::get($layout, "faces.$face.background.x", 0.5)),
+                    'y'             => self::fraction(Arr::get($layout, "faces.$face.background.y", 0.5)),
+                    'zoom'          => min(max((float) Arr::get($layout, "faces.$face.background.zoom", 1), 1), 5),
                 ],
                 'elements'   => collect(Arr::get($layout, "faces.$face.elements", []))
                     ->map(fn (array $element) => Arr::only($element, $keys))
@@ -136,6 +142,11 @@ class ProductDevelopmentDesignLayout
                     ->all(),
             ]])->all(),
         ];
+    }
+
+    private static function fraction(mixed $value): float
+    {
+        return is_numeric($value) ? min(max(round((float) $value, 4), 0), 1) : 0.5;
     }
 
     private static function size(mixed $value): ?float
