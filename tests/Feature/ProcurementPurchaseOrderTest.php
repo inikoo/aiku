@@ -125,6 +125,7 @@ use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderTransaction;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
+use App\Actions\SupplyChain\Supplier\MergeSuppliers;
 use App\Models\SupplyChain\SupplierProduct;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -1514,6 +1515,41 @@ test('merging a duplicate supplier moves its products and orders to the supplier
     $clash = StoreSupplierChangeRequest::make()->action($other, ['type' => 'merge', 'target_supplier_id' => $kept->id, 'reason' => 'Same factory']);
     expect(fn () => DecideSupplierChangeRequest::make()->action($clash, ['approve' => true]))->toThrow(ValidationException::class)
         ->and($other->refresh()->status)->toBeTrue();
+});
+
+test('merging a duplicate supplier folds its empty supplier order on a shared agent order into the kept one', function () {
+    [$keptOrgSupplier]                         = createAgentOrgSupplierWithProduct($this);
+    [$duplicateOrgSupplier, $duplicateProduct] = createAgentOrgSupplierWithProduct($this);
+    $kept      = $keptOrgSupplier->supplier;
+    $duplicate = $duplicateOrgSupplier->supplier;
+    $duplicate->update(['currency_id' => $kept->currency_id]);
+
+    $order    = StorePurchaseOrder::make()->action($keptOrgSupplier, PurchaseOrder::factory()->definition());
+    $line     = StorePurchaseOrderTransaction::make()->action($order, $duplicateProduct->supplierProduct->historicSupplierProduct, $this->orgStocks[0], PurchaseOrderTransaction::factory()->definition());
+    $newAspo  = fn (Supplier $supplier, array $extra = []) => AgentSupplierPurchaseOrder::create(array_merge([
+        'group_id'       => $this->group->id,
+        'reference'      => 'ASPO'.Str::upper(Str::random(8)),
+        'purchase_order_id' => $order->id,
+        'supplier_id'    => $supplier->id,
+        'currency_id'    => $order->currency_id,
+        'state'          => AgentSupplierPurchaseOrderStateEnum::SUBMITTED,
+        'delivery_state' => AgentSupplierPurchaseOrderDeliveryStateEnum::CONFIRMED,
+        'date'           => now(),
+    ], $extra));
+    $keptAspo      = $newAspo($kept);
+    $duplicateAspo = $newAspo($duplicate, ['estimated_received_at' => '2026-11-01 00:00:00']);
+    PurchaseOrderTransaction::whereKey($line->id)->update(['agent_supplier_purchase_order_id' => $duplicateAspo->id]);
+
+    $duplicateAspo->update(['is_costed' => true]);
+    expect(fn () => MergeSuppliers::run($duplicate, $kept))->toThrow(ValidationException::class);
+
+    $duplicateAspo->update(['is_costed' => false]);
+    MergeSuppliers::run($duplicate, $kept);
+
+    expect(AgentSupplierPurchaseOrder::find($duplicateAspo->id))->toBeNull()
+        ->and($line->refresh()->agent_supplier_purchase_order_id)->toBe($keptAspo->id)
+        ->and($keptAspo->refresh()->estimated_received_at->toDateString())->toBe('2026-11-01')
+        ->and($duplicate->refresh()->data['merged_into_supplier_id'])->toBe($kept->id);
 });
 
 test('UI show agent purchase order', function (PurchaseOrder $purchaseOrder) {

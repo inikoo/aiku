@@ -16,6 +16,7 @@ use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateSuppliers;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\Supplier;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -23,7 +24,8 @@ use Lorisleiva\Actions\Concerns\AsAction;
 /**
  * Folds a duplicate supplier record into the one kept: its products, purchase orders, containers, messages,
  * invoices and attachments move over, per organisation onto the kept supplier's org supplier, and the duplicate
- * is archived, never deleted. Refused when the two price in different currencies or share a product code,
+ * is archived, never deleted. Where both are on one agent order, the duplicate's supplier order hands its lines and
+ * stage dates to the kept one and is removed, unless it carries costing, deliveries, deposits or notes. Refused when the two price in different currencies or share a product code,
  * since that would change what a cost means or need the products merged first.
  */
 class MergeSuppliers
@@ -39,6 +41,17 @@ class MergeSuppliers
         'supplier_invoices',
         'supplier_messages',
         'supplier_users',
+    ];
+
+    private const array AGENT_ORDER_STAGE_DATES = [
+        'estimated_received_at',
+        'proposed_ready_at',
+        'approved_ready_at',
+        'sample_approved_at',
+        'produced_at',
+        'handed_over_at',
+        'qc_passed_at',
+        'compliance_complete_at',
     ];
 
     public function handle(Supplier $duplicate, Supplier $kept): Supplier
@@ -70,6 +83,8 @@ class MergeSuppliers
                 $from->update(['status' => false]);
                 $touched->push($from, $to);
             }
+
+            $this->foldSharedAgentOrders($duplicate, $kept);
 
             foreach (self::SUPPLIER_TABLES as $table) {
                 DB::table($table)->where('supplier_id', $duplicate->id)->update(['supplier_id' => $kept->id]);
@@ -120,21 +135,52 @@ class MergeSuppliers
             ]);
         }
 
-        $sharedAgentOrders = DB::table('agent_supplier_purchase_orders as duplicate_orders')
-            ->join('agent_supplier_purchase_orders as kept_orders', function ($join) use ($kept) {
-                $join->on('kept_orders.purchase_order_id', '=', 'duplicate_orders.purchase_order_id')
-                    ->where('kept_orders.supplier_id', $kept->id)
-                    ->whereNull('kept_orders.deleted_at');
-            })
+        $sharedAgentOrders = $this->sharedAgentOrders($duplicate, $kept)
             ->join('purchase_orders', 'purchase_orders.id', '=', 'duplicate_orders.purchase_order_id')
-            ->where('duplicate_orders.supplier_id', $duplicate->id)
-            ->whereNull('duplicate_orders.deleted_at')
+            ->where(function ($query) {
+                $query->where('duplicate_orders.is_costed', true)
+                    ->orWhere('duplicate_orders.number_stock_deliveries', '>', 0)
+                    ->orWhere('duplicate_orders.deposit_amount', '>', 0)
+                    ->orWhereNotNull('duplicate_orders.deposit_paid_at')
+                    ->orWhereNotNull('duplicate_orders.balance_paid_at')
+                    ->orWhere('duplicate_orders.notes', '<>', '')
+                    ->orWhereExists(fn ($deposits) => $deposits->from('aspo_deposits')->whereColumn('aspo_deposits.agent_supplier_purchase_order_id', 'duplicate_orders.id'));
+            })
             ->pluck('purchase_orders.reference');
 
         if ($sharedAgentOrders->isNotEmpty()) {
             throw ValidationException::withMessages([
                 'target_supplier_id' => __('Both suppliers are on the agent orders :references, sort those orders out first', ['references' => $sharedAgentOrders->implode(', ')]),
             ]);
+        }
+    }
+
+    private function sharedAgentOrders(Supplier $duplicate, Supplier $kept): Builder
+    {
+        return DB::table('agent_supplier_purchase_orders as duplicate_orders')
+            ->join('agent_supplier_purchase_orders as kept_orders', function ($join) use ($kept) {
+                $join->on('kept_orders.purchase_order_id', '=', 'duplicate_orders.purchase_order_id')
+                    ->where('kept_orders.supplier_id', $kept->id)
+                    ->whereNull('kept_orders.deleted_at');
+            })
+            ->where('duplicate_orders.supplier_id', $duplicate->id)
+            ->whereNull('duplicate_orders.deleted_at');
+    }
+
+    private function foldSharedAgentOrders(Supplier $duplicate, Supplier $kept): void
+    {
+        $pairs = $this->sharedAgentOrders($duplicate, $kept)->select('duplicate_orders.id as duplicate_id', 'kept_orders.id as kept_id')->get();
+
+        foreach ($pairs as $pair) {
+            DB::table('purchase_order_transactions')->where('agent_supplier_purchase_order_id', $pair->duplicate_id)
+                ->update(['agent_supplier_purchase_order_id' => $pair->kept_id]);
+
+            $duplicateDates = DB::table('agent_supplier_purchase_orders')->where('id', $pair->duplicate_id)->first(self::AGENT_ORDER_STAGE_DATES);
+            foreach (self::AGENT_ORDER_STAGE_DATES as $column) {
+                DB::table('agent_supplier_purchase_orders')->where('id', $pair->kept_id)->whereNull($column)->update([$column => $duplicateDates->$column]);
+            }
+
+            DB::table('agent_supplier_purchase_orders')->where('id', $pair->duplicate_id)->update(['deleted_at' => now()]);
         }
     }
 
