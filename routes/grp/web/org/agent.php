@@ -69,6 +69,7 @@ use App\Actions\SupplyChain\Supplier\UI\CreateSupplier;
 use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;
 use App\Actions\Procurement\AgentOrder\UI\IndexAgentOrders;
 use App\Actions\Procurement\AgentOrder\UI\ShowAgentOrder;
+use App\Actions\Procurement\AgentOrder\UI\ShowAgentWholeOrder;
 use App\Actions\Procurement\OrgAgent\UI\IndexAgentSalesProducts;
 use App\Actions\Procurement\OrgAgent\UI\IndexAgentSalesSuppliers;
 use App\Actions\Procurement\OrgAgent\UI\ShowAgentSales;
@@ -113,6 +114,7 @@ Route::prefix('purchase-orders')->as('purchase_orders.')->group(function () {
     Route::get('export', ExportPurchaseOrders::class)->name('export');
     Route::get('{purchaseOrder:id}/chase-panel', GetPurchaseOrderChasePanel::class)->name('chase_panel')->withoutScopedBindings();
     Route::get('{purchaseOrder}', ShowPurchaseOrder::class)->name('show');
+    Route::get('{purchaseOrder}/whole-order', ShowAgentWholeOrder::class)->name('whole_order');
     Route::get('{purchaseOrder}/edit', EditPurchaseOrder::class)->name('edit');
     Route::get('{purchaseOrder}/pdf/{filename?}', PdfPurchaseOrder::class)->name('pdf');
     Route::get('{purchaseOrder}/transactions-export', ExportPurchaseOrderTransactions::class)->name('transactions.export');

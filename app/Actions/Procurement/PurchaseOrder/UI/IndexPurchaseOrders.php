@@ -58,6 +58,15 @@ class IndexPurchaseOrders extends OrgAction
 
     private Group|Organisation|OrgAgent|OrgSupplier|OrgPartner|OrgStock|OrgSupplierProduct|Supplier|StockDelivery $parent;
 
+    private ?PurchaseOrder $wholeAgentOrderOf = null;
+
+    public function inWholeAgentOrderOf(PurchaseOrder $purchaseOrder): static
+    {
+        $this->wholeAgentOrderOf = $purchaseOrder;
+
+        return $this;
+    }
+
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Group) {
@@ -228,6 +237,10 @@ class IndexPurchaseOrders extends OrgAction
             });
         } else {
             $query->where('purchase_orders.organisation_id', $parent->id);
+        }
+
+        if ($this->wholeAgentOrderOf) {
+            $query->whereIn('purchase_orders.id', $this->wholeAgentOrderOf->wholeAgentOrder()->select('id'));
         }
 
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {

@@ -320,6 +320,7 @@ use App\Actions\GoodsIn\StockDelivery\DeleteStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\CancelStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\DispatchStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\ReceiveStockDelivery;
+use App\Actions\GoodsIn\StockDelivery\RecordStockDeliveryGoodsInCheck;
 use App\Actions\GoodsIn\StockDelivery\UndispatchStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\UnreceiveStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\UpdateStockDelivery;
@@ -513,6 +514,8 @@ use App\Actions\SupplyChain\SupplierChangeRequest\StoreSupplierChangeRequest;
 use App\Actions\Procurement\PurchaseOrder\AttachPurchaseOrderComplianceDocument;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToCancelled;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToConfirmed;
+use App\Actions\Procurement\AgentOrder\ConfirmAgentWholeOrder;
+use App\Actions\Procurement\AgentOrder\RequestAgentWholeOrderDeposits;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToInProcess;
 use App\Actions\Procurement\PurchaseOrder\SetPurchaseOrderReadyToSend;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToSubmitted;
@@ -1726,6 +1729,7 @@ Route::patch('supplier-agreed-term/{supplierAgreedTerm:id}/withdraw', [WithdrawS
 
 Route::name('stock-delivery.')->prefix('stock-delivery/{stockDelivery:id}')->group(function () {
     Route::post('note', [StoreProcurementNote::class, 'inStockDelivery'])->name('note.store');
+    Route::post('goods-in-check', RecordStockDeliveryGoodsInCheck::class)->name('goods_in_check.store');
     Route::post('agreed-terms/accept', [AcceptAgreedTermDifferences::class, 'inStockDelivery'])->name('agreed_terms.accept');
     Route::post('invoice', StoreActualStockDeliveryInvoice::class)->name('invoice.store');
     Route::post('agent-payment', StoreAgentPayment::class)->name('agent_payment.store');
@@ -1820,6 +1824,8 @@ Route::name('purchase-order.')->prefix('purchase-order/{purchaseOrder:id}')->gro
     Route::post('note', [StoreProcurementNote::class, 'inPurchaseOrder'])->name('note.store');
     Route::post('agreed-terms/accept', [AcceptAgreedTermDifferences::class, 'inPurchaseOrder'])->name('agreed_terms.accept');
     Route::patch('confirm', UpdatePurchaseOrderStateToConfirmed::class)->name('confirm');
+    Route::patch('agent-order/confirm', ConfirmAgentWholeOrder::class)->name('agent_order.confirm');
+    Route::post('agent-order/deposits', RequestAgentWholeOrderDeposits::class)->name('agent_order.deposits.request');
     Route::patch('undo-confirm', RevertPurchaseOrderToSubmitted::class)->name('undo-confirm');
     Route::patch('cancel', UpdatePurchaseOrderStateToCancelled::class)->name('cancel');
     Route::post('stock-delivery', StoreStockDeliveryFromPurchaseOrder::class)->name('stock-delivery.store');

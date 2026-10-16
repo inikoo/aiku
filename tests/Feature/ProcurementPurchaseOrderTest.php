@@ -3062,6 +3062,85 @@ test('a supplier order through an agent links to its whole agent order', functio
             )));
 });
 
+test('the agent confirms every supplier order of an agent order and asks the client for their deposits in one request', function () {
+    $orgAgent = createFreshOrgAgent($this);
+    $orders   = collect(createAgentOrderToSend($this, $orgAgent, 2))
+        ->map(fn (PurchaseOrder $order) => UpdatePurchaseOrderStateToSubmitted::make()->action($order->refresh())->refresh());
+
+    $agentOrganisation = $orgAgent->agent->organisation;
+    $orgAdmin          = JobPosition::where('organisation_id', $agentOrganisation->id)->where('code', 'org-admin')->firstOrFail();
+    $username          = 'agent-whole-order-'.Str::lower(Str::random(6));
+    $employee          = StoreEmployee::make()->action($agentOrganisation, [
+        'worker_number'   => $username,
+        'alias'           => $username,
+        'contact_name'    => 'Agent Whole Order',
+        'state'           => EmployeeStateEnum::WORKING,
+        'type'            => EmployeeTypeEnum::EMPLOYEE,
+        'employment_type' => EmploymentTypeEnum::FULL_TIME,
+        'positions'       => [['slug' => $orgAdmin->slug, 'scopes' => []]],
+    ]);
+    $agentUser = StoreUser::make()->action($employee, [
+        'username'       => $username,
+        'password'       => Str::random(32),
+        'status'         => true,
+        'reset_password' => false,
+    ]);
+
+    actingAs($agentUser);
+
+    $this->get(route('grp.org.agent.purchase_orders.show', [$agentOrganisation->slug, $orders[0]->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('pageHead.actions', fn ($actions) => collect($actions)->contains(
+                fn ($action) => ($action['route']['name'] ?? null) === 'grp.org.agent.purchase_orders.whole_order'
+            )));
+
+    $this->get(route('grp.org.agent.purchase_orders.whole_order', [$agentOrganisation->slug, $orders[0]->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Procurement/AgentWholeOrder')
+            ->where('whole_order.reference', $orders[0]->agent_order_reference)
+            ->where('whole_order.number_supplier_orders', 2)
+            ->where('whole_order.number_to_confirm', 2)
+            ->where('whole_order.confirm_route.name', 'grp.models.purchase-order.agent_order.confirm')
+            ->has('supplier_orders', 2)
+            ->has('data.data', 2));
+
+    $this->patch(route('grp.models.purchase-order.agent_order.confirm', $orders[0]->id))->assertSessionHasNoErrors();
+
+    expect($orders->map(fn (PurchaseOrder $order) => $order->refresh()->state)->unique()->all())->toBe([PurchaseOrderStateEnum::CONFIRMED]);
+
+    $this->post(route('grp.models.purchase-order.agent_order.deposits.request', $orders[0]->id), [
+        'deposits' => [
+            ['purchase_order_id' => $orders[0]->id, 'amount' => 120],
+            ['purchase_order_id' => $orders[1]->id, 'amount' => 80.5],
+        ],
+    ])->assertSessionHasNoErrors();
+
+    $depositRequest = \App\Models\SupplyChain\DepositRequest::where('agent_id', $orgAgent->agent_id)->latest('id')->firstOrFail();
+    expect($depositRequest->reference)->toBe($orders[0]->agent_order_reference)
+        ->and($depositRequest->currency_id)->toBe($orders[0]->currency_id)
+        ->and($depositRequest->items)->toHaveCount(2)
+        ->and((float) $depositRequest->items->sum('amount'))->toBe(200.5)
+        ->and($depositRequest->items->pluck('organisation_id')->unique()->all())->toBe([$orders[0]->organisation_id])
+        ->and((float) $orders[1]->deposits()->sum('amount'))->toBe(80.5);
+
+    $this->get(route('grp.org.agent.purchase_orders.whole_order', [$agentOrganisation->slug, $orders[1]->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('whole_order.number_to_confirm', 0)
+            ->where('whole_order.confirm_route', null)
+            ->where('whole_order.requested.0.amount', fn ($amount) => (float) $amount === 200.5));
+
+    $otherOrder = collect(createAgentOrderToSend($this, $orgAgent, 1))->first();
+    $otherOrder = UpdatePurchaseOrderStateToSubmitted::make()->action($otherOrder->refresh());
+
+    $this->post(route('grp.models.purchase-order.agent_order.deposits.request', $orders[0]->id), [
+        'deposits' => [['purchase_order_id' => $otherOrder->id, 'amount' => 10]],
+    ])->assertSessionHasErrors('deposits');
+
+    expect($otherOrder->deposits()->count())->toBe(0);
+
+    actingAs($this->adminGuest->getUser());
+});
+
 test('split agent purchase orders turns an org agent order into one order per supplier', function () {
     [$orgSupplierOne, $orgSupplierProductOne] = createAgentOrgSupplierWithProduct($this);
     [$orgSupplierTwo, $orgSupplierProductTwo] = createAgentOrgSupplierWithProduct($this);
