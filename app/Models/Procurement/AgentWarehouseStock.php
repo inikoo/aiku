@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $organisation_id
  * @property int $supplier_product_id
  * @property int|null $purchase_order_id
+ * @property int|null $purchase_order_transaction_id
  * @property AgentWarehouseStockStateEnum $state
  * @property string $quantity
  * @property string|null $notes
@@ -60,5 +61,10 @@ class AgentWarehouseStock extends Model
     public function purchaseOrder(): BelongsTo
     {
         return $this->belongsTo(PurchaseOrder::class);
+    }
+
+    public function purchaseOrderTransaction(): BelongsTo
+    {
+        return $this->belongsTo(PurchaseOrderTransaction::class);
     }
 }
