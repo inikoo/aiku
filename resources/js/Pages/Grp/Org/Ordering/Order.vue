@@ -675,7 +675,7 @@ const onSubmitSendUnpaid = () => {
 const changeToCashOnDeliveryLoading = ref(false)
 const confirmChangeToCashOnDelivery = () => {
     const changeRoute = props.routes.change_to_cash_on_delivery
-    if (!changeRoute) {
+    if (!changeRoute || changeToCashOnDeliveryLoading.value) {
         return
     }
     confirm.require({
@@ -688,6 +688,10 @@ const confirmChangeToCashOnDelivery = () => {
             label: ctrans('Yes, cash on delivery')
         },
         accept: () => {
+            if (changeToCashOnDeliveryLoading.value) {
+                return
+            }
+            changeToCashOnDeliveryLoading.value = true
             router[changeRoute.method || 'patch'](
                 route(changeRoute.name, changeRoute.parameters),
                 {},

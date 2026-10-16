@@ -1781,7 +1781,11 @@ test('a submitted unpaid bank transfer order can be changed to cash on delivery'
     $paymentAccount->update(['data' => ['countries' => [$order->deliveryAddress->country_id]]]);
     $totalBefore = (float)$order->total_amount;
 
-    $order = ChangeOrderToCashOnDelivery::make()->action($order->refresh());
+    $staleOrder = $order->refresh();
+    $order      = ChangeOrderToCashOnDelivery::make()->action($order->refresh());
+
+    expect(fn () => ChangeOrderToCashOnDelivery::make()->action($staleOrder))->toThrow(ValidationException::class)
+        ->and($order->transactions()->where('model_type', 'Charge')->where('model_id', $charge->id)->count())->toBe(1);
 
     $cashOnDeliveryNet = $order->transactions()->where('model_type', 'Charge')->where('model_id', $charge->id)->value('net_amount');
 
