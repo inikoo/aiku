@@ -441,7 +441,8 @@ class OrgStockHydrateOutOfStockForecast implements ShouldBeUnique
 
     /**
      * No history here: borrow the demand of the SAME stock sold by sister organisations,
-     * damped to half — their market is similar, not ours.
+     * damped to half — their market is similar, not ours. What a sister ships to a partner
+     * organisation is restocking, not a market, and is not borrowed (HELP-4057).
      */
     private function usageFromSiblingOrganisations(OrgStock $orgStock): ?float
     {
@@ -457,6 +458,7 @@ class OrgStockHydrateOutOfStockForecast implements ShouldBeUnique
             ->whereIn('org_stock_id', $siblingIds)
             ->where('quantity_dispatched', '>', 0)
             ->where('created_at', '>=', now()->subDays(self::WINDOW))
+            ->whereNotExists($this->toPartnerOrganisation(...))
             ->sum('quantity_dispatched');
 
         if ($dispatched <= 0) {
@@ -488,6 +490,7 @@ class OrgStockHydrateOutOfStockForecast implements ShouldBeUnique
             ->whereIn('org_stock_id', $familyStockIds)
             ->where('quantity_dispatched', '>', 0)
             ->where('created_at', '>=', now()->subDays(self::WINDOW))
+            ->whereNotExists($this->toPartnerOrganisation(...))
             ->sum('quantity_dispatched');
 
         if ($dispatched <= 0) {
@@ -495,6 +498,14 @@ class OrgStockHydrateOutOfStockForecast implements ShouldBeUnique
         }
 
         return round($dispatched / self::WINDOW / $familyStockIds->count() * 0.25, 4);
+    }
+
+    private function toPartnerOrganisation(Builder $query): void
+    {
+        $query->selectRaw('1')
+            ->from('delivery_notes')
+            ->join('org_partners', 'org_partners.customer_id', 'delivery_notes.customer_id')
+            ->whereColumn('delivery_notes.id', 'delivery_note_items.delivery_note_id');
     }
 
     /**
