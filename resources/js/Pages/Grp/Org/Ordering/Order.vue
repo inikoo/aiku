@@ -547,6 +547,11 @@ const onSubmitNote = async (closePopup: Function) => {
 }
 
 const addServiceAction = computed(() => props.pageHead.actions?.find((action: any) => action?.key === 'add-service'))
+const uploadExcelButton = computed(() => props.upload_excel ? props.pageHead.actions?.find((action: any) => action?.key === 'upload-add')?.button?.[0] : undefined)
+const pageHeadWithUploadInAddGroup = computed(() => ({
+    ...props.pageHead,
+    actions: props.pageHead.actions?.filter((action: any) => action?.key !== 'upload-add'),
+}))
 const hasAddProductAction = computed(() => !!props.pageHead.actions?.some((action: any) => action?.key === 'add-product'))
 
 const openModal = (action: any, itemType: string = 'product') => {
@@ -1713,21 +1718,18 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
         </template>
     </ConfirmDialog>
 
-    <PageHeading :data="pageHead">
+    <PageHeading :data="pageHeadWithUploadInAddGroup">
         <template #button-add-product="{ action }">
             <div class="contents">
-                <div v-if="!is_shop_external && addServiceAction" class="flex items-stretch">
-                    <span class="buttonSecondary inline-flex items-center gap-x-2 rounded-l-md px-3 md:px-4 text-sm font-medium leading-4">
-                        <FontAwesomeIcon icon="fal fa-plus" fixed-width aria-hidden="true" />
-                        {{ ctrans("Add") }}
-                    </span>
-                    <Button :style="action.style" :label="ctrans('Product')" :tooltip="action.tooltip" class="!rounded-none !border-l-0"
-                        @click="() => openModal(action, 'product')" />
-                    <Button :style="addServiceAction.style" :label="ctrans('Service')" :tooltip="addServiceAction.tooltip" class="!rounded-l-none !border-l-0"
-                        @click="() => openModal(addServiceAction, 'service')" />
+                <div v-if="!is_shop_external" class="flex items-stretch">
+                    <Button v-if="uploadExcelButton" :style="uploadExcelButton.style" :label="uploadExcelButton.label" :icon="uploadExcelButton.icon"
+                        :tooltip="uploadExcelButton.tooltip" class="!rounded-r-none" @click="() => isModalUploadExcel = true" />
+                    <Button :style="action.style" :label="addServiceAction ? ctrans('Product') : action.label" :icon="addServiceAction ? 'fal fa-plus' : action.icon"
+                        :tooltip="action.tooltip" @click="() => openModal(action, 'product')"
+                        :class="[uploadExcelButton && '!rounded-l-none !border-l-0', addServiceAction && '!rounded-r-none']" />
+                    <Button v-if="addServiceAction" :style="addServiceAction.style" :label="ctrans('Service')" icon="fal fa-plus" :tooltip="addServiceAction.tooltip"
+                        class="!rounded-l-none !border-l-0" @click="() => openModal(addServiceAction, 'service')" />
                 </div>
-                <Button v-else-if="!is_shop_external" :style="action.style" :label="action.label" :icon="action.icon" @click="() => openModal(action, 'product')"
-                    :key="`ActionButton${action.label}${action.style}`" :tooltip="action.tooltip" />
             </div>
         </template>
 
@@ -1769,17 +1771,6 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
             </div>
         </template>
 
-        <!-- Button: Upload -->
-        <template #button-group-upload-add="{ action }">
-            <div class="relative"
-                :class="upload_excel && !is_shop_external ? '' : 'hidden'"
-            >
-                <Button v-if="upload_excel && !is_shop_external" :style="action.button[0].style" :label="action.button[0].label"
-                    :icon="action.button[0].icon" @click="() => isModalUploadExcel = true"
-                    :key="`ActionButton${action.button[0].label}${action.button[0].style}`"
-                    :tooltip="action.button[0].tooltip" />
-            </div>
-        </template>
 
 
 
@@ -3499,8 +3490,7 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
 
     <UploadExcel v-if="props.upload_excel && !is_shop_external" v-model="isModalUploadExcel" :title="upload_excel.title"
         :progressDescription="upload_excel.progressDescription" :upload_spreadsheet="upload_excel.upload_spreadsheet"
-        :preview_template="upload_excel.preview_template" :propsRefreshAfterFinish="['transactions', 'box_stats']"
-        :xadditionalDataToSend="'interest.pallets_storage' ? ['stored_items'] : undefined" />
+        :preview_template="upload_excel.preview_template" :propsRefreshAfterFinish="['transactions', 'box_stats']" />
 
     <UploadAttachment v-model="isModalUploadOpen" scope="attachment" :title="{
         label: 'Upload your file',
