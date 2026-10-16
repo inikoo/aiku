@@ -1104,6 +1104,22 @@ test('UI Index org agent stock deliveries shows container columns and state coun
     expect(collect($stateElements)->pluck(1)->sum())->toBeGreaterThanOrEqual(1);
 });
 
+test('stock delivery tab counts follow the other selected filters, so In process matches the supplier list (HELP-4086)', function () {
+    $this->withoutVite();
+    $warehouse = $this->organisation->warehouses()->oldest('id')->first() ?? createWarehouse();
+
+    $expectedCount = fn (string $column, string $value, string $otherColumn, string $otherValue) => StockDelivery::where('organisation_id', $this->organisation->id)
+        ->where($column, $value)->where($otherColumn, $otherValue)->count();
+
+    $elements = $this->get(route('grp.org.warehouses.show.incoming.stock_deliveries.index', [$this->organisation->slug, $warehouse->slug]).'?elements[source]=OrgSupplier&elements[state]=in_process')
+        ->assertOk()
+        ->viewData('page')['props']['queryBuilderProps']['default']['elementGroups'];
+
+    expect($elements['state']['elements']['in_process'][1])->toBe($expectedCount('state', 'in_process', 'parent_type', 'OrgSupplier'))
+        ->and($elements['state']['elements']['dispatched'][1])->toBe($expectedCount('state', 'dispatched', 'parent_type', 'OrgSupplier'))
+        ->and($elements['source']['elements']['OrgAgent'][1])->toBe($expectedCount('parent_type', 'OrgAgent', 'state', 'in_process'));
+});
+
 test('UI create stock delivery', function () {
     $this->withoutExceptionHandling();
     $response = get(route('grp.org.procurement.stock_deliveries.create', [$this->organisation->slug]));

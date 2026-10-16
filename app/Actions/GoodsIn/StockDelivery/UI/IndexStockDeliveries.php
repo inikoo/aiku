@@ -85,23 +85,28 @@ class IndexStockDeliveries extends OrgAction
         return $request->user()->authTo('supply-chain.view');
     }
 
-    protected function getElementGroups(): array
+    protected function getElementGroups(?string $prefix = null): array
     {
-        $counts = [];
-        if (isset($this->parent)) {
-            $countsQuery = $this->applyParentFilter(StockDelivery::query());
-            $counts      = $countsQuery
-                ->selectRaw('stock_deliveries.state, count(*) as total')
-                ->groupBy('stock_deliveries.state')
-                ->pluck('total', 'state')
-                ->all();
-        }
+        $filters = $this->elementFilters();
 
-        $elements = [];
+        $countBy = function (string $key, string $column) use ($filters, $prefix): array {
+            if (!isset($this->parent)) {
+                return [];
+            }
+
+            return $this->facetQuery($key, $filters, $prefix)
+                ->selectRaw("$column as element, count(*) as total")
+                ->groupBy($column)
+                ->pluck('total', 'element')
+                ->all();
+        };
+
+        $stateCounts = $countBy('state', 'stock_deliveries.state');
+        $elements    = [];
         foreach (StockDeliveryStateEnum::cases() as $case) {
             $elements[$case->value] = [
                 __(ucfirst(str_replace('_', ' ', $case->value))),
-                $counts[$case->value] ?? 0,
+                $stateCounts[$case->value] ?? 0,
             ];
         }
 
@@ -109,18 +114,12 @@ class IndexStockDeliveries extends OrgAction
             'state' => [
                 'label'    => __('State'),
                 'elements' => $elements,
-                'engine'   => function ($query, $elements) {
-                    $query->whereIn('stock_deliveries.state', $elements);
-                },
+                'engine'   => $filters['state']['engine'],
             ],
         ];
 
-        if (isset($this->parent) && ($this->parent instanceof Warehouse || $this->parent instanceof Organisation)) {
-            $sourceCounts = $this->applyParentFilter(StockDelivery::query())
-                ->selectRaw('stock_deliveries.parent_type, count(*) as total')
-                ->groupBy('stock_deliveries.parent_type')
-                ->pluck('total', 'parent_type')
-                ->all();
+        if (isset($filters['source'])) {
+            $sourceCounts = $countBy('source', 'stock_deliveries.parent_type');
 
             $elementGroups['source'] = [
                 'label'    => __('Source'),
@@ -130,29 +129,56 @@ class IndexStockDeliveries extends OrgAction
                     'OrgPartner'  => [__('Partners'), $sourceCounts['OrgPartner'] ?? 0],
                     'OrgAgent'    => [__('Agents'), $sourceCounts['OrgAgent'] ?? 0],
                 ],
-                'engine'   => function ($query, $elements) {
+                'engine'   => $filters['source']['engine'],
+            ];
+        }
+
+        if (isset($filters['costing'])) {
+            $costedCounts = $countBy('costing', 'stock_deliveries.is_costed');
+
+            $elementGroups['costing'] = [
+                'label'    => __('Costing'),
+                'elements' => [
+                    'costed'        => [__('Costed'), $costedCounts[1] ?? 0],
+                    'not_costed'    => [__('Not costed'), $costedCounts[0] ?? 0],
+                    'to_cost'       => [__('To cost'), $this->facetQuery('costing', $filters, $prefix)->toCost()->count()],
+                    'costs_missing' => [__('Costs missing, put-away blocked'), $this->facetQuery('costing', $filters, $prefix)->withCostsMissingForPutAway()->count()],
+                    'estimated'     => [__('Costed with an estimate'), $this->facetQuery('costing', $filters, $prefix)->where('stock_deliveries.is_costed', true)->whereHas('costs', fn ($query) => $query->where('is_estimate', true))->count()],
+                ],
+                'engine'   => $filters['costing']['engine'],
+            ];
+        }
+
+        return $elementGroups;
+    }
+
+    /**
+     * @return array<string, array{allowed: array<int, string>, engine: callable}>
+     */
+    private function elementFilters(): array
+    {
+        $filters = [
+            'state' => [
+                'allowed' => array_map(fn (StockDeliveryStateEnum $state) => $state->value, StockDeliveryStateEnum::cases()),
+                'engine'  => function ($query, $elements) {
+                    $query->whereIn('stock_deliveries.state', $elements);
+                },
+            ],
+        ];
+
+        if (isset($this->parent) && ($this->parent instanceof Warehouse || $this->parent instanceof Organisation)) {
+            $filters['source'] = [
+                'allowed' => ['OrgSupplier', 'Production', 'OrgPartner', 'OrgAgent'],
+                'engine'  => function ($query, $elements) {
                     $query->whereIn('stock_deliveries.parent_type', $elements);
                 },
             ];
         }
 
         if (isset($this->parent) && $this->parent instanceof Organisation) {
-            $costedCounts = $this->applyParentFilter(StockDelivery::query())
-                ->selectRaw('stock_deliveries.is_costed, count(*) as total')
-                ->groupBy('stock_deliveries.is_costed')
-                ->pluck('total', 'is_costed')
-                ->all();
-
-            $elementGroups['costing'] = [
-                'label'    => __('Costing'),
-                'elements' => [
-                    'costed'     => [__('Costed'), $costedCounts[1] ?? 0],
-                    'not_costed' => [__('Not costed'), $costedCounts[0] ?? 0],
-                    'to_cost'    => [__('To cost'), $this->applyParentFilter(StockDelivery::query())->toCost()->count()],
-                    'costs_missing' => [__('Costs missing, put-away blocked'), $this->applyParentFilter(StockDelivery::query())->withCostsMissingForPutAway()->count()],
-                    'estimated'     => [__('Costed with an estimate'), $this->applyParentFilter(StockDelivery::query())->where('stock_deliveries.is_costed', true)->whereHas('costs', fn ($query) => $query->where('is_estimate', true))->count()],
-                ],
-                'engine'   => function ($query, $elements) {
+            $filters['costing'] = [
+                'allowed' => ['costed', 'not_costed', 'to_cost', 'costs_missing', 'estimated'],
+                'engine'  => function ($query, $elements) {
                     $query->where(function ($query) use ($elements) {
                         if (in_array('costed', $elements)) {
                             $query->orWhere('stock_deliveries.is_costed', true);
@@ -174,7 +200,39 @@ class IndexStockDeliveries extends OrgAction
             ];
         }
 
-        return $elementGroups;
+        return $filters;
+    }
+
+    private function facetQuery(string $countedKey, array $filters, ?string $prefix): QueryBuilder
+    {
+        $query = QueryBuilder::for(StockDelivery::class);
+        $this->applyParentFilter($query);
+        $this->applyStagedFilter($query);
+
+        foreach ($filters as $key => $filter) {
+            if ($key !== $countedKey) {
+                $query->whereElementGroup(
+                    key: $key,
+                    allowedElements: $filter['allowed'],
+                    engine: $filter['engine'],
+                    prefix: $prefix,
+                );
+            }
+        }
+
+        return $query;
+    }
+
+    private function applyStagedFilter($query): void
+    {
+        if ($this->onlyStagedContainers === null) {
+            return;
+        }
+
+        $stagedStates = array_map(fn (StockDeliveryStateEnum $state) => $state->value, self::STAGED_STATES);
+        $this->onlyStagedContainers
+            ? $query->whereIn('stock_deliveries.state', $stagedStates)
+            : $query->whereNotIn('stock_deliveries.state', $stagedStates);
     }
 
     private function isAgentContext(): bool
@@ -229,14 +287,9 @@ class IndexStockDeliveries extends OrgAction
 
         $this->applyParentFilter($query);
 
-        if ($this->onlyStagedContainers !== null) {
-            $stagedStates = array_map(fn (StockDeliveryStateEnum $state) => $state->value, self::STAGED_STATES);
-            $this->onlyStagedContainers
-                ? $query->whereIn('stock_deliveries.state', $stagedStates)
-                : $query->whereNotIn('stock_deliveries.state', $stagedStates);
-        }
+        $this->applyStagedFilter($query);
 
-        foreach ($this->getElementGroups() as $key => $elementGroup) {
+        foreach ($this->getElementGroups($prefix) as $key => $elementGroup) {
             $query->whereElementGroup(
                 key: $key,
                 allowedElements: array_keys($elementGroup['elements']),
@@ -318,7 +371,7 @@ class IndexStockDeliveries extends OrgAction
                 ->withGlobalSearch()
                 ->withLabelRecord([__('Stock Delivery'), __('Stock Deliveries')]);
 
-            foreach ($this->getElementGroups() as $key => $elementGroup) {
+            foreach ($this->getElementGroups($prefix) as $key => $elementGroup) {
                 $table->elementGroup(
                     key: $key,
                     label: $elementGroup['label'],
