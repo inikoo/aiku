@@ -8,6 +8,7 @@
 namespace App\Actions\Web\Seo;
 
 use App\Actions\OrgAction;
+use App\Enums\UI\Catalogue\FamilyTabsEnum;
 use App\Enums\Web\Seo\SeoContentSuggestionStateEnum;
 use App\Enums\Web\Seo\SeoKeywordFrequencyEnum;
 use App\Models\Catalogue\ProductCategory;
@@ -59,7 +60,7 @@ class StoreFamilySeoReview extends OrgAction
     {
         $webpage = $family->webpage;
 
-        return DB::transaction(function () use ($family, $webpage, $modelData, $user) {
+        $suggestionsCount = DB::transaction(function () use ($family, $webpage, $modelData, $user) {
             if (Arr::has($modelData, 'keywords')) {
                 $this->targetKeywords($family->shop, $webpage, (string) $modelData['keywords']);
             }
@@ -100,6 +101,17 @@ class StoreFamilySeoReview extends OrgAction
 
             return $suggestions->count();
         });
+
+        if ($user) {
+            AskWebmastersToImplementSeoReview::run($webpage, $user, $suggestionsCount, route('grp.org.shops.show.catalogue.families.show', [
+                'organisation' => $family->organisation->slug,
+                'shop'         => $family->shop->slug,
+                'family'       => $family->slug,
+                'tab'          => FamilyTabsEnum::EDIT_PAGE->value,
+            ]));
+        }
+
+        return $suggestionsCount;
     }
 
     /**

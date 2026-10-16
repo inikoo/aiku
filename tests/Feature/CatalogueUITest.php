@@ -65,6 +65,12 @@ use App\Models\Web\SeoTrackedKeyword;
 use App\Models\Web\SeoContentSuggestion;
 use App\Enums\Web\Seo\SeoContentSuggestionStateEnum;
 use App\Actions\Catalogue\ProductCategory\UI\GetFamilyPageScore;
+use App\Actions\Web\Seo\AskWebmastersToImplementSeoReview;
+use App\Enums\Tasks\StaffTaskStatusEnum;
+use App\Events\BroadcastStaffTaskBadgeUpdate;
+use App\Events\BroadcastStaffTaskChanged;
+use App\Models\Tasks\StaffTask;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Arr;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
 use App\Models\Analytics\AikuScopedSection;
@@ -497,6 +503,54 @@ test('webmaster implements the SEO review one suggestion at a time, keeps what w
         ->has('edit_page.webmaster_validation.tasks', 0)
         ->where('edit_page.webmaster_validation.activity', fn ($activity) => collect($activity)->contains('text', 'Validated the SEO suggestions.'))
         ->etc());
+});
+
+test('sending the SEO review tasks the webmasters handling the page as assignee and collaborators, keeps one open task per page, and validating closes it', function () {
+    Event::fake([BroadcastStaffTaskBadgeUpdate::class, BroadcastStaffTaskChanged::class]);
+    createWebsite($this->shop);
+    $family  = $this->family->refresh();
+    $webpage = $family->webpage ?? StoreProductCategoryWebpage::make()->action($family);
+
+    $openTasks = fn () => StaffTask::open()->where('data->kind', AskWebmastersToImplementSeoReview::TASK_KIND)->where('data->webpage_id', $webpage->id)->get();
+    StaffTask::whereIn('id', $openTasks()->pluck('id'))->update(['status' => StaffTaskStatusEnum::CANCELLED, 'closed_at' => now()]);
+
+    [$lockOwner, $editor, $expiredEditor] = collect(range(1, 3))->map(fn () => StoreGuest::make()->action($this->group, Guest::factory()->definition())->getUser())->all();
+    $webpage->update([
+        'locked_at'         => now(),
+        'locked_by_user_id' => $lockOwner->id,
+        'lock_data'         => ['editors' => [
+            ['user_id' => $editor->id, 'until' => null, 'until_publish' => false],
+            ['user_id' => $expiredEditor->id, 'until' => now()->subDay()->toIso8601String(), 'until_publish' => false],
+            ['user_id' => $this->user->id, 'until' => null, 'until_publish' => false],
+        ]],
+    ]);
+
+    $reviewRoute = route('grp.models.product_category.seo_review.store', ['productCategory' => $family->id]);
+
+    post($reviewRoute, ['suggestions' => ['title' => 'Electric Aroma Diffusers']])->assertSessionHasNoErrors();
+    post($reviewRoute, ['suggestions' => ['title' => 'Electric Aroma Diffusers', 'top_desc' => 'Better copy']])->assertSessionHasNoErrors();
+
+    $task = $openTasks()->sole();
+    expect($task->requester_id)->toBe($this->user->id)
+        ->and($task->assignee_id)->toBe($lockOwner->id)
+        ->and($task->collaborators()->pluck('users.id')->all())->toBe([$editor->id])
+        ->and($task->description)->toContain('tab='.FamilyTabsEnum::EDIT_PAGE->value)
+        ->and($task->conversation->messages()->latest('id')->value('body'))->toContain('2 suggestions are waiting');
+
+    SeoContentSuggestion::where('webpage_id', $webpage->id)
+        ->where('reason', SeoContentSuggestion::REASON_SEO_REVIEW)
+        ->where('state', SeoContentSuggestionStateEnum::PENDING)
+        ->update(['state' => SeoContentSuggestionStateEnum::IMPLEMENTED]);
+    post(route('grp.models.product_category.seo_review.validate', ['productCategory' => $family->id]))->assertSessionHasNoErrors();
+
+    expect($task->refresh()->status)->toBe(StaffTaskStatusEnum::DONE);
+
+    $webpage->update(['locked_at' => null, 'locked_by_user_id' => null, 'lock_data' => null]);
+    post($reviewRoute, ['suggestions' => ['url' => 'electric-aroma-diffusers']])->assertSessionHasNoErrors();
+
+    expect($openTasks()->sole())
+        ->assignee_id->toBeNull()
+        ->department->toBe('webmaster');
 });
 
 test('UI show family sales analysis tab', function () {

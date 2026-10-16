@@ -56,7 +56,7 @@ class StoreProductSeoReview extends OrgAction
     {
         $webpage = $product->webpage;
 
-        return DB::transaction(function () use ($product, $webpage, $modelData, $user) {
+        $suggestionsCount = DB::transaction(function () use ($product, $webpage, $modelData, $user) {
             if (Arr::has($modelData, 'keywords')) {
                 $this->targetKeywords($product, $webpage, (string)$modelData['keywords']);
             }
@@ -93,6 +93,16 @@ class StoreProductSeoReview extends OrgAction
 
             return $suggestions->count();
         });
+
+        if ($user) {
+            AskWebmastersToImplementSeoReview::run($webpage, $user, $suggestionsCount, route('grp.org.shops.show.catalogue.products.all_products.setting', [
+                'organisation' => $product->organisation->slug,
+                'shop'         => $product->shop->slug,
+                'product'      => $product->slug,
+            ]), ['model_type' => 'Product', 'model_id' => $product->id]);
+        }
+
+        return $suggestionsCount;
     }
 
     /**
