@@ -20753,5 +20753,8 @@
     "−:amount this month": "−:amount este mes",
     "≈ :amount potential sales at current prices, ex VAT": "≈ :amount de ventas potenciales a precios actuales, sin IVA",
     "🔒 This is a pre-order the customer has paid a deposit for. Unlock it from the pre-order panel before changing it.": "🔒 Esta es una reserva anticipada por la que el cliente ha pagado un depósito. Desbloquéela desde el panel de reservas anticipadas antes de modificarla.",
-    "🔒 This page is protected. Changes require approval from :owner.": "🔒 Esta página está protegida. Los cambios requieren la aprobación de :owner."
+    "🔒 This page is protected. Changes require approval from :owner.": "🔒 Esta página está protegida. Los cambios requieren la aprobación de :owner.",
+    "Counted": "Contado",
+    "To count": "Por contar",
+    "This location must be counted too, even if it is empty: confirm its quantity to take the SKO off the list": "Esta ubicación también hay que contarla, aunque esté vacía: confirma su cantidad para que el SKO salga de la lista"
 }

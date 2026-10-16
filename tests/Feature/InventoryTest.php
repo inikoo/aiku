@@ -3987,6 +3987,33 @@ test('UI low stock audits sorts locations ascending and descending', function ()
         ->and($locationCodesFor('-locations'))->toBe(['LSA-Z9', 'LSA-A1']);
 });
 
+test('UI low stock audits keeps a SKO listed until its empty location is counted too', function () {
+    $warehouse = createWarehouse();
+    $stock     = StoreStock::make()->action($this->group, array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE]));
+    $orgStock  = StoreOrgStock::make()->action($this->organisation, $stock);
+
+    $withStock = StoreLocationOrgStock::make()->action($orgStock, StoreLocation::make()->action($warehouse, array_merge(Location::factory()->definition(), ['code' => 'LSA-FULL'])), []);
+    UpdateLocationOrgStock::make()->action($withStock, ['quantity' => 2]);
+    $empty = StoreLocationOrgStock::make()->action($orgStock, StoreLocation::make()->action($warehouse, array_merge(Location::factory()->definition(), ['code' => 'LSA-EMPTY'])), []);
+    OrgStockHydrateQuantityInLocations::run($orgStock->id);
+
+    $this->withoutExceptionHandling();
+
+    $listedRow = function () use ($warehouse, $orgStock) {
+        $response = get(route('grp.org.warehouses.show.inventory.org_stocks.low_stock_audits.index', [$this->organisation->slug, $warehouse->slug]));
+
+        return collect($response->viewData('page')['props']['lowStockAudits']['data'])->firstWhere('id', $orgStock->id);
+    };
+
+    AuditLocationOrgStock::make()->action($withStock->refresh(), []);
+
+    expect(collect($listedRow()['locations'])->pluck('is_low_stock_checked', 'code')->all())->toBe(['LSA-EMPTY' => false, 'LSA-FULL' => true]);
+
+    AuditLocationOrgStock::make()->action($empty->refresh(), ['quantity' => 0]);
+
+    expect($listedRow())->toBeNull();
+});
+
 test('an abandoned low stock audit lock expires instead of holding the SKO for ever', function () {
     $warehouse = createWarehouse();
     $stock     = StoreStock::make()->action($this->group, array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE]));
