@@ -479,7 +479,7 @@ async function saveAllCosts() {
                 <Button
                     v-else-if="item.confirmRoute"
                     :label="ctrans('Confirm')"
-                    :tooltip="ctrans('Confirm item')"
+                    :tooltip="ctrans('Step 1 before shipping: confirm this item goes in the container')"
                     icon="fal fa-spell-check"
                     type="positive"
                     size="xs"
@@ -491,7 +491,7 @@ async function saveAllCosts() {
                 <Button
                     v-else-if="item.readyToShipRoute"
                     :label="ctrans('Ready to ship')"
-                    :tooltip="ctrans('Set ready to ship')"
+                    :tooltip="ctrans('Step 2 before shipping: this item is packed and ready to dispatch')"
                     icon="fal fa-box-check"
                     type="secondary"
                     size="xs"
