@@ -7,11 +7,11 @@
 
 import { reactive } from "vue"
 
-export type FaceKey = "front" | "back" | "left" | "right" | "top" | "bottom"
+export type FaceKey = "front" | "back" | "left" | "right" | "top" | "bottom" | "sheet"
 
 export const FACE_KEYS: FaceKey[] = ["front", "back", "left", "right", "top", "bottom"]
 
-export type ElementType = "text" | "image" | "zone"
+export type ElementType = "text" | "image" | "zone" | "data" | "pictogram" | "barcode"
 
 export interface DesignElement {
     id: string
@@ -31,19 +31,94 @@ export interface DesignElement {
     image_file_id?: number | null
     zone?: "compliance" | "barcode" | "other" | null
     label?: string | null
+    source?: string | null
+    group_id?: string | null
+    locked?: boolean | null
+}
+
+export interface Bounds {
+    x: number
+    y: number
+    w: number
+    h: number
+}
+
+/** the upright box around items, taking their rotation into account */
+export function boundsOf(elements: DesignElement[]): Bounds | null {
+    if (!elements.length) {
+        return null
+    }
+    let minX = Infinity
+    let minY = Infinity
+    let maxX = -Infinity
+    let maxY = -Infinity
+    for (const element of elements) {
+        const radians = ((element.rotate ?? 0) * Math.PI) / 180
+        const cos = Math.cos(radians)
+        const sin = Math.sin(radians)
+        const centreX = element.x + element.w / 2
+        const centreY = element.y + element.h / 2
+        for (const [cornerX, cornerY] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+            const localX = (cornerX * element.w) / 2
+            const localY = (cornerY * element.h) / 2
+            const x = centreX + localX * cos - localY * sin
+            const y = centreY + localX * sin + localY * cos
+            minX = Math.min(minX, x)
+            minY = Math.min(minY, y)
+            maxX = Math.max(maxX, x)
+            maxY = Math.max(maxY, y)
+        }
+    }
+    return { x: minX, y: minY, w: maxX - minX, h: maxY - minY }
+}
+
+export interface DesignDataSources {
+    text: { key: string, label: string }[]
+    pictograms: { key: string, label: string, icon: string }[]
+    barcodes: { key: string, label: string }[]
+}
+
+/** what the SKU's trade unit holds for each data source; absent on family-level rounds */
+export interface DesignDataValues {
+    text: Record<string, string | null>
+    pictograms: Record<string, boolean>
+    barcodes: Record<string, string | null>
+}
+
+export interface DesignData {
+    sources: DesignDataSources
+    values: DesignDataValues | null
+}
+
+export const COMPLIANCE_PARTS = ["warnings", "manufacturer", "eu_responsible", "ufi", "un_number"]
+
+/** the parts a compliance area shows, kept in its `source` as a comma list; all of them when unset */
+export function complianceParts(source: string | null | undefined): string[] {
+    return source ? source.split(",").filter((part) => COMPLIANCE_PARTS.includes(part)) : COMPLIANCE_PARTS
+}
+
+/** the compliance block printed in a reserved compliance area */
+export function complianceText(values: DesignDataValues | null, source?: string | null): string | null {
+    if (!values) {
+        return null
+    }
+    const lines = complianceParts(source).map((key) => values.text[key]).filter(Boolean)
+    return lines.length ? lines.join("\n\n") : null
 }
 
 export interface DesignFace {
     background: { color: string | null, image_file_id: number | null, x?: number, y?: number, zoom?: number }
     elements: DesignElement[]
+    groups?: Record<string, string>
 }
 
 export interface DesignLayout {
+    kind?: "box" | "sheet"
     units: "mm" | "cm"
     width: number | null
     length: number | null
     height: number | null
-    faces: Record<FaceKey, DesignFace>
+    faces: Partial<Record<FaceKey, DesignFace>> & Record<string, DesignFace>
 }
 
 export interface DesignImage {
@@ -108,6 +183,9 @@ export function buildBoxNet(width: number, length: number, height: number): BoxN
 }
 
 export function faceSize(layout: Pick<DesignLayout, "width" | "length" | "height">, face: FaceKey): { w: number, h: number } {
+    if (face === "sheet") {
+        return { w: layout.width ?? 0, h: layout.height ?? 0 }
+    }
     const width = layout.width ?? 0
     const length = layout.length ?? 0
     const height = layout.height ?? 0
@@ -124,8 +202,24 @@ export function faceSize(layout: Pick<DesignLayout, "width" | "length" | "height
     }
 }
 
-export function hasSize(layout: Pick<DesignLayout, "width" | "length" | "height"> | null | undefined): boolean {
+export function hasSize(layout: Pick<DesignLayout, "kind" | "width" | "length" | "height"> | null | undefined): boolean {
+    if (layout?.kind === "sheet") {
+        return !!layout.width && !!layout.height
+    }
     return !!layout && !!layout.width && !!layout.length && !!layout.height
+}
+
+/**
+ * A label is one flat page; a box is laid out as its net.
+ */
+export function buildLayoutNet(layout: DesignLayout): BoxNet | null {
+    if (!hasSize(layout)) {
+        return null
+    }
+    if (layout.kind === "sheet") {
+        return { width: layout.width!, height: layout.height!, panels: [{ key: "sheet", face: "sheet", x: 0, y: 0, w: layout.width!, h: layout.height! }] }
+    }
+    return buildBoxNet(layout.width!, layout.length!, layout.height!)
 }
 
 export function newElementId(): string {

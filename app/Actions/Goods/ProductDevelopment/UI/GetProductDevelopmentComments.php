@@ -25,20 +25,6 @@ class GetProductDevelopmentComments
      */
     private array $versions = [];
 
-    /**
-     * Pins of earlier versions stay in view on a later one until they are resolved.
-     *
-     * @return array<int, int>
-     */
-    private function versionIdsUpTo(ProductDevelopmentDesignRound $designRound): array
-    {
-        return $designRound->productDevelopment->designRounds()
-            ->where('round', $designRound->round->value)
-            ->where('product_development_item_id', $designRound->product_development_item_id)
-            ->where('version', '<=', $designRound->version)
-            ->pluck('id')
-            ->all();
-    }
 
     /**
      * @return array<string, mixed>
@@ -49,7 +35,7 @@ class GetProductDevelopmentComments
             ->with(['user', 'media', 'resolvedBy'])
             ->when(
                 $designRound,
-                fn (Builder $query) => $query->where('model_type', 'ProductDevelopmentDesignRound')->whereIn('model_id', $this->versionIdsUpTo($designRound)),
+                fn (Builder $query) => $query->where('model_type', 'ProductDevelopmentDesignRound')->where('model_id', $designRound->id),
                 fn (Builder $query) => $query->where(fn (Builder $query) => $query->whereNull('model_type')->orWhere('model_type', '!=', 'ProductDevelopmentDesignRound'))
             )
             ->orderBy('id')
@@ -99,6 +85,7 @@ class GetProductDevelopmentComments
             'images'      => $comment->ticketImageSources(),
             'attachments' => $comment->ticketAttachments('grp.media.download'),
             'pin'         => $comment->data['pin'] ?? null,
+            'stroke'      => $comment->data['stroke'] ?? null,
             'version'     => $this->versions[$comment->model_id] ?? null,
             'status'      => $comment->status?->value,
             'resolved_by' => $comment->resolvedBy?->contact_name ?: $comment->resolvedBy?->username,

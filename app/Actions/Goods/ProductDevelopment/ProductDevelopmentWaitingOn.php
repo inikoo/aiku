@@ -109,7 +109,7 @@ class ProductDevelopmentWaitingOn
         $items       = $productDevelopment->items()->with('tradeUnit')->orderBy('id')->get();
 
         foreach (ProductDevelopmentDesignRoundEnum::cases() as $round) {
-            if (!ProductDevelopmentDesignRounds::isUnlocked($productDevelopment, $round) || ProductDevelopmentDesignRounds::isApproved($productDevelopment, $round)) {
+            if (!ProductDevelopmentDesignRounds::isUnlocked($productDevelopment, $round) || ProductDevelopmentDesignRounds::isSettled($productDevelopment, $round)) {
                 continue;
             }
 

@@ -9,7 +9,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from "vue"
 import { ctrans } from "@/Composables/useTrans"
 import DesignFaceRender from "@/Components/Goods/ProductDevelopment/Design/DesignFaceRender.vue"
-import { buildBoxNet, hasSize, type DesignLayout, type FaceKey, type NetPanel } from "@/Components/Goods/ProductDevelopment/Design/boxNet"
+import { buildLayoutNet, type DesignData, type DesignLayout, type FaceKey, type NetPanel } from "@/Components/Goods/ProductDevelopment/Design/boxNet"
 
 export interface NetPin {
     id: number
@@ -28,6 +28,7 @@ const props = defineProps<{
     pins?: NetPin[]
     selectedFace?: FaceKey | null
     maxHeight?: number
+    data?: DesignData | null
 }>()
 
 const emit = defineEmits<{
@@ -43,6 +44,7 @@ const faceLabels = computed<Record<FaceKey, string>>(() => ({
     right: ctrans("Side"),
     top: ctrans("Top"),
     bottom: ctrans("Bottom"),
+    sheet: ctrans("Label"),
 }))
 
 const container = ref<HTMLElement | null>(null)
@@ -58,7 +60,7 @@ onMounted(() => {
 })
 onBeforeUnmount(() => observer?.disconnect())
 
-const net = computed(() => hasSize(props.layout) ? buildBoxNet(props.layout.width!, props.layout.length!, props.layout.height!) : null)
+const net = computed(() => buildLayoutNet(props.layout))
 
 const scale = computed(() => {
     if (!net.value || !containerWidth.value) {
@@ -96,9 +98,9 @@ function onPanelClick(panel: NetPanel) {
 </script>
 
 <template>
-    <div ref="container" class="w-full">
+    <div ref="container" class="w-full min-w-0 overflow-hidden">
         <div v-if="!net" class="flex h-48 items-center justify-center rounded-md border border-dashed border-gray-300 text-sm text-gray-400">
-            {{ ctrans("Set the width, length and height to draw the box") }}
+            {{ layout.kind === "sheet" ? ctrans("Set the width and height of the label") : ctrans("Set the width, length and height to draw the box") }}
         </div>
         <div
             v-else-if="scale"
@@ -120,9 +122,9 @@ function onPanelClick(panel: NetPanel) {
                 @click="onPanelClick(panel)"
             >
                 <template v-if="panel.face">
-                    <DesignFaceRender :face="layout.faces[panel.face]" :scale="scale" :images="images" :size="{ w: panel.w, h: panel.h }" />
+                    <DesignFaceRender :face="layout.faces[panel.face]!" :scale="scale" :images="images" :size="{ w: panel.w, h: panel.h }" :data="data" />
                     <span
-                        v-if="!layout.faces[panel.face].elements.length"
+                        v-if="!layout.faces[panel.face]?.elements.length"
                         class="pointer-events-none absolute inset-0 flex items-center justify-center text-xs text-gray-400"
                     >{{ faceLabels[panel.face] }}</span>
                 </template>

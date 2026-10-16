@@ -86,8 +86,18 @@ class SubmitProductDevelopmentDesignVersion extends OrgAction
             return;
         }
 
+        if (($this->designRound->data['source'] ?? StoreProductDevelopmentDesignVersion::SOURCE_EDITOR) === StoreProductDevelopmentDesignVersion::SOURCE_UPLOAD) {
+            if (empty($this->designRound->data['upload']['file_id'] ?? null)) {
+                $validator->errors()->add('file', __('Upload the PDF or picture first'));
+            }
+
+            return;
+        }
+
         if (!ProductDevelopmentDesignLayout::hasSize($this->designRound->data['layout'] ?? [])) {
-            $validator->errors()->add('layout', __('Set the width, length and height of the box first'));
+            $validator->errors()->add('layout', ($this->designRound->data['layout']['kind'] ?? null) === ProductDevelopmentDesignLayout::KIND_SHEET
+                ? __('Set the width and height of the label first')
+                : __('Set the width, length and height of the box first'));
         }
     }
 

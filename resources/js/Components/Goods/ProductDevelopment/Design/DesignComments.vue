@@ -26,7 +26,8 @@ export interface DesignComment {
     created_at: string | null
     images?: Record<string, string>[]
     attachments?: any[]
-    pin: { x: number, y: number, number: number } | null
+    pin: { x: number, y: number, number: number, page?: number } | null
+    stroke: { page: number, points: [number, number][], number: number } | null
     version: number | null
     status: "open" | "resolved" | null
     resolved_by: string | null
@@ -39,7 +40,7 @@ const props = defineProps<{
     version: number
     designRoundId: number
     statusRoute: string
-    pendingPin: { x: number, y: number } | null
+    pendingMarkup: ({ type: "pin", x: number, y: number, page?: number } | { type: "stroke", page: number, points: [number, number][] }) | null
     pendingNumber: number
     activeId: number | null
 }>()
@@ -53,8 +54,23 @@ const emit = defineEmits<{
 const only = ["comments", "versions"]
 
 const threads = computed(() => [...props.data.threads]
-    .filter((thread) => thread.version === props.version || thread.status !== "resolved" || thread.resolved_in === props.version)
-    .sort((a, b) => (a.pin?.number ?? 999) - (b.pin?.number ?? 999) || a.id - b.id))
+    .filter((thread) => thread.version === props.version)
+    .sort((a, b) => markNumber(a) - markNumber(b) || a.id - b.id))
+
+function markNumber(thread: DesignComment): number {
+    return thread.pin?.number ?? thread.stroke?.number ?? 999
+}
+
+const extra = computed(() => {
+    const markup = props.pendingMarkup
+    if (!markup) {
+        return { design_round_id: props.designRoundId }
+    }
+    if (markup.type === "stroke") {
+        return { design_round_id: props.designRoundId, stroke: { page: markup.page, points: markup.points } }
+    }
+    return { design_round_id: props.designRoundId, pin: { x: markup.x, y: markup.y, ...(markup.page ? { page: markup.page } : {}) } }
+})
 
 const replyingTo = ref<number | null>(null)
 const updating = ref<number | null>(null)
@@ -84,10 +100,10 @@ const formatWhen = (date: string | null) => date ? useFormatTime(date, { formatT
                 <template v-for="comment in [thread, ...(thread.replies ?? [])]" :key="comment.id">
                     <div class="flex items-start gap-2" :class="comment.id !== thread.id ? 'ml-8' : ''">
                         <span
-                            v-if="comment.id === thread.id && thread.pin"
+                            v-if="comment.id === thread.id && (thread.pin || thread.stroke)"
                             class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
                             :class="thread.status === 'resolved' ? 'bg-green-600 text-white' : 'bg-[--app-accent] text-[--app-accent-text]'"
-                        >{{ thread.pin.number }}</span>
+                        >{{ markNumber(thread) }}</span>
                         <TicketUserHoverCard
                             v-else
                             class="mt-0.5 shrink-0"
@@ -135,22 +151,22 @@ const formatWhen = (date: string | null) => date ? useFormatTime(date, { formatT
         <p v-if="!threads.length" class="py-2 text-center text-xs text-gray-400">{{ ctrans("No comments yet") }}</p>
 
         <div class="space-y-2 border-t border-gray-100 pt-3">
-            <div v-if="pendingPin" class="flex items-center justify-between gap-2 text-xs">
+            <div v-if="pendingMarkup" class="flex items-center justify-between gap-2 text-xs">
                 <span class="flex items-center gap-2 text-gray-700">
                     <span class="flex h-5 w-5 items-center justify-center rounded-full bg-[--app-accent] text-[11px] font-semibold text-[--app-accent-text]">{{ pendingNumber }}</span>
-                    {{ ctrans("Comment on this point") }}
+                    {{ pendingMarkup.type === "stroke" ? ctrans("Comment on this drawing") : ctrans("Comment on this point") }}
                 </span>
                 <Button type="negative" size="xs" :label="ctrans('Cancel')" @click="emit('cancelPin')" />
             </div>
-            <span v-else class="block text-xs text-gray-500">{{ ctrans("Reply or add a general comment, or click the box to pin one") }}</span>
+            <span v-else class="block text-xs text-gray-500">{{ ctrans("Reply or add a general comment, or pin or draw on the design") }}</span>
             <ProductDevelopmentCommentComposer
-                :key="pendingPin ? `pin-${pendingPin.x}-${pendingPin.y}` : 'general'"
+                :key="pendingMarkup ? `markup-${JSON.stringify(pendingMarkup).length}-${pendingMarkup.type}` : 'general'"
                 :route="data.route"
                 :mentionables="data.mentionables"
                 :placeholder="ctrans('Type @ to mention someone')"
                 :rows="3"
                 :only="only"
-                :extra="pendingPin ? { design_round_id: designRoundId, pin: pendingPin } : { design_round_id: designRoundId }"
+                :extra="extra as any"
                 @posted="emit('posted')"
             />
         </div>

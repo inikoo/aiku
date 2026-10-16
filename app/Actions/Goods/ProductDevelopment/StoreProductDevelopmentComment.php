@@ -27,6 +27,8 @@ class StoreProductDevelopmentComment extends OrgAction
 {
     use WithProductDevelopmentAuthorisation;
 
+    public const int MAX_STROKE_POINTS = 600;
+
     private ?ProductDevelopment $productDevelopment = null;
 
     private function target(): ProductDevelopment
@@ -109,6 +111,12 @@ class StoreProductDevelopmentComment extends OrgAction
             'pin'             => ['sometimes', 'nullable', 'array'],
             'pin.x'           => ['required_with:pin', 'numeric', 'between:0,1'],
             'pin.y'           => ['required_with:pin', 'numeric', 'between:0,1'],
+            'pin.page'        => ['sometimes', 'integer', 'min:1', 'max:500'],
+            'stroke'          => ['sometimes', 'nullable', 'array'],
+            'stroke.page'     => ['sometimes', 'integer', 'min:1', 'max:500'],
+            'stroke.points'   => ['required_with:stroke', 'array', 'min:2', 'max:'.self::MAX_STROKE_POINTS],
+            'stroke.points.*'   => ['array', 'size:2'],
+            'stroke.points.*.*' => ['numeric', 'between:0,1'],
         ];
     }
 
@@ -134,13 +142,22 @@ class StoreProductDevelopmentComment extends OrgAction
 
         $placement = ['model_type' => 'ProductDevelopmentDesignRound', 'model_id' => $designRoundId];
         $pin       = Arr::get($modelData, 'pin');
-        if (is_array($pin)) {
-            $number            = $productDevelopment->comments()
-                ->where('model_type', 'ProductDevelopmentDesignRound')
-                ->where('model_id', $designRoundId)
-                ->whereNotNull('data->pin')
-                ->count() + 1;
-            $placement['data'] = ['pin' => ['x' => round((float) $pin['x'], 4), 'y' => round((float) $pin['y'], 4), 'number' => $number]];
+        $stroke    = Arr::get($modelData, 'stroke');
+        if (!is_array($pin) && !is_array($stroke)) {
+            return $placement;
+        }
+
+        $number = $productDevelopment->comments()
+            ->where('model_type', 'ProductDevelopmentDesignRound')
+            ->where('model_id', $designRoundId)
+            ->where(fn ($query) => $query->whereNotNull('data->pin')->orWhereNotNull('data->stroke'))
+            ->count() + 1;
+
+        if (is_array($stroke)) {
+            $points            = collect($stroke['points'])->map(fn ($point) => [round((float) $point[0], 4), round((float) $point[1], 4)])->values()->all();
+            $placement['data'] = ['stroke' => ['page' => (int) Arr::get($stroke, 'page', 1), 'points' => $points, 'number' => $number]];
+        } else {
+            $placement['data'] = ['pin' => ['x' => round((float) $pin['x'], 4), 'y' => round((float) $pin['y'], 4), 'page' => (int) Arr::get($pin, 'page', 1), 'number' => $number]];
         }
 
         return $placement;

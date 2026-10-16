@@ -66,6 +66,25 @@ class GetProductDevelopmentLabelContent
                 ['level' => 'sko', 'label' => __('SKO (outer packing, Code 128)'), 'value' => $stock?->barcode ?: null, 'note' => $stock ? null : __('No stock created for this SKU yet')],
                 ['level' => 'carton', 'label' => __('Carton (Code 128)'), 'value' => $stock?->carton_barcode ?: null, 'note' => $stock ? null : __('No stock created for this SKU yet')],
             ],
+            'values'     => [
+                'text'       => [
+                    'product_name'   => $tradeUnit->name,
+                    'ingredients'    => $tradeUnit->ingredients()->orderBy('name')->pluck('name')->implode(', ') ?: null,
+                    'warnings'       => $tradeUnit->gpsr_warnings,
+                    'manufacturer'   => $tradeUnit->gpsr_manufacturer,
+                    'eu_responsible' => $tradeUnit->gpsr_eu_responsible,
+                    'ufi'            => $tradeUnit->ufi_number ? 'UFI: '.$tradeUnit->ufi_number : null,
+                    'un_number'      => $tradeUnit->un_number ? 'UN '.$tradeUnit->un_number : null,
+                    'net_weight'     => $tradeUnit->net_weight ? $tradeUnit->net_weight.' g' : null,
+                    'origin'         => $tradeUnit->countryOrigin?->name ? __("Made in :country", ["country" => $tradeUnit->countryOrigin->name]) : null,
+                ],
+                'pictograms' => collect(ProductDevelopmentTargetFieldEnum::pictograms())->map(fn (array $pictogram, string $key) => (bool) $tradeUnit->getAttribute($key))->all(),
+                'barcodes'   => [
+                    'unit'   => $tradeUnit->barcode ?: null,
+                    'sko'    => $stock?->barcode ?: null,
+                    'carton' => $stock?->carton_barcode ?: null,
+                ],
+            ],
             'compliance_route' => ['name' => 'grp.product_developments.show', 'parameters' => ['productDevelopment' => $productDevelopment->slug, 'tab' => 'compliance']],
         ];
     }

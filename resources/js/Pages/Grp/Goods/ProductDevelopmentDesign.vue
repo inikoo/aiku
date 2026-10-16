@@ -19,9 +19,10 @@ import Button from "@/Components/Elements/Buttons/Button.vue"
 import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import DesignBoxNet, { type NetPin } from "@/Components/Goods/ProductDevelopment/Design/DesignBoxNet.vue"
 import DesignFaceEditor from "@/Components/Goods/ProductDevelopment/Design/DesignFaceEditor.vue"
+import DesignArtworkViewer, { type ArtworkPin, type ArtworkStroke } from "@/Components/Goods/ProductDevelopment/Design/DesignArtworkViewer.vue"
 import DesignLabelContent from "@/Components/Goods/ProductDevelopment/Design/DesignLabelContent.vue"
 import DesignComments, { type DesignComment } from "@/Components/Goods/ProductDevelopment/Design/DesignComments.vue"
-import { faceSize, hasSize, type DesignImage, type DesignLayout, type FaceKey } from "@/Components/Goods/ProductDevelopment/Design/boxNet"
+import { faceSize, hasSize, type DesignData, type DesignDataSources, type DesignDataValues, type DesignImage, type DesignLayout, type FaceKey } from "@/Components/Goods/ProductDevelopment/Design/boxNet"
 import { productDevelopmentColor } from "@/Components/Goods/ProductDevelopment/productDevelopmentColors"
 import { capitalize } from "@/Composables/capitalize"
 import { ctrans } from "@/Composables/useTrans"
@@ -31,8 +32,8 @@ import { routeType } from "@/types/route"
 import type { Mentionable } from "@/Components/Goods/ProductDevelopment/ProductDevelopmentCommentComposer.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faLightbulbOn, faBoxOpen, faTag, faLock, faPencilRuler, faEye, faUndo, faPlus, faPaperPlane, faCheck, faCommentAlt, faArrowLeft, faSpinner, faCloudUpload } from "@fal"
-library.add(faLightbulbOn, faBoxOpen, faTag, faLock, faPencilRuler, faEye, faUndo, faPlus, faPaperPlane, faCheck, faCommentAlt, faArrowLeft, faSpinner, faCloudUpload)
+import { faLightbulbOn, faBoxOpen, faTag, faLock, faPencilRuler, faEye, faUndo, faPlus, faPaperPlane, faCheck, faCommentAlt, faArrowLeft, faSpinner, faCloudUpload, faMapPin, faPencil, faForward, faFilePdf, faExclamationTriangle } from "@fal"
+library.add(faLightbulbOn, faBoxOpen, faTag, faLock, faPencilRuler, faEye, faUndo, faPlus, faPaperPlane, faCheck, faCommentAlt, faArrowLeft, faSpinner, faCloudUpload, faMapPin, faPencil, faForward, faFilePdf, faExclamationTriangle)
 
 interface Status {
     value: "draft" | "in_review" | "changes_requested" | "approved"
@@ -49,12 +50,21 @@ interface Check {
     can_tick: boolean
 }
 
+interface VersionUpload {
+    kind: "pdf" | "image"
+    name: string
+    url: string
+    preview_url: string
+}
+
 interface Version {
     id: number
     version: number
     status: Status
     notes: string | null
-    layout: DesignLayout
+    source: "editor" | "upload"
+    layout: DesignLayout | null
+    upload: VersionUpload | null
     approved_by: string | null
     approved_at: string | null
     can_edit: boolean
@@ -63,54 +73,60 @@ interface Version {
     checks: Check[]
     all_checked: boolean
     next_round: string | null
-    routes: Record<"update" | "image" | "submit" | "review", routeType>
+    routes: Record<"update" | "image" | "submit" | "review" | "artwork", routeType>
 }
 
 const props = defineProps<{
     title: string
     pageHead: PageHeadingTypes
-    rounds: { value: string, label: string, icon: string, unlocked: boolean, status: Status | null, version: number | null, progress: { done: number, total: number } | null, route: routeType }[]
+    rounds: { value: string, label: string, icon: string, unlocked: boolean, skipped: boolean, status: Status | null, version: number | null, progress: { done: number, total: number } | null, route: routeType }[]
     round: { value: string, label: string, per_sku: boolean }
     skus: { id: number, code: string, name: string, status: Status | null, version: number | null, route: routeType }[]
     sku: number | null
     artworkLocked: boolean
-    labelContent: InstanceType<typeof DesignLabelContent>["$props"]["data"] | null
+    labelContent: (InstanceType<typeof DesignLabelContent>["$props"]["data"] & { values: DesignDataValues }) | null
+    dataSources: DesignDataSources
     versions: { id: number, version: number, status: Status, submitted_by: string | null, submitted_at: string | null, created_at: string | null, comments: number, route: routeType }[]
     version: Version | null
-    previous: { version: number, layout: DesignLayout } | null
+    previous: { version: number, source: "editor" | "upload", layout: DesignLayout | null, upload: VersionUpload | null } | null
     images: DesignImage[]
     comments: { threads: DesignComment[], mentionables: Mentionable[], route: routeType } | null
     commentStatusRoute: string
-    startVersion: { route: routeType, round: string, sku: number | null, next: number } | null
+    startVersion: { route: routeType, round: string, sku: number | null, next: number, can_build: boolean } | null
+    skip: { route: routeType, skipped: { by: string | null, at: string | null } | null, can_skip: boolean, can_undo: boolean } | null
     lockedReason: string | null
     developmentRoute: routeType
 }>()
 
 const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value))
 
-const layout = ref<DesignLayout | null>(props.version ? clone(props.version.layout) : null)
+const layout = ref<DesignLayout | null>(props.version?.layout ? clone(props.version.layout) : null)
 const notes = ref(props.version?.notes ?? "")
 const uploadedImages = ref<DesignImage[]>([])
 const imageMap = computed<Record<number, string | null>>(() => Object.fromEntries([...props.images, ...uploadedImages.value].map((image) => [image.id, image.url])))
 
 watch(() => props.version?.id, () => {
-    layout.value = props.version ? clone(props.version.layout) : null
+    layout.value = props.version?.layout ? clone(props.version.layout) : null
     notes.value = props.version?.notes ?? ""
-    pendingPin.value = null
+    lastSaved = payloadNow()
+    pendingMarkup.value = null
     editingFace.value = null
 })
 
 const canEdit = computed(() => !!props.version?.can_edit)
 
+const designData = computed<DesignData>(() => ({ sources: props.dataSources, values: props.labelContent?.values ?? null }))
+
 const saveState = ref<"idle" | "saving" | "saved" | "error">("idle")
 let saveTimer: ReturnType<typeof setTimeout> | undefined
-let lastSaved = JSON.stringify({ layout: layout.value, notes: notes.value })
+const payloadNow = () => JSON.stringify(props.version?.source === "editor" && layout.value ? { layout: layout.value, notes: notes.value } : { notes: notes.value })
+let lastSaved = payloadNow()
 
 function scheduleSave() {
-    if (!canEdit.value || !props.version || !layout.value) {
+    if (!canEdit.value || !props.version) {
         return
     }
-    const payload = JSON.stringify({ layout: layout.value, notes: notes.value })
+    const payload = payloadNow()
     if (payload === lastSaved) {
         return
     }
@@ -138,7 +154,7 @@ watch([layout, notes], scheduleSave, { deep: true })
 
 async function flushSave() {
     clearTimeout(saveTimer)
-    const payload = JSON.stringify({ layout: layout.value, notes: notes.value })
+    const payload = payloadNow()
     if (canEdit.value && payload !== lastSaved) {
         await save(payload)
     }
@@ -166,27 +182,58 @@ const faceLabels = computed<Record<FaceKey, string>>(() => ({
     right: ctrans("Right side"),
     top: ctrans("Top"),
     bottom: ctrans("Bottom"),
+    sheet: ctrans("Label"),
 }))
+
+const sizeKeys = computed(() => layout.value?.kind === "sheet" ? (["width", "height"] as const) : (["width", "length", "height"] as const))
 
 const compare = ref(false)
 
-const pendingPin = ref<{ x: number, y: number } | null>(null)
+type PendingMarkup = { type: "pin", x: number, y: number, page?: number } | { type: "stroke", page: number, points: [number, number][] }
+
+const pendingMarkup = ref<PendingMarkup | null>(null)
 const activeCommentId = ref<number | null>(null)
+const tool = ref<"pin" | "draw">("pin")
+
+const threadsOfVersion = computed(() => (props.comments?.threads ?? []).filter((thread) => thread.version === props.version?.version))
+const markupCount = computed(() => threadsOfVersion.value.filter((thread) => thread.pin || thread.stroke).length)
 
 const pins = computed<NetPin[]>(() => {
-    const list: NetPin[] = (props.comments?.threads ?? [])
-        .filter((thread) => thread.pin && thread.version === props.version?.version)
+    const list: NetPin[] = threadsOfVersion.value
+        .filter((thread) => thread.pin)
         .map((thread) => ({ id: thread.id, number: thread.pin!.number, x: thread.pin!.x, y: thread.pin!.y, resolved: thread.status === "resolved", active: thread.id === activeCommentId.value }))
-    if (pendingPin.value) {
-        list.push({ id: -1, number: list.length + 1, x: pendingPin.value.x, y: pendingPin.value.y, resolved: false, active: true })
+    if (pendingMarkup.value?.type === "pin") {
+        list.push({ id: -1, number: markupCount.value + 1, x: pendingMarkup.value.x, y: pendingMarkup.value.y, resolved: false, active: true })
     }
     return list
 })
 
-function onPin(point: { x: number, y: number }) {
-    pendingPin.value = point
+const artworkPins = computed<ArtworkPin[]>(() => [
+    ...threadsOfVersion.value.filter((thread) => thread.pin).map((thread) => ({ id: thread.id, number: thread.pin!.number, x: thread.pin!.x, y: thread.pin!.y, page: thread.pin!.page ?? 1, resolved: thread.status === "resolved", active: thread.id === activeCommentId.value })),
+    ...(pendingMarkup.value?.type === "pin" ? [{ id: -1, number: markupCount.value + 1, x: pendingMarkup.value.x, y: pendingMarkup.value.y, page: pendingMarkup.value.page ?? 1, resolved: false, active: true }] : []),
+])
+
+const artworkStrokes = computed<ArtworkStroke[]>(() => [
+    ...threadsOfVersion.value.filter((thread) => thread.stroke).map((thread) => ({ id: thread.id, number: thread.stroke!.number, page: thread.stroke!.page, points: thread.stroke!.points, resolved: thread.status === "resolved", active: thread.id === activeCommentId.value })),
+    ...(pendingMarkup.value?.type === "stroke" ? [{ id: -2, number: markupCount.value + 1, page: pendingMarkup.value.page, points: pendingMarkup.value.points, resolved: false, active: true }] : []),
+])
+
+function onPin(point: { x: number, y: number, page?: number }) {
+    pendingMarkup.value = { type: "pin", ...point }
     activeCommentId.value = null
 }
+
+function onStroke(stroke: { page: number, points: [number, number][] }) {
+    pendingMarkup.value = { type: "stroke", ...stroke }
+    activeCommentId.value = null
+}
+
+const toolOptions = computed(() => [
+    { value: "pin" as const, label: ctrans("Pin"), icon: "fal fa-map-pin" },
+    { value: "draw" as const, label: ctrans("Draw"), icon: "fal fa-pencil" },
+])
+
+const canSubmit = computed(() => props.version?.source === "upload" ? !!props.version.upload : hasSize(layout.value))
 
 const busy = ref<string | null>(null)
 
@@ -220,16 +267,64 @@ function review(operation: "approve" | "request_changes") {
     }
 }
 
-function beginVersion() {
+const choosingSource = ref(false)
+
+function startVersionClicked() {
+    if (props.startVersion?.can_build) {
+        choosingSource.value = true
+        return
+    }
+    beginVersion("upload")
+}
+
+function beginVersion(source: "editor" | "upload") {
     if (!props.startVersion) {
         return
     }
-    router.post(route(props.startVersion.route.name, props.startVersion.route.parameters), { round: props.startVersion.round, product_development_item_id: props.startVersion.sku }, {
+    choosingSource.value = false
+    router.post(route(props.startVersion.route.name, props.startVersion.route.parameters), { round: props.startVersion.round, product_development_item_id: props.startVersion.sku, source }, {
         onStart: () => busy.value = "start",
         onFinish: () => busy.value = null,
         onError: (errors) => notify({ title: ctrans("Version not started"), text: Object.values(errors).join(" "), type: "error" }),
     })
 }
+
+const artworkInput = ref<HTMLInputElement | null>(null)
+const uploadProgress = ref<number | null>(null)
+
+function onArtworkPicked(event: Event) {
+    const input = event.target as HTMLInputElement
+    const file = input.files?.[0]
+    input.value = ""
+    if (!file || !props.version) {
+        return
+    }
+    router.post(route(props.version.routes.artwork.name, props.version.routes.artwork.parameters), { file }, {
+        forceFormData: true,
+        preserveScroll: true,
+        onStart: () => uploadProgress.value = 0,
+        onProgress: (event) => uploadProgress.value = Math.round(event?.percentage ?? 0),
+        onFinish: () => uploadProgress.value = null,
+        onError: (errors) => notify({ title: ctrans("File not uploaded"), text: Object.values(errors).join(" "), type: "error" }),
+    })
+}
+
+const confirmingSkip = ref(false)
+
+function skipRound(operation: "skip" | "undo") {
+    if (!props.skip) {
+        return
+    }
+    router.patch(route(props.skip.route.name, props.skip.route.parameters), { round: round.value, operation }, {
+        preserveScroll: true,
+        onStart: () => busy.value = "skip",
+        onFinish: () => busy.value = null,
+        onSuccess: () => confirmingSkip.value = false,
+        onError: (errors) => notify({ title: ctrans("Not changed"), text: Object.values(errors).join(" "), type: "error" }),
+    })
+}
+
+const round = computed(() => props.round)
 
 const formatWhen = (date: string | null) => date ? useFormatTime(date, { formatTime: "d MMM" }) : ""
 </script>
@@ -257,7 +352,8 @@ const formatWhen = (date: string | null) => date ? useFormatTime(date, { formatT
             >
                 <FontAwesomeIcon :icon="item.unlocked ? item.icon : 'fal fa-lock'" fixed-width aria-hidden="true" />
                 {{ item.label }}
-                <span v-if="item.status" class="rounded px-1.5 py-0.5 text-xs" :class="productDevelopmentColor(item.status.color).count">v{{ item.version }} · {{ item.status.label }}</span>
+                <span v-if="item.skipped" class="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">{{ ctrans("Skipped") }}</span>
+                <span v-else-if="item.status" class="rounded px-1.5 py-0.5 text-xs" :class="productDevelopmentColor(item.status.color).count">v{{ item.version }} · {{ item.status.label }}</span>
                 <span v-else-if="item.progress && item.progress.total" class="rounded px-1.5 py-0.5 text-xs" :class="item.progress.done === item.progress.total ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-700'">{{ ctrans(":done of :total SKUs approved", { done: String(item.progress.done), total: String(item.progress.total) }) }}</span>
             </component>
         </nav>
@@ -282,11 +378,22 @@ const formatWhen = (date: string | null) => date ? useFormatTime(date, { formatT
             </Link>
         </div>
 
+        <div v-if="skip?.skipped" class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
+            <span>
+                <FontAwesomeIcon icon="fal fa-forward" fixed-width aria-hidden="true" />
+                {{ ctrans("The :round round was skipped by :user on :date", { round: round.label.toLowerCase(), user: skip.skipped.by ?? "", date: formatWhen(skip.skipped.at) }) }}
+            </span>
+            <Button v-if="skip.can_undo" type="tertiary" size="xs" icon="fal fa-undo" :label="ctrans('Bring it back')" :loading="busy === 'skip'" @click="skipRound('undo')" />
+        </div>
+        <div v-else-if="skip?.can_skip && !lockedReason" class="flex justify-end">
+            <Button type="tertiary" size="xs" icon="fal fa-forward" :label="ctrans('Skip the :round round', { round: round.label.toLowerCase() })" @click="confirmingSkip = true" />
+        </div>
+
         <div v-if="lockedReason" class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
             <FontAwesomeIcon icon="fal fa-lock" fixed-width aria-hidden="true" /> {{ lockedReason }}
         </div>
 
-        <div v-else class="grid gap-4 lg:grid-cols-[13rem_minmax(0,1fr)_22rem]">
+        <div v-else-if="!skip?.skipped" class="grid gap-4 lg:grid-cols-[13rem_minmax(0,1fr)] xl:grid-cols-[13rem_minmax(0,1fr)_22rem]">
             <aside class="space-y-2">
                 <h2 class="text-sm font-medium text-gray-700">{{ ctrans("Versions") }}</h2>
                 <Link
@@ -307,14 +414,90 @@ const formatWhen = (date: string | null) => date ? useFormatTime(date, { formatT
                     </div>
                 </Link>
                 <p v-if="!versions.length" class="text-sm text-gray-400">{{ ctrans("No version yet") }}</p>
-                <Button v-if="startVersion" type="tertiary" full icon="fal fa-plus" :label="ctrans('Start v:version', { version: String(startVersion.next) })" :loading="busy === 'start'" @click="beginVersion" />
+                <Button v-if="startVersion" type="tertiary" full icon="fal fa-plus" :label="ctrans('Start v:version', { version: String(startVersion.next) })" :loading="busy === 'start'" @click="startVersionClicked" />
             </aside>
 
             <section class="min-w-0 space-y-3 rounded-lg border border-gray-200 bg-white p-4">
-                <template v-if="version && layout">
+                <template v-if="version && version.source === 'upload'">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <span class="flex min-w-0 items-center gap-2 text-sm text-gray-700">
+                            <FontAwesomeIcon :icon="version.upload?.kind === 'pdf' ? 'fal fa-file-pdf' : 'fal fa-image'" class="text-gray-400" fixed-width aria-hidden="true" />
+                            <a v-if="version.upload" :href="version.upload.url" class="primaryLink truncate">{{ version.upload.name }}</a>
+                            <span v-else class="text-gray-400">{{ ctrans("No file yet") }}</span>
+                        </span>
+                        <Button v-if="canEdit" type="tertiary" size="xs" icon="fal fa-cloud-upload" :label="version.upload ? ctrans('Replace file') : ctrans('Upload PDF or picture')" :loading="uploadProgress !== null" @click="artworkInput?.click()" />
+                        <SegmentedToggle v-if="!canEdit && version.can_comment && version.upload" v-model="tool" :options="toolOptions" :ariaLabel="ctrans('Markup tool')" class="ml-auto" />
+                        <label v-if="previous?.upload" class="flex items-center gap-2 text-sm text-gray-700" :class="!canEdit && version.can_comment ? '' : 'ml-auto'">
+                            <Checkbox v-model="compare" binary />
+                            {{ ctrans("Compare with v:version", { version: String(previous.version) }) }}
+                        </label>
+                        <input ref="artworkInput" type="file" accept="application/pdf,image/jpeg,image/png,image/webp" class="hidden" @change="onArtworkPicked" />
+                    </div>
+                    <div v-if="uploadProgress !== null" class="h-1.5 overflow-hidden rounded-full bg-gray-100">
+                        <div class="h-full bg-[--app-accent] transition-all" :style="{ width: uploadProgress + '%' }" />
+                    </div>
+                    <p v-if="!canEdit && version.can_comment && version.upload" class="text-xs text-gray-500">
+                        {{ tool === "draw" ? ctrans("Draw on the artwork, then write your comment") : ctrans("Click the artwork to pin a comment") }}
+                    </p>
+
+                    <div v-if="version.upload" class="grid min-w-0 gap-4" :class="compare && previous?.upload ? 'md:grid-cols-2' : ''">
+                        <div v-if="compare && previous?.upload" class="min-w-0 space-y-1">
+                            <span class="text-xs font-medium text-gray-500">v{{ previous.version }}</span>
+                            <DesignArtworkViewer :upload="previous.upload" />
+                        </div>
+                        <div class="min-w-0 space-y-1">
+                            <span v-if="compare && previous?.upload" class="text-xs font-medium text-gray-500">v{{ version.version }}</span>
+                            <DesignArtworkViewer
+                                :upload="version.upload"
+                                :pins="artworkPins"
+                                :strokes="artworkStrokes"
+                                :tool="!canEdit && version.can_comment ? tool : null"
+                                @pin="onPin"
+                                @stroke="onStroke"
+                                @focus="(id) => activeCommentId = id"
+                            />
+                        </div>
+                    </div>
+                    <button
+                        v-else-if="canEdit"
+                        type="button"
+                        class="flex w-full flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed border-gray-200 px-4 py-14 text-sm text-gray-500 hover:border-[--app-accent] hover:text-[--app-accent]"
+                        @click="artworkInput?.click()"
+                    >
+                        <FontAwesomeIcon icon="fal fa-cloud-upload" class="text-3xl" fixed-width aria-hidden="true" />
+                        {{ ctrans("Upload the :round as a PDF or picture", { round: round.label.toLowerCase() }) }}
+                        <span class="text-xs text-gray-400">PDF, JPG, PNG, WEBP · {{ ctrans("up to 50 MB") }}</span>
+                    </button>
+                    <p v-else class="py-10 text-center text-sm text-gray-400">{{ ctrans("The designer has not uploaded the file yet") }}</p>
+
+                    <div v-if="canEdit" class="space-y-1">
+                        <label class="text-xs text-gray-500">{{ ctrans("Note for reviewers") }}</label>
+                        <Textarea v-model="notes" rows="2" autoResize class="w-full text-sm" :placeholder="ctrans('What changed in this version?')" />
+                    </div>
+                    <p v-else-if="version.notes" class="whitespace-pre-line rounded-md bg-gray-50 px-3 py-2 text-sm text-gray-700">{{ version.notes }}</p>
+
+                    <div v-if="canEdit" class="flex flex-wrap items-center justify-end gap-3 border-t border-gray-100 pt-3">
+                        <span class="text-xs text-gray-500">
+                            <template v-if="saveState === 'saving'"><FontAwesomeIcon icon="fal fa-spinner" spin fixed-width aria-hidden="true" /> {{ ctrans("Saving…") }}</template>
+                            <template v-else-if="saveState === 'saved'"><FontAwesomeIcon icon="fal fa-check" fixed-width aria-hidden="true" /> {{ ctrans("Saved") }}</template>
+                            <template v-else-if="saveState === 'error'"><span class="text-red-600">{{ ctrans("Not saved") }}</span></template>
+                        </span>
+                        <Button
+                            type="primary"
+                            icon="fal fa-paper-plane"
+                            :label="ctrans('Send v:version for review', { version: String(version.version) })"
+                            :disabled="!canSubmit"
+                            :loading="busy === 'submit'"
+                            class="disabled:cursor-not-allowed disabled:opacity-50"
+                            @click="submitForReview"
+                        />
+                    </div>
+                </template>
+
+                <template v-else-if="version && layout">
                     <div class="flex flex-wrap items-center gap-3">
                         <div class="flex flex-wrap items-center gap-2 text-sm">
-                            <template v-for="(key, index) in (['width', 'length', 'height'] as const)" :key="key">
+                            <template v-for="(key, index) in sizeKeys" :key="key">
                                 <span v-if="index" class="text-gray-400">×</span>
                                 <label class="flex items-center gap-1">
                                     <span class="text-xs text-gray-500">{{ ctrans(key === 'width' ? 'W' : key === 'length' ? 'L' : 'H') }}</span>
@@ -333,26 +516,26 @@ const formatWhen = (date: string | null) => date ? useFormatTime(date, { formatT
                             <SegmentedToggle v-if="canEdit" v-model="layout.units" :options="unitOptions" :ariaLabel="ctrans('Units')" />
                             <span v-else class="text-gray-500">{{ layout.units }}</span>
                         </div>
-                        <label v-if="previous && hasSize(previous.layout)" class="ml-auto flex items-center gap-2 text-sm text-gray-700">
+                        <label v-if="previous?.layout && hasSize(previous.layout)" class="ml-auto flex items-center gap-2 text-sm text-gray-700">
                             <Checkbox v-model="compare" binary />
                             {{ ctrans("Compare with v:version", { version: String(previous.version) }) }}
                         </label>
                     </div>
 
                     <p class="text-xs text-gray-500">
-                        <template v-if="canEdit">{{ ctrans("Click a side of the box to design it") }}</template>
-                        <template v-else-if="version.can_comment">{{ ctrans("Box net · click anywhere to pin a comment") }}</template>
+                        <template v-if="canEdit">{{ layout.kind === "sheet" ? ctrans("Click the label to design it") : ctrans("Click a side of the box to design it") }}</template>
+                        <template v-else-if="version.can_comment">{{ layout.kind === "sheet" ? ctrans("Label · click anywhere to pin a comment") : ctrans("Box net · click anywhere to pin a comment") }}</template>
                     </p>
 
-                    <div class="grid gap-4" :class="compare && previous ? 'md:grid-cols-2' : ''">
-                        <div v-if="compare && previous" class="space-y-1">
+                    <div class="grid min-w-0 gap-4" :class="compare && previous?.layout ? 'md:grid-cols-2' : ''">
+                        <div v-if="compare && previous?.layout" class="min-w-0 space-y-1">
                             <span class="text-xs font-medium text-gray-500">v{{ previous.version }}</span>
                             <div class="rounded-md bg-gray-50 p-3">
-                                <DesignBoxNet :layout="previous.layout" :images="imageMap" :maxHeight="520" />
+                                <DesignBoxNet :layout="previous.layout" :images="imageMap" :maxHeight="520" :data="designData" />
                             </div>
                         </div>
-                        <div class="space-y-1">
-                            <span v-if="compare && previous" class="text-xs font-medium text-gray-500">v{{ version.version }}</span>
+                        <div class="min-w-0 space-y-1">
+                            <span v-if="compare && previous?.layout" class="text-xs font-medium text-gray-500">v{{ version.version }}</span>
                             <div class="rounded-md bg-gray-50 p-3">
                                 <DesignBoxNet
                                     :layout="layout"
@@ -361,6 +544,7 @@ const formatWhen = (date: string | null) => date ? useFormatTime(date, { formatT
                                     :pinnable="!canEdit && version.can_comment"
                                     :pins="pins"
                                     :maxHeight="compare ? 520 : 640"
+                                    :data="designData"
                                     @select="(face) => editingFace = face"
                                     @pin="onPin"
                                     @focusPin="(id) => activeCommentId = id"
@@ -385,7 +569,7 @@ const formatWhen = (date: string | null) => date ? useFormatTime(date, { formatT
                             type="primary"
                             icon="fal fa-paper-plane"
                             :label="ctrans('Send v:version for review', { version: String(version.version) })"
-                            :disabled="!hasSize(layout)"
+                            :disabled="!canSubmit"
                             :loading="busy === 'submit'"
                             class="disabled:cursor-not-allowed disabled:opacity-50"
                             @click="submitForReview"
@@ -396,12 +580,11 @@ const formatWhen = (date: string | null) => date ? useFormatTime(date, { formatT
                 <div v-else class="flex flex-col items-center justify-center gap-3 py-16 text-center text-sm text-gray-500">
                     <FontAwesomeIcon icon="fal fa-pencil-ruler" class="text-3xl text-gray-300" fixed-width aria-hidden="true" />
                     <p>{{ ctrans("No :round design yet", { round: round.label.toLowerCase() }) }}</p>
-                    <Button v-if="startVersion" type="primary" icon="fal fa-plus" :label="ctrans('Start v1')" :loading="busy === 'start'" @click="beginVersion" />
+                    <Button v-if="startVersion" type="primary" icon="fal fa-plus" :label="ctrans('Start v1')" :loading="busy === 'start'" @click="startVersionClicked" />
                 </div>
             </section>
 
-            <aside class="space-y-4">
-                <DesignLabelContent v-if="labelContent" :data="labelContent" />
+            <aside class="min-w-0 space-y-4 lg:col-span-2 lg:grid lg:grid-cols-2 lg:items-start lg:gap-4 lg:space-y-0 xl:col-span-1 xl:block xl:space-y-4">
                 <section v-if="version && comments" class="rounded-lg border border-gray-200 bg-white">
                     <h2 class="border-b border-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-800">{{ ctrans("Comments on v:version", { version: String(version.version) }) }}</h2>
                     <DesignComments
@@ -409,14 +592,16 @@ const formatWhen = (date: string | null) => date ? useFormatTime(date, { formatT
                         :version="version.version"
                         :designRoundId="version.id"
                         :statusRoute="commentStatusRoute"
-                        :pendingPin="pendingPin"
-                        :pendingNumber="pins.length"
+                        :pendingMarkup="pendingMarkup"
+                        :pendingNumber="markupCount + 1"
                         :activeId="activeCommentId"
-                        @cancelPin="pendingPin = null"
-                        @posted="pendingPin = null"
+                        @cancelPin="pendingMarkup = null"
+                        @posted="pendingMarkup = null"
                         @focus="(id) => activeCommentId = id"
                     />
                 </section>
+
+                <DesignLabelContent v-if="labelContent" :data="labelContent" :collapsed="version?.status.value === 'in_review'" />
 
                 <section v-if="version && version.status.value === 'in_review'" class="space-y-3 rounded-lg border border-gray-200 bg-white p-4">
                     <h2 class="text-sm font-semibold text-gray-800">{{ ctrans("Before approving") }}</h2>
@@ -449,6 +634,32 @@ const formatWhen = (date: string | null) => date ? useFormatTime(date, { formatT
             </aside>
         </div>
 
+        <Dialog v-model:visible="choosingSource" modal :header="ctrans('How do you want to make v:version?', { version: String(startVersion?.next ?? 1) })" class="w-[36rem] max-w-[calc(100vw-2rem)]">
+            <div class="grid gap-3 sm:grid-cols-2">
+                <button type="button" class="flex flex-col items-start gap-2 rounded-lg border border-gray-200 p-4 text-left transition-colors hover:border-[--app-accent] hover:bg-[--app-accent-soft]" @click="beginVersion('editor')">
+                    <FontAwesomeIcon icon="fal fa-pencil-ruler" class="text-xl text-[--app-accent]" fixed-width aria-hidden="true" />
+                    <span class="font-medium text-gray-900">{{ ctrans("Create it in Aiku") }}</span>
+                    <span class="text-xs text-gray-500">{{ round.value === "label" ? ctrans("Lay out the label page: text, images, compliance and barcode areas.") : ctrans("Lay out each side of the box: text, images, compliance and barcode areas.") }}</span>
+                </button>
+                <button type="button" class="flex flex-col items-start gap-2 rounded-lg border border-gray-200 p-4 text-left transition-colors hover:border-[--app-accent] hover:bg-[--app-accent-soft]" @click="beginVersion('upload')">
+                    <FontAwesomeIcon icon="fal fa-cloud-upload" class="text-xl text-[--app-accent]" fixed-width aria-hidden="true" />
+                    <span class="font-medium text-gray-900">{{ ctrans("Upload a PDF or picture") }}</span>
+                    <span class="text-xs text-gray-500">{{ ctrans("Use artwork made elsewhere. Reviewers pin and draw their comments on it.") }}</span>
+                </button>
+            </div>
+        </Dialog>
+
+        <Dialog v-model:visible="confirmingSkip" modal :header="ctrans('Skip the :round round?', { round: round.label.toLowerCase() })" class="w-[30rem] max-w-[calc(100vw-2rem)]">
+            <div class="flex gap-3 text-sm text-gray-700">
+                <FontAwesomeIcon icon="fal fa-exclamation-triangle" class="mt-0.5 text-lg text-amber-500" fixed-width aria-hidden="true" />
+                <p>{{ ctrans("No :round artwork will be designed or reviewed for this development, and the next round opens straight away. Only skip it if this development really does not need it. You can bring it back until the next round is approved.", { round: round.label.toLowerCase() }) }}</p>
+            </div>
+            <template #footer>
+                <Button type="tertiary" :label="ctrans('Cancel')" @click="confirmingSkip = false" />
+                <Button type="negative" icon="fal fa-forward" :label="ctrans('Skip the :round round', { round: round.label.toLowerCase() })" :loading="busy === 'skip'" @click="skipRound('skip')" />
+            </template>
+        </Dialog>
+
         <Dialog
             :visible="!!editingFace && !!layout"
             modal
@@ -459,11 +670,13 @@ const formatWhen = (date: string | null) => date ? useFormatTime(date, { formatT
         >
             <DesignFaceEditor
                 v-if="editingFace && layout && version"
-                v-model="layout.faces[editingFace]"
+                :modelValue="layout.faces[editingFace]!"
+                @update:modelValue="(face) => layout && editingFace && (layout.faces[editingFace] = face)"
                 :size="faceSize(layout, editingFace)"
                 :label="faceLabels[editingFace]"
                 :images="imageMap"
                 :imageRoute="version.routes.image"
+                :data="designData"
                 @imageUploaded="(image) => uploadedImages.push(image)"
             />
         </Dialog>

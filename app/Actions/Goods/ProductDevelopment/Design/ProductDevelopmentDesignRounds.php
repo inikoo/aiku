@@ -101,11 +101,27 @@ class ProductDevelopmentDesignRounds
         return $productDevelopment->designRounds()->where('round', $round->value)->exists();
     }
 
+    /**
+     * Packaging and label can be skipped when a development does not need them; concept never can.
+     */
+    public static function isSkipped(ProductDevelopment $productDevelopment, ProductDevelopmentDesignRoundEnum $round): bool
+    {
+        return !empty($productDevelopment->data['skipped_rounds'][$round->value] ?? null);
+    }
+
+    /**
+     * Done for the rest of the development: approved, or skipped.
+     */
+    public static function isSettled(ProductDevelopment $productDevelopment, ProductDevelopmentDesignRoundEnum $round): bool
+    {
+        return self::isSkipped($productDevelopment, $round) || self::isApproved($productDevelopment, $round);
+    }
+
     public static function isUnlocked(ProductDevelopment $productDevelopment, ProductDevelopmentDesignRoundEnum $round): bool
     {
         $previous = $round->previous();
 
-        return !$previous || self::isApproved($productDevelopment, $previous);
+        return !$previous || self::isSettled($productDevelopment, $previous);
     }
 
     public static function isArtworkLocked(ProductDevelopment $productDevelopment): bool
@@ -115,7 +131,7 @@ class ProductDevelopmentDesignRounds
 
     public static function canStartVersion(ProductDevelopment $productDevelopment, ProductDevelopmentDesignRoundEnum $round, ?int $itemId = null): bool
     {
-        if (self::isArtworkLocked($productDevelopment) || !self::isUnlocked($productDevelopment, $round) || ($round->isPerSku() && !$itemId)) {
+        if (self::isArtworkLocked($productDevelopment) || self::isSkipped($productDevelopment, $round) || !self::isUnlocked($productDevelopment, $round) || ($round->isPerSku() && !$itemId)) {
             return false;
         }
 

@@ -9,6 +9,8 @@
 
 namespace App\Actions\Goods\ProductDevelopment;
 
+use App\Actions\Goods\ProductDevelopment\Design\ProductDevelopmentDesignRounds;
+use App\Enums\Goods\ProductDevelopment\ProductDevelopmentDesignRoundEnum;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithProductDevelopmentAuthorisation;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStageEnum;
@@ -57,7 +59,7 @@ class MoveProductDevelopmentToNextStage extends OrgAction
                 ->where('position', $currentPosition)
                 ->whereNotIn('state', [ProductDevelopmentStageStateEnum::COMPLETED->value, ProductDevelopmentStageStateEnum::SKIPPED->value])
                 ->update([
-                    'state'           => ProductDevelopmentStageStateEnum::COMPLETED->value,
+                    'state'           => $this->skippedRoundAt($productDevelopment, $currentPosition) ? ProductDevelopmentStageStateEnum::SKIPPED->value : ProductDevelopmentStageStateEnum::COMPLETED->value,
                     'completed_at'    => now(),
                     'completed_by_id' => $user->id,
                 ]);
@@ -88,6 +90,17 @@ class MoveProductDevelopmentToNextStage extends OrgAction
 
             return $productDevelopment;
         });
+    }
+
+    private function skippedRoundAt(ProductDevelopment $productDevelopment, int $position): bool
+    {
+        foreach (ProductDevelopmentDesignRoundEnum::cases() as $round) {
+            if ($round->stage()->position() === $position) {
+                return ProductDevelopmentDesignRounds::isSkipped($productDevelopment, $round);
+            }
+        }
+
+        return false;
     }
 
     /**

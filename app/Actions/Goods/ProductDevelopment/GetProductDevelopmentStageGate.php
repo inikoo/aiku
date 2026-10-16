@@ -36,7 +36,7 @@ class GetProductDevelopmentStageGate
         }
 
         $designRound = $this->designRoundAt($productDevelopment->current_position);
-        if ($designRound && !ProductDevelopmentDesignRounds::isApproved($productDevelopment, $designRound)) {
+        if ($designRound && !ProductDevelopmentDesignRounds::isSettled($productDevelopment, $designRound)) {
             return [
                 'can_move' => false,
                 'reason'   => __('Approve a version of the :round design first', ['round' => mb_strtolower(ProductDevelopmentDesignRoundEnum::labels()[$designRound->value])]),

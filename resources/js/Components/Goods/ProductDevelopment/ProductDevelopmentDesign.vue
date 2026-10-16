@@ -11,6 +11,7 @@ import { Link } from "@inertiajs/vue3"
 import { ctrans } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
 import DesignBoxNet from "@/Components/Goods/ProductDevelopment/Design/DesignBoxNet.vue"
+import DesignArtworkViewer from "@/Components/Goods/ProductDevelopment/Design/DesignArtworkViewer.vue"
 import { hasSize, type DesignImage, type DesignLayout } from "@/Components/Goods/ProductDevelopment/Design/boxNet"
 import { productDevelopmentColor } from "@/Components/Goods/ProductDevelopment/productDevelopmentColors"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
@@ -25,7 +26,8 @@ const props = defineProps<{
             label: string
             icon: string
             unlocked: boolean
-            latest: { version: number, status: { value: string, label: string, color: string, icon: string }, layout: DesignLayout } | null
+            skipped: boolean
+            latest: { version: number, status: { value: string, label: string, color: string, icon: string }, source: "editor" | "upload", layout: DesignLayout | null, upload: { kind: "pdf" | "image", preview_url: string, url: string, name: string } | null } | null
             progress: { done: number, total: number } | null
             skus: { id: number, code: string, version: number | null, status: { label: string, color: string } | null }[]
             route: routeType
@@ -50,13 +52,17 @@ const imageMap = computed<Record<number, string | null>>(() => Object.fromEntrie
             <header class="flex items-center gap-2 border-b border-gray-100 px-3 py-2 text-sm">
                 <FontAwesomeIcon :icon="round.unlocked ? round.icon : 'fal fa-lock'" class="text-gray-400" fixed-width aria-hidden="true" />
                 <span class="font-medium text-gray-800">{{ round.label }}</span>
-                <span v-if="round.progress && round.progress.total" class="ml-auto rounded px-1.5 py-0.5 text-xs" :class="round.progress.done === round.progress.total ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-700'">{{ ctrans(":done of :total SKUs approved", { done: String(round.progress.done), total: String(round.progress.total) }) }}</span>
+                <span v-if="round.skipped" class="ml-auto rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">{{ ctrans("Skipped") }}</span>
+                <span v-else-if="round.progress && round.progress.total" class="ml-auto rounded px-1.5 py-0.5 text-xs" :class="round.progress.done === round.progress.total ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-700'">{{ ctrans(":done of :total SKUs approved", { done: String(round.progress.done), total: String(round.progress.total) }) }}</span>
                 <span v-else-if="round.latest" class="ml-auto rounded px-1.5 py-0.5 text-xs" :class="productDevelopmentColor(round.latest.status.color).count">v{{ round.latest.version }} · {{ round.latest.status.label }}</span>
             </header>
             <div class="flex flex-1 items-center justify-center bg-gray-50 p-3">
-                <DesignBoxNet v-if="round.latest && hasSize(round.latest.layout)" :layout="round.latest.layout" :images="imageMap" :maxHeight="260" class="pointer-events-none" />
+                <div v-if="round.latest?.upload" class="pointer-events-none max-h-[260px] w-full overflow-hidden">
+                    <DesignArtworkViewer :upload="round.latest.upload" :maxPages="1" />
+                </div>
+                <DesignBoxNet v-else-if="round.latest?.layout && hasSize(round.latest.layout)" :layout="round.latest.layout" :images="imageMap" :maxHeight="260" class="pointer-events-none" />
                 <p v-else class="py-12 text-center text-xs text-gray-400">
-                    {{ !round.unlocked ? ctrans("Opens once the previous round is approved") : round.latest ? ctrans("Box size not set yet") : ctrans("No design yet") }}
+                    {{ round.skipped ? ctrans("Not needed for this development") : !round.unlocked ? ctrans("Opens once the previous round is approved") : round.latest ? (round.latest.source === "upload" ? ctrans("No file uploaded yet") : ctrans("Size not set yet")) : ctrans("No design yet") }}
                 </p>
             </div>
             <ul v-if="round.skus.length" class="flex flex-wrap gap-1.5 border-t border-gray-100 px-3 py-2">

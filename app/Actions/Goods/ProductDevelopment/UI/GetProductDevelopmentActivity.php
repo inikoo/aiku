@@ -110,6 +110,8 @@ class GetProductDevelopmentActivity
                     : __('Signed off the artwork as :role', ['role' => mb_strtolower(ProductDevelopmentMemberRoleEnum::labels()[$new['role'] ?? ''] ?? '')]), []],
                 RecordProductDevelopmentActivity::SIGN_OFF_WITHDRAWN => [__('Withdrew the :role sign-off, the artwork is unlocked', ['role' => mb_strtolower(ProductDevelopmentMemberRoleEnum::labels()[$new['role'] ?? ''] ?? '')]), []],
                 RecordProductDevelopmentActivity::REMINDERS_SENT => [($new['roles'] ?? []) ? __('Sent reminders to :roles', ['roles' => implode(', ', $new['roles'])]) : __('Sent reminders, but nobody holds the roles it is waiting on'), []],
+                RecordProductDevelopmentActivity::DESIGN_ROUND_SKIPPED => [__('Skipped the :round round', $this->designWords($new)), []],
+                RecordProductDevelopmentActivity::DESIGN_ROUND_UNSKIPPED => [__('Brought back the :round round', $this->designWords($new)), []],
                 RecordProductDevelopmentActivity::MEMBERS_REMOVED => [__('Removed members'), [['label' => __('Members'), 'old' => implode(', ', $old['members'] ?? []), 'new' => null]]],
                 'updated' => [__('Updated the development'), $this->fieldChanges($old, $new)],
                 default => [Str::headline($audit->event), []],

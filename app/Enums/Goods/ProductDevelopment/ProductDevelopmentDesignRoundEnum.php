@@ -54,6 +54,19 @@ enum ProductDevelopmentDesignRoundEnum: string
         return $this === self::LABEL;
     }
 
+    public function canBeSkipped(): bool
+    {
+        return $this !== self::CONCEPT;
+    }
+
+    /**
+     * Concept is always an uploaded file; packaging and label can also be built in Aiku.
+     */
+    public function canBeBuiltInAiku(): bool
+    {
+        return $this !== self::CONCEPT;
+    }
+
     public function stage(): ProductDevelopmentStageEnum
     {
         return ProductDevelopmentStageEnum::from($this->value);

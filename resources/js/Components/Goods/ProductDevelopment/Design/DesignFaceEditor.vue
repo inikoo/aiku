@@ -12,26 +12,120 @@ import Slider from "primevue/slider"
 import InputNumber from "primevue/inputnumber"
 import Textarea from "primevue/textarea"
 import Select from "primevue/select"
+import Checkbox from "primevue/checkbox"
 import DesignColorField from "@/Components/Goods/ProductDevelopment/Design/DesignColorField.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import DesignFaceRender from "@/Components/Goods/ProductDevelopment/Design/DesignFaceRender.vue"
 import { ctrans } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
-import { coverBox, ensureImageRatio, imageRatios, newElementId, type DesignElement, type DesignFace, type DesignImage } from "@/Components/Goods/ProductDevelopment/Design/boxNet"
+import Popover from "primevue/popover"
+import { COMPLIANCE_PARTS, PT_TO_MM, boundsOf, complianceParts, coverBox, type Bounds, ensureImageRatio, imageRatios, newElementId, type DesignData, type DesignElement, type DesignFace, type DesignImage } from "@/Components/Goods/ProductDevelopment/Design/boxNet"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faFont, faImage, faBarcode, faShieldCheck, faSquare, faTrashAlt, faClone, faArrowUp, faArrowDown, faUndo, faRedo, faBold, faItalic, faAlignLeft, faAlignCenter, faAlignRight, faFillDrip, faTimes, faArrows } from "@fal"
-library.add(faFont, faImage, faBarcode, faShieldCheck, faSquare, faTrashAlt, faClone, faArrowUp, faArrowDown, faUndo, faRedo, faBold, faItalic, faAlignLeft, faAlignCenter, faAlignRight, faFillDrip, faTimes, faArrows)
+import { faFont, faImage, faBarcode, faShieldCheck, faSquare, faTrashAlt, faClone, faArrowUp, faArrowDown, faUndo, faRedo, faBold, faItalic, faAlignLeft, faAlignCenter, faAlignRight, faFillDrip, faTimes, faArrows, faDatabase, faMagic, faCopy, faCut, faLock, faLockOpen, faObjectGroup, faObjectUngroup, faArrowsH, faArrowsV, faBorderLeft, faBorderCenterV, faBorderRight, faBorderTop, faBorderCenterH, faBorderBottom, faExclamationTriangle, faFolder, faFolderOpen, faChevronDown } from "@fal"
+library.add(faFont, faImage, faBarcode, faShieldCheck, faSquare, faTrashAlt, faClone, faArrowUp, faArrowDown, faUndo, faRedo, faBold, faItalic, faAlignLeft, faAlignCenter, faAlignRight, faFillDrip, faTimes, faArrows, faDatabase, faMagic, faCopy, faCut, faLock, faLockOpen, faObjectGroup, faObjectUngroup, faArrowsH, faArrowsV, faBorderLeft, faBorderCenterV, faBorderRight, faBorderTop, faBorderCenterH, faBorderBottom, faExclamationTriangle, faFolder, faFolderOpen, faChevronDown)
 
 const props = defineProps<{
     size: { w: number, h: number }
     label: string
     images: Record<number, string | null>
     imageRoute: routeType
+    data?: DesignData | null
 }>()
 
 const face = defineModel<DesignFace>({ required: true })
+
+const dataPopover = ref<InstanceType<typeof Popover> | null>(null)
+
+const filledZone = computed(() => !!props.data?.values && selected.value?.type === "zone" && (selected.value.zone === "compliance" || selected.value.zone === "barcode"))
+const isTextLike = computed(() => selected.value?.type === "text" || selected.value?.type === "data" || (filledZone.value && selected.value?.zone === "compliance"))
+const complianceLabels = computed(() => Object.fromEntries((props.data?.sources.text ?? []).map((source) => [source.key, source.label])))
+
+function toggleCompliancePart(part: string, on: boolean) {
+    if (!selected.value) {
+        return
+    }
+    remember()
+    const parts = complianceParts(selected.value.source).filter((current) => current !== part)
+    const next = on ? COMPLIANCE_PARTS.filter((key) => key === part || parts.includes(key)) : parts
+    setField("source", next.length === COMPLIANCE_PARTS.length ? null : next.join(",") || "none")
+}
+
+function addData(type: "data" | "pictogram" | "barcode", source: string) {
+    dataPopover.value?.hide()
+    if (type === "pictogram") {
+        const side = round1(Math.min(props.size.w, props.size.h) * 0.18)
+        addElement({ type, source, w: side, h: side })
+    } else if (type === "barcode") {
+        addElement({ type, source, w: round1(Math.min(37.3, props.size.w * 0.45)), h: round1(Math.min(22, props.size.h * 0.25)) })
+    } else {
+        addElement({ type, source, w: round1(props.size.w * 0.8), h: round1(Math.max(props.size.h * 0.12, 8)), font_size: 8, font_weight: "normal", align: "left", color: "#111827", font_family: "" })
+    }
+}
+
+/**
+ * Lays out the SKU's label content on the side in one go: name, the trade unit's pictograms, ingredients,
+ * warnings, then manufacturer and EU responsible person beside the barcode at the bottom. It replaces the
+ * data items placed before; text, images and reserved areas stay.
+ */
+function autoplace() {
+    remember()
+    const width = props.size.w
+    const height = props.size.h
+    const margin = round1(Math.max(2, Math.min(width, height) * 0.04))
+    const inner = width - 2 * margin
+    const values = props.data?.values ?? null
+    const has = (key: string) => !values || !!values.text[key]
+    const bodyPt = Math.min(Math.max((height * 0.032) / PT_TO_MM, 5), 10)
+    const placed: DesignElement[] = []
+    let y = margin
+
+    const text = (source: string, h: number, fontSize: number, weight: "normal" | "bold" = "normal", align: "left" | "center" = "left", x = margin, w = inner) => {
+        placed.push({ id: newElementId(), type: "data", source, x: round1(x), y: round1(y), w: round1(w), h: round1(h), font_size: Math.round(fontSize * 10) / 10, font_weight: weight, align, color: "#111827", font_family: "" })
+    }
+
+    const nameHeight = Math.min(height * 0.13, 16)
+    text("product_name", nameHeight, Math.min((nameHeight * 0.6) / PT_TO_MM, 28), "bold", "center")
+    y += nameHeight + margin / 2
+
+    const pictograms = (props.data?.sources.pictograms ?? []).filter((source) => values ? values.pictograms[source.key] : false)
+    if (pictograms.length) {
+        const side = Math.min(height * 0.16, 16, (inner - (pictograms.length - 1) * 2) / pictograms.length)
+        pictograms.forEach((source, index) => placed.push({ id: newElementId(), type: "pictogram", source: source.key, x: round1(margin + index * (side + 2)), y: round1(y), w: round1(side), h: round1(side) }))
+        y += side + margin / 2
+    }
+
+    const barcodeHeight = Math.min(height * 0.2, 22)
+    const bottomTop = height - margin - barcodeHeight
+    const blocks = [["ingredients", 0.55], ["warnings", 0.45]].filter(([key]) => has(key as string))
+    const room = Math.max(bottomTop - margin / 2 - y, 0)
+    for (const [key, share] of blocks) {
+        const h = room * (share as number) / blocks.reduce((sum, [, part]) => sum + (part as number), 0)
+        if (h > 3) {
+            text(key as string, h - 1, bodyPt)
+            y += h
+        }
+    }
+
+    const barcodeWidth = Math.min(37.3, inner * 0.38)
+    if (!values || values.barcodes.unit) {
+        placed.push({ id: newElementId(), type: "barcode", source: "unit", x: round1(width - margin - barcodeWidth), y: round1(bottomTop), w: round1(barcodeWidth), h: round1(barcodeHeight) })
+    }
+    const leftWidth = inner - barcodeWidth - 2
+    const parties = ["manufacturer", "eu_responsible"].filter(has)
+    y = bottomTop
+    parties.forEach((key) => {
+        text(key, barcodeHeight / parties.length - 0.5, Math.max(bodyPt - 1, 5), "normal", "left", margin, leftWidth)
+        y += barcodeHeight / parties.length
+    })
+
+    face.value = {
+        ...face.value,
+        elements: [...face.value.elements.filter((element) => !["data", "pictogram", "barcode"].includes(element.type)), ...placed],
+    }
+    selectedId.value = null
+}
 
 const emit = defineEmits<{
     imageUploaded: [image: DesignImage]
@@ -46,6 +140,15 @@ const fonts = [
     { value: "Verdana, sans-serif", label: "Verdana" },
     { value: "'Courier New', monospace", label: "Courier New" },
 ]
+
+const alignModes = computed(() => [
+    { value: "left" as const, label: ctrans("Align left"), icon: "fal fa-border-left" },
+    { value: "centre" as const, label: ctrans("Align centre"), icon: "fal fa-border-center-v" },
+    { value: "right" as const, label: ctrans("Align right"), icon: "fal fa-border-right" },
+    { value: "top" as const, label: ctrans("Align top"), icon: "fal fa-border-top" },
+    { value: "middle" as const, label: ctrans("Align middle"), icon: "fal fa-border-center-h" },
+    { value: "bottom" as const, label: ctrans("Align bottom"), icon: "fal fa-border-bottom" },
+])
 
 const alignOptions = [
     { value: "left", label: "Left", icon: "fal fa-align-left" },
@@ -65,8 +168,16 @@ const scale = computed(() => {
     return Math.min((stageSize.value.w - 48) / props.size.w, (stageSize.value.h - 48) / props.size.h)
 })
 
-const selectedId = ref<string | null>(null)
+const selectedIds = ref<string[]>([])
+const selectedId = computed<string | null>({
+    get: () => selectedIds.value.length === 1 ? selectedIds.value[0] : null,
+    set: (id) => selectedIds.value = id ? [id] : [],
+})
 const selected = computed(() => face.value.elements.find((element) => element.id === selectedId.value) ?? null)
+const selection = computed(() => face.value.elements.filter((element) => selectedIds.value.includes(element.id)))
+
+/** shared by every side and every editor, so items can be copied from one side and pasted on another */
+const clipboard: { elements: DesignElement[], groups: Record<string, string>, pastes: number } = (globalThis as any).__designClipboard ??= { elements: [], groups: {}, pastes: 0 }
 const uploading = ref(false)
 const uploadError = ref<string | null>(null)
 const imageInput = ref<HTMLInputElement | null>(null)
@@ -237,20 +348,63 @@ function setField<K extends keyof DesignElement>(key: K, value: DesignElement[K]
 }
 
 function removeSelected() {
-    if (!selected.value) {
+    if (!selectedIds.value.length) {
+        return
+    }
+    const removable = selection.value.filter((element) => !element.locked).map((element) => element.id)
+    if (!removable.length) {
         return
     }
     remember()
-    face.value = { ...face.value, elements: face.value.elements.filter((element) => element.id !== selectedId.value) }
-    selectedId.value = null
+    face.value = { ...face.value, elements: face.value.elements.filter((element) => !removable.includes(element.id)) }
+    selectedIds.value = selectedIds.value.filter((id) => !removable.includes(id))
+}
+
+function pasteElements(elements: DesignElement[], offset: number, sourceNames: Record<string, string> = {}) {
+    if (!elements.length) {
+        return
+    }
+    remember()
+    const groups: Record<string, string> = {}
+    const pasted = elements.map((element) => ({
+        ...element,
+        id: newElementId(),
+        locked: false,
+        group_id: element.group_id ? (groups[element.group_id] ??= newElementId()) : null,
+        x: round1(Math.min(Math.max(element.x + offset, -element.w / 2), props.size.w - element.w / 2)),
+        y: round1(Math.min(Math.max(element.y + offset, -element.h / 2), props.size.h - element.h / 2)),
+    }))
+    const names = Object.fromEntries(Object.entries(groups).filter(([oldId]) => sourceNames[oldId]).map(([oldId, newId]) => [newId, ctrans(":name copy", { name: sourceNames[oldId] })]))
+    face.value = { ...face.value, elements: [...face.value.elements, ...pasted], groups: { ...(face.value.groups ?? {}), ...names } }
+    selectedIds.value = pasted.map((element) => element.id)
 }
 
 function duplicateSelected() {
-    if (!selected.value) {
-        return
+    pasteElements(selection.value.map((element) => ({ ...element })), 3, face.value.groups ?? {})
+}
+
+function copySelected() {
+    clipboard.elements = JSON.parse(JSON.stringify(selection.value))
+    clipboard.groups = Object.fromEntries(Object.entries(face.value.groups ?? {}).filter(([groupId]) => selection.value.some((element) => element.group_id === groupId)))
+    clipboard.pastes = 0
+}
+
+function cutSelected() {
+    copySelected()
+    removeSelected()
+}
+
+function paste() {
+    clipboard.pastes += 1
+    pasteElements(JSON.parse(JSON.stringify(clipboard.elements)), clipboard.pastes * 3, clipboard.groups)
+}
+
+function nudgeSelected(dx: number, dy: number) {
+    remember()
+    face.value = {
+        ...face.value,
+        elements: face.value.elements.map((element) => selectedIds.value.includes(element.id) && !element.locked ? { ...element, x: round1(element.x + dx), y: round1(element.y + dy) } : element),
     }
-    const { id: _id, ...copy } = selected.value
-    addElement({ ...copy, x: round1(selected.value.x + 3), y: round1(selected.value.y + 3) })
 }
 
 function moveLayer(direction: 1 | -1) {
@@ -269,8 +423,10 @@ function moveLayer(direction: 1 | -1) {
 }
 
 type Gesture =
-    | { kind: "move" | "resize" | "rotate", start: DesignElement, pointer: { x: number, y: number }, handle?: [number, number] }
+    | { kind: "move" | "resize" | "rotate", start: DesignElement, pointer: { x: number, y: number }, handle?: [number, number], group?: Record<string, { x: number, y: number }> }
     | { kind: "background", start: { x: number, y: number }, pointer: { x: number, y: number } }
+    | { kind: "group-resize", items: DesignElement[], bounds: Bounds, pointer: { x: number, y: number }, handle: [number, number] }
+    | { kind: "group-rotate", items: DesignElement[], bounds: Bounds, pointer: { x: number, y: number } }
 
 const faceEl = ref<HTMLElement | null>(null)
 const gesture = ref<Gesture | null>(null)
@@ -311,11 +467,306 @@ function startGesture(event: PointerEvent, next: Gesture) {
     window.addEventListener("pointerup", endGesture, { once: true })
 }
 
-function startMove(event: PointerEvent, element: DesignElement) {
-    selectedId.value = element.id
-    editingBackground.value = false
-    startGesture(event, { kind: "move", start: { ...element }, pointer: pointerMm(event) })
+/** an item and the others of its permanent group */
+function withGroup(element: DesignElement): string[] {
+    return element.group_id ? face.value.elements.filter((item) => item.group_id === element.group_id).map((item) => item.id) : [element.id]
 }
+
+function startMove(event: PointerEvent, element: DesignElement) {
+    editingBackground.value = false
+    const members = withGroup(element)
+    if (event.shiftKey || event.ctrlKey || event.metaKey) {
+        event.preventDefault()
+        selectedIds.value = selectedIds.value.includes(element.id)
+            ? selectedIds.value.filter((id) => !members.includes(id))
+            : [...new Set([...selectedIds.value, ...members])]
+        return
+    }
+    if (!selectedIds.value.includes(element.id)) {
+        selectedIds.value = members
+    }
+    const movable = selection.value.filter((item) => !item.locked)
+    if (element.locked || !movable.length) {
+        event.preventDefault()
+        return
+    }
+    const group = Object.fromEntries(movable.map((item) => [item.id, { x: item.x, y: item.y }]))
+    startGesture(event, { kind: "move", start: { ...element }, pointer: pointerMm(event), group })
+}
+
+const anyLocked = computed(() => selection.value.some((element) => element.locked))
+const selectionBounds = computed(() => selectedIds.value.length > 1 ? boundsOf(selection.value) : null)
+
+function startGroupResize(event: PointerEvent, handle: [number, number]) {
+    if (selectionBounds.value) {
+        startGesture(event, { kind: "group-resize", items: selection.value.map((element) => ({ ...element })), bounds: { ...selectionBounds.value }, pointer: pointerMm(event), handle })
+    }
+}
+
+function startGroupRotate(event: PointerEvent) {
+    if (selectionBounds.value) {
+        startGesture(event, { kind: "group-rotate", items: selection.value.map((element) => ({ ...element })), bounds: { ...selectionBounds.value }, pointer: pointerMm(event) })
+    }
+}
+
+function replaceItems(items: DesignElement[]) {
+    const byId = Object.fromEntries(items.map((item) => [item.id, item]))
+    face.value = { ...face.value, elements: face.value.elements.map((element) => byId[element.id] ?? element) }
+}
+
+/**
+ * Lines up the selection on one edge or centre line: of the selection itself when several are picked,
+ * of the side when only one is.
+ */
+function align(mode: "left" | "centre" | "right" | "top" | "middle" | "bottom") {
+    const items = selection.value.filter((element) => !element.locked)
+    if (!items.length) {
+        return
+    }
+    remember()
+    const target = selectedIds.value.length > 1 ? boundsOf(selection.value)! : { x: 0, y: 0, w: props.size.w, h: props.size.h }
+    replaceItems(items.map((element) => {
+        const own = boundsOf([element])!
+        const offsetX = element.x - own.x
+        const offsetY = element.y - own.y
+        const x = mode === "left" ? target.x : mode === "right" ? target.x + target.w - own.w : mode === "centre" ? target.x + (target.w - own.w) / 2 : own.x
+        const y = mode === "top" ? target.y : mode === "bottom" ? target.y + target.h - own.h : mode === "middle" ? target.y + (target.h - own.h) / 2 : own.y
+        return { ...element, x: round1(x + offsetX), y: round1(y + offsetY) }
+    }))
+}
+
+/** spaces the selection so the gaps between neighbours are equal, keeping the outer two in place */
+function distribute(axis: "x" | "y") {
+    const items = selection.value.filter((element) => !element.locked)
+    if (items.length < 3) {
+        return
+    }
+    remember()
+    const boxes = items.map((element) => ({ element, box: boundsOf([element])! }))
+        .sort((a, b) => axis === "x" ? a.box.x - b.box.x : a.box.y - b.box.y)
+    const first = boxes[0].box
+    const last = boxes[boxes.length - 1].box
+    const span = axis === "x" ? last.x + last.w - first.x : last.y + last.h - first.y
+    const used = boxes.reduce((sum, { box }) => sum + (axis === "x" ? box.w : box.h), 0)
+    const gap = (span - used) / (boxes.length - 1)
+    let cursor = axis === "x" ? first.x : first.y
+    replaceItems(boxes.map(({ element, box }) => {
+        const shift = cursor - (axis === "x" ? box.x : box.y)
+        cursor += (axis === "x" ? box.w : box.h) + gap
+        return axis === "x" ? { ...element, x: round1(element.x + shift) } : { ...element, y: round1(element.y + shift) }
+    }))
+}
+
+function groupSelected() {
+    if (selectedIds.value.length < 2) {
+        return
+    }
+    remember()
+    const groupId = newElementId()
+    const members = face.value.elements.filter((element) => selectedIds.value.includes(element.id)).map((element) => ({ ...element, group_id: groupId }))
+    const frontMost = Math.max(...face.value.elements.map((element, index) => selectedIds.value.includes(element.id) ? index : -1))
+    const before = face.value.elements.slice(0, frontMost + 1).filter((element) => !selectedIds.value.includes(element.id))
+    const after = face.value.elements.slice(frontMost + 1)
+    face.value = { ...face.value, elements: [...before, ...members, ...after] }
+}
+
+function ungroupSelected() {
+    if (!selection.value.some((element) => element.group_id)) {
+        return
+    }
+    remember()
+    const leaving = new Set(selectedIds.value)
+    const elements = face.value.elements.map((element) => leaving.has(element.id) ? { ...element, group_id: null } : element)
+    const stillGrouped = new Set(elements.map((element) => element.group_id).filter(Boolean))
+    face.value = {
+        ...face.value,
+        elements,
+        groups: Object.fromEntries(Object.entries(face.value.groups ?? {}).filter(([groupId]) => stillGrouped.has(groupId))),
+    }
+}
+
+const isGrouped = computed(() => selection.value.length > 1 && !!selection.value[0].group_id && selection.value.every((element) => element.group_id === selection.value[0].group_id))
+
+function toggleLock() {
+    if (!selection.value.length) {
+        return
+    }
+    remember()
+    const lock = !anyLocked.value
+    replaceItems(selection.value.map((element) => ({ ...element, locked: lock })))
+}
+
+const textTargets = computed(() => selection.value.filter((element) => element.type === "text" || element.type === "data" || (element.type === "zone" && element.zone === "compliance" && !!props.data?.values)))
+
+/** the value every selected text shares, or undefined when they differ */
+function commonValue<K extends keyof DesignElement>(key: K, fallback: DesignElement[K]): DesignElement[K] | undefined {
+    const values = textTargets.value.map((element) => element[key] ?? fallback)
+    return values.every((value) => value === values[0]) ? values[0] : undefined
+}
+
+function setForTexts<K extends keyof DesignElement>(key: K, value: DesignElement[K]) {
+    if (!textTargets.value.length) {
+        return
+    }
+    replaceItems(textTargets.value.map((element) => ({ ...element, [key]: value })))
+}
+
+const typeIcons: Record<string, string> = {
+    text: "fal fa-font",
+    image: "fal fa-image",
+    zone: "fal fa-square",
+    data: "fal fa-database",
+    pictogram: "fal fa-exclamation-triangle",
+    barcode: "fal fa-barcode",
+}
+
+function layerName(element: DesignElement): string {
+    if (element.type === "text") {
+        return (element.text ?? "").trim().split("\n")[0] || ctrans("Text")
+    }
+    if (element.type === "data") {
+        return props.data?.sources.text.find((source) => source.key === element.source)?.label ?? ctrans("Trade unit data")
+    }
+    if (element.type === "pictogram") {
+        return props.data?.sources.pictograms.find((source) => source.key === element.source)?.label ?? ctrans("Pictogram")
+    }
+    if (element.type === "barcode") {
+        return props.data?.sources.barcodes.find((source) => source.key === (element.source ?? "unit"))?.label ?? ctrans("Barcode")
+    }
+    if (element.type === "zone") {
+        return element.label || (element.zone === "compliance" ? ctrans("Compliance space") : element.zone === "barcode" ? ctrans("Barcode space") : ctrans("Reserved area"))
+    }
+    return ctrans("Image")
+}
+
+const GROUP_COLOURS = ["#0ea5e9", "#f97316", "#10b981", "#a855f7", "#e11d48", "#eab308"]
+const groupColour = (groupId: string) => GROUP_COLOURS[[...new Set(face.value.elements.map((element) => element.group_id).filter(Boolean))].indexOf(groupId) % GROUP_COLOURS.length]
+
+type LayerRow =
+    | { kind: "item", element: DesignElement, nested: boolean }
+    | { kind: "group", id: string, name: string, members: DesignElement[] }
+
+const collapsedGroups = ref<Record<string, boolean>>({})
+
+const groupNames = computed(() => {
+    const ids = [...new Set(face.value.elements.map((element) => element.group_id).filter(Boolean))] as string[]
+    return Object.fromEntries(ids.map((id, index) => [id, face.value.groups?.[id] || ctrans("Group :number", { number: String(index + 1) })]))
+})
+
+const renamingGroup = ref<string | null>(null)
+const groupDraftName = ref("")
+
+function startRenaming(groupId: string) {
+    renamingGroup.value = groupId
+    groupDraftName.value = groupNames.value[groupId] ?? ""
+    nextTick(() => (document.getElementById(`group-name-${groupId}`) as HTMLInputElement | null)?.select())
+}
+
+function finishRenaming(save: boolean) {
+    const groupId = renamingGroup.value
+    renamingGroup.value = null
+    if (!save || !groupId) {
+        return
+    }
+    const name = groupDraftName.value.trim().slice(0, 60)
+    if (name === (face.value.groups?.[groupId] ?? "")) {
+        return
+    }
+    remember()
+    const groups = { ...(face.value.groups ?? {}) }
+    if (name) {
+        groups[groupId] = name
+    } else {
+        delete groups[groupId]
+    }
+    face.value = { ...face.value, groups }
+}
+
+/** front-most first, as layers read in design tools; a group sits where its front-most member is */
+const layers = computed<LayerRow[]>(() => {
+    const rows: LayerRow[] = []
+    const seen = new Set<string>()
+    for (const element of [...face.value.elements].reverse()) {
+        if (!element.group_id) {
+            rows.push({ kind: "item", element, nested: false })
+            continue
+        }
+        if (seen.has(element.group_id)) {
+            continue
+        }
+        seen.add(element.group_id)
+        const members = [...face.value.elements].reverse().filter((item) => item.group_id === element.group_id)
+        rows.push({ kind: "group", id: element.group_id, name: groupNames.value[element.group_id], members })
+        if (!collapsedGroups.value[element.group_id]) {
+            members.forEach((member) => rows.push({ kind: "item", element: member, nested: true }))
+        }
+    }
+    return rows
+})
+
+function selectGroupLayer(event: MouseEvent, groupId: string) {
+    editingBackground.value = false
+    const members = face.value.elements.filter((element) => element.group_id === groupId).map((element) => element.id)
+    selectedIds.value = event.shiftKey || event.ctrlKey || event.metaKey ? [...new Set([...selectedIds.value, ...members])] : members
+}
+
+function toggleGroupLock(groupId: string) {
+    remember()
+    const members = face.value.elements.filter((element) => element.group_id === groupId)
+    const lock = !members.every((element) => element.locked)
+    replaceItems(members.map((element) => ({ ...element, locked: lock })))
+}
+
+function selectLayer(event: MouseEvent, element: DesignElement) {
+    editingBackground.value = false
+    if (event.shiftKey || event.ctrlKey || event.metaKey) {
+        selectedIds.value = selectedIds.value.includes(element.id)
+            ? selectedIds.value.filter((id) => id !== element.id)
+            : [...selectedIds.value, element.id]
+        return
+    }
+    selectedIds.value = [element.id]
+}
+
+function toggleLayerLock(element: DesignElement) {
+    remember()
+    patchElement(element.id, { locked: !element.locked })
+}
+
+const draggedLayer = ref<string | null>(null)
+const dropTarget = ref<string | null>(null)
+
+/**
+ * Puts what was dragged (one item, or every member of a dragged group) just in front of the item it was
+ * dropped on, or in front of a whole group when dropped on the group's row.
+ */
+function dropLayer(target: string) {
+    const dragged = draggedLayer.value
+    draggedLayer.value = null
+    dropTarget.value = null
+    if (!dragged || dragged === target) {
+        return
+    }
+    const movingIds = dragged.startsWith("group:")
+        ? face.value.elements.filter((element) => element.group_id === dragged.slice(6)).map((element) => element.id)
+        : [dragged]
+    const targetIds = target.startsWith("group:")
+        ? face.value.elements.filter((element) => element.group_id === target.slice(6)).map((element) => element.id)
+        : [target]
+    if (targetIds.some((id) => movingIds.includes(id))) {
+        return
+    }
+    remember()
+    const moving = face.value.elements.filter((element) => movingIds.includes(element.id))
+    const rest = face.value.elements.filter((element) => !movingIds.includes(element.id))
+    const anchor = Math.max(...rest.map((element, index) => targetIds.includes(element.id) ? index : -1))
+    face.value = { ...face.value, elements: [...rest.slice(0, anchor + 1), ...moving, ...rest.slice(anchor + 1)] }
+}
+
+const groupTextColor = computed({
+    get: () => (commonValue("color", "#111827") as string | undefined) ?? "#111827",
+    set: (value: string) => setForTexts("color", value.toLowerCase()),
+})
 
 function startResize(event: PointerEvent, handle: [number, number]) {
     if (selected.value) {
@@ -386,12 +837,69 @@ function onPointerMove(event: PointerEvent) {
         return
     }
 
+    if (current.kind === "group-resize") {
+        const { bounds, handle: [handleX, handleY], items } = current
+        const anchorX = handleX === 1 ? bounds.x : bounds.x + bounds.w
+        const anchorY = handleY === 1 ? bounds.y : bounds.y + bounds.h
+        let scaleX = handleX ? Math.max((bounds.w + handleX * dx) / bounds.w, 0.05) : 1
+        let scaleY = handleY ? Math.max((bounds.h + handleY * dy) / bounds.h, 0.05) : 1
+        if (handleX && handleY) {
+            scaleX = scaleY = Math.max(scaleX, scaleY)
+        }
+        const fontScale = handleX && handleY ? scaleX : 1
+        replaceItems(items.map((element) => {
+            const centreX = anchorX + (element.x + element.w / 2 - anchorX) * scaleX
+            const centreY = anchorY + (element.y + element.h / 2 - anchorY) * scaleY
+            const width = Math.max(element.w * scaleX, 1)
+            const height = Math.max(element.h * scaleY, 1)
+            return {
+                ...element,
+                w: round1(width),
+                h: round1(height),
+                x: round1(centreX - width / 2),
+                y: round1(centreY - height / 2),
+                ...(element.font_size ? { font_size: Math.round(element.font_size * fontScale * 10) / 10 } : {}),
+            }
+        }))
+        return
+    }
+
+    if (current.kind === "group-rotate") {
+        const { bounds, items } = current
+        const centreX = bounds.x + bounds.w / 2
+        const centreY = bounds.y + bounds.h / 2
+        const startAngle = Math.atan2(current.pointer.y - centreY, current.pointer.x - centreX)
+        let delta = ((Math.atan2(pointer.y - centreY, pointer.x - centreX) - startAngle) * 180) / Math.PI
+        if (!event.altKey) {
+            const nearest = Math.round(delta / ROTATE_STEP) * ROTATE_STEP
+            if (Math.abs(nearest - delta) <= 4 || event.shiftKey) {
+                delta = nearest
+            }
+        }
+        const radians = (delta * Math.PI) / 180
+        const cos = Math.cos(radians)
+        const sin = Math.sin(radians)
+        replaceItems(items.map((element) => {
+            const offsetX = element.x + element.w / 2 - centreX
+            const offsetY = element.y + element.h / 2 - centreY
+            const newCentreX = centreX + offsetX * cos - offsetY * sin
+            const newCentreY = centreY + offsetX * sin + offsetY * cos
+            return {
+                ...element,
+                x: round1(newCentreX - element.w / 2),
+                y: round1(newCentreY - element.h / 2),
+                rotate: Math.round(((((element.rotate ?? 0) + delta) % 360) + 360) % 360),
+            }
+        }))
+        return
+    }
+
     const start = current.start
     if (current.kind === "move") {
         let x = start.x + dx
         let y = start.y + dy
         const lines = { v: [] as number[], h: [] as number[] }
-        if (!start.rotate && !event.altKey) {
+        if (!start.rotate && !event.altKey && Object.keys(current.group ?? {}).length <= 1) {
             const snappedX = snap(x, start.w, snapTargets("x", start.id))
             const snappedY = snap(y, start.h, snapTargets("y", start.id))
             x = snappedX.value
@@ -404,7 +912,13 @@ function onPointerMove(event: PointerEvent) {
             }
         }
         guides.value = lines
-        patchElement(start.id, { x: round1(x), y: round1(y) })
+        const shiftX = x - start.x
+        const shiftY = y - start.y
+        const group = current.group ?? { [start.id]: { x: start.x, y: start.y } }
+        face.value = {
+            ...face.value,
+            elements: face.value.elements.map((element) => group[element.id] ? { ...element, x: round1(group[element.id].x + shiftX), y: round1(group[element.id].y + shiftY) } : element),
+        }
         return
     }
 
@@ -488,15 +1002,60 @@ const isTyping = (event: KeyboardEvent) => {
 }
 
 function onKeydown(event: KeyboardEvent) {
-    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
-        if (isTyping(event)) {
-            return
-        }
-        event.preventDefault()
-        event.shiftKey ? redo() : undo()
+    if (isTyping(event)) {
         return
     }
-    if (isTyping(event) || !selected.value) {
+    const command = event.ctrlKey || event.metaKey
+    const key = event.key.toLowerCase()
+
+    if (command && (key === "y" || (key === "z" && event.shiftKey))) {
+        event.preventDefault()
+        redo()
+        return
+    }
+    if (command && key === "z") {
+        event.preventDefault()
+        undo()
+        return
+    }
+    if (command && key === "a") {
+        event.preventDefault()
+        selectedIds.value = face.value.elements.map((element) => element.id)
+        return
+    }
+    if (command && key === "v") {
+        if (clipboard.elements.length) {
+            event.preventDefault()
+            paste()
+        }
+        return
+    }
+    if (!selectedIds.value.length) {
+        return
+    }
+    if (command && key === "c") {
+        event.preventDefault()
+        copySelected()
+        return
+    }
+    if (command && key === "x") {
+        event.preventDefault()
+        cutSelected()
+        return
+    }
+    if (command && key === "g") {
+        event.preventDefault()
+        event.shiftKey ? ungroupSelected() : groupSelected()
+        return
+    }
+    if (command && key === "l") {
+        event.preventDefault()
+        toggleLock()
+        return
+    }
+    if (command && key === "d") {
+        event.preventDefault()
+        duplicateSelected()
         return
     }
     if (event.key === "Delete" || event.key === "Backspace") {
@@ -508,11 +1067,11 @@ function onKeydown(event: KeyboardEvent) {
     const moves: Record<string, [number, number]> = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] }
     if (moves[event.key]) {
         event.preventDefault()
-        remember()
-        patchElement(selected.value.id, { x: round1(selected.value.x + moves[event.key][0]), y: round1(selected.value.y + moves[event.key][1]) })
+        nudgeSelected(...moves[event.key])
+        return
     }
     if (event.key === "Escape") {
-        selectedId.value = null
+        selectedIds.value = []
         editingBackground.value = false
     }
 }
@@ -541,6 +1100,33 @@ onBeforeUnmount(endGesture)
             <Button type="tertiary" size="xs" icon="fal fa-shield-check" :label="ctrans('Compliance space')" @click="addZone('compliance')" />
             <Button type="tertiary" size="xs" icon="fal fa-barcode" :label="ctrans('Barcode')" @click="addZone('barcode')" />
             <Button type="tertiary" size="xs" icon="fal fa-square" :label="ctrans('Reserved area')" @click="addZone('other')" />
+            <Button v-if="data" type="tertiary" size="xs" icon="fal fa-database" :label="ctrans('Trade unit data')" @click="(event) => dataPopover?.toggle(event)" />
+            <Button v-if="data" type="tertiary" size="xs" icon="fal fa-magic" :label="ctrans('Autoplace')" :tooltip="ctrans('Lay out the SKU\'s label content on this side')" @click="autoplace" />
+            <Popover v-if="data" ref="dataPopover">
+                <div class="w-72 space-y-3 text-sm">
+                    <div>
+                        <div class="mb-1 text-xs font-medium uppercase tracking-wide text-gray-500">{{ ctrans("Text") }}</div>
+                        <div class="flex flex-wrap gap-1">
+                            <button v-for="source in data.sources.text" :key="source.key" type="button" class="rounded border border-gray-200 px-2 py-1 text-xs hover:border-[--app-accent] hover:bg-[--app-accent-soft]" :class="data.values && !data.values.text[source.key] ? 'text-gray-400' : 'text-gray-800'" @click="addData('data', source.key)">{{ source.label }}</button>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="mb-1 text-xs font-medium uppercase tracking-wide text-gray-500">{{ ctrans("Pictograms") }}</div>
+                        <div class="grid grid-cols-5 gap-1.5">
+                            <button v-for="source in data.sources.pictograms" :key="source.key" type="button" v-tooltip="source.label" class="rounded border p-1 hover:border-[--app-accent]" :class="data.values?.pictograms[source.key] ? 'border-[--app-accent-muted] bg-[--app-accent-soft]' : 'border-gray-200'" @click="addData('pictogram', source.key)">
+                                <img :src="source.icon" :alt="source.label" class="h-8 w-8 object-contain" />
+                            </button>
+                        </div>
+                        <p v-if="data.values" class="mt-1 text-[11px] text-gray-500">{{ ctrans("Highlighted ones are switched on for this SKU") }}</p>
+                    </div>
+                    <div>
+                        <div class="mb-1 text-xs font-medium uppercase tracking-wide text-gray-500">{{ ctrans("Barcodes") }}</div>
+                        <div class="flex flex-wrap gap-1">
+                            <button v-for="source in data.sources.barcodes" :key="source.key" type="button" class="rounded border border-gray-200 px-2 py-1 text-xs hover:border-[--app-accent] hover:bg-[--app-accent-soft]" :class="data.values && !data.values.barcodes[source.key] ? 'text-gray-400' : 'text-gray-800'" @click="addData('barcode', source.key)">{{ source.label }}</button>
+                        </div>
+                    </div>
+                </div>
+            </Popover>
             <span class="mx-1 h-5 w-px bg-gray-200" />
             <Button type="tertiary" size="xs" icon="fal fa-undo" :tooltip="ctrans('Undo')" :disabled="!undoStack.length" class="disabled:cursor-not-allowed disabled:opacity-50" @click="undo" />
             <Button type="tertiary" size="xs" icon="fal fa-redo" :tooltip="ctrans('Redo')" :disabled="!redoStack.length" class="disabled:cursor-not-allowed disabled:opacity-50" @click="redo" />
@@ -551,6 +1137,94 @@ onBeforeUnmount(endGesture)
         <p v-if="uploadError" class="border-b border-red-100 bg-red-50 px-3 py-1.5 text-xs text-red-600">{{ uploadError }}</p>
 
         <div class="flex min-h-0 flex-1 flex-col md:flex-row">
+            <aside class="hidden w-56 shrink-0 flex-col border-r border-gray-200 md:flex">
+                <div class="flex items-center justify-between border-b border-gray-100 px-3 py-2 text-xs font-medium uppercase tracking-wide text-gray-500">
+                    <span>{{ ctrans("Layers") }} <span class="tabular-nums text-gray-400">{{ face.elements.length }}</span></span>
+                    <span class="flex items-center gap-0.5 normal-case">
+                        <button type="button" class="rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-[--app-accent] disabled:cursor-not-allowed disabled:opacity-40" :disabled="selectedIds.length < 2 || isGrouped" v-tooltip="ctrans('Group (Ctrl+G)')" :aria-label="ctrans('Group')" @click="groupSelected">
+                            <FontAwesomeIcon icon="fal fa-object-group" fixed-width aria-hidden="true" />
+                        </button>
+                        <button type="button" class="rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-[--app-accent] disabled:cursor-not-allowed disabled:opacity-40" :disabled="!selection.some((element) => element.group_id)" v-tooltip="ctrans('Ungroup (Ctrl+Shift+G)')" :aria-label="ctrans('Ungroup')" @click="ungroupSelected">
+                            <FontAwesomeIcon icon="fal fa-object-ungroup" fixed-width aria-hidden="true" />
+                        </button>
+                    </span>
+                </div>
+                <ul class="min-h-0 flex-1 overflow-y-auto py-1 [scrollbar-width:thin]">
+                    <template v-for="row in layers" :key="row.kind === 'group' ? `group:${row.id}` : row.element.id">
+                        <li
+                            v-if="row.kind === 'group'"
+                            draggable="true"
+                            class="group flex cursor-pointer items-center gap-1.5 border-y px-2 py-1.5 text-sm"
+                            :class="[
+                                row.members.every((member) => selectedIds.includes(member.id)) ? 'border-transparent bg-[--app-accent-soft] text-[--app-accent-deep]' : 'border-transparent text-gray-800 hover:bg-gray-50',
+                                dropTarget === `group:${row.id}` && draggedLayer !== `group:${row.id}` ? '!border-t-[--app-accent]' : '',
+                            ]"
+                            @click="selectGroupLayer($event, row.id)"
+                            @dragstart="draggedLayer = `group:${row.id}`"
+                            @dragover.prevent="dropTarget = `group:${row.id}`"
+                            @drop.prevent="dropLayer(`group:${row.id}`)"
+                            @dragend="draggedLayer = null; dropTarget = null"
+                        >
+                            <button type="button" class="shrink-0 rounded p-0.5 text-xs text-gray-400 hover:text-gray-700" :aria-label="collapsedGroups[row.id] ? ctrans('Expand') : ctrans('Collapse')" @click.stop="collapsedGroups[row.id] = !collapsedGroups[row.id]">
+                                <FontAwesomeIcon icon="fal fa-chevron-down" class="transition-transform" :class="collapsedGroups[row.id] ? '-rotate-90' : ''" fixed-width aria-hidden="true" />
+                            </button>
+                            <FontAwesomeIcon :icon="collapsedGroups[row.id] ? 'fal fa-folder' : 'fal fa-folder-open'" class="shrink-0" :style="{ color: groupColour(row.id) }" fixed-width aria-hidden="true" />
+                            <input
+                                v-if="renamingGroup === row.id"
+                                :id="`group-name-${row.id}`"
+                                v-model="groupDraftName"
+                                maxlength="60"
+                                class="min-w-0 flex-1 rounded border border-[--app-accent] bg-white px-1 py-0 text-sm font-medium text-gray-900 outline-none"
+                                @click.stop
+                                @keydown.enter.prevent="finishRenaming(true)"
+                                @keydown.esc.prevent.stop="finishRenaming(false)"
+                                @blur="finishRenaming(true)"
+                            />
+                            <span v-else class="min-w-0 flex-1 truncate font-medium" v-tooltip="ctrans('Double-click to rename')" @dblclick.stop="startRenaming(row.id)">{{ row.name }}</span>
+                            <span class="shrink-0 text-xs tabular-nums text-gray-400">{{ row.members.length }}</span>
+                            <button
+                                type="button"
+                                class="shrink-0 rounded p-0.5 text-xs transition-opacity hover:text-[--app-accent]"
+                                :class="row.members.every((member) => member.locked) ? 'text-gray-600' : 'text-gray-400 opacity-0 group-hover:opacity-100'"
+                                :aria-label="ctrans('Lock or unlock the group')"
+                                @click.stop="toggleGroupLock(row.id)"
+                            >
+                                <FontAwesomeIcon :icon="row.members.every((member) => member.locked) ? 'fal fa-lock' : 'fal fa-lock-open'" fixed-width aria-hidden="true" />
+                            </button>
+                        </li>
+                        <li
+                            v-else
+                            draggable="true"
+                            class="group flex cursor-pointer items-center gap-2 border-y py-1.5 pr-3 text-sm"
+                            :class="[
+                                row.nested ? 'pl-8' : 'pl-3',
+                                selectedIds.includes(row.element.id) ? 'border-transparent bg-[--app-accent-soft] text-[--app-accent-deep]' : 'border-transparent text-gray-700 hover:bg-gray-50',
+                                dropTarget === row.element.id && draggedLayer !== row.element.id ? '!border-t-[--app-accent]' : '',
+                            ]"
+                            @click="selectLayer($event, row.element)"
+                            @dragstart="draggedLayer = row.element.id"
+                            @dragover.prevent="dropTarget = row.element.id"
+                            @drop.prevent="dropLayer(row.element.id)"
+                            @dragend="draggedLayer = null; dropTarget = null"
+                        >
+                            <span v-if="row.nested" class="h-4 w-0.5 shrink-0 rounded-full" :style="{ backgroundColor: groupColour(row.element.group_id!) }" aria-hidden="true" />
+                            <FontAwesomeIcon :icon="typeIcons[row.element.type] ?? 'fal fa-square'" class="shrink-0 text-gray-400" fixed-width aria-hidden="true" />
+                            <span class="min-w-0 flex-1 truncate">{{ layerName(row.element) }}</span>
+                            <button
+                                type="button"
+                                class="shrink-0 rounded p-0.5 text-xs transition-opacity hover:text-[--app-accent]"
+                                :class="row.element.locked ? 'text-gray-600' : 'text-gray-400 opacity-0 group-hover:opacity-100'"
+                                :aria-label="row.element.locked ? ctrans('Unlock') : ctrans('Lock')"
+                                @click.stop="toggleLayerLock(row.element)"
+                            >
+                                <FontAwesomeIcon :icon="row.element.locked ? 'fal fa-lock' : 'fal fa-lock-open'" fixed-width aria-hidden="true" />
+                            </button>
+                        </li>
+                    </template>
+                    <li v-if="!face.elements.length" class="px-3 py-4 text-xs text-gray-400">{{ ctrans("Nothing on this side yet") }}</li>
+                </ul>
+            </aside>
+
             <div ref="stage" class="relative flex min-h-[18rem] flex-1 items-center justify-center overflow-hidden bg-gray-100" @pointerdown.self="selectedId = null">
                 <div
                     ref="faceEl"
@@ -567,7 +1241,7 @@ onBeforeUnmount(endGesture)
                         :style="backgroundGhostStyle"
                         draggable="false"
                     />
-                    <DesignFaceRender :face="face" :scale="scale" :images="images" :size="size" />
+                    <DesignFaceRender :face="face" :scale="scale" :images="images" :size="size" :data="data" />
 
                     <div
                         v-if="editingBackground"
@@ -581,13 +1255,43 @@ onBeforeUnmount(endGesture)
                             v-for="element in face.elements"
                             :key="element.id"
                             class="absolute cursor-move touch-none"
-                            :class="element.id === selectedId ? '' : 'hover:outline hover:outline-1 hover:outline-[--app-accent]'"
+                            :class="selectedIds.includes(element.id) ? (selectedIds.length > 1 ? 'outline outline-2 outline-[--app-accent]' : '') : 'hover:outline hover:outline-1 hover:outline-[--app-accent]'"
                             :style="boxStyle(element)"
                             @pointerdown="startMove($event, element)"
-                            @dblclick="element.type === 'text' && focusText()"
+                            @dblclick="() => { if (element.group_id) { selectedIds = [element.id] } if (element.type === 'text') { focusText() } }"
                         />
 
-                        <div v-if="selected" class="pointer-events-none absolute z-10" :style="boxStyle(selected)">
+                        <template v-for="element in face.elements" :key="`lock-${element.id}`">
+                            <span v-if="element.locked" class="pointer-events-none absolute z-10 flex h-4 w-4 items-center justify-center rounded bg-white/90 text-[9px] text-gray-600 shadow" :style="{ left: `${(element.x + element.w) * scale - 16}px`, top: `${element.y * scale}px` }">
+                                <FontAwesomeIcon icon="fal fa-lock" fixed-width aria-hidden="true" />
+                            </span>
+                        </template>
+
+                        <div
+                            v-if="selectionBounds && !anyLocked"
+                            class="pointer-events-none absolute z-10"
+                            :style="{ left: `${selectionBounds.x * scale}px`, top: `${selectionBounds.y * scale}px`, width: `${selectionBounds.w * scale}px`, height: `${selectionBounds.h * scale}px` }"
+                        >
+                            <div class="absolute inset-0 outline-dashed outline-1 outline-[--app-accent]" />
+                            <span class="absolute left-1/2 top-0 h-5 w-px -translate-y-full bg-[--app-accent]" />
+                            <button
+                                type="button"
+                                class="pointer-events-auto absolute left-1/2 top-0 h-3.5 w-3.5 -translate-x-1/2 -translate-y-[calc(100%+1.25rem)] cursor-grab touch-none rounded-full border-2 border-[--app-accent] bg-white"
+                                :aria-label="ctrans('Rotate the selection')"
+                                @pointerdown="startGroupRotate"
+                            />
+                            <button
+                                v-for="handle in handles"
+                                :key="`g${handle.join()}`"
+                                type="button"
+                                class="pointer-events-auto absolute h-3 w-3 -translate-x-1/2 -translate-y-1/2 touch-none rounded-sm border border-white bg-[--app-accent] shadow"
+                                :style="handleStyle(handle)"
+                                :aria-label="ctrans('Resize the selection')"
+                                @pointerdown="startGroupResize($event, handle)"
+                            />
+                        </div>
+
+                        <div v-if="selected && !selected.locked" class="pointer-events-none absolute z-10" :style="boxStyle(selected)">
                             <div class="absolute inset-0 outline outline-1 outline-[--app-accent]" />
                             <span class="absolute left-1/2 top-0 h-5 w-px -translate-y-full bg-[--app-accent]" />
                             <button
@@ -614,9 +1318,24 @@ onBeforeUnmount(endGesture)
             </div>
 
             <aside class="w-full shrink-0 space-y-4 overflow-y-auto border-t border-gray-200 p-3 text-sm [scrollbar-width:thin] md:w-72 md:border-l md:border-t-0">
+                <div v-if="selectedIds.length" class="space-y-2 border-b border-gray-100 pb-3">
+                    <div class="flex flex-wrap items-center gap-1">
+                        <Button v-for="mode in alignModes" :key="mode.value" type="tertiary" size="xs" :icon="mode.icon" :tooltip="mode.label" :disabled="anyLocked" class="disabled:cursor-not-allowed disabled:opacity-50" @click="align(mode.value)" />
+                        <span class="mx-0.5 h-5 w-px bg-gray-200" />
+                        <Button type="tertiary" size="xs" icon="fal fa-arrows-h" :tooltip="ctrans('Distribute across')" :disabled="selectedIds.length < 3 || anyLocked" class="disabled:cursor-not-allowed disabled:opacity-50" @click="distribute('x')" />
+                        <Button type="tertiary" size="xs" icon="fal fa-arrows-v" :tooltip="ctrans('Distribute down')" :disabled="selectedIds.length < 3 || anyLocked" class="disabled:cursor-not-allowed disabled:opacity-50" @click="distribute('y')" />
+                    </div>
+                    <div class="flex flex-wrap items-center gap-1">
+                        <Button v-if="selectedIds.length > 1 && !isGrouped" type="tertiary" size="xs" icon="fal fa-object-group" :label="ctrans('Group')" :tooltip="ctrans('Ctrl+G')" @click="groupSelected" />
+                        <Button v-if="isGrouped || selection.some((element) => element.group_id)" type="tertiary" size="xs" icon="fal fa-object-ungroup" :label="ctrans('Ungroup')" :tooltip="ctrans('Ctrl+Shift+G')" @click="ungroupSelected" />
+                        <Button :type="anyLocked ? 'primary' : 'tertiary'" size="xs" :icon="anyLocked ? 'fal fa-lock' : 'fal fa-lock-open'" :label="anyLocked ? ctrans('Unlock') : ctrans('Lock')" :tooltip="ctrans('Ctrl+L')" @click="toggleLock" />
+                    </div>
+                    <p v-if="anyLocked" class="text-xs text-gray-500">{{ ctrans("Locked items cannot be moved, resized, rotated or deleted until unlocked.") }}</p>
+                </div>
+
                 <template v-if="selected">
                     <div class="flex items-center justify-between">
-                        <span class="font-medium text-gray-800">{{ selected.type === 'text' ? ctrans('Text') : selected.type === 'image' ? ctrans('Image') : ctrans('Reserved area') }}</span>
+                        <span class="font-medium text-gray-800">{{ ({ text: ctrans('Text'), image: ctrans('Image'), zone: ctrans('Reserved area'), data: ctrans('Trade unit data'), pictogram: ctrans('Pictogram'), barcode: ctrans('Barcode') } as Record<string, string>)[selected.type] }}</span>
                         <div class="flex gap-1">
                             <Button type="tertiary" size="xs" icon="fal fa-arrow-up" :tooltip="ctrans('Bring forward')" @click="moveLayer(1)" />
                             <Button type="tertiary" size="xs" icon="fal fa-arrow-down" :tooltip="ctrans('Send backward')" @click="moveLayer(-1)" />
@@ -625,12 +1344,38 @@ onBeforeUnmount(endGesture)
                         </div>
                     </div>
 
-                    <template v-if="selected.type === 'text'">
-                        <Textarea ref="textInput" :modelValue="selected.text ?? ''" rows="3" autoResize class="w-full text-sm" @focus="remember" @update:modelValue="(value) => setField('text', value)" />
+                    <label v-if="data && ['data', 'pictogram', 'barcode'].includes(selected.type)" class="block space-y-1">
+                        <span class="text-xs text-gray-500">{{ ctrans("Shows") }}</span>
+                        <Select
+                            :modelValue="selected.source ?? null"
+                            :options="selected.type === 'data' ? data.sources.text : selected.type === 'pictogram' ? data.sources.pictograms : data.sources.barcodes"
+                            optionLabel="label"
+                            optionValue="key"
+                            size="small"
+                            class="w-full"
+                            overlayClass="text-sm"
+                            @update:modelValue="(value) => { remember(); setField('source', value) }"
+                        />
+                    </label>
+
+                    <div v-if="filledZone && selected.zone === 'compliance'" class="space-y-1.5">
+                        <span class="text-xs text-gray-500">{{ ctrans("Shows the SKU's") }}</span>
+                        <label v-for="part in COMPLIANCE_PARTS" :key="part" class="flex items-center gap-2 text-sm text-gray-700">
+                            <Checkbox :modelValue="complianceParts(selected.source).includes(part)" binary @update:modelValue="(value) => toggleCompliancePart(part, !!value)" />
+                            {{ complianceLabels[part] ?? part }}
+                        </label>
+                    </div>
+                    <label v-if="filledZone && selected.zone === 'barcode' && data" class="block space-y-1">
+                        <span class="text-xs text-gray-500">{{ ctrans("Shows") }}</span>
+                        <Select :modelValue="selected.source ?? 'unit'" :options="data.sources.barcodes" optionLabel="label" optionValue="key" size="small" class="w-full" overlayClass="text-sm" @update:modelValue="(value) => { remember(); setField('source', value) }" />
+                    </label>
+
+                    <template v-if="isTextLike">
+                        <Textarea v-if="selected.type === 'text'" ref="textInput" :modelValue="selected.text ?? ''" rows="3" autoResize class="w-full text-sm" @focus="remember" @update:modelValue="(value) => setField('text', value)" />
                         <div class="grid grid-cols-2 gap-2">
                             <label class="space-y-1">
                                 <span class="text-xs text-gray-500">{{ ctrans("Size (pt)") }}</span>
-                                <InputNumber :modelValue="selected.font_size ?? 12" :min="2" :max="400" :maxFractionDigits="1" size="small" inputClass="w-full" class="w-full" @update:modelValue="(value) => setField('font_size', value)" />
+                                <InputNumber :modelValue="selected.font_size ?? (selected.type === 'zone' ? 6 : 12)" :min="2" :max="400" :maxFractionDigits="1" size="small" inputClass="w-full" class="w-full" @update:modelValue="(value) => setField('font_size', value)" />
                             </label>
                             <label class="space-y-1">
                                 <span class="text-xs text-gray-500">{{ ctrans("Colour") }}</span>
@@ -643,11 +1388,11 @@ onBeforeUnmount(endGesture)
                         <div class="flex items-center gap-2">
                             <Button :type="selected.font_weight === 'bold' ? 'primary' : 'tertiary'" size="xs" icon="fal fa-bold" :tooltip="ctrans('Bold')" @click="setField('font_weight', selected.font_weight === 'bold' ? 'normal' : 'bold')" />
                             <Button :type="selected.italic ? 'primary' : 'tertiary'" size="xs" icon="fal fa-italic" :tooltip="ctrans('Italic')" @click="setField('italic', !selected.italic)" />
-                            <SegmentedToggle :modelValue="selected.align ?? 'center'" :options="alignOptions" iconOnly :ariaLabel="ctrans('Alignment')" @update:modelValue="(value) => setField('align', value as DesignElement['align'])" />
+                            <SegmentedToggle :modelValue="selected.align ?? (selected.type === 'zone' ? 'left' : 'center')" :options="alignOptions" iconOnly :ariaLabel="ctrans('Alignment')" @update:modelValue="(value) => setField('align', value as DesignElement['align'])" />
                         </div>
                     </template>
 
-                    <label v-if="selected.type === 'zone'" class="block space-y-1">
+                    <label v-if="selected.type === 'zone' && !filledZone" class="block space-y-1">
                         <span class="text-xs text-gray-500">{{ ctrans("Label") }}</span>
                         <Textarea :modelValue="selected.label ?? ''" rows="2" autoResize class="w-full text-sm" :placeholder="selected.zone === 'barcode' ? 'EAN-13' : ctrans('What goes here')" @focus="remember" @update:modelValue="(value) => setField('label', value || null)" />
                     </label>
@@ -662,6 +1407,40 @@ onBeforeUnmount(endGesture)
                             <InputNumber :modelValue="selected.rotate ?? 0" :min="-360" :max="360" size="small" inputClass="w-full" class="w-full" @update:modelValue="(value) => setField('rotate', value ?? 0)" />
                         </label>
                     </div>
+                </template>
+
+                <template v-else-if="selectedIds.length > 1">
+                    <div class="flex items-center justify-between">
+                        <span class="font-medium text-gray-800">{{ ctrans(":count items selected", { count: String(selectedIds.length) }) }}</span>
+                        <div class="flex gap-1">
+                            <Button type="tertiary" size="xs" icon="fal fa-clone" :tooltip="ctrans('Duplicate (Ctrl+D)')" @click="duplicateSelected" />
+                            <Button type="negative" size="xs" icon="fal fa-trash-alt" :tooltip="ctrans('Delete')" @click="removeSelected" />
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <Button type="tertiary" size="xs" icon="fal fa-copy" :label="ctrans('Copy')" @click="copySelected" />
+                        <Button type="tertiary" size="xs" icon="fal fa-cut" :label="ctrans('Cut')" @click="cutSelected" />
+                    </div>
+                    <div v-if="textTargets.length" class="space-y-2 border-t border-gray-100 pt-3">
+                        <span class="text-xs font-medium text-gray-600">{{ ctrans("Text of the :count selected", { count: String(textTargets.length) }) }}</span>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label class="space-y-1">
+                                <span class="text-xs text-gray-500">{{ ctrans("Size (pt)") }}</span>
+                                <InputNumber :modelValue="(commonValue('font_size', 12) as number | undefined) ?? null" :placeholder="ctrans('Mixed')" :min="2" :max="400" :maxFractionDigits="1" size="small" inputClass="w-full" class="w-full" @focus="remember" @update:modelValue="(value) => value && setForTexts('font_size', value)" />
+                            </label>
+                            <label class="space-y-1">
+                                <span class="text-xs text-gray-500">{{ ctrans("Colour") }}</span>
+                                <DesignColorField v-model="groupTextColor" @open="remember" />
+                            </label>
+                        </div>
+                        <Select :modelValue="(commonValue('font_family', '') as string | undefined) ?? null" :options="fonts" optionLabel="label" optionValue="value" :placeholder="ctrans('Mixed')" size="small" class="w-full" overlayClass="text-sm" @update:modelValue="(value) => { remember(); setForTexts('font_family', value) }" />
+                        <div class="flex items-center gap-2">
+                            <Button :type="commonValue('font_weight', 'normal') === 'bold' ? 'primary' : 'tertiary'" size="xs" icon="fal fa-bold" :tooltip="ctrans('Bold')" @click="() => { remember(); setForTexts('font_weight', commonValue('font_weight', 'normal') === 'bold' ? 'normal' : 'bold') }" />
+                            <Button :type="commonValue('italic', false) ? 'primary' : 'tertiary'" size="xs" icon="fal fa-italic" :tooltip="ctrans('Italic')" @click="() => { remember(); setForTexts('italic', !commonValue('italic', false)) }" />
+                            <SegmentedToggle :modelValue="(commonValue('align', 'center') as string | undefined) ?? ''" :options="alignOptions" iconOnly :ariaLabel="ctrans('Alignment')" @update:modelValue="(value) => { remember(); setForTexts('align', value as DesignElement['align']) }" />
+                        </div>
+                    </div>
+                    <p class="text-xs leading-relaxed text-gray-500">{{ ctrans("Drag any of them to move them together, or use the frame around them to resize or rotate them all. Shift-click an item to add it or take it out of the selection.") }}</p>
                 </template>
 
                 <template v-else>
@@ -680,7 +1459,7 @@ onBeforeUnmount(endGesture)
                     </label>
                     <p v-if="editingBackground" class="rounded-md bg-[--app-accent-soft] px-2 py-1.5 text-xs text-[--app-accent-deep]">{{ ctrans("Drag the image to choose which part shows. It always covers the whole side.") }}</p>
                     <p class="text-xs leading-relaxed text-gray-500">
-                        {{ ctrans("Drag an item to move it, its corners to resize (Shift keeps the shape) and the round handle to rotate. Hold Alt to stop snapping. Arrow keys nudge by 1 mm (Shift: 5 mm), Delete removes it, Ctrl+Z undoes. Double-click the side to move its background.") }}
+                        {{ ctrans("Drag an item to move it, its corners to resize (Shift keeps the shape) and the round handle to rotate; hold Alt to stop snapping. Shift-click to select several. Ctrl+C, Ctrl+X and Ctrl+V copy, cut and paste (also onto another side), Ctrl+D duplicates, Ctrl+A selects all, Ctrl+Z undoes and Ctrl+Y redoes. Arrow keys nudge by 1 mm (Shift: 5 mm), Delete removes. Double-click the side to move its background.") }}
                     </p>
                 </template>
             </aside>

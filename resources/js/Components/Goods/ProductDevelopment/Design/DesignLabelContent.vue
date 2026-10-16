@@ -6,16 +6,18 @@
   -->
 
 <script setup lang="ts">
+import { ref, watch } from "vue"
 import { Link } from "@inertiajs/vue3"
 import BarcodeDisplay from "@/Components/DataDisplay/BarcodeDisplay.vue"
 import { ctrans } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faCheckCircle, faExclamationTriangle } from "@fal"
-library.add(faCheckCircle, faExclamationTriangle)
+import { faCheckCircle, faExclamationTriangle, faChevronDown } from "@fal"
+library.add(faCheckCircle, faExclamationTriangle, faChevronDown)
 
-defineProps<{
+const props = defineProps<{
+    collapsed?: boolean
     data: {
         sku: { code: string, name: string }
         approved: boolean
@@ -26,12 +28,18 @@ defineProps<{
         compliance_route: routeType
     }
 }>()
+
+const open = ref(!props.collapsed)
+watch(() => props.collapsed, (collapsed) => open.value = !collapsed)
 </script>
 
 <template>
     <section class="rounded-lg border border-gray-200 bg-white">
-        <header class="border-b border-gray-100 px-4 py-2.5">
-            <h2 class="text-sm font-semibold text-gray-800">{{ ctrans("Label content for :sku", { sku: data.sku.code }) }}</h2>
+        <header class="px-4 py-2.5" :class="open ? 'border-b border-gray-100' : ''">
+            <button type="button" class="flex w-full items-center gap-2 text-left" :aria-expanded="open" @click="open = !open">
+                <h2 class="flex-1 text-sm font-semibold text-gray-800">{{ ctrans("Label content for :sku", { sku: data.sku.code }) }}</h2>
+                <FontAwesomeIcon icon="fal fa-chevron-down" class="shrink-0 text-gray-400 transition-transform" :class="open ? '' : '-rotate-90'" fixed-width aria-hidden="true" />
+            </button>
             <p v-if="data.approved" class="mt-0.5 flex items-center gap-1 text-xs text-green-700">
                 <FontAwesomeIcon icon="fal fa-check-circle" fixed-width aria-hidden="true" />{{ ctrans("Pack text approved by compliance") }}
             </p>
@@ -44,10 +52,11 @@ defineProps<{
             </p>
         </header>
 
+        <div v-show="open">
         <dl class="space-y-2.5 px-4 py-3 text-sm">
             <div v-for="line in data.text" :key="line.label">
                 <dt class="text-xs text-gray-500">{{ line.label }}</dt>
-                <dd class="whitespace-pre-line text-gray-900">{{ line.value }}</dd>
+                <dd class="whitespace-pre-line break-words text-gray-900">{{ line.value }}</dd>
             </div>
             <div v-if="data.pictograms.length">
                 <dt class="text-xs text-gray-500">{{ ctrans("Hazard pictograms") }}</dt>
@@ -64,6 +73,7 @@ defineProps<{
                 <BarcodeDisplay v-if="barcode.value" :value="barcode.value" :height="40" class="mt-1" />
                 <p v-else class="mt-0.5 text-xs text-amber-700">{{ barcode.note ?? ctrans("Not set yet") }}</p>
             </div>
+        </div>
         </div>
     </section>
 </template>

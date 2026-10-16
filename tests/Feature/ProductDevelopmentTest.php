@@ -660,7 +660,7 @@ test('a supplier fixes the agent of a development', function () {
         ]))->toThrow(ValidationException::class);
 });
 
-test('a design round runs from v1 through pinned comments and changes to an approved, locked v2 that opens the packaging task', function () {
+test('a design round runs from v1 through pinned comments and changes to an approved, locked v2 that opens the label task', function () {
     $designer           = newGuestUser($this);
     $buyer              = newGuestUser($this);
     $agent              = newAgentUser($this);
@@ -672,8 +672,9 @@ test('a design round runs from v1 through pinned comments and changes to an appr
     ]]);
 
     expect(fn () => StoreProductDevelopmentDesignVersion::make()->action($productDevelopment, $designer, ['round' => 'packaging']))->toThrow(ValidationException::class);
+    approveDesign($productDevelopment, 'concept', ['designer' => $designer, 'buyer' => $buyer, 'agent' => $agent]);
 
-    $v1 = StoreProductDevelopmentDesignVersion::make()->action($productDevelopment, $designer, ['round' => 'concept']);
+    $v1 = StoreProductDevelopmentDesignVersion::make()->action($productDevelopment, $designer, ['round' => 'packaging']);
     expect($v1->version)->toBe(1)
         ->and(fn () => SubmitProductDevelopmentDesignVersion::make()->action($v1, $designer))->toThrow(ValidationException::class);
 
@@ -693,7 +694,7 @@ test('a design round runs from v1 through pinned comments and changes to an appr
     ReviewProductDevelopmentDesignVersion::make()->action($v1->fresh(), $buyer, ['operation' => 'request_changes']);
     expect($v1->fresh()->status)->toBe(ProductDevelopmentDesignRoundStatusEnum::CHANGES_REQUESTED);
 
-    $v2 = StoreProductDevelopmentDesignVersion::make()->action($productDevelopment, $designer, ['round' => 'concept']);
+    $v2 = StoreProductDevelopmentDesignVersion::make()->action($productDevelopment, $designer, ['round' => 'packaging']);
     expect($v2->version)->toBe(2)
         ->and($v2->data['layout']['faces']['front']['elements'][0]['text'])->toBe('Incense Cones');
 
@@ -715,21 +716,28 @@ test('a design round runs from v1 through pinned comments and changes to an appr
         ->and($v2->approved_by_id)->toBe($buyer->id)
         ->and(fn () => UpdateProductDevelopmentDesignVersion::make()->action($v2, $designer, ['notes' => 'too late']))->toThrow(ValidationException::class);
 
-    $packagingTask = developmentTasks($productDevelopment)->first(fn ($task) => ($task->data['product_development_event'] ?? null) === CreateProductDevelopmentTask::DESIGN_PACKAGING);
-    expect($packagingTask)->not->toBeNull()
-        ->and($packagingTask->assignee_id)->toBe($designer->id)
-        ->and(StoreProductDevelopmentDesignVersion::make()->action($productDevelopment, $designer, ['round' => 'packaging'])->version)->toBe(1);
+    $labelTask = developmentTasks($productDevelopment)->first(fn ($task) => ($task->data['product_development_event'] ?? null) === CreateProductDevelopmentTask::DESIGN_LABEL);
+    $label     = StoreProductDevelopmentDesignVersion::make()->action($productDevelopment, $designer, ['round' => 'label', 'product_development_item_id' => $productDevelopment->items->first()->id]);
+    expect($labelTask)->not->toBeNull()
+        ->and($labelTask->assignee_id)->toBe($designer->id)
+        ->and($label->version)->toBe(1)
+        ->and($label->data['layout']['kind'])->toBe('sheet')
+        ->and($label->data['layout']['width'])->toBeNull();
 
     actingAs($buyer);
-    get(route('grp.product_developments.design', ['productDevelopment' => $productDevelopment->slug, 'round' => 'concept']))
+    get(route('grp.product_developments.design', ['productDevelopment' => $productDevelopment->slug, 'round' => 'packaging']))
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->component('Goods/ProductDevelopmentDesign')
             ->where('version.version', 2)
             ->where('version.status.value', 'approved')
             ->has('versions', 2)
-            ->has('comments.threads', 1)
+            ->has('comments.threads', 0)
             ->where('previous.version', 1));
+
+    get(route('grp.product_developments.design', ['productDevelopment' => $productDevelopment->slug, 'round' => 'packaging', 'version' => 1]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('version.version', 1)->has('comments.threads', 1));
 
     actingAs(newGuestUser($this));
     get(route('grp.product_developments.design', ['productDevelopment' => $productDevelopment->slug]))->assertForbidden();
@@ -789,11 +797,15 @@ test('a new SKU code is checked before saving, with a readable message', functio
 function approveDesign(ProductDevelopment $productDevelopment, string $round, array $people, ?int $itemId = null): \App\Models\Goods\ProductDevelopmentDesignRound
 {
     $version = StoreProductDevelopmentDesignVersion::make()->action($productDevelopment, $people['designer'], ['round' => $round, 'product_development_item_id' => $itemId]);
-    $layout  = $version->data['layout'];
-    $layout['width'] ??= 60;
-    $layout['length'] ??= 40;
-    $layout['height'] ??= 120;
-    UpdateProductDevelopmentDesignVersion::make()->action($version, $people['designer'], ['layout' => $layout]);
+    if ($version->data['source'] === 'upload') {
+        \App\Actions\Goods\ProductDevelopment\Design\UploadProductDevelopmentDesignArtwork::make()->action($version, $people['designer'], ['file' => UploadedFile::fake()->create('artwork.pdf', 120, 'application/pdf')]);
+    } else {
+        $layout = $version->data['layout'];
+        $layout['width'] ??= 60;
+        $layout['length'] ??= 40;
+        $layout['height'] ??= 120;
+        UpdateProductDevelopmentDesignVersion::make()->action($version, $people['designer'], ['layout' => $layout]);
+    }
     SubmitProductDevelopmentDesignVersion::make()->action($version->fresh(), $people['designer']);
     ReviewProductDevelopmentDesignVersion::make()->action($version->fresh(), $people['agent'], ['operation' => 'check', 'check' => 'print_limits']);
     ReviewProductDevelopmentDesignVersion::make()->action($version->fresh(), $people['buyer'], ['operation' => 'check', 'check' => 'matches_brief']);
@@ -823,7 +835,7 @@ test('labels are designed and approved per SKU, and the label round only counts 
 
     $firstLabel = approveDesign($productDevelopment, 'label', $people, $first->id);
     expect($firstLabel->product_development_item_id)->toBe($first->id)
-        ->and($firstLabel->data['layout']['width'])->toEqual($packaging->data['layout']['width'])
+        ->and($firstLabel->data['layout']['kind'])->toBe('sheet')
         ->and(\App\Actions\Goods\ProductDevelopment\Design\ProductDevelopmentDesignRounds::isApproved($productDevelopment, \App\Enums\Goods\ProductDevelopment\ProductDevelopmentDesignRoundEnum::LABEL))->toBeFalse();
 
     $labelTask = fn () => developmentTasks($productDevelopment)->first(fn ($task) => ($task->data['product_development_event'] ?? null) === CreateProductDevelopmentTask::DESIGN_LABEL);
@@ -947,7 +959,26 @@ test('the label round shows the SKU pack text from compliance and its three barc
             ->has('labelContent.barcodes', 3)
             ->where('labelContent.approved', false)
             ->has('labelContent.pictograms', 1)
-            ->where('labelContent.text', fn ($lines) => collect($lines)->contains(fn ($line) => $line['value'] === 'Keep away from flames')));
+            ->where('labelContent.text', fn ($lines) => collect($lines)->contains(fn ($line) => $line['value'] === 'Keep away from flames'))
+            ->where('labelContent.values.text.warnings', 'Keep away from flames')
+            ->where('labelContent.values.pictograms.pictogram_flammable', true)
+            ->has('dataSources.text')
+            ->has('dataSources.barcodes', 3));
+
+    $label  = StoreProductDevelopmentDesignVersion::make()->action($productDevelopment, $people['designer'], ['round' => 'label', 'product_development_item_id' => $item->id, 'source' => 'editor']);
+    $layout = [...$label->data['layout'], 'width' => 100, 'height' => 40];
+    $layout['faces']['sheet']['elements'] = [
+        ['id' => 'w', 'type' => 'data', 'source' => 'warnings', 'x' => 2, 'y' => 2, 'w' => 60, 'h' => 10],
+        ['id' => 'p', 'type' => 'pictogram', 'source' => 'pictogram_flammable', 'x' => 70, 'y' => 2, 'w' => 10, 'h' => 10],
+        ['id' => 'b', 'type' => 'barcode', 'source' => 'unit', 'x' => 60, 'y' => 20, 'w' => 37, 'h' => 18, 'group_id' => 'g1', 'locked' => true],
+    ];
+    $layout['faces']['sheet']['groups'] = ['g1' => 'Barcode block', 'gone' => 'No members'];
+    UpdateProductDevelopmentDesignVersion::make()->action($label, $people['designer'], ['layout' => $layout]);
+    expect($label->fresh()->data['layout']['faces']['sheet']['groups'])->toBe(['g1' => 'Barcode block']);
+    $saved = collect($label->fresh()->data['layout']['faces']['sheet']['elements']);
+    expect($saved->pluck('source')->all())->toBe(['warnings', 'pictogram_flammable', 'unit'])
+        ->and($saved->last()['group_id'])->toBe('g1')
+        ->and($saved->last()['locked'])->toBeTrue();
 });
 
 test('the agent completes factory photos angle by angle, and a new photo for an angle keeps the old one as an earlier version', function () {
@@ -973,4 +1004,45 @@ test('the agent completes factory photos angle by angle, and a new photo for an 
     expect($photos->fresh()->value['angles']['front'])->not->toBe($firstFront)
         ->and($productDevelopment->files()->find($firstFront)->superseded_at)->not->toBeNull()
         ->and($productDevelopment->files()->where('checklist_item_id', $photos->id)->whereNull('superseded_at')->count())->toBe(6);
+});
+
+test('concept is uploaded and marked up with pins and freehand lines, and packaging can be skipped with the label opening straight away', function () {
+    [$productDevelopment, $people] = developmentWithDesignTeam($this, 1);
+
+    expect(fn () => StoreProductDevelopmentDesignVersion::make()->action($productDevelopment, $people['designer'], ['round' => 'concept', 'source' => 'editor']))->toThrow(ValidationException::class);
+
+    $concept = StoreProductDevelopmentDesignVersion::make()->action($productDevelopment, $people['designer'], ['round' => 'concept']);
+    expect($concept->data['source'])->toBe('upload')
+        ->and(fn () => SubmitProductDevelopmentDesignVersion::make()->action($concept, $people['designer']))->toThrow(ValidationException::class);
+
+    \App\Actions\Goods\ProductDevelopment\Design\UploadProductDevelopmentDesignArtwork::make()->action($concept, $people['designer'], ['file' => UploadedFile::fake()->create('concept.pdf', 200, 'application/pdf')]);
+    expect($concept->fresh()->data['upload']['kind'])->toBe('pdf');
+    SubmitProductDevelopmentDesignVersion::make()->action($concept->fresh(), $people['designer']);
+
+    $pin    = StoreProductDevelopmentComment::make()->action($productDevelopment, $people['buyer'], ['body' => 'Logo bigger', 'design_round_id' => $concept->id, 'pin' => ['x' => 0.3, 'y' => 0.2, 'page' => 2]]);
+    $stroke = StoreProductDevelopmentComment::make()->action($productDevelopment, $people['buyer'], ['body' => 'This whole area', 'design_round_id' => $concept->id, 'stroke' => ['page' => 1, 'points' => [[0.1, 0.1], [0.2, 0.15], [0.3, 0.1]]]]);
+    expect($pin->data['pin']['page'])->toBe(2)
+        ->and($stroke->data['stroke']['number'])->toBe(2)
+        ->and($stroke->data['stroke']['points'])->toHaveCount(3);
+
+    foreach (['print_limits' => 'agent', 'matches_brief' => 'buyer', 'compliance_space' => 'buyer'] as $check => $person) {
+        ReviewProductDevelopmentDesignVersion::make()->action($concept->fresh(), $people[$person], ['operation' => 'check', 'check' => $check]);
+    }
+    ReviewProductDevelopmentDesignVersion::make()->action($concept->fresh(), $people['buyer'], ['operation' => 'approve']);
+
+    $skip = \App\Actions\Goods\ProductDevelopment\Design\SkipProductDevelopmentDesignRound::make();
+    expect(fn () => $skip->action($productDevelopment->fresh(), $this->user, ['round' => 'concept', 'operation' => 'skip']))->toThrow(ValidationException::class);
+
+    $skip->action($productDevelopment->fresh(), $this->user, ['round' => 'packaging', 'operation' => 'skip']);
+    $productDevelopment = $productDevelopment->fresh();
+    $tasks              = developmentTasks($productDevelopment);
+    expect(\App\Actions\Goods\ProductDevelopment\Design\ProductDevelopmentDesignRounds::isUnlocked($productDevelopment, \App\Enums\Goods\ProductDevelopment\ProductDevelopmentDesignRoundEnum::LABEL))->toBeTrue()
+        ->and($tasks->first(fn ($task) => ($task->data['product_development_event'] ?? null) === CreateProductDevelopmentTask::DESIGN_PACKAGING)?->status->isOpen() ?? false)->toBeFalse()
+        ->and($tasks->first(fn ($task) => ($task->data['product_development_event'] ?? null) === CreateProductDevelopmentTask::DESIGN_LABEL))->not->toBeNull();
+
+    $productDevelopment->updateQuietly(['current_position' => ProductDevelopmentStageEnum::PACKAGING->position()]);
+    expect(GetProductDevelopmentStageGate::run($productDevelopment->fresh())['reason'] ?? '')->not->toContain('packaging');
+
+    $skip->action($productDevelopment->fresh(), $this->user, ['round' => 'packaging', 'operation' => 'undo']);
+    expect(\App\Actions\Goods\ProductDevelopment\Design\ProductDevelopmentDesignRounds::isSkipped($productDevelopment->fresh(), \App\Enums\Goods\ProductDevelopment\ProductDevelopmentDesignRoundEnum::PACKAGING))->toBeFalse();
 });

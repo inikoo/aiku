@@ -81,6 +81,12 @@ class UpdateProductDevelopmentDesignVersion extends OrgAction
             return;
         }
 
+        if (($this->designRound->data['source'] ?? StoreProductDevelopmentDesignVersion::SOURCE_EDITOR) === StoreProductDevelopmentDesignVersion::SOURCE_UPLOAD) {
+            $validator->errors()->add('layout', __('This version is an uploaded file'));
+
+            return;
+        }
+
         $imageIds = ProductDevelopmentDesignLayout::imageFileIds($layout);
         if ($imageIds === []) {
             return;

@@ -10,7 +10,6 @@
 namespace App\Actions\Goods\ProductDevelopment\UI;
 
 use App\Actions\Goods\ProductDevelopment\Design\ProductDevelopmentDesignImages;
-use App\Actions\Goods\ProductDevelopment\Design\ProductDevelopmentDesignLayout;
 use App\Actions\Goods\ProductDevelopment\Design\ProductDevelopmentDesignRounds;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentDesignRoundEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentDesignRoundStatusEnum;
@@ -52,6 +51,7 @@ class GetProductDevelopmentDesignOverview
                     'label'    => ProductDevelopmentDesignRoundEnum::labels()[$round->value],
                     'icon'     => $round->icon(),
                     'unlocked' => ProductDevelopmentDesignRounds::isUnlocked($productDevelopment, $round),
+                    'skipped'  => ProductDevelopmentDesignRounds::isSkipped($productDevelopment, $round),
                     'latest'   => $latest ? [
                         'version' => $latest->version,
                         'status'  => [
@@ -60,7 +60,7 @@ class GetProductDevelopmentDesignOverview
                             'color' => $latest->status->color(),
                             'icon'  => $latest->status->icon(),
                         ],
-                        'layout'  => ProductDevelopmentDesignLayout::normalise($latest->data['layout'] ?? []),
+                        ...ShowProductDevelopmentDesign::content($latest),
                     ] : null,
                     'progress' => $round->isPerSku() ? ProductDevelopmentDesignRounds::skuProgress($productDevelopment, $round) : null,
                     'skus'     => $skus->map(fn (array $sku) => [...collect($sku)->except('latest')->all(), 'version' => $sku['latest']?->version])->values()->all(),

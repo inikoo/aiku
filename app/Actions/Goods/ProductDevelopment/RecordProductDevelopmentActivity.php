@@ -39,6 +39,10 @@ class RecordProductDevelopmentActivity
 
     public const string REMINDERS_SENT = 'reminders_sent';
 
+    public const string DESIGN_ROUND_SKIPPED = 'design_round_skipped';
+
+    public const string DESIGN_ROUND_UNSKIPPED = 'design_round_unskipped';
+
     public const string SIGN_OFF_WITHDRAWN = 'sign_off_withdrawn';
 
     /**

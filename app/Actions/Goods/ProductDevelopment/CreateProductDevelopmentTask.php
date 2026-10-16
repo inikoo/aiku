@@ -210,6 +210,9 @@ class CreateProductDevelopmentTask
 
         if ($round = array_search($key, self::DESIGN_TASKS, true)) {
             $round = ProductDevelopmentDesignRoundEnum::from($round);
+            if (ProductDevelopmentDesignRounds::isSkipped($productDevelopment, $round)) {
+                return $task->status->isOpen() ? [StaffTaskStatusEnum::DONE, __('The :round round was skipped', ['round' => mb_strtolower(ProductDevelopmentDesignRoundEnum::labels()[$round->value])])] : [null, null];
+            }
             if (ProductDevelopmentDesignRounds::isApproved($productDevelopment, $round)) {
                 return [StaffTaskStatusEnum::DONE, __('The :round design is approved', ['round' => mb_strtolower(ProductDevelopmentDesignRoundEnum::labels()[$round->value])])];
             }
@@ -252,11 +255,11 @@ class CreateProductDevelopmentTask
                 && $this->existing($productDevelopment, self::SEND_ARTWORK)?->status === StaffTaskStatusEnum::DONE,
             self::SIGN_OFF_BUYER, self::SIGN_OFF_COMPLIANCE => SignOffProductDevelopment::isOpenForSignOff($productDevelopment),
             self::DESIGN_CONCEPT => $productDevelopment->current_position >= ProductDevelopmentStageEnum::CONCEPT->position()
-                && !ProductDevelopmentDesignRounds::isApproved($productDevelopment, ProductDevelopmentDesignRoundEnum::CONCEPT),
-            self::DESIGN_PACKAGING => ProductDevelopmentDesignRounds::isApproved($productDevelopment, ProductDevelopmentDesignRoundEnum::CONCEPT)
-                && !ProductDevelopmentDesignRounds::isApproved($productDevelopment, ProductDevelopmentDesignRoundEnum::PACKAGING),
-            self::DESIGN_LABEL => ProductDevelopmentDesignRounds::isApproved($productDevelopment, ProductDevelopmentDesignRoundEnum::PACKAGING)
-                && !ProductDevelopmentDesignRounds::isApproved($productDevelopment, ProductDevelopmentDesignRoundEnum::LABEL),
+                && !ProductDevelopmentDesignRounds::isSettled($productDevelopment, ProductDevelopmentDesignRoundEnum::CONCEPT),
+            self::DESIGN_PACKAGING => ProductDevelopmentDesignRounds::isSettled($productDevelopment, ProductDevelopmentDesignRoundEnum::CONCEPT)
+                && !ProductDevelopmentDesignRounds::isSettled($productDevelopment, ProductDevelopmentDesignRoundEnum::PACKAGING),
+            self::DESIGN_LABEL => ProductDevelopmentDesignRounds::isSettled($productDevelopment, ProductDevelopmentDesignRoundEnum::PACKAGING)
+                && !ProductDevelopmentDesignRounds::isSettled($productDevelopment, ProductDevelopmentDesignRoundEnum::LABEL),
             default => false,
         };
     }
