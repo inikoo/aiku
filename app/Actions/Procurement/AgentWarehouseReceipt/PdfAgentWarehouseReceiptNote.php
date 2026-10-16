@@ -67,17 +67,8 @@ class PdfAgentWarehouseReceiptNote extends OrgAction
             'name'     => $receipt->supplierProduct?->name,
             'ordered'  => (float) $receipt->purchaseOrderTransaction?->quantity_ordered,
             'received' => (float) $receipt->quantity_received,
-            'remarks'  => $this->remarks($receipt),
+            'remarks'  => $receipt->notes,
         ]);
-    }
-
-    private function remarks(AgentWarehouseReceipt $receipt): ?string
-    {
-        if (!$receipt->isChecked() || (float) $receipt->quantity_rejected <= 0) {
-            return null;
-        }
-
-        return trim(__('Rejected :units', ['units' => trimDecimalZeros($receipt->quantity_rejected)]).($receipt->reject_reason ? ': '.$receipt->reject_reason : ''));
     }
 
     /**

@@ -36,6 +36,7 @@ use Spatie\MediaLibrary\HasMedia;
  * @property int|null $agent_warehouse_stock_id
  * @property Carbon $received_at
  * @property string $quantity_received
+ * @property string|null $notes
  * @property string|null $quantity_rejected
  * @property Carbon|null $checked_at
  * @property string|null $reject_reason

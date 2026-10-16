@@ -106,6 +106,7 @@ class GetPurchaseOrderAgentReceiving
             'id'                => $receipt->id,
             'received_at'       => $receipt->received_at->toDateString(),
             'quantity_received' => (float) $receipt->quantity_received,
+            'notes'             => $receipt->notes,
             'quantity_rejected' => $receipt->quantity_rejected === null ? null : (float) $receipt->quantity_rejected,
             'is_checked'        => $receipt->isChecked(),
             'checked_at'        => $receipt->checked_at,

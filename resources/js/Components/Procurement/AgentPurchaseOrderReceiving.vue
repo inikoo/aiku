@@ -27,6 +27,7 @@ type Receipt = {
 	id: number
 	received_at: string
 	quantity_received: number
+	notes: string | null
 	quantity_rejected: number | null
 	is_checked: boolean
 	checked_at: string | null
@@ -98,9 +99,10 @@ const isExpanded = (line: Line) => expanded.value[line.id] ?? line.unchecked > 0
 const receivingLine = ref<Line | null>(null)
 const editingReceipt = ref<Receipt | null>(null)
 
-const receiveForm = useForm<{ received_at: Date | null; quantity_received: number | null }>({
+const receiveForm = useForm<{ received_at: Date | null; quantity_received: number | null; notes: string | null }>({
 	received_at: new Date(),
 	quantity_received: null,
+	notes: null,
 })
 
 function openReceive(line: Line) {
@@ -109,6 +111,7 @@ function openReceive(line: Line) {
 	receiveForm.clearErrors()
 	receiveForm.received_at = new Date()
 	receiveForm.quantity_received = line.outstanding
+	receiveForm.notes = null
 }
 
 function openEditReceipt(line: Line, receipt: Receipt) {
@@ -117,6 +120,7 @@ function openEditReceipt(line: Line, receipt: Receipt) {
 	receiveForm.clearErrors()
 	receiveForm.received_at = new Date(receipt.received_at)
 	receiveForm.quantity_received = receipt.quantity_received
+	receiveForm.notes = receipt.notes
 }
 
 function closeReceive() {
@@ -143,7 +147,7 @@ function submitReceive() {
 	}
 
 	receiveForm
-		.transform((data) => ({ ...data, received_at: isoDate(data.received_at) }))
+		.transform((data) => ({ ...data, received_at: isoDate(data.received_at), notes: data.notes || null }))
 		.post(route(targetRoute.name, targetRoute.parameters), {
 			preserveScroll: true,
 			onSuccess: closeReceive,
@@ -354,6 +358,7 @@ function receiptStatus(receipt: Receipt) {
 									{{ ctrans(":units units on :date", { units: formatQuantity(receipt.quantity_received), date: receipt.received_at }) }}
 									<span class="text-gray-400">({{ skos(line, receipt.quantity_received) }} SKO)</span>
 								</div>
+								<div v-if="receipt.notes" class="mt-0.5 whitespace-pre-line text-gray-600">{{ receipt.notes }}</div>
 								<div v-if="receipt.received_by" class="text-gray-400">{{ ctrans("Received by :name", { name: receipt.received_by }) }}</div>
 							</td>
 							<td class="px-3 py-1.5" colspan="3">
@@ -415,6 +420,10 @@ function receiptStatus(receipt: Receipt) {
 					<span class="block text-xs text-gray-500">
 						{{ ctrans("= :skos SKO. Up to :units units are still to come.", { skos: skos(receivingLine, receiveForm.quantity_received), units: formatQuantity(receiveMaximum) }) }}
 					</span>
+				</label>
+				<label class="block space-y-1">
+					<span class="text-xs text-gray-500">{{ ctrans("Remarks (optional)") }}</span>
+					<Textarea v-model="receiveForm.notes" rows="2" autoResize fluid :placeholder="ctrans('Printed on the receipt note for the supplier')" />
 				</label>
 				<div
 					v-if="editingRejected > 0"

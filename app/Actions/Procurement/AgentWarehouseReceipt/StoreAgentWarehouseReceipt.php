@@ -67,6 +67,7 @@ class StoreAgentWarehouseReceipt extends OrgAction
                 'agent_warehouse_stock_id'      => $stock->id,
                 'received_at'                   => $modelData['received_at'],
                 'quantity_received'             => $quantity,
+                'notes'                         => $modelData['notes'] ?? null,
                 'received_by_id'                => $user->id,
             ]);
         });
@@ -113,6 +114,7 @@ class StoreAgentWarehouseReceipt extends OrgAction
         return [
             'received_at'       => ['required', 'date', 'before_or_equal:'.Carbon::parse(MarkPurchaseOrderStage::today($this->organisation))->addDay()->toDateString()],
             'quantity_received' => ['required', 'numeric', 'gt:0'],
+            'notes'             => ['sometimes', 'nullable', 'string', 'max:1000'],
         ];
     }
 

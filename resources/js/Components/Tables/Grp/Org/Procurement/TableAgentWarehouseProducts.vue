@@ -14,6 +14,8 @@ import { faDolly, faBoxCheck, faBoxes, faTruckContainer, faInboxIn, faCheck, faT
 import DatePicker from "primevue/datepicker"
 import Dialog from "primevue/dialog"
 import InputNumber from "primevue/inputnumber"
+import InputText from "primevue/inputtext"
+import Textarea from "primevue/textarea"
 import Table from "@/Components/Table/Table.vue"
 import Icon from "@/Components/Icon.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
@@ -72,9 +74,10 @@ const selectedRows = computed(() => rows.value.filter((row) => selectedIds.value
 const selectedUnits = computed(() => selectedRows.value.reduce((sum, row) => sum + Number(row.quantity), 0))
 
 const receivingRow = ref<ProductRow | null>(null)
-const receiveForm = useForm<{ received_at: Date | null; quantity_received: number | null }>({
+const receiveForm = useForm<{ received_at: Date | null; quantity_received: number | null; notes: string | null }>({
 	received_at: new Date(),
 	quantity_received: null,
+	notes: null,
 })
 
 function openReceive(row: ProductRow) {
@@ -82,6 +85,7 @@ function openReceive(row: ProductRow) {
 	receiveForm.clearErrors()
 	receiveForm.received_at = new Date()
 	receiveForm.quantity_received = row.quantity
+	receiveForm.notes = null
 }
 
 function submitReceive() {
@@ -91,7 +95,7 @@ function submitReceive() {
 	}
 
 	receiveForm
-		.transform((data) => ({ ...data, received_at: isoDate(data.received_at) }))
+		.transform((data) => ({ ...data, received_at: isoDate(data.received_at), notes: data.notes || null }))
 		.post(route(receiveRoute.name, receiveRoute.parameters), {
 			preserveScroll: true,
 			onSuccess: () => (receivingRow.value = null),
@@ -99,6 +103,7 @@ function submitReceive() {
 }
 
 const isBulkReceiveOpen = ref(false)
+const bulkNotes = ref<Record<string, string>>({})
 const bulkForm = useForm<{ received_at: Date | null }>({
 	received_at: new Date(),
 })
@@ -106,6 +111,7 @@ const bulkForm = useForm<{ received_at: Date | null }>({
 function openBulkReceive() {
 	bulkForm.clearErrors()
 	bulkForm.received_at = new Date()
+	bulkNotes.value = {}
 	isBulkReceiveOpen.value = true
 }
 
@@ -117,7 +123,7 @@ function submitBulkReceive() {
 	bulkForm
 		.transform((data) => ({
 			received_at: isoDate(data.received_at),
-			lines: selectedRows.value.map((row) => ({ purchase_order_transaction_id: row.id, quantity_received: row.quantity })),
+			lines: selectedRows.value.map((row) => ({ purchase_order_transaction_id: row.id, quantity_received: row.quantity, notes: bulkNotes.value[row.id] || null })),
 		}))
 		.post(route(props.receiving.bulk_route.name, props.receiving.bulk_route.parameters), {
 			preserveScroll: true,
@@ -233,6 +239,10 @@ function submitBulkReceive() {
 					{{ ctrans("= :skos SKO. Up to :units units are still to come.", { skos: skos(receivingRow, receiveForm.quantity_received), units: formatQuantity(receivingRow.quantity_outstanding) }) }}
 				</span>
 			</label>
+			<label class="block space-y-1">
+				<span class="text-xs text-gray-500">{{ ctrans("Remarks (optional)") }}</span>
+				<Textarea v-model="receiveForm.notes" rows="2" autoResize fluid :placeholder="ctrans('Printed on the receipt note for the supplier')" />
+			</label>
 			<div v-for="(error, field) in receiveForm.errors" :key="field" class="text-xs text-red-600">{{ error }}</div>
 			<div class="flex justify-end gap-2">
 				<Button type="tertiary" :label="ctrans('Cancel')" @click="receivingRow = null">
@@ -262,16 +272,19 @@ function submitBulkReceive() {
 				<DatePicker v-model="bulkForm.received_at" dateFormat="yy-mm-dd" :maxDate="new Date()" :manualInput="false" showIcon iconDisplay="input" :class="fieldFocusClass" fluid />
 			</label>
 			<div class="max-h-[50vh] divide-y divide-gray-100 overflow-y-auto rounded-md border border-gray-200">
-				<div v-for="row in selectedRows" :key="row.id" class="flex items-center gap-3 px-3 py-2">
-					<ZoomableImage :src="row.image_thumbnail" :full="row.image_full" :alt="row.code" class="h-10 w-10" />
-					<div class="min-w-0 flex-1">
-						<div class="font-medium text-gray-800">{{ row.code }}</div>
-						<div class="truncate text-xs text-gray-500">{{ row.purchase_order_reference }} · {{ row.name }}</div>
+				<div v-for="row in selectedRows" :key="row.id" class="space-y-1.5 px-3 py-2">
+					<div class="flex items-center gap-3">
+						<ZoomableImage :src="row.image_thumbnail" :full="row.image_full" :alt="row.code" class="h-10 w-10" />
+						<div class="min-w-0 flex-1">
+							<div class="font-medium text-gray-800">{{ row.code }}</div>
+							<div class="truncate text-xs text-gray-500">{{ row.purchase_order_reference }} · {{ row.name }}</div>
+						</div>
+						<div class="text-right tabular-nums">
+							<div class="font-medium text-gray-800">{{ ctrans(":units units", { units: formatQuantity(row.quantity) }) }}</div>
+							<div class="text-xs text-gray-500">{{ skos(row, row.quantity) }} SKO</div>
+						</div>
 					</div>
-					<div class="text-right tabular-nums">
-						<div class="font-medium text-gray-800">{{ ctrans(":units units", { units: formatQuantity(row.quantity) }) }}</div>
-						<div class="text-xs text-gray-500">{{ skos(row, row.quantity) }} SKO</div>
-					</div>
+					<InputText v-model="bulkNotes[row.id]" size="small" :class="fieldFocusClass" :placeholder="ctrans('Remarks (optional)')" fluid />
 				</div>
 			</div>
 			<div class="rounded-md border border-[--app-accent-muted] bg-[--app-accent-soft] p-3 text-xs text-gray-700">

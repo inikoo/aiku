@@ -93,6 +93,7 @@ class UpdateAgentWarehouseReceipt extends OrgAction
             'received_at'       => ['sometimes', 'required', 'date', 'before_or_equal:'.Carbon::parse(MarkPurchaseOrderStage::today($this->organisation))->addDay()->toDateString()],
             'quantity_received' => ['sometimes', 'required', 'numeric', 'gt:0'],
             'quantity_rejected' => ['sometimes', 'nullable', 'numeric', 'min:0'],
+            'notes'             => ['sometimes', 'nullable', 'string', 'max:1000'],
             'reject_reason'     => ['sometimes', 'nullable', 'string', 'max:5000'],
             'photos'            => ['sometimes', 'array', 'max:10'],
             'photos.*'          => ['file', 'mimes:jpg,jpeg,png,webp,heic', 'max:20480'],

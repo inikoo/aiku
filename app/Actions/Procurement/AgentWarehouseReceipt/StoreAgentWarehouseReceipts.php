@@ -48,6 +48,7 @@ class StoreAgentWarehouseReceipts extends OrgAction
                     StoreAgentWarehouseReceipt::make()->handle($purchaseOrderTransaction, $user, [
                         'received_at'       => $modelData['received_at'],
                         'quantity_received' => $line['quantity_received'],
+                        'notes'             => $line['notes'] ?? null,
                     ]);
                 } catch (ValidationException $exception) {
                     throw ValidationException::withMessages([
@@ -67,6 +68,7 @@ class StoreAgentWarehouseReceipts extends OrgAction
             'lines'                                 => ['required', 'array', 'min:1', 'max:200'],
             'lines.*.purchase_order_transaction_id' => ['required', 'integer', 'distinct'],
             'lines.*.quantity_received'             => ['required', 'numeric', 'gt:0'],
+            'lines.*.notes'                         => ['sometimes', 'nullable', 'string', 'max:1000'],
         ];
     }
 
