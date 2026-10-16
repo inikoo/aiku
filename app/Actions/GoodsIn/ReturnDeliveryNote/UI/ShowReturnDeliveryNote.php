@@ -20,6 +20,7 @@ use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Actions\Retina\UI\Layout\GetPlatformLogo;
 use App\Actions\UI\WithInertia;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemReplacementReasonEnum;
 use App\Enums\GoodsIn\ReturnDeliveryNote\ReturnDeliveryNoteStateEnum;
 use App\Enums\GoodsIn\ReturnDeliveryNoteItem\ReturnDeliveryNoteItemStateEnum;
 use App\Enums\UI\Dispatch\DeliveryNoteTabsEnum;
@@ -426,6 +427,7 @@ class ShowReturnDeliveryNote extends OrgAction
                 'type' => $returnDeliveryNote->shop?->type?->value,
             ],
             'return_delivery_note' => [],
+            'replacement_reasons'  => DeliveryNoteItemReplacementReasonEnum::valuesWithLabels(),
         ];
 
 
