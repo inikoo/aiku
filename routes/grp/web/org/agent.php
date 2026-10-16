@@ -24,6 +24,8 @@ use App\Actions\Procurement\AgentLabel\FetchAgentOrgStockBarcodeLabelOptions;
 use App\Actions\Procurement\AgentLabel\PdfAgentOrgStockBarcodeLabel;
 use App\Actions\Procurement\AgentLabel\UI\IndexAgentBarcodes;
 use App\Actions\Procurement\AgentLabel\UI\IndexAgentLabels;
+use App\Actions\Procurement\AgentWarehouseStock\ReceiveAgentProductsInProduction;
+use App\Actions\Procurement\AgentWarehouseStock\UI\GetAgentProductsInProductionToReceive;
 use App\Actions\Procurement\AgentWarehouseStock\UI\IndexAgentProductsInProduction;
 use App\Actions\Procurement\AgentWarehouseStock\UI\IndexAgentReceivedProducts;
 use App\Actions\Procurement\AgentWarehouseStock\UI\IndexAgentWarehouseStocks;
@@ -141,6 +143,8 @@ Route::prefix('containers')->as('stock_deliveries.')->group(function () {
 
 Route::get('warehouse', IndexAgentWarehouseStocks::class)->name('warehouse.index');
 Route::get('warehouse/in-production', IndexAgentProductsInProduction::class)->name('warehouse.in_production');
+Route::get('warehouse/in-production/to-receive', GetAgentProductsInProductionToReceive::class)->name('warehouse.in_production.to_receive');
+Route::post('warehouse/in-production/receive', ReceiveAgentProductsInProduction::class)->name('warehouse.in_production.receive');
 Route::get('warehouse/received', IndexAgentReceivedProducts::class)->name('warehouse.received');
 
 Route::get('barcodes', IndexAgentBarcodes::class)->name('agent_barcodes.index');

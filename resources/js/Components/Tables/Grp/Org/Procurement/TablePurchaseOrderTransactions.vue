@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
-import { ctrans } from '@/Composables/useTrans'
+import { ctrans, ctransChoice } from '@/Composables/useTrans'
 import { isAgentOrganisation } from '@/Composables/useAgentRoutes'
 import { notify } from '@kyvg/vue3-notification'
 import axios from 'axios'
@@ -21,14 +21,14 @@ import PurchaseOrderSuggestButton from '@/Components/Procurement/PurchaseOrderSu
 import { getOrderingLevels, unitsPerOrderingLevel, suggestionAtOrderingLevel, type OrderingLevel } from '@/Composables/useOrderingLevel'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faBox, faPallet, faStopCircle, faTrashAlt, faPeopleArrows, faBalanceScale } from '@fal'
+import { faBox, faPallet, faStopCircle, faTrashAlt, faPeopleArrows, faBalanceScale, faExclamationTriangle } from '@fal'
 import { faExclamationCircle, faSpinner, faMinusCircle } from '@fas'
 import ConfirmPopup from 'primevue/confirmpopup'
 import Popover from 'primevue/popover'
 import { useConfirm } from 'primevue/useconfirm'
 import Toggle from '@/Components/Pure/Toggle.vue'
 
-library.add(faBalanceScale, faBox, faPallet, faStopCircle, faExclamationCircle, faTrashAlt, faSpinner, faMinusCircle, faPeopleArrows)
+library.add(faExclamationTriangle, faBalanceScale, faBox, faPallet, faStopCircle, faExclamationCircle, faTrashAlt, faSpinner, faMinusCircle, faPeopleArrows)
 
 const confirm = useConfirm()
 
@@ -124,6 +124,31 @@ function quantityBreakdown(item: any) {
     }
 
     return `${formatQuantity(units)}u. | ${formatQuantity(units / pack)}sko. | ${formatQuantity(units / carton)}C.${supplierUnitQuantity(item)}`
+}
+
+function orderedCartons(item: any) {
+    return Number(item.quantity_ordered) / (Number(item.units_per_carton) || 1)
+}
+
+function isBelowMinimumCartonOrder(item: any) {
+    return !!item.minimum_carton_order
+        && item.state !== 'cancelled'
+        && Number(item.quantity_ordered) > 0
+        && orderedCartons(item) < item.minimum_carton_order
+}
+
+function cartonsLabel(cartons: number) {
+    const rounded = Math.round(cartons * 100) / 100
+
+    return ctransChoice(':number carton|:number cartons', rounded, { number: locale.number(rounded) })
+}
+
+function belowMinimumCartonOrderTooltip(item: any) {
+    return ctrans("Ordered :ordered, below the supplier's minimum of :moq (short by :short)", {
+        ordered: cartonsLabel(orderedCartons(item)),
+        moq: cartonsLabel(item.minimum_carton_order),
+        short: cartonsLabel(item.minimum_carton_order - orderedCartons(item)),
+    })
 }
 
 function amount(item: any) {
@@ -592,6 +617,15 @@ function orgStockRoute(item: { org_stock_id?: number }) {
                 <PurchaseOrderSuggestButton :item="item" :isPartner="isPartner" :typedSkosById="typedSkos" :quantityLabel="(skos: number) => suggestionLabel(item, skos)" @suggest="(skos) => applySuggestion(item, skos)" />
             </div>
             <span v-else class="text-gray-500">{{ quantityBreakdown(item) }}</span>
+            <div
+                v-if="isBelowMinimumCartonOrder(item)"
+                v-tooltip="belowMinimumCartonOrderTooltip(item)"
+                class="flex items-center gap-1 pt-1 text-xs font-medium text-amber-600 tabular-nums whitespace-nowrap"
+                :class="isInProcess ? 'justify-end' : ''"
+            >
+                <FontAwesomeIcon icon="fal fa-exclamation-triangle" fixed-width aria-hidden="true" />
+                {{ ctrans('Below MOQ: :ordered / :moq', { ordered: locale.number(Math.round(orderedCartons(item) * 100) / 100), moq: cartonsLabel(item.minimum_carton_order) }) }}
+            </div>
         </template>
 
         <template #cell(actions)="{ item }">
