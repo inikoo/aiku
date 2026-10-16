@@ -23,6 +23,7 @@ use App\Models\HumanResources\Leave;
 use App\Models\HumanResources\LeaveApprover;
 use App\Models\Inventory\Warehouse;
 use App\Models\Ordering\Order;
+use App\Models\Procurement\AgentGoodsReceipt;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\User;
@@ -128,6 +129,7 @@ class DownloadAttachment
                 "accounting.$owner->organisation_id.view",
                 'supply-chain.view',
             ]),
+            $owner instanceof AgentGoodsReceipt => $user->authTo(["procurement.{$owner->agent->organisation_id}.view"]),
             $owner instanceof Supplier => $user->authTo(['supply-chain.view']),
             default => null,
         };

@@ -24,7 +24,12 @@ use App\Actions\Procurement\AgentLabel\FetchAgentOrgStockBarcodeLabelOptions;
 use App\Actions\Procurement\AgentLabel\PdfAgentOrgStockBarcodeLabel;
 use App\Actions\Procurement\AgentLabel\UI\IndexAgentBarcodes;
 use App\Actions\Procurement\AgentLabel\UI\IndexAgentLabels;
-use App\Actions\Procurement\AgentWarehouseStock\ReceiveAgentProductsInProduction;
+use App\Actions\Procurement\AgentGoodsReceipt\CancelAgentGoodsReceipt;
+use App\Actions\Procurement\AgentGoodsReceipt\DeleteAgentGoodsReceiptAttachment;
+use App\Actions\Procurement\AgentGoodsReceipt\StoreAgentGoodsReceipt;
+use App\Actions\Procurement\AgentGoodsReceipt\UI\IndexAgentGoodsReceipts;
+use App\Actions\Procurement\AgentGoodsReceipt\UI\ShowAgentGoodsReceipt;
+use App\Actions\Procurement\AgentGoodsReceipt\UploadAgentGoodsReceiptAttachments;
 use App\Actions\Procurement\AgentWarehouseStock\UI\GetAgentProductsInProductionToReceive;
 use App\Actions\Procurement\AgentWarehouseStock\UI\IndexAgentProductsInProduction;
 use App\Actions\Procurement\AgentWarehouseStock\UI\IndexAgentReceivedProducts;
@@ -144,8 +149,16 @@ Route::prefix('containers')->as('stock_deliveries.')->group(function () {
 Route::get('warehouse', IndexAgentWarehouseStocks::class)->name('warehouse.index');
 Route::get('warehouse/in-production', IndexAgentProductsInProduction::class)->name('warehouse.in_production');
 Route::get('warehouse/in-production/to-receive', GetAgentProductsInProductionToReceive::class)->name('warehouse.in_production.to_receive');
-Route::post('warehouse/in-production/receive', ReceiveAgentProductsInProduction::class)->name('warehouse.in_production.receive');
-Route::get('warehouse/received', IndexAgentReceivedProducts::class)->name('warehouse.received');
+Route::post('warehouse/in-production/receive', StoreAgentGoodsReceipt::class)->name('warehouse.in_production.receive');
+
+Route::prefix('warehouse/received')->as('warehouse.received.')->group(function () {
+    Route::get('', IndexAgentReceivedProducts::class)->name('index');
+    Route::get('goods-receipts', IndexAgentGoodsReceipts::class)->name('goods_receipts.index');
+    Route::get('goods-receipts/{agentGoodsReceipt}', ShowAgentGoodsReceipt::class)->name('goods_receipts.show');
+    Route::post('goods-receipts/{agentGoodsReceipt}/cancel', CancelAgentGoodsReceipt::class)->name('goods_receipts.cancel');
+    Route::post('goods-receipts/{agentGoodsReceipt}/photos', UploadAgentGoodsReceiptAttachments::class)->name('goods_receipts.photos.store');
+    Route::delete('goods-receipts/{agentGoodsReceipt}/photos/{media:id}', DeleteAgentGoodsReceiptAttachment::class)->name('goods_receipts.photos.destroy')->withoutScopedBindings();
+});
 
 Route::get('barcodes', IndexAgentBarcodes::class)->name('agent_barcodes.index');
 

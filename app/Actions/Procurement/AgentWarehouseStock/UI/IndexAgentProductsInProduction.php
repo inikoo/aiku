@@ -12,6 +12,7 @@ namespace App\Actions\Procurement\AgentWarehouseStock\UI;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\WithAgentOrganisation;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
+use App\Enums\Procurement\AgentGoodsReceipt\AgentGoodsReceiptStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStageEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\InertiaTable\InertiaTable;
@@ -40,16 +41,18 @@ class IndexAgentProductsInProduction extends OrgAction
     public const string REMAINING_QUANTITY_SQL = 'purchase_order_transactions.quantity_ordered - coalesce(received_lines.quantity, 0)';
 
     /**
-     * The purchase order lines still being made, each with what the agent already received of it subtracted, so a line
-     * received in part keeps only the rest and a line received in full is gone.
+     * The purchase order lines still being made, each less what the agent's goods receipts not cancelled brought of it,
+     * so a line received in part keeps only the rest and a line received in full is gone.
      */
     public static function inProductionLines(Agent $agent): Builder
     {
-        $receivedLines = DB::table('agent_warehouse_stocks')
-            ->whereNotNull('purchase_order_transaction_id')
-            ->groupBy('purchase_order_transaction_id')
-            ->select('purchase_order_transaction_id')
-            ->selectRaw('sum(quantity) as quantity');
+        $receivedLines = DB::table('agent_goods_receipt_items')
+            ->join('agent_goods_receipts', 'agent_goods_receipts.id', 'agent_goods_receipt_items.agent_goods_receipt_id')
+            ->where('agent_goods_receipts.state', AgentGoodsReceiptStateEnum::RECEIVED->value)
+            ->whereNotNull('agent_goods_receipt_items.purchase_order_transaction_id')
+            ->groupBy('agent_goods_receipt_items.purchase_order_transaction_id')
+            ->select('agent_goods_receipt_items.purchase_order_transaction_id')
+            ->selectRaw('sum(agent_goods_receipt_items.quantity) as quantity');
 
         return PurchaseOrderTransaction::query()
             ->join('purchase_orders as production_orders', 'production_orders.id', 'purchase_order_transactions.purchase_order_id')
@@ -148,7 +151,7 @@ class IndexAgentProductsInProduction extends OrgAction
             'grp.org.agent.warehouse.in_production',
             'in_production',
             $this->organisationOptions($organisationCounts),
-        )->with('receive', $this->canEdit ? $this->receiveScopes() : null)->table($this->tableStructure());
+        )->table($this->tableStructure());
     }
 
     /**
@@ -157,9 +160,9 @@ class IndexAgentProductsInProduction extends OrgAction
      *
      * @return array{suppliers: list<array{value: int, label: string, count: int}>, purchase_orders: list<array{value: int, label: string, count: int}>}
      */
-    private function receiveScopes(): array
+    public static function receiveScopes(Agent $agent): array
     {
-        $purchaseOrders = self::inProductionLines($this->agent)
+        $purchaseOrders = self::inProductionLines($agent)
             ->join('supplier_products', 'supplier_products.id', 'purchase_order_transactions.supplier_product_id')
             ->join('suppliers', 'suppliers.id', 'supplier_products.supplier_id')
             ->join('organisations', 'organisations.id', 'purchase_order_transactions.organisation_id')

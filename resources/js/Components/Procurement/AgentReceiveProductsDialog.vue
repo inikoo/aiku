@@ -9,7 +9,9 @@
 import { computed, ref, watch } from "vue"
 import axios from "axios"
 import { router } from "@inertiajs/vue3"
+import DatePicker from "primevue/datepicker"
 import Dialog from "primevue/dialog"
+import FileUpload from "primevue/fileupload"
 import InputNumber from "primevue/inputnumber"
 import InputText from "primevue/inputtext"
 import Select from "primevue/select"
@@ -56,6 +58,10 @@ const pasted = ref("")
 const unmatchedCodes = ref<string[]>([])
 const search = ref("")
 const notes = ref("")
+const receivedAt = ref<Date | null>(new Date())
+const deliveryNote = ref("")
+const photos = ref<File[]>([])
+const photoUploader = ref<InstanceType<typeof FileUpload> | null>(null)
 const serverErrors = ref<Record<string, string>>({})
 const isSubmitting = ref(false)
 
@@ -79,6 +85,9 @@ watch(visible, (isVisible) => {
 		pasted.value = ""
 		search.value = ""
 		notes.value = ""
+		receivedAt.value = new Date()
+		deliveryNote.value = ""
+		photos.value = []
 		resetLines()
 	}
 })
@@ -187,6 +196,16 @@ const hasProblem = computed(() => selectedLines.value.some(line => problem(line)
 
 const totalUnits = computed(() => selectedLines.value.reduce((sum, line) => sum + (quantities.value[line.id] ?? 0), 0))
 
+const fieldFocusClass = "[&.p-focus]:!border-[--app-accent] [&_input:focus]:!border-[--app-accent] focus:!border-[--app-accent]"
+
+const chooseFilePt = { pcChooseButton: { root: { class: "!border !border-gray-300 !bg-white !text-gray-700 hover:!bg-gray-50" } } }
+
+const toIsoDate = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
+
+const removePhoto = (index: number) => {
+	photos.value = photos.value.filter((_, position) => position !== index)
+}
+
 const submit = () => {
 	if (selectedLines.value.length === 0 || hasProblem.value) {
 		return
@@ -197,15 +216,19 @@ const submit = () => {
 			purchase_order_transaction_id: line.id,
 			quantity: round(quantities.value[line.id] ?? 0),
 		})),
+		received_at: receivedAt.value ? toIsoDate(receivedAt.value) : null,
+		supplier_delivery_note: deliveryNote.value.trim() || null,
 		notes: notes.value.trim() || null,
+		attachments: photos.value,
 	}, {
+		forceFormData: true,
 		preserveScroll: true,
 		onStart: () => { isSubmitting.value = true },
 		onSuccess: () => { visible.value = false },
 		onFinish: () => { isSubmitting.value = false },
 		onError: (errors: Record<string, string>) => {
 			serverErrors.value = errors
-			notify({ title: ctrans("Nothing was received"), text: Object.values(errors)[0] ?? ctrans("Something went wrong"), type: "error" })
+			notify({ title: ctrans("The goods receipt was not saved"), text: Object.values(errors)[0] ?? ctrans("Something went wrong"), type: "error" })
 		},
 	})
 }
@@ -221,7 +244,7 @@ const submit = () => {
 	>
 		<div class="mb-3 flex gap-2 rounded-lg border border-[--app-accent-muted] bg-[--app-accent-soft] p-3 text-sm text-gray-700">
 			<FontAwesomeIcon :icon="faInfoCircle" class="mt-0.5 text-[--app-accent]" fixed-width aria-hidden="true" />
-			<p>{{ ctrans("Choose the supplier or the purchase order the goods came from, then paste or type one code and quantity in units per line. What you receive moves to Received; what is still missing stays in production.") }}</p>
+			<p>{{ ctrans("Choose the supplier or the purchase order the goods came from, then paste or type one code and quantity in units per line. Each time you receive makes one goods receipt, with the signed delivery note photo. What you receive moves to Received; what is still missing stays in production.") }}</p>
 		</div>
 
 		<div class="mb-3 flex flex-wrap items-center gap-3">
@@ -327,8 +350,46 @@ const submit = () => {
 					</p>
 				</div>
 
-				<InputText v-model="notes" maxlength="500" :placeholder="ctrans('Note, e.g. delivery note number (optional)')" />
 			</div>
+		</div>
+
+		<div v-if="scopeId" class="mt-4 grid gap-3 border-t border-gray-200 pt-4 sm:grid-cols-2">
+			<label class="flex flex-col gap-1 text-sm">
+				<span class="font-medium text-gray-700">{{ ctrans("Received on") }}</span>
+				<DatePicker v-model="receivedAt" dateFormat="dd/mm/yy" :maxDate="new Date()" :manualInput="false" showIcon iconDisplay="input" :class="fieldFocusClass" :pt="{ pcInputText: { root: { class: '!w-full' } } }" />
+			</label>
+			<label class="flex flex-col gap-1 text-sm">
+				<span class="font-medium text-gray-700">{{ ctrans("Supplier's delivery note number") }}</span>
+				<InputText v-model="deliveryNote" maxlength="64" :class="fieldFocusClass" :placeholder="ctrans('Optional')" />
+			</label>
+			<div class="flex flex-col gap-1 text-sm sm:col-span-2">
+				<span class="font-medium text-gray-700">{{ ctrans("Photo of the signed delivery note") }}</span>
+				<div class="flex flex-wrap items-center gap-2">
+					<FileUpload
+						ref="photoUploader"
+						mode="basic"
+						:auto="false"
+						customUpload
+						multiple
+						accept="image/*,.pdf"
+						:maxFileSize="20000000"
+						:chooseLabel="ctrans('Add photo')"
+						:pt="chooseFilePt"
+						@select="(event: { files: File[] }) => { photos = [...photos, ...event.files]; photoUploader?.clear() }"
+					/>
+					<span v-for="(photo, index) in photos" :key="photo.name + index" class="inline-flex items-center gap-1 rounded border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs text-gray-700">
+						<span class="max-w-[12rem] truncate">{{ photo.name }}</span>
+						<button type="button" class="text-gray-400 hover:text-red-500" :aria-label="ctrans('Remove :name', { name: photo.name })" @click="removePhoto(index)">
+							<FontAwesomeIcon :icon="faTimes" fixed-width aria-hidden="true" />
+						</button>
+					</span>
+					<span v-if="photos.length === 0" class="text-xs text-amber-600">{{ ctrans("You can add it later on the goods receipt") }}</span>
+				</div>
+			</div>
+			<label class="flex flex-col gap-1 text-sm sm:col-span-2">
+				<span class="font-medium text-gray-700">{{ ctrans("Note") }}</span>
+				<InputText v-model="notes" maxlength="500" :class="fieldFocusClass" :placeholder="ctrans('Optional')" />
+			</label>
 		</div>
 
 		<template #footer>
@@ -342,7 +403,7 @@ const submit = () => {
 					</template>
 				</Button>
 				<Button
-					type="tertiary"
+					type="secondary"
 					:label="selectedLines.length === 1 ? ctrans('Receive 1 line') : ctrans('Receive :count lines', { count: selectedLines.length })"
 					:loading="isSubmitting"
 					:disabled="selectedLines.length === 0 || hasProblem"

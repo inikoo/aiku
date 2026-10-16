@@ -197,7 +197,7 @@ class IndexAgentReceivedProducts extends OrgAction
             $request,
             __('Received'),
             'fal fa-inbox-in',
-            'grp.org.agent.warehouse.received',
+            'grp.org.agent.warehouse.received.index',
             'received',
             $this->organisationOptions($organisationCounts),
             [
@@ -206,6 +206,6 @@ class IndexAgentReceivedProducts extends OrgAction
                     ['label' => __('In a container not dispatched'), 'value' => 'container', 'count' => (int) $counts->where('location', 'container')->sum('total')],
                 ],
             ]
-        )->table($this->tableStructure());
+        )->with('receive', $this->canEdit ? IndexAgentProductsInProduction::receiveScopes($this->agent) : null)->table($this->tableStructure());
     }
 }
