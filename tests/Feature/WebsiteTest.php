@@ -72,6 +72,7 @@ use App\Actions\Web\Webpage\DeleteWebpage;
 use App\Models\Web\CruxRecord;
 use App\Actions\Web\WebVital\GetWebVitalsReport;
 use App\Actions\Web\Webpage\GetWebpageEngagementMetrics;
+use App\Actions\Web\WebsitePageView\GetWebsiteOrderJourneys;
 use App\Actions\Web\Webpage\GetWebpageSeo;
 use App\Enums\Web\WebsiteConversionEvent\WebsiteConversionEventTypeEnum;
 use App\Actions\Web\Webpage\GetWebpagePerformance;
@@ -89,6 +90,7 @@ use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
+use App\Enums\UI\Web\SeoDashboardPageTabsEnum;
 use App\Enums\UI\Web\WebsiteTabsEnum;
 use App\Enums\Web\Banner\BannerStateEnum;
 use App\Enums\Web\Banner\BannerTypeEnum;
@@ -2494,6 +2496,140 @@ test('ads testing webpage metrics are read from the page views already recorded'
         ->and($yesterday['page_views'])->toBe(0)
         ->and($yesterday['conversion_rate'])->toBeNull()
         ->and($yesterday['avg_time_on_page'])->toBeNull();
+})->depends('launch website');
+
+test('SEO customer journey filters the tracked orders by source, visits, amount, landing page and search, page by page, HELP-4066', function (Website $website) {
+    $shop  = $website->shop;
+    $token = 'JRN'.strtoupper(Str::random(6));
+    $from  = now()->subDays(30)->startOfDay();
+
+    $baseline = GetWebsiteOrderJourneys::run($website, $from, now());
+
+    $storeVisitor = fn (string $source, string $landingPage, Carbon $seenAt, ?int $webUserId = null) => DB::table('website_visitors')->insertGetId([
+        'group_id'            => $shop->group_id,
+        'organisation_id'     => $shop->organisation_id,
+        'shop_id'             => $shop->id,
+        'website_id'          => $website->id,
+        'web_user_id'         => $webUserId,
+        'session_id'          => 'sess-'.Str::random(10),
+        'visitor_hash'        => Str::random(16),
+        'device_type'         => 'desktop',
+        'os'                  => 'linux',
+        'browser'             => 'firefox',
+        'user_agent'          => 'test-agent',
+        'ip_hash'             => Str::random(16),
+        'traffic_source_type' => $source,
+        'landing_page'        => 'https://test'.$landingPage,
+        'first_seen_at'       => $seenAt,
+        'last_seen_at'        => $seenAt->copy()->addMinutes(10),
+        'created_at'          => $seenAt,
+        'updated_at'          => $seenAt,
+    ]);
+
+    $storePurchase = function (Customer $customer, string $reference, float $net, Carbon $submittedAt, int $visitorId) use ($shop, $website): int {
+        $order = Order::factory()->create([
+            'group_id'        => $shop->group_id,
+            'organisation_id' => $shop->organisation_id,
+            'shop_id'         => $shop->id,
+            'customer_id'     => $customer->id,
+            'reference'       => $reference,
+            'slug'            => Str::slug($reference),
+            'tax_category_id' => TaxCategory::first()->id,
+            'currency_id'     => $shop->currency_id,
+            'state'           => OrderStateEnum::SUBMITTED,
+            'submitted_at'    => $submittedAt,
+            'net_amount'      => $net,
+        ]);
+
+        return DB::table('website_conversion_events')->insertGetId([
+            'group_id'           => $shop->group_id,
+            'organisation_id'    => $shop->organisation_id,
+            'shop_id'            => $shop->id,
+            'website_id'         => $website->id,
+            'website_visitor_id' => $visitorId,
+            'order_id'           => $order->id,
+            'event_type'         => WebsiteConversionEventTypeEnum::PURCHASE->value,
+            'quantity'           => 1,
+            'page_url'           => 'https://test/checkout',
+            'page_path'          => '/checkout',
+            'event_date'         => $submittedAt->toDateString(),
+            'created_at'         => $submittedAt,
+            'updated_at'         => $submittedAt,
+        ]);
+    };
+
+    $singleVisitCustomer = createOwnCustomer($shop, 'journey-single-visit');
+    $singleVisitPurchase = $storePurchase(
+        $singleVisitCustomer,
+        $token.'-A',
+        30,
+        now()->subDays(3),
+        $storeVisitor('email', '/aromatherapy/oils', now()->subDays(3)->subMinutes(5))
+    );
+
+    $returningCustomer = createOwnCustomer($shop, 'journey-returning');
+    $webUser           = StoreWebUser::make()->action($returningCustomer, [
+        'username' => 'jrn-'.Str::random(8),
+        'email'    => 'jrn-'.Str::random(8).'@testmail.com',
+        'password' => 'test',
+    ]);
+    $storeVisitor('organic-google', '/candles', now()->subDays(6), $webUser->id);
+    $storeVisitor('direct', '/', now()->subDays(4), $webUser->id);
+    $returningPurchase = $storePurchase(
+        $returningCustomer,
+        $token.'-B',
+        120,
+        now()->subDays(2),
+        $storeVisitor('direct', '/', now()->subDays(2)->subMinutes(5), $webUser->id)
+    );
+
+    $purchaseIds = fn (array $filters) => collect(GetWebsiteOrderJourneys::run($website, $from, now(), ['search' => $token, ...$filters])['orders'])->pluck('purchase_id')->all();
+
+    $all = GetWebsiteOrderJourneys::run($website, $from, now(), ['search' => $token]);
+
+    expect($all['total'])->toBe($baseline['total'] + 2)
+        ->and($all['matching'])->toBe(2)
+        ->and(collect($all['orders'])->pluck('purchase_id')->all())->toBe([$returningPurchase, $singleVisitPurchase])
+        ->and(collect($all['orders'])->pluck('visits', 'purchase_id')->all())->toBe([$returningPurchase => 3, $singleVisitPurchase => 1])
+        ->and(collect($all['source_options'])->pluck('label', 'value')->only(['email', 'organic-google'])->all())->toBe(['email' => 'Email', 'organic-google' => 'Organic Google'])
+        ->and($purchaseIds(['sources' => 'email']))->toBe([$singleVisitPurchase])
+        ->and($purchaseIds(['sources' => ['organic-google']]))->toBe([$returningPurchase])
+        ->and($purchaseIds(['sources' => 'email,organic-google']))->toBe([$returningPurchase, $singleVisitPurchase])
+        ->and($purchaseIds(['visits' => '1']))->toBe([$singleVisitPurchase])
+        ->and($purchaseIds(['visits' => '2-3']))->toBe([$returningPurchase])
+        ->and($purchaseIds(['visits' => '4+']))->toBe([])
+        ->and($purchaseIds(['min' => '100']))->toBe([$returningPurchase])
+        ->and($purchaseIds(['max' => '50']))->toBe([$singleVisitPurchase])
+        ->and($purchaseIds(['min' => '20', 'max' => '200', 'sources' => 'direct']))->toBe([$returningPurchase])
+        ->and($purchaseIds(['landing' => 'AROMATHERAPY']))->toBe([$singleVisitPurchase])
+        ->and($purchaseIds(['landing' => 'candles']))->toBe([$returningPurchase])
+        ->and($purchaseIds(['landing' => '100%']))->toBe([])
+        ->and($purchaseIds(['visits' => 'every', 'min' => 'cheap']))->toBe([$returningPurchase, $singleVisitPurchase]);
+
+    $beyondLastPage = GetWebsiteOrderJourneys::run($website, $from, now(), ['search' => $token], 5);
+    expect($beyondLastPage['page'])->toBe(1)
+        ->and($beyondLastPage['per_page'])->toBe(GetWebsiteOrderJourneys::ORDERS)
+        ->and($beyondLastPage['currency_code'])->toBe($shop->currency->code)
+        ->and(collect($beyondLastPage['orders'])->pluck('purchase_id')->all())->toBe([$returningPurchase, $singleVisitPurchase]);
+
+    $byCustomer = GetWebsiteOrderJourneys::run($website, $from, now(), ['search' => $returningCustomer->name]);
+    expect(collect($byCustomer['orders'])->pluck('purchase_id')->all())->toContain($returningPurchase)
+        ->not->toContain($singleVisitPurchase);
+
+    $parameters = [$shop->organisation->slug, $shop->slug, 'tab' => SeoDashboardPageTabsEnum::JOURNEY->value, 'journey_days' => 30, 'journey_search' => $token, 'journey_visits' => '2-3'];
+    $page       = get(route('grp.org.shops.show.seo.dashboard', $parameters))->assertOk()->viewData('page');
+    $journey    = $this->withHeaders([
+        'X-Inertia'                   => 'true',
+        'X-Inertia-Version'           => $page['version'],
+        'X-Inertia-Partial-Component' => 'Org/Web/SeoDashboard',
+        'X-Inertia-Partial-Data'      => SeoDashboardPageTabsEnum::JOURNEY->value,
+    ])->get(route('grp.org.shops.show.seo.dashboard', $parameters))->assertOk()->json('props.'.SeoDashboardPageTabsEnum::JOURNEY->value);
+
+    expect($journey['filters']['search'])->toBe($token)
+        ->and($journey['filters']['visits'])->toBe('2-3')
+        ->and($journey['matching'])->toBe(1)
+        ->and($journey['page'])->toBe(1)
+        ->and($journey['orders'][0]['reference'])->toBe($token.'-B');
 })->depends('launch website');
 
 test('publish announcement', function (Website $website) {

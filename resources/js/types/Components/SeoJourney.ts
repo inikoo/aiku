@@ -18,6 +18,27 @@ export interface JourneyOrder {
     sources: JourneySource[]
 }
 
+export interface JourneyFilters {
+    sources: string[]
+    visits: string | null
+    min: number | null
+    max: number | null
+    landing: string | null
+    search: string | null
+}
+
+export interface JourneyData {
+    days: number
+    filters: JourneyFilters
+    total: number
+    matching: number
+    page: number
+    per_page: number
+    currency_code: string | null
+    source_options: { value: string, label: string }[]
+    orders: JourneyOrder[]
+}
+
 export interface JourneyPage {
     path: string
     type: string | null

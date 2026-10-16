@@ -62,6 +62,13 @@ class ShowSeoDashboard extends OrgAction
 
     private int $journeyPurchaseId = 0;
 
+    private int $journeyPage = 1;
+
+    /**
+     * @var array{sources: array<int, string>, visits: string|null, min: float|null, max: float|null, landing: string|null, search: string|null}
+     */
+    private array $journeyFilters = [];
+
     public function handle(Shop $shop): Shop
     {
         return $shop;
@@ -77,6 +84,15 @@ class ShowSeoDashboard extends OrgAction
         $journeyDays             = (int) $request->query('journey_days');
         $this->journeyDays       = in_array($journeyDays, GetWebsiteOrderJourneys::DAY_OPTIONS, true) ? $journeyDays : GetWebsiteOrderJourneys::DAY_OPTIONS[0];
         $this->journeyPurchaseId = (int) $request->query('journey_order');
+        $this->journeyPage       = max(1, (int) $request->query('journey_page'));
+        $this->journeyFilters    = GetWebsiteOrderJourneys::normaliseFilters([
+            'sources' => $request->query('journey_sources'),
+            'visits'  => $request->query('journey_visits'),
+            'min'     => $request->query('journey_min'),
+            'max'     => $request->query('journey_max'),
+            'landing' => $request->query('journey_landing'),
+            'search'  => $request->query('journey_search'),
+        ]);
 
         return $this->handle($shop);
     }
@@ -267,8 +283,9 @@ class ShowSeoDashboard extends OrgAction
     private function journeyProp(?Website $website): mixed
     {
         $resolver = fn () => $website ? [
-            'days'   => $this->journeyDays,
-            'orders' => GetWebsiteOrderJourneys::run($website, now()->subDays($this->journeyDays)->startOfDay(), now()),
+            'days'    => $this->journeyDays,
+            'filters' => $this->journeyFilters,
+            ...GetWebsiteOrderJourneys::run($website, now()->subDays($this->journeyDays)->startOfDay(), now(), $this->journeyFilters, $this->journeyPage),
         ] : null;
 
         return $this->tab === SeoDashboardPageTabsEnum::JOURNEY->value ? Inertia::defer($resolver) : Inertia::optional($resolver);
