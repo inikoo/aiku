@@ -67,6 +67,7 @@ use App\Actions\SupplyChain\SupplierProduct\StoreSupplierProduct;
 use App\Actions\SysAdmin\GetSectionRoute;
 use App\Actions\UI\Grp\Layout\GetOrganisationNavigation;
 use App\Enums\Analytics\AikuSection\AikuSectionEnum;
+use App\Actions\Transfers\Aurora\RepairAuroraDeletedStockDeliveries;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryCostTypeEnum;
 use App\Enums\GoodsIn\StockDeliveryItem\StockDeliveryItemStateEnum;
@@ -3285,4 +3286,32 @@ test('HELP-4019 an agent sets a family at its supplier, and the products and the
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->where('dashboard.order_now', fn ($rows) => collect($rows)->contains(fn ($row) => $row['supplier_id'] === $orgSupplier->supplier_id && $row['stock_family_id'] === $stockFamily->id))
             ->etc());
+});
+
+test('stock deliveries deleted in Aurora before being received are deleted, nothing newer than the Aurora copy is touched (HELP-4085)', function () {
+    $prefix          = $this->organisation->id.':';
+    $makeFromAurora  = function (int $key, StockDeliveryStateEnum $state) use ($prefix) {
+        $stockDelivery = StoreStockDelivery::make()->action(
+            $this->orgSupplier,
+            ['reference' => 'AURORA-DELETED-'.$key, 'date' => date('Y-m-d')],
+            strict: false,
+        );
+        $stockDelivery->forceFill(['source_id' => $prefix.$key, 'state' => $state])->save();
+
+        return $stockDelivery;
+    };
+
+    $deletedInAurora  = $makeFromAurora(900001, StockDeliveryStateEnum::DISPATCHED);
+    $stillInAurora    = $makeFromAurora(900002, StockDeliveryStateEnum::DISPATCHED);
+    $alreadyReceived  = $makeFromAurora(900003, StockDeliveryStateEnum::PLACED);
+    $newerThanAurora  = $makeFromAurora(900009, StockDeliveryStateEnum::DISPATCHED);
+
+    $result = RepairAuroraDeletedStockDeliveries::make()->deleteMissingFromAurora($this->organisation, collect([900002, 900005]));
+
+    expect($result['deleted'])->toBe([$deletedInAurora->id.' AURORA-DELETED-900001'])
+        ->and(StockDelivery::find($deletedInAurora->id))->toBeNull()
+        ->and(StockDelivery::withTrashed()->find($deletedInAurora->id)->data['deletion']['reason'])->toBe('Deleted in Aurora')
+        ->and(StockDelivery::find($stillInAurora->id))->not->toBeNull()
+        ->and(StockDelivery::find($alreadyReceived->id))->not->toBeNull()
+        ->and(StockDelivery::find($newerThanAurora->id))->not->toBeNull();
 });
