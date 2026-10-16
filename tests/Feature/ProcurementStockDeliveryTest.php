@@ -1108,6 +1108,7 @@ test('UI Index org agent stock deliveries shows container columns and state coun
 test('stock delivery tab counts follow the other selected filters, so In process matches the supplier list (HELP-4086)', function () {
     $this->withoutVite();
     $warehouse = $this->organisation->warehouses()->oldest('id')->first() ?? createWarehouse();
+    allowGoodsInOn($warehouse, $this->adminGuest->getUser());
 
     $expectedCount = fn (string $column, string $value, string $otherColumn, string $otherValue) => StockDelivery::where('organisation_id', $this->organisation->id)
         ->where($column, $value)->where($otherColumn, $otherValue)->count();
