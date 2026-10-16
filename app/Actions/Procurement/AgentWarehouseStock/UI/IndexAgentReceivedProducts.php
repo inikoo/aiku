@@ -179,14 +179,17 @@ class IndexAgentReceivedProducts extends OrgAction
     {
         $counts = DB::query()->fromSub($this->receivedItems($this->agent), 'received_items')
             ->join('organisations', 'organisations.id', 'received_items.organisation_id')
-            ->selectRaw('organisations.slug, organisations.code, received_items.location, count(*) as total')
-            ->groupBy('organisations.slug', 'organisations.code', 'received_items.location')
+            ->leftJoin('countries', 'countries.id', 'organisations.country_id')
+            ->selectRaw('organisations.slug, organisations.code, organisations.name, countries.name as country_name, received_items.location, count(*) as total')
+            ->groupBy('organisations.slug', 'organisations.code', 'organisations.name', 'countries.name', 'received_items.location')
             ->get();
 
         $organisationCounts = $counts->groupBy('slug')->map(fn ($rows) => (object) [
-            'slug'  => $rows->first()->slug,
-            'code'  => $rows->first()->code,
-            'total' => $rows->sum('total'),
+            'slug'         => $rows->first()->slug,
+            'code'         => $rows->first()->code,
+            'name'         => $rows->first()->name,
+            'country_name' => $rows->first()->country_name,
+            'total'        => $rows->sum('total'),
         ]);
 
         return $this->productRowsResponse(

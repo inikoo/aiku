@@ -14,6 +14,7 @@ use App\Actions\Procurement\WithNoStrictProcurementOrderRules;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
+use App\Enums\Procurement\OrgAgent\OrgAgentOrderContainerEnum;
 use App\Models\GoodsIn\StockDelivery;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
@@ -33,6 +34,7 @@ class UpdateStockDelivery extends OrgAction
 
     private const DATA_FIELDS = [
         'delivery_type',
+        'container_size',
         'invoice_number',
         'invoice_date',
         'estimated_dispatched_date',
@@ -48,10 +50,11 @@ class UpdateStockDelivery extends OrgAction
     ];
 
     /**
-     * What the agent of a container enters before it ships: its name, references, shipping agent and dates.
+     * What the agent of a container enters before it ships: its name, size, references, shipping agent and dates.
      */
     public const array AGENT_FIELDS = [
         'reference',
+        'container_size',
         'shipper_reference',
         'tracking_number',
         'container_number',
@@ -109,6 +112,7 @@ class UpdateStockDelivery extends OrgAction
                 $this->strict ? 'alpha_dash:ascii' : 'string',
             ],
             'delivery_type'             => ['sometimes', 'nullable', 'string', 'in:parcel,container'],
+            'container_size'            => ['sometimes', 'nullable', Rule::enum(OrgAgentOrderContainerEnum::class)],
             'invoice_number'            => ['sometimes', 'nullable', 'string'],
             'invoice_date'              => ['sometimes', 'nullable', 'date'],
             'estimated_dispatched_date' => ['sometimes', 'nullable', 'date'],

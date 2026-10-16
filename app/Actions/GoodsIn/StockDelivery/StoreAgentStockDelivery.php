@@ -15,6 +15,7 @@ use App\Actions\Procurement\WithAgentOrganisation;
 use App\Actions\Procurement\WithProcurementSerialReferences;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
+use App\Enums\Procurement\OrgAgent\OrgAgentOrderContainerEnum;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\PurchaseOrder;
@@ -64,6 +65,7 @@ class StoreAgentStockDelivery extends OrgAction
                 'grp_exchange' => GetHistoricCurrencyExchange::run($currency, $orgAgent->organisation->group->currency, $date->copy()->startOfDay()),
                 'data'         => array_filter([
                     'delivery_type'    => 'container',
+                    'container_size'   => Arr::get($modelData, 'container_size') ?: OrgAgentOrderContainerEnum::FORTY_FOOT->value,
                     'delivery_address' => self::deliveryAddress($orgAgent->organisation),
                 ]),
             ],
@@ -99,12 +101,13 @@ class StoreAgentStockDelivery extends OrgAction
     public function rules(): array
     {
         return [
-            'org_agent_id' => [
+            'org_agent_id'   => [
                 'required',
                 'integer',
                 Rule::in(self::orgAgentsOfAgent($this->agent)->pluck('id')->all()),
             ],
-            'reference'    => ['sometimes', 'nullable', 'string', 'max:64', 'alpha_dash:ascii'],
+            'reference'      => ['sometimes', 'nullable', 'string', 'max:64', 'alpha_dash:ascii'],
+            'container_size' => ['sometimes', 'nullable', Rule::enum(OrgAgentOrderContainerEnum::class)],
         ];
     }
 

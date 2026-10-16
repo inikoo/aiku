@@ -90,10 +90,7 @@ class EditOrgAgent extends OrgAction
                     'label'       => __('Container'),
                     'information' => __('The container an order to this agent is measured against, to say how full it is by volume.'),
                     'required'    => true,
-                    'options'     => collect(OrgAgentOrderContainerEnum::labels())->map(fn (string $label, string $value) => [
-                        'label' => $label.' ('.OrgAgentOrderContainerEnum::from($value)->cbm().' m³)',
-                        'value' => $value,
-                    ])->values()->all(),
+                    'options'     => OrgAgentOrderContainerEnum::selectOptions(),
                     'value'       => $orgAgent->order_container->value,
                     'updateRoute' => [
                         'name'       => 'grp.models.org_agent.update',

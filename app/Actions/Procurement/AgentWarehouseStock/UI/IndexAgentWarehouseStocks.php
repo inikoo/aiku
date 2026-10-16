@@ -110,7 +110,7 @@ class IndexAgentWarehouseStocks extends OrgAction
     }
 
     /**
-     * @return array{state: array<int, array{label: string, value: string, count: int}>, organisation: array<int, array{label: string, value: string, count: int}>}
+     * @return array{state: array<int, array{label: string, value: string, count: int}>, organisation: array<int, array{label: string, value: string, count: int, tooltip: string}>}
      */
     public function filterOptions(Agent $agent): array
     {
@@ -118,14 +118,15 @@ class IndexAgentWarehouseStocks extends OrgAction
 
         $organisations = AgentWarehouseStock::where('agent_warehouse_stocks.agent_id', $agent->id)
             ->join('organisations', 'organisations.id', 'agent_warehouse_stocks.organisation_id')
-            ->selectRaw('organisations.slug, organisations.code, count(*) as total')
-            ->groupBy('organisations.slug', 'organisations.code')
+            ->leftJoin('countries', 'countries.id', 'organisations.country_id')
+            ->selectRaw('organisations.slug, organisations.code, organisations.name, countries.name as country_name, count(*) as total')
+            ->groupBy('organisations.slug', 'organisations.code', 'organisations.name', 'countries.name')
             ->orderBy('organisations.code')
             ->get();
 
         return [
             'state'        => collect(AgentWarehouseStockStateEnum::labels())->map(fn ($label, $state) => ['label' => $label, 'value' => $state, 'count' => (int) ($stateCounts[$state] ?? 0)])->values()->all(),
-            'organisation' => $organisations->map(fn ($organisation) => ['label' => strtoupper($organisation->code), 'value' => $organisation->slug, 'count' => (int) $organisation->total])->all(),
+            'organisation' => $organisations->map(fn ($organisation) => ['label' => strtoupper($organisation->code), 'value' => $organisation->slug, 'count' => (int) $organisation->total, 'tooltip' => $organisation->country_name ? "{$organisation->name} ({$organisation->country_name})" : $organisation->name])->all(),
         ];
     }
 

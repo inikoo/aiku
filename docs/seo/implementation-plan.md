@@ -25,6 +25,10 @@ are suggestions; rename them freely, but keep the boundaries.
   `App\Services\SeoApi\SeoApiBudget` adds up the month's cost in `seo_api_requests`; every client
   checks it before a billable call. Reading results already paid for is never blocked. Feature
   screens do not show the spend; the API usage page does.
+- **Visitors are filtered by channel per platform (HELP-4062).** The Channel filter of the Visitors
+  tab lists Organic Google, Google Ads, Organic Bing, Bing Ads, Organic Meta, Meta Ads and the other
+  organic and paid sources one by one (only those with visitors), then Email, AI, Direct, Internal
+  and Other, so Google is never mixed with Bing or Meta.
 - **The SEO dashboard stays the entry point.** Its tabs, at the top like those of a website: Overview
   (the cards filtered by the dashboard interval and the table tabs Top pages, Conversions, Search
   queries, Low CTR queries and Page speed, switched with the `table` query parameter), Visitors,
