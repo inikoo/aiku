@@ -72,6 +72,8 @@ class ReceiveStockDelivery extends OrgAction
 
         UpdatePurchaseOrdersDeliveryStateFromStockDelivery::run($stockDelivery);
 
+        rescue(fn () => ReportLateStockDeliveryPurchaseOrders::run($stockDelivery));
+
         $this->runStockDeliveryHydrators($stockDelivery);
 
         return $stockDelivery;

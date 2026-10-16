@@ -6,6 +6,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Actions\Procurement\ProcurementNote\UI\IndexSupplierIncidents;
 use App\Actions\Procurement\AgentLabel\DownloadAgentArtefactLabelPdf;
 use App\Actions\Procurement\SupplierAgreedTerm\PdfSupplierAgreement;
 use App\Actions\Procurement\AgentLabel\FetchAgentOrgStockBarcodeLabelOptions;
@@ -119,6 +120,7 @@ Route::get('/stock-cover', IndexOrganisationStockCoverItems::class)->name('stock
 Route::get('/stock-cover/export', ExportOrganisationStockCoverItems::class)->name('stock_cover.export');
 Route::get('/pre-orders', IndexPreOrdersBySupplier::class)->name('pre_orders.index');
 Route::get('/service-invoices', IndexStockDeliveryServiceInvoices::class)->name('service_invoices.index');
+Route::get('/supplier-incidents', IndexSupplierIncidents::class)->name('supplier_incidents.index');
 Route::patch('/pre-orders', UpdatePreOrdersForSupplier::class)->name('pre_orders.update');
 
 Route::prefix('settings')->as('settings.')->group(function () {

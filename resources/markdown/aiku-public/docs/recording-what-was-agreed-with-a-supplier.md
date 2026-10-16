@@ -1,10 +1,10 @@
 ---
 title: Recording what was agreed with a supplier
 summary: Write down the terms agreed with a supplier or agent - Incoterm, charges, currency, lead time - with the evidence, and add notes and warnings, so they show on every purchase order and survive a change of buyer.
-date: 2026-10-14
+date: 2026-10-16
 tags: procurement, suppliers, agents, purchase orders, agreed terms, notes, incidents
 category: procurement
-help_routes: grp.org.procurement.org_suppliers, grp.org.procurement.org_agents, grp.org.procurement.purchase_orders
+help_routes: grp.org.procurement.org_suppliers, grp.org.procurement.org_agents, grp.org.procurement.purchase_orders, grp.org.procurement.supplier_incidents, grp.org.procurement.stock_deliveries
 ---
 
 <aside class="tldr">
@@ -108,6 +108,25 @@ Each difference is listed in red in a **Different from what was agreed** panel a
 
 Every accepted difference becomes an open **Incident** note on the supplier or agent, with the amount and your reason, and the procurement supervisor and the buyer of the order are notified. The supplier lists show the number of open incidents next to the supplier's code.
 
+## Checking a delivery as it arrives
+
+From the moment a stock delivery is dispatched, it has a **Checklist** tab, on the procurement page of the delivery and on the goods in page of the warehouse. It lists, for each supplier on the delivery and then for each of its products:
+
+- **Packing** - who packs the goods and in what material, when it is recorded on the supplier or on the product;
+- every open note of the **Packaging** or **Product** category written on that supplier or product.
+
+The number on the tab is how many checks are still to do. Press **Passed** when the goods match. Press **Failed** when they do not: choose the issue type, enter the quantity affected if you know it, write what is wrong and press **Open incident**. aiku opens an **Incident** note on that supplier or product, linked to the purchase order the goods came on, and the check shows who failed it and when.
+
+Goods in staff can tick the checklist and can write an **Incident** on the **Notes** tab of a stock delivery. They can not write notes of any other category.
+
+## Late deliveries
+
+When a delivery is received, aiku measures each of its purchase orders from the day it was submitted to the day the delivery was received, and compares it with the **Lead time in days** agreed with the supplier, or with its agent. An order more than 7 days later than agreed gets an **Incident** of type **Late** on the supplier, linked to the order, saying how many days it took. It is written once per order. A supplier with no agreed lead time is not measured.
+
+## Supplier incidents report
+
+The **Supplier incidents** card on the procurement dashboard, which counts the open incidents, opens a report that lists each supplier or agent with incidents for your organisation: how many, how many are still open, the amount disputed and the amount recovered, with the date of the last one. An incident on a supplier product or on a purchase order counts for its supplier. The amounts are in the group currency, converted on the day the incident was written. **Recovered** is the amount of the incidents whose outcome was set to **Credited**. Press the supplier's code to open its notes.
+
 <aside class="wayfinder"><strong>Where to click in aiku</strong>
 <ul>
 <li><b>See what was agreed with a supplier:</b> your organisation → <b>Procurement → Suppliers</b> → the supplier → the <b>What was agreed</b> panel.</li>
@@ -118,10 +137,12 @@ Every accepted difference becomes an open **Incident** note on the supplier or a
 <li><b>A term or a note for one product:</b> the supplier → its products → the product → <b>Agreed terms</b> or <b>Notes</b>.</li>
 <li><b>Acknowledge critical notes:</b> the purchase order → tick <b>I have read the critical notes for this order</b> → <b>Submit</b>.</li>
 <li><b>Print the handover sheet:</b> the supplier → <b>What was agreed</b> panel → <b>Handover sheet</b>.</li>
+<li><b>Check a delivery:</b> the stock delivery → <b>Checklist</b> → <b>Passed</b> or <b>Failed</b> on each line.</li>
+<li><b>See incidents per supplier:</b> <b>Procurement</b> dashboard → the <b>Supplier incidents</b> card.</li>
 <li><b>Accept a difference:</b> the purchase order or stock delivery → <b>Different from what was agreed</b> → type the reason → <b>Accept</b>.</li>
 </ul>
 </aside>
 
 <aside class="permissions"><strong>Permissions you need</strong>
-You need permission to view procurement for the organisation to see terms and notes, and permission to edit procurement to add a note or a term. Changing or withdrawing a term agreed by someone else, and pinning or resolving a note written by someone else, need the procurement supervisor position. Accepting a difference from the agreed terms needs permission to edit procurement for the organisation that pays.
+You need permission to view procurement for the organisation to see terms and notes, and permission to edit procurement to add a note or a term. Changing or withdrawing a term agreed by someone else, and pinning or resolving a note written by someone else, need the procurement supervisor position. Accepting a difference from the agreed terms needs permission to edit procurement for the organisation that pays. Goods in staff with permission to edit goods in for one of the organisation's warehouses can tick the delivery checklist and report incidents.
 </aside>

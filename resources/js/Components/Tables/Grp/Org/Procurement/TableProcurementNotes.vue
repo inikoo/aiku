@@ -51,11 +51,11 @@ const props = defineProps<{
 
 const popover = ref()
 const isSaving = ref(false)
-const emptyNote = () => ({ title: '', body: '', category: 'general', severity: 'info', visibility: 'internal', is_pinned: false, only_this_organisation: false, incident_amount: null as number | null, incident_currency_id: null as number | null, incident_type: null as string | null, incident_quantity: null as number | null })
+const options = computed(() => props.agreement?.options ?? null)
+const emptyNote = () => ({ title: '', body: '', category: options.value?.categories?.length === 1 ? options.value.categories[0].value : 'general', severity: 'info', visibility: 'internal', is_pinned: false, only_this_organisation: false, incident_amount: null as number | null, incident_currency_id: null as number | null, incident_type: null as string | null, incident_quantity: null as number | null })
 const note = ref(emptyNote())
 
 const noteStoreRoute = computed(() => props.storeRoute ?? (props.agreement?.can_write ? props.agreement.routes?.store_note : undefined))
-const options = computed(() => props.agreement?.options ?? null)
 const canSave = computed(() => (note.value.body.trim() || note.value.title.trim()) && !isSaving.value)
 
 function reload() {
