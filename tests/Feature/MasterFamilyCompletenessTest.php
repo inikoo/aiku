@@ -18,8 +18,10 @@ use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Catalogue\ProductCategory;
+use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
 
 beforeAll(function () {
     loadDB();
@@ -95,4 +97,31 @@ test('shops status groups the shop families of the master family by state', func
                 'shops' => [$this->shop->code],
             ],
         ]);
+});
+
+test('families in shop page shows each shop family status, workflow and page score', function () {
+    $this->shop->updateQuietly(['state' => ShopStateEnum::OPEN]);
+
+    $familyData = ProductCategory::factory()->definition();
+    data_set($familyData, 'type', ProductCategoryTypeEnum::FAMILY->value);
+    data_set($familyData, 'master_product_category_id', $this->masterFamily->id);
+    $shopFamily = StoreProductCategory::make()->action($this->shop, $familyData);
+    $shopFamily->updateQuietly(['state' => ProductCategoryStateEnum::DISCONTINUING, 'webpage_id' => null]);
+
+    get(route('grp.masters.master_shops.show.master_families.families', [$this->masterFamily->masterShop->slug, $this->masterFamily->slug]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Org/Catalogue/Families')
+            ->where('shops_status.states.0.state', ProductCategoryStateEnum::DISCONTINUING->value)
+            ->where('queryBuilderProps.index.elementGroups.state.elements', [
+                ProductCategoryStateEnum::DISCONTINUING->value => ['Discontinuing', 1],
+            ])
+            ->has('index.data', 1)
+            ->where('index.data.0.shop_status', ['state' => ProductCategoryStateEnum::DISCONTINUING->value, 'label' => 'Discontinuing'])
+            ->where('index.data.0.workflow.current', 1)
+            ->where('index.data.0.workflow.steps.0', ['key' => 'created', 'label' => 'Page created', 'done' => false])
+            ->has('index.data.0.workflow.steps', 4)
+            ->where('index.data.0.page_score', null)
+            ->where('index.data.0.public_url', null)
+            ->etc());
 });

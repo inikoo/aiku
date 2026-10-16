@@ -96,12 +96,12 @@ class GetFamilyPageScore
         $user             = request()->user();
 
         return [
-            'steps'         => [
-                ['key' => 'created', 'label' => __('Page created'), 'owner' => __('Webmaster'), 'is_done' => true],
-                ['key' => 'published', 'label' => __('Published'), 'owner' => __('Webmaster'), 'is_done' => $isLive],
-                ['key' => 'seo_review', 'label' => __('SEO review & suggestions'), 'owner' => __('SEO team'), 'is_done' => $isReviewed],
-                ['key' => 'implemented', 'label' => __('Suggestions implemented'), 'owner' => __('Webmaster'), 'is_done' => $isReviewed && !$suggestionStates->contains(SeoContentSuggestionStateEnum::PENDING)],
-            ],
+            'steps'         => $this->steps(
+                isCreated: true,
+                isPublished: $isLive,
+                isReviewed: $isReviewed,
+                isImplemented: $isReviewed && !$suggestionStates->contains(SeoContentSuggestionStateEnum::PENDING)
+            ),
             'score'         => (int)round($passed * 100 / $checks->count()),
             'passed'        => $passed,
             'total'         => $checks->count(),
@@ -116,6 +116,19 @@ class GetFamilyPageScore
                 'name'       => 'grp.org.shops.show.web.webpages.show',
                 'parameters' => [$shop->organisation->slug, $shop->slug, $website->slug, $webpage->slug],
             ],
+        ];
+    }
+
+    /**
+     * @return array<int, array{key: string, label: string, owner: string, is_done: bool}>
+     */
+    public function steps(bool $isCreated, bool $isPublished, bool $isReviewed, bool $isImplemented): array
+    {
+        return [
+            ['key' => 'created', 'label' => __('Page created'), 'owner' => __('Webmaster'), 'is_done' => $isCreated],
+            ['key' => 'published', 'label' => __('Published'), 'owner' => __('Webmaster'), 'is_done' => $isPublished],
+            ['key' => 'seo_review', 'label' => __('SEO review & suggestions'), 'owner' => __('SEO team'), 'is_done' => $isReviewed],
+            ['key' => 'implemented', 'label' => __('Suggestions implemented'), 'owner' => __('Webmaster'), 'is_done' => $isImplemented],
         ];
     }
 

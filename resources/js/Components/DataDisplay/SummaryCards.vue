@@ -28,7 +28,7 @@ const toneClass: Record<SummaryCardTone, string> = {
 </script>
 
 <template>
-    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(13rem,1fr))] gap-3">
         <div
             v-for="card in cards"
             :key="card.key"

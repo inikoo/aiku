@@ -15,7 +15,8 @@ import { remove as loRemove } from 'lodash-es'
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { faCheck, faTimesCircle, faCheckCircle, faBroadcastTower, faSkull } from "@fal";
+import { faCheck, faTimesCircle, faCheckCircle, faBroadcastTower, faSkull, faExternalLink } from "@fal";
+import WorkflowSteps from "@/Components/DataDisplay/WorkflowSteps.vue"
 import { faTriangle, faEquals, faMinus } from "@fas"
 import { RouteParams } from "@/types/route-params";
 import { ctrans } from "@/Composables/useTrans"
@@ -248,6 +249,25 @@ const dotClass = (filled: boolean) =>
     filled ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600";
 const statusIcon = (filled: boolean) => (filled ? faCheckCircle : faTimesCircle);
 
+const shopStatusClass: Record<string, string> = {
+    in_process: "bg-lime-50 text-lime-700",
+    active: "bg-green-50 text-green-700",
+    discontinuing: "bg-amber-50 text-amber-700",
+    discontinued: "bg-gray-100 text-gray-600",
+    inactive: "bg-red-50 text-red-700",
+}
+
+const pageScoreClass = (score: number) => {
+    if (score >= 90) {
+        return { bar: "bg-green-500", text: "text-green-700" }
+    }
+    if (score >= 60) {
+        return { bar: "bg-amber-400", text: "text-amber-700" }
+    }
+
+    return { bar: "bg-red-400", text: "text-red-700" }
+}
+
 const getIntervalChangesIcon = (isPositive: boolean) => {
     if (isPositive) {
         return {
@@ -381,6 +401,32 @@ const getIntervalStateColor = (isPositive: boolean) => {
             </Link>
             <span v-else-if="family.sub_department_code">{{ family["sub_department_code"] }}</span>
             <span v-else class="text-xs text-gray-400 italic">-</span>
+        </template>
+
+        <template #cell(shop_status)="{ item: family }">
+            <span class="whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium" :class="shopStatusClass[family.shop_status.state]">
+                {{ family.shop_status.label }}
+            </span>
+        </template>
+
+        <template #cell(workflow)="{ item: family }">
+            <WorkflowSteps :steps="family.workflow.steps" :current="family.workflow.current" compact />
+        </template>
+
+        <template #cell(page_score)="{ item: family }">
+            <div v-if="family.page_score !== null" class="flex items-center gap-3">
+                <div class="h-1.5 w-24 overflow-hidden rounded-full bg-gray-100">
+                    <div class="h-full rounded-full" :class="pageScoreClass(family.page_score).bar" :style="{ width: `${family.page_score}%` }" />
+                </div>
+                <span class="text-sm font-semibold tabular-nums" :class="pageScoreClass(family.page_score).text">{{ family.page_score }}</span>
+            </div>
+            <span v-else class="text-gray-400">-</span>
+        </template>
+
+        <template #cell(open_page)="{ item: family }">
+            <a v-if="family.public_url" :href="family.public_url" target="_blank" rel="noopener noreferrer">
+                <Button type="tertiary" size="xs" :icon="faExternalLink" :label="ctrans('Open page')" />
+            </a>
         </template>
 
         <template #cell(actions)="{ item }">
