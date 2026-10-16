@@ -11,12 +11,15 @@ namespace App\Models\Goods;
 
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentCommentStatusEnum;
 use App\Models\SysAdmin\User;
+use App\Models\Traits\HasTicketImages;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
 /**
  * @property int $id
@@ -35,9 +38,11 @@ use Illuminate\Support\Carbon;
  * @property-read User|null $user
  * @mixin \Eloquent
  */
-class ProductDevelopmentComment extends Model
+class ProductDevelopmentComment extends Model implements HasMedia
 {
     use SoftDeletes;
+    use InteractsWithMedia;
+    use HasTicketImages;
 
     protected $table = 'product_development_comments';
 

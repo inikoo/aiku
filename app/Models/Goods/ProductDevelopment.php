@@ -28,6 +28,8 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -68,8 +70,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Brand> $brands
  * @mixin \Eloquent
  */
-class ProductDevelopment extends Model implements Auditable
+class ProductDevelopment extends Model implements Auditable, HasMedia
 {
+    use InteractsWithMedia;
     use HasSlug;
     use SoftDeletes;
     use InGroup;

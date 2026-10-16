@@ -51,4 +51,26 @@ enum ProductDevelopmentFileScopeEnum: string
             default => null,
         };
     }
+
+    public function isVersioned(): bool
+    {
+        return in_array($this, [self::SDS, self::IFRA, self::CPSR, self::DIELINE, self::ARTWORK_FINAL], true);
+    }
+
+    public function isPerSku(): bool
+    {
+        return $this->tradeUnitAttachmentScope() !== null || in_array($this, [self::FACTORY_PHOTO, self::DIELINE], true);
+    }
+
+    public function icon(): string
+    {
+        return match ($this) {
+            self::SDS, self::IFRA, self::CPSR => 'fal fa-file-certificate',
+            self::TEST_REPORTS => 'fal fa-vial',
+            self::DIELINE => 'fal fa-draw-square',
+            self::FACTORY_PHOTO => 'fal fa-camera',
+            self::ARTWORK_DRAFT, self::ARTWORK_FINAL => 'fal fa-palette',
+            self::OTHER => 'fal fa-paperclip',
+        };
+    }
 }

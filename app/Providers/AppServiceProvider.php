@@ -313,6 +313,7 @@ class AppServiceProvider extends ServiceProvider
                 'ProductDevelopmentFile'           => 'App\Models\Goods\ProductDevelopmentFile',
                 'ProductDevelopmentDesignRound'    => 'App\Models\Goods\ProductDevelopmentDesignRound',
                 'ProductDevelopmentStage'          => 'App\Models\Goods\ProductDevelopmentStage',
+                'ProductDevelopmentComment'        => 'App\Models\Goods\ProductDevelopmentComment',
                 'TradeUnitTariffCodeOverride'      => 'App\Models\Goods\TradeUnitTariffCodeOverride',
 
 

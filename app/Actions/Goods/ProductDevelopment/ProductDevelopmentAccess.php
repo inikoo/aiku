@@ -101,6 +101,14 @@ class ProductDevelopmentAccess
         return in_array(ProductDevelopmentMemberRoleEnum::PURCHASING, $this->memberRoles($user, $productDevelopment), true);
     }
 
+    public function canUpload(User $user, ProductDevelopment $productDevelopment): bool
+    {
+        return $this->canEdit($user, $productDevelopment)
+            || $this->isMember($user, $productDevelopment)
+            || $this->isAgentOf($user, $productDevelopment)
+            || ($this->isStaff($user) && $user->authTo('goods.edit'));
+    }
+
     public function restrictToVisible(Builder $query, User $user): Builder
     {
         if ($this->isStaff($user)) {

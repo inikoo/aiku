@@ -26,12 +26,14 @@ use App\Models\HumanResources\JobPosition;
 use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\User;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 use function Pest\Laravel\patch;
+use function Pest\Laravel\post;
 
 beforeAll(function () {
     loadDB();
@@ -112,6 +114,10 @@ test('an agent sees the developments of their own agent only, and the menu offer
 
     actingAs($otherUser);
     get(route('grp.product_developments.show', ['productDevelopment' => $ownDevelopment->slug]))->assertForbidden();
+    post(route('grp.models.product_development.files.upload', ['productDevelopment' => $ownDevelopment->id]), [
+        'files' => [UploadedFile::fake()->createWithContent('artwork.pdf', 'other agent '.Str::random(20))],
+        'scope' => 'artwork_draft',
+    ])->assertForbidden();
 });
 
 test('a freelancer sees only the developments they are a member of, never cost items, and cannot move or edit them', function () {
@@ -146,6 +152,12 @@ test('a freelancer sees only the developments they are a member of, never cost i
     patch(route('grp.models.product_development.update', ['productDevelopment' => $assigned->id]), ['target_online_date' => '2026-12-01'])->assertForbidden();
     get(route('grp.product_developments.create'))->assertForbidden();
 
+    post(route('grp.models.product_development.files.upload', ['productDevelopment' => $assigned->id]), [
+        'files' => [UploadedFile::fake()->createWithContent('artwork-draft.pdf', 'freelancer draft '.Str::random(20))],
+        'scope' => 'artwork_draft',
+    ])->assertRedirect();
+    expect($assigned->files()->where('scope', 'artwork_draft')->count())->toBe(1);
+
     expect(array_keys(GetGroupNavigation::run($freelancer)))->toContain('product-developments');
 });
 
@@ -160,4 +172,44 @@ test('staff see every development, and a user with no access and no membership i
     get(route('grp.product_developments.index'))->assertForbidden();
     get(route('grp.product_developments.show', ['productDevelopment' => $development->slug]))->assertForbidden();
     expect(array_keys(GetGroupNavigation::run($outsider)))->not->toContain('product-developments');
+});
+
+test('mentions notify only people who can see the development, and outsiders cannot comment', function () {
+    $freelancer  = newFreelancer($this);
+    $outsider    = newFreelancer($this);
+    $development = newDevelopment($this, ['members' => [['user_id' => $freelancer->id, 'role' => ProductDevelopmentMemberRoleEnum::DESIGNER->value]]]);
+
+    $freelancerBefore = $freelancer->notifications()->count();
+    $outsiderBefore   = $outsider->notifications()->count();
+
+    post(route('grp.models.product_development.comments.store', ['productDevelopment' => $development->id]), [
+        'body'   => "Please check the dieline @{$freelancer->username} and @{$outsider->username}",
+        'images' => [UploadedFile::fake()->createWithContent('dieline-notes.pdf', '%PDF-1.4 notes '.Str::random(20))],
+    ])->assertRedirect();
+
+    $comment = $development->comments()->latest('id')->first();
+    expect($comment->mentions)->toBe([$freelancer->id])
+        ->and($freelancer->notifications()->count())->toBe($freelancerBefore + 1)
+        ->and($outsider->notifications()->count())->toBe($outsiderBefore);
+
+    actingAs($freelancer);
+    post(route('grp.models.product_development.comments.store', ['productDevelopment' => $development->id]), [
+        'body'      => 'On it',
+        'parent_id' => $comment->id,
+    ])->assertRedirect();
+
+    get(route('grp.product_developments.show', ['productDevelopment' => $development->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->has('comments.threads', 1)
+            ->has('comments.threads.0.replies', 1)
+            ->has('comments.threads.0.attachments', 1)
+            ->where('comments.mentionables', fn ($people) => collect($people)->pluck('id')->contains($freelancer->id)));
+
+    $attachmentUlid = $comment->getMedia('ticket_attachments')->first()?->ulid;
+    expect($attachmentUlid)->not->toBeNull();
+    get(route('grp.media.download', ['media' => $attachmentUlid]))->assertOk();
+
+    actingAs($outsider);
+    post(route('grp.models.product_development.comments.store', ['productDevelopment' => $development->id]), ['body' => 'hello'])->assertForbidden();
+    get(route('grp.media.download', ['media' => $attachmentUlid]))->assertNotFound();
 });

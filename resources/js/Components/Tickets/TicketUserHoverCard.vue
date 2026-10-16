@@ -7,7 +7,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from "vue"
-import { Link } from "@inertiajs/vue3"
+import { Link, usePage } from "@inertiajs/vue3"
 import { ctrans } from "@/Composables/useTrans"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -105,6 +105,8 @@ const reportedWorkItemsUrl = computed(() =>
     props.reporterKey && !isRetina.value ? ticketsRoute("list", { filter: { reporter: props.reporterKey } }) : null
 )
 
+const canMessage = computed(() => !!props.messageUserId && props.messageUserId !== (usePage().props as any)?.auth?.user?.id)
+
 const onMessage = () => {
     isOpen.value = false
     if (props.messageUserId) {
@@ -136,7 +138,7 @@ const onMention = () => {
         <transition
             enter-active-class="transition duration-100 ease-out" enter-from-class="opacity-0" enter-to-class="opacity-100"
             leave-active-class="transition duration-75 ease-in" leave-from-class="opacity-100" leave-to-class="opacity-0">
-            <span v-if="isOpen && (reportedWorkItemsUrl || profileUrl || messageUserId || (canMention && username))"
+            <span v-if="isOpen && (reportedWorkItemsUrl || profileUrl || canMessage || (canMention && username))"
                 class="w-56 rounded-md border border-gray-200 bg-white py-1 text-left shadow-lg"
                 :class="avatarOnly ? 'fixed z-[60] block' : 'absolute left-0 top-full z-30 mt-1'"
                 :style="avatarOnly ? { top: `${floatingMenuPosition.top}px`, left: `${floatingMenuPosition.left}px` } : undefined"
@@ -154,7 +156,7 @@ const onMention = () => {
                     >
                 </span>
 
-                <button v-if="messageUserId" type="button" @click="onMessage"
+                <button v-if="canMessage" type="button" @click="onMessage"
                     class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-gray-700 hover:bg-gray-50">
                     <FontAwesomeIcon icon="fal fa-comment-alt" class="text-xs text-gray-400" fixed-width aria-hidden="true" />
                     {{ ctrans("Message") }}

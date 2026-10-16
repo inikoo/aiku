@@ -13912,3 +13912,14 @@ test('shopkeepers email a customer without working chat and customer service ans
         ->and($session->assignments()->where('status', ChatAssignmentStatusEnum::ACTIVE->value)->exists())->toBeFalse()
         ->and($session->messages()->where('sender_type', ChatSenderTypeEnum::AGENT->value)->value('message_text'))->toBe('Can I help you finish your order?');
 });
+
+test('a staff member cannot start a conversation with only themselves', function () {
+    actingAs($this->user);
+    $before = \App\Models\Chat\StaffConversation::count();
+
+    $this->postJson(route('grp.chat.staff.conversations.store'), ['user_ids' => [$this->user->id]])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('user_ids');
+
+    expect(\App\Models\Chat\StaffConversation::count())->toBe($before);
+});

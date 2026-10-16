@@ -28,6 +28,8 @@ import ProductDevelopmentWaitingOn from "@/Components/Goods/ProductDevelopment/P
 import ProductDevelopmentBrief from "@/Components/Goods/ProductDevelopment/ProductDevelopmentBrief.vue"
 import ProductDevelopmentProducts from "@/Components/Goods/ProductDevelopment/ProductDevelopmentProducts.vue"
 import ProductDevelopmentCompliance from "@/Components/Goods/ProductDevelopment/ProductDevelopmentCompliance.vue"
+import ProductDevelopmentComments from "@/Components/Goods/ProductDevelopment/ProductDevelopmentComments.vue"
+import ProductDevelopmentFiles from "@/Components/Goods/ProductDevelopment/ProductDevelopmentFiles.vue"
 import ProductDevelopmentComingSoon from "@/Components/Goods/ProductDevelopment/ProductDevelopmentComingSoon.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -60,6 +62,8 @@ const props = defineProps<{
     products?: object
     compliance?: object
     activity?: object
+    files?: object
+    comments: any
     recentActivity: any[]
     editor: any
 }>()
@@ -73,7 +77,7 @@ const component = computed(() => {
         products: ProductDevelopmentProducts,
         compliance: ProductDevelopmentCompliance,
         design: ProductDevelopmentComingSoon,
-        files: ProductDevelopmentComingSoon,
+        files: ProductDevelopmentFiles,
         tasks: ProductDevelopmentComingSoon,
         activity: ProductDevelopmentActivity,
     }
@@ -83,6 +87,7 @@ const component = computed(() => {
 
 const moving = ref(false)
 const recentOrder = ref<"newest" | "oldest">("newest")
+const commentOrder = ref<"newest" | "oldest">("newest")
 
 function moveToNextStage() {
     router.patch(route(props.stageMove.route.name, props.stageMove.route.parameters), {}, {
@@ -106,6 +111,7 @@ function moveToNextStage() {
                     :disabled="!stageMove.can_move"
                     :loading="moving"
                     :tooltip="!stageMove.can_move ? stageMove.reason ?? undefined : undefined"
+                    class="disabled:cursor-not-allowed disabled:opacity-50"
                     @click="moveToNextStage"
                 />
                 <span v-if="!stageMove.can_move && stageMove.reason" class="text-xs text-amber-700">{{ stageMove.reason }}</span>
@@ -127,6 +133,12 @@ function moveToNextStage() {
 
         <aside class="space-y-4">
             <ProductDevelopmentWaitingOn :rows="overview.waiting_on" />
+            <ProductDevelopmentSidePanel :title="ctrans('Comments')">
+                <template #actions>
+                    <ProductDevelopmentActivityOrder v-model="commentOrder" />
+                </template>
+                <ProductDevelopmentComments :data="comments" :order="commentOrder" />
+            </ProductDevelopmentSidePanel>
             <ProductDevelopmentSidePanel :title="ctrans('Recent activity')">
                 <template #actions>
                     <ProductDevelopmentActivityOrder v-model="recentOrder" />

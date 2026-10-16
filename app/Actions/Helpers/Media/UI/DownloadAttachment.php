@@ -9,6 +9,9 @@
 
 namespace App\Actions\Helpers\Media\UI;
 
+use App\Actions\Goods\ProductDevelopment\ProductDevelopmentAccess;
+use App\Models\Goods\ProductDevelopment;
+use App\Models\Goods\ProductDevelopmentComment;
 use App\Models\Accounting\Invoice;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\PalletDelivery;
@@ -129,6 +132,8 @@ class DownloadAttachment
                 'supply-chain.view',
             ]),
             $owner instanceof Supplier => $user->authTo(['supply-chain.view']),
+            $owner instanceof ProductDevelopment => (new ProductDevelopmentAccess())->canView($user, $owner),
+            $owner instanceof ProductDevelopmentComment => $owner->productDevelopment && (new ProductDevelopmentAccess())->canView($user, $owner->productDevelopment),
             default => null,
         };
     }

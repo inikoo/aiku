@@ -12,6 +12,7 @@ namespace App\Actions\Goods\ProductDevelopment\UI;
 use App\Actions\Goods\ProductDevelopment\ProductDevelopmentAccess;
 use App\Actions\Goods\ProductDevelopment\RecordProductDevelopmentActivity;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentChecklistItemStateEnum;
+use App\Enums\Goods\ProductDevelopment\ProductDevelopmentFileScopeEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStatusEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentTargetFieldEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentTypeEnum;
@@ -92,6 +93,7 @@ class GetProductDevelopmentActivity
                 RecordProductDevelopmentActivity::STAGE_MOVED => [__('Moved from :from to :to', ['from' => $old['stage'] ?? '—', 'to' => $new['stage'] ?? '—']), []],
                 RecordProductDevelopmentActivity::SKUS_ADDED => [trans_choice('Added :count SKU|Added :count SKUs', count($new['skus'] ?? []), ['count' => count($new['skus'] ?? [])]), [['label' => __('SKUs'), 'old' => null, 'new' => implode(', ', $new['skus'] ?? [])]]],
                 RecordProductDevelopmentActivity::MEMBERS_ADDED => [__('Added members'), [['label' => __('Members'), 'old' => null, 'new' => implode(', ', $new['members'] ?? [])]]],
+                RecordProductDevelopmentActivity::FILES_UPLOADED => [$this->filesSentence($new), [['label' => __('Files'), 'old' => null, 'new' => implode(', ', $new['files'] ?? [])]]],
                 RecordProductDevelopmentActivity::MEMBERS_REMOVED => [__('Removed members'), [['label' => __('Members'), 'old' => implode(', ', $old['members'] ?? []), 'new' => null]]],
                 'updated' => [__('Updated the development'), $this->fieldChanges($old, $new)],
                 default => [Str::headline($audit->event), []],
@@ -117,6 +119,16 @@ class GetProductDevelopmentActivity
             'sentence'   => $sentence,
             'changes'    => $changes,
         ];
+    }
+
+    private function filesSentence(array $new): string
+    {
+        $count = count($new['files'] ?? []);
+        $scope = ProductDevelopmentFileScopeEnum::labels()[$new['scope'] ?? ''] ?? __('files');
+        $where = filled($new['sku'] ?? null) ? ' '.__('for :sku', ['sku' => $new['sku']]) : '';
+        $which = filled($new['version'] ?? null) ? ' (v'.$new['version'].')' : '';
+
+        return trans_choice('Uploaded :count file|Uploaded :count files', $count, ['count' => $count]).': '.$scope.$which.$where;
     }
 
     /**

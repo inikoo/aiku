@@ -13,6 +13,7 @@ use App\Actions\Goods\ProductDevelopment\GetProductDevelopmentStageGate;
 use App\Actions\Goods\ProductDevelopment\Hydrators\ProductDevelopmentHydrateChecklist;
 use App\Actions\Goods\ProductDevelopment\MoveProductDevelopmentToNextStage;
 use App\Actions\Goods\ProductDevelopment\StoreProductDevelopment;
+use App\Actions\Goods\ProductDevelopment\UploadProductDevelopmentFiles;
 use App\Actions\Goods\ProductDevelopment\UI\GetProductDevelopmentActivity;
 use App\Actions\Goods\ProductDevelopment\UI\ShowProductDevelopmentsBoard;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentChecklistItemStateEnum;
@@ -23,6 +24,7 @@ use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStatusEnum;
 use App\Enums\Goods\TradeUnit\TradeUnitStatusEnum;
 use App\Models\Goods\ProductDevelopment;
 use App\Actions\UI\Grp\Layout\GetGroupNavigation;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia;
 use Illuminate\Validation\ValidationException;
@@ -320,4 +322,75 @@ test('the owner adds and removes members and edits markets from the brief, and i
     $sentences = collect(GetProductDevelopmentActivity::run($productDevelopment))->pluck('sentence');
     expect($sentences)->toContain(__('Added members'))
         ->and($sentences)->toContain(__('Removed members'));
+});
+
+test('a new SDS replaces the old one on the trade unit and keeps it as an earlier version', function () {
+    $productDevelopment = storeDevelopmentWithNewSkus($this, 1);
+    $item               = $productDevelopment->items->first();
+    $tradeUnit          = $item->tradeUnit;
+
+    UploadProductDevelopmentFiles::make()->action($productDevelopment, $this->user, [
+        'files'                       => [UploadedFile::fake()->createWithContent('sds-v1.pdf', 'SDS version one '.Str::random(20))],
+        'scope'                       => 'sds',
+        'product_development_item_id' => $item->id,
+    ]);
+    $firstMediaId = $tradeUnit->attachments()->wherePivot('scope', 'sds')->value('media.id');
+    expect($firstMediaId)->not->toBeNull();
+
+    UploadProductDevelopmentFiles::make()->action($productDevelopment, $this->user, [
+        'files'                       => [UploadedFile::fake()->createWithContent('sds-v2.pdf', 'SDS version two '.Str::random(20))],
+        'scope'                       => 'sds',
+        'product_development_item_id' => $item->id,
+    ]);
+
+    $onTradeUnit = $tradeUnit->attachments()->wherePivot('scope', 'sds')->pluck('media.id');
+    expect($onTradeUnit)->toHaveCount(1)
+        ->and($onTradeUnit->first())->not->toBe($firstMediaId);
+
+    $files = $productDevelopment->files()->where('scope', 'sds')->orderBy('version')->get();
+    expect($files)->toHaveCount(2)
+        ->and($files[0]->version)->toBe(1)
+        ->and($files[0]->superseded_at)->not->toBeNull()
+        ->and($files[0]->media_id)->toBe($firstMediaId)
+        ->and($files[1]->version)->toBe(2)
+        ->and($files[1]->superseded_at)->toBeNull();
+
+    $sentences = collect(GetProductDevelopmentActivity::run($productDevelopment))->pluck('sentence');
+    expect($sentences->contains(fn ($sentence) => str_contains($sentence, 'SDS (v2)') && str_contains($sentence, $tradeUnit->code)))->toBeTrue();
+});
+
+test('an agent uploads six factory photos for one SKU and none of them replaces another', function () {
+    $productDevelopment = storeDevelopmentWithNewSkus($this, 1);
+    $item               = $productDevelopment->items->first();
+
+    UploadProductDevelopmentFiles::make()->action($productDevelopment, $this->user, [
+        'files'                       => collect(range(1, 6))->map(fn (int $index) => UploadedFile::fake()->createWithContent("photo-$index.jpg", "photo $index ".Str::random(20)))->all(),
+        'scope'                       => 'factory_photo',
+        'product_development_item_id' => $item->id,
+    ]);
+
+    $photos = $productDevelopment->files()->where('scope', 'factory_photo')->get();
+    expect($photos)->toHaveCount(6)
+        ->and($photos->whereNotNull('superseded_at'))->toHaveCount(0)
+        ->and($photos->pluck('media_id')->unique())->toHaveCount(6);
+
+    expect(collect(GetProductDevelopmentActivity::run($productDevelopment))->pluck('sentence')->first())->toContain('6');
+
+    get(route('grp.product_developments.show', ['productDevelopment' => $productDevelopment->slug, 'tab' => 'files']))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('tabs.navigation.files.number', 6)
+            ->has('files.groups', 1)
+            ->has('files.groups.0.current', 6)
+            ->where('files.groups.0.sku', $item->tradeUnit->code)
+            ->has('files.upload.scopes'));
+});
+
+test('a per-SKU file needs its SKU', function () {
+    $productDevelopment = storeDevelopmentWithNewSkus($this, 1);
+
+    expect(fn () => UploadProductDevelopmentFiles::make()->action($productDevelopment, $this->user, [
+        'files' => [UploadedFile::fake()->createWithContent('sds.pdf', 'no sku '.Str::random(20))],
+        'scope' => 'sds',
+    ]))->toThrow(ValidationException::class);
 });

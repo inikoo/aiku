@@ -23,6 +23,8 @@ class RecordProductDevelopmentActivity
 
     public const string MEMBERS_REMOVED = 'members_removed';
 
+    public const string FILES_UPLOADED = 'files_uploaded';
+
     /**
      * @param array<string, mixed> $old
      * @param array<string, mixed> $new

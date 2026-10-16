@@ -54,6 +54,7 @@ class ShowProductDevelopment extends OrgAction
 
         $navigation = ProductDevelopmentTabsEnum::navigation();
         $navigation[ProductDevelopmentTabsEnum::PRODUCTS->value]['number'] = count($overview['products']);
+        $navigation[ProductDevelopmentTabsEnum::FILES->value]['number']    = $productDevelopment->files()->whereNull('superseded_at')->count();
 
         $tab = fn (ProductDevelopmentTabsEnum $tabEnum, callable $resolver) => $this->tab === $tabEnum->value
             ? $resolver
@@ -147,7 +148,9 @@ class ShowProductDevelopment extends OrgAction
                 ProductDevelopmentTabsEnum::BRIEF->value      => $tab(ProductDevelopmentTabsEnum::BRIEF, fn () => $tabData->brief($productDevelopment, $request->user(), $canSeeCosts)),
                 ProductDevelopmentTabsEnum::PRODUCTS->value   => $tab(ProductDevelopmentTabsEnum::PRODUCTS, fn () => $overview['products']),
                 ProductDevelopmentTabsEnum::COMPLIANCE->value => $tab(ProductDevelopmentTabsEnum::COMPLIANCE, fn () => $tabData->compliance($productDevelopment, $canSeeCosts)),
+                ProductDevelopmentTabsEnum::FILES->value      => $tab(ProductDevelopmentTabsEnum::FILES, fn () => GetProductDevelopmentFiles::run($productDevelopment, $this->productDevelopmentAccess()->canUpload($request->user(), $productDevelopment))),
                 ProductDevelopmentTabsEnum::ACTIVITY->value   => $tab(ProductDevelopmentTabsEnum::ACTIVITY, fn () => GetProductDevelopmentActivity::run($productDevelopment, GetProductDevelopmentActivity::LIMIT, $request->user())),
+                'comments'       => fn () => GetProductDevelopmentComments::run($productDevelopment),
                 'recentActivity' => fn () => GetProductDevelopmentActivity::run($productDevelopment, 5, $request->user()),
             ]
         );
