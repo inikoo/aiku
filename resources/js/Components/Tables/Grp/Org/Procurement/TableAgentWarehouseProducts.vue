@@ -62,7 +62,10 @@ const formatQuantity = (value: number) => locale.number(Math.round(Number(value)
 			</span>
 		</template>
 		<template #cell(quantity)="{ item: row }">
-			<span class="tabular-nums">{{ formatQuantity(row.quantity) }}</span>
+			<span v-if="row.quantity_ordered && row.quantity_ordered > row.quantity" class="tabular-nums" v-tooltip="ctrans(':received of :ordered units ordered already received', { received: formatQuantity(row.quantity_ordered - row.quantity), ordered: formatQuantity(row.quantity_ordered) })">
+				{{ formatQuantity(row.quantity) }} <span class="text-gray-400">/ {{ formatQuantity(row.quantity_ordered) }}</span>
+			</span>
+			<span v-else class="tabular-nums">{{ formatQuantity(row.quantity) }}</span>
 		</template>
 		<template #cell(skos)="{ item: row }">
 			<span class="tabular-nums" v-tooltip="ctrans('1 SKO = :units units', { units: formatQuantity(row.units_per_sko) })">{{ formatQuantity(row.skos) }}</span>

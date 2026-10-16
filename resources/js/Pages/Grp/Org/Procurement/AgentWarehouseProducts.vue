@@ -10,9 +10,11 @@ import { ref, watch } from "vue"
 import { Head, router } from "@inertiajs/vue3"
 import qs from "qs"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faIndustryAlt, faInboxIn, faInfoCircle } from "@fal"
+import { faIndustryAlt, faInboxIn, faInfoCircle, faDolly } from "@fal"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
+import Button from "@/Components/Elements/Buttons/Button.vue"
+import AgentReceiveProductsDialog from "@/Components/Procurement/AgentReceiveProductsDialog.vue"
 import TableAgentWarehouseProducts from "@/Components/Tables/Grp/Org/Procurement/TableAgentWarehouseProducts.vue"
 import PillFilterBar from "@/Components/Utils/PillFilterBar.vue"
 import { capitalize } from "@/Composables/capitalize"
@@ -22,6 +24,7 @@ import { PageHeadingTypes } from "@/types/PageHeading"
 library.add(faIndustryAlt, faInboxIn)
 
 type FilterOption = { label: string; value: string; count: number; tooltip?: string }
+type ScopeOption = { value: number; label: string; count: number }
 
 const props = defineProps<{
 	pageHead: PageHeadingTypes
@@ -29,7 +32,10 @@ const props = defineProps<{
 	kind: "in_production" | "received"
 	data: object
 	filterOptions: { organisation: FilterOption[]; location?: FilterOption[] }
+	receive?: { suppliers: ScopeOption[]; purchase_orders: ScopeOption[] } | null
 }>()
+
+const isReceiveOpen = ref(false)
 
 const currentQuery = () => qs.parse(location.search.substring(1)) as Record<string, any>
 const organisation = ref<string | null>(currentQuery().filter?.organisation ?? null)
@@ -45,11 +51,21 @@ watch([organisation, where], () => {
 
 <template>
 	<Head :title="capitalize(title)" />
-	<PageHeading :data="pageHead" />
+	<PageHeading :data="pageHead">
+		<template v-if="props.kind === 'in_production' && receive" #other>
+			<span v-tooltip="receive.suppliers.length === 0 ? ctrans('Nothing is in production to receive') : ctrans('Book goods arrived from a supplier: they move to Received')">
+				<Button type="tertiary" :label="ctrans('Receive goods')" :disabled="receive.suppliers.length === 0" @click="isReceiveOpen = true">
+					<template #icon>
+						<FontAwesomeIcon :icon="faDolly" class="text-green-600" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
+			</span>
+		</template>
+	</PageHeading>
 	<div class="mx-4 mt-3 flex gap-2 rounded-lg border border-[--app-accent-muted] bg-[--app-accent-soft] p-3 text-sm text-gray-700">
 		<FontAwesomeIcon :icon="faInfoCircle" class="mt-0.5 text-[--app-accent]" fixed-width aria-hidden="true" />
 		<p v-if="props.kind === 'in_production'">
-			{{ ctrans("Products the suppliers are making now: the purchase orders placed through us with production started and the quality check not passed yet. Quantities are in units; the SKO column shows the same quantity in packs.") }}
+			{{ ctrans("Products the suppliers are making now: the purchase orders placed through us with production started and the quality check not passed yet, less what we already received. Quantities are in units; the SKO column shows the same quantity in packs.") }}
 		</p>
 		<p v-else>
 			{{ ctrans("Everything we received from the suppliers and still hold: in our warehouse, packed or not, and in containers that have not been dispatched yet. Quantities are in units; the SKO column shows the same quantity in packs.") }}
@@ -60,4 +76,5 @@ watch([organisation, where], () => {
 		<PillFilterBar v-if="filterOptions.location" :label="ctrans('Where')" :options="filterOptions.location" :selected="where" @select="(value) => (where = value)" />
 	</div>
 	<TableAgentWarehouseProducts :data="data" :kind="kind" />
+	<AgentReceiveProductsDialog v-if="props.kind === 'in_production' && receive" v-model:visible="isReceiveOpen" :scopes="receive" />
 </template>
