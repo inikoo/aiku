@@ -7355,6 +7355,59 @@ test('an email from a courier is filed in the Couriers folder and in no other li
         ->and($queue([]))->not->toContain($courier->id);
 });
 
+test('a courier case mail marked automatic opens a Couriers conversation that is never put aside, a stranger\'s is still filtered', function () {
+    $settings          = $this->shop->settings ?? [];
+    $settings['gmail'] = ['email' => 'care@shop.test', 'refresh_token' => \Illuminate\Support\Facades\Crypt::encryptString('rt'), 'history_id' => '1'];
+    $this->shop->update(['settings' => $settings]);
+
+    $message = fn (string $id, string $from, string $threadId) => \Illuminate\Support\Facades\Http::response([
+        'id'       => $id,
+        'threadId' => $threadId,
+        'labelIds' => ['INBOX', 'UNREAD'],
+        'payload'  => [
+            'mimeType' => 'text/plain',
+            'headers'  => [
+                ['name' => 'From', 'value' => $from],
+                ['name' => 'Subject', 'value' => 'DHL 1287151073 - CSTASK29362102 - Trace - Damaged Shipment'],
+                ['name' => 'Auto-Submitted', 'value' => 'auto-generated'],
+            ],
+            'body' => ['data' => rtrim(strtr(base64_encode('This shipment has been declared as damaged during transit, please advise.'), '+/', '-_'), '=')],
+        ],
+    ]);
+
+    \Illuminate\Support\Facades\Http::fake([
+        'oauth2.googleapis.com/token'                           => \Illuminate\Support\Facades\Http::response(['access_token' => 'at']),
+        'gmail.googleapis.com/gmail/v1/users/me/messages/dhl1*' => $message('dhl1', 'DHL <gb.deliveryinfo@dhl.com>', 'tdhl'),
+        'gmail.googleapis.com/gmail/v1/users/me/messages/dhl2*' => $message('dhl2', 'DHL <gb.deliveryinfo@dhl.com>', 'tdhl'),
+        'gmail.googleapis.com/gmail/v1/users/me/messages/oth1*' => $message('oth1', 'Desk <desk@example.com>', 'toth1'),
+        'gmail.googleapis.com/gmail/v1/users/me/threads/*'      => \Illuminate\Support\Facades\Http::response(['messages' => []]),
+        'gmail.googleapis.com/gmail/v1/users/me/labels'         => \Illuminate\Support\Facades\Http::response(['labels' => [
+            ['id' => 'LF', 'name' => 'aiku/filtered'],
+            ['id' => 'LU', 'name' => 'aiku/unmatched'],
+        ]]),
+        'gmail.googleapis.com/*' => \Illuminate\Support\Facades\Http::response([]),
+    ]);
+
+    $courierMessage = \App\Actions\Comms\Mailbox\ProcessInboundEmail::run($this->shop, 'dhl1');
+    $courierSession = $courierMessage->chatSession->refresh();
+
+    expect(\App\Actions\Comms\Mailbox\ProcessInboundEmail::run($this->shop, 'oth1'))->toBeNull()
+        ->and($courierSession->is_carrier)->toBeTrue()
+        ->and(data_get($courierMessage->refresh()->metadata, 'auto_reply'))->toBeTrue()
+        ->and(\App\Actions\Chat\ChatSession\ClassifyChatSessionNoise::make()->handle($courierSession)->refresh()->is_rubbish)->toBeFalse();
+
+    \Illuminate\Support\Facades\Http::assertSent(fn ($request) => str_ends_with($request->url(), 'messages/oth1/modify') && $request['addLabelIds'] === ['LF']);
+
+    $courierSession->update(['status' => ChatSessionStatusEnum::CLOSED, 'closed_at' => now()]);
+    \App\Actions\Comms\Mailbox\ProcessInboundEmail::run($this->shop, 'dhl2');
+
+    $newsletter = noiseTestEmailSession($this->shop, 'news@dhl.com', 'Ship more for less', 'Our new rates', ['email_headers' => ['list_unsubscribe' => true]]);
+    $newsletter->update(['is_carrier' => true]);
+
+    expect($courierSession->refresh()->status)->toBe(ChatSessionStatusEnum::WAITING)
+        ->and(\App\Actions\Chat\ChatSession\ClassifyChatSessionNoise::make()->handle($newsletter)->refresh()->rubbish_reason)->toBe('marketing');
+});
+
 test('customer service edits the courier domains in the group chat settings, subdomains included', function () {
     actingAs($this->user);
     $group    = $this->organisation->group;

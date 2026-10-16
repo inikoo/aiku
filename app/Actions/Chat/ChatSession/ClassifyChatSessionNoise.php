@@ -117,7 +117,8 @@ class ClassifyChatSessionNoise
 
         // The model is never told about somebody we know. Only a machine's own reply gets this far
         // with a customer behind it, and the rules above have already settled that one.
-        if (self::isKnownCustomer($chatSession)) {
+        // Courier mail is about our parcels: only a mailing list is put aside, never the model's guess.
+        if (self::isKnownCustomer($chatSession) || ($chatSession instanceof ChatSession && $chatSession->is_carrier)) {
             return $chatSession;
         }
 
@@ -322,7 +323,8 @@ class ClassifyChatSessionNoise
         $firstMessage = $chatSession->messages()->where('sender_type', ChatSenderTypeEnum::GUEST)->oldest('id')->first();
         $headers      = (array) data_get($firstMessage?->metadata, 'email_headers', []);
 
-        if (self::isAutoReplyEmail($chatSession)) {
+        // A courier's case system marks its damage and return notices as automatic too.
+        if (!$chatSession->is_carrier && self::isAutoReplyEmail($chatSession)) {
             return ['verdict' => ChatNoiseVerdictEnum::OUT_OF_OFFICE, 'note' => 'Answers by itself'];
         }
 
