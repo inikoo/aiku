@@ -40,6 +40,13 @@ const formatQuantity = (value: number) => locale.number(Math.round(Number(value)
 				<Icon :data="row.location_icon" />
 				<Link v-if="row.container_slug" :href="containerRoute(row.container_slug)" class="secondaryLink">{{ row.container_reference }}</Link>
 				<span v-else class="text-gray-500">{{ ctrans("Warehouse") }}</span>
+				<span
+					v-if="row.is_unchecked"
+					v-tooltip="ctrans('Received, not checked for rejects yet')"
+					class="whitespace-nowrap rounded-full bg-amber-50 px-2 py-0.5 text-xs text-amber-700 ring-1 ring-inset ring-amber-200"
+				>
+					{{ ctrans("Not checked yet") }}
+				</span>
 			</div>
 		</template>
 		<template #cell(code)="{ item: row }">
@@ -62,7 +69,16 @@ const formatQuantity = (value: number) => locale.number(Math.round(Number(value)
 			</span>
 		</template>
 		<template #cell(quantity)="{ item: row }">
-			<span class="tabular-nums">{{ formatQuantity(row.quantity) }}</span>
+			<div class="flex items-center justify-end gap-1.5">
+				<span
+					v-if="row.quantity_rejected > 0"
+					v-tooltip="ctrans(':units units were rejected at our warehouse: the supplier makes them again', { units: formatQuantity(row.quantity_rejected) })"
+					class="whitespace-nowrap rounded-full bg-red-50 px-2 py-0.5 text-xs text-red-700 ring-1 ring-inset ring-red-200"
+				>
+					{{ ctrans(":units rejected", { units: formatQuantity(row.quantity_rejected) }) }}
+				</span>
+				<span class="tabular-nums">{{ formatQuantity(row.quantity) }}</span>
+			</div>
 		</template>
 		<template #cell(skos)="{ item: row }">
 			<span class="tabular-nums" v-tooltip="ctrans('1 SKO = :units units', { units: formatQuantity(row.units_per_sko) })">{{ formatQuantity(row.skos) }}</span>

@@ -92,7 +92,7 @@ class ImportAgentWarehouseStocksFromContainerList
 
         if (!$dryRun) {
             DB::transaction(function () use ($agent, $organisation, $container, $rows) {
-                AgentWarehouseStock::where('agent_id', $agent->id)->where('organisation_id', $organisation->id)->where('notes', $container)->delete();
+                AgentWarehouseStock::where('agent_id', $agent->id)->where('organisation_id', $organisation->id)->where('notes', $container)->whereDoesntHave('receipt')->delete();
                 AgentWarehouseStock::insert($rows);
             });
         }

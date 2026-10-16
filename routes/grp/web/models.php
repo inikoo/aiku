@@ -343,6 +343,9 @@ use App\Actions\GoodsIn\StockDeliveryItem\ResolveStockDeliveryItemDiscrepancy;
 use App\Actions\GoodsIn\StockDeliveryItem\SetStockDeliveryItemCustomsLine;
 use App\Actions\GoodsIn\StockDelivery\UpdateStockDeliveryCustoms;
 use App\Actions\GoodsIn\StockDeliveryClaim\UpdateStockDeliveryClaim;
+use App\Actions\Procurement\AgentWarehouseReceipt\DeleteAgentWarehouseReceipt;
+use App\Actions\Procurement\AgentWarehouseReceipt\StoreAgentWarehouseReceipt;
+use App\Actions\Procurement\AgentWarehouseReceipt\UpdateAgentWarehouseReceipt;
 use App\Actions\GoodsIn\StockDeliveryItem\UpdateStateToConfirmedStockDeliveryItem;
 use App\Actions\GoodsIn\StockDeliveryItem\SetStockDeliveryItemBatches;
 use App\Actions\GoodsIn\StockDeliveryItem\UpsertStockDeliveryItemPlaced;
@@ -1789,6 +1792,9 @@ Route::name('stock-delivery-item.')->prefix('stock-delivery-item/{stockDeliveryI
 });
 
 Route::post('stock-delivery-claim/{stockDeliveryClaim:id}/update', UpdateStockDeliveryClaim::class)->name('stock-delivery-claim.update');
+Route::post('purchase-order-transaction/{purchaseOrderTransaction:id}/agent-warehouse-receipt', StoreAgentWarehouseReceipt::class)->name('purchase-order-transaction.agent_warehouse_receipt.store');
+Route::post('agent-warehouse-receipt/{agentWarehouseReceipt:id}/update', UpdateAgentWarehouseReceipt::class)->name('agent_warehouse_receipt.update');
+Route::delete('agent-warehouse-receipt/{agentWarehouseReceipt:id}', DeleteAgentWarehouseReceipt::class)->name('agent_warehouse_receipt.delete');
 
 Route::name('org-supplier.')->prefix('org-supplier/{orgSupplier:id}')->group(function () {
     Route::post('purchase-order/store', [StorePurchaseOrder::class, 'inOrgSupplier'])->name('purchase-order.store');

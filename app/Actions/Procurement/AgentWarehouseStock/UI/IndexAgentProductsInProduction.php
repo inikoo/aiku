@@ -13,6 +13,7 @@ use App\Actions\OrgAction;
 use App\Actions\Procurement\WithAgentOrganisation;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStageEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\InertiaTable\InertiaTable;
 use App\Models\Procurement\PurchaseOrderTransaction;
@@ -22,13 +23,16 @@ use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder as QueryBuilderBase;
+use Illuminate\Support\Facades\DB;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedSort;
 
 /**
  * The products the agent's suppliers are making: the lines of the purchase orders placed through the agent that are in
- * production, before their quality check passes.
+ * production, before their quality check passes, less what already arrived at the agent's warehouse and passed its
+ * check. Units the agent rejected are made again, so they stay here even after the order's quality check passed.
  */
 class IndexAgentProductsInProduction extends OrgAction
 {
@@ -36,14 +40,47 @@ class IndexAgentProductsInProduction extends OrgAction
     use WithProcurementAuthorisation;
     use WithAgentWarehouseProductRows;
 
+    private const string OUTSTANDING_SQL = '(purchase_order_transactions.quantity_ordered - coalesce(agent_receipts.quantity_accepted, 0))';
+
+    private const string REJECTED_SQL = 'coalesce(agent_receipts.quantity_rejected, 0)';
+
     private function baseQuery(Agent $agent): Builder
     {
         return PurchaseOrderTransaction::query()
             ->join('purchase_orders as production_orders', 'production_orders.id', 'purchase_order_transactions.purchase_order_id')
             ->where('production_orders.agent_id', $agent->id)
             ->whereNull('production_orders.deleted_at')
-            ->whereRaw(str_replace('purchase_orders.', 'production_orders.', PurchaseOrderStageEnum::inProductionSql()))
-            ->whereIn('purchase_order_transactions.state', [PurchaseOrderTransactionStateEnum::SUBMITTED, PurchaseOrderTransactionStateEnum::CONFIRMED]);
+            ->whereIn('production_orders.state', [PurchaseOrderStateEnum::SUBMITTED, PurchaseOrderStateEnum::CONFIRMED])
+            ->whereIn('purchase_order_transactions.state', [PurchaseOrderTransactionStateEnum::SUBMITTED, PurchaseOrderTransactionStateEnum::CONFIRMED])
+            ->leftJoinSub($this->acceptedAtAgentWarehouse(), 'agent_receipts', 'agent_receipts.purchase_order_transaction_id', 'purchase_order_transactions.id')
+            ->whereRaw('('.self::inProductionStageSql().' or '.self::REJECTED_SQL.' > 0)')
+            ->whereRaw(self::OUTSTANDING_SQL.' > 0');
+    }
+
+    private static function inProductionStageSql(): string
+    {
+        return str_replace('purchase_orders.', 'production_orders.', PurchaseOrderStageEnum::inProductionSql());
+    }
+
+    /**
+     * Once the order is past production only the rejected units are being made again: the rest is ready or on its way.
+     */
+    private static function quantityInProductionSql(): string
+    {
+        return 'case when '.self::inProductionStageSql().' then '.self::OUTSTANDING_SQL.' else least('.self::OUTSTANDING_SQL.', '.self::REJECTED_SQL.') end';
+    }
+
+    /**
+     * What the agent kept of each line, batch by batch: received less rejected. The rest is still owed by the supplier.
+     */
+    private function acceptedAtAgentWarehouse(): QueryBuilderBase
+    {
+        return DB::table('agent_warehouse_receipts')
+            ->whereNull('deleted_at')
+            ->groupBy('purchase_order_transaction_id')
+            ->select('purchase_order_transaction_id')
+            ->selectRaw('sum(quantity_received - coalesce(quantity_rejected, 0)) as quantity_accepted')
+            ->selectRaw('sum(coalesce(quantity_rejected, 0)) as quantity_rejected');
     }
 
     public function handle(Agent $agent): LengthAwarePaginator
@@ -51,7 +88,8 @@ class IndexAgentProductsInProduction extends OrgAction
         $query = $this->joinProductRowDetails(
             $this->baseQuery($agent)->select([
                 'purchase_order_transactions.id',
-                'purchase_order_transactions.quantity_ordered as quantity',
+                DB::raw(self::quantityInProductionSql().' as quantity'),
+                DB::raw('least('.self::OUTSTANDING_SQL.', '.self::REJECTED_SQL.') as quantity_rejected'),
                 'production_orders.production_started_at',
                 'production_orders.proposed_ready_at',
                 'production_orders.approved_ready_at',
@@ -66,7 +104,7 @@ class IndexAgentProductsInProduction extends OrgAction
                 AllowedSort::field('name', 'supplier_products.name'),
                 AllowedSort::field('supplier_code', 'suppliers.code'),
                 AllowedSort::field('organisation_code', 'organisations.code'),
-                AllowedSort::field('quantity', 'purchase_order_transactions.quantity_ordered'),
+                AllowedSort::field('quantity'),
                 AllowedSort::field('production_started_at', 'production_orders.production_started_at'),
                 AllowedSort::field('ready_at', 'production_orders.approved_ready_at'),
             ])
@@ -78,6 +116,7 @@ class IndexAgentProductsInProduction extends OrgAction
                 'production_started_at' => $transaction->production_started_at,
                 'ready_at'              => $transaction->approved_ready_at ?? $transaction->proposed_ready_at,
                 'ready_at_is_approved'  => $transaction->approved_ready_at !== null,
+                'quantity_rejected'     => (float) $transaction->quantity_rejected,
             ]));
     }
 

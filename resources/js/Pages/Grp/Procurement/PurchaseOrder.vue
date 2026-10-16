@@ -46,6 +46,7 @@ import AspoDepositsChecklist from "@/Components/Procurement/AspoDepositsChecklis
 import PurchaseOrderPayments from "@/Components/Procurement/PurchaseOrderPayments.vue"
 import PurchaseOrderDepositPayments, { type PurchaseOrderPaymentsData } from "@/Components/Procurement/PurchaseOrderDepositPayments.vue"
 import PurchaseOrderStages from "@/Components/Procurement/PurchaseOrderStages.vue"
+import AgentPurchaseOrderReceiving from "@/Components/Procurement/AgentPurchaseOrderReceiving.vue"
 import ButtonDownloadWithOptions from "@/Components/Utils/ButtonDownloadWithOptions.vue"
 import { useConfirm } from "primevue/useconfirm"
 import { notify } from "@kyvg/vue3-notification"
@@ -132,6 +133,7 @@ const props = defineProps < {
         number_purchase_orders: number
     }[]
     stages?: { stages: InstanceType<typeof PurchaseOrderStages>["$props"]["stages"]; route: routeType; upload_route: routeType | null } | null
+    agent_receiving?: InstanceType<typeof AgentPurchaseOrderReceiving>["$props"]["receiving"] | null
     compliance?: object
     compliance_summary?: InstanceType<typeof TablePurchaseOrderComplianceDocuments>["$props"]["compliance"]
     deposits?: object | null
@@ -1097,6 +1099,8 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 	<div v-if="!stages && payments" class="max-w-sm border-b border-gray-300 px-4 pb-3">
 		<PurchaseOrderDepositPayments :payments="payments" :org-currency-code="box_stats.third_block.org_currency" :org-rate="paymentsOrgRate" />
 	</div>
+
+	<AgentPurchaseOrderReceiving v-if="agent_receiving" :receiving="agent_receiving" />
 
 	<div
 		v-for="stockDelivery in stock_delivery_timelines"

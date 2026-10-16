@@ -60,6 +60,7 @@ use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\AspoDeposit;
 use App\Models\Procurement\PurchaseOrderDepositPayment;
 use App\Actions\Procurement\PurchaseOrder\SyncPurchaseOrderDepositPaid;
+use App\Actions\Procurement\AgentWarehouseReceipt\UI\GetPurchaseOrderAgentReceiving;
 use Illuminate\Support\Facades\DB;
 use App\Models\Procurement\PurchaseOrderTransaction;
 use App\Models\SysAdmin\Organisation;
@@ -270,6 +271,7 @@ class ShowPurchaseOrder extends OrgAction
                 'timelines'                => $this->getTimeline($purchaseOrder),
                 'stock_delivery_timelines' => $this->getStockDeliveryTimelines($purchaseOrder),
                 'stages'                   => $this->getStages($purchaseOrder),
+                'agent_receiving'          => fn () => $this->isAgentViewingOwnOrder($purchaseOrder) ? GetPurchaseOrderAgentReceiving::run($purchaseOrder, $this->agentCanEdit) : null,
                 'open_agent_deliveries'    => $purchaseOrder->state === PurchaseOrderStateEnum::CONFIRMED
                     ? StoreStockDeliveryFromPurchaseOrder::openAgentDeliveries($purchaseOrder)
                         ->map(fn (StockDelivery $stockDelivery) => [
@@ -445,6 +447,13 @@ class ShowPurchaseOrder extends OrgAction
             ->table(IndexAttachments::make()->tableStructure(prefix: PurchaseOrderTabsEnum::ATTACHMENTS->value))
             ->table(IndexDispatchedEmailsInOrder::make()->tableStructure(prefix: PurchaseOrderTabsEnum::DISPATCHED_EMAILS->value))
             ->table(IndexHistory::make()->tableStructure(prefix: PurchaseOrderTabsEnum::HISTORY->value));
+    }
+
+    private function isAgentViewingOwnOrder(PurchaseOrder $purchaseOrder): bool
+    {
+        return $purchaseOrder->isAgentOrder()
+            && $purchaseOrder->organisation_id !== $this->organisation->id
+            && $this->getOrganisationAgent($this->organisation)?->id === $purchaseOrder->agent_id;
     }
 
     /**

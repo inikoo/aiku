@@ -51,7 +51,9 @@ class IndexAgentReceivedProducts extends OrgAction
     private function receivedItems(Agent $agent): QueryBuilderBase
     {
         $inWarehouse = DB::table('agent_warehouse_stocks')
+            ->leftJoin('agent_warehouse_receipts', fn ($join) => $join->on('agent_warehouse_receipts.agent_warehouse_stock_id', '=', 'agent_warehouse_stocks.id')->whereNull('agent_warehouse_receipts.deleted_at'))
             ->where('agent_warehouse_stocks.agent_id', $agent->id)
+            ->where('agent_warehouse_stocks.quantity', '>', 0)
             ->selectRaw("'warehouse-' || agent_warehouse_stocks.id as row_key")
             ->selectRaw("'warehouse' as location")
             ->selectRaw('agent_warehouse_stocks.state as warehouse_state')
@@ -61,7 +63,8 @@ class IndexAgentReceivedProducts extends OrgAction
             ->selectRaw('agent_warehouse_stocks.organisation_id::int as organisation_id')
             ->selectRaw('agent_warehouse_stocks.supplier_product_id::int as supplier_product_id')
             ->selectRaw('agent_warehouse_stocks.purchase_order_id::int as purchase_order_id')
-            ->selectRaw('agent_warehouse_stocks.quantity::numeric as quantity');
+            ->selectRaw('agent_warehouse_stocks.quantity::numeric as quantity')
+            ->selectRaw('(agent_warehouse_receipts.id is not null and agent_warehouse_receipts.checked_at is null) as is_unchecked');
 
         $inContainers = DB::table('stock_delivery_items')
             ->join('stock_deliveries', 'stock_deliveries.id', 'stock_delivery_items.stock_delivery_id')
@@ -81,7 +84,8 @@ class IndexAgentReceivedProducts extends OrgAction
             ->selectRaw('stock_deliveries.organisation_id::int as organisation_id')
             ->selectRaw('stock_delivery_items.supplier_product_id::int as supplier_product_id')
             ->selectRaw('container_lines.purchase_order_id::int as purchase_order_id')
-            ->selectRaw('stock_delivery_items.unit_quantity::numeric as quantity');
+            ->selectRaw('stock_delivery_items.unit_quantity::numeric as quantity')
+            ->selectRaw('false as is_unchecked');
 
         return $inWarehouse->unionAll($inContainers);
     }
@@ -102,6 +106,7 @@ class IndexAgentReceivedProducts extends OrgAction
                 'received_items.container_slug',
                 'received_items.container_state',
                 'received_items.quantity',
+                'received_items.is_unchecked',
             ]),
             'received_items'
         );
@@ -128,6 +133,7 @@ class IndexAgentReceivedProducts extends OrgAction
                 'location_icon'       => $this->locationIcon($row),
                 'container_reference' => $row->container_reference,
                 'container_slug'      => $row->container_slug,
+                'is_unchecked'        => (bool) $row->is_unchecked,
             ]));
     }
 
