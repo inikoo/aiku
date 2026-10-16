@@ -1769,7 +1769,12 @@ test('a shop selling under several invoice categories targets their sum, partner
     $invoice('2037-05-15', $movedToOwnShop->id, 400);
     Cache::tags(["dashboard-shop-$shop->id"])->flush();
 
-    expect(collect(GetShopMonthSalesTarget::run($shop, null, $today)['children'])->pluck('invoice_category_id'))->not->toContain($movedToOwnShop->id);
+    $block = GetShopMonthSalesTarget::run($shop, null, $today);
+
+    expect(collect($block['children'])->pluck('invoice_category_id'))->not->toContain($movedToOwnShop->id)
+        ->and($block['target']['amount'])->toEqualWithDelta(2000, 0.05)
+        ->and(collect($block['children'])->sum('target.amount'))->toEqualWithDelta($block['target']['amount'], 0.05)
+        ->and(GetShopMonthSalesTarget::run($this->organisation, null, $today)['target']['amount'])->toEqualWithDelta($organisationTarget - 1000 * (1 + $growth) + 2000, 0.05);
 
     $shop->stats->update(['sales_forecast' => ['version' => '3', 'from' => '2038-05-10', 'org' => collect(range(10, 31))->mapWithKeys(fn (int $day) => [sprintf('2038-05-%02d', $day) => [10.0, 4.0]])->all(), 'grp' => null]]);
     $block      = GetShopMonthSalesTarget::run($shop, null, $today);
