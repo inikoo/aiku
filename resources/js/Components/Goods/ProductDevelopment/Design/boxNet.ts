@@ -11,7 +11,7 @@ export type FaceKey = "front" | "back" | "left" | "right" | "top" | "bottom" | "
 
 export const FACE_KEYS: FaceKey[] = ["front", "back", "left", "right", "top", "bottom"]
 
-export type ElementType = "text" | "image" | "zone" | "data" | "pictogram" | "barcode"
+export type ElementType = "text" | "image" | "zone" | "data" | "pictogram" | "barcode" | "shape"
 
 export interface DesignElement {
     id: string
@@ -34,6 +34,11 @@ export interface DesignElement {
     source?: string | null
     group_id?: string | null
     locked?: boolean | null
+    shape?: "rect" | "rounded" | "ellipse" | "triangle" | "line" | null
+    fill?: string | null
+    stroke?: string | null
+    stroke_px?: number | null
+    radius?: number | null
 }
 
 export interface Bounds {
@@ -261,5 +266,88 @@ export function coverBox(faceWidth: number, faceHeight: number, ratio: number, z
         height,
         left: -(width - faceWidth) * x,
         top: -(height - faceHeight) * y,
+    }
+}
+
+/**
+ * Each comment number gets its own colour: the hue turns by the golden angle per number, so neighbouring
+ * numbers always look clearly different and the sequence never runs out.
+ */
+export function markupColour(number: number): string {
+    return `hsl(${Math.round((number * 137.508) % 360)}, 70%, 42%)`
+}
+
+
+/** 1 px at 96 dpi in millimetres, for outline widths typed in px */
+export const PX_TO_MM = 0.2646
+
+export interface ParsedPaint {
+    mode: "solid" | "linear" | "radial" | "none"
+    from: string
+    to: string
+    angle: number
+}
+
+/**
+ * A paint is a solid hex colour, "none", or a two-stop gradient written "linear:<angle>:#from:#to" or
+ * "radial:#from:#to".
+ */
+export function parsePaint(value: string | null | undefined, fallback = "#111827"): ParsedPaint {
+    if (!value) {
+        return { mode: "solid", from: fallback, to: fallback, angle: 90 }
+    }
+    if (value === "none") {
+        return { mode: "none", from: fallback, to: fallback, angle: 90 }
+    }
+    const linear = value.match(/^linear:(\d{1,3}):(#[0-9a-fA-F]{6}):(#[0-9a-fA-F]{6})$/)
+    if (linear) {
+        return { mode: "linear", angle: Number(linear[1]), from: linear[2], to: linear[3] }
+    }
+    const radial = value.match(/^radial:(#[0-9a-fA-F]{6}):(#[0-9a-fA-F]{6})$/)
+    if (radial) {
+        return { mode: "radial", angle: 90, from: radial[1], to: radial[2] }
+    }
+    return { mode: "solid", from: value, to: value, angle: 90 }
+}
+
+export function formatPaint(paint: ParsedPaint): string {
+    switch (paint.mode) {
+        case "none":
+            return "none"
+        case "linear":
+            return `linear:${Math.round(((paint.angle % 360) + 360) % 360)}:${paint.from.toLowerCase()}:${paint.to.toLowerCase()}`
+        case "radial":
+            return `radial:${paint.from.toLowerCase()}:${paint.to.toLowerCase()}`
+        default:
+            return paint.from.toLowerCase()
+    }
+}
+
+/** the CSS background for a paint */
+export function paintCss(value: string | null | undefined, fallback = "#ffffff"): string {
+    const paint = parsePaint(value, fallback)
+    if (paint.mode === "none") {
+        return "transparent"
+    }
+    if (paint.mode === "linear") {
+        return `linear-gradient(${paint.angle}deg, ${paint.from}, ${paint.to})`
+    }
+    if (paint.mode === "radial") {
+        return `radial-gradient(circle, ${paint.from}, ${paint.to})`
+    }
+    return paint.from
+}
+
+/** text coloured with a paint: a gradient is clipped to the letters */
+export function textPaintStyle(value: string | null | undefined): Record<string, string> {
+    const paint = parsePaint(value, "#111827")
+    if (paint.mode === "solid" || paint.mode === "none") {
+        return { color: paint.mode === "none" ? "transparent" : paint.from }
+    }
+    return {
+        backgroundImage: paintCss(value),
+        WebkitBackgroundClip: "text",
+        backgroundClip: "text",
+        color: "transparent",
     }
 }

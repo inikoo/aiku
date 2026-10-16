@@ -9,6 +9,7 @@
 import { computed, ref } from "vue"
 import { router } from "@inertiajs/vue3"
 import { ctrans } from "@/Composables/useTrans"
+import { markupColour } from "@/Components/Goods/ProductDevelopment/Design/boxNet"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { routeType } from "@/types/route"
 import Button from "@/Components/Elements/Buttons/Button.vue"
@@ -102,7 +103,8 @@ const formatWhen = (date: string | null) => date ? useFormatTime(date, { formatT
                         <span
                             v-if="comment.id === thread.id && (thread.pin || thread.stroke)"
                             class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
-                            :class="thread.status === 'resolved' ? 'bg-green-600 text-white' : 'bg-[--app-accent] text-[--app-accent-text]'"
+                            :class="thread.status === 'resolved' ? 'opacity-50' : ''"
+                            :style="{ backgroundColor: markupColour(markNumber(thread)), color: '#fff' }"
                         >{{ markNumber(thread) }}</span>
                         <TicketUserHoverCard
                             v-else
@@ -153,7 +155,7 @@ const formatWhen = (date: string | null) => date ? useFormatTime(date, { formatT
         <div class="space-y-2 border-t border-gray-100 pt-3">
             <div v-if="pendingMarkup" class="flex items-center justify-between gap-2 text-xs">
                 <span class="flex items-center gap-2 text-gray-700">
-                    <span class="flex h-5 w-5 items-center justify-center rounded-full bg-[--app-accent] text-[11px] font-semibold text-[--app-accent-text]">{{ pendingNumber }}</span>
+                    <span class="flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-semibold text-white" :style="{ backgroundColor: markupColour(pendingNumber) }">{{ pendingNumber }}</span>
                     {{ pendingMarkup.type === "stroke" ? ctrans("Comment on this drawing") : ctrans("Comment on this point") }}
                 </span>
                 <Button type="negative" size="xs" :label="ctrans('Cancel')" @click="emit('cancelPin')" />

@@ -1,16 +1,23 @@
 <!--
   - Author Louis Perez
-  - Created on 18-10-2026-02h-10m
+  - Created on 18-10-2026-06h-00m
   - GitHub: https://github.com/louis-perez
   - Copyright 2026
   -->
 
 <script setup lang="ts">
-import { ref, watch } from "vue"
-import ColorPicker from "primevue/colorpicker"
-import InputText from "primevue/inputtext"
-import Popover from "primevue/popover"
+import { computed } from "vue"
+import InputNumber from "primevue/inputnumber"
+import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
+import DesignHexInput from "@/Components/Goods/ProductDevelopment/Design/DesignHexInput.vue"
 import { ctrans } from "@/Composables/useTrans"
+import { formatPaint, paintCss, parsePaint, type ParsedPaint } from "@/Components/Goods/ProductDevelopment/Design/boxNet"
+
+const props = defineProps<{
+    allowGradient?: boolean
+    allowNone?: boolean
+    fallback?: string
+}>()
 
 const model = defineModel<string>({ required: true })
 
@@ -18,55 +25,41 @@ const emit = defineEmits<{
     open: []
 }>()
 
-const popover = ref<InstanceType<typeof Popover> | null>(null)
-const typed = ref(model.value.toUpperCase())
+const paint = computed(() => parsePaint(model.value, props.fallback ?? "#111827"))
 
-watch(model, (value) => typed.value = value.toUpperCase())
+const modes = computed(() => [
+    { value: "solid", label: ctrans("Solid") },
+    ...(props.allowGradient ? [{ value: "linear", label: ctrans("Linear") }, { value: "radial", label: ctrans("Radial") }] : []),
+    ...(props.allowNone ? [{ value: "none", label: ctrans("None") }] : []),
+])
 
-const normalise = (value: string) => {
-    const hex = value.trim().replace(/^#/, "")
-    return /^[0-9a-fA-F]{6}$/.test(hex) ? `#${hex.toUpperCase()}` : null
-}
-
-function onTyped(value: string | undefined) {
-    typed.value = (value ?? "").toUpperCase()
-    const hex = normalise(typed.value)
-    if (hex && hex !== model.value.toUpperCase()) {
-        model.value = hex
+function update(changes: Partial<ParsedPaint>) {
+    const next = { ...paint.value, ...changes }
+    if (changes.mode && changes.mode !== "solid" && changes.mode !== "none" && paint.value.from === paint.value.to) {
+        next.to = paint.value.from.toLowerCase() === "#ffffff" ? "#111827" : "#ffffff"
     }
-}
-
-function onBlur() {
-    typed.value = model.value.toUpperCase()
-}
-
-const pickerValue = (value: string) => value.replace(/^#/, "")
-
-function onPicked(value: string | undefined) {
-    const hex = normalise(value ?? "")
-    if (hex) {
-        model.value = hex
-    }
-}
-
-function toggle(event: Event) {
-    emit("open")
-    popover.value?.toggle(event)
+    model.value = formatPaint(next)
 }
 </script>
 
 <template>
-    <div class="flex items-center gap-2">
-        <button
-            type="button"
-            class="h-8 w-8 shrink-0 rounded-md border border-gray-300 shadow-inner transition-shadow hover:ring-2 hover:ring-[--app-accent-muted]"
-            :style="{ backgroundColor: model }"
-            :aria-label="ctrans('Choose a colour')"
-            @click="toggle"
-        />
-        <InputText :modelValue="typed" size="small" maxlength="7" class="min-w-0 flex-1 font-mono uppercase" :aria-label="ctrans('Hex colour')" @update:modelValue="onTyped" @blur="onBlur" @keydown.enter="onBlur" />
-        <Popover ref="popover">
-            <ColorPicker :modelValue="pickerValue(model)" inline format="hex" @update:modelValue="onPicked" />
-        </Popover>
+    <div class="space-y-2">
+        <SegmentedToggle v-if="modes.length > 1" :modelValue="paint.mode" :options="modes as any" :ariaLabel="ctrans('Colour type')" @update:modelValue="(mode) => { emit('open'); update({ mode: mode as ParsedPaint['mode'] }) }" />
+
+        <DesignHexInput v-if="paint.mode === 'solid'" :modelValue="paint.from" @update:modelValue="(from) => update({ from, to: from })" @open="emit('open')" />
+
+        <template v-else-if="paint.mode !== 'none'">
+            <div class="h-4 rounded border border-gray-200" :style="{ background: paintCss(model) }" aria-hidden="true" />
+            <div class="grid grid-cols-[2.5rem_minmax(0,1fr)] items-center gap-x-2 gap-y-1.5 text-xs text-gray-500">
+                <span>{{ ctrans("From") }}</span>
+                <DesignHexInput :modelValue="paint.from" @update:modelValue="(from) => update({ from })" @open="emit('open')" />
+                <span>{{ ctrans("To") }}</span>
+                <DesignHexInput :modelValue="paint.to" @update:modelValue="(to) => update({ to })" @open="emit('open')" />
+                <template v-if="paint.mode === 'linear'">
+                    <span>{{ ctrans("Angle") }}</span>
+                    <InputNumber :modelValue="paint.angle" :min="0" :max="359" suffix="°" size="small" inputClass="w-full" class="w-full" @focus="emit('open')" @update:modelValue="(angle) => update({ angle: angle ?? 0 })" />
+                </template>
+            </div>
+        </template>
     </div>
 </template>

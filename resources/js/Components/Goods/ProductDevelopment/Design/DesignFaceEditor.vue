@@ -23,8 +23,8 @@ import Popover from "primevue/popover"
 import { COMPLIANCE_PARTS, PT_TO_MM, boundsOf, complianceParts, coverBox, type Bounds, ensureImageRatio, imageRatios, newElementId, type DesignData, type DesignElement, type DesignFace, type DesignImage } from "@/Components/Goods/ProductDevelopment/Design/boxNet"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faFont, faImage, faBarcode, faShieldCheck, faSquare, faTrashAlt, faClone, faArrowUp, faArrowDown, faUndo, faRedo, faBold, faItalic, faAlignLeft, faAlignCenter, faAlignRight, faFillDrip, faTimes, faArrows, faDatabase, faMagic, faCopy, faCut, faLock, faLockOpen, faObjectGroup, faObjectUngroup, faArrowsH, faArrowsV, faBorderLeft, faBorderCenterV, faBorderRight, faBorderTop, faBorderCenterH, faBorderBottom, faExclamationTriangle, faFolder, faFolderOpen, faChevronDown } from "@fal"
-library.add(faFont, faImage, faBarcode, faShieldCheck, faSquare, faTrashAlt, faClone, faArrowUp, faArrowDown, faUndo, faRedo, faBold, faItalic, faAlignLeft, faAlignCenter, faAlignRight, faFillDrip, faTimes, faArrows, faDatabase, faMagic, faCopy, faCut, faLock, faLockOpen, faObjectGroup, faObjectUngroup, faArrowsH, faArrowsV, faBorderLeft, faBorderCenterV, faBorderRight, faBorderTop, faBorderCenterH, faBorderBottom, faExclamationTriangle, faFolder, faFolderOpen, faChevronDown)
+import { faFont, faImage, faBarcode, faShieldCheck, faSquare, faTrashAlt, faClone, faArrowUp, faArrowDown, faUndo, faRedo, faBold, faItalic, faAlignLeft, faAlignCenter, faAlignRight, faFillDrip, faTimes, faArrows, faDatabase, faMagic, faCopy, faCut, faLock, faLockOpen, faObjectGroup, faObjectUngroup, faArrowsH, faArrowsV, faBorderLeft, faBorderCenterV, faBorderRight, faBorderTop, faBorderCenterH, faBorderBottom, faExclamationTriangle, faFolder, faFolderOpen, faChevronDown, faShapes, faSquareFull, faTriangle, faMinus, faCircle, faSpinner } from "@fal"
+library.add(faFont, faImage, faBarcode, faShieldCheck, faSquare, faTrashAlt, faClone, faArrowUp, faArrowDown, faUndo, faRedo, faBold, faItalic, faAlignLeft, faAlignCenter, faAlignRight, faFillDrip, faTimes, faArrows, faDatabase, faMagic, faCopy, faCut, faLock, faLockOpen, faObjectGroup, faObjectUngroup, faArrowsH, faArrowsV, faBorderLeft, faBorderCenterV, faBorderRight, faBorderTop, faBorderCenterH, faBorderBottom, faExclamationTriangle, faFolder, faFolderOpen, faChevronDown, faShapes, faSquareFull, faTriangle, faMinus, faCircle, faSpinner)
 
 const props = defineProps<{
     size: { w: number, h: number }
@@ -37,6 +37,123 @@ const props = defineProps<{
 const face = defineModel<DesignFace>({ required: true })
 
 const dataPopover = ref<InstanceType<typeof Popover> | null>(null)
+const shapePopover = ref<InstanceType<typeof Popover> | null>(null)
+
+const shapeOptions = computed(() => [
+    { value: "rect" as const, label: ctrans("Rectangle"), icon: "fal fa-square" },
+    { value: "rounded" as const, label: ctrans("Rounded rectangle"), icon: "fal fa-square-full" },
+    { value: "ellipse" as const, label: ctrans("Ellipse"), icon: "fal fa-circle" },
+    { value: "triangle" as const, label: ctrans("Triangle"), icon: "fal fa-triangle" },
+    { value: "line" as const, label: ctrans("Line"), icon: "fal fa-minus" },
+])
+
+const drawingShape = ref<NonNullable<DesignElement["shape"]> | null>(null)
+const shapeDraft = ref<{ from: { x: number, y: number }, to: { x: number, y: number }, square: boolean } | null>(null)
+
+/** picking a shape starts drawing it: drag on the side to give it its size, or click for a default one */
+function addShape(shape: NonNullable<DesignElement["shape"]>) {
+    shapePopover.value?.hide()
+    selectedIds.value = []
+    editingBackground.value = false
+    drawingShape.value = shape
+}
+
+function shapeBox(draft: { from: { x: number, y: number }, to: { x: number, y: number }, square: boolean }) {
+    let width = draft.to.x - draft.from.x
+    let height = draft.to.y - draft.from.y
+    if (draft.square) {
+        const side = Math.max(Math.abs(width), Math.abs(height))
+        width = Math.sign(width || 1) * side
+        height = Math.sign(height || 1) * side
+    }
+    return { x: Math.min(draft.from.x, draft.from.x + width), y: Math.min(draft.from.y, draft.from.y + height), w: Math.abs(width), h: Math.abs(height) }
+}
+
+function lineGeometry(draft: { from: { x: number, y: number }, to: { x: number, y: number }, square: boolean }) {
+    let angle = Math.atan2(draft.to.y - draft.from.y, draft.to.x - draft.from.x) * 180 / Math.PI
+    if (draft.square) {
+        angle = Math.round(angle / ROTATE_STEP) * ROTATE_STEP
+    }
+    const length = Math.hypot(draft.to.x - draft.from.x, draft.to.y - draft.from.y)
+    const radians = angle * Math.PI / 180
+    const centreX = draft.from.x + Math.cos(radians) * length / 2
+    const centreY = draft.from.y + Math.sin(radians) * length / 2
+    const thickness = 4
+    return { x: centreX - length / 2, y: centreY - thickness / 2, w: length, h: thickness, rotate: Math.round(((angle % 360) + 360) % 360) }
+}
+
+const shapeDraftStyle = computed(() => {
+    if (!shapeDraft.value || !drawingShape.value) {
+        return null
+    }
+    if (drawingShape.value === "line") {
+        const line = lineGeometry(shapeDraft.value)
+        return { left: `${line.x * scale.value}px`, top: `${(line.y + line.h / 2) * scale.value}px`, width: `${line.w * scale.value}px`, height: "0px", transform: `rotate(${line.rotate}deg)`, borderTop: "2px dashed var(--app-accent)" }
+    }
+    const box = shapeBox(shapeDraft.value)
+    return {
+        left: `${box.x * scale.value}px`,
+        top: `${box.y * scale.value}px`,
+        width: `${box.w * scale.value}px`,
+        height: `${box.h * scale.value}px`,
+        border: "1.5px dashed var(--app-accent)",
+        borderRadius: drawingShape.value === "ellipse" ? "9999px" : drawingShape.value === "rounded" ? "6px" : "0",
+        clipPath: drawingShape.value === "triangle" ? "polygon(50% 0, 100% 100%, 0 100%)" : undefined,
+        background: "color-mix(in srgb, var(--app-accent) 12%, transparent)",
+    }
+})
+
+function startShapeDraw(event: PointerEvent) {
+    event.preventDefault()
+    const point = pointerMm(event)
+    shapeDraft.value = { from: point, to: point, square: event.shiftKey }
+    ;(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId)
+}
+
+function moveShapeDraw(event: PointerEvent) {
+    if (shapeDraft.value) {
+        shapeDraft.value = { ...shapeDraft.value, to: pointerMm(event), square: event.shiftKey }
+    }
+}
+
+function finishShapeDraw() {
+    const shape = drawingShape.value
+    const draft = shapeDraft.value
+    shapeDraft.value = null
+    drawingShape.value = null
+    if (!shape || !draft) {
+        return
+    }
+    const clicked = Math.hypot(draft.to.x - draft.from.x, draft.to.y - draft.from.y) < 1.5
+    const side = round1(Math.min(props.size.w, props.size.h) * 0.3)
+
+    if (shape === "line") {
+        const line = clicked ? { x: draft.from.x, y: draft.from.y - 2, w: round1(props.size.w * 0.4), h: 4, rotate: 0 } : lineGeometry(draft)
+        addElement({ type: "shape", shape, x: round1(line.x), y: round1(line.y), w: round1(Math.max(line.w, 1)), h: line.h, rotate: line.rotate, fill: "none", stroke: "#111827", stroke_px: 2 })
+        return
+    }
+
+    const box = clicked ? { x: draft.from.x - side / 2, y: draft.from.y - side / 2, w: side, h: side } : shapeBox(draft)
+    addElement({ type: "shape", shape, x: round1(box.x), y: round1(box.y), w: round1(Math.max(box.w, 1)), h: round1(Math.max(box.h, 1)), fill: "#d1d5db", stroke: "none", stroke_px: 1, radius: shape === "rounded" ? 3 : null })
+}
+
+const shapeFill = computed({
+    get: () => selected.value?.fill ?? "#d1d5db",
+    set: (value: string) => {
+        if (selected.value) {
+            patchElement(selected.value.id, { fill: value })
+        }
+    },
+})
+
+const shapeStroke = computed({
+    get: () => selected.value?.stroke ?? "none",
+    set: (value: string) => {
+        if (selected.value) {
+            patchElement(selected.value.id, { stroke: value })
+        }
+    },
+})
 
 const filledZone = computed(() => !!props.data?.values && selected.value?.type === "zone" && (selected.value.zone === "compliance" || selected.value.zone === "barcode"))
 const isTextLike = computed(() => selected.value?.type === "text" || selected.value?.type === "data" || (filledZone.value && selected.value?.zone === "compliance"))
@@ -618,6 +735,7 @@ const typeIcons: Record<string, string> = {
     data: "fal fa-database",
     pictogram: "fal fa-exclamation-triangle",
     barcode: "fal fa-barcode",
+    shape: "fal fa-shapes",
 }
 
 function layerName(element: DesignElement): string {
@@ -632,6 +750,9 @@ function layerName(element: DesignElement): string {
     }
     if (element.type === "barcode") {
         return props.data?.sources.barcodes.find((source) => source.key === (element.source ?? "unit"))?.label ?? ctrans("Barcode")
+    }
+    if (element.type === "shape") {
+        return shapeOptions.value.find((shape) => shape.value === (element.shape ?? "rect"))?.label ?? ctrans("Shape")
     }
     if (element.type === "zone") {
         return element.label || (element.zone === "compliance" ? ctrans("Compliance space") : element.zone === "barcode" ? ctrans("Barcode space") : ctrans("Reserved area"))
@@ -1005,6 +1126,12 @@ function onKeydown(event: KeyboardEvent) {
     if (isTyping(event)) {
         return
     }
+    if (drawingShape.value && event.key === "Escape") {
+        event.preventDefault()
+        drawingShape.value = null
+        shapeDraft.value = null
+        return
+    }
     const command = event.ctrlKey || event.metaKey
     const key = event.key.toLowerCase()
 
@@ -1095,13 +1222,31 @@ onBeforeUnmount(endGesture)
 <template>
     <div class="flex h-full min-h-0 flex-col">
         <div class="flex flex-wrap items-center gap-2 border-b border-gray-200 px-3 py-2">
-            <Button type="tertiary" size="xs" icon="fal fa-font" :label="ctrans('Text')" @click="addText" />
-            <Button type="tertiary" size="xs" icon="fal fa-image" :label="ctrans('Image')" :loading="uploading" @click="imageInput?.click()" />
-            <Button type="tertiary" size="xs" icon="fal fa-shield-check" :label="ctrans('Compliance space')" @click="addZone('compliance')" />
-            <Button type="tertiary" size="xs" icon="fal fa-barcode" :label="ctrans('Barcode')" @click="addZone('barcode')" />
-            <Button type="tertiary" size="xs" icon="fal fa-square" :label="ctrans('Reserved area')" @click="addZone('other')" />
-            <Button v-if="data" type="tertiary" size="xs" icon="fal fa-database" :label="ctrans('Trade unit data')" @click="(event) => dataPopover?.toggle(event)" />
+            <div class="flex items-center gap-0.5 rounded-lg border border-gray-200 bg-gray-50 p-0.5">
+                <span class="px-1.5 text-[10px] font-semibold uppercase tracking-wide text-gray-400">{{ ctrans("Add") }}</span>
+                <button type="button" class="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-gray-700 transition-colors hover:bg-white hover:text-gray-900 hover:shadow-sm" @click="addText"><FontAwesomeIcon icon="fal fa-font" fixed-width aria-hidden="true" />{{ ctrans("Text") }}</button>
+                <button type="button" class="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-gray-700 transition-colors hover:bg-white hover:text-gray-900 hover:shadow-sm" :disabled="uploading" @click="imageInput?.click()"><FontAwesomeIcon :icon="uploading ? 'fal fa-spinner' : 'fal fa-image'" :spin="uploading" fixed-width aria-hidden="true" />{{ ctrans("Image") }}</button>
+                <button type="button" class="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-gray-700 transition-colors hover:bg-white hover:text-gray-900 hover:shadow-sm" @click="(event) => shapePopover?.toggle(event)"><FontAwesomeIcon icon="fal fa-shapes" fixed-width aria-hidden="true" />{{ ctrans("Shape") }}</button>
+                <button v-if="data" type="button" class="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-gray-700 transition-colors hover:bg-white hover:text-gray-900 hover:shadow-sm" @click="(event) => dataPopover?.toggle(event)"><FontAwesomeIcon icon="fal fa-database" fixed-width aria-hidden="true" />{{ ctrans("Trade unit data") }}</button>
+            </div>
+            <div class="flex items-center gap-0.5 rounded-lg border border-gray-200 bg-gray-50 p-0.5">
+                <span class="px-1.5 text-[10px] font-semibold uppercase tracking-wide text-gray-400">{{ ctrans("Reserve") }}</span>
+                <button type="button" class="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-gray-700 transition-colors hover:bg-white hover:text-gray-900 hover:shadow-sm" @click="addZone('compliance')"><FontAwesomeIcon icon="fal fa-shield-check" fixed-width aria-hidden="true" />{{ ctrans("Compliance") }}</button>
+                <button type="button" class="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-gray-700 transition-colors hover:bg-white hover:text-gray-900 hover:shadow-sm" @click="addZone('barcode')"><FontAwesomeIcon icon="fal fa-barcode" fixed-width aria-hidden="true" />{{ ctrans("Barcode") }}</button>
+                <button type="button" class="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-gray-700 transition-colors hover:bg-white hover:text-gray-900 hover:shadow-sm" @click="addZone('other')"><FontAwesomeIcon icon="fal fa-square" fixed-width aria-hidden="true" />{{ ctrans("Area") }}</button>
+            </div>
             <Button v-if="data" type="tertiary" size="xs" icon="fal fa-magic" :label="ctrans('Autoplace')" :tooltip="ctrans('Lay out the SKU\'s label content on this side')" @click="autoplace" />
+            <div class="flex items-center gap-0.5 rounded-lg border border-gray-200 bg-gray-50 p-0.5">
+                <button type="button" class="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-gray-700 transition-colors hover:bg-white hover:text-gray-900 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-40" :disabled="!undoStack.length" v-tooltip="ctrans('Undo (Ctrl+Z)')" :aria-label="ctrans('Undo')" @click="undo"><FontAwesomeIcon icon="fal fa-undo" fixed-width aria-hidden="true" /></button>
+                <button type="button" class="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-gray-700 transition-colors hover:bg-white hover:text-gray-900 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-40" :disabled="!redoStack.length" v-tooltip="ctrans('Redo (Ctrl+Y)')" :aria-label="ctrans('Redo')" @click="redo"><FontAwesomeIcon icon="fal fa-redo" fixed-width aria-hidden="true" /></button>
+            </div>
+            <Popover ref="shapePopover">
+                <div class="grid w-56 grid-cols-5 gap-1.5">
+                    <button v-for="shape in shapeOptions" :key="shape.value" type="button" v-tooltip="shape.label" class="flex aspect-square items-center justify-center rounded border border-gray-200 text-lg text-gray-600 hover:border-[--app-accent] hover:text-[--app-accent]" :aria-label="shape.label" @click="addShape(shape.value)">
+                        <FontAwesomeIcon :icon="shape.icon" fixed-width aria-hidden="true" />
+                    </button>
+                </div>
+            </Popover>
             <Popover v-if="data" ref="dataPopover">
                 <div class="w-72 space-y-3 text-sm">
                     <div>
@@ -1127,9 +1272,6 @@ onBeforeUnmount(endGesture)
                     </div>
                 </div>
             </Popover>
-            <span class="mx-1 h-5 w-px bg-gray-200" />
-            <Button type="tertiary" size="xs" icon="fal fa-undo" :tooltip="ctrans('Undo')" :disabled="!undoStack.length" class="disabled:cursor-not-allowed disabled:opacity-50" @click="undo" />
-            <Button type="tertiary" size="xs" icon="fal fa-redo" :tooltip="ctrans('Redo')" :disabled="!redoStack.length" class="disabled:cursor-not-allowed disabled:opacity-50" @click="redo" />
             <span class="ml-auto text-xs tabular-nums text-gray-500">{{ label }} · {{ size.w }} × {{ size.h }} mm</span>
             <input ref="imageInput" type="file" accept="image/jpeg,image/png,image/webp" class="hidden" @change="onImagePicked" />
             <input ref="backgroundInput" type="file" accept="image/jpeg,image/png,image/webp" class="hidden" @change="onBackgroundPicked" />
@@ -1226,6 +1368,9 @@ onBeforeUnmount(endGesture)
             </aside>
 
             <div ref="stage" class="relative flex min-h-[18rem] flex-1 items-center justify-center overflow-hidden bg-gray-100" @pointerdown.self="selectedId = null">
+                <div v-if="drawingShape" class="pointer-events-none absolute left-1/2 top-3 z-50 -translate-x-1/2 rounded-full bg-gray-900/80 px-3 py-1 text-xs text-white">
+                    {{ drawingShape === "line" ? ctrans("Drag to draw the line (Shift snaps the angle) · Esc to cancel") : ctrans("Drag to draw the shape (Shift keeps it even) · click for a default size · Esc to cancel") }}
+                </div>
                 <div
                     ref="faceEl"
                     class="relative shadow-md"
@@ -1242,6 +1387,17 @@ onBeforeUnmount(endGesture)
                         draggable="false"
                     />
                     <DesignFaceRender :face="face" :scale="scale" :images="images" :size="size" :data="data" />
+
+                    <div
+                        v-if="drawingShape"
+                        class="absolute inset-0 z-40 cursor-crosshair touch-none"
+                        @pointerdown="startShapeDraw"
+                        @pointermove="moveShapeDraw"
+                        @pointerup="finishShapeDraw"
+                        @pointercancel="shapeDraft = null; drawingShape = null"
+                    >
+                        <div v-if="shapeDraftStyle" class="pointer-events-none absolute" :style="shapeDraftStyle" />
+                    </div>
 
                     <div
                         v-if="editingBackground"
@@ -1335,7 +1491,7 @@ onBeforeUnmount(endGesture)
 
                 <template v-if="selected">
                     <div class="flex items-center justify-between">
-                        <span class="font-medium text-gray-800">{{ ({ text: ctrans('Text'), image: ctrans('Image'), zone: ctrans('Reserved area'), data: ctrans('Trade unit data'), pictogram: ctrans('Pictogram'), barcode: ctrans('Barcode') } as Record<string, string>)[selected.type] }}</span>
+                        <span class="font-medium text-gray-800">{{ ({ text: ctrans('Text'), image: ctrans('Image'), zone: ctrans('Reserved area'), data: ctrans('Trade unit data'), pictogram: ctrans('Pictogram'), barcode: ctrans('Barcode'), shape: ctrans('Shape') } as Record<string, string>)[selected.type] }}</span>
                         <div class="flex gap-1">
                             <Button type="tertiary" size="xs" icon="fal fa-arrow-up" :tooltip="ctrans('Bring forward')" @click="moveLayer(1)" />
                             <Button type="tertiary" size="xs" icon="fal fa-arrow-down" :tooltip="ctrans('Send backward')" @click="moveLayer(-1)" />
@@ -1370,6 +1526,31 @@ onBeforeUnmount(endGesture)
                         <Select :modelValue="selected.source ?? 'unit'" :options="data.sources.barcodes" optionLabel="label" optionValue="key" size="small" class="w-full" overlayClass="text-sm" @update:modelValue="(value) => { remember(); setField('source', value) }" />
                     </label>
 
+                    <template v-if="selected.type === 'shape'">
+                        <label class="block space-y-1">
+                            <span class="text-xs text-gray-500">{{ ctrans("Shape") }}</span>
+                            <Select :modelValue="selected.shape ?? 'rect'" :options="shapeOptions" optionLabel="label" optionValue="value" size="small" class="w-full" overlayClass="text-sm" @update:modelValue="(value) => { remember(); setField('shape', value) }" />
+                        </label>
+                        <div v-if="selected.shape !== 'line'" class="space-y-1">
+                            <span class="text-xs text-gray-500">{{ ctrans("Fill") }}</span>
+                            <DesignColorField v-model="shapeFill" allowGradient allowNone fallback="#d1d5db" @open="remember" />
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-xs text-gray-500">{{ selected.shape === 'line' ? ctrans("Line colour") : ctrans("Outline") }}</span>
+                            <DesignColorField v-model="shapeStroke" :allowNone="selected.shape !== 'line'" fallback="#111827" @open="remember" />
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label v-if="selected.stroke && selected.stroke !== 'none' || selected.shape === 'line'" class="space-y-1">
+                                <span class="text-xs text-gray-500">{{ ctrans("Width (px)") }}</span>
+                                <InputNumber :modelValue="selected.stroke_px ?? 1" :min="0" :max="50" :maxFractionDigits="1" size="small" inputClass="w-full" class="w-full" @focus="remember" @update:modelValue="(value) => setField('stroke_px', value ?? 0)" />
+                            </label>
+                            <label v-if="selected.shape === 'rounded'" class="space-y-1">
+                                <span class="text-xs text-gray-500">{{ ctrans("Corner (mm)") }}</span>
+                                <InputNumber :modelValue="selected.radius ?? 3" :min="0" :max="500" :maxFractionDigits="1" size="small" inputClass="w-full" class="w-full" @focus="remember" @update:modelValue="(value) => setField('radius', value ?? 0)" />
+                            </label>
+                        </div>
+                    </template>
+
                     <template v-if="isTextLike">
                         <Textarea v-if="selected.type === 'text'" ref="textInput" :modelValue="selected.text ?? ''" rows="3" autoResize class="w-full text-sm" @focus="remember" @update:modelValue="(value) => setField('text', value)" />
                         <div class="grid grid-cols-2 gap-2">
@@ -1377,10 +1558,10 @@ onBeforeUnmount(endGesture)
                                 <span class="text-xs text-gray-500">{{ ctrans("Size (pt)") }}</span>
                                 <InputNumber :modelValue="selected.font_size ?? (selected.type === 'zone' ? 6 : 12)" :min="2" :max="400" :maxFractionDigits="1" size="small" inputClass="w-full" class="w-full" @update:modelValue="(value) => setField('font_size', value)" />
                             </label>
-                            <label class="space-y-1">
+                            <div class="col-span-2 space-y-1">
                                 <span class="text-xs text-gray-500">{{ ctrans("Colour") }}</span>
-                                <DesignColorField v-model="textColor" @open="remember" />
-                            </label>
+                                <DesignColorField v-model="textColor" allowGradient @open="remember" />
+                            </div>
                         </div>
                         <Select :modelValue="selected.font_family ?? ''" :options="fonts" optionLabel="label" optionValue="value" size="small" class="w-full" overlayClass="text-sm" @update:modelValue="(value) => setField('font_family', value)">
                             <template #option="{ option }"><span :style="{ fontFamily: option.value || 'inherit' }">{{ option.label }}</span></template>
@@ -1428,10 +1609,10 @@ onBeforeUnmount(endGesture)
                                 <span class="text-xs text-gray-500">{{ ctrans("Size (pt)") }}</span>
                                 <InputNumber :modelValue="(commonValue('font_size', 12) as number | undefined) ?? null" :placeholder="ctrans('Mixed')" :min="2" :max="400" :maxFractionDigits="1" size="small" inputClass="w-full" class="w-full" @focus="remember" @update:modelValue="(value) => value && setForTexts('font_size', value)" />
                             </label>
-                            <label class="space-y-1">
+                            <div class="col-span-2 space-y-1">
                                 <span class="text-xs text-gray-500">{{ ctrans("Colour") }}</span>
-                                <DesignColorField v-model="groupTextColor" @open="remember" />
-                            </label>
+                                <DesignColorField v-model="groupTextColor" allowGradient @open="remember" />
+                            </div>
                         </div>
                         <Select :modelValue="(commonValue('font_family', '') as string | undefined) ?? null" :options="fonts" optionLabel="label" optionValue="value" :placeholder="ctrans('Mixed')" size="small" class="w-full" overlayClass="text-sm" @update:modelValue="(value) => { remember(); setForTexts('font_family', value) }" />
                         <div class="flex items-center gap-2">
@@ -1446,7 +1627,7 @@ onBeforeUnmount(endGesture)
                 <template v-else>
                     <div class="font-medium text-gray-800">{{ ctrans("Background") }}</div>
                     <div class="flex items-center gap-2">
-                        <DesignColorField v-model="backgroundColor" @open="remember" />
+                        <DesignColorField v-model="backgroundColor" allowGradient fallback="#ffffff" @open="remember" />
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
                         <Button v-if="face.background.image_file_id" :type="editingBackground ? 'primary' : 'tertiary'" size="xs" icon="fal fa-arrows" :label="editingBackground ? ctrans('Done moving') : ctrans('Move background')" @click="toggleBackgroundEditing" />

@@ -6,9 +6,10 @@
   -->
 
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from "vue"
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from "vue"
 import pdfWorkerUrl from "pdfjs-dist/legacy/build/pdf.worker.min.mjs?url"
 import { ctrans } from "@/Composables/useTrans"
+import { markupColour } from "@/Components/Goods/ProductDevelopment/Design/boxNet"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faSpinner } from "@fal"
@@ -41,6 +42,7 @@ const props = defineProps<{
     strokes?: ArtworkStroke[]
     tool?: MarkupTool
     maxPages?: number
+    nextNumber?: number
 }>()
 
 const emit = defineEmits<{
@@ -189,6 +191,8 @@ function onPointerUp() {
     emit("stroke", { page: current.page, points })
 }
 
+const nextNumber = computed(() => props.nextNumber ?? ((props.pins?.length ?? 0) + (props.strokes?.length ?? 0) + 1))
+
 const polyline = (points: [number, number][]) => points.map(([x, y]) => `${x * 1000},${y * 1000}`).join(" ")
 const pageHeight = (ratio: number) => ratio ? `${width.value * ratio}px` : undefined
 </script>
@@ -218,13 +222,14 @@ const pageHeight = (ratio: number) => ratio ? `${width.value * ratio}px` : undef
                         :key="stroke.id"
                         :points="polyline(stroke.points)"
                         fill="none"
-                        :stroke="stroke.resolved ? '#16a34a' : 'var(--app-accent)'"
+                        :stroke="markupColour(stroke.number)"
+                        :stroke-opacity="stroke.resolved ? 0.45 : 1"
                         :stroke-width="stroke.active ? 4 : 2.5"
                         stroke-linecap="round"
                         stroke-linejoin="round"
                         vector-effect="non-scaling-stroke"
                     />
-                    <polyline v-if="drawing && drawing.page === page.number" :points="polyline(drawing.points)" fill="none" stroke="var(--app-accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" />
+                    <polyline v-if="drawing && drawing.page === page.number" :points="polyline(drawing.points)" fill="none" :stroke="markupColour(nextNumber)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" />
                 </svg>
 
                 <button
@@ -234,9 +239,9 @@ const pageHeight = (ratio: number) => ratio ? `${width.value * ratio}px` : undef
                     ]"
                     :key="`m${marker.id}`"
                     type="button"
-                    class="absolute z-10 flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white text-xs font-semibold shadow"
-                    :class="[marker.resolved ? 'bg-green-600 text-white' : 'bg-[--app-accent] text-[--app-accent-text]', marker.active ? 'scale-125 ring-2 ring-[--app-accent-muted]' : '']"
-                    :style="{ left: `${marker.at[0] * 100}%`, top: `${marker.at[1] * 100}%` }"
+                    class="absolute z-10 flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white text-xs font-semibold shadow text-white"
+                    :class="[marker.resolved ? 'opacity-50' : '', marker.active ? 'scale-125 ring-2 ring-gray-400' : '']"
+                    :style="{ left: `${marker.at[0] * 100}%`, top: `${marker.at[1] * 100}%`, backgroundColor: markupColour(marker.number) }"
                     :aria-label="ctrans('Comment :number', { number: String(marker.number) })"
                     @pointerdown.stop
                     @click.stop="emit('focus', marker.id)"

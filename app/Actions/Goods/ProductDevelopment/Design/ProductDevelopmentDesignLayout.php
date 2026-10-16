@@ -31,7 +31,14 @@ class ProductDevelopmentDesignLayout
      */
     public const array SHEET_FACES = ['sheet'];
 
-    public const array ELEMENT_TYPES = ['text', 'image', 'zone', 'data', 'pictogram', 'barcode'];
+    public const array ELEMENT_TYPES = ['text', 'image', 'zone', 'data', 'pictogram', 'barcode', 'shape'];
+
+    public const array SHAPES = ['rect', 'rounded', 'ellipse', 'triangle', 'line'];
+
+    /**
+     * A solid hex colour, or a two-stop gradient written as "linear:<angle>:#from:#to" or "radial:#from:#to".
+     */
+    public const string PAINT_PATTERN = '/^(#[0-9a-fA-F]{6}|linear:\d{1,3}:#[0-9a-fA-F]{6}:#[0-9a-fA-F]{6}|radial:#[0-9a-fA-F]{6}:#[0-9a-fA-F]{6}|none)$/';
 
     public const array BARCODE_SOURCES = ['unit', 'sko', 'carton'];
 
@@ -136,7 +143,7 @@ class ProductDevelopmentDesignLayout
             $prefix.'.height'                => ['nullable', 'numeric', 'gt:0', 'max:'.self::MAX_SIDE_MM],
             $prefix.'.faces'                 => ['required', 'array:'.implode(',', [...self::FACES, ...self::SHEET_FACES])],
             $prefix.'.faces.*.background'                 => ['nullable', 'array'],
-            $prefix.'.faces.*.background.color'           => ['nullable', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            $prefix.'.faces.*.background.color'           => ['nullable', 'string', 'regex:'.self::PAINT_PATTERN],
             $prefix.'.faces.*.background.image_file_id'   => ['nullable', 'integer'],
             $prefix.'.faces.*.background.x'               => ['nullable', 'numeric', 'between:0,1'],
             $prefix.'.faces.*.background.y'               => ['nullable', 'numeric', 'between:0,1'],
@@ -156,7 +163,12 @@ class ProductDevelopmentDesignLayout
             $element.'.font_weight'          => ['nullable', Rule::in(['normal', 'bold'])],
             $element.'.italic'               => ['nullable', 'boolean'],
             $element.'.align'                => ['nullable', Rule::in(['left', 'center', 'right'])],
-            $element.'.color'                => ['nullable', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            $element.'.color'                => ['nullable', 'string', 'regex:'.self::PAINT_PATTERN],
+            $element.'.shape'                => ['nullable', Rule::in(self::SHAPES)],
+            $element.'.fill'                 => ['nullable', 'string', 'regex:'.self::PAINT_PATTERN],
+            $element.'.stroke'               => ['nullable', 'string', 'regex:/^(#[0-9a-fA-F]{6}|none)$/'],
+            $element.'.stroke_px'            => ['nullable', 'numeric', 'between:0,50'],
+            $element.'.radius'               => ['nullable', 'numeric', 'between:0,500'],
             $element.'.font_family'          => ['nullable', 'string', 'max:60'],
             $element.'.image_file_id'        => ['nullable', 'integer'],
             $element.'.zone'                 => ['nullable', Rule::in(self::ZONES)],
@@ -176,7 +188,7 @@ class ProductDevelopmentDesignLayout
      */
     public static function normalise(array $layout): array
     {
-        $keys = ['id', 'type', 'x', 'y', 'w', 'h', 'rotate', 'text', 'font_size', 'font_weight', 'italic', 'align', 'color', 'font_family', 'image_file_id', 'zone', 'label', 'source', 'group_id', 'locked'];
+        $keys = ['id', 'type', 'x', 'y', 'w', 'h', 'rotate', 'text', 'font_size', 'font_weight', 'italic', 'align', 'color', 'font_family', 'image_file_id', 'zone', 'label', 'source', 'group_id', 'locked', 'shape', 'fill', 'stroke', 'stroke_px', 'radius'];
 
         $kind = Arr::get($layout, 'kind') === self::KIND_SHEET ? self::KIND_SHEET : self::KIND_BOX;
 

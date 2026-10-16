@@ -972,13 +972,17 @@ test('the label round shows the SKU pack text from compliance and its three barc
         ['id' => 'p', 'type' => 'pictogram', 'source' => 'pictogram_flammable', 'x' => 70, 'y' => 2, 'w' => 10, 'h' => 10],
         ['id' => 'b', 'type' => 'barcode', 'source' => 'unit', 'x' => 60, 'y' => 20, 'w' => 37, 'h' => 18, 'group_id' => 'g1', 'locked' => true],
     ];
+    $layout['faces']['sheet']['elements'][] = ['id' => 's', 'type' => 'shape', 'shape' => 'rounded', 'x' => 1, 'y' => 1, 'w' => 20, 'h' => 10, 'fill' => 'linear:45:#ff0000:#0000ff', 'stroke' => '#111827', 'stroke_px' => 2, 'radius' => 3];
+    $layout['faces']['sheet']['background']['color'] = 'radial:#ffffff:#cccccc';
     $layout['faces']['sheet']['groups'] = ['g1' => 'Barcode block', 'gone' => 'No members'];
     UpdateProductDevelopmentDesignVersion::make()->action($label, $people['designer'], ['layout' => $layout]);
     expect($label->fresh()->data['layout']['faces']['sheet']['groups'])->toBe(['g1' => 'Barcode block']);
     $saved = collect($label->fresh()->data['layout']['faces']['sheet']['elements']);
-    expect($saved->pluck('source')->all())->toBe(['warnings', 'pictogram_flammable', 'unit'])
-        ->and($saved->last()['group_id'])->toBe('g1')
-        ->and($saved->last()['locked'])->toBeTrue();
+    expect($saved->pluck('source')->filter()->values()->all())->toBe(['warnings', 'pictogram_flammable', 'unit'])
+        ->and($saved->firstWhere('id', 's')['fill'])->toBe('linear:45:#ff0000:#0000ff')
+        ->and($label->fresh()->data['layout']['faces']['sheet']['background']['color'])->toBe('radial:#ffffff:#cccccc')
+        ->and($saved->firstWhere('id', 'b')['group_id'])->toBe('g1')
+        ->and($saved->firstWhere('id', 'b')['locked'])->toBeTrue();
 });
 
 test('the agent completes factory photos angle by angle, and a new photo for an angle keeps the old one as an earlier version', function () {

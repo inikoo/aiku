@@ -451,6 +451,7 @@ const formatWhen = (date: string | null) => date ? useFormatTime(date, { formatT
                                 :upload="version.upload"
                                 :pins="artworkPins"
                                 :strokes="artworkStrokes"
+                                :nextNumber="markupCount + 1"
                                 :tool="!canEdit && version.can_comment ? tool : null"
                                 @pin="onPin"
                                 @stroke="onStroke"
@@ -663,7 +664,7 @@ const formatWhen = (date: string | null) => date ? useFormatTime(date, { formatT
         <Dialog
             :visible="!!editingFace && !!layout"
             modal
-            :header="editingFace ? `${faceLabels[editingFace]} · v${version?.version}` : ''"
+            :header="editingFace ? [faceLabels[editingFace], skus.find((item) => item.id === sku)?.code, `v${version?.version}`].filter(Boolean).join(' · ') : ''"
             class="h-[92vh] w-[96vw] max-w-[110rem]"
             :pt="{ content: { class: 'flex-1 min-h-0 !p-0' }, root: { class: 'flex flex-col' } }"
             @update:visible="(value) => !value && (editingFace = null)"

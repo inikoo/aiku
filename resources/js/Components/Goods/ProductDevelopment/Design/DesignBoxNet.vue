@@ -9,7 +9,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from "vue"
 import { ctrans } from "@/Composables/useTrans"
 import DesignFaceRender from "@/Components/Goods/ProductDevelopment/Design/DesignFaceRender.vue"
-import { buildLayoutNet, type DesignData, type DesignLayout, type FaceKey, type NetPanel } from "@/Components/Goods/ProductDevelopment/Design/boxNet"
+import { buildLayoutNet, markupColour, type DesignData, type DesignLayout, type FaceKey, type NetPanel } from "@/Components/Goods/ProductDevelopment/Design/boxNet"
 
 export interface NetPin {
     id: number
@@ -134,9 +134,9 @@ function onPanelClick(panel: NetPanel) {
                 v-for="pin in pins ?? []"
                 :key="pin.id"
                 type="button"
-                class="absolute z-20 flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white text-xs font-semibold shadow"
-                :class="[pin.resolved ? 'bg-green-600 text-white' : 'bg-[--app-accent] text-[--app-accent-text]', pin.active ? 'scale-125 ring-2 ring-[--app-accent-muted]' : '']"
-                :style="{ left: `${pin.x * 100}%`, top: `${pin.y * 100}%` }"
+                class="absolute z-20 flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white text-xs font-semibold shadow text-white"
+                :class="[pin.resolved ? 'opacity-50' : '', pin.active ? 'scale-125 ring-2 ring-gray-400' : '']"
+                :style="{ left: `${pin.x * 100}%`, top: `${pin.y * 100}%`, backgroundColor: markupColour(pin.number) }"
                 :aria-label="ctrans('Comment :number', { number: String(pin.number) })"
                 @click.stop="emit('focusPin', pin.id)"
             >
