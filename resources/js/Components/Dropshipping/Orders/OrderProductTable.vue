@@ -42,6 +42,9 @@ type ProductRow = {
     asset_name: string
     is_discretionary_offer?: boolean
     quantity_ordered: number
+    quantity_bonus?: number
+    is_gift?: boolean
+    amount_modified?: number
     available_quantity?: number
     quantity_ordered_fractional: [number, [number, number]]
     product_slug?: string
@@ -305,7 +308,11 @@ defineExpose({
 })
 
 const updateQuantityOrdered = (item: ProductRow, is_cut_view: boolean) => {
-    let valueToCompare = is_cut_view ? (
+    if (item.is_gift) {
+        is_cut_view = false
+    }
+
+    let valueToCompare = item.is_gift ? Number(item.quantity_bonus) : is_cut_view ? (
             (item.quantity_ordered_fractional[0] * item.quantity_ordered_fractional[1][1]) + item.quantity_ordered_fractional[1][0]
         ) : item.quantity_ordered;
 
@@ -319,7 +326,7 @@ const updateQuantityOrdered = (item: ProductRow, is_cut_view: boolean) => {
         }
     }
 
-    if (valueToCompare == item.amount_modified) {
+    if (item.amount_modified === undefined || item.amount_modified === null || valueToCompare == item.amount_modified) {
         editingIds.value.delete(item.id)
         return
     }
@@ -582,10 +589,34 @@ const isOffersData = (offersData: any): boolean => {
             <!-- Column: Quantity Ordered -->
             <template #cell(quantity_ordered)="{ item, proxyItem }">
                 <div class="flex items-center justify-end gap-2">
-                    <div v-if="item.is_gift">
+                    <div v-if="item.is_gift && !editingIds.has(item.id)">
                         {{ locale.number(item.quantity_bonus) }}
                         <span v-tooltip="ctrans('Quantity of free gift')">
                             <FontAwesomeIcon icon="fal fa-gift" class="" fixed-width aria-hidden="true" />
+                        </span>
+                    </div>
+
+                    <div v-else-if="item.is_gift" class="flex items-center gap-x-2">
+                        <InputNumber
+                            :model-value="createNewQty[item.id].amount_modified ?? Number(item.quantity_bonus)"
+                            @update:modelValue="(e: number) => { createNewQty[item.id].amount_modified = e }"
+                            showButtons
+                            buttonLayout="horizontal"
+                            :step="1"
+                            :min="0"
+                            :max="Number(item.quantity_bonus)"
+                            :inputStyle="{ width: quantityInputWidth(createNewQty[item.id].amount_modified ?? item.quantity_bonus, false), textAlign: 'center' }"
+                            fluid
+                        >
+                            <template #incrementbuttonicon>
+                                <FontAwesomeIcon :icon="faPlus" fixed-width />
+                            </template>
+                            <template #decrementbuttonicon>
+                                <FontAwesomeIcon :icon="faMinus" fixed-width />
+                            </template>
+                        </InputNumber>
+                        <span v-tooltip="ctrans('A free gift can be lowered or removed, not raised')">
+                            <FontAwesomeIcon icon="fal fa-gift" fixed-width aria-hidden="true" />
                         </span>
                     </div>
 
