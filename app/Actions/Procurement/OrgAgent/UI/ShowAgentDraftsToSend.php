@@ -19,6 +19,7 @@ use App\Models\Procurement\OrgAgent;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -83,7 +84,9 @@ class ShowAgentDraftsToSend extends OrgAction
             $currencyId => $currencyId === $organisationCurrency->id ? null : GetCurrencyExchange::run(Currency::find($currencyId), $organisationCurrency),
         ]);
 
-        return $rows->groupBy('supplier_id')->map(function ($drafts) use ($orgAgent, $exchanges) {
+        $belowMinimum = $this->belowMinimum($orgAgent);
+
+        return $rows->groupBy('supplier_id')->map(function ($drafts) use ($orgAgent, $exchanges, $belowMinimum) {
             $parts = $drafts->map(function ($draft) use ($orgAgent) {
                 $ready = json_decode($draft->ready_to_send ?? 'null', true);
 
@@ -120,9 +123,42 @@ class ShowAgentDraftsToSend extends OrgAction
                 'all_ready'         => $parts->every(fn (array $part) => $part['ready']),
                 'has_ours'          => $parts->contains(fn (array $part) => $part['is_ours']),
                 'others_asked'      => json_decode($drafts->firstWhere('organisation_id', $orgAgent->organisation_id)?->others_asked ?? 'null', true),
+                'below_minimum'     => $belowMinimum->get($drafts->first()->supplier_id, collect())->values()->all(),
                 'parts'             => $parts->all(),
             ];
         })->values()->all();
+    }
+
+    /**
+     * Products whose cartons, added up over every organisation's draft with the supplier, are still short of the supplier's minimum carton order.
+     *
+     * @return Collection<int, Collection<int, array{code: string, name: ?string, cartons: float, minimum: int, organisations: array<string, float>}>>
+     */
+    public function belowMinimum(OrgAgent $orgAgent): Collection
+    {
+        return self::drafts($orgAgent)
+            ->join('purchase_order_transactions as pot', fn ($join) => $join->on('pot.purchase_order_id', 'po.id')->whereNull('pot.deleted_at'))
+            ->join('supplier_products as sp', 'sp.id', 'pot.supplier_product_id')
+            ->join('organisations as o', 'o.id', 'po.organisation_id')
+            ->where('sp.minimum_carton_order', '>', 0)
+            ->where('sp.units_per_carton', '>', 0)
+            ->groupBy('po.supplier_id', 'sp.id', 'o.id')
+            ->orderBy('sp.code')
+            ->orderBy('o.code')
+            ->selectRaw('po.supplier_id, sp.id as supplier_product_id, sp.code, sp.name, sp.minimum_carton_order, o.code as organisation_code, sum(pot.quantity_ordered / sp.units_per_carton) as cartons')
+            ->get()
+            ->groupBy('supplier_id')
+            ->map(fn ($rows) => $rows->groupBy('supplier_product_id')
+                ->filter(fn ($organisations) => $organisations->sum('cartons') < $organisations->first()->minimum_carton_order)
+                ->map(fn ($organisations) => [
+                    'code'          => $organisations->first()->code,
+                    'name'          => $organisations->first()->name,
+                    'cartons'       => round((float) $organisations->sum('cartons'), 2),
+                    'minimum'       => (int) $organisations->first()->minimum_carton_order,
+                    'organisations' => $organisations->mapWithKeys(fn ($row) => [$row->organisation_code => round((float) $row->cartons, 2)])->all(),
+                ])
+                ->values())
+            ->filter(fn ($products) => $products->isNotEmpty());
     }
 
     /**

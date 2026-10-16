@@ -76,6 +76,7 @@ type Card = {
     all_ready: boolean
     has_ours: boolean
     others_asked: { by: string | null, at: string, told: number } | null
+    below_minimum: { code: string, name: string | null, cartons: number, minimum: number, organisations: Record<string, number> }[]
     parts: Part[]
 }
 
@@ -130,6 +131,15 @@ const toggleOrder = (id: number) => {
     next.has(id) ? next.delete(id) : next.add(id)
     openOrders.value = next
 }
+const belowMinimumCard = ref<Card | null>(null)
+const isBelowMinimumOpen = computed({
+    get: () => belowMinimumCard.value !== null,
+    set: (visible: boolean) => {
+        if (!visible) {
+            belowMinimumCard.value = null
+        }
+    },
+})
 const toggleEveryOrder = () => {
     openOrders.value = isEveryOrderOpen.value ? new Set() : new Set(shownOrderIds.value)
 }
@@ -378,6 +388,15 @@ const isReasonGiven = computed(() => overrideReason.value.trim().length >= MINIM
                     </tbody>
                 </table>
 
+                <button
+                    v-if="card.below_minimum.length"
+                    type="button"
+                    class="mx-4 mt-3 flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-left text-xs font-medium text-amber-800 hover:bg-amber-100"
+                    @click="belowMinimumCard = card">
+                    <FontAwesomeIcon :icon="faExclamationTriangle" fixed-width aria-hidden="true" />
+                    {{ ctrans(":count products under the supplier minimum", { count: card.below_minimum.length }) }}
+                </button>
+
                 <div v-if="canSend && isOnlyOurs(card)" class="mx-4 mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-600">
                     <span v-if="card.others_asked">
                         {{ ctrans(":user told the other organisations on :date. Nobody has added anything, so it is yours to submit.", { user: card.others_asked.by ?? "", date: useFormatTime(card.others_asked.at, { formatTime: "d MMM HH:mm" }) }) }}
@@ -562,6 +581,31 @@ const isReasonGiven = computed(() => overrideReason.value.trim().length >= MINIM
                 </Link>
             </div>
         </div>
+    </Dialog>
+
+    <Dialog v-model:visible="isBelowMinimumOpen" modal :header="ctrans(':supplier: products under the supplier minimum', { supplier: belowMinimumCard?.supplier_code ?? '' })" class="w-full max-w-lg">
+        <table v-if="belowMinimumCard" class="min-w-full text-sm">
+            <thead class="whitespace-nowrap border-b border-gray-200 text-left text-[11px] font-medium uppercase tracking-wide text-gray-500">
+                <tr>
+                    <th class="py-1.5 pr-2">{{ ctrans("Product") }}</th>
+                    <th class="py-1.5 pl-2 text-right">{{ ctrans("Cartons") }}</th>
+                    <th class="py-1.5 pl-2 text-right">{{ ctrans("Minimum") }}</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                <tr v-for="product in belowMinimumCard.below_minimum" :key="product.code">
+                    <td class="py-1.5 pr-2">
+                        <div class="font-medium text-gray-700">{{ product.code }}</div>
+                        <div class="text-xs text-gray-500">{{ product.name }}</div>
+                    </td>
+                    <td class="py-1.5 pl-2 text-right tabular-nums">
+                        <div class="text-amber-700">{{ locale.number(product.cartons) }}</div>
+                        <div class="whitespace-nowrap text-xs text-gray-400">{{ Object.entries(product.organisations).map(([organisation, cartons]) => `${organisation} ${locale.number(cartons)}`).join(" · ") }}</div>
+                    </td>
+                    <td class="py-1.5 pl-2 text-right tabular-nums text-gray-700">{{ locale.number(product.minimum) }}</td>
+                </tr>
+            </tbody>
+        </table>
     </Dialog>
 
     <Dialog v-model:visible="isOverrideOpen" modal :header="ctrans('Submit without waiting for the others?')" class="w-full max-w-lg">

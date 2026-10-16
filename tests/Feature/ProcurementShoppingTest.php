@@ -1303,6 +1303,28 @@ test('pages count SKOs with the org stock packed_in, not the supplier pack, and 
         ->and((float) (new App\Http\Resources\Procurement\PurchaseOrderTransactionResource($line->fresh()))->toArray(request())['units_per_pack'])->toBe(70.0);
 });
 
+test('agent drafts to send flag the products still short of the supplier minimum carton order', function () {
+    [$orgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $supplierProduct = $orgSupplierProduct->supplierProduct;
+    $supplierProduct->update(['units_per_carton' => 10, 'minimum_carton_order' => 5]);
+
+    $draft = StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition());
+    $line  = StorePurchaseOrderTransaction::make()->action($draft, $supplierProduct->historicSupplierProduct, $this->orgStocks[0], [...PurchaseOrderTransaction::factory()->definition(), 'quantity_ordered' => 30]);
+
+    $card = fn () => collect(App\Actions\Procurement\OrgAgent\UI\ShowAgentDraftsToSend::make()->handle($this->orgAgent))->firstWhere('supplier_id', $supplierProduct->supplier_id);
+
+    expect($card()['below_minimum'])->toBe([[
+        'code'          => $supplierProduct->code,
+        'name'          => $supplierProduct->name,
+        'cartons'       => 3.0,
+        'minimum'       => 5,
+        'organisations' => [$this->organisation->code => 3.0],
+    ]]);
+
+    $line->update(['quantity_ordered' => 50]);
+    expect($card()['below_minimum'])->toBe([]);
+});
+
 test('agent warehouse pages and the goods receipt count SKOs with the org stock packed_in', function () {
     $stock = StoreStock::make()->action($this->group, array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE]));
 
