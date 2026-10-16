@@ -546,6 +546,9 @@ const onSubmitNote = async (closePopup: Function) => {
     }
 }
 
+const addServiceAction = computed(() => props.pageHead.actions?.find((action: any) => action?.key === 'add-service'))
+const hasAddProductAction = computed(() => !!props.pageHead.actions?.some((action: any) => action?.key === 'add-product'))
+
 const openModal = (action: any, itemType: string = 'product') => {
     currentAction.value = action
     currentModalItemType.value = itemType
@@ -1712,8 +1715,18 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
 
     <PageHeading :data="pageHead">
         <template #button-add-product="{ action }">
-            <div class="relative">
-                <Button v-if="!is_shop_external" :style="action.style" :label="action.label" :icon="action.icon" @click="() => openModal(action, 'product')"
+            <div class="contents">
+                <div v-if="!is_shop_external && addServiceAction" class="flex items-stretch">
+                    <span class="buttonSecondary inline-flex items-center gap-x-2 rounded-l-md px-3 md:px-4 text-sm font-medium leading-4">
+                        <FontAwesomeIcon icon="fal fa-plus" fixed-width aria-hidden="true" />
+                        {{ ctrans("Add") }}
+                    </span>
+                    <Button :style="action.style" :label="ctrans('Product')" :tooltip="action.tooltip" class="!rounded-none !border-l-0"
+                        @click="() => openModal(action, 'product')" />
+                    <Button :style="addServiceAction.style" :label="ctrans('Service')" :tooltip="addServiceAction.tooltip" class="!rounded-l-none !border-l-0"
+                        @click="() => openModal(addServiceAction, 'service')" />
+                </div>
+                <Button v-else-if="!is_shop_external" :style="action.style" :label="action.label" :icon="action.icon" @click="() => openModal(action, 'product')"
                     :key="`ActionButton${action.label}${action.style}`" :tooltip="action.tooltip" />
             </div>
         </template>
@@ -1732,8 +1745,8 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
         </template>
 
         <template #button-add-service="{ action }">
-            <div class="relative">
-                <Button v-if="!is_shop_external" :style="action.style" :label="action.label" :icon="action.icon" @click="() => openModal(action, 'service')"
+            <div class="contents">
+                <Button v-if="!is_shop_external && !hasAddProductAction" :style="action.style" :label="action.label" :icon="action.icon" @click="() => openModal(action, 'service')"
                     :key="`ActionButton${action.label}${action.style}`" :tooltip="action.tooltip" />
             </div>
         </template>
@@ -1784,7 +1797,6 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
                 </div>
             </div>
             <Button v-if="email_customer" :label="ctrans('Email customer')" icon="fal fa-envelope" type="tertiary" @click="openEmailCustomer" />
-            <StaffChatContextButtons v-if="staff_chat" :context="staff_chat"/>
             <StaffTaskPanel v-if="staff_task" :model-type="staff_task.model_type" :model-id="staff_task.model_id"/>
         </template>
 
@@ -1812,6 +1824,12 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
                     </div>
                 </template>
             </ButtonWithLink>
+        </template>
+
+        <template #wrapped-staff-chat>
+            <div class="contents">
+                <StaffChatContextButtons v-if="staff_chat" :context="staff_chat" full />
+            </div>
         </template>
 
         <template #wrapped-add-note="{ action }">
@@ -1985,7 +2003,7 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
         </Transition>
     </div>
 
-    <PreOrderPanel v-if="pre_order" :pre_order :canEdit="can_edit" />
+    <PreOrderPanel v-if="pre_order" :pre_order :canEdit="pre_order.can_manage" />
     <div v-if="split_pre_order" class="border-b border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-900">
         {{ ctrans("The pre-order items of this order were split into order :reference, sent when they arrive.", { reference: split_pre_order.reference }) }}
     </div>

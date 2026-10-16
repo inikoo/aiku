@@ -226,6 +226,7 @@ use function Pest\Laravel\actingAs;
 use function Pest\Laravel\deleteJson;
 use function Pest\Laravel\get;
 use function Pest\Laravel\getJson;
+use function Pest\Laravel\patch;
 use function Pest\Laravel\patchJson;
 use function Pest\Laravel\postJson;
 
@@ -6052,6 +6053,39 @@ describe('pre-orders (HELP-3432)', function () {
         expect($preOrder->refresh()->state)->toBe(\App\Enums\Ordering\PreOrder\PreOrderStateEnum::CANCELLED)
             ->and($preOrder->order->refresh()->state)->toBe(OrderStateEnum::CANCELLED)
             ->and(round((float) $preOrder->customer->refresh()->balance - $balanceBefore, 2))->toBe($paid);
+    });
+
+    test('a locked pre-order can be unlocked and cancelled from its panel, never with the plain order Cancel that would refund the deposit (HELP-4072)', function () {
+        $madeToOrder = ($this->preOrderProduct)(['is_made_to_order' => true]);
+        $customer    = ($this->fundedCustomer)(10000);
+        $basket      = StoreOrder::make()->action($customer, Order::factory()->definition());
+        StoreTransaction::make()->action($basket, $madeToOrder->currentHistoricProduct, array_merge(Transaction::factory()->definition(), ['quantity_ordered' => 1]));
+        \App\Actions\Ordering\PreOrder\AcceptBasketPreOrderTerms::run($basket->fresh(), false);
+        PayRetinaOrderWithBalance::make()->handle($basket->fresh());
+
+        $preOrder = $basket->fresh()->preOrder;
+        $order    = $preOrder->order;
+        $orderUrl = route('grp.org.shops.show.ordering.orders.show', [$this->organisation->slug, $this->shop->slug, $order->slug]);
+        $hasPlainCancel = fn (array $actions) => collect($actions)->contains('key', 'cancel');
+
+        get($orderUrl)->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('pre_order.lock.is_locked_for_me', true)
+            ->where('pre_order.can_manage', true)
+            ->where('pageHead.actions', fn ($actions) => !$hasPlainCancel(collect($actions)->toArray()))
+            ->where('pageHead.wrapped_actions', fn ($actions) => collect($actions)->contains('key', 'staff-chat')));
+
+        \App\Actions\Ordering\PreOrder\UnlockPreOrder::run($preOrder, $this->user);
+
+        get($orderUrl)->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('pre_order.lock.is_locked_for_me', false)
+            ->where('pageHead.actions', fn ($actions) => !$hasPlainCancel(collect($actions)->toArray())));
+
+        patch(route('grp.models.order.state.cancelled', ['order' => $order->id]))->assertSessionHasErrors('messages');
+        expect($order->refresh()->state)->toBe(OrderStateEnum::SUBMITTED);
+
+        patch(route('grp.models.order.pre_order.update', ['order' => $order->id]), ['operation' => 'cancel', 'cancellation_reason' => 'customer_request'])->assertSessionHasNoErrors();
+        expect($preOrder->refresh()->state)->toBe(\App\Enums\Ordering\PreOrder\PreOrderStateEnum::CANCELLED)
+            ->and($order->refresh()->state)->toBe(OrderStateEnum::CANCELLED);
     });
 
     test('a basket with pre-order lines and no accepted terms is never split, charges in full, and cannot be placed from Retina', function () {
