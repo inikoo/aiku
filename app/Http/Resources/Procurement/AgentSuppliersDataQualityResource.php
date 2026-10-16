@@ -14,7 +14,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property int $id
  * @property string $code
  * @property string $name
- * @property bool $is_generic
  * @property string|null $contact_name
  * @property string|null $phone
  * @property string|null $email
@@ -41,7 +40,6 @@ class AgentSuppliersDataQualityResource extends JsonResource
             'id'                       => $this->id,
             'code'                     => $this->code,
             'name'                     => $this->name,
-            'is_generic'               => $this->is_generic,
             'contacts'                 => [
                 'contact_name' => $this->contact_name,
                 'phone'        => $this->phone,
