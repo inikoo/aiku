@@ -160,7 +160,7 @@ class IndexBatchCodes extends OrgAction
         return [
             'stock' => [
                 'label'    => __('Stock'),
-                'default'  => 'on_hand',
+                'default'  => 'on_hand,empty',
                 'elements' => [
                     'on_hand' => [__('On the shelves')],
                     'empty'   => [__('None left')],
