@@ -24,6 +24,8 @@ use App\Actions\Web\Website\PruneWebsitePageViews;
 use App\Actions\Web\Website\PruneWebsiteVisitors;
 use App\Actions\Web\WebsiteNotFoundPath\PruneWebsiteNotFoundPaths;
 use App\Actions\Web\WebsiteNotFoundPath\UI\IndexWebsiteNotFoundPaths;
+use App\Actions\Web\WebsitePageView\GetWebsiteOrderJourney;
+use App\Actions\Web\WebsitePageView\GetWebsiteOrderJourneys;
 use App\Actions\Web\WebsitePageView\UI\IndexWebsitePageViews;
 use App\Actions\Web\WebsiteVisitor\UI\IndexWebsiteVisitors;
 use App\Http\Resources\Web\WebsiteNotFoundPathResource;
@@ -56,6 +58,10 @@ class ShowSeoDashboard extends OrgAction
 
     private SeoDashboardTabsEnum $tableTab = SeoDashboardTabsEnum::WEBPAGES;
 
+    private int $journeyDays = GetWebsiteOrderJourneys::DAY_OPTIONS[0];
+
+    private int $journeyPurchaseId = 0;
+
     public function handle(Shop $shop): Shop
     {
         return $shop;
@@ -67,6 +73,10 @@ class ShowSeoDashboard extends OrgAction
         $this->initialisationFromShop($shop, $request)->withTab(SeoDashboardPageTabsEnum::values());
 
         $this->tableTab = SeoDashboardTabsEnum::tryFrom((string) $request->query('table')) ?? SeoDashboardTabsEnum::WEBPAGES;
+
+        $journeyDays             = (int) $request->query('journey_days');
+        $this->journeyDays       = in_array($journeyDays, GetWebsiteOrderJourneys::DAY_OPTIONS, true) ? $journeyDays : GetWebsiteOrderJourneys::DAY_OPTIONS[0];
+        $this->journeyPurchaseId = (int) $request->query('journey_order');
 
         return $this->handle($shop);
     }
@@ -171,6 +181,12 @@ class ShowSeoDashboard extends OrgAction
                     ]
                 ),
 
+                SeoDashboardPageTabsEnum::JOURNEY->value => $this->journeyProp($shop->website),
+
+                'journey_order' => Inertia::optional(fn () => $shop->website && $this->journeyPurchaseId
+                    ? GetWebsiteOrderJourney::run($shop->website, $this->journeyPurchaseId)
+                    : null),
+
                 SeoDashboardTabsEnum::CONVERSIONS->value => $this->tabProp(
                     SeoDashboardTabsEnum::CONVERSIONS,
                     $shop->website,
@@ -246,6 +262,16 @@ class ShowSeoDashboard extends OrgAction
             : $this->tab === SeoDashboardPageTabsEnum::OVERVIEW->value && $this->tableTab === $tab;
 
         return $isOpen ? $prop : Inertia::optional($prop);
+    }
+
+    private function journeyProp(?Website $website): mixed
+    {
+        $resolver = fn () => $website ? [
+            'days'   => $this->journeyDays,
+            'orders' => GetWebsiteOrderJourneys::run($website, now()->subDays($this->journeyDays)->startOfDay(), now()),
+        ] : null;
+
+        return $this->tab === SeoDashboardPageTabsEnum::JOURNEY->value ? Inertia::defer($resolver) : Inertia::optional($resolver);
     }
 
     private function overviewProp(Closure $resolver): mixed
