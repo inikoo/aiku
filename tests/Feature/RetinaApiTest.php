@@ -313,6 +313,36 @@ test('retina api dropshipping orders flow', function () {
     $response->assertOk();
 });
 
+test('retina api order show lists the tracking of every shipment', function () {
+    Sanctum::actingAs($this->dropshippingChannel, ['retina', 'retina:read']);
+
+    $client = StoreCustomerClient::make()->action(
+        $this->dropshippingChannel,
+        CustomerClient::factory()->definition()
+    );
+    $order = StoreOrder::make()->action($client, []);
+
+    $order->update([
+        'shipping_data' => [
+            ['delivery_note_reference' => 'DN-A', 'shipping_id' => 1, 'shipper_label' => 'Royal Mail', 'tracking_number' => 'TRACK-A', 'trackings' => ['TRACK-A'], 'tracking_urls' => ['https://track.test/A']],
+            ['delivery_note_reference' => 'DN-B', 'shipping_id' => 2, 'shipper_label' => 'DPD', 'tracking_number' => 'TRACK-B', 'trackings' => ['TRACK-B'], 'tracking_urls' => ['https://track.test/B']],
+        ],
+    ]);
+
+    getJson(route('retina.api.dropshipping.order.show', $order))
+        ->assertOk()
+        ->assertJsonPath('data.shipping_data.trackings', ['TRACK-A'])
+        ->assertJsonCount(2, 'data.shipments')
+        ->assertJsonPath('data.shipments.1.shipper_label', 'DPD')
+        ->assertJsonPath('data.shipments.1.tracking_urls', ['https://track.test/B']);
+
+    $order->update(['shipping_data' => ['is_collection' => true]]);
+
+    getJson(route('retina.api.dropshipping.order.show', $order))
+        ->assertOk()
+        ->assertJsonCount(0, 'data.shipments');
+});
+
 test('retina api dropshipping order submit', function () {
     Sanctum::actingAs($this->dropshippingChannel, ['retina', 'retina:read', 'retina:write']);
 
