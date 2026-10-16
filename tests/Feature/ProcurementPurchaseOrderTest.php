@@ -10,6 +10,8 @@
 
 use App\Actions\Procurement\AgentOrder\SendAgentOrderToAgent;
 use App\Actions\Procurement\AgentOrder\SubmitAgentOrder;
+use App\Actions\GoodsIn\StockDelivery\DeleteStockDelivery;
+use App\Actions\Procurement\AgentOrder\DeleteAgentOrder;
 use App\Actions\Procurement\AgentOrder\StoreAgentOrderLine;
 use App\Actions\Procurement\AgentOrder\StoreAgentOrder;
 use Illuminate\Support\Facades\Event;
@@ -123,6 +125,7 @@ use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderTransaction;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
+use App\Actions\SupplyChain\Supplier\MergeSuppliers;
 use App\Models\SupplyChain\SupplierProduct;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -1512,6 +1515,41 @@ test('merging a duplicate supplier moves its products and orders to the supplier
     $clash = StoreSupplierChangeRequest::make()->action($other, ['type' => 'merge', 'target_supplier_id' => $kept->id, 'reason' => 'Same factory']);
     expect(fn () => DecideSupplierChangeRequest::make()->action($clash, ['approve' => true]))->toThrow(ValidationException::class)
         ->and($other->refresh()->status)->toBeTrue();
+});
+
+test('merging a duplicate supplier folds its empty supplier order on a shared agent order into the kept one', function () {
+    [$keptOrgSupplier]                         = createAgentOrgSupplierWithProduct($this);
+    [$duplicateOrgSupplier, $duplicateProduct] = createAgentOrgSupplierWithProduct($this);
+    $kept      = $keptOrgSupplier->supplier;
+    $duplicate = $duplicateOrgSupplier->supplier;
+    $duplicate->update(['currency_id' => $kept->currency_id]);
+
+    $order    = StorePurchaseOrder::make()->action($keptOrgSupplier, PurchaseOrder::factory()->definition());
+    $line     = StorePurchaseOrderTransaction::make()->action($order, $duplicateProduct->supplierProduct->historicSupplierProduct, $this->orgStocks[0], PurchaseOrderTransaction::factory()->definition());
+    $newAspo  = fn (Supplier $supplier, array $extra = []) => AgentSupplierPurchaseOrder::create(array_merge([
+        'group_id'       => $this->group->id,
+        'reference'      => 'ASPO'.Str::upper(Str::random(8)),
+        'purchase_order_id' => $order->id,
+        'supplier_id'    => $supplier->id,
+        'currency_id'    => $order->currency_id,
+        'state'          => AgentSupplierPurchaseOrderStateEnum::SUBMITTED,
+        'delivery_state' => AgentSupplierPurchaseOrderDeliveryStateEnum::CONFIRMED,
+        'date'           => now(),
+    ], $extra));
+    $keptAspo      = $newAspo($kept);
+    $duplicateAspo = $newAspo($duplicate, ['estimated_received_at' => '2026-11-01 00:00:00']);
+    PurchaseOrderTransaction::whereKey($line->id)->update(['agent_supplier_purchase_order_id' => $duplicateAspo->id]);
+
+    $duplicateAspo->update(['is_costed' => true]);
+    expect(fn () => MergeSuppliers::run($duplicate, $kept))->toThrow(ValidationException::class);
+
+    $duplicateAspo->update(['is_costed' => false]);
+    MergeSuppliers::run($duplicate, $kept);
+
+    expect(AgentSupplierPurchaseOrder::find($duplicateAspo->id))->toBeNull()
+        ->and($line->refresh()->agent_supplier_purchase_order_id)->toBe($keptAspo->id)
+        ->and($keptAspo->refresh()->estimated_received_at->toDateString())->toBe('2026-11-01')
+        ->and($duplicate->refresh()->data['merged_into_supplier_id'])->toBe($kept->id);
 });
 
 test('UI show agent purchase order', function (PurchaseOrder $purchaseOrder) {
@@ -2991,6 +3029,52 @@ test('a supplier order submitted on its own leaves the rest of the agent order o
     $submitted = SubmitAgentOrder::make()->action($orgAgent, $reference);
     expect($submitted)->toHaveCount(1)
         ->and(PurchaseOrder::inAgentOrder($orgAgent->organisation_id, $orgAgent->agent_id, $reference)->where('state', PurchaseOrderStateEnum::SUBMITTED)->count())->toBe(2);
+});
+
+test('a whole agent order and its agent containers are deleted once the user types that they accept responsibility, never with stock booked in', function () {
+    $orgAgent                                 = createFreshOrgAgent($this);
+    [$orgSupplierOne, $orgSupplierProductOne] = createAgentOrgSupplierWithProduct($this, $orgAgent);
+    [$orgSupplierTwo, $orgSupplierProductTwo] = createAgentOrgSupplierWithProduct($this, $orgAgent);
+    AttachOrgSupplierProductToOrgStock::make()->action($this->orgStocks[0], $orgSupplierProductOne);
+    AttachOrgSupplierProductToOrgStock::make()->action($this->orgStocks[1], $orgSupplierProductTwo);
+    $reference = StoreAgentOrder::make()->handle($orgAgent);
+
+    $lineOne = StoreAgentOrderLine::make()->action($orgAgent, $reference, $orgSupplierProductOne, ['quantity_ordered' => 10]);
+    StoreAgentOrderLine::make()->action($orgAgent, $reference, $orgSupplierProductTwo, ['quantity_ordered' => 20]);
+    $shipped       = UpdatePurchaseOrderStateToConfirmed::make()->action(UpdatePurchaseOrderStateToSubmitted::make()->action($lineOne->purchaseOrder->refresh()));
+    $stockDelivery = StoreStockDeliveryFromPurchaseOrder::make()->action($shipped->refresh());
+    $stockDelivery->update(['state' => StockDeliveryStateEnum::RECEIVED]);
+    expect(DeleteAgentOrder::refusals($orgAgent, $reference))->toHaveCount(1)
+        ->and(collect(ShowStockDelivery::make()->getActions($stockDelivery->refresh()))->pluck('key'))->not->toContain('delete_stock_delivery');
+    $stockDelivery->update(['state' => StockDeliveryStateEnum::DISPATCHED]);
+
+    expect($stockDelivery->refresh()->parent_type)->toBe('OrgAgent')
+        ->and(collect(ShowStockDelivery::make()->getActions($stockDelivery))->firstWhere('key', 'delete_stock_delivery')['responsibility']['phrase'])->toBe(DeleteStockDelivery::RESPONSIBILITY_PHRASE);
+
+    $this->get(route('grp.org.procurement.org_agents.show.agent_orders.show', [$this->organisation->slug, $orgAgent->slug, $reference]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('delete_order.reference', $reference)
+            ->where('delete_order.refusals', []));
+
+    $deleteRoute = route('grp.models.org-agent.agent-order.delete', ['orgAgent' => $orgAgent->id]);
+    $reason = 'Made by mistake while trying the agent screens';
+    $this->delete($deleteRoute, ['agent_order_reference' => $reference, 'responsibility' => 'yes', 'reason' => $reason])->assertSessionHasErrors('responsibility');
+    $this->delete($deleteRoute, ['agent_order_reference' => $reference, 'responsibility' => 'I accept responsibility', 'reason' => 'oops'])->assertSessionHasErrors('reason');
+    $this->delete(route('grp.models.stock-delivery.delete', ['stockDelivery' => $stockDelivery->id]), ['responsibility' => 'ok'])->assertSessionHasErrors(['responsibility', 'reason']);
+
+    $stockDelivery->items()->first()->update(['unit_quantity_placed' => 1]);
+    expect(DeleteAgentOrder::refusals($orgAgent, $reference))->toHaveCount(1);
+    $this->delete($deleteRoute, ['agent_order_reference' => $reference, 'responsibility' => 'I accept responsibility', 'reason' => $reason])->assertSessionHasErrors('agent_order');
+
+    $stockDelivery->items()->update(['unit_quantity_placed' => 0]);
+    $this->delete($deleteRoute, ['agent_order_reference' => $reference, 'responsibility' => ' i accept  responsibility. ', 'reason' => $reason])
+        ->assertRedirect(route('grp.org.procurement.org_agents.show.agent_orders.index', [$this->organisation->slug, $orgAgent->slug]));
+
+    expect(PurchaseOrder::inAgentOrder($orgAgent->organisation_id, $orgAgent->agent_id, $reference)->count())->toBe(0)
+        ->and(StockDelivery::find($stockDelivery->id))->toBeNull()
+        ->and(StockDelivery::withTrashed()->find($stockDelivery->id)->data['deletion']['reason'])->toBe($reason)
+        ->and(PurchaseOrder::withTrashed()->find($shipped->id)->data['deletion'])->toMatchArray(['reason' => $reason, 'user_id' => $this->adminGuest->getUser()->id])
+        ->and(PurchaseOrder::withTrashed()->find($shipped->id)->audits()->where('event', 'deleted')->get()->contains(fn ($audit) => ($audit->new_values['deletion_reason'] ?? null) === $reason))->toBeTrue();
 });
 
 test('an agent order page opens only for a reference that exists or the one the next order will take', function () {

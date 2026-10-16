@@ -15,6 +15,7 @@ use App\Actions\SupplyChain\SupplierPayment\DeleteSupplierPayment;
 use App\Actions\SupplyChain\SupplierPayment\StoreSupplierPayment;
 use App\Actions\Procurement\AgentOrder\StoreAgentOrder;
 use App\Actions\Procurement\AgentOrder\StoreAgentOrderLine;
+use App\Actions\Procurement\AgentOrder\DeleteAgentOrder;
 use App\Actions\Procurement\AgentOrder\SubmitAgentOrder;
 use App\Actions\Accounting\CreditTransaction\DecreaseCreditTransactionCustomer;
 use App\Http\Middleware\EnsureNotHandledInAurora;
@@ -1803,6 +1804,7 @@ Route::name('org-agent.agent-order.')->prefix('org-agent/{orgAgent:id}/agent-ord
     Route::post('', StoreAgentOrder::class)->name('store');
     Route::post('line/{orgSupplierProduct:id}', StoreAgentOrderLine::class)->name('line.store')->withoutScopedBindings();
     Route::patch('submit', SubmitAgentOrder::class)->name('submit');
+    Route::delete('', DeleteAgentOrder::class)->name('delete');
 });
 Route::name('org-partner.')->prefix('org-partner/{orgPartner:id}')->group(function () {
     Route::post('purchase-order/store', [StorePurchaseOrder::class, 'inOrgPartner'])->name('purchase-order.store');

@@ -25,10 +25,10 @@ enum DeliveryNoteCustomsExportFormatEnum: string
         };
     }
 
-    public function exporter(array $lines, string $delimiter, string $textDelimiter): DhlItemUploadCsvExport
+    public function exporter(array $lines, string $delimiter, string $textDelimiter, array $edits = []): DhlItemUploadCsvExport
     {
         return match ($this) {
-            self::DHL_CSV => new DhlItemUploadCsvExport($lines, $delimiter, $textDelimiter),
+            self::DHL_CSV => new DhlItemUploadCsvExport($lines, $delimiter, $textDelimiter, $edits),
         };
     }
 

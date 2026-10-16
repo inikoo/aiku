@@ -12,6 +12,7 @@ use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteTypeEnum;
 use App\Enums\Ordering\Order\OrderCancellationReasonEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
+use App\Enums\Ordering\PreOrder\PreOrderStateEnum;
 use App\Actions\Ordering\Order\SaveOrderModification;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Ordering\Order;
@@ -295,7 +296,8 @@ class GetEcomOrderActions
                     OrderStateEnum::FINALISED
                 ])
                 || $order->invoices()->count() > 0
-                || $order->deliveryNotes()->where('state', DeliveryNoteStateEnum::DISPATCHED)->count() > 0) {
+                || $order->deliveryNotes()->where('state', DeliveryNoteStateEnum::DISPATCHED)->count() > 0
+                || in_array($order->preOrder?->state, PreOrderStateEnum::open(), true)) {
                 $showCancel = false;
             }
 

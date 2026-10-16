@@ -16,6 +16,7 @@ import PageHeading from "@/Components/Headings/PageHeading.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import Icon from "@/Components/Icon.vue"
 import ModalProductList from "@/Components/Utils/ModalProductList.vue"
+import ModalAcceptResponsibility from "@/Components/Procurement/ModalAcceptResponsibility.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { ctrans } from "@/Composables/useTrans"
 import { useFormatTime } from "@/Composables/useFormatTime"
@@ -88,7 +89,16 @@ const props = defineProps<{
 		to_submit: { supplier_code: string; supplier_name: string; currency_code: string; cost_total: number | string }[]
 		to_remove: string[]
 	} | null
+	delete_order: {
+		route: routeType
+		reference: string
+		phrase: string
+		refusals: string[]
+		warnings: string[]
+	} | null
 }>()
+
+const isDeleteOpen = ref(false)
 
 const locale = useLocaleStore()
 const confirm = useConfirm()
@@ -218,7 +228,7 @@ const submitAll = () => {
 	)
 }
 
-const hasToolbar = computed(() => !!props.products_list || !!props.submit)
+const hasToolbar = computed(() => !!props.products_list || !!props.submit || !!props.delete_order)
 </script>
 
 <template>
@@ -240,8 +250,30 @@ const hasToolbar = computed(() => !!props.products_list || !!props.submit)
 				:loading="submitLoading"
 				@click="openSubmitDialog"
 			/>
+			<span v-if="delete_order" v-tooltip="delete_order.refusals.join(' ')">
+				<Button
+					type="tertiary"
+					:label="ctrans('Delete')"
+					:disabled="delete_order.refusals.length > 0"
+					@click="isDeleteOpen = true"
+				>
+					<template #icon>
+						<FontAwesomeIcon icon="fal fa-trash-alt" class="text-red-500" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
+			</span>
 		</template>
 	</PageHeading>
+
+	<ModalAcceptResponsibility
+		v-if="delete_order"
+		v-model:visible="isDeleteOpen"
+		:header="ctrans('Delete agent order :reference', { reference: delete_order.reference })"
+		:route="delete_order.route"
+		:phrase="delete_order.phrase"
+		:warnings="delete_order.warnings"
+		:data="{ agent_order_reference: delete_order.reference }"
+	/>
 
 	<div class="mx-4 mt-4 rounded-lg border border-gray-200 bg-white p-4">
 		<div class="flex flex-wrap items-start justify-between gap-x-8 gap-y-3">

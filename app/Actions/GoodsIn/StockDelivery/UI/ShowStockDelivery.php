@@ -23,6 +23,7 @@ use App\Actions\GoodsIn\StockDelivery\AddPurchaseOrderItemsToStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\AddPurchaseOrdersToStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\DispatchStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\CancelStockDelivery;
+use App\Actions\GoodsIn\StockDelivery\DeleteStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\RemovePurchaseOrderFromStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\DistributeStockDeliveryExtraCost;
 use App\Actions\GoodsIn\StockDelivery\EvaluateStockDeliveryCosting;
@@ -510,6 +511,22 @@ class ShowStockDelivery extends OrgAction
             ],
         ];
 
+        $deleteButton = [
+            'label'   => __('Delete'),
+            'tooltip' => __('Delete Stock Delivery'),
+            'type'    => 'button',
+            'style'   => 'delete',
+            'icon'    => 'fal fa-trash-alt',
+            'key'     => 'delete_stock_delivery',
+            'route'   => [
+                'method'     => 'delete',
+                'name'       => 'grp.models.stock-delivery.delete',
+                'parameters' => [
+                    'stockDelivery' => $stockDelivery->id,
+                ],
+            ],
+        ];
+
         $actions = match ($stockDelivery->state) {
             StockDeliveryStateEnum::IN_PROCESS,
             StockDeliveryStateEnum::CONFIRMED,
@@ -544,21 +561,7 @@ class ShowStockDelivery extends OrgAction
                         ],
                     ],
                 ],
-                [
-                    'label'   => __('Delete'),
-                    'tooltip' => __('Delete Stock Delivery'),
-                    'type'    => 'button',
-                    'style'   => 'delete',
-                    'icon'    => 'fal fa-trash-alt',
-                    'key'     => 'delete_stock_delivery',
-                    'route'   => [
-                        'method'     => 'delete',
-                        'name'       => 'grp.models.stock-delivery.delete',
-                        'parameters' => [
-                            'stockDelivery' => $stockDelivery->id,
-                        ],
-                    ],
-                ],
+                $deleteButton,
                 $deliveryDateButton,
             ],
             StockDeliveryStateEnum::DISPATCHED => [
@@ -638,6 +641,22 @@ class ShowStockDelivery extends OrgAction
         if (CancelStockDelivery::canBeCancelled($stockDelivery) && $stockDelivery->hasNoProducts()) {
             $actions = array_values(array_filter($actions, fn (array $action) => !in_array($action['key'], ['dispatch_stock_delivery', 'receive_stock_delivery', 'cancel_stock_delivery'])));
             array_unshift($actions, $cancelButton);
+        }
+
+        if (DeleteStockDelivery::isAgentDelivery($stockDelivery)) {
+            $actions = array_values(array_filter($actions, fn (array $action) => $action['key'] !== 'delete_stock_delivery'));
+            if (!DeleteStockDelivery::agentDeliveryRefusal($stockDelivery)) {
+                $actions[] = [
+                    ...$deleteButton,
+                    'responsibility' => [
+                        'phrase'   => DeleteStockDelivery::RESPONSIBILITY_PHRASE,
+                        'warnings' => [
+                            __('This deletes the container :reference with all its items. Its purchase orders go back to waiting for a container.', ['reference' => $stockDelivery->reference]),
+                            __('Containers are made by the agent now. Delete one only if it was made by mistake, and tell the agent.'),
+                        ],
+                    ],
+                ];
+            }
         }
 
         if ($stockDelivery->isManagedByPartner()) {

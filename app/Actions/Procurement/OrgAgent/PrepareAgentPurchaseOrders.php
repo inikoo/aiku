@@ -10,8 +10,11 @@ namespace App\Actions\Procurement\OrgAgent;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Models\Procurement\OrgAgent;
+use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\OrgSupplierProduct;
+use App\Models\Procurement\PurchaseOrder;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
@@ -114,15 +117,36 @@ class PrepareAgentPurchaseOrders extends OrgAction
      */
     public function linesByBucket(OrgAgent $orgAgent): array
     {
+        $removedFromDrafts = $this->removedFromOpenDrafts($orgAgent);
+
         return collect(self::ORDER_BUCKETS)->mapWithKeys(fn (string $bucket) => [
-            $bucket => array_map(fn (array $line) => [
+            $bucket => array_values(array_map(fn (array $line) => [
                 ...$line,
                 'in_order' => $bucket === 'out'
                     || in_array($line['health_rank'], ['A', 'B'], true)
                     || $line['days_of_cover'] === null
                     || $line['days_of_cover'] < $line['lead_time_days'] + self::DAYS_AFTER_ARRIVAL,
-            ], SuggestAgentShoppingList::make()->lines($orgAgent, $bucket)),
+            ], array_filter(
+                SuggestAgentShoppingList::make()->lines($orgAgent, $bucket),
+                fn (array $line) => !isset($removedFromDrafts[$line['org_supplier_product_id']])
+            ))),
         ])->all();
+    }
+
+    /**
+     * Products the buyer took off one of the agent's open drafts, so Prepare order does not put them back.
+     *
+     * @return array<int, true>
+     */
+    private function removedFromOpenDrafts(OrgAgent $orgAgent): array
+    {
+        return PurchaseOrder::where('state', PurchaseOrderStateEnum::IN_PROCESS)
+            ->where('parent_type', 'OrgSupplier')
+            ->whereIn('parent_id', OrgSupplier::where('org_agent_id', $orgAgent->id)->select('id'))
+            ->pluck('data')
+            ->flatMap(fn (?array $data) => $data['removed_org_supplier_product_ids'] ?? [])
+            ->mapWithKeys(fn (int $orgSupplierProductId) => [$orgSupplierProductId => true])
+            ->all();
     }
 
     /**

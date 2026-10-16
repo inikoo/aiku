@@ -129,3 +129,28 @@ it('writes rows without quotes unless a text delimiter is given', function () {
     expect($csv(new DhlItemUploadCsvExport([dhlLine()])))->toBe("1|INV_ITEM|Jelly bath balls|33073000|2|EA|12.5|EUR|0.48||CN|ABW|JBB-01|N\n")
         ->and($csv(new DhlItemUploadCsvExport([dhlLine()], ';', '"')))->toBe("1;INV_ITEM;\"Jelly bath balls\";33073000;2;EA;12.5;EUR;0.48;;CN;ABW;JBB-01;N\n");
 });
+
+it('uses the values typed in the preview for the file, without touching the generated ones', function () {
+    $export = new DhlItemUploadCsvExport([dhlLine(['tariff_code' => null, 'origin_country_code' => null]), dhlLine()], edits: [
+        0 => [3 => ' 33079000 ', 10 => 'GB'],
+        1 => [99 => 'ignored'],
+        5 => [3 => 'ignored'],
+    ]);
+
+    expect($export->rows()[0][3])->toBe('33079000')
+        ->and($export->rows()[0][10])->toBe('GB')
+        ->and($export->generatedRows()[0][3])->toBe('')
+        ->and($export->rows()[1])->toBe($export->generatedRows()[1])
+        ->and($export->rows())->toHaveCount(2)
+        ->and($export->validate())->toBe(['rows' => [], 'file' => []]);
+});
+
+it('checks the typed values against DHL\'s rules', function () {
+    $errors = (new DhlItemUploadCsvExport([dhlLine()], edits: [0 => [10 => 'gbr', 3 => '']]))->validate();
+
+    expect(array_keys($errors['rows'][0]))->toEqualCanonicalizing([3, 10]);
+});
+
+it('drops floating point noise from the quantity', function () {
+    expect((new DhlItemUploadCsvExport([dhlLine(['quantity' => 90.00000000000001])]))->rows()[0][4])->toBe('90');
+});

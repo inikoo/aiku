@@ -616,16 +616,13 @@ const isOffersData = (offersData: any): boolean => {
                             showButtons 
                             buttonLayout="horizontal"
                             :step="1" 
-                            min='0'
-                            v-bind="bindToTarget" 
+                            :min="0"
                             :suffix="isCutView(proxyItem) && Number(item.quantity_ordered_fractional[1][1]) > 1
                                 ? `/${Number(item.quantity_ordered_fractional[1][1])}`
                                 : undefined
                                 " 
                             :inputStyle="{
-                                    width: bindToTarget?.fluid
-                                        ? undefined
-                                        : quantityInputWidth(item.quantity_ordered, isCutView(proxyItem) && Number(item.quantity_ordered_fractional[1][1]) > 1),
+                                    width: quantityInputWidth(item.quantity_ordered, isCutView(proxyItem) && Number(item.quantity_ordered_fractional[1][1]) > 1),
                                     textAlign: 'center',
                                 }" 
                             fluid
@@ -717,16 +714,13 @@ const isOffersData = (offersData: any): boolean => {
                                 showButtons 
                                 buttonLayout="horizontal"
                                 :step="1" 
-                                min='0'
-                                v-bind="bindToTarget" 
+                                :min="0"
                                 :suffix="proxyItem.is_cut_view && Number(item.quantity_ordered_fractional[1][1]) > 1
                                     ? `/${Number(item.quantity_ordered_fractional[1][1])}`
                                     : undefined
                                     " 
                                 :inputStyle="{
-                                        width: bindToTarget?.fluid
-                                            ? undefined
-                                            : quantityInputWidth(createNewQty[item.id].amount_modified ?? createNewQty[item.id].quantity_ordered, proxyItem.is_cut_view && Number(item.quantity_ordered_fractional[1][1]) > 1),
+                                        width: quantityInputWidth(createNewQty[item.id].amount_modified ?? createNewQty[item.id].quantity_ordered, proxyItem.is_cut_view && Number(item.quantity_ordered_fractional[1][1]) > 1),
                                         textAlign: 'center',
                                     }" 
                                 fluid
