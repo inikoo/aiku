@@ -910,6 +910,44 @@ test('UI show invoice in invoice category', function (InvoiceCategory $invoiceCa
 })->depends('store invoice category');
 
 
+test('customer services open the invoices and refunds of an invoice category, limited to the shops they work in', function () {
+    $invoiceCategory = StoreInvoiceCategory::make()->action($this->organisation, [
+        'name'        => 'CS Visible Category',
+        'state'       => InvoiceCategoryStateEnum::ACTIVE,
+        'type'        => InvoiceCategoryTypeEnum::SHOP_FALLBACK,
+        'currency_id' => $this->organisation->currency_id,
+        'priority'    => 1
+    ]);
+    $invoice = StoreInvoice::make()->action(createCustomer($this->shop), Invoice::factory()->definition());
+    DB::table('invoices')->where('id', $invoice->id)->update(['invoice_category_id' => $invoiceCategory->id, 'in_process' => false]);
+
+    $otherShop = StoreShop::run($this->organisation, Shop::factory()->definition());
+
+    setPermissionsTeamId($this->group->id);
+    $newStaffUser = fn () => \App\Actions\SysAdmin\Guest\StoreGuest::make()->action(
+        $this->group,
+        array_merge(\App\Models\SysAdmin\Guest::factory()->definition(), ['positions' => []])
+    )->getUser();
+
+    $invoicesRoute = route('grp.org.accounting.invoice-categories.show.invoices.index', [$this->organisation->slug, $invoiceCategory->slug]);
+    $refundsRoute  = route('grp.org.accounting.invoice-categories.show.refunds.index', [$this->organisation->slug, $invoiceCategory->slug]);
+
+    actingAs($newStaffUser());
+    get($invoicesRoute)->assertForbidden();
+    get($refundsRoute)->assertForbidden();
+
+    $customerServices = $newStaffUser();
+    $customerServices->givePermissionTo("crm.{$this->shop->id}.view");
+    actingAs($customerServices->refresh());
+    get($invoicesRoute)->assertOk()->assertInertia(fn (AssertableInertia $page) => $page->has('data.data', 1)->where('data.data.0.reference', $invoice->reference));
+    get($refundsRoute)->assertOk();
+
+    $otherShopStaff = $newStaffUser();
+    $otherShopStaff->givePermissionTo("orders.$otherShop->id.view");
+    actingAs($otherShopStaff->refresh());
+    get($invoicesRoute)->assertOk()->assertInertia(fn (AssertableInertia $page) => $page->has('data.data', 0));
+});
+
 test('UI Edit invoice categories', function (InvoiceCategory $invoiceCategory) {
     $response = get(route('grp.org.accounting.invoice-categories.edit', [$this->organisation->slug, $invoiceCategory->slug]));
 
