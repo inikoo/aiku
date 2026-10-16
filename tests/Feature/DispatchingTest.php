@@ -1422,6 +1422,19 @@ test('json mini delivery note and valid for return', function () {
     get(route('grp.json.delivery_note_valid_for_return', [$this->warehouse->slug]))->assertOk();
 });
 
+test('a delivery note shipped by external on an order without a platform still opens, HELP-4089', function () {
+    $deliveryNote = makeDeliveryNote($this);
+    $deliveryNote->updateQuietly(['is_shipping_by_external' => true]);
+    $this->order->updateQuietly(['platform_id' => null]);
+
+    get(route('grp.org.warehouses.show.dispatching.delivery_notes.show', [$deliveryNote->organisation->slug, $deliveryNote->warehouse->slug, $deliveryNote->slug]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('box_stats.shipments_routes.submit_route.name', 'grp.models.delivery_note.shipment.store')->etc());
+    getJson(route('grp.json.mini_delivery_note_shipments', [$deliveryNote->id]))
+        ->assertOk()
+        ->assertJsonPath('shipment.shipments_routes.submit_route.name', 'grp.models.delivery_note.shipment.store');
+});
+
 test('UI delivery notes in customer group and org stock', function () {
     $orgStock = makeOrgStock($this);
     get(route('grp.org.shops.show.crm.customers.show.delivery_notes.index', [$this->organisation->slug, $this->shop->slug, $this->customer->slug]))->assertOk();

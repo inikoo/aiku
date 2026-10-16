@@ -69,7 +69,9 @@ Puoi anche spuntare i prodotti nell'elenco. Sopra di esso compaiono i pulsanti:
 
 Se vendi già i nostri prodotti in Shopify, dai a ogni prodotto (o variante) Shopify lo stesso SKU del nostro codice prodotto prima di abbinare. Poi usa <b>Match all with default product</b>. Questo collega le tue inserzioni esistenti e non ne crea di nuove.
 
-Se vendi diversi nostri prodotti come varianti di un unico prodotto Shopify, per esempio un prodotto con una variante per colore, ogni variante deve avere il proprio SKU. Chiedici nella chat del nostro sito di attivare il collegamento alle varianti esistenti per il tuo canale. Non puoi attivarlo tu stesso. Poi l'abbinamento collega ogni prodotto alla variante con il suo SKU, e non cambiamo mai il prezzo, lo SKU o il codice a barre delle tue varianti.
+Se vendi diversi nostri prodotti come varianti di un unico prodotto Shopify, per esempio un prodotto con una variante per colore, dai a ogni variante lo SKU del suo prodotto. Non c'è nulla da attivare: l'abbinamento collega ogni prodotto alla variante con il suo SKU, e non cambiamo mai il prezzo, lo SKU o il codice a barre delle tue varianti. Ognuna di queste varianti deve avere stock solo nella sede <b>aiku-</b>. Rimuovi da essa in Shopify ogni altra sede, anche una che mostra 0, altrimenti l'abbinamento viene rifiutato, perché Shopify potrebbe inviare lì i suoi ordini e non ci arriverebbero mai.
+
+Un prodotto Shopify con una sola variante non viene collegato in questo modo: l'abbinamento sostituisce la sua variante con la nostra. Vedi [Cosa succede alle descrizioni dei tuoi prodotti](/docs/product-descriptions-after-connecting).
 
 ## Trovare prodotti nell'elenco
 
@@ -102,9 +104,9 @@ Per vedere cosa è successo con ogni caricamento, apri la scheda <b>Logs</b> in 
 
 **"No variant on Shopify matches this sku".** Il prodotto è collegato, ma non troviamo più il suo SKU in Shopify. Lo SKU è stato cambiato, oppure il prodotto o la variante sono stati eliminati in Shopify. Rimetti lo SKU, oppure collega di nuovo il prodotto con <b>Connect with other product</b>.
 
-**"You need to add option values for Colour"** (o un'altra opzione). Hai abbinato un prodotto Shopify che ha opzioni, come i colori. Dai a ogni variante il proprio SKU e chiedici nella chat del nostro sito di attivare il collegamento alle varianti esistenti, oppure abbina un prodotto senza opzioni.
+**"You need to add option values for Colour"** (o un'altra opzione). Hai abbinato un prodotto Shopify che ha opzioni, come i colori, e nessuna delle sue varianti porta il nostro SKU. Dai alla variante lo SKU del nostro prodotto e abbina di nuovo, oppure abbina un prodotto senza opzioni.
 
-**"None of the variants of this Shopify product has the sku ...".** Il collegamento alle varianti è attivo, ma nessuna variante porta il nostro SKU. Imposta lo SKU sulla variante che vuoi e abbina di nuovo.
+**"This Shopify variant is also stocked at your location ...".** La variante ha stock anche in una delle tue sedi, quindi Shopify potrebbe inviare lì i suoi ordini e non li riceveremmo mai. Rimuovi quella sede dalla variante in Shopify, anche se mostra 0, e abbina di nuovo.
 
 **"More than one variant of this Shopify product has the sku ...".** Due varianti hanno lo stesso SKU. Dai a ogni variante il proprio SKU.
 

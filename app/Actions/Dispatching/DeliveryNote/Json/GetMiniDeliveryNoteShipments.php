@@ -53,7 +53,7 @@ class GetMiniDeliveryNoteShipments extends OrgAction
                         ]
                     ],
                 ];
-            } elseif ($order->platform->type == PlatformTypeEnum::TIKTOK) {
+            } elseif ($order->platform?->type == PlatformTypeEnum::TIKTOK) {
                 $additionalShipmentRoutes = [
                     'get_external_shipment_route' => [
                         'label'      => __('Get shipment from Tiktok'),
@@ -64,7 +64,9 @@ class GetMiniDeliveryNoteShipments extends OrgAction
                     ]
                 ];
             }
-        } else {
+        }
+
+        if (!$additionalShipmentRoutes) {
             $additionalShipmentRoutes = [
                 'submit_route' => [
                     'name'       => 'grp.models.delivery_note.shipment.store',

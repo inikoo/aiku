@@ -41,7 +41,7 @@ We do change the variant, because we need it to send stock and receive orders:
 - We replace the product's single variant with one that has our SKU, barcode, weight and cost, and stock it at the <b>aiku-</b> location.
 - We keep your selling price if the variant had a price above zero. If not, we use your selling price from <b>My Products</b>.
 
-If you sell our products as the variants of one Shopify product, ask us in the chat on our website to turn on linking to existing variants for your channel. Then we only link the variant that carries our SKU and change nothing else on it: not the price, not the SKU, not the barcode.
+If you sell our products as the variants of one Shopify product, give each variant the SKU of its product. When you match, we only link the variant that carries our SKU and change nothing else on it: not the price, not the SKU, not the barcode. There is nothing to turn on.
 
 ## What we update afterwards
 
