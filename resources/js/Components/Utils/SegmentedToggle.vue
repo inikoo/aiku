@@ -10,7 +10,7 @@ import SelectButton from "primevue/selectbutton"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
 defineProps<{
-	options: Array<{ label: string; value: T; icon?: any; tone?: "gray" | "emerald" | "amber" | "red" }>
+	options: Array<{ label: string; value: T; icon?: any; tone?: "gray" | "emerald" | "amber" | "red"; disabled?: boolean }>
 	ariaLabel?: string
 	iconOnly?: boolean
 }>()
@@ -19,7 +19,7 @@ const model = defineModel<T>()
 </script>
 
 <template>
-	<SelectButton v-model="model" :options="options" optionLabel="label" optionValue="value" dataKey="value" :allowEmpty="false" class="segmented-toggle" :aria-label="ariaLabel">
+	<SelectButton v-model="model" :options="options" optionLabel="label" optionValue="value" optionDisabled="disabled" dataKey="value" :allowEmpty="false" class="segmented-toggle" :aria-label="ariaLabel">
 		<template #option="{ option }">
 			<span v-tooltip="iconOnly ? option.label : undefined" :data-tone="option.tone" class="flex items-center gap-1.5">
 				<FontAwesomeIcon v-if="option.icon" :icon="option.icon" fixed-width aria-hidden="true" />

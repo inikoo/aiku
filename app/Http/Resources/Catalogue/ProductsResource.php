@@ -165,6 +165,8 @@ class ProductsResource extends JsonResource
             'is_for_sale'                       => $this->is_for_sale,
             'health_rank'                       => $this->health_rank ? HealthRankEnum::from($this->health_rank)->stateIcon()[HealthRankEnum::from($this->health_rank)->value] : null,
             'index_under_family'                => $product->index_under_family ?? null,
+            'workflow'                          => $this->when($this->resource->getAttribute('seo_workflow') !== null, fn () => $this->resource->getAttribute('seo_workflow')),
+            'checklist'                         => $this->when($this->resource->getAttribute('seo_checklist') !== null, fn () => $this->resource->getAttribute('seo_checklist')),
             ...$extraField
         ];
     }

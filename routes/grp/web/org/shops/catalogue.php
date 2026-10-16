@@ -34,6 +34,7 @@ use App\Actions\Catalogue\Product\UI\IndexProductsWithDuplicatedBarcode;
 use App\Actions\Catalogue\Product\UI\IndexProductsWithNoImage;
 use App\Actions\Catalogue\Product\UI\IndexRRPViolationProducts;
 use App\Actions\Catalogue\Product\UI\ShowProduct;
+use App\Actions\Catalogue\Product\UI\ShowProductSetting;
 use App\Actions\Catalogue\ProductCategory\UI\CreateDepartment;
 use App\Actions\Catalogue\ProductCategory\UI\CreateFamily;
 use App\Actions\Catalogue\ProductCategory\UI\CreateSubDepartment;
@@ -90,6 +91,7 @@ Route::prefix('products')->as('products.')
                 Route::get('images', GetProductUploadedImages::class)->name('images');
                 Route::get('edit', [EditProduct::class, 'inShop'])->name('edit');
                 Route::get('composition', [EditProductComposition::class, 'inShop'])->name('composition');
+                Route::get('setting', ShowProductSetting::class)->name('setting');
                 Route::get('invoices', IndexInvoicesInProduct::class)->name('invoices');
             });
         });

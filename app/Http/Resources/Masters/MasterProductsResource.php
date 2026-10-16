@@ -11,7 +11,6 @@ namespace App\Http\Resources\Masters;
 
 use App\Actions\Goods\TradeUnit\UI\GetTradeUnitShowcase;
 use App\Actions\Masters\MasterAsset\UI\GetMasterProductChecklist;
-use App\Actions\Masters\MasterAsset\UI\GetMasterProductWorkflow;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Http\Resources\HasSelfCall;
 use App\Models\Masters\MasterAsset;
@@ -134,8 +133,7 @@ class MasterProductsResource extends JsonResource
             'mismatch_detected'                 => $this->mismatch_detected,
             'health_rank'                       => $this->health_rank ? $this->health_rank->stateIcon()[$this->health_rank->value] : null,
             'index_under_master_family'         => $this->index_under_master_family ?? null,
-            'stock'                             => GetMasterProductWorkflow::make()->stock($masterAsset),
-            'workflow'                          => GetMasterProductWorkflow::run($masterAsset),
+            'stock'                             => $this->stockInOpenShops($masterAsset),
             'checklist'                         => GetMasterProductChecklist::run($masterAsset),
             ...$extraField
         ];
@@ -167,5 +165,22 @@ class MasterProductsResource extends JsonResource
                 GetTradeUnitShowcase::run($tradeUnit)
             );
         })->toArray();
+    }
+
+    /**
+     * Shops of one organisation share its stock, so each organisation is counted once.
+     */
+    private function stockInOpenShops(MasterAsset $masterAsset): ?float
+    {
+        if (!$masterAsset->relationLoaded('products')) {
+            return null;
+        }
+
+        $stockByOrganisation = $masterAsset->products
+            ->filter(fn ($product) => $product->shop && $product->shop->state != ShopStateEnum::CLOSED && $product->available_quantity !== null)
+            ->groupBy('organisation_id')
+            ->map(fn ($products) => (float)$products->max('available_quantity'));
+
+        return $stockByOrganisation->isEmpty() ? null : $stockByOrganisation->sum();
     }
 }

@@ -5,14 +5,23 @@ import { faCheck } from "@fas"
 export type WorkflowStep = {
     key: string
     label: string
+    owner?: string
     done: boolean
 }
 
-defineProps<{
+const props = defineProps<{
     steps: WorkflowStep[]
     current: number
     compact?: boolean
+    selectableKeys?: string[]
 }>()
+
+const emit = defineEmits<{
+    select: [key: string]
+}>()
+
+const isSelectable = (stepNumber: number, step: WorkflowStep) =>
+    !step.done && stepNumber === props.current && !!props.selectableKeys?.includes(step.key)
 
 const stateOf = (stepNumber: number, step: WorkflowStep, current: number) => {
     if (step.done) {
@@ -35,7 +44,7 @@ const circleClass: Record<string, string> = {
             <span
                 v-for="(step, stepIndex) in steps"
                 :key="step.key"
-                v-tooltip="step.label"
+                v-tooltip="step.owner ? `${step.label} · ${step.owner}` : step.label"
                 class="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-semibold"
                 :class="circleClass[stateOf(stepIndex + 1, step, current)]"
             >
@@ -51,7 +60,14 @@ const circleClass: Record<string, string> = {
             v-for="(step, stepIndex) in steps"
             :key="step.key"
             class="flex items-center gap-3 rounded-md px-3 py-2"
-            :class="stateOf(stepIndex + 1, step, current) === 'current' ? 'border border-[--app-accent-muted] bg-[--app-accent-soft]' : 'border border-transparent'"
+            :class="[
+                stateOf(stepIndex + 1, step, current) === 'current' ? 'border border-[--app-accent-muted] bg-[--app-accent-soft]' : 'border border-transparent',
+                isSelectable(stepIndex + 1, step) ? 'cursor-pointer hover:border-[--app-accent]' : '',
+            ]"
+            :role="isSelectable(stepIndex + 1, step) ? 'button' : undefined"
+            :tabindex="isSelectable(stepIndex + 1, step) ? 0 : undefined"
+            @click="isSelectable(stepIndex + 1, step) && emit('select', step.key)"
+            @keydown.enter="isSelectable(stepIndex + 1, step) && emit('select', step.key)"
         >
             <span
                 class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-semibold"
@@ -60,10 +76,13 @@ const circleClass: Record<string, string> = {
                 <FontAwesomeIcon v-if="step.done" :icon="faCheck" class="text-xs" fixed-width aria-hidden="true" />
                 <template v-else>{{ stepIndex + 1 }}</template>
             </span>
-            <span
-                class="text-sm"
-                :class="stateOf(stepIndex + 1, step, current) === 'pending' ? 'text-gray-500' : 'font-medium text-gray-800'"
-            >{{ step.label }}</span>
+            <div class="min-w-0">
+                <div
+                    class="text-sm"
+                    :class="stateOf(stepIndex + 1, step, current) === 'pending' ? 'text-gray-500' : 'font-medium text-gray-800'"
+                >{{ step.label }}</div>
+                <div v-if="step.owner" class="text-xs text-gray-500">{{ step.owner }}</div>
+            </div>
         </li>
     </ol>
 </template>

@@ -644,6 +644,10 @@ use App\Actions\Web\Seo\StoreSeoTrackedKeyword;
 use App\Actions\Web\Seo\StoreFamilySeoReview;
 use App\Actions\Web\Seo\ImplementFamilySeoSuggestion;
 use App\Actions\Web\Seo\ValidateFamilySeoReview;
+use App\Actions\Web\Seo\StoreProductSeoReview;
+use App\Actions\Web\Seo\ImplementProductSeoSuggestion;
+use App\Actions\Web\Seo\ValidateProductSeoReview;
+use App\Actions\Masters\MasterAsset\UpdateMasterProductInformation;
 use App\Actions\Web\Seo\UpdateSeoTrackedKeyword;
 use App\Actions\Web\WebsiteNotFoundPath\UpdateWebsiteNotFoundPathIgnored;
 use App\Actions\Web\Announcement\DeleteAnnouncement;
@@ -931,6 +935,7 @@ Route::prefix('master-asset/{masterAsset:id}')->name('master_asset.')->group(fun
     Route::patch('update-prices', UpdateMasterAssetPrices::class)->name('prices.update');
     Route::patch('repair-trade-units', RepairMasterAssetTradeUnitsToChildren::class)->name('repair_mismatch_trade_units');
     Route::post('fix-anomalies', FixMasterAssetAnomaliesFromMaster::class)->name('fix_anomalies');
+    Route::patch('information', UpdateMasterProductInformation::class)->name('information.update');
     Route::post('copy-to-master-shop', CopyMasterAssetToMasterShop::class)->name('copy_to_master_shop');
     Route::post('kill-rebel/{product:id}', KillMasterAssetRebelProduct::class)->name('kill_rebel')->withoutScopedBindings();
     Route::post('kill-all-rebels', KillAllMasterAssetRebelProducts::class)->name('kill_all_rebels');
@@ -1445,6 +1450,9 @@ Route::patch('seo-content-suggestion/{seoContentSuggestion:id}/dismiss', Dismiss
 Route::post('product-category/{productCategory:id}/seo-review', StoreFamilySeoReview::class)->name('product_category.seo_review.store')->withoutScopedBindings();
 Route::patch('product-category/{productCategory:id}/seo-review/{seoContentSuggestion:id}/implement', ImplementFamilySeoSuggestion::class)->name('product_category.seo_review.implement')->withoutScopedBindings();
 Route::post('product-category/{productCategory:id}/seo-review/validate', ValidateFamilySeoReview::class)->name('product_category.seo_review.validate')->withoutScopedBindings();
+Route::post('product/{product:id}/seo-review', StoreProductSeoReview::class)->name('product.seo_review.store')->withoutScopedBindings();
+Route::patch('product/{product:id}/seo-review/{seoContentSuggestion:id}/implement', ImplementProductSeoSuggestion::class)->name('product.seo_review.implement')->withoutScopedBindings();
+Route::post('product/{product:id}/seo-review/validate', ValidateProductSeoReview::class)->name('product.seo_review.validate')->withoutScopedBindings();
 
 Route::name('website.')->prefix('website/{website:id}')->group(function () {
     Route::post('site-audit', StartSiteAudit::class)->name('site_audit.store');

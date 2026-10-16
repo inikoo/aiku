@@ -71,10 +71,10 @@ const summaryCards = computed<SummaryCard[]>(() => {
     }
 
     return [
-        { key: "total", value: props.productStats.total, label: ctrans("Products"), description: ctrans("All master products"), tone: "accent" },
-        { key: "active", value: props.productStats.active, label: ctrans("Active"), description: ctrans("Product status"), tone: "green" },
-        { key: "discontinued", value: props.productStats.discontinued, label: ctrans("Discontinued"), description: ctrans("Product status"), tone: "gray" },
-        { key: "incomplete", value: props.productStats.incomplete, label: ctrans("Incomplete information"), description: ctrans("Products with missing product information"), tone: "red" },
+        { key: "total", value: props.productStats.total, label: ctrans("Master products"), description: props.familyId ? ctrans("In this family") : ctrans("All master products"), tone: "accent" },
+        { key: "active", value: props.productStats.active, label: ctrans("Active"), description: ctrans("Of the :count products", { count: String(props.productStats.total) }), tone: "green" },
+        { key: "discontinued", value: props.productStats.discontinued, label: ctrans("Discontinued"), description: ctrans("Of the :count products", { count: String(props.productStats.total) }), tone: "gray" },
+        { key: "incomplete", value: props.productStats.incomplete, label: ctrans("Incomplete information"), description: ctrans("Products with missing fields"), tone: "red" },
     ]
 })
 
@@ -342,7 +342,7 @@ watch(() => currentTab.value, (tab) => {
 
     <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
 
-    <SummaryCards v-if="currentTab === 'index' && summaryCards.length" :cards="summaryCards" class="px-4 pt-4" />
+    <SummaryCards v-if="currentTab === 'index' && summaryCards.length" :cards="summaryCards" class="px-4 pt-4 pb-4" />
 
     <!-- Products Table -->
     <component

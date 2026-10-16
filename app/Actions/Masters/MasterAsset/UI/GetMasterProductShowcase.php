@@ -132,27 +132,6 @@ class GetMasterProductShowcase
                 'from_trade_unit'        => $masterAsset->not_for_sale_from_trade_unit,
                 'parentLink'             => $parentLink,
             ],
-            'completeness'        => $this->getCompleteness($masterAsset),
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function getCompleteness(MasterAsset $masterAsset): array
-    {
-        $checklistRow = GetMasterProductChecklist::make()->checklistRow($masterAsset);
-
-        return [
-            'workflow'      => GetMasterProductWorkflow::run($checklistRow),
-            'checklist'     => GetMasterProductChecklist::run($checklistRow),
-            'setting_route' => [
-                'name'       => 'grp.masters.master_shops.show.master_products.product_setting',
-                'parameters' => [
-                    'masterShop'    => $masterAsset->masterShop->slug,
-                    'masterProduct' => $masterAsset->slug,
-                ],
-            ],
         ];
     }
 

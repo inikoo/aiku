@@ -170,7 +170,7 @@ class IndexMasterProducts extends OrgAction
         $isBulkEditTab = $prefix === MasterProductsTabsEnum::BULK_EDIT->value;
 
         $queryBuilder = QueryBuilder::for(MasterAsset::class)
-            ->with(['products.shop', 'products.webpage'])
+            ->with(['products.shop'])
             ->leftJoin(
                 'master_asset_stats',
                 'master_assets.id',
@@ -517,8 +517,8 @@ class IndexMasterProducts extends OrgAction
                         ->column(key: 'price', label: __('Price'), sortable: !$sortByIndex, align: 'right')
                         ->column(key: 'stock', label: __('Stock'), tooltip: __('Stock available in the open shops, each organisation counted once'), align: 'right')
                         ->column(key: 'status', label: __('Status'))
-                        ->column(key: 'workflow', label: __('Workflow'))
-                        ->column(key: 'checklist', label: __('Checklist'));
+                        ->column(key: 'checklist', label: __('Information'), tooltip: __('Product information written on the master for all the shops'))
+                        ->column(key: 'edit_information', label: '', align: 'right');
                 }
 
                 $table

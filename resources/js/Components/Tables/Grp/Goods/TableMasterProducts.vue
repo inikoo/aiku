@@ -23,7 +23,7 @@ import Image from "@common/Components/Image.vue"
 import { faShapes, faStar, faTriangle, faEquals } from "@fas"
 import { routeType } from "@/types/route"
 import LabelSKU from "@/Components/Utils/Product/LabelSKU.vue"
-import WorkflowSteps from "@/Components/DataDisplay/WorkflowSteps.vue"
+import ChecklistBar from "@/Components/DataDisplay/ChecklistBar.vue"
 
 const props = defineProps<{
     data: {}
@@ -48,6 +48,13 @@ function masterFamilyRoute(masterProduct: MasterProduct) {
     return route(
         "grp.masters.master_shops.show.master_families.show",
         {masterShop: (route().params as RouteParams).masterShop, masterFamily: masterProduct.master_family_slug})
+}
+
+function editInformationRoute(masterProduct: MasterProduct) {
+    return route("grp.masters.master_shops.show.master_products.edit_information", {
+        masterShop: masterProduct.master_shop_slug ?? (route().params as RouteParams).masterShop,
+        masterProduct: masterProduct.slug,
+    })
 }
 
 function masterProductRoute(masterProduct: MasterProduct) {
@@ -285,33 +292,14 @@ const getIntervalStateColor = (isPositive: boolean) => {
             </span>
         </template>
 
-        <template #cell(workflow)="{ item: masterProduct }">
-            <WorkflowSteps v-if="masterProduct.workflow" :steps="masterProduct.workflow.steps" :current="masterProduct.workflow.current" compact />
+        <template #cell(checklist)="{ item: masterProduct }">
+            <ChecklistBar v-if="masterProduct.checklist" :checklist="masterProduct.checklist" />
         </template>
 
-        <template #cell(checklist)="{ item: masterProduct }">
-            <div v-if="masterProduct.checklist" class="min-w-[14rem] max-w-md">
-                <div class="flex items-center gap-2">
-                    <div class="flex gap-px">
-                        <span
-                            v-for="checklistItem in masterProduct.checklist.items"
-                            :key="checklistItem.key"
-                            v-tooltip="checklistItem.label"
-                            class="h-2.5 w-2 rounded-sm"
-                            :class="checklistItem.done ? 'bg-green-500' : 'bg-red-500'"
-                        />
-                    </div>
-                    <span
-                        class="text-sm font-semibold tabular-nums"
-                        :class="masterProduct.checklist.missing.length ? 'text-red-700' : 'text-green-700'"
-                    >
-                        {{ masterProduct.checklist.complete }}/{{ masterProduct.checklist.total }}
-                    </span>
-                </div>
-                <div v-if="masterProduct.checklist.missing.length" class="mt-0.5 text-xs font-medium text-red-700">
-                    {{ ctrans("Missing: :items", { items: masterProduct.checklist.missing.join(", ") }) }}
-                </div>
-            </div>
+        <template #cell(edit_information)="{ item: masterProduct }">
+            <Link :href="editInformationRoute(masterProduct)">
+                <Button type="tertiary" size="xs" :label="ctrans('Edit product')" icon="fal fa-pencil" />
+            </Link>
         </template>
 
         <template #cell(master_shop_code)="{ item: masterProduct }">

@@ -29,6 +29,7 @@ import SalesAnalyticsCompact from '@/Components/Product/SalesAnalyticsCompact.vu
 import SalesAnalysisTeaser from '@/Components/SalesAnalysis/SalesAnalysisTeaser.vue'
 import SearchInWebsiteAvailabilityChecklist from '@/Components/Utils/SearchInWebsiteAvailabilityChecklist.vue'
 import { useFormatTime } from '@/Composables/useFormatTime'
+import ProductCompleteness, { type ProductCompletenessData } from "@/Components/Catalogue/ProductCompleteness.vue"
 
 const locale = inject('locale', aikuLocaleStructure)
 
@@ -54,6 +55,7 @@ const props = defineProps<{
 		}
         is_external: boolean
         is_dropship?: boolean
+        completeness?: ProductCompletenessData | null
 		stats: {
 			amount: number | null
 			amount_ly: number | null
@@ -206,6 +208,8 @@ const getTooltips = () => {
 </script>
 
 <template>
+	<ProductCompleteness v-if="data.completeness" :completeness="data.completeness" class="mx-3 mt-3 lg:ml-5" />
+
 	<div class="w-full px-4 py-3 mb-3 shadow-sm grid grid-cols-2">
 		<div class="text-xl font-semibold text-gray-800 whitespace-pre-wrap justify-self-start">
 			<!-- Units box -->
