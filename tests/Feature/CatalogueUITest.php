@@ -58,6 +58,14 @@ use App\Enums\Dashboards\ShopDashboardSalesTableTabsEnum;
 use App\Enums\Dashboards\ShopDashboardSectionsEnum;
 use App\Enums\UI\Catalogue\DepartmentTabsEnum;
 use App\Enums\UI\Catalogue\FamilyTabsEnum;
+use App\Actions\Catalogue\ProductCategory\StoreProductCategoryWebpage;
+use App\Enums\Web\Seo\SeoKeywordDeviceEnum;
+use App\Enums\Web\Seo\SeoKeywordFrequencyEnum;
+use App\Models\Web\SeoTrackedKeyword;
+use App\Models\Web\SeoContentSuggestion;
+use App\Enums\Web\Seo\SeoContentSuggestionStateEnum;
+use App\Actions\Catalogue\ProductCategory\UI\GetFamilyPageScore;
+use Illuminate\Support\Arr;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
 use App\Models\Analytics\AikuScopedSection;
 use App\Models\Billables\Charge;
@@ -78,6 +86,7 @@ use Inertia\Testing\AssertableInertia;
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 use function Pest\Laravel\patch;
+use function Pest\Laravel\post;
 use function Pest\Laravel\getJson;
 use function Pest\Laravel\patchJson;
 
@@ -333,6 +342,161 @@ test('UI show family attachments tab lists trade unit documents read only', func
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->component('Org/Catalogue/Family')
             ->has('attachments.documents'));
+});
+
+test('UI show family edit page tab lays out the webpage and content fields with their seo checks', function () {
+    createWebsite($this->shop);
+    $family  = $this->family->refresh();
+    $webpage = $family->webpage ?? StoreProductCategoryWebpage::make()->action($family);
+    $webpage->update(['title' => 'Wholesale <b>Aroma</b> Diffusers']);
+
+    SeoTrackedKeyword::create([
+        'shop_id'           => $this->shop->id,
+        'keyword'           => 'aroma diffusers',
+        'country_code'      => 'GB',
+        'language_code'     => 'en',
+        'device'            => SeoKeywordDeviceEnum::DESKTOP,
+        'frequency'         => SeoKeywordFrequencyEnum::WEEKLY,
+        'target_webpage_id' => $webpage->id,
+        'is_active'         => true,
+    ]);
+
+    get(route('grp.org.shops.show.catalogue.families.show', [$this->organisation->slug, $this->shop->slug, $family->slug, 'tab' => FamilyTabsEnum::EDIT_PAGE->value]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Org/Catalogue/Family')
+            ->where('tabs.current', FamilyTabsEnum::EDIT_PAGE->value)
+            ->has('tabs.navigation.edit_page')
+            ->where('edit_page.notice', null)
+            ->where('edit_page.workshop_route.parameters.webpage', $webpage->slug)
+            ->where('edit_page.sections.0.cards.0.fields.state_data.type', 'toggle_state_webpage')
+            ->where('edit_page.sections.1.cards.0.keywords', ['aroma diffusers'])
+            ->where('edit_page.sections.2.cards.0.update_route.name', 'grp.models.webpage.update')
+            ->where('edit_page.sections.2.cards.0.fields.title.value', 'Wholesale <b>Aroma</b> Diffusers')
+            ->where('edit_page.sections.2.cards.0.check', ['ok' => true, 'note' => 'Contains keyword'])
+            ->where('edit_page.sections.2.cards.5.update_route.name', 'grp.models.product_category.update')
+            ->has('edit_page.sections.2.cards.5.fields.description_title')
+            ->has('edit_page.page_score.steps', 4)
+            ->has('edit_page.seo_issues.groups')
+            ->where('edit_page.seo_review.checks.title', ['ok' => true, 'note' => 'Contains keyword'])
+            ->etc());
+});
+
+test('SEO team sends a family page review that replaces the last one and moves the workflow on', function () {
+    createWebsite($this->shop);
+    $family  = $this->family->refresh();
+    $webpage = $family->webpage ?? StoreProductCategoryWebpage::make()->action($family);
+    $family->update(['faq' => [['question' => 'Do they need water?', 'answer' => 'Most do.']]]);
+
+    $reviewRoute = route('grp.models.product_category.seo_review.store', ['productCategory' => $family->id]);
+    $pending     = fn () => SeoContentSuggestion::where('webpage_id', $webpage->id)
+        ->where('reason', SeoContentSuggestion::REASON_SEO_REVIEW)
+        ->where('state', SeoContentSuggestionStateEnum::PENDING)
+        ->get()
+        ->keyBy('field');
+    $targeted    = fn () => SeoTrackedKeyword::where('target_webpage_id', $webpage->id)->distinct()->orderBy('keyword')->pluck('keyword')->all();
+
+    post($reviewRoute, ['suggestions' => ['not_a_field' => 'x']])->assertSessionHasErrors('suggestions');
+
+    post($reviewRoute, [
+        'keywords'            => 'Aroma Diffuser,  essential oil nebuliser ,aroma diffuser',
+        'suggestions'         => ['title' => 'Electric Aroma Diffusers | Wholesale', 'desc_title' => '', 'top_desc' => 'Better copy'],
+        'faq'                 => [
+            'items' => [['question' => 'Do all aroma diffusers need water?', 'answer' => '', 'remove' => false]],
+            'new'   => [['question' => 'How do I clean one?', 'answer' => 'Unplug it first.'], ['question' => '', 'answer' => 'Dropped without a question']],
+        ],
+        'structured_data'     => '{"@context":"https://schema.org","@type":"FAQPage"}',
+        'structured_data_why' => 'Mark up the FAQ',
+    ])->assertSessionHasNoErrors()->assertRedirect();
+
+    $suggestions = $pending();
+    expect($suggestions->keys()->sort()->values()->all())->toBe(['faq', 'structured_data', 'title', 'top_desc'])
+        ->and(json_decode($suggestions['faq']->suggestion, true)['new'])->toBe([['question' => 'How do I clean one?', 'answer' => 'Unplug it first.']])
+        ->and(json_decode($suggestions['structured_data']->suggestion, true)['why'])->toBe('Mark up the FAQ')
+        ->and($targeted())->toBe(['aroma diffuser', 'essential oil nebuliser'])
+        ->and(collect(GetFamilyPageScore::run($family->refresh())['steps'])->firstWhere('key', 'seo_review')['is_done'])->toBeTrue();
+
+    post($reviewRoute, ['keywords' => 'aroma diffuser', 'suggestions' => ['url' => 'electric-aroma-diffusers']])->assertRedirect();
+
+    expect($pending()->keys()->all())->toBe(['url'])
+        ->and($targeted())->toBe(['aroma diffuser']);
+
+    get(route('grp.org.shops.show.catalogue.families.show', [$this->organisation->slug, $this->shop->slug, $family->slug, 'tab' => FamilyTabsEnum::EDIT_PAGE->value]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('edit_page.seo_review.sent_count', 1)
+            ->where('edit_page.seo_review.keywords', 'aroma diffuser')
+            ->where('edit_page.seo_review.fields.2.key', 'url')
+            ->where('edit_page.seo_review.fields.2.suggestion', 'electric-aroma-diffusers')
+            ->etc());
+});
+
+test('webmaster implements the SEO review one suggestion at a time, keeps what was already pasted, then validates it', function () {
+    createWebsite($this->shop);
+    $family  = $this->family->refresh();
+    $webpage = $family->webpage ?? StoreProductCategoryWebpage::make()->action($family);
+    $webpage->update(['title' => 'Aroma Diffusers', 'breadcrumb_label' => 'Diffusers']);
+    $family->update(['faq' => [['question' => 'Do they need water?', 'answer' => 'Most do.'], ['question' => 'Old question', 'answer' => 'Old answer']]]);
+
+    post(route('grp.models.product_category.seo_review.store', ['productCategory' => $family->id]), [
+        'suggestions' => ['title' => 'Electric Aroma Diffusers | Wholesale', 'breadcrumb_label' => 'Aroma diffusers', 'top_desc' => 'Better copy'],
+        'faq'         => [
+            'items' => [['question' => '', 'answer' => 'Most models do.', 'remove' => false], ['question' => '', 'answer' => '', 'remove' => true]],
+            'new'   => [['question' => 'How do I clean one?', 'answer' => 'Unplug it first.']],
+        ],
+    ])->assertSessionHasNoErrors();
+
+    $webpage->update(['breadcrumb_label' => 'Aroma diffusers range']);
+
+    $suggestions = SeoContentSuggestion::where('webpage_id', $webpage->id)
+        ->where('reason', SeoContentSuggestion::REASON_SEO_REVIEW)
+        ->where('state', SeoContentSuggestionStateEnum::PENDING)
+        ->get()
+        ->keyBy('field');
+    $implement   = fn (string $field, array $data = []) => patch(route('grp.models.product_category.seo_review.implement', ['productCategory' => $family->id, 'seoContentSuggestion' => $suggestions[$field]->id]), $data);
+    $validate    = fn () => post(route('grp.models.product_category.seo_review.validate', ['productCategory' => $family->id]));
+    $editPage    = route('grp.org.shops.show.catalogue.families.show', [$this->organisation->slug, $this->shop->slug, $family->slug, 'tab' => FamilyTabsEnum::EDIT_PAGE->value]);
+
+    get($editPage)->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('edit_page.sections.2.cards.0.key', 'title')
+        ->where('edit_page.webmaster_validation.tasks', fn ($tasks) => collect($tasks)->pluck('key')->all() === ['title', 'breadcrumb_label', 'top_desc', 'faq-item-0', 'faq-item-1', 'faq-new-0']
+            && !collect($tasks)->contains('is_done', true))
+        ->etc());
+
+    $validate()->assertSessionHasErrors('validate');
+
+    $implement('title')->assertSessionHasNoErrors();
+    $implement('breadcrumb_label')->assertSessionHasNoErrors();
+    $implement('top_desc')->assertSessionHasNoErrors();
+    $implement('faq')->assertSessionHasErrors('suggestion');
+    $implement('faq', ['item' => 0])->assertSessionHasNoErrors();
+    $implement('faq', ['item' => 1])->assertSessionHasNoErrors();
+
+    expect($suggestions['faq']->refresh()->state)->toBe(SeoContentSuggestionStateEnum::PENDING);
+
+    $implement('faq', ['new' => 0])->assertSessionHasNoErrors();
+    $implement('title')->assertSessionHasErrors('suggestion');
+
+    $webpage->refresh();
+    $family->refresh();
+
+    expect($webpage->title)->toBe('Electric Aroma Diffusers | Wholesale')
+        ->and($webpage->breadcrumb_label)->toBe('Aroma diffusers range')
+        ->and($family->description)->toBe('Better copy')
+        ->and(collect($family->faq)->map(fn (array $item) => Arr::only($item, ['question', 'answer']))->all())->toBe([
+            ['question' => 'Do they need water?', 'answer' => 'Most models do.'],
+            ['question' => 'How do I clean one?', 'answer' => 'Unplug it first.'],
+        ])
+        ->and($suggestions['faq']->refresh()->state)->toBe(SeoContentSuggestionStateEnum::IMPLEMENTED)
+        ->and(collect(GetFamilyPageScore::run($family)['steps'])->firstWhere('key', 'implemented')['is_done'])->toBeFalse();
+
+    $validate()->assertSessionHasNoErrors();
+
+    expect(SeoContentSuggestion::whereIn('id', $suggestions->pluck('id'))->pluck('state')->unique()->values()->all())->toBe([SeoContentSuggestionStateEnum::ACCEPTED]);
+
+    get($editPage)->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('edit_page.webmaster_validation.is_validated', true)
+        ->has('edit_page.webmaster_validation.tasks', 0)
+        ->where('edit_page.webmaster_validation.activity', fn ($activity) => collect($activity)->contains('text', 'Validated the SEO suggestions.'))
+        ->etc());
 });
 
 test('UI show family sales analysis tab', function () {

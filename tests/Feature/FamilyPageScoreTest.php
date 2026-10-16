@@ -8,6 +8,7 @@
 
 use App\Actions\Catalogue\ProductCategory\StoreProductCategoryWebpage;
 use App\Actions\Catalogue\ProductCategory\UI\GetFamilyPageScore;
+use App\Actions\Catalogue\ProductCategory\UI\GetFamilySeoIssues;
 use App\Actions\Web\Crawl\AuditWebsite;
 use App\Enums\Web\Crawl\CrawlIssueTypeEnum;
 use App\Enums\Web\Crawl\CrawlStateEnum;
@@ -118,4 +119,40 @@ test('the latest finished site audit fails the checks it found issues for, broke
         ->and($pageScore['score'])->toBe(74)
         ->and($pageScore['last_crawl_at'])->not->toBeNull()
         ->and($pageScore['steps'][2]['is_done'])->toBeFalse();
+});
+
+test('the issues tab groups the latest site audit findings by kind, most severe first, with the broken links from the page', function () {
+    expect(GetFamilySeoIssues::run($this->family->fresh()))->toBe(['last_crawl_at' => null, 'total' => 0, 'groups' => []]);
+
+    $crawl = AuditWebsite::startFor($this->website, CrawlTriggerEnum::USER);
+    $crawl->update(['state' => CrawlStateEnum::FINISH, 'end_at' => now()]);
+
+    $pageUrl    = 'https://ecom.test/page-score-family';
+    $crawlPage  = CrawlPage::create([
+        'crawl_id'      => $crawl->id,
+        'webpage_id'    => $this->webpage->id,
+        'url'           => $pageUrl,
+        'url_hash'      => md5($pageUrl),
+        'status_code'   => 200,
+        'is_in_sitemap' => true,
+        'is_indexable'  => true,
+    ]);
+    $brokenPage = CrawlPage::create([
+        'crawl_id'    => $crawl->id,
+        'url'         => 'https://ecom.test/gone',
+        'url_hash'    => md5('https://ecom.test/gone'),
+        'status_code' => 404,
+    ]);
+
+    CrawlIssue::create(['crawl_id' => $crawl->id, 'crawl_page_id' => $crawlPage->id, 'type' => CrawlIssueTypeEnum::TITLE_TOO_SHORT, 'severity' => CrawlIssueTypeEnum::TITLE_TOO_SHORT->severity(), 'details' => ['title' => 'Family title', 'length' => 12]]);
+    CrawlIssue::create(['crawl_id' => $crawl->id, 'crawl_page_id' => $crawlPage->id, 'type' => CrawlIssueTypeEnum::MULTIPLE_H1, 'severity' => CrawlIssueTypeEnum::MULTIPLE_H1->severity(), 'details' => ['h1_count' => 2]]);
+    CrawlIssue::create(['crawl_id' => $crawl->id, 'crawl_page_id' => $brokenPage->id, 'type' => CrawlIssueTypeEnum::HTTP_4XX, 'severity' => CrawlIssueTypeEnum::HTTP_4XX->severity(), 'details' => ['linked_from' => [$pageUrl], 'status_code' => 404]]);
+
+    $issues = GetFamilySeoIssues::run($this->family->fresh());
+
+    expect($issues['total'])->toBe(3)
+        ->and($issues['last_crawl_at'])->not->toBeNull()
+        ->and(collect($issues['groups'])->pluck('key')->all())->toBe([GetFamilySeoIssues::BROKEN_LINKS, 'multiple_h1', 'title_too_short'])
+        ->and($issues['groups'][0]['items'][0])->toMatchArray(['title' => 'Broken link', 'type' => 'http_4xx', 'severity' => 'error', 'url' => 'https://ecom.test/gone'])
+        ->and($issues['groups'][1]['items'][0])->toMatchArray(['severity' => 'warning', 'details' => ['h1_count' => 2], 'url' => null]);
 });

@@ -72,6 +72,7 @@ class GenerateSeoContentSuggestions
             ->map(function (string $field) use ($webpage, $written, $reason, $user) {
                 SeoContentSuggestion::where('webpage_id', $webpage->id)
                     ->where('field', $field)
+                    ->whereNot('reason', SeoContentSuggestion::REASON_SEO_REVIEW)
                     ->where('state', SeoContentSuggestionStateEnum::PENDING)
                     ->delete();
 

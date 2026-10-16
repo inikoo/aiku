@@ -48,6 +48,9 @@ class SeoContentSuggestion extends Model
 
     public const string REASON_LOW_CTR = 'low_ctr';
 
+    /** Written by the SEO team in the family page review, for the webmaster to implement. */
+    public const string REASON_SEO_REVIEW = 'seo_review';
+
     protected $guarded = [];
 
     protected $attributes = [

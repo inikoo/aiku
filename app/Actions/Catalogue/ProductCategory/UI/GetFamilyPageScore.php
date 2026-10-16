@@ -7,6 +7,7 @@
 namespace App\Actions\Catalogue\ProductCategory\UI;
 
 use App\Actions\Traits\Authorisations\WithShopPpcPermissions;
+use App\Enums\Web\Crawl\CrawlIssueSeverityEnum;
 use App\Enums\Web\Crawl\CrawlIssueTypeEnum;
 use App\Enums\Web\Crawl\CrawlStateEnum;
 use App\Enums\Web\Crawl\CrawlTypeEnum;
@@ -30,7 +31,7 @@ class GetFamilyPageScore
      * How far the family webpage is through its SEO workflow and which of its checks pass. Checks
      * read from the site audit are null until an audit has crawled the page.
      *
-     * @return null|array{steps: array<int, array{key: string, label: string, owner: string, is_done: bool}>, score: int, passed: int, total: int, last_crawl_at: ?string, areas: array<int, array{key: string, label: string, checks: array<int, array{key: string, label: string, is_passed: ?bool}>}>, crawl_route: ?array, issues_route: array}
+     * @return null|array{steps: array<int, array{key: string, label: string, owner: string, is_done: bool}>, score: int, passed: int, total: int, last_crawl_at: ?string, findings: ?array<int, array{type: string, label: string, description: string, is_error: bool}>, areas: array<int, array{key: string, label: string, checks: array<int, array{key: string, label: string, is_passed: ?bool}>}>, crawl_route: ?array, issues_route: array}
      */
     public function handle(ProductCategory $family): ?array
     {
@@ -100,13 +101,19 @@ class GetFamilyPageScore
                 isCreated: true,
                 isPublished: $isLive,
                 isReviewed: $isReviewed,
-                isImplemented: $isReviewed && !$suggestionStates->contains(SeoContentSuggestionStateEnum::PENDING)
+                isImplemented: $isReviewed && !$suggestionStates->contains(fn (SeoContentSuggestionStateEnum $state) => in_array($state, [SeoContentSuggestionStateEnum::PENDING, SeoContentSuggestionStateEnum::IMPLEMENTED], true))
             ),
             'score'         => (int)round($passed * 100 / $checks->count()),
             'passed'        => $passed,
             'total'         => $checks->count(),
             'last_crawl_at' => $crawlPage?->crawl->end_at?->toIso8601String(),
             'areas'         => $areas->all(),
+            'findings'      => $crawlPage?->issues->map(fn (CrawlIssue $issue) => [
+                'type'        => $issue->type->value,
+                'label'       => CrawlIssueTypeEnum::labels()[$issue->type->value],
+                'description' => CrawlIssueTypeEnum::descriptions()[$issue->type->value],
+                'is_error'    => $issue->type->severity() === CrawlIssueSeverityEnum::ERROR,
+            ])->values()->all(),
             'crawl_route'   => $user && $this->canEditSeo($user, $shop) ? [
                 'name'       => 'grp.models.website.site_audit.store',
                 'parameters' => [$website->id],

@@ -44,6 +44,7 @@ class IndexSeoContentSuggestions extends OrgAction
 
         return QueryBuilder::for(SeoContentSuggestion::class)
             ->where('seo_content_suggestions.website_id', $website->id)
+            ->whereNot('seo_content_suggestions.reason', SeoContentSuggestion::REASON_SEO_REVIEW)
             ->join('webpages', 'webpages.id', '=', 'seo_content_suggestions.webpage_id')
             ->leftJoin('users', 'users.id', '=', 'seo_content_suggestions.decided_by_user_id')
             ->defaultSort('-seo_content_suggestions.created_at')
@@ -116,6 +117,7 @@ class IndexSeoContentSuggestions extends OrgAction
                 'websiteSlug' => $website->slug,
                 'canEdit'     => $this->canEdit,
                 'counts'      => SeoContentSuggestion::where('website_id', $website->id)
+                    ->whereNot('reason', SeoContentSuggestion::REASON_SEO_REVIEW)
                     ->toBase()
                     ->groupBy('state')
                     ->selectRaw('state, COUNT(*) AS suggestions')

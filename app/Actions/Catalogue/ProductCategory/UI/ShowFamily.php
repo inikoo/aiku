@@ -240,6 +240,10 @@ class ShowFamily extends OrgAction
                 fn () => GetRelatedProducts::run($family)
                 : Inertia::optional(fn () => GetRelatedProducts::run($family)),
 
+            FamilyTabsEnum::EDIT_PAGE->value => $this->tab == FamilyTabsEnum::EDIT_PAGE->value ?
+                fn () => GetFamilyEditPage::run($family, $this->canEdit, $request->user())
+                : Inertia::optional(fn () => GetFamilyEditPage::run($family, $this->canEdit, $request->user())),
+
             FamilyTabsEnum::VARIANTS->value => $this->tab === FamilyTabsEnum::VARIANTS->value ?
                 fn () => VariantsResource::collection(IndexVariant::run($family, FamilyTabsEnum::VARIANTS->value))
                 : Inertia::optional(fn () => VariantsResource::collection(IndexVariant::run($family, FamilyTabsEnum::VARIANTS->value))),

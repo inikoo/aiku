@@ -641,6 +641,9 @@ use App\Actions\Web\Seo\StoreSeoAiPrompt;
 use App\Actions\Web\Seo\StoreSeoCompetitor;
 use App\Actions\Web\Seo\StoreSeoContentBrief;
 use App\Actions\Web\Seo\StoreSeoTrackedKeyword;
+use App\Actions\Web\Seo\StoreFamilySeoReview;
+use App\Actions\Web\Seo\ImplementFamilySeoSuggestion;
+use App\Actions\Web\Seo\ValidateFamilySeoReview;
 use App\Actions\Web\Seo\UpdateSeoTrackedKeyword;
 use App\Actions\Web\WebsiteNotFoundPath\UpdateWebsiteNotFoundPathIgnored;
 use App\Actions\Web\Announcement\DeleteAnnouncement;
@@ -1439,6 +1442,9 @@ Route::delete('seo-ai-prompt/{seoAiPrompt:id}', DeleteSeoAiPrompt::class)->name(
 Route::post('webpage/{webpage:id}/seo-content-suggestions', RequestSeoContentSuggestions::class)->name('webpage.seo_content_suggestions.store')->withoutScopedBindings();
 Route::patch('seo-content-suggestion/{seoContentSuggestion:id}/accept', AcceptSeoContentSuggestion::class)->name('seo_content_suggestion.accept');
 Route::patch('seo-content-suggestion/{seoContentSuggestion:id}/dismiss', DismissSeoContentSuggestion::class)->name('seo_content_suggestion.dismiss');
+Route::post('product-category/{productCategory:id}/seo-review', StoreFamilySeoReview::class)->name('product_category.seo_review.store')->withoutScopedBindings();
+Route::patch('product-category/{productCategory:id}/seo-review/{seoContentSuggestion:id}/implement', ImplementFamilySeoSuggestion::class)->name('product_category.seo_review.implement')->withoutScopedBindings();
+Route::post('product-category/{productCategory:id}/seo-review/validate', ValidateFamilySeoReview::class)->name('product_category.seo_review.validate')->withoutScopedBindings();
 
 Route::name('website.')->prefix('website/{website:id}')->group(function () {
     Route::post('site-audit', StartSiteAudit::class)->name('site_audit.store');
