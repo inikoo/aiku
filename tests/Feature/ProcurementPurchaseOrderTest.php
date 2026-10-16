@@ -1296,6 +1296,35 @@ test('a delivery date typed on a purchase order is the date everywhere', functio
         ->and($purchaseOrder->estimatedReceivingDate())->toBeNull();
 })->depends('add item to agent purchase order');
 
+test('UI agent supplier links stay inside the agent', function () {
+    [$orgSupplier] = createAgentOrgSupplierWithProduct($this);
+    $orgAgent      = $orgSupplier->orgAgent;
+    $parameters    = [$orgAgent->organisation->slug, $orgAgent->slug, $orgSupplier->slug];
+
+    $this->withoutExceptionHandling();
+    $this->get(route('grp.org.procurement.org_agents.show.suppliers.show', $parameters))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('pageHead.subNavigation.0.route.name', 'grp.org.procurement.org_agents.show.suppliers.show')
+            ->where('pageHead.subNavigation.1.route.name', 'grp.org.procurement.org_agents.show.suppliers.show.supplier_products.index')
+            ->where('pageHead.subNavigation.1.route.parameters', $parameters)
+            ->where('pageHead.subNavigation.2.route.name', 'grp.org.procurement.org_agents.show.suppliers.show.purchase_orders.index')
+            ->where('pageHead.subNavigation.3.route.name', 'grp.org.procurement.org_agents.show.suppliers.show.stock_deliveries.index')
+            ->where('showcase.stats.0.route.name', 'grp.org.procurement.org_agents.show.suppliers.show.supplier_products.index')
+            ->where('showcase.stats.1.route.name', 'grp.org.procurement.org_agents.show.suppliers.show.purchase_orders.index')
+            ->where('showcase.stats.2.route.name', 'grp.org.procurement.org_agents.show.suppliers.show.stock_deliveries.index')
+            ->where('showcase.stats.2.route.parameters', $parameters)
+            ->etc());
+
+    foreach (['supplier_products', 'purchase_orders', 'stock_deliveries'] as $page) {
+        $props = $this->get(route("grp.org.procurement.org_agents.show.suppliers.show.$page.index", $parameters))
+            ->assertOk()
+            ->viewData('page')['props'];
+
+        expect(json_encode($props['breadcrumbs']))->toContain('grp.org.procurement.org_agents.show.suppliers.index')
+            ->and($props['pageHead']['subNavigation'][1]['route']['name'])->toBe('grp.org.procurement.org_agents.show.suppliers.show.supplier_products.index');
+    }
+});
+
 test('UI index org agent purchase orders lists the orders through the agent', function () {
     [$orgSupplier] = createAgentOrgSupplierWithProduct($this);
     $orgAgent      = $orgSupplier->orgAgent;

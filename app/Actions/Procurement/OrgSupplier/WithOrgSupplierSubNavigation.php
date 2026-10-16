@@ -12,6 +12,7 @@ namespace App\Actions\Procurement\OrgSupplier;
 use App\Actions\Procurement\OrgSupplier\UI\ShowSupplierDraftsToSend;
 use App\Actions\SupplyChain\SupplierProduct\RepairSupplierProductsSupplier;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
+use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgSupplier;
 
 trait WithOrgSupplierSubNavigation
@@ -32,17 +33,38 @@ trait WithOrgSupplierSubNavigation
         ];
     }
 
+    public static function orgSupplierRoute(string $organisationSlug, OrgSupplier $orgSupplier, string $page, ?OrgAgent $orgAgent = null): array
+    {
+        if ($orgAgent) {
+            return [
+                'name'       => "grp.org.procurement.org_agents.show.suppliers.$page",
+                'parameters' => [$organisationSlug, $orgAgent->slug, $orgSupplier->slug],
+            ];
+        }
+
+        return [
+            'name'       => "grp.org.procurement.org_suppliers.$page",
+            'parameters' => [$organisationSlug, $orgSupplier->slug],
+        ];
+    }
+
+    protected function procurementOrgAgent(): ?OrgAgent
+    {
+        $route    = request()->route();
+        $orgAgent = $route?->parameter('orgAgent');
+
+        return $orgAgent instanceof OrgAgent && str_starts_with((string) $route->getName(), 'grp.org.procurement.org_agents.') ? $orgAgent : null;
+    }
+
     protected function getOrgSupplierNavigation(OrgSupplier $parent): array
     {
         $routeParameters = [$this->organisation->slug, $parent->slug];
+        $orgAgent        = $this->procurementOrgAgent();
 
         return [
             [
                 'label'    => $parent->supplier->code,
-                'route'    => [
-                    'name'       => 'grp.org.procurement.org_suppliers.show',
-                    'parameters' => $routeParameters,
-                ],
+                'route'    => self::orgSupplierRoute($this->organisation->slug, $parent, 'show', $orgAgent),
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-person-dolly'],
                     'tooltip' => __('Org Supplier'),
@@ -51,10 +73,7 @@ trait WithOrgSupplierSubNavigation
             ],
             [
                 'label'    => __('Products'),
-                'route'    => [
-                    'name'       => 'grp.org.procurement.org_suppliers.show.supplier_products.index',
-                    'parameters' => $routeParameters,
-                ],
+                'route'    => self::orgSupplierRoute($this->organisation->slug, $parent, 'show.supplier_products.index', $orgAgent),
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-box-usd'],
                     'tooltip' => __('Products'),
@@ -99,10 +118,7 @@ trait WithOrgSupplierSubNavigation
             ]),
             [
                 'label'    => __('Purchase Orders'),
-                'route'    => [
-                    'name'       => 'grp.org.procurement.org_suppliers.show.purchase_orders.index',
-                    'parameters' => $routeParameters,
-                ],
+                'route'    => self::orgSupplierRoute($this->organisation->slug, $parent, 'show.purchase_orders.index', $orgAgent),
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-clipboard'],
                     'tooltip' => __('Purchase Orders'),
@@ -111,17 +127,14 @@ trait WithOrgSupplierSubNavigation
             ],
             [
                 'label'    => __('Stock Deliveries'),
-                'route'    => [
-                    'name'       => 'grp.org.procurement.org_suppliers.show.stock_deliveries.index',
-                    'parameters' => $routeParameters,
-                ],
+                'route'    => self::orgSupplierRoute($this->organisation->slug, $parent, 'show.stock_deliveries.index', $orgAgent),
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-truck-container'],
                     'tooltip' => __('Stock Deliveries'),
                 ],
                 'number'   => $parent->stats->number_stock_deliveries,
             ],
-            ...(in_array($parent->supplier->code, RepairSupplierProductsSupplier::REPAIRABLE_SUPPLIER_CODES, true) ? [
+            ...(!$orgAgent && in_array($parent->supplier->code, RepairSupplierProductsSupplier::REPAIRABLE_SUPPLIER_CODES, true) ? [
                 [
                     'label'    => __('Repair'),
                     'route'    => [

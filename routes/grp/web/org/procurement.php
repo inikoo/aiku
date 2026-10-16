@@ -163,6 +163,9 @@ Route::prefix('agents')->as('org_agents.')->group(function () {
         Route::get('stock-deliveries', [IndexStockDeliveries::class, 'inOrgAgent'])->name('.stock-deliveries.index');
         Route::get('suppliers/{orgSupplier}', [ShowOrgSupplier::class, 'inOrgAgent'])->name('.suppliers.show');
         Route::get('suppliers/{orgSupplier}/edit', [EditOrgSupplier::class, 'inOrgAgent'])->name('.suppliers.edit');
+        Route::get('suppliers/{orgSupplier}/supplier-products', [IndexOrgSupplierProducts::class, 'inOrgSupplierInOrgAgent'])->name('.suppliers.show.supplier_products.index');
+        Route::get('suppliers/{orgSupplier}/purchase-orders', [IndexPurchaseOrders::class, 'inOrgSupplierInOrgAgent'])->name('.suppliers.show.purchase_orders.index');
+        Route::get('suppliers/{orgSupplier}/stock-deliveries', [IndexStockDeliveries::class, 'inOrgSupplierInOrgAgent'])->name('.suppliers.show.stock_deliveries.index');
         Route::get('supplier-products', [IndexOrgSupplierProducts::class, 'inOrgAgent'])->name('.supplier_products.index');
         Route::get('supplier-products/{orgSupplierProduct}', [ShowOrgSupplierProduct::class, 'inOrgAgent'])->name('.supplier_products.show');
         Route::prefix('shopping')->as('.shopping.')->group(function () {
