@@ -84,6 +84,7 @@ class GetProductCategoryShowcase
             $data = [
                 'family'      => FamilyResource::make($productCategory),
                 'bestSellers' => GetFamilyBestSellers::run($productCategory),
+                'page_score'  => GetFamilyPageScore::run($productCategory),
             ];
             if ($routeName == 'grp.org.shops.show.catalogue.families.show') {
                 $data['routeList'] = [

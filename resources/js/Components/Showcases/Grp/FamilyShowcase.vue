@@ -16,6 +16,7 @@ import { ctrans } from '@/Composables/useTrans';
 import { faExternalLink } from '@far';
 import FamilyOfferLabelDiscount from '@/Components/Utils/Label/DiscountTemplate/CategoryQuantityOrderedOrderInterval/FamilyOfferLabelDiscount.vue'
 import FamilyBestSellers from '@/Components/Catalogue/FamilyBestSellers.vue'
+import FamilyPageScore from '@/Components/Catalogue/FamilyPageScore.vue'
 
 library.add(faAlbumCollection, faStarfighter);
 
@@ -45,6 +46,7 @@ const props = defineProps<{
         tags: Array<any>
         show_gr_vol?: boolean
         webpage_url?: string
+        page_score?: any
     },
     salesData?: object
     salesAnalysisTeaser?: object
@@ -91,11 +93,11 @@ function offerRoute(offer: {}) {
 <template>
    
     <div v-if="data.webpage_url"
-		class="w-full bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 px-4 py-3 mb-3 shadow-sm">
-		<div class="flex items-center gap-2 text-blue-700 text-sm">
-			<FontAwesomeIcon :icon="faExternalLink" class="text-blue-500" fixed-width />
+		class="w-full bg-[--app-accent-soft] border border-[--app-accent-muted] px-4 py-3 mb-3 shadow-sm">
+		<div class="flex items-center gap-2 text-[--app-accent-strong] text-sm">
+			<FontAwesomeIcon :icon="faExternalLink" class="text-[--app-accent]" fixed-width />
 			<a :href="data.webpage_url" target="_blank" rel="noopener noreferrer"
-				class="font-medium break-all hover:underline hover:text-blue-800 transition-colors duration-200">
+				class="font-medium break-all hover:underline hover:text-[--app-accent-deep] transition-colors duration-200">
 				{{ data.webpage_url }}
 			</a>
 		</div>
@@ -125,6 +127,8 @@ function offerRoute(offer: {}) {
                 </div>
             </Message>
         </div>
+
+        <FamilyPageScore v-if="data.page_score" :data="data.page_score" class="mt-4" />
 
         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-8 2xl:grid-cols-[5fr_11fr_minmax(18rem,4fr)] gap-4 mt-4">
             <div class="col-span-1 md:col-span-1 lg:col-span-2 2xl:col-span-1">
