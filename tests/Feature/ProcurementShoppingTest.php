@@ -2471,3 +2471,102 @@ test('storing an org supplier product twice for the same org supplier returns th
         ->and($first->refresh()->source_id)->toBe('1:999999')
         ->and($first->stats()->count())->toBe(1);
 });
+
+test('agent repairs products filed under AWChina: moves them to the real supplier, or retires them into the twin it already has', function () {
+    [$awcOrgSupplier, $toMove] = createAgentOrgSupplierWithProduct($this);
+    $awc = $awcOrgSupplier->supplier;
+    $awc->update(['code' => 'AWC2']);
+
+    [$realOrgSupplier, $twinOrgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $realSupplier = $realOrgSupplier->supplier;
+
+    $duplicate = StoreOrgSupplierProduct::make()->action($awcOrgSupplier, StoreSupplierProduct::make()->action($awc, [
+        'code'             => mb_strtolower($twinOrgSupplierProduct->supplierProduct->code),
+        'name'             => 'Duplicate under AWChina',
+        'cost'             => 100,
+        'stock_id'         => $this->stocks[1]->id,
+        'units_per_pack'   => 10,
+        'units_per_carton' => 100,
+    ]));
+    $duplicateStock = StoreStock::make()->action($this->group, array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE]));
+    $duplicateOrgStock = App\Actions\Inventory\OrgStock\StoreOrgStock::make()->action($duplicate->organisation, $duplicateStock, OrgStock::factory()->definition());
+    $duplicateLink = App\Actions\Inventory\OrgStockHasOrgSupplierProduct\AttachOrgSupplierProductToOrgStock::make()->action($duplicateOrgStock, $duplicate);
+    $twinOrgSupplierProduct->update(['state' => OrgSupplierProductStateEnum::DISCONTINUED, 'is_available' => false]);
+    $twinOrgSupplierProduct->supplierProduct->update(['state' => App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum::DISCONTINUED]);
+
+    $toMoveOrgStock = App\Actions\Inventory\OrgStock\StoreOrgStock::make()->action(
+        $toMove->organisation,
+        StoreStock::make()->action($this->group, array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE])),
+        OrgStock::factory()->definition()
+    );
+    App\Actions\Inventory\OrgStockHasOrgSupplierProduct\AttachOrgSupplierProductToOrgStock::make()->action($toMoveOrgStock, $toMove);
+
+    $awcDraft = StorePurchaseOrder::make()->action($awcOrgSupplier, [], strict: false);
+    App\Actions\Procurement\PurchaseOrderTransaction\StorePurchaseOrderTransaction::make()->addOrgSupplierProduct($awcDraft, $toMove, ['quantity_ordered' => 5]);
+    App\Actions\Procurement\PurchaseOrderTransaction\StorePurchaseOrderTransaction::make()->addOrgSupplierProduct($awcDraft, $duplicate, ['quantity_ordered' => 3]);
+
+    $sentToAwc = StorePurchaseOrder::make()->action($awcOrgSupplier, [], strict: false);
+    App\Actions\Procurement\PurchaseOrderTransaction\StorePurchaseOrderTransaction::make()->addOrgSupplierProduct($sentToAwc, $toMove, ['quantity_ordered' => 1]);
+    $sentToAwc->update(['state' => PurchaseOrderStateEnum::CONFIRMED]);
+
+    $this->withoutVite()
+        ->get(route('grp.org.procurement.org_suppliers.show.repair_supplier_products.index', [$awcOrgSupplier->organisation->slug, $awcOrgSupplier->slug]))
+        ->assertInertia(fn ($page) => $page
+            ->where('data.data', fn ($rows) => collect($rows)->firstWhere('id', $toMove->supplier_product_id)['sent_purchase_orders'][0]['reference'] === $sentToAwc->reference
+                && collect($rows)->firstWhere('id', $toMove->supplier_product_id)['sent_purchase_orders'][0]['state'] === PurchaseOrderStateEnum::CONFIRMED->value
+                && (float) collect($rows)->firstWhere('id', $toMove->supplier_product_id)['draft_purchase_orders'][0]['quantity'] === 5.0));
+
+    DB::table('org_supplier_products')->where('id', $toMove->id)->update(['org_agent_id' => null]);
+
+    $repair = App\Actions\SupplyChain\SupplierProduct\RepairSupplierProductsSupplier::make();
+
+    expect(fn () => $repair->action($realSupplier, collect([$toMove->supplierProduct])))->toThrow(Illuminate\Validation\ValidationException::class, $toMove->supplierProduct->code);
+
+    $sentToAwc->update(['state' => PurchaseOrderStateEnum::SUBMITTED]);
+
+    expect(fn () => $repair->action($realSupplier, collect([$twinOrgSupplierProduct->supplierProduct])))->toThrow(Illuminate\Validation\ValidationException::class)
+        ->and(fn () => $repair->action($awc, collect([$toMove->supplierProduct])))->toThrow(Illuminate\Validation\ValidationException::class);
+
+    $repaired = $repair->action($realSupplier, Supplier::find($awc->id)->supplierProducts()->with('supplier', 'orgSupplierProducts.orgSupplier')->get());
+
+    $realDraftLines = App\Models\Procurement\PurchaseOrderTransaction::whereHas('purchaseOrder', fn ($query) => $query
+        ->where('state', PurchaseOrderStateEnum::IN_PROCESS)->where('parent_type', 'OrgSupplier')->where('parent_id', $realOrgSupplier->id))
+        ->pluck('quantity_ordered', 'org_supplier_product_id');
+
+    expect($awcDraft->purchaseOrderTransactions()->count())->toBe(0)
+        ->and($sentToAwc->purchaseOrderTransactions()->count())->toBe(0)
+        ->and((float) $realDraftLines[$toMove->id])->toBe(6.0)
+        ->and((float) $realDraftLines[$twinOrgSupplierProduct->id])->toBe(3.0);
+
+    $twinLink = OrgStockHasOrgSupplierProduct::where('org_stock_id', $duplicateLink->org_stock_id)->where('org_supplier_product_id', $twinOrgSupplierProduct->id)->first();
+
+    expect($repaired)->toBe(['moved' => 1, 'merged' => 1])
+        ->and($toMove->supplierProduct->refresh()->supplier_id)->toBe($realSupplier->id)
+        ->and($toMove->refresh()->org_supplier_id)->toBe($realOrgSupplier->id)
+        ->and($twinLink?->local_priority)->toBe(10)
+        ->and($duplicateLink->refresh()->local_priority)->toBe(0)
+        ->and($duplicate->refresh()->state)->toBe(OrgSupplierProductStateEnum::DISCONTINUED->value)
+        ->and($duplicate->is_available)->toBeFalse()
+        ->and($duplicate->supplierProduct->refresh()->state->value)->toBe('discontinued')
+        ->and($twinOrgSupplierProduct->refresh()->state)->toBe(OrgSupplierProductStateEnum::ACTIVE->value)
+        ->and($twinOrgSupplierProduct->is_available)->toBeTrue()
+        ->and($twinOrgSupplierProduct->supplierProduct->refresh()->state->value)->toBe('active');
+
+    $agentOrganisation = $this->agent->organisation;
+    $awcInAgent        = OrgSupplier::where('supplier_id', $awc->id)->where('organisation_id', $agentOrganisation->id)->first()
+        ?? StoreOrgSupplier::make()->action($agentOrganisation, $awc);
+    $realInAgent       = OrgSupplier::where('supplier_id', $realSupplier->id)->where('organisation_id', $agentOrganisation->id)->first()
+        ?? StoreOrgSupplier::make()->action($agentOrganisation, $realSupplier);
+
+    $this->withoutVite()
+        ->get(route('grp.org.agent.org_suppliers.show.repair_supplier_products.index', [$agentOrganisation->slug, $awcInAgent->slug]))
+        ->assertInertia(fn ($page) => $page
+            ->component('Procurement/RepairSupplierProducts')
+            ->where('data.meta.total', 0)
+            ->where('active.state', 'active')
+            ->where('suppliers', fn ($suppliers) => collect($suppliers)->pluck('id')->contains($realSupplier->id)));
+
+    $this->get(route('grp.org.agent.org_suppliers.show.repair_supplier_products.index', [$agentOrganisation->slug, $realInAgent->slug]))->assertNotFound();
+    $this->get(route('grp.org.procurement.org_suppliers.show.repair_supplier_products.index', [$awcOrgSupplier->organisation->slug, $awcOrgSupplier->slug]))
+        ->assertInertia(fn ($page) => $page->component('Procurement/RepairSupplierProducts'));
+});

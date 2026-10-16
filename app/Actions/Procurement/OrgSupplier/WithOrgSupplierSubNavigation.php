@@ -10,6 +10,8 @@
 namespace App\Actions\Procurement\OrgSupplier;
 
 use App\Actions\Procurement\OrgSupplier\UI\ShowSupplierDraftsToSend;
+use App\Actions\SupplyChain\SupplierProduct\RepairSupplierProductsSupplier;
+use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Procurement\OrgSupplier;
 
 trait WithOrgSupplierSubNavigation
@@ -119,6 +121,21 @@ trait WithOrgSupplierSubNavigation
                 ],
                 'number'   => $parent->stats->number_stock_deliveries,
             ],
+            ...(in_array($parent->supplier->code, RepairSupplierProductsSupplier::REPAIRABLE_SUPPLIER_CODES, true) ? [
+                [
+                    'label'    => __('Repair'),
+                    'route'    => [
+                        'name'       => $this->organisation->type === OrganisationTypeEnum::AGENT
+                            ? 'grp.org.agent.org_suppliers.show.repair_supplier_products.index'
+                            : 'grp.org.procurement.org_suppliers.show.repair_supplier_products.index',
+                        'parameters' => $routeParameters,
+                    ],
+                    'leftIcon' => [
+                        'icon'    => ['fal', 'fa-tools'],
+                        'tooltip' => __('Move these products to their real supplier'),
+                    ],
+                ],
+            ] : []),
         ];
     }
 }
