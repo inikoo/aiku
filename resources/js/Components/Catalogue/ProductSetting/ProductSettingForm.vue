@@ -252,8 +252,8 @@ defineExpose({ focusField })
 const formatMoney = (currencyCode: string, value: string | number | null) => (value === null || value === "" ? null : locale.currencyFormat(currencyCode, Number(value)))
 
 const followOptions = [
-    { label: ctrans("Follow master"), value: "follow" as FollowMode },
-    { label: ctrans("Customise"), value: "customise" as FollowMode },
+    { label: ctrans("Follow master"), value: "follow" as FollowMode, tone: "primary" as const },
+    { label: ctrans("Customise"), value: "customise" as FollowMode, tone: "primary" as const },
 ]
 
 const stateOptions = computed(() => [
@@ -309,7 +309,7 @@ const [DefineMasterValue, MasterValue] = createReusableTemplate<{ value: string 
             </div>
         </Teleport>
 
-        <section class="rounded-lg border border-gray-200 bg-white p-4">
+        <section class="rounded-lg border border-gray-200 bg-white p-4 shadow-md">
             <header class="mb-3 flex items-center justify-between gap-3">
                 <h3 class="font-semibold text-gray-900">1 · {{ ctrans("Page status") }}</h3>
                 <span class="text-xs text-gray-500">{{ ctrans("Product page in the :shop shop", { shop: shop.shop.code }) }}</span>
@@ -321,7 +321,7 @@ const [DefineMasterValue, MasterValue] = createReusableTemplate<{ value: string 
             <div v-else class="text-sm text-red-700">{{ ctrans("This product has no webpage in the shop") }}</div>
         </section>
 
-        <section class="rounded-lg border border-gray-200 bg-white p-4">
+        <section class="rounded-lg border border-gray-200 bg-white p-4 shadow-md">
             <header class="mb-3 flex items-center justify-between gap-3">
                 <h3 class="font-semibold text-gray-900">2 · {{ ctrans("Product content") }}</h3>
                 <span class="text-xs text-gray-500">{{ ctrans("Follow the master or customise for the :shop shop", { shop: shop.shop.code }) }}</span>
@@ -368,7 +368,7 @@ const [DefineMasterValue, MasterValue] = createReusableTemplate<{ value: string 
             </div>
         </section>
 
-        <section class="rounded-lg border border-gray-200 bg-white p-4">
+        <section class="rounded-lg border border-gray-200 bg-white p-4 shadow-md">
             <header class="mb-3 flex items-center justify-between gap-3">
                 <h3 class="font-semibold text-gray-900">3 · {{ ctrans("Search appearance") }}</h3>
                 <span class="text-xs text-gray-500">{{ ctrans("Set for this shop") }}</span>
@@ -409,7 +409,7 @@ const [DefineMasterValue, MasterValue] = createReusableTemplate<{ value: string 
             <div v-else class="text-sm text-gray-500">{{ ctrans("This product has no webpage in the shop") }}</div>
         </section>
 
-        <section class="rounded-lg border border-gray-200 bg-white p-4">
+        <section class="rounded-lg border border-gray-200 bg-white p-4 shadow-md">
             <header class="mb-3 flex items-center justify-between gap-3">
                 <h3 class="font-semibold text-gray-900">4 · {{ ctrans("Price") }}</h3>
                 <span class="text-xs text-gray-500">{{ ctrans("Master price or a :shop shop price", { shop: shop.shop.code }) }}</span>
@@ -442,7 +442,7 @@ const [DefineMasterValue, MasterValue] = createReusableTemplate<{ value: string 
             </div>
         </section>
 
-        <section class="rounded-lg border border-gray-200 bg-white p-4">
+        <section class="rounded-lg border border-gray-200 bg-white p-4 shadow-md">
             <header class="mb-3 flex items-center justify-between gap-3">
                 <h3 class="font-semibold text-gray-900">5 · {{ ctrans("Product information") }}</h3>
                 <span class="text-xs text-gray-500">{{ master.has_master ? ctrans("Set by the master · read only") : ctrans("Read only") }}</span>
@@ -469,7 +469,7 @@ const [DefineMasterValue, MasterValue] = createReusableTemplate<{ value: string 
             </div>
         </section>
 
-        <section class="rounded-lg border border-gray-200 bg-white p-4">
+        <section class="rounded-lg border border-gray-200 bg-white p-4 shadow-md">
             <header class="mb-3 flex items-center justify-between gap-3">
                 <h3 class="font-semibold text-gray-900">6 · {{ ctrans("Indexing") }}</h3>
                 <span class="text-xs text-gray-500">{{ ctrans("Search engines") }}</span>
@@ -486,7 +486,7 @@ const [DefineMasterValue, MasterValue] = createReusableTemplate<{ value: string 
             </div>
         </section>
 
-        <section class="rounded-lg border border-gray-200 bg-white p-4">
+        <section class="rounded-lg border border-gray-200 bg-white p-4 shadow-md">
             <header class="mb-3 flex items-center justify-between gap-3">
                 <h3 class="font-semibold text-gray-900">7 · {{ ctrans("Structured data (JSON-LD)") }}</h3>
                 <span class="text-xs text-gray-500">{{ ctrans("Custom JSON-LD for this product page") }}</span>
@@ -532,7 +532,7 @@ const [DefineMasterValue, MasterValue] = createReusableTemplate<{ value: string 
             </div>
         </section>
 
-        <section class="rounded-lg border border-gray-200 bg-white p-4">
+        <section class="rounded-lg border border-gray-200 bg-white p-4 shadow-md">
             <header class="mb-3 flex items-center justify-between gap-3">
                 <h3 class="font-semibold text-gray-900">8 · {{ ctrans("Shared information") }}</h3>
                 <span class="text-xs text-gray-500">{{ ctrans("Same for every product of the family · read only") }}</span>

@@ -296,12 +296,6 @@ const getIntervalStateColor = (isPositive: boolean) => {
             <ChecklistBar v-if="masterProduct.checklist" :checklist="masterProduct.checklist" />
         </template>
 
-        <template #cell(edit_information)="{ item: masterProduct }">
-            <Link :href="editInformationRoute(masterProduct)">
-                <Button type="tertiary" size="xs" :label="ctrans('Edit product')" icon="fal fa-pencil" />
-            </Link>
-        </template>
-
         <template #cell(master_shop_code)="{ item: masterProduct }">
             <Link v-tooltip="masterProduct.master_shop_name" :href="(masterShopRoute(masterProduct) as string)" class="secondaryLink">
                 {{ (masterProduct["master_shop_code"]).toUpperCase() }}
@@ -526,6 +520,9 @@ const getIntervalStateColor = (isPositive: boolean) => {
         </template>
 
         <template #cell(actions)="{ item: item}">
+            <Link v-if="tab === 'index'" :href="editInformationRoute(item)">
+                <Button type="tertiary" size="xs" :label="ctrans('Edit product')" icon="fal fa-pencil" />
+            </Link>
             <Link v-if="routes?.detach?.name" as="button" :href="route(routes.detach.name, routes.detach.parameters)"
                 :method="routes?.detach?.method" :data="{
                     product: item.id

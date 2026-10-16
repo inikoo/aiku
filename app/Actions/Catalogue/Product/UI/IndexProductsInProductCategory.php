@@ -311,7 +311,15 @@ class IndexProductsInProductCategory extends OrgAction
                         ->column(key: 'checklist', label: __('Checklist'));
                 }
 
-                $table->column(key: 'actions', label: __('Actions'), canBeHidden: false, searchable: true, align: 'right');
+                if ($prefix !== ProductsTabsEnum::INDEX->value) {
+                    $table->column(
+                        key: 'actions',
+                        label: __('Actions'),
+                        canBeHidden: false,
+                        searchable: true,
+                        align: 'right'
+                    );
+                }
             }
         };
     }

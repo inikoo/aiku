@@ -136,21 +136,21 @@ const groups = computed(() => [
 
                     <div class="flex flex-wrap gap-2">
                         <Button
-                            type="tertiary"
+                            type="primary"
                             :label="ctrans('Edit in Product setting')"
                             @click="router.visit(route(completeness.setting_route.name, completeness.setting_route.parameters))"
                         >
                             <template #icon>
-                                <FontAwesomeIcon :icon="faSlidersH" class="text-[--app-accent]" fixed-width aria-hidden="true" />
+                                <FontAwesomeIcon :icon="faSlidersH" fixed-width aria-hidden="true" />
                             </template>
                         </Button>
                         <Button
-                            type="tertiary"
+                            type="delete"
                             :label="ctrans('View SEO issues')"
                             @click="router.visit(route(completeness.issues_route.name, completeness.issues_route.parameters))"
                         >
                             <template #icon>
-                                <FontAwesomeIcon :icon="faSearch" class="text-red-500" fixed-width aria-hidden="true" />
+                                <FontAwesomeIcon :icon="faSearch" fixed-width aria-hidden="true" />
                             </template>
                         </Button>
                     </div>

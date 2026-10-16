@@ -10,7 +10,7 @@ import SelectButton from "primevue/selectbutton"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
 defineProps<{
-	options: Array<{ label: string; value: T; icon?: any; tone?: "gray" | "emerald" | "amber" | "red"; disabled?: boolean }>
+	options: Array<{ label: string; value: T; icon?: any; tone?: "gray" | "emerald" | "amber" | "red" | "primary"; disabled?: boolean }>
 	ariaLabel?: string
 	iconOnly?: boolean
 }>()
@@ -91,6 +91,12 @@ const model = defineModel<T>()
 	--tone-bg: rgb(251 191 36);
 	--tone-bg-strong: rgb(245 158 11);
 	--tone-on: rgb(69 26 3);
+}
+.segmented-toggle :deep(.p-togglebutton-content:has([data-tone="primary"])) {
+	--tone-text: var(--app-accent);
+	--tone-bg: var(--app-accent);
+	--tone-bg-strong: var(--app-accent-strong);
+	--tone-on: var(--app-accent-text);
 }
 .segmented-toggle :deep(.p-togglebutton-content:has([data-tone="red"])) {
 	--tone-text: rgb(220 38 38);

@@ -40,23 +40,6 @@ const startCrawl = () => {
 
 <template>
     <div class="space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3">
-            <div class="text-sm text-gray-600">
-                <template v-if="audit.last_crawl_at">{{ ctrans("Last crawl") }}: {{ useFormatTime(audit.last_crawl_at, { formatTime: "hm" }) }}</template>
-                <template v-else>{{ ctrans("This page has not been crawled yet. Run a crawl to find its issues.") }}</template>
-            </div>
-            <Button
-                v-if="crawlRoute"
-                type="tertiary"
-                :label="isCrawlStarted ? ctrans('Crawl started') : ctrans('Crawl page')"
-                :icon="faSync"
-                :loading="isCrawling"
-                :disabled="isCrawlStarted"
-                :tooltip="ctrans('Runs a site audit of the website. This page updates when the audit finishes.')"
-                @click="startCrawl"
-            />
-        </div>
-
         <div
             v-if="audit.last_crawl_at && !audit.issue_groups.length"
             class="rounded-lg border border-green-200 bg-green-50 px-4 py-6 text-center text-sm font-semibold text-green-700"
@@ -64,7 +47,7 @@ const startCrawl = () => {
             {{ ctrans("The last crawl found no issues on this page") }}
         </div>
 
-        <section v-for="group in audit.issue_groups" :key="group.key" class="rounded-lg border border-gray-200 bg-white p-4">
+        <section v-for="group in audit.issue_groups" :key="group.key" class="rounded-lg border border-gray-200 bg-white p-4 shadow-md">
             <h3 class="text-base font-semibold text-gray-900">
                 {{ group.label }} <span class="font-normal text-gray-500">({{ group.issues.length }})</span>
             </h3>
