@@ -76,10 +76,18 @@ class GenerateJobOrderItemTasks
             $units         = ArtefactManufactureTask::exactUnits($manufactureTask->pivot->units_per_artefact);
             if (!$task->wasRecentlyCreated && $previousUnits > 0 && abs($previousUnits - $units) > 1e-9
                 && $task->state == JobOrderItemTaskStateEnum::TODO && (float) $task->quantity_made == 0) {
-                $task->update(['quantity_required' => round((float) $task->quantity_required * $units / $previousUnits, 3)]);
+                $task->setRequiredQuantity(round((float) $task->quantity_required * $units / $previousUnits, 3));
             }
 
             $tasks[] = $task;
+        }
+
+        if (in_array($jobOrder->state, JobOrderStateEnum::open())) {
+            $jobOrderItem->tasks()
+                ->whereNotIn('manufacture_task_id', $artefact->manufactureTasks()->pluck('manufacture_tasks.id'))
+                ->unworked()
+                ->delete();
+            $jobOrderItem->unsetRelation('tasks');
         }
 
         return $tasks;

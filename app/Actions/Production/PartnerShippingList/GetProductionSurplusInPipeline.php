@@ -46,7 +46,7 @@ class GetProductionSurplusInPipeline
         foreach ($items->groupBy(fn (JobOrderItem $item) => $item->job_order_id.'-'.$item->artefact_id) as $jobItems) {
             /** @var JobOrderItem $item */
             $item     = $jobItems->first();
-            $packedIn = max(1, (int) $item->artefact->orgStock?->packed_in);
+            $packedIn = $item->artefact->packedIn();
             $claimed  = $this->claimedSkos($item);
             $quantity = (float) $jobItems->sum('quantity');
             $made     = max(0, $jobItems->sum(fn (JobOrderItem $jobItem) => min((float) $jobItem->quantity, GetJobOrderDestinationAllocation::make()->producedArtefacts($jobItem))) / $packedIn - $claimed);
@@ -78,7 +78,7 @@ class GetProductionSurplusInPipeline
      */
     public function surplusReceived(JobOrderItem $item, float $receivedUnits): float
     {
-        $packedIn       = max(1, (int) $item->artefact->orgStock?->packed_in);
+        $packedIn       = $item->artefact->packedIn();
         $othersReceived = (float) JobOrderItem::where('job_order_id', $item->job_order_id)
             ->where('artefact_id', $item->artefact_id)
             ->where('id', '!=', $item->id)

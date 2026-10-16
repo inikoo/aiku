@@ -7012,3 +7012,177 @@ test('the day plan lists the materials its open steps need, the check asks the w
 
     $this->production->update(['factory_location_id' => null]);
 });
+
+function stepOwnerFixture(object $test): array
+{
+    [$artisanA, $artisanB] = collect(range(1, 2))->map(function () use ($test) {
+        $modelData = Employee::factory()->make(['organisation_id' => $test->organisation->id])->toArray();
+        $modelData['worker_number']   = 'W'.rand(1000, 9999);
+        $modelData['alias']           = 'Alias '.rand(1000, 9999);
+        $modelData['type']            = \App\Enums\HumanResources\Employee\EmployeeTypeEnum::EMPLOYEE;
+        $modelData['employment_type'] = \App\Enums\HumanResources\Employee\EmploymentTypeEnum::FULL_TIME;
+        $modelData['state']           = \App\Enums\HumanResources\Employee\EmployeeStateEnum::WORKING;
+
+        return StoreEmployee::make()->action($test->organisation, $modelData);
+    })->all();
+
+    $suffix  = rand(10000, 99999);
+    $mixTask = StoreManufactureTask::make()->action($test->production, [
+        'code'              => 'MIX'.$suffix,
+        'name'              => 'Mixing '.$suffix,
+        'is_piece_rate'     => false,
+        'is_recorded_in_kg' => true,
+    ]);
+    $packingTask = StoreManufactureTask::make()->action($test->production, [
+        'code'          => 'PCK'.$suffix,
+        'name'          => 'Packing '.$suffix,
+        'is_piece_rate' => false,
+    ]);
+    $artefact = StoreArtefact::make()->action($test->production, ['code' => 'OWN'.$suffix, 'name' => 'Owner '.$suffix]);
+    $artefact->manufactureTasks()->sync([
+        $mixTask->id                => ['position' => 1, 'units_per_artefact' => 0.1],
+        $test->manufactureTask->id  => ['position' => 2, 'units_per_artefact' => 1],
+        $packingTask->id            => ['position' => 3, 'units_per_artefact' => 1],
+    ]);
+
+    $jobOrder = StoreJobOrder::make()->action($test->production, []);
+    $line     = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $artefact->id, 'quantity' => 1344]);
+    ConfirmJobOrder::make()->action($jobOrder);
+
+    $splitUrl = route('grp.models.job-order-item.split', ['jobOrderItem' => $line->id]);
+    patch($splitUrl, ['assignments' => [['id' => $line->id, 'employee_id' => $artisanA->id, 'quantity' => 1344]]])->assertSessionHasNoErrors();
+
+    $tasks = $line->tasks()->orderBy('position')->get();
+
+    return [$artisanA, $artisanB, $jobOrder, $line, $tasks, $splitUrl];
+}
+
+test('a line whose done mix made more kg than required can be given whole to another artisan', function () {
+    [$artisanA, $artisanB, , $line, $tasks, $splitUrl] = stepOwnerFixture($this);
+    [$mix, $making, $packing] = $tasks->all();
+
+    $this->guest->getUser()->employees()->sync([$artisanA->id => ['group_id' => $this->group->id, 'organisation_id' => $this->organisation->id]]);
+    $session = StartManufactureTaskSession::make()->action($this->guest->getUser(), $mix);
+    CloseManufactureTaskSession::make()->action($session, ['quantity_made' => 200]);
+    $mix->refresh()->update(['state' => \App\Enums\Production\JobOrderItemTask\JobOrderItemTaskStateEnum::DONE]);
+    $packing->update(['employee_id' => $artisanA->id]);
+
+    patch($splitUrl, ['assignments' => [['id' => $line->id, 'employee_id' => $artisanB->id, 'quantity' => 1344]]])->assertSessionHasNoErrors();
+
+    expect($line->refresh()->employee_id)->toBe($artisanB->id)
+        ->and($mix->refresh()->sessions()->count())->toBe(1)
+        ->and($packing->refresh()->employee_id)->toBeNull()
+        ->and($packing->assigneeId())->toBe($artisanB->id)
+        ->and($mix->assigneeId())->toBe($artisanB->id);
+
+    $this->guest->getUser()->employees()->detach($artisanA->id);
+});
+
+test('shrinking an artisan share below what they made on a non-mix step fails and names the step', function () {
+    [$artisanA, $artisanB, , $line, $tasks, $splitUrl] = stepOwnerFixture($this);
+    $making = $tasks[1];
+    $making->update(['quantity_made' => 900, 'state' => \App\Enums\Production\JobOrderItemTask\JobOrderItemTaskStateEnum::IN_PROGRESS]);
+
+    patch($splitUrl, ['assignments' => [
+        ['id' => $line->id, 'employee_id' => $artisanA->id, 'quantity' => 500],
+        ['employee_id' => $artisanB->id, 'quantity' => 844],
+    ]])->assertSessionHasErrors('assignments');
+
+    expect(session('errors')->first('assignments'))->toContain($making->manufactureTask->name)->toContain('900')
+        ->and($line->refresh()->quantity)->toBe(1344);
+});
+
+test('the packing step alone can be given to another artisan once making is done', function () {
+    [$artisanA, $artisanB, , $line, $tasks] = stepOwnerFixture($this);
+    [$mix, $making, $packing] = $tasks->all();
+    $making->update(['quantity_made' => 1344, 'state' => \App\Enums\Production\JobOrderItemTask\JobOrderItemTaskStateEnum::DONE]);
+
+    expect($packing->assigneeId())->toBe($artisanA->id);
+
+    patch(route('grp.models.job-order-item-task.assign', ['jobOrderItemTask' => $packing->id]), ['employee_id' => $artisanB->id])->assertSessionHasNoErrors();
+
+    expect($packing->refresh()->assigneeId())->toBe($artisanB->id)
+        ->and($making->refresh()->assigneeId())->toBe($artisanA->id);
+});
+
+test('the job order page gives the owner of every step', function () {
+    [$artisanA, $artisanB, $jobOrder, $line, $tasks] = stepOwnerFixture($this);
+    $tasks[2]->update(['employee_id' => $artisanB->id]);
+
+    $item = collect(get(route('grp.org.productions.show.operations.job-orders.show', [$this->organisation->slug, $this->production->slug, $jobOrder->slug]))
+        ->viewData('page')['props']['items'])->firstWhere('id', $line->id);
+
+    expect(collect($item['tasks'])->map(fn (array $task) => $task['owners'][0]['owner_id'])->all())->toBe([$artisanA->id, $artisanA->id, $artisanB->id])
+        ->and(collect($item['tasks'])->every(fn (array $task) => $task['owners'][0]['can_assign']))->toBeTrue();
+});
+
+test('a kg step is not snapped to a pack fraction and every site counts artefacts out the same way', function () {
+    [, , , $line, $tasks] = stepOwnerFixture($this);
+    [$mix, $making] = $tasks->all();
+
+    $mix->jobOrderItem->artefact->manufactureTasks()->updateExistingPivot($mix->manufacture_task_id, ['units_per_artefact' => 0.0333]);
+    $making->jobOrderItem->artefact->manufactureTasks()->updateExistingPivot($making->manufacture_task_id, ['units_per_artefact' => 0.3333]);
+    $mix = $mix->fresh();
+    $making = $making->fresh();
+
+    expect($mix->unitsPerArtefact())->toBe(0.0333)
+        ->and($mix->requiredFor(600))->toBe(19.98)
+        ->and($mix->artefactsIn(19.98))->toBe(600.0)
+        ->and($making->unitsPerArtefact())->toBe(1 / 3)
+        ->and($making->requiredFor(600))->toBe(200.0)
+        ->and($making->artefactsIn(10))->toBe(30.0)
+        ->and($making->artefactsIn(10))->toBe(\App\Models\Production\ArtefactManufactureTask::artefactsIn(10, 0.3333));
+});
+
+test('every write of a required quantity recalculates the step, and a voided or empty session is not work', function () {
+    [$artisanA, , , $line, $tasks] = stepOwnerFixture($this);
+    [$mix] = $tasks->all();
+
+    $this->guest->getUser()->employees()->sync([$artisanA->id => ['group_id' => $this->group->id, 'organisation_id' => $this->organisation->id]]);
+    $session = StartManufactureTaskSession::make()->action($this->guest->getUser(), $mix);
+    $session = CloseManufactureTaskSession::make()->action($session, ['quantity_made' => 200]);
+    $state   = \App\Enums\Production\JobOrderItemTask\JobOrderItemTaskStateEnum::class;
+
+    expect($mix->refresh()->state)->toBe($state::DONE);
+
+    $mix->setRequiredQuantity(300);
+    expect($mix->refresh()->state)->toBe($state::IN_PROGRESS);
+
+    VoidManufactureTaskSession::make()->action($session->refresh());
+    expect($mix->refresh()->state)->toBe($state::TODO);
+
+    $session->update(['state' => \App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum::CLOSED, 'quantity_made' => 0]);
+    \App\Actions\Production\JobOrderItemTask\CalculateJobOrderItemTaskQuantities::run($mix->refresh());
+    expect($mix->refresh()->state)->toBe($state::TODO);
+
+    $this->guest->getUser()->employees()->detach($artisanA->id);
+});
+
+test('a recipe change deletes an unworked step from an open job, keeps a worked one, and the final step ignores the orphan', function () {
+    [, , $jobOrder, $line, $tasks] = stepOwnerFixture($this);
+    [$mix, $making, $packing] = $tasks->all();
+    $artefact = $line->artefact;
+
+    $artefact->manufactureTasks()->detach($packing->manufacture_task_id);
+    \App\Actions\Production\JobOrderItemTask\GenerateJobOrderItemTasks::run($line->refresh());
+    expect(\App\Models\Production\JobOrderItemTask::find($packing->id))->toBeNull()
+        ->and($line->refresh()->finalTask()->id)->toBe($making->id);
+
+    $artefact->manufactureTasks()->attach($packing->manufacture_task_id, ['position' => 3, 'units_per_artefact' => 1]);
+    \App\Actions\Production\JobOrderItemTask\GenerateJobOrderItemTasks::run($line->refresh());
+    $packing = $line->refresh()->tasks->firstWhere('manufacture_task_id', $packing->manufacture_task_id);
+    $packing->update(['quantity_made' => 10, 'state' => \App\Enums\Production\JobOrderItemTask\JobOrderItemTaskStateEnum::IN_PROGRESS]);
+    $making->update(['quantity_made' => 700]);
+
+    $artefact->manufactureTasks()->detach($packing->manufacture_task_id);
+    \App\Actions\Production\JobOrderItemTask\GenerateJobOrderItemTasks::run($line->refresh());
+
+    $line->refresh();
+    expect($line->tasks->pluck('id')->contains($packing->id))->toBeTrue()
+        ->and($line->finalTask()->id)->toBe($making->id)
+        ->and(\App\Actions\Production\JobOrder\GetJobOrderDestinationAllocation::make()->producedArtefacts($line))->toBe(700.0);
+
+    $item = collect(get(route('grp.org.productions.show.operations.job-orders.show', [$this->organisation->slug, $this->production->slug, $jobOrder->slug]))
+        ->viewData('page')['props']['items'])->firstWhere('id', $line->id);
+    expect($item['produced_quantity'])->toBe(700.0);
+});

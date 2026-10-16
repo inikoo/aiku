@@ -13,7 +13,6 @@ use App\Actions\Production\JobOrderItem\UpdateJobOrderItem;
 use App\Actions\Production\JobOrderItemTask\CalculateJobOrderItemTaskQuantities;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
-use App\Models\Production\ArtefactManufactureTask;
 use App\Models\Production\JobOrderItemTask;
 use App\Models\Production\ManufactureTaskSession;
 use Illuminate\Http\RedirectResponse;
@@ -92,12 +91,9 @@ class CorrectManufactureTaskSessionQuantity extends OrgAction
 
             if ($extra > $extraLeft) {
                 $required         = round((float) $task->quantity_required - ($extra - $extraLeft), 3);
-                $unitsPerArtefact = (float) ArtefactManufactureTask::where('artefact_id', $item->artefact_id)
-                    ->where('manufacture_task_id', $task->manufacture_task_id)
-                    ->value('units_per_artefact') ?: 1;
 
-                $task->update(['quantity_required' => $required]);
-                UpdateJobOrderItem::make()->action($item, ['quantity' => max(1, min((int) $item->quantity, (int) round($required / $unitsPerArtefact)))]);
+                $task->setRequiredQuantity($required);
+                UpdateJobOrderItem::make()->action($item, ['quantity' => max(1, min((int) $item->quantity, (int) $task->artefactsIn($required)))]);
             }
 
             CalculateJobOrderItemTaskQuantities::run($task->refresh());

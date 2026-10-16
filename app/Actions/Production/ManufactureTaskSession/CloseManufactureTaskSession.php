@@ -22,7 +22,6 @@ use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTy
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
 use App\Actions\Production\ManufactureBreak\EndManufactureBreak;
 use App\Models\HumanResources\Employee;
-use App\Models\Production\ArtefactManufactureTask;
 use App\Models\Production\ManufactureBreak;
 use App\Models\Production\ManufactureTaskSession;
 use App\Models\Production\ManufactureTaskSessionShare;
@@ -274,13 +273,10 @@ class CloseManufactureTaskSession extends OrgAction
      */
     private function growJobOrderItem(JobOrderItemTask $task, float $taskUnitsMade): void
     {
-        $task->update(['quantity_required' => max((float) $task->quantity_required, $taskUnitsMade)]);
+        $task->setRequiredQuantity(max((float) $task->quantity_required, $taskUnitsMade));
 
-        $item             = $task->jobOrderItem;
-        $unitsPerArtefact = ArtefactManufactureTask::where('artefact_id', $item->artefact_id)
-            ->pluck('units_per_artefact', 'manufacture_task_id');
-
-        $artefacts = (int) ArtefactManufactureTask::artefactsIn($taskUnitsMade, max(0.001, (float) ($unitsPerArtefact[$task->manufacture_task_id] ?? 1)));
+        $item      = $task->jobOrderItem;
+        $artefacts = (int) $task->artefactsIn($taskUnitsMade);
         if ($artefacts <= $item->quantity) {
             return;
         }
@@ -289,8 +285,7 @@ class CloseManufactureTaskSession extends OrgAction
 
         $laterSteps = $item->tasks->skipUntil(fn (JobOrderItemTask $step) => $step->id == $task->id)->skip(1);
         foreach ($laterSteps as $step) {
-            $step->update(['quantity_required' => max(ArtefactManufactureTask::stepQuantity($artefacts, $unitsPerArtefact[$step->manufacture_task_id] ?? 1), (float) $step->quantity_required)]);
-            CalculateJobOrderItemTaskQuantities::run($step);
+            $step->setRequiredQuantity(max($step->requiredFor($artefacts), (float) $step->quantity_required));
         }
     }
 

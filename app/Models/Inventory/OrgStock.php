@@ -206,6 +206,11 @@ class OrgStock extends Model implements Auditable, HasMedia
         'barcode',
     ];
 
+    public function packedIn(): int
+    {
+        return max(1, (int) $this->packed_in);
+    }
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()

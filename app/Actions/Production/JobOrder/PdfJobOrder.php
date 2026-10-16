@@ -42,7 +42,7 @@ class PdfJobOrder extends OrgAction
                 'code'        => $item->artefact->code,
                 'description' => $item->artefact->name,
                 'units'       => $unitsByLine[$item->id],
-                'skos'        => round($unitsByLine[$item->id] / ($item->artefact->orgStock?->packed_in ?: 1), 2),
+                'skos'        => round($unitsByLine[$item->id] / $item->artefact->packedIn(), 2),
             ]);
 
         $pdf = PDF::loadView('production.job-order', [

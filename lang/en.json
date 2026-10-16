@@ -185,7 +185,7 @@
     ":arrivals arrivals in the last :days days": ":arrivals arrivals in the last :days days",
     ":artefact has its own raw materials on this step": ":artefact has its own raw materials on this step",
     ":artefact uses the same materials as all artefacts on this step.": ":artefact uses the same materials as all artefacts on this step.",
-    ":artisan already made more than :quantity.": ":artisan already made more than :quantity.",
+    ":artisan already made :made of :step, more than their new share of :quantity.": ":artisan already made :made of :step, more than their new share of :quantity.",
     ":artisan already started their part, it cannot be removed.": ":artisan already started their part, it cannot be removed.",
     ":asker needs more information to continue with :reference (:subject):": ":asker needs more information to continue with :reference (:subject):",
     ":at: :carton pieces per carton, but :source says :expected.": ":at: :carton pieces per carton, but :source says :expected.",
