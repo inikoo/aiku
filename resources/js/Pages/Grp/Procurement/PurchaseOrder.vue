@@ -1611,6 +1611,10 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 		:draggable="false"
 	>
 		<div class="flex flex-col gap-4">
+			<p v-if="newStockDeliveryAction?.agent_note" class="flex gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+				<FontAwesomeIcon icon="fal fa-exclamation-triangle" class="mt-0.5 text-amber-500" fixed-width aria-hidden="true" />
+				<span>{{ newStockDeliveryAction.agent_note }}</span>
+			</p>
 			<div v-if="open_agent_deliveries.length" class="flex flex-col gap-2">
 				<label for="purchase-order-target-delivery" class="font-medium text-gray-700">{{ ctrans("Add to") }}</label>
 				<Select

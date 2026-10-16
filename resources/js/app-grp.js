@@ -91,9 +91,9 @@ const MyPreset = definePreset(Aura, {
       title : { fontSize: "0.875rem", fontWeight: "600" },
       css   : `
         .p-dialog .p-dialog-title { color: #374151; }
-        .p-dialog .p-dialog-close-button { width: 1.75rem; height: 1.75rem; border: 0; background: transparent; color: #9ca3af; box-shadow: none; outline: none; }
-        .p-dialog .p-dialog-close-button:hover { background: #f3f4f6; color: #374151; }
-        .p-dialog .p-dialog-close-button:focus-visible { box-shadow: 0 0 0 1px #d1d5db; }
+        .p-dialog .p-dialog-header .p-dialog-close-button.p-button { width: 1.75rem; height: 1.75rem; min-width: 0; padding: 0; border: 0; background: transparent; color: #9ca3af; box-shadow: none; outline: none; }
+        .p-dialog .p-dialog-header .p-dialog-close-button.p-button:hover,
+        .p-dialog .p-dialog-header .p-dialog-close-button.p-button:focus-visible { background: #f3f4f6; color: #374151; box-shadow: none; outline: none; }
       `
     }
   }

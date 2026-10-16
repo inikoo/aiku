@@ -30,6 +30,7 @@ import StockDeliveryServiceInvoices from "@/Components/Procurement/StockDelivery
 import AgentContainerInvoicePanel from "@/Components/Procurement/AgentContainerInvoicePanel.vue"
 import AgreedTermDifferences from "@/Components/Procurement/AgreedTermDifferences.vue"
 import StockDeliveryAddItems from "@/Components/Procurement/StockDeliveryAddItems.vue"
+import ModalAcceptResponsibility from "@/Components/Procurement/ModalAcceptResponsibility.vue"
 import TableStockDeliveryItems from "@/Components/Tables/Grp/Org/Procurement/TableStockDeliveryItems.vue"
 import TableStockDeliveryDiscrepancies from "@/Components/Tables/Grp/Org/Procurement/TableStockDeliveryDiscrepancies.vue"
 import StockDeliveryCustoms from "@/Components/Procurement/StockDeliveryCustoms.vue"
@@ -859,7 +860,15 @@ const confirmFinishStockDeliveryCosting = (action: any) => {
 	})
 }
 
+const responsibilityDeleteAction = ref<any>(null)
+const isResponsibilityDeleteOpen = ref(false)
+
 const confirmDeleteStockDelivery = (action: any) => {
+	if (action.responsibility) {
+		responsibilityDeleteAction.value = action
+		isResponsibilityDeleteOpen.value = true
+		return
+	}
 	confirm.require({
 		group: "stock-delivery",
 		message: ctrans("Are you sure you want to delete this stock delivery? The purchase order will be reverted to before this delivery."),
@@ -1035,6 +1044,15 @@ const confirmDeleteStockDelivery = (action: any) => {
 			/>
 		</template>
 	</PageHeading>
+
+	<ModalAcceptResponsibility
+		v-if="responsibilityDeleteAction"
+		v-model:visible="isResponsibilityDeleteOpen"
+		:header="ctrans('Delete container')"
+		:route="responsibilityDeleteAction.route"
+		:phrase="responsibilityDeleteAction.responsibility.phrase"
+		:warnings="responsibilityDeleteAction.responsibility.warnings"
+	/>
 
 	<!-- Stock Delivery Timeline -->
 	<div v-if="timelines" class="py-2 border-b border-gray-300">

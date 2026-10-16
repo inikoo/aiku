@@ -719,6 +719,7 @@ class ShowPurchaseOrder extends OrgAction
                     'icon'    => 'fal fa-plus',
                     'key'     => 'new_stock_delivery',
                     'disabled_reason' => StoreStockDeliveryFromPurchaseOrder::partnerDeliveryBlockedReason($purchaseOrder),
+                    'agent_note'      => $purchaseOrder->isAgentOrder() ? __('Containers are now made by the agent. Making one here is allowed for a short while only and will soon be removed: if this is not for an agent container you already agreed, leave it to the agent.') : null,
                     'route'   => [
                         'method'     => 'post',
                         'name'       => 'grp.models.purchase-order.stock-delivery.store',
