@@ -17,16 +17,23 @@ class DeleteSeoTrackedKeyword extends OrgAction
 {
     use WithSeoEditAuthorisation;
 
-    public function handle(SeoTrackedKeyword $trackedKeyword): void
+    public function handle(SeoTrackedKeyword $trackedKeyword, bool $everyCountry = false): void
     {
-        $trackedKeyword->onEveryDevice()->get()->each->delete();
+        ($everyCountry ? $trackedKeyword->onEveryMarket() : $trackedKeyword->onEveryDevice())->get()->each->delete();
+    }
+
+    public function rules(): array
+    {
+        return [
+            'all_countries' => ['sometimes', 'boolean'],
+        ];
     }
 
     public function asController(SeoTrackedKeyword $seoTrackedKeyword, ActionRequest $request): void
     {
         $this->initialisationFromShop($seoTrackedKeyword->shop, $request);
 
-        $this->handle($seoTrackedKeyword);
+        $this->handle($seoTrackedKeyword, (bool) ($this->validatedData['all_countries'] ?? false));
     }
 
     public function htmlResponse(): RedirectResponse

@@ -32,6 +32,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property array|null $competitor_positions
  * @property bool|null $is_watched
  * @property string|null $alert
+ * @property \Illuminate\Support\Collection|null $other_countries
+ * @property array<int, int>|null $check_ids
  */
 class SeoRankingResource extends JsonResource
 {
@@ -39,6 +41,8 @@ class SeoRankingResource extends JsonResource
 
     public function toArray($request): array
     {
+        $otherCountries = collect($this->other_countries ?? []);
+
         return [
             'id'                      => $this->id,
             'keyword'                 => $this->keyword,
@@ -62,6 +66,10 @@ class SeoRankingResource extends JsonResource
             'alert'                   => $this->alert,
             'history_route'           => ['name' => 'grp.json.seo_tracked_keyword.history', 'parameters' => [$this->id]],
             'watch_route'             => ['name' => 'grp.models.seo_tracked_keyword.watch', 'parameters' => [$this->id]],
+            'check_ids'               => $this->check_ids ?? [$this->id],
+            'can_check_any'           => ($this->pending_task_id === null && !$this->last_checked_at?->isToday())
+                || $otherCountries->contains(fn ($other) => $other->pending_task_id === null && !$other->last_checked_at?->isToday()),
+            'other_countries'         => $otherCountries->map(fn ($other) => (new self($other))->toArray($request))->values()->all(),
         ];
     }
 }

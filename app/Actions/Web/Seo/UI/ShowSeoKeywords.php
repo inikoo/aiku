@@ -131,9 +131,12 @@ class ShowSeoKeywords extends OrgAction
 
     private function rankings(Shop $shop): array
     {
+        $device = SeoKeywordDeviceEnum::tryFrom((string) request()->query('device')) ?? SeoKeywordDeviceEnum::MOBILE;
+
         return [
             ...GetSeoRankingsOverview::run($shop),
             'domain'         => $shop->website?->domain,
+            'device'         => $device->value,
             'isConfigured'   => DataForSeoClient::make() !== null,
             'depths'         => [
                 'weekly' => PostSerpTasks::WEEKLY_DEPTH,
@@ -151,7 +154,7 @@ class ShowSeoKeywords extends OrgAction
                 'name'       => 'grp.models.shop.seo.rank_checks.store',
                 'parameters' => [$shop->id],
             ] : null,
-            'table'          => SeoRankingResource::collection(IndexSeoRankings::run($shop, SeoKeywordsTabsEnum::RANKINGS->value)),
+            'table'          => SeoRankingResource::collection(IndexSeoRankings::run($shop, SeoKeywordsTabsEnum::RANKINGS->value, $device)),
         ];
     }
 

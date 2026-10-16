@@ -81,6 +81,18 @@ class SeoTrackedKeyword extends Model
             ->where('language_code', $this->language_code);
     }
 
+    /**
+     * This keyword in every country and language, on every device.
+     *
+     * @return Builder<SeoTrackedKeyword>
+     */
+    public function onEveryMarket(): Builder
+    {
+        return static::query()
+            ->where('shop_id', $this->shop_id)
+            ->where('keyword', $this->keyword);
+    }
+
     public function shop(): BelongsTo
     {
         return $this->belongsTo(Shop::class);

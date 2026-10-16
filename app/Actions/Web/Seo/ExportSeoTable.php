@@ -106,7 +106,7 @@ class ExportSeoTable extends OrgAction
 
     private function rankings(Shop $shop): array
     {
-        $rows = $this->allRows('rankings', fn () => IndexSeoRankings::make()->handle($shop, 'rankings'));
+        $rows = $this->allRows('rankings', fn () => IndexSeoRankings::make()->variants($shop, 'rankings'));
 
         return [
             ['Keyword', 'Country', 'Device', 'Check', 'Position', 'Previous position', 'Last checked', 'Ranking page', 'Monthly searches', 'Intent', 'Search Console position (28 days)', 'On the results page', 'In AI Overview', 'Alert', 'Competitors'],
@@ -132,7 +132,7 @@ class ExportSeoTable extends OrgAction
 
     private function trackedKeywords(Shop $shop): array
     {
-        $rows = $this->allRows('tracked_keywords', fn () => IndexSeoTrackedKeywords::make()->handle($shop, 'tracked_keywords'));
+        $rows = $this->allRows('tracked_keywords', fn () => IndexSeoTrackedKeywords::make()->markets($shop, 'tracked_keywords'));
 
         return [
             ['Keyword', 'Country', 'Language', 'Check', 'Active', 'Monthly searches', 'Target webpage', 'Added'],
