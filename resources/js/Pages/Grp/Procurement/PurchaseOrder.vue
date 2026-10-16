@@ -35,7 +35,6 @@ import Checkbox from "primevue/checkbox"
 import IconField from "primevue/iconfield"
 import InputIcon from "primevue/inputicon"
 import InputText from "primevue/inputtext"
-import Image from "@common/Components/Image.vue"
 import RadioButton from "primevue/radiobutton"
 import ConfirmDialog from "primevue/confirmdialog"
 import DatePicker from "primevue/datepicker"
@@ -47,6 +46,7 @@ import PurchaseOrderPayments from "@/Components/Procurement/PurchaseOrderPayment
 import PurchaseOrderDepositPayments, { type PurchaseOrderPaymentsData } from "@/Components/Procurement/PurchaseOrderDepositPayments.vue"
 import PurchaseOrderStages from "@/Components/Procurement/PurchaseOrderStages.vue"
 import AgentPurchaseOrderReceiving from "@/Components/Procurement/AgentPurchaseOrderReceiving.vue"
+import ZoomableImage from "@/Components/Utils/ZoomableImage.vue"
 import ButtonDownloadWithOptions from "@/Components/Utils/ButtonDownloadWithOptions.vue"
 import { useConfirm } from "primevue/useconfirm"
 import { notify } from "@kyvg/vue3-notification"
@@ -144,6 +144,7 @@ const props = defineProps < {
         name: string | null
         quantity_ordered: number | string
         image_thumbnail: object | null
+        image_full: { original_url: string; download_url: string } | null
     }[]
     submit_problems?: SubmitProblem[]
 	agreement: { terms: object[], notes: object[], open_incidents: number, must_acknowledge: boolean }
@@ -1677,9 +1678,7 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 				class="flex cursor-pointer items-center gap-3 p-3 hover:bg-gray-50"
 			>
 				<Checkbox v-model="selectedDeliveryItemIds" :value="item.id" />
-				<div class="h-12 w-12 flex-none overflow-hidden rounded border border-gray-100">
-					<Image :src="item.image_thumbnail" imageCover class="h-12 w-12" />
-				</div>
+				<ZoomableImage :src="item.image_thumbnail" :full="item.image_full" :alt="item.code" class="h-12 w-12" @click.prevent />
 				<span class="min-w-0 flex-1">
 					<span class="block font-medium text-gray-800">{{ item.code || ctrans("No code") }}</span>
 					<span class="block truncate text-sm text-gray-500">{{ item.name }}</span>

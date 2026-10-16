@@ -62,15 +62,15 @@ class GetPurchaseOrderAgentReceiving
         $received = (float) $receipts->sum('quantity_received');
         $rejected = (float) $receipts->sum('quantity_rejected');
         $accepted = $received - $rejected;
+        $tradeUnit = $transaction->orgStock?->tradeUnits->first(fn ($tradeUnit) => $tradeUnit->image_id !== null);
         $isLive   = in_array($transaction->state, [PurchaseOrderTransactionStateEnum::SUBMITTED, PurchaseOrderTransactionStateEnum::CONFIRMED], true);
 
         return [
             'id'              => $transaction->id,
             'code'            => $transaction->supplierProduct?->code,
             'name'            => $transaction->supplierProduct?->name,
-            'image_thumbnail' => $transaction->orgStock?->tradeUnits
-                ->first(fn ($tradeUnit) => $tradeUnit->image_id !== null)
-                ?->imageSources(80, 80),
+            'image_thumbnail' => $tradeUnit?->imageSources(80, 80),
+            'image_full'      => $tradeUnit?->image?->fullResolutionUrls(),
             'state'           => $transaction->state->value,
             'units_per_pack'  => (float) ($transaction->supplierProduct?->units_per_pack ?: 1),
             'ordered'         => $ordered,

@@ -9,7 +9,7 @@
 import { computed, ref } from "vue"
 import { router, useForm } from "@inertiajs/vue3"
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import Image from "@common/Components/Image.vue"
+import ZoomableImage from "@/Components/Utils/ZoomableImage.vue"
 import ConfirmDialog from "primevue/confirmdialog"
 import DatePicker from "primevue/datepicker"
 import Dialog from "primevue/dialog"
@@ -44,6 +44,7 @@ type Line = {
 	code: string | null
 	name: string | null
 	image_thumbnail: object | null
+	image_full: { original_url: string; download_url: string } | null
 	state: string
 	units_per_pack: number
 	ordered: number
@@ -272,9 +273,7 @@ function receiptStatus(receipt: Receipt) {
 							</td>
 							<td class="py-2 pr-3">
 								<div class="flex items-center gap-2">
-									<div class="h-10 w-10 flex-none overflow-hidden rounded border border-gray-100">
-										<Image :src="line.image_thumbnail" imageCover class="h-10 w-10" />
-									</div>
+									<ZoomableImage :src="line.image_thumbnail" :full="line.image_full" :alt="line.code" class="h-10 w-10" />
 									<div>
 										<div class="font-medium text-gray-800">{{ line.code }}</div>
 										<div class="text-xs text-gray-500">{{ line.name }}</div>

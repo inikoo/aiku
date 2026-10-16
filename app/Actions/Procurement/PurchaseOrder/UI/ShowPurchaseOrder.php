@@ -288,15 +288,18 @@ class ShowPurchaseOrder extends OrgAction
                         ->where('state', PurchaseOrderTransactionStateEnum::CONFIRMED)
                         ->with(['supplierProduct:id,code,name', 'orgStock:id,code,name', 'orgStock.tradeUnits.image'])
                         ->get(['id', 'supplier_product_id', 'org_stock_id', 'quantity_ordered'])
-                        ->map(fn (PurchaseOrderTransaction $transaction) => [
-                            'id'               => $transaction->id,
-                            'code'             => $transaction->supplierProduct?->code ?? $transaction->orgStock?->code,
-                            'name'             => $transaction->supplierProduct?->name ?? $transaction->orgStock?->name,
-                            'quantity_ordered' => $transaction->quantity_ordered,
-                            'image_thumbnail'  => $transaction->orgStock?->tradeUnits
-                                ->first(fn ($tradeUnit) => $tradeUnit->image_id !== null)
-                                ?->imageSources(80, 80),
-                        ])->values()
+                        ->map(function (PurchaseOrderTransaction $transaction) {
+                            $tradeUnit = $transaction->orgStock?->tradeUnits->first(fn ($tradeUnit) => $tradeUnit->image_id !== null);
+
+                            return [
+                                'id'               => $transaction->id,
+                                'code'             => $transaction->supplierProduct?->code ?? $transaction->orgStock?->code,
+                                'name'             => $transaction->supplierProduct?->name ?? $transaction->orgStock?->name,
+                                'quantity_ordered' => $transaction->quantity_ordered,
+                                'image_thumbnail'  => $tradeUnit?->imageSources(80, 80),
+                                'image_full'       => $tradeUnit?->image?->fullResolutionUrls(),
+                            ];
+                        })->values()
                     : [],
                 'tabs'        => [
                     'current'    => $this->tab,

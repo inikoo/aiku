@@ -97,7 +97,7 @@ class IndexAgentProductsInProduction extends OrgAction
             'purchase_order_transactions'
         );
 
-        return QueryBuilder::for($query)
+        return $this->withProductImages(QueryBuilder::for($query)
             ->defaultSort('code')
             ->allowedSorts([
                 AllowedSort::field('code', 'supplier_products.code'),
@@ -117,7 +117,7 @@ class IndexAgentProductsInProduction extends OrgAction
                 'ready_at'              => $transaction->approved_ready_at ?? $transaction->proposed_ready_at,
                 'ready_at_is_approved'  => $transaction->approved_ready_at !== null,
                 'quantity_rejected'     => (float) $transaction->quantity_rejected,
-            ]));
+            ])));
     }
 
     public function tableStructure(): Closure
@@ -128,6 +128,7 @@ class IndexAgentProductsInProduction extends OrgAction
                 ->withLabelRecord([__('Product'), __('Products')])
                 ->withEmptyState(['title' => __('Nothing is being made by the suppliers')])
                 ->column(key: 'organisation_code', label: __('For'), canBeHidden: false, sortable: true)
+                ->column(key: 'image_thumbnail', label: __('Image'), canBeHidden: false)
                 ->column(key: 'code', label: __('Code'), canBeHidden: false, sortable: true)
                 ->column(key: 'name', label: __('Name'), canBeHidden: false, sortable: true)
                 ->column(key: 'supplier_code', label: __('Supplier'), canBeHidden: false, sortable: true)

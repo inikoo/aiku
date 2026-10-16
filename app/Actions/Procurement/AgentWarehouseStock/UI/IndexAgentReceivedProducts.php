@@ -114,7 +114,7 @@ class IndexAgentReceivedProducts extends OrgAction
         $filters   = $this->productRowFilters();
         $filters[] = AllowedFilter::callback('location', fn ($query, $value) => $query->where('received_items.location', $value));
 
-        return QueryBuilder::for($query)
+        return $this->withProductImages(QueryBuilder::for($query)
             ->defaultSort('code')
             ->allowedSorts([
                 AllowedSort::field('code', 'supplier_products.code'),
@@ -134,7 +134,7 @@ class IndexAgentReceivedProducts extends OrgAction
                 'container_reference' => $row->container_reference,
                 'container_slug'      => $row->container_slug,
                 'is_unchecked'        => (bool) $row->is_unchecked,
-            ]));
+            ])));
     }
 
     private function locationIcon(AgentWarehouseStock $row): array
@@ -161,6 +161,7 @@ class IndexAgentReceivedProducts extends OrgAction
                 ->withEmptyState(['title' => __('Nothing received yet')])
                 ->column(key: 'organisation_code', label: __('For'), canBeHidden: false, sortable: true)
                 ->column(key: 'location', label: __('Where'), canBeHidden: false, sortable: true)
+                ->column(key: 'image_thumbnail', label: __('Image'), canBeHidden: false)
                 ->column(key: 'code', label: __('Code'), canBeHidden: false, sortable: true)
                 ->column(key: 'name', label: __('Name'), canBeHidden: false, sortable: true)
                 ->column(key: 'supplier_code', label: __('Supplier'), canBeHidden: false, sortable: true)

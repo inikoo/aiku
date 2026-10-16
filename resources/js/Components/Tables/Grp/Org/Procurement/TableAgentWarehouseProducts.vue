@@ -11,6 +11,7 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { faDolly, faBoxCheck, faBoxes, faTruckContainer } from "@fal"
 import Table from "@/Components/Table/Table.vue"
 import Icon from "@/Components/Icon.vue"
+import ZoomableImage from "@/Components/Utils/ZoomableImage.vue"
 import { ctrans } from "@/Composables/useTrans"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { useLocaleStore } from "@/Stores/locale"
@@ -48,6 +49,9 @@ const formatQuantity = (value: number) => locale.number(Math.round(Number(value)
 					{{ ctrans("Not checked yet") }}
 				</span>
 			</div>
+		</template>
+		<template #cell(image_thumbnail)="{ item: row }">
+			<ZoomableImage :src="row.image_thumbnail" :full="row.image_full" :alt="row.code" class="h-12 w-12" />
 		</template>
 		<template #cell(code)="{ item: row }">
 			<Link v-if="row.org_supplier_product_slug" :href="productRoute(row.org_supplier_product_slug)" class="primaryLink">{{ row.code }}</Link>
