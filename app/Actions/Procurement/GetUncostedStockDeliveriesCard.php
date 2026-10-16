@@ -79,22 +79,26 @@ class GetUncostedStockDeliveriesCard
             },
             'metrics'     => [
                 [
-                    'label' => __('Booked in more than :days days ago', ['days' => self::BOOKED_IN_GRACE_DAYS]),
+                    'label'       => __('Overdue'),
+                    'description' => __('Booked in over :days days', ['days' => self::BOOKED_IN_GRACE_DAYS]),
                     'value' => $stale->total,
                     'route' => $staleRoute,
                 ],
                 [
-                    'label' => __('From agents, placed in the last :days days', ['days' => self::AGENT_LOOKBACK_DAYS]),
+                    'label'       => __('From agents'),
+                    'description' => __('Last :days days', ['days' => self::AGENT_LOOKBACK_DAYS]),
                     'value' => $agentNotCosted,
                     'route' => $agentRoute,
                 ],
                 [
-                    'label' => __('On the way or received with costs missing, put-away blocked'),
+                    'label'       => __('Costs missing'),
+                    'description' => __('Book in blocked'),
                     'value' => $putAwayBlocked,
                     'route' => $this->route($organisation, ['elements[costing]' => 'costs_missing']),
                 ],
                 [
-                    'label' => __('Costed with an estimate, real invoice still to come'),
+                    'label'       => __('Estimated'),
+                    'description' => __('Waiting for invoice'),
                     'value' => $estimated,
                     'route' => $this->route($organisation, ['elements[costing]' => 'estimated']),
                 ],

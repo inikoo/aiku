@@ -32,27 +32,45 @@ defineProps<{
 <template>
     <Link :href="route(tableRoute.name, tableRoute.parameters)"
         class="block rounded-lg border border-gray-200 bg-white p-4 shadow-sm hover:border-gray-400 transition-colors">
-        <div class="flex items-baseline justify-between mb-3">
+        <div class="flex items-center justify-between gap-3 mb-3">
             <div class="font-medium text-gray-700">{{ ctrans("Payment methods") }}</div>
-            <div class="text-xs text-gray-500">{{ summary.period_label.toLowerCase() }} · {{ locale.currencyFormat(summary.currency_code, summary.total_sales) }}</div>
+            <div class="flex items-center gap-3">
+                <div class="text-xs text-gray-500">{{ summary.period_label.toLowerCase() }} · {{ locale.currencyFormat(summary.currency_code, summary.total_sales) }}</div>
+                <div v-if="$slots.actions" class="mini-actions" @click.stop.prevent>
+                    <slot name="actions" />
+                </div>
+            </div>
         </div>
 
         <div v-if="!summary.methods.length" class="text-sm text-gray-400">{{ ctrans("No payments yet") }}</div>
 
-        <div v-for="row in summary.methods" :key="row.method + row.payment_account_type" class="grid grid-cols-[1fr_auto] gap-x-3 items-center text-sm py-0.5">
-            <div class="flex items-center gap-2 min-w-0">
-                <div class="w-52 shrink-0 truncate">
-                    <PaymentMethodBadge :label="row.method_label" :method="row.method" :accountType="row.payment_account_type" />
-                </div>
-                <div class="h-1.5 flex-1 rounded bg-gray-100">
-                    <div class="h-1.5 rounded" :style="{ width: row.share + '%', backgroundColor: layout?.app?.theme?.[4] || '#6366f1' }" />
-                </div>
-            </div>
-            <div class="tabular-nums text-right text-gray-600 whitespace-nowrap">
-                {{ row.share }}% <span class="text-gray-400 text-xs">· {{ row.number_payments.toLocaleString() }}</span>
-            </div>
-        </div>
+        <table v-else class="w-full text-sm tabular-nums">
+            <tbody>
+                <tr v-for="row in summary.methods" :key="row.method + row.payment_account_type">
+                    <td class="max-w-52 truncate py-0.5 pr-3">
+                        <PaymentMethodBadge :label="row.method_label" :method="row.method" :accountType="row.payment_account_type" />
+                    </td>
+                    <td class="w-full py-0.5 pr-3">
+                        <div class="h-1.5 rounded bg-gray-100">
+                            <div class="h-1.5 rounded" :style="{ width: row.share + '%', backgroundColor: layout?.app?.theme?.[4] || '#6366f1' }" />
+                        </div>
+                    </td>
+                    <td class="py-0.5 pr-3 text-right text-gray-600 whitespace-nowrap">{{ row.share }}%</td>
+                    <td class="py-0.5 text-right text-xs text-gray-400 whitespace-nowrap">{{ row.number_payments.toLocaleString() }}</td>
+                </tr>
+            </tbody>
+        </table>
 
         <div v-if="summary.others" class="text-xs text-gray-400 mt-1">{{ ctrans("+:n more", { n: summary.others }) }}</div>
     </Link>
 </template>
+
+<style scoped>
+.mini-actions :deep(.p-togglebutton) {
+    font-size: 0.6875rem;
+    line-height: 1rem;
+}
+.mini-actions :deep(.p-togglebutton-content) {
+    padding: 0.125rem 0.5rem;
+}
+</style>
