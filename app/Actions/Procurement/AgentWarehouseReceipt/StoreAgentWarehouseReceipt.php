@@ -116,12 +116,18 @@ class StoreAgentWarehouseReceipt extends OrgAction
         ];
     }
 
+    public static function isReceivable(PurchaseOrderTransaction $purchaseOrderTransaction): bool
+    {
+        $purchaseOrder = $purchaseOrderTransaction->purchaseOrder;
+
+        return $purchaseOrder->isAgentOrder()
+            && in_array($purchaseOrder->state, [PurchaseOrderStateEnum::SUBMITTED, PurchaseOrderStateEnum::CONFIRMED], true)
+            && in_array($purchaseOrderTransaction->state, [PurchaseOrderTransactionStateEnum::SUBMITTED, PurchaseOrderTransactionStateEnum::CONFIRMED], true);
+    }
+
     public function afterValidator(Validator $validator): void
     {
-        $purchaseOrder = $this->purchaseOrderTransaction->purchaseOrder;
-
-        if (!in_array($purchaseOrder->state, [PurchaseOrderStateEnum::SUBMITTED, PurchaseOrderStateEnum::CONFIRMED], true)
-            || !in_array($this->purchaseOrderTransaction->state, [PurchaseOrderTransactionStateEnum::SUBMITTED, PurchaseOrderTransactionStateEnum::CONFIRMED], true)) {
+        if (!self::isReceivable($this->purchaseOrderTransaction)) {
             $validator->errors()->add('quantity_received', __('Only the lines of a sent order that are not cancelled can be received'));
         }
     }

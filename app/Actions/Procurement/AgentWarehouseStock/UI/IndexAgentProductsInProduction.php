@@ -90,6 +90,7 @@ class IndexAgentProductsInProduction extends OrgAction
                 'purchase_order_transactions.id',
                 DB::raw(self::quantityInProductionSql().' as quantity'),
                 DB::raw('least('.self::OUTSTANDING_SQL.', '.self::REJECTED_SQL.') as quantity_rejected'),
+                DB::raw(self::OUTSTANDING_SQL.' as quantity_outstanding'),
                 'production_orders.production_started_at',
                 'production_orders.proposed_ready_at',
                 'production_orders.approved_ready_at',
@@ -117,6 +118,11 @@ class IndexAgentProductsInProduction extends OrgAction
                 'ready_at'              => $transaction->approved_ready_at ?? $transaction->proposed_ready_at,
                 'ready_at_is_approved'  => $transaction->approved_ready_at !== null,
                 'quantity_rejected'     => (float) $transaction->quantity_rejected,
+                'quantity_outstanding'  => (float) $transaction->quantity_outstanding,
+                'receive_route'         => $this->canReceive ? [
+                    'name'       => 'grp.models.purchase-order-transaction.agent_warehouse_receipt.store',
+                    'parameters' => [$transaction->id],
+                ] : null,
             ])));
     }
 
@@ -136,8 +142,13 @@ class IndexAgentProductsInProduction extends OrgAction
                 ->column(key: 'production_started_at', label: __('Production started'), sortable: true)
                 ->column(key: 'ready_at', label: __('Ready date'), sortable: true)
                 ->column(key: 'quantity', label: __('Units'), canBeHidden: false, sortable: true, align: 'right')
-                ->column(key: 'skos', label: __('SKO'), align: 'right')
-                ->defaultSort('code');
+                ->column(key: 'skos', label: __('SKO'), align: 'right');
+
+            if ($this->canReceive) {
+                $table->column(key: 'actions', label: '', canBeHidden: false, align: 'right');
+            }
+
+            $table->defaultSort('code');
         };
     }
 
@@ -146,12 +157,15 @@ class IndexAgentProductsInProduction extends OrgAction
         $this->initialisation($organisation, $request);
         $agent = $this->getOrganisationAgent($organisation);
         abort_unless($agent, 404);
-        $this->agent = $agent;
+        $this->agent      = $agent;
+        $this->canReceive = $request->user()->authTo("procurement.$organisation->id.edit");
 
         return $this->handle($agent);
     }
 
     private Agent $agent;
+
+    private bool $canReceive = false;
 
     public function htmlResponse(LengthAwarePaginator $rows, ActionRequest $request): Response
     {
@@ -170,6 +184,11 @@ class IndexAgentProductsInProduction extends OrgAction
             'grp.org.agent.warehouse.in_production',
             'in_production',
             $this->organisationOptions($organisationCounts),
-        )->table($this->tableStructure());
+        )->with('receiving', $this->canReceive ? [
+            'bulk_route' => [
+                'name'       => 'grp.models.org.agent_warehouse_receipts.store',
+                'parameters' => [$this->organisation->id],
+            ],
+        ] : null)->table($this->tableStructure());
     }
 }

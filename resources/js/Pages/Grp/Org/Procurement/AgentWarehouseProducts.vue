@@ -18,6 +18,7 @@ import PillFilterBar from "@/Components/Utils/PillFilterBar.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { ctrans } from "@/Composables/useTrans"
 import { PageHeadingTypes } from "@/types/PageHeading"
+import { routeType } from "@/types/route"
 
 library.add(faIndustryAlt, faInboxIn)
 
@@ -29,6 +30,7 @@ const props = defineProps<{
 	kind: "in_production" | "received"
 	data: object
 	filterOptions: { organisation: FilterOption[]; location?: FilterOption[] }
+	receiving?: { bulk_route: routeType } | null
 }>()
 
 const currentQuery = () => qs.parse(location.search.substring(1)) as Record<string, any>
@@ -59,5 +61,5 @@ watch([organisation, where], () => {
 		<PillFilterBar :label="ctrans('AW company')" :options="filterOptions.organisation" :selected="organisation" @select="(value) => (organisation = value)" />
 		<PillFilterBar v-if="filterOptions.location" :label="ctrans('Where')" :options="filterOptions.location" :selected="where" @select="(value) => (where = value)" />
 	</div>
-	<TableAgentWarehouseProducts :data="data" :kind="kind" />
+	<TableAgentWarehouseProducts :data="data" :kind="kind" :receiving="receiving" />
 </template>
