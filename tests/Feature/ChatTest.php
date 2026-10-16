@@ -11089,6 +11089,8 @@ test('a colleague holding a whatsapp chat keeps it in the team list after they s
         ?? StoreChatAgent::make()->handle(['user_id' => $this->user->id]);
     $other = StoreChatAgent::make()->handle(['user_id' => User::factory()->create(['group_id' => $this->organisation->group_id])->id]);
 
+    makeChatWorker($this->user, $this->shop);
+
     $metaChatSession = MetaChatSession::create([
         'ulid'            => (string) Str::ulid(),
         'meta_channel_id' => $channel->id,
@@ -11123,6 +11125,8 @@ test('a closed whatsapp chat nobody ever picked up is in the team list, not in m
 
     ChatAgent::where('user_id', $this->user->id)->first()
         ?? StoreChatAgent::make()->handle(['user_id' => $this->user->id]);
+
+    makeChatWorker($this->user, $this->shop);
 
     $metaChatSession = MetaChatSession::create([
         'ulid'            => (string) Str::ulid(),
