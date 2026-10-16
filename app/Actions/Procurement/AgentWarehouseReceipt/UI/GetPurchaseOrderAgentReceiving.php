@@ -51,8 +51,19 @@ class GetPurchaseOrderAgentReceiving
             ->values();
 
         return [
-            'can_edit' => $canEdit,
-            'lines'    => $lines,
+            'can_edit'     => $canEdit,
+            'lines'        => $lines,
+            'receipt_note' => [
+                'route' => [
+                    'name'       => 'grp.org.agent.purchase_orders.receipt_note',
+                    'parameters' => ['organisation' => $purchaseOrder->agent->organisation->slug, 'purchaseOrder' => $purchaseOrder->slug],
+                ],
+                'dates' => $receipts->flatten(1)
+                    ->map(fn (AgentWarehouseReceipt $receipt) => $receipt->received_at->toDateString())
+                    ->unique()
+                    ->sortDesc()
+                    ->values(),
+            ],
         ];
     }
 

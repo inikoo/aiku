@@ -21,7 +21,7 @@ import { ctrans } from "@/Composables/useTrans"
 import { useLocaleStore } from "@/Stores/locale"
 import { routeType } from "@/types/route"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faInboxIn, faClipboardCheck, faPencil, faTrashAlt, faChevronDown, faChevronRight, faCheck, faTimes, faExclamationTriangle, faImage, faBoxCheck } from "@fal"
+import { faInboxIn, faClipboardCheck, faPencil, faTrashAlt, faChevronDown, faChevronRight, faCheck, faTimes, faExclamationTriangle, faImage, faBoxCheck, faFilePdf } from "@fal"
 
 type Receipt = {
 	id: number
@@ -61,6 +61,7 @@ const props = defineProps<{
 	receiving: {
 		can_edit: boolean
 		lines: Line[]
+		receipt_note: { route: routeType; dates: string[] }
 	}
 }>()
 
@@ -211,6 +212,34 @@ function confirmDeleteReceipt(line: Line, receipt: Receipt) {
 	})
 }
 
+const localDate = (date: string) => new Date(`${date}T00:00:00`)
+
+const isReceiptNoteOpen = ref(false)
+const receiptNoteDates = ref<(Date | null)[] | null>(null)
+
+function openReceiptNote() {
+	const latest = props.receiving.receipt_note.dates[0]
+	receiptNoteDates.value = latest ? [localDate(latest), localDate(latest)] : null
+	isReceiptNoteOpen.value = true
+}
+
+function isOnlyReceiptNoteDate(date: string) {
+	const [from, to] = receiptNoteDates.value ?? []
+
+	return isoDate(from ?? null) === date && isoDate(to ?? from ?? null) === date
+}
+
+function downloadReceiptNote() {
+	const [from, to] = receiptNoteDates.value ?? []
+	if (!from) {
+		return
+	}
+
+	const noteRoute = props.receiving.receipt_note.route
+	window.open(route(noteRoute.name, { ...noteRoute.parameters, from: isoDate(from), to: isoDate(to ?? from) }), "_blank")
+	isReceiptNoteOpen.value = false
+}
+
 function receiptStatus(receipt: Receipt) {
 	if (!receipt.is_checked) {
 		return { label: ctrans("Not checked yet"), class: "bg-amber-50 text-amber-700 ring-amber-200" }
@@ -238,6 +267,18 @@ function receiptStatus(receipt: Receipt) {
 				<span v-if="totals.unchecked" class="rounded-full bg-amber-50 px-2 text-amber-700 ring-1 ring-inset ring-amber-200">
 					{{ ctrans(":count not checked yet", { count: totals.unchecked }) }}
 				</span>
+				<Button
+					type="tertiary"
+					size="xs"
+					:label="ctrans('Receipt note')"
+					:tooltip="ctrans('PDF for the supplier with the products received on the dates you choose')"
+					:disabled="!receiving.receipt_note.dates.length"
+					@click="openReceiptNote"
+				>
+					<template #icon>
+						<FontAwesomeIcon :icon="faFilePdf" class="text-red-500" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
 			</div>
 		</div>
 		<p class="mt-1 text-xs text-gray-500">
@@ -441,6 +482,56 @@ function receiptStatus(receipt: Receipt) {
 					<Button type="tertiary" :label="ctrans('Save check')" :loading="checkForm.processing" @click="submitCheck">
 						<template #icon>
 							<FontAwesomeIcon :icon="faCheck" class="text-green-600" fixed-width aria-hidden="true" />
+						</template>
+					</Button>
+				</div>
+			</div>
+		</Dialog>
+
+		<Dialog
+			v-model:visible="isReceiptNoteOpen"
+			modal
+			:header="ctrans('Receipt note for the supplier')"
+			:style="{ width: '26rem' }"
+			:breakpoints="{ '640px': '95vw' }"
+		>
+			<div class="space-y-3 text-sm">
+				<p class="text-gray-600">{{ ctrans("Pick a day, or a first and a last day, to list the products received on those dates.") }}</p>
+				<DatePicker
+					v-model="receiptNoteDates"
+					selectionMode="range"
+					dateFormat="yy-mm-dd"
+					:maxDate="new Date()"
+					:manualInput="false"
+					showIcon
+					iconDisplay="input"
+					:class="fieldFocusClass"
+					fluid
+				/>
+				<div class="space-y-1">
+					<span class="block text-xs text-gray-500">{{ ctrans("Days with goods received") }}</span>
+					<div class="flex flex-wrap gap-1.5">
+						<button
+							v-for="date in receiving.receipt_note.dates"
+							:key="date"
+							type="button"
+							class="rounded-full border px-2 py-0.5 text-xs"
+							:class="isOnlyReceiptNoteDate(date) ? 'border-[--app-accent] bg-[--app-accent-soft] text-[--app-accent-strong]' : 'border-gray-200 text-gray-600 hover:border-[--app-accent-muted]'"
+							@click="receiptNoteDates = [localDate(date), localDate(date)]"
+						>
+							{{ date }}
+						</button>
+					</div>
+				</div>
+				<div class="flex justify-end gap-2">
+					<Button type="tertiary" :label="ctrans('Cancel')" @click="isReceiptNoteOpen = false">
+						<template #icon>
+							<FontAwesomeIcon :icon="faTimes" class="text-red-500" fixed-width aria-hidden="true" />
+						</template>
+					</Button>
+					<Button type="tertiary" :label="ctrans('Open PDF')" :disabled="!receiptNoteDates?.[0]" @click="downloadReceiptNote">
+						<template #icon>
+							<FontAwesomeIcon :icon="faFilePdf" class="text-red-500" fixed-width aria-hidden="true" />
 						</template>
 					</Button>
 				</div>
