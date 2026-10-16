@@ -3408,8 +3408,16 @@ test('agent order stages follow purchase orders and stock deliveries to arrival'
         ->where('stockDelivery.reference', $stockDelivery->reference)
         ->where('summary.products', 0)
         ->where('container.cbm', $this->orgAgent->order_container->cbm())
+        ->where('container.fill', 0)
+        ->where('container.is_worth_booking', false)
         ->where('pageHead.subNavigation', fn ($navigation) => collect($navigation)->where('active', true)->pluck('route.parameters.2')->all() === [$stages::PREPARING])
         ->has('rows.data', 0));
+
+    $fill = App\Actions\Procurement\OrgAgent\UI\ShowAgentContainerInPreparation::fillPercent(...);
+    expect($fill(60.92, 67.7))->toBe(90.0)
+        ->and($fill(60.93, 67.7))->toBe(90.0)
+        ->and($fill(60.0, 67.7))->toBe(88.6)
+        ->and($fill(1.0, null))->toBe(0.0);
 
     foreach ([
         'in_process'    => [$stages::PREPARING],

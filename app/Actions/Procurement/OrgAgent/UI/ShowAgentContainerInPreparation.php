@@ -130,6 +130,11 @@ class ShowAgentContainerInPreparation extends OrgAction
         ];
     }
 
+    public static function fillPercent(float $cbm, ?float $containerCbm): float
+    {
+        return $containerCbm ? round($cbm / $containerCbm * 100, 1) : 0.0;
+    }
+
     public function tableStructure(): Closure
     {
         return function (InertiaTable $table) {
@@ -167,6 +172,8 @@ class ShowAgentContainerInPreparation extends OrgAction
         $title       = __('In the warehouse of the agent');
         $currency    = $this->stockDelivery->currency;
         $orgCurrency = $this->organisation->currency;
+        $summary     = $this->summary($this->stockDelivery);
+        $fill        = self::fillPercent($summary['cbm'], $this->orgAgent->order_container->cbm());
 
         return Inertia::render(
             'Procurement/AgentContainerInPreparation',
@@ -191,9 +198,11 @@ class ShowAgentContainerInPreparation extends OrgAction
                 'orgExchange'   => $currency && $currency->id !== $orgCurrency->id ? GetCurrencyExchange::run($currency, $orgCurrency) : null,
                 'container'     => [
                     'label' => OrgAgentOrderContainerEnum::labels()[$this->orgAgent->order_container->value],
-                    'cbm'   => $this->orgAgent->order_container->cbm(),
+                    'cbm'              => $this->orgAgent->order_container->cbm(),
+                    'fill'             => $fill,
+                    'is_worth_booking' => $fill >= 90,
                 ],
-                'summary'       => $this->summary($this->stockDelivery),
+                'summary'       => $summary,
                 'rows'          => JsonResource::collection($rows),
             ]
         )->table($this->tableStructure());
