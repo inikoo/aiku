@@ -149,6 +149,9 @@ test('a freelancer sees only the developments they are a member of, never cost i
 
     patch(route('grp.models.product_development.next_stage', ['productDevelopment' => $assigned->id]))->assertForbidden();
     patch(route('grp.models.product_development.members.sync', ['productDevelopment' => $assigned->id]), ['members' => []])->assertForbidden();
+    patch(route('grp.models.product_development.stage.due_date', ['productDevelopmentStage' => $assigned->stages()->first()->id]), ['due_at' => '2026-12-01'])->assertForbidden();
+    get(route('grp.tasks.list', ['view' => 'model', 'model_type' => 'ProductDevelopment', 'model_id' => $assigned->id]))->assertOk();
+    get(route('grp.tasks.list', ['view' => 'model', 'model_type' => 'ProductDevelopment', 'model_id' => $notAssigned->id]))->assertForbidden();
     patch(route('grp.models.product_development.update', ['productDevelopment' => $assigned->id]), ['target_online_date' => '2026-12-01'])->assertForbidden();
     get(route('grp.product_developments.create'))->assertForbidden();
 

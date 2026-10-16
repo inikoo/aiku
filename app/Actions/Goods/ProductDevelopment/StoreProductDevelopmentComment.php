@@ -14,11 +14,10 @@ use App\Actions\Traits\Authorisations\WithProductDevelopmentAuthorisation;
 use App\Models\Goods\ProductDevelopment;
 use App\Models\Goods\ProductDevelopmentComment;
 use App\Models\SysAdmin\User;
-use App\Notifications\ProductDevelopmentNotification;
+use App\Enums\SysAdmin\User\UserNotificationEnum;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -62,11 +61,13 @@ class StoreProductDevelopmentComment extends OrgAction
             $comment->attachTicketImages($images);
 
             if ($mentioned->isNotEmpty()) {
-                Notification::send($mentioned, new ProductDevelopmentNotification(
+                NotifyProductDevelopmentUsers::run(
                     $productDevelopment,
+                    $mentioned,
+                    UserNotificationEnum::PRODUCT_DEVELOPMENT_MENTION,
                     __(':name mentioned you on :code', ['name' => $author->contact_name ?: $author->username, 'code' => $productDevelopment->code]),
                     Str::limit($body, 140),
-                ));
+                );
             }
 
             return $comment;

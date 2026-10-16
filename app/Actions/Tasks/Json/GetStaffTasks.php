@@ -8,6 +8,8 @@
 
 namespace App\Actions\Tasks\Json;
 
+use App\Actions\Goods\ProductDevelopment\ProductDevelopmentAccess;
+use App\Models\Goods\ProductDevelopment;
 use App\Http\Resources\Tasks\StaffTaskResource;
 use App\Models\Tasks\StaffTask;
 use App\Models\SysAdmin\User;
@@ -69,6 +71,11 @@ class GetStaffTasks
     {
         $view   = $request->validated('view', 'mine');
         $closed = (bool) $request->validated('closed', false);
+
+        if ($view === 'model' && $request->validated('model_type') === 'ProductDevelopment') {
+            $productDevelopment = ProductDevelopment::find($request->validated('model_id'));
+            abort_unless($productDevelopment && (new ProductDevelopmentAccess())->canView($request->user(), $productDevelopment), 403);
+        }
 
         return StaffTaskResource::collection($this->handle($request->user(), $view, $closed, $request->validated('model_type'), $request->validated('model_id')))
             ->additional($view === 'model' ? [] : ['counts' => $this->counts($request->user(), $closed)]);

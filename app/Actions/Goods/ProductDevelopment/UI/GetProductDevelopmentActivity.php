@@ -11,6 +11,7 @@ namespace App\Actions\Goods\ProductDevelopment\UI;
 
 use App\Actions\Goods\ProductDevelopment\ProductDevelopmentAccess;
 use App\Actions\Goods\ProductDevelopment\RecordProductDevelopmentActivity;
+use App\Actions\Goods\ProductDevelopment\UpdateProductDevelopmentStageDueDate;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentChecklistItemStateEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentFileScopeEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStatusEnum;
@@ -94,6 +95,7 @@ class GetProductDevelopmentActivity
                 RecordProductDevelopmentActivity::SKUS_ADDED => [trans_choice('Added :count SKU|Added :count SKUs', count($new['skus'] ?? []), ['count' => count($new['skus'] ?? [])]), [['label' => __('SKUs'), 'old' => null, 'new' => implode(', ', $new['skus'] ?? [])]]],
                 RecordProductDevelopmentActivity::MEMBERS_ADDED => [__('Added members'), [['label' => __('Members'), 'old' => null, 'new' => implode(', ', $new['members'] ?? [])]]],
                 RecordProductDevelopmentActivity::FILES_UPLOADED => [$this->filesSentence($new), [['label' => __('Files'), 'old' => null, 'new' => implode(', ', $new['files'] ?? [])]]],
+                UpdateProductDevelopmentStageDueDate::STAGE_DUE_CHANGED => [__('Changed the due date of :stage', ['stage' => $new['stage'] ?? '']), [['label' => __('Due'), 'old' => $this->displayValue('target_online_date', $old['due_at'] ?? null), 'new' => $this->displayValue('target_online_date', $new['due_at'] ?? null)]]],
                 RecordProductDevelopmentActivity::MEMBERS_REMOVED => [__('Removed members'), [['label' => __('Members'), 'old' => implode(', ', $old['members'] ?? []), 'new' => null]]],
                 'updated' => [__('Updated the development'), $this->fieldChanges($old, $new)],
                 default => [Str::headline($audit->event), []],

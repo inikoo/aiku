@@ -9,10 +9,13 @@
 
 /** @noinspection PhpUnhandledExceptionInspection */
 
+use App\Actions\Goods\ProductDevelopment\CreateProductDevelopmentTask;
 use App\Actions\Goods\ProductDevelopment\GetProductDevelopmentStageGate;
+use App\Actions\Goods\ProductDevelopment\SendProductDevelopmentReminders;
 use App\Actions\Goods\ProductDevelopment\Hydrators\ProductDevelopmentHydrateChecklist;
 use App\Actions\Goods\ProductDevelopment\MoveProductDevelopmentToNextStage;
 use App\Actions\Goods\ProductDevelopment\StoreProductDevelopment;
+use App\Actions\Goods\ProductDevelopment\SyncProductDevelopmentMembers;
 use App\Actions\Goods\ProductDevelopment\UploadProductDevelopmentFiles;
 use App\Actions\Goods\ProductDevelopment\UI\GetProductDevelopmentActivity;
 use App\Actions\Goods\ProductDevelopment\UI\ShowProductDevelopmentsBoard;
@@ -393,4 +396,143 @@ test('a per-SKU file needs its SKU', function () {
         'files' => [UploadedFile::fake()->createWithContent('sds.pdf', 'no sku '.Str::random(20))],
         'scope' => 'sds',
     ]))->toThrow(ValidationException::class);
+});
+
+function newGuestUser(object $test): \App\Models\SysAdmin\User
+{
+    return \App\Actions\SysAdmin\Guest\StoreGuest::make()->action($test->group, [...\App\Models\SysAdmin\Guest::factory()->definition(), 'positions' => []])->getUser();
+}
+
+function developmentTasks(ProductDevelopment $productDevelopment): \Illuminate\Support\Collection
+{
+    return \App\Models\Tasks\StaffTask::where('model_type', 'ProductDevelopment')->where('model_id', $productDevelopment->id)->get();
+}
+
+test('creating a development opens the agent and compliance tasks once, for the right people', function () {
+    $agent      = newGuestUser($this);
+    $compliance = newGuestUser($this);
+
+    $productDevelopment = StoreProductDevelopment::make()->action($this->group, $this->user, [
+        'name'    => 'Tasks check '.Str::upper(Str::random(5)),
+        'type'    => 'new',
+        'members' => [
+            ['user_id' => $agent->id, 'role' => ProductDevelopmentMemberRoleEnum::AGENT->value],
+            ['user_id' => $compliance->id, 'role' => ProductDevelopmentMemberRoleEnum::COMPLIANCE->value],
+        ],
+        'items'   => [['code' => 'TK-'.Str::upper(Str::random(5)), 'name' => 'Tasks SKU']],
+    ]);
+
+    $tasks = developmentTasks($productDevelopment)->keyBy(fn ($task) => $task->data['product_development_event']);
+    expect($tasks->keys()->sort()->values()->all())->toBe([CreateProductDevelopmentTask::SPECS, CreateProductDevelopmentTask::COMPLIANCE_SCOPE])
+        ->and($tasks[CreateProductDevelopmentTask::SPECS]->assignee_id)->toBe($agent->id)
+        ->and($tasks[CreateProductDevelopmentTask::SPECS]->due_at)->not->toBeNull()
+        ->and($tasks[CreateProductDevelopmentTask::COMPLIANCE_SCOPE]->assignee_id)->toBe($compliance->id);
+
+    expect(CreateProductDevelopmentTask::run($productDevelopment, CreateProductDevelopmentTask::SPECS))->toBeNull()
+        ->and(developmentTasks($productDevelopment))->toHaveCount(2);
+});
+
+test('entering artwork to supplier asks purchasing to send it, and once done asks the agent to confirm', function () {
+    $purchasing = newGuestUser($this);
+    $agent      = newGuestUser($this);
+    $productDevelopment = StoreProductDevelopment::make()->action($this->group, $this->user, [
+        'name'    => 'Artwork check '.Str::upper(Str::random(5)),
+        'type'    => 'new',
+        'members' => [
+            ['user_id' => $purchasing->id, 'role' => ProductDevelopmentMemberRoleEnum::PURCHASING->value],
+            ['user_id' => $agent->id, 'role' => ProductDevelopmentMemberRoleEnum::AGENT->value],
+        ],
+        'items'   => [['code' => 'AW-'.Str::upper(Str::random(5)), 'name' => 'Artwork SKU']],
+    ]);
+    $productDevelopment->checklistItems()->update(['state' => ProductDevelopmentChecklistItemStateEnum::NOT_APPLICABLE->value, 'na_reason' => 'test']);
+    $productDevelopment->update(['current_position' => ProductDevelopmentStageEnum::FINAL_APPROVAL->position()]);
+    ProductDevelopmentHydrateChecklist::run($productDevelopment);
+
+    MoveProductDevelopmentToNextStage::make()->action($productDevelopment->fresh(), $this->user);
+
+    $sendTask = developmentTasks($productDevelopment)->first(fn ($task) => $task->data['product_development_event'] === CreateProductDevelopmentTask::SEND_ARTWORK);
+    expect($sendTask)->not->toBeNull()
+        ->and($sendTask->assignee_id)->toBe($purchasing->id);
+
+    \App\Actions\Tasks\UpdateStaffTask::run($sendTask, $purchasing, ['status' => 'done']);
+
+    $confirmTask = developmentTasks($productDevelopment)->first(fn ($task) => $task->data['product_development_event'] === CreateProductDevelopmentTask::CONFIRM_ARTWORK);
+    expect($confirmTask)->not->toBeNull()
+        ->and($confirmTask->assignee_id)->toBe($agent->id);
+});
+
+test('an SDS upload notifies compliance but not the uploader', function () {
+    $compliance         = newGuestUser($this);
+    $productDevelopment = StoreProductDevelopment::make()->action($this->group, $this->user, [
+        'name'    => 'Notify check '.Str::upper(Str::random(5)),
+        'type'    => 'new',
+        'members' => [['user_id' => $compliance->id, 'role' => ProductDevelopmentMemberRoleEnum::COMPLIANCE->value]],
+        'items'   => [['code' => 'NT-'.Str::upper(Str::random(5)), 'name' => 'Notify SKU']],
+    ]);
+    $complianceBefore = $compliance->notifications()->count();
+    $uploaderBefore   = $this->user->notifications()->count();
+
+    UploadProductDevelopmentFiles::make()->action($productDevelopment, $this->user, [
+        'files'                       => [UploadedFile::fake()->createWithContent('sds.pdf', 'notify sds '.Str::random(20))],
+        'scope'                       => 'sds',
+        'product_development_item_id' => $productDevelopment->items->first()->id,
+    ]);
+
+    expect($compliance->notifications()->count())->toBe($complianceBefore + 1)
+        ->and($this->user->notifications()->count())->toBe($uploaderBefore);
+});
+
+test('three days before a stage is due its role is reminded, and the owner gets a digest', function () {
+    $agent              = newGuestUser($this);
+    $productDevelopment = StoreProductDevelopment::make()->action($this->group, $this->user, [
+        'name'    => 'Reminder check '.Str::upper(Str::random(5)),
+        'type'    => 'new',
+        'members' => [['user_id' => $agent->id, 'role' => ProductDevelopmentMemberRoleEnum::AGENT->value]],
+        'items'   => [['code' => 'RM-'.Str::upper(Str::random(5)), 'name' => 'Reminder SKU']],
+    ]);
+    $today = \Illuminate\Support\Carbon::today();
+    $productDevelopment->stages()->where('stage', ProductDevelopmentStageEnum::PRODUCT_SPECS->value)->update(['state' => ProductDevelopmentStageStateEnum::IN_PROGRESS->value, 'due_at' => $today->copy()->addDays(3)->toDateString()]);
+
+    $agentBefore = $agent->notifications()->count();
+    $ownerBefore = $this->user->notifications()->count();
+
+    SendProductDevelopmentReminders::run($today);
+
+    expect($agent->notifications()->count())->toBe($agentBefore + 1)
+        ->and($this->user->notifications()->count())->toBeGreaterThan($ownerBefore);
+});
+
+test('the owner changes a stage due date and it shows in the activity feed', function () {
+    $productDevelopment = storeDevelopmentWithNewSkus($this, 1);
+    $stage              = $productDevelopment->stages()->where('stage', ProductDevelopmentStageEnum::CONCEPT->value)->first();
+
+    patch(route('grp.models.product_development.stage.due_date', ['productDevelopmentStage' => $stage->id]), ['due_at' => '2026-12-24'])->assertRedirect();
+
+    expect($stage->fresh()->due_at->toDateString())->toBe('2026-12-24')
+        ->and(collect(GetProductDevelopmentActivity::run($productDevelopment))->pluck('sentence'))->toContain(__('Changed the due date of :stage', ['stage' => __('Concept')]));
+});
+
+test('a role task waits for someone holding the role, then later holders join as collaborators', function () {
+    $productDevelopment = storeDevelopmentWithNewSkus($this, 1);
+    $specsTask          = fn () => developmentTasks($productDevelopment)->first(fn ($task) => $task->data['product_development_event'] === CreateProductDevelopmentTask::SPECS);
+
+    expect($specsTask())->toBeNull();
+
+    $firstAgent  = newGuestUser($this);
+    $secondAgent = newGuestUser($this);
+    $members     = $productDevelopment->members()->get(['user_id', 'role'])->map(fn ($member) => ['user_id' => $member->user_id, 'role' => $member->role->value])->all();
+
+    SyncProductDevelopmentMembers::make()->action($productDevelopment, ['members' => [...$members, ['user_id' => $firstAgent->id, 'role' => ProductDevelopmentMemberRoleEnum::AGENT->value]]]);
+    expect($specsTask()?->assignee_id)->toBe($firstAgent->id);
+
+    SyncProductDevelopmentMembers::make()->action($productDevelopment, ['members' => [
+        ...$members,
+        ['user_id' => $firstAgent->id, 'role' => ProductDevelopmentMemberRoleEnum::AGENT->value],
+        ['user_id' => $secondAgent->id, 'role' => ProductDevelopmentMemberRoleEnum::AGENT->value],
+    ]]);
+
+    $task = $specsTask();
+    expect($task->assignee_id)->toBe($firstAgent->id)
+        ->and($task->collaborators()->pluck('users.id')->all())->toContain($secondAgent->id)
+        ->and(developmentTasks($productDevelopment)->filter(fn ($row) => $row->data['product_development_event'] === CreateProductDevelopmentTask::SPECS))->toHaveCount(1);
 });

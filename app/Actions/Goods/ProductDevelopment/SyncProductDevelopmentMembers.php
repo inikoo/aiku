@@ -29,6 +29,8 @@ class SyncProductDevelopmentMembers extends OrgAction
 
     private ?ProductDevelopment $productDevelopment = null;
 
+    private ?User $actor = null;
+
     private function target(): ProductDevelopment
     {
         return $this->productDevelopment ?? request()->route('productDevelopment');
@@ -89,6 +91,8 @@ class SyncProductDevelopmentMembers extends OrgAction
                 ], []);
             }
 
+            CreateProductDevelopmentTask::make()->ensureForDevelopment($productDevelopment->refresh(), $this->actor ?? $productDevelopment->owner);
+
             foreach (User::whereIn('id', $firstTimeMemberIds)->get() as $firstTimeMember) {
                 BreakUserUiProps::dispatch($firstTimeMember)->afterCommit();
             }
@@ -125,6 +129,7 @@ class SyncProductDevelopmentMembers extends OrgAction
     public function asController(ProductDevelopment $productDevelopment, ActionRequest $request): ProductDevelopment
     {
         $this->productDevelopment = $productDevelopment;
+        $this->actor              = $request->user();
         $this->initialisationFromGroup($productDevelopment->group, $request);
 
         return $this->handle($productDevelopment, $this->validatedData['members'] ?? []);

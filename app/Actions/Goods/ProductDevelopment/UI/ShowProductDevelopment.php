@@ -21,6 +21,7 @@ use App\Enums\Goods\ProductDevelopment\ProductDevelopmentTypeEnum;
 use App\Enums\UI\Goods\ProductDevelopmentTabsEnum;
 use App\Models\Goods\ProductDevelopment;
 use App\Models\SysAdmin\User;
+use App\Models\Tasks\StaffTask;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -55,6 +56,7 @@ class ShowProductDevelopment extends OrgAction
         $navigation = ProductDevelopmentTabsEnum::navigation();
         $navigation[ProductDevelopmentTabsEnum::PRODUCTS->value]['number'] = count($overview['products']);
         $navigation[ProductDevelopmentTabsEnum::FILES->value]['number']    = $productDevelopment->files()->whereNull('superseded_at')->count();
+        $navigation[ProductDevelopmentTabsEnum::TASKS->value]['number']    = StaffTask::query()->where('model_type', 'ProductDevelopment')->where('model_id', $productDevelopment->id)->open()->count();
 
         $tab = fn (ProductDevelopmentTabsEnum $tabEnum, callable $resolver) => $this->tab === $tabEnum->value
             ? $resolver
@@ -127,6 +129,7 @@ class ShowProductDevelopment extends OrgAction
                     'number_missing'     => (int) $productDevelopment->stats?->number_required_missing,
                 ],
                 'overview'    => $overview,
+                'canEditStageDates' => $this->canEditProductDevelopment($request->user(), $productDevelopment),
                 'editor'      => $this->canEditProductDevelopment($request->user(), $productDevelopment) ? $this->editor($productDevelopment) : null,
                 'stageMove'   => [
                     'can_move'   => $gate['can_move'],
@@ -149,6 +152,7 @@ class ShowProductDevelopment extends OrgAction
                 ProductDevelopmentTabsEnum::PRODUCTS->value   => $tab(ProductDevelopmentTabsEnum::PRODUCTS, fn () => $overview['products']),
                 ProductDevelopmentTabsEnum::COMPLIANCE->value => $tab(ProductDevelopmentTabsEnum::COMPLIANCE, fn () => $tabData->compliance($productDevelopment, $canSeeCosts)),
                 ProductDevelopmentTabsEnum::FILES->value      => $tab(ProductDevelopmentTabsEnum::FILES, fn () => GetProductDevelopmentFiles::run($productDevelopment, $this->productDevelopmentAccess()->canUpload($request->user(), $productDevelopment))),
+                ProductDevelopmentTabsEnum::TASKS->value      => $tab(ProductDevelopmentTabsEnum::TASKS, fn () => ['model_type' => 'ProductDevelopment', 'model_id' => $productDevelopment->id]),
                 ProductDevelopmentTabsEnum::ACTIVITY->value   => $tab(ProductDevelopmentTabsEnum::ACTIVITY, fn () => GetProductDevelopmentActivity::run($productDevelopment, GetProductDevelopmentActivity::LIMIT, $request->user())),
                 'comments'       => fn () => GetProductDevelopmentComments::run($productDevelopment),
                 'recentActivity' => fn () => GetProductDevelopmentActivity::run($productDevelopment, 5, $request->user()),

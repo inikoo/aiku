@@ -73,4 +73,17 @@ enum ProductDevelopmentFileScopeEnum: string
             self::OTHER => 'fal fa-paperclip',
         };
     }
+
+    /**
+     * @return array<int, ProductDevelopmentMemberRoleEnum>
+     */
+    public function neededBy(): array
+    {
+        return match ($this) {
+            self::SDS, self::IFRA, self::CPSR, self::TEST_REPORTS => [ProductDevelopmentMemberRoleEnum::COMPLIANCE],
+            self::FACTORY_PHOTO, self::DIELINE => [ProductDevelopmentMemberRoleEnum::DESIGNER],
+            self::ARTWORK_DRAFT, self::ARTWORK_FINAL => [ProductDevelopmentMemberRoleEnum::BUYER, ProductDevelopmentMemberRoleEnum::APPROVER],
+            self::OTHER => [],
+        };
+    }
 }

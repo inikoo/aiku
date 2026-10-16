@@ -15,6 +15,8 @@ use App\Actions\Helpers\Media\StoreMediaFromFile;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithProductDevelopmentAuthorisation;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentFileScopeEnum;
+use App\Enums\Goods\ProductDevelopment\ProductDevelopmentMemberRoleEnum;
+use App\Enums\SysAdmin\User\UserNotificationEnum;
 use App\Models\Goods\ProductDevelopment;
 use App\Models\Goods\ProductDevelopmentFile;
 use App\Models\Goods\ProductDevelopmentItem;
@@ -98,8 +100,29 @@ class UploadProductDevelopmentFiles extends OrgAction
                 'files'   => collect($files)->map(fn (UploadedFile $file) => $file->getClientOriginalName())->all(),
             ]);
 
+            $this->notifyWhoNeedsIt($productDevelopment, $user, $scope, $item, count($files));
+
             return $stored;
         });
+    }
+
+    private function notifyWhoNeedsIt(ProductDevelopment $productDevelopment, User $uploader, ProductDevelopmentFileScopeEnum $scope, ?ProductDevelopmentItem $item, int $count): void
+    {
+        $notifier   = NotifyProductDevelopmentUsers::make();
+        $recipients = collect($scope->neededBy())
+            ->flatMap(fn (ProductDevelopmentMemberRoleEnum $role) => $notifier->usersWithRole($productDevelopment, $role))
+            ->whenEmpty(fn ($users) => $users->push($productDevelopment->owner));
+
+        $label = ProductDevelopmentFileScopeEnum::labels()[$scope->value];
+        $notifier->handle(
+            $productDevelopment,
+            $recipients,
+            UserNotificationEnum::PRODUCT_DEVELOPMENT_FILES,
+            __(':label uploaded on :code', ['label' => $label, 'code' => $productDevelopment->code]),
+            trans_choice(':name uploaded :count file|:name uploaded :count files', $count, ['name' => $uploader->contact_name ?: $uploader->username, 'count' => $count]).($item ? ' · '.$item->tradeUnit->code : ''),
+            'files',
+            except: $uploader,
+        );
     }
 
     private function retirePrevious($previousFiles, ?ProductDevelopmentItem $item, ProductDevelopmentFileScopeEnum $scope): void

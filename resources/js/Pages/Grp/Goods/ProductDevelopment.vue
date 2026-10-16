@@ -29,6 +29,7 @@ import ProductDevelopmentBrief from "@/Components/Goods/ProductDevelopment/Produ
 import ProductDevelopmentProducts from "@/Components/Goods/ProductDevelopment/ProductDevelopmentProducts.vue"
 import ProductDevelopmentCompliance from "@/Components/Goods/ProductDevelopment/ProductDevelopmentCompliance.vue"
 import ProductDevelopmentComments from "@/Components/Goods/ProductDevelopment/ProductDevelopmentComments.vue"
+import ProductDevelopmentTasks from "@/Components/Goods/ProductDevelopment/ProductDevelopmentTasks.vue"
 import ProductDevelopmentFiles from "@/Components/Goods/ProductDevelopment/ProductDevelopmentFiles.vue"
 import ProductDevelopmentComingSoon from "@/Components/Goods/ProductDevelopment/ProductDevelopmentComingSoon.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
@@ -63,9 +64,11 @@ const props = defineProps<{
     compliance?: object
     activity?: object
     files?: object
+    tasks?: object
     comments: any
     recentActivity: any[]
     editor: any
+    canEditStageDates: boolean
 }>()
 
 const currentTab = ref(props.tabs.current)
@@ -78,7 +81,7 @@ const component = computed(() => {
         compliance: ProductDevelopmentCompliance,
         design: ProductDevelopmentComingSoon,
         files: ProductDevelopmentFiles,
-        tasks: ProductDevelopmentComingSoon,
+        tasks: ProductDevelopmentTasks,
         activity: ProductDevelopmentActivity,
     }
 
@@ -120,7 +123,7 @@ function moveToNextStage() {
     </PageHeading>
 
     <ProductDevelopmentHeaderMeta :header="header" />
-    <ProductDevelopmentStageStrip :segments="overview.strip" />
+    <ProductDevelopmentStageStrip :segments="overview.strip" :canEditDates="canEditStageDates" />
     <ProductDevelopmentRoleCards :roles="overview.roles" />
 
     <div class="grid gap-4 px-4 pb-6 md:px-6 lg:grid-cols-[minmax(0,1fr)_20rem]">

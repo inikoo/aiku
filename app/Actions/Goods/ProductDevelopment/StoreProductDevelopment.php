@@ -119,9 +119,15 @@ class StoreProductDevelopment extends OrgAction
             $this->recordCreationActivity($productDevelopment);
             $this->createChecklistItems($productDevelopment);
             ProductDevelopmentHydrateChecklist::run($productDevelopment);
+            $this->createOpeningTasks($productDevelopment, $creator);
 
             return $productDevelopment;
         });
+    }
+
+    private function createOpeningTasks(ProductDevelopment $productDevelopment, User $creator): void
+    {
+        CreateProductDevelopmentTask::make()->ensureForDevelopment($productDevelopment, $creator);
     }
 
     private function recordCreationActivity(ProductDevelopment $productDevelopment): void

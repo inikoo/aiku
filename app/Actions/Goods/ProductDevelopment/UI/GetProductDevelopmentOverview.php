@@ -89,6 +89,7 @@ class GetProductDevelopmentOverview
                 : null;
 
             $segments[] = [
+                'id'        => $stage->id,
                 'key'       => $stage->stage->value,
                 'number'    => $stage->position.($stage->sub_position ?? ''),
                 'label'     => $stageLabels[$stage->stage->value],

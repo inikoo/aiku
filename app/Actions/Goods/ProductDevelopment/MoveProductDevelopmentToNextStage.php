@@ -77,6 +77,8 @@ class MoveProductDevelopmentToNextStage extends OrgAction
 
             $productDevelopment->updateQuietly($modelData);
 
+            CreateProductDevelopmentTask::make()->ensureForDevelopment($productDevelopment, $user);
+
             RecordProductDevelopmentActivity::record(
                 $productDevelopment,
                 RecordProductDevelopmentActivity::STAGE_MOVED,

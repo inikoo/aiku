@@ -11,16 +11,27 @@ namespace App\Notifications;
 
 use App\Events\BroadcastPersonalNotification;
 use App\Models\Goods\ProductDevelopment;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class ProductDevelopmentNotification extends Notification
 {
-    public function __construct(public ProductDevelopment $productDevelopment, public string $title, public string $body, public ?string $tab = null)
+    public bool $byEmail = false;
+
+    public function __construct(public ?ProductDevelopment $productDevelopment, public string $title, public string $body, public ?string $tab = null, public ?string $url = null)
     {
     }
 
-    private function link(): string
+    public function link(): string
     {
+        if ($this->url) {
+            return $this->url;
+        }
+
+        if (!$this->productDevelopment) {
+            return route('grp.product_developments.index');
+        }
+
         return route('grp.product_developments.show', array_filter([
             'productDevelopment' => $this->productDevelopment->slug,
             'tab'                => $this->tab,
@@ -31,7 +42,15 @@ class ProductDevelopmentNotification extends Notification
     {
         BroadcastPersonalNotification::dispatch($notifiable->id, ['id' => null, 'title' => $this->title, 'body' => $this->body, 'route' => $this->link()]);
 
-        return ['database'];
+        return $this->byEmail ? ['database', 'mail'] : ['database'];
+    }
+
+    public function toMail($notifiable): MailMessage
+    {
+        return (new MailMessage())
+            ->subject($this->title)
+            ->line($this->body)
+            ->action(__('Open in aiku'), $this->link());
     }
 
     public function toArray($notifiable): array
