@@ -53,5 +53,6 @@ const checkLook = (check: Check) => {
             </li>
         </ul>
         <p v-if="hasUncheckedChecks" class="text-xs text-gray-500">{{ ctrans("Checks marked with a dash are confirmed by the next crawl of the page.") }}</p>
+        <slot />
     </section>
 </template>

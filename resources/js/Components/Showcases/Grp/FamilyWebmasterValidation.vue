@@ -60,7 +60,7 @@ const isAllDone = computed(() => props.data.tasks.length > 0 && doneCount.value 
 const pendingIn = (section: { cards: FamilyEditCardData[] }) =>
     section.cards.flatMap((card) => tasksByCard.value[card.key ?? ""] ?? []).filter((task) => !task.is_done).length
 
-const steps = computed(() => (props.pageScore?.steps ?? []).map((step) => ({ key: step.key, label: step.label, done: step.is_done })))
+const steps = computed(() => (props.pageScore?.steps ?? []).map((step) => ({ key: step.key, label: step.label, owner: step.owner, done: step.is_done })))
 const currentStep = computed(() => steps.value.findIndex((step) => !step.done) + 1)
 
 const isFilled = (value?: string | null) => !!value?.trim()

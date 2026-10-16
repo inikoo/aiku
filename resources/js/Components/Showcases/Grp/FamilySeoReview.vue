@@ -4,7 +4,7 @@ import { useForm } from "@inertiajs/vue3"
 import { notify } from "@kyvg/vue3-notification"
 import { Checkbox, InputText, Message, Textarea } from "primevue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faCheck, faTimes, faPaperPlane, faPlus, faTrashAlt, faQuestionCircle, faSitemap, faExclamationTriangle } from "@fal"
+import { faCheck, faTimes, faPaperPlane, faPlus, faSave, faTrashAlt, faQuestionCircle, faSitemap, faExclamationTriangle } from "@fal"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import WorkflowSteps from "@/Components/DataDisplay/WorkflowSteps.vue"
 import FamilySeoChecklist from "@/Components/Showcases/Grp/FamilySeoChecklist.vue"
@@ -38,6 +38,11 @@ const props = defineProps<{
         total: number
         areas: { key: string, label: string, checks: { key: string, label: string, is_passed: boolean | null }[] }[]
     } | null
+    canOpenValidation: boolean
+}>()
+
+const emit = defineEmits<{
+    openWebmasterValidation: []
 }>()
 
 const form = useForm({
@@ -60,7 +65,7 @@ const writtenCount = computed(() =>
     + (isFilled(form.structured_data) ? 1 : 0)
 )
 
-const steps = computed(() => (props.pageScore?.steps ?? []).map((step) => ({ key: step.key, label: step.label, done: step.is_done })))
+const steps = computed(() => (props.pageScore?.steps ?? []).map((step) => ({ key: step.key, label: step.label, owner: step.owner, done: step.is_done })))
 const currentStep = computed(() => steps.value.findIndex((step) => !step.done) + 1)
 
 const errorMessages = computed(() => Object.values(form.errors))
@@ -133,7 +138,8 @@ const faqParts = [
 
 <template>
     <div class="flex flex-col gap-5">
-        <WorkflowSteps v-if="steps.length" :steps="steps" :current="currentStep" />
+        <WorkflowSteps v-if="steps.length" :steps="steps" :current="currentStep" :selectableKeys="canOpenValidation ? ['implemented'] : []"
+            @select="emit('openWebmasterValidation')" />
 
         <section class="rounded-xl border border-[--app-accent-muted] bg-[--app-accent-soft] p-5 flex flex-wrap items-center justify-between gap-3.5">
             <div class="flex flex-col gap-0.5 flex-[1_1_380px]">
@@ -351,7 +357,13 @@ const faqParts = [
             </fieldset>
 
             <aside class="flex-[1_1_300px] flex flex-col gap-5">
-                <FamilySeoChecklist v-if="pageScore" :pageScore="pageScore" />
+                <FamilySeoChecklist v-if="pageScore" :pageScore="pageScore">
+                    <Button v-if="data.can_review" type="tertiary" :label="ctrans('Save suggestions')" :loading="form.processing" full @click="send">
+                        <template #icon>
+                            <FontAwesomeIcon :icon="faSave" class="text-green-600" fixed-width aria-hidden="true" />
+                        </template>
+                    </Button>
+                </FamilySeoChecklist>
             </aside>
         </div>
     </div>

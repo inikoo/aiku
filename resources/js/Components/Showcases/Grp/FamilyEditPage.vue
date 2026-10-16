@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, ref } from "vue"
+import { computed, nextTick, ref } from "vue"
 import { Message } from "primevue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faExternalLink } from "@fal"
@@ -11,7 +11,7 @@ import FamilySeoIssues from "@/Components/Showcases/Grp/FamilySeoIssues.vue"
 import { ctrans } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
 
-defineProps<{
+const props = defineProps<{
     data: {
         notice: string | null
         workshop_route: routeType | null
@@ -24,6 +24,9 @@ defineProps<{
 }>()
 
 const currentSection = ref<"page_setting" | "seo_review" | "webmaster_validation" | "issues">("page_setting")
+
+const canOpenValidation = computed(() => !!props.data.webmaster_validation
+    && (props.data.webmaster_validation.tasks.length > 0 || props.data.webmaster_validation.is_validated))
 
 const navClass = (section: string) => currentSection.value === section
     ? "font-bold bg-[--app-accent-soft] text-[--app-accent]"
@@ -54,7 +57,8 @@ const openSetting = async (cardKey: string) => {
                 {{ ctrans("SEO reviews and suggestions") }}
             </button>
             <button v-if="data.webmaster_validation" type="button" :aria-current="currentSection === 'webmaster_validation' ? 'page' : undefined" @click="currentSection = 'webmaster_validation'"
-                class="inline-flex items-center min-h-10 px-3.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-[--app-accent]" :class="navClass('webmaster_validation')">
+                :disabled="!canOpenValidation" v-tooltip="canOpenValidation ? '' : ctrans('Opens once the SEO team has saved suggestions')"
+                class="inline-flex items-center min-h-10 px-3.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-[--app-accent] disabled:opacity-50 disabled:cursor-not-allowed" :class="navClass('webmaster_validation')">
                 {{ ctrans("Webmaster validation") }}
             </button>
             <button v-if="data.seo_issues" type="button" :aria-current="currentSection === 'issues' ? 'page' : undefined" @click="currentSection = 'issues'"
@@ -66,9 +70,10 @@ const openSetting = async (cardKey: string) => {
 
         <Message v-if="data.notice" severity="warn">{{ data.notice }}</Message>
 
-        <FamilySeoReview v-if="currentSection === 'seo_review' && data.seo_review" :data="data.seo_review" :pageScore="data.page_score" />
+        <FamilySeoReview v-if="currentSection === 'seo_review' && data.seo_review" :data="data.seo_review" :pageScore="data.page_score"
+            :canOpenValidation="canOpenValidation" @openWebmasterValidation="currentSection = 'webmaster_validation'" />
 
-        <FamilyWebmasterValidation v-else-if="currentSection === 'webmaster_validation' && data.webmaster_validation" :data="data.webmaster_validation"
+        <FamilyWebmasterValidation v-else-if="currentSection === 'webmaster_validation' && canOpenValidation" :data="data.webmaster_validation"
             :sections="data.sections" :workshopRoute="data.workshop_route" :pageScore="data.page_score" @openSetting="openSetting" />
 
         <FamilySeoIssues v-else-if="currentSection === 'issues' && data.seo_issues" :data="data.seo_issues" />
