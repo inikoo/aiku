@@ -13912,3 +13912,39 @@ test('shopkeepers email a customer without working chat and customer service ans
         ->and($session->assignments()->where('status', ChatAssignmentStatusEnum::ACTIVE->value)->exists())->toBeFalse()
         ->and($session->messages()->where('sender_type', ChatSenderTypeEnum::AGENT->value)->value('message_text'))->toBe('Can I help you finish your order?');
 });
+
+test('an offline message keeps the photos the customer attached (HELP-4071)', function () {
+    RateLimiter::clear('chat-guest-minute:127.0.0.1');
+    RateLimiter::clear('chat-guest-hour:127.0.0.1');
+    RateLimiter::clear('chat-customer-upload-bytes:127.0.0.1');
+
+    $response = $this->post(route('grp.api.chats.offline-message.store'), [
+        'shop_id'     => $this->shop->id,
+        'name'        => 'Smashed Box',
+        'email'       => 'smashed-'.Str::random(6).'@example.com',
+        'message'     => 'It arrived smashed, see pics',
+        'language_id' => 68,
+        'sender_type' => ChatSenderTypeEnum::GUEST->value,
+        'attachments' => [
+            \Illuminate\Http\UploadedFile::fake()->image('box.jpg', 400, 300),
+            \Illuminate\Http\UploadedFile::fake()->image('items.png', 400, 300),
+        ],
+    ], ['Accept' => 'application/json'])->assertOk();
+
+    $message = ChatMessage::where('chat_session_id', ChatSession::where('ulid', $response->json('session_ulid'))->value('id'))->latest('id')->first();
+
+    expect($message->message_text)->toBe('It arrived smashed, see pics')
+        ->and($message->message_type)->toBe(ChatMessageTypeEnum::IMAGE)
+        ->and($message->getMedia('chat_images'))->toHaveCount(2)
+        ->and($message->metadata['is_offline_message'])->toBeTrue();
+
+    $this->post(route('grp.api.chats.offline-message.store'), [
+        'shop_id'     => $this->shop->id,
+        'name'        => 'Script',
+        'email'       => 'script@example.com',
+        'message'     => 'x',
+        'language_id' => 68,
+        'sender_type' => ChatSenderTypeEnum::GUEST->value,
+        'attachments' => [\Illuminate\Http\UploadedFile::fake()->create('evil.php', 10, 'application/x-php')],
+    ], ['Accept' => 'application/json'])->assertStatus(422);
+});

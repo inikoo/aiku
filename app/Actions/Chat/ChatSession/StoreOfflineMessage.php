@@ -24,6 +24,7 @@ use App\Services\Gmail\GmailClient;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\File;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -220,6 +221,7 @@ class StoreOfflineMessage
                 : ChatSenderTypeEnum::GUEST->value,
             'sender_id' => $data['web_user_id'] ?? null,
             'page_url'  => $data['page_url'] ?? null,
+            'attachments' => $data['attachments'] ?? [],
         ];
 
         $message = SendChatMessage::run($session, $messageData);
@@ -234,6 +236,12 @@ class StoreOfflineMessage
     public function asController(ActionRequest $request): JsonResponse
     {
         $shop = Shop::findOrFail($request->validated('shop_id'));
+
+        $refusal = SendChatMessage::make()->customerUploadRefusal($request);
+
+        if ($refusal) {
+            return response()->json(['message' => $refusal['message']], $refusal['code']);
+        }
 
         $session = $this->handle($shop, $request->validated());
 
@@ -270,6 +278,8 @@ class StoreOfflineMessage
                 'max:150',
             ],
             'message' => ['required', 'string', 'max:5000'],
+            'attachments'   => ['sometimes', 'array', 'max:10'],
+            'attachments.*' => [File::types(SendChatMessage::ATTACHMENT_TYPES)->max(SendChatMessage::MAX_CUSTOMER_FILE_BYTES / 1024)],
             'page_url' => ['nullable', 'url:http,https', 'max:2048'],
             'language_id' => ['required', 'integer', 'exists:languages,id'],
             'sender_type' => [
