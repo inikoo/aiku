@@ -21,7 +21,7 @@ import { PageHeadingTypes } from "@/types/PageHeading"
 
 library.add(faIndustryAlt, faInboxIn)
 
-type FilterOption = { label: string; value: string; count: number }
+type FilterOption = { label: string; value: string; count: number; tooltip?: string }
 
 const props = defineProps<{
 	pageHead: PageHeadingTypes

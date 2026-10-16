@@ -89,7 +89,7 @@ trait WithAgentWarehouseProductRows
     }
 
     /**
-     * @param  array<int, array{label: string, value: string, count: int}>  $organisationOptions
+     * @param  array<int, array{label: string, value: string, count: int, tooltip: string}>  $organisationOptions
      */
     protected function productRowsResponse(LengthAwarePaginator $rows, ActionRequest $request, string $title, string $icon, string $routeName, string $kind, array $organisationOptions, array $extraFilterOptions = []): Response
     {
@@ -135,13 +135,13 @@ trait WithAgentWarehouseProductRows
     }
 
     /**
-     * @return array<int, array{label: string, value: string, count: int}>
+     * @return array<int, array{label: string, value: string, count: int, tooltip: string}>
      */
     protected function organisationOptions(Collection $counts): array
     {
         return $counts
             ->sortBy('code')
-            ->map(fn ($organisation) => ['label' => strtoupper($organisation->code), 'value' => $organisation->slug, 'count' => (int) $organisation->total])
+            ->map(fn ($organisation) => ['label' => strtoupper($organisation->code), 'value' => $organisation->slug, 'count' => (int) $organisation->total, 'tooltip' => $organisation->country_name ? "{$organisation->name} ({$organisation->country_name})" : $organisation->name])
             ->values()
             ->all();
     }

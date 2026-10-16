@@ -117,8 +117,9 @@ class IndexAgentProductsInProduction extends OrgAction
     {
         $organisationCounts = $this->baseQuery($this->agent)
             ->join('organisations', 'organisations.id', 'purchase_order_transactions.organisation_id')
-            ->selectRaw('organisations.slug, organisations.code, count(*) as total')
-            ->groupBy('organisations.slug', 'organisations.code')
+            ->leftJoin('countries', 'countries.id', 'organisations.country_id')
+            ->selectRaw('organisations.slug, organisations.code, organisations.name, countries.name as country_name, count(*) as total')
+            ->groupBy('organisations.slug', 'organisations.code', 'organisations.name', 'countries.name')
             ->toBase()
             ->get();
 
