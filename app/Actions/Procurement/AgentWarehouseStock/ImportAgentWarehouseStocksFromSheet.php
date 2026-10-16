@@ -118,7 +118,7 @@ class ImportAgentWarehouseStocksFromSheet
 
         if (!$dryRun) {
             DB::transaction(function () use ($agent, $organisation, $rows) {
-                AgentWarehouseStock::where('agent_id', $agent->id)->where('organisation_id', $organisation->id)->whereNull('purchase_order_transaction_id')->whereDoesntHave('receipt')->delete();
+                AgentWarehouseStock::where('agent_id', $agent->id)->where('organisation_id', $organisation->id)->whereNull('purchase_order_transaction_id')->delete();
                 AgentWarehouseStock::insert($rows);
             });
         }

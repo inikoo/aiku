@@ -32,9 +32,8 @@ use Spatie\QueryBuilder\AllowedSort;
 
 /**
  * The products the agent's suppliers are making: the lines of the purchase orders placed through the agent that are in
- * production, before their quality check passes, less what already arrived at the agent's warehouse and passed its
- * check, batch by batch or on a goods receipt. Units the agent rejected are made again, so they stay here even after
- * the order's quality check passed.
+ * production, before their quality check passes, less what the agent's goods receipts brought and kept. Units the agent
+ * rejected are made again, so they stay here even after the order's quality check passed.
  */
 class IndexAgentProductsInProduction extends OrgAction
 {
@@ -42,32 +41,23 @@ class IndexAgentProductsInProduction extends OrgAction
     use WithProcurementAuthorisation;
     use WithAgentWarehouseProductRows;
 
-    private const string OUTSTANDING_SQL = '(purchase_order_transactions.quantity_ordered - coalesce(agent_receipts.quantity_accepted, 0) - coalesce(received_lines.quantity, 0))';
+    private const string OUTSTANDING_SQL = '(purchase_order_transactions.quantity_ordered - coalesce(received_lines.quantity_accepted, 0))';
 
-    private const string REJECTED_SQL = 'coalesce(agent_receipts.quantity_rejected, 0)';
+    private const string REJECTED_SQL = 'coalesce(received_lines.quantity_rejected, 0)';
 
     /**
-     * The purchase order lines still being made, each less what the agent kept of its batches and what its goods
-     * receipts not cancelled brought, so a line received in part keeps only the rest and a line received in full is gone.
+     * The purchase order lines still being made, each less what the agent kept of the goods receipts not cancelled, so
+     * a line received in part keeps only the rest and a line received in full is gone.
      */
     public static function inProductionLines(Agent $agent): Builder
     {
-        $receivedLines = DB::table('agent_goods_receipt_items')
-            ->join('agent_goods_receipts', 'agent_goods_receipts.id', 'agent_goods_receipt_items.agent_goods_receipt_id')
-            ->where('agent_goods_receipts.state', AgentGoodsReceiptStateEnum::RECEIVED->value)
-            ->whereNotNull('agent_goods_receipt_items.purchase_order_transaction_id')
-            ->groupBy('agent_goods_receipt_items.purchase_order_transaction_id')
-            ->select('agent_goods_receipt_items.purchase_order_transaction_id')
-            ->selectRaw('sum(agent_goods_receipt_items.quantity) as quantity');
-
         return PurchaseOrderTransaction::query()
             ->join('purchase_orders as production_orders', 'production_orders.id', 'purchase_order_transactions.purchase_order_id')
-            ->leftJoinSub($receivedLines, 'received_lines', 'received_lines.purchase_order_transaction_id', 'purchase_order_transactions.id')
+            ->leftJoinSub(self::receivedLines(), 'received_lines', 'received_lines.purchase_order_transaction_id', 'purchase_order_transactions.id')
             ->where('production_orders.agent_id', $agent->id)
             ->whereNull('production_orders.deleted_at')
             ->whereIn('production_orders.state', [PurchaseOrderStateEnum::SUBMITTED, PurchaseOrderStateEnum::CONFIRMED])
             ->whereIn('purchase_order_transactions.state', [PurchaseOrderTransactionStateEnum::SUBMITTED, PurchaseOrderTransactionStateEnum::CONFIRMED])
-            ->leftJoinSub(self::acceptedAtAgentWarehouse(), 'agent_receipts', 'agent_receipts.purchase_order_transaction_id', 'purchase_order_transactions.id')
             ->whereRaw('('.self::inProductionStageSql().' or '.self::REJECTED_SQL.' > 0)')
             ->whereRaw(self::OUTSTANDING_SQL.' > 0');
     }
@@ -87,16 +77,19 @@ class IndexAgentProductsInProduction extends OrgAction
     }
 
     /**
-     * What the agent kept of each line, batch by batch: received less rejected. The rest is still owed by the supplier.
+     * What the agent kept of each line over its goods receipts not cancelled: received less rejected. The rest is still
+     * owed by the supplier.
      */
-    private static function acceptedAtAgentWarehouse(): QueryBuilderBase
+    public static function receivedLines(): QueryBuilderBase
     {
-        return DB::table('agent_warehouse_receipts')
-            ->whereNull('deleted_at')
-            ->groupBy('purchase_order_transaction_id')
-            ->select('purchase_order_transaction_id')
-            ->selectRaw('sum(quantity_received - coalesce(quantity_rejected, 0)) as quantity_accepted')
-            ->selectRaw('sum(coalesce(quantity_rejected, 0)) as quantity_rejected');
+        return DB::table('agent_goods_receipt_items')
+            ->join('agent_goods_receipts', 'agent_goods_receipts.id', 'agent_goods_receipt_items.agent_goods_receipt_id')
+            ->where('agent_goods_receipts.state', AgentGoodsReceiptStateEnum::RECEIVED->value)
+            ->whereNotNull('agent_goods_receipt_items.purchase_order_transaction_id')
+            ->groupBy('agent_goods_receipt_items.purchase_order_transaction_id')
+            ->select('agent_goods_receipt_items.purchase_order_transaction_id')
+            ->selectRaw('sum(agent_goods_receipt_items.quantity - coalesce(agent_goods_receipt_items.quantity_rejected, 0)) as quantity_accepted')
+            ->selectRaw('sum(coalesce(agent_goods_receipt_items.quantity_rejected, 0)) as quantity_rejected');
     }
 
     public function handle(Agent $agent): LengthAwarePaginator
@@ -137,10 +130,6 @@ class IndexAgentProductsInProduction extends OrgAction
                 'ready_at_is_approved'  => $transaction->approved_ready_at !== null,
                 'quantity_rejected'     => (float) $transaction->quantity_rejected,
                 'quantity_outstanding'  => (float) $transaction->quantity_outstanding,
-                'receive_route'         => $this->canReceive ? [
-                    'name'       => 'grp.models.purchase-order-transaction.agent_warehouse_receipt.store',
-                    'parameters' => [$transaction->id],
-                ] : null,
             ])));
     }
 
@@ -160,13 +149,8 @@ class IndexAgentProductsInProduction extends OrgAction
                 ->column(key: 'production_started_at', label: __('Production started'), sortable: true)
                 ->column(key: 'ready_at', label: __('Ready date'), sortable: true)
                 ->column(key: 'quantity', label: __('Units'), canBeHidden: false, sortable: true, align: 'right')
-                ->column(key: 'skos', label: __('SKO'), align: 'right');
-
-            if ($this->canReceive) {
-                $table->column(key: 'actions', label: '', canBeHidden: false, align: 'right');
-            }
-
-            $table->defaultSort('code');
+                ->column(key: 'skos', label: __('SKO'), align: 'right')
+                ->defaultSort('code');
         };
     }
 
@@ -175,15 +159,12 @@ class IndexAgentProductsInProduction extends OrgAction
         $this->initialisation($organisation, $request);
         $agent = $this->getOrganisationAgent($organisation);
         abort_unless($agent, 404);
-        $this->agent      = $agent;
-        $this->canReceive = $request->user()->authTo("procurement.$organisation->id.edit");
+        $this->agent = $agent;
 
         return $this->handle($agent);
     }
 
     private Agent $agent;
-
-    private bool $canReceive = false;
 
     public function htmlResponse(LengthAwarePaginator $rows, ActionRequest $request): Response
     {
@@ -203,12 +184,7 @@ class IndexAgentProductsInProduction extends OrgAction
             'grp.org.agent.warehouse.in_production',
             'in_production',
             $this->organisationOptions($organisationCounts),
-        )->with('receiving', $this->canReceive ? [
-            'bulk_route' => [
-                'name'       => 'grp.models.org.agent_warehouse_receipts.store',
-                'parameters' => [$this->organisation->id],
-            ],
-        ] : null)->table($this->tableStructure());
+        )->table($this->tableStructure());
     }
 
     /**

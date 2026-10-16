@@ -345,10 +345,6 @@ use App\Actions\GoodsIn\StockDeliveryItem\SetStockDeliveryItemCbmInContainer;
 use App\Actions\GoodsIn\StockDeliveryItem\SetStockDeliveryItemCustomsLine;
 use App\Actions\GoodsIn\StockDelivery\UpdateStockDeliveryCustoms;
 use App\Actions\GoodsIn\StockDeliveryClaim\UpdateStockDeliveryClaim;
-use App\Actions\Procurement\AgentWarehouseReceipt\DeleteAgentWarehouseReceipt;
-use App\Actions\Procurement\AgentWarehouseReceipt\StoreAgentWarehouseReceipt;
-use App\Actions\Procurement\AgentWarehouseReceipt\StoreAgentWarehouseReceipts;
-use App\Actions\Procurement\AgentWarehouseReceipt\UpdateAgentWarehouseReceipt;
 use App\Actions\GoodsIn\StockDeliveryItem\UpdateStateToConfirmedStockDeliveryItem;
 use App\Actions\GoodsIn\StockDeliveryItem\SetStockDeliveryItemBatches;
 use App\Actions\GoodsIn\StockDeliveryItem\UpsertStockDeliveryItemPlaced;
@@ -1014,7 +1010,6 @@ Route::patch('{customerSalesChannel:id}/check', CheckCustomerSalesChannel::class
 Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::post('google-drive.authorize', [AuthorizeClientGoogleDrive::class, 'authorize'])->name('google_drive.authorize');
     Route::patch('settings', UpdateOrganisation::class)->name('settings.update');
-    Route::post('agent-warehouse-receipts', StoreAgentWarehouseReceipts::class)->name('agent_warehouse_receipts.store');
 
     Route::post('employee', StoreEmployee::class)->name('employee.store');
     Route::post('position', StoreJobPosition::class)->name('jon_position.store');
@@ -1800,9 +1795,6 @@ Route::name('stock-delivery-item.')->prefix('stock-delivery-item/{stockDeliveryI
 });
 
 Route::post('stock-delivery-claim/{stockDeliveryClaim:id}/update', UpdateStockDeliveryClaim::class)->name('stock-delivery-claim.update');
-Route::post('purchase-order-transaction/{purchaseOrderTransaction:id}/agent-warehouse-receipt', StoreAgentWarehouseReceipt::class)->name('purchase-order-transaction.agent_warehouse_receipt.store');
-Route::post('agent-warehouse-receipt/{agentWarehouseReceipt:id}/update', UpdateAgentWarehouseReceipt::class)->name('agent_warehouse_receipt.update');
-Route::delete('agent-warehouse-receipt/{agentWarehouseReceipt:id}', DeleteAgentWarehouseReceipt::class)->name('agent_warehouse_receipt.delete');
 
 Route::name('org-supplier.')->prefix('org-supplier/{orgSupplier:id}')->group(function () {
     Route::post('purchase-order/store', [StorePurchaseOrder::class, 'inOrgSupplier'])->name('purchase-order.store');

@@ -65,9 +65,9 @@ class AgentWarehouseStock extends Model
         return $this->belongsTo(PurchaseOrder::class);
     }
 
-    public function receipt(): HasOne
+    public function agentGoodsReceiptItem(): HasOne
     {
-        return $this->hasOne(AgentWarehouseReceipt::class);
+        return $this->hasOne(AgentGoodsReceiptItem::class);
     }
 
     public function agentGoodsReceipt(): BelongsTo

@@ -419,6 +419,7 @@ class AppServiceProvider extends ServiceProvider
                 'PurchaseOrder'                    => 'App\Models\Procurement\PurchaseOrder',
                 'ProcurementNote'                  => 'App\Models\Procurement\ProcurementNote',
                 'AgentGoodsReceipt'                => 'App\Models\Procurement\AgentGoodsReceipt',
+                'AgentGoodsReceiptItem'            => 'App\Models\Procurement\AgentGoodsReceiptItem',
                 'SupplierAgreedTerm'               => 'App\Models\Procurement\SupplierAgreedTerm',
                 'PurchaseOrderTransaction'         => 'App\Models\Procurement\PurchaseOrderTransaction',
                 'OrgPartner'                       => 'App\Models\Procurement\OrgPartner',

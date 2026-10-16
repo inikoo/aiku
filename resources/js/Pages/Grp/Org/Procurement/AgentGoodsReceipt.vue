@@ -12,10 +12,11 @@ import Dialog from "primevue/dialog"
 import FileUpload from "primevue/fileupload"
 import { notify } from "@kyvg/vue3-notification"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faClipboardCheck, faBan, faTimes, faTrashAlt, faFilePdf, faDownload, faExclamationTriangle, faCamera } from "@fal"
+import { faClipboardCheck, faBan, faTimes, faTrashAlt, faFilePdf, faDownload, faExclamationTriangle, faCamera, faImage } from "@fal"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
+import AgentGoodsReceiptItemCheckDialog, { type CheckableItem } from "@/Components/Procurement/AgentGoodsReceiptItemCheckDialog.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { ctrans } from "@/Composables/useTrans"
 import { useFormatTime } from "@/Composables/useFormatTime"
@@ -27,7 +28,7 @@ library.add(faClipboardCheck)
 
 type Photo = { id: number; caption: string | null; file_name: string; is_image: boolean; url: string; download_url: string; delete_route: routeType | null }
 
-const props = defineProps<{
+type Props = {
 	pageHead: PageHeadingTypes
 	title: string
 	receipt: {
@@ -52,13 +53,37 @@ const props = defineProps<{
 		organisation_code: string
 		purchase_order_reference: string | null
 		purchase_order_slug: string | null
+		quantity_ordered: number
 		quantity: number
+		quantity_rejected: number | null
+		is_checked: boolean
+		reject_reason: string | null
+		checked_by: string | null
+		is_packed: boolean
 		units_per_sko: number
+		photos: { id: number; name: string; url: string }[]
+		check_route: routeType | null
 	}>
 	photos: Photo[]
 	upload_route: routeType | null
 	cancel_route: routeType | null
-}>()
+	receipt_note_route: routeType
+}
+
+const props = defineProps<Props>()
+
+const checkingItem = ref<CheckableItem | null>(null)
+
+const itemStatus = (item: Props["items"][number]) => {
+	if (!item.is_checked) {
+		return { label: ctrans("Not checked yet"), class: "bg-amber-50 text-amber-700 ring-amber-200" }
+	}
+	if (Number(item.quantity_rejected) > 0) {
+		return { label: ctrans(":units rejected", { units: formatQuantity(item.quantity_rejected ?? 0) }), class: "bg-red-50 text-red-700 ring-red-200" }
+	}
+
+	return { label: ctrans("No rejects"), class: "bg-green-50 text-green-700 ring-green-200" }
+}
 
 const locale = useLocaleStore()
 const organisation = route().params["organisation"]
@@ -125,8 +150,15 @@ const cancelReceipt = () => {
 <template>
 	<Head :title="capitalize(title)" />
 	<PageHeading :data="pageHead">
-		<template v-if="cancel_route" #other>
-			<Button type="tertiary" :label="ctrans('Cancel goods receipt')" @click="isCancelOpen = true">
+		<template #other>
+			<a :href="route(receipt_note_route.name, receipt_note_route.parameters)" target="_blank" rel="noopener">
+				<Button type="tertiary" :label="ctrans('Receipt note')" :tooltip="ctrans('PDF for the supplier to sign')">
+					<template #icon>
+						<FontAwesomeIcon :icon="faFilePdf" class="text-red-500" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
+			</a>
+			<Button v-if="cancel_route" type="tertiary" :label="ctrans('Cancel goods receipt')" @click="isCancelOpen = true">
 				<template #icon>
 					<FontAwesomeIcon :icon="faBan" class="text-red-500" fixed-width aria-hidden="true" />
 				</template>
@@ -183,8 +215,11 @@ const cancelReceipt = () => {
 							<th class="px-3 py-2">{{ ctrans("Name") }}</th>
 							<th class="px-3 py-2">{{ ctrans("For") }}</th>
 							<th class="px-3 py-2">{{ ctrans("Purchase order") }}</th>
-							<th class="px-3 py-2 text-right">{{ ctrans("Units") }}</th>
+							<th class="px-3 py-2 text-right">{{ ctrans("Ordered") }}</th>
+							<th class="px-3 py-2 text-right">{{ ctrans("Received") }}</th>
 							<th class="px-3 py-2 text-right">{{ ctrans("SKO") }}</th>
+							<th class="px-3 py-2">{{ ctrans("Check") }}</th>
+							<th class="px-3 py-2"></th>
 						</tr>
 					</thead>
 					<tbody class="divide-y divide-gray-100">
@@ -195,8 +230,28 @@ const cancelReceipt = () => {
 							<td class="whitespace-nowrap px-3 py-2">
 								<Link v-if="item.purchase_order_slug" :href="purchaseOrderRoute(item.purchase_order_slug)" class="secondaryLink">{{ item.purchase_order_reference }}</Link>
 							</td>
+							<td class="px-3 py-2 text-right tabular-nums text-gray-500">{{ formatQuantity(item.quantity_ordered) }}</td>
 							<td class="px-3 py-2 text-right tabular-nums">{{ formatQuantity(item.quantity) }}</td>
 							<td class="px-3 py-2 text-right tabular-nums text-gray-500">{{ formatQuantity(item.quantity / (item.units_per_sko || 1)) }}</td>
+							<td class="px-3 py-2 text-xs">
+								<span class="whitespace-nowrap rounded-full px-2 py-0.5 ring-1 ring-inset" :class="itemStatus(item).class">{{ itemStatus(item).label }}</span>
+								<span v-if="item.is_packed" class="ml-1 whitespace-nowrap text-gray-500">{{ ctrans("Packed for a container") }}</span>
+								<div v-if="item.reject_reason" class="mt-1 whitespace-pre-line text-gray-600">{{ item.reject_reason }}</div>
+								<div v-if="item.photos.length" class="mt-1 flex flex-wrap gap-2">
+									<a v-for="photo in item.photos" :key="photo.id" :href="photo.url" target="_blank" rel="noopener" class="secondaryLink inline-flex items-center gap-1">
+										<FontAwesomeIcon :icon="faImage" fixed-width aria-hidden="true" />
+										{{ photo.name }}
+									</a>
+								</div>
+								<div v-if="item.checked_by" class="mt-0.5 text-gray-400">{{ ctrans("Checked by :name", { name: item.checked_by }) }}</div>
+							</td>
+							<td class="px-3 py-2 text-right">
+								<Button v-if="item.check_route" type="tertiary" size="xs" :label="item.is_checked ? ctrans('Check again') : ctrans('Check')" @click="checkingItem = { ...item }">
+									<template #icon>
+										<FontAwesomeIcon :icon="faClipboardCheck" class="text-green-600" fixed-width aria-hidden="true" />
+									</template>
+								</Button>
+							</td>
 						</tr>
 					</tbody>
 				</table>
@@ -253,6 +308,8 @@ const cancelReceipt = () => {
 			</p>
 		</div>
 	</div>
+
+	<AgentGoodsReceiptItemCheckDialog :item="checkingItem" @close="checkingItem = null" />
 
 	<Dialog v-model:visible="isCancelOpen" modal :header="ctrans('Cancel goods receipt :reference', { reference: receipt.reference })" :style="{ width: '28rem', maxWidth: 'calc(100vw - 2rem)' }" :draggable="false">
 		<p class="text-sm text-gray-700">{{ ctrans(":lines lines (:units units) go back to In production and leave the warehouse stock. Do this only when the goods were received by mistake.", { lines: receipt.number_items, units: formatQuantity(receipt.quantity) }) }}</p>

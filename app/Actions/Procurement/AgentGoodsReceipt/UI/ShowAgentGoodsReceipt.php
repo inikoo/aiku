@@ -23,7 +23,8 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
- * One goods receipt: what the supplier delivered, line by line, and the photos of its signed delivery note.
+ * One goods receipt: what the supplier delivered, line by line with the rejects found when checked, and the photos of
+ * its signed delivery note.
  */
 class ShowAgentGoodsReceipt extends OrgAction
 {
@@ -33,16 +34,22 @@ class ShowAgentGoodsReceipt extends OrgAction
 
     public function handle(AgentGoodsReceipt $agentGoodsReceipt): AgentGoodsReceipt
     {
-        return $agentGoodsReceipt->load([
+        $agentGoodsReceipt->load([
             'supplier:id,code,name',
             'user:id,contact_name,username',
             'cancelledBy:id,contact_name,username',
             'items.supplierProduct:id,code,name,units_per_pack',
             'items.organisation:id,code,slug',
             'items.purchaseOrder:id,reference,slug',
+            'items.purchaseOrderTransaction:id,quantity_ordered',
+            'items.agentWarehouseStock:id,state,quantity',
+            'items.checkedBy:id,contact_name,username',
+            'items.attachments',
             'attachments',
-            'warehouseStocks:id,agent_goods_receipt_id,state,quantity',
         ]);
+        $agentGoodsReceipt->items->each->setRelation('agentGoodsReceipt', $agentGoodsReceipt);
+
+        return $agentGoodsReceipt;
     }
 
     public function asController(Organisation $organisation, AgentGoodsReceipt $agentGoodsReceipt, ActionRequest $request): AgentGoodsReceipt
@@ -56,8 +63,7 @@ class ShowAgentGoodsReceipt extends OrgAction
     private function canBeCancelled(AgentGoodsReceipt $receipt): bool
     {
         return $receipt->state === AgentGoodsReceiptStateEnum::RECEIVED
-            && $receipt->warehouseStocks->every(fn ($stock) => $stock->state === AgentWarehouseStockStateEnum::RECEIVED)
-            && round((float) $receipt->warehouseStocks->sum('quantity'), 3) >= round((float) $receipt->quantity, 3);
+            && $receipt->items->every(fn (AgentGoodsReceiptItem $item) => $item->agentWarehouseStock?->state === AgentWarehouseStockStateEnum::RECEIVED);
     }
 
     public function htmlResponse(AgentGoodsReceipt $receipt, ActionRequest $request): Response
@@ -97,8 +103,24 @@ class ShowAgentGoodsReceipt extends OrgAction
                     'organisation_code'        => strtoupper((string) $item->organisation?->code),
                     'purchase_order_reference' => $item->purchaseOrder?->reference,
                     'purchase_order_slug'      => $item->purchaseOrder?->slug,
+                    'quantity_ordered'         => (float) $item->purchaseOrderTransaction?->quantity_ordered,
                     'quantity'                 => (float) $item->quantity,
+                    'quantity_rejected'        => $item->quantity_rejected === null ? null : (float) $item->quantity_rejected,
+                    'is_checked'               => $item->isChecked(),
+                    'reject_reason'            => $item->reject_reason,
+                    'checked_at'               => $item->checked_at?->toIso8601String(),
+                    'checked_by'               => $person($item->checkedBy),
+                    'is_packed'                => $item->agentWarehouseStock !== null && $item->agentWarehouseStock->state !== AgentWarehouseStockStateEnum::RECEIVED,
                     'units_per_sko'            => (float) ($item->supplierProduct?->units_per_pack ?: 1),
+                    'photos'                   => $item->attachments->map(fn (Media $media) => [
+                        'id'   => $media->id,
+                        'name' => $media->file_name,
+                        'url'  => route('grp.media.download', [$media->ulid, 'inline' => 1]),
+                    ])->values(),
+                    'check_route'              => $this->canEdit && $item->isEditable() ? [
+                        'name'       => 'grp.org.agent.warehouse.received.goods_receipts.items.check',
+                        'parameters' => [...$parameters, $item->id],
+                    ] : null,
                 ])->values(),
                 'photos'      => $receipt->attachments->map(fn (Media $media) => [
                     'id'           => $media->id,
@@ -116,6 +138,10 @@ class ShowAgentGoodsReceipt extends OrgAction
                     'name'       => 'grp.org.agent.warehouse.received.goods_receipts.photos.store',
                     'parameters' => $parameters,
                 ] : null,
+                'receipt_note_route' => [
+                    'name'       => 'grp.org.agent.warehouse.received.goods_receipts.receipt_note',
+                    'parameters' => $parameters,
+                ],
                 'cancel_route' => $this->canEdit && $this->canBeCancelled($receipt) ? [
                     'name'       => 'grp.org.agent.warehouse.received.goods_receipts.cancel',
                     'parameters' => $parameters,

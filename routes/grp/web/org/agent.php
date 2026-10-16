@@ -18,7 +18,6 @@ use App\Actions\GoodsIn\StockDelivery\UI\IndexStockDeliveries;
 use App\Actions\GoodsIn\StockDelivery\UI\ShowAgentContainersBoard;
 use App\Actions\GoodsIn\StockDelivery\UI\EditStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\UI\ShowStockDelivery;
-use App\Actions\Procurement\AgentWarehouseReceipt\PdfAgentWarehouseReceiptNote;
 use App\Actions\Procurement\AgentLabel\DownloadAgentArtefactLabelPdf;
 use App\Actions\SupplyChain\SupplierProduct\UI\IndexRepairSupplierProducts;
 use App\Actions\Procurement\AgentLabel\FetchAgentOrgStockBarcodeLabelOptions;
@@ -26,7 +25,9 @@ use App\Actions\Procurement\AgentLabel\PdfAgentOrgStockBarcodeLabel;
 use App\Actions\Procurement\AgentLabel\UI\IndexAgentBarcodes;
 use App\Actions\Procurement\AgentLabel\UI\IndexAgentLabels;
 use App\Actions\Procurement\AgentGoodsReceipt\CancelAgentGoodsReceipt;
+use App\Actions\Procurement\AgentGoodsReceipt\CheckAgentGoodsReceiptItem;
 use App\Actions\Procurement\AgentGoodsReceipt\DeleteAgentGoodsReceiptAttachment;
+use App\Actions\Procurement\AgentGoodsReceipt\PdfAgentGoodsReceiptNote;
 use App\Actions\Procurement\AgentGoodsReceipt\StoreAgentGoodsReceipt;
 use App\Actions\Procurement\AgentGoodsReceipt\UI\IndexAgentGoodsReceipts;
 use App\Actions\Procurement\AgentGoodsReceipt\UI\ShowAgentGoodsReceipt;
@@ -127,7 +128,6 @@ Route::prefix('purchase-orders')->as('purchase_orders.')->group(function () {
     Route::get('{purchaseOrder}/whole-order', ShowAgentWholeOrder::class)->name('whole_order');
     Route::get('{purchaseOrder}/edit', EditPurchaseOrder::class)->name('edit');
     Route::get('{purchaseOrder}/pdf/{filename?}', PdfPurchaseOrder::class)->name('pdf');
-    Route::get('{purchaseOrder}/receipt-note', PdfAgentWarehouseReceiptNote::class)->name('receipt_note');
     Route::get('{purchaseOrder}/transactions-export', ExportPurchaseOrderTransactions::class)->name('transactions.export');
 });
 
@@ -160,6 +160,8 @@ Route::prefix('warehouse/received')->as('warehouse.received.')->group(function (
     Route::post('goods-receipts/{agentGoodsReceipt}/cancel', CancelAgentGoodsReceipt::class)->name('goods_receipts.cancel');
     Route::post('goods-receipts/{agentGoodsReceipt}/photos', UploadAgentGoodsReceiptAttachments::class)->name('goods_receipts.photos.store');
     Route::delete('goods-receipts/{agentGoodsReceipt}/photos/{media:id}', DeleteAgentGoodsReceiptAttachment::class)->name('goods_receipts.photos.destroy')->withoutScopedBindings();
+    Route::get('goods-receipts/{agentGoodsReceipt}/receipt-note', PdfAgentGoodsReceiptNote::class)->name('goods_receipts.receipt_note');
+    Route::post('goods-receipts/{agentGoodsReceipt}/items/{agentGoodsReceiptItem:id}/check', CheckAgentGoodsReceiptItem::class)->name('goods_receipts.items.check')->withoutScopedBindings();
 });
 
 Route::get('barcodes', IndexAgentBarcodes::class)->name('agent_barcodes.index');

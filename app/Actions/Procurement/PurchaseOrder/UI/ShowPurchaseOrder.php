@@ -60,7 +60,7 @@ use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\AspoDeposit;
 use App\Models\Procurement\PurchaseOrderDepositPayment;
 use App\Actions\Procurement\PurchaseOrder\SyncPurchaseOrderDepositPaid;
-use App\Actions\Procurement\AgentWarehouseReceipt\UI\GetPurchaseOrderAgentReceiving;
+use App\Actions\Procurement\AgentGoodsReceipt\UI\GetPurchaseOrderGoodsReceipts;
 use Illuminate\Support\Facades\DB;
 use App\Models\Procurement\PurchaseOrderTransaction;
 use App\Models\SysAdmin\Organisation;
@@ -283,7 +283,7 @@ class ShowPurchaseOrder extends OrgAction
                 'timelines'                => $this->getTimeline($purchaseOrder),
                 'stock_delivery_timelines' => $this->getStockDeliveryTimelines($purchaseOrder),
                 'stages'                   => $this->getStages($purchaseOrder),
-                'agent_receiving'          => fn () => $this->isAgentViewingOwnOrder($purchaseOrder) ? GetPurchaseOrderAgentReceiving::run($purchaseOrder, $this->agentCanEdit) : null,
+                'agent_receiving'          => fn () => $this->isAgentViewingOwnOrder($purchaseOrder) ? GetPurchaseOrderGoodsReceipts::run($purchaseOrder, $this->agentCanEdit) : null,
                 'open_agent_deliveries'    => $purchaseOrder->state === PurchaseOrderStateEnum::CONFIRMED
                     ? StoreStockDeliveryFromPurchaseOrder::openAgentDeliveries($purchaseOrder)
                         ->map(fn (StockDelivery $stockDelivery) => [

@@ -38,9 +38,9 @@ class CancelAgentGoodsReceipt extends OrgAction
                 throw ValidationException::withMessages(['state' => __('This goods receipt is already cancelled')]);
             }
 
-            $stocks = $receipt->warehouseStocks()->lockForUpdate()->get();
-            $moved  = $stocks->contains(fn ($stock) => $stock->state !== AgentWarehouseStockStateEnum::RECEIVED)
-                || round((float) $stocks->sum('quantity'), 3) < round((float) $receipt->quantity, 3);
+            $receipt->warehouseStocks()->lockForUpdate()->get();
+            $moved = $receipt->items()->with('agentWarehouseStock')->get()
+                ->contains(fn ($item) => $item->agentWarehouseStock?->state !== AgentWarehouseStockStateEnum::RECEIVED);
 
             if ($moved) {
                 throw ValidationException::withMessages(['state' => __('Part of these goods was already packed or moved, it can not be cancelled')]);

@@ -17,6 +17,8 @@ type ScopeOption = { value: number; label: string; count: number }
 
 defineProps<{
 	scopes: { suppliers: ScopeOption[]; purchase_orders: ScopeOption[] }
+	purchaseOrderId?: number | null
+	size?: string
 }>()
 
 const isOpen = ref(false)
@@ -24,11 +26,11 @@ const isOpen = ref(false)
 
 <template>
 	<span v-tooltip="scopes.suppliers.length === 0 ? ctrans('Nothing is in production to receive') : ctrans('Book goods a supplier delivered: they become a goods receipt and move to Received')">
-		<Button type="tertiary" :label="ctrans('Receive goods')" :disabled="scopes.suppliers.length === 0" @click="isOpen = true">
+		<Button type="tertiary" :size="size" :label="ctrans('Receive goods')" :disabled="scopes.suppliers.length === 0" @click="isOpen = true">
 			<template #icon>
 				<FontAwesomeIcon :icon="faDolly" class="text-green-600" fixed-width aria-hidden="true" />
 			</template>
 		</Button>
-		<AgentReceiveProductsDialog v-model:visible="isOpen" :scopes="scopes" />
+		<AgentReceiveProductsDialog v-model:visible="isOpen" :scopes="scopes" :purchaseOrderId="purchaseOrderId" />
 	</span>
 </template>

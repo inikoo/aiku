@@ -10,12 +10,14 @@
 namespace App\Actions\Procurement\AgentGoodsReceipt;
 
 use App\Actions\OrgAction;
+use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
 use App\Actions\Procurement\AgentWarehouseStock\UI\IndexAgentProductsInProduction;
 use App\Actions\Procurement\WithAgentOrganisation;
 use App\Enums\Procurement\AgentGoodsReceipt\AgentGoodsReceiptStateEnum;
 use App\Enums\Procurement\AgentWarehouseStock\AgentWarehouseStockStateEnum;
 use App\Models\Procurement\AgentGoodsReceipt;
 use App\Models\Procurement\AgentWarehouseStock;
+use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderTransaction;
 use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Organisation;
@@ -29,8 +31,9 @@ use Lorisleiva\Actions\ActionRequest;
 
 /**
  * Records one delivery the agent received from a supplier as a goods receipt, booked against the purchase order lines
- * still in production: each line becomes warehouse stock, received and not packed yet, and leaves the In production
- * page once received in full. The signed delivery note can be photographed with it.
+ * still in production: each line becomes warehouse stock, received and not checked yet, and leaves the In production
+ * page once received in full. The signed delivery note can be photographed with it. Goods arriving show the supplier
+ * started making the order, so its production start is set when it was not yet.
  */
 class StoreAgentGoodsReceipt extends OrgAction
 {
@@ -108,15 +111,7 @@ class StoreAgentGoodsReceipt extends OrgAction
             foreach ($quantities as $transactionId => $quantity) {
                 $line = $inProduction[$transactionId];
 
-                $receipt->items()->create([
-                    'organisation_id'               => $line->organisation_id,
-                    'purchase_order_id'             => $line->purchase_order_id,
-                    'purchase_order_transaction_id' => $transactionId,
-                    'supplier_product_id'           => $line->supplier_product_id,
-                    'quantity'                      => $quantity,
-                ]);
-
-                AgentWarehouseStock::create([
+                $stock = AgentWarehouseStock::create([
                     'group_id'                      => $agent->group_id,
                     'agent_id'                      => $agent->id,
                     'organisation_id'               => $line->organisation_id,
@@ -128,10 +123,25 @@ class StoreAgentGoodsReceipt extends OrgAction
                     'quantity'                      => $quantity,
                     'notes'                         => $receipt->reference,
                 ]);
+
+                $receipt->items()->create([
+                    'group_id'                      => $agent->group_id,
+                    'organisation_id'               => $line->organisation_id,
+                    'purchase_order_id'             => $line->purchase_order_id,
+                    'purchase_order_transaction_id' => $transactionId,
+                    'supplier_product_id'           => $line->supplier_product_id,
+                    'agent_warehouse_stock_id'      => $stock->id,
+                    'quantity'                      => $quantity,
+                ]);
             }
 
             return $receipt;
         });
+
+        PurchaseOrder::whereIn('id', $receipt->items()->distinct()->pluck('purchase_order_id'))
+            ->whereNull('production_started_at')
+            ->get()
+            ->each(fn (PurchaseOrder $purchaseOrder) => UpdatePurchaseOrder::make()->action($purchaseOrder, ['production_started_at' => $receipt->received_at]));
 
         UploadAgentGoodsReceiptAttachments::make()->saveFiles($receipt, Arr::get($modelData, 'attachments', []));
 

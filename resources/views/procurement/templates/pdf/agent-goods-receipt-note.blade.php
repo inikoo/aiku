@@ -8,7 +8,7 @@
 <html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
-    <title>{{ __('Receipt note') }} {{ $purchaseOrder->reference }}</title>
+    <title>{{ __('Receipt note') }} {{ $receipt->reference }}</title>
     <style>
         body { font-family: sans-serif; font-size: 10pt; color: #222; }
         .header { width: 100%; }
@@ -31,7 +31,8 @@
         .lines .remarks { font-size: 9pt; width: 170px; }
         .lines .ordered { width: 70px; }
         .lines .received { width: 50px; }
-        .lines .day { width: 75px; }
+        .lines .po { width: 90px; font-size: 9pt; }
+        .lines .rejected { width: 50px; }
         .signatures { width: 100%; margin-top: 18px; }
         .signatures td { width: 50%; text-align: center; vertical-align: top; }
         .signatures .line { margin: 70px auto 0; width: 60%; border-top: 1px solid #222; }
@@ -61,25 +62,31 @@
             <td class="label">{{ mb_strtoupper(__('Supplier name')) }}</td>
             <td class="colon">:</td>
             <td>{{ $supplierName }}</td>
-            <td class="date">{{ mb_strtoupper(__('Date')) }} : {{ $dateLabel }}</td>
+            <td class="date">{{ mb_strtoupper(__('Date')) }} : {{ $receipt->received_at->format('d/m/Y') }}</td>
         </tr>
         <tr>
-            <td class="label">{{ mb_strtoupper(__('PO number')) }}</td>
+            <td class="label">{{ mb_strtoupper(__('Receipt no.')) }}</td>
             <td class="colon">:</td>
-            <td colspan="2">{{ $purchaseOrder->reference }}</td>
+            <td colspan="2">{{ $receipt->reference }}</td>
         </tr>
+        @if($receipt->supplier_delivery_note)
+            <tr>
+                <td class="label">{{ mb_strtoupper(__('Delivery note')) }}</td>
+                <td class="colon">:</td>
+                <td colspan="2">{{ $receipt->supplier_delivery_note }}</td>
+            </tr>
+        @endif
     </table>
 
     <table class="lines">
         <thead>
             <tr>
                 <th class="no">{{ mb_strtoupper(__('No.')) }}</th>
-                @unless($isOneDay)
-                    <th class="day">{{ mb_strtoupper(__('Date')) }}</th>
-                @endunless
+                <th class="po">{{ mb_strtoupper(__('PO number')) }}</th>
                 <th>{{ mb_strtoupper(__('Product name/code')) }}</th>
                 <th class="ordered">{{ mb_strtoupper(__('Total order')) }}</th>
                 <th colspan="2">{{ mb_strtoupper(__('Qty received')) }}</th>
+                <th class="rejected">{{ mb_strtoupper(__('Rejected')) }}</th>
                 <th class="remarks">{{ mb_strtoupper(__('Remarks')) }}</th>
             </tr>
         </thead>
@@ -87,26 +94,24 @@
             @foreach($lines as $index => $line)
                 <tr>
                     <td class="no">{{ $index + 1 }}</td>
-                    @unless($isOneDay)
-                        <td>{{ $line['date'] }}</td>
-                    @endunless
+                    <td class="po">{{ $line['purchase_order'] }}</td>
                     <td><span class="code">{{ $line['code'] }}</span> {{ $line['name'] }}</td>
                     <td class="number">{{ trimDecimalZeros($line['ordered']) }}</td>
                     <td class="number received">{{ trimDecimalZeros($line['received']) }}</td>
                     <td class="unit">{{ __('pcs') }}</td>
+                    <td class="number rejected">{{ $line['rejected'] === null ? '' : trimDecimalZeros($line['rejected']) }}</td>
                     <td class="remarks">{{ $line['remarks'] }}</td>
                 </tr>
             @endforeach
             @for($index = $lines->count(); $index < max(5, $lines->count() + 2); $index++)
                 <tr>
                     <td class="no">{{ $index + 1 }}</td>
-                    @unless($isOneDay)
-                        <td></td>
-                    @endunless
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
                     <td class="unit"></td>
+                    <td></td>
                     <td></td>
                 </tr>
             @endfor

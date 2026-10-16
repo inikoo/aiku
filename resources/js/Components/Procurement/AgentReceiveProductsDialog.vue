@@ -6,7 +6,7 @@
 -->
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue"
+import { computed, nextTick, ref, watch } from "vue"
 import axios from "axios"
 import { router } from "@inertiajs/vue3"
 import DatePicker from "primevue/datepicker"
@@ -42,6 +42,7 @@ type ScopeType = "supplier" | "purchase_order"
 
 const props = defineProps<{
 	scopes: { suppliers: ScopeOption[]; purchase_orders: ScopeOption[] }
+	purchaseOrderId?: number | null
 }>()
 
 const visible = defineModel<boolean>("visible", { default: false })
@@ -79,9 +80,14 @@ const resetLines = () => {
 	serverErrors.value = {}
 }
 
-watch(visible, (isVisible) => {
+watch(visible, async (isVisible) => {
 	if (isVisible) {
 		scopeId.value = null
+		if (props.purchaseOrderId) {
+			scopeType.value = "purchase_order"
+			await nextTick()
+			scopeId.value = props.purchaseOrderId
+		}
 		pasted.value = ""
 		search.value = ""
 		notes.value = ""
