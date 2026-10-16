@@ -18,7 +18,7 @@ trait WithStockDeliveryWeightAndVolume
             ->selectRaw("sdi.state = '".StockDeliveryItemStateEnum::CANCELLED->value."' as is_cancelled")
             ->selectSub($this->tradeUnitWeightSubQuery('gross_weight'), 'gross_weight')
             ->selectSub($this->tradeUnitWeightSubQuery('net_weight'), 'net_weight')
-            ->selectRaw('sp.cbm * sdi.unit_quantity / nullif(sp.units_per_carton, 0) as volume');
+            ->selectRaw('coalesce(sdi.cbm_in_container, sp.cbm * sdi.unit_quantity / nullif(sp.units_per_carton, 0)) as volume');
 
         $totals = DB::query()
             ->fromSub($lines, 'line')
