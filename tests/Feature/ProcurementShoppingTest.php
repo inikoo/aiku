@@ -1339,7 +1339,11 @@ test('agent prepare order puts the lines on draft purchase orders per supplier a
 
         expect($setLine->handle($this->orgAgent, $orgSupplierProduct, 0))->toBeNull()
             ->and($purchaseOrder->purchaseOrderTransactions()->where('org_supplier_product_id', $orgSupplierProduct->id)->exists())->toBeFalse()
-            ->and(collect($prepare->linesByBucket($this->orgAgent)['out'])->firstWhere('org_supplier_product_id', $orgSupplierProduct->id))->not->toBeNull();
+            ->and($purchaseOrder->fresh()->data['removed_org_supplier_product_ids'])->toContain($orgSupplierProduct->id)
+            ->and(collect($prepare->linesByBucket($this->orgAgent)['out'])->firstWhere('org_supplier_product_id', $orgSupplierProduct->id))->toBeNull();
+
+        $purchaseOrder->update(['data' => []]);
+        expect(collect($prepare->linesByBucket($this->orgAgent)['out'])->firstWhere('org_supplier_product_id', $orgSupplierProduct->id))->not->toBeNull();
 
         $item = StoreShoppingListItem::make()->action($orgSupplierProduct, ['quantity_units' => 200]);
 
