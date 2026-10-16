@@ -379,11 +379,18 @@ const summaryGroups = computed(() => {
 		],
 		[{ label: ctrans("Total"), price_total: Number(total) || 0, information: inOrgCurrency ? `${orgMoney(Number(total) * rate)} · ${moneyTable.value.rateLabel}` : undefined }],
 		...(Number(props.box_stats.third_block.estimated_expenses) > 0
-			? [[{
-				label: ctrans("Estimated total incl. supplier expenses"),
-				price_total: (Number(total) || 0) + Number(props.box_stats.third_block.estimated_expenses),
-				information: ctrans("estimate, for budgeting"),
-			}]]
+			? [[
+				{
+					label: ctrans("Supplier expenses"),
+					price_total: Number(props.box_stats.third_block.estimated_expenses),
+					information: ctrans("unit expense × quantity"),
+				},
+				{
+					label: ctrans("Estimated total incl. supplier expenses"),
+					price_total: (Number(total) || 0) + Number(props.box_stats.third_block.estimated_expenses),
+					information: ctrans("estimate, for budgeting"),
+				},
+			]]
 			: []),
 	]
 })

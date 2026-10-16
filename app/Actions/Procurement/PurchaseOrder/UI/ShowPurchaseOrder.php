@@ -23,6 +23,8 @@ use App\Http\Resources\Procurement\PurchaseOrderComplianceDocumentsResource;
 use App\Actions\Procurement\ProcurementNote\UI\IndexProcurementNotes;
 use App\Http\Resources\Procurement\ProcurementNoteResource;
 use App\Actions\OrgAction;
+use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
+use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
 use App\Actions\Procurement\PurchaseOrder\PdfPurchaseOrder;
 use App\Actions\Procurement\OrgAgent\GetAgentStockCoverBuckets;
 use App\Actions\Procurement\OrgAgent\UI\IndexAgentCoverBucketItems;
@@ -60,7 +62,6 @@ use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\AspoDeposit;
 use App\Models\Procurement\PurchaseOrderDepositPayment;
 use App\Actions\Procurement\PurchaseOrder\SyncPurchaseOrderDepositPaid;
-use Illuminate\Support\Facades\DB;
 use App\Models\Procurement\PurchaseOrderTransaction;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Database\Eloquent\Builder;
@@ -1309,6 +1310,19 @@ class ShowPurchaseOrder extends OrgAction
         return (float)$purchaseOrder->purchaseOrderTransactions()
             ->join('supplier_products', 'supplier_products.id', '=', 'purchase_order_transactions.supplier_product_id')
             ->whereRaw("supplier_products.data->>'unit_expense' ~ '^[0-9.]+$'")
-            ->sum(DB::raw("purchase_order_transactions.quantity_ordered * (supplier_products.data->>'unit_expense')::numeric"));
+            ->groupBy('supplier_products.currency_id')
+            ->selectRaw("supplier_products.currency_id, sum(purchase_order_transactions.quantity_ordered * (supplier_products.data->>'unit_expense')::numeric) as expenses")
+            ->get()
+            ->sum(function ($row) use ($purchaseOrder): float {
+                if ($row->currency_id === $purchaseOrder->currency_id) {
+                    return (float)$row->expenses;
+                }
+
+                $supplierCurrency = Currency::find($row->currency_id);
+                $rate             = GetHistoricCurrencyExchange::run($supplierCurrency, $purchaseOrder->currency, $purchaseOrder->date)
+                    ?? GetCurrencyExchange::run($supplierCurrency, $purchaseOrder->currency);
+
+                return (float)$row->expenses * (float)$rate;
+            });
     }
 }

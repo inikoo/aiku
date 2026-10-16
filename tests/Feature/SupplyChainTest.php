@@ -648,6 +648,14 @@ test('confirmed supplier product upload creates families, trade unit, SKO, suppl
     $againFindings = collect($again->records()->first()->data['findings'])->pluck('level', 'code');
 
     expect($againFindings->all())->toMatchArray(['link_trade_unit' => 'link', 'update_supplier_product' => 'block', 'cost_change' => 'block']);
+
+    $orderCurrencyId = $purchaseOrder->currency_id;
+    $purchaseOrder->update(['currency_id' => Currency::where('id', '!=', $supplierProduct->currency_id)->value('id')]);
+    App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange::shouldRun()->andReturn(2.0);
+
+    expect(App\Actions\Procurement\PurchaseOrder\UI\ShowPurchaseOrder::make()->estimatedExpenses($purchaseOrder->refresh()))->toEqual(48.0);
+
+    $purchaseOrder->update(['currency_id' => $orderCurrencyId]);
 });
 
 
