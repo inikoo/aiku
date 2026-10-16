@@ -46,7 +46,7 @@ const toneClass: Record<SummaryCardTone, string> = {
             <div
                 v-for="card in cards"
                 :key="card.key"
-                class="rounded-lg border border-t-4 px-4 py-3"
+                class="rounded-lg border border-t-4 px-4 py-3 shadow-sm"
                 :class="toneClass[card.tone ?? 'gray']"
             >
                 <div class="text-2xl font-semibold tabular-nums text-gray-900">{{ locale.number(card.value) }}</div>

@@ -207,8 +207,8 @@ class ShowProductSetting extends OrgAction
                     ],
                 ] : null,
                 'crawl_route'      => $webpage->website && $this->canEditSeo($user, $shop) ? [
-                    'name'       => 'grp.models.website.site_audit.store',
-                    'parameters' => [$webpage->website->id],
+                    'name'       => 'grp.models.product.webpage_check.store',
+                    'parameters' => ['product' => $product->id],
                     'method'     => 'post',
                 ] : null,
             ] : null,

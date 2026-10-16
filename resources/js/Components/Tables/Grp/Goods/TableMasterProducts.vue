@@ -520,8 +520,13 @@ const getIntervalStateColor = (isPositive: boolean) => {
         </template>
 
         <template #cell(actions)="{ item: item}">
-            <Link v-if="tab === 'index'" :href="editInformationRoute(item)">
-                <Button type="tertiary" size="xs" :label="ctrans('Edit product')" icon="fal fa-pencil" />
+            <Link
+                v-if="tab === 'index'"
+                :href="editInformationRoute(item)"
+                @start="() => isLoadingDetach.push('edit' + item.id)"
+                @finish="() => loRemove(isLoadingDetach, (xx) => xx == 'edit' + item.id)"
+            >
+                <Button type="tertiary" size="xs" :label="ctrans('Edit product')" icon="fal fa-pencil" :loading="isLoadingDetach.includes('edit' + item.id)" :disabled="isLoadingDetach.includes('edit' + item.id)" />
             </Link>
             <Link v-if="routes?.detach?.name" as="button" :href="route(routes.detach.name, routes.detach.parameters)"
                 :method="routes?.detach?.method" :data="{

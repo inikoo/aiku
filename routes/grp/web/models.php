@@ -647,6 +647,7 @@ use App\Actions\Web\Seo\ValidateFamilySeoReview;
 use App\Actions\Web\Seo\StoreProductSeoReview;
 use App\Actions\Web\Seo\ImplementProductSeoSuggestion;
 use App\Actions\Web\Seo\ValidateProductSeoReview;
+use App\Actions\Catalogue\Product\CheckProductWebpage;
 use App\Actions\Masters\MasterAsset\UpdateMasterProductInformation;
 use App\Actions\Web\Seo\UpdateSeoTrackedKeyword;
 use App\Actions\Web\WebsiteNotFoundPath\UpdateWebsiteNotFoundPathIgnored;
@@ -1453,6 +1454,7 @@ Route::post('product-category/{productCategory:id}/seo-review/validate', Validat
 Route::post('product/{product:id}/seo-review', StoreProductSeoReview::class)->name('product.seo_review.store')->withoutScopedBindings();
 Route::patch('product/{product:id}/seo-review/{seoContentSuggestion:id}/implement', ImplementProductSeoSuggestion::class)->name('product.seo_review.implement')->withoutScopedBindings();
 Route::post('product/{product:id}/seo-review/validate', ValidateProductSeoReview::class)->name('product.seo_review.validate')->withoutScopedBindings();
+Route::post('product/{product:id}/webpage-check', CheckProductWebpage::class)->name('product.webpage_check.store')->withoutScopedBindings();
 
 Route::name('website.')->prefix('website/{website:id}')->group(function () {
     Route::post('site-audit', StartSiteAudit::class)->name('site_audit.store');

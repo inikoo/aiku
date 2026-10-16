@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue"
 import { router } from "@inertiajs/vue3"
+import { notify } from "@kyvg/vue3-notification"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faSlidersH, faSearch } from "@fal"
 import { faSync } from "@far"
@@ -31,7 +32,6 @@ const props = defineProps<{
 }>()
 
 const isCrawling = ref(false)
-const isCrawlStarted = ref(false)
 
 const startCrawl = () => {
     const crawlRoute = props.completeness.crawl_route
@@ -42,7 +42,8 @@ const startCrawl = () => {
     router.post(route(crawlRoute.name, crawlRoute.parameters), {}, {
         preserveScroll: true,
         onStart: () => (isCrawling.value = true),
-        onSuccess: () => (isCrawlStarted.value = true),
+        onSuccess: () => notify({ title: ctrans("Page checked"), text: ctrans("The checks show what the page has now"), type: "success" }),
+        onError: (errors) => notify({ title: ctrans("Page not checked"), text: Object.values(errors)[0] ?? ctrans("The page could not be checked"), type: "error" }),
         onFinish: () => (isCrawling.value = false),
     })
 }
@@ -92,10 +93,9 @@ const groups = computed(() => [
                         <Button
                             v-if="completeness.crawl_route"
                             type="tertiary"
-                            :label="isCrawlStarted ? ctrans('Crawl started') : ctrans('Crawl page')"
+                            :label="ctrans('Crawl page')"
                             :loading="isCrawling"
-                            :disabled="isCrawlStarted"
-                            :tooltip="ctrans('Runs a site audit of the website. The checks update when the audit finishes.')"
+                            :tooltip="ctrans('Checks this page now. Broken links and sitemap come from the latest site audit of the website.')"
                             @click="startCrawl"
                         >
                             <template #icon>

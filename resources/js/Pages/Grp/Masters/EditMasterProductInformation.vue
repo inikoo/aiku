@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue"
+import { computed, ref } from "vue"
 import { Head, Link, router } from "@inertiajs/vue3"
 import { notify } from "@kyvg/vue3-notification"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
@@ -89,12 +89,6 @@ const serverErrors = ref<Record<string, string>>({})
 const isSaving = ref(false)
 const formKey = ref(0)
 
-watch(() => [props.product, props.information, props.shared], () => {
-    form.value = formFromProps()
-    savedForm.value = formFromProps()
-    formKey.value++
-})
-
 const textOf = (html: string) => html.replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").trim()
 const wordCount = (html: string) => (textOf(html) ? textOf(html).split(/\s+/).length : 0)
 const isPositive = (value: number | null) => value !== null && Number(value) > 0
@@ -117,7 +111,11 @@ const clientErrors = computed(() => {
     if (isPositive(value.marketing_weight) && isPositive(value.gross_weight) && Number(value.gross_weight) < Number(value.marketing_weight)) {
         errors.gross_weight = ctrans("The shipping weight cannot be below the net weight")
     }
-    if ((["l", "w", "h"] as const).some((side) => value.dimensions_cm[side] !== null && Number(value.dimensions_cm[side]) < 1)) {
+    const sides = (["l", "w", "h"] as const).map((side) => value.dimensions_cm[side])
+    const filledSides = sides.filter((side) => side !== null && String(side) !== "")
+    if (filledSides.length && filledSides.length < 3) {
+        errors.dimensions_cm = ctrans("Fill in the length, width and height")
+    } else if (filledSides.some((side) => Number(side) < 1)) {
         errors.dimensions_cm = ctrans("Each dimension is at least 1 cm")
     }
     if (value.barcode && !/^(\d{8}|\d{12}|\d{13})$/.test(value.barcode)) {
@@ -169,7 +167,7 @@ const changedPayload = computed(() => {
                 payload[key] = value[key]
             }
         }
-        if (isChanged("dimensions_cm") && (["l", "w", "h"] as const).every((side) => value.dimensions_cm[side] !== null)) {
+        if (isChanged("dimensions_cm") && (["l", "w", "h"] as const).every((side) => value.dimensions_cm[side] !== null && String(value.dimensions_cm[side]) !== "")) {
             payload.dimensions_cm = value.dimensions_cm
         }
     }
@@ -194,7 +192,12 @@ const save = () => {
             isSaving.value = true
             serverErrors.value = {}
         },
-        onSuccess: () => notify({ title: ctrans("Saved"), text: ctrans("The product information has been updated"), type: "success" }),
+        onSuccess: () => {
+            form.value = formFromProps()
+            savedForm.value = formFromProps()
+            formKey.value++
+            notify({ title: ctrans("Saved"), text: ctrans("The product information has been updated"), type: "success" })
+        },
         onError: (errors) => {
             serverErrors.value = errors as Record<string, string>
             notify({ title: ctrans("Not saved"), text: Object.values(errors)[0] ?? ctrans("The product could not be updated"), type: "error" })
@@ -334,7 +337,9 @@ const save = () => {
                         <div>
                             <label for="barcode" class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Barcode (EAN)") }}</label>
                             <PureInput v-model="form.barcode" inputName="barcode" :placeholder="ctrans('8, 12 or 13 digits')" :disabled="!canEdit" :isError="!!errorOf('barcode')" />
-                            <p v-if="errorOf('barcode')" class="mt-1 text-xs text-red-600">{{ errorOf("barcode") }}</p>
+                            <p class="mt-1 text-xs" :class="errorOf('barcode') ? 'text-red-600' : 'text-gray-500'">
+                                {{ errorOf("barcode") ?? ctrans("8, 12 or 13 digits, and a free barcode of the barcode pool (not used by another product or trade unit)") }}
+                            </p>
                         </div>
                         <div>
                             <label class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Origin country") }}</label>

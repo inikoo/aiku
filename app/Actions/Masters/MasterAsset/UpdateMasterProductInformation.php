@@ -11,6 +11,7 @@ namespace App\Actions\Masters\MasterAsset;
 use App\Actions\Goods\TradeUnit\UpdateTradeUnit;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithMastersEditAuthorisation;
+use App\Models\Goods\TradeUnit;
 use App\Models\Masters\MasterAsset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
@@ -46,7 +47,8 @@ class UpdateMasterProductInformation extends OrgAction
 
         $tradeUnit = $masterAsset->tradeUnits()->count() === 1 ? $masterAsset->tradeUnits()->first() : null;
         if ($tradeUnitData !== [] && $tradeUnit) {
-            UpdateTradeUnit::make()->action($tradeUnit, $tradeUnitData);
+            $tradeUnit = UpdateTradeUnit::make()->action($tradeUnit, $tradeUnitData);
+            $this->syncFromTradeUnit($masterAsset, $tradeUnit);
         }
 
         $masterFamily = $masterAsset->masterFamily;
@@ -63,6 +65,21 @@ class UpdateMasterProductInformation extends OrgAction
         }
 
         return $masterAsset->refresh();
+    }
+
+    /**
+     * UpdateTradeUnit leaves dimensions and origin off the master and queues the weights, so the
+     * page would show the old values right after saving: the master takes them from its only trade
+     * unit here.
+     */
+    private function syncFromTradeUnit(MasterAsset $masterAsset, TradeUnit $tradeUnit): void
+    {
+        $masterAsset->updateQuietly([
+            'marketing_weight'     => $tradeUnit->marketing_weight,
+            'gross_weight'         => $tradeUnit->gross_weight,
+            'marketing_dimensions' => $tradeUnit->marketing_dimensions,
+            'origin_country_id'    => $tradeUnit->origin_country_id,
+        ]);
     }
 
     public function rules(): array

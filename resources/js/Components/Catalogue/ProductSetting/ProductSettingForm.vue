@@ -550,14 +550,6 @@ const [DefineMasterValue, MasterValue] = createReusableTemplate<{ value: string 
                         :emptyLabel="ctrans('Not set by the master nor on the website')"
                     />
                 </div>
-                <Link
-                    v-if="shop.shared.website_edit_route"
-                    :href="route(shop.shared.website_edit_route.name, shop.shared.website_edit_route.parameters)"
-                    class="inline-flex items-center gap-1 text-sm text-[--app-accent] hover:underline"
-                >
-                    {{ ctrans("Edit in website settings") }}
-                    <FontAwesomeIcon :icon="faExternalLink" class="text-xs" fixed-width aria-hidden="true" />
-                </Link>
             </div>
         </section>
     </div>

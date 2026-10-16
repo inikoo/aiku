@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue"
 import { router } from "@inertiajs/vue3"
+import { notify } from "@kyvg/vue3-notification"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faTimes, faExclamationTriangle, faInfoCircle } from "@fal"
 import { faSync } from "@far"
@@ -22,7 +23,6 @@ const severityStyle: Record<WebpageIssueGroup["issues"][number]["severity"], { l
 }
 
 const isCrawling = ref(false)
-const isCrawlStarted = ref(false)
 
 const startCrawl = () => {
     if (!props.crawlRoute) {
@@ -32,7 +32,8 @@ const startCrawl = () => {
     router.post(route(props.crawlRoute.name, props.crawlRoute.parameters), {}, {
         preserveScroll: true,
         onStart: () => (isCrawling.value = true),
-        onSuccess: () => (isCrawlStarted.value = true),
+        onSuccess: () => notify({ title: ctrans("Page checked"), text: ctrans("The checks show what the page has now"), type: "success" }),
+        onError: (errors) => notify({ title: ctrans("Page not checked"), text: Object.values(errors)[0] ?? ctrans("The page could not be checked"), type: "error" }),
         onFinish: () => (isCrawling.value = false),
     })
 }
