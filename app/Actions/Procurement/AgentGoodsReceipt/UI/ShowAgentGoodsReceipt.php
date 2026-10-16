@@ -15,9 +15,11 @@ use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
 use App\Enums\Procurement\AgentGoodsReceipt\AgentGoodsReceiptStateEnum;
 use App\Enums\Procurement\AgentWarehouseStock\AgentWarehouseStockStateEnum;
 use App\Models\Helpers\Media;
+use App\Models\Inventory\OrgStock;
 use App\Models\Procurement\AgentGoodsReceipt;
 use App\Models\Procurement\AgentGoodsReceiptItem;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -37,7 +39,7 @@ class ShowAgentGoodsReceipt extends OrgAction
             'supplier:id,code,name',
             'user:id,contact_name,username',
             'cancelledBy:id,contact_name,username',
-            'items.supplierProduct:id,code,name,units_per_pack',
+            'items.supplierProduct:id,code,name',
             'items.organisation:id,code,slug',
             'items.purchaseOrder:id,reference,slug',
             'attachments',
@@ -64,6 +66,11 @@ class ShowAgentGoodsReceipt extends OrgAction
     {
         $parameters = [$this->organisation->slug, $receipt->slug];
         $person     = fn ($user) => $user ? ($user->contact_name ?: $user->username) : null;
+
+        $unitsPerSko = DB::table('agent_goods_receipt_items as receipt_item')
+            ->where('receipt_item.agent_goods_receipt_id', $receipt->id)
+            ->selectRaw('receipt_item.id, '.OrgStock::unitsPerSkoSql('receipt_item.organisation_id', 'receipt_item.supplier_product_id').' as units_per_sko')
+            ->pluck('units_per_sko', 'id');
 
         return Inertia::render(
             'Org/Procurement/AgentGoodsReceipt',
@@ -98,7 +105,7 @@ class ShowAgentGoodsReceipt extends OrgAction
                     'purchase_order_reference' => $item->purchaseOrder?->reference,
                     'purchase_order_slug'      => $item->purchaseOrder?->slug,
                     'quantity'                 => (float) $item->quantity,
-                    'units_per_sko'            => (float) ($item->supplierProduct?->units_per_pack ?: 1),
+                    'units_per_sko'            => (float) ($unitsPerSko[$item->id] ?? 1),
                 ])->values(),
                 'photos'      => $receipt->attachments->map(fn (Media $media) => [
                     'id'           => $media->id,

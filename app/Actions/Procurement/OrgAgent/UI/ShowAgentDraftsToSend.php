@@ -135,8 +135,9 @@ class ShowAgentDraftsToSend extends OrgAction
         $lines = self::drafts($orgAgent)
             ->join('purchase_order_transactions as pot', fn ($join) => $join->on('pot.purchase_order_id', 'po.id')->whereNull('pot.deleted_at'))
             ->join('supplier_products as sp', 'sp.id', 'pot.supplier_product_id')
+            ->leftJoin('org_stocks as os', 'os.id', 'pot.org_stock_id')
             ->orderBy('sp.code')
-            ->selectRaw('pot.id, pot.purchase_order_id, pot.org_supplier_product_id, sp.code, sp.name, pot.quantity_ordered, sp.units_per_carton, sp.units_per_pack, pot.unit_cost, pot.net_amount,
+            ->selectRaw('pot.id, pot.purchase_order_id, pot.org_supplier_product_id, sp.code, sp.name, pot.quantity_ordered, sp.units_per_carton, coalesce(nullif(os.packed_in, 0), sp.units_per_pack) as units_per_sko, pot.unit_cost, pot.net_amount,
                 pot.quantity_ordered / nullif(sp.units_per_carton, 0) * sp.cbm as cbm')
             ->get();
 
@@ -161,7 +162,7 @@ class ShowAgentDraftsToSend extends OrgAction
                 'name'     => $line->name,
                 'units'    => (float) $line->quantity_ordered,
                 'cartons'  => $line->units_per_carton ? round((float) $line->quantity_ordered / (int) $line->units_per_carton, 2) : null,
-                'skos'     => $line->units_per_pack ? round((float) $line->quantity_ordered / (int) $line->units_per_pack, 2) : null,
+                'skos'     => $line->units_per_sko ? round((float) $line->quantity_ordered / (float) $line->units_per_sko, 2) : null,
                 'unit_cost' => $line->unit_cost !== null ? (float) $line->unit_cost : null,
                 'amount'   => (float) $line->net_amount,
                 'cbm'      => $line->cbm !== null ? round((float) $line->cbm, 3) : null,

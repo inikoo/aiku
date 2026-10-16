@@ -1200,6 +1200,153 @@ test('agent shopping list proposal orders whole cartons and respects the carton 
     expect(collect($proposal['lines'])->sum('cost'))->toBeLessThanOrEqual($proposal['budget']);
 });
 
+test('agent shopping list converts the SKO recommendation to units before rounding to cartons and sends the SKO size to the page', function () {
+    $stock = StoreStock::make()->action($this->group, array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE]));
+
+    [, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $orgSupplierProduct->update(['state' => OrgSupplierProductStateEnum::ACTIVE, 'is_available' => true]);
+    $orgSupplierProduct->supplierProduct->update([
+        'currency_id'          => $this->organisation->currency_id,
+        'cost'                 => 1,
+        'units_per_pack'       => 70,
+        'units_per_carton'     => 2,
+        'minimum_carton_order' => 1,
+    ]);
+    DB::table('org_stock_has_org_supplier_products')->where('org_supplier_product_id', $orgSupplierProduct->id)->delete();
+    $stockLink = StockHasSupplierProduct::firstOrCreate(['stock_id' => $stock->id, 'supplier_product_id' => $orgSupplierProduct->supplier_product_id], ['available' => true]);
+    $orgStock  = App\Actions\Inventory\OrgStock\StoreOrgStock::make()->action($this->organisation, $stock, OrgStock::factory()->definition());
+    $orgStock->update(['state' => OrgStockStateEnum::ACTIVE, 'quantity_available' => 0, 'packed_in' => 2, 'is_excluded_from_auto_ordering' => false]);
+    $orgStock->stats()->updateOrCreate([], ['days_of_cover' => 0, 'predicted_daily_usage' => 1, 'stock_value' => 0, 'recommended_order_quantity' => 19.16, 'on_the_way_po_count' => 0]);
+    OrgStockHasOrgSupplierProduct::create([
+        'org_stock_id'                  => $orgStock->id,
+        'org_supplier_product_id'       => $orgSupplierProduct->id,
+        'stock_has_supplier_product_id' => $stockLink->id,
+        'status'                        => true,
+        'local_priority'                => 0,
+    ]);
+    DB::table('shopping_list_items')->where('org_supplier_product_id', $orgSupplierProduct->id)->delete();
+
+    $suggest = App\Actions\Procurement\OrgAgent\SuggestAgentShoppingList::make();
+    $lineFor = fn () => collect($suggest->lines($this->orgAgent, 'out'))->firstWhere('org_supplier_product_id', $orgSupplierProduct->id);
+
+    expect($lineFor()['cartons'])->toBe(20)
+        ->and($lineFor()['quantity_units'])->toBe(40);
+
+    $orgStock->update(['packed_in' => 3]);
+    expect($lineFor())->toBeNull();
+
+    $orgStock->update(['packed_in' => 2]);
+    $response = $this->get(route('grp.org.procurement.org_agents.show.shopping.items.index', [$this->organisation->slug, $this->orgAgent->slug]).'?cover=out');
+    $response->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('items.data', fn ($items) => (float) collect($items)->firstWhere('id', $orgSupplierProduct->id)['units_per_pack'] === 2.0));
+});
+
+test('supplier shopping list suggestion rounds the SKO recommendation, in units, to cartons and skips a carton smaller than one SKO', function () {
+    $fill = fn (array $candidate) => (fn () => $this->greedyFill([array_merge([
+        'org_supplier_product_id' => 1,
+        'code'                    => 'ABC',
+        'name'                    => 'A thing',
+        'cost'                    => 1.0,
+        'units_per_carton'        => 2,
+        'packed_in'               => 2,
+        'minimum_carton_order'    => 1,
+        'never_stocked'           => false,
+        'health_rank'             => 'B',
+        'cap_exempt'              => false,
+        'our_stock'               => 0.0,
+        'days_of_cover'           => 0.0,
+        'recommended'             => 19.16,
+        'quarterly_usage'         => 40.0,
+    ], $candidate)], 10000))->call(new App\Actions\Procurement\ShoppingListItem\SuggestSupplierShoppingList());
+
+    $lines = $fill([]);
+    expect($lines[0]['quantity'])->toBe(40.0)
+        ->and($lines[0]['cartons'])->toBe(20.0)
+        ->and($lines[0]['cost'])->toBe(40.0);
+
+    $usageOnly = $fill(['recommended' => null, 'quarterly_usage' => 10.0, 'our_stock' => 4.0]);
+    expect($usageOnly[0]['quantity'])->toBe(12.0);
+
+    expect($fill(['packed_in' => 3]))->toBeEmpty();
+});
+
+test('pages count SKOs with the org stock packed_in, not the supplier pack, and fall back to the supplier pack only without an org stock', function () {
+    $stock = StoreStock::make()->action($this->group, array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE]));
+
+    [$orgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $supplierProduct = $orgSupplierProduct->supplierProduct;
+    $supplierProduct->update(['units_per_pack' => 70, 'units_per_carton' => 140]);
+    StockHasSupplierProduct::firstOrCreate(['stock_id' => $stock->id, 'supplier_product_id' => $supplierProduct->id], ['available' => true]);
+
+    $unitsPerSko = fn (int $organisationId) => (float) DB::selectOne('select '.OrgStock::unitsPerSkoSql((string) $organisationId, (string) $supplierProduct->id).' as units')->units;
+
+    expect($unitsPerSko($this->organisation->id))->toBe(70.0);
+
+    $orgStock = App\Actions\Inventory\OrgStock\StoreOrgStock::make()->action($this->organisation, $stock, OrgStock::factory()->definition());
+    $orgStock->update(['state' => OrgStockStateEnum::ACTIVE, 'packed_in' => 1]);
+
+    expect($unitsPerSko($this->organisation->id))->toBe(1.0)
+        ->and($unitsPerSko(0))->toBe(70.0);
+
+    $draft = StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition());
+    $line  = StorePurchaseOrderTransaction::make()->action($draft, $supplierProduct->historicSupplierProduct, $orgStock, [...PurchaseOrderTransaction::factory()->definition(), 'quantity_ordered' => 140]);
+
+    $draftLine = collect(App\Actions\Procurement\OrgAgent\UI\ShowAgentDraftsToSend::make()->lines($this->orgAgent)[$draft->id] ?? [])->firstWhere('id', $line->id);
+    expect($draftLine['skos'])->toBe(140.0);
+
+    $resource = (new App\Http\Resources\Procurement\PurchaseOrderTransactionResource($line->fresh()))->toArray(request());
+    expect((float) $resource['units_per_pack'])->toBe(1.0)
+        ->and((float) $resource['units_per_carton'])->toBe(140.0);
+
+    $orgStock->update(['packed_in' => null]);
+    expect($unitsPerSko($this->organisation->id))->toBe(70.0)
+        ->and((float) (new App\Http\Resources\Procurement\PurchaseOrderTransactionResource($line->fresh()))->toArray(request())['units_per_pack'])->toBe(70.0);
+});
+
+test('agent warehouse pages and the goods receipt count SKOs with the org stock packed_in', function () {
+    $stock = StoreStock::make()->action($this->group, array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE]));
+
+    [, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $supplierProduct = $orgSupplierProduct->supplierProduct;
+    $supplierProduct->update(['units_per_pack' => 70]);
+    StockHasSupplierProduct::firstOrCreate(['stock_id' => $stock->id, 'supplier_product_id' => $supplierProduct->id], ['available' => true]);
+    $orgStock = App\Actions\Inventory\OrgStock\StoreOrgStock::make()->action($this->organisation, $stock, OrgStock::factory()->definition());
+    $orgStock->update(['state' => OrgStockStateEnum::ACTIVE, 'packed_in' => 1]);
+
+    $receipt = App\Models\Procurement\AgentGoodsReceipt::create([
+        'group_id'    => $this->agent->group_id,
+        'agent_id'    => $this->agent->id,
+        'supplier_id' => $supplierProduct->supplier_id,
+        'number'      => (int) App\Models\Procurement\AgentGoodsReceipt::where('agent_id', $this->agent->id)->max('number') + 1,
+        'reference'   => 'GR-'.Str::upper(Str::random(6)),
+        'state'       => App\Enums\Procurement\AgentGoodsReceipt\AgentGoodsReceiptStateEnum::RECEIVED,
+        'received_at' => now()->toDateString(),
+        'quantity'    => 140,
+    ]);
+    $receipt->items()->create(['organisation_id' => $this->organisation->id, 'supplier_product_id' => $supplierProduct->id, 'quantity' => 140]);
+    App\Models\Procurement\AgentWarehouseStock::create([
+        'group_id'               => $this->agent->group_id,
+        'agent_id'               => $this->agent->id,
+        'organisation_id'        => $this->organisation->id,
+        'supplier_product_id'    => $supplierProduct->id,
+        'agent_goods_receipt_id' => $receipt->id,
+        'state'                  => App\Enums\Procurement\AgentWarehouseStock\AgentWarehouseStockStateEnum::RECEIVED,
+        'quantity'               => 140,
+    ]);
+
+    $rows = App\Actions\Procurement\AgentWarehouseStock\UI\IndexAgentReceivedProducts::make()->handle($this->agent);
+    $row  = collect($rows->items())->firstWhere('code', $supplierProduct->code);
+    expect($row['units_per_sko'])->toBe(1.0)
+        ->and($row['skos'])->toBe(140.0);
+
+    expect(App\Actions\Procurement\AgentWarehouseStock\UI\GetAgentProductsInProductionToReceive::make()->handle($this->agent, ['supplier' => $supplierProduct->supplier_id]))->toBeArray();
+
+    $this->get(route('grp.org.agent.warehouse.received.goods_receipts.show', [$this->agent->organisation->slug, $receipt->slug]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('items', fn ($items) => (float) collect($items)->first()['units_per_sko'] === 1.0));
+});
+
 test('UI agent shopping dashboard renders', function () {
     $response = $this->get(route('grp.org.procurement.org_agents.show.shopping.dashboard', [$this->organisation->slug, $this->orgAgent->slug]));
     $response->assertOk();

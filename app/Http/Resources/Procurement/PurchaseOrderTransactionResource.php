@@ -49,7 +49,7 @@ class PurchaseOrderTransactionResource extends JsonResource
             'unit_cost'            => $transaction->unit_cost ?? $supplierProduct?->cost,
             'supplier_unit_cost'   => $supplierProduct?->cost,
             'can_update_supplier_cost' => $supplierProduct !== null && $request->user()?->authTo('supply-chain.edit'),
-            'units_per_pack'       => $supplierProduct ? $supplierProduct->units_per_pack : $orgStock?->packed_in,
+            'units_per_pack'       => $orgStock?->packed_in ?: $supplierProduct?->units_per_pack,
             'units_per_carton'     => $supplierProduct ? $supplierProduct->units_per_carton : $orgStock?->packed_in,
             'supplier_unit'        => $supplierProduct?->supplier_unit?->value,
             'units_per_supplier_unit' => $supplierProduct?->supplier_unit ? $supplierProduct->unitsPerSupplierUnit() : null,

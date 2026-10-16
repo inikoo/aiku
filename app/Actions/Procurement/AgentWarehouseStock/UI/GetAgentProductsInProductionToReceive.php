@@ -36,6 +36,7 @@ class GetAgentProductsInProductionToReceive extends OrgAction
             ->join('supplier_products', 'supplier_products.id', 'purchase_order_transactions.supplier_product_id')
             ->leftJoin('suppliers', 'suppliers.id', 'supplier_products.supplier_id')
             ->join('organisations', 'organisations.id', 'purchase_order_transactions.organisation_id')
+            ->leftJoin('org_stocks', 'org_stocks.id', 'purchase_order_transactions.org_stock_id')
             ->when(isset($scope['supplier']), fn ($query) => $query->where('supplier_products.supplier_id', $scope['supplier']))
             ->when(isset($scope['purchase_order']), fn ($query) => $query->where('production_orders.id', $scope['purchase_order']))
             ->orderBy('production_orders.id')
@@ -46,7 +47,7 @@ class GetAgentProductsInProductionToReceive extends OrgAction
                 DB::raw(IndexAgentProductsInProduction::REMAINING_QUANTITY_SQL.' as quantity'),
                 'supplier_products.code',
                 'supplier_products.name',
-                'supplier_products.units_per_pack',
+                DB::raw('coalesce(nullif(org_stocks.packed_in, 0), supplier_products.units_per_pack, 1) as units_per_sko'),
                 'suppliers.code as supplier_code',
                 'organisations.code as organisation_code',
                 'production_orders.reference as purchase_order_reference',
@@ -61,7 +62,7 @@ class GetAgentProductsInProductionToReceive extends OrgAction
                 'purchase_order_reference' => $line->purchase_order_reference,
                 'quantity_ordered'         => (float) $line->quantity_ordered,
                 'quantity'                 => (float) $line->quantity,
-                'units_per_sko'            => (float) ($line->units_per_pack ?: 1),
+                'units_per_sko'            => (float) $line->units_per_sko,
             ])
             ->all();
     }

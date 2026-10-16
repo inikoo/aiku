@@ -176,7 +176,7 @@ class IndexAgentCoverBucketItems extends OrgAction
                 'sp.code',
                 'sp.name',
                 'sp.cost',
-                'sp.units_per_pack',
+                'os.packed_in as units_per_pack',
                 'sp.units_per_carton',
                 'sp.minimum_carton_order',
                 'sup.code as supplier_code',

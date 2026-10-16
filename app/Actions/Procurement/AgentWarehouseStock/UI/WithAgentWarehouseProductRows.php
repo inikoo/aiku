@@ -10,6 +10,7 @@
 namespace App\Actions\Procurement\AgentWarehouseStock\UI;
 
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
+use App\Models\Inventory\OrgStock;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -39,13 +40,13 @@ trait WithAgentWarehouseProductRows
             ->addSelect([
                 'supplier_products.code',
                 'supplier_products.name',
-                'supplier_products.units_per_pack',
                 'supplier_products.units_per_carton',
                 'suppliers.code as supplier_code',
                 'organisations.code as organisation_code',
                 'organisations.slug as organisation_slug',
                 'purchase_orders.reference as purchase_order_reference',
                 'purchase_orders.slug as purchase_order_slug',
+                DB::raw(OrgStock::unitsPerSkoSql("$table.organisation_id", "$table.supplier_product_id").' as units_per_sko'),
                 DB::raw("(select slug from org_supplier_products where supplier_product_id = $table.supplier_product_id and organisation_id = $table.organisation_id order by id limit 1) as org_supplier_product_slug"),
                 DB::raw("(select slug from org_suppliers where supplier_id = supplier_products.supplier_id and organisation_id = $table.organisation_id order by id limit 1) as org_supplier_slug"),
             ]);
@@ -71,7 +72,7 @@ trait WithAgentWarehouseProductRows
      */
     protected function productRow(object $row): array
     {
-        $unitsPerSko = (float) ($row->units_per_pack ?: 1);
+        $unitsPerSko = (float) ($row->units_per_sko ?: 1);
 
         return [
             'organisation_code'         => $row->organisation_code,

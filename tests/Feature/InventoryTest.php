@@ -4840,7 +4840,7 @@ describe('out of stock forecast', function () {
             [...$movementBase, 'date' => now()->subDays(60)->startOfDay()->addHours(8), 'running_quantity_org_stock' => 30],
             [...$movementBase, 'date' => now()->subDays(57)->startOfDay()->addHours(8), 'running_quantity_org_stock' => 0],
         ]);
-        foreach ([200 => 2700, 60 => 10, 59 => 10, 58 => 10] as $daysAgo => $quantity) {
+        foreach (array_fill_keys(range(226, 200), 100) + [60 => 10, 59 => 10, 58 => 10] as $daysAgo => $quantity) {
             DB::table('delivery_note_items')->insert([
                 'group_id'            => $deliveryNoteItem->group_id,
                 'organisation_id'     => $deliveryNoteItem->organisation_id,
@@ -4863,6 +4863,113 @@ describe('out of stock forecast', function () {
             ->and((float) $stats->predicted_daily_usage)->toBeLessThanOrEqual(2730 / 365 * 2);
     });
 
+    test('an item out of stock all window forecasts from its own selling rate over the last year', function () {
+        [, $deliveryNoteItem] = packedDeliveryNote($this);
+        $orgStock             = $deliveryNoteItem->orgStock;
+        $orgStock->update(['state' => OrgStockStateEnum::ACTIVE, 'quantity_available' => 0]);
+        DB::table('delivery_note_items')->where('org_stock_id', $orgStock->id)->delete();
+        DB::table('org_stock_movements')->where('org_stock_id', $orgStock->id)->delete();
+
+        $movementBase = [
+            'group_id'        => $orgStock->group_id,
+            'organisation_id' => $orgStock->organisation_id,
+            'warehouse_id'    => $this->warehouse->id,
+            'org_stock_id'    => $orgStock->id,
+            'class'           => OrgStockMovementClassEnum::MOVEMENT->value,
+            'type'            => OrgStockMovementTypeEnum::PURCHASE->value,
+            'flow'            => OrgStockMovementFlowEnum::IN->value,
+            'quantity'        => 1,
+            'org_amount'      => 0,
+            'grp_amount'      => 0,
+            'data'            => '{}',
+        ];
+        DB::table('org_stock_movements')->insert([
+            [...$movementBase, 'date' => now()->subDays(300)->startOfDay()->addHours(8), 'running_quantity_org_stock' => 600],
+            [...$movementBase, 'date' => now()->subDays(100)->startOfDay()->addHours(8), 'running_quantity_org_stock' => 0],
+        ]);
+        foreach (range(295, 105, 10) as $daysAgo) {
+            DB::table('delivery_note_items')->insert([
+                'group_id'            => $deliveryNoteItem->group_id,
+                'organisation_id'     => $deliveryNoteItem->organisation_id,
+                'shop_id'             => $deliveryNoteItem->shop_id,
+                'delivery_note_id'    => $deliveryNoteItem->delivery_note_id,
+                'org_stock_id'        => $orgStock->id,
+                'quantity_required'   => 30,
+                'quantity_dispatched' => 30,
+                'data'                => '{}',
+                'created_at'          => now()->subDays($daysAgo)->startOfDay()->addHours(10),
+                'updated_at'          => now(),
+            ]);
+        }
+
+        OrgStockHydrateOutOfStockForecast::run($orgStock->fresh());
+        $stats = $orgStock->stats->refresh();
+
+        expect($stats->forecast_source)->toBe('history')
+            ->and((float) $stats->predicted_daily_usage)->toEqualWithDelta(600 / 200, 0.0001)
+            ->and((float) $stats->recommended_order_quantity)->toBeGreaterThan(0.0);
+
+        $oneOff = DB::table('delivery_note_items')->insertGetId([
+            'group_id'            => $deliveryNoteItem->group_id,
+            'organisation_id'     => $deliveryNoteItem->organisation_id,
+            'shop_id'             => $deliveryNoteItem->shop_id,
+            'delivery_note_id'    => $deliveryNoteItem->delivery_note_id,
+            'org_stock_id'        => $orgStock->id,
+            'quantity_required'   => 30000,
+            'quantity_dispatched' => 30000,
+            'data'                => '{}',
+            'created_at'          => now()->subDays(150)->startOfDay()->addHours(10),
+            'updated_at'          => now(),
+        ]);
+        OrgStockHydrateOutOfStockForecast::run($orgStock->fresh());
+        expect((float) $orgStock->stats->refresh()->predicted_daily_usage)->toEqualWithDelta((600 + 3 * 30) / 200, 0.0001);
+        DB::table('delivery_note_items')->where('id', $oneOff)->delete();
+
+        DB::table('delivery_note_items')->where('org_stock_id', $orgStock->id)->update(['created_at' => DB::raw("created_at - interval '90 days'")]);
+        DB::table('org_stock_movements')->where('org_stock_id', $orgStock->id)->update(['date' => DB::raw("date - interval '90 days'")]);
+        OrgStockHydrateOutOfStockForecast::run($orgStock->fresh());
+        expect($orgStock->stats->refresh()->forecast_source)->not->toBe('history');
+    });
+
+    test('what production and consumption take out is demand, for TimesFM and for a component no customer buys', function () {
+        [, $deliveryNoteItem] = packedDeliveryNote($this);
+        $orgStock             = $deliveryNoteItem->orgStock;
+        $orgStock->update(['state' => OrgStockStateEnum::ACTIVE, 'quantity_available' => 0]);
+        DB::table('delivery_note_items')->where('org_stock_id', $orgStock->id)->delete();
+        DB::table('org_stock_movements')->where('org_stock_id', $orgStock->id)->delete();
+
+        foreach (range(1, 10) as $weeksAgo) {
+            DB::table('org_stock_movements')->insert([
+                'group_id'        => $orgStock->group_id,
+                'organisation_id' => $orgStock->organisation_id,
+                'warehouse_id'    => $this->warehouse->id,
+                'org_stock_id'    => $orgStock->id,
+                'date'            => now()->subWeeks($weeksAgo)->startOfDay()->addHours(8),
+                'class'           => OrgStockMovementClassEnum::MOVEMENT->value,
+                'type'            => $weeksAgo % 2 ? OrgStockMovementTypeEnum::CONSUMPTION->value : OrgStockMovementTypeEnum::PRODUCTION->value,
+                'flow'            => OrgStockMovementFlowEnum::OUT->value,
+                'quantity'        => -50,
+                'org_amount'      => 0,
+                'grp_amount'      => 0,
+                'data'            => '{}',
+            ]);
+        }
+
+        config(['services.timesfm.url' => 'http://timesfm.test', 'services.timesfm.token' => 'secret']);
+        Http::fake(['timesfm.test/forecast' => fn ($request) => Http::response([
+            'version' => '3',
+            'deciles' => array_fill(0, count($request['series']), array_fill(0, $request['horizon'], array_fill(0, 9, 1))),
+        ])]);
+        ForecastOrgStockDemand::run();
+        Http::assertSent(fn ($request) => $request['horizon'] === 8 && collect($request['series'])->contains(fn ($series) => array_sum($series) == 500 && max($series) == 50));
+        expect($orgStock->stats->refresh()->demand_forecast['weeks'] ?? null)->toHaveCount(8);
+
+        OrgStockHydrateOutOfStockForecast::run($orgStock->fresh());
+        $stats = $orgStock->stats->refresh();
+        expect($stats->forecast_source)->toBe('consumption')
+            ->and((float) $stats->predicted_daily_usage)->toEqualWithDelta(500 / 91, 0.0001);
+    });
+
     test('a sister organisation\'s shipments to a partner organisation are not borrowed as demand', function () {
         [$deliveryNote, $deliveryNoteItem] = packedDeliveryNote($this);
         $deliveryNoteItem->update(['quantity_dispatched' => 910]);
@@ -4878,6 +4985,11 @@ describe('out of stock forecast', function () {
         $stats = $orgStock->stats->refresh();
         expect($stats->forecast_source)->toBe('siblings')
             ->and((float) $stats->predicted_daily_usage)->toEqualWithDelta(910 / 91 * 0.5, 0.0001);
+
+        $orgStock->update(['quantity_available' => 10]);
+        OrgStockHydrateOutOfStockForecast::run($orgStock->fresh());
+        expect($orgStock->stats->refresh()->forecast_source)->toBeNull();
+        $orgStock->update(['quantity_available' => 0]);
 
         $partnerLink = ['group_id' => $this->group->id, 'organisation_id' => $organisation2->id, 'partner_id' => $this->organisation->id];
         $existingLink = DB::table('org_partners')->where($partnerLink)->first();

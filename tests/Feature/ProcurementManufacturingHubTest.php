@@ -1753,6 +1753,7 @@ describe('partner shopping list', function () {
         $orgStock->orgSupplierProducts()->detach();
         DB::table('partner_shopping_list_items')->where('org_stock_id', $orgStock->id)->update(['deleted_at' => now()]);
         DB::table('purchase_order_transactions')->where('org_stock_id', $orgStock->id)->update(['deleted_at' => now()]);
+        DB::table('stock_delivery_items')->where('org_stock_id', $orgStock->id)->update(['deleted_at' => now()]);
         $orgStock->update(['state' => OrgStockStateEnum::ACTIVE, 'packed_in' => 4, 'quantity_available' => 10, 'measured_lead_time_days' => null, 'estimated_lead_time_days' => 60]);
         $orgStock->stats->update(['demand_forecast' => ['from' => now()->toDateString(), 'weeks' => array_fill(0, 6, [7, 0])]]);
 
@@ -1763,6 +1764,21 @@ describe('partner shopping list', function () {
         };
 
         expect($recommendation())->toBe(80.0);
+
+        $deliveryState = $this->stockDelivery->refresh()->state;
+        DB::table('stock_deliveries')->where('id', $this->stockDelivery->id)->update(['state' => StockDeliveryStateEnum::DISPATCHED->value]);
+        $onTheWay = DB::table('stock_delivery_items')->insertGetId([
+            'group_id'          => $orgStock->group_id,
+            'organisation_id'   => $orgStock->organisation_id,
+            'stock_delivery_id' => $this->stockDelivery->id,
+            'org_stock_id'      => $orgStock->id,
+            'state'             => StockDeliveryItemStateEnum::DISPATCHED->value,
+            'data'              => '{}',
+            'unit_quantity'     => 80,
+        ]);
+        expect($recommendation())->toBe(60.0);
+        DB::table('stock_delivery_items')->where('id', $onTheWay)->delete();
+        DB::table('stock_deliveries')->where('id', $this->stockDelivery->id)->update(['state' => $deliveryState]);
 
         $purchaseOrder = $this->orgPartner->purchaseOrders()->where('state', PurchaseOrderStateEnum::IN_PROCESS)->first()
             ?? StorePurchaseOrder::make()->action($this->orgPartner->refresh(), []);
@@ -1798,6 +1814,26 @@ describe('partner shopping list', function () {
             ->and($inDoomed())->toBeTrue();
 
         $onOrder->delete();
+    });
+
+    test('an agent-bought SKO with no lead time of its own is planned on the agent lead time', function () {
+        $supplierProduct = $this->supplierProduct->refresh();
+        $organisation    = $this->orgSupplierProduct->organisation;
+        $orgAgent        = OrgAgent::where('organisation_id', $organisation->id)->where('agent_id', $supplierProduct->supplier->agent_id)->first()
+            ?? StoreOrgAgent::make()->action($organisation, $supplierProduct->supplier->agent, []);
+        $orgStock        = \App\Actions\Inventory\OrgStock\StoreOrgStock::make()->action($organisation, StoreStock::make()->action($this->group, Stock::factory()->definition()));
+        \App\Actions\Inventory\OrgStockHasOrgSupplierProduct\AttachOrgSupplierProductToOrgStock::make()->action($orgStock, $this->orgSupplierProduct);
+
+        $original = $supplierProduct->only(['measured_lead_time_days', 'estimated_lead_time_days', 'units_per_pack']);
+        $supplierProduct->update(['measured_lead_time_days' => null, 'estimated_lead_time_days' => null, 'units_per_pack' => 1]);
+        $orgStock->update(['state' => OrgStockStateEnum::ACTIVE, 'packed_in' => 1, 'quantity_available' => 10, 'measured_lead_time_days' => null, 'estimated_lead_time_days' => null]);
+        $orgStock->stats->update(['demand_forecast' => ['from' => now()->toDateString(), 'weeks' => array_fill(0, 6, [7, 0])]]);
+
+        OrgStockHydrateOutOfStockForecast::run($orgStock->fresh());
+        $agentDays = \App\Actions\Procurement\OrgAgent\GetAgentLeadTimes::run($orgAgent)['agent']['days'];
+        $supplierProduct->update($original);
+
+        expect((float) $orgStock->stats->refresh()->recommended_order_quantity)->toBe((float) ($agentDays + 30 - 10));
     });
 
     test('intercompany customer resolved by normalised name and mapping persisted', function () {
