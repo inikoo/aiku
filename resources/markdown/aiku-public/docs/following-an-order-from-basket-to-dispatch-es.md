@@ -1,9 +1,9 @@
 ---
 title: Seguir un pedido desde la cesta hasta el envío
-summary: El recorrido completo de un pedido de venta en aiku, desde la cesta del cliente hasta el picking, el embalaje, la facturación y el envío, y dónde comprobarlo en cada paso.
-date: 2026-09-02
-source_date: 2026-09-02
-tags: orders, orders lifecycle
+summary: El recorrido completo de un pedido de venta en aiku, desde la cesta del cliente hasta el picking, el embalaje, la facturación y el envío, cómo añadir, cambiar o quitar productos por el camino, y dónde comprobarlo en cada paso.
+date: 2026-10-16
+source_date: 2026-10-16
+tags: orders, orders lifecycle, removing items
 category: orders
 ---
 
@@ -43,6 +43,26 @@ Cuando el albarán sale de verdad del almacén, el estado del pedido cambia a **
 ## Cancelado
 
 Un pedido puede cancelarse en lugar de seguir los estados anteriores, por ejemplo si una tienda cierra antes de que el pedido se procese. Un pedido cancelado deja de avanzar.
+
+## Cambiar los productos de un pedido
+
+Los clientes cambian de opinión, y tú puedes modificar un pedido por ellos. Abre el pedido y ve a la pestaña **Transacciones**. Lo que puedes hacer depende de hasta dónde haya avanzado el pedido.
+
+**Mientras está en la cesta**, el pedido todavía se está construyendo:
+
+- **Quitar un producto:** pulsa la **X** roja al final de su línea (el texto emergente dice *Unselect this product*). Se quita al instante, sin confirmación, así que comprueba que es la línea correcta.
+- **Cambiar una cantidad:** usa los botones **+** y **−** junto a ella. Se guarda sola. Bajarla a 0 también quita la línea.
+- **Añadir productos:** pulsa **Add products** para elegir del catálogo, o el botón de subida (*Upload products via spreadsheet*) para cargar un archivo con dos columnas, código y cantidad.
+
+**Una vez confirmado** pero todavía sin llegar al almacén, funciona igual con los botones de cantidad: baja una cantidad, o ponla a 0 para quitar la línea. **Add a product** añade más, y añadir un producto que ya está en el pedido solo aumenta su cantidad.
+
+**Una vez en el almacén**, puede que el almacén ya esté haciendo el picking, así que las líneas ya no se quitan del todo. Pulsa el lápiz de la línea (*Edit Product Order*), cambia la cantidad y pulsa **Save changes**, o **Cancel edit** para salir sin cambios. Mientras editas verás al lado la cantidad original. Para quitar un producto, ponlo a 0: la línea se queda en el pedido con 0, para que se vea qué se canceló, y el preparador la salta. aiku actualiza el albarán y te avisa con *Quantity updated, warehouse has been notified*. Si el pedido ya estaba en picked o packed y las cantidades dejan de coincidir, el albarán vuelve a picking para que se corrija el paquete.
+
+Todavía puedes añadir productos mientras el pedido espera en el almacén, está en picking o ya está en picked: pulsa **Add a product** y pasan al albarán para el preparador. Una vez que ha empezado el embalaje, es tarde para añadir a ese envío. aiku te indica que crees un pedido de seguimiento para los artículos extra.
+
+**Una vez finalizado o enviado**, la factura ya existe y el pedido queda bloqueado. aiku dice *This order can no longer be modified*. Para devolver dinero por algo que no se quería, haz el reembolso desde la factura. Consulta [Facturas, pagos y reembolsos](/docs/invoices-payments-and-refunds-es).
+
+No puedes cambiar los productos de pedidos que vienen de un marketplace o tienda conectados, ni de pedidos de una tienda externa. Esos siguen lo que envía el canal.
 
 ## Cambiar una dirección después de confirmar el pedido
 
@@ -96,6 +116,8 @@ Las listas **Backlog** y **Pedidos** muestran el mismo estado en una columna **P
 <li><b>Comprobar el progreso de un pedido:</b> ábrelo desde la lista; el estado aparece junto a la referencia, y las pestañas <b>Albaranes</b> y <b>Facturas</b> muestran lo que ha pasado después.</li>
 <li><b>Ver qué está pendiente de trabajar:</b> tu tienda → <b>Pedidos</b> (menú superior) → pestaña <b>Backlog</b>.</li>
 <li><b>Marcar un pedido como revisado por producción:</b> abre el pedido → <b>Mark production reviewed</b> en la barra bajo el título, o selecciona pedidos en el <b>Backlog</b> → <b>Mark selected as production reviewed</b>.</li>
+<li><b>Quitar un producto de un pedido:</b> abre el pedido → pestaña <b>Transacciones</b>. En la cesta pulsa la <b>X</b> roja de la línea, o pon su cantidad a 0. En el almacén pulsa el lápiz, ponla a 0 y <b>Save changes</b>. No es posible una vez finalizado el pedido.</li>
+<li><b>Añadir un producto a un pedido:</b> abre el pedido → <b>Add products</b> (cesta), <b>Add a product</b> (confirmado, o en el almacén hasta que empiece el embalaje).</li>
 <li><b>Cambiar una dirección en un pedido confirmado:</b> abre el pedido → <b>Editar</b> o <b>Editar dirección de facturación</b> bajo el bloque de direcciones, hasta que se envíe.</li>
 <li><b>Corregir la dirección en una factura ya emitida:</b> abre el pedido → pestaña <b>Facturas</b> → abre la factura → lápiz junto a la dirección.</li>
 <li><b>Cambiar lo que se imprime en la etiqueta del transportista de un pedido:</b> abre el pedido → doble clic en <b>Shipping Label (From Customer)</b> en la fila de notas → guardar. Solo se imprimen los primeros 34 caracteres.</li>
@@ -104,5 +126,5 @@ Las listas **Backlog** y **Pedidos** muestran el mismo estado en una columna **P
 </aside>
 
 <aside class="permissions"><strong>Permisos que necesitas</strong>
-Necesitas acceso de lectura a Pedidos en esa tienda, o acceso de lectura a Contabilidad en la organización, para ver esta lista y sus pedidos.
+Necesitas acceso de lectura a Pedidos en esa tienda, o acceso de lectura a Contabilidad en la organización, para ver esta lista y sus pedidos. Para añadir, cambiar o quitar productos de un pedido, necesitas acceso de edición a Pedidos en esa tienda.
 </aside>
