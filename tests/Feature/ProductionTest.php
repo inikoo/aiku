@@ -6115,6 +6115,41 @@ test('the ai assistant sets up artefacts, raw materials, tasks and recipes only 
         ->toThrow(\Illuminate\Validation\ValidationException::class);
 });
 
+test('an artefact made in-house is an intermediate raw material of another recipe, costed from its own recipe', function () {
+    $user = $this->guest->getUser();
+    $user->update(['can_use_mcp' => true, 'can_use_mcp_production' => true]);
+    $suffix = strtoupper(\Illuminate\Support\Str::random(5));
+    $tool   = fn (string $class, array $arguments) => \App\Mcp\Servers\AikuServer::actingAs($user)->tool($class, ['production' => $this->production->slug, ...$arguments]);
+
+    $tool(\App\Mcp\Tools\ProductionRecordsTool::class, ['kind' => 'artefact', 'code' => 'DIL-'.$suffix, 'create' => true, 'fields' => ['name' => 'Dilute'], 'new_sko' => ['units' => 1], 'request_text' => 'create the dilute'])->assertOk();
+    $dilute = Artefact::where('production_id', $this->production->id)->where('code', 'DIL-'.$suffix)->firstOrFail();
+
+    $oil = StoreRawMaterial::make()->action($this->production, ['type' => RawMaterialTypeEnum::STOCK->value, 'code' => 'OIL-'.$suffix, 'description' => 'Oil', 'unit' => RawMaterialUnitEnum::KILOGRAM->value, 'unit_cost' => 8]);
+    $tool(\App\Mcp\Tools\ProductionRecipeTool::class, ['artefacts' => ['DIL-'.$suffix], 'steps' => [['task' => 'PROD', 'units_per_artefact' => 1, 'target_per_hour' => null, 'raw_materials' => [['code' => 'OIL-'.$suffix, 'quantity' => 0.5]]]], 'request_text' => 'half a kilo of oil'])
+        ->assertOk();
+
+    $tool(\App\Mcp\Tools\ProductionRecordsTool::class, ['kind' => 'artefact', 'code' => 'TWIN-'.$suffix, 'create' => true, 'fields' => ['name' => 'Twin', 'sko' => 'DIL-'.$suffix], 'request_text' => 'second artefact on the same sko'])
+        ->assertHasErrors(['already the SKO of artefact DIL-'.$suffix]);
+
+    $tool(\App\Mcp\Tools\ProductionRecordsTool::class, ['kind' => 'raw_material', 'code' => 'RM-DIL-'.$suffix, 'create' => true, 'fields' => ['type' => 'intermediate', 'description' => 'Dilute', 'unit' => 'kilogram', 'sko' => 'DIL-'.$suffix], 'request_text' => 'add the dilute as a raw material'])
+        ->assertOk();
+    $intermediate = RawMaterial::where('code', 'RM-DIL-'.$suffix)->firstOrFail();
+
+    expect($intermediate->artefact_id)->toBe($dilute->id)
+        ->and($intermediate->org_stock_id)->toBe($dilute->org_stock_id)
+        ->and((float) $intermediate->unit_cost)->toBe(4.0);
+
+    UpdateRawMaterial::make()->action($oil, ['unit_cost' => 10]);
+    expect((float) $intermediate->refresh()->unit_cost)->toBe(5.0);
+
+    $step = ArtefactManufactureTask::where('artefact_id', $dilute->id)->firstOrFail();
+    AttachRawMaterialToRecipeStep::make()->action($step, ['raw_material_id' => $oil->id, 'quantity_per_unit' => 0.2]);
+    expect((float) $intermediate->refresh()->unit_cost)->toBe(2.0);
+
+    DetachRawMaterialFromRecipeStep::make()->action($step, $oil);
+    expect((float) $intermediate->refresh()->unit_cost)->toBe(2.0);
+});
+
 test('a custom product is made for one customer from an artefact waiting for its trade unit', function () {
     list($organisation, , $shop) = createShop();
     $customer = \App\Actions\CRM\Customer\StoreCustomer::make()->action($shop, \App\Models\CRM\Customer::factory()->definition());

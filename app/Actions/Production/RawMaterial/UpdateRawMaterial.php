@@ -31,8 +31,10 @@ class UpdateRawMaterial extends OrgAction
     {
         $rawMaterial = $this->update($rawMaterial, $modelData);
 
-        if ($rawMaterial->wasChanged('org_stock_id') && $rawMaterial->org_stock_id) {
+        if ($rawMaterial->wasChanged(['org_stock_id', 'type']) && $rawMaterial->org_stock_id) {
             RawMaterialHydrateFromOrgStock::run($rawMaterial);
+        } elseif ($rawMaterial->wasChanged('unit_cost')) {
+            RawMaterialHydrateFromOrgStock::dispatchIntermediatesUsing($rawMaterial);
         }
 
         if ($rawMaterial->wasChanged('state')) {

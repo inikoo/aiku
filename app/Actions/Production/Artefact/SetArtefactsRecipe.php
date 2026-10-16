@@ -10,6 +10,7 @@
 namespace App\Actions\Production\Artefact;
 
 use App\Actions\OrgAction;
+use App\Actions\Production\RawMaterial\Hydrators\RawMaterialHydrateFromOrgStock;
 use App\Actions\Production\JobOrderItemTask\GenerateJobOrderItemTasks;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
 use App\Models\Production\Artefact;
@@ -96,6 +97,8 @@ class SetArtefactsRecipe extends OrgAction
             $recipeStep->rawMaterials()->whereNotIn('raw_material_id', $rawMaterials->pluck('raw_material_id'))->delete();
             $rawMaterials->each(fn (array $rawMaterial) => AttachRawMaterialToRecipeStep::make()->handle($recipeStep, $rawMaterial));
         }
+
+        RawMaterialHydrateFromOrgStock::dispatchIntermediatesOf($artefact->id);
 
         JobOrderItem::where('artefact_id', $artefact->id)
             ->whereHas('jobOrder', fn ($query) => $query->whereNotIn('state', [JobOrderStateEnum::RECEIVED, JobOrderStateEnum::NOT_RECEIVED]))
