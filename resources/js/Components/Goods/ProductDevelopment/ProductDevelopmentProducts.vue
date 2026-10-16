@@ -6,14 +6,14 @@
   -->
 
 <script setup lang="ts">
-import { ref } from "vue"
+import { computed, ref } from "vue"
 import { Link } from "@inertiajs/vue3"
 import { ctrans } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
 import ProductDevelopmentProgressBar from "@/Components/Goods/ProductDevelopment/ProductDevelopmentProgressBar.vue"
-import ProductDevelopmentSkuChecklist from "@/Components/Goods/ProductDevelopment/ProductDevelopmentSkuChecklist.vue"
+import ProductDevelopmentRoleSpecs from "@/Components/Goods/ProductDevelopment/ProductDevelopmentRoleSpecs.vue"
 import ProductDevelopmentSupplierProductLink from "@/Components/Goods/ProductDevelopment/ProductDevelopmentSupplierProductLink.vue"
-import type { ChecklistEditorData } from "@/Components/Goods/ProductDevelopment/productDevelopmentChecklist"
+import type { ChecklistEditorData, ChecklistRow } from "@/Components/Goods/ProductDevelopment/productDevelopmentChecklist"
 
 interface Tally {
     done: number
@@ -21,7 +21,7 @@ interface Tally {
     missing: number
 }
 
-defineProps<{
+const props = defineProps<{
     data: {
         rows: {
         id: number
@@ -39,11 +39,24 @@ defineProps<{
 }>()
 
 const linkDialog = ref<InstanceType<typeof ProductDevelopmentSupplierProductLink> | null>(null)
+
+const roles = computed(() => {
+    const found = new Map<string, ChecklistRow["role"]>()
+    for (const sku of props.data?.editor?.skus ?? []) {
+        for (const row of sku.rows) {
+            if (row.role.value !== "compliance" && !found.has(row.role.value)) {
+                found.set(row.role.value, row.role)
+            }
+        }
+    }
+
+    return [...found.values()]
+})
 </script>
 
 <template>
-    <div v-if="data">
-    <div class="overflow-x-auto [scrollbar-width:thin]">
+    <div v-if="data" class="space-y-4">
+    <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white [scrollbar-width:thin]">
         <table class="w-full min-w-[56rem] table-fixed text-sm">
             <thead class="border-b border-gray-200 text-left text-xs text-gray-500">
                 <tr>
@@ -91,16 +104,15 @@ const linkDialog = ref<InstanceType<typeof ProductDevelopmentSupplierProductLink
         </table>
     </div>
 
-    <div v-if="data.editor.skus.length" class="space-y-3 border-t border-gray-100 p-4">
-        <h3 class="text-sm font-medium text-gray-700">{{ ctrans("Specs per SKU") }}</h3>
-        <ProductDevelopmentSkuChecklist
-            v-for="sku in data.editor.skus"
-            :key="sku.id"
-            :sku="sku"
-            :rows="sku.rows.filter((row) => row.role.value !== 'compliance')"
+    <div v-if="roles.length" class="space-y-4">
+        <ProductDevelopmentRoleSpecs
+            v-for="role in roles"
+            :key="role.value"
+            :role="role"
+            :skus="data.editor.skus"
             :updateRoute="data.editor.routes.update"
             :countries="data.editor.countries"
-            :defaultOpen="data.editor.skus.length === 1"
+            :options="data.editor.options"
             @linkSupplierProduct="(target) => linkDialog?.open(target)"
         />
         <ProductDevelopmentSupplierProductLink ref="linkDialog" :linkRoute="data.editor.routes.supplier_product" :searchRoute="data.editor.routes.supplier_products_search" :currency="data.editor.currency" />

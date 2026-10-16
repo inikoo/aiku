@@ -9,11 +9,12 @@
 import { computed, ref } from "vue"
 import { router } from "@inertiajs/vue3"
 import Dialog from "primevue/dialog"
-import MultiSelect from "primevue/multiselect"
+import ProductDevelopmentMarketSelect from "@/Components/Goods/ProductDevelopment/ProductDevelopmentMarketSelect.vue"
 import DatePicker from "primevue/datepicker"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import ProductDevelopmentUserSelect from "@/Components/Goods/ProductDevelopment/ProductDevelopmentUserSelect.vue"
 import ProductDevelopmentRoleSelect from "@/Components/Goods/ProductDevelopment/ProductDevelopmentRoleSelect.vue"
+import { peopleForRole, type MemberUserOption } from "@/Components/Goods/ProductDevelopment/productDevelopmentMembers"
 import { ctrans } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
@@ -36,6 +37,7 @@ export interface ProductDevelopmentEditor {
         markets: string[]
         target_landing_date: string | null
         target_online_date: string | null
+        agent_id: number | null
         members: { user_id: number, role: string }[]
     }
     options: {
@@ -54,6 +56,28 @@ const props = defineProps<{
 }>()
 
 const visible = ref(false)
+
+const peopleFor = (role: string | null) => peopleForRole(props.editor.options.users as MemberUserOption[], role, props.editor.values.agent_id)
+
+function personPlaceholder(role: string | null) {
+    if (!role) {
+        return ctrans("Choose a role first")
+    }
+    if (role === "agent" && !props.editor.values.agent_id) {
+        return ctrans("Choose the agent first")
+    }
+    return peopleFor(role).length ? ctrans("Person") : ctrans("Nobody works for this agent")
+}
+
+function onRoleChange(member: { user_id: number | null, role: string | null }) {
+    const people = peopleFor(member.role)
+    if (member.user_id && !people.some((person) => person.value === member.user_id)) {
+        member.user_id = null
+    }
+    if (!member.user_id && member.role === "agent" && people.length === 1) {
+        member.user_id = people[0].value
+    }
+}
 const kind = ref<ProductDevelopmentEditKind>("markets")
 const saving = ref(false)
 const errors = ref<Record<string, string>>({})
@@ -107,17 +131,7 @@ function save() {
 <template>
     <Dialog v-model:visible="visible" modal :header="titles[kind]" :style="{ width: kind === 'members' ? '44rem' : '26rem' }" :breakpoints="{ '640px': '94vw' }">
         <div class="space-y-3 text-sm">
-            <MultiSelect
-                v-if="kind === 'markets'"
-                v-model="markets"
-                :options="editor.options.markets"
-                optionLabel="label"
-                optionValue="value"
-                display="comma"
-                :placeholder="ctrans('Select markets')"
-                class="w-full"
-                overlayClass="text-sm"
-            />
+            <ProductDevelopmentMarketSelect v-if="kind === 'markets'" v-model="markets" :options="editor.options.markets" :placeholder="ctrans('Select markets')" />
 
             <template v-else-if="kind === 'dates'">
                 <div>
@@ -133,9 +147,9 @@ function save() {
 
             <template v-else>
                 <p class="text-xs text-gray-500">{{ ctrans("One person can hold several roles: add a row for each role") }}</p>
-                <div v-for="(member, index) in members" :key="index" class="grid grid-cols-[minmax(0,1fr)_11rem_auto] items-center gap-2">
-                    <ProductDevelopmentUserSelect v-model="member.user_id" :options="editor.options.users as any" size="small" :placeholder="ctrans('Person')" />
-                    <ProductDevelopmentRoleSelect v-model="member.role" :options="editor.options.roles as any" size="small" :placeholder="ctrans('Role')" />
+                <div v-for="(member, index) in members" :key="index" class="grid grid-cols-[11rem_minmax(0,1fr)_auto] items-center gap-2">
+                    <ProductDevelopmentRoleSelect v-model="member.role" :options="editor.options.roles as any" size="small" :placeholder="ctrans('Role')" @update:modelValue="onRoleChange(member)" />
+                    <ProductDevelopmentUserSelect v-model="member.user_id" :options="peopleFor(member.role) as any" :disabled="!peopleFor(member.role).length" size="small" :placeholder="personPlaceholder(member.role)" />
                     <Button type="tertiary" size="xs" :tooltip="ctrans('Remove')" @click="members.splice(index, 1)">
                         <template #icon><FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" /></template>
                     </Button>

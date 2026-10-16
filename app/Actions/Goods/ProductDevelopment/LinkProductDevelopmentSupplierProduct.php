@@ -88,6 +88,7 @@ class LinkProductDevelopmentSupplierProduct extends OrgAction
         ]);
 
         ProductDevelopmentHydrateChecklist::run($productDevelopment);
+        CreateProductDevelopmentTask::make()->syncProgress($productDevelopment, $user);
 
         return $item->refresh();
     }

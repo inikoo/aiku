@@ -150,7 +150,7 @@ class UploadProductDevelopmentFiles extends OrgAction
         ProductDevelopmentFile::whereIn('id', collect($previousFiles)->pluck('id'))->update(['superseded_at' => now()]);
     }
 
-    private function storeMedia(ProductDevelopment $productDevelopment, UploadedFile $file, ProductDevelopmentFileScopeEnum $scope, ?ProductDevelopmentItem $item): Media
+    public function storeMedia(ProductDevelopment $productDevelopment, UploadedFile $file, ProductDevelopmentFileScopeEnum $scope, ?ProductDevelopmentItem $item): Media
     {
         $checksum       = md5_file($file->getPathname());
         $tradeUnitScope = $scope->tradeUnitAttachmentScope();
@@ -184,7 +184,7 @@ class UploadProductDevelopmentFiles extends OrgAction
         return [
             'files'                       => ['required', 'array', 'min:1', 'max:'.self::MAX_FILES],
             'files.*'                     => ['file', 'max:'.self::MAX_KILOBYTES, 'extensions:'.self::ACCEPTED_EXTENSIONS],
-            'scope'                       => ['required', Rule::enum(ProductDevelopmentFileScopeEnum::class)],
+            'scope'                       => ['required', Rule::enum(ProductDevelopmentFileScopeEnum::class)->except([ProductDevelopmentFileScopeEnum::DESIGN_IMAGE])],
             'product_development_item_id' => ['nullable', 'integer', Rule::exists('product_development_items', 'id')->where('product_development_id', $this->target()->id)],
             'checklist_item_id'           => ['nullable', 'integer', Rule::exists('product_development_checklist_items', 'id')->where('product_development_id', $this->target()->id)],
         ];

@@ -27,6 +27,20 @@ class RecordProductDevelopmentActivity
 
     public const string SUPPLIER_PRODUCT_LINKED = 'supplier_product_linked';
 
+    public const string DESIGN_VERSION_STARTED = 'design_version_started';
+
+    public const string DESIGN_SUBMITTED = 'design_submitted';
+
+    public const string DESIGN_APPROVED = 'design_approved';
+
+    public const string DESIGN_CHANGES_REQUESTED = 'design_changes_requested';
+
+    public const string SIGNED_OFF = 'signed_off';
+
+    public const string REMINDERS_SENT = 'reminders_sent';
+
+    public const string SIGN_OFF_WITHDRAWN = 'sign_off_withdrawn';
+
     /**
      * @param array<string, mixed> $old
      * @param array<string, mixed> $new

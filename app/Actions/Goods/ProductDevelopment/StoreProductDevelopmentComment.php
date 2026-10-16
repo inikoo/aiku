@@ -56,6 +56,7 @@ class StoreProductDevelopmentComment extends OrgAction
                 'parent_id' => Arr::get($modelData, 'parent_id'),
                 'body'      => $body,
                 'mentions'  => $mentioned->pluck('id')->values()->all(),
+                ...$this->designPlacement($productDevelopment, $modelData),
             ]);
 
             $comment->attachTicketImages($images);
@@ -104,7 +105,45 @@ class StoreProductDevelopmentComment extends OrgAction
             'images'    => ['sometimes', 'array', 'max:5'],
             'images.*'  => ProductDevelopmentComment::ticketFileRules(),
             'parent_id' => ['sometimes', 'nullable', 'integer', Rule::exists('product_development_comments', 'id')->where('product_development_id', $this->target()->id)],
+            'design_round_id' => ['sometimes', 'nullable', 'integer', Rule::exists('product_development_design_rounds', 'id')->where('product_development_id', $this->target()->id)],
+            'pin'             => ['sometimes', 'nullable', 'array'],
+            'pin.x'           => ['required_with:pin', 'numeric', 'between:0,1'],
+            'pin.y'           => ['required_with:pin', 'numeric', 'between:0,1'],
         ];
+    }
+
+    /**
+     * A comment on a design version belongs to it, and a top-level one may carry a numbered pin at a point
+     * of the box net (x and y as fractions of the net's width and height). A reply follows its parent.
+     *
+     * @return array<string, mixed>
+     */
+    private function designPlacement(ProductDevelopment $productDevelopment, array $modelData): array
+    {
+        $parentId = Arr::get($modelData, 'parent_id');
+        if ($parentId) {
+            $parent = $productDevelopment->comments()->find($parentId);
+
+            return $parent?->model_type ? ['model_type' => $parent->model_type, 'model_id' => $parent->model_id] : [];
+        }
+
+        $designRoundId = Arr::get($modelData, 'design_round_id');
+        if (!$designRoundId) {
+            return [];
+        }
+
+        $placement = ['model_type' => 'ProductDevelopmentDesignRound', 'model_id' => $designRoundId];
+        $pin       = Arr::get($modelData, 'pin');
+        if (is_array($pin)) {
+            $number            = $productDevelopment->comments()
+                ->where('model_type', 'ProductDevelopmentDesignRound')
+                ->where('model_id', $designRoundId)
+                ->whereNotNull('data->pin')
+                ->count() + 1;
+            $placement['data'] = ['pin' => ['x' => round((float) $pin['x'], 4), 'y' => round((float) $pin['y'], 4), 'number' => $number]];
+        }
+
+        return $placement;
     }
 
     public function getValidationMessages(): array

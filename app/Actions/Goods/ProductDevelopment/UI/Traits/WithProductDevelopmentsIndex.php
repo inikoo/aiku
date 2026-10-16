@@ -99,6 +99,13 @@ trait WithProductDevelopmentsIndex
                 'route' => ['name' => 'grp.product_developments.board', 'parameters' => request()->query()],
                 'active' => $current === 'board',
             ],
+            [
+                'key'    => 'waiting',
+                'label'  => __('Waiting on me'),
+                'icon'   => 'fal fa-hourglass-half',
+                'route'  => ['name' => 'grp.product_developments.waiting_on_me', 'parameters' => []],
+                'active' => $current === 'waiting',
+            ],
         ];
     }
 

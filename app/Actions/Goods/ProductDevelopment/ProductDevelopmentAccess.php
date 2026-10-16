@@ -47,6 +47,58 @@ class ProductDevelopmentAccess
         return $productDevelopment->members()->where('user_id', $user->id)->exists();
     }
 
+    /**
+     * The agents each user works for, for every user of the group: the agent organisations they are
+     * authorised for. Someone authorised for every agent at once is a superuser, not agent staff, and
+     * is left out.
+     *
+     * @return array<int, array<int, int>> agent ids by user id
+     */
+    public function agentIdsByUser(int $groupId): array
+    {
+        $numberAgents = Agent::where('group_id', $groupId)->count();
+
+        return DB::table('user_has_authorised_models')
+            ->join('agents', function ($join) {
+                $join->on('agents.organisation_id', '=', 'user_has_authorised_models.model_id')
+                    ->where('user_has_authorised_models.model_type', '=', 'Organisation');
+            })
+            ->where('agents.group_id', $groupId)
+            ->get(['user_has_authorised_models.user_id', 'agents.id as agent_id'])
+            ->groupBy('user_id')
+            ->map(fn ($rows) => $rows->pluck('agent_id')->map(fn ($id) => (int) $id)->unique()->values()->all())
+            ->reject(fn (array $agentIds) => $numberAgents > 1 && count($agentIds) >= $numberAgents)
+            ->all();
+    }
+
+    /**
+     * The agent role can only go to someone working for the development's agent.
+     *
+     * @param array<int, array{user_id?: int|string, role?: string}> $members
+     */
+    public function agentRoleError(array $members, ?int $agentId, int $groupId): ?string
+    {
+        $agentUserIds = collect($members)
+            ->filter(fn ($member) => ($member['role'] ?? null) === ProductDevelopmentMemberRoleEnum::AGENT->value)
+            ->pluck('user_id')
+            ->map(fn ($id) => (int) $id);
+
+        if ($agentUserIds->isEmpty()) {
+            return null;
+        }
+
+        if (!$agentId) {
+            return __('Choose the agent of this development before giving someone the agent role');
+        }
+
+        $agentIdsByUser = $this->agentIdsByUser($groupId);
+        if ($agentUserIds->contains(fn (int $userId) => !in_array($agentId, $agentIdsByUser[$userId] ?? [], true))) {
+            return __('Only someone working for the development\'s agent can take the agent role');
+        }
+
+        return null;
+    }
+
     public function isAgentOf(User $user, ProductDevelopment $productDevelopment): bool
     {
         $agentIds = $this->agentIds($user);
@@ -108,6 +160,32 @@ class ProductDevelopmentAccess
             || $this->isMember($user, $productDevelopment)
             || $this->isAgentOf($user, $productDevelopment)
             || ($this->isStaff($user) && $user->authTo('goods.edit'));
+    }
+
+    /**
+     * Roles that may approve a design version or send it back; the owner always can.
+     */
+    public const array DESIGN_APPROVER_ROLES = [ProductDevelopmentMemberRoleEnum::BUYER, ProductDevelopmentMemberRoleEnum::APPROVER];
+
+    public function canDesign(User $user, ProductDevelopment $productDevelopment): bool
+    {
+        return $productDevelopment->owner_id === $user->id
+            || in_array(ProductDevelopmentMemberRoleEnum::DESIGNER, $this->memberRoles($user, $productDevelopment), true);
+    }
+
+    public function canApproveDesign(User $user, ProductDevelopment $productDevelopment): bool
+    {
+        return $productDevelopment->owner_id === $user->id
+            || array_intersect(
+                array_map(fn (ProductDevelopmentMemberRoleEnum $role) => $role->value, self::DESIGN_APPROVER_ROLES),
+                array_map(fn (ProductDevelopmentMemberRoleEnum $role) => $role->value, $this->memberRoles($user, $productDevelopment))
+            ) !== [];
+    }
+
+    public function canConfirmPrintLimits(User $user, ProductDevelopment $productDevelopment): bool
+    {
+        return in_array(ProductDevelopmentMemberRoleEnum::AGENT, $this->memberRoles($user, $productDevelopment), true)
+            || $this->isAgentOf($user, $productDevelopment);
     }
 
     public function canEditChecklistItem(User $user, ProductDevelopmentChecklistItem $checklistItem): bool

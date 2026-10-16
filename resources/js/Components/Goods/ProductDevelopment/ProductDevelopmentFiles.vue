@@ -15,8 +15,8 @@ import { useFormatTime } from "@/Composables/useFormatTime"
 import { routeType } from "@/types/route"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faFileCertificate, faVial, faDrawSquare, faCamera, faPalette, faPaperclip, faCloudUpload, faTimes, faChevronDown, faDownload, faFolderOpen } from "@fal"
-library.add(faFileCertificate, faVial, faDrawSquare, faCamera, faPalette, faPaperclip, faCloudUpload, faTimes, faChevronDown, faDownload, faFolderOpen)
+import { faFileCertificate, faVial, faDrawSquare, faCamera, faPalette, faPaperclip, faCloudUpload, faTimes, faChevronDown, faDownload, faFolderOpen, faImage } from "@fal"
+library.add(faFileCertificate, faVial, faDrawSquare, faCamera, faPalette, faPaperclip, faCloudUpload, faTimes, faChevronDown, faDownload, faFolderOpen, faImage)
 
 interface FileRow {
     id: number
@@ -64,6 +64,21 @@ const props = defineProps<{
 }>()
 
 const scope = ref<string | null>(null)
+
+const scopeTabs = computed(() => {
+    const counts: Record<string, number> = {}
+    for (const group of props.data?.groups ?? []) {
+        counts[group.scope] = (counts[group.scope] ?? 0) + group.current.length
+    }
+    const known = props.data?.upload?.scopes ?? []
+    const tabs = known.length
+        ? known.map((option) => ({ value: option.value, label: option.label, icon: option.icon, count: counts[option.value] ?? 0 }))
+        : [...new Map((props.data?.groups ?? []).map((group) => [group.scope, { value: group.scope, label: group.label, icon: group.icon, count: counts[group.scope] ?? 0 }])).values()]
+
+    return [{ value: null as string | null, label: ctrans("All"), icon: "fal fa-folder-open", count: Object.values(counts).reduce((sum, count) => sum + count, 0) }, ...tabs]
+})
+
+const visibleGroups = computed(() => (props.data?.groups ?? []).filter((group) => !scope.value || group.scope === scope.value))
 const itemId = ref<number | null>(props.data?.upload?.items.length === 1 ? props.data.upload.items[0].value : null)
 const picked = ref<File[]>([])
 const isDragging = ref(false)
@@ -122,17 +137,28 @@ const formatSize = (bytes: number | null) => !bytes ? "" : bytes > 1048576 ? `${
 
 <template>
     <div v-if="data" class="space-y-4 p-4">
-        <section v-if="data.upload" class="space-y-3 rounded-lg border border-gray-200 p-3">
-            <div class="grid gap-2 sm:grid-cols-2">
-                <Select v-model="scope" :options="data.upload.scopes" optionLabel="label" optionValue="value" size="small" :placeholder="ctrans('What are you uploading?')" class="w-full" overlayClass="text-sm">
-                    <template #option="{ option }">
-                        <span class="flex items-center gap-2">
-                            <FontAwesomeIcon :icon="option.icon" class="text-gray-400" fixed-width aria-hidden="true" />
-                            {{ option.label }}
-                        </span>
-                    </template>
-                </Select>
-                <Select v-if="needsSku" v-model="itemId" :options="data.upload.items" optionLabel="label" optionValue="value" size="small" :placeholder="ctrans('Which SKU?')" class="w-full" overlayClass="text-sm" :invalid="!!errors.product_development_item_id" />
+        <div class="border-b border-gray-200">
+            <nav class="flex gap-1 overflow-x-auto overflow-y-hidden [scrollbar-width:thin]" :aria-label="ctrans('File types')">
+                <button
+                    v-for="tab in scopeTabs"
+                    :key="tab.value ?? 'all'"
+                    type="button"
+                    class="flex shrink-0 items-center gap-1.5 border-b-2 px-3 py-2 text-sm"
+                    :class="tab.value === scope ? 'border-[--app-accent] font-medium text-[--app-accent]' : 'border-transparent text-gray-600 hover:text-gray-900'"
+                    @click="scope = tab.value"
+                >
+                    <FontAwesomeIcon :icon="tab.icon" fixed-width aria-hidden="true" />
+                    {{ tab.label }}
+                    <span class="text-xs tabular-nums" :class="tab.count ? 'text-gray-600' : 'text-gray-400'">{{ tab.count }}</span>
+                </button>
+            </nav>
+        </div>
+
+        <p v-if="data.upload && !scope" class="rounded-md bg-gray-50 px-3 py-2 text-sm text-gray-500">{{ ctrans("Pick a file type above to upload") }}</p>
+
+        <section v-if="data.upload && scope" class="space-y-3 rounded-lg border border-gray-200 p-3">
+            <div v-if="needsSku" class="sm:w-1/2">
+                <Select v-model="itemId" :options="data.upload.items" optionLabel="label" optionValue="value" size="small" :placeholder="ctrans('Which SKU?')" class="w-full" overlayClass="text-sm" :invalid="!!errors.product_development_item_id" />
             </div>
 
             <div
@@ -178,7 +204,7 @@ const formatSize = (bytes: number | null) => !bytes ? "" : bytes > 1048576 ? `${
             </div>
         </section>
 
-        <section v-for="group in data.groups" :key="group.key" class="rounded-lg border border-gray-200">
+        <section v-for="group in visibleGroups" :key="group.key" class="rounded-lg border border-gray-200">
             <header class="flex items-center gap-2 border-b border-gray-100 px-3 py-2 text-sm">
                 <FontAwesomeIcon :icon="group.icon" class="text-gray-400" fixed-width aria-hidden="true" />
                 <span class="font-medium text-gray-800">{{ group.label }}</span>
@@ -216,6 +242,6 @@ const formatSize = (bytes: number | null) => !bytes ? "" : bytes > 1048576 ? `${
             </div>
         </section>
 
-        <p v-if="!data.groups.length" class="py-6 text-center text-sm text-gray-400">{{ ctrans("No files yet") }}</p>
+        <p v-if="!visibleGroups.length" class="py-6 text-center text-sm text-gray-400">{{ ctrans("No files yet") }}</p>
     </div>
 </template>

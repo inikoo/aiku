@@ -84,4 +84,9 @@ class ProductDevelopmentComment extends Model implements HasMedia
     {
         return $this->belongsTo(User::class);
     }
+
+    public function resolvedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'resolved_by_id');
+    }
 }

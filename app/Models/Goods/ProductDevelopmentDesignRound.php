@@ -15,6 +15,7 @@ use App\Models\SysAdmin\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -23,6 +24,10 @@ use Illuminate\Support\Carbon;
  * @property int|null $product_development_item_id
  * @property ProductDevelopmentDesignRoundEnum $round
  * @property int $version
+ * @property string|null $notes
+ * @property int|null $submitted_by_id
+ * @property Carbon|null $submitted_at
+ * @property array<string, mixed> $data
  * @property ProductDevelopmentDesignRoundStatusEnum $status
  * @property int|null $approved_by_id
  * @property Carbon|null $approved_at
@@ -39,6 +44,12 @@ class ProductDevelopmentDesignRound extends Model
         'status'      => ProductDevelopmentDesignRoundStatusEnum::class,
         'approved_at' => 'datetime',
         'locked_at'   => 'datetime',
+        'submitted_at' => 'datetime',
+        'data'        => 'array',
+    ];
+
+    protected $attributes = [
+        'data' => '{}',
     ];
 
     protected $guarded = [];
@@ -51,6 +62,21 @@ class ProductDevelopmentDesignRound extends Model
     public function approvedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by_id');
+    }
+
+    public function item(): BelongsTo
+    {
+        return $this->belongsTo(ProductDevelopmentItem::class, 'product_development_item_id');
+    }
+
+    public function submittedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'submitted_by_id');
+    }
+
+    public function comments(): MorphMany
+    {
+        return $this->morphMany(ProductDevelopmentComment::class, 'model');
     }
 
     public function files(): HasMany

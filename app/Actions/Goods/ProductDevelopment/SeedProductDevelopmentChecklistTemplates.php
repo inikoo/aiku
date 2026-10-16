@@ -9,6 +9,10 @@
 
 namespace App\Actions\Goods\ProductDevelopment;
 
+use App\Actions\Goods\ProductDevelopment\Hydrators\ProductDevelopmentHydrateChecklist;
+use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStatusEnum;
+use App\Models\Goods\ProductDevelopmentChecklistItem;
+use App\Models\Goods\ProductDevelopment;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentChecklistLevelEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentMemberRoleEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentTargetFieldEnum;
@@ -27,6 +31,8 @@ class SeedProductDevelopmentChecklistTemplates
 
     public function handle(Group $group): void
     {
+        $this->replaceFreeTextIngredients($group);
+
         foreach ($this->starterSet() as $position => $template) {
             ProductDevelopmentChecklistTemplate::firstOrCreate(
                 [
@@ -44,6 +50,67 @@ class SeedProductDevelopmentChecklistTemplates
                 ]
             );
         }
+    }
+
+    /**
+     * The ingredients item used to save the free-text marketing ingredients; it now links the trade
+     * unit's ingredient records, like the trade unit page does.
+     */
+    private function replaceFreeTextIngredients(Group $group): void
+    {
+        $old = ProductDevelopmentTargetFieldEnum::TRADE_UNIT_MARKETING_INGREDIENTS->value;
+        $new = ProductDevelopmentTargetFieldEnum::TRADE_UNIT_INGREDIENTS->value;
+
+        ProductDevelopmentChecklistTemplate::where('group_id', $group->id)->where('key', $old)
+            ->whereNotExists(fn ($query) => $query->selectRaw('1')->from('product_development_checklist_templates as existing')->whereColumn('existing.group_id', 'product_development_checklist_templates.group_id')->whereColumn('existing.category', 'product_development_checklist_templates.category')->where('existing.key', $new))
+            ->update(['key' => $new, 'target_field' => $new]);
+
+        ProductDevelopmentChecklistItem::whereHas('productDevelopment', fn ($query) => $query->where('group_id', $group->id))
+            ->where('key', $old)
+            ->update(['key' => $new, 'target_field' => $new]);
+    }
+
+    /**
+     * Adds the items of templates created after a development started, so open developments ask for them too.
+     */
+    public function backfill(Group $group): int
+    {
+        $added = 0;
+
+        ProductDevelopment::where('group_id', $group->id)
+            ->where('status', ProductDevelopmentStatusEnum::ACTIVE->value)
+            ->with(['items', 'checklistItems'])
+            ->each(function (ProductDevelopment $productDevelopment) use (&$added) {
+                $templates = ProductDevelopmentChecklistTemplate::where('group_id', $productDevelopment->group_id)
+                    ->where('category', $productDevelopment->checklist_category)
+                    ->where('is_active', true)
+                    ->get();
+
+                foreach ($templates as $template) {
+                    $targets = $template->level === ProductDevelopmentChecklistLevelEnum::FAMILY ? [null] : $productDevelopment->items->all();
+                    foreach ($targets as $item) {
+                        $exists = $productDevelopment->checklistItems->contains(fn ($checklistItem) => $checklistItem->key === $template->key && $checklistItem->product_development_item_id === $item?->id);
+                        if ($exists) {
+                            continue;
+                        }
+                        $productDevelopment->checklistItems()->create([
+                            'product_development_item_id' => $item?->id,
+                            'template_id'                 => $template->id,
+                            'role'                        => $template->role,
+                            'level'                       => $template->level,
+                            'key'                         => $template->key,
+                            'label'                       => $template->label,
+                            'required'                    => $template->required,
+                            'target_field'                => $template->target_field,
+                        ]);
+                        $added++;
+                    }
+                }
+
+                ProductDevelopmentHydrateChecklist::run($productDevelopment);
+            });
+
+        return $added;
     }
 
     /**
@@ -70,6 +137,7 @@ class SeedProductDevelopmentChecklistTemplates
             $fieldItem(ProductDevelopmentMemberRoleEnum::AGENT, ProductDevelopmentTargetFieldEnum::TRADE_UNIT_GROSS_WEIGHT),
             $fieldItem(ProductDevelopmentMemberRoleEnum::AGENT, ProductDevelopmentTargetFieldEnum::TRADE_UNIT_MARKETING_DIMENSIONS),
             $fieldItem(ProductDevelopmentMemberRoleEnum::AGENT, ProductDevelopmentTargetFieldEnum::TRADE_UNIT_ORIGIN_COUNTRY),
+            ['key' => UploadProductDevelopmentFactoryPhoto::KEY, 'role' => ProductDevelopmentMemberRoleEnum::AGENT->value, 'level' => $sku, 'label' => __('Factory photos (6 angles)')],
             $fieldItem(ProductDevelopmentMemberRoleEnum::AGENT, ProductDevelopmentTargetFieldEnum::SUPPLIER_PRODUCT_UNITS_PER_PACK),
             $fieldItem(ProductDevelopmentMemberRoleEnum::AGENT, ProductDevelopmentTargetFieldEnum::SUPPLIER_PRODUCT_UNITS_PER_CARTON),
             $fieldItem(ProductDevelopmentMemberRoleEnum::AGENT, ProductDevelopmentTargetFieldEnum::SUPPLIER_PRODUCT_CBM),
@@ -78,12 +146,14 @@ class SeedProductDevelopmentChecklistTemplates
             $fieldItem(ProductDevelopmentMemberRoleEnum::PURCHASING, ProductDevelopmentTargetFieldEnum::SUPPLIER_PRODUCT_LEAD_TIME),
             ['key' => 'charge_label_print', 'role' => ProductDevelopmentMemberRoleEnum::PURCHASING->value, 'level' => $family, 'label' => __('Agreed label print charge'), 'required' => false],
             $fieldItem(ProductDevelopmentMemberRoleEnum::COMPLIANCE, ProductDevelopmentTargetFieldEnum::TRADE_UNIT_TARIFF_CODE),
-            $fieldItem(ProductDevelopmentMemberRoleEnum::COMPLIANCE, ProductDevelopmentTargetFieldEnum::TRADE_UNIT_MARKETING_INGREDIENTS),
+            $fieldItem(ProductDevelopmentMemberRoleEnum::COMPLIANCE, ProductDevelopmentTargetFieldEnum::TRADE_UNIT_INGREDIENTS),
             $fieldItem(ProductDevelopmentMemberRoleEnum::COMPLIANCE, ProductDevelopmentTargetFieldEnum::TRADE_UNIT_GPSR_MANUFACTURER),
             $fieldItem(ProductDevelopmentMemberRoleEnum::COMPLIANCE, ProductDevelopmentTargetFieldEnum::TRADE_UNIT_GPSR_EU_RESPONSIBLE),
             $fieldItem(ProductDevelopmentMemberRoleEnum::COMPLIANCE, ProductDevelopmentTargetFieldEnum::TRADE_UNIT_GPSR_WARNINGS),
             $fieldItem(ProductDevelopmentMemberRoleEnum::COMPLIANCE, ProductDevelopmentTargetFieldEnum::TRADE_UNIT_UFI_NUMBER, false),
             $fieldItem(ProductDevelopmentMemberRoleEnum::COMPLIANCE, ProductDevelopmentTargetFieldEnum::TRADE_UNIT_UN_NUMBER, false),
+            $fieldItem(ProductDevelopmentMemberRoleEnum::COMPLIANCE, ProductDevelopmentTargetFieldEnum::TRADE_UNIT_PICTOGRAMS),
+            $fieldItem(ProductDevelopmentMemberRoleEnum::COMPLIANCE, ProductDevelopmentTargetFieldEnum::TRADE_UNIT_LABEL_MARKS),
         ];
     }
 
@@ -91,7 +161,8 @@ class SeedProductDevelopmentChecklistTemplates
     {
         foreach (Group::all() as $group) {
             $this->handle($group);
-            $command->info("Checklist templates seeded for {$group->slug}");
+            $added = $this->backfill($group);
+            $command->info("Checklist templates seeded for {$group->slug}, {$added} checklist items added to open developments");
         }
 
         return 0;

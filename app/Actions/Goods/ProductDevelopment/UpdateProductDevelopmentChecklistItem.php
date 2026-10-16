@@ -109,6 +109,7 @@ class UpdateProductDevelopmentChecklistItem extends OrgAction
         });
 
         ProductDevelopmentHydrateChecklist::run($checklistItem->productDevelopment);
+        CreateProductDevelopmentTask::make()->syncProgress($checklistItem->productDevelopment, $user);
 
         return $checklistItem->refresh();
     }
@@ -121,6 +122,30 @@ class UpdateProductDevelopmentChecklistItem extends OrgAction
         $item = $checklistItem->item;
         if (!$item) {
             throw ValidationException::withMessages(['value' => __('This item is not tied to a SKU')]);
+        }
+
+        if ($targetField === ProductDevelopmentTargetFieldEnum::TRADE_UNIT_INGREDIENTS) {
+            try {
+                UpdateTradeUnit::make()->action($item->tradeUnit, ['ingredients' => array_values(array_filter((array) $value, 'is_string'))]);
+            } catch (ValidationException $exception) {
+                throw ValidationException::withMessages(['value' => collect($exception->errors())->flatten()->first() ?? __('This value cannot be saved')]);
+            }
+
+            return;
+        }
+
+        if ($targetField->isConfirmedBySaving()) {
+            $allowed = $targetField === ProductDevelopmentTargetFieldEnum::TRADE_UNIT_PICTOGRAMS
+                ? array_keys(ProductDevelopmentTargetFieldEnum::pictograms())
+                : ProductDevelopmentTargetFieldEnum::labelMarkKeys();
+
+            try {
+                UpdateTradeUnit::make()->action($item->tradeUnit, Arr::only(is_array($value) ? $value : [], $allowed));
+            } catch (ValidationException $exception) {
+                throw ValidationException::withMessages(['value' => collect($exception->errors())->flatten()->first() ?? __('This value cannot be saved')]);
+            }
+
+            return;
         }
 
         $value = match ($targetField->inputType()) {
@@ -179,6 +204,12 @@ class UpdateProductDevelopmentChecklistItem extends OrgAction
 
         if ($operation === self::NOT_APPLICABLE && trim((string) $this->get('na_reason')) === '') {
             $validator->errors()->add('na_reason', __('Say why this does not apply'));
+        }
+
+        if ($operation === self::SAVE && $this->target()->key === UploadProductDevelopmentFactoryPhoto::KEY) {
+            $validator->errors()->add('value', __('Upload a photo for each angle'));
+
+            return;
         }
 
         if ($operation === self::SAVE) {

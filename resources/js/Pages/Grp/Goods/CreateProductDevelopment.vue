@@ -6,19 +6,21 @@
   -->
 
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue"
+import { computed, reactive, ref, watch } from "vue"
+import axios from "axios"
 import { Head, router } from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import InputText from "primevue/inputtext"
 import Textarea from "primevue/textarea"
 import Select from "primevue/select"
-import MultiSelect from "primevue/multiselect"
 import DatePicker from "primevue/datepicker"
 import { useFitToViewport } from "@/Components/Goods/ProductDevelopment/useFitToViewport"
 import ProductDevelopmentRemoteSelect from "@/Components/Goods/ProductDevelopment/ProductDevelopmentRemoteSelect.vue"
 import ProductDevelopmentUserSelect from "@/Components/Goods/ProductDevelopment/ProductDevelopmentUserSelect.vue"
+import ProductDevelopmentMarketSelect from "@/Components/Goods/ProductDevelopment/ProductDevelopmentMarketSelect.vue"
 import ProductDevelopmentRoleSelect from "@/Components/Goods/ProductDevelopment/ProductDevelopmentRoleSelect.vue"
+import { peopleForRole, type MemberUserOption } from "@/Components/Goods/ProductDevelopment/productDevelopmentMembers"
 import { capitalize } from "@/Composables/capitalize"
 import { ctrans } from "@/Composables/useTrans"
 import { productDevelopmentColor } from "@/Components/Goods/ProductDevelopment/productDevelopmentColors"
@@ -51,7 +53,7 @@ const props = defineProps<{
         agents: Option[]
         suppliers: Option[]
     }
-    searchRoutes: Record<"trade_units" | "trade_unit_families" | "packaging_families", routeType>
+    searchRoutes: Record<"trade_units" | "trade_unit_families" | "packaging_families" | "sku_code", routeType>
     storeRoute: routeType
 }>()
 
@@ -60,6 +62,8 @@ interface SkuRow {
     code: string
     name: string
     trade_unit_id: number | null
+    code_error?: string | null
+    checking?: boolean
 }
 
 const form = reactive({
@@ -96,6 +100,46 @@ function onSupplierChange(value: unknown) {
     }
 }
 
+function peopleFor(role: string | null) {
+    return peopleForRole(props.options.users as MemberUserOption[], role, form.agent_id)
+}
+
+function personPlaceholder(role: string | null) {
+    if (!role) {
+        return ctrans("Choose a role first")
+    }
+    if (role === "agent" && !form.agent_id) {
+        return ctrans("Choose the agent first")
+    }
+    return peopleFor(role).length ? ctrans("Person") : ctrans("Nobody works for this agent")
+}
+
+function onRoleChange(member: { user_id: number | null, role: string | null }) {
+    const people = peopleFor(member.role)
+    if (member.user_id && !people.some((person) => person.value === member.user_id)) {
+        member.user_id = null
+    }
+    if (!member.user_id && member.role === "agent" && people.length === 1) {
+        member.user_id = people[0].value
+    }
+}
+
+watch(() => form.agent_id, (agentId) => {
+    const agentRows = members.value.filter((member) => member.role === "agent")
+    agentRows.forEach(onRoleChange)
+    if (!agentId || agentRows.length) {
+        return
+    }
+    const people = peopleFor("agent")
+    const row = { role: "agent", user_id: people.length === 1 ? people[0].value : null }
+    const emptyIndex = members.value.findIndex((member) => !member.role && !member.user_id)
+    if (emptyIndex >= 0) {
+        members.value.splice(emptyIndex, 1, row)
+    } else {
+        members.value.push(row)
+    }
+})
+
 const supplierOptions = computed(() => form.agent_id
     ? props.options.suppliers.filter((option) => option.agent_id === form.agent_id)
     : props.options.suppliers)
@@ -111,6 +155,50 @@ const toIso = (date: Date | string | null) => {
 
 const error = (key: string) => errors.value[key]
 
+const codeTimers = new Map<SkuRow, ReturnType<typeof setTimeout>>()
+
+function onCodeInput(sku: SkuRow, index: number) {
+    delete errors.value[`items.${index}.code`]
+    sku.code_error = null
+    clearTimeout(codeTimers.get(sku))
+    const code = sku.code.trim()
+    if (!code) {
+        sku.checking = false
+        return
+    }
+    sku.checking = true
+    codeTimers.set(sku, setTimeout(async () => {
+        try {
+            const { data } = await axios.get(route(props.searchRoutes.sku_code.name, props.searchRoutes.sku_code.parameters), { params: { code } })
+            if (sku.code.trim() === code) {
+                sku.code_error = data.valid ? null : data.message
+            }
+        } finally {
+            if (sku.code.trim() === code) {
+                sku.checking = false
+            }
+        }
+    }, 500))
+}
+
+const duplicateCodes = computed(() => {
+    const seen = new Map<string, number>()
+    skus.value.filter((sku) => sku.mode === "new" && sku.code.trim()).forEach((sku) => {
+        const key = sku.code.trim().toLowerCase()
+        seen.set(key, (seen.get(key) ?? 0) + 1)
+    })
+    return new Set([...seen.entries()].filter(([, count]) => count > 1).map(([code]) => code))
+})
+
+const hasCodeProblems = computed(() => skus.value.some((sku, index) => sku.mode === "new" && (sku.checking || !!codeError(sku, index))))
+
+function codeError(sku: SkuRow, index: number): string | null {
+    if (sku.code.trim() && duplicateCodes.value.has(sku.code.trim().toLowerCase())) {
+        return ctrans("This code is used twice in this form")
+    }
+    return sku.code_error ?? error(`items.${index}.code`) ?? null
+}
+
 const formElement = ref<HTMLFormElement | null>(null)
 const { height: formHeight } = useFitToViewport(formElement)
 
@@ -119,21 +207,34 @@ const choiceClass = (active: boolean) => active
     : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
 
 function submit() {
+    if (hasCodeProblems.value) {
+        return
+    }
+    const sentRows = skus.value
+        .map((sku, index) => ({ sku, index }))
+        .filter(({ sku }) => sku.mode === "existing" ? sku.trade_unit_id : (sku.code || sku.name))
+        .map(({ index }) => index)
     const payload = {
         ...form,
         target_landing_date: toIso(form.target_landing_date),
         target_online_date: toIso(form.target_online_date),
         brief: form.brief || null,
-        items: skus.value
-            .filter((sku) => sku.mode === "existing" ? sku.trade_unit_id : (sku.code || sku.name))
-            .map((sku) => sku.mode === "existing" ? { trade_unit_id: sku.trade_unit_id } : { code: sku.code, name: sku.name }),
+        items: sentRows.map((index) => {
+            const sku = skus.value[index]
+            return sku.mode === "existing" ? { trade_unit_id: sku.trade_unit_id } : { code: sku.code, name: sku.name }
+        }),
         members: members.value.filter((member) => member.user_id && member.role),
     }
 
     router.post(route(props.storeRoute.name, props.storeRoute.parameters), payload, {
         onStart: () => saving.value = true,
         onFinish: () => saving.value = false,
-        onError: (validationErrors) => errors.value = validationErrors,
+        onError: (validationErrors) => {
+            errors.value = Object.fromEntries(Object.entries(validationErrors).map(([key, message]) => {
+                const match = key.match(/^items\.(\d+)\.(.+)$/)
+                return [match ? `items.${sentRows[Number(match[1])]}.${match[2]}` : key, message]
+            }))
+        },
     })
 }
 </script>
@@ -215,10 +316,21 @@ function submit() {
 
                             <div v-if="sku.mode === 'new'" class="grid gap-2 sm:grid-cols-[10rem_1fr]">
                                 <div>
-                                    <InputText v-model="sku.code" :placeholder="ctrans('Code')" class="w-full" :invalid="!!error(`items.${index}.code`)" />
-                                    <p v-if="error(`items.${index}.code`)" class="mt-1 text-xs text-red-600">{{ error(`items.${index}.code`) }}</p>
+                                    <InputText
+                                        v-model="sku.code"
+                                        :placeholder="ctrans('Code')"
+                                        class="w-full"
+                                        :class="codeError(sku, index) ? '!border-red-500 focus:!border-red-500 focus:!ring-red-200' : ''"
+                                        :invalid="!!codeError(sku, index)"
+                                        @update:modelValue="onCodeInput(sku, index)"
+                                    />
+                                    <p v-if="codeError(sku, index)" class="mt-1 text-xs text-red-600">{{ codeError(sku, index) }}</p>
+                                    <p v-else-if="sku.checking" class="mt-1 text-xs text-gray-400">{{ ctrans("Checking…") }}</p>
                                 </div>
-                                <InputText v-model="sku.name" :placeholder="ctrans('Name')" class="w-full" :invalid="!!error(`items.${index}.name`)" />
+                                <div>
+                                    <InputText v-model="sku.name" :placeholder="ctrans('Name')" class="w-full" :class="error(`items.${index}.name`) ? '!border-red-500' : ''" :invalid="!!error(`items.${index}.name`)" />
+                                    <p v-if="error(`items.${index}.name`)" class="mt-1 text-xs text-red-600">{{ error(`items.${index}.name`) }}</p>
+                                </div>
                             </div>
                             <ProductDevelopmentRemoteSelect v-else v-model="sku.trade_unit_id" :searchRoute="searchRoutes.trade_units" :placeholder="ctrans('Search trade units')" />
 
@@ -257,7 +369,7 @@ function submit() {
 
                         <div>
                             <label class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Markets") }}</label>
-                            <MultiSelect v-model="form.markets" :options="options.markets" optionLabel="label" optionValue="value" display="comma" :placeholder="ctrans('Select markets')" class="w-full" overlayClass="text-sm" />
+                            <ProductDevelopmentMarketSelect v-model="form.markets" :options="options.markets as any" :placeholder="ctrans('Select markets')" />
                         </div>
 
                         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
@@ -279,9 +391,9 @@ function submit() {
 
                         <div class="mt-3 space-y-2">
                             <div v-for="(member, index) in members" :key="index" class="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
-                                <div class="grid min-w-0 gap-2 sm:grid-cols-[minmax(0,1fr)_11rem]">
-                                    <ProductDevelopmentUserSelect v-model="member.user_id" :options="options.users as any" :placeholder="ctrans('Person')" />
-                                    <ProductDevelopmentRoleSelect v-model="member.role" :options="options.roles as any" :placeholder="ctrans('Role')" />
+                                <div class="grid min-w-0 gap-2 sm:grid-cols-[11rem_minmax(0,1fr)]">
+                                    <ProductDevelopmentRoleSelect v-model="member.role" :options="options.roles as any" :placeholder="ctrans('Role')" @update:modelValue="onRoleChange(member)" />
+                                    <ProductDevelopmentUserSelect v-model="member.user_id" :options="peopleFor(member.role) as any" :disabled="!peopleFor(member.role).length" :placeholder="personPlaceholder(member.role)" />
                                 </div>
                                 <Button type="tertiary" :tooltip="ctrans('Remove')" class="h-10 w-10 justify-center" @click="members.splice(index, 1)">
                                     <template #icon><FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" /></template>
@@ -298,7 +410,15 @@ function submit() {
         </div>
 
         <div class="sticky bottom-0 z-10 flex items-center justify-end gap-3 border-t border-gray-200 bg-white px-4 py-3 md:px-6">
-            <Button type="primary" nativeType="submit" icon="fal fa-save" :label="ctrans('Create development')" :loading="saving" />
+            <Button
+                type="primary"
+                nativeType="submit"
+                icon="fal fa-save"
+                :label="ctrans('Create development')"
+                :loading="saving"
+                :disabled="hasCodeProblems"
+                class="disabled:cursor-not-allowed disabled:opacity-50"
+            />
         </div>
     </form>
 </template>

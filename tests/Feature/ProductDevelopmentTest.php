@@ -16,6 +16,12 @@ use App\Actions\Goods\ProductDevelopment\Hydrators\ProductDevelopmentHydrateChec
 use App\Actions\Goods\ProductDevelopment\MoveProductDevelopmentToNextStage;
 use App\Actions\Goods\ProductDevelopment\LinkProductDevelopmentSupplierProduct;
 use App\Actions\Goods\ProductDevelopment\StoreProductDevelopment;
+use App\Actions\Goods\ProductDevelopment\StoreProductDevelopmentComment;
+use App\Actions\Goods\ProductDevelopment\Design\ReviewProductDevelopmentDesignVersion;
+use App\Actions\Goods\ProductDevelopment\Design\StoreProductDevelopmentDesignVersion;
+use App\Actions\Goods\ProductDevelopment\Design\SubmitProductDevelopmentDesignVersion;
+use App\Actions\Goods\ProductDevelopment\Design\UpdateProductDevelopmentDesignVersion;
+use App\Enums\Goods\ProductDevelopment\ProductDevelopmentDesignRoundStatusEnum;
 use App\Actions\Goods\ProductDevelopment\UpdateProductDevelopmentChecklistItem;
 use App\Actions\Goods\ProductDevelopment\SyncProductDevelopmentMembers;
 use App\Actions\Goods\ProductDevelopment\UploadProductDevelopmentFiles;
@@ -51,13 +57,36 @@ beforeEach(function () {
     actingAs($this->user);
 });
 
+function testAgent(object $test): \App\Models\SupplyChain\Agent
+{
+    return \App\Models\SupplyChain\Agent::where('group_id', $test->group->id)->orderBy('id')->first()
+        ?? \App\Actions\SupplyChain\Agent\StoreAgent::make()->action($test->group, \App\Models\SupplyChain\Agent::factory()->definition());
+}
+
+function newAgentUser(object $test, ?\App\Models\SupplyChain\Agent $agent = null): \App\Models\SysAdmin\User
+{
+    $agent ??= testAgent($test);
+    $user    = newGuestUser($test);
+    \Illuminate\Support\Facades\DB::table('user_has_authorised_models')->insert([
+        'user_id'    => $user->id,
+        'org_id'     => $agent->organisation_id,
+        'model_type' => 'Organisation',
+        'model_id'   => $agent->organisation_id,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    return $user;
+}
+
 function storeDevelopmentWithNewSkus(object $test, int $numberSkus = 4): ProductDevelopment
 {
     $suffix = Str::upper(Str::random(5));
 
     return StoreProductDevelopment::make()->action($test->group, $test->user, [
-        'name'    => 'Lavender candles '.$suffix,
-        'type'    => 'new',
+        'name'     => 'Lavender candles '.$suffix,
+        'type'     => 'new',
+        'agent_id' => testAgent($test)->id,
         'members' => [
             ['user_id' => $test->user->id, 'role' => ProductDevelopmentMemberRoleEnum::BUYER->value],
             ['user_id' => $test->user->id, 'role' => ProductDevelopmentMemberRoleEnum::APPROVER->value],
@@ -173,7 +202,7 @@ test('the list page shows developments with stage and missing count', function (
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->component('Goods/ProductDevelopments')
             ->has('pageHead')
-            ->has('viewSwitch', 2)
+            ->has('viewSwitch', 3)
             ->has('filterBar.counts.status')
             ->where('filterBar.statuses', fn ($statuses) => collect($statuses)->pluck('color', 'key')->all() === collect(ProductDevelopmentStatusEnum::cases())->mapWithKeys(fn ($status) => [$status->value => $status->color()])->all())
             ->where('filterBar.flags', fn ($flags) => collect($flags)->pluck('color', 'key')->all() === ['missing' => 'amber', 'overdue' => 'red'])
@@ -411,11 +440,12 @@ function developmentTasks(ProductDevelopment $productDevelopment): \Illuminate\S
 }
 
 test('creating a development opens the agent and compliance tasks once, for the right people', function () {
-    $agent      = newGuestUser($this);
+    $agent      = newAgentUser($this);
     $compliance = newGuestUser($this);
 
     $productDevelopment = StoreProductDevelopment::make()->action($this->group, $this->user, [
-        'name'    => 'Tasks check '.Str::upper(Str::random(5)),
+        'name'     => 'Tasks check '.Str::upper(Str::random(5)),
+        'agent_id' => testAgent($this)->id,
         'type'    => 'new',
         'members' => [
             ['user_id' => $agent->id, 'role' => ProductDevelopmentMemberRoleEnum::AGENT->value],
@@ -436,9 +466,10 @@ test('creating a development opens the agent and compliance tasks once, for the 
 
 test('entering artwork to supplier asks purchasing to send it, and once done asks the agent to confirm', function () {
     $purchasing = newGuestUser($this);
-    $agent      = newGuestUser($this);
+    $agent      = newAgentUser($this);
     $productDevelopment = StoreProductDevelopment::make()->action($this->group, $this->user, [
-        'name'    => 'Artwork check '.Str::upper(Str::random(5)),
+        'name'     => 'Artwork check '.Str::upper(Str::random(5)),
+        'agent_id' => testAgent($this)->id,
         'type'    => 'new',
         'members' => [
             ['user_id' => $purchasing->id, 'role' => ProductDevelopmentMemberRoleEnum::PURCHASING->value],
@@ -447,7 +478,10 @@ test('entering artwork to supplier asks purchasing to send it, and once done ask
         'items'   => [['code' => 'AW-'.Str::upper(Str::random(5)), 'name' => 'Artwork SKU']],
     ]);
     $productDevelopment->checklistItems()->update(['state' => ProductDevelopmentChecklistItemStateEnum::NOT_APPLICABLE->value, 'na_reason' => 'test']);
-    $productDevelopment->update(['current_position' => ProductDevelopmentStageEnum::FINAL_APPROVAL->position()]);
+    $productDevelopment->update([
+        'current_position' => ProductDevelopmentStageEnum::FINAL_APPROVAL->position(),
+        'data'             => ['sign_off' => ['buyer' => ['user_id' => $this->user->id, 'name' => 'Buyer', 'at' => now()->toIso8601String()], 'compliance' => ['user_id' => $this->user->id, 'name' => 'Compliance', 'at' => now()->toIso8601String()]], 'artwork_locked_at' => now()->toIso8601String()],
+    ]);
     ProductDevelopmentHydrateChecklist::run($productDevelopment);
 
     MoveProductDevelopmentToNextStage::make()->action($productDevelopment->fresh(), $this->user);
@@ -485,9 +519,10 @@ test('an SDS upload notifies compliance but not the uploader', function () {
 });
 
 test('three days before a stage is due its role is reminded, and the owner gets a digest', function () {
-    $agent              = newGuestUser($this);
+    $agent              = newAgentUser($this);
     $productDevelopment = StoreProductDevelopment::make()->action($this->group, $this->user, [
-        'name'    => 'Reminder check '.Str::upper(Str::random(5)),
+        'name'     => 'Reminder check '.Str::upper(Str::random(5)),
+        'agent_id' => testAgent($this)->id,
         'type'    => 'new',
         'members' => [['user_id' => $agent->id, 'role' => ProductDevelopmentMemberRoleEnum::AGENT->value]],
         'items'   => [['code' => 'RM-'.Str::upper(Str::random(5)), 'name' => 'Reminder SKU']],
@@ -520,8 +555,8 @@ test('a role task waits for someone holding the role, then later holders join as
 
     expect($specsTask())->toBeNull();
 
-    $firstAgent  = newGuestUser($this);
-    $secondAgent = newGuestUser($this);
+    $firstAgent  = newAgentUser($this);
+    $secondAgent = newAgentUser($this);
     $members     = $productDevelopment->members()->get(['user_id', 'role'])->map(fn ($member) => ['user_id' => $member->user_id, 'role' => $member->role->value])->all();
 
     SyncProductDevelopmentMembers::make()->action($productDevelopment, ['members' => [...$members, ['user_id' => $firstAgent->id, 'role' => ProductDevelopmentMemberRoleEnum::AGENT->value]]]);
@@ -554,7 +589,7 @@ function developmentWithSupplier(object $test, array $members = []): ProductDeve
 }
 
 test('saving a spec item writes the real trade unit field and records who saved it', function () {
-    $agent              = newGuestUser($this);
+    $agent              = newAgentUser($this);
     $productDevelopment = storeDevelopmentWithNewSkus($this, 1);
     \App\Actions\Goods\ProductDevelopment\SyncProductDevelopmentMembers::make()->action($productDevelopment, ['members' => [['user_id' => $agent->id, 'role' => 'agent']]]);
     $item         = $productDevelopment->items->first();
@@ -623,4 +658,319 @@ test('a supplier fixes the agent of a development', function () {
             'agent_id'    => $otherAgent->id,
             'items'       => [['code' => 'MA-'.Str::upper(Str::random(5)), 'name' => 'Mismatch SKU']],
         ]))->toThrow(ValidationException::class);
+});
+
+test('a design round runs from v1 through pinned comments and changes to an approved, locked v2 that opens the packaging task', function () {
+    $designer           = newGuestUser($this);
+    $buyer              = newGuestUser($this);
+    $agent              = newAgentUser($this);
+    $productDevelopment = storeDevelopmentWithNewSkus($this, 1);
+    SyncProductDevelopmentMembers::make()->action($productDevelopment, ['members' => [
+        ['user_id' => $designer->id, 'role' => 'designer'],
+        ['user_id' => $buyer->id, 'role' => 'buyer'],
+        ['user_id' => $agent->id, 'role' => 'agent'],
+    ]]);
+
+    expect(fn () => StoreProductDevelopmentDesignVersion::make()->action($productDevelopment, $designer, ['round' => 'packaging']))->toThrow(ValidationException::class);
+
+    $v1 = StoreProductDevelopmentDesignVersion::make()->action($productDevelopment, $designer, ['round' => 'concept']);
+    expect($v1->version)->toBe(1)
+        ->and(fn () => SubmitProductDevelopmentDesignVersion::make()->action($v1, $designer))->toThrow(ValidationException::class);
+
+    $layout                              = $v1->data['layout'];
+    $layout['width']                     = 60;
+    $layout['length']                    = 40;
+    $layout['height']                    = 120;
+    $layout['faces']['front']['elements'] = [['id' => 'name', 'type' => 'text', 'x' => 5, 'y' => 40, 'w' => 50, 'h' => 12, 'text' => 'Incense Cones', 'font_size' => 14]];
+    $layout['faces']['back']['elements']  = [['id' => 'warnings', 'type' => 'zone', 'zone' => 'compliance', 'x' => 4, 'y' => 30, 'w' => 52, 'h' => 30]];
+    UpdateProductDevelopmentDesignVersion::make()->action($v1, $designer, ['layout' => $layout, 'notes' => 'First take']);
+    SubmitProductDevelopmentDesignVersion::make()->action($v1->fresh(), $designer);
+
+    $pin = StoreProductDevelopmentComment::make()->action($productDevelopment, $buyer, ['body' => 'Make the scent name larger', 'design_round_id' => $v1->id, 'pin' => ['x' => 0.42, 'y' => 0.5]]);
+    expect($pin->model_type)->toBe('ProductDevelopmentDesignRound')
+        ->and($pin->data['pin']['number'])->toBe(1);
+
+    ReviewProductDevelopmentDesignVersion::make()->action($v1->fresh(), $buyer, ['operation' => 'request_changes']);
+    expect($v1->fresh()->status)->toBe(ProductDevelopmentDesignRoundStatusEnum::CHANGES_REQUESTED);
+
+    $v2 = StoreProductDevelopmentDesignVersion::make()->action($productDevelopment, $designer, ['round' => 'concept']);
+    expect($v2->version)->toBe(2)
+        ->and($v2->data['layout']['faces']['front']['elements'][0]['text'])->toBe('Incense Cones');
+
+    \App\Actions\Goods\ProductDevelopment\UpdateProductDevelopmentCommentStatus::make()->action($pin, $designer, ['status' => 'resolved']);
+    expect($pin->fresh()->data['resolved_in_version'])->toBe(2);
+
+    SubmitProductDevelopmentDesignVersion::make()->action($v2->fresh(), $designer);
+    expect(fn () => ReviewProductDevelopmentDesignVersion::make()->action($v2->fresh(), $buyer, ['operation' => 'approve']))->toThrow(ValidationException::class)
+        ->and(fn () => ReviewProductDevelopmentDesignVersion::make()->action($v2->fresh(), $buyer, ['operation' => 'check', 'check' => 'print_limits']))->toThrow(ValidationException::class);
+
+    ReviewProductDevelopmentDesignVersion::make()->action($v2->fresh(), $agent, ['operation' => 'check', 'check' => 'print_limits']);
+    ReviewProductDevelopmentDesignVersion::make()->action($v2->fresh(), $buyer, ['operation' => 'check', 'check' => 'matches_brief']);
+    ReviewProductDevelopmentDesignVersion::make()->action($v2->fresh(), $buyer, ['operation' => 'check', 'check' => 'compliance_space']);
+    ReviewProductDevelopmentDesignVersion::make()->action($v2->fresh(), $buyer, ['operation' => 'approve']);
+
+    $v2 = $v2->fresh();
+    expect($v2->status)->toBe(ProductDevelopmentDesignRoundStatusEnum::APPROVED)
+        ->and($v2->locked_at)->not->toBeNull()
+        ->and($v2->approved_by_id)->toBe($buyer->id)
+        ->and(fn () => UpdateProductDevelopmentDesignVersion::make()->action($v2, $designer, ['notes' => 'too late']))->toThrow(ValidationException::class);
+
+    $packagingTask = developmentTasks($productDevelopment)->first(fn ($task) => ($task->data['product_development_event'] ?? null) === CreateProductDevelopmentTask::DESIGN_PACKAGING);
+    expect($packagingTask)->not->toBeNull()
+        ->and($packagingTask->assignee_id)->toBe($designer->id)
+        ->and(StoreProductDevelopmentDesignVersion::make()->action($productDevelopment, $designer, ['round' => 'packaging'])->version)->toBe(1);
+
+    actingAs($buyer);
+    get(route('grp.product_developments.design', ['productDevelopment' => $productDevelopment->slug, 'round' => 'concept']))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Goods/ProductDevelopmentDesign')
+            ->where('version.version', 2)
+            ->where('version.status.value', 'approved')
+            ->has('versions', 2)
+            ->has('comments.threads', 1)
+            ->where('previous.version', 1));
+
+    actingAs(newGuestUser($this));
+    get(route('grp.product_developments.design', ['productDevelopment' => $productDevelopment->slug]))->assertForbidden();
+});
+
+test('the specs task follows the agent checklist: in progress, done, and reopened when an item goes missing again', function () {
+    $agent              = newAgentUser($this);
+    $productDevelopment = storeDevelopmentWithNewSkus($this, 1);
+    SyncProductDevelopmentMembers::make()->action($productDevelopment, ['members' => [['user_id' => $agent->id, 'role' => 'agent']]]);
+
+    $specsTask = fn () => developmentTasks($productDevelopment)->first(fn ($task) => ($task->data['product_development_event'] ?? null) === CreateProductDevelopmentTask::SPECS);
+    expect($specsTask()->status)->toBe(\App\Enums\Tasks\StaffTaskStatusEnum::TODO);
+
+    $agentItems = $productDevelopment->checklistItems()->where('role', 'agent')->where('required', true)->orderBy('id')->get();
+    UpdateProductDevelopmentChecklistItem::make()->action($agentItems->first(), $agent, ['operation' => 'not_applicable', 'na_reason' => 'Test']);
+    expect($specsTask()->status)->toBe(\App\Enums\Tasks\StaffTaskStatusEnum::IN_PROGRESS);
+
+    $agentItems->skip(1)->each(fn ($checklistItem) => UpdateProductDevelopmentChecklistItem::make()->action($checklistItem->fresh(), $agent, ['operation' => 'not_applicable', 'na_reason' => 'Test']));
+    expect($specsTask()->status)->toBe(\App\Enums\Tasks\StaffTaskStatusEnum::DONE)
+        ->and($specsTask()->data['closed_by_development'])->toBeTrue();
+
+    UpdateProductDevelopmentChecklistItem::make()->action($agentItems->first()->fresh(), $agent, ['operation' => 'reopen']);
+    expect($specsTask()->status)->toBe(\App\Enums\Tasks\StaffTaskStatusEnum::IN_PROGRESS);
+});
+
+test('the agent role only goes to someone working for the development\'s agent', function () {
+    $productDevelopment = storeDevelopmentWithNewSkus($this, 1);
+    $outsider           = newGuestUser($this);
+
+    expect(fn () => SyncProductDevelopmentMembers::make()->action($productDevelopment, ['members' => [['user_id' => $outsider->id, 'role' => 'agent']]]))->toThrow(ValidationException::class);
+
+    SyncProductDevelopmentMembers::make()->action($productDevelopment, ['members' => [['user_id' => $outsider->id, 'role' => 'designer']]]);
+    expect($productDevelopment->members()->where('user_id', $outsider->id)->value('role')->value)->toBe('designer');
+
+    $agentStaff = newAgentUser($this);
+    SyncProductDevelopmentMembers::make()->action($productDevelopment, ['members' => [['user_id' => $agentStaff->id, 'role' => 'agent']]]);
+    expect($productDevelopment->members()->where('user_id', $agentStaff->id)->exists())->toBeTrue();
+});
+
+test('a new SKU code is checked before saving, with a readable message', function () {
+    $taken = storeDevelopmentWithNewSkus($this, 1)->items->first()->tradeUnit;
+
+    get(route('grp.product_developments.json.sku_code', ['code' => strtolower($taken->code)]))
+        ->assertOk()
+        ->assertJson(['valid' => false])
+        ->assertJsonPath('message', __('Already used by trade unit :code · :name', ['code' => $taken->code, 'name' => $taken->name]));
+
+    get(route('grp.product_developments.json.sku_code', ['code' => 'FREE-'.Str::upper(Str::random(8))]))->assertOk()->assertJson(['valid' => true]);
+
+    post(route('grp.models.product_development.store'), [
+        'name'  => 'Duplicate code',
+        'type'  => 'new',
+        'items' => [['code' => $taken->code, 'name' => 'Clash']],
+    ])->assertSessionHasErrors(['items.0.code' => __('This code is already used by another trade unit')]);
+});
+
+function approveDesign(ProductDevelopment $productDevelopment, string $round, array $people, ?int $itemId = null): \App\Models\Goods\ProductDevelopmentDesignRound
+{
+    $version = StoreProductDevelopmentDesignVersion::make()->action($productDevelopment, $people['designer'], ['round' => $round, 'product_development_item_id' => $itemId]);
+    $layout  = $version->data['layout'];
+    $layout['width'] ??= 60;
+    $layout['length'] ??= 40;
+    $layout['height'] ??= 120;
+    UpdateProductDevelopmentDesignVersion::make()->action($version, $people['designer'], ['layout' => $layout]);
+    SubmitProductDevelopmentDesignVersion::make()->action($version->fresh(), $people['designer']);
+    ReviewProductDevelopmentDesignVersion::make()->action($version->fresh(), $people['agent'], ['operation' => 'check', 'check' => 'print_limits']);
+    ReviewProductDevelopmentDesignVersion::make()->action($version->fresh(), $people['buyer'], ['operation' => 'check', 'check' => 'matches_brief']);
+    ReviewProductDevelopmentDesignVersion::make()->action($version->fresh(), $people['buyer'], ['operation' => 'check', 'check' => 'compliance_space']);
+    ReviewProductDevelopmentDesignVersion::make()->action($version->fresh(), $people['buyer'], ['operation' => 'approve']);
+
+    return $version->fresh();
+}
+
+function developmentWithDesignTeam(object $test, int $numberSkus): array
+{
+    $people             = ['designer' => newGuestUser($test), 'buyer' => newGuestUser($test), 'agent' => newAgentUser($test), 'compliance' => newGuestUser($test)];
+    $productDevelopment = storeDevelopmentWithNewSkus($test, $numberSkus);
+    SyncProductDevelopmentMembers::make()->action($productDevelopment, ['members' => collect($people)->map(fn ($user, $role) => ['user_id' => $user->id, 'role' => $role])->values()->all()]);
+
+    return [$productDevelopment->fresh(), $people];
+}
+
+test('labels are designed and approved per SKU, and the label round only counts as approved once every SKU is', function () {
+    [$productDevelopment, $people] = developmentWithDesignTeam($this, 2);
+    [$first, $second]              = $productDevelopment->items()->orderBy('id')->get()->all();
+
+    approveDesign($productDevelopment, 'concept', $people);
+    $packaging = approveDesign($productDevelopment, 'packaging', $people);
+
+    expect(fn () => StoreProductDevelopmentDesignVersion::make()->action($productDevelopment, $people['designer'], ['round' => 'label']))->toThrow(ValidationException::class);
+
+    $firstLabel = approveDesign($productDevelopment, 'label', $people, $first->id);
+    expect($firstLabel->product_development_item_id)->toBe($first->id)
+        ->and($firstLabel->data['layout']['width'])->toEqual($packaging->data['layout']['width'])
+        ->and(\App\Actions\Goods\ProductDevelopment\Design\ProductDevelopmentDesignRounds::isApproved($productDevelopment, \App\Enums\Goods\ProductDevelopment\ProductDevelopmentDesignRoundEnum::LABEL))->toBeFalse();
+
+    $labelTask = fn () => developmentTasks($productDevelopment)->first(fn ($task) => ($task->data['product_development_event'] ?? null) === CreateProductDevelopmentTask::DESIGN_LABEL);
+    expect($labelTask()->status->isOpen())->toBeTrue();
+
+    $secondLabel = approveDesign($productDevelopment, 'label', $people, $second->id);
+    expect($secondLabel->version)->toBe(1)
+        ->and(\App\Actions\Goods\ProductDevelopment\Design\ProductDevelopmentDesignRounds::isApproved($productDevelopment, \App\Enums\Goods\ProductDevelopment\ProductDevelopmentDesignRoundEnum::LABEL))->toBeTrue()
+        ->and($labelTask()->status)->toBe(\App\Enums\Tasks\StaffTaskStatusEnum::DONE);
+
+    actingAs($people['buyer']);
+    get(route('grp.product_developments.design', ['productDevelopment' => $productDevelopment->slug, 'round' => 'label', 'sku' => $second->id]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('sku', $second->id)
+            ->has('skus', 2)
+            ->where('version.id', $secondLabel->id)
+            ->has('versions', 1));
+});
+
+test('final approval needs the buyer and compliance to sign off, which locks the artwork', function () {
+    [$productDevelopment, $people] = developmentWithDesignTeam($this, 1);
+    $productDevelopment->updateQuietly(['current_position' => ProductDevelopmentStageEnum::FINAL_APPROVAL->position()]);
+    CreateProductDevelopmentTask::make()->ensureForDevelopment($productDevelopment->fresh(), $this->user);
+    $productDevelopment = $productDevelopment->fresh();
+
+    $signOffTask = fn (string $key) => developmentTasks($productDevelopment)->first(fn ($task) => ($task->data['product_development_event'] ?? null) === $key);
+    expect($signOffTask(CreateProductDevelopmentTask::SIGN_OFF_BUYER)->assignee_id)->toBe($people['buyer']->id)
+        ->and($signOffTask(CreateProductDevelopmentTask::SIGN_OFF_COMPLIANCE)->assignee_id)->toBe($people['compliance']->id)
+        ->and(GetProductDevelopmentStageGate::run($productDevelopment)['can_move'])->toBeFalse();
+
+    expect(fn () => \App\Actions\Goods\ProductDevelopment\SignOffProductDevelopment::make()->action($productDevelopment, $people['designer'], ['role' => 'buyer', 'operation' => 'sign']))->toThrow(ValidationException::class);
+
+    \App\Actions\Goods\ProductDevelopment\SignOffProductDevelopment::make()->action($productDevelopment, $people['buyer'], ['role' => 'buyer', 'operation' => 'sign']);
+    expect(GetProductDevelopmentStageGate::run($productDevelopment->fresh())['reason'])->toContain('Compliance')
+        ->and($signOffTask(CreateProductDevelopmentTask::SIGN_OFF_BUYER)->status)->toBe(\App\Enums\Tasks\StaffTaskStatusEnum::DONE);
+
+    \App\Actions\Goods\ProductDevelopment\SignOffProductDevelopment::make()->action($productDevelopment->fresh(), $people['compliance'], ['role' => 'compliance', 'operation' => 'sign']);
+    $productDevelopment = $productDevelopment->fresh();
+    expect($productDevelopment->data['artwork_locked_at'])->not->toBeNull()
+        ->and((string) GetProductDevelopmentStageGate::run($productDevelopment)['reason'])->not->toContain('sign-off')
+        ->and(fn () => StoreProductDevelopmentDesignVersion::make()->action($productDevelopment, $people['designer'], ['round' => 'concept']))->toThrow(ValidationException::class);
+
+    \App\Actions\Goods\ProductDevelopment\SignOffProductDevelopment::make()->action($productDevelopment, $people['compliance'], ['role' => 'compliance', 'operation' => 'withdraw']);
+    expect($productDevelopment->fresh()->data['artwork_locked_at'])->toBeNull()
+        ->and($signOffTask(CreateProductDevelopmentTask::SIGN_OFF_COMPLIANCE)->status)->toBe(\App\Enums\Tasks\StaffTaskStatusEnum::IN_PROGRESS);
+});
+
+test('compliance confirms pictograms and label marks, and links ingredients, straight on the trade unit', function () {
+    [$productDevelopment, $people] = developmentWithDesignTeam($this, 1);
+    $item                          = $productDevelopment->items->first();
+    $checklistItem                 = fn (string $key) => $productDevelopment->checklistItems()->where('product_development_item_id', $item->id)->where('key', $key)->first();
+
+    expect($checklistItem('trade_unit.pictograms')->state)->toBe(ProductDevelopmentChecklistItemStateEnum::MISSING);
+
+    UpdateProductDevelopmentChecklistItem::make()->action($checklistItem('trade_unit.pictograms'), $people['compliance'], ['operation' => 'save', 'value' => ['pictogram_flammable' => true, 'pictogram_toxic' => false]]);
+    expect($item->tradeUnit->fresh()->pictogram_flammable)->toBeTrue()
+        ->and($checklistItem('trade_unit.pictograms')->state)->toBe(ProductDevelopmentChecklistItemStateEnum::COMPLETE);
+
+    UpdateProductDevelopmentChecklistItem::make()->action($checklistItem('trade_unit.label_info'), $people['compliance'], ['operation' => 'save', 'value' => ['markets' => ['uk'], 'ce_marking' => true, 'best_before' => null, 'label_info_approved' => true]]);
+    $labelInfo = $item->tradeUnit->fresh()->label_info;
+    expect($labelInfo['markets'])->toBe(['uk'])
+        ->and($labelInfo['ce_marking'])->toBeTrue()
+        ->and($labelInfo['label_info_approved'] ?? false)->toBeFalse()
+        ->and($checklistItem('trade_unit.label_info')->state)->toBe(ProductDevelopmentChecklistItemStateEnum::COMPLETE);
+
+    $ingredient = \App\Actions\Goods\Ingredient\StoreIngredient::make()->action($this->group, \App\Models\Goods\Ingredient::factory()->definition());
+    UpdateProductDevelopmentChecklistItem::make()->action($checklistItem('trade_unit.ingredients'), $people['compliance'], ['operation' => 'save', 'value' => [$ingredient->slug]]);
+    expect($item->tradeUnit->ingredients()->pluck('slug')->all())->toBe([$ingredient->slug])
+        ->and($checklistItem('trade_unit.ingredients')->state)->toBe(ProductDevelopmentChecklistItemStateEnum::COMPLETE);
+
+    ProductDevelopmentHydrateChecklist::run($productDevelopment->fresh());
+    expect($checklistItem('trade_unit.pictograms')->state)->toBe(ProductDevelopmentChecklistItemStateEnum::COMPLETE);
+});
+
+test('send reminders tells each role what is waiting on it, and only the owner or purchasing can send them', function () {
+    [$productDevelopment, $people] = developmentWithDesignTeam($this, 1);
+
+    $reminded = \App\Actions\Goods\ProductDevelopment\RemindProductDevelopmentMembers::make()->action($productDevelopment, $this->user);
+    expect($reminded)->toContain('Agent')
+        ->and($productDevelopment->fresh()->data['reminders_sent']['roles'])->toContain('Agent')
+        ->and(collect(GetProductDevelopmentActivity::run($productDevelopment->fresh()))->pluck('sentence')->first())->toContain('Sent reminders to');
+
+    actingAs($people['agent']);
+    post(route('grp.models.product_development.remind', ['productDevelopment' => $productDevelopment->id]))->assertForbidden();
+});
+
+test('waiting on me lists what the person has to do across developments, and the dashboard widget only shows for members', function () {
+    [$productDevelopment, $people] = developmentWithDesignTeam($this, 1);
+    $waitingOn                     = new \App\Actions\Goods\ProductDevelopment\ProductDevelopmentWaitingOn();
+
+    $agentRows = collect($waitingOn->forUser($people['agent']))->where('development.code', $productDevelopment->code);
+    expect($agentRows)->not->toBeEmpty()
+        ->and($agentRows->pluck('kind')->unique()->all())->toBe(['checklist'])
+        ->and(\App\Actions\Goods\ProductDevelopment\ProductDevelopmentWaitingOn::dashboardWidget($people['agent']))->toBeInstanceOf(\Inertia\DeferProp::class)
+        ->and(\App\Actions\Goods\ProductDevelopment\ProductDevelopmentWaitingOn::dashboardWidget(newGuestUser($this)))->toBeNull();
+
+    actingAs($people['agent']);
+    get(route('grp.product_developments.waiting_on_me'))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Goods/ProductDevelopmentsWaitingOnMe')
+            ->where('rows', fn ($rows) => collect($rows)->contains(fn ($row) => $row['development']['code'] === $productDevelopment->code
+                && $row['kind'] === 'checklist'
+                && count($row['fields']) > 0
+                && $row['fields'][0]['can_edit'] === true)));
+});
+
+test('the label round shows the SKU pack text from compliance and its three barcodes', function () {
+    [$productDevelopment, $people] = developmentWithDesignTeam($this, 1);
+    $item                          = $productDevelopment->items->first();
+    approveDesign($productDevelopment, 'concept', $people);
+    approveDesign($productDevelopment, 'packaging', $people);
+    \App\Actions\Goods\TradeUnit\UpdateTradeUnit::make()->action($item->tradeUnit, ['gpsr_warnings' => 'Keep away from flames', 'pictogram_flammable' => true]);
+
+    actingAs($people['buyer']);
+    get(route('grp.product_developments.design', ['productDevelopment' => $productDevelopment->slug, 'round' => 'label', 'sku' => $item->id]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('labelContent.sku.code', $item->tradeUnit->code)
+            ->has('labelContent.barcodes', 3)
+            ->where('labelContent.approved', false)
+            ->has('labelContent.pictograms', 1)
+            ->where('labelContent.text', fn ($lines) => collect($lines)->contains(fn ($line) => $line['value'] === 'Keep away from flames')));
+});
+
+test('the agent completes factory photos angle by angle, and a new photo for an angle keeps the old one as an earlier version', function () {
+    [$productDevelopment, $people] = developmentWithDesignTeam($this, 1);
+    $item                          = $productDevelopment->items->first();
+    $photos                        = $productDevelopment->checklistItems()->where('product_development_item_id', $item->id)->where('key', 'factory_photos')->first();
+    $upload                        = \App\Actions\Goods\ProductDevelopment\UploadProductDevelopmentFactoryPhoto::make();
+
+    expect($photos)->not->toBeNull()
+        ->and(fn () => UpdateProductDevelopmentChecklistItem::make()->action($photos, $people['agent'], ['operation' => 'save', 'value' => 'done']))->toThrow(ValidationException::class);
+
+    foreach (array_slice(\App\Actions\Goods\ProductDevelopment\UploadProductDevelopmentFactoryPhoto::ANGLES, 0, 5) as $angle) {
+        $upload->action($photos->fresh(), $people['agent'], ['angle' => $angle, 'photo' => UploadedFile::fake()->image($angle.'.jpg')]);
+    }
+    expect($photos->fresh()->state)->toBe(ProductDevelopmentChecklistItemStateEnum::MISSING);
+
+    $upload->action($photos->fresh(), $people['agent'], ['angle' => 'top', 'photo' => UploadedFile::fake()->image('top.jpg')]);
+    expect($photos->fresh()->state)->toBe(ProductDevelopmentChecklistItemStateEnum::COMPLETE)
+        ->and($photos->fresh()->completed_by_id)->toBe($people['agent']->id);
+
+    $firstFront = $photos->fresh()->value['angles']['front'];
+    $upload->action($photos->fresh(), $people['agent'], ['angle' => 'front', 'photo' => UploadedFile::fake()->image('front-2.jpg')]);
+    expect($photos->fresh()->value['angles']['front'])->not->toBe($firstFront)
+        ->and($productDevelopment->files()->find($firstFront)->superseded_at)->not->toBeNull()
+        ->and($productDevelopment->files()->where('checklist_item_id', $photos->id)->whereNull('superseded_at')->count())->toBe(6);
 });

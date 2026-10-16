@@ -9,6 +9,7 @@
 
 namespace App\Actions\Goods\ProductDevelopment\UI;
 
+use App\Actions\Goods\ProductDevelopment\ProductDevelopmentAccess;
 use App\Actions\Goods\ProductDevelopment\UI\Traits\WithProductDevelopmentsIndex;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithProductDevelopmentAuthorisation;
@@ -53,6 +54,8 @@ class CreateProductDevelopment extends OrgAction
 
     public function htmlResponse(Group $group, ActionRequest $request): Response
     {
+        $agentIdsByUser = (new ProductDevelopmentAccess())->agentIdsByUser($group->id);
+
         return Inertia::render(
             'Goods/CreateProductDevelopment',
             [
@@ -104,7 +107,7 @@ class CreateProductDevelopment extends OrgAction
                     'markets'   => $this->enumOptions(TradeUnitMarketEnum::labels()),
                     'users'     => User::where('group_id', $group->id)->where('status', true)->orderBy('contact_name')
                         ->get(['id', 'contact_name', 'username', 'image_id'])
-                        ->map(fn (User $user) => ['value' => $user->id, 'label' => $user->contact_name ?: $user->username, 'avatar' => $user->image_id ? $user->imageSources(48, 48) : null])
+                        ->map(fn (User $user) => ['value' => $user->id, 'label' => $user->contact_name ?: $user->username, 'avatar' => $user->image_id ? $user->imageSources(48, 48) : null, 'agent_ids' => $agentIdsByUser[$user->id] ?? []])
                         ->all(),
                     'brands'    => Brand::where('group_id', $group->id)->orderBy('name')->get(['id', 'name'])
                         ->map(fn (Brand $brand) => ['value' => $brand->id, 'label' => $brand->name])->all(),
@@ -117,6 +120,7 @@ class CreateProductDevelopment extends OrgAction
                     'trade_units'          => ['name' => 'grp.product_developments.json.search', 'parameters' => ['scope' => 'trade_units']],
                     'trade_unit_families'  => ['name' => 'grp.product_developments.json.search', 'parameters' => ['scope' => 'trade_unit_families']],
                     'packaging_families'   => ['name' => 'grp.product_developments.json.search', 'parameters' => ['scope' => 'packaging_families']],
+                    'sku_code'             => ['name' => 'grp.product_developments.json.sku_code', 'parameters' => []],
                 ],
                 'storeRoute'  => [
                     'name'       => 'grp.models.product_development.store',

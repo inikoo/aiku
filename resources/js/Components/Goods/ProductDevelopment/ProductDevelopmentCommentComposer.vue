@@ -29,6 +29,8 @@ const props = defineProps<{
     parentId?: number | null
     placeholder?: string
     rows?: number
+    extra?: Record<string, string | number | null | Record<string, number>>
+    only?: string[]
 }>()
 
 const emits = defineEmits<{
@@ -47,10 +49,10 @@ function post() {
     if (!canPost.value) {
         return
     }
-    router.post(route(props.route.name, props.route.parameters), { body: body.value, images: images.value, parent_id: props.parentId ?? null }, {
+    router.post(route(props.route.name, props.route.parameters), { body: body.value, images: images.value, parent_id: props.parentId ?? null, ...(props.extra ?? {}) }, {
         forceFormData: true,
         preserveScroll: true,
-        only: ["comments", "recentActivity"],
+        only: props.only ?? ["comments", "recentActivity"],
         onStart: () => { posting.value = true; error.value = null },
         onFinish: () => posting.value = false,
         onError: (errors) => error.value = Object.values(errors)[0] ?? null,

@@ -10,6 +10,7 @@
 namespace App\Enums\Goods\ProductDevelopment;
 
 use App\Enums\EnumHelperTrait;
+use App\Enums\Goods\TradeUnit\TradeUnitLabelPresenceEnum;
 use App\Models\Goods\TradeUnit;
 use App\Models\SupplyChain\SupplierProduct;
 
@@ -32,6 +33,9 @@ enum ProductDevelopmentTargetFieldEnum: string
     case TRADE_UNIT_GPSR_EU_RESPONSIBLE   = 'trade_unit.gpsr_eu_responsible';
     case TRADE_UNIT_GPSR_WARNINGS         = 'trade_unit.gpsr_warnings';
     case TRADE_UNIT_GPSR_CLASS_LANGUAGES  = 'trade_unit.gpsr_class_languages';
+    case TRADE_UNIT_INGREDIENTS           = 'trade_unit.ingredients';
+    case TRADE_UNIT_PICTOGRAMS            = 'trade_unit.pictograms';
+    case TRADE_UNIT_LABEL_MARKS           = 'trade_unit.label_info';
 
     case SUPPLIER_PRODUCT_UNITS_PER_PACK   = 'supplier_product.units_per_pack';
     case SUPPLIER_PRODUCT_UNITS_PER_CARTON = 'supplier_product.units_per_carton';
@@ -58,6 +62,9 @@ enum ProductDevelopmentTargetFieldEnum: string
             'trade_unit.gpsr_eu_responsible'            => __('GPSR EU responsible'),
             'trade_unit.gpsr_warnings'                  => __('GPSR warnings'),
             'trade_unit.gpsr_class_languages'           => __('GPSR languages'),
+            'trade_unit.ingredients'                    => __('Ingredients'),
+            'trade_unit.pictograms'                     => __('Hazard pictograms'),
+            'trade_unit.label_info'                     => __('Label & compliance marks'),
             'supplier_product.units_per_pack'           => __('Units per pack'),
             'supplier_product.units_per_carton'         => __('Units per carton'),
             'supplier_product.cbm'                      => __('Carton CBM'),
@@ -82,11 +89,76 @@ enum ProductDevelopmentTargetFieldEnum: string
         return $this === self::SUPPLIER_PRODUCT_COST;
     }
 
+    /**
+     * A group of switches where "all off" is a real answer: it is done when compliance saves it, not
+     * because a value happens to be there.
+     */
+    public function isConfirmedBySaving(): bool
+    {
+        return $this === self::TRADE_UNIT_PICTOGRAMS || $this === self::TRADE_UNIT_LABEL_MARKS;
+    }
+
+    /**
+     * @return array<string, array{label: string, icon: string}>
+     */
+    public static function pictograms(): array
+    {
+        return [
+            'pictogram_toxic'       => ['label' => __('Acute Toxicity'), 'icon' => '/hazardIcon/toxic-icon.png'],
+            'pictogram_corrosive'   => ['label' => __('Corrosive'), 'icon' => '/hazardIcon/corrosive-icon.png'],
+            'pictogram_explosive'   => ['label' => __('Explosive'), 'icon' => '/hazardIcon/explosive.jpg'],
+            'pictogram_flammable'   => ['label' => __('Flammable'), 'icon' => '/hazardIcon/flammable.png'],
+            'pictogram_gas'         => ['label' => __('Gas Under Pressure'), 'icon' => '/hazardIcon/gas.png'],
+            'pictogram_environment' => ['label' => __('Hazardous to the Environment'), 'icon' => '/hazardIcon/hazard-env.png'],
+            'pictogram_health'      => ['label' => __('Health Hazard'), 'icon' => '/hazardIcon/health-hazard.png'],
+            'pictogram_oxidising'   => ['label' => __('Oxidising'), 'icon' => '/hazardIcon/oxidising.png'],
+            'pictogram_danger'      => ['label' => __('Serious Health Hazard'), 'icon' => '/hazardIcon/serious-health-hazard.png'],
+        ];
+    }
+
+    /**
+     * The keys of the label-information group that UpdateTradeUnit takes as plain fields.
+     *
+     * @return array<int, string>
+     */
+    public static function labelMarkKeys(): array
+    {
+        return ['markets', 'languages', 'best_before', 'packaging_material_codes', 'packaging_material_codes_show', 'show_net_quantity', ...TradeUnitLabelPresenceEnum::values()];
+    }
+
+    /**
+     * The current value of a grouped field, shaped the way the checklist edits it.
+     *
+     * @return array<string, mixed>
+     */
+    public function groupValue(TradeUnit $tradeUnit): array
+    {
+        if ($this === self::TRADE_UNIT_PICTOGRAMS) {
+            return collect(array_keys(self::pictograms()))->mapWithKeys(fn (string $key) => [$key => (bool) $tradeUnit->getAttribute($key)])->all();
+        }
+
+        $labelInfo = $tradeUnit->label_info ?? [];
+
+        return [
+            'markets'                       => array_values((array) data_get($labelInfo, 'markets', [])),
+            'languages'                     => array_values((array) data_get($labelInfo, 'languages', [])),
+            'best_before'                   => data_get($labelInfo, 'best_before'),
+            'packaging_material_codes'      => array_values((array) data_get($labelInfo, 'packaging_material_codes.value', [])),
+            'packaging_material_codes_show' => (bool) data_get($labelInfo, 'packaging_material_codes.show', false),
+            'show_net_quantity'             => (bool) data_get($labelInfo, 'show_net_quantity', false),
+            ...collect(TradeUnitLabelPresenceEnum::values())->mapWithKeys(fn (string $key) => [$key => data_get($labelInfo, $key) === true])->all(),
+        ];
+    }
+
     public function isFilledOn(TradeUnit $tradeUnit, ?SupplierProduct $supplierProduct): bool
     {
         $model = $this->isOnSupplierProduct() ? $supplierProduct : $tradeUnit;
         if (!$model) {
             return false;
+        }
+
+        if ($this === self::TRADE_UNIT_INGREDIENTS) {
+            return $tradeUnit->ingredients()->exists();
         }
 
         $value = $model->getAttribute($this->column());
@@ -98,6 +170,32 @@ enum ProductDevelopmentTargetFieldEnum: string
         return filled($value);
     }
 
+    /**
+     * The placeholder the same field has on the trade unit edit page, so both read alike.
+     */
+    public function placeholder(): ?string
+    {
+        return match ($this) {
+            self::TRADE_UNIT_GPSR_MANUFACTURER, self::TRADE_UNIT_GPSR_EU_RESPONSIBLE => __('e.g. Company name, street, city, postcode, country'),
+            self::TRADE_UNIT_GPSR_WARNINGS => __('e.g. Keep out of reach of children. Avoid contact with eyes.'),
+            default => null,
+        };
+    }
+
+    /**
+     * The help text the same field has on the trade unit edit page.
+     */
+    public function information(): ?string
+    {
+        return match ($this) {
+            self::TRADE_UNIT_GPSR_MANUFACTURER => __('Name and postal address of the manufacturer. Shown on the product page. If empty, the Part GPSR is used.'),
+            self::TRADE_UNIT_GPSR_EU_RESPONSIBLE => __('Name and postal address of the economic operator responsible for the product in the EU. If empty, the Part GPSR is used.'),
+            self::TRADE_UNIT_GPSR_WARNINGS => __('Safety warnings printed on the label and shown on the product page. If empty, the Part GPSR is used.'),
+            self::TRADE_UNIT_PICTOGRAMS => __('CLP / GHS hazard pictograms. Each one turned on is shown on the product page.'),
+            default => null,
+        };
+    }
+
     public function inputType(): string
     {
         return match ($this) {
@@ -107,6 +205,9 @@ enum ProductDevelopmentTargetFieldEnum: string
             self::TRADE_UNIT_MARKETING_DIMENSIONS => 'dimensions',
             self::TRADE_UNIT_ORIGIN_COUNTRY => 'country',
             self::TRADE_UNIT_MARKETING_INGREDIENTS, self::TRADE_UNIT_GPSR_WARNINGS, self::TRADE_UNIT_GPSR_MANUFACTURER, self::TRADE_UNIT_GPSR_EU_RESPONSIBLE => 'textarea',
+            self::TRADE_UNIT_INGREDIENTS => 'ingredients',
+            self::TRADE_UNIT_PICTOGRAMS => 'pictograms',
+            self::TRADE_UNIT_LABEL_MARKS => 'label_marks',
             default => 'text',
         };
     }

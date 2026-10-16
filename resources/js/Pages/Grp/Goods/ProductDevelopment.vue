@@ -24,6 +24,7 @@ import ProductDevelopmentSidePanel from "@/Components/Goods/ProductDevelopment/P
 import ProductDevelopmentHeaderMeta from "@/Components/Goods/ProductDevelopment/ProductDevelopmentHeaderMeta.vue"
 import ProductDevelopmentStageStrip from "@/Components/Goods/ProductDevelopment/ProductDevelopmentStageStrip.vue"
 import ProductDevelopmentRoleCards from "@/Components/Goods/ProductDevelopment/ProductDevelopmentRoleCards.vue"
+import ProductDevelopmentFinalApproval from "@/Components/Goods/ProductDevelopment/ProductDevelopmentFinalApproval.vue"
 import ProductDevelopmentWaitingOn from "@/Components/Goods/ProductDevelopment/ProductDevelopmentWaitingOn.vue"
 import ProductDevelopmentBrief from "@/Components/Goods/ProductDevelopment/ProductDevelopmentBrief.vue"
 import ProductDevelopmentProducts from "@/Components/Goods/ProductDevelopment/ProductDevelopmentProducts.vue"
@@ -31,7 +32,7 @@ import ProductDevelopmentCompliance from "@/Components/Goods/ProductDevelopment/
 import ProductDevelopmentComments from "@/Components/Goods/ProductDevelopment/ProductDevelopmentComments.vue"
 import ProductDevelopmentTasks from "@/Components/Goods/ProductDevelopment/ProductDevelopmentTasks.vue"
 import ProductDevelopmentFiles from "@/Components/Goods/ProductDevelopment/ProductDevelopmentFiles.vue"
-import ProductDevelopmentComingSoon from "@/Components/Goods/ProductDevelopment/ProductDevelopmentComingSoon.vue"
+import ProductDevelopmentDesign from "@/Components/Goods/ProductDevelopment/ProductDevelopmentDesign.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faPlayCircle, faPauseCircle, faCheckCircle, faBan, faSparkles, faPaintBrush, faTag, faLightbulbOn, faClipboard, faAtom, faShieldCheck, faPencilRuler, faPaperclip, faTasks, faClock, faLock, faArrowRight } from "@fal"
@@ -62,11 +63,14 @@ const props = defineProps<{
     brief?: object
     products?: object
     compliance?: object
+    design?: object
     activity?: object
     files?: object
     tasks?: object
     comments: any
     recentActivity: any[]
+    reminders: { route: routeType, last_sent: { at: string, by: string, roles: string[] } | null } | null
+    finalApproval: InstanceType<typeof ProductDevelopmentFinalApproval>["$props"]["data"] | null
     editor: any
     canEditStageDates: boolean
 }>()
@@ -79,7 +83,7 @@ const component = computed(() => {
         brief: ProductDevelopmentBrief,
         products: ProductDevelopmentProducts,
         compliance: ProductDevelopmentCompliance,
-        design: ProductDevelopmentComingSoon,
+        design: ProductDevelopmentDesign,
         files: ProductDevelopmentFiles,
         tasks: ProductDevelopmentTasks,
         activity: ProductDevelopmentActivity,
@@ -129,13 +133,14 @@ function moveToNextStage() {
     <div class="grid gap-4 px-4 pb-6 md:px-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div class="min-w-0 space-y-3">
             <ProductDevelopmentTabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
-            <div class="overflow-hidden rounded-lg border border-gray-200 bg-white">
+            <div :class="['products', 'compliance'].includes(currentTab) ? '' : 'overflow-hidden rounded-lg border border-gray-200 bg-white'">
                 <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" v-bind="currentTab === 'brief' ? { editor } : {}" />
             </div>
         </div>
 
         <aside class="space-y-4">
-            <ProductDevelopmentWaitingOn :rows="overview.waiting_on" />
+            <ProductDevelopmentFinalApproval v-if="finalApproval" :data="finalApproval" />
+            <ProductDevelopmentWaitingOn :rows="overview.waiting_on" :reminders="reminders" />
             <ProductDevelopmentSidePanel :title="ctrans('Comments')">
                 <template #actions>
                     <ProductDevelopmentActivityOrder v-model="commentOrder" />

@@ -25,6 +25,7 @@ enum ProductDevelopmentFileScopeEnum: string
     case ARTWORK_DRAFT = 'artwork_draft';
     case ARTWORK_FINAL = 'artwork_final';
     case OTHER         = 'other';
+    case DESIGN_IMAGE  = 'design_image';
 
     public static function labels(): array
     {
@@ -38,6 +39,7 @@ enum ProductDevelopmentFileScopeEnum: string
             'artwork_draft' => __('Artwork draft'),
             'artwork_final' => __('Artwork final'),
             'other'         => __('Other'),
+            'design_image'  => __('Design image'),
         ];
     }
 
@@ -71,6 +73,7 @@ enum ProductDevelopmentFileScopeEnum: string
             self::FACTORY_PHOTO => 'fal fa-camera',
             self::ARTWORK_DRAFT, self::ARTWORK_FINAL => 'fal fa-palette',
             self::OTHER => 'fal fa-paperclip',
+            self::DESIGN_IMAGE => 'fal fa-image',
         };
     }
 
@@ -83,7 +86,7 @@ enum ProductDevelopmentFileScopeEnum: string
             self::SDS, self::IFRA, self::CPSR, self::TEST_REPORTS => [ProductDevelopmentMemberRoleEnum::COMPLIANCE],
             self::FACTORY_PHOTO, self::DIELINE => [ProductDevelopmentMemberRoleEnum::DESIGNER],
             self::ARTWORK_DRAFT, self::ARTWORK_FINAL => [ProductDevelopmentMemberRoleEnum::BUYER, ProductDevelopmentMemberRoleEnum::APPROVER],
-            self::OTHER => [],
+            self::OTHER, self::DESIGN_IMAGE => [],
         };
     }
 }

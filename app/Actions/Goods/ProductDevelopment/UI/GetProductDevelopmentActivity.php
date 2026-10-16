@@ -12,6 +12,8 @@ namespace App\Actions\Goods\ProductDevelopment\UI;
 use App\Actions\Goods\ProductDevelopment\ProductDevelopmentAccess;
 use App\Actions\Goods\ProductDevelopment\RecordProductDevelopmentActivity;
 use App\Actions\Goods\ProductDevelopment\UpdateProductDevelopmentStageDueDate;
+use App\Enums\Goods\ProductDevelopment\ProductDevelopmentDesignRoundEnum;
+use App\Enums\Goods\ProductDevelopment\ProductDevelopmentMemberRoleEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentChecklistItemStateEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentFileScopeEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStatusEnum;
@@ -99,6 +101,15 @@ class GetProductDevelopmentActivity
                 RecordProductDevelopmentActivity::SUPPLIER_PRODUCT_LINKED => [($new['created'] ?? false)
                     ? __('Created supplier product :code for :sku', ['code' => $new['supplier_product'] ?? '', 'sku' => $new['sku'] ?? ''])
                     : __('Linked supplier product :code to :sku', ['code' => $new['supplier_product'] ?? '', 'sku' => $new['sku'] ?? '']), []],
+                RecordProductDevelopmentActivity::DESIGN_VERSION_STARTED => [__('Started :round v:version', $this->designWords($new)), []],
+                RecordProductDevelopmentActivity::DESIGN_SUBMITTED => [__('Sent :round v:version for review', $this->designWords($new)), []],
+                RecordProductDevelopmentActivity::DESIGN_APPROVED => [__('Approved :round v:version', $this->designWords($new)), []],
+                RecordProductDevelopmentActivity::DESIGN_CHANGES_REQUESTED => [__('Requested changes on :round v:version', $this->designWords($new)), []],
+                RecordProductDevelopmentActivity::SIGNED_OFF => [($new['locked'] ?? false)
+                    ? __('Signed off the artwork as :role, the artwork is now locked', ['role' => mb_strtolower(ProductDevelopmentMemberRoleEnum::labels()[$new['role'] ?? ''] ?? '')])
+                    : __('Signed off the artwork as :role', ['role' => mb_strtolower(ProductDevelopmentMemberRoleEnum::labels()[$new['role'] ?? ''] ?? '')]), []],
+                RecordProductDevelopmentActivity::SIGN_OFF_WITHDRAWN => [__('Withdrew the :role sign-off, the artwork is unlocked', ['role' => mb_strtolower(ProductDevelopmentMemberRoleEnum::labels()[$new['role'] ?? ''] ?? '')]), []],
+                RecordProductDevelopmentActivity::REMINDERS_SENT => [($new['roles'] ?? []) ? __('Sent reminders to :roles', ['roles' => implode(', ', $new['roles'])]) : __('Sent reminders, but nobody holds the roles it is waiting on'), []],
                 RecordProductDevelopmentActivity::MEMBERS_REMOVED => [__('Removed members'), [['label' => __('Members'), 'old' => implode(', ', $old['members'] ?? []), 'new' => null]]],
                 'updated' => [__('Updated the development'), $this->fieldChanges($old, $new)],
                 default => [Str::headline($audit->event), []],
@@ -217,5 +228,20 @@ class GetProductDevelopmentActivity
             'brief' => Str::limit((string) $value, 140),
             default => (string) $value,
         };
+    }
+
+    /**
+     * @param array<string, mixed> $new
+     *
+     * @return array{round: string, version: string}
+     */
+    private function designWords(array $new): array
+    {
+        $round = ProductDevelopmentDesignRoundEnum::labels()[$new['round'] ?? ''] ?? (string) ($new['round'] ?? '');
+
+        return [
+            'round'   => !empty($new['sku']) ? $round.' '.$new['sku'] : $round,
+            'version' => (string) ($new['version'] ?? ''),
+        ];
     }
 }

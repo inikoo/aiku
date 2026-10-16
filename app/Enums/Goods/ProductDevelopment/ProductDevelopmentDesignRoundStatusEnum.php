@@ -29,4 +29,24 @@ enum ProductDevelopmentDesignRoundStatusEnum: string
             'approved'          => __('Approved'),
         ];
     }
+
+    public function color(): string
+    {
+        return match ($this) {
+            self::DRAFT => 'gray',
+            self::IN_REVIEW => 'amber',
+            self::CHANGES_REQUESTED => 'red',
+            self::APPROVED => 'green',
+        };
+    }
+
+    public function icon(): string
+    {
+        return match ($this) {
+            self::DRAFT => 'fal fa-pencil-ruler',
+            self::IN_REVIEW => 'fal fa-eye',
+            self::CHANGES_REQUESTED => 'fal fa-undo',
+            self::APPROVED => 'fal fa-lock',
+        };
+    }
 }

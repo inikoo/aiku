@@ -11,6 +11,8 @@ namespace App\Actions\Goods\ProductDevelopment\UI;
 
 use App\Models\Goods\ProductDevelopment;
 use App\Models\Goods\ProductDevelopmentComment;
+use App\Models\Goods\ProductDevelopmentDesignRound;
+use Illuminate\Database\Eloquent\Builder;
 use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -19,11 +21,42 @@ class GetProductDevelopmentComments
     use AsAction;
 
     /**
+     * @var array<int, int> version number by design round id
+     */
+    private array $versions = [];
+
+    /**
+     * Pins of earlier versions stay in view on a later one until they are resolved.
+     *
+     * @return array<int, int>
+     */
+    private function versionIdsUpTo(ProductDevelopmentDesignRound $designRound): array
+    {
+        return $designRound->productDevelopment->designRounds()
+            ->where('round', $designRound->round->value)
+            ->where('product_development_item_id', $designRound->product_development_item_id)
+            ->where('version', '<=', $designRound->version)
+            ->pluck('id')
+            ->all();
+    }
+
+    /**
      * @return array<string, mixed>
      */
-    public function handle(ProductDevelopment $productDevelopment): array
+    public function handle(ProductDevelopment $productDevelopment, ?ProductDevelopmentDesignRound $designRound = null): array
     {
-        $comments = $productDevelopment->comments()->with(['user', 'media'])->orderBy('id')->get();
+        $comments = $productDevelopment->comments()
+            ->with(['user', 'media', 'resolvedBy'])
+            ->when(
+                $designRound,
+                fn (Builder $query) => $query->where('model_type', 'ProductDevelopmentDesignRound')->whereIn('model_id', $this->versionIdsUpTo($designRound)),
+                fn (Builder $query) => $query->where(fn (Builder $query) => $query->whereNull('model_type')->orWhere('model_type', '!=', 'ProductDevelopmentDesignRound'))
+            )
+            ->orderBy('id')
+            ->get();
+        $this->versions = $designRound
+            ? $productDevelopment->designRounds()->where('round', $designRound->round->value)->where('product_development_item_id', $designRound->product_development_item_id)->pluck('version', 'id')->all()
+            : [];
         $replies  = $comments->whereNotNull('parent_id')->groupBy('parent_id');
 
         $mentionables = $productDevelopment->members()->with('user')->get()->pluck('user')
@@ -65,6 +98,11 @@ class GetProductDevelopmentComments
             'created_at' => $comment->created_at?->toIso8601String(),
             'images'      => $comment->ticketImageSources(),
             'attachments' => $comment->ticketAttachments('grp.media.download'),
+            'pin'         => $comment->data['pin'] ?? null,
+            'version'     => $this->versions[$comment->model_id] ?? null,
+            'status'      => $comment->status?->value,
+            'resolved_by' => $comment->resolvedBy?->contact_name ?: $comment->resolvedBy?->username,
+            'resolved_in' => $comment->data['resolved_in_version'] ?? null,
         ];
     }
 }

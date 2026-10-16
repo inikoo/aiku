@@ -18,7 +18,7 @@ import Button from "@/Components/Elements/Buttons/Button.vue"
 import { ctrans } from "@/Composables/useTrans"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { productDevelopmentColor } from "@/Components/Goods/ProductDevelopment/productDevelopmentColors"
-import type { ChecklistDimensions, ChecklistRow } from "@/Components/Goods/ProductDevelopment/productDevelopmentChecklist"
+import { formatChecklistValue, type ChecklistDimensions, type ChecklistRow } from "@/Components/Goods/ProductDevelopment/productDevelopmentChecklist"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faCheckCircle, faCircle, faMinusCircle, faPencil, faSave, faBan, faUndo, faLink } from "@fal"
@@ -47,31 +47,7 @@ const stateIcon: Record<ChecklistRow["state"], { icon: string, class: string, la
 
 const unitOptions = [{ value: "mm", label: "mm" }, { value: "cm", label: "cm" }]
 
-const displayValue = computed(() => {
-    const value = props.row.value
-    if (value === null || value === "" || value === undefined) {
-        return null
-    }
-    if (props.row.input_type === "dimensions" && typeof value === "object") {
-        const sizes = [value.l, value.w, value.h].map((size) => Number(size ?? 0))
-        return sizes.some((size) => size > 0) ? `${sizes.join(" × ")} ${value.units ?? "cm"}` : null
-    }
-    if (props.row.input_type === "country") {
-        return props.countries.find((country) => country.value === Number(value))?.label ?? String(value)
-    }
-    if (props.row.currency) {
-        return formatMoney(Number(value), props.row.currency)
-    }
-    return props.row.unit ? `${value} ${props.row.unit}` : String(value)
-})
-
-function formatMoney(amount: number, currency: string): string {
-    try {
-        return new Intl.NumberFormat("en", { style: "currency", currency, currencyDisplay: "narrowSymbol", minimumFractionDigits: 2, maximumFractionDigits: 4 }).format(amount)
-    } catch {
-        return `${amount} ${currency}`
-    }
-}
+const displayValue = computed(() => formatChecklistValue(props.row, props.countries))
 
 const savedLine = computed(() => {
     if (!props.row.saved_at) {
@@ -98,7 +74,7 @@ function startEdit() {
     errors.value = {}
     const value = props.row.value
     if (props.row.input_type === "dimensions") {
-        const current = (value && typeof value === "object") ? value : {}
+        const current = ((value && typeof value === "object" && !Array.isArray(value)) ? value : {}) as ChecklistDimensions
         dimensions.value = { l: current.l ?? null, w: current.w ?? null, h: current.h ?? null, units: current.units ?? "cm" }
     } else if (props.row.input_type === "integer" || props.row.input_type === "decimal" || props.row.input_type === "country") {
         draft.value = value === null || value === "" ? null : Number(value)

@@ -10,9 +10,11 @@
 namespace App\Actions\Goods\ProductDevelopment\UI;
 
 use App\Actions\Goods\ProductDevelopment\GetProductDevelopmentStageGate;
+use App\Actions\Goods\ProductDevelopment\SignOffProductDevelopment;
 use App\Actions\Goods\ProductDevelopment\UI\Traits\WithProductDevelopmentsIndex;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithProductDevelopmentAuthorisation;
+use App\Enums\Goods\ProductDevelopment\ProductDevelopmentFileScopeEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentMemberRoleEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStageEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStatusEnum;
@@ -55,7 +57,7 @@ class ShowProductDevelopment extends OrgAction
 
         $navigation = ProductDevelopmentTabsEnum::navigation();
         $navigation[ProductDevelopmentTabsEnum::PRODUCTS->value]['number'] = count($overview['products']);
-        $navigation[ProductDevelopmentTabsEnum::FILES->value]['number']    = $productDevelopment->files()->whereNull('superseded_at')->count();
+        $navigation[ProductDevelopmentTabsEnum::FILES->value]['number']    = $productDevelopment->files()->whereNull('superseded_at')->where('scope', '!=', ProductDevelopmentFileScopeEnum::DESIGN_IMAGE->value)->count();
         $navigation[ProductDevelopmentTabsEnum::TASKS->value]['number']    = StaffTask::query()->where('model_type', 'ProductDevelopment')->where('model_id', $productDevelopment->id)->open()->count();
 
         $tab = fn (ProductDevelopmentTabsEnum $tabEnum, callable $resolver) => $this->tab === $tabEnum->value
@@ -129,6 +131,11 @@ class ShowProductDevelopment extends OrgAction
                     'number_missing'     => (int) $productDevelopment->stats?->number_required_missing,
                 ],
                 'overview'    => $overview,
+                'finalApproval' => $this->finalApproval($productDevelopment, $request->user()),
+                'reminders'     => $this->canEditProductDevelopment($request->user(), $productDevelopment) ? [
+                    'route'     => ['name' => 'grp.models.product_development.remind', 'parameters' => ['productDevelopment' => $productDevelopment->id]],
+                    'last_sent' => $productDevelopment->data['reminders_sent'] ?? null,
+                ] : null,
                 'canEditStageDates' => $this->canEditProductDevelopment($request->user(), $productDevelopment),
                 'editor'      => $this->canEditProductDevelopment($request->user(), $productDevelopment) ? $this->editor($productDevelopment) : null,
                 'stageMove'   => [
@@ -151,6 +158,7 @@ class ShowProductDevelopment extends OrgAction
                 ProductDevelopmentTabsEnum::BRIEF->value      => $tab(ProductDevelopmentTabsEnum::BRIEF, fn () => [...$tabData->brief($productDevelopment, $request->user()), 'editor' => GetProductDevelopmentChecklistEditor::run($productDevelopment, $request->user(), $canSeeCosts)]),
                 ProductDevelopmentTabsEnum::PRODUCTS->value   => $tab(ProductDevelopmentTabsEnum::PRODUCTS, fn () => ['rows' => $overview['products'], 'editor' => GetProductDevelopmentChecklistEditor::run($productDevelopment, $request->user(), $canSeeCosts)]),
                 ProductDevelopmentTabsEnum::COMPLIANCE->value => $tab(ProductDevelopmentTabsEnum::COMPLIANCE, fn () => GetProductDevelopmentChecklistEditor::run($productDevelopment, $request->user(), $canSeeCosts, ProductDevelopmentMemberRoleEnum::COMPLIANCE)),
+                ProductDevelopmentTabsEnum::DESIGN->value     => $tab(ProductDevelopmentTabsEnum::DESIGN, fn () => GetProductDevelopmentDesignOverview::run($productDevelopment)),
                 ProductDevelopmentTabsEnum::FILES->value      => $tab(ProductDevelopmentTabsEnum::FILES, fn () => GetProductDevelopmentFiles::run($productDevelopment, $this->productDevelopmentAccess()->canUpload($request->user(), $productDevelopment))),
                 ProductDevelopmentTabsEnum::TASKS->value      => $tab(ProductDevelopmentTabsEnum::TASKS, fn () => ['model_type' => 'ProductDevelopment', 'model_id' => $productDevelopment->id]),
                 ProductDevelopmentTabsEnum::ACTIVITY->value   => $tab(ProductDevelopmentTabsEnum::ACTIVITY, fn () => GetProductDevelopmentActivity::run($productDevelopment, GetProductDevelopmentActivity::LIMIT, $request->user())),
@@ -165,13 +173,15 @@ class ShowProductDevelopment extends OrgAction
      */
     private function editor(ProductDevelopment $productDevelopment): array
     {
-        $asOptions = fn (array $labels) => collect($labels)->map(fn (string $label, string $value) => ['value' => $value, 'label' => $label])->values()->all();
+        $asOptions      = fn (array $labels) => collect($labels)->map(fn (string $label, string $value) => ['value' => $value, 'label' => $label])->values()->all();
+        $agentIdsByUser = $this->productDevelopmentAccess()->agentIdsByUser($productDevelopment->group_id);
 
         return [
             'values'  => [
                 'markets'             => $productDevelopment->markets ?? [],
                 'target_landing_date' => $productDevelopment->target_landing_date?->toDateString(),
                 'target_online_date'  => $productDevelopment->target_online_date?->toDateString(),
+                'agent_id'            => $productDevelopment->agent_id,
                 'members'             => $productDevelopment->members()->get(['user_id', 'role'])->map(fn ($member) => ['user_id' => $member->user_id, 'role' => $member->role->value])->all(),
             ],
             'options' => [
@@ -187,7 +197,8 @@ class ShowProductDevelopment extends OrgAction
                     ->map(fn (User $user) => [
                         'value'  => $user->id,
                         'label'  => $user->contact_name ?: $user->username,
-                        'avatar' => $user->image_id ? $user->imageSources(48, 48) : null,
+                        'avatar'    => $user->image_id ? $user->imageSources(48, 48) : null,
+                        'agent_ids' => $agentIdsByUser[$user->id] ?? [],
                     ])
                     ->all(),
             ],
@@ -195,6 +206,38 @@ class ShowProductDevelopment extends OrgAction
                 'update'  => ['name' => 'grp.models.product_development.update', 'parameters' => ['productDevelopment' => $productDevelopment->id]],
                 'members' => ['name' => 'grp.models.product_development.members.sync', 'parameters' => ['productDevelopment' => $productDevelopment->id]],
             ],
+        ];
+    }
+
+    /**
+     * The buyer and compliance sign-offs, shown from the final approval stage on.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function finalApproval(ProductDevelopment $productDevelopment, User $viewer): ?array
+    {
+        $open    = SignOffProductDevelopment::isOpenForSignOff($productDevelopment);
+        $signOffs = SignOffProductDevelopment::signOffs($productDevelopment);
+        if (!$open && collect($signOffs)->filter()->isEmpty()) {
+            return null;
+        }
+
+        $roles      = $this->productDevelopmentAccess()->memberRoles($viewer, $productDevelopment);
+        $roleLabels = ProductDevelopmentMemberRoleEnum::labels();
+
+        return [
+            'open'      => $open,
+            'locked_at' => $productDevelopment->data['artwork_locked_at'] ?? null,
+            'route'     => ['name' => 'grp.models.product_development.sign_off', 'parameters' => ['productDevelopment' => $productDevelopment->id]],
+            'rows'      => collect(SignOffProductDevelopment::SIGNERS)->map(fn (ProductDevelopmentMemberRoleEnum $role) => [
+                'role'      => $role->value,
+                'label'     => $roleLabels[$role->value],
+                'icon'      => $role->icon(),
+                'color'     => $role->color(),
+                'signed_by' => $signOffs[$role->value]['name'] ?? null,
+                'signed_at' => $signOffs[$role->value]['at'] ?? null,
+                'can_sign'  => $open && in_array($role, $roles, true),
+            ])->all(),
         ];
     }
 

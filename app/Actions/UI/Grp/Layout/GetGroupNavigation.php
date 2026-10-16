@@ -315,6 +315,12 @@ class GetGroupNavigation
                         'root'  => 'grp.product_developments.board',
                         'route' => ['name' => 'grp.product_developments.board', 'parameters' => []],
                     ],
+                    [
+                        'label' => __('Waiting on me'),
+                        'icon'  => ['fal', 'fa-hourglass-half'],
+                        'root'  => 'grp.product_developments.waiting_on_me',
+                        'route' => ['name' => 'grp.product_developments.waiting_on_me', 'parameters' => []],
+                    ],
                 ],
             ],
         ];

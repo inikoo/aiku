@@ -21,6 +21,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
 class SyncProductDevelopmentMembers extends OrgAction
@@ -124,6 +125,15 @@ class SyncProductDevelopmentMembers extends OrgAction
             'members.*.user_id' => ['required', 'integer', Rule::exists('users', 'id')->where('group_id', $groupId)->where('status', true)],
             'members.*.role'    => ['required', Rule::enum(ProductDevelopmentMemberRoleEnum::class)],
         ];
+    }
+
+    public function afterValidator(Validator $validator): void
+    {
+        $productDevelopment = $this->target();
+        $error              = $this->productDevelopmentAccess()->agentRoleError((array) $this->get('members', []), $productDevelopment->agent_id, $productDevelopment->group_id);
+        if ($error) {
+            $validator->errors()->add('members', $error);
+        }
     }
 
     public function asController(ProductDevelopment $productDevelopment, ActionRequest $request): ProductDevelopment

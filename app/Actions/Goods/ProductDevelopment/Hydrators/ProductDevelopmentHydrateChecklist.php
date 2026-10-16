@@ -46,7 +46,7 @@ class ProductDevelopmentHydrateChecklist
     private function refreshTargetFieldState(ProductDevelopmentChecklistItem $checklistItem): void
     {
         $targetField = ProductDevelopmentTargetFieldEnum::tryFrom((string) $checklistItem->target_field);
-        if (!$targetField || !$checklistItem->item || $checklistItem->state === ProductDevelopmentChecklistItemStateEnum::NOT_APPLICABLE) {
+        if (!$targetField || $targetField->isConfirmedBySaving() || !$checklistItem->item || $checklistItem->state === ProductDevelopmentChecklistItemStateEnum::NOT_APPLICABLE) {
             return;
         }
 

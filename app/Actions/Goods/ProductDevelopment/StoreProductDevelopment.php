@@ -256,13 +256,44 @@ class StoreProductDevelopment extends OrgAction
             'items.*.code'         => [
                 'required_without:items.*.trade_unit_id',
                 'nullable',
-                'max:64',
                 'distinct:ignore_case',
-                new AlphaDashDot(),
-                Rule::notIn(['export', 'create', 'upload']),
-                new IUnique(table: 'trade_units', column: 'code', extraConditions: [['column' => 'group_id', 'value' => $groupId]]),
+                ...self::skuCodeRules($groupId),
             ],
             'items.*.name'         => ['required_without:items.*.trade_unit_id', 'nullable', 'string', 'max:255'],
+        ];
+    }
+
+    /**
+     * What a new SKU code must pass, shared with the check the create form runs while typing.
+     *
+     * @return array<int, mixed>
+     */
+    public static function skuCodeRules(int $groupId): array
+    {
+        return [
+            'max:64',
+            new AlphaDashDot(),
+            Rule::notIn(['export', 'create', 'upload']),
+            new IUnique(table: 'trade_units', column: 'code', extraConditions: [['column' => 'group_id', 'value' => $groupId]], message: __('This code is already used by another trade unit')),
+        ];
+    }
+
+    public function getValidationMessages(): array
+    {
+        return [
+            'items.*.code.required_without' => __('Enter a code'),
+            'items.*.code.distinct'         => __('This code is used twice in this form'),
+            'items.*.code.max'              => __('The code can be at most 64 characters'),
+            'items.*.code.not_in'           => __('This word cannot be used as a code'),
+            'items.*.name.required_without' => __('Enter a name'),
+        ];
+    }
+
+    public function getValidationAttributes(): array
+    {
+        return [
+            'items.*.code' => __('code'),
+            'items.*.name' => __('name'),
         ];
     }
 
@@ -278,6 +309,12 @@ class StoreProductDevelopment extends OrgAction
         $agentId    = $this->get('agent_id');
         if ($supplierId && $agentId && (int) Supplier::whereKey($supplierId)->value('agent_id') !== (int) $agentId) {
             $validator->errors()->add('agent_id', __('This supplier belongs to another agent'));
+        }
+
+        $agentId = $supplierId ? Supplier::whereKey($supplierId)->value('agent_id') : $agentId;
+        $error   = $this->productDevelopmentAccess()->agentRoleError((array) $this->get('members', []), $agentId ? (int) $agentId : null, $this->group->id);
+        if ($error) {
+            $validator->errors()->add('members', $error);
         }
     }
 
