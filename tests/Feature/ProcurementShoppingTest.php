@@ -989,6 +989,12 @@ test('agent catalogue leaves out dead codes: every SKO discontinued, or the SKO 
         ->and($inNever($newCode))->toBeFalse()
         ->and($oldCodeStockLink->exists)->toBeTrue();
 
+    $newCode->update(['state' => OrgSupplierProductStateEnum::DISCONTINUED, 'is_available' => false]);
+    expect($inNever($oldCode))->toBeTrue();
+
+    $newCode->update(['state' => OrgSupplierProductStateEnum::ACTIVE, 'is_available' => true]);
+    expect($inNever($oldCode))->toBeFalse();
+
     $discontinue = App\Actions\Procurement\OrgSupplierProducts\DiscontinueDeadOrgSupplierProducts::make();
     $isDead      = fn (OrgSupplierProduct $orgSupplierProduct) => $discontinue->dead($this->organisation->slug)->where('osp.id', $orgSupplierProduct->id)->exists();
 
