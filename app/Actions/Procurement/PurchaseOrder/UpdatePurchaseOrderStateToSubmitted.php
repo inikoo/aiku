@@ -18,6 +18,7 @@ use App\Actions\Procurement\PurchaseOrder\Traits\HasPurchaseOrderHydrators;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
+use App\Events\BroadcastAgentIncomingPurchaseOrdersChanged;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Http\RedirectResponse;
@@ -71,6 +72,17 @@ class UpdatePurchaseOrderStateToSubmitted extends OrgAction
     public function handle(PurchaseOrder $purchaseOrder, ?string $sendVia = null): PurchaseOrder
     {
         $purchaseOrder = DB::transaction(fn () => $this->submit($purchaseOrder, $sendVia));
+
+        if ($agentOrganisation = $purchaseOrder->agent?->organisation) {
+            BroadcastAgentIncomingPurchaseOrdersChanged::dispatch($agentOrganisation->id, [
+                'purchase_order_id' => $purchaseOrder->id,
+                'reference'         => $purchaseOrder->reference,
+                'client'            => $purchaseOrder->organisation->name,
+                'amount'            => (float) $purchaseOrder->cost_total,
+                'currency'          => $purchaseOrder->currency->code,
+                'url'               => route('grp.org.agent.purchase_orders.show', [$agentOrganisation->slug, $purchaseOrder->slug]),
+            ]);
+        }
 
         if (SendPartnerPurchaseOrderToSeller::appliesTo($purchaseOrder)) {
             SendPartnerPurchaseOrderToSeller::dispatch($purchaseOrder);

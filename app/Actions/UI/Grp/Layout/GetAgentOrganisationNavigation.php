@@ -24,6 +24,7 @@ class GetAgentOrganisationNavigation
 
         if ($user->authTo("procurement.$organisation->id.view")) {
             $topMenus = [
+                'agent_incoming_purchase_orders' => [],
                 'agent_suppliers' => [
                     $this->procurementSubSection(__('Suppliers'), 'fa-person-dolly', 'grp.org.agent.org_suppliers.', 'grp.org.agent.org_suppliers.index', $organisation),
                 ],
@@ -59,6 +60,7 @@ class GetAgentOrganisationNavigation
 
             foreach (
                 [
+                    'agent_incoming_purchase_orders' => [__('Incoming POs'), 'fa-paper-plane', 'grp.org.agent.incoming_purchase_orders'],
                     'agent_suppliers'       => [__('Suppliers'), 'fa-person-dolly', 'grp.org.agent.org_suppliers'],
                     'agent_products'        => [__('Products'), 'fa-box-usd', 'grp.org.agent.org_supplier_products'],
                     'agent_sales'           => [__('Sales'), 'fa-chart-line', 'grp.org.agent.sales'],

@@ -45,6 +45,7 @@ use App\Actions\Procurement\PurchaseOrder\ExportPurchaseOrders;
 use App\Actions\Procurement\PurchaseOrder\ExportPurchaseOrderTransactions;
 use App\Actions\Procurement\PurchaseOrder\PdfPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UI\EditPurchaseOrder;
+use App\Actions\Procurement\PurchaseOrder\UI\GetAgentIncomingPurchaseOrdersCount;
 use App\Actions\Procurement\PurchaseOrder\UI\GetPurchaseOrderChasePanel;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\PurchaseOrder\UI\ShowAgentPurchaseOrdersBoard;
@@ -128,6 +129,9 @@ Route::prefix('purchase-orders')->as('purchase_orders.')->group(function () {
     Route::get('{purchaseOrder}/pdf/{filename?}', PdfPurchaseOrder::class)->name('pdf');
     Route::get('{purchaseOrder}/transactions-export', ExportPurchaseOrderTransactions::class)->name('transactions.export');
 });
+
+Route::get('incoming-purchase-orders', [IndexPurchaseOrders::class, 'inAgentIncoming'])->name('incoming_purchase_orders.index');
+Route::get('incoming-purchase-orders/count', GetAgentIncomingPurchaseOrdersCount::class)->name('incoming_purchase_orders.count');
 
 Route::prefix('client-orders')->as('agent_supplier_purchase_orders.')->group(function () {
     Route::get('{agentSupplierPurchaseOrder}', [ShowAgentSupplierPurchaseOrder::class, 'inOrganisation'])->name('show');

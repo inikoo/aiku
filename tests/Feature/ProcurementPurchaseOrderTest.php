@@ -15,6 +15,7 @@ use App\Actions\Procurement\AgentOrder\DeleteAgentOrder;
 use App\Actions\Procurement\AgentOrder\StoreAgentOrderLine;
 use App\Actions\Procurement\AgentOrder\StoreAgentOrder;
 use Illuminate\Support\Facades\Event;
+use App\Events\BroadcastAgentIncomingPurchaseOrdersChanged;
 use App\Events\BroadcastPurchaseOrderLastEdited;
 use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\SupplyChain\Supplier\UpdateSupplier;
@@ -465,7 +466,7 @@ test('agent manager only sees their own agent organisation', function () {
         ->and($agentUser->worksOnlyForAgents())->toBeTrue()
         ->and(array_keys(\App\Actions\UI\Grp\Layout\GetGroupNavigation::run($agentUser)))->toBe(['tickets'])
         ->and(array_keys(\App\Actions\UI\Grp\Layout\GetOrganisationsLayout::run($agentUser)))->toBe([$organisation->slug])
-        ->and(array_keys(\App\Actions\UI\Grp\Layout\GetOrganisationsLayout::run($agentUser)[$organisation->slug]))->toBe(['agent_suppliers', 'agent_products', 'agent_sales', 'agent_purchase_orders', 'agent_warehouse_navigation', 'agent_containers', 'agent_accounting', 'hr', 'agent_settings'])
+        ->and(array_keys(\App\Actions\UI\Grp\Layout\GetOrganisationsLayout::run($agentUser)[$organisation->slug]))->toBe(['agent_incoming_purchase_orders', 'agent_suppliers', 'agent_products', 'agent_sales', 'agent_purchase_orders', 'agent_warehouse_navigation', 'agent_containers', 'agent_accounting', 'hr', 'agent_settings'])
         ->and(collect(\App\Actions\UI\Grp\Layout\GetOrganisationsLayout::run($agentUser)[$organisation->slug]['agent_suppliers']['topMenu']['subSections'])->pluck('root')->all())->toBe([
             'grp.org.agent.org_suppliers.',
         ]);
@@ -578,6 +579,22 @@ test('agent manager only sees their own agent organisation', function () {
     ]))->viewData('page')['props']['data']['data'])->pluck('slug')->all();
     expect($chaseList(['attention' => 'past_eta,unconfirmed_over_14_days', 'progress' => 'confirmed']))->toBe([$chased->slug])
         ->and($chaseList(['progress' => 'dispatched']))->toBe([]);
+
+    $incomingList = fn () => collect($this->get(route('grp.org.agent.incoming_purchase_orders.index', [
+        $organisation->slug,
+        'elements' => ['organisation' => $chased->organisation->slug],
+        'filter'   => ['global' => $chased->reference],
+    ]))->assertOk()->viewData('page')['props']['data']['data'])->pluck('slug')->all();
+    expect($incomingList())->toBe([]);
+    $incomingCount = fn () => $this->getJson(route('grp.org.agent.incoming_purchase_orders.count', $organisation->slug))->assertOk()->json('count');
+    $countBefore   = $incomingCount();
+    $chased->update(['state' => PurchaseOrderStateEnum::SUBMITTED]);
+    expect($incomingList())->toBe([$chased->slug])
+        ->and($incomingCount())->toBe($countBefore + 1);
+    $chased->update(['production_started_at' => now()]);
+    expect($incomingList())->toBe([])
+        ->and($incomingCount())->toBe($countBefore);
+    $chased->update(['state' => PurchaseOrderStateEnum::CONFIRMED, 'production_started_at' => null]);
 
     $panel = $this->getJson(route('grp.org.agent.purchase_orders.chase_panel', [$organisation->slug, $chased->id]))->assertOk()->json();
     $markable = collect($panel['stages'])->pluck('marks')->flatten(1)->pluck('field')->unique()->values()->all();
@@ -3014,7 +3031,10 @@ test('a supplier order submitted on its own leaves the rest of the agent order o
     $reference = StoreAgentOrder::make()->handle($orgAgent);
 
     $lineOne = StoreAgentOrderLine::make()->action($orgAgent, $reference, $orgSupplierProductOne, ['quantity_ordered' => 10]);
+    Event::fake([BroadcastAgentIncomingPurchaseOrdersChanged::class]);
     UpdatePurchaseOrderStateToSubmitted::make()->action($lineOne->purchaseOrder->refresh());
+    Event::assertDispatched(BroadcastAgentIncomingPurchaseOrdersChanged::class, fn (BroadcastAgentIncomingPurchaseOrdersChanged $event) => $event->agentOrganisationId === $orgAgent->agent->organisation_id
+        && ($event->newPurchaseOrder['reference'] ?? null) === $lineOne->purchaseOrder->reference);
 
     StoreAgentOrderLine::make()->action($orgAgent, $reference, $orgSupplierProductTwo, ['quantity_ordered' => 20]);
     expect(fn () => StoreAgentOrderLine::make()->action($orgAgent, $reference, $orgSupplierProductOne, ['quantity_ordered' => 5]))

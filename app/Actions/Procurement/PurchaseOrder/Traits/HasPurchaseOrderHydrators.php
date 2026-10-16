@@ -15,6 +15,7 @@ use App\Actions\SupplyChain\Agent\Hydrators\AgentHydratePurchaseOrders;
 use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydratePurchaseOrders;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePurchaseOrders;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePurchaseOrders;
+use App\Events\BroadcastAgentIncomingPurchaseOrdersChanged;
 use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
@@ -36,6 +37,7 @@ trait HasPurchaseOrderHydrators
         } elseif (class_basename($parent) == 'OrgPartner') {
             OrgPartnerHydratePurchaseOrders::dispatch($parent)->afterCommit();
         }
+        BroadcastAgentIncomingPurchaseOrdersChanged::dispatchFor($purchaseOrder);
         GroupHydratePurchaseOrders::dispatch($purchaseOrder->group)->afterCommit();
         OrganisationHydratePurchaseOrders::dispatch($purchaseOrder->organisation)->afterCommit();
     }

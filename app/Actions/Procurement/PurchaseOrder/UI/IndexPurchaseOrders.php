@@ -41,6 +41,7 @@ use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -59,6 +60,8 @@ class IndexPurchaseOrders extends OrgAction
     private Group|Organisation|OrgAgent|OrgSupplier|OrgPartner|OrgStock|OrgSupplierProduct|Supplier|StockDelivery $parent;
 
     private ?PurchaseOrder $wholeAgentOrderOf = null;
+
+    private bool $onlyIncoming = false;
 
     public function inWholeAgentOrderOf(PurchaseOrder $purchaseOrder): static
     {
@@ -232,6 +235,10 @@ class IndexPurchaseOrders extends OrgAction
             $query->whereIn('purchase_orders.id', $this->wholeAgentOrderOf->wholeAgentOrder()->select('id'));
         }
 
+        if ($this->onlyIncoming) {
+            $query->where(fn (Builder $query) => GetAgentIncomingPurchaseOrdersCount::whereIncoming($query));
+        }
+
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
             $query->whereElementGroup(
                 key: $key,
@@ -358,6 +365,13 @@ class IndexPurchaseOrders extends OrgAction
         return $this->handle($organisation);
     }
 
+    public function inAgentIncoming(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->onlyIncoming = true;
+
+        return $this->asController($organisation, $request);
+    }
+
     public function inGroup(ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = group();
@@ -424,7 +438,13 @@ class IndexPurchaseOrders extends OrgAction
         $subNavigation = null;
         $actions       = [];
 
-        if ($this->parent instanceof OrgAgent) {
+        if ($this->onlyIncoming) {
+            $title = __('Incoming POs');
+            $icon  = [
+                'icon'  => ['fal', 'fa-paper-plane'],
+                'title' => __('Purchase orders submitted by clients and not confirmed yet'),
+            ];
+        } elseif ($this->parent instanceof OrgAgent) {
             $title         = $this->parent->agent->organisation->name;
             $icon          = [
                 'icon'  => ['fal', 'fa-people-arrows'],
@@ -559,6 +579,22 @@ class IndexPurchaseOrders extends OrgAction
                             'icon'  => 'fal fa-bars',
                             'route' => [
                                 'name'       => 'grp.org.procurement.purchase_orders.index',
+                                'parameters' => $routeParameters,
+                            ],
+                        ]
+                    ]
+                ]
+            ),
+            'grp.org.agent.incoming_purchase_orders.index' => array_merge(
+                ShowProcurementDashboard::make()->getBreadcrumbs($routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'label' => __('Incoming POs'),
+                            'icon'  => 'fal fa-paper-plane',
+                            'route' => [
+                                'name'       => 'grp.org.agent.incoming_purchase_orders.index',
                                 'parameters' => $routeParameters,
                             ],
                         ]
