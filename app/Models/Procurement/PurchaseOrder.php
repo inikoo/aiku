@@ -344,6 +344,14 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
     }
 
     /**
+     * Once the supplier is making the goods, its lines are no longer cancelled from the order.
+     */
+    public function hasProductionStarted(): bool
+    {
+        return $this->production_started_at !== null || $this->sample_approved_at !== null || $this->produced_at !== null;
+    }
+
+    /**
      * The org agent this order was placed through. Read from the order, not from its supplier, which
      * may have moved to another agent or become independent since.
      */

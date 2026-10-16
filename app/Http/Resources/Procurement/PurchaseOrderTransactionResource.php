@@ -101,6 +101,10 @@ class PurchaseOrderTransactionResource extends JsonResource
 
     private function isCancellable(PurchaseOrderTransaction $transaction): bool
     {
+        if ($transaction->purchaseOrder?->hasProductionStarted()) {
+            return false;
+        }
+
         return match ($transaction->state) {
             PurchaseOrderTransactionStateEnum::SUBMITTED => true,
             PurchaseOrderTransactionStateEnum::CONFIRMED => !$transaction->is_on_delivery,

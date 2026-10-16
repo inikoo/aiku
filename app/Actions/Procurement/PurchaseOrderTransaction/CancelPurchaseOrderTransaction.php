@@ -31,6 +31,10 @@ class CancelPurchaseOrderTransaction extends OrgAction
             $purchaseOrder = PurchaseOrder::whereKey($purchaseOrder->id)->lockForUpdate()->first();
             $purchaseOrderTransaction->refresh();
 
+            if ($purchaseOrder->hasProductionStarted()) {
+                abort(422, __('The supplier is already making this order: its items can no longer be cancelled'));
+            }
+
             if ($purchaseOrderTransaction->state === PurchaseOrderTransactionStateEnum::CONFIRMED) {
                 $isOnDelivery = $purchaseOrder->purchaseOrderTransactions()
                     ->whereKey($purchaseOrderTransaction->id)
