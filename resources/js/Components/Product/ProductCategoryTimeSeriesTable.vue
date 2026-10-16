@@ -235,7 +235,7 @@ const getIntervalStateColor = (isPositive: boolean) => {
                             <th class="py-1 pr-2 text-right font-medium">{{ ctrans('Invoices') }}</th>
                             <th class="py-1 pr-2 text-right font-medium">{{ ctrans('Refunds') }}</th>
                             <th class="py-1 pr-2 text-right font-medium">{{ ctrans('Customers') }}</th>
-                            <th class="py-1 pr-2 text-right font-medium">{{ ctrans('Total customers') }}</th>
+                            <th v-if="organisationRows[recordAt(item.rowIndex).id][0].total_customers !== undefined" class="py-1 pr-2 text-right font-medium">{{ ctrans('Total customers') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
@@ -259,7 +259,7 @@ const getIntervalStateColor = (isPositive: boolean) => {
                                 {{ locale.number(organisation.refunds) }}
                             </td>
                             <td class="py-1 pr-2 text-right tabular-nums text-gray-700">{{ locale.number(organisation.customers_invoiced) }}</td>
-                            <td class="py-1 pr-2 text-right tabular-nums text-gray-500">{{ locale.number(organisation.total_customers) }}</td>
+                            <td v-if="organisation.total_customers !== undefined" class="py-1 pr-2 text-right tabular-nums text-gray-500">{{ locale.number(organisation.total_customers) }}</td>
                         </tr>
                     </tbody>
                 </table>
