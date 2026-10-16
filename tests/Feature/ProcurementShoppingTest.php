@@ -1485,7 +1485,10 @@ test('UI agent drafts to send', function () {
 test('UI agent drafts to send remembers the view the user picked', function () {
     $url = route('grp.org.procurement.org_agents.show.shopping.drafts.index', [$this->organisation->slug, $this->orgAgent->slug]);
 
-    $this->get($url.'?view=cards')->assertInertia(fn (AssertableInertia $page) => $page->where('tabs.current', 'cards')->where('lines', []));
+    $this->get($url.'?view=cards')->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('tabs.current', 'cards')
+        ->missing('lines')
+        ->reloadOnly('lines', fn (AssertableInertia $reload) => $reload->has('lines')));
 
     $this->get($url.'?view=orders')->assertInertia(fn (AssertableInertia $page) => $page
         ->where('tabs.current', 'orders')
