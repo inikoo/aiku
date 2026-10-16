@@ -117,6 +117,41 @@ class IndexMasterProducts extends OrgAction
         ];
     }
 
+    /**
+     * @return array{total: int, active: int, discontinued: int, incomplete: int}|null
+     */
+    public function getProductStats(Group|MasterShop|MasterProductCategory $parent): ?array
+    {
+        if ($parent instanceof Group) {
+            return null;
+        }
+
+        $query = MasterAsset::query();
+
+        if ($parent instanceof MasterShop) {
+            $query->where('master_assets.master_shop_id', $parent->id);
+        } else {
+            $query->where(match ($parent->type) {
+                MasterProductCategoryTypeEnum::FAMILY     => 'master_assets.master_family_id',
+                MasterProductCategoryTypeEnum::DEPARTMENT => 'master_assets.master_department_id',
+                default                                   => 'master_assets.master_sub_department_id',
+            }, $parent->id);
+
+            if ($parent->type != MasterProductCategoryTypeEnum::FAMILY) {
+                $query->where('master_assets.is_main', true);
+            }
+        }
+
+        GetMasterProductChecklist::make()->whereIncomplete($query);
+
+        return [
+            'total'        => $parent->stats->number_master_assets,
+            'active'       => $parent->stats->number_current_master_assets,
+            'discontinued' => $parent->stats->number_master_assets - $parent->stats->number_current_master_assets,
+            'incomplete'   => $query->count(),
+        ];
+    }
+
     public function handle(Group|MasterShop|MasterProductCategory $parent, $prefix = null, $filterInVariant = null, $sortByIndex = false): Collection|LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -135,7 +170,7 @@ class IndexMasterProducts extends OrgAction
         $isBulkEditTab = $prefix === MasterProductsTabsEnum::BULK_EDIT->value;
 
         $queryBuilder = QueryBuilder::for(MasterAsset::class)
-            ->with(['products.shop'])
+            ->with(['products.shop', 'products.webpage'])
             ->leftJoin(
                 'master_asset_stats',
                 'master_assets.id',
@@ -251,6 +286,10 @@ class IndexMasterProducts extends OrgAction
 
         $queryBuilder->select($selects);
 
+        if ($prefix === MasterProductsTabsEnum::INDEX->value) {
+            GetMasterProductChecklist::make()->addSelects($queryBuilder);
+        }
+
         /** The Info cell shows the trade unit composition, same as the pricing tab. */
         if ($isBulkEditTab) {
             $queryBuilder->selectSub(
@@ -344,6 +383,7 @@ class IndexMasterProducts extends OrgAction
             ->allowedSorts([
                 'code',
                 'name',
+                'price',
                 'used_in',
                 'sales_grp_currency_external',
                 'invoices',
@@ -449,8 +489,13 @@ class IndexMasterProducts extends OrgAction
                     ->column(key: 'sales_grp_currency_external_delta', label: __('Δ 1Y'), canBeHidden: false, align: 'right')
                     ->column(key: 'health_rank', label: __('Health'), canBeHidden: false, sortable: !$sortByIndex, type: 'icon');
             } else {
+                $isIndexTab = $prefix === MasterProductsTabsEnum::INDEX->value;
+
+                if (!$isIndexTab) {
+                    $table->column(key: 'status_icon', label: '', type: 'icon');
+                }
+
                 $table
-                    ->column(key: 'status_icon', label: '', type: 'icon')
                     ->column(key: 'image_thumbnail', label: '', type: 'avatar')
                     ->column(key: 'code', label: __('Code'), sortable: !$sortByIndex);
                 $table->column(key: 'variant_slug', label: 'Variant', sortable: !$sortByIndex);
@@ -465,6 +510,15 @@ class IndexMasterProducts extends OrgAction
                         ->column(key: 'master_department_code', label: __('M. Department'), sortable: !$sortByIndex)
                         ->column(key: 'master_sub_department_code', label: __('M. Sub-department'), sortable: !$sortByIndex)
                         ->column(key: 'master_family_code', label: __('M. Family'), sortable: !$sortByIndex);
+                }
+
+                if ($isIndexTab) {
+                    $table
+                        ->column(key: 'price', label: __('Price'), sortable: !$sortByIndex, align: 'right')
+                        ->column(key: 'stock', label: __('Stock'), tooltip: __('Stock available in the open shops, each organisation counted once'), align: 'right')
+                        ->column(key: 'status', label: __('Status'))
+                        ->column(key: 'workflow', label: __('Workflow'))
+                        ->column(key: 'checklist', label: __('Checklist'));
                 }
 
                 $table
@@ -655,6 +709,7 @@ class IndexMasterProducts extends OrgAction
                 'editable_table'          => false,
                 'shopsData'               => $shopsData,
                 'hide_bulk_edit'          => false,
+                'productStats'            => fn () => $this->getProductStats($this->parent),
                 'taxPresetOptions'        => $this->getTaxPresetOptions([]),
                 'tabs' => [
                     'current'    => $this->tab,

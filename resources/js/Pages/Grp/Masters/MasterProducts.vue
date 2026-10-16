@@ -29,6 +29,7 @@ import { useTabChange } from '@/Composables/tab-change'
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import ListSelector from "@/Components/DepartmentAndFamily/ListSelector.vue"
 import SetOrderingPositionOfProduct from "@/Components/Master/SetOrderingPositionOfProduct.vue";
+import SummaryCards, { type SummaryCard } from "@/Components/DataDisplay/SummaryCards.vue"
 
 
 library.add(faShapes, faSortAmountDownAlt, faBrowser, faSortAmountDown, faHome, faPlus, faMoneyBill)
@@ -61,7 +62,21 @@ const props = defineProps<{
     pricingMajorCurrencies?: string[]
     pricingCurrencies?: Record<string, any>
     pricingCostRates?: Record<string, number | null>
+    productStats?: { total: number, active: number, discontinued: number, incomplete: number } | null
 }>()
+
+const summaryCards = computed<SummaryCard[]>(() => {
+    if (!props.productStats) {
+        return []
+    }
+
+    return [
+        { key: "total", value: props.productStats.total, label: ctrans("Products"), description: ctrans("All master products"), tone: "accent" },
+        { key: "active", value: props.productStats.active, label: ctrans("Active"), description: ctrans("Product status"), tone: "green" },
+        { key: "discontinued", value: props.productStats.discontinued, label: ctrans("Discontinued"), description: ctrans("Product status"), tone: "gray" },
+        { key: "incomplete", value: props.productStats.incomplete, label: ctrans("Incomplete information"), description: ctrans("Products with missing product information"), tone: "red" },
+    ]
+})
 
 const currentTab = ref<string>(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
@@ -300,8 +315,7 @@ watch(() => currentTab.value, (tab) => {
                     icon="fal fa-plus"
                     @click="isModalOpen.products.value = true"
                     :tooltip="ctrans('Attach products to this collections')"
-                />
-                <!-- Modal: Product -->
+                />                
                 <Modal
                     :isOpen="isModalOpen.products.value"
                     @onClose="isModalOpen.products.value = false"
@@ -327,6 +341,8 @@ watch(() => currentTab.value, (tab) => {
     </PageHeading>
 
     <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
+
+    <SummaryCards v-if="currentTab === 'index' && summaryCards.length" :cards="summaryCards" class="px-4 pt-4" />
 
     <!-- Products Table -->
     <component

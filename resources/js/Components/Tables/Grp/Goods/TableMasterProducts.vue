@@ -16,13 +16,14 @@ import { RouteParams } from "@/types/route-params"
 import InputNumber from "primevue/inputnumber"
 import { faPlus } from "@far"
 import { faWarning, faXmark } from "@fortawesome/free-solid-svg-icons"
-import { faCheck, faMinus, faTimes } from "@fal"
+import { faMinus } from "@fal"
 import { ctrans } from "@/Composables/useTrans"
 import ProductUnitLabel from "@/Components/Utils/Label/ProductUnitLabel.vue"
 import Image from "@common/Components/Image.vue"
 import { faShapes, faStar, faTriangle, faEquals } from "@fas"
 import { routeType } from "@/types/route"
 import LabelSKU from "@/Components/Utils/Product/LabelSKU.vue"
+import WorkflowSteps from "@/Components/DataDisplay/WorkflowSteps.vue"
 
 const props = defineProps<{
     data: {}
@@ -269,8 +270,48 @@ const getIntervalStateColor = (isPositive: boolean) => {
             </div>
         </template>
         <template #cell(status)="{ item: masterProduct }">
-            <FontAwesomeIcon v-if="masterProduct.status" :icon="faCheck" :class="'text-green-500'" v-tooltip="ctrans('Active')" fixed-width />
-            <FontAwesomeIcon v-else :icon="faTimes" :class="'text-red-500'" v-tooltip="ctrans('Inactive')" fixed-width />
+            <span
+                class="whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium"
+                :class="masterProduct.status ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600'"
+            >
+                {{ masterProduct.status ? ctrans("Active") : ctrans("Discontinued") }}
+            </span>
+        </template>
+
+        <template #cell(stock)="{ item: masterProduct }">
+            <span v-if="masterProduct.stock === null || masterProduct.stock === undefined" class="text-gray-400">-</span>
+            <span v-else class="tabular-nums" :class="masterProduct.stock > 0 ? 'text-gray-700' : 'font-medium text-red-600'">
+                {{ locale.number(masterProduct.stock) }}
+            </span>
+        </template>
+
+        <template #cell(workflow)="{ item: masterProduct }">
+            <WorkflowSteps v-if="masterProduct.workflow" :steps="masterProduct.workflow.steps" :current="masterProduct.workflow.current" compact />
+        </template>
+
+        <template #cell(checklist)="{ item: masterProduct }">
+            <div v-if="masterProduct.checklist" class="min-w-[14rem] max-w-md">
+                <div class="flex items-center gap-2">
+                    <div class="flex gap-px">
+                        <span
+                            v-for="checklistItem in masterProduct.checklist.items"
+                            :key="checklistItem.key"
+                            v-tooltip="checklistItem.label"
+                            class="h-2.5 w-2 rounded-sm"
+                            :class="checklistItem.done ? 'bg-green-500' : 'bg-red-500'"
+                        />
+                    </div>
+                    <span
+                        class="text-sm font-semibold tabular-nums"
+                        :class="masterProduct.checklist.missing.length ? 'text-red-700' : 'text-green-700'"
+                    >
+                        {{ masterProduct.checklist.complete }}/{{ masterProduct.checklist.total }}
+                    </span>
+                </div>
+                <div v-if="masterProduct.checklist.missing.length" class="mt-0.5 text-xs font-medium text-red-700">
+                    {{ ctrans("Missing: :items", { items: masterProduct.checklist.missing.join(", ") }) }}
+                </div>
+            </div>
         </template>
 
         <template #cell(master_shop_code)="{ item: masterProduct }">

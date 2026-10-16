@@ -45,6 +45,7 @@ import { faWarning } from "@fortawesome/free-solid-svg-icons"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 import { createReusableTemplate } from "@vueuse/core"
 import { Disclosure, DisclosureButton } from "@headlessui/vue"
+import MasterProductCompleteness, { type MasterProductCompletenessData } from "@/Components/Masters/MasterProductCompleteness.vue"
 
 
 library.add(
@@ -84,6 +85,7 @@ const props = defineProps<{
 	data: {
 		rebel_prices  : {},
         rebel_rrp : {}
+		completeness?: MasterProductCompletenessData
 		majorCurrencies?: string[]
 		pricingCosts?: Record<string, number | null> | null
 		availability_status: {
@@ -388,6 +390,8 @@ const isModalProductForSale = ref(false)
 			</div>
 		</Disclosure>
 	</DefineMasterPriceBlock>
+
+	<MasterProductCompleteness v-if="data.completeness" :completeness="data.completeness" class="mx-3 mt-3 lg:ml-5" />
 
 	<div class="w-full pl-4 pr-3 py-3 mb-3 shadow-sm grid grid-cols-2">
 		<div class="text-xl font-semibold text-gray-800 whitespace-pre-wrap justify-self-start">

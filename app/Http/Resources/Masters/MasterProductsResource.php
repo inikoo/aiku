@@ -10,6 +10,8 @@
 namespace App\Http\Resources\Masters;
 
 use App\Actions\Goods\TradeUnit\UI\GetTradeUnitShowcase;
+use App\Actions\Masters\MasterAsset\UI\GetMasterProductChecklist;
+use App\Actions\Masters\MasterAsset\UI\GetMasterProductWorkflow;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Http\Resources\HasSelfCall;
 use App\Models\Masters\MasterAsset;
@@ -132,6 +134,9 @@ class MasterProductsResource extends JsonResource
             'mismatch_detected'                 => $this->mismatch_detected,
             'health_rank'                       => $this->health_rank ? $this->health_rank->stateIcon()[$this->health_rank->value] : null,
             'index_under_master_family'         => $this->index_under_master_family ?? null,
+            'stock'                             => GetMasterProductWorkflow::make()->stock($masterAsset),
+            'workflow'                          => GetMasterProductWorkflow::run($masterAsset),
+            'checklist'                         => GetMasterProductChecklist::run($masterAsset),
             ...$extraField
         ];
     }
