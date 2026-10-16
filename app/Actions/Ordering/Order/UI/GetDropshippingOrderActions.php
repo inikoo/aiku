@@ -67,7 +67,7 @@ class GetDropshippingOrderActions
                                 'icon'    => ['fal', 'fa-upload'],
                                 'label'   => '',
                                 'key'     => 'upload',
-                                'tooltip' => __('Upload pallets via spreadsheet'),
+                                'tooltip' => __('Upload products via spreadsheet'),
                             ],
                         ],
                     ] : [],
