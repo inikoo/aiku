@@ -14,6 +14,7 @@ use App\Actions\OrgAction;
 use App\Actions\Production\JobOrderItemTask\CalculateJobOrderItemTaskQuantities;
 use App\Actions\Production\JobOrderItemTask\SettleShortJobOrderItemTask;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
+use App\Events\BroadcastManufactureFloorChanged;
 use App\Enums\Production\Artisan\ArtisanPayTypeEnum;
 use App\Enums\Production\ManufactureTask\ManufactureTaskOperativeRewardTermsEnum;
 use App\Enums\Production\JobOrderItemTask\JobOrderItemTaskStateEnum;
@@ -132,10 +133,33 @@ class CloseManufactureTaskSession extends OrgAction
                 }
             }
 
+            if ($this->isLeftOverFromOldRecipe($session, $task)) {
+                $session->delete();
+                $task->delete();
+                BroadcastManufactureFloorChanged::dispatch($session->production_id);
+
+                return $session;
+            }
+
             CalculateManufactureTaskSessionPay::run($session);
 
             return $session;
         });
+    }
+
+    /**
+     * A session left open on a step while the recipe dropped that step, and closed with nothing made, is the only
+     * thing keeping the step on the job, so both go and the job holds just the recipe it has now.
+     */
+    private function isLeftOverFromOldRecipe(ManufactureTaskSession $session, JobOrderItemTask $task): bool
+    {
+        return !$session->is_combined
+            && (float) $session->quantity_made == 0
+            && (float) $task->quantity_made == 0
+            && $task->combined_task_id === null
+            && $task->jobOrderItem->artefact->manufactureTasks()->whereKey($task->manufacture_task_id)->doesntExist()
+            && $task->sessions()->whereKeyNot($session->id)->doesntExist()
+            && $task->sessionShares()->doesntExist();
     }
 
     /**
