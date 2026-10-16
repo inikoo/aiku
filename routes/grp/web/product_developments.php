@@ -8,6 +8,7 @@
 */
 
 use App\Actions\Goods\ProductDevelopment\Json\SearchProductDevelopmentOptions;
+use App\Actions\Goods\ProductDevelopment\Json\SearchProductDevelopmentSupplierProducts;
 use App\Actions\Goods\ProductDevelopment\UI\CreateProductDevelopment;
 use App\Actions\Goods\ProductDevelopment\UI\IndexProductDevelopments;
 use App\Actions\Goods\ProductDevelopment\UI\ShowProductDevelopment;
@@ -18,4 +19,5 @@ Route::get('/', IndexProductDevelopments::class)->name('index');
 Route::get('/board', ShowProductDevelopmentsBoard::class)->name('board');
 Route::get('/create', CreateProductDevelopment::class)->name('create');
 Route::get('/json/{scope}', SearchProductDevelopmentOptions::class)->name('json.search')->whereIn('scope', SearchProductDevelopmentOptions::SCOPES);
+Route::get('/{productDevelopment:slug}/json/supplier-products', SearchProductDevelopmentSupplierProducts::class)->name('json.supplier_products');
 Route::get('/{productDevelopment:slug}', ShowProductDevelopment::class)->name('show');

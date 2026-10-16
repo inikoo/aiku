@@ -11,6 +11,7 @@ namespace App\Actions\Goods\ProductDevelopment;
 
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentMemberRoleEnum;
 use App\Models\Goods\ProductDevelopment;
+use App\Models\Goods\ProductDevelopmentChecklistItem;
 use App\Models\Goods\ProductDevelopmentMember;
 use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\User;
@@ -107,6 +108,21 @@ class ProductDevelopmentAccess
             || $this->isMember($user, $productDevelopment)
             || $this->isAgentOf($user, $productDevelopment)
             || ($this->isStaff($user) && $user->authTo('goods.edit'));
+    }
+
+    public function canEditChecklistItem(User $user, ProductDevelopmentChecklistItem $checklistItem): bool
+    {
+        $productDevelopment = $checklistItem->productDevelopment;
+
+        if ($this->canEdit($user, $productDevelopment)) {
+            return true;
+        }
+
+        if (in_array($checklistItem->role, $this->memberRoles($user, $productDevelopment), true)) {
+            return true;
+        }
+
+        return $checklistItem->role === ProductDevelopmentMemberRoleEnum::AGENT && $this->isAgentOf($user, $productDevelopment);
     }
 
     public function restrictToVisible(Builder $query, User $user): Builder

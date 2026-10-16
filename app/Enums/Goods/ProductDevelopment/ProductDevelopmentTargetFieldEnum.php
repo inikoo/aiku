@@ -32,7 +32,6 @@ enum ProductDevelopmentTargetFieldEnum: string
     case TRADE_UNIT_GPSR_EU_RESPONSIBLE   = 'trade_unit.gpsr_eu_responsible';
     case TRADE_UNIT_GPSR_WARNINGS         = 'trade_unit.gpsr_warnings';
     case TRADE_UNIT_GPSR_CLASS_LANGUAGES  = 'trade_unit.gpsr_class_languages';
-    case TRADE_UNIT_COST_PRICE            = 'trade_unit.cost_price';
 
     case SUPPLIER_PRODUCT_UNITS_PER_PACK   = 'supplier_product.units_per_pack';
     case SUPPLIER_PRODUCT_UNITS_PER_CARTON = 'supplier_product.units_per_carton';
@@ -59,7 +58,6 @@ enum ProductDevelopmentTargetFieldEnum: string
             'trade_unit.gpsr_eu_responsible'            => __('GPSR EU responsible'),
             'trade_unit.gpsr_warnings'                  => __('GPSR warnings'),
             'trade_unit.gpsr_class_languages'           => __('GPSR languages'),
-            'trade_unit.cost_price'                     => __('Cost price'),
             'supplier_product.units_per_pack'           => __('Units per pack'),
             'supplier_product.units_per_carton'         => __('Units per carton'),
             'supplier_product.cbm'                      => __('Carton CBM'),
@@ -81,7 +79,7 @@ enum ProductDevelopmentTargetFieldEnum: string
 
     public function isCost(): bool
     {
-        return in_array($this, [self::TRADE_UNIT_COST_PRICE, self::SUPPLIER_PRODUCT_COST], true);
+        return $this === self::SUPPLIER_PRODUCT_COST;
     }
 
     public function isFilledOn(TradeUnit $tradeUnit, ?SupplierProduct $supplierProduct): bool
@@ -91,6 +89,40 @@ enum ProductDevelopmentTargetFieldEnum: string
             return false;
         }
 
-        return filled($model->getAttribute($this->column()));
+        $value = $model->getAttribute($this->column());
+
+        if ($this === self::TRADE_UNIT_MARKETING_DIMENSIONS) {
+            return collect(is_array($value) ? $value : [])->only(['h', 'l', 'w'])->filter(fn ($measure) => (float) $measure > 0)->isNotEmpty();
+        }
+
+        return filled($value);
+    }
+
+    public function inputType(): string
+    {
+        return match ($this) {
+            self::TRADE_UNIT_NET_WEIGHT, self::TRADE_UNIT_GROSS_WEIGHT, self::SUPPLIER_PRODUCT_UNITS_PER_PACK,
+            self::SUPPLIER_PRODUCT_UNITS_PER_CARTON, self::SUPPLIER_PRODUCT_CARTON_WEIGHT, self::SUPPLIER_PRODUCT_LEAD_TIME => 'integer',
+            self::SUPPLIER_PRODUCT_CBM, self::SUPPLIER_PRODUCT_COST => 'decimal',
+            self::TRADE_UNIT_MARKETING_DIMENSIONS => 'dimensions',
+            self::TRADE_UNIT_ORIGIN_COUNTRY => 'country',
+            self::TRADE_UNIT_MARKETING_INGREDIENTS, self::TRADE_UNIT_GPSR_WARNINGS, self::TRADE_UNIT_GPSR_MANUFACTURER, self::TRADE_UNIT_GPSR_EU_RESPONSIBLE => 'textarea',
+            default => 'text',
+        };
+    }
+
+    public function unit(): ?string
+    {
+        return match ($this) {
+            self::TRADE_UNIT_NET_WEIGHT, self::TRADE_UNIT_GROSS_WEIGHT, self::SUPPLIER_PRODUCT_CARTON_WEIGHT => 'g',
+            self::SUPPLIER_PRODUCT_CBM => 'm³',
+            self::SUPPLIER_PRODUCT_LEAD_TIME => __('days'),
+            default => null,
+        };
+    }
+
+    public function writesTo(): string
+    {
+        return $this->isOnSupplierProduct() ? 'supplier_product' : 'trade_unit';
     }
 }

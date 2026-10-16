@@ -9,14 +9,9 @@
 
 namespace App\Actions\Goods\ProductDevelopment\UI;
 
-use App\Enums\Goods\ProductDevelopment\ProductDevelopmentChecklistItemStateEnum;
-use App\Enums\Goods\ProductDevelopment\ProductDevelopmentChecklistLevelEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentMemberRoleEnum;
-use App\Enums\Goods\ProductDevelopment\ProductDevelopmentTargetFieldEnum;
 use App\Enums\Goods\TradeUnit\TradeUnitMarketEnum;
 use App\Models\Goods\ProductDevelopment;
-use App\Models\Goods\ProductDevelopmentChecklistItem;
-use App\Models\Goods\ProductDevelopmentItem;
 use App\Models\Goods\ProductDevelopmentMember;
 use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -25,14 +20,11 @@ class GetProductDevelopmentTabData
 {
     use AsAction;
 
-    private bool $canSeeCosts = true;
-
     /**
      * @return array<string, mixed>
      */
-    public function brief(ProductDevelopment $productDevelopment, ?User $viewer = null, bool $canSeeCosts = true): array
+    public function brief(ProductDevelopment $productDevelopment, ?User $viewer = null): array
     {
-        $this->canSeeCosts = $canSeeCosts;
         $canOpenProfiles = (bool) $viewer?->authTo('sysadmin.view');
         $roleLabels   = ProductDevelopmentMemberRoleEnum::labels();
         $marketLabels = TradeUnitMarketEnum::labels();
@@ -61,53 +53,6 @@ class GetProductDevelopmentTabData
                 ])
                 ->values()
                 ->all(),
-            'checklist'           => $this->checklistRows(
-                $productDevelopment->checklistItems()
-                    ->where('level', ProductDevelopmentChecklistLevelEnum::FAMILY->value)
-                    ->orderBy('id')
-                    ->get()
-            ),
         ];
-    }
-
-    /**
-     * @return array<int, array<string, mixed>>
-     */
-    public function compliance(ProductDevelopment $productDevelopment, bool $canSeeCosts = true): array
-    {
-        $this->canSeeCosts = $canSeeCosts;
-        $productDevelopment->load(['items.tradeUnit']);
-        $checklistItems = $productDevelopment->checklistItems()
-            ->where('role', ProductDevelopmentMemberRoleEnum::COMPLIANCE->value)
-            ->orderBy('id')
-            ->get()
-            ->groupBy('product_development_item_id');
-
-        return $productDevelopment->items->map(fn (ProductDevelopmentItem $item) => [
-            'code'      => $item->tradeUnit->code,
-            'name'      => $item->tradeUnit->name,
-            'checklist' => $this->checklistRows($checklistItems->get($item->id, collect())),
-        ])->values()->all();
-    }
-
-    /**
-     * @return array<int, array<string, mixed>>
-     */
-    private function checklistRows($checklistItems): array
-    {
-        $roleLabels  = ProductDevelopmentMemberRoleEnum::labels();
-        $stateLabels = ProductDevelopmentChecklistItemStateEnum::labels();
-
-        return collect($checklistItems)
-            ->reject(fn (ProductDevelopmentChecklistItem $checklistItem) => !$this->canSeeCosts && (bool) ProductDevelopmentTargetFieldEnum::tryFrom((string) $checklistItem->target_field)?->isCost())
-            ->map(fn (ProductDevelopmentChecklistItem $checklistItem) => [
-            'id'          => $checklistItem->id,
-            'label'       => $checklistItem->label,
-            'role'        => $roleLabels[$checklistItem->role->value],
-            'required'    => $checklistItem->required,
-            'state'       => $checklistItem->state->value,
-            'state_label' => $stateLabels[$checklistItem->state->value],
-            'na_reason'   => $checklistItem->na_reason,
-        ])->values()->all();
     }
 }

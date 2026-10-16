@@ -14,7 +14,9 @@ use App\Actions\Goods\ProductDevelopment\GetProductDevelopmentStageGate;
 use App\Actions\Goods\ProductDevelopment\SendProductDevelopmentReminders;
 use App\Actions\Goods\ProductDevelopment\Hydrators\ProductDevelopmentHydrateChecklist;
 use App\Actions\Goods\ProductDevelopment\MoveProductDevelopmentToNextStage;
+use App\Actions\Goods\ProductDevelopment\LinkProductDevelopmentSupplierProduct;
 use App\Actions\Goods\ProductDevelopment\StoreProductDevelopment;
+use App\Actions\Goods\ProductDevelopment\UpdateProductDevelopmentChecklistItem;
 use App\Actions\Goods\ProductDevelopment\SyncProductDevelopmentMembers;
 use App\Actions\Goods\ProductDevelopment\UploadProductDevelopmentFiles;
 use App\Actions\Goods\ProductDevelopment\UI\GetProductDevelopmentActivity;
@@ -535,4 +537,90 @@ test('a role task waits for someone holding the role, then later holders join as
     expect($task->assignee_id)->toBe($firstAgent->id)
         ->and($task->collaborators()->pluck('users.id')->all())->toContain($secondAgent->id)
         ->and(developmentTasks($productDevelopment)->filter(fn ($row) => $row->data['product_development_event'] === CreateProductDevelopmentTask::SPECS))->toHaveCount(1);
+});
+
+function developmentWithSupplier(object $test, array $members = []): ProductDevelopment
+{
+    $agent    = \App\Actions\SupplyChain\Agent\StoreAgent::make()->action($test->group, \App\Models\SupplyChain\Agent::factory()->definition());
+    $supplier = \App\Actions\SupplyChain\Supplier\StoreSupplier::make()->action($agent, \App\Models\SupplyChain\Supplier::factory()->definition());
+
+    return StoreProductDevelopment::make()->action($test->group, $test->user, [
+        'name'        => 'Checklist check '.Str::upper(Str::random(5)),
+        'type'        => 'new',
+        'supplier_id' => $supplier->id,
+        'members'     => $members,
+        'items'       => [['code' => 'CL-'.Str::upper(Str::random(5)), 'name' => 'Checklist SKU']],
+    ]);
+}
+
+test('saving a spec item writes the real trade unit field and records who saved it', function () {
+    $agent              = newGuestUser($this);
+    $productDevelopment = storeDevelopmentWithNewSkus($this, 1);
+    \App\Actions\Goods\ProductDevelopment\SyncProductDevelopmentMembers::make()->action($productDevelopment, ['members' => [['user_id' => $agent->id, 'role' => 'agent']]]);
+    $item         = $productDevelopment->items->first();
+    $netWeight    = $productDevelopment->checklistItems()->where('product_development_item_id', $item->id)->where('key', 'trade_unit.net_weight')->first();
+    $missingBefore = $productDevelopment->stats->fresh()->number_required_missing;
+
+    actingAs($agent);
+    patch(route('grp.models.product_development.checklist_item.update', ['productDevelopmentChecklistItem' => $netWeight->id]), ['operation' => 'save', 'value' => 250])->assertRedirect();
+
+    expect($item->tradeUnit->fresh()->net_weight)->toBe(250)
+        ->and($netWeight->fresh()->state)->toBe(ProductDevelopmentChecklistItemStateEnum::COMPLETE)
+        ->and($netWeight->fresh()->completed_by_id)->toBe($agent->id)
+        ->and($productDevelopment->stats->fresh()->number_required_missing)->toBe($missingBefore - 1);
+
+    $compliance = $productDevelopment->checklistItems()->where('role', 'compliance')->first();
+    patch(route('grp.models.product_development.checklist_item.update', ['productDevelopmentChecklistItem' => $compliance->id]), ['operation' => 'save', 'value' => '3406'])->assertForbidden();
+});
+
+test('the buyer answers and marks N/A with a reason, then the brief can move on', function () {
+    $productDevelopment = storeDevelopmentWithNewSkus($this, 1);
+    [$first, $second]   = $productDevelopment->checklistItems()->where('role', 'buyer')->orderBy('id')->get()->all();
+
+    UpdateProductDevelopmentChecklistItem::make()->action($first, $this->user, ['operation' => 'save', 'value' => 'Women 25-45, £12-15']);
+    expect(fn () => UpdateProductDevelopmentChecklistItem::make()->action($second, $this->user, ['operation' => 'not_applicable']))->toThrow(ValidationException::class);
+    UpdateProductDevelopmentChecklistItem::make()->action($second, $this->user, ['operation' => 'not_applicable', 'na_reason' => 'Same mood board as the old range']);
+
+    expect($first->fresh()->value)->toBe(['text' => 'Women 25-45, £12-15'])
+        ->and($second->fresh()->state)->toBe(ProductDevelopmentChecklistItemStateEnum::NOT_APPLICABLE)
+        ->and(GetProductDevelopmentStageGate::run($productDevelopment->fresh())['can_move'])->toBeTrue();
+});
+
+test('supplier product fields wait for a linked supplier product, and charges go to the supplier notes', function () {
+    $productDevelopment = developmentWithSupplier($this);
+    $item               = $productDevelopment->items->first();
+    $unitsPerCarton     = $productDevelopment->checklistItems()->where('product_development_item_id', $item->id)->where('key', 'supplier_product.units_per_carton')->first();
+
+    expect(fn () => UpdateProductDevelopmentChecklistItem::make()->action($unitsPerCarton, $this->user, ['operation' => 'save', 'value' => 24]))->toThrow(ValidationException::class);
+
+    LinkProductDevelopmentSupplierProduct::make()->action($item, $this->user, ['code' => 'SP-'.Str::upper(Str::random(6)), 'cost' => 1.25, 'units_per_pack' => 1, 'units_per_carton' => 12]);
+    $item = $item->fresh();
+    expect($item->supplier_product_id)->not->toBeNull()
+        ->and($item->supplierProduct->tradeUnits()->where('trade_units.id', $item->trade_unit_id)->exists())->toBeTrue();
+
+    UpdateProductDevelopmentChecklistItem::make()->action($unitsPerCarton->fresh(), $this->user, ['operation' => 'save', 'value' => 24]);
+    expect($unitsPerCarton->fresh()->state)->toBe(ProductDevelopmentChecklistItemStateEnum::COMPLETE)
+        ->and($item->supplierProduct->fresh()->units_per_carton)->toBe(24);
+
+    $charge      = $productDevelopment->checklistItems()->where('key', 'charge_label_print')->first();
+    $notesBefore = \App\Models\Procurement\ProcurementNote::where('subject_type', 'Supplier')->where('subject_id', $productDevelopment->supplier_id)->count();
+    UpdateProductDevelopmentChecklistItem::make()->action($charge, $this->user, ['operation' => 'save', 'value' => 'USD 0.05 per label, min 5,000']);
+
+    $note = \App\Models\Procurement\ProcurementNote::where('subject_type', 'Supplier')->where('subject_id', $productDevelopment->supplier_id)->latest('id')->first();
+    expect(\App\Models\Procurement\ProcurementNote::where('subject_type', 'Supplier')->where('subject_id', $productDevelopment->supplier_id)->count())->toBe($notesBefore + 1)
+        ->and($note->body)->toContain('USD 0.05 per label');
+});
+
+test('a supplier fixes the agent of a development', function () {
+    $productDevelopment = developmentWithSupplier($this);
+    $otherAgent         = \App\Actions\SupplyChain\Agent\StoreAgent::make()->action($this->group, \App\Models\SupplyChain\Agent::factory()->definition());
+
+    expect($productDevelopment->agent_id)->toBe($productDevelopment->supplier->agent_id)
+        ->and(fn () => StoreProductDevelopment::make()->action($this->group, $this->user, [
+            'name'        => 'Mismatched agent',
+            'type'        => 'new',
+            'supplier_id' => $productDevelopment->supplier_id,
+            'agent_id'    => $otherAgent->id,
+            'items'       => [['code' => 'MA-'.Str::upper(Str::random(5)), 'name' => 'Mismatch SKU']],
+        ]))->toThrow(ValidationException::class);
 });

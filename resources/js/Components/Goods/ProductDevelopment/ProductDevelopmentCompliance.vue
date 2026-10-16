@@ -7,19 +7,25 @@
 
 <script setup lang="ts">
 import { ctrans } from "@/Composables/useTrans"
-import ProductDevelopmentChecklist from "@/Components/Goods/ProductDevelopment/ProductDevelopmentChecklist.vue"
+import ProductDevelopmentSkuChecklist from "@/Components/Goods/ProductDevelopment/ProductDevelopmentSkuChecklist.vue"
+import type { ChecklistEditorData } from "@/Components/Goods/ProductDevelopment/productDevelopmentChecklist"
 
 defineProps<{
-    data: { code: string, name: string, checklist: any[] }[]
+    data: ChecklistEditorData
 }>()
 </script>
 
 <template>
-    <div v-if="data" class="grid gap-4 p-4 md:grid-cols-2 xl:grid-cols-3">
-        <section v-for="sku in data" :key="sku.code" class="rounded-md p-3 ring-1 ring-gray-200">
-            <h3 class="text-sm font-medium text-gray-800">{{ sku.code }} <span class="font-normal text-gray-500">{{ sku.name }}</span></h3>
-            <ProductDevelopmentChecklist :rows="sku.checklist" class="mt-2" />
-        </section>
-        <p v-if="!data.length" class="text-sm text-gray-400">{{ ctrans("No SKUs in this development yet") }}</p>
+    <div v-if="data" class="space-y-3 p-4">
+        <ProductDevelopmentSkuChecklist
+            v-for="sku in data.skus"
+            :key="sku.id"
+            :sku="sku"
+            :rows="sku.rows"
+            :updateRoute="data.routes.update"
+            :countries="data.countries"
+            :defaultOpen="data.skus.length === 1"
+        />
+        <p v-if="!data.skus.length" class="text-sm text-gray-400">{{ ctrans("No SKUs in this development yet") }}</p>
     </div>
 </template>

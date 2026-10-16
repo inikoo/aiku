@@ -62,7 +62,7 @@ class StoreProductDevelopment extends OrgAction
         $items   = Arr::pull($modelData, 'items', []);
         $brandId = Arr::pull($modelData, 'brand_id');
 
-        if (!Arr::get($modelData, 'agent_id') && $supplierId = Arr::get($modelData, 'supplier_id')) {
+        if ($supplierId = Arr::get($modelData, 'supplier_id')) {
             $modelData['agent_id'] = Supplier::find($supplierId)?->agent_id;
         }
 
@@ -272,6 +272,12 @@ class StoreProductDevelopment extends OrgAction
         $online  = $this->get('target_online_date');
         if ($landing && $online && Carbon::parse($online)->lt(Carbon::parse($landing))) {
             $validator->errors()->add('target_online_date', __('The online date cannot be before the landing date'));
+        }
+
+        $supplierId = $this->get('supplier_id');
+        $agentId    = $this->get('agent_id');
+        if ($supplierId && $agentId && (int) Supplier::whereKey($supplierId)->value('agent_id') !== (int) $agentId) {
+            $validator->errors()->add('agent_id', __('This supplier belongs to another agent'));
         }
     }
 

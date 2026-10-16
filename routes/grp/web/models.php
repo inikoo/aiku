@@ -11,6 +11,8 @@ use App\Actions\Goods\ProductDevelopment\StoreProductDevelopment;
 use App\Actions\Goods\ProductDevelopment\StoreProductDevelopmentComment;
 use App\Actions\Goods\ProductDevelopment\SyncProductDevelopmentMembers;
 use App\Actions\Goods\ProductDevelopment\UpdateProductDevelopment;
+use App\Actions\Goods\ProductDevelopment\UpdateProductDevelopmentChecklistItem;
+use App\Actions\Goods\ProductDevelopment\LinkProductDevelopmentSupplierProduct;
 use App\Actions\Goods\ProductDevelopment\UpdateProductDevelopmentStageDueDate;
 use App\Actions\Goods\ProductDevelopment\UploadProductDevelopmentFiles;
 use App\Http\Middleware\EnsureHubPartnerOrderFromShoppingList;
@@ -1989,6 +1991,8 @@ Route::name('product_development.')->prefix('product-development')->group(functi
     Route::post('{productDevelopment:id}/files', UploadProductDevelopmentFiles::class)->name('files.upload')->withoutScopedBindings();
     Route::post('{productDevelopment:id}/comments', StoreProductDevelopmentComment::class)->name('comments.store')->withoutScopedBindings();
     Route::patch('stage/{productDevelopmentStage:id}/due-date', UpdateProductDevelopmentStageDueDate::class)->name('stage.due_date')->withoutScopedBindings();
+    Route::patch('checklist-item/{productDevelopmentChecklistItem:id}', UpdateProductDevelopmentChecklistItem::class)->name('checklist_item.update')->withoutScopedBindings();
+    Route::patch('item/{productDevelopmentItem:id}/supplier-product', LinkProductDevelopmentSupplierProduct::class)->name('item.supplier_product')->withoutScopedBindings();
 });
 
 Route::name('trade_unit_family.')->prefix('trade-unit-family')->group(function () {

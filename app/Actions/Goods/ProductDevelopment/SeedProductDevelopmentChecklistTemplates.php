@@ -76,6 +76,7 @@ class SeedProductDevelopmentChecklistTemplates
             $fieldItem(ProductDevelopmentMemberRoleEnum::AGENT, ProductDevelopmentTargetFieldEnum::SUPPLIER_PRODUCT_CARTON_WEIGHT),
             $fieldItem(ProductDevelopmentMemberRoleEnum::PURCHASING, ProductDevelopmentTargetFieldEnum::SUPPLIER_PRODUCT_COST),
             $fieldItem(ProductDevelopmentMemberRoleEnum::PURCHASING, ProductDevelopmentTargetFieldEnum::SUPPLIER_PRODUCT_LEAD_TIME),
+            ['key' => 'charge_label_print', 'role' => ProductDevelopmentMemberRoleEnum::PURCHASING->value, 'level' => $family, 'label' => __('Agreed label print charge'), 'required' => false],
             $fieldItem(ProductDevelopmentMemberRoleEnum::COMPLIANCE, ProductDevelopmentTargetFieldEnum::TRADE_UNIT_TARIFF_CODE),
             $fieldItem(ProductDevelopmentMemberRoleEnum::COMPLIANCE, ProductDevelopmentTargetFieldEnum::TRADE_UNIT_MARKETING_INGREDIENTS),
             $fieldItem(ProductDevelopmentMemberRoleEnum::COMPLIANCE, ProductDevelopmentTargetFieldEnum::TRADE_UNIT_GPSR_MANUFACTURER),

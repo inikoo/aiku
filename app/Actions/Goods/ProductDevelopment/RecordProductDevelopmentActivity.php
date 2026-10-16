@@ -25,6 +25,8 @@ class RecordProductDevelopmentActivity
 
     public const string FILES_UPLOADED = 'files_uploaded';
 
+    public const string SUPPLIER_PRODUCT_LINKED = 'supplier_product_linked';
+
     /**
      * @param array<string, mixed> $old
      * @param array<string, mixed> $new

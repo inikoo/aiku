@@ -133,7 +133,7 @@ function save() {
 
             <template v-else>
                 <p class="text-xs text-gray-500">{{ ctrans("One person can hold several roles: add a row for each role") }}</p>
-                <div v-for="(member, index) in members" :key="index" class="grid grid-cols-[1fr_11rem_auto] items-center gap-2">
+                <div v-for="(member, index) in members" :key="index" class="grid grid-cols-[minmax(0,1fr)_11rem_auto] items-center gap-2">
                     <ProductDevelopmentUserSelect v-model="member.user_id" :options="editor.options.users as any" size="small" :placeholder="ctrans('Person')" />
                     <ProductDevelopmentRoleSelect v-model="member.role" :options="editor.options.roles as any" size="small" :placeholder="ctrans('Role')" />
                     <Button type="tertiary" size="xs" :tooltip="ctrans('Remove')" @click="members.splice(index, 1)">

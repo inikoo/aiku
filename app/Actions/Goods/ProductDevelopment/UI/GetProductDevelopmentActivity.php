@@ -96,6 +96,9 @@ class GetProductDevelopmentActivity
                 RecordProductDevelopmentActivity::MEMBERS_ADDED => [__('Added members'), [['label' => __('Members'), 'old' => null, 'new' => implode(', ', $new['members'] ?? [])]]],
                 RecordProductDevelopmentActivity::FILES_UPLOADED => [$this->filesSentence($new), [['label' => __('Files'), 'old' => null, 'new' => implode(', ', $new['files'] ?? [])]]],
                 UpdateProductDevelopmentStageDueDate::STAGE_DUE_CHANGED => [__('Changed the due date of :stage', ['stage' => $new['stage'] ?? '']), [['label' => __('Due'), 'old' => $this->displayValue('target_online_date', $old['due_at'] ?? null), 'new' => $this->displayValue('target_online_date', $new['due_at'] ?? null)]]],
+                RecordProductDevelopmentActivity::SUPPLIER_PRODUCT_LINKED => [($new['created'] ?? false)
+                    ? __('Created supplier product :code for :sku', ['code' => $new['supplier_product'] ?? '', 'sku' => $new['sku'] ?? ''])
+                    : __('Linked supplier product :code to :sku', ['code' => $new['supplier_product'] ?? '', 'sku' => $new['sku'] ?? '']), []],
                 RecordProductDevelopmentActivity::MEMBERS_REMOVED => [__('Removed members'), [['label' => __('Members'), 'old' => implode(', ', $old['members'] ?? []), 'new' => null]]],
                 'updated' => [__('Updated the development'), $this->fieldChanges($old, $new)],
                 default => [Str::headline($audit->event), []],

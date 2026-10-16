@@ -8,7 +8,8 @@
 <script setup lang="ts">
 import { ctrans } from "@/Composables/useTrans"
 import { useFormatTime } from "@/Composables/useFormatTime"
-import ProductDevelopmentChecklist from "@/Components/Goods/ProductDevelopment/ProductDevelopmentChecklist.vue"
+import ProductDevelopmentChecklistRow from "@/Components/Goods/ProductDevelopment/ProductDevelopmentChecklistRow.vue"
+import type { ChecklistEditorData } from "@/Components/Goods/ProductDevelopment/productDevelopmentChecklist"
 import TicketUserHoverCard from "@/Components/Tickets/TicketUserHoverCard.vue"
 import ProductDevelopmentEditDialog, { type ProductDevelopmentEditKind, type ProductDevelopmentEditor } from "@/Components/Goods/ProductDevelopment/ProductDevelopmentEditDialog.vue"
 import { ref } from "vue"
@@ -27,7 +28,7 @@ defineProps<{
         target_online_date: string | null
         packaging_family: string | null
         members: { id: number, user_id: number, name: string, username: string | null, avatar: Record<string, string> | null, profile_url: string | null, role: { label: string, icon: string, color: string } }[]
-        checklist: any[]
+        editor: ChecklistEditorData
     }
 }>()
 
@@ -44,8 +45,11 @@ const formatDate = (date: string | null) => date ? useFormatTime(date, { formatT
             <p v-if="data.brief" class="mt-2 whitespace-pre-line text-sm text-gray-800">{{ data.brief }}</p>
             <p v-else class="mt-2 text-sm text-gray-400">{{ ctrans("No brief written yet") }}</p>
 
-            <h3 class="mt-6 text-sm font-medium text-gray-700">{{ ctrans("Buyer checklist") }}</h3>
-            <ProductDevelopmentChecklist :rows="data.checklist" />
+            <h3 class="mt-6 text-sm font-medium text-gray-700">{{ ctrans("Family checklist") }}</h3>
+            <ul class="divide-y divide-gray-100">
+                <ProductDevelopmentChecklistRow v-for="row in data.editor.family" :key="row.id" :row="row" :updateRoute="data.editor.routes.update" :countries="data.editor.countries" />
+                <li v-if="!data.editor.family.length" class="py-2 text-sm text-gray-400">{{ ctrans("No checklist items") }}</li>
+            </ul>
         </div>
 
         <dl class="space-y-3 text-sm">

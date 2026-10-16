@@ -64,8 +64,10 @@ function saveDate() {
 const scroller = ref<HTMLElement | null>(null)
 const { canScrollLeft, canScrollRight, scrollBy } = useScrollArrows(scroller)
 
+const isReady = (segment: Segment) => segment.state === "in_progress" && !!segment.progress?.total && segment.progress.missing === 0
+
 const barClass = (segment: Segment) => {
-    if (segment.state === "completed" || segment.state === "skipped") {
+    if (segment.state === "completed" || segment.state === "skipped" || isReady(segment)) {
         return "bg-green-500"
     }
     if (segment.state === "in_progress") {
@@ -96,7 +98,7 @@ const statusLine = (segment: Segment) => {
 }
 
 const statusClass = (segment: Segment) => {
-    if (segment.state === "completed") {
+    if (segment.state === "completed" || isReady(segment)) {
         return "text-green-700"
     }
     if (segment.state === "in_progress") {

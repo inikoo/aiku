@@ -146,7 +146,9 @@ function moveToNextStage() {
                 <template #actions>
                     <ProductDevelopmentActivityOrder v-model="recentOrder" />
                 </template>
-                <ProductDevelopmentActivity :data="recentActivity" :order="recentOrder" compact />
+                <div class="max-h-[28rem] overflow-y-auto [scrollbar-width:thin]">
+                    <ProductDevelopmentActivity :data="recentActivity" :order="recentOrder" compact />
+                </div>
             </ProductDevelopmentSidePanel>
         </aside>
     </div>

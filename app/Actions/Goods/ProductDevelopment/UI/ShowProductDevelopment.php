@@ -148,14 +148,14 @@ class ShowProductDevelopment extends OrgAction
                     'navigation' => $navigation,
                 ],
 
-                ProductDevelopmentTabsEnum::BRIEF->value      => $tab(ProductDevelopmentTabsEnum::BRIEF, fn () => $tabData->brief($productDevelopment, $request->user(), $canSeeCosts)),
-                ProductDevelopmentTabsEnum::PRODUCTS->value   => $tab(ProductDevelopmentTabsEnum::PRODUCTS, fn () => $overview['products']),
-                ProductDevelopmentTabsEnum::COMPLIANCE->value => $tab(ProductDevelopmentTabsEnum::COMPLIANCE, fn () => $tabData->compliance($productDevelopment, $canSeeCosts)),
+                ProductDevelopmentTabsEnum::BRIEF->value      => $tab(ProductDevelopmentTabsEnum::BRIEF, fn () => [...$tabData->brief($productDevelopment, $request->user()), 'editor' => GetProductDevelopmentChecklistEditor::run($productDevelopment, $request->user(), $canSeeCosts)]),
+                ProductDevelopmentTabsEnum::PRODUCTS->value   => $tab(ProductDevelopmentTabsEnum::PRODUCTS, fn () => ['rows' => $overview['products'], 'editor' => GetProductDevelopmentChecklistEditor::run($productDevelopment, $request->user(), $canSeeCosts)]),
+                ProductDevelopmentTabsEnum::COMPLIANCE->value => $tab(ProductDevelopmentTabsEnum::COMPLIANCE, fn () => GetProductDevelopmentChecklistEditor::run($productDevelopment, $request->user(), $canSeeCosts, ProductDevelopmentMemberRoleEnum::COMPLIANCE)),
                 ProductDevelopmentTabsEnum::FILES->value      => $tab(ProductDevelopmentTabsEnum::FILES, fn () => GetProductDevelopmentFiles::run($productDevelopment, $this->productDevelopmentAccess()->canUpload($request->user(), $productDevelopment))),
                 ProductDevelopmentTabsEnum::TASKS->value      => $tab(ProductDevelopmentTabsEnum::TASKS, fn () => ['model_type' => 'ProductDevelopment', 'model_id' => $productDevelopment->id]),
                 ProductDevelopmentTabsEnum::ACTIVITY->value   => $tab(ProductDevelopmentTabsEnum::ACTIVITY, fn () => GetProductDevelopmentActivity::run($productDevelopment, GetProductDevelopmentActivity::LIMIT, $request->user())),
                 'comments'       => fn () => GetProductDevelopmentComments::run($productDevelopment),
-                'recentActivity' => fn () => GetProductDevelopmentActivity::run($productDevelopment, 5, $request->user()),
+                'recentActivity' => fn () => GetProductDevelopmentActivity::run($productDevelopment, GetProductDevelopmentActivity::LIMIT, $request->user()),
             ]
         );
     }

@@ -6,7 +6,7 @@
   -->
 
 <script setup lang="ts">
-import { reactive, ref } from "vue"
+import { computed, reactive, ref } from "vue"
 import { Head, router } from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
@@ -91,10 +91,14 @@ function onSupplierChange(value: unknown) {
     const supplierId = value as number | null
     form.supplier_id = supplierId
     const supplier = props.options.suppliers.find((option) => option.value === supplierId)
-    if (supplier?.agent_id) {
-        form.agent_id = supplier.agent_id
+    if (supplier) {
+        form.agent_id = supplier.agent_id ?? null
     }
 }
+
+const supplierOptions = computed(() => form.agent_id
+    ? props.options.suppliers.filter((option) => option.agent_id === form.agent_id)
+    : props.options.suppliers)
 
 const toIso = (date: Date | string | null) => {
     if (!date) {
@@ -236,13 +240,14 @@ function submit() {
                         <h2 class="text-sm font-semibold text-gray-800">{{ ctrans("Sourcing and planning") }}</h2>
 
                         <div>
-                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Supplier") }}</label>
-                            <Select :modelValue="form.supplier_id" :options="options.suppliers" optionLabel="label" optionValue="value" filter showClear :placeholder="ctrans('Select a supplier')" class="w-full" overlayClass="text-sm" @update:modelValue="onSupplierChange" />
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Agent") }}</label>
+                            <Select v-model="form.agent_id" :options="options.agents" optionLabel="label" optionValue="value" filter :showClear="!form.supplier_id" :disabled="!!form.supplier_id" :placeholder="ctrans('Select an agent')" class="w-full" overlayClass="text-sm" />
+                            <p v-if="form.supplier_id" class="mt-1 text-xs text-gray-500">{{ ctrans("Set by the supplier. Clear the supplier to change it.") }}</p>
                         </div>
 
                         <div>
-                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Agent") }}</label>
-                            <Select v-model="form.agent_id" :options="options.agents" optionLabel="label" optionValue="value" showClear :placeholder="ctrans('Select an agent')" class="w-full" overlayClass="text-sm" />
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Supplier") }}</label>
+                            <Select :modelValue="form.supplier_id" :options="supplierOptions" optionLabel="label" optionValue="value" filter showClear :placeholder="form.agent_id ? ctrans('Select a supplier of this agent') : ctrans('Select a supplier')" class="w-full" overlayClass="text-sm" @update:modelValue="onSupplierChange" />
                         </div>
 
                         <div>
@@ -273,8 +278,8 @@ function submit() {
                         <p class="text-xs text-gray-500">{{ ctrans("One person can hold several roles: add a row for each role") }}</p>
 
                         <div class="mt-3 space-y-2">
-                            <div v-for="(member, index) in members" :key="index" class="grid grid-cols-[1fr_auto] gap-2">
-                                <div class="grid gap-2 sm:grid-cols-[1fr_11rem]">
+                            <div v-for="(member, index) in members" :key="index" class="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
+                                <div class="grid min-w-0 gap-2 sm:grid-cols-[minmax(0,1fr)_11rem]">
                                     <ProductDevelopmentUserSelect v-model="member.user_id" :options="options.users as any" :placeholder="ctrans('Person')" />
                                     <ProductDevelopmentRoleSelect v-model="member.role" :options="options.roles as any" :placeholder="ctrans('Role')" />
                                 </div>
