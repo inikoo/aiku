@@ -1521,7 +1521,8 @@ test('UI stock delivery partial reload refreshes item state filters and tabs', f
     $this->get($url)->assertInertia(function (AssertableInertia $page) {
         $page
             ->where('queryBuilderProps.items.elementGroups.state.elements.placed.1', 0)
-            ->has('tabs.navigation', 5)
+            ->has('tabs.navigation', 6)
+            ->has('tabs.navigation.'.StockDeliveryTabsEnum::CHECKLIST->value)
             ->missing('tabs.navigation.'.StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value);
     });
 
@@ -1539,7 +1540,7 @@ test('UI stock delivery partial reload refreshes item state filters and tabs', f
 
     $response->assertOk()
         ->assertJsonPath('props.queryBuilderProps.items.elementGroups.state.elements.placed.1', 1)
-        ->assertJsonCount(6, 'props.tabs.navigation')
+        ->assertJsonCount(7, 'props.tabs.navigation')
         ->assertJsonPath(
             'props.tabs.navigation.'.StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value.'.title',
             StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->blueprint()['title']
@@ -3066,7 +3067,7 @@ describe('org supplier sub pages navigation', function () {
     });
 });
 
-test('agent organisation products list one row per supplier product with every buying organisation', function () {
+test('agent organisation products list one row per supplier product with its data checklist and group currency cost', function () {
     [$orgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
 
     $otherOrganisation = Organisation::where('id', '!=', $this->organisation->id)->orderBy('id')->firstOrFail();
@@ -3090,7 +3091,9 @@ test('agent organisation products list one row per supplier product with every b
     $rows = collect($response->viewData('page')['props']['index']['data'])->where('code', $code);
 
     expect($rows)->toHaveCount(1)
-        ->and(explode(', ', $rows->first()['organisations']))->toEqualCanonicalizing([$this->organisation->code, $otherOrganisation->code]);
+        ->and($rows->first())->not->toHaveKeys(['organisations', 'family_code'])
+        ->and($rows->first()['completeness_checks'])->toHaveKeys(['cbm', 'carton_dimensions', 'carton_weight', 'carton_net_weight', 'moq', 'lead_time', 'lead_time_confirmed'])
+        ->and($rows->first()['group_currency_code'])->toBe($this->group->currency->code);
 });
 
 test('HELP-4019 an agent sees its product by our code with what to fix, and never the landed costs', function () {
@@ -3142,11 +3145,6 @@ test('HELP-4019 an agent saves carton size, packaging and availability on the pr
         'wechat' => 'factory_wx_01',
     ])->assertSessionHasNoErrors();
     expect($supplierProduct->supplier->refresh()->wechat)->toBe('factory_wx_01');
-
-    $supplierProduct->supplier->update(['is_generic' => true]);
-    $this->patch(route('grp.models.org.org_supplier_product.supplier_contacts.update', [$agentOrganisation->id, $orgSupplierProduct->id]), [
-        'whatsapp' => '+8613800000000',
-    ])->assertSessionHasErrors('whatsapp');
 });
 
 test('HELP-4019 purchasing leads of the buying organisations hear when a product availability changes', function () {
@@ -3271,37 +3269,4 @@ test('HELP-4019 an agent sets a family at its supplier, and the products and the
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->where('dashboard.order_now', fn ($rows) => collect($rows)->contains(fn ($row) => $row['supplier_id'] === $orgSupplier->supplier_id && $row['stock_family_id'] === $stockFamily->id))
             ->etc());
-});
-
-test('HELP-4019 an agent moves products from a generic record to the real factory, by family, keeping their purchase order lines', function () {
-    [$genericOrgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
-    [$factoryOrgSupplier]                      = createAgentOrgSupplierWithProduct($this);
-    $agentOrganisation                         = $genericOrgSupplier->orgAgent->agent->organisation;
-    $supplierProduct                           = $orgSupplierProduct->supplierProduct;
-    $generic                                   = $genericOrgSupplier->supplier;
-    $factory                                   = $factoryOrgSupplier->supplier;
-    $generic->update(['is_generic' => true]);
-    $factory->update(['currency_id' => $generic->currency_id]);
-    $supplierProduct->update(['currency_id' => $generic->currency_id]);
-    StockHasSupplierProduct::firstOrCreate(['stock_id' => $this->stocks[0]->id, 'supplier_product_id' => $supplierProduct->id]);
-    $stockFamily = $this->stocks[0]->stockFamily ?? StoreStockFamily::make()->action($this->group, StockFamily::factory()->definition());
-    $this->stocks[0]->update(['stock_family_id' => $stockFamily->id]);
-
-    $this->postJson(route('grp.models.org.agent_supplier.move_products', [$agentOrganisation->id, $generic->id]), [
-        'from_supplier_id' => $factory->id,
-        'stock_family_id'  => $stockFamily->id,
-    ])->assertUnprocessable();
-
-    $this->postJson(route('grp.models.org.agent_supplier.move_products', [$agentOrganisation->id, $factory->id]), [
-        'from_supplier_id' => $generic->id,
-        'stock_family_id'  => $stockFamily->id,
-    ])->assertOk()->assertJson(['moved' => 1, 'skipped' => []]);
-
-    expect($supplierProduct->refresh()->supplier_id)->toBe($factory->id)
-        ->and($orgSupplierProduct->refresh()->org_supplier_id)->toBe($factoryOrgSupplier->id)
-        ->and($supplierProduct->id)->toBe($orgSupplierProduct->supplier_product_id);
-
-    $this->postJson(route('grp.models.org.agent_supplier.move_products', [$agentOrganisation->id, $factory->id]), [
-        'supplier_product_ids' => [$supplierProduct->id],
-    ])->assertUnprocessable();
 });

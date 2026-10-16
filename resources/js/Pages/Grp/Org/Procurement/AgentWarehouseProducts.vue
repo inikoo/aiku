@@ -13,6 +13,7 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { faIndustryAlt, faInboxIn, faInfoCircle } from "@fal"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
+import AgentReceiveGoodsButton from "@/Components/Procurement/AgentReceiveGoodsButton.vue"
 import TableAgentWarehouseProducts from "@/Components/Tables/Grp/Org/Procurement/TableAgentWarehouseProducts.vue"
 import PillFilterBar from "@/Components/Utils/PillFilterBar.vue"
 import { capitalize } from "@/Composables/capitalize"
@@ -22,7 +23,8 @@ import { routeType } from "@/types/route"
 
 library.add(faIndustryAlt, faInboxIn)
 
-type FilterOption = { label: string; value: string; count: number }
+type FilterOption = { label: string; value: string; count: number; tooltip?: string }
+type ScopeOption = { value: number; label: string; count: number }
 
 const props = defineProps<{
 	pageHead: PageHeadingTypes
@@ -31,6 +33,7 @@ const props = defineProps<{
 	data: object
 	filterOptions: { organisation: FilterOption[]; location?: FilterOption[] }
 	receiving?: { bulk_route: routeType } | null
+	receive?: { suppliers: ScopeOption[]; purchase_orders: ScopeOption[] } | null
 }>()
 
 const currentQuery = () => qs.parse(location.search.substring(1)) as Record<string, any>
@@ -47,7 +50,11 @@ watch([organisation, where], () => {
 
 <template>
 	<Head :title="capitalize(title)" />
-	<PageHeading :data="pageHead" />
+	<PageHeading :data="pageHead">
+		<template v-if="props.kind === 'received' && receive" #other>
+			<AgentReceiveGoodsButton :scopes="receive" />
+		</template>
+	</PageHeading>
 	<div class="mx-4 mt-3 flex gap-2 rounded-lg border border-[--app-accent-muted] bg-[--app-accent-soft] p-3 text-sm text-gray-700">
 		<FontAwesomeIcon :icon="faInfoCircle" class="mt-0.5 text-[--app-accent]" fixed-width aria-hidden="true" />
 		<p v-if="props.kind === 'in_production'">

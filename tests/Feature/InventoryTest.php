@@ -4862,6 +4862,44 @@ describe('out of stock forecast', function () {
             ->and((float) $stats->predicted_daily_usage)->toBeGreaterThan(30 / 91 * 2 * 5)
             ->and((float) $stats->predicted_daily_usage)->toBeLessThanOrEqual(2730 / 365 * 2);
     });
+
+    test('a sister organisation\'s shipments to a partner organisation are not borrowed as demand', function () {
+        [$deliveryNote, $deliveryNoteItem] = packedDeliveryNote($this);
+        $deliveryNoteItem->update(['quantity_dispatched' => 910]);
+
+        $orgData = \App\Models\SysAdmin\Organisation::factory()->definition();
+        data_set($orgData, 'code', 'acm2');
+        data_set($orgData, 'type', \App\Enums\SysAdmin\Organisation\OrganisationTypeEnum::SHOP);
+        $organisation2 = \App\Models\SysAdmin\Organisation::where('code', 'acm2')->first()
+            ?? \App\Actions\SysAdmin\Organisation\StoreOrganisation::make()->action($this->group, $orgData);
+        $orgStock = StoreOrgStock::make()->action($organisation2, $deliveryNoteItem->orgStock->stock);
+
+        OrgStockHydrateOutOfStockForecast::run($orgStock->fresh());
+        $stats = $orgStock->stats->refresh();
+        expect($stats->forecast_source)->toBe('siblings')
+            ->and((float) $stats->predicted_daily_usage)->toEqualWithDelta(910 / 91 * 0.5, 0.0001);
+
+        $partnerLink = ['group_id' => $this->group->id, 'organisation_id' => $organisation2->id, 'partner_id' => $this->organisation->id];
+        $existingLink = DB::table('org_partners')->where($partnerLink)->first();
+        if ($existingLink) {
+            DB::table('org_partners')->where('id', $existingLink->id)->update(['customer_id' => $deliveryNote->customer_id]);
+        } else {
+            DB::table('org_partners')->insert([...$partnerLink, 'customer_id' => $deliveryNote->customer_id, 'sources' => '{}']);
+        }
+
+        OrgStockHydrateOutOfStockForecast::run($orgStock->fresh());
+        $stats = $orgStock->stats->refresh();
+
+        if ($existingLink) {
+            DB::table('org_partners')->where('id', $existingLink->id)->update(['customer_id' => $existingLink->customer_id]);
+        } else {
+            DB::table('org_partners')->where($partnerLink)->delete();
+        }
+
+        expect($stats->forecast_source)->toBeNull()
+            ->and($stats->predicted_daily_usage)->toBeNull()
+            ->and($stats->recommended_order_quantity)->toBeNull();
+    });
 });
 
 test('move stock to other locations from the SKO page', function ($warehouseArea) {

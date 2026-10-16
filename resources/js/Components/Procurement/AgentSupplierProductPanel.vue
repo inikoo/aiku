@@ -34,7 +34,7 @@ const props = defineProps<{
     panel: {
         internal_code: string
         supplier_code: string
-        breadcrumb: { supplier: { code: string; name: string; is_generic: boolean }; family: { code: string; name: string } | null }
+        breadcrumb: { supplier: { code: string; name: string }; family: { code: string; name: string } | null }
         currency: string
         key: {
             cbm: number | null
@@ -51,7 +51,7 @@ const props = defineProps<{
         cbm_siblings: { code: string; supplier: string; cbm: number; factor: string }[]
         containers: Record<"20ft" | "40ft" | "40ft_hc", number> | null
         checks: { key: string; label: string; done: boolean; anchor: string }[]
-        contacts: { values: Record<"contact_name" | "phone" | "email" | "wechat" | "whatsapp", string | null>; is_generic: boolean; update_route: routeType | null }
+        contacts: { values: Record<"contact_name" | "phone" | "email" | "wechat" | "whatsapp", string | null>; update_route: routeType | null }
         packaging: { terms: Record<string, { value: string | number | null; source: Source }>; options: Record<string, string> }
         availability: {
             status: string
@@ -244,227 +244,230 @@ const card = "rounded-xl border border-gray-200 bg-white p-4 shadow-sm scroll-mt
 </script>
 
 <template>
-    <div class="grid gap-6 md:col-span-3 md:grid-cols-3">
-        <section :class="[card, 'md:col-span-3']">
-            <div class="flex flex-wrap items-start justify-between gap-4">
-                <div class="min-w-0">
-                    <div class="text-xs text-gray-500">
-                        {{ panel.breadcrumb.supplier.code }}
-                        <span v-if="panel.breadcrumb.supplier.is_generic" class="ml-1 rounded bg-amber-50 px-1.5 py-0.5 text-amber-700 ring-1 ring-inset ring-amber-600/20">{{ ctrans("Generic record") }}</span>
-                        <template v-if="panel.breadcrumb.family"> › {{ panel.breadcrumb.family.code }}</template>
-                        › {{ panel.internal_code }}
+    <div class="grid items-start gap-6 md:col-span-3 md:grid-cols-3">
+        <div class="flex min-w-0 flex-col gap-6 md:col-span-2">
+            <section :class="card">
+                <div class="flex flex-wrap items-start justify-between gap-4">
+                    <div class="min-w-0">
+                        <div class="text-xs text-gray-500">
+                            {{ panel.breadcrumb.supplier.code }}
+                            <template v-if="panel.breadcrumb.family"> › {{ panel.breadcrumb.family.code }}</template>
+                            › {{ panel.internal_code }}
+                        </div>
+                        <div class="mt-1 flex items-center gap-2">
+                            <span class="text-2xl font-semibold tracking-tight text-gray-900">{{ panel.internal_code }}</span>
+                            <CopyButton :text="panel.internal_code" />
+                        </div>
+                        <div class="mt-0.5 text-sm text-gray-500">{{ ctrans("Supplier code") }}: {{ panel.supplier_code }}</div>
+                        <div class="group relative mt-0.5 inline-block text-sm text-gray-500">
+                            {{ ctrans("Supplier") }}: <span class="cursor-help font-medium text-gray-800 underline decoration-dotted underline-offset-2">{{ panel.breadcrumb.supplier.name }}</span>
+                            <span class="text-gray-400">({{ panel.breadcrumb.supplier.code }})</span>
+                            <section id="agent-contacts" :class="[card, 'invisible absolute left-0 top-full z-20 w-96 opacity-0 shadow-lg transition group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100']">
+                                <h3 :class="sectionTitle">
+                                    <FontAwesomeIcon icon="fal fa-address-card" fixed-width aria-hidden="true" />
+                                    {{ ctrans("Supplier contacts") }}
+                                    <span class="ml-auto font-normal normal-case tracking-normal text-gray-400">{{ ctrans("From supplier record") }}</span>
+                                </h3>
+                                <div class="space-y-2">
+                                    <label v-for="field in contactFields" :key="field.key" class="flex items-center gap-2 text-sm">
+                                        <span class="w-28 shrink-0 text-gray-500">{{ field.label }}</span>
+                                        <InputText v-if="panel.contacts.update_route" v-model="contactsForm[field.key]" class="!w-full !py-1 !text-sm" :class="fieldFocusClass"
+                                            :placeholder="ctrans('Missing')" />
+                                        <span v-else class="truncate" :class="panel.contacts.values[field.key] ? 'text-gray-800' : 'italic text-gray-400'">
+                                            {{ panel.contacts.values[field.key] ?? ctrans("Missing") }}
+                                        </span>
+                                    </label>
+                                </div>
+                                <div v-if="panel.contacts.update_route" class="mt-3 flex items-center justify-between gap-2">
+                                    <span class="text-xs text-gray-400">{{ ctrans("Saved on the supplier") }}</span>
+                                    <Button type="tertiary" :label="ctrans('Save')" :loading="savingSection === 'contacts'" @click="saveContacts">
+                                        <template #icon><FontAwesomeIcon icon="fal fa-save" class="text-green-600" fixed-width aria-hidden="true" /></template>
+                                    </Button>
+                                </div>
+                            </section>
+                        </div>
                     </div>
-                    <div class="mt-1 flex items-center gap-2">
-                        <span class="text-2xl font-semibold tracking-tight text-gray-900">{{ panel.internal_code }}</span>
-                        <CopyButton :text="panel.internal_code" />
-                    </div>
-                    <div class="mt-0.5 text-sm text-gray-500">{{ ctrans("Supplier code") }}: {{ panel.supplier_code }}</div>
-                </div>
 
-                <div class="w-full max-w-md">
-                    <div class="flex items-baseline justify-between text-sm">
-                        <span class="font-medium text-gray-700">{{ ctrans("Things to fix") }}</span>
-                        <span class="tabular-nums text-gray-500">{{ doneChecks }} / {{ panel.checks.length }}</span>
-                    </div>
-                    <div class="mt-1.5 h-2 overflow-hidden rounded-full bg-gray-100">
-                        <div class="h-full rounded-full bg-green-500 transition-all" :style="{ width: `${progress}%` }" />
-                    </div>
-                    <div class="mt-2 flex flex-wrap gap-1.5">
-                        <button v-for="check in panel.checks" :key="check.key" type="button"
-                            class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs ring-1 ring-inset"
-                            :class="check.done ? 'bg-green-50 text-green-700 ring-green-600/20' : 'bg-white text-gray-600 ring-gray-300 hover:bg-gray-50'"
-                            @click="jumpTo(check.anchor)">
-                            <FontAwesomeIcon :icon="check.done ? 'fal fa-check' : 'fal fa-circle'" fixed-width aria-hidden="true" />
-                            {{ check.label }}
-                        </button>
+                    <div class="w-full max-w-md">
+                        <div class="flex items-baseline justify-between text-sm">
+                            <span class="font-medium text-gray-700">{{ ctrans("Things to fix") }}</span>
+                            <span class="tabular-nums text-gray-500">{{ doneChecks }} / {{ panel.checks.length }}</span>
+                        </div>
+                        <div class="mt-1.5 h-2 overflow-hidden rounded-full bg-gray-100">
+                            <div class="h-full rounded-full bg-green-500 transition-all" :style="{ width: `${progress}%` }" />
+                        </div>
+                        <div class="mt-2 flex flex-wrap gap-1.5">
+                            <button v-for="check in panel.checks" :key="check.key" type="button"
+                                class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs ring-1 ring-inset"
+                                :class="check.done ? 'bg-green-50 text-green-700 ring-green-600/20' : 'bg-white text-gray-600 ring-gray-300 hover:bg-gray-50'"
+                                @click="jumpTo(check.anchor)">
+                                <FontAwesomeIcon :icon="check.done ? 'fal fa-check' : 'fal fa-circle'" fixed-width aria-hidden="true" />
+                                {{ check.label }}
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <section id="agent-key-figures" :class="[card, 'md:col-span-2']">
-            <h3 :class="sectionTitle">
-                <FontAwesomeIcon icon="fal fa-calculator" fixed-width aria-hidden="true" />
-                {{ ctrans("Key figures") }}
-            </h3>
-            <dl class="grid grid-cols-2 gap-4 sm:grid-cols-3">
-                <div>
-                    <dt class="text-xs text-gray-500">{{ ctrans("CBM per carton") }}</dt>
-                    <dd class="text-xl font-semibold tabular-nums text-gray-900">{{ panel.key.cbm ? `${number(panel.key.cbm, 4)} m³` : "-" }}</dd>
+            <section id="agent-key-figures" :class="card">
+                <h3 :class="sectionTitle">
+                    <FontAwesomeIcon icon="fal fa-calculator" fixed-width aria-hidden="true" />
+                    {{ ctrans("Key figures") }}
+                </h3>
+                <dl class="grid grid-cols-2 gap-4 sm:grid-cols-3">
+                    <div>
+                        <dt class="text-xs text-gray-500">{{ ctrans("CBM per carton") }}</dt>
+                        <dd class="text-xl font-semibold tabular-nums text-gray-900">{{ panel.key.cbm ? `${number(panel.key.cbm, 4)} m³` : "-" }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs text-gray-500">{{ ctrans("Units per carton") }}</dt>
+                        <dd class="text-xl font-semibold tabular-nums text-gray-900">{{ number(panel.key.units_per_carton) }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs text-gray-500">{{ ctrans("Agreed cost") }}</dt>
+                        <dd class="text-xl font-semibold tabular-nums text-gray-900">{{ money(panel.key.cost.unit) }}</dd>
+                        <dd class="text-xs tabular-nums text-gray-500">{{ money(panel.key.cost.carton) }} {{ ctrans("per carton") }}</dd>
+                    </div>
+                    <div class="col-span-2 sm:col-span-1">
+                        <dt class="text-xs text-gray-500">{{ ctrans("MOQ") }}</dt>
+                        <dd class="text-xl font-semibold tabular-nums text-gray-900">
+                            {{ panel.key.moq.cartons ? ctrans(":count cartons", { count: panel.key.moq.cartons }) : "-" }}
+                        </dd>
+                        <dd v-if="panel.key.moq.cartons" class="text-xs tabular-nums text-gray-500">
+                            {{ ctransChoice(":count unit|:count units", panel.key.moq.units ?? 0, { count: number(panel.key.moq.units) }) }} · {{ number(panel.key.moq.cbm, 3) }} m³ · {{ money(panel.key.moq.value) }}
+                        </dd>
+                        <dd v-if="sourceLabel(panel.key.moq.source)" class="text-xs italic text-gray-400">{{ sourceLabel(panel.key.moq.source) }}</dd>
+                    </div>
+                    <div class="col-span-2">
+                        <dt class="text-xs text-gray-500">{{ ctrans("Lead time to warehouse") }}</dt>
+                        <dd class="text-xl font-semibold tabular-nums text-gray-900">
+                            {{ panel.key.lead_time.days ? ctrans(":days days", { days: panel.key.lead_time.days }) : "-" }}
+                            <span v-if="panel.key.lead_time.measured" class="ml-2 text-sm font-normal text-gray-500">
+                                {{ ctrans("measured :days days on :count deliveries", { days: panel.key.lead_time.measured, count: panel.key.lead_time.samples }) }}
+                            </span>
+                        </dd>
+                        <dd v-if="sourceLabel(panel.key.lead_time.source)" class="text-xs italic text-gray-400">{{ sourceLabel(panel.key.lead_time.source) }}</dd>
+                        <dd class="text-xs" :class="panel.key.lead_time.confirmed_at ? 'text-green-700' : 'text-amber-700'">
+                            <template v-if="panel.key.lead_time.confirmed_at">
+                                <FontAwesomeIcon icon="fal fa-check-circle" fixed-width aria-hidden="true" />
+                                {{ ctrans("Confirmed by :user on :date", { user: panel.key.lead_time.confirmed_by ?? "-", date: new Date(panel.key.lead_time.confirmed_at).toLocaleDateString() }) }}
+                            </template>
+                            <template v-else>{{ ctrans("Not confirmed with the supplier") }}</template>
+                        </dd>
+                    </div>
+                </dl>
+
+                <div v-if="canEdit" class="mt-4 flex flex-wrap items-end gap-3 border-t border-gray-100 pt-4">
+                    <label class="text-xs text-gray-500">
+                        {{ ctrans("MOQ (cartons)") }}
+                        <InputNumber v-model="keyForm.minimum_carton_order" :min="1" :useGrouping="false" :placeholder="panel.key.moq.cartons?.toString()" inputClass="!w-24 !py-1 !text-sm" :class="fieldFocusClass" class="mt-1 block" />
+                    </label>
+                    <label class="text-xs text-gray-500">
+                        {{ ctrans("Lead time (days)") }}
+                        <InputNumber v-model="keyForm.estimated_lead_time_days" :min="1" :max="365" :useGrouping="false" :placeholder="panel.key.lead_time.days?.toString()" inputClass="!w-24 !py-1 !text-sm" :class="fieldFocusClass" class="mt-1 block" />
+                    </label>
+                    <Button type="tertiary" :label="ctrans('Save')" :loading="savingSection === 'key'" @click="saveKeyFigures">
+                        <template #icon><FontAwesomeIcon icon="fal fa-save" class="text-green-600" fixed-width aria-hidden="true" /></template>
+                    </Button>
+                    <Button type="tertiary" :label="ctrans('Confirm with supplier')" :loading="savingSection === 'lead_time'"
+                        :disabled="!(keyForm.estimated_lead_time_days ?? panel.key.lead_time.days)" @click="confirmLeadTime">
+                        <template #icon><FontAwesomeIcon icon="fal fa-check-circle" class="text-green-600" fixed-width aria-hidden="true" /></template>
+                    </Button>
                 </div>
-                <div>
-                    <dt class="text-xs text-gray-500">{{ ctrans("Units per carton") }}</dt>
-                    <dd class="text-xl font-semibold tabular-nums text-gray-900">{{ number(panel.key.units_per_carton) }}</dd>
+            </section>
+
+            <section id="agent-measurements" :class="card">
+                <h3 :class="sectionTitle">
+                    <FontAwesomeIcon icon="fal fa-ruler-combined" fixed-width aria-hidden="true" />
+                    {{ ctrans("Weights and measurements") }}
+                </h3>
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="text-left text-xs text-gray-500">
+                            <th class="py-1 font-medium" />
+                            <th class="py-1 font-medium">{{ ctrans("L (cm)") }}</th>
+                            <th class="py-1 font-medium">{{ ctrans("W (cm)") }}</th>
+                            <th class="py-1 font-medium">{{ ctrans("H (cm)") }}</th>
+                            <th class="py-1 font-medium">{{ ctrans("Net (kg)") }}</th>
+                            <th class="py-1 font-medium">{{ ctrans("Gross (kg)") }}</th>
+                            <th class="py-1 font-medium">{{ ctrans("CBM") }}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <tr class="tabular-nums text-gray-700">
+                            <td class="py-2 pr-2 font-medium text-gray-600">{{ ctrans("Unit") }}</td>
+                            <td class="py-2">{{ number(panel.measurements.unit.dimensions?.l ?? null, 1) }}</td>
+                            <td class="py-2">{{ number(panel.measurements.unit.dimensions?.w ?? null, 1) }}</td>
+                            <td class="py-2">{{ number(panel.measurements.unit.dimensions?.h ?? null, 1) }}</td>
+                            <td class="py-2">{{ panel.measurements.unit.net_weight === null ? "-" : number(panel.measurements.unit.net_weight / 1000, 3) }}</td>
+                            <td class="py-2">{{ panel.measurements.unit.gross_weight === null ? "-" : number(panel.measurements.unit.gross_weight / 1000, 3) }}</td>
+                            <td class="py-2 text-gray-400">-</td>
+                        </tr>
+                        <tr class="tabular-nums text-gray-700">
+                            <td class="py-2 pr-2 font-medium text-gray-600">{{ ctrans("Carton") }}</td>
+                            <template v-if="canEdit">
+                                <td v-for="side in ['l', 'w', 'h']" :key="side" class="py-2 pr-1">
+                                    <InputNumber v-model="measurementsForm[side]" :min="0" :maxFractionDigits="1" inputClass="!w-16 !py-1 !text-sm" :class="fieldFocusClass" />
+                                </td>
+                                <td class="py-2 pr-1"><InputNumber v-model="measurementsForm.net_kg" :min="0" :maxFractionDigits="3" inputClass="!w-20 !py-1 !text-sm" :class="fieldFocusClass" /></td>
+                                <td class="py-2 pr-1"><InputNumber v-model="measurementsForm.gross_kg" :min="0" :maxFractionDigits="3" inputClass="!w-20 !py-1 !text-sm" :class="fieldFocusClass" /></td>
+                                <td class="py-2"><InputNumber v-model="measurementsForm.cbm" :min="0" :maxFractionDigits="6" inputClass="!w-24 !py-1 !text-sm" :class="fieldFocusClass" /></td>
+                            </template>
+                            <template v-else>
+                                <td class="py-2">{{ number(panel.measurements.carton.dimensions?.l ?? null, 1) }}</td>
+                                <td class="py-2">{{ number(panel.measurements.carton.dimensions?.w ?? null, 1) }}</td>
+                                <td class="py-2">{{ number(panel.measurements.carton.dimensions?.h ?? null, 1) }}</td>
+                                <td class="py-2">{{ panel.measurements.carton.net_weight === null ? "-" : number(panel.measurements.carton.net_weight / 1000, 3) }}</td>
+                                <td class="py-2">{{ panel.measurements.carton.gross_weight === null ? "-" : number(panel.measurements.carton.gross_weight / 1000, 3) }}</td>
+                                <td class="py-2">{{ number(panel.measurements.carton.cbm, 4) }}</td>
+                            </template>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div v-if="canEdit" class="mt-3 flex flex-wrap items-center gap-3">
+                    <label class="flex items-center gap-2 text-xs text-gray-500">
+                        {{ ctrans("Units per carton") }}
+                        <InputNumber v-model="measurementsForm.units_per_carton" :min="1" :useGrouping="false" inputClass="!w-20 !py-1 !text-sm" :class="fieldFocusClass" />
+                    </label>
+                    <button v-if="cbmFromDimensions && cbmFromDimensions !== measurementsForm.cbm" type="button"
+                        class="text-xs text-gray-600 underline decoration-dotted hover:text-gray-900"
+                        @click="measurementsForm.cbm = cbmFromDimensions">
+                        {{ ctrans("Use :cbm m³ from the carton size", { cbm: cbmFromDimensions }) }}
+                    </button>
+                    <Button type="tertiary" class="ml-auto" :label="ctrans('Save')" :loading="savingSection === 'measurements'" @click="saveMeasurements">
+                        <template #icon><FontAwesomeIcon icon="fal fa-save" class="text-green-600" fixed-width aria-hidden="true" /></template>
+                    </Button>
                 </div>
-                <div>
-                    <dt class="text-xs text-gray-500">{{ ctrans("Agreed cost") }}</dt>
-                    <dd class="text-xl font-semibold tabular-nums text-gray-900">{{ money(panel.key.cost.unit) }}</dd>
-                    <dd class="text-xs tabular-nums text-gray-500">{{ money(panel.key.cost.carton) }} {{ ctrans("per carton") }}</dd>
-                </div>
-                <div class="col-span-2 sm:col-span-1">
-                    <dt class="text-xs text-gray-500">{{ ctrans("MOQ") }}</dt>
-                    <dd class="text-xl font-semibold tabular-nums text-gray-900">
-                        {{ panel.key.moq.cartons ? ctrans(":count cartons", { count: panel.key.moq.cartons }) : "-" }}
-                    </dd>
-                    <dd v-if="panel.key.moq.cartons" class="text-xs tabular-nums text-gray-500">
-                        {{ ctransChoice(":count unit|:count units", panel.key.moq.units ?? 0, { count: number(panel.key.moq.units) }) }} · {{ number(panel.key.moq.cbm, 3) }} m³ · {{ money(panel.key.moq.value) }}
-                    </dd>
-                    <dd v-if="sourceLabel(panel.key.moq.source)" class="text-xs italic text-gray-400">{{ sourceLabel(panel.key.moq.source) }}</dd>
-                </div>
-                <div class="col-span-2">
-                    <dt class="text-xs text-gray-500">{{ ctrans("Lead time to warehouse") }}</dt>
-                    <dd class="text-xl font-semibold tabular-nums text-gray-900">
-                        {{ panel.key.lead_time.days ? ctrans(":days days", { days: panel.key.lead_time.days }) : "-" }}
-                        <span v-if="panel.key.lead_time.measured" class="ml-2 text-sm font-normal text-gray-500">
-                            {{ ctrans("measured :days days on :count deliveries", { days: panel.key.lead_time.measured, count: panel.key.lead_time.samples }) }}
-                        </span>
-                    </dd>
-                    <dd v-if="sourceLabel(panel.key.lead_time.source)" class="text-xs italic text-gray-400">{{ sourceLabel(panel.key.lead_time.source) }}</dd>
-                    <dd class="text-xs" :class="panel.key.lead_time.confirmed_at ? 'text-green-700' : 'text-amber-700'">
-                        <template v-if="panel.key.lead_time.confirmed_at">
-                            <FontAwesomeIcon icon="fal fa-check-circle" fixed-width aria-hidden="true" />
-                            {{ ctrans("Confirmed by :user on :date", { user: panel.key.lead_time.confirmed_by ?? "-", date: new Date(panel.key.lead_time.confirmed_at).toLocaleDateString() }) }}
-                        </template>
-                        <template v-else>{{ ctrans("Not confirmed with the supplier") }}</template>
-                    </dd>
-                </div>
-            </dl>
 
-            <div v-if="canEdit" class="mt-4 flex flex-wrap items-end gap-3 border-t border-gray-100 pt-4">
-                <label class="text-xs text-gray-500">
-                    {{ ctrans("MOQ (cartons)") }}
-                    <InputNumber v-model="keyForm.minimum_carton_order" :min="1" :useGrouping="false" :placeholder="panel.key.moq.cartons?.toString()" inputClass="!w-24 !py-1 !text-sm" :class="fieldFocusClass" class="mt-1 block" />
-                </label>
-                <label class="text-xs text-gray-500">
-                    {{ ctrans("Lead time (days)") }}
-                    <InputNumber v-model="keyForm.estimated_lead_time_days" :min="1" :max="365" :useGrouping="false" :placeholder="panel.key.lead_time.days?.toString()" inputClass="!w-24 !py-1 !text-sm" :class="fieldFocusClass" class="mt-1 block" />
-                </label>
-                <Button type="tertiary" :label="ctrans('Save')" :loading="savingSection === 'key'" @click="saveKeyFigures">
-                    <template #icon><FontAwesomeIcon icon="fal fa-save" class="text-green-600" fixed-width aria-hidden="true" /></template>
-                </Button>
-                <Button type="tertiary" :label="ctrans('Confirm with supplier')" :loading="savingSection === 'lead_time'"
-                    :disabled="!(keyForm.estimated_lead_time_days ?? panel.key.lead_time.days)" @click="confirmLeadTime">
-                    <template #icon><FontAwesomeIcon icon="fal fa-check-circle" class="text-green-600" fixed-width aria-hidden="true" /></template>
-                </Button>
-            </div>
-        </section>
+                <ul v-if="panel.warnings.length || panel.cbm_siblings.length" class="mt-3 space-y-1">
+                    <li v-for="warning in panel.warnings" :key="warning.key" class="flex gap-2 rounded bg-amber-50 p-2 text-xs text-amber-800">
+                        <FontAwesomeIcon icon="fal fa-exclamation-triangle" fixed-width aria-hidden="true" class="mt-0.5" />
+                        {{ warning.message }}
+                    </li>
+                    <li v-for="sibling in panel.cbm_siblings" :key="sibling.code + sibling.supplier" class="flex gap-2 rounded bg-amber-50 p-2 text-xs text-amber-800">
+                        <FontAwesomeIcon icon="fal fa-exclamation-triangle" fixed-width aria-hidden="true" class="mt-0.5" />
+                        {{ ctrans(":code at :supplier has a CBM of :cbm m³, :factor this one. A decimal point probably slipped on one of them.", { code: sibling.code, supplier: sibling.supplier, cbm: sibling.cbm, factor: sibling.factor }) }}
+                    </li>
+                </ul>
+            </section>
+        </div>
 
-        <section id="agent-contacts" :class="card">
-            <h3 :class="sectionTitle">
-                <FontAwesomeIcon icon="fal fa-address-card" fixed-width aria-hidden="true" />
-                {{ ctrans("Supplier contacts") }}
-                <span class="ml-auto font-normal normal-case tracking-normal text-gray-400">{{ ctrans("From supplier record") }}</span>
-            </h3>
-            <p v-if="panel.contacts.is_generic" class="mb-3 rounded bg-amber-50 p-2 text-xs text-amber-800">
-                {{ ctrans("This product sits under a generic supplier record. Contacts go on the real factory: move the product there first.") }}
-            </p>
-            <div class="space-y-2">
-                <label v-for="field in contactFields" :key="field.key" class="flex items-center gap-2 text-sm">
-                    <span class="w-28 shrink-0 text-gray-500">{{ field.label }}</span>
-                    <InputText v-if="panel.contacts.update_route" v-model="contactsForm[field.key]" class="!w-full !py-1 !text-sm" :class="fieldFocusClass"
-                        :placeholder="ctrans('Missing')" />
-                    <span v-else class="truncate" :class="panel.contacts.values[field.key] ? 'text-gray-800' : 'italic text-gray-400'">
-                        {{ panel.contacts.values[field.key] ?? ctrans("Missing") }}
-                    </span>
-                </label>
-            </div>
-            <div v-if="panel.contacts.update_route" class="mt-3 flex items-center justify-between gap-2">
-                <span class="text-xs text-gray-400">{{ ctrans("Saved on the supplier") }}</span>
-                <Button type="tertiary" :label="ctrans('Save')" :loading="savingSection === 'contacts'" @click="saveContacts">
-                    <template #icon><FontAwesomeIcon icon="fal fa-save" class="text-green-600" fixed-width aria-hidden="true" /></template>
-                </Button>
-            </div>
-        </section>
-
-        <section id="agent-measurements" :class="[card, 'md:col-span-2']">
-            <h3 :class="sectionTitle">
-                <FontAwesomeIcon icon="fal fa-ruler-combined" fixed-width aria-hidden="true" />
-                {{ ctrans("Weights and measurements") }}
-            </h3>
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="text-left text-xs text-gray-500">
-                        <th class="py-1 font-medium" />
-                        <th class="py-1 font-medium">{{ ctrans("L (cm)") }}</th>
-                        <th class="py-1 font-medium">{{ ctrans("W (cm)") }}</th>
-                        <th class="py-1 font-medium">{{ ctrans("H (cm)") }}</th>
-                        <th class="py-1 font-medium">{{ ctrans("Net (kg)") }}</th>
-                        <th class="py-1 font-medium">{{ ctrans("Gross (kg)") }}</th>
-                        <th class="py-1 font-medium">{{ ctrans("CBM") }}</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                    <tr class="tabular-nums text-gray-700">
-                        <td class="py-2 pr-2 font-medium text-gray-600">{{ ctrans("Unit") }}</td>
-                        <td class="py-2">{{ number(panel.measurements.unit.dimensions?.l ?? null, 1) }}</td>
-                        <td class="py-2">{{ number(panel.measurements.unit.dimensions?.w ?? null, 1) }}</td>
-                        <td class="py-2">{{ number(panel.measurements.unit.dimensions?.h ?? null, 1) }}</td>
-                        <td class="py-2">{{ panel.measurements.unit.net_weight === null ? "-" : number(panel.measurements.unit.net_weight / 1000, 3) }}</td>
-                        <td class="py-2">{{ panel.measurements.unit.gross_weight === null ? "-" : number(panel.measurements.unit.gross_weight / 1000, 3) }}</td>
-                        <td class="py-2 text-gray-400">-</td>
-                    </tr>
-                    <tr class="tabular-nums text-gray-700">
-                        <td class="py-2 pr-2 font-medium text-gray-600">{{ ctrans("Carton") }}</td>
-                        <template v-if="canEdit">
-                            <td v-for="side in ['l', 'w', 'h']" :key="side" class="py-2 pr-1">
-                                <InputNumber v-model="measurementsForm[side]" :min="0" :maxFractionDigits="1" inputClass="!w-16 !py-1 !text-sm" :class="fieldFocusClass" />
-                            </td>
-                            <td class="py-2 pr-1"><InputNumber v-model="measurementsForm.net_kg" :min="0" :maxFractionDigits="3" inputClass="!w-20 !py-1 !text-sm" :class="fieldFocusClass" /></td>
-                            <td class="py-2 pr-1"><InputNumber v-model="measurementsForm.gross_kg" :min="0" :maxFractionDigits="3" inputClass="!w-20 !py-1 !text-sm" :class="fieldFocusClass" /></td>
-                            <td class="py-2"><InputNumber v-model="measurementsForm.cbm" :min="0" :maxFractionDigits="6" inputClass="!w-24 !py-1 !text-sm" :class="fieldFocusClass" /></td>
-                        </template>
-                        <template v-else>
-                            <td class="py-2">{{ number(panel.measurements.carton.dimensions?.l ?? null, 1) }}</td>
-                            <td class="py-2">{{ number(panel.measurements.carton.dimensions?.w ?? null, 1) }}</td>
-                            <td class="py-2">{{ number(panel.measurements.carton.dimensions?.h ?? null, 1) }}</td>
-                            <td class="py-2">{{ panel.measurements.carton.net_weight === null ? "-" : number(panel.measurements.carton.net_weight / 1000, 3) }}</td>
-                            <td class="py-2">{{ panel.measurements.carton.gross_weight === null ? "-" : number(panel.measurements.carton.gross_weight / 1000, 3) }}</td>
-                            <td class="py-2">{{ number(panel.measurements.carton.cbm, 4) }}</td>
-                        </template>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div v-if="canEdit" class="mt-3 flex flex-wrap items-center gap-3">
-                <label class="flex items-center gap-2 text-xs text-gray-500">
-                    {{ ctrans("Units per carton") }}
-                    <InputNumber v-model="measurementsForm.units_per_carton" :min="1" :useGrouping="false" inputClass="!w-20 !py-1 !text-sm" :class="fieldFocusClass" />
-                </label>
-                <button v-if="cbmFromDimensions && cbmFromDimensions !== measurementsForm.cbm" type="button"
-                    class="text-xs text-gray-600 underline decoration-dotted hover:text-gray-900"
-                    @click="measurementsForm.cbm = cbmFromDimensions">
-                    {{ ctrans("Use :cbm m³ from the carton size", { cbm: cbmFromDimensions }) }}
-                </button>
-                <Button type="tertiary" class="ml-auto" :label="ctrans('Save')" :loading="savingSection === 'measurements'" @click="saveMeasurements">
-                    <template #icon><FontAwesomeIcon icon="fal fa-save" class="text-green-600" fixed-width aria-hidden="true" /></template>
-                </Button>
-            </div>
-
-            <ul v-if="panel.warnings.length || panel.cbm_siblings.length" class="mt-3 space-y-1">
-                <li v-for="warning in panel.warnings" :key="warning.key" class="flex gap-2 rounded bg-amber-50 p-2 text-xs text-amber-800">
-                    <FontAwesomeIcon icon="fal fa-exclamation-triangle" fixed-width aria-hidden="true" class="mt-0.5" />
-                    {{ warning.message }}
-                </li>
-                <li v-for="sibling in panel.cbm_siblings" :key="sibling.code + sibling.supplier" class="flex gap-2 rounded bg-amber-50 p-2 text-xs text-amber-800">
-                    <FontAwesomeIcon icon="fal fa-exclamation-triangle" fixed-width aria-hidden="true" class="mt-0.5" />
-                    {{ ctrans(":code at :supplier has a CBM of :cbm m³, :factor this one. A decimal point probably slipped on one of them.", { code: sibling.code, supplier: sibling.supplier, cbm: sibling.cbm, factor: sibling.factor }) }}
-                </li>
-            </ul>
-        </section>
-
-        <section :class="card">
-            <h3 :class="sectionTitle">
-                <FontAwesomeIcon icon="fal fa-shipping-fast" fixed-width aria-hidden="true" />
-                {{ ctrans("Cartons per container") }}
-            </h3>
-            <dl v-if="panel.containers" class="divide-y divide-gray-100">
-                <div v-for="(cartons, container) in panel.containers" :key="container" class="flex items-baseline justify-between py-2">
-                    <dt class="text-sm text-gray-500">{{ containerLabels[container] }}</dt>
-                    <dd class="text-base font-semibold tabular-nums text-gray-800">{{ number(cartons) }}</dd>
-                </div>
-            </dl>
-            <p v-else class="text-sm italic text-gray-400">{{ ctrans("Needs the CBM") }}</p>
-        </section>
+        <div class="flex min-w-0 flex-col gap-6">
+            <section :class="card">
+                <h3 :class="sectionTitle">
+                    <FontAwesomeIcon icon="fal fa-shipping-fast" fixed-width aria-hidden="true" />
+                    {{ ctrans("Cartons per container") }}
+                </h3>
+                <dl v-if="panel.containers" class="divide-y divide-gray-100">
+                    <div v-for="(cartons, container) in panel.containers" :key="container" class="flex items-baseline justify-between py-2">
+                        <dt class="text-sm text-gray-500">{{ containerLabels[container] }}</dt>
+                        <dd class="text-base font-semibold tabular-nums text-gray-800">{{ number(cartons) }}</dd>
+                    </div>
+                </dl>
+                <p v-else class="text-sm italic text-gray-400">{{ ctrans("Needs the CBM") }}</p>
+            </section>
+        </div>
 
         <section :class="[card, 'md:col-span-3']">
             <h3 :class="sectionTitle">{{ ctrans("Production calendar") }}
@@ -483,67 +486,71 @@ const card = "rounded-xl border border-gray-200 bg-white p-4 shadow-sm scroll-mt
             <p v-else class="mt-2 text-sm italic text-gray-400">{{ ctrans("No production calendar yet: set it on the family in the By supplier tab of the products list.") }}</p>
         </section>
 
-        <section id="agent-packaging" :class="[card, 'md:col-span-2']">
-            <h3 :class="sectionTitle">
-                <FontAwesomeIcon icon="fal fa-box-open" fixed-width aria-hidden="true" />
-                {{ ctrans("Packaging terms") }}
-            </h3>
-            <div class="space-y-2">
-                <div v-for="term in paidTerms" :key="term.key" class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="text-sm text-gray-600">
-                        {{ term.label }}
-                        <span v-if="sourceLabel(panel.packaging.terms[term.key].source) && !packagingForm[term.key]" class="ml-1 text-xs italic text-gray-400">
-                            {{ panel.packaging.options[panel.packaging.terms[term.key].value as string] }} · {{ sourceLabel(panel.packaging.terms[term.key].source) }}
+        <div class="flex min-w-0 flex-col gap-6 md:col-span-2">
+            <section id="agent-packaging" :class="card">
+                <h3 :class="sectionTitle">
+                    <FontAwesomeIcon icon="fal fa-box-open" fixed-width aria-hidden="true" />
+                    {{ ctrans("Packaging terms") }}
+                </h3>
+                <div class="space-y-2">
+                    <div v-for="term in paidTerms" :key="term.key" class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="text-sm text-gray-600">
+                            {{ term.label }}
+                            <span v-if="sourceLabel(panel.packaging.terms[term.key].source) && !packagingForm[term.key]" class="ml-1 text-xs italic text-gray-400">
+                                {{ panel.packaging.options[panel.packaging.terms[term.key].value as string] }} · {{ sourceLabel(panel.packaging.terms[term.key].source) }}
+                            </span>
                         </span>
-                    </span>
-                    <SegmentedToggle v-if="canEdit" v-model="packagingForm[term.key]" :options="payerOptions" :ariaLabel="term.label" />
-                    <span v-else class="text-sm text-gray-800">{{ panel.packaging.options[panel.packaging.terms[term.key].value as string] ?? "-" }}</span>
+                        <SegmentedToggle v-if="canEdit" v-model="packagingForm[term.key]" :options="payerOptions" :ariaLabel="term.label" />
+                        <span v-else class="text-sm text-gray-800">{{ panel.packaging.options[panel.packaging.terms[term.key].value as string] ?? "-" }}</span>
+                    </div>
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-t border-gray-100 pt-2">
+                        <span class="text-sm text-gray-600">{{ ctrans("Protective materials in the carton") }}</span>
+                        <InputText v-if="canEdit" v-model="packagingForm.protective_materials" class="!w-64 !py-1 !text-sm" :class="fieldFocusClass"
+                            :placeholder="panel.packaging.terms.protective_materials.value?.toString() ?? ''" />
+                        <span v-else class="text-sm text-gray-800">{{ panel.packaging.terms.protective_materials.value ?? "-" }}</span>
+                    </div>
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="text-sm text-gray-600">{{ ctrans("Silica gel sachets per carton") }}</span>
+                        <InputNumber v-if="canEdit" v-model="packagingForm.silica_gel_sachets" :min="0" :useGrouping="false" inputClass="!w-20 !py-1 !text-sm" :class="fieldFocusClass"
+                            :placeholder="panel.packaging.terms.silica_gel_sachets.value?.toString() ?? ''" />
+                        <span v-else class="text-sm text-gray-800">{{ panel.packaging.terms.silica_gel_sachets.value ?? "-" }}</span>
+                    </div>
                 </div>
-                <div class="flex flex-wrap items-center justify-between gap-2 border-t border-gray-100 pt-2">
-                    <span class="text-sm text-gray-600">{{ ctrans("Protective materials in the carton") }}</span>
-                    <InputText v-if="canEdit" v-model="packagingForm.protective_materials" class="!w-64 !py-1 !text-sm" :class="fieldFocusClass"
-                        :placeholder="panel.packaging.terms.protective_materials.value?.toString() ?? ''" />
-                    <span v-else class="text-sm text-gray-800">{{ panel.packaging.terms.protective_materials.value ?? "-" }}</span>
-                </div>
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="text-sm text-gray-600">{{ ctrans("Silica gel sachets per carton") }}</span>
-                    <InputNumber v-if="canEdit" v-model="packagingForm.silica_gel_sachets" :min="0" :useGrouping="false" inputClass="!w-20 !py-1 !text-sm" :class="fieldFocusClass"
-                        :placeholder="panel.packaging.terms.silica_gel_sachets.value?.toString() ?? ''" />
-                    <span v-else class="text-sm text-gray-800">{{ panel.packaging.terms.silica_gel_sachets.value ?? "-" }}</span>
-                </div>
-            </div>
-            <div v-if="canEdit" class="mt-3 flex justify-end">
-                <Button type="tertiary" :label="ctrans('Save')" :loading="savingSection === 'packaging'" @click="savePackaging">
-                    <template #icon><FontAwesomeIcon icon="fal fa-save" class="text-green-600" fixed-width aria-hidden="true" /></template>
-                </Button>
-            </div>
-        </section>
-
-        <section id="agent-availability" :class="card">
-            <h3 :class="sectionTitle">{{ ctrans("Availability") }}</h3>
-            <template v-if="canEdit">
-                <SegmentedToggle v-model="availabilityForm.status" :options="statusOptions" :ariaLabel="ctrans('Availability')" />
-                <div v-if="availabilityForm.status !== 'available'" class="mt-3 space-y-2">
-                    <Select v-model="availabilityForm.reason" :options="toOptions(panel.availability.reason_options)" optionLabel="label" optionValue="value"
-                        :placeholder="ctrans('Reason')" class="w-full" :class="fieldFocusClass" />
-                    <DatePicker v-model="availableFrom" :placeholder="ctrans('Available from')" showIcon iconDisplay="input" :manualInput="false" class="w-full" :class="fieldFocusClass" />
-                    <InputNumber v-model="availabilityForm.new_cost" :min="0" :maxFractionDigits="4" :placeholder="ctrans('New cost asked (:currency)', { currency: panel.currency })" class="w-full" inputClass="!w-full" :class="fieldFocusClass" />
-                </div>
-                <Textarea v-model="availabilityForm.note" :placeholder="ctrans('Note')" rows="2" autoResize class="mt-2 w-full !text-sm" :class="fieldFocusClass" />
-                <div class="mt-2 flex items-center justify-between gap-2">
-                    <span class="text-xs text-gray-400">{{ ctrans("Purchasing is told when you save") }}</span>
-                    <Button type="tertiary" :label="ctrans('Save')" :loading="savingSection === 'availability'"
-                        :disabled="availabilityForm.status !== 'available' && !availabilityForm.reason" @click="saveAvailability">
+                <div v-if="canEdit" class="mt-3 flex justify-end">
+                    <Button type="tertiary" :label="ctrans('Save')" :loading="savingSection === 'packaging'" @click="savePackaging">
                         <template #icon><FontAwesomeIcon icon="fal fa-save" class="text-green-600" fixed-width aria-hidden="true" /></template>
                     </Button>
                 </div>
-            </template>
-            <dl v-else class="text-sm">
-                <dt class="text-gray-800">{{ panel.availability.status_options[panel.availability.status] }}</dt>
-                <dd v-if="panel.availability.reason" class="text-gray-500">{{ panel.availability.reason_options[panel.availability.reason] }}</dd>
-                <dd v-if="panel.availability.available_from" class="text-gray-500">{{ ctrans("Available from :date", { date: panel.availability.available_from }) }}</dd>
-                <dd v-if="panel.availability.note" class="text-gray-500">{{ panel.availability.note }}</dd>
-            </dl>
-        </section>
+            </section>
+        </div>
+
+        <div class="flex min-w-0 flex-col gap-6">
+            <section id="agent-availability" :class="card">
+                <h3 :class="sectionTitle">{{ ctrans("Availability") }}</h3>
+                <template v-if="canEdit">
+                    <SegmentedToggle v-model="availabilityForm.status" :options="statusOptions" :ariaLabel="ctrans('Availability')" />
+                    <div v-if="availabilityForm.status !== 'available'" class="mt-3 space-y-2">
+                        <Select v-model="availabilityForm.reason" :options="toOptions(panel.availability.reason_options)" optionLabel="label" optionValue="value"
+                            :placeholder="ctrans('Reason')" class="w-full" :class="fieldFocusClass" />
+                        <DatePicker v-model="availableFrom" :placeholder="ctrans('Available from')" showIcon iconDisplay="input" :manualInput="false" class="w-full" :class="fieldFocusClass" />
+                        <InputNumber v-model="availabilityForm.new_cost" :min="0" :maxFractionDigits="4" :placeholder="ctrans('New cost asked (:currency)', { currency: panel.currency })" class="w-full" inputClass="!w-full" :class="fieldFocusClass" />
+                    </div>
+                    <Textarea v-model="availabilityForm.note" :placeholder="ctrans('Note')" rows="2" autoResize class="mt-2 w-full !text-sm" :class="fieldFocusClass" />
+                    <div class="mt-2 flex items-center justify-between gap-2">
+                        <span class="text-xs text-gray-400">{{ ctrans("Purchasing is told when you save") }}</span>
+                        <Button type="tertiary" :label="ctrans('Save')" :loading="savingSection === 'availability'"
+                            :disabled="availabilityForm.status !== 'available' && !availabilityForm.reason" @click="saveAvailability">
+                            <template #icon><FontAwesomeIcon icon="fal fa-save" class="text-green-600" fixed-width aria-hidden="true" /></template>
+                        </Button>
+                    </div>
+                </template>
+                <dl v-else class="text-sm">
+                    <dt class="text-gray-800">{{ panel.availability.status_options[panel.availability.status] }}</dt>
+                    <dd v-if="panel.availability.reason" class="text-gray-500">{{ panel.availability.reason_options[panel.availability.reason] }}</dd>
+                    <dd v-if="panel.availability.available_from" class="text-gray-500">{{ ctrans("Available from :date", { date: panel.availability.available_from }) }}</dd>
+                    <dd v-if="panel.availability.note" class="text-gray-500">{{ panel.availability.note }}</dd>
+                </dl>
+            </section>
+        </div>
     </div>
 </template>

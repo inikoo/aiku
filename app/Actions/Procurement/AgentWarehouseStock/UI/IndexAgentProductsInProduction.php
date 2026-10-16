@@ -12,6 +12,7 @@ namespace App\Actions\Procurement\AgentWarehouseStock\UI;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\WithAgentOrganisation;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
+use App\Enums\Procurement\AgentGoodsReceipt\AgentGoodsReceiptStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStageEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
@@ -32,7 +33,8 @@ use Spatie\QueryBuilder\AllowedSort;
 /**
  * The products the agent's suppliers are making: the lines of the purchase orders placed through the agent that are in
  * production, before their quality check passes, less what already arrived at the agent's warehouse and passed its
- * check. Units the agent rejected are made again, so they stay here even after the order's quality check passed.
+ * check, batch by batch or on a goods receipt. Units the agent rejected are made again, so they stay here even after
+ * the order's quality check passed.
  */
 class IndexAgentProductsInProduction extends OrgAction
 {
@@ -40,19 +42,32 @@ class IndexAgentProductsInProduction extends OrgAction
     use WithProcurementAuthorisation;
     use WithAgentWarehouseProductRows;
 
-    private const string OUTSTANDING_SQL = '(purchase_order_transactions.quantity_ordered - coalesce(agent_receipts.quantity_accepted, 0))';
+    private const string OUTSTANDING_SQL = '(purchase_order_transactions.quantity_ordered - coalesce(agent_receipts.quantity_accepted, 0) - coalesce(received_lines.quantity, 0))';
 
     private const string REJECTED_SQL = 'coalesce(agent_receipts.quantity_rejected, 0)';
 
-    private function baseQuery(Agent $agent): Builder
+    /**
+     * The purchase order lines still being made, each less what the agent kept of its batches and what its goods
+     * receipts not cancelled brought, so a line received in part keeps only the rest and a line received in full is gone.
+     */
+    public static function inProductionLines(Agent $agent): Builder
     {
+        $receivedLines = DB::table('agent_goods_receipt_items')
+            ->join('agent_goods_receipts', 'agent_goods_receipts.id', 'agent_goods_receipt_items.agent_goods_receipt_id')
+            ->where('agent_goods_receipts.state', AgentGoodsReceiptStateEnum::RECEIVED->value)
+            ->whereNotNull('agent_goods_receipt_items.purchase_order_transaction_id')
+            ->groupBy('agent_goods_receipt_items.purchase_order_transaction_id')
+            ->select('agent_goods_receipt_items.purchase_order_transaction_id')
+            ->selectRaw('sum(agent_goods_receipt_items.quantity) as quantity');
+
         return PurchaseOrderTransaction::query()
             ->join('purchase_orders as production_orders', 'production_orders.id', 'purchase_order_transactions.purchase_order_id')
+            ->leftJoinSub($receivedLines, 'received_lines', 'received_lines.purchase_order_transaction_id', 'purchase_order_transactions.id')
             ->where('production_orders.agent_id', $agent->id)
             ->whereNull('production_orders.deleted_at')
             ->whereIn('production_orders.state', [PurchaseOrderStateEnum::SUBMITTED, PurchaseOrderStateEnum::CONFIRMED])
             ->whereIn('purchase_order_transactions.state', [PurchaseOrderTransactionStateEnum::SUBMITTED, PurchaseOrderTransactionStateEnum::CONFIRMED])
-            ->leftJoinSub($this->acceptedAtAgentWarehouse(), 'agent_receipts', 'agent_receipts.purchase_order_transaction_id', 'purchase_order_transactions.id')
+            ->leftJoinSub(self::acceptedAtAgentWarehouse(), 'agent_receipts', 'agent_receipts.purchase_order_transaction_id', 'purchase_order_transactions.id')
             ->whereRaw('('.self::inProductionStageSql().' or '.self::REJECTED_SQL.' > 0)')
             ->whereRaw(self::OUTSTANDING_SQL.' > 0');
     }
@@ -63,9 +78,10 @@ class IndexAgentProductsInProduction extends OrgAction
     }
 
     /**
-     * Once the order is past production only the rejected units are being made again: the rest is ready or on its way.
+     * Units of the line still being made. Once the order is past production only the rejected units are being made
+     * again: the rest is ready or on its way.
      */
-    private static function quantityInProductionSql(): string
+    public static function remainingQuantitySql(): string
     {
         return 'case when '.self::inProductionStageSql().' then '.self::OUTSTANDING_SQL.' else least('.self::OUTSTANDING_SQL.', '.self::REJECTED_SQL.') end';
     }
@@ -73,7 +89,7 @@ class IndexAgentProductsInProduction extends OrgAction
     /**
      * What the agent kept of each line, batch by batch: received less rejected. The rest is still owed by the supplier.
      */
-    private function acceptedAtAgentWarehouse(): QueryBuilderBase
+    private static function acceptedAtAgentWarehouse(): QueryBuilderBase
     {
         return DB::table('agent_warehouse_receipts')
             ->whereNull('deleted_at')
@@ -86,9 +102,10 @@ class IndexAgentProductsInProduction extends OrgAction
     public function handle(Agent $agent): LengthAwarePaginator
     {
         $query = $this->joinProductRowDetails(
-            $this->baseQuery($agent)->select([
+            self::inProductionLines($agent)->select([
                 'purchase_order_transactions.id',
-                DB::raw(self::quantityInProductionSql().' as quantity'),
+                'purchase_order_transactions.quantity_ordered',
+                DB::raw(self::remainingQuantitySql().' as quantity'),
                 DB::raw('least('.self::OUTSTANDING_SQL.', '.self::REJECTED_SQL.') as quantity_rejected'),
                 DB::raw(self::OUTSTANDING_SQL.' as quantity_outstanding'),
                 'production_orders.production_started_at',
@@ -105,7 +122,7 @@ class IndexAgentProductsInProduction extends OrgAction
                 AllowedSort::field('name', 'supplier_products.name'),
                 AllowedSort::field('supplier_code', 'suppliers.code'),
                 AllowedSort::field('organisation_code', 'organisations.code'),
-                AllowedSort::field('quantity'),
+                AllowedSort::field('quantity', 'quantity'),
                 AllowedSort::field('production_started_at', 'production_orders.production_started_at'),
                 AllowedSort::field('ready_at', 'production_orders.approved_ready_at'),
             ])
@@ -114,6 +131,7 @@ class IndexAgentProductsInProduction extends OrgAction
             ->withQueryString()
             ->through(fn (PurchaseOrderTransaction $transaction) => array_merge($this->productRow($transaction), [
                 'id'                    => $transaction->id,
+                'quantity_ordered'      => (float) $transaction->quantity_ordered,
                 'production_started_at' => $transaction->production_started_at,
                 'ready_at'              => $transaction->approved_ready_at ?? $transaction->proposed_ready_at,
                 'ready_at_is_approved'  => $transaction->approved_ready_at !== null,
@@ -169,10 +187,11 @@ class IndexAgentProductsInProduction extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $rows, ActionRequest $request): Response
     {
-        $organisationCounts = $this->baseQuery($this->agent)
+        $organisationCounts = self::inProductionLines($this->agent)
             ->join('organisations', 'organisations.id', 'purchase_order_transactions.organisation_id')
-            ->selectRaw('organisations.slug, organisations.code, count(*) as total')
-            ->groupBy('organisations.slug', 'organisations.code')
+            ->leftJoin('countries', 'countries.id', 'organisations.country_id')
+            ->selectRaw('organisations.slug, organisations.code, organisations.name, countries.name as country_name, count(*) as total')
+            ->groupBy('organisations.slug', 'organisations.code', 'organisations.name', 'countries.name')
             ->toBase()
             ->get();
 
@@ -190,5 +209,44 @@ class IndexAgentProductsInProduction extends OrgAction
                 'parameters' => [$this->organisation->id],
             ],
         ] : null)->table($this->tableStructure());
+    }
+
+    /**
+     * What goods received from the suppliers can be booked against: each supplier and each purchase order with lines
+     * still in production, with how many.
+     *
+     * @return array{suppliers: list<array{value: int, label: string, count: int}>, purchase_orders: list<array{value: int, label: string, count: int}>}
+     */
+    public static function receiveScopes(Agent $agent): array
+    {
+        $purchaseOrders = self::inProductionLines($agent)
+            ->join('supplier_products', 'supplier_products.id', 'purchase_order_transactions.supplier_product_id')
+            ->join('suppliers', 'suppliers.id', 'supplier_products.supplier_id')
+            ->join('organisations', 'organisations.id', 'purchase_order_transactions.organisation_id')
+            ->selectRaw('suppliers.id as supplier_id, suppliers.code as supplier_code, suppliers.name as supplier_name, production_orders.id as purchase_order_id, production_orders.reference, organisations.code as organisation_code, count(*) as total')
+            ->groupBy('suppliers.id', 'suppliers.code', 'suppliers.name', 'production_orders.id', 'production_orders.reference', 'organisations.code')
+            ->toBase()
+            ->get();
+
+        return [
+            'suppliers'       => $purchaseOrders->groupBy('supplier_id')
+                ->map(fn ($orders) => [
+                    'value' => (int) $orders->first()->supplier_id,
+                    'label' => "{$orders->first()->supplier_code} · {$orders->first()->supplier_name}",
+                    'count' => (int) $orders->sum('total'),
+                ])
+                ->sortBy('label')
+                ->values()
+                ->all(),
+            'purchase_orders' => $purchaseOrders->groupBy('purchase_order_id')
+                ->map(fn ($orders) => [
+                    'value' => (int) $orders->first()->purchase_order_id,
+                    'label' => $orders->first()->reference.' · '.$orders->pluck('supplier_code')->unique()->implode(', ').' · '.strtoupper($orders->first()->organisation_code),
+                    'count' => (int) $orders->sum('total'),
+                ])
+                ->sortBy('label')
+                ->values()
+                ->all(),
+        ];
     }
 }

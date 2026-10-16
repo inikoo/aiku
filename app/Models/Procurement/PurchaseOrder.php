@@ -381,6 +381,18 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
             ->where('agent_order_reference', $agentOrderReference);
     }
 
+    /**
+     * This order and the orders to the agent's other suppliers that went out with it, under the same agent order reference.
+     */
+    public function wholeAgentOrder(): Builder
+    {
+        if (!$this->isAgentOrder() || !$this->agent_order_reference) {
+            return self::query()->whereKey($this->id);
+        }
+
+        return self::inAgentOrder($this->organisation_id, $this->agent_id, $this->agent_order_reference);
+    }
+
     public function deposits(): HasMany
     {
         return $this->hasMany(AspoDeposit::class);

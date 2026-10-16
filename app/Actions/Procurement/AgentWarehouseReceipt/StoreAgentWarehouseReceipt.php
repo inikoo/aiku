@@ -13,9 +13,11 @@ use App\Actions\OrgAction;
 use App\Actions\Procurement\PurchaseOrder\MarkPurchaseOrderStage;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
 use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
+use App\Enums\Procurement\AgentGoodsReceipt\AgentGoodsReceiptStateEnum;
 use App\Enums\Procurement\AgentWarehouseStock\AgentWarehouseStockStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
+use App\Models\Procurement\AgentGoodsReceiptItem;
 use App\Models\Procurement\AgentWarehouseReceipt;
 use App\Models\Procurement\AgentWarehouseStock;
 use App\Models\Procurement\PurchaseOrderTransaction;
@@ -81,13 +83,19 @@ class StoreAgentWarehouseReceipt extends OrgAction
     }
 
     /**
-     * What the agent kept from the batches already received for the line: received less rejected.
+     * What the agent kept of the line: its batches received less rejected, and what goods receipts not cancelled brought.
      */
     public static function quantityAccepted(PurchaseOrderTransaction $purchaseOrderTransaction, ?AgentWarehouseReceipt $except = null): float
     {
-        return (float) AgentWarehouseReceipt::where('purchase_order_transaction_id', $purchaseOrderTransaction->id)
+        $keptFromBatches = (float) AgentWarehouseReceipt::where('purchase_order_transaction_id', $purchaseOrderTransaction->id)
             ->when($except, fn ($query) => $query->where('id', '!=', $except->id))
             ->sum(DB::raw('quantity_received - coalesce(quantity_rejected, 0)'));
+
+        $onGoodsReceipts = (float) AgentGoodsReceiptItem::where('purchase_order_transaction_id', $purchaseOrderTransaction->id)
+            ->whereHas('agentGoodsReceipt', fn ($query) => $query->where('state', AgentGoodsReceiptStateEnum::RECEIVED))
+            ->sum('quantity');
+
+        return $keptFromBatches + $onGoodsReceipts;
     }
 
     public static function quantityOutstanding(PurchaseOrderTransaction $purchaseOrderTransaction, ?AgentWarehouseReceipt $except = null): float

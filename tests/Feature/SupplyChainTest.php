@@ -374,7 +374,7 @@ test('HELP-4019 carton dimensions give the CBM, packaging terms merge, and a new
         ->toThrow(ValidationException::class);
 })->depends('create supplier product independent supplier');
 
-test('HELP-4019 a generic supplier takes no new contacts, a real factory takes WeChat and WhatsApp', function (Supplier $supplier) {
+test('HELP-4019 a factory takes WeChat, WhatsApp and holidays', function (Supplier $supplier) {
     $supplier = UpdateSupplier::make()->action($supplier, [
         'wechat'                 => 'factory_wx',
         'production_waiting_time' => 30,
@@ -385,14 +385,6 @@ test('HELP-4019 a generic supplier takes no new contacts, a real factory takes W
     expect($supplier->wechat)->toBe('factory_wx')
         ->and($supplier->defaultLeadTimeDays())->toBe(40)
         ->and($supplier->factory_holidays)->toHaveCount(1);
-
-    $supplier = UpdateSupplier::make()->action($supplier, ['is_generic' => true]);
-
-    expect(fn () => UpdateSupplier::make()->action($supplier, ['wechat' => 'someone_else']))
-        ->toThrow(ValidationException::class);
-
-    $supplier = UpdateSupplier::make()->action($supplier, ['wechat' => 'factory_wx', 'is_generic' => false]);
-    expect($supplier->is_generic)->toBeFalse();
 })->depends('create independent supplier');
 
 test('HELP-4019 a family at a supplier keeps its own MOQ, lead time, packaging terms and production calendar', function (Supplier $supplier) {

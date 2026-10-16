@@ -21,10 +21,8 @@ const props = defineProps<{
             missing_moq_or_weights: number
             not_available: number
             not_available_without_reason: number
-            under_generic: number
             without_family: number
             suppliers: number
-            generic_suppliers: number
             lead_time: { products: number; average_estimated: number | null; average_measured: number | null; arrived_late: number }
         }
         fill_rates: FillRate[]
@@ -82,13 +80,6 @@ const tiles = computed(() => [
             ? ctrans(":count with no reason recorded", { count: number(kpis.value.not_available_without_reason) })
             : ctrans("All with a reason"),
         href: productsRoute("not_available"),
-    },
-    {
-        key: "under_generic",
-        label: ctrans("Under generic records"),
-        value: kpis.value.under_generic,
-        note: ctrans(":count generic suppliers", { count: kpis.value.generic_suppliers }),
-        href: productsRoute("generic"),
     },
 ])
 

@@ -23,7 +23,7 @@ use Laravel\Nightwatch\Facades\Nightwatch;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
- * Replaces an agent's warehouse stock for one organisation with the Moving Stock and Packed tabs of its stock spreadsheet (HELP-3960).
+ * Replaces an agent's warehouse stock for one organisation, except the goods received line by line on the In production page, with the Moving Stock and Packed tabs of its stock spreadsheet (HELP-3960).
  * The In Production tab holds what the suppliers are still making, so the open purchase order of each of its lines is marked
  * as in production instead (HELP-4025).
  */
@@ -118,7 +118,7 @@ class ImportAgentWarehouseStocksFromSheet
 
         if (!$dryRun) {
             DB::transaction(function () use ($agent, $organisation, $rows) {
-                AgentWarehouseStock::where('agent_id', $agent->id)->where('organisation_id', $organisation->id)->whereDoesntHave('receipt')->delete();
+                AgentWarehouseStock::where('agent_id', $agent->id)->where('organisation_id', $organisation->id)->whereNull('purchase_order_transaction_id')->whereDoesntHave('receipt')->delete();
                 AgentWarehouseStock::insert($rows);
             });
         }

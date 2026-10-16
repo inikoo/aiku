@@ -320,6 +320,7 @@ use App\Actions\GoodsIn\StockDelivery\DeleteStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\CancelStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\DispatchStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\ReceiveStockDelivery;
+use App\Actions\GoodsIn\StockDelivery\RecordStockDeliveryGoodsInCheck;
 use App\Actions\GoodsIn\StockDelivery\UndispatchStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\UnreceiveStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\UpdateStockDelivery;
@@ -340,6 +341,7 @@ use App\Actions\GoodsIn\StockDeliveryItem\SetStockDeliveryItemAsPlaced;
 use App\Actions\GoodsIn\StockDeliveryItem\SetStockDeliveryItemCheckedQuantity;
 use App\Actions\GoodsIn\StockDeliveryItem\UpdateStockDeliveryItemCost;
 use App\Actions\GoodsIn\StockDeliveryItem\ResolveStockDeliveryItemDiscrepancy;
+use App\Actions\GoodsIn\StockDeliveryItem\SetStockDeliveryItemCbmInContainer;
 use App\Actions\GoodsIn\StockDeliveryItem\SetStockDeliveryItemCustomsLine;
 use App\Actions\GoodsIn\StockDelivery\UpdateStockDeliveryCustoms;
 use App\Actions\GoodsIn\StockDeliveryClaim\UpdateStockDeliveryClaim;
@@ -493,7 +495,6 @@ use App\Actions\Procurement\OrgSupplierProducts\UpdateOrgSupplierProductAgentDet
 use App\Actions\Procurement\OrgSupplierProducts\UpdateOrgSupplierProductCartonBarcode;
 use App\Actions\Procurement\OrgSupplierProducts\UpdateOrgSupplierProductCartonWeights;
 use App\Actions\Procurement\OrgSupplierProducts\UpdateOrgSupplierProductSupplierContacts;
-use App\Actions\Procurement\OrgSupplierProducts\MoveAgentSupplierProducts;
 use App\Actions\Procurement\OrgSupplierProducts\UpdateAgentSupplierContacts;
 use App\Actions\Procurement\OrgSupplierProducts\UpdateAgentSupplierStockFamily;
 use App\Actions\Procurement\PurchaseOrder\ConfirmPurchaseOrderPayment;
@@ -517,6 +518,8 @@ use App\Actions\SupplyChain\SupplierChangeRequest\StoreSupplierChangeRequest;
 use App\Actions\Procurement\PurchaseOrder\AttachPurchaseOrderComplianceDocument;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToCancelled;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToConfirmed;
+use App\Actions\Procurement\AgentOrder\ConfirmAgentWholeOrder;
+use App\Actions\Procurement\AgentOrder\RequestAgentWholeOrderDeposits;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToInProcess;
 use App\Actions\Procurement\PurchaseOrder\SetPurchaseOrderReadyToSend;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToSubmitted;
@@ -594,6 +597,7 @@ use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SupplyChain\Supplier\UpdateSupplier;
 use App\Actions\SupplyChain\SupplierProduct\ImportSupplierProducts;
 use App\Actions\SupplyChain\SupplierProduct\CopySupplierProductsToSupplier;
+use App\Actions\SupplyChain\SupplierProduct\RepairSupplierProductsSupplier;
 use App\Actions\SupplyChain\SupplierProduct\CheckSupplierProductForm;
 use App\Actions\SupplyChain\SupplierProduct\StoreSupplierProductFromForm;
 use App\Actions\SupplyChain\SupplierProduct\Upload\CancelSupplierProductUpload;
@@ -1019,11 +1023,11 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
 
     Route::post('supplier', [StoreSupplier::class, 'inOrganisation'])->name('supplier.store');
     Route::post('supplier/{supplier:id}/supplier-products/copy', CopySupplierProductsToSupplier::class)->name('supplier.supplier_products.copy')->withoutScopedBindings();
+    Route::post('supplier/{supplier:id}/supplier-products/repair', RepairSupplierProductsSupplier::class)->name('supplier.supplier_products.repair')->withoutScopedBindings();
     Route::post('org-supplier/from-supplier/{supplier:id}', [StoreOrgSupplier::class, 'inOrganisation'])->name('org_supplier.store')->withoutScopedBindings();
     Route::post('stock-delivery-service-invoice', StoreStockDeliveryServiceInvoice::class)->name('stock_delivery_service_invoice.store');
     Route::patch('org-supplier-product/{orgSupplierProduct:id}/agent-details', UpdateOrgSupplierProductAgentDetails::class)->name('org_supplier_product.agent_details.update')->withoutScopedBindings();
     Route::patch('agent-supplier/{supplier:id}/family/{stockFamily:id}', UpdateAgentSupplierStockFamily::class)->name('agent_supplier.family.update')->withoutScopedBindings();
-    Route::post('agent-supplier/{supplier:id}/move-products', MoveAgentSupplierProducts::class)->name('agent_supplier.move_products')->withoutScopedBindings();
     Route::patch('agent-supplier/{supplier:id}/contacts', UpdateAgentSupplierContacts::class)->name('agent_supplier.contacts.update')->withoutScopedBindings();
     Route::patch('org-supplier-product/{orgSupplierProduct:id}/supplier-contacts', UpdateOrgSupplierProductSupplierContacts::class)->name('org_supplier_product.supplier_contacts.update')->withoutScopedBindings();
     Route::patch('org-supplier-product/{orgSupplierProduct:id}/carton-weights', UpdateOrgSupplierProductCartonWeights::class)->name('org_supplier_product.carton_weights.update')->withoutScopedBindings();
@@ -1731,6 +1735,7 @@ Route::patch('supplier-agreed-term/{supplierAgreedTerm:id}/withdraw', [WithdrawS
 
 Route::name('stock-delivery.')->prefix('stock-delivery/{stockDelivery:id}')->group(function () {
     Route::post('note', [StoreProcurementNote::class, 'inStockDelivery'])->name('note.store');
+    Route::post('goods-in-check', RecordStockDeliveryGoodsInCheck::class)->name('goods_in_check.store');
     Route::post('agreed-terms/accept', [AcceptAgreedTermDifferences::class, 'inStockDelivery'])->name('agreed_terms.accept');
     Route::post('invoice', StoreActualStockDeliveryInvoice::class)->name('invoice.store');
     Route::post('agent-payment', StoreAgentPayment::class)->name('agent_payment.store');
@@ -1791,6 +1796,7 @@ Route::name('stock-delivery-item.')->prefix('stock-delivery-item/{stockDeliveryI
     Route::patch('update-cost', UpdateStockDeliveryItemCost::class)->name('update-cost')->withoutScopedBindings();
     Route::post('resolve-discrepancy', ResolveStockDeliveryItemDiscrepancy::class)->name('resolve-discrepancy')->withoutScopedBindings();
     Route::patch('customs-line', SetStockDeliveryItemCustomsLine::class)->name('customs-line')->withoutScopedBindings();
+    Route::patch('cbm-in-container', SetStockDeliveryItemCbmInContainer::class)->name('cbm-in-container')->withoutScopedBindings();
 });
 
 Route::post('stock-delivery-claim/{stockDeliveryClaim:id}/update', UpdateStockDeliveryClaim::class)->name('stock-delivery-claim.update');
@@ -1828,6 +1834,8 @@ Route::name('purchase-order.')->prefix('purchase-order/{purchaseOrder:id}')->gro
     Route::post('note', [StoreProcurementNote::class, 'inPurchaseOrder'])->name('note.store');
     Route::post('agreed-terms/accept', [AcceptAgreedTermDifferences::class, 'inPurchaseOrder'])->name('agreed_terms.accept');
     Route::patch('confirm', UpdatePurchaseOrderStateToConfirmed::class)->name('confirm');
+    Route::patch('agent-order/confirm', ConfirmAgentWholeOrder::class)->name('agent_order.confirm');
+    Route::post('agent-order/deposits', RequestAgentWholeOrderDeposits::class)->name('agent_order.deposits.request');
     Route::patch('undo-confirm', RevertPurchaseOrderToSubmitted::class)->name('undo-confirm');
     Route::patch('cancel', UpdatePurchaseOrderStateToCancelled::class)->name('cancel');
     Route::post('stock-delivery', StoreStockDeliveryFromPurchaseOrder::class)->name('stock-delivery.store');

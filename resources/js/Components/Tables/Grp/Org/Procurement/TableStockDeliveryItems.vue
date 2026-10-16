@@ -24,6 +24,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { faInventory, faBox, faSpellCheck, faBoxCheck, faTrashAlt, faClipboardList, faSeedling, faTruck, faCheck, faClipboardCheck, faCheckDouble, faTimesCircle, faSave, faUndoAlt, faHandHoldingBox, faExclamationCircle as falExclamationCircle } from '@fal'
 import { faExclamationCircle, faSpinner } from '@fas'
 import ConfirmPopup from 'primevue/confirmpopup'
+import InputNumber from 'primevue/inputnumber'
 import { Dialog } from 'primevue'
 import { useConfirm } from 'primevue/useconfirm'
 import { ctrans } from '@/Composables/useTrans'
@@ -306,6 +307,53 @@ async function saveAllCosts() {
     }
 }
 
+const cbmInContainerDraft = reactive<Record<number, number | null>>({})
+const savingCbmInContainerId = ref<number | null>(null)
+
+watch(() => props.data?.data, (items) => {
+    for (const id of Object.keys(cbmInContainerDraft)) {
+        delete cbmInContainerDraft[Number(id)]
+    }
+
+    for (const item of items ?? []) {
+        if (item.cbmInContainerRoute) {
+            cbmInContainerDraft[item.id] = item.cbm_in_container === null ? null : Number(item.cbm_in_container)
+        }
+    }
+}, { immediate: true })
+
+function isCbmInContainerChanged(item: any) {
+    const draft = cbmInContainerDraft[item.id]
+
+    if (draft === null || draft === undefined) {
+        return item.is_cbm_in_container_set
+    }
+
+    return item.cbm_in_container === null || Number(draft) !== Number(item.cbm_in_container)
+}
+
+async function saveCbmInContainer(item: any, value: number | null) {
+    if (!item.cbmInContainerRoute) {
+        return
+    }
+
+    savingCbmInContainerId.value = item.id
+
+    try {
+        await axios.patch(route(item.cbmInContainerRoute.name, item.cbmInContainerRoute.parameters), { cbm_in_container: value })
+        notify({ title: ctrans('Success'), text: ctrans('CBM in container updated'), type: 'success' })
+        reloadStockDelivery()
+    } catch (error: any) {
+        notify({
+            title: ctrans('Something went wrong'),
+            text: error?.response?.data?.message || ctrans('Failed to update the CBM in container'),
+            type: 'error',
+        })
+    } finally {
+        savingCbmInContainerId.value = null
+    }
+}
+
 </script>
 
 <template>
@@ -445,14 +493,62 @@ async function saveAllCosts() {
         </template>
 
         <template #cell(volume)="{ item }">
-            <span v-if="item.volume !== null">{{ locale.number(item.volume) }} m³</span>
-            <FontAwesomeIcon
-                v-else
-                v-tooltip="ctrans('Unknown CBM')"
-                icon="fas fa-exclamation-circle"
-                class="text-orange-500"
-                fixed-width aria-hidden="true"
-            />
+            <div class="space-y-1">
+                <div v-tooltip="ctrans('CBM of the item')" class="whitespace-nowrap">
+                    <span v-if="item.volume !== null">{{ locale.number(item.volume) }} m³</span>
+                    <FontAwesomeIcon
+                        v-else
+                        v-tooltip="ctrans('Unknown CBM')"
+                        icon="fas fa-exclamation-circle"
+                        class="text-orange-500"
+                        fixed-width aria-hidden="true"
+                    />
+                </div>
+
+                <div v-if="item.cbmInContainerRoute" class="flex items-center gap-1">
+                    <InputNumber
+                        v-model="cbmInContainerDraft[item.id]"
+                        v-tooltip="ctrans('CBM in container')"
+                        :min="0"
+                        :maxFractionDigits="4"
+                        suffix=" m³"
+                        size="small"
+                        :placeholder="ctrans('In container')"
+                        :disabled="savingCbmInContainerId === item.id"
+                        inputClass="w-24 text-right"
+                        @keydown.enter="saveCbmInContainer(item, cbmInContainerDraft[item.id] ?? null)"
+                    />
+                    <Button
+                        v-if="isCbmInContainerChanged(item)"
+                        :tooltip="ctrans('Save the CBM in container')"
+                        type="tertiary"
+                        size="xs"
+                        :loading="savingCbmInContainerId === item.id"
+                        :disabled="savingCbmInContainerId === item.id"
+                        @click="saveCbmInContainer(item, cbmInContainerDraft[item.id] ?? null)"
+                    >
+                        <template #icon>
+                            <FontAwesomeIcon icon="fal fa-save" class="text-green-600" fixed-width aria-hidden="true" />
+                        </template>
+                    </Button>
+                    <Button
+                        v-else-if="item.is_cbm_in_container_set"
+                        :tooltip="ctrans('Use the CBM of the item again')"
+                        type="tertiary"
+                        size="xs"
+                        :loading="savingCbmInContainerId === item.id"
+                        :disabled="savingCbmInContainerId === item.id"
+                        @click="saveCbmInContainer(item, null)"
+                    >
+                        <template #icon>
+                            <FontAwesomeIcon icon="fal fa-undo-alt" class="text-gray-500" fixed-width aria-hidden="true" />
+                        </template>
+                    </Button>
+                </div>
+                <div v-else-if="item.is_cbm_in_container_set" v-tooltip="ctrans('CBM in container')" class="whitespace-nowrap text-xs text-gray-500">
+                    {{ ctrans('In container') }}: {{ locale.number(item.cbm_in_container) }} m³
+                </div>
+            </div>
         </template>
 
         <template #cell(amount)="{ item }">
@@ -479,7 +575,7 @@ async function saveAllCosts() {
                 <Button
                     v-else-if="item.confirmRoute"
                     :label="ctrans('Confirm')"
-                    :tooltip="ctrans('Confirm item')"
+                    :tooltip="ctrans('Step 1 before shipping: confirm this item goes in the container')"
                     icon="fal fa-spell-check"
                     type="positive"
                     size="xs"
@@ -491,7 +587,7 @@ async function saveAllCosts() {
                 <Button
                     v-else-if="item.readyToShipRoute"
                     :label="ctrans('Ready to ship')"
-                    :tooltip="ctrans('Set ready to ship')"
+                    :tooltip="ctrans('Step 2 before shipping: this item is packed and ready to dispatch')"
                     icon="fal fa-box-check"
                     type="secondary"
                     size="xs"

@@ -58,6 +58,15 @@ class IndexPurchaseOrders extends OrgAction
 
     private Group|Organisation|OrgAgent|OrgSupplier|OrgPartner|OrgStock|OrgSupplierProduct|Supplier|StockDelivery $parent;
 
+    private ?PurchaseOrder $wholeAgentOrderOf = null;
+
+    public function inWholeAgentOrderOf(PurchaseOrder $purchaseOrder): static
+    {
+        $this->wholeAgentOrderOf = $purchaseOrder;
+
+        return $this;
+    }
+
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Group) {
@@ -143,23 +152,12 @@ class IndexPurchaseOrders extends OrgAction
                 },
             ],
             ...($organisationAgent ? [
-                'progress'     => [
+                'progress' => [
                     'label'    => __('Progress'),
                     'elements' => collect(PurchaseOrderStageEnum::progressLabels())->except('draft')->map(fn ($label) => [$label, null])->all(),
                     'engine'   => function ($query, $elements) {
                         $query->whereIn('purchase_orders.state', [PurchaseOrderStateEnum::SUBMITTED, PurchaseOrderStateEnum::CONFIRMED])
                             ->whereIn(DB::raw(PurchaseOrderStageEnum::progressSql()), $elements);
-                    },
-                ],
-                'organisation' => [
-                    'label'    => __('Buying company'),
-                    'elements' => $organisationAgent->orgAgents()->join('organisations', 'organisations.id', '=', 'org_agents.organisation_id')
-                        ->orderBy('organisations.id')
-                        ->pluck('organisations.code', 'organisations.slug')
-                        ->map(fn ($code) => [$code, null])
-                        ->all(),
-                    'engine'   => function ($query, $elements) {
-                        $query->whereIn('purchase_orders.organisation_id', Organisation::whereIn('slug', $elements)->select('id'));
                     },
                 ],
             ] : []),
@@ -230,6 +228,10 @@ class IndexPurchaseOrders extends OrgAction
             $query->where('purchase_orders.organisation_id', $parent->id);
         }
 
+        if ($this->wholeAgentOrderOf) {
+            $query->whereIn('purchase_orders.id', $this->wholeAgentOrderOf->wholeAgentOrder()->select('id'));
+        }
+
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
             $query->whereElementGroup(
                 key: $key,
@@ -277,7 +279,10 @@ class IndexPurchaseOrders extends OrgAction
             ->allowedSorts($parent instanceof OrgSupplierProduct
                 ? ['reference', 'parent_name', 'date', 'quantity_ordered', 'org_net_amount']
                 : ['reference', 'agent_order_reference', 'parent_name', 'date', 'number_current_purchase_order_transactions', 'org_total_cost'])
-            ->allowedFilters([$globalSearch])
+            ->allowedFilters([
+                $globalSearch,
+                ...($organisationAgent ? [AllowedFilter::callback('organisation', fn ($query, $value) => $query->whereIn('purchase_orders.organisation_id', Organisation::where('slug', $value)->select('id')))] : []),
+            ])
             ->withBetweenDates(['date'])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -393,6 +398,12 @@ class IndexPurchaseOrders extends OrgAction
         return $this->handle($orgSupplier);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inOrgSupplierInOrgAgent(Organisation $organisation, OrgAgent $orgAgent, OrgSupplier $orgSupplier, ActionRequest $request): LengthAwarePaginator
+    {
+        return $this->inOrgSupplier($organisation, $orgSupplier, $request);
+    }
+
     public function inSupplier(Supplier $supplier, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $supplier;
@@ -487,9 +498,41 @@ class IndexPurchaseOrders extends OrgAction
                     'subNavigation' => $subNavigation,
                     'actions'       => $actions,
                 ],
-                'data'        => PurchaseOrdersResource::collection($purchaseOrders),
+                'data'          => PurchaseOrdersResource::collection($purchaseOrders),
+                'filterOptions' => $this->getFilterOptions($this->parent),
             ],
         )->table($this->tableStructure($this->parent));
+    }
+
+    /**
+     * @return array{organisation?: array<int, array{label: string, value: string, count: int, tooltip: string}>}
+     */
+    private function getFilterOptions(Group|Organisation|OrgAgent|OrgSupplier|OrgPartner|OrgStock|OrgSupplierProduct|Supplier|StockDelivery $parent): array
+    {
+        $organisationAgent = $this->getParentOrganisationAgent($parent);
+        if (!$organisationAgent) {
+            return [];
+        }
+
+        return [
+            'organisation' => PurchaseOrder::query()
+                ->join('organisations', 'organisations.id', 'purchase_orders.organisation_id')
+                ->leftJoin('countries', 'countries.id', 'organisations.country_id')
+                ->where('purchase_orders.agent_id', $organisationAgent->id)
+                ->where('purchase_orders.state', '!=', PurchaseOrderStateEnum::IN_PROCESS)
+                ->selectRaw('organisations.slug, organisations.code, organisations.name, countries.name as country_name, count(*) as total')
+                ->groupBy('organisations.slug', 'organisations.code', 'organisations.name', 'countries.name')
+                ->orderBy('organisations.code')
+                ->toBase()
+                ->get()
+                ->map(fn ($organisation) => [
+                    'label'   => strtoupper($organisation->code),
+                    'value'   => $organisation->slug,
+                    'count'   => (int) $organisation->total,
+                    'tooltip' => $organisation->country_name ? "{$organisation->name} ({$organisation->country_name})" : $organisation->name,
+                ])
+                ->all(),
+        ];
     }
 
     public function jsonResponse(LengthAwarePaginator $purchaseOrders): AnonymousResourceCollection
@@ -538,7 +581,8 @@ class IndexPurchaseOrders extends OrgAction
                     ]
                 ]
             ),
-            'grp.org.procurement.org_suppliers.show.purchase_orders.index' => array_merge(
+            'grp.org.procurement.org_suppliers.show.purchase_orders.index',
+            'grp.org.procurement.org_agents.show.suppliers.show.purchase_orders.index' => array_merge(
                 ShowOrgSupplier::make()->getBreadcrumbs($routeName, $routeParameters),
                 [
                     [
@@ -547,7 +591,7 @@ class IndexPurchaseOrders extends OrgAction
                             'label' => __('Purchase Orders'),
                             'icon'  => 'fal fa-bars',
                             'route' => [
-                                'name'       => 'grp.org.procurement.org_suppliers.show.purchase_orders.index',
+                                'name'       => $routeName,
                                 'parameters' => $routeParameters,
                             ],
                         ]

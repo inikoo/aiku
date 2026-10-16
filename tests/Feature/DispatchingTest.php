@@ -1338,7 +1338,9 @@ test('UI batch code pages', function () {
         'org_stock_id' => $orgStock->id,
     ]);
 
-    get(route('grp.org.warehouses.show.inventory.batch_codes.index', [$this->organisation->slug, $this->warehouse->slug]))->assertOk();
+    get(route('grp.org.warehouses.show.inventory.batch_codes.index', [$this->organisation->slug, $this->warehouse->slug]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('data.data', fn ($rows) => collect($rows)->contains('id', $batchCode->id)));
     get(route('grp.org.warehouses.show.inventory.batch_codes.create', [$this->organisation->slug, $this->warehouse->slug]))->assertOk();
     get(route('grp.org.warehouses.show.inventory.batch_codes.show', [$this->organisation->slug, $this->warehouse->slug, $batchCode->id]))->assertOk();
 

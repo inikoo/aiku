@@ -19,7 +19,6 @@ import Table from "@/Components/Table/Table.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import CompletenessBar from "@/Components/Procurement/CompletenessBar.vue"
 import SupplierFamilyDefaultsDrawer, { FamilyDefaults } from "@/Components/Procurement/SupplierFamilyDefaultsDrawer.vue"
-import MoveToFactoryDialog, { MoveProducts } from "@/Components/Procurement/MoveToFactoryDialog.vue"
 import { ctrans } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
@@ -32,7 +31,6 @@ type SupplierRow = {
     id: number
     code: string
     name: string
-    is_generic: boolean
     contacts: Contacts
     number_products: number
     number_families: number
@@ -51,17 +49,7 @@ type SupplierRow = {
 const props = defineProps<{
     data: { data: SupplierRow[] }
     tab?: string
-    moveProducts?: MoveProducts | null
 }>()
-
-const moveRequest = ref<{ description: string; payload: Record<string, unknown>; excludeSupplierId?: number } | null>(null)
-const openMoveFamily = (supplier: SupplierRow, family: Family) => {
-    moveRequest.value = {
-        description: ctrans(":count products of :family under :supplier", { count: family.number_products, family: family.code ?? ctrans("no family"), supplier: supplier.code }),
-        payload: { from_supplier_id: supplier.id, stock_family_id: family.id ?? "none" },
-        excludeSupplierId: supplier.id,
-    }
-}
 
 const locale = inject("locale", aikuLocaleStructure)
 const records = computed<SupplierRow[]>(() => props.data?.data ?? [])
@@ -132,7 +120,6 @@ const saveContacts = async () => {
                     </button>
                     <div class="min-w-0">
                         <Link :href="productsRoute({ supplier: supplier.id })" class="primaryLink">{{ supplier.code }}</Link>
-                        <span v-if="supplier.is_generic" class="ml-1.5 rounded bg-amber-50 px-1 py-0.5 text-[11px] text-amber-700">{{ ctrans("Generic record") }}</span>
                         <div class="truncate text-xs text-gray-500">{{ supplier.name }}</div>
                     </div>
                 </div>
@@ -216,11 +203,7 @@ const saveContacts = async () => {
                         <span class="text-right tabular-nums" :class="family.number_not_available ? 'text-gray-700' : 'text-gray-400'">{{ family.number_not_available }}</span>
                         <CompletenessBar :value="family.completeness" />
                         <span class="flex justify-end gap-2">
-                            <button v-if="moveProducts && recordAt(item.rowIndex).is_generic" type="button" class="text-gray-500 underline decoration-dotted hover:text-gray-900"
-                                @click="openMoveFamily(recordAt(item.rowIndex), family)">
-                                {{ ctrans("Move") }}
-                            </button>
-                            <button v-if="family.update_route && !recordAt(item.rowIndex).is_generic" type="button" class="text-gray-500 underline decoration-dotted hover:text-gray-900"
+                            <button v-if="family.update_route" type="button" class="text-gray-500 underline decoration-dotted hover:text-gray-900"
                                 @click="editingFamily = { supplier: recordAt(item.rowIndex), family }">
                                 {{ ctrans("Edit") }}
                             </button>
@@ -230,7 +213,6 @@ const saveContacts = async () => {
             </template>
         </Table>
 
-        <MoveToFactoryDialog v-if="moveProducts" :moveProducts="moveProducts" :request="moveRequest" @close="moveRequest = null" />
         <SupplierFamilyDefaultsDrawer :supplierCode="editingFamily?.supplier.code ?? ''" :family="editingFamily?.family ?? null" @close="editingFamily = null" />
 
         <Drawer v-model:visible="isDrawerVisible" position="right" :header="editing ? `${editing.code} · ${ctrans('Contacts')}` : ''" class="!w-full sm:!w-[26rem]">

@@ -154,12 +154,6 @@ trait WithSupplierEditFields
                 'title'  => __('Factory'),
                 'icon'   => 'fal fa-industry',
                 'fields' => [
-                    'is_generic'       => [
-                        'type'        => 'toggle',
-                        'label'       => __('Generic record'),
-                        'information' => __('A placeholder holding products whose real factory is not set yet. It takes no contacts: move its products to their real factory.'),
-                        'value'       => $supplier->is_generic,
-                    ],
                     'factory_holidays' => [
                         'type'  => 'factory_holidays',
                         'label' => __('Factory holidays'),

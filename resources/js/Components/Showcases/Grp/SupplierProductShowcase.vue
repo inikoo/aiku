@@ -33,7 +33,6 @@ import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 import { routeType } from "@/types/route"
 import Image from "@common/Components/Image.vue"
 import Icon from "@/Components/Icon.vue"
-import BoxDisplay from "@/Components/DataDisplay/BoxDisplay.vue"
 import ProductUnitLabel from "@/Components/Utils/Label/ProductUnitLabel.vue"
 import OrgStockLabelModal from "@/Components/Warehouse/Inventory/OrgStockLabelModal.vue"
 import Modal from "@/Components/Utils/Modal.vue"
@@ -215,14 +214,6 @@ const locale = inject("locale", aikuLocaleStructure)
 
 const money = (value: number | null) =>
     value === null || value === undefined ? "-" : locale.currencyFormat(props.data.costs.currency_code, value)
-
-const costRows = computed(() => [
-    { key: "unit_cost", label: ctrans("Unit cost"), value: money(props.data.costs.unit_cost), strong: true },
-    { key: "extra_costs_percentage", label: ctrans("Extra costs"), value: `${locale.number(props.data.costs.extra_costs_percentage)} %` },
-    { key: "delivered_unit_cost", label: ctrans("Delivered unit cost"), value: money(props.data.costs.delivered_unit_cost), strong: true },
-    { key: "pack_cost", label: ctrans("Delivered pack cost"), value: money(props.data.costs.pack_cost) },
-    { key: "carton_cost", label: ctrans("Delivered carton cost"), value: money(props.data.costs.carton_cost) },
-].filter((row) => row.key in props.data.costs))
 
 const packagingRows = computed(() => [
     {
@@ -685,21 +676,6 @@ const availabilityBadge = (isAvailable: boolean) =>
 
         <section class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
             <h3 class="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                <Icon :data="{ icon: 'fal fa-money-bill' }" />
-                {{ ctrans("Costs") }}
-            </h3>
-            <dl class="divide-y divide-gray-100">
-                <div v-for="row in costRows" :key="row.label" class="flex items-baseline justify-between py-2">
-                    <dt class="text-sm text-gray-500">{{ row.label }}</dt>
-                    <dd class="tabular-nums" :class="row.strong ? 'text-base font-semibold text-gray-800' : 'text-sm text-gray-700'">
-                        {{ row.value }}
-                    </dd>
-                </div>
-            </dl>
-        </section>
-
-        <section class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-            <h3 class="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
                 <Icon :data="{ icon: 'fal fa-pallet' }" />
                 {{ ctrans("Packaging") }}
             </h3>
@@ -923,13 +899,6 @@ const availabilityBadge = (isAvailable: boolean) =>
                     <span class="shrink-0 text-xs tabular-nums text-gray-400">{{ stock.code }}</span>
                 </component>
             </div>
-        </section>
-
-        <section v-if="data.stats.length" class="md:col-span-3">
-            <h3 class="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                {{ ctrans("Statistics") }}
-            </h3>
-            <BoxDisplay :data="data.stats" />
         </section>
 
         <Modal :isOpen="isCartonBarcodeModalOpen" @onClose="isCartonBarcodeModalOpen = false" width="w-full max-w-md">

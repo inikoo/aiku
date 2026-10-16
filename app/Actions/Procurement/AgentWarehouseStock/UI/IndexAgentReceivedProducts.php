@@ -186,14 +186,17 @@ class IndexAgentReceivedProducts extends OrgAction
     {
         $counts = DB::query()->fromSub($this->receivedItems($this->agent), 'received_items')
             ->join('organisations', 'organisations.id', 'received_items.organisation_id')
-            ->selectRaw('organisations.slug, organisations.code, received_items.location, count(*) as total')
-            ->groupBy('organisations.slug', 'organisations.code', 'received_items.location')
+            ->leftJoin('countries', 'countries.id', 'organisations.country_id')
+            ->selectRaw('organisations.slug, organisations.code, organisations.name, countries.name as country_name, received_items.location, count(*) as total')
+            ->groupBy('organisations.slug', 'organisations.code', 'organisations.name', 'countries.name', 'received_items.location')
             ->get();
 
         $organisationCounts = $counts->groupBy('slug')->map(fn ($rows) => (object) [
-            'slug'  => $rows->first()->slug,
-            'code'  => $rows->first()->code,
-            'total' => $rows->sum('total'),
+            'slug'         => $rows->first()->slug,
+            'code'         => $rows->first()->code,
+            'name'         => $rows->first()->name,
+            'country_name' => $rows->first()->country_name,
+            'total'        => $rows->sum('total'),
         ]);
 
         return $this->productRowsResponse(
@@ -201,7 +204,7 @@ class IndexAgentReceivedProducts extends OrgAction
             $request,
             __('Received'),
             'fal fa-inbox-in',
-            'grp.org.agent.warehouse.received',
+            'grp.org.agent.warehouse.received.index',
             'received',
             $this->organisationOptions($organisationCounts),
             [
@@ -210,6 +213,6 @@ class IndexAgentReceivedProducts extends OrgAction
                     ['label' => __('In a container not dispatched'), 'value' => 'container', 'count' => (int) $counts->where('location', 'container')->sum('total')],
                 ],
             ]
-        )->table($this->tableStructure());
+        )->with('receive', $this->canEdit ? IndexAgentProductsInProduction::receiveScopes($this->agent) : null)->table($this->tableStructure());
     }
 }

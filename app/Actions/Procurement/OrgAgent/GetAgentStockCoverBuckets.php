@@ -186,6 +186,7 @@ class GetAgentStockCoverBuckets
     /**
      * An old code for an SKO the organisation already buys from this agent under another supplier
      * product: the stock is watched there, counting it here as never stocked would be double.
+     * That other product must still be orderable, or the SKO could be ordered from neither.
      */
     private static function boughtUnderAnotherCodeExpression(): string
     {
@@ -197,6 +198,9 @@ class GetAgentStockCoverBuckets
             join org_supplier_products other_osp on other_osp.id = other_link.org_supplier_product_id
                 and other_osp.org_agent_id = osp.org_agent_id
                 and other_osp.id <> osp.id
+                and other_osp.state = '".OrgSupplierProductStateEnum::ACTIVE->value."'
+                and other_osp.is_available
+            join supplier_products other_sp on other_sp.id = other_osp.supplier_product_id and other_sp.deleted_at is null
             where shs.supplier_product_id = sp.id)";
     }
 

@@ -10,9 +10,11 @@
 namespace App\Actions\Procurement\AgentWarehouseReceipt\UI;
 
 use App\Actions\Procurement\AgentWarehouseReceipt\UpdateAgentWarehouseReceipt;
+use App\Enums\Procurement\AgentGoodsReceipt\AgentGoodsReceiptStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Models\Helpers\Media;
+use App\Models\Procurement\AgentGoodsReceiptItem;
 use App\Models\Procurement\AgentWarehouseReceipt;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderTransaction;
@@ -36,9 +38,15 @@ class GetPurchaseOrderAgentReceiving
             ->get()
             ->groupBy('purchase_order_transaction_id');
 
+        $onGoodsReceipts = AgentGoodsReceiptItem::where('purchase_order_id', $purchaseOrder->id)
+            ->whereHas('agentGoodsReceipt', fn ($query) => $query->where('state', AgentGoodsReceiptStateEnum::RECEIVED))
+            ->groupBy('purchase_order_transaction_id')
+            ->selectRaw('purchase_order_transaction_id, sum(quantity) as quantity')
+            ->pluck('quantity', 'purchase_order_transaction_id');
+
         $isOpen = in_array($purchaseOrder->state, [PurchaseOrderStateEnum::SUBMITTED, PurchaseOrderStateEnum::CONFIRMED], true);
 
-        if (!$isOpen && $receipts->isEmpty()) {
+        if (!$isOpen && $receipts->isEmpty() && $onGoodsReceipts->isEmpty()) {
             return null;
         }
 
@@ -47,7 +55,7 @@ class GetPurchaseOrderAgentReceiving
             ->with(['supplierProduct:id,code,name,units_per_pack', 'orgStock.tradeUnits.image'])
             ->get()
             ->sortBy(fn (PurchaseOrderTransaction $transaction) => $transaction->supplierProduct?->code)
-            ->map(fn (PurchaseOrderTransaction $transaction) => $this->line($transaction, $receipts->get($transaction->id, collect()), $isOpen, $canEdit))
+            ->map(fn (PurchaseOrderTransaction $transaction) => $this->line($transaction, $receipts->get($transaction->id, collect()), (float) $onGoodsReceipts->get($transaction->id, 0), $isOpen, $canEdit))
             ->values();
 
         return [
@@ -67,10 +75,10 @@ class GetPurchaseOrderAgentReceiving
         ];
     }
 
-    private function line(PurchaseOrderTransaction $transaction, Collection $receipts, bool $isOpen, bool $canEdit): array
+    private function line(PurchaseOrderTransaction $transaction, Collection $receipts, float $onGoodsReceipts, bool $isOpen, bool $canEdit): array
     {
         $ordered  = (float) $transaction->quantity_ordered;
-        $received = (float) $receipts->sum('quantity_received');
+        $received = (float) $receipts->sum('quantity_received') + $onGoodsReceipts;
         $rejected = (float) $receipts->sum('quantity_rejected');
         $accepted = $received - $rejected;
         $tradeUnit = $transaction->orgStock?->tradeUnits->first(fn ($tradeUnit) => $tradeUnit->image_id !== null);

@@ -26,6 +26,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property int $organisation_id
  * @property int $supplier_product_id
  * @property int|null $purchase_order_id
+ * @property int|null $purchase_order_transaction_id
+ * @property int|null $agent_goods_receipt_id
  * @property AgentWarehouseStockStateEnum $state
  * @property string $quantity
  * @property string|null $notes
@@ -66,5 +68,15 @@ class AgentWarehouseStock extends Model
     public function receipt(): HasOne
     {
         return $this->hasOne(AgentWarehouseReceipt::class);
+    }
+
+    public function agentGoodsReceipt(): BelongsTo
+    {
+        return $this->belongsTo(AgentGoodsReceipt::class);
+    }
+
+    public function purchaseOrderTransaction(): BelongsTo
+    {
+        return $this->belongsTo(PurchaseOrderTransaction::class);
     }
 }

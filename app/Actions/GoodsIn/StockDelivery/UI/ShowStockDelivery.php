@@ -9,7 +9,9 @@
 namespace App\Actions\GoodsIn\StockDelivery\UI;
 
 use App\Models\SupplyChain\AgentPayment;
+use App\Enums\Procurement\ProcurementNote\ProcurementNoteIncidentTypeEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderPaymentMethodEnum;
+use App\Enums\Procurement\OrgAgent\OrgAgentOrderContainerEnum;
 use App\Models\SupplyChain\SupplierInvoice;
 use App\Models\SupplyChain\SupplierPayment;
 use App\Models\Procurement\PurchaseOrder;
@@ -289,6 +291,10 @@ class ShowStockDelivery extends OrgAction
                     fn () => StockDeliveryItemResource::collection(IndexStockDeliveryItems::run($stockDelivery, StockDeliveryTabsEnum::DONE_ITEMS->value, stateFilter: $this->doneItemStates()))
                     : Inertia::optional(fn () => StockDeliveryItemResource::collection(IndexStockDeliveryItems::run($stockDelivery, StockDeliveryTabsEnum::DONE_ITEMS->value, stateFilter: $this->doneItemStates()))),
 
+                StockDeliveryTabsEnum::CHECKLIST->value => $this->tab == StockDeliveryTabsEnum::CHECKLIST->value ?
+                    fn () => $this->getGoodsInChecklist($stockDelivery, $request)
+                    : Inertia::optional(fn () => $this->getGoodsInChecklist($stockDelivery, $request)),
+
                 StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value => $this->tab == StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value ?
                     fn () => StockDeliveryUnderOverDeliveredItemResource::collection(IndexStockDeliveryUnderOverDeliveredItems::run($stockDelivery, StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value))
                     : Inertia::optional(fn () => StockDeliveryUnderOverDeliveredItemResource::collection(IndexStockDeliveryUnderOverDeliveredItems::run($stockDelivery, StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value))),
@@ -309,7 +315,7 @@ class ShowStockDelivery extends OrgAction
                     fn () => ProcurementNoteResource::collection(IndexProcurementNotes::run($stockDelivery, StockDeliveryTabsEnum::NOTES->value, forAgent: $stockDelivery->organisation_id !== $this->organisation->id))
                     : Inertia::optional(fn () => ProcurementNoteResource::collection(IndexProcurementNotes::run($stockDelivery, StockDeliveryTabsEnum::NOTES->value, forAgent: $stockDelivery->organisation_id !== $this->organisation->id))),
 
-                'note_form' => GetAgreement::make()->noteForm($request->user(), $stockDelivery->group, $stockDelivery->organisation_id !== $this->organisation->id),
+                'note_form' => GetAgreement::make()->noteForm($request->user(), $stockDelivery->group, $stockDelivery->organisation_id !== $this->organisation->id, $stockDelivery->organisation_id),
 
                 'note_store_route' => [
                     'name'       => 'grp.models.stock-delivery.note.store',
@@ -686,12 +692,14 @@ class ShowStockDelivery extends OrgAction
         }
 
         $weightAndVolume = $this->getStockDeliveryWeightAndVolume($stockDelivery);
+        $containerSize   = Arr::get($stockDelivery->data, 'container_size');
 
         return [
             'first_block'  => [
                 'orderer'  => $orderer,
                 'delivery' => [
                     'type'             => Arr::get($stockDelivery->data, 'delivery_type'),
+                    'container_size'   => $containerSize ? Arr::get(OrgAgentOrderContainerEnum::labels(), $containerSize) : null,
                     'incoterm'         => Arr::get($stockDelivery->data, 'incoterm'),
                     'port_of_export'   => Arr::get($stockDelivery->data, 'port_of_export'),
                     'port_of_import'   => Arr::get($stockDelivery->data, 'port_of_import'),
@@ -1467,12 +1475,32 @@ class ShowStockDelivery extends OrgAction
             unset($navigation[StockDeliveryTabsEnum::PURCHASE_ORDERS->value]);
         }
 
+        if (isset($navigation[StockDeliveryTabsEnum::CHECKLIST->value])) {
+            $checklist = GetStockDeliveryGoodsInChecklist::make()->forPage($stockDelivery);
+            $navigation[StockDeliveryTabsEnum::CHECKLIST->value]['number'] = $checklist['total'] - $checklist['checked'];
+        }
+
         if (!$this->goodsIn && $stockDelivery->state === StockDeliveryStateEnum::PLACED && !$this->viewedByAgent) {
             $navigation[StockDeliveryTabsEnum::ITEMS->value]['title'] = __('Items (costing)');
             $navigation[StockDeliveryTabsEnum::ITEMS->value]['icon']  = 'fal fa-box-usd';
         }
 
         return $navigation;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getGoodsInChecklist(StockDelivery $stockDelivery, ActionRequest $request): array
+    {
+        return GetStockDeliveryGoodsInChecklist::make()->forPage($stockDelivery) + [
+            'can_check'      => $this->canBookIn && in_array($stockDelivery->state, GetStockDeliveryGoodsInChecklist::STATES, true),
+            'incident_types' => ProcurementNoteIncidentTypeEnum::valuesWithLabels(),
+            'route'          => [
+                'name'       => 'grp.models.stock-delivery.goods_in_check.store',
+                'parameters' => [$stockDelivery->id],
+            ],
+        ];
     }
 
     private function hasUnderOverDeliveredTab(StockDelivery $stockDelivery): bool
@@ -1494,6 +1522,10 @@ class ShowStockDelivery extends OrgAction
         ));
         if (!$this->hasCustomsTab($stockDelivery)) {
             $tabs = array_values(array_diff($tabs, [StockDeliveryTabsEnum::CUSTOMS->value]));
+        }
+
+        if ($this->viewedByAgent || !in_array($stockDelivery->state, GetStockDeliveryGoodsInChecklist::STATES, true)) {
+            $tabs = array_values(array_diff($tabs, [StockDeliveryTabsEnum::CHECKLIST->value]));
         }
 
         if ($this->hasUnderOverDeliveredTab($stockDelivery)) {

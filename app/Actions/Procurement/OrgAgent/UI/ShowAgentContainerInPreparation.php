@@ -42,6 +42,8 @@ class ShowAgentContainerInPreparation extends OrgAction
 
     private const string CARTONS_SQL = 'sdi.unit_quantity / nullif(sp.units_per_carton, 0)';
 
+    private const string CBM_SQL = 'coalesce(sdi.cbm_in_container, '.self::CARTONS_SQL.' * sp.cbm)';
+
     private OrgAgent $orgAgent;
 
     private StockDelivery $stockDelivery;
@@ -70,7 +72,7 @@ class ShowAgentContainerInPreparation extends OrgAction
 
         $query = $this->lines($stockDelivery)
             ->selectRaw('sdi.id, sp.code, sp.name, sup.code as supplier_code, sup.name as supplier_name, sdi.net_amount as amount,
-                '.self::CARTONS_SQL.' as cartons, '.self::CARTONS_SQL.' * sp.cbm as cbm');
+                '.self::CARTONS_SQL.' as cartons, '.self::CBM_SQL.' as cbm');
 
         if (!request()->filled('sort')) {
             $query->orderByRaw('sup.code collate "C"')->orderByRaw('sp.code collate "C"');
@@ -83,7 +85,7 @@ class ShowAgentContainerInPreparation extends OrgAction
                 $sortBy('supplier_code', 'sup.code collate "C"'),
                 $sortBy('cartons', self::CARTONS_SQL),
                 $sortBy('amount', 'sdi.net_amount'),
-                $sortBy('cbm', self::CARTONS_SQL.' * sp.cbm'),
+                $sortBy('cbm', self::CBM_SQL),
             ])
             ->allowedFilters([$globalSearch])
             ->orderBy('sdi.id')
@@ -113,8 +115,8 @@ class ShowAgentContainerInPreparation extends OrgAction
             ->selectRaw('count(*) as products, count(distinct sp.supplier_id) as suppliers,
                 coalesce(sum('.self::CARTONS_SQL.'), 0) as cartons,
                 coalesce(sum(sdi.net_amount), 0) as amount,
-                coalesce(sum('.self::CARTONS_SQL.' * sp.cbm), 0) as cbm,
-                count(*) filter (where sp.cbm is null or coalesce(sp.units_per_carton, 0) = 0) as products_without_volume')
+                coalesce(sum('.self::CBM_SQL.'), 0) as cbm,
+                count(*) filter (where sdi.cbm_in_container is null and (sp.cbm is null or coalesce(sp.units_per_carton, 0) = 0)) as products_without_volume')
             ->toBase()
             ->first();
 
@@ -128,6 +130,11 @@ class ShowAgentContainerInPreparation extends OrgAction
             'purchase_orders'         => (int) $stockDelivery->number_purchase_orders,
             'days'                    => (int) Carbon::parse($stockDelivery->date ?? $stockDelivery->created_at)->diffInDays(now()),
         ];
+    }
+
+    public static function fillPercent(float $cbm, ?float $containerCbm): float
+    {
+        return $containerCbm ? round($cbm / $containerCbm * 100, 1) : 0.0;
     }
 
     public function tableStructure(): Closure
@@ -167,6 +174,8 @@ class ShowAgentContainerInPreparation extends OrgAction
         $title       = __('In the warehouse of the agent');
         $currency    = $this->stockDelivery->currency;
         $orgCurrency = $this->organisation->currency;
+        $summary     = $this->summary($this->stockDelivery);
+        $fill        = self::fillPercent($summary['cbm'], $this->orgAgent->order_container->cbm());
 
         return Inertia::render(
             'Procurement/AgentContainerInPreparation',
@@ -191,9 +200,11 @@ class ShowAgentContainerInPreparation extends OrgAction
                 'orgExchange'   => $currency && $currency->id !== $orgCurrency->id ? GetCurrencyExchange::run($currency, $orgCurrency) : null,
                 'container'     => [
                     'label' => OrgAgentOrderContainerEnum::labels()[$this->orgAgent->order_container->value],
-                    'cbm'   => $this->orgAgent->order_container->cbm(),
+                    'cbm'              => $this->orgAgent->order_container->cbm(),
+                    'fill'             => $fill,
+                    'is_worth_booking' => $fill >= 90,
                 ],
-                'summary'       => $this->summary($this->stockDelivery),
+                'summary'       => $summary,
                 'rows'          => JsonResource::collection($rows),
             ]
         )->table($this->tableStructure());

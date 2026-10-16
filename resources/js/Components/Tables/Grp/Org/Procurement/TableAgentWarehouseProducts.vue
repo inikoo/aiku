@@ -203,7 +203,10 @@ function submitBulkReceive() {
 				>
 					{{ ctrans(":units rejected", { units: formatQuantity(row.quantity_rejected) }) }}
 				</span>
-				<span class="tabular-nums">{{ formatQuantity(row.quantity) }}</span>
+				<span v-if="row.quantity_ordered && row.quantity_ordered > row.quantity" class="tabular-nums" v-tooltip="ctrans(':received of :ordered units ordered already received', { received: formatQuantity(row.quantity_ordered - row.quantity), ordered: formatQuantity(row.quantity_ordered) })">
+					{{ formatQuantity(row.quantity) }} <span class="text-gray-400">/ {{ formatQuantity(row.quantity_ordered) }}</span>
+				</span>
+				<span v-else class="tabular-nums">{{ formatQuantity(row.quantity) }}</span>
 			</div>
 		</template>
 		<template #cell(skos)="{ item: row }">

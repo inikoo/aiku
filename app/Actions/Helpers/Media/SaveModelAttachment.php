@@ -24,6 +24,7 @@ use App\Models\Helpers\Media;
 use App\Models\HumanResources\Employee;
 use App\Models\Ordering\Order;
 use App\Models\Procurement\AgentWarehouseReceipt;
+use App\Models\Procurement\AgentGoodsReceipt;
 use App\Models\Procurement\ProcurementNote;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\SupplierAgreedTerm;
@@ -40,7 +41,7 @@ class SaveModelAttachment extends OrgAction
 {
     use AsAction;
 
-    public function handle(Employee|TradeUnit|Agent|Supplier|Customer|PurchaseOrder|StockDelivery|Order|Invoice|PalletDelivery|PalletReturn|Product|TradeUnitFamily|ProductCategory|Artefact|OrgStock|Webpage|StockDeliveryServiceInvoice|StockDeliveryCost|SupplierAgreedTerm|ProcurementNote|AgentWarehouseReceipt $model, array $modelData): Media
+    public function handle(Employee|TradeUnit|Agent|Supplier|Customer|PurchaseOrder|StockDelivery|Order|Invoice|PalletDelivery|PalletReturn|Product|TradeUnitFamily|ProductCategory|Artefact|OrgStock|Webpage|StockDeliveryServiceInvoice|StockDeliveryCost|SupplierAgreedTerm|ProcurementNote|AgentWarehouseReceipt|AgentGoodsReceipt $model, array $modelData): Media
     {
         $filePath = Arr::pull($modelData, 'path');
 
@@ -131,7 +132,7 @@ class SaveModelAttachment extends OrgAction
         return $rules;
     }
 
-    public function action(Employee|TradeUnit|Agent|Supplier|Customer|PurchaseOrder|StockDelivery|Order|Invoice|PalletDelivery|PalletReturn|Product|TradeUnitFamily|ProductCategory|Artefact|OrgStock|Webpage|StockDeliveryServiceInvoice|StockDeliveryCost|SupplierAgreedTerm|ProcurementNote|AgentWarehouseReceipt $model, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Media
+    public function action(Employee|TradeUnit|Agent|Supplier|Customer|PurchaseOrder|StockDelivery|Order|Invoice|PalletDelivery|PalletReturn|Product|TradeUnitFamily|ProductCategory|Artefact|OrgStock|Webpage|StockDeliveryServiceInvoice|StockDeliveryCost|SupplierAgreedTerm|ProcurementNote|AgentWarehouseReceipt|AgentGoodsReceipt $model, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Media
     {
         $this->asAction       = true;
         $this->strict         = $strict;

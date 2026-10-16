@@ -33,6 +33,7 @@ import StockDeliveryAddItems from "@/Components/Procurement/StockDeliveryAddItem
 import TableStockDeliveryItems from "@/Components/Tables/Grp/Org/Procurement/TableStockDeliveryItems.vue"
 import TableStockDeliveryDiscrepancies from "@/Components/Tables/Grp/Org/Procurement/TableStockDeliveryDiscrepancies.vue"
 import StockDeliveryCustoms from "@/Components/Procurement/StockDeliveryCustoms.vue"
+import StockDeliveryGoodsInChecklist from "@/Components/Procurement/StockDeliveryGoodsInChecklist.vue"
 import TablePurchaseOrders from "@/Components/Tables/Grp/Org/Procurement/TablePurchaseOrders.vue"
 import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue"
 import TableProcurementNotes from '@/Components/Tables/Grp/Org/Procurement/TableProcurementNotes.vue'
@@ -52,13 +53,15 @@ import { Timeline as TSTimeline } from "@/types/Timeline"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faSpinnerThird } from "@fad"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faInventory, faWarehouse, faPersonDolly, faBoxUsd, faTruck, faTerminal, faCameraRetro, faPaperclip, faInfoCircle, faHandHoldingBox, faPeopleArrows, faExclamationTriangle, faBoxOpen, faClipboardList, faBalanceScale, faPassport, faCheckCircle, faTimes, faCheck, faSquare, faChevronRight, faChevronDown, faShip, faHashtag, faTrashAlt, faPlus, faContainerStorage, faUpload } from "@fal"
+import { faInventory, faWarehouse, faPersonDolly, faBoxUsd, faTruck, faTerminal, faCameraRetro, faPaperclip, faInfoCircle, faHandHoldingBox, faPeopleArrows, faExclamationTriangle, faBoxOpen, faClipboardList, faBalanceScale, faPassport, faCheckCircle, faTimes, faCheck, faSquare, faChevronRight, faChevronDown, faShip, faHashtag, faTrashAlt, faPlus, faContainerStorage, faUpload, faTasks, faTruckContainer } from "@fal"
 import { faBars, faBoxCheck, faInventory as fasInventory, faShare, faArrowCircleRight, faArrowCircleLeft, faExclamationCircle, faBoxFull, faCheckSquare } from "@fas"
 
 library.add(
+	faTasks,
 	faShip,
 	faUpload,
 	faContainerStorage,
+	faTruckContainer,
 	faHashtag,
 	faPlus,
 	faBalanceScale,
@@ -132,6 +135,7 @@ const props = defineProps<{
 			}
 			delivery: {
 				type: string | null
+				container_size?: string | null
 				incoterm: string | null
 				port_of_export: string | null
 				port_of_import: string | null
@@ -228,6 +232,7 @@ const props = defineProps<{
 	items?: {}
 	pending_items?: {}
 	done_items?: {}
+	checklist?: InstanceType<typeof StockDeliveryGoodsInChecklist>["$props"]["data"]
 	under_over_delivered?: {}
 	customs?: {}
 	attachments?: {}
@@ -254,6 +259,7 @@ const component = computed(() => {
 		items: TableStockDeliveryItems,
 		pending_items: TableStockDeliveryItems,
 		done_items: TableStockDeliveryItems,
+		checklist: StockDeliveryGoodsInChecklist,
 		under_over_delivered: TableStockDeliveryDiscrepancies,
 		customs: StockDeliveryCustoms,
 		purchase_orders: TablePurchaseOrders,
@@ -1124,6 +1130,12 @@ const confirmDeleteStockDelivery = (action: any) => {
 					<dd>
 						{{ box_stats.first_block.delivery.tracking_number }}
 					</dd>
+				</div>
+				<div v-if="box_stats.first_block.delivery.container_size" class="flex items-center gap-2">
+					<dt>
+						<FontAwesomeIcon v-tooltip="ctrans('Container size')" icon="fal fa-truck-container" aria-hidden="true" fixed-width />
+					</dt>
+					<dd>{{ box_stats.first_block.delivery.container_size }}</dd>
 				</div>
 				<div v-if="box_stats.first_block.delivery.container_number" class="flex items-center gap-2">
 					<dt>

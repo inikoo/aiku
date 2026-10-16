@@ -408,6 +408,12 @@ class IndexStockDeliveries extends OrgAction
         return $this->handle();
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inOrgSupplierInOrgAgent(Organisation $organisation, OrgAgent $orgAgent, OrgSupplier $orgSupplier, ActionRequest $request): LengthAwarePaginator
+    {
+        return $this->inOrgSupplier($organisation, $orgSupplier, $request);
+    }
+
     public function inAgent(Agent $agent, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $agent;
@@ -604,7 +610,8 @@ class IndexStockDeliveries extends OrgAction
                     ]
                 ]
             ),
-            'grp.org.procurement.org_suppliers.show.stock_deliveries.index' => array_merge(
+            'grp.org.procurement.org_suppliers.show.stock_deliveries.index',
+            'grp.org.procurement.org_agents.show.suppliers.show.stock_deliveries.index' => array_merge(
                 ShowOrgSupplier::make()->getBreadcrumbs($routeName, $routeParameters),
                 [
                     [
@@ -613,7 +620,7 @@ class IndexStockDeliveries extends OrgAction
                             'label' => __('Stock deliveries'),
                             'icon'  => 'fal fa-bars',
                             'route' => [
-                                'name'       => 'grp.org.procurement.org_suppliers.show.stock_deliveries.index',
+                                'name'       => $routeName,
                                 'parameters' => $routeParameters,
                             ],
                         ]

@@ -28,6 +28,17 @@ enum OrgAgentOrderContainerEnum: string
     }
 
     /**
+     * @return array<int, array{label: string, value: string}>
+     */
+    public static function selectOptions(): array
+    {
+        return collect(self::labels())->map(fn (string $label, string $value) => [
+            'label' => $label.' ('.self::from($value)->cbm().' m³)',
+            'value' => $value,
+        ])->values()->all();
+    }
+
+    /**
      * Internal volume in cubic metres. A loaded container never reaches it, so an order "worth 0.9
      * of a container" is already a full one in practice.
      */

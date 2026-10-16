@@ -58,7 +58,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $phone
  * @property string|null $wechat
  * @property string|null $whatsapp
- * @property bool $is_generic a placeholder record holding products whose real factory is not set yet
  * @property array<int, array{from: string, to: string, note?: string|null}> $factory_holidays
  * @property string|null $identity_document_type
  * @property string|null $identity_document_number
@@ -126,7 +125,6 @@ class Supplier extends Model implements HasMedia, Auditable
         'location'        => 'array',
         'sources'         => 'array',
         'status'          => 'boolean',
-        'is_generic'       => 'boolean',
         'factory_holidays' => 'array',
         'archived_at'     => 'datetime',
         'packing_method'   => SupplierPackingMethodEnum::class,
@@ -228,7 +226,6 @@ class Supplier extends Model implements HasMedia, Auditable
         'contact_website',
         'wechat',
         'whatsapp',
-        'is_generic',
         'archived_at'
     ];
 

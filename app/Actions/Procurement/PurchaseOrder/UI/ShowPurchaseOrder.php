@@ -224,6 +224,18 @@ class ShowPurchaseOrder extends OrgAction
                                 'parameters' => [$this->organisation->slug, $orgAgent->slug, $purchaseOrder->agent_order_reference],
                             ],
                         ] : false,
+                        $purchaseOrder->isAgentOrder() && $purchaseOrder->agent_order_reference && $purchaseOrder->organisation_id !== $this->organisation->id ? [
+                            'type'    => 'button',
+                            'style'   => 'tertiary',
+                            'icon'    => 'fal fa-boxes',
+                            'key'     => 'whole_agent_order',
+                            'label'   => __('Whole agent order'),
+                            'tooltip' => __('Confirm :reference and ask for its deposits, with the orders to all its suppliers', ['reference' => $purchaseOrder->agent_order_reference]),
+                            'route'   => [
+                                'name'       => 'grp.org.agent.purchase_orders.whole_order',
+                                'parameters' => [$this->organisation->slug, $purchaseOrder->slug],
+                            ],
+                        ] : false,
                         $this->canEdit || $this->agentCanEdit ? [
                             'type'  => 'button',
                             'style' => 'edit',
@@ -396,7 +408,7 @@ class ShowPurchaseOrder extends OrgAction
                     fn () => ProcurementNoteResource::collection(IndexProcurementNotes::run($purchaseOrder, PurchaseOrderTabsEnum::NOTES->value, forAgent: $purchaseOrder->organisation_id !== $this->organisation->id))
                     : Inertia::optional(fn () => ProcurementNoteResource::collection(IndexProcurementNotes::run($purchaseOrder, PurchaseOrderTabsEnum::NOTES->value, forAgent: $purchaseOrder->organisation_id !== $this->organisation->id))),
 
-                'note_form' => GetAgreement::make()->noteForm($request->user(), $purchaseOrder->group, $purchaseOrder->organisation_id !== $this->organisation->id),
+                'note_form' => GetAgreement::make()->noteForm($request->user(), $purchaseOrder->group, $purchaseOrder->organisation_id !== $this->organisation->id, $purchaseOrder->organisation_id),
 
                 'note_store_route' => [
                     'name'       => 'grp.models.purchase-order.note.store',

@@ -6209,7 +6209,7 @@ test('preparation and cleaning are timed at the base rate, never overlap product
     expect(fn () => StartManufactureNonProductiveSession::make()->action($user, $this->production, ['activity_type' => 'production']))
         ->toThrow(ValidationException::class);
 
-    $this->freezeSecond();
+    $this->travelTo(now('UTC')->setTime(9, 0));
     $preparation = StartManufactureNonProductiveSession::make()->action($user, $this->production, ['activity_type' => 'preparation', 'job_order_id' => $jobOrder->id]);
 
     expect(fn () => StartManufactureTaskSession::make()->action($user, $task))->toThrow(ValidationException::class)

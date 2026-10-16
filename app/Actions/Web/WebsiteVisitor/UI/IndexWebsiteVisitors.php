@@ -14,6 +14,7 @@ use App\Actions\Web\Website\UI\ShowSeoDashboard;
 use App\Actions\Web\Website\UI\ShowWebsiteAnalyticsDashboard;
 use App\Actions\Web\Website\WithWebsiteAnalyticsSubNavigation;
 use App\Enums\UI\Web\WebpageTabsEnum;
+use App\Enums\CRM\TrafficSource\TrafficSourcesTypeEnum;
 use App\Enums\Web\WebsiteVisitor\WebsiteVisitorChannelEnum;
 use App\Http\Resources\Web\WebsiteVisitorResource;
 use App\InertiaTable\InertiaTable;
@@ -57,13 +58,28 @@ class IndexWebsiteVisitors extends OrgAction
             ->selectRaw('count(*) filter (where is_bounce) as bounced, count(*) filter (where not is_bounce) as engaged')
             ->first();
 
-        $channelCounts = $visitorsOfWebsite()
+        $typeCounts = $visitorsOfWebsite()
             ->whereNotNull('traffic_source_type')
             ->groupBy('traffic_source_type')
             ->selectRaw('traffic_source_type, count(*) as visitors')
-            ->pluck('visitors', 'traffic_source_type')
+            ->pluck('visitors', 'traffic_source_type');
+
+        $platformTypes = WebsiteVisitorChannelEnum::platformTypes();
+
+        $groupCounts = $typeCounts
+            ->reject(fn ($visitors, $type) => in_array($type, $platformTypes, true))
             ->groupBy(fn ($visitors, $type) => WebsiteVisitorChannelEnum::fromType($type)?->value, preserveKeys: true)
             ->map(fn ($visitorsPerType) => $visitorsPerType->sum());
+
+        $channelElements = collect($platformTypes)
+            ->filter(fn (string $type) => $typeCounts->get($type, 0) > 0)
+            ->mapWithKeys(fn (string $type) => [$type => [TrafficSourcesTypeEnum::labels()[$type], (int) $typeCounts->get($type)]])
+            ->merge(
+                collect(WebsiteVisitorChannelEnum::cases())
+                    ->reject(fn (WebsiteVisitorChannelEnum $channel) => in_array($channel, [WebsiteVisitorChannelEnum::PAID, WebsiteVisitorChannelEnum::ORGANIC], true))
+                    ->mapWithKeys(fn (WebsiteVisitorChannelEnum $channel) => [$channel->value => [WebsiteVisitorChannelEnum::labels()[$channel->value], (int) $groupCounts->get($channel->value, 0)]])
+            )
+            ->all();
 
         return $this->elementGroups = [
             'bounce'  => [
@@ -78,15 +94,11 @@ class IndexWebsiteVisitors extends OrgAction
             ],
             'channel' => [
                 'label'    => __('Channel'),
-                'elements' => collect(WebsiteVisitorChannelEnum::cases())
-                    ->mapWithKeys(fn (WebsiteVisitorChannelEnum $channel) => [
-                        $channel->value => [WebsiteVisitorChannelEnum::labels()[$channel->value], (int) $channelCounts->get($channel->value, 0)],
-                    ])
-                    ->all(),
-                'engine'   => function ($query, array $elements) {
+                'elements' => $channelElements,
+                'engine'   => function ($query, array $elements) use ($platformTypes) {
                     $query->whereIn(
                         'website_visitors.traffic_source_type',
-                        collect($elements)->flatMap(fn (string $channel) => WebsiteVisitorChannelEnum::from($channel)->types())->all()
+                        collect($elements)->flatMap(fn (string $channel) => in_array($channel, $platformTypes, true) ? [$channel] : WebsiteVisitorChannelEnum::from($channel)->types())->all()
                     );
                 },
             ],

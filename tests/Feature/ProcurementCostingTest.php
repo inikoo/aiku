@@ -3408,8 +3408,16 @@ test('agent order stages follow purchase orders and stock deliveries to arrival'
         ->where('stockDelivery.reference', $stockDelivery->reference)
         ->where('summary.products', 0)
         ->where('container.cbm', $this->orgAgent->order_container->cbm())
+        ->where('container.fill', 0)
+        ->where('container.is_worth_booking', false)
         ->where('pageHead.subNavigation', fn ($navigation) => collect($navigation)->where('active', true)->pluck('route.parameters.2')->all() === [$stages::PREPARING])
         ->has('rows.data', 0));
+
+    $fill = App\Actions\Procurement\OrgAgent\UI\ShowAgentContainerInPreparation::fillPercent(...);
+    expect($fill(60.92, 67.7))->toBe(90.0)
+        ->and($fill(60.93, 67.7))->toBe(90.0)
+        ->and($fill(60.0, 67.7))->toBe(88.6)
+        ->and($fill(1.0, null))->toBe(0.0);
 
     foreach ([
         'in_process'    => [$stages::PREPARING],
@@ -3922,6 +3930,121 @@ test('a purchase order line costing more than the supplier product cannot be sub
     $this->patch(route('grp.models.purchase-order.submit', $purchaseOrder->id))->assertSessionHasNoErrors();
     expect($purchaseOrder->refresh()->state)->toBe(PurchaseOrderStateEnum::SUBMITTED)
         ->and(App\Models\Procurement\ProcurementNote::where('subject_type', 'Supplier')->where('subject_id', $supplier->id)->where('purchase_order_id', $purchaseOrder->id)->count())->toBe(1);
+});
+
+test('goods in sees the packing and packaging notes of each product on a delivery, and a failed check opens an incident linked to the purchase order (INI-104)', function () {
+    $stockDelivery = createStockDeliveryWithItems($this, 'GIC-'.Str::random(6), [10]);
+    $stockDelivery->updateQuietly(['state' => StockDeliveryStateEnum::RECEIVED]);
+    $item          = $stockDelivery->items()->firstOrFail();
+    $product       = $item->supplierProduct;
+    $supplier      = $product->supplier;
+    $purchaseOrder = StorePurchaseOrder::make()->action($stockDelivery->parent, ['reference' => 'GIC'.Str::upper(Str::random(8))], strict: false);
+    $stockDelivery->purchaseOrders()->attach($purchaseOrder->id);
+
+    $supplier->updateQuietly(['packing_method' => 'supplier_packs', 'packing_material' => 'pap_20']);
+    App\Actions\Procurement\ProcurementNote\StoreProcurementNote::make()->action($product, ['title' => 'Labels in Spanish', 'body' => 'Every box', 'category' => 'packaging', 'severity' => 'critical']);
+    App\Actions\Procurement\ProcurementNote\StoreProcurementNote::make()->action($supplier, ['title' => 'Pays in USD only', 'category' => 'currency_payment']);
+
+    $checklist = App\Actions\GoodsIn\StockDelivery\UI\GetStockDeliveryGoodsInChecklist::make()->forPage($stockDelivery->refresh());
+    $packing   = $checklist['sections'][0]['checks'][0];
+    $labels    = $checklist['sections'][1]['checks'][0];
+    expect(collect($checklist['sections'])->pluck('key')->all())->toBe(['supplier:'.$supplier->id, 'supplier_product:'.$product->id])
+        ->and($packing['detail'])->toBe('Supplier packs · Corrugated cardboard')
+        ->and($labels['label'])->toBe('Labels in Spanish')
+        ->and($checklist['sections'][1]['purchase_order'])->toBe($purchaseOrder->reference)
+        ->and($checklist['total'])->toBe(2);
+
+    $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]).'?tab=checklist')
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->has('checklist.sections', 2)
+            ->where('checklist.can_check', true)
+            ->where('tabs.navigation.checklist.number', 2));
+
+    $checkRoute = route('grp.models.stock-delivery.goods_in_check.store', $stockDelivery->id);
+    $this->post($checkRoute, ['key' => $packing['key'], 'result' => 'passed'])->assertSessionHasNoErrors();
+    $this->post($checkRoute, ['key' => $labels['key'], 'result' => 'failed'])->assertSessionHasErrors('body');
+    $this->post($checkRoute, ['key' => 'supplier:0:packing', 'result' => 'passed'])->assertSessionHasErrors('key');
+    $this->post($checkRoute, ['key' => $labels['key'], 'result' => 'failed', 'body' => 'Labels only in English on 4 cartons', 'incident_quantity' => 40])->assertSessionHasNoErrors();
+
+    $incident = App\Models\Procurement\ProcurementNote::where('subject_type', 'SupplierProduct')->where('subject_id', $product->id)->where('category', 'incident')->sole();
+    expect($incident->purchase_order_id)->toBe($purchaseOrder->id)
+        ->and($incident->organisation_id)->toBe($stockDelivery->organisation_id)
+        ->and($incident->incident_type->value)->toBe('packing_labels')
+        ->and((float) $incident->incident_quantity)->toBe(40.0)
+        ->and($incident->incident_outcome->value)->toBe('open');
+
+    $checklist = App\Actions\GoodsIn\StockDelivery\UI\GetStockDeliveryGoodsInChecklist::make()->forPage($stockDelivery->refresh());
+    expect($checklist['checked'])->toBe(2)
+        ->and($checklist['failed'])->toBe(1)
+        ->and($checklist['sections'][1]['checks'][0]['incident_id'])->toBe($incident->id);
+});
+
+test('goods in staff report incidents on a delivery but write no other procurement note (INI-104)', function () {
+    $warehouse = $this->organisation->warehouses()->oldest('id')->first() ?? createWarehouse();
+    setPermissionsTeamId($warehouse->group_id);
+    App\Actions\Inventory\Warehouse\SeedWarehousePermissions::run($warehouse);
+    $clerk = User::factory()->create(['group_id' => $warehouse->group_id]);
+    $clerk->assignRole(App\Enums\SysAdmin\Authorisation\RolesEnum::getRoleName(App\Enums\SysAdmin\Authorisation\RolesEnum::GOODS_IN_CLERK->value, $warehouse));
+
+    $stockDelivery = createStockDeliveryWithItems($this, 'GIN-'.Str::random(6), [10]);
+    $stockDelivery->updateQuietly(['state' => StockDeliveryStateEnum::RECEIVED]);
+    App\Actions\Procurement\ProcurementNote\StoreProcurementNote::make()->action($stockDelivery->items()->first()->supplierProduct, ['title' => 'Bubble wrap each piece', 'category' => 'packaging']);
+    $noteRoute = route('grp.models.stock-delivery.note.store', $stockDelivery->id);
+
+    $this->actingAs($clerk)->post($noteRoute, ['title' => 'Supplier is slow', 'category' => 'general'])->assertForbidden();
+    $this->actingAs($clerk)->post($noteRoute, ['title' => 'Two cartons crushed', 'category' => 'incident', 'incident_type' => 'damaged'])->assertSessionHasNoErrors();
+
+    $key = App\Actions\GoodsIn\StockDelivery\UI\GetStockDeliveryGoodsInChecklist::run($stockDelivery)[0]['checks'][0]['key'];
+    $this->actingAs($clerk)->post(route('grp.models.stock-delivery.goods_in_check.store', $stockDelivery->id), ['key' => $key, 'result' => 'failed', 'body' => 'No bubble wrap'])->assertSessionHasNoErrors();
+
+    expect(App\Models\Procurement\ProcurementNote::where('author_user_id', $clerk->id)->where('category', 'incident')->count())->toBe(2)
+        ->and(App\Actions\Procurement\SupplierAgreedTerm\UI\GetAgreement::make()->noteForm($clerk, $stockDelivery->group, organisationId: $stockDelivery->organisation_id)['options']['categories'])->toBe([['value' => 'incident', 'label' => 'Incident', 'colour' => 'black']]);
+});
+
+test('a delivery received later than the lead time agreed opens one Late incident on the supplier for each late purchase order (INI-104)', function () {
+    $stockDelivery = createStockDeliveryWithItems($this, 'LATE-'.Str::random(6), [10]);
+    $supplier      = $stockDelivery->parent->supplier;
+    $late          = StorePurchaseOrder::make()->action($stockDelivery->parent, ['reference' => 'LATE'.Str::upper(Str::random(8))], strict: false);
+    $onTime        = StorePurchaseOrder::make()->action($stockDelivery->parent, ['reference' => 'ONTIME'.Str::upper(Str::random(8))], strict: false);
+    $late->updateQuietly(['submitted_at' => now()->subDays(70)]);
+    $onTime->updateQuietly(['submitted_at' => now()->subDays(50)]);
+    $stockDelivery->purchaseOrders()->attach([$late->id, $onTime->id]);
+
+    App\Actions\Procurement\SupplierAgreedTerm\StoreSupplierAgreedTerm::make()->action($supplier, ['term_type' => 'lead_time_days', 'value_type' => 'text', 'value_text' => '45 days from deposit', 'agreed_on' => today()->toDateString()]);
+
+    ReceiveStockDelivery::make()->action($stockDelivery->refresh());
+
+    $incidents = App\Models\Procurement\ProcurementNote::where('subject_type', 'Supplier')->where('subject_id', $supplier->id)->where('incident_type', 'late')->get();
+    expect($incidents)->toHaveCount(1)
+        ->and($incidents->first()->purchase_order_id)->toBe($late->id)
+        ->and($incidents->first()->title)->toBe('Delivered 25 days late')
+        ->and($incidents->first()->organisation_id)->toBe($stockDelivery->organisation_id);
+
+    App\Actions\GoodsIn\StockDelivery\ReportLateStockDeliveryPurchaseOrders::run($stockDelivery->refresh());
+    expect(App\Models\Procurement\ProcurementNote::where('purchase_order_id', $late->id)->where('incident_type', 'late')->count())->toBe(1);
+});
+
+test('the supplier incidents report counts each supplier\'s incidents and what was disputed and recovered (INI-104)', function () {
+    $supplier = StoreSupplier::make()->action($this->group, Supplier::factory()->definition());
+    $product  = StoreSupplierProduct::make()->action($supplier, array_merge(SupplierProduct::factory()->definition(), ['stock_id' => $this->stock->id]));
+    $currency = $this->group->currency_id;
+    $store    = fn ($subject, array $data) => App\Actions\Procurement\ProcurementNote\StoreProcurementNote::make()->action($subject, array_merge(['category' => 'incident', 'organisation_id' => $this->organisation->id], $data));
+
+    $credited = $store($supplier, ['title' => 'Packing charged twice', 'incident_amount' => 120, 'incident_currency_id' => $currency]);
+    $store($product, ['title' => 'Wrong colour', 'incident_amount' => 80, 'incident_currency_id' => $currency]);
+    $store($supplier, ['title' => 'Late', 'incident_type' => 'late']);
+    App\Actions\Procurement\ProcurementNote\UpdateProcurementNote::make()->action($credited, ['incident_outcome' => 'credited']);
+
+    expect((float) $credited->refresh()->grp_incident_amount)->toBe(120.0);
+
+    config(['query-builder.parameters' => (require config_path('query-builder.php'))['parameters']]);
+    $this->get(route('grp.org.procurement.supplier_incidents.index', [$this->organisation->slug]).'?filter[global]='.$supplier->code)
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Org/Procurement/SupplierIncidents')
+            ->where('data.data', fn ($rows) => collect($rows)->contains(fn ($row) => $row['code'] === $supplier->code
+                && $row['incidents'] === 3 && $row['open'] === 2 && (float) $row['disputed'] === 200.0 && (float) $row['recovered'] === 120.0)));
+
+    $this->get(route('grp.org.procurement.dashboard', [$this->organisation->slug]))->assertOk();
 });
 
 test('purchase order product list only offers products of the supplier being ordered from', function () {
