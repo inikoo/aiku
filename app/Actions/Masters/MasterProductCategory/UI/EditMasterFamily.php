@@ -64,20 +64,7 @@ class EditMasterFamily extends OrgAction
 
     public function handle(MasterProductCategory $masterProductCategory, ActionRequest $request): Response
     {
-        $departmentIdFormData = [];
-
-        if ($masterProductCategory->parent?->type == MasterProductCategoryTypeEnum::DEPARTMENT) {
-            $departmentIdFormData['master_department_id'] = [
-                'type'     => 'select',
-                'label'    => __('Master Department'),
-                'required' => true,
-                'options'  => $masterProductCategory->masterShop->masterProductCategories()
-                    ->where('type', MasterProductCategoryTypeEnum::DEPARTMENT)
-                    ->get(['id as value', 'name as label'])
-                    ->toArray(),
-                'value'    => $masterProductCategory->master_department_id,
-            ];
-        }
+        $masterShop = $masterProductCategory->masterShop;
 
         $iconLinks = [];
 
@@ -94,28 +81,25 @@ class EditMasterFamily extends OrgAction
             ];
         }
 
+        $isAromaShop = $masterShop->slug == 'aroma';
+
         return Inertia::render(
-            'EditModel',
+            'Masters/EditMasterFamily',
             [
-                'warning'     => $masterProductCategory->productCategories ? [
-                    'type'  => 'warning',
-                    'title' => __('Important'),
-                    'text'  => __('Changes to this master name or descriptions will overwrite child product names and descriptions where “Follow Master” is enabled.'),
-                    'icon'  => ['fas', 'fa-exclamation-triangle']
-                ] : null,
-                'breadcrumbs' => $this->getBreadcrumbs(
+                'warning'      => $masterProductCategory->productCategories ? __('Changes to this master name or descriptions will overwrite child product names and descriptions where “Follow Master” is enabled.') : null,
+                'breadcrumbs'  => $this->getBreadcrumbs(
                     $masterProductCategory,
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation'  => [
+                'navigation'   => [
                     'previous' => $this->getPreviousModel($masterProductCategory, $request),
                     'next'     => $this->getNextModel($masterProductCategory, $request),
                 ],
-                'title'       => __('Edit Master Family'),
-                'pageHead'    => [
-                    'title'   => __('Edit master family'),
-                    'actions' => [
+                'title'        => __('Edit Master Family'),
+                'pageHead'     => [
+                    'title'     => __('Edit master family'),
+                    'actions'   => [
                         [
                             'type'  => 'button',
                             'style' => 'exitEdit',
@@ -127,196 +111,98 @@ class EditMasterFamily extends OrgAction
                     ],
                     'iconLinks' => $iconLinks,
                 ],
-                'formData'    => [
-                    'blueprint' => [
-                        // [
-                        //     'label'  => __('Id'),
-                        //     'icon'   => 'fa-light fa-fingerprint',
-                        //     'fields' => [
-                        //         'code' => [
-                        //             'type'  => 'input',
-                        //             'label' => __('Code'),
-                        //             'value' => $masterProductCategory->code
-                        //         ],
-                        //     ]
-                        // ],
-                        [
-                            'label'  => __('Name/Description'),
-                            'icon'   => 'fa-light fa-tag',
-                            'fields' => [
-                                'name'              => [
-                                    'type'  => 'input',
-                                    'label' => __('Name'),
-                                    'value' => $masterProductCategory->name
-                                ],
-                                'description_title' => [
-                                    'type'    => 'input',
-                                    'label'   => __('Description title'),
-                                    'options' => [
-                                        'counter' => true,
-                                    ],
-                                    'value'   => $masterProductCategory->description_title
-                                ],
-                                'description'       => [
-                                    'type'    => 'textEditor',
-                                    'label'   => __('Description'),
-                                    'options' => [
-                                        'counter' => true,
-                                    ],
-                                    'toggle'  => [
-                                        'bold', 'italic','fontSize', 'underline', 'bulletList', 'undo', 'redo', 'highlight', 'color', 'clear'
-                                    ],
-                                    'value'   => $masterProductCategory->description
-                                ],
-                                'description_extra' => [
-                                    'type'    => 'textEditor',
-                                    'label'   => __('Extra description'),
-                                    'options' => [
-                                        'counter' => true,
-                                    ],
-                                    'toggle'  => [
-                                        'bold', 'italic','fontSize', 'underline', 'bulletList', 'undo', 'redo', 'highlight', 'color', 'clear'
-                                    ],
-                                    'value'   => $masterProductCategory->description_extra
-                                ],
-                            ]
-                        ],
-                        [
-                            'label'  => __('Parent').' ('.__('Department/Sub-Department').')',
-                            'icon'   => 'fa-light fa-folder-tree',
-                            'fields' => [
-                                'master_department_or_master_sub_department_id' => [
-                                    'type'       => 'select_infinite',
-                                    'label'      => __('Parent'),
-                                    'options'    => [
-                                        [
-                                            'id'   => $masterProductCategory->masterSubDepartment->id ?? $masterProductCategory->masterDepartment->id ?? null,
-                                            'code' => $masterProductCategory->masterSubDepartment->code ?? $masterProductCategory->masterDepartment->code ?? null,
-                                            'type' => $masterProductCategory->masterSubDepartment->type ?? $masterProductCategory->masterDepartment->type ?? null,
-                                        ]
-                                    ],
-                                    'fetchRoute' => [
-                                        'name'       => 'grp.json.master_shop.master_departments_and_sub_departments',
-                                        'parameters' => [
-                                            'masterShop' => $masterProductCategory->masterShop->slug,
-                                        ]
-                                    ],
-                                    'required'   => true,
-                                    'valueProp'  => 'id',
-                                    'type_label' => 'department-and-sub-department',
-                                    'labelProp'  => 'code',
-                                    'value'      => $masterProductCategory->masterSubDepartment->id ?? $masterProductCategory->masterDepartment->id ?? null,
-                                ],
+                'masterFamily' => [
+                    'code'                     => $masterProductCategory->code,
+                    'name'                     => $masterProductCategory->name,
+                    'description_title'        => $masterProductCategory->description_title,
+                    'description'              => $masterProductCategory->description,
+                    'description_extra'        => $masterProductCategory->description_extra,
+                    'master_department_id'     => $masterProductCategory->master_department_id,
+                    'master_sub_department_id' => $masterProductCategory->master_sub_department_id,
+                    'trade_unit_family_id'     => $masterProductCategory->trade_unit_family_id,
+                    'faq'                      => $masterProductCategory->faq,
+                    'vol_gr_offer'             => [
+                        'item_quantity'  => (int)$masterProductCategory->gr_vol_discount_quantity,
+                        'percentage_off' => (float)trimDecimalZeros($masterProductCategory->gr_vol_discount_percentage),
+                    ],
+                ],
+                'departments'          => $masterShop->masterProductCategories()
+                    ->where('type', MasterProductCategoryTypeEnum::DEPARTMENT)
+                    ->orderBy('name')
+                    ->get(['id', 'name']),
+                'subDepartments'       => $masterShop->masterProductCategories()
+                    ->where('type', MasterProductCategoryTypeEnum::SUB_DEPARTMENT)
+                    ->orderBy('name')
+                    ->get(['id', 'name', 'master_department_id']),
+                'tradeUnitFamilies'    => array_values(GetTradeUnitFamilyForFamilies::run($masterProductCategory)),
+                'isGoldRewardEligible' => (bool)$masterShop->gold_reward_eligible,
+                'faqField'             => [
+                    'master_product_category_id' => $masterProductCategory->id,
+                ],
+                'extraSections'        => $isAromaShop ? [
+                    [
+                        'label'  => __('Customize'),
+                        'fields' => [
+                            'customize_option' => [
+                                'type'                       => 'family_customize',
+                                'label'                      => __('Customize'),
+                                'options'                    => FamilyCustomizeEnum::valuesWithLabelsAndIcons(),
+                                'value'                      => FamilyCustomizeEnum::rows($masterProductCategory->customize_option),
+                                'master_product_category_id' => $masterProductCategory->id,
                             ],
-
-                        ],
-                        [
-                            'label'  => __('Trade Unit Family'),
-                            'icon'   => 'fa-light fa-folder-tree',
-                            'fields' => [
-                                'trade_unit_family_id' => [
-                                    'label'         => 'Trade Unit Family',
-                                    'placeholder'   => __('Select a Trade Unit Family'),
-                                    'information'   => __('Would link this family to the selected trade unit family'),
-                                    'type'          => 'select',
-                                    'options'       => GetTradeUnitFamilyForFamilies::run($masterProductCategory),
-                                    'required'      => true,
-                                    'searchable'    => true,
-                                    'mode'          => 'single',
-                                    'value'         => $masterProductCategory->trade_unit_family_id
-                                ],
-                            ]
-                        ],
-                        $masterProductCategory->masterShop->gold_reward_eligible ? [
-                            'label'  => __('Vol / GR'),
-                            'icon'   => 'fa-light fa-badge-percent',
-                            'fields' => [
-                                'vol_gr_offer' => [
-                                    'label'         => 'Vol / GR',
-                                    'information'   => __('Any changes will affect the offer in all shops.'),
-                                    'type'          => 'vol_discount',
-                                    'initial_value' => [
-                                        'item_quantity'  => $masterProductCategory->gr_vol_discount_quantity,
-                                        'percentage_off' => trimDecimalZeros($masterProductCategory->gr_vol_discount_percentage),
-                                    ],
-                                ],
-                            ],
-                        ] : [],
-                        $masterProductCategory->masterShop->slug == 'aroma' ? [
-                            'label'  => __('Customize'),
-                            'icon'   => 'fa-light fa-sliders-h',
-                            'fields' => [
-                                'customize_option' => [
-                                    'type'                       => 'family_customize',
-                                    'label'                      => __('Customize'),
-                                    'options'                    => FamilyCustomizeEnum::valuesWithLabelsAndIcons(),
-                                    'value'                      => FamilyCustomizeEnum::rows($masterProductCategory->customize_option),
-                                    'master_product_category_id' => $masterProductCategory->id,
-                                ],
-                            ],
-                        ] : [],
-                        $masterProductCategory->masterShop->slug == 'aroma' ? [
-                            'label'  => __('Storage & Shelf Life'),
-                            'icon'   => 'fa-light fa-temperature-low',
-                            'fields' => [
-                                'storage_conditions'  => [
-                                    'type'                       => 'family_storage_conditions',
-                                    'label'                      => __('Storage table'),
-                                    'options'                    => FamilyStorageConditionEnum::valuesWithLabelsAndPlaceholders(),
-                                    'value'                      => FamilyStorageConditionEnum::rows(data_get($masterProductCategory->storage_option, 'storage_conditions', [])),
-                                    'master_product_category_id' => $masterProductCategory->id,
-                                ],
-                                'storage_temperature' => [
-                                    'type'        => 'input',
-                                    'label'       => __('Storage temperature'),
-                                    'placeholder' => __('e.g. 15°C - 25°C'),
-                                    'value'   => data_get($masterProductCategory->storage_option, 'storage_temperature', ''),
-                                ],
-                                'storage_guidelines'  => [
-                                    'type'     => 'dynamic_list',
-                                    'label'    => __('Storage guidelines'),
-                                    'value'   => data_get($masterProductCategory->storage_option, 'storage_guidelines', []),
-                                    'fields'   => [
-                                        ['key' => 'text', 'placeholder' => __('e.g. Keep products in their original packaging.')],
-                                    ],
-                                    'addLabel' => __('Add guideline'),
-                                ],
-                            ],
-                        ] : [],
-                        $masterProductCategory->masterShop->slug == 'aroma' ? [
-                            'label'  => __('Category Comparison'),
-                            'icon'   => 'fa-light fa-balance-scale',
-                            'fields' => [
-                                'category_comparison' => [
-                                    'full'      => true,
-                                    'type'      => 'category-comparison',
-                                    'label'     => __('Category Comparison'),
-                                    'value'     => $masterProductCategory->category_comparison,
-                                ],
-                            ],
-                        ] : [],
-                        [
-                            'label'  => __('FAQ'),
-                            'icon'   => 'fa-light fa-question-circle',
-                            'fields' => [
-                                'faq' => [
-                                    'type'                       => 'faq-master',
-                                    'label'                      => __('FAQ'),
-                                    'value'                      => $masterProductCategory->faq,
-                                    'master_product_category_id' => $masterProductCategory->id,
-                                ],
-                            ]
                         ],
                     ],
-                    'args'      => [
-                        'updateRoute' => [
-                            'name'       => 'grp.models.master_product_category.update',
-                            'parameters' => [
-                                'masterProductCategory' => $masterProductCategory->id
-                            ]
+                    [
+                        'label'  => __('Storage & Shelf Life'),
+                        'fields' => [
+                            'storage_conditions'  => [
+                                'type'                       => 'family_storage_conditions',
+                                'label'                      => __('Storage table'),
+                                'options'                    => FamilyStorageConditionEnum::valuesWithLabelsAndPlaceholders(),
+                                'value'                      => FamilyStorageConditionEnum::rows(data_get($masterProductCategory->storage_option, 'storage_conditions', [])),
+                                'master_product_category_id' => $masterProductCategory->id,
+                            ],
+                            'storage_temperature' => [
+                                'type'        => 'input',
+                                'label'       => __('Storage temperature'),
+                                'placeholder' => __('e.g. 15°C - 25°C'),
+                                'value'       => data_get($masterProductCategory->storage_option, 'storage_temperature', ''),
+                            ],
+                            'storage_guidelines'  => [
+                                'type'     => 'dynamic_list',
+                                'label'    => __('Storage guidelines'),
+                                'value'    => data_get($masterProductCategory->storage_option, 'storage_guidelines', []),
+                                'fields'   => [
+                                    ['key' => 'text', 'placeholder' => __('e.g. Keep products in their original packaging.')],
+                                ],
+                                'addLabel' => __('Add guideline'),
+                            ],
                         ],
                     ],
-                ]
+                    [
+                        'label'  => __('Category Comparison'),
+                        'fields' => [
+                            'category_comparison' => [
+                                'full'  => true,
+                                'type'  => 'category-comparison',
+                                'label' => __('Category Comparison'),
+                                'value' => $masterProductCategory->category_comparison,
+                            ],
+                        ],
+                    ],
+                ] : [],
+                'completeness'         => GetMasterFamilyCompleteness::run($masterProductCategory),
+                'shopsCount'           => GetMasterFamilyShopsStatus::run($masterProductCategory)['total'],
+                'familiesRoute'        => [
+                    'name'       => preg_replace('/edit$/', 'families', $request->route()->getName()),
+                    'parameters' => $request->route()->originalParameters(),
+                ],
+                'updateRoute'          => [
+                    'name'       => 'grp.models.master_product_category.update',
+                    'parameters' => [
+                        'masterProductCategory' => $masterProductCategory->id
+                    ]
+                ],
             ]
         );
     }

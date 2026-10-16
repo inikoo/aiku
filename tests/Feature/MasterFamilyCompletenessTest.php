@@ -125,3 +125,32 @@ test('families in shop page shows each shop family status, workflow and page sco
             ->where('index.data.0.public_url', null)
             ->etc());
 });
+
+test('edit master family page shows the master content, parent options and checklist, and saves fields together', function () {
+    $masterFamily     = $this->masterFamily->fresh();
+    $masterDepartment = $masterFamily->masterDepartment;
+
+    get(route('grp.masters.master_shops.show.master_departments.show.master_families.edit', [$masterFamily->masterShop->slug, $masterDepartment->slug, $masterFamily->slug]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Masters/EditMasterFamily')
+            ->where('masterFamily.code', $masterFamily->code)
+            ->where('masterFamily.master_department_id', $masterDepartment->id)
+            ->where('departments', fn ($departments) => collect($departments)->contains('id', $masterDepartment->id))
+            ->where('completeness.total', 9)
+            ->where('familiesRoute.name', 'grp.masters.master_shops.show.master_departments.show.master_families.families')
+            ->where('updateRoute.name', 'grp.models.master_product_category.update')
+            ->etc());
+
+    $this->patch(route('grp.models.master_product_category.update', $masterFamily->id), [
+        'name'              => 'Renamed family',
+        'description_title' => 'New title',
+        'master_department_or_master_sub_department_id' => $masterDepartment->id,
+    ])->assertSessionHasNoErrors();
+
+    $masterFamily->refresh();
+
+    expect($masterFamily->name)->toBe('Renamed family')
+        ->and($masterFamily->description_title)->toBe('New title')
+        ->and($masterFamily->master_department_id)->toBe($masterDepartment->id);
+});
