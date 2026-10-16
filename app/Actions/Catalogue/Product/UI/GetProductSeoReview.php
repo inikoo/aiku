@@ -17,7 +17,6 @@ use App\Models\SysAdmin\User;
 use App\Models\Web\SeoContentSuggestion;
 use App\Models\Web\SeoTrackedKeyword;
 use App\Models\Web\Webpage;
-use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -53,7 +52,7 @@ class GetProductSeoReview
 
         $currentValues = [
             ...StoreProductSeoReview::currentValues($product, $webpage),
-            StoreFamilySeoReview::FIELD_STRUCTURED_DATA => $this->structuredData($webpage),
+            StoreFamilySeoReview::FIELD_STRUCTURED_DATA => $webpage->structuredDataJson(),
         ];
 
         $fields = collect($currentValues)->map(function (?string $current, string $field) use ($labels, $suggestions, $product, $user) {
@@ -93,16 +92,5 @@ class GetProductSeoReview
             'validate_route' => ['name' => 'grp.models.product.seo_review.validate', 'parameters' => ['product' => $product->id]],
             'fields'         => $fields->all(),
         ];
-    }
-
-    private function structuredData(Webpage $webpage): ?string
-    {
-        $structuredData = Arr::get($webpage->seo_data, 'structured_data');
-
-        if (is_string($structuredData)) {
-            return $structuredData !== '' ? $structuredData : null;
-        }
-
-        return $structuredData ? json_encode($structuredData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) : null;
     }
 }

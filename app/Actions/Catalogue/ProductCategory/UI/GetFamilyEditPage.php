@@ -165,7 +165,7 @@ class GetFamilyEditPage
                 $this->card(__('Custom JSON-LD'), $byWebmaster, $webpageRoute, [
                     'structured_data' => $this->bare([
                         'type'                => 'structure_data_website',
-                        'value'               => Arr::get($webpage->seo_data, 'structured_data') ?? '',
+                        'value'               => $webpage->structuredDataJson() ?? '',
                         'information_warning' => [
                             ['description' => __("Structure @type 'ProductGroup' or @type 'Product' inside @graph will have no effect, as it will be overwritten by the system.")],
                         ],
@@ -271,7 +271,7 @@ class GetFamilyEditPage
         if ($suggestion = $suggestions->get(StoreFamilySeoReview::FIELD_STRUCTURED_DATA)) {
             $value   = json_decode($suggestion->suggestion, true);
             $tasks[] = $task($suggestion, 'structured_data', [
-                $row(null, Arr::get($webpage->seo_data, 'structured_data') ?: null, $value['json_ld'], isCode: true),
+                $row(null, $webpage->structuredDataJson(), $value['json_ld'], isCode: true),
             ], $value['json_ld'], $suggestion->state === SeoContentSuggestionStateEnum::IMPLEMENTED, note: $value['why'] ?? null);
         }
 
@@ -346,7 +346,7 @@ class GetFamilyEditPage
                 'remove'             => (bool) data_get($faqSuggestion, "items.$index.remove", false),
             ])->all(),
             'new_faq'                    => data_get($faqSuggestion, 'new', []),
-            'structured_data'            => Arr::get($webpage->seo_data, 'structured_data') ?? '',
+            'structured_data'            => $webpage->structuredDataJson() ?? '',
             'structured_data_suggestion' => $structuredDataSuggestion['json_ld'] ?? '',
             'structured_data_why'        => $structuredDataSuggestion['why'] ?? '',
             'breadcrumb_json_ld'         => $this->breadcrumbJsonLd($family, $webpage),

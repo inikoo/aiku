@@ -16,7 +16,6 @@ use App\Models\Catalogue\Product;
 use App\Models\SysAdmin\User;
 use App\Models\Web\SeoContentSuggestion;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -67,7 +66,7 @@ class ImplementProductSeoSuggestion extends OrgAction
         $field   = $suggestion->field;
 
         if ($field === StoreFamilySeoReview::FIELD_STRUCTURED_DATA) {
-            if ($this->isUnchanged(Arr::get($webpage->seo_data, 'structured_data'), $suggestion->current_value)) {
+            if ($this->isUnchanged($webpage->structuredDataJson(), $suggestion->current_value)) {
                 UpdateWebpage::make()->action($webpage, ['structured_data' => json_decode($suggestion->suggestion, true)['json_ld']]);
             }
         } elseif ($this->isUnchanged(StoreProductSeoReview::currentValues($product, $webpage)[$field], $suggestion->current_value)) {

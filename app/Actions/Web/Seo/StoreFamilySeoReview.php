@@ -83,7 +83,7 @@ class StoreFamilySeoReview extends OrgAction
             if (filled($modelData['structured_data'] ?? null)) {
                 $suggestions->push([
                     self::FIELD_STRUCTURED_DATA,
-                    Arr::get($webpage->seo_data, 'structured_data') ?: null,
+                    $webpage->structuredDataJson(),
                     json_encode(['json_ld' => $modelData['structured_data'], 'why' => $modelData['structured_data_why'] ?? null]),
                 ]);
             }

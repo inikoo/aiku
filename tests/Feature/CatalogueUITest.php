@@ -354,7 +354,7 @@ test('UI show family edit page tab lays out the webpage and content fields with 
     createWebsite($this->shop);
     $family  = $this->family->refresh();
     $webpage = $family->webpage ?? StoreProductCategoryWebpage::make()->action($family);
-    $webpage->update(['title' => 'Wholesale <b>Aroma</b> Diffusers']);
+    $webpage->update(['title' => 'Wholesale <b>Aroma</b> Diffusers', 'seo_data' => ['structured_data' => ['@context' => 'https://schema.org', '@type' => 'FAQPage']]]);
 
     SeoTrackedKeyword::create([
         'shop_id'           => $this->shop->id,
@@ -384,7 +384,13 @@ test('UI show family edit page tab lays out the webpage and content fields with 
             ->has('edit_page.page_score.steps', 4)
             ->has('edit_page.seo_issues.groups')
             ->where('edit_page.seo_review.checks.title', ['ok' => true, 'note' => 'Contains keyword'])
+            ->where('edit_page.seo_review.structured_data', fn (string $json) => json_decode($json, true)['@type'] === 'FAQPage')
             ->etc());
+
+    $webpage->update(['seo_data' => ['structured_data' => ['']]]);
+
+    get(route('grp.org.shops.show.catalogue.families.show', [$this->organisation->slug, $this->shop->slug, $family->slug, 'tab' => FamilyTabsEnum::EDIT_PAGE->value]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('edit_page.seo_review.structured_data', '')->etc());
 });
 
 test('SEO team sends a family page review that replaces the last one and moves the workflow on', function () {
