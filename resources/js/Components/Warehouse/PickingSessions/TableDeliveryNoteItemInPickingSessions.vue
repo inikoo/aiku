@@ -46,14 +46,15 @@ import Image from "@common/Components/Image.vue"
 import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
 import { notify } from "@kyvg/vue3-notification"
 import { ctrans } from "@/Composables/useTrans"
+import { printPdfInBrowser } from "@/Composables/printPdfInBrowser"
 import HelpArticles from "@/Components/Utils/HelpArticles.vue"
 import ChangePackagingSelect from "@/Components/Warehouse/PickingSessions/ChangePackagingSelect.vue"
 import OrgStockHandlingNotes from "@/Components/Warehouse/DeliveryNotes/OrgStockHandlingNotes.vue"
-import { faPrint, faRedo, faFileAlt, faBoxOpen, faExclamationCircle, faCloudDownload, faEye, faInfoCircle } from "@fal"
+import { faPrint, faRedo, faFileAlt, faBoxOpen, faExclamationCircle, faCloudDownload, faEye, faInfoCircle, faBrowser } from "@fal"
 
 const screenType = inject('screenType', ref('desktop'))
 
-library.add(faSkull, faStickyNote, faArrowDown, faDebug, faClipboardListCheck, faUndoAlt, faHandHoldingBox, faListOl, faHandPaper, faChair, faBoxCheck, faCheckDouble, faTimes, faPeopleArrows, faHourglassHalf, faBox, faPrint, faRedo, faFileAlt, faBoxOpen, faExclamationCircle, faBarcodeRead, faCloudDownload, faEye, faInfoCircle)
+library.add(faSkull, faStickyNote, faArrowDown, faDebug, faClipboardListCheck, faUndoAlt, faHandHoldingBox, faListOl, faHandPaper, faChair, faBoxCheck, faCheckDouble, faTimes, faPeopleArrows, faHourglassHalf, faBox, faPrint, faRedo, faFileAlt, faBoxOpen, faExclamationCircle, faBarcodeRead, faCloudDownload, faEye, faInfoCircle, faBrowser)
 
 // Section: Packaging & leaflet inserts (warehouse)
 const changingPackagingId = ref<number | null>(null)
@@ -69,6 +70,28 @@ const onChangePackaging = (deliveryNoteId: number, packagingId: number) => {
             onFinish: () => changingPackagingId.value = null,
         }
     )
+}
+
+const browserPrintingLeafletId = ref<number | null>(null)
+const onPrintLeafletInBrowser = async (leaflet: { id: number, state: string }) => {
+    try {
+        browserPrintingLeafletId.value = leaflet.id
+        const response = await axios.post(
+            route("grp.models.delivery_note_leaflet.print_in_browser", { deliveryNoteLeaflet: leaflet.id }),
+            {},
+            { responseType: "blob" }
+        )
+        printPdfInBrowser(response.data)
+        leaflet.state = "printed"
+        router.reload({ only: [props.tab] })
+    } catch (error: any) {
+        const message = error?.response?.data instanceof Blob
+            ? JSON.parse(await error.response.data.text())?.message
+            : null
+        notify({ title: ctrans("Something went wrong"), text: message ?? ctrans("Failed to print insert"), type: "error" })
+    } finally {
+        browserPrintingLeafletId.value = null
+    }
 }
 
 const pullingMediaLeafletId = ref<number | null>(null)
@@ -1161,6 +1184,16 @@ onUnmounted(() => {
                         @click="showLeafletMessage($event, leaflet.message)"
                     >
                         <FontAwesomeIcon :icon="['fal', 'eye']" fixed-width aria-hidden="true" />
+                    </button>
+                    <button
+                        v-if="leaflet.has_media || leaflet.message"
+                        type="button"
+                        class="p-1 text-gray-400 hover:text-gray-600 disabled:text-gray-300"
+                        :disabled="browserPrintingLeafletId === leaflet.id"
+                        v-tooltip="ctrans('Print from this browser (the paper set on this computer, no PrintNode)')"
+                        @click="onPrintLeafletInBrowser(leaflet)"
+                    >
+                        <FontAwesomeIcon :icon="['fal', 'browser']" fixed-width aria-hidden="true" />
                     </button>
                     <button
                         v-if="leaflet.has_media"

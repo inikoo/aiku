@@ -10,6 +10,7 @@ namespace App\Actions\Chat\MetaChatSession;
 
 use App\Actions\Chat\ChatSession\SettleChatAiDraft;
 use App\Actions\Chat\Whatsapp\Concerns\WithWhatsappTemplatePayload;
+use App\Actions\Chat\Whatsapp\NormaliseWhatsappVideo;
 use App\Actions\Chat\Whatsapp\StoreMetaTrackingEvent;
 use App\Actions\Chat\Whatsapp\Templates\ResolveWhatsappTemplateTags;
 use App\Actions\Chat\WithChatAgentAuthorisation;
@@ -47,11 +48,17 @@ class SendMetaChatMessage
     use WithWhatsappTemplatePayload;
     use WithChatAgentAuthorisation;
 
+    /**
+     * What a phone records, not what WhatsApp plays: every one of these is converted to an
+     * H.264 MP4 before it is sent.
+     */
+    public const VIDEO_UPLOAD_EXTENSIONS = ['mp4', 'mov', 'm4v', '3gp', 'webm', 'avi', 'mkv'];
+
     public function rules(): array
     {
         return [
             'message_text'          => [
-                'required_without_all:image,file,template_name',
+                'required_without_all:image,video,file,template_name',
                 'nullable',
                 'string',
                 'max:4096',
@@ -64,6 +71,12 @@ class SendMetaChatMessage
                 'nullable',
                 File::types(WhatsappMediaTypeEnum::IMAGE->extensions())
                     ->max(WhatsappMediaTypeEnum::IMAGE->maxKilobytes())
+            ],
+            'video'                 => [
+                'sometimes',
+                'nullable',
+                File::types(self::VIDEO_UPLOAD_EXTENSIONS)
+                    ->max(WhatsappMediaTypeEnum::DOCUMENT->maxKilobytes())
             ],
             'file'                  => [
                 'sometimes',
@@ -95,6 +108,32 @@ class SendMetaChatMessage
      */
     public function handle(MetaChatSession $metaChatSession, ChatAgent $agent, array $modelData): array
     {
+        $video = $modelData['video'] ?? null;
+
+        if (!$video instanceof UploadedFile) {
+            return $this->send($metaChatSession, $agent, $modelData);
+        }
+
+        $converted = $this->videoForWhatsapp($video);
+
+        if (!$converted['ok']) {
+            return $converted;
+        }
+
+        try {
+            return $this->send($metaChatSession, $agent, $modelData, $converted);
+        } finally {
+            @unlink($converted['path']);
+        }
+    }
+
+    /**
+     * @param  array{path: string, mime: string, name: string, extension: string}|null  $convertedVideo
+     *
+     * @throws \Throwable
+     */
+    protected function send(MetaChatSession $metaChatSession, ChatAgent $agent, array $modelData, ?array $convertedVideo = null): array
+    {
         $shop = $metaChatSession->shop;
 
         [
@@ -112,7 +151,12 @@ class SendMetaChatMessage
 
         $to          = preg_replace('/\D/', '', (string) $metaChatSession->phone_number);
         $messageText = trim(strip_tags($modelData['message_text'] ?? ''));
-        $upload      = $modelData['image'] ?? $modelData['file'] ?? null;
+        $upload      = $modelData['image'] ?? $modelData['video'] ?? $modelData['file'] ?? null;
+        $mediaKind   = match (true) {
+            isset($modelData['image']) => WhatsappMediaTypeEnum::IMAGE,
+            isset($modelData['video']) => WhatsappMediaTypeEnum::VIDEO,
+            default                    => WhatsappMediaTypeEnum::DOCUMENT,
+        };
 
         /* Resolved once here so the name and language used for the rest of the send come from
            the record itself: a request carrying only an id does not send them, and a request
@@ -182,22 +226,29 @@ class SendMetaChatMessage
             $metadata['meta_message_template_id'] = $template?->id;
             $metadata['template_parameters'] = $parameters;
         } elseif ($upload instanceof UploadedFile) {
-            $mediaResult = $this->uploadMedia($phoneNumberId, $accessToken, $upload);
+            $attachment = $convertedVideo ?? [
+                'path'      => $upload->getPathname(),
+                'mime'      => $upload->getMimeType(),
+                'name'      => $upload->getClientOriginalName(),
+                'extension' => $upload->getClientOriginalExtension(),
+            ];
+
+            $mediaResult = $this->uploadMediaFromPath($phoneNumberId, $accessToken, $attachment['path'], $attachment['mime'], $attachment['name']);
             if (!$mediaResult['ok']) {
                 return $mediaResult;
             }
-            $isImage = isset($modelData['image']);
             $payload = [
-                'messaging_product'          => 'whatsapp',
-                'to'                         => $to,
-                'type'                       => $isImage ? 'image' : 'document',
-                ($isImage ? 'image' : 'document') => array_filter([
+                'messaging_product' => 'whatsapp',
+                'to'                => $to,
+                'type'              => $mediaKind->value,
+                $mediaKind->value   => array_filter([
                     'id'       => $mediaResult['media_id'],
                     'caption'  => $messageText ?: null,
-                    'filename' => $isImage ? null : $upload->getClientOriginalName(),
+                    'filename' => $mediaKind === WhatsappMediaTypeEnum::DOCUMENT ? $attachment['name'] : null,
                 ]),
             ];
             $metadata['wa_media_id'] = $mediaResult['media_id'];
+            $metadata['wa_type']     = $mediaKind->value;
         } else {
             $payload = [
                 'messaging_product' => 'whatsapp',
@@ -253,8 +304,8 @@ class SendMetaChatMessage
             'metadata'        => $metadata,
         ]);
 
-        if ($upload instanceof UploadedFile) {
-            $this->processAttachment($metaChatMessage, $upload, isset($modelData['image']));
+        if (isset($attachment)) {
+            $this->processAttachment($metaChatMessage, $attachment, $mediaKind === WhatsappMediaTypeEnum::IMAGE);
         }
 
         $metaChatSession->update(['last_agent_message_at' => now()]);
@@ -443,24 +494,50 @@ class SendMetaChatMessage
         return ['ok' => true, 'parameters' => array_filter($resolved['values'], fn ($v) => $v !== null)];
     }
 
-    protected function uploadMedia(string $phoneNumberId, string $accessToken, UploadedFile $file): array
+    /**
+     * @return array{ok: true, path: string, mime: string, name: string, extension: string}|array{ok: false, message: string, code: int}
+     */
+    protected function videoForWhatsapp(UploadedFile $file): array
     {
-        return $this->uploadMediaFromPath(
-            $phoneNumberId,
-            $accessToken,
-            $file->getPathName(),
-            $file->getMimeType(),
-            $file->getClientOriginalName()
-        );
+        $converted = NormaliseWhatsappVideo::make()->transcode($file->getPathname());
+
+        if ($converted === null) {
+            return [
+                'ok'      => false,
+                'message' => __('This video could not be converted for WhatsApp. Send a shorter clip, or send it by email.'),
+                'code'    => 422,
+            ];
+        }
+
+        if (filesize($converted) > WhatsappMediaTypeEnum::VIDEO->maxKilobytes() * 1024) {
+            @unlink($converted);
+
+            return [
+                'ok'      => false,
+                'message' => __('This video is still over 16MB once compressed, which is the most WhatsApp takes. Send a shorter clip, or send it by email.'),
+                'code'    => 422,
+            ];
+        }
+
+        return [
+            'ok'        => true,
+            'path'      => $converted,
+            'mime'      => 'video/mp4',
+            'name'      => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME).'.mp4',
+            'extension' => 'mp4',
+        ];
     }
 
-    protected function processAttachment(MetaChatMessage $metaChatMessage, UploadedFile $file, bool $isImage): void
+    /**
+     * @param  array{path: string, name: string, extension: string}  $attachment
+     */
+    protected function processAttachment(MetaChatMessage $metaChatMessage, array $attachment, bool $isImage): void
     {
         $fileData = [
-            'path'         => $file->getPathName(),
-            'originalName' => $file->getClientOriginalName(),
-            'extension'    => $file->getClientOriginalExtension(),
-            'checksum'     => md5_file($file->getPathName()),
+            'path'         => $attachment['path'],
+            'originalName' => $attachment['name'],
+            'extension'    => $attachment['extension'],
+            'checksum'     => md5_file($attachment['path']),
         ];
 
         $media = StoreMediaFromFile::run(

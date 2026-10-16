@@ -8,6 +8,7 @@
 
 namespace App\Actions\SupplyChain\SupplierProduct\UI;
 
+use App\Actions\SupplyChain\Supplier\WithSupplierPacking;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithSupplyChainEditAuthorisation;
 use App\Models\SupplyChain\Agent;
@@ -24,6 +25,7 @@ use Lorisleiva\Actions\ActionRequest;
 class EditSupplierProduct extends OrgAction
 {
     use WithSupplyChainEditAuthorisation;
+    use WithSupplierPacking;
 
     public function handle(SupplierProduct $supplierProduct): SupplierProduct
     {
@@ -164,6 +166,7 @@ class EditSupplierProduct extends OrgAction
                                     'value'   => Arr::get($supplierProduct->data, 'unit_expense'),
                                     'options' => ['inputType' => 'number']
                                 ],
+                                ...$this->packingEditFields($supplierProduct, $supplierProduct->supplier),
                                 'is_available' => [
                                     'type'  => 'toggle',
                                     'label' => __('Available'),

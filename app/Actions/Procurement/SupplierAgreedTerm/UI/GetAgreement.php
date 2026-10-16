@@ -12,6 +12,7 @@ use App\Actions\Procurement\SupplierAgreedTerm\GetEffectiveSupplierAgreedTerms;
 use App\Actions\Procurement\WithAgreedTermsAuthorisation;
 use App\Enums\Procurement\ProcurementNote\ProcurementNoteCategoryEnum;
 use App\Enums\Procurement\ProcurementNote\ProcurementNoteIncidentOutcomeEnum;
+use App\Enums\Procurement\ProcurementNote\ProcurementNoteIncidentTypeEnum;
 use App\Enums\Procurement\ProcurementNote\ProcurementNoteSeverityEnum;
 use App\Enums\Procurement\ProcurementNote\ProcurementNoteVisibilityEnum;
 use App\Enums\Procurement\SupplierAgreedTerm\SupplierAgreedTermTypeEnum;
@@ -88,6 +89,7 @@ class GetAgreement
                 'term_types'    => SupplierAgreedTermTypeEnum::valuesWithLabels(),
                 'value_types'   => collect(SupplierAgreedTermValueTypeEnum::cases())->map(fn ($case) => ['value' => $case->value, 'label' => $case->label(), 'has_amount' => $case->hasAmount()])->all(),
                 'categories'    => collect(ProcurementNoteCategoryEnum::cases())->map(fn ($case) => ['value' => $case->value, 'label' => $case->label(), 'colour' => $case->colour()])->all(),
+                'incident_types' => ProcurementNoteIncidentTypeEnum::valuesWithLabels(),
                 'severities'    => ProcurementNoteSeverityEnum::valuesWithLabels(),
                 'visibilities'  => ProcurementNoteVisibilityEnum::valuesWithLabels(),
                 'currencies'    => Currency::orderBy('code')->get(['id', 'code'])->map(fn (Currency $currency) => ['value' => $currency->id, 'label' => $currency->code])->all(),
@@ -115,6 +117,7 @@ class GetAgreement
             'routes'        => null,
             'options'       => $canWrite ? [
                 'categories'      => collect(ProcurementNoteCategoryEnum::cases())->map(fn ($case) => ['value' => $case->value, 'label' => $case->label(), 'colour' => $case->colour()])->all(),
+                'incident_types'  => ProcurementNoteIncidentTypeEnum::valuesWithLabels(),
                 'severities'      => ProcurementNoteSeverityEnum::valuesWithLabels(),
                 'visibilities'    => ProcurementNoteVisibilityEnum::valuesWithLabels(),
                 'currencies'      => Currency::orderBy('code')->get(['id', 'code'])->map(fn (Currency $currency) => ['value' => $currency->id, 'label' => $currency->code])->all(),

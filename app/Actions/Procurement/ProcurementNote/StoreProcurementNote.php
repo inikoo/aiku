@@ -11,6 +11,7 @@ use App\Actions\OrgAction;
 use App\Actions\Procurement\WithAgreedTermsAuthorisation;
 use App\Enums\Procurement\ProcurementNote\ProcurementNoteCategoryEnum;
 use App\Enums\Procurement\ProcurementNote\ProcurementNoteIncidentOutcomeEnum;
+use App\Enums\Procurement\ProcurementNote\ProcurementNoteIncidentTypeEnum;
 use App\Enums\Procurement\ProcurementNote\ProcurementNoteSeverityEnum;
 use App\Enums\Procurement\ProcurementNote\ProcurementNoteStateEnum;
 use App\Enums\Procurement\ProcurementNote\ProcurementNoteVisibilityEnum;
@@ -94,6 +95,8 @@ class StoreProcurementNote extends OrgAction
             'incident_amount'      => ['sometimes', 'nullable', 'numeric', 'min:0'],
             'incident_currency_id' => ['sometimes', 'nullable', 'required_with:incident_amount', 'integer', 'exists:currencies,id'],
             'incident_outcome'     => ['sometimes', 'nullable', Rule::enum(ProcurementNoteIncidentOutcomeEnum::class)],
+            'incident_type'        => ['sometimes', 'nullable', Rule::enum(ProcurementNoteIncidentTypeEnum::class)],
+            'incident_quantity'    => ['sometimes', 'nullable', 'numeric', 'min:0'],
             'evidence_message_id'  => ['sometimes', 'nullable', 'integer', Rule::exists('supplier_messages', 'id')->where('group_id', $this->group->id)],
             'attachments'          => ['sometimes', 'array'],
             'attachments.*'        => ['file', 'max:50000'],

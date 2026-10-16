@@ -43,6 +43,7 @@ use App\Models\Comms\SenderEmail;
 use App\Models\Comms\TestEmailRecipient;
 use App\Models\Comms\WhatsappCampaign;
 use App\Models\CRM\Customer;
+use App\Models\CRM\CustomerEmailTemplate;
 use App\Models\CRM\Appointment;
 use App\Models\CRM\AppointmentType;
 use App\Models\CRM\Poll;
@@ -432,6 +433,11 @@ class Shop extends Model implements HasMedia, Auditable
     public function customers(): HasMany
     {
         return $this->hasMany(Customer::class);
+    }
+
+    public function customerEmailTemplates(): HasMany
+    {
+        return $this->hasMany(CustomerEmailTemplate::class)->orderBy('position');
     }
 
     public function prospects(): HasMany

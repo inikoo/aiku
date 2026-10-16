@@ -54,19 +54,17 @@ function reloadStockDelivery() {
     })
 }
 
-function confirmChangeState(event: MouseEvent, item: any, stateRoute: any, message: string, acceptLabel: string, body: Record<string, unknown> = {}) {
+function confirmChangeState(event: MouseEvent, item: any, stateRoute: any, message: string, acceptLabel: string, body: Record<string, unknown> = {}, isDestructive = false) {
     if (!stateRoute) {
         return
     }
 
     confirm.require({
+        group: 'stock-delivery-items',
         target: event.currentTarget as HTMLElement,
         message,
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel,
-        rejectLabel: ctrans('Cancel'),
-        acceptClass: 'p-button-success',
-        rejectClass: 'p-button-text',
+        acceptProps: { label: acceptLabel, severity: isDestructive ? 'danger' : 'success' },
+        rejectProps: { label: ctrans('Cancel') },
         accept: () => changeState(item, stateRoute, body),
     })
 }
@@ -607,7 +605,7 @@ async function saveAllCosts() {
                                 type="negative"
                                 :loading="isProcessing || changingId === item.id"
                                 class="py-0"
-                                @click="confirmChangeState($event, item, item.checkedRoute, ctrans('Mark :code as not received? The delivery closes without it once everything else is booked in.', { code: item.code }), ctrans('Not received'), { sko_quantity_checked: 0 })"
+                                @click="confirmChangeState($event, item, item.checkedRoute, ctrans('Mark :code as not received? The delivery closes without it once everything else is booked in.', { code: item.code }), ctrans('Not received'), { sko_quantity_checked: 0 }, true)"
                             />
                         </div>
                     </template>
@@ -795,5 +793,34 @@ async function saveAllCosts() {
         </div>
     </Dialog>
 
-    <ConfirmPopup />
+    <ConfirmPopup group="stock-delivery-items" :style="{ width: '24rem', maxWidth: 'calc(100vw - 2rem)' }">
+        <template #container="{ message, acceptCallback, rejectCallback }">
+            <div class="p-4">
+                <p class="text-sm text-gray-700">{{ message.message }}</p>
+                <div class="mt-4 flex justify-end gap-2">
+                    <Button type="tertiary" size="xs" :label="message.rejectProps?.label" @click="rejectCallback">
+                        <template #icon>
+                            <FontAwesomeIcon icon="fal fa-undo-alt" class="text-gray-500" fixed-width aria-hidden="true" />
+                        </template>
+                    </Button>
+                    <Button
+                        type="tertiary"
+                        size="xs"
+                        :label="message.acceptProps?.label"
+                        :class="message.acceptProps?.severity === 'danger' ? '!border-red-500 !text-red-600 hover:!bg-red-50' : ''"
+                        @click="acceptCallback"
+                    >
+                        <template #icon>
+                            <FontAwesomeIcon
+                                :icon="message.acceptProps?.severity === 'danger' ? 'fal fa-times' : 'fal fa-check'"
+                                :class="message.acceptProps?.severity === 'danger' ? 'text-red-600' : 'text-green-600'"
+                                fixed-width
+                                aria-hidden="true"
+                            />
+                        </template>
+                    </Button>
+                </div>
+            </div>
+        </template>
+    </ConfirmPopup>
 </template>

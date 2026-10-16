@@ -9,6 +9,7 @@
 
 namespace App\Actions\Procurement\OrgSupplier;
 
+use App\Actions\Procurement\OrgSupplier\UI\ShowSupplierDraftsToSend;
 use App\Models\Procurement\OrgSupplier;
 
 trait WithOrgSupplierSubNavigation
@@ -80,6 +81,18 @@ trait WithOrgSupplierSubNavigation
                         'icon'    => ['fal', 'fa-list'],
                         'tooltip' => __('Shopping List'),
                     ],
+                ],
+                [
+                    'label'    => __('POs to submit'),
+                    'route'    => [
+                        'name'       => 'grp.org.procurement.org_suppliers.show.shopping.drafts.index',
+                        'parameters' => $routeParameters,
+                    ],
+                    'leftIcon' => [
+                        'icon'    => ['fal', 'fa-paper-plane'],
+                        'tooltip' => __('Purchase orders to submit'),
+                    ],
+                    'number'   => ShowSupplierDraftsToSend::drafts($parent)->count(),
                 ],
             ]),
             [

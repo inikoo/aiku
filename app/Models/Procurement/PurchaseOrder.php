@@ -148,6 +148,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read Model|\Eloquent $parent
  * @property-read Collection<int, \App\Models\Procurement\PurchaseOrderTransaction> $purchaseOrderTransactions
+ * @property-read Collection<int, \App\Models\Procurement\PurchaseOrderChase> $chases
  * @property-read Collection<int, StockDelivery> $stockDeliveries
  * @method static \Database\Factories\Procurement\PurchaseOrderFactory factory($count = null, $state = [])
  * @method static Builder<static>|PurchaseOrder newModelQuery()
@@ -330,6 +331,11 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
     public function agent(): BelongsTo
     {
         return $this->belongsTo(Agent::class);
+    }
+
+    public function chases(): HasMany
+    {
+        return $this->hasMany(PurchaseOrderChase::class);
     }
 
     public function isAgentOrder(): bool

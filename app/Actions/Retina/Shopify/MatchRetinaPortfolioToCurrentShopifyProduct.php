@@ -20,9 +20,12 @@ class MatchRetinaPortfolioToCurrentShopifyProduct extends RetinaAction
     use WithRetinaCustomerOwnedRouteModels;
     use AsAction;
 
-    public function handle(Portfolio $portfolio, array $modelData): void
+    /**
+     * @return array{0: bool, 1: string}
+     */
+    public function handle(Portfolio $portfolio, array $modelData): array
     {
-        MatchPortfolioToCurrentShopifyProduct::run($portfolio, $modelData);
+        return MatchPortfolioToCurrentShopifyProduct::run($portfolio, $modelData);
     }
 
 
@@ -37,7 +40,7 @@ class MatchRetinaPortfolioToCurrentShopifyProduct extends RetinaAction
     {
 
         $this->initialisation($request);
-        $this->handle($portfolio, $this->validatedData);
+        MatchPortfolioToCurrentShopifyProduct::throwIfRefused($this->handle($portfolio, $this->validatedData));
     }
 
 }

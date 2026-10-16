@@ -82,6 +82,7 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use App\Models\Inventory\Warehouse;
 use App\Actions\UI\Incoming\ShowIncomingHub;
+use App\Actions\Traits\Authorisations\WithAttachmentEditAuthorisation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -95,6 +96,7 @@ class ShowStockDelivery extends OrgAction
     use WithStockDeliveryWeightAndVolume;
     use WithAgentOrganisation;
     use WithGoodsInBookInAuthorisation;
+    use WithAttachmentEditAuthorisation;
 
     private bool $canEditPayments = false;
     private bool $canUpdateCosting = false;
@@ -252,6 +254,7 @@ class ShowStockDelivery extends OrgAction
                     ? GetAgentContainerInvoiceData::run($this->organisation, $stockDelivery)
                     : null,
                 'attachmentRoutes' => [
+                    'canChange'   => !$this->goodsIn && $this->canChangeAttachments($request->user(), $stockDelivery),
                     'attachRoute' => [
                         'name'       => 'grp.models.stock-delivery.attachment.attach',
                         'parameters' => [
@@ -261,6 +264,13 @@ class ShowStockDelivery extends OrgAction
                     'detachRoute' => [
                         'method'     => 'delete',
                         'name'       => 'grp.models.stock-delivery.attachment.detach',
+                        'parameters' => [
+                            'stockDelivery' => $stockDelivery->id,
+                        ],
+                    ],
+                    'updateRoute' => [
+                        'method'     => 'patch',
+                        'name'       => 'grp.models.stock-delivery.attachment.update',
                         'parameters' => [
                             'stockDelivery' => $stockDelivery->id,
                         ],
@@ -1448,6 +1458,10 @@ class ShowStockDelivery extends OrgAction
     private function getTabsNavigation(StockDelivery $stockDelivery): array
     {
         $navigation = Arr::only(StockDeliveryTabsEnum::navigation(), $this->getTabs($stockDelivery));
+
+        if (isset($navigation[StockDeliveryTabsEnum::ATTACHMENTS->value])) {
+            $navigation[StockDeliveryTabsEnum::ATTACHMENTS->value]['number'] = $stockDelivery->attachments()->count();
+        }
 
         if (!$this->canAddPurchaseOrders && !$stockDelivery->purchaseOrders()->exists()) {
             unset($navigation[StockDeliveryTabsEnum::PURCHASE_ORDERS->value]);

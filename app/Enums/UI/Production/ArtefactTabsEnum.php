@@ -17,6 +17,8 @@ enum ArtefactTabsEnum: string
     use HasTabs;
 
     case SHOWCASE                = 'showcase';
+    case CURRENT_ORDERS          = 'current_orders';
+    case BATCHES                 = 'batches';
     // case DASHBOARD               = 'dashboard';
     case MANUFACTURE_TASKS       = 'manufacture_tasks';
     case LABELS                  = 'labels';
@@ -33,6 +35,14 @@ enum ArtefactTabsEnum: string
             //     'title' => __('Stats'),
             //     'icon'  => 'fal fa-chart-line',
             // ],
+            ArtefactTabsEnum::CURRENT_ORDERS => [
+                'title' => __('Current orders'),
+                'icon'  => 'fal fa-clipboard-list',
+            ],
+            ArtefactTabsEnum::BATCHES => [
+                'title' => __('Production history'),
+                'icon'  => 'fal fa-layer-group',
+            ],
             ArtefactTabsEnum::MANUFACTURE_TASKS => [
                 'title' => __('Manufacture tasks'),
                 'icon'  => 'fal fa-hamsa',

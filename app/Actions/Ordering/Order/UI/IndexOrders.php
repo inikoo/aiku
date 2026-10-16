@@ -21,6 +21,7 @@ use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopEngineEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
+use App\Enums\Ordering\PreOrder\PreOrderStateEnum;
 use App\Enums\UI\Ordering\OrdersBacklogTabsEnum;
 use App\Enums\UI\Ordering\OrdersTabsEnum;
 use App\Http\Resources\Ordering\OrdersResource;
@@ -375,7 +376,9 @@ class IndexOrders extends OrgAction
             );
         }
 
-        return $query->defaultSort($showsStage ? 'stage_since' : '-orders.date')
+        $showsPreOrder = $this->bucket == OrdersBacklogTabsEnum::PRE_ORDERS->value;
+
+        return $query->defaultSort($showsStage ? 'stage_since' : ($showsPreOrder ? 'estimated_dispatch_to' : '-orders.date'))
             ->select([
                 'orders.id',
                 'orders.slug',
@@ -440,10 +443,24 @@ class IndexOrders extends OrgAction
                     'warehouse_progress.picker_name',
                     'warehouse_progress.packer_name',
                 ] : []),
+                ...($showsPreOrder ? [
+                    'pre_orders.pre_order_state',
+                    'pre_orders.has_back_order',
+                    'pre_orders.has_made_to_order',
+                    'pre_orders.estimated_dispatch_from',
+                    'pre_orders.estimated_dispatch_to',
+                    'pre_orders.supplier_ordered_at',
+                    'pre_orders.goods_arrived_at',
+                    'pre_orders.deferred_amount',
+                    'pre_orders.balance_requested_at',
+                    'pre_orders.balance_due_at',
+                    'pre_orders.balance_paid_at',
+                    'pre_orders.released_at',
+                ] : []),
             ])
             ->leftJoin('order_stats', 'orders.id', 'order_stats.order_id')
             ->leftJoin('users as production_reviewers', 'orders.production_reviewed_by', 'production_reviewers.id')
-            ->allowedSorts(['id', 'reference', 'date', 'net_amount', 'customer_name', 'pay_detailed_status', 'submitted_at', 'updated_by_customer_at', 'production_reviewed_at', ...($showsStage ? ['stage_since'] : [])]) // Ensure `id` is the first sort column
+            ->allowedSorts(['id', 'reference', 'date', 'net_amount', 'customer_name', 'pay_detailed_status', 'submitted_at', 'updated_by_customer_at', 'production_reviewed_at', ...($showsStage ? ['stage_since'] : []), ...($showsPreOrder ? ['estimated_dispatch_to'] : [])]) // Ensure `id` is the first sort column
             ->withBetweenDates([$this->getBucketDateColumn($this->bucket ?? null)])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
@@ -518,6 +535,29 @@ class IndexOrders extends OrgAction
             $query->where('orders.state', OrderStateEnum::FINALISED);
         } elseif ($this->bucket == OrdersBacklogTabsEnum::DISPATCHED_TODAY->value) {
             $query->whereDate('dispatched_at', Carbon::today());
+        } elseif ($this->bucket == OrdersBacklogTabsEnum::PRE_ORDERS->value) {
+            $query->joinSub(
+                DB::table('pre_orders')
+                    ->where('state', '!=', PreOrderStateEnum::CANCELLED)
+                    ->select([
+                        'order_id',
+                        'state as pre_order_state',
+                        'has_back_order',
+                        'has_made_to_order',
+                        'estimated_dispatch_from',
+                        'estimated_dispatch_to',
+                        'supplier_ordered_at',
+                        'goods_arrived_at',
+                        'deferred_amount',
+                        'balance_requested_at',
+                        'balance_due_at',
+                        'balance_paid_at',
+                        'released_at',
+                    ]),
+                'pre_orders',
+                'pre_orders.order_id',
+                'orders.id'
+            )->whereNotIn('orders.state', [OrderStateEnum::DISPATCHED, OrderStateEnum::CANCELLED]);
         } elseif ($this->bucket == 'submitted') {
             $query->where('orders.state', OrderStateEnum::SUBMITTED);
         } elseif ($this->bucket == 'in_warehouse') {
@@ -622,6 +662,25 @@ class IndexOrders extends OrgAction
         }
 
         return $counts;
+    }
+
+    /**
+     * Live pre-orders per shop or organisation, for the backlog's pre-orders tab.
+     *
+     * @return array<int, int>
+     */
+    public function livePreOrderCounts(Group|Organisation|Shop $parent, string $groupColumn): array
+    {
+        $this->bucket = OrdersBacklogTabsEnum::PRE_ORDERS->value;
+        $query        = $this->baseQuery($parent);
+        $this->applyBucket($query, $parent, null);
+
+        return $query->toBase()
+            ->selectRaw("$groupColumn as id, count(*) as count")
+            ->groupBy($groupColumn)
+            ->pluck('count', 'id')
+            ->map(fn ($count) => (int) $count)
+            ->all();
     }
 
     protected function getBucketDateColumn(?string $bucket): string
@@ -730,6 +789,12 @@ class IndexOrders extends OrgAction
                 ]
             )) {
                 $table->column(key: 'submitted_at', label: __('Submitted'), sortable: true, type: 'date_hm');
+                if ($bucket == OrdersBacklogTabsEnum::PRE_ORDERS->value) {
+                    $table->column(key: 'pre_order_state', label: __('Pre-order'));
+                    $table->column(key: 'pre_order_goods', label: __('Goods from supplier'));
+                    $table->column(key: 'estimated_dispatch_to', label: __('Estimated dispatch'), sortable: true);
+                    $table->column(key: 'pre_order_balance', label: __('Balance'));
+                }
                 if ($this->showsStage($bucket)) {
                     $table->column(key: 'stage_since', label: __('In this stage'), sortable: true);
                     if (!in_array($bucket, ['submitted_paid', 'submitted_unpaid'])) {

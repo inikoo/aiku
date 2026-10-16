@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faBan, faCheckCircle, faFlag, faExchangeAlt, faUserCheck, faInfoCircle, faPhone, faShare, faTruck } from "@far"
+import { faBan, faCheckCircle, faFlag, faExchangeAlt, faUserCheck, faInfoCircle, faPhone, faShare, faTruck, faExclamationTriangle } from "@far"
 import { ctrans } from "@/Composables/useTrans"
 
 const props = defineProps<{
@@ -26,11 +26,12 @@ const ICONS: Record<string, any> = {
     phone_call: faPhone,
     forward: faShare,
     moved_to_couriers: faTruck,
+    email_bounce: faExclamationTriangle,
 }
 
 const icon = computed(() => ICONS[props.event.event_type ?? ""] ?? faInfoCircle)
 
-const tone = computed(() => (props.event.event_type === "spam" ? "text-red-500" : "text-gray-400"))
+const tone = computed(() => (["spam", "email_bounce"].includes(props.event.event_type ?? "") ? "text-red-500" : "text-gray-400"))
 
 const isPhoneCall = computed(() => props.event.event_type === "phone_call")
 
@@ -96,7 +97,7 @@ const stamp = computed(() => {
         <span class="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center">
             <FontAwesomeIcon :icon="icon" class="text-[9px]" :class="tone" fixed-width />
         </span>
-        <div class="text-[11px] leading-snug text-gray-500 max-w-xs">{{ headline }}</div>
+        <div class="text-[11px] leading-snug max-w-xs" :class="event.event_type === 'email_bounce' ? 'text-red-600' : 'text-gray-500'">{{ headline }}</div>
         <div v-if="isPhoneCall && payload.notes"
             class="max-w-md whitespace-pre-line rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-left text-[11px] leading-snug text-emerald-900">
             {{ payload.notes }}

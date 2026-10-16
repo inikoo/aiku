@@ -1,8 +1,8 @@
 ---
 title: Ražošanas dienas plānošana
 summary: Ražošanas vadītājam un maiņas vadītājam - darbu ievietošana dienas plānā, nenorādot nevienu cilvēku, katra soļa nodošana strādniekam un kas notiek ar darbu, kas savā dienā nav pabeigts.
-date: 2026-10-12
-source_date: 2026-10-12
+date: 2026-10-15
+source_date: 2026-10-15
 tags: production, planning, floor
 category: production
 series: Ordering from partners
@@ -72,6 +72,34 @@ Kamēr nav nospiesta viena no abām, darbs katru dienu paliek tavā redzeslokā.
 
 Kad strādnieks aizver darbu pie mazāka daudzuma un atlikumu pārceļ uz jaunu darbu (skaties [Darbs ar ražotnes ekrānu](/docs/working-the-floor-screen-lv)), jaunais darbs saglabā ieplānoto dienu, vietu secībā un katra soļa strādnieku.
 
+## Rīta materiālu pārbaude
+
+Noliktava materiālus uz ražotni atved veselās kastēs, nevis precīzos dienas daudzumos. **Factory → Operations → Materials check** (Ražotne → Darbības → Materiālu pārbaude) uzskaita to, kas dienas plānam vēl vajadzīgs, lai ražotne pārbauda, kas ir uz vietas, un pārējo noliktavai pasūta vienā skaidrā sarakstā.
+
+Katra rinda ir viens materiāls, saskaitīts pa visiem dienas darbiem, ar darbiem, kam tas vajadzīgs (*JOaroma-0141, JOaroma-0145*). Tiek skaitīti tikai vēl neizpildītie soļi: kad izgatavošana ir pabeigta un atlicis tikai iepakošana, rindā redzamas kastes un etiķetes, bet vairs ne pudeles. Maisījumi tiek gatavoti ražotnē, un sarakstā tos nav. Daudzumi nāk no receptēm, tāpēc darbam, kura receptē nav norādīts neviens materiāls, nekas nav vajadzīgs: oranžā josla virs saraksta nosauc šos darbus, lai receptes trūkums būtu redzams.
+
+| Kolonna | Nozīme |
+| --- | --- |
+| Material | materiāls un noliktavas krājuma kods |
+| For jobs | dienas darbi, kuriem tas vajadzīgs |
+| Needed | cik daudz patērē vēl veicamie soļi |
+| At the factory | cik šobrīd ir ražotnes atrašanās vietā un cik šodien jau pasūtīts |
+| Check | atzīmē **Have enough** (Pietiek) vai ieraksti aptuveni, cik trūkst |
+
+Kad ierakstīts trūkstošais skaits, rindā redzams, ko noliktava atvedīs, noapaļojot uz augšu līdz tās kastēm: trūkst 1 200, kastē 500 - *bring 3 boxes (1,500)* (atvest 3 kastes (1 500)). Sarkans *Warehouse short* (Noliktavā nepietiek) nozīmē, ka noliktavā tik daudz nav, un to uzzini uzreiz.
+
+Nospied **Send to warehouse** (Nosūtīt noliktavai). Trūkstošās rindas aiziet noliktavai kā viens pieprasījums, un pieprasījums parādās virs saraksta, katrs materiāls ar atzīmi *To bring* (Jāatved), *Delivered* (Piegādāts) vai *Warehouse short*. Ja visu atzīmē kā pietiekošu un nosūta, tiek reģistrēts, ka pārbaude ir veikta. Otra pārbaude vēlāk dienā pievieno tikai to, kas vēl trūkst.
+
+Pārbaudi veic vadītājs vai maiņas vadītājs, vai arī nodod to strādniekam ar **Checked by** (Pārbaudīja) augšā. Šis strādnieks tad ražotnes ekrānā redz atgādinājumu, kas atver pārbaudi.
+
+## Noliktava atved materiālus
+
+Noliktavā **Goods out → For production** (Preču izsniegšana → Ražošanai) uzskaita katru materiālu, ko ražotne pieprasījusi, plauktu apiešanas secībā, ar krājuma kodu, atvedamajām kastēm un ražotnes atrašanās vietu, uz kurieni tās dodas. Komplektētājs izvēlas plauktu, pārbauda daudzumu un nospiež **Delivered**. Ja noliktava to nevar atvest, **Warehouse short** paziņo ražotnei.
+
+Piegādātais krājums no plaukta pāriet uz ražotnes atrašanās vietu. Tas paliek krājums: to skaita un redz kā agrāk, un klienta pasūtījums to tur joprojām var komplektēt, ja noliktavas plaukti ir tukši, vienmēr vispirms ņemot no plauktiem. Neizmantotos materiālus var pārvietot atpakaļ uz plauktu no ražotnes atrašanās vietas lapas, tāpat kā jebkuru citu pārvietošanu starp atrašanās vietām.
+
+Kad pabeigts darbs tiek pieņemts krājumā, tā materiāli vispirms tiek norakstīti no ražotnes atrašanās vietas pēc receptes daudzumiem un tikai tad no citām vietām. Ražotnes atrašanās vietu laiku pa laikam saskaiti, lai izlabotu bojājumus un zudumus.
+
 <aside class="wayfinder"><strong>Kur klikšķināt aiku sistēmā</strong>
 <ul>
 <li><b>Ieplānot darbu dienai:</b> <b>Factory</b> → <b>To produce</b> → nomet kartīti uz <b>Assigned</b> → izvēlies dienu → <b>Plan for this day</b>.</li>
@@ -79,6 +107,9 @@ Kad strādnieks aizver darbu pie mazāka daudzuma un atlikumu pārceļ uz jaunu 
 <li><b>Mainīt dienas secību:</b> ieraksti skaitli laukā <b>Order</b>.</li>
 <li><b>Vakardienas nepabeigtais darbs:</b> <b>Confirm for</b> dienu vai <b>Take off the plan</b>.</li>
 <li><b>No dēļa uz plānu:</b> saite <b>Day plan</b> virs dēļa.</li>
+<li><b>Pārbaudīt dienas materiālus:</b> <b>Factory</b> → <b>Operations</b> → <b>Materials check</b> → <b>Have enough</b> vai trūkstošais skaits → <b>Send to warehouse</b>.</li>
+<li><b>Nodot pārbaudi strādniekam:</b> <b>Materials check</b> → <b>Checked by</b>.</li>
+<li><b>Atvest materiālus (noliktava):</b> <b>Goods out</b> → <b>For production</b> → <b>Delivered</b> vai <b>Warehouse short</b>.</li>
 </ul>
 </aside>
 
@@ -88,5 +119,7 @@ Kad strādnieks aizver darbu pie mazāka daudzuma un atlikumu pārceļ uz jaunu 
 <li>Dienas plānošana, soļu izdalīšana, secības maiņa: <b>Floor supervisor</b> šai ražotnei.</li>
 <li>Dienas plāna skatīšana bez izmaiņām: <b>Foreman</b>.</li>
 <li>Savam vārdam nodota soļa izpilde: <b>Operative</b>, ražotnes ekrānā.</li>
+<li>Materiālu pārbaude: <b>Floor supervisor</b> vai strādnieks, kuram tā nodota.</li>
+<li>Materiālu atvešana uz ražotni: noliktavas amats, kas strādā ar preču izsniegšanu.</li>
 </ul>
 </aside>

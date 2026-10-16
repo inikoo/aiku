@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { Head, router, usePage } from '@inertiajs/vue3'
+import { Head, Link, router, usePage } from '@inertiajs/vue3'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { ctrans, ctransChoice } from '@/Composables/useTrans'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -107,6 +107,7 @@ const props = defineProps<{
         break_minutes: number
     }
     artisan: string | null
+    materials_check_route: null | { name: string, parameters: string[] }
     can_pick_open_jobs: boolean
     combine_route: null | { name: string, parameters: object }
     tasks: FloorTask[]
@@ -321,6 +322,11 @@ function startTask(task: FloorTask) {
 <template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead" />
+
+    <Link v-if="materials_check_route" :href="route(materials_check_route.name, materials_check_route.parameters)" class="mx-4 mb-2 flex items-center gap-2 rounded border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-800 hover:underline">
+        <FontAwesomeIcon icon="fal fa-clipboard-check" fixed-width aria-hidden="true" />
+        {{ ctrans("You do today's materials check: tick what the factory has and send what is missing to the warehouse") }}
+    </Link>
 
     <div class="flex h-[calc(100vh-8rem)] min-h-[32rem] border-t border-gray-200">
         <aside class="w-80 shrink-0 border-r border-gray-200 bg-gray-50 overflow-y-auto">

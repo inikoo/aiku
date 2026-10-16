@@ -248,6 +248,8 @@ test('retina api dropshipping orders flow', function () {
 
     $response = postJson(route('retina.api.dropshipping.order.store', $client));
     $response->assertOk();
+    $response->assertJsonPath('data.customer_client.id', $client->id);
+    $response->assertJsonPath('data.customer_client.email', $client->email);
     $orderId = $response->json('data.id');
     $order   = Order::find($orderId);
 

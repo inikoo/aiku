@@ -443,7 +443,43 @@ task('deploy:restart-ssr-by-supervisorctl', function () {
     if (!str_contains($health, 'OK')) {
         throw new \RuntimeException('Inertia SSR server is not answering on 127.0.0.1:'.$ssrPort.' on host '.currentHost()->getAlias());
     }
+
+    /*
+     * A healthy SSR server can still draw every page wrong: on 2026-10-15 a Vue
+     * bump made every storefront #app read "[object Promise]" while /health said
+     * OK. Fetch a real storefront page from this box's Octane and look inside #app.
+     */
+    $ssrCheckHost = get('ssr_check_host', '');
+    if ($ssrCheckHost === '') {
+        return;
+    }
+    $octanePort = trim(run(
+        "cd {{release_path}} && (grep -E '^OCTANE_PORT=' .env || true) | head -1 | cut -d= -f2 | tr -d '\"'"
+    )) ?: '8000';
+    $html = run(
+        "curl -sS -m 20 --retry 2 -H 'Host: $ssrCheckHost' -H 'X-Forwarded-Proto: https' http://127.0.0.1:$octanePort/ || true"
+    );
+    $problem = storefrontSsrProblem($html);
+    writeln('SSR output on '.currentHost()->getAlias().' ('.$ssrCheckHost.'): '.($problem ?? 'OK'));
+    if ($problem !== null) {
+        throw new \RuntimeException('Storefront SSR output is broken on '.currentHost()->getAlias().' ('.$ssrCheckHost.'): '.$problem);
+    }
 })->select('env=prod|staging');
+
+function storefrontSsrProblem(string $html): ?string
+{
+    if (!preg_match('/<div id="app"[^>]*>(.{0,200})/s', $html, $matches)) {
+        return 'no #app element in the page';
+    }
+    if (str_contains($matches[1], '[object ')) {
+        return '#app contains "'.strtok($matches[1], '<').'"';
+    }
+    if (str_starts_with(ltrim($matches[1]), '</div>')) {
+        return '#app is empty (page not server rendered)';
+    }
+
+    return null;
+}
 
 set('keep_releases', 20);
 

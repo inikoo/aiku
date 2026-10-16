@@ -289,7 +289,7 @@ class StoreEbayProduct extends RetinaAction
                     'use_channel_policies' => true
                 ];
 
-                if (self::sendsOurPrice($portfolio)) {
+                if (self::sendsOurPrice($portfolio) || blank(Arr::get($offer, 'pricingSummary.price.value'))) {
                     $offerData['price'] = $customerPrice;
                 }
 

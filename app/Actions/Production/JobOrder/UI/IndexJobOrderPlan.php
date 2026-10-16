@@ -25,6 +25,7 @@ use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder as BaseBuilder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
@@ -60,14 +61,14 @@ class IndexJobOrderPlan extends OrgAction
 
     public function handle(Production $production, ?string $date = null): LengthAwarePaginator
     {
-        $this->date = $this->parseDate($date);
+        $this->date = self::parseDate($date);
 
         $paginator = QueryBuilder::for(JobOrderItem::class)
             ->join('job_orders', 'job_orders.id', 'job_order_items.job_order_id')
             ->leftJoin('artefacts', 'artefacts.id', 'job_order_items.artefact_id')
             ->where('job_orders.production_id', $production->id)
             ->whereNull('job_orders.deleted_at')
-            ->where(fn (Builder $query) => $this->onThePlan($query))
+            ->where(fn (Builder $query) => self::onThePlan($query, $this->date))
             ->select([
                 'job_order_items.id',
                 'job_order_items.quantity',
@@ -104,15 +105,16 @@ class IndexJobOrderPlan extends OrgAction
     /**
      * What was planned for the day and, from today on, whatever an earlier day left unfinished:
      * it stays in front of the manager until it is confirmed onto a day or taken off the plan.
+     * Needs job_orders and job_order_items joined.
      */
-    private function onThePlan(Builder $query): void
+    public static function onThePlan(Builder|BaseBuilder $query, string $date): void
     {
         $today = now()->toDateString();
 
-        $query->whereDate('job_orders.planned_for', $this->date);
+        $query->whereDate('job_orders.planned_for', $date);
 
-        if ($this->date >= $today) {
-            $query->orWhere(function (Builder $query) use ($today) {
+        if ($date >= $today) {
+            $query->orWhere(function (Builder|BaseBuilder $query) use ($today) {
                 $query->whereDate('job_orders.planned_for', '<', $today)
                     ->whereIn('job_orders.state', JobOrderStateEnum::open())
                     ->whereExists(fn ($query) => $query->selectRaw('1')
@@ -123,7 +125,7 @@ class IndexJobOrderPlan extends OrgAction
         }
     }
 
-    private function parseDate(?string $date): string
+    public static function parseDate(?string $date): string
     {
         try {
             return $date ? Carbon::createFromFormat('Y-m-d', $date)->toDateString() : now()->toDateString();
@@ -143,7 +145,7 @@ class IndexJobOrderPlan extends OrgAction
             ->where('job_orders.production_id', $production->id)
             ->whereNull('job_orders.deleted_at')
             ->whereNull('job_order_items.deleted_at')
-            ->where(fn (Builder $query) => $this->onThePlan($query))
+            ->where(fn (Builder $query) => self::onThePlan($query, $this->date))
             ->selectRaw('count(distinct job_orders.id) as jobs')
             ->selectRaw('count(distinct job_orders.id) filter (where job_orders.planned_for < ?) as carried_over', [now()->toDateString()])
             ->selectRaw('count(*) as steps')

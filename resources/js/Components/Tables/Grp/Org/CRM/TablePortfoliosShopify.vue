@@ -402,8 +402,9 @@ onMounted(() => {
                                 :bindToLink="{
                                     preserveScroll: true,
                                 }"
-                                type="secondary"
+                                type="tertiary"
                                 :label="ctrans('Match with this product')"
+                                isWithError
                                 size="xxs"
                                 icon="fal fa-tools"
                             />

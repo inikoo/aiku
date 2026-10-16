@@ -5893,3 +5893,22 @@ test('clockings pages and the org chart are closed to users without human resour
         get($page)->assertForbidden();
     }
 });
+
+test('employees list sorts by employment start date', function () {
+    setPermissionsTeamId($this->organisation->group_id);
+    $viewer = User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+    $viewer->assignRole(RolesEnum::getRoleName(RolesEnum::HUMAN_RESOURCES_SUPERVISOR->value, $this->organisation));
+    $viewer->forgetWildcardPermissionIndex();
+    actingAs($viewer);
+
+    foreach (['employment_start_at', '-employment_start_at', 'employment_end_at'] as $sort) {
+        get(route('grp.org.hr.employees.index', ['organisation' => $this->organisation->slug, 'sort' => $sort]))
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page->has('data.data'));
+    }
+
+    $dates = collect(get(route('grp.org.hr.employees.index', ['organisation' => $this->organisation->slug, 'sort' => 'employment_start_at']))
+        ->viewData('page')['props']['data']['data'])->pluck('employment_start_at')->filter()->values();
+
+    expect($dates->all())->toBe($dates->sort()->values()->all());
+});

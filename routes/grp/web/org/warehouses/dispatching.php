@@ -38,6 +38,8 @@ use App\Actions\Dispatching\Trolley\UI\EditTrolley;
 use App\Actions\Dispatching\Trolley\UI\IndexTrolleys;
 use App\Actions\Dispatching\Trolley\UI\ShowTrolley;
 use App\Actions\UI\Dispatch\ShowDispatchHub;
+use App\Actions\Dispatching\ProductionMaterials\DeliverProductionMaterialRequestItem;
+use App\Actions\Dispatching\ProductionMaterials\SetProductionMaterialRequestItemShort;
 use App\Actions\UI\Dispatch\ShowDispatchReports;
 use Illuminate\Support\Facades\Route;
 
@@ -46,6 +48,8 @@ Route::get('/reports', ShowDispatchReports::class)->name('reports');
 Route::get('/gate', IndexOrdersAtGate::class)->name('gate');
 Route::post('/partner-staging/stage', StagePartnerStock::class)->name('partner_staging.stage');
 Route::post('/partner-staging/release', ReleasePartnerStagingTask::class)->name('partner_staging.release');
+Route::post('/production-materials/{productionMaterialRequestItem:id}/deliver', DeliverProductionMaterialRequestItem::class)->name('production_materials.deliver')->withoutScopedBindings();
+Route::post('/production-materials/{productionMaterialRequestItem:id}/short', SetProductionMaterialRequestItemShort::class)->name('production_materials.short')->withoutScopedBindings();
 Route::post('/production-output/put-away', PutAwayFinishedJobOrder::class)->name('production_output.put_away')->withoutScopedBindings();
 Route::post('/gate/job-order', StoreJobOrderFromShortfall::class)->name('gate.job_order');
 

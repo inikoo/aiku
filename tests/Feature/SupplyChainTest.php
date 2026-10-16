@@ -49,6 +49,11 @@ use App\Actions\UI\Grp\Layout\GetGroupNavigation;
 use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Models\Analytics\AikuScopedSection;
 use App\Models\Goods\TradeUnit;
+use App\Models\Goods\StockFamily;
+use App\Actions\Goods\StockFamily\StoreStockFamily;
+use App\Actions\SupplyChain\SupplierStockFamily\UpdateSupplierStockFamily;
+use App\Enums\SupplyChain\SupplierProduct\SupplierProductAvailabilityStatusEnum;
+use App\Enums\SupplyChain\SupplierProduct\SupplierProductUnavailableReasonEnum;
 use App\Models\Helpers\Upload;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgAgentStats;
@@ -142,7 +147,7 @@ test('agent org admin can log in with aurora legacy password', function (Agent $
     expect($user->auth_type)->toBe(UserAuthTypeEnum::DEFAULT)
         ->and($user->legacy_password)->toBeNull()
         ->and(Hash::check('aurora-password', $user->password))->toBeTrue()
-        ->and(array_keys(GetOrganisationsLayout::run($user)[$organisation->slug]))->toBe(['agent_suppliers', 'agent_products', 'agent_sales', 'agent_purchase_orders', 'agent_warehouse', 'agent_containers', 'agent_accounting', 'hr', 'agent_settings'])
+        ->and(array_keys(GetOrganisationsLayout::run($user)[$organisation->slug]))->toBe(['agent_suppliers', 'agent_products', 'agent_sales', 'agent_purchase_orders', 'agent_warehouse_navigation', 'agent_containers', 'agent_accounting', 'hr', 'agent_settings'])
         ->and($user->hasGroupAccess())->toBeFalse()
         ->and(array_keys(GetGroupNavigation::run($user)))->toBe(['tickets']);
 
@@ -303,6 +308,97 @@ test('the minimum order is saved where purchase orders read it, and an emptied m
 
     expect($supplierProduct->refresh()->minimum_carton_order)->toBeNull();
 })->depends('create supplier product independent supplier');
+
+test('HELP-4019 availability status and is_available follow each other, and back to available clears the reason', function (SupplierProduct $supplierProduct) {
+    $supplierProduct = UpdateSupplierProduct::make()->action($supplierProduct, [
+        'availability_status'   => 'limited',
+        'unavailable_reason'    => 'raw_material_shortage',
+        'available_from'        => '2026-12-01',
+        'availability_new_cost' => 3.2,
+        'availability_note'     => 'Only 200 a month',
+    ]);
+
+    expect($supplierProduct->is_available)->toBeTrue()
+        ->and($supplierProduct->availability_status)->toBe(SupplierProductAvailabilityStatusEnum::LIMITED)
+        ->and($supplierProduct->unavailable_reason)->toBe(SupplierProductUnavailableReasonEnum::RAW_MATERIAL_SHORTAGE);
+
+    $supplierProduct = UpdateSupplierProduct::make()->action($supplierProduct, ['is_available' => false]);
+    expect($supplierProduct->availability_status)->toBe(SupplierProductAvailabilityStatusEnum::UNAVAILABLE);
+
+    $supplierProduct = UpdateSupplierProduct::make()->action($supplierProduct, ['availability_status' => 'available']);
+    expect($supplierProduct->refresh()->is_available)->toBeTrue()
+        ->and($supplierProduct->unavailable_reason)->toBeNull()
+        ->and($supplierProduct->available_from)->toBeNull()
+        ->and($supplierProduct->availability_new_cost)->toBeNull();
+
+    expect(fn () => UpdateSupplierProduct::make()->action($supplierProduct, ['availability_status' => 'unavailable']))
+        ->toThrow(ValidationException::class);
+})->depends('create supplier product independent supplier');
+
+test('HELP-4019 carton dimensions give the CBM, packaging terms merge, and a new lead time estimate drops its confirmation', function (SupplierProduct $supplierProduct) {
+    $supplierProduct = UpdateSupplierProduct::make()->action($supplierProduct, [
+        'carton_dimensions'        => ['l' => 60, 'w' => 40, 'h' => 50],
+        'estimated_lead_time_days' => 45,
+        'confirm_lead_time'        => true,
+        'packaging_terms'          => ['retail_box' => 'supplier', 'silica_gel_sachets' => 2],
+    ]);
+
+    expect((float) $supplierProduct->cbm)->toBe(0.12)
+        ->and($supplierProduct->lead_time_confirmed_at)->not->toBeNull()
+        ->and($supplierProduct->lead_time_confirmed_by_user_id)->toBe($this->adminGuest->getUser()->id);
+
+    $supplierProduct = UpdateSupplierProduct::make()->action($supplierProduct, [
+        'estimated_lead_time_days' => 60,
+        'packaging_terms'          => ['label_application' => 'us'],
+    ]);
+
+    expect($supplierProduct->refresh()->lead_time_confirmed_at)->toBeNull()
+        ->and($supplierProduct->packaging_terms)->toMatchArray(['retail_box' => 'supplier', 'silica_gel_sachets' => 2, 'label_application' => 'us']);
+
+    expect(fn () => UpdateSupplierProduct::make()->action($supplierProduct, ['packaging_terms' => ['retail_box' => 'maybe']]))
+        ->toThrow(ValidationException::class);
+})->depends('create supplier product independent supplier');
+
+test('HELP-4019 a generic supplier takes no new contacts, a real factory takes WeChat and WhatsApp', function (Supplier $supplier) {
+    $supplier = UpdateSupplier::make()->action($supplier, [
+        'wechat'                 => 'factory_wx',
+        'production_waiting_time' => 30,
+        'delivery_time'           => 10,
+        'factory_holidays'       => [['from' => '2027-01-25', 'to' => '2027-02-15', 'note' => 'Spring Festival']],
+    ]);
+
+    expect($supplier->wechat)->toBe('factory_wx')
+        ->and($supplier->defaultLeadTimeDays())->toBe(40)
+        ->and($supplier->factory_holidays)->toHaveCount(1);
+
+    $supplier = UpdateSupplier::make()->action($supplier, ['is_generic' => true]);
+
+    expect(fn () => UpdateSupplier::make()->action($supplier, ['wechat' => 'someone_else']))
+        ->toThrow(ValidationException::class);
+
+    $supplier = UpdateSupplier::make()->action($supplier, ['wechat' => 'factory_wx', 'is_generic' => false]);
+    expect($supplier->is_generic)->toBeFalse();
+})->depends('create independent supplier');
+
+test('HELP-4019 a family at a supplier keeps its own MOQ, lead time, packaging terms and production calendar', function (Supplier $supplier) {
+    $stockFamily = StoreStockFamily::make()->action($this->group, StockFamily::factory()->definition());
+
+    $supplierStockFamily = UpdateSupplierStockFamily::make()->action($supplier, $stockFamily, [
+        'minimum_carton_order'     => 10,
+        'estimated_lead_time_days' => 50,
+        'packaging_terms'          => ['extra_wrapping' => 'not_needed'],
+        'production_calendar'      => [1 => 'cannot_produce', 2 => 'cannot_produce', 9 => 'best_to_order'],
+    ]);
+
+    $sameRow = UpdateSupplierStockFamily::make()->action($supplier, $stockFamily, ['production_calendar' => [7 => 'peak_or_slow']]);
+
+    expect($sameRow->id)->toBe($supplierStockFamily->id)
+        ->and($sameRow->minimum_carton_order)->toBe(10)
+        ->and($sameRow->production_calendar)->toMatchArray([1 => 'cannot_produce', 7 => 'peak_or_slow', 9 => 'best_to_order']);
+
+    expect(fn () => UpdateSupplierStockFamily::make()->action($supplier, $stockFamily, ['production_calendar' => [13 => 'best_to_order']]))
+        ->toThrow(ValidationException::class);
+})->depends('create independent supplier');
 
 test('create supplier product independent supplier 2', function ($supplier) {
     $supplierProductData = SupplierProduct::factory()->definition();

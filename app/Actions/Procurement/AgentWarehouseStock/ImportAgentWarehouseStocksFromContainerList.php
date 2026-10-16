@@ -71,7 +71,7 @@ class ImportAgentWarehouseStocksFromContainerList
                 $purchaseOrder  = $purchaseOrderId ? PurchaseOrder::find($purchaseOrderId) : null;
                 $inProduction[] = ['code' => $supplierProduct->code, 'units' => $units, 'purchase_order' => $purchaseOrder?->reference];
                 if (!$dryRun && $purchaseOrder) {
-                    $this->markInProduction($purchaseOrder, $container);
+                    $this->markInProduction($purchaseOrder, "China agent container list $container: still being made by the supplier");
                 }
                 continue;
             }
@@ -100,7 +100,7 @@ class ImportAgentWarehouseStocksFromContainerList
         return ['rows' => $rows, 'unmatched' => $unmatched, 'in_production' => $inProduction];
     }
 
-    private function markInProduction(PurchaseOrder $purchaseOrder, string $container): void
+    public function markInProduction(PurchaseOrder $purchaseOrder, string $reason): void
     {
         if ($purchaseOrder->production_started_at || !in_array($purchaseOrder->state, [PurchaseOrderStateEnum::SUBMITTED, PurchaseOrderStateEnum::CONFIRMED])) {
             return;
@@ -109,7 +109,7 @@ class ImportAgentWarehouseStocksFromContainerList
         MarkPurchaseOrderStage::make()->action($purchaseOrder, [
             'field'  => 'production_started_at',
             'date'   => MarkPurchaseOrderStage::today($purchaseOrder->organisation),
-            'reason' => "China agent container list $container: still being made by the supplier",
+            'reason' => $reason,
         ]);
     }
 

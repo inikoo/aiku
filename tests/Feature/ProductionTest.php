@@ -10,6 +10,7 @@
 
 namespace Tests\Feature;
 
+use App\Actions\Inventory\OrgStock\UI\GetOrgStockShowcase;
 use App\Actions\Production\Artefact\StoreArtefact;
 use App\Actions\Production\Artefact\MoveArtefactsToDepartment;
 use App\Actions\Production\Artefact\UpdateArtefact;
@@ -5830,6 +5831,9 @@ test('production for stock is flagged on the backlog and booking it in fulfils t
         ->assertOk()->viewData('page')['props']['groups'])->firstWhere('label', 'Backlog')['items'];
 
     expect(collect($backlog())->firstWhere('id', $older->id)['pipeline'] ?? null)->toBe(['pending_booking' => 0.0, 'in_production' => 1.0, 'job_orders' => [$jobOrder->reference]]);
+    expect(collect(GetArtefactShowcase::run($artefact->refresh())['todo_batches'])->pluck('id'))->toContain($jobOrderItem->id);
+    get(route('grp.org.productions.show.crafts.artefacts.show', $routeParameters + [2 => $artefact->slug, 'tab' => 'current_orders']))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('current_orders.data.0.id', $jobOrderItem->id));
 
     $session = StartManufactureTaskSession::make()->action($this->guest->getUser(), $jobOrderItem->tasks()->first());
     CloseManufactureTaskSession::make()->action($session, ['quantity_made' => 100]);
@@ -5844,6 +5848,45 @@ test('production for stock is flagged on the backlog and booking it in fulfils t
     expect($older->refresh()->state)->toBe(\App\Enums\Procurement\ShoppingListItem\ShoppingListItemStateEnum::DISMISSED)
         ->and($newer->refresh()->state)->toBe(\App\Enums\Procurement\ShoppingListItem\ShoppingListItemStateEnum::OPEN)
         ->and((float) $newer->quantity)->toBe(3.0);
+
+    $showcase = GetArtefactShowcase::run($artefact);
+    expect(collect($showcase['todo_batches'])->pluck('id'))->not->toContain($jobOrderItem->id)
+        ->and(collect($showcase['recent_batches'])->firstWhere('id', $jobOrderItem->id))->toMatchArray(['reference' => $jobOrder->reference, 'quantity_made' => 100.0, 'quantity_received' => 100.0]);
+
+    get(route('grp.org.productions.show.crafts.artefacts.show', $routeParameters + [2 => $artefact->slug, 'tab' => 'batches']))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('batches.data.0.id', $jobOrderItem->id)
+            ->where('batches.data.0.status', 'received')
+            ->where('batches.data.0.batch_code', $jobOrder->reference.'-'.$artefact->code)
+            ->where('batches.data.0.quantity_made', 100)
+            ->where('batches.data.0.started_at', fn ($startedAt) => $startedAt !== null)
+            ->where('batches.data.0.finished_at', fn ($finishedAt) => $finishedAt !== null)
+            ->where('batches.data.0.steps.0.quantity_made', 100)
+            ->where('batches.totals.all_time', 100)
+            ->where('batches.totals.last_30_days', 100)
+            ->where('tabs.navigation.batches.number', 1)
+            ->where('tabs.navigation.current_orders.number', 0));
+
+    $cancelledJobOrder = StoreJobOrder::make()->action($this->production, []);
+    StoreJobOrderItem::make()->action($cancelledJobOrder, ['artefact_id' => $artefact->id, 'quantity' => 50])->delete();
+    $cancelledJobOrder->delete();
+
+    get(route('grp.org.productions.show.crafts.artefacts.show', $routeParameters + [2 => $artefact->slug, 'tab' => 'batches']))
+        ->assertInertia(fn (AssertableInertia $page) => $page->has('batches.data', 1)->where('tabs.navigation.batches.number', 1));
+    get(route('grp.org.productions.show.crafts.artefacts.show', $routeParameters + [2 => $artefact->slug, 'tab' => 'batches', 'batches_elements' => ['cancelled' => 'cancelled']]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->has('batches.data', 1)->where('batches.data.0.status', 'cancelled'));
+
+    $isHub = $this->organisation->is_manufacturing_hub;
+    $this->organisation->update(['is_manufacturing_hub' => true]);
+    get(route('grp.org.warehouses.show.inventory.org_stocks.all_org_stocks.show', [$this->organisation->slug, $location->warehouse->slug, $orgStock->slug, 'tab' => 'artefact_batches']))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('artefact_batches.data.0.id', $jobOrderItem->id)
+            ->where('tabs.navigation.artefact_batches.number', 1)
+            ->where('tabs.navigation.artefact_batches.type', 'icon'));
+    expect(GetOrgStockShowcase::run($location->warehouse, $orgStock->refresh())['production'])->toMatchArray(['code' => $artefact->code, 'open_jobs' => 0, 'jobs_done' => 1]);
+    $this->organisation->update(['is_manufacturing_hub' => false]);
+    get(route('grp.org.warehouses.show.inventory.org_stocks.all_org_stocks.show', [$this->organisation->slug, $location->warehouse->slug, $orgStock->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->missing('tabs.navigation.artefact_batches'));
+    expect(GetOrgStockShowcase::run($location->warehouse, $orgStock->refresh())['production'])->toBeNull();
+    $this->organisation->update(['is_manufacturing_hub' => $isHub]);
 });
 
 test('a job order planned by hand is one job with its lines on the board, even for a product already there', function () {
@@ -6718,4 +6761,143 @@ test('a mix with a batch size is asked and recorded in whole batches, rounded on
     $soloSession = CloseManufactureTaskSession::make()->action($solo, ['quantity_made' => 100]);
     expect(fn () => \App\Actions\Production\ManufactureTaskSession\CorrectManufactureTaskSessionQuantity::make()->action($soloSession, ['quantity_made' => 75], 'Supervisor'))->toThrow(ValidationException::class, 'whole batches of 50 kg');
     expect((float) \App\Actions\Production\ManufactureTaskSession\CorrectManufactureTaskSessionQuantity::make()->action($soloSession, ['quantity_made' => 50], 'Supervisor')->quantity_made)->toBe(50.0);
+});
+
+test('the day plan lists the materials its open steps need, the check asks the warehouse in whole boxes, and the warehouse walks them to the factory location', function () {
+    $packingTask = stepTestManufactureTask($this->production);
+    $warehouse   = \App\Actions\Inventory\Warehouse\StoreWarehouse::make()->action($this->organisation, ['code' => 'WH-MAT', 'name' => 'Materials warehouse']);
+    $area        = \App\Actions\Inventory\WarehouseArea\StoreWarehouseArea::make()->action($warehouse, ['code' => 'A-MAT', 'name' => 'Materials area']);
+    $newLocation = fn (string $code) => \App\Actions\Inventory\Location\StoreLocation::make()->action($area, ['code' => $code, 'name' => $code] + \App\Models\Inventory\Location::factory()->definition());
+    $shelf       = $newLocation('MAT-SHELF');
+    $factory     = $newLocation('MAT-FACTORY');
+    $goodsIn     = $newLocation('MAT-GOODS-IN');
+
+    $productOrgStock = labelTestOrgStock($this->organisation, $this->group);
+    $artefact        = StoreArtefact::make()->action($this->production, ['code' => 'MATCHECK', 'name' => 'Checked artefact', 'org_stock_id' => $productOrgStock->id]);
+    $artefact->manufactureTasks()->sync([
+        $this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1],
+        $packingTask->id           => ['position' => 2, 'units_per_artefact' => 1],
+    ]);
+
+    $material = function (string $code, ManufactureTask $step, int $packedIn, float $shelfSkos) use ($artefact, $shelf) {
+        $orgStock = labelTestOrgStock($this->organisation, $this->group);
+        $orgStock->update(['packed_in' => $packedIn]);
+        $rawMaterial = StoreRawMaterial::make()->action($this->production, [
+            'type'        => RawMaterialTypeEnum::CONSUMABLE->value,
+            'state'       => RawMaterialStateEnum::ORPHAN->value,
+            'code'        => $code,
+            'description' => $code,
+            'unit'        => RawMaterialUnitEnum::UNIT->value,
+            'unit_cost'   => 1,
+        ]);
+        UpdateRawMaterial::make()->action($rawMaterial, ['org_stock_id' => $orgStock->id]);
+        AttachRawMaterialToRecipeStep::make()->action(
+            ArtefactManufactureTask::where('artefact_id', $artefact->id)->where('manufacture_task_id', $step->id)->first(),
+            ['raw_material_id' => $rawMaterial->id, 'quantity_per_unit' => 1]
+        );
+        $shelfStock = \App\Actions\Inventory\LocationOrgStock\StoreLocationOrgStock::make()->action($orgStock, $shelf, ['type' => \App\Enums\Inventory\LocationStock\LocationStockTypeEnum::PICKING]);
+        \App\Actions\Inventory\OrgStockMovement\StoreOrgStockMovement::make()->action($orgStock, $shelf, [
+            'quantity' => $shelfSkos,
+            'type'     => \App\Enums\Inventory\OrgStockMovement\OrgStockMovementTypeEnum::PURCHASE,
+        ]);
+
+        return [$rawMaterial, $orgStock, $shelfStock->refresh()];
+    };
+    [$bottle, $bottleStock, $bottleShelf] = $material('MAT-BOTTLE', $this->manufactureTask, 1, 1000);
+    [$box, $boxStock, $boxShelf]          = $material('MAT-BOX', $packingTask, 50, 10);
+
+    $today = now()->toDateString();
+    $this->production->update(['factory_location_id' => null]);
+    expect(fn () => \App\Actions\Production\MaterialRequest\SubmitMaterialsCheck::make()->action($this->production, $today, []))
+        ->toThrow(ValidationException::class, 'no factory location');
+    \App\Actions\Production\Production\SetProductionFactoryLocation::make()->handle($this->production, $factory);
+
+    [$jobOrder] = \App\Actions\Production\JobOrder\StoreJobOrdersGroupedByArtisan::run($this->production, [['artefact' => $artefact, 'quantity' => 120]], null, $today);
+    $lines      = fn () => \App\Actions\Production\MaterialRequest\GetDayMaterialsChecklist::run($this->production, $today)->keyBy('id');
+
+    expect((float) $lines()->get($bottle->id)->needed_units)->toBe(120.0)
+        ->and((float) $lines()->get($box->id)->needed_units)->toBe(120.0)
+        ->and($lines()->get($box->id)->job_orders)->toContain($jobOrder->reference)
+        ->and((float) $lines()->get($box->id)->box_units)->toBe(50.0);
+
+    $user = $this->guest->getUser();
+    ConfirmJobOrder::make()->action($jobOrder);
+    [$making, $packing] = $jobOrder->jobOrderItems()->first()->tasks;
+    CloseManufactureTaskSession::make()->action(StartManufactureTaskSession::make()->action($user, $making), ['quantity_made' => 120]);
+
+    expect($lines()->has($bottle->id))->toBeFalse()
+        ->and((float) $lines()->get($box->id)->needed_units)->toBe(120.0);
+
+    $checker  = dayPlanOperator($this->organisation);
+    $operator = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id]);
+    $operator->employees()->attach($checker->id, ['group_id' => $this->group->id, 'organisation_id' => $this->organisation->id]);
+    $operator->givePermissionTo("productions_operations.{$this->production->id}.view");
+
+    actingAs($operator);
+    \Pest\Laravel\post(route('grp.models.production.materials_check.submit', ['production' => $this->production->id]), [
+        'date'  => $today,
+        'lines' => [['raw_material_id' => $box->id, 'missing_units' => 120]],
+    ])->assertForbidden();
+    actingAs($user);
+
+    patch(route('grp.models.production.materials_check.checker', ['production' => $this->production->id]), ['date' => $today, 'employee_id' => $checker->id])->assertRedirect();
+
+    actingAs($operator);
+    $floor = get(route('grp.org.productions.show.floor', [$this->organisation->slug, $this->production->slug]))->viewData('page')['props'];
+    expect($floor['materials_check_route']['name'])->toBe('grp.org.productions.show.operations.materials_check');
+    \Pest\Laravel\post(route('grp.models.production.materials_check.submit', ['production' => $this->production->id]), [
+        'date'  => $today,
+        'lines' => [['raw_material_id' => $box->id, 'missing_units' => 120]],
+    ])->assertRedirect();
+    actingAs($user);
+
+    $request = \App\Models\Production\ProductionMaterialRequest::where('production_id', $this->production->id)->whereDate('plan_date', $today)->latest('id')->first();
+    $item    = $request->items()->first();
+    expect($request->state)->toBe(\App\Enums\Production\ProductionMaterialRequest\ProductionMaterialRequestStateEnum::SUBMITTED)
+        ->and($request->checker_employee_id)->toBe($checker->id)
+        ->and($request->warehouse_id)->toBe($warehouse->id)
+        ->and($item->boxes)->toBe(3)
+        ->and((float) $item->skos_to_bring)->toBe(3.0)
+        ->and($item->job_orders)->toBe([$jobOrder->reference]);
+
+    get(route('grp.org.productions.show.operations.materials_check', [$this->organisation->slug, $this->production->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->component('Org/Production/DayMaterialsCheck')
+            ->where('factory_location', 'MAT-FACTORY')
+            ->where('production_id', $this->production->id)
+            ->where('requests', fn ($requests) => collect($requests)->contains('id', $request->id)));
+    expect((float) $lines()->get($box->id)->requested_units)->toBe(120.0);
+
+    $pending = \App\Actions\Dispatching\ProductionMaterials\IndexProductionMaterialRequestItems::pendingItems($warehouse)->pluck('production_material_request_items.id');
+    expect($pending->all())->toBe([$item->id]);
+    $hub = get(route('grp.org.warehouses.show.dispatching.backlog', [$this->organisation->slug, $warehouse->slug]))->viewData('page')['props'];
+    expect(collect($hub['production_materials']['data'])->firstWhere('id', $item->id))
+        ->toMatchArray(['location_code' => 'MAT-SHELF', 'to_location' => 'MAT-FACTORY', 'boxes' => 3, 'warehouse_short' => false]);
+
+    \App\Actions\Dispatching\ProductionMaterials\DeliverProductionMaterialRequestItem::make()->action($item, $boxShelf, 3, $user);
+
+    $factoryStock = \App\Models\Inventory\LocationOrgStock::where('location_id', $factory->id)->where('org_stock_id', $boxStock->id)->first();
+    expect((float) $factoryStock->quantity)->toBe(3.0)
+        ->and((float) $boxShelf->refresh()->quantity)->toBe(7.0)
+        ->and((float) $boxStock->refresh()->quantity_in_locations)->toBe(10.0)
+        ->and($item->refresh()->state)->toBe(\App\Enums\Production\ProductionMaterialRequestItem\ProductionMaterialRequestItemStateEnum::DELIVERED)
+        ->and($request->refresh()->state)->toBe(\App\Enums\Production\ProductionMaterialRequest\ProductionMaterialRequestStateEnum::DELIVERED);
+
+    $pickingRank = \Illuminate\Support\Facades\DB::table('locations')->whereIn('id', [$shelf->id, $factory->id])
+        ->selectRaw('id, '.\App\Actions\Dispatching\PartnerStaging\PartnerBayPickingOrder::sql('0').' as rank')
+        ->pluck('rank', 'id');
+    expect([$pickingRank[$shelf->id], $pickingRank[$factory->id]])->toBe([1, 2]);
+
+    $short = \App\Actions\Production\MaterialRequest\SubmitMaterialsCheck::make()->action($this->production, $today, [$box->id => 10], $user);
+    \App\Actions\Dispatching\ProductionMaterials\SetProductionMaterialRequestItemShort::make()->action($short->items()->first(), $user);
+    expect($short->items()->first()->state)->toBe(\App\Enums\Production\ProductionMaterialRequestItem\ProductionMaterialRequestItemStateEnum::SHORT)
+        ->and($short->refresh()->state)->toBe(\App\Enums\Production\ProductionMaterialRequest\ProductionMaterialRequestStateEnum::DELIVERED);
+
+    CloseManufactureTaskSession::make()->action(StartManufactureTaskSession::make()->action($user, $packing->refresh()), ['quantity_made' => 120]);
+    \App\Actions\Production\JobOrder\ReceiveJobOrderIntoStock::make()->action($jobOrder->refresh(), ['location_id' => $goodsIn->id]);
+
+    expect((float) $factoryStock->refresh()->quantity)->toBe(0.6)
+        ->and((float) $boxShelf->refresh()->quantity)->toBe(7.0)
+        ->and((float) $bottleShelf->refresh()->quantity)->toBe(880.0);
+
+    $this->production->update(['factory_location_id' => null]);
 });

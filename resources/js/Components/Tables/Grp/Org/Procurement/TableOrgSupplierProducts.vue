@@ -19,6 +19,8 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faCheck, faCopy, faPlus, faTimes } from "@fal"
 import PingIcon from "@/Components/Utils/PingIcon.vue"
+import CompletenessBar from "@/Components/Procurement/CompletenessBar.vue"
+import MoveToFactoryDialog, { MoveProducts } from "@/Components/Procurement/MoveToFactoryDialog.vue"
 
 library.add(faCheck, faCopy, faPlus, faTimes)
 
@@ -31,7 +33,18 @@ const props = defineProps<{
     copy_route: routeType
   } | null
   copyTargets?: { id: number, agent_id: number, label: string, number_products: number }[]
+  moveProducts?: MoveProducts | null
 }>()
+
+const moveRequest = ref<{ description: string; payload: Record<string, unknown> } | null>(null)
+const selectedRecords = computed(() => ((props.data as any)?.data ?? []).filter((record: any) => selectedIds.value.includes(record.id)))
+const canMoveSelection = computed(() => selectedRecords.value.length > 0 && selectedRecords.value.every((record: any) => record.is_generic))
+function openMoveDialog() {
+  moveRequest.value = {
+    description: ctrans(":count products under a generic record", { count: String(selectedRecords.value.length) }),
+    payload: { supplier_product_ids: selectedRecords.value.map((record: any) => record.supplier_product_id) },
+  }
+}
 
 const _table = ref<InstanceType<typeof Table> | null>(null)
 const selectedRows = ref<Record<string, boolean>>({})
@@ -115,6 +128,10 @@ function supplierProductRoute(supplierProduct: OrgSupplierProduct) {
         "grp.org.procurement.org_agents.show.supplier_products.show",
         [routeParams["organisation"], routeParams["orgAgent"], supplierProduct.slug])
 
+    case "grp.org.agent.org_supplier_products.index":
+      return route(
+        "grp.org.agent.org_supplier_products.show",
+        [routeParams["organisation"], supplierProduct.slug])
     case "grp.org.procurement.org_suppliers.show":
     case "grp.org.procurement.org_suppliers.show.supplier_products.index":
       return route(
@@ -159,12 +176,23 @@ function orgSupplierRoute(orgSupplierSlug: string) {
       </div>
     </div>
   </div>
+  <div v-if="moveProducts && selectedIds.length" class="mx-4 mt-4 flex flex-wrap items-center gap-2">
+    <span class="text-sm text-gray-600">{{ ctrans(":count selected", { count: String(selectedIds.length) }) }}</span>
+    <span v-tooltip="canMoveSelection ? undefined : ctrans('Only products under a generic record can be moved')">
+      <Button type="tertiary" :label="ctrans('Move to the real factory')" :disabled="!canMoveSelection" @click="openMoveDialog">
+        <template #icon>
+          <FontAwesomeIcon icon="fal fa-truck-moving" class="text-green-600" fixed-width aria-hidden="true" />
+        </template>
+      </Button>
+    </span>
+  </div>
+  <MoveToFactoryDialog v-if="moveProducts" :moveProducts="moveProducts" :request="moveRequest" @close="moveRequest = null" @moved="_table?.clearSelection()" />
   <Table
     ref="_table"
     :resource="data"
     :name="tab"
     class="mt-5"
-    :isCheckBox="!!copyProducts"
+    :isCheckBox="!!copyProducts || !!moveProducts"
     @onSelectRow="(rows: Record<string, boolean>) => selectedRows = { ...rows }"
   >
     <template #cell(code)="{ item: supplier_product }">
@@ -180,6 +208,24 @@ function orgSupplierRoute(orgSupplierSlug: string) {
         {{ supplier_product.supplier_name }}
       </Link>
       <span v-else>{{ supplier_product.supplier_name }}</span>
+    </template>
+    <template #cell(internal_code)="{ item: supplier_product }">
+      <Link v-if="supplier_product.internal_code" :href="supplierProductRoute(supplier_product)" class="primaryLink">
+        {{ supplier_product.internal_code }}
+      </Link>
+      <span v-else class="italic text-gray-400">{{ ctrans("No SKO") }}</span>
+      <span v-if="supplier_product.availability_status && supplier_product.availability_status !== 'available'"
+        class="ml-1.5 whitespace-nowrap rounded px-1 py-0.5 text-[11px]"
+        :class="supplier_product.availability_status === 'limited' ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700'">
+        {{ supplier_product.availability_status === "limited" ? ctrans("Limited") : ctrans("Not available") }}
+      </span>
+    </template>
+    <template v-for="key in ['cbm', 'lead_time_days', 'moq']" :key="key" #[`cell(${key})`]="{ item: supplier_product }">
+      <span v-if="supplier_product[key] !== null && supplier_product[key] !== undefined">{{ supplier_product[key] }}</span>
+      <span v-else class="text-gray-300">-</span>
+    </template>
+    <template #cell(completeness)="{ item: supplier_product }">
+      <CompletenessBar :value="supplier_product.completeness" />
     </template>
     <template #cell(add)="{ item: supplier_product }">
       <button type="button" class="secondaryLink" @click="addToShoppingList(supplier_product)">

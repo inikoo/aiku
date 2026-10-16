@@ -202,6 +202,7 @@ const props = defineProps<{
     }
     tab: string
     handleTabUpdate?: Function
+    openEmailCustomer?: () => void
     timeline?: {
         events: {
             id: string
@@ -521,8 +522,16 @@ const submitNote = async () => {
                 <FontAwesomeIcon icon="fal fa-code-branch" class="text-green-500 text-xs" fixed-width />
                 {{ trans("Full Timeline") }}
             </button>
+            <button
+                v-if="openEmailCustomer"
+                @click="openEmailCustomer"
+                class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+                <FontAwesomeIcon icon="fal fa-envelope" class="text-blue-500 text-xs" fixed-width />
+                {{ trans("Send Email") }}
+            </button>
             <a
-                v-if="data.customer.email && data.shop.type !== 'external'"
+                v-else-if="data.customer.email && data.shop.type !== 'external'"
                 :href="`mailto:${data.customer.email}`"
                 class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors"
             >
@@ -921,7 +930,7 @@ const submitNote = async () => {
                     <button
                         v-if="handleTabUpdate"
                         @click="() => handleTabUpdate('offers')"
-                        class="text-xs text-indigo-500 hover:text-indigo-700 transition-colors"
+                        class="text-xs text-gray-500 hover:text-gray-700 transition-colors"
                     >
                         {{ trans("View all") }} →
                     </button>
@@ -1187,7 +1196,7 @@ const submitNote = async () => {
                 v-model="noteText"
                 rows="4"
                 :placeholder="trans('Write your note...')"
-                class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-400 focus:ring-indigo-400"
+                class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-[--app-accent] focus:ring-[--app-accent]"
             />
 
             <!-- Image picker -->

@@ -12,6 +12,7 @@ use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\Retina\UI\Layout\GetPlatformLogo;
 use App\Enums\Ordering\Order\OrderPayDetailedStatusEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
+use App\Enums\Ordering\PreOrder\PreOrderStateEnum;
 use App\Enums\Ordering\Order\OrderToBePaidByEnum;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Carbon;
@@ -173,6 +174,21 @@ class OrdersResource extends JsonResource
             ] : null,
             'picker_name'                 => $this->picker_name ?? null,
             'packer_name'                 => $this->packer_name ?? null,
+            'pre_order'                   => isset($this->pre_order_state) ? [
+                'state'                   => $this->pre_order_state,
+                'state_label'             => PreOrderStateEnum::from($this->pre_order_state)->label(),
+                'has_back_order'          => (bool) $this->has_back_order,
+                'has_made_to_order'       => (bool) $this->has_made_to_order,
+                'estimated_dispatch_from' => $this->estimated_dispatch_from,
+                'estimated_dispatch_to'   => $this->estimated_dispatch_to,
+                'supplier_ordered_at'     => $this->supplier_ordered_at,
+                'goods_arrived_at'        => $this->goods_arrived_at,
+                'deferred_amount'         => $this->deferred_amount,
+                'balance_requested_at'    => $this->balance_requested_at,
+                'balance_due_at'          => $this->balance_due_at,
+                'balance_paid_at'         => $this->balance_paid_at,
+                'released_at'             => $this->released_at,
+            ] : null,
         ];
     }
 }

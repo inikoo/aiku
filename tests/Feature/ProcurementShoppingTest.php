@@ -1344,6 +1344,20 @@ test('agent prepare order puts the lines on draft purchase orders per supplier a
         expect($item->fresh()->state)->toBe(ShoppingListItemStateEnum::ORDERED)
             ->and((float) App\Models\Procurement\PurchaseOrderTransaction::findOrFail($item->fresh()->purchase_order_transaction_id)->quantity_ordered)->toBe(200.0);
 
+        $orderedLine = App\Models\Procurement\PurchaseOrderTransaction::findOrFail($item->fresh()->purchase_order_transaction_id);
+        $orderedLine->purchaseOrder->update(['state' => PurchaseOrderStateEnum::CONFIRMED]);
+
+        $this->delete(route('grp.models.purchase-order.transaction.delete', [$orderedLine->purchase_order_id, $orderedLine->id]))
+            ->assertSessionHasErrors('state');
+
+        expect($orderedLine->fresh())->not->toBeNull();
+
+        $orderedLine->purchaseOrder->update(['state' => PurchaseOrderStateEnum::IN_PROCESS]);
+        DeletePurchaseOrder::make()->action($orderedLine->purchaseOrder->fresh());
+
+        expect($item->fresh()->state)->toBe(ShoppingListItemStateEnum::OPEN)
+            ->and($item->fresh()->purchase_order_transaction_id)->toBeNull();
+
         $statsBefore = $orgStock->stats->only(['days_of_cover', 'predicted_daily_usage']);
         $buckets     = App\Actions\Procurement\OrgAgent\GetAgentStockCoverBuckets::make();
 
@@ -1786,6 +1800,30 @@ test('UI supplier shopping dashboard renders', function () {
             ->has('shoppingListRoute.name')
             ->has('stockDeliveriesRoute.name');
     });
+});
+
+test('UI supplier drafts to submit shows only our drafts with products, styled like the agent page', function () {
+    [$orgSupplier, , $orgSupplierProduct] = independentOrgSupplierFixture($this);
+
+    $draft = App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder::make()->action($orgSupplier, []);
+
+    $this->get(route('grp.org.procurement.org_suppliers.show.shopping.drafts.index', [$this->organisation->slug, $orgSupplier->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->has('data.data', 0)->where('draft', null));
+
+    StorePurchaseOrderTransaction::make()->action($draft, $orgSupplierProduct->supplierProduct->historicSupplierProduct, $this->orgStocks[0], [...PurchaseOrderTransaction::factory()->definition(), 'quantity_ordered' => 200]);
+
+    $response = $this->get(route('grp.org.procurement.org_suppliers.show.shopping.drafts.index', [$this->organisation->slug, $orgSupplier->slug]));
+
+    $response->assertOk()->assertInertia(fn (AssertableInertia $page) => $page
+        ->component('Procurement/SupplierDraftsToSend')
+        ->has('data.data', 1)
+        ->where('draft.purchase_order_id', $draft->id)
+        ->where('draft.lines', 1)
+        ->where('data.data.0.cartons', fn ($cartons) => (float) $cartons === 2.0)
+        ->where('pageHead.subNavigation', fn ($subNavigation) => collect($subNavigation)->firstWhere('route.name', 'grp.org.procurement.org_suppliers.show.shopping.drafts.index')['number'] === 1));
+
+    $this->get(route('grp.org.procurement.org_suppliers.show.shopping.drafts.index', [$this->organisation->slug, $this->orgSupplier->slug]))
+        ->assertNotFound();
 });
 
 test('supplier shopping dashboard is only for suppliers we buy from directly', function () {

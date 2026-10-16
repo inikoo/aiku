@@ -125,7 +125,7 @@ class DetachAttachmentFromModel extends OrgAction
 
     public function inStockDelivery(StockDelivery $stockDelivery, Media $attachment)
     {
-        abort_unless(request()->user()?->authTo("procurement.$stockDelivery->organisation_id.edit"), 403);
+        abort_unless($this->canChangeAttachments(request()->user(), $stockDelivery), 403);
         $this->initialisation($stockDelivery->organisation, []);
         $this->handle($stockDelivery, $attachment);
     }

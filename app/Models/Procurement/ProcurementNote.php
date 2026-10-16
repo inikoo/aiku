@@ -8,6 +8,7 @@ namespace App\Models\Procurement;
 
 use App\Enums\Procurement\ProcurementNote\ProcurementNoteCategoryEnum;
 use App\Enums\Procurement\ProcurementNote\ProcurementNoteIncidentOutcomeEnum;
+use App\Enums\Procurement\ProcurementNote\ProcurementNoteIncidentTypeEnum;
 use App\Enums\Procurement\ProcurementNote\ProcurementNoteSeverityEnum;
 use App\Enums\Procurement\ProcurementNote\ProcurementNoteStateEnum;
 use App\Enums\Procurement\ProcurementNote\ProcurementNoteVisibilityEnum;
@@ -49,6 +50,8 @@ use Spatie\MediaLibrary\HasMedia;
  * @property numeric|null $incident_amount
  * @property int|null $incident_currency_id
  * @property ProcurementNoteIncidentOutcomeEnum|null $incident_outcome
+ * @property ProcurementNoteIncidentTypeEnum|null $incident_type
+ * @property numeric|null $incident_quantity
  * @property int|null $evidence_message_id
  * @property int|null $author_user_id
  * @property string|null $author_name
@@ -81,6 +84,7 @@ class ProcurementNote extends Model implements HasMedia, Auditable
         'visibility'       => ProcurementNoteVisibilityEnum::class,
         'state'            => ProcurementNoteStateEnum::class,
         'incident_outcome' => ProcurementNoteIncidentOutcomeEnum::class,
+        'incident_type'    => ProcurementNoteIncidentTypeEnum::class,
         'is_pinned'        => 'boolean',
         'resolved_at'      => 'datetime',
         'fetched_at'       => 'datetime',

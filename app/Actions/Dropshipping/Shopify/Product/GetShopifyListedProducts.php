@@ -10,6 +10,7 @@ namespace App\Actions\Dropshipping\Shopify\Product;
 use App\Actions\Dropshipping\WithPlatformListedProducts;
 use App\Models\Dropshipping\ShopifyUser;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -30,18 +31,25 @@ class GetShopifyListedProducts
      * Archived products are retired and stay out.
      *
      * Shopify's product search cannot look inside variant SKUs the way the picker needs, so the
-     * catalogue is read in full and searched here.
+     * catalogue is read in full and searched here. A listing created in Shopify since the last read
+     * shows only after the cache expires, unless the picker asks to refresh.
      *
      * @return array<int, array>
      */
-    public function handle(?ShopifyUser $shopifyUser, string $query = '', int $offset = 0, int $limit = 50): array
+    public function handle(?ShopifyUser $shopifyUser, string $query = '', int $offset = 0, int $limit = 50, bool $refresh = false): array
     {
         if (!$shopifyUser) {
             return [];
         }
 
+        $cacheKey = 'shopify-listed-products-'.$shopifyUser->id;
+
+        if ($refresh) {
+            Cache::forget($cacheKey);
+        }
+
         return $this->pickListedProducts(
-            'shopify-listed-products-'.$shopifyUser->id,
+            $cacheKey,
             fn () => $this->fetchListedProducts($shopifyUser),
             $query,
             $offset,

@@ -42,6 +42,7 @@ const props = defineProps<{
     can_move_location_stock?: boolean
     transfer_reason?: {}
     create_order_route?: routeType | null
+    packing_progress?: { id: number, code: string, slug: string, packed: number, total: number, is_current: boolean }[] | null
 }>()
 
 let currentTab = ref(props.tabs.current)
@@ -65,5 +66,5 @@ const component = computed(() => {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab]" :tab="currentTab" :canMoveAllSku="can_move_location_stock" :location_id="location_id" :transfer_reason :create_order_route></component>
+    <component :is="component" :data="props[currentTab]" :tab="currentTab" :canMoveAllSku="can_move_location_stock" :location_id="location_id" :transfer_reason :create_order_route :packing_progress></component>
 </template>

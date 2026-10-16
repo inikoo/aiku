@@ -9,6 +9,8 @@
 namespace App\Actions\Procurement\AgentWarehouseStock;
 
 use App\Enums\Procurement\AgentWarehouseStock\AgentWarehouseStockStateEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
+use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\AgentWarehouseStock;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\SupplierProduct;
@@ -22,6 +24,8 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
  * Replaces an agent's warehouse stock for one organisation with the Moving Stock and Packed tabs of its stock spreadsheet (HELP-3960).
+ * The In Production tab holds what the suppliers are still making, so the open purchase order of each of its lines is marked
+ * as in production instead (HELP-4025).
  */
 class ImportAgentWarehouseStocksFromSheet
 {
@@ -39,19 +43,37 @@ class ImportAgentWarehouseStocksFromSheet
         'Packed Already 2' => ['Copy of Packed Already'],
     ];
 
+    private const string PRODUCTION_TAB = 'In Production';
+
     private const int NOTES = 0;
     private const int CODE = 2;
     private const int UNITS = 7;
     private const int PO_NUMBER = 26;
 
     /**
-     * @return array{rows: list<array<string, mixed>>, unmatched: list<string>}
+     * @return array{rows: list<array<string, mixed>>, unmatched: list<string>, in_production: list<array{code: string, units: float, purchase_order: ?string}>}
      */
     public function handle(Agent $agent, Organisation $organisation, string $sheetId, bool $dryRun = false): array
     {
         $rows      = [];
         $unmatched = [];
         $sheetTabs = $this->tabNames($sheetId);
+
+        $inProduction  = [];
+        $productionTab = collect($sheetTabs)->first(fn (string $name) => strcasecmp(trim($name), self::PRODUCTION_TAB) === 0);
+        foreach ($productionTab ? $this->readTab($sheetId, $productionTab) : [] as $line) {
+            $rawCode = trim($line[self::CODE] ?? '');
+            if ($rawCode === '' || strcasecmp($rawCode, 'CODE') === 0 || $this->isExtraCarton($rawCode)) {
+                continue;
+            }
+
+            $code          = trim(preg_replace('/\s*\(A\)$/i', '', $rawCode));
+            $purchaseOrder = $this->openOrderWithProduct($organisation, $this->candidates($agent, $code), $this->orderIds($organisation, trim($line[self::PO_NUMBER] ?? '')));
+            $inProduction[] = ['code' => $code, 'units' => (float) str_replace(',', '', $line[self::UNITS] ?? ''), 'purchase_order' => $purchaseOrder?->reference];
+            if (!$dryRun && $purchaseOrder) {
+                ImportAgentWarehouseStocksFromContainerList::make()->markInProduction($purchaseOrder, "$agent->code stock spreadsheet: in the In Production tab, still being made by the supplier");
+            }
+        }
 
         foreach (self::TABS as $tab => $state) {
             $names    = array_map('mb_strtolower', [$tab, ...(self::TAB_ALIASES[$tab] ?? [])]);
@@ -70,10 +92,7 @@ class ImportAgentWarehouseStocksFromSheet
                 $code  = trim(preg_replace('/\s*\(A\)$/i', '', $rawCode));
                 $units = (float) str_replace(',', '', $line[self::UNITS] ?? '');
 
-                $candidates = SupplierProduct::where('agent_id', $agent->id)
-                    ->whereRaw('lower(code) = ?', [mb_strtolower($code)])
-                    ->orderByRaw('(select count(*) from purchase_order_transactions where supplier_product_id = supplier_products.id) desc, id')
-                    ->get();
+                $candidates = $this->candidates($agent, $code);
                 $orderIds        = $this->orderIds($organisation, $po = trim($line[self::PO_NUMBER] ?? ''));
                 $supplierProduct = $candidates->first(fn (SupplierProduct $candidate) => $this->orderWithLine($orderIds, $candidate)) ?? $candidates->first();
 
@@ -104,7 +123,34 @@ class ImportAgentWarehouseStocksFromSheet
             });
         }
 
-        return ['rows' => $rows, 'unmatched' => $unmatched];
+        return ['rows' => $rows, 'unmatched' => $unmatched, 'in_production' => $inProduction];
+    }
+
+    /**
+     * @return Collection<int, SupplierProduct>
+     */
+    private function candidates(Agent $agent, string $code): Collection
+    {
+        return SupplierProduct::where('agent_id', $agent->id)
+            ->whereRaw('lower(code) = ?', [mb_strtolower($code)])
+            ->orderByRaw('(select count(*) from purchase_order_transactions where supplier_product_id = supplier_products.id) desc, id')
+            ->get();
+    }
+
+    /**
+     * The submitted or confirmed purchase order of the organisation holding the product, the one the sheet names first, else the newest.
+     *
+     * @param  Collection<int, SupplierProduct>  $candidates
+     * @param  list<int>  $orderIds
+     */
+    private function openOrderWithProduct(Organisation $organisation, Collection $candidates, array $orderIds): ?PurchaseOrder
+    {
+        return PurchaseOrder::where('organisation_id', $organisation->id)
+            ->whereIn('state', [PurchaseOrderStateEnum::SUBMITTED, PurchaseOrderStateEnum::CONFIRMED])
+            ->whereHas('purchaseOrderTransactions', fn ($query) => $query->whereIn('supplier_product_id', $candidates->pluck('id')))
+            ->orderByRaw('id = any(?::int[]) desc', ['{'.implode(',', $orderIds).'}'])
+            ->orderByDesc('id')
+            ->first();
     }
 
     /** @var array<string, list<int>> */
@@ -247,6 +293,9 @@ class ImportAgentWarehouseStocksFromSheet
         $result       = $this->handle($agent, $organisation, $command->argument('sheet'), (bool) $command->option('dry-run'));
 
         $command->info(count($result['rows']).' rows '.($command->option('dry-run') ? 'would be imported' : 'imported'));
+        foreach ($result['in_production'] as $line) {
+            $command->line("In production: {$line['code']} {$line['units']} units, purchase order ".($line['purchase_order'] ?? 'none open'));
+        }
         foreach ($result['unmatched'] as $line) {
             $command->warn("Skipped $line");
         }

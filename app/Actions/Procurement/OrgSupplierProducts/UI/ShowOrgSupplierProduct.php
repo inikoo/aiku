@@ -77,7 +77,9 @@ class ShowOrgSupplierProduct extends OrgAction
 
     public function htmlResponse(OrgSupplierProduct $orgSupplierProduct, ActionRequest $request): Response
     {
-        $forAgent = $this->organisation->type === OrganisationTypeEnum::AGENT || $orgSupplierProduct->organisation_id !== $this->organisation->id;
+        $forAgent     = $this->organisation->type === OrganisationTypeEnum::AGENT || $orgSupplierProduct->organisation_id !== $this->organisation->id;
+        $supplierCode = $orgSupplierProduct->supplierProduct->code;
+        $internalCode = $this->organisation->type === OrganisationTypeEnum::AGENT ? $orgSupplierProduct->supplierProduct->stocks->first()?->code : null;
 
         return Inertia::render(
             'Procurement/OrgSupplierProduct',
@@ -93,8 +95,8 @@ class ShowOrgSupplierProduct extends OrgAction
                     'next'     => $this->getNext($orgSupplierProduct, $request),
                 ],
                 'pageHead'    => [
-                    'title'      => $orgSupplierProduct->supplierProduct->code,
-                    'afterTitle' => ['label' => $orgSupplierProduct->supplierProduct->name],
+                    'title'      => $internalCode ?? $supplierCode,
+                    'afterTitle' => ['label' => $internalCode ? $supplierCode.' · '.$orgSupplierProduct->supplierProduct->name : $orgSupplierProduct->supplierProduct->name],
                     'icon'  => [
                         'icon'  => ['fal', 'box-usd'],
                         'title' => __('Supplier Product'),

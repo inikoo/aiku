@@ -143,7 +143,7 @@ trait WithDeliveryNoteItemUI
             DB::table('location_org_stocks')
                 ->join('locations', 'locations.id', '=', 'location_org_stocks.location_id')
                 ->whereColumn('location_org_stocks.org_stock_id', 'org_stocks.id')
-                ->whereRaw(PartnerBayPickingOrder::sql('delivery_note_items.id').' < 2')
+                ->whereRaw(PartnerBayPickingOrder::sql('delivery_note_items.id').' < 3')
                 ->select([
                     'locations.id',
                     'locations.code',

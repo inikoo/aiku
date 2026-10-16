@@ -1,6 +1,13 @@
+<script lang="ts">
+import { ref as moduleRef } from "vue"
+
+const sharedSalesQuarters = moduleRef<number | null>(null)
+</script>
+
 <script setup lang="ts">
 import { computed, nextTick, ref } from "vue"
-import { Link } from "@inertiajs/vue3"
+import { Link, usePage } from "@inertiajs/vue3"
+import axios from "axios"
 import Popover from "primevue/popover"
 import { ctrans } from "@/Composables/useTrans"
 import { useLocaleStore } from "@/Stores/locale"
@@ -11,6 +18,8 @@ import DiscontinueSuggestion from "@/Components/Procurement/DiscontinueSuggestio
 interface QuarterUsage {
 	period: string
 	sales: number
+	sales_amount?: number
+	currency?: string | null
 	days_out_of_stock: number
 	top_customer?: { id: number; name: string; sales: number } | null
 }
@@ -226,7 +235,13 @@ const currentQuarter = (() => {
 	return `${now.getFullYear()}Q${Math.floor(now.getMonth() / 3) + 1}`
 })()
 
-const quarters = computed<QuarterUsage[]>(() => props.item.quarterly_usage ?? [])
+const salesQuarters = computed(() => sharedSalesQuarters.value ?? (usePage().props.auth as any)?.user?.settings?.sales_quarters ?? 5)
+const cycleSalesQuarters = () => {
+	sharedSalesQuarters.value = salesQuarters.value >= 8 ? 4 : salesQuarters.value + 1
+	axios.patch(route("grp.models.profile.update"), { sales_quarters: sharedSalesQuarters.value })
+}
+
+const quarters = computed<QuarterUsage[]>(() => (props.item.quarterly_usage ?? []).slice(-salesQuarters.value))
 const quarterMax = computed(() => Math.max(1, ...quarters.value.map((record) => Number(record.sales) || 0)))
 
 const lastQuarters = computed(() => quarters.value.filter((record) => record.period !== currentQuarter).slice(-4))
@@ -364,7 +379,8 @@ function purchaseOrderRoute(slug: string) {
 				v-if="quarters.length"
 				class="flex cursor-help items-end gap-0.5 rounded-sm px-0.5 hover:bg-gray-200"
 				@mouseenter="showQuarterChart"
-				@mouseleave="hideQuarterChart">
+				@mouseleave="hideQuarterChart"
+				@click.stop="cycleSalesQuarters">
 				<div v-for="record in quarters" :key="record.period" class="flex w-4 flex-col items-center">
 					<span class="text-[8px] leading-none text-gray-500">{{ inCartons ? formatSales(record.sales) : formatCompact(record.sales) }}</span>
 					<div class="relative mt-0.5 flex h-5 w-2.5 items-end">
@@ -379,7 +395,7 @@ function purchaseOrderRoute(slug: string) {
 				</div>
 			</div>
 			<Popover v-if="isQuarterChartMounted" ref="quarterChartPopover" class="pointer-events-none">
-				<div class="w-96 p-1 text-xs text-gray-600">
+				<div class="w-[30rem] p-1 text-xs text-gray-600">
 					<div class="mb-3 flex items-baseline justify-between">
 						<span class="text-sm font-semibold text-gray-800">{{ inCartons ? ctrans("Sales per quarter, in cartons") : ctrans("Sales per quarter") }}</span>
 						<span v-if="salesPerQuarter !== null" class="text-gray-500">
@@ -391,10 +407,13 @@ function purchaseOrderRoute(slug: string) {
 						</span>
 					</div>
 
-					<div class="flex h-36 items-end gap-3 border-b border-gray-200 px-1">
+					<div class="flex h-44 items-end gap-2 border-b border-gray-200 px-1">
 						<div v-for="record in quarters" :key="record.period" class="flex h-full flex-1 flex-col items-center justify-end">
-							<span class="font-semibold tabular-nums text-gray-700" :class="inCartons ? '' : 'mb-1'">{{ formatSales(record.sales) }}</span>
-							<span v-if="inCartons" class="mb-1 text-[10px] tabular-nums leading-none text-gray-400">{{ formatSkos(record.sales) }}</span>
+							<span v-if="record.currency" class="mb-1 rounded bg-gray-100 px-1.5 text-[10px] font-medium tabular-nums text-gray-600">{{ locale.CurrencyShort(record.currency, record.sales_amount ?? 0) }}</span>
+							<div class="mb-1 flex flex-col items-center rounded-md border border-gray-200 bg-white px-1.5 py-0.5 leading-tight">
+								<span class="font-semibold tabular-nums text-gray-700">{{ formatSales(record.sales) }}</span>
+								<span v-if="inCartons" class="text-[10px] tabular-nums text-gray-400">{{ formatSkos(record.sales) }}</span>
+							</div>
 							<div
 								class="relative flex w-full max-w-[2.75rem] flex-col rounded-t-md"
 								:class="isCurrentQuarter(record) ? 'bg-gray-200' : 'bg-gray-400'"
@@ -410,7 +429,7 @@ function purchaseOrderRoute(slug: string) {
 							</div>
 						</div>
 					</div>
-					<div class="mt-1.5 flex gap-3 px-1">
+					<div class="mt-1.5 flex gap-2 px-1">
 						<div v-for="record in quarters" :key="record.period" class="flex-1 text-center leading-tight">
 							<div class="font-medium text-gray-700">{{ quarterShortLabel(record.period) }}</div>
 							<div v-if="isCurrentQuarter(record)" class="text-[10px] text-gray-400">{{ ctrans("so far") }}</div>
@@ -450,6 +469,7 @@ function purchaseOrderRoute(slug: string) {
 						<span class="flex items-center gap-1"><span class="h-2 w-2 rounded-sm bg-gray-200" />{{ ctrans("Current quarter") }}</span>
 						<span class="flex items-center gap-1"><span class="h-2 w-2 rounded-sm bg-amber-500" />{{ ctrans("One customer, half or more") }}</span>
 						<span class="flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-red-500" />{{ ctrans("Ran out of stock") }}</span>
+						<span class="ml-auto text-gray-400">{{ ctrans("Click the chart to show :count quarters", { count: String(salesQuarters >= 8 ? 4 : salesQuarters + 1) }) }}</span>
 					</div>
 				</div>
 			</Popover>

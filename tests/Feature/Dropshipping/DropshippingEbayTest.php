@@ -904,7 +904,7 @@ test('re-uploading a live listing that does not follow our price keeps the selle
     $portfolio = StorePortfolio::make()->action($ebayUser->customerSalesChannel, $this->product, []);
     $portfolio->update(['customer_price' => 20, 'settings' => ['pricing' => ['type' => 'not_follow', 'value' => null], 'pricing_opt_out' => true]]);
 
-    $existing = ['offerId' => 'offer-live', 'sku' => $portfolio->sku, 'status' => 'PUBLISHED', 'categoryId' => '77777', 'format' => 'FIXED_PRICE'];
+    $existing = ['offerId' => 'offer-live', 'sku' => $portfolio->sku, 'status' => 'PUBLISHED', 'categoryId' => '77777', 'format' => 'FIXED_PRICE', 'pricingSummary' => ['price' => ['value' => '9.99', 'currency' => 'GBP']]];
 
     fakeEbay($this, ebayCatalogueRoutes() + [
         '/sell/inventory/v1/offer' => ebayOfferRoutes(offersForSku: [$existing], offerById: $existing),
@@ -916,6 +916,33 @@ test('re-uploading a live listing that does not follow our price keeps the selle
 
     expect($replaced['pricingSummary']['price']['value'])->toBe('9.99')
         ->and($replaced['categoryId'])->toBe('77777');
+});
+
+test('re-uploading a sku whose old offer on eBay has no price sends our price even when the channel does not update prices', function () {
+    $ebayUser = ebayChannel($this);
+    $ebayUser->customerSalesChannel->update(['settings' => ['do_not_update_prices' => true]]);
+    $portfolio = StorePortfolio::make()->action($ebayUser->customerSalesChannel, $this->product, []);
+    $portfolio->update(['customer_price' => 62.99]);
+
+    $leftover = [
+        'offerId'        => 'offer-leftover',
+        'sku'            => $portfolio->sku,
+        'status'         => 'UNPUBLISHED',
+        'format'         => 'FIXED_PRICE',
+        'pricingSummary' => [],
+        'listing'        => ['listingId' => '287179414510', 'listingStatus' => 'ENDED'],
+    ];
+
+    fakeEbay($this, ebayCatalogueRoutes() + [
+        '/sell/inventory/v1/offer' => ebayOfferRoutes(offersForSku: [$leftover], offerById: $leftover),
+    ]);
+
+    StoreEbayProduct::run($ebayUser, $portfolio->refresh());
+
+    $replaced = sentEbayRequest('PUT', '/sell/inventory/v1/offer/offer-leftover')->data();
+
+    expect((float) $replaced['pricingSummary']['price']['value'])->toBe(62.99)
+        ->and($replaced['pricingSummary']['price']['currency'])->toBe('GBP');
 });
 
 test('uploading a sku whose offer on eBay points at an old postage policy moves the offer onto the channel policies', function () {

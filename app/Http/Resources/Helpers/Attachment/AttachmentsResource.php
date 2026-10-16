@@ -21,6 +21,8 @@ class AttachmentsResource extends JsonResource
             'scope'      => $this->scope,
             'media_id'   => $this->media_id,
             'media_ulid'   => $this->media_ulid,
+            'file_type'  => $this->file_name ? strtolower(pathinfo($this->file_name, PATHINFO_EXTENSION)) : null,
+            'size'       => $this->size,
             'is_can_deleted' => match (request()->routeIs('grp.*')) {  // TODO: change to depends on the owner, if owner then can delete is true
                 true => true,
                 default => false

@@ -41,6 +41,7 @@ import OrgStockLabelModal from "@/Components/Warehouse/Inventory/OrgStockLabelMo
 import LabelItemsWaitingForCrm from "./LabelItemsWaitingForCrm.vue"
 import LoadingOverlay2 from "@/Components/Utils/LoadingOverlay2.vue"
 import { ctrans } from "@/Composables/useTrans"
+import { printPdfInBrowser } from "@/Composables/printPdfInBrowser"
 import LabelPickingLocation from "./LabelPickingLocation.vue"
 import PickingLocationModal from "./PickingLocationModal.vue"
 import SelectPickingLocation from "./SelectPickingLocation.vue"
@@ -52,9 +53,9 @@ import ButtonSelectBays from "@/Components/DeliveryNote/ButtonSelectBays.vue"
 import IndivisibleSetIcon from "@/Components/Catalogue/IndivisibleSetIcon.vue"
 import { useStringToHex } from "@/Composables/useStringToHex"
 import { useIndivisibleSetMismatches } from "@/Composables/useIndivisibleSetMismatches"
-import { faBoxOpen, faPrint, faRedo, faFileAlt, faExclamationCircle, faCloudDownload, faEye, faInfoCircle } from "@fal"
+import { faBoxOpen, faPrint, faRedo, faFileAlt, faExclamationCircle, faCloudDownload, faEye, faInfoCircle, faBrowser } from "@fal"
 
-library.add(faInfoCircle, faFilePdf,faSpinnerThird, faSkull, faArrowDown, faDebug, faClipboardListCheck, faUndoAlt, faHandHoldingBox, faListOl, faHourglassHalf, faWandMagic, faBox, faBarcode, faBoxOpen, faPrint, faRedo, faFileAlt, faExclamationCircle, faExclamationTriangle, faCloudDownload, faEye);
+library.add(faInfoCircle, faFilePdf,faSpinnerThird, faSkull, faArrowDown, faDebug, faClipboardListCheck, faUndoAlt, faHandHoldingBox, faListOl, faHourglassHalf, faWandMagic, faBox, faBarcode, faBoxOpen, faPrint, faRedo, faFileAlt, faExclamationCircle, faExclamationTriangle, faCloudDownload, faEye, faBrowser);
 
 
 const props = defineProps<{
@@ -170,6 +171,28 @@ const onPrintLeaflet = async (leaflet: { id: number, state: string }) => {
         notify({ title: ctrans("Something went wrong"), text: error?.response?.data?.message ?? ctrans("Failed to print insert"), type: "error" })
     } finally {
         printingLeafletId.value = null
+    }
+}
+
+const browserPrintingLeafletId = ref<number | null>(null)
+const onPrintLeafletInBrowser = async (leaflet: { id: number, state: string }) => {
+    try {
+        browserPrintingLeafletId.value = leaflet.id
+        const response = await axios.post(
+            route("grp.models.delivery_note_leaflet.print_in_browser", { deliveryNoteLeaflet: leaflet.id }),
+            {},
+            { responseType: "blob" }
+        )
+        printPdfInBrowser(response.data)
+        leaflet.state = "printed"
+        reloadInserts()
+    } catch (error: any) {
+        const message = error?.response?.data instanceof Blob
+            ? JSON.parse(await error.response.data.text())?.message
+            : null
+        notify({ title: ctrans("Something went wrong"), text: message ?? ctrans("Failed to print insert"), type: "error" })
+    } finally {
+        browserPrintingLeafletId.value = null
     }
 }
 
@@ -1484,6 +1507,16 @@ const onSaveSplitBoxes = async () => {
                         @click="showLeafletMessage($event, leaflet.message)"
                     >
                         <FontAwesomeIcon :icon="['fal', 'eye']" fixed-width aria-hidden="true" />
+                    </button>
+                    <button
+                        v-if="leaflet.has_media || leaflet.message"
+                        type="button"
+                        class="p-1 text-gray-400 hover:text-gray-600 disabled:text-gray-300"
+                        :disabled="browserPrintingLeafletId === leaflet.id"
+                        v-tooltip="ctrans('Print from this browser (the paper set on this computer, no PrintNode)')"
+                        @click="onPrintLeafletInBrowser(leaflet)"
+                    >
+                        <FontAwesomeIcon :icon="['fal', 'browser']" fixed-width aria-hidden="true" />
                     </button>
                     <button
                         v-if="leaflet.has_media"

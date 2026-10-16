@@ -19204,6 +19204,7 @@
         "This will displayed as h1 in the product page on website and in orders and invoices.": "Isto será apresentado como h1 na página do produto no site, bem como em encomendas e faturas.",
         "This will move the order back to basket, allowing customer to edit the order again. Are you sure?": "Isto fará com que a encomenda volte ao carrinho, permitindo que o cliente a edite novamente. Tem a certeza?",
         "This will not appear in live website": "Isto não aparecerá no site publicado",
+        "This will overwrite :count products dimensions, are you sure want to continue ?": "Isto substituirá as dimensões de :count produtos. Tem a certeza de que pretende continuar?",
         "This will remove the brand from this unit, but not delete it.": "Isto removerá a marca desta unidade, mas não a eliminará.",
         "This will reset the products": "Isto irá redefinir os produtos",
         "This will reset the products as will and will need to be re-matched, orders  associated with this channel will not be affected.": "Isto redefinirá os produtos e estes terão de ser correspondidos novamente; as encomendas associadas a este canal não serão afetadas.",
@@ -22014,7 +22015,8 @@
         "with": "含",
         "with refunds": "含退款",
         "working": "在职",
-        "workshop": "工作室"
+        "workshop": "工作室",
+        "This will overwrite :count products dimensions, are you sure want to continue ?": "这将覆盖 :count 个产品的尺寸，您确定要继续吗？"
     },
     "bg": {
         "(SKO is a pack of :packs)": "(SKO е опаковка от :packs)",

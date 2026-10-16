@@ -27,7 +27,8 @@ class GetShopifyProducts extends OrgAction
             $customerSalesChannel->user,
             (string) Arr::get($modelData, 'query', ''),
             (int) Arr::get($modelData, 'offset', 0),
-            (int) Arr::get($modelData, 'limit', 50)
+            (int) Arr::get($modelData, 'limit', 50),
+            (bool) Arr::get($modelData, 'refresh', false)
         );
 
         $portfolio = Arr::get($modelData, 'portfolio') ? $customerSalesChannel->portfolios()->find(Arr::get($modelData, 'portfolio')) : null;
@@ -67,7 +68,8 @@ class GetShopifyProducts extends OrgAction
             'query'     => ['nullable', 'string'],
             'portfolio' => ['nullable', 'integer'],
             'offset' => ['nullable', 'numeric'],
-            'limit'  => ['nullable', 'numeric', 'min:1', 'max:100']
+            'limit'  => ['nullable', 'numeric', 'min:1', 'max:100'],
+            'refresh' => ['sometimes', 'boolean']
         ];
     }
 
@@ -78,6 +80,7 @@ class GetShopifyProducts extends OrgAction
             'portfolio' => $request->input('portfolio'),
             'offset' => $request->input('offset'),
             'limit'  => $request->input('limit'),
+            'refresh' => $request->boolean('refresh'),
         ]);
     }
 

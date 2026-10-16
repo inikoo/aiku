@@ -8,8 +8,12 @@
 
 namespace App\Mcp\Tools;
 
+use App\Actions\Chat\ChatSession\ClassifyChatTurn;
+use App\Actions\Chat\ChatSession\DraftChatReply;
 use App\Actions\Chat\WithChatAgentAuthorisation;
+use App\Enums\CRM\Livechat\ChatSenderTypeEnum;
 use App\Enums\SysAdmin\Authorisation\ShopPermissionsEnum;
+use App\Models\Helpers\Language;
 use App\Models\Chat\ChatAgent;
 use App\Models\Chat\ChatSession;
 use App\Models\CRM\Customer;
@@ -71,6 +75,20 @@ abstract class AikuCustomerServiceTool extends Tool
         }
 
         return [$chatSession, null];
+    }
+
+    /**
+     * Named by Aiku, never left to the assistant: the language of what the customer wrote.
+     */
+    protected function replyLanguage(ChatSession $chatSession): ?Language
+    {
+        $trigger = $chatSession->messages()->whereIn('sender_type', [ChatSenderTypeEnum::GUEST, ChatSenderTypeEnum::USER])->latest('id')->first();
+
+        if (!$trigger) {
+            return $chatSession->language ?? $chatSession->shop->language;
+        }
+
+        return DraftChatReply::replyLanguage($chatSession, $trigger, ClassifyChatTurn::customerWrote($chatSession));
     }
 
     protected function customerOf(ChatSession $chatSession): ?Customer

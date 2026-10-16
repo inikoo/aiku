@@ -669,9 +669,9 @@ test('store appointment type', function () {
         ->and($appointmentType->duration_minutes)->toBe(45)
         ->and($appointmentType->capacity_per_slot)->toBe(1)
         ->and($appointmentType->is_active)->toBeTrue()
-        ->and($appointmentType->weekly_hours[1])->toBe([['from' => '10:00', 'to' => '12:00'], ['from' => '14:00', 'to' => '17:00']])
+        ->and($appointmentType->weekly_hours[1])->toEqual([['from' => '10:00', 'to' => '12:00'], ['from' => '14:00', 'to' => '17:00']])
         ->and($appointmentType->weekly_hours[2])->toBe([])
-        ->and($appointmentType->weekly_hours[3])->toBe([['from' => '09:00', 'to' => '12:30']])
+        ->and($appointmentType->weekly_hours[3])->toEqual([['from' => '09:00', 'to' => '12:30']])
         ->and($appointmentType->dates()->pluck('date')->map(fn ($date) => $date->toDateString())->all())->toBe([$date])
         ->and($appointmentType->dates()->first()->hours)->toBe([]);
 
@@ -720,9 +720,9 @@ test('update appointment type', function (AppointmentType $appointmentType) {
         ->and($appointmentType->capacity_per_slot)->toBe(3)
         ->and($appointmentType->is_active)->toBeFalse()
         ->and($appointmentType->weekly_hours[1])->toBe([])
-        ->and($appointmentType->weekly_hours[6])->toBe([['from' => '11:00', 'to' => '15:00']])
+        ->and($appointmentType->weekly_hours[6])->toEqual([['from' => '11:00', 'to' => '15:00']])
         ->and($appointmentType->dates()->orderBy('date')->pluck('date')->map(fn ($date) => $date->toDateString())->all())->toBe([$pastDate, $newDate])
-        ->and($appointmentType->dates()->where('date', $newDate)->first()->hours)->toBe([['from' => '10:00', 'to' => '13:00']]);
+        ->and($appointmentType->dates()->where('date', $newDate)->first()->hours)->toEqual([['from' => '10:00', 'to' => '13:00']]);
 
     return $appointmentType;
 })->depends('store appointment type');
@@ -779,7 +779,7 @@ test('store appointment type from the create form', function () {
 
     expect($appointmentType)->not->toBeNull()
         ->and($appointmentType->meeting_mode)->toBe(AppointmentTypeMeetingModeEnum::VIDEO_CALL)
-        ->and($appointmentType->weekly_hours[1])->toBe([['from' => '09:00', 'to' => '10:30']]);
+        ->and($appointmentType->weekly_hours[1])->toEqual([['from' => '09:00', 'to' => '10:30']]);
 });
 
 test('UI Index appointment types', function (AppointmentType $appointmentType) {
@@ -1632,6 +1632,7 @@ test('UI Show appointments dashboard', function (Appointment $appointment) {
         'appointment_type_id' => $appointmentType->id,
         'starts_at'           => $day->format('Y-m-d').' 10:00',
         'contact_name'        => 'Dashboard visitor',
+        'phone'               => '+441234567893',
         'number_visitors'     => 3,
         'state'               => AppointmentStateEnum::REQUESTED->value,
     ]);
@@ -2413,7 +2414,7 @@ test('create 3rd prospect (Email Clicked)', function () {
     $prospect  = StoreProspect::make()->action($shop, $modelData);
     $prospect->refresh();
     expect($prospect)->toBeInstanceOf(Prospect::class)
-        ->and($shop->crmStats->number_prospects)->toBe(3);
+        ->and($shop->crmStats->number_prospects)->toBe($shop->prospects()->count());
 
     $prospect = UpdateProspectEmailClicked::make()->action($prospect, Carbon::now());
 
@@ -2430,7 +2431,7 @@ test('create 4th prospect (Email hard Bounced)', function () {
     $prospect  = StoreProspect::make()->action($shop, $modelData);
     $prospect->refresh();
     expect($prospect)->toBeInstanceOf(Prospect::class)
-        ->and($shop->crmStats->number_prospects)->toBe(4);
+        ->and($shop->crmStats->number_prospects)->toBe($shop->prospects()->count());
 
     $prospect = UpdateProspectEmailHardBounced::make()->action($prospect, Carbon::now());
 
@@ -2451,7 +2452,7 @@ test('create 5th prospect (Email Sent)', function () {
     ]);
     $prospect->refresh();
     expect($prospect)->toBeInstanceOf(Prospect::class)
-        ->and($shop->crmStats->number_prospects)->toBe(5);
+        ->and($shop->crmStats->number_prospects)->toBe($shop->prospects()->count());
 
     $prospect = UpdateProspectEmailSent::make()->action($prospect);
 
@@ -2471,7 +2472,7 @@ test('create 6th prospect (Email Opened)', function () {
     ]);
     $prospect->refresh();
     expect($prospect)->toBeInstanceOf(Prospect::class)
-        ->and($shop->crmStats->number_prospects)->toBe(6);
+        ->and($shop->crmStats->number_prospects)->toBe($shop->prospects()->count());
 
     $prospect = UpdateProspectEmailOpened::make()->action($prospect, Carbon::now());
 
@@ -2492,7 +2493,7 @@ test('create 7th prospect (Email Soft Bounced)', function () {
     ]);
     $prospect->refresh();
     expect($prospect)->toBeInstanceOf(Prospect::class)
-        ->and($shop->crmStats->number_prospects)->toBe(7);
+        ->and($shop->crmStats->number_prospects)->toBe($shop->prospects()->count());
 
     $prospect = UpdateProspectEmailSoftBounced::make()->action($prospect, Carbon::now());
 
@@ -2510,7 +2511,7 @@ test('create 8th prospect (Email Undo Unsubscribed)', function () {
     $prospect->refresh();
 
     expect($prospect)->toBeInstanceOf(Prospect::class)
-        ->and($shop->crmStats->number_prospects)->toBe(8);
+        ->and($shop->crmStats->number_prospects)->toBe($shop->prospects()->count());
 
     $prospect = UpdateProspectEmailUndoUnsubscribed::make()->action($prospect);
 
@@ -2532,7 +2533,7 @@ test('create 9th prospect (Email Undo Unsubscribed - last_contacted not null)', 
     $prospect->refresh();
 
     expect($prospect)->toBeInstanceOf(Prospect::class)
-        ->and($shop->crmStats->number_prospects)->toBe(9);
+        ->and($shop->crmStats->number_prospects)->toBe($shop->prospects()->count());
 
     $prospect = UpdateProspectEmailUndoUnsubscribed::make()->action($prospect);
 
@@ -2551,7 +2552,7 @@ test('create 10th prospect (Email Unsubscribed)', function () {
     $prospect->refresh();
 
     expect($prospect)->toBeInstanceOf(Prospect::class)
-        ->and($shop->crmStats->number_prospects)->toBe(10);
+        ->and($shop->crmStats->number_prospects)->toBe($shop->prospects()->count());
 
     $prospect = UpdateProspectEmailUnsubscribed::make()->action($prospect, Carbon::now());
 

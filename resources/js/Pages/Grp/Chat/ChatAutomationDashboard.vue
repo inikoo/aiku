@@ -15,6 +15,16 @@ import { faChartLine, faChartPie, faPaperPlane, faRobot, faFilter, faBolt, faClo
 import { ctrans } from "@/Composables/useTrans"
 import { capitalize } from "@/Composables/capitalize"
 
+interface DraftCounts {
+    decided: number
+    used: number
+    edited: number
+    discarded: number
+    superseded: number
+    pending: number
+    auto_sent: number
+}
+
 interface Dashboard {
     daily: { date: string, sent: number, drafts: number, noise: number, genuine: number }[]
     by_kind: { kind: string, label: string, total: number, wrong: number }[]
@@ -31,7 +41,7 @@ const props = defineProps<{
     title: string
     pageHead: object
     dashboard: Dashboard
-    draftStats: { decided: number, used: number, edited: number, discarded: number, superseded: number, pending: number, auto_sent: number }
+    draftStats: DraftCounts & { assistant: DraftCounts & { clients: { client: string, drafts: number, people: number }[] } }
     autoSend: {
         enabled: boolean
         min_decided: number
@@ -42,7 +52,7 @@ const props = defineProps<{
 
 const kindTotal = (kind: string) => props.dashboard.by_kind.find((row) => row.kind === kind)?.total ?? 0
 const sentTotal = computed(() => props.dashboard.by_kind.filter((row) => row.kind !== "ai_draft").reduce((sum, row) => sum + row.total, 0))
-const share = (count: number) => props.draftStats.decided ? Math.round(100 * count / props.draftStats.decided) + "%" : "—"
+const share = (count: number, of = props.draftStats.decided) => of ? Math.round(100 * count / of) + "%" : "—"
 
 const cards = computed(() => [
     { label: ctrans("Sent to customers"), value: sentTotal.value, note: ctrans(":count claim checklists", { count: kindTotal("claim_details") }), icon: faPaperPlane, color: "text-indigo-600" },
@@ -227,7 +237,15 @@ const colorOf = (index: number) => donutChart.value.datasets[0].backgroundColor[
                     <span class="text-sky-700">{{ ctrans("Sent after changes") }} {{ share(draftStats.edited) }}</span>
                     <span class="text-red-700">{{ ctrans("Discarded") }} {{ share(draftStats.discarded) }}</span>
                     <span class="text-gray-500">{{ ctrans("Not used") }} {{ share(draftStats.superseded) }}</span>
-                    <span v-if="draftStats.pending" class="text-indigo-700">{{ ctrans(":count waiting for staff", { count: draftStats.pending }) }}</span>
+                    <span v-if="draftStats.pending" class="text-amber-700">{{ ctrans(":count waiting for staff", { count: draftStats.pending }) }}</span>
+                </div>
+                <div v-if="draftStats.assistant.decided || draftStats.assistant.pending" class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
+                    <span class="font-medium text-gray-700">{{ ctrans("From staff assistants") }}: {{ draftStats.assistant.decided }}</span>
+                    <span class="text-emerald-700">{{ ctrans("Sent as written") }} {{ share(draftStats.assistant.used, draftStats.assistant.decided) }}</span>
+                    <span class="text-sky-700">{{ ctrans("Sent after changes") }} {{ share(draftStats.assistant.edited, draftStats.assistant.decided) }}</span>
+                    <span class="text-red-700">{{ ctrans("Discarded") }} {{ share(draftStats.assistant.discarded, draftStats.assistant.decided) }}</span>
+                    <span class="text-gray-500">{{ ctrans("Not used") }} {{ share(draftStats.assistant.superseded, draftStats.assistant.decided) }}</span>
+                    <span v-for="row in draftStats.assistant.clients" :key="row.client" class="text-gray-500">{{ row.client }}: {{ ctrans(":drafts drafts by :people people", { drafts: row.drafts, people: row.people }) }}</span>
                 </div>
             </DashboardWidgetBox>
 

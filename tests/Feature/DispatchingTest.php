@@ -6377,3 +6377,39 @@ test('picking and packing are warehouse work, the order page shipment and dispat
         \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
     }
 });
+
+test('an insert prints from the browser as an A6 PDF and counts as printed, HELP-3891', function () {
+    [$deliveryNote] = handlingDeliveryNoteWithPicking($this);
+    $leaflet        = \App\Models\Dispatching\DeliveryNoteLeaflet::create([
+        'group_id'         => $deliveryNote->group_id,
+        'organisation_id'  => $deliveryNote->organisation_id,
+        'shop_id'          => $deliveryNote->shop_id,
+        'delivery_note_id' => $deliveryNote->id,
+        'type'             => \App\Enums\Catalogue\Leaflet\LeafletTypeEnum::PERSONALISED_MESSAGE,
+        'name'             => 'Personalised message',
+        'message'          => 'Thank you for your order',
+        'data'             => [],
+    ]);
+    $print = fn () => $this->post(route('grp.models.delivery_note_leaflet.print_in_browser', $leaflet->id));
+
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ["orders.{$this->shop->id}.edit"]);
+        $print()->assertForbidden();
+        expect($leaflet->fresh()->state)->toBe(\App\Enums\Dispatching\DeliveryNoteLeaflet\DeliveryNoteLeafletStateEnum::PENDING_PRINT);
+
+        actingAsUserWithOnlyPermissions($this->user, ["dispatching.{$this->warehouse->id}.edit"]);
+        $response = $print()->assertOk()->assertHeader('Content-Type', 'application/pdf');
+        expect($response->getContent())->toStartWith('%PDF')
+            ->and($response->getContent())->toMatch('/\/MediaBox\s*\[0 0 297\.6\d* 419\.5\d*\]/')
+            ->and($leaflet->fresh()->state)->toBe(\App\Enums\Dispatching\DeliveryNoteLeaflet\DeliveryNoteLeafletStateEnum::PRINTED)
+            ->and($leaflet->fresh()->printed_by_user_id)->toBe($this->user->id);
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
+});

@@ -150,6 +150,7 @@ use App\Actions\GoodsIn\StockDeliveryItem\SetStockDeliveryItemCustomsLine;
 use App\Actions\GoodsIn\StockDeliveryClaim\UpdateStockDeliveryClaim;
 use App\Actions\GoodsIn\StockDelivery\UpdateStockDeliveryCustoms;
 use Inertia\Testing\AssertableInertia;
+use App\Actions\SysAdmin\User\UI\GetLoggedUser;
 
 use function Pest\Laravel\actingAs;
 
@@ -610,7 +611,10 @@ test('purchase order products and items tabs show stock and quarterly usage of e
     $orgStock    = $product->orgStocks()->first();
     $orgStock->update(['quantity_in_locations' => 17]);
 
-    $deliveryNote = StoreDeliveryNote::make()->action(createOrder(StoreCustomer::make()->action($shop, Customer::factory()->definition()), $product), [
+    $order       = createOrder(StoreCustomer::make()->action($shop, Customer::factory()->definition()), $product);
+    $transaction = $order->transactions()->first();
+    DB::table('transactions')->where('id', $transaction->id)->update(['org_net_amount' => 120]);
+    $deliveryNote = StoreDeliveryNote::make()->action($order, [
         'reference'        => 'DN-USAGE-'.uniqid(),
         'state'            => DeliveryNoteStateEnum::UNASSIGNED,
         'email'            => 'usage@example.com',
@@ -624,7 +628,8 @@ test('purchase order products and items tabs show stock and quarterly usage of e
         'shop_id'             => $deliveryNote->shop_id,
         'delivery_note_id'    => $deliveryNote->id,
         'org_stock_id'        => $orgStock->id,
-        'quantity_required'   => 6,
+        'transaction_id'      => $transaction->id,
+        'quantity_required'   => 12,
         'quantity_dispatched' => 6,
         'data'                => '{}',
         'created_at'          => now(),
@@ -686,9 +691,11 @@ test('purchase order products and items tabs show stock and quarterly usage of e
     $currentQuarter = now()->year.'Q'.now()->quarter;
 
     expect($row['stock_in_locations'])->toBe('17')
-        ->and($row['quarterly_usage'])->toHaveCount(4)
+        ->and($row['quarterly_usage'])->toHaveCount(8)
         ->and(collect($row['quarterly_usage'])->last()['period'])->toBe($currentQuarter)
         ->and((float) collect($row['quarterly_usage'])->last()['sales'])->toBe(6.0)
+        ->and((float) collect($row['quarterly_usage'])->last()['sales_amount'])->toBe(60.0)
+        ->and(collect($row['quarterly_usage'])->last()['currency'])->toBe($this->organisation->currency->code)
         ->and(collect($row['quarterly_usage'])->last()['days_out_of_stock'])->toBe(2)
         ->and(collect($row['quarterly_usage'])->last()['top_customer'])->toMatchArray(['id' => $deliveryNote->customer_id, 'sales' => 6.0])
         ->and(collect($row['stock_deliveries']['coming'])->pluck('reference'))->toContain($comingStockDelivery->reference)
@@ -3931,4 +3938,16 @@ test('purchase order product list only offers products of the supplier being ord
 
     expect($rowIds)->toContain($ownProduct->id)
         ->not->toContain($foreignProduct->id);
+});
+
+test('number of sales quarters shown is saved on the user, between 4 and 8', function () {
+    $user = $this->adminGuest->getUser();
+    actingAs($user);
+
+    $this->patch(route('grp.models.profile.update'), ['sales_quarters' => 7])->assertSessionHasNoErrors();
+    expect($user->fresh()->settings['sales_quarters'])->toBe(7)
+        ->and(GetLoggedUser::run($user->fresh())['settings']['sales_quarters'])->toBe(7);
+
+    $this->patch(route('grp.models.profile.update'), ['sales_quarters' => 9])->assertSessionHasErrors('sales_quarters');
+    expect($user->fresh()->settings['sales_quarters'])->toBe(7);
 });

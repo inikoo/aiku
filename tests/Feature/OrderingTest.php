@@ -5943,6 +5943,45 @@ describe('pre-orders (HELP-3432)', function () {
         expect($through('grp.models.order.update_insurance', $other))->toBe('passed');
     });
 
+    test('the backlog pre-orders tab lists live pre-orders with their supplier, dispatch and balance progress (HELP-4036)', function () {
+        $madeToOrder = ($this->preOrderProduct)(['is_made_to_order' => true]);
+        $customer    = ($this->fundedCustomer)(10000);
+        $basket      = StoreOrder::make()->action($customer, Order::factory()->definition());
+        StoreTransaction::make()->action($basket, $madeToOrder->currentHistoricProduct, array_merge(Transaction::factory()->definition(), ['quantity_ordered' => 1]));
+        \App\Actions\Ordering\PreOrder\AcceptBasketPreOrderTerms::run($basket->fresh(), false);
+        expect(PayRetinaOrderWithBalance::make()->handle($basket->fresh())['success'])->toBeTrue();
+
+        $preOrder = $basket->fresh()->preOrder;
+        $preOrder->update(['supplier_ordered_at' => now()->subDay(), 'estimated_dispatch_from' => now()->subDays(10), 'estimated_dispatch_to' => now()->subDays(3)]);
+        $shopState = $this->shop->state;
+        $this->shop->update(['state' => \App\Enums\Catalogue\Shop\ShopStateEnum::OPEN]);
+
+        $tab = fn () => get(route('grp.org.shops.show.ordering.backlog', [$this->organisation->slug, $this->shop->slug, 'tab' => 'pre_orders']));
+
+        $tab()->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('tabs.current', 'pre_orders')
+            ->where('tabs.navigation', fn ($boxes) => collect($boxes)->last()['tabs'][0]['value'] >= 1)
+            ->where('pre_orders.data', fn ($rows) => ($row = collect($rows)->firstWhere('id', $preOrder->order_id))
+                && $row['pre_order']['state'] === 'waiting_for_goods'
+                && $row['pre_order']['supplier_ordered_at'] !== null
+                && $row['pre_order']['estimated_dispatch_to'] === now()->subDays(3)->toDateString())
+            ->etc());
+
+        get(route('grp.org.overview.ordering.backlog', [$this->organisation->slug, 'tab' => 'pre_orders']))->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('tabs.navigation', fn ($boxes) => ($box = collect($boxes)->last()) && $box['tabs'][0]['value'] >= 1
+                && collect($box['children'])->firstWhere('slug', $this->shop->slug)['tabs'][0]['value'] >= 1)
+            ->where('pre_orders.data', fn ($rows) => collect($rows)->contains('id', $preOrder->order_id))
+            ->etc());
+
+        $preOrder->update(['state' => \App\Enums\Ordering\PreOrder\PreOrderStateEnum::CANCELLED]);
+
+        $tab()->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('pre_orders.data', fn ($rows) => !collect($rows)->contains('id', $preOrder->order_id))
+            ->etc());
+
+        $this->shop->update(['state' => $shopState]);
+    });
+
     test('an unpaid balance is reminded on the shop days and the pre-order cancelled keeping the deposit after the limit', function () {
         $madeToOrder = ($this->preOrderProduct)(['is_made_to_order' => true]);
         $customer    = ($this->fundedCustomer)(10000);

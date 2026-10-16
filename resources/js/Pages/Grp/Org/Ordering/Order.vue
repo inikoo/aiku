@@ -342,7 +342,6 @@ const props = defineProps<{
         icon: string
     }
     is_faire_order: boolean
-    can_edit_faire_label_shipping?: boolean
     allow_order_modification: boolean
 }>()
 
@@ -997,7 +996,7 @@ const isEditLocked = computed(() => isPreOrderLocked.value || !props.can_edit)
 const isChargeEditable = computed(() => !['finalised', 'dispatched', 'cancelled'].includes(props.data?.data?.state || '') && !isEditLocked.value)
 
 const isShippingEditable = computed(() => {
-    if (props.state === 'cancelled' || isEditLocked.value || (props.is_faire_order && isShippingExternal.value && !props.can_edit_faire_label_shipping)) {
+    if (props.state === 'cancelled' || isEditLocked.value) {
         return false
     }
 
@@ -2180,7 +2179,7 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
                                 <div v-html="box_stats?.customer.addresses.delivery.formatted_address"></div>
                                 <div v-if="!props.readonly && props.data?.data?.state !== 'dispatched' && !isEditLocked"
                                     @click="() => isModalAddress = true"
-                                    class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
+                                    class="whitespace-nowrap select-none text-gray-500 hover:text-gray-700 underline cursor-pointer">
                                     <span>{{ ctrans("Edit") }}</span>
                                 </div>
                             </dd>
@@ -2201,11 +2200,11 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
                                 <div v-html="box_stats?.customer?.addresses?.delivery?.formatted_address"></div>
                                 <div v-if="!props.readonly && props.data?.data?.state !== 'dispatched' && !isEditLocked" class="flex gap-x-3">
                                     <div @click="() => isModalAddress = true"
-                                        class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
+                                        class="whitespace-nowrap select-none text-gray-500 hover:text-gray-700 underline cursor-pointer">
                                         <span>{{ ctrans("Edit") }}</span>
                                     </div>
                                     <div v-if="billing_address_update_route" @click="() => isModalBillingAddress = true"
-                                        class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
+                                        class="whitespace-nowrap select-none text-gray-500 hover:text-gray-700 underline cursor-pointer">
                                         <span>{{ ctrans("Edit billing address") }}</span>
                                     </div>
                                 </div>
@@ -2604,11 +2603,11 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
 
                     <div class="flex flex-col sm:flex-row items-center gap-2">
                         <div v-if="props.box_stats?.voucher"
-                            class="flex items-center gap-x-1.5 rounded bg-indigo-50 px-2 py-1 text-xs text-indigo-700">
+                            class="flex items-center gap-x-1.5 rounded bg-[--app-accent-soft] px-2 py-1 text-xs text-[--app-accent-strong]">
                             <span class="font-medium uppercase">{{ ctrans("Voucher") }}: {{ props.box_stats.voucher.voucher_code }}</span>
                             <button v-if="!isEditLocked" type="button" v-tooltip="ctrans('Remove voucher')"
                                 :class="{ 'opacity-50 pointer-events-none': isLoadingRemoveVoucher }"
-                                class="text-indigo-400 hover:text-red-500" @click="submitRemoveVoucher">
+                                class="text-[--app-accent] hover:text-red-500" @click="submitRemoveVoucher">
                                 <FontAwesomeIcon icon="fal fa-times" fixed-width aria-hidden="true" />
                             </button>
                         </div>
@@ -3036,7 +3035,7 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
                 </div>
                 <div>
                     <dt class="font-semibold">{{ ctrans("Sent with a Faire label") }}</dt>
-                    <dd>{{ ctrans("Faire charges the retailer for shipping but does not say how much, so accounts type the shipping Faire invoiced before the order is invoiced. It is not sent to Faire.") }}</dd>
+                    <dd>{{ ctrans("Faire charges the retailer for shipping but does not say how much, so the shipping Faire invoiced is typed here before the order is invoiced. It must match the VAT on shipping that Faire gives, and it is not sent to Faire.") }}</dd>
                 </div>
             </dl>
             <p class="mt-4 text-gray-500">
