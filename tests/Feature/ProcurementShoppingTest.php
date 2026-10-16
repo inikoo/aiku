@@ -44,6 +44,7 @@ use App\Models\Catalogue\Shop;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SupplyChain\SupplierProduct\StoreSupplierProduct;
+use App\Actions\SupplyChain\SupplierProduct\MergeSupplierProducts;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Enums\Procurement\OrgSupplierProduct\OrgSupplierProductStateEnum;
@@ -2408,6 +2409,75 @@ test('repair supplier drift only treats a drifted row as a redundant copy when i
     $link->delete();
 
     expect($repair->isRedundantCopy($drifted->refresh()))->toBeTrue();
+});
+
+test('merging duplicate supplier products keeps every organisation on the product and frees the duplicate code', function () {
+    $duplicateSupplier = StoreSupplier::make()->action(parent: $this->group, modelData: Supplier::factory()->definition());
+    $keptSupplier      = StoreSupplier::make()->action(parent: $this->group, modelData: Supplier::factory()->definition());
+
+    $productData = fn (string $code, int $unitsPerPack = 10) => [
+        'code'             => $code,
+        'name'             => 'Duplicated '.$code,
+        'cost'             => 100,
+        'stock_id'         => $this->stocks[0]->id,
+        'units_per_pack'   => $unitsPerPack,
+        'units_per_carton' => 100
+    ];
+
+    $suffix         = Str::random(4);
+    $withTwin       = StoreSupplierProduct::make()->action($duplicateSupplier, $productData("DUP-A-$suffix"));
+    $keptWithTwin   = StoreSupplierProduct::make()->action($keptSupplier, $productData("DUP-A-$suffix"));
+    $withoutTwin    = StoreSupplierProduct::make()->action($duplicateSupplier, $productData("DUP-B-$suffix"));
+    $keptNoTwin     = StoreSupplierProduct::make()->action($keptSupplier, $productData("DUP-B-$suffix"));
+    $otherPack      = StoreSupplierProduct::make()->action($duplicateSupplier, $productData("DUP-C-$suffix"));
+    StoreSupplierProduct::make()->action($keptSupplier, $productData("DUP-C-$suffix", 12));
+
+    $duplicateRow = OrgSupplierProduct::where('supplier_product_id', $withTwin->id)->where('organisation_id', $this->organisation->id)->firstOrFail();
+    $twinRow      = OrgSupplierProduct::where('supplier_product_id', $keptWithTwin->id)->where('organisation_id', $this->organisation->id)->firstOrFail();
+    $twinRow->updateQuietly(['state' => OrgSupplierProductStateEnum::DISCONTINUED->value]);
+
+    $loneRow = OrgSupplierProduct::where('supplier_product_id', $withoutTwin->id)->where('organisation_id', $this->organisation->id)->firstOrFail();
+    OrgSupplierProduct::where('supplier_product_id', $keptNoTwin->id)->get()->each(function (OrgSupplierProduct $row) {
+        $row->stats()->delete();
+        $row->delete();
+    });
+
+    $linkTo = function (OrgSupplierProduct $row, SupplierProduct $supplierProduct, int $priority) {
+        $stockLink = StockHasSupplierProduct::firstOrCreate(['stock_id' => $this->stocks[0]->id, 'supplier_product_id' => $supplierProduct->id], ['available' => true]);
+
+        return OrgStockHasOrgSupplierProduct::create([
+            'org_stock_id'                  => $this->orgStocks[0]->id,
+            'org_supplier_product_id'       => $row->id,
+            'stock_has_supplier_product_id' => $stockLink->id,
+            'status'                        => true,
+            'local_priority'                => $priority,
+        ]);
+    };
+    foreach ([$keptWithTwin, $keptNoTwin] as $keptProduct) {
+        StockHasSupplierProduct::firstOrCreate(['stock_id' => $this->stocks[0]->id, 'supplier_product_id' => $keptProduct->id], ['available' => true]);
+    }
+    $linkTo($duplicateRow, $withTwin, 100);
+    $loneLink = $linkTo($loneRow, $withoutTwin, 0);
+
+    $dryRun = MergeSupplierProducts::make()->mergeSupplier($duplicateSupplier, $keptSupplier);
+    expect($dryRun['merged'])->toBe(2)
+        ->and($dryRun['refused'])->toHaveKey("DUP-C-$suffix")
+        ->and($withTwin->refresh()->code)->toBe("DUP-A-$suffix");
+
+    MergeSupplierProducts::make()->mergeSupplier($duplicateSupplier, $keptSupplier, fix: true);
+
+    $twinLink = OrgStockHasOrgSupplierProduct::where('org_supplier_product_id', $twinRow->id)->where('org_stock_id', $this->orgStocks[0]->id)->firstOrFail();
+
+    expect($twinRow->refresh()->state)->toBe(OrgSupplierProductStateEnum::ACTIVE->value)
+        ->and($twinLink->local_priority)->toBe(100)
+        ->and(StockHasSupplierProduct::find($twinLink->stock_has_supplier_product_id)->supplier_product_id)->toBe($keptWithTwin->id)
+        ->and(OrgSupplierProduct::find($duplicateRow->id))->toBeNull()
+        ->and($loneRow->refresh()->supplier_product_id)->toBe($keptNoTwin->id)
+        ->and(StockHasSupplierProduct::find($loneLink->refresh()->stock_has_supplier_product_id)->supplier_product_id)->toBe($keptNoTwin->id)
+        ->and($withTwin->refresh()->code)->toBe("DUP-A-$suffix-merged")
+        ->and($withTwin->state)->toBe(SupplierProductStateEnum::DISCONTINUED)
+        ->and($otherPack->refresh()->code)->toBe("DUP-C-$suffix")
+        ->and(StockHasSupplierProduct::where('supplier_product_id', $withTwin->id)->exists())->toBeFalse();
 });
 
 test('storing an org supplier product for a moved supplier product repoints the organisation row instead of adding a second one', function () {
