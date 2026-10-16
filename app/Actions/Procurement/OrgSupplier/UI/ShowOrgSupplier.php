@@ -110,8 +110,8 @@ class ShowOrgSupplier extends OrgAction
                 ],
 
                 SupplierTabsEnum::SHOWCASE->value => $this->tab == SupplierTabsEnum::SHOWCASE->value ?
-                    fn () => GetOrgSupplierShowcase::run($orgSupplier, $this->organisation)
-                    : Inertia::optional(fn () => GetOrgSupplierShowcase::run($orgSupplier, $this->organisation)),
+                    fn () => GetOrgSupplierShowcase::run($orgSupplier, $this->organisation, $this->procurementOrgAgent())
+                    : Inertia::optional(fn () => GetOrgSupplierShowcase::run($orgSupplier, $this->organisation, $this->procurementOrgAgent())),
 
                 'agreement' => GetAgreement::run($orgSupplier->supplier, $orgSupplier->organisation, $request->user(), $forAgent)
                     + ['print_route' => $forAgent ? null : ['name' => 'grp.org.procurement.org_suppliers.show.agreement.pdf', 'parameters' => [$this->organisation->slug, $orgSupplier->slug]]],
@@ -205,7 +205,10 @@ class ShowOrgSupplier extends OrgAction
                     $suffix
                 )
             ),
-            'grp.org.procurement.org_agents.show.suppliers.show' =>
+            'grp.org.procurement.org_agents.show.suppliers.show',
+            'grp.org.procurement.org_agents.show.suppliers.show.supplier_products.index',
+            'grp.org.procurement.org_agents.show.suppliers.show.purchase_orders.index',
+            'grp.org.procurement.org_agents.show.suppliers.show.stock_deliveries.index' =>
             array_merge(
                 ShowOrgAgent::make()->getBreadcrumbs($routeName, $routeParameters),
                 $headCrumb(

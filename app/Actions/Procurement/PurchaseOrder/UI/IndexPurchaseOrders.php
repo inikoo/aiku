@@ -406,6 +406,12 @@ class IndexPurchaseOrders extends OrgAction
         return $this->handle($orgSupplier);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inOrgSupplierInOrgAgent(Organisation $organisation, OrgAgent $orgAgent, OrgSupplier $orgSupplier, ActionRequest $request): LengthAwarePaginator
+    {
+        return $this->inOrgSupplier($organisation, $orgSupplier, $request);
+    }
+
     public function inSupplier(Supplier $supplier, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $supplier;
@@ -551,7 +557,8 @@ class IndexPurchaseOrders extends OrgAction
                     ]
                 ]
             ),
-            'grp.org.procurement.org_suppliers.show.purchase_orders.index' => array_merge(
+            'grp.org.procurement.org_suppliers.show.purchase_orders.index',
+            'grp.org.procurement.org_agents.show.suppliers.show.purchase_orders.index' => array_merge(
                 ShowOrgSupplier::make()->getBreadcrumbs($routeName, $routeParameters),
                 [
                     [
@@ -560,7 +567,7 @@ class IndexPurchaseOrders extends OrgAction
                             'label' => __('Purchase Orders'),
                             'icon'  => 'fal fa-bars',
                             'route' => [
-                                'name'       => 'grp.org.procurement.org_suppliers.show.purchase_orders.index',
+                                'name'       => $routeName,
                                 'parameters' => $routeParameters,
                             ],
                         ]

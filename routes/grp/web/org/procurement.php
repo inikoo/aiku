@@ -6,6 +6,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Actions\SupplyChain\SupplierProduct\UI\IndexRepairSupplierProducts;
 use App\Actions\Procurement\ProcurementNote\UI\IndexSupplierIncidents;
 use App\Actions\Procurement\AgentLabel\DownloadAgentArtefactLabelPdf;
 use App\Actions\Procurement\SupplierAgreedTerm\PdfSupplierAgreement;
@@ -162,6 +163,9 @@ Route::prefix('agents')->as('org_agents.')->group(function () {
         Route::get('stock-deliveries', [IndexStockDeliveries::class, 'inOrgAgent'])->name('.stock-deliveries.index');
         Route::get('suppliers/{orgSupplier}', [ShowOrgSupplier::class, 'inOrgAgent'])->name('.suppliers.show');
         Route::get('suppliers/{orgSupplier}/edit', [EditOrgSupplier::class, 'inOrgAgent'])->name('.suppliers.edit');
+        Route::get('suppliers/{orgSupplier}/supplier-products', [IndexOrgSupplierProducts::class, 'inOrgSupplierInOrgAgent'])->name('.suppliers.show.supplier_products.index');
+        Route::get('suppliers/{orgSupplier}/purchase-orders', [IndexPurchaseOrders::class, 'inOrgSupplierInOrgAgent'])->name('.suppliers.show.purchase_orders.index');
+        Route::get('suppliers/{orgSupplier}/stock-deliveries', [IndexStockDeliveries::class, 'inOrgSupplierInOrgAgent'])->name('.suppliers.show.stock_deliveries.index');
         Route::get('supplier-products', [IndexOrgSupplierProducts::class, 'inOrgAgent'])->name('.supplier_products.index');
         Route::get('supplier-products/{orgSupplierProduct}', [ShowOrgSupplierProduct::class, 'inOrgAgent'])->name('.supplier_products.show');
         Route::prefix('shopping')->as('.shopping.')->group(function () {
@@ -205,6 +209,7 @@ Route::prefix('suppliers')->as('org_suppliers.')->group(function () {
     Route::get('{orgSupplier}/purchase-orders', [IndexPurchaseOrders::class, 'inOrgSupplier'])->name('show.purchase_orders.index');
     Route::get('{orgSupplier}/purchase-orders/create', CreatePurchaseOrder::class)->name('show.purchase_orders.create');
     Route::get('{orgSupplier}/stock-deliveries', [IndexStockDeliveries::class, 'inOrgSupplier'])->name('show.stock_deliveries.index');
+    Route::get('{orgSupplier}/repair', IndexRepairSupplierProducts::class)->name('show.repair_supplier_products.index');
     Route::get('{orgSupplier}/shopping-list', [IndexShoppingListItems::class, 'inOrgSupplier'])->name('show.shopping_list.index');
 
     Route::prefix('{orgSupplier}/shopping')->as('show.shopping.')->group(function () {

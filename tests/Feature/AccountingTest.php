@@ -115,6 +115,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Testing\AssertableInertia;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -953,7 +954,10 @@ test('UI show accounting dashboard', function () {
                     ->etc()
             )
             ->has('flatTreeMaps')
-            ->has('payment_methods.summary.methods');
+            ->has('payment_methods.periods.1m.summary.methods')
+            ->has('payment_methods.periods.1q.summary.methods')
+            ->has('payment_methods.periods.1y.summary.methods')
+            ->where('intervals.value', '1m');
     });
 });
 
@@ -4103,4 +4107,11 @@ test('an issued invoice whose net changes later refreshes the sales figures of i
             && $arguments[2] === $invoiceDay
             && $arguments[3] === $invoiceDay
     );
+});
+
+test('payment methods dashboard figures are refreshed in the background', function () {
+    $this->artisan('accounting:refresh-payment-methods-dashboard')->assertSuccessful();
+
+    expect(Cache::get('accounting-dashboard-payment-methods:'.$this->organisation->id))
+        ->toHaveKeys(['1m', '1q', '1y']);
 });
