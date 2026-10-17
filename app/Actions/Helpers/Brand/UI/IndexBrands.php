@@ -62,9 +62,9 @@ class IndexBrands extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(?array $modelOperations = null, $prefix = null, bool $canEdit = false): Closure
     {
-        return function (InertiaTable $table) use ($modelOperations, $prefix) {
+        return function (InertiaTable $table) use ($modelOperations, $prefix, $canEdit) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -80,8 +80,11 @@ class IndexBrands extends OrgAction
                 ])
                 ->column(key: 'name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_trade_units', label: __('Trade Units'), canBeHidden: false, sortable: true, searchable: false)
-                ->column(key: 'number_products', label: __('Products'), canBeHidden: false, sortable: true, searchable: false)
-                ->column(key: 'actions', label: '', canBeHidden: false, align: 'right');
+                ->column(key: 'number_products', label: __('Products'), canBeHidden: false, sortable: true, searchable: false);
+
+            if ($canEdit) {
+                $table->column(key: 'actions', label: '', canBeHidden: false, align: 'right');
+            }
         };
     }
 
@@ -106,7 +109,7 @@ class IndexBrands extends OrgAction
                         'icon'  => ['fal', 'fa-copyright'],
                         'title' => __('Brands'),
                     ],
-                    'actions'   => [
+                    'actions'   => !$this->canEdit ? [] : [
                         [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -122,7 +125,7 @@ class IndexBrands extends OrgAction
                 ],
                 'data' => BrandResource::collection($brands),
             ]
-        )->table($this->tableStructure());
+        )->table($this->tableStructure(canEdit: $this->canEdit));
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, ?string $suffix = null): array

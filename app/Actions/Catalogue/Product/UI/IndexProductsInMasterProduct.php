@@ -276,7 +276,7 @@ class IndexProductsInMasterProduct extends OrgAction
                     ],
                     'data'                              => ProductsResource::collection($products),
                     'editable_table'                    => false,
-                    'mismatch_trade_unit_with_master'   => $hasMismatch,
+                    'mismatch_trade_unit_with_master'   => $hasMismatch && request()->user()->authTo('masters.edit'),
                     'tabs'                         => [
                         'current'    => $this->tab,
                         'navigation' => ProductsTabsEnum::navigationExcept([ProductsTabsEnum::SALES, ProductsTabsEnum::INDEX_ORDERING]),

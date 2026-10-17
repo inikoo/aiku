@@ -128,7 +128,7 @@ class EditFamily extends OrgAction
             ];
         }
 
-        if ($family->tradeUnitFamily) {
+        if ($family->tradeUnitFamily && request()->user()->authTo('goods.edit')) {
             $iconLinks[] = [
                 'icon'    => 'fal fa-atom-alt',
                 'tooltip' => __('Go to Edit Trade Unit Family'),

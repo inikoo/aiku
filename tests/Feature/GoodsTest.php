@@ -2143,3 +2143,37 @@ test('HELP-3997 a name the translator hands back in English is reported and left
 
     $this->shop->update($shopBefore);
 });
+
+test('brands, trade unit families and trade unit translations are changed with goods edit only, INI-076', function () {
+    $unguarded = collect(app('router')->getRoutes()->getRoutes())
+        ->filter(fn ($route) => str_starts_with((string) $route->getName(), 'grp.models.') && is_string($route->getAction('uses')))
+        ->map(fn ($route) => \Illuminate\Support\Str::before($route->getAction('uses'), '@'))
+        ->filter(fn (string $action) => (str_starts_with($action, 'App\\Actions\\Helpers\\Brand\\') || str_starts_with($action, 'App\\Actions\\Goods\\')) && !method_exists($action, 'authorize'))
+        ->unique()->values()->all();
+    expect($unguarded)->toBe([]);
+
+    $family = StoreTradeUnitFamily::make()->action($this->group, ['code' => 'INI076-F', 'name' => 'Before']);
+    $user   = $this->adminGuest->getUser();
+
+    $originalRoles       = $user->roles->pluck('name')->toArray();
+    $originalPermissions = $user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($user, ['goods.view', 'masters.edit']);
+        $this->post(route('grp.models.brand.store'), ['name' => 'INI076 brand', 'reference' => 'INI076'])->assertForbidden();
+        $this->post(route('grp.models.trade_unit_family.store'), ['code' => 'INI076-G', 'name' => 'Refused'])->assertForbidden();
+        $this->patch(route('grp.models.trade_unit_family.update', $family->id), ['name' => 'Changed without goods edit'])->assertForbidden();
+        $this->get(route('grp.goods.trade-unit-families.edit', $family->slug))->assertForbidden();
+        $this->get(route('grp.trade_units.brands.create'))->assertForbidden();
+        expect($family->refresh()->name)->toBe('Before')
+            ->and(\App\Models\Helpers\Brand::where('reference', 'INI076')->exists())->toBeFalse();
+
+        actingAsUserWithOnlyPermissions($user, ['goods.edit']);
+        $this->patch(route('grp.models.trade_unit_family.update', $family->id), ['name' => 'Changed with goods edit'])->assertRedirect();
+        expect($family->refresh()->name)->toBe('Changed with goods edit');
+    } finally {
+        setPermissionsTeamId($user->group_id);
+        $user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($user, $originalRoles);
+    }
+});

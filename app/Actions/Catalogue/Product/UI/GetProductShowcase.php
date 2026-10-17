@@ -89,7 +89,7 @@ class GetProductShowcase
                         'masterProduct' => $product->masterProduct->slug,
                     ]
                 ];
-            } else {
+            } elseif (request()->user()?->authTo(['goods.edit', 'compliance.edit'])) {
                 $parentLink = [
                     'url'    => "grp.trade_units.units.edit",
                     'params' => [

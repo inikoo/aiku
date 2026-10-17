@@ -81,7 +81,7 @@ class EditMasterFamily extends OrgAction
 
         $iconLinks = [];
 
-        if ($masterProductCategory->tradeUnitFamily) {
+        if ($masterProductCategory->tradeUnitFamily && $request->user()->authTo('goods.edit')) {
             $iconLinks[] = [
                 'icon'    => 'fal fa-atom-alt',
                 'tooltip' => __('Go to Edit Trade Unit Family'),

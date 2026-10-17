@@ -10,6 +10,7 @@
 
 namespace App\Actions\Helpers\Brand;
 
+use App\Actions\Traits\Authorisations\WithGoodsEditAuthorisation;
 use App\Actions\Helpers\Media\SaveModelImage;
 use App\Actions\OrgAction;
 use App\Models\Goods\TradeUnit;
@@ -23,6 +24,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreBrand extends OrgAction
 {
+    use WithGoodsEditAuthorisation;
+
     public function handle(Group|TradeUnit $parent, array $modelData): Brand
     {
 
