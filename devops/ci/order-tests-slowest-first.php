@@ -5,7 +5,8 @@
  * test file, slowest first by the previous run's JUnit report, so the parallel workers start
  * the long files first instead of finding them last in alphabetical order.
  * Paratest hands files to free workers in the order the suite lists them.
- * Usage (CI): php order-tests-slowest-first.php ../../../../artifacts/last-junit.xml
+ * Usage (CI): php order-tests-slowest-first.php ../../../../artifacts/last-junit.xml [test files...]
+ * With test files after the report, the suite lists only those (the flake check's changed files).
  * Files the report does not know (new or renamed) go first. Without a report the order is
  * alphabetical, as phpunit.xml would run it.
  */
@@ -31,6 +32,11 @@ foreach (['tests/Unit', 'tests/Feature'] as $directory) {
     }
     sort($directoryFiles);
     $files = array_merge($files, $directoryFiles);
+}
+
+$onlyFiles = array_map(fn (string $file) => ltrim($file, './'), array_slice($argv, 2));
+if ($onlyFiles !== []) {
+    $files = array_values(array_intersect($files, $onlyFiles));
 }
 
 usort($files, fn (string $a, string $b) => ($durations[$b] ?? INF) <=> ($durations[$a] ?? INF));

@@ -108,16 +108,23 @@ jobs:
             echo "No changed test files, skipping"
             exit 0
           fi
+          FILES=""
           for FILE in $CHANGED; do
-            if [ ! -f "$FILE" ]; then
+            if [ -f "$FILE" ]; then
+              FILES="$FILES $FILE"
+            else
               echo "$FILE was deleted, skipping"
-              continue
             fi
-            for RUN in 1 2; do
-              echo "::group::$FILE run $RUN"
-              /usr/bin/php8.4 -dxdebug.mode=off -d newrelic.enabled=0 vendor/bin/pest "$FILE"
-              echo "::endgroup::"
-            done
+          done
+          if [ -z "$FILES" ]; then
+            echo "Only deleted test files, skipping"
+            exit 0
+          fi
+          /usr/bin/php8.4 devops/ci/order-tests-slowest-first.php ../../../../artifacts/last-junit.xml $FILES
+          for RUN in 1 2; do
+            echo "::group::Changed test files run $RUN:$FILES"
+            /usr/bin/php8.4 -dxdebug.mode=off -d newrelic.enabled=0 vendor/bin/pest --configuration=phpunit.ci.xml --parallel --processes=${PEST_PROCESSES:-6}
+            echo "::endgroup::"
           done
       - name: Stop private Redis
         if: ${{ always() }}
