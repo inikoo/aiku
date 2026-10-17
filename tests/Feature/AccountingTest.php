@@ -1628,16 +1628,17 @@ test('UI show invoice navigation follows the bucket it was opened from', functio
 test('Delete invoice', function () {
     $this->withoutExceptionHandling();
     $shop     = $this->shop;
-    $customer = createCustomer($shop);
-    $invoice  = StoreInvoice::make()->action($customer, Invoice::factory()->definition());
-    expect($customer->stats->number_invoices)->toBe(3);
+    $customer       = createCustomer($shop);
+    $invoicesBefore = $customer->stats->number_invoices;
+    $invoice        = StoreInvoice::make()->action($customer, Invoice::factory()->definition());
+    expect($customer->refresh()->stats->number_invoices)->toBe($invoicesBefore + 1);
 
     $invoice = DeleteInvoice::make()->action($invoice, [
         'deleted_note' => 'test'
     ]);
     $customer->refresh();
     expect($invoice->trashed())->toBeTrue()
-        ->and($customer->stats->number_invoices)->toBe(2);
+        ->and($customer->stats->number_invoices)->toBe($invoicesBefore);
 
     return $invoice;
 });

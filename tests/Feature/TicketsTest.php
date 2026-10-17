@@ -725,7 +725,7 @@ test('customers get attachments of their ticket through retina, never those of i
 
 test('tickets dashboard counts created, done, status and assignees', function () {
     $this->travelTo(now()->previous('Wednesday')->setTime(10, 0));
-    $before =ShowTicketsReports::make()->handle($this->group, '1w');
+    $before = ShowTicketsReports::make()->handle($this->group, '1w');
 
     $ticket = StoreTicket::make()->action($this->group, ['subject' => 'Report me', 'assignee_id' => $this->user->id]);
     UpdateTicket::make()->action($ticket, ['status' => TicketStatusEnum::RESOLVED->value]);
