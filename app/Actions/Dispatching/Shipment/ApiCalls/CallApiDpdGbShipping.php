@@ -70,7 +70,10 @@ class CallApiDpdGbShipping extends OrgAction
 
     protected function login(Shipper $shipper): void
     {
-        [$username, $password, $accountNumber] = array_values($this->getAccessToken($shipper));
+        $accessToken   = $this->getAccessToken($shipper);
+        $username      = Arr::get($accessToken, 'username');
+        $password      = Arr::get($accessToken, 'password');
+        $accountNumber = (string) Arr::get($accessToken, 'account');
         $headers = [
             "Authorization" => "Basic ".base64_encode($username.':'.$password),
             "Content-Type"  => "application/json",

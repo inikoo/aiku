@@ -78,6 +78,7 @@ use App\Actions\Dispatching\Shipment\FetchShipmentLabel;
 use App\Actions\Dispatching\Shipment\StoreShipment;
 use App\Actions\Dispatching\Shipment\UpdateShipment;
 use App\Actions\Dispatching\Shipper\Json\GetShippers;
+use App\Actions\Dispatching\Shipment\ApiCalls\CallApiDpdGbShipping;
 use App\Actions\Dispatching\Shipper\StoreShipper;
 use App\Actions\Dispatching\Shipper\UpdateShipper;
 use App\Actions\Dispatching\Trolley\AttachTrolleyToDeliveryNote;
@@ -269,6 +270,29 @@ test('update shipper', function ($createdShipper) {
 
     expect($updatedShipper->code)->toBe($arrayData['code']);
 })->depends('create shipper');
+
+test('set shipper api credentials from the command', function ($createdShipper) {
+    $this->artisan('shipper:api_credentials', ['shipper' => $createdShipper->slug, 'api_shipper' => 'dpd-gb'])
+        ->expectsQuestion('Access token (paste the value, JSON for dpd-gb)', '{"username":"u","password":"p","account":"1"}')
+        ->assertExitCode(0);
+
+    $createdShipper->refresh();
+
+    expect($createdShipper->api_shipper)->toBe('dpd-gb')
+        ->and($createdShipper->settings['access_token'])->toEqual(['username' => 'u', 'password' => 'p', 'account' => '1']);
+})->depends('create shipper');
+
+test('dpd gb login reads the credentials by name whatever their order', function () {
+    config(['app.sandbox.shipper_dpd_gb_token' => '{"account":"462302","password":"p","username":"u"}']);
+    Http::fake(['api.dpd.co.uk/*' => Http::response(['data' => ['geoSession' => 'session']])]);
+
+    $headers = (new CallApiDpdGbShipping())->getHeaders(new Shipper());
+
+    expect($headers['GeoSession'])->toBe('session')
+        ->and($headers['GeoClient'])->toBe('account/462302');
+    Http::assertSent(fn ($request) => $request->hasHeader('Authorization', 'Basic '.base64_encode('u:p'))
+        && $request->hasHeader('GeoClient', 'account/462302'));
+});
 
 
 test('create delivery note', function () {
