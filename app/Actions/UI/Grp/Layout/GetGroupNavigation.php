@@ -53,6 +53,26 @@ class GetGroupNavigation
                 ],
             ]
         ];
+        $groupNavigation['tasks'] = [
+            'label'   => __('Tasks'),
+            'icon'    => ['fal', 'fa-tasks'],
+            'root'    => 'grp.tasks.',
+            'route'   => [
+                'name' => 'grp.tasks.index',
+            ],
+            'topMenu' => [
+                'subSections' => [
+                    ['label' => __('My tasks'), 'icon' => ['fal', 'fa-tasks'], 'root' => 'grp.tasks.index', 'route' => ['name' => 'grp.tasks.index']],
+                    ['label' => __('All'), 'icon' => ['fal', 'fa-list'], 'root' => 'grp.tasks.list_all', 'route' => ['name' => 'grp.tasks.list_all']],
+                    ['label' => __('To review & publish'), 'icon' => ['fal', 'fa-clipboard-check'], 'root' => 'grp.tasks.review', 'route' => ['name' => 'grp.tasks.review']],
+                    ['label' => __('Board'), 'icon' => ['fal', 'fa-columns'], 'root' => 'grp.tasks.board', 'route' => ['name' => 'grp.tasks.board']],
+                    ['label' => __('ETA map'), 'icon' => ['fal', 'fa-calendar-alt'], 'root' => 'grp.tasks.eta_map', 'route' => ['name' => 'grp.tasks.eta_map']],
+                    ['label' => __('Reports'), 'icon' => ['fal', 'fa-chart-line'], 'root' => 'grp.tasks.reports', 'route' => ['name' => 'grp.tasks.reports']],
+                    ['label' => __('Covering'), 'icon' => ['fal', 'fa-user-friends'], 'root' => 'grp.tasks.covering', 'route' => ['name' => 'grp.tasks.covering']],
+                ],
+            ],
+        ];
+
         if ($user->hasAnyPermission(['goods.view','masters.view'])) {
             $groupNavigation['trade-units'] = $this->getTradeUnitsNavs();
         }
@@ -93,26 +113,6 @@ class GetGroupNavigation
                 ],
             ];
         }
-
-        $groupNavigation['tasks'] = [
-            'label'   => __('Tasks'),
-            'icon'    => ['fal', 'fa-tasks'],
-            'root'    => 'grp.tasks.',
-            'route'   => [
-                'name' => 'grp.tasks.index',
-            ],
-            'topMenu' => [
-                'subSections' => [
-                    ['label' => __('My tasks'), 'icon' => ['fal', 'fa-tasks'], 'root' => 'grp.tasks.index', 'route' => ['name' => 'grp.tasks.index']],
-                    ['label' => __('All'), 'icon' => ['fal', 'fa-list'], 'root' => 'grp.tasks.list_all', 'route' => ['name' => 'grp.tasks.list_all']],
-                    ['label' => __('To review & publish'), 'icon' => ['fal', 'fa-clipboard-check'], 'root' => 'grp.tasks.review', 'route' => ['name' => 'grp.tasks.review']],
-                    ['label' => __('Board'), 'icon' => ['fal', 'fa-columns'], 'root' => 'grp.tasks.board', 'route' => ['name' => 'grp.tasks.board']],
-                    ['label' => __('ETA map'), 'icon' => ['fal', 'fa-calendar-alt'], 'root' => 'grp.tasks.eta_map', 'route' => ['name' => 'grp.tasks.eta_map']],
-                    ['label' => __('Reports'), 'icon' => ['fal', 'fa-chart-line'], 'root' => 'grp.tasks.reports', 'route' => ['name' => 'grp.tasks.reports']],
-                    ['label' => __('Covering'), 'icon' => ['fal', 'fa-user-friends'], 'root' => 'grp.tasks.covering', 'route' => ['name' => 'grp.tasks.covering']],
-                ],
-            ],
-        ];
 
         $groupNavigation['tickets'] = [
             'label'   => __('Tickets'),

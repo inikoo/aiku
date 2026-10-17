@@ -891,3 +891,38 @@ test('warm telemetry fills the flexible cache so the dashboard never builds it i
     expect($telemetry->overview('1h'))->toBe(['range' => '1h', 'warmed' => true])
         ->and($telemetry->overview('7d'))->toBe(['range' => '7d', 'warmed' => true]);
 });
+
+it('keeps the pgBackRest report litio pushes and shows the backups and problems on the devops dashboard', function () {
+    $info = [[
+        'name'   => 'aiku',
+        'status' => ['code' => 0, 'message' => 'ok', 'lock' => ['backup' => ['held' => false]]],
+        'backup' => [
+            ['label' => '20261017-120933F', 'type' => 'full', 'timestamp' => ['start' => 1792238973, 'stop' => 1792241141], 'info' => ['size' => 328000000000, 'repository' => ['size' => 65500000000, 'delta' => 65500000000]], 'error' => false],
+            ['label' => '20261017-120933F_20261018-020002I', 'type' => 'incr', 'timestamp' => ['start' => 1792288802, 'stop' => 1792289102], 'info' => ['size' => 328100000000, 'repository' => ['size' => 65600000000, 'delta' => 2100000000]], 'error' => false],
+        ],
+    ]];
+
+    Config::set('app.devops_token', 'test-devops-token');
+
+    $this->postJson(route('devops.pgbackrest.store'), $info)->assertForbidden();
+    $this->postJson(route('devops.pgbackrest.store'), [['name' => 'aiku', 'status' => [], 'backup' => [['label' => 'x', 'type' => 'weekly']]]], ['X-DEVOPS-TOKEN' => 'test-devops-token'])->assertUnprocessable();
+    $this->postJson(route('devops.pgbackrest.store'), $info, ['X-DEVOPS-TOKEN' => 'test-devops-token'])->assertOk();
+
+    expect(App\Actions\DevOps\MonitorDatabaseReplicas::make()->backupReport()['backups'])->toHaveCount(2);
+
+    Illuminate\Support\Facades\Cache::put(App\Actions\DevOps\MonitorDatabaseReplicas::PROBLEMS_CACHE_KEY, ['No WAL has reached Cloudflare R2 ever.'], now()->addMinutes(15));
+
+    $user = createAdminGuest(createGroup())->getUser();
+    $isEngineer = App\Models\Helpers\Ticket::canBeManagedBy($user) && $user->hasGroupAccess();
+
+    $this->actingAs($user)
+        ->get(route('grp.devops.dashboard'))
+        ->assertInertia(fn (Inertia\Testing\AssertableInertia $page) => $page
+            ->component('Devops/Dashboard', false)
+            ->where('databaseBackups.backups.0.label', '20261017-120933F_20261018-020002I')
+            ->where('databaseBackups.backups.0.repo_delta', 2100000000)
+            ->where('databaseBackups.backups.1.duration_seconds', 2168)
+            ->where('databaseBackups.restore_from', Carbon\CarbonImmutable::createFromTimestamp(1792241141)->toIso8601String())
+            ->where('auth.user.is_engineer', $isEngineer)
+            ->where('auth.user.devops_problems', $isEngineer ? ['No WAL has reached Cloudflare R2 ever.'] : []));
+});
