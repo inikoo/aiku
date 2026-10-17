@@ -9,6 +9,7 @@
 
 namespace App\Actions\Dispatching\Box;
 
+use App\Actions\Traits\Authorisations\WithOrganisationDispatchingEditAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Dispatching\Box;
@@ -19,6 +20,7 @@ use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class UpdateBox extends OrgAction
 {
+    use WithOrganisationDispatchingEditAuthorisation;
     use AsAction;
     use WithAttributes;
     use WithActionUpdate;

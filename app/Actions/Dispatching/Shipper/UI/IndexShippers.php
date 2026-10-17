@@ -9,6 +9,7 @@
 
 namespace App\Actions\Dispatching\Shipper\UI;
 
+use App\Enums\SysAdmin\Authorisation\WarehousePermissionsEnum;
 use App\Actions\OrgAction;
 use App\Actions\UI\Dispatch\ShowDispatchHub;
 use App\Http\Resources\Dispatching\ShippersResource;
@@ -87,7 +88,7 @@ class IndexShippers extends OrgAction
                     'subNavigation' => $this->getShipperNavigation($this->organisation, $this->warehouse),
                     'title'         => __('Shippers'),
                     'icon'          => 'fal fa-shipping-fast',
-                    'actions'       => [
+                    'actions'       => !$request->user()->authTo(WarehousePermissionsEnum::getDispatchingEditPermissionNames($this->organisation)) ? [] : [
                         [
                             'type'    => 'button',
                             'style'   => 'create',

@@ -6488,3 +6488,36 @@ test('an insert prints from the browser as an A6 PDF and counts as printed, HELP
         \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
     }
 });
+
+test('boxes and shippers need dispatching edit in the organisation and batch codes its stock edit, INI-076', function () {
+    $organisation = $this->warehouse->organisation;
+    $warehouse    = $this->warehouse;
+    $user         = $this->adminGuest->getUser();
+
+    $originalRoles       = $user->roles->pluck('name')->toArray();
+    $originalPermissions = $user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($user, ["dispatching.$warehouse->id.view", "inventory.$organisation->id.view"]);
+        $this->post(route('grp.models.org.boxes.store', $organisation->id), [])->assertForbidden();
+        $this->post(route('grp.models.shipper.store', $organisation->id), [])->assertForbidden();
+        $this->post(route('grp.models.warehouse.batch_code.store', $warehouse->id), [])->assertForbidden();
+        $this->post(route('grp.models.warehouse.batch_codes.upload', $warehouse->id), [])->assertForbidden();
+        $this->get(route('grp.org.warehouses.show.dispatching.boxes.create', [$organisation->slug, $warehouse->slug]))->assertForbidden();
+        $this->get(route('grp.org.warehouses.show.inventory.batch_codes.create', [$organisation->slug, $warehouse->slug]))->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($user, ["dispatching.$warehouse->id.edit"]);
+        expect($this->post(route('grp.models.org.boxes.store', $organisation->id), [])->status())->not->toBe(403);
+        $this->post(route('grp.models.warehouse.batch_code.store', $warehouse->id), [])->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($user, ["stocks.$warehouse->id.edit"]);
+        expect($this->post(route('grp.models.warehouse.batch_code.store', $warehouse->id), [])->status())->not->toBe(403);
+        $this->post(route('grp.models.shipper.store', $organisation->id), [])->assertForbidden();
+    } finally {
+        setPermissionsTeamId($user->group_id);
+        $user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($user, $originalRoles);
+    }
+
+    expect(\Illuminate\Support\Facades\Route::has('grp.models.order.state.dispatched'))->toBeFalse();
+});

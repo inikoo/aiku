@@ -11,6 +11,7 @@ namespace App\Actions\Dispatching\Shipper\UI;
 
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
+use App\Enums\SysAdmin\Authorisation\WarehousePermissionsEnum;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\UI\Dispatch\ShowDispatchHub;
 use App\Enums\UI\Dispatch\ShipperTabsEnum;
@@ -54,7 +55,7 @@ class ShowShipper extends OrgAction
                         'icon'  => ['fal', 'fa-shipping-fast'],
                         'title' => __('Shipper')
                     ],
-                    'actions'    => [
+                    'actions'    => !$request->user()->authTo(WarehousePermissionsEnum::getDispatchingEditPermissionNames($this->organisation)) ? [] : [
                         [
                             'type'    => 'button',
                             'tooltip' => __('Edit'),

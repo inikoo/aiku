@@ -76,6 +76,24 @@ enum WarehousePermissionsEnum: string
         return $permissionNames;
     }
 
+    /**
+     * Boxes and shippers belong to the organisation: dispatching staff of any of its warehouses
+     * and its administrators set them up.
+     *
+     * @return array<int, string>
+     */
+    public static function getDispatchingEditPermissionNames(Organisation $organisation): array
+    {
+        $permissionNames = ["org-admin.$organisation->id"];
+
+        foreach ($organisation->warehouses()->pluck('id') as $warehouseId) {
+            $permissionNames[] = "dispatching.$warehouseId.edit";
+            $permissionNames[] = "supervisor-dispatching.$warehouseId";
+        }
+
+        return $permissionNames;
+    }
+
     public static function getPermissionName(string $rawName, Warehouse $warehouse): string
     {
         $permissionComponents = explode('.', $rawName);
