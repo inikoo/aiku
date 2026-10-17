@@ -273,6 +273,10 @@ class IndexPurchaseOrders extends OrgAction
             $query->selectRaw('\''.$organisation->currency->code.'\' as org_currency_code');
         }
 
+        if ($organisationAgent) {
+            $query->selectRaw('count(*) over (partition by purchase_orders.supplier_id) as supplier_purchase_orders');
+        }
+
         return $query
             ->defaultSort('-purchase_orders.date')
             ->with([
@@ -288,7 +292,10 @@ class IndexPurchaseOrders extends OrgAction
                 : ['reference', 'agent_order_reference', 'parent_name', 'date', 'number_current_purchase_order_transactions', 'org_total_cost'])
             ->allowedFilters([
                 $globalSearch,
-                ...($organisationAgent ? [AllowedFilter::callback('organisation', fn ($query, $value) => $query->whereIn('purchase_orders.organisation_id', Organisation::where('slug', $value)->select('id')))] : []),
+                ...($organisationAgent ? [
+                    AllowedFilter::callback('organisation', fn ($query, $value) => $query->whereIn('purchase_orders.organisation_id', Organisation::where('slug', $value)->select('id'))),
+                    AllowedFilter::callback('supplier', fn ($query, $value) => $query->whereIn('purchase_orders.supplier_id', Supplier::where('slug', $value)->select('id'))),
+                ] : []),
             ])
             ->withBetweenDates(['date'])
             ->withPaginator($prefix, tableName: request()->route()->getName())
@@ -525,7 +532,7 @@ class IndexPurchaseOrders extends OrgAction
     }
 
     /**
-     * @return array{organisation?: array<int, array{label: string, value: string, count: int, tooltip: string}>}
+     * @return array{organisation?: array<int, array{label: string, value: string, count: int, tooltip: string}>, supplier?: array<int, array{label: string, value: string, count: int}>}
      */
     private function getFilterOptions(Group|Organisation|OrgAgent|OrgSupplier|OrgPartner|OrgStock|OrgSupplierProduct|Supplier|StockDelivery $parent): array
     {
@@ -534,12 +541,15 @@ class IndexPurchaseOrders extends OrgAction
             return [];
         }
 
+        $agentPurchaseOrders = fn () => PurchaseOrder::query()
+            ->where('purchase_orders.agent_id', $organisationAgent->id)
+            ->where('purchase_orders.state', '!=', PurchaseOrderStateEnum::IN_PROCESS)
+            ->when($this->onlyIncoming, fn (Builder $query) => GetAgentIncomingPurchaseOrdersCount::whereIncoming($query));
+
         return [
-            'organisation' => PurchaseOrder::query()
+            'organisation' => $agentPurchaseOrders()
                 ->join('organisations', 'organisations.id', 'purchase_orders.organisation_id')
                 ->leftJoin('countries', 'countries.id', 'organisations.country_id')
-                ->where('purchase_orders.agent_id', $organisationAgent->id)
-                ->where('purchase_orders.state', '!=', PurchaseOrderStateEnum::IN_PROCESS)
                 ->selectRaw('organisations.slug, organisations.code, organisations.name, countries.name as country_name, count(*) as total')
                 ->groupBy('organisations.slug', 'organisations.code', 'organisations.name', 'countries.name')
                 ->orderBy('organisations.code')
@@ -550,6 +560,20 @@ class IndexPurchaseOrders extends OrgAction
                     'value'   => $organisation->slug,
                     'count'   => (int) $organisation->total,
                     'tooltip' => $organisation->country_name ? "{$organisation->name} ({$organisation->country_name})" : $organisation->name,
+                ])
+                ->all(),
+            'supplier'     => $agentPurchaseOrders()
+                ->join('suppliers', 'suppliers.id', 'purchase_orders.supplier_id')
+                ->selectRaw('suppliers.slug, suppliers.name, count(*) as total')
+                ->groupBy('suppliers.slug', 'suppliers.name')
+                ->orderByDesc('total')
+                ->orderBy('suppliers.name')
+                ->toBase()
+                ->get()
+                ->map(fn ($supplier) => [
+                    'label' => $supplier->name,
+                    'value' => $supplier->slug,
+                    'count' => (int) $supplier->total,
                 ])
                 ->all(),
         ];

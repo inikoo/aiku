@@ -35,15 +35,16 @@ defineProps<{
     pageHead: object
     title: string
     data: object
-    filterOptions?: { organisation?: FilterOption[] }
+    filterOptions?: { organisation?: FilterOption[]; supplier?: FilterOption[] }
 }>()
 
 const currentQuery = () => qs.parse(location.search.substring(1)) as Record<string, any>
 const organisation = ref<string | null>(currentQuery().filter?.organisation ?? null)
+const supplier = ref<string | null>(currentQuery().filter?.supplier ?? null)
 
-watch(organisation, () => {
+watch([organisation, supplier], () => {
     const query = currentQuery()
-    query.filter = { ...(query.filter ?? {}), organisation: organisation.value || undefined }
+    query.filter = { ...(query.filter ?? {}), organisation: organisation.value || undefined, supplier: supplier.value || undefined }
     delete query.page
     router.get(`${location.pathname}?${qs.stringify(query, { skipNulls: true })}`, {}, { preserveState: true, preserveScroll: true, replace: true })
 })
@@ -54,6 +55,7 @@ watch(organisation, () => {
     <PageHeading :data="pageHead" />
     <div v-if="filterOptions?.organisation?.length" class="flex flex-wrap gap-x-4 gap-y-2 px-4 pt-3">
         <PillFilterBar :label="ctrans('AW company')" :options="filterOptions.organisation" :selected="organisation" @select="(value) => (organisation = value)" />
+        <PillFilterBar v-if="filterOptions.supplier?.length" dropdown :label="ctrans('Supplier')" :options="filterOptions.supplier" :selected="supplier" @select="(value) => (supplier = value)" />
     </div>
     <TablePurchaseOrders :data="data" />
 </template>

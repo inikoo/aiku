@@ -6,6 +6,7 @@
 
 <script setup lang="ts">
 import { Link } from "@inertiajs/vue3"
+import qs from "qs"
 import Table from "@/Components/Table/Table.vue"
 import { PurchaseOrder } from "@/types/purchase-order"
 import { useFormatTime } from "@/Composables/useFormatTime"
@@ -153,6 +154,18 @@ function AgentRoute(purchaseOrder: PurchaseOrder) {
 	])
 }
 
+function isFilteredBySupplier(): boolean {
+	return Boolean((qs.parse(location.search.substring(1)) as Record<string, any>).filter?.supplier)
+}
+
+function SupplierFilterHref(purchaseOrder: PurchaseOrder) {
+	const query = qs.parse(location.search.substring(1)) as Record<string, any>
+	query.filter = { ...(query.filter ?? {}), supplier: purchaseOrder.supplier_slug }
+	delete query.page
+
+	return `${location.pathname}?${qs.stringify(query)}`
+}
+
 function AgentOrderRoute(purchaseOrder: PurchaseOrder) {
 	if (!purchaseOrder?.org_agent_slug || !purchaseOrder?.agent_order_reference) {
 		return null
@@ -196,6 +209,13 @@ function AgentOrderRoute(purchaseOrder: PurchaseOrder) {
 				{{ purchaseOrder.parent_name }}
 			</Link>
 			<span v-else>{{ purchaseOrder.parent_name }}</span>
+			<Link
+				v-if="purchaseOrder.supplier_slug && (purchaseOrder.supplier_purchase_orders ?? 0) > 1 && !isFilteredBySupplier()"
+				:href="SupplierFilterHref(purchaseOrder)"
+				v-tooltip="ctrans('Show only the purchase orders of this supplier')"
+				class="ml-2 whitespace-nowrap rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-200">
+				{{ ctrans(":count POs", { count: purchaseOrder.supplier_purchase_orders }) }}
+			</Link>
 			<div v-if="purchaseOrder.agent_name && !isInAgentOrganisation" class="text-xs text-gray-500">
 				{{ ctrans("via agent") }}
 				<Link v-if="AgentRoute(purchaseOrder)" :href="AgentRoute(purchaseOrder)" class="secondaryLink">

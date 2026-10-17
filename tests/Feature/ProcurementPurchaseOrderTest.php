@@ -591,6 +591,12 @@ test('agent manager only sees their own agent organisation', function () {
     $chased->update(['state' => PurchaseOrderStateEnum::SUBMITTED]);
     expect($incomingList())->toBe([$chased->slug])
         ->and($incomingCount())->toBe($countBefore + 1);
+    $chasedSupplierSlug = $chaseSupplier->supplier->slug;
+    $this->get(route('grp.org.agent.incoming_purchase_orders.index', [$organisation->slug, 'filter' => ['supplier' => $chasedSupplierSlug]]))
+        ->assertInertia(fn ($page) => $page
+            ->where('data.data', fn ($rows) => collect($rows)->pluck('slug')->all() === [$chased->slug])
+            ->where('data.data.0.supplier_purchase_orders', 1)
+            ->where('filterOptions.supplier', fn ($options) => collect($options)->contains(fn ($option) => $option['value'] === $chasedSupplierSlug && $option['count'] === 1)));
     $chased->update(['production_started_at' => now()]);
     expect($incomingList())->toBe([])
         ->and($incomingCount())->toBe($countBefore);
