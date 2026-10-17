@@ -28,3 +28,6 @@ When writing or fixing a test:
 
 A red CI run is usually several unrelated causes at once, and `--stop-on-defect` hides the
 rest. Fix the one that fails every run first, then re-read the log.
+
+## Big test files are split by topic; add to the topic file
+ChatTest.php and ProcurementTest.php no longer exist. Chat tests live in tests/Feature/Chat{Session,Queries,Queue,Inbox,Permissions,Gmail,EmailReply,Whatsapp,Triage,Ai,StaffMessaging,StaffTasks}Test.php and procurement tests in tests/Feature/Procurement*Test.php, with shared helpers in tests/Support/{Chat,Procurement}Helpers.php (require_once). Add a new test to the file for its topic and a shared helper to the Support file; never recreate the old monolith. Keep files under ~2,000 lines so paratest balances and a change only reruns a small chunk. Each file builds its own fixtures (createShop/createCustomer($this->shop)); never borrow ChatSession::find(1), Model::first() or inRandomOrder() rows another file may have left.
