@@ -4890,6 +4890,51 @@ describe('out of stock forecast', function () {
             ->and((float) $stats->predicted_daily_usage)->toBeLessThanOrEqual(2730 / 365 * 2);
     });
 
+    test('an item that ran out after selling steadily is not forecast from the slow weeks it was running down', function () {
+        [, $deliveryNoteItem] = packedDeliveryNote($this);
+        $orgStock             = $deliveryNoteItem->orgStock;
+        $orgStock->update(['state' => OrgStockStateEnum::ACTIVE, 'quantity_available' => 0]);
+        DB::table('delivery_note_items')->where('org_stock_id', $orgStock->id)->delete();
+        DB::table('org_stock_movements')->where('org_stock_id', $orgStock->id)->delete();
+
+        $movementBase = [
+            'group_id'        => $orgStock->group_id,
+            'organisation_id' => $orgStock->organisation_id,
+            'warehouse_id'    => $this->warehouse->id,
+            'org_stock_id'    => $orgStock->id,
+            'class'           => OrgStockMovementClassEnum::MOVEMENT->value,
+            'type'            => OrgStockMovementTypeEnum::PURCHASE->value,
+            'flow'            => OrgStockMovementFlowEnum::IN->value,
+            'quantity'        => 1,
+            'org_amount'      => 0,
+            'grp_amount'      => 0,
+            'data'            => '{}',
+        ];
+        DB::table('org_stock_movements')->insert([
+            [...$movementBase, 'date' => now()->subDays(300)->startOfDay()->addHours(8), 'running_quantity_org_stock' => 2000],
+            [...$movementBase, 'date' => now()->subDays(45)->startOfDay()->addHours(8), 'running_quantity_org_stock' => 0],
+        ]);
+        DB::table('delivery_note_items')->insert(array_map(fn (int $daysAgo) => [
+            'group_id'            => $deliveryNoteItem->group_id,
+            'organisation_id'     => $deliveryNoteItem->organisation_id,
+            'shop_id'             => $deliveryNoteItem->shop_id,
+            'delivery_note_id'    => $deliveryNoteItem->delivery_note_id,
+            'org_stock_id'        => $orgStock->id,
+            'quantity_required'   => $daysAgo === 50 ? 1 : 3,
+            'quantity_dispatched' => $daysAgo === 50 ? 1 : 3,
+            'data'                => '{}',
+            'created_at'          => now()->subDays($daysAgo)->startOfDay()->addHours(10),
+            'updated_at'          => now(),
+        ], [...range(299, 60), 50]));
+
+        OrgStockHydrateOutOfStockForecast::run($orgStock->fresh());
+        $stats = $orgStock->stats->refresh();
+
+        expect($stats->forecast_source)->toBe('history')
+            ->and((float) $stats->predicted_daily_usage)->toBeGreaterThan(2.5)
+            ->and((float) $stats->predicted_daily_usage)->toBeLessThanOrEqual(3.0);
+    });
+
     test('an item out of stock all window forecasts from its own selling rate over the last year', function () {
         [, $deliveryNoteItem] = packedDeliveryNote($this);
         $orgStock             = $deliveryNoteItem->orgStock;

@@ -62,7 +62,9 @@ use Illuminate\Support\Facades\DB;
  *     signal to blend with, so its own in-stock selling rate over the last year comes before
  *     borrowing, or an item that sold steadily until it ran out reads as barely wanted (HELP-4067).
  *     Partner organisations do not count there, and an item that has not sold for six months does
- *     not use it.
+ *     not use it. The same own-year rate is the floor of an item on the shelf less than 70% of the
+ *     window: the weeks it was running down sell little, and the model read that tail as the
+ *     demand, so an item that ran out after selling 3 a day forecast under 1 a day (HELP-4093).
  *  4. Convert to days of cover, plus a pessimistic bound: solve
  *     qty = days*mu + 1.28*sigma*sqrt(days) so the P90 demand path is also on record.
  */
@@ -385,6 +387,11 @@ class OrgStockHydrateOutOfStockForecast implements ShouldBeUnique
         } else {
             $rate   = $this->holtDamped($series);
             $source = 'holt';
+        }
+
+        if ($inStockShare < self::TIMESFM_MINIMUM_IN_STOCK_SHARE && ($usage = $this->usageFromOwnYear($orgStock)) && $usage[0] > $rate) {
+            [$rate, $sigma] = $usage;
+            $source         = 'history';
         }
 
         $cap = max(array_sum($windowUsage) / self::WINDOW, array_sum($yearUsage) / self::CAP_YEAR_DAYS) * self::IN_STOCK_RATE_CAP_MULTIPLE;
