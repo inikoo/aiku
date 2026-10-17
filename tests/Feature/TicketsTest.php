@@ -1374,6 +1374,30 @@ test('board only shows tickets closed in the last 24 hours', function () {
     });
 });
 
+test('board puts in-progress tickets held by QA under their own toggle, leaving deploying and closed tickets in place', function () {
+    $tickets = collect(['working' => [TicketStatusEnum::IN_PROGRESS, null], 'requested' => [TicketStatusEnum::IN_PROGRESS, TicketQaStatusEnum::REQUESTED], 'checking' => [TicketStatusEnum::IN_PROGRESS, TicketQaStatusEnum::CHECKING], 'failed' => [TicketStatusEnum::IN_PROGRESS, TicketQaStatusEnum::FAILED], 'passed' => [TicketStatusEnum::IN_PROGRESS, TicketQaStatusEnum::PASSED], 'deploying' => [TicketStatusEnum::PENDING_DEPLOY, TicketQaStatusEnum::REQUESTED], 'done' => [TicketStatusEnum::RESOLVED, TicketQaStatusEnum::CHECKING]])
+        ->map(function (array $state, string $name) {
+            $ticket = StoreTicket::make()->action($this->group, ['subject' => 'QA board '.$name]);
+            UpdateTicket::make()->action($ticket, ['status' => $state[0]->value]);
+            $ticket->update(['qa_status' => $state[1]]);
+
+            return $ticket->reference;
+        });
+
+    get(route('grp.tickets.board'))->assertInertia(function (AssertableInertia $page) use ($tickets) {
+        $columns = collect($page->toArray()['props']['columns']);
+        $boardStatuses = $columns->flatMap(fn (array $column) => $column['tickets'])->pluck('board_status', 'reference');
+        $inProgress = $columns->firstWhere('key', 'in_progress');
+
+        expect($tickets->map(fn (string $reference) => $boardStatuses[$reference])->all())->toBe([
+            'working' => 'in_progress', 'requested' => 'qa', 'checking' => 'qa', 'failed' => 'qa', 'passed' => 'in_progress', 'deploying' => 'pending_deploy', 'done' => 'resolved',
+        ])
+            ->and(collect($inProgress['statuses'])->pluck('status')->all())->toBe(['in_progress', 'qa', 'pending_deploy'])
+            ->and(collect($inProgress['tickets'])->pluck('reference'))->toContain($tickets['failed'])
+            ->and(collect($columns->firstWhere('key', 'closed')['tickets'])->pluck('reference'))->toContain($tickets['done']);
+    });
+});
+
 test('list and board show only tickets created in the chosen interval', function () {
     $fresh = StoreTicket::make()->action($this->group, ['subject' => 'Raised today']);
     $old   = StoreTicket::make()->action($this->group, ['subject' => 'Raised last year']);
