@@ -724,7 +724,8 @@ test('customers get attachments of their ticket through retina, never those of i
 });
 
 test('tickets dashboard counts created, done, status and assignees', function () {
-    $before = ShowTicketsReports::make()->handle($this->group, '1w');
+    $this->travelTo(now()->previous('Wednesday')->setTime(10, 0));
+    $before =ShowTicketsReports::make()->handle($this->group, '1w');
 
     $ticket = StoreTicket::make()->action($this->group, ['subject' => 'Report me', 'assignee_id' => $this->user->id]);
     UpdateTicket::make()->action($ticket, ['status' => TicketStatusEnum::RESOLVED->value]);
@@ -1473,7 +1474,7 @@ test('an engineer asks QA to check, QA answers with a verdict and the engineer s
     UpdateTicket::make()->action($ticket, ['assignee_id' => $engineer->id, 'status' => TicketStatusEnum::IN_PROGRESS->value]);
 
     actingAs($qa);
-    get(route('grp.tickets.index'))->assertOk()->assertInertia(fn (AssertableInertia $page) => $page->where('can_manage', false)->where('can_qa', true)->has('qa_queue', 0));
+    get(route('grp.tickets.index'))->assertOk()->assertInertia(fn (AssertableInertia $page) => $page->where('can_manage', false)->where('can_qa', true)->where('qa_queue', fn ($queue) => collect($queue)->doesntContain('reference', $ticket->reference)));
     patch(route('grp.models.ticket.update', $ticket->id), ['qa_status' => 'requested'])->assertForbidden();
     patch(route('grp.models.ticket.update', $ticket->id), ['status' => 'resolved'])->assertForbidden();
     get(route('grp.tickets.create'))->assertOk();
@@ -1486,7 +1487,7 @@ test('an engineer asks QA to check, QA answers with a verdict and the engineer s
         ->and($ticket->status)->toBe(TicketStatusEnum::IN_PROGRESS);
 
     actingAs($qa);
-    get(route('grp.tickets.index'))->assertInertia(fn (AssertableInertia $page) => $page->has('qa_queue', 1));
+    get(route('grp.tickets.index'))->assertInertia(fn (AssertableInertia $page) => $page->where('qa_queue', fn ($queue) => collect($queue)->contains('reference', $ticket->reference)));
     get(route('grp.tickets.show', $ticket->reference))->assertInertia(fn (AssertableInertia $page) => $page->where('can_qa', true)->where('ticket.qa_status', 'requested'));
     patch(route('grp.models.ticket.update', $ticket->id), ['qa_status' => 'failed', 'qa_note' => 'Still wrong with a voucher'])->assertRedirect();
     expect($ticket->refresh()->qa_status)->toBe(TicketQaStatusEnum::FAILED)
@@ -2317,12 +2318,12 @@ test('slack ticket direct message logs a refused delivery without failing and re
     expect(fn () => \App\Actions\Helpers\Ticket\SendTicketSlackDirectMessage::run($user, 'Hello'))->toThrow(RuntimeException::class);
 });
 
-test('tickets sidebar link opens the board for lead engineers and the dashboard for everyone else', function () {
+test('tickets sidebar link opens the board for everyone', function () {
     $clerk = User::factory()->create(['group_id' => $this->group->id]);
     $clerk->assignRole('help-desk-clerk');
 
     expect(\App\Actions\UI\Grp\Layout\GetGroupNavigation::run($this->user)['tickets']['route']['name'])->toBe('grp.tickets.board')
-        ->and(\App\Actions\UI\Grp\Layout\GetGroupNavigation::run($clerk)['tickets']['route']['name'])->toBe('grp.tickets.index');
+        ->and(\App\Actions\UI\Grp\Layout\GetGroupNavigation::run($clerk)['tickets']['route']['name'])->toBe('grp.tickets.board');
 });
 
 test('jira ticket attachments missing from the ticket and comment media are copied once, tagged with their jira id', function () {

@@ -9,7 +9,6 @@
 namespace App\Actions\UI\Grp\Layout;
 
 use App\Models\Helpers\Ticket;
-use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -120,12 +119,20 @@ class GetGroupNavigation
             'icon'    => ['fal', 'fa-life-ring'],
             'root'    => 'grp.tickets.',
             'route'   => [
-                'name' => $user->hasRole(RolesEnum::HELP_DESK_SUPERVISOR->value) ? 'grp.tickets.board' : 'grp.tickets.index',
+                'name' => 'grp.tickets.board',
             ],
             'topMenu' => [
                 'subSections' => [
                     [
-                        'label' => __('Dashboard'),
+                        'label' => __('Board'),
+                        'icon'  => ['fal', 'fa-columns'],
+                        'root'  => 'grp.tickets.board',
+                        'route' => [
+                            'name' => 'grp.tickets.board',
+                        ],
+                    ],
+                    [
+                        'label' => __('Overview'),
                         'icon'  => ['fal', 'fa-tachometer-alt'],
                         'root'  => 'grp.tickets.index',
                         'route' => [
@@ -148,14 +155,6 @@ class GetGroupNavigation
                             'name' => 'grp.tickets.qa_list',
                         ],
                     ]] : []),
-                    [
-                        'label' => __('Board'),
-                        'icon'  => ['fal', 'fa-columns'],
-                        'root'  => 'grp.tickets.board',
-                        'route' => [
-                            'name' => 'grp.tickets.board',
-                        ],
-                    ],
                     [
                         'label' => __('Reports'),
                         'icon'  => ['fal', 'fa-chart-line'],
