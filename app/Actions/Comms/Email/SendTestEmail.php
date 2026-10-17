@@ -13,7 +13,7 @@ use App\Actions\Comms\Mailshot\InjectUtmToEmailLinks;
 use App\Actions\Comms\TestEmailRecipient\StoreTestEmailRecipient;
 use App\Actions\Comms\Traits\WithSendBulkEmails;
 use App\Actions\OrgAction;
-use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Actions\Traits\Authorisations\WithCommsEditAuthorisation;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\DispatchedEmail;
 use App\Models\Comms\EmailTemplate;
@@ -26,26 +26,7 @@ use Lorisleiva\Actions\ActionRequest;
 class SendTestEmail extends OrgAction
 {
     use WithSendBulkEmails;
-
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->asAction) {
-            return true;
-        }
-
-        if ($this->shop->type == ShopTypeEnum::FULFILMENT) {
-            return $request->user()->authTo([
-                "fulfilment-shop.{$this->shop->fulfilment->id}.edit",
-                "supervisor-fulfilment-shop.{$this->shop->fulfilment->id}",
-            ]);
-        }
-
-        return $request->user()->authTo([
-            "crm.{$this->shop->id}.edit",
-            "marketing.{$this->shop->id}.edit",
-            "supervisor-marketing.{$this->shop->id}"
-        ]);
-    }
+    use WithCommsEditAuthorisation;
 
     /**
      * @throws \Throwable
@@ -137,7 +118,7 @@ class SendTestEmail extends OrgAction
      */
     public function asControllerOutbox(Shop $shop, Outbox $outbox, ActionRequest $request): DispatchedEmail
     {
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($outbox->shop ?? abort(404), $request);
 
         return $this->handle($outbox, $this->validatedData);
     }
@@ -148,7 +129,7 @@ class SendTestEmail extends OrgAction
      */
     public function asControllerFulfillment(Fulfilment $fulfilment, Outbox $outbox, ActionRequest $request): DispatchedEmail
     {
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisationFromShop($outbox->shop ?? abort(404), $request);
 
         return $this->handle($outbox, $this->validatedData);
     }
@@ -159,7 +140,7 @@ class SendTestEmail extends OrgAction
      */
     public function asControllerTemplate(Shop $shop, EmailTemplate $emailTemplate, ActionRequest $request): DispatchedEmail
     {
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($emailTemplate->shop ?? abort(403), $request);
 
         return $this->handle($emailTemplate, $this->validatedData);
     }

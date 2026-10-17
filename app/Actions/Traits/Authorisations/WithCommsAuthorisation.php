@@ -13,6 +13,7 @@ use Lorisleiva\Actions\ActionRequest;
 trait WithCommsAuthorisation
 {
     use WithGroupMarketingReaders;
+    use WithCommsEditAuthorisation;
 
     public function authorize(ActionRequest $request): bool
     {
@@ -20,11 +21,22 @@ trait WithCommsAuthorisation
             return true;
         }
 
+        $user      = $request->user();
         $routeName = (string) $request->route()?->getName();
 
-        $this->canEdit = str_starts_with($routeName, 'grp.org.fulfilments.')
-            ? $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view")
-            : $request->user()->authTo([
+        $this->canEdit = $this->canEditComms($user);
+
+        if ($this->canEdit) {
+            return true;
+        }
+
+        if (str_ends_with($routeName, '.workshop')) {
+            return false;
+        }
+
+        $canView = str_starts_with($routeName, 'grp.org.fulfilments.')
+            ? $user->authTo("fulfilment-shop.{$this->fulfilment->id}.view")
+            : $user->authTo([
                 "shop-admin.{$this->shop->id}",
                 "marketing.{$this->shop->id}.view",
                 "web.{$this->shop->id}.view",
@@ -32,7 +44,6 @@ trait WithCommsAuthorisation
                 "crm.{$this->shop->id}.view",
             ]);
 
-        return $this->canEdit
-            || (!str_ends_with($routeName, '.workshop') && $this->readsMarketingAcrossShops($request->user()));
+        return $canView || $this->readsMarketingAcrossShops($user);
     }
 }
