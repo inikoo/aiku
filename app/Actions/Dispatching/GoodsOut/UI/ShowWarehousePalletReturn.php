@@ -266,7 +266,10 @@ class ShowWarehousePalletReturn extends OrgAction
                     ]
                 ],
 
-                'can_edit_transactions' => true,
+                'can_edit_transactions' => $request->user()->authTo([
+                    "fulfilment-shop.$palletReturn->fulfilment_id.edit",
+                    "supervisor-fulfilment-shop.$palletReturn->fulfilment_id",
+                ]),
                 'shipments' => [
                     'submit_route' => [
                         'name'       => 'grp.models.pallet-return.shipment_from_warehouse.store',

@@ -1982,6 +1982,14 @@ test('pallet return services and documents need a fulfilment permission on the r
     try {
         actingAsUserWithOnlyPermissions($user, ["fulfilment-shop.$fulfilment->id.view"]);
         $this->post(route('grp.models.pallet-return.transaction.store', $palletReturn->id), [])->assertForbidden();
+        $pallet = $palletReturn->pallets()->firstOrFail();
+        $this->post(route('grp.models.pallet-return.pallet.attach', [$palletReturn, $pallet]))->assertForbidden();
+        $this->delete(route('grp.models.pallet-return.pallet.detach', [$palletReturn, $pallet]))->assertForbidden();
+        $this->post(route('grp.models.fulfilment_customer_space.store', $palletReturn->fulfilmentCustomer), [])->assertForbidden();
+        $this->post(route('grp.models.pallet-return.pallet.store', $palletReturn), [])->assertForbidden();
+        $this->post(route('grp.models.fulfilment-customer.stored-items.bulk_edit.import', $palletReturn->fulfilmentCustomer), [])->assertForbidden();
+        $this->post(route('grp.models.pallet-delivery.pallet.upload', $palletReturn->fulfilmentCustomer->palletDeliveries()->firstOrFail()), [])->assertForbidden();
+        expect($palletReturn->pallets()->whereKey($pallet->id)->exists())->toBeTrue();
         $this->get(route('grp.models.pallet-return.pdf', $palletReturn->id))->assertOk();
 
         actingAsUserWithOnlyPermissions($user, ["group-reports"]);
@@ -1994,6 +2002,7 @@ test('pallet return services and documents need a fulfilment permission on the r
 
         actingAsUserWithOnlyPermissions($user, ["fulfilment-shop.$fulfilment->id.edit"]);
         expect($this->post(route('grp.models.pallet-return.transaction.store', $palletReturn->id), [])->status())->not->toBe(403);
+        expect($this->post(route('grp.models.fulfilment_customer_space.store', $palletReturn->fulfilmentCustomer), [])->status())->not->toBe(403);
     } finally {
         setPermissionsTeamId($user->group_id);
         $user->syncPermissions($originalPermissions);
