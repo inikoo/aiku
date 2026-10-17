@@ -25,6 +25,7 @@ enum McpChangeTypeEnum: string
     case STOCK_DELIVERY_COSTS = 'stock_delivery_costs';
     case CUSTOMER_SERVICE = 'customer_service';
     case TRADE_UNIT_PROPERTIES = 'trade_unit_properties';
+    case WEBSITE_REDIRECTS = 'website_redirects';
 
     public static function labels(): array
     {
@@ -40,6 +41,7 @@ enum McpChangeTypeEnum: string
             'stock_delivery_costs'  => __('Stock delivery costs'),
             'customer_service'      => __('Customer service'),
             'trade_unit_properties' => __('Trade unit properties'),
+            'website_redirects'     => __('Website redirects'),
         ];
     }
 
@@ -49,7 +51,7 @@ enum McpChangeTypeEnum: string
     public function userSwitch(): string
     {
         return match ($this) {
-            McpChangeTypeEnum::RELATED_PRODUCTS => 'can_use_mcp_web',
+            McpChangeTypeEnum::RELATED_PRODUCTS, McpChangeTypeEnum::WEBSITE_REDIRECTS => 'can_use_mcp_web',
             McpChangeTypeEnum::ORG_STOCK_STATE, McpChangeTypeEnum::SUPPLIER_PRODUCT_AVAILABILITY => 'can_use_mcp_discontinue',
             McpChangeTypeEnum::PARTNER_SHOPPING_LIST => 'can_use_mcp_procurement',
             McpChangeTypeEnum::PRODUCTION_RECORD, McpChangeTypeEnum::PRODUCTION_RECIPE => 'can_use_mcp_production',

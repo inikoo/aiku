@@ -177,7 +177,7 @@ class EditUser extends OrgAction
                                     "warnOnEnableOnly" => true,
                                     "warnTitle"        => __("Let their AI assistant change website content?"),
                                     "confirmLabel"     => __("Yes, they look after the websites"),
-                                    "warningTextHtml"  => __("Their AI assistant will be able to <strong>change the related products</strong> shown on family pages. When a shop follows the master catalogue the change is made on the <strong>master family</strong> and reaches <strong>every shop following it</strong>. It still needs the same product or master edit permissions this person has in Aiku."),
+                                    "warningTextHtml"  => __("Their AI assistant will be able to <strong>change the related products</strong> shown on family pages and <strong>point the redirects of closed pages to other live pages</strong>. When a shop follows the master catalogue the related products change is made on the <strong>master family</strong> and reaches <strong>every shop following it</strong>. It still needs the same product, master or website edit permissions this person has in Aiku."),
                                     "warningBox"       => __("This is a write permission. Only for the people who look after the websites."),
                                 ],
                                 "can_use_mcp_procurement" => [

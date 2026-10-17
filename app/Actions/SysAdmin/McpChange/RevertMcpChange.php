@@ -45,6 +45,8 @@ use App\Models\Production\ManufactureTask;
 use App\Models\Production\RawMaterial;
 use App\Models\SysAdmin\McpChange;
 use App\Models\SysAdmin\User;
+use App\Actions\Web\Redirect\UpdateRedirect;
+use App\Models\Web\Redirect;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
@@ -95,6 +97,7 @@ class RevertMcpChange
                 McpChangeTypeEnum::MASTER_PRICES => $this->revertMasterPrices($mcpChange->before),
                 McpChangeTypeEnum::STOCK_DELIVERY_COSTS => $this->revertStockDeliveryCosts($target, $mcpChange->before),
                 McpChangeTypeEnum::TRADE_UNIT_PROPERTIES => $this->revertTradeUnitProperties($target, $mcpChange->before, $mcpChange->after),
+                McpChangeTypeEnum::WEBSITE_REDIRECTS => $this->revertWebsiteRedirects($mcpChange->before),
             };
 
             $mcpChange->update([
@@ -162,6 +165,13 @@ class RevertMcpChange
         }
 
         UpdateTradeUnit::make()->action(TradeUnit::findOrFail($target['trade_unit_id']), Arr::only($before, GetMcpChangeSnapshot::TRADE_UNIT_FIELDS), strict: false);
+    }
+
+    private function revertWebsiteRedirects(array $before): void
+    {
+        foreach ($before['redirects'] as $redirectId => $toWebpageId) {
+            UpdateRedirect::make()->action(Redirect::findOrFail($redirectId), ['to_webpage_id' => $toWebpageId]);
+        }
     }
 
     private function revertMasterPrices(array $before): void
