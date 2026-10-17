@@ -15,17 +15,16 @@ use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
 use App\Enums\Procurement\AgentGoodsReceipt\AgentGoodsReceiptStateEnum;
 use App\Enums\Procurement\AgentWarehouseStock\AgentWarehouseStockStateEnum;
 use App\Models\Helpers\Media;
-use App\Models\Inventory\OrgStock;
 use App\Models\Procurement\AgentGoodsReceipt;
 use App\Models\Procurement\AgentGoodsReceiptItem;
 use App\Models\SysAdmin\Organisation;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
- * One goods receipt: what the supplier delivered, line by line, and the photos of its signed delivery note.
+ * One goods receipt: what the supplier delivered, line by line with the rejects found when checked, and the photos of
+ * its signed delivery note.
  */
 class ShowAgentGoodsReceipt extends OrgAction
 {
@@ -35,16 +34,22 @@ class ShowAgentGoodsReceipt extends OrgAction
 
     public function handle(AgentGoodsReceipt $agentGoodsReceipt): AgentGoodsReceipt
     {
-        return $agentGoodsReceipt->load([
+        $agentGoodsReceipt->load([
             'supplier:id,code,name',
             'user:id,contact_name,username',
             'cancelledBy:id,contact_name,username',
             'items.supplierProduct:id,code,name',
             'items.organisation:id,code,slug',
             'items.purchaseOrder:id,reference,slug',
+            'items.purchaseOrderTransaction:id,quantity_ordered',
+            'items.agentWarehouseStock:id,state,quantity',
+            'items.checkedBy:id,contact_name,username',
+            'items.attachments',
             'attachments',
-            'warehouseStocks:id,agent_goods_receipt_id,state,quantity',
         ]);
+        $agentGoodsReceipt->items->each->setRelation('agentGoodsReceipt', $agentGoodsReceipt);
+
+        return $agentGoodsReceipt;
     }
 
     public function asController(Organisation $organisation, AgentGoodsReceipt $agentGoodsReceipt, ActionRequest $request): AgentGoodsReceipt
@@ -58,19 +63,13 @@ class ShowAgentGoodsReceipt extends OrgAction
     private function canBeCancelled(AgentGoodsReceipt $receipt): bool
     {
         return $receipt->state === AgentGoodsReceiptStateEnum::RECEIVED
-            && $receipt->warehouseStocks->every(fn ($stock) => $stock->state === AgentWarehouseStockStateEnum::RECEIVED)
-            && round((float) $receipt->warehouseStocks->sum('quantity'), 3) >= round((float) $receipt->quantity, 3);
+            && $receipt->items->every(fn (AgentGoodsReceiptItem $item) => $item->agentWarehouseStock?->state === AgentWarehouseStockStateEnum::RECEIVED);
     }
 
     public function htmlResponse(AgentGoodsReceipt $receipt, ActionRequest $request): Response
     {
         $parameters = [$this->organisation->slug, $receipt->slug];
         $person     = fn ($user) => $user ? ($user->contact_name ?: $user->username) : null;
-
-        $unitsPerSko = DB::table('agent_goods_receipt_items as receipt_item')
-            ->where('receipt_item.agent_goods_receipt_id', $receipt->id)
-            ->selectRaw('receipt_item.id, '.OrgStock::unitsPerSkoSql('receipt_item.organisation_id', 'receipt_item.supplier_product_id').' as units_per_sko')
-            ->pluck('units_per_sko', 'id');
 
         return Inertia::render(
             'Org/Procurement/AgentGoodsReceipt',
@@ -97,16 +96,7 @@ class ShowAgentGoodsReceipt extends OrgAction
                     'cancelled_at'           => $receipt->cancelled_at?->toIso8601String(),
                     'cancelled_by'           => $person($receipt->cancelledBy),
                 ],
-                'items'       => $receipt->items->map(fn (AgentGoodsReceiptItem $item) => [
-                    'id'                       => $item->id,
-                    'code'                     => $item->supplierProduct?->code,
-                    'name'                     => $item->supplierProduct?->name,
-                    'organisation_code'        => strtoupper((string) $item->organisation?->code),
-                    'purchase_order_reference' => $item->purchaseOrder?->reference,
-                    'purchase_order_slug'      => $item->purchaseOrder?->slug,
-                    'quantity'                 => (float) $item->quantity,
-                    'units_per_sko'            => (float) ($unitsPerSko[$item->id] ?? 1),
-                ])->values(),
+                'items'       => IndexAgentGoodsReceiptItems::run($receipt, 'items', $this->canEdit),
                 'photos'      => $receipt->attachments->map(fn (Media $media) => [
                     'id'           => $media->id,
                     'caption'      => $media->pivot->caption,
@@ -123,11 +113,15 @@ class ShowAgentGoodsReceipt extends OrgAction
                     'name'       => 'grp.org.agent.warehouse.received.goods_receipts.photos.store',
                     'parameters' => $parameters,
                 ] : null,
+                'receipt_note_route' => [
+                    'name'       => 'grp.org.agent.warehouse.received.goods_receipts.receipt_note',
+                    'parameters' => $parameters,
+                ],
                 'cancel_route' => $this->canEdit && $this->canBeCancelled($receipt) ? [
                     'name'       => 'grp.org.agent.warehouse.received.goods_receipts.cancel',
                     'parameters' => $parameters,
                 ] : null,
             ]
-        );
+        )->table(IndexAgentGoodsReceiptItems::make()->tableStructure(prefix: 'items'));
     }
 }

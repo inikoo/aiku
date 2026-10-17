@@ -15,6 +15,7 @@ use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\InGroup;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Goods an agent already holds in its own warehouse: received from the supplier, not yet in a container.
@@ -62,6 +63,11 @@ class AgentWarehouseStock extends Model
     public function purchaseOrder(): BelongsTo
     {
         return $this->belongsTo(PurchaseOrder::class);
+    }
+
+    public function agentGoodsReceiptItem(): HasOne
+    {
+        return $this->hasOne(AgentGoodsReceiptItem::class);
     }
 
     public function agentGoodsReceipt(): BelongsTo

@@ -14,6 +14,7 @@ use App\Actions\Procurement\WithAgentOrganisation;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
 use App\Enums\Procurement\AgentGoodsReceipt\AgentGoodsReceiptStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStageEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\InertiaTable\InertiaTable;
 use App\Models\Procurement\PurchaseOrderTransaction;
@@ -23,6 +24,7 @@ use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder as QueryBuilderBase;
 use Illuminate\Support\Facades\DB;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -30,7 +32,8 @@ use Spatie\QueryBuilder\AllowedSort;
 
 /**
  * The products the agent's suppliers are making: the lines of the purchase orders placed through the agent that are in
- * production, before their quality check passes, less what the agent already received of them.
+ * production, before their quality check passes, less what the agent's goods receipts brought and kept. Units the agent
+ * rejected are made again, so they stay here even after the order's quality check passed.
  */
 class IndexAgentProductsInProduction extends OrgAction
 {
@@ -38,30 +41,55 @@ class IndexAgentProductsInProduction extends OrgAction
     use WithProcurementAuthorisation;
     use WithAgentWarehouseProductRows;
 
-    public const string REMAINING_QUANTITY_SQL = 'purchase_order_transactions.quantity_ordered - coalesce(received_lines.quantity, 0)';
+    private const string OUTSTANDING_SQL = '(purchase_order_transactions.quantity_ordered - coalesce(received_lines.quantity_accepted, 0))';
+
+    private const string REJECTED_SQL = 'coalesce(received_lines.quantity_rejected, 0)';
 
     /**
-     * The purchase order lines still being made, each less what the agent's goods receipts not cancelled brought of it,
-     * so a line received in part keeps only the rest and a line received in full is gone.
+     * The purchase order lines still being made, each less what the agent kept of the goods receipts not cancelled, so
+     * a line received in part keeps only the rest and a line received in full is gone.
      */
     public static function inProductionLines(Agent $agent): Builder
     {
-        $receivedLines = DB::table('agent_goods_receipt_items')
+        return PurchaseOrderTransaction::query()
+            ->join('purchase_orders as production_orders', 'production_orders.id', 'purchase_order_transactions.purchase_order_id')
+            ->leftJoinSub(self::receivedLines(), 'received_lines', 'received_lines.purchase_order_transaction_id', 'purchase_order_transactions.id')
+            ->where('production_orders.agent_id', $agent->id)
+            ->whereNull('production_orders.deleted_at')
+            ->whereIn('production_orders.state', [PurchaseOrderStateEnum::SUBMITTED, PurchaseOrderStateEnum::CONFIRMED])
+            ->whereIn('purchase_order_transactions.state', [PurchaseOrderTransactionStateEnum::SUBMITTED, PurchaseOrderTransactionStateEnum::CONFIRMED])
+            ->whereRaw('('.self::inProductionStageSql().' or '.self::REJECTED_SQL.' > 0)')
+            ->whereRaw(self::OUTSTANDING_SQL.' > 0');
+    }
+
+    private static function inProductionStageSql(): string
+    {
+        return str_replace('purchase_orders.', 'production_orders.', PurchaseOrderStageEnum::inProductionSql());
+    }
+
+    /**
+     * Units of the line still being made. Once the order is past production only the rejected units are being made
+     * again: the rest is ready or on its way.
+     */
+    public static function remainingQuantitySql(): string
+    {
+        return 'case when '.self::inProductionStageSql().' then '.self::OUTSTANDING_SQL.' else least('.self::OUTSTANDING_SQL.', '.self::REJECTED_SQL.') end';
+    }
+
+    /**
+     * What the agent kept of each line over its goods receipts not cancelled: received less rejected. The rest is still
+     * owed by the supplier.
+     */
+    public static function receivedLines(): QueryBuilderBase
+    {
+        return DB::table('agent_goods_receipt_items')
             ->join('agent_goods_receipts', 'agent_goods_receipts.id', 'agent_goods_receipt_items.agent_goods_receipt_id')
             ->where('agent_goods_receipts.state', AgentGoodsReceiptStateEnum::RECEIVED->value)
             ->whereNotNull('agent_goods_receipt_items.purchase_order_transaction_id')
             ->groupBy('agent_goods_receipt_items.purchase_order_transaction_id')
             ->select('agent_goods_receipt_items.purchase_order_transaction_id')
-            ->selectRaw('sum(agent_goods_receipt_items.quantity) as quantity');
-
-        return PurchaseOrderTransaction::query()
-            ->join('purchase_orders as production_orders', 'production_orders.id', 'purchase_order_transactions.purchase_order_id')
-            ->leftJoinSub($receivedLines, 'received_lines', 'received_lines.purchase_order_transaction_id', 'purchase_order_transactions.id')
-            ->where('production_orders.agent_id', $agent->id)
-            ->whereNull('production_orders.deleted_at')
-            ->whereRaw(str_replace('purchase_orders.', 'production_orders.', PurchaseOrderStageEnum::inProductionSql()))
-            ->whereIn('purchase_order_transactions.state', [PurchaseOrderTransactionStateEnum::SUBMITTED, PurchaseOrderTransactionStateEnum::CONFIRMED])
-            ->whereRaw(self::REMAINING_QUANTITY_SQL.' > 0');
+            ->selectRaw('sum(agent_goods_receipt_items.quantity - coalesce(agent_goods_receipt_items.quantity_rejected, 0)) as quantity_accepted')
+            ->selectRaw('sum(coalesce(agent_goods_receipt_items.quantity_rejected, 0)) as quantity_rejected');
     }
 
     public function handle(Agent $agent): LengthAwarePaginator
@@ -70,7 +98,9 @@ class IndexAgentProductsInProduction extends OrgAction
             self::inProductionLines($agent)->select([
                 'purchase_order_transactions.id',
                 'purchase_order_transactions.quantity_ordered',
-                DB::raw(self::REMAINING_QUANTITY_SQL.' as quantity'),
+                DB::raw(self::remainingQuantitySql().' as quantity'),
+                DB::raw('least('.self::OUTSTANDING_SQL.', '.self::REJECTED_SQL.') as quantity_rejected'),
+                DB::raw(self::OUTSTANDING_SQL.' as quantity_outstanding'),
                 'production_orders.production_started_at',
                 'production_orders.proposed_ready_at',
                 'production_orders.approved_ready_at',
@@ -78,7 +108,7 @@ class IndexAgentProductsInProduction extends OrgAction
             'purchase_order_transactions'
         );
 
-        return QueryBuilder::for($query)
+        return $this->withProductImages(QueryBuilder::for($query)
             ->defaultSort('code')
             ->allowedSorts([
                 AllowedSort::field('code', 'supplier_products.code'),
@@ -98,7 +128,9 @@ class IndexAgentProductsInProduction extends OrgAction
                 'production_started_at' => $transaction->production_started_at,
                 'ready_at'              => $transaction->approved_ready_at ?? $transaction->proposed_ready_at,
                 'ready_at_is_approved'  => $transaction->approved_ready_at !== null,
-            ]));
+                'quantity_rejected'     => (float) $transaction->quantity_rejected,
+                'quantity_outstanding'  => (float) $transaction->quantity_outstanding,
+            ])));
     }
 
     public function tableStructure(): Closure
@@ -109,6 +141,7 @@ class IndexAgentProductsInProduction extends OrgAction
                 ->withLabelRecord([__('Product'), __('Products')])
                 ->withEmptyState(['title' => __('Nothing is being made by the suppliers')])
                 ->column(key: 'organisation_code', label: __('For'), canBeHidden: false, sortable: true)
+                ->column(key: 'image_thumbnail', label: __('Image'), canBeHidden: false)
                 ->column(key: 'code', label: __('Code'), canBeHidden: false, sortable: true)
                 ->column(key: 'name', label: __('Name'), canBeHidden: false, sortable: true)
                 ->column(key: 'supplier_code', label: __('Supplier'), canBeHidden: false, sortable: true)

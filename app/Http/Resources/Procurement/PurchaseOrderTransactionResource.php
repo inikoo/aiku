@@ -36,6 +36,7 @@ class PurchaseOrderTransactionResource extends JsonResource
             'org_stock_id'         => $transaction->org_stock_id,
             'image_thumbnail'      => $tradeUnit?->imageSources(160, 160),
             'image_preview'        => $tradeUnit?->imageSources(480, 480),
+            'image_full'           => $tradeUnit?->image?->fullResolutionUrls(),
             'stock_in_locations'   => $orgStock?->quantity_in_locations === null ? null : trimDecimalZeros($orgStock->quantity_in_locations),
             'quarterly_usage'      => $transaction->quarterly_usage ?? [],
             'discontinue_suggestions' => $transaction->discontinue_suggestions,
@@ -102,6 +103,10 @@ class PurchaseOrderTransactionResource extends JsonResource
 
     private function isCancellable(PurchaseOrderTransaction $transaction): bool
     {
+        if ($transaction->purchaseOrder?->areLinesLockedByProduction()) {
+            return false;
+        }
+
         return match ($transaction->state) {
             PurchaseOrderTransactionStateEnum::SUBMITTED => true,
             PurchaseOrderTransactionStateEnum::CONFIRMED => !$transaction->is_on_delivery,

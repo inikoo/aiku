@@ -10,18 +10,21 @@
 namespace App\Actions\Procurement\AgentGoodsReceipt;
 
 use App\Actions\OrgAction;
+use App\Actions\Procurement\AgentWarehouseStock\ImportAgentWarehouseStocksFromContainerList;
 use App\Actions\Procurement\AgentWarehouseStock\UI\IndexAgentProductsInProduction;
 use App\Actions\Procurement\WithAgentOrganisation;
 use App\Enums\Procurement\AgentGoodsReceipt\AgentGoodsReceiptStateEnum;
 use App\Enums\Procurement\AgentWarehouseStock\AgentWarehouseStockStateEnum;
 use App\Models\Procurement\AgentGoodsReceipt;
 use App\Models\Procurement\AgentWarehouseStock;
+use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderTransaction;
 use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\ValidationException;
@@ -29,8 +32,9 @@ use Lorisleiva\Actions\ActionRequest;
 
 /**
  * Records one delivery the agent received from a supplier as a goods receipt, booked against the purchase order lines
- * still in production: each line becomes warehouse stock, received and not packed yet, and leaves the In production
- * page once received in full. The signed delivery note can be photographed with it.
+ * still in production: each line becomes warehouse stock, received and not checked yet, and leaves the In production
+ * page once received in full. The signed delivery note can be photographed with it. Goods arriving show the supplier
+ * started making the order, so its production start is set when it was not yet.
  */
 class StoreAgentGoodsReceipt extends OrgAction
 {
@@ -54,7 +58,13 @@ class StoreAgentGoodsReceipt extends OrgAction
             ->groupBy('purchase_order_transaction_id')
             ->map(fn ($group) => round($group->sum('quantity'), 3));
 
-        $receipt = DB::transaction(function () use ($agent, $modelData, $quantities, $user) {
+        $receivedAt = Arr::get($modelData, 'received_at') ?: now()->toDateString();
+
+        $receipt = DB::transaction(function () use ($agent, $modelData, $quantities, $user, $receivedAt) {
+            $purchaseOrders = PurchaseOrder::whereIn('id', PurchaseOrderTransaction::whereIn('id', $quantities->keys())->select('purchase_order_id'))
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get();
             PurchaseOrderTransaction::whereIn('id', $quantities->keys())->orderBy('id')->lockForUpdate()->pluck('id');
 
             $inProduction = IndexAgentProductsInProduction::inProductionLines($agent)
@@ -66,7 +76,7 @@ class StoreAgentGoodsReceipt extends OrgAction
                     'purchase_order_transactions.supplier_product_id',
                     'purchase_order_transactions.purchase_order_id',
                     'supplier_products.supplier_id',
-                    DB::raw(IndexAgentProductsInProduction::REMAINING_QUANTITY_SQL.' as remaining'),
+                    DB::raw(IndexAgentProductsInProduction::remainingQuantitySql().' as remaining'),
                 ])
                 ->get()
                 ->keyBy('id');
@@ -74,7 +84,9 @@ class StoreAgentGoodsReceipt extends OrgAction
             $errors = [];
             foreach ($quantities as $transactionId => $quantity) {
                 $line = $inProduction->get($transactionId);
-                if (!$line) {
+                if ($quantity <= 0) {
+                    $errors["lines.$transactionId"] = __('Enter how many units were received');
+                } elseif (!$line) {
                     $errors["lines.$transactionId"] = __('This line is no longer in production');
                 } elseif ($quantity > (float) $line->remaining) {
                     $errors["lines.$transactionId"] = __('Only :quantity units of this line are still in production', ['quantity' => (float) $line->remaining]);
@@ -97,7 +109,7 @@ class StoreAgentGoodsReceipt extends OrgAction
                 'number'                 => $number,
                 'reference'              => sprintf('GR-%05d', $number),
                 'state'                  => AgentGoodsReceiptStateEnum::RECEIVED,
-                'received_at'            => Arr::get($modelData, 'received_at') ?: now()->toDateString(),
+                'received_at'            => $receivedAt,
                 'user_id'                => $user?->id,
                 'supplier_delivery_note' => Arr::get($modelData, 'supplier_delivery_note'),
                 'notes'                  => Arr::get($modelData, 'notes'),
@@ -108,15 +120,7 @@ class StoreAgentGoodsReceipt extends OrgAction
             foreach ($quantities as $transactionId => $quantity) {
                 $line = $inProduction[$transactionId];
 
-                $receipt->items()->create([
-                    'organisation_id'               => $line->organisation_id,
-                    'purchase_order_id'             => $line->purchase_order_id,
-                    'purchase_order_transaction_id' => $transactionId,
-                    'supplier_product_id'           => $line->supplier_product_id,
-                    'quantity'                      => $quantity,
-                ]);
-
-                AgentWarehouseStock::create([
+                $stock = AgentWarehouseStock::create([
                     'group_id'                      => $agent->group_id,
                     'agent_id'                      => $agent->id,
                     'organisation_id'               => $line->organisation_id,
@@ -128,7 +132,25 @@ class StoreAgentGoodsReceipt extends OrgAction
                     'quantity'                      => $quantity,
                     'notes'                         => $receipt->reference,
                 ]);
+
+                $receipt->items()->create([
+                    'group_id'                      => $agent->group_id,
+                    'organisation_id'               => $line->organisation_id,
+                    'purchase_order_id'             => $line->purchase_order_id,
+                    'purchase_order_transaction_id' => $transactionId,
+                    'supplier_product_id'           => $line->supplier_product_id,
+                    'agent_warehouse_stock_id'      => $stock->id,
+                    'quantity'                      => $quantity,
+                ]);
             }
+
+            $purchaseOrders->whereIn('id', $inProduction->pluck('purchase_order_id')->unique())
+                ->whereNull('production_started_at')
+                ->each(fn (PurchaseOrder $purchaseOrder) => ImportAgentWarehouseStocksFromContainerList::make()->markInProduction(
+                    $purchaseOrder,
+                    __('Goods receipt :reference: goods for this order arrived at the agent warehouse', ['reference' => $receipt->reference]),
+                    Carbon::parse($receivedAt)->toDateString()
+                ));
 
             return $receipt;
         });

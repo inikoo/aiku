@@ -344,6 +344,23 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
     }
 
     /**
+     * The supplier is making the goods: a stage from production start on is recorded.
+     */
+    public function hasProductionStarted(): bool
+    {
+        return $this->production_started_at !== null || $this->sample_approved_at !== null || $this->produced_at !== null;
+    }
+
+    /**
+     * An order through an agent can no longer lose lines once its supplier is making the goods: the agent receives them
+     * in batches against those lines.
+     */
+    public function areLinesLockedByProduction(): bool
+    {
+        return $this->isAgentOrder() && $this->hasProductionStarted();
+    }
+
+    /**
      * The org agent this order was placed through. Read from the order, not from its supplier, which
      * may have moved to another agent or become independent since.
      */

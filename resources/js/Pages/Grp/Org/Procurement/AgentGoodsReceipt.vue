@@ -7,7 +7,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue"
-import { Head, Link, router } from "@inertiajs/vue3"
+import { Head, router } from "@inertiajs/vue3"
 import Dialog from "primevue/dialog"
 import FileUpload from "primevue/fileupload"
 import { notify } from "@kyvg/vue3-notification"
@@ -16,6 +16,9 @@ import { faClipboardCheck, faBan, faTimes, faTrashAlt, faFilePdf, faDownload, fa
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
+import TableAgentGoodsReceiptItems from "@/Components/Tables/Grp/Org/Procurement/TableAgentGoodsReceiptItems.vue"
+import AgentGoodsReceiptItemCheckDialog, { type CheckableItem } from "@/Components/Procurement/AgentGoodsReceiptItemCheckDialog.vue"
+import { addPhotos } from "@/Composables/usePhotoSelection"
 import { capitalize } from "@/Composables/capitalize"
 import { ctrans } from "@/Composables/useTrans"
 import { useFormatTime } from "@/Composables/useFormatTime"
@@ -27,7 +30,7 @@ library.add(faClipboardCheck)
 
 type Photo = { id: number; caption: string | null; file_name: string; is_image: boolean; url: string; download_url: string; delete_route: routeType | null }
 
-const props = defineProps<{
+type Props = {
 	pageHead: PageHeadingTypes
 	title: string
 	receipt: {
@@ -45,24 +48,18 @@ const props = defineProps<{
 		cancelled_at: string | null
 		cancelled_by: string | null
 	}
-	items: Array<{
-		id: number
-		code: string | null
-		name: string | null
-		organisation_code: string
-		purchase_order_reference: string | null
-		purchase_order_slug: string | null
-		quantity: number
-		units_per_sko: number
-	}>
+	items: object
 	photos: Photo[]
 	upload_route: routeType | null
 	cancel_route: routeType | null
-}>()
+	receipt_note_route: routeType
+}
+
+const props = defineProps<Props>()
+
+const checkingItem = ref<CheckableItem | null>(null)
 
 const locale = useLocaleStore()
-const organisation = route().params["organisation"]
-const purchaseOrderRoute = (slug: string) => route("grp.org.agent.purchase_orders.show", [organisation, slug])
 
 const formatQuantity = (value: number) => locale.number(Math.round(Number(value) * 1000) / 1000)
 
@@ -125,8 +122,15 @@ const cancelReceipt = () => {
 <template>
 	<Head :title="capitalize(title)" />
 	<PageHeading :data="pageHead">
-		<template v-if="cancel_route" #other>
-			<Button type="tertiary" :label="ctrans('Cancel goods receipt')" @click="isCancelOpen = true">
+		<template #other>
+			<a :href="route(receipt_note_route.name, receipt_note_route.parameters)" target="_blank" rel="noopener">
+				<Button type="tertiary" :label="ctrans('Receipt note')" :tooltip="ctrans('PDF for the supplier to sign')">
+					<template #icon>
+						<FontAwesomeIcon :icon="faFilePdf" class="text-red-500" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
+			</a>
+			<Button v-if="cancel_route" type="tertiary" :label="ctrans('Cancel goods receipt')" @click="isCancelOpen = true">
 				<template #icon>
 					<FontAwesomeIcon :icon="faBan" class="text-red-500" fixed-width aria-hidden="true" />
 				</template>
@@ -175,32 +179,7 @@ const cancelReceipt = () => {
 				</div>
 			</dl>
 
-			<div class="overflow-x-auto rounded-lg border border-gray-200">
-				<table class="min-w-full divide-y divide-gray-200 text-sm">
-					<thead class="whitespace-nowrap bg-gray-50 text-left text-xs font-semibold uppercase text-gray-500">
-						<tr>
-							<th class="px-3 py-2">{{ ctrans("Code") }}</th>
-							<th class="px-3 py-2">{{ ctrans("Name") }}</th>
-							<th class="px-3 py-2">{{ ctrans("For") }}</th>
-							<th class="px-3 py-2">{{ ctrans("Purchase order") }}</th>
-							<th class="px-3 py-2 text-right">{{ ctrans("Units") }}</th>
-							<th class="px-3 py-2 text-right">{{ ctrans("SKO") }}</th>
-						</tr>
-					</thead>
-					<tbody class="divide-y divide-gray-100">
-						<tr v-for="item in items" :key="item.id">
-							<td class="whitespace-nowrap px-3 py-2 font-medium text-gray-800">{{ item.code }}</td>
-							<td class="px-3 py-2 text-gray-600">{{ item.name }}</td>
-							<td class="px-3 py-2 text-gray-600">{{ item.organisation_code }}</td>
-							<td class="whitespace-nowrap px-3 py-2">
-								<Link v-if="item.purchase_order_slug" :href="purchaseOrderRoute(item.purchase_order_slug)" class="secondaryLink">{{ item.purchase_order_reference }}</Link>
-							</td>
-							<td class="px-3 py-2 text-right tabular-nums">{{ formatQuantity(item.quantity) }}</td>
-							<td class="px-3 py-2 text-right tabular-nums text-gray-500">{{ formatQuantity(item.quantity / (item.units_per_sko || 1)) }}</td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
+			<TableAgentGoodsReceiptItems :data="items" tab="items" @check="(item) => checkingItem = { ...item }" />
 		</div>
 
 		<div class="flex flex-col gap-3 rounded-lg border border-gray-200 p-4">
@@ -214,11 +193,10 @@ const cancelReceipt = () => {
 					customUpload
 					multiple
 					accept="image/*,.pdf"
-					:maxFileSize="20000000"
 					:disabled="isUploading"
 					:chooseLabel="ctrans('Add photo')"
 					:pt="chooseFilePt"
-					@select="(event: { files: File[] }) => uploadPhotos(event.files)"
+					@select="(event: { files: File[] }) => uploadPhotos(addPhotos([], event.files))"
 				/>
 			</div>
 
@@ -240,9 +218,11 @@ const cancelReceipt = () => {
 						<a :href="photo.download_url" class="text-gray-500 hover:text-gray-800" v-tooltip="ctrans('Download')">
 							<FontAwesomeIcon :icon="faDownload" fixed-width aria-hidden="true" />
 						</a>
-						<button v-if="photo.delete_route" type="button" class="text-gray-400 hover:text-red-500" v-tooltip="ctrans('Remove')" :aria-label="ctrans('Remove :name', { name: photo.file_name })" @click="photoToDelete = photo">
-							<FontAwesomeIcon :icon="faTrashAlt" fixed-width aria-hidden="true" />
-						</button>
+						<Button v-if="photo.delete_route" type="tertiary" size="xs" v-tooltip="ctrans('Remove')" :aria-label="ctrans('Remove :name', { name: photo.file_name })" @click="photoToDelete = photo">
+							<template #icon>
+								<FontAwesomeIcon :icon="faTrashAlt" class="text-red-500" fixed-width aria-hidden="true" />
+							</template>
+						</Button>
 					</div>
 				</div>
 			</div>
@@ -253,6 +233,8 @@ const cancelReceipt = () => {
 			</p>
 		</div>
 	</div>
+
+	<AgentGoodsReceiptItemCheckDialog :item="checkingItem" @close="checkingItem = null" />
 
 	<Dialog v-model:visible="isCancelOpen" modal :header="ctrans('Cancel goods receipt :reference', { reference: receipt.reference })" :style="{ width: '28rem', maxWidth: 'calc(100vw - 2rem)' }" :draggable="false">
 		<p class="text-sm text-gray-700">{{ ctrans(":lines lines (:units units) go back to In production and leave the warehouse stock. Do this only when the goods were received by mistake.", { lines: receipt.number_items, units: formatQuantity(receipt.quantity) }) }}</p>

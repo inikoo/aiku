@@ -46,6 +46,7 @@ class IndexAgentWarehouseStocks extends OrgAction
 
         $query = QueryBuilder::for(AgentWarehouseStock::class)
             ->where('agent_warehouse_stocks.agent_id', $agent->id)
+            ->where('agent_warehouse_stocks.quantity', '>', 0)
             ->join('organisations', 'organisations.id', 'agent_warehouse_stocks.organisation_id')
             ->join('supplier_products', 'supplier_products.id', 'agent_warehouse_stocks.supplier_product_id')
             ->leftJoin('suppliers', 'suppliers.id', 'supplier_products.supplier_id')
@@ -114,9 +115,10 @@ class IndexAgentWarehouseStocks extends OrgAction
      */
     public function filterOptions(Agent $agent): array
     {
-        $stateCounts = AgentWarehouseStock::where('agent_id', $agent->id)->selectRaw('state, count(*) as total')->groupBy('state')->pluck('total', 'state');
+        $stateCounts = AgentWarehouseStock::where('agent_id', $agent->id)->where('quantity', '>', 0)->selectRaw('state, count(*) as total')->groupBy('state')->pluck('total', 'state');
 
         $organisations = AgentWarehouseStock::where('agent_warehouse_stocks.agent_id', $agent->id)
+            ->where('agent_warehouse_stocks.quantity', '>', 0)
             ->join('organisations', 'organisations.id', 'agent_warehouse_stocks.organisation_id')
             ->leftJoin('countries', 'countries.id', 'organisations.country_id')
             ->selectRaw('organisations.slug, organisations.code, organisations.name, countries.name as country_name, count(*) as total')
@@ -139,6 +141,7 @@ class IndexAgentWarehouseStocks extends OrgAction
         $organisation = $request->input('filter.organisation');
 
         $rows = AgentWarehouseStock::where('agent_warehouse_stocks.agent_id', $agent->id)
+            ->where('agent_warehouse_stocks.quantity', '>', 0)
             ->join('organisations', 'organisations.id', 'agent_warehouse_stocks.organisation_id')
             ->leftJoin('countries', 'countries.id', 'organisations.country_id')
             ->join('supplier_products', 'supplier_products.id', 'agent_warehouse_stocks.supplier_product_id')

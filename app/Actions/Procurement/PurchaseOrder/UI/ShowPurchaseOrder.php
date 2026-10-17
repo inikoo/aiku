@@ -62,6 +62,7 @@ use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\AspoDeposit;
 use App\Models\Procurement\PurchaseOrderDepositPayment;
 use App\Actions\Procurement\PurchaseOrder\SyncPurchaseOrderDepositPaid;
+use App\Actions\Procurement\AgentGoodsReceipt\UI\GetPurchaseOrderGoodsReceipts;
 use App\Models\Procurement\PurchaseOrderTransaction;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Database\Eloquent\Builder;
@@ -283,6 +284,7 @@ class ShowPurchaseOrder extends OrgAction
                 'timelines'                => $this->getTimeline($purchaseOrder),
                 'stock_delivery_timelines' => $this->getStockDeliveryTimelines($purchaseOrder),
                 'stages'                   => $this->getStages($purchaseOrder),
+                'agent_receiving'          => fn () => $this->isAgentViewingOwnOrder($purchaseOrder) ? GetPurchaseOrderGoodsReceipts::run($purchaseOrder, $this->agentCanEdit) : null,
                 'open_agent_deliveries'    => $purchaseOrder->state === PurchaseOrderStateEnum::CONFIRMED
                     ? StoreStockDeliveryFromPurchaseOrder::openAgentDeliveries($purchaseOrder)
                         ->map(fn (StockDelivery $stockDelivery) => [
@@ -299,15 +301,18 @@ class ShowPurchaseOrder extends OrgAction
                         ->where('state', PurchaseOrderTransactionStateEnum::CONFIRMED)
                         ->with(['supplierProduct:id,code,name', 'orgStock:id,code,name', 'orgStock.tradeUnits.image'])
                         ->get(['id', 'supplier_product_id', 'org_stock_id', 'quantity_ordered'])
-                        ->map(fn (PurchaseOrderTransaction $transaction) => [
-                            'id'               => $transaction->id,
-                            'code'             => $transaction->supplierProduct?->code ?? $transaction->orgStock?->code,
-                            'name'             => $transaction->supplierProduct?->name ?? $transaction->orgStock?->name,
-                            'quantity_ordered' => $transaction->quantity_ordered,
-                            'image_thumbnail'  => $transaction->orgStock?->tradeUnits
-                                ->first(fn ($tradeUnit) => $tradeUnit->image_id !== null)
-                                ?->imageSources(80, 80),
-                        ])->values()
+                        ->map(function (PurchaseOrderTransaction $transaction) {
+                            $tradeUnit = $transaction->orgStock?->tradeUnits->first(fn ($tradeUnit) => $tradeUnit->image_id !== null);
+
+                            return [
+                                'id'               => $transaction->id,
+                                'code'             => $transaction->supplierProduct?->code ?? $transaction->orgStock?->code,
+                                'name'             => $transaction->supplierProduct?->name ?? $transaction->orgStock?->name,
+                                'quantity_ordered' => $transaction->quantity_ordered,
+                                'image_thumbnail'  => $tradeUnit?->imageSources(80, 80),
+                                'image_full'       => $tradeUnit?->image?->fullResolutionUrls(),
+                            ];
+                        })->values()
                     : [],
                 'tabs'        => [
                     'current'    => $this->tab,
@@ -458,6 +463,13 @@ class ShowPurchaseOrder extends OrgAction
             ->table(IndexAttachments::make()->tableStructure(prefix: PurchaseOrderTabsEnum::ATTACHMENTS->value))
             ->table(IndexDispatchedEmailsInOrder::make()->tableStructure(prefix: PurchaseOrderTabsEnum::DISPATCHED_EMAILS->value))
             ->table(IndexHistory::make()->tableStructure(prefix: PurchaseOrderTabsEnum::HISTORY->value));
+    }
+
+    private function isAgentViewingOwnOrder(PurchaseOrder $purchaseOrder): bool
+    {
+        return $purchaseOrder->isAgentOrder()
+            && $purchaseOrder->organisation_id !== $this->organisation->id
+            && $this->getOrganisationAgent($this->organisation)?->id === $purchaseOrder->agent_id;
     }
 
     /**

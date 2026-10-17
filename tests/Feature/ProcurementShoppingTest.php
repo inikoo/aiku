@@ -1345,7 +1345,7 @@ test('agent warehouse pages and the goods receipt count SKOs with the org stock 
         'received_at' => now()->toDateString(),
         'quantity'    => 140,
     ]);
-    $receipt->items()->create(['organisation_id' => $this->organisation->id, 'supplier_product_id' => $supplierProduct->id, 'quantity' => 140]);
+    $receipt->items()->create(['group_id' => $this->agent->group_id, 'organisation_id' => $this->organisation->id, 'supplier_product_id' => $supplierProduct->id, 'quantity' => 140]);
     App\Models\Procurement\AgentWarehouseStock::create([
         'group_id'               => $this->agent->group_id,
         'agent_id'               => $this->agent->id,
@@ -1366,7 +1366,56 @@ test('agent warehouse pages and the goods receipt count SKOs with the org stock 
     $this->get(route('grp.org.agent.warehouse.received.goods_receipts.show', [$this->agent->organisation->slug, $receipt->slug]))
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
-            ->where('items', fn ($items) => (float) collect($items)->first()['units_per_sko'] === 1.0));
+            ->where('items.data.0.units_per_sko', 1));
+});
+
+test('agent receives a purchase order line in batches and rejected units go back to production', function () {
+    [$orgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $supplierProduct = $orgSupplierProduct->supplierProduct;
+
+    $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition());
+    $line          = StorePurchaseOrderTransaction::make()->action($purchaseOrder, $supplierProduct->historicSupplierProduct, $this->orgStocks[0], [...PurchaseOrderTransaction::factory()->definition(), 'quantity_ordered' => 100]);
+    $purchaseOrder->updateQuietly([
+        'state'              => App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum::SUBMITTED,
+        'delivery_state'     => App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum::IN_PROCESS,
+        'submitted_at'       => now(),
+        'sample_approved_at' => now(),
+    ]);
+    $line->updateQuietly(['state' => App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum::SUBMITTED]);
+
+    $remaining = fn () => (float) App\Actions\Procurement\AgentWarehouseStock\UI\IndexAgentProductsInProduction::inProductionLines($this->agent)
+        ->where('purchase_order_transactions.id', $line->id)
+        ->selectRaw(App\Actions\Procurement\AgentWarehouseStock\UI\IndexAgentProductsInProduction::remainingQuantitySql().' as remaining')
+        ->value('remaining');
+    $receive = fn (float $quantity) => App\Actions\Procurement\AgentGoodsReceipt\StoreAgentGoodsReceipt::make()->action($this->agent, [
+        'lines' => [['purchase_order_transaction_id' => $line->id, 'quantity' => $quantity]],
+    ]);
+    $check = App\Actions\Procurement\AgentGoodsReceipt\CheckAgentGoodsReceiptItem::make();
+
+    $item = $receive(100)->items()->sole();
+    expect($purchaseOrder->refresh()->production_started_at)->not->toBeNull()
+        ->and($purchaseOrder->areLinesLockedByProduction())->toBeTrue()
+        ->and((new App\Http\Resources\Procurement\PurchaseOrderTransactionResource($line->fresh()))->toArray(request())['cancelRoute'])->toBeNull();
+
+    $check->handle($item, ['quantity_rejected' => 10]);
+    expect((float) $item->agentWarehouseStock->refresh()->quantity)->toBe(90.0)
+        ->and($remaining())->toBe(10.0);
+
+    $purchaseOrder->updateQuietly(['qc_passed_at' => now()]);
+    $receivingLine = collect(App\Actions\Procurement\AgentGoodsReceipt\UI\GetPurchaseOrderGoodsReceipts::run($purchaseOrder->refresh(), true)['lines'])->firstWhere('id', $line->id);
+    expect($remaining())->toBe(10.0)
+        ->and($receivingLine['outstanding'])->toBe(10.0);
+
+    expect(fn () => $receive(0.0004))->toThrow(Illuminate\Validation\ValidationException::class);
+
+    $replacement = $receive(10);
+    expect(fn () => $check->handle($item->refresh(), ['quantity_rejected' => 0]))->toThrow(Illuminate\Validation\ValidationException::class);
+
+    App\Actions\Procurement\AgentGoodsReceipt\CancelAgentGoodsReceipt::make()->handle($replacement);
+    expect($replacement->warehouseStocks()->count())->toBe(0)
+        ->and($remaining())->toBe(10.0);
+
+    expect((new PurchaseOrder(['production_started_at' => now()]))->areLinesLockedByProduction())->toBeFalse();
 });
 
 test('UI agent shopping dashboard renders', function () {

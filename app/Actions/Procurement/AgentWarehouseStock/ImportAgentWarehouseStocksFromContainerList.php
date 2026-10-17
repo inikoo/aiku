@@ -100,7 +100,7 @@ class ImportAgentWarehouseStocksFromContainerList
         return ['rows' => $rows, 'unmatched' => $unmatched, 'in_production' => $inProduction];
     }
 
-    public function markInProduction(PurchaseOrder $purchaseOrder, string $reason): void
+    public function markInProduction(PurchaseOrder $purchaseOrder, string $reason, ?string $date = null): void
     {
         if ($purchaseOrder->production_started_at || !in_array($purchaseOrder->state, [PurchaseOrderStateEnum::SUBMITTED, PurchaseOrderStateEnum::CONFIRMED])) {
             return;
@@ -108,7 +108,7 @@ class ImportAgentWarehouseStocksFromContainerList
 
         MarkPurchaseOrderStage::make()->action($purchaseOrder, [
             'field'  => 'production_started_at',
-            'date'   => MarkPurchaseOrderStage::today($purchaseOrder->organisation),
+            'date'   => $date ?? MarkPurchaseOrderStage::today($purchaseOrder->organisation),
             'reason' => $reason,
         ]);
     }

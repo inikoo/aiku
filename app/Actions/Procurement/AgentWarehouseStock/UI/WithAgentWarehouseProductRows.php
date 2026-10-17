@@ -10,9 +10,12 @@
 namespace App\Actions\Procurement\AgentWarehouseStock\UI;
 
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
+use App\Actions\Helpers\Images\GetPictureSources;
+use App\Models\Helpers\Media;
 use App\Models\Inventory\OrgStock;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -49,6 +52,7 @@ trait WithAgentWarehouseProductRows
                 DB::raw(OrgStock::unitsPerSkoSql("$table.organisation_id", "$table.supplier_product_id").' as units_per_sko'),
                 DB::raw("(select slug from org_supplier_products where supplier_product_id = $table.supplier_product_id and organisation_id = $table.organisation_id order by id limit 1) as org_supplier_product_slug"),
                 DB::raw("(select slug from org_suppliers where supplier_id = supplier_products.supplier_id and organisation_id = $table.organisation_id order by id limit 1) as org_supplier_slug"),
+                DB::raw("coalesce(supplier_products.image_id, (select trade_units.image_id from model_has_trade_units join trade_units on trade_units.id = model_has_trade_units.trade_unit_id where model_has_trade_units.model_type = 'SupplierProduct' and model_has_trade_units.model_id = supplier_products.id and trade_units.image_id is not null order by model_has_trade_units.id limit 1)) as image_id"),
             ]);
     }
 
@@ -86,7 +90,27 @@ trait WithAgentWarehouseProductRows
             'quantity'                  => (float) $row->quantity,
             'units_per_sko'             => $unitsPerSko,
             'skos'                      => round((float) $row->quantity / $unitsPerSko, 3),
+            'image_id'                  => $row->image_id,
         ];
+    }
+
+    /**
+     * The picture of each product on the page, from one query for the whole page.
+     */
+    protected function withProductImages(LengthAwarePaginator $rows): LengthAwarePaginator
+    {
+        $images = Media::whereIn('id', $rows->getCollection()->pluck('image_id')->filter()->unique())->get()->keyBy('id');
+
+        $rows->getCollection()->transform(function (array $row) use ($images) {
+            $image = $images->get(Arr::pull($row, 'image_id'));
+
+            return array_merge($row, [
+                'image_thumbnail' => $image ? GetPictureSources::run($image->getImage()->resize(80, 80)) : null,
+                'image_full'      => $image?->fullResolutionUrls(),
+            ]);
+        });
+
+        return $rows;
     }
 
     /**

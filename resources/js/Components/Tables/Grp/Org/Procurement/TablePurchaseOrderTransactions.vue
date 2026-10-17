@@ -27,6 +27,7 @@ import ConfirmPopup from 'primevue/confirmpopup'
 import Popover from 'primevue/popover'
 import { useConfirm } from 'primevue/useconfirm'
 import Toggle from '@/Components/Pure/Toggle.vue'
+import ProductImageViewerDialog from '@/Components/Product/ProductImageViewerDialog.vue'
 
 library.add(faExclamationTriangle, faBalanceScale, faBox, faPallet, faStopCircle, faExclamationCircle, faTrashAlt, faSpinner, faMinusCircle, faPeopleArrows)
 
@@ -402,6 +403,24 @@ function hideImagePreview() {
     imagePreviewPopover.value?.hide()
 }
 
+const isImageViewerVisible = ref(false)
+const viewedImages = ref<{ source: any; alt?: string; original_url?: string | null; download_url?: string | null }[]>([])
+
+function openImageViewer(item: any) {
+    if (!item.image_full) {
+        return
+    }
+
+    hideImagePreview()
+    viewedImages.value = [{
+        source: item.image_preview ?? item.image_thumbnail,
+        alt: item.code,
+        original_url: item.image_full.original_url,
+        download_url: item.image_full.download_url,
+    }]
+    isImageViewerVisible.value = true
+}
+
 const currentOrganisation = route().params.organisation as string | undefined
 const isInAgentOrganisation = isAgentOrganisation(currentOrganisation)
 
@@ -511,9 +530,11 @@ function orgStockRoute(item: { org_stock_id?: number }) {
         <template #cell(image_thumbnail)="{ item }">
             <div
                 class="h-20 w-20 flex-none overflow-hidden rounded border border-gray-100"
-                :class="{ 'cursor-zoom-in': item.image_preview }"
+                :class="{ 'cursor-zoom-in': item.image_preview || item.image_full }"
+                v-tooltip="item.image_full ? ctrans('Click to enlarge and download in full resolution') : undefined"
                 @mouseenter="showImagePreview($event, item)"
                 @mouseleave="hideImagePreview"
+                @click="openImageViewer(item)"
             >
                 <Image :src="item['image_thumbnail']" imageCover class="h-20 w-20" />
             </div>
@@ -710,6 +731,8 @@ function orgStockRoute(item: { org_stock_id?: number }) {
     </Table>
 
     <ConfirmPopup />
+
+    <ProductImageViewerDialog v-if="viewedImages.length" v-model:visible="isImageViewerVisible" :images="viewedImages" />
 
     <Popover ref="imagePreviewPopover" class="pointer-events-none">
         <Image v-if="imagePreview" :src="imagePreview" class="flex h-80 w-80 items-center justify-center [&>img]:max-h-full [&>img]:max-w-full" />

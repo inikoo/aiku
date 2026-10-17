@@ -22058,5 +22058,15 @@
     "≈ :amount potential sales": "≈ :amount potensi penjualan",
     "≈ :amount potential sales at current prices, ex VAT": "≈ :amount potensi penjualan pada harga saat ini, tidak termasuk PPN",
     "🔒 This is a pre-order the customer has paid a deposit for. Unlock it from the pre-order panel before changing it.": "🔒 Ini adalah pra-pesan yang depositnya sudah dibayar pelanggan. Buka kuncinya dari panel pra-pesan sebelum mengubahnya.",
-    "🔒 This page is protected. Changes require approval from :owner.": "🔒 Halaman ini dilindungi. Perubahan memerlukan persetujuan dari :owner."
+    "🔒 This page is protected. Changes require approval from :owner.": "🔒 Halaman ini dilindungi. Perubahan memerlukan persetujuan dari :owner.",
+    "Receipt note": "Tanda terima",
+    "Supplier name": "Nama supplier",
+    "PO number": "Nomor PO",
+    "No.": "No",
+    "Product name/code": "Nama/kode barang",
+    "Total order": "Total order",
+    "Qty received": "Qty diterima",
+    "Remarks": "Keterangan",
+    "Sender": "Pengirim",
+    "Receiver": "Penerima"
 }

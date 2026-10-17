@@ -6,7 +6,7 @@
 -->
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue"
+import { computed, nextTick, ref, watch } from "vue"
 import axios from "axios"
 import { router } from "@inertiajs/vue3"
 import DatePicker from "primevue/datepicker"
@@ -18,9 +18,10 @@ import Select from "primevue/select"
 import Textarea from "primevue/textarea"
 import { notify } from "@kyvg/vue3-notification"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faCheck, faTimes, faInfoCircle, faExclamationTriangle, faIndustryAlt, faFileInvoice, faMagic, faEraser } from "@fal"
+import { faCheck, faTimes, faInfoCircle, faExclamationTriangle, faIndustryAlt, faFileInvoice, faMagic, faEraser, faTrashAlt } from "@fal"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
+import { addPhotos } from "@/Composables/usePhotoSelection"
 import { ctrans } from "@/Composables/useTrans"
 import { useLocaleStore } from "@/Stores/locale"
 
@@ -42,6 +43,7 @@ type ScopeType = "supplier" | "purchase_order"
 
 const props = defineProps<{
 	scopes: { suppliers: ScopeOption[]; purchase_orders: ScopeOption[] }
+	purchaseOrderId?: number | null
 }>()
 
 const visible = defineModel<boolean>("visible", { default: false })
@@ -79,9 +81,14 @@ const resetLines = () => {
 	serverErrors.value = {}
 }
 
-watch(visible, (isVisible) => {
+watch(visible, async (isVisible) => {
 	if (isVisible) {
 		scopeId.value = null
+		if (props.purchaseOrderId) {
+			scopeType.value = "purchase_order"
+			await nextTick()
+			scopeId.value = props.purchaseOrderId
+		}
 		pasted.value = ""
 		search.value = ""
 		notes.value = ""
@@ -199,6 +206,13 @@ const totalUnits = computed(() => selectedLines.value.reduce((sum, line) => sum 
 const fieldFocusClass = "[&.p-focus]:!border-[--app-accent] [&_input:focus]:!border-[--app-accent] focus:!border-[--app-accent]"
 
 const chooseFilePt = { pcChooseButton: { root: { class: "!border !border-gray-300 !bg-white !text-gray-700 hover:!bg-gray-50" } } }
+
+const dateFormat = computed(() => {
+	const parts = new Intl.DateTimeFormat(locale.locale_iso || locale.language.code, { day: "2-digit", month: "2-digit", year: "numeric" }).formatToParts(new Date(2000, 10, 22))
+	const tokens: Record<string, string> = { day: "dd", month: "mm", year: "yy" }
+
+	return parts.map((part) => tokens[part.type] ?? part.value).join("")
+})
 
 const toIsoDate = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
 
@@ -356,7 +370,7 @@ const submit = () => {
 		<div v-if="scopeId" class="mt-4 grid gap-3 border-t border-gray-200 pt-4 sm:grid-cols-2">
 			<label class="flex flex-col gap-1 text-sm">
 				<span class="font-medium text-gray-700">{{ ctrans("Received on") }}</span>
-				<DatePicker v-model="receivedAt" dateFormat="dd/mm/yy" :maxDate="new Date()" :manualInput="false" showIcon iconDisplay="input" :class="fieldFocusClass" :pt="{ pcInputText: { root: { class: '!w-full' } } }" />
+				<DatePicker v-model="receivedAt" :dateFormat="dateFormat" :maxDate="new Date()" :manualInput="false" showIcon iconDisplay="input" :class="fieldFocusClass" :pt="{ pcInputText: { root: { class: '!w-full' } } }" />
 			</label>
 			<label class="flex flex-col gap-1 text-sm">
 				<span class="font-medium text-gray-700">{{ ctrans("Supplier's delivery note number") }}</span>
@@ -372,18 +386,19 @@ const submit = () => {
 						customUpload
 						multiple
 						accept="image/*,.pdf"
-						:maxFileSize="20000000"
 						:chooseLabel="ctrans('Add photo')"
 						:pt="chooseFilePt"
-						@select="(event: { files: File[] }) => { photos = [...photos, ...event.files]; photoUploader?.clear() }"
+						@select="(event: { files: File[] }) => { photos = addPhotos(photos, event.files); photoUploader?.clear() }"
 					/>
 					<span v-for="(photo, index) in photos" :key="photo.name + index" class="inline-flex items-center gap-1 rounded border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs text-gray-700">
 						<span class="max-w-[12rem] truncate">{{ photo.name }}</span>
-						<button type="button" class="text-gray-400 hover:text-red-500" :aria-label="ctrans('Remove :name', { name: photo.name })" @click="removePhoto(index)">
-							<FontAwesomeIcon :icon="faTimes" fixed-width aria-hidden="true" />
-						</button>
+						<Button type="tertiary" size="xs" :aria-label="ctrans('Remove :name', { name: photo.name })" @click="removePhoto(index)">
+							<template #icon>
+								<FontAwesomeIcon :icon="faTrashAlt" class="text-red-500" fixed-width aria-hidden="true" />
+							</template>
+						</Button>
 					</span>
-					<span v-if="photos.length === 0" class="text-xs text-amber-600">{{ ctrans("You can add it later on the goods receipt") }}</span>
+					<span v-if="photos.length === 0" class="text-xs text-gray-500">{{ ctrans("You can add it later on the goods receipt") }}</span>
 				</div>
 			</div>
 			<label class="flex flex-col gap-1 text-sm sm:col-span-2">
