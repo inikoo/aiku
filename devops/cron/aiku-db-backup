@@ -38,10 +38,10 @@
 # To open a copy:  gpg --decrypt aiku-secrets-YYYY-MM-DD.tar.gpg | tar -xf -
 # Without APP_KEY from that .env the columns the app encrypts cannot be read from a dump.
 #
-# This replaces only the database part of /home/inikoo/backup_aiku.sh, which
+# This does not replace /home/inikoo/backup_aiku.sh, which
 # /etc/crontab on boro runs at 03:30 and which overwrites one aiku.dump every night.
-# Once this has run a few nights, take the pg_dump and cp lines out of that script
-# and leave the rest: it also copies media, storage/app and the OAuth keys.
+# That job stays: its aiku_latest.dump, taken from the primary, is the copy developers
+# download, and a dump from here would be 12 hours older.
 #
 # Restore, onto an empty database (first: sha256sum -c aiku-YYYY-MM-DD.dump.sha256):
 #     psql -f aiku-YYYY-MM-DD.globals.sql postgres
