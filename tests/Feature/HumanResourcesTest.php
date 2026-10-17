@@ -126,6 +126,7 @@ use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
+use function Pest\Laravel\patchJson;
 use function Pest\Laravel\post;
 
 class CollidingStoreClockingMachineQRCode extends StoreClockingMachineQRCode
@@ -5911,4 +5912,31 @@ test('employees list sorts by employment start date', function () {
         ->viewData('page')['props']['data']['data'])->pluck('employment_start_at')->filter()->values();
 
     expect($dates->all())->toBe($dates->sort()->values()->all());
+});
+
+test('time trackers are clocked in and out only by human resources staff or supervisors of the timesheet organisation', function () {
+    $employee = Employee::factory()->create([
+        'organisation_id' => $this->organisation->id,
+        'group_id'        => $this->group->id,
+    ]);
+    $workplace = StoreWorkplace::make()->action($this->organisation, [
+        'name' => 'Time Tracker Permissions Workplace '.uniqid(),
+        'type' => \App\Enums\HumanResources\Workplace\WorkplaceTypeEnum::HQ,
+    ]);
+    $clockIn     = StoreClocking::make()->action($this->organisation, $workplace, $employee, ['type' => 'in', 'at' => now()->subHour()->toDateTimeString()], 0, true);
+    $timeTracker = $clockIn->timesheet->timeTrackers()->first();
+    $payload     = ['clocked_at_time' => now()->format('H:i:s'), 'timezone' => 'UTC'];
+
+    $user = User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["human-resources.{$this->organisation->id}.view"]);
+    patchJson(route('grp.models.time-tracker.clock-out', $timeTracker->id), $payload)->assertForbidden();
+    patchJson(route('grp.models.time-tracker.clock-in', $timeTracker->id), $payload)->assertForbidden();
+    expect($timeTracker->refresh()->status)->toBe(\App\Enums\HumanResources\TimeTracker\TimeTrackerStatusEnum::OPEN);
+
+    actingAsUserWithOnlyPermissions($user, ["org-supervisor.{$this->organisation->id}.human-resources"]);
+    patchJson(route('grp.models.time-tracker.clock-out', $timeTracker->id), $payload)->assertOk();
+    expect($timeTracker->refresh()->status)->toBe(\App\Enums\HumanResources\TimeTracker\TimeTrackerStatusEnum::CLOSED)
+        ->and(Route::has('grp.org.hr.leaves.update'))->toBeFalse()
+        ->and(Route::has('grp.org.hr.employees.picker_users'))->toBeFalse();
 });
