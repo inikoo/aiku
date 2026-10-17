@@ -44,9 +44,9 @@ class RepairMissingFixedWebBlocksInHomeWebpages
         $webpage->refresh();
         UpdateWebpageContent::run($webpage);
         foreach ($webpage->webBlocks as $webBlock) {
-            print $webBlock->webBlockType->code."\n";
+            $command->line($webBlock->webBlockType->code);
         }
-        print "=========\n";
+        $command->line("=========");
 
 
 
