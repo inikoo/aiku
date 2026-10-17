@@ -1949,6 +1949,10 @@ test('UI sysadmin user show/edit/create/actions', function (User $user) {
             ->missing('formData.blueprint.0.fields.can_use_mcp_sql.boxed')
             ->where('formData.blueprint.0.fields.can_use_mcp_discontinue.boxed', true)
             ->where('formData.blueprint.0.fields.can_use_mcp_customer_service.boxed', true)
+            ->where('formData.blueprint.0.fields.can_use_mcp_web.label', 'Can change website content and redirects')
+            ->where('formData.blueprint.0.fields.can_use_mcp_web.help.title', 'Change website content and redirects')
+            ->has('formData.blueprint.0.fields.can_use_mcp_place_orders.help.items', 4)
+            ->has('formData.blueprint.0.fields.can_use_mcp.help.note')
             ->missing('formData.blueprint.0.fields.can_use_mcp.boxed'));
     $user->update(['can_use_mcp' => false]);
 
