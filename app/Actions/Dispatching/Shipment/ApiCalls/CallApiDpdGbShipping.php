@@ -184,11 +184,7 @@ class CallApiDpdGbShipping extends OrgAction
             $modelData['tracking_urls']  = [];
             try {
                 $htmlContent = base64_decode($htmlBase64);
-                $pdfContent  = Browsershot::html($htmlContent)
-                    ->setOption('no-stop-slow-scripts', true)
-                    ->setOption('timeout', 5000)
-                    ->margins(10, 10, 10, 10)
-                    ->pdf();
+                $pdfContent  = $this->labelPdf($htmlContent);
 
                 $modelData['label']          = base64_encode($pdfContent);
                 $modelData['label_type']     = ShipmentLabelTypeEnum::PDF;
@@ -214,6 +210,21 @@ class CallApiDpdGbShipping extends OrgAction
         ];
     }
 
+
+    /**
+     * One 102 x 165 mm page, the size of the APC labels on the same thermal printers.
+     */
+    public function labelPdf(string $html): string
+    {
+        return Browsershot::html($html)
+            ->setOption('no-stop-slow-scripts', true)
+            ->setOption('timeout', 5000)
+            ->paperSize(102, 165)
+            ->margins(2, 2, 2, 2)
+            ->scale(0.95)
+            ->pages('1')
+            ->pdf();
+    }
 
     protected function processError(array $error, array &$errorData): void
     {
