@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery\Pdf;
 
+use App\Actions\Traits\Authorisations\WithPalletDocumentAuthorisation;
 use App\Actions\Traits\WithExportData;
 use App\Models\Fulfilment\PalletDelivery;
 use Lorisleiva\Actions\ActionRequest;
@@ -18,6 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PdfPalletDelivery
 {
+    use WithPalletDocumentAuthorisation;
     use AsAction;
     use WithAttributes;
     use WithExportData;
@@ -51,6 +53,8 @@ class PdfPalletDelivery
      */
     public function asController(PalletDelivery $palletDelivery, ActionRequest $request): Response
     {
+        abort_unless($this->authorize($request), 403);
+
         $filename = 'pallet-delivery-' . $palletDelivery->slug . '.pdf';
 
         $pdf = $this->handle($palletDelivery);

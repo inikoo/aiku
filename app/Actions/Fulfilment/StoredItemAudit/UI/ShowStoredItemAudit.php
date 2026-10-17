@@ -64,7 +64,12 @@ class ShowStoredItemAudit extends OrgAction
         $actions = [];
         $editDeltas = null;
         $deltas = null;
-        if ($storedItemAudit->state === StoredItemAuditStateEnum::IN_PROCESS) {
+        $canWorkOnAudit = $request->user()->authTo([
+            "fulfilment.$storedItemAudit->warehouse_id.edit",
+            "supervisor-fulfilment.$storedItemAudit->warehouse_id",
+        ]);
+
+        if ($storedItemAudit->state === StoredItemAuditStateEnum::IN_PROCESS && $canWorkOnAudit) {
             $actions = [
                 [
                     'type'     => 'button',
@@ -114,14 +119,14 @@ class ShowStoredItemAudit extends OrgAction
                     [
                         'label'    => __('Public'),
                         'note'     => $storedItemAudit->public_notes ?? '',
-                        'editable' => true,
+                        'editable' => $canWorkOnAudit,
                         'bgColor'  => 'pink',
                         'field'    => 'public_notes'
                     ],
                     [
                         'label'    => __('Private'),
                         'note'     => $storedItemAudit->internal_notes ?? '',
-                        'editable' => true,
+                        'editable' => $canWorkOnAudit,
                         'bgColor'  => 'purple',
                         'field'    => 'internal_notes'
                     ],
@@ -185,7 +190,7 @@ class ShowStoredItemAudit extends OrgAction
         );
 
 
-        if ($storedItemAudit->state === StoredItemAuditStateEnum::IN_PROCESS) {
+        if ($storedItemAudit->state === StoredItemAuditStateEnum::IN_PROCESS && $canWorkOnAudit) {
             $render->table(
                 IndexStoredItemDeltasInProcess::make()->tableStructure(
                     $storedItemAudit->fulfilmentCustomer,
@@ -208,6 +213,7 @@ class ShowStoredItemAudit extends OrgAction
 
     public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, StoredItemAudit $storedItemAudit, ActionRequest $request): StoredItemAudit
     {
+        abort_unless($storedItemAudit->fulfilment_id === $fulfilment->id, 404);
         $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
@@ -218,6 +224,7 @@ class ShowStoredItemAudit extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, StoredItemAudit $storedItemAudit, ActionRequest $request): StoredItemAudit
     {
+        abort_unless($storedItemAudit->fulfilment_id === $fulfilment->id, 404);
         $this->parent = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request);
 

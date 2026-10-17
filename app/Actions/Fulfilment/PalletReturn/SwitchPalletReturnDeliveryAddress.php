@@ -9,6 +9,7 @@
 
 namespace App\Actions\Fulfilment\PalletReturn;
 
+use App\Actions\Traits\Authorisations\WithFulfilmentShopEditAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\PalletReturn;
@@ -16,6 +17,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class SwitchPalletReturnDeliveryAddress extends OrgAction
 {
+    use WithFulfilmentShopEditAuthorisation;
     use WithActionUpdate;
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn

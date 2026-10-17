@@ -119,6 +119,7 @@ const props = defineProps<{
     physical_good_list_route: routeType
     
     pallet_list_route: routeType
+    can_edit?: boolean
 }>()
 
 const currentTab = ref<string>(props.tabs.current)
@@ -369,7 +370,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                                     </template>
 
                                     <template #option="{ option, isSelected, isPointed }">
-                                        <div class="">{{ option.name }} <span class="text-sm" :class="isSelected ? 'text-indigo-200' : 'text-gray-400'">({{ option.code }})</span></div>
+                                        <div class="">{{ option.name }} <span class="text-sm" :class="isSelected ? 'text-[--app-accent-muted]' : 'text-gray-400'">({{ option.code }})</span></div>
                                     </template>
                                 </PureMultiselect> -->
 
@@ -519,7 +520,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                                     </template>
 
                                     <template #option="{ option, isSelected, isPointed }">
-                                        <div class="">{{ option.name }} <span class="text-sm" :class="isSelected ? 'text-indigo-200' : 'text-gray-400'">({{ option.code }})</span></div>
+                                        <div class="">{{ option.name }} <span class="text-sm" :class="isSelected ? 'text-[--app-accent-muted]' : 'text-gray-400'">({{ option.code }})</span></div>
                                     </template>
                                 </PureMultiselect> -->
 
@@ -741,7 +742,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
     </div>
 
     <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab]" :tab="currentTab" />
+    <component :is="component" :data="props[currentTab]" :tab="currentTab" :canEdit="can_edit" />
 
     <Modal :isOpen="isModalSendInvoice" @onClose="isModalSendInvoice = false" width="w-[600px]">
         <div>

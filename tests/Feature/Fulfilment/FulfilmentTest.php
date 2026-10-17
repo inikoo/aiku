@@ -1965,6 +1965,43 @@ test('can create dispatched pallet return pdf', function (PalletReturn $palletRe
         ->and(PdfPalletReturn::run($palletReturn)->getContent())->toStartWith('%PDF');
 })->depends('dispatch pallet return');
 
+test('pallet return services and documents need a fulfilment permission on the record, INI-076', function (PalletReturn $palletReturn) {
+    $unguarded = collect(app('router')->getRoutes()->getRoutes())
+        ->filter(fn ($route) => str_starts_with((string) $route->getName(), 'grp.models.') && is_string($route->getAction('uses')))
+        ->map(fn ($route) => \Illuminate\Support\Str::before($route->getAction('uses'), '@'))
+        ->filter(fn (string $action) => (str_starts_with($action, 'App\\Actions\\Fulfilment\\') || str_starts_with($action, 'App\\Actions\\Billables\\') || str_starts_with($action, 'App\\Actions\\Accounting\\StandaloneFulfilment')) && !method_exists($action, 'authorize'))
+        ->unique()->values()->all();
+    expect($unguarded)->toBe([]);
+
+    $fulfilment = $palletReturn->fulfilment;
+    $user       = $this->adminGuest->getUser();
+
+    $originalRoles       = $user->roles->pluck('name')->toArray();
+    $originalPermissions = $user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($user, ["fulfilment-shop.$fulfilment->id.view"]);
+        $this->post(route('grp.models.pallet-return.transaction.store', $palletReturn->id), [])->assertForbidden();
+        $this->get(route('grp.models.pallet-return.pdf', $palletReturn->id))->assertOk();
+
+        actingAsUserWithOnlyPermissions($user, ["group-reports"]);
+        $this->get(route('grp.models.pallet-return.pdf', $palletReturn->id))->assertForbidden();
+        $this->get(route('grp.models.pallet-return.pallet_picking.pdf', $palletReturn->id))->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($user, ["fulfilment.$palletReturn->warehouse_id.view"]);
+        $this->get(route('grp.models.pallet-return.pdf', $palletReturn->id))->assertOk();
+        $this->post(route('grp.models.pallet-return.transaction.store', $palletReturn->id), [])->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($user, ["fulfilment-shop.$fulfilment->id.edit"]);
+        expect($this->post(route('grp.models.pallet-return.transaction.store', $palletReturn->id), [])->status())->not->toBe(403);
+    } finally {
+        setPermissionsTeamId($user->group_id);
+        $user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($user);
+    }
+})->depends('dispatch pallet return');
+
 test('create pallet no delivery', function (Fulfilment $fulfilment) {
     $customer = StoreCustomer::make()->action(
         $fulfilment->shop,
@@ -3887,4 +3924,27 @@ test('fulfilment customer status follows invoicing recency', function () {
     $fulfilmentCustomer->rentalAgreement->update(['created_at' => now()->subMonths(7)]);
     FulfilmentCustomerHydrateStatus::run($fulfilmentCustomer->fresh());
     expect($fulfilmentCustomer->fresh()->status)->toBe(FulfilmentCustomerStatusEnum::UNACCOMPLISHED);
+});
+
+test('stored item audits are worked on by the fulfilment staff of their warehouse, INI-076', function () {
+    $storedItemAudit = StoredItemAudit::whereNotNull('warehouse_id')->latest('id')->firstOrFail();
+    $user            = $this->adminGuest->getUser();
+
+    $originalRoles       = $user->roles->pluck('name')->toArray();
+    $originalPermissions = $user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($user, ["fulfilment-shop.$storedItemAudit->fulfilment_id.edit"]);
+        $this->patch(route('grp.models.stored_item_audit.update', $storedItemAudit->id), ['public_notes' => 'without warehouse'])->assertForbidden();
+        $this->post(route('grp.models.stored_item_audit.stored_item_audit_delta.store', $storedItemAudit->id), [])->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($user, ["fulfilment.$storedItemAudit->warehouse_id.edit"]);
+        expect($this->patch(route('grp.models.stored_item_audit.update', $storedItemAudit->id), ['public_notes' => 'checked in the warehouse'])->status())->toBeLessThan(400)
+            ->and($storedItemAudit->refresh()->public_notes)->toBe('checked in the warehouse');
+    } finally {
+        setPermissionsTeamId($user->group_id);
+        $user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($user);
+    }
 });

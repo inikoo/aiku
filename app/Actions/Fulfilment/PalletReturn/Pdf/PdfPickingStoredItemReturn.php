@@ -9,9 +9,11 @@
 
 namespace App\Actions\Fulfilment\PalletReturn\Pdf;
 
+use App\Actions\Traits\Authorisations\WithPalletDocumentAuthorisation;
 use App\Actions\Traits\WithExportData;
 use App\Models\Fulfilment\PalletReturn;
 use Carbon\Carbon;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as PDF;
@@ -19,6 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PdfPickingStoredItemReturn
 {
+    use WithPalletDocumentAuthorisation;
     use AsAction;
     use WithAttributes;
     use WithExportData;
@@ -54,8 +57,10 @@ class PdfPickingStoredItemReturn
     /**
      * @throws MpdfException
      */
-    public function asController(PalletReturn $palletReturn): Response
+    public function asController(PalletReturn $palletReturn, ActionRequest $request): Response
     {
+        abort_unless($this->authorize($request), 403);
+
         return $this->handle($palletReturn);
     }
 }
