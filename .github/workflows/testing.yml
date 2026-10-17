@@ -64,8 +64,17 @@ jobs:
         run: cp ../../../../artifacts/aiku.dump tests/datasets/db_dumps/
       - name: Start private Redis
         run: redis-server --port 0 --unixsocket "$REDIS_SOCKET" --unixsocketperm 700 --save '' --appendonly no --maxmemory 512mb --daemonize yes --pidfile /home/aiku_test/redis-ci.pid --logfile /home/aiku_test/redis-ci.log
+      - name: Order test files slowest first
+        run: /usr/bin/php8.4 devops/ci/order-tests-slowest-first.php ../../../../artifacts/last-junit.xml
       - name: Run test without coverage
-        run: /usr/bin/php8.4 -dxdebug.mode=off -d newrelic.enabled=0 vendor/bin/pest --testsuite=Unit,Feature --parallel --processes=${PEST_PROCESSES:-6} --log-junit junit.xml
+        run: /usr/bin/php8.4 -dxdebug.mode=off -d newrelic.enabled=0 vendor/bin/pest --configuration=phpunit.ci.xml --parallel --processes=${PEST_PROCESSES:-6} --log-junit junit.xml
+      - name: Keep test durations for the next run
+        if: ${{ !cancelled() }}
+        run: |
+          if [ -s junit.xml ]; then
+            cp junit.xml ../../../../artifacts/last-junit.xml.tmp
+            mv ../../../../artifacts/last-junit.xml.tmp ../../../../artifacts/last-junit.xml
+          fi
       - name: Report test results to aiku
         if: ${{ !cancelled() }}
         env:
