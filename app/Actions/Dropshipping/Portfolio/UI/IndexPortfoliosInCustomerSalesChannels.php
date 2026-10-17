@@ -12,6 +12,7 @@ namespace App\Actions\Dropshipping\Portfolio\UI;
 use App\Actions\Dropshipping\CustomerSalesChannel\UI\ShowCustomerSalesChannel;
 use App\Actions\Dropshipping\CustomerSalesChannel\UI\WithCustomerSalesChannelSubNavigation;
 use App\Actions\Dropshipping\Portfolio\Logs\IndexPlatformPortfolioLogs;
+use App\Actions\Dropshipping\CustomerSalesChannel\CloseCustomerSalesChannel;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithCRMAuthorisation;
 use App\Enums\Ordering\Platform\PlatformTypeEnum;
@@ -103,7 +104,7 @@ class IndexPortfoliosInCustomerSalesChannels extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $portfolios, ActionRequest $request): Response
     {
-
+        $canEdit = CloseCustomerSalesChannel::canEditCustomerSalesChannelsIn($request->user(), $this->customerSalesChannel->shop);
 
         return Inertia::render(
             'Org/Dropshipping/Portfolios',
@@ -123,7 +124,7 @@ class IndexPortfoliosInCustomerSalesChannels extends OrgAction
                             'title' => __('Portfolios')
                         ]
                     ),
-                    'actions' => [
+                    'actions' => !$canEdit ? [] : [
                         [
                             'type'    => 'button',
                             'style'   => 'tertiary',
@@ -138,30 +139,32 @@ class IndexPortfoliosInCustomerSalesChannels extends OrgAction
                                 ]
                             ]
                         ],
-                        [
-                            'type'  => 'button',
-                            'style' => 'create',
-                            'label' => __('Match With Existing Product'),
-                            'route' => [
-                                'method'     => 'post',
-                                'name'       => 'grp.models.shopify.batch_match',
-                                'parameters' => [
-                                    'customerSalesChannel' => $this->customerSalesChannel->id,
+                        ...[
+                            [
+                                'type'  => 'button',
+                                'style' => 'create',
+                                'label' => __('Match With Existing Product'),
+                                'route' => [
+                                    'method'     => 'post',
+                                    'name'       => 'grp.models.shopify.batch_match',
+                                    'parameters' => [
+                                        'customerSalesChannel' => $this->customerSalesChannel->id,
+                                    ]
+                                ]
+                            ],
+                            [
+                                'type'  => 'button',
+                                'style' => 'create',
+                                'label' => __('Create New Product'),
+                                'route' => [
+                                    'name'       => 'grp.models.shopify.batch_upload',
+                                    'parameters' => [
+                                        'customerSalesChannel' => $this->customerSalesChannel->id,
+                                    ],
+                                    'method'     => 'post'
                                 ]
                             ]
                         ],
-                        [
-                            'type'  => 'button',
-                            'style' => 'create',
-                            'label' => __('Create New Product'),
-                            'route' => [
-                                'name'       => 'grp.models.shopify.batch_upload',
-                                'parameters' => [
-                                    'customerSalesChannel' => $this->customerSalesChannel->id,
-                                ],
-                                'method'     => 'post'
-                            ]
-                        ]
                     ]
 
                 ],
@@ -184,7 +187,7 @@ class IndexPortfoliosInCustomerSalesChannels extends OrgAction
                     ? fn () => PlatformPortfolioLogsResource::collection(IndexPlatformPortfolioLogs::run($this->customerSalesChannel, PortfoliosInCustomerSalesChannelTabsEnum::LOGS->value))
                     : Inertia::optional(fn () => PlatformPortfolioLogsResource::collection(IndexPlatformPortfolioLogs::run($this->customerSalesChannel, PortfoliosInCustomerSalesChannelTabsEnum::LOGS->value))),
 
-                'is_show_add_products_modal' => $this->customerSalesChannel->platform->type == PlatformTypeEnum::MANUAL,
+                'is_show_add_products_modal' => $canEdit && $this->customerSalesChannel->platform->type == PlatformTypeEnum::MANUAL,
                 'data'                       => PortfoliosResource::collection($portfolios),
                 'customer'                   => $this->customerSalesChannel->customer,
                 'platform'                   => $this->customerSalesChannel->platform,
@@ -224,6 +227,7 @@ class IndexPortfoliosInCustomerSalesChannels extends OrgAction
                     ] : [],
                 ],
 
+                'can_edit'       => $canEdit,
                 'routes'         => [
                     'bulk_upload'               => [
                         'name'       => 'grp.models.dropshipping.shopify.bulk_upload',

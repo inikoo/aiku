@@ -8,6 +8,7 @@
 
 namespace App\Actions\Dropshipping\Shopify\Product;
 
+use App\Actions\Traits\Authorisations\WithCustomerSalesChannelEditAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Dropshipping\CustomerSalesChannel;
@@ -19,6 +20,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreateNewBulkPortfoliosToShopify extends OrgAction implements ShouldBeUnique
 {
+    use WithCustomerSalesChannelEditAuthorisation;
     use WithActionUpdate;
 
 

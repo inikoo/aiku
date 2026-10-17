@@ -8,6 +8,7 @@
 
 namespace App\Actions\Dropshipping\WooCommerce\Product;
 
+use App\Actions\Traits\Authorisations\WithCustomerSalesChannelEditAuthorisation;
 use App\Actions\OrgAction;
 use App\Events\UploadProductToWooCommerceProgressEvent;
 use App\Models\Catalogue\Product;
@@ -19,6 +20,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class MatchPortfolioToCurrentWooProduct extends OrgAction
 {
+    use WithCustomerSalesChannelEditAuthorisation;
     use AsAction;
 
     public string $jobQueue = 'woo';

@@ -8,6 +8,7 @@
 
 namespace App\Actions\Dropshipping\Ebay\Product;
 
+use App\Actions\Traits\Authorisations\WithCustomerSalesChannelEditAuthorisation;
 use App\Actions\Dropshipping\Portfolio\Logs\StorePlatformPortfolioLog;
 use App\Actions\Dropshipping\Portfolio\Logs\UpdatePlatformPortfolioLog;
 use App\Actions\Dropshipping\Portfolio\UpdatePortfolio;
@@ -27,6 +28,7 @@ use Throwable;
 
 class MatchPortfolioToCurrentEbayProduct extends OrgAction
 {
+    use WithCustomerSalesChannelEditAuthorisation;
     use AsAction;
     use WithPortfolioErrorResponse;
 

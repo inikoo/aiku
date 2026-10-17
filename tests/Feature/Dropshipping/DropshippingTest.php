@@ -1481,3 +1481,39 @@ test('reset channel only resets shopify channels', function () {
     $this->patch(route('grp.models.customer_sales_channel.shopify_reset', ['customerSalesChannel' => $ebayChannel->id]))
         ->assertSessionHasErrors('channel');
 });
+
+test('staff match and push portfolios to a platform only with crm edit on the channel shop, INI-076', function () {
+    $unguarded = collect(app('router')->getRoutes()->getRoutes())
+        ->filter(fn ($route) => str_starts_with((string) $route->getName(), 'grp.models.') && is_string($route->getAction('uses')))
+        ->map(fn ($route) => \Illuminate\Support\Str::before($route->getAction('uses'), '@'))
+        ->filter(fn (string $action) => str_starts_with($action, 'App\\Actions\\Dropshipping\\') && !method_exists($action, 'authorize'))
+        ->unique()->values()->all();
+    expect($unguarded)->toBe([]);
+
+    $platform             = $this->group->platforms()->where('type', PlatformTypeEnum::EBAY)->first();
+    $customerSalesChannel = StoreCustomerSalesChannel::make()->action($this->customer, $platform, ['reference' => 'ini076_ebay']);
+    $portfolio            = StorePortfolio::make()->action($customerSalesChannel, $this->product, []);
+    $shop                 = $customerSalesChannel->shop;
+
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ["crm.$shop->id.view", "orders.$shop->id.edit"]);
+        $this->post(route('grp.models.portfolio.match_to_existing_ebay_product', $portfolio->id), ['platform_product_id' => 'x'])->assertForbidden();
+        $this->post(route('grp.models.portfolio.store_new_ebay_product', $portfolio->id))->assertForbidden();
+        $this->post(route('grp.models.ebay.batch_match', $customerSalesChannel->id), [])->assertForbidden();
+        $this->post(route('grp.models.shopify.batch_match', $customerSalesChannel->id), [])->assertForbidden();
+        $this->post(route('grp.models.woo.revive', $customerSalesChannel->id))->assertForbidden();
+        $this->post(route('grp.models.woo.batch_upload', $customerSalesChannel->id), ['portfolios' => [$portfolio->id]])->assertForbidden();
+        $this->post(route('grp.models.shopify.batch_upload', $customerSalesChannel->id), [])->assertForbidden();
+        $this->post(route('grp.models.portfolio.match_to_existing_shopify_product', $portfolio->id), [])->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($this->user, ["crm.$shop->id.edit"]);
+        $this->post(route('grp.models.portfolio.match_to_existing_ebay_product', $portfolio->id), [])->assertSessionHasErrors('platform_product_id');
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+    }
+});
