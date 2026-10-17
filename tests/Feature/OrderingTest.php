@@ -76,6 +76,8 @@ use App\Actions\Ordering\Order\StoreSubmittedOrder;
 use App\Actions\Retina\Dropshipping\Orders\PayRetinaOrderWithBalance;
 use App\Actions\Retina\Ecom\Basket\RetinaEcomUpdateTransaction;
 use App\Actions\Retina\Ecom\Basket\UI\IndexBasketTransactions;
+use App\Actions\Retina\Dropshipping\Orders\IndexRetinaDropshippingOrders;
+use App\Http\Resources\Fulfilment\RetinaDropshippingOrdersInCustomerSalesChannelResources;
 use App\Actions\Catalogue\Product\StoreProduct;
 use App\Actions\Catalogue\Product\StoreProductWebpage;
 use App\Actions\Ordering\Order\UI\ShowOrder;
@@ -3137,8 +3139,24 @@ test('dispatched order credited for part of its total has nothing left to pay', 
     ]);
     $order->refresh();
 
+    $customerSalesChannel = StoreCustomerSalesChannel::make()->action(
+        $this->customer,
+        Platform::where('type', PlatformTypeEnum::MANUAL)->first(),
+        []
+    );
+    $order->updateQuietly(['customer_sales_channel_id' => $customerSalesChannel->id, 'state' => OrderStateEnum::DISPATCHED]);
+
+    $fakeRoute = new \Illuminate\Routing\Route('GET', '/fake-retina-orders', []);
+    $fakeRoute->name('retina.dropshipping.customer_sales_channels.orders.index');
+    app('request')->setRouteResolver(fn () => $fakeRoute);
+
+    $listedOrder = RetinaDropshippingOrdersInCustomerSalesChannelResources::make(
+        IndexRetinaDropshippingOrders::make()->handle($customerSalesChannel)->getCollection()->firstWhere('id', $order->id)
+    )->toArray(request());
+
     expect(round($total - (float)$order->payment_amount, 2))->toBe($credit)
-        ->and($order->amountStillToPay())->toBe(0.0);
+        ->and($order->amountStillToPay())->toBe(0.0)
+        ->and($listedOrder['amount_to_pay'])->toEqual(0);
 });
 
 test('paid order whose total drops to zero with nothing refunded reads overpaid not refunded', function () {
