@@ -9,6 +9,7 @@
 namespace App\Actions\Masters\MasterCollection\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithMastersAuthorisation;
 use App\Http\Resources\Masters\MasterProductsResource;
 use App\Models\Masters\MasterAsset;
 use App\Models\Masters\MasterCollection;
@@ -21,6 +22,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetMasterProductsNotAttachedToAMasterCollection extends OrgAction
 {
+    use WithMastersAuthorisation;
     public function handle(MasterShop $parent, MasterCollection $collection, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {

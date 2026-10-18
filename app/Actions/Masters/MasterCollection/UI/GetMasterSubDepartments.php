@@ -9,6 +9,7 @@
 namespace App\Actions\Masters\MasterCollection\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithMastersAuthorisation;
 use App\Actions\Traits\WithMasterProductCategoryListing;
 use App\Enums\Catalogue\MasterProductCategory\MasterProductCategoryTypeEnum;
 use App\Http\Resources\Masters\MasterDepartmentsResource;
@@ -20,6 +21,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class GetMasterSubDepartments extends OrgAction
 {
+    use WithMastersAuthorisation;
     use WithMasterProductCategoryListing;
 
     public function asController(MasterShop $masterShop, MasterCollection $scope, ActionRequest $request): LengthAwarePaginator

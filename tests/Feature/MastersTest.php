@@ -5213,3 +5213,49 @@ test('trade unit pickers json refuse crm staff and serve shop product editors an
         getJson($recommendedRoute)->assertOk();
     }
 });
+
+test('masters json lookups answer only masters staff, INI-076', function () {
+    $masterFamily = createMasterFamilyInFreshMasterShop('JSNPERM');
+    $masterShop   = $masterFamily->masterShop;
+    $department   = ensureMasterProductCategory();
+    [, $masterAsset] = createMasterVariantOfTwo($masterFamily, 'JSNPERM');
+    $masterCollection = StoreMasterCollection::make()->action($masterFamily, ['code' => 'JSNPERM'.substr(uniqid(), -5), 'name' => 'json permissions'], createChildren: false);
+
+    $getRoutes = [
+        route('grp.json.master_product_category.products_by_codes', [$masterFamily->id, 'codes' => $masterAsset->code]),
+        route('grp.json.master_shop.products_by_codes', [$masterShop->id, 'codes' => $masterAsset->code]),
+        route('grp.json.master_shop.product_categories_by_codes', [$masterShop->id, 'codes' => $masterFamily->code]),
+        route('grp.json.master_product_category.shops_content.index', $masterFamily->id),
+        route('grp.json.master-product-category.taken-trade-units', $masterFamily->id),
+        route('grp.json.master_shop.master_departments_and_sub_departments', $masterShop),
+        route('grp.json.master-family.all-master-family', $masterShop),
+        route('grp.json.master_product_category.families.index', $department),
+        route('grp.json.master_shop.master_departments', [$masterShop, $masterCollection]),
+        route('grp.json.master_shop.master_sub_departments', [$masterShop, $masterCollection]),
+        route('grp.json.master_shop.master_families_not_attached_to_master_collection', [$masterShop, $masterCollection]),
+        route('grp.json.master_shop.master_collections_not_attached_to_master_collection', [$masterShop, $masterCollection]),
+        route('grp.json.master_shop.master_products_not_attached_to_master_collection', [$masterShop, $masterCollection]),
+    ];
+    $postRoutes = [
+        [route('grp.json.master_products.get_price_rebels', $masterAsset->id), ['type' => 'price']],
+        [route('grp.json.master_product.check_org_stock_existence', $masterAsset), ['trade_units' => []]],
+    ];
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["products.{$this->shop->id}.edit"]);
+    foreach ($getRoutes as $url) {
+        getJson($url)->assertForbidden();
+    }
+    foreach ($postRoutes as [$url, $data]) {
+        $this->postJson($url, $data)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ['masters.view']);
+    foreach ($getRoutes as $url) {
+        getJson($url)->assertOk();
+    }
+    foreach ($postRoutes as [$url, $data]) {
+        $this->postJson($url, $data)->assertOk();
+    }
+});
