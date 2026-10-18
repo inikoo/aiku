@@ -94,6 +94,30 @@ enum WarehousePermissionsEnum: string
         return $permissionNames;
     }
 
+    /**
+     * Pickers, packers and shippers belong to the organisation: its administrators and warehouse
+     * viewers, and the dispatching, fulfilment, returns and goods in staff of any of its warehouses
+     * read them.
+     *
+     * @return array<int, string>
+     */
+    public static function getDispatchingViewPermissionNames(Organisation $organisation): array
+    {
+        $permissionNames = ["org-admin.$organisation->id", "warehouses-view.$organisation->id"];
+
+        foreach ($organisation->warehouses()->pluck('id') as $warehouseId) {
+            $permissionNames[] = "dispatching.$warehouseId.view";
+            $permissionNames[] = "supervisor-dispatching.$warehouseId";
+            $permissionNames[] = "fulfilment.$warehouseId.view";
+            $permissionNames[] = "supervisor-fulfilment.$warehouseId";
+            $permissionNames[] = "returns.$warehouseId";
+            $permissionNames[] = "incoming.$warehouseId.view";
+            $permissionNames[] = "supervisor-incoming.$warehouseId";
+        }
+
+        return $permissionNames;
+    }
+
     public static function getPermissionName(string $rawName, Warehouse $warehouse): string
     {
         $permissionComponents = explode('.', $rawName);

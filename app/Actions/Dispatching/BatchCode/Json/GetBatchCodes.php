@@ -9,6 +9,7 @@
 namespace App\Actions\Dispatching\BatchCode\Json;
 
 use App\Actions\OrgAction;
+use App\Enums\SysAdmin\Authorisation\WarehousePermissionsEnum;
 use App\Http\Resources\Dispatching\BatchCodeResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Dispatching\BatchCode;
@@ -22,8 +23,23 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetBatchCodes extends OrgAction
 {
+    public function authorize(ActionRequest $request): bool
+    {
+        $permissionNames = WarehousePermissionsEnum::getDispatchingViewPermissionNames($this->organisation);
+        $permissionNames[] = "inventory.{$this->organisation->id}.view";
+
+        foreach ($this->organisation->warehouses()->pluck('id') as $warehouseId) {
+            $permissionNames[] = "stocks.$warehouseId.view";
+            $permissionNames[] = "supervisor-stocks.$warehouseId";
+            $permissionNames[] = "incoming.$warehouseId.view";
+        }
+
+        return $request->user()->authTo($permissionNames);
+    }
+
     public function asController(Organisation $organisation, OrgStock $orgStock, ActionRequest $request): LengthAwarePaginator
     {
+        abort_unless($orgStock->organisation_id === $organisation->id, 404);
         $this->initialisation($organisation, $request);
 
         return $this->handle($orgStock);

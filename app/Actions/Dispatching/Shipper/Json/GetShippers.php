@@ -11,6 +11,7 @@
 namespace App\Actions\Dispatching\Shipper\Json;
 
 use App\Actions\OrgAction;
+use App\Enums\SysAdmin\Authorisation\WarehousePermissionsEnum;
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 use App\Http\Resources\Dispatching\ShippersResource;
@@ -21,6 +22,21 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetShippers extends OrgAction
 {
+    /**
+     * Shippers are read by the organisation's dispatching staff, and by order staff of its shops,
+     * who add shipments from the order page.
+     */
+    public function authorize(ActionRequest $request): bool
+    {
+        $permissionNames = WarehousePermissionsEnum::getDispatchingViewPermissionNames($this->organisation);
+
+        foreach ($this->organisation->shops()->pluck('id') as $shopId) {
+            $permissionNames[] = "orders.$shopId.edit";
+        }
+
+        return $request->user()->authTo($permissionNames);
+    }
+
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($organisation, $request);

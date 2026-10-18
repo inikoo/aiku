@@ -3,6 +3,7 @@
 namespace App\Actions\Fulfilment\PickingSession\Json;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\Inventory\WithFulfilmentWarehouseAuthorisation;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Inventory\PickingSession;
@@ -12,6 +13,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetPalletReturnsForPickingSession extends OrgAction
 {
+    use WithFulfilmentWarehouseAuthorisation;
     use AsAction;
 
     public function handle(PickingSession $pickingSession, string $mode, ?string $returnType = null): array

@@ -9,6 +9,7 @@
 namespace App\Actions\Dispatching\Picking\Packer\Json;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithOrganisationDispatchingViewAuthorisation;
 use App\Http\Resources\Ordering\PackersResource;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Organisation;
@@ -20,6 +21,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetPackers extends OrgAction
 {
+    use WithOrganisationDispatchingViewAuthorisation;
     public function handle(Organisation $organisation): LengthAwarePaginator
     {
 
@@ -54,11 +56,6 @@ class GetPackers extends OrgAction
             ->withPaginator(null)
             ->withQueryString();
     }
-
-    // public function authorize(ActionRequest $request): bool
-    // {
-    //     return $request->user()->authTo("human-resources.{$this->organisation->id}.view");
-    // }
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {

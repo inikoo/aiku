@@ -6571,3 +6571,89 @@ test('mini delivery note and returnable delivery notes json refuse staff without
     actingAsUserWithOnlyPermissions($user, ["returns.$warehouse->id"]);
     getJson(route('grp.json.delivery_note_valid_for_return', $warehouse))->assertOk();
 });
+
+test('dispatching json lookups refuse staff without warehouse or shop rights, INI-076', function () {
+    $organisation = $this->organisation;
+    $warehouse    = $this->warehouse;
+    expect($warehouse->organisation_id)->toBe($organisation->id)
+        ->and($this->shop->organisation_id)->toBe($organisation->id);
+
+    [$deliveryNote, $item] = handlingDeliveryNoteWithPicking($this);
+    $deliveryNote->update(['state' => DeliveryNoteStateEnum::UNASSIGNED]);
+    $pickingSession = StorePickingSession::make()->handle($warehouse, [
+        'delivery_notes' => [$deliveryNote->id],
+        'user_id'        => $this->user->id,
+    ]);
+
+    $orgData = \App\Models\SysAdmin\Organisation::factory()->definition();
+    data_set($orgData, 'code', 'acm2');
+    data_set($orgData, 'type', \App\Enums\SysAdmin\Organisation\OrganisationTypeEnum::SHOP);
+    $otherOrganisation = \App\Models\SysAdmin\Organisation::where('code', 'acm2')->first()
+        ?? \App\Actions\SysAdmin\Organisation\StoreOrganisation::make()->action($this->group, $orgData);
+    $otherOrgStock = \App\Models\Inventory\OrgStock::where('organisation_id', $otherOrganisation->id)->where('stock_id', $item->orgStock->stock_id)->first()
+        ?? StoreOrgStock::make()->action($otherOrganisation, $item->orgStock->stock);
+
+    $deliveryNoteItemRoutes = [
+        route('grp.json.delivery_note_item_row', $item->id),
+        route('grp.json.fetch_single_delivery_note_item', $item->id),
+        route('grp.json.fetch_single_delivery_note_item.image', $item->id),
+    ];
+    $equipmentRoutes = [
+        route('grp.json.available_trolleys.list', $warehouse),
+        route('grp.json.unavailable_trolleys.list', $warehouse),
+        route('grp.json.picked_bays.list', $warehouse),
+    ];
+    $pickingSessionRoutes = [
+        route('grp.json.picking_session_item_row', [$pickingSession->id, 'tab' => 'items', 'row_id' => $item->id]),
+        route('grp.json.picking_session.delivery_notes.index', $pickingSession->id),
+    ];
+    $organisationRoutes = [
+        route('grp.json.employees.picker_users', $organisation),
+        route('grp.json.employees.packers', $organisation),
+        route('grp.json.shippers.index', $organisation),
+    ];
+    $batchCodesRoute = route('grp.json.org_stock.batch_codes.index', [$organisation->id, $item->org_stock_id]);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["products.$item->shop_id.view"]);
+    foreach ([...$deliveryNoteItemRoutes, ...$equipmentRoutes, ...$organisationRoutes, $batchCodesRoute] as $url) {
+        getJson($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["orders.$item->shop_id.view"]);
+    foreach ($deliveryNoteItemRoutes as $url) {
+        getJson($url)->assertOk();
+    }
+    foreach ($pickingSessionRoutes as $url) {
+        getJson($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["dispatching.$deliveryNote->warehouse_id.view"]);
+    foreach ([...$deliveryNoteItemRoutes, ...$pickingSessionRoutes, ...$organisationRoutes] as $url) {
+        getJson($url)->assertOk();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["locations.$warehouse->id.view"]);
+    foreach ($equipmentRoutes as $url) {
+        getJson($url)->assertOk();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["orders.{$this->shop->id}.edit"]);
+    getJson(route('grp.json.shippers.index', $organisation))->assertOk();
+    getJson(route('grp.json.employees.packers', $organisation))->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["stocks.$warehouse->id.view"]);
+    getJson($batchCodesRoute)->assertOk();
+    getJson(route('grp.json.org_stock.batch_codes.index', [$organisation->id, $otherOrgStock->id]))->assertNotFound();
+
+    actingAsUserWithOnlyPermissions($user, ["returns.$warehouse->id"]);
+    foreach ([...$deliveryNoteItemRoutes, ...$organisationRoutes, $batchCodesRoute] as $url) {
+        getJson($url)->assertOk();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["org-admin.$organisation->id"]);
+    foreach ([...$deliveryNoteItemRoutes, ...$equipmentRoutes, ...$organisationRoutes, $batchCodesRoute] as $url) {
+        getJson($url)->assertOk();
+    }
+});

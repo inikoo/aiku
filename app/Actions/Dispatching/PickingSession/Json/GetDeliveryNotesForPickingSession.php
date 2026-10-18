@@ -10,6 +10,7 @@
 namespace App\Actions\Dispatching\PickingSession\Json;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithDispatchingAuthorisation;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Dispatching\DeliveryNote;
@@ -20,6 +21,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetDeliveryNotesForPickingSession extends OrgAction
 {
+    use WithDispatchingAuthorisation;
     use AsAction;
 
     public function handle(PickingSession $pickingSession, string $mode, ?string $shopSlug, ?string $fulfilmentSlug, ?string $search): array
