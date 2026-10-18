@@ -2312,6 +2312,65 @@ test('the weekly chrome ux report fetch queues every live website and the pages 
         ->and($queued)->not->toContain([$website->id, $quietWebpage->id]);
 })->depends('launch website');
 
+test('the cache warmer warms only the most visited pages that carry half the views', function (Website $website) {
+    $visitorId = DB::table('website_visitors')->insertGetId([
+        'group_id'        => $this->shop->group_id,
+        'organisation_id' => $this->shop->organisation_id,
+        'shop_id'         => $this->shop->id,
+        'website_id'      => $website->id,
+        'session_id'      => 'sess-'.Str::random(10),
+        'visitor_hash'    => Str::random(16),
+        'device_type'     => 'desktop',
+        'os'              => 'linux',
+        'browser'         => 'firefox',
+        'user_agent'      => 'test-agent',
+        'ip_hash'         => Str::random(16),
+        'first_seen_at'   => now(),
+        'last_seen_at'    => now(),
+        'created_at'      => now(),
+        'updated_at'      => now(),
+    ]);
+
+    $pageWithViews = function (int $views) use ($website, $visitorId) {
+        $webpage = StoreWebpage::make()->action($website->storefront, Webpage::factory()->definition());
+        $webpage->update(['state' => WebpageStateEnum::LIVE, 'canonical_url' => 'https://warm.test/'.$webpage->id]);
+
+        DB::table('website_page_views')->insert(array_fill(0, $views, [
+            'group_id'           => $this->shop->group_id,
+            'organisation_id'    => $this->shop->organisation_id,
+            'shop_id'            => $this->shop->id,
+            'website_id'         => $website->id,
+            'website_visitor_id' => $visitorId,
+            'webpage_id'         => $webpage->id,
+            'page_url'           => 'https://test/'.$webpage->url,
+            'page_path'          => '/'.$webpage->url,
+            'view_date'          => now()->toDateString(),
+            'duration_seconds'   => 0,
+            'created_at'         => now(),
+            'updated_at'         => now(),
+        ]));
+
+        return $webpage->canonical_url;
+    };
+
+    $busiest = $pageWithViews(2000);
+    $second  = $pageWithViews(1500);
+    $tail    = $pageWithViews(1000);
+
+    $crawl = $website->crawls()->create([
+        'depth'       => 0,
+        'concurrency' => 1,
+        'trigger'     => CrawlTriggerEnum::DEPLOYMENT,
+        'type'        => CrawlTypeEnum::HTML,
+    ]);
+
+    $method = (new ReflectionClass(CrawlWebsite::class))->getMethod('getPrioritisedUrls');
+    $urls   = $method->invoke(new CrawlWebsite(), $crawl);
+
+    expect($urls)->toBe([$busiest, $second])
+        ->and($urls)->not->toContain($tail);
+})->depends('launch website');
+
 test('our visitors web vitals are reported as the daily 75th percentile, weekly for a page with too few loads a day, never the whole website for a page', function (Website $website) {
     $measuredWebpage = StoreWebpage::make()->action($website->storefront, Webpage::factory()->definition());
     $quietWebpage    = StoreWebpage::make()->action($website->storefront, Webpage::factory()->definition());
