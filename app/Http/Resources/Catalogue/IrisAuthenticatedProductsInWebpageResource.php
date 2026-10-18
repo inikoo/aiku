@@ -56,6 +56,7 @@ use App\Http\Resources\Traits\HasProductOfferPrices;
  * @property mixed $variant_id
  * @property mixed $step_discount_data
  * @property string|null $expected_back_in_stock_at
+ * @property bool $expected_back_in_stock_is_estimate
  * @property array|null $pre_order
  */
 class IrisAuthenticatedProductsInWebpageResource extends JsonResource
@@ -76,12 +77,13 @@ class IrisAuthenticatedProductsInWebpageResource extends JsonResource
             ->pluck('id')
             ->all();
 
-        $expectedBackInStockAt = GetProductIncomingStock::make()->earliestEtaByProduct($outOfStockProductIds);
+        $expectedBackInStock = GetProductIncomingStock::make()->earliestIncomingByProduct($outOfStockProductIds);
 
         $preOrders = GetProductPreOrder::make()->byProductId($products->pluck('id')->all());
 
-        $products->each(function ($product) use ($expectedBackInStockAt, $preOrders) {
-            $product->expected_back_in_stock_at = $expectedBackInStockAt[$product->id] ?? null;
+        $products->each(function ($product) use ($expectedBackInStock, $preOrders) {
+            $product->expected_back_in_stock_at          = $expectedBackInStock[$product->id]['eta'] ?? null;
+            $product->expected_back_in_stock_is_estimate = $expectedBackInStock[$product->id]['is_estimate'] ?? false;
             $product->pre_order                 = $preOrders[$product->id] ?? null;
         });
 
@@ -152,6 +154,7 @@ class IrisAuthenticatedProductsInWebpageResource extends JsonResource
             'price_per_unit'             => $pricePerUnit,
             'available_quantity'         => $this->available_quantity,
             'expected_back_in_stock_at'  => $this->expected_back_in_stock_at ?? null,
+            'expected_back_in_stock_is_estimate' => $this->expected_back_in_stock_is_estimate ?? false,
             'is_on_demand'               => $this->is_on_demand,
             'pre_order'                  => GetProductPreOrder::make()->withPalletEstimateFor($this->pre_order ?? null, $request->user()?->customer),
             'offers_data'                => $this->offers_data, // this comes from transaction.offers_data

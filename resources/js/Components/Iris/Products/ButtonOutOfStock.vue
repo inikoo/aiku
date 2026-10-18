@@ -6,6 +6,7 @@ import { useExpectedBackInStockLabel } from "@/Composables/useOutOfStockLabel"
 const props = defineProps<{
     product: {
         expected_back_in_stock_at?: string | null
+        expected_back_in_stock_is_estimate?: boolean
     }
     label?: string | null
 }>()

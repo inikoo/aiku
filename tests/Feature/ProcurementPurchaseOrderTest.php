@@ -2302,7 +2302,10 @@ test('revert purchase order state to submitted', function ($purchaseOrder) {
     expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::SUBMITTED)
         ->and($purchaseOrder->confirmed_at)->toBeNull()
         ->and(Arr::get($purchaseOrder->data, 'estimated_production_date'))->toBeNull()
-        ->and(Arr::get($purchaseOrder->data, 'estimated_receiving_date'))->toBeNull();
+        ->and(Arr::get($purchaseOrder->data, 'estimated_receiving_date'))->toBeNull()
+        ->and($purchaseOrder->estimated_received_at?->toDateString())->toBe(
+            $purchaseOrder->estimated_delivery_days === null ? null : $purchaseOrder->submitted_at->clone()->addDays($purchaseOrder->estimated_delivery_days)->toDateString()
+        );
 
     $purchaseOrder = UpdatePurchaseOrderStateToConfirmed::make()->action($purchaseOrder->refresh());
 

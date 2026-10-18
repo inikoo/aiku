@@ -75,6 +75,8 @@ class WebBlockProductResource extends JsonResource
 
         $back_in_stock = false;
 
+        $expectedBackInStock = $product->available_quantity > 0 ? null : GetProductIncomingStock::make()->earliestIncoming($product);
+
         if ($request->user()) {
             /** @var Customer $customer */
             $customer = $request->user()->customer;
@@ -127,9 +129,8 @@ class WebBlockProductResource extends JsonResource
             'is_on_demand'      => $product->is_on_demand,
             'is_golden_product' => (bool)$product->is_golden_product,
             'is_back_in_stock'  => $back_in_stock,
-            'expected_back_in_stock_at' => $product->available_quantity > 0
-                ? null
-                : GetProductIncomingStock::make()->earliestEta($product),
+            'expected_back_in_stock_at'          => $expectedBackInStock['eta'] ?? null,
+            'expected_back_in_stock_is_estimate' => $expectedBackInStock['is_estimate'] ?? false,
             'back_in_stock'     => $back_in_stock,
             'pre_order'         => GetProductPreOrder::make()->forWebsite(GetProductPreOrder::make()->handle($product)),
 

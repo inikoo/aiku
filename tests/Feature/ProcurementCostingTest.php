@@ -439,10 +439,17 @@ test('incoming stock tells the customer when an out of stock product is expected
         ->and(GetProductIncomingStock::make()->earliestEta($product))->toBeNull();
 
     $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition());
-    $purchaseOrder->update(['data' => array_merge($purchaseOrder->data ?? [], ['estimated_receiving_date' => now()->addDays(30)->toDateString()])]);
+    $purchaseOrder->update(['estimated_received_at' => now()->addDays(45)]);
     $stockDelivery->purchaseOrders()->syncWithoutDetaching([$purchaseOrder->id]);
 
-    expect(GetProductIncomingStock::make()->earliestEta($product))->toBe(now()->addDays(30)->toDateString());
+    expect(GetProductIncomingStock::make()->earliestIncoming($product))->toBe(['eta' => now()->addDays(45)->toDateString(), 'is_estimate' => true]);
+
+    $purchaseOrder->update([
+        'estimated_received_at' => now()->addDays(30),
+        'data'                  => array_merge($purchaseOrder->data ?? [], ['estimated_receiving_date' => now()->addDays(30)->toDateString()]),
+    ]);
+
+    expect(GetProductIncomingStock::make()->earliestIncoming($product))->toBe(['eta' => now()->addDays(30)->toDateString(), 'is_estimate' => false]);
 
     $expectedEta = now()->addDays(9)->toDateString();
     $stockDelivery->update(['data' => array_merge($stockDelivery->data ?? [], ['estimated_receiving_date' => $expectedEta])]);
@@ -493,7 +500,8 @@ test('incoming stock tells the customer when an out of stock product is expected
     $product->update(['available_quantity' => 0]);
     $productCards = \App\Http\Resources\Catalogue\IrisAuthenticatedProductsInWebpageResource::collection(collect([$product->fresh()]))->resolve();
 
-    expect($productCards[0]['expected_back_in_stock_at'])->toBe($expectedEta);
+    expect($productCards[0]['expected_back_in_stock_at'])->toBe($expectedEta)
+        ->and($productCards[0]['expected_back_in_stock_is_estimate'])->toBeFalse();
 });
 
 test('a partly delivered purchase order still shows the lines that are not in the delivery', function () {

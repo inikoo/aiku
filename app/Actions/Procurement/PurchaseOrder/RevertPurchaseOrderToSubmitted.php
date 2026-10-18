@@ -39,8 +39,11 @@ class RevertPurchaseOrderToSubmitted extends OrgAction
 
         $purchaseOrder = $this->update($purchaseOrder, [
             'state'        => PurchaseOrderStateEnum::SUBMITTED,
-            'confirmed_at' => null,
-            'data'         => [
+            'confirmed_at'          => null,
+            'estimated_received_at' => $purchaseOrder->estimated_delivery_days !== null
+                ? $purchaseOrder->submitted_at?->clone()->addDays($purchaseOrder->estimated_delivery_days)
+                : null,
+            'data'                  => [
                 'estimated_production_date' => null,
                 'estimated_receiving_date'  => null,
             ],
