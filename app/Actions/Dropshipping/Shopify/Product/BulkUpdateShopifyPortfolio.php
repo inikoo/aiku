@@ -90,6 +90,9 @@ class BulkUpdateShopifyPortfolio implements ShouldBeUnique
             return;
         }
 
+        $customerSalesChannel->loadMissing('platform');
+        $portfolios->each->setRelation('customerSalesChannel', $customerSalesChannel);
+
         $productMap = Product::on('aiku_no_sticky')
             ->whereIn('id', $portfolios->pluck('item_id')->unique())
             ->select('id', 'code', 'available_quantity', 'is_for_sale', 'exclusive_for_customer_id', 'state')
@@ -121,7 +124,7 @@ class BulkUpdateShopifyPortfolio implements ShouldBeUnique
      */
     private function processChunk(ShopifyUser $shopifyUser, CustomerSalesChannel $customerSalesChannel, Collection $portfolios, Collection $productMap, array $holdersByVariant, array &$variantsSent, ?Command $command = null): void
     {
-        $logs                   = [];
+        $portfoliosToLog        = [];
         $inventoryItems         = [];
         $portfoliosToUpdateData = [];
         $indexToPortfolioId     = [];
@@ -203,12 +206,14 @@ class BulkUpdateShopifyPortfolio implements ShouldBeUnique
                 'note'             => $sharedListingNote,
             ];
 
-            $logs[$portfolio->id] = StorePlatformPortfolioLog::run($portfolio, []);
+            $portfoliosToLog[] = $portfolio;
         }
 
         if (empty($inventoryItems)) {
             return;
         }
+
+        $logs = StorePlatformPortfolioLog::make()->handleMany($portfoliosToLog);
 
         $mutation = <<<'MUTATION'
             mutation inventorySetQuantities($input: InventorySetQuantitiesInput!) {
@@ -259,6 +264,21 @@ class BulkUpdateShopifyPortfolio implements ShouldBeUnique
             }
         }
 
+        $sentPortfolioIdsByStock = [];
+        foreach ($indexToPortfolioId as $index => $portfolioId) {
+            if (!isset($failedIndices[$index]) && $portfolios->has($portfolioId)) {
+                $sentPortfolioIdsByStock[$portfoliosToUpdateData[$portfolioId]['last_stock_value']][] = $portfolioId;
+            }
+        }
+
+        $stockSentAt = now();
+        foreach ($sentPortfolioIdsByStock as $stock => $portfolioIds) {
+            Portfolio::on('aiku_no_sticky')->whereIn('id', $portfolioIds)->update([
+                'last_stock_value'      => $stock,
+                'stock_last_updated_at' => $stockSentAt,
+            ]);
+        }
+
         foreach ($inventoryItems as $index => $item) {
             $portfolioId = $indexToPortfolioId[$index];
             $portfolio   = $portfolios->get($portfolioId);
@@ -280,10 +300,6 @@ class BulkUpdateShopifyPortfolio implements ShouldBeUnique
             } else {
                 $command?->line("Portfolio $portfolioId usefully updated");
                 $listingStatus = $statusByProduct[$portfolio?->platform_product_id] ?? null;
-                $portfolio?->update([
-                    'last_stock_value'      => $portfoliosToUpdateData[$portfolioId]['last_stock_value'],
-                    'stock_last_updated_at' => now(),
-                ]);
                 if ($log && $portfoliosToUpdateData[$portfolioId]['note']) {
                     UpdatePlatformPortfolioLog::dispatch($log, [
                         'status'   => PlatformPortfolioLogsStatusEnum::FAIL,

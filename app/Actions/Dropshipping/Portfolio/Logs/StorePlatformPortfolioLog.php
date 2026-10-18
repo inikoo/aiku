@@ -19,6 +19,48 @@ class StorePlatformPortfolioLog extends OrgAction
 {
     public function handle(Portfolio $portfolio, array $modelData): PlatformPortfolioLogs
     {
+        return PlatformPortfolioLogs::create($this->attributes($portfolio, $modelData));
+    }
+
+    /**
+     * One insert for many portfolios, each row as handle() would store it with no extra data.
+     *
+     * @param  iterable<Portfolio>  $portfolios
+     * @return array<int, PlatformPortfolioLogs>  portfolio id => its new log
+     */
+    public function handleMany(iterable $portfolios): array
+    {
+        $log       = new PlatformPortfolioLogs();
+        $timestamp = $log->fromDateTime($log->freshTimestamp());
+
+        $rows = [];
+        foreach ($portfolios as $portfolio) {
+            $row = $this->attributes($portfolio, []);
+            foreach ($row as $column => $value) {
+                if ($value instanceof \BackedEnum) {
+                    $row[$column] = $value->value;
+                }
+            }
+            $rows[] = [...$row, 'updated_at' => $timestamp, 'created_at' => $timestamp];
+        }
+
+        if (!$rows) {
+            return [];
+        }
+
+        $query      = PlatformPortfolioLogs::query()->toBase();
+        $connection = $query->getConnection();
+        $inserted   = $connection->selectFromWriteConnection(
+            $query->getGrammar()->compileInsert($query, $rows).' returning *',
+            $query->cleanBindings(Arr::flatten($rows, 1))
+        );
+        $connection->recordsHaveBeenModified();
+
+        return PlatformPortfolioLogs::hydrate($inserted)->keyBy('portfolio_id')->all();
+    }
+
+    private function attributes(Portfolio $portfolio, array $modelData): array
+    {
         data_set($modelData, 'group_id', $portfolio->group_id);
         data_set($modelData, 'organisation_id', $portfolio->organisation_id);
         data_set($modelData, 'shop_id', $portfolio->shop_id);
@@ -36,7 +78,7 @@ class StorePlatformPortfolioLog extends OrgAction
             data_set($modelData, 'type', PlatformPortfolioLogsTypeEnum::UPDATE_STOCK);
         }
 
-        return PlatformPortfolioLogs::create($modelData);
+        return $modelData;
     }
 
 }

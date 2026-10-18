@@ -1479,6 +1479,122 @@ test('the stock push heals a stale variant id by sku, applies threshold and cap,
     expect($fresh->refresh()->stock_last_fail_updated_at)->not->toBeNull();
 });
 
+test('the stock push records one log per product on its channel, stamps only the products shopify took and fails every product of a chunk shopify refuses', function () {
+    Queue::fake();
+    $shopifyUser = shopifyProductChannel($this, 'product-stock-rows');
+    $channel     = $shopifyUser->customerSalesChannel;
+    $channel->update(['max_quantity_advertise' => 0, 'stock_threshold' => 0]);
+
+    $newProduct = fn (int $available) => tap(\App\Actions\Catalogue\Product\StoreProduct::make()->action($this->product->family, array_merge(\App\Models\Catalogue\Product::factory()->definition(), ['trade_units' => [['id' => $this->product->tradeUnits->first()->id, 'quantity' => 1]], 'price' => 50])))
+        ->update(['available_quantity' => $available, 'is_for_sale' => true]);
+
+    $portfolios = collect([12, 7, 4, 9, 7])->map(function (int $available, int $index) use ($channel, $newProduct) {
+        $portfolio = StorePortfolio::make()->action($channel, $newProduct($available), []);
+        $portfolio->update(['platform_product_id' => 'gid://shopify/Product/76'.$index, 'platform_product_variant_id' => 'gid://shopify/ProductVariant/86'.$index, 'platform_status' => true]);
+        \Illuminate\Support\Facades\DB::table('portfolios')->where('id', $portfolio->id)->update(['updated_at' => '2026-01-01 00:00:00']);
+
+        return $portfolio->refresh();
+    });
+    [$active, $draft, $refused, $gone, $activeToo] = $portfolios->all();
+
+    $variantEdge = fn (int $index) => ['node' => ['id' => 'gid://shopify/ProductVariant/86'.$index, 'sku' => '', 'inventoryItem' => ['id' => 'gid://shopify/InventoryItem/86'.$index]]];
+    ShopifyFake::fake([
+        'getProductsVariants'    => fn (array $variables) => ShopifyFake::graphql(['nodes' => array_map(fn (string $id) => match ($id) {
+            'gid://shopify/Product/760' => ['id' => $id, 'status' => 'ACTIVE', 'variants' => ['edges' => [$variantEdge(0)]]],
+            'gid://shopify/Product/761' => ['id' => $id, 'status' => 'DRAFT', 'variants' => ['edges' => [$variantEdge(1)]]],
+            'gid://shopify/Product/762' => ['id' => $id, 'status' => 'ACTIVE', 'variants' => ['edges' => [$variantEdge(2)]]],
+            'gid://shopify/Product/764' => ['id' => $id, 'status' => 'ACTIVE', 'variants' => ['edges' => [$variantEdge(4)]]],
+            default                     => null,
+        }, $variables['ids'])]),
+        'inventorySetQuantities' => ShopifyFake::graphql(['inventorySetQuantities' => ['userErrors' => [['field' => ['input', 'quantities', '2', 'quantity'], 'message' => 'Quantity is not allowed']]]]),
+    ]);
+
+    $logsOf = fn (Portfolio $portfolio) => PlatformPortfolioLogs::where('portfolio_id', $portfolio->id)->orderBy('id')->get();
+    $queuedLogUpdates = fn () => collect(Queue::pushedJobs())->flatten(1)->pluck('job')
+        ->filter(fn ($job) => $job instanceof JobDecorator && $job->getAction() instanceof UpdatePlatformPortfolioLog)
+        ->map(fn ($job) => ['log' => $job->getParameters()[0], 'data' => $job->getParameters()[1]])
+        ->values();
+
+    $firstRun = $this->freezeSecond();
+    $statements = [];
+    \Illuminate\Support\Facades\DB::listen(function ($query) use (&$statements) {
+        $statements[] = $query->sql;
+    });
+    BulkUpdateShopifyPortfolio::run($channel->id);
+    $statementsLike = fn (string $start) => count(array_filter($statements, fn (string $sql) => str_starts_with($sql, $start)));
+    expect($statementsLike('insert into "platform_portfolio_logs"'))->toBe(2)
+        ->and($statementsLike('update "portfolios" set "last_stock_value"'))->toBe(2)
+        ->and($statementsLike('select * from "customer_sales_channels"'))->toBe(1)
+        ->and($statementsLike('select * from "platforms"'))->toBe(1);
+
+    $quantities = collect(ShopifyFake::calls('inventorySetQuantities')[0]['variables']['input']['quantities'])->pluck('quantity', 'inventoryItemId');
+    expect($quantities->all())->toBe(['gid://shopify/InventoryItem/860' => 12, 'gid://shopify/InventoryItem/861' => 7, 'gid://shopify/InventoryItem/862' => 4, 'gid://shopify/InventoryItem/864' => 7]);
+
+    foreach ([$active, $draft, $activeToo] as $portfolio) {
+        $portfolio->refresh();
+        expect($portfolio->last_stock_value)->toBe($quantities['gid://shopify/InventoryItem/'.Str::after($portfolio->platform_product_variant_id, 'ProductVariant/')])
+            ->and($portfolio->stock_last_updated_at->equalTo($firstRun))->toBeTrue()
+            ->and($portfolio->updated_at->equalTo($firstRun))->toBeTrue()
+            ->and($portfolio->stock_last_fail_updated_at)->toBeNull();
+    }
+    foreach ([$refused, $gone] as $portfolio) {
+        $portfolio->refresh();
+        expect($portfolio->last_stock_value)->toBeNull()
+            ->and($portfolio->stock_last_updated_at)->toBeNull()
+            ->and($portfolio->stock_last_fail_updated_at->equalTo($firstRun))->toBeTrue();
+    }
+
+    $platformType = $channel->platform->type;
+    foreach ($portfolios as $portfolio) {
+        $logs = $logsOf($portfolio);
+        expect($logs)->toHaveCount(1)
+            ->and($logs[0]->only(['group_id', 'organisation_id', 'shop_id', 'customer_id', 'customer_sales_channel_id', 'platform_id', 'platform_type', 'status', 'type', 'response']))->toBe([
+                'group_id'                  => $portfolio->group_id,
+                'organisation_id'           => $portfolio->organisation_id,
+                'shop_id'                   => $portfolio->shop_id,
+                'customer_id'               => $portfolio->customer_id,
+                'customer_sales_channel_id' => $channel->id,
+                'platform_id'               => $portfolio->platform_id,
+                'platform_type'             => $platformType->value,
+                'status'                    => PlatformPortfolioLogsStatusEnum::PROCESSING,
+                'type'                      => PlatformPortfolioLogsTypeEnum::UPDATE_STOCK,
+                'response'                  => null,
+            ])
+            ->and($logs[0]->created_at->equalTo($firstRun))->toBeTrue()
+            ->and($logs[0]->updated_at->equalTo($firstRun))->toBeTrue();
+    }
+
+    $updates = $queuedLogUpdates()->keyBy(fn (array $update) => $update['log']->portfolio_id);
+    expect($queuedLogUpdates())->toHaveCount(5)
+        ->and($updates->map(fn (array $update) => $update['log']->exists && $update['log']->is($logsOf(Portfolio::find($update['log']->portfolio_id))[0]))->unique()->values()->all())->toBe([true])
+        ->and($updates[$active->id]['data'])->toBe(['status' => PlatformPortfolioLogsStatusEnum::OK])
+        ->and($updates[$activeToo->id]['data'])->toBe(['status' => PlatformPortfolioLogsStatusEnum::OK])
+        ->and($updates[$draft->id]['data'])->toBe(['status' => PlatformPortfolioLogsStatusEnum::OK, 'response' => 'Stock sent, but this product is draft in your Shopify store, so it is not for sale there'])
+        ->and($updates[$refused->id]['data'])->toBe(['status' => PlatformPortfolioLogsStatusEnum::FAIL, 'response' => 'Quantity is not allowed'])
+        ->and($updates[$gone->id]['data'])->toBe(['status' => PlatformPortfolioLogsStatusEnum::FAIL, 'response' => 'This product is no longer in your Shopify store']);
+
+    Queue::fake();
+    ShopifyFake::fake([
+        'getProductsVariants'    => fn (array $variables) => ShopifyFake::graphql(['nodes' => array_map(fn (string $id) => ['id' => $id, 'status' => 'ACTIVE', 'variants' => ['edges' => [$variantEdge((int) Str::after($id, 'Product/76'))]]], $variables['ids'])]),
+        'inventorySetQuantities' => Http::response(['errors' => [['message' => 'Throttled', 'extensions' => ['code' => 'THROTTLED']]]]),
+    ]);
+    $this->travel(1)->minutes();
+    $secondRun = now();
+    BulkUpdateShopifyPortfolio::run($channel->id);
+
+    foreach ($portfolios as $portfolio) {
+        $before = $portfolio->only(['last_stock_value', 'stock_last_updated_at']);
+        $portfolio->refresh();
+        expect($portfolio->stock_last_fail_updated_at->equalTo($secondRun))->toBeTrue()
+            ->and($portfolio->last_stock_value)->toBe($before['last_stock_value'])
+            ->and($portfolio->stock_last_updated_at?->toDateTimeString())->toBe($before['stock_last_updated_at']?->toDateTimeString())
+            ->and($logsOf($portfolio))->toHaveCount(2);
+    }
+    $failures = $queuedLogUpdates();
+    expect($failures)->toHaveCount(5)
+        ->and($failures->map(fn (array $update) => [$update['data']['status'], Str::contains((string) $update['data']['response'], 'Throttled'), $update['log']->exists])->unique()->values()->all())->toBe([[PlatformPortfolioLogsStatusEnum::FAIL, true, true]]);
+});
+
 test('the six-hourly stock push only queues open channels that want stock updates and are live on shopify', function () {
     Queue::fake();
     $live = shopifyProductChannel($this, 'stock-live')->customerSalesChannel;
