@@ -50,6 +50,10 @@ use Illuminate\Support\Facades\Cache;
 use App\Actions\Retina\Dropshipping\Product\SaveDataFeeds;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use Illuminate\Support\Str;
+use App\Actions\Comms\Outbox\ReviewReminder\ProcessReviewReminderRecipients;
+use App\Actions\Iris\Reviews\ShowIrisOrderReview;
+use App\Enums\Catalogue\Review\ReviewScopeEnum;
+use App\Models\Reviews\Review;
 
 use function Pest\Laravel\actingAs;
 
@@ -822,4 +826,55 @@ test('data feeds are rebuilt hourly only while someone reads them', function () 
     $this->artisan('data_feeds:save')->assertSuccessful();
 
     Storage::disk('data-feeds')->assertMissing($path);
+});
+
+test('a customer rates their order and its products from the stars in the review reminder email', function () {
+    DetectWebsiteFromDomain::mock()->shouldReceive('parseDomain')->andReturn($this->website->domain);
+    $this->withoutMiddleware(ThrottleRequests::class);
+    Queue::fake();
+
+    [, $product] = createProduct($this->shop);
+    $order       = createOrder(createCustomer($this->shop), $product);
+    $page        = ShowIrisOrderReview::make()->handle($order);
+    $productId   = $page['products'][0]['reviewable_id'];
+
+    $link  = '/review/'.$order->id.'/'.$order->reviewToken();
+    $site  = 'http://'.$this->website->domain;
+    $email = (new ProcessReviewReminderRecipients())->generateReviewLinks((string) $order->id);
+
+    expect($order->reviewUrl())->toBe('https://'.$this->website->domain.$link)
+        ->and($email)->toContain(e($order->reviewUrl(['rating' => 5])))
+        ->and($email)->toContain(e($order->reviewUrl(['product' => $productId, 'rating' => 1])))
+        ->and($page['company']['reviewable_id'])->toBe($order->id);
+
+    $this->get($site.'/review/'.$order->id.'/not-the-token')->assertNotFound();
+    $this->postJson($site.'/models/review/'.$order->id.'/not-the-token', [
+        'reviews' => [['scope' => 'order', 'reviewable_id' => $order->id, 'rating' => 5]],
+    ])->assertNotFound();
+
+    $this->postJson($site.'/models'.$link, [
+        'reviews' => [
+            ['scope' => 'order', 'reviewable_id' => $order->id, 'rating' => 5, 'message' => 'Fast delivery'],
+            ['scope' => 'product', 'reviewable_id' => $productId, 'rating' => 4],
+        ],
+    ])->assertOk()
+        ->assertJsonPath('company.rating', 5)
+        ->assertJsonPath('company.message', 'Fast delivery')
+        ->assertJsonPath('products.0.rating', 4);
+
+    $orderReviews = fn () => Review::query()->where('order_id', $order->id);
+    $numberReviews = $orderReviews()->count();
+
+    expect($orderReviews()->where('scope', ReviewScopeEnum::ORDER)->value('customer_id'))->toBe($order->customer_id);
+
+    $this->postJson($site.'/models'.$link, [
+        'reviews' => [['scope' => 'product', 'reviewable_id' => $productId, 'rating' => 2, 'message' => 'Arrived broken']],
+    ])->assertOk()->assertJsonPath('products.0.rating', 2);
+
+    expect($orderReviews()->count())->toBe($numberReviews)
+        ->and((int) $orderReviews()->where('product_id', $productId)->value('rating_main'))->toBe(2);
+
+    $this->postJson($site.'/models'.$link, [
+        'reviews' => [['scope' => 'product', 'reviewable_id' => 999999999, 'rating' => 5]],
+    ])->assertUnprocessable()->assertJsonValidationErrors('reviews.0.reviewable_id');
 });

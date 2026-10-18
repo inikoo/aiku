@@ -3110,10 +3110,8 @@ test('process review reminder recipients returns early when bulk run not found',
     expect(true)->toBeTrue();
 });
 
-test('process review reminder recipients generates review links', function () {
-    $links = (new ProcessReviewReminderRecipients())->generateReviewLinks('999999999');
-
-    expect($links)->toBeString()->toContain('<ul>');
+test('process review reminder recipients skips orders that no longer exist', function () {
+    expect((new ProcessReviewReminderRecipients())->generateReviewLinks('999999999'))->toBe('');
 });
 
 test('run review reminder email bulk runs with no active outboxes', function () {

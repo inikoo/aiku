@@ -697,6 +697,31 @@ class Order extends Model implements HasMedia, Auditable
     }
 
     /**
+     * The link in the review reminder is the customer's only key to review this order without
+     * signing in, so the stars in the email can open the review page directly (HELP-4098).
+     */
+    public function reviewToken(): string
+    {
+        return hash_hmac('sha256', 'order-review:'.$this->id, (string) config('app.key'));
+    }
+
+    /**
+     * @param  array{product?: int, rating?: int}  $preselect
+     */
+    public function reviewUrl(array $preselect = []): ?string
+    {
+        $domain = $this->shop->website?->domain;
+
+        if (!$domain) {
+            return null;
+        }
+
+        $url = 'https://'.$domain.'/review/'.$this->id.'/'.$this->reviewToken();
+
+        return $preselect ? $url.'?'.http_build_query($preselect) : $url;
+    }
+
+    /**
      * The two halves of a submitted order's payment state, and the only definition of them: the
      * backlog splits submitted orders between these two and staff work from that split alone, so
      * an order that fell between them was invisible (HELP-3116).

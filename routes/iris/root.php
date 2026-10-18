@@ -30,6 +30,7 @@ use App\Actions\Comms\Unsubscribe\ShowUnsubscribeFromAurora;
 use App\Actions\Accounting\Payment\CheckoutCom\ReceiveCheckoutComPaymentWebhook;
 use App\Actions\Web\Webpage\Iris\ShowIrisCatalogue;
 use App\Actions\Iris\Reviews\ShowIrisFamilyReview;
+use App\Actions\Iris\Reviews\ShowIrisOrderReview;
 use App\Actions\Iris\Reviews\ShowIrisProductReview;
 use App\Actions\Iris\Reviews\ShowIrisReviews;
 use App\Actions\Iris\Docs\ShowIrisDoc;
@@ -128,6 +129,7 @@ Route::middleware(["iris-relax-auth:retina"])->group(function () {
 
         Route::get('/reviews/product/{product}', ShowIrisProductReview::class)->name('reviews.product');
         Route::get('/reviews/family/{family}', ShowIrisFamilyReview::class)->name('reviews.family');
+        Route::get('/review/{order:id}/{token}', ShowIrisOrderReview::class)->name('order_review')->whereNumber('order');
 
         Route::get('/{path?}', ShowIrisWebpage::class)->name('iris_webpage');
         Route::get('/{parentPath1}/{path}', [ShowIrisWebpage::class, 'deep1'])->name('iris_webpage.deep1');
