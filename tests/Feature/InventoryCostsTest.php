@@ -372,6 +372,121 @@ describe('aurora provisional cost fix', function () {
 
         expect((float) $picked->fresh()->running_fifo_value)->toBe(120.0);
     });
+
+    test('the batched current stock history run writes the same rows as the one stock at a time calculation', function () {
+        \Illuminate\Support\Facades\Queue::fake();
+        $this->organisation->update(['wac_calculations_start_date' => now()->subDays(8)->toDateString()]);
+
+        [$withPurchases, $location] = costFixStockInLocation($this->group, $this->organisation, 'CFBA');
+        $secondLocation             = \App\Actions\Inventory\Location\StoreLocation::make()->action($location->warehouse, array_merge(\App\Models\Inventory\Location::factory()->definition(), ['code' => 'CF-CFBA2']));
+        \App\Actions\Inventory\LocationOrgStock\StoreLocationOrgStock::make()->action($withPurchases, $secondLocation, ['type' => \App\Enums\Inventory\LocationStock\LocationStockTypeEnum::STORING]);
+        [$withoutPurchases, $otherLocation] = costFixStockInLocation($this->group, $this->organisation, 'CFBB');
+        $withoutPurchases->update(['current_supplier_sku_cost' => 7.25]);
+        [$withoutLocations, $formerLocation] = costFixStockInLocation($this->group, $this->organisation, 'CFBC');
+
+        $movements = [
+            [$withPurchases, $location, OrgStockMovementTypeEnum::PURCHASE, 8, 1.5, 0, 400],
+            [$withPurchases, $location, OrgStockMovementTypeEnum::PICKED, -3, null, 0, 200],
+            [$withPurchases, $location, OrgStockMovementTypeEnum::PURCHASE, 10, 2, 0, 9],
+            [$withPurchases, $location, OrgStockMovementTypeEnum::PICKED, -15, null, 0, 8],
+            [$withPurchases, $location, OrgStockMovementTypeEnum::FOUND, 4, null, 0, 7],
+            [$withPurchases, $secondLocation, OrgStockMovementTypeEnum::FOUND, 3, null, 0, 7],
+            [$withPurchases, $location, OrgStockMovementTypeEnum::PURCHASE, 20, null, 90, 5],
+            [$withPurchases, $location, OrgStockMovementTypeEnum::AUDIT, 7, null, 0, 4],
+            [$withPurchases, $secondLocation, OrgStockMovementTypeEnum::PICKED, -6, null, 0, 3],
+            [$withPurchases, $location, OrgStockMovementTypeEnum::PURCHASE, 5, 6, 0, 2],
+            [$withPurchases, $location, OrgStockMovementTypeEnum::PURCHASE, 4, 0, 0, -3],
+            [$withoutPurchases, $otherLocation, OrgStockMovementTypeEnum::FOUND, 12, null, 0, 6],
+            [$withoutPurchases, $otherLocation, OrgStockMovementTypeEnum::PICKED, -2, null, 0, 1],
+            [$withoutLocations, $formerLocation, OrgStockMovementTypeEnum::PURCHASE, 6, 3, 0, 30],
+            [$withoutLocations, $formerLocation, OrgStockMovementTypeEnum::PICKED, -6, null, 0, 20],
+        ];
+        foreach ($movements as [$orgStock, $movementLocation, $type, $quantity, $costPerSku, $orgAmount, $daysAgo]) {
+            $movement = StoreOrgStockMovement::make()->action($orgStock, $movementLocation, ['type' => $type->value, 'quantity' => $quantity]);
+            $movement->update([
+                'cost_per_sku' => $costPerSku,
+                'org_amount'   => $orgAmount,
+                'date'         => now()->subDays($daysAgo),
+                'source_id'    => $type === OrgStockMovementTypeEnum::AUDIT ? $this->organisation->id.':990002' : null,
+            ]);
+        }
+        DB::table('org_stock_movements')->where('org_stock_id', $withPurchases->id)->where('type', OrgStockMovementTypeEnum::ASSOCIATE->value)->update(['date' => now()->subDays(500)]);
+        $formerLocationOrgStock = (array) DB::table('location_org_stocks')->where('org_stock_id', $withoutLocations->id)->first();
+        DB::table('location_org_stocks')->where('org_stock_id', $withoutLocations->id)->delete();
+
+        $orgStocks   = [$withPurchases, $withoutPurchases, $withoutLocations];
+        $orgStockIds = array_map(fn ($orgStock) => $orgStock->id, $orgStocks);
+        $readRows    = fn () => [
+            DB::table('org_stock_histories')->whereIn('org_stock_id', $orgStockIds)->where('date', today()->toDateString())->orderBy('org_stock_id')
+                ->get()->map(fn ($row) => collect((array) $row)->except(['id', 'created_at', 'updated_at'])->all())->all(),
+            DB::table('location_org_stock_histories')->whereIn('org_stock_id', $orgStockIds)->where('date', today()->toDateString())->orderBy('org_stock_id')->orderBy('location_id')
+                ->get()->map(fn ($row) => collect((array) $row)->except(['id', 'created_at', 'updated_at', 'org_stock_history_id'])->all())->all(),
+            DB::table('org_stocks')->whereIn('id', $orgStockIds)->orderBy('id')->get(['id', 'sku_value', 'lpp_per_sku'])->map(fn ($row) => (array) $row)->all(),
+        ];
+        $resetRows = function () use ($orgStockIds, $withoutLocations, $formerLocationOrgStock) {
+            DB::table('location_org_stock_histories')->whereIn('org_stock_id', $orgStockIds)->delete();
+            DB::table('org_stock_histories')->whereIn('org_stock_id', $orgStockIds)->delete();
+            DB::table('location_org_stocks')->insert($formerLocationOrgStock);
+            \App\Actions\Inventory\OrgStock\Stock\CalculateOrgStockCurrentStockHistories::run($withoutLocations->id);
+            DB::table('location_org_stocks')->where('org_stock_id', $withoutLocations->id)->delete();
+            DB::table('org_stocks')->whereIn('id', $orgStockIds)->update(['sku_value' => null, 'lpp_per_sku' => null]);
+        };
+
+        $runPreviousCalculation = function (\App\Models\Inventory\OrgStock $orgStock) {
+            $calculator   = \App\Actions\Inventory\OrgStock\Stock\CalculateOrgStockCurrentStockHistories::make();
+            $date         = \Illuminate\Support\Carbon::now();
+            $exchangeRate = \App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange::run($orgStock->organisation->currency, $orgStock->group->currency);
+            $costPerSku   = $calculator->getLppPerSku($orgStock, $date);
+            $valuation    = $calculator->getValuationPerSku($orgStock, $date);
+            $locations    = [];
+            foreach (\App\Models\Inventory\LocationOrgStock::where('org_stock_id', $orgStock->id)->get() as $locationOrgStock) {
+                $quantity    = $locationOrgStock->quantity;
+                $locations[] = [
+                    'location_id'          => $locationOrgStock->location_id,
+                    'quantity'             => $quantity,
+                    'org_stock_lpp_value'  => $quantity * $costPerSku,
+                    'grp_stock_lpp_value'  => $quantity * $costPerSku * $exchangeRate,
+                    'org_stock_wac_value'  => $valuation['wac'] === null ? null : $quantity * $valuation['wac'],
+                    'grp_stock_wac_value'  => $valuation['wac'] === null ? null : $quantity * $valuation['wac'] * $exchangeRate,
+                    'org_stock_fifo_value' => $valuation['fifo'] === null ? null : $quantity * $valuation['fifo'],
+                    'grp_stock_fifo_value' => $valuation['fifo'] === null ? null : $quantity * $valuation['fifo'] * $exchangeRate,
+                ];
+            }
+            $lastSoldDate = $calculator->lastSoldDate($orgStock, $date);
+            (fn () => $this->persistOrgStockHistories($orgStock, $date, $locations, $costPerSku, $lastSoldDate, 60, $valuation['wac'], $valuation['fifo']))->call($calculator);
+
+            $officialPerSku = $valuation['fifo'] > 0 ? $valuation['fifo'] : $costPerSku;
+            $orgStock->update(array_filter(['sku_value' => $officialPerSku > 0 ? $officialPerSku : null, 'lpp_per_sku' => $costPerSku > 0 ? $costPerSku : null]));
+        };
+
+        $resetRows();
+        foreach ($orgStocks as $orgStock) {
+            $runPreviousCalculation(\App\Models\Inventory\OrgStock::find($orgStock->id));
+        }
+        $previous = $readRows();
+
+        $resetRows();
+        \App\Actions\Inventory\OrgStock\Stock\RunCurrentStockHistory::run();
+        \App\Actions\Inventory\OrgStock\Stock\CalculateOrgStockCurrentStockHistories::run($withoutLocations->id);
+        $batched = $readRows();
+
+        $resetRows();
+        foreach ($orgStockIds as $orgStockId) {
+            \App\Actions\Inventory\OrgStock\Stock\CalculateOrgStockCurrentStockHistories::run($orgStockId);
+        }
+        $oneAtATime = $readRows();
+
+        expect($batched)->toEqual($previous)
+            ->and($oneAtATime)->toEqual($previous)
+            ->and($previous[0])->toHaveCount(3)
+            ->and($previous[1])->toHaveCount(3);
+
+        $withPurchasesRow = collect($previous[0])->firstWhere('org_stock_id', $withPurchases->id);
+        expect((float) $withPurchasesRow['lpp_per_sku'])->toBe(6.0)
+            ->and($withPurchasesRow['last_sold_date'])->toBe(now()->subDays(3)->toDateString())
+            ->and((float) collect($previous[0])->firstWhere('org_stock_id', $withoutPurchases->id)['lpp_per_sku'])->toBe(7.25)
+            ->and(collect($previous[0])->firstWhere('org_stock_id', $withoutLocations->id)['number_locations'])->toBe(0);
+    });
 });
 
 test('repair org stock movement cost prices per sko in organisation currency', function () {
