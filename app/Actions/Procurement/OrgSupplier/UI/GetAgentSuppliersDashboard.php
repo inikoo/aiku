@@ -118,10 +118,6 @@ class GetAgentSuppliersDashboard
                 'currencies' => $currencies->keys()->values(),
             ],
             'kpis'        => [
-                'active_suppliers' => [
-                    'value' => $suppliers->where('status', true)->count(),
-                    'route' => $route('grp.org.procurement.org_suppliers.index', [], ['tab' => 'index']),
-                ],
                 'open'             => [
                     'value'       => $sent->count(),
                     'amount'      => $money($sent->sum('amount')),

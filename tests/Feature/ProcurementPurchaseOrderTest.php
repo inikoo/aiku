@@ -565,7 +565,9 @@ test('agent manager only sees their own agent organisation', function () {
         ->assertInertia(fn ($page) => $page
             ->where('tabs.current', 'dashboard')
             ->missing('index')
-            ->where('dashboard.kpis.active_suppliers.value', Supplier::where('agent_id', $this->agent->id)->where('status', true)->count())
+            ->where('tabs.navigation.index.title', 'Supplier list')
+            ->where('tabs.navigation.index.number', Supplier::where('agent_id', $this->agent->id)->where('status', true)->count())
+            ->missing('dashboard.kpis.active_suppliers')
             ->has('dashboard.chase.rows')
             ->has('dashboard.stages', 6));
 
