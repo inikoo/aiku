@@ -41,6 +41,7 @@ class GetAgentOrganisationNavigation
                 'agent_purchase_orders' => [
                     $this->procurementSubSection(__('Dashboard'), 'fa-chart-network', 'grp.org.agent.purchase_orders.dashboard', 'grp.org.agent.purchase_orders.dashboard', $organisation),
                     $this->procurementSubSection(__('List'), 'fa-clipboard-list', 'grp.org.agent.purchase_orders.index', 'grp.org.agent.purchase_orders.index', $organisation),
+                    $this->procurementSubSection(__('Agent orders'), 'fa-boxes', 'grp.org.agent.purchase_orders.agent_orders', 'grp.org.agent.purchase_orders.agent_orders', $organisation),
                     $this->procurementSubSection(__('Board'), 'fa-columns', 'grp.org.agent.purchase_orders.board', 'grp.org.agent.purchase_orders.board', $organisation),
                     $this->procurementSubSection(__('Reports'), 'fa-chart-line', 'grp.org.agent.purchase_orders.reports', 'grp.org.agent.purchase_orders.reports', $organisation),
                 ],

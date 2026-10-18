@@ -167,6 +167,10 @@ function SupplierFilterHref(purchaseOrder: PurchaseOrder) {
 }
 
 function AgentOrderRoute(purchaseOrder: PurchaseOrder) {
+	if (isInAgentOrganisation && purchaseOrder?.agent_order_reference && purchaseOrder.slug) {
+		return route("grp.org.agent.purchase_orders.whole_order", [route().params["organisation"], purchaseOrder.slug])
+	}
+
 	if (!purchaseOrder?.org_agent_slug || !purchaseOrder?.agent_order_reference) {
 		return null
 	}
@@ -195,7 +199,7 @@ function AgentOrderRoute(purchaseOrder: PurchaseOrder) {
 			<Link
 				v-if="AgentOrderRoute(purchaseOrder)"
 				:href="AgentOrderRoute(purchaseOrder)"
-				class="secondaryLink">
+				class="secondaryLink whitespace-nowrap">
 				{{ purchaseOrder.agent_order_reference }}
 			</Link>
 			<span v-else>{{ purchaseOrder.agent_order_reference }}</span>

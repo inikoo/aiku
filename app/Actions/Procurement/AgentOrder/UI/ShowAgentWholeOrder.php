@@ -117,7 +117,7 @@ class ShowAgentWholeOrder extends OrgAction
                     IndexPurchaseOrders::make()->inWholeAgentOrderOf($this->purchaseOrder)->handle($this->organisation)
                 ),
             ]
-        )->table(IndexPurchaseOrders::make()->tableStructure($this->organisation));
+        )->table(IndexPurchaseOrders::make()->inWholeAgentOrderOf($this->purchaseOrder)->tableStructure($this->organisation));
     }
 
     private function depositsOf(PurchaseOrder $purchaseOrder): float
@@ -145,7 +145,7 @@ class ShowAgentWholeOrder extends OrgAction
     public function getBreadcrumbs(array $routeParameters, string $reference): array
     {
         return array_merge(
-            IndexPurchaseOrders::make()->getBreadcrumbs('grp.org.procurement.purchase_orders.index', ['organisation' => $routeParameters['organisation']]),
+            IndexAgentWholeOrders::make()->getBreadcrumbs($this->organisation),
             [
                 [
                     'type'   => 'simple',

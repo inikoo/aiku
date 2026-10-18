@@ -3233,6 +3233,15 @@ test('the agent confirms every supplier order of an agent order and asks the cli
                 fn ($action) => ($action['route']['name'] ?? null) === 'grp.org.agent.purchase_orders.whole_order'
             )));
 
+    $agentOrderRow = fn () => collect($this->get(route('grp.org.agent.purchase_orders.agent_orders', [$agentOrganisation->slug, 'filter' => ['global' => $orders[0]->agent_order_reference]]))
+        ->assertOk()
+        ->viewData('page')['props']['data']['data'])
+        ->firstWhere('reference', $orders[0]->agent_order_reference);
+
+    expect($agentOrderRow())
+        ->toMatchArray(['number_supplier_orders' => 2, 'deposits' => ['number_awaiting_deposit' => 2, 'number_with_deposit' => 0]])
+        ->and($agentOrderRow()['route'])->toBe(['name' => 'grp.org.agent.purchase_orders.whole_order', 'parameters' => [$agentOrganisation->slug, $orders[0]->slug]]);
+
     $this->get(route('grp.org.agent.purchase_orders.whole_order', [$agentOrganisation->slug, $orders[0]->slug]))
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->component('Procurement/AgentWholeOrder')
@@ -3261,6 +3270,8 @@ test('the agent confirms every supplier order of an agent order and asks the cli
         ->and((float) $depositRequest->items->sum('amount'))->toBe(200.5)
         ->and($depositRequest->items->pluck('organisation_id')->unique()->all())->toBe([$orders[0]->organisation_id])
         ->and((float) $orders[1]->deposits()->sum('amount'))->toBe(80.5);
+
+    expect($agentOrderRow()['deposits'])->toBe(['number_awaiting_deposit' => 2, 'number_with_deposit' => 2]);
 
     $this->get(route('grp.org.agent.purchase_orders.whole_order', [$agentOrganisation->slug, $orders[1]->slug]))
         ->assertInertia(fn (AssertableInertia $page) => $page

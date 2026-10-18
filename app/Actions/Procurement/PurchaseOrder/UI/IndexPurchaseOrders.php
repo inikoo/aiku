@@ -332,7 +332,7 @@ class IndexPurchaseOrders extends OrgAction
 
             $organisationAgent = $this->getParentOrganisationAgent($parent);
 
-            if (!($parent instanceof OrgSupplierProduct) && !$organisationAgent) {
+            if (!($parent instanceof OrgSupplierProduct) && !$this->wholeAgentOrderOf) {
                 $table->column(key: 'agent_order_reference', label: __('Agent order'), sortable: true);
             }
 
