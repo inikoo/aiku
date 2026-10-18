@@ -44,7 +44,7 @@ class FulfillOrderToWooCommerce extends OrgAction
 
         try {
             /** @var DeliveryNote $deliveryNote */
-            $deliveryNote = $order->deliveryNotes->first();
+            $deliveryNote = $order->currentDeliveryNote();
 
             $shipments = [];
             foreach ($deliveryNote->shipments as $shipment) {

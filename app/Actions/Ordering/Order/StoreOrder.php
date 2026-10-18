@@ -35,10 +35,12 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
+use App\Models\Procurement\OrgPartner;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
+use App\Actions\Traits\Authorisations\Ordering\WithOrderEditAuthorisation;
 
 class StoreOrder extends OrgAction
 {
@@ -49,6 +51,7 @@ class StoreOrder extends OrgAction
     use HasOrderHydrators;
     use WithOrderExchanges;
     use WithNoStrictRules;
+    use WithOrderEditAuthorisation;
 
     public int $hydratorsDelay = 0;
 
@@ -286,12 +289,25 @@ class StoreOrder extends OrgAction
     }
 
     /**
-     * A partner organisation buys from a manufacturing hub only through the shopping list, which places
-     * its orders on the intercompany channel; a normal order from the website or the back office is refused.
+     * A partner organisation buys from a manufacturing hub, or from any organisation it is a partner of,
+     * only through the shopping list, which places its orders on the intercompany channel; a normal order
+     * from the website or the back office is refused. Orders keyed by hand on the partner's old customer
+     * in the seller's shop got no stock delivery on the buyer's side (HELP-3992).
      */
     public static function isPartnerBuyingFromHub(?Customer $customer, Shop $shop): bool
     {
-        return $customer?->as_organisation_id && $shop->organisation->is_manufacturing_hub;
+        if (!$customer) {
+            return false;
+        }
+
+        if ($customer->as_organisation_id && $shop->organisation->is_manufacturing_hub) {
+            return true;
+        }
+
+        return OrgPartner::where('partner_id', $shop->organisation_id)
+            ->get(['organisation_id', 'data'])
+            ->contains(fn (OrgPartner $orgPartner) => ($customer->as_organisation_id && $orgPartner->organisation_id === $customer->as_organisation_id)
+                || in_array($customer->id, data_get($orgPartner->data, 'intercompany_customers', [])));
     }
 
     public static function partnerBuyingFromHubError(Customer $customer, Shop $shop): ValidationException

@@ -40,6 +40,7 @@ class StoreTradeUnit extends OrgAction
         $tradeUnit = $group->tradeUnits()->create($modelData);
         $tradeUnit->stats()->create();
         GroupHydrateTradeUnits::dispatch($group)->delay($this->hydratorsDelay);
+        TranslateTradeUnitName::queue($tradeUnit);
 
         return $tradeUnit;
     }

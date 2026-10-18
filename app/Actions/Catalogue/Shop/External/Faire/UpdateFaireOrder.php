@@ -12,6 +12,7 @@ use App\Actions\Accounting\Invoice\CalculateInvoiceTotals;
 use App\Actions\Accounting\Invoice\DeleteInvoice;
 use App\Actions\Accounting\InvoiceTransaction\DeleteInvoiceTransaction;
 use App\Actions\Accounting\InvoiceTransaction\StoreInvoiceTransaction;
+use App\Actions\Accounting\InvoiceTransaction\StoreInvoiceTransactionFromShipping;
 use App\Actions\Catalogue\Product\UpdateProduct;
 use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Actions\Dispatching\DeliveryNote\UpdateState\CancelDeliveryNote;
@@ -22,6 +23,7 @@ use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\Helpers\TaxCategory\GetTaxCategory;
 use App\Actions\Ordering\Order\CalculateOrderTotalAmounts;
 use App\Actions\Ordering\Order\UpdateOrder;
+use App\Actions\Ordering\Order\UpdateOrderShippingEngineAsManual;
 use App\Actions\Ordering\Order\UpdateState\CancelOrder;
 use App\Actions\Ordering\Transaction\DeleteTransaction;
 use App\Actions\Ordering\Transaction\StoreTransaction;
@@ -49,10 +51,12 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Lorisleiva\Actions\ActionRequest;
+use App\Actions\Traits\Authorisations\Ordering\WithOrderPaymentAuthorisation;
 
 class UpdateFaireOrder extends OrgAction
 {
     use WithDeliveryNoteQuantitySync;
+    use WithOrderPaymentAuthorisation;
 
     /**
      * @throws \Throwable
@@ -208,6 +212,7 @@ class UpdateFaireOrder extends OrgAction
             'tax_category_id' => $taxCategory->id,
         ]);
 
+        $this->syncFaireShipping($order, $orderFaireData);
 
         CalculateOrderTotalAmounts::run($order);
 
@@ -378,7 +383,9 @@ class UpdateFaireOrder extends OrgAction
     public function syncFaireTax(Order $order): void
     {
         $orderFaireData = $order->shop->getFaireOrder($order->external_id);
-        $taxes          = collect(Arr::get($orderFaireData, 'payout_costs.taxes', []));
+        $this->syncFaireShipping($order, $orderFaireData);
+
+        $taxes = collect(Arr::get($orderFaireData, 'payout_costs.taxes', []));
         if ($taxes->isEmpty()) {
             return;
         }
@@ -405,6 +412,76 @@ class UpdateFaireOrder extends OrgAction
                 'total_amount' => $invoice->net_amount + $faireTax,
             ]);
         }
+    }
+
+    /**
+     * Faire pays shipping only on orders we ship ourselves: staff enter the cost on Faire, which
+     * reimburses it in the payout as shipments.maker_cost. Nobody types it in Aiku (HELP-3906).
+     * It is copied only onto an order that has no shipping yet: an amount already on an order or
+     * an issued invoice is never rewritten, and the tax stays whatever Faire stated.
+     */
+    public function syncFaireShipping(Order $order, array $orderFaireData): void
+    {
+        $faireShipping = $this->getFaireShippingAmount($orderFaireData, $order->shop);
+        if ($faireShipping < 0.01 || (float)$order->shipping_amount >= 0.01) {
+            return;
+        }
+
+        $orderTax = (float)$order->tax_amount;
+        UpdateOrderShippingEngineAsManual::run($order, ['shipping_amount' => $faireShipping]);
+        $order->refresh();
+        $order->update([
+            'tax_amount'   => $orderTax,
+            'total_amount' => $order->net_amount + $orderTax,
+        ]);
+
+        $invoice = $this->getInvoiceToDiscount($order);
+        if (!$invoice) {
+            return;
+        }
+
+        $shippingLines = $invoice->invoiceTransactions()->where('model_type', 'ShippingZone')->get();
+        if ($shippingLines->contains(fn (InvoiceTransaction $line) => abs((float)$line->net_amount) >= 0.01)) {
+            return;
+        }
+
+        $invoiceTax = (float)$invoice->tax_amount;
+        foreach ($shippingLines as $emptyShippingLine) {
+            DeleteInvoiceTransaction::run($emptyShippingLine);
+        }
+        StoreInvoiceTransactionFromShipping::make()->action($invoice, null, [
+            'tax_category_id' => $order->tax_category_id,
+            'quantity'        => 1,
+            'gross_amount'    => $faireShipping,
+            'net_amount'      => $faireShipping,
+        ]);
+
+        CalculateInvoiceTotals::run($invoice);
+        $invoice->refresh();
+        $invoice->update([
+            'tax_amount'   => $invoiceTax,
+            'total_amount' => $invoice->net_amount + $invoiceTax,
+        ]);
+    }
+
+    public function getFaireShippingAmount(array $orderFaireData, Shop $shop): float
+    {
+        $shipping = 0;
+        $exchange = 1;
+
+        $currencyCode = Arr::get($orderFaireData, 'shipments.0.maker_cost.currency');
+        if ($currencyCode && $currencyCode != $shop->currency->code) {
+            $currency = Currency::where('code', $currencyCode)->first();
+            if ($currency) {
+                $exchange = GetCurrencyExchange::run($currency, $shop->currency);
+            }
+        }
+
+        foreach (Arr::get($orderFaireData, 'shipments', []) as $shipment) {
+            $shipping += Arr::get($shipment, 'maker_cost.amount_minor', 0) / 100;
+        }
+
+        return round($shipping * $exchange, 2);
     }
 
     public function getFaireTaxAmount(array $orderFaireData, Shop $shop): float

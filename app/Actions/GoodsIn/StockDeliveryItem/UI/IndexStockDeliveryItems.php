@@ -130,6 +130,7 @@ class IndexStockDeliveryItems extends OrgAction
                 'stock_delivery_items.org_net_amount',
                 'stock_delivery_items.org_exchange',
                 'stock_delivery_items.org_stock_id',
+                'stock_delivery_items.cbm_in_container',
                 'org_stocks.slug as org_stock_slug',
                 'org_stocks.code as org_stock_code',
                 'org_stocks.name as org_stock_name',
@@ -168,9 +169,13 @@ class IndexStockDeliveryItems extends OrgAction
         return $paginator;
     }
 
-    public function tableStructure(StockDelivery $stockDelivery, ?string $prefix = null): Closure
+    /**
+     * Without booking in (the procurement page) a delivery in the warehouse lists what was ordered, checked
+     * and placed, with nothing to type; the counting and placing columns belong to goods in.
+     */
+    public function tableStructure(StockDelivery $stockDelivery, ?string $prefix = null, bool $withCosting = true, bool $bookingIn = true): Closure
     {
-        return function (InertiaTable $table) use ($stockDelivery, $prefix) {
+        return function (InertiaTable $table) use ($stockDelivery, $prefix, $withCosting, $bookingIn) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -205,7 +210,7 @@ class IndexStockDeliveryItems extends OrgAction
                 StockDeliveryStateEnum::READY_TO_SHIP,
             ];
 
-            if ($stockDelivery->state === StockDeliveryStateEnum::PLACED) {
+            if ($withCosting && $stockDelivery->state === StockDeliveryStateEnum::PLACED) {
                 $this->costingColumns($table, $stockDelivery);
 
                 return;
@@ -213,7 +218,16 @@ class IndexStockDeliveryItems extends OrgAction
 
             $table->column(key: 'state_icon', label: ['fal', 'fa-yin-yang'], canBeHidden: false, type: 'icon');
 
-            if (in_array($stockDelivery->state, $goodsInStates, true)) {
+            if (!$bookingIn && in_array($stockDelivery->state, $goodsInStates, true)) {
+                $table
+                    ->column(key: 'code', label: __('S. Code'), canBeHidden: false, sortable: true, searchable: true)
+                    ->column(key: 'description', label: __('Unit description'), canBeHidden: false)
+                    ->column(key: 'quantity', label: __('Qty'), canBeHidden: false)
+                    ->column(key: 'checked_quantity', label: __('Checked'), canBeHidden: false)
+                    ->column(key: 'placed_quantity', label: __('Placed'), canBeHidden: false)
+                    ->column(key: 'amount', label: __('Amount'), canBeHidden: false)
+                    ->defaultSort('code');
+            } elseif (in_array($stockDelivery->state, $goodsInStates, true)) {
                 $table
                     ->column(key: 'part', label: __('Part'), canBeHidden: false, sortable: true)
                     ->column(key: 'description', label: __('Unit description'), canBeHidden: false)
@@ -228,7 +242,7 @@ class IndexStockDeliveryItems extends OrgAction
                     ->column(key: 'description', label: __('Unit description'), canBeHidden: false)
                     ->column(key: 'quantity', label: __('Qty'), canBeHidden: false)
                     ->column(key: 'weight', label: __('Weight'), canBeHidden: false)
-                    ->column(key: 'volume', label: __('CBM'), canBeHidden: false)
+                    ->column(key: 'volume', label: __('CBM / in container'), canBeHidden: false)
                     ->column(key: 'amount', label: __('Amount'), canBeHidden: false);
 
                 if (in_array($stockDelivery->state, $itemActionStates, true)) {

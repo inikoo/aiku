@@ -40,7 +40,14 @@ class GetUncostedStockDeliveriesCard
             ->where('placed_at', '>=', $agentSince)
             ->count();
 
-        if (!$stale->total && !$agentNotCosted) {
+        $putAwayBlocked = StockDelivery::where('organisation_id', $organisation->id)->withCostsMissingForPutAway()->count();
+
+        $estimated = StockDelivery::where('organisation_id', $organisation->id)
+            ->where('is_costed', true)
+            ->whereHas('costs', fn ($query) => $query->where('is_estimate', true))
+            ->count();
+
+        if (!$stale->total && !$agentNotCosted && !$putAwayBlocked && !$estimated) {
             return null;
         }
 
@@ -60,23 +67,40 @@ class GetUncostedStockDeliveriesCard
             'label'       => __('Not costed'),
             'description' => __('Stock deliveries waiting for costing'),
             'icon'        => 'fal fa-exclamation-triangle',
-            'value'       => $stale->total + $agentNotCosted,
+            'value'       => $stale->total + $agentNotCosted + $putAwayBlocked + $estimated,
             'tone'        => 'amber',
+            'attention'   => true,
             'route'       => match (true) {
-                $stale->total && $agentNotCosted => null,
+                $stale->total + $agentNotCosted + $putAwayBlocked + $estimated > max($stale->total, $agentNotCosted, $putAwayBlocked, $estimated) => null,
+                (bool) $putAwayBlocked           => $this->route($organisation, ['elements[costing]' => 'costs_missing']),
+                (bool) $estimated                => $this->route($organisation, ['elements[costing]' => 'estimated']),
                 (bool) $stale->total             => $staleRoute,
                 default                          => $agentRoute,
             },
             'metrics'     => [
                 [
-                    'label' => __('Booked in more than :days days ago', ['days' => self::BOOKED_IN_GRACE_DAYS]),
+                    'label'       => __('Overdue'),
+                    'description' => __('Booked in over :days days', ['days' => self::BOOKED_IN_GRACE_DAYS]),
                     'value' => $stale->total,
                     'route' => $staleRoute,
                 ],
                 [
-                    'label' => __('From agents, placed in the last :days days', ['days' => self::AGENT_LOOKBACK_DAYS]),
+                    'label'       => __('From agents'),
+                    'description' => __('Last :days days', ['days' => self::AGENT_LOOKBACK_DAYS]),
                     'value' => $agentNotCosted,
                     'route' => $agentRoute,
+                ],
+                [
+                    'label'       => __('Costs missing'),
+                    'description' => __('Book in blocked'),
+                    'value' => $putAwayBlocked,
+                    'route' => $this->route($organisation, ['elements[costing]' => 'costs_missing']),
+                ],
+                [
+                    'label'       => __('Estimated'),
+                    'description' => __('Waiting for invoice'),
+                    'value' => $estimated,
+                    'route' => $this->route($organisation, ['elements[costing]' => 'estimated']),
                 ],
             ],
         ];

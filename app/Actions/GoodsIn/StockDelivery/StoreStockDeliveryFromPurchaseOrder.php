@@ -18,9 +18,11 @@ use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionState
 use App\Http\Resources\Procurement\StockDeliveryResource;
 use App\Models\Catalogue\Shop;
 use App\Models\GoodsIn\StockDelivery;
+use App\Models\GoodsIn\StockDeliveryItem;
 use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderTransaction;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -38,6 +40,11 @@ class StoreStockDeliveryFromPurchaseOrder extends OrgAction
     use WithProcurementEditAuthorisation;
     use AsAction;
     use WithProcurementSerialReferences;
+
+    /**
+     * Units left over from converting SKOs back to units, below which a line counts as all in containers.
+     */
+    public const float QUANTITY_TOLERANCE = 0.01;
 
     private PurchaseOrder $purchaseOrder;
 
@@ -80,7 +87,20 @@ class StoreStockDeliveryFromPurchaseOrder extends OrgAction
                 $purchaseOrderTransactionsQuery->whereIn('id', $modelData['purchase_order_transaction_ids']);
             }
 
-            $purchaseOrderTransactions = $purchaseOrderTransactionsQuery->get();
+            $purchaseOrderTransactions = self::withQuantityAwaitingDelivery($purchaseOrderTransactionsQuery)->get();
+            $requestedUnitQuantities   = Arr::get($modelData, 'unit_quantities', []);
+
+            foreach ($purchaseOrderTransactions as $purchaseOrderTransaction) {
+                $requested = Arr::get($requestedUnitQuantities, $purchaseOrderTransaction->id);
+                if ($requested !== null && (float) $requested > (float) $purchaseOrderTransaction->quantity_awaiting_delivery) {
+                    throw ValidationException::withMessages([
+                        'unit_quantities' => __('Only :units units of :code are still awaiting delivery', [
+                            'units' => (float) $purchaseOrderTransaction->quantity_awaiting_delivery,
+                            'code'  => $purchaseOrderTransaction->historicSupplierProduct?->code ?? $purchaseOrderTransaction->orgStock?->code,
+                        ]),
+                    ]);
+                }
+            }
 
             if ($purchaseOrderTransactions->isEmpty()) {
                 throw ValidationException::withMessages([
@@ -120,14 +140,30 @@ class StoreStockDeliveryFromPurchaseOrder extends OrgAction
             ]);
 
             foreach ($purchaseOrderTransactions as $purchaseOrderTransaction) {
+                $unitQuantity = (float) Arr::get($requestedUnitQuantities, $purchaseOrderTransaction->id, $purchaseOrderTransaction->quantity_awaiting_delivery);
+                $netAmount    = $unitQuantity == (float) $purchaseOrderTransaction->quantity_ordered
+                    ? (float) $purchaseOrderTransaction->net_amount
+                    : (float) $purchaseOrderTransaction->net_amount * $unitQuantity / (float) $purchaseOrderTransaction->quantity_ordered;
+
+                $itemInThisDelivery = $stockDelivery->items()
+                    ->whereRaw("(data->>'purchase_order_transaction_id')::bigint = ?", [$purchaseOrderTransaction->id])
+                    ->whereNotIn('state', [StockDeliveryItemStateEnum::CANCELLED, StockDeliveryItemStateEnum::NOT_RECEIVED])
+                    ->first();
+
+                if ($itemInThisDelivery) {
+                    $this->addToDeliveryItem($itemInThisDelivery, $unitQuantity, $netAmount);
+
+                    continue;
+                }
+
                 StoreStockDeliveryItem::run(
                     $stockDelivery,
                     $purchaseOrderTransaction->historicSupplierProduct,
                     $purchaseOrderTransaction->orgStock,
                     array_merge([
                         'state'         => StockDeliveryItemStateEnum::IN_PROCESS,
-                        'unit_quantity' => $purchaseOrderTransaction->quantity_ordered,
-                        'net_amount'    => $purchaseOrderTransaction->net_amount,
+                        'unit_quantity' => $unitQuantity,
+                        'net_amount'    => $netAmount,
                         'data'          => [
                             'purchase_order_transaction_id' => $purchaseOrderTransaction->id,
                         ],
@@ -147,14 +183,47 @@ class StoreStockDeliveryFromPurchaseOrder extends OrgAction
 
         StockDeliveriesHydrateItems::dispatch($stockDelivery);
 
+        rescue(fn () => PrefillDomesticStockDeliveryCosts::run($stockDelivery));
+
         return $stockDelivery->refresh();
     }
 
     public static function transactionsAwaitingDelivery(PurchaseOrder $purchaseOrder): HasMany
     {
-        return $purchaseOrder->purchaseOrderTransactions()
-            ->where('state', PurchaseOrderTransactionStateEnum::CONFIRMED)
-            ->whereNotExists(fn (Builder $items) => self::liveDeliveryItemsOfTransaction($items));
+        return self::whereAwaitingDelivery($purchaseOrder->purchaseOrderTransactions());
+    }
+
+    /**
+     * A confirmed line is awaiting delivery while part of what was ordered is in no container yet: an agent can
+     * ship a line across several containers.
+     */
+    public static function whereAwaitingDelivery(EloquentBuilder|HasMany $transactions): EloquentBuilder|HasMany
+    {
+        $quantityOnDelivery = self::quantityOnDelivery();
+
+        return $transactions
+            ->where('purchase_order_transactions.state', PurchaseOrderTransactionStateEnum::CONFIRMED)
+            ->where(fn ($query) => $query
+                ->whereNotExists(fn (Builder $items) => self::liveDeliveryItemsOfTransaction($items))
+                ->orWhereRaw('purchase_order_transactions.quantity_ordered - ('.$quantityOnDelivery->toSql().') > '.self::QUANTITY_TOLERANCE, $quantityOnDelivery->getBindings()));
+    }
+
+    public static function withQuantityAwaitingDelivery(EloquentBuilder|HasMany $transactions): EloquentBuilder|HasMany
+    {
+        $quantityOnDelivery = self::quantityOnDelivery();
+
+        return $transactions
+            ->select('purchase_order_transactions.*')
+            ->selectRaw('purchase_order_transactions.quantity_ordered - ('.$quantityOnDelivery->toSql().') as quantity_awaiting_delivery', $quantityOnDelivery->getBindings());
+    }
+
+    /**
+     * The units of a purchase order line already in a container, in a subquery correlated to purchase_order_transactions.
+     */
+    public static function quantityOnDelivery(): Builder
+    {
+        return self::liveDeliveryItemsOfTransaction(DB::query())
+            ->selectRaw('coalesce(sum(stock_delivery_items.unit_quantity), 0)');
     }
 
     public static function liveDeliveryItemsOfTransaction(Builder $items): Builder
@@ -199,6 +268,8 @@ class StoreStockDeliveryFromPurchaseOrder extends OrgAction
                         ->where('state', PurchaseOrderTransactionStateEnum::CONFIRMED->value)
                 ),
             ],
+            'unit_quantities'                  => ['sometimes', 'array'],
+            'unit_quantities.*'                => ['required', 'numeric', 'gt:0'],
             'stock_delivery_id' => [
                 'sometimes',
                 'nullable',
@@ -286,6 +357,18 @@ class StoreStockDeliveryFromPurchaseOrder extends OrgAction
             'org_exchange' => $model->org_exchange,
             'grp_exchange' => $model->grp_exchange,
         ], fn ($exchange) => $exchange !== null);
+    }
+
+    private function addToDeliveryItem(StockDeliveryItem $stockDeliveryItem, float $unitQuantity, float $netAmount): void
+    {
+        $netAmount = (float) $stockDeliveryItem->net_amount + $netAmount;
+
+        $stockDeliveryItem->update([
+            'unit_quantity'  => (float) $stockDeliveryItem->unit_quantity + $unitQuantity,
+            'net_amount'     => $netAmount,
+            'org_net_amount' => $netAmount * (float) ($stockDeliveryItem->org_exchange ?? 1),
+            'grp_net_amount' => $netAmount * (float) ($stockDeliveryItem->grp_exchange ?? 1),
+        ]);
     }
 
     private function fillEmptyDeliveryData(StockDelivery $stockDelivery, PurchaseOrder $purchaseOrder): void

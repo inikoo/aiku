@@ -7,8 +7,12 @@
 namespace App\Actions\Procurement\PurchaseOrder;
 
 use App\Actions\OrgAction;
+use App\Actions\Procurement\SupplierAgreedTerm\GetPurchaseOrderAgreedTerms;
+use App\Actions\Procurement\SupplierAgreedTerm\UI\GetPurchaseOrderAgreement;
 use App\Actions\Helpers\Images\GetImgProxyUrl;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Models\Helpers\Media;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgPartner;
@@ -45,8 +49,29 @@ class PdfPurchaseOrder extends OrgAction
      */
     private array $deliveryAddresses = [];
 
+    /**
+     * @var array<int, Collection>
+     */
+    private array $agreedTerms = [];
+
+    /**
+     * @var array<int, Collection>
+     */
+    private array $agreedNotes = [];
+
+    /**
+     * @param  Collection<int, PurchaseOrder>  $purchaseOrders
+     */
+    private function loadAgreements(Collection $purchaseOrders): void
+    {
+        $this->agreedTerms = GetPurchaseOrderAgreedTerms::make()->forMany($purchaseOrders, forDocument: true);
+        $this->agreedNotes = GetPurchaseOrderAgreement::make()->documentNotesForMany($purchaseOrders);
+    }
+
     public function handle(PurchaseOrder $purchaseOrder): string
     {
+        $this->loadAgreements(collect([$purchaseOrder]));
+
         return PDF::loadView('procurement.templates.pdf.purchase-order', $this->viewData($purchaseOrder))->output();
     }
 
@@ -57,12 +82,43 @@ class PdfPurchaseOrder extends OrgAction
      */
     public function handleMany(Collection $purchaseOrders): string
     {
+        $purchaseOrders = $this->withoutCancelled($purchaseOrders);
         (new EloquentCollection($purchaseOrders->all()))->loadMissing(self::PDF_RELATIONS);
+        $this->loadAgreements($purchaseOrders);
 
         return PDF::loadView('procurement.templates.pdf.purchase-orders', [
             'reference'      => $purchaseOrders->first()->agent_order_reference ?? $purchaseOrders->first()->reference,
             'purchaseOrders' => $purchaseOrders->map(fn (PurchaseOrder $purchaseOrder) => $this->viewData($purchaseOrder))->all(),
         ])->output();
+    }
+
+    /**
+     * A cancelled supplier order is left out of the agent order, unless every one of them is cancelled.
+     *
+     * @param  Collection<int, PurchaseOrder>  $purchaseOrders
+     * @return Collection<int, PurchaseOrder>
+     */
+    public function withoutCancelled(Collection $purchaseOrders): Collection
+    {
+        $live = $purchaseOrders->reject(fn (PurchaseOrder $purchaseOrder) => $purchaseOrder->state === PurchaseOrderStateEnum::CANCELLED)->values();
+
+        return $live->isEmpty() ? $purchaseOrders : $live;
+    }
+
+    /**
+     * A cancelled line is printed only on an order that is itself cancelled.
+     *
+     * @return Collection<int, PurchaseOrderTransaction>
+     */
+    public function lines(PurchaseOrder $purchaseOrder): Collection
+    {
+        $isCancelled = $purchaseOrder->state === PurchaseOrderStateEnum::CANCELLED;
+
+        return $purchaseOrder->purchaseOrderTransactions
+            ->reject(fn (PurchaseOrderTransaction $transaction) => (float)$transaction->quantity_ordered <= 0
+                || (!$isCancelled && $transaction->state === PurchaseOrderTransactionStateEnum::CANCELLED))
+            ->sortBy(fn (PurchaseOrderTransaction $transaction) => $transaction->supplierProduct?->code)
+            ->values();
     }
 
     /**
@@ -80,10 +136,7 @@ class PdfPurchaseOrder extends OrgAction
             default                                       => null,
         };
 
-        $lines = $purchaseOrder->purchaseOrderTransactions
-            ->reject(fn ($transaction) => (float)$transaction->quantity_ordered <= 0)
-            ->sortBy(fn ($transaction) => $transaction->supplierProduct?->code)
-            ->values();
+        $lines = $this->lines($purchaseOrder);
 
         return [
             'purchaseOrder'   => $purchaseOrder,
@@ -92,6 +145,8 @@ class PdfPurchaseOrder extends OrgAction
             'deliveryAddress' => $this->deliveryAddress($purchaseOrder),
             'lines'           => $lines,
             'images'          => $this->withImages ? $this->lineImages($lines) : null,
+            'agreedTerms'     => $this->agreedTerms[$purchaseOrder->id] ?? collect(),
+            'agreedNotes'     => $this->agreedNotes[$purchaseOrder->id] ?? collect(),
             'totals'          => $lines->groupBy(fn ($transaction) => $transaction->supplierProduct?->currency?->code ?? $purchaseOrder->currency->code)
                 ->map(fn ($transactions) => $transactions->sum(fn ($transaction) => (float)$transaction->net_amount)),
         ];

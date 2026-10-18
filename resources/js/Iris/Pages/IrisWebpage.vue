@@ -59,6 +59,14 @@ const getScreenType = (): "mobile" | "tablet" | "desktop" => {
 // onMounted -> checkScreenType flips it to the real viewport post-hydration.
 const screenType = ref<"mobile" | "tablet" | "desktop">("desktop")
 const currentUrl = ref("")
+const sharedCanonicalUrl = usePage().props.canonical_url as string | undefined
+const canonicalUrl = computed(() => {
+    if (!props.webpage_data.canonical_url) {
+        return sharedCanonicalUrl || currentUrl.value
+    }
+    const paginationQuery = sharedCanonicalUrl?.split("?")[1]
+    return paginationQuery ? `${props.webpage_data.canonical_url}?${paginationQuery}` : props.webpage_data.canonical_url
+})
 const structuredDataScript = ref<HTMLScriptElement | null>(null)
 const { mountStructuredData, removeStructuredDataScript } = useStructuredData()
 const { isBlockVisible } = useRevealBlocks(() => props.web_blocks)
@@ -138,12 +146,12 @@ onBeforeUnmount(() => {
         <title>{{ webpage_data.title }}</title>
         <meta name="description" :content="webpage_data.description || ''" />
         <meta name="robots" :content="robotsContent" />
-        <link rel="canonical" :href="webpage_data.canonical_url || currentUrl" />
+        <link rel="canonical" head-key="canonical" :href="canonicalUrl" />
         <link v-for="alternate in webpage_data.hreflang?.alternates ?? []" :key="alternate.hreflang" rel="alternate" :hreflang="alternate.hreflang" :href="alternate.href" />
         <meta property="og:type" content="website" />
         <meta property="og:title" :content="webpage_data.title || ''" />
         <meta property="og:description" :content="webpage_data.description || ''" />
-        <meta property="og:url" :content="webpage_data.canonical_url || currentUrl" />
+        <meta property="og:url" :content="canonicalUrl" />
         <meta v-if="shareImage" property="og:image" :content="shareImage" />
         <meta v-if="shareImage" property="og:image:alt" :content="shareImageAlt" />
         <meta property="og:locale" :content="webpage_data.hreflang?.locale || 'en_GB'" />

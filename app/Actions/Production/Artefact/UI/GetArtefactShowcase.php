@@ -10,7 +10,12 @@ namespace App\Actions\Production\Artefact\UI;
 
 use App\Actions\Production\JobOrderItem\GetOpenJobOrderItemsOffBatch;
 use App\Actions\Production\Artefact\GetArtefactComplianceStatus;
+use App\Enums\Procurement\ShoppingListItem\ShoppingListItemStateEnum;
+use App\Http\Resources\Production\ArtefactBatchesResource;
+use App\Models\Inventory\LocationOrgStock;
 use App\Models\Inventory\OrgStock;
+use App\Models\Procurement\OrgPartner;
+use App\Models\Procurement\PartnerShoppingListItem;
 use App\Models\Production\Artefact;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -39,6 +44,9 @@ class GetArtefactShowcase
                     'parameters' => [$artefact->organisation->slug, $artefact->production->slug, $item['job_order_slug']],
                 ],
             ]))->all(),
+            'recent_batches'    => ArtefactBatchesResource::collection(IndexArtefactBatches::make()->produced($artefact)->get())->resolve(),
+            'todo_batches'      => ArtefactBatchesResource::collection(IndexArtefactBatches::make()->toDo($artefact)->get())->resolve(),
+            'partners'          => $this->getPartners($artefact),
             'shelf_life_days'   => $artefact->shelf_life_days,
             'update_route'      => [
                 'name'       => 'grp.models.production.artefacts.update',
@@ -64,6 +72,62 @@ class GetArtefactShowcase
                 'standard_rate'      => $task->pivot->standard_rate ?? $task->standard_rate,
             ]),
         ];
+    }
+
+    /**
+     * Production at a glance, for the stock page of a manufacturing hub.
+     */
+    public function overview(Artefact $artefact): array
+    {
+        $toDo = IndexArtefactBatches::make()->toDo($artefact)->get();
+
+        return [
+            'code'                   => $artefact->code,
+            'route'                  => [
+                'name'       => 'grp.org.productions.show.crafts.artefacts.show',
+                'parameters' => [$artefact->organisation->slug, $artefact->production->slug, $artefact->slug],
+            ],
+            'recommended_batch_size' => $artefact->recommended_batch_size,
+            'open_jobs'              => $toDo->count(),
+            'units_in_production'    => (float) $toDo->sum(fn ($batch) => $batch->quantity - $batch->quantity_received),
+            'jobs_done'              => IndexArtefactBatches::make()->query($artefact)->where('job_order_items.quantity_received', '>', 0)->count(),
+            'todo_batches'           => ArtefactBatchesResource::collection($toDo->take(5))->resolve(),
+            'recent_batches'         => ArtefactBatchesResource::collection(IndexArtefactBatches::make()->produced($artefact, 5)->get())->resolve(),
+            'partners'               => $this->getPartners($artefact),
+        ];
+    }
+
+    /**
+     * What each partner has open on its shopping list for this stock and what already waits in its goods-out bay, in SKOs.
+     *
+     * @return array<int, array{code: string, name: string, ordered: float, in_bay: float}>
+     */
+    private function getPartners(Artefact $artefact): array
+    {
+        $orgStock = $artefact->orgStock;
+
+        if (!$orgStock) {
+            return [];
+        }
+
+        return OrgPartner::where('organisation_id', $artefact->organisation_id)
+            ->with('partner')
+            ->get()
+            ->map(fn (OrgPartner $orgPartner) => [
+                'code'    => $orgPartner->partner->code,
+                'name'    => $orgPartner->partner->name,
+                'ordered' => (float) PartnerShoppingListItem::where('organisation_id', $orgPartner->partner_id)
+                    ->where('partner_organisation_id', $artefact->organisation_id)
+                    ->where('stock_id', $orgStock->stock_id)
+                    ->where('state', ShoppingListItemStateEnum::OPEN)
+                    ->sum('quantity'),
+                'in_bay'  => (float) LocationOrgStock::where('org_stock_id', $orgStock->id)
+                    ->whereIn('location_id', $orgPartner->bayIds())
+                    ->sum('quantity'),
+            ])
+            ->filter(fn (array $partner) => $partner['ordered'] > 0 || $partner['in_bay'] > 0)
+            ->values()
+            ->all();
     }
 
     /**

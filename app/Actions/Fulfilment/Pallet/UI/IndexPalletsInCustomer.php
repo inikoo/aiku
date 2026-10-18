@@ -196,7 +196,16 @@ class IndexPalletsInCustomer extends OrgAction
             'style'  => 'tertiary',
             'icon'   => 'fal fa-file-excel',
             'label'  => __('Export'),
+            'key'    => 'export',
             'target' => '_blank',
+            'optionsTitle' => __('Layout of the file'),
+            'options'      => [
+                [
+                    'value'      => 'one_row_per_sko',
+                    'label'      => __("One row per customer's SKO"),
+                    'is_checked' => false,
+                ],
+            ],
             'route'  => [
                 'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.index.export',
                 'parameters' => [
@@ -204,6 +213,7 @@ class IndexPalletsInCustomer extends OrgAction
                     'fulfilment'         => $this->parent->fulfilment->slug,
                     'fulfilmentCustomer' => $this->parent->slug,
                     'type'               => 'xlsx',
+                    'tab'                => $this->tab,
                 ],
             ],
         ];

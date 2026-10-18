@@ -11,12 +11,11 @@ namespace App\Actions\CRM\Prospect\Mailshots\UI;
 use App\Actions\Comms\Mailshot\UI\GetMailshotShowcase;
 use App\Actions\Comms\Mailshot\UI\WithMailshotJourney;
 use App\Actions\Comms\DispatchedEmail\UI\IndexDispatchedEmails;
-use App\Actions\Comms\EmailTemplate\GetEmailTemplates;
 use App\Actions\CRM\Prospect\Mailshots\GetProspectMailshotRecipientsQueryBuilder;
 use App\Actions\CRM\Prospect\UI\IndexProspects;
 use App\Actions\Helpers\TimeZone\UI\GetTimeZoneSelectOptions;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\WithCRMAuthorisation;
 use App\Actions\Traits\WithProspectsSubNavigation;
 use App\Enums\Comms\Mailshot\MailshotStateEnum;
 use App\Enums\UI\Mail\MailshotTabsEnum;
@@ -36,7 +35,7 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowProspectMailshot extends OrgAction
 {
-    use WithCatalogueAuthorisation;
+    use WithCRMAuthorisation;
     use WithMailshotJourney;
     use WithProspectsSubNavigation;
 
@@ -74,7 +73,6 @@ class ShowProspectMailshot extends OrgAction
 
         $isRecipientsCapped = $estimatedRecipients > 1000;
 
-        $canLoadTemplates = in_array($mailshot->state, [MailshotStateEnum::IN_PROCESS]);
 
         /* NOTE:
          * is_second_wave_enabled is perspective from parent mailshot
@@ -251,8 +249,6 @@ class ShowProspectMailshot extends OrgAction
                 'isHasParentMailshot' => $isHasParentMailshot,
                 'isSecondWave' => $mailshot->is_second_wave,
                 'numberSecondWaveRecipients' => $mailshotSecondWave?->recipients?->count() ?? 0,
-                'ownShopTemplates' => $canLoadTemplates ? GetEmailTemplates::make()->action($this->shop, 'own') : [],
-                'otherShopTemplates' => $canLoadTemplates ? GetEmailTemplates::make()->action($this->shop, 'other') : [],
                 'workshopRoute' => [
                     'name' => "grp.org.shops.show.crm.prospects.mailshots.workshop",
                     'parameters' => [

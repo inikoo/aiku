@@ -14,6 +14,7 @@ use App\Actions\Procurement\WithNoStrictProcurementOrderRules;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
+use App\Enums\Procurement\OrgAgent\OrgAgentOrderContainerEnum;
 use App\Models\GoodsIn\StockDelivery;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
@@ -33,6 +34,7 @@ class UpdateStockDelivery extends OrgAction
 
     private const DATA_FIELDS = [
         'delivery_type',
+        'container_size',
         'invoice_number',
         'invoice_date',
         'estimated_dispatched_date',
@@ -41,6 +43,24 @@ class UpdateStockDelivery extends OrgAction
         'port_of_export',
         'port_of_import',
         'delivery_address',
+        'shipper_reference',
+        'tracking_number',
+        'container_number',
+        'shipping_agent',
+    ];
+
+    /**
+     * What the agent of a container enters before it ships: its name, size, references, shipping agent and dates.
+     */
+    public const array AGENT_FIELDS = [
+        'reference',
+        'container_size',
+        'shipper_reference',
+        'tracking_number',
+        'container_number',
+        'shipping_agent',
+        'estimated_dispatched_date',
+        'estimated_receiving_date',
     ];
 
     public function handle(StockDelivery $stockDelivery, array $modelData): StockDelivery
@@ -92,6 +112,7 @@ class UpdateStockDelivery extends OrgAction
                 $this->strict ? 'alpha_dash:ascii' : 'string',
             ],
             'delivery_type'             => ['sometimes', 'nullable', 'string', 'in:parcel,container'],
+            'container_size'            => ['sometimes', 'nullable', Rule::enum(OrgAgentOrderContainerEnum::class)],
             'invoice_number'            => ['sometimes', 'nullable', 'string'],
             'invoice_date'              => ['sometimes', 'nullable', 'date'],
             'estimated_dispatched_date' => ['sometimes', 'nullable', 'date'],
@@ -100,6 +121,10 @@ class UpdateStockDelivery extends OrgAction
             'port_of_export'            => ['sometimes', 'nullable', 'string'],
             'port_of_import'            => ['sometimes', 'nullable', 'string'],
             'delivery_address'          => ['sometimes', 'nullable', 'string'],
+            'shipper_reference'         => ['sometimes', 'nullable', 'string', 'max:255'],
+            'tracking_number'           => ['sometimes', 'nullable', 'string', 'max:255'],
+            'container_number'          => ['sometimes', 'nullable', 'string', 'max:64'],
+            'shipping_agent'            => ['sometimes', 'nullable', 'string', 'max:255'],
             'org_exchange'              => ['sometimes', 'numeric', 'gt:0'],
         ];
 
@@ -144,7 +169,13 @@ class UpdateStockDelivery extends OrgAction
             return true;
         }
 
-        return array_keys($request->except(['_method', '_token'])) === ['org_exchange']
+        $keys = array_keys($request->except(['_method', '_token']));
+        if ($this->stockDelivery->agent && $keys && !array_diff($keys, self::AGENT_FIELDS)
+            && $request->user()->authTo("procurement.{$this->stockDelivery->agent->organisation_id}.edit")) {
+            return true;
+        }
+
+        return $keys === ['org_exchange']
             && $request->user()->authTo([
                 "accounting.{$this->organisation->id}.edit",
                 "org-supervisor.{$this->organisation->id}.accounting",
@@ -164,6 +195,10 @@ class UpdateStockDelivery extends OrgAction
             if (Arr::has($stockDelivery->data, 'costing_reopened') && !$request->user()->authTo("org-supervisor.{$stockDelivery->organisation_id}.accounting")) {
                 throw ValidationException::withMessages(['org_exchange' => __('Only an accounting manager can change the costing while it is being updated')]);
             }
+        }
+
+        if ($request->has('reference') && !$stockDelivery->isStaged() && !$request->user()->authTo("procurement.{$stockDelivery->organisation_id}.edit")) {
+            throw ValidationException::withMessages(['reference' => __('The name of a container can only be changed before it is dispatched')]);
         }
 
         $this->stockDelivery = $stockDelivery;

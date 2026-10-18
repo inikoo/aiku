@@ -216,12 +216,10 @@ class UpdateLeave extends OrgAction
                 abort(403, __('Only medical leave can be edited.'));
             }
 
-            if (!$request->routeIs('grp.org.hr.leaves.update')) {
-                $user = $request->user();
+            $user = $request->user();
 
-                if (!$user || !$user->employees()->where('employees.id', $leave->employee_id)->exists()) {
-                    abort(403, __('You can only edit your own leave requests.'));
-                }
+            if (!$user || !$user->employees()->where('employees.id', $leave->employee_id)->exists()) {
+                abort(403, __('You can only edit your own leave requests.'));
             }
         }
 

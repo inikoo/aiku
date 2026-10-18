@@ -12,15 +12,16 @@ use App\Actions\OrgAction;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Models\Production\Artefact;
 use App\Models\Production\ArtefactDepartment;
+use App\Models\Production\ManufactureTask;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\RedirectResponse;
 use Lorisleiva\Actions\ActionRequest;
 
 class AttachArtisan extends OrgAction
 {
-    private Artefact|ArtefactDepartment $model;
+    private Artefact|ArtefactDepartment|ManufactureTask $model;
 
-    public function handle(Artefact|ArtefactDepartment $model, array $modelData): Artefact|ArtefactDepartment
+    public function handle(Artefact|ArtefactDepartment|ManufactureTask $model, array $modelData): Artefact|ArtefactDepartment|ManufactureTask
     {
         $position = ((int) $model->artisans()->max('position')) + 1;
         $model->artisans()->syncWithoutDetaching([$modelData['employee_id'] => ['position' => $position]]);
@@ -57,7 +58,7 @@ class AttachArtisan extends OrgAction
         ]);
     }
 
-    public function action(Artefact|ArtefactDepartment $model, array $modelData): Artefact|ArtefactDepartment
+    public function action(Artefact|ArtefactDepartment|ManufactureTask $model, array $modelData): Artefact|ArtefactDepartment|ManufactureTask
     {
         $this->asAction = true;
         $this->model    = $model;
@@ -80,5 +81,13 @@ class AttachArtisan extends OrgAction
         $this->initialisationFromProduction($artefactDepartment->production, $request);
 
         return $this->handle($artefactDepartment, $this->validatedData);
+    }
+
+    public function inManufactureTask(ManufactureTask $manufactureTask, ActionRequest $request): ManufactureTask
+    {
+        $this->model = $manufactureTask;
+        $this->initialisationFromProduction($manufactureTask->production, $request);
+
+        return $this->handle($manufactureTask, $this->validatedData);
     }
 }

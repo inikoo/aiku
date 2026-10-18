@@ -12,7 +12,6 @@ use App\Actions\Dropshipping\Portfolio\UpdatePortfolio;
 use App\Actions\Dropshipping\Shopify\CheckShopifyChannel;
 use App\Actions\Dropshipping\WithPortfolioErrorResponse;
 use App\Models\Catalogue\Product;
-use App\Models\Dropshipping\CustomerSalesChannel;
 use App\Models\Dropshipping\Portfolio;
 use App\Models\Dropshipping\ShopifyUser;
 use Illuminate\Support\Arr;
@@ -21,15 +20,15 @@ use Lorisleiva\Actions\Concerns\AsAction;
 use Throwable;
 
 /**
- * Matching links the portfolio to the variant the merchant already has instead of creating ours
- * (HELP-3180, INI-028 step 4): replacing it deleted the merchant's variant with its sku, price and
- * barcode. On a product with several variants the one carrying our sku is taken; a product with a
- * single variant is taken whatever its sku, and a sku that is not ours is kept in platform_sku.
+ * Matching a Shopify product with several variants, one of them carrying our sku, links the portfolio
+ * to that variant instead of adding ours next to it (HELP-3180, INI-028 step 4, CUS-1788): the
+ * merchant combined our products as variants of one listing. Two variants carrying our sku are refused.
+ * A single-variant product, or one with no variant carrying our sku, returns null and goes through
+ * StoreShopifyProductVariant as before.
  *
  * The merchant's sku and barcode are never written, nor the price unless the merchant asked us to
- * manage it. A variant also stocked at another location is refused: Shopify could route its orders
- * there and they would never reach us. Only on channels with the link_existing_variants switch;
- * the others still go through StoreShopifyProductVariant.
+ * manage it. A variant stocked at any other location, even with 0, is refused: Shopify could route its orders
+ * there and they would never reach us.
  */
 class AdoptShopifyProductVariant
 {
@@ -41,7 +40,7 @@ class AdoptShopifyProductVariant
     private const int MAX_VARIANT_PAGES = 10;
 
     /**
-     * @return array{0: bool, 1: string}|null null when the channel does not adopt variants
+     * @return array{0: bool, 1: string}|null null when the product is not one to adopt a variant of
      */
     public function handle(Portfolio $portfolio, string $shopifyProductId, ?bool $priceManagedByUs = null): ?array
     {
@@ -51,21 +50,17 @@ class AdoptShopifyProductVariant
             return null;
         }
 
-        if (!self::isEnabledFor($portfolio->customerSalesChannel)) {
-            return null;
-        }
-
         try {
             $variants = $this->getVariants($shopifyUser, $shopifyProductId);
 
-            if ($variants === []) {
-                return $this->fail($portfolio, 'This Shopify product is no longer in your store');
+            if (count($variants) < 2) {
+                return null;
             }
 
-            $matchingVariants = count($variants) === 1 ? $variants : self::variantsCarryingPortfolioSku($portfolio, $variants);
+            $matchingVariants = self::variantsCarryingPortfolioSku($portfolio, $variants);
 
-            if (empty($matchingVariants)) {
-                return $this->fail($portfolio, 'None of the variants of this Shopify product has the sku '.$portfolio->sku.'. Set that sku on the variant you want to link and try again');
+            if ($matchingVariants === []) {
+                return null;
             }
 
             if (count($matchingVariants) > 1) {
@@ -93,7 +88,7 @@ class AdoptShopifyProductVariant
                 return $this->fail($portfolio, 'This Shopify variant is already linked to '.$holder->item_code.' in this channel');
             }
 
-            $otherLocationRefusal = $this->otherLocationRefusal($shopifyUser, $portfolio, $variant['id']);
+            $otherLocationRefusal = $this->otherLocationRefusal($shopifyUser, $variant['id']);
 
             if ($otherLocationRefusal) {
                 return $this->fail($portfolio, $otherLocationRefusal);
@@ -110,7 +105,7 @@ class AdoptShopifyProductVariant
 
         [$linked, $refusal] = LinkShopifyPortfolio::run($portfolio, $shopifyProductId, $variant['id'], [
             'platform_status' => false,
-            'platform_sku'    => self::variantsCarryingPortfolioSku($portfolio, [$variant]) === [] && $variant['sku'] !== '' ? $variant['sku'] : null,
+            'platform_sku'    => null,
             'errors_response' => null
         ]);
 
@@ -138,15 +133,14 @@ class AdoptShopifyProductVariant
     }
 
     /**
-     * Any stock at a location other than ours lets Shopify route the order there; with the
-     * variant selling when out of stock, an empty location can take it too.
+     * Shopify can route an order to any location the variant is stocked at, even one holding 0
+     * (seen on an admin draft order), so any location other than ours is refused.
      */
-    private function otherLocationRefusal(ShopifyUser $shopifyUser, Portfolio $portfolio, string $variantId): ?string
+    private function otherLocationRefusal(ShopifyUser $shopifyUser, string $variantId): ?string
     {
         $query = <<<'QUERY'
         query getVariantStockLocations($id: ID!) {
           productVariant(id: $id) {
-            inventoryPolicy
             inventoryItem {
               inventoryLevels(first: 50) {
                 edges {
@@ -154,9 +148,6 @@ class AdoptShopifyProductVariant
                     location {
                       id
                       name
-                    }
-                    quantities(names: ["available"]) {
-                      quantity
                     }
                   }
                 }
@@ -168,25 +159,12 @@ class AdoptShopifyProductVariant
 
         $body = $this->request($shopifyUser, $query, ['id' => $variantId]);
 
-        $item              = $portfolio->item;
-        $sellsWhenOutOfStock = Arr::get($body, 'data.productVariant.inventoryPolicy') === 'CONTINUE'
-            || ($item instanceof Product && $item->orgStocks->contains('is_on_demand', true));
-
         foreach (Arr::get($body, 'data.productVariant.inventoryItem.inventoryLevels.edges', []) as $levelEdge) {
             if (self::sameLocation(Arr::get($levelEdge, 'node.location.id'), $shopifyUser->shopify_location_id)) {
                 continue;
             }
 
-            $locationName = (string) Arr::get($levelEdge, 'node.location.name');
-            $available    = (int) Arr::get($levelEdge, 'node.quantities.0.quantity', 0);
-
-            if ($available > 0) {
-                return 'This Shopify variant has '.$available.' in stock at your location "'.$locationName.'". Shopify could send its orders there and we would never receive them. Set its stock at that location to 0 in Shopify, then match again';
-            }
-
-            if ($sellsWhenOutOfStock) {
-                return 'This Shopify variant keeps selling when out of stock and is also stocked at your location "'.$locationName.'". Shopify could send its orders there and we would never receive them. Remove that location from the variant in Shopify, then match again';
-            }
+            return 'This Shopify variant is also stocked at your location "'.Arr::get($levelEdge, 'node.location.name').'". Shopify could send its orders there and we would never receive them. Remove that location from the variant in Shopify, then match again';
         }
 
         return null;
@@ -196,11 +174,6 @@ class AdoptShopifyProductVariant
     {
         return $locationId !== null && $ourLocationId !== null
             && Str::afterLast($locationId, '/') === Str::afterLast($ourLocationId, '/');
-    }
-
-    public static function isEnabledFor(?CustomerSalesChannel $customerSalesChannel): bool
-    {
-        return (bool) data_get($customerSalesChannel?->settings, 'shopify.link_existing_variants', false);
     }
 
     /**

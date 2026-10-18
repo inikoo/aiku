@@ -237,6 +237,22 @@ test('the same fulfilment request arriving twice creates one order and one clien
         ->and(ShopifyFake::calls('acceptFulfillmentRequest'))->toHaveCount(2);
 });
 
+test('a fulfilment request on a channel that is not open is ignored', function () {
+    Queue::fake();
+    $shopifyUser = shopifyOrderChannel($this, 'orders-closed');
+    shopifyPortfolioFor($this, $shopifyUser);
+    $shopifyUser->customerSalesChannel->update(['status' => CustomerSalesChannelStatusEnum::INACTIVE]);
+
+    ShopifyFake::fake([
+        'assignedFulfillmentOrders' => shopifyAssignedOrdersReply([shopifyFulfilmentOrder([[]], ['id' => 'gid://shopify/FulfillmentOrder/6009'])]),
+    ]);
+
+    CallbackFulfillmentOrderNotification::run($shopifyUser->fresh(), ['kind' => 'FULFILLMENT_REQUEST']);
+
+    expect(ShopifyFake::calls('assignedFulfillmentOrders'))->toHaveCount(0)
+        ->and(Order::where('platform_order_id', 'gid://shopify/FulfillmentOrder/6009')->exists())->toBeFalse();
+});
+
 test('a line item outside the portfolio splits the request, rejects the rest and resubmits the matched part', function () {
     Queue::fake();
     $shopifyUser = shopifyOrderChannel($this, 'orders-split');

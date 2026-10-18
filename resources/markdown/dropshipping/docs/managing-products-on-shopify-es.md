@@ -69,7 +69,9 @@ También puedes marcar productos en la lista. Aparecen botones encima de ella:
 
 Si ya vendes nuestros productos en Shopify, da a cada producto (o variante) de Shopify el mismo SKU que nuestro código de producto antes de emparejar. Luego usa <b>Match all with default product</b>. Esto enlaza tus anuncios existentes y no crea nuevos.
 
-Si vendes varios de nuestros productos como las variantes de un producto de Shopify, por ejemplo un producto con una variante por color, cada variante debe tener su propio SKU. Contacta con atención al cliente y pide que se active el enlace con variantes existentes para tu canal. No puedes activarlo tú mismo. Entonces el emparejamiento enlaza cada producto con la variante con su SKU, y nunca cambiamos el precio, SKU o código de barras de tus variantes.
+Si vendes varios de nuestros productos como las variantes de un producto de Shopify, por ejemplo un producto con una variante por color, da a cada variante el SKU de su producto. No hay nada que activar: el emparejamiento enlaza cada producto con la variante con su SKU, y nunca cambiamos el precio, SKU o código de barras de tus variantes. Cada una de esas variantes debe tener stock solo en la ubicación <b>aiku-</b>. Quita de ella en Shopify cualquier otra ubicación, incluso una que muestre 0, o el emparejamiento se rechaza, porque Shopify podría enviar sus pedidos allí y nunca nos llegarían.
+
+Un producto de Shopify con una sola variante no se enlaza así: el emparejamiento reemplaza su variante por la nuestra. Consulta [Qué pasa con las descripciones de tus productos](/docs/product-descriptions-after-connecting).
 
 ## Encontrar productos en la lista
 
@@ -102,9 +104,9 @@ Para ver qué pasó con cada subida, abre la pestaña <b>Logs</b> en <b>Mis prod
 
 **"No variant on Shopify matches this sku".** El producto está enlazado, pero ya no encontramos su SKU en Shopify. El SKU se cambió, o el producto o variante se borró en Shopify. Vuelve a poner el SKU, o enlaza el producto de nuevo con <b>Conectar con otros productos</b>.
 
-**"You need to add option values for Colour"** (u otra opción). Emparejaste con un producto de Shopify que tiene opciones, como colores. Da a cada variante su propio SKU y pide a atención al cliente que active el enlace con variantes existentes, o empareja con un producto sin opciones.
+**"You need to add option values for Colour"** (u otra opción). Emparejaste con un producto de Shopify que tiene opciones, como colores, y ninguna de sus variantes lleva nuestro SKU. Da a la variante el SKU de nuestro producto y empareja de nuevo, o empareja con un producto sin opciones.
 
-**"None of the variants of this Shopify product has the sku ...".** El enlace con variantes está activado, pero ninguna variante lleva nuestro SKU. Fija el SKU en la variante que quieras y empareja de nuevo.
+**"This Shopify variant is also stocked at your location ...".** La variante también tiene stock en una de tus propias ubicaciones, así que Shopify podría enviar sus pedidos allí y nunca los recibiríamos. Quita esa ubicación de la variante en Shopify, aunque muestre 0, y empareja de nuevo.
 
 **"More than one variant of this Shopify product has the sku ...".** Dos variantes tienen el mismo SKU. Da a cada variante su propio SKU.
 

@@ -2,7 +2,7 @@
 
 namespace App\Actions\Procurement\PurchaseOrderTransaction;
 
-use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
+use App\Actions\Traits\Authorisations\WithPurchaseOrderAgentEditAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\PurchaseOrder\CalculatePurchaseOrderTotalAmounts;
 use App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryFromPurchaseOrder;
@@ -14,12 +14,13 @@ use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionState
 use App\Http\Resources\Procurement\PurchaseOrderTransactionResource;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderTransaction;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\ActionRequest;
 
 class CancelPurchaseOrderTransaction extends OrgAction
 {
-    use WithProcurementEditAuthorisation;
+    use WithPurchaseOrderAgentEditAuthorisation;
     use WithActionUpdate;
 
     public function handle(PurchaseOrderTransaction $purchaseOrderTransaction): PurchaseOrderTransaction
@@ -30,12 +31,17 @@ class CancelPurchaseOrderTransaction extends OrgAction
             $purchaseOrder = PurchaseOrder::whereKey($purchaseOrder->id)->lockForUpdate()->first();
             $purchaseOrderTransaction->refresh();
 
+            if ($purchaseOrder->areLinesLockedByProduction()) {
+                abort(422, __('The supplier is already making this order: its items can no longer be cancelled'));
+            }
+
             if ($purchaseOrderTransaction->state === PurchaseOrderTransactionStateEnum::CONFIRMED) {
-                $isAwaitingDelivery = StoreStockDeliveryFromPurchaseOrder::transactionsAwaitingDelivery($purchaseOrder)
+                $isOnDelivery = $purchaseOrder->purchaseOrderTransactions()
                     ->whereKey($purchaseOrderTransaction->id)
+                    ->whereExists(fn (Builder $items) => StoreStockDeliveryFromPurchaseOrder::liveDeliveryItemsOfTransaction($items))
                     ->exists();
 
-                if (!$isAwaitingDelivery) {
+                if ($isOnDelivery) {
                     abort(422, __('This item is on a stock delivery, deal with it there'));
                 }
             } elseif ($purchaseOrderTransaction->state !== PurchaseOrderTransactionStateEnum::SUBMITTED) {
@@ -70,6 +76,7 @@ class CancelPurchaseOrderTransaction extends OrgAction
 
     public function asController(PurchaseOrder $purchaseOrder, PurchaseOrderTransaction $purchaseOrderTransaction, ActionRequest $request): PurchaseOrderTransaction
     {
+        abort_unless($purchaseOrderTransaction->purchase_order_id === $purchaseOrder->id, 404);
         $this->initialisation($purchaseOrderTransaction->organisation, $request);
 
         return $this->handle($purchaseOrderTransaction);

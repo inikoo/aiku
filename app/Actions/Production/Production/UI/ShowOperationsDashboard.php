@@ -8,6 +8,7 @@
 
 namespace App\Actions\Production\Production\UI;
 
+use App\Actions\Production\JobOrderItemTask\SettleShortJobOrderItemTask;
 use App\Actions\Production\JobOrderItemTask\UI\ShowManufactureFloor;
 use App\Actions\Dashboard\ShowOrganisationDashboard;
 use App\Actions\Helpers\History\UI\IndexHistory;
@@ -180,9 +181,11 @@ class ShowOperationsDashboard extends OrgAction
                                 'artefact_name'       => $openSession->jobOrderItemTask->jobOrderItem->artefact->name,
                                 'job_order_reference' => $openSession->jobOrderItemTask->jobOrder->reference,
                                 'job_order_slug'      => $openSession->jobOrderItemTask->jobOrder->slug,
+                                'continued_from'      => Arr::has($openSession->jobOrderItemTask->jobOrder->data, 'carried_from') ? SettleShortJobOrderItemTask::baseReference($openSession->jobOrderItemTask->jobOrder) : null,
                                 'quantity_made'       => (float)$openSession->jobOrderItemTask->combinedGroup()->sum('quantity_made'),
                                 'quantity_required'   => (float)$openSession->jobOrderItemTask->combinedGroup()->sum('quantity_required'),
                             ],
+                            'carry'       => $openSession->is_combined ? null : SettleShortJobOrderItemTask::make()->preview($openSession->jobOrderItemTask),
                             'close_route' => [
                                 'name'       => 'grp.models.manufacture-task-session.close',
                                 'parameters' => ['manufactureTaskSession' => $openSession->id],
@@ -247,6 +250,8 @@ class ShowOperationsDashboard extends OrgAction
                             'job_order_slug'      => $task->jobOrder->slug,
                             'quantity_made'       => (float)$task->quantity_made,
                             'quantity_required'   => (float)$task->quantity_required,
+                            'unit'                => $task->unit(),
+                            'mix_batch_kg'        => $task->mixBatchKg(),
                             'blocked_by_step'     => $task->blockingStep($task->jobOrderItem->tasks)?->manufactureTask->name,
                             'start_route'         => [
                                 'name'       => 'grp.models.job-order-item-task.session.store',

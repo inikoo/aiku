@@ -7,15 +7,16 @@ import { useFormatTime } from "@/Composables/useFormatTime"
 import { ctrans } from "@/Composables/useTrans"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import Tag from "@/Components/Tag.vue"
-import Modal from "@/Components/Utils/Modal.vue"
+import Dialog from "primevue/dialog"
+import Select from "primevue/select"
+import Textarea from "primevue/textarea"
 import AlertMessage from "@/Components/Utils/AlertMessage.vue"
-import { faEdit, faCalendarCheck, faMedkit, faCalendarTimes, faClock } from "@fal"
+import { faEdit, faCalendarCheck, faMedkit, faCalendarTimes, faClock, faTimes, faCheck, faPaperclip } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import DatePicker from "@vuepic/vue-datepicker"
-import "@vuepic/vue-datepicker/dist/main.css"
+import DatePicker from "primevue/datepicker"
 
-library.add(faEdit, faCalendarCheck, faMedkit, faCalendarTimes, faClock)
+library.add(faTimes, faCheck, faPaperclip, faEdit, faCalendarCheck, faMedkit, faCalendarTimes, faClock)
 
 type LeaveBalanceSummary = {
 	annual_days: number
@@ -55,6 +56,9 @@ const locale = useLocaleStore()
 const isEditModalOpen = ref(false)
 const selectedLeave = ref<any>(null)
 const isSubmitting = ref(false)
+const leaveFileInput = ref<HTMLInputElement | null>(null)
+const editFileInput = ref<HTMLInputElement | null>(null)
+const fieldFocusClass = "[&.p-focus]:!border-[--app-accent] [&_input:focus]:!border-[--app-accent]"
 
 const toNumber = (value: unknown): number => {
 	if (typeof value === "number") {
@@ -199,23 +203,15 @@ const holidayMap = computed<Record<string, string>>(() => {
 	return map
 })
 
-const isDisabledDate = (date: Date): boolean => {
-	const day = date.getDay()
-	if (day === 0 || day === 6) return true
-	const year = date.getFullYear()
-	const month = String(date.getMonth() + 1).padStart(2, "0")
-	const d = String(date.getDate()).padStart(2, "0")
-	return `${year}-${month}-${d}` in holidayMap.value
-}
+const holidayDates = computed(() => (props.holidays ?? []).map((holiday) => new Date(holiday.date + "T00:00:00")))
 
-const holidayMarkers = computed(() =>
-	(props.holidays ?? []).map((h) => ({
-		date: new Date(h.date + "T00:00:00"),
-		type: "dot" as const,
-		tooltip: h.label ? [{ text: h.label, color: "#ef4444" }] : undefined,
-		color: "#ef4444",
-	}))
-)
+const toLocalDate = (value: string | null | undefined) => (value ? new Date(value + "T00:00:00") : null)
+const toDateString = (value: Date | null) =>
+	value
+		? `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, "0")}-${String(value.getDate()).padStart(2, "0")}`
+		: ""
+const holidayLabel = (date: { year: number; month: number; day: number }) =>
+	holidayMap.value[`${date.year}-${String(date.month + 1).padStart(2, "0")}-${String(date.day).padStart(2, "0")}`]
 
 const leaveForm = useForm<{
 	type: string
@@ -707,13 +703,13 @@ const submitEdit = () => {
 			</Table>
 		</div>
 
-		<Modal
-			:isOpen="isRequestLeaveModalOpen"
-			@onClose="closeCreateModal"
-			width="w-full max-w-lg">
-			<h2 class="text-lg font-semibold text-gray-800 mb-4">
-				{{ ctrans("Request Leave") }}
-			</h2>
+		<Dialog
+			:visible="isRequestLeaveModalOpen"
+			modal
+			:draggable="false"
+			:header="ctrans('Request Leave')"
+			:style="{ width: '32rem', maxWidth: 'calc(100vw - 2rem)' }"
+			@update:visible="(isVisible: boolean) => !isVisible && closeCreateModal()">
 
 			<AlertMessage
 				v-if="hasErrors"
@@ -729,16 +725,16 @@ const submitEdit = () => {
 					<label class="block text-sm font-medium text-gray-700">{{
 						ctrans("Leave Type")
 					}}</label>
-					<select
+					<Select
 						v-model="leaveForm.type"
-						class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500">
-						<option value="" disabled>
-							{{ ctrans("Please Select Your Leave Type!") }}
-						</option>
-						<option v-for="opt in typeOptions" :key="opt.value" :value="opt.value">
-							{{ opt.label }}
-						</option>
-					</select>
+						:options="typeOptions"
+						optionLabel="label"
+						optionValue="value"
+						:invalid="!!leaveForm.errors.type"
+						:placeholder="ctrans('Select a leave type')"
+						fluid
+						class="mt-1"
+						:class="fieldFocusClass" />
 					<p v-if="leaveForm.errors.type" class="mt-1 text-sm text-red-600">
 						{{ leaveForm.errors.type }}
 					</p>
@@ -753,23 +749,24 @@ const submitEdit = () => {
 							ctrans("Start Date")
 						}}</label>
 						<DatePicker
-							:modelValue="
-								leaveForm.start_date ? new Date(leaveForm.start_date) : null
-							"
-							@update:modelValue="
-								(date: Date) =>
-									(leaveForm.start_date = date
-										? date.toISOString().split('T')[0]
-										: '')
-							"
-							:disabledDates="isDisabledDate"
-							:markers="holidayMarkers"
-							:enableTimePicker="false"
-							:clearable="true"
-							:autoApply="true"
+							:modelValue="toLocalDate(leaveForm.start_date)"
+							@update:modelValue="(date: Date | null) => (leaveForm.start_date = toDateString(date))"
+							:disabledDays="[0, 6]"
+							:disabledDates="holidayDates"
+							:manualInput="false"
+							:invalid="!!leaveForm.errors.start_date"
+							dateFormat="d M yy"
+							showIcon
+							iconDisplay="input"
+							showButtonBar
+							fluid
 							:placeholder="ctrans('Select start date')"
-							class="mt-1 block w-full"
-							inputClassName="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500" />
+							class="mt-1"
+							:class="fieldFocusClass">
+							<template #date="{ date }">
+								<span :title="holidayLabel(date)" :class="holidayLabel(date) ? 'text-red-500 underline decoration-dotted' : ''">{{ date.day }}</span>
+							</template>
+						</DatePicker>
 						<p v-if="leaveForm.errors.start_date" class="mt-1 text-sm text-red-600">
 							{{ leaveForm.errors.start_date }}
 						</p>
@@ -780,22 +777,25 @@ const submitEdit = () => {
 							ctrans("End Date")
 						}}</label>
 						<DatePicker
-							:modelValue="leaveForm.end_date ? new Date(leaveForm.end_date) : null"
-							@update:modelValue="
-								(date: Date) =>
-									(leaveForm.end_date = date
-										? date.toISOString().split('T')[0]
-										: '')
-							"
+							:modelValue="toLocalDate(leaveForm.end_date)"
+							@update:modelValue="(date: Date | null) => (leaveForm.end_date = toDateString(date))"
 							:disabled="leaveForm.is_half_day"
-							:disabledDates="isDisabledDate"
-							:markers="holidayMarkers"
-							:enableTimePicker="false"
-							:clearable="true"
-							:autoApply="true"
+							:disabledDays="[0, 6]"
+							:disabledDates="holidayDates"
+							:manualInput="false"
+							:invalid="!!leaveForm.errors.end_date"
+							dateFormat="d M yy"
+							showIcon
+							iconDisplay="input"
+							showButtonBar
+							fluid
 							:placeholder="ctrans('Select end date')"
-							class="mt-1 block w-full"
-							inputClassName="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500" />
+							class="mt-1"
+							:class="fieldFocusClass">
+							<template #date="{ date }">
+								<span :title="holidayLabel(date)" :class="holidayLabel(date) ? 'text-red-500 underline decoration-dotted' : ''">{{ date.day }}</span>
+							</template>
+						</DatePicker>
 						<p v-if="leaveForm.errors.end_date" class="mt-1 text-sm text-red-600">
 							{{ leaveForm.errors.end_date }}
 						</p>
@@ -817,11 +817,14 @@ const submitEdit = () => {
 					<label class="block text-sm font-medium text-gray-700">{{
 						ctrans("Reason")
 					}}</label>
-					<textarea
+					<Textarea
 						v-model="leaveForm.reason"
 						rows="3"
-						class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-						:placeholder="ctrans('Please provide a reason for your leave request')" />
+						autoResize
+						fluid
+						:invalid="!!leaveForm.errors.reason"
+						:placeholder="ctrans('Please provide a reason for your leave request')"
+						class="mt-1 focus:!border-[--app-accent]" />
 					<p v-if="leaveForm.errors.reason" class="mt-1 text-sm text-red-600">
 						{{ leaveForm.errors.reason }}
 					</p>
@@ -832,15 +835,26 @@ const submitEdit = () => {
 						ctrans("Medical Certificate")
 					}}</label>
 					<input
+						ref="leaveFileInput"
 						type="file"
+						class="hidden"
+						accept=".pdf,.jpg,.jpeg,.png"
 						@change="
 							(e: Event) => {
 								const files = (e.target as HTMLInputElement).files
 								if (files) leaveForm.attachments = Array.from(files)
 							}
-						"
-						class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-						accept=".pdf,.jpg,.jpeg,.png" />
+						" />
+					<div class="mt-1 flex items-center gap-2">
+						<Button type="tertiary" :label="ctrans('Choose file')" @click="leaveFileInput?.click()">
+							<template #icon>
+								<FontAwesomeIcon icon="fal fa-paperclip" class="text-[--app-accent]" fixed-width aria-hidden="true" />
+							</template>
+						</Button>
+						<span class="truncate text-sm text-gray-600">
+							{{ (leaveForm.attachments ?? []).map((file: File) => file.name).join(", ") || ctrans("No file chosen") }}
+						</span>
+					</div>
 					<p class="mt-1 text-xs text-gray-500">
 						{{ ctrans("Upload medical certificate (PDF, JPG, PNG)") }}
 					</p>
@@ -851,25 +865,27 @@ const submitEdit = () => {
 				</p>
 
 				<div class="mt-6 flex justify-end gap-2">
-					<Button
-						@click="closeCreateModal"
-						:label="ctrans('Cancel')"
-						type="tertiary"
-						nativeType="button" />
-					<Button
-						type="save"
-						nativeType="submit"
-						:label="ctrans('Submit Request')"
-						:loading="isSubmitting"
-						:disabled="!canSubmitLeave || exceedsLimit" />
+					<Button type="tertiary" nativeType="button" :label="ctrans('Cancel')" @click="closeCreateModal">
+						<template #icon>
+							<FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" />
+						</template>
+					</Button>
+					<Button type="tertiary" nativeType="submit" :label="ctrans('Submit Request')" :loading="isSubmitting" :disabled="!canSubmitLeave || exceedsLimit">
+						<template #icon>
+							<FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" />
+						</template>
+					</Button>
 				</div>
 			</form>
-		</Modal>
+		</Dialog>
 
-		<Modal :isOpen="isEditModalOpen" @onClose="closeEditModal" width="w-full max-w-md">
-			<h2 class="text-lg font-semibold text-gray-800 mb-4">
-				{{ ctrans("Edit Medical Certificate") }}
-			</h2>
+		<Dialog
+			v-model:visible="isEditModalOpen"
+			modal
+			:draggable="false"
+			:header="ctrans('Edit Medical Certificate')"
+			:style="{ width: '28rem', maxWidth: 'calc(100vw - 2rem)' }"
+			@hide="closeEditModal">
 			<p class="text-sm text-gray-600 mb-4">
 				{{ ctrans("Update medical certificate for your leave request") }}
 			</p>
@@ -880,15 +896,26 @@ const submitEdit = () => {
 						ctrans("Medical Certificate")
 					}}</label>
 					<input
+						ref="editFileInput"
 						type="file"
+						class="hidden"
+						accept=".pdf,.jpg,.jpeg,.png"
 						@change="
 							(e: Event) => {
 								const files = (e.target as HTMLInputElement).files
 								if (files) editForm.attachments = Array.from(files)
 							}
-						"
-						class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-						accept=".pdf,.jpg,.jpeg,.png" />
+						" />
+					<div class="mt-1 flex items-center gap-2">
+						<Button type="tertiary" :label="ctrans('Choose file')" @click="editFileInput?.click()">
+							<template #icon>
+								<FontAwesomeIcon icon="fal fa-paperclip" class="text-[--app-accent]" fixed-width aria-hidden="true" />
+							</template>
+						</Button>
+						<span class="truncate text-sm text-gray-600">
+							{{ (editForm.attachments ?? []).map((file: File) => file.name).join(", ") || ctrans("No file chosen") }}
+						</span>
+					</div>
 					<p class="mt-1 text-xs text-gray-500">
 						{{ ctrans("Upload Medical Certificate (PDF, JPG, PNG)") }}
 					</p>
@@ -898,18 +925,18 @@ const submitEdit = () => {
 				</div>
 
 				<div class="mt-6 flex justify-end gap-2">
-					<Button
-						@click="closeEditModal"
-						:label="ctrans('Cancel')"
-						type="tertiary"
-						nativeType="button" />
-					<Button
-						type="save"
-						nativeType="submit"
-						:label="ctrans('Save')"
-						:loading="isSubmitting" />
+					<Button type="tertiary" nativeType="button" :label="ctrans('Cancel')" @click="closeEditModal">
+						<template #icon>
+							<FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" />
+						</template>
+					</Button>
+					<Button type="tertiary" nativeType="submit" :label="ctrans('Save')" :loading="isSubmitting">
+						<template #icon>
+							<FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" />
+						</template>
+					</Button>
 				</div>
 			</form>
-		</Modal>
+		</Dialog>
 	</div>
 </template>

@@ -38,6 +38,7 @@ use App\Actions\Dropshipping\WooCommerce\Product\StoreNewProductToCurrentWooComm
 use App\Actions\Dropshipping\WooCommerce\Product\RetryTimedOutWooUploads;
 use Illuminate\Support\Facades\Redis;
 use Lorisleiva\Actions\Decorators\JobDecorator;
+use App\Http\Resources\CRM\RetinaCustomerSalesChannelResource;
 use App\Jobs\BoundedUniqueJobDecorator;
 use App\Actions\Dropshipping\WooCommerce\Product\StoreWooCommerceProduct;
 use App\Events\UploadProductToSalesChannelProgressEvent;
@@ -948,6 +949,37 @@ test('a listing the store no longer has is reported missing and the sku match is
         ->and(Arr::get($portfolio->data, 'woo_product'))->toBeNull();
 });
 
+test('the stock push sends a binned listing to the check, which marks it missing', function () {
+    $wooCommerceUser = wooConnect(wooCustomer($this->shop));
+    $portfolio       = wooPortfolio($wooCommerceUser->customerSalesChannel, $this->product, '794', 'binned-sku');
+
+    wooFake([
+        'POST products/batch' => Http::response(['update' => [wooProduct(794, ['status' => 'trash'])]]),
+        'GET products/794'    => Http::response(wooProduct(794, ['status' => 'trash'])),
+        'GET products'        => Http::response([]),
+    ]);
+
+    UpdateWooCustomerSalesChannelPortfolio::run($wooCommerceUser->customerSalesChannel, true);
+
+    expect($portfolio->refresh()->platform_status)->toBeFalse()
+        ->and($portfolio->stock_last_updated_at)->toBeNull();
+});
+
+test('a listing the store has in the bin is reported missing', function () {
+    $wooCommerceUser = wooConnect(wooCustomer($this->shop));
+    $portfolio       = wooPortfolio($wooCommerceUser->customerSalesChannel, $this->product, '794', 'binned-sku');
+
+    wooFake([
+        'GET products/794' => Http::response(wooProduct(794, ['status' => 'trash'])),
+        'GET products'     => Http::response([]),
+    ]);
+
+    $portfolio = CheckWooPortfolio::run($portfolio)->refresh();
+
+    expect($portfolio->exist_in_platform)->toBeFalse()
+        ->and($portfolio->platform_status)->toBeFalse();
+});
+
 test('an error while searching the catalogue offers no matches instead of the error body', function () {
     $wooCommerceUser = wooConnect(wooCustomer($this->shop));
     $portfolio       = wooPortfolio($wooCommerceUser->customerSalesChannel, $this->product, null, 'err-sku');
@@ -1091,6 +1123,8 @@ test('the stock push batches the channel portfolios and records each product res
             ],
             'delete' => [],
         ]),
+        'GET products/795' => wooError('woocommerce_rest_product_invalid_id', 'Invalid ID.', 404),
+        'GET products'     => Http::response([]),
     ]);
 
     UpdateWooCustomerSalesChannelPortfolio::run($channel, true);
@@ -1105,7 +1139,50 @@ test('the stock push batches the channel portfolios and records each product res
         ->and($live->stock_last_updated_at)->not->toBeNull()
         ->and($dead->refresh()->stock_last_fail_updated_at)->not->toBeNull()
         ->and($dead->last_stock_value)->toBeNull()
+        ->and($dead->platform_status)->toBeFalse()
+        ->and($dead->exist_in_platform)->toBeFalse()
+        ->and($live->platform_status)->toBeTrue()
         ->and($channel->refresh()->ban_stock_update_util)->toBeNull();
+});
+
+test('a store with stock management switched off fails the push and is flagged on the channel until it applies our stock', function () {
+    $wooCommerceUser = wooConnect(wooCustomer($this->shop));
+    $channel         = $wooCommerceUser->customerSalesChannel;
+    $this->product->update(['available_quantity' => 11]);
+    $portfolio = wooPortfolio($channel, $this->product, '794', 'ignored-sku');
+
+    wooFake(['POST products/batch' => Http::response(['update' => [wooProduct(794, ['manage_stock' => false, 'stock_quantity' => 35])]])]);
+    UpdateWooCustomerSalesChannelPortfolio::run($channel, true);
+
+    expect($portfolio->refresh()->stock_last_updated_at)->toBeNull()
+        ->and($portfolio->stock_last_fail_updated_at)->not->toBeNull()
+        ->and($portfolio->last_stock_value)->toBeNull()
+        ->and(Arr::get($channel->refresh()->settings, 'woocommerce.stock_management_off'))->toBeTrue()
+        ->and(RetinaCustomerSalesChannelResource::make($channel)->toArray(request())['stock_management_off'])->toBeTrue();
+
+    $customer = $channel->customer;
+    $channel->update(['platform_status' => true]);
+    $staffRows = $this->withoutVite()
+        ->get(route('grp.org.shops.show.crm.customers.show.customer_sales_channels.index', [$customer->organisation->slug, $customer->shop->slug, $customer->slug]))
+        ->assertOk()
+        ->inertiaProps('data.data');
+    expect(collect($staffRows)->firstWhere('id', $channel->id)['stock_management_off'])->toBeTrue();
+
+    wooFakeForPing();
+    CheckWooChannel::run($wooCommerceUser->refresh());
+    expect(Arr::get($channel->refresh()->settings, 'woocommerce.stock_management_off'))->toBeTrue();
+
+    wooFake(['POST products/batch' => Http::response(['update' => [wooProduct(794, ['stock_quantity' => 11])]])]);
+    UpdateWooCustomerSalesChannelPortfolio::run($channel, true);
+
+    expect($portfolio->refresh()->stock_last_updated_at)->not->toBeNull()
+        ->and((int) $portfolio->last_stock_value)->toBe(11)
+        ->and(Arr::get($channel->refresh()->settings, 'woocommerce.stock_management_off'))->toBeFalse();
+
+    $staffRows = $this->withoutVite()
+        ->get(route('grp.org.shops.show.crm.customers.show.customer_sales_channels.index', [$customer->organisation->slug, $customer->shop->slug, $customer->slug]))
+        ->inertiaProps('data.data');
+    expect(collect($staffRows)->firstWhere('id', $channel->id)['stock_management_off'])->toBeFalse();
 });
 
 test('a rejected batch bans the channel briefly unless the store says the request itself was wrong', function () {
@@ -1200,6 +1277,41 @@ test('the nightly retry only takes uploads tried in the last days and gives up a
 
     StoreNewProductToCurrentWooCommerce::assertPushed(fn ($job, array $arguments) => $arguments[1]->id === $portfolios['recent']->id);
     StoreNewProductToCurrentWooCommerce::assertNotPushed(fn ($job, array $arguments) => in_array($arguments[1]->id, [$portfolios['old']->id, $portfolios['tried_often']->id], true));
+});
+
+test('an upload the nightly retry gave up on is linked when the store created it anyway, without another create', function () {
+    $timedOut = ['message' => 'WooCommerce API Connection Error: cURL error 28: Operation timed out after 120002 milliseconds'];
+    $channel  = wooConnect(wooCustomer($this->shop))->customerSalesChannel;
+    $channel->update(['can_connect_to_platform' => true]);
+
+    $created = wooPortfolio($channel, $this->product, null, 'given-up-created');
+    $missing = wooPortfolio($channel, wooSecondProduct($this->shop, $this->product), null, 'given-up-missing');
+
+    foreach ([$created, $missing] as $portfolio) {
+        $portfolio->update(['errors_response' => $timedOut]);
+        for ($attempt = 0; $attempt < 3; $attempt++) {
+            StorePlatformPortfolioLog::run($portfolio, ['type' => PlatformPortfolioLogsTypeEnum::UPLOAD, 'status' => PlatformPortfolioLogsStatusEnum::FAIL]);
+        }
+    }
+
+    wooFake([
+        'GET products'      => fn (Request $request) => Http::response(wooQuery($request)['sku'] === 'given-up-created' ? [wooProduct(9301, ['sku' => 'given-up-created'])] : []),
+        'GET products/9301' => Http::response(wooProduct(9301, ['sku' => 'given-up-created'])),
+        'PUT products/9301' => Http::response(wooProduct(9301, ['sku' => 'given-up-created'])),
+    ]);
+
+    expect(RetryTimedOutWooUploads::run($channel, 3, 3))->toBeEmpty()
+        ->and(RetryTimedOutWooUploads::make()->givenUp($channel, 3, 3)->pluck('id')->all())->toEqualCanonicalizing([$created->id, $missing->id]);
+
+    $this->artisan('woo:retry-timed-out-uploads', ['customerSalesChannel' => $channel->id, '--dispatch' => true, '--days' => 3, '--max-attempts' => 3])->assertSuccessful();
+
+    expect($created->refresh()->platform_product_id)->toBe('9301')
+        ->and($created->platform_status)->toBeTrue()
+        ->and($created->errors_response)->toBeNull()
+        ->and($missing->refresh()->platform_product_id)->toBeNull()
+        ->and($missing->errors_response['message'])->toContain('timed out')
+        ->and(wooSent('POST', 'products'))->toBeEmpty()
+        ->and(wooSent('PUT', 'products/9301'))->toHaveCount(1);
 });
 
 test('quantity to send follows the channel threshold and cap', function () {

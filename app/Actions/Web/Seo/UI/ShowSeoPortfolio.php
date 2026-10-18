@@ -8,6 +8,7 @@
 namespace App\Actions\Web\Seo\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithShopPpcPermissions;
 use App\Actions\UI\Websites\WebsitesDashboard;
 use App\Actions\Web\Seo\GetSeoPortfolio;
 use App\Models\SysAdmin\Group;
@@ -18,9 +19,11 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowSeoPortfolio extends OrgAction
 {
+    use WithShopPpcPermissions;
+
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasGroupAccess();
+        return $this->canViewGroupSeo($request->user());
     }
 
     public function asController(ActionRequest $request): Group

@@ -9,7 +9,7 @@
 namespace App\Actions\Dispatching\PickedBay\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\Inventory\WithWarehouseAuthorisation;
+use App\Actions\Traits\Authorisations\WithDispatchingEquipmentAuthorisation;
 use App\Actions\UI\Dispatch\ShowDispatchHub;
 use App\Enums\UI\Inventory\PickedBaysTabsEnum;
 use App\Http\Resources\Inventory\PickedBayResource;
@@ -28,7 +28,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexPickedBays extends OrgAction
 {
-    use WithWarehouseAuthorisation;
+    use WithDispatchingEquipmentAuthorisation;
 
     public function handle(Warehouse $warehouse, $prefix = null): LengthAwarePaginator
     {
@@ -107,7 +107,7 @@ class IndexPickedBays extends OrgAction
                     'title'  => __('Picked bays'),
                     'icon'   => ['fal', 'fa-monument'],
                     'actions' => [
-                        [
+                        $this->canEdit ? [
                             'type'  => 'button',
                             'style' => 'create',
                             'label' => __('Create'),
@@ -115,7 +115,7 @@ class IndexPickedBays extends OrgAction
                                 'name'       => 'grp.org.warehouses.show.dispatching.picked_bays.create',
                                 'parameters' => array_values($request->route()->originalParameters()),
                             ],
-                        ],
+                        ] : false,
                     ],
                 ],
                 'tabs'        => [

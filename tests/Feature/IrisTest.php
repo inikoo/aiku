@@ -33,8 +33,27 @@ use App\Actions\Web\Website\UI\DetectWebsiteFromDomain;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Models\Accounting\Invoice;
 use App\Models\CRM\Customer;
+use App\Actions\Comms\Email\SendAppointmentEmail;
+use App\Actions\CRM\Appointment\StoreAppointment;
+use App\Actions\CRM\AppointmentType\GetAppointmentTypeAvailableSlots;
+use App\Actions\Iris\Appointment\ShowIrisAppointment;
+use App\Enums\Comms\Outbox\OutboxCodeEnum;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use App\Actions\CRM\AppointmentType\StoreAppointmentType;
+use App\Enums\CRM\Appointment\AppointmentSourceEnum;
+use App\Enums\CRM\Appointment\AppointmentStateEnum;
+use App\Enums\CRM\AppointmentType\AppointmentTypeMeetingModeEnum;
+use App\Models\CRM\Appointment;
+use App\Models\CRM\Prospect;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
+use App\Actions\Retina\Dropshipping\Product\SaveDataFeeds;
+use App\Enums\Catalogue\Shop\ShopStateEnum;
 use Illuminate\Support\Str;
+use App\Actions\Comms\Outbox\ReviewReminder\ProcessReviewReminderRecipients;
+use App\Actions\Iris\Reviews\ShowIrisOrderReview;
+use App\Enums\Catalogue\Review\ReviewScopeEnum;
+use App\Models\Reviews\Review;
 
 use function Pest\Laravel\actingAs;
 
@@ -603,4 +622,259 @@ test('iris family page does not ship the family products twice', function () {
     expect($page['component'])->toBe('Catalogue/Family')
         ->and($page['props']['data']['family']['slug'])->toBe($family->slug)
         ->and($page['props']['data']['family'])->not->toHaveKey('products');
+});
+
+test('website lists open appointment types with their free times', function () {
+    DetectWebsiteFromDomain::mock()->shouldReceive('parseDomain')->andReturn($this->website->domain);
+
+    $openType = StoreAppointmentType::make()->action($this->shop, [
+        'name'                => 'Showroom visit '.Str::random(6),
+        'meeting_mode'        => AppointmentTypeMeetingModeEnum::STORE_VISIT->value,
+        'duration_minutes'    => 60,
+        'min_notice_hours'    => 0,
+        'booking_window_days' => 14,
+        'availability'        => ['weekly' => array_fill_keys(range(1, 7), [['from' => '09:00', 'to' => '17:00']])],
+    ]);
+    $closedType = StoreAppointmentType::make()->action($this->shop, [
+        'name'             => 'Closed '.Str::random(6),
+        'meeting_mode'     => AppointmentTypeMeetingModeEnum::VIDEO_CALL->value,
+        'duration_minutes' => 30,
+        'is_active'        => false,
+    ]);
+
+    $response = $this->getJson('http://'.$this->website->domain.'/json/appointments')->assertOk();
+    $types    = collect($response->json('appointment_types'));
+    $listed   = $types->firstWhere('id', $openType->id);
+
+    expect($response->json('shop_name'))->toBe($this->shop->name)
+        ->and($response->json('country_code'))->toBe($this->shop->country?->code)
+        ->and($listed)->not->toBeNull()
+        ->and($listed['meeting_mode'])->toBe('store_visit')
+        ->and($listed['slots'])->not->toBeEmpty()
+        ->and($types->pluck('id'))->not->toContain($closedType->id);
+});
+
+test('a website video call booking needs a WhatsApp number', function () {
+    DetectWebsiteFromDomain::mock()->shouldReceive('parseDomain')->andReturn($this->website->domain);
+
+    $appointmentType = StoreAppointmentType::make()->action($this->shop, [
+        'name'                => 'Video call '.Str::random(6),
+        'meeting_mode'        => AppointmentTypeMeetingModeEnum::VIDEO_CALL->value,
+        'duration_minutes'    => 30,
+        'min_notice_hours'    => 0,
+        'booking_window_days' => 14,
+        'availability'        => ['weekly' => array_fill_keys(range(1, 7), [['from' => '09:00', 'to' => '17:00']])],
+    ]);
+    $slots = GetAppointmentTypeAvailableSlots::run($appointmentType);
+    $date  = array_key_last($slots);
+
+    $payload = [
+        'appointment_type_id' => $appointmentType->id,
+        'date'                => $date,
+        'time'                => $slots[$date][0],
+        'contact_name'        => 'Video visitor',
+        'email'               => 'video-'.Str::lower(Str::random(8)).'@example.com',
+    ];
+
+    $this->postJson('http://'.$this->website->domain.'/models/appointment', $payload)
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['phone' => 'WhatsApp']);
+
+    $this->postJson('http://'.$this->website->domain.'/models/appointment', [...$payload, 'phone' => '+421 900 123 456'])
+        ->assertOk();
+});
+
+test('visitor books an appointment on the website and becomes a prospect', function () {
+    DetectWebsiteFromDomain::mock()->shouldReceive('parseDomain')->andReturn($this->website->domain);
+
+    $appointmentType = StoreAppointmentType::make()->action($this->shop, [
+        'name'                => 'Showroom visit '.Str::random(6),
+        'meeting_mode'        => AppointmentTypeMeetingModeEnum::STORE_VISIT->value,
+        'duration_minutes'    => 60,
+        'min_notice_hours'    => 0,
+        'booking_window_days' => 14,
+        'capacity_per_slot'   => 1,
+        'availability'        => ['weekly' => array_fill_keys(range(1, 7), [['from' => '09:00', 'to' => '17:00']])],
+    ]);
+    $slots = GetAppointmentTypeAvailableSlots::run($appointmentType);
+    $date  = array_key_last($slots);
+    $time  = $slots[$date][0];
+    $email = 'web-visitor-'.Str::lower(Str::random(8)).'@example.com';
+
+    $payload = [
+        'appointment_type_id' => $appointmentType->id,
+        'date'                => $date,
+        'time'                => $time,
+        'contact_name'        => 'Web visitor',
+        'email'               => $email,
+        'number_visitors'     => 3,
+        'marketing_opt_in'    => true,
+    ];
+
+    $this->postJson('http://'.$this->website->domain.'/models/appointment', $payload)
+        ->assertOk()
+        ->assertJsonPath('starts_at', $date.' '.$time);
+
+    $appointment = Appointment::where('appointment_type_id', $appointmentType->id)->sole();
+
+    expect($appointment->source)->toBe(AppointmentSourceEnum::WEBSITE)
+        ->and($appointment->state)->toBe(AppointmentStateEnum::REQUESTED)
+        ->and($appointment->number_visitors)->toBe(3)
+        ->and($appointment->visitor)->toBeInstanceOf(Prospect::class)
+        ->and($appointment->visitor->email)->toBe($email)
+        ->and($appointment->visitor->is_opt_in)->toBeTrue()
+        ->and($appointment->visitor->dont_contact_me)->toBeFalse();
+
+    $this->postJson('http://'.$this->website->domain.'/models/appointment', [...$payload, 'email' => 'other-'.$email])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('time');
+
+    $this->postJson('http://'.$this->website->domain.'/models/appointment', [...$payload, 'time' => $slots[$date][1], 'website_url' => 'http://spam.example'])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['website_url' => 'reload the page']);
+});
+
+test('a visitor moves and cancels their appointment from the link in their email', function () {
+    DetectWebsiteFromDomain::mock()->shouldReceive('parseDomain')->andReturn($this->website->domain);
+    $this->withoutMiddleware(ThrottleRequests::class);
+
+    $appointmentType = StoreAppointmentType::make()->action($this->shop, [
+        'name'                => 'Managed visit '.Str::random(6),
+        'meeting_mode'        => AppointmentTypeMeetingModeEnum::STORE_VISIT->value,
+        'duration_minutes'    => 60,
+        'min_notice_hours'    => 0,
+        'booking_window_days' => 14,
+        'capacity_per_slot'   => 1,
+        'availability'        => ['weekly' => array_fill_keys(range(1, 7), [['from' => '09:00', 'to' => '17:00']])],
+    ]);
+    $slots = GetAppointmentTypeAvailableSlots::run($appointmentType);
+    $date  = array_key_last($slots);
+    [$firstTime, $secondTime] = $slots[$date];
+
+    $appointment = StoreAppointment::make()->action($this->shop, [
+        'appointment_type_id' => $appointmentType->id,
+        'starts_at'           => $date.' '.$firstTime,
+        'contact_name'        => 'Managing visitor',
+        'email'               => 'managing-'.Str::lower(Str::random(8)).'@example.com',
+        'state'               => AppointmentStateEnum::REQUESTED->value,
+    ]);
+
+    $link   = '/appointment/'.$appointment->id.'/'.$appointment->manageToken();
+    $site   = 'http://'.$this->website->domain;
+    $models = $site.'/models'.$link;
+    $page   = ShowIrisAppointment::make()->handle($appointment);
+
+    expect($appointment->manageUrl())->toBe('https://'.$this->website->domain.$link)
+        ->and(SendAppointmentEmail::make()->generateBodyHtml($appointment, OutboxCodeEnum::APPOINTMENT_REQUESTED))->toContain($link)
+        ->and(SendAppointmentEmail::make()->generateBodyHtml($appointment, OutboxCodeEnum::APPOINTMENT_CANCELLED))->not->toContain($link)
+        ->and($page['appointment']['can_change'])->toBeTrue()
+        ->and($page['appointment']['time'])->toBe($firstTime)
+        ->and($page['free_slots'][$date])->toContain($secondTime)
+        ->and($page['free_slots'][$date])->not->toContain($firstTime);
+
+    $this->get($site.'/appointment/'.$appointment->id.'/not-the-token')->assertNotFound();
+    $this->postJson($site.'/models/appointment/'.$appointment->id.'/not-the-token/cancel')->assertNotFound();
+
+    $this->postJson($models.'/reschedule', ['date' => $date, 'time' => $secondTime])
+        ->assertOk()
+        ->assertJsonPath('time', $secondTime)
+        ->assertJsonPath('state', AppointmentStateEnum::REQUESTED->value);
+
+    $timezone = $this->shop->timezone?->name ?? 'UTC';
+    expect($appointment->refresh()->starts_at->copy()->setTimezone($timezone)->format('Y-m-d H:i'))->toBe($date.' '.$secondTime)
+        ->and(GetAppointmentTypeAvailableSlots::make()->isAvailable($appointmentType, $date, $firstTime))->toBeTrue();
+
+    $this->postJson($models.'/reschedule', ['date' => $date, 'time' => $secondTime])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('time');
+
+    $this->postJson($models.'/cancel', ['reason' => 'Plans changed'])
+        ->assertOk()
+        ->assertJsonPath('state', AppointmentStateEnum::CANCELLED->value)
+        ->assertJsonPath('can_change', false);
+
+    expect($appointment->refresh()->state)->toBe(AppointmentStateEnum::CANCELLED)
+        ->and($appointment->state_reason)->toContain('Plans changed')
+        ->and(GetAppointmentTypeAvailableSlots::make()->isAvailable($appointmentType, $date, $secondTime))->toBeTrue();
+
+    $this->postJson($models.'/cancel')
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('state');
+});
+
+test('data feeds are rebuilt hourly only while someone reads them', function () {
+    Storage::fake('data-feeds');
+    $this->shop->update(['is_aiku' => true, 'state' => ShopStateEnum::OPEN]);
+    DetectWebsiteFromDomain::mock()
+        ->shouldReceive('parseDomain')
+        ->andReturn($this->website->domain);
+
+    $path = SaveDataFeeds::path($this->shop);
+    Cache::forget(SaveDataFeeds::readCacheKey($this->shop));
+
+    $this->get('http://'.$this->website->domain.'/data-feed.csv')->assertOk();
+
+    expect(Storage::disk('data-feeds')->allFiles('shop'))->toBe([$path]);
+
+    Storage::disk('data-feeds')->put($path, 'stale');
+    $this->artisan('data_feeds:save')->assertSuccessful();
+
+    expect(Storage::disk('data-feeds')->get($path))->toContain('Product code')
+        ->and(Storage::disk('data-feeds')->allFiles('shop'))->toBe([$path]);
+
+    Cache::forget(SaveDataFeeds::readCacheKey($this->shop));
+    $this->artisan('data_feeds:save')->assertSuccessful();
+
+    Storage::disk('data-feeds')->assertMissing($path);
+});
+
+test('a customer rates their order and its products from the stars in the review reminder email', function () {
+    DetectWebsiteFromDomain::mock()->shouldReceive('parseDomain')->andReturn($this->website->domain);
+    $this->withoutMiddleware(ThrottleRequests::class);
+    Queue::fake();
+
+    [, $product] = createProduct($this->shop);
+    $order       = createOrder(createCustomer($this->shop), $product);
+    $page        = ShowIrisOrderReview::make()->handle($order);
+    $productId   = $page['products'][0]['reviewable_id'];
+
+    $link  = '/review/'.$order->id.'/'.$order->reviewToken();
+    $site  = 'http://'.$this->website->domain;
+    $email = (new ProcessReviewReminderRecipients())->generateReviewLinks((string) $order->id);
+
+    expect($order->reviewUrl())->toBe('https://'.$this->website->domain.$link)
+        ->and($email)->toContain(e($order->reviewUrl(['rating' => 5])))
+        ->and($email)->toContain(e($order->reviewUrl(['product' => $productId, 'rating' => 1])))
+        ->and($page['company']['reviewable_id'])->toBe($order->id);
+
+    $this->get($site.'/review/'.$order->id.'/not-the-token')->assertNotFound();
+    $this->postJson($site.'/models/review/'.$order->id.'/not-the-token', [
+        'reviews' => [['scope' => 'order', 'reviewable_id' => $order->id, 'rating' => 5]],
+    ])->assertNotFound();
+
+    $this->postJson($site.'/models'.$link, [
+        'reviews' => [
+            ['scope' => 'order', 'reviewable_id' => $order->id, 'rating' => 5, 'message' => 'Fast delivery'],
+            ['scope' => 'product', 'reviewable_id' => $productId, 'rating' => 4],
+        ],
+    ])->assertOk()
+        ->assertJsonPath('company.rating', 5)
+        ->assertJsonPath('company.message', 'Fast delivery')
+        ->assertJsonPath('products.0.rating', 4);
+
+    $orderReviews = fn () => Review::query()->where('order_id', $order->id);
+    $numberReviews = $orderReviews()->count();
+
+    expect($orderReviews()->where('scope', ReviewScopeEnum::ORDER)->value('customer_id'))->toBe($order->customer_id);
+
+    $this->postJson($site.'/models'.$link, [
+        'reviews' => [['scope' => 'product', 'reviewable_id' => $productId, 'rating' => 2, 'message' => 'Arrived broken']],
+    ])->assertOk()->assertJsonPath('products.0.rating', 2);
+
+    expect($orderReviews()->count())->toBe($numberReviews)
+        ->and((int) $orderReviews()->where('product_id', $productId)->value('rating_main'))->toBe(2);
+
+    $this->postJson($site.'/models'.$link, [
+        'reviews' => [['scope' => 'product', 'reviewable_id' => 999999999, 'rating' => 5]],
+    ])->assertUnprocessable()->assertJsonValidationErrors('reviews.0.reviewable_id');
 });

@@ -446,7 +446,7 @@ onBeforeUnmount(stopTimer)
 				<label class="block">
 					<span class="text-gray-600">{{ ctrans("Budget (optional)") }}</span>
 					<div
-						class="mt-1 flex items-center rounded-md ring-1 ring-gray-300 focus-within:ring-indigo-500">
+						class="mt-1 flex items-center rounded-md ring-1 ring-gray-300 focus-within:ring-[--app-accent]">
 						<span class="pl-3 text-gray-500">{{ currencySymbol }}</span>
 						<input
 							v-model.number="budget"
@@ -474,7 +474,7 @@ onBeforeUnmount(stopTimer)
 					<Link
 						v-if="analyseUrl"
 						:href="analyseUrl"
-						class="mr-auto inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:underline"
+						class="mr-auto inline-flex items-center gap-1.5 text-sm font-medium text-gray-700 hover:underline"
 						@click="isAsking = false">
 						<FontAwesomeIcon icon="fal fa-chart-bar" fixed-width aria-hidden="true" />
 						{{ ctrans("More details") }}
@@ -510,7 +510,7 @@ onBeforeUnmount(stopTimer)
 				class="flex flex-col items-center gap-3 px-4 py-6 text-center text-sm text-gray-700"
 				role="status"
 				aria-live="polite">
-				<LoadingIcon class="text-3xl text-indigo-500" />
+				<LoadingIcon class="text-3xl text-[--app-accent]" />
 				<div class="font-semibold text-gray-900">{{ ctrans("Crunching the numbers") }}</div>
 				<div class="text-gray-500">{{ stepText }}…</div>
 				<div class="text-xs text-gray-400">

@@ -68,6 +68,7 @@ class GetOrgStockDiscontinuePreview extends OrgAction
             'number_products' => count($productIds),
             'purchase_orders'  => $this->openPurchaseOrders($orgStock),
             'stock_deliveries' => $this->pendingStockDeliveries($orgStock),
+            'supplier_products' => $this->supplierProducts($orgStock),
             'restock_requests' => $orgStock->stock_id ? PartnerShoppingListItem::openRestockRequestsFor($orgStock)->count() : 0,
             'portfolios'       => $this->portfolios($productIds),
             'external_shops'   => $this->externalShopProducts($productIds),
@@ -105,6 +106,29 @@ class GetOrgStockDiscontinuePreview extends OrgAction
             ->whereNull('org_stocks.deleted_at')
             ->orderBy('organisations.code')
             ->pluck('org_stocks.state', 'organisations.code')
+            ->all();
+    }
+
+    /**
+     * Who the SKO is bought from; is_available is this organisation's switch, supplier_is_available the supplier's own for every organisation.
+     */
+    private function supplierProducts(OrgStock $orgStock): array
+    {
+        return DB::table('org_stock_has_org_supplier_products')
+            ->join('org_supplier_products', 'org_supplier_products.id', '=', 'org_stock_has_org_supplier_products.org_supplier_product_id')
+            ->join('supplier_products', 'supplier_products.id', '=', 'org_supplier_products.supplier_product_id')
+            ->leftJoin('suppliers', 'suppliers.id', '=', 'supplier_products.supplier_id')
+            ->where('org_stock_has_org_supplier_products.org_stock_id', $orgStock->id)
+            ->where('org_supplier_products.organisation_id', $orgStock->organisation_id)
+            ->orderByDesc('org_stock_has_org_supplier_products.local_priority')
+            ->get(['supplier_products.code', 'suppliers.code as supplier', 'org_supplier_products.state', 'org_supplier_products.is_available', 'supplier_products.is_available as supplier_is_available'])
+            ->map(fn ($row) => [
+                'code'                  => $row->code,
+                'supplier'              => $row->supplier,
+                'state'                 => $row->state,
+                'is_available'          => (bool) $row->is_available,
+                'supplier_is_available' => (bool) $row->supplier_is_available,
+            ])
             ->all();
     }
 

@@ -1,7 +1,7 @@
 ---
 title: Placing an order through an agent
 summary: For buyers - how the orders you place with an agent's suppliers come together as one agent order, how to add products, submit and send it to the agent, and where each supplier's order lives.
-date: 2026-10-08
+date: 2026-10-15
 tags: procurement, purchase orders, agents
 category: procurement
 help_routes: grp.org.procurement.org_agents
@@ -36,3 +36,5 @@ When the agent ships, one stock delivery can carry the orders of several of its 
 ## Who can use it
 
 Purchasing edit permission for your organisation to add, submit and send. Purchasing view permission to open agent orders and print them. Agents record their own dates as described in [recording order progress as an agent](/docs/recording-order-progress-for-agents).
+
+When several organisations order from the same supplier, see [ordering from an agent together with other organisations](/docs/ordering-from-an-agent-with-other-organisations).

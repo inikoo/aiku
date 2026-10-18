@@ -30,6 +30,7 @@ use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\Product\ProductStatusEnum;
 use App\Enums\Catalogue\Product\ProductTradeConfigEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
+use App\Enums\Catalogue\Shop\ShopEngineEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Discounts\Offer\OfferTypeEnum;
 use App\Models\Catalogue\Product;
@@ -294,6 +295,10 @@ class StoreProduct extends OrgAction
                 'sometimes',
                 Rule::unique('products', 'marketplace_id')->where(function ($query) {
                     $query->where('group_id', $this->shop->group_id);
+                    if ($this->shop->engine === ShopEngineEnum::WIX) {
+                        $query->where('shop_id', $this->shop->id)
+                            ->where('marketplace_second_id', $this->get('marketplace_second_id'));
+                    }
                 })
             ],
             'marketing_weight'          => ['sometimes', 'numeric', 'min:0'],
@@ -316,6 +321,7 @@ class StoreProduct extends OrgAction
 
             $rules                              = $this->noStrictStoreRules($rules);
             $rules['historic_source_id']        = ['sometimes', 'required', 'string', 'max:255'];
+            $rules['marketplace_second_id']     = ['sometimes', 'nullable', 'string'];
             $rules['state']                     = ['required', Rule::enum(ProductStateEnum::class)];
             $rules['status']                    = ['required', Rule::enum(ProductStatusEnum::class)];
             $rules['trade_config']              = ['required', Rule::enum(ProductTradeConfigEnum::class)];
@@ -329,6 +335,22 @@ class StoreProduct extends OrgAction
         return $rules;
     }
 
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+
+        if ($this->shop->fulfilment) {
+            return $request->user()->authTo([
+                "fulfilment-shop.{$this->shop->fulfilment->id}.edit",
+                "supervisor-fulfilment-shop.{$this->shop->fulfilment->id}",
+            ]);
+        }
+
+        return $request->user()->authTo("products.{$this->shop->id}.edit");
+    }
 
     /**
      * @throws \Throwable
@@ -361,6 +383,7 @@ class StoreProduct extends OrgAction
      */
     public function inFamily(Organisation $organisation, Shop $shop, ProductCategory $family, ActionRequest $request): RedirectResponse
     {
+        abort_unless($family->shop_id === $shop->id, 404);
         $this->initialisationFromShop($shop, $request);
         $this->handle($family, $this->validatedData);
 

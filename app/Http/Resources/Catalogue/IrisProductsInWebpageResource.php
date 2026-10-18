@@ -12,6 +12,7 @@ use App\Actions\Web\Webpage\Iris\ShowIrisWebpage;
 use App\Http\Resources\HasSelfCall;
 use App\Http\Resources\Traits\HasCardWebImages;
 use App\Http\Resources\Traits\HasPriceMetrics;
+use App\Http\Resources\Traits\HasProductBadge;
 use App\Http\Resources\Traits\HasProductOfferPrices;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -55,6 +56,7 @@ class IrisProductsInWebpageResource extends JsonResource
 {
     use HasSelfCall;
     use HasPriceMetrics;
+    use HasProductBadge;
     use HasCardWebImages;
     use HasProductOfferPrices;
 
@@ -88,6 +90,7 @@ class IrisProductsInWebpageResource extends JsonResource
             'unit'            => $this->unit,
             'url'             => $url,
             'top_seller'      => $this->top_seller,
+            ...$this->getProductBadgeData(),
             'web_images'      => $this->getCardWebImages($this->web_images),
             'audio'           => $this->audio_ulid ? '/audio/'.$this->audio_ulid : null,
             'transaction_id'  => $this->transaction_id,

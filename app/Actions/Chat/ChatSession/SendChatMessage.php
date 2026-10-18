@@ -16,6 +16,7 @@ use App\Actions\Comms\Email\SendChatNotificationToExternal;
 use App\Actions\Comms\Mailbox\ImportPendingGmailAttachments;
 use App\Actions\Comms\Mailbox\SendChatMessageByGmail;
 use App\Actions\Helpers\Media\StoreMediaFromFile;
+use App\Actions\Web\Webpage\Iris\ShowIrisWebpage;
 use App\Enums\CRM\Livechat\ChatActorTypeEnum;
 use App\Enums\CRM\Livechat\ChatAssignmentAssignedByEnum;
 use App\Enums\CRM\Livechat\ChatAssignmentStatusEnum;
@@ -31,13 +32,16 @@ use App\Models\Chat\ChatSession;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\WebUser;
 use App\Models\SysAdmin\User;
+use App\Models\Web\Webpage;
 use App\Services\Gmail\GmailClient;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\ValidationException;
@@ -49,7 +53,7 @@ class SendChatMessage
     use WithChatAgentAuthorisation;
     use AsAction;
 
-    public const ATTACHMENT_TYPES = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'txt', 'pptx', 'zip'];
+    public const ATTACHMENT_TYPES = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'txt', 'pptx', 'zip', 'mp4', 'mov'];
 
     public const MAX_ATTACHMENTS = 30;
 
@@ -100,6 +104,7 @@ class SendChatMessage
             'media_id'        => $modelData['media_id'] ?? null,
             'original_text'   => $sanitizedMessage,
             'is_read'         => false,
+            'metadata'        => $this->pageMetadata($chatSession, $modelData),
             'created_at'      => now(),
             'updated_at'      => now(),
         ];
@@ -156,6 +161,41 @@ class SendChatMessage
         }
 
         return $chatMessage;
+    }
+
+    /**
+     * The page the customer was looking at when they wrote, so the agent can answer "what is in
+     * this?" without asking for the product code first (HELP-3982). A product or category page
+     * also gives its code and title; any other page keeps only its address.
+     */
+    private function pageMetadata(ChatSession $chatSession, array $modelData): ?array
+    {
+        $pageUrl = $modelData['page_url'] ?? null;
+
+        if (blank($pageUrl) || $modelData['sender_type'] === ChatSenderTypeEnum::AGENT->value) {
+            return null;
+        }
+
+        $metadata = ['page_url' => $pageUrl];
+
+        $website = $chatSession->shop?->website;
+        $slug    = Str::afterLast(trim(rawurldecode((string) parse_url($pageUrl, PHP_URL_PATH)), '/'), '/');
+
+        if (!$website || $slug === '') {
+            return $metadata;
+        }
+
+        $webpageId = ShowIrisWebpage::make()->getWebpageID($website, $slug);
+        $webpage   = $webpageId ? Webpage::find($webpageId) : null;
+
+        if (!$webpage) {
+            return $metadata;
+        }
+
+        return array_merge($metadata, array_filter([
+            'page_title' => $webpage->title,
+            'page_code'  => in_array($webpage->model_type, ['Product', 'ProductCategory']) ? $webpage->model?->code : null,
+        ]));
     }
 
     protected function processMessageImage(ChatMessage $chatMessage, UploadedFile $file): void
@@ -351,7 +391,7 @@ class SendChatMessage
             'file'           => [
                 'sometimes',
                 'nullable',
-                File::types(['pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'txt', 'pptx', 'zip'])
+                File::types(['pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'txt', 'pptx', 'zip', 'mp4', 'mov'])
                     ->max(self::MAX_AGENT_FILE_KB)
             ],
             'attachments'    => [
@@ -372,6 +412,12 @@ class SendChatMessage
                 'sometimes',
                 'array',
             ],
+            'page_url'       => [
+                'sometimes',
+                'nullable',
+                'url:http,https',
+                'max:2048',
+            ],
             'email_cc_excluded.*' => [
                 'string',
                 'max:255',
@@ -379,6 +425,31 @@ class SendChatMessage
         ];
     }
 
+
+    /**
+     * A reply written for the signed in agent outside the composer, by their AI assistant. It goes
+     * through the same door as the composer: the same text rules, and the chat is claimed when
+     * nobody holds it and refused when a colleague does.
+     *
+     * @throws \Throwable
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function replyAsAgent(ChatSession $chatSession, string $text): ChatMessage
+    {
+        $validated = validator([
+            'message_text' => $text,
+            'message_type' => ChatMessageTypeEnum::TEXT->value,
+            'sender_type'  => ChatSenderTypeEnum::AGENT->value,
+        ], Arr::only($this->rules(), ['message_text', 'message_type', 'sender_type']))->validate();
+
+        $sender = $this->determineSenderData($validated, $chatSession);
+
+        if (!$sender['ok']) {
+            throw ValidationException::withMessages(['message_text' => $sender['message']]);
+        }
+
+        return $this->handle($chatSession, array_merge($validated, $sender['data']));
+    }
 
     /**
      * @throws \Throwable
@@ -458,7 +529,7 @@ class SendChatMessage
      *
      * @return array{ok: bool, message: string, code: int}|null  a refusal, or null once claimed
      */
-    private function claimUnheldChat(ChatSession $chatSession, User $user, ChatAgent $agent): ?array
+    public function claimUnheldChat(ChatSession $chatSession, User $user, ChatAgent $agent): ?array
     {
         $holderId = $chatSession->assignments()
             ->where('status', ChatAssignmentStatusEnum::ACTIVE->value)

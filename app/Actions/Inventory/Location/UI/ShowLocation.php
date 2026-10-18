@@ -131,14 +131,15 @@ class ShowLocation extends OrgAction
                     'parameters' => ['location' => $location->id],
                     'method'     => 'post',
                 ] : null,
+                'packing_progress' => $location->is_goods_out ? GetGoodsOutPackingProgress::run($location) : null,
 
                 LocationTabsEnum::SHOWCASE->value => $this->tab == LocationTabsEnum::SHOWCASE->value ?
                     fn () => GetLocationShowcase::run($location)
                     : Inertia::optional(fn () => GetLocationShowcase::run($location)),
 
                 LocationTabsEnum::ORG_STOCKS->value => $this->tab == LocationTabsEnum::ORG_STOCKS->value ?
-                    fn () => OrgStocksInLocationResource::collection(IndexOrgStocksInLocation::run($location))
-                    : Inertia::optional(fn () => OrgStocksInLocationResource::collection(IndexOrgStocksInLocation::run($location))),
+                    fn () => OrgStocksInLocationResource::collection(IndexOrgStocksInLocation::run($location, LocationTabsEnum::ORG_STOCKS->value))
+                    : Inertia::optional(fn () => OrgStocksInLocationResource::collection(IndexOrgStocksInLocation::run($location, LocationTabsEnum::ORG_STOCKS->value))),
 
                 LocationTabsEnum::PALLETS->value => $this->tab == LocationTabsEnum::PALLETS->value ?
                     fn () => PalletsResource::collection(IndexPalletsInWarehouse::run($location))

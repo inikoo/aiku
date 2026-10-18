@@ -19,6 +19,7 @@ use App\Models\Web\Announcement;
 use App\Models\Web\Website;
 use App\Services\QueryBuilder;
 use Closure;
+use Illuminate\Support\Arr;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -131,7 +132,7 @@ class IndexAnnouncements extends OrgAction
     {
         $container = null;
 
-        $actions = [
+        $actions = $this->canEdit ? [
             [
                 'type'  => 'button',
                 'style' => 'primary',
@@ -142,17 +143,17 @@ class IndexAnnouncements extends OrgAction
                     'parameters' => array_values($request->route()->originalParameters())
                 ]
             ]
-        ];
+        ] : [];
 
         return Inertia::render(
             'Websites/Announcements',
             [
                 'title'       => __('Announcements'),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
+                ),
                 'pageHead'    => [
-                    'breadcrumbs' => $this->getBreadcrumbs(
-                        $request->route()->getName(),
-                        $request->route()->originalParameters()
-                    ),
                     'title'     => __('Announcements'),
                     'container' => $container,
                     'icon'      => [
@@ -201,7 +202,7 @@ class IndexAnnouncements extends OrgAction
                     $headCrumb(
                         [
                             'name'       => 'grp.org.shops.show.web.announcements.index',
-                            'parameters' => $routeParameters
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'shop', 'website'])
                         ]
                     ),
                 );

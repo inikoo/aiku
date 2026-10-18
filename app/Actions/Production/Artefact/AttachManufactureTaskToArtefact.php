@@ -10,16 +10,20 @@ namespace App\Actions\Production\Artefact;
 
 use App\Actions\OrgAction;
 use App\Actions\Production\JobOrderItemTask\GenerateJobOrderItemTasks;
+use App\Actions\Production\ManufactureTaskSession\RecalculateUntargetedManufactureTaskSessions;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
 use App\Models\Production\JobOrderItem;
 use App\Models\Production\Artefact;
+use App\Models\Production\ManufactureTask;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class AttachManufactureTaskToArtefact extends OrgAction
 {
+    /** @var array<int, string> */
+    private array $jobsKeepingTheirCount = [];
+
     public function handle(Artefact $artefact, array $modelData): Artefact
     {
         $step = [
@@ -29,12 +33,23 @@ class AttachManufactureTaskToArtefact extends OrgAction
         if (array_key_exists('standard_rate', $modelData)) {
             $step['standard_rate'] = $modelData['standard_rate'];
         }
+        if (array_key_exists('mix_batch_kg', $modelData)) {
+            $step['mix_batch_kg'] = $modelData['mix_batch_kg'];
+        }
+
+        $previousUnits = $artefact->manufactureTasks()->get()->mapWithKeys(fn (ManufactureTask $manufactureTask) => [$manufactureTask->id => $manufactureTask->pivot->units_per_artefact])->all();
 
         $artefact->manufactureTasks()->syncWithoutDetaching([$modelData['manufacture_task_id'] => $step]);
 
+        if (!empty($step['standard_rate'])) {
+            RecalculateUntargetedManufactureTaskSessions::run($artefact);
+        }
+
         JobOrderItem::where('artefact_id', $artefact->id)
             ->whereHas('jobOrder', fn ($query) => $query->whereNotIn('state', [JobOrderStateEnum::RECEIVED, JobOrderStateEnum::NOT_RECEIVED]))
-            ->each(fn (JobOrderItem $jobOrderItem) => GenerateJobOrderItemTasks::run($jobOrderItem));
+            ->each(fn (JobOrderItem $jobOrderItem) => GenerateJobOrderItemTasks::run($jobOrderItem, [], $previousUnits));
+
+        $this->jobsKeepingTheirCount = GenerateJobOrderItemTasks::make()->jobsKeepingTheirCount($artefact, $previousUnits)->all();
 
         return $artefact;
     }
@@ -49,6 +64,7 @@ class AttachManufactureTaskToArtefact extends OrgAction
             'position'            => ['sometimes', 'integer', 'min:1'],
             'units_per_artefact'  => ['sometimes', 'numeric', 'gt:0'],
             'standard_rate'       => ['sometimes', 'nullable', 'numeric', 'gt:0'],
+            'mix_batch_kg'        => ['sometimes', 'nullable', Rule::in([25, 50])],
         ];
     }
 
@@ -58,7 +74,7 @@ class AttachManufactureTaskToArtefact extends OrgAction
             return true;
         }
 
-        if ($request->has('standard_rate')) {
+        if ($request->has('standard_rate') || $request->has('mix_batch_kg')) {
             return $request->user()->authTo(["org-supervisor.{$this->organisation->id}", "productions_rd.{$this->production->id}.edit"]);
         }
 
@@ -91,6 +107,16 @@ class AttachManufactureTaskToArtefact extends OrgAction
 
     public function htmlResponse(): RedirectResponse
     {
-        return Redirect::back();
+        if (!$this->jobsKeepingTheirCount) {
+            return back();
+        }
+
+        return back()->with('notification', [
+            'status'      => 'warning',
+            'title'       => __('Jobs already worked on keep their old count'),
+            'description' => __('Work is already recorded on these with the previous units, check them on the job order: :jobs', [
+                'jobs' => implode(', ', $this->jobsKeepingTheirCount),
+            ]),
+        ]);
     }
 }

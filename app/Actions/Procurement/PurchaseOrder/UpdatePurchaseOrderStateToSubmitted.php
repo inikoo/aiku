@@ -9,12 +9,16 @@
 namespace App\Actions\Procurement\PurchaseOrder;
 
 use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
+use App\Actions\Procurement\SupplierAgreedTerm\CheckAgainstAgreedTerms;
+use App\Actions\Procurement\SupplierAgreedTerm\UI\GetPurchaseOrderAgreement;
 use App\Actions\OrgAction;
+use App\Actions\Procurement\OrgAgent\SendAgentDraftsToAgent;
 use App\Actions\Procurement\PurchaseOrder\Hydrators\PurchaseOrderHydrateTransactions;
 use App\Actions\Procurement\PurchaseOrder\Traits\HasPurchaseOrderHydrators;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
+use App\Events\BroadcastAgentIncomingPurchaseOrdersChanged;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Http\RedirectResponse;
@@ -46,6 +50,18 @@ class UpdatePurchaseOrderStateToSubmitted extends OrgAction
             $validator->errors()->add('transactions', __('Purchase order must have at least one item to be submitted'));
         }
 
+        if (!$this->asAction && $waiting = SendAgentDraftsToAgent::organisationsNotReady($this->purchaseOrder)) {
+            $validator->errors()->add('purchase_order', __(':organisations are also ordering from this supplier and have not said they are ready. Submit it from POs to submit.', ['organisations' => implode(', ', $waiting)]));
+        }
+
+        if (!$this->asAction && !$this->get('critical_notes_acknowledged') && GetPurchaseOrderAgreement::make()->hasCriticalNotes($this->purchaseOrder)) {
+            $validator->errors()->add('critical_notes', __('This order has critical notes. Read them and tick that you have before submitting.'));
+        }
+
+        if (!$this->asAction && CheckAgainstAgreedTerms::hasUnaccepted(CheckAgainstAgreedTerms::make()->purchaseOrder($this->purchaseOrder))) {
+            $validator->errors()->add('agreed_terms', __('This order differs from what was agreed with the supplier. Accept each difference with a reason before submitting.'));
+        }
+
         if (SendPartnerPurchaseOrderToSeller::appliesTo($this->purchaseOrder)) {
             foreach (SendPartnerPurchaseOrderToSeller::make()->problems($this->purchaseOrder) as $problem) {
                 $validator->errors()->add('purchase_order', $problem);
@@ -56,6 +72,17 @@ class UpdatePurchaseOrderStateToSubmitted extends OrgAction
     public function handle(PurchaseOrder $purchaseOrder, ?string $sendVia = null): PurchaseOrder
     {
         $purchaseOrder = DB::transaction(fn () => $this->submit($purchaseOrder, $sendVia));
+
+        if ($agentOrganisation = $purchaseOrder->agent?->organisation) {
+            BroadcastAgentIncomingPurchaseOrdersChanged::dispatch($agentOrganisation->id, [
+                'purchase_order_id' => $purchaseOrder->id,
+                'reference'         => $purchaseOrder->reference,
+                'client'            => $purchaseOrder->organisation->name,
+                'amount'            => (float) $purchaseOrder->cost_total,
+                'currency'          => $purchaseOrder->currency->code,
+                'url'               => route('grp.org.agent.purchase_orders.show', [$agentOrganisation->slug, $purchaseOrder->slug]),
+            ]);
+        }
 
         if (SendPartnerPurchaseOrderToSeller::appliesTo($purchaseOrder)) {
             SendPartnerPurchaseOrderToSeller::dispatch($purchaseOrder);
@@ -111,6 +138,7 @@ class UpdatePurchaseOrderStateToSubmitted extends OrgAction
     {
         return [
             'send_via' => ['sometimes', 'nullable', 'string', 'in:email,whatsapp'],
+            'critical_notes_acknowledged' => ['sometimes', 'boolean'],
         ];
     }
 

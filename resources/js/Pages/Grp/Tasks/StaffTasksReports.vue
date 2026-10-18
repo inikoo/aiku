@@ -8,6 +8,7 @@
 import { computed, ref } from "vue"
 import { Head, Link, router } from "@inertiajs/vue3"
 import Chart from "primevue/chart"
+import Select from "primevue/select"
 import { ctrans } from "@/Composables/useTrans"
 import { capitalize } from "@/Composables/capitalize"
 import { taskRoute, tasksRoute, tasksRouteObject } from "@/Composables/useTasksRoute"
@@ -67,7 +68,7 @@ const listParams = (filter: Record<string, any>, status: string) => ({ filter: {
 const listUrl = (filter: Record<string, any>, status: string) => tasksRoute("list_all", listParams(filter, status))
 const listRoute = (filter: Record<string, any>, status: string) => tasksRouteObject("list_all", listParams(filter, status))
 
-const filterByPerson = (value: string) => router.reload({ data: { person: value || undefined }, preserveScroll: true })
+const filterByPerson = (value: string | number) => router.reload({ data: { person: value || undefined }, preserveScroll: true })
 
 const bucketLabel = (date: string) => {
     const parsed = new Date(`${date}T00:00:00`)
@@ -217,7 +218,7 @@ const shareKey = computed(() => (tab.value === "people" ? "done" : "created"))
 const clearedFilter = (row?: { id: number }) => ({ closed_since: props.stats.from, created_before: props.stats.from, ...(row ? { assignee: row.id } : {}) })
 
 const linkClass = "text-[--app-accent-strong] underline-offset-2 transition duration-200 hover:text-[--app-accent-deep] hover:underline"
-const pillLinkClass = "inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 shadow-sm tabular-nums"
+const pillLinkClass = "inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1 text-xs font-semibold text-gray-700 shadow-sm tabular-nums"
 </script>
 
 <template>
@@ -225,8 +226,8 @@ const pillLinkClass = "inline-flex items-center gap-1.5 rounded-lg border border
     <PageHeading :data="pageHead" />
     <div class="space-y-4 p-4">
         <div class="flex flex-wrap gap-3">
-            <ProcurementOverviewPill :card="{ label: ctrans('Open now'), description: '', icon: 'fal fa-inbox-in', value: stats.open_now, tone: 'amber', route: tasksRouteObject('list_all', { filter: personFilter, elements: { status: OPEN } }), metrics: [] }" />
-            <ProcurementOverviewPill :card="{ label: ctrans('Older than 7 days'), description: '', icon: 'fal fa-hourglass-half', value: stats.stale_now, tone: stats.stale_now ? 'amber' : 'emerald', route: tasksRouteObject('list_all', { filter: { ...personFilter, created_before: stats.stale_before }, elements: { status: OPEN } }), metrics: [] }" />
+            <ProcurementOverviewPill :card="{ label: ctrans('Open now'), description: '', icon: 'fal fa-inbox-in', value: stats.open_now, tone: 'amber', route: tasksRouteObject('list_all', { filter: personFilter, elements: { status: OPEN } }), metrics: [] }" compact />
+            <ProcurementOverviewPill :card="{ label: ctrans('Older than 7 days'), description: '', icon: 'fal fa-hourglass-half', value: stats.stale_now, tone: stats.stale_now ? 'amber' : 'emerald', route: tasksRouteObject('list_all', { filter: { ...personFilter, created_before: stats.stale_before }, elements: { status: OPEN } }), metrics: [] }" compact />
             <Link v-if="stats.oldest_open" v-tooltip="ctrans('Oldest open')" :href="taskRoute(stats.oldest_open.reference)" :class="pillLinkClass">
                 <FontAwesomeIcon icon="fal fa-hourglass-half" class="text-red-500" fixed-width aria-hidden="true" />{{ stats.oldest_open.age_days }} {{ ctrans("days") }}
                 <span class="border-l border-gray-200 pl-2 font-normal text-gray-500">{{ stats.oldest_open.reference }}</span>
@@ -235,24 +236,29 @@ const pillLinkClass = "inline-flex items-center gap-1.5 rounded-lg border border
 
         <div class="space-y-4 rounded-xl border border-gray-200 bg-gray-50 p-3">
             <div class="flex flex-wrap items-center gap-3">
-                <TicketsCreatedInterval :options="createdIntervals" :selected="stats.interval" class="min-w-0 flex-1" />
+                <TicketsCreatedInterval :options="createdIntervals" :selected="stats.interval" compact class="min-w-0 flex-1" />
                 <label class="ml-auto flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-gray-400">
                     {{ ctrans("Filter by") }}
-                    <select
-                        :value="stats.person ?? ''"
-                        class="cursor-pointer rounded-md border-gray-300 py-1.5 pl-2 pr-8 text-sm normal-case tracking-normal text-gray-700 transition duration-200 focus:border-[--app-accent] focus:ring-[--app-accent]"
-                        :class="stats.person && '!border-[--app-accent] !bg-[--app-accent-soft] !text-[--app-accent-strong]'"
+                    <Select
+                        :modelValue="stats.person"
+                        :options="personOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                        :placeholder="ctrans('All people')"
                         :aria-label="ctrans('Filter by person')"
-                        @change="filterByPerson(($event.target as HTMLSelectElement).value)">
-                        <option value="">{{ ctrans("All people") }}</option>
-                        <option v-for="option in personOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
-                    </select>
+                        size="small"
+                        filter
+                        showClear
+                        class="w-52 normal-case tracking-normal"
+                    :pt="{ label: { class: '!text-xs' }, option: { class: '!text-xs' }, emptyMessage: { class: '!text-xs' }, pcFilter: { root: { class: '!text-xs !py-1' } } }"
+                        :class="stats.person && '!border-[--app-accent] !bg-[--app-accent-soft]'"
+                        @update:modelValue="(value) => filterByPerson(value ?? '')" />
                 </label>
             </div>
 
             <div class="flex flex-wrap gap-3">
-                <ProcurementOverviewPill :card="{ label: ctrans('Raised'), description: '', icon: 'fal fa-tasks', value: stats.totals.created, tone: 'violet', route: listRoute({ created_since: stats.from }, ALL_STATUSES), metrics: [] }" />
-                <ProcurementOverviewPill :card="{ label: ctrans('Done'), description: '', icon: 'fal fa-check', value: stats.totals.done, tone: 'emerald', route: listRoute({ created_since: stats.from }, 'done'), metrics: [] }" />
+                <ProcurementOverviewPill :card="{ label: ctrans('Raised'), description: '', icon: 'fal fa-tasks', value: stats.totals.created, tone: 'violet', route: listRoute({ created_since: stats.from }, ALL_STATUSES), metrics: [] }" compact />
+                <ProcurementOverviewPill :card="{ label: ctrans('Done'), description: '', icon: 'fal fa-check', value: stats.totals.done, tone: 'emerald', route: listRoute({ created_since: stats.from }, 'done'), metrics: [] }" compact />
                 <Link v-tooltip="ctrans(`Can't be done`)" :href="listUrl({ created_since: stats.from }, 'cancelled')" :class="pillLinkClass">
                     <FontAwesomeIcon icon="fal fa-ban" class="text-red-500" fixed-width aria-hidden="true" />{{ stats.totals.cancelled }}
                 </Link>

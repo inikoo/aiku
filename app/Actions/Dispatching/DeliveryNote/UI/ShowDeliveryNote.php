@@ -11,6 +11,7 @@ namespace App\Actions\Dispatching\DeliveryNote\UI;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\Ordering\Order\AssignDefaultPackagingToOrderWithoutPackaging;
+use App\Actions\Dispatching\DeliveryNote\CustomsExport\GetDeliveryNoteCustomsItems;
 use App\Actions\Dispatching\DeliveryNote\DeliveryNoteBoxPackingList;
 use App\Actions\Dispatching\DeliveryNote\GetDeliveryNoteConsumables;
 use App\Actions\Catalogue\PreferredShipping\WithPreferredShipperResolver;
@@ -199,9 +200,13 @@ class ShowDeliveryNote extends OrgAction
      * whoever is standing at the bench looks when they cannot act on the note. The padlock
      * beside the picker's name is easy to miss and reads as a refusal rather than a way in.
      */
-    public function getTakeOverAction(DeliveryNote $deliveryNote): array
+    public function getTakeOverActions(DeliveryNote $deliveryNote): array
     {
-        return [
+        if (!$deliveryNote->canBeWorkedOnBy(request()->user())) {
+            return [];
+        }
+
+        return [[
             'type'    => 'button',
             'style'   => 'tertiary',
             'icon'    => 'fal fa-lock',
@@ -217,7 +222,7 @@ class ShowDeliveryNote extends OrgAction
                     'deliveryNote' => $deliveryNote->slug,
                 ]
             ]
-        ];
+        ]];
     }
 
     /**
@@ -298,7 +303,7 @@ class ShowDeliveryNote extends OrgAction
     public function getHandlingActions(DeliveryNote $deliveryNote): array
     {
         if (!$this->allowAction) {
-            return [$this->getTakeOverAction($deliveryNote)];
+            return $this->getTakeOverActions($deliveryNote);
         }
 
         $hasUnHandledItems = DeliveryNoteItem::where('delivery_note_id', $deliveryNote->id)
@@ -649,15 +654,15 @@ class ShowDeliveryNote extends OrgAction
                         ]
                     ]
                 ]
-            ] : [$this->getTakeOverAction($deliveryNote)],
+            ] : $this->getTakeOverActions($deliveryNote),
             DeliveryNoteStateEnum::PICKED => $this->getPickedActions($deliveryNote),
             DeliveryNoteStateEnum::PACKED => [$this->getPackedActions($deliveryNote)],
             DeliveryNoteStateEnum::FINALISED => [
                 [
                     'type'    => 'button',
                     'style'   => 'save',
-                    'tooltip' => __('Dispatch'),
-                    'label'   => __('Dispatch'),
+                    'tooltip' => $deliveryNote->collection_address_id ? __('Set as collected') : __('Dispatch'),
+                    'label'   => $deliveryNote->collection_address_id ? __('Set as collected') : __('Dispatch'),
                     'key'     => 'action',
                     'route'   => [
                         'method'     => 'patch',
@@ -699,7 +704,7 @@ class ShowDeliveryNote extends OrgAction
                             ]
                         ]
                     ] : [],
-                $deliveryNote->canBeCancelledBy($request->user()) ? [
+                $deliveryNote->canBeUndispatchedBy($request->user()) ? [
                     'type'    => 'button',
                     'style'   => 'cancel',
                     'tooltip' => __('Set Delivery Note as undispatched (back to finalised)'),
@@ -783,6 +788,23 @@ class ShowDeliveryNote extends OrgAction
                 ];
             }
         } elseif (count($deliveryNote->parcels ?? [])) {
+            if ($deliveryNote->collection_address_id && $deliveryNote->type !== DeliveryNoteTypeEnum::REPLACEMENT) {
+                return [
+                    'type'    => 'button',
+                    'style'   => 'save',
+                    'tooltip' => __('Finalise and leave ready for the customer to collect'),
+                    'label'   => __('Finalise for collection'),
+                    'key'     => 'action',
+                    'route'   => [
+                        'method'     => 'patch',
+                        'name'       => 'grp.models.delivery_note.state.finalised',
+                        'parameters' => [
+                            'deliveryNote' => $deliveryNote->id
+                        ]
+                    ]
+                ];
+            }
+
             return [
                 'type'    => 'button',
                 'style'   => 'save',
@@ -790,15 +812,11 @@ class ShowDeliveryNote extends OrgAction
                 'label'   => match (true) {
                     $deliveryNote->type === DeliveryNoteTypeEnum::REPLACEMENT && !$deliveryNote->collection_address_id => __('Dispatch'),
                     $deliveryNote->type === DeliveryNoteTypeEnum::REPLACEMENT && $deliveryNote->collection_address_id => __('set as collected'),
-                    $deliveryNote->type !== DeliveryNoteTypeEnum::REPLACEMENT && !$deliveryNote->collection_address_id => __('Finalise and Dispatch'),
-                    (bool)$deliveryNote->collection_address_id => __('Finalise and set as Collected'),
                     default => __('Finalise and Dispatch')
                 },
                 'key'     => match (true) {
                     $deliveryNote->type === DeliveryNoteTypeEnum::REPLACEMENT && !$deliveryNote->collection_address_id => 'action',
                     $deliveryNote->type === DeliveryNoteTypeEnum::REPLACEMENT && $deliveryNote->collection_address_id => 'action',
-                    $deliveryNote->type !== DeliveryNoteTypeEnum::REPLACEMENT && !$deliveryNote->collection_address_id => 'finalise-and-dispatch',
-                    (bool)$deliveryNote->collection_address_id => 'action',
                     default => 'finalise-and-dispatch'
                 },
                 'route'   => [
@@ -909,7 +927,7 @@ class ShowDeliveryNote extends OrgAction
                         ]
                     ],
                 ];
-            } elseif ($order->platform->type == PlatformTypeEnum::TIKTOK) {
+            } elseif ($order->platform?->type == PlatformTypeEnum::TIKTOK) {
                 $additionalShipmentRoutes = [
                     'get_external_shipment_route' => [
                         'label'      => __('Get shipment from Tiktok'),
@@ -920,7 +938,9 @@ class ShowDeliveryNote extends OrgAction
                     ]
                 ];
             }
-        } else {
+        }
+
+        if (!$additionalShipmentRoutes) {
             $additionalShipmentRoutes = [
                 'submit_route' => [
                     'name'       => 'grp.models.delivery_note.shipment.store',
@@ -1014,8 +1034,10 @@ class ShowDeliveryNote extends OrgAction
             'trolleys'                     => $trolleys,
             'parcels'                      => $deliveryNote->parcels,
             'box_packing_list'             => $this->getBoxPackingList($deliveryNote),
+            'customs_export'               => GetDeliveryNoteCustomsItems::make()->exportProp($deliveryNote, request()->user()),
             'shipments'                    => $deliveryNote->shipments ? ShipmentsResource::collection($deliveryNote->shipments()->with('shipper')->get())->toArray(request()) : null,
             'shipments_routes'             => [
+                'can_work' => request()->user() instanceof \App\Models\SysAdmin\User && $deliveryNote->canBeShippedBy(request()->user()),
                 ...$additionalShipmentRoutes,
                 'fetch_route' => [
                     'name'       => 'grp.json.shippers.index',
@@ -1163,11 +1185,11 @@ class ShowDeliveryNote extends OrgAction
     public function htmlResponse(DeliveryNote $deliveryNote, ActionRequest $request): Response
     {
         $isEditable = false;
-        if ($this->parent instanceof Warehouse && !$deliveryNote->isLockedInAurora()) {
+        if ($this->parent instanceof Warehouse && !$deliveryNote->isLockedInAurora() && $deliveryNote->canBeWorkedOnBy($request->user())) {
             $isEditable = true;
         }
 
-        $allowAction = $this->canHandleDeliveryNote($deliveryNote);
+        $allowAction = $isEditable && $this->canHandleDeliveryNote($deliveryNote);
 
         $this->allowAction = $allowAction;
 
@@ -1425,6 +1447,7 @@ class ShowDeliveryNote extends OrgAction
                 'label' => $deliveryNote->state->labels()[$deliveryNote->state->value],
             ],
             'shipments_routes'    => [
+                'can_work' => request()->user() instanceof \App\Models\SysAdmin\User && $deliveryNote->canBeShippedBy(request()->user()),
                 'submit_route' => [
                     'name'       => 'grp.models.delivery_note.shipment.store',
                     'parameters' => [
@@ -1595,13 +1618,15 @@ class ShowDeliveryNote extends OrgAction
 
     public function getDeliveryNoteNotes(DeliveryNote $deliveryNote): array
     {
+        $canWork = request()->user() instanceof \App\Models\SysAdmin\User && $deliveryNote->canBeNotedBy(request()->user());
+
         return [
             "note_list" => [
                 [
                     "label"       => NotesEnum::SHIPPING_LABEL->label(),
                     "note"        => $deliveryNote->shipping_notes ?? '',
                     "information" => __("Note from crm. First 34 char. Will be printed on the shipping label."),
-                    "editable"    => true,
+                    "editable"    => $canWork,
                     "field"       => "shipping_notes",
                     ...NotesEnum::SHIPPING_LABEL->boilerPlate()
                 ],
@@ -1617,7 +1642,7 @@ class ShowDeliveryNote extends OrgAction
                     "label"       => NotesEnum::WAREHOUSE->label(),
                     "note"        => $deliveryNote->private_warehouse_note ?? '',
                     "information" => __("This note is only visible to staff members. You can communicate each other about the order."),
-                    "editable"    => true,
+                    "editable"    => $canWork,
                     "field"       => "private_warehouse_note",
                     ...NotesEnum::WAREHOUSE->boilerPlate()
                 ]

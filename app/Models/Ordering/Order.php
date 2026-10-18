@@ -8,6 +8,7 @@
 
 namespace App\Models\Ordering;
 
+use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Ordering\Order\OrderChargesEngineEnum;
 use App\Enums\Ordering\Order\OrderHandingTypeEnum;
 use App\Enums\Ordering\Order\OrderPayDetailedStatusEnum;
@@ -19,6 +20,7 @@ use App\Enums\Ordering\Order\OrderStateEnum;
 use Illuminate\Support\Arr;
 use App\Enums\Ordering\Order\OrderStatusEnum;
 use App\Enums\Ordering\Order\OrderToBePaidByEnum;
+use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\OrderPaymentApiPoint;
 use App\Models\Accounting\Payment;
@@ -493,6 +495,23 @@ class Order extends Model implements HasMedia, Auditable
         return $this->belongsToMany(DeliveryNote::class, 'delivery_note_order')->withTimestamps();
     }
 
+    public function currentDeliveryNote(): ?DeliveryNote
+    {
+        return $this->deliveryNotes->sortBy([
+            fn (DeliveryNote $a, DeliveryNote $b) => ($a->state === DeliveryNoteStateEnum::CANCELLED) <=> ($b->state === DeliveryNoteStateEnum::CANCELLED),
+            fn (DeliveryNote $a, DeliveryNote $b) => $b->id <=> $a->id,
+        ])->first();
+    }
+
+    public function canBeUndispatchedBy(User $user): bool
+    {
+        if ($this->deliveryNotes->isEmpty()) {
+            return $user->authTo("org-admin.$this->organisation_id");
+        }
+
+        return $this->deliveryNotes->every(fn (DeliveryNote $deliveryNote) => $deliveryNote->canBeUndispatchedBy($user));
+    }
+
     public function payments(): MorphToMany
     {
         return $this->morphToMany(Payment::class, 'model', 'model_has_payments')->withTimestamps();
@@ -678,6 +697,31 @@ class Order extends Model implements HasMedia, Auditable
     }
 
     /**
+     * The link in the review reminder is the customer's only key to review this order without
+     * signing in, so the stars in the email can open the review page directly (HELP-4098).
+     */
+    public function reviewToken(): string
+    {
+        return hash_hmac('sha256', 'order-review:'.$this->id, (string) config('app.key'));
+    }
+
+    /**
+     * @param  array{product?: int, rating?: int}  $preselect
+     */
+    public function reviewUrl(array $preselect = []): ?string
+    {
+        $domain = $this->shop->website?->domain;
+
+        if (!$domain) {
+            return null;
+        }
+
+        $url = 'https://'.$domain.'/review/'.$this->id.'/'.$this->reviewToken();
+
+        return $preselect ? $url.'?'.http_build_query($preselect) : $url;
+    }
+
+    /**
      * The two halves of a submitted order's payment state, and the only definition of them: the
      * backlog splits submitted orders between these two and staff work from that split alone, so
      * an order that fell between them was invisible (HELP-3116).
@@ -706,6 +750,13 @@ class Order extends Model implements HasMedia, Auditable
     public function isDropshipping(): bool
     {
         return $this->customer_sales_channel_id !== null;
+    }
+
+    public function amountStillToPay(): float
+    {
+        $refunded = $this->invoices()->where('type', InvoiceTypeEnum::REFUND)->where('in_process', false)->sum('total_amount');
+
+        return round($this->total_amount + $refunded - $this->payment_amount, 2);
     }
 
     public function scopePaySettled(Builder $query): Builder

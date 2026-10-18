@@ -8,6 +8,7 @@
 
 namespace App\Actions\Dispatching\BatchCode;
 
+use App\Actions\Traits\Authorisations\WithOrganisationStockEditAuthorisation;
 use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateCurrentBatchCodes;
 use App\Actions\OrgAction;
 use App\Models\Dispatching\BatchCode;
@@ -21,6 +22,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class DeleteBatchCode extends OrgAction
 {
+    use WithOrganisationStockEditAuthorisation;
+
     public function handle(BatchCode $batchCode): BatchCode
     {
         $orgStockId = $batchCode->org_stock_id;

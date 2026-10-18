@@ -30,6 +30,8 @@ class EditClocking extends OrgAction
 
     public function inOrganisation(Organisation $organisation, Clocking $clocking, ActionRequest $request): Clocking
     {
+        abort_unless($clocking->organisation_id === $organisation->id, 404);
+
         $this->initialisation($organisation, $request);
 
         return $this->handle($clocking);
@@ -38,6 +40,8 @@ class EditClocking extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inWorkplace(Organisation $organisation, Workplace $workplace, Clocking $clocking, ActionRequest $request): Clocking
     {
+        abort_unless($workplace->organisation_id === $organisation->id, 404);
+
         $this->initialisation($organisation, $request);
         return $this->handle($clocking);
     }
@@ -45,6 +49,8 @@ class EditClocking extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inClockingMachine(Organisation $organisation, ClockingMachine $clockingMachine, Clocking $clocking, ActionRequest $request): Clocking
     {
+        abort_unless($clockingMachine->organisation_id === $organisation->id, 404);
+
         $this->initialisation($organisation, $request);
 
         return $this->handle($clocking);
@@ -53,6 +59,8 @@ class EditClocking extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inWorkplaceInClockingMachine(Organisation $organisation, Workplace $workplace, ClockingMachine $clockingMachine, Clocking $clocking, ActionRequest $request): Clocking
     {
+        abort_unless($workplace->organisation_id === $organisation->id, 404);
+
         $this->initialisation($organisation, $request)->withTab(LocationTabsEnum::values());
         return $this->handle($clocking);
     }

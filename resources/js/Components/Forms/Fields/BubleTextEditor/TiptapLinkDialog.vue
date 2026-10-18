@@ -1,24 +1,59 @@
 <script setup lang="ts">
-import { ref, watch } from "vue"
+import { computed, ref, watch } from "vue"
 import Dialog from "primevue/dialog"
 import InputText from "primevue/inputtext"
-import Button from "@/Components/Elements/Buttons/Button.vue";
+import Select from "primevue/select"
+import Checkbox from "primevue/checkbox"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { faTimes, faCheck } from "@fal"
+import Button from "@/Components/Elements/Buttons/Button.vue"
+import { ctrans } from "@/Composables/useTrans"
+import { type LinkDialogValue, type LinkHrefFields, type LinkType, buildLinkHref, parseLinkHref } from "@/Components/Forms/Fields/BubleTextEditor/linkHref"
 
-const props = defineProps<{ show: boolean; currentUrl?: string }>()
-const emit = defineEmits(["close", "update"])
+library.add(faTimes, faCheck)
 
-const inputLinkRef = ref<string>(props.currentUrl)
+const props = defineProps<{
+  show: boolean
+  currentUrl?: string
+  currentText?: string
+  currentTitle?: string | null
+  currentTarget?: string | null
+  underline?: boolean
+  showUnderlineOption?: boolean
+}>()
+const emit = defineEmits<{
+  (e: "close"): void
+  (e: "update", value: LinkDialogValue): void
+}>()
+
 const visible = ref(props.show)
+const isEditing = !!props.currentUrl
+const fields = ref<LinkHrefFields>(parseLinkHref(props.currentUrl))
+const text = ref(props.currentText ?? "")
+const title = ref(props.currentTitle ?? "")
+const target = ref<"_blank" | "_self">(props.currentTarget === "_self" ? "_self" : "_blank")
+const isUnderlined = ref<boolean>(props.underline ?? true)
 
 watch(
   () => props.show,
   (val) => (visible.value = val)
 )
 
-watch(
-  () => props.currentUrl,
-  (url) => (inputLinkRef.value = url ?? "")
-)
+const linkTypeOptions: Array<{ label: string, value: LinkType }> = [
+  { label: ctrans("Open web page"), value: "web" },
+  { label: ctrans("Send email"), value: "email" },
+  { label: ctrans("Make a call"), value: "phone" },
+  { label: ctrans("Send SMS"), value: "sms" },
+]
+
+const targetOptions = [
+  { label: ctrans("New page"), value: "_blank" },
+  { label: ctrans("Same page"), value: "_self" },
+]
+
+const href = computed(() => buildLinkHref(fields.value))
+const isWebLink = computed(() => fields.value.type === "web")
 
 function closeDialog() {
   visible.value = false
@@ -26,47 +61,101 @@ function closeDialog() {
 }
 
 function update() {
-  emit("update", inputLinkRef.value)
+  if (!href.value) {
+    return
+  }
+  emit("update", {
+    href: href.value,
+    text: text.value,
+    title: title.value,
+    target: isWebLink.value ? target.value : "_self",
+    underline: props.showUnderlineOption ? isUnderlined.value : undefined,
+  })
   closeDialog()
 }
 </script>
 
 <template>
- 
   <Dialog
     v-model:visible="visible"
-    header="Link"
+    :header="isEditing ? ctrans('Edit link') : ctrans('Insert link')"
     modal
-    class="w-full max-w-md"
+    :draggable="false"
+    :style="{ width: '32rem' }"
+    :breakpoints="{ '640px': '95vw' }"
     @hide="closeDialog"
-    :contentStyle="{overflowY : 'visible'}"
   >
-    <form @submit.prevent="update" class="flex flex-col space-y-5">
-      <div>
-        <label for="input-link-url" class="block text-sm text-gray-600 mb-2 select-none">
-          Link
-        </label>
-        <InputText
-          id="input-link-url"
-          v-model="inputLinkRef"
-          type="url"
-          class="w-full"
-          placeholder="https://example.com"
-        />
+    <form id="tiptap-link-dialog-form" class="flex flex-col gap-y-4" @submit.prevent="update">
+      <div class="flex flex-col gap-y-1.5">
+        <label for="link-dialog-type" class="text-sm text-gray-700">{{ ctrans("Link type") }}</label>
+        <Select v-model="fields.type" inputId="link-dialog-type" :options="linkTypeOptions" optionLabel="label" optionValue="value" class="w-full" />
       </div>
 
-      <div class="flex justify-end gap-3">
-        <Button
-          label="Cancel"
-          type="tertiary"
-          @click="closeDialog"
-        />
-        <Button
-          label="Save"
-          type="save"
-          @click="update"
-        />
+      <div v-if="isWebLink" class="flex flex-col gap-y-1.5">
+        <label for="link-dialog-url" class="text-sm text-gray-700">{{ ctrans("Url") }}</label>
+        <InputText id="link-dialog-url" v-model="fields.url" class="w-full" placeholder="https://" autofocus />
+      </div>
+
+      <template v-else-if="fields.type === 'email'">
+        <div class="flex flex-col gap-y-1.5">
+          <label for="link-dialog-email" class="text-sm text-gray-700">{{ ctrans("Email address") }}</label>
+          <InputText id="link-dialog-email" v-model="fields.email" type="email" class="w-full" placeholder="name@example.com" autofocus />
+        </div>
+        <div class="flex flex-col gap-y-1.5">
+          <label for="link-dialog-subject" class="text-sm text-gray-700">{{ ctrans("Subject") }}</label>
+          <InputText id="link-dialog-subject" v-model="fields.subject" class="w-full" />
+        </div>
+        <div class="flex flex-col gap-y-1.5">
+          <label for="link-dialog-body" class="text-sm text-gray-700">{{ ctrans("Message") }}</label>
+          <InputText id="link-dialog-body" v-model="fields.body" class="w-full" />
+        </div>
+      </template>
+
+      <template v-else>
+        <div class="flex flex-col gap-y-1.5">
+          <label for="link-dialog-phone" class="text-sm text-gray-700">{{ ctrans("Phone number") }}</label>
+          <InputText id="link-dialog-phone" v-model="fields.phone" type="tel" class="w-full" placeholder="+44 20 1234 5678" autofocus />
+        </div>
+        <div v-if="fields.type === 'sms'" class="flex flex-col gap-y-1.5">
+          <label for="link-dialog-sms-body" class="text-sm text-gray-700">{{ ctrans("Message") }}</label>
+          <InputText id="link-dialog-sms-body" v-model="fields.body" class="w-full" />
+        </div>
+      </template>
+
+      <div v-if="showUnderlineOption" class="flex items-center gap-x-2">
+        <Checkbox v-model="isUnderlined" inputId="link-dialog-underline" binary />
+        <label for="link-dialog-underline" class="select-none text-sm text-gray-700">{{ ctrans("Underline link") }}</label>
+      </div>
+
+      <div class="flex flex-col gap-y-1.5">
+        <label for="link-dialog-text" class="text-sm text-gray-700">{{ ctrans("Text to display") }}</label>
+        <InputText id="link-dialog-text" v-model="text" class="w-full" />
+      </div>
+
+      <div class="flex flex-col gap-y-1.5">
+        <label for="link-dialog-title" class="text-sm text-gray-700">{{ ctrans("Title") }}</label>
+        <InputText id="link-dialog-title" v-model="title" class="w-full" />
+      </div>
+
+      <div v-if="isWebLink" class="flex flex-col gap-y-1.5">
+        <label for="link-dialog-target" class="text-sm text-gray-700">{{ ctrans("Target") }}</label>
+        <Select v-model="target" inputId="link-dialog-target" :options="targetOptions" optionLabel="label" optionValue="value" class="w-full" />
       </div>
     </form>
+
+    <template #footer>
+      <div class="flex justify-end gap-x-3">
+        <Button type="tertiary" :label="ctrans('Cancel')" @click="closeDialog">
+          <template #icon>
+            <FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" />
+          </template>
+        </Button>
+        <Button type="tertiary" :label="ctrans('Save')" :disabled="!href" @click="update">
+          <template #icon>
+            <FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" />
+          </template>
+        </Button>
+      </div>
+    </template>
   </Dialog>
 </template>

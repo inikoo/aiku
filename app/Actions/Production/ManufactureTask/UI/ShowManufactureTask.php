@@ -60,6 +60,11 @@ class ShowManufactureTask extends OrgAction
     public function htmlResponse(ManufactureTask $manufactureTask, ActionRequest $request): Response
     {
 
+        $canEditArtisans = $request->user()->authTo([
+            'org-supervisor.'.$this->organisation->id,
+            "productions_operations.{$this->production->id}.orchestrate",
+        ]);
+
         return Inertia::render(
             'Org/Production/ManufactureTask',
             [
@@ -100,8 +105,8 @@ class ShowManufactureTask extends OrgAction
                 ],
 
                 ManufactureTaskTabsEnum::SHOWCASE->value => $this->tab == ManufactureTaskTabsEnum::SHOWCASE->value ?
-                    fn () => GetManufactureTaskShowcase::run($manufactureTask)
-                    : Inertia::optional(fn () => GetManufactureTaskShowcase::run($manufactureTask)),
+                    fn () => GetManufactureTaskShowcase::run($manufactureTask, $canEditArtisans)
+                    : Inertia::optional(fn () => GetManufactureTaskShowcase::run($manufactureTask, $canEditArtisans)),
 
                 ManufactureTaskTabsEnum::ARTEFACT->value => $this->tab == ManufactureTaskTabsEnum::ARTEFACT->value
                     ? fn () => ArtefactsResource::collection(GetManufactureTaskArtefacts::run($manufactureTask, $request))

@@ -10,6 +10,7 @@ namespace App\Models\HumanResources;
 
 use App\Audits\Redactors\EmployeePinRedactor;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
+use App\Enums\Production\Artisan\ArtisanPayTypeEnum;
 use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Enums\HumanResources\Employee\EmploymentTypeEnum;
 use App\Enums\Miscellaneous\GenderEnum;
@@ -60,6 +61,7 @@ use App\Models\Traits\HasSearch;
  * @property string|null $job_title
  * @property EmployeeTypeEnum $type
  * @property EmployeeStateEnum $state
+ * @property ArtisanPayTypeEnum $artisan_pay_type
  * @property \Illuminate\Support\Carbon|null $employment_start_at
  * @property \Illuminate\Support\Carbon|null $employment_end_at
  * @property array<array-key, mixed>|null $emergency_contact
@@ -141,6 +143,10 @@ class Employee extends Model implements HasMedia, Auditable
     use InOrganisation;
     use InteractsWithMedia;
 
+    public const array AVATAR_RELATIONS = ['image', 'user.image'];
+
+    public const int AVATAR_SIZE = 96;
+
     protected $casts = [
         'allow_shift' => 'boolean',
         'week_working_hours' => 'decimal:2',
@@ -162,6 +168,7 @@ class Employee extends Model implements HasMedia, Auditable
         'contract_end_date' => 'date',
         'religion' => 'string',
         'emergency_contact' => 'array',
+        'artisan_pay_type' => ArtisanPayTypeEnum::class,
     ];
     //ss
 
@@ -169,6 +176,7 @@ class Employee extends Model implements HasMedia, Auditable
         'data' => '{}',
         'errors' => '{}',
         'salary' => '{}',
+        'artisan_pay_type' => 'piece_rate',
         'working_hours' => '{}',
         'migration_data' => '{}',
         'emergency_contact' => '{}'
@@ -244,6 +252,33 @@ class Employee extends Model implements HasMedia, Auditable
         return $this->belongsTo(User::class);
     }
 
+    public function avatarUrl(): ?string
+    {
+        $owner = $this->image ? $this : ($this->user?->image ? $this->user : null);
+
+        return $owner?->imageSources(self::AVATAR_SIZE, self::AVATAR_SIZE)['original'] ?? null;
+    }
+
+    /**
+     * @param  iterable<int, int|string|null>  $employeeIds
+     * @return \Illuminate\Support\Collection<int, string|null>
+     */
+    public static function avatarUrlsFor(iterable $employeeIds): \Illuminate\Support\Collection
+    {
+        $employeeIds = collect($employeeIds)->filter()->unique()->values();
+
+        if ($employeeIds->isEmpty()) {
+            return collect();
+        }
+
+        return self::query()
+            ->whereIn('id', $employeeIds)
+            ->select(['id', 'image_id', 'user_id'])
+            ->with(self::AVATAR_RELATIONS)
+            ->get()
+            ->mapWithKeys(fn (Employee $employee): array => [$employee->id => $employee->avatarUrl()]);
+    }
+
     public function getRouteKeyName(): string
     {
         return 'slug';
@@ -292,7 +327,10 @@ class Employee extends Model implements HasMedia, Auditable
                   ->where(function ($q2) {
                       $q2->whereNull('end_date')->orWhere('end_date', '>=', now()->toDateString());
                   });
-            });
+            })
+            ->where(fn ($q) => $q->whereNull('period_start')->orWhere('period_start', '<=', now()->toDateString()))
+            ->where(fn ($q) => $q->whereNull('period_end')->orWhere('period_end', '>=', now()->toDateString()))
+            ->orderByRaw('period_start DESC NULLS LAST');
     }
 
     public function latestAnalytics(): HasOne

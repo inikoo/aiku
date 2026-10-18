@@ -8,6 +8,8 @@
 
 namespace App\Models\SupplyChain;
 
+use App\Enums\Goods\TradeUnit\TradeUnitPackagingMaterialEnum;
+use App\Enums\SupplyChain\Supplier\SupplierPackingMethodEnum;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\Helpers\Currency;
 use App\Models\Procurement\OrgSupplier;
@@ -24,6 +26,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -53,6 +56,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $company_name
  * @property string|null $email
  * @property string|null $phone
+ * @property string|null $wechat
+ * @property string|null $whatsapp
+ * @property array<int, array{from: string, to: string, note?: string|null}> $factory_holidays
  * @property string|null $identity_document_type
  * @property string|null $identity_document_number
  * @property string|null $contact_website
@@ -64,6 +70,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $archived_at
+ * @property SupplierPackingMethodEnum|null $packing_method
+ * @property TradeUnitPackagingMaterialEnum|null $packing_material
+ * @property int|null $packaging_supplier_id
  * @property Carbon|null $fetched_at
  * @property Carbon|null $last_fetched_at
  * @property Carbon|null $deleted_at
@@ -116,7 +125,10 @@ class Supplier extends Model implements HasMedia, Auditable
         'location'        => 'array',
         'sources'         => 'array',
         'status'          => 'boolean',
+        'factory_holidays' => 'array',
         'archived_at'     => 'datetime',
+        'packing_method'   => SupplierPackingMethodEnum::class,
+        'packing_material' => TradeUnitPackagingMaterialEnum::class,
         'fetched_at'      => 'datetime',
         'last_fetched_at' => 'datetime',
     ];
@@ -126,6 +138,7 @@ class Supplier extends Model implements HasMedia, Auditable
         'settings' => '{}',
         'location' => '{}',
         'sources'  => '{}',
+        'factory_holidays' => '[]',
     ];
 
     protected $guarded = [];
@@ -211,6 +224,8 @@ class Supplier extends Model implements HasMedia, Auditable
         'identity_document_type',
         'identity_document_number',
         'contact_website',
+        'wechat',
+        'whatsapp',
         'archived_at'
     ];
 
@@ -227,6 +242,23 @@ class Supplier extends Model implements HasMedia, Auditable
     public function supplierProducts(): HasMany
     {
         return $this->hasMany(SupplierProduct::class);
+    }
+
+    /**
+     * Production plus delivery days, as set in the supplier settings; what its products take to reach us unless they or their family say otherwise.
+     */
+    public const string DEFAULT_LEAD_TIME_SQL = "nullif(coalesce(case when s.data->>'production_waiting_time' ~ '^[0-9]+$' then (s.data->>'production_waiting_time')::int end, 0) + coalesce(case when s.data->>'delivery_time' ~ '^[0-9]+$' then (s.data->>'delivery_time')::int end, 0), 0)";
+
+    public function defaultLeadTimeDays(): ?int
+    {
+        $days = (int) Arr::get($this->data, 'production_waiting_time') + (int) Arr::get($this->data, 'delivery_time');
+
+        return $days ?: null;
+    }
+
+    public function supplierStockFamilies(): HasMany
+    {
+        return $this->hasMany(SupplierStockFamily::class);
     }
 
     public function agent(): BelongsTo

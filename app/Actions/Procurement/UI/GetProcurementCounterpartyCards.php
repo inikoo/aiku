@@ -30,7 +30,7 @@ class GetProcurementCounterpartyCards
     {
         $partnersAction = IndexOrgPartners::make();
         $agentsAction   = IndexOrgAgents::make();
-        $orgAgents      = $agentsAction->handle($organisation)->filter(fn (OrgAgent $orgAgent) => $orgAgent->status)->values();
+        $orgAgents      = $agentsAction->handle($organisation);
         $agentCover     = $agentsAction->coverByAgent($orgAgents);
 
         $partners = $partnersAction->handle($organisation)->filter(fn (OrgPartner $orgPartner) => $orgPartner->partner->is_manufacturing_hub)->map(function (OrgPartner $orgPartner) use ($partnersAction, $organisation) {

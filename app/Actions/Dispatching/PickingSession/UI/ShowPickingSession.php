@@ -12,6 +12,7 @@ use App\Actions\Dispatching\DeliveryNoteItem\UI\IndexDeliveryNoteItemsInPickingS
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Ordering\Order\AssignDefaultPackagingToOrderWithoutPackaging;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithDispatchingAuthorisation;
 use App\Actions\UI\WithInertia;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Dispatching\PickingSession\PickingSessionStateEnum;
@@ -35,6 +36,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class ShowPickingSession extends OrgAction
 {
+    use WithDispatchingAuthorisation;
     use AsAction;
     use WithInertia;
 
@@ -101,8 +103,10 @@ class ShowPickingSession extends OrgAction
         $allowWaiting = (bool)data_get($this->organisation->settings, 'orders.allow_waiting', false);
 
 
+        $canWork = $pickingSession->warehouse->canBeWorkedInBy($request->user());
+
         if ($pickingSession->state == PickingSessionStateEnum::IN_PROCESS) {
-            $actions[] = [
+            $actions[] = !$canWork ? [] : [
                 'type'    => 'button',
                 'style'   => 'save',
                 'label'   => __('Start Picking'),
@@ -229,7 +233,7 @@ class ShowPickingSession extends OrgAction
                 'contact_name' => $pickingSession->user->contact_name,
             ] : null,
             'routes'                      => [
-                'update'       => [
+                'update'       => !$canWork ? null : [
                     'name'       => 'grp.models.picking_session.update',
                     'parameters' => [
                         'pickingSession' => $pickingSession->id,

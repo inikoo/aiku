@@ -5,6 +5,11 @@ import Icon from "@/Components/Icon.vue"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { useLocaleStore } from "@/Stores/locale"
 import { ctrans } from "@/Composables/useTrans"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { faCheckCircle, faHourglassHalf } from "@fal"
+
+library.add(faCheckCircle, faHourglassHalf)
 
 defineProps<{
 	data: {}
@@ -22,7 +27,7 @@ defineProps<{
 		</template>
 
 		<template #cell(reference)="{ item: agentOrder }">
-			<Link :href="route(agentOrder.route.name, agentOrder.route.parameters)" class="primaryLink">
+			<Link :href="route(agentOrder.route.name, agentOrder.route.parameters)" class="primaryLink whitespace-nowrap">
 				{{ agentOrder.reference }}
 			</Link>
 		</template>
@@ -46,6 +51,23 @@ defineProps<{
 
 		<template #cell(org_total_cost)="{ item: agentOrder }">
 			{{ useLocaleStore().currencyFormat(agentOrder.org_currency_code, agentOrder.org_total_cost) }}
+		</template>
+
+		<template #cell(deposits)="{ item: agentOrder }">
+			<span v-if="!agentOrder.deposits?.number_awaiting_deposit" class="text-gray-400">-</span>
+			<span
+				v-else-if="agentOrder.deposits.number_with_deposit >= agentOrder.deposits.number_awaiting_deposit"
+				class="whitespace-nowrap text-gray-600">
+				<FontAwesomeIcon icon="fal fa-check-circle" class="mr-1 text-green-600" fixed-width aria-hidden="true" />
+				{{ ctrans("Requested") }}
+			</span>
+			<span v-else class="whitespace-nowrap text-gray-700">
+				<FontAwesomeIcon icon="fal fa-hourglass-half" class="mr-1 text-amber-500" fixed-width aria-hidden="true" />
+				<template v-if="agentOrder.deposits.number_with_deposit === 0">{{ ctrans("To request") }}</template>
+				<template v-else>
+					{{ ctrans(":requested of :total requested", { requested: agentOrder.deposits.number_with_deposit, total: agentOrder.deposits.number_awaiting_deposit }) }}
+				</template>
+			</span>
 		</template>
 	</Table>
 </template>

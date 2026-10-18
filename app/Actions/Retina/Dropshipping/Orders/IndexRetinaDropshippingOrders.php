@@ -68,6 +68,15 @@ class IndexRetinaDropshippingOrders extends RetinaAction
             'orders.payment_amount',
             'customer_clients.name as client_name',
             'customer_clients.ulid as client_ulid',
+            DB::raw("
+                (
+                    SELECT COALESCE(SUM(refunds.total_amount), 0) FROM invoices refunds
+                    WHERE refunds.order_id = orders.id
+                    AND refunds.type = 'refund'
+                    AND refunds.in_process = false
+                    AND refunds.deleted_at IS NULL
+                ) AS refunded_amount
+            "),
             // To display if order have missing items / items that are not picked
             DB::raw("
                 CASE

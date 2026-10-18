@@ -25,6 +25,10 @@ are suggestions; rename them freely, but keep the boundaries.
   `App\Services\SeoApi\SeoApiBudget` adds up the month's cost in `seo_api_requests`; every client
   checks it before a billable call. Reading results already paid for is never blocked. Feature
   screens do not show the spend; the API usage page does.
+- **Visitors are filtered by channel per platform (HELP-4062).** The Channel filter of the Visitors
+  tab lists Organic Google, Google Ads, Organic Bing, Bing Ads, Organic Meta, Meta Ads and the other
+  organic and paid sources one by one (only those with visitors), then Email, AI, Direct, Internal
+  and Other, so Google is never mixed with Bing or Meta.
 - **The SEO dashboard stays the entry point.** Its tabs, at the top like those of a website: Overview
   (the cards filtered by the dashboard interval and the table tabs Top pages, Conversions, Search
   queries, Low CTR queries and Page speed, switched with the `table` query parameter), Visitors,
@@ -93,7 +97,7 @@ Done on 7 October 2026.
 - Tabs under the cards:
   - Webpages: search clicks, impressions and position added beside the traffic columns, from
     `search_console_page_days`.
-  - Search queries: by query, with clicks, impressions, CTR, position and the number of pages shown.
+  - Search queries: by query, with clicks, impressions, CTR, position, the page Google showed most (up to five are kept, the rest counted) and the number of pages shown.
   - Low CTR queries: at least 100 impressions, average position 10 or better, CTR under 2%
     (constants on `IndexSearchConsoleQueries`).
 - Position is always weighted by impressions.
@@ -152,7 +156,8 @@ without alt, internal links in, in sitemap, indexable, matched `webpage_id`) and
 severity, the trend over the kept audits, and the issue list with pages per issue and the change
 since the previous audit. Each issue opens a page list with the URL, the matched webpage in Aiku,
 status, internal links in and the issue details. While an audit runs, the page polls its progress
-every 5 seconds.
+every 5 seconds. An Excel button downloads the latest audit as a workbook: the audit in numbers, the
+issue types against the previous audit, and one row per page and issue.
 
 **First result.** A 150 page test audit of awgifts.bg found product pages rendering
 `<meta name="description" content>` with no text, because `webpages.description` is empty while
@@ -257,29 +262,54 @@ Built on 8 October 2026 on DataForSEO, so it does not wait for Google Ads Basic 
 - Not built yet: the monthly refresh of saved keywords, with 2.2.
 
 **Screen.** SEO > Keywords, tab Research: keywords or a URL, country and language (defaulting to the
-shop's), results with intent, volume, a 12 month trend, difficulty, CPC and ad competition, a filter
-per intent. Below them, the Search Console queries of the website
+shop's), results with intent, volume, a 12 month trend, difficulty, CPC, the SERP features Google
+shows for the keyword (AI Overview, People also ask, images, shopping and so on, as in Rankings;
+from the `include_serp_info` option, at no extra cost, with the date of the snapshot, which can be
+months old) and ad competition, a filter per intent. Below them, the Search Console queries of the website
 that contain the same words (last 90 days). Every result has a Track action.
 
 ### Tracked keywords and competitors (set from the UI)
 
 - `seo_tracked_keywords`: shop, keyword (lower case), country, language, device (mobile, desktop),
-  check frequency (weekly, daily), optional target webpage, active. Unique per shop, keyword,
-  country, language and device.
+  check frequency (on request, monthly, weekly, daily), optional target webpage, active. Unique per
+  shop, keyword, country, language and device. Adding a keyword stores one row per device, so every
+  keyword is tracked on mobile and on desktop and nobody picks a device. A check costs twice as much.
+  A keyword is added once for one or more countries (HELP-4031, up to 30 at a time) and gets a row
+  per country and device. The language is a preference: each country is checked in it when DataForSEO
+  has data for that country in it, else in the country's own language (Bulgarian in Bulgaria, Dutch
+  in the Netherlands). The Tracked keywords tab lists one row per keyword, with the
+  countries in a dropdown under it; changing the check frequency, pausing or removing the row applies
+  to every country and device, and each country can also be changed or removed on its own. The Excel
+  export has a row per keyword and country.
 - `seo_competitors`: shop, domain (stored without scheme, `www.` and path), optional name.
-- SEO > Keywords, tab Tracked keywords (competitors: SEO > Competitors): add, change device and frequency inline,
-  pause, remove. Editing needs the same web edit permission as the other SEO actions
-  (`WithSeoEditAuthorisation`).
+- SEO > Keywords, tab Tracked keywords (competitors: SEO > Competitors): add, change frequency inline,
+  pause, remove.
+- Access (HELP-3885): every SEO page, menu entry and SEO action is limited to PPC and admins.
+  Viewing (`canViewSeo`) and editing (`canEditSeo`) go to the group admin and system admin, the
+  organisation admin, the shop admin, the Shop PPC role of the shop, `ppc.{organisation}` (view or
+  edit), and the SEO permissions a Job Position generates: `seo.{organisation}` with `.view` and
+  `.edit`, and `org-supervisor.{organisation}.seo`. The group-level SEO portfolio and API usage (`canViewGroupSeo`) go to the group
+  admin and anybody holding one of those roles in any shop; changing the API budget is group admin
+  only. Webmaster roles no longer open SEO. Everything is in `WithShopPpcPermissions`.
 - Nothing is fetched for them yet; that is 2.2.
 
 ### 2.2 Rank tracking
 
 Built on 9 October 2026 on DataForSEO's SERP API.
 
+- A tracked keyword is checked On request (the default for a new keyword since 12 October 2026, as
+  the marketing team asked: no automatic cost until someone wants the position), Monthly, Weekly or
+  Daily.
+- Check now, in the Rankings tab, queues a check for every active keyword of the shop not checked
+  today and not waiting for a result, or for one keyword from its row, whatever its frequency
+  (`CheckSeoKeywordsNow`, `PostSerpTasks::requested()`). The button shows the number of keywords and
+  the cost, and asks first from 1 USD; pressing twice the same day queues nothing.
 - `PostSerpTasks` (daily 00:30 UTC) queues a Google check for every active tracked keyword that is
-  due: daily ones every day, weekly ones once seven days have passed. It uses the standard queue
-  ($0.0006 per page of 10 results), reading weekly keywords to the top 30 and daily ones to the top
-  20, as in [budget.md](budget.md). Tasks carry a tag with a hash of `APP_URL`, so environments
+  due: daily ones every day, weekly ones once 7 days have passed, monthly ones once 30 days have
+  passed, On request ones never. It
+  uses the standard queue
+  ($0.0006 per page of 10 results), reading daily keywords to the top 20 and the others to the top
+  30, as in [budget.md](budget.md). Tasks carry a tag with a hash of `APP_URL`, so environments
   sharing the DataForSEO account never collect each other's tasks. A task with no result after 72
   hours is posted again.
 - `CollectSerpTasks` (every 15 minutes) reads `tasks_ready` and stores the ready results through
@@ -296,7 +326,10 @@ Built on 9 October 2026 on DataForSEO's SERP API.
 - Commands for a manual run: `seo:post_serp_tasks`, `seo:collect_serp_tasks`,
   `seo:refresh_keyword_volumes`.
 
-**Screen.** SEO > Keywords, tab Rankings:
+**Screen.** SEO > Keywords, tab Rankings: a Mobile / Desktop switch, one row per keyword
+showing the country where it ranks best, with the other countries in a dropdown under the
+row (each with its own position, change, page, volume, SERP features, watch and check). Check now on
+a row checks all its countries. The Excel export has a row per keyword, country and device.
 
 - Visibility: share of checked keywords in the top 3, 10 and 20, how many went up or down since the
   previous check, how many AI Overviews cite us.
@@ -352,7 +385,8 @@ row returned).
   us, filtered to those linking to two or more by default.
 - The Missing pages tab gets a Backlinks column: links pointing at each 404 path, sortable, so the
   redirects that win back the most links come first.
-- Locally only, a Fetch now button runs the fetch for the shop at once.
+- A Fetch data button queues the fetch for the website and its competitors at once. A domain already
+  fetched today is skipped, and the link lists of our own website are fetched only when due.
 
 ### 3.2 Competitor research
 
@@ -431,8 +465,8 @@ gifts and incense supplier"), not names, and no URLs. So:
 - `FetchSeoAiMentions` (1st of the month, 03:30 UTC): `google` in the shop's market when LLM Mentions
   has it, and `chat_gpt` (United States) for shops in English, stored per date in `seo_ai_mentions`.
   About $0.15 per shop a month.
-- Locally, Run now asks up to five of the prompts that are due and fetches LLM Mentions if the
-  month has none.
+- A Fetch data button asks the prompts that are due and fetches LLM Mentions of our domain and the
+  competitors, once a day at most.
 
 **Screens.** SEO > AI visibility:
 
@@ -582,13 +616,13 @@ Strategy (Research)", 8 October 2026). None is built; each needs the team's go-a
   10, dropped out of the results read, or fell 5 places or more (`SeoRankingAlert::DROP_PLACES`);
   the row shows as a tag in the table, and once the checks are collected `NotifySeoRankingAlerts`
   sends each watcher one notification per shop, in the bell and by email. No API cost.
-- **Tracking depth per keyword.** Checks read the top 30 weekly or the top 20 daily. The research
-  recommends daily top 100, about $486 a month for 2,700 keywords, against about $65 for top 100
-  weekly. Let the team choose the depth per keyword (20, 30 or 100), so positions 31 to 100 are
-  seen where they matter; the cost shows on the API usage page.
+- **Tracking depth per keyword.** Not built: on 12 October 2026 the marketing team said the top 30
+  is enough and that checks are mostly wanted on request, weekly or monthly, which 2.2 now does. The
+  research had recommended daily top 100, about $486 a month for 2,700 keywords.
 - **Export and scheduled reports.** Built on 9 October 2026.
   - An Excel button on every SEO table (Rankings, Tracked keywords, Top pages, Missing pages,
-    Referring domains, Backlinks, Keyword gap, SEO portfolio) downloads it with the filters and sort
+    Referring domains, Backlinks, Keyword gap, SEO portfolio, and since HELP-3885 Search queries, Search
+    opportunities, the pages of each Site audit issue and Suggested fixes) downloads it with the filters and sort
     it has on screen, up to 20,000 rows (`ExportSeoTable`, `ExportSeoPortfolio`, `SeoTableExport`).
     The same index actions are read in pages of 2,000 for the request.
   - Weekly report by email: anyone can turn it on per shop (SEO dashboard) or for every website (SEO
@@ -603,10 +637,25 @@ Strategy (Research)", 8 October 2026). None is built; each needs the team's go-a
   average position, tracked keywords in the top 10, referring domains with the week's new and lost,
   and DataForSEO rank, and the answers of the last 28 days that name the shop in ChatGPT (3.3);
   totals above, each website opening its shop's SEO dashboard. From stored data only.
-- **Content briefs.** 3.4 only writes meta titles and descriptions. A brief for a keyword (the
-  headings, length, questions and terms of the pages ranking in the top 10, read by our crawler from
-  the SERP results of 2.2, written up through the AI gateway) is the part of Semrush's content tools
-  the research asks for. Optional.
+- **Content briefs.** Built on 12 October 2026, after the marketing team agreed to it. SEO >
+  Keywords, tab Content briefs: a keyword, country and language give a writer's brief in about half
+  a minute, for about half a cent (one live SERP check, $0.002, and one AI gateway call, $0.0026 in
+  the first briefs).
+  - `GenerateSeoContentBrief` (a job) reads Google's top 10 for the keyword with the questions and
+    related searches it shows, fetches those pages side by side and reads their headings, length
+    and opening text (`ReadPage`, menus and footers left out), and finds our own page for the
+    search: from Search Console, else in the results, else from the rank tracking.
+  - The AI gateway writes the brief from that: search intent, kind of page, whether to improve our
+    page or write a new one, title, meta description, H1, an outline with notes, questions to
+    answer, terms to use and where to do better than the ranking pages. Guidance is in English, the
+    copy to use in the keyword's language. Lengths and counts are measured, not asked from the
+    model, and numbers or claims about our range may only come from our own page.
+  - Pages that block robots (Cloudflare, marketplaces) are marked as not read and only their Google
+    title and snippet are used; in the first two briefs 8 of 10 and 6 of 9 pages were read. Only
+    public http and https addresses are fetched.
+  - The list shows each brief with its suggested title and the typical length; a brief opens in
+    full, copies as text for the writer, can be written again (Google read afresh) or deleted. A
+    brief still pending after 10 minutes counts as failed and can be asked for again.
 - **Competitor page changes.** The research proposes Apify to watch competitor pages. Our crawler
   can fetch a short list of competitor URLs weekly and report title, content and price changes,
   without Apify. Optional.

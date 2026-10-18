@@ -9,7 +9,7 @@ import { faCircle } from "@fas"
 import { Image as ImageTS } from "@/types/Image"
 import ButtonAddPortfolio from "@/Components/Iris/Products/ButtonAddPortfolio.vue"
 import LinkIris from "@/Iris/Components/LinkIris.vue"
-import BestsellerBadge from "@/Components/CMS/Webpage/Products/BestsellerBadge.vue"
+import ProductBadge from "@/Components/CMS/Webpage/Products/ProductBadge.vue"
 import GoldenProductBadge from "@/Components/CMS/Webpage/Products/GoldenProductBadge.vue"
 import Prices from "@/Iris/Components/BlocksUtils/Prices.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
@@ -196,7 +196,7 @@ const openBundlePanel = (product:any) => {
     <div id="product-render" class="relative flex flex-col justify-between h-full ">
         <!-- Top Section -->
         <div>
-            <BestsellerBadge v-if="product?.top_seller" :topSeller="product?.top_seller" :data="bestSeller" :screenType />
+            <ProductBadge :product="product" :data="bestSeller" :screenType="screenType" />
 
             <!-- Product Image -->
             <component :is="product.canonical_url || product.url ? LinkIris : 'div'"

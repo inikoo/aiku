@@ -10,8 +10,10 @@ namespace App\Models\Production;
 
 use App\Events\BroadcastManufactureFloorChanged;
 use App\Events\BroadcastPartnerProductionChanged;
+use App\Actions\Production\JobOrderItemTask\CalculateJobOrderItemTaskQuantities;
 use App\Enums\Production\JobOrderItemTask\JobOrderItemTaskStateEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
+use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Database\Eloquent\Builder;
@@ -34,6 +36,7 @@ use Illuminate\Support\Collection;
  * @property numeric $quantity_made
  * @property numeric $quantity_rejected
  * @property int|null $combined_task_id
+ * @property int|null $employee_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Group|null $group
@@ -52,6 +55,12 @@ use Illuminate\Support\Collection;
  */
 class JobOrderItemTask extends Model
 {
+    /**
+     * Who a step is for: its own operator, else the sub-job's, else the job order's.
+     * Needs job_order_items and job_orders joined.
+     */
+    public const string ASSIGNEE_SQL = 'coalesce(job_order_item_tasks.employee_id, job_order_items.employee_id, job_orders.employee_id)';
+
     protected static function booted(): void
     {
         static::saved(function (self $model) {
@@ -98,6 +107,137 @@ class JobOrderItemTask extends Model
         return $this->belongsTo(ManufactureTask::class)->withTrashed();
     }
 
+    public function employee(): BelongsTo
+    {
+        return $this->belongsTo(Employee::class);
+    }
+
+    public function unitsPerArtefact(): float
+    {
+        $units = (float) ($this->recipeStep()?->units_per_artefact ?: 1);
+
+        return $this->isRecordedInKg() ? $units : ArtefactManufactureTask::exactUnits($units);
+    }
+
+    public function requiredFor(float|int|string $artefacts): float
+    {
+        return round((float) $artefacts * $this->unitsPerArtefact(), 3);
+    }
+
+    public function artefactsIn(float|int|string|null $stepQuantity = null): float
+    {
+        return floor(round((float) ($stepQuantity ?? $this->quantity_made) / $this->unitsPerArtefact(), 3));
+    }
+
+    public function isInRecipe(): bool
+    {
+        return $this->recipeStep() !== null;
+    }
+
+    public function setRequiredQuantity(float $quantity): self
+    {
+        $this->update(['quantity_required' => $quantity]);
+
+        return CalculateJobOrderItemTaskQuantities::run($this);
+    }
+
+    public function mixBatchKg(): ?int
+    {
+        return $this->isRecordedInKg() ? ($this->recipeStep()?->mix_batch_kg ?: null) : null;
+    }
+
+    /**
+     * A combined mix is made in batches only when every line shares the same batch size.
+     *
+     * @param Collection<int, JobOrderItemTask> $members
+     */
+    public static function sharedMixBatchKg(Collection $members): ?int
+    {
+        $sizes = $members->map(fn (JobOrderItemTask $member) => $member->mixBatchKg())->unique();
+
+        return $sizes->count() == 1 ? $sizes->first() : null;
+    }
+
+    private ?ArtefactManufactureTask $recipeStep = null;
+
+    public function refresh()
+    {
+        $this->recipeStep = null;
+
+        return parent::refresh();
+    }
+
+    private function recipeStep(): ?ArtefactManufactureTask
+    {
+        return $this->recipeStep ??= ArtefactManufactureTask::where('artefact_id', $this->jobOrderItem->artefact_id)
+            ->where('manufacture_task_id', $this->manufacture_task_id)
+            ->first(['units_per_artefact', 'mix_batch_kg']);
+    }
+
+    public function isRecordedInKg(): bool
+    {
+        return (bool) $this->manufactureTask?->is_recorded_in_kg;
+    }
+
+    public function unit(): ?string
+    {
+        return $this->isRecordedInKg() ? 'kg' : null;
+    }
+
+    public function packSize(): ?int
+    {
+        return $this->isRecordedInKg() ? null : ArtefactManufactureTask::packSize($this->unitsPerArtefact());
+    }
+
+    /**
+     * A step limited to named artisans is open to all of them until it is given to one: the
+     * operator of the job or the sub-job does not inherit it.
+     */
+    public function isRestricted(): bool
+    {
+        return (bool) $this->manufactureTask?->artisans->isNotEmpty();
+    }
+
+    public function isAllowedFor(?Employee $employee): bool
+    {
+        return !$this->isRestricted() || ($employee && $this->manufactureTask->artisans->contains('id', $employee->id));
+    }
+
+    /**
+     * Addressed to this employee: named on the step or inherited from the job, or one of the
+     * allowed artisans of a restricted step nobody has been given yet.
+     */
+    public function isFor(?Employee $employee): bool
+    {
+        if (!$employee) {
+            return false;
+        }
+
+        return $this->assigneeId() == $employee->id
+            || ($this->employee_id === null && $this->isRestricted() && $this->isAllowedFor($employee));
+    }
+
+    public function assigneeId(): ?int
+    {
+        return $this->employee_id ?? ($this->isRestricted() ? null : $this->jobOrderItem->artisanId());
+    }
+
+    public function assignee(): ?Employee
+    {
+        if ($this->employee_id) {
+            return $this->employee;
+        }
+
+        return $this->isRestricted() ? null : $this->jobOrderItem->artisan();
+    }
+
+    public function scopeUnworked(Builder $query): Builder
+    {
+        return $query->where('state', JobOrderItemTaskStateEnum::TODO)
+            ->whereDoesntHave('sessions')
+            ->whereDoesntHave('sessionShares');
+    }
+
     public function scopeLive(Builder $query): Builder
     {
         return $query->whereHas('jobOrder')->whereHas('jobOrderItem');
@@ -117,7 +257,8 @@ class JobOrderItemTask extends Model
         $firstUnfinished = $siblings
             ->filter(fn (JobOrderItemTask $sibling) => $sibling->id == $this->id || $recipeTaskIds->contains($sibling->manufacture_task_id))
             ->sortBy([['position', 'asc'], ['id', 'asc']])
-            ->first(fn (JobOrderItemTask $sibling) => $sibling->state != JobOrderItemTaskStateEnum::DONE);
+            ->first(fn (JobOrderItemTask $sibling) => $sibling->state != JobOrderItemTaskStateEnum::DONE
+                && ($sibling->id == $this->id || !$sibling->isRecordedInKg() || (float) $sibling->quantity_made <= 0));
 
         return $firstUnfinished && $firstUnfinished->id != $this->id ? $firstUnfinished : null;
     }

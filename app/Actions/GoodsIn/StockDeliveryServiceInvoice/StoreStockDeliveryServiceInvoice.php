@@ -55,7 +55,7 @@ class StoreStockDeliveryServiceInvoice extends OrgAction
     public function rules(): array
     {
         return array_merge($this->allocationRules(), [
-            'type'         => ['required', Rule::enum(StockDeliveryServiceInvoiceTypeEnum::class)],
+            'type'         => ['required', Rule::enum(StockDeliveryServiceInvoiceTypeEnum::class)->except([StockDeliveryServiceInvoiceTypeEnum::NOT_IN_DELIVERY])],
             'issuer'       => ['required', 'string', 'max:255'],
             'reference'    => ['sometimes', 'nullable', 'string', 'max:255'],
             'date'         => ['required', 'date'],

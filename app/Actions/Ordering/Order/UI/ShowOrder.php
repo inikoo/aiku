@@ -15,6 +15,7 @@ use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\Ordering\Order\AssignDefaultPackagingToOrderWithoutPackaging;
+use App\Actions\Ordering\Order\ChangeOrderToCashOnDelivery;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
 use App\Actions\Dropshipping\CustomerSalesChannel\UI\ShowCustomerSalesChannel;
@@ -39,6 +40,7 @@ use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Ordering\Order\OrderPayStatusEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
+use App\Enums\Ordering\PreOrder\PreOrderStateEnum;
 use App\Enums\Ordering\Platform\PlatformTypeEnum;
 use App\Enums\Ordering\SalesChannel\SalesChannelTypeEnum;
 use App\Enums\UI\NotesEnum;
@@ -193,7 +195,7 @@ class ShowOrder extends OrgAction
         );
     }
 
-    public function getOrderNotes(Order $order): array
+    public function getOrderNotes(Order $order, bool $editable): array
     {
         $noteList = [];
 
@@ -230,7 +232,7 @@ class ShowOrder extends OrgAction
                     "label"       => NotesEnum::SHIPPING_LABEL->label(),
                     "note"        => $order->shipping_notes ?? '',
                     "information" => __("Note from crm. First 34 char. Will be printed on the shipping label."),
-                    "editable"    => true,
+                    "editable"    => $editable,
                     "field"       => "shipping_notes",
                     ...NotesEnum::SHIPPING_LABEL->boilerPlate()
                 ],
@@ -246,7 +248,7 @@ class ShowOrder extends OrgAction
                     "label"       => NotesEnum::PUBLIC->label(),
                     "note"        => $order->public_notes ?? '',
                     "information" => __("This note will be visible to public, both staff and the customer can see."),
-                    "editable"    => true,
+                    "editable"    => $editable,
                     "warning"     => __('Customer can see this note'),
                     "field"       => "public_notes",
                     ...NotesEnum::PUBLIC->boilerPlate()
@@ -255,7 +257,7 @@ class ShowOrder extends OrgAction
                     "label"       => NotesEnum::INTERNAL->label(),
                     "note"        => $order->internal_notes ?? '',
                     "information" => __("This note is only visible to staff members in the order. It is not shown in the delivery note."),
-                    "editable"    => true,
+                    "editable"    => $editable,
                     "field"       => "internal_notes",
                     ...NotesEnum::INTERNAL->boilerPlate()
                 ],
@@ -263,7 +265,7 @@ class ShowOrder extends OrgAction
                     "label"       => NotesEnum::WAREHOUSE->label(),
                     "note"        => $order->private_warehouse_note ?? '',
                     "information" => __("This note is only visible to staff members and is shown in the delivery note."),
-                    "editable"    => true,
+                    "editable"    => $editable,
                     "field"       => "private_warehouse_note",
                     ...NotesEnum::WAREHOUSE->boilerPlate()
                 ]
@@ -321,7 +323,7 @@ class ShowOrder extends OrgAction
             && (!$order->platform || $order->platform->type == PlatformTypeEnum::MANUAL)
             && !in_array($order->state, [OrderStateEnum::CANCELLED, OrderStateEnum::FINALISED, OrderStateEnum::DISPATCHED]);
 
-        if ($order->state != OrderStateEnum::CANCELLED && !$lockedInAurora && !$preOrderLocked) {
+        if ($canEdit && $order->state != OrderStateEnum::CANCELLED) {
             $wrapped_actions = [
                 [
                     'type'  => 'button',
@@ -342,6 +344,11 @@ class ShowOrder extends OrgAction
             'style' => 'save',
             'label' => __('Add note'),
             'key'   => 'add-note'
+        ];
+
+        $wrapped_actions[] = [
+            'type' => 'button',
+            'key'  => 'staff-chat'
         ];
 
         $deliveryNoteRoute    = null;
@@ -370,7 +377,7 @@ class ShowOrder extends OrgAction
         }
 
         $redispatchRoute = null;
-        if ($firstDeliveryNote && $firstDeliveryNote->state == DeliveryNoteStateEnum::FINALISED) {
+        if ($firstDeliveryNote && $firstDeliveryNote->state == DeliveryNoteStateEnum::FINALISED && $firstDeliveryNote->canBeShippedBy($request->user())) {
             $redispatchRoute = [
                 'method'     => 'patch',
                 'name'       => 'grp.models.delivery_note.state.dispatched',
@@ -498,7 +505,7 @@ class ShowOrder extends OrgAction
                             'order' => $order->id,
                         ]
                     ],
-                    'rollback_dispatch'          => $request->user()->authTo("accounting.{$order->organisation_id}.edit") ? [
+                    'rollback_dispatch'          => $order->canBeUndispatchedBy($request->user()) ? [
                         'method'     => 'patch',
                         'name'       => 'grp.models.order.rollback_dispatch',
                         'parameters' => [
@@ -536,12 +543,24 @@ class ShowOrder extends OrgAction
                             'order' => $order->id
                         ]
                     ],
-                    'delivery_note'              => $deliveryNoteRoute
+                    'delivery_note'              => $deliveryNoteRoute,
+                    'change_to_cash_on_delivery' => $canEdit && !ChangeOrderToCashOnDelivery::make()->blockingReason($order) ? [
+                        'method'     => 'patch',
+                        'name'       => 'grp.models.order.change_to_cash_on_delivery',
+                        'parameters' => [
+                            'order' => $order->id
+                        ]
+                    ] : null,
                 ],
 
-                'notes'                       => $this->getOrderNotes($order),
+                'notes'                       => $this->getOrderNotes($order, $canEdit),
                 'timelines'                   => $finalTimeline,
-                'readonly'                    => false,
+                'readonly'                    => !$canEdit,
+                'can_edit'                    => $canEdit,
+                'can_pay'                     => !$lockedInAurora && $request->user()->authTo([
+                    "orders.$order->shop_id.edit",
+                    "accounting.$order->organisation_id.edit",
+                ]),
                 'shop_type'                   => $order->shop->type,
                 'is_shop_external'            => $this->shop->type == ShopTypeEnum::EXTERNAL,
                 'external_shop'               => $this->shop->type == ShopTypeEnum::EXTERNAL ? [
@@ -571,6 +590,7 @@ class ShowOrder extends OrgAction
                         'method'     => 'patch',
                     ],
                     'cancellation_reasons' => PreOrderCancellationReasonEnum::valuesWithLabels(),
+                    'can_manage'           => $this->canEdit && !$lockedInAurora,
                     'lock'                 => [
                         'is_locked'        => $order->preOrder->isLocked(),
                         'is_locked_for_me' => $preOrderLocked,
@@ -777,7 +797,8 @@ class ShowOrder extends OrgAction
                     parent: $order,
                     tableRows: $nonProductItems,
                     prefix: OrderTabsEnum::TRANSACTIONS->value,
-                    withMargins: $withMargins
+                    withMargins: $withMargins,
+                    canEdit: $canEdit
                 )
             )
             ->table(
@@ -1161,6 +1182,9 @@ class ShowOrder extends OrgAction
             $query->where('orders.state', OrderStateEnum::SUBMITTED)->payNotSettled();
         } elseif ($bucket == OrdersBacklogTabsEnum::DISPATCHED_TODAY->value) {
             $query->whereDate('orders.dispatched_at', Carbon::today());
+        } elseif ($bucket == OrdersBacklogTabsEnum::PRE_ORDERS->value) {
+            $query->whereHas('preOrder', fn ($query) => $query->where('state', '!=', PreOrderStateEnum::CANCELLED))
+                ->whereNotIn('orders.state', [OrderStateEnum::DISPATCHED, OrderStateEnum::CANCELLED]);
         } else {
             $query->where('orders.state', $order->state);
         }

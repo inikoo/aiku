@@ -67,15 +67,22 @@ class StoreWebsitePageView implements ShouldBeUnique
     {
         $cacheKey = "webpage_resolve:$website->id:" . md5($path);
 
-        return Cache::remember($cacheKey, 86400, function () use ($website, $path) {
-            return Webpage::on('aiku_no_sticky')
-                ->where('website_id', $website->id)
-                ->where('state', WebpageStateEnum::LIVE)
-                ->where(function ($query) use ($path) {
-                    $query->whereRaw("substring(canonical_url from 'https?://[^/]+(/.*)$') = ?", [$path])
-                        ->orWhere('url', ltrim($path, '/'));
-                })
-                ->first();
-        });
+        $cached = Cache::get($cacheKey);
+        if ($cached !== null) {
+            return $cached ?: null;
+        }
+
+        $webpage = Webpage::on('aiku_no_sticky')
+            ->where('website_id', $website->id)
+            ->where('state', WebpageStateEnum::LIVE)
+            ->where(function ($query) use ($path) {
+                $query->whereRaw("substring(canonical_url from 'https?://[^/]+(/.*)$') = ?", [$path])
+                    ->orWhere('url', ltrim($path, '/'));
+            })
+            ->first();
+
+        Cache::put($cacheKey, $webpage ?? false, $webpage ? 86400 : 3600);
+
+        return $webpage;
     }
 }

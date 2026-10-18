@@ -9,7 +9,7 @@
 namespace App\Actions\Production\JobOrderItem;
 
 use App\Actions\OrgAction;
-use App\Actions\Production\JobOrderItemTask\CalculateJobOrderItemTaskQuantities;
+use App\Actions\Production\JobOrder\BatchedUnitsForDemand;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
 use App\Enums\Production\JobOrderItem\JobOrderItemStateEnum;
@@ -17,6 +17,7 @@ use App\Enums\Production\JobOrderItem\JobOrderItemStatusEnum;
 use App\Models\CRM\WebUser;
 use App\Models\Production\JobOrderItem;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
@@ -34,11 +35,8 @@ class UpdateJobOrderItem extends OrgAction
         $jobOrderItem = $this->update($jobOrderItem, $modelData, ['data']);
 
         if ($jobOrderItem->wasChanged('quantity')) {
-            $unitsPerArtefact = $jobOrderItem->artefact->manufactureTasks()->get()->pluck('pivot.units_per_artefact', 'id');
-
             foreach ($jobOrderItem->tasks as $task) {
-                $task->update(['quantity_required' => $jobOrderItem->quantity * ($unitsPerArtefact[$task->manufacture_task_id] ?? 1)]);
-                CalculateJobOrderItemTaskQuantities::run($task);
+                $task->setRequiredQuantity($task->requiredFor($jobOrderItem->quantity));
             }
         }
 
@@ -57,9 +55,15 @@ class UpdateJobOrderItem extends OrgAction
             return;
         }
 
-        $unitsPerArtefact = $this->jobOrderItem->artefact->manufactureTasks()->get()->pluck('pivot.units_per_artefact', 'id');
+        $carriedTo = $this->jobOrderItem->carriedTo();
+        if ($carriedTo) {
+            $validator->errors()->add('quantity', __('The rest of this job was carried to :reference, change the quantity there.', ['reference' => $carriedTo->reference]));
+
+            return;
+        }
+
         foreach ($this->jobOrderItem->tasks as $task) {
-            if ($this->get('quantity') * ($unitsPerArtefact[$task->manufacture_task_id] ?? 1) < $task->quantity_made) {
+            if (!$task->isRecordedInKg() && $task->requiredFor($this->get('quantity')) < $task->quantity_made) {
                 $validator->errors()->add('quantity', __('More than that is already made, the quantity cannot go below it.'));
 
                 return;
@@ -105,6 +109,14 @@ class UpdateJobOrderItem extends OrgAction
     {
         $this->jobOrderItem = $jobOrderItem;
         $this->initialisation($jobOrderItem->organisation, $request);
+
+        if (Arr::has($this->validatedData, 'quantity')) {
+            data_set($this->validatedData, 'quantity', BatchedUnitsForDemand::make()->wholeOuters(
+                (int) $this->validatedData['quantity'],
+                $jobOrderItem->artefact->orgStock?->packed_in,
+                $jobOrderItem->artefact->recommended_batch_size
+            ));
+        }
 
         return $this->handle($jobOrderItem, $this->validatedData);
     }

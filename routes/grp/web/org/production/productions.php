@@ -11,6 +11,7 @@ use App\Actions\Production\PartnerShippingList\StoreJobOrdersFromToProduceItems;
 use App\Actions\Production\PartnerShippingList\UnassignToProduceItems;
 use App\Actions\Production\PartnerShippingList\DismissToProduceItems;
 use App\Actions\Production\PartnerShippingList\StoreJobOrdersForMixes;
+use App\Actions\Production\Artisan\SetArtisanPayType;
 use App\Actions\Production\Artisan\ToggleArtisanInRoster;
 use App\Actions\Production\PartnerShippingList\UI\IndexPartnerShippingList;
 use App\Actions\Production\PartnerShippingList\PrePickPartnerShoppingListItems;
@@ -40,6 +41,8 @@ use App\Actions\Production\JobOrder\UI\IndexJobOrders;
 use App\Actions\Production\JobOrder\UI\ShowJobOrder;
 use App\Actions\Production\JobOrder\PdfJobOrder;
 use App\Actions\Production\JobOrderItemTask\UI\ShowManufactureFloor;
+use App\Actions\Production\JobOrder\UI\IndexJobOrderPlan;
+use App\Actions\Production\MaterialRequest\UI\IndexDayMaterialsCheck;
 use App\Actions\Production\ManufactureTaskSession\ExportManufacturePayroll;
 use App\Actions\Production\ManufactureTaskSession\UI\IndexArtisans;
 use App\Actions\Production\ManufactureTaskSession\UI\ShowManufacturePayroll;
@@ -75,6 +78,8 @@ Route::prefix('{production}')
                 Route::name('.operations.')->prefix('operations')
                     ->group(function () {
                         Route::get('', ShowOperationsDashboard::class)->name('dashboard');
+                        Route::get('day-plan', IndexJobOrderPlan::class)->name('day_plan');
+                        Route::get('materials-check', IndexDayMaterialsCheck::class)->name('materials_check');
                         Route::get('job-orders', IndexJobOrders::class)->name('job-orders.index');
                         Route::get('job-orders/{jobOrder}', ShowJobOrder::class)->name('job-orders.show');
                         Route::get('job-orders/{jobOrder}/pdf', PdfJobOrder::class)->name('job-orders.pdf');
@@ -91,6 +96,7 @@ Route::prefix('{production}')
                         Route::get('performance', IndexArtisans::class)->name('index');
                         Route::get('payroll', ShowManufacturePayroll::class)->name('payroll');
                         Route::get('payroll/export', ExportManufacturePayroll::class)->name('payroll.export');
+                        Route::patch('{employee:id}/pay-type', SetArtisanPayType::class)->name('pay_type.update')->withoutScopedBindings();
                     });
 
                 Route::name('.to_produce.')->prefix('to-produce')

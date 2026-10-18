@@ -9,6 +9,7 @@
 
 namespace App\Actions\Dispatching\Box;
 
+use App\Actions\Traits\Authorisations\WithOrganisationDispatchingEditAuthorisation;
 use App\Actions\OrgAction;
 use App\Models\Dispatching\Box;
 use App\Models\SysAdmin\Organisation;
@@ -18,6 +19,7 @@ use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StoreBox extends OrgAction
 {
+    use WithOrganisationDispatchingEditAuthorisation;
     use AsAction;
     use WithAttributes;
 

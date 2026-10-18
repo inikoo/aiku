@@ -20,6 +20,7 @@ use App\Actions\Comms\Mailshot\UI\IndexMailshots;
 use App\Actions\Goods\TradeUnit\UI\IndexTradeUnitsInMasterProduct;
 use App\Actions\OrgAction;
 use App\Actions\Helpers\History\UI\IndexHistory;
+use App\Actions\Masters\MasterAsset\CopyMasterAssetToMasterShop;
 use App\Actions\Masters\MasterAsset\GetMasterProductImages;
 use App\Actions\Masters\MasterAsset\WithMasterProductSubNavigation;
 use App\Actions\Masters\MasterProductCategory\UI\ShowMasterDepartment;
@@ -224,7 +225,7 @@ class ShowMasterProduct extends OrgAction
                             'class'   => 'text-red-400'
                         ],
                     'actions'   => [
-                        $masterAsset->mismatch_detected ? [
+                        $this->canEdit && $masterAsset->mismatch_detected ? [
                             'key'   => 'repair-mismatch',
                             'type'  => 'button',
                             'style' => 'delete',
@@ -233,7 +234,7 @@ class ShowMasterProduct extends OrgAction
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
-                        [
+                        $this->canEdit ? [
                             'key'   => 'edit',
                             'type'  => 'button',
                             'style' => 'edit',
@@ -241,7 +242,7 @@ class ShowMasterProduct extends OrgAction
                                 'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                                 'parameters' => $request->route()->originalParameters()
                             ]
-                        ],
+                        ] : false,
                         $this->canDelete ? [
                             'key'   => 'delete',
                             'type'  => 'button',
@@ -251,17 +252,23 @@ class ShowMasterProduct extends OrgAction
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
-                        [
+                        $this->canEdit ? [
                             'key'       => 'assign',
                             'type'      => 'button',
                             'style'     => 'create',
                             'label'     => __('Add to Other Shop'),
-                        ],
+                        ] : false,
+                        $this->canEdit ? [
+                            'key'   => 'copy-to-master-shop',
+                            'type'  => 'button',
+                            'label' => __('Copy to master shop'),
+                        ] : false,
                     ],
                     'subNavigation'        => $this->getMasterProductsSubNavigation($masterAsset),
                 ],
                 'anomalies'            => EditMasterProductComposition::make()->getAnomalies($masterAsset),
                 'masterAsset'          => $masterAsset,
+                'copyToMasterShop'     => Inertia::optional(fn () => $this->canEdit ? CopyMasterAssetToMasterShop::make()->getDialogData($masterAsset) : null),
                 'currency'             => $masterAsset->group->currency,
                 'shopsData'            => OpenShopsInMasterShopResource::collection(IndexOpenShopsInMasterShop::run($masterAsset->masterShop, 'shops')),
                 'tradeUnits'           => TradeUnitsResource::collection(IndexTradeUnitsInMasterProduct::run($masterAsset)),

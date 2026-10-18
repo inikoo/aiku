@@ -45,9 +45,10 @@ class IndexOrgAgents extends OrgAction
     public function handle(Organisation $organisation): Collection
     {
         return OrgAgent::where('organisation_id', $organisation->id)
+            ->where('status', true)
             ->with(['agent.organisation', 'agent.currency', 'stats'])
             ->get()
-            ->sortBy(fn (OrgAgent $orgAgent) => [!$orgAgent->status, $orgAgent->agent->code])
+            ->sortBy(fn (OrgAgent $orgAgent) => $orgAgent->agent->code)
             ->values();
     }
 
@@ -71,7 +72,6 @@ class IndexOrgAgents extends OrgAction
             'slug'                 => $orgAgent->slug,
             'code'                 => $agent->code,
             'name'                 => $agent->name,
-            'status'               => $orgAgent->status,
             'country_code'         => $location[0] ?? null,
             'country_name'         => $location[1] ?? null,
             'currency_code'        => $agent->currency?->code,
@@ -212,7 +212,7 @@ class IndexOrgAgents extends OrgAction
     }
 
     /**
-     * The urgent end of each active agent's stock cover. Slow on agents with thousands of
+     * The urgent end of each agent's stock cover. Slow on agents with thousands of
      * products, so it is sent deferred.
      *
      * @param  Collection<int, OrgAgent>  $orgAgents
@@ -221,7 +221,6 @@ class IndexOrgAgents extends OrgAction
     public function coverByAgent(Collection $orgAgents): array
     {
         return $orgAgents
-            ->filter(fn (OrgAgent $orgAgent) => $orgAgent->status)
             ->mapWithKeys(fn (OrgAgent $orgAgent) => [
                 $orgAgent->id => collect(GetAgentStockCoverBuckets::run($orgAgent)['buckets'])
                     ->whereIn('bucket', self::COVER_BUCKETS)
@@ -259,6 +258,7 @@ class IndexOrgAgents extends OrgAction
                 ],
                 'currency_code'     => $this->organisation->currency->code,
                 'card_sections'     => (object) ($request->user()->settings['agent_card_sections'] ?? []),
+                'suspended_count'   => OrgAgent::where('organisation_id', $this->organisation->id)->where('status', false)->count(),
                 'agents'            => $orgAgents->map(fn (OrgAgent $orgAgent) => $this->agentCard($orgAgent))->all(),
                 'cover'             => Inertia::defer(fn () => $this->coverByAgent($orgAgents)),
             ],

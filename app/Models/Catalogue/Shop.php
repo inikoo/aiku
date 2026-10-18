@@ -17,6 +17,7 @@ use App\Enums\Catalogue\Review\ReviewContextEnum;
 use App\Enums\Catalogue\Shop\ShopEngineEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\Comms\Email\EmailEditorEnum;
 use Illuminate\Support\Arr;
 use App\Models\Accounting\CreditTransaction;
 use App\Models\Accounting\Invoice;
@@ -42,6 +43,9 @@ use App\Models\Comms\SenderEmail;
 use App\Models\Comms\TestEmailRecipient;
 use App\Models\Comms\WhatsappCampaign;
 use App\Models\CRM\Customer;
+use App\Models\CRM\CustomerEmailTemplate;
+use App\Models\CRM\Appointment;
+use App\Models\CRM\AppointmentType;
 use App\Models\CRM\Poll;
 use App\Models\CRM\Prospect;
 use App\Models\CRM\TrafficSource;
@@ -90,6 +94,7 @@ use App\Models\Traits\InOrganisation;
 use App\Models\Web\Redirect;
 use App\Models\Web\SeoAiPrompt;
 use App\Models\Web\SeoCompetitor;
+use App\Models\Web\SeoContentBrief;
 use App\Models\Web\SeoTrackedKeyword;
 use App\Models\Web\Website;
 use Eloquent;
@@ -266,6 +271,7 @@ use App\Models\HumanResources\WorkSchedule;
  * @property-read LaravelCollection<int, WebUser> $webUsers
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SeoAiPrompt> $seoAiPrompts
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SeoCompetitor> $seoCompetitors
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, SeoContentBrief> $seoContentBriefs
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SeoTrackedKeyword> $seoTrackedKeywords
  * @property-read Website|null $website
  * @property-read LaravelCollection<int, WorkSchedule> $workSchedules
@@ -429,6 +435,11 @@ class Shop extends Model implements HasMedia, Auditable
         return $this->hasMany(Customer::class);
     }
 
+    public function customerEmailTemplates(): HasMany
+    {
+        return $this->hasMany(CustomerEmailTemplate::class)->orderBy('position');
+    }
+
     public function prospects(): HasMany
     {
         return $this->hasMany(Prospect::class);
@@ -467,6 +478,11 @@ class Shop extends Model implements HasMedia, Auditable
     public function seoAiPrompts(): HasMany
     {
         return $this->hasMany(SeoAiPrompt::class);
+    }
+
+    public function seoContentBriefs(): HasMany
+    {
+        return $this->hasMany(SeoContentBrief::class);
     }
 
     public function invoices(): HasMany
@@ -533,6 +549,24 @@ class Shop extends Model implements HasMedia, Auditable
     public function externalShopifyUser(): HasOne
     {
         return $this->hasOne(ShopifyUser::class, 'external_shop_id');
+    }
+
+    /**
+     * Where goods out lists the shop's delivery notes. A Shopify external shop ships single parcels to end
+     * customers like dropshipping does, so the warehouse finds its notes with the dropshipping ones; how a note is
+     * picked and packed still follows the shop's own type.
+     */
+    public function dispatchingChannel(): ShopTypeEnum
+    {
+        return $this->type === ShopTypeEnum::EXTERNAL && $this->engine === ShopEngineEnum::SHOPIFY
+            ? ShopTypeEnum::DROPSHIPPING
+            : $this->type;
+    }
+
+    public static function dispatchingChannelSql(string $table = 'shops'): string
+    {
+        return "(case when $table.type = '".ShopTypeEnum::EXTERNAL->value."' and $table.engine = '".ShopEngineEnum::SHOPIFY->value."' then '"
+            .ShopTypeEnum::DROPSHIPPING->value."' else $table.type end)";
     }
 
     public function currency(): BelongsTo
@@ -763,6 +797,16 @@ class Shop extends Model implements HasMedia, Auditable
         return $this->hasMany(Poll::class);
     }
 
+    public function appointmentTypes(): HasMany
+    {
+        return $this->hasMany(AppointmentType::class);
+    }
+
+    public function appointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class);
+    }
+
     public function queries(): HasMany
     {
         return $this->hasMany(Query::class);
@@ -927,6 +971,11 @@ class Shop extends Model implements HasMedia, Auditable
     public function hasPreOrders(): bool
     {
         return (bool) $this->preOrderSetting('enabled');
+    }
+
+    public function emailEditor(): EmailEditorEnum
+    {
+        return EmailEditorEnum::tryFrom((string) Arr::get($this->settings, 'email_editor')) ?? EmailEditorEnum::BEEFREE;
     }
 
     public function hasPackagingAndInserts(): bool

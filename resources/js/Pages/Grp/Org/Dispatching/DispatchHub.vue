@@ -19,13 +19,14 @@ import Table from "@/Components/Table/Table.vue"
 import InputNumber from "primevue/inputnumber"
 import Select from "primevue/select"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faPlus, faMinus, faSpinnerThird } from "@far"
+import { faPlus, faMinus } from "@far"
 import { PageHeadingTypes } from "@/types/PageHeading"
 import NumberWithButtonSave from "@/Components/NumberWithButtonSave.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import Popover from "@/Components/Popover.vue"
 import { useSessionStorage } from "@vueuse/core"
 import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
+import ProductionMaterialRequests from "@/Components/Warehouse/ProductionMaterialRequests.vue"
 
 library.add(faHandsHelping, faBan, faCheckCircle, faList, faCheck, faPersonCarry, faChartLine, faDolly, faIndustry, faClipboardListCheck, faSave, faLock, faChevronDown)
 
@@ -69,6 +70,8 @@ const props = defineProps<{
             destinations: { type: 'partner' | 'stock', label: string, quantity: number, location_code: string | null, locations: { code: string, quantity: number }[], item_ids: number[], job_order_ids: number[] }[]
         }[]
     } | null
+    production_materials?: { data: any[] } | null
+    can_work_production_materials?: boolean
     can_edit?: boolean
     put_away_route?: { name: string; parameters: Record<string, string> } | null
     reports_route?: { name: string; parameters: Record<string, string> }
@@ -83,6 +86,7 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const isPersonnelTab = computed(() => currentTab.value === "pickers" || currentTab.value === "packers")
 const isStagingTab = computed(() => currentTab.value === "partner_staging")
 const isProductionTab = computed(() => currentTab.value === "production_output")
+const isProductionMaterialsTab = computed(() => currentTab.value === "production_materials")
 type ProductionItem = NonNullable<typeof props.production_output>['data'][number]
 type ProductionDestination = ProductionItem['destinations'][number]
 const destinationKey = (item: ProductionItem, destination: ProductionDestination) => item.id + '-' + (destination.type === 'stock' ? 'stock' : destination.location_code)
@@ -201,7 +205,7 @@ const trolleyRoute = (trolley: { slug: string }) =>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <div v-if="actionError && (isStagingTab || isProductionTab)" class="mx-4 mt-4 rounded border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+    <div v-if="actionError && (isStagingTab || isProductionTab || isProductionMaterialsTab)" class="mx-4 mt-4 rounded border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
         {{ actionError }}
     </div>
 
@@ -215,23 +219,23 @@ const trolleyRoute = (trolley: { slug: string }) =>
             <SegmentedToggle v-model="stagingPallet" :options="stagingPalletOptions" :ariaLabel="ctrans('Pallet')" />
         </div>
     </div>
-    <div v-if="isStagingTab" class="mx-4 mt-4 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
+    <div v-if="isStagingTab" class="mx-4 mt-4 overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
         <table class="w-full text-sm">
             <thead class="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500 dark:bg-gray-800">
                 <tr>
-                    <th class="px-4 py-2">{{ ctrans("For") }}</th>
-                    <th class="px-4 py-2">{{ ctrans("SKO") }}</th>
-                    <th class="px-4 py-2">{{ ctrans("From") }}</th>
-                    <th class="px-4 py-2">{{ ctrans("To") }}</th>
-                    <th class="px-4 py-2 text-right">{{ ctrans("Moved") }}</th>
-                    <th class="px-4 py-2 text-right">{{ ctrans("To move") }}</th>
-                    <th class="px-4 py-2"></th>
+                    <th class="px-2 py-2 2xl:px-4">{{ ctrans("For") }}</th>
+                    <th class="px-2 py-2 2xl:px-4">{{ ctrans("SKO") }}</th>
+                    <th class="px-2 py-2 2xl:px-4">{{ ctrans("From") }}</th>
+                    <th class="px-2 py-2 2xl:px-4">{{ ctrans("To") }}</th>
+                    <th class="px-2 py-2 2xl:px-4 text-right">{{ ctrans("Moved") }}</th>
+                    <th class="px-2 py-2 2xl:px-4 text-right">{{ ctrans("To move") }}</th>
+                    <th class="px-2 py-2 2xl:px-4"></th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="task in stagingTasks" :key="stagingKey(task)" class="border-t border-gray-100 dark:border-gray-800">
-                    <td class="px-4 py-2 font-medium">{{ task.partner_code }}</td>
-                    <td class="px-4 py-2">
+                    <td class="px-2 py-2 2xl:px-4 font-medium">{{ task.partner_code }}</td>
+                    <td class="px-2 py-2 2xl:px-4">
                         <div class="flex items-center gap-1.5 font-medium">
                             {{ task.stock_code }}
                             <span v-if="task.is_cosmetic" class="rounded-full bg-pink-100 px-1.5 text-xs font-normal text-pink-700">{{ ctrans("Cosmetic") }}</span>
@@ -239,21 +243,22 @@ const trolleyRoute = (trolley: { slug: string }) =>
                         </div>
                         <div class="text-gray-500">{{ task.stock_name }}</div>
                     </td>
-                    <td class="px-4 py-2">
+                    <td class="px-2 py-2 2xl:px-4">
                         <Select v-if="task.from_locations.length" :modelValue="stagingSource[stagingKey(task)]" :options="task.from_locations" :optionLabel="location => `${location.code} (${location.quantity})`" optionValue="location_org_stock_id" size="small" class="font-mono text-sm" @update:modelValue="locationOrgStockId => selectStagingSource(task, locationOrgStockId)" />
                         <span v-else class="text-red-600">{{ ctrans("Nowhere to take it from") }}</span>
                     </td>
-                    <td class="px-4 py-2 font-mono">{{ task.to_location }}</td>
-                    <td class="px-4 py-2 text-right tabular-nums text-gray-500">{{ task.quantity_staged }}</td>
-                    <td class="px-4 py-2 text-right font-semibold tabular-nums">{{ task.quantity_to_move }}</td>
-                    <td class="px-4 py-2 text-right whitespace-nowrap">
+                    <td class="px-2 py-2 2xl:px-4 font-mono">{{ task.to_location }}</td>
+                    <td class="px-2 py-2 2xl:px-4 text-right tabular-nums text-gray-500">{{ task.quantity_staged }}</td>
+                    <td class="px-2 py-2 2xl:px-4 text-right font-semibold tabular-nums">{{ task.quantity_to_move }}</td>
+                    <td class="px-2 py-2 2xl:px-4">
+                        <div class="flex flex-wrap items-center justify-end gap-2 2xl:flex-nowrap">
                         <template v-if="can_edit && task.from_locations.length">
-                            <span class="mr-2 inline-block w-12 text-right font-medium tabular-nums" :class="stagingQuantity[stagingKey(task)] > task.quantity_to_move ? 'text-amber-600' : 'text-red-600'">
+                            <span class="inline-block w-12 text-right font-medium tabular-nums" :class="stagingQuantity[stagingKey(task)] > task.quantity_to_move ? 'text-amber-600' : 'text-red-600'">
                                 <template v-if="stagingQuantity[stagingKey(task)] !== task.quantity_to_move">
                                     {{ stagingQuantity[stagingKey(task)] > task.quantity_to_move ? '+' : '' }}{{ Math.round((stagingQuantity[stagingKey(task)] - task.quantity_to_move) * 1000) / 1000 }}
                                 </template>
                             </span>
-                            <InputNumber v-model="stagingQuantity[stagingKey(task)]" :min="0" :max="stagingSourceQuantity(task)" :maxFractionDigits="3" showButtons buttonLayout="horizontal" inputClass="w-16 text-center" class="mr-2">
+                            <InputNumber v-model="stagingQuantity[stagingKey(task)]" :min="0" :max="stagingSourceQuantity(task)" :maxFractionDigits="3" showButtons buttonLayout="horizontal" inputClass="w-16 text-center" class="shrink-0">
                                 <template #incrementbuttonicon>
                                     <FontAwesomeIcon :icon="faPlus" fixed-width />
                                 </template>
@@ -262,13 +267,13 @@ const trolleyRoute = (trolley: { slug: string }) =>
                                 </template>
                             </InputNumber>
                         </template>
-                        <button v-if="can_edit && task.from_locations.length" type="button" class="relative rounded bg-[--app-accent] px-3 py-1 text-[--app-accent-text] hover:bg-[--app-accent-strong] disabled:cursor-wait disabled:opacity-80" :disabled="stagingInProgress !== null" @click="stage(task)">
-                            <span :class="{ invisible: stagingInProgress === stagingKey(task) }">{{ ctrans("Set as Moved") }}</span>
-                            <FontAwesomeIcon v-if="stagingInProgress === stagingKey(task)" :icon="faSpinnerThird" spin class="absolute inset-0 m-auto" fixed-width />
-                        </button>
-                        <button v-if="can_edit && task.org_stock_id" type="button" class="ml-2 rounded border border-gray-300 px-3 py-1 text-gray-700 hover:bg-gray-50 disabled:cursor-wait disabled:opacity-80 dark:border-gray-600 dark:text-gray-200" :disabled="stagingInProgress !== null" @click="release(task)">
-                            {{ ctrans("Back to production") }}
-                        </button>
+                        <Button v-if="can_edit && task.from_locations.length" type="tertiary" size="s" class="shrink-0 whitespace-nowrap" :label="ctrans('Set as Moved')" :loading="stagingInProgress === stagingKey(task)" :disabled="stagingInProgress !== null" @click="stage(task)">
+                            <template #icon>
+                                <FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" />
+                            </template>
+                        </Button>
+                        <Button v-if="can_edit && task.org_stock_id" type="tertiary" size="s" class="shrink-0 whitespace-nowrap" icon="fal fa-industry" :label="ctrans('Back to production')" :disabled="stagingInProgress !== null" @click="release(task)" />
+                        </div>
                     </td>
                 </tr>
                 <tr v-if="!partner_staging?.length">
@@ -276,6 +281,10 @@ const trolleyRoute = (trolley: { slug: string }) =>
                 </tr>
             </tbody>
         </table>
+    </div>
+
+    <div v-else-if="isProductionMaterialsTab && production_materials">
+        <ProductionMaterialRequests :resource="production_materials" :canWork="!!can_work_production_materials" />
     </div>
 
     <div v-else-if="isProductionTab && production_output">

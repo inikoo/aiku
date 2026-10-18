@@ -60,6 +60,9 @@ use App\Actions\Ordering\Adjustment\UpdateAdjustment;
 use App\Actions\Billables\Charge\DeleteCharge;
 use App\Actions\Billables\Charge\UpdateCharge;
 use App\Actions\Ordering\Order\CalculateOrderHangingCharges;
+use App\Actions\Ordering\Order\ChangeOrderToCashOnDelivery;
+use App\Actions\Accounting\PaymentAccountShop\StorePaymentAccountShop;
+use App\Enums\Accounting\PaymentAccountShop\PaymentAccountShopStateEnum;
 use App\Enums\Ordering\Order\OrderChargesEngineEnum;
 use App\Actions\Ordering\Order\CalculateOrderShipping;
 use App\Actions\Ordering\Order\CalculateOrderTotalAmounts;
@@ -73,14 +76,18 @@ use App\Actions\Ordering\Order\StoreSubmittedOrder;
 use App\Actions\Retina\Dropshipping\Orders\PayRetinaOrderWithBalance;
 use App\Actions\Retina\Ecom\Basket\RetinaEcomUpdateTransaction;
 use App\Actions\Retina\Ecom\Basket\UI\IndexBasketTransactions;
+use App\Actions\Retina\Dropshipping\Orders\IndexRetinaDropshippingOrders;
+use App\Http\Resources\Fulfilment\RetinaDropshippingOrdersInCustomerSalesChannelResources;
 use App\Actions\Catalogue\Product\StoreProduct;
 use App\Actions\Catalogue\Product\StoreProductWebpage;
+use App\Actions\Ordering\Order\UI\ShowOrder;
 use App\Actions\Ordering\Order\UpdateOrder;
 use App\Actions\Ordering\Order\ResetOrderTaxCategory;
 use App\Actions\Ordering\Order\UpdateOrderBillingAddress;
 use App\Actions\Ordering\Order\UpdateOrderDeliveryAddress;
 use App\Actions\Ordering\Order\UpdateOrderGiftMessage;
 use App\Actions\Ordering\Order\PdfOrderGiftMessage;
+use App\Actions\Ordering\Order\UpdateOrderPaymentsStatus;
 use App\Actions\Ordering\Order\UpdateOrderIsShippingTBC;
 use App\Actions\Ordering\Order\UpdateOrderShippingTBCAmount;
 use App\Actions\Billables\Service\StoreService;
@@ -221,6 +228,7 @@ use function Pest\Laravel\actingAs;
 use function Pest\Laravel\deleteJson;
 use function Pest\Laravel\get;
 use function Pest\Laravel\getJson;
+use function Pest\Laravel\patch;
 use function Pest\Laravel\patchJson;
 use function Pest\Laravel\postJson;
 
@@ -498,6 +506,42 @@ test('create transaction', function ($order) {
 
     return $transaction;
 })->depends('delete previous transaction');
+
+test('customer orders search finds the order holding a product', function (Transaction $transaction) {
+    $order    = $transaction->order;
+    $customer = $order->customer;
+    $product  = $transaction->historicAsset;
+
+    $shopState = $this->shop->state;
+    $this->shop->update(['state' => ShopStateEnum::OPEN]);
+
+    $ordersFound = fn (string $routeName, array $parameters, string $search) => collect(
+        get(route($routeName, $parameters + ['orders_filter' => ['global' => $search]]))
+            ->assertOk()
+            ->inertiaProps('data.data')
+    )->pluck('id');
+
+    $customerRoute = 'grp.org.shops.show.crm.customers.show.orders.index';
+    $customerPage  = [$this->organisation->slug, $this->shop->slug, $customer->slug];
+
+    expect($ordersFound($customerRoute, $customerPage, $product->code))->toContain($order->id)
+        ->and($ordersFound($customerRoute, $customerPage, $product->name))->toContain($order->id)
+        ->and($ordersFound($customerRoute, $customerPage, $order->reference))->toContain($order->id)
+        ->and($ordersFound($customerRoute, $customerPage, 'no product is called this'))->toBeEmpty()
+        ->and($ordersFound('grp.org.shops.show.ordering.orders.index', [$this->organisation->slug, $this->shop->slug], $order->reference))->toContain($order->id)
+        ->and($ordersFound('grp.org.shops.show.ordering.orders.index', [$this->organisation->slug, $this->shop->slug], $product->code))->not->toContain($order->id);
+
+    $dialogOrders = fn (array $parameters) => collect(
+        get(route('grp.search.index', ['q' => $product->code, 'shop' => $this->shop->slug, 'organisation' => $this->organisation->slug] + $parameters))
+            ->assertOk()
+            ->json('results.orders')
+    )->pluck('id');
+
+    expect($dialogOrders(['route_src' => $customerRoute, 'customer' => $customer->slug]))->toContain($order->id)
+        ->and($dialogOrders(['route_src' => 'grp.org.shops.show.crm.customers.index']))->not->toContain($order->id);
+
+    $this->shop->update(['state' => $shopState]);
+})->depends('create transaction');
 
 test('store transaction for existing product adds to quantity instead of duplicating', function (Transaction $transaction) {
     $order         = $transaction->order;
@@ -1702,6 +1746,61 @@ describe('COD invoice paid email', function () {
         ProcessInvoicePaidNotification::make()->handle($invoice->id);
         Queue::assertNotPushed(JobDecorator::class, fn ($job) => $job->displayName() === SendInvoicePaidEmailToCustomer::class);
     });
+});
+
+test('a submitted unpaid bank transfer order can be changed to cash on delivery', function () {
+    $order = StoreOrder::make()->action($this->customer, Order::factory()->definition());
+    StoreTransaction::make()->action($order, $this->product->historicAsset, Transaction::factory()->definition());
+    $order = SubmitOrder::make()->action($order);
+    $order->update(['to_be_paid_by' => OrderToBePaidByEnum::BANK]);
+
+    expect($order->state)->toBe(OrderStateEnum::SUBMITTED)
+        ->and(ChangeOrderToCashOnDelivery::make()->blockingReason($order))->not->toBeNull();
+
+    $charge = StoreCharge::make()->action($order->shop, [
+        'code'        => 'COD'.mt_rand(1000, 9999),
+        'name'        => 'Cash on delivery',
+        'description' => 'Cash on delivery charge',
+        'type'        => ChargeTypeEnum::COD,
+    ]);
+    UpdateCharge::make()->action($charge, ['state' => ChargeStateEnum::ACTIVE, 'amount' => 5], strict: false);
+
+    $paymentAccount = StoreOrgPaymentServiceProviderAccount::make()->action(
+        $this->organisation,
+        PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::CASH->value)->first(),
+        [
+            'code' => 'ACC'.mt_rand(1000, 9999),
+            'name' => 'Cash on delivery '.mt_rand(1000, 9999),
+        ]
+    );
+    $paymentAccount->update(['type' => PaymentAccountTypeEnum::CASH_ON_DELIVERY, 'data' => ['countries' => []]]);
+    $paymentAccountShop = StorePaymentAccountShop::make()->action($paymentAccount, $order->shop, [
+        'state'            => PaymentAccountShopStateEnum::ACTIVE,
+        'show_in_checkout' => true,
+    ]);
+
+    expect(ChangeOrderToCashOnDelivery::make()->blockingReason($order->refresh()))->toContain('delivery country');
+
+    $paymentAccount->update(['data' => ['countries' => [$order->deliveryAddress->country_id]]]);
+    $totalBefore = (float)$order->total_amount;
+
+    $staleOrder = $order->refresh();
+    $order      = ChangeOrderToCashOnDelivery::make()->action($order->refresh());
+
+    expect(fn () => ChangeOrderToCashOnDelivery::make()->action($staleOrder))->toThrow(ValidationException::class)
+        ->and($order->transactions()->where('model_type', 'Charge')->where('model_id', $charge->id)->count())->toBe(1);
+
+    $cashOnDeliveryNet = $order->transactions()->where('model_type', 'Charge')->where('model_id', $charge->id)->value('net_amount');
+
+    expect($order->to_be_paid_by)->toBe(OrderToBePaidByEnum::CASH_ON_DELIVERY)
+        ->and($order->state)->toBe(OrderStateEnum::IN_WAREHOUSE)
+        ->and((float)$cashOnDeliveryNet)->toBe(5.0)
+        ->and((float)$order->total_amount)->toBeGreaterThan($totalBefore)
+        ->and($order->deliveryNotes()->first()->is_cash_on_delivery)->toBeTrue()
+        ->and(ChangeOrderToCashOnDelivery::make()->blockingReason($order))->not->toBeNull();
+
+    $paymentAccountShop->update(['state' => PaymentAccountShopStateEnum::IN_PROCESS]);
+    $charge->update(['state' => ChargeStateEnum::DISCONTINUED]);
 });
 
 test('invoice from overpaid order credits excess to customer balance', function () {
@@ -2991,6 +3090,131 @@ test('paid then refunded order reads refunded not unpaid', function () {
         ->and((float)$order->payment_amount)->toBe(0.0);
 });
 
+test('dispatched order credited for part of its total has nothing left to pay', function () {
+    $billingAddress  = new Address(Address::factory()->definition());
+    $deliveryAddress = new Address(Address::factory()->definition());
+
+    $orderData = Order::factory()->definition();
+    data_set($orderData, 'billing_address', $billingAddress);
+    data_set($orderData, 'delivery_address', $deliveryAddress);
+
+    $order = StoreOrder::make()->action($this->customer, $orderData);
+
+    StoreTransaction::make()->action($order, $this->product->historicAsset, [
+        'quantity_ordered' => 2,
+    ]);
+
+    $order->refresh();
+    $total  = (float)$order->total_amount;
+    $credit = round($total / 2, 2);
+
+    $paymentAccount = StoreOrgPaymentServiceProviderAccount::make()->action(
+        $this->organisation,
+        PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::CASH->value)->first(),
+        [
+            'code' => 'CR'.mt_rand(1000, 9999),
+            'name' => 'Cash Account',
+        ]
+    );
+
+    PayOrder::make()->action($order, $paymentAccount, [
+        'amount'    => $total,
+        'reference' => 'PAY-'.uniqid(),
+        'status'    => PaymentStatusEnum::SUCCESS,
+        'state'     => PaymentStateEnum::COMPLETED,
+    ]);
+
+    StoreInvoice::make()->action($order, array_merge(Invoice::factory()->definition(), [
+        'type'         => InvoiceTypeEnum::REFUND,
+        'in_process'   => false,
+        'total_amount' => -$credit,
+        'net_amount'   => -$credit,
+    ]));
+
+    PayOrder::make()->action($order->refresh(), $paymentAccount, [
+        'amount'    => -$credit,
+        'reference' => 'REFUND-'.uniqid(),
+        'status'    => PaymentStatusEnum::SUCCESS,
+        'state'     => PaymentStateEnum::COMPLETED,
+    ]);
+    $order->refresh();
+
+    $customerSalesChannel = StoreCustomerSalesChannel::make()->action(
+        $this->customer,
+        Platform::where('type', PlatformTypeEnum::MANUAL)->first(),
+        []
+    );
+    $order->updateQuietly(['customer_sales_channel_id' => $customerSalesChannel->id, 'state' => OrderStateEnum::DISPATCHED]);
+
+    $fakeRoute = new \Illuminate\Routing\Route('GET', '/fake-retina-orders', []);
+    $fakeRoute->name('retina.dropshipping.customer_sales_channels.orders.index');
+    app('request')->setRouteResolver(fn () => $fakeRoute);
+
+    $listedOrder = RetinaDropshippingOrdersInCustomerSalesChannelResources::make(
+        IndexRetinaDropshippingOrders::make()->handle($customerSalesChannel)->getCollection()->firstWhere('id', $order->id)
+    )->toArray(request());
+
+    expect(round($total - (float)$order->payment_amount, 2))->toBe($credit)
+        ->and($order->amountStillToPay())->toBe(0.0)
+        ->and($listedOrder['amount_to_pay'])->toEqual(0);
+});
+
+test('paid order whose total drops to zero with nothing refunded reads overpaid not refunded', function () {
+    $billingAddress  = new Address(Address::factory()->definition());
+    $deliveryAddress = new Address(Address::factory()->definition());
+
+    $orderData = Order::factory()->definition();
+    data_set($orderData, 'billing_address', $billingAddress);
+    data_set($orderData, 'delivery_address', $deliveryAddress);
+
+    $order = StoreOrder::make()->action($this->customer, $orderData);
+
+    StoreTransaction::make()->action($order, $this->product->historicAsset, [
+        'quantity_ordered' => 1,
+    ]);
+
+    $order->refresh();
+    $total = (float)$order->total_amount;
+
+    $paymentAccount = StoreOrgPaymentServiceProviderAccount::make()->action(
+        $this->organisation,
+        PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::CASH->value)->first(),
+        [
+            'code' => 'ZT'.mt_rand(1000, 9999),
+            'name' => 'Cash Account',
+        ]
+    );
+
+    PayOrder::make()->action($order, $paymentAccount, [
+        'amount'    => $total,
+        'reference' => 'PAY-'.uniqid(),
+        'status'    => PaymentStatusEnum::SUCCESS,
+        'state'     => PaymentStateEnum::COMPLETED,
+    ]);
+    $order->refresh();
+
+    $order->forceFill(['total_amount' => 0])->saveQuietly();
+    UpdateOrderPaymentsStatus::run($order);
+    $order->refresh();
+
+    expect($order->pay_status)->toBe(OrderPayStatusEnum::PAID)
+        ->and($order->pay_detailed_status)->toBe(OrderPayDetailedStatusEnum::OVERPAID)
+        ->and((float)$order->payment_amount)->toBe($total);
+
+    $partialRefund = round($total / 2, 2);
+    PayOrder::make()->action($order, $paymentAccount, [
+        'amount'    => -$partialRefund,
+        'reference' => 'REFUND-'.uniqid(),
+        'status'    => PaymentStatusEnum::SUCCESS,
+        'state'     => PaymentStateEnum::COMPLETED,
+    ]);
+    $order->refresh();
+
+    expect($order->pay_status)->toBe(OrderPayStatusEnum::PAID)
+        ->and($order->pay_detailed_status)->toBe(OrderPayDetailedStatusEnum::OVERPAID)
+        ->and((float)$order->payment_amount)->toBe(round($total - $partialRefund, 2));
+});
+
 test('service only order sent to warehouse skips delivery note', function () {
     $service = StoreService::make()->action($this->shop, [
         'code'  => 'SRV1',
@@ -3289,6 +3513,32 @@ test('UI show order flags unpaid API orders as auto-held', function () {
             ->where('pageHead.api_order.held_unpaid', false)
             ->etc()
     );
+});
+
+test('UI show order tells per delivery note whether the sales channel ships it', function () {
+    $order = StoreOrder::make()->action($this->customer, Order::factory()->definition());
+    $order = UpdateOrder::make()->action($order, ['is_shipping_by_external' => true]);
+    $order = UpdateOrder::make()->action($order, ['is_shipping_by_external' => false]);
+
+    $noteData = fn (string $reference): array => [
+        'reference'        => $reference,
+        'state'            => DeliveryNoteStateEnum::UNASSIGNED,
+        'email'            => 'test@email.com',
+        'phone'            => '+62081353890000',
+        'date'             => date('Y-m-d'),
+        'delivery_address' => new Address(Address::factory()->definition()),
+        'warehouse_id'     => $this->warehouse->id,
+    ];
+
+    $orderNote   = StoreDeliveryNote::make()->action($order, $noteData('EXT-'.$order->id));
+    $replacement = StoreDeliveryNote::make()->action($order, $noteData('EXT-'.$order->id.'-r1'));
+    $replacement->update(['type' => DeliveryNoteTypeEnum::REPLACEMENT]);
+    $order = UpdateOrder::make()->action($order, ['is_shipping_by_external' => true]);
+
+    $notes = collect(ShowOrder::make()->getOrderBoxStats($order->refresh())['delivery_notes'])->keyBy('id');
+
+    expect($notes[$orderNote->id]['is_shipping_by_external'])->toBeTrue()
+        ->and($notes[$replacement->id]['is_shipping_by_external'])->toBeFalse();
 });
 
 test('UI order channels report groups by platform and sales channel', function () {
@@ -4566,6 +4816,7 @@ test('a basket line may exceed stock, is zeroed while out of stock and restored 
     $lowStock->update(['status' => ProductStatusEnum::FOR_SALE]);
     $lowStockData                     = Transaction::factory()->definition();
     $lowStockData['quantity_ordered'] = 3;
+    $lowStockData['quantity_bonus']   = 0;
     $lowStockData['order_id']         = $basket->id;
     $lowStockLine                     = StoreTransaction::make()->action($basket, $lowStock->currentHistoricProduct, $lowStockData);
     DB::table('products')->where('id', $lowStock->id)->update(['available_quantity' => 5]);
@@ -4630,6 +4881,7 @@ test('a basket line may exceed stock, is zeroed while out of stock and restored 
     ));
     $goneData                     = Transaction::factory()->definition();
     $goneData['quantity_ordered'] = 4;
+    $goneData['quantity_bonus']   = 0;
     $goneData['order_id']         = $basket->id;
     $goneLine                     = StoreTransaction::make()->action($basket, $goneProduct->currentHistoricProduct, $goneData);
     DB::table('products')->where('id', $goneProduct->id)->update(['available_quantity' => 0]);
@@ -4637,11 +4889,18 @@ test('a basket line may exceed stock, is zeroed while out of stock and restored 
 
     expect($basket->fresh()->stats->number_item_transactions)->toBe(1);
 
+    $goneLine->update(['quantity_bonus' => 1]);
+    $lowStockLine->update(['quantity_bonus' => 2]);
+    $giftLine = StoreTransaction::make()->action($basket, $lowStock->currentHistoricProduct, ['quantity_ordered' => 0, 'quantity_bonus' => 1, 'is_gift' => true]);
+
     $submitted = SubmitOrder::run($basket->fresh());
 
     expect($submitted->state)->toBe(OrderStateEnum::SUBMITTED)
         ->and($goneLine->fresh()->trashed())->toBeTrue()
-        ->and($submitted->transactions()->where('model_type', 'Product')->count())->toBe(1);
+        ->and((float) $lowStockLine->fresh()->quantity_bonus)->toBe(0.0)
+        ->and($giftLine->fresh()->trashed())->toBeFalse()
+        ->and((float) $giftLine->fresh()->quantity_bonus)->toBe(1.0)
+        ->and($submitted->transactions()->where('model_type', 'Product')->where('is_gift', false)->count())->toBe(1);
 });
 
 test('a customer cannot raise a basket line of an out of stock product, nor change an order after it is submitted', function () {
@@ -5707,6 +5966,45 @@ describe('pre-orders (HELP-3432)', function () {
         expect($through('grp.models.order.update_insurance', $other))->toBe('passed');
     });
 
+    test('the backlog pre-orders tab lists live pre-orders with their supplier, dispatch and balance progress (HELP-4036)', function () {
+        $madeToOrder = ($this->preOrderProduct)(['is_made_to_order' => true]);
+        $customer    = ($this->fundedCustomer)(10000);
+        $basket      = StoreOrder::make()->action($customer, Order::factory()->definition());
+        StoreTransaction::make()->action($basket, $madeToOrder->currentHistoricProduct, array_merge(Transaction::factory()->definition(), ['quantity_ordered' => 1]));
+        \App\Actions\Ordering\PreOrder\AcceptBasketPreOrderTerms::run($basket->fresh(), false);
+        expect(PayRetinaOrderWithBalance::make()->handle($basket->fresh())['success'])->toBeTrue();
+
+        $preOrder = $basket->fresh()->preOrder;
+        $preOrder->update(['supplier_ordered_at' => now()->subDay(), 'estimated_dispatch_from' => now()->subDays(10), 'estimated_dispatch_to' => now()->subDays(3)]);
+        $shopState = $this->shop->state;
+        $this->shop->update(['state' => \App\Enums\Catalogue\Shop\ShopStateEnum::OPEN]);
+
+        $tab = fn () => get(route('grp.org.shops.show.ordering.backlog', [$this->organisation->slug, $this->shop->slug, 'tab' => 'pre_orders']));
+
+        $tab()->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('tabs.current', 'pre_orders')
+            ->where('tabs.navigation', fn ($boxes) => collect($boxes)->last()['tabs'][0]['value'] >= 1)
+            ->where('pre_orders.data', fn ($rows) => ($row = collect($rows)->firstWhere('id', $preOrder->order_id))
+                && $row['pre_order']['state'] === 'waiting_for_goods'
+                && $row['pre_order']['supplier_ordered_at'] !== null
+                && $row['pre_order']['estimated_dispatch_to'] === now()->subDays(3)->toDateString())
+            ->etc());
+
+        get(route('grp.org.overview.ordering.backlog', [$this->organisation->slug, 'tab' => 'pre_orders']))->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('tabs.navigation', fn ($boxes) => ($box = collect($boxes)->last()) && $box['tabs'][0]['value'] >= 1
+                && collect($box['children'])->firstWhere('slug', $this->shop->slug)['tabs'][0]['value'] >= 1)
+            ->where('pre_orders.data', fn ($rows) => collect($rows)->contains('id', $preOrder->order_id))
+            ->etc());
+
+        $preOrder->update(['state' => \App\Enums\Ordering\PreOrder\PreOrderStateEnum::CANCELLED]);
+
+        $tab()->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('pre_orders.data', fn ($rows) => !collect($rows)->contains('id', $preOrder->order_id))
+            ->etc());
+
+        $this->shop->update(['state' => $shopState]);
+    });
+
     test('an unpaid balance is reminded on the shop days and the pre-order cancelled keeping the deposit after the limit', function () {
         $madeToOrder = ($this->preOrderProduct)(['is_made_to_order' => true]);
         $customer    = ($this->fundedCustomer)(10000);
@@ -5773,6 +6071,39 @@ describe('pre-orders (HELP-3432)', function () {
         expect($preOrder->refresh()->state)->toBe(\App\Enums\Ordering\PreOrder\PreOrderStateEnum::CANCELLED)
             ->and($preOrder->order->refresh()->state)->toBe(OrderStateEnum::CANCELLED)
             ->and(round((float) $preOrder->customer->refresh()->balance - $balanceBefore, 2))->toBe($paid);
+    });
+
+    test('a locked pre-order can be unlocked and cancelled from its panel, never with the plain order Cancel that would refund the deposit (HELP-4072)', function () {
+        $madeToOrder = ($this->preOrderProduct)(['is_made_to_order' => true]);
+        $customer    = ($this->fundedCustomer)(10000);
+        $basket      = StoreOrder::make()->action($customer, Order::factory()->definition());
+        StoreTransaction::make()->action($basket, $madeToOrder->currentHistoricProduct, array_merge(Transaction::factory()->definition(), ['quantity_ordered' => 1]));
+        \App\Actions\Ordering\PreOrder\AcceptBasketPreOrderTerms::run($basket->fresh(), false);
+        PayRetinaOrderWithBalance::make()->handle($basket->fresh());
+
+        $preOrder = $basket->fresh()->preOrder;
+        $order    = $preOrder->order;
+        $orderUrl = route('grp.org.shops.show.ordering.orders.show', [$this->organisation->slug, $this->shop->slug, $order->slug]);
+        $hasPlainCancel = fn (array $actions) => collect($actions)->contains('key', 'cancel');
+
+        get($orderUrl)->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('pre_order.lock.is_locked_for_me', true)
+            ->where('pre_order.can_manage', true)
+            ->where('pageHead.actions', fn ($actions) => !$hasPlainCancel(collect($actions)->toArray()))
+            ->where('pageHead.wrapped_actions', fn ($actions) => collect($actions)->contains('key', 'staff-chat')));
+
+        \App\Actions\Ordering\PreOrder\UnlockPreOrder::run($preOrder, $this->user);
+
+        get($orderUrl)->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('pre_order.lock.is_locked_for_me', false)
+            ->where('pageHead.actions', fn ($actions) => !$hasPlainCancel(collect($actions)->toArray())));
+
+        patch(route('grp.models.order.state.cancelled', ['order' => $order->id]))->assertSessionHasErrors('messages');
+        expect($order->refresh()->state)->toBe(OrderStateEnum::SUBMITTED);
+
+        patch(route('grp.models.order.pre_order.update', ['order' => $order->id]), ['operation' => 'cancel', 'cancellation_reason' => 'customer_request'])->assertSessionHasNoErrors();
+        expect($preOrder->refresh()->state)->toBe(\App\Enums\Ordering\PreOrder\PreOrderStateEnum::CANCELLED)
+            ->and($order->refresh()->state)->toBe(OrderStateEnum::CANCELLED);
     });
 
     test('a basket with pre-order lines and no accepted terms is never split, charges in full, and cannot be placed from Retina', function () {
@@ -6158,4 +6489,151 @@ test('production managers mark orders as production reviewed, one by one or in b
         ->and($first->production_reviewed_by)->toBeNull();
 
     $this->organisation->update(['is_manufacturing_hub' => $wasManufacturingHub]);
+});
+
+test('the orders backlog shows how long an order sits in its stage and flags the stuck ones and the lines waiting for stock', function () {
+    $adminGuest = createAdminGuest($this->group);
+    actingAs($adminGuest->getUser());
+
+    $this->shop->update(['state' => ShopStateEnum::OPEN]);
+
+    $orderInWarehouse = function (): Order {
+        $order = StoreOrder::make()->action(freshCustomerLike($this->shop, $this->customer), Order::factory()->definition());
+        StoreTransaction::make()->action($order, $this->product->currentHistoricProduct, Transaction::factory()->definition());
+        SubmitOrder::make()->action($order);
+        $deliveryNote = SendOrderToWarehouse::make()->action($order->refresh(), []);
+
+        $stock = \App\Actions\Goods\Stock\StoreStock::make()->action($this->group, \App\Models\Goods\Stock::factory()->definition());
+        $stock = \App\Actions\Goods\Stock\UpdateStock::make()->action($stock, ['state' => \App\Enums\Goods\Stock\StockStateEnum::ACTIVE]);
+        \App\Actions\Dispatching\DeliveryNoteItem\StoreDeliveryNoteItem::make()->action($deliveryNote, [
+            'delivery_note_id'  => $deliveryNote->id,
+            'org_stock_id'      => \App\Actions\Inventory\OrgStock\StoreOrgStock::make()->action($this->organisation, $stock)->id,
+            'transaction_id'    => $order->transactions()->first()->id,
+            'quantity_required' => 10,
+        ]);
+
+        return $order->refresh();
+    };
+
+    $stuckOrder = $orderInWarehouse();
+    $freshOrder = $orderInWarehouse();
+    expect($stuckOrder->state)->toEqual(OrderStateEnum::IN_WAREHOUSE)
+        ->and($freshOrder->state)->toEqual(OrderStateEnum::IN_WAREHOUSE);
+
+    $itemsOf = fn (Order $order) => \App\Models\Dispatching\DeliveryNoteItem::whereIn('delivery_note_id', $order->deliveryNotes()->pluck('delivery_notes.id'));
+    $itemsOf($stuckOrder)->update(['quantity_waiting_warehouse' => 0]);
+    $itemsOf($freshOrder)->update(['quantity_waiting_warehouse' => 0]);
+
+    $indexOrders = \App\Actions\Ordering\Order\UI\IndexOrders::make();
+    $before      = $indexOrders->backlogAttentionCounts($this->shop, 'in_warehouse');
+
+    Order::where('id', $stuckOrder->id)->update(['in_warehouse_at' => now()->subYears(30)]);
+    Order::where('id', $freshOrder->id)->update(['in_warehouse_at' => now()]);
+    $stuckLinesWaitingStock = $itemsOf($stuckOrder)->update(['quantity_waiting_warehouse' => 1]);
+    expect($stuckLinesWaitingStock)->toBeGreaterThan(0);
+
+    $after = $indexOrders->backlogAttentionCounts($this->shop, 'in_warehouse');
+    expect($after['stuck'] - $before['stuck'])->toBe(1)
+        ->and($after['waiting_stock'] - $before['waiting_stock'])->toBe(1)
+        ->and($after['waiting_cs'])->toBe($before['waiting_cs']);
+
+    $url = route('grp.org.shops.show.ordering.backlog', [
+        'organisation' => $this->organisation->slug,
+        'shop'         => $this->shop->slug,
+        'tab'          => 'in_warehouse',
+    ]);
+
+    $pageFor = function (string $query) use ($url) {
+        $response = get($url.$query);
+        $response->assertOk();
+
+        return $response->viewData('page')['props'];
+    };
+
+    $props = $pageFor('');
+    $rows  = collect($props['in_warehouse']['data'])->keyBy('reference');
+    expect($rows->first()['reference'])->toBe($stuckOrder->reference)
+        ->and($rows[$stuckOrder->reference]['is_stuck'])->toBeTrue()
+        ->and($rows[$stuckOrder->reference]['warehouse_progress']['lines_waiting_stock'])->toBe($stuckLinesWaitingStock)
+        ->and($rows[$freshOrder->reference]['is_stuck'])->toBeFalse()
+        ->and($rows[$freshOrder->reference]['warehouse_progress']['lines_waiting_stock'])->toBe(0)
+        ->and($props['backlog_filters']['counts']['attention']['stuck'])->toBe($after['stuck'])
+        ->and(collect($props['attention']['oldest'])->first()['reference'])->toBe($stuckOrder->reference)
+        ->and(collect($props['attention']['stages'])->firstWhere('tab', 'in_warehouse')['waiting_stock'])->toBe($after['waiting_stock']);
+
+    Order::where('id', $stuckOrder->id)->update(['pay_status' => \App\Enums\Ordering\Order\OrderPayStatusEnum::PAID]);
+    Order::where('id', $freshOrder->id)->update(['pay_status' => \App\Enums\Ordering\Order\OrderPayStatusEnum::UNPAID]);
+    $paidOnly = $pageFor('&in_warehouse_elements[payment]=paid');
+    expect(collect($paidOnly['in_warehouse']['data'])->pluck('reference'))->toContain($stuckOrder->reference)->not->toContain($freshOrder->reference)
+        ->and(array_sum($paidOnly['backlog_filters']['counts']['payment']))->toBe($after['total'])
+        ->and($paidOnly['backlog_filters']['counts']['scope']['domestic'] + $paidOnly['backlog_filters']['counts']['scope']['export'])->toBe($paidOnly['backlog_filters']['counts']['payment']['paid'])
+        ->and($pageFor('&tab=submitted_paid')['backlog_filters']['counts'])->not->toHaveKey('payment');
+
+    foreach (['stuck', 'waiting_stock'] as $signal) {
+        $references = collect($pageFor('&in_warehouse_elements[attention]='.$signal)['in_warehouse']['data'])->pluck('reference');
+        expect($references)->toContain($stuckOrder->reference)->not->toContain($freshOrder->reference);
+    }
+});
+
+test('an orders viewer reads an order but cannot change it, and accounts can still take payment', function () {
+    $modelData = Order::factory()->definition();
+    data_set($modelData, 'billing_address', new Address(Address::factory()->definition()));
+    data_set($modelData, 'delivery_address', new Address(Address::factory()->definition()));
+    $order       = StoreOrder::make()->action($this->customer, $modelData);
+    $transaction = StoreTransaction::make()->action($order, $this->product->historicAsset, Transaction::factory()->definition());
+    $shop        = $this->shop;
+    $parameters  = [$this->organisation->slug, $shop->slug, $order->slug];
+    $paymentAccountId = $shop->paymentAccountShops()->firstOrFail()->payment_account_id;
+
+    $originalRoles       = $this->user->roles->pluck('name')->all();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+    $actingWithOnly      = function (array $permissions) {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncRoles([]);
+        $this->user->syncPermissions($permissions);
+        \Illuminate\Support\Facades\Cache::tags('auth-user:'.$this->user->id)->flush();
+        app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+        actingAs($this->user->refresh());
+    };
+
+    try {
+        $actingWithOnly(["orders.$shop->id.view"]);
+
+        $props = get(route('grp.org.shops.show.ordering.orders.show', $parameters))->assertOk()->viewData('page')['props'];
+        expect($props['can_edit'])->toBeFalse()
+            ->and($props['can_pay'])->toBeFalse()
+            ->and($props['readonly'])->toBeTrue()
+            ->and(collect($props['pageHead']['wrapped_actions'])->pluck('route.name'))->not->toContain('grp.org.shops.show.ordering.orders.edit')
+            ->and(collect($props['notes']['note_list'])->pluck('editable')->unique()->all())->toBe([false]);
+
+        $this->patch(route('grp.models.order.update', ['order' => $order->id]), ['public_notes' => 'viewer note'])->assertForbidden();
+        $this->patch(route('grp.models.transaction.update', ['transaction' => $transaction->id]), ['quantity_ordered' => 3])->assertForbidden();
+        $this->delete(route('grp.models.transaction.delete', ['transaction' => $transaction->id]))->assertForbidden();
+        $this->post(route('grp.models.order.add_voucher', ['order' => $order->id]), ['voucher' => 'viewer'])->assertForbidden();
+        $this->patch(route('grp.models.order.discount.update', ['order' => $order->id]), [])->assertForbidden();
+        $this->patch(route('grp.models.order.set_shipping_engine_manual', ['order' => $order->id]), [])->assertForbidden();
+        $this->patch(route('grp.models.order.recalculate-vat', ['order' => $order->id]), [])->assertForbidden();
+        $this->post(route('grp.models.order.payment.store', ['order' => $order->id, 'paymentAccount' => $paymentAccountId]), ['amount' => 1])->assertForbidden();
+        $this->post(route('grp.models.order.write_off_shortfall', ['order' => $order->id]))->assertForbidden();
+        $this->post(route('grp.models.order.update_faire', ['order' => $order->id]))->assertForbidden();
+
+        $actingWithOnly(["orders.$shop->id.view", "accounting.{$this->organisation->id}.edit"]);
+        $props = get(route('grp.org.shops.show.ordering.orders.show', $parameters))->assertOk()->viewData('page')['props'];
+        expect($props['can_pay'])->toBeTrue()
+            ->and($props['can_edit'])->toBeFalse();
+        $this->patch(route('grp.models.order.update', ['order' => $order->id]), ['public_notes' => 'accounts note'])->assertForbidden();
+        \Illuminate\Support\Facades\Http::preventStrayRequests();
+        expect($this->post(route('grp.models.order.update_faire', ['order' => $order->id]))->status())->not->toBe(403);
+
+        $actingWithOnly(["orders.$shop->id.view", "orders.$shop->id.edit"]);
+        $props = get(route('grp.org.shops.show.ordering.orders.show', $parameters))->assertOk()->viewData('page')['props'];
+        expect($props['can_edit'])->toBeTrue()
+            ->and($props['can_pay'])->toBeTrue();
+        $this->patch(route('grp.models.order.update', ['order' => $order->id]), ['public_notes' => 'orders note'])->assertSessionHasNoErrors();
+        expect($order->refresh()->public_notes)->toBe('orders note');
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+    }
 });

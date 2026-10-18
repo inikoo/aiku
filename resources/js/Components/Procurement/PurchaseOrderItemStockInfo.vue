@@ -1,15 +1,25 @@
+<script lang="ts">
+import { ref as moduleRef } from "vue"
+
+const sharedSalesQuarters = moduleRef<number | null>(null)
+</script>
+
 <script setup lang="ts">
 import { computed, nextTick, ref } from "vue"
-import { Link } from "@inertiajs/vue3"
+import { Link, usePage } from "@inertiajs/vue3"
+import axios from "axios"
 import Popover from "primevue/popover"
 import { ctrans } from "@/Composables/useTrans"
 import { useLocaleStore } from "@/Stores/locale"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { usePurchaseOrderStockCover } from "@/Composables/usePurchaseOrderStockCover"
+import DiscontinueSuggestion from "@/Components/Procurement/DiscontinueSuggestion.vue"
 
 interface QuarterUsage {
 	period: string
 	sales: number
+	sales_amount?: number
+	currency?: string | null
 	days_out_of_stock: number
 	top_customer?: { id: number; name: string; sales: number } | null
 }
@@ -20,12 +30,14 @@ const props = defineProps<{
 	typedSkosById?: Record<number, number>
 	isOrderClosed?: boolean
 	isOrderLocked?: boolean
+	hideComing?: boolean
+	inCartons?: boolean
 }>()
 
 const locale = useLocaleStore()
 const routeParams = route().params
 
-const { pack, cover, dailyUsage, leadDays, overstockDays, stock, comingDeliveries, otherOrders, incoming, coverDays, hasHistory, suggestion, weeksLabel } =
+const { pack, cover, dailyUsage, leadDays, overstockDays, stock, comingDeliveries, otherOrders, incoming, coverDays, hasHistory, cartonSkos, suggestion, weeksLabel } =
 	usePurchaseOrderStockCover(
 		() => props.item,
 		() => props.isPartner
@@ -58,7 +70,7 @@ const suggestedQuantityHint = computed(() => {
 		return ctrans("Stock in hand and coming is already enough, so no order is needed.")
 	}
 
-	return ctrans("Suggested quantity: :quantity SKOs.", { quantity: formatNumber(suggestion.value) })
+	return ctrans("Suggested quantity: :quantity.", { quantity: formatQuantity(suggestion.value) })
 })
 
 const verdict = computed(() => {
@@ -89,6 +101,13 @@ const verdict = computed(() => {
 					class: "text-red-600",
 					tooltip: ctrans("Stock lasts :time, less than the :lead lead time. Order now or it will run out before a new order arrives", times),
 				}
+	}
+	if (days > overstockDays.value && thisOrder.value > 0 && suggestion.value !== null && suggestion.value > 0 && thisOrder.value <= suggestion.value) {
+		return {
+			label: ctrans("OK"),
+			class: "text-green-600",
+			tooltip: ctrans("With this order the stock lasts :time, past the :overstock overstock limit, but this is the fewest whole cartons that cover the need. The quantity is right", times),
+		}
 	}
 	if (days > overstockDays.value) {
 		return thisOrder.value > 0
@@ -196,12 +215,33 @@ const overstockMarkerTooltip = computed(() =>
 
 const formatNumber = (value: number) => locale.number(Math.round(value))
 
+const salesFactor = computed(() => (props.inCartons ? cartonSkos.value : 1))
+const formatSales = (skos: number) => {
+	if (!props.inCartons) {
+		return formatNumber(skos)
+	}
+	const cartons = (Number(skos) || 0) / salesFactor.value
+	if (cartons > 0 && cartons < 0.005) {
+		return "~0"
+	}
+
+	return locale.number(Math.round(cartons * (cartons < 1 ? 100 : 10)) / (cartons < 1 ? 100 : 10))
+}
+const formatSkos = (skos: number) => ctrans(":quantity SKOs", { quantity: formatNumber(skos) })
+const formatQuantity = (skos: number) => (props.inCartons ? ctrans(":quantity cartons", { quantity: formatSales(skos) }) : formatSkos(skos))
+
 const currentQuarter = (() => {
 	const now = new Date()
 	return `${now.getFullYear()}Q${Math.floor(now.getMonth() / 3) + 1}`
 })()
 
-const quarters = computed<QuarterUsage[]>(() => props.item.quarterly_usage ?? [])
+const salesQuarters = computed(() => sharedSalesQuarters.value ?? (usePage().props.auth as any)?.user?.settings?.sales_quarters ?? 5)
+const cycleSalesQuarters = () => {
+	sharedSalesQuarters.value = salesQuarters.value >= 8 ? 4 : salesQuarters.value + 1
+	axios.patch(route("grp.models.profile.update"), { sales_quarters: sharedSalesQuarters.value })
+}
+
+const quarters = computed<QuarterUsage[]>(() => (props.item.quarterly_usage ?? []).slice(-salesQuarters.value))
 const quarterMax = computed(() => Math.max(1, ...quarters.value.map((record) => Number(record.sales) || 0)))
 
 const lastQuarters = computed(() => quarters.value.filter((record) => record.period !== currentQuarter).slice(-4))
@@ -270,10 +310,10 @@ const stockTooltip = computed(() => {
 	const lastReceived = props.item.stock_deliveries?.last_received
 	if (lastReceived) {
 		lines.push(
-			ctrans("Last received: :reference, :date (:quantity SKOs)", {
+			ctrans("Last received: :reference, :date (:quantity)", {
 				reference: lastReceived.reference,
 				date: useFormatTime(lastReceived.received_at),
-				quantity: formatNumber(Number(lastReceived.quantity) / pack.value),
+				quantity: formatQuantity(Number(lastReceived.quantity) / pack.value),
 			})
 		)
 	}
@@ -295,9 +335,9 @@ function purchaseOrderRoute(slug: string) {
 		<div class="flex flex-wrap items-center gap-x-2 text-gray-600">
 			<span v-tooltip="stockTooltip" class="cursor-help">
 				<span v-if="isOrderClosed" class="text-gray-500">{{ ctrans("Stock today") }}: </span>
-				<span class="font-semibold text-gray-800">{{ formatNumber(stock) }}</span> {{ ctrans("in stock") }}
+				<span v-tooltip="inCartons ? formatSkos(stock) : undefined" class="font-semibold text-gray-800">{{ formatSales(stock) }}</span> {{ inCartons ? ctrans("cartons in stock") : ctrans("in stock") }}
 				<template v-if="incoming > 0">
-					+ <span class="font-semibold text-gray-800">{{ formatNumber(incoming) }}</span> {{ ctrans("coming") }}
+					+ <span v-tooltip="inCartons ? formatSkos(incoming) : undefined" class="font-semibold text-gray-800">{{ formatSales(incoming) }}</span> {{ ctrans("coming") }}
 				</template>
 				<template v-if="hasHistory">
 					· {{ ctrans("lasts") }} <span class="font-semibold text-gray-800">{{ weeksLabel(daysNow) }}</span>
@@ -339,9 +379,10 @@ function purchaseOrderRoute(slug: string) {
 				v-if="quarters.length"
 				class="flex cursor-help items-end gap-0.5 rounded-sm px-0.5 hover:bg-gray-200"
 				@mouseenter="showQuarterChart"
-				@mouseleave="hideQuarterChart">
+				@mouseleave="hideQuarterChart"
+				@click.stop="cycleSalesQuarters">
 				<div v-for="record in quarters" :key="record.period" class="flex w-4 flex-col items-center">
-					<span class="text-[8px] leading-none text-gray-500">{{ formatCompact(record.sales) }}</span>
+					<span class="text-[8px] leading-none text-gray-500">{{ inCartons ? formatSales(record.sales) : formatCompact(record.sales) }}</span>
 					<div class="relative mt-0.5 flex h-5 w-2.5 items-end">
 						<div
 							class="flex w-full flex-col overflow-hidden rounded-sm"
@@ -354,17 +395,25 @@ function purchaseOrderRoute(slug: string) {
 				</div>
 			</div>
 			<Popover v-if="isQuarterChartMounted" ref="quarterChartPopover" class="pointer-events-none">
-				<div class="w-96 p-1 text-xs text-gray-600">
+				<div class="w-[30rem] p-1 text-xs text-gray-600">
 					<div class="mb-3 flex items-baseline justify-between">
-						<span class="text-sm font-semibold text-gray-800">{{ ctrans("Sales per quarter") }}</span>
+						<span class="text-sm font-semibold text-gray-800">{{ inCartons ? ctrans("Sales per quarter, in cartons") : ctrans("Sales per quarter") }}</span>
 						<span v-if="salesPerQuarter !== null" class="text-gray-500">
-							{{ ctrans("avg :quantity SKOs", { quantity: formatNumber(salesPerQuarter) }) }}
+							<template v-if="inCartons">
+								{{ ctrans("avg :quantity cartons", { quantity: formatSales(salesPerQuarter) }) }}
+								<span class="text-[10px] text-gray-400">· {{ formatSkos(salesPerQuarter) }}</span>
+							</template>
+							<template v-else>{{ ctrans("avg :quantity SKOs", { quantity: formatNumber(salesPerQuarter) }) }}</template>
 						</span>
 					</div>
 
-					<div class="flex h-36 items-end gap-3 border-b border-gray-200 px-1">
+					<div class="flex h-44 items-end gap-2 border-b border-gray-200 px-1">
 						<div v-for="record in quarters" :key="record.period" class="flex h-full flex-1 flex-col items-center justify-end">
-							<span class="mb-1 font-semibold tabular-nums text-gray-700">{{ formatNumber(record.sales) }}</span>
+							<span v-if="record.currency" class="mb-1 rounded bg-gray-100 px-1.5 text-[10px] font-medium tabular-nums text-gray-600">{{ locale.CurrencyShort(record.currency, record.sales_amount ?? 0) }}</span>
+							<div class="mb-1 flex flex-col items-center rounded-md border border-gray-200 bg-white px-1.5 py-0.5 leading-tight">
+								<span class="font-semibold tabular-nums text-gray-700">{{ formatSales(record.sales) }}</span>
+								<span v-if="inCartons" class="text-[10px] tabular-nums text-gray-400">{{ formatSkos(record.sales) }}</span>
+							</div>
 							<div
 								class="relative flex w-full max-w-[2.75rem] flex-col rounded-t-md"
 								:class="isCurrentQuarter(record) ? 'bg-gray-200' : 'bg-gray-400'"
@@ -380,7 +429,7 @@ function purchaseOrderRoute(slug: string) {
 							</div>
 						</div>
 					</div>
-					<div class="mt-1.5 flex gap-3 px-1">
+					<div class="mt-1.5 flex gap-2 px-1">
 						<div v-for="record in quarters" :key="record.period" class="flex-1 text-center leading-tight">
 							<div class="font-medium text-gray-700">{{ quarterShortLabel(record.period) }}</div>
 							<div v-if="isCurrentQuarter(record)" class="text-[10px] text-gray-400">{{ ctrans("so far") }}</div>
@@ -398,7 +447,8 @@ function purchaseOrderRoute(slug: string) {
 									:class="isSingleCustomerQuarter(record) ? 'bg-amber-500' : 'bg-gray-300'" />
 								<span class="truncate" :class="isSingleCustomerQuarter(record) ? 'font-medium text-gray-800' : ''">{{ record.top_customer.name }}</span>
 								<span class="ml-auto shrink-0 tabular-nums text-gray-500">
-									{{ formatNumber(record.top_customer.sales) }}
+									{{ formatSales(record.top_customer.sales) }}
+									<span v-if="inCartons" class="text-[10px] text-gray-400">({{ formatSkos(record.top_customer.sales) }})</span>
 									<span :class="isSingleCustomerQuarter(record) ? 'font-semibold text-amber-700' : ''">· {{ customerShare(record) }}%</span>
 								</span>
 							</div>
@@ -419,6 +469,7 @@ function purchaseOrderRoute(slug: string) {
 						<span class="flex items-center gap-1"><span class="h-2 w-2 rounded-sm bg-gray-200" />{{ ctrans("Current quarter") }}</span>
 						<span class="flex items-center gap-1"><span class="h-2 w-2 rounded-sm bg-amber-500" />{{ ctrans("One customer, half or more") }}</span>
 						<span class="flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-red-500" />{{ ctrans("Ran out of stock") }}</span>
+						<span class="ml-auto text-gray-400">{{ ctrans("Click the chart to show :count quarters", { count: String(salesQuarters >= 8 ? 4 : salesQuarters + 1) }) }}</span>
 					</div>
 				</div>
 			</Popover>
@@ -429,22 +480,24 @@ function purchaseOrderRoute(slug: string) {
 			<span v-tooltip="verdict.tooltip" class="cursor-help font-semibold uppercase tracking-wide" :class="verdict.class">{{ verdict.label }}</span>
 		</div>
 
-		<div v-if="comingDeliveries.length || otherOrders.length" class="space-y-0.5">
-			<div v-for="delivery in comingDeliveries" :key="delivery.slug" class="flex items-baseline gap-1.5 text-gray-600">
+		<template v-if="!hideComing">
+		<div v-if="comingDeliveries.length || otherOrders.length" class="grid w-fit grid-cols-[auto_auto_auto] items-baseline gap-x-2 gap-y-0.5 text-gray-600">
+			<div v-for="delivery in comingDeliveries" :key="delivery.slug" class="contents">
 				<span class="text-[10px] uppercase tracking-wide text-emerald-700">{{ delivery.state_label }}</span>
 				<Link :href="stockDeliveryRoute(delivery.slug)" class="font-mono text-gray-700 hover:underline">{{ delivery.reference }}</Link>
-				<span class="tabular-nums">{{ formatNumber(Number(delivery.quantity) / pack) }}</span>
+				<span class="text-right tabular-nums">{{ formatNumber(Number(delivery.quantity) / pack) }}</span>
 			</div>
-			<div v-for="order in otherOrders" :key="order.slug ?? order.reference" class="flex items-baseline gap-1.5 text-gray-600">
+			<div v-for="order in otherOrders" :key="order.slug ?? order.reference" class="contents">
 				<span class="text-[10px] uppercase tracking-wide text-amber-700">{{ order.stage ?? (order.state === "sent" ? ctrans("Requested") : ctrans("Ordered")) }}</span>
 				<Link v-if="order.slug" :href="purchaseOrderRoute(order.slug)" class="font-mono text-gray-700 hover:underline">{{ order.reference }}</Link>
 				<span v-else class="text-gray-700">{{ order.reference }}</span>
-				<span class="tabular-nums">{{ formatNumber(Number(order.quantity_ordered) / pack) }}</span>
+				<span class="text-right tabular-nums">{{ formatNumber(Number(order.quantity_ordered) / pack) }}</span>
 			</div>
 		</div>
 		<div v-else-if="!isOrderClosed" class="text-gray-400">{{ ctrans("Nothing on order or coming") }}</div>
+		</template>
 
-		<div v-if="recentDeliveries.length" class="text-gray-400">
+		<div v-if="recentDeliveries.length && !hideComing" class="text-gray-400">
 			<button type="button" class="hover:text-gray-600" @click="showPastDeliveries = !showPastDeliveries">
 				{{ ctrans("Last arrived :date", { date: useFormatTime(recentDeliveries[0].received_at) }) }}
 				<span class="text-[10px]">{{ showPastDeliveries ? "▴" : "▾" }}</span>
@@ -457,5 +510,7 @@ function purchaseOrderRoute(slug: string) {
 				</div>
 			</div>
 		</div>
+
+		<DiscontinueSuggestion v-if="!isPartner && item.org_stock_id && item.discontinue_suggestions" :orgStockId="item.org_stock_id" :code="item.code" :tally="item.discontinue_suggestions" source="buying" />
 	</div>
 </template>

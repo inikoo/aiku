@@ -57,18 +57,31 @@ class UpdatePurchaseOrdersCostFromStockDelivery
 
         $purchaseOrder->update(array_merge(
             ['is_costed' => $stockDeliveries->where('is_costed', true)->count() === $stockDeliveries->count()],
-            $this->getCosts($costingStockDeliveries)
+            $this->getCosts($purchaseOrder, $costingStockDeliveries)
         ));
     }
 
-    private function getCosts(Collection $stockDeliveries): array
+    /**
+     * A delivery that follows a supplier invoice in another currency than its purchase order is added in the
+     * currency of the order, through what both are worth in the organisation's currency.
+     */
+    private function getCosts(PurchaseOrder $purchaseOrder, Collection $stockDeliveries): array
     {
         $costs = [];
 
         foreach (self::COST_FIELDS as $field) {
-            $costs[$field] = $stockDeliveries->sum(fn (StockDelivery $stockDelivery) => (float) $stockDelivery->{$field});
+            $costs[$field] = $stockDeliveries->sum(fn (StockDelivery $stockDelivery) => (float) $stockDelivery->{$field} * $this->exchangeToPurchaseOrder($stockDelivery, $purchaseOrder));
         }
 
         return $costs;
+    }
+
+    private function exchangeToPurchaseOrder(StockDelivery $stockDelivery, PurchaseOrder $purchaseOrder): float
+    {
+        if ($stockDelivery->currency_id == $purchaseOrder->currency_id || (float) $stockDelivery->org_exchange <= 0 || (float) $purchaseOrder->org_exchange <= 0) {
+            return 1.0;
+        }
+
+        return (float) $stockDelivery->org_exchange / (float) $purchaseOrder->org_exchange;
     }
 }

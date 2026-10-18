@@ -113,6 +113,33 @@
     @endforeach
 </table>
 
+@if(($agreedTerms ?? collect())->isNotEmpty())
+    <div class="terms">
+        <div class="label">Agreed terms</div>
+        <table class="agreed-terms">
+            @foreach($agreedTerms as $agreedTerm)
+                <tr>
+                    <td class="agreed-term">{{ $agreedTerm->term_type->label() }}{{ $agreedTerm->product_code ? ' ('.$agreedTerm->product_code.')' : '' }}</td>
+                    <td>{{ $agreedTerm->valueLabel() }}</td>
+                    <td class="right">Agreed {{ $agreedTerm->agreed_on->format('d M Y') }}{{ $agreedTerm->agreed_with ? ' with '.$agreedTerm->agreed_with : '' }}</td>
+                </tr>
+            @endforeach
+        </table>
+    </div>
+@endif
+
+@if(($agreedNotes ?? collect())->isNotEmpty())
+    <div class="terms">
+        <div class="label">Notes</div>
+        @foreach($agreedNotes as $agreedNote)
+            <div style="margin-bottom: 4px;">
+                <strong>{{ $agreedNote->title ?? '' }}</strong>
+                {!! nl2br(e($agreedNote->body ?? '')) !!}
+            </div>
+        @endforeach
+    </div>
+@endif
+
 @if(!empty($data['terms_and_conditions']))
     <div class="terms">
         <div class="label">Terms and conditions</div>

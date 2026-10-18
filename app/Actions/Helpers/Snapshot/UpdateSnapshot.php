@@ -9,15 +9,18 @@
 namespace App\Actions\Helpers\Snapshot;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithWebEditAuthorisation;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\Models\Helpers\Snapshot;
+use App\Models\Web\Webpage;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateSnapshot extends OrgAction
 {
+    use WithWebEditAuthorisation;
     use WithActionUpdate;
     use WithNoStrictRules;
 
@@ -59,7 +62,8 @@ class UpdateSnapshot extends OrgAction
 
     public function asController(Snapshot $snapshot, ActionRequest $request)
     {
-        $this->initialisationFromGroup($snapshot->group, $request);
+        abort_unless($snapshot->parent instanceof Webpage, 404);
+        $this->initialisationFromShop($snapshot->parent->shop, $request);
         return $this->handle($snapshot, $this->validatedData);
     }
 

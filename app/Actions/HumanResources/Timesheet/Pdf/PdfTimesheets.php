@@ -9,6 +9,7 @@
 namespace App\Actions\HumanResources\Timesheet\Pdf;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithHumanResourcesAuthorisation;
 use App\Actions\Traits\WithExportData;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Organisation;
@@ -24,6 +25,7 @@ class PdfTimesheets extends OrgAction
     use AsAction;
     use WithAttributes;
     use WithExportData;
+    use WithHumanResourcesAuthorisation;
 
     /**
      * @throws \Mpdf\MpdfException

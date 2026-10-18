@@ -8,10 +8,11 @@
 
 namespace App\Actions\HumanResources\Clocking\UI;
 
+use Illuminate\Support\Arr;
 use App\Actions\HumanResources\ClockingMachine\UI\ShowClockingMachine;
 use App\Actions\HumanResources\Workplace\UI\ShowWorkplace;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithHumanResourcesSectionAuthorisation;
+use App\Actions\Traits\Authorisations\WithHumanResourcesAuthorisation;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Http\Resources\HumanResources\ClockingsResource;
 use App\Models\HumanResources\Clocking;
@@ -30,7 +31,7 @@ use App\Services\QueryBuilder;
 
 class IndexClockings extends OrgAction
 {
-    use WithHumanResourcesSectionAuthorisation;
+    use WithHumanResourcesAuthorisation;
 
     private Organisation|Workplace|ClockingMachine|Timesheet $parent;
 
@@ -57,12 +58,6 @@ class IndexClockings extends OrgAction
             default:
                 abort(404, 'Not Found');
         }
-
-        if ($this->isRestrictedToSection()) {
-            $queryBuilder->where('clockings.subject_type', 'Employee');
-            $this->restrictToSectionEmployees($queryBuilder, 'clockings.subject_id');
-        }
-
         $qrCodeId = request()->input('clocking_machine_qr_code_id');
 
         if ($qrCodeId) {
@@ -150,6 +145,8 @@ class IndexClockings extends OrgAction
 
     public function inWorkplace(Organisation $organisation, Workplace $workplace, ActionRequest $request): LengthAwarePaginator
     {
+        abort_unless($workplace->organisation_id === $organisation->id, 404);
+
         $this->parent = $workplace;
         $this->initialisation($organisation, $request);
 
@@ -158,6 +155,8 @@ class IndexClockings extends OrgAction
 
     public function inClockingMachine(Organisation $organisation, ClockingMachine $clockingMachine, ActionRequest $request): LengthAwarePaginator
     {
+        abort_unless($clockingMachine->organisation_id === $organisation->id, 404);
+
         $this->parent = $clockingMachine;
         $this->initialisation($organisation, $request);
 
@@ -168,6 +167,8 @@ class IndexClockings extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inWorkplaceInClockingMachine(Organisation $organisation, Workplace $workplace, ClockingMachine $clockingMachine, ActionRequest $request): LengthAwarePaginator
     {
+        abort_unless($workplace->organisation_id === $organisation->id, 404);
+
         $this->parent = $clockingMachine;
         $this->initialisation($organisation, $request);
 
@@ -236,8 +237,8 @@ class IndexClockings extends OrgAction
                 (new ShowHumanResourcesDashboard())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
-                        'name' => 'grp.org.hr.clockings.index',
-                        null
+                        'name'       => 'grp.org.hr.clockings.index',
+                        'parameters' => Arr::only($routeParameters, ['organisation']),
                     ]
                 )
             ),

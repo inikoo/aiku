@@ -13,7 +13,7 @@ use App\Actions\HumanResources\Clocking\UI\IndexClockings;
 use App\Actions\HumanResources\Employee\UI\ShowEmployee;
 use App\Actions\HumanResources\TimeTracker\UI\IndexTimeTrackers;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithHumanResourcesSectionAuthorisation;
+use App\Actions\Traits\Authorisations\WithHumanResourcesAuthorisation;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\HumanResources\TimesheetTabsEnum;
 use App\Http\Resources\History\HistoryResource;
@@ -31,7 +31,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowTimesheet extends OrgAction
 {
-    use WithHumanResourcesSectionAuthorisation;
+    use WithHumanResourcesAuthorisation;
 
     private Employee|Organisation $parent;
 
@@ -42,28 +42,22 @@ class ShowTimesheet extends OrgAction
 
     public function asController(Organisation $organisation, Timesheet $timesheet, ActionRequest $request): Timesheet
     {
+        abort_unless($timesheet->organisation_id === $organisation->id, 404);
+
         $this->parent = $organisation;
         $this->initialisation($organisation, $request)->withTab(TimesheetTabsEnum::values());
-        $this->ensureTimesheetIsVisible($timesheet);
 
         return $this->handle($timesheet);
     }
 
     public function inEmployee(Organisation $organisation, Employee $employee, Timesheet $timesheet, ActionRequest $request): Timesheet
     {
+        abort_unless($employee->organisation_id === $organisation->id && $timesheet->subject_type === 'Employee' && (int) $timesheet->subject_id === $employee->id, 404);
+
         $this->parent = $employee;
         $this->initialisation($organisation, $request)->withTab(TimesheetTabsEnum::values());
-        abort_unless($this->canSeeEmployee($employee->id), 403);
-        $this->ensureTimesheetIsVisible($timesheet);
 
         return $this->handle($timesheet);
-    }
-
-    private function ensureTimesheetIsVisible(Timesheet $timesheet): void
-    {
-        if ($this->isRestrictedToSection()) {
-            abort_unless($timesheet->subject_type === 'Employee' && $this->canSeeEmployee($timesheet->subject_id), 403);
-        }
     }
 
     public function htmlResponse(Timesheet $timesheet, ActionRequest $request): Response
@@ -218,9 +212,6 @@ class ShowTimesheet extends OrgAction
         $previous = Timesheet::where('date', '<', $timesheet->date);
         if ($this->parent instanceof Organisation) {
             $previous->where('organisation_id', $this->parent->id);
-            if ($this->isRestrictedToSection()) {
-                $previous->where('subject_type', 'Employee')->whereIn('subject_id', $this->sectionEmployeeIds);
-            }
         } else {
             $previous->where('subject_type', 'Employee')->where('subject_id', $this->parent->id);
         }
@@ -235,9 +226,6 @@ class ShowTimesheet extends OrgAction
         $next = Timesheet::where('date', '>', $timesheet->date);
         if ($this->parent instanceof Organisation) {
             $next->where('organisation_id', $this->parent->id);
-            if ($this->isRestrictedToSection()) {
-                $next->where('subject_type', 'Employee')->whereIn('subject_id', $this->sectionEmployeeIds);
-            }
         } else {
             $next->where('subject_type', 'Employee')->where('subject_id', $this->parent->id);
         }

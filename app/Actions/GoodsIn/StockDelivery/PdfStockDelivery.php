@@ -24,8 +24,6 @@ class PdfStockDelivery extends OrgAction
     {
         $stockDelivery->loadMissing(['items.orgStock', 'organisation', 'currency']);
 
-        $filename = $stockDelivery->slug.'-'.Carbon::now()->format('Y-m-d');
-
         $pdf = PDF::loadView('goodsIn.templates.pdf.stock-delivery', [
             'stockDelivery' => $stockDelivery,
             'items'         => $stockDelivery->items,
@@ -33,7 +31,12 @@ class PdfStockDelivery extends OrgAction
 
         return response($pdf->output(), 200)
             ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'inline; filename="'.$filename.'.pdf"');
+            ->header('Content-Disposition', 'inline; filename="'.$this->filename($stockDelivery).'"');
+    }
+
+    public function filename(StockDelivery $stockDelivery): string
+    {
+        return preg_replace('/[^A-Za-z0-9._-]/', '-', $stockDelivery->reference).'-'.Carbon::now()->format('Y-m-d').'.pdf';
     }
 
     public function asController(Organisation $organisation, StockDelivery $stockDelivery, ActionRequest $request): Response

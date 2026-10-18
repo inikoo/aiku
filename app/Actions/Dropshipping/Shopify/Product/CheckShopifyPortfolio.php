@@ -63,7 +63,7 @@ class CheckShopifyPortfolio
         if (!$hasValidProductId || !$productExistsInShopify || !$hasVariantAtLocation) {
             $result = FindShopifyProductVariant::run($portfolio->customerSalesChannel, trim($portfolio->sku.' '.$portfolio->barcode));
 
-            $matches       = Arr::get($result, 'products', []);
+            $matches       = array_values(array_filter(Arr::get($result, 'products', []), fn (array $product) => self::carriesPortfolio($portfolio, $product)));
             $numberMatches = count($matches);
             $matchesLabels = Arr::pluck($matches, 'name');
         }
@@ -92,6 +92,21 @@ class CheckShopifyPortfolio
 
 
         return $portfolio;
+    }
+
+    /**
+     * Shopify's free-text search also returns listings that only mention part of the code, which
+     * offered "Match with this product" for a listing the shop does not have.
+     */
+    private static function carriesPortfolio(Portfolio $portfolio, array $product): bool
+    {
+        $variants = collect(Arr::get($product, 'sku_list', []))->map(fn ($sku) => ['id' => '', 'sku' => (string) $sku])->all();
+
+        if (AdoptShopifyProductVariant::variantsCarryingPortfolioSku($portfolio, $variants) !== []) {
+            return true;
+        }
+
+        return filled($portfolio->barcode) && collect(Arr::get($product, 'barcode_list', []))->contains((string) $portfolio->barcode);
     }
 
     public function getCommandSignature(): string

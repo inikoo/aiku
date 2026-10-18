@@ -53,7 +53,7 @@ class SendDispatchedOrderEmailToCustomer extends OrgAction
         $orderUrl   = $this->getOrderLink($order);
         $invoiceUrl = $this->getInvoiceLink($order->invoices()->first() ?? null);
 
-        $deliveryNote = $order->deliveryNotes->first();
+        $deliveryNote = $order->currentDeliveryNote();
         $shipments    = $deliveryNote?->shipments ? RetinaShipmentsResource::collection($deliveryNote->shipments()->with('shipper')->get())->resolve() : null;
 
         // Create an email-client compatible HTML block with order information

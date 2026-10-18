@@ -35,8 +35,18 @@ class ReceiveStockDelivery extends OrgAction
         StockDeliveryStateEnum::DISPATCHED,
     ];
 
+    public function rules(): array
+    {
+        return [
+            'reason' => ['sometimes', 'nullable', 'string', 'max:255'],
+        ];
+    }
+
     public function afterValidator(Validator $validator): void
     {
+        if (!$this->asAction && ($missing = $this->stockDelivery->costsMissingForPutAway()) && mb_strlen(trim((string) $this->get('reason'))) < 5) {
+            $validator->errors()->add('reason', __('The costs of this delivery are missing (:costs). Say why it is being received without them', ['costs' => implode(', ', $missing)]));
+        }
         if (!$this->asAction && $this->stockDelivery->isManagedByPartner() && $this->stockDelivery->state !== StockDeliveryStateEnum::DISPATCHED) {
             $validator->errors()->add('state', __('This delivery is managed by the partner until they dispatch it'));
         }
@@ -62,6 +72,8 @@ class ReceiveStockDelivery extends OrgAction
 
         UpdatePurchaseOrdersDeliveryStateFromStockDelivery::run($stockDelivery);
 
+        rescue(fn () => ReportLateStockDeliveryPurchaseOrders::run($stockDelivery));
+
         $this->runStockDeliveryHydrators($stockDelivery);
 
         return $stockDelivery;
@@ -86,7 +98,14 @@ class ReceiveStockDelivery extends OrgAction
         $this->stockDelivery = $stockDelivery;
         $this->initialisation($stockDelivery->organisation, $request);
 
-        return $this->handle($stockDelivery);
+        $missing       = $stockDelivery->costsMissingForPutAway();
+        $stockDelivery = $this->handle($stockDelivery);
+
+        if ($missing) {
+            rescue(fn () => ReportStockDeliveryReceivedWithoutCosts::run($stockDelivery, $request->user(), $missing, trim((string) $this->get('reason'))));
+        }
+
+        return $stockDelivery;
     }
 
     public function action(StockDelivery $stockDelivery): StockDelivery

@@ -1302,6 +1302,56 @@ test('manual channel pricing policy shows an example price and says it only pric
         ->and($fields)->not->toHaveKey('pricing_value');
 });
 
+test('staff who can edit CRM manage a channel\'s settings from the channel page, others only see them', function () {
+    $customer       = StoreCustomer::make()->action($this->shop, Customer::factory()->definition());
+    $manualPlatform = $this->group->platforms()->where('type', PlatformTypeEnum::MANUAL)->first();
+    $channel        = StoreCustomerSalesChannel::make()->action($customer, $manualPlatform, ['reference' => 'test_manual_staff_settings']);
+    $channel->update(['stock_update' => true, 'stock_threshold' => 3, 'settings' => ['pricing' => ['type' => 'percent', 'value' => 150]]]);
+    $channel->refresh();
+
+    $action         = \App\Actions\Dropshipping\CustomerSalesChannel\UI\ShowCustomerSalesChannel::make();
+    $customerFields = collect($action->getCustomerSalesChannelSettingsBlueprint($channel))->flatMap(fn ($section) => $section['fields']);
+
+    $editable       = $action->getSettingsFormData($channel, true);
+    $editableFields = collect($editable['blueprint'])->flatMap(fn ($section) => $section['fields']);
+
+    $readOnly       = $action->getSettingsFormData($channel, false);
+    $readOnlyFields = collect($readOnly['blueprint'])->flatMap(fn ($section) => $section['fields']);
+
+    expect($editable['args']['updateRoute']['name'])->toBe('grp.models.customer_sales_channel.settings.update')
+        ->and($editable['args']['updateRoute']['parameters'])->toBe(['customerSalesChannel' => $channel->id])
+        ->and($editableFields->all())->toEqual($customerFields->all())
+        ->and($readOnly['args']['updateRoute'])->toBeNull()
+        ->and($readOnlyFields->keys()->all())->toBe($customerFields->keys()->all())
+        ->and($readOnlyFields->every(fn ($field) => $field['readonly'] && $field['disabled'] && $field['noSaveButton'] && !isset($field['saveConfirmation'])))->toBeTrue()
+        ->and($readOnlyFields['stock_threshold']['value'])->toBe(3)
+        ->and(\App\Enums\UI\CRM\CustomerPlatformTabsEnum::navigation())->toHaveKey('settings');
+
+    $updateUrl = route('grp.models.customer_sales_channel.settings.update', ['customerSalesChannel' => $channel->id]);
+
+    actingAs($this->user)->patch($updateUrl, ['pricing_type' => 'fixed', 'pricing_value' => 2.5])->assertSessionHasNoErrors();
+    actingAs($this->user)->patch($updateUrl, ['stock_threshold' => 7])->assertSessionHasNoErrors();
+    actingAs($this->user)->patch($updateUrl, ['name' => '<b>Staff renamed</b>'])->assertSessionHasNoErrors();
+
+    $channel->refresh();
+    expect(Arr::get($channel->settings, 'pricing.type'))->toBe('fixed')
+        ->and((float) Arr::get($channel->settings, 'pricing.value'))->toBe(2.5)
+        ->and($channel->stock_threshold)->toBe(7)
+        ->and($channel->name)->toBe('Staff renamed');
+
+    actingAs($this->user)->patch($updateUrl, ['pricing_type' => 'not_follow'])->assertSessionHasErrors('pricing_type');
+
+    setPermissionsTeamId($this->group->id);
+    $guest = StoreGuest::make()->action(
+        $this->group,
+        array_merge(Guest::factory()->definition(), ['positions' => []])
+    )->getUser();
+    actingAs($guest)->patch($updateUrl, ['stock_threshold' => 99])->assertForbidden();
+    expect($channel->fresh()->stock_threshold)->toBe(7);
+
+    actingAs($this->user);
+});
+
 test('a channel pricing rule that would take a price to zero or below leaves new products at their RRP', function () {
     $customer       = StoreCustomer::make()->action($this->shop, Customer::factory()->definition());
     $manualPlatform = $this->group->platforms()->where('type', PlatformTypeEnum::MANUAL)->first();
@@ -1421,4 +1471,60 @@ test('an ebay match that crashes marks its upload log failed instead of leaving 
     $log = \App\Models\Dropshipping\PlatformPortfolioLogs::where('portfolio_id', $portfolio->id)->latest('id')->first();
     expect($log->status)->toBe(\App\Enums\Ordering\PlatformLogs\PlatformPortfolioLogsStatusEnum::FAIL)
         ->and($log->response)->toContain('eBay match crashed');
+});
+
+test('reset channel only resets shopify channels', function () {
+    $ebayChannel = storeConnectedEbayUser($this->customer, 'test-ebay-reset')->customerSalesChannel;
+    \App\Actions\Dropshipping\Shopify\FulfilmentService\DeleteAllFulfilmentServices::shouldNotRun();
+
+    actingAs($this->user);
+    $this->patch(route('grp.models.customer_sales_channel.shopify_reset', ['customerSalesChannel' => $ebayChannel->id]))
+        ->assertSessionHasErrors('channel');
+});
+
+test('staff match and push portfolios to a platform only with crm edit on the channel shop, INI-076', function () {
+    $unguarded = collect(app('router')->getRoutes()->getRoutes())
+        ->filter(fn ($route) => str_starts_with((string) $route->getName(), 'grp.models.') && is_string($route->getAction('uses')))
+        ->map(fn ($route) => \Illuminate\Support\Str::before($route->getAction('uses'), '@'))
+        ->filter(fn (string $action) => str_starts_with($action, 'App\\Actions\\Dropshipping\\') && !method_exists($action, 'authorize'))
+        ->unique()->values()->all();
+    expect($unguarded)->toBe([]);
+
+    $platform             = $this->group->platforms()->where('type', PlatformTypeEnum::EBAY)->first();
+    $customerSalesChannel = StoreCustomerSalesChannel::make()->action($this->customer, $platform, ['reference' => 'ini076_ebay']);
+    $portfolio            = StorePortfolio::make()->action($customerSalesChannel, $this->product, []);
+    $shop                 = $customerSalesChannel->shop;
+
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ["crm.$shop->id.view", "orders.$shop->id.edit"]);
+        $this->post(route('grp.models.portfolio.match_to_existing_ebay_product', $portfolio->id), ['platform_product_id' => 'x'])->assertForbidden();
+        $this->post(route('grp.models.portfolio.store_new_ebay_product', $portfolio->id))->assertForbidden();
+        $this->post(route('grp.models.ebay.batch_match', $customerSalesChannel->id), [])->assertForbidden();
+        $this->post(route('grp.models.shopify.batch_match', $customerSalesChannel->id), [])->assertForbidden();
+        $this->post(route('grp.models.woo.revive', $customerSalesChannel->id))->assertForbidden();
+        $this->post(route('grp.models.woo.batch_upload', $customerSalesChannel->id), ['portfolios' => [$portfolio->id]])->assertForbidden();
+        $this->post(route('grp.models.shopify.batch_upload', $customerSalesChannel->id), [])->assertForbidden();
+        $this->post(route('grp.models.portfolio.match_to_existing_shopify_product', $portfolio->id), [])->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($this->user, ["crm.$shop->id.edit"]);
+        $this->post(route('grp.models.portfolio.match_to_existing_ebay_product', $portfolio->id), [])->assertSessionHasErrors('platform_product_id');
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+    }
+});
+
+test('staff without crm or accounting rights cannot list a channel marketplace products', function () {
+    $platform             = $this->group->platforms()->where('type', PlatformTypeEnum::EBAY)->first();
+    $customerSalesChannel = StoreCustomerSalesChannel::make()->action($this->customer, $platform, ['reference' => 'json_auth_ebay_'.uniqid()]);
+    $shop                 = $customerSalesChannel->shop;
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+    actingAsUserWithOnlyPermissions($user, ["products.$shop->id.view"]);
+
+    $this->getJson(route('grp.json.dropshipping.customer_sales_channel.ebay_products', $customerSalesChannel->id))->assertForbidden();
 });

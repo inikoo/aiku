@@ -1,0 +1,21 @@
+# Weekly full backup of the archive database (helio, cluster "archive", port 5434)
+# with pgBackRest, to the storage box over SFTP. Install on HELIO only, as a
+# /etc/cron.d file (root-owned, mode 644):
+#     install -m 644 devops/cron/pgbackrest-archive /etc/cron.d/pgbackrest-archive
+#
+# Why: pgBackRest was set up on 5 Oct 2026 with one full backup and continuous WAL
+# archiving, and nothing ever took a second one. A restore then has to replay every
+# WAL segment since 5 Oct, and repo1-retention-full=4 never expires anything while
+# only one full backup exists: the storage box gained 115 GB of WAL in six days.
+# With a full backup a week, pgBackRest keeps four of them and the WAL between,
+# and removes the rest by itself.
+#
+# Saturday 03:00 helio time: clear of the nightly database dump (01:30) and of the
+# Sunday staging refresh. The first full backup took 7 minutes.
+#
+# A failure is reported on Discord through aiku-db-backup (devops/cron/aiku-db-backup),
+# which is why this runs as root and steps down to postgres for pgBackRest itself.
+#
+# Check by hand:  sudo -u postgres pgbackrest info
+AIKU_BACKUP_ENV_FILE=/etc/aiku-alerts.env
+0 3 * * 6 root runuser -u postgres -- pgbackrest --stanza=archive --type=full --log-level-console=warn backup >> /var/log/postgresql/pgbackrest-archive-cron.log 2>&1 || /usr/local/bin/aiku-db-backup --alert "The weekly pgBackRest full backup of the archive database failed. See /var/log/pgbackrest/archive-backup.log on helio."

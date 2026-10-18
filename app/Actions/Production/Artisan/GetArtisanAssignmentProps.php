@@ -12,6 +12,7 @@ use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Models\HumanResources\Employee;
 use App\Models\Production\Artefact;
 use App\Models\Production\ArtefactDepartment;
+use App\Models\Production\ManufactureTask;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class GetArtisanAssignmentProps
@@ -19,9 +20,13 @@ class GetArtisanAssignmentProps
     use AsObject;
 
     /** @return array{current: array<int, array{id: int, name: string}>, options: array<int, array{id: int, name: string}>, attach_route: array|null, detach_route: array|null} */
-    public function handle(Artefact|ArtefactDepartment $model, bool $canEdit): array
+    public function handle(Artefact|ArtefactDepartment|ManufactureTask $model, bool $canEdit): array
     {
-        $routeKey = $model instanceof Artefact ? 'artefact' : 'artefact_department';
+        $routeKey = match (true) {
+            $model instanceof Artefact        => 'artefact',
+            $model instanceof ManufactureTask => 'manufacture_task',
+            default                           => 'artefact_department',
+        };
 
         return [
             'current' => $model->artisans->map(fn (Employee $employee) => ['id' => $employee->id, 'name' => $employee->contact_name])->values()->all(),

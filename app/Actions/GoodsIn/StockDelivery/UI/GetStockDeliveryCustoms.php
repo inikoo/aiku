@@ -34,6 +34,8 @@ class GetStockDeliveryCustoms
         return [
             'customs_mrn'         => $stockDelivery->customs_mrn,
             'customs_released_at' => $stockDelivery->customs_released_at?->toDateString(),
+            'arrived_at'          => $stockDelivery->arrived_at?->toDateString(),
+            'received_at'         => in_array($stockDelivery->state, StockDelivery::STATES_RECEIVED) ? $stockDelivery->received_at?->toDateString() : null,
             'org_currency'        => $stockDelivery->organisation->currency->code,
             'delivery_currency'   => $stockDelivery->currency->code,
             'org_exchange'        => $orgExchange,

@@ -9,6 +9,7 @@ use App\Models\HumanResources\OvertimeRequest;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 use Illuminate\Support\Facades\Auth;
 
@@ -18,6 +19,12 @@ class ApproveOvertimeRequest extends OrgAction
 
     public function handle(OvertimeRequest $overtimeRequest): OvertimeRequest
     {
+        if ($overtimeRequest->status !== OvertimeRequestStatusEnum::PENDING) {
+            throw ValidationException::withMessages([
+                'status' => __('Only pending overtime requests can be approved.'),
+            ]);
+        }
+
         $approverEmployeeId = Auth::user()->employee->id ?? null;
 
         $updateData = [
@@ -49,6 +56,8 @@ class ApproveOvertimeRequest extends OrgAction
 
     public function asController(Organisation $organisation, OvertimeRequest $overtimeRequest, ActionRequest $request): OvertimeRequest
     {
+        abort_unless($overtimeRequest->organisation_id === $organisation->id, 404);
+
         $this->initialisation($organisation, $request);
 
         return $this->handle($overtimeRequest);

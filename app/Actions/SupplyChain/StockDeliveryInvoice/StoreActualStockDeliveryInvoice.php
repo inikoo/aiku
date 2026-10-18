@@ -8,15 +8,22 @@
 
 namespace App\Actions\SupplyChain\StockDeliveryInvoice;
 
+use App\Actions\Helpers\Media\SaveModelAttachment;
+use App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryCost;
+use App\Actions\GoodsIn\StockDelivery\UpdateStockDeliveryCost;
 use App\Actions\OrgAction;
+use App\Actions\SupplyChain\AgentInvoice\ApplyAgentInvoiceCosting;
 use App\Actions\SupplyChain\AgentInvoice\StoreAgentInvoice;
 use App\Actions\SupplyChain\AgentInvoice\UpdateAgentInvoiceCharges;
+use App\Enums\GoodsIn\StockDelivery\StockDeliveryCostTypeEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderAttachmentScopeEnum;
 use App\Enums\SupplyChain\StockDeliveryInvoice\StockDeliveryInvoiceSourceEnum;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\SupplyChain\AgentInvoice;
 use App\Models\SupplyChain\SupplierInvoice;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -82,7 +89,41 @@ class StoreActualStockDeliveryInvoice extends OrgAction
         data_set($data, 'invoice_date', $invoice->date->toDateString());
         $stockDelivery->update(['data' => $data]);
 
+        $this->feedCosting($stockDelivery->refresh(), $invoice);
+
         return $invoice;
+    }
+
+    /**
+     * The invoice is entered once: an agent's goes through the agent invoice costing, which waits for the charges
+     * to be approved and the delivery to be placed; a supplier's marks the invoice row of the cost checklist as
+     * received at its total. A costed delivery is left for Update costing.
+     */
+    private function feedCosting(StockDelivery $stockDelivery, AgentInvoice|SupplierInvoice $invoice): void
+    {
+        if ($stockDelivery->is_costed) {
+            return;
+        }
+
+        if ($invoice instanceof AgentInvoice) {
+            ApplyAgentInvoiceCosting::run($stockDelivery);
+
+            return;
+        }
+
+        $costData = [
+            'label'                  => __('Invoice :number', ['number' => $invoice->reference]),
+            'amount'                 => (float) $invoice->total_amount,
+            'received_at'            => $invoice->date->toDateString(),
+            'is_waiting_for_invoice' => false,
+        ];
+        $cost = $stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::AGENT_INVOICE)->first();
+
+        if ($cost) {
+            UpdateStockDeliveryCost::make()->action($cost, $costData);
+        } else {
+            StoreStockDeliveryCost::make()->action($stockDelivery, ['type' => StockDeliveryCostTypeEnum::AGENT_INVOICE->value] + $costData);
+        }
     }
 
     public function rules(): array
@@ -93,8 +134,10 @@ class StoreActualStockDeliveryInvoice extends OrgAction
             'goods_amount'          => ['required', 'numeric', 'min:0', 'max:999999999999'],
             'charges'               => ['present', 'array', 'max:50'],
             'charges.*.description' => ['required', 'string', 'max:255'],
-            'charges.*.type'        => ['sometimes', 'string', 'in:'.UpdateAgentInvoiceCharges::CHARGE_FREIGHT.','.UpdateAgentInvoiceCharges::CHARGE_OTHER],
+            'charges.*.type'        => ['sometimes', 'string', Rule::in(UpdateAgentInvoiceCharges::chargeTypes())],
             'charges.*.amount'      => ['required', 'numeric', 'min:0', 'max:999999999999'],
+            'attachments'           => ['sometimes', 'array', 'max:10'],
+            'attachments.*'         => ['file', 'max:50000'],
         ];
     }
 
@@ -108,9 +151,22 @@ class StoreActualStockDeliveryInvoice extends OrgAction
      */
     public function asController(StockDelivery $stockDelivery, ActionRequest $request): AgentInvoice|SupplierInvoice
     {
+        $request->mergeIfMissing(['charges' => []]);
         $this->initialisation($stockDelivery->organisation, $request);
 
-        return $this->handle($stockDelivery, $this->validatedData);
+        $invoice = $this->handle($stockDelivery, Arr::except($this->validatedData, 'attachments'));
+
+        foreach (Arr::get($this->validatedData, 'attachments', []) as $file) {
+            SaveModelAttachment::make()->action($stockDelivery, [
+                'path'         => $file->getPathName(),
+                'originalName' => $file->getClientOriginalName(),
+                'extension'    => $file->getClientOriginalExtension(),
+                'scope'        => PurchaseOrderAttachmentScopeEnum::INVOICE->value,
+                'caption'      => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
+            ]);
+        }
+
+        return $invoice;
     }
 
     public function htmlResponse(): RedirectResponse

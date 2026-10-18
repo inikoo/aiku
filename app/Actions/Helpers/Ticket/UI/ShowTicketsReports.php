@@ -13,10 +13,12 @@ use App\Actions\OrgAction;
 use App\Enums\Helpers\Ticket\TicketKindEnum;
 use App\Enums\Helpers\Ticket\TicketModuleEnum;
 use App\Enums\Helpers\Ticket\TicketStatusEnum;
+use App\Enums\Helpers\Ticket\TicketTypeEnum;
 use App\Models\Helpers\Ticket;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\DB;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -33,10 +35,11 @@ class ShowTicketsReports extends OrgAction
         return $request->user() !== null;
     }
 
-    public function handle(Group $group, string $interval, ?User $viewer = null, ?User $assignee = null, string $timezone = 'UTC'): array
+    public function handle(Group $group, string $interval, ?User $viewer = null, ?User $assignee = null, string $timezone = 'UTC', array $types = []): array
     {
         $base = Ticket::where('tickets.group_id', $group->id)
             ->when($viewer, fn ($query) => $query->visibleTo($viewer))
+            ->when($types, fn ($query) => $query->whereIn('tickets.type', $types))
             ->when($assignee, fn ($query) => $query->where(
                 fn ($involved) => $involved->where('tickets.assignee_id', $assignee->id)
                     ->orWhereExists(fn ($collaborators) => $collaborators->selectRaw('1')->from('ticket_collaborators')->whereColumn('ticket_collaborators.ticket_id', 'tickets.id')->where('ticket_collaborators.user_id', $assignee->id))
@@ -132,19 +135,35 @@ class ShowTicketsReports extends OrgAction
             return ['month' => $month, 'average' => isset($monthlyCsat[$month]) ? (float) $monthlyCsat[$month]->average : null, 'total' => (int) ($monthlyCsat[$month]->total ?? 0)];
         });
 
-        $localCreatedAt = "tickets.created_at at time zone $zone";
-        $byTimeOfDay    = (clone $createdInRange)
-            ->selectRaw("extract(isodow from $localCreatedAt)::int as weekday, (extract(hour from $localCreatedAt) * 4 + floor(extract(minute from $localCreatedAt) / 15))::int as slot, count(*) as total")
-            ->groupBy('weekday', 'slot')
-            ->toBase()
-            ->get()
-            ->map(fn ($row) => [(int) $row->weekday, (int) $row->slot, (int) $row->total]);
+        $countByQuarterHour = function ($tickets, string $column) use ($from, $to, $zone) {
+            $localTime = "tickets.$column at time zone $zone";
+
+            return (clone $tickets)->whereBetween("tickets.$column", [$from, $to])
+                ->whereRaw("extract(isodow from $localTime) < 6")
+                ->selectRaw("(extract(hour from $localTime) * 4 + floor(extract(minute from $localTime) / 15))::int as slot, count(*) as total")
+                ->groupBy('slot')
+                ->toBase()
+                ->pluck('total', 'slot');
+        };
+        $ticketsOfEveryone     = Ticket::where('tickets.group_id', $group->id)->when($viewer, fn ($query) => $query->visibleTo($viewer));
+        $createdByQuarterHour  = $countByQuarterHour($ticketsOfEveryone, 'created_at');
+        $startedByQuarterHour  = $countByQuarterHour($base, 'started_at');
+        $resolvedByQuarterHour = $countByQuarterHour($base, 'resolved_at');
+        $closedByQuarterHour   = $countByQuarterHour($base, 'closed_at');
+        $byQuarterHour         = collect(range(0, 95))->map(fn (int $slot) => [
+            'slot'    => $slot,
+            'created' => (int) ($createdByQuarterHour[$slot] ?? 0),
+            'started' => (int) ($startedByQuarterHour[$slot] ?? 0),
+            'done'    => (int) ($resolvedByQuarterHour[$slot] ?? 0),
+            'closed'  => (int) ($closedByQuarterHour[$slot] ?? 0),
+        ]);
 
         $oldestOpen = (clone $base)->whereNotIn('status', [TicketStatusEnum::RESOLVED, TicketStatusEnum::CANCELLED])->orderBy('created_at')->first();
 
         return [
             'interval'      => $interval,
             'assignee'      => $assignee?->username,
+            'types'         => $types,
             'days'          => $days,
             'bucket'        => $bucket,
             'from'          => $from->copy()->setTimezone($timezone)->toDateString(),
@@ -157,7 +176,8 @@ class ShowTicketsReports extends OrgAction
             'csat_by_month' => $csatByMonth->values()->all(),
             'daily'         => $daily->values()->all(),
             'timezone'      => $timezone,
-            'by_time_of_day' => $byTimeOfDay->values()->all(),
+            'by_quarter_hour' => $byQuarterHour->all(),
+            'weekdays'        => collect(CarbonPeriod::create($from->copy()->setTimezone($timezone)->startOfDay(), $to->copy()->setTimezone($timezone)->startOfDay()))->reject(fn ($day) => $day->isWeekend())->count(),
             'breakdown'     => $breakdown->values()->all(),
             'modules'       => $labelled(TicketModuleEnum::labels() + ['none' => __('No module')], 1),
             'kinds'         => $labelled(TicketKindEnum::labels() + ['none' => __('No kind')], 2),
@@ -326,7 +346,14 @@ class ShowTicketsReports extends OrgAction
             ? GetTicketBadgeData::engineers($this->group->id)->firstWhere('username', $request->query('assignee'))
             : null;
 
-        return $this->handle($this->group, IndexTickets::make()->createdInterval(), $request->user(), $assignee, $request->user()->timezone_name);
+        $types = collect(explode(',', (string) $request->query('types')))
+            ->map(fn (string $type) => TicketTypeEnum::tryFrom($type)?->value)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        return $this->handle($this->group, IndexTickets::make()->createdInterval(), $request->user(), $assignee, $request->user()->timezone_name, $types);
     }
 
     public function htmlResponse(array $stats): Response
@@ -348,6 +375,9 @@ class ShowTicketsReports extends OrgAction
                 'assigneeOptions'  => GetTicketBadgeData::engineers($this->group->id)
                     ->map(fn (User $engineer) => ['label' => $engineer->contact_name ?: $engineer->username, 'value' => $engineer->username])
                     ->sortBy('label')
+                    ->values(),
+                'typeOptions'      => collect(TicketTypeEnum::cases())
+                    ->map(fn (TicketTypeEnum $type) => ['label' => $type->prefix(), 'value' => $type->value])
                     ->values(),
             ]
         );

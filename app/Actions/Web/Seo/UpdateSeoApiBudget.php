@@ -8,6 +8,7 @@
 namespace App\Actions\Web\Seo;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithShopPpcPermissions;
 use App\Models\SysAdmin\Group;
 use App\Services\SeoApi\SeoApiBudget;
 use Illuminate\Http\RedirectResponse;
@@ -18,13 +19,15 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class UpdateSeoApiBudget extends OrgAction
 {
+    use WithShopPpcPermissions;
+
     public function authorize(ActionRequest $request): bool
     {
         if ($this->asAction) {
             return true;
         }
 
-        return $request->user()->authTo(['group-webmaster.edit', 'sysadmin.edit']);
+        return $this->isGroupAdmin($request->user());
     }
 
     public function handle(Group $group, float $budget): Group

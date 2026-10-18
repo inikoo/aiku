@@ -638,7 +638,7 @@ const hasManyShops = computed(() => props.data.filters.shops.length > 1)
 						{{ view === "line" ? ctrans("Line") : ctrans("Background") }}
 					</button>
 				</div>
-				<span v-tooltip="ctrans('Dots at the top mark every change; switch a type on to draw its changes as lines through the chart')">{{ ctrans("Lines") }}:</span>
+				<span v-tooltip="ctrans('Dots at the top mark every change; switch a type on to draw its changes as lines through the chart')">{{ ctrans("Draw lines") }}:</span>
 				<button
 					v-for="(style, type) in eventStyle"
 					:key="type"

@@ -1,4 +1,15 @@
 import Image from '@tiptap/extension-image';
+import { imageAlignmentStyle, imageWidthStyle, toImageWidth } from './imageLayout';
+
+const RESIZE_HANDLE_ATTRIBUTE = 'data-image-resize-handle';
+const IMAGE_ELEMENT_ATTRIBUTES = ['src', 'alt', 'title'];
+
+const RESIZE_HANDLE_CORNERS = [
+  { transform: 'translate(-50%, -50%)', top: '0%', left: '0%' },
+  { transform: 'translate(50%, -50%)', top: '0%', right: '0%' },
+  { transform: 'translate(-50%, 50%)', bottom: '0%', left: '0%' },
+  { transform: 'translate(50%, 50%)', bottom: '0%', right: '0%' },
+];
 
 export const CustomImage = Image.configure({ inline: true }).extend({
   addAttributes() {
@@ -6,25 +17,12 @@ export const CustomImage = Image.configure({ inline: true }).extend({
       ...this.parent?.(),
       float: {
         default: 'none',
-        renderHTML: ({ float }) => {
-          const style = `
-            ${float === 'left' ? 'float: left; margin-right: 1rem;' : ''}
-            ${float === 'right' ? 'float: right; margin-left: 1rem;' : ''}
-            ${float === 'none' ? 'display: block; margin: 0 auto;' : ''}
-            width: 100%;
-            height: auto;
-            cursor: pointer;
-            display: inline;
-          `;
-          return { style: style.trim() };
-        },
+        renderHTML: ({ float }) => ({ style: imageAlignmentStyle(float) }),
         parseHTML: element => element.style.float || 'none',
       },
       width: {
         default: null,
-        renderHTML: ({ width }) => {
-          return width ? { style: `width: ${width};` } : {};
-        },
+        renderHTML: ({ width }) => ({ style: imageWidthStyle(width) }),
         parseHTML: element => element.style.width || null,
       },
     };
@@ -32,8 +30,8 @@ export const CustomImage = Image.configure({ inline: true }).extend({
 
   addNodeView() {
     return ({ node, editor, getPos }) => {
-      const { view, options: { editable } } = editor;
-      const { float, width } = node.attrs;
+      let currentNode = node;
+      let resizeHandles: HTMLElement[] = [];
 
       const $wrapper = document.createElement('div');
       const $container = document.createElement('div');
@@ -42,192 +40,135 @@ export const CustomImage = Image.configure({ inline: true }).extend({
       $wrapper.appendChild($container);
       $container.appendChild($img);
 
-      // Apply image attributes
-      Object.entries(node.attrs).forEach(([key, value]) => {
-        if (value != null && key !== 'width') $img.setAttribute(key, value);
-      });
-
       $img.style.width = '100%';
       $img.style.height = 'auto';
       $img.style.display = 'block';
 
-      const containerStyle = `
-        ${float === 'left' ? 'float: left; margin-right: 1rem;' : ''}
-        ${float === 'right' ? 'float: right; margin-left: 1rem;' : ''}
-        ${float === 'none' ? 'display: block; margin: 0 auto;' : ''}
-        cursor: pointer;
-        position: relative;
-      `.trim();
-      $container.setAttribute('style', containerStyle);
+      const renderImage = () => {
+        const { float, width } = currentNode.attrs;
 
-      if (width) {
-        $container.style.width = width;
-      }
+        IMAGE_ELEMENT_ATTRIBUTES.forEach((attribute) => {
+          const value = currentNode.attrs[attribute];
+          if (value == null) {
+            $img.removeAttribute(attribute);
+          } else {
+            $img.setAttribute(attribute, value);
+          }
+        });
 
-      const dispatchNodeView = () => {
-        if (typeof getPos === 'function') {
-          view.dispatch(view.state.tr.setNodeMarkup(getPos(), null, {
-            ...node.attrs,
-            width: $container.style.width || null,
-          }));
+        const outline = $container.style.outline;
+        $container.setAttribute('style', `${imageAlignmentStyle(float)} cursor: pointer; position: relative;`);
+        $container.style.outline = outline;
+
+        if (width) {
+          $container.style.width = width;
         }
       };
 
-      if (!editable) return { dom: $container };
+      const widthPercentOfParent = (widthInPixels: number): number | null => {
+        const parentWidth = $container.parentElement?.offsetWidth;
 
-      const iconStyle = 'width: 24px; height: 24px; cursor: pointer;';
+        return parentWidth ? (widthInPixels / parentWidth) * 100 : null;
+      };
 
-      const createToolbar = () => {
-        const $toolbar = document.createElement('div');
-        $toolbar.setAttribute('style', `
+      const saveWidth = () => {
+        const position = typeof getPos === 'function' ? getPos() : undefined;
+        const widthPercent = widthPercentOfParent($container.offsetWidth);
+        if (typeof position !== 'number' || widthPercent === null) return;
+
+        editor
+          .chain()
+          .command(({ tr }) => {
+            tr.setNodeMarkup(position, undefined, { ...currentNode.attrs, width: toImageWidth(widthPercent) });
+            return true;
+          })
+          .setNodeSelection(position)
+          .run();
+      };
+
+      const createResizeHandle = (corner: Record<string, string>, index: number): HTMLElement => {
+        const handleSize = document.documentElement.clientWidth < 768 ? 16 : 9;
+        const isLeftCorner = index === 0 || index === 2;
+        const $handle = document.createElement('div');
+
+        $handle.setAttribute(RESIZE_HANDLE_ATTRIBUTE, '');
+        $handle.setAttribute('style', `
           position: absolute;
-          top: 10%; left: 50%;
-          width: 100px;
-          height: 25px;
-          z-index: 999;
-          background-color: rgba(255, 255, 255, 0.7);
-          border-radius: 4px;
-          border: 2px solid #6C6C6C;
-          transform: translate(-50%, -50%);
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 0 10px;
+          width: ${handleSize}px;
+          height: ${handleSize}px;
+          border: 1.5px solid #6C6C6C;
+          border-radius: 50%;
+          background-color: white;
+          cursor: ${index % 3 === 0 ? 'nwse-resize' : 'nesw-resize'};
+          ${Object.entries(corner).map(([property, value]) => `${property}: ${value}`).join(';')}
         `);
 
-        const buttons = [
-          { float: 'left', icon: 'https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsoutlined/format_align_left/default/20px.svg' },
-          { float: 'none', icon: 'https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsoutlined/format_align_center/default/20px.svg' },
-          { float: 'right', icon: 'https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsoutlined/format_align_right/default/20px.svg' },
-        ];
+        const startResizing = (startX: number, moveEvent: 'mousemove' | 'touchmove', endEvent: 'mouseup' | 'touchend') => {
+          const startWidth = $container.offsetWidth;
 
-        buttons.forEach(({ float, icon }) => {
-          const $btn = document.createElement('img');
-          $btn.src = icon;
-          $btn.setAttribute('style', iconStyle);
-          $btn.addEventListener('mouseover', e => (e.target.style.opacity = '0.3'));
-          $btn.addEventListener('mouseout', e => (e.target.style.opacity = '1'));
-          $btn.addEventListener('click', () => {
-            view.dispatch(view.state.tr.setNodeMarkup(getPos(), undefined, {
-              ...node.attrs,
-              float,
-              width: $container.style.width || null,
-            }));
-          });
-          $toolbar.appendChild($btn);
+          const resize = (event: MouseEvent | TouchEvent) => {
+            const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
+            const draggedDistance = isLeftCorner ? startX - clientX : clientX - startX;
+            const widthPercent = widthPercentOfParent(startWidth + draggedDistance);
+            if (widthPercent !== null) {
+              $container.style.width = toImageWidth(widthPercent);
+            }
+          };
+
+          const stopResizing = () => {
+            document.removeEventListener(moveEvent, resize);
+            document.removeEventListener(endEvent, stopResizing);
+            saveWidth();
+          };
+
+          document.addEventListener(moveEvent, resize, { passive: false });
+          document.addEventListener(endEvent, stopResizing);
+        };
+
+        $handle.addEventListener('mousedown', (event) => {
+          event.preventDefault();
+          startResizing(event.clientX, 'mousemove', 'mouseup');
         });
 
-        $container.appendChild($toolbar);
+        $handle.addEventListener('touchstart', (event) => {
+          event.preventDefault();
+          startResizing(event.touches[0].clientX, 'touchmove', 'touchend');
+        });
+
+        return $handle;
       };
 
-      $container.addEventListener('click', () => {
-        if ($container.childElementCount > 1) {
-          Array.from($container.children).forEach((child, i) => {
-            if (i > 0) $container.removeChild(child);
-          });
-        }
+      const showResizeHandles = () => {
+        if (resizeHandles.length || !editor.isEditable) return;
 
-        createToolbar();
+        $container.style.outline = '1px dashed #6C6C6C';
+        resizeHandles = RESIZE_HANDLE_CORNERS.map(createResizeHandle);
+        resizeHandles.forEach($handle => $container.appendChild($handle));
+      };
 
-        const isMobile = document.documentElement.clientWidth < 768;
-        const dotSize = isMobile ? 16 : 9;
+      const hideResizeHandles = () => {
+        $container.style.outline = '';
+        resizeHandles.forEach($handle => $handle.remove());
+        resizeHandles = [];
+      };
 
-        const positions = [
-          { transform: 'translate(-50%, -50%)', top: '0%', left: '0%' },
-          { transform: 'translate(50%, -50%)', top: '0%', right: '0%' },
-          { transform: 'translate(-50%, 50%)', bottom: '0%', left: '0%' },
-          { transform: 'translate(50%, 50%)', bottom: '0%', right: '0%' },
-        ];
+      renderImage();
 
-        let isResizing = false;
-        let startX = 0;
-        let startWidth = 0;
+      return {
+        dom: editor.isEditable ? $wrapper : $container,
+        update: (updatedNode) => {
+          if (updatedNode.type !== currentNode.type) return false;
 
-        const startResize = (clientX) => {
-          isResizing = true;
-          startX = clientX;
-          startWidth = $container.offsetWidth;
-        };
-
-        const resize = (clientX, isLeft) => {
-          if (!isResizing || !$container.parentElement) return;
-          const deltaX = isLeft ? -(clientX - startX) : clientX - startX;
-          const newWidthPx = startWidth + deltaX;
-          const parentWidth = $container.parentElement.offsetWidth;
-          const newWidthPercent = (newWidthPx / parentWidth) * 100;
-
-          $container.style.width = `${newWidthPercent}%`;
-        };
-
-        const endResize = () => {
-          isResizing = false;
-          if ($container.parentElement) {
-            const parentWidth = $container.parentElement.offsetWidth;
-            const containerWidth = $container.offsetWidth;
-            const finalWidth = (containerWidth / parentWidth) * 100;
-            $container.style.width = `${finalWidth}%`;
-
-            dispatchNodeView();
-          }
-        };
-
-        positions.forEach((pos, index) => {
-          const $dot = document.createElement('div');
-          $dot.setAttribute('style', `
-            position: absolute;
-            width: ${dotSize}px;
-            height: ${dotSize}px;
-            border: 1.5px solid #6C6C6C;
-            border-radius: 50%;
-            background-color: white;
-            cursor: ${index % 2 === 0 ? 'nwse-resize' : 'nesw-resize'};
-            ${Object.entries(pos).map(([k, v]) => `${k}: ${v}`).join(';')}
-          `);
-
-          const isLeft = index === 0 || index === 2;
-
-          $dot.addEventListener('mousedown', (e) => {
-            e.preventDefault();
-            startResize(e.clientX);
-            const move = (e) => resize(e.clientX, isLeft);
-            const up = () => {
-              endResize();
-              document.removeEventListener('mousemove', move);
-              document.removeEventListener('mouseup', up);
-            };
-            document.addEventListener('mousemove', move);
-            document.addEventListener('mouseup', up);
-          });
-
-          $dot.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            startResize(e.touches[0].clientX);
-            const move = (e) => resize(e.touches[0].clientX, isLeft);
-            const end = () => {
-              endResize();
-              document.removeEventListener('touchmove', move);
-              document.removeEventListener('touchend', end);
-            };
-            document.addEventListener('touchmove', move, { passive: false });
-            document.addEventListener('touchend', end);
-          });
-
-          $container.appendChild($dot);
-        });
-      });
-
-      // Cleanup on outside click
-      document.addEventListener('click', (e) => {
-        if (!($container.contains(e.target as Node))) {
-          const cleanStyle = $container.style.cssText.replace('border: 1px dashed #6C6C6C;', '');
-          $container.setAttribute('style', cleanStyle);
-          while ($container.childElementCount > 1) {
-            $container.removeChild($container.lastChild as Node);
-          }
-        }
-      });
-
-      return { dom: $wrapper };
+          currentNode = updatedNode;
+          renderImage();
+          return true;
+        },
+        selectNode: showResizeHandles,
+        deselectNode: hideResizeHandles,
+        stopEvent: event => event.target instanceof HTMLElement && event.target.hasAttribute(RESIZE_HANDLE_ATTRIBUTE),
+        ignoreMutation: () => true,
+        destroy: hideResizeHandles,
+      };
     };
   },
 });

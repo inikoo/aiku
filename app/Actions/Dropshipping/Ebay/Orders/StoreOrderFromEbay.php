@@ -21,6 +21,7 @@ use App\Models\Dropshipping\EbayUser;
 use App\Models\Helpers\Address;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -50,9 +51,18 @@ class StoreOrderFromEbay extends OrgAction
             'platform_order_id'         => Arr::get($ebayOrderData, 'orderId'),
             'platform_order_created_at' => Arr::get($ebayOrderData, 'creationDate'),
             'data'                      => [
-                'ebay_order' => $ebayOrderData
+                'ebay_order' => $ebayOrderData,
+                ...($modelData['unmatched_line_items'] ? ['ebay_unmatched_line_items' => $modelData['unmatched_line_items']] : [])
             ]
         ], false);
+
+        if ($modelData['unmatched_line_items']) {
+            Log::warning('eBay order lines not matched to a portfolio', [
+                'ebay_user_id' => $ebayUser->id,
+                'order_id'     => $order->id,
+                'line_items'   => $modelData['unmatched_line_items'],
+            ]);
+        }
 
         foreach ($modelData['ordered_products'] as $orderedProduct) {
             StoreTransaction::make()->action(
@@ -87,33 +97,69 @@ class StoreOrderFromEbay extends OrgAction
 
 
 
-        $orderedProducts = [];
-
+        $orderedProducts   = [];
+        $unmatchedLineItems = [];
 
         foreach (Arr::get($ebayOrderData, 'lineItems', []) as $lineItem) {
+            $productId = $this->matchLineItemToProductId($ebayUser, $lineItem);
+            $product   = $productId ? Product::find($productId) : null;
 
+            if (!$product) {
+                $unmatchedLineItems[] = Arr::only($lineItem, ['lineItemId', 'legacyItemId', 'sku', 'title', 'quantity']);
 
-            $portfolioData = DB::table('portfolios')->select('item_id')->where('item_type', 'Product')->where('customer_sales_channel_id', $ebayUser->customer_sales_channel_id)
-                ->where('platform_product_variant_id', $lineItem['legacyItemId'])->first();
-            if ($portfolioData && $portfolioData->item_id) {
-                $product = Product::find($portfolioData->item_id);
-                if ($product) {
-                    $orderedProducts[] = [
-                        'historicAsset'           => $product->currentHistoricProduct,
-                        'quantity_ordered'        => $lineItem['quantity'],
-                        'platform_transaction_id' => $lineItem['lineItemId']
-                    ];
-                }
+                continue;
             }
-        }
 
+            $orderedProducts[] = [
+                'historicAsset'           => $product->currentHistoricProduct,
+                'quantity_ordered'        => $lineItem['quantity'],
+                'platform_transaction_id' => $lineItem['lineItemId']
+            ];
+        }
 
         return [
             'delivery_address'   => new Address($deliveryAddress),
             'billing_address'    => new Address($billingAddress),
             'customer_client_id' => $customerClient->id,
-            'ordered_products'   => $orderedProducts
+            'ordered_products'     => $orderedProducts,
+            'unmatched_line_items' => $unmatchedLineItems
         ];
+    }
+
+    /**
+     * A multi-variation listing shares one legacyItemId across every variation, so the line's SKU decides;
+     * the listing id alone is trusted only when it points at a single portfolio.
+     */
+    public function matchLineItemToProductId(EbayUser $ebayUser, array $lineItem): ?int
+    {
+        $portfolios = DB::table('portfolios')
+            ->where('item_type', 'Product')
+            ->where('customer_sales_channel_id', $ebayUser->customer_sales_channel_id)
+            ->whereNotNull('item_id');
+
+        $listingProductIds = (clone $portfolios)->where('platform_product_variant_id', Arr::get($lineItem, 'legacyItemId'))->distinct()->pluck('item_id');
+
+        $sku = Arr::get($lineItem, 'sku');
+        if (filled($sku)) {
+            $productIds = (clone $portfolios)
+                ->where(fn ($query) => $query->where('sku', $sku)->orWhere('platform_sku', $sku))
+                ->distinct()->pluck('item_id');
+
+            if ($productIds->count() > 1) {
+                $productIds = $productIds->intersect($listingProductIds)->values();
+            }
+
+            if ($productIds->count() === 1) {
+                return $productIds->first();
+            }
+        }
+
+        $productIds = $listingProductIds;
+        if ($productIds->count() > 1) {
+            $productIds = $portfolios->where('platform_product_variant_id', Arr::get($lineItem, 'legacyItemId'))->where('platform_status', true)->distinct()->pluck('item_id');
+        }
+
+        return $productIds->count() === 1 ? $productIds->first() : null;
     }
 
 }

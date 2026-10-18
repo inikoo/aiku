@@ -11,6 +11,7 @@ namespace App\Actions\Helpers\Media;
 
 use App\Actions\Catalogue\Product\CloneProductAttachmentsFromTradeUnits;
 use App\Actions\OrgAction;
+use App\Enums\Goods\TradeUnit\TradeAttachmentScopeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
@@ -27,6 +28,7 @@ use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\ValidationException;
 use App\Actions\Traits\Authorisations\WithAttachmentEditAuthorisation;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -47,6 +49,12 @@ class AttachAttachmentToModel extends OrgAction
 
     public function handle(Employee|TradeUnit|Agent|Supplier|Customer|PurchaseOrder|StockDelivery|Order|Invoice|PalletDelivery|PalletReturn|Product|TradeUnitFamily|ProductCategory $model, array $modelData): void
     {
+        if ($model instanceof TradeUnit && $model->documentsTradeUnit && in_array(Arr::get($modelData, 'scope'), TradeAttachmentScopeEnum::substanceScopes())) {
+            throw ValidationException::withMessages([
+                'scope' => __('This trade unit takes its IFRA, SDS, CLP and allergen documents from :code, upload them there', ['code' => $model->documentsTradeUnit->code]),
+            ]);
+        }
+
         foreach (Arr::get($modelData, 'attachments') as $attachment) {
             $file           = $attachment;
             $attachmentData = [
@@ -68,8 +76,13 @@ class AttachAttachmentToModel extends OrgAction
                     }
                 }
             } else {
-                foreach ($model->products as $product) {
+                foreach ($model->products()->get() as $product) {
                     CloneProductAttachmentsFromTradeUnits::run($product);
+                }
+                if (in_array(Arr::get($modelData, 'scope'), TradeAttachmentScopeEnum::substanceScopes())) {
+                    foreach ($model->productsOfDocumentsSharers() as $product) {
+                        CloneProductAttachmentsFromTradeUnits::dispatch($product);
+                    }
                 }
             }
         }

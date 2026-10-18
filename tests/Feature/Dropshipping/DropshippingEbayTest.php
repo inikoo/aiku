@@ -423,6 +423,73 @@ test('an eBay order mixing a known and an unknown listing imports only the known
         ->and($aikuOrder->transactions()->first()->platform_transaction_id)->toBe('1000000001');
 });
 
+test('a multi-variation eBay listing sends each line to the product of its own sku, and an ambiguous line is kept aside', function () {
+    $ebayUser       = ebayChannel($this);
+    $firstVariation = listedEbayPortfolio($this, $ebayUser);
+    $otherProduct   = secondProduct($this);
+    $otherVariation = StorePortfolio::make()->action($ebayUser->customerSalesChannel, $otherProduct, []);
+    $otherVariation->update(['platform_product_variant_id' => '123456789012', 'platform_status' => true, 'sku' => 'amethyst-1kg']);
+    $firstVariation->update(['sku' => 'rose-quartz-1kg']);
+
+    $order              = ebayOrder();
+    $order['lineItems'] = [
+        ['lineItemId' => '1000000001', 'legacyItemId' => '123456789012', 'sku' => 'amethyst-1kg', 'title' => 'Amethyst', 'quantity' => 1],
+        ['lineItemId' => '1000000002', 'legacyItemId' => '123456789012', 'sku' => 'rose-quartz-1kg', 'title' => 'Rose quartz', 'quantity' => 3],
+        ['lineItemId' => '1000000003', 'legacyItemId' => '123456789012', 'sku' => 'renamed-on-ebay', 'title' => 'Jasper', 'quantity' => 1],
+    ];
+
+    fakeEbay($this, [
+        '/sell/fulfillment/v1/order' => ['orders' => [$order], 'total' => 1],
+    ]);
+
+    FetchEbayUserOrders::run($ebayUser);
+
+    $aikuOrder    = Order::where('platform_order_id', $order['orderId'])->firstOrFail();
+    $transactions = $aikuOrder->transactions()->get()->keyBy('platform_transaction_id');
+
+    expect($transactions)->toHaveCount(2)
+        ->and($transactions['1000000001']->model_id)->toBe($otherProduct->id)
+        ->and($transactions['1000000002']->model_id)->toBe($this->product->id)
+        ->and(Arr::pluck($aikuOrder->data['ebay_unmatched_line_items'], 'lineItemId'))->toBe(['1000000003']);
+});
+
+test('an eBay listing id left on an old unlisted portfolio still imports to the live one', function () {
+    $ebayUser     = ebayChannel($this);
+    $otherProduct = secondProduct($this);
+    StorePortfolio::make()->action($ebayUser->customerSalesChannel, $otherProduct, [])
+        ->update(['platform_product_variant_id' => '123456789012', 'platform_status' => false, 'sku' => 'old-listing-sku']);
+    listedEbayPortfolio($this, $ebayUser);
+
+    $order = ebayOrder(['lineItems' => [['sku' => 'not-a-portfolio-sku']]]);
+    fakeEbay($this, [
+        '/sell/fulfillment/v1/order' => ['orders' => [$order], 'total' => 1],
+    ]);
+
+    FetchEbayUserOrders::run($ebayUser);
+
+    $aikuOrder = Order::where('platform_order_id', $order['orderId'])->firstOrFail();
+
+    expect($aikuOrder->transactions()->first()->model_id)->toBe($this->product->id)
+        ->and(Arr::has($aikuOrder->data, 'ebay_unmatched_line_items'))->toBeFalse();
+});
+
+test('an eBay line whose sku sits on two portfolios goes to the one on its own listing', function () {
+    $ebayUser       = ebayChannel($this);
+    $otherProduct   = secondProduct($this);
+    $listed         = listedEbayPortfolio($this, $ebayUser);
+    $listed->update(['sku' => 'hbaths-04']);
+    StorePortfolio::make()->action($ebayUser->customerSalesChannel, $otherProduct, [])->update(['sku' => 'hbaths-04']);
+
+    $order = ebayOrder(['lineItems' => [['sku' => 'hbaths-04']]]);
+    fakeEbay($this, [
+        '/sell/fulfillment/v1/order' => ['orders' => [$order], 'total' => 1],
+    ]);
+
+    FetchEbayUserOrders::run($ebayUser);
+
+    expect(Order::where('platform_order_id', $order['orderId'])->firstOrFail()->transactions()->first()->model_id)->toBe($this->product->id);
+});
+
 test('an eBay orders page that answers with an error imports nothing and does not throw', function () {
     $ebayUser = ebayChannel($this);
     listedEbayPortfolio($this, $ebayUser);
@@ -837,7 +904,7 @@ test('re-uploading a live listing that does not follow our price keeps the selle
     $portfolio = StorePortfolio::make()->action($ebayUser->customerSalesChannel, $this->product, []);
     $portfolio->update(['customer_price' => 20, 'settings' => ['pricing' => ['type' => 'not_follow', 'value' => null], 'pricing_opt_out' => true]]);
 
-    $existing = ['offerId' => 'offer-live', 'sku' => $portfolio->sku, 'status' => 'PUBLISHED', 'categoryId' => '77777', 'format' => 'FIXED_PRICE'];
+    $existing = ['offerId' => 'offer-live', 'sku' => $portfolio->sku, 'status' => 'PUBLISHED', 'categoryId' => '77777', 'format' => 'FIXED_PRICE', 'pricingSummary' => ['price' => ['value' => '9.99', 'currency' => 'GBP']]];
 
     fakeEbay($this, ebayCatalogueRoutes() + [
         '/sell/inventory/v1/offer' => ebayOfferRoutes(offersForSku: [$existing], offerById: $existing),
@@ -849,6 +916,33 @@ test('re-uploading a live listing that does not follow our price keeps the selle
 
     expect($replaced['pricingSummary']['price']['value'])->toBe('9.99')
         ->and($replaced['categoryId'])->toBe('77777');
+});
+
+test('re-uploading a sku whose old offer on eBay has no price sends our price even when the channel does not update prices', function () {
+    $ebayUser = ebayChannel($this);
+    $ebayUser->customerSalesChannel->update(['settings' => ['do_not_update_prices' => true]]);
+    $portfolio = StorePortfolio::make()->action($ebayUser->customerSalesChannel, $this->product, []);
+    $portfolio->update(['customer_price' => 62.99]);
+
+    $leftover = [
+        'offerId'        => 'offer-leftover',
+        'sku'            => $portfolio->sku,
+        'status'         => 'UNPUBLISHED',
+        'format'         => 'FIXED_PRICE',
+        'pricingSummary' => [],
+        'listing'        => ['listingId' => '287179414510', 'listingStatus' => 'ENDED'],
+    ];
+
+    fakeEbay($this, ebayCatalogueRoutes() + [
+        '/sell/inventory/v1/offer' => ebayOfferRoutes(offersForSku: [$leftover], offerById: $leftover),
+    ]);
+
+    StoreEbayProduct::run($ebayUser, $portfolio->refresh());
+
+    $replaced = sentEbayRequest('PUT', '/sell/inventory/v1/offer/offer-leftover')->data();
+
+    expect((float) $replaced['pricingSummary']['price']['value'])->toBe(62.99)
+        ->and($replaced['pricingSummary']['price']['currency'])->toBe('GBP');
 });
 
 test('uploading a sku whose offer on eBay points at an old postage policy moves the offer onto the channel policies', function () {

@@ -59,7 +59,14 @@ trait WithAttachmentEditAuthorisation
                     ->map(fn ($organisationId) => "procurement.$organisationId.edit")
                     ->all(),
             ],
-            $model instanceof PurchaseOrder, $model instanceof StockDelivery => ["procurement.$model->organisation_id.edit"],
+            $model instanceof PurchaseOrder => array_filter([
+                "procurement.$model->organisation_id.edit",
+                $model->isAgentOrder() && $model->agent ? "procurement.{$model->agent->organisation_id}.edit" : null,
+            ]),
+            $model instanceof StockDelivery => array_filter([
+                "procurement.$model->organisation_id.edit",
+                $model->agent ? "procurement.{$model->agent->organisation_id}.edit" : null,
+            ]),
             $model instanceof Customer => $model->shop->type == ShopTypeEnum::FULFILMENT
                 ? ["fulfilment-shop.{$model->shop->fulfilment?->id}.edit"]
                 : ["crm.$model->shop_id.edit"],

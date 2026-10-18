@@ -45,6 +45,7 @@ import Popover from '@/Components/Popover.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import UploadAttachment from '@/Components/Upload/UploadAttachment.vue';
 import ShowcaseEmployee from '@/Components/Showcases/Grp/ShowcaseEmployee.vue';
+import EmployeeLeaves from '@/Components/HumanResources/EmployeeLeaves.vue';
 import TableEmployeeRequests from '@/Components/Tables/Grp/Org/HumanResources/TableEmployeeRequests.vue';
 import TableEmployeeSearches from '@/Components/Tables/Grp/Org/HumanResources/TableEmployeeSearches.vue';
 import TableEmployeeChats from '@/Components/Tables/Grp/Org/HumanResources/TableEmployeeChats.vue';
@@ -93,6 +94,7 @@ const props = defineProps<{
     attachments?: {}
     attachmentRoutes?:object
     showcase? : object
+    leaves?: object
     requests?: object
     searches?: object
     chats?: object
@@ -108,6 +110,7 @@ const component = computed(() => {
 
     const components = {
         showcase: ShowcaseEmployee,
+        leaves: EmployeeLeaves,
         history: TableHistories,
         data: DataModel,
         timesheets: TableTimesheets,

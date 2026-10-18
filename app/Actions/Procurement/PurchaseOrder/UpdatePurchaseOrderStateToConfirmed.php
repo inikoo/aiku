@@ -9,7 +9,7 @@
 
 namespace App\Actions\Procurement\PurchaseOrder;
 
-use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
+use App\Actions\Traits\Authorisations\WithPurchaseOrderAgentEditAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\PurchaseOrder\Hydrators\PurchaseOrderHydrateTransactions;
 use App\Actions\Procurement\PurchaseOrder\Traits\HasPurchaseOrderHydrators;
@@ -23,7 +23,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class UpdatePurchaseOrderStateToConfirmed extends OrgAction
 {
-    use WithProcurementEditAuthorisation;
+    use WithPurchaseOrderAgentEditAuthorisation;
     use AsAction;
     use HasPurchaseOrderHydrators;
     use WithActionUpdate;
@@ -62,7 +62,10 @@ class UpdatePurchaseOrderStateToConfirmed extends OrgAction
     {
         $this->initialisation($purchaseOrder->organisation, $request);
 
-        return $this->handle($purchaseOrder, $this->validatedData);
+        $purchaseOrder = $this->handle($purchaseOrder, $this->validatedData);
+        NotifyBuyerOfAgentStageChange::run($purchaseOrder, $request->user(), __('accepted by the agent'));
+
+        return $purchaseOrder;
     }
 
     public function rules(): array

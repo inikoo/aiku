@@ -28,26 +28,29 @@ class ReopenPartnerShoppingListItemsOfTransactions
             ->where('state', ShoppingListItemStateEnum::ORDERED)
             ->get();
 
-        foreach ($items as $item) {
-            $openSibling = $item->job_order_id || $item->pre_picked_at
-                ? null
-                : PartnerShoppingListItem::openPartnerLineFor($item->org_partner_id, $item->org_stock_id)->first();
-
-            if ($openSibling) {
-                $openSibling->increment('quantity', (float) $item->quantity);
-                $item->delete();
-            } else {
-                $item->update([
-                    'state'          => ShoppingListItemStateEnum::OPEN,
-                    'transaction_id' => null,
-                ]);
-            }
-        }
+        $items->each(fn (PartnerShoppingListItem $item) => $this->reopen($item));
 
         $items->unique('org_partner_id')->each(
             fn (PartnerShoppingListItem $item) => OrgPartnerHydrateShoppingListItems::dispatch($item->orgPartner)
         );
 
         return $items->count();
+    }
+
+    public function reopen(PartnerShoppingListItem $item): void
+    {
+        $openSibling = $item->job_order_id || $item->pre_picked_at
+            ? null
+            : PartnerShoppingListItem::openPartnerLineFor($item->org_partner_id, $item->org_stock_id)->first();
+
+        if ($openSibling) {
+            $openSibling->increment('quantity', (float) $item->quantity);
+            $item->delete();
+        } else {
+            $item->update([
+                'state'          => ShoppingListItemStateEnum::OPEN,
+                'transaction_id' => null,
+            ]);
+        }
     }
 }

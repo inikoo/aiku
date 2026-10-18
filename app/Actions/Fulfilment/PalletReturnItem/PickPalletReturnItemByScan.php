@@ -76,7 +76,20 @@ class PickPalletReturnItemByScan extends OrgAction
             PickWholePalletInPalletReturn::make()->action($itemToPick, [], user: $user);
             $message = __('Pallet :reference picked whole', ['reference' => $this->itemReference($itemToPick)]);
         } else {
-            $quantityToPick = min($quantity, $this->quantityLeftToPick($itemToPick));
+            $quantityInPallet = max(0, (float)$itemToPick->palletStoredItem?->quantity);
+            $quantityToPick   = min($quantity, $this->quantityLeftToPick($itemToPick), $quantityInPallet);
+
+            if ($quantityToPick <= 0) {
+                return $this->outcome(
+                    $palletReturn,
+                    'no_stock',
+                    __('No stock left in the pallet for :reference, set the rest as not picked', ['reference' => $this->itemReference($itemToPick)]),
+                    $scanned,
+                    $itemToPick,
+                    knownItems: $items
+                );
+            }
+
             PickPalletReturnItemInPalletReturnWithStoredItem::make()->action($itemToPick, [
                 'quantity_picked' => (float)$itemToPick->quantity_picked + $quantityToPick,
             ]);

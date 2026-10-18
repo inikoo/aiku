@@ -125,6 +125,26 @@ class GetProductionNavigation
                         ],
 
                         [
+                            'label'   => __('Day plan'),
+                            'tooltip' => __('Jobs planned for the day and who does each step'),
+                            'icon'    => ['fal', 'fa-calendar-day'],
+                            'root'    => 'grp.org.productions.show.operations.day_plan',
+                            'route'   => [
+                                'name'       => 'grp.org.productions.show.operations.day_plan',
+                                'parameters' => [$production->organisation->slug, $production->slug]
+                            ],
+                        ],
+                        [
+                            'label'   => __('Materials check'),
+                            'tooltip' => __('Materials the day plan needs, checked in the morning and asked from the warehouse'),
+                            'icon'    => ['fal', 'fa-clipboard-check'],
+                            'root'    => 'grp.org.productions.show.operations.materials_check',
+                            'route'   => [
+                                'name'       => 'grp.org.productions.show.operations.materials_check',
+                                'parameters' => [$production->organisation->slug, $production->slug]
+                            ],
+                        ],
+                        [
                             'label'   => __('Job orders'),
                             'tooltip' => __('Job Orders'),
                             'icon'    => ['fal', 'fa-sort-shapes-down-alt'],

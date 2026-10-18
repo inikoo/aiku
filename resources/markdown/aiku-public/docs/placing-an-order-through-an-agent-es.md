@@ -1,8 +1,8 @@
 ---
 title: Hacer un pedido a través de un agente
 summary: Para compradores - cómo los pedidos que haces a los proveedores de un agente se reúnen en un único pedido de agente, cómo añadir productos, enviarlo y mandárselo al agente, y dónde vive el pedido de cada proveedor.
-date: 2026-10-08
-source_date: 2026-10-08
+date: 2026-10-15
+source_date: 2026-10-15
 tags: procurement, purchase orders, agents
 category: procurement
 ---
@@ -36,3 +36,5 @@ Cuando el agente envía, una sola entrega de stock puede llevar los pedidos de v
 ## Quién puede usarlo
 
 Permiso de edición de compras para tu organización para añadir, enviar y mandar. Permiso de visualización de compras para abrir los pedidos de agente e imprimirlos. Los agentes registran sus propias fechas como se describe en [Registrar el progreso de un pedido como agente](/docs/recording-order-progress-for-agents-es).
+
+Cuando varias organizaciones piden al mismo proveedor, consulta [Pedir a un agente junto con otras organizaciones](/docs/ordering-from-an-agent-with-other-organisations-es).

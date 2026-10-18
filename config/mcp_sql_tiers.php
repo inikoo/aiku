@@ -119,7 +119,7 @@ return [
          */
         'customers' => [
             'customers', 'customer_*', 'web_users', 'web_user_logins', 'web_user_requests', 'web_user_has_dispatched_emails',
-            'addresses', 'model_has_addresses', 'model_has_fixed_addresses', 'email_addresses', 'prospects', 'prospect_has_dispatched_emails',
+            'addresses', 'model_has_addresses', 'model_has_fixed_addresses', 'email_addresses', 'prospects', 'prospect_has_dispatched_emails', 'appointment_types', 'appointment_type_user', 'appointment_type_dates', 'appointments',
             'product_has_exclusive_customers', 'product_last_seens', 'fulfilment_customers', 'luna_clients', 'subscriptions', 'subscription_events', 'preferred_shippings', 'tax_numbers',
         ],
 
@@ -144,17 +144,18 @@ return [
             'suppliers', 'supplier_*', 'historic_supplier_product*', 'org_suppliers', 'org_supplier_*',
             'agents', 'agent_*', 'org_agents', 'org_partners', 'partner_shopping_list_items',
             'purchase_order*', 'stock_deliver*', 'aspo_deposits', 'deposit_request*', 'competitor*',
+            'org_stock_discontinue_suggestions', 'procurement_notes',
         ],
 
         'production' => [
             'productions', 'job_orders', 'job_order_*', 'manufacture_*', 'raw_materials', 'raw_material_stats', 'recipe_step_raw_materials',
-            'artisan_assignments',
+            'artisan_assignments', 'production_material_request*',
         ],
 
         'marketing' => [
             'mailshot*', 'outbox*', 'email_*', 'emails', 'dispatched_emails', 'ses_*', 'sender_emails', '*_has_dispatched_emails', '*_email_recipient*',
             'model_has_dispatched_emails', 'meta_tracking_events', 'whatsapp_*', 'traffic_source*', 'model_has_traffic_sources', 'seo_*', 'search_console_*', 'crux_records',
-            'crawl*', 'google_ads_media_assets', 'websites', 'website_*', 'webpages', 'webpage_*', 'web_block*', 'web_layout_templates',
+            'crawl*', 'google_ads_media_assets', 'google_tag_manager_*', 'websites', 'website_*', 'webpages', 'webpage_*', 'web_block*', 'web_layout_templates',
             'model_has_web_blocks', 'model_has_contents', 'banners', 'slides', 'snapshots', 'redirects', 'external_links', 'announcement*',
             'marketing_*', 'customer_interests', 'customer_web_activities', 'customer_product_suggestions', 'ip_geolocations', 'search_logs',
         ],

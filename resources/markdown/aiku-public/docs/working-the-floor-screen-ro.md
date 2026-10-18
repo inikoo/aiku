@@ -1,8 +1,8 @@
 ---
 title: Lucrul cu ecranul de fabrică
 summary: Ghidul meșteșugarului - ecranul Sarcinile mele, lista de sarcini care se actualizează singură, START și DONE, și ce apeși dacă ai făcut mai puțin decât ți s-a cerut.
-date: 2026-10-09
-source_date: 2026-10-09
+date: 2026-10-13
+source_date: 2026-10-13
 tags: production, floor, artisan
 category: production
 series: Ordering from partners
@@ -10,14 +10,14 @@ order: 9
 ---
 
 <aside class="tldr">
-Pentru cei care fac lucrurile. <b>Factory → Jobs</b> (Fabrică → Sarcini) e toată ziua ta pe un singur ecran: sarcinile adresate ție în stânga, cea la care lucrezi în mijloc. Apasă <b>START</b>, fă-o, scrie câte ai făcut, apasă <b>DONE</b> (gata). Dacă ai făcut mai puțin decât ți s-a cerut, ecranul îți pune o singură întrebare: închizi sarcina aici, sau duci restul mai departe într-o sarcină nouă. Nimic altceva de completat.
+Pentru cei care fac lucrurile. <b>Factory → Jobs</b> (Fabrică → Sarcini) e toată ziua ta pe un singur ecran: sarcinile adresate ție în stânga, cea la care lucrezi în mijloc. Apasă <b>START</b>, fă-o, scrie câte ai făcut, apasă <b>DONE</b> (gata). Dacă ai făcut mai puțin decât ți s-a cerut, ecranul îți pune o singură întrebare: faci pauză și continui mai târziu, închizi sarcina și muți restul într-una nouă, sau o termini aici. Nimic altceva de completat.
 </aside>
 
 ## Ecranul
 
 Pagina e organizată ca o căsuță de mesaje.
 
-**Stânga, mereu vizibilă:** lista. Doi indicatori sus - unități făcute azi și sarcini terminate azi. Sub ei **Your jobs** (sarcinile tale), munca adresată ție. Dacă poziția ta îți permite să alegi din grupul deschis tuturor, urmează o secțiune **Open jobs** (sarcini deschise). Jos de tot, **Finished today** (terminate azi), ce ai închis deja.
+**Stânga, mereu vizibilă:** lista. Doi indicatori sus - unități făcute azi și sarcini terminate azi. Sub ei **Your jobs** (sarcinile tale), munca adresată ție: sarcini întregi cu numele tău pe ele și pași singuri pe care ți i-a dat supervizorul în planul zilei (vezi [Planificarea zilei de producție](/docs/planning-the-production-day-ro)). O sarcină poate avea fabricarea la o persoană și ambalarea la alta; fiecare vede doar pasul ei. Dacă poziția ta îți permite să alegi din grupul deschis tuturor, urmează o secțiune **Open jobs** (sarcini deschise). Jos de tot, **Finished today** (terminate azi), ce ai închis deja.
 
 **Dreapta:** ce ai selectat. Înainte să începi, sunt detaliile sarcinii cu un buton mare <b>START</b>. Odată începută, e cardul de lucru cu ceasul.
 
@@ -46,15 +46,20 @@ Un rând cu ▶ verde și o oră e cel la care lucrezi, și ora la care l-ai în
 
 Ai făcut tot ce ți s-a cerut? Gata. Sarcina se închide, ordinul de lucru e terminat și depozitul e anunțat că are ceva de pus la locul lui - vezi [Punerea la loc a producției terminate](/docs/putting-away-finished-production-ro).
 
+## Pași care se numără în pachete
+
+Unii pași, mai ales ambalarea, se numără în pachete și nu în bucăți: o tavă cu 8 bile de baie se numără ca 1. Ecranul arată atunci <b>Counted in PACKS of 8</b> (se numără în PACHETE de 8) în chihlimbar, iar căsuța se numește <b>Packs of 8 made</b> (pachete de 8 făcute). Scrie câte pachete pline ai umplut: pentru 56 de bile de baie în 7 tăvi scrie 7, nu 56. Sub căsuță ecranul arată ce înseamnă numărul tău, <i>7 packs of 8 = 56 × ABB-06a</i>, iar confirmarea îl arată din nou. Se acceptă doar pachete întregi; singura excepție este numărul exact rămas de făcut, pe care îl completezi atingând numărul mare. Când un manager trebuie să autorizeze surplusul, fereastra arată surplusul în pachete și în bucăți înainte de aprobare.
+
 ## Când ai făcut mai puțin decât ți s-a cerut
 
-Scrie numărul real și apasă <b>DONE</b>. Rândul de completat e înlocuit cu un panou scurt: *19 făcute · 6 de făcut* și trei butoane.
+Scrie numărul real și apasă <b>DONE</b>. Rândul de completat e înlocuit cu un panou scurt: *19 făcute · 6 de făcut* și patru butoane.
 
-- <b>Continue later</b> (continuă mai târziu) - sarcina se închide la 19, și un nou ordin de lucru pentru cele 6 apare în lista ta, adresat ție. Îl preiei mâine, sau oricând ajunge materialul.
+- <b>Pause</b> (pauză) - același mix, continui mai târziu. Sarcina rămâne deschisă, cu aceeași referință și același cod de lot, iar numărătoarea continuă de la 19. Folosește-l când se termină ziua înainte de mix.
+- <b>Close at 19 and move remaining 6 to new job …</b> (închide la 19 și mută restul de 6 într-o sarcină nouă) - sarcina se închide la 19, iar cele 6 trec într-un nou ordin de lucru, cu litera următoare (0127 devine 0127a) și propriul cod de lot. Folosește-l când restul va fi un mix nou. Ecranul îți cere să confirmi cu <b>Yes, close and move</b> (da, închide și mută), pentru că o sarcină închisă nu mai poate fi continuată.
 - <b>Job finished</b> (sarcină terminată) - sarcina se închide la 19 și asta e tot. Planificatorul vede un ordin de lucru care a cerut 25 și a primit 19.
 - <b>Back</b> (înapoi) - schimbă numărul.
 
-Oricum ar fi, sarcina la care lucrai se închide și e plătită la ce ai făcut. Nimic nu rămâne pe jumătate deschis în lista ta.
+O sarcină mutată într-una nouă arată **Continued from 0127** (continuată din 0127) pe cardul ei, iar cea din care provine arată **Continued in 0127a** (continuată în 0127a). Sarcina nouă rămâne cu aceiași oameni și în același plan al zilei.
 
 ## Când ai făcut mai mult decât ți s-a cerut
 
@@ -66,6 +71,8 @@ Scrie numărul real și apasă **DONE**. Ecranul avertizează *18 above target, 
 Doar cineva care conduce acest atelier de fabrică poate aproba, și niciodată pentru propria muncă. După cinci coduri sau PIN-uri greșite, fereastra refuză timp de 15 minute.
 
 Odată aprobată, sarcina crește la cât s-a făcut de fapt: depozitul pune totul la loc, ce nu a cerut nicio comandă intră în stoc, iar materiile prime se scad pentru tot lotul. Pașii următori ai aceleiași sarcini cresc și ei, ca următorul om să poată termina tot. Pagina comenzii de lucru arată cine a făcut surplusul, cine l-a aprobat, cum și când.
+
+Ai scris un număr greșit, de exemplu bucăți acolo unde se cereau pachete? Un manager deschide fila <b>Performance</b> (performanță), găsește înregistrarea sub lucrător și apasă <b>Correct quantity</b> (corectează cantitatea). Înregistrarea poate fi doar micșorată. Sarcina revine la ce s-a făcut cu adevărat, surplusul autorizat se reduce odată cu ea, iar plata pentru acea înregistrare se calculează din nou. Funcționează până când depozitul începe să pună sarcina la raft.
 
 ## Un singur lot pentru mai multe linii
 
@@ -81,18 +88,30 @@ Uneori un lot servește mai multe sarcini. De exemplu, 100 de batoane HCS-48 și
 
 Dacă faci mai mult decât au cerut toate liniile la un loc, e nevoie de codul sau PIN-ul unui manager, ca mai sus; surplusul se împarte și el între linii. Un manager poate **Separate** (separa) liniile din nou oricând nu lucrează nimeni la ele. Ce s-a făcut deja împreună rămâne la fiecare linie.
 
+## Amestecarea și alți pași cântăriți în kg
+
+Amestecarea este un pas separat la începutul rețetei și se numără în kg, nu în bucăți. Ecranul arată **kg** lângă numere, iar căsuța se numește **Kg made** (kg făcute): pentru un amestec de 50 kg scrie 50. Sub căsuță ecranul arată ce iese din el, *50 kg of mix = 500 × ABB-06a*. Un amestec care iese puțin peste ce a cerut sarcina este acceptat așa cum este, fără manager.
+
+Doar meșteșugarii numiți la acest pas îl văd și îl pot începe; nu apare în lista nimănui altcuiva. Se plătește la oră, la tariful de bază: fără țintă, fără treaptă de plată și fără notă de țintă neatinsă, iar timpul se numără în continuare în costul produsului.
+
+Pasul următor rămâne blocat cu **Waiting for** (se așteaptă) și numele pasului de amestecare până când se înregistrează ceva amestec, și se deschide imediat ce se introduce primul. Un singur amestec pentru mai multe linii funcționează ca în secțiunea de mai sus: un manager combină liniile de amestecare, cel care amestecă scrie kg o singură dată și fiecare linie își primește partea.
+
+**Amestecuri în șarje întregi.** Când produsul are o mărime de șarjă (25 kg sau 50 kg), kg cerute se rotunjesc în sus la șarje întregi și se arată ca șarje: 94,1 kg în șarje de 50 kg apare *2 × 50 kg batches = 100 kg* (2 șarje de 50 kg = 100 kg). Căsuța se numește **Batches of 50 kg made** (șarje de 50 kg făcute) și se scrie numărul de șarje, 2, nu kg. La un amestec combinat se rotunjește totalul tuturor liniilor. Surplusul față de comandă nu schimbă lucrarea, cantitățile de formare sau plata. Managerii o setează la pasul din rețeta produsului, la **Mix batch size** (mărimea șarjei).
+
+**Configurare (manageri).** Pe pagina sarcinii de fabricație, **Only these artisans can do it** (doar acești meșteșugari o pot face) arată cine o poate face; acolo se adaugă sau se scot oameni. Formularul de editare are **Paid by piece rate** (plată la bucată; oprit pentru munca la oră) și **Recorded in kg** (înregistrat în kg). Câte kg de amestec intră într-o bucată se trec la pasul din rețeta fiecărui produs.
+
 ## Lucruri bune de știut
 
 - **O sarcină pe rând.** Cât timp ai o sarcină deschisă, butoanele START sunt dezactivate. Închide-o mai întâi.
 - **Plata ta pentru sarcină** urmează numărul din Quantity made, așa cum e explicat în [Poziții de fabrică](/docs/factory-positions-ro). Piesele respinse nu se plătesc.
-- **Open jobs** (sarcini deschise) sunt sarcini fără meșteșugar numit, sau cu altcineva numit. E în regulă să o iei, dacă poziția ta permite; devine a ta până se închide.
+- **Open jobs** (sarcini deschise) sunt sarcini și pași fără nimeni numit, sau cu altcineva numit. E în regulă să o iei, dacă poziția ta permite; devine a ta până se închide.
 
 <aside class="wayfinder"><strong>Unde apeși în aiku</strong>
 <ul>
 <li><b>Ecranul tău:</b> organizația ta → <b>Factory</b> → <b>Jobs</b>.</li>
 <li><b>Începe:</b> apasă pe rând → <b>START</b>.</li>
 <li><b>Termină:</b> scrie <b>Quantity made</b> → <b>DONE</b>.</li>
-<li><b>Mai puțin decât cerut:</b> <b>DONE</b> → <b>Continue later</b> sau <b>Job finished</b>.</li>
+<li><b>Mai puțin decât cerut:</b> <b>DONE</b> → <b>Pause</b>, <b>Close at … and move remaining …</b> sau <b>Job finished</b>.</li>
 <li><b>Un lot pentru mai multe linii:</b> apasă pe o linie → <b>Combine … with other lines into one batch</b> → bifează liniile → <b>Combine</b>. Pentru a anula: apasă pe rândul combinat → <b>Separate</b>.</li>
 </ul>
 </aside>

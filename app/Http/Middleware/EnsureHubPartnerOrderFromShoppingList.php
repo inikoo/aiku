@@ -11,7 +11,7 @@ namespace App\Http\Middleware;
 use App\Models\CRM\Customer;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
-use App\Models\Procurement\OrgPartner;
+use App\Actions\Ordering\Order\StoreOrder;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -68,13 +68,7 @@ class EnsureHubPartnerOrderFromShoppingList
 
     public static function isHubPartnerCustomer(Customer $customer): bool
     {
-        if (!$customer->organisation->is_manufacturing_hub) {
-            return false;
-        }
-
-        return OrgPartner::where('partner_id', $customer->organisation_id)
-            ->get(['id', 'data'])
-            ->contains(fn (OrgPartner $orgPartner) => in_array($customer->id, data_get($orgPartner->data, 'intercompany_customers', [])));
+        return StoreOrder::isPartnerBuyingFromHub($customer, $customer->shop);
     }
 
     private function customer(Request $request): ?Customer

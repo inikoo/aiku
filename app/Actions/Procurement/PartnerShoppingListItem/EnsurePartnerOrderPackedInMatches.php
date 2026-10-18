@@ -51,14 +51,19 @@ class EnsurePartnerOrderPackedInMatches
     public function mismatches(OrgPartner $orgPartner, array $stockIds): array
     {
         return $this->mismatchedRows($orgPartner, $stockIds)
-            ->map(fn ($row) => __(':sko is packed in :seller at :seller_org and :buyer at :buyer_org, the SKO must be the same in both before it can be ordered between them', [
-                'sko'        => $row->code,
-                'seller'     => $row->seller_packed_in,
-                'seller_org' => $orgPartner->partner->name,
-                'buyer'      => $row->buyer_packed_in,
-                'buyer_org'  => $orgPartner->organisation->name,
-            ]))
+            ->map(fn (object $row) => $this->mismatchMessage($orgPartner, $row))
             ->all();
+    }
+
+    public function mismatchMessage(OrgPartner $orgPartner, object $row): string
+    {
+        return __(':sko is packed in :seller at :seller_org and :buyer at :buyer_org, the SKO must be the same in both before it can be ordered between them', [
+            'sko'        => $row->code,
+            'seller'     => $row->seller_packed_in,
+            'seller_org' => $orgPartner->partner->name,
+            'buyer'      => $row->buyer_packed_in,
+            'buyer_org'  => $orgPartner->organisation->name,
+        ]);
     }
 
     public function mismatchedStockIds(OrgPartner $orgPartner, array $stockIds): array
@@ -66,7 +71,7 @@ class EnsurePartnerOrderPackedInMatches
         return $this->mismatchedRows($orgPartner, $stockIds)->pluck('stock_id')->all();
     }
 
-    private function mismatchedRows(OrgPartner $orgPartner, array $stockIds): Collection
+    public function mismatchedRows(OrgPartner $orgPartner, array $stockIds): Collection
     {
         if (!$stockIds) {
             return collect();
@@ -79,6 +84,6 @@ class EnsurePartnerOrderPackedInMatches
             ->where('seller.organisation_id', $orgPartner->partner_id)
             ->whereIn('seller.stock_id', $stockIds)
             ->whereRaw('coalesce(seller.packed_in, 1) <> coalesce(buyer.packed_in, 1)')
-            ->get(['seller.stock_id', 'seller.code', DB::raw('coalesce(seller.packed_in, 1) as seller_packed_in'), DB::raw('coalesce(buyer.packed_in, 1) as buyer_packed_in')]);
+            ->get(['seller.stock_id', 'seller.code', 'seller.slug as seller_slug', 'buyer.id as buyer_id', 'buyer.slug as buyer_slug', DB::raw('coalesce(seller.packed_in, 1) as seller_packed_in'), DB::raw('coalesce(buyer.packed_in, 1) as buyer_packed_in')]);
     }
 }

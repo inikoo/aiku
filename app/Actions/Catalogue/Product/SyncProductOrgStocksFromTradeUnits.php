@@ -14,6 +14,7 @@ use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateOrgStocksWithoutPr
 use App\Enums\Inventory\OrgStock\OrgStockQuantityStatusEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Models\Catalogue\Product;
+use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\OrgStockFamily;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -29,6 +30,7 @@ class SyncProductOrgStocksFromTradeUnits
         $orgStocks = [];
 
         foreach ($product->tradeUnits as $tradeUnit) {
+            $hasOrgStock = false;
             foreach ($tradeUnit->stocks as $stock) {
                 $candidates = $stock->orgStocks->where('organisation_id', $product->organisation_id);
                 $orgStock   = $candidates->firstWhere('state', OrgStockStateEnum::ACTIVE) ?? $candidates->first();
@@ -51,35 +53,19 @@ class SyncProductOrgStocksFromTradeUnits
                     ]);
                 }
 
+                /** Picks follow the organisation's own packing (OS-TU), falling back to the group stock's. */
+                $orgUnitsPerPack = $orgStock->tradeUnits->firstWhere('id', $tradeUnit->id)?->pivot->quantity
+                    ?? $stock->pivot->quantity;
+
+                $orgStocks[$orgStock->id] = $this->pivotData($orgStock, $tradeUnit->pivot->quantity, $orgUnitsPerPack);
+                $hasOrgStock              = true;
+            }
+
+            if (!$hasOrgStock) {
+                $candidates = $tradeUnit->orgStocks->where('organisation_id', $product->organisation_id);
+                $orgStock   = $candidates->firstWhere('state', OrgStockStateEnum::ACTIVE) ?? $candidates->first();
                 if ($orgStock) {
-                    $packedIn        = null;
-                    $tradeUnitsCount = $orgStock->tradeUnits->count();
-                    if ($tradeUnitsCount == 1) {
-                        $packedIn = $orgStock->tradeUnits->first()->pivot->quantity;
-                        // If packedIn is not an integer, set it to null
-                        if ($packedIn !== null) {
-                            $pf = (float)$packedIn;
-                            if (floor($pf) != $pf) {
-                                $packedIn = null;
-                            }
-                        }
-
-                        if ($packedIn !== null) {
-                            $packedIn = (int)$packedIn;
-                        }
-                    }
-
-                    /** Picks follow the organisation's own packing (OS-TU), falling back to the group stock's. */
-                    $orgUnitsPerPack = $orgStock->tradeUnits->firstWhere('id', $tradeUnit->id)?->pivot->quantity
-                        ?? $stock->pivot->quantity;
-                    list($smallestDividend, $correspondingDivisor) = findSmallestFactors($orgUnitsPerPack);
-
-                    $orgStocks[$orgStock->id] = [
-                        'quantity'                  => $tradeUnit->pivot->quantity / $orgUnitsPerPack,
-                        'trade_units_per_org_stock' => $packedIn,
-                        'divisor'                   => $correspondingDivisor,
-                        'dividend'                  => $smallestDividend
-                    ];
+                    $orgStocks[$orgStock->id] = $this->pivotData($orgStock, $tradeUnit->pivot->quantity, $orgStock->pivot->quantity);
                 }
             }
         }
@@ -91,6 +77,29 @@ class SyncProductOrgStocksFromTradeUnits
         }
 
         return $product;
+    }
+
+    /**
+     * @return array{quantity: float|int, trade_units_per_org_stock: int|null, divisor: int, dividend: int}
+     */
+    private function pivotData(OrgStock $orgStock, float|int|string $tradeUnitQuantity, float|int|string $orgUnitsPerPack): array
+    {
+        $packedIn = null;
+        if ($orgStock->tradeUnits->count() == 1) {
+            $packedIn = $orgStock->tradeUnits->first()->pivot->quantity;
+            if ($packedIn !== null) {
+                $packedIn = floor((float) $packedIn) == (float) $packedIn ? (int) $packedIn : null;
+            }
+        }
+
+        list($smallestDividend, $correspondingDivisor) = findSmallestFactors($orgUnitsPerPack);
+
+        return [
+            'quantity'                  => $tradeUnitQuantity / $orgUnitsPerPack,
+            'trade_units_per_org_stock' => $packedIn,
+            'divisor'                   => $correspondingDivisor,
+            'dividend'                  => $smallestDividend,
+        ];
     }
 
 }

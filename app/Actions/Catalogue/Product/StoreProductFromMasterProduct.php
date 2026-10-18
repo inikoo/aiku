@@ -74,7 +74,7 @@ class StoreProductFromMasterProduct extends OrgAction
                         'state'                     => ProductStateEnum::ACTIVE,
                         'status'                    => ProductStatusEnum::FOR_SALE,
                         'is_main'                   => $isMain,
-                        'is_for_sale'               => data_get($modelData, 'is_for_sale', $masterAsset->is_for_sale),
+                        'is_for_sale'               => data_get($modelData, 'is_for_sale') ?? $masterAsset->is_for_sale ?? true,
                         'is_golden_product'         => $masterAsset->is_golden_product,
                         'is_indivisible'            => $masterAsset->is_indivisible,
                         'is_minion_variant'         => !$isMain,
@@ -139,6 +139,10 @@ class StoreProductFromMasterProduct extends OrgAction
 
         if ($masterVariant) {
             $variant = $masterAsset->masterVariant->variants()->where('shop_id', $product->shop->id)->first();
+            $leader  = $masterVariant->leaderMasterProduct?->products()->where('shop_id', $product->shop->id)->first();
+            if (!$variant && !$leader) {
+                return $product;
+            }
             if (!$variant) {
                 $variant = StoreVariantFromMaster::make()->action(
                     $masterAsset->masterVariant,
@@ -151,8 +155,7 @@ class StoreProductFromMasterProduct extends OrgAction
             $product->update([
                 'variant_id' => $variant->id,
             ]);
-            $leader = $masterAsset->masterVariant->leaderMasterProduct->products()->where('shop_id', $product->shop->id)->first();
-            if ($leader->id == $product->id) {
+            if ($leader?->id == $product->id) {
                 $product->update([
                     'is_main'           => true,
                     'is_minion_variant' => false,

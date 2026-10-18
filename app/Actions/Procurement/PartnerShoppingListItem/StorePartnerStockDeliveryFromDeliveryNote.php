@@ -69,24 +69,28 @@ class StorePartnerStockDeliveryFromDeliveryNote
         $deliveryNoteItems          = $deliveryNote->deliveryNoteItems()->with(['transaction', 'orgStock'])->get();
         $unitsRequiredByTransaction = $deliveryNoteItems->groupBy('transaction_id')->map->sum('quantity_required');
 
-        foreach ($deliveryNoteItems as $deliveryNoteItem) {
+        foreach ($deliveryNoteItems->groupBy(fn ($deliveryNoteItem) => $deliveryNoteItem->orgStock?->stock_id) as $stockId => $stockDeliveryNoteItems) {
             $buyerOrgStock = OrgStock::where('organisation_id', $buyerOrganisation->id)
-                ->where('stock_id', $deliveryNoteItem->orgStock?->stock_id)
+                ->where('stock_id', $stockId)
                 ->first();
 
             if (!$buyerOrgStock) {
                 Log::warning('Intercompany stock delivery: no buyer org stock', [
-                    'delivery_note_item_id' => $deliveryNoteItem->id,
+                    'delivery_note_item_id' => $stockDeliveryNoteItems->first()->id,
                     'org_partner_id'        => $orgPartner->id,
                 ]);
                 continue;
             }
 
-            $unitQuantity     = (float) $deliveryNoteItem->quantity_required * (float) ($deliveryNoteItem->orgStock?->packed_in ?: 1);
-            $transactionUnits = (float) $unitsRequiredByTransaction->get($deliveryNoteItem->transaction_id, 0);
-            $netAmount        = $transactionUnits > 0 && $deliveryNote->type !== DeliveryNoteTypeEnum::REPLACEMENT
-                ? round((float) $deliveryNoteItem->transaction?->net_amount * (float) $deliveryNoteItem->quantity_required / $transactionUnits, 2)
-                : 0;
+            $unitQuantity = 0;
+            $netAmount    = 0;
+            foreach ($stockDeliveryNoteItems as $deliveryNoteItem) {
+                $unitQuantity     += (float) $deliveryNoteItem->quantity_required * (float) ($deliveryNoteItem->orgStock?->packed_in ?: 1);
+                $transactionUnits = (float) $unitsRequiredByTransaction->get($deliveryNoteItem->transaction_id, 0);
+                if ($transactionUnits > 0 && $deliveryNote->type !== DeliveryNoteTypeEnum::REPLACEMENT) {
+                    $netAmount += round((float) $deliveryNoteItem->transaction?->net_amount * (float) $deliveryNoteItem->quantity_required / $transactionUnits, 2);
+                }
+            }
 
             StoreStockDeliveryItem::make()->action(
                 $stockDelivery,
@@ -114,10 +118,8 @@ class StorePartnerStockDeliveryFromDeliveryNote
         return OrgPartner::where('partner_id', $deliveryNote->organisation_id)
             ->get()
             ->first(function (OrgPartner $orgPartner) use ($order) {
-                return in_array(
-                    $order->customer_id,
-                    data_get($orgPartner->data, 'intercompany_customers', []),
-                );
+                return in_array($order->customer_id, data_get($orgPartner->data, 'intercompany_customers', []))
+                    || ($order->customer?->as_organisation_id && $order->customer->as_organisation_id === $orgPartner->organisation_id);
             });
     }
 }

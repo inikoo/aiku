@@ -5,25 +5,28 @@
   -->
 
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { computed, ref, watch } from "vue"
 import { router } from "@inertiajs/vue3"
-import Dialog from "primevue/dialog"
+import { notify } from "@kyvg/vue3-notification"
 import DatePicker from "primevue/datepicker"
 import InputText from "primevue/inputtext"
 import InputNumber from "primevue/inputnumber"
+import FileUpload from "primevue/fileupload"
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
+import Select from "primevue/select"
+import { InvoiceChargeType, invoiceChargeTypeOptions } from "@/Components/Procurement/invoiceChargeTypes"
 import { useLocaleStore } from "@/Stores/locale"
 import { ctrans } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faFileInvoice, faPlus, faTrashAlt } from "@fal"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { faFileInvoice, faPlus, faTrashAlt, faTimes, faCheck } from "@fal"
 
-library.add(faFileInvoice, faPlus, faTrashAlt)
+library.add(faFileInvoice, faPlus, faTrashAlt, faTimes, faCheck)
 
 interface Charge {
 	description: string
-	type: "freight" | "other"
+	type: InvoiceChargeType
 	amount: number | null
 }
 
@@ -36,14 +39,13 @@ const props = defineProps<{
 		reference: string | null
 		date: string
 		goods: number
-		charges_list: { description: string; type?: "freight" | "other"; amount: number }[]
+		charges_list: { description: string; type?: InvoiceChargeType; amount: number }[]
 	} | null
 }>()
 
 const locale = useLocaleStore()
 const fieldFocusClass = "[&.p-focus]:!border-[--app-accent] [&_input:focus]:!border-[--app-accent]"
 
-const isOpen = ref(false)
 const isSaving = ref(false)
 const errors = ref<Record<string, string>>({})
 
@@ -51,25 +53,26 @@ const reference = ref("")
 const date = ref<Date | null>(null)
 const goodsAmount = ref<number | null>(null)
 const charges = ref<Charge[]>([])
+const files = ref<File[]>([])
 
-const chargeTypes = [
-	{ label: ctrans("Freight"), value: "freight" },
-	{ label: ctrans("Other"), value: "other" },
-]
+const chargeTypes = invoiceChargeTypeOptions()
 
 const isActual = computed(() => props.invoice?.source === "actual")
 
 const toIsoDate = (value: Date) => `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, "0")}-${String(value.getDate()).padStart(2, "0")}`
 
-const open = () => {
+const reset = () => {
 	const fromActual = isActual.value && props.invoice
 	reference.value = fromActual ? props.invoice!.reference ?? "" : ""
 	date.value = fromActual ? new Date(props.invoice!.date) : null
 	goodsAmount.value = props.invoice ? props.invoice.goods : null
 	charges.value = (props.invoice?.charges_list ?? []).map(charge => ({ description: charge.description, type: charge.type ?? "other", amount: charge.amount }))
+	files.value = []
 	errors.value = {}
-	isOpen.value = true
 }
+
+reset()
+watch(() => props.invoice, reset)
 
 const total = computed(() => (goodsAmount.value ?? 0) + charges.value.reduce((sum, charge) => sum + (charge.amount ?? 0), 0))
 
@@ -81,12 +84,15 @@ const save = () => {
 			date: date.value ? toIsoDate(date.value) : null,
 			goods_amount: goodsAmount.value,
 			charges: charges.value,
+			...(files.value.length ? { attachments: files.value } : {}),
 		},
 		{
 			preserveScroll: true,
+			preserveState: true,
+			forceFormData: files.value.length > 0,
 			onStart: () => { isSaving.value = true },
 			onFinish: () => { isSaving.value = false },
-			onSuccess: () => { isOpen.value = false },
+			onSuccess: () => notify({ title: ctrans("Invoice saved"), type: "success" }),
 			onError: (formErrors) => { errors.value = formErrors },
 		}
 	)
@@ -94,23 +100,12 @@ const save = () => {
 </script>
 
 <template>
-	<div>
-		<Button
-			type="tertiary"
-			size="xs"
-			:label="isActual ? ctrans('Edit invoice') : props.invoice?.source === 'estimated' ? ctrans('Enter real invoice') : ctrans('Enter invoice')"
-			icon="fal fa-file-invoice"
-			@click="open"
-		/>
-
-		<Dialog
-			v-model:visible="isOpen"
-			modal
-			dismissableMask
-			:header="isAgent ? ctrans('Agent invoice received') : ctrans('Supplier invoice received')"
-			:style="{ width: '40rem' }"
-			:breakpoints="{ '768px': '95vw' }"
-		>
+	<div class="px-4 py-3">
+		<div class="overflow-hidden rounded-md border border-gray-200">
+			<div class="bg-gray-50 px-3 py-2 text-xs font-medium text-gray-600">
+				{{ isActual ? ctrans("The invoice") : props.invoice?.source === "estimated" ? ctrans("Enter the real invoice") : ctrans("Enter the invoice") }}
+			</div>
+			<div class="p-3">
 			<p v-if="props.invoice?.source === 'estimated'" class="mb-4 text-sm text-gray-500">
 				{{ ctrans("These figures replace the estimate. The estimate is kept for comparison.") }}
 			</p>
@@ -137,7 +132,7 @@ const save = () => {
 				<div class="mb-2 text-gray-600">{{ isAgent ? ctrans("Agent charges") : ctrans("Supplier charges") }}</div>
 				<div v-for="(charge, index) in charges" :key="index" class="mb-2 flex items-center gap-2">
 					<InputText v-model="charge.description" :placeholder="ctrans('Description')" size="small" class="flex-1" :class="fieldFocusClass" />
-					<SegmentedToggle v-model="charge.type" :options="chargeTypes" />
+					<Select v-model="charge.type" :options="chargeTypes" optionLabel="label" optionValue="value" class="w-56" :aria-label="ctrans('Charge type')" />
 					<InputNumber v-model="charge.amount" mode="currency" :currency="currencyCode" :min="0" size="small" :class="fieldFocusClass" :pt="{ pcInputText: { root: { class: '!w-32 !text-right' } } }" :aria-label="ctrans('Amount')" />
 					<Button type="negative" size="xs" icon="fal fa-trash-alt" :aria-label="ctrans('Remove')" @click="charges.splice(index, 1)" />
 				</div>
@@ -151,10 +146,23 @@ const save = () => {
 			</div>
 			<span v-if="errors.invoice" class="mt-2 block text-sm text-red-600">{{ errors.invoice }}</span>
 
-			<template #footer>
-				<Button type="tertiary" :label="ctrans('Cancel')" @click="isOpen = false" />
-				<Button type="save" :label="ctrans('Save invoice')" :loading="isSaving" @click="save" />
-			</template>
-		</Dialog>
+			<div class="mt-4 text-sm">
+				<span class="text-gray-600">{{ ctrans("Invoice file") }}</span>
+				<div class="mt-1 flex flex-wrap items-center gap-2">
+					<FileUpload mode="basic" :auto="false" customUpload multiple accept=".pdf,image/*" :maxFileSize="50000000" :chooseLabel="ctrans('Choose file')" @select="(event: { files: File[] }) => (files = event.files)" />
+					<span class="text-xs text-gray-500">{{ ctrans("PDF or image of the invoice, kept with the delivery") }}</span>
+				</div>
+				<span v-if="Object.keys(errors).some(key => key.startsWith('attachments'))" class="mt-1 block text-xs text-red-600">{{ ctrans("The file could not be uploaded") }}</span>
+			</div>
+
+			<div class="mt-4 flex justify-end gap-2">
+				<Button type="tertiary" :label="ctrans('Save invoice')" :loading="isSaving" @click="save">
+					<template #icon>
+						<FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
+			</div>
+			</div>
+		</div>
 	</div>
 </template>

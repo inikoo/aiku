@@ -9,6 +9,7 @@
 
 namespace App\Actions\Catalogue\Product;
 
+use App\Actions\Traits\Authorisations\WithCatalogueEditAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\Masters\MasterAsset\Hydrators\MasterAssetHydrateMismatch;
 use App\Actions\Masters\MasterAsset\UpdateMasterAsset;
@@ -17,6 +18,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class SyncProductTradeUnitsToMasterAsset extends OrgAction
 {
+    use WithCatalogueEditAuthorisation;
+
     /**
      * @throws \Throwable
      */
@@ -38,7 +41,7 @@ class SyncProductTradeUnitsToMasterAsset extends OrgAction
 
     public function asController(Product $product, ActionRequest $request): void
     {
-        $this->initialisationFromGroup(group(), $request);
+        $this->initialisationFromShop($product->shop, $request);
 
         $this->handle($product);
     }

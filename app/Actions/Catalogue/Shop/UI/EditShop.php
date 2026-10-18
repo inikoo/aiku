@@ -11,6 +11,7 @@ namespace App\Actions\Catalogue\Shop\UI;
 use App\Actions\Catalogue\Shop\External\Shopify\ConnectShopifyExternalShop;
 use App\Actions\Catalogue\Shop\External\Shopify\GetShopifyOrdersInShop;
 use App\Actions\Catalogue\Shop\External\Wix\AuthenticateWixExternalShop;
+use App\Actions\CRM\Customer\GetCustomerStateByLastInvoice;
 use App\Actions\CRM\Customer\GoogleAds\ConnectShopGoogleAds;
 use App\Actions\CRM\Customer\PdfCustomerLetterOfAuthorisation;
 use App\Actions\Helpers\Country\UI\GetCountriesOptions;
@@ -29,6 +30,7 @@ use App\Models\Reviews\ReviewRatingLabel;
 use App\Enums\Catalogue\MasterProductCategory\MasterProductCategoryTypeEnum;
 use App\Enums\Catalogue\Shop\ShopEngineEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\Comms\Email\EmailEditorEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Enums\Ordering\SalesChannel\SalesChannelTypeEnum;
 use App\Http\Resources\Helpers\AddressFormFieldsResource;
@@ -42,6 +44,7 @@ use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use Spatie\LaravelOptions\Options;
 use App\Models\Ordering\SalesChannel;
 
 class EditShop extends OrgAction
@@ -458,6 +461,26 @@ class EditShop extends OrgAction
                             'label'       => __('Identity Document Number Alt. Label'),
                             'information' => __('The label would replace all of the Identity Document Number Alt. text under this shop'),
                             'value'       => data_get($shop->settings, 'customer.identity_document_number_alt', ''),
+                        ],
+                        'customer_losing_after_days'         => [
+                            'type'        => 'input_number',
+                            'bind'        => [
+                                'min' => 1,
+                                'max' => 3650,
+                            ],
+                            'label'       => __('Potential Comebacks after (days)'),
+                            'information' => __('A customer whose last invoice is older than this many days becomes Potential Comebacks. A customer who has never been invoiced stays Registered. Applied at the next daily update.'),
+                            'value'       => GetCustomerStateByLastInvoice::make()->losingAfterDays($shop),
+                        ],
+                        'customer_lost_after_days'           => [
+                            'type'        => 'input_number',
+                            'bind'        => [
+                                'min' => 2,
+                                'max' => 3650,
+                            ],
+                            'label'       => __('Dormant after (days)'),
+                            'information' => __('A customer whose last invoice is older than this many days becomes Dormant. Has to be more than the Potential Comebacks days. Applied at the next daily update.'),
+                            'value'       => GetCustomerStateByLastInvoice::make()->lostAfterDays($shop),
                         ],
                     ],
                 ],
@@ -950,6 +973,21 @@ class EditShop extends OrgAction
                         ] : [],
                     ],
                 ] : [],
+                [
+                    'label'  => __('Email editor'),
+                    'icon'   => 'fal fa-envelope',
+                    'fields' => [
+                        'email_editor' => [
+                            'type'        => 'radio',
+                            'label'       => __('Editor used to design emails'),
+                            'value'       => $shop->emailEditor()->value,
+                            'options'     => Options::forEnum(EmailEditorEnum::class),
+                            'required'    => true,
+                            'columns'     => 1,
+                            'information' => __('Applies to newsletters, marketing mailshots, prospect mailshots, outbox emails and email templates of this shop. Both editors open the same designs.'),
+                        ],
+                    ],
+                ],
                 [
                     'label'  => __('AWS-SES configuration'),
                     'icon'   => 'fa-light fa-key',

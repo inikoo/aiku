@@ -62,10 +62,16 @@ class RedoOrgStockTimeSeries implements ShouldBeUnique
             return;
         }
 
+        $rangeFollowsSource = !$from && !$to;
+
         if (!$from || !$to) {
             $dateRange = $this->getDateRange($orgStock->id);
 
             if (!$dateRange['from']) {
+                if ($rangeFollowsSource) {
+                    $this->deleteRecordsOutsideSourceRange($orgStock->timeSeries()->get());
+                }
+
                 return;
             }
 
@@ -76,6 +82,10 @@ class RedoOrgStockTimeSeries implements ShouldBeUnique
         foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
             [$periodFrom, $periodTo] = TimeSeriesPeriodCalculator::expandWindowToFullPeriods($frequency, $from, $to);
 
+            if ($rangeFollowsSource) {
+                $this->deleteRecordsOutsideSourceRange($orgStock->timeSeries()->where('frequency', $frequency->value)->get(), $periodFrom, $periodTo);
+            }
+
             if ($async) {
                 ProcessOrgStockTimeSeriesRecords::dispatch($orgStock->id, $frequency, $periodFrom, $periodTo)->onQueue('sales_slave_historic');
             } else {
@@ -83,6 +93,5 @@ class RedoOrgStockTimeSeries implements ShouldBeUnique
             }
         }
     }
-
 
 }

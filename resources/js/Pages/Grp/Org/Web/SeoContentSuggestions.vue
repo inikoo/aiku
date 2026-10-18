@@ -10,6 +10,7 @@ import { route } from "ziggy-js"
 import Textarea from "primevue/textarea"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
+import SeoExportButton from "@/Components/Seo/SeoExportButton.vue"
 import Table from "@/Components/Table/Table.vue"
 import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import { capitalize } from "@/Composables/capitalize"
@@ -115,7 +116,11 @@ const webpageHref = (row: SuggestionRow) => {
 
 <template>
     <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead" />
+    <PageHeading :data="pageHead">
+        <template #other>
+            <SeoExportButton table="content_suggestions" />
+        </template>
+    </PageHeading>
 
     <div class="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 pt-4">
         <SegmentedToggle v-model="state" :options="stateOptions" :ariaLabel="ctrans('State')" />

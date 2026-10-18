@@ -61,6 +61,8 @@ class IndexPalletStoredItems extends OrgAction
         $queryBuilder->join('stored_items', 'pallet_stored_items.stored_item_id', '=', 'stored_items.id');
         $queryBuilder->join('pallets', 'pallet_stored_items.pallet_id', '=', 'pallets.id');
         $queryBuilder->join('locations', 'pallets.location_id', '=', 'locations.id');
+        $queryBuilder->leftJoin('fulfilment_customers', 'stored_items.fulfilment_customer_id', '=', 'fulfilment_customers.id');
+        $queryBuilder->with('reservingPalletReturnItems.palletReturn');
 
         if ($parent instanceof FulfilmentCustomer) {
             foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
@@ -91,7 +93,8 @@ class IndexPalletStoredItems extends OrgAction
                 'stored_items.name as stored_item_name',
                 'pallet_stored_items.quantity',
                 'pallet_stored_items.damaged_quantity',
-                'locations.code as location_code'
+                'locations.code as location_code',
+                'fulfilment_customers.slug as fulfilment_customer_slug',
             ])
             ->defaultSort($parent instanceof Pallet ? 'stored_item_reference' : 'pallet_reference');
 
@@ -143,7 +146,7 @@ class IndexPalletStoredItems extends OrgAction
                 $table->column(key: 'stored_item_name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true);
             }
 
-            $table->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'quantity', label: __('Quantity'), canBeHidden: false, sortable: true, searchable: true);
             if (!$parent instanceof Pallet) {
                 $table->column(key: '', label: __('Action'), canBeHidden: false, sortable: true, searchable: true);
             }

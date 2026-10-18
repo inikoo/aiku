@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from "vue"
-import { ctrans } from "@/Composables/useTrans"
+import { ctrans, ctransChoice } from "@/Composables/useTrans"
 import { useFormatTime } from "@/Composables/useFormatTime"
 
 export interface CiStep { number: number, name: string, status: string, conclusion: string | null, started_at: string | null, completed_at: string | null }
@@ -120,7 +120,7 @@ const hasCounts = computed(() => props.recent.some(previous => previous.test_cou
             </div>
 
             <div v-if="run.test_counts" class="mt-2 flex flex-wrap gap-x-3 text-sm tabular-nums">
-                <span class="text-emerald-700">{{ formatCount(run.test_counts.tests - run.test_counts.failed - run.test_counts.skipped) }} {{ ctrans("passed") }}</span>
+                <span class="text-emerald-700">{{ ctransChoice(":number passed", run.test_counts.tests - run.test_counts.failed - run.test_counts.skipped, { number: formatCount(run.test_counts.tests - run.test_counts.failed - run.test_counts.skipped) }) }}</span>
                 <span v-if="run.test_counts.failed" class="font-medium text-red-700">{{ formatCount(run.test_counts.failed) }} {{ ctrans("failed") }}</span>
                 <span v-if="run.test_counts.skipped" class="text-gray-500">{{ formatCount(run.test_counts.skipped) }} {{ ctrans("skipped") }}</span>
                 <span class="text-gray-400">{{ ctrans("of") }} {{ formatCount(run.test_counts.tests) }}</span>

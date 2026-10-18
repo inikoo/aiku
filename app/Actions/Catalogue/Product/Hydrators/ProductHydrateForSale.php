@@ -46,7 +46,8 @@ class ProductHydrateForSale implements ShouldBeUnique
         }
 
         $product->update(['is_for_sale' => $isForSale]);
-        return $product;
+
+        return ProductHydrateFirstAvailableAt::run($product);
     }
 
 }

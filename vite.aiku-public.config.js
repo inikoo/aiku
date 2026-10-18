@@ -8,6 +8,7 @@ import { defineConfig } from "vite";
 import laravel from "laravel-vite-plugin";
 import vue from "@vitejs/plugin-vue";
 import i18n from "laravel-vue-i18n/vite";
+import { withSharedLangFiles } from "./vite.app-plugins.mjs";
 import { fileURLToPath, URL } from "node:url";
 import { codecov } from "./vite.codecov.mjs";
 import path from "node:path";
@@ -33,7 +34,7 @@ export default defineConfig(
               }
             }
           }),
-      i18n(),
+      withSharedLangFiles(i18n()),
       codecov("aiku-public")
     ],
     ssr    : {
@@ -61,8 +62,8 @@ export default defineConfig(
       }
     },
     build  : {
-      reportCompressedSize: false,
       sourcemap    : true,
+      reportCompressedSize: false,
       devSourcemap : true,
       rollupOptions: {
         output: {

@@ -12,10 +12,12 @@ use App\Actions\Helpers\Country\UI\GetCountriesOptions;
 use App\Actions\Helpers\Currency\UI\GetCurrenciesOptions;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgSupplier\UI\IndexOrgSuppliers;
+use App\Actions\SupplyChain\SupplierProduct\CopySupplierProductsToSupplier;
 use App\Actions\Traits\Authorisations\WithSupplyChainEditAuthorisation;
 use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Currency;
+use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Group;
@@ -33,6 +35,8 @@ class CreateSupplier extends OrgAction
     private ?Agent $agent = null;
 
     private ?Organisation $scopeOrganisation = null;
+
+    private ?int $copiedProductsCurrencyId = null;
 
     public function authorize(ActionRequest $request): bool
     {
@@ -56,6 +60,9 @@ class CreateSupplier extends OrgAction
         $routeName       = $request->route()->getName();
         $routeParameters = array_values($request->route()->originalParameters());
 
+        $copiedOrgSupplierProductIds = $this->getCopiedOrgSupplierProductIds($parent, $request);
+        $numberCopiedProducts        = count($copiedOrgSupplierProductIds);
+
         return Inertia::render(
             'CreateModel',
             [
@@ -65,8 +72,11 @@ class CreateSupplier extends OrgAction
                 ),
                 'title'       => __('New Supplier'),
                 'pageHead'    => [
-                    'title'   => __('New Supplier'),
-                    'actions' => [
+                    'title'      => __('New Supplier'),
+                    'afterTitle' => $numberCopiedProducts
+                        ? ['label' => trans_choice('with :count selected product|with :count selected products', $numberCopiedProducts, ['count' => $numberCopiedProducts])]
+                        : null,
+                    'actions'    => [
                         [
                             'type'  => 'button',
                             'style' => 'cancel',
@@ -80,7 +90,7 @@ class CreateSupplier extends OrgAction
                 ],
                 'formData'    => [
                     'blueprint' => $this->getBlueprint($parent),
-                    'route'     => $this->getStoreRoute($parent),
+                    'route'     => $this->getStoreRoute($parent) + ($numberCopiedProducts ? ['body' => ['org_supplier_products' => $copiedOrgSupplierProductIds]] : []),
                 ],
             ]
         );
@@ -117,6 +127,34 @@ class CreateSupplier extends OrgAction
         $this->initialisationFromGroup($organisation->group, $request);
 
         return $this->handle($organisation->group, $request);
+    }
+
+    /**
+     * @return array<int, int>
+     */
+    private function getCopiedOrgSupplierProductIds(Group|Agent $parent, ActionRequest $request): array
+    {
+        $orgSupplierProductIds = array_filter(array_map('intval', (array) $request->query('org_supplier_products', [])));
+
+        if (!$parent instanceof Agent || !$orgSupplierProductIds) {
+            return [];
+        }
+
+        $copySupplierProducts = CopySupplierProductsToSupplier::make();
+        $supplierProducts     = $copySupplierProducts->getAgentsSupplierProducts(
+            $copySupplierProducts->getAccessibleAgents($request->user())->pluck('id')->all(),
+            $orgSupplierProductIds
+        );
+        $supplierProductIds   = $supplierProducts->pluck('id');
+
+        if ($supplierProducts->first()?->agent_id === $parent->id) {
+            $this->copiedProductsCurrencyId = $supplierProducts->first()->currency_id;
+        }
+
+        return OrgSupplierProduct::whereIn('id', $orgSupplierProductIds)
+            ->whereIn('supplier_product_id', $supplierProductIds)
+            ->pluck('id')
+            ->all();
     }
 
     protected function getBlueprint(Group|Agent $parent): array
@@ -267,6 +305,7 @@ class CreateSupplier extends OrgAction
                         'type'       => 'select',
                         'label'      => __('Currency'),
                         'options'    => GetCurrenciesOptions::run(),
+                        'value'      => $this->copiedProductsCurrencyId,
                         'required'   => true,
                         'mode'       => 'single',
                         'searchable' => true,

@@ -23,6 +23,9 @@ use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Dispatching\Shipper;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\GoodsIn\StockDeliveryServiceInvoice;
+use App\Enums\Procurement\ProcurementNote\ProcurementNoteCategoryEnum;
+use App\Enums\Procurement\ProcurementNote\ProcurementNoteIncidentOutcomeEnum;
+use App\Models\Procurement\ProcurementNote;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Organisation;
@@ -159,6 +162,19 @@ class ShowProcurementDashboard extends OrgAction
                 [],
                 ['paid' => 'unpaid']
             ),
+            $this->dashboardCard(
+                __('Supplier incidents'),
+                __('Open incidents per supplier, with what was disputed and recovered'),
+                'fal fa-exclamation-triangle',
+                ProcurementNote::where('group_id', $organisation->group_id)
+                    ->forOrganisation($organisation)
+                    ->where('category', ProcurementNoteCategoryEnum::INCIDENT)
+                    ->where('incident_outcome', ProcurementNoteIncidentOutcomeEnum::OPEN)
+                    ->active()
+                    ->count(),
+                'amber',
+                'grp.org.procurement.supplier_incidents.index'
+            ),
         ]);
     }
 
@@ -208,6 +224,26 @@ class ShowProcurementDashboard extends OrgAction
         ];
     }
 
+    private function getDeliveriesToCostCard(): ?array
+    {
+        if ($this->organisation->type !== OrganisationTypeEnum::SHOP) {
+            return null;
+        }
+
+        $toCost = StockDelivery::where('organisation_id', $this->organisation->id)->toCost()->count();
+
+        return $toCost ? $this->dashboardCard(
+            __('Deliveries to cost'),
+            __('Stock deliveries whose costing is still open'),
+            'fal fa-box-usd',
+            $toCost,
+            'amber',
+            'grp.org.procurement.stock_deliveries.index',
+            [],
+            ['elements[costing]' => 'to_cost']
+        ) + ['attention' => true] : null;
+    }
+
     private function dashboardRoute(string $routeName, array $query = []): array
     {
         $parameters = ['organisation' => $this->organisation->slug];
@@ -245,7 +281,7 @@ class ShowProcurementDashboard extends OrgAction
                 ],
 
                 'shippers' => Shipper::query()->get(),
-                'dashboardCards' => array_values(array_filter([GetUncostedStockDeliveriesCard::run($this->organisation), ...$this->getDashboardCards($numbers)])),
+                'dashboardCards' => array_values(array_filter([$this->getDeliveriesToCostCard(), GetUncostedStockDeliveriesCard::run($this->organisation), ...$this->getDashboardCards($numbers)])),
                 'stockLevels' => $this->organisation->type === OrganisationTypeEnum::SHOP
                     ? Cache::flexible("procurement-dashboard:stock-levels:{$this->organisation->id}:".($source ?? 'all'), self::STOCK_LEVELS_FRESH_AND_STALE_SECONDS, fn () => $this->getStockLevels($source))
                     : [],

@@ -9,6 +9,7 @@
 
 namespace App\Actions\Dispatching\Box\UI;
 
+use App\Enums\SysAdmin\Authorisation\WarehousePermissionsEnum;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Http\Resources\Dispatching\BoxesResource;
@@ -76,7 +77,7 @@ class IndexBoxes extends OrgAction
                 'pageHead'    => [
                     'title' => __('Boxes'),
                     'icon'  => 'fal fa-box',
-                    'actions' => [
+                    'actions' => !$request->user()->authTo(WarehousePermissionsEnum::getDispatchingEditPermissionNames($this->organisation)) ? [] : [
                         [
                             'type'    => 'button',
                             'style'   => 'create',

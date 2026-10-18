@@ -69,7 +69,9 @@ Também podes marcar produtos na lista. Aparecem botões acima dela:
 
 Se já vendes os nossos produtos no Shopify, dá a cada produto Shopify (ou variante) o mesmo SKU que o nosso código de produto antes de associares. Depois usa <b>Match all with default product</b>. Isto liga os teus anúncios existentes e não cria novos.
 
-Se vendes vários dos nossos produtos como as variantes de um produto Shopify, por exemplo um produto com uma variante por cor, cada variante tem de ter o seu próprio SKU. Pede-nos no chat do nosso site para ativarmos a ligação a variantes existentes para o teu canal. Não a podes ativar tu mesmo. Depois, a associação liga cada produto à variante com o seu SKU, e nunca mudamos o preço, o SKU ou o código de barras das tuas variantes.
+Se vendes vários dos nossos produtos como as variantes de um produto Shopify, por exemplo um produto com uma variante por cor, dá a cada variante o SKU do seu produto. Não há nada para ativar: a associação liga cada produto à variante com o seu SKU, e nunca mudamos o preço, o SKU ou o código de barras das tuas variantes. Cada uma dessas variantes só pode ter stock na localização <b>aiku-</b>. Remove-lhe no Shopify todas as outras localizações, mesmo uma que mostre 0, ou a associação é recusada, porque o Shopify poderia enviar as suas encomendas para lá e elas nunca chegariam até nós.
+
+Um produto Shopify com uma só variante não é ligado desta forma: a associação substitui a sua variante pela nossa. Vê [O que acontece às descrições dos teus produtos](/docs/product-descriptions-after-connecting).
 
 ## Encontrar produtos na lista
 
@@ -102,9 +104,9 @@ Para veres o que aconteceu com cada carregamento, abre a aba <b>Logs</b> em <b>M
 
 **"No variant on Shopify matches this sku".** ("Nenhuma variante no Shopify corresponde a este sku.") O produto está ligado, mas já não conseguimos encontrar o seu SKU no Shopify. O SKU foi mudado, ou o produto ou a variante foi apagado no Shopify. Volta a colocar o SKU, ou liga o produto de novo com <b>Connect with other product</b>.
 
-**"You need to add option values for Colour"** ("Precisas de adicionar valores de opção para Colour") (ou outra opção). Associaste a um produto Shopify que tem opções, como cores. Dá a cada variante o seu próprio SKU e pede-nos no chat do nosso site para ativarmos a ligação a variantes existentes, ou associa a um produto sem opções.
+**"You need to add option values for Colour"** ("Precisas de adicionar valores de opção para Colour") (ou outra opção). Associaste a um produto Shopify que tem opções, como cores, e nenhuma das suas variantes tem o nosso SKU. Dá à variante o SKU do nosso produto e associa de novo, ou associa a um produto sem opções.
 
-**"None of the variants of this Shopify product has the sku ...".** ("Nenhuma das variantes deste produto Shopify tem o sku ...") A ligação a variantes está ativa, mas nenhuma variante tem o nosso SKU. Define o SKU na variante que queres e associa de novo.
+**"This Shopify variant is also stocked at your location ...".** ("Esta variante do Shopify também tem stock na tua localização ...") A variante também tem stock numa das tuas próprias localizações, por isso o Shopify poderia enviar as suas encomendas para lá e nós nunca as receberíamos. Remove essa localização da variante no Shopify, mesmo que mostre 0, e associa de novo.
 
 **"More than one variant of this Shopify product has the sku ...".** ("Mais do que uma variante deste produto Shopify tem o sku ...") Duas variantes têm o mesmo SKU. Dá a cada variante o seu próprio SKU.
 

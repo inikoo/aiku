@@ -8,6 +8,7 @@
 
 namespace App\Actions\Production\JobOrder\UI;
 
+use App\Actions\Production\JobOrder\HoldJobOrder;
 use App\Actions\Production\JobOrderItem\GetOpenJobOrderItemsOffBatch;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Models\HumanResources\Employee;
@@ -31,11 +32,18 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowJobOrder extends OrgAction
 {
+    private bool $canHold = false;
+
     public function authorize(ActionRequest $request): bool
     {
         $jobOrder      = $request->route('jobOrder');
         $isOwnJobOrder = $jobOrder instanceof JobOrder && $jobOrder->employee_id
             && $jobOrder->employee_id == GetUserCurrentEmployee::run($request->user(), $this->organisation->id)?->id;
+
+        $this->canHold = $request->user()->authTo([
+            'org-supervisor.'.$this->organisation->id,
+            "productions_operations.{$this->production->id}.orchestrate",
+        ]);
 
         $this->canEdit = $request->user()->authTo([
             'org-supervisor.'.$this->organisation->id,
@@ -68,9 +76,13 @@ class ShowJobOrder extends OrgAction
         $isOpen          = in_array($jobOrder->state, JobOrderStateEnum::open());
         $currencySymbol  = $this->organisation->currency->symbol;
         $allItems        = $jobOrder->jobOrderItems()
-            ->with(['artefact.orgStock', 'tasks.manufactureTask', 'tasks.sessions.user', 'tasks.sessionShares.session.user', 'employee'])
+            ->with(['artefact.orgStock', 'artefact.manufactureTasks', 'tasks.manufactureTask.artisans', 'tasks.sessions.user', 'tasks.sessionShares.session.user', 'employee', 'tasks.employee'])
             ->orderBy('id')
             ->get();
+        $allItems->each(function (JobOrderItem $item) use ($jobOrder) {
+            $item->setRelation('jobOrder', $jobOrder);
+            $item->tasks->each(fn (JobOrderItemTask $task) => $task->setRelation('jobOrderItem', $item)->setRelation('jobOrder', $jobOrder));
+        });
         $subJobsByLine   = $allItems->groupBy(fn (JobOrderItem $item) => $item->split_from_id ?? $item->id);
 
         $items = $allItems->whereNull('split_from_id')
@@ -96,9 +108,9 @@ class ShowJobOrder extends OrgAction
                         'name'       => 'grp.models.job-order-item.split',
                         'parameters' => ['jobOrderItem' => $item->id],
                     ] : null,
-                    'produced_quantity'  => (float)$subJobs->sum(fn (JobOrderItem $subJob) => $subJob->tasks->last()->quantity_made ?? 0),
+                    'produced_quantity'  => (float)$subJobs->sum(fn (JobOrderItem $subJob) => $subJob->finalTask()?->quantity_made ?? 0),
                     'waiting_for'        => GetJobOrderItemMissingMixes::run($item),
-                    'tasks'              => $this->lineTasks($subJobs),
+                    'tasks'              => $this->lineTasks($subJobs, $jobOrder, $this->canEdit),
                     'sub_jobs'           => $isSplit ? $subJobs->values()->map(fn (JobOrderItem $subJob, int $index) => $this->subJob($jobOrder, $subJob, $index, $currencySymbol))->all() : [],
                 ];
             })
@@ -140,8 +152,16 @@ class ShowJobOrder extends OrgAction
                     'employee_id'  => $jobOrder->employee_id,
                     'artisan'      => $jobOrder->employee?->contact_name,
                     'overproductions' => $jobOrder->data['overproductions'] ?? [],
+                    'corrections'     => $jobOrder->data['corrections'] ?? [],
                     'non_productive'  => $this->nonProductive($jobOrder, $currencySymbol),
+                    'hold'            => $this->holdWithLabel($jobOrder->data['hold'] ?? null),
+                    'holds'           => array_map(fn (array $hold) => $this->holdWithLabel($hold), $jobOrder->data['holds'] ?? []),
                 ],
+                'hold_route'        => $this->canHold && ($isOpen || isset($jobOrder->data['hold'])) ? [
+                    'name'       => 'grp.models.job-order.hold',
+                    'parameters' => ['jobOrder' => $jobOrder->id],
+                ] : null,
+                'hold_kind_options' => collect(HoldJobOrder::kindLabels())->map(fn (string $label, string $value) => ['value' => $value, 'label' => $label])->values()->all(),
                 'artisan_options' => $this->canEdit ? Employee::where('organisation_id', $this->organisation->id)
                     ->where('state', EmployeeStateEnum::WORKING)
                     ->orderBy('contact_name')
@@ -178,16 +198,23 @@ class ShowJobOrder extends OrgAction
         );
     }
 
+    private function holdWithLabel(?array $hold): ?array
+    {
+        return $hold ? array_merge($hold, ['kind_label' => HoldJobOrder::kindLabels()[$hold['kind'] ?? 'other'] ?? null]) : null;
+    }
+
     /**
      * The recipe steps of a line, summed over all its sub-jobs.
      *
      * @param  Collection<int, JobOrderItem>  $subJobs
      */
-    private function lineTasks(Collection $subJobs): array
+    private function lineTasks(Collection $subJobs, JobOrder $jobOrder, bool $canAssign): array
     {
+        $subJobReferences = $subJobs->values()->mapWithKeys(fn (JobOrderItem $subJob, int $index) => [$subJob->id => $jobOrder->reference.'-'.chr(65 + $index)]);
+
         return $subJobs->flatMap(fn (JobOrderItem $subJob) => $subJob->tasks)
             ->groupBy('manufacture_task_id')
-            ->map(function (Collection $tasks) {
+            ->map(function (Collection $tasks) use ($subJobReferences, $subJobs, $canAssign) {
                 /** @var JobOrderItemTask $task */
                 $task  = $tasks->first();
                 $state = JobOrderItemTaskStateEnum::TODO;
@@ -205,7 +232,17 @@ class ShowJobOrder extends OrgAction
                     'quantity_required' => (float)$tasks->sum('quantity_required'),
                     'quantity_made'     => (float)$tasks->sum('quantity_made'),
                     'quantity_rejected' => (float)$tasks->sum('quantity_rejected'),
+                    'unit'              => $task->unit(),
+                    'mix_batch_kg'      => $task->mixBatchKg(),
                     'combined_with'     => $this->combinedWith($tasks),
+                    'owners'            => $tasks->map(fn (JobOrderItemTask $stepTask) => [
+                        'id'          => $stepTask->id,
+                        'sub_job'     => $subJobs->count() > 1 ? $subJobReferences[$stepTask->job_order_item_id] : null,
+                        'owner_id'    => $stepTask->assigneeId(),
+                        'owner'       => $stepTask->assignee()?->contact_name,
+                        'only_for'    => $stepTask->manufactureTask->artisans->pluck('id')->all(),
+                        'can_assign'  => $canAssign && $stepTask->state != JobOrderItemTaskStateEnum::DONE,
+                    ])->values()->all(),
                 ];
             })
             ->sortBy('position')
@@ -253,7 +290,7 @@ class ShowJobOrder extends OrgAction
 
     private function subJob(JobOrder $jobOrder, JobOrderItem $subJob, int $index, string $currencySymbol): array
     {
-        $lastTask       = $subJob->tasks->last();
+        $lastTask       = $subJob->finalTask();
         $closedWork = $subJob->tasks->flatMap(fn (JobOrderItemTask $task) => $task->closedWork());
 
         $state = 'assigned';

@@ -15,7 +15,7 @@
 @endphp
 
 @foreach ($cells as $cell)
-    <div style="position: absolute; left: {{ $mm($cell['left']) }}; top: {{ $mm($cell['top']) }}; width: {{ $mm($cellWidth) }}; height: {{ $mm($cellHeight) }}; margin: 0; padding: {{ $mm($cellTopPadding) }} {{ $mm($cellPadding) }} {{ $mm($cellPadding) }}; overflow: hidden;@if ($cutGuides) border: 0.1mm dashed #b0b0b0;@endif">
+    <div style="position: absolute; left: {{ $mm($cell['left']) }}; top: {{ $mm($cell['top']) }}; width: {{ $mm($cellWidth - 2 * $cellPadding) }}; height: {{ $mm($cellHeight - $cellTopPadding - $cellBottomPadding) }}; margin: 0; padding: {{ $mm($cellTopPadding) }} {{ $mm($cellPadding) }} {{ $mm($cellBottomPadding) }}; overflow: hidden;@if ($cutGuides) border: 0.1mm dashed #b0b0b0;@endif">
         @include('labels.templates.pdf.org_stock.'.$level.'_body')
     </div>
 @endforeach

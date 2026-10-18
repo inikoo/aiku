@@ -31,8 +31,27 @@ class FetchOrgStockStocksManagement extends OrgAction
         return $showcase->toArray();
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->authTo([
+            "inventory.{$this->organisation->id}.view",
+            "inventory.{$this->organisation->id}.edit",
+            "accounting.{$this->organisation->id}.view",
+            "org-admin.{$this->organisation->id}",
+            "supervisor-stocks.{$this->warehouse->id}",
+            "stocks.{$this->warehouse->id}.view",
+            "stocks.{$this->warehouse->id}.edit",
+            "dispatching.{$this->warehouse->id}.view",
+            "dispatching.{$this->warehouse->id}.edit",
+            "supervisor-dispatching.{$this->warehouse->id}",
+            "fulfilment.{$this->warehouse->id}.view",
+            "fulfilment.{$this->warehouse->id}.edit",
+        ]);
+    }
+
     public function asController(Warehouse $warehouse, OrgStock $orgStock, ActionRequest $request): Collection
     {
+        abort_unless($orgStock->organisation_id === $warehouse->organisation_id, 404);
         $this->initialisationFromWarehouse($warehouse, $request);
 
         return $this->handle($warehouse, $orgStock);

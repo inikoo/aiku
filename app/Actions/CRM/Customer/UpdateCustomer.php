@@ -48,6 +48,7 @@ use App\Enums\Helpers\TaxNumber\TaxNumberValidationTypeEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Models\CRM\Customer;
+use App\Models\CRM\WebUser;
 use App\Models\Ordering\Order;
 use App\Models\SysAdmin\User;
 use App\Rules\IUnique;
@@ -56,6 +57,7 @@ use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use OwenIt\Auditing\Events\AuditCustom;
@@ -67,7 +69,9 @@ class UpdateCustomer extends OrgAction
     use WithModelAddressActions;
     use WithNoStrictRules;
     use WithProcessContactNameComponents;
-    use WithCRMEditAuthorisation;
+    use WithCRMEditAuthorisation {
+        authorize as authorizeCrmEdit;
+    }
     use WithPrepareTaxNumberValidation;
     use WithValidateTaxNumberCustomAudit;
 
@@ -286,7 +290,13 @@ class UpdateCustomer extends OrgAction
 
         if (Arr::has($changes, 'email')) {
             $webUserWithOldEmail = $customer->webUsers()->where('email', Arr::get($staleData, 'email'))->first();
-            $webUserWithOldEmail?->update(['email' => $customer->email]);
+            $emailTakenByAnotherWebUser = $webUserWithOldEmail && WebUser::where('website_id', $webUserWithOldEmail->website_id)
+                ->where('id', '!=', $webUserWithOldEmail->id)
+                ->whereRaw('lower(email) = ?', [Str::lower((string)$customer->email)])
+                ->exists();
+            if ($webUserWithOldEmail && !$emailTakenByAnotherWebUser) {
+                $webUserWithOldEmail->update(['email' => $customer->email]);
+            }
         }
 
         if (Arr::hasAny($changes, ['state', 'email'])) {
@@ -466,6 +476,22 @@ class UpdateCustomer extends OrgAction
     private function canGrantCredit(): bool
     {
         return $this->asAction && $this->shop->type === ShopTypeEnum::B2B;
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->authorizeCrmEdit($request)) {
+            return true;
+        }
+
+        return $this->shop->type !== ShopTypeEnum::FULFILMENT
+            && array_keys(Arr::except($request->all(), ['_method'])) === ['is_gift_opted_out']
+            && $request->user()->authTo(
+                [
+                    "accounting.{$this->shop->organisation_id}.edit",
+                    "orders.{$this->shop->id}.edit",
+                ]
+            );
     }
 
     public function asController(Customer $customer, ActionRequest $request): Customer

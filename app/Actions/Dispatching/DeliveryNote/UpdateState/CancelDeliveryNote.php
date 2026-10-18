@@ -152,9 +152,9 @@ class CancelDeliveryNote extends OrgAction
 
             if ($deliveryNote->type == DeliveryNoteTypeEnum::ORDER && $modifyOrder) {
                 $order = $deliveryNote->orders->first();
-                if (!in_array($order->state, [
+                $isInvoicedFinalisedOrder = $order->state == OrderStateEnum::FINALISED && $order->invoices()->exists();
+                if (!$isInvoicedFinalisedOrder && !in_array($order->state, [
                     OrderStateEnum::CANCELLED,
-                    OrderStateEnum::FINALISED,
                     OrderStateEnum::DISPATCHED
                 ])) {
                     RollbackOrderAfterDeliveryNoteCancellation::make()->action($order);

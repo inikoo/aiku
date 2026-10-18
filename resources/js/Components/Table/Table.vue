@@ -414,6 +414,8 @@ const hasData = computed(() => {
     return compResourceMeta.value.total > 0;
 });
 
+const hasPeriodFilter = computed(() => Object.keys(queryBuilderProps.value.period_filter ?? {}).length > 0);
+
 
 
 function resetQuery() {
@@ -854,11 +856,32 @@ if (props.isCheckBox) {
 // On select select all
 const onClickSelectAll = (state: boolean) => {
     for(const row in props.resource.data){
-        selectRow[props.resource.data[row][props.checkboxKey]] = !state
+        selectRow[props.resource.data[row][props.checkboxKey]] = !state && !props.disabledCheckbox(props.resource.data[row])
         setLodash(props.resource.data, [row, 'is_checked'], false)
     }
 
      emits('onCheckedAll', {data : props.resource.data, allChecked : compIsAllChecked.value})
+}
+
+let lastToggledRowIndex: number | null = null
+
+const toggleRowCheckbox = (item: Record<string, any>, checked: boolean, event: MouseEvent) => {
+    const rows: Record<string, any>[] = props.resource?.data ?? []
+    const index = rows.indexOf(item)
+    const rowsToToggle = event.shiftKey && lastToggledRowIndex !== null && index !== -1
+        ? rows.slice(Math.min(lastToggledRowIndex, index), Math.max(lastToggledRowIndex, index) + 1)
+        : [item]
+
+    for (const row of rowsToToggle) {
+        if (props.disabledCheckbox(row)) {
+            continue
+        }
+        setLodash(selectRow, [row.id], checked)
+        setLodash(row, ['is_checked'], checked)
+        emits(checked ? 'onChecked' : 'onUnchecked', row)
+    }
+
+    lastToggledRowIndex = index
 }
 
 const clearSelection = () => {
@@ -874,7 +897,7 @@ const clearSelection = () => {
 const compIsAllChecked = props.isCheckBox
   ? computed(() => {
       return compResourceData.value.length > 0 &&
-        compResourceData.value.every((row: Record<string, any>) => {
+        compResourceData.value.filter((row: Record<string, any>) => !props.disabledCheckbox(row)).every((row: Record<string, any>) => {
           const key = props.checkboxKey ? row[props.checkboxKey] : row.id
           return !!selectRow[key]
         })
@@ -1065,7 +1088,7 @@ const getSeverity = (type?: string) => {
     <Transition>
         <!--suppress JSValidateTypes -->
         <slot name='emptyState' :emptyState="queryBuilderProps.emptyState"
-            v-if="queryBuilderProps.emptyState?.count === 0 && compResourceMeta.total === 0 && !queryBuilderProps.globalSearch?.value">
+            v-if="queryBuilderProps.emptyState?.count === 0 && compResourceMeta.total === 0 && !queryBuilderProps.globalSearch?.value && !hasPeriodFilter">
             <EmptyState :data="queryBuilderProps.emptyState">
                 <template #button-empty-state>
                     <slot name="button-empty-state" :action="queryBuilderProps.emptyState?.action">
@@ -1489,13 +1512,13 @@ const getSeverity = (type?: string) => {
                                                         <slot :name="`checkbox`" :checked="{props : props.isChecked(item), item :item.is_checked, row : selectRow[item[checkboxKey]]}" :data="item">
                                                             <FontAwesomeIcon
                                                                 v-show="props.isChecked(item) || item.is_checked || selectRow[item[checkboxKey]]"
-                                                                @click="async () => (setLodash(selectRow, [item.id], false), setLodash(item, ['is_checked'], false), emits('onUnchecked', item))"
+                                                                @click="(event: MouseEvent) => toggleRowCheckbox(item, false, event)"
                                                                 icon='fas fa-check-square'
                                                                 class='text-green-500 p-2 cursor-pointer text-lg mx-auto block'
                                                                 fixed-width aria-hidden='true' />
                                                             <FontAwesomeIcon
                                                                 v-show="!props.isChecked(item) && !item.is_checked && !selectRow[item[checkboxKey]]"
-                                                                @click="async () => (setLodash(selectRow, [item.id], true), setLodash(item, ['is_checked'], true), emits('onChecked', item))"
+                                                                @click="(event: MouseEvent) => toggleRowCheckbox(item, true, event)"
                                                                 icon='fal fa-square'
                                                                 class='text-gray-500 hover:text-gray-700 p-2 cursor-pointer text-lg mx-auto block'
                                                                 fixed-width aria-hidden='true' />
@@ -1565,13 +1588,13 @@ const getSeverity = (type?: string) => {
                                                     <slot :name="`checkbox`" :checked="{props : props.isChecked(item), item :item.is_checked, row : selectRow[item[checkboxKey]]}" :data="item">
                                                         <FontAwesomeIcon
                                                             v-show="props.isChecked(item) || item.is_checked || selectRow[item[checkboxKey]]"
-                                                            @click="async () => (setLodash(selectRow, [item.id], false), setLodash(item, ['is_checked'], false), emits('onUnchecked', item))"
+                                                            @click="(event: MouseEvent) => toggleRowCheckbox(item, false, event)"
                                                             icon='fas fa-check-square'
                                                             class='text-green-500 p-2 cursor-pointer text-lg mx-auto block'
                                                             fixed-width aria-hidden='true' />
                                                         <FontAwesomeIcon
                                                             v-show="!props.isChecked(item) && !item.is_checked && !selectRow[item[checkboxKey]]"
-                                                            @click="async () => (setLodash(selectRow, [item.id], true), setLodash(item, ['is_checked'], true), emits('onChecked', item))"
+                                                            @click="(event: MouseEvent) => toggleRowCheckbox(item, true, event)"
                                                             icon='fal fa-square'
                                                             class='text-gray-500 hover:text-gray-700 p-2 cursor-pointer text-lg mx-auto block'
                                                             fixed-width aria-hidden='true' />
@@ -1634,13 +1657,13 @@ const getSeverity = (type?: string) => {
                                                       <slot :name="`checkbox`" :checked="{props : props.isChecked(item), item :item.is_checked, row : selectRow[item[checkboxKey]]}" :data="item">
                                                     <FontAwesomeIcon
                                                         v-show="props.isChecked(item) || item.is_checked || selectRow[item[checkboxKey]]"
-                                                        @click="async () => (setLodash(selectRow, [item.id], false), setLodash(item, ['is_checked'], false), emits('onUnchecked', item))"
+                                                        @click="(event: MouseEvent) => toggleRowCheckbox(item, false, event)"
                                                         icon='fas fa-check-square'
                                                         class='text-green-500 p-2 cursor-pointer text-lg mx-auto block'
                                                         fixed-width aria-hidden='true' />
                                                     <FontAwesomeIcon
                                                         v-show="!props.isChecked(item) && !item.is_checked && !selectRow[item[checkboxKey]]"
-                                                        @click="async () => (setLodash(selectRow, [item.id], true), setLodash(item, ['is_checked'], true), emits('onChecked', item))"
+                                                        @click="(event: MouseEvent) => toggleRowCheckbox(item, true, event)"
                                                         icon='fal fa-square'
                                                         class='text-gray-500 hover:text-gray-700 p-2 cursor-pointer text-lg mx-auto block'
                                                         fixed-width aria-hidden='true' />

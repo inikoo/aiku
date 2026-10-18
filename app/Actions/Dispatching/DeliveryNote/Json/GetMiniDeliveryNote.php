@@ -9,6 +9,7 @@
 namespace App\Actions\Dispatching\DeliveryNote\Json;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithDispatchingAuthorisation;
 use App\Actions\Retina\UI\Layout\GetPlatformLogo;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Http\Resources\CRM\CustomerResource;
@@ -20,6 +21,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetMiniDeliveryNote extends OrgAction
 {
+    use WithDispatchingAuthorisation;
     use AsAction;
     use GetPlatformLogo;
 
@@ -42,6 +44,7 @@ class GetMiniDeliveryNote extends OrgAction
 
         return [
             'delivery_note' => [
+                'can_work'         => request()->user() instanceof \App\Models\SysAdmin\User && $deliveryNote->canBeWorkedOnBy(request()->user()),
                 'state'            => $deliveryNote->state,
                 'state_icon'       => DeliveryNoteStateEnum::stateIcon()[$deliveryNote->state->value],
                 'state_label'      => $deliveryNote->state->labels()[$deliveryNote->state->value],

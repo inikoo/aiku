@@ -37,7 +37,7 @@ class StartManufactureTaskSession extends OrgAction
     {
         $group = JobOrderItemTask::find($jobOrderItemTask->id)?->combinedGroup() ?? collect();
         JobOrder::whereIn('id', $group->pluck('job_order_id'))->orderBy('id')->lockForUpdate()->get();
-        $group = $group->map(fn (JobOrderItemTask $task) => JobOrderItemTask::with(['jobOrder', 'jobOrderItem'])->find($task->id));
+        $group = $group->map(fn (JobOrderItemTask $task) => JobOrderItemTask::with(['jobOrder', 'jobOrderItem', 'manufactureTask.artisans'])->find($task->id));
 
         if ($group->isEmpty() || $group->contains(fn (?JobOrderItemTask $task) => !$task?->jobOrder || !$task->jobOrderItem)) {
             throw ValidationException::withMessages([
@@ -47,7 +47,13 @@ class StartManufactureTaskSession extends OrgAction
 
         $lead     = $group->first();
         $employee = GetUserCurrentEmployee::run($user, $lead->organisation_id);
-        $isMine   = $employee && $group->contains(fn (JobOrderItemTask $task) => ($task->jobOrderItem->employee_id ?? $task->jobOrder->employee_id) == $employee->id);
+        $isMine   = $group->contains(fn (JobOrderItemTask $task) => $task->isFor($employee));
+
+        if (!$lead->isAllowedFor($employee)) {
+            throw ValidationException::withMessages([
+                'job_order_item_task_id' => __('Only :names can do :step', ['names' => $lead->manufactureTask->artisans->pluck('contact_name')->implode(', '), 'step' => $lead->manufactureTask->name]),
+            ]);
+        }
 
         if (!$isMine && !ShowManufactureFloor::canPickOpenJobs($user, $lead->production)) {
             throw ValidationException::withMessages([
@@ -64,7 +70,7 @@ class StartManufactureTaskSession extends OrgAction
 
         foreach ($members->groupBy('job_order_id') as $jobOrderMembers) {
             $jobOrder        = $jobOrderMembers->first()->jobOrder;
-            $isMineInThisOne = $employee && $jobOrderMembers->contains(fn (JobOrderItemTask $task) => ($task->jobOrderItem->employee_id ?? $jobOrder->employee_id) == $employee->id);
+            $isMineInThisOne = $jobOrderMembers->contains(fn (JobOrderItemTask $task) => $task->isFor($employee));
             if ($jobOrder->state == JobOrderStateEnum::IN_PROCESS && $isMineInThisOne) {
                 ConfirmJobOrder::make()->action($jobOrder);
             } elseif ($jobOrder->state != JobOrderStateEnum::CONFIRMED) {

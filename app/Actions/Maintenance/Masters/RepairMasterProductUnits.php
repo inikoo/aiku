@@ -114,8 +114,6 @@ class RepairMasterProductUnits extends OrgAction
         return $masterAsset;
     }
 
-    public const int MAX_COMPONENT_TRADE_UNITS = 3;
-
     /**
      * An assortment holds many different trade units that happen to share a quantity, so that
      * quantity is "so many of each design", not a pack size — a starter pack of 93 incense lines

@@ -53,18 +53,33 @@ class GetEmployeeShowcase
         ];
     }
 
-    private function getLeaveData(Employee $employee): array
+    /**
+     * @return array{annual_allowance: float, annual_used: float, annual_remaining: float, medical_used: float, unpaid_used: float, period_start: string|null, period_end: string|null}|null
+     */
+    public function leaveBalanceData(Employee $employee): ?array
     {
+        $employee->loadMissing('currentLeaveBalance.contract');
         $balance = $employee->currentLeaveBalance;
 
+        if (!$balance) {
+            return null;
+        }
+
         return [
-            'balance' => $balance ? [
-                'annual_used'      => (float)$balance->annual_used,
-                'annual_remaining' => $balance->annual_remaining,
-                'medical_used'     => (float)$balance->medical_used,
-                'unpaid_used'      => (float)$balance->unpaid_used,
-                'period_end'       => $balance->period_end?->toDateString(),
-            ] : null,
+            'annual_allowance' => (float)($balance->contract?->annual_leave_days ?? 0),
+            'annual_used'      => (float)$balance->annual_used,
+            'annual_remaining' => $balance->annual_remaining,
+            'medical_used'     => (float)$balance->medical_used,
+            'unpaid_used'      => (float)$balance->unpaid_used,
+            'period_start'     => $balance->period_start?->toDateString(),
+            'period_end'       => $balance->period_end?->toDateString(),
+        ];
+    }
+
+    private function getLeaveData(Employee $employee): array
+    {
+        return [
+            'balance' => $this->leaveBalanceData($employee),
             'recent'  => Leave::where('employee_id', $employee->id)
                 ->with('leaveType')
                 ->orderByDesc('start_date')

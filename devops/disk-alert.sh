@@ -16,7 +16,8 @@
 #
 # Install: see devops/cron/disk-alert.
 #
-# Usage: disk-alert.sh [--dry-run] [--self-test] [--test]
+# Usage: disk-alert.sh [--dry-run] [--self-test] [--test] [--smartd]
+#   --smartd   post the disk health warning smartd passes in (devops/smartd/50aiku-disk-alert)
 
 set -uo pipefail
 
@@ -27,6 +28,7 @@ CRITICAL=${DISK_ALERT_CRITICAL:-95}
 ALERT_ROLE=${DISK_ALERT_ROLE:-<@&1164019425154969600>}
 STATE_DIR=${DISK_ALERT_STATE_DIR:-/var/tmp/aiku-disk-alert}
 ENV_FILE=${DISK_ALERT_ENV_FILE:-/home/aiku/aiku/current/.env}
+SMARTD_IGNORE=${DISK_ALERT_SMARTD_IGNORE:-/etc/aiku-smartd-ignore}
 
 DRY_RUN=0
 MODE=run
@@ -35,6 +37,7 @@ for arg in "$@"; do
         --dry-run)   DRY_RUN=1 ;;
         --test)      MODE=test ;;
         --self-test) MODE=self-test ;;
+        --smartd)    MODE=smartd ;;
     esac
 done
 
@@ -195,6 +198,27 @@ send_test() {
     notify "$summary"
 }
 
+# Called by smartd (devops/smartd/50aiku-disk-alert) with the warning in SMARTD_* variables.
+# A worn disk already known and accepted keeps raising the same warning; its line in
+# $SMARTD_IGNORE (one extended regex per line) silences exactly that text, so any other
+# warning from the same disk still gets through.
+smartd_alert() {
+    local host message=${SMARTD_MESSAGE:-no message from smartd} device=${SMARTD_DEVICESTRING:-${SMARTD_DEVICE:-unknown}}
+    host=$(hostname -s 2>/dev/null || hostname)
+
+    if [ -r "$SMARTD_IGNORE" ] && printf '%s\n' "$message" | grep -q -E -f "$SMARTD_IGNORE"; then
+        [ "$DRY_RUN" = 1 ] || logger -t aiku-disk-alert "smartd warning ignored by ${SMARTD_IGNORE}: ${device}: ${message}"
+        return 0
+    fi
+
+    if [ "${SMARTD_FAILTYPE:-}" = EmailTest ]; then
+        notify "🧪 **Disk health alert test — ${host}**"$'\n'"**Device:** ${device}"$'\n'"smartd reaches Discord. This is a test — nothing is wrong."
+        return
+    fi
+
+    notify "🚨 **Disk health — ${host}** 🚨"$'\n'"**Device:** ${device}"$'\n'"**Warning:** ${message}"$'\n'"Detail: \`smartctl -a ${SMARTD_DEVICE:-<device>}\`. A disk that fails takes its RAID half with it; plan the replacement." 1
+}
+
 self_test() {
     local failures=0
     check() {
@@ -249,6 +273,21 @@ self_test() {
         *) printf '  ok    end to end stays quiet on the healthy filesystem\n' ;;
     esac
 
+    local ignore
+    ignore=$(mktemp)
+    printf 'Critical Warning \\(0x04\\)\n' > "$ignore"
+    check "$(DRY_RUN=1 SMARTD_IGNORE=$ignore SMARTD_DEVICESTRING=/dev/nvme0 SMARTD_MESSAGE='Device: /dev/nvme0, Critical Warning (0x04): Reliability' smartd_alert)" \
+        '' 'a smartd warning listed in the ignore file stays quiet'
+    case $(DRY_RUN=1 SMARTD_IGNORE=$ignore SMARTD_DEVICESTRING=/dev/nvme0 SMARTD_MESSAGE='Device: /dev/nvme0, Critical Warning (0x05): LowSpare, Reliability' smartd_alert) in
+        *'**Warning:** Device: /dev/nvme0, Critical Warning (0x05)'*) printf '  ok    a new warning from the same disk still alerts\n' ;;
+        *) printf '  FAIL  a new warning from the same disk still alerts\n'; failures=$((failures + 1)) ;;
+    esac
+    case $(DRY_RUN=1 SMARTD_IGNORE=/nonexistent SMARTD_FAILTYPE=EmailTest SMARTD_DEVICESTRING=/dev/nvme1 smartd_alert) in
+        *'Disk health alert test'*) printf '  ok    the smartd test message is a test, not an alarm\n' ;;
+        *) printf '  FAIL  the smartd test message is a test, not an alarm\n'; failures=$((failures + 1)) ;;
+    esac
+    rm -f "$ignore"
+
     [ "$failures" = 0 ] && { printf 'all checks passed\n'; return 0; }
     printf '%s check(s) failed\n' "$failures"
     return 1
@@ -257,5 +296,6 @@ self_test() {
 case $MODE in
     self-test) self_test ;;
     test)      send_test ;;
+    smartd)    smartd_alert ;;
     *)         run_checks ;;
 esac

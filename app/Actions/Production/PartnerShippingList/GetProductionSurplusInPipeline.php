@@ -46,7 +46,7 @@ class GetProductionSurplusInPipeline
         foreach ($items->groupBy(fn (JobOrderItem $item) => $item->job_order_id.'-'.$item->artefact_id) as $jobItems) {
             /** @var JobOrderItem $item */
             $item     = $jobItems->first();
-            $packedIn = max(1, (int) $item->artefact->orgStock?->packed_in);
+            $packedIn = $item->artefact->packedIn();
             $claimed  = $this->claimedSkos($item);
             $quantity = (float) $jobItems->sum('quantity');
             $made     = max(0, $jobItems->sum(fn (JobOrderItem $jobItem) => min((float) $jobItem->quantity, GetJobOrderDestinationAllocation::make()->producedArtefacts($jobItem))) / $packedIn - $claimed);
@@ -78,7 +78,7 @@ class GetProductionSurplusInPipeline
      */
     public function surplusReceived(JobOrderItem $item, float $receivedUnits): float
     {
-        $packedIn       = max(1, (int) $item->artefact->orgStock?->packed_in);
+        $packedIn       = $item->artefact->packedIn();
         $othersReceived = (float) JobOrderItem::where('job_order_id', $item->job_order_id)
             ->where('artefact_id', $item->artefact_id)
             ->where('id', '!=', $item->id)
@@ -88,8 +88,8 @@ class GetProductionSurplusInPipeline
     }
 
     /**
-     * A partner line takes everything it asked to be made to its bay; an own customer line only
-     * needs what its order asked for, anything made on top is stock. A restock line has no order:
+     * A partner line takes what the partner asked for to its bay and an own customer line what
+     * its order asked for; anything made on top, a batch rounded up, is stock. A restock line has no order:
      * everything it makes is stock, free for the backlog.
      */
     private function claimedSkos(JobOrderItem $item): float
@@ -99,7 +99,7 @@ class GetProductionSurplusInPipeline
             ->where(fn ($query) => $query->whereNotNull('partner_organisation_id')->orWhereNotNull('transaction_id'))
             ->get()
             ->sum(fn (PartnerShoppingListItem $line) => $line->partner_organisation_id
-                ? (float) ($line->quantity_to_produce ?? $line->quantity)
+                ? $line->claimedSkos()
                 : (float) $line->quantity);
     }
 }

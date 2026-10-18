@@ -14,7 +14,7 @@ use App\Actions\HumanResources\Timesheet\ResolveTimesheetDateRange;
 use App\Actions\HumanResources\WithEmployeeSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
-use App\Actions\Traits\Authorisations\WithHumanResourcesSectionAuthorisation;
+use App\Actions\Traits\Authorisations\WithHumanResourcesAuthorisation;
 use App\Actions\Traits\WithTabsBox; // Trait Tabs
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
@@ -48,7 +48,7 @@ use Illuminate\Support\Carbon;
 class IndexTimesheets extends OrgAction
 {
     use WithEmployeeSubNavigation;
-    use WithHumanResourcesSectionAuthorisation;
+    use WithHumanResourcesAuthorisation;
     use WithTabsBox;
 
     private Group|Employee|Organisation|Guest $parent;
@@ -99,12 +99,6 @@ class IndexTimesheets extends OrgAction
         }
 
         $query->leftjoin('organisations', 'timesheets.organisation_id', '=', 'organisations.id');
-
-        if ($this->isRestrictedToSection()) {
-            $query->where('timesheets.subject_type', 'Employee');
-            $this->restrictToSectionEmployees($query, 'timesheets.subject_id');
-        }
-
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
@@ -184,7 +178,6 @@ class IndexTimesheets extends OrgAction
             }
         }
 
-        $this->restrictToSectionEmployees($query, 'employees.id');
 
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
@@ -380,7 +373,6 @@ class IndexTimesheets extends OrgAction
             $invalidQuery = QrScanLog::where('organisation_id', $organisationId)
                 ->where('status', 'failed')
                 ->whereNotNull('employee_id');
-            $this->restrictToSectionEmployees($invalidQuery, 'employee_id');
 
             if ($from && $to) {
                 $invalidQuery->whereBetween('scanned_at', [
@@ -568,8 +560,10 @@ class IndexTimesheets extends OrgAction
     public function jsonResponse(LengthAwarePaginator $timesheets): AnonymousResourceCollection
     {
         $overtimeByTimesheetId = CalculateTimesheetOvertime::make()->handleMany($timesheets->getCollection());
+        $avatarByEmployee = $this->avatarsByEmployee($timesheets->getCollection());
 
-        $timesheets->through(function ($timesheet) use ($overtimeByTimesheetId) {
+        $timesheets->through(function ($timesheet) use ($overtimeByTimesheetId, $avatarByEmployee) {
+            $timesheet->setAttribute('avatar', $timesheet->subject_type === 'Employee' ? $avatarByEmployee->get($timesheet->subject_id) : null);
 
             $jobPositions = '-';
             $employeeSlug = null;
@@ -611,9 +605,11 @@ class IndexTimesheets extends OrgAction
         $overtimeByEmployee = $needsScheduleCalculation
             ? $this->calculateOvertimeByEmployee($timesheets->getCollection(), $employeeView, $sourceColumn)
             : collect();
+        $avatarByEmployee = $this->avatarsByEmployee($timesheets->getCollection());
 
-        $timesheets->through(function ($timesheet) use ($overtimeByEmployee, $employeeView, $sourceColumn) {
+        $timesheets->through(function ($timesheet) use ($overtimeByEmployee, $employeeView, $sourceColumn, $avatarByEmployee) {
             $timesheet->setAttribute('worked', $timesheet->working_duration);
+            $timesheet->setAttribute('avatar', $timesheet->subject_type === 'Employee' ? $avatarByEmployee->get($timesheet->subject_id) : null);
 
             $overtime = $overtimeByEmployee->get($timesheet->subject_id);
 
@@ -631,6 +627,14 @@ class IndexTimesheets extends OrgAction
         });
 
         return TimesheetEmployeeSummaryResource::collection($timesheets);
+    }
+
+    /**
+     * @return Collection<int, string|null>
+     */
+    protected function avatarsByEmployee(Collection $rows): Collection
+    {
+        return Employee::avatarUrlsFor($rows->where('subject_type', 'Employee')->pluck('subject_id'));
     }
 
     /**
@@ -751,7 +755,7 @@ class IndexTimesheets extends OrgAction
                 'pageHead'    => [
                     'title'         => __('Timesheets'),
                     'icon'          => ['title' => __('Timesheets'), 'icon'  => 'fal fa-stopwatch'],
-                    'actions'       => (!$this->isRestrictedToSection() && ($this->parent instanceof Organisation || $this->parent instanceof Employee)) ? [
+                    'actions'       => ($this->parent instanceof Organisation || $this->parent instanceof Employee) ? [
                         [
                             'type'  => 'button',
                             'style' => 'secondary',
@@ -816,9 +820,10 @@ class IndexTimesheets extends OrgAction
 
     public function inEmployee(Organisation $organisation, Employee $employee, ActionRequest $request): Employee
     {
+        abort_unless($employee->organisation_id === $organisation->id, 404);
+
         $this->parent = $employee;
         $this->initialisation($organisation, $request)->withTab(TimesheetsTabsEnum::values());
-        abort_unless($this->canSeeEmployee($employee->id), 403);
 
         return $employee;
     }

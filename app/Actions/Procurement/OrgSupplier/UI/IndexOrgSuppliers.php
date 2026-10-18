@@ -15,9 +15,11 @@ use App\Actions\Procurement\WithAgentOrganisation;
 use App\Http\Resources\Procurement\OrgSuppliersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Procurement\OrgSupplier;
+use App\Models\Procurement\ProcurementNote;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
+use App\Enums\UI\Procurement\OrgSuppliersTabsEnum;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use App\Services\QueryBuilder;
@@ -70,7 +72,7 @@ class IndexOrgSuppliers extends OrgAction
                 'org_supplier_stats.number_purchase_orders',
                 'org_supplier_stats.number_stock_deliveries',
                 'org_suppliers.slug as org_supplier_slug',
-            ]);
+            ])->selectSub(ProcurementNote::openIncidentsOfSupplierQuery($parent), 'open_incidents');
         }
 
         return $queryBuilder
@@ -155,6 +157,13 @@ class IndexOrgSuppliers extends OrgAction
         }
 
         $this->parent = $organisation;
+
+        if ($this->getOrganisationAgent($organisation)) {
+            $this->initialisation($organisation, $request)->withTab(OrgSuppliersTabsEnum::values());
+
+            return $this->handle($organisation, OrgSuppliersTabsEnum::INDEX->value);
+        }
+
         $this->initialisation($organisation, $request);
 
         return $this->handle($organisation);
@@ -162,10 +171,11 @@ class IndexOrgSuppliers extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $suppliers, ActionRequest $request): Response
     {
-        $isAgent = (bool) $this->getOrganisationAgent($this->parent);
+        $agent   = $this->getOrganisationAgent($this->parent);
+        $isAgent = (bool) $agent;
         $title   = $isAgent ? __('Suppliers') : __('Free Suppliers');
 
-        return Inertia::render(
+        $response = Inertia::render(
             'Procurement/OrgSuppliers',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
@@ -193,9 +203,37 @@ class IndexOrgSuppliers extends OrgAction
                         ] : false,
                     ],
                 ],
-                'data' => OrgSuppliersResource::collection($suppliers),
+                ...($agent ? $this->getAgentTabs($agent, $suppliers, $request) : ['data' => OrgSuppliersResource::collection($suppliers)]),
             ]
-        )->table($this->tableStructure($this->parent));
+        );
+
+        return $agent
+            ? $response->table($this->tableStructure($this->parent, prefix: OrgSuppliersTabsEnum::INDEX->value))
+            : $response->table($this->tableStructure($this->parent));
+    }
+
+    private function getAgentTabs(Agent $agent, LengthAwarePaginator $suppliers, ActionRequest $request): array
+    {
+        $buyer = Organisation::where('slug', $request->query('buyer'))
+            ->whereIn('id', $agent->orgAgents()->select('organisation_id'))
+            ->first();
+
+        $dashboard = fn () => GetAgentSuppliersDashboard::run($agent, $this->parent, $buyer, $request->query('currency'), $request->user());
+        $index     = fn () => OrgSuppliersResource::collection($suppliers);
+
+        return [
+            'tabs'                                => [
+                'current'    => $this->tab,
+                'navigation' => array_replace_recursive(OrgSuppliersTabsEnum::navigation(), [
+                    OrgSuppliersTabsEnum::INDEX->value => [
+                        'title'  => __('Supplier list'),
+                        'number' => $this->getAgentSuppliersQuery($agent)->count(),
+                    ],
+                ]),
+            ],
+            OrgSuppliersTabsEnum::DASHBOARD->value => $this->tab === OrgSuppliersTabsEnum::DASHBOARD->value ? $dashboard : Inertia::optional($dashboard),
+            OrgSuppliersTabsEnum::INDEX->value     => $this->tab === OrgSuppliersTabsEnum::INDEX->value ? $index : Inertia::optional($index),
+        ];
     }
 
     public function jsonResponse(LengthAwarePaginator $suppliers): AnonymousResourceCollection

@@ -4,7 +4,7 @@ namespace App\Actions\HumanResources\Leave\UI;
 
 use App\Actions\HumanResources\Leave\UpdateLeaveCover;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithHumanResourcesSectionAuthorisation;
+use App\Actions\Traits\Authorisations\WithHumanResourcesAuthorisation;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\Leave\LeaveStatusEnum;
@@ -23,7 +23,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexLeaveCovers extends OrgAction
 {
-    use WithHumanResourcesSectionAuthorisation;
+    use WithHumanResourcesAuthorisation;
 
     public function handle(Organisation $organisation): LengthAwarePaginator
     {
@@ -35,7 +35,15 @@ class IndexLeaveCovers extends OrgAction
             ->where('organisation_id', $organisation->id)
             ->where('status', LeaveStatusEnum::APPROVED)
             ->where(fn ($query) => $query->whereDate('end_date', '>=', now()->toDateString())->orWhereNotNull('cover_employee_id'))
-            ->with(['leaveType:id,name', 'coverEmployee:id,contact_name'])
+            ->with([
+                'leaveType:id,name,color',
+                'employee:id,image_id,user_id',
+                'employee.image',
+                'employee.user.image',
+                'coverEmployee:id,contact_name,image_id,user_id',
+                'coverEmployee.image',
+                'coverEmployee.user.image',
+            ])
             ->allowedFilters([$globalSearch])
             ->allowedSorts(['employee_name', 'start_date', 'end_date'])
             ->defaultSort('-start_date')
@@ -52,6 +60,7 @@ class IndexLeaveCovers extends OrgAction
                 ->withLabelRecord([__('absence'), __('absences')])
                 ->column(key: 'employee_name', label: __('Employee'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'type_label', label: __('Type'), canBeHidden: false)
+                ->column(key: 'status', label: __('Status'), canBeHidden: false)
                 ->column(key: 'start_date', label: __('From'), canBeHidden: false, sortable: true)
                 ->column(key: 'end_date', label: __('To'), canBeHidden: false, sortable: true)
                 ->column(key: 'covered_by', label: __('Covered by'), canBeHidden: false)

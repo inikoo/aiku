@@ -73,7 +73,7 @@ trait WithPrintNode
     /**
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function printPdf(string $title, int $printId, string $pdfBase64): PrintJob
+    public function printPdf(string $title, int $printId, string $pdfBase64, array $options = []): PrintJob
     {
         $this->ensureClientInitialized();
         $content    = Str::fromBase64($pdfBase64);
@@ -82,7 +82,8 @@ trait WithPrintNode
             ->setContentType(ContentType::PdfBase64)
             ->setPrinter($printId)
             ->setTitle($title)
-            ->setSource(config('app.name'));
+            ->setSource(config('app.name'))
+            ->setOptions($options);
 
         return PrintJob::create($pendingJob);
     }

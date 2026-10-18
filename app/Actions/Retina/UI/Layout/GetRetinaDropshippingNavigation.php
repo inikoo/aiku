@@ -8,8 +8,8 @@
 
 namespace App\Actions\Retina\UI\Layout;
 
+use App\Actions\Retina\CRM\Appointment\IndexRetinaAppointments;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
-use App\Enums\Dropshipping\CustomerSalesChannelStatusEnum;
 use App\Enums\Ordering\Platform\PlatformTypeEnum;
 use App\Models\CRM\WebUser;
 use App\Models\Dropshipping\CustomerSalesChannel;
@@ -114,7 +114,7 @@ class GetRetinaDropshippingNavigation
         /** @var CustomerSalesChannel $customerSalesChannels */
         foreach (
             $customer->customerSalesChannels()
-                ->where('status', CustomerSalesChannelStatusEnum::OPEN)
+                ->openOrHandedOverToExternalShop()
                 ->whereNull('closed_at')
                 ->with('platform')
                 ->withCount(['portfolios as number_inactive_portfolios' => fn ($query) => $query->where('status', false)])
@@ -168,6 +168,10 @@ class GetRetinaDropshippingNavigation
                 'name' => 'retina.dropshipping.invoices.index'
             ],
         ];
+
+        if ($appointmentsNavigation = IndexRetinaAppointments::navigation($webUser)) {
+            $groupNavigation['appointments'] = $appointmentsNavigation;
+        }
 
         // $groupNavigation['packing-list'] = [
         //     'label' => __('Packing Lists'),

@@ -104,7 +104,7 @@ class ShowRecurringBill extends OrgAction
 
         $actions = [];
 
-        if ($recurringBill->status === RecurringBillStatusEnum::CURRENT) {
+        if ($this->canEdit && $recurringBill->status === RecurringBillStatusEnum::CURRENT) {
             $actions = [
                 [
                     'type'    => 'button',
@@ -184,6 +184,7 @@ class ShowRecurringBill extends OrgAction
                     'method'     => 'patch'
                 ],
                 'status_rb'        => $recurringBill->status,
+                'can_edit'         => $this->canEdit,
                 'box_stats'        => $this->getRecurringBillBoxStats($recurringBill, $this->parent),
 
                 'service_list_route'       => [

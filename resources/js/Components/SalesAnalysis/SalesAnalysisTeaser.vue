@@ -2,7 +2,7 @@
 import { computed, ref } from "vue"
 import Chart from "primevue/chart"
 import { Link } from "@inertiajs/vue3"
-import { ctrans } from "@/Composables/useTrans"
+import { ctrans, ctransChoice } from "@/Composables/useTrans"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faChartLine, faArrowRight, faChevronDown } from "@fal"
@@ -131,10 +131,10 @@ const chartOptions = {
 			<div class="mt-2 space-y-0.5 text-xs tabular-nums">
 				<div v-if="teaser.stock_level === 'organisation'" class="text-gray-500">
 					{{ teaser.totals.current.out_of_stock_percentage }}% {{ ctrans("of SKOs out of stock") }} ({{ ctrans("was") }} {{ teaser.totals.previous.out_of_stock_percentage }}%)
-					· {{ (teaser.totals.current.registrations ?? 0).toLocaleString() }} {{ ctrans("new registrations") }}
+					· {{ ctransChoice(":number new registration|:number new registrations", teaser.totals.current.registrations ?? 0, { number: (teaser.totals.current.registrations ?? 0).toLocaleString() }) }}
 				</div>
 				<div v-else :class="teaser.totals.current.stock_out_days ? 'text-red-600' : 'text-gray-500'">
-					{{ teaser.totals.current.stock_out_days.toLocaleString() }} {{ ctrans("days out of stock") }} ({{ teaser.totals.current.stock_outs }}×)
+					{{ ctransChoice(":number day out of stock|:number days out of stock", teaser.totals.current.stock_out_days, { number: teaser.totals.current.stock_out_days.toLocaleString() }) }} ({{ teaser.totals.current.stock_outs }}×)
 					<span v-if="teaser.totals.current.lost_sales"> · ~{{ money(teaser.totals.current.lost_sales) }} {{ ctrans("lost") }}</span>
 					<span v-if="teaser.totals.current.stock_outs_no_order"> · {{ teaser.totals.current.stock_outs_no_order }} {{ ctrans("ran out with nothing ordered") }}</span>
 				</div>

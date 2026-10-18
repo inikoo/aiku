@@ -11,9 +11,12 @@ namespace App\Actions\GoodsIn\StockDeliveryServiceInvoice;
 use App\Actions\GoodsIn\StockDelivery\DeleteStockDeliveryCost;
 use App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryCost;
 use App\Actions\GoodsIn\StockDelivery\UpdateStockDeliveryCost;
+use App\Actions\SupplyChain\AgentInvoice\ApplyAgentInvoiceCosting;
+use App\Enums\GoodsIn\StockDelivery\StockDeliveryCostTypeEnum;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryServiceInvoiceTypeEnum;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\GoodsIn\StockDeliveryCost;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -21,7 +24,8 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
  * Writes a delivery's cost checklist from the service invoices allocated to it, in the organisation currency:
- * shipping is the sum of its freight bills, duty of its duty bills, and each other bill is an extra row.
+ * shipping is the sum of its freight and local transport bills on top of the freight the agent invoiced, duty of
+ * its duty bills (customs, anti-dumping, other import taxes), and every other bill is an extra row of its own.
  * Import VAT bills are recoverable and stay out. Rows typed by hand are left alone until a bill of their type
  * arrives, and a row the bills filled goes back to pending once no bill of its type is left.
  */
@@ -46,25 +50,44 @@ class SyncStockDeliveryServiceInvoiceCosts
                 'stock_delivery_service_invoice_allocations.amount',
             ]);
 
-        $this->syncExtras($stockDelivery, $allocations->where('type', StockDeliveryServiceInvoiceTypeEnum::OTHER->value)->keyBy('id'));
+        $allocations = $allocations->groupBy(fn (object $bill) => StockDeliveryServiceInvoiceTypeEnum::from($bill->type)->costType()?->value);
 
-        foreach ([StockDeliveryServiceInvoiceTypeEnum::FREIGHT, StockDeliveryServiceInvoiceTypeEnum::DUTY] as $type) {
-            $bills = $allocations->where('type', $type->value);
-            $cost  = $stockDelivery->costs()->where('type', $type->costType())->first();
+        $this->syncExtras($stockDelivery, $allocations->get(StockDeliveryCostTypeEnum::EXTRA->value, collect())->keyBy('id'));
+
+        foreach ([StockDeliveryCostTypeEnum::SHIPPING, StockDeliveryCostTypeEnum::DUTY] as $costType) {
+            $bills = $allocations->get($costType->value, collect());
+            $cost  = $stockDelivery->costs()->where('type', $costType)->first();
+
+            $agentFreight = $costType === StockDeliveryCostTypeEnum::SHIPPING ? Arr::get($stockDelivery->data ?? [], ApplyAgentInvoiceCosting::FREIGHT) : null;
 
             if ($bills->isEmpty()) {
                 if ($cost?->from_service_invoices) {
-                    UpdateStockDeliveryCost::make()->action($cost, ['label' => null, 'amount' => null, 'received_at' => null, 'currency_id' => null, 'from_service_invoices' => false]);
+                    UpdateStockDeliveryCost::make()->action($cost, ($agentFreight ?? ['label' => null, 'amount' => null, 'received_at' => null]) + ['currency_id' => null, 'from_service_invoices' => false]);
                 }
                 continue;
             }
 
             $costData = $this->costData($stockDelivery, $bills) + ['is_na' => false, 'from_service_invoices' => true];
 
+            if ($agentFreight && $cost && !$cost->from_service_invoices && !$cost->currency_id) {
+                $agentFreight = [
+                    'label'       => $cost->label,
+                    'amount'      => $cost->is_na ? 0 : round((float) $cost->amount, 2),
+                    'received_at' => $cost->received_at?->toDateString() ?? $agentFreight['received_at'],
+                ];
+                $stockDelivery->update(['data' => array_merge($stockDelivery->data, [ApplyAgentInvoiceCosting::FREIGHT => $agentFreight])]);
+            }
+
+            if ($agentFreight) {
+                $orgExchange        = (float) $stockDelivery->org_exchange;
+                $costData['amount'] = round($costData['amount'] + (float) $agentFreight['amount'] * ($orgExchange > 0 ? $orgExchange : 1), 2);
+                $costData['label']  = Str::limit(implode(', ', array_filter([$agentFreight['label'], $costData['label']])), 250);
+            }
+
             if ($cost) {
                 UpdateStockDeliveryCost::make()->action($cost, $costData);
             } else {
-                StoreStockDeliveryCost::make()->action($stockDelivery, ['type' => $type->costType()->value] + $costData);
+                StoreStockDeliveryCost::make()->action($stockDelivery, ['type' => $costType->value] + $costData);
             }
         }
     }
@@ -80,7 +103,7 @@ class SyncStockDeliveryServiceInvoiceCosts
         }
 
         foreach ($bills as $billId => $bill) {
-            $costData = $this->costData($stockDelivery, collect([$bill]));
+            $costData = $this->costData($stockDelivery, collect([$bill])) + ['category' => $bill->type];
 
             if ($row = $rows->get($billId)) {
                 /** @var StockDeliveryCost $row */
@@ -108,6 +131,7 @@ class SyncStockDeliveryServiceInvoiceCosts
             'received_at' => $bills->max('date'),
             'currency_id' => $stockDelivery->organisation->currency_id,
             'exchange'    => $orgExchange > 0 ? 1 / $orgExchange : null,
+            'is_waiting_for_invoice' => false,
         ];
     }
 }

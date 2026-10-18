@@ -9,6 +9,7 @@
 
 namespace App\Actions\Dispatching\Shipper\UI;
 
+use App\Actions\Traits\Authorisations\WithOrganisationDispatchingEditAuthorisation;
 use App\Actions\OrgAction;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
@@ -18,6 +19,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreateShipper extends OrgAction
 {
+    use WithOrganisationDispatchingEditAuthorisation;
+
     public function handle(Organisation $organisation, ActionRequest $request): Response
     {
         return Inertia::render(

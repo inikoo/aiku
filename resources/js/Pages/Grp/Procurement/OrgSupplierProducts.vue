@@ -12,6 +12,8 @@ import { capitalize } from "@/Composables/capitalize"
 import { PageHeadingTypes } from "@/types/PageHeading"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
+import TableAgentSuppliersDataQuality from "@/Components/Tables/Grp/Org/Procurement/TableAgentSuppliersDataQuality.vue"
+import AgentProductsDashboard from "@/Components/Procurement/AgentProductsDashboard.vue"
 import { useTabChange } from "@/Composables/tab-change"
 import { computed, ref } from "vue"
 
@@ -24,11 +26,17 @@ const props = defineProps<{
     }
     index?: object
     history?: object
+    dashboard?: object
+    suppliers?: object
+    copy_products?: object | null
+    copy_targets?: { id: number, label: string }[]
 }>()
 
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const component = computed(() => ({
+    dashboard: AgentProductsDashboard,
+    suppliers: TableAgentSuppliersDataQuality,
     index: TableOrgSupplierProducts,
     history: TableHistories,
 })[currentTab.value])
@@ -38,5 +46,10 @@ const component = computed(() => ({
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead" />
     <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab]" :tab="currentTab" />
+    <component
+        :is="component"
+        :data="props[currentTab]"
+        :tab="currentTab"
+        v-bind="currentTab === 'index' ? { copyProducts: copy_products, copyTargets: copy_targets } : {}"
+    />
 </template>

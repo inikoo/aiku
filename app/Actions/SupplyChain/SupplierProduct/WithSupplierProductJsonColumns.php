@@ -16,7 +16,6 @@ trait WithSupplierProductJsonColumns
     use WithPullIntoJsonColumn;
 
     private const DATA_FIELDS = [
-        'minimum_carton_order',
         'delivery_time',
         'unit_expense',
     ];
@@ -31,6 +30,7 @@ trait WithSupplierProductJsonColumns
         'unit_expense',
         'carton_weight',
         'carton_net_weight',
+        'availability_new_cost',
     ];
 
     /**

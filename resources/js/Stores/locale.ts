@@ -42,7 +42,7 @@ export const useLocaleStore = defineStore("locale", () => {
 	}
 
 	// ponytail: mirrors the master shop price_exchanges fraction_digits config, keep in sync
-	const WHOLE_NUMBER_PRACTICE_CURRENCIES = ["CZK", "HUF", "UAH", "SEK"]
+	const WHOLE_NUMBER_PRACTICE_CURRENCIES = ["CZK", "HUF", "UAH", "SEK", "IDR"]
 
 	// RRP is a recommended shelf price, so in whole-number countries it is rounded up
 	// for display; stored values and exact unit rates (price/units) keep their decimals.
@@ -77,6 +77,21 @@ export const useLocaleStore = defineStore("locale", () => {
 
 		return formatter.format(num);
 	};
+
+	const currencyInputOptions = (currencyCode: string | null | undefined) => {
+		if (!currencyCode) {
+			return {}
+		}
+
+		return {
+			mode: "currency",
+			currency: currencyCode,
+			locale: localeForCurrency(currencyCode),
+			currencyDisplay: "narrowSymbol",
+			minFractionDigits: WHOLE_NUMBER_PRACTICE_CURRENCIES.includes(currencyCode) ? 0 : 2,
+			maxFractionDigits: 2,
+		}
+	}
 
 	const currencySymbolNarrow = (currencyCode: string) => {
 		const resolvedCurrency = currencyInertia.value?.code || currencyCode || ''
@@ -128,5 +143,5 @@ export const useLocaleStore = defineStore("locale", () => {
 
 	}
 
-	return { language, locale_iso, languageOptions, number, numberShort, currencySymbolNarrow, currencyFormat, currencyFormatRrp, CurrencyShort, currencySymbol, languageAssetsOptions  }
+	return { language, locale_iso, languageOptions, number, numberShort, currencySymbolNarrow, currencyFormat, currencyFormatRrp, currencyInputOptions, CurrencyShort, currencySymbol, languageAssetsOptions  }
 })

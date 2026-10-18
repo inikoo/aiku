@@ -10,10 +10,13 @@ use App\Actions\Dispatching\DeliveryNote\PutBackIncompleteSetParts;
 use App\Actions\Dispatching\DeliveryNote\SaveDeliveryNoteShippingFieldsAndRetryStoreShipping;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNotePackaging;
 use App\Actions\Dispatching\DeliveryNoteLeaflet\PrintDeliveryNoteLeaflet;
+use App\Actions\Dispatching\DeliveryNoteLeaflet\PrintDeliveryNoteLeafletInBrowser;
 use App\Actions\Dispatching\DeliveryNoteLeaflet\PullDeliveryNoteLeafletMediaFromPreference;
 use App\Actions\Dispatching\DeliveryNoteLeaflet\PrintDeliveryNoteLeaflets;
 use App\Http\Middleware\EnsureNotHandledInAurora;
 use App\Actions\Dispatching\DeliveryNote\UI\ExportDeliveryNoteTariffCodes;
+use App\Actions\Dispatching\DeliveryNote\CustomsExport\ExportDeliveryNoteCustomsItems;
+use App\Actions\Dispatching\DeliveryNote\CustomsExport\PreviewDeliveryNoteCustomsItems;
 use App\Actions\Dispatching\DeliveryNote\UndispatchDeliveryNote;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNote;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteDeliveryAddress;
@@ -53,6 +56,8 @@ Route::name('delivery_note.')->prefix('delivery-note/{deliveryNote:id}')->middle
     });
 
     Route::get('tariff-codes/export', ExportDeliveryNoteTariffCodes::class)->name('tariff_codes.export');
+    Route::post('customs-items/export', ExportDeliveryNoteCustomsItems::class)->name('customs_items.export');
+    Route::post('customs-items/preview', PreviewDeliveryNoteCustomsItems::class)->name('customs_items.preview');
 
     Route::patch('update', UpdateDeliveryNote::class)->name('update');
     Route::patch('update-packaging', UpdateDeliveryNotePackaging::class)->name('update_packaging');
@@ -99,4 +104,5 @@ Route::name('delivery_note.')->prefix('delivery-note/{deliveryNote:id}')->middle
 });
 
 Route::post('delivery-note-leaflet/{deliveryNoteLeaflet:id}/print', PrintDeliveryNoteLeaflet::class)->name('delivery_note_leaflet.print');
+Route::post('delivery-note-leaflet/{deliveryNoteLeaflet:id}/print-in-browser', PrintDeliveryNoteLeafletInBrowser::class)->name('delivery_note_leaflet.print_in_browser');
 Route::patch('delivery-note-leaflet/{deliveryNoteLeaflet:id}/pull-media', PullDeliveryNoteLeafletMediaFromPreference::class)->name('delivery_note_leaflet.pull_media');

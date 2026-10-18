@@ -4,7 +4,7 @@ import { ctrans } from "@/Composables/useTrans"
 
 import Modal from "@/Components/Utils/Modal.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faFile as falFile, faTimes } from "@fal"
+import { faFile as falFile, faTimes, faPlus } from "@fal"
 import { faFileDownload, faDownload, faTimesCircle, faCheckCircle } from "@fas"
 import { faInfoCircle } from "@fad"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -24,6 +24,7 @@ import InputText from "primevue/inputtext"
 library.add(
 	falFile,
 	faTimes,
+	faPlus,
 	faTimesCircle,
 	faCheckCircle,
 	faFileDownload,
@@ -44,6 +45,7 @@ const props = defineProps<{
 		code: string
 	}[]
 	withCaption?: boolean
+	multiple?: boolean
 }>()
 
 const model = defineModel()
@@ -64,21 +66,44 @@ const isLoadingHistory = ref(false)
 const isDraggedFile = ref(false)
 const errorMessage = ref<string | null>(null)
 const selectedType = ref()
-const selectedFile = ref<File | null>(null)
+const selectedFiles = ref<File[]>([])
 const caption = ref("")
 const isCaptionRequired = computed(() => props.withCaption && selectedType.value?.code === "Other")
 const isCaptionMissing = computed(() => isCaptionRequired.value && !caption.value.trim())
 
-// Running when file is uploaded or dropped
-const onUploadFile = async (fileUploaded: File) => {
-	const fileExtention = fileUploaded?.name?.split(".")?.pop()?.toLowerCase()
+const onUploadFiles = (filesUploaded?: FileList | null) => {
+	const files = Array.from(filesUploaded ?? [])
 	errorMessage.value = null
 
-	if (fileExtention) {
-		selectedFile.value = fileUploaded
-	} else {
-		errorMessage.value = ctrans("File extension is not one of these:")
+	if (!files.length) {
+		return
 	}
+
+	if (files.some((file) => !file.name?.includes("."))) {
+		errorMessage.value = ctrans("Every file needs an extension")
+		return
+	}
+
+	selectedFiles.value = props.multiple ? [...selectedFiles.value, ...files] : [files[0]]
+}
+
+const formatFileSize = (bytes: number): string => {
+	const units = ["B", "KB", "MB", "GB"]
+	let size = bytes
+	let unitIndex = 0
+
+	while (size >= 1024 && unitIndex < units.length - 1) {
+		size /= 1024
+		unitIndex++
+	}
+
+	return `${size.toFixed(unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`
+}
+
+const fileExtension = (file: File): string => file.name.split(".").pop()?.toLowerCase() ?? ""
+
+const removeFile = (index: number) => {
+	selectedFiles.value.splice(index, 1)
 }
 
 // Method: submit the selected file to server
@@ -111,7 +136,7 @@ const submitUpload = async () => {
 				props.attachmentRoutes?.attachRoute?.parameters
 			),
 			{
-				attachments: [selectedFile.value],
+				attachments: selectedFiles.value,
 				scope: selectedType.value.code,
 				...(props.withCaption && caption.value.trim() ? { caption: caption.value.trim() } : {}),
 			},
@@ -143,7 +168,7 @@ const submitUpload = async () => {
 
 // Method: refresh all like new open the modal
 const clearAll = () => {
-	selectedFile.value = null
+	selectedFiles.value = []
 	caption.value = ""
 	errorMessage.value = null
 }
@@ -152,6 +177,7 @@ const closeModal = () => {
 	/*    useEchoGrpPersonal().isShowProgress = false */
 	useEchoGrpPersonal().isShowProgress = false
 	model.value = false
+	selectedFiles.value = []
 	caption.value = ""
 }
 
@@ -183,8 +209,14 @@ onMounted(() => {
 							:options="typeEmployee"
 							optionLabel="name"
 							fluid
-							placeholder="Select a type"
-							class="w-full md:w-40"
+							:filter="typeEmployee.length > 5"
+							filterMatchMode="contains"
+							autoFilterFocus
+							resetFilterOnHide
+							:filterPlaceholder="ctrans('Search type')"
+							:emptyFilterMessage="ctrans('No type found')"
+							:placeholder="ctrans('Select a type')"
+							class="w-full md:w-56"
 							:dropdownIcon="typeEmployee.length === 1 ? 's' : 'pi pi-chevron-down'"
 							xdisabled>
 							<template #optiongroup="slotProps">
@@ -200,10 +232,13 @@ onMounted(() => {
 							fluid
 							maxlength="255"
 							:placeholder="isCaptionRequired ? ctrans('What is this document? (required)') : ctrans('Description (optional)')"
-							:invalid="isCaptionMissing && !!selectedFile" />
+							:invalid="isCaptionMissing && selectedFiles.length > 0" />
+						<p v-if="multiple && selectedFiles.length > 1" class="mt-1 text-xs text-gray-500">
+							{{ ctrans("Every file gets this label; leave it empty to use each file name. You can change each label later.") }}
+						</p>
 					</div>
 					<div
-						@drop="(e: any) => (e.preventDefault(), onUploadFile(e.dataTransfer.files[0]))"
+						@drop="(e: any) => (e.preventDefault(), onUploadFiles(e.dataTransfer.files))"
 						@dragover.prevent
 						@dragenter.prevent
 						@dragleave.prevent
@@ -214,20 +249,46 @@ onMounted(() => {
 						]">
 						<!-- Section: Upload area -->
 						<div
-							v-if="selectedFile"
+							v-if="selectedFiles.length"
 							class="text-gray-500 flex flex-col items-center gap-y-2 w-full">
-							<div class="max-w-lg w-full text-center mx-auto overflow-hidden text-ellipsis">
+							<div
+								v-for="(file, index) in selectedFiles"
+								:key="`${file.name}-${index}`"
+								class="max-w-lg w-full flex items-center justify-center gap-x-2 mx-auto overflow-hidden">
 								<FontAwesomeIcon
 									icon="fal fa-file"
 									class="h-5 w-5 text-gray-300"
 									fixed-width aria-hidden="true" />
-								{{ selectedFile?.name }}
+								<span class="truncate">{{ file.name }}</span>
+								<span class="shrink-0 rounded border border-gray-300 bg-white px-1 font-mono text-xxs uppercase text-gray-500">.{{ fileExtension(file) }}</span>
+								<span class="shrink-0 text-xs tabular-nums text-gray-400">{{ formatFileSize(file.size) }}</span>
+								<button
+									v-if="multiple && selectedFiles.length > 1"
+									type="button"
+									class="text-gray-400 hover:text-red-500"
+									v-tooltip="ctrans('Remove file')"
+									@click="() => removeFile(index)">
+									<FontAwesomeIcon icon="fal fa-times" fixed-width aria-hidden="true" />
+								</button>
 							</div>
-							<Button
-								@click="() => clearAll()"
-								label="Remove file"
-								type="negative"
-								size="s" />
+							<div class="flex gap-x-2">
+								<label v-if="multiple" class="relative cursor-pointer">
+									<input
+										type="file"
+										multiple
+										class="sr-only"
+										@change="(e: any) => (onUploadFiles(e.target.files), (e.target.value = ''))" />
+									<span class="inline-flex items-center gap-x-1 rounded border border-gray-300 bg-white px-2 py-1 text-xs text-gray-600 hover:bg-gray-50">
+										<FontAwesomeIcon icon="fal fa-plus" class="text-green-600" fixed-width aria-hidden="true" />
+										{{ ctrans("Add more files") }}
+									</span>
+								</label>
+								<Button
+									@click="() => clearAll()"
+									:label="multiple && selectedFiles.length > 1 ? ctrans('Remove all files') : ctrans('Remove file')"
+									type="negative"
+									size="s" />
+							</div>
 						</div>
 
 						<!-- Section: Upload (empty state) -->
@@ -240,7 +301,8 @@ onMounted(() => {
 									name="file"
 									id="fileInput"
 									class="sr-only"
-									@change="(e: any) => onUploadFile(e.target.files[0])"
+									:multiple="multiple"
+									@change="(e: any) => (onUploadFiles(e.target.files), (e.target.value = ''))"
 									ref="fileInput" />
 								<div
 									v-if="isDraggedFile"
@@ -275,7 +337,7 @@ onMounted(() => {
 									label="Submit"
 									size="l"
 									full
-									:disabled="!selectedFile || !selectedType || isCaptionMissing"
+									:disabled="!selectedFiles.length || !selectedType || isCaptionMissing"
 									:loading="isLoadingUpload" />
 							</div>
 						<!-- </div> -->

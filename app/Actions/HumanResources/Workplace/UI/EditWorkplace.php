@@ -36,6 +36,8 @@ class EditWorkplace extends OrgAction
 
     public function asController(Organisation $organisation, Workplace $workplace, ActionRequest $request): Workplace
     {
+        abort_unless($workplace->organisation_id === $organisation->id, 404);
+
         $this->initialisation($organisation, $request);
 
         return $this->handle($workplace);
@@ -70,7 +72,7 @@ class EditWorkplace extends OrgAction
                 ],
                 'timezone_id' => [
                     'type'        => 'select',
-                    'label'       => __('timezone'),
+                    'label'       => __('Timezone'),
                     'placeholder' => __('Select a timezone'),
                     'options'     => GetTimeZonesOptions::run(),
                     'value'       => $workplace->timezone_id,
@@ -108,10 +110,11 @@ class EditWorkplace extends OrgAction
                         'style' => 'delete',
                         'label' => __('Delete workplace'),
                         'route' => [
-                            'name'       => 'customer.models.banner.delete',
+                            'name'       => 'grp.models.workplace.delete',
                             'parameters' => [
-                                'banner' => $workplace->id
-                            ]
+                                'workplace' => $workplace->id
+                            ],
+                            'method'     => 'delete'
                         ]
                     ],
                 ]
@@ -172,14 +175,14 @@ class EditWorkplace extends OrgAction
 
     public function getPrevious(Workplace $workplace, ActionRequest $request): ?array
     {
-        $previous = Workplace::where('slug', '<', $workplace->slug)->orderBy('slug', 'desc')->first();
+        $previous = Workplace::where('organisation_id', $workplace->organisation_id)->where('slug', '<', $workplace->slug)->orderBy('slug', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(Workplace $workplace, ActionRequest $request): ?array
     {
-        $next = Workplace::where('slug', '>', $workplace->slug)->orderBy('slug')->first();
+        $next = Workplace::where('organisation_id', $workplace->organisation_id)->where('slug', '>', $workplace->slug)->orderBy('slug')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }

@@ -23,6 +23,7 @@ import Image from "@common/Components/Image.vue";
 import { faTrash } from "@fas";
 import { faPencil, faAtom } from "@fal";
 import BulkEditSectionsModal from "@/Components/Forms/BulkEditSectionsModal.vue";
+import BulkTranslateTradeUnitNamesButton from "@/Components/Goods/BulkTranslateTradeUnitNamesButton.vue";
 import { ctrans } from "@/Composables/useTrans";
 import { TradeUnit } from "@/types/trade-unit";
 
@@ -116,6 +117,7 @@ const removeTradeUnit = (id: number) => {
                 :disabled="!selectedTradeUnits.length"
                 @click="isBulkEditVisible = true"
             />
+            <BulkTranslateTradeUnitNamesButton :tradeUnits="selectedTradeUnits" />
         </template>
         <template #button-add-trade-units="{ action }">
             <Button :icon="action.icon" :label="action.label" :style="action.style" @click="openModal" />

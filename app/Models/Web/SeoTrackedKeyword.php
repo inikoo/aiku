@@ -12,6 +12,7 @@ use App\Enums\Web\Seo\SeoKeywordFrequencyEnum;
 use App\Models\Catalogue\Shop;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\SysAdmin\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -64,6 +65,32 @@ class SeoTrackedKeyword extends Model
             'serp_features'          => 'array',
             'in_ai_overview'         => 'boolean',
         ];
+    }
+
+    /**
+     * This keyword on every device, itself included.
+     *
+     * @return Builder<SeoTrackedKeyword>
+     */
+    public function onEveryDevice(): Builder
+    {
+        return static::query()
+            ->where('shop_id', $this->shop_id)
+            ->where('keyword', $this->keyword)
+            ->where('country_code', $this->country_code)
+            ->where('language_code', $this->language_code);
+    }
+
+    /**
+     * This keyword in every country and language, on every device.
+     *
+     * @return Builder<SeoTrackedKeyword>
+     */
+    public function onEveryMarket(): Builder
+    {
+        return static::query()
+            ->where('shop_id', $this->shop_id)
+            ->where('keyword', $this->keyword);
     }
 
     public function shop(): BelongsTo

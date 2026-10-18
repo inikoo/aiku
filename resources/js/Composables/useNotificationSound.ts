@@ -702,6 +702,47 @@ export const previewAlertPopup = (kind: AlertPopupPreview) => {
 	}
 }
 
+export type NewAgentPurchaseOrder = {
+	purchase_order_id: number
+	reference: string
+	client: string
+	amount: number
+	currency: string
+	url: string
+}
+
+export const alertNewAgentPurchaseOrder = (purchaseOrder: NewAgentPurchaseOrder) => {
+	const title = ctrans("New PO · :client", { client: purchaseOrder.client })
+	const money = formatMoney(purchaseOrder.amount, purchaseOrder.currency)
+
+	if (document.visibilityState === "visible") {
+		notify({
+			group: "alert-popups",
+			title,
+			text: `${purchaseOrder.reference} · ${money}`,
+			duration: popupDurationMs(),
+			data: {
+				kind: "order",
+				reference: purchaseOrder.reference,
+				customer: purchaseOrder.client,
+				url: purchaseOrder.url,
+				money,
+				sound_blocked: (navigator as any).userActivation?.hasBeenActive === false,
+			},
+		})
+	}
+
+	alertOnce({
+		key: `agent-purchase-order:${purchaseOrder.purchase_order_id}`,
+		title,
+		body: `${purchaseOrder.reference} · ${money}`,
+		tag: `agent-purchase-order-${purchaseOrder.purchase_order_id}`,
+		sound: "silent",
+		play: () => playOrderSoundAfterCooldown("till", 2),
+		onOpen: () => router.visit(purchaseOrder.url),
+	})
+}
+
 let orderAlertsStarted = false
 
 export const startOrderAlerts = () => {

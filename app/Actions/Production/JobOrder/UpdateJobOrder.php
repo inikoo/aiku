@@ -16,6 +16,7 @@ use App\Models\Production\JobOrder;
 use App\Models\SysAdmin\Organisation;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -30,6 +31,13 @@ class UpdateJobOrder extends OrgAction
 
     public function handle(JobOrder $jobOrder, array $modelData): JobOrder
     {
+        $isMovedToAnotherDay = array_key_exists('planned_for', $modelData) && $modelData['planned_for'] != $jobOrder->planned_for?->toDateString();
+        if ($isMovedToAnotherDay && !Arr::get($modelData, 'plan_position')) {
+            $modelData['plan_position'] = $modelData['planned_for']
+                ? JobOrder::nextPlanPosition($jobOrder->production_id, $modelData['planned_for'])
+                : null;
+        }
+
         return $this->update($jobOrder, $modelData);
     }
 
@@ -56,6 +64,8 @@ class UpdateJobOrder extends OrgAction
             'customer_notes' => ['sometimes', 'nullable', 'string', 'max:4000'],
             'reference'      => ['sometimes', 'nullable', 'string', 'max:64'],
             'date'           => ['sometimes', 'nullable', 'date'],
+            'planned_for'    => ['sometimes', 'nullable', 'date_format:Y-m-d'],
+            'plan_position'  => ['sometimes', 'nullable', 'integer', 'min:1', 'max:65535'],
             'employee_id'    => ['sometimes', 'nullable', Rule::exists('employees', 'id')->where('organisation_id', $this->organisation->id)],
         ];
 

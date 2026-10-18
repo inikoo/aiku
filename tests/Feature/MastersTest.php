@@ -12,10 +12,9 @@ use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\Masters\MasterAsset\HydrateMasterAssets;
 use App\Actions\Masters\MasterAsset\Hydrators\MasterAssetHydrateEffectiveCost;
 use App\Actions\Masters\MasterAsset\StoreMasterAsset;
-use App\Actions\Masters\MasterAsset\ApplyMasterAssetPriceTip;
 use App\Actions\Masters\MasterAsset\GenerateMasterAssetPriceTips;
+use App\Enums\Masters\MasterAsset\MasterAssetPriceTipKindEnum;
 use App\Enums\Masters\MasterAsset\MasterAssetPriceTipStatusEnum;
-use App\Models\Masters\MasterAssetPriceTip;
 use App\Actions\Masters\MasterAsset\UpdateMasterAsset;
 use App\Actions\Masters\MasterAsset\DeleteMasterAsset;
 use App\Actions\Masters\MasterAsset\CheckMasterAssetTradeUnitOrgStockExistence;
@@ -1708,6 +1707,31 @@ test('UI Show Master Product attachments tab lists trade unit documents read onl
         ->has('attachments.documents'));
 })->depends('create master asset');
 
+test('master product page offers edit and add to other shop only to masters edit', function (MasterAsset $masterAsset) {
+    $actionKeys = fn (): array => collect(
+        get(route('grp.masters.master_shops.show.master_products.show', [
+            'masterShop'    => $masterAsset->masterShop->slug,
+            'masterProduct' => $masterAsset->slug,
+        ]))->assertOk()->viewData('page')['props']['pageHead']['actions']
+    )->filter()->pluck('key')->values()->all();
+
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ['masters.view', 'group-webmaster.media-edit']);
+        expect($actionKeys())->not->toContain('edit', 'assign', 'repair-mismatch', 'copy-to-master-shop');
+
+        actingAsUserWithOnlyPermissions($this->user, ['masters.edit', 'masters.view']);
+        expect($actionKeys())->toContain('edit', 'assign', 'copy-to-master-shop');
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
+})->depends('create master asset');
+
 test('UI Index Master Products bulk edit tab lists products with their tax preset', function () {
     $masterShop = createFreshMasterShop();
 
@@ -2430,6 +2454,43 @@ test('UpdateMultipleMasterProductsFamily moves master assets to a new family', f
     ]);
 
     expect($masterAsset->refresh()->master_family_id)->toBe($masterFamilyNew->id);
+});
+
+test('pre-order settings saved on a master family apply to every master product in it', function () {
+    $masterShop       = createFreshMasterShop();
+    $masterDepartment = StoreMasterDepartment::make()->action($masterShop, ['code' => 'PREFAM-DEPT-'.uniqid(), 'name' => 'Pre-order Department']);
+    $masterFamily     = StoreMasterFamily::make()->action($masterDepartment, ['code' => 'PREFAM-'.uniqid(), 'name' => 'Pre-order Family']);
+
+    $masterAssets = collect([1, 2])->map(fn (int $index) => StoreMasterAsset::make()->action($masterFamily, [
+        'code'    => 'PREFAM-AST-'.$index.'-'.uniqid(),
+        'name'    => 'Pre-order asset '.$index,
+        'is_main' => true,
+        'type'    => MasterAssetTypeEnum::RENTAL,
+        'price'   => 10,
+        'stocks'  => [],
+    ]));
+    UpdateMasterAsset::make()->action($masterAssets[0], ['pre_order_lead_time_days' => 7, 'is_back_order' => true]);
+
+    $editRoute = route('grp.masters.master_shops.show.master_families.edit', [$masterShop->slug, $masterFamily->slug]);
+
+    get($editRoute)->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('formData.blueprint', fn ($blueprint) => collect($blueprint)->contains(
+            fn ($section) => data_get($section, 'fields.pre_order_lead_time_days') !== null
+                && data_get($section, 'fields.pre_order_lead_time_days.value') === null
+                && data_get($section, 'fields.is_back_order.value') === false
+        )));
+
+    UpdateMasterProductCategory::make()->action($masterFamily, ['is_back_order' => true, 'pre_order_lead_time_days' => 14]);
+
+    $masterAssets->each(fn (MasterAsset $masterAsset) => expect($masterAsset->refresh())
+        ->is_back_order->toBeTrue()
+        ->pre_order_lead_time_days->toBe(14));
+
+    get($editRoute)->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('formData.blueprint', fn ($blueprint) => collect($blueprint)->contains(
+            fn ($section) => data_get($section, 'fields.pre_order_lead_time_days.value') === 14
+                && data_get($section, 'fields.is_back_order.value') === true
+        )));
 });
 
 
@@ -3685,6 +3746,25 @@ test('warehouse packing change recomputes product pick quantity', function () {
         ->and((int) $row->divisor)->toBe(1);
 });
 
+test('a product whose trade unit has no group stock keeps the organisation SKO holding that trade unit', function () {
+    [, $product] = createProduct($this->shop);
+    $tradeUnit   = $product->tradeUnits()->first();
+    $product->tradeUnits()->updateExistingPivot($tradeUnit->id, ['quantity' => 2]);
+
+    $stock = $tradeUnit->stocks()->first() ?? $this->group->stocks()->first();
+    $tradeUnit->stocks()->syncWithoutDetaching([$stock->id => ['quantity' => 1]]);
+    $orgStock = $stock->orgStocks()->where('organisation_id', $product->organisation_id)->first();
+    $orgStock->tradeUnits()->sync([$tradeUnit->id => ['quantity' => 2]]);
+    $tradeUnit->stocks()->detach();
+
+    \App\Actions\Catalogue\Product\SyncProductOrgStocksFromTradeUnits::run($product->refresh());
+
+    $rows = DB::table('product_has_org_stocks')->where('product_id', $product->id)->get();
+    expect($rows)->toHaveCount(1)
+        ->and($rows->first()->org_stock_id)->toBe($orgStock->id)
+        ->and((float) $rows->first()->quantity)->toBe(1.0);
+});
+
 test('two master shops can each have a department and sub department with the same code', function () {
     $sharedDepartmentCode    = 'SHDEP'.uniqid();
     $sharedSubDepartmentCode = 'SHSUB'.uniqid();
@@ -4281,7 +4361,7 @@ test('masters staff view and edit the catalogue of shops under a master and view
     }
 });
 
-describe('price tips from Jev, HELP-2331', function () {
+describe('price tips, HELP-2331 and INI-075', function () {
     beforeEach(function () {
         Config::set('services.openrouter.api_key', 'test-key');
 
@@ -4326,87 +4406,97 @@ describe('price tips from Jev, HELP-2331', function () {
         ];
     });
 
-    $fakeJev = function (string $choice, float $probability, float $temporaryDrop = 0.1) {
-        \Illuminate\Support\Facades\Http::swap(new \Illuminate\Http\Client\Factory());
-        \Illuminate\Support\Facades\Http::fake([
-            'openrouter.ai/*' => \Illuminate\Support\Facades\Http::response(['answers' => [
-                'change'         => ['choice' => $choice, 'probabilities' => [$choice => $probability, 'hold' => round(1 - $probability, 2)]],
-                'temporary_drop' => ['noul' => $temporaryDrop],
-            ]]),
-        ]);
-    };
+    $overstocked = fn (array $signals): array => [...$signals, 'cover' => 600.0, 'sales' => 500.0, 'sales_last_year' => 1000.0];
 
-    test('a confident markdown on an overstocked product is stored with a reason built from the signals', function () use ($fakeJev) {
-        $fakeJev('down_10', 0.72);
+    test('a product with over 18 months of stock and falling sales is flagged with the facts and no percentage', function () use ($overstocked) {
+        \Illuminate\Support\Facades\Http::fake();
+        $signals = $overstocked($this->tipSignals);
 
-        $tip = GenerateMasterAssetPriceTips::make()->settle($this->tipMasterAsset, $this->tipSignals);
+        $tip = GenerateMasterAssetPriceTips::make()->settle($this->tipMasterAsset, $signals);
 
         expect($tip->status)->toBe(MasterAssetPriceTipStatusEnum::OPEN)
-            ->and($tip->change)->toBe(-10)
-            ->and((float) $tip->confidence)->toBe(0.72)
-            ->and((float) $tip->temporary_drop_probability)->toBe(0.1)
-            ->and($tip->reason)->toContain('400 days')
-            ->and($tip->reason)->toContain('sales down 20%')
+            ->and($tip->kind)->toBe(MasterAssetPriceTipKindEnum::OVERSTOCKED)
+            ->and($tip->change)->toBe(0)
+            ->and($tip->reason)->toContain('600 days')
+            ->and($tip->reason)->toContain('sales down 50%')
             ->and($tip->reason)->toContain('20 more on the way')
             ->and($tip->reason)->toContain('moved sales +25%')
-            ->and($tip->state['cover'])->toEqual(400)
-            ->and($this->tipMasterAsset->stats()->first()->price_tip_check['outcome'])->toBe('tip');
+            ->and($tip->state['cover'])->toEqual(600)
+            ->and($this->tipMasterAsset->stats()->first()->price_tip_check)->toEqual(['outcome' => 'tip', 'text' => '']);
 
-        \Illuminate\Support\Facades\Http::assertSent(fn ($request) => $request['state']['product'] === 'PT Price tip product'
-            && array_keys($request['questions']) === ['change', 'temporary_drop']);
+        expect(GenerateMasterAssetPriceTips::make()->settle($this->tipMasterAsset, $signals)->id)->toBe($tip->id);
 
-        $fakeJev('down_5', 0.8);
-        expect(GenerateMasterAssetPriceTips::make()->settle($this->tipMasterAsset, $this->tipSignals)->change)->toBe(-10);
-        \Illuminate\Support\Facades\Http::assertNothingSent();
-
-        $this->travel(GenerateMasterAssetPriceTips::RECHECK_DAYS + 1)->days();
-        $refreshed = GenerateMasterAssetPriceTips::make()->settle($this->tipMasterAsset, $this->tipSignals);
-        expect($refreshed->id)->toBe($tip->id)->and($refreshed->change)->toBe(-5);
-
-        $fakeJev('hold', 0.9);
-        expect(GenerateMasterAssetPriceTips::make()->settle($this->tipMasterAsset, [...$this->tipSignals, 'price' => 9.5]))->toBeNull()
+        expect(GenerateMasterAssetPriceTips::make()->settle($this->tipMasterAsset, [...$signals, 'sales' => 900.0]))->toBeNull()
             ->and($tip->fresh()->status)->toBe(MasterAssetPriceTipStatusEnum::EXPIRED)
-            ->and($this->tipMasterAsset->stats()->first()->price_tip_check['outcome'])->toBe('ai_hold');
-    });
-
-    test('guard rails turn down picks against the stock, unsure picks, temporary drops and markdowns below cost floor', function () {
-        $answers = fn (string $choice, float $probability, float $temporaryDrop = 0.1) => [
-            'change'         => ['choice' => $choice, 'probabilities' => [$choice => $probability]],
-            'temporary_drop' => ['noul' => $temporaryDrop],
-        ];
-        $signals = $this->tipSignals;
-
-        expect(GenerateMasterAssetPriceTips::decide($signals, $answers('up_5', 0.9)))->toBeNull()
-            ->and(GenerateMasterAssetPriceTips::decide($signals, $answers('down_10', 0.4)))->toBeNull()
-            ->and(GenerateMasterAssetPriceTips::decide($signals, $answers('down_10', 0.9, 0.7)))->toBeNull()
-            ->and(GenerateMasterAssetPriceTips::decide([...$signals, 'cost' => 7.6], $answers('down_15', 0.9)))->toMatchArray(['change' => -5, 'capped' => true])
-            ->and(GenerateMasterAssetPriceTips::decide([...$signals, 'cost' => 7.9], $answers('down_15', 0.9)))->toBeNull()
-            ->and(GenerateMasterAssetPriceTips::decide([...$signals, 'cover' => 80.0], $answers('down_10', 0.9)))->toBeNull()
-            ->and(GenerateMasterAssetPriceTips::decide([...$signals, 'cover' => 20.0], $answers('up_10', 0.8)))->toMatchArray(['change' => 10])
-            ->and(GenerateMasterAssetPriceTips::decide([...$signals, 'cover' => 20.0], $answers('down_5', 0.8)))->toBeNull()
-            ->and(GenerateMasterAssetPriceTips::verdict($signals, $answers('down_10', 0.9, 0.7))['check']['outcome'])->toBe('temporary_drop')
-            ->and(GenerateMasterAssetPriceTips::verdict($signals, $answers('down_10', 0.4))['check']['text'])->toBe('No tip: the AI is only 40% sure of -10%');
-    });
-
-    test('lines on sale under 60 days and products with stock about right are never sent to Jev, and say why', function () {
-        \Illuminate\Support\Facades\Http::fake();
-
-        expect(GenerateMasterAssetPriceTips::make()->settle($this->tipMasterAsset, [...$this->tipSignals, 'sales_last_year' => 0.0, 'new' => true, 'days_on_sale' => 30]))->toBeNull()
-            ->and($this->tipMasterAsset->stats()->first()->price_tip_check)->toEqual(['outcome' => 'too_new', 'text' => 'No tip yet: new, on sale for 30 days'])
-            ->and(GenerateMasterAssetPriceTips::make()->settle($this->tipMasterAsset, [...$this->tipSignals, 'cover' => 80.0]))->toBeNull()
-            ->and($this->tipMasterAsset->stats()->first()->price_tip_check)->toEqual(['outcome' => 'stock_balanced', 'text' => 'No tip: stock for 80 days, no change needed']);
+            ->and($this->tipMasterAsset->stats()->first()->price_tip_check)->toEqual(['outcome' => 'nothing', 'text' => 'No tip: stock and sales look normal']);
 
         \Illuminate\Support\Facades\Http::assertNothingSent();
     });
 
-    test('a new line on sale long enough gets a markdown without the temporary drop check, judged on its family', function () use ($fakeJev) {
-        $fakeJev('down_10', 0.7, 0.9);
+    test('a product is flagged for too much stock, for running out, or for falling behind its family, and for nothing else', function () use ($overstocked) {
+        $signals    = $overstocked($this->tipSignals);
+        $noIncoming = [['organisation' => 'aw', 'days_of_cover' => 20, 'stock' => 5, 'sold_last_year' => 40, 'incoming' => 0, 'days_out_of_stock' => []]];
+        $runningOut = [...$signals, 'cover' => 20.0, 'sales' => 600.0, 'sales_last_year' => 400.0, 'organisations' => $noIncoming];
+        $behind     = [...$signals, 'cover' => 200.0, 'family' => ['rank' => 9, 'products' => 12, 'products_selling' => 12, 'share_pct' => 3, 'family_change_pct' => 0]];
 
-        $tip = GenerateMasterAssetPriceTips::make()->settle($this->tipMasterAsset, [...$this->tipSignals, 'sales_last_year' => 0.0, 'new' => true, 'days_on_sale' => 120]);
+        expect(GenerateMasterAssetPriceTips::flag($signals))->toBe(MasterAssetPriceTipKindEnum::OVERSTOCKED)
+            ->and(GenerateMasterAssetPriceTips::flag([...$signals, 'cover' => 300.0]))->toBeNull()
+            ->and(GenerateMasterAssetPriceTips::flag([...$signals, 'sales' => 800.0]))->toBeNull()
+            ->and(GenerateMasterAssetPriceTips::flag([...$signals, 'sales' => 50.0, 'sales_last_year' => 100.0]))->toBeNull()
+            ->and(GenerateMasterAssetPriceTips::flag([...$signals, 'sales_last_year' => 0.0, 'new' => true]))->toBeNull()
+            ->and(GenerateMasterAssetPriceTips::flag($runningOut))->toBe(MasterAssetPriceTipKindEnum::RUNNING_OUT)
+            ->and(GenerateMasterAssetPriceTips::flag([...$runningOut, 'organisations' => $signals['organisations']]))->toBeNull()
+            ->and(GenerateMasterAssetPriceTips::flag([...$runningOut, 'sales' => 420.0]))->toBeNull()
+            ->and(GenerateMasterAssetPriceTips::flag($behind))->toBe(MasterAssetPriceTipKindEnum::BEHIND_FAMILY)
+            ->and(GenerateMasterAssetPriceTips::flag([...$behind, 'family' => [...$behind['family'], 'family_change_pct' => -40]]))->toBeNull()
+            ->and(GenerateMasterAssetPriceTips::reason($runningOut, MasterAssetPriceTipKindEnum::RUNNING_OUT))->toStartWith('Stock runs out in 20 days')
+            ->and(GenerateMasterAssetPriceTips::reason($runningOut, MasterAssetPriceTipKindEnum::RUNNING_OUT))->toContain('sales up 50% on last year');
+    });
 
-        expect($tip->change)->toBe(-10)
-            ->and($tip->reason)->toContain('new, on sale for 120 days')
-            ->and($tip->reason)->not->toContain('on last year');
+    test('a price staff changed by hand, or a cost above the price, gets no tip and says why', function () use ($overstocked) {
+        $signals = $overstocked($this->tipSignals);
+        $tip     = GenerateMasterAssetPriceTips::make()->settle($this->tipMasterAsset, $signals);
+
+        $changedAt = now()->subDays(5);
+        expect(GenerateMasterAssetPriceTips::make()->settle($this->tipMasterAsset, [...$signals, 'price_changed_at' => $changedAt->toDateString()]))->toBeNull()
+            ->and($tip->fresh()->status)->toBe(MasterAssetPriceTipStatusEnum::EXPIRED)
+            ->and($this->tipMasterAsset->stats()->first()->price_tip_check)->toEqual(['outcome' => 'price_changed', 'text' => 'No tip: price changed by hand on '.$changedAt->format('j M').', no new tip for 30 days after that'])
+            ->and(GenerateMasterAssetPriceTips::precheck([...$signals, 'price_changed_at' => now()->subDays(GenerateMasterAssetPriceTips::MANUAL_CHANGE_QUIET_DAYS + 1)->toDateString()]))->toBeNull()
+            ->and(GenerateMasterAssetPriceTips::precheck([...$signals, 'cost' => 170.82])['outcome'])->toBe('cost_above_price');
+
+        $audit = fn (?int $userId, array $newValues, int $daysAgo, string $event = 'updated') => DB::table('audits')->insert([
+            'group_id'       => $this->tipMasterAsset->group_id,
+            'auditable_type' => $this->tipMasterAsset->getMorphClass(),
+            'auditable_id'   => $this->tipMasterAsset->id,
+            'event'          => $event,
+            'user_id'        => $userId,
+            'tags'           => '[]',
+            'old_values'     => json_encode(['price' => '10']),
+            'new_values'     => json_encode($newValues),
+            'created_at'     => now()->subDays($daysAgo),
+        ]);
+        $userId = \App\Models\SysAdmin\User::value('id');
+        $audit(null, ['price' => 9], 1);
+        $audit($userId, ['name' => 'Renamed'], 1);
+        $audit($userId, ['price' => 9], GenerateMasterAssetPriceTips::MANUAL_CHANGE_QUIET_DAYS + 5);
+        $audit($userId, ['RRP GBP' => 1300], 1, 'updated_master_prices');
+        expect(GenerateMasterAssetPriceTips::make()->lastManualPriceChanges([$this->tipMasterAsset->id]))->toBeEmpty();
+
+        $audit($userId, ['price' => 9], 3);
+        expect(GenerateMasterAssetPriceTips::make()->lastManualPriceChanges([$this->tipMasterAsset->id])->all())->toBe([$this->tipMasterAsset->id => now()->subDays(3)->toDateString()]);
+
+        $audit($userId, ['Price EUR' => 790, 'Price GBP' => 649], 2, 'updated_master_prices');
+        expect(GenerateMasterAssetPriceTips::make()->lastManualPriceChanges([$this->tipMasterAsset->id])->all())->toBe([$this->tipMasterAsset->id => now()->subDays(2)->toDateString()]);
+    });
+
+    test('lines on sale under 60 days and products that never sold are not looked at, and say why', function () use ($overstocked) {
+        $signals = $overstocked($this->tipSignals);
+
+        expect(GenerateMasterAssetPriceTips::make()->settle($this->tipMasterAsset, [...$signals, 'sales_last_year' => 0.0, 'new' => true, 'days_on_sale' => 30]))->toBeNull()
+            ->and($this->tipMasterAsset->stats()->first()->price_tip_check)->toEqual(['outcome' => 'too_new', 'text' => 'No tip yet: new, on sale for 30 days'])
+            ->and(GenerateMasterAssetPriceTips::precheck([...$signals, 'sales' => 0.0, 'sales_last_year' => 0.0])['outcome'])->toBe('no_sales')
+            ->and(GenerateMasterAssetPriceTips::precheck([...$signals, 'cover' => null])['outcome'])->toBe('no_recent_sales')
+            ->and(GenerateMasterAssetPriceTips::precheck([...$signals, 'cover' => null, 'organisations' => []])['outcome'])->toBe('no_stock');
     });
 
     test('stock cover is averaged over the organisations by what each sold in the last year', function () {
@@ -4421,48 +4511,8 @@ describe('price tips from Jev, HELP-2331', function () {
             ->and(GenerateMasterAssetPriceTips::salesWeightedCover([]))->toBeNull();
     });
 
-    test('when Jev cannot answer the open tip is kept and nothing new is stored', function () use ($fakeJev) {
-        $fakeJev('down_10', 0.72);
-        $tip = GenerateMasterAssetPriceTips::make()->settle($this->tipMasterAsset, $this->tipSignals);
-
-        \Illuminate\Support\Facades\Http::swap(new \Illuminate\Http\Client\Factory());
-        \Illuminate\Support\Facades\Http::fake(['openrouter.ai/*' => \Illuminate\Support\Facades\Http::response('down', 503)]);
-        expect(GenerateMasterAssetPriceTips::make()->settle($this->tipMasterAsset, $this->tipSignals)?->id)->toBe($tip->id)
-            ->and($tip->fresh()->status)->toBe(MasterAssetPriceTipStatusEnum::OPEN);
-
-        Config::set('services.openrouter.api_key', null);
-        $tip->update(['status' => MasterAssetPriceTipStatusEnum::EXPIRED]);
-        expect(GenerateMasterAssetPriceTips::make()->settle($this->tipMasterAsset, $this->tipSignals))->toBeNull()
-            ->and(MasterAssetPriceTip::where('master_asset_id', $this->tipMasterAsset->id)->where('status', MasterAssetPriceTipStatusEnum::OPEN)->exists())->toBeFalse();
-    });
-
-    test('applying a tip moves every currency through the master price update, audited, and it is measured later', function () use ($fakeJev) {
-        Queue::fake();
-        $fakeJev('down_10', 0.72);
-        $tip = GenerateMasterAssetPriceTips::make()->settle($this->tipMasterAsset, $this->tipSignals);
-
-        ApplyMasterAssetPriceTip::make()->action($tip, [], $this->adminGuest->getUser());
-
-        $masterAsset = $this->tipMasterAsset->fresh();
-        $tip->refresh();
-        expect((float) $masterAsset->master_prices['GBP']['value'])->toBe(9.0)
-            ->and((float) $masterAsset->master_prices['EUR']['value'])->toBe(10.8)
-            ->and($tip->status)->toBe(MasterAssetPriceTipStatusEnum::APPLIED)
-            ->and((float) $tip->applied_price)->toBe((float) $masterAsset->price)
-            ->and($tip->applied_by_user_id)->toBe($this->adminGuest->getUser()->id)
-            ->and($tip->audits()->where('new_values->status', 'applied')->exists())->toBeTrue();
-
-        expect(fn () => ApplyMasterAssetPriceTip::make()->action($tip, []))->toThrow(\Illuminate\Validation\ValidationException::class);
-
-        $tip->update(['applied_at' => now()->subDays(GenerateMasterAssetPriceTips::MEASURE_AFTER_DAYS + 1)]);
-        GenerateMasterAssetPriceTips::make()->measureOutcomes();
-        expect($tip->fresh()->measured_at)->not->toBeNull()
-            ->and($tip->fresh()->outcome)->toHaveKeys(['sales_before', 'sales_after', 'sales_after_last_year', 'sales_change_pct']);
-    });
-
-    test('staff dismiss a tip with a reason', function () use ($fakeJev) {
-        $fakeJev('down_10', 0.72);
-        $tip = GenerateMasterAssetPriceTips::make()->settle($this->tipMasterAsset, $this->tipSignals);
+    test('staff turn a tip down with a reason, and the reason is kept for whoever reviews the family next', function () use ($overstocked) {
+        $tip = GenerateMasterAssetPriceTips::make()->settle($this->tipMasterAsset, $overstocked($this->tipSignals));
 
         \Pest\Laravel\patch(route('grp.models.master_asset_price_tip.dismiss', ['masterAssetPriceTip' => $tip->id]), ['dismissed_reason' => ''])
             ->assertSessionHasErrors('dismissed_reason');
@@ -4471,15 +4521,19 @@ describe('price tips from Jev, HELP-2331', function () {
             ->assertSessionHasNoErrors();
 
         $tip->refresh();
+        $feedback = GenerateMasterAssetPriceTips::make()->staffFeedback([], [$this->tipMasterAsset->master_family_id]);
+
         expect($tip->status)->toBe(MasterAssetPriceTipStatusEnum::DISMISSED)
             ->and($tip->dismissed_reason)->toBe('Christmas stock, sells in December')
             ->and($tip->dismissed_by_user_id)->toBe($this->adminGuest->getUser()->id)
-            ->and($tip->audits()->where('new_values->status', 'dismissed')->exists())->toBeTrue();
+            ->and($tip->audits()->where('new_values->status', 'dismissed')->exists())->toBeTrue()
+            ->and($feedback)->toHaveCount(1)
+            ->and($feedback->first()->dismissed_reason)->toBe('Christmas stock, sells in December')
+            ->and(GenerateMasterAssetPriceTips::make()->staffFeedback([], [0]))->toBeEmpty();
     });
 
-    test('the master shop lists every open price tip in one place', function () use ($fakeJev) {
-        $fakeJev('down_10', 0.72);
-        GenerateMasterAssetPriceTips::make()->settle($this->tipMasterAsset, $this->tipSignals);
+    test('the master shop lists every open price tip in one place', function () use ($overstocked) {
+        GenerateMasterAssetPriceTips::make()->settle($this->tipMasterAsset, $overstocked($this->tipSignals));
         $masterShop = $this->tipMasterAsset->masterShop;
 
         get(route('grp.masters.master_shops.show.master_products.index', [$masterShop->slug, 'tab' => 'pricing']))
@@ -4490,7 +4544,8 @@ describe('price tips from Jev, HELP-2331', function () {
                     ->where('tabs.navigation.pricing.number', 1)
                     ->has('pricing.data', 1)
                     ->where('pricing.data.0.code', $this->tipMasterAsset->code)
-                    ->where('pricing.data.0.price_tip.change', -10)
+                    ->where('pricing.data.0.price_tip.label', 'Over 18 months of stock, sales falling')
+                    ->missing('pricing.data.0.price_tip.change')
                     ->where('pricing.data.0.master_family_code', $this->tipMasterAsset->masterFamily->code)
                     ->etc()
             );
@@ -4499,41 +4554,26 @@ describe('price tips from Jev, HELP-2331', function () {
             ->assertOk();
     });
 
-    test('a markdown is not tipped when the website is the problem, and the reason says how the website is doing', function () {
-        $answers = ['change' => ['choice' => 'down_10', 'probabilities' => ['down_10' => 0.9]], 'temporary_drop' => ['noul' => 0.1]];
+    test('too much stock is not flagged when the website is the problem, and the reason says how the website is doing', function () use ($overstocked) {
+        $signals = $overstocked($this->tipSignals);
         $healthy = ['shops' => 20, 'online' => 20, 'online_without_images' => 0, 'family_visitors' => 900, 'family_visitors_change_pct' => 5];
 
-        expect(GenerateMasterAssetPriceTips::decide([...$this->tipSignals, 'website' => $healthy], $answers))->toMatchArray(['change' => -10])
-            ->and(GenerateMasterAssetPriceTips::decide([...$this->tipSignals, 'website' => [...$healthy, 'online' => 14]], $answers))->toBeNull()
-            ->and(GenerateMasterAssetPriceTips::decide([...$this->tipSignals, 'website' => [...$healthy, 'online_without_images' => 2]], $answers))->toBeNull()
-            ->and(GenerateMasterAssetPriceTips::decide([...$this->tipSignals, 'website' => [...$healthy, 'family_visitors_change_pct' => -40]], $answers))->toBeNull()
+        expect(GenerateMasterAssetPriceTips::verdict([...$signals, 'website' => $healthy])['kind'])->toBe(MasterAssetPriceTipKindEnum::OVERSTOCKED)
+            ->and(GenerateMasterAssetPriceTips::verdict([...$signals, 'website' => [...$healthy, 'online' => 14]])['check']['outcome'])->toBe('website')
+            ->and(GenerateMasterAssetPriceTips::verdict([...$signals, 'website' => [...$healthy, 'online_without_images' => 2]])['kind'])->toBeNull()
+            ->and(GenerateMasterAssetPriceTips::verdict([...$signals, 'website' => [...$healthy, 'family_visitors_change_pct' => -40]])['kind'])->toBeNull()
             ->and(GenerateMasterAssetPriceTips::websiteReason($healthy))->toBe('website OK: online in 20 of 20 shops, family page visitors +5%')
             ->and(GenerateMasterAssetPriceTips::websiteReason([...$healthy, 'online' => 14, 'family_visitors_change_pct' => -40]))->toBe('website problem: offline in 6 of 20 shops, family page visitors -40%')
-            ->and(GenerateMasterAssetPriceTips::reason([...$this->tipSignals, 'offers' => ['Autumn 10% off', 'Older offer']], ['change' => -10, 'capped' => false]))->toContain('2 offers running, latest: Autumn 10% off')
+            ->and(GenerateMasterAssetPriceTips::reason([...$signals, 'offers' => ['Autumn 10% off', 'Older offer']], MasterAssetPriceTipKindEnum::OVERSTOCKED))->toContain('2 offers running, latest: Autumn 10% off')
             ->and(GenerateMasterAssetPriceTips::make()->websiteHealth([0]))->toBe([]);
     });
 
-    test('the reason puts the product among its family', function () {
+    test('the reason puts the product among its family', function () use ($overstocked) {
         $family = ['rank' => 26, 'products' => 31, 'products_selling' => 31, 'share_pct' => 1, 'family_change_pct' => -12];
 
         expect(GenerateMasterAssetPriceTips::familyReason($family, -10))->toBe('in the family: #26 of 31 by sales, 1% of family sales, family -12% vs this product -10%')
-            ->and(GenerateMasterAssetPriceTips::reason([...$this->tipSignals, 'family' => $family], ['change' => -10, 'capped' => false]))->toContain('in the family: #26 of 31')
+            ->and(GenerateMasterAssetPriceTips::reason([...$overstocked($this->tipSignals), 'family' => $family], MasterAssetPriceTipKindEnum::OVERSTOCKED))->toContain('in the family: #26 of 31')
             ->and(GenerateMasterAssetPriceTips::make()->familyContext([], collect()))->toBe([]);
-    });
-
-    test('why staff said a tip was wrong goes back to the AI for that product and its family', function () use ($fakeJev) {
-        $fakeJev('down_10', 0.72);
-        $tip = GenerateMasterAssetPriceTips::make()->settle($this->tipMasterAsset, $this->tipSignals);
-
-        \Pest\Laravel\patch(route('grp.models.master_asset_price_tip.dismiss', ['masterAssetPriceTip' => $tip->id]), ['dismissed_reason' => 'Christmas stock, sells in December'])
-            ->assertRedirect();
-
-        $feedback = GenerateMasterAssetPriceTips::make()->staffFeedback([], [$this->tipMasterAsset->master_family_id]);
-
-        expect($feedback)->toHaveCount(1)
-            ->and($feedback->first()->dismissed_reason)->toBe('Christmas stock, sells in December')
-            ->and((int) $feedback->first()->change)->toBe(-10)
-            ->and(GenerateMasterAssetPriceTips::make()->staffFeedback([], [0]))->toBeEmpty();
     });
 });
 
@@ -4745,4 +4785,431 @@ test('the seo title, meta description and url typed on a family edit page reach 
         ->assertRedirect();
 
     expect($webpage->refresh()->description)->toBe('');
+});
+
+test('masters write routes need the masters edit permission, INI-073', function () {
+    $unguarded = collect(app('router')->getRoutes()->getRoutes())
+        ->filter(fn ($route) => str_starts_with((string) $route->getName(), 'grp.models.') && is_string($route->getAction('uses')))
+        ->map(fn ($route) => \Illuminate\Support\Str::before($route->getAction('uses'), '@'))
+        ->filter(fn (string $action) => str_starts_with($action, 'App\\Actions\\Masters\\') && !method_exists($action, 'authorize'))
+        ->unique()->values()->all();
+    expect($unguarded)->toBe([]);
+
+    $masterShop       = createFreshMasterShop();
+    $masterDepartment = StoreMasterDepartment::make()->action($masterShop, [
+        'code' => 'INI73-'.uniqid(),
+        'name' => 'Guarded department',
+    ]);
+    $masterCollection = StoreMasterCollection::make()->action($masterShop, [
+        'code' => 'INI73C-'.uniqid(),
+        'name' => 'Guarded collection',
+    ]);
+    $departmentData = fn () => ['code' => 'INI73D-'.uniqid(), 'name' => 'Department by route'];
+
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ['masters.view']);
+        Pest\Laravel\post(route('grp.models.master_shops.master_department.store', $masterShop->id), $departmentData())->assertForbidden();
+        Pest\Laravel\post(route('grp.models.master_sub_department.store', $masterDepartment->id), $departmentData())->assertForbidden();
+        Pest\Laravel\patch(route('grp.models.master_product_category.reorder_index', $masterDepartment->id), [])->assertForbidden();
+        Pest\Laravel\delete(route('grp.models.master_collection.delete', $masterCollection->id))->assertForbidden();
+        expect(MasterCollection::find($masterCollection->id))->not->toBeNull();
+
+        $uploads = fn () => [
+            Pest\Laravel\post(route('grp.models.master_product_category.upload_images', $masterDepartment->id), [])->status(),
+            Pest\Laravel\post(route('grp.models.master_collection.upload_images', $masterCollection->id), [])->status(),
+        ];
+        expect($uploads())->each->toBe(403);
+
+        actingAsUserWithOnlyPermissions($this->user, ['masters.view', 'group-webmaster.media-edit']);
+        expect($uploads())->each->not->toBe(403);
+        Pest\Laravel\post(route('grp.models.master_shops.master_department.store', $masterShop->id), $departmentData())->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($this->user, ['masters.edit']);
+        expect($uploads())->each->not->toBe(403);
+        $data = $departmentData();
+        Pest\Laravel\post(route('grp.models.master_shops.master_department.store', $masterShop->id), $data)->assertSessionHasNoErrors();
+        expect($masterShop->masterProductCategories()->where('code', $data['code'])->exists())->toBeTrue();
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
+});
+
+function createMasterFamilyInFreshMasterShop(string $prefix): MasterProductCategory
+{
+    return StoreMasterFamily::make()->action(
+        StoreMasterDepartment::make()->action(createFreshMasterShop(), ['code' => $prefix.'-DEP-'.uniqid(), 'name' => $prefix.' department']),
+        ['code' => $prefix.'-FAM-'.uniqid(), 'name' => $prefix.' family']
+    );
+}
+
+/**
+ * @return array{0: \App\Models\Masters\MasterVariant, 1: MasterAsset, 2: MasterAsset}
+ */
+function createMasterVariantOfTwo(MasterProductCategory $masterFamily, string $prefix): array
+{
+    $tradeUnit = StoreTradeUnit::make()->action(group(), array_merge(TradeUnit::factory()->definition(), ['code' => $prefix.uniqid()]));
+
+    $make = fn (string $suffix, int $quantity) => StoreMasterAsset::make()->action($masterFamily, [
+        'code'        => $prefix.'-'.$suffix.'-'.substr(uniqid(), -6),
+        'name'        => $prefix.' '.$suffix,
+        'type'        => MasterAssetTypeEnum::PRODUCT,
+        'unit'        => 'piece',
+        'price'       => 10,
+        'rrp'         => 20,
+        'trade_units' => [['id' => $tradeUnit->id, 'quantity' => $quantity]],
+    ]);
+    $leader = $make('BIG', 6);
+    $minion = $make('SMALL', 1);
+
+    $masterVariant = \App\Models\Masters\MasterVariant::create([
+        'group_id'          => $masterFamily->group_id,
+        'master_shop_id'    => $masterFamily->master_shop_id,
+        'master_family_id'  => $masterFamily->id,
+        'code'              => $leader->code,
+        'leader_id'         => $leader->id,
+        'number_minions'    => 1,
+        'number_dimensions' => 1,
+        'number_used_slots' => 2,
+        'data'              => [
+            'groupBy'  => 'Size',
+            'variants' => [['label' => 'Size', 'options' => ['Big', 'Small']]],
+            'products' => [
+                $leader->id => ['Size' => 'Big', 'is_leader' => true, 'product' => ['id' => $leader->id, 'code' => $leader->code, 'slug' => $leader->slug]],
+                $minion->id => ['Size' => 'Small', 'is_leader' => false, 'product' => ['id' => $minion->id, 'code' => $minion->code, 'slug' => $minion->slug]],
+            ],
+        ],
+    ]);
+    $leader->updateQuietly(['master_variant_id' => $masterVariant->id, 'is_main' => true, 'is_variant_leader' => true, 'is_minion_variant' => false]);
+    $minion->updateQuietly(['master_variant_id' => $masterVariant->id, 'is_main' => false, 'is_variant_leader' => false, 'is_minion_variant' => true]);
+
+    return [$masterVariant, $leader->refresh(), $minion->refresh()];
+}
+
+test('a master product is copied to a family of another master shop as a master only', function () {
+    $sourceFamily = createMasterFamilyInFreshMasterShop('CPS');
+    $targetFamily = createMasterFamilyInFreshMasterShop('CPT');
+
+    $tradeUnit = StoreTradeUnit::make()->action(group(), array_merge(TradeUnit::factory()->definition(), ['code' => 'CPTU'.uniqid()]));
+    $source    = StoreMasterAsset::make()->action($sourceFamily, [
+        'code'        => 'CP-'.substr(uniqid(), -8),
+        'name'        => 'Copied bottle',
+        'type'        => MasterAssetTypeEnum::PRODUCT,
+        'price'       => 10,
+        'rrp'         => 20,
+        'trade_units' => [['id' => $tradeUnit->id, 'quantity' => 12]],
+    ]);
+    $source->updateQuietly([
+        'description'      => 'A bottle worth copying',
+        'name_i8n'         => ['es' => 'Botella copiada'],
+        'master_prices'    => ['EUR' => ['value' => 11.5]],
+        'tax_category'     => ['standard' => true],
+        'is_golden_product' => true,
+        'source_id'        => 'aurora:1:999',
+    ]);
+    $media = \App\Models\Helpers\Media::create([
+        'group_id'              => $source->group_id,
+        'ulid'                  => (string) Str::ulid(),
+        'uuid'                  => (string) Str::uuid(),
+        'name'                  => 'bottle',
+        'file_name'             => 'bottle.jpeg',
+        'mime_type'             => 'image/jpeg',
+        'disk'                  => 'local',
+        'collection_name'       => 'images',
+        'size'                  => 4,
+        'manipulations'         => [],
+        'custom_properties'     => [],
+        'generated_conversions' => [],
+        'responsive_images'     => [],
+    ]);
+    $source->images()->sync([$media->id => ['group_id' => $source->group_id, 'scope' => 'photo', 'sub_scope' => 'main', 'caption' => 'The bottle', 'is_public' => true, 'position' => 1, 'data' => '{}', 'source_id' => 'aurora:1:img']]);
+    $source->updateQuietly(['image_id' => $media->id, 'follow_trade_unit_media' => false]);
+    $sourceAttributes = $source->refresh()->getAttributes();
+
+    $this->shop->updateQuietly(['master_shop_id' => $targetFamily->master_shop_id]);
+    createProduct($this->shop);
+    $shopFamily = $this->shop->productCategories()->where('type', ProductCategoryTypeEnum::FAMILY)->first();
+    $originalMasterFamilyId = $shopFamily->master_product_category_id;
+    $shopFamily->updateQuietly(['master_product_category_id' => $targetFamily->id]);
+
+    try {
+        $response = post(route('grp.models.master_asset.copy_to_master_shop', $source->id), ['master_family_id' => $targetFamily->id]);
+
+        $copy = MasterAsset::where('master_shop_id', $targetFamily->master_shop_id)->where('code', $source->code)->first();
+
+        $response->assertRedirect(route('grp.masters.master_shops.show.master_products.show', [
+            'masterShop'    => $targetFamily->masterShop->slug,
+            'masterProduct' => $copy->slug,
+        ]));
+
+        expect($copy->id)->not->toBe($source->id)
+            ->and($copy->slug)->not->toBe($source->slug)
+            ->and($copy->master_family_id)->toBe($targetFamily->id)
+            ->and($copy->master_department_id)->toBe($targetFamily->master_department_id)
+            ->and($copy->name)->toBe('Copied bottle')
+            ->and($copy->description)->toBe('A bottle worth copying')
+            ->and($copy->getTranslation('name_i8n', 'es'))->toBe('Botella copiada')
+            ->and($copy->master_prices)->toBe(['EUR' => ['value' => 11.5]])
+            ->and($copy->tax_category)->toBe(['standard' => true])
+            ->and($copy->is_golden_product)->toBeTrue()
+            ->and((float) $copy->units)->toBe((float) $source->units)
+            ->and($copy->source_id)->toBeNull()
+            ->and($copy->master_variant_id)->toBeNull()
+            ->and($copy->is_main)->toBeTrue()
+            ->and($copy->stats)->not->toBeNull()
+            ->and($copy->tradeUnits->pluck('pivot.quantity', 'id')->map(fn ($quantity) => (float) $quantity)->all())->toBe([$tradeUnit->id => 12.0])
+            ->and($copy->image_id)->toBe($media->id)
+            ->and($copy->images->pluck('pivot.caption', 'id')->all())->toBe([$media->id => 'The bottle'])
+            ->and(DB::table('model_has_media')->where('model_type', 'MasterAsset')->where('model_id', $copy->id)->value('source_id'))->toBeNull()
+            ->and($source->images()->count())->toBe(1)
+            ->and(Product::where('master_product_id', $copy->id)->count())->toBe(0)
+            ->and($source->refresh()->getAttributes())->toBe($sourceAttributes);
+    } finally {
+        $shopFamily->updateQuietly(['master_product_category_id' => $originalMasterFamilyId]);
+    }
+});
+
+test('copying a master product of a variant copies the whole variant, pointing at the copies', function () {
+    $sourceFamily = createMasterFamilyInFreshMasterShop('CVS');
+    $targetFamily = createMasterFamilyInFreshMasterShop('CVT');
+    [$sourceVariant, $leader, $minion] = createMasterVariantOfTwo($sourceFamily, 'CV');
+    $sourceVariantData = $sourceVariant->refresh()->data;
+
+    $minionCopy = \App\Actions\Masters\MasterAsset\CopyMasterAssetToMasterShop::make()->action($minion, ['master_family_id' => $targetFamily->id]);
+    $leaderCopy = MasterAsset::where('master_shop_id', $targetFamily->master_shop_id)->where('code', $leader->code)->first();
+    $variantCopy = $minionCopy->masterVariant;
+
+    expect($minionCopy->code)->toBe($minion->code)
+        ->and($leaderCopy)->not->toBeNull()
+        ->and($variantCopy->id)->not->toBe($sourceVariant->id)
+        ->and($variantCopy->slug)->not->toBe($sourceVariant->slug)
+        ->and($variantCopy->master_shop_id)->toBe($targetFamily->master_shop_id)
+        ->and($variantCopy->master_family_id)->toBe($targetFamily->id)
+        ->and($variantCopy->leader_id)->toBe($leaderCopy->id)
+        ->and(array_keys($variantCopy->data['products']))->toEqualCanonicalizing([$leaderCopy->id, $minionCopy->id])
+        ->and($variantCopy->data['products'][$leaderCopy->id]['product']['id'])->toBe($leaderCopy->id)
+        ->and($variantCopy->data['products'][$leaderCopy->id]['product']['slug'])->toBe($leaderCopy->slug)
+        ->and($variantCopy->data['products'][$leaderCopy->id]['is_leader'])->toBeTrue()
+        ->and($variantCopy->data['products'][$minionCopy->id]['Size'])->toBe('Small')
+        ->and($variantCopy->data['variants'])->toBe($sourceVariantData['variants'])
+        ->and($variantCopy->stats)->not->toBeNull()
+        ->and($variantCopy->orderingStats)->not->toBeNull()
+        ->and($variantCopy->variants()->count())->toBe(0)
+        ->and($leaderCopy->is_variant_leader)->toBeTrue()
+        ->and($leaderCopy->is_main)->toBeTrue()
+        ->and($leaderCopy->master_variant_id)->toBe($variantCopy->id)
+        ->and($minionCopy->is_minion_variant)->toBeTrue()
+        ->and($minionCopy->is_main)->toBeFalse()
+        ->and($sourceVariant->refresh()->data)->toBe($sourceVariantData)
+        ->and($sourceVariant->leader_id)->toBe($leader->id)
+        ->and($minion->refresh()->master_variant_id)->toBe($sourceVariant->id);
+});
+
+test('nothing is copied when the target master shop already has one of the codes, or is the same master shop', function () {
+    $sourceFamily = createMasterFamilyInFreshMasterShop('CRS');
+    $targetFamily = createMasterFamilyInFreshMasterShop('CRT');
+    [, $leader, $minion] = createMasterVariantOfTwo($sourceFamily, 'CR');
+
+    StoreMasterAsset::make()->action($targetFamily, [
+        'code' => strtolower($minion->code),
+        'name' => 'Already there',
+        'type' => MasterAssetTypeEnum::PRODUCT,
+    ]);
+    $countAssets   = MasterAsset::where('master_shop_id', $targetFamily->master_shop_id)->count();
+    $countVariants = \App\Models\Masters\MasterVariant::where('master_shop_id', $targetFamily->master_shop_id)->count();
+
+    post(route('grp.models.master_asset.copy_to_master_shop', $leader->id), ['master_family_id' => $targetFamily->id])
+        ->assertSessionHasErrors('master_family_id');
+    post(route('grp.models.master_asset.copy_to_master_shop', $leader->id), ['master_family_id' => $sourceFamily->id])
+        ->assertSessionHasErrors('master_family_id');
+    post(route('grp.models.master_asset.copy_to_master_shop', $leader->id), ['master_family_id' => $targetFamily->master_department_id])
+        ->assertSessionHasErrors('master_family_id');
+
+    expect(MasterAsset::where('master_shop_id', $targetFamily->master_shop_id)->count())->toBe($countAssets)
+        ->and(\App\Models\Masters\MasterVariant::where('master_shop_id', $targetFamily->master_shop_id)->count())->toBe($countVariants)
+        ->and(MasterAsset::where('master_shop_id', $sourceFamily->master_shop_id)->count())->toBe(2);
+});
+
+test('the copy dialog lists the other master shops with the codes they already have, and its family picker answers', function () {
+    $sourceFamily = createMasterFamilyInFreshMasterShop('CDS');
+    $targetFamily = createMasterFamilyInFreshMasterShop('CDT');
+    [, $leader, $minion] = createMasterVariantOfTwo($sourceFamily, 'CD');
+    StoreMasterAsset::make()->action($targetFamily, ['code' => $minion->code, 'name' => 'Already there', 'type' => MasterAssetTypeEnum::PRODUCT]);
+
+    $dialog       = \App\Actions\Masters\MasterAsset\CopyMasterAssetToMasterShop::make()->getDialogData($leader);
+    $masterShops  = collect($dialog['master_shops'])->keyBy('id');
+
+    expect($dialog['products'])->toEqualCanonicalizing([$leader->code, $minion->code])
+        ->and($masterShops->has($sourceFamily->master_shop_id))->toBeFalse()
+        ->and($masterShops[$targetFamily->master_shop_id]['existing_codes'])->toBe([$minion->code])
+        ->and($masterShops[$targetFamily->master_shop_id]['blockers'])->toHaveCount(1);
+
+    $this->getJson(route('grp.json.master-family.all-master-family', ['masterShop' => $targetFamily->masterShop->slug]))
+        ->assertOk()
+        ->assertJsonFragment(['id' => $targetFamily->id]);
+});
+
+test('a copied variant member added to a shop before its leader waits for the leader instead of failing', function () {
+    $sourceFamily = createMasterFamilyInFreshMasterShop('CAS');
+    $targetFamily = createMasterFamilyInFreshMasterShop('CAT');
+    [, , $minion] = createMasterVariantOfTwo($sourceFamily, 'CA');
+    $minionCopy = \App\Actions\Masters\MasterAsset\CopyMasterAssetToMasterShop::make()->action($minion, ['master_family_id' => $targetFamily->id]);
+
+    createProduct($this->shop);
+    $shopFamily = $this->shop->productCategories()->where('type', ProductCategoryTypeEnum::FAMILY)->first();
+    $originalMasterFamilyId = $shopFamily->master_product_category_id;
+    $shopFamily->updateQuietly(['master_product_category_id' => $targetFamily->id]);
+
+    try {
+        \App\Actions\Catalogue\Product\StoreProductFromMasterProduct::make()->action($minionCopy, [
+            'shop_products' => [$this->shop->id => ['price' => 10, 'rrp' => 20, 'create_webpage' => false, 'create_in_shop' => 'Yes']],
+            'is_for_sale'   => true,
+        ], ignoreCreateWebpage: true);
+
+        $product = Product::where('shop_id', $this->shop->id)->where('master_product_id', $minionCopy->id)->first();
+
+        expect($product)->not->toBeNull()
+            ->and($product->variant_id)->toBeNull()
+            ->and($minionCopy->masterVariant->variants()->count())->toBe(0);
+    } finally {
+        $shopFamily->updateQuietly(['master_product_category_id' => $originalMasterFamilyId]);
+    }
+});
+
+test('nothing is copied when a shop of the target master shop already sells the code, or the variant code is taken there', function () {
+    $sourceFamily = createMasterFamilyInFreshMasterShop('CBS');
+    $targetFamily = createMasterFamilyInFreshMasterShop('CBT');
+    [$sourceVariant, $leader, $minion] = createMasterVariantOfTwo($sourceFamily, 'CB');
+    $copyAction = \App\Actions\Masters\MasterAsset\CopyMasterAssetToMasterShop::make();
+
+    [, $product]          = createProduct($this->shop);
+    $originalMasterShopId = $this->shop->master_shop_id;
+    $originalCode         = $product->code;
+    $originalAttributes   = Arr::except($product->refresh()->getAttributes(), 'updated_at');
+    $this->shop->updateQuietly(['master_shop_id' => $targetFamily->master_shop_id]);
+    $product->updateQuietly(['code' => strtolower($minion->code)]);
+
+    try {
+        expect($copyAction->getBlockers($leader, $targetFamily->masterShop))->toHaveCount(1)
+            ->and($copyAction->getBlockers($leader, $targetFamily->masterShop)[0])->toContain($this->shop->code.' '.strtolower($minion->code));
+
+        post(route('grp.models.master_asset.copy_to_master_shop', $leader->id), ['master_family_id' => $targetFamily->id])
+            ->assertSessionHasErrors('master_family_id');
+
+        expect(MasterAsset::where('master_shop_id', $targetFamily->master_shop_id)->count())->toBe(0);
+    } finally {
+        $product->updateQuietly(['code' => $originalCode]);
+        $this->shop->updateQuietly(['master_shop_id' => $originalMasterShopId]);
+    }
+    expect(Arr::except($product->refresh()->getAttributes(), 'updated_at'))->toBe($originalAttributes)
+        ->and($copyAction->getBlockers($leader, $targetFamily->masterShop))->toBe([]);
+
+    $takenVariant = $sourceVariant->replicate(['slug']);
+    $takenVariant->fill(['master_shop_id' => $targetFamily->master_shop_id, 'master_family_id' => $targetFamily->id, 'code' => strtolower($sourceVariant->code)])->save();
+
+    expect($copyAction->getBlockers($leader, $targetFamily->masterShop))->toHaveCount(1);
+    post(route('grp.models.master_asset.copy_to_master_shop', $leader->id), ['master_family_id' => $targetFamily->id])
+        ->assertSessionHasErrors('master_family_id');
+    expect(MasterAsset::where('master_shop_id', $targetFamily->master_shop_id)->count())->toBe(0);
+});
+
+test('a copied variant goes into a shop leader first: a member is refused before its leader and joins the shop variant after it', function () {
+    $sourceFamily = createMasterFamilyInFreshMasterShop('CLS');
+    $targetFamily = createMasterFamilyInFreshMasterShop('CLT');
+    [, $leader, $minion] = createMasterVariantOfTwo($sourceFamily, 'CL');
+    $minionCopy = \App\Actions\Masters\MasterAsset\CopyMasterAssetToMasterShop::make()->action($minion, ['master_family_id' => $targetFamily->id]);
+    $leaderCopy = MasterAsset::where('master_shop_id', $targetFamily->master_shop_id)->where('code', $leader->code)->first();
+    $leaderCopy->updateQuietly(['is_for_sale' => null]);
+    $minionCopy->updateQuietly(['is_for_sale' => true]);
+
+    createProduct($this->shop);
+    createWebsite($this->shop);
+    $shopFamily             = $this->shop->productCategories()->where('type', ProductCategoryTypeEnum::FAMILY)->first();
+    $originalMasterFamilyId = $shopFamily->master_product_category_id;
+    $originalMasterShopId   = $this->shop->master_shop_id;
+    $shopFamily->updateQuietly(['master_product_category_id' => $targetFamily->id]);
+    $this->shop->updateQuietly(['master_shop_id' => $targetFamily->master_shop_id]);
+
+    $addToShop = fn (MasterAsset $masterAsset) => $this->postJson(
+        route('grp.models.master_family.clone_to_other_store', ['masterFamily' => $targetFamily->id, 'masterProduct' => $masterAsset->slug]),
+        ['shop_products' => [$this->shop->id => ['price' => 10, 'rrp' => 20, 'create_in_shop' => 'Yes']]]
+    );
+
+    try {
+        $addToShop($minionCopy)->assertJsonValidationErrors('shop_products');
+        expect(Product::where('master_product_id', $minionCopy->id)->count())->toBe(0);
+
+        $addToShop($leaderCopy)->assertSuccessful();
+        $leaderProduct = Product::where('shop_id', $this->shop->id)->where('master_product_id', $leaderCopy->id)->first();
+        $variant       = $minionCopy->masterVariant->variants()->where('shop_id', $this->shop->id)->first();
+
+        expect($variant)->not->toBeNull()
+            ->and($variant->leader_id)->toBe($leaderProduct->id)
+            ->and(array_keys($variant->data['products']))->toBe([$leaderProduct->id]);
+
+        $addToShop($minionCopy)->assertSuccessful();
+        $minionProduct = Product::where('shop_id', $this->shop->id)->where('master_product_id', $minionCopy->id)->first();
+        $variant->refresh();
+
+        expect(array_keys($variant->data['products']))->toEqualCanonicalizing([$leaderProduct->id, $minionProduct->id])
+            ->and($variant->number_used_slots)->toBe(2)
+            ->and($variant->leader_id)->toBe($leaderProduct->id)
+            ->and($minionProduct->variant_id)->toBe($variant->id)
+            ->and($minionProduct->is_minion_variant)->toBeTrue()
+            ->and($minionProduct->is_main)->toBeFalse()
+            ->and($leaderProduct->refresh()->is_variant_leader)->toBeTrue()
+            ->and($leaderProduct->is_for_sale)->toBeTrue()
+            ->and($leaderProduct->is_main)->toBeTrue()
+            ->and($leaderProduct->webpage)->not->toBeNull()
+            ->and(\App\Models\Web\Redirect::where('shop_id', $this->shop->id)->where('from_path', strtolower($minionProduct->code))->exists())->toBeTrue();
+    } finally {
+        $shopFamily->updateQuietly(['master_product_category_id' => $originalMasterFamilyId]);
+        $this->shop->updateQuietly(['master_shop_id' => $originalMasterShopId]);
+    }
+});
+
+test('a master collection stores its image', function () {
+    $masterShop       = createFreshMasterShop();
+    $masterDepartment = StoreMasterDepartment::make()->action($masterShop, [
+        'code' => 'MCI-DEPT-'.uniqid(),
+        'name' => 'Image Department',
+    ]);
+    $masterCollection = StoreMasterCollection::make()->action($masterDepartment, [
+        'code' => 'MCI-COL-'.uniqid(),
+        'name' => 'Image Collection',
+    ]);
+
+    $path = tempnam(sys_get_temp_dir(), 'mci').'.png';
+    file_put_contents($path, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='));
+
+    $masterCollection = \App\Actions\Helpers\Media\SaveModelImage::run(
+        $masterCollection,
+        ['path' => $path, 'originalName' => 'mci.png', 'extension' => 'png'],
+        'catalogue'
+    );
+
+    expect($masterCollection->image_id)->not->toBeNull();
+});
+
+test('trade unit pickers json refuse crm staff and serve shop product editors and masters viewers', function () {
+    $masterProductCategory = ensureMasterProductCategory();
+    $allTradeUnitsRoute    = route('grp.json.master_product_category.all_trade_units');
+    $recommendedRoute      = route('grp.json.master-product-category.recommended-trade-units', $masterProductCategory->id);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["crm.{$this->shop->id}.view"]);
+    getJson($allTradeUnitsRoute)->assertForbidden();
+    getJson($recommendedRoute)->assertForbidden();
+
+    foreach (["products.{$this->shop->id}.edit", 'masters.view'] as $permission) {
+        actingAsUserWithOnlyPermissions($user, [$permission]);
+        getJson($allTradeUnitsRoute)->assertOk();
+        getJson($recommendedRoute)->assertOk();
+    }
 });

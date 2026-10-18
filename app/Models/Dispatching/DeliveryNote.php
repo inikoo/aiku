@@ -211,6 +211,7 @@ class DeliveryNote extends Model implements Auditable
     use HasAddresses;
     use HasHistory;
     use HasSearch;
+    public const array STAFF_NOTE_FIELDS = ['private_warehouse_note', 'shipping_notes'];
 
     protected $casts = [
         'handled_in_aurora'       => 'boolean',
@@ -581,17 +582,35 @@ class DeliveryNote extends Model implements Auditable
     }
 
     /**
-     * Picking, packing, shipping, finalising and dispatching: warehouse dispatch staff, plus the
-     * shop's customer service, who book shipments and dispatch collections themselves.
+     * Picking, packing, finalising and dispatching from the warehouse screens: warehouse dispatch,
+     * fulfilment and returns staff. Customer service book shipments through canBeShippedBy().
      */
     public function canBeWorkedOnBy(User $user): bool
     {
         return $user->authTo([
             "dispatching.$this->warehouse_id.edit",
             "supervisor-dispatching.$this->warehouse_id",
+            "fulfilment.$this->warehouse_id.edit",
             "returns.$this->warehouse_id",
             "org-admin.$this->organisation_id",
-            "orders.$this->shop_id.edit",
+        ]);
+    }
+
+    public function canBeShippedBy(User $user): bool
+    {
+        return $this->canBeWorkedOnBy($user) || $user->authTo("orders.$this->shop_id.edit");
+    }
+
+    public function canBeNotedBy(User $user): bool
+    {
+        return $this->canBeShippedBy($user);
+    }
+
+    public function canBeUndispatchedBy(User $user): bool
+    {
+        return $user->authTo([
+            "supervisor-dispatching.$this->warehouse_id",
+            "org-admin.$this->organisation_id",
         ]);
     }
 

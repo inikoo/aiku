@@ -14,6 +14,7 @@ import Column from "primevue/column"
 import Tag from "primevue/tag"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
+import { featureLabel } from "@/Components/Seo/serpFeatures"
 import { ctrans } from "@/Composables/useTrans"
 import { useLocaleStore } from "@/Stores/locale"
 import type { SeoKeywordOptions, SeoKeywordRoutes, SeoResearchQuery } from "@/Components/Seo/types"
@@ -29,6 +30,8 @@ type KeywordIdea = {
     keyword_difficulty: number | null
     intent: string | null
     secondary_intents: string[]
+    serp_features: string[]
+    serp_updated_at: string | null
     is_tracked: boolean
 }
 
@@ -80,8 +83,7 @@ const track = (keyword: string) => {
         keyword,
         country_code: props.query.country_code,
         language_code: props.query.language_code,
-        device: "mobile",
-        frequency: "weekly",
+        frequency: "on_request",
     }, {
         preserveScroll: true,
         only: ["research"],
@@ -244,6 +246,17 @@ const trendBars = (idea: KeywordIdea) => {
                         </template>
                         <template #body="{ data: idea }">
                             {{ idea.cpc === null ? "-" : locale.number(idea.cpc) }}
+                        </template>
+                    </Column>
+                    <Column>
+                        <template #header>
+                            <span v-tooltip="ctrans('What Google shows on the results page for this keyword besides the ten blue links. The snapshot comes from DataForSEO, so it can be some months old')">{{ ctrans("SERP features") }}</span>
+                        </template>
+                        <template #body="{ data: idea }">
+                            <div v-if="idea.serp_features?.length" class="flex max-w-xs flex-wrap gap-1" v-tooltip="idea.serp_updated_at ? ctrans('Results page seen on :date', { date: idea.serp_updated_at }) : undefined">
+                                <Tag v-for="feature in idea.serp_features" :key="feature" :value="featureLabel(feature)" severity="secondary" />
+                            </div>
+                            <span v-else>-</span>
                         </template>
                     </Column>
                     <Column field="competition" :pt="centeredColumnPt">

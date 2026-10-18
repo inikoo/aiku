@@ -13,6 +13,7 @@ use App\Actions\Ordering\Order\CalculateOrderTotalAmounts;
 use App\Actions\Ordering\Order\LogBasketEvent;
 use App\Actions\Ordering\Order\Hydrators\OrderHydrateCategoriesData;
 use App\Actions\OrgAction;
+use App\Actions\Procurement\PartnerShoppingListItem\ReturnLoweredQuantityToPartnerShoppingList;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Order\OrderStateEnum;
@@ -24,11 +25,13 @@ use App\Models\Ordering\Transaction;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
+use App\Actions\Traits\Authorisations\Ordering\WithOrderEditAuthorisation;
 
 class UpdateTransaction extends OrgAction
 {
     use WithActionUpdate;
     use WithNoStrictRules;
+    use WithOrderEditAuthorisation;
 
     public function handle(Transaction $transaction, array $modelData, $calculateShipping = true, bool $calculateDiscounts = true): Transaction
     {
@@ -94,6 +97,10 @@ class UpdateTransaction extends OrgAction
 
         $quantityBefore = (float) $transaction->quantity_ordered;
         $this->update($transaction, $modelData, ['data']);
+
+        if ((float) $transaction->quantity_ordered < $quantityBefore) {
+            ReturnLoweredQuantityToPartnerShoppingList::run($transaction);
+        }
 
         if ($this->strict) {
             $changes = Arr::except($transaction->getChanges(), ['updated_at', 'last_fetched_at']);
@@ -166,6 +173,7 @@ class UpdateTransaction extends OrgAction
 
     public function action(Transaction $transaction, array $modelData, bool $strict = true): Transaction
     {
+        $this->asAction = true;
         $this->strict = $strict;
         $this->initialisationFromShop($transaction->shop, $modelData);
 

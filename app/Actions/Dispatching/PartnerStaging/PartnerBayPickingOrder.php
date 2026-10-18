@@ -13,7 +13,8 @@ final class PartnerBayPickingOrder
     /**
      * A partner's goods out bay holds stock set aside for that partner alone. On the partner's
      * own delivery note the bay is the first place to pick from, on anybody else's it is the
-     * last. Sorts ascending and expects the locations table in scope.
+     * last. A production's factory location holds materials brought for production: picked
+     * only after the warehouse shelves. Sorts ascending and expects the locations table in scope.
      *
      * The partner is recognised by its intercompany customer, kept on the buyer's side of the
      * partnership, while the bay is kept on the seller's side.
@@ -21,7 +22,9 @@ final class PartnerBayPickingOrder
     public static function sql(string $deliveryNoteItemIdExpression): string
     {
         return "(case
-            when not locations.is_goods_out then 1
+            when not locations.is_goods_out then (case when exists (
+                select 1 from productions where productions.factory_location_id = locations.id
+            ) then 2 else 1 end)
             when exists (
                 select 1
                 from delivery_note_items bay_dni
@@ -37,7 +40,7 @@ final class PartnerBayPickingOrder
                         where intercompany_customer.value = bay_dn.customer_id::text
                     )
             ) then 0
-            else 2
+            else 3
         end)";
     }
 }

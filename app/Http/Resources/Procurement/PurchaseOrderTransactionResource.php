@@ -28,6 +28,7 @@ class PurchaseOrderTransactionResource extends JsonResource
         return [
             'id'                   => $transaction->id,
             'slug'                 => $supplierProduct?->slug,
+            'org_supplier_product_slug' => $transaction->orgSupplierProduct?->slug,
             'code'                 => $supplierProduct?->code ?? $orgStock?->code,
             'name'                 => $supplierProduct?->name ?? $orgStock?->name,
             'supplier_name'        => $supplierProduct?->supplier?->name,
@@ -35,8 +36,10 @@ class PurchaseOrderTransactionResource extends JsonResource
             'org_stock_id'         => $transaction->org_stock_id,
             'image_thumbnail'      => $tradeUnit?->imageSources(160, 160),
             'image_preview'        => $tradeUnit?->imageSources(480, 480),
+            'image_full'           => $tradeUnit?->image?->fullResolutionUrls(),
             'stock_in_locations'   => $orgStock?->quantity_in_locations === null ? null : trimDecimalZeros($orgStock->quantity_in_locations),
             'quarterly_usage'      => $transaction->quarterly_usage ?? [],
+            'discontinue_suggestions' => $transaction->discontinue_suggestions,
             'stock_cover'          => $transaction->buying_signals ?? GetOrgStockBuyingSignals::run($orgStock, $supplierProduct),
             'stock_deliveries'     => $transaction->stock_deliveries,
             'other_open_purchase_orders' => $transaction->other_open_purchase_orders ?? [],
@@ -47,11 +50,12 @@ class PurchaseOrderTransactionResource extends JsonResource
             'unit_cost'            => $transaction->unit_cost ?? $supplierProduct?->cost,
             'supplier_unit_cost'   => $supplierProduct?->cost,
             'can_update_supplier_cost' => $supplierProduct !== null && $request->user()?->authTo('supply-chain.edit'),
-            'units_per_pack'       => $supplierProduct ? $supplierProduct->units_per_pack : $orgStock?->packed_in,
+            'units_per_pack'       => $orgStock?->packed_in ?: $supplierProduct?->units_per_pack,
             'units_per_carton'     => $supplierProduct ? $supplierProduct->units_per_carton : $orgStock?->packed_in,
             'supplier_unit'        => $supplierProduct?->supplier_unit?->value,
             'units_per_supplier_unit' => $supplierProduct?->supplier_unit ? $supplierProduct->unitsPerSupplierUnit() : null,
             'quantity_ordered'     => $transaction->quantity_ordered,
+            'minimum_carton_order' => $supplierProduct?->minimum_carton_order ? (int) $supplierProduct->minimum_carton_order : null,
 
             'net_amount'           => $transaction->net_amount,
             'net_currency'         => $transaction->purchaseOrder?->currency?->code ?? $supplierProduct?->currency?->code,
@@ -99,6 +103,10 @@ class PurchaseOrderTransactionResource extends JsonResource
 
     private function isCancellable(PurchaseOrderTransaction $transaction): bool
     {
+        if ($transaction->purchaseOrder?->areLinesLockedByProduction()) {
+            return false;
+        }
+
         return match ($transaction->state) {
             PurchaseOrderTransactionStateEnum::SUBMITTED => true,
             PurchaseOrderTransactionStateEnum::CONFIRMED => !$transaction->is_on_delivery,

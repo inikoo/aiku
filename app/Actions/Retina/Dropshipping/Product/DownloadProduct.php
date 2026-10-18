@@ -16,6 +16,8 @@ use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
+use Illuminate\Contracts\Cache\LockTimeoutException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Lorisleiva\Actions\ActionRequest;
 use Excel;
@@ -38,7 +40,6 @@ class DownloadProduct extends RetinaAction
         }
 
         $filename = $baseFilename . '_' . $parent->slug . '.csv';
-        $path = Str::snake(class_basename($parent)) . '/' . $filename;
 
         if ($type == 'products_images') {
             $filename .= '_images.zip';
@@ -57,8 +58,19 @@ class DownloadProduct extends RetinaAction
                     'Cache-Control' => 'max-age=0',
                 ]);
             } else {
+                $path = SaveDataFeeds::path($parent);
+
+                SaveDataFeeds::markAsRead($parent);
+
                 if (!Storage::disk('data-feeds')->exists($path)) {
-                    SaveDataFeeds::run($parent);
+                    try {
+                        Cache::lock('data-feed-build:'.$path, 300)->block(30, function () use ($parent, $path) {
+                            if (!Storage::disk('data-feeds')->exists($path)) {
+                                SaveDataFeeds::run($parent);
+                            }
+                        });
+                    } catch (LockTimeoutException) {
+                    }
                 }
 
                 abort_unless(

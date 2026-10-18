@@ -28,20 +28,23 @@ class GetTradeUnitDocuments
     public function handle(Collection $tradeUnits): array
     {
         $tradeUnits = EloquentCollection::make($tradeUnits->unique('id')->values());
-        $tradeUnits->loadMissing(['attachments', 'tradeUnitFamily.attachments']);
+        $tradeUnits->loadMissing(['attachments', 'documentsTradeUnit.attachments', 'tradeUnitFamily.attachments']);
 
-        $publicScopes = TradeAttachmentScopeEnum::publicScopes();
+        $publicScopes    = TradeAttachmentScopeEnum::publicScopes();
+        $substanceScopes = TradeAttachmentScopeEnum::substanceScopes();
         $labels       = TradeAttachmentScopeEnum::labels();
         $documents    = [];
 
         foreach ($tradeUnits as $tradeUnit) {
             $tradeUnitChecksums = [];
-            foreach ($tradeUnit->attachments as $attachment) {
+            $documentsTradeUnit = $tradeUnit->documentsTradeUnit;
+            foreach ($tradeUnit->attachmentsWithSharedDocuments() as $attachment) {
                 if (!in_array($attachment->pivot->scope, $publicScopes)) {
                     continue;
                 }
+                $sourceTradeUnit = $documentsTradeUnit && in_array($attachment->pivot->scope, $substanceScopes) ? $documentsTradeUnit : $tradeUnit;
                 $tradeUnitChecksums[$attachment->checksum] = true;
-                $documents['tu-'.$tradeUnit->id.'-'.$attachment->id] = $this->document($attachment, $labels, $this->tradeUnitSource($tradeUnit));
+                $documents['tu-'.$sourceTradeUnit->id.'-'.$attachment->id] = $this->document($attachment, $labels, $this->tradeUnitSource($sourceTradeUnit));
             }
 
             $tradeUnitFamily = $tradeUnit->tradeUnitFamily;

@@ -2141,6 +2141,7 @@ describe('traffic source costs', function () {
         $testRequest->setRouteResolver(fn () => $route);
         $actionRequest = \Lorisleiva\Actions\ActionRequest::createFrom($testRequest);
         request()->setUserResolver(fn () => $adminUser);
+        $actionRequest->setUserResolver(fn () => $adminUser);
 
         $action          = ShowGoogleAdsCampaign::make();
         $model           = $action->asController($this->organisation, $this->shop, $campaign, $actionRequest);
@@ -2691,6 +2692,19 @@ describe('fetching google ads campaigns', function () {
 
         expect($exit)->toBe(1);
         expect(TrafficSourceCampaign::where('traffic_source_id', $this->googleAds->id)->get())->toHaveCount(0);
+    });
+
+    it('leaves a shop without a customer match list out of the nightly google ads customer sync', function () {
+        Http::fake();
+        \Illuminate\Support\Facades\Exceptions::fake();
+
+        expect(data_get($this->shop->refresh()->settings, 'google_ads.user_list_id'))->toBeNull();
+
+        Artisan::call('sync:customers-to-google-ads', ['--all' => true]);
+
+        \Illuminate\Support\Facades\Exceptions::assertNotReported(
+            fn (Exception $exception) => str_contains($exception->getMessage(), 'not configured for shop '.$this->shop->slug)
+        );
     });
 });
 
@@ -4707,6 +4721,29 @@ describe('mailshot link address', function () {
             'compiled_layout' => '<a href="https://awgifts.test/old-page?a=1&amp;b=2">x</a>',
         ]);
         expect($mailshot->email->refresh()->liveSnapshot->compiled_layout)->toBe('<a href="'.$new.'">x</a>');
+    });
+
+    it('labels the links of a draft that was only auto saved', function () {
+        $domain   = createWebsite($this->shop)->domain;
+        $mailshot = StoreMailshot::make()->action($this->outbox, Mailshot::factory()->definition());
+        $button   = 'https://'.$domain.'/button-page';
+        $text     = 'https://'.$domain.'/text-page';
+        $layout   = ['rows' => [
+            ['button' => ['href' => $button, 'label' => 'Shop now']],
+            ['text' => '<p><a href="'.$text.'">here</a></p>'],
+        ]];
+
+        App\Actions\Comms\Mailshot\UpdateWorkshopMailShot::make()->handle($mailshot, [
+            'layout'          => $layout,
+            'compiled_layout' => '<a class="button" href="'.$button.'" target="_blank"><span>Shop now</span></a><p><a href="'.$text.'">here</a></p>',
+        ]);
+
+        $roles = collect(App\Actions\Comms\Mailshot\GetMailshotUrls::make()->handle($mailshot->refresh())['links'])->pluck('roles', 'url');
+        expect($roles[$button])->toBe(['hero_button'])
+            ->and($roles[$text])->toBe(['text_1']);
+
+        App\Actions\Comms\Mailshot\UpdateWorkshopMailShot::make()->handle($mailshot->refresh(), ['layout' => $layout]);
+        expect($mailshot->email->unpublishedSnapshot->refresh()->compiled_layout)->toBeNull();
     });
 
     it('does not change the links of an email that has gone out', function () {

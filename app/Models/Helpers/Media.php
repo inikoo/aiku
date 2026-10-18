@@ -72,6 +72,19 @@ class Media extends BaseMedia
         return new Image()->make($this->getImgProxyFilename(), $this->is_animated);
     }
 
+    /**
+     * The file as uploaded, to view at full size in the browser and to download.
+     *
+     * @return array{original_url: string, download_url: string}
+     */
+    public function fullResolutionUrls(): array
+    {
+        return [
+            'original_url' => route('grp.media.download', ['media' => $this->ulid, 'inline' => true]),
+            'download_url' => route('grp.media.download', ['media' => $this->ulid]),
+        ];
+    }
+
     public function getBase64Image(): string
     {
         $path   = GetImgProxyUrl::run($this->getImage()

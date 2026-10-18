@@ -89,7 +89,7 @@ class ShowReturn extends OrgAction
     {
         $actions = [];
 
-        if ($return->state === ReturnStateEnum::WAITING_TO_RECEIVE) {
+        if ($return->state === ReturnStateEnum::WAITING_TO_RECEIVE && request()->user()->authTo(["incoming.{$return->warehouse_id}.edit", "returns.{$return->warehouse_id}"])) {
             $actions[] = [
                 'type'  => 'button',
                 'style' => 'primary',

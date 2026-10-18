@@ -13,6 +13,7 @@ use App\Actions\Comms\Mailshot\InjectUtmToEmailLinks;
 use App\Actions\Comms\TestEmailRecipient\StoreTestEmailRecipient;
 use App\Actions\Comms\Traits\WithSendBulkEmails;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithCommsEditAuthorisation;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\DispatchedEmail;
 use App\Models\Comms\EmailTemplate;
@@ -25,6 +26,7 @@ use Lorisleiva\Actions\ActionRequest;
 class SendTestEmail extends OrgAction
 {
     use WithSendBulkEmails;
+    use WithCommsEditAuthorisation;
 
     /**
      * @throws \Throwable
@@ -98,7 +100,7 @@ class SendTestEmail extends OrgAction
      */
     public function asController(Shop $shop, Mailshot $mailshot, ActionRequest $request): DispatchedEmail
     {
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($mailshot->shop, $request);
 
         return $this->handle($mailshot, $this->validatedData);
     }
@@ -116,7 +118,7 @@ class SendTestEmail extends OrgAction
      */
     public function asControllerOutbox(Shop $shop, Outbox $outbox, ActionRequest $request): DispatchedEmail
     {
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($outbox->shop ?? abort(404), $request);
 
         return $this->handle($outbox, $this->validatedData);
     }
@@ -127,7 +129,7 @@ class SendTestEmail extends OrgAction
      */
     public function asControllerFulfillment(Fulfilment $fulfilment, Outbox $outbox, ActionRequest $request): DispatchedEmail
     {
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisationFromShop($outbox->shop ?? abort(404), $request);
 
         return $this->handle($outbox, $this->validatedData);
     }
@@ -138,7 +140,7 @@ class SendTestEmail extends OrgAction
      */
     public function asControllerTemplate(Shop $shop, EmailTemplate $emailTemplate, ActionRequest $request): DispatchedEmail
     {
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($emailTemplate->shop ?? abort(403), $request);
 
         return $this->handle($emailTemplate, $this->validatedData);
     }

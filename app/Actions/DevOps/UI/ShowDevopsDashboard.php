@@ -8,6 +8,7 @@
 
 namespace App\Actions\DevOps\UI;
 
+use App\Actions\DevOps\MonitorDatabaseReplicas;
 use App\Actions\DevOps\Server\StoreServerLiveMetric;
 use App\Actions\OrgAction;
 use App\Models\DevOps\CiRun;
@@ -66,6 +67,8 @@ class ShowDevopsDashboard extends OrgAction
                     ],
                 ],
                 'servers'          => $servers = $this->getServerSummaries(),
+                'databaseReplicas' => rescue(fn () => MonitorDatabaseReplicas::make()->report(), []),
+                'databaseBackups'  => rescue(fn () => MonitorDatabaseReplicas::make()->backupReport(), null),
                 'ciRuns'           => $this->getCiRuns(),
                 'liveReadings'     => $servers->mapWithKeys(fn (object $server) => [$server->slug => StoreServerLiveMetric::recentReadings($server->slug)]),
                 'telemetry'        => Inertia::optional(fn () => app(GetNightOwlTelemetry::class)->overview(GetNightOwlTelemetry::range($request->query('range')))),

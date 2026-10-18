@@ -18,9 +18,14 @@ trait WithFulfilmentShopEditAuthorisation
             return true;
         }
 
+        $fulfilment = isset($this->fulfilment) ? $this->fulfilment : (isset($this->shop) ? $this->shop->fulfilment : null);
+        if (!$fulfilment) {
+            return false;
+        }
+
         return $request->user()->authTo([
-            "fulfilment-shop.{$this->fulfilment->id}.edit",
-            "supervisor-fulfilment-shop.".$this->fulfilment->id,
+            "fulfilment-shop.$fulfilment->id.edit",
+            "supervisor-fulfilment-shop.$fulfilment->id",
         ]);
     }
 }

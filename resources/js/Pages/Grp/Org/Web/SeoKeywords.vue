@@ -11,6 +11,7 @@ import Tabs from "@/Components/Navigation/Tabs.vue"
 import SeoKeywordResearch from "@/Components/Seo/SeoKeywordResearch.vue"
 import TableSeoTrackedKeywords from "@/Components/Tables/Grp/Org/Web/TableSeoTrackedKeywords.vue"
 import SeoRankings from "@/Components/Seo/SeoRankings.vue"
+import SeoContentBriefs from "@/Components/Seo/SeoContentBriefs.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { useTabChange } from "@/Composables/tab-change"
 import { PageHeadingTypes } from "@/types/PageHeading"
@@ -28,6 +29,7 @@ const props = defineProps<{
     research?: object | null
     tracked_keywords?: object
     rankings?: object
+    content_briefs?: object
 }>()
 
 const currentTab = ref(props.tabs.current)
@@ -37,6 +39,7 @@ const tabComponent = computed(() => ({
     research: SeoKeywordResearch,
     tracked_keywords: TableSeoTrackedKeywords,
     rankings: SeoRankings,
+    content_briefs: SeoContentBriefs,
 })[currentTab.value])
 </script>
 

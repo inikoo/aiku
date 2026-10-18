@@ -11,6 +11,7 @@ namespace App\Actions\Comms\Outbox\UI;
 use App\Actions\Comms\DispatchedEmail\UI\IndexDispatchedEmails;
 use App\Actions\Comms\Mailshot\UI\IndexMailshots;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithCommsAuthorisation;
 use App\Actions\Web\HasWorkshopAction;
 use App\Enums\Comms\Outbox\OutboxBuilderEnum;
 use App\Enums\UI\Mail\OutboxTabsEnum;
@@ -34,6 +35,7 @@ use App\Http\Resources\Mail\OutboxEmailBulkRunsResource;
  */
 class ShowOutbox extends OrgAction
 {
+    use WithCommsAuthorisation;
     use HasWorkshopAction;
 
     /**
@@ -52,17 +54,10 @@ class ShowOutbox extends OrgAction
     }
 
 
-    public function inOrganisation(Organisation $organisation, Outbox $outbox, ActionRequest $request): Outbox
-    {
-        $this->parent = $organisation;
-        $this->initialisation($organisation, $request)->withTab(OutboxTabsEnum::values());
-
-        return $this->handle($outbox);
-    }
-
     /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Organisation $organisation, Shop $shop, Outbox $outbox, ActionRequest $request): Outbox
     {
+        abort_unless($outbox->shop_id === $shop->id, 404);
         $this->parent = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(OutboxTabsEnum::values());
 
@@ -72,6 +67,7 @@ class ShowOutbox extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inWebsite(Organisation $organisation, Shop $shop, Website $website, Outbox $outbox, ActionRequest $request): Outbox
     {
+        abort_unless($outbox->shop_id === $shop->id, 404);
         $this->parent = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(OutboxTabsEnum::values());
 
@@ -82,6 +78,7 @@ class ShowOutbox extends OrgAction
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Outbox $outbox, ActionRequest $request): Outbox
     {
 
+        abort_unless($outbox->shop_id === $fulfilment->shop_id, 404);
         $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(OutboxTabsEnum::values());
 
@@ -173,7 +170,7 @@ class ShowOutbox extends OrgAction
                             'title' => __('Outbox')
                         ],
                     'iconRight' => $outbox->state->icon()[$outbox->state->value],
-                    'actions' => $actions,
+                    'actions' => $this->canEdit ? $actions : [],
                 ] + ($pageHeadAfterTitle ? ['afterTitle' => $pageHeadAfterTitle] : []),
                 'tabs'        => [
                     'current'    => $this->tab,
@@ -182,8 +179,8 @@ class ShowOutbox extends OrgAction
 
 
                 OutboxTabsEnum::SHOWCASE->value => $this->tab == OutboxTabsEnum::SHOWCASE->value ?
-                    fn () => GetOutboxShowcase::run($outbox)
-                    : Inertia::optional(fn () => GetOutboxShowcase::run($outbox)),
+                    fn () => GetOutboxShowcase::run($outbox, $this->canEdit)
+                    : Inertia::optional(fn () => GetOutboxShowcase::run($outbox, $this->canEdit)),
 
                 OutboxTabsEnum::EMAIL_RUNS->value => $this->tab == OutboxTabsEnum::EMAIL_RUNS->value ?
                     fn () => OutboxEmailBulkRunsResource::collection(IndexOutboxEmailBulkRuns::run($outbox, OutboxTabsEnum::EMAIL_RUNS->value))

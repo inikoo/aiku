@@ -28,6 +28,7 @@ import { Message } from "primevue"
 import { faWarning } from "@fortawesome/free-solid-svg-icons"
 import SalesAnalysis from "@/Components/SalesAnalysis/SalesAnalysis.vue"
 import BulkEditSectionsModal from "@/Components/Forms/BulkEditSectionsModal.vue"
+import BulkTranslateTradeUnitNamesButton from "@/Components/Goods/BulkTranslateTradeUnitNamesButton.vue"
 import { TradeUnit } from "@/types/trade-unit"
 import { faPencil, faAtom } from "@fal"
 
@@ -56,6 +57,7 @@ const props = defineProps<{
   },
   sales_analysis?: object
   sales_analysis_teaser?: object
+  can_edit?: boolean
   trade_units?: Object
   attachments?:any
   history?: Object
@@ -197,8 +199,9 @@ const handleMassAssign = () => {
         :disabled="!selectedTradeUnits.length"
         @click="isBulkEditVisible = true"
       />
-      <Button @click="isModalOpenMassAssign = true" :icon="faHandHoldingMagic" label="Edit Brand/Tag" :style="'secondary'"/>
-      <Button @click="isModalOpen = true" :icon="faPlus" label="Trade Unit"/>
+      <BulkTranslateTradeUnitNamesButton v-if="bulk_edit && currentTab === 'trade_units'" :tradeUnits="selectedTradeUnits" />
+      <Button v-if="can_edit" @click="isModalOpenMassAssign = true" :icon="faHandHoldingMagic" label="Edit Brand/Tag" :style="'secondary'"/>
+      <Button v-if="can_edit" @click="isModalOpen = true" :icon="faPlus" label="Trade Unit"/>
     </template>
   </PageHeading>
 

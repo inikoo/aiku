@@ -7,6 +7,8 @@
 <script setup lang="ts">
 import { Head, Link, router } from "@inertiajs/vue3"
 import { ref, computed } from "vue"
+import InputNumber from "primevue/inputnumber"
+import Button from "@/Components/Elements/Buttons/Button.vue"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import RescueOrderButton from "@/Components/Procurements/RescueOrderButton.vue"
 import { type Rescuable } from "@/Components/Procurements/PartnerRescuableSummary.vue"
@@ -88,6 +90,7 @@ const props = defineProps<{
     coverTotal: number
     leadTime: { days: number, source: "measured" | "estimate", samples: number }
     leadTimeRoute: routeType
+    canEditLeadTime: boolean
     latePurchaseOrders: LatePurchaseOrder[]
     orderCapacity: OrderCapacity
     rescuable: Rescuable
@@ -96,6 +99,24 @@ const props = defineProps<{
 }>()
 
 const locale = useLocaleStore()
+
+const leadTimeEstimate = ref<number | null>(props.leadTime.days)
+const isSavingLeadTime = ref(false)
+
+function saveLeadTimeEstimate() {
+    if (!leadTimeEstimate.value || leadTimeEstimate.value === props.leadTime.days) {
+        return
+    }
+    router.patch(
+        route(props.leadTimeRoute.name, props.leadTimeRoute.parameters),
+        { lead_time_days: leadTimeEstimate.value },
+        {
+            preserveScroll: true,
+            onStart: () => (isSavingLeadTime.value = true),
+            onFinish: () => (isSavingLeadTime.value = false),
+        }
+    )
+}
 
 const tonePalette: Record<Tone, { text: string, soft: string, accent: string, chip: string, hex: string }> = {
     "red-deep": { text: "text-red-800", soft: "bg-red-50", accent: "bg-red-800", chip: "bg-red-100 text-red-800", hex: "#991b1b" },
@@ -315,9 +336,24 @@ const openAutoFill = (bucket: CoverBucket, rank: string | null = null) => {
                         {{ ctrans("measured from :samples deliveries", { samples: leadTime.samples }) }}
                     </template>
                     <template v-else>
-                        {{ ctrans("estimate — set per product in supplier settings") }}
+                        {{ ctrans("estimate until :count of our deliveries from them are booked in", { count: 5 }) }}
                     </template>
                 </p>
+                <form v-if="leadTime.source === 'estimate' && canEditLeadTime" class="mt-2 flex items-center gap-2" @submit.prevent="saveLeadTimeEstimate">
+                    <InputNumber
+                        v-model="leadTimeEstimate"
+                        :min="1"
+                        :max="365"
+                        :suffix="' ' + ctrans('days')"
+                        :aria-label="ctrans('Estimated lead time in days')"
+                        :pt="{ pcInputText: { root: { class: '!w-24 !py-1 text-sm' } } }"
+                    />
+                    <Button type="tertiary" size="xs" :label="ctrans('Save')" :loading="isSavingLeadTime" :disabled="!leadTimeEstimate || leadTimeEstimate === leadTime.days" @click="saveLeadTimeEstimate">
+                        <template #icon>
+                            <FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" />
+                        </template>
+                    </Button>
+                </form>
                 <p v-if="latePurchaseOrders.length" class="mt-1 flex items-center gap-1.5 text-xs text-red-600">
                     <FontAwesomeIcon :icon="faExclamationTriangle" fixed-width aria-hidden="true" />
                     {{ ctrans("worst delay :days days", { days: latePurchaseOrders[0].days_late }) }}

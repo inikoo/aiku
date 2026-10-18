@@ -39,6 +39,8 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
+use App\Actions\Traits\Authorisations\WithAccountingModuleAuthorisation;
+use App\Actions\Traits\Authorisations\WithInvoiceCategoryListAuthorisation;
 
 class IndexRefunds extends OrgAction
 {
@@ -46,6 +48,10 @@ class IndexRefunds extends OrgAction
     use WithCustomerSubNavigation;
     use WithInvoicesSubNavigation;
     use WithInvoiceCategorySubNavigation;
+    use WithAccountingModuleAuthorisation {
+        authorize as authorizeAccountingModule;
+    }
+    use WithInvoiceCategoryListAuthorisation;
 
 
     private Organisation|Fulfilment|Customer|FulfilmentCustomer|InvoiceCategory|Shop|Order|OrgPaymentServiceProvider|Invoice $parent;
@@ -84,6 +90,9 @@ class IndexRefunds extends OrgAction
             $queryBuilder->where('invoices.original_invoice_id', $parent->id);
         } elseif ($parent instanceof InvoiceCategory) {
             $queryBuilder->where('invoices.invoice_category_id', $parent->id);
+            if ($this->invoiceCategoryViewableShopIds !== null) {
+                $queryBuilder->whereIn('invoices.shop_id', $this->invoiceCategoryViewableShopIds);
+            }
         } else {
             abort(422);
         }
@@ -350,6 +359,15 @@ class IndexRefunds extends OrgAction
         $this->initialisation($organisation, $request);
 
         return $this->handle($organisation);
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if (!$this->asAction && $request->route()->getName() === 'grp.org.accounting.invoice-categories.show.refunds.index') {
+            return $this->authorizeInvoiceCategoryList($request->user(), $this->organisation);
+        }
+
+        return $this->authorizeAccountingModule($request);
     }
 
     /** @noinspection PhpUnusedParameterInspection */

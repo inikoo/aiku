@@ -9,6 +9,7 @@ use App\Models\HumanResources\OvertimeRequest;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 
 class RejectOvertimeRequest extends OrgAction
@@ -17,6 +18,12 @@ class RejectOvertimeRequest extends OrgAction
 
     public function handle(OvertimeRequest $overtimeRequest): OvertimeRequest
     {
+        if ($overtimeRequest->status !== OvertimeRequestStatusEnum::PENDING) {
+            throw ValidationException::withMessages([
+                'status' => __('Only pending overtime requests can be rejected.'),
+            ]);
+        }
+
         $overtimeRequest->update([
             'status'      => OvertimeRequestStatusEnum::REJECTED,
             'rejected_at' => now(),
@@ -32,6 +39,8 @@ class RejectOvertimeRequest extends OrgAction
 
     public function asController(Organisation $organisation, OvertimeRequest $overtimeRequest, ActionRequest $request): OvertimeRequest
     {
+        abort_unless($overtimeRequest->organisation_id === $organisation->id, 404);
+
         $this->initialisation($organisation, $request);
 
         return $this->handle($overtimeRequest);

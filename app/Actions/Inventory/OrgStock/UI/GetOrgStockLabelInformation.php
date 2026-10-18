@@ -30,7 +30,6 @@ class GetOrgStockLabelInformation
 
     private const RESPONSIBLE_PERSON_ORGANISATIONS = [
         'uk_responsible_person' => ['market' => TradeUnitMarketEnum::UK, 'organisation' => 'aw'],
-        'eu_responsible_person' => ['market' => TradeUnitMarketEnum::EU, 'organisation' => 'sk'],
     ];
 
     private const TRANSLATIONS = [
@@ -59,7 +58,8 @@ class GetOrgStockLabelInformation
             ArtefactLabelInformationEnum::MANUFACTURED_BY->value       => (string) $labelData['manufactured_by'],
             ArtefactLabelInformationEnum::IMPORTER->value              => (string) $labelData['signature'],
             ArtefactLabelInformationEnum::UK_RESPONSIBLE_PERSON->value => $this->getResponsiblePerson($tradeUnits, 'uk_responsible_person'),
-            ArtefactLabelInformationEnum::EU_RESPONSIBLE_PERSON->value => $this->getResponsiblePerson($tradeUnits, 'eu_responsible_person'),
+            ArtefactLabelInformationEnum::EU_RESPONSIBLE_PERSON->value => GetOrgStockLabelData::EU_RESPONSIBLE_PERSON,
+            ArtefactLabelInformationEnum::ES_IMPORTER->value           => GetOrgStockLabelData::ES_IMPORTER,
             ArtefactLabelInformationEnum::INGREDIENTS->value           => $shared('marketing_ingredients'),
             ArtefactLabelInformationEnum::CPNP_NUMBER->value           => $shared('cpnp_number'),
             ArtefactLabelInformationEnum::UFI_NUMBER->value            => $shared('ufi_number'),

@@ -16,6 +16,8 @@ use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\Ordering\CheckoutAbandonment\RunCheckoutAbandonmentScan;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\SysAdmin\GetSectionRoute;
+use App\Actions\SysAdmin\User\SetUserAuthorisedModels;
+use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Actions\Web\Announcement\DeleteAnnouncement;
 use App\Actions\Web\Announcement\PublishAnnouncement;
 use App\Actions\Web\Announcement\StoreAnnouncement;
@@ -70,6 +72,8 @@ use App\Actions\Web\Webpage\DeleteWebpage;
 use App\Models\Web\CruxRecord;
 use App\Actions\Web\WebVital\GetWebVitalsReport;
 use App\Actions\Web\Webpage\GetWebpageEngagementMetrics;
+use App\Actions\Web\WebsitePageView\GetWebsiteOrderJourneys;
+use App\Actions\Web\WebsitePageView\StoreWebsitePageView;
 use App\Actions\Web\Webpage\GetWebpageSeo;
 use App\Enums\Web\WebsiteConversionEvent\WebsiteConversionEventTypeEnum;
 use App\Actions\Web\Webpage\GetWebpagePerformance;
@@ -87,6 +91,7 @@ use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
+use App\Enums\UI\Web\SeoDashboardPageTabsEnum;
 use App\Enums\UI\Web\WebsiteTabsEnum;
 use App\Enums\Web\Banner\BannerStateEnum;
 use App\Enums\Web\Banner\BannerTypeEnum;
@@ -115,6 +120,23 @@ use App\Models\Web\Announcement;
 use App\Actions\Web\Announcement\ResumeSupersededAnnouncement;
 use App\Enums\Announcement\AnnouncementStatusEnum;
 use App\Http\Middleware\HandleIrisInertiaRequests;
+use App\Actions\Web\WebsiteDialog\ApplyWebsiteDialogSchedule;
+use App\Actions\Web\WebsiteDialog\DeleteWebsiteDialog;
+use App\Actions\Web\WebsiteDialog\PublishWebsiteDialog;
+use App\Actions\Web\WebsiteDialog\ResetWebsiteDialog;
+use App\Actions\Web\WebsiteDialog\ResumeSupersededWebsiteDialog;
+use App\Actions\Web\WebsiteDialog\StoreWebsiteDialog;
+use App\Actions\Web\WebsiteDialog\ToggleWebsiteDialog;
+use App\Actions\Web\WebsiteDialog\UpdateWebsiteDialog;
+use App\Actions\Web\WebsiteDialog\UI\GetIrisWebsiteDialogs;
+use App\Enums\Web\WebsiteDialog\WebsiteDialogStateEnum;
+use App\Enums\Web\WebsiteDialog\WebsiteDialogStatusEnum;
+use App\Models\Web\WebsiteDialog;
+use App\Models\Web\WebsiteDialogTemplate;
+use App\Actions\Iris\WebsiteDialog\GetIrisWebsiteDialogDismissals;
+use App\Actions\Iris\WebsiteDialog\StoreIrisWebsiteDialogDismissal;
+use App\Actions\SysAdmin\Group\Seeders\SeedWebsiteDialogTemplates;
+use App\Models\Catalogue\Shop;
 use Illuminate\Validation\ValidationException;
 use App\Models\Web\Banner;
 use App\Models\Web\Crawl;
@@ -129,6 +151,7 @@ use App\Models\Web\Website;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
@@ -683,6 +706,40 @@ test('store redirect', function (Webpage $webpage) {
 
     return $redirect;
 })->depends('create webpage');
+
+test('a shop viewer sees the webpage but none of the controls to change it', function (Webpage $webpage, Redirect $redirect) {
+    $originalRoles = $this->user->roles->pluck('name')->toArray();
+    actingAsUserWithRoles($this->user, [RolesEnum::getRoleName(RolesEnum::CUSTOMER_SERVICE_VIEWER->value, $this->shop)]);
+    SetUserAuthorisedModels::run($this->user);
+    \Illuminate\Support\Facades\Cache::tags('auth-user:'.$this->user->id)->flush();
+
+    expect($this->user->refresh()->authTo('websites-view.'.$this->organisation->id))->toBeTrue();
+
+    $response = get(route('grp.org.shops.show.web.webpages.show', [
+        $this->organisation->slug,
+        $this->shop->slug,
+        $webpage->website->slug,
+        $webpage->slug
+    ]));
+
+    $props          = $response->viewData('page')['props'];
+    $actionRoutes   = collect($props['pageHead']['actions'])->pluck('route.name')->filter();
+
+    expect($props['can_edit'])->toBeFalse()
+        ->and($actionRoutes->contains(fn (string $name) => str_ends_with($name, '.workshop') || str_ends_with($name, '.edit')))->toBeFalse();
+
+    delete(route('grp.models.redirect.delete', ['redirect' => $redirect->id]))->assertForbidden();
+    post(route('grp.models.website.break_cache', ['website' => $webpage->website_id]))->assertForbidden();
+    expect(Redirect::find($redirect->id))->not->toBeNull();
+
+    $productCategory = \App\Models\Catalogue\ProductCategory::where('shop_id', $this->shop->id)->first();
+    if ($productCategory) {
+        post(route('grp.models.webpages.product_category.store', ['productCategory' => $productCategory->id]))->assertForbidden();
+    }
+
+    actingAsUserWithRoles($this->user, $originalRoles);
+    SetUserAuthorisedModels::run($this->user);
+})->depends('create webpage', 'store redirect');
 
 
 test('web sitemap creation', function () {
@@ -1255,9 +1312,15 @@ test('UI show webpage workshop in shop website', function (Website $website, Web
                 fn (AssertableInertia $page) => $page->where("title", $webpage->code)->etc()
             )
             ->has('webpage')
-            ->has('webBlockTypes');
+            ->where('webBlockTypes.data', fn ($webBlockTypes) => collect($webBlockTypes)->contains('code', 'appointment-1'));
     });
 })->depends('create b2b website', 'create webpage');
+
+test('a new web block type is available to every shop by default', function () {
+    $webBlockType = new WebBlockType();
+
+    expect($webBlockType->shop_availability)->toBe([]);
+});
 
 test('UI get section route show shop website', function (Website $website) {
     $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.web.websites.show', [
@@ -2249,6 +2312,65 @@ test('the weekly chrome ux report fetch queues every live website and the pages 
         ->and($queued)->not->toContain([$website->id, $quietWebpage->id]);
 })->depends('launch website');
 
+test('the cache warmer warms only the most visited pages that carry half the views', function (Website $website) {
+    $visitorId = DB::table('website_visitors')->insertGetId([
+        'group_id'        => $this->shop->group_id,
+        'organisation_id' => $this->shop->organisation_id,
+        'shop_id'         => $this->shop->id,
+        'website_id'      => $website->id,
+        'session_id'      => 'sess-'.Str::random(10),
+        'visitor_hash'    => Str::random(16),
+        'device_type'     => 'desktop',
+        'os'              => 'linux',
+        'browser'         => 'firefox',
+        'user_agent'      => 'test-agent',
+        'ip_hash'         => Str::random(16),
+        'first_seen_at'   => now(),
+        'last_seen_at'    => now(),
+        'created_at'      => now(),
+        'updated_at'      => now(),
+    ]);
+
+    $pageWithViews = function (int $views) use ($website, $visitorId) {
+        $webpage = StoreWebpage::make()->action($website->storefront, Webpage::factory()->definition());
+        $webpage->update(['state' => WebpageStateEnum::LIVE, 'canonical_url' => 'https://warm.test/'.$webpage->id]);
+
+        DB::table('website_page_views')->insert(array_fill(0, $views, [
+            'group_id'           => $this->shop->group_id,
+            'organisation_id'    => $this->shop->organisation_id,
+            'shop_id'            => $this->shop->id,
+            'website_id'         => $website->id,
+            'website_visitor_id' => $visitorId,
+            'webpage_id'         => $webpage->id,
+            'page_url'           => 'https://test/'.$webpage->url,
+            'page_path'          => '/'.$webpage->url,
+            'view_date'          => now()->toDateString(),
+            'duration_seconds'   => 0,
+            'created_at'         => now(),
+            'updated_at'         => now(),
+        ]));
+
+        return $webpage->canonical_url;
+    };
+
+    $busiest = $pageWithViews(2000);
+    $second  = $pageWithViews(1500);
+    $tail    = $pageWithViews(1000);
+
+    $crawl = $website->crawls()->create([
+        'depth'       => 0,
+        'concurrency' => 1,
+        'trigger'     => CrawlTriggerEnum::DEPLOYMENT,
+        'type'        => CrawlTypeEnum::HTML,
+    ]);
+
+    $method = (new ReflectionClass(CrawlWebsite::class))->getMethod('getPrioritisedUrls');
+    $urls   = $method->invoke(new CrawlWebsite(), $crawl);
+
+    expect($urls)->toBe([$busiest, $second])
+        ->and($urls)->not->toContain($tail);
+})->depends('launch website');
+
 test('our visitors web vitals are reported as the daily 75th percentile, weekly for a page with too few loads a day, never the whole website for a page', function (Website $website) {
     $measuredWebpage = StoreWebpage::make()->action($website->storefront, Webpage::factory()->definition());
     $quietWebpage    = StoreWebpage::make()->action($website->storefront, Webpage::factory()->definition());
@@ -2436,6 +2558,140 @@ test('ads testing webpage metrics are read from the page views already recorded'
         ->and($yesterday['avg_time_on_page'])->toBeNull();
 })->depends('launch website');
 
+test('SEO customer journey filters the tracked orders by source, visits, amount, landing page and search, page by page, HELP-4066', function (Website $website) {
+    $shop  = $website->shop;
+    $token = 'JRN'.strtoupper(Str::random(6));
+    $from  = now()->subDays(30)->startOfDay();
+
+    $baseline = GetWebsiteOrderJourneys::run($website, $from, now());
+
+    $storeVisitor = fn (string $source, string $landingPage, Carbon $seenAt, ?int $webUserId = null) => DB::table('website_visitors')->insertGetId([
+        'group_id'            => $shop->group_id,
+        'organisation_id'     => $shop->organisation_id,
+        'shop_id'             => $shop->id,
+        'website_id'          => $website->id,
+        'web_user_id'         => $webUserId,
+        'session_id'          => 'sess-'.Str::random(10),
+        'visitor_hash'        => Str::random(16),
+        'device_type'         => 'desktop',
+        'os'                  => 'linux',
+        'browser'             => 'firefox',
+        'user_agent'          => 'test-agent',
+        'ip_hash'             => Str::random(16),
+        'traffic_source_type' => $source,
+        'landing_page'        => 'https://test'.$landingPage,
+        'first_seen_at'       => $seenAt,
+        'last_seen_at'        => $seenAt->copy()->addMinutes(10),
+        'created_at'          => $seenAt,
+        'updated_at'          => $seenAt,
+    ]);
+
+    $storePurchase = function (Customer $customer, string $reference, float $net, Carbon $submittedAt, int $visitorId) use ($shop, $website): int {
+        $order = Order::factory()->create([
+            'group_id'        => $shop->group_id,
+            'organisation_id' => $shop->organisation_id,
+            'shop_id'         => $shop->id,
+            'customer_id'     => $customer->id,
+            'reference'       => $reference,
+            'slug'            => Str::slug($reference),
+            'tax_category_id' => TaxCategory::first()->id,
+            'currency_id'     => $shop->currency_id,
+            'state'           => OrderStateEnum::SUBMITTED,
+            'submitted_at'    => $submittedAt,
+            'net_amount'      => $net,
+        ]);
+
+        return DB::table('website_conversion_events')->insertGetId([
+            'group_id'           => $shop->group_id,
+            'organisation_id'    => $shop->organisation_id,
+            'shop_id'            => $shop->id,
+            'website_id'         => $website->id,
+            'website_visitor_id' => $visitorId,
+            'order_id'           => $order->id,
+            'event_type'         => WebsiteConversionEventTypeEnum::PURCHASE->value,
+            'quantity'           => 1,
+            'page_url'           => 'https://test/checkout',
+            'page_path'          => '/checkout',
+            'event_date'         => $submittedAt->toDateString(),
+            'created_at'         => $submittedAt,
+            'updated_at'         => $submittedAt,
+        ]);
+    };
+
+    $singleVisitCustomer = createOwnCustomer($shop, 'journey-single-visit');
+    $singleVisitPurchase = $storePurchase(
+        $singleVisitCustomer,
+        $token.'-A',
+        30,
+        now()->subDays(3),
+        $storeVisitor('email', '/aromatherapy/oils', now()->subDays(3)->subMinutes(5))
+    );
+
+    $returningCustomer = createOwnCustomer($shop, 'journey-returning');
+    $webUser           = StoreWebUser::make()->action($returningCustomer, [
+        'username' => 'jrn-'.Str::random(8),
+        'email'    => 'jrn-'.Str::random(8).'@testmail.com',
+        'password' => 'test',
+    ]);
+    $storeVisitor('organic-google', '/candles', now()->subDays(6), $webUser->id);
+    $storeVisitor('direct', '/', now()->subDays(4), $webUser->id);
+    $returningPurchase = $storePurchase(
+        $returningCustomer,
+        $token.'-B',
+        120,
+        now()->subDays(2),
+        $storeVisitor('direct', '/', now()->subDays(2)->subMinutes(5), $webUser->id)
+    );
+
+    $purchaseIds = fn (array $filters) => collect(GetWebsiteOrderJourneys::run($website, $from, now(), ['search' => $token, ...$filters])['orders'])->pluck('purchase_id')->all();
+
+    $all = GetWebsiteOrderJourneys::run($website, $from, now(), ['search' => $token]);
+
+    expect($all['total'])->toBe($baseline['total'] + 2)
+        ->and($all['matching'])->toBe(2)
+        ->and(collect($all['orders'])->pluck('purchase_id')->all())->toBe([$returningPurchase, $singleVisitPurchase])
+        ->and(collect($all['orders'])->pluck('visits', 'purchase_id')->all())->toBe([$returningPurchase => 3, $singleVisitPurchase => 1])
+        ->and(collect($all['source_options'])->pluck('label', 'value')->only(['email', 'organic-google'])->all())->toBe(['email' => 'Email', 'organic-google' => 'Organic Google'])
+        ->and($purchaseIds(['sources' => 'email']))->toBe([$singleVisitPurchase])
+        ->and($purchaseIds(['sources' => ['organic-google']]))->toBe([$returningPurchase])
+        ->and($purchaseIds(['sources' => 'email,organic-google']))->toBe([$returningPurchase, $singleVisitPurchase])
+        ->and($purchaseIds(['visits' => '1']))->toBe([$singleVisitPurchase])
+        ->and($purchaseIds(['visits' => '2-3']))->toBe([$returningPurchase])
+        ->and($purchaseIds(['visits' => '4+']))->toBe([])
+        ->and($purchaseIds(['min' => '100']))->toBe([$returningPurchase])
+        ->and($purchaseIds(['max' => '50']))->toBe([$singleVisitPurchase])
+        ->and($purchaseIds(['min' => '20', 'max' => '200', 'sources' => 'direct']))->toBe([$returningPurchase])
+        ->and($purchaseIds(['landing' => 'AROMATHERAPY']))->toBe([$singleVisitPurchase])
+        ->and($purchaseIds(['landing' => 'candles']))->toBe([$returningPurchase])
+        ->and($purchaseIds(['landing' => '100%']))->toBe([])
+        ->and($purchaseIds(['visits' => 'every', 'min' => 'cheap']))->toBe([$returningPurchase, $singleVisitPurchase]);
+
+    $beyondLastPage = GetWebsiteOrderJourneys::run($website, $from, now(), ['search' => $token], 5);
+    expect($beyondLastPage['page'])->toBe(1)
+        ->and($beyondLastPage['per_page'])->toBe(GetWebsiteOrderJourneys::ORDERS)
+        ->and($beyondLastPage['currency_code'])->toBe($shop->currency->code)
+        ->and(collect($beyondLastPage['orders'])->pluck('purchase_id')->all())->toBe([$returningPurchase, $singleVisitPurchase]);
+
+    $byCustomer = GetWebsiteOrderJourneys::run($website, $from, now(), ['search' => $returningCustomer->name]);
+    expect(collect($byCustomer['orders'])->pluck('purchase_id')->all())->toContain($returningPurchase)
+        ->not->toContain($singleVisitPurchase);
+
+    $parameters = [$shop->organisation->slug, $shop->slug, 'tab' => SeoDashboardPageTabsEnum::JOURNEY->value, 'journey_days' => 30, 'journey_search' => $token, 'journey_visits' => '2-3'];
+    $page       = get(route('grp.org.shops.show.seo.dashboard', $parameters))->assertOk()->viewData('page');
+    $journey    = $this->withHeaders([
+        'X-Inertia'                   => 'true',
+        'X-Inertia-Version'           => $page['version'],
+        'X-Inertia-Partial-Component' => 'Org/Web/SeoDashboard',
+        'X-Inertia-Partial-Data'      => SeoDashboardPageTabsEnum::JOURNEY->value,
+    ])->get(route('grp.org.shops.show.seo.dashboard', $parameters))->assertOk()->json('props.'.SeoDashboardPageTabsEnum::JOURNEY->value);
+
+    expect($journey['filters']['search'])->toBe($token)
+        ->and($journey['filters']['visits'])->toBe('2-3')
+        ->and($journey['matching'])->toBe(1)
+        ->and($journey['page'])->toBe(1)
+        ->and($journey['orders'][0]['reference'])->toBe($token.'-B');
+})->depends('launch website');
+
 test('publish announcement', function (Website $website) {
     $announcement = StoreAnnouncement::make()->action($website, ['name' => 'to publish']);
     UpdateAnnouncement::make()->handle($announcement, ['fields' => ['title' => 'hi']]);
@@ -2548,6 +2804,364 @@ test('storefront cache expires at the next scheduled change', function (Website 
     $ttl = (new HandleIrisInertiaRequests())->getAnnouncementsCacheTtl($website->refresh());
 
     expect($ttl)->toBeLessThanOrEqual(600)->toBeGreaterThan(0);
+})->depends('create b2b website');
+
+function turnOffWebsiteDialogs(Website $website): void
+{
+    $website->websiteDialogs()->update([
+        'status'                      => WebsiteDialogStatusEnum::INACTIVE,
+        'paused_by_website_dialog_id' => null,
+        'paused_until'                => null,
+    ]);
+    $website->websiteDialogs()->where('live_at', '>', now())->update(['live_at' => now()->subMinute()]);
+    Cache::forget("irisData:website:$website->id:dialogs");
+}
+
+function pauseWebsiteDialog(WebsiteDialog $websiteDialog, WebsiteDialog $pausedBy): void
+{
+    $websiteDialog->update([
+        'status'                      => WebsiteDialogStatusEnum::INACTIVE,
+        'paused_by_website_dialog_id' => $pausedBy->id,
+        'paused_until'                => $pausedBy->schedule_finish_at,
+    ]);
+}
+
+function draftWebsiteDialog(Website $website, string $name, string $title = 'hello'): WebsiteDialog
+{
+    $websiteDialog = StoreWebsiteDialog::make()->action($website, ['name' => $name]);
+
+    return UpdateWebsiteDialog::make()->action($websiteDialog, [
+        'template_code'        => 'welcome-centered',
+        'component'            => 'dialog-centered',
+        'fields'               => ['title' => ['text' => $title]],
+        'container_properties' => [],
+        'settings'             => [
+            'target_pages'      => ['type' => 'all', 'specific' => []],
+            'target_users'      => ['auth_state' => 'all'],
+            'display_frequency' => 'once',
+            'delay_seconds'     => 3,
+        ],
+    ])->refresh();
+}
+
+function publishWebsiteDialog(WebsiteDialog $websiteDialog, $user, array $modelData = []): WebsiteDialog
+{
+    request()->setUserResolver(fn () => $user);
+
+    return PublishWebsiteDialog::make()->action($websiteDialog, [
+        'published_message' => 'first publish',
+        ...$modelData
+    ])->refresh();
+}
+
+function irisWebsiteDialogs(Website $website): array
+{
+    Cache::forget("irisData:website:$website->id:dialogs");
+
+    return GetIrisWebsiteDialogs::run($website->refresh());
+}
+
+test('store website dialog', function (Website $website) {
+    $websiteDialog = StoreWebsiteDialog::make()->action($website, ['name' => 'welcome dialog']);
+    $website->refresh();
+
+    expect($websiteDialog)->toBeInstanceOf(WebsiteDialog::class)
+        ->and($websiteDialog->state)->toBe(WebsiteDialogStateEnum::IN_PROCESS)
+        ->and($websiteDialog->status)->toBe(WebsiteDialogStatusEnum::INACTIVE)
+        ->and($websiteDialog->unpublished_snapshot_id)->not->toBeNull()
+        ->and($websiteDialog->getDisplayFrequency())->toBe('once_per_session')
+        ->and($website->webStats->number_website_dialogs)->toBe($website->websiteDialogs()->count());
+
+    return $websiteDialog;
+})->depends('create b2b website');
+
+test('editing a website dialog only changes the draft', function (Website $website) {
+    turnOffWebsiteDialogs($website);
+    $websiteDialog = publishWebsiteDialog(draftWebsiteDialog($website, 'draft only', 'published title'), $this->user);
+
+    UpdateWebsiteDialog::make()->action($websiteDialog, ['fields' => ['title' => ['text' => 'draft title']]]);
+    $websiteDialog->refresh();
+
+    $shown = collect(irisWebsiteDialogs($website))->firstWhere('ulid', $websiteDialog->ulid);
+
+    expect($websiteDialog->is_dirty)->toBeTrue()
+        ->and($websiteDialog->unpublishedSnapshot->layout['fields']['title']['text'])->toBe('draft title')
+        ->and($shown['fields']['title']['text'])->toBe('published title');
+})->depends('create b2b website');
+
+test('publish website dialog shows it on the storefront', function (Website $website) {
+    turnOffWebsiteDialogs($website);
+    $websiteDialog = publishWebsiteDialog(draftWebsiteDialog($website, 'to publish'), $this->user);
+
+    $shown = collect(irisWebsiteDialogs($website))->firstWhere('ulid', $websiteDialog->ulid);
+
+    expect($websiteDialog->state)->toBe(WebsiteDialogStateEnum::READY)
+        ->and($websiteDialog->status)->toBe(WebsiteDialogStatusEnum::ACTIVE)
+        ->and($websiteDialog->is_dirty)->toBeFalse()
+        ->and($websiteDialog->live_snapshot_id)->not->toBeNull()
+        ->and($shown)->not->toBeNull()
+        ->and($shown['component'])->toBe('dialog-centered')
+        ->and($shown['version'])->toBe($websiteDialog->published_checksum)
+        ->and($shown['settings']['display_frequency'])->toBe('once')
+        ->and($shown['settings']['delay_seconds'])->toBe(3)
+        ->and($shown['show_pages'])->toBe(['all']);
+})->depends('create b2b website');
+
+test('website dialog keeps its specific page rules', function (Website $website) {
+    turnOffWebsiteDialogs($website);
+    $websiteDialog = draftWebsiteDialog($website, 'specific pages');
+
+    $pageRules = [
+        ['will' => 'show', 'when' => 'contain', 'url' => 'new-arrivals'],
+        ['will' => 'hide', 'when' => 'contain', 'url' => 'checkout'],
+    ];
+
+    UpdateWebsiteDialog::make()->action($websiteDialog, [
+        'settings' => [
+            'target_pages'      => ['type' => 'specific', 'specific' => $pageRules],
+            'target_users'      => ['auth_state' => 'all'],
+            'display_frequency' => 'once',
+            'delay_seconds'     => 0,
+        ],
+    ]);
+    $websiteDialog->refresh();
+
+    expect($websiteDialog->settings['target_pages']['specific'])->toEqual($pageRules)
+        ->and($websiteDialog->unpublishedSnapshot->layout['settings']['target_pages']['specific'])->toEqual($pageRules);
+
+    $websiteDialog = publishWebsiteDialog($websiteDialog, $this->user);
+    $shown         = collect(irisWebsiteDialogs($website))->firstWhere('ulid', $websiteDialog->ulid);
+
+    expect($shown['show_pages'])->toBe(['new-arrivals'])
+        ->and($shown['hide_pages'])->toBe(['checkout']);
+})->depends('create b2b website');
+
+test('website dialog rejects a page rule without url', function (Website $website) {
+    $websiteDialog = draftWebsiteDialog($website, 'broken page rule');
+
+    UpdateWebsiteDialog::make()->action($websiteDialog, [
+        'settings' => [
+            'target_pages' => ['type' => 'specific', 'specific' => [['will' => 'show', 'when' => 'contain', 'url' => '']]],
+        ],
+    ]);
+})->depends('create b2b website')->throws(ValidationException::class);
+
+test('a website dialog without template cannot be published', function (Website $website) {
+    $websiteDialog = StoreWebsiteDialog::make()->action($website, ['name' => 'empty']);
+    request()->setUserResolver(fn () => $this->user);
+
+    expect(fn () => PublishWebsiteDialog::make()->action($websiteDialog, ['published_message' => 'try']))
+        ->toThrow(ValidationException::class);
+})->depends('create b2b website');
+
+test('a scheduled website dialog stays off the storefront until it starts', function (Website $website) {
+    turnOffWebsiteDialogs($website);
+    Queue::fake();
+
+    $websiteDialog = publishWebsiteDialog(draftWebsiteDialog($website, 'scheduled'), $this->user, [
+        'schedule_at' => now()->addDay(),
+    ]);
+
+    expect($websiteDialog->status)->toBe(WebsiteDialogStatusEnum::INACTIVE)
+        ->and(collect(irisWebsiteDialogs($website))->firstWhere('ulid', $websiteDialog->ulid))->toBeNull();
+})->depends('create b2b website');
+
+test('publishing a website dialog leaves the live one on', function (Website $website) {
+    turnOffWebsiteDialogs($website);
+    $running = publishWebsiteDialog(draftWebsiteDialog($website, 'running'), $this->user);
+    $challenger = publishWebsiteDialog(draftWebsiteDialog($website, 'challenger'), $this->user);
+    $running->refresh();
+
+    $shownUlids = collect(irisWebsiteDialogs($website))->pluck('ulid')->all();
+
+    expect($challenger->status)->toBe(WebsiteDialogStatusEnum::ACTIVE)
+        ->and($running->status)->toBe(WebsiteDialogStatusEnum::ACTIVE)
+        ->and($running->paused_by_website_dialog_id)->toBeNull()
+        ->and($shownUlids)->toContain($running->ulid, $challenger->ulid);
+})->depends('create b2b website');
+
+test('a website dialog paused by another one comes back by itself', function (Website $website) {
+    turnOffWebsiteDialogs($website);
+    $running = publishWebsiteDialog(draftWebsiteDialog($website, 'running'), $this->user);
+    $finishAt = now()->addHours(2);
+    $challenger = publishWebsiteDialog(draftWebsiteDialog($website, 'challenger'), $this->user, [
+        'schedule_finish_at' => $finishAt,
+    ]);
+    pauseWebsiteDialog($running, $challenger);
+
+    $this->travelTo($finishAt->copy()->addSecond());
+    ResumeSupersededWebsiteDialog::run($running, $challenger->id);
+    $this->travelBack();
+    $running->refresh();
+
+    expect($running->status)->toBe(WebsiteDialogStatusEnum::ACTIVE)
+        ->and($running->paused_by_website_dialog_id)->toBeNull();
+})->depends('create b2b website');
+
+test('a website dialog waiting for its start date is left alone and goes live on its date', function (Website $website) {
+    turnOffWebsiteDialogs($website);
+    Queue::fake();
+    $startsAt = now()->addWeek();
+
+    $scheduled  = publishWebsiteDialog(draftWebsiteDialog($website, 'scheduled'), $this->user, ['schedule_at' => $startsAt]);
+    $challenger = publishWebsiteDialog(draftWebsiteDialog($website, 'challenger'), $this->user);
+    $scheduled->refresh();
+
+    expect($challenger->status)->toBe(WebsiteDialogStatusEnum::ACTIVE)
+        ->and($scheduled->status)->toBe(WebsiteDialogStatusEnum::INACTIVE)
+        ->and($scheduled->paused_by_website_dialog_id)->toBeNull();
+
+    $this->travelTo($startsAt->copy()->addSecond());
+    ApplyWebsiteDialogSchedule::run($scheduled);
+    $this->travelBack();
+
+    expect($scheduled->refresh()->status)->toBe(WebsiteDialogStatusEnum::ACTIVE)
+        ->and($challenger->refresh()->status)->toBe(WebsiteDialogStatusEnum::ACTIVE);
+})->depends('create b2b website');
+
+test('a released website dialog takes the status its own dates call for', function (Website $website) {
+    turnOffWebsiteDialogs($website);
+    Queue::fake();
+
+    $ending     = publishWebsiteDialog(draftWebsiteDialog($website, 'ending'), $this->user, ['schedule_finish_at' => now()->addHour()]);
+    $challenger = publishWebsiteDialog(draftWebsiteDialog($website, 'challenger'), $this->user);
+    pauseWebsiteDialog($ending, $challenger);
+
+    $this->travelTo(now()->addHours(2));
+    DeleteWebsiteDialog::make()->handle($challenger);
+    $this->travelBack();
+
+    expect($ending->refresh()->status)->toBe(WebsiteDialogStatusEnum::INACTIVE)
+        ->and($ending->paused_by_website_dialog_id)->toBeNull();
+})->depends('create b2b website');
+
+test('deleting a website dialog gives the website back to the one it paused', function (Website $website) {
+    turnOffWebsiteDialogs($website);
+    $running = publishWebsiteDialog(draftWebsiteDialog($website, 'running'), $this->user);
+    $challenger = publishWebsiteDialog(draftWebsiteDialog($website, 'challenger'), $this->user);
+    pauseWebsiteDialog($running, $challenger);
+
+    DeleteWebsiteDialog::make()->handle($challenger);
+    $running->refresh();
+
+    expect(WebsiteDialog::find($challenger->id))->toBeNull()
+        ->and($running->status)->toBe(WebsiteDialogStatusEnum::ACTIVE)
+        ->and($running->paused_by_website_dialog_id)->toBeNull();
+})->depends('create b2b website');
+
+test('reset website dialog goes back to the published version', function (Website $website) {
+    turnOffWebsiteDialogs($website);
+    $websiteDialog = publishWebsiteDialog(draftWebsiteDialog($website, 'to reset', 'published title'), $this->user);
+    UpdateWebsiteDialog::make()->action($websiteDialog, ['fields' => ['title' => ['text' => 'draft title']]]);
+
+    ResetWebsiteDialog::make()->handle($websiteDialog);
+    $websiteDialog->refresh();
+
+    expect($websiteDialog->is_dirty)->toBeFalse()
+        ->and($websiteDialog->fields['title']['text'])->toBe('published title')
+        ->and($websiteDialog->unpublishedSnapshot->layout['fields']['title']['text'])->toBe('published title');
+})->depends('create b2b website');
+
+test('a website dialog not published yet cannot be turned on', function (Website $website) {
+    $websiteDialog = StoreWebsiteDialog::make()->action($website, ['name' => 'not ready']);
+
+    expect(fn () => ToggleWebsiteDialog::make()->handle($websiteDialog, WebsiteDialogStatusEnum::ACTIVE))
+        ->toThrow(ValidationException::class);
+})->depends('create b2b website');
+
+test('seed website dialog templates', function (Website $website) {
+    $group = $website->group;
+    SeedWebsiteDialogTemplates::run($group);
+    WebsiteDialogTemplate::create(['group_id' => $group->id, 'code' => 'removed-template', 'name' => 'gone', 'component' => 'dialog-centered']);
+
+    $this->artisan('group:seed_website_dialog_templates')->assertSuccessful();
+
+    $templates = WebsiteDialogTemplate::where('group_id', $group->id)->get();
+
+    expect($templates->pluck('code')->all())->toContain('welcome-centered', 'promo-image-side')
+        ->and($templates->pluck('code')->all())->not->toContain('removed-template')
+        ->and($templates->firstWhere('code', 'promo-image-side')->component)->toBe('dialog-image-side')
+        ->and($templates->firstWhere('code', 'welcome-centered')->data['fields']['title']['text'])->not->toBeEmpty()
+        ->and($templates->firstWhere('code', 'newsletter-subscribe')->data['fields']['subscribe']['show_phone'])->toBeTrue()
+        ->and($templates->firstWhere('code', 'newsletter-subscribe')->data['fields']['subscribe'])->not->toHaveKey('show_email');
+
+    getJson(route('grp.json.website_dialog_templates.index'))
+        ->assertOk()
+        ->assertJsonFragment(['code' => 'welcome-centered', 'component' => 'dialog-centered']);
+})->depends('create b2b website');
+
+test('a website dialog opened by a button is live beside an automatic one', function (Website $website) {
+    turnOffWebsiteDialogs($website);
+    $automatic = publishWebsiteDialog(draftWebsiteDialog($website, 'automatic'), $this->user);
+
+    $onClick = draftWebsiteDialog($website, 'on click');
+    UpdateWebsiteDialog::make()->action($onClick, ['settings' => [...$onClick->settings, 'trigger' => 'on_click']]);
+    $onClick = publishWebsiteDialog($onClick->refresh(), $this->user);
+
+    $shown = collect(irisWebsiteDialogs($website))->firstWhere('ulid', $onClick->ulid);
+
+    expect($onClick->status)->toBe(WebsiteDialogStatusEnum::ACTIVE)
+        ->and($automatic->refresh()->status)->toBe(WebsiteDialogStatusEnum::ACTIVE)
+        ->and($automatic->paused_by_website_dialog_id)->toBeNull()
+        ->and($shown['settings']['trigger'])->toBe('on_click');
+
+    getJson(route('grp.json.website_dialogs.link_select', [$website->slug]))
+        ->assertOk()
+        ->assertJsonFragment(['href' => '#website-dialog-'.$onClick->ulid, 'opens' => 'on_click']);
+})->depends('create b2b website');
+
+test('a customer closing a once per customer dialog keeps it closed until it is published again', function (Website $website) {
+    turnOffWebsiteDialogs($website);
+    $websiteDialog = draftWebsiteDialog($website, 'per customer');
+    UpdateWebsiteDialog::make()->action($websiteDialog, ['settings' => [...$websiteDialog->settings, 'display_frequency' => 'once_per_customer']]);
+    $websiteDialog = publishWebsiteDialog($websiteDialog->refresh(), $this->user);
+    $customer = createCustomer($website->shop);
+
+    StoreIrisWebsiteDialogDismissal::make()->handle($websiteDialog, $customer);
+    StoreIrisWebsiteDialogDismissal::make()->handle($websiteDialog, $customer);
+
+    expect(GetIrisWebsiteDialogDismissals::make()->handle($website, $customer))
+        ->toBe([$websiteDialog->ulid => $websiteDialog->published_checksum])
+        ->and($websiteDialog->dismissals()->count())->toBe(1);
+
+    UpdateWebsiteDialog::make()->action($websiteDialog, ['fields' => ['title' => ['text' => 'new offer']]]);
+    $republished = publishWebsiteDialog($websiteDialog->refresh(), $this->user);
+
+    expect($republished->published_checksum)->not->toBe(GetIrisWebsiteDialogDismissals::make()->handle($website, $customer)[$websiteDialog->ulid]);
+})->depends('create b2b website');
+
+test('UI smoke website dialog GET routes', function (Website $website, WebsiteDialog $websiteDialog) {
+    $website->refresh();
+    $parameters = [$this->organisation->slug, $this->shop->slug, $website->slug];
+
+    get(route('grp.org.shops.show.web.website_dialogs.index', $parameters))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->component('Websites/WebsiteDialogs'));
+    get(route('grp.org.shops.show.web.website_dialogs.create', $parameters))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->component('CreateModel'));
+    get(route('grp.org.shops.show.web.website_dialogs.show', [...$parameters, $websiteDialog->ulid]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->component('Websites/WebsiteDialog'));
+    get(route('grp.org.shops.show.web.website_dialogs.edit', [...$parameters, $websiteDialog->ulid]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->component('EditModel'));
+    get(route('grp.org.shops.show.web.website_dialogs.workshop', [...$parameters, $websiteDialog->ulid]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->component('Websites/WebsiteDialogWorkshop'));
+})->depends('create b2b website', 'store website dialog');
+
+test('website dialog model routes refuse a dialog through another shop', function (Website $website) {
+    $otherShop = Shop::where('id', '!=', $website->shop_id)->first();
+    $websiteDialog = StoreWebsiteDialog::make()->action($website, ['name' => 'not yours']);
+
+    $this->patchJson(route('grp.models.shop.website.website_dialog.update', [
+        'shop'          => $otherShop->id,
+        'website'       => $website->id,
+        'websiteDialog' => $websiteDialog->id,
+    ]), ['name' => 'hijacked'])->assertNotFound();
+
+    expect($websiteDialog->refresh()->name)->toBe('not yours');
 })->depends('create b2b website');
 // Cloudflare: mutate website slugs, so keep last to avoid stale slugs in UI tests above
 
@@ -2902,6 +3516,7 @@ describe('deployment crawling', function () {
                 'organisation_id' => $this->organisation->id,
                 'group_id'        => $this->organisation->group_id,
                 'code'            => "crawl-$index",
+                'name'            => "Crawl $index",
                 'type'            => WebsiteTypeEnum::INFO,
                 'state'           => WebsiteStateEnum::LIVE,
                 'migrated'        => true,
@@ -3419,3 +4034,103 @@ function blogWebpageAuthor(Webpage $webpage): ?array
 {
     return json_decode(json_encode(data_get($webpage->webBlocks()->first()->layout, 'data.fieldValue.author')), true);
 }
+
+test('website write routes need the web edit permission of the shop, INI-073', function (Website $website) {
+    $unguarded = collect(app('router')->getRoutes()->getRoutes())
+        ->filter(fn ($route) => str_starts_with((string) $route->getName(), 'grp.models.') && is_string($route->getAction('uses')))
+        ->map(fn ($route) => \Illuminate\Support\Str::before($route->getAction('uses'), '@'))
+        ->filter(fn (string $action) => (str_starts_with($action, 'App\\Actions\\Web\\') || str_starts_with($action, 'App\\Actions\\Helpers\\Snapshot\\')) && !method_exists($action, 'authorize'))
+        ->unique()->values()->all();
+    expect($unguarded)->toBe([]);
+
+    $shop    = $website->shop;
+    $webpage = $website->webpages()->firstOrFail();
+    $title   = $webpage->title;
+
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ["web.{$shop->id}.view", "products.{$shop->id}.edit"]);
+        Pest\Laravel\patch(route('grp.models.website.autosave.header', $website->id), ['layout' => ['blocks' => []]])->assertForbidden();
+        Pest\Laravel\post(route('grp.models.website.publish.header', $website->id), ['layout' => ['blocks' => []]])->assertForbidden();
+        Pest\Laravel\patch(route('grp.models.webpage.update', $webpage->id), ['title' => 'Changed without permission'])->assertForbidden();
+        Pest\Laravel\patch(route('grp.models.webpage.delete', $webpage->id))->assertForbidden();
+        expect($webpage->refresh()->title)->toBe($title)
+            ->and($webpage->trashed())->toBeFalse();
+
+        $workshopButtons = fn () => collect(
+            Pest\Laravel\get(route('grp.org.shops.show.web.websites.workshop', [$shop->organisation->slug, $shop->slug, $website->slug]))
+                ->assertOk()->viewData('page')['props']['pageHead']['actions']
+        )->filter()->pluck('label')->all();
+        expect($workshopButtons())->not->toContain(__('Publish'));
+
+        actingAsUserWithOnlyPermissions($this->user, ["web.{$shop->id}.edit"]);
+        expect($workshopButtons())->toContain(__('Publish'));
+        Pest\Laravel\patch(route('grp.models.website.autosave.header', $website->id), ['layout' => ['blocks' => []]])->assertRedirect()->assertSessionHasNoErrors();
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
+})->depends('launch website');
+
+test('website and webpage varnish purges need the web edit permission of the shop, INI-076', function (Website $website) {
+    Config::set('iris.cache.varnish', false);
+    $shop    = $website->shop;
+    $webpage = $website->webpages()->firstOrFail();
+
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ["web.{$shop->id}.view"]);
+        get(route('grp.varnish.website', $website->slug))->assertForbidden();
+        get(route('grp.varnish.webpage', $webpage->slug))->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($this->user, ["web.{$shop->id}.edit"]);
+        get(route('grp.varnish.website', $website->slug))->assertOk();
+        get(route('grp.varnish.webpage', $webpage->slug))->assertOk();
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
+
+    expect(app('router')->getRoutes()->getByName('grp.models.translate')->methods())->toBe(['POST'])
+        ->and(Route::has('grp.profile.update'))->toBeFalse();
+})->depends('launch website');
+
+test('store website page view looks an unknown path up once, then remembers there is no webpage', function (Webpage $webpage) {
+    $website = $webpage->website;
+    $visitorId = DB::table('website_visitors')->insertGetId([
+        'group_id'        => $this->shop->group_id,
+        'organisation_id' => $this->shop->organisation_id,
+        'shop_id'         => $this->shop->id,
+        'website_id'      => $website->id,
+        'session_id'      => 'sess-'.Str::random(10),
+        'visitor_hash'    => Str::random(16),
+        'device_type'     => 'desktop',
+        'os'              => 'linux',
+        'browser'         => 'firefox',
+        'user_agent'      => 'test-agent',
+        'ip_hash'         => Str::random(16),
+        'first_seen_at'   => now(),
+        'last_seen_at'    => now(),
+        'created_at'      => now(),
+        'updated_at'      => now(),
+    ]);
+    $visitor = \App\Models\Web\WebsiteVisitor::find($visitorId);
+
+    $unknownUrl = 'https://test/no-such-page-'.Str::random(8);
+
+    DB::enableQueryLog();
+    StoreWebsitePageView::make()->handle($visitor, $website, $unknownUrl);
+    StoreWebsitePageView::make()->handle($visitor, $website, $unknownUrl);
+    $lookups = collect(DB::getQueryLog())->filter(fn ($query) => str_contains($query['query'], 'substring(canonical_url'));
+    DB::disableQueryLog();
+
+    expect($lookups)->toHaveCount(1);
+})->depends('create webpage');

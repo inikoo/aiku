@@ -24,7 +24,6 @@ const KNOWN_UNRESOLVED = [
     'App\Actions\Fulfilment\PalletReturn\UI\ServicestateEnum',
     'App\Actions\Fulfilment\UI\Catalogue\Services\ServicestateEnum',
     'App\Actions\Google\Analytics\GetAnalytics',
-    'App\Actions\HumanResources\Employee\GenerateEmployeeLeaveBalance',
     'App\Actions\Inventory\OrgStock\UI\tabsEnum',
     'App\Actions\Ordering\Order\Traits\Sentry',
     'App\Actions\Procurement\OrgSupplier\UI\ShowSupplier',

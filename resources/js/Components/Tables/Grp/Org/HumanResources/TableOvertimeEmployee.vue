@@ -3,18 +3,20 @@ import { useForm, router } from "@inertiajs/vue3"
 import Table from "@/Components/Table/Table.vue"
 import Tag from "@/Components/Tag.vue"
 import { useFormatTime } from "@/Composables/useFormatTime"
-import Modal from "@/Components/Utils/Modal.vue"
+import Dialog from "primevue/dialog"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { ctrans } from "@/Composables/useTrans"
 import { ref, computed } from "vue"
 import Select from "primevue/select"
 import DatePicker from "primevue/datepicker"
 import Textarea from "primevue/textarea"
+import OvertimeTimeFields from "@/Components/HumanResources/OvertimeTimeFields.vue"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { faTrash, faEdit, faCheck, faTimes, faTachometerAlt, faList, faLayerGroup } from "@fal";
+import { faTrash, faEdit, faCheck, faTimes, faTachometerAlt, faList, faLayerGroup, faPlus } from "@fal";
 
-library.add(faTrash, faEdit, faCheck, faTimes, faTachometerAlt, faList, faLayerGroup)
+library.add(faTrash, faEdit, faCheck, faTimes, faTachometerAlt, faList, faLayerGroup, faPlus)
 
 const props = defineProps<{
 	data: {}
@@ -31,91 +33,7 @@ const emit = defineEmits<{
 const isEditMode = ref(false)
 const editingOvertimeId = ref<number | null>(null)
 
-const filterSpecificDate = ref<string>("")
-const filterMonth = ref<string>("")
-const filterYear = ref<string>("")
-
-const monthOptions = computed(() =>
-	Array.from({ length: 12 }, (_, index) => {
-		const date = new Date(2000, index, 1)
-		return {
-			value: index + 1,
-			label: date.toLocaleString("default", { month: "long" }),
-		}
-	})
-)
-
-const yearOptions = computed(() => {
-	const currentYear = new Date().getFullYear()
-	return Array.from({ length: 5 }, (_, index) => {
-		return {
-			value: currentYear - 2 + index,
-			label: String(currentYear - 2 + index),
-		}
-	})
-})
-
-const initializeFiltersFromUrl = () => {
-	const url = new URL(window.location.href)
-
-	const specificDate = url.searchParams.get("requested_date")
-	const month = url.searchParams.get("month")
-	const year = url.searchParams.get("year")
-
-	filterSpecificDate.value = specificDate ?? ""
-	filterMonth.value = month ?? ""
-	filterYear.value = year ?? ""
-}
-
-initializeFiltersFromUrl()
-
-const applyDateFilters = () => {
-	const params: Record<string, unknown> = {
-		...route().params,
-		tab: props.tab ?? "overtime",
-	}
-
-	if (filterSpecificDate.value) {
-		params.requested_date = filterSpecificDate.value
-		params.month = undefined
-		params.year = undefined
-	} else {
-		if (filterMonth.value) {
-			params.month = filterMonth.value
-		}
-
-		if (filterYear.value) {
-			params.year = filterYear.value
-		}
-
-		params.requested_date = undefined
-	}
-
-	router.get(route("grp.clocking_employees.index", params as any), {}, {
-		preserveState: true,
-		preserveScroll: true,
-	})
-}
-
-const resetDateFilters = () => {
-	filterSpecificDate.value = ""
-	filterMonth.value = ""
-	filterYear.value = ""
-
-	const params: Record<string, unknown> = {
-		...route().params,
-		tab: props.tab ?? "overtime",
-	}
-
-	params.requested_date = undefined
-	params.month = undefined
-	params.year = undefined
-
-	router.get(route("grp.clocking_employees.index", params as any), {}, {
-		preserveState: true,
-		preserveScroll: true,
-	})
-}
+const fieldFocusClass = "[&.p-focus]:!border-[--app-accent] [&_input:focus]:!border-[--app-accent]"
 
 const getOvertimeError = (key: string): string | undefined => {
 	return (overtimeForm.errors as Record<string, string | undefined>)[key]
@@ -138,44 +56,6 @@ const overtimeForm = useForm<{
 	duration_minutes: "0",
 	reason: "",
 })
-
-const hourOptions = Array.from({ length: 24 }, (_, index) =>
-	index < 10 ? `0${index}` : `${index}`
-)
-
-const minuteOptions = Array.from({ length: 60 }, (_, index) =>
-	index < 10 ? `0${index}` : `${index}`
-)
-
-const durationBaseMinutes = ["0", "15", "30", "45"]
-
-const hourSelectOptions = computed(() =>
-	hourOptions.map((hour) => ({
-		label: hour,
-		value: hour,
-	}))
-)
-
-const minuteSelectOptions = computed(() =>
-	minuteOptions.map((minute) => ({
-		label: minute,
-		value: minute,
-	}))
-)
-
-const durationHourOptions = computed(() =>
-	Array.from({ length: 13 }, (_, index) => ({
-		label: String(index),
-		value: String(index),
-	}))
-)
-
-const durationMinuteOptions = computed(() =>
-	durationBaseMinutes.map((minute) => ({
-		label: minute,
-		value: minute,
-	}))
-)
 
 const overtimeTypeSelectOptions = computed(() => props.overtimeTypeOptions ?? [])
 
@@ -292,6 +172,8 @@ const openModal = () => {
 	emit("update:isRequestOvertimeModalOpen", true)
 }
 
+defineExpose({ openModal })
+
 const openEditModal = (item: any) => {
 	isEditMode.value = true
 	editingOvertimeId.value = item.id
@@ -358,78 +240,6 @@ const submitOvertimeRequest = () => {
 
 <template>
 	<div class="mt-4 space-y-4">
-		<div class="flex flex-col gap-3 px-4 md:flex-row md:items-center md:justify-between">
-			<div class="flex flex-wrap items-center gap-2">
-				<div class="flex items-center gap-2">
-					<label class="text-xs font-medium text-gray-600">
-						{{ ctrans("Date") }}
-					</label>
-					<input
-						v-model="filterSpecificDate"
-						type="date"
-						class="block rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:ring-indigo-500" />
-				</div>
-
-				<div class="flex items-center gap-2">
-					<label class="text-xs font-medium text-gray-600">
-						{{ ctrans("Month") }}
-					</label>
-					<select
-						v-model="filterMonth"
-						class="block rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:ring-indigo-500 min-w-[7rem]">
-						<option value="">
-							{{ ctrans("All") }}
-						</option>
-						<option
-							v-for="month in monthOptions"
-							:key="month.value"
-							:value="month.value">
-							{{ month.label }}
-						</option>
-					</select>
-				</div>
-
-				<div class="flex items-center gap-2">
-					<label class="text-xs font-medium text-gray-600">
-						{{ ctrans("Year") }}
-					</label>
-					<select
-						v-model="filterYear"
-						class="block rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:ring-indigo-500 min-w-[6rem]">
-						<option value="">
-							{{ ctrans("All") }}
-						</option>
-						<option
-							v-for="year in yearOptions"
-							:key="year.value"
-							:value="year.value">
-							{{ year.label }}
-						</option>
-					</select>
-				</div>
-
-				<Button
-					@click="applyDateFilters"
-					size="xs"
-					type="secondary"
-					:label="ctrans('Filter')" />
-
-				<Button
-					@click="resetDateFilters"
-					size="xs"
-					type="tertiary"
-					:label="ctrans('Reset')" />
-			</div>
-
-		</div>
-
-		<div class="flex justify-end px-4">
-			<Button
-				@click="openModal"
-				:label="ctrans('New overtime request')"
-				icon="fal fa-plus"
-				type="create" />
-		</div>
 
 		<Table :resource="data" :name="tab">
 			<template #cell(requested_date)="{ item }">
@@ -512,118 +322,97 @@ const submitOvertimeRequest = () => {
 			</template>
 		</Table>
 
-		<Modal
-			:isOpen="isRequestOvertimeModalOpen"
-			@onClose="closeModal"
-			width="w-full max-w-lg">
-			<h2 class="text-lg font-semibold text-gray-800 mb-4 p-4">
-				{{
-					isEditMode
-						? ctrans("Edit overtime request")
-						: ctrans("Create overtime request")
-				}}
-			</h2>
-
+		<Dialog
+			:visible="isRequestOvertimeModalOpen"
+			modal
+			:draggable="false"
+			:header="isEditMode ? ctrans('Edit overtime request') : ctrans('New overtime request')"
+			:style="{ width: '32rem', maxWidth: 'calc(100vw - 2rem)' }"
+			@update:visible="(isVisible: boolean) => !isVisible && closeModal()">
 			<form class="space-y-4" @submit.prevent="submitOvertimeRequest">
 				<div>
-					<label class="block text-sm font-medium text-gray-700">
-						{{ ctrans("What type of overtime do you want to submit?") }}
+					<label for="overtime-type" class="block text-sm font-medium text-gray-700 mb-1">
+						{{ ctrans("Overtime type") }} <span class="text-red-500">*</span>
 					</label>
 					<Select
 						v-model="overtimeForm.overtime_type_id"
+						inputId="overtime-type"
 						:options="overtimeTypeSelectOptions"
 						optionLabel="label"
 						optionValue="value"
+						:invalid="!!overtimeForm.errors.overtime_type_id"
 						:placeholder="ctrans('Select overtime type')"
-						class="mt-1 w-full" />
-					<div v-if="overtimeForm.errors.overtime_type_id" class="mt-1 text-sm text-red-600">
+						fluid
+						:class="fieldFocusClass" />
+					<p v-if="overtimeForm.errors.overtime_type_id" class="mt-1 text-sm text-red-500">
 						{{ overtimeForm.errors.overtime_type_id }}
-					</div>
+					</p>
 				</div>
 
 				<div>
-					<label class="block text-sm font-medium text-gray-700">
-						{{ ctrans("What date did the overtime occur?") }}
+					<label for="overtime-date" class="block text-sm font-medium text-gray-700 mb-1">
+						{{ ctrans("Date worked") }} <span class="text-red-500">*</span>
 					</label>
 					<DatePicker
 						v-model="overtimeRequestedDateModel"
-						class="mt-1 w-full"
-						dateFormat="yy-mm-dd"
-						:placeholder="ctrans('Choose date')"
-						showIcon />
-					<div v-if="overtimeForm.errors.requested_date" class="mt-1 text-sm text-red-600">
+						inputId="overtime-date"
+						dateFormat="d M yy"
+						:manualInput="false"
+						:invalid="!!overtimeForm.errors.requested_date"
+						:placeholder="ctrans('Select a date')"
+						showIcon
+						iconDisplay="input"
+						fluid
+						:class="fieldFocusClass" />
+					<p v-if="overtimeForm.errors.requested_date" class="mt-1 text-sm text-red-500">
 						{{ overtimeForm.errors.requested_date }}
-					</div>
+					</p>
 				</div>
 
-				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-					<div>
-						<label class="block text-sm font-medium text-gray-700">
-							{{ ctrans("What time did it start?") }}
-						</label>
-						<div class="mt-1 flex gap-2">
-							<Select
-								v-model="overtimeForm.start_hour"
-								:options="hourSelectOptions"
-								optionLabel="label"
-								optionValue="value"
-								class="w-full" />
-							<Select
-								v-model="overtimeForm.start_minute"
-								:options="minuteSelectOptions"
-								optionLabel="label"
-								optionValue="value"
-								class="w-full" />
-						</div>
-					</div>
-
-					<div>
-						<label class="block text-sm font-medium text-gray-700">
-							{{ ctrans("How long was the overtime?") }}
-						</label>
-						<div class="mt-1 flex gap-2">
-							<Select
-								v-model="overtimeForm.duration_hours"
-								:options="durationHourOptions"
-								optionLabel="label"
-								optionValue="value"
-								class="w-full" />
-							<Select
-								v-model="overtimeForm.duration_minutes"
-								:options="durationMinuteOptions"
-								optionLabel="label"
-								optionValue="value"
-								class="w-full" />
-						</div>
-						<div v-if="getOvertimeError('requested_duration_minutes')" class="mt-1 text-sm text-red-600">
-							{{ getOvertimeError("requested_duration_minutes") }}
-						</div>
-					</div>
-				</div>
+				<OvertimeTimeFields
+					v-model:startHour="overtimeForm.start_hour"
+					v-model:startMinute="overtimeForm.start_minute"
+					v-model:durationHours="overtimeForm.duration_hours"
+					v-model:durationMinutes="overtimeForm.duration_minutes"
+					idPrefix="overtime-employee"
+					:startError="getOvertimeError('requested_start_at')"
+					:durationError="getOvertimeError('requested_duration_minutes') ?? getOvertimeError('duration_hours')" />
 
 				<div>
-					<label class="block text-sm font-medium text-gray-700">
-						{{ ctrans("Why did you work overtime?") }}
+					<label for="overtime-reason" class="block text-sm font-medium text-gray-700 mb-1">
+						{{ ctrans("Reason") }}
 					</label>
 					<Textarea
 						v-model="overtimeForm.reason"
+						id="overtime-reason"
 						rows="3"
-						class="mt-1 w-full text-gray-700 placeholder:text-gray-400 dark:text-gray-100 dark:placeholder:text-gray-500"
-						:placeholder="ctrans('Please provide a reason for your overtime request')" />
-					<div v-if="overtimeForm.errors.reason" class="mt-1 text-sm text-red-600">
+						autoResize
+						fluid
+						:invalid="!!overtimeForm.errors.reason"
+						:placeholder="ctrans('Why did you work overtime?')"
+						class="focus:!border-[--app-accent]" />
+					<p v-if="overtimeForm.errors.reason" class="mt-1 text-sm text-red-500">
 						{{ overtimeForm.errors.reason }}
-					</div>
+					</p>
 				</div>
 
-				<div class="mt-6 flex justify-end gap-2">
-					<Button @click.prevent="closeModal" :label="ctrans('Cancel')" type="tertiary" />
+				<div class="flex justify-end gap-2 pt-2">
+					<Button type="tertiary" :label="ctrans('Cancel')" @click.prevent="closeModal">
+						<template #icon>
+							<FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" />
+						</template>
+					</Button>
 					<Button
-						type="save"
+						type="tertiary"
 						nativeType="submit"
 						:label="isEditMode ? ctrans('Update Request') : ctrans('Submit Request')"
-						:loading="overtimeForm.processing" />
+						:loading="overtimeForm.processing">
+						<template #icon>
+							<FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" />
+						</template>
+					</Button>
 				</div>
 			</form>
-		</Modal>
+		</Dialog>
 	</div>
 </template>

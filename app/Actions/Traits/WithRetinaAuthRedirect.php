@@ -45,7 +45,7 @@ trait WithRetinaAuthRedirect
      */
     public function rememberRetinaIntendedUrl(Request $request, Website $website): void
     {
-        $intendedUrl = $this->getRetinaWebpageUrl($website, $request->input('ref'))
+        $intendedUrl = $this->getRetinaRefUrl($website, $request->input('ref'))
             ?? $this->getRetinaRefererUrl($request);
 
         if ($intendedUrl) {
@@ -58,7 +58,7 @@ trait WithRetinaAuthRedirect
      */
     public function getRetinaLoginRedirectUrl(Website $website, mixed $ref = null): string
     {
-        return $this->getRetinaWebpageUrl($website, $ref)
+        return $this->getRetinaRefUrl($website, $ref)
             ?? Session::pull(static::$retinaIntendedUrlSessionKey)
             ?? $this->getRetinaWebpageUrlByType($website, WebpageTypeEnum::STOREFRONT)
             ?? '';
@@ -72,7 +72,7 @@ trait WithRetinaAuthRedirect
         Session::forget(static::$retinaIntendedUrlSessionKey);
 
         return $this->getRetinaWelcomeUrl($website)
-            ?? $this->getRetinaWebpageUrl($website, $ref)
+            ?? $this->getRetinaRefUrl($website, $ref)
             ?? $this->getRetinaWebpageUrlByType($website, WebpageTypeEnum::STOREFRONT)
             ?? '';
     }
@@ -97,6 +97,24 @@ trait WithRetinaAuthRedirect
     public function getRetinaLogoutRedirectUrl(Website $website): ?string
     {
         return $this->getRetinaWebpageUrlByType($website, WebpageTypeEnum::STOREFRONT);
+    }
+
+    /**
+     * A ref is a webpage id from the storefront, or a path on this website, as the Shopify app sends
+     * (`?ref=/app/dropshipping/channels/...`). Anything that could leave the website is ignored.
+     */
+    protected function getRetinaRefUrl(Website $website, mixed $ref): ?string
+    {
+        return $this->getRetinaWebpageUrl($website, $ref) ?? $this->getRetinaRefPath($ref);
+    }
+
+    protected function getRetinaRefPath(mixed $ref): ?string
+    {
+        if (!is_string($ref) || !preg_match('#^/(?![/\\\\])[^\s\x00-\x1f\x7f\\\\]*$#', $ref)) {
+            return null;
+        }
+
+        return $ref;
     }
 
     protected function getRetinaWebpageUrl(Website $website, mixed $ref): ?string

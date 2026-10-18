@@ -21,6 +21,7 @@ use App\Models\Inventory\OrgStock;
 use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -31,6 +32,30 @@ class GetOrgSupplierProductShowcase
     use WithSupplierProductInfo;
 
     public function handle(OrgSupplierProduct $orgSupplierProduct): array
+    {
+        $viewingOrganisation = request()->route('organisation');
+        if ($viewingOrganisation instanceof Organisation && $viewingOrganisation->type === OrganisationTypeEnum::AGENT) {
+            return $this->withoutLandedCosts(array_merge(
+                $this->showcase($orgSupplierProduct),
+                ['agent' => GetOrgSupplierProductAgentPanel::run($orgSupplierProduct, $viewingOrganisation, $this->canEditCarton($orgSupplierProduct))]
+            ));
+        }
+
+        return $this->showcase($orgSupplierProduct);
+    }
+
+    /**
+     * Agents see the cost agreed with the supplier, never what it costs us landed.
+     */
+    private function withoutLandedCosts(array $showcase): array
+    {
+        $showcase['costs'] = Arr::only($showcase['costs'], ['currency_code', 'unit_cost']);
+        Arr::forget($showcase, ['supplierProductInfo.unit_expense', 'supplierProductInfo.extra_costs']);
+
+        return $showcase;
+    }
+
+    private function showcase(OrgSupplierProduct $orgSupplierProduct): array
     {
         return array_merge(
             $this->getSupplierProductShowcase($orgSupplierProduct->supplierProduct, withSupplyChainLink: true, organisationId: $orgSupplierProduct->organisation_id),
@@ -101,7 +126,12 @@ class GetOrgSupplierProductShowcase
      * Each SKO carries its own numbers, so what is shown is what that SKO's label prints. The master
      * stock is only a fallback when no SKO can be printed, and it never knows the unit EAN.
      *
-     * @return array{barcodes: array<int, array<string, mixed>>, label_org_stocks: array<int, array<string, mixed>>}
+     * An agent sees the SKOs of every organisation it buys for, and the label carries the signature of
+     * the SKO's organisation, so the page opens on the SKO of the organisation this product belongs to.
+     * When that organisation has no SKO of it the page falls back to another organisation's and says
+     * so, and the carton label still defaults to being commercialised by this product's organisation.
+     *
+     * @return array{barcodes: array<int, array<string, mixed>>, label_org_stocks: array<int, array<string, mixed>>, selected_label_org_stock_id: int|null, label_organisation: array{id: int, code: string, name: string, has_org_stock: bool}}
      */
     private function getBarcodesData(OrgSupplierProduct $orgSupplierProduct): array
     {
@@ -121,6 +151,7 @@ class GetOrgSupplierProductShowcase
             ->map(fn (OrgStock $orgStock) => [
                 'id'                  => $orgStock->id,
                 'code'                => $orgStock->code,
+                'organisation_id'     => $orgStock->organisation_id,
                 'organisation_code'   => $orgStock->organisation->code,
                 'barcodes'            => GetOrgStockBarcodes::run($orgStock),
                 'carton_barcode_update_route' => $canEditCarton && $orgStock->stock_id ? [
@@ -128,7 +159,7 @@ class GetOrgSupplierProductShowcase
                     'parameters' => [
                         'organisation'       => $viewingOrganisation->id,
                         'orgSupplierProduct' => $orgSupplierProduct->id,
-                        'orgStock'           => $orgStock->id,
+                        'stock'              => $orgStock->stock_id,
                     ],
                 ] : null,
                 'label_options_route' => $agent
@@ -152,9 +183,20 @@ class GetOrgSupplierProductShowcase
 
         $masterStock = $orgSupplierProduct->supplierProduct->stocks->first();
 
+        $selectedLabelOrgStock = collect($labelOrgStocks)->firstWhere('organisation_id', $orgSupplierProduct->organisation_id)
+            ?? $labelOrgStocks[0]
+            ?? null;
+
         return [
-            'barcodes'         => $labelOrgStocks[0]['barcodes'] ?? ($masterStock ? GetStockBarcodes::run($masterStock) : []),
-            'label_org_stocks' => $labelOrgStocks,
+            'barcodes'                    => $selectedLabelOrgStock['barcodes'] ?? ($masterStock ? GetStockBarcodes::run($masterStock) : []),
+            'label_org_stocks'            => $labelOrgStocks,
+            'selected_label_org_stock_id' => $selectedLabelOrgStock['id'] ?? null,
+            'label_organisation'          => [
+                'id'            => $orgSupplierProduct->organisation_id,
+                'code'          => $orgSupplierProduct->organisation->code,
+                'name'          => $orgSupplierProduct->organisation->name,
+                'has_org_stock' => collect($labelOrgStocks)->contains('organisation_id', $orgSupplierProduct->organisation_id),
+            ],
         ];
     }
 

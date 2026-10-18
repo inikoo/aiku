@@ -23,6 +23,7 @@ use App\Models\Traits\HasAttachments;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\InOrganisation;
 use App\Models\Traits\HasSearch;
+use App\Models\Traits\HasStageMarks;
 use Eloquent;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
@@ -147,6 +148,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read Model|\Eloquent $parent
  * @property-read Collection<int, \App\Models\Procurement\PurchaseOrderTransaction> $purchaseOrderTransactions
+ * @property-read Collection<int, \App\Models\Procurement\PurchaseOrderChase> $chases
  * @property-read Collection<int, StockDelivery> $stockDeliveries
  * @method static \Database\Factories\Procurement\PurchaseOrderFactory factory($count = null, $state = [])
  * @method static Builder<static>|PurchaseOrder newModelQuery()
@@ -168,6 +170,7 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
     use InOrganisation;
     use HasAttachments;
     use HasSearch;
+    use HasStageMarks;
 
     protected $casts = [
         'data'            => 'array',
@@ -197,13 +200,16 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
         'approved_ready_at'      => 'datetime',
         'compliance_complete_at' => 'datetime',
         'chs_excluded'           => 'boolean',
+        'production_started_at'  => 'datetime',
+        'online_at'              => 'datetime',
+        'stage_marks'            => 'array',
     ];
 
 
     protected $attributes = [
-        'data'      => '{}',
-        'cost_data' => '{}',
-
+        'data'        => '{}',
+        'cost_data'   => '{}',
+        'stage_marks' => '{}',
     ];
 
     protected $guarded = [];
@@ -230,6 +236,7 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
 
     protected array $auditInclude = [
         'reference',
+        'agent_reference',
         'state',
         'notes',
         'cost_total',
@@ -238,7 +245,10 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
         'cost_duties',
         'buyer_id',
         'sample_approved_at',
+        'deposit_amount',
         'deposit_paid_at',
+        'deposit_paid_by_id',
+        'production_started_at',
         'produced_at',
         'qc_passed_at',
         'handed_over_at',
@@ -248,6 +258,24 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
         'chs_excluded',
         'chs_exclusion_reason',
     ];
+
+    public function stageMarkColumns(): array
+    {
+        return [
+            'submitted_at',
+            'confirmed_at',
+            'deposit_paid_at',
+            'balance_paid_at',
+            'sample_approved_at',
+            'production_started_at',
+            'proposed_ready_at',
+            'approved_ready_at',
+            'produced_at',
+            'qc_passed_at',
+            'handed_over_at',
+            'compliance_complete_at',
+        ];
+    }
 
     public function estimatedReceivingDate(): ?string
     {
@@ -305,9 +333,31 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
         return $this->belongsTo(Agent::class);
     }
 
+    public function chases(): HasMany
+    {
+        return $this->hasMany(PurchaseOrderChase::class);
+    }
+
     public function isAgentOrder(): bool
     {
         return $this->agent_id !== null && $this->parent_type === 'OrgSupplier';
+    }
+
+    /**
+     * The supplier is making the goods: a stage from production start on is recorded.
+     */
+    public function hasProductionStarted(): bool
+    {
+        return $this->production_started_at !== null || $this->sample_approved_at !== null || $this->produced_at !== null;
+    }
+
+    /**
+     * An order through an agent can no longer lose lines once its supplier is making the goods: the agent receives them
+     * in batches against those lines.
+     */
+    public function areLinesLockedByProduction(): bool
+    {
+        return $this->isAgentOrder() && $this->hasProductionStarted();
     }
 
     /**
@@ -340,6 +390,18 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
             ->where('agent_order_reference', $agentOrderReference);
     }
 
+    /**
+     * This order and the orders to the agent's other suppliers that went out with it, under the same agent order reference.
+     */
+    public function wholeAgentOrder(): Builder
+    {
+        if (!$this->isAgentOrder() || !$this->agent_order_reference) {
+            return self::query()->whereKey($this->id);
+        }
+
+        return self::inAgentOrder($this->organisation_id, $this->agent_id, $this->agent_order_reference);
+    }
+
     public function deposits(): HasMany
     {
         return $this->hasMany(AspoDeposit::class);
@@ -348,5 +410,15 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
     public function buyer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'buyer_id');
+    }
+
+    public function depositPaidBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'deposit_paid_by_id');
+    }
+
+    public function depositPayments(): HasMany
+    {
+        return $this->hasMany(PurchaseOrderDepositPayment::class);
     }
 }

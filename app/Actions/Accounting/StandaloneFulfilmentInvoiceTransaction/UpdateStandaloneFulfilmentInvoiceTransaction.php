@@ -9,6 +9,7 @@
 
 namespace App\Actions\Accounting\StandaloneFulfilmentInvoiceTransaction;
 
+use App\Actions\Traits\Authorisations\WithFulfilmentShopEditAuthorisation;
 use App\Actions\Accounting\Invoice\CalculateInvoiceTotals;
 use App\Actions\Accounting\InvoiceTransaction\UpdateInvoiceTransaction;
 use App\Actions\OrgAction;
@@ -20,6 +21,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class UpdateStandaloneFulfilmentInvoiceTransaction extends OrgAction
 {
+    use WithFulfilmentShopEditAuthorisation;
     use WithOrderExchanges;
 
     public function handle(InvoiceTransaction $invoiceTransaction, array $modelData): InvoiceTransaction
@@ -59,6 +61,7 @@ class UpdateStandaloneFulfilmentInvoiceTransaction extends OrgAction
 
     public function action(InvoiceTransaction $invoiceTransaction, array $modelData): InvoiceTransaction
     {
+        $this->asAction = true;
         $this->initialisationFromShop($invoiceTransaction->shop, $modelData);
 
         $this->handle($invoiceTransaction, $this->validatedData);

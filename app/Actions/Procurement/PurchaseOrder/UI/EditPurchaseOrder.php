@@ -89,30 +89,19 @@ class EditPurchaseOrder extends OrgAction
                                 'delivery_address' => [
                                     'type'        => 'textarea',
                                     'label'       => __('Deliver to'),
+                                    'information' => __('The address the supplier ships the goods to, printed on the purchase order.'),
                                     'placeholder' => __('Leave empty to use the warehouse address'),
                                     'value'       => Arr::get($purchaseOrder->data, 'delivery_address'),
                                 ],
                             ]
                         ],
                         ...$this->termsSections($purchaseOrder),
-                        ...$this->productionSections($purchaseOrder),
                         ...$this->cleanHandoverSections($purchaseOrder, $request),
                         [
                             'label'  => __('Payments'),
                             'title'  => __('Payments'),
                             'icon'   => 'fal fa-money-bill',
                             'fields' => [
-                                'deposit_amount'  => $this->depositAmountField($purchaseOrder),
-                                'deposit_paid_at' => [
-                                    'type'  => 'date',
-                                    'label' => __('Deposit paid'),
-                                    'value' => $purchaseOrder->deposit_paid_at,
-                                ],
-                                'balance_paid_at' => [
-                                    'type'  => 'date',
-                                    'label' => __('Balance paid'),
-                                    'value' => $purchaseOrder->balance_paid_at,
-                                ],
                             ]
                         ]
 
@@ -147,79 +136,21 @@ class EditPurchaseOrder extends OrgAction
     private function agentSections(PurchaseOrder $purchaseOrder): array
     {
         return [
-            ...$this->productionSections($purchaseOrder),
+            ...array_values(array_filter(
+                $this->termsSections($purchaseOrder),
+                fn (array $section) => Arr::has($section, 'fields.estimated_production_date')
+            )),
             [
                 'label'  => __('Clean handover'),
                 'title'  => __('Clean handover'),
                 'icon'   => 'fal fa-clipboard-list',
                 'fields' => [
+                    'agent_reference'   => $this->agentReferenceField($purchaseOrder),
                     'proposed_ready_at' => [
-                        'type'  => 'date',
-                        'label' => __('Proposed ready date'),
-                        'value' => $purchaseOrder->proposed_ready_at,
-                    ],
-                ],
-            ],
-            [
-                'label'  => __('Payments'),
-                'title'  => __('Payments'),
-                'icon'   => 'fal fa-money-bill',
-                'fields' => [
-                    'deposit_amount'  => $this->depositAmountField($purchaseOrder),
-                    'deposit_paid_at' => [
-                        'type'  => 'date',
-                        'label' => __('Deposit paid'),
-                        'value' => $purchaseOrder->deposit_paid_at,
-                    ],
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function depositAmountField(PurchaseOrder $purchaseOrder): array
-    {
-        return [
-            'type'  => 'input_number',
-            'label' => __('Deposit amount'),
-            'bind'  => [
-                'mode'              => 'currency',
-                'currency'          => $purchaseOrder->currency->code,
-                'min'               => 0,
-                'step'              => 0.25,
-                'minFractionDigits' => 2,
-                'maxFractionDigits' => 2,
-            ],
-            'value' => $purchaseOrder->deposit_amount === null ? null : (float) $purchaseOrder->deposit_amount,
-        ];
-    }
-
-    /**
-     * @return array<int, array<string, mixed>>
-     */
-    private function productionSections(PurchaseOrder $purchaseOrder): array
-    {
-        if (!$purchaseOrder->isAgentOrder()) {
-            return [];
-        }
-
-        return [
-            [
-                'label'  => __('Production'),
-                'title'  => __('Production'),
-                'icon'   => 'fal fa-industry',
-                'fields' => [
-                    'sample_approved_at' => [
-                        'type'  => 'date',
-                        'label' => __('Sample approved'),
-                        'value' => $purchaseOrder->sample_approved_at,
-                    ],
-                    'produced_at'        => [
-                        'type'  => 'date',
-                        'label' => __('Production done'),
-                        'value' => $purchaseOrder->produced_at,
+                        'type'        => 'date',
+                        'label'       => __('Proposed ready date'),
+                        'information' => __('The day the buyer or the agent expects the goods to be ready to hand over. A purchaser approves it as the approved ready date on the order\'s stages.'),
+                        'value'       => $purchaseOrder->proposed_ready_at,
                     ],
                 ],
             ],
@@ -258,6 +189,19 @@ class EditPurchaseOrder extends OrgAction
      *
      * @return array<int, array<string, mixed>>
      */
+    /**
+     * @return array<string, mixed>
+     */
+    private function agentReferenceField(PurchaseOrder $purchaseOrder): array
+    {
+        return [
+            'type'        => 'input',
+            'label'       => __('Agent\'s order number'),
+            'information' => __('The agent\'s own number for this order, as it appears on their documents.'),
+            'value'       => $purchaseOrder->agent_reference,
+        ];
+    }
+
     private function cleanHandoverSections(PurchaseOrder $purchaseOrder, ActionRequest $request): array
     {
         if (!$purchaseOrder->isAgentOrder()) {
@@ -265,44 +209,28 @@ class EditPurchaseOrder extends OrgAction
         }
 
         $fields = [
+            'agent_reference'   => $this->agentReferenceField($purchaseOrder),
             'proposed_ready_at' => [
-                'type'  => 'date',
-                'label' => __('Proposed ready date'),
-                'value' => $purchaseOrder->proposed_ready_at,
+                'type'        => 'date',
+                'label'       => __('Proposed ready date'),
+                'information' => __('The day the buyer or the agent expects the goods to be ready to hand over. A purchaser approves it as the approved ready date on the order\'s stages.'),
+                'value'       => $purchaseOrder->proposed_ready_at,
             ],
         ];
 
         if ($request->user()->authorisedShopOrganisations()->exists()) {
             $fields += [
-                'approved_ready_at'      => [
-                    'type'  => 'date',
-                    'label' => __('Approved ready date'),
-                    'value' => $purchaseOrder->approved_ready_at,
-                ],
-                'qc_passed_at'           => [
-                    'type'  => 'date',
-                    'label' => __('QC passed'),
-                    'value' => $purchaseOrder->qc_passed_at,
-                ],
-                'handed_over_at'         => [
-                    'type'  => 'date',
-                    'label' => __('Clean handover'),
-                    'value' => $purchaseOrder->handed_over_at,
-                ],
-                'compliance_complete_at' => [
-                    'type'  => 'date',
-                    'label' => __('Compliance complete'),
-                    'value' => $purchaseOrder->compliance_complete_at,
-                ],
                 'chs_excluded'           => [
-                    'type'  => 'toggle',
-                    'label' => __('Exclude from clean handover score'),
-                    'value' => $purchaseOrder->chs_excluded,
+                    'type'        => 'toggle',
+                    'label'       => __('Exclude from clean handover score'),
+                    'information' => __('Turn on to leave this order out of the agent\'s clean handover score, e.g. when the delay was our fault. Write why in the exclusion reason.'),
+                    'value'       => $purchaseOrder->chs_excluded,
                 ],
                 'chs_exclusion_reason'   => [
-                    'type'  => 'input',
-                    'label' => __('Exclusion reason'),
-                    'value' => $purchaseOrder->chs_exclusion_reason,
+                    'type'        => 'input',
+                    'label'       => __('Exclusion reason'),
+                    'information' => __('Why this order is left out of the clean handover score.'),
+                    'value'       => $purchaseOrder->chs_exclusion_reason,
                 ],
             ];
         }

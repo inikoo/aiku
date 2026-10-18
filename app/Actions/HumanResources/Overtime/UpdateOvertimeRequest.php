@@ -11,6 +11,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateOvertimeRequest extends OrgAction
@@ -21,6 +22,12 @@ class UpdateOvertimeRequest extends OrgAction
 
     public function handle(Organisation $organisation, OvertimeRequest $overtimeRequest, array $modelData): OvertimeRequest
     {
+        if ($overtimeRequest->status !== OvertimeRequestStatusEnum::PENDING) {
+            throw ValidationException::withMessages([
+                'status' => __('Only pending overtime requests can be edited.'),
+            ]);
+        }
+
         if (isset($modelData['requested_start_at'])) {
             $modelData['requested_start_at'] = Carbon::parse($modelData['requested_start_at'])->setTimezone('UTC');
         }
@@ -69,6 +76,8 @@ class UpdateOvertimeRequest extends OrgAction
 
     public function asController(Organisation $organisation, OvertimeRequest $overtimeRequest, ActionRequest $request): OvertimeRequest
     {
+        abort_unless($overtimeRequest->organisation_id === $organisation->id, 404);
+
         $this->initialisation($organisation, $request);
 
         return $this->handle($organisation, $overtimeRequest, $this->validatedData);

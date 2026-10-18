@@ -95,6 +95,7 @@ class ShowArtisansDashboard extends OrgAction
         $artisanIds = DB::table('artisan_assignments')->pluck('employee_id')
             ->merge(JobOrder::where('production_id', $production->id)->whereNotNull('employee_id')->pluck('employee_id'))
             ->merge(JobOrderItem::whereHas('jobOrder', fn ($query) => $query->where('production_id', $production->id))->whereNotNull('employee_id')->pluck('employee_id'))
+            ->merge(JobOrderItemTask::where('production_id', $production->id)->whereNotNull('employee_id')->pluck('employee_id'))
             ->unique();
 
         $queued = JobOrderItemTask::where('job_order_item_tasks.production_id', $production->id)
@@ -103,19 +104,21 @@ class ShowArtisansDashboard extends OrgAction
             ->join('job_order_items', 'job_order_items.id', '=', 'job_order_item_tasks.job_order_item_id')
             ->whereNull('job_order_items.deleted_at')
             ->where('job_orders.state', JobOrderStateEnum::CONFIRMED)
-            ->whereRaw('coalesce(job_order_items.employee_id, job_orders.employee_id) is not null')
-            ->groupByRaw('coalesce(job_order_items.employee_id, job_orders.employee_id)')
-            ->selectRaw('coalesce(job_order_items.employee_id, job_orders.employee_id) as employee_id, count(*) as queued')
+            ->whereRaw(JobOrderItemTask::ASSIGNEE_SQL.' is not null')
+            ->groupByRaw(JobOrderItemTask::ASSIGNEE_SQL)
+            ->selectRaw(JobOrderItemTask::ASSIGNEE_SQL.' as employee_id, count(*) as queued')
             ->pluck('queued', 'employee_id');
 
-        $assigned = JobOrderItem::join('job_orders', 'job_orders.id', '=', 'job_order_items.job_order_id')
-            ->where('job_orders.production_id', $production->id)
+        $assigned = JobOrderItemTask::where('job_order_item_tasks.production_id', $production->id)
+            ->where('job_order_item_tasks.state', '!=', JobOrderItemTaskStateEnum::DONE)
+            ->join('job_orders', 'job_orders.id', '=', 'job_order_item_tasks.job_order_id')
+            ->join('job_order_items', 'job_order_items.id', '=', 'job_order_item_tasks.job_order_item_id')
             ->whereNull('job_orders.deleted_at')
             ->whereNull('job_order_items.deleted_at')
             ->whereIn('job_orders.state', [JobOrderStateEnum::IN_PROCESS, JobOrderStateEnum::SUBMITTED])
-            ->whereRaw('coalesce(job_order_items.employee_id, job_orders.employee_id) is not null')
-            ->groupByRaw('coalesce(job_order_items.employee_id, job_orders.employee_id)')
-            ->selectRaw('coalesce(job_order_items.employee_id, job_orders.employee_id) as employee_id, count(distinct job_orders.id) as assigned')
+            ->whereRaw(JobOrderItemTask::ASSIGNEE_SQL.' is not null')
+            ->groupByRaw(JobOrderItemTask::ASSIGNEE_SQL)
+            ->selectRaw(JobOrderItemTask::ASSIGNEE_SQL.' as employee_id, count(distinct job_orders.id) as assigned')
             ->pluck('assigned', 'employee_id');
 
         $workingNow = ManufactureTaskSession::where('production_id', $production->id)

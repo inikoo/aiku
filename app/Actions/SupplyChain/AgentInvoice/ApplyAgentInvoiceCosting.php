@@ -36,6 +36,11 @@ class ApplyAgentInvoiceCosting
 
     public const string APPLIED_AT = 'agent_invoice_costing_applied_at';
 
+    /**
+     * The agent's freight that became the shipping row, kept so the local freight bills add to it instead of replacing it.
+     */
+    public const string FREIGHT = 'agent_invoice_freight';
+
     public function handle(StockDelivery $stockDelivery): ?StockDelivery
     {
         /** @var AgentInvoice|null $agentInvoice */
@@ -69,13 +74,15 @@ class ApplyAgentInvoiceCosting
             $freight    = $charges->where('type', UpdateAgentInvoiceCharges::CHARGE_FREIGHT);
             $shipping   = $stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::SHIPPING)->first();
 
+            $agentFreight = null;
+
             if ($freight->isNotEmpty() && !$shipping) {
-                StoreStockDeliveryCost::make()->action($stockDelivery, [
-                    'type'        => StockDeliveryCostTypeEnum::SHIPPING->value,
+                $agentFreight = [
                     'label'       => $freight->pluck('description')->implode(', '),
                     'amount'      => round($freight->sum('amount'), 2),
                     'received_at' => $receivedAt,
-                ]);
+                ];
+                StoreStockDeliveryCost::make()->action($stockDelivery, ['type' => StockDeliveryCostTypeEnum::SHIPPING->value, ...$agentFreight]);
                 $charges = $charges->reject(fn (array $charge) => ($charge['type'] ?? null) === UpdateAgentInvoiceCharges::CHARGE_FREIGHT);
             }
 
@@ -92,6 +99,7 @@ class ApplyAgentInvoiceCosting
                 'label'       => __('Invoice :number', ['number' => $agentInvoice->reference]),
                 'amount'      => (float) $agentInvoice->total_amount,
                 'received_at' => $receivedAt,
+                'is_waiting_for_invoice' => false,
             ];
             $invoiceCost = $stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::AGENT_INVOICE)->first();
 
@@ -103,6 +111,9 @@ class ApplyAgentInvoiceCosting
 
             $data = $stockDelivery->refresh()->data ?? [];
             data_set($data, self::APPLIED_AT, now()->toIso8601String());
+            if ($agentFreight) {
+                data_set($data, self::FREIGHT, $agentFreight);
+            }
             $stockDelivery->update(['data' => $data]);
         });
 

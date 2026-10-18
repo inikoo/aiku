@@ -10,9 +10,12 @@ namespace App\Actions\Production\ManufactureTaskSession\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Production\Production\UI\ShowArtisansDashboard;
+use App\Enums\Production\Artisan\ArtisanPayTypeEnum;
+use App\Enums\Production\JobOrder\JobOrderStateEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionUnderTargetReasonEnum;
+use App\Models\Production\ArtefactManufactureTask;
 use App\Models\Production\ManufactureTask;
 use App\Models\Production\ManufactureTaskSession;
 use App\Models\Production\Production;
@@ -20,6 +23,7 @@ use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -59,6 +63,7 @@ class IndexArtisans extends OrgAction
             'to'                  => ['sometimes', 'date', 'after_or_equal:from'],
             'manufacture_task_id' => ['sometimes', 'integer'],
             'under_target'        => ['sometimes', 'boolean'],
+            'artisan_pay_type'    => ['sometimes', 'nullable', Rule::enum(ArtisanPayTypeEnum::class)],
         ];
     }
 
@@ -68,6 +73,7 @@ class IndexArtisans extends OrgAction
         $to               = Carbon::parse(Arr::get($this->validatedData, 'to', now()->toDateString()))->endOfDay();
         $manufactureTaskId = Arr::get($this->validatedData, 'manufacture_task_id');
         $underTargetOnly   = (bool) Arr::get($this->validatedData, 'under_target', false);
+        $payType           = Arr::get($this->validatedData, 'artisan_pay_type');
 
         $sessions = ManufactureTaskSession::where('manufacture_task_sessions.production_id', $production->id)
             ->whereIn('manufacture_task_sessions.state', [
@@ -77,7 +83,8 @@ class IndexArtisans extends OrgAction
             ->whereBetween('ended_at', [$from, $to])
             ->when($manufactureTaskId, fn ($query) => $query->where('manufacture_task_id', $manufactureTaskId))
             ->when($underTargetOnly, fn ($query) => $query->where('is_under_target', true))
-            ->with(['user', 'manufactureTask', 'underTargetReviewer', 'jobOrderItemTask.jobOrderItem.artefact', 'jobOrderItemTask.jobOrder', 'jobOrder'])
+            ->when($payType, fn ($query) => $query->where('artisan_pay_type', $payType))
+            ->with(['user', 'employee', 'manufactureTask', 'underTargetReviewer', 'jobOrderItemTask.jobOrderItem.artefact', 'jobOrderItemTask.jobOrder', 'jobOrder'])
             ->orderByDesc('ended_at')
             ->get();
 
@@ -93,6 +100,13 @@ class IndexArtisans extends OrgAction
             ];
         };
 
+        $packSizes = ArtefactManufactureTask::packSizes();
+        $canCorrect = fn (ManufactureTaskSession $session) => $this->canEdit
+            && $session->state == ManufactureTaskSessionStateEnum::CLOSED
+            && !$session->is_combined
+            && in_array($session->jobOrderItemTask->jobOrder->state, JobOrderStateEnum::open())
+            && $session->jobOrderItemTask->jobOrderItem->quantity_received <= 0;
+
         $serializeSession = fn (ManufactureTaskSession $session) => [
             'id'                  => $session->id,
             'state'               => $session->state,
@@ -103,11 +117,17 @@ class IndexArtisans extends OrgAction
             'ended_at'            => $session->ended_at,
             'break_minutes'       => (int)$session->break_minutes,
             'quantity_made'       => (float)$session->quantity_made,
+            'pack_size'           => $packSizes[$session->jobOrderItemTask->jobOrderItem->artefact_id.':'.$session->manufacture_task_id] ?? null,
+            'correct_route'       => $canCorrect($session) ? [
+                'name'       => 'grp.models.manufacture-task-session.correct',
+                'parameters' => ['manufactureTaskSession' => $session->id],
+            ] : null,
             'quantity_rejected'   => (float)$session->quantity_rejected,
             'earned'              => round($session->quantity_made * ($session->task_work_cost ?? 0), 2),
             'units_per_hour'      => $session->paidHours() > 0 ? round($session->quantity_made / $session->paidHours(), 1) : null,
             'standard_rate'       => $session->standard_rate === null ? null : (float)$session->standard_rate,
             'is_under_target'     => $session->is_under_target && $session->state == ManufactureTaskSessionStateEnum::CLOSED,
+            'is_hourly'           => $session->artisan_pay_type == ArtisanPayTypeEnum::HOURLY,
             'under_target_review' => $session->under_target_reviewed_at ? [
                 'reason'      => ManufactureTaskSessionUnderTargetReasonEnum::labels()[$session->under_target_reason?->value] ?? null,
                 'note'        => $session->under_target_note,
@@ -131,10 +151,16 @@ class IndexArtisans extends OrgAction
                 $first         = $allUserSessions->first();
                 $userSessions  = $allUserSessions->reject(fn (ManufactureTaskSession $session) => $session->isNonProductive());
                 $artisanTotals = $totals($userSessions);
+                $employee      = $allUserSessions->first(fn (ManufactureTaskSession $session) => $session->employee)?->employee;
 
                 return [
                     'user_id'           => $first->user_id,
                     'worker'            => $first->user->contact_name ?: $first->user->username,
+                    'artisan_pay_type'  => $employee?->artisan_pay_type,
+                    'pay_type_route'    => $this->canEdit && $employee?->organisation_id == $this->organisation->id ? [
+                        'name'       => 'grp.org.productions.show.artisans.pay_type.update',
+                        'parameters' => ['organisation' => $this->organisation->slug, 'production' => $this->production->slug, 'employee' => $employee->id],
+                    ] : null,
                     'number_sessions'   => $artisanTotals['number_sessions'],
                     'hours_worked'      => $artisanTotals['hours'],
                     'quantity_made'     => $artisanTotals['quantity_made'],
@@ -186,6 +212,8 @@ class IndexArtisans extends OrgAction
                 ],
                 'manufacture_task_id' => $manufactureTaskId ? (int)$manufactureTaskId : null,
                 'under_target'        => $underTargetOnly,
+                'artisan_pay_type'    => $payType,
+                'artisan_pay_types'   => ArtisanPayTypeEnum::labels(),
                 'under_target_reasons' => ManufactureTaskSessionUnderTargetReasonEnum::labels(),
                 'non_productive_activities' => array_map(fn (ManufactureTaskSessionActivityTypeEnum $activity) => [
                     'value' => $activity->value,

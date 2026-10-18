@@ -674,7 +674,7 @@ class UpdateProduct extends OrgAction
     {
         $this->rejectNonComplianceFields($validator);
 
-        if ($this->strict) {
+        if ($this->strict && !$this->product->is_bundle) {
             $this->validateTradeUnitQuantities($validator, Arr::get($validator->getData(), 'trade_units') ?? []);
         }
     }

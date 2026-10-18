@@ -23,10 +23,12 @@ use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
+use App\Actions\Traits\Authorisations\WithCommsEditAuthorisation;
 
 class UpdateOutbox extends OrgAction
 {
     use WithActionUpdate;
+    use WithCommsEditAuthorisation;
 
     private Outbox $outbox;
 
@@ -144,7 +146,7 @@ class UpdateOutbox extends OrgAction
     public function asController(Fulfilment $fulfilment, Outbox $outbox, ActionRequest $request): Outbox
     {
         $this->outbox = $outbox;
-        $this->initialisation($outbox->organisation, $request);
+        $this->initialisationFromShop($outbox->shop, $request);
 
         return $this->handle($outbox, $this->validatedData);
     }

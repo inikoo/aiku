@@ -18,10 +18,12 @@ use App\Models\Comms\Outbox;
 use App\Models\Helpers\Snapshot;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
+use App\Actions\Traits\Authorisations\WithCommsEditAuthorisation;
 
 class UpdateWorkshopOutbox extends OrgAction
 {
     use WithActionUpdate;
+    use WithCommsEditAuthorisation;
 
     public function handle(Outbox $outbox, array $modelData): Outbox
     {
@@ -70,7 +72,7 @@ class UpdateWorkshopOutbox extends OrgAction
 
     public function asController(Shop $shop, Outbox $outbox, ActionRequest $request): Outbox
     {
-        $this->initialisation($outbox->organisation, $request);
+        $this->initialisationFromShop($outbox->shop, $request);
 
         return $this->handle($outbox, $this->validatedData);
     }

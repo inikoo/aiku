@@ -20,6 +20,8 @@ import InformationIcon from "@/Components/Utils/InformationIcon.vue"
 import payments from "@/Pages/Grp/Overview/Accounting/Payments.vue"
 import MissedOfferFOB from "@/Components/Iris/Offers/MissedOffers/MissedOfferFOB.vue"
 import EcomUpcomingTransactions from "@/Components/Retina/Ecom/EcomUpcomingTransactions.vue"
+import BasketBonusStockCard from "@/Components/Retina/Basket/BasketBonusStockCard.vue"
+import { BasketBonusStock } from "@/types/Iris/BasketBonusStock"
 
 const props = defineProps<{
     summary: {
@@ -66,6 +68,7 @@ const props = defineProps<{
     isInBasket?: boolean
     isInCheckout?: boolean
     changeAddressRoute?: routeType
+    bonus_stock?: BasketBonusStock[]
     upcoming_transactions?: {
         data: {
             id: number
@@ -78,6 +81,8 @@ const props = defineProps<{
         }[]
     }
 }>()
+
+const bonusStockOfferIds = computed(() => (props.bonus_stock || []).map(bonusStock => bonusStock.offer_id))
 
 const earlierDeliveryAddress = computed(() => props.earlier_delivery_address ?? props.address_management?.addresses?.earlier_delivery_address ?? null)
 
@@ -231,8 +236,10 @@ const updateCollection = (value: boolean) => {
 
             <!-- Section: Offer meters (free gift, etc)-->
             <div v-if="!isInCheckout && Object.keys(layout?.offer_meters || {})?.length" class="border-t border-gray-300 pt-6 col-span-full px-1 flex flex-col gap-y-3">
+                <BasketBonusStockCard v-for="bonusStock in bonus_stock" :key="bonusStock.offer_id" :bonusStock />
+
                 <template v-for="(offer, offerIndex) in layout?.offer_meters" :key="offerIndex">
-                    <div v-if="isShowAllOffersMeter || isOfferFulfilled(offer)" class="grid grid-cols-2 gap-x-4">
+                    <div v-if="!bonusStockOfferIds.includes(offer.offer_id) && (isShowAllOffersMeter || isOfferFulfilled(offer))" class="grid grid-cols-2 gap-x-4">
                         <!-- Title: is gift -->
                         <div v-if="offer.is_gift" :class="convertToFloat2(offer.metadata?.current) >= convertToFloat2(offer.metadata?.target) ? 'text-green-700' : ''"
                             class="flex items-center whitespace-nowrap text-ellipsis truncate w-full"

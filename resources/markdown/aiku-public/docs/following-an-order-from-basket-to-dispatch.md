@@ -1,8 +1,8 @@
 ---
 title: Following an order from basket to dispatch
-summary: See the whole journey a sales order takes in aiku, from a customer's basket through picking and packing to invoicing and dispatch, and where to check on it at each step.
-date: 2026-09-02
-tags: orders, orders lifecycle
+summary: See the whole journey a sales order takes in aiku, from a customer's basket through picking and packing to invoicing and dispatch, how to add, change or remove products along the way, and where to check on it at each step.
+date: 2026-10-16
+tags: orders, orders lifecycle, removing items
 category: orders
 help_routes: grp.org.shops.show.ordering.orders
 ---
@@ -43,6 +43,26 @@ When the delivery note actually leaves the warehouse, the order becomes **Dispat
 ## What if it gets cancelled?
 
 An order does not always make it to the end. It can be cancelled instead — say the shop closes before anyone got round to it. Once cancelled, the order stops moving through the pipeline.
+
+## Changing the products on an order
+
+Customers change their minds, and you can change an order for them. Open it and go to the **Transactions** tab. What you can do depends on how far the order has got.
+
+**While it is in the basket**, the order is still being built:
+
+- **Remove a product:** click the red **X** at the end of its line (the tooltip says *Unselect this product*). It goes straight away, with no confirmation, so check you have the right line.
+- **Change a quantity:** use the **+** and **−** next to it. It saves on its own. Taking it down to 0 removes the line too.
+- **Add products:** click **Add products** to pick from the catalogue, or the upload button (*Upload products via spreadsheet*) to load a file with two columns, code and quantity.
+
+**Once it is submitted** but not yet in the warehouse, it works the same way with the quantity buttons: lower a quantity, or set it to 0 to remove the line. **Add a product** puts more on, and adding a product that is already there just raises its quantity.
+
+**Once it is in the warehouse**, the warehouse may already be picking it, so lines are no longer removed outright. Click the pencil on the line (*Edit Product Order*), change the quantity, then **Save changes**, or **Cancel edit** to back out. You will see the original quantity next to it while you edit. To take a product off, set it to 0: the line stays on the order at 0, so you can see what was cancelled, and the picker skips it. aiku updates the delivery note and tells you *Quantity updated, warehouse has been notified*. If the order had already been picked or packed and the quantities no longer match, the delivery note goes back to picking so the parcel gets corrected.
+
+You can still add products while the order is waiting in the warehouse, being picked, or picked: click **Add a product** and they go onto the delivery note for the picker. Once packing has started, it is too late to add to that delivery. aiku tells you to create a follow-up order for the extra items.
+
+**Once it is finalised or dispatched**, the invoice exists and the order is locked. aiku says *This order can no longer be modified*. To give money back for something that was not wanted, refund it from the invoice. See [Invoices, payments and refunds](/docs/invoices-payments-and-refunds).
+
+You cannot change the products on orders that come from a connected marketplace or store, or on orders in an external shop. Those follow what the channel sends.
 
 ## Changing an address after checkout
 
@@ -96,6 +116,8 @@ The **Backlog** and **Orders** lists show the same status in a **Production revi
 <li><b>Check how one order is doing:</b> click into it from the list — the state sits next to its reference, and the <b>Delivery notes</b> and <b>Invoices</b> tabs show what has happened since.</li>
 <li><b>See what is still waiting to be worked on:</b> your shop → <b>Orders</b> (top menu) → <b>Backlog</b> tab.</li>
 <li><b>Mark an order as production reviewed:</b> open the order → <b>Mark production reviewed</b> in the bar under its title, or tick orders in the <b>Backlog</b> → <b>Mark selected as production reviewed</b>.</li>
+<li><b>Remove a product from an order:</b> open the order → <b>Transactions</b> tab. In the basket click the red <b>X</b> on the line, or set its quantity to 0. In the warehouse click the pencil, set it to 0 and <b>Save changes</b>. Not possible once the order is finalised.</li>
+<li><b>Add a product to an order:</b> open the order → <b>Add products</b> (basket), <b>Add a product</b> (submitted, or in the warehouse until packing starts).</li>
 <li><b>Change an address on a submitted order:</b> open the order → <b>Edit</b> or <b>Edit billing address</b> under the address block, any time before it is dispatched.</li>
 <li><b>Correct the address on an invoice already issued:</b> open the order → <b>Invoices</b> tab → open the invoice → pencil next to the address.</li>
 <li><b>Change what prints on the courier label for one order:</b> open the order → double-click <b>Shipping Label (From Customer)</b> in the notes row → save. First 34 characters print.</li>
@@ -104,5 +126,5 @@ The **Backlog** and **Orders** lists show the same status in a **Production revi
 </aside>
 
 <aside class="permissions"><strong>Permissions you need</strong>
-To see this list and the orders on it, you need view access to Orders for that shop, or view access to Accounting for the organisation.
+To see this list and the orders on it, you need view access to Orders for that shop, or view access to Accounting for the organisation. To add, change or remove products on an order, you need edit access to Orders for that shop.
 </aside>

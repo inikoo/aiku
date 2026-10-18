@@ -2,7 +2,7 @@
 import { ref, watch, onMounted, onUnmounted, inject, computed, nextTick, defineAsyncComponent, getCurrentInstance } from "vue"
 import { useElementSize, useMediaQuery } from "@vueuse/core"
 import axios from "axios"
-import { ctrans } from "@/Composables/useTrans"
+import { ctrans, ctransChoice } from "@/Composables/useTrans"
 import { FontAwesomeIcon, FontAwesomeLayers } from "@fortawesome/vue-fontawesome"
 import { useComposerAttachmentDraft, useComposerDraft } from "@/Composables/useComposerDraft"
 import {
@@ -64,6 +64,7 @@ interface GetMessagesParams {
 }
 
 import { formatChatTime, formatChatAge } from "@/Composables/chatTime"
+import { chatEmailRecipient, chatEmailRecipientLabel } from "@/Composables/chatEmailRecipient"
 import { useChatClosingCountdown } from "@/Composables/useChatClosingCountdown"
 import { useChatWaitingForCustomer, waitingOptions } from "@/Composables/useChatWaitingForCustomer"
 import { faGlobe } from "@fal"
@@ -269,10 +270,7 @@ const openTicketsTooltip = computed(() =>
             blocked: String(blockingTicketsCount.value),
             total: String(openTicketsCount.value),
         })
-        : ctrans(":total open :ticket raised from this chat.", {
-            total: String(openTicketsCount.value),
-            ticket: openTicketsCount.value === 1 ? ctrans("ticket") : ctrans("tickets"),
-        })
+        : ctransChoice(":count open ticket raised from this chat.|:count open tickets raised from this chat.", openTicketsCount.value)
 )
 
 // The count in the header comes with the conversation, so a ticket raised here has to be added
@@ -618,7 +616,7 @@ const IMAGE_TYPES = [
     "image/avif",
 ]
 
-const FILE_EXTENSIONS = ["pdf", "doc", "docx", "xls", "xlsx", "csv", "txt", "pptx", "zip"]
+const FILE_EXTENSIONS = ["pdf", "doc", "docx", "xls", "xlsx", "csv", "txt", "pptx", "zip", "mp4", "mov"]
 
 const isSupportedFile = (file: File) => FILE_EXTENSIONS.includes(file.name.split(".").pop()?.toLowerCase() ?? "")
 
@@ -686,11 +684,9 @@ const customerLanguage = computed<{ code: string, name: string } | null>(() =>
     (props.session as any)?.channel === "whatsapp" ? null : (props.session as any)?.customer_language ?? null
 )
 
-const emailRecipient = computed(() => {
-    const metadata = (props.session as any)?.metadata ?? {}
+const emailRecipient = computed(() => chatEmailRecipient((props.session as any)?.metadata).address)
 
-    return String(metadata.email_reply_to || metadata.email_from || "").toLowerCase()
-})
+const emailRecipientLabel = computed(() => isEmailChat.value ? chatEmailRecipientLabel((props.session as any)?.metadata) : "")
 
 const emailCopyCandidates = computed<{ address: string; name: string | null }[]>(() => {
     if (!isEmailChat.value) return []
@@ -1522,7 +1518,7 @@ const handleClickOutside = (e: MouseEvent) => {
                             </FontAwesomeLayers>
                             {{ ctrans("Email notification:") }}
                             <span :class="isEmailNotif ? 'font-medium text-green-600' : 'text-gray-500'">
-                                {{ isEmailNotif ? ctrans("On") : ctrans("Off") }}
+                                {{ isEmailNotif ? ctrans("On") : ctrans("Switched off") }}
                             </span>
                         </button>
 
@@ -1720,6 +1716,11 @@ const handleClickOutside = (e: MouseEvent) => {
             <input ref="imageInput" type="file" accept=".webp,.jpg,.jpeg,.png,.avif" multiple class="hidden"
                 @change="handleImageSelect" />
             <input ref="fileInput" type="file" :accept="FILE_EXTENSIONS.map((extension) => `.${extension}`).join(',')" multiple class="hidden" @change="handleDocSelect" />
+
+            <div v-if="emailRecipientLabel" class="mb-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 px-1 text-xs text-gray-500">
+                <span class="font-medium">{{ ctrans("To") }}</span>
+                <span class="text-gray-700">{{ emailRecipientLabel }}</span>
+            </div>
 
             <div v-if="emailCopyCandidates.length" class="mb-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 px-1 text-xs text-gray-500">
                 <span class="font-medium">{{ ctrans("Cc") }}</span>

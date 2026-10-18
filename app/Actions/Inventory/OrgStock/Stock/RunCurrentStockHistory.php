@@ -10,6 +10,7 @@
 namespace App\Actions\Inventory\OrgStock\Stock;
 
 use App\Actions\Inventory\OrgStockFamily\Hydrators\OrgStockFamilyHydrateStockValue;
+use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\OrgStockFamily;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -26,8 +27,18 @@ class RunCurrentStockHistory
             ->distinct()
             ->orderBy('org_stock_id')
             ->chunkById(100, function ($locationOrgStocks) {
-                foreach ($locationOrgStocks as $locationOrgStock) {
-                    CalculateOrgStockCurrentStockHistories::run($locationOrgStock->org_stock_id);
+                $orgStocks = OrgStock::with([
+                    'organisation.currency',
+                    'group.currency',
+                    'stats',
+                    'orgStockFamily',
+                    'locationOrgStocks' => fn ($query) => $query->select(['id', 'org_stock_id', 'location_id', 'quantity'])->orderBy('id'),
+                ])
+                    ->whereIn('id', $locationOrgStocks->pluck('org_stock_id'))
+                    ->orderBy('id')
+                    ->get();
+                if ($orgStocks->isNotEmpty()) {
+                    CalculateOrgStockCurrentStockHistories::make()->calculateOrgStocks($orgStocks);
                 }
             }, 'org_stock_id');
 

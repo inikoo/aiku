@@ -80,11 +80,6 @@ export default {
 					type: "link",
 				},
 				{
-					key: ["remember", "visible"],
-					label: "Show remember me",
-					type: "switch",
-				},
-				{
 					key: ["remember", "text"],
 					label: "Remember me text",
 					type: "text",

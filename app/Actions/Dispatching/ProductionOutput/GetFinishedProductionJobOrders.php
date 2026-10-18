@@ -57,20 +57,11 @@ class GetFinishedProductionJobOrders
         $roots = [];
 
         foreach ($jobOrders as $jobOrder) {
-            $root           = $this->root($jobOrder);
-            $alreadyPutAway = [];
+            $root = $this->root($jobOrder);
 
-            foreach (GetJobOrderDestinationAllocation::run($jobOrder) as $allocation) {
-                $item = $allocation['item'];
-
-                $alreadyPutAway[$item->id] ??= (float) $item->quantity_received;
-                $putAway                     = min($allocation['quantity'], $alreadyPutAway[$item->id]);
-                $alreadyPutAway[$item->id]  -= $putAway;
-                $quantity                    = $allocation['quantity'] - $putAway;
-
-                if ($quantity <= 0) {
-                    continue;
-                }
+            foreach (GetJobOrderDestinationAllocation::make()->outstanding($jobOrder) as $allocation) {
+                $item     = $allocation['item'];
+                $quantity = $allocation['quantity'];
 
                 $locationId = $allocation['location_id'];
                 $key        = $locationId ?? 'stock';
@@ -81,7 +72,7 @@ class GetFinishedProductionJobOrders
                 $trips[$key]['job_order_ids'][$jobOrder->id] = $jobOrder->id;
 
                 $packedIn       = max(1, (int) $item->artefact->orgStock?->packed_in);
-                $stockLocations = $locationId ? [] : ($item->artefact->orgStock?->locations->sortBy('pivot.picking_priority')
+                $stockLocations = $locationId ? [] : ($item->artefact->orgStock?->locations->reject(fn (Location $location) => $location->is_goods_out)->sortBy('pivot.picking_priority')
                     ->map(fn (Location $location) => ['code' => $location->code, 'quantity' => round((float) $location->pivot->quantity, 3)])->values()->all() ?? []);
 
                 $group = $trips[$key]['jobs'][$root][$item->artefact_id] ?? [];

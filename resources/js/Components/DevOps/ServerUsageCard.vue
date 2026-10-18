@@ -180,7 +180,7 @@ const barColour = (value: number | null | undefined) => value == null ? "bg-gray
                 <tr>
                     <th class="pb-1 text-left font-normal">{{ ctrans("Mount") }}</th>
                     <th class="pb-1 text-right font-normal">{{ ctrans("Used") }}</th>
-                    <th class="pb-1 text-right font-normal">{{ ctrans("Free") }}</th>
+                    <th class="pb-1 text-right font-normal">{{ ctrans("Free space") }}</th>
                     <th class="pb-1 text-right font-normal">{{ ctrans("Size") }}</th>
                     <th class="pb-1 text-right font-normal">{{ ctrans("Inodes") }}</th>
                 </tr>

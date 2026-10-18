@@ -11,6 +11,7 @@ namespace App\Actions\Procurement\OrgAgent\UI;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\GetAgentOrderCapacity;
 use App\Actions\Procurement\OrgAgent\GetAgentStockCoverBuckets;
+use App\Actions\Procurement\OrgAgent\PrepareAgentPurchaseOrders;
 use App\Actions\Procurement\OrgAgent\GetAgentSupplierPerformance;
 use App\Actions\Procurement\OrgAgent\WithAgentShoppingSubNavigation;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
@@ -176,6 +177,11 @@ class ShowAgentShoppingDashboard extends OrgAction
                 'coverTotal'   => $data['cover']['total'],
                 'leadTime'     => $data['cover']['lead_time'],
                 'orderCapacity' => $data['order_capacity'],
+                'canPrepareOrder' => $request->user()->authTo("procurement.{$this->organisation->id}.edit"),
+                'prepareOrder'    => Inertia::defer(fn () => [
+                    'buckets' => PrepareAgentPurchaseOrders::make()->summary($this->orgAgent),
+                    'url'     => route('grp.org.procurement.org_agents.show.shopping.prepare', [$this->organisation->slug, $this->orgAgent->slug]),
+                ]),
             ]
         );
     }

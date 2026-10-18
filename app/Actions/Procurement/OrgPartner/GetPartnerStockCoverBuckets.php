@@ -8,10 +8,12 @@
 
 namespace App\Actions\Procurement\OrgPartner;
 
+use App\Actions\Procurement\GetOrganisationStockCoverBuckets;
 use App\Actions\Procurement\PartnerShoppingListItem\RoundPartnerQuantityToBatches;
 use App\Enums\Catalogue\HealthRankEnum;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
+use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\ShoppingListItem\ShoppingListItemStateEnum;
@@ -53,22 +55,38 @@ class GetPartnerStockCoverBuckets
     }
 
     /**
-     * Per-row lead time: the seller item's own measured or estimated days, partner-level fallback.
+     * The lead time is the partner's own, from our order to it being booked in here: the partner's
+     * stock carries how long the partner waits for its own supplier, which is not how long it takes
+     * to send to us.
      */
     private function bucketExpression(int $leadDays): string
     {
-        $lead       = "coalesce(p.measured_lead_time_days, p.estimated_lead_time_days, $leadDays)";
+        $lead       = (string) $leadDays;
         $understock = "coalesce((select (sf.data->'stock_cover'->>'understock_days')::int from stock_families sf where sf.id = stocks.stock_family_id), 2 * $lead)";
+        $overstock  = "coalesce((select (sf.data->'stock_cover'->>'overstock_days')::int from stock_families sf where sf.id = stocks.stock_family_id), ".GetOrganisationStockCoverBuckets::EXCESS_DAYS.')';
 
         return "case
             when os.id is null then 'never'
-            when os.quantity_available <= 0 then 'out'
-            when s.days_of_cover <= $lead then 'w1'
-            when s.days_of_cover <= $understock then 'w2'
-            when s.days_of_cover <= 3 * $lead then 'w3'
-            when s.days_of_cover <= 4 * $lead then 'w4'
-            when coalesce(s.predicted_daily_usage, 0) = 0 and s.stock_value > 0 then 'dead'
-            else 'ok' end";
+            ".GetOrganisationStockCoverBuckets::outOfStockCase('os', 's', $overstock, $this->onShoppingListSkosExpression())."
+            else ".GetOrganisationStockCoverBuckets::bucketOnCoverDaysExpression('os', 's', "greatest(4 * $lead, $understock)", "
+                ".GetOrganisationStockCoverBuckets::atRiskCases($lead, $understock, $overstock, "4 * $lead")."
+                when coalesce(s.predicted_daily_usage, 0) = 0 and s.stock_value > 0 then 'dead'
+                else 'ok'", $this->onShoppingListSkosExpression()).' end';
+    }
+
+    /**
+     * SKOs already asked of a partner and not on a purchase order yet: open shopping list lines and
+     * lines on an order the partner has not dispatched, as the recommended order quantity counts them.
+     */
+    private function onShoppingListSkosExpression(): string
+    {
+        return "coalesce((select sum(asked.quantity) from partner_shopping_list_items asked
+                left join transactions asked_transactions on asked_transactions.id = asked.transaction_id
+                left join orders asked_orders on asked_orders.id = asked_transactions.order_id
+                where asked.org_stock_id = os.id and asked.deleted_at is null
+                    and (asked.state = '".ShoppingListItemStateEnum::OPEN->value."'
+                        or (asked.state = '".ShoppingListItemStateEnum::ORDERED->value."' and asked_transactions.deleted_at is null
+                            and asked_orders.state in ('".OrderStateEnum::CREATING->value."', '".OrderStateEnum::SUBMITTED->value."')))), 0)";
     }
 
     /**
@@ -467,7 +485,7 @@ class GetPartnerStockCoverBuckets
 
     private function criticalDaysSql(int $leadDays): string
     {
-        return "coalesce((select (sf.data->'stock_cover'->>'understock_days')::int from stock_families sf where sf.id = stocks.stock_family_id), 2 * coalesce(p.measured_lead_time_days, p.estimated_lead_time_days, $leadDays))";
+        return "coalesce((select (sf.data->'stock_cover'->>'understock_days')::int from stock_families sf where sf.id = stocks.stock_family_id), 2 * $leadDays)";
     }
 
     /**

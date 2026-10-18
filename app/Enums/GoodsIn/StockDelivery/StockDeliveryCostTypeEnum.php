@@ -23,8 +23,8 @@ enum StockDeliveryCostTypeEnum: string
     {
         return [
             'agent_invoice' => __('Agent invoice'),
-            'shipping'      => __('Shipping cost'),
-            'duty'          => __('Duty costs'),
+            'shipping'      => __('Shipping'),
+            'duty'          => __('Duty'),
             'extra'         => __('Extra expense'),
         ];
     }

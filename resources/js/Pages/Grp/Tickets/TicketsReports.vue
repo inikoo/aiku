@@ -8,12 +8,15 @@
 import { ticketRoute, ticketsRoute, ticketsRouteObject } from "@/Composables/useTicketsRoute"
 import { Head, Link, router } from "@inertiajs/vue3"
 import { computed, ref } from "vue"
-import { ctrans } from "@/Composables/useTrans"
+import { ctrans, ctransChoice } from "@/Composables/useTrans"
 import { capitalize } from "@/Composables/capitalize"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import TicketUserAvatar from "@/Components/Tickets/TicketUserAvatar.vue"
 import Chart from "primevue/chart"
+import Select from "primevue/select"
+import MultiSelect from "primevue/multiselect"
 import TicketsCreatedInterval from "@/Components/Tickets/TicketsCreatedInterval.vue"
+import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import { useLiveTickets } from "@/Composables/useLiveTickets"
 import ProcurementOverviewPill from "@/Components/DataDisplay/Dashboard/Widget/ProcurementOverviewPill.vue"
 import DashboardWidgetBox from "@/Components/DataDisplay/Dashboard/Widget/DashboardWidgetBox.vue"
@@ -29,10 +32,13 @@ const props = defineProps<{
     title: string
     createdIntervals: Record<string, string>
     assigneeOptions: { label: string; value: string }[]
+    typeOptions: { label: string; value: string }[]
     stats: {
         interval: string
         assignee: string | null
+        types: string[]
         days: number
+        weekdays: number
         bucket: "day" | "week" | "month"
         from: string
         created: number
@@ -44,7 +50,7 @@ const props = defineProps<{
         csat_by_month: { month: string; average: number | null; total: number }[]
         daily: { date: string; created: number; done: number; open: number }[]
         timezone: string
-        by_time_of_day: [number, number, number][]
+        by_quarter_hour: { slot: number; created: number; started: number; done: number; closed: number }[]
         breakdown: [string, string, string, string, string | null, number][]
         modules: { value: string; label: string; total: number }[]
         kinds: { value: string; label: string; total: number }[]
@@ -62,6 +68,7 @@ type Metrics = { created: number; open: number; assigned: number; in_progress: n
 const peopleTab = ref<"assignees" | "reporters">("assignees")
 
 const filterByAssignee = (username: string) => router.reload({ data: { assignee: username || undefined }, preserveScroll: true })
+const filterByTypes = (types: string[] | null) => router.reload({ data: { types: types?.length ? types.join(",") : undefined }, preserveScroll: true })
 
 useLiveTickets(["stats"])
 
@@ -121,6 +128,88 @@ const lineOptions = computed(() => ({
     },
 }))
 
+const HOURLY_SERIES: { key: "created" | "started" | "done" | "closed"; label: string; color: string }[] = [
+    { key: "created", label: ctrans("Created"), color: "#c0399f" },
+    { key: "started", label: ctrans("Work started"), color: "#3b82f6" },
+    { key: "done", label: ctrans("Resolved"), color: "#1f845a" },
+    { key: "closed", label: ctrans("Closed"), color: "#d97706" },
+]
+
+const averagePerDay = (total: number) => Math.round((total / Math.max(props.stats.weekdays, 1)) * 100) / 100
+
+type SlotMinutes = "15" | "30" | "60"
+
+const slotMinutes = ref<SlotMinutes>("60")
+
+const slotOptions: { label: string; value: SlotMinutes }[] = [
+    { label: ctrans("15 minutes"), value: "15" },
+    { label: ctrans("30 minutes"), value: "30" },
+    { label: ctrans("1 hour"), value: "60" },
+]
+
+const timeLabel = (minutes: number) => `${String(Math.floor(minutes / 60) % 24).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`
+
+const timeSlots = computed(() => {
+    const minutes = Number(slotMinutes.value)
+    const quartersPerSlot = minutes / 15
+
+    return Array.from({ length: 96 / quartersPerSlot }, (_, index) => {
+        const quarters = props.stats.by_quarter_hour.slice(index * quartersPerSlot, (index + 1) * quartersPerSlot)
+
+        return {
+            from: index * minutes,
+            to: (index + 1) * minutes,
+            created: quarters.reduce((sum, quarter) => sum + quarter.created, 0),
+            started: quarters.reduce((sum, quarter) => sum + quarter.started, 0),
+            done: quarters.reduce((sum, quarter) => sum + quarter.done, 0),
+            closed: quarters.reduce((sum, quarter) => sum + quarter.closed, 0),
+        }
+    })
+})
+
+type HourlySeriesKey = (typeof HOURLY_SERIES)[number]["key"]
+
+const timeOfDayChart = (keys: HourlySeriesKey[]) => ({
+    labels: timeSlots.value.map((slot) => timeLabel(slot.from)),
+    datasets: HOURLY_SERIES.filter((series) => keys.includes(series.key)).map((series) => ({
+        label: series.label,
+        data: timeSlots.value.map((slot) => averagePerDay(slot[series.key])),
+        totals: timeSlots.value.map((slot) => slot[series.key]),
+        borderColor: series.color,
+        backgroundColor: series.color,
+        tension: 0,
+        borderWidth: 1.5,
+        pointRadius: slotMinutes.value === "15" ? 1 : 2,
+    })),
+})
+
+const dailyAverages = (keys: HourlySeriesKey[]) => HOURLY_SERIES.filter((series) => keys.includes(series.key)).map((series) => {
+    const total = props.stats.by_quarter_hour.reduce((sum, quarter) => sum + quarter[series.key], 0)
+
+    return { ...series, total, average: averagePerDay(total) }
+})
+
+const timeOfDayKeys = HOURLY_SERIES.map((series) => series.key)
+
+const timeOfDay = computed(() => ({ chart: timeOfDayChart(timeOfDayKeys), averages: dailyAverages(timeOfDayKeys) }))
+
+const hourlyOptions = computed(() => ({
+    ...lineOptions.value,
+    plugins: {
+        legend: lineOptions.value.plugins.legend,
+        tooltip: {
+            callbacks: {
+                title: (items: any[]) => `${items[0].label} – ${timeLabel(timeSlots.value[items[0].dataIndex].to)}`,
+                label: (item: any) => `${item.dataset.label}: ${item.formattedValue} ${ctrans("per day")} (${item.dataset.totals[item.dataIndex]} ${ctrans("in total")})`,
+            },
+        },
+    },
+    scales: {
+        x: { grid: { display: false }, ticks: { autoSkip: true, maxTicksLimit: 24, maxRotation: 0 } },
+        y: { beginAtZero: true },
+    },
+}))
+
 type Dimension = "module" | "kind"
 
 type BreakdownRow = [string, string, string, string, string | null, number]
@@ -140,48 +229,6 @@ const reportTabs: { key: ReportTab; label: string }[] = [
     { key: "reporters", label: ctrans("By reporter") },
     { key: "time_of_day", label: ctrans("By time of day") },
 ]
-
-const slotMinutes = ref<15 | 30 | 60>(30)
-
-const slotOptions: { key: 15 | 30 | 60; label: string }[] = [
-    { key: 15, label: ctrans("15 min") },
-    { key: 30, label: ctrans("30 min") },
-    { key: 60, label: ctrans("1 h") },
-]
-
-const WEEKDAY_LABELS = ["", ctrans("Mon"), ctrans("Tue"), ctrans("Wed"), ctrans("Thu"), ctrans("Fri"), ctrans("Sat"), ctrans("Sun")]
-
-const timeOfDayChart = computed(() => {
-    const perSlot = slotMinutes.value / 15
-    const slots = 96 / perSlot
-    const pad = (value: number) => String(value).padStart(2, "0")
-    const labels = Array.from({ length: slots }, (_, index) => {
-        const minutes = index * slotMinutes.value
-        return `${pad(Math.floor(minutes / 60))}:${pad(minutes % 60)}`
-    })
-    const weekdays = [1, 2, 3, 4, 5, 6, 7]
-    const counts = Object.fromEntries(weekdays.map((weekday) => [weekday, Array(slots).fill(0)]))
-    props.stats.by_time_of_day.forEach(([weekday, slot, total]) => {
-        counts[weekday][Math.floor(slot / perSlot)] += total
-    })
-    return {
-        labels,
-        datasets: weekdays.map((weekday) => ({
-            label: WEEKDAY_LABELS[weekday],
-            data: counts[weekday],
-            backgroundColor: MODULE_PALETTE[weekday - 1],
-            stack: "tickets",
-        })),
-    }
-})
-
-const timeOfDayOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    interaction: { mode: "index", intersect: false },
-    plugins: { legend: { position: "bottom" } },
-    scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, beginAtZero: true, ticks: { precision: 0 } } },
-}
 
 const requestedTab = new URLSearchParams(window.location.search).get("tab")
 
@@ -378,7 +425,7 @@ const donutOptions = {
             padding: 10,
             boxPadding: 6,
             callbacks: {
-                label: (item: { raw: number }) => `${item.raw} ${item.raw === 1 ? ctrans("ticket") : ctrans("tickets")}`,
+                label: (item: { raw: number }) => ctransChoice(":count ticket|:count tickets", item.raw),
             },
         },
     },
@@ -549,19 +596,39 @@ const dashboardBoxes = computed(() => (props.stats.interval === "all" ? (["peopl
             </Link>
         </div>
 
-        <div class="space-y-3 rounded-xl border border-gray-200 bg-gray-50 p-2">
-        <div class="flex flex-wrap items-center gap-2">
-            <TicketsCreatedInterval :options="createdIntervals" :selected="stats.interval" compact class="min-w-0" />
-            <label class="ml-auto flex items-center">
-                <select
-                    :value="stats.assignee ?? ''"
-                    class="cursor-pointer rounded-md border-gray-300 py-1 pl-2 pr-8 text-xs normal-case tracking-normal text-gray-700 transition duration-200 focus:border-[--app-accent] focus:ring-[--app-accent]"
-                    :class="stats.assignee && '!border-[--app-accent] !bg-[--app-accent-soft] !text-[--app-accent-strong]'"
+        <div class="space-y-3 rounded-xl border border-gray-200 bg-gray-50 p-3">
+        <div class="flex flex-wrap items-center gap-3">
+            <TicketsCreatedInterval :options="createdIntervals" :selected="stats.interval" compact class="min-w-0 flex-1" />
+            <label class="ml-auto flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-gray-400">
+                {{ ctrans("Filter by") }}
+                <MultiSelect
+                    :modelValue="stats.types"
+                    :options="typeOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    :placeholder="ctrans('All tickets')"
+                    :aria-label="ctrans('Filter by ticket type')"
+                    size="small"
+                    display="chip"
+                    :showToggleAll="false"
+                    class="w-48 normal-case tracking-normal"
+                    :pt="{ label: { class: '!text-xs' }, option: { class: '!text-xs' } }"
+                    :class="stats.types.length && '!border-[--app-accent] !bg-[--app-accent-soft]'"
+                    @update:modelValue="filterByTypes" />
+                <Select
+                    :modelValue="stats.assignee"
+                    :options="assigneeOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    :placeholder="ctrans('All assignees')"
                     :aria-label="ctrans('Filter by assignee')"
-                    @change="filterByAssignee(($event.target as HTMLSelectElement).value)">
-                    <option value="">{{ ctrans("All assignees") }}</option>
-                    <option v-for="option in assigneeOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
-                </select>
+                    size="small"
+                    filter
+                    showClear
+                    class="w-52 normal-case tracking-normal"
+                :pt="{ label: { class: '!text-xs' }, option: { class: '!text-xs' }, emptyMessage: { class: '!text-xs' }, pcFilter: { root: { class: '!text-xs !py-1' } } }"
+                    :class="stats.assignee && '!border-[--app-accent] !bg-[--app-accent-soft]'"
+                    @update:modelValue="(value) => filterByAssignee(value ?? '')" />
             </label>
         </div>
 
@@ -641,30 +708,42 @@ const dashboardBoxes = computed(() => (props.stats.interval === "all" ? (["peopl
             </div>
         </DashboardWidgetBox>
 
-        <DashboardWidgetBox v-if="reportTab === 'time_of_day'" storageKey="tickets_reports_time_of_day_collapsed">
-            <template #header>
-                <span class="flex items-center gap-2 text-sm font-semibold text-gray-600">
-                    <FontAwesomeIcon icon="fal fa-clock" class="text-[--app-accent]" fixed-width aria-hidden="true" />
-                    {{ ctrans("Tickets created by time of day") }}
-                </span>
-            </template>
-            <div class="mb-3 flex justify-end">
-                <span class="inline-flex overflow-hidden rounded-full border border-gray-200 text-xs">
-                    <button
-                        v-for="option in slotOptions"
-                        :key="option.key"
-                        type="button"
-                        class="px-2.5 py-1 transition"
-                        :class="slotMinutes === option.key ? 'bg-[--app-accent-soft] text-[--app-accent-strong]' : 'text-gray-500 hover:bg-gray-50'"
-                        @click="slotMinutes = option.key">
-                        {{ option.label }}
-                    </button>
-                </span>
+        <template v-if="reportTab === 'time_of_day'">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+                <span class="text-xs text-gray-400">{{ ctrans("Tickets per time slot, averaged over the :days weekdays of this period, weekends left out", { days: stats.weekdays }) }} · {{ stats.timezone }}</span>
+                <SegmentedToggle v-model="slotMinutes" :options="slotOptions" :ariaLabel="ctrans('Time slot')" />
             </div>
-            <div class="h-80">
-                <Chart type="bar" :data="timeOfDayChart" :options="timeOfDayOptions" class="h-full" />
-            </div>
-        </DashboardWidgetBox>
+            <DashboardWidgetBox storageKey="tickets_reports_by_hour_collapsed">
+                <template #header>
+                    <span class="flex items-center gap-2 text-sm font-semibold text-gray-600">
+                        <FontAwesomeIcon icon="fal fa-clock" class="text-[--app-accent]" fixed-width aria-hidden="true" />
+                        {{ ctrans("Tickets by time of day") }}
+                    </span>
+                    <span class="text-xs text-gray-400">{{ stats.assignee ? ctrans("Created by anyone; started, resolved and closed are tickets of the chosen assignee") : ctrans("Created by anyone; started, resolved and closed are tickets of every assignee") }}</span>
+                </template>
+                <div class="h-72">
+                    <Chart type="line" :data="timeOfDay.chart" :options="hourlyOptions" class="h-full" />
+                </div>
+                <div class="mt-4 border-t border-gray-200 pt-3">
+                    <div class="flex flex-wrap items-baseline justify-between gap-2">
+                        <div class="text-xs font-semibold uppercase tracking-wide text-gray-400">{{ ctrans("Average per day") }}</div>
+                        <div class="text-xs text-gray-400">{{ ctrans("Times shown in :timezone", { timezone: stats.timezone }) }}</div>
+                    </div>
+                    <dl class="mt-2 flex divide-x divide-gray-200">
+                        <div v-for="stat in timeOfDay.averages" :key="stat.key" class="px-4 first:pl-0">
+                            <dt class="flex items-center gap-1.5 text-xs text-gray-500">
+                                <span class="size-2 rounded-sm" :style="{ backgroundColor: stat.color }" aria-hidden="true" />
+                                {{ stat.label }}
+                            </dt>
+                            <dd class="mt-0.5 flex items-baseline gap-2">
+                                <span class="text-2xl font-semibold tabular-nums text-gray-800">{{ stat.average }}</span>
+                                <span class="text-xs tabular-nums text-gray-400">{{ ctrans(":total in :days weekdays", { total: stat.total, days: stats.weekdays }) }}</span>
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+            </DashboardWidgetBox>
+        </template>
 
         <DashboardWidgetBox v-if="!['overview', 'time_of_day'].includes(reportTab)" storageKey="tickets_reports_by_module_collapsed">
             <template #header>

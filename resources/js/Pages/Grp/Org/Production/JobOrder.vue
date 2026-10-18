@@ -9,7 +9,8 @@ import { Head, router } from "@inertiajs/vue3"
 import { ref, computed, watch } from "vue"
 import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
-import { ctrans } from "@/Composables/useTrans"
+import { ctrans, ctransChoice } from "@/Composables/useTrans"
+import { mixBatchesLabel } from "@/Composables/mixBatches"
 import Modal from "@/Components/Utils/Modal.vue"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { capitalize } from "@/Composables/capitalize"
@@ -18,8 +19,23 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { faSortShapesDown, faPlus, faTrashAlt, faUsers, faLink } from "@fal"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { PageHeadingTypes } from "@/types/PageHeading"
+import Button from "@/Components/Elements/Buttons/Button.vue"
+import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
+import InputText from "primevue/inputtext"
+import Select from "primevue/select"
+import { faPauseCircle, faPlayCircle, faCheck, faTimes } from "@fal"
 
-library.add(faSortShapesDown, faPlus, faTrashAlt, faUsers, faLink)
+library.add(faSortShapesDown, faPlus, faTrashAlt, faUsers, faLink, faPauseCircle, faPlayCircle, faCheck, faTimes)
+
+interface Hold {
+    reason: string
+    kind: string
+    kind_label: string | null
+    by: string | null
+    at: string
+    cleared_by?: string | null
+    cleared_at?: string
+}
 
 interface ItemTask {
     id: number
@@ -29,7 +45,10 @@ interface ItemTask {
     quantity_required: number
     quantity_made: number
     quantity_rejected: number
+    unit: string | null
+    mix_batch_kg: number | null
     combined_with: string | null
+    owners: { id: number, sub_job: string | null, owner_id: number | null, owner: string | null, only_for: number[], can_assign: boolean }[]
 }
 
 interface SubJob {
@@ -61,6 +80,12 @@ interface Item {
     sub_jobs: SubJob[]
 }
 
+const selectPt = { label: { class: "!py-0.5 !text-xs" } }
+
+function assignStep(stepId: number, employeeId: number | null) {
+    router.patch(route("grp.models.job-order-item-task.assign", { jobOrderItemTask: stepId }), { employee_id: employeeId ?? null }, { preserveScroll: true })
+}
+
 const props = defineProps<{
     title: string
     pageHead: PageHeadingTypes
@@ -73,9 +98,14 @@ const props = defineProps<{
         public_notes: string | null
         employee_id: number | null
         artisan: string | null
-        overproductions: { step: string, artefact_code: string, quantity: number, made_by: string, manager: string, method: 'qr' | 'pin', at: string }[]
+        overproductions: { step: string, artefact_code: string, quantity: number, pack_size?: number | null, made_by: string, manager: string, method: 'qr' | 'pin', at: string }[]
+        corrections: { step: string, artefact_code: string, pack_size: number | null, from: number, to: number, by: string | null, at: string }[]
         non_productive: { activity: string, hours: number, pay: string | null }[]
+        hold: Hold | null
+        holds: Hold[]
     }
+    hold_route: null | { name: string, parameters: object }
+    hold_kind_options: { value: string, label: string }[]
     artisan_options: { id: number, name: string }[]
     update_route: null | { name: string, parameters: object }
     items: Item[]
@@ -265,13 +295,44 @@ function pickLocation(location: { id: number, code: string }) {
     locationQuery.value = location.code
 }
 
+const isHoldDialogOpen = ref(false)
+const holdKind = ref("other")
+const holdReason = ref("")
+const holdErrors = ref<string[]>([])
+
+function openHoldDialog() {
+    holdKind.value = "other"
+    holdReason.value = ""
+    holdErrors.value = []
+    isHoldDialogOpen.value = true
+}
+
+function setHold(onHold: boolean) {
+    if (!props.hold_route) return
+    processing.value = true
+    router.patch(
+        route(props.hold_route.name, props.hold_route.parameters),
+        onHold ? { on_hold: true, kind: holdKind.value, reason: holdReason.value } : { on_hold: false },
+        {
+            preserveScroll: true,
+            onSuccess: () => isHoldDialogOpen.value = false,
+            onError: (errors) => holdErrors.value = Object.values(errors),
+            onFinish: () => processing.value = false,
+        }
+    )
+}
+
 function receiveIntoStock() {
     if (!props.receive_route || !selectedLocation.value) return
     processing.value = true
     router.patch(
         route(props.receive_route.name, props.receive_route.parameters),
         { location_id: selectedLocation.value.id },
-        { preserveScroll: true, onFinish: () => processing.value = false }
+        {
+            preserveScroll: true,
+            onError: (errors) => notify({ title: ctrans('Something went wrong'), text: Object.values(errors).join(' '), type: 'error' }),
+            onFinish: () => processing.value = false,
+        }
     )
 }
 </script>
@@ -300,6 +361,14 @@ function receiveIntoStock() {
             >
                 {{ ctrans('Print job list') }}
             </a>
+            <Button
+                v-if="hold_route && !job_order.hold"
+                type="tertiary"
+                :label="ctrans('Put on hold')"
+                :disabled="processing"
+                @click="openHoldDialog">
+                <template #icon><FontAwesomeIcon icon="fal fa-pause-circle" class="text-amber-500" fixed-width aria-hidden="true" /></template>
+            </Button>
             <button
                 v-if="confirm_route"
                 type="button"
@@ -310,17 +379,42 @@ function receiveIntoStock() {
                 {{ ctrans('Release to floor') }}
             </button>
         </div>
+        <div v-if="job_order.hold" class="mb-6 flex items-start gap-3 rounded border border-yellow-300 bg-yellow-50 px-4 py-3 text-sm text-gray-700" role="status">
+            <FontAwesomeIcon icon="fal fa-pause-circle" class="mt-0.5 text-yellow-600" fixed-width aria-hidden="true" />
+            <div class="flex-1">
+                <div class="font-semibold text-yellow-800">{{ ctrans('On hold') }}<template v-if="job_order.hold.kind_label && job_order.hold.kind !== 'other'">: {{ job_order.hold.kind_label }}</template></div>
+                <div>{{ job_order.hold.reason }}</div>
+                <div class="text-xs text-gray-500">{{ job_order.hold.by ?? '—' }} · {{ useFormatTime(job_order.hold.at, { formatTime: 'hm' }) }} · {{ ctrans('Receiving into stock is blocked until the hold is cleared') }}</div>
+            </div>
+            <Button v-if="hold_route" type="tertiary" size="xs" :label="ctrans('Clear hold')" :disabled="processing" @click="setHold(false)">
+                <template #icon><FontAwesomeIcon icon="fal fa-play-circle" class="text-green-600" fixed-width aria-hidden="true" /></template>
+            </Button>
+        </div>
+        <div v-if="job_order.holds?.length" class="mb-6 rounded border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
+            <div class="font-semibold mb-1">{{ ctrans('Hold history') }}</div>
+            <div v-for="(entry, index) in job_order.holds" :key="index">
+                {{ ctrans(':reason, put on hold by :by, cleared by :cleared_by', { reason: entry.reason, by: entry.by ?? '—', cleared_by: entry.cleared_by ?? '—' }) }}
+                <span class="text-gray-500">· {{ useFormatTime(entry.at, { formatTime: 'hm' }) }} → {{ useFormatTime(entry.cleared_at, { formatTime: 'hm' }) }}</span>
+            </div>
+        </div>
         <div v-if="job_order.overproductions?.length" class="mb-6 rounded border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-gray-700">
             <div class="font-semibold text-amber-800 mb-1">{{ ctrans('Overproduction') }}</div>
             <div v-for="(entry, index) in job_order.overproductions" :key="index">
                 {{ ctrans('+:quantity :code on :step by :maker, authorised by :manager via :method', {
-                    quantity: entry.quantity,
+                    quantity: entry.pack_size ? ctrans(':packs packs of :size (:pieces) of', { packs: entry.quantity, size: entry.pack_size, pieces: Math.round(entry.quantity * entry.pack_size) }) : entry.quantity,
                     code: entry.artefact_code,
                     step: entry.step,
                     maker: entry.made_by,
                     manager: entry.manager,
                     method: entry.method === 'qr' ? ctrans('QR scan') : ctrans('PIN'),
                 }) }}
+                <span class="text-gray-500">· {{ useFormatTime(entry.at, { formatTime: 'hm' }) }}</span>
+            </div>
+        </div>
+        <div v-if="job_order.corrections?.length" class="mb-6 rounded border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
+            <div class="font-semibold mb-1">{{ ctrans('Corrected entries') }}</div>
+            <div v-for="(entry, index) in job_order.corrections" :key="index">
+                {{ ctrans(':code on :step corrected from :from to :to by :by', { code: entry.artefact_code, step: entry.step, from: entry.from, to: entry.pack_size ? ctrans(':packs packs of :size', { packs: entry.to, size: entry.pack_size }) : entry.to, by: entry.by ?? '—' }) }}
                 <span class="text-gray-500">· {{ useFormatTime(entry.at, { formatTime: 'hm' }) }}</span>
             </div>
         </div>
@@ -385,8 +479,29 @@ function receiveIntoStock() {
                         </span>
                     </div>
                     <div class="tabular-nums text-gray-600">
-                        {{ task.quantity_made }} / {{ task.quantity_required }}
+                        {{ task.quantity_made }} / {{ task.quantity_required }}<template v-if="task.unit"> {{ task.unit }}</template>
+                        <span v-if="mixBatchesLabel(task.quantity_required, task.mix_batch_kg)" class="ml-1 text-gray-500">· {{ mixBatchesLabel(task.quantity_required, task.mix_batch_kg) }}</span>
                         <span v-if="task.quantity_rejected" class="text-red-500 ml-1">({{ task.quantity_rejected }} {{ ctrans('rejected') }})</span>
+                    </div>
+                </div>
+                <div class="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
+                    <div v-for="owner in task.owners" :key="owner.id" class="flex items-center gap-2">
+                        <span v-if="owner.sub_job" class="whitespace-nowrap">{{ owner.sub_job }}</span>
+                        <Select
+                            v-if="owner.can_assign"
+                            :modelValue="owner.owner_id"
+                            :options="owner.only_for.length ? artisan_options.filter((option) => owner.only_for.includes(option.id)) : artisan_options"
+                            optionLabel="name"
+                            optionValue="id"
+                            filter
+                            showClear
+                            :placeholder="owner.owner ?? ctrans('Nobody')"
+                            class="w-44"
+                            :class="{ '!border-amber-400': !owner.owner }"
+                            :pt="selectPt"
+                            :aria-label="ctrans('Operator of :step', { step: task.task_name })"
+                            @update:modelValue="(employeeId: number | null) => assignStep(owner.id, employeeId)" />
+                        <span v-else :class="owner.owner ? 'text-gray-700' : 'text-gray-400'">{{ owner.owner ?? ctrans('Nobody') }}</span>
                     </div>
                 </div>
                 <div class="mt-1 h-2 rounded-full bg-gray-100 overflow-hidden">
@@ -420,7 +535,7 @@ function receiveIntoStock() {
                             <tr v-for="subJob in item.sub_jobs" :key="subJob.id">
                                 <td class="py-2 pr-3 whitespace-nowrap">{{ subJob.reference }}</td>
                                 <td class="py-2 pr-3">{{ subJob.artisan ?? ctrans('Anyone') }}</td>
-                                <td class="py-2 pr-3 text-right tabular-nums">{{ subJob.quantity }}</td>
+                                <td class="py-2 pr-3 text-right tabular-nums">{{ subJob.quantity_target }}</td>
                                 <td class="py-2 pr-3 min-w-32">
                                     <div class="tabular-nums">{{ subJob.quantity_made }} / {{ subJob.quantity_target }}</div>
                                     <div class="mt-1 h-1.5 rounded-full bg-gray-100 overflow-hidden">
@@ -443,7 +558,7 @@ function receiveIntoStock() {
             <div v-if="splittingItem">
                 <div class="text-lg font-semibold">{{ ctrans('Split / Assign multiple artisans') }}</div>
                 <div class="text-sm text-gray-500 mt-1">{{ splittingItem.artefact_code }} — {{ ctrans('Total target for this line') }}</div>
-                <div class="text-2xl font-semibold tabular-nums">{{ splittingItem.quantity }} {{ ctrans('units') }}</div>
+                <div class="text-2xl font-semibold tabular-nums">{{ ctransChoice(':count unit|:count units', splittingItem.quantity) }}</div>
 
                 <div class="mt-4 grid grid-cols-[1fr_7rem_2rem] gap-2 items-center text-sm">
                     <div class="text-xs text-gray-500">{{ ctrans('Artisan') }}</div>
@@ -493,11 +608,29 @@ function receiveIntoStock() {
             </div>
         </Modal>
 
+        <Modal :isOpen="isHoldDialogOpen" width="w-full max-w-md" closeButton @onClose="isHoldDialogOpen = false">
+            <form class="space-y-3" @submit.prevent="setHold(true)">
+                <div class="text-lg font-semibold">{{ ctrans('Put :reference on hold', { reference: job_order.reference }) }}</div>
+                <div class="text-sm text-gray-500">{{ ctrans('Work carries on as normal. Only receiving into stock is blocked until the hold is cleared.') }}</div>
+                <SegmentedToggle v-model="holdKind" :options="hold_kind_options" :ariaLabel="ctrans('Why')" />
+                <InputText v-model="holdReason" class="w-full" maxlength="255" autofocus :placeholder="ctrans('e.g. Labels out of stock, 468 to label when delivered')" :aria-label="ctrans('Reason')" />
+                <div v-for="error in holdErrors" :key="error" class="text-sm text-red-600">{{ error }}</div>
+                <div class="flex justify-end gap-2">
+                    <Button type="tertiary" :label="ctrans('Cancel')" @click="isHoldDialogOpen = false">
+                        <template #icon><FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" /></template>
+                    </Button>
+                    <Button type="tertiary" :label="ctrans('Put on hold')" :disabled="!holdReason.trim() || processing" @click="setHold(true)">
+                        <template #icon><FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" /></template>
+                    </Button>
+                </div>
+            </form>
+        </Modal>
+
         <div v-if="receive_route" class="mt-6 rounded-xl border border-gray-200 bg-white p-4">
             <div class="font-semibold mb-3">{{ ctrans('Receive into stock') }}</div>
             <ul class="text-sm text-gray-600 mb-3">
                 <li v-for="item in items" :key="item.id">
-                    {{ item.artefact_code }} — {{ ctrans('will receive') }} {{ item.produced_quantity }} {{ ctrans('units') }}
+                    {{ item.artefact_code }} — {{ ctransChoice('will receive :count unit|will receive :count units', item.produced_quantity) }}
                 </li>
             </ul>
             <div class="relative max-w-xs">
@@ -520,10 +653,13 @@ function receiveIntoStock() {
                     </li>
                 </ul>
             </div>
+            <div v-if="job_order.hold" class="mt-3 text-sm text-yellow-800">
+                {{ ctrans('On hold: :reason. Clear the hold before receiving.', { reason: job_order.hold.reason }) }}
+            </div>
             <button
                 type="button"
                 class="mt-3 rounded bg-green-600 text-white text-sm font-semibold px-4 py-2 disabled:opacity-40"
-                :disabled="!selectedLocation || processing"
+                :disabled="!selectedLocation || processing || !!job_order.hold"
                 @click="receiveIntoStock"
             >
                 {{ ctrans('Receive into stock') }}

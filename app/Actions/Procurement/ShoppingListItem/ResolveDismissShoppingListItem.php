@@ -11,6 +11,7 @@ namespace App\Actions\Procurement\ShoppingListItem;
 use App\Actions\OrgAction;
 use App\Enums\Procurement\ShoppingListItem\ShoppingListItemStateEnum;
 use App\Models\Procurement\ShoppingListItem;
+use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 
 class ResolveDismissShoppingListItem extends OrgAction
@@ -52,7 +53,7 @@ class ResolveDismissShoppingListItem extends OrgAction
         return $shoppingListItem->refresh();
     }
 
-    public function asController(ShoppingListItem $shoppingListItem, ActionRequest $request): ShoppingListItem
+    public function asController(Organisation $organisation, ShoppingListItem $shoppingListItem, ActionRequest $request): ShoppingListItem
     {
         $this->shoppingListItem = $shoppingListItem;
         $this->initialisation($shoppingListItem->organisation, $request);

@@ -207,7 +207,7 @@ class StoreWebpage extends OrgAction
                             $this->createWebBlockFromSavedTemplate($webpage, WebBlockTemplateEnum::FAMILY_DESCRIPTION, $code);
                         }
 
-                        if (in_array('family-2', $usedFamilyDescriptionTemplateCode) && $parent->shop->masterShop->slug == 'aroma') {
+                        if (in_array('family-2', $usedFamilyDescriptionTemplateCode) && $parent->shop->masterShop?->slug == 'aroma') {
                             $this->createWebBlock($webpage, 'category-comparison');
                         }
 
@@ -219,6 +219,9 @@ class StoreWebpage extends OrgAction
                         $this->createWebBlock($webpage, 'luigi-trends-1');
                         $this->createWebBlock($webpage, 'recommendation-customer-recently-bought-1');
                         $this->createWebBlock($webpage, 'luigi-last-seen-1');
+
+                        EnforceFamilyWebBlocksOrder::run($webpage);
+                        UpdateWebpageContent::run($webpage->refresh());
                     }
                 }
 

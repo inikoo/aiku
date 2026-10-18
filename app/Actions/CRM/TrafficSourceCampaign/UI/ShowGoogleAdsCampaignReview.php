@@ -24,12 +24,14 @@ use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use App\Actions\Traits\Authorisations\WithMarketingAuthorisation;
+use App\Actions\Traits\Authorisations\WithShopPpcPermissions;
 use Lorisleiva\Actions\ActionRequest;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ShowGoogleAdsCampaignReview extends OrgAction
 {
     use WithMarketingAuthorisation;
+    use WithShopPpcPermissions;
     use WithGoogleAdsCampaignJourney;
 
     private const array IMAGE_ROLES = ['marketing_images', 'square_marketing_images', 'logos'];
@@ -42,6 +44,7 @@ class ShowGoogleAdsCampaignReview extends OrgAction
     public function asController(Organisation $organisation, Shop $shop, TrafficSourceCampaign $trafficSourceCampaign, ActionRequest $request): TrafficSourceCampaign
     {
         $this->initialisationFromShop($shop, $request);
+        $this->canEdit = $this->canEditGoogleAds($request->user(), $shop);
 
         if (
             $trafficSourceCampaign->trafficSource->shop_id !== $shop->id
@@ -134,14 +137,14 @@ class ShowGoogleAdsCampaignReview extends OrgAction
             'Org/Shop/CRM/GoogleAdsCampaignReview',
             [
                 'breadcrumbs' => ShowGoogleAdsCampaign::make()->getBreadcrumbs($campaign, $parameters),
-                'title'       => __('Review').' '.$campaign->name,
+                'title'       => __('Review :name', ['name' => $campaign->name]),
                 'pageHead'    => [
                     'title'      => $campaign->name,
                     'model'      => __('Campaign:'),
                     'modelStyle' => 'text-sm',
                     'titleStyle' => 'font-normal text-lg',
                     'icon'       => ['icon' => ['fab', 'fa-google'], 'title' => __('Google Ads campaign')],
-                    'actions'    => $verdict['status'] === 'accepted' ? [
+                    'actions'    => $this->canEdit && $verdict['status'] === 'accepted' ? [
                         [
                             'type'  => 'button',
                             'style' => 'primary',

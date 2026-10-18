@@ -100,6 +100,10 @@ import OfferFields from '@/Components/Forms/Fields/OfferFields.vue'
 import InputVolDiscount from '@/Components/Forms/Fields/InputVolDiscount.vue'
 import MapPickerField from '@/Components/Forms/Fields/MapPickerField.vue'
 import InputWorkingHours from '@/Components/Forms/Fields/InputWorkingHours.vue'
+import AppointmentAvailability from '@/Components/Forms/Fields/AppointmentAvailability.vue'
+import AppointmentSlot from '@/Components/Forms/Fields/AppointmentSlot.vue'
+import AppointmentLocation from '@/Components/Forms/Fields/AppointmentLocation.vue'
+import AppointmentStaffSelect from '@/Components/Forms/Fields/AppointmentStaffSelect.vue'
 import EmployeeWorkingHours from '@/Components/Forms/Fields/EmployeeWorkingHours.vue'
 import InputWithWarning from '@/Components/Forms/Fields/InputWithWarning.vue'
 import Ratio from '@/Components/Forms/Fields/Ratio.vue'
@@ -125,6 +129,7 @@ import IngredientsField from '@/Components/Forms/Fields/IngredientsField.vue'
 import TradeUnitsForStock from '@/Components/Forms/Fields/TradeUnitsForStock.vue'
 import FamilyCustomize from '@/Components/Forms/Fields/FamilyCustomize.vue'
 import FamilyStorageConditions from '@/Components/Forms/Fields/FamilyStorageConditions.vue'
+import FactoryHolidays from '@/Components/Forms/Fields/FactoryHolidays.vue'
 import CategoryComparison from '@/Components/Forms/Fields/CategoryComparison.vue'
 
 export const componentsList: { [key: string]: Component } = {
@@ -198,6 +203,7 @@ export const componentsList: { [key: string]: Component } = {
     'ingredients': IngredientsField,
     'family_customize': FamilyCustomize,
     'family_storage_conditions': FamilyStorageConditions,
+    'factory_holidays': FactoryHolidays,
     'textEditor_translation': TextEditorTranslation,
     'pricing_zone': Pricing_zone,
     'pricing_zone_multi_shipper': PricingZoneMultiShipper,
@@ -227,6 +233,10 @@ export const componentsList: { [key: string]: Component } = {
     'vol_discount' : InputVolDiscount,
     'map-picker' : MapPickerField,
     'working-hours' : InputWorkingHours,
+    'appointment_availability': AppointmentAvailability,
+    'appointment_slot': AppointmentSlot,
+    'appointment_location': AppointmentLocation,
+    'appointment_staff': AppointmentStaffSelect,
     'employee-working-hours' : EmployeeWorkingHours,
     'ratio' : Ratio,
     'free_gift': FreeGift,

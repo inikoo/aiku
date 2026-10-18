@@ -378,7 +378,15 @@ class StaffTask extends Model implements Auditable, HasMedia
      */
     public const string EXCLUDED_DEPARTMENT = 'help-desk';
 
+    public const array NOT_SUPERVISING_DEPARTMENTS = [self::EXCLUDED_DEPARTMENT, 'agent'];
+
     public const array SEE_ALL_DEPARTMENTS = [self::EXCLUDED_DEPARTMENT, 'group admin'];
+
+    /**
+     * Departments too big to tell everyone: a new task is announced to its supervisors and these job positions only.
+     * Everyone in the department still sees the task in the department queue.
+     */
+    public const array ANNOUNCED_TO_POSITIONS = ['warehouse' => ['wah-sc']];
 
     public static function seesEveryTask(User $user): bool
     {
@@ -389,9 +397,9 @@ class StaffTask extends Model implements Auditable, HasMedia
         return DB::table('job_positions')
             ->whereIn('department', self::SEE_ALL_DEPARTMENTS)
             ->where(fn ($query) => $query
-                ->whereIn('id', DB::table('user_has_pseudo_job_positions')->where('user_id', $user->id)->select('job_position_id'))
+                ->whereIn('id', DB::table('user_has_pseudo_job_positions')->where('user_id', $user->permissionsHolder()->id)->select('job_position_id'))
                 ->orWhereIn('id', DB::table('employee_has_job_positions')
-                    ->whereIn('employee_id', DB::table('user_has_models')->where('user_id', $user->id)->where('model_type', 'Employee')->select('model_id'))
+                    ->whereIn('employee_id', DB::table('user_has_models')->where('user_id', $user->permissionsHolder()->id)->where('model_type', 'Employee')->select('model_id'))
                     ->select('job_position_id')))
             ->exists();
     }
@@ -431,9 +439,9 @@ class StaffTask extends Model implements Auditable, HasMedia
             ->whereNotNull('department')
             ->where('department', '!=', self::EXCLUDED_DEPARTMENT)
             ->where(fn ($query) => $query
-                ->whereIn('id', DB::table('user_has_pseudo_job_positions')->where('user_id', $user->id)->select('job_position_id'))
+                ->whereIn('id', DB::table('user_has_pseudo_job_positions')->where('user_id', $user->permissionsHolder()->id)->select('job_position_id'))
                 ->orWhereIn('id', DB::table('employee_has_job_positions')
-                    ->whereIn('employee_id', DB::table('user_has_models')->where('user_id', $user->id)->where('model_type', 'Employee')->select('model_id'))
+                    ->whereIn('employee_id', DB::table('user_has_models')->where('user_id', $user->permissionsHolder()->id)->where('model_type', 'Employee')->select('model_id'))
                     ->select('job_position_id')))
             ->distinct()
             ->pluck('department')
@@ -458,6 +466,18 @@ class StaffTask extends Model implements Auditable, HasMedia
     }
 
     /**
+     * Who is told that a task is waiting in a department: everyone, or for the departments in
+     * ANNOUNCED_TO_POSITIONS the supervisors and those positions. Falls back to everyone when that leaves nobody.
+     */
+    public static function departmentAnnouncedTo(User $requester, string $department, ?int $organisationId = null): Collection
+    {
+        $positionCodes = self::ANNOUNCED_TO_POSITIONS[$department] ?? null;
+        $announcedTo   = $positionCodes === null ? collect() : self::departmentPeople($requester, $department, true, $organisationId, $positionCodes);
+
+        return $announcedTo->isNotEmpty() ? $announcedTo : self::departmentMembers($requester, $department, $organisationId);
+    }
+
+    /**
      * @return array<int, int>
      */
     public static function organisationIdsOf(User $user): array
@@ -465,23 +485,23 @@ class StaffTask extends Model implements Auditable, HasMedia
         return DB::table('user_has_models')
             ->join('employees', 'employees.id', '=', 'user_has_models.model_id')
             ->where('user_has_models.model_type', 'Employee')
-            ->where('user_has_models.user_id', $user->id)
+            ->where('user_has_models.user_id', $user->permissionsHolder()->id)
             ->pluck('employees.organisation_id')
-            ->merge(DB::table('user_has_authorised_models')->where('model_type', 'Organisation')->where('user_id', $user->id)->pluck('model_id'))
+            ->merge(DB::table('user_has_authorised_models')->where('model_type', 'Organisation')->where('user_id', $user->permissionsHolder()->id)->pluck('model_id'))
             ->filter()->map(fn ($id) => (int) $id)->unique()->values()->all();
     }
 
     /**
      * A task raised for one organisation, such as an automatic task of a shop, reaches that organisation's department.
      */
-    private static function departmentPeople(User $requester, string $department, bool $supervisorsOnly, ?int $organisationId = null): Collection
+    private static function departmentPeople(User $requester, string $department, bool $supervisorsOnly, ?int $organisationId = null, array $alsoPositionCodes = []): Collection
     {
         $organisationIds = $organisationId ? [$organisationId] : self::organisationIdsOf($requester);
 
         $jobPositionIds = DB::table('job_positions')
             ->where('group_id', $requester->group_id)
             ->where('department', $department)
-            ->when($supervisorsOnly, fn ($query) => $query->where('code', 'like', '%-m'))
+            ->when($supervisorsOnly, fn ($query) => $query->where(fn ($query) => $query->where('code', 'like', '%-m')->orWhereIn('code', $alsoPositionCodes)))
             ->where(fn ($query) => $query->whereNull('organisation_id')->orWhereIn('organisation_id', $organisationIds))
             ->select('id');
 
@@ -501,11 +521,11 @@ class StaffTask extends Model implements Auditable, HasMedia
      */
     public static function isSupervisor(User $user): bool
     {
-        $supervisorPositions = DB::table('job_positions')->where('group_id', $user->group_id)->where('code', 'like', '%-m')->where(fn ($query) => $query->whereNull('department')->orWhere('department', '!=', self::EXCLUDED_DEPARTMENT))->select('id');
+        $supervisorPositions = DB::table('job_positions')->where('group_id', $user->group_id)->where('code', 'like', '%-m')->where(fn ($query) => $query->whereNull('department')->orWhereNotIn('department', self::NOT_SUPERVISING_DEPARTMENTS))->select('id');
 
-        return DB::table('user_has_pseudo_job_positions')->where('user_id', $user->id)->whereIn('job_position_id', $supervisorPositions)->exists()
+        return DB::table('user_has_pseudo_job_positions')->where('user_id', $user->permissionsHolder()->id)->whereIn('job_position_id', $supervisorPositions)->exists()
             || DB::table('employee_has_job_positions')
-                ->whereIn('employee_id', DB::table('user_has_models')->where('user_id', $user->id)->where('model_type', 'Employee')->select('model_id'))
+                ->whereIn('employee_id', DB::table('user_has_models')->where('user_id', $user->permissionsHolder()->id)->where('model_type', 'Employee')->select('model_id'))
                 ->whereIn('job_position_id', $supervisorPositions)->exists();
     }
 }

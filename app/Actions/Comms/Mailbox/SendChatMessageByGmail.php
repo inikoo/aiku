@@ -221,7 +221,7 @@ class SendChatMessageByGmail
 
         foreach ($linkedFiles as $linkedFile) {
             $messageText .= "\n\n📎 ".($linkedFile->name ?: $linkedFile->file_name).' ('.round($linkedFile->size / 1024 / 1024, 1).'MB): '
-                .route('grp.api.chats.chat.attachment.download', ['ulid' => $linkedFile->ulid]);
+                .route('grp.api.chats.chat.attachment.download', ['ulid' => $linkedFile->ulid, 'inline' => 1]);
         }
 
         $bodyPart = $this->bodyPart(trim($messageText), $signature);

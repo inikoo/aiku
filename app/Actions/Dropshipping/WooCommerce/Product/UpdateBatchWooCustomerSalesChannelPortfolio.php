@@ -8,6 +8,7 @@
 
 namespace App\Actions\Dropshipping\WooCommerce\Product;
 
+use App\Actions\Dropshipping\CustomerSalesChannel\UpdateCustomerSalesChannel;
 use App\Models\Dropshipping\CustomerSalesChannel;
 use App\Models\Dropshipping\Portfolio;
 use App\Models\Dropshipping\WooCommerceUser;
@@ -51,6 +52,8 @@ class UpdateBatchWooCustomerSalesChannelPortfolio
 
         $processedQuantities = [];
         $erroredPlatformProductIds = [];
+        $missingPlatformProductIds = [];
+        $storeIgnoresStock = false;
 
         foreach ($responseItems as $responseItem) {
             $platformProductId = Arr::get($responseItem, 'id');
@@ -61,6 +64,14 @@ class UpdateBatchWooCustomerSalesChannelPortfolio
 
             if (Arr::has($responseItem, 'error')) {
                 $erroredPlatformProductIds[] = (int) $platformProductId;
+                if (Arr::get($responseItem, 'error.code') === 'woocommerce_rest_product_invalid_id') {
+                    $missingPlatformProductIds[] = (string) $platformProductId;
+                }
+            } elseif (Arr::get($responseItem, 'status') === 'trash') {
+                $erroredPlatformProductIds[] = (int) $platformProductId;
+                $missingPlatformProductIds[] = (string) $platformProductId;
+            } elseif (Arr::get($responseItem, 'manage_stock') === false) {
+                $storeIgnoresStock = true;
             } else {
                 $processedQuantities[(int) $platformProductId] = (int) (Arr::get($responseItem, 'stock_quantity') ?? $requestedQuantities[(int) $platformProductId]);
             }
@@ -97,11 +108,36 @@ class UpdateBatchWooCustomerSalesChannelPortfolio
                 ]);
         }
 
+        if (filled($missingPlatformProductIds)) {
+            Portfolio::query()
+                ->where('customer_sales_channel_id', $customerSalesChannel->id)
+                ->whereIn('platform_product_id', $missingPlatformProductIds)
+                ->get()
+                ->each(fn (Portfolio $portfolio) => CheckWooPortfolio::dispatch($portfolio));
+        }
+
+        if ($storeIgnoresStock || filled($processedQuantities)) {
+            self::recordStockManagement($customerSalesChannel, $storeIgnoresStock);
+        }
+
         if (filled($processedQuantities) && $customerSalesChannel->ban_stock_update_util !== null) {
             $customerSalesChannel->update([
                 'ban_stock_update_util' => null
             ]);
         }
+    }
+
+    public static function recordStockManagement(CustomerSalesChannel $customerSalesChannel, bool $isOff): void
+    {
+        if ((bool) Arr::get($customerSalesChannel->settings, 'woocommerce.stock_management_off') === $isOff) {
+            return;
+        }
+
+        $customerSalesChannel->refresh();
+
+        UpdateCustomerSalesChannel::run($customerSalesChannel, [
+            'settings' => ['woocommerce' => ['stock_management_off' => $isOff]],
+        ]);
     }
 
     public function handleFailedBatch(CustomerSalesChannel $customerSalesChannel, ?array $response): void

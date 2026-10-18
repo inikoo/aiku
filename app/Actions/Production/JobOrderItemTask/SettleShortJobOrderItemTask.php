@@ -13,7 +13,6 @@ use App\Actions\Production\JobOrder\GetJobOrderDestinationAllocation;
 use App\Actions\Production\JobOrder\StoreJobOrder;
 use App\Actions\Production\JobOrderItem\StoreJobOrderItem;
 use App\Models\Procurement\PartnerShoppingListItem;
-use App\Models\Production\ArtefactManufactureTask;
 use App\Models\Production\JobOrder;
 use App\Models\Production\JobOrderItem;
 use App\Models\Production\JobOrderItemTask;
@@ -34,9 +33,7 @@ class SettleShortJobOrderItemTask
     {
         return DB::transaction(function () use ($jobOrderItemTask, $carryOver) {
             $item             = $jobOrderItemTask->jobOrderItem;
-            $unitsPerArtefact = $this->unitsPerArtefact($item, $jobOrderItemTask);
-
-            $madeArtefacts      = (int) floor($jobOrderItemTask->quantity_made / $unitsPerArtefact);
+            $madeArtefacts      = (int) $jobOrderItemTask->artefactsIn();
             $remainingArtefacts = max(0, $item->quantity - $madeArtefacts);
 
             if ($madeArtefacts < 1) {
@@ -51,10 +48,8 @@ class SettleShortJobOrderItemTask
             $excessUnitsByTask = [];
             $item->update(['quantity' => $madeArtefacts]);
             foreach ($item->tasks as $task) {
-                $units    = $this->unitsPerArtefact($item, $task);
-                $required = min((float) $task->quantity_required, $madeArtefacts * $units);
-                $task->update(['quantity_required' => $required]);
-                CalculateJobOrderItemTaskQuantities::run($task);
+                $required = min((float) $task->quantity_required, $task->requiredFor($madeArtefacts));
+                $task->setRequiredQuantity($required);
                 $excessUnitsByTask[$task->manufacture_task_id] = max(0, (float) $task->quantity_made - $required);
             }
 
@@ -65,14 +60,20 @@ class SettleShortJobOrderItemTask
             $original = $item->jobOrder;
             $root     = (int) Arr::get($original->data, 'carried_from', $original->id);
             $carried  = StoreJobOrder::make()->action($original->production, [
-                'employee_id' => $item->employee_id ?? $original->employee_id,
-                'reference'   => $this->carriedReference($original, $root),
+                'employee_id'   => $item->employee_id ?? $original->employee_id,
+                'reference'     => $this->carriedReference($original),
+                'planned_for'   => $original->planned_for?->toDateString(),
+                'plan_position' => $original->plan_position,
             ]);
             $carried->update(['data' => array_merge($carried->data, ['carried_from' => $root])]);
             $carriedItem = StoreJobOrderItem::make()->action($carried, [
                 'artefact_id' => $item->artefact_id,
                 'quantity'    => $remainingArtefacts,
             ]);
+            $item->update(['data' => array_merge($item->data ?? [], ['carried_to' => $carried->id])]);
+            foreach ($carriedItem->tasks as $carriedTask) {
+                $carriedTask->update(['employee_id' => $item->tasks->firstWhere('manufacture_task_id', $carriedTask->manufacture_task_id)?->employee_id]);
+            }
             $this->creditWorkAlreadyDone($carriedItem, $excessUnitsByTask);
             ConfirmJobOrder::make()->action($carried);
 
@@ -86,12 +87,32 @@ class SettleShortJobOrderItemTask
      * A job carried to the next day keeps its number: the rest is the same reference with the
      * next letter, so goods in read JOaroma-0002 and JOaroma-0002a as one job, not two.
      */
-    private function carriedReference(JobOrder $original, int $root): string
+    public function carriedReference(JobOrder $original): string
     {
-        $base    = preg_replace('/[a-z]+$/', '', (string) $original->reference);
+        $root    = (int) Arr::get($original->data, 'carried_from', $original->id);
+        $base    = self::baseReference($original);
         $carried = JobOrder::withTrashed()->where('data->carried_from', $root)->count();
 
         return $base.chr(ord('a') + min($carried, 25));
+    }
+
+    /**
+     * What closing this step short and carrying the rest would do, for the floor to say before it is done.
+     *
+     * @return array{reference: string, units_per_artefact: float, quantity: int}
+     */
+    public function preview(JobOrderItemTask $jobOrderItemTask): array
+    {
+        return [
+            'reference'          => $this->carriedReference($jobOrderItemTask->jobOrder),
+            'units_per_artefact' => $jobOrderItemTask->unitsPerArtefact(),
+            'quantity'           => (int) $jobOrderItemTask->jobOrderItem->quantity,
+        ];
+    }
+
+    public static function baseReference(JobOrder $jobOrder): string
+    {
+        return preg_replace('/[a-z]+$/', '', (string) $jobOrder->reference);
     }
 
     /**
@@ -119,7 +140,7 @@ class SettleShortJobOrderItemTask
      */
     private function carryLines(JobOrder $original, JobOrder $carried, JobOrderItem $item, int $madeArtefacts): void
     {
-        $packedIn = max(1, (int) $item->artefact->orgStock?->packed_in);
+        $packedIn = $item->artefact->packedIn();
 
         $plannedByItem = $original->jobOrderItems()
             ->where('artefact_id', $item->artefact_id)
@@ -140,7 +161,7 @@ class SettleShortJobOrderItemTask
             ->get();
 
         foreach ($lines as $line) {
-            $wantedSkos  = (float) ($line->quantity_to_produce ?? $line->quantity);
+            $wantedSkos  = $line->claimedSkos();
             $coveredSkos = round(($coveredUnits[$line->id] ?? 0) / $packedIn, 3);
 
             if ($coveredSkos <= 0) {
@@ -179,12 +200,5 @@ class SettleShortJobOrderItemTask
                 'quantity_to_produce' => $coveredSkos,
             ]);
         }
-    }
-
-    private function unitsPerArtefact(JobOrderItem $item, JobOrderItemTask $task): float
-    {
-        return (float) ArtefactManufactureTask::where('artefact_id', $item->artefact_id)
-            ->where('manufacture_task_id', $task->manufacture_task_id)
-            ->value('units_per_artefact') ?: 1;
     }
 }

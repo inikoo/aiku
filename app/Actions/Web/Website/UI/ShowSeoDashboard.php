@@ -11,6 +11,7 @@ namespace App\Actions\Web\Website\UI;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Helpers\Dashboard\DashboardIntervalFilters;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithWebAuthorisation;
 use App\Actions\Traits\Dashboards\WithDashboardIntervalOption;
 use App\Actions\Traits\Dashboards\WithPerformanceDateResolution;
 use App\Actions\Web\SearchConsole\GetWebsiteSearchConsoleStats;
@@ -18,18 +19,18 @@ use App\Actions\Web\SearchConsole\UI\IndexSearchConsoleQueries;
 use App\Actions\Web\Webpage\UI\IndexWebpagesPerformance;
 use App\Actions\Web\WebVital\GetWebsitePageSpeedSummary;
 use App\Actions\Web\WebVital\UI\IndexWebpagesPageSpeed;
-use App\Actions\Traits\Authorisations\WithWebAuthorisation;
 use App\Actions\Web\Crawl\AuditWebsite;
 use App\Actions\Web\Website\PruneWebsitePageViews;
 use App\Actions\Web\Website\PruneWebsiteVisitors;
 use App\Actions\Web\WebsiteNotFoundPath\PruneWebsiteNotFoundPaths;
 use App\Actions\Web\WebsiteNotFoundPath\UI\IndexWebsiteNotFoundPaths;
+use App\Actions\Web\WebsitePageView\GetWebsiteOrderJourney;
+use App\Actions\Web\WebsitePageView\GetWebsiteOrderJourneys;
 use App\Actions\Web\WebsitePageView\UI\IndexWebsitePageViews;
 use App\Actions\Web\WebsiteVisitor\UI\IndexWebsiteVisitors;
 use App\Http\Resources\Web\WebsiteNotFoundPathResource;
 use App\Http\Resources\Web\WebsitePageViewResource;
 use App\Http\Resources\Web\WebsiteVisitorResource;
-use Illuminate\Support\Carbon;
 use App\Actions\Web\Website\GetWebsitePerformanceStats;
 use App\Actions\Web\WebsiteConversionEvent\UI\IndexWebsiteConversionCustomers;
 use App\Enums\UI\Web\SeoDashboardPageTabsEnum;
@@ -57,6 +58,17 @@ class ShowSeoDashboard extends OrgAction
 
     private SeoDashboardTabsEnum $tableTab = SeoDashboardTabsEnum::WEBPAGES;
 
+    private int $journeyDays = GetWebsiteOrderJourneys::DAY_OPTIONS[0];
+
+    private int $journeyPurchaseId = 0;
+
+    private int $journeyPage = 1;
+
+    /**
+     * @var array{sources: array<int, string>, visits: string|null, min: float|null, max: float|null, landing: string|null, search: string|null}
+     */
+    private array $journeyFilters = [];
+
     public function handle(Shop $shop): Shop
     {
         return $shop;
@@ -68,6 +80,19 @@ class ShowSeoDashboard extends OrgAction
         $this->initialisationFromShop($shop, $request)->withTab(SeoDashboardPageTabsEnum::values());
 
         $this->tableTab = SeoDashboardTabsEnum::tryFrom((string) $request->query('table')) ?? SeoDashboardTabsEnum::WEBPAGES;
+
+        $journeyDays             = (int) $request->query('journey_days');
+        $this->journeyDays       = in_array($journeyDays, GetWebsiteOrderJourneys::DAY_OPTIONS, true) ? $journeyDays : GetWebsiteOrderJourneys::DAY_OPTIONS[0];
+        $this->journeyPurchaseId = (int) $request->query('journey_order');
+        $this->journeyPage       = max(1, (int) $request->query('journey_page'));
+        $this->journeyFilters    = GetWebsiteOrderJourneys::normaliseFilters([
+            'sources' => $request->query('journey_sources'),
+            'visits'  => $request->query('journey_visits'),
+            'min'     => $request->query('journey_min'),
+            'max'     => $request->query('journey_max'),
+            'landing' => $request->query('journey_landing'),
+            'search'  => $request->query('journey_search'),
+        ]);
 
         return $this->handle($shop);
     }
@@ -172,6 +197,12 @@ class ShowSeoDashboard extends OrgAction
                     ]
                 ),
 
+                SeoDashboardPageTabsEnum::JOURNEY->value => $this->journeyProp($shop->website),
+
+                'journey_order' => Inertia::optional(fn () => $shop->website && $this->journeyPurchaseId
+                    ? GetWebsiteOrderJourney::run($shop->website, $this->journeyPurchaseId)
+                    : null),
+
                 SeoDashboardTabsEnum::CONVERSIONS->value => $this->tabProp(
                     SeoDashboardTabsEnum::CONVERSIONS,
                     $shop->website,
@@ -247,6 +278,17 @@ class ShowSeoDashboard extends OrgAction
             : $this->tab === SeoDashboardPageTabsEnum::OVERVIEW->value && $this->tableTab === $tab;
 
         return $isOpen ? $prop : Inertia::optional($prop);
+    }
+
+    private function journeyProp(?Website $website): mixed
+    {
+        $resolver = fn () => $website ? [
+            'days'    => $this->journeyDays,
+            'filters' => $this->journeyFilters,
+            ...GetWebsiteOrderJourneys::run($website, now()->subDays($this->journeyDays)->startOfDay(), now(), $this->journeyFilters, $this->journeyPage),
+        ] : null;
+
+        return $this->tab === SeoDashboardPageTabsEnum::JOURNEY->value ? Inertia::defer($resolver) : Inertia::optional($resolver);
     }
 
     private function overviewProp(Closure $resolver): mixed

@@ -111,8 +111,7 @@ const track = (keyword: string) => {
         keyword,
         country_code: props.data.market.country_code,
         language_code: props.data.market.language_code,
-        device: "mobile",
-        frequency: "weekly",
+        frequency: "on_request",
     }, {
         preserveScroll: true,
         preserveState: true,

@@ -4,7 +4,7 @@ namespace App\Actions\HumanResources\Leave\UI;
 
 use App\Actions\HumanResources\Leave\UpdateLeaveCover;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithHumanResourcesSectionAuthorisation;
+use App\Actions\Traits\Authorisations\WithHumanResourcesAuthorisation;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Models\HumanResources\Employee;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
@@ -23,6 +23,7 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -32,8 +33,8 @@ use App\Services\HumanResources\LeaveTypeResolver;
 class IndexLeavesAdmin extends OrgAction
 {
     use WithLeaveSubNavigation;
-    use WithHumanResourcesSectionAuthorisation {
-        authorize as authorizeHumanResourcesSection;
+    use WithHumanResourcesAuthorisation {
+        authorize as authorizeHumanResources;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -42,49 +43,88 @@ class IndexLeavesAdmin extends OrgAction
             return true;
         }
 
-        return $this->authorizeHumanResourcesSection($request);
+        return $this->authorizeHumanResources($request);
     }
 
     private function isActiveLeaveApprover(ActionRequest $request): bool
     {
         return LeaveApprover::query()
             ->where('organisation_id', $this->organisation->id)
-            ->where('user_id', $request->user()->id)
+            ->where('user_id', $request->user()->permissionsHolder()->id)
             ->where('is_active', true)
             ->exists();
     }
 
-    public function handle(Organisation $organisation, ?string $prefix = null): LengthAwarePaginator
+    /**
+     * @param  array{status?: string|null, from?: string|null, to?: string|null, type?: string|null}  $modelData
+     */
+    public function handle(Organisation $organisation, ?string $prefix = null, array $modelData = []): LengthAwarePaginator
     {
-        $prefix = $prefix ?? 'leaves';
+        $status = $modelData['status'] ?? null;
+        $from   = $modelData['from'] ?? null;
+        $to     = $modelData['to'] ?? null;
+        $type   = $modelData['type'] ?? null;
 
-        InertiaTable::updateQueryBuilderParameters($prefix);
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
 
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
-            $query->where(function ($query) use ($value) {
-                $query->where('employee_name', 'like', "%$value%")
-                    ->orWhere('reason', 'like', "%$value%");
+            $term = '%'.addcslashes((string) $value, '%_\\').'%';
+
+            $query->where(function ($query) use ($term) {
+                $query->where('leaves.employee_name', 'ilike', $term)
+                    ->orWhere('leaves.reason', 'ilike', $term)
+                    ->orWhereHas('leaveType', fn ($query) => $query->where('name', 'ilike', $term));
             });
         });
 
-        $statusFilter = AllowedFilter::callback('status', function ($query, $value) {
-            $query->where('status', $value);
-        });
-
-        $typeFilter = AllowedFilter::callback('type', function ($query, $value) {
-            $query->where('type', $value);
-        });
-
-        $queryBuilder = QueryBuilder::for(Leave::class)
-            ->where('organisation_id', $organisation->id)
-            ->when($this->isRestrictedToSection(), fn ($query) => $query->whereIn('employee_id', $this->sectionEmployeeIds))
-            ->with(['employee', 'leaveType'])
-            ->allowedFilters([$globalSearch, $statusFilter, $typeFilter])
+        return QueryBuilder::for(Leave::class)
+            ->where('leaves.organisation_id', $organisation->id)
+            ->when($status, fn ($query) => $query->where('leaves.status', $status))
+            ->when($type, fn ($query) => $query->where('leaves.type', $type))
+            ->when($to, fn ($query) => $query->whereDate('leaves.start_date', '<=', $to))
+            ->when($from, fn ($query) => $query->whereDate('leaves.end_date', '>=', $from))
+            ->with([
+                'employee' => fn ($query) => $query->with(Employee::AVATAR_RELATIONS),
+                'leaveType',
+                'media',
+                'coverEmployee' => fn ($query) => $query->select(['id', 'contact_name', 'image_id', 'user_id'])->with(Employee::AVATAR_RELATIONS),
+                'approver' => fn ($query) => $query->select(['id', 'contact_name', 'username', 'image_id'])->with('image'),
+                'approvalRecords.approver' => fn ($query) => $query->select(['id', 'contact_name', 'username', 'image_id'])->with('image'),
+            ])
+            ->allowedFilters([$globalSearch])
             ->allowedSorts(['start_date', 'end_date', 'created_at', 'employee_name'])
-            ->defaultSort('-created_at');
-
-        return $queryBuilder->paginate(request()->input($prefix . 'perPage', 15))
+            ->defaultSort('-created_at')
+            ->withPaginator($prefix, tableName: 'grp.org.hr.leaves.index')
             ->withQueryString();
+    }
+
+    public function rules(): array
+    {
+        return [
+            'status' => ['sometimes', 'nullable', Rule::enum(LeaveStatusEnum::class)],
+            'type'   => ['sometimes', 'nullable', 'string', 'max:255'],
+            'from'   => ['sometimes', 'nullable', 'date_format:Y-m-d'],
+            'to'     => ['sometimes', 'nullable', 'date_format:Y-m-d'],
+        ];
+    }
+
+    /**
+     * @return array{status: string|null, type: string|null, from: string|null, to: string|null}
+     */
+    public function resolveFilters(ActionRequest $request): array
+    {
+        $legacyStatus = $request->input('leaves_filter.status');
+        $legacyType   = $request->input('leaves_filter.type');
+
+        return [
+            'status' => ($this->validatedData['status'] ?? null)
+                ?: (is_string($legacyStatus) ? LeaveStatusEnum::tryFrom($legacyStatus)?->value : null),
+            'type'   => ($this->validatedData['type'] ?? null) ?: (is_string($legacyType) && $legacyType !== '' ? $legacyType : null),
+            'from'   => $this->validatedData['from'] ?? null,
+            'to'     => $this->validatedData['to'] ?? null,
+        ];
     }
 
     public function jsonResponse(LengthAwarePaginator $leaves): AnonymousResourceCollection
@@ -96,13 +136,14 @@ class IndexLeavesAdmin extends OrgAction
     {
         $employees = Employee::where('organisation_id', $this->organisation->id)
             ->where('state', EmployeeStateEnum::WORKING)
-            ->when($this->isRestrictedToSection(), fn ($query) => $query->whereIn('id', $this->sectionEmployeeIds))
             ->with([
                 'jobPositions:job_positions.id,job_positions.name,job_positions.department',
                 'users' => fn ($query) => $query->wherePivot('status', true)->where('users.status', true),
             ])
             ->orderBy('contact_name')
             ->get(['id', 'contact_name']);
+
+        $canEditLeaves = $request->user()->authTo(["human-resources.{$this->organisation->id}.edit", "org-supervisor.{$this->organisation->id}.human-resources"]);
 
         return Inertia::render(
             'Org/HumanResources/LeaveAdmin',
@@ -122,9 +163,13 @@ class IndexLeavesAdmin extends OrgAction
                         'title' => __('Leave')
                     ],
                     'title'         => __('Leave Requests'),
-                    'subNavigation' => $this->isRestrictedToSection() ? [] : $this->getLeaveSubNavigation($request),
+                    'subNavigation' => $this->getLeaveSubNavigation($request),
                 ],
-                'leaves' => LeaveResource::collection($leaves),
+                'leaves' => $leaves->through(fn (Leave $leave) => LeaveResource::make($leave)->resolve($request)),
+                'filters' => [
+                    'search' => (string) $request->input('filter.global', ''),
+                    ...$this->resolveFilters($request),
+                ],
                 'type_options' => LeaveTypeResolver::optionsForOrganisation($this->organisation->id, false, $this->organisation->country?->code),
                 'status_options' => LeaveStatusEnum::labels(),
                 'can_edit_admin' => Auth::check() && LeaveApprover::query()
@@ -133,7 +178,8 @@ class IndexLeavesAdmin extends OrgAction
                     ->where('is_active', true)
                     ->exists(),
                 'holidays' => $this->getHolidayDates(),
-                'can_record' => $request->user()->authTo(["human-resources.{$this->organisation->id}.edit", "org-supervisor.{$this->organisation->id}.human-resources"]),
+                'can_record' => $canEditLeaves,
+                'can_delete' => $canEditLeaves,
                 'employee_options' => $employees->pluck('contact_name', 'id'),
                 'employee_job_positions' => $employees->mapWithKeys(fn (Employee $employee) => [
                     $employee->id => $employee->jobPositions->map(fn (JobPosition $jobPosition) => $jobPosition->only(['id', 'name', 'department'])),
@@ -257,7 +303,7 @@ class IndexLeavesAdmin extends OrgAction
     {
         $this->initialisation($organisation, $request);
 
-        return $this->handle($organisation);
+        return $this->handle($organisation, null, $this->resolveFilters($request));
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array

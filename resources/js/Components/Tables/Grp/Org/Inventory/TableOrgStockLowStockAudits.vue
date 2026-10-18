@@ -15,7 +15,7 @@ import { routeType } from "@/types/route"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faDotCircle } from "@fal"
-import { faDotCircle as fasDotCircle } from "@fas"
+import { faDotCircle as fasDotCircle, faCheckCircle } from "@fas"
 import { InputNumber } from "primevue"
 import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
@@ -28,7 +28,7 @@ import {
     LowStockAuditedEvent,
 } from "@/Composables/useLowStockAuditBroadcast"
 
-library.add(faDotCircle, fasDotCircle)
+library.add(faDotCircle, fasDotCircle, faCheckCircle)
 
 const props = defineProps<{
     data: object
@@ -262,12 +262,31 @@ function submitNewQuantity(location: LowStockAuditLocation) {
                     :key="location.id"
                     class="flex items-center gap-x-2"
                 >
-                    <div class="w-28 truncate" :title="location.code">
+                    <div
+                        class="w-28 truncate"
+                        :class="location.is_low_stock_checked ? 'text-gray-400' : 'font-semibold text-amber-600'"
+                        :title="location.code"
+                    >
                         {{ location.code }}
                     </div>
 
                     <div class="w-16 text-right tabular-nums text-gray-500">
                         {{ locale.number(Number(location.quantity)) }}
+                    </div>
+
+                    <div
+                        v-if="location.is_low_stock_checked"
+                        v-tooltip="ctrans('Counted')"
+                        class="w-16 text-green-600"
+                    >
+                        <FontAwesomeIcon icon="fas fa-check-circle" fixed-width aria-hidden="true" />
+                    </div>
+                    <div
+                        v-else
+                        v-tooltip="ctrans('This location must be counted too, even if it is empty: confirm its quantity to take the SKO off the list')"
+                        class="w-16 whitespace-nowrap text-xs font-medium text-amber-600"
+                    >
+                        {{ ctrans("To count") }}
                     </div>
 
                     <div

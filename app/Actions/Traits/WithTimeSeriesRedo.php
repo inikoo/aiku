@@ -40,6 +40,27 @@ trait WithTimeSeriesRedo
         return [];
     }
 
+    /**
+     * A redo without a window only rewrites the periods between the first and the last source row of the
+     * model, so a record left outside that range, by invoice lines that were re-dated or removed since it
+     * was built, would keep its old sales for ever. Only call this for series rebuilt wholly from their
+     * source: there a record outside the range has no source and goes. Without a range every record goes.
+     *
+     * @param iterable<int, \Illuminate\Database\Eloquent\Model> $timeSeries
+     */
+    protected function deleteRecordsOutsideSourceRange(iterable $timeSeries, ?string $periodFrom = null, ?string $periodTo = null): void
+    {
+        foreach ($timeSeries as $series) {
+            $series->records()
+                ->when($periodFrom, fn ($query) => $query->where(fn ($query) => $query->where('from', '<', $periodFrom)->orWhere('from', '>', $periodTo)))
+                ->delete();
+
+            if (!$periodFrom) {
+                $series->update(['number_records' => 0, 'from' => null, 'to' => null]);
+            }
+        }
+    }
+
     protected function scopeOrganisation(Builder $query, Command $command): Builder
     {
         if ($command->hasOption('organisation') && $command->option('organisation')) {

@@ -13,6 +13,7 @@ import Button from '@/Components/Elements/Buttons/Button.vue'
 import { useLocaleStore } from '@/Stores/locale'
 import { ctrans } from '@/Composables/useTrans'
 import InputText from 'primevue/inputtext'
+import Textarea from 'primevue/textarea'
 import InputNumber from 'primevue/inputnumber'
 import DatePicker from 'primevue/datepicker'
 import Select from 'primevue/select'
@@ -38,6 +39,8 @@ const props = defineProps<{
     data: {
         customs_mrn: string | null
         customs_released_at: string | null
+        arrived_at: string | null
+        received_at?: string | null
         org_currency: string
         duty_cost: number | null
         can_edit: boolean
@@ -58,10 +61,16 @@ const toIso = (date: Date | null) => date ? `${date.getFullYear()}-${String(date
 const form = useForm<{
     customs_mrn: string | null
     customs_released_at: Date | null
+    arrived_at: Date | null
+    received_at: Date | null
+    reason: string
     lines: CustomsLine[]
 }>({
     customs_mrn: props.data.customs_mrn,
     customs_released_at: toDate(props.data.customs_released_at),
+    arrived_at: toDate(props.data.arrived_at),
+    received_at: toDate(props.data.received_at ?? null),
+    reason: '',
     lines: props.data.lines.map(line => ({ ...line })),
 })
 
@@ -69,6 +78,9 @@ watch(() => props.data, (data) => {
     form.defaults({
         customs_mrn: data.customs_mrn,
         customs_released_at: toDate(data.customs_released_at),
+        arrived_at: toDate(data.arrived_at),
+        received_at: toDate(data.received_at ?? null),
+        reason: '',
         lines: data.lines.map(line => ({ ...line })),
     })
     form.reset()
@@ -90,6 +102,9 @@ function save() {
         .transform((data) => ({
             customs_mrn: data.customs_mrn,
             customs_released_at: toIso(data.customs_released_at),
+            arrived_at: toIso(data.arrived_at),
+            ...(props.data.received_at ? { received_at: toIso(data.received_at) } : {}),
+            reason: data.reason.trim() || null,
             ...(props.data.can_edit ? {
                 lines: data.lines.map(({ id, tariff_code, description, duty_rate, customs_value, duty_amount, import_vat }) => ({ id, tariff_code, description, duty_rate, customs_value, duty_amount, import_vat })),
             } : {}),
@@ -124,12 +139,24 @@ async function setItemLine(item: any, lineId: number | null) {
     <div class="space-y-6 p-4">
         <div class="flex flex-wrap items-end gap-4">
             <label class="space-y-1">
+                <span class="block text-xs text-gray-500">{{ ctrans('Port arrival') }}</span>
+                <DatePicker v-model="form.arrived_at" dateFormat="yy-mm-dd" :maxDate="new Date()" showIcon />
+            </label>
+            <label class="space-y-1">
                 <span class="block text-xs text-gray-500">{{ ctrans('MRN') }}</span>
                 <InputText v-model="form.customs_mrn" class="w-64" />
             </label>
             <label class="space-y-1">
                 <span class="block text-xs text-gray-500">{{ ctrans('Release date') }}</span>
                 <DatePicker v-model="form.customs_released_at" dateFormat="yy-mm-dd" showIcon />
+            </label>
+            <label v-if="data.received_at" class="space-y-1">
+                <span class="block text-xs text-gray-500">{{ ctrans('Received at warehouse') }}</span>
+                <DatePicker v-model="form.received_at" dateFormat="yy-mm-dd" :maxDate="new Date()" showIcon />
+            </label>
+            <label v-if="form.errors.reason || form.reason" class="block w-full max-w-xl space-y-1">
+                <span class="block text-xs text-gray-500">{{ ctrans("Reason (kept in the delivery's history)") }}</span>
+                <Textarea v-model="form.reason" rows="2" autoResize maxlength="500" class="w-full" />
             </label>
             <p class="max-w-xl text-xs text-gray-500">
                 {{ ctrans('Copy the tariff lines of the import declaration. Each item takes the duty of its own line, shared by value among the items on it; import VAT is recorded only, it is deducted in the VAT return and never costed.') }}

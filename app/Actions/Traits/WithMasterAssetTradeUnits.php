@@ -23,6 +23,8 @@ use Illuminate\Validation\Validator;
 
 trait WithMasterAssetTradeUnits
 {
+    public const int MAX_COMPONENT_TRADE_UNITS = 3;
+
     /**
      * How the composition editor should offer units. A single trade unit states its own pack
      * size, so there is nothing to show. Several that disagree cannot imply one, so units are
@@ -53,11 +55,17 @@ trait WithMasterAssetTradeUnits
     /**
      * The units a composition implies: the trade unit quantity when every trade unit packs the
      * same number of them, null when they differ and no single pack size can be read off it.
+     * Past MAX_COMPONENT_TRADE_UNITS it is an assortment: a starter pack of 18 soaps at 6 each
+     * is "6 of each design", not a pack of 6, so it implies no units either.
      *
      * @param array<int, array{quantity?: mixed}> $tradeUnits
      */
     public function getSharedTradeUnitQuantity(array $tradeUnits): ?float
     {
+        if (count($tradeUnits) > self::MAX_COMPONENT_TRADE_UNITS) {
+            return null;
+        }
+
         $quantities = array_unique(
             array_map(fn ($tradeUnit) => (float) Arr::get($tradeUnit, 'quantity', 1), array_values($tradeUnits))
         );

@@ -17,6 +17,21 @@ enum UserNotificationEnum: string
     case TICKET_COMMENT = 'ticket_comment';
     case TICKET_MENTION = 'ticket_mention';
     case TICKET_NEEDS_REPLY = 'ticket_needs_reply';
+    case PURCHASE_ORDER_STAGE_BY_AGENT = 'purchase_order_stage_by_agent';
+    case PURCHASE_ORDERS_STUCK = 'purchase_orders_stuck';
+    case PURCHASE_ORDER_COMPLIANCE_DUE = 'purchase_order_compliance_due';
+    case PURCHASE_ORDER_MINIMUM_POKE = 'purchase_order_minimum_poke';
+    case PURCHASE_ORDER_BALANCE_DUE = 'purchase_order_balance_due';
+    case SUPPLIER_PRODUCT_AVAILABILITY = 'supplier_product_availability';
+
+    public const array PROCUREMENT_EVENTS = [
+        self::PURCHASE_ORDER_STAGE_BY_AGENT,
+        self::PURCHASE_ORDERS_STUCK,
+        self::PURCHASE_ORDER_COMPLIANCE_DUE,
+        self::PURCHASE_ORDER_MINIMUM_POKE,
+        self::PURCHASE_ORDER_BALANCE_DUE,
+        self::SUPPLIER_PRODUCT_AVAILABILITY,
+    ];
 
     public const array CHANNELS = ['email', 'slack', 'browser'];
 
@@ -27,6 +42,12 @@ enum UserNotificationEnum: string
             self::TICKET_COMMENT     => __('New comment on my ticket'),
             self::TICKET_MENTION     => __('Someone @mentions me on a ticket'),
             self::TICKET_NEEDS_REPLY => __('My ticket needs more information from me'),
+            self::PURCHASE_ORDER_STAGE_BY_AGENT => __('An agent moves one of my purchase orders to another stage'),
+            self::PURCHASE_ORDERS_STUCK         => __('The weekly list of purchase orders past their expected date'),
+            self::PURCHASE_ORDER_COMPLIANCE_DUE => __('Compliance documents of my purchase order are due'),
+            self::PURCHASE_ORDER_BALANCE_DUE    => __('A purchase order passed its QC and its balance can be paid'),
+            self::SUPPLIER_PRODUCT_AVAILABILITY => __('An agent changes the availability of a product my organisation buys'),
+            self::PURCHASE_ORDER_MINIMUM_POKE   => __('Another organisation asks me to add to my draft to reach a supplier minimum (email and Slack come grouped every 15 minutes)'),
         };
     }
 
@@ -44,6 +65,10 @@ enum UserNotificationEnum: string
             return [];
         }
 
+        if (in_array($this, self::PROCUREMENT_EVENTS, true)) {
+            return ['email'];
+        }
+
         return match (Arr::get($user->settings, 'ticket_notifications', 'both')) {
             'email' => ['email'],
             'slack' => ['slack'],
@@ -59,6 +84,12 @@ enum UserNotificationEnum: string
             self::TICKET_COMMENT     => 'fal fa-comment-lines',
             self::TICKET_MENTION     => 'fal fa-at',
             self::TICKET_NEEDS_REPLY => 'fal fa-question-circle',
+            self::PURCHASE_ORDER_STAGE_BY_AGENT => 'fal fa-truck-loading',
+            self::PURCHASE_ORDERS_STUCK         => 'fal fa-hourglass-half',
+            self::PURCHASE_ORDER_COMPLIANCE_DUE => 'fal fa-clipboard-check',
+            self::PURCHASE_ORDER_BALANCE_DUE    => 'fal fa-file-invoice',
+            self::SUPPLIER_PRODUCT_AVAILABILITY => 'fal fa-box-check',
+            self::PURCHASE_ORDER_MINIMUM_POKE   => 'fal fa-hand-point-right',
         };
     }
 

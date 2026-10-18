@@ -74,7 +74,7 @@ class UpdateOrderPremiumDispatch extends OrgAction
     public function action(Order $order, array $modelData): void
     {
         $this->asAction = true;
-        $this->initialisationFromShop($order->shop, []);
+        $this->initialisationFromShop($order->shop, $modelData);
 
         $this->handle($order, $modelData);
     }

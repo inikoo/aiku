@@ -15,9 +15,16 @@ import PageHeading from "@/Components/Headings/PageHeading.vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import Timeline from "@/Components/Utils/Timeline.vue"
 import ProcurementOrderData from "@/Components/Procurement/ProcurementOrderData.vue"
+import AgreementSummary from "@/Components/Procurement/AgreementSummary.vue"
+import AgreedTermDifferences from "@/Components/Procurement/AgreedTermDifferences.vue"
 import OrderSummary from "@/Components/Summary/OrderSummary.vue"
+import AgentOrderingItems from "@/Components/Procurement/AgentOrderingItems.vue"
+import PillFilterBar from "@/Components/Utils/PillFilterBar.vue"
+import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
+import qs from "qs"
 import TablePurchaseOrderTransactions from "@/Components/Tables/Grp/Org/Procurement/TablePurchaseOrderTransactions.vue"
 import TableProcurementNotes from '@/Components/Tables/Grp/Org/Procurement/TableProcurementNotes.vue'
+import TablePurchaseOrderComplianceDocuments from "@/Components/Tables/Grp/Org/Procurement/TablePurchaseOrderComplianceDocuments.vue"
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue"
 import UploadAttachment from "@/Components/Upload/UploadAttachment.vue"
@@ -28,13 +35,18 @@ import Checkbox from "primevue/checkbox"
 import IconField from "primevue/iconfield"
 import InputIcon from "primevue/inputicon"
 import InputText from "primevue/inputtext"
-import Image from "@common/Components/Image.vue"
 import RadioButton from "primevue/radiobutton"
 import ConfirmDialog from "primevue/confirmdialog"
 import DatePicker from "primevue/datepicker"
 import Dialog from "primevue/dialog"
 import Select from "primevue/select"
+import StaffTaskDialog from "@/Components/Tasks/StaffTaskDialog.vue"
 import AspoDepositsChecklist from "@/Components/Procurement/AspoDepositsChecklist.vue"
+import PurchaseOrderPayments from "@/Components/Procurement/PurchaseOrderPayments.vue"
+import PurchaseOrderDepositPayments, { type PurchaseOrderPaymentsData } from "@/Components/Procurement/PurchaseOrderDepositPayments.vue"
+import PurchaseOrderStages from "@/Components/Procurement/PurchaseOrderStages.vue"
+import AgentPurchaseOrderGoodsReceipts from "@/Components/Procurement/AgentPurchaseOrderGoodsReceipts.vue"
+import ZoomableImage from "@/Components/Utils/ZoomableImage.vue"
 import ButtonDownloadWithOptions from "@/Components/Utils/ButtonDownloadWithOptions.vue"
 import { useConfirm } from "primevue/useconfirm"
 import { notify } from "@kyvg/vue3-notification"
@@ -46,18 +58,19 @@ import { capitalize } from "@/Composables/capitalize"
 import { useFormatTime } from "@/Composables/useFormatTime"
 
 import { PageHeadingTypes } from "@/types/PageHeading"
+import { Action } from "@/types/Action"
 import { routeType } from "@/types/route"
 import { Timeline as TSTimeline } from "@/types/Timeline"
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import Icon from "@/Components/Icon.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faIdCardAlt, faEnvelope, faPhone, faWeight, faCube, faShoppingCart, faStickyNote, faShip, faBox, faHandHoldingBox, faPaperPlane, faExclamationTriangle, faClipboardList, faPeopleArrows, faCalendarAlt, faDownload, faSearch } from "@fal"
+import { faIdCardAlt, faEnvelope, faPhone, faWeight, faCube, faShoppingCart, faStickyNote, faShip, faBox, faHandHoldingBox, faPaperPlane, faExclamationTriangle, faClipboardList, faPeopleArrows, faCalendarAlt, faDownload, faSearch, faChevronDown, faChevronRight, faTimes, faBan, faThLarge, faList, faFileExcel } from "@fal"
 import { faArrowCircleDown, faArrowCircleLeft, faArrowCircleRight, faBars, faExclamationCircle, faInventory, faPencil, faShare, faTruck } from "@fas"
 import { faPlus } from "@far"
 
 library.add(
-	faDownload,
+	faDownload, faChevronDown, faChevronRight, faBan,
 	faIdCardAlt,
 	faEnvelope,
 	faPhone,
@@ -82,6 +95,13 @@ library.add(
 	faPeopleArrows,
 	faCalendarAlt,
 )
+
+interface SubmitProblem {
+    message: string
+    org_stock_id: number | null
+    fixes: { label: string, route: routeType }[]
+    task: { subject: string, description: string } | null
+}
 
 const props = defineProps < {
     title: string
@@ -112,14 +132,23 @@ const props = defineProps < {
         date: string | null
         number_purchase_orders: number
     }[]
+    stages?: { stages: InstanceType<typeof PurchaseOrderStages>["$props"]["stages"]; route: routeType; upload_route: routeType | null } | null
+    agent_receiving?: InstanceType<typeof AgentPurchaseOrderGoodsReceipts>["$props"]["receiving"] | null
+    compliance?: object
+    compliance_summary?: InstanceType<typeof TablePurchaseOrderComplianceDocuments>["$props"]["compliance"]
     deposits?: object | null
+    payments?: PurchaseOrderPaymentsData | null
     delivery_items: {
         id: number
         code: string | null
         name: string | null
         quantity_ordered: number | string
         image_thumbnail: object | null
+        image_full: { original_url: string; download_url: string } | null
     }[]
+    submit_problems?: SubmitProblem[]
+	agreement: { terms: object[], notes: object[], open_incidents: number, must_acknowledge: boolean }
+	agreed_term_differences?: InstanceType<typeof AgreedTermDifferences>["$props"]["differences"] | null
     tabs: {
         current: string
         navigation: {}
@@ -188,10 +217,25 @@ const props = defineProps < {
         }
 	}
 	items?: {}
-	products?: {}
+	agent_ordering?: {
+		orgAgent: { id: number, slug: string, currency: string }
+		addRoute: { name: string, parameters: (string | number)[] }
+		bucketLabels: Record<string, { label: string, tone: string }>
+	} | null
+	products?: {
+		data: { id: number }[]
+		links: { prev: string | null, next: string | null }
+		ordering?: {
+			currency: string
+			cover: { value: string, label: string, title: string, tone: string, count: number }[]
+			rank: { value: string, label: string, count: number }[]
+			active: { cover: string | null, rank: string | null, hide_ordered: boolean }
+		}
+	}
 	showcase?: { blueprint: any[]; updateRoute: routeType }
 	notes?: {}
 	note_store_route?: routeType
+	note_form?: object
 	attachments?: {}
 	attachmentRoutes: { attachRoute: routeType; detachRoute: routeType }
 	attachmentScopes: { name: string; code: string }[]
@@ -305,6 +349,14 @@ const costBlocks = computed(() => {
 	return sameCurrency ? [supplierBlock] : [supplierBlock, organisationBlock]
 })
 
+const showExtraCosts = ref(false)
+
+const paymentsOrgRate = computed(() => {
+	const { currency, org_currency } = props.box_stats.third_block
+
+	return org_currency && org_currency !== currency ? Number(orgPerOrder.value) || null : null
+})
+
 const summaryGroups = computed(() => {
 	const { items, extra, shipping, duties, tax, total, currency, org_currency, org_items } = props.box_stats.third_block
 	const inOrgCurrency = org_currency && org_currency !== currency
@@ -315,9 +367,14 @@ const summaryGroups = computed(() => {
 	return [
 		[{ label: ctrans("Items"), quantity: props.box_stats.second_block.total_items, price_total: Number(items) || 0, information: orgMoney(Number(org_items) || 0) }],
 		[
-			{ label: ctrans("Extra costs"), price_total: Number(extra) || 0 },
-			{ label: ctrans("Shipping"), price_total: Number(shipping) || 0 },
-			{ label: ctrans("Duties"), price_total: Number(duties) || 0 },
+			{ label: ctrans("Extra costs, shipping and duties"), price_total: (Number(extra) || 0) + (Number(shipping) || 0) + (Number(duties) || 0), slot_name: "extra_costs" },
+			...(showExtraCosts.value
+				? [
+					{ label: ctrans("Extra costs"), price_total: Number(extra) || 0, label_class: "pl-5" },
+					{ label: ctrans("Shipping"), price_total: Number(shipping) || 0, label_class: "pl-5" },
+					{ label: ctrans("Duties"), price_total: Number(duties) || 0, label_class: "pl-5" },
+				]
+				: []),
 		],
 		[
 			{ label: ctrans("Net"), price_total: net },
@@ -325,11 +382,18 @@ const summaryGroups = computed(() => {
 		],
 		[{ label: ctrans("Total"), price_total: Number(total) || 0, information: inOrgCurrency ? `${orgMoney(Number(total) * rate)} · ${moneyTable.value.rateLabel}` : undefined }],
 		...(Number(props.box_stats.third_block.estimated_expenses) > 0
-			? [[{
-				label: ctrans("Estimated total incl. supplier expenses"),
-				price_total: (Number(total) || 0) + Number(props.box_stats.third_block.estimated_expenses),
-				information: ctrans("estimate, for budgeting"),
-			}]]
+			? [[
+				{
+					label: ctrans("Supplier expenses"),
+					price_total: Number(props.box_stats.third_block.estimated_expenses),
+					information: ctrans("unit expense × quantity"),
+				},
+				{
+					label: ctrans("Estimated total incl. supplier expenses"),
+					price_total: (Number(total) || 0) + Number(props.box_stats.third_block.estimated_expenses),
+					information: ctrans("estimate, for budgeting"),
+				},
+			]]
 			: []),
 	]
 })
@@ -451,29 +515,63 @@ const submitDialogAction = ref<any>(null)
 const doNotSend = "none"
 const sendVia = ref<string>(doNotSend)
 
+const criticalNotesAcknowledged = ref(false)
+
 const submitPurchaseOrder = (action: any) => {
+	if (props.agreement.must_acknowledge && !criticalNotesAcknowledged.value) {
+		notify({
+			title: ctrans("Read the critical notes first"),
+			text: ctrans("Tick that you have read them, above the lines, and submit again."),
+			type: "warn",
+		})
+		return
+	}
+
+	if (props.agreed_term_differences?.flags.some((flag) => !flag.accepted)) {
+		notify({
+			title: ctrans("Different from what was agreed"),
+			text: ctrans("Accept each difference with a reason, above the lines, and submit again."),
+			type: "warn",
+		})
+		return
+	}
+
 	if (action.send_channels?.length && !submitDialogAction.value) {
 		sendVia.value = action.send_channels[0].channel
 		submitDialogAction.value = action
 		return
 	}
 
-	router.patch(route(action.route.name, action.route.parameters), { send_via: sendVia.value === doNotSend ? null : sendVia.value }, {
+	router.patch(route(action.route.name, action.route.parameters), { send_via: sendVia.value === doNotSend ? null : sendVia.value, critical_notes_acknowledged: criticalNotesAcknowledged.value }, {
 		onStart: () => { submitLoading.value = true },
 		onFinish: () => {
 			submitLoading.value = false
 			submitDialogAction.value = null
 			sendVia.value = doNotSend
 		},
-		onError: () => {
-			notify({
-				title: ctrans("Something went wrong"),
-				text: ctrans("Failed to submit purchase order"),
-				type: "error",
-			})
+		onError: (errors) => {
+			submitErrors.value = Object.values(errors).flat() as string[]
+			submitProblemsOpen.value = true
+			router.reload({ only: ["submit_problems"] })
 		},
 	})
 }
+
+const submitErrors = ref<string[]>([])
+const submitProblemsOpen = ref(false)
+const taskProblem = ref<SubmitProblem | null>(null)
+
+const submitProblems = computed<SubmitProblem[]>(() => {
+	const problems = props.submit_problems ?? []
+	const explained = problems.map((problem) => problem.message)
+
+	return [
+		...problems,
+		...submitErrors.value
+			.filter((message) => !explained.includes(message))
+			.map((message) => ({ message, org_stock_id: null, fixes: [], task: null })),
+	]
+})
 
 const confirmDeletePurchaseOrder = (action: any) => {
 	confirm.require({
@@ -596,7 +694,7 @@ const saveEstimatedDeliveryDate = () => {
 		onStart: () => { confirmLoading.value = true },
 		onSuccess: () => {
 			estimatedDeliveryDateModalOpen.value = false
-			router.reload({ only: ["showcase", "pageHead", "timelines"] })
+			router.reload({ only: ["showcase", "pageHead", "timelines", "stages"] })
 		},
 		onFinish: () => { confirmLoading.value = false },
 		onError: () => {
@@ -681,11 +779,34 @@ function openSupplierEmail(action: { mailto?: string, pdfUrl: string }) {
 
 const isModalUploadAttachmentOpen = ref(false)
 
+const productsView = ref<"cards" | "list">("list")
+const productsViewOptions = [
+	{ label: ctrans("Cards"), value: "cards", icon: faThLarge },
+	{ label: ctrans("List"), value: "list", icon: faList },
+]
+
+const productBucketLabels = computed(() =>
+	Object.fromEntries((props.products?.ordering?.cover ?? []).map((bucket) => [bucket.value, { label: bucket.title, tone: bucket.tone }]))
+)
+
+const filterProducts = (key: "cover" | "rank" | "hide_ordered", value: string | null) => {
+	const query = qs.parse(location.search.substring(1))
+	const filters = { ...((query.products_filter as Record<string, unknown>) ?? {}), [key]: value }
+	delete query.productsPage
+
+	router.get(
+		location.pathname + "?" + qs.stringify({ ...query, tab: "products", products_filter: filters }, { encodeValuesOnly: true, skipNulls: true }),
+		{},
+		{ only: ["products"], preserveState: true, preserveScroll: true, replace: true }
+	)
+}
+
 const component = computed(() => {
 	const components: Component = {
 		items: TablePurchaseOrderTransactions,
 		products: TablePurchaseOrderTransactions,
 		notes: TableProcurementNotes,
+		compliance: TablePurchaseOrderComplianceDocuments,
 		attachments: TableAttachments,
 		dispatched_emails: TableDispatchedEmailsInOrder,
 		history: TableHistories,
@@ -724,12 +845,53 @@ const agentRoute = computed<string>(() => {
 	return viaAgent ? route("grp.org.procurement.org_agents.show", [route().params["organisation"], viaAgent.slug]) : ""
 })
 
+const pageHeadButtonGroups: Record<string, string[]> = {
+	pdf_excel: ["pdf", "excel"],
+	upload_add_products: ["upload_products", "add_product"],
+}
+
+const pageHeadWrappedActionKeys = ["edit", "delete_purchase_order"]
+
+const pageHeadWithGroupedActions = computed<PageHeadingTypes>(() => {
+	const actions: Action[] = (props.pageHead.actions ?? []).filter(Boolean)
+	const actionsByKey = Object.fromEntries(actions.map((action) => [action.key, action]))
+	const placedGroupKeys = new Set<string>()
+
+	return {
+		...props.pageHead,
+		actions: actions.flatMap((action) => {
+			if (pageHeadWrappedActionKeys.includes(action.key)) {
+				return []
+			}
+
+			const groupKey = Object.keys(pageHeadButtonGroups).find((key) => pageHeadButtonGroups[key].includes(action.key))
+			const members = groupKey ? pageHeadButtonGroups[groupKey].map((key) => actionsByKey[key]).filter(Boolean) : []
+
+			if (!groupKey || members.length < 2) {
+				return [action]
+			}
+
+			if (placedGroupKeys.has(groupKey)) {
+				return []
+			}
+
+			placedGroupKeys.add(groupKey)
+
+			return [{ type: "buttonGroup", key: groupKey, button: members } as Action]
+		}),
+		wrapped_actions: [
+			...(props.pageHead.wrapped_actions ?? []),
+			...actions.filter((action) => pageHeadWrappedActionKeys.includes(action.key)),
+		],
+	}
+})
+
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 </script>
 
 <template>
 	<Head :title="capitalize(title)" />
-	<PageHeading :data="pageHead">
+	<PageHeading :data="pageHeadWithGroupedActions">
 		<template #afterTitle2>
 			<span v-if="lastEdit" class="text-xs font-normal text-gray-500">
 				{{ ctrans("Last edited by :user on :date", { user: lastEdit.user ?? "?", date: useFormatTime(lastEdit.at, { formatTime: "short-datetime" }) }) }}
@@ -739,8 +901,75 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 			<Button v-if="currentTab === 'attachments'" :label="ctrans('Attach')" icon="upload" @click="() => (isModalUploadAttachmentOpen = true)" />
 		</template>
 
+		<template #button-whole-agent-order="{ action }">
+			<Link :href="route(action.route.name, action.route.parameters)">
+				<Button
+					type="tertiary"
+					:label="action.label"
+					icon="far fa-arrow-left"
+					:tooltip="action.tooltip"
+				/>
+			</Link>
+		</template>
+
 		<template #button-pdf="{ action }">
 			<ButtonDownloadWithOptions :action="action" />
+		</template>
+
+		<template #button-group-pdf="{ action }">
+			<ButtonDownloadWithOptions :action="action" class="[&>button]:rounded-r-none" />
+		</template>
+
+		<template #button-group-excel="{ action }">
+			<a :href="route(action.route.name, action.route.parameters)" :target="action.target" class="-ml-px">
+				<Button
+					type="tertiary"
+					:icon="faFileExcel"
+					:tooltip="`${action.label}: ${action.tooltip}`"
+					class="h-full rounded-l-none"
+				/>
+			</a>
+		</template>
+
+		<template #button-group-upload-products="{ action }">
+			<Button
+				type="tertiary"
+				:icon="action.icon"
+				:tooltip="action.tooltip"
+				class="h-full rounded-r-none"
+				@click="() => isModalUploadExcel = true"
+			/>
+		</template>
+
+		<template #button-group-add-product="{ action }">
+			<Button
+				type="tertiary"
+				:label="action.label"
+				:icon="action.icon"
+				:tooltip="action.tooltip"
+				class="-ml-px h-full rounded-l-none text-nowrap"
+				@click="() => openProductListModal(action)"
+			/>
+		</template>
+
+		<template #wrapped-edit="{ action }">
+			<Link :href="route(action.route.name, action.route.parameters)">
+				<Button type="tertiary" :label="action.label" icon="fal fa-pencil" />
+			</Link>
+		</template>
+
+		<template #wrapped-delete-purchase-order="{ action }">
+			<Button
+				type="tertiary"
+				:label="action.label"
+				:tooltip="action.tooltip"
+				:loading="deleteLoading"
+				@click="() => confirmDeletePurchaseOrder(action)"
+			>
+				<template #icon>
+					<FontAwesomeIcon :icon="action.icon" class="text-red-500" fixed-width aria-hidden="true" />
+				</template>
+			</Button>
 		</template>
 
 		<template #button-email-to-supplier="{ action }">
@@ -782,17 +1011,6 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 				:tooltip="action.tooltip"
 				:loading="submitLoading"
 				@click="() => submitPurchaseOrder(action)"
-			/>
-		</template>
-
-		<template #button-delete-purchase-order="{ action }">
-			<Button
-				:style="action.style"
-				:label="action.label"
-				:icon="action.icon"
-				:tooltip="action.tooltip"
-				:loading="deleteLoading"
-				@click="() => confirmDeletePurchaseOrder(action)"
 			/>
 		</template>
 
@@ -873,8 +1091,12 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 		</template>
 	</PageHeading>
 
-	<!-- Purchase Order Timeline -->
-	<div v-if="timelines" class="py-2 border-b border-gray-300">
+	<PurchaseOrderStages v-if="stages" :stages="stages.stages" :route="stages.route" :uploadRoute="stages.upload_route">
+		<template v-if="payments" #stage-deposit_paid>
+			<PurchaseOrderDepositPayments :payments="payments" :org-currency-code="box_stats.third_block.org_currency" :org-rate="paymentsOrgRate" />
+		</template>
+	</PurchaseOrderStages>
+	<div v-else-if="timelines" class="py-2 border-b border-gray-300">
 		<Timeline
 			:options="timelines"
 			:state="props.data.data.state"
@@ -882,6 +1104,11 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 			:format-time="'MMMM d yyyy, HH:mm'"
 		/>
 	</div>
+	<div v-if="!stages && payments" class="max-w-sm border-b border-gray-300 px-4 pb-3">
+		<PurchaseOrderDepositPayments :payments="payments" :org-currency-code="box_stats.third_block.org_currency" :org-rate="paymentsOrgRate" />
+	</div>
+
+	<AgentPurchaseOrderGoodsReceipts v-if="agent_receiving" :receiving="agent_receiving" />
 
 	<div
 		v-for="stockDelivery in stock_delivery_timelines"
@@ -928,11 +1155,11 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 					<span v-else class="text-gray-700">{{ box_stats.first_block.orderer.via_agent.name }}</span>
 				</div>
 				<div v-if="box_stats.first_block.clean_handover" class="flex flex-col gap-1 text-sm text-gray-500">
-					<div class="flex items-center gap-3">
+					<div v-tooltip="ctrans('Date the buyer or the agent proposes the goods will be ready for handover')" class="flex w-fit items-center gap-3">
 						<FontAwesomeIcon icon="fal fa-calendar-alt" class="text-gray-400" aria-hidden="true" fixed-width />
 						<span>{{ ctrans("Proposed ready") }}: {{ box_stats.first_block.clean_handover.proposed_ready_at ? useFormatTime(box_stats.first_block.clean_handover.proposed_ready_at) : "-" }}</span>
 					</div>
-					<div class="flex items-center gap-3">
+					<div v-tooltip="ctrans('Ready date approved by management, in answer to the proposed date')" class="flex w-fit items-center gap-3">
 						<FontAwesomeIcon icon="fal fa-calendar-alt" class="text-gray-400" aria-hidden="true" fixed-width />
 						<span>{{ ctrans("Approved ready") }}: {{ box_stats.first_block.clean_handover.approved_ready_at ? useFormatTime(box_stats.first_block.clean_handover.approved_ready_at) : "-" }}</span>
 					</div>
@@ -956,7 +1183,7 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 					<FontAwesomeIcon icon="fal fa-shopping-cart" aria-hidden="true" fixed-width />
 					<span class="italic">{{ ctrans("Their order is created when you submit") }}</span>
 				</div>
-				<ProcurementOrderData v-if="showcase" :data="showcase" bare :isOwnWarehouse="box_stats.first_block.delivery.is_own_warehouse" />
+				<ProcurementOrderData v-if="showcase" :data="showcase" :isOwnWarehouse="box_stats.first_block.delivery.is_own_warehouse" />
 			</div>
 		</BoxStatPallet>
 
@@ -1077,7 +1304,17 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 								aria-hidden="true" />
 						</span>
 					</div>
-					<OrderSummary :order_summary="summaryGroups" :currency_code="box_stats.third_block.currency ?? ''" />
+					<OrderSummary :order_summary="summaryGroups" :currency_code="box_stats.third_block.currency ?? ''">
+						<template #cell_extra_costs_1="{ fieldSummary }">
+							<dt class="col-span-3">
+								<button type="button" class="flex items-center gap-1.5 text-left leading-none hover:text-gray-800" :aria-expanded="showExtraCosts" @click="showExtraCosts = !showExtraCosts">
+									<FontAwesomeIcon :icon="showExtraCosts ? 'fal fa-chevron-down' : 'fal fa-chevron-right'" class="w-3.5 text-gray-400" aria-hidden="true" />
+									{{ fieldSummary.label }}
+								</button>
+							</dt>
+						</template>
+					</OrderSummary>
+					<PurchaseOrderPayments v-if="payments" :payments="payments" :org-currency-code="box_stats.third_block.org_currency" :org-rate="paymentsOrgRate" />
 				</section>
 			</div>
 		</BoxStatPallet>
@@ -1085,17 +1322,69 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
 	<AspoDepositsChecklist v-if="deposits" :deposits="deposits" />
 
+	<div v-if="agreement.terms.length || agreement.notes.length || agreement.open_incidents" class="px-4 pt-4">
+		<AgreementSummary :agreement="agreement" showLevel />
+		<label v-if="agreement.must_acknowledge" class="mt-2 flex items-center gap-2 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+			<Checkbox v-model="criticalNotesAcknowledged" binary />
+			<span>{{ ctrans("I have read the critical notes for this order") }}</span>
+		</label>
+	</div>
+
+	<div v-if="agreed_term_differences" class="px-4 pt-4">
+		<AgreedTermDifferences :differences="agreed_term_differences" />
+	</div>
+
 	<Tabs :current="currentTab" :navigation="tabs?.navigation" @update:tab="handleTabUpdate" />
 
 	<div class="pb-12">
+		<template v-if="agent_ordering && isOrderingLevelTab && props[currentTab as keyof typeof props]">
+			<div v-if="currentTab === 'products' && products?.ordering" class="mx-4 mb-3 mt-4 flex flex-wrap items-center gap-2">
+				<PillFilterBar :label="ctrans('Stock group')" :options="products.ordering.cover" :selected="products.ordering.active.cover" @select="(value) => filterProducts('cover', value)" />
+				<PillFilterBar :label="ctrans('Rank')" :options="products.ordering.rank" :selected="products.ordering.active.rank" @select="(value) => filterProducts('rank', value)" />
+				<label class="inline-flex cursor-pointer items-center gap-2 rounded-md border px-2.5 py-1 text-xs" :class="products.ordering.active.hide_ordered ? 'border-gray-400 bg-gray-100 text-gray-800' : 'border-gray-200 bg-white text-gray-600'">
+					<Checkbox :modelValue="products.ordering.active.hide_ordered" binary size="small" @update:modelValue="(value: boolean) => filterProducts('hide_ordered', value ? '1' : null)" />
+					{{ ctrans("Hide what is already on order") }}
+				</label>
+			</div>
+			<AgentOrderingItems :key="currentTab === 'products' ? `products-${products?.ordering?.active.cover}-${products?.ordering?.active.rank}-${products?.ordering?.active.hide_ordered}` : currentTab" :items="props[currentTab as keyof typeof props]" v-bind="agent_ordering" :tableName="currentTab" />
+		</template>
+		<div v-else-if="currentTab === 'products' && products?.ordering" class="mt-4">
+			<div class="mx-4 mb-3 flex flex-wrap items-center gap-2">
+				<PillFilterBar :label="ctrans('Stock group')" :options="products.ordering.cover" :selected="products.ordering.active.cover" @select="(value) => filterProducts('cover', value)" />
+				<PillFilterBar :label="ctrans('Rank')" :options="products.ordering.rank" :selected="products.ordering.active.rank" @select="(value) => filterProducts('rank', value)" />
+				<label class="inline-flex cursor-pointer items-center gap-2 rounded-md border px-2.5 py-1 text-xs" :class="products.ordering.active.hide_ordered ? 'border-gray-400 bg-gray-100 text-gray-800' : 'border-gray-200 bg-white text-gray-600'">
+					<Checkbox :modelValue="products.ordering.active.hide_ordered" binary size="small" @update:modelValue="(value: boolean) => filterProducts('hide_ordered', value ? '1' : null)" />
+					{{ ctrans("Hide what is already on order") }}
+				</label>
+				<SegmentedToggle v-model="productsView" class="ml-auto" :options="productsViewOptions" :ariaLabel="ctrans('Show products as cards or as a list')" />
+			</div>
+			<AgentOrderingItems
+				:key="`${products.ordering.active.cover}-${products.ordering.active.rank}-${products.ordering.active.hide_ordered}`"
+				:class="productsView === 'cards' ? 'mx-4' : ''"
+				:items="products"
+				:currency="products.ordering.currency"
+				:bucketLabels="productBucketLabels"
+				:view="productsView"
+				:reloadOnly="['products', 'box_stats', 'pageHead']"
+				tableName="products"
+			/>
+			<div v-if="productsView === 'cards' && (products.links.prev || products.links.next)" class="mx-4 mt-3 flex justify-between text-sm">
+				<Link v-if="products.links.prev" :href="products.links.prev" preserve-scroll class="secondaryLink">{{ ctrans("Previous") }}</Link>
+				<span v-else />
+				<Link v-if="products.links.next" :href="products.links.next" preserve-scroll class="secondaryLink">{{ ctrans("Next") }}</Link>
+			</div>
+		</div>
 		<component
+			v-else
 			:is="component"
 			:key="currentTab"
 			:data="props[currentTab as keyof typeof props]"
 			:tab="currentTab"
 			:state="data.data.state"
 			:updateRoute="routes.updateOrderRoute"
-			:storeRoute="currentTab === 'notes' ? note_store_route : undefined"
+			:storeRoute="currentTab === 'notes' && note_form?.can_write !== false ? note_store_route : undefined"
+			:agreement="currentTab === 'notes' ? note_form : undefined"
+			:compliance="currentTab === 'compliance' ? compliance_summary : undefined"
 			:detachRoute="attachmentRoutes.detachRoute"
 			v-bind="isOrderingLevelTab ? {
 				level: currentLevel,
@@ -1238,6 +1527,58 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 	</Dialog>
 
 	<Dialog
+		v-model:visible="submitProblemsOpen"
+		modal
+		:header="ctrans('This purchase order cannot be submitted yet')"
+		:style="{ width: '44rem', maxWidth: 'calc(100vw - 2rem)' }"
+		:draggable="false"
+	>
+		<p class="text-sm text-gray-600">
+			{{ submitProblems.length > 1 ? ctrans("These need correcting first. Nothing was sent.") : ctrans("This needs correcting first. Nothing was sent.") }}
+		</p>
+		<ul class="mt-3 divide-y divide-gray-200 border-y border-gray-200">
+			<li v-for="problem in submitProblems" :key="problem.message" class="py-3">
+				<div class="flex items-start gap-3">
+					<FontAwesomeIcon :icon="faExclamationTriangle" class="mt-0.5 text-amber-500" fixed-width aria-hidden="true" />
+					<span class="text-sm text-gray-800">{{ problem.message }}</span>
+				</div>
+				<div v-if="problem.fixes.length || problem.task" class="mt-2 flex flex-wrap gap-2 pl-8">
+					<a v-for="fix in problem.fixes" :key="fix.label" :href="route(fix.route.name, fix.route.parameters)" target="_blank">
+						<Button :label="fix.label" type="tertiary" :icon="faPencil" size="s" />
+					</a>
+					<Button
+						v-if="problem.task"
+						:label="problem.fixes.length ? ctrans('Ask somebody else to correct it') : ctrans('Ask somebody to correct it')"
+						type="tertiary"
+						:icon="faClipboardList"
+						size="s"
+						@click="taskProblem = problem"
+					/>
+				</div>
+			</li>
+		</ul>
+		<p class="mt-3 text-xs text-gray-500">{{ ctrans("Once it is corrected, press Submit again.") }}</p>
+
+		<template #footer>
+			<Button :label="ctrans('Close')" type="tertiary" @click="submitProblemsOpen = false">
+				<template #icon>
+					<FontAwesomeIcon :icon="faTimes" class="text-red-500" fixed-width aria-hidden="true" />
+				</template>
+			</Button>
+		</template>
+	</Dialog>
+
+	<StaffTaskDialog
+		:is-open="!!taskProblem"
+		:subject="taskProblem?.task?.subject"
+		:description="taskProblem?.task?.description"
+		department="masters"
+		:model-type="taskProblem?.org_stock_id ? 'OrgStock' : null"
+		:model-id="taskProblem?.org_stock_id"
+		@close="taskProblem = null"
+	/>
+
+	<Dialog
 		v-model:visible="estimatedDeliveryDateModalOpen"
 		modal
 		:header="ctrans('Estimated delivery date')"
@@ -1282,6 +1623,10 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 		:draggable="false"
 	>
 		<div class="flex flex-col gap-4">
+			<p v-if="newStockDeliveryAction?.agent_note" class="flex gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+				<FontAwesomeIcon icon="fal fa-exclamation-triangle" class="mt-0.5 text-amber-500" fixed-width aria-hidden="true" />
+				<span>{{ newStockDeliveryAction.agent_note }}</span>
+			</p>
 			<div v-if="open_agent_deliveries.length" class="flex flex-col gap-2">
 				<label for="purchase-order-target-delivery" class="font-medium text-gray-700">{{ ctrans("Add to") }}</label>
 				<Select
@@ -1344,9 +1689,7 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 				class="flex cursor-pointer items-center gap-3 p-3 hover:bg-gray-50"
 			>
 				<Checkbox v-model="selectedDeliveryItemIds" :value="item.id" />
-				<div class="h-12 w-12 flex-none overflow-hidden rounded border border-gray-100">
-					<Image :src="item.image_thumbnail" imageCover class="h-12 w-12" />
-				</div>
+				<ZoomableImage :src="item.image_thumbnail" :full="item.image_full" :alt="item.code" class="h-12 w-12" @click.prevent />
 				<span class="min-w-0 flex-1">
 					<span class="block font-medium text-gray-800">{{ item.code || ctrans("No code") }}</span>
 					<span class="block truncate text-sm text-gray-500">{{ item.name }}</span>

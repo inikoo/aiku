@@ -113,12 +113,12 @@ function absentStage(stage: { key: string; label: string; description: string })
 }
 
 function tracksAbsent(stage: { key: string; markable: boolean }): boolean {
-    return props.ribbon.journey === "supplier" && stage.markable && stage.key !== "spec_sample"
+    return props.ribbon.journey === "supplier" && stage.markable
 }
 
 function absentTitle(key: string): string {
-    if (key === "spec_sample") {
-        return ctrans("Only for orders with new products")
+    if (key === "deposit_paid") {
+        return ctrans("No deposit on this order")
     }
     if (key === "products_online") {
         return ctrans("No products for sale on this order")

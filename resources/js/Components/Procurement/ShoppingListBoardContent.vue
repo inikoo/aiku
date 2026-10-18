@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { router } from "@inertiajs/vue3"
 import { computed, reactive } from "vue"
-import { ctrans } from "@/Composables/useTrans"
+import { ctrans, ctransChoice } from "@/Composables/useTrans"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { useLocaleStore } from "@/Stores/locale"
 import ProcurementOverviewPill from "@/Components/DataDisplay/Dashboard/Widget/ProcurementOverviewPill.vue"
@@ -121,7 +121,7 @@ function proposeDismiss(line: OrgLine) {
         </div>
 
         <div v-if="editable && Object.keys(selected).length" class="sticky top-0 z-10 flex items-center justify-between rounded-lg bg-[--app-accent] px-4 py-2 text-[--app-accent-text]">
-            <span>{{ Object.keys(selected).length }} {{ ctrans("lines selected") }}</span>
+            <span>{{ ctransChoice(":count line selected|:count lines selected", Object.keys(selected).length) }}</span>
             <button type="button" class="rounded bg-white px-3 py-1 text-[--app-accent] hover:bg-[--app-accent-soft]" @click="submitCherryPick">
                 {{ ctrans("Create purchase orders") }}
             </button>

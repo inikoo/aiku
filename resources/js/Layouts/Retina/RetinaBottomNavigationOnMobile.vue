@@ -8,7 +8,7 @@
 
 import { inject, onMounted, ref } from "vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faBoxUsd, faParking, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory, faConveyorBeltAlt, faChevronDown, faPalletAlt, faUserFriends, faKey, faFolderTree, faBooks } from "@fal"
+import { faBoxUsd, faParking, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory, faConveyorBeltAlt, faChevronDown, faPalletAlt, faUserFriends, faKey, faFolderTree, faBooks, faCalendarCheck } from "@fal"
 
 import { generateNavigationName } from '@/Composables/useConvertString'
 
@@ -17,7 +17,7 @@ import RetinaMobileNavigationSimple from "./RetinaMobileNavigationSimple.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { isNavigationActive } from "@/Composables/useUrl"
 import { Popover } from "primevue"
-library.add(faBoxUsd, faParking, faUsersCog, faLightbulb, faUserHardHat, faUser, faUsersCog, faInventory, faConveyorBeltAlt, faChevronDown, faPalletAlt, faUserFriends, faKey, faFolderTree, faBooks)
+library.add(faBoxUsd, faParking, faUsersCog, faLightbulb, faUserHardHat, faUser, faUsersCog, faInventory, faConveyorBeltAlt, faChevronDown, faPalletAlt, faUserFriends, faKey, faFolderTree, faBooks, faCalendarCheck)
 
 const layout = inject('layout', {})
 

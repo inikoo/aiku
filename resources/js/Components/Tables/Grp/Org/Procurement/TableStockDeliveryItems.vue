@@ -21,15 +21,17 @@ import { routeType } from '@/types/route'
 import { useLocaleStore } from '@/Stores/locale'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faInventory, faBox, faSpellCheck, faBoxCheck, faTrashAlt, faClipboardList, faSeedling, faTruck, faCheck, faClipboardCheck, faCheckDouble, faTimesCircle, faEquals, faDollarSign, faSave, faUndoAlt, faHandHoldingBox, faExclamationCircle as falExclamationCircle } from '@fal'
+import { faInventory, faBox, faSpellCheck, faBoxCheck, faTrashAlt, faClipboardList, faSeedling, faTruck, faCheck, faClipboardCheck, faCheckDouble, faTimesCircle, faSave, faUndoAlt, faHandHoldingBox, faExclamationCircle as falExclamationCircle } from '@fal'
 import { faExclamationCircle, faSpinner } from '@fas'
 import ConfirmPopup from 'primevue/confirmpopup'
+import InputNumber from 'primevue/inputnumber'
 import { Dialog } from 'primevue'
 import { useConfirm } from 'primevue/useconfirm'
 import { ctrans } from '@/Composables/useTrans'
 
-library.add(faInventory, faBox, faSpellCheck, faBoxCheck, faTrashAlt, faExclamationCircle, faSpinner, faClipboardList, faSeedling, faTruck, faCheck, faClipboardCheck, faCheckDouble, faTimesCircle, faEquals, faDollarSign, faSave, faUndoAlt, faHandHoldingBox, falExclamationCircle)
+library.add(faInventory, faBox, faSpellCheck, faBoxCheck, faTrashAlt, faExclamationCircle, faSpinner, faClipboardList, faSeedling, faTruck, faCheck, faClipboardCheck, faCheckDouble, faTimesCircle, faSave, faUndoAlt, faHandHoldingBox, falExclamationCircle)
 
+import DiscontinueSuggestion from "@/Components/Procurement/DiscontinueSuggestion.vue"
 const props = defineProps<{
     data: { data?: any[] },
     tab?: string,
@@ -53,19 +55,17 @@ function reloadStockDelivery() {
     })
 }
 
-function confirmChangeState(event: MouseEvent, item: any, stateRoute: any, message: string, acceptLabel: string, body: Record<string, unknown> = {}) {
+function confirmChangeState(event: MouseEvent, item: any, stateRoute: any, message: string, acceptLabel: string, body: Record<string, unknown> = {}, isDestructive = false) {
     if (!stateRoute) {
         return
     }
 
     confirm.require({
+        group: 'stock-delivery-items',
         target: event.currentTarget as HTMLElement,
         message,
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel,
-        rejectLabel: ctrans('Cancel'),
-        acceptClass: 'p-button-success',
-        rejectClass: 'p-button-text',
+        acceptProps: { label: acceptLabel, severity: isDestructive ? 'danger' : 'success' },
+        rejectProps: { label: ctrans('Cancel') },
         accept: () => changeState(item, stateRoute, body),
     })
 }
@@ -124,7 +124,14 @@ function differenceClass(value: number | null) {
 }
 
 function checkedQuantityBreakdown(item: any) {
-    const units = Number(item.unit_quantity_checked)
+    return unitsBreakdown(item, Number(item.unit_quantity_checked))
+}
+
+function placedQuantityBreakdown(item: any) {
+    return unitsBreakdown(item, Number(item.unit_quantity_placed))
+}
+
+function unitsBreakdown(item: any, units: number) {
     const pack = Number(item.units_per_pack) || 1
     const carton = Number(item.units_per_carton) || 1
 
@@ -207,8 +214,6 @@ const costFields = ['cost_items', 'cost_extra', 'cost_shipping', 'cost_duties', 
 
 const costDraft = reactive<Record<number, Record<string, number>>>({})
 const savingCostId = ref<number | null>(null)
-const extraCostToDistribute = ref<number>(0)
-const distributingType = ref<string | null>(null)
 
 watch(() => props.data?.data, (items) => {
     for (const id of Object.keys(costDraft)) {
@@ -302,30 +307,50 @@ async function saveAllCosts() {
     }
 }
 
-async function distributeExtraCost(type: 'equally' | 'by_value') {
-    const distributeRoute = props.costing?.distributeExtraCostRoute
+const cbmInContainerDraft = reactive<Record<number, number | null>>({})
+const savingCbmInContainerId = ref<number | null>(null)
 
-    if (!distributeRoute) {
+watch(() => props.data?.data, (items) => {
+    for (const id of Object.keys(cbmInContainerDraft)) {
+        delete cbmInContainerDraft[Number(id)]
+    }
+
+    for (const item of items ?? []) {
+        if (item.cbmInContainerRoute) {
+            cbmInContainerDraft[item.id] = item.cbm_in_container === null ? null : Number(item.cbm_in_container)
+        }
+    }
+}, { immediate: true })
+
+function isCbmInContainerChanged(item: any) {
+    const draft = cbmInContainerDraft[item.id]
+
+    if (draft === null || draft === undefined) {
+        return item.is_cbm_in_container_set
+    }
+
+    return item.cbm_in_container === null || Number(draft) !== Number(item.cbm_in_container)
+}
+
+async function saveCbmInContainer(item: any, value: number | null) {
+    if (!item.cbmInContainerRoute) {
         return
     }
 
-    distributingType.value = type
+    savingCbmInContainerId.value = item.id
 
     try {
-        await axios.patch(route(distributeRoute.name, distributeRoute.parameters), {
-            amount: Number(extraCostToDistribute.value) || 0,
-            type,
-        })
-        notify({ title: ctrans('Success'), text: ctrans('Extra costs distributed'), type: 'success' })
+        await axios.patch(route(item.cbmInContainerRoute.name, item.cbmInContainerRoute.parameters), { cbm_in_container: value })
+        notify({ title: ctrans('Success'), text: ctrans('CBM in container updated'), type: 'success' })
         reloadStockDelivery()
     } catch (error: any) {
         notify({
             title: ctrans('Something went wrong'),
-            text: error?.response?.data?.message || ctrans('Failed to distribute the extra costs'),
+            text: error?.response?.data?.message || ctrans('Failed to update the CBM in container'),
             type: 'error',
         })
     } finally {
-        distributingType.value = null
+        savingCbmInContainerId.value = null
     }
 }
 
@@ -334,52 +359,21 @@ async function distributeExtraCost(type: 'equally' | 'by_value') {
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #before-table>
-            <div v-if="costing?.distributeExtraCostRoute && costing.can_edit" class="flex flex-wrap items-center gap-3 px-6 py-3">
-                <label for="extra-cost-to-distribute" class="text-sm text-gray-600">
-                    {{ ctrans('Set extra costs') }} <span v-if="costing.currency">({{ costing.currency }})</span>
-                </label>
-                <input
-                    id="extra-cost-to-distribute"
-                    v-model="extraCostToDistribute"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    class="border border-gray-300 rounded text-sm py-1 px-2 w-32"
-                />
-
-                <span class="text-sm text-gray-600">{{ ctrans('Distribute') }}:</span>
-
-                <Button
-                    :tooltip="ctrans('Distribute equally each items')"
-                    icon="fal fa-equals"
-                    type="tertiary"
-                    size="xs"
-                    :loading="distributingType === 'equally'"
-                    :disabled="distributingType !== null"
-                    @click="distributeExtraCost('equally')"
-                />
-
-                <Button
-                    :tooltip="ctrans('Distribute depending on value')"
-                    icon="fal fa-dollar-sign"
-                    type="tertiary"
-                    size="xs"
-                    :loading="distributingType === 'by_value'"
-                    :disabled="distributingType !== null"
-                    @click="distributeExtraCost('by_value')"
-                />
-
+            <div v-if="costing?.can_edit" class="flex flex-wrap items-center gap-3 px-6 py-3">
                 <Button
                     :label="ctrans('Save all')"
                     :tooltip="ctrans('Save the costs of every changed item')"
-                    icon="fal fa-save"
-                    type="save"
+                    type="tertiary"
                     size="xs"
                     class="ml-auto"
                     :loading="isSavingAllCosts"
                     :disabled="isSavingAllCosts || savingCostId !== null"
                     @click="saveAllCosts"
-                />
+                >
+                    <template #icon>
+                        <FontAwesomeIcon icon="fal fa-save" class="text-green-600" fixed-width aria-hidden="true" />
+                    </template>
+                </Button>
             </div>
         </template>
 
@@ -479,6 +473,7 @@ async function distributeExtraCost(type: 'equally' | 'by_value') {
                     </div>
                 </div>
                 <div v-else-if="item.org_stock_id" class="mt-1 text-xs italic text-red-500">{{ ctrans('No location yet') }}</div>
+                <DiscontinueSuggestion v-if="item.org_stock_id" :orgStockId="item.org_stock_id" :code="item.org_stock_code ?? item.code" source="goods_in" :label="ctrans('Report a bad product')" />
             </div>
         </template>
 
@@ -498,14 +493,62 @@ async function distributeExtraCost(type: 'equally' | 'by_value') {
         </template>
 
         <template #cell(volume)="{ item }">
-            <span v-if="item.volume !== null">{{ locale.number(item.volume) }} m³</span>
-            <FontAwesomeIcon
-                v-else
-                v-tooltip="ctrans('Unknown CBM')"
-                icon="fas fa-exclamation-circle"
-                class="text-orange-500"
-                fixed-width aria-hidden="true"
-            />
+            <div class="space-y-1">
+                <div v-tooltip="ctrans('CBM of the item')" class="whitespace-nowrap">
+                    <span v-if="item.volume !== null">{{ locale.number(item.volume) }} m³</span>
+                    <FontAwesomeIcon
+                        v-else
+                        v-tooltip="ctrans('Unknown CBM')"
+                        icon="fas fa-exclamation-circle"
+                        class="text-orange-500"
+                        fixed-width aria-hidden="true"
+                    />
+                </div>
+
+                <div v-if="item.cbmInContainerRoute" class="flex items-center gap-1">
+                    <InputNumber
+                        v-model="cbmInContainerDraft[item.id]"
+                        v-tooltip="ctrans('CBM in container')"
+                        :min="0"
+                        :maxFractionDigits="4"
+                        suffix=" m³"
+                        size="small"
+                        :placeholder="ctrans('In container')"
+                        :disabled="savingCbmInContainerId === item.id"
+                        inputClass="w-24 text-right"
+                        @keydown.enter="saveCbmInContainer(item, cbmInContainerDraft[item.id] ?? null)"
+                    />
+                    <Button
+                        v-if="isCbmInContainerChanged(item)"
+                        :tooltip="ctrans('Save the CBM in container')"
+                        type="tertiary"
+                        size="xs"
+                        :loading="savingCbmInContainerId === item.id"
+                        :disabled="savingCbmInContainerId === item.id"
+                        @click="saveCbmInContainer(item, cbmInContainerDraft[item.id] ?? null)"
+                    >
+                        <template #icon>
+                            <FontAwesomeIcon icon="fal fa-save" class="text-green-600" fixed-width aria-hidden="true" />
+                        </template>
+                    </Button>
+                    <Button
+                        v-else-if="item.is_cbm_in_container_set"
+                        :tooltip="ctrans('Use the CBM of the item again')"
+                        type="tertiary"
+                        size="xs"
+                        :loading="savingCbmInContainerId === item.id"
+                        :disabled="savingCbmInContainerId === item.id"
+                        @click="saveCbmInContainer(item, null)"
+                    >
+                        <template #icon>
+                            <FontAwesomeIcon icon="fal fa-undo-alt" class="text-gray-500" fixed-width aria-hidden="true" />
+                        </template>
+                    </Button>
+                </div>
+                <div v-else-if="item.is_cbm_in_container_set" v-tooltip="ctrans('CBM in container')" class="whitespace-nowrap text-xs text-gray-500">
+                    {{ ctrans('In container') }}: {{ locale.number(item.cbm_in_container) }} m³
+                </div>
+            </div>
         </template>
 
         <template #cell(amount)="{ item }">
@@ -518,18 +561,21 @@ async function distributeExtraCost(type: 'equally' | 'by_value') {
                     v-if="item.updateCostRoute && costDraft[item.id]"
                     :label="ctrans('Save')"
                     :tooltip="ctrans('Save the costs of this item')"
-                    icon="fal fa-save"
-                    type="save"
+                    type="tertiary"
                     size="xs"
                     :loading="savingCostId === item.id"
                     :disabled="savingCostId === item.id"
                     @click="saveCost(item)"
-                />
+                >
+                    <template #icon>
+                        <FontAwesomeIcon icon="fal fa-save" class="text-green-600" fixed-width aria-hidden="true" />
+                    </template>
+                </Button>
 
                 <Button
                     v-else-if="item.confirmRoute"
                     :label="ctrans('Confirm')"
-                    :tooltip="ctrans('Confirm item')"
+                    :tooltip="ctrans('Step 1 before shipping: confirm this item goes in the container')"
                     icon="fal fa-spell-check"
                     type="positive"
                     size="xs"
@@ -541,7 +587,7 @@ async function distributeExtraCost(type: 'equally' | 'by_value') {
                 <Button
                     v-else-if="item.readyToShipRoute"
                     :label="ctrans('Ready to ship')"
-                    :tooltip="ctrans('Set ready to ship')"
+                    :tooltip="ctrans('Step 2 before shipping: this item is packed and ready to dispatch')"
                     icon="fal fa-box-check"
                     type="secondary"
                     size="xs"
@@ -576,6 +622,10 @@ async function distributeExtraCost(type: 'equally' | 'by_value') {
 
         <template #cell(checked_quantity)="{ item }">
             <span class="text-gray-500">{{ checkedQuantityBreakdown(item) }}</span>
+        </template>
+
+        <template #cell(placed_quantity)="{ item }">
+            <span class="text-gray-500">{{ placedQuantityBreakdown(item) }}</span>
         </template>
 
         <template #cell(difference_percentage)="{ item }">
@@ -651,7 +701,7 @@ async function distributeExtraCost(type: 'equally' | 'by_value') {
                                 type="negative"
                                 :loading="isProcessing || changingId === item.id"
                                 class="py-0"
-                                @click="confirmChangeState($event, item, item.checkedRoute, ctrans('Mark :code as not received? The delivery closes without it once everything else is booked in.', { code: item.code }), ctrans('Not received'), { sko_quantity_checked: 0 })"
+                                @click="confirmChangeState($event, item, item.checkedRoute, ctrans('Mark :code as not received? The delivery closes without it once everything else is booked in.', { code: item.code }), ctrans('Not received'), { sko_quantity_checked: 0 }, true)"
                             />
                         </div>
                     </template>
@@ -839,5 +889,34 @@ async function distributeExtraCost(type: 'equally' | 'by_value') {
         </div>
     </Dialog>
 
-    <ConfirmPopup />
+    <ConfirmPopup group="stock-delivery-items" :style="{ width: '24rem', maxWidth: 'calc(100vw - 2rem)' }">
+        <template #container="{ message, acceptCallback, rejectCallback }">
+            <div class="p-4">
+                <p class="text-sm text-gray-700">{{ message.message }}</p>
+                <div class="mt-4 flex justify-end gap-2">
+                    <Button type="tertiary" size="xs" :label="message.rejectProps?.label" @click="rejectCallback">
+                        <template #icon>
+                            <FontAwesomeIcon icon="fal fa-undo-alt" class="text-gray-500" fixed-width aria-hidden="true" />
+                        </template>
+                    </Button>
+                    <Button
+                        type="tertiary"
+                        size="xs"
+                        :label="message.acceptProps?.label"
+                        :class="message.acceptProps?.severity === 'danger' ? '!border-red-500 !text-red-600 hover:!bg-red-50' : ''"
+                        @click="acceptCallback"
+                    >
+                        <template #icon>
+                            <FontAwesomeIcon
+                                :icon="message.acceptProps?.severity === 'danger' ? 'fal fa-times' : 'fal fa-check'"
+                                :class="message.acceptProps?.severity === 'danger' ? 'text-red-600' : 'text-green-600'"
+                                fixed-width
+                                aria-hidden="true"
+                            />
+                        </template>
+                    </Button>
+                </div>
+            </div>
+        </template>
+    </ConfirmPopup>
 </template>

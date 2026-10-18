@@ -47,7 +47,7 @@ class FindShopifyProductVariant
                     descriptionHtml
                     productType
                     vendor
-                    variants(first: 10) {
+                    variants(first: 50) {
                       edges {
                         node {
                           id
@@ -121,7 +121,8 @@ class FindShopifyProductVariant
                     'images'       => array_map(function ($imageEdge) {
                         return $imageEdge['node'];
                     }, $product['images']['edges'] ?? []),
-                    'sku_list'          => collect($shopifyVariants)->pluck('node.sku')
+                    'sku_list'          => collect($shopifyVariants)->pluck('node.sku'),
+                    'barcode_list'      => collect($shopifyVariants)->pluck('node.barcode')->filter()->values()
                 ];
 
             }

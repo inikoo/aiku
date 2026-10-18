@@ -194,6 +194,7 @@ trait WithShopifyExternalShopApi
                                     totalTaxSet { shopMoney { amount currencyCode } }
                                     totalShippingPriceSet { shopMoney { amount currencyCode } }
                                     totalDiscountsSet { shopMoney { amount currencyCode } }
+                                    shippingLines(first: 5) { nodes { isRemoved discountedPriceSet { shopMoney { amount } } taxLines { priceSet { shopMoney { amount } } } } }
                                     customer {
                                         id
                                         email
@@ -430,12 +431,14 @@ trait WithShopifyExternalShopApi
         for ($page = 0; $page < $this->shopifyMaxPages; $page++) {
             $response = $this->shopifyExternalShopQuery($shopifyUser, '
                 query ($first: Int!, $after: String) {
+                    shop { taxesIncluded }
                     productVariants(first: $first, after: $after) {
                         nodes {
                             id
                             sku
                             title
                             price
+                            taxable
                             selectedOptions { name value }
                             inventoryItem { id tracked }
                             product { id title status description(truncateAt: 2000) }
@@ -459,6 +462,7 @@ trait WithShopifyExternalShopApi
                     'name'              => $this->getShopifyExternalShopVariantName($variant),
                     'description'       => trim((string) Arr::get($variant, 'product.description')) ?: null,
                     'price'             => (float) Arr::get($variant, 'price', 0),
+                    'price_includes_tax' => (bool) Arr::get($response, 'shop.taxesIncluded', false) && (bool) Arr::get($variant, 'taxable', true),
                     'status'            => (string) Arr::get($variant, 'product.status'),
                 ];
             }
@@ -517,6 +521,7 @@ trait WithShopifyExternalShopApi
                             totalTaxSet { shopMoney { amount currencyCode } }
                             totalShippingPriceSet { shopMoney { amount currencyCode } }
                             totalDiscountsSet { shopMoney { amount currencyCode } }
+                            shippingLines(first: 5) { nodes { isRemoved discountedPriceSet { shopMoney { amount } } taxLines { priceSet { shopMoney { amount } } } } }
                             customer {
                                 id
                                 email

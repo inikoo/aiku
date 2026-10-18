@@ -9,6 +9,7 @@
 namespace App\Actions\Catalogue\Shop;
 
 use App\Actions\Chat\Widget\EnableShopChatWidget;
+use App\Actions\CRM\Customer\GetCustomerStateByLastInvoice;
 use App\Actions\CRM\Customer\PdfCustomerLetterOfAuthorisation;
 use App\Actions\Iris\Docs\PurgeIrisDocsFromVarnish;
 use App\Actions\Ordering\PreOrder\GetPreOrderText;
@@ -34,6 +35,7 @@ use App\Enums\Catalogue\Review\ReviewRatingDimensionEnum;
 use App\Enums\Catalogue\Review\ReviewValidationScopeEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\Comms\Email\EmailEditorEnum;
 use App\Enums\Comms\Ses\SesRegionEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Http\Resources\Catalogue\ShopResource;
@@ -50,6 +52,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\File;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 use App\Models\Ordering\SalesChannel;
 use Closure;
@@ -246,6 +249,23 @@ class UpdateShop extends OrgAction
 
         if (Arr::has($modelData, 'payment_settlement_tolerance')) {
             data_set($modelData, 'settings.accounting.payment_settlement_tolerance', Arr::pull($modelData, 'payment_settlement_tolerance'));
+        }
+
+        foreach (['losing_after_days', 'lost_after_days'] as $customerStateSetting) {
+            if (Arr::has($modelData, "customer_$customerStateSetting")) {
+                data_set($modelData, "settings.customer.$customerStateSetting", (int) Arr::pull($modelData, "customer_$customerStateSetting"));
+            }
+        }
+
+        if (Arr::hasAny($modelData, ['settings.customer.losing_after_days', 'settings.customer.lost_after_days'])) {
+            $customerLosingAfterDays = Arr::get($modelData, 'settings.customer.losing_after_days', GetCustomerStateByLastInvoice::make()->losingAfterDays($shop));
+            $customerLostAfterDays   = Arr::get($modelData, 'settings.customer.lost_after_days', GetCustomerStateByLastInvoice::make()->lostAfterDays($shop));
+
+            if ($customerLostAfterDays <= $customerLosingAfterDays) {
+                throw ValidationException::withMessages([
+                    Arr::has($modelData, 'settings.customer.lost_after_days') ? 'customer_lost_after_days' : 'customer_losing_after_days' => __('Dormant has to start after Potential Comebacks: :lost days is not more than :losing days.', ['lost' => $customerLostAfterDays, 'losing' => $customerLosingAfterDays]),
+                ]);
+            }
         }
 
         if (Arr::has($modelData, 'identity_document_number_label')) {
@@ -488,6 +508,10 @@ class UpdateShop extends OrgAction
 
         if (Arr::exists($modelData, 'chat_email_offline_replies')) {
             data_set($modelData, 'settings.chat.email_offline_replies', (bool) Arr::pull($modelData, 'chat_email_offline_replies'));
+        }
+
+        if (Arr::exists($modelData, 'email_editor')) {
+            data_set($modelData, 'settings.email_editor', Arr::pull($modelData, 'email_editor'));
         }
 
         $viewContactOptionsPanel = null;
@@ -1119,7 +1143,10 @@ class UpdateShop extends OrgAction
             'pre_order_pallet_rates.*.country_code'                   => ['required', 'string', 'size:2'],
             'pre_order_pallet_rates.*.amount'                         => ['required', 'numeric', 'min:0'],
             'payment_settlement_tolerance'                            => ['sometimes', 'numeric', 'min:0', 'max:1'],
+            'customer_losing_after_days'                              => ['sometimes', 'integer', 'min:1', 'max:3650'],
+            'customer_lost_after_days'                                => ['sometimes', 'integer', 'min:2', 'max:3650'],
             'bank_transfer_instructions_for_email'                    => ['sometimes', 'nullable', 'string', 'max:10000'],
+            'email_editor'                                            => ['sometimes', Rule::enum(EmailEditorEnum::class)],
             'access_id'                                               => ['sometimes', 'nullable', 'string'],
             'access_key'                                              => ['sometimes', 'nullable', 'string'],
             'region'                                                  => ['sometimes', 'nullable', Rule::enum(SesRegionEnum::class)],

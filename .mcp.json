@@ -16,7 +16,10 @@
             "args": [
                 "-c",
                 "set -a && . ./.env && set +a && npx -y @modelcontextprotocol/server-postgres \"postgresql://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:5432/${DB_DATABASE}\""
-            ]
+            ],
+            "env": {
+                "TZ": "UTC"
+            }
         }
     }
 }

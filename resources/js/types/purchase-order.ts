@@ -5,6 +5,7 @@
  */
 
 export interface PurchaseOrder {
+    id: number,
     slug: string,
     provider_id: string,
     provider_type: string,
@@ -21,5 +22,6 @@ export interface PurchaseOrder {
     org_agent_slug: string | null
     agent_order_reference?: string | null
     supplier_slug: string | null
+    supplier_purchase_orders?: number | null
     organisation_slug?: string | null
 }

@@ -18,6 +18,7 @@ use App\Models\Helpers\Barcode;
 use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
+use App\Actions\Traits\WithActionUpdate;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -28,6 +29,8 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class UpdateOrgStockUnitBarcode extends OrgAction
 {
+    use WithActionUpdate;
+
     private OrgStock $orgStock;
 
     public function handle(OrgStock $orgStock, array $modelData): OrgStock
@@ -62,7 +65,10 @@ class UpdateOrgStockUnitBarcode extends OrgAction
             $holder = $barcode->tradeUnitsActive->first();
             if ($holder && $holder->id !== $tradeUnit->id) {
                 throw ValidationException::withMessages([
-                    'unit_barcode' => __('Barcode :number is already assigned to trade unit :code.', ['number' => $number, 'code' => $holder->code]),
+                    'unit_barcode' => __('Barcode :number already belongs to a different item, :item. Each item needs its own barcode.', [
+                        'number' => $number,
+                        'item'   => $holder->name ? $holder->code.' ('.$holder->name.')' : $holder->code,
+                    ]),
                 ]);
             }
         } else {

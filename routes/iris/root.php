@@ -8,6 +8,7 @@
 
 use App\Actions\Retina\Dropshipping\Bundle\UI\RedirectIrisToRetinaBundle;
 use App\Actions\Helpers\Media\UI\ShowIrisAudio;
+use App\Actions\Iris\Appointment\ShowIrisAppointment;
 use App\Actions\Iris\Media\DownloadIrisAttachment;
 use Illuminate\Support\Facades\Route;
 use App\Actions\Web\Webpage\Iris\ShowIrisSitemap;
@@ -29,6 +30,7 @@ use App\Actions\Comms\Unsubscribe\ShowUnsubscribeFromAurora;
 use App\Actions\Accounting\Payment\CheckoutCom\ReceiveCheckoutComPaymentWebhook;
 use App\Actions\Web\Webpage\Iris\ShowIrisCatalogue;
 use App\Actions\Iris\Reviews\ShowIrisFamilyReview;
+use App\Actions\Iris\Reviews\ShowIrisOrderReview;
 use App\Actions\Iris\Reviews\ShowIrisProductReview;
 use App\Actions\Iris\Reviews\ShowIrisReviews;
 use App\Actions\Iris\Docs\ShowIrisDoc;
@@ -105,6 +107,7 @@ Route::middleware(["iris-relax-auth:retina"])->group(function () {
         Route::get('/warming_products.txt', [ShowIrisWebpagesList::class, 'products'])->name('warming.products');
 
         Route::get('/invoice/{invoice:ulid}', IrisPdfInvoice::class)->name('iris_invoice');
+        Route::get('/appointment/{appointment:id}/{token}', ShowIrisAppointment::class)->name('iris_appointment')->whereNumber('appointment');
         Route::get('/attachment/{media:ulid}', DownloadIrisAttachment::class)->name('iris_attachment');
         Route::get('/blog', ShowIrisBlogDashboard::class)->name('iris_blog');
         Route::get('/david-aw-news', ShowIrisNewslettersDashboard::class)->name('iris_newsletters');
@@ -126,6 +129,7 @@ Route::middleware(["iris-relax-auth:retina"])->group(function () {
 
         Route::get('/reviews/product/{product}', ShowIrisProductReview::class)->name('reviews.product');
         Route::get('/reviews/family/{family}', ShowIrisFamilyReview::class)->name('reviews.family');
+        Route::get('/review/{order:id}/{token}', ShowIrisOrderReview::class)->name('order_review')->whereNumber('order');
 
         Route::get('/{path?}', ShowIrisWebpage::class)->name('iris_webpage');
         Route::get('/{parentPath1}/{path}', [ShowIrisWebpage::class, 'deep1'])->name('iris_webpage.deep1');

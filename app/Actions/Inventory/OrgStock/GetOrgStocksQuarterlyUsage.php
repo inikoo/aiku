@@ -18,30 +18,32 @@ class GetOrgStocksQuarterlyUsage
     use AsObject;
 
     /**
-     * SKOs dispatched, days out of stock and the customer who took the most in each of the last four quarters (the current one included), keyed by org stock id.
+     * SKOs dispatched, their sales value in the organisation currency, days out of stock and the customer who took the most in each of the last $quarters quarters (the current one included), keyed by org stock id.
      *
      * @param  Collection<int, int>  $orgStockIds
-     * @return Collection<int, Collection<int, array{period: string, sales: float, days_out_of_stock: int, top_customer: array{id: int, name: string, sales: float}|null}>>
+     * @param  int  $quarters
+     * @return Collection<int, Collection<int, array{period: string, sales: float, sales_amount: float, currency: string|null, days_out_of_stock: int, top_customer: array{id: int, name: string, sales: float}|null}>>
      */
-    public function handle(Collection $orgStockIds): Collection
+    public function handle(Collection $orgStockIds, int $quarters = 8): Collection
     {
         if ($orgStockIds->isEmpty()) {
             return collect();
         }
 
-        $from    = now()->firstOfQuarter()->subQuarters(3)->startOfDay();
-        $periods = collect(range(0, 3))->map(fn (int $quarter) => $from->copy()->addQuarters($quarter))
+        $from    = now()->firstOfQuarter()->subQuarters($quarters - 1)->startOfDay();
+        $periods = collect(range(0, $quarters - 1))->map(fn (int $quarter) => $from->copy()->addQuarters($quarter))
             ->map(fn ($start) => $start->year.'Q'.$start->quarter);
 
         $sales = DB::table('delivery_note_items')
-            ->whereIn('org_stock_id', $orgStockIds)
-            ->where('quantity_dispatched', '>', 0)
-            ->where('created_at', '>=', $from)
-            ->selectRaw("org_stock_id, to_char(date_trunc('quarter', created_at), 'YYYY\"Q\"Q') as period, sum(quantity_dispatched) as sales")
-            ->groupByRaw("org_stock_id, date_trunc('quarter', created_at)")
+            ->leftJoin('transactions', 'transactions.id', '=', 'delivery_note_items.transaction_id')
+            ->whereIn('delivery_note_items.org_stock_id', $orgStockIds)
+            ->where('delivery_note_items.quantity_dispatched', '>', 0)
+            ->where('delivery_note_items.created_at', '>=', $from)
+            ->selectRaw("delivery_note_items.org_stock_id, to_char(date_trunc('quarter', delivery_note_items.created_at), 'YYYY\"Q\"Q') as period, sum(delivery_note_items.quantity_dispatched) as sales, sum(coalesce(transactions.org_net_amount * delivery_note_items.quantity_dispatched / nullif(delivery_note_items.quantity_required, 0), 0)) as sales_amount")
+            ->groupByRaw("delivery_note_items.org_stock_id, date_trunc('quarter', delivery_note_items.created_at)")
             ->get()
             ->groupBy('org_stock_id')
-            ->map(fn ($records) => $records->pluck('sales', 'period'));
+            ->map(fn ($records) => $records->keyBy('period'));
 
         $topCustomers = DB::query()
             ->fromSub(
@@ -73,10 +75,18 @@ class GetOrgStocksQuarterlyUsage
             ->groupBy('org_stock_id')
             ->map(fn ($records) => $records->pluck('days', 'period'));
 
+        $currencies = DB::table('org_stocks')
+            ->join('organisations', 'organisations.id', '=', 'org_stocks.organisation_id')
+            ->join('currencies', 'currencies.id', '=', 'organisations.currency_id')
+            ->whereIn('org_stocks.id', $orgStockIds)
+            ->pluck('currencies.code', 'org_stocks.id');
+
         return $orgStockIds->mapWithKeys(fn ($orgStockId) => [
             $orgStockId => $periods->map(fn (string $period) => [
                 'period'            => $period,
-                'sales'             => round((float) ($sales->get($orgStockId)?->get($period) ?? 0), 1),
+                'sales'             => round((float) ($sales->get($orgStockId)?->get($period)?->sales ?? 0), 1),
+                'sales_amount'      => round((float) ($sales->get($orgStockId)?->get($period)?->sales_amount ?? 0)),
+                'currency'          => $currencies->get($orgStockId),
                 'days_out_of_stock' => (int) ($daysOutOfStock->get($orgStockId)?->get($period) ?? 0),
                 'top_customer'      => $this->topCustomer($topCustomers->get($orgStockId)?->get($period)),
             ]),

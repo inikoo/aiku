@@ -58,7 +58,7 @@ class ProcessCollectionTimeSeriesRecords implements ShouldBeUnique
         $processedPeriods = [];
         $rows             = [];
 
-        $assetsIDs = $timeSeries->collection->products->pluck('id')->unique()->toArray();
+        $assetsIDs = $timeSeries->collection->products->pluck('asset_id')->unique()->toArray();
 
         $query = DB::connection('aiku_no_sticky')->table('invoice_transactions')
             ->whereIn('asset_id', $assetsIDs)

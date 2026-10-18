@@ -414,7 +414,7 @@ class IndexSupplierProducts extends OrgAction
     {
         return [
             [
-                'label'  => __('Free'),
+                'label'  => __('No agent'),
                 'root'   => 'grp.supply-chain.supplier_products.free',
                 'route'  => [
                     'name'       => 'grp.supply-chain.supplier_products.free',

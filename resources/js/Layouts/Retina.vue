@@ -131,7 +131,11 @@ watch(() => usePage().props?.flash?.confetti, (newVal) => {
 watch(() => usePage().props?.flash?.gtm, (newValue) => {
     if (!newValue?.event) return
 
-    pushServerGtmEventOnce(newValue.event, newValue.data_to_submit)
+    const hasPushedEvent = pushServerGtmEventOnce(newValue.event, newValue.data_to_submit)
+
+    if (hasPushedEvent && newValue.event === 'purchase') {
+        console.log('Purchased✅')
+    }
 }, {
     deep: true,
     immediate: true

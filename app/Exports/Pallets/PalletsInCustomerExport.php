@@ -20,7 +20,8 @@ class PalletsInCustomerExport implements FromQuery, WithHeadings, ShouldAutoSize
 
     public function __construct(
         protected FulfilmentCustomer $fulfilmentCustomer,
-        protected string $tab = FulfilmentCustomerPalletsTabsEnum::ALL->value
+        protected string $tab = FulfilmentCustomerPalletsTabsEnum::ALL->value,
+        protected bool $oneRowPerStoredItem = false
     ) {
     }
 
@@ -53,27 +54,72 @@ class PalletsInCustomerExport implements FromQuery, WithHeadings, ShouldAutoSize
         /** @var Pallet $pallet */
         $pallet = $row;
 
-        $storedItems = collect($pallet->storedItems ?? [])->map(function (StoredItem $storedItem): string {
-            return sprintf('%s (%d)', (string) $storedItem->name, (int) ($storedItem->pivot->quantity ?? 0));
-        });
-
-        return [
+        $palletColumns = [
             is_object($pallet->type) ? $pallet->type->value : (string) $pallet->type,
             (string) $pallet->reference,
             (string) $pallet->customer_reference,
             (string) ($pallet->location_code ?? ''),
-            $storedItems->implode('; '),
-            (string) collect($pallet->storedItems ?? [])->sum(fn ($storedItem): int => (int) ($storedItem->pivot->quantity ?? 0)),
         ];
+
+        $storedItems = collect($pallet->storedItems ?? []);
+
+        if ($this->oneRowPerStoredItem) {
+            if ($storedItems->isEmpty()) {
+                return [[...$palletColumns, '', '', '']];
+            }
+
+            return $storedItems
+                ->map(fn (StoredItem $storedItem): array => [
+                    ...$palletColumns,
+                    (string) $storedItem->reference,
+                    (string) $storedItem->name,
+                    (string) (int) ($storedItem->pivot->quantity ?? 0),
+                ])
+                ->values()
+                ->all();
+        }
+
+        return [
+            ...$palletColumns,
+            $storedItems
+                ->map(fn (StoredItem $storedItem): string => sprintf('%s (%d)', $this->storedItemLabel($storedItem), (int) ($storedItem->pivot->quantity ?? 0)))
+                ->implode('; '),
+            (string) $storedItems->sum(fn (StoredItem $storedItem): int => (int) ($storedItem->pivot->quantity ?? 0)),
+        ];
+    }
+
+    private function storedItemLabel(StoredItem $storedItem): string
+    {
+        $reference = trim((string) $storedItem->reference);
+        $name      = trim((string) $storedItem->name);
+
+        if ($name === '' || $name === $reference) {
+            return $reference;
+        }
+
+        return $reference.' - '.$name;
     }
 
     public function headings(): array
     {
-        return [
+        $palletHeadings = [
             __('Type'),
             __('Reference'),
-            __("Customer Reference"),
+            __('Customer Reference'),
             __('Location Code'),
+        ];
+
+        if ($this->oneRowPerStoredItem) {
+            return [
+                ...$palletHeadings,
+                __("Customer's SKO"),
+                __("Customer's SKO Name"),
+                __('Quantity'),
+            ];
+        }
+
+        return [
+            ...$palletHeadings,
             __("Customer's SKOs"),
             __("Customer's SKOs Quantity"),
         ];

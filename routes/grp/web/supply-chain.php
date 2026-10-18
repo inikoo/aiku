@@ -7,6 +7,7 @@
  */
 
 use App\Actions\GoodsIn\StockDelivery\UI\IndexStockDeliveries;
+use App\Actions\Procurement\SupplierAgreedTerm\PdfSupplierAgreement;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\SupplyChain\Agent\UI\CreateAgent;
 use App\Actions\SupplyChain\AgentSupplierPurchaseOrder\UI\ShowAgentSupplierPurchaseOrder;
@@ -93,6 +94,7 @@ Route::prefix("suppliers")->name("suppliers")->group(
 
         Route::prefix('{supplier}')->group(function () {
             Route::get('', ShowSupplier::class)->name('.show');
+            Route::get('agreement/pdf', [PdfSupplierAgreement::class, 'inGroup'])->name('.agreement.pdf');
             Route::get('edit', EditSupplier::class)->name('.edit');
 
             Route::prefix('supplier-products')->as('.supplier_products')->group(function () {

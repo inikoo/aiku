@@ -9,7 +9,8 @@
 -->
 <script setup lang="ts">
 import { inject, ref, watch } from "vue"
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { FontAwesomeIcon, FontAwesomeLayers } from "@fortawesome/vue-fontawesome"
+import { faClock as falClock, faPencil as falPencil } from "@fal"
 import { faInfoCircle, faPallet, faCircle, faUndo } from "@fas"
 import { faSpinnerThird } from "@fad"
 import Icon from "@/Components/Icon.vue"
@@ -47,7 +48,7 @@ import type { Navigation } from "@/types/Tabs"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue"
 import { ctrans } from "@/Composables/useTrans"
-library.add(
+library.add(falClock, falPencil, 
 	faListUl,
 	faShapes,
 	faRepeat,
@@ -160,7 +161,7 @@ const tabIconClass = function (
 	// console.log(isCurrent, type, align, extraIconClass)
 	let iconClass = "-ml-0.5 h-5 w-5 " + extraIconClass + " "
 	// iconClass += isCurrent ? 'text-indigo-500 ' : 'text-gray-400 group-hover:text-gray-500 ';
-	iconClass += type == "icon" && align == "right" ? "ml-2 " : "mr-2 "
+	iconClass += type == "icon" && align == "right" ? "xml-2 " : "mr-2 "
 	return iconClass
 }
 
@@ -285,6 +286,13 @@ const placeMobileTabOptions = () => {
 									)
 								"
 								fixed-width aria-hidden="true" />
+							<FontAwesomeLayers
+								v-else-if="tab.icon_layers"
+								class="inline-block shrink-0 mr-2 h-5 w-5 text-base"
+								aria-hidden="true">
+								<FontAwesomeIcon :icon="tab.icon_layers[0]" transform="shrink-2 left-2 up-1" />
+								<FontAwesomeIcon :icon="tab.icon_layers[1]" transform="shrink-8 right-5 down-5" />
+							</FontAwesomeLayers>
 							<FontAwesomeIcon
 								v-else-if="tab.icon"
 								:icon="tab.icon"
@@ -350,11 +358,12 @@ const placeMobileTabOptions = () => {
 							class="relative group inline-flex gap-x-1.5 justify-center items-center py-2 px-2 border-b-2 font-medium text-sm focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
 							:aria-current="tabSlug === currentTab ? 'page' : undefined"
 							v-tooltip="tab.title">
-							<FontAwesomeIcon
-								v-if="tabLoading === tabSlug"
-								icon="fad fa-spinner-third"
-								class="animate-spin h-5 w-5"
-								fixed-width aria-hidden="true" />
+							<span v-if="tabLoading === tabSlug">
+								<FontAwesomeIcon
+									icon="fad fa-spinner-third"
+									class="animate-spin h-5 w-5"
+									fixed-width aria-hidden="true" />
+							</span>
 							<span v-else-if="tab.icon" class="relative inline-flex">
 								<FontAwesomeIcon
 									:icon="tab.icon"

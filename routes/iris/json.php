@@ -35,6 +35,7 @@ use App\Actions\Dropshipping\CustomerSalesChannel\Json\GetCustomerCollectionSale
 use App\Actions\Dropshipping\CustomerSalesChannel\Json\GetCustomerProductCategorySalesChannelIds;
 use App\Actions\Dropshipping\CustomerSalesChannel\Json\GetCustomerProductSalesChannelIds;
 use App\Actions\Helpers\Brand\Json\GetIrisBrands;
+use App\Actions\Iris\Appointment\GetIrisAppointmentTypes;
 use App\Actions\Helpers\Brand\Json\GetIrisShopBrands;
 use App\Actions\Helpers\Tag\Json\GetIrisShopTags;
 use App\Actions\Helpers\Tag\Json\GetIrisTags;
@@ -60,6 +61,8 @@ use App\Actions\Search\GetIrisSearchFeaturedItems;
 use App\Actions\Search\RecordWebsiteSearchClick;
 use App\Actions\Search\SearchIrisCatalogue;
 use App\Actions\Search\SearchIrisCataloguePage;
+use App\Actions\Iris\WebsiteDialog\GetIrisWebsiteDialogDismissals;
+use App\Actions\Iris\WebsiteDialog\StoreIrisWebsiteDialogDismissal;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(["retina-auth:retina"])->group(function () {
@@ -70,6 +73,9 @@ Route::middleware(["retina-auth:retina"])->group(function () {
     Route::get('product/{product:id}/transaction-data', GetIrisBasketTransactionsInProduct::class)->name('product.transaction_data')->withoutScopedBindings()->whereNumber('product');
 
     Route::get('collection/{collection:id}/transaction-data', GetIrisBasketTransactionsInCollection::class)->name('collection.transaction_data')->whereNumber('collection');
+
+    Route::get('website-dialog-dismissals', GetIrisWebsiteDialogDismissals::class)->name('website_dialog_dismissals.index');
+    Route::post('website-dialog-dismissals/{websiteDialog:ulid}', StoreIrisWebsiteDialogDismissal::class)->name('website_dialog_dismissals.store')->withoutScopedBindings();
 });
 
 
@@ -94,6 +100,8 @@ Route::middleware(["iris-relax-auth:retina"])->group(function () {
     Route::get('/footer', GetIrisFooterData::class)->name('footer');
 
     Route::get('registration-data', GetIrisRegistrationData::class)->name('registration_data');
+
+    Route::get('appointments', GetIrisAppointmentTypes::class)->name('appointments.index');
 
     Route::get('first-hit', GetIrisFirstHitData::class)->name('first_hit');
     Route::get('ecom-customer-data', GetRetinaEcomCustomerData::class)->name('ecom_customer_data');

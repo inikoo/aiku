@@ -37,7 +37,7 @@ class FulfillOrderToAmazon extends OrgAction
         $amazonUser = $order->customerSalesChannel->user;
 
         /** @var DeliveryNote $deliveryNote */
-        $deliveryNote = $order->deliveryNotes->first();
+        $deliveryNote = $order->currentDeliveryNote();
 
         $shipments = $deliveryNote->shipments;
         $items = [];

@@ -88,7 +88,7 @@ class ShowRetinaEcomOrder extends RetinaAction
                 'type'    => 'button',
                 'style'   => '',
                 'tooltip' => __('Review your order and let us know how we can improve our service'),
-                'label'   => __('Review'),
+                'label'   => __('Review order'),
                 'icon'    => 'fal fa-stars',
                 'route'   => [
                     'name'       => 'retina.ecom.orders.review',
@@ -267,8 +267,7 @@ class ShowRetinaEcomOrder extends RetinaAction
 
     public function getOrderBoxStats(Order $order): array
     {
-        $payAmount   = $order->total_amount - $order->payment_amount;
-        $roundedDiff = round($payAmount, 2);
+        $roundedDiff = $order->amountStillToPay();
 
         $estWeight = ($order->estimated_weight ?? 0) / 1000;
 

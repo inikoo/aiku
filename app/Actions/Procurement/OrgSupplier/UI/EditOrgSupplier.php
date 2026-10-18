@@ -59,40 +59,46 @@ class EditOrgSupplier extends OrgAction
     {
         $supplier = $orgSupplier->supplier;
 
+        $orgSupplierUpdateRoute = [
+            'name' => 'grp.models.org_supplier.update',
+            'parameters' => $orgSupplier->id,
+        ];
+
+        $statusSection = [
+            'label' => __('Status'),
+            'title' => __('Status'),
+            'icon' => 'fa-light fa-toggle-on',
+            'fields' => [
+                'status' => [
+                    'type' => 'toggle',
+                    'label' => __('Active'),
+                    'information' => __('Inactive suppliers are hidden from the suppliers list'),
+                    'value' => $orgSupplier->status,
+                    'updateRoute' => $orgSupplierUpdateRoute,
+                ],
+            ],
+        ];
+
         $blueprint = $this->canEditSupplier($orgSupplier)
             ? $this->supplierEditSections($supplier)
-            : [
-                [
-                    'title' => __('Status'),
-                    'icon' => 'fa-light fa-cog',
-                    'fields' => [
-                        'status' => [
-                            'type' => 'toggle',
-                            'label' => __('Active'),
-                            'value' => $orgSupplier->status,
-                        ],
-                    ],
-                ],
-            ];
+            : [$statusSection];
+
+        if ($this->canEditSupplier($orgSupplier) && !$supplier->agent_id) {
+            $blueprint[] = $statusSection;
+        }
 
         $updateRoute = $this->canEditSupplier($orgSupplier)
             ? [
                 'name' => 'grp.models.supplier.update',
                 'parameters' => $supplier->id,
             ]
-            : [
-                'name' => 'grp.models.org_supplier.update',
-                'parameters' => $orgSupplier->id,
-            ];
+            : $orgSupplierUpdateRoute;
 
         if ($this->canEditSupplier($orgSupplier) && $request->user()->authTo('supply-chain.edit')) {
             $blueprint[] = $this->supplierAgentSection($supplier);
         }
 
-        $blueprint = array_merge($blueprint, $this->procurementSerialReferenceSections($orgSupplier, [
-            'name'       => 'grp.models.org_supplier.update',
-            'parameters' => $orgSupplier->id,
-        ]));
+        $blueprint = array_merge($blueprint, $this->procurementSerialReferenceSections($orgSupplier, $orgSupplierUpdateRoute));
 
         return Inertia::render(
             'EditModel',

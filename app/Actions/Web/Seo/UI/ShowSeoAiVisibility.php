@@ -91,7 +91,7 @@ class ShowSeoAiVisibility extends OrgAction
                 'canEdit'      => $this->canEdit,
                 'isUsable'     => (bool) $shop->website,
                 'isConfigured' => DataForSeoClient::make() !== null,
-                'runRoute'     => app()->environment('local') && $this->canEdit ? [
+                'runRoute'     => $this->canEdit && $shop->website ? [
                     'name'       => 'grp.models.shop.seo.ai_visibility_run.store',
                     'parameters' => [$shop->id],
                 ] : null,

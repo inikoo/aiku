@@ -47,6 +47,8 @@ class ShowUser extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inEmployee(Organisation $organisation, Employee $employee, User $user, ActionRequest $request): User
     {
+        abort_unless($employee->organisation_id === $organisation->id && $employee->users()->whereKey($user->id)->exists(), 404);
+
         $this->authScope = $organisation;
         $this->initialisation($organisation, $request)->withTab(UserTabsEnum::values());
 
@@ -124,10 +126,10 @@ class ShowUser extends OrgAction
                     'navigation' => UserTabsEnum::navigation($user)
                 ],
                 'apiRoutes'                   => [
-                    'createToken' => [
+                    'createToken' => $this->canEdit ? [
                         'name'       => 'grp.models.user.access-token.create',
                         'parameters' => ['user' => $user->id]
-                    ],
+                    ] : null,
                 ],
                 'two_fa_status'                => [
                     'has_2fa'                   => (bool) $user->google2fa_secret,

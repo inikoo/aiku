@@ -71,6 +71,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property numeric|null $cost_duties
  * @property numeric $cost_tax
  * @property numeric $cost_total
+ * @property numeric|null $cbm_in_container cubic meters the line takes in the container, null means the cbm of its cartons
  * @property-read \App\Models\SysAdmin\Group|null $group
  * @property-read OrgStock|null $orgStock
  * @property-read \App\Models\SysAdmin\Organisation $organisation
@@ -103,6 +104,7 @@ class StockDeliveryItem extends Model implements Auditable
         'net_amount',
         'discrepancy_outcome',
         'stock_delivery_customs_line_id',
+        'cbm_in_container',
     ];
 
     public function generateTags(): array
@@ -119,6 +121,7 @@ class StockDeliveryItem extends Model implements Auditable
         'unit_quantity_checked' => 'decimal:4',
         'unit_quantity_placed'  => 'decimal:4',
         'unit_price'      => 'decimal:4',
+        'cbm_in_container' => 'decimal:4',
         'discrepancy_outcome'     => StockDeliveryItemDiscrepancyOutcomeEnum::class,
         'discrepancy_resolved_at' => 'datetime',
 

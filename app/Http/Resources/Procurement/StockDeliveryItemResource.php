@@ -8,6 +8,7 @@
 
 namespace App\Http\Resources\Procurement;
 
+use App\Actions\GoodsIn\StockDeliveryItem\SetStockDeliveryItemCbmInContainer;
 use App\Enums\GoodsIn\Sowing\SowingTypeEnum;
 use App\Enums\GoodsIn\StockDeliveryItem\StockDeliveryItemStateEnum;
 use App\Models\GoodsIn\Sowing;
@@ -93,7 +94,7 @@ class StockDeliveryItemResource extends JsonResource
             'slug'                  => $supplierProduct?->slug,
             'code'                  => $supplierProduct?->code ?? $item->org_stock_code,
             'name'                  => $supplierProduct?->name ?? $item->org_stock_name,
-            'units_per_pack'        => $supplierProduct?->units_per_pack ?? $unitsPerSko,
+            'units_per_pack'        => $item->orgStock?->packed_in ?: ($supplierProduct?->units_per_pack ?? $unitsPerSko),
             'units_per_carton'      => $supplierProduct?->units_per_carton ?? $unitsPerSko,
             'supplier_unit'         => $supplierProduct?->supplier_unit?->value,
             'units_per_supplier_unit' => $supplierProduct?->supplier_unit ? $supplierProduct->unitsPerSupplierUnit() : null,
@@ -111,6 +112,13 @@ class StockDeliveryItemResource extends JsonResource
             'org_exchange'          => $item->org_exchange,
             'weight'                => $item->weight === null ? null : (float) $item->weight,
             'volume'                => $item->volume === null ? null : (float) $item->volume,
+            'cbm_in_container'      => $item->cbm_in_container === null ? ($item->volume === null ? null : (float) $item->volume) : (float) $item->cbm_in_container,
+            'is_cbm_in_container_set' => $item->cbm_in_container !== null,
+            'cbmInContainerRoute'   => SetStockDeliveryItemCbmInContainer::canBeEdited($item) ? [
+                'name'       => 'grp.models.stock-delivery-item.cbm-in-container',
+                'parameters' => ['stockDeliveryItem' => $item->id],
+                'method'     => 'patch',
+            ] : null,
             'state'                 => $item->state->value,
             'state_label'           => StockDeliveryItemStateEnum::labels()[$item->state->value],
             'state_icon'            => StockDeliveryItemStateEnum::stateIcon()[$item->state->value],

@@ -9,11 +9,29 @@
 namespace App\Actions\GoodsIn\StockDelivery\UI;
 
 use App\Models\SupplyChain\AgentPayment;
+use App\Enums\Procurement\ProcurementNote\ProcurementNoteIncidentTypeEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderPaymentMethodEnum;
+use App\Enums\Procurement\OrgAgent\OrgAgentOrderContainerEnum;
+use App\Models\SupplyChain\SupplierInvoice;
+use App\Models\SupplyChain\SupplierPayment;
+use App\Models\Procurement\PurchaseOrder;
+use App\Models\Procurement\PurchaseOrderTransaction;
 use App\Actions\SupplyChain\AgentInvoice\ApproveAgentInvoiceCharges;
+use App\Actions\Procurement\SupplierAgreedTerm\CheckAgainstAgreedTerms;
+use App\Actions\Procurement\SupplierAgreedTerm\UI\GetAgreement;
+use App\Actions\GoodsIn\StockDelivery\AddPurchaseOrderItemsToStockDelivery;
+use App\Actions\GoodsIn\StockDelivery\AddPurchaseOrdersToStockDelivery;
+use App\Actions\GoodsIn\StockDelivery\DispatchStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\CancelStockDelivery;
+use App\Actions\GoodsIn\StockDelivery\DeleteStockDelivery;
+use App\Actions\GoodsIn\StockDelivery\RemovePurchaseOrderFromStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\DistributeStockDeliveryExtraCost;
 use App\Actions\GoodsIn\StockDelivery\EvaluateStockDeliveryCosting;
+use App\Actions\GoodsIn\StockDelivery\GetStockDeliveryHandTypedCosts;
 use App\Actions\GoodsIn\StockDelivery\GetStockDeliveryInvoiceCosting;
+use App\Actions\GoodsIn\StockDelivery\PdfStockDelivery;
+use App\Actions\GoodsIn\StockDelivery\RemoveStockDeliveryUnbackedCosts;
+use App\Actions\GoodsIn\StockDelivery\GetStockDeliveryServiceInvoiceReadings;
 use App\Actions\GoodsIn\StockDelivery\Traits\WithStockDeliveryWeightAndVolume;
 use App\Actions\GoodsIn\StockDeliveryItem\UI\IndexStockDeliveryItems;
 use App\Actions\GoodsIn\StockDeliveryItem\UI\IndexStockDeliveryUnderOverDeliveredItems;
@@ -29,6 +47,7 @@ use App\Actions\Procurement\WithAgentOrganisation;
 use App\Actions\SupplyChain\AgentInvoice\UI\GetAgentContainerInvoiceData;
 use App\Actions\Traits\Authorisations\WithGoodsInBookInAuthorisation;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryCostTypeEnum;
+use App\Enums\GoodsIn\StockDelivery\StockDeliveryServiceInvoiceTypeEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\GoodsIn\StockDeliveryItem\StockDeliveryItemStateEnum;
@@ -49,11 +68,14 @@ use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Enums\SupplyChain\StockDeliveryInvoice\StockDeliveryInvoiceSourceEnum;
 use App\Models\GoodsIn\StockDelivery;
+use App\Models\GoodsIn\StockDeliveryItem;
 use App\Models\SupplyChain\AgentInvoice;
 use App\Models\GoodsIn\StockDeliveryCost;
 use App\Models\GoodsIn\StockDeliveryServiceInvoice;
 use App\Actions\GoodsIn\StockDeliveryServiceInvoice\UI\IndexStockDeliveryServiceInvoices;
+use App\Models\Helpers\Audit;
 use App\Models\Helpers\Currency;
+use App\Models\Helpers\Media;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\OrgPartner;
@@ -61,7 +83,12 @@ use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use App\Models\Inventory\Warehouse;
+use App\Actions\UI\Incoming\ShowIncomingHub;
+use App\Actions\Traits\Authorisations\WithAttachmentEditAuthorisation;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -72,20 +99,48 @@ class ShowStockDelivery extends OrgAction
     use WithStockDeliveryWeightAndVolume;
     use WithAgentOrganisation;
     use WithGoodsInBookInAuthorisation;
+    use WithAttachmentEditAuthorisation;
 
     private bool $canEditPayments = false;
     private bool $canUpdateCosting = false;
     private bool $canBookIn = false;
     private bool $canUnreceive = false;
+    private bool $viewedByAgent = false;
+    private bool $goodsIn = false;
+    private bool $canAddPurchaseOrders = false;
+    private bool $canRemovePurchaseOrders = false;
+
+    private const array BOOKING_IN_TABS = [
+        StockDeliveryTabsEnum::PENDING_ITEMS,
+        StockDeliveryTabsEnum::DONE_ITEMS,
+    ];
+
+    private const array PROCUREMENT_ONLY_TABS = [
+        StockDeliveryTabsEnum::ITEMS,
+        StockDeliveryTabsEnum::UNDER_OVER_DELIVERED,
+        StockDeliveryTabsEnum::CUSTOMS,
+        StockDeliveryTabsEnum::PURCHASE_ORDERS,
+    ];
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->goodsIn) {
+            $this->canBookIn    = $this->authToBookIn($request, 'incoming.%d.edit');
+            $this->canUnreceive = $this->authToBookIn($request, 'supervisor-incoming.%d');
+
+            return $request->user()->authTo("incoming.{$this->warehouse->id}.view");
+        }
+
         $this->canEdit          = $request->user()->authTo("procurement.{$this->organisation->id}.edit");
         $isAgent                = $this->organisation->type === OrganisationTypeEnum::AGENT;
         $this->canEditPayments  = !$isAgent && ($this->canEdit || $request->user()->authTo("accounting.{$this->organisation->id}.edit"));
         $this->canUpdateCosting = !$isAgent && $request->user()->authTo("org-supervisor.{$this->organisation->id}.accounting");
         $this->canBookIn        = $this->authToBookIn($request, 'incoming.%d.edit');
         $this->canUnreceive     = $this->authToBookIn($request, 'supervisor-incoming.%d');
+
+        $canChangePurchaseOrders       = AddPurchaseOrdersToStockDelivery::userCanAdd($this->stockDelivery, $request->user());
+        $this->canAddPurchaseOrders    = $canChangePurchaseOrders && AddPurchaseOrdersToStockDelivery::acceptsPurchaseOrders($this->stockDelivery);
+        $this->canRemovePurchaseOrders = $canChangePurchaseOrders && RemovePurchaseOrderFromStockDelivery::acceptsRemovals($this->stockDelivery);
 
         return true;
     }
@@ -98,8 +153,31 @@ class ShowStockDelivery extends OrgAction
     public function asController(Organisation $organisation, StockDelivery $stockDelivery, ActionRequest $request): StockDelivery
     {
         $this->stockDelivery = $stockDelivery;
-        $this->initialisation($organisation, $request)->withTab($this->getTabs($stockDelivery));
+        $this->viewedByAgent = $organisation->type === OrganisationTypeEnum::AGENT && $stockDelivery->organisation_id !== $organisation->id;
+        $this->initialisation($organisation, $request);
+        if (in_array($this->get('tab'), array_column(self::BOOKING_IN_TABS, 'value'), true)) {
+            $this->set('tab', null);
+        }
+        $this->withTab($this->getTabs($stockDelivery));
+        $agentCanEdit = $this->canEdit;
         $this->authorizeProcurementRecord($stockDelivery);
+        if ($this->viewedByAgent && $this->organisationAgentSupplies($stockDelivery)) {
+            $this->canEdit = $agentCanEdit;
+        }
+
+        return $this->handle($stockDelivery);
+    }
+
+    /**
+     * The warehouse's page of a delivery: booking in, with no costing to edit.
+     */
+    public function inWarehouse(Organisation $organisation, Warehouse $warehouse, StockDelivery $stockDelivery, ActionRequest $request): StockDelivery
+    {
+        abort_unless($stockDelivery->organisation_id === $warehouse->organisation_id, 404);
+
+        $this->stockDelivery = $stockDelivery;
+        $this->goodsIn       = true;
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab($this->getTabs($stockDelivery));
 
         return $this->handle($stockDelivery);
     }
@@ -117,19 +195,34 @@ class ShowStockDelivery extends OrgAction
         $this->canUpdateCosting = false;
         $this->canBookIn        = false;
         $this->canUnreceive     = false;
+        $this->canAddPurchaseOrders = false;
+        $this->canRemovePurchaseOrders = false;
 
         return $this->handle($stockDelivery);
     }
 
     public function htmlResponse(StockDelivery $stockDelivery, ActionRequest $request): Response
     {
-        $this->validateAttributes();
+        $editRoute = match (true) {
+            !$this->canEdit || $this->goodsIn || $stockDelivery->isManagedByPartner() => null,
+            $this->viewedByAgent => [
+                'name'       => 'grp.org.agent.stock_deliveries.edit',
+                'parameters' => [$this->organisation->slug, $stockDelivery->slug],
+            ],
+            $stockDelivery->organisation_id === $this->organisation->id => [
+                'name'       => 'grp.org.procurement.stock_deliveries.edit',
+                'parameters' => [$this->organisation->slug, $stockDelivery->slug],
+            ],
+            default => null,
+        };
 
         return Inertia::render(
             'Procurement/StockDelivery',
             [
                 'title'            => __('Stock Delivery'),
-                'breadcrumbs'      => $this->getBreadcrumbs($stockDelivery, $request->route()->originalParameters()),
+                'breadcrumbs'      => $this->goodsIn
+                    ? $this->getGoodsInBreadcrumbs($stockDelivery, $request->route()->originalParameters())
+                    : $this->getBreadcrumbs($stockDelivery, $request->route()->originalParameters()),
                 'pageHead'         => [
                     'title'      => $stockDelivery->reference,
                     'model'      => __('Stock Delivery'),
@@ -141,13 +234,8 @@ class ShowStockDelivery extends OrgAction
                         'label' => $this->getStateLabels($stockDelivery)[$stockDelivery->state->value]
                             .($stockDelivery->isManagedByPartner() && $stockDelivery->state !== StockDeliveryStateEnum::DISPATCHED ? ' · '.__('Managed by :partner until dispatched', ['partner' => $stockDelivery->parent?->partner?->name]) : ''),
                     ],
-                    'edit'       => $this->canEdit && !$stockDelivery->isManagedByPartner() ? [
-                        'route' => [
-                            'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                            'parameters' => array_values($request->route()->originalParameters()),
-                        ],
-                    ] : false,
-                    'actions'    => array_merge($this->getUpdateCostingActions($stockDelivery), $this->getAllowedActions($stockDelivery)),
+                    'edit'       => $editRoute ? ['route' => $editRoute] : false,
+                    'actions'    => array_merge($this->getUpdateCostingActions($stockDelivery), $this->getBookInLinkAction($stockDelivery, $request), $this->getAllowedActions($stockDelivery), $editRoute ? [['type' => 'button', 'style' => 'edit', 'label' => __('Settings'), 'route' => $editRoute]] : []),
                 ],
                 'stock_delivery'   => StockDeliveryResource::make($stockDelivery)->toArray($request),
                 'timelines'        => $this->getTimeline($stockDelivery),
@@ -157,13 +245,19 @@ class ShowStockDelivery extends OrgAction
                     'navigation' => $this->getTabsNavigation($stockDelivery),
                 ],
                 'costing'          => $this->getCosting($stockDelivery),
+                'missing_evidence' => in_array($stockDelivery->state, [StockDeliveryStateEnum::IN_PROCESS, StockDeliveryStateEnum::CONFIRMED, StockDeliveryStateEnum::READY_TO_SHIP]) ? DispatchStockDelivery::missingEvidence($stockDelivery) : [],
+                'add_purchase_orders' => $this->canAddPurchaseOrders ? $this->getAddPurchaseOrders($stockDelivery) : null,
+                'add_purchase_order_items' => $this->canAddPurchaseOrders ? Inertia::optional(fn () => $this->getAddPurchaseOrderItems($stockDelivery)) : null,
+                'remove_purchase_orders' => $this->canRemovePurchaseOrders ? $this->getRemovePurchaseOrders($stockDelivery) : null,
                 'attachmentScopes' => PurchaseOrderAttachmentScopeEnum::options(),
-                'invoice_costing'  => GetStockDeliveryInvoiceCosting::run($stockDelivery),
+                'invoice_costing'  => $this->viewedByAgent ? [] : GetStockDeliveryInvoiceCosting::run($stockDelivery),
                 'service_invoices' => $this->getServiceInvoices($stockDelivery),
+                'agreed_term_differences' => $this->viewedByAgent ? null : CheckAgainstAgreedTerms::make()->forPage($stockDelivery),
                 'agentInvoice'     => $stockDelivery->agent_id && $stockDelivery->agent_id === $this->getOrganisationAgent($this->organisation)?->id
                     ? GetAgentContainerInvoiceData::run($this->organisation, $stockDelivery)
                     : null,
                 'attachmentRoutes' => [
+                    'canChange'   => !$this->goodsIn && $this->canChangeAttachments($request->user(), $stockDelivery),
                     'attachRoute' => [
                         'name'       => 'grp.models.stock-delivery.attachment.attach',
                         'parameters' => [
@@ -177,11 +271,14 @@ class ShowStockDelivery extends OrgAction
                             'stockDelivery' => $stockDelivery->id,
                         ],
                     ],
+                    'updateRoute' => [
+                        'method'     => 'patch',
+                        'name'       => 'grp.models.stock-delivery.attachment.update',
+                        'parameters' => [
+                            'stockDelivery' => $stockDelivery->id,
+                        ],
+                    ],
                 ],
-
-                StockDeliveryTabsEnum::SHOWCASE->value => $this->tab == StockDeliveryTabsEnum::SHOWCASE->value ?
-                    fn () => GetStockDeliveryData::run($stockDelivery)
-                    : Inertia::optional(fn () => GetStockDeliveryData::run($stockDelivery)),
 
                 StockDeliveryTabsEnum::ITEMS->value => $this->tab == StockDeliveryTabsEnum::ITEMS->value ?
                     fn () => $this->getItems($stockDelivery)
@@ -194,6 +291,10 @@ class ShowStockDelivery extends OrgAction
                 StockDeliveryTabsEnum::DONE_ITEMS->value => $this->tab == StockDeliveryTabsEnum::DONE_ITEMS->value ?
                     fn () => StockDeliveryItemResource::collection(IndexStockDeliveryItems::run($stockDelivery, StockDeliveryTabsEnum::DONE_ITEMS->value, stateFilter: $this->doneItemStates()))
                     : Inertia::optional(fn () => StockDeliveryItemResource::collection(IndexStockDeliveryItems::run($stockDelivery, StockDeliveryTabsEnum::DONE_ITEMS->value, stateFilter: $this->doneItemStates()))),
+
+                StockDeliveryTabsEnum::CHECKLIST->value => $this->tab == StockDeliveryTabsEnum::CHECKLIST->value ?
+                    fn () => $this->getGoodsInChecklist($stockDelivery, $request)
+                    : Inertia::optional(fn () => $this->getGoodsInChecklist($stockDelivery, $request)),
 
                 StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value => $this->tab == StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value ?
                     fn () => StockDeliveryUnderOverDeliveredItemResource::collection(IndexStockDeliveryUnderOverDeliveredItems::run($stockDelivery, StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value))
@@ -212,8 +313,10 @@ class ShowStockDelivery extends OrgAction
                     : Inertia::optional(fn () => AttachmentsResource::collection(IndexAttachments::run($stockDelivery))),
 
                 StockDeliveryTabsEnum::NOTES->value => $this->tab == StockDeliveryTabsEnum::NOTES->value ?
-                    fn () => ProcurementNoteResource::collection(IndexProcurementNotes::run($stockDelivery, StockDeliveryTabsEnum::NOTES->value))
-                    : Inertia::optional(fn () => ProcurementNoteResource::collection(IndexProcurementNotes::run($stockDelivery, StockDeliveryTabsEnum::NOTES->value))),
+                    fn () => ProcurementNoteResource::collection(IndexProcurementNotes::run($stockDelivery, StockDeliveryTabsEnum::NOTES->value, forAgent: $stockDelivery->organisation_id !== $this->organisation->id))
+                    : Inertia::optional(fn () => ProcurementNoteResource::collection(IndexProcurementNotes::run($stockDelivery, StockDeliveryTabsEnum::NOTES->value, forAgent: $stockDelivery->organisation_id !== $this->organisation->id))),
+
+                'note_form' => GetAgreement::make()->noteForm($request->user(), $stockDelivery->group, $stockDelivery->organisation_id !== $this->organisation->id, $stockDelivery->organisation_id),
 
                 'note_store_route' => [
                     'name'       => 'grp.models.stock-delivery.note.store',
@@ -224,11 +327,11 @@ class ShowStockDelivery extends OrgAction
                     fn () => HistoryResource::collection(IndexHistory::run($stockDelivery, StockDeliveryTabsEnum::HISTORY->value, auditScope: $this->historyAuditScope($stockDelivery)))
                     : Inertia::optional(fn () => HistoryResource::collection(IndexHistory::run($stockDelivery, StockDeliveryTabsEnum::HISTORY->value, auditScope: $this->historyAuditScope($stockDelivery)))),
             ]
-        )->table(IndexStockDeliveryItems::make()->tableStructure($stockDelivery, prefix: StockDeliveryTabsEnum::ITEMS->value))
-            ->table(IndexStockDeliveryItems::make()->tableStructure($stockDelivery, prefix: StockDeliveryTabsEnum::PENDING_ITEMS->value))
-            ->table(IndexStockDeliveryItems::make()->tableStructure($stockDelivery, prefix: StockDeliveryTabsEnum::DONE_ITEMS->value))
+        )->table(IndexStockDeliveryItems::make()->tableStructure($stockDelivery, prefix: StockDeliveryTabsEnum::ITEMS->value, withCosting: !$this->viewedByAgent, bookingIn: false))
+            ->table(IndexStockDeliveryItems::make()->tableStructure($stockDelivery, prefix: StockDeliveryTabsEnum::PENDING_ITEMS->value, withCosting: false))
+            ->table(IndexStockDeliveryItems::make()->tableStructure($stockDelivery, prefix: StockDeliveryTabsEnum::DONE_ITEMS->value, withCosting: false))
             ->table(IndexStockDeliveryUnderOverDeliveredItems::make()->tableStructure(prefix: StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value))
-            ->table(IndexPurchaseOrders::make()->tableStructure($stockDelivery, prefix: StockDeliveryTabsEnum::PURCHASE_ORDERS->value))
+            ->table(IndexPurchaseOrders::make()->tableStructure($stockDelivery, prefix: StockDeliveryTabsEnum::PURCHASE_ORDERS->value, withRemoveFromContainer: $this->canRemovePurchaseOrders))
             ->table(IndexAttachments::make()->tableStructure(prefix: StockDeliveryTabsEnum::ATTACHMENTS->value))
             ->table(IndexProcurementNotes::make()->tableStructure(prefix: StockDeliveryTabsEnum::NOTES->value))
             ->table(IndexHistory::make()->tableStructure(prefix: StockDeliveryTabsEnum::HISTORY->value));
@@ -311,9 +414,12 @@ class ShowStockDelivery extends OrgAction
         return [];
     }
 
+    /**
+     * Agents never see the history of what the receiving organisation pays locally.
+     */
     private function historyAuditScope(StockDelivery $stockDelivery): array
     {
-        return [
+        $deliveryAuditScope = [
             [
                 'type'   => $stockDelivery->getMorphClass(),
                 'labels' => [$stockDelivery->id => $stockDelivery->reference],
@@ -327,6 +433,27 @@ class ShowStockDelivery extends OrgAction
                 'shops'  => null,
             ],
         ];
+
+        if ($this->viewedByAgent) {
+            return $deliveryAuditScope;
+        }
+
+        return array_merge($deliveryAuditScope, [
+            [
+                'type'   => 'StockDeliveryCost',
+                'labels' => $stockDelivery->costs()->withTrashed()->get()
+                    ->mapWithKeys(fn (StockDeliveryCost $cost) => [$cost->id => $cost->label ?: ($cost->category ? StockDeliveryServiceInvoiceTypeEnum::labels()[$cost->category->value] : StockDeliveryCostTypeEnum::labels()[$cost->type->value])])
+                    ->all(),
+                'shops'  => null,
+            ],
+            [
+                'type'   => 'StockDeliveryServiceInvoice',
+                'labels' => $stockDelivery->serviceInvoices()->withTrashed()->get()
+                    ->mapWithKeys(fn (StockDeliveryServiceInvoice $serviceInvoice) => [$serviceInvoice->id => trim($serviceInvoice->issuer.' '.$serviceInvoice->reference)])
+                    ->all(),
+                'shops'  => null,
+            ],
+        ]);
     }
 
     public function getActions(StockDelivery $stockDelivery): array
@@ -348,6 +475,7 @@ class ShowStockDelivery extends OrgAction
                 'parameters' => [
                     'organisation'  => (request()->route('organisation') ?? $stockDelivery->organisation)->slug,
                     'stockDelivery' => $stockDelivery->slug,
+                    'filename'      => PdfStockDelivery::make()->filename($stockDelivery),
                 ],
             ],
         ];
@@ -380,6 +508,22 @@ class ShowStockDelivery extends OrgAction
                 'method'     => 'patch',
                 'name'       => 'grp.models.stock-delivery.update',
                 'parameters' => ['stockDelivery' => $stockDelivery->id],
+            ],
+        ];
+
+        $deleteButton = [
+            'label'   => __('Delete'),
+            'tooltip' => __('Delete Stock Delivery'),
+            'type'    => 'button',
+            'style'   => 'delete',
+            'icon'    => 'fal fa-trash-alt',
+            'key'     => 'delete_stock_delivery',
+            'route'   => [
+                'method'     => 'delete',
+                'name'       => 'grp.models.stock-delivery.delete',
+                'parameters' => [
+                    'stockDelivery' => $stockDelivery->id,
+                ],
             ],
         ];
 
@@ -417,21 +561,7 @@ class ShowStockDelivery extends OrgAction
                         ],
                     ],
                 ],
-                [
-                    'label'   => __('Delete'),
-                    'tooltip' => __('Delete Stock Delivery'),
-                    'type'    => 'button',
-                    'style'   => 'delete',
-                    'icon'    => 'fal fa-trash-alt',
-                    'key'     => 'delete_stock_delivery',
-                    'route'   => [
-                        'method'     => 'delete',
-                        'name'       => 'grp.models.stock-delivery.delete',
-                        'parameters' => [
-                            'stockDelivery' => $stockDelivery->id,
-                        ],
-                    ],
-                ],
+                $deleteButton,
                 $deliveryDateButton,
             ],
             StockDeliveryStateEnum::DISPATCHED => [
@@ -513,6 +643,22 @@ class ShowStockDelivery extends OrgAction
             array_unshift($actions, $cancelButton);
         }
 
+        if (DeleteStockDelivery::isAgentDelivery($stockDelivery)) {
+            $actions = array_values(array_filter($actions, fn (array $action) => $action['key'] !== 'delete_stock_delivery'));
+            if (!DeleteStockDelivery::agentDeliveryRefusal($stockDelivery)) {
+                $actions[] = [
+                    ...$deleteButton,
+                    'responsibility' => [
+                        'phrase'   => DeleteStockDelivery::RESPONSIBILITY_PHRASE,
+                        'warnings' => [
+                            __('This deletes the container :reference with all its items. Its purchase orders go back to waiting for a container.', ['reference' => $stockDelivery->reference]),
+                            __('Containers are made by the agent now. Delete one only if it was made by mistake, and tell the agent.'),
+                        ],
+                    ],
+                ];
+            }
+        }
+
         if ($stockDelivery->isManagedByPartner()) {
             $actions = $stockDelivery->state === StockDeliveryStateEnum::DISPATCHED
                 ? array_values(array_filter($actions, fn (array $action) => $action['key'] === 'receive_stock_delivery'))
@@ -524,17 +670,17 @@ class ShowStockDelivery extends OrgAction
 
     private function getAllowedActions(StockDelivery $stockDelivery): array
     {
-        if ($this->canEdit) {
+        if ($this->viewedByAgent) {
+            $allowedKeys = $this->canEdit ? ['dispatch_stock_delivery', 'edit_estimated_delivery_date', 'action'] : ['action'];
+        } elseif ($this->canEdit) {
             return $this->getActions($stockDelivery);
-        }
-
-        if (!$this->canBookIn || $stockDelivery->organisation_id !== $this->organisation->id) {
+        } elseif (!$this->canBookIn || $stockDelivery->organisation_id !== $this->organisation->id) {
             return [];
+        } else {
+            $allowedKeys = $this->canUnreceive
+                ? ['receive_stock_delivery', 'unreceive_stock_delivery', 'action']
+                : ['receive_stock_delivery', 'action'];
         }
-
-        $allowedKeys = $this->canUnreceive
-            ? ['receive_stock_delivery', 'unreceive_stock_delivery', 'action']
-            : ['receive_stock_delivery', 'action'];
 
         return array_values(array_filter(
             $this->getActions($stockDelivery),
@@ -556,19 +702,31 @@ class ShowStockDelivery extends OrgAction
             $orderer = OrgSupplierResource::make($stockDelivery->parent)->toArray($request);
         } elseif ($stockDelivery->parent instanceof OrgPartner) {
             $orderer = OrgPartnerResource::make($stockDelivery->parent)->toArray($request);
+        } elseif ($stockDelivery->parent_name) {
+            $orderer = [
+                'type' => $stockDelivery->parent_type,
+                'code' => $stockDelivery->parent_code,
+                'name' => $stockDelivery->parent_name,
+            ];
         }
 
         $weightAndVolume = $this->getStockDeliveryWeightAndVolume($stockDelivery);
+        $containerSize   = Arr::get($stockDelivery->data, 'container_size');
 
         return [
             'first_block'  => [
                 'orderer'  => $orderer,
                 'delivery' => [
                     'type'             => Arr::get($stockDelivery->data, 'delivery_type'),
+                    'container_size'   => $containerSize ? Arr::get(OrgAgentOrderContainerEnum::labels(), $containerSize) : null,
                     'incoterm'         => Arr::get($stockDelivery->data, 'incoterm'),
                     'port_of_export'   => Arr::get($stockDelivery->data, 'port_of_export'),
                     'port_of_import'   => Arr::get($stockDelivery->data, 'port_of_import'),
                     'delivery_address' => Arr::get($stockDelivery->data, 'delivery_address'),
+                    'shipper_reference' => Arr::get($stockDelivery->data, 'shipper_reference'),
+                    'tracking_number'   => Arr::get($stockDelivery->data, 'tracking_number'),
+                    'container_number'  => Arr::get($stockDelivery->data, 'container_number'),
+                    'shipping_agent'    => Arr::get($stockDelivery->data, 'shipping_agent'),
                 ],
             ],
             'second_block' => [
@@ -597,12 +755,16 @@ class ShowStockDelivery extends OrgAction
                 'org_currency' => $stockDelivery->organisation?->currency?->code,
                 'org_exchange' => $stockDelivery->org_exchange,
                 'items'        => $stockDelivery->cost_items,
-                'extra'        => $stockDelivery->cost_extra,
-                'shipping'     => $stockDelivery->cost_shipping,
-                'duties'       => $stockDelivery->cost_duties,
-                'tax'          => $stockDelivery->cost_tax,
-                'total'        => $stockDelivery->cost_total,
+                'extra'        => $this->viewedByAgent ? null : $stockDelivery->cost_extra,
+                'shipping'     => $this->viewedByAgent ? null : $stockDelivery->cost_shipping,
+                'duties'       => $this->viewedByAgent ? null : $stockDelivery->cost_duties,
+                'tax'          => $this->viewedByAgent ? null : $stockDelivery->cost_tax,
+                'total'        => $this->viewedByAgent ? null : $stockDelivery->cost_total,
                 'org_items'    => $stockDelivery->items()->sum('org_net_amount'),
+                'remove_unbacked_costs_route' => $this->canEdit && !$this->viewedByAgent && RemoveStockDeliveryUnbackedCosts::hasUnbackedCosts($stockDelivery) ? [
+                    'name'       => 'grp.models.stock-delivery.unbacked-costs.remove',
+                    'parameters' => [$stockDelivery->id],
+                ] : null,
             ],
             'invoice' => $this->getInvoiceSummary($stockDelivery),
             'invoice_entry' => $this->canEdit && $this->canEditPayments && !$stockDelivery->isManagedByPartner() && ($stockDelivery->agent_id ? $stockDelivery->agentInvoice()->first()?->source : null) !== StockDeliveryInvoiceSourceEnum::AGENT ? [
@@ -656,16 +818,69 @@ class ShowStockDelivery extends OrgAction
                 'charges_approved'    => ApproveAgentInvoiceCharges::isApproved($invoice),
                 'approve_route'       => ['name' => 'grp.models.stock-delivery.agent_invoice.approve_charges', 'parameters' => ['stockDelivery' => $stockDelivery->id]],
                 'deposits'            => array_values(array_filter($invoice->advancePayments(), fn (array $payment) => $payment['type'] === 'deposit')),
-                'payments'            => $stockDelivery->agentPayments()->orderBy('date')->get()->map(fn (AgentPayment $payment) => [
-                    'id'           => $payment->id,
-                    'date'         => $payment->date->toDateString(),
-                    'amount'       => (float) $payment->amount,
-                    'reference'    => $payment->reference,
-                    'notes'        => $payment->notes,
-                    'delete_route' => ['name' => 'grp.models.agent_payment.delete', 'parameters' => ['agentPayment' => $payment->id]],
+                'methods'             => PurchaseOrderPaymentMethodEnum::options(),
+                'payments'            => $stockDelivery->agentPayments()->with('bankStatement:id,ulid')->orderBy('date')->get()->map(fn (AgentPayment $payment) => [
+                    'id'             => $payment->id,
+                    'date'           => $payment->date->toDateString(),
+                    'amount'         => (float) $payment->amount,
+                    'reference'      => $payment->reference,
+                    'notes'          => $payment->notes,
+                    'method'         => $payment->method?->labels()[$payment->method->value],
+                    'bank_statement' => $payment->bankStatement?->ulid,
+                    'delete_route'   => ['name' => 'grp.models.agent_payment.delete', 'parameters' => ['agentPayment' => $payment->id]],
                 ])->values()->all(),
                 'payment_store_route' => ['name' => 'grp.models.stock-delivery.agent_payment.store', 'parameters' => ['stockDelivery' => $stockDelivery->id]],
             ] : null,
+            'supplier'     => !$isAgentInvoice && !$stockDelivery->agent_id && $stockDelivery->parent_type === 'OrgSupplier' ? $this->getSupplierPayments($stockDelivery, $invoice) : null,
+        ];
+    }
+
+    /**
+     * A purchase order's deposit is taken off the invoice of its first delivery only, so an order that arrives
+     * in several deliveries does not have it counted twice. What counts is what was paid of it, instalment by
+     * instalment; an order paid before instalments were recorded counts its whole deposit.
+     *
+     * @return array<string, mixed>
+     */
+    private function getSupplierPayments(StockDelivery $stockDelivery, SupplierInvoice $invoice): array
+    {
+        $deposits = $stockDelivery->purchaseOrders()
+            ->where(fn ($query) => $query->whereHas('depositPayments')->orWhere(fn ($query) => $query->whereNotNull('deposit_paid_at')->where('deposit_amount', '>', 0)))
+            ->where('purchase_orders.currency_id', $invoice->currency_id)
+            ->with('depositPayments')
+            ->get()
+            ->filter(fn (PurchaseOrder $purchaseOrder) => $purchaseOrder->stockDeliveries()->min('stock_deliveries.id') === $stockDelivery->id)
+            ->map(fn (PurchaseOrder $purchaseOrder) => $purchaseOrder->depositPayments->isNotEmpty()
+                ? [
+                    'reference' => $purchaseOrder->reference,
+                    'date'      => $purchaseOrder->depositPayments->max('date')->toDateString(),
+                    'amount'    => round((float) $purchaseOrder->depositPayments->sum('amount'), 2),
+                ]
+                : [
+                    'reference' => $purchaseOrder->reference,
+                    'date'      => $purchaseOrder->deposit_paid_at->toDateString(),
+                    'amount'    => (float) $purchaseOrder->deposit_amount,
+                ])->values();
+
+        $payments = $stockDelivery->supplierPayments()->with('bankStatement:id,ulid')->orderBy('date')->get();
+        $paid     = round((float) $deposits->sum('amount') + (float) $payments->sum('amount'), 2);
+
+        return [
+            'can_edit'            => $this->canEditPayments,
+            'methods'             => PurchaseOrderPaymentMethodEnum::options(),
+            'deposits'            => $deposits->all(),
+            'payments'            => $payments->map(fn (SupplierPayment $payment) => [
+                'id'             => $payment->id,
+                'date'           => $payment->date->toDateString(),
+                'amount'         => (float) $payment->amount,
+                'method'         => $payment->method->labels()[$payment->method->value],
+                'reference'      => $payment->reference,
+                'bank_statement' => $payment->bankStatement?->ulid,
+                'delete_route'   => ['name' => 'grp.models.supplier_payment.delete', 'parameters' => ['supplierPayment' => $payment->id]],
+            ])->values()->all(),
+            'paid'                => $paid,
+            'balance_due'         => round((float) $invoice->total_amount - $paid, 2),
+            'payment_store_route' => ['name' => 'grp.models.stock-delivery.supplier_payment.store', 'parameters' => ['stockDelivery' => $stockDelivery->id]],
         ];
     }
 
@@ -756,6 +971,74 @@ class ShowStockDelivery extends OrgAction
         );
     }
 
+    private function getGoodsInBreadcrumbs(StockDelivery $stockDelivery, array $routeParameters): array
+    {
+        $warehouseParameters = Arr::only($routeParameters, ['organisation', 'warehouse']);
+
+        return array_merge(
+            ShowIncomingHub::make()->getBreadcrumbs($warehouseParameters),
+            [
+                [
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'label' => __('Stock deliveries'),
+                            'route' => [
+                                'name'       => 'grp.org.warehouses.show.incoming.stock_deliveries.index',
+                                'parameters' => $warehouseParameters,
+                            ],
+                        ],
+                        'model' => [
+                            'label' => $stockDelivery->reference,
+                            'route' => [
+                                'name'       => 'grp.org.warehouses.show.incoming.stock_deliveries.show',
+                                'parameters' => $routeParameters,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        );
+    }
+
+    /**
+     * Booking in is done on the warehouse's page of the delivery; procurement gets the way there.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function getBookInLinkAction(StockDelivery $stockDelivery, ActionRequest $request): array
+    {
+        $bookingInStates = [
+            StockDeliveryStateEnum::RECEIVED,
+            StockDeliveryStateEnum::CHECKED,
+            StockDeliveryStateEnum::BOOKING_IN,
+            StockDeliveryStateEnum::BOOKED_IN,
+        ];
+
+        if ($this->goodsIn || $this->viewedByAgent || !in_array($stockDelivery->state, $bookingInStates, true) || $stockDelivery->organisation_id !== $this->organisation->id) {
+            return [];
+        }
+
+        $warehouse = $this->organisation->warehouses()->get()
+            ->first(fn (Warehouse $warehouse) => $request->user()->authTo("incoming.$warehouse->id.view"));
+
+        return $warehouse ? [[
+            'type'  => 'button',
+            'style' => 'tertiary',
+            'label' => __('Book in'),
+            'icon'  => 'fal fa-inventory',
+            'key'   => 'book_in_link',
+            'route' => [
+                'name'       => 'grp.org.warehouses.show.incoming.stock_deliveries.show',
+                'parameters' => [
+                    'organisation'  => $this->organisation->slug,
+                    'warehouse'     => $warehouse->slug,
+                    'stockDelivery' => $stockDelivery->slug,
+                ],
+            ],
+        ]] : [];
+    }
+
     private function pendingItemStates(): array
     {
         return StockDeliveryItemStateEnum::valuesExcept([
@@ -771,7 +1054,7 @@ class ShowStockDelivery extends OrgAction
 
     private function getItems(StockDelivery $stockDelivery): AnonymousResourceCollection
     {
-        if ($stockDelivery->state === StockDeliveryStateEnum::PLACED) {
+        if ($stockDelivery->state === StockDeliveryStateEnum::PLACED && !$this->viewedByAgent) {
             return StockDeliveryItemCostResource::collection(
                 IndexStockDeliveryItems::run($stockDelivery, StockDeliveryTabsEnum::ITEMS->value, numberOfRecords: config('ui.table.max_records_per_page'))
             );
@@ -813,20 +1096,30 @@ class ShowStockDelivery extends OrgAction
                 ->toArray(),
             'store_route'  => ['name' => 'grp.models.org.stock_delivery_service_invoice.store', 'parameters' => ['organisation' => $stockDelivery->organisation_id], 'method' => 'post'],
             'index_route'  => ['name' => 'grp.org.procurement.service_invoices.index', 'parameters' => [$stockDelivery->organisation->slug]],
+            'readings'     => GetStockDeliveryServiceInvoiceReadings::run($stockDelivery),
+            'hand_typed'   => GetStockDeliveryHandTypedCosts::run($stockDelivery),
+            'cost_kinds'   => GetStockDeliveryHandTypedCosts::costKinds(),
+            'read_route'   => ['name' => 'grp.models.stock-delivery.service-invoice.read-upload', 'parameters' => ['stockDelivery' => $stockDelivery->id], 'method' => 'post'],
         ];
     }
 
     private function getCosting(StockDelivery $stockDelivery): array
     {
-        $costs = $stockDelivery->costs()->orderBy('id')->get();
+        $costs       = $stockDelivery->costs()->with(['attachments', 'audits.user'])->orderBy('id')->get();
+        $invoices    = $this->getCostInvoices($stockDelivery);
+        $uploadRoute = fn (?StockDeliveryCost $row) => ($this->canEditPayments || $this->canUpdateCosting) && !$row?->from_service_invoices ? [
+            'name'       => 'grp.models.stock-delivery.cost.invoice.attach',
+            'parameters' => array_filter(['stockDelivery' => $stockDelivery->id, 'cost' => $row?->id]),
+            'method'     => 'post',
+        ] : null;
 
         $checklist = [];
-        foreach ([StockDeliveryCostTypeEnum::AGENT_INVOICE, StockDeliveryCostTypeEnum::SHIPPING, StockDeliveryCostTypeEnum::DUTY] as $type) {
+        foreach ($this->viewedByAgent ? [] : [StockDeliveryCostTypeEnum::AGENT_INVOICE, StockDeliveryCostTypeEnum::SHIPPING, StockDeliveryCostTypeEnum::DUTY] as $type) {
             $row         = $costs->firstWhere('type', $type);
-            $checklist[] = $this->costRow($type, $row);
+            $checklist[] = $this->costRow($type, $row, $invoices, $uploadRoute($row));
         }
-        foreach ($costs->where('type', StockDeliveryCostTypeEnum::EXTRA) as $row) {
-            $checklist[] = $this->costRow(StockDeliveryCostTypeEnum::EXTRA, $row);
+        foreach ($this->viewedByAgent ? [] : $costs->where('type', StockDeliveryCostTypeEnum::EXTRA) as $row) {
+            $checklist[] = $this->costRow(StockDeliveryCostTypeEnum::EXTRA, $row, $invoices, $uploadRoute($row));
         }
 
         $agentInvoice = $costs->firstWhere('type', StockDeliveryCostTypeEnum::AGENT_INVOICE);
@@ -838,6 +1131,7 @@ class ShowStockDelivery extends OrgAction
         return [
             'is_costed'                  => $stockDelivery->is_costed,
             'is_partner'                 => $stockDelivery->parent_type === 'OrgPartner',
+            'viewed_by_agent'            => $this->viewedByAgent,
             'can_edit'                   => !$stockDelivery->is_costed && (Arr::has($stockDelivery->data, 'costing_reopened') ? $this->canUpdateCosting : ($this->canEditPayments || $this->canUpdateCosting)),
             'reopened'                   => $this->getCostingReopened($stockDelivery),
             'unbalanced'                 => $stockDelivery->state === StockDeliveryStateEnum::PLACED && !$stockDelivery->is_costed ? EvaluateStockDeliveryCosting::unbalancedHandSplits($stockDelivery) : [],
@@ -854,6 +1148,9 @@ class ShowStockDelivery extends OrgAction
             ],
             'currencies'                 => Currency::orderBy('code')->get(['id', 'code'])->toArray(),
             'checklist'                  => $checklist,
+            'extra_types'                => StockDeliveryServiceInvoiceTypeEnum::extraOptions(),
+            'costs_are_users_job'        => $this->canEdit,
+            'put_away_blocked'           => $this->viewedByAgent ? [] : $stockDelivery->costsMissingForPutAway(),
             'shipping_basis'             => DistributeStockDeliveryExtraCost::shippingBasis($stockDelivery),
             'agent_invoice_missing'      => !$agentInvoice?->received_at,
             'storeCostRoute'             => [
@@ -971,12 +1268,63 @@ class ShowStockDelivery extends OrgAction
         ];
     }
 
-    private function costRow(StockDeliveryCostTypeEnum $type, ?StockDeliveryCost $row): array
+    /**
+     * The invoice files behind the checklist rows that keep none of their own: the agent or supplier invoice
+     * filed on the delivery, and the files of the service invoices that fill the shipping, duty and extra rows.
+     *
+     * @return array{agent_invoice: Collection<int, Media>, by_cost_type: Collection<string, Collection<int, Media>>, by_service_invoice: Collection<int, Collection<int, Media>>}
+     */
+    private function getCostInvoices(StockDelivery $stockDelivery): array
     {
+        $serviceInvoices = $stockDelivery->serviceInvoices()->with('attachments')->get();
+
         return [
+            'agent_invoice'      => $stockDelivery->attachments()
+                ->wherePivotIn('scope', [PurchaseOrderAttachmentScopeEnum::INVOICE->value, PurchaseOrderAttachmentScopeEnum::PROFORMA->value])
+                ->get(),
+            'by_cost_type'       => $serviceInvoices
+                ->groupBy(fn (StockDeliveryServiceInvoice $serviceInvoice) => $serviceInvoice->type->costType()?->value)
+                ->map(fn (Collection $bills) => $bills->flatMap->attachments),
+            'by_service_invoice' => $serviceInvoices->keyBy('id')->map->attachments,
+        ];
+    }
+
+    /**
+     * @param  array{agent_invoice: Collection<int, Media>, by_cost_type: Collection<string, Collection<int, Media>>, by_service_invoice: Collection<int, Collection<int, Media>>}  $invoices
+     * @param  array{name: string, parameters: array<string, int>, method: string}|null  $uploadRoute
+     */
+    private function costRow(StockDeliveryCostTypeEnum $type, ?StockDeliveryCost $row, array $invoices, ?array $uploadRoute): array
+    {
+        $files = match (true) {
+            $type === StockDeliveryCostTypeEnum::AGENT_INVOICE  => $invoices['agent_invoice'],
+            (bool) $row?->stock_delivery_service_invoice_id     => $invoices['by_service_invoice']->get($row->stock_delivery_service_invoice_id, collect()),
+            (bool) $row?->from_service_invoices                 => $invoices['by_cost_type']->get($type->value, collect()),
+            default                                             => collect(),
+        };
+
+        $category  = $row?->category ?? ($type === StockDeliveryCostTypeEnum::EXTRA ? StockDeliveryServiceInvoiceTypeEnum::OTHER : null);
+        $isInvoice = $type === StockDeliveryCostTypeEnum::AGENT_INVOICE;
+        $kindLabel = $category ? StockDeliveryServiceInvoiceTypeEnum::labels()[$category->value] : StockDeliveryCostTypeEnum::labels()[$type->value];
+
+        return [
+            'from_service_invoices' => (bool) $row?->from_service_invoices,
+            'is_waiting_for_invoice' => (bool) $row?->is_waiting_for_invoice,
+            'is_estimate'            => (bool) $row?->is_estimate,
+            'org_amount'             => $row && !$row->is_na && $row->amount !== null
+                ? round($row->amountInDeliveryCurrency() * (float) ($row->stockDelivery->org_exchange ?: 1), 2)
+                : null,
+            'invoice_overdue'        => (bool) ($row?->is_waiting_for_invoice && $row->invoice_expected_at?->isBefore(today())),
+            'waiting_label'          => $row?->waitingLabel(),
+            'attachments'           => collect($row?->attachments)->concat($files)->unique('id')
+                ->map(fn (Media $media) => ['name' => $media->name ?: $media->file_name, 'ulid' => $media->ulid])->values()->all(),
+            'uploadRoute'           => $uploadRoute,
             'id'          => $row?->id,
             'type'        => $type->value,
-            'label'       => $row?->label ?: StockDeliveryCostTypeEnum::labels()[$type->value],
+            'category'       => $isInvoice ? null : ($category?->value ?? $type->value),
+            'category_label' => $isInvoice ? null : $kindLabel,
+            'note'           => $isInvoice ? null : $row?->label,
+            'history'        => $row ? $this->costHistory($row) : [],
+            'label'       => $isInvoice ? ($row?->label ?: $kindLabel) : $kindLabel.($category && $row?->label ? ': '.$row->label : ''),
             'amount'      => $row?->amount,
             'received_at' => $row?->received_at,
             'is_na'       => (bool) $row?->is_na,
@@ -995,26 +1343,183 @@ class ShowStockDelivery extends OrgAction
         ];
     }
 
+    /**
+     * Who changed what on a cost row, newest first.
+     *
+     * @return array<int, array{at: string, user: string, event: string, changes: array<int, array{field: string, old: string, new: string}>}>
+     */
+    private function costHistory(StockDeliveryCost $cost): array
+    {
+        $fields = [
+            'category'               => __('Kind'),
+            'label'                  => __('Note'),
+            'amount'                 => __('Amount'),
+            'currency_id'            => __('Currency'),
+            'exchange'               => __('Rate'),
+            'is_na'                  => __('N/A'),
+            'received_at'            => __('Received'),
+            'is_waiting_for_invoice' => __('Waiting for invoice'),
+            'invoice_expected_at'    => __('Invoice expected'),
+            'is_estimate'            => __('Estimate'),
+        ];
+
+        $show = fn (string $field, mixed $value): string => match (true) {
+            $value === null || $value === ''                                 => '-',
+            in_array($field, ['is_na', 'is_waiting_for_invoice', 'is_estimate'])            => $value ? __('Yes') : __('No'),
+            $field === 'currency_id'                                         => Currency::find($value)?->code ?? (string) $value,
+            $field === 'category'                                            => StockDeliveryServiceInvoiceTypeEnum::labels()[$value] ?? (string) $value,
+            in_array($field, ['received_at', 'invoice_expected_at'])         => Carbon::parse($value)->toDateString(),
+            default                                                          => (string) $value,
+        };
+
+        return $cost->audits->sortByDesc('id')->map(fn (Audit $audit) => [
+            'at'      => $audit->created_at->toIso8601String(),
+            'user'    => $audit->user?->contact_name ?? __('System'),
+            'event'   => $audit->event,
+            'changes' => collect($fields)
+                ->filter(fn (string $label, string $field) => array_key_exists($field, $audit->new_values ?? []) || array_key_exists($field, $audit->old_values ?? []))
+                ->map(fn (string $label, string $field) => [
+                    'field' => $label,
+                    'old'   => $show($field, Arr::get($audit->old_values, $field)),
+                    'new'   => $show($field, Arr::get($audit->new_values, $field)),
+                ])
+                ->filter(fn (array $change) => $change['old'] !== $change['new'])
+                ->values()->all(),
+        ])->filter(fn (array $entry) => $entry['changes'] !== [])->values()->all();
+    }
+
+    private function getAddPurchaseOrders(StockDelivery $stockDelivery): array
+    {
+        $purchaseOrderIdsInContainer = $stockDelivery->purchaseOrders()->pluck('purchase_orders.id')->all();
+
+        return [
+            'route'           => [
+                'method'     => 'post',
+                'name'       => 'grp.models.stock-delivery.purchase_orders.add',
+                'parameters' => ['stockDelivery' => $stockDelivery->id],
+            ],
+            'purchase_orders' => AddPurchaseOrdersToStockDelivery::addablePurchaseOrders($stockDelivery)
+                ->get()
+                ->map(fn (PurchaseOrder $purchaseOrder) => [
+                    'id'                             => $purchaseOrder->id,
+                    'reference'                      => $purchaseOrder->reference,
+                    'supplier'                       => $purchaseOrder->parent_name,
+                    'agent_order_reference'          => $purchaseOrder->agent_order_reference,
+                    'confirmed_at'                   => $purchaseOrder->confirmed_at,
+                    'number_items_awaiting_delivery' => $purchaseOrder->number_items_awaiting_delivery,
+                    'in_this_container'              => in_array($purchaseOrder->id, $purchaseOrderIdsInContainer, true),
+                ])
+                ->values(),
+        ];
+    }
+
+    /**
+     * Every line still awaiting delivery on the purchase orders this container accepts, in units, with what one SKO
+     * and one carton hold so the page can show the quantity each way.
+     */
+    private function getAddPurchaseOrderItems(StockDelivery $stockDelivery): array
+    {
+        return [
+            'route' => [
+                'method'     => 'post',
+                'name'       => 'grp.models.stock-delivery.purchase_order_items.add',
+                'parameters' => ['stockDelivery' => $stockDelivery->id],
+            ],
+            'items' => AddPurchaseOrderItemsToStockDelivery::addableItems($stockDelivery)
+                ->with([
+                    'purchaseOrder:id,reference,parent_name,agent_order_reference',
+                    'supplierProduct:id,code,name,units_per_pack,units_per_carton',
+                    'orgStock:id,code,name,packed_in',
+                ])
+                ->orderBy('purchase_order_transactions.purchase_order_id')
+                ->orderBy('purchase_order_transactions.id')
+                ->get()
+                ->map(fn (PurchaseOrderTransaction $transaction) => [
+                    'id'                         => $transaction->id,
+                    'purchase_order_id'          => $transaction->purchase_order_id,
+                    'purchase_order_reference'   => $transaction->purchaseOrder->reference,
+                    'supplier'                   => $transaction->purchaseOrder->parent_name,
+                    'agent_order_reference'      => $transaction->purchaseOrder->agent_order_reference,
+                    'code'                       => $transaction->supplierProduct?->code ?? $transaction->orgStock?->code,
+                    'name'                       => $transaction->supplierProduct?->name ?? $transaction->orgStock?->name,
+                    'quantity_ordered'           => (float) $transaction->quantity_ordered,
+                    'quantity_awaiting_delivery' => (float) $transaction->quantity_awaiting_delivery,
+                    'units_per_sko'              => (float) (($transaction->supplierProduct ? $transaction->supplierProduct->units_per_pack : $transaction->orgStock?->packed_in) ?: 1),
+                    'units_per_carton'           => (float) (($transaction->supplierProduct ? $transaction->supplierProduct->units_per_carton : $transaction->orgStock?->packed_in) ?: 0),
+                ])
+                ->values()
+                ->all(),
+        ];
+    }
+
+    private function getRemovePurchaseOrders(StockDelivery $stockDelivery): array
+    {
+        return $stockDelivery->purchaseOrders()->get()
+            ->mapWithKeys(fn (PurchaseOrder $purchaseOrder) => [
+                $purchaseOrder->id => [
+                    'reference' => $purchaseOrder->reference,
+                    'route'     => [
+                        'method'     => 'delete',
+                        'name'       => 'grp.models.stock-delivery.purchase_orders.remove',
+                        'parameters' => [
+                            'stockDelivery' => $stockDelivery->id,
+                            'purchaseOrder' => $purchaseOrder->id,
+                        ],
+                    ],
+                    'items'     => RemovePurchaseOrderFromStockDelivery::itemsOfPurchaseOrder($stockDelivery, $purchaseOrder)
+                        ->with(['supplierProduct:id,code,name', 'orgStock:id,code,name'])
+                        ->orderBy('id')
+                        ->get()
+                        ->map(fn (StockDeliveryItem $item) => [
+                            'id'            => $item->id,
+                            'code'          => $item->supplierProduct?->code ?? $item->orgStock?->code,
+                            'name'          => $item->supplierProduct?->name ?? $item->orgStock?->name,
+                            'unit_quantity' => (float) $item->unit_quantity,
+                        ])
+                        ->values(),
+                ],
+            ])
+            ->all();
+    }
+
     private function getTabsNavigation(StockDelivery $stockDelivery): array
     {
-        $navigation = $this->hasUnderOverDeliveredTab($stockDelivery)
-            ? StockDeliveryTabsEnum::navigation()
-            : StockDeliveryTabsEnum::navigationExcept([StockDeliveryTabsEnum::UNDER_OVER_DELIVERED]);
+        $navigation = Arr::only(StockDeliveryTabsEnum::navigation(), $this->getTabs($stockDelivery));
 
-        if (!$stockDelivery->purchaseOrders()->exists()) {
+        if (isset($navigation[StockDeliveryTabsEnum::ATTACHMENTS->value])) {
+            $navigation[StockDeliveryTabsEnum::ATTACHMENTS->value]['number'] = $stockDelivery->attachments()->count();
+        }
+
+        if (!$this->canAddPurchaseOrders && !$stockDelivery->purchaseOrders()->exists()) {
             unset($navigation[StockDeliveryTabsEnum::PURCHASE_ORDERS->value]);
         }
 
-        if (!$this->hasCustomsTab($stockDelivery)) {
-            unset($navigation[StockDeliveryTabsEnum::CUSTOMS->value]);
+        if (isset($navigation[StockDeliveryTabsEnum::CHECKLIST->value])) {
+            $checklist = GetStockDeliveryGoodsInChecklist::make()->forPage($stockDelivery);
+            $navigation[StockDeliveryTabsEnum::CHECKLIST->value]['number'] = $checklist['total'] - $checklist['checked'];
         }
 
-        if ($stockDelivery->state === StockDeliveryStateEnum::PLACED) {
+        if (!$this->goodsIn && $stockDelivery->state === StockDeliveryStateEnum::PLACED && !$this->viewedByAgent) {
             $navigation[StockDeliveryTabsEnum::ITEMS->value]['title'] = __('Items (costing)');
             $navigation[StockDeliveryTabsEnum::ITEMS->value]['icon']  = 'fal fa-box-usd';
         }
 
         return $navigation;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getGoodsInChecklist(StockDelivery $stockDelivery, ActionRequest $request): array
+    {
+        return GetStockDeliveryGoodsInChecklist::make()->forPage($stockDelivery) + [
+            'can_check'      => $this->canBookIn && in_array($stockDelivery->state, GetStockDeliveryGoodsInChecklist::STATES, true),
+            'incident_types' => ProcurementNoteIncidentTypeEnum::valuesWithLabels(),
+            'route'          => [
+                'name'       => 'grp.models.stock-delivery.goods_in_check.store',
+                'parameters' => [$stockDelivery->id],
+            ],
+        ];
     }
 
     private function hasUnderOverDeliveredTab(StockDelivery $stockDelivery): bool
@@ -1024,14 +1529,22 @@ class ShowStockDelivery extends OrgAction
 
     private function hasCustomsTab(StockDelivery $stockDelivery): bool
     {
-        return !in_array($stockDelivery->state, [StockDeliveryStateEnum::IN_PROCESS, StockDeliveryStateEnum::CONFIRMED, StockDeliveryStateEnum::READY_TO_SHIP, StockDeliveryStateEnum::CANCELLED], true);
+        return !$this->viewedByAgent
+            && !in_array($stockDelivery->state, [StockDeliveryStateEnum::IN_PROCESS, StockDeliveryStateEnum::CONFIRMED, StockDeliveryStateEnum::READY_TO_SHIP, StockDeliveryStateEnum::CANCELLED], true);
     }
 
     private function getTabs(StockDelivery $stockDelivery): array
     {
-        $tabs = StockDeliveryTabsEnum::values();
+        $tabs = array_values(array_diff(
+            StockDeliveryTabsEnum::values(),
+            array_column($this->goodsIn ? self::PROCUREMENT_ONLY_TABS : self::BOOKING_IN_TABS, 'value')
+        ));
         if (!$this->hasCustomsTab($stockDelivery)) {
             $tabs = array_values(array_diff($tabs, [StockDeliveryTabsEnum::CUSTOMS->value]));
+        }
+
+        if ($this->viewedByAgent || !in_array($stockDelivery->state, GetStockDeliveryGoodsInChecklist::STATES, true)) {
+            $tabs = array_values(array_diff($tabs, [StockDeliveryTabsEnum::CHECKLIST->value]));
         }
 
         if ($this->hasUnderOverDeliveredTab($stockDelivery)) {

@@ -14,6 +14,7 @@ import DashboardSettings from "@/Components/DataDisplay/Dashboard/DashboardSetti
 import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
 import TableWebpagesPerformance from "@/Components/Tables/Grp/Org/Web/TableWebpagesPerformance.vue"
 import TableWebsiteConversionCustomers from "@/Components/Tables/Grp/Org/Web/TableWebsiteConversionCustomers.vue"
+import SeoDashboardJourney from "@/Components/Seo/SeoDashboardJourney.vue"
 import SeoDashboardMissingPages from "@/Components/Seo/SeoDashboardMissingPages.vue"
 import SeoDashboardPageViews from "@/Components/Seo/SeoDashboardPageViews.vue"
 import SeoDashboardVisitors from "@/Components/Seo/SeoDashboardVisitors.vue"
@@ -153,6 +154,8 @@ const props = defineProps<{
     webpages?: object | null
     visitors?: object | null
     page_views?: object | null
+    journey?: object | null
+    journey_order?: object | null
     missing_pages?: object | null
     conversions?: object | null
     search_queries?: object | null
@@ -175,6 +178,7 @@ const handlePageTabUpdate = (tabSlug: string) => {
 const pageTabComponent = computed(() => ({
     visitors: SeoDashboardVisitors,
     page_views: SeoDashboardPageViews,
+    journey: SeoDashboardJourney,
     missing_pages: SeoDashboardMissingPages,
 } as Record<string, unknown>)[currentPageTab.value])
 

@@ -1,8 +1,8 @@
 ---
 title: Darbs ar ražotnes ekrānu
 summary: Amatnieka rokasgrāmata - ekrāns Manu uzdevumi, darbu saraksts, kas atjaunojas pats, START un DONE, un ko spiest, ja izgatavoji mazāk, nekā prasīts.
-date: 2026-10-09
-source_date: 2026-10-09
+date: 2026-10-13
+source_date: 2026-10-13
 tags: production, floor, artisan
 category: production
 series: Ordering from partners
@@ -10,14 +10,14 @@ order: 9
 ---
 
 <aside class="tldr">
-Tiem, kas ražo. <b>Factory</b> → <b>Jobs</b> (Ražotne → Darbi) ir visa tava diena vienā ekrānā: kreisajā pusē tev adresētie darbi, vidū tas, ar kuru strādā tagad. Spied <b>START</b> (Sākt), izgatavo, ieraksti, cik gatavs, spied <b>DONE</b> (Pabeigts). Ja izgatavoji mazāk, nekā prasīts, ekrāns uzdod vienu jautājumu: pabeigt darbu šeit, vai pārcelt atlikumu uz jaunu darbu. Nekas cits nav jāaizpilda.
+Tiem, kas ražo. <b>Factory</b> → <b>Jobs</b> (Ražotne → Darbi) ir visa tava diena vienā ekrānā: kreisajā pusē tev adresētie darbi, vidū tas, ar kuru strādā tagad. Spied <b>START</b> (Sākt), izgatavo, ieraksti, cik gatavs, spied <b>DONE</b> (Pabeigts). Ja izgatavoji mazāk, nekā prasīts, ekrāns uzdod vienu jautājumu: pauzēt un turpināt vēlāk, aizvērt darbu un pārcelt atlikumu uz jaunu, vai pabeigt to šeit. Nekas cits nav jāaizpilda.
 </aside>
 
 ## Ekrāns
 
 Lapa izskatās kā iesūtne.
 
-**Kreisajā pusē, vienmēr redzams:** saraksts. Augšā divi skaitītāji - šodien izgatavotās vienības un šodien pabeigtie uzdevumi. Zem tiem **Your jobs** (Tavi darbi) - tev adresētais darbs. Ja tavs amats ļauj ņemt no kopīgā klāsta, seko sadaļa **Open jobs** (Brīvie darbi). Apakšā **Finished today** (Šodien pabeigtie) - tas, ko jau esi aizvēris.
+**Kreisajā pusē, vienmēr redzams:** saraksts. Augšā divi skaitītāji - šodien izgatavotās vienības un šodien pabeigtie uzdevumi. Zem tiem **Your jobs** (Tavi darbi) - tev adresētais darbs: veseli darbi ar tavu vārdu un atsevišķi soļi, ko maiņas vadītājs tev nodevis dienas plānā (skaties [Ražošanas dienas plānošana](/docs/planning-the-production-day-lv)). Vienam darbam izgatavošana var būt pie viena cilvēka, bet iepakošana pie cita; katrs redz tikai savu soli. Ja tavs amats ļauj ņemt no kopīgā klāsta, seko sadaļa **Open jobs** (Brīvie darbi). Apakšā **Finished today** (Šodien pabeigtie) - tas, ko jau esi aizvēris.
 
 **Labajā pusē:** tas, ko izvēlējies. Pirms sākšanas tā ir darba informācija ar lielu **START** pogu. Kad darbs sākts, tā ir darba kartīte ar pulksteni.
 
@@ -46,15 +46,20 @@ Rinda ar zaļu ▶ un laiku ir tā, ar kuru strādā, un kad to sāki. Dzeltena 
 
 Izgatavoji visu, kas prasīts? Ar to viss. Uzdevums aizveras, darba uzdevums ir pabeigts, un noliktava saņem ziņu, ka ir kaut kas jāpieņem - skaties [Gatavās produkcijas pieņemšana noliktavā](/docs/putting-away-finished-production-lv).
 
+## Soļi, ko skaita iepakojumos
+
+Dažus soļus, galvenokārt iepakošanu, skaita iepakojumos, nevis atsevišķos gabalos: paplāte ar 8 vannas bumbām skaitās kā 1. Ekrāns tad dzintara krāsā rāda **Counted in PACKS of 8** (Skaita IEPAKOJUMOS pa 8), un lauks saucas **Packs of 8 made** (Izgatavotie iepakojumi pa 8). Ieraksti, cik pilnus iepakojumus piepildīji: 56 vannas bumbām 7 paplātēs raksti 7, nevis 56. Zem lauka ekrāns rāda, ko tavs skaitlis nozīmē, *7 packs of 8 = 56 × ABB-06a*, un apstiprinājums to rāda vēlreiz. Pieņem tikai veselus iepakojumus; vienīgais izņēmums ir precīzs atlikušais skaits, ko ieraksti, pieskaroties lielajam skaitlim. Kad vadītājam jāapstiprina pārpalikums, logs pirms apstiprināšanas rāda to iepakojumos un gabalos.
+
 ## Ja izgatavoji mazāk, nekā prasīts
 
-Ieraksti reālo skaitu un spied **DONE** (Pabeigts). Ievades rindas vietā parādās īss panelis: *19 gatavi · 6 vēl jāizgatavo* un trīs pogas.
+Ieraksti reālo skaitu un spied **DONE** (Pabeigts). Ievades rindas vietā parādās īss panelis: *19 gatavi · 6 vēl jāizgatavo* un četras pogas.
 
-- **Continue later** (Turpināt vēlāk) - darbs aizveras ar 19, un tavā sarakstā parādās jauns, tev adresēts darba uzdevums par atlikušajiem 6. Ņem to rīt vai kad materiāls būs klāt.
+- **Pause** (Pauze) - tas pats maisījums, turpināsi vēlāk. Darbs paliek atvērts ar to pašu atsauci un to pašu partijas kodu, un skaitīšana turpinās no 19. Izmanto, ja diena beidzas pirms maisījuma.
+- **Close at 19 and move remaining 6 to new job …** (Aizvērt pie 19 un pārcelt atlikušos 6 uz jaunu darbu) - darbs aizveras ar 19, un 6 nonāk jaunā darba uzdevumā ar nākamo burtu (0127 kļūst par 0127a) un savu partijas kodu. Izmanto, ja atlikums būs jauns maisījums. Ekrāns lūdz apstiprināt ar **Yes, close and move** (Jā, aizvērt un pārcelt), jo aizvērtu darbu vairs nevar turpināt.
 - **Job finished** (Darbs pabeigts) - darbs aizveras ar 19, un ar to viss. Plānotājs redz darba uzdevumu, kas prasīja 25, bet saņēma 19.
 - **Back** (Atpakaļ) - mainīt skaitli.
 
-Jebkurā gadījumā darbs, ar kuru strādāji, aizveras un tiek apmaksāts par izgatavoto daudzumu. Nekas nepaliek pusatvērts tavā sarakstā.
+Darbs, kas pārcelts uz jaunu, savā kartītē rāda **Continued from 0127** (Turpinājums no 0127), bet darbs, no kura pārcelts, rāda **Continued in 0127a** (Turpināts darbā 0127a). Jaunais darbs paliek pie tiem pašiem cilvēkiem un tajā pašā dienas plānā.
 
 ## Ja izgatavoji vairāk, nekā prasīts
 
@@ -66,6 +71,8 @@ Ieraksti īsto skaitu un nospied **DONE**. Ekrāns brīdina *18 above target, a 
 Apstiprināt var tikai tas, kurš vada šo ražošanas cehu, un nekad savam darbam. Pēc piecām nepareizām kartēm vai PIN logs 15 minūtes atsakās.
 
 Pēc apstiprināšanas darbs pieaug līdz tam, kas patiešām izgatavots: noliktava novieto visu, ko neviens pasūtījums neprasīja, nonāk krājumā, un izejvielas tiek norakstītas par visu partiju. Tā paša darba nākamie soļi arī pieaug, lai nākamais cilvēks varētu pabeigt visu. Ražošanas pasūtījuma lapā redzams, kas izgatavoja pārpalikumu, kas to apstiprināja, kā un kad.
+
+Ierakstīts nepareizs skaitlis, piemēram, gabali tur, kur prasīti iepakojumi? Vadītājs atver cilni **Performance** (Sniegums), atrod ierakstu pie darbinieka un nospiež **Correct quantity** (Labot daudzumu). Ierakstu var tikai samazināt. Darbs atgriežas pie patiesi izgatavotā, apstiprinātais pārpalikums samazinās līdz ar to, un samaksa par šo ierakstu tiek aprēķināta no jauna. Tas darbojas, līdz noliktava sāk darbu novietot.
 
 ## Viena partija vairākām rindām
 
@@ -81,18 +88,30 @@ Dažreiz viena partija kalpo vairākiem darbiem. Piemēram, 100 HCS-48 klaipi un
 
 Izgatavot vairāk, nekā visas rindas kopā prasīja, var tikai ar vadītāja karti vai PIN, kā iepriekš; pārpalikums arī tiek sadalīts starp rindām. Vadītājs var rindas atkal atdalīt (**Separate**), kad pie tām neviens nestrādā. Tas, kas jau izgatavots kopā, paliek katrai rindai.
 
+## Maisīšana un citi soļi, ko sver kilogramos
+
+Maisīšana ir atsevišķs solis receptes sākumā, un to skaita kilogramos, nevis gabalos. Ekrāns pie skaitļiem rāda **kg**, un lauks saucas **Kg made** (Izgatavotie kg): 50 kg maisījumam raksti 50. Zem lauka ekrāns rāda, kas no tā sanāk, *50 kg of mix = 500 × ABB-06a*. Maisījumu, kas sanāk nedaudz vairāk, nekā darbs prasīja, pieņem tādu, kāds tas ir, bez vadītāja.
+
+Soli redz un var sākt tikai pie tā norādītie amatnieki; neviena cita sarakstā tā nav. Par to maksā pēc stundām pēc pamatlikmes: bez mērķa, bez algas pakāpes un bez piezīmes par nesasniegtu mērķi, un laiks joprojām tiek ieskaitīts produkta izmaksās.
+
+Nākamais solis paliek bloķēts ar **Waiting for** (Gaida) un maisīšanas soļa nosaukumu, līdz ir ierakstīts kāds maisījums, un atveras, tiklīdz ievadīts pirmais. Viens maisījums vairākām rindām darbojas kā iepriekšējā sadaļā: vadītājs apvieno maisīšanas rindas, maisītājs ieraksta kg vienreiz, un katra rinda saņem savu daļu.
+
+**Maisījumi veselās partijās.** Ja produktam ir maisījuma partijas lielums (25 kg vai 50 kg), prasītos kg noapaļo uz augšu līdz veselām partijām un rāda kā partijas: 94,1 kg 50 kg partijās rāda *2 × 50 kg batches = 100 kg* (2 partijas pa 50 kg = 100 kg). Lauku sauc **Batches of 50 kg made** (Pagatavotās 50 kg partijas), un jāieraksta partiju skaits, 2, nevis kg. Apvienotam maisījumam noapaļo visu rindu kopsummu. Pārpalikums pret prasīto nemaina darbu, formēšanas daudzumus vai samaksu. Vadītāji to iestata produkta receptes solī, laukā **Mix batch size** (Maisījuma partijas lielums).
+
+**Iestatīšana (vadītājiem).** Ražošanas uzdevuma lapā **Only these artisans can do it** (To var darīt tikai šie amatnieki) rāda, kas to drīkst darīt; tur pievieno vai noņem cilvēkus. Rediģēšanas formā ir **Paid by piece rate** (Maksā par gabalu; izslēgts stundu darbam) un **Recorded in kg** (Pieraksta kilogramos). Cik kg maisījuma vajag vienam gabalam, norāda katra produkta receptes solī.
+
 ## Noderīgi zināt
 
 - **Viens darbs vienlaikus.** Kamēr tev ir atvērts darbs, START pogas ir neaktīvas. Vispirms aizver to.
 - **Tava samaksa par uzdevumu** seko skaitlim laukā Quantity made, kā aprakstīts [Ražotnes amatos](/docs/factory-positions-lv). Par brāķi nemaksā.
-- **Open jobs** (Brīvie darbi) ir darbi bez norādīta amatnieka vai ar norādītu kādu citu. Ņemt tādu ir pieļaujami, ja tavs amats to atļauj - tad tas ir tavs, līdz aizvērts.
+- **Open jobs** (Brīvie darbi) ir darbi un soļi bez norādīta amatnieka vai ar norādītu kādu citu. Ņemt tādu ir pieļaujami, ja tavs amats to atļauj - tad tas ir tavs, līdz aizvērts.
 
 <aside class="wayfinder"><strong>Kur klikšķināt aiku sistēmā</strong>
 <ul>
 <li><b>Tavs ekrāns:</b> tava organizācija → <b>Factory</b> → <b>Jobs</b>.</li>
 <li><b>Sākt:</b> pieskaries rindai → <b>START</b>.</li>
 <li><b>Pabeigt:</b> ieraksti <b>Quantity made</b> → <b>DONE</b>.</li>
-<li><b>Mazāk nekā prasīts:</b> <b>DONE</b> → <b>Continue later</b> vai <b>Job finished</b>.</li>
+<li><b>Mazāk nekā prasīts:</b> <b>DONE</b> → <b>Pause</b>, <b>Close at … and move remaining …</b> vai <b>Job finished</b>.</li>
 <li><b>Viena partija vairākām rindām:</b> pieskaries rindai → <b>Combine … with other lines into one batch</b> → atzīmē rindas → <b>Combine</b>. Lai atceltu: pieskaries apvienotajai rindai → <b>Separate</b>.</li>
 </ul>
 </aside>

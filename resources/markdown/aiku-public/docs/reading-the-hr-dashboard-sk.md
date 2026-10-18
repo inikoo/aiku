@@ -1,8 +1,8 @@
 ---
 title: Ako čítať HR nástenku
 summary: Prvá obrazovka v HR — kto je dnes v práci, kto meškal, kto je neprítomný a prečo, plus dovolenky tohto týždňa, typy neprítomnosti tohto mesiaca a narodeniny. Každé číslo je odkaz na ľudí, ktorí sa za ním skrývajú.
-date: 2026-09-02
-source_date: 2026-09-02
+date: 2026-10-12
+source_date: 2026-10-12
 tags: hr, attendance, leave, clocking
 category: hr
 ---
@@ -66,21 +66,21 @@ Pod kartami je dochádzka dňa, **najskoršie príchody hore**. Každý riadok j
 
 Spodný riadok nezávisí od zvoleného dátumu; vždy popisuje súčasnosť.
 
-- **Leave overview** — stĺpec za každý pracovný deň, pondelok až piatok aktuálneho týždňa, s počtom zamestnancov so schválenou neprítomnosťou v daný deň. Dnešný stĺpec je zelený.
+- **Leave overview** — stĺpec za každý pracovný deň, pondelok až piatok aktuálneho týždňa, s počtom zamestnancov so schválenou neprítomnosťou v daný deň. Dnešný stĺpec je zelený. Nadpis uvádza obdobie, *This week* s dátumami; kliknutím na nadpis alebo na stĺpec otvoríte kalendár neprítomností na danom týždni.
 - **Employee leaves** — najbližších dvadsať schválených neprítomností, ktoré sa ešte neskončili, najskoršie hore, s typom a dátumami. Toto je váš zoznam "kto čoskoro nebude".
-- **Leave types** — donut schválených neprítomností tohto mesiaca, jeden výsek na typ, počítajú sa zamestnanci, nie dni. V strede je celkový počet zamestnancov, ktorí majú tento mesiac nejakú neprítomnosť.
+- **Leave types** — donut schválených neprítomností tohto mesiaca, jeden výsek na typ, počítajú sa zamestnanci, nie dni. V strede je celkový počet zamestnancov, ktorí majú tento mesiac nejakú neprítomnosť. Nadpis uvádza *This month* a otvára kalendár neprítomností za daný mesiac; kliknutím na typ v zozname otvoríte Leave Requests so schválenými žiadosťami tohto typu.
 - **Birthdays this month** — aktívni zamestnanci, ktorí majú tento mesiac narodeniny, podľa dátumu, dnešní označení tortou.
 
-Neprítomnosti, ktoré ešte *čakajú* na schválenie, sa na tejto stránke neobjavia nikde. Najprv ich schváľte v **Leave requests**.
+Neprítomnosti, ktoré ešte *čakajú* na schválenie, sa na tejto stránke neobjavia nikde. Najprv ich schváľte v **Leave Requests**; pozrite <a href="/docs/handling-leave-requests-sk">Vybavovanie žiadostí o neprítomnosť</a>.
 
 ## Rýchle akcie
 
 Panel vpravo sú štyri veci, ktoré HR robí najčastejšie:
 
-- **Create employee** — formulár popísaný v <a href="/docs/setting-up-a-new-employee-sk">Nastavenie nového zamestnanca</a>.
-- **Record leave** — zapíšte neprítomnosť za niekoho iného; schváli sa v okamihu uloženia, takže sa na nástenke započíta hneď.
-- **Leave requests** — fronta toho, o čo zamestnanci požiadali.
-- **Leave calendar** — mesačný pohľad na to, kto je neprítomný.
+- **New employee** — formulár popísaný v <a href="/docs/setting-up-a-new-employee-sk">Nastavenie nového zamestnanca</a>.
+- **Record leave** — otvorí Leave Requests s pripraveným oknom **Record leave**, kde zapíšete neprítomnosť za niekoho iného; schváli sa v okamihu uloženia, takže sa na nástenke započíta hneď.
+- **Leave requests** — fronta toho, o čo zamestnanci požiadali. Pozrite <a href="/docs/handling-leave-requests-sk">Vybavovanie žiadostí o neprítomnosť</a>.
+- **Leave calendar** — mesačný alebo týždenný pohľad na to, kto je neprítomný.
 
 <aside class="wayfinder"><strong>Kam kliknúť v aiku</strong>
 <ul>
@@ -90,7 +90,7 @@ Panel vpravo sú štyri veci, ktoré HR robí najčastejšie:
 <li><b>Fotka namiesto iniciál:</b> otvorte zamestnanca → <b>Edit</b> → <b>Photo</b> (s právami na úpravu HR). Kto má prihlásenie do aiku, môže si vlastný avatar nastaviť aj v <b>Profile</b>.</li>
 <li><b>Iný deň:</b> šípky alebo výber dátumu nad tabuľkou; <b>Today</b> pre návrat.</li>
 <li><b>Čas začiatku, voči ktorému sa meria meškanie:</b> <b>HR → Shift Schedules</b>. Pätnásťminútová tolerancia je pevná; ak vaša organizácia potrebuje inú, spýtajte sa podpory aiku.</li>
-<li><b>Dostať čakajúcu neprítomnosť na nástenku:</b> <b>HR → Leave requests</b> → schváliť.</li>
+<li><b>Dostať čakajúcu neprítomnosť na nástenku:</b> <b>HR → Leave Requests</b> → <b>Approve</b>.</li>
 </ul>
 </aside>
 

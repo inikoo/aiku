@@ -340,6 +340,10 @@ class ShowWarehousePalletDelivery extends OrgAction
             default => []
         };
 
+        if (!$palletDelivery->documentsCanBeReadBy(request()->user())) {
+            return $actions;
+        }
+
         return array_merge($actions, [$pdfButton]);
     }
 

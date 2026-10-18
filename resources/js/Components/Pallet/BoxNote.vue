@@ -27,7 +27,7 @@ const props = defineProps<{
     noteData: PDRNotes
     updateRoute: routeType
     alternativeStyle?: boolean
-    disableModal: false
+    disableModal?: boolean
 }>()
 
 const emits = defineEmits<{

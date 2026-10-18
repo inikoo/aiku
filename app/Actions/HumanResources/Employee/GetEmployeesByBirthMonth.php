@@ -3,6 +3,7 @@
 namespace App\Actions\HumanResources\Employee;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithHumanResourcesAuthorisation;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Organisation;
@@ -11,6 +12,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class GetEmployeesByBirthMonth extends OrgAction
 {
+    use WithHumanResourcesAuthorisation;
+
     public function handle(Organisation $organisation, ?int $month = null): AnonymousResourceCollection
     {
         $query = Employee::where('organisation_id', $organisation->id)

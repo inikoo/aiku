@@ -34,6 +34,7 @@ use Illuminate\Validation\ValidationException;
 use OwenIt\Auditing\Events\AuditCustom;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
+use App\Actions\Traits\Authorisations\Ordering\WithOrderEditAuthorisation;
 
 class UpdateOrder extends OrgAction
 {
@@ -42,6 +43,7 @@ class UpdateOrder extends OrgAction
     use WithModelAddressActions;
     use HasOrderHydrators;
     use WithNoStrictRules;
+    use WithOrderEditAuthorisation;
 
     private Order $order;
 
@@ -169,8 +171,9 @@ class UpdateOrder extends OrgAction
             }
 
             if (Arr::has($changedFields, 'is_shipping_by_external')) {
-                $deliveryNote = $order->deliveryNotes()->where('delivery_notes.type', DeliveryNoteTypeEnum::ORDER)->first();
-                UpdateDeliveryNote::run($deliveryNote, ['is_shipping_by_external' => $order->is_shipping_by_external]);
+                foreach ($order->deliveryNotes()->where('delivery_notes.type', DeliveryNoteTypeEnum::ORDER)->get() as $deliveryNote) {
+                    UpdateDeliveryNote::run($deliveryNote, ['is_shipping_by_external' => $order->is_shipping_by_external]);
+                }
             }
 
             if (Arr::has($changedFields, 'private_warehouse_note')) {

@@ -9,6 +9,7 @@
 namespace App\Actions\Production\Artefact;
 
 use App\Actions\OrgAction;
+use App\Actions\Production\RawMaterial\Hydrators\RawMaterialHydrateFromOrgStock;
 use App\Models\Production\ArtefactManufactureTask;
 use App\Models\Production\RawMaterial;
 use Illuminate\Http\RedirectResponse;
@@ -20,6 +21,8 @@ class DetachRawMaterialFromRecipeStep extends OrgAction
     public function handle(ArtefactManufactureTask $recipeStep, RawMaterial $rawMaterial): void
     {
         $recipeStep->rawMaterials()->where('raw_material_id', $rawMaterial->id)->delete();
+
+        RawMaterialHydrateFromOrgStock::dispatchIntermediatesOf($recipeStep->artefact_id);
     }
 
     public function authorize(ActionRequest $request): bool

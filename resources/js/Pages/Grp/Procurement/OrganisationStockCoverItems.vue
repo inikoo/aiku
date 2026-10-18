@@ -23,6 +23,7 @@ library.add(faBox, faDownload)
 type StockCoverOrgStock = {
     slug: string
     code: string
+    bucket: string
     bucket_label: string
     bucket_tone: string
     quantity_available: number
@@ -33,14 +34,19 @@ type StockCoverOrgStock = {
     recommended_quantity: number | null
     stock_value: number
     projected_lost_revenue: number | null
+    organisation_slug: string | null
+    organisation_code: string | null
+    organisation_name: string | null
+    currency_code: string | null
+    warehouse_slug: string | null
 }
 
 const props = defineProps<{
     pageHead: PageHeadingTypes
     title: string
-    currency: string
+    currency: string | null
     warehouseSlug: string | null
-    exportRoute: routeType
+    exportRoute: routeType | null
     data: object
 }>()
 
@@ -50,27 +56,38 @@ const toneDot: Record<string, string> = {
     "red-deep": "bg-red-700",
     red: "bg-red-500",
     orange: "bg-orange-500",
+    "orange-light": "bg-orange-400",
     amber: "bg-amber-400",
     yellow: "bg-yellow-300",
     green: "bg-green-500",
+    "red-light": "bg-red-400",
     blue: "bg-blue-500",
     gray: "bg-gray-400",
 }
 
+const organisationOf = (orgStock: StockCoverOrgStock) => orgStock.organisation_slug ?? route().params["organisation"]
+const warehouseOf = (orgStock: StockCoverOrgStock) => orgStock.warehouse_slug ?? props.warehouseSlug
+const currencyOf = (orgStock: StockCoverOrgStock) => orgStock.currency_code ?? props.currency ?? ""
+
 const orgStockRoute = (orgStock: StockCoverOrgStock) => route("grp.org.warehouses.show.inventory.org_stocks.all_org_stocks.show", {
-    organisation: route().params["organisation"],
-    warehouse: props.warehouseSlug,
+    organisation: organisationOf(orgStock),
+    warehouse: warehouseOf(orgStock),
     orgStock: orgStock.slug,
 })
 
-const downloadHref = () => route(props.exportRoute.name, props.exportRoute.parameters) + window.location.search
+const organisationStockLevelRoute = (orgStock: StockCoverOrgStock) => route("grp.org.procurement.stock_cover.index", {
+    organisation: orgStock.organisation_slug ?? "",
+    _query: { elements: { cover: orgStock.bucket } },
+})
+
+const downloadHref = () => props.exportRoute ? route(props.exportRoute.name, props.exportRoute.parameters) + window.location.search : null
 </script>
 
 <template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #otherBefore>
-            <a :href="downloadHref()" class="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50">
+            <a v-if="exportRoute" :href="downloadHref()!" class="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50">
                 <FontAwesomeIcon icon="fal fa-download" fixed-width aria-hidden="true" />
                 {{ ctrans("Download") }}
             </a>
@@ -78,8 +95,12 @@ const downloadHref = () => route(props.exportRoute.name, props.exportRoute.param
     </PageHeading>
 
     <Table :resource="data" class="mt-5">
+        <template #cell(organisation_code)="{ item: orgStock }">
+            <Link v-if="orgStock.organisation_slug" :href="organisationStockLevelRoute(orgStock)" class="primaryLink" v-tooltip="orgStock.organisation_name">{{ orgStock.organisation_code }}</Link>
+        </template>
+
         <template #cell(code)="{ item: orgStock }">
-            <Link v-if="warehouseSlug" :href="orgStockRoute(orgStock)" class="primaryLink">{{ orgStock.code }}</Link>
+            <Link v-if="warehouseOf(orgStock)" :href="orgStockRoute(orgStock)" class="primaryLink">{{ orgStock.code }}</Link>
             <span v-else>{{ orgStock.code }}</span>
         </template>
 
@@ -112,12 +133,12 @@ const downloadHref = () => route(props.exportRoute.name, props.exportRoute.param
         </template>
 
         <template #cell(projected_lost_revenue)="{ item: orgStock }">
-            <span v-if="orgStock.projected_lost_revenue" class="tabular-nums" :class="orgStock.projected_lost_revenue >= 100 ? 'font-medium text-red-600' : ''">{{ locale.currencyFormat(currency, orgStock.projected_lost_revenue) }}</span>
+            <span v-if="orgStock.projected_lost_revenue" class="tabular-nums" :class="orgStock.projected_lost_revenue >= 100 ? 'font-medium text-red-600' : ''">{{ locale.currencyFormat(currencyOf(orgStock), orgStock.projected_lost_revenue) }}</span>
             <span v-else class="text-gray-300">-</span>
         </template>
 
         <template #cell(stock_value)="{ item: orgStock }">
-            <span class="tabular-nums">{{ locale.currencyFormat(currency, orgStock.stock_value) }}</span>
+            <span class="tabular-nums">{{ locale.currencyFormat(currencyOf(orgStock), orgStock.stock_value) }}</span>
         </template>
     </Table>
 </template>

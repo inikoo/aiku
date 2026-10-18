@@ -17,6 +17,7 @@ use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydrateSupplierProducts;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProductSuppliers;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSupplierProducts;
 use App\Actions\Traits\Rules\WithNoStrictRules;
+use App\Enums\SupplyChain\SupplierProduct\SupplierProductAvailabilityStatusEnum;
 use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
@@ -53,6 +54,10 @@ class StoreSupplierProduct extends OrgAction
         }
 
         data_set($modelData, 'currency_id', $supplier->currency_id);
+
+        if (Arr::get($modelData, 'is_available') === false) {
+            $modelData['availability_status'] = SupplierProductAvailabilityStatusEnum::UNAVAILABLE;
+        }
 
         $supplierProduct = DB::transaction(function () use ($supplier, $modelData, $tradeUnits) {
             /** @var SupplierProduct $supplierProduct */

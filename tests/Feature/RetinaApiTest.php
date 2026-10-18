@@ -10,6 +10,7 @@
 
 namespace Tests\Feature;
 
+use App\Actions\Billables\Charge\StoreCharge;
 use App\Actions\Catalogue\Product\UpdateProduct;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
@@ -17,6 +18,9 @@ use App\Actions\CRM\Customer\ApproveCustomer;
 use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
 use App\Actions\Dropshipping\CustomerSalesChannel\StoreCustomerSalesChannel;
 use App\Actions\Ordering\Order\StoreOrder;
+use App\Enums\Catalogue\Charge\ChargeStateEnum;
+use App\Enums\Catalogue\Charge\ChargeTriggerEnum;
+use App\Enums\Catalogue\Charge\ChargeTypeEnum;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\Product\ProductStatusEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
@@ -244,6 +248,8 @@ test('retina api dropshipping orders flow', function () {
 
     $response = postJson(route('retina.api.dropshipping.order.store', $client));
     $response->assertOk();
+    $response->assertJsonPath('data.customer_client.id', $client->id);
+    $response->assertJsonPath('data.customer_client.email', $client->email);
     $orderId = $response->json('data.id');
     $order   = Order::find($orderId);
 
@@ -264,8 +270,77 @@ test('retina api dropshipping orders flow', function () {
     ]);
     $response->assertOk();
 
+    $premiumCharge = StoreCharge::make()->action($this->dropshippingShop, [
+        'code'        => 'PREMIUM-API',
+        'name'        => 'Premium dispatch',
+        'type'        => ChargeTypeEnum::PREMIUM,
+        'trigger'     => ChargeTriggerEnum::SELECTED_BY_CUSTOMER,
+        'description' => 'Same day dispatch',
+        'state'       => ChargeStateEnum::ACTIVE,
+        'settings'    => ['amount' => 5],
+    ]);
+
+    $response = patchJson(route('retina.api.dropshipping.order.update', $order), [
+        'is_premium_dispatch' => true,
+        'shipping_notes'      => 'Leave with neighbour',
+    ]);
+    $response->assertOk();
+    $response->assertJsonPath('data.is_premium_dispatch', true);
+    $response->assertJsonPath('data.shipping_notes', 'Leave with neighbour');
+    $response->assertJsonPath('data.public_notes', 'Please ship fast');
+    expect($order->transactions()->where('model_type', 'Charge')->where('model_id', $premiumCharge->id)->exists())->toBeTrue();
+
+    $response = patchJson(route('retina.api.dropshipping.order.update', $order), [
+        'is_premium_dispatch' => false,
+    ]);
+    $response->assertOk();
+    $response->assertJsonPath('data.is_premium_dispatch', false);
+    expect($order->transactions()->where('model_type', 'Charge')->where('model_id', $premiumCharge->id)->exists())->toBeFalse();
+
+    $this->dropshippingShop->charges()->where('type', ChargeTypeEnum::INSURANCE)->update(['state' => ChargeStateEnum::DISCONTINUED]);
+    patchJson(route('retina.api.dropshipping.order.update', $order), [
+        'has_insurance' => true,
+    ])->assertStatus(422);
+    expect($order->refresh()->has_insurance)->not->toBeTrue();
+
+    $this->dropshippingShop->charges()->where('type', ChargeTypeEnum::GIFT_MESSAGE)->update(['state' => ChargeStateEnum::DISCONTINUED]);
+    patchJson(route('retina.api.dropshipping.order.update', $order), [
+        'gift_message' => 'Happy birthday',
+    ])->assertStatus(422);
+    expect($order->refresh()->gift_message)->toBeNull();
+
     $response = deleteJson(route('retina.api.dropshipping.order.delete', $order));
     $response->assertOk();
+});
+
+test('retina api order show lists the tracking of every shipment', function () {
+    Sanctum::actingAs($this->dropshippingChannel, ['retina', 'retina:read']);
+
+    $client = StoreCustomerClient::make()->action(
+        $this->dropshippingChannel,
+        CustomerClient::factory()->definition()
+    );
+    $order = StoreOrder::make()->action($client, []);
+
+    $order->update([
+        'shipping_data' => [
+            ['delivery_note_reference' => 'DN-A', 'shipping_id' => 1, 'shipper_label' => 'Royal Mail', 'tracking_number' => 'TRACK-A', 'trackings' => ['TRACK-A'], 'tracking_urls' => ['https://track.test/A']],
+            ['delivery_note_reference' => 'DN-B', 'shipping_id' => 2, 'shipper_label' => 'DPD', 'tracking_number' => 'TRACK-B', 'trackings' => ['TRACK-B'], 'tracking_urls' => ['https://track.test/B']],
+        ],
+    ]);
+
+    getJson(route('retina.api.dropshipping.order.show', $order))
+        ->assertOk()
+        ->assertJsonPath('data.shipping_data.trackings', ['TRACK-A'])
+        ->assertJsonCount(2, 'data.shipments')
+        ->assertJsonPath('data.shipments.1.shipper_label', 'DPD')
+        ->assertJsonPath('data.shipments.1.tracking_urls', ['https://track.test/B']);
+
+    $order->update(['shipping_data' => ['is_collection' => true]]);
+
+    getJson(route('retina.api.dropshipping.order.show', $order))
+        ->assertOk()
+        ->assertJsonCount(0, 'data.shipments');
 });
 
 test('retina api dropshipping order submit', function () {
@@ -304,7 +379,9 @@ test('retina api dropshipping order submit', function () {
      * assert the order actually left the basket. */
     $order->refresh();
     expect($order->submitted_at)->not->toBeNull()
-        ->and($order->state)->not->toBe(OrderStateEnum::CREATING);
+        ->and($order->state)->not->toBe(OrderStateEnum::CREATING)
+        ->and($order->pay_status)->not->toBeNull()
+        ->and($response->json('data.pay_status'))->toBe($order->pay_status->value);
 });
 
 // ---- Dropshipping: products & portfolios ----
@@ -683,7 +760,7 @@ test('retina api refuses a media file that belongs to nothing of the customers',
 });
 
 test('retina api images accept a portfolio id sent as a product', function () {
-    DB::statement("select setval('portfolios_id_seq', (select max(id) from products) + 1000)");
+    DB::statement("select setval('portfolios_id_seq', greatest((select max(id) from products) + 1000, (select coalesce(max(id), 0) from portfolios) + 1))");
     $portfolio = StorePortfolio::make()->action($this->dropshippingChannel, $this->product, []);
     expect(\App\Models\Catalogue\Product::find($portfolio->id))->toBeNull();
 
@@ -912,4 +989,22 @@ test('bulk unlink and delete queues a large selection instead of running past th
 
     expect($result)->toBe(['deleted' => 0, 'queued' => count($ids)]);
     \Illuminate\Support\Facades\Queue::assertPushed(\Lorisleiva\Actions\Decorators\JobDecorator::class, count($ids));
+});
+
+test('portfolio stats count totals, current and per platform in one query', function () {
+    StorePortfolio::make()->action($this->dropshippingChannel, $this->product, []);
+
+    $hydrator = new class () {
+        use \App\Actions\Traits\Hydrators\WithHydratePortfolios;
+    };
+
+    DB::enableQueryLog();
+    $stats = $hydrator->getPortfoliosStats($this->product->shop);
+    $portfolioQueries = collect(DB::getQueryLog())->filter(fn ($query) => str_contains($query['query'], 'from "portfolios"'));
+    DB::disableQueryLog();
+
+    expect($portfolioQueries)->toHaveCount(1)
+        ->and($stats['number_portfolios'])->toBe($this->product->shop->portfolios()->count())
+        ->and($stats['number_current_portfolios'])->toBe($this->product->shop->portfolios()->where('status', true)->count())
+        ->and($stats['number_portfolios'])->toBeGreaterThan(0);
 });

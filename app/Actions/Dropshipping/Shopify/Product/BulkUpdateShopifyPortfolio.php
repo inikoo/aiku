@@ -9,7 +9,6 @@
 namespace App\Actions\Dropshipping\Shopify\Product;
 
 use App\Actions\Dropshipping\Portfolio\Logs\StorePlatformPortfolioLog;
-use App\Actions\Dropshipping\Portfolio\Logs\UpdatePlatformPortfolioLog;
 use App\Actions\Dropshipping\Shopify\CheckShopifyChannel;
 use App\Actions\Dropshipping\Shopify\WithShopifyApi;
 use App\Actions\Dropshipping\WooCommerce\Product\UpdateWooCustomerSalesChannelPortfolio;
@@ -90,6 +89,9 @@ class BulkUpdateShopifyPortfolio implements ShouldBeUnique
             return;
         }
 
+        $customerSalesChannel->loadMissing('platform');
+        $portfolios->each->setRelation('customerSalesChannel', $customerSalesChannel);
+
         $productMap = Product::on('aiku_no_sticky')
             ->whereIn('id', $portfolios->pluck('item_id')->unique())
             ->select('id', 'code', 'available_quantity', 'is_for_sale', 'exclusive_for_customer_id', 'state')
@@ -121,7 +123,29 @@ class BulkUpdateShopifyPortfolio implements ShouldBeUnique
      */
     private function processChunk(ShopifyUser $shopifyUser, CustomerSalesChannel $customerSalesChannel, Collection $portfolios, Collection $productMap, array $holdersByVariant, array &$variantsSent, ?Command $command = null): void
     {
-        $logs                   = [];
+        $logData            = [];
+        $failedPortfolioIds = [];
+
+        try {
+            $this->sendChunk($shopifyUser, $customerSalesChannel, $portfolios, $productMap, $holdersByVariant, $variantsSent, $logData, $failedPortfolioIds, $command);
+        } finally {
+            if ($failedPortfolioIds) {
+                Portfolio::on('aiku_no_sticky')->whereIn('id', $failedPortfolioIds)->update(['stock_last_fail_updated_at' => now()]);
+            }
+            StorePlatformPortfolioLog::make()->handleMany(array_map(fn (int $portfolioId) => [$portfolios->get($portfolioId), $logData[$portfolioId]], array_keys($logData)));
+        }
+    }
+
+    /**
+     * @param  Collection<int, Portfolio>  $portfolios
+     * @param  Collection<int, Product>  $productMap
+     * @param  array<string, array<int, array{code: string, sku: string, quantity: int|null}>>  $holdersByVariant
+     * @param  array<string, int>  $variantsSent  variants already sent stock in this run, variant id => portfolio id
+     * @param  array<int, array{status?: PlatformPortfolioLogsStatusEnum, response?: string}>  $logData  portfolio id => what its log stores
+     * @param  list<int>  $failedPortfolioIds
+     */
+    private function sendChunk(ShopifyUser $shopifyUser, CustomerSalesChannel $customerSalesChannel, Collection $portfolios, Collection $productMap, array $holdersByVariant, array &$variantsSent, array &$logData, array &$failedPortfolioIds, ?Command $command = null): void
+    {
         $inventoryItems         = [];
         $portfoliosToUpdateData = [];
         $indexToPortfolioId     = [];
@@ -141,13 +165,13 @@ class BulkUpdateShopifyPortfolio implements ShouldBeUnique
             $shopifyData = self::resolveVariant($portfolio, $productData, $variantsByProduct[$portfolio->platform_product_id] ?? [], $channelSkus);
 
             if (!$shopifyData) {
-                $portfolio->update(['stock_last_fail_updated_at' => now()]);
-                UpdatePlatformPortfolioLog::dispatch(StorePlatformPortfolioLog::run($portfolio, []), [
+                $failedPortfolioIds[]    = $portfolio->id;
+                $logData[$portfolio->id] = [
                     'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
                     'response' => $catalogueRead && !isset($statusByProduct[$portfolio->platform_product_id])
                         ? 'This product is no longer in your Shopify store'
                         : 'No variant on Shopify matches this sku'
-                ]);
+                ];
                 continue;
             }
 
@@ -162,14 +186,14 @@ class BulkUpdateShopifyPortfolio implements ShouldBeUnique
                 [$senderId, $ordersReachSender] = self::sharedListingSender($holders, $shopifyData['sku']);
 
                 if ($senderId !== $portfolio->id || isset($variantsSent[$variantId])) {
-                    $otherCodes = array_filter(array_column(array_diff_key($holders, [$portfolio->id => true]), 'code'));
-                    $portfolio->update(['stock_last_fail_updated_at' => now()]);
-                    UpdatePlatformPortfolioLog::dispatch(StorePlatformPortfolioLog::run($portfolio, []), [
+                    $otherCodes              = array_filter(array_column(array_diff_key($holders, [$portfolio->id => true]), 'code'));
+                    $failedPortfolioIds[]    = $portfolio->id;
+                    $logData[$portfolio->id] = [
                         'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
                         'response' => $otherCodes
                             ? 'This Shopify listing is also linked to '.implode(', ', $otherCodes).', so its stock is not sent'
                             : 'This Shopify listing already got its stock from another product, so its stock is not sent'
-                    ]);
+                    ];
                     continue;
                 }
 
@@ -203,7 +227,7 @@ class BulkUpdateShopifyPortfolio implements ShouldBeUnique
                 'note'             => $sharedListingNote,
             ];
 
-            $logs[$portfolio->id] = StorePlatformPortfolioLog::run($portfolio, []);
+            $logData[$portfolio->id] = [];
         }
 
         if (empty($inventoryItems)) {
@@ -233,16 +257,13 @@ class BulkUpdateShopifyPortfolio implements ShouldBeUnique
         [$status, $res] = $this->doPost($shopifyUser, $mutation, $variables);
 
         if (!$status) {
-            $this->bulkUpdateLogs($logs, [
-                'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
-                'response' => $res
-            ]);
-
-            foreach ($portfoliosToUpdateData as $portfolioId => $data) {
-                $command?->error(json_encode($res));
-                $portfolios->get($portfolioId)?->update([
-                    'stock_last_fail_updated_at' => now(),
-                ]);
+            $command?->error(json_encode($res));
+            foreach ($indexToPortfolioId as $portfolioId) {
+                $failedPortfolioIds[]  = $portfolioId;
+                $logData[$portfolioId] = [
+                    'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
+                    'response' => $res
+                ];
             }
 
             return;
@@ -259,41 +280,45 @@ class BulkUpdateShopifyPortfolio implements ShouldBeUnique
             }
         }
 
-        foreach ($inventoryItems as $index => $item) {
-            $portfolioId = $indexToPortfolioId[$index];
-            $portfolio   = $portfolios->get($portfolioId);
-            $log         = $logs[$portfolioId] ?? null;
+        $sentPortfolioIdsByStock = [];
+        foreach ($indexToPortfolioId as $index => $portfolioId) {
+            if (!isset($failedIndices[$index]) && $portfolios->has($portfolioId)) {
+                $sentPortfolioIdsByStock[$portfoliosToUpdateData[$portfolioId]['last_stock_value']][] = $portfolioId;
+            }
+        }
+
+        $stockSentAt = now();
+        foreach ($sentPortfolioIdsByStock as $stock => $portfolioIds) {
+            Portfolio::on('aiku_no_sticky')->whereIn('id', $portfolioIds)->update([
+                'last_stock_value'      => $stock,
+                'stock_last_updated_at' => $stockSentAt,
+            ]);
+        }
+
+        foreach ($indexToPortfolioId as $index => $portfolioId) {
+            $portfolio = $portfolios->get($portfolioId);
 
             if (isset($failedIndices[$index])) {
-                $portfolio?->update([
-                    'stock_last_fail_updated_at' => now(),
-                ]);
-                if ($portfolio && str_contains($failedIndices[$index], 'not stocked at the location') && !$portfoliosToUpdateData[$portfolioId]['note']) {
+                $failedPortfolioIds[] = $portfolioId;
+                if (str_contains($failedIndices[$index], 'not stocked at the location') && !$portfoliosToUpdateData[$portfolioId]['note']) {
                     StoreShopifyLocationToProductVariant::dispatch($portfolio);
                 }
-                if ($log) {
-                    UpdatePlatformPortfolioLog::dispatch($log, [
-                        'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
-                        'response' => $failedIndices[$index]
-                    ]);
-                }
+                $logData[$portfolioId] = [
+                    'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
+                    'response' => $failedIndices[$index]
+                ];
+            } elseif ($portfoliosToUpdateData[$portfolioId]['note']) {
+                $command?->line("Portfolio $portfolioId usefully updated");
+                $logData[$portfolioId] = [
+                    'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
+                    'response' => $portfoliosToUpdateData[$portfolioId]['note']
+                ];
             } else {
                 $command?->line("Portfolio $portfolioId usefully updated");
-                $listingStatus = $statusByProduct[$portfolio?->platform_product_id] ?? null;
-                $portfolio?->update([
-                    'last_stock_value'      => $portfoliosToUpdateData[$portfolioId]['last_stock_value'],
-                    'stock_last_updated_at' => now(),
-                ]);
-                if ($log && $portfoliosToUpdateData[$portfolioId]['note']) {
-                    UpdatePlatformPortfolioLog::dispatch($log, [
-                        'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
-                        'response' => $portfoliosToUpdateData[$portfolioId]['note']
-                    ]);
-                } elseif ($log) {
-                    UpdatePlatformPortfolioLog::dispatch($log, $listingStatus === self::ACTIVE_STATUS
-                        ? ['status' => PlatformPortfolioLogsStatusEnum::OK]
-                        : ['status' => PlatformPortfolioLogsStatusEnum::OK, 'response' => 'Stock sent, but this product is '.Str::lower((string)$listingStatus).' in your Shopify store, so it is not for sale there']);
-                }
+                $listingStatus         = $statusByProduct[$portfolio->platform_product_id] ?? null;
+                $logData[$portfolioId] = $listingStatus === self::ACTIVE_STATUS
+                    ? ['status' => PlatformPortfolioLogsStatusEnum::OK]
+                    : ['status' => PlatformPortfolioLogsStatusEnum::OK, 'response' => 'Stock sent, but this product is '.Str::lower((string)$listingStatus).' in your Shopify store, so it is not for sale there'];
             }
         }
     }
@@ -452,13 +477,6 @@ class BulkUpdateShopifyPortfolio implements ShouldBeUnique
         }
 
         return [$results, $statuses, isset($body['data']['nodes'])];
-    }
-
-    public function bulkUpdateLogs(array $platformPortfolioLogs, array $modelData): void
-    {
-        foreach ($platformPortfolioLogs as $platformPortfolioLog) {
-            UpdatePlatformPortfolioLog::dispatch($platformPortfolioLog, $modelData);
-        }
     }
 
     public function getCommandSignature(): string

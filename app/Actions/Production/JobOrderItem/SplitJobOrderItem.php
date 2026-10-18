@@ -11,6 +11,7 @@ namespace App\Actions\Production\JobOrderItem;
 use App\Actions\OrgAction;
 use App\Events\BroadcastManufactureFloorChanged;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
+use App\Enums\Production\JobOrderItemTask\JobOrderItemTaskStateEnum;
 use App\Models\Production\JobOrderItem;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
@@ -38,7 +39,7 @@ class SplitJobOrderItem extends OrgAction
 
         DB::transaction(function () use ($line, $assignments) {
             $subJobs     = $this->subJobs($line)->keyBy('id');
-            $splitData   = Arr::except($line->data, ['demand_skos']);
+            $splitData   = Arr::except($line->data, ['demand_skos', 'carried_to']);
             $keptIds     = [];
 
             foreach ($assignments as $assignment) {
@@ -54,10 +55,14 @@ class SplitJobOrderItem extends OrgAction
                     UpdateJobOrderItem::make()->action($subJob, ['quantity' => $assignment['quantity']]);
                 }
 
+                if ($subJob->employee_id != $assignment['employee_id']) {
+                    $subJob->tasks()->where('state', '!=', JobOrderItemTaskStateEnum::DONE)->update(['employee_id' => null]);
+                }
+
                 $subJob->update([
                     'employee_id'   => $assignment['employee_id'],
                     'split_from_id' => $subJob->id == $line->id ? null : $line->id,
-                    'data'          => $splitData,
+                    'data'          => [...$splitData, ...Arr::only($subJob->data ?? [], ['carried_to'])],
                 ]);
 
                 $keptIds[] = $subJob->id;
@@ -86,7 +91,7 @@ class SplitJobOrderItem extends OrgAction
     {
         return JobOrderItem::where('id', $line->id)
             ->orWhere('split_from_id', $line->id)
-            ->with(['tasks.sessions', 'artefact.manufactureTasks'])
+            ->with(['tasks.sessions', 'tasks.manufactureTask', 'artefact.manufactureTasks'])
             ->orderBy('id')
             ->lockForUpdate()
             ->get();
@@ -138,6 +143,13 @@ class SplitJobOrderItem extends OrgAction
             return;
         }
 
+        $packedIn = $line->artefact->packedIn();
+        if ($total % $packedIn === 0 && $assignments->contains(fn (array $assignment) => $assignment['quantity'] % $packedIn)) {
+            $validator->errors()->add('assignments', __('Each artisan gets whole outers: multiples of :count units.', ['count' => $packedIn]));
+
+            return;
+        }
+
         $assignedIds = $assignments->pluck('id')->filter();
         if ($assignedIds->diff($subJobs->keys())->isNotEmpty() || $assignedIds->duplicates()->isNotEmpty()) {
             $validator->errors()->add('assignments', __('This job changed meanwhile, reload the page.'));
@@ -160,14 +172,26 @@ class SplitJobOrderItem extends OrgAction
         }
 
         foreach ($assignments->whereNotNull('id') as $assignment) {
-            $subJob           = $subJobs->get($assignment['id']);
-            $unitsPerArtefact = $subJob->artefact->manufactureTasks->pluck('pivot.units_per_artefact', 'id');
+            $subJob    = $subJobs->get($assignment['id']);
+            $carriedTo = $subJob->quantity != $assignment['quantity'] ? $subJob->carriedTo() : null;
+            if ($carriedTo) {
+                $validator->errors()->add('assignments', __('The rest of this job was carried to :reference, change the quantity there.', ['reference' => $carriedTo->reference]));
+
+                return;
+            }
 
             foreach ($subJob->tasks as $task) {
-                if ($assignment['quantity'] * ($unitsPerArtefact[$task->manufacture_task_id] ?? 1) < $task->quantity_made) {
-                    $validator->errors()->add('assignments', __(':artisan already made more than :quantity.', [
+                if ($task->isRecordedInKg()) {
+                    continue;
+                }
+
+                $newRequired = $task->requiredFor($assignment['quantity']);
+                if ($newRequired < $task->quantity_made) {
+                    $validator->errors()->add('assignments', __(':artisan already made :made of :step, more than their new share of :quantity.', [
                         'artisan'  => $subJob->employee?->contact_name ?? __('Someone'),
-                        'quantity' => $assignment['quantity'],
+                        'made'     => (float) $task->quantity_made,
+                        'step'     => $task->manufactureTask->name,
+                        'quantity' => $newRequired,
                     ]));
 
                     return;

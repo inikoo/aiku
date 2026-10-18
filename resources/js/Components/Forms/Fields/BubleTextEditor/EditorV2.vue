@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, nextTick, watch, computed } from "vue"
-import { useEditor, EditorContent, BubbleMenu } from '@tiptap/vue-3'
+import { useEditor, EditorContent, BubbleMenu, isNodeSelection } from '@tiptap/vue-3'
 import Select from 'primevue/select'
 import { fontsForCurrentShop } from '@/Composables/useFont'
 import FontNotFor from "@/Components/Workshop/Properties/FontNotFor.vue"
@@ -41,6 +41,7 @@ import Highlight from '@tiptap/extension-highlight'
 import UtilsColorPicker from '@/Components/Utils/ColorPicker.vue'
 import EditorColorPicker from '@/Components/Forms/Fields/BubleTextEditor/EditorColorPicker.vue'
 import {CustomImage} from './CustomResizeImage/CustomImageSetting'
+import { IMAGE_WIDTH_PRESETS, ImageAlignment, imageWidthPercent, toImageWidth } from './CustomResizeImage/imageLayout'
 import Placeholder from "@tiptap/extension-placeholder"
 import Link from "@tiptap/extension-link"
 import Iframe from "@/Components/Forms/Fields/BubleTextEditor/Iframe/IframeExtension.js"
@@ -68,15 +69,17 @@ import {
     faPaintBrushAlt,
     faTextSize,
 } from "@far"
-import { faTable, faPalette, faUnlink, faTimes, faEllipsisH, faChevronDown, faFont, faHeading, faBracketsCurly } from "@fal"
+import { faTable, faPalette, faUnlink, faTimes, faEllipsisH, faChevronDown, faFont, faHeading, faBracketsCurly, faSlidersH, faExchange, faTrashAlt } from "@fal"
 import { faEraser, faTint, faTable as fasTable, } from "@fas"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
 import TiptapLinkCustomDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapCustomLinkDialog.vue"
 import TiptapLinkDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapLinkDialog.vue"
+import type { LinkDialogValue } from "@/Components/Forms/Fields/BubleTextEditor/linkHref"
 import TiptapVideoDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapVideoDialog.vue"
 import TiptapTableDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapTableDialog.vue"
 import TiptapImageDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapImageDialog.vue"
+import TiptapImageSettingsDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapImageSettingsDialog.vue"
 import TiptapVariableDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapVariableDialog.vue"
 import { Plugin } from "prosemirror-state"
 import Variabel from "./Variables/Variables"
@@ -98,6 +101,8 @@ const props = withDefaults(defineProps<{
     placeholder?: any | String
     uploadImageRoute?: routeType
     routeGetInternalLink?: routeType
+    mergeTags?: Array<{ name: string, value: string }>
+    linkUnderline?: boolean
 }>(), {
     editable: true,
     type: 'Bubble',
@@ -119,11 +124,20 @@ const _bubbleMenu = ref(null)
 const showDialog = ref(false)
 const contentResult = ref<string>()
 const currentLinkInDialog = ref<string | undefined>()
+const currentLinkUnderlineInDialog = ref<boolean | undefined>()
+const currentLinkTextInDialog = ref<string>('')
+const currentLinkTitleInDialog = ref<string | null>(null)
+const currentLinkTargetInDialog = ref<string | null>(null)
+const linkRangeInDialog = ref<{ from: number, to: number } | null>(null)
 const showLinkDialogCustom = ref<boolean>()
 const showAddYoutubeDialog = ref<boolean>(false)
 const showAddTableDialog = ref<boolean>(false)
 const showAddImageDialog = ref<boolean>(false)
+const showImageSettingsDialog = ref<boolean>(false)
+const imageInSettingsDialog = ref<{ position: number, attributes: Record<string, any> } | null>(null)
+const positionOfImageToReplace = ref<number | null>(null)
 const showAddVariableDialog = ref<boolean>(false)
+const showMergeTagDialog = ref<boolean>(false)
 const showLinkDialog = ref<boolean>()
 const tippyOptions = {
     theme: 'tiptap-bubble',
@@ -175,7 +189,33 @@ const editorInstance = useEditor({
         FontFamily.configure({
             types: ['textStyle'],
         }),
-        Link.configure({
+        Link.extend({
+            addAttributes() {
+                return {
+                    ...this.parent?.(),
+                    title: {
+                        default: null,
+                        parseHTML: (element: HTMLElement) => element.getAttribute('title'),
+                        renderHTML: (attributes: Record<string, any>) => attributes.title ? { title: attributes.title } : {},
+                    },
+                    underline: {
+                        default: null,
+                        parseHTML: (element: HTMLElement) => {
+                            const decoration = element.style.textDecorationLine || element.style.textDecoration
+                            if (decoration.includes('underline')) {
+                                return true
+                            }
+
+                            return decoration.includes('none') ? false : null
+                        },
+                        renderHTML: (attributes: Record<string, any>) =>
+                            typeof attributes.underline === 'boolean'
+                                ? { style: `text-decoration:${attributes.underline ? 'underline' : 'none'}` }
+                                : {},
+                    },
+                }
+            },
+        }).configure({
             openOnClick: false
         }),
         customLink.extend({
@@ -395,34 +435,175 @@ function updateLinkCustom(value) {
 
 
 function openLinkDialog() {
-    currentLinkInDialog.value = editorInstance.value?.getAttributes("link").href
+    const editor = editorInstance.value
+    if (editor?.isActive("link")) {
+        editor.chain().extendMarkRange("link").run()
+    }
+    const linkAttributes = editor?.getAttributes("link") ?? {}
+    const selection = editor?.state.selection
+    linkRangeInDialog.value = !selection ? null : selection.empty ? getWordRangeAtCursor() : { from: selection.from, to: selection.to }
+    currentLinkInDialog.value = linkAttributes.href
+    currentLinkTextInDialog.value = editor && linkRangeInDialog.value ? editor.state.doc.textBetween(linkRangeInDialog.value.from, linkRangeInDialog.value.to, ' ') : ''
+    currentLinkTitleInDialog.value = linkAttributes.title ?? null
+    currentLinkTargetInDialog.value = linkAttributes.target ?? null
+    currentLinkUnderlineInDialog.value = typeof linkAttributes.underline === 'boolean' ? linkAttributes.underline : props.linkUnderline
     showLinkDialog.value = true
     showDialog.value = true;
 }
 
-function updateLink(value?: string) {
-    if (!value) {
-        editorInstance.value
-            ?.chain()
-            .focus()
-            .extendMarkRange("link")
-            .unsetLink()
-            .run()
+function updateLink(link: LinkDialogValue) {
+    const editor = editorInstance.value
+    if (!editor || !link.href) {
         return
     }
 
-    editorInstance.value
-        ?.chain()
+    const linkAttributes = {
+        href: link.href,
+        target: link.target,
+        title: link.title.trim() || null,
+        ...(typeof link.underline === 'boolean' ? { underline: link.underline } : {}),
+    } as { href: string }
+    const text = link.text.trim() ? link.text : ''
+    const range = linkRangeInDialog.value
+
+    if (range) {
+        const currentText = editor.state.doc.textBetween(range.from, range.to, ' ')
+        if (!text || text === currentText) {
+            editor.chain().focus().setTextSelection(range).setLink(linkAttributes).run()
+            return
+        }
+        editor.chain().focus().insertContentAt(range, { type: "text", text, marks: [{ type: "link", attrs: linkAttributes }] }).run()
+        return
+    }
+
+    editor
+        .chain()
         .focus()
-        .extendMarkRange("link")
-        .setLink({ href: value })
+        .insertContent({ type: "text", text: text || link.href, marks: [{ type: "link", attrs: linkAttributes }] })
         .run()
+}
+
+function getWordRangeAtCursor(): { from: number, to: number } | null {
+    const selectionStart = editorInstance.value?.state.selection.$from
+    if (!selectionStart || !selectionStart.parent.isTextblock) {
+        return null
+    }
+
+    const leafPlaceholder = " "
+    const blockText = selectionStart.parent.textBetween(0, selectionStart.parent.content.size, undefined, leafPlaceholder)
+    const isWordCharacter = (index: number): boolean => index >= 0 && index < blockText.length && /\S/.test(blockText[index])
+
+    let wordStart = selectionStart.parentOffset
+    let wordEnd = selectionStart.parentOffset
+    while (isWordCharacter(wordStart - 1)) {
+        wordStart -= 1
+    }
+    while (isWordCharacter(wordEnd)) {
+        wordEnd += 1
+    }
+
+    if (wordStart === wordEnd) {
+        return null
+    }
+
+    return { from: selectionStart.start() + wordStart, to: selectionStart.start() + wordEnd }
 }
 
 
 function insertImage(url: string, alt?: string) {
+    if (positionOfImageToReplace.value !== null) {
+        const replacedImage = editorInstance.value?.state.doc.nodeAt(positionOfImageToReplace.value)
+        updateImage(positionOfImageToReplace.value, { src: url, alt: alt || replacedImage?.attrs.alt })
+        return
+    }
+
     editorInstance.value?.chain().focus().setImage({ src: url, alt: alt || "image" }).run()
 }
+
+function selectedImage(): { position: number, attributes: Record<string, any> } | null {
+    const selection = editorInstance.value?.state.selection
+    if (!selection || !isNodeSelection(selection) || selection.node.type.name !== 'image') {
+        return null
+    }
+
+    return { position: selection.from, attributes: selection.node.attrs }
+}
+
+function updateImage(position: number, attributes: Record<string, any>) {
+    const editor = editorInstance.value
+    const image = editor?.state.doc.nodeAt(position)
+    if (!editor || image?.type.name !== 'image') {
+        return
+    }
+
+    editor
+        .chain()
+        .focus()
+        .command(({ tr }) => {
+            tr.setNodeMarkup(position, undefined, { ...image.attrs, ...attributes })
+            return true
+        })
+        .setNodeSelection(position)
+        .run()
+}
+
+function updateSelectedImage(attributes: Record<string, any>) {
+    const image = selectedImage()
+    if (image) {
+        updateImage(image.position, attributes)
+    }
+}
+
+function openImageSettingsDialog() {
+    imageInSettingsDialog.value = selectedImage()
+    if (!imageInSettingsDialog.value) {
+        return
+    }
+
+    showImageSettingsDialog.value = true
+    showDialog.value = true
+}
+
+function closeImageSettingsDialog() {
+    showImageSettingsDialog.value = false
+    showDialog.value = false
+    imageInSettingsDialog.value = null
+}
+
+function saveImageSettings(settings: { alt: string, width: string, float: ImageAlignment }) {
+    if (imageInSettingsDialog.value) {
+        updateImage(imageInSettingsDialog.value.position, settings)
+    }
+}
+
+function openReplaceImageDialog() {
+    const image = selectedImage()
+    if (!image) {
+        return
+    }
+
+    positionOfImageToReplace.value = image.position
+    showAddImageDialog.value = true
+    showDialog.value = true
+}
+
+function closeImageDialog() {
+    showAddImageDialog.value = false
+    showDialog.value = false
+    positionOfImageToReplace.value = null
+}
+
+const selectedImageAttributes = computed(() =>
+    editorInstance.value?.isActive('image') ? editorInstance.value.getAttributes('image') : null
+)
+
+const selectedImageWidthPercent = computed(() => imageWidthPercent(selectedImageAttributes.value?.width))
+
+const imageAlignmentOptions: Array<{ value: ImageAlignment, label: string, icon: any }> = [
+    { value: 'left', label: 'Align Left', icon: faAlignLeft },
+    { value: 'none', label: 'Align Center', icon: faAlignCenter },
+    { value: 'right', label: 'Align Right', icon: faAlignRight },
+]
 
 function insertYoutubeVideo(url: string) {
     editorInstance.value?.commands.setYoutubeVideo({
@@ -457,6 +638,12 @@ const setVariabel = (value) => {
     const content = `<span class="mention" data-type="mention" data-id="${value}" contenteditable="false">${value}</span>`;
     editorInstance.value?.chain().focus().insertContent(content).run();
 };
+
+const mergeTagOptions = computed(() => (props.mergeTags ?? []).map((tag) => ({ label: tag.name, value: tag.value })))
+
+const insertMergeTag = (value: string) => {
+    editorInstance.value?.chain().focus().insertContent({ type: 'text', text: value }).run()
+}
 
 defineExpose({
     editor: editorInstance
@@ -924,6 +1111,13 @@ onMounted(async () => {
                             </TiptapToolbarDropdown>
                         </TiptapToolbarGroup>
 
+                        <TiptapToolbarGroup v-if="mergeTags?.length" class="px-1 first:pl-0">
+                            <TiptapToolbarButton :label="ctrans('Merge tags')"
+                                @click="showMergeTagDialog = true; showDialog = true">
+                                <FontAwesomeIcon :icon="faBracketsCurly" class="h-4 w-4" fixed-width />
+                            </TiptapToolbarButton>
+                        </TiptapToolbarGroup>
+
                         <!-- Links -->
                         <TiptapToolbarGroup v-if="toggle.includes('link') || toggle.includes('customLink')"
                             class="px-1 first:pl-0">
@@ -1026,6 +1220,49 @@ onMounted(async () => {
                                 <FontAwesomeIcon :icon="faTimes" class="h-4 w-4" fixed-width />
                             </button>
                         </div>
+                    </section>
+
+                    <section v-if="selectedImageAttributes"
+                        class="mt-1 flex flex-nowrap items-center gap-0.5 overflow-x-auto border-t border-gray-200 pt-1">
+                        <span class="shrink-0 pr-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+                            {{ ctrans('Image') }}
+                        </span>
+
+                        <TiptapToolbarButton v-for="option in imageAlignmentOptions" :key="option.value"
+                            :label="ctrans(option.label)"
+                            :is-active="(selectedImageAttributes.float || 'none') === option.value"
+                            @click="updateSelectedImage({ float: option.value })">
+                            <FontAwesomeIcon :icon="option.icon" class="h-4 w-4" fixed-width />
+                        </TiptapToolbarButton>
+
+                        <span class="mx-0.5 h-5 w-px shrink-0 bg-gray-200" aria-hidden="true" />
+
+                        <button v-for="percent in IMAGE_WIDTH_PRESETS" :key="percent" type="button"
+                            v-tooltip="ctrans('Width :percent%', { percent })"
+                            :aria-label="ctrans('Width :percent%', { percent })"
+                            :aria-pressed="selectedImageWidthPercent === percent"
+                            class="inline-flex h-7 shrink-0 items-center justify-center rounded px-1.5 text-xs font-medium tabular-nums transition-colors"
+                            :class="selectedImageWidthPercent === percent
+                                ? 'bg-blue-100 text-blue-800 hover:bg-blue-200'
+                                : 'text-gray-600 hover:bg-blue-50'"
+                            @mousedown.prevent
+                            @click="updateSelectedImage({ width: toImageWidth(percent) })">
+                            {{ percent }}%
+                        </button>
+
+                        <span class="mx-0.5 h-5 w-px shrink-0 bg-gray-200" aria-hidden="true" />
+
+                        <TiptapToolbarButton :label="ctrans('Alternative text and exact size')"
+                            @click="openImageSettingsDialog">
+                            <FontAwesomeIcon :icon="faSlidersH" class="h-4 w-4" fixed-width />
+                        </TiptapToolbarButton>
+                        <TiptapToolbarButton :label="ctrans('Replace image')" @click="openReplaceImageDialog">
+                            <FontAwesomeIcon :icon="faExchange" class="h-4 w-4" fixed-width />
+                        </TiptapToolbarButton>
+                        <TiptapToolbarButton :label="ctrans('Remove image')"
+                            @click="editorInstance?.chain().focus().deleteSelection().run()">
+                            <FontAwesomeIcon :icon="faTrashAlt" class="h-4 w-4 text-red-500" fixed-width />
+                        </TiptapToolbarButton>
                     </section>
 
                     <!-- Table tools: only while the caret sits inside a table -->
@@ -1184,14 +1421,26 @@ onMounted(async () => {
         <TiptapImageDialog
             v-if="showAddImageDialog"
             :show="showAddImageDialog"
-            @close="() => { showAddImageDialog = false, showDialog = false }"
+            @close="closeImageDialog"
             @insert="insertImage"
             :uploadImageRoute="uploadImageRoute"
+        />
+        <TiptapImageSettingsDialog
+            v-if="showImageSettingsDialog && imageInSettingsDialog"
+            :show="showImageSettingsDialog"
+            :image="imageInSettingsDialog.attributes"
+            @close="closeImageSettingsDialog"
+            @update="saveImageSettings"
         />
         <TiptapLinkDialog
             v-if="showLinkDialog"
             :show="showLinkDialog"
             :current-url="currentLinkInDialog"
+            :current-text="currentLinkTextInDialog"
+            :current-title="currentLinkTitleInDialog"
+            :current-target="currentLinkTargetInDialog"
+            :underline="currentLinkUnderlineInDialog"
+            :showUnderlineOption="typeof linkUnderline === 'boolean'"
             @close="() => { showLinkDialog = false; showDialog = false; }"
             @update="updateLink"
         />
@@ -1202,6 +1451,16 @@ onMounted(async () => {
             :variables="irisVariable"
             @insert="setVariabel"
             @close="() => { showAddVariableDialog = false; showDialog = false; }"
+        />
+
+        <TiptapVariableDialog
+            v-if="showMergeTagDialog"
+            :show="showMergeTagDialog"
+            :variables="mergeTagOptions"
+            :header="ctrans('Insert merge tag')"
+            :description="ctrans('Pick a merge tag to place at the cursor. It is replaced with the recipient\'s details when the email is sent.')"
+            @insert="insertMergeTag"
+            @close="() => { showMergeTagDialog = false; showDialog = false; }"
         />
 
         <TiptapVideoDialog

@@ -41,6 +41,7 @@ import OrgStockLabelModal from "@/Components/Warehouse/Inventory/OrgStockLabelMo
 import LabelItemsWaitingForCrm from "./LabelItemsWaitingForCrm.vue"
 import LoadingOverlay2 from "@/Components/Utils/LoadingOverlay2.vue"
 import { ctrans } from "@/Composables/useTrans"
+import { printPdfInBrowser } from "@/Composables/printPdfInBrowser"
 import LabelPickingLocation from "./LabelPickingLocation.vue"
 import PickingLocationModal from "./PickingLocationModal.vue"
 import SelectPickingLocation from "./SelectPickingLocation.vue"
@@ -52,9 +53,9 @@ import ButtonSelectBays from "@/Components/DeliveryNote/ButtonSelectBays.vue"
 import IndivisibleSetIcon from "@/Components/Catalogue/IndivisibleSetIcon.vue"
 import { useStringToHex } from "@/Composables/useStringToHex"
 import { useIndivisibleSetMismatches } from "@/Composables/useIndivisibleSetMismatches"
-import { faBoxOpen, faPrint, faRedo, faFileAlt, faExclamationCircle, faCloudDownload, faEye, faInfoCircle } from "@fal"
+import { faBoxOpen, faPrint, faRedo, faFileAlt, faExclamationCircle, faCloudDownload, faEye, faInfoCircle, faBrowser } from "@fal"
 
-library.add(faInfoCircle, faFilePdf,faSpinnerThird, faSkull, faArrowDown, faDebug, faClipboardListCheck, faUndoAlt, faHandHoldingBox, faListOl, faHourglassHalf, faWandMagic, faBox, faBarcode, faBoxOpen, faPrint, faRedo, faFileAlt, faExclamationCircle, faExclamationTriangle, faCloudDownload, faEye);
+library.add(faInfoCircle, faFilePdf,faSpinnerThird, faSkull, faArrowDown, faDebug, faClipboardListCheck, faUndoAlt, faHandHoldingBox, faListOl, faHourglassHalf, faWandMagic, faBox, faBarcode, faBoxOpen, faPrint, faRedo, faFileAlt, faExclamationCircle, faExclamationTriangle, faCloudDownload, faEye, faBrowser);
 
 
 const props = defineProps<{
@@ -170,6 +171,28 @@ const onPrintLeaflet = async (leaflet: { id: number, state: string }) => {
         notify({ title: ctrans("Something went wrong"), text: error?.response?.data?.message ?? ctrans("Failed to print insert"), type: "error" })
     } finally {
         printingLeafletId.value = null
+    }
+}
+
+const browserPrintingLeafletId = ref<number | null>(null)
+const onPrintLeafletInBrowser = async (leaflet: { id: number, state: string }) => {
+    try {
+        browserPrintingLeafletId.value = leaflet.id
+        const response = await axios.post(
+            route("grp.models.delivery_note_leaflet.print_in_browser", { deliveryNoteLeaflet: leaflet.id }),
+            {},
+            { responseType: "blob" }
+        )
+        printPdfInBrowser(response.data)
+        leaflet.state = "printed"
+        reloadInserts()
+    } catch (error: any) {
+        const message = error?.response?.data instanceof Blob
+            ? JSON.parse(await error.response.data.text())?.message
+            : null
+        notify({ title: ctrans("Something went wrong"), text: message ?? ctrans("Failed to print insert"), type: "error" })
+    } finally {
+        browserPrintingLeafletId.value = null
     }
 }
 
@@ -902,6 +925,25 @@ const { incompleteSets, quantityToPutBack, incompleteSetFor } = useIndivisibleSe
 
 const roundQuantity = (quantity: number) => Math.round(quantity * 100) / 100
 
+const overPickedPutBacks = (item: any): { location_code: string, quantity: number }[] => {
+    let excess = parseFloat(item.quantity_picked) - parseFloat(item.quantity_required)
+    const putBacks = []
+    const picks = (item.pickings ?? [])
+        .filter((picking: any) => ['pick', 'magic_pick'].includes(picking.type))
+        .sort((a: any, b: any) => b.id - a.id)
+
+    for (const picking of picks) {
+        if (excess <= 0.000001) {
+            break
+        }
+        const quantity = Math.min(excess, Number(picking.quantity_picked))
+        putBacks.push({ location_code: picking.location_code ?? '—', quantity: roundQuantity(quantity) })
+        excess -= quantity
+    }
+
+    return putBacks
+}
+
 const describeIncompleteSet = (transactionId?: number) => {
     const incompleteSet = incompleteSetFor(transactionId)
 
@@ -1148,6 +1190,12 @@ const onSaveSplitBoxes = async () => {
                 </span>
                 <span v-for="un_number in deliveryNoteItem.un_numbers" v-tooltip="un_number?.shipping_name ?? ''" class="border border-red-700 rounded-sm px-1 text-red-700 bg-amber-500 ml-1" :class="un_number?.shipping_name ? 'cursor-pointer' : ''">
                     {{ un_number.number }}
+                </span>
+                <span v-if="!deliveryNoteItem.indivisible_set && overPickedPutBacks(deliveryNoteItem).length"
+                    v-tooltip="ctrans('The order was changed after this was picked. Put it back on the shelf, it is taken off the delivery note when picking is finished')"
+                    class="ml-auto inline-flex items-center gap-x-1 whitespace-nowrap pl-3 text-xs font-semibold text-red-600">
+                    <FontAwesomeIcon icon="fal fa-undo-alt" fixed-width aria-hidden="true" />
+                    {{ overPickedPutBacks(deliveryNoteItem).map((putBack) => ctrans('Put back :quantity to :location', { quantity: putBack.quantity, location: putBack.location_code })).join(', ') }}
                 </span>
                 <span v-if="deliveryNoteItem.indivisible_set" class="ml-auto inline-flex items-center gap-x-1.5 pl-3">
                     <span v-if="quantityToPutBack(deliveryNoteItem.id) > 0" class="inline-flex items-center gap-x-1 whitespace-nowrap text-xs font-semibold text-red-600">
@@ -1484,6 +1532,16 @@ const onSaveSplitBoxes = async () => {
                         @click="showLeafletMessage($event, leaflet.message)"
                     >
                         <FontAwesomeIcon :icon="['fal', 'eye']" fixed-width aria-hidden="true" />
+                    </button>
+                    <button
+                        v-if="leaflet.has_media || leaflet.message"
+                        type="button"
+                        class="p-1 text-gray-400 hover:text-gray-600 disabled:text-gray-300"
+                        :disabled="browserPrintingLeafletId === leaflet.id"
+                        v-tooltip="ctrans('Print from this browser (the paper set on this computer, no PrintNode)')"
+                        @click="onPrintLeafletInBrowser(leaflet)"
+                    >
+                        <FontAwesomeIcon :icon="['fal', 'browser']" fixed-width aria-hidden="true" />
                     </button>
                     <button
                         v-if="leaflet.has_media"

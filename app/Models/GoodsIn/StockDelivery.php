@@ -8,9 +8,12 @@
 
 namespace App\Models\GoodsIn;
 
+use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\AgentInvoice;
 use App\Models\SupplyChain\SupplierInvoice;
 use App\Models\SupplyChain\AgentPayment;
+use App\Models\SupplyChain\SupplierPayment;
+use App\Enums\GoodsIn\StockDelivery\StockDeliveryCostTypeEnum;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\GoodsIn\StockDeliveryItem\StockDeliveryItemStateEnum;
 use App\Models\Helpers\Address;
@@ -23,6 +26,7 @@ use App\Models\Traits\HasAttachments;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\InOrganisation;
 use App\Models\Traits\HasSearch;
+use App\Models\Traits\HasStageMarks;
 use Eloquent;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -131,6 +135,26 @@ class StockDelivery extends Model implements HasMedia, Auditable
     use HasAttachments;
     use HasHistory;
     use HasSearch;
+    use HasStageMarks;
+
+    public const string COSTS_BEFORE_PUT_AWAY_FROM = '2026-10-12';
+
+    public const int TO_COST_ACTIVITY_DAYS = 120;
+
+    public const array STATES_RECEIVED = [
+        StockDeliveryStateEnum::RECEIVED,
+        StockDeliveryStateEnum::CHECKED,
+        StockDeliveryStateEnum::BOOKING_IN,
+        StockDeliveryStateEnum::BOOKED_IN,
+        StockDeliveryStateEnum::PLACED,
+    ];
+
+    public const array STATES_PAST_PUT_AWAY = [
+        StockDeliveryStateEnum::BOOKED_IN,
+        StockDeliveryStateEnum::PLACED,
+        StockDeliveryStateEnum::CANCELLED,
+        StockDeliveryStateEnum::NOT_RECEIVED,
+    ];
 
 
     protected $casts = [
@@ -139,6 +163,8 @@ class StockDelivery extends Model implements HasMedia, Auditable
         'state'            => StockDeliveryStateEnum::class,
         'date'             => 'datetime',
         'customs_released_at' => 'date',
+        'arrived_at'       => 'datetime',
+        'stage_marks'      => 'array',
         'confirmed_at'     => 'datetime',
         'ready_to_ship_at' => 'datetime',
         'dispatched_at'    => 'datetime',
@@ -154,8 +180,9 @@ class StockDelivery extends Model implements HasMedia, Auditable
     ];
 
     protected $attributes = [
-        'data'      => '{}',
-        'cost_data' => '{}',
+        'data'        => '{}',
+        'cost_data'   => '{}',
+        'stage_marks' => '{}',
     ];
 
     protected $guarded = [];
@@ -191,7 +218,20 @@ class StockDelivery extends Model implements HasMedia, Auditable
         'is_costed',
         'customs_mrn',
         'customs_released_at',
+        'arrived_at',
     ];
+
+    public function stageMarkColumns(): array
+    {
+        return [
+            'dispatched_at',
+            'arrived_at',
+            'customs_released_at',
+            'received_at',
+            'checked_at',
+            'placed_at',
+        ];
+    }
 
     public function searchIndexShouldBeUpdated(): bool
     {
@@ -243,6 +283,18 @@ class StockDelivery extends Model implements HasMedia, Auditable
             StockDeliveryStateEnum::RECEIVED,
             StockDeliveryStateEnum::CHECKED,
             StockDeliveryStateEnum::BOOKING_IN,
+        ], true);
+    }
+
+    /**
+     * Still with the agent or supplier: being filled, confirmed or ready to ship.
+     */
+    public function isStaged(): bool
+    {
+        return in_array($this->state, [
+            StockDeliveryStateEnum::IN_PROCESS,
+            StockDeliveryStateEnum::CONFIRMED,
+            StockDeliveryStateEnum::READY_TO_SHIP,
         ], true);
     }
 
@@ -303,6 +355,77 @@ class StockDelivery extends Model implements HasMedia, Auditable
         return $this->hasMany(StockDeliveryClaim::class);
     }
 
+    /**
+     * Goods are only put away, and so sold, once procurement has said what they cost: the agent or supplier
+     * invoice, the shipping and the duty each need an amount, an estimate or a not applicable. Deliveries
+     * created before the rule started and partner deliveries, which cost themselves, are let through.
+     *
+     * @return array<int, string> labels of the costs still missing
+     */
+    public function costsMissingForPutAway(): array
+    {
+        if ($this->parent_type === 'OrgPartner' || in_array($this->state, self::STATES_PAST_PUT_AWAY, true) || $this->created_at?->lt(self::COSTS_BEFORE_PUT_AWAY_FROM)) {
+            return [];
+        }
+
+        $costs   = $this->costs()->get();
+        $isReady = fn (StockDeliveryCostTypeEnum $type) => (bool) $costs->first(fn (StockDeliveryCost $cost) => $cost->type === $type && ($cost->received_at || $cost->is_na));
+        $missing = [];
+
+        if (!$isReady(StockDeliveryCostTypeEnum::AGENT_INVOICE) && !$this->agentInvoice()->exists() && !$this->supplierInvoice()->exists()) {
+            $missing[] = __('Agent or supplier invoice');
+        }
+
+        foreach ([StockDeliveryCostTypeEnum::SHIPPING, StockDeliveryCostTypeEnum::DUTY] as $type) {
+            if (!$isReady($type)) {
+                $missing[] = StockDeliveryCostTypeEnum::labels()[$type->value];
+            }
+        }
+
+        return $missing;
+    }
+
+    /**
+     * The work queue of whoever costs deliveries: not costed, on its way or arrived, with activity in the last
+     * months, so the old deliveries that were never costed stay out. Partner deliveries cost themselves.
+     */
+    public function scopeToCost(Builder $query): Builder
+    {
+        return $query
+            ->where('stock_deliveries.is_costed', false)
+            ->where('stock_deliveries.parent_type', '!=', 'OrgPartner')
+            ->whereIn('stock_deliveries.state', [
+                StockDeliveryStateEnum::DISPATCHED,
+                StockDeliveryStateEnum::RECEIVED,
+                StockDeliveryStateEnum::CHECKED,
+                StockDeliveryStateEnum::BOOKING_IN,
+                StockDeliveryStateEnum::BOOKED_IN,
+                StockDeliveryStateEnum::PLACED,
+            ])
+            ->whereRaw('coalesce(stock_deliveries.placed_at, stock_deliveries.booked_in_at, stock_deliveries.received_at, stock_deliveries.dispatched_at, stock_deliveries.created_at) >= ?', [now()->subDays(self::TO_COST_ACTIVITY_DAYS)->startOfDay()]);
+    }
+
+    /**
+     * The same rule as costsMissingForPutAway(), for lists and counts.
+     */
+    public function scopeWithCostsMissingForPutAway(Builder $query): Builder
+    {
+        $isReady = fn (StockDeliveryCostTypeEnum $type) => fn ($query) => $query->where('type', $type)
+            ->where(fn ($query) => $query->whereNotNull('received_at')->orWhere('is_na', true));
+
+        return $query
+            ->whereNotIn('stock_deliveries.state', self::STATES_PAST_PUT_AWAY)
+            ->where('stock_deliveries.parent_type', '!=', 'OrgPartner')
+            ->where('stock_deliveries.created_at', '>=', self::COSTS_BEFORE_PUT_AWAY_FROM)
+            ->where(fn ($query) => $query
+                ->whereDoesntHave('costs', $isReady(StockDeliveryCostTypeEnum::SHIPPING))
+                ->orWhereDoesntHave('costs', $isReady(StockDeliveryCostTypeEnum::DUTY))
+                ->orWhere(fn ($query) => $query
+                    ->whereDoesntHave('costs', $isReady(StockDeliveryCostTypeEnum::AGENT_INVOICE))
+                    ->whereDoesntHave('agentInvoice')
+                    ->whereDoesntHave('supplierInvoice')));
+    }
+
     public function serviceInvoices(): BelongsToMany
     {
         return $this->belongsToMany(StockDeliveryServiceInvoice::class, 'stock_delivery_service_invoice_allocations')
@@ -320,9 +443,19 @@ class StockDelivery extends Model implements HasMedia, Auditable
         return $this->morphTo();
     }
 
+    public function agent(): BelongsTo
+    {
+        return $this->belongsTo(Agent::class);
+    }
+
     public function agentPayments(): HasMany
     {
         return $this->hasMany(AgentPayment::class);
+    }
+
+    public function supplierPayments(): HasMany
+    {
+        return $this->hasMany(SupplierPayment::class);
     }
 
     public function agentInvoice(): HasOne

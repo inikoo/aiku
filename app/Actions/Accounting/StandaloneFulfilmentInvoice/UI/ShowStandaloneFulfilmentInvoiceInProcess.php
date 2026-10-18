@@ -105,50 +105,58 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
             ]
         ];
 
-        $actions[] = [
-            'type'    => 'button',
-            'style'   => 'secondary',
-            'icon'    => 'fal fa-plus',
-            'key'     => 'add-service',
-            'label'   => __('Add service'),
-            'tooltip' => __('Add single service'),
-            'route'   => [
-                'name'       => 'grp.models.standalone-invoice.transaction.store',
-                'parameters' => [
-                    'invoice' => $invoice->id
-                ]
-            ]
-        ];
-        $actions[]  =   [
-            'type'    => 'button',
-            'style'   => 'secondary',
-            'icon'    => 'fal fa-plus',
-            'key'     => 'add-physical-good',
-            'label'   => __('Add physical good'),
-            'tooltip' => __('Add physical good'),
-            'route'   => [
-                'name'       => 'grp.models.standalone-invoice.transaction.store',
-                'parameters' => [
-                    'invoice' => $invoice->id
-                ]
-            ]
-        ];
-        $actions[] =
-            [
-                'type'  => 'button',
-                // 'style' => 'tertiary',
-                'label' => __('complete invoice'),
-                'key'   => 'send-invoice',
-                'disabled' => $disable,
-                'tooltip'  => $tooltip,
-                'route' => [
-                    'method'     => 'post',
-                    'name'       => 'grp.models.standalone-invoice.complete',
+        $invoiceFulfilment = $invoice->shop->fulfilment;
+        $canEditLines      = $invoiceFulfilment && $request->user()->authTo([
+            "fulfilment-shop.$invoiceFulfilment->id.edit",
+            "supervisor-fulfilment-shop.$invoiceFulfilment->id",
+        ]);
+
+        if ($canEditLines) {
+            $actions[] = [
+                'type'    => 'button',
+                'style'   => 'secondary',
+                'icon'    => 'fal fa-plus',
+                'key'     => 'add-service',
+                'label'   => __('Add service'),
+                'tooltip' => __('Add single service'),
+                'route'   => [
+                    'name'       => 'grp.models.standalone-invoice.transaction.store',
                     'parameters' => [
                         'invoice' => $invoice->id
                     ]
                 ]
             ];
+            $actions[]  =   [
+                'type'    => 'button',
+                'style'   => 'secondary',
+                'icon'    => 'fal fa-plus',
+                'key'     => 'add-physical-good',
+                'label'   => __('Add physical good'),
+                'tooltip' => __('Add physical good'),
+                'route'   => [
+                    'name'       => 'grp.models.standalone-invoice.transaction.store',
+                    'parameters' => [
+                        'invoice' => $invoice->id
+                    ]
+                ]
+            ];
+            $actions[] =
+                [
+                    'type'  => 'button',
+                    // 'style' => 'tertiary',
+                    'label' => __('complete invoice'),
+                    'key'   => 'send-invoice',
+                    'disabled' => $disable,
+                    'tooltip'  => $tooltip,
+                    'route' => [
+                        'method'     => 'post',
+                        'name'       => 'grp.models.standalone-invoice.complete',
+                        'parameters' => [
+                            'invoice' => $invoice->id
+                        ]
+                    ]
+                ];
+        }
 
         return Inertia::render(
             'Org/Accounting/InvoiceManual',
@@ -234,6 +242,7 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
                 'service_list_route'       => $serviceRoute,
                 'physical_good_list_route' => $productRoute,
                 'pallet_list_route' => $palletsRoute,
+                'can_edit'          => $canEditLines,
 
                 'invoice' => InvoiceResource::make($invoice),
                 'outbox'  => [

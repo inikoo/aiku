@@ -8,11 +8,15 @@
 
 namespace App\Actions\Procurement;
 
+use App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryFromPurchaseOrder;
 use App\Actions\Procurement\OrgSupplier\GetSupplierLeadTime;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
+use App\Enums\Goods\Stock\StockStateEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\Inventory\OrgStockMovement\OrgStockMovementFlowEnum;
 use App\Enums\Procurement\OrgSupplierProduct\OrgSupplierProductStateEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
+use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\OrgStockFamily;
 use App\Models\SysAdmin\Organisation;
@@ -35,8 +39,8 @@ class GetOrganisationStockCoverBuckets
         'w3'     => ['label' => 'Danger', 'description' => 'Out within 3 lead times', 'tone' => 'amber'],
         'w4'     => ['label' => 'Watch', 'description' => 'Out within 4 lead times', 'tone' => 'yellow'],
         'ok'     => ['label' => 'Covered', 'tone' => 'green'],
-        'excess' => ['label' => 'Excess', 'description' => 'More than :days days of stock', 'tone' => 'blue'],
-        'dead'   => ['label' => 'Dead stock', 'tone' => 'gray'],
+        'excess' => ['label' => 'Excess', 'description' => 'More than :days days of stock', 'tone' => 'orange-light'],
+        'dead'   => ['label' => 'Dead stock', 'tone' => 'red-light'],
     ];
 
     public const SOURCES = [
@@ -184,6 +188,73 @@ class GetOrganisationStockCoverBuckets
         return "coalesce((stock_families.data->'stock_cover'->>'overstock_days')::int, ".self::EXCESS_DAYS.')';
     }
 
+    /**
+     * SKOs already on their way to an org stock: what open stock deliveries still have to put away
+     * and what submitted purchase orders hold that is not on a delivery yet, the same sum the
+     * ordering rows show as coming.
+     */
+    public static function comingSkosExpression(string $orgStocks): string
+    {
+        $arriving = implode("', '", [
+            StockDeliveryStateEnum::IN_PROCESS->value,
+            StockDeliveryStateEnum::CONFIRMED->value,
+            StockDeliveryStateEnum::READY_TO_SHIP->value,
+            StockDeliveryStateEnum::DISPATCHED->value,
+            StockDeliveryStateEnum::RECEIVED->value,
+            StockDeliveryStateEnum::CHECKED->value,
+            StockDeliveryStateEnum::BOOKING_IN->value,
+        ]);
+        $counted  = "'".StockDeliveryStateEnum::CHECKED->value."', '".StockDeliveryStateEnum::BOOKING_IN->value."'";
+        $ordered  = "'".PurchaseOrderStateEnum::SUBMITTED->value."', '".PurchaseOrderStateEnum::CONFIRMED->value."'";
+        $onDelivery = StoreStockDeliveryFromPurchaseOrder::quantityOnDelivery()->toRawSql();
+
+        return "((coalesce((select sum(greatest(case when stock_deliveries.state in ($counted) then stock_delivery_items.unit_quantity_checked else stock_delivery_items.unit_quantity end - coalesce(stock_delivery_items.unit_quantity_placed, 0), 0))
+                from stock_delivery_items
+                join stock_deliveries on stock_deliveries.id = stock_delivery_items.stock_delivery_id and stock_deliveries.deleted_at is null
+                where stock_delivery_items.org_stock_id = $orgStocks.id and stock_delivery_items.deleted_at is null
+                    and stock_deliveries.state in ('$arriving')), 0)
+            + coalesce((select sum(greatest(purchase_order_transactions.quantity_ordered - ($onDelivery), 0))
+                from purchase_order_transactions
+                join purchase_orders on purchase_orders.id = purchase_order_transactions.purchase_order_id and purchase_orders.deleted_at is null
+                where purchase_order_transactions.org_stock_id = $orgStocks.id and purchase_order_transactions.deleted_at is null
+                    and purchase_orders.state in ($ordered)), 0))
+            / greatest(coalesce($orgStocks.packed_in, 1), 1))";
+    }
+
+    /**
+     * The stock group of a SKO from the days it lasts counting what is already coming, so a SKO with
+     * enough on the way is not called doomed. The cases read cover.days; it is worked out once a row
+     * (the offset keeps the planner from repeating it in every case) and what is coming is only
+     * looked up inside the widest window: a SKO covered by its shelf alone needs no second look.
+     */
+    public static function bucketOnCoverDaysExpression(string $orgStocks, string $stats, string $widestWindowDays, string $cases, string $alsoComingSkos = '0'): string
+    {
+        return "(select case $cases end from (select case when $stats.predicted_daily_usage > 0 and $stats.days_of_cover <= $widestWindowDays
+            then $stats.days_of_cover + (".self::comingSkosExpression($orgStocks)." + $alsoComingSkos) / $stats.predicted_daily_usage
+            else $stats.days_of_cover end as days offset 0) as cover)";
+    }
+
+    /**
+     * A SKO with nothing on the shelf is out of stock, unless what is already coming lasts past its
+     * overstock edge: the ordering card calls that not needed, so it is judged on its cover instead.
+     */
+    public static function outOfStockCase(string $orgStocks, string $stats, string $overstock, string $alsoComingSkos = '0'): string
+    {
+        return "when $orgStocks.quantity_available < 1 and coalesce((".self::comingSkosExpression($orgStocks)." + $alsoComingSkos) / nullif($stats.predicted_daily_usage, 0) < $overstock, true) then 'out'";
+    }
+
+    /**
+     * The at-risk groups of a SKO from the days it lasts. A SKO past its overstock edge is never at
+     * risk, the ordering card calls it not needed; doomed still comes first, as the card's order now.
+     */
+    public static function atRiskCases(string $lead, string $understock, string $overstock, string $watchDays): string
+    {
+        return "when cover.days <= $lead then 'w1'
+                when cover.days <= least($understock, $overstock) then 'w2'
+                when cover.days <= least(3 * $lead, $overstock) then 'w3'
+                when cover.days <= least($watchDays, $overstock) then 'w4'";
+    }
+
     public function bucketExpression(): string
     {
         $lead       = $this->leadTimeExpression();
@@ -191,25 +262,34 @@ class GetOrganisationStockCoverBuckets
         $overstock  = $this->overstockDaysExpression();
 
         return "case
-            when org_stocks.quantity_available <= 0 then 'out'
-            when org_stock_stats.days_of_cover <= $lead then 'w1'
-            when org_stock_stats.days_of_cover <= $understock then 'w2'
-            when org_stock_stats.days_of_cover <= 3 * $lead then 'w3'
-            when org_stock_stats.days_of_cover <= 4 * $lead then 'w4'
-            when coalesce(org_stock_stats.predicted_daily_usage, 0) = 0 and org_stock_stats.stock_value > 0 then 'dead'
-            when org_stock_stats.days_of_cover >= $overstock then 'excess'
-            else 'ok' end";
+            ".self::outOfStockCase('org_stocks', 'org_stock_stats', $overstock)."
+            else ".self::bucketOnCoverDaysExpression('org_stocks', 'org_stock_stats', "greatest(4 * $lead, $understock)", "
+                ".self::atRiskCases($lead, $understock, $overstock, "4 * $lead")."
+                when coalesce(org_stock_stats.predicted_daily_usage, 0) = 0 and org_stock_stats.stock_value > 0 then 'dead'
+                when cover.days >= $overstock then 'excess'
+                else 'ok'").' end';
     }
 
-    public function scope(Builder|EloquentBuilder $query, Organisation $organisation, ?OrgStockFamily $orgStockFamily = null, ?string $source = null): Builder|EloquentBuilder
+    /**
+     * A bucket is decided row by row from the SKO's own lead time, stats and family, so several
+     * organisations can be scoped at once and each SKO still lands where its own organisation puts it.
+     *
+     * @param Organisation|array<int, int> $organisation one organisation, or the ids of several
+     */
+    public function scope(Builder|EloquentBuilder $query, Organisation|array $organisation, ?OrgStockFamily $orgStockFamily = null, ?string $source = null): Builder|EloquentBuilder
     {
         return $query
             ->leftJoinLateral($this->primarySupplierProduct(), 'sp')
             ->leftJoin('org_stock_stats', 'org_stock_stats.org_stock_id', 'org_stocks.id')
             ->leftJoin('stocks', 'stocks.id', 'org_stocks.stock_id')
             ->leftJoin('stock_families', 'stock_families.id', 'stocks.stock_family_id')
-            ->where('org_stocks.organisation_id', $organisation->id)
+            ->when(
+                is_array($organisation),
+                fn ($query) => $query->whereIn('org_stocks.organisation_id', $organisation),
+                fn ($query) => $query->where('org_stocks.organisation_id', $organisation->id)
+            )
             ->where('org_stocks.state', OrgStockStateEnum::ACTIVE->value)
+            ->where(fn ($query) => $query->whereNull('stocks.state')->orWhereNotIn('stocks.state', [StockStateEnum::DISCONTINUING->value, StockStateEnum::DISCONTINUED->value]))
             ->whereRaw('coalesce(org_stocks.is_on_demand, false) = false')
             ->where(fn ($query) => $query->where('org_stocks.quantity_available', '>', 0)->orWhere(fn ($query) => $this->whereCountsAsStockOut($query)))
             ->when($orgStockFamily, fn ($query) => $query->where('org_stocks.org_stock_family_id', $orgStockFamily->id))

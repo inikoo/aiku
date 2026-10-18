@@ -1,8 +1,8 @@
 ---
 title: Vaše skóre čistého odovzdania (Clean Handover Score)
-summary: Pre agentov — čo znamená číslo CHS na vašom dashboarde, štyri testy, ktoré musí splniť každá objednávka (PO), ako určuje vašu províziu a prečo si ho nemôžete sami upraviť.
-date: 2026-09-01
-source_date: 2026-09-01
+summary: Pre agentov — čo znamená číslo CHS na vašom dashboarde, štyri testy, ktoré musí splniť každá objednávka (PO), ako určuje vašu províziu a ktoré z jeho vstupov zaznamenávate sami.
+date: 2026-10-15
+source_date: 2026-10-15
 tags: procurement, agents, supply-chain
 category: procurement
 series: Clean Handover Score
@@ -10,7 +10,7 @@ order: 1
 ---
 
 <aside class="tldr">
-Pre koordinačných agentov. Keď sa prihlásite, prvé, čo vidíte na dashboarde, je tabuľka štvrťrokov s percentom. Toto percento je vaše <b>Clean Handover Score (CHS)</b> — podiel hodnoty objednávok (PO), ktoré ste mali v danom štvrťroku odovzdať, ktorý dorazil k prepravnému agentovi <em>čistý</em>. Zvyčajne určuje vašu províznu sadzbu. Táto stránka číslo vysvetľuje úprimne: čo sa počíta, čo nie, a prečo z toho nič nemôžete upraviť. Pohľad nakupujúcej spoločnosti nájdete na stránke <a href="/docs/scoring-agent-clean-handovers-sk">scoring agent clean handovers</a>.
+Pre koordinačných agentov. Keď sa prihlásite, prvé, čo vidíte na dashboarde, je tabuľka štvrťrokov s percentom. Toto percento je vaše <b>Clean Handover Score (CHS)</b> — podiel hodnoty objednávok (PO), ktoré ste mali v danom štvrťroku odovzdať, ktorý dorazil k prepravnému agentovi <em>čistý</em>. Zvyčajne určuje vašu províznu sadzbu. Táto stránka číslo vysvetľuje úprimne: čo sa počíta, čo nie, a ktoré z jeho vstupov zaznamenávate vy. Pohľad nakupujúcej spoločnosti nájdete na stránke <a href="/docs/scoring-agent-clean-handovers-sk">scoring agent clean handovers</a>.
 </aside>
 
 ## Čo skóre znamená
@@ -61,13 +61,13 @@ Dve veci, ktoré treba o výnimkách vedieť:
 - **Výnimku môže udeliť len kupujúci**, písomne a s uvedením dôvodu. Bežné výrobné problémy, nedostatok kapacity, výhovorky dodávateľa a komunikačné zlyhania výnimku nezakladajú — zvládať práve toto je jadro toho, čo skóre meria.
 - **Žiadajte skoro, s dôkazmi.** Výnimka požadovaná v deň, keď je tovar meškajúci, s priloženými fotografiami a korešpondenciou, sa udeľuje ľahko. Tá požadovaná na konci štvrťroka vyzerá ako manipulácia so skóre, a presne tak sa aj bude čítať.
 
-## Otvorene: prečo si nič z toho nemôžete upraviť
+## Otvorene: čo zaznamenávate vy a čo nie
 
-Každý vstup do vášho skóre — schválený dátum pripravenosti, dátum odovzdania, výsledok QC, potvrdenie compliance, výnimky — zaznamenáva personál nakupujúcej spoločnosti, nie vy. Váš dashboard je okno, nie formulár.
+Dva vstupy začínajú u vás. Vy zaznamenávate **dátum odovzdania**: deň, keď tovar dorazil k prepravnému agentovi, tlačidlom **Handed over** na fázach objednávky. Všetko ostatné — schválený dátum pripravenosti, výsledok QC, potvrdenie compliance, výnimky — zaznamenáva personál nakupujúcej spoločnosti. Samotné skóre sa počíta; váš dashboard je okno, nie formulár.
 
-Je to zámerné a nie je to výčitka. Skóre, ktoré by si agent mohol upraviť sám, by bolo *pre vás* bezcenné: v okamihu, keď v dodávateľskom reťazci existujú samo-hodnotené čísla čokoľvek, každé dobré skóre sa stáva podozrivým — vrátane tých úprimných. Hodnota vašich 85 % spočíva práve v tom, že každý vie, že ste si ich nemohli sami zapísať. Ten istý systém, ktorý bráni zlému agentovi nafúknuť skóre, umožňuje dobrému agentovi, aby skóre hovorilo samo za seba — pri rokovaní o predĺžení zmluvy je táto nezávislosť to podstatné.
+Dátum odovzdania je váš, pretože pri odovzdaní stojíte vy. Nie je to voľná vstupenka. Každý dátum ukazuje, kto ho zaznamenal a kedy, dátum starší ako jeden deň si vyžiada dôvod, ktorý zostane v histórii objednávky, a nákupca ho porovná s potvrdením prepravného agenta a môže ho opraviť. Dátum odovzdania, ktorý nesedí s potvrdením, je pre vás horší než oneskorený: hodnota vašich 85 % spočíva v tom, že každý môže dôverovať tomu, ako boli zaznamenané.
 
-Jediný vstup, ktorý začína u vás, je **navrhovaný dátum pripravenosti** — navrhovať realistické dátumy je vaša odbornosť. Skóre sa však riadi *schváleným* dátumom a schvaľovanie patrí kupujúcemu. Berte na vedomie, že vypchávanie návrhov s cieľom uľahčiť si sedemdňové okno je na strane kupujúceho viditeľné: rozdiel medzi tým, čo navrhnete, a tým, čo sa schváli, sa sleduje, a vzorec veľkorysých návrhov sa číta presne ako to, čím je.
+Druhý vstup, ktorý začína u vás, je **navrhovaný dátum pripravenosti** — navrhovať realistické dátumy je vaša odbornosť. Skóre sa však riadi *schváleným* dátumom a schvaľovanie patrí kupujúcemu. Berte na vedomie, že vypchávanie návrhov s cieľom uľahčiť si sedemdňové okno je na strane kupujúceho viditeľné: rozdiel medzi tým, čo navrhnete, a tým, čo sa schváli, sa sleduje, a vzorec veľkorysých návrhov sa číta presne ako to, čím je.
 
 ## Ako si udržať vysoké číslo
 
@@ -76,7 +76,7 @@ Nič na tomto zozname nie je trik; skóre je navrhnuté tak, že jediný spôsob
 - **Navrhujte dátumy pripravenosti, ktorým veríte.** Realistický dátum, ktorý dodržíte, poráža optimistický dátum, ktorý zmeškáte, každý štvrťrok.
 - **Nahláste problém v deň, keď ho vidíte.** Skoro nahlásené meškanie sa môže stať zdokumentovanou vylúčiteľnou udalosťou alebo prerokovaným dátumom. Neskoro nahlásené meškanie je jednoducho neúspešný test.
 - **Uzavrite doklady skôr, než sa tovar pohne.** Najčastejší spôsob zlyhania je test číslo štyri: tovar fyzicky pripravený, compliance balík ho naháňa e-mailom. Objednávka odovzdaná bez dokladov nie je čistá, aj keď napokon všetko dorazí.
-- **Potvrďte, že je odovzdanie zaznamenané.** Hodiny sa zastavia, keď kupujúci zaznamená dátum odovzdania. Ak ste odovzdali tovar prepravnému agentovi v utorok, uistite sa, že tím kupujúceho to vie v utorok.
+- **Zaznamenajte odovzdanie v ten deň.** Ak ste odovzdali tovar prepravnému agentovi v utorok, stlačte **Handed over** v utorok a potvrdenie majte poruke pre prípad, že sa kupujúci opýta. Odovzdanie zaznamenané o dni neskôr si od vás vyžiada dôvod a tak aj pôsobí.
 
 <aside class="wayfinder">
 <b>Kde kliknúť v aiku</b><br>
@@ -85,5 +85,5 @@ Prihláste sa → dashboard vašej organizácie. Panel <b>Clean Handover Score</
 
 <aside class="wayfinder">
 <b>Permissions you need</b><br>
-Prihlásenie pre vašu agentskú organizáciu. Panel je len na čítanie — nie je čo upravovať a neexistuje oprávnenie, ktoré by to zmenilo.
+Prihlásenie pre vašu agentskú organizáciu. Panel skóre je len na čítanie. Dátum odovzdania sa zaznamenáva na každej objednávke, na fázach v hornej časti stránky objednávky.
 </aside>

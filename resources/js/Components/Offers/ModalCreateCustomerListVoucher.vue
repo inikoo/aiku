@@ -30,6 +30,10 @@ const props = defineProps<{
 			start: string
 			end: string
 		}
+		customer_state_days: {
+			losing_after: number
+			lost_after: number
+		}
 	}
 }>()
 
@@ -41,10 +45,25 @@ type PreviewCustomer = { id: number; reference: string; name: string; state: str
 
 const MAX_AMOUNT_OFF_RATIO = 0.3
 
-const stateOptions: { value: CustomerState; label: string }[] = [
-	{ value: "losing", label: "Potential Comebacks" },
-	{ value: "lost", label: "Dormant" },
-]
+const stateOptions = computed<{ value: CustomerState; label: string; information: string }[]>(() => [
+	{
+		value: "losing",
+		label: "Potential Comebacks",
+		information: ctrans("Customers whose last invoice was :from to :to days ago. Aiku updates this every day, and a new invoice makes the customer Active again.", {
+			from: props.shop_data.customer_state_days.losing_after + 1,
+			to: props.shop_data.customer_state_days.lost_after,
+		}),
+	},
+	{
+		value: "lost",
+		label: "Dormant",
+		information: ctrans("Customers whose last invoice was more than :days days ago. Aiku updates this every day, and a new invoice makes the customer Active again.", {
+			days: props.shop_data.customer_state_days.lost_after,
+		}),
+	},
+])
+
+const orderedOnceInformation = "Customers with exactly one invoice, dated inside the range of months you set. Aiku works this out from their invoices, so it is up to date."
 
 const rewardOptions: { value: RewardType; label: string }[] = [
 	{ value: "percentage_off", label: "Percentage off" },
@@ -317,6 +336,9 @@ const submit = () => {
 							:class="states.includes(option.value) ? 'border-green-500 bg-green-50 text-green-700 font-semibold' : 'border-gray-200 hover:border-gray-300'">
 							<Checkbox v-model="states" :value="option.value" :inputId="`voucher-state-${option.value}`" />
 							<span>{{ ctrans(option.label) }}</span>
+							<span class="font-normal text-gray-500" @click.prevent>
+								<InformationIcon :information="option.information" />
+							</span>
 						</label>
 
 						<label
@@ -325,6 +347,9 @@ const submit = () => {
 							:class="orderedOnce ? 'border-green-500 bg-green-50 text-green-700 font-semibold' : 'border-gray-200 hover:border-gray-300'">
 							<Checkbox v-model="orderedOnce" binary inputId="voucher-ordered-once" />
 							<span>{{ ctrans("Ordered only once") }}</span>
+							<span class="font-normal text-gray-500" @click.prevent>
+								<InformationIcon :information="ctrans(orderedOnceInformation)" />
+							</span>
 						</label>
 					</div>
 

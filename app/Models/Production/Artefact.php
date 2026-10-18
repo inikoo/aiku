@@ -164,6 +164,11 @@ class Artefact extends Model implements Auditable, HasMedia
         return $this->hasOne(RawMaterial::class);
     }
 
+    public function packedIn(): int
+    {
+        return max(1, (int) $this->orgStock?->packed_in);
+    }
+
     public function orgStock(): BelongsTo
     {
         return $this->belongsTo(OrgStock::class);
@@ -184,7 +189,7 @@ class Artefact extends Model implements Auditable, HasMedia
     {
         return $this->belongsToMany(ManufactureTask::class, 'artefacts_manufacture_tasks')
             ->using(ArtefactManufactureTask::class)
-            ->withPivot('id', 'position', 'units_per_artefact', 'standard_rate')
+            ->withPivot('id', 'position', 'units_per_artefact', 'standard_rate', 'mix_batch_kg')
             ->orderByPivot('position')
             ->orderByPivot('id');
     }

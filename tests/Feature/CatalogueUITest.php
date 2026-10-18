@@ -51,6 +51,7 @@ use App\Enums\Catalogue\Charge\ChargeTypeEnum;
 use App\Enums\Catalogue\Collection\CollectionStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
+use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Enums\CRM\Customer\CustomerTradeStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Dashboards\ShopDashboardSalesTableTabsEnum;
@@ -220,7 +221,8 @@ test('UI show department', function () {
                     ->where('title', $this->product->department->name)
                     ->etc()
             )
-            ->has('tabs');
+            ->has('tabs')
+            ->missing('tabs.navigation.related_categories');
     });
 });
 
@@ -696,7 +698,9 @@ test('UI show sub department in department', function () {
                     ->where('title', $this->subDepartment->name)
                     ->etc()
             )
-            ->has('tabs');
+            ->has('tabs')
+            ->missing('tabs.navigation.families_order')
+            ->missing('tabs.navigation.related_categories');
     });
 });
 
@@ -1765,7 +1769,12 @@ test('a shop selling under several invoice categories targets their sum, partner
     $invoice('2037-05-15', $movedToOwnShop->id, 400);
     Cache::tags(["dashboard-shop-$shop->id"])->flush();
 
-    expect(collect(GetShopMonthSalesTarget::run($shop, null, $today)['children'])->pluck('invoice_category_id'))->not->toContain($movedToOwnShop->id);
+    $block = GetShopMonthSalesTarget::run($shop, null, $today);
+
+    expect(collect($block['children'])->pluck('invoice_category_id'))->not->toContain($movedToOwnShop->id)
+        ->and($block['target']['amount'])->toEqualWithDelta(2000, 0.05)
+        ->and(collect($block['children'])->sum('target.amount'))->toEqualWithDelta($block['target']['amount'], 0.05)
+        ->and(GetShopMonthSalesTarget::run($this->organisation, null, $today)['target']['amount'])->toEqualWithDelta($organisationTarget - 1000 * (1 + $growth) + 2000, 0.05);
 
     $shop->stats->update(['sales_forecast' => ['version' => '3', 'from' => '2038-05-10', 'org' => collect(range(10, 31))->mapWithKeys(fn (int $day) => [sprintf('2038-05-%02d', $day) => [10.0, 4.0]])->all(), 'grp' => null]]);
     $block      = GetShopMonthSalesTarget::run($shop, null, $today);
@@ -1806,7 +1815,7 @@ test('each morning a tip on reaching the target is written for the shop and show
 
 test('stock tab shows stock health by days of cover; warehouse work lives on operations', function () {
     createWarehouse();
-    Cache::forget("warehouse-dashboard-stock-cover:{$this->organisation->id}");
+    Cache::forget(GetGroupWarehouseDashboardData::cacheKey($this->group, $this->group->organisations()->where('type', OrganisationTypeEnum::SHOP)->pluck('id')->all()));
 
     $overview        = GetGroupWarehouseDashboardData::run($this->group->refresh());
     $organisationRow = collect($overview['organisations'])->firstWhere('slug', $this->organisation->slug);
@@ -1819,6 +1828,33 @@ test('stock tab shows stock health by days of cover; warehouse work lives on ope
     actingAs($this->user);
     get(route('grp.dashboard.show'))
         ->assertInertia(fn (AssertableInertia $page) => $page->missing('warehouseOverview')->where('operations.route.name', 'grp.dashboard.operations'));
+});
+
+test('a stock health level opens as one list across every shop organisation', function () {
+    createWarehouse();
+    actingAs($this->user);
+
+    $overview = GetGroupWarehouseDashboardData::run($this->group->refresh());
+    expect($overview['routes']['stock_levels']['name'])->toBe('grp.dashboard.stock_levels.index');
+
+    $expectedOutOfStock = $this->group->organisations()->where('type', OrganisationTypeEnum::SHOP)->get()
+        ->sum(fn ($organisation) => collect(GetOrganisationStockCoverBuckets::run($organisation))->firstWhere('bucket', 'out')['count']);
+
+    get(route('grp.dashboard.stock_levels.index', ['elements' => ['cover' => 'out']]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Procurement/OrganisationStockCoverItems')
+            ->where('data.meta.total', $expectedOutOfStock)
+            ->where('exportRoute', null)
+            ->where('currency', null));
+
+    $outsider = StoreGuest::make()->action(
+        $this->group,
+        array_merge(Guest::factory()->definition(), ['positions' => []])
+    )->getUser();
+
+    actingAs($outsider);
+    get(route('grp.dashboard.stock_levels.index'))->assertForbidden();
 });
 
 test('warehouse page opens on its own operations tab', function () {
@@ -2211,4 +2247,117 @@ test('platform and country top listed and top sold tabs count portfolios and inv
     $countryUrl = route('grp.org.shops.show.crm.countries.show', [$this->organisation->slug, $this->shop->slug, 'AQ', 'tab' => 'top_products']);
     expect(get($countryUrl)->assertOk()->viewData('page')['props']['top_products']['data'])->toHaveCount(1)
         ->and($rowFor($countryUrl, 'top_products', $this->product->asset_id))->toMatchArray(['code' => $this->product->code, 'total_sold' => 6, 'total_amount' => 20]);
+});
+
+test('reviews need website or CRM view to open and website or CRM edit to manage', function () {
+    $originalRoles = $this->user->roles->pluck('name')->toArray();
+    $parameters    = [$this->organisation->slug, $this->shop->slug];
+
+    actingAsUserWithRoles($this->user, []);
+    get(route('grp.org.shops.show.reviews.backlog', $parameters))->assertForbidden();
+
+    actingAsUserWithRoles($this->user, [\App\Enums\SysAdmin\Authorisation\RolesEnum::getRoleName(\App\Enums\SysAdmin\Authorisation\RolesEnum::CUSTOMER_SERVICE_VIEWER->value, $this->shop)]);
+    get(route('grp.org.shops.show.reviews.backlog', $parameters))->assertOk();
+    get(route('grp.org.shops.show.reviews.overall', $parameters))->assertOk();
+
+    $review = \App\Models\Reviews\Review::where('shop_id', $this->shop->id)->first();
+    if ($review) {
+        $this->patch(route('grp.models.review.approve', ['review' => $review->id]))->assertForbidden();
+        $this->patch(route('grp.models.review.reject', ['review' => $review->id]))->assertForbidden();
+        $this->delete(route('grp.models.review.delete', ['review' => $review->id]))->assertForbidden();
+    }
+
+    actingAsUserWithRoles($this->user, $originalRoles);
+});
+
+test('a shop viewer sees billables but cannot open their create or edit forms', function () {
+    $originalRoles = $this->user->roles->pluck('name')->toArray();
+    actingAsUserWithRoles($this->user, [\App\Enums\SysAdmin\Authorisation\RolesEnum::getRoleName(\App\Enums\SysAdmin\Authorisation\RolesEnum::CUSTOMER_SERVICE_VIEWER->value, $this->shop)]);
+    $parameters = [$this->organisation->slug, $this->shop->slug];
+
+    expect(get(route('grp.org.shops.show.billables.packagings.index', $parameters))->assertOk()->viewData('page')['props']['can_edit'])->toBeFalse()
+        ->and(get(route('grp.org.shops.show.billables.shipping.index', $parameters))->assertOk()->viewData('page')['props']['pageHead']['actions'] ?? [])->toBeEmpty();
+
+    get(route('grp.org.shops.show.billables.packagings.create', $parameters))->assertForbidden();
+    get(route('grp.org.shops.show.billables.leaflets.create', $parameters))->assertForbidden();
+    get(route('grp.org.shops.show.billables.shipping.create', $parameters))->assertForbidden();
+    get(route('grp.org.shops.show.billables.charges.create', $parameters))->assertForbidden();
+
+    actingAsUserWithRoles($this->user, $originalRoles);
+});
+
+test('a shop viewer sees category offers and related categories but none of the controls to change them', function () {
+    $originalRoles = $this->user->roles->pluck('name')->toArray();
+    actingAsUserWithRoles($this->user, [\App\Enums\SysAdmin\Authorisation\RolesEnum::getRoleName(\App\Enums\SysAdmin\Authorisation\RolesEnum::CUSTOMER_SERVICE_VIEWER->value, $this->shop)]);
+
+    $departmentUrl = route('grp.org.shops.show.catalogue.departments.show', [$this->organisation->slug, $this->shop->slug, $this->department->slug]);
+    $props         = get($departmentUrl.'?tab=related_product_category')->assertOk()->viewData('page')['props'];
+
+    expect($props['can_edit_offers'])->toBeFalse()
+        ->and($props['related_product_category']['editable'])->toBeFalse();
+
+    $this->patch(route('grp.models.product_category.related_product_categories.sync', ['productCategory' => $this->department->id]), ['related_product_categories_id' => []])->assertForbidden();
+    $this->post(route('grp.models.category_offer.store', ['shop' => $this->shop->id]), [])->assertForbidden();
+    $this->post(route('grp.models.bogo_offer.store', ['shop' => $this->shop->id]), [])->assertForbidden();
+
+    $subDepartment = ProductCategory::where('shop_id', $this->shop->id)->where('type', \App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum::SUB_DEPARTMENT)->first();
+    if ($subDepartment) {
+        $this->post(route('grp.models.sub-department.families.attach', ['subDepartment' => $subDepartment->id]), ['families_id' => []])->assertForbidden();
+    }
+
+    $family = $this->product->family;
+    if ($family) {
+        $this->patch(route('grp.models.product_category.reorder_index', ['productCategory' => $family->id]), [])->assertForbidden();
+        $this->patch(route('grp.models.product_category.repair_product_images', ['productCategory' => $family->id]))->assertForbidden();
+    }
+    $this->post(route('grp.models.gift_offer.store', ['shop' => $this->shop->id]), [])->assertForbidden();
+    $this->post(route('grp.models.step_discount.store', ['shop' => $this->shop->id]), [])->assertForbidden();
+
+    $collection = \App\Models\Catalogue\Collection::where('shop_id', $this->shop->id)->first();
+    if ($collection) {
+        $this->patch(route('grp.models.collection.webpage_disable', ['collection' => $collection->id]), [])->assertForbidden();
+    }
+
+    $productProps = get(route('grp.org.shops.show.catalogue.products.all_products.show', [$this->organisation->slug, $this->shop->slug, $this->product->slug]))->assertOk()->viewData('page')['props'];
+    expect($productProps['can_edit'])->toBeFalse()
+        ->and($productProps['can_edit_offers'])->toBeFalse();
+
+    actingAsUserWithRoles($this->user, $originalRoles);
+});
+
+test('family edit needs catalogue edit and the shop dashboard needs a permission for the shop', function () {
+    $shop       = $this->shop;
+    $parameters = [$this->organisation->slug, $shop->slug];
+    $familyEdit = route('grp.org.shops.show.catalogue.families.edit', [...$parameters, $this->family->slug]);
+    $dashboards = [
+        route('grp.org.shops.show.dashboard.show', $parameters),
+        route('grp.org.shops.show.dashboard.brands', $parameters),
+        route('grp.org.shops.show.dashboard.sales_analysis', $parameters),
+    ];
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ["products.$shop->id.view"]);
+        get($familyEdit)->assertForbidden();
+        get($dashboards[0])->assertOk();
+        get($dashboards[1])->assertOk();
+        get($dashboards[2])->assertRedirect();
+
+        actingAsUserWithOnlyPermissions($this->user, ["products.$shop->id.edit"]);
+        get($familyEdit)->assertOk();
+
+        actingAsUserWithOnlyPermissions($this->user, ["human-resources.{$this->organisation->id}.view", "shops-view.{$this->organisation->id}"]);
+        foreach ($dashboards as $dashboard) {
+            get($dashboard)->assertForbidden();
+        }
+
+        actingAsUserWithOnlyPermissions($this->user, ["accounting.{$this->organisation->id}.view"]);
+        get($dashboards[0])->assertOk();
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
 });

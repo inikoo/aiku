@@ -8,6 +8,7 @@
 
 namespace App\Exports\Production;
 
+use App\Enums\Production\Artisan\ArtisanPayTypeEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
 use App\Models\Production\ManufactureTaskSession;
@@ -47,6 +48,7 @@ class ManufacturePayrollExport implements FromArray, WithHeadings
             'Hourly rate',
             'Pay',
             'Bonus',
+            'Pay type',
         ];
     }
 
@@ -62,6 +64,7 @@ class ManufacturePayrollExport implements FromArray, WithHeadings
                 'users.id',
                 'users.username',
                 'users.contact_name',
+                'manufacture_task_sessions.artisan_pay_type',
                 'manufacture_tasks.id',
                 'manufacture_tasks.code',
                 'manufacture_tasks.name',
@@ -75,6 +78,7 @@ class ManufacturePayrollExport implements FromArray, WithHeadings
             ->select(
                 'users.contact_name',
                 'users.username',
+                'manufacture_task_sessions.artisan_pay_type',
                 'manufacture_tasks.code as task_code',
                 'manufacture_tasks.name as task_name',
                 'manufacture_task_sessions.task_work_cost',
@@ -116,6 +120,7 @@ class ManufacturePayrollExport implements FromArray, WithHeadings
                 $row->hourly_rate !== null ? (float)$row->hourly_rate : null,
                 $row->sum_pay !== null ? round((float)$row->sum_pay, 2) : null,
                 $row->sum_bonus !== null ? round((float)$row->sum_bonus, 2) : null,
+                ArtisanPayTypeEnum::labels()[$row->artisan_pay_type->value],
             ])->all();
     }
 }

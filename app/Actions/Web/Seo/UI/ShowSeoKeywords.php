@@ -10,11 +10,13 @@ namespace App\Actions\Web\Seo\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithWebAuthorisation;
+use App\Actions\Web\Seo\GenerateSeoContentBrief;
 use App\Actions\Web\Seo\GetKeywordIdeas;
 use App\Actions\Web\Seo\GetSeoRankingsOverview;
 use App\Actions\Web\Seo\PostSerpTasks;
 use App\Actions\Web\Website\UI\ShowSeoDashboard;
 use App\Enums\UI\Web\SeoKeywordsTabsEnum;
+use App\Enums\Web\Seo\SeoContentBriefStateEnum;
 use App\Enums\Web\Seo\SeoKeywordDeviceEnum;
 use App\Enums\Web\Seo\SeoKeywordFrequencyEnum;
 use App\Http\Resources\Web\SeoRankingResource;
@@ -23,6 +25,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Language;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Web\SeoContentBrief;
 use App\Services\DataForSeo\DataForSeoClient;
 use Closure;
 use Illuminate\Support\Arr;
@@ -40,6 +43,8 @@ class ShowSeoKeywords extends OrgAction
     private const int SEARCH_CONSOLE_DAYS = 90;
 
     private const int SEARCH_CONSOLE_ROWS = 50;
+
+    private const int CONTENT_BRIEFS = 50;
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Shop
     {
@@ -126,19 +131,64 @@ class ShowSeoKeywords extends OrgAction
 
     private function rankings(Shop $shop): array
     {
+        $device = SeoKeywordDeviceEnum::tryFrom((string) request()->query('device')) ?? SeoKeywordDeviceEnum::MOBILE;
+
         return [
             ...GetSeoRankingsOverview::run($shop),
             'domain'         => $shop->website?->domain,
+            'device'         => $device->value,
             'isConfigured'   => DataForSeoClient::make() !== null,
             'depths'         => [
                 'weekly' => PostSerpTasks::WEEKLY_DEPTH,
                 'daily'  => PostSerpTasks::DAILY_DEPTH,
             ],
+            'costPerPage'    => PostSerpTasks::COST_PER_PAGE,
+            'checkNow'       => $this->canEdit ? [
+                ...PostSerpTasks::make()->requestable($shop),
+                'route' => [
+                    'name'       => 'grp.models.shop.seo.keyword_checks.store',
+                    'parameters' => [$shop->id],
+                ],
+            ] : null,
             'runChecksRoute' => app()->environment('local') && $this->canEdit ? [
                 'name'       => 'grp.models.shop.seo.rank_checks.store',
                 'parameters' => [$shop->id],
             ] : null,
-            'table'          => SeoRankingResource::collection(IndexSeoRankings::run($shop, SeoKeywordsTabsEnum::RANKINGS->value)),
+            'table'          => SeoRankingResource::collection(IndexSeoRankings::run($shop, SeoKeywordsTabsEnum::RANKINGS->value, $device)),
+        ];
+    }
+
+    private function contentBriefs(Shop $shop): array
+    {
+        return [
+            'results'      => GenerateSeoContentBrief::RESULTS,
+            'isConfigured' => DataForSeoClient::make() !== null,
+            'storeRoute'   => $this->canEdit ? [
+                'name'       => 'grp.models.shop.seo.content_brief.store',
+                'parameters' => [$shop->id],
+            ] : null,
+            'briefs'       => $shop->seoContentBriefs()
+                ->with('requestedBy:id,contact_name,username')
+                ->latest('created_at')
+                ->limit(self::CONTENT_BRIEFS)
+                ->get()
+                ->map(fn (SeoContentBrief $brief) => [
+                    'id'            => $brief->id,
+                    'keyword'       => $brief->keyword,
+                    'country_code'  => $brief->country_code,
+                    'language_code' => $brief->language_code,
+                    'state'         => $brief->state === SeoContentBriefStateEnum::PENDING && !$brief->isBeingWritten() ? SeoContentBriefStateEnum::FAILED->value : $brief->state->value,
+                    'error'         => $brief->state === SeoContentBriefStateEnum::PENDING && !$brief->isBeingWritten() ? __('The brief was not finished. Write it again.') : $brief->error,
+                    'title'         => Arr::get($brief->brief ?? [], 'title'),
+                    'pages_read'    => Arr::get($brief->stats ?? [], 'pages_read'),
+                    'median_words'  => Arr::get($brief->stats ?? [], 'median_words'),
+                    'requested_by'  => $brief->requestedBy?->contact_name ?? $brief->requestedBy?->username,
+                    'created_at'    => $brief->created_at?->toIso8601String(),
+                    'show_route'    => ['name' => 'grp.json.seo_content_brief.show', 'parameters' => [$brief->id]],
+                    'retry_route'   => $this->canEdit ? ['name' => 'grp.models.seo_content_brief.retry', 'parameters' => [$brief->id]] : null,
+                    'delete_route'  => $this->canEdit ? ['name' => 'grp.models.seo_content_brief.delete', 'parameters' => [$brief->id]] : null,
+                ])
+                ->all(),
         ];
     }
 
@@ -197,6 +247,11 @@ class ShowSeoKeywords extends OrgAction
                 SeoKeywordsTabsEnum::RANKINGS->value => $this->tabProp(
                     SeoKeywordsTabsEnum::RANKINGS,
                     fn () => $this->rankings($shop)
+                ),
+
+                SeoKeywordsTabsEnum::CONTENT_BRIEFS->value => $this->tabProp(
+                    SeoKeywordsTabsEnum::CONTENT_BRIEFS,
+                    fn () => $this->contentBriefs($shop)
                 ),
             ]
         )->table(IndexSeoTrackedKeywords::make()->tableStructure(prefix: SeoKeywordsTabsEnum::TRACKED_KEYWORDS->value))

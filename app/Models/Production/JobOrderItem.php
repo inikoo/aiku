@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Enums\Production\JobOrder\JobOrderStateEnum;
+use Illuminate\Support\Arr;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -104,6 +106,13 @@ class JobOrderItem extends Model
         return $this->belongsTo(JobOrder::class);
     }
 
+    public function carriedTo(): ?JobOrder
+    {
+        $carriedToId = Arr::get($this->data, 'carried_to');
+
+        return $carriedToId ? JobOrder::whereIn('state', JobOrderStateEnum::open())->find($carriedToId) : null;
+    }
+
     public function artefact(): BelongsTo
     {
         return $this->belongsTo(Artefact::class)->withTrashed();
@@ -132,6 +141,14 @@ class JobOrderItem extends Model
     public function splits(): HasMany
     {
         return $this->hasMany(JobOrderItem::class, 'split_from_id');
+    }
+
+    public function finalTask(): ?JobOrderItemTask
+    {
+        $recipeTaskIds = $this->artefact->manufactureTasks->pluck('id');
+        $inRecipe      = $this->tasks->filter(fn (JobOrderItemTask $task) => $recipeTaskIds->contains($task->manufacture_task_id));
+
+        return ($inRecipe->isNotEmpty() ? $inRecipe : $this->tasks)->last();
     }
 
     public function tasks(): HasMany

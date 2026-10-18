@@ -1,19 +1,31 @@
 <script setup lang="ts">
 import { Head, useForm } from '@inertiajs/vue3'
+import { ref, computed } from 'vue'
+import Dialog from 'primevue/dialog'
+import DatePicker from 'primevue/datepicker'
+import InputText from 'primevue/inputtext'
+import Checkbox from 'primevue/checkbox'
+import ToggleSwitch from 'primevue/toggleswitch'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faCheck, faTimes, faTachometerAlt, faList, faLayerGroup, faCalendarAlt, faPlus, faPencil } from '@fal'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
-import { capitalize } from '@/Composables/capitalize'
-import { PageHeadingTypes } from '@/types/PageHeading'
 import Table from '@/Components/Table/Table.vue'
-import Modal from '@/Components/Utils/Modal.vue'
-import ModalConfirmationDelete from '@/Components/Utils/ModalConfirmationDelete.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
-import Toggle from '@/Components/Pure/Toggle.vue'
-import { ref, watch } from 'vue'
+import { capitalize } from '@/Composables/capitalize'
 import { ctrans } from '@/Composables/useTrans'
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { faTrash, faEdit, faCheck, faTimes, faTachometerAlt, faList, faLayerGroup, faCalendarAlt, faPlus, faTrashAlt, faPencil } from "@fal";
+import { isoToDate, dateToIso, fieldFocusClass, inputFocusClass, checkboxAccentClass } from '@/Composables/useHrFormControls'
+import { PageHeadingTypes } from '@/types/PageHeading'
 
-library.add(faTrash, faEdit, faCheck, faTimes, faTachometerAlt, faList, faLayerGroup, faCalendarAlt, faPlus, faTrashAlt, faPencil)
+library.add(faCheck, faTimes, faTachometerAlt, faList, faLayerGroup, faCalendarAlt, faPlus, faPencil)
+
+interface HolidayYear {
+    id: number
+    label: string
+    start_date: string
+    end_date: string
+    is_active: boolean
+}
 
 const props = defineProps<{
     title: string
@@ -21,11 +33,8 @@ const props = defineProps<{
     data: any
 }>()
 
-const showCreateModal = ref(false)
-const showEditModal = ref(false)
-const editingHolidayYear = ref<any | null>(null)
-const toTouchedCreate = ref(false)
-const toTouchedEdit = ref(false)
+const showHolidayYearDialog = ref(false)
+const editingHolidayYear = ref<HolidayYear | null>(null)
 
 const form = useForm<{
     label: string
@@ -39,86 +48,76 @@ const form = useForm<{
     is_active: false,
 })
 
-const editForm = useForm<{
-    label: string
-    start_date: string
-    end_date: string
-    is_active: boolean
-}>({
-    label: '',
-    start_date: '',
-    end_date: '',
-    is_active: false,
-})
+const dialogTitle = computed(() => (editingHolidayYear.value ? ctrans('Edit holiday year') : ctrans('Add Holiday Year')))
 
-const openCreateModal = () => {
+const dateModel = (key: 'start_date' | 'end_date') =>
+    computed<Date | null>({
+        get: () => isoToDate(form[key]),
+        set: (value) => {
+            form[key] = dateToIso(value)
+            form.clearErrors(key)
+        },
+    })
+
+const startDate = dateModel('start_date')
+const endDate = dateModel('end_date')
+
+const openCreateDialog = () => {
+    editingHolidayYear.value = null
     form.reset()
     form.clearErrors()
-    toTouchedCreate.value = false
-    showCreateModal.value = true
+    showHolidayYearDialog.value = true
 }
 
-const closeCreateModal = () => {
-    showCreateModal.value = false
+const openEditDialog = (holidayYear: HolidayYear) => {
+    editingHolidayYear.value = holidayYear
+    form.clearErrors()
+    form.label = holidayYear.label
+    form.start_date = holidayYear.start_date
+    form.end_date = holidayYear.end_date
+    form.is_active = holidayYear.is_active
+    showHolidayYearDialog.value = true
+}
+
+const closeDialog = () => {
+    showHolidayYearDialog.value = false
     form.clearErrors()
 }
 
-const submitCreate = () => {
-    form.post(route('grp.org.hr.holiday_years.store', route().params), {
+const submit = () => {
+    const options = {
         preserveScroll: true,
         onSuccess: () => {
             form.reset()
-            closeCreateModal()
+            editingHolidayYear.value = null
+            closeDialog()
         },
-    })
-}
+    }
 
-const openEditModal = (holidayYear: any) => {
-    editingHolidayYear.value = holidayYear
-    editForm.clearErrors()
-    toTouchedEdit.value = false
-    editForm.label = holidayYear.label
-    editForm.start_date = holidayYear.start_date
-    editForm.end_date = holidayYear.end_date
-    editForm.is_active = holidayYear.is_active
-    showEditModal.value = true
-}
+    if (editingHolidayYear.value) {
+        form.patch(
+            route('grp.org.hr.holiday_years.update', {
+                ...route().params,
+                holidayYear: editingHolidayYear.value.id,
+            }),
+            options
+        )
 
-const closeEditModal = () => {
-    showEditModal.value = false
-    editForm.clearErrors()
-}
-
-const submitEdit = () => {
-    if (!editingHolidayYear.value) {
         return
     }
 
-    editForm.patch(
-        route('grp.org.hr.holiday_years.update', {
-            ...route().params,
-            holidayYear: editingHolidayYear.value.id,
-        }),
-        {
-            preserveScroll: true,
-            onSuccess: () => {
-                editForm.reset()
-                editingHolidayYear.value = null
-                closeEditModal()
-            },
-        }
-    )
+    form.post(route('grp.org.hr.holiday_years.store', route().params), options)
 }
 
-const toggleActive = (item: any) => {
-    if (item.is_active) {
+const activate = (holidayYear: HolidayYear) => {
+    if (holidayYear.is_active) {
         return
     }
 
     useForm({}).patch(
         route('grp.org.hr.holiday_years.activate', {
             ...route().params,
-            holidayYear: item.id,
+            holidayYear: holidayYear.id,
         }),
         {
             preserveScroll: true,
@@ -126,6 +125,7 @@ const toggleActive = (item: any) => {
     )
 }
 
+const toggleAccentClass = '[&.p-toggleswitch-checked_.p-toggleswitch-slider]:!bg-[--app-accent]'
 </script>
 
 <template layout="Grp">
@@ -134,162 +134,113 @@ const toggleActive = (item: any) => {
         <template #button-create-holiday-year="{ action }">
             <Button
                 type="create"
-                size="xs"
                 :icon="action.icon"
                 :label="action.label"
-                @click="openCreateModal"
+                @click="openCreateDialog"
             />
         </template>
     </PageHeading>
 
-    <Modal :isOpen="showCreateModal" @onClose="closeCreateModal" width="w-full max-w-lg">
-        <form class="space-y-4" @submit.prevent="submitCreate">
+    <Dialog
+        v-model:visible="showHolidayYearDialog"
+        modal
+        :draggable="false"
+        :header="dialogTitle"
+        :style="{ width: '32rem', maxWidth: 'calc(100vw - 2rem)' }"
+        @hide="form.clearErrors()"
+    >
+        <form class="space-y-4" @submit.prevent="submit">
             <div>
-                <label class="block text-sm font-medium text-gray-700">
-                    {{ ctrans('Label') }}
+                <label for="holiday-year-label" class="mb-1 block text-sm font-medium text-gray-700">
+                    {{ ctrans('Label') }} <span class="text-red-500">*</span>
                 </label>
-                <input
+                <InputText
                     v-model="form.label"
-                    type="text"
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[--app-accent] focus:ring-[--app-accent] sm:text-sm"
-                    placeholder="e.g. UK 2026-2027"
+                    id="holiday-year-label"
+                    :placeholder="ctrans('e.g. UK 2026-2027')"
+                    :invalid="!!form.errors.label"
+                    fluid
+                    :class="inputFocusClass"
                 />
-                <div v-if="form.errors.label" class="mt-1 text-xs text-red-600">
+                <p v-if="form.errors.label" class="mt-1 text-sm text-red-500">
                     {{ form.errors.label }}
-                </div>
+                </p>
             </div>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700">
-                    {{ ctrans('Start Date') }}
-                </label>
-                <input
-                    v-model="form.start_date"
-                    type="date"
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[--app-accent] focus:ring-[--app-accent] sm:text-sm"
-                />
-                <div v-if="form.errors.start_date" class="mt-1 text-xs text-red-600">
-                    {{ form.errors.start_date }}
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                    <label for="holiday-year-start" class="mb-1 block text-sm font-medium text-gray-700">
+                        {{ ctrans('Start Date') }} <span class="text-red-500">*</span>
+                    </label>
+                    <DatePicker
+                        v-model="startDate"
+                        inputId="holiday-year-start"
+                        dateFormat="d M yy"
+                        :manualInput="false"
+                        :invalid="!!form.errors.start_date"
+                        showIcon
+                        iconDisplay="input"
+                        fluid
+                        :class="fieldFocusClass"
+                    />
+                    <p v-if="form.errors.start_date" class="mt-1 text-sm text-red-500">
+                        {{ form.errors.start_date }}
+                    </p>
                 </div>
-            </div>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700">
-                    {{ ctrans('End Date') }}
-                </label>
-                <input
-                    v-model="form.end_date"
-                    type="date"
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[--app-accent] focus:ring-[--app-accent] sm:text-sm"
-                />
-                <div v-if="form.errors.end_date" class="mt-1 text-xs text-red-600">
-                    {{ form.errors.end_date }}
+                <div>
+                    <label for="holiday-year-end" class="mb-1 block text-sm font-medium text-gray-700">
+                        {{ ctrans('End Date') }} <span class="text-red-500">*</span>
+                    </label>
+                    <DatePicker
+                        v-model="endDate"
+                        inputId="holiday-year-end"
+                        dateFormat="d M yy"
+                        :minDate="startDate ?? undefined"
+                        :manualInput="false"
+                        :invalid="!!form.errors.end_date"
+                        showIcon
+                        iconDisplay="input"
+                        fluid
+                        :class="fieldFocusClass"
+                    />
+                    <p v-if="form.errors.end_date" class="mt-1 text-sm text-red-500">
+                        {{ form.errors.end_date }}
+                    </p>
                 </div>
             </div>
 
             <div class="flex items-center gap-2">
-                <input
-                    id="is_active"
+                <Checkbox
                     v-model="form.is_active"
-                    type="checkbox"
-                    class="h-4 w-4 rounded border-gray-300 text-[--app-accent] focus:ring-[--app-accent]"
+                    inputId="holiday-year-is-active"
+                    binary
+                    :class="checkboxAccentClass"
                 />
-                <label for="is_active" class="text-sm text-gray-700">
+                <label for="holiday-year-is-active" class="cursor-pointer text-sm text-gray-700">
                     {{ ctrans('Set as active holiday year') }}
                 </label>
             </div>
 
-            <div class="mt-6 flex justify-end gap-3">
+            <div class="flex justify-end gap-2 pt-2">
+                <Button type="tertiary" :label="ctrans('Cancel')" @click="closeDialog">
+                    <template #icon>
+                        <FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" />
+                    </template>
+                </Button>
                 <Button
-                    type="secondary"
-                    size="sm"
-                    :label="ctrans('Cancel')"
-                    @click.prevent="closeCreateModal"
-                />
-                <Button
-                    type="create"
-                    size="sm"
-                    :label="ctrans('Save')"
+                    type="tertiary"
                     nativeType="submit"
-                    :disabled="form.processing"
-                />
+                    :label="editingHolidayYear ? ctrans('Save changes') : ctrans('Save')"
+                    :loading="form.processing"
+                >
+                    <template #icon>
+                        <FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" />
+                    </template>
+                </Button>
             </div>
         </form>
-    </Modal>
-
-    <Modal :isOpen="showEditModal" @onClose="closeEditModal" width="w-full max-w-lg">
-        <form class="space-y-4" @submit.prevent="submitEdit">
-            <div>
-                <label class="block text-sm font-medium text-gray-700">
-                    {{ ctrans('Label') }}
-                </label>
-                <input
-                    v-model="editForm.label"
-                    type="text"
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[--app-accent] focus:ring-[--app-accent] sm:text-sm"
-                />
-                <div v-if="editForm.errors.label" class="mt-1 text-xs text-red-600">
-                    {{ editForm.errors.label }}
-                </div>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700">
-                    {{ ctrans('Start Date') }}
-                </label>
-                <input
-                    v-model="editForm.start_date"
-                    type="date"
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[--app-accent] focus:ring-[--app-accent] sm:text-sm"
-                />
-                <div v-if="editForm.errors.start_date" class="mt-1 text-xs text-red-600">
-                    {{ editForm.errors.start_date }}
-                </div>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700">
-                    {{ ctrans('End Date') }}
-                </label>
-                <input
-                    v-model="editForm.end_date"
-                    type="date"
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[--app-accent] focus:ring-[--app-accent] sm:text-sm"
-                />
-                <div v-if="editForm.errors.end_date" class="mt-1 text-xs text-red-600">
-                    {{ editForm.errors.end_date }}
-                </div>
-            </div>
-
-            <div class="flex items-center gap-2">
-                <input
-                    id="edit_is_active"
-                    v-model="editForm.is_active"
-                    type="checkbox"
-                    class="h-4 w-4 rounded border-gray-300 text-[--app-accent] focus:ring-[--app-accent]"
-                />
-                <label for="edit_is_active" class="text-sm text-gray-700">
-                    {{ ctrans('Set as active holiday year') }}
-                </label>
-            </div>
-
-            <div class="mt-6 flex justify-end gap-3">
-                <Button
-                    type="secondary"
-                    size="sm"
-                    :label="ctrans('Cancel')"
-                    @click.prevent="closeEditModal"
-                />
-                <Button
-                    type="create"
-                    size="sm"
-                    :label="ctrans('Save changes')"
-                    nativeType="submit"
-                    :disabled="editForm.processing"
-                />
-            </div>
-        </form>
-    </Modal>
+    </Dialog>
 
     <Table :resource="data" class="mt-5">
         <template #cell(label)="{ item }">
@@ -299,57 +250,42 @@ const toggleActive = (item: any) => {
         </template>
 
         <template #cell(start_date)="{ item }">
-            <span class="whitespace-nowrap">
+            <span class="whitespace-nowrap tabular-nums">
                 {{ item.start_date }}
             </span>
         </template>
 
         <template #cell(end_date)="{ item }">
-            <span class="whitespace-nowrap">
+            <span class="whitespace-nowrap tabular-nums">
                 {{ item.end_date }}
             </span>
         </template>
 
         <template #cell(is_active)="{ item }">
-            <Toggle
-                :modelValue="item.is_active"
-                @update:modelValue="toggleActive(item)"
-                :disabled="item.is_active"
-            />
+            <div class="flex items-center gap-2">
+                <ToggleSwitch
+                    :modelValue="item.is_active"
+                    :disabled="item.is_active"
+                    :aria-label="ctrans('Active')"
+                    :class="toggleAccentClass"
+                    @update:modelValue="activate(item)"
+                />
+                <span
+                    v-if="item.is_active"
+                    class="inline-flex items-center whitespace-nowrap rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800"
+                >
+                    {{ ctrans('Active') }}
+                </span>
+            </div>
         </template>
 
         <template #cell(action)="{ item }">
             <div class="flex items-center gap-2">
-                <Button
-                    type="secondary"
-                    size="xs"
-                    icon="fal fa-pencil"
-                    :label="ctrans('Edit')"
-                    @click="openEditModal(item)"
-                />
-                <!--
-                <ModalConfirmationDelete
-                    :routeDelete="{
-                        name: 'grp.org.hr.holiday_years.delete',
-                        parameters: {
-                            ...route().params,
-                            holiday_year: item.id,
-                        },
-                    }"
-                    :title="ctrans('Are you sure you want to delete this holiday year?')"
-                    isFullLoading
-                >
-                    <template #default="{ changeModel }">
-                        <Button
-                            type="negative"
-                            size="xs"
-                            icon="fal fa-trash-alt"
-                            :label="ctrans('Delete')"
-                            @click="changeModel"
-                        />
+                <Button type="tertiary" size="xs" :label="ctrans('Edit')" @click="openEditDialog(item)">
+                    <template #icon>
+                        <FontAwesomeIcon icon="fal fa-pencil" class="text-[--app-accent]" fixed-width aria-hidden="true" />
                     </template>
-                </ModalConfirmationDelete>
-                -->
+                </Button>
             </div>
         </template>
     </Table>

@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\StoredItemAudit;
 
+use App\Actions\Traits\Authorisations\WithStoredItemAuditAuthorisation;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePallets;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStoredItemAudits;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStoredItems;
@@ -32,6 +33,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CompleteStoredItemAudit extends OrgAction
 {
+    use WithStoredItemAuditAuthorisation;
     use WithActionUpdate;
 
     private FulfilmentCustomer $fulfilmentCustomer;
@@ -99,16 +101,10 @@ class CompleteStoredItemAudit extends OrgAction
         return $this->update($storedItemAudit, $modelData, ['data']);
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->asAction) {
-            return true;
-        }
-        return $request->user()->authTo("fulfilment.{$this->fulfilment->id}.edit");
-    }
 
     public function asController(FulfilmentCustomer $fulfilmentCustomer, StoredItemAudit $storedItemAudit, ActionRequest $request): StoredItemAudit
     {
+        $this->warehouse = $storedItemAudit->warehouse;
         $this->fulfilmentCustomer = $storedItemAudit->fulfilmentCustomer;
         $this->storedItemAudit    = $storedItemAudit;
         $this->initialisationFromFulfilment($storedItemAudit->fulfilment, $request);

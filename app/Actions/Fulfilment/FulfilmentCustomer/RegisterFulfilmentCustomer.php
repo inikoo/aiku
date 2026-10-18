@@ -70,7 +70,7 @@ class RegisterFulfilmentCustomer extends OrgAction
 
         ShopHydrateCrmStats::dispatch($fulfilment->shop);
 
-        auth('retina')->login($webUser);
+        auth('retina')->login($webUser, true);
         $this->queueIrisAuthCookie();
 
         return $fulfilmentCustomer;

@@ -344,6 +344,8 @@ const onSubmitVariant = () => {
 
 const priceManagementPortfolio = ref<any>(null)
 const priceManagementLoading = ref<number[]>([])
+const priceManagedByUsSaved = ref<Record<number, boolean>>({})
+const isPriceManagedByUs = (product: any): boolean => priceManagedByUsSaved.value[product.id] ?? !!product.shopify_price_managed_by_us
 const askPriceManagement = (product: any, managedByUs: boolean) => {
     if (managedByUs) {
         priceManagementPortfolio.value = product
@@ -362,7 +364,7 @@ const setPriceManagement = async (product: any, managedByUs: boolean) => {
             route('retina.models.dropshipping.shopify.price_management', { customerSalesChannel: props.customerSalesChannel.id }),
             { portfolios: [product.id], managed_by_us: managedByUs }
         )
-        product.shopify_price_managed_by_us = managedByUs
+        priceManagedByUsSaved.value[product.id] = managedByUs
         notify({
             title: ctrans("Saved"),
             text: managedByUs
@@ -372,7 +374,7 @@ const setPriceManagement = async (product: any, managedByUs: boolean) => {
         })
     } catch (error: any) {
         if (error?.response?.status === 422) {
-            product.shopify_price_managed_by_us = managedByUs
+            priceManagedByUsSaved.value[product.id] = managedByUs
         }
         notify({
             title: ctrans("Something went wrong"),
@@ -392,7 +394,7 @@ const currentOffset = ref(0)
 const hasMore = ref(true)
 const isLoadingMore = ref(false)
 
-const fetchRoute = async () => {
+const fetchRoute = async (refresh = false) => {
     isLoadingFetchShopifyProduct.value = true
     currentOffset.value = 0
     hasMore.value = true
@@ -400,7 +402,8 @@ const fetchRoute = async () => {
         const www = await axios.get(route('retina.json.dropshipping.customer_sales_channel.shopify_products', {
             customerSalesChannel: props.customerSalesChannel?.id,
             query: querySearchPortfolios.value,
-            portfolio: selectedPortfolio.value?.id
+            portfolio: selectedPortfolio.value?.id,
+            ...(refresh ? { refresh: 1 } : {})
         }))
 
         if (!Array.isArray(www.data.products) || www.data.products.length < 50) {
@@ -829,16 +832,16 @@ onMounted(() => {
             </div>
             <div v-if="product.is_shopify_variant_adopted" class="mt-1 flex items-center gap-x-2 text-sm text-gray-600">
                 <ToggleSwitch
-                    :modelValue="!!product.shopify_price_managed_by_us"
+                    :modelValue="isPriceManagedByUs(product)"
                     :inputId="`price-managed-${product.id}`"
                     :disabled="priceManagementLoading.includes(product.id)"
                     @update:modelValue="(managedByUs: boolean) => askPriceManagement(product, managedByUs)" />
                 <label
                     :for="`price-managed-${product.id}`"
-                    v-tooltip="product.shopify_price_managed_by_us
+                    v-tooltip="isPriceManagedByUs(product)
                         ? ctrans('Prices you set here are sent to this product in your Shopify')
                         : ctrans('This product was already in your Shopify: we never change its price there')">
-                    {{ product.shopify_price_managed_by_us ? ctrans("Price managed by us") : ctrans("Price managed in your Shopify") }}
+                    {{ isPriceManagedByUs(product) ? ctrans("Price managed by us") : ctrans("Price managed in your Shopify") }}
                 </label>
                 <LoadingIcon v-if="priceManagementLoading.includes(product.id)" />
             </div>
@@ -934,8 +937,9 @@ onMounted(() => {
                                 }
                             } : {}" 
                             :bindToLink="{ preserveScroll: true}" 
-                            type="primary" 
+                            type="tertiary" 
                             :label="ctrans('Match with this product')" 
+                            isWithError
                             size="xxs"
                             icon="fal fa-hand-pointer"
                             :buttonClass="'mt-1'"
@@ -1061,10 +1065,19 @@ onMounted(() => {
                 <LoadingIcon/>
             </div>
 
-            <div class="mb-2">
+            <div class="mb-2 flex items-center justify-between gap-x-2">
                 <strong> 
                     {{ ctrans('List of Products under your :_storetype Store', {_storetype: 'Shopify'}) }}
                 </strong>
+                <Button
+                    @click="() => fetchRoute(true)"
+                    v-tooltip="ctrans('Just created it in Shopify? Read your store again')"
+                    :label="ctrans('Refresh')"
+                    icon="fal fa-sync-alt"
+                    size="xxs"
+                    type="tertiary"
+                    :disabled="isLoadingFetchShopifyProduct"
+                />
             </div>
 
             <div class="mb-2 relative">

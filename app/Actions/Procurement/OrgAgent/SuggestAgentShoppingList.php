@@ -40,23 +40,53 @@ class SuggestAgentShoppingList extends OrgAction
             $budget = min($budget, max(0, $ceiling - $capacity['list']['value']));
         }
 
-        $candidates = $this->candidates(
-            $orgAgent,
-            $modelData['bucket'],
-            $modelData['rank'] ?? null,
-            $modelData['supplier_id'] ?? null
-        );
+        $spent = 0.0;
+        $lines = [];
 
+        foreach ($this->lines($orgAgent, $modelData['bucket'], $modelData['rank'] ?? null, $modelData['supplier_id'] ?? null) as $line) {
+            if ($spent + $line['cost'] > $budget) {
+                continue;
+            }
+
+            $spent  += $line['cost'];
+            $lines[] = $line;
+        }
+
+        return [
+            'lines'    => $lines,
+            'budget'   => round($budget, 2),
+            'currency' => $orgAgent->organisation->currency->code,
+            'budget_left' => $ceiling === null ? null : round(max(0, $ceiling - $capacity['list']['value']), 2),
+        ];
+    }
+
+    /**
+     * Every item of the bucket still to be ordered, priced in the organisation's currency and
+     * worst cover first, before any budget is applied. Items with no exchange rate are left out.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function lines(OrgAgent $orgAgent, string $bucket, ?string $rank = null, ?int $supplierId = null): array
+    {
         $organisationCurrency = $orgAgent->organisation->currency;
+        $agentLeadDays        = GetAgentLeadTimes::run($orgAgent)['agent']['days'];
         $rates                = [];
-        $spent                = 0.0;
         $lines                = [];
+
+        $candidates    = $this->candidates($orgAgent, $bucket, $rank, $supplierId);
+        $cartonVolumes = $this->usualCartonVolumes($candidates->pluck('supplier_id')->unique()->all());
 
         foreach ($candidates as $candidate) {
             $cartonUnits = max(1, (int) ($candidate->units_per_carton ?: 1));
             $minCartons  = max(1, (int) ($candidate->minimum_carton_order ?: 1));
-            $needed      = (float) ($candidate->recommended_order_quantity ?: 0);
-            $cartons     = max($minCartons, (int) ceil($needed / $cartonUnits));
+            $packedIn    = max(1, (int) ($candidate->packed_in ?: 1));
+
+            if ($candidate->units_per_carton && $cartonUnits < $packedIn) {
+                continue;
+            }
+
+            $neededUnits = (float) ($candidate->recommended_order_quantity ?: 0) * $packedIn;
+            $cartons     = max($minCartons, (int) ceil($neededUnits / $cartonUnits));
             $units       = $cartons * $cartonUnits;
 
             $rates[$candidate->currency_id] ??= $candidate->currency_id
@@ -64,13 +94,11 @@ class SuggestAgentShoppingList extends OrgAction
                 : null;
 
             $rate = $rates[$candidate->currency_id];
-            $cost = $rate === null ? null : round($units * (float) $candidate->cost * $rate, 2);
 
-            if ($cost === null || $spent + $cost > $budget) {
+            if ($rate === null) {
                 continue;
             }
 
-            $spent  += $cost;
             $lines[] = [
                 'org_supplier_product_id' => (int) $candidate->id,
                 'code'                    => $candidate->code,
@@ -79,18 +107,41 @@ class SuggestAgentShoppingList extends OrgAction
                 'cartons'                 => $cartons,
                 'units_per_carton'        => $cartonUnits,
                 'quantity_units'          => $units,
-                'cost'                    => $cost,
+                'cost'                    => round($units * (float) $candidate->cost * $rate, 2),
+                'cbm'                     => round($cartons * (float) ($candidate->cbm ?: $cartonVolumes[$candidate->supplier_id] ?? $cartonVolumes[0] ?? 0), 4),
+                'cbm_estimated'           => !$candidate->cbm,
                 'days_of_cover'           => $candidate->days_of_cover !== null ? (int) $candidate->days_of_cover : null,
+                'health_rank'             => $candidate->health_rank,
+                'lead_time_days'          => (int) ($candidate->measured_lead_time_days ?? $candidate->estimated_lead_time_days ?? $agentLeadDays),
                 'reason'                  => $this->reason($candidate, $cartons, $minCartons),
             ];
         }
 
-        return [
-            'lines'    => $lines,
-            'budget'   => round($budget, 2),
-            'currency' => $organisationCurrency->code,
-            'budget_left' => $ceiling === null ? null : round(max(0, $ceiling - $capacity['list']['value']), 2),
-        ];
+        return $lines;
+    }
+
+    /**
+     * A carton's volume where the supplier product does not record one: what a carton of that
+     * supplier's other products takes on average, or of all these suppliers' products (key 0) when the
+     * supplier records none. An approximation, flagged as such on every line that uses it.
+     *
+     * @param  array<int, int>  $supplierIds
+     * @return array<int, float> supplier id => cubic metres per carton
+     */
+    private function usualCartonVolumes(array $supplierIds): array
+    {
+        if (!$supplierIds) {
+            return [];
+        }
+
+        $recorded = DB::table('supplier_products')
+            ->whereIn('supplier_id', $supplierIds)
+            ->where('cbm', '>', 0)
+            ->whereNull('deleted_at');
+
+        $volumes = (clone $recorded)->groupBy('supplier_id')->selectRaw('supplier_id, avg(cbm) as cbm')->pluck('cbm', 'supplier_id')->map(fn ($cbm) => (float) $cbm)->all();
+
+        return $volumes + [0 => (float) $recorded->avg('cbm')];
     }
 
     private function reason(object $candidate, int $cartons, int $minCartons): string
@@ -121,6 +172,8 @@ class SuggestAgentShoppingList extends OrgAction
             ->leftJoin('org_stock_stats as s', 's.org_stock_id', 'os.id')
             ->whereIn('osp.id', $ids)
             ->whereRaw('coalesce(os.is_excluded_from_auto_ordering, false) = false')
+            ->whereRaw('not '.GetAgentStockCoverBuckets::onOpenPurchaseOrderExpression())
+            ->whereRaw('coalesce(s.on_the_way_po_count, 0) = 0')
             ->whereNotExists(function ($query) {
                 $query->selectRaw('1')
                     ->from('shopping_list_items as sli')
@@ -137,7 +190,13 @@ class SuggestAgentShoppingList extends OrgAction
                 'sp.currency_id',
                 'sp.units_per_carton',
                 'sp.minimum_carton_order',
+                'sp.cbm',
+                'sp.supplier_id',
+                'sp.measured_lead_time_days',
+                'sp.estimated_lead_time_days',
                 'sup.code as supplier_code',
+                'os.health_rank',
+                'os.packed_in',
                 's.recommended_order_quantity',
                 's.days_of_cover',
             ])

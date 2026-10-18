@@ -64,7 +64,7 @@ class GoogleLoginRetina extends IrisAction
             'google_id' => Arr::get($googleUser, 'id'),
         ]);
 
-        auth('retina')->login($webUser);
+        auth('retina')->login($webUser, true);
 
         return $webUser;
     }

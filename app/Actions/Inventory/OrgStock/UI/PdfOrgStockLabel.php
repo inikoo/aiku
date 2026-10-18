@@ -59,7 +59,7 @@ class PdfOrgStockLabel
      * origin, the manufacturer, the weight and the account signature. The SKO label is a box label.
      */
     public const LEVEL_FIELDS = [
-        'unit' => ['with_image', 'with_made_in', 'with_manufactured_by', 'with_weight', 'with_custom_text', 'with_account_signature'],
+        'unit' => ['with_image', 'with_made_in', 'with_manufactured_by', 'with_weight', 'with_custom_text', 'with_account_signature', 'with_eu_responsible_person', 'with_es_importer'],
         'sko'    => ['with_image', 'with_custom_text'],
         'carton' => ['with_image', 'with_ingredients', 'with_custom_text'],
     ];
@@ -203,6 +203,8 @@ class PdfOrgStockLabel
      */
     private const TOP_PADDING = 0.8;
 
+    private const SHEET_ROW_SPACING = 3.0;
+
     private const WIDE_RATIO = 2.75;
 
     private const CODE128_MODULE_MM = 0.3804;
@@ -226,7 +228,17 @@ class PdfOrgStockLabel
     public function handle(OrgStock $orgStock, string $level, array $options): Response
     {
         $level = isset(self::LEVEL_FIELDS[$level]) ? $level : 'unit';
-        $label = GetOrgStockLabelData::run($orgStock, $level, $this->getSupplierProduct($orgStock, $options));
+
+        if (($options['standard'] ?? 'localised') === 'unified') {
+            return PdfOrgStockUnifiedLabel::run($orgStock, $level, $this->getSupplierProduct($orgStock, $options), $options['batch'] ?? null);
+        }
+
+        $label = GetOrgStockLabelData::run(
+            $orgStock,
+            $level,
+            $this->getSupplierProduct($orgStock, $options),
+            GetOrgStockLabelData::make()->getCommercialisingOrganisation($orgStock, (int) ($options['commercialised_by'] ?? 0) ?: null)
+        );
 
         /* The unit label is built around its barcode, so without one there is nothing to print. The
            SKO label never carries one, and prints for a box that has not been given a number yet. */
@@ -281,19 +293,28 @@ class PdfOrgStockLabel
      */
     private function getSheetPdf(array $sheet, array $label, array $show, array $options, string $level, bool $withBarcode, string $filename)
     {
+        $rowSpacing    = $sheet['row_gap'] > 0 ? 0.0 : self::SHEET_ROW_SPACING;
+        $contentWidth  = $sheet['cell_width'] - 2 * self::CELL_PADDING;
+        $contentHeight = $sheet['cell_height'] - $rowSpacing;
+        $scale         = $this->getScale($contentWidth, $contentHeight, $level, $show['image'], $withBarcode);
+
+        $edgePadding = $level === 'unit' && ($scale['layout'] ?? null) !== 'wide' ? self::CELL_PADDING : 0.0;
+
         return PDF::loadView('labels.templates.pdf.org_stock.label_sheet', [
             'label'       => $label,
             'show'        => $show,
             'level'       => $level,
-            'skoBarcode'  => $this->getSkoBarcode($label, $level, $sheet['cell_width'], $sheet['cell_height']),
-            'cartonBarcode' => $this->getCartonBarcode($label, $level, $sheet['cell_width'], $sheet['cell_height']),
+            'skoBarcode'  => $this->getSkoBarcode($label, $level, $sheet['cell_width'], $contentHeight),
+            'cartonBarcode' => $this->getCartonBarcode($label, $level, $sheet['cell_width'], $contentHeight),
             'customText'  => $this->getCustomText($options),
-            'scale'       => $this->getScale($sheet['cell_width'], $sheet['cell_height'], $level, $show['image'], $withBarcode),
+            'scale'       => $scale,
             'cells'       => $this->getCells($sheet),
             'cellWidth'   => $sheet['cell_width'],
             'cellHeight'  => $sheet['cell_height'],
-            'cellPadding' => self::CELL_PADDING,
-            'cellTopPadding' => self::TOP_PADDING,
+            'cellPadding' => self::CELL_PADDING - $edgePadding,
+            'edgePadding' => $edgePadding,
+            'cellTopPadding' => self::TOP_PADDING + $rowSpacing / 2,
+            'cellBottomPadding' => self::CELL_PADDING + $rowSpacing / 2,
             'cutGuides'   => filter_var($options['cut_guides'] ?? false, FILTER_VALIDATE_BOOLEAN),
         ], [], [
             'title'         => $filename,
@@ -344,6 +365,8 @@ class PdfOrgStockLabel
             'with_weight'            => filled($label['weight']),
             'with_custom_text'       => filled($this->getCustomText($options)),
             'with_account_signature' => filled($label['signature']),
+            'with_eu_responsible_person' => filled($label['eu_responsible_person']),
+            'with_es_importer'       => filled($label['es_importer']),
             'with_ingredients'       => filled($label['materials']),
         ];
 
@@ -360,18 +383,21 @@ class PdfOrgStockLabel
             'weight'          => $show['with_weight'],
             'custom_text'     => $show['with_custom_text'],
             'signature'       => $show['with_account_signature'],
+            'eu_responsible_person' => $show['with_eu_responsible_person'],
+            'es_importer'     => $show['with_es_importer'],
             'materials'       => $show['with_ingredients'],
         ];
     }
 
     /**
      * Opening the label without saying what to put on it prints what Aurora printed by default,
-     * which is everything except the signature.
+     * which is everything except the signature, plus the EU responsible person. The Spanish
+     * importer is only printed when asked for.
      */
     private function wants(array $options, string $key): bool
     {
         if (!array_key_exists($key, $options)) {
-            return $key !== 'with_account_signature';
+            return !in_array($key, ['with_account_signature', 'with_es_importer'], true);
         }
 
         return filter_var($options[$key], FILTER_VALIDATE_BOOLEAN);
@@ -604,7 +630,10 @@ class PdfOrgStockLabel
     {
         return [
             'level'                  => ['sometimes', 'string', 'in:sko,unit,carton'],
+            'standard'               => ['sometimes', 'string', 'in:unified,localised'],
+            'batch'                  => ['sometimes', 'nullable', 'string', 'max:20'],
             'supplier_product'       => ['sometimes', 'nullable', 'integer'],
+            'commercialised_by'      => ['sometimes', 'nullable', 'integer'],
             'with_ingredients'       => ['sometimes', 'boolean'],
             'layout'                 => ['sometimes', 'string', 'in:single,sheet'],
             'size'                   => ['sometimes', 'string', 'in:'.implode(',', array_keys(self::SIZES))],
@@ -614,6 +643,8 @@ class PdfOrgStockLabel
             'with_weight'            => ['sometimes', 'boolean'],
             'with_custom_text'       => ['sometimes', 'boolean'],
             'with_account_signature' => ['sometimes', 'boolean'],
+            'with_eu_responsible_person' => ['sometimes', 'boolean'],
+            'with_es_importer'       => ['sometimes', 'boolean'],
             'cut_guides'             => ['sometimes', 'boolean'],
             'custom_text'            => ['sometimes', 'nullable', 'string', 'max:255'],
         ];

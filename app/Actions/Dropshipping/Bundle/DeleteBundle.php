@@ -10,6 +10,7 @@ namespace App\Actions\Dropshipping\Bundle;
 
 use App\Actions\Catalogue\Product\UpdateProduct;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateBundles;
+use App\Actions\Dropshipping\Portfolio\UpdatePortfolio;
 use App\Actions\OrgAction;
 use App\Actions\Retina\Dropshipping\Portfolio\UnlinkRetinaPortfolio;
 use App\Actions\Traits\Rules\WithNoStrictRules;
@@ -17,16 +18,12 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\Product\ProductStatusEnum;
 use App\Models\Catalogue\Product;
-use App\Models\CRM\Customer;
 use App\Models\Dropshipping\Bundle;
-use Lorisleiva\Actions\ActionRequest;
 
 class DeleteBundle extends OrgAction
 {
     use WithNoStrictRules;
     use WithActionUpdate;
-
-    private Customer $customer;
 
     public function handle(Bundle $bundle): void
     {
@@ -49,24 +46,9 @@ class DeleteBundle extends OrgAction
 
         foreach ($product->portfolios as $portfolio) {
             UnlinkRetinaPortfolio::run($portfolio);
+            UpdatePortfolio::run($portfolio, ['status' => false]);
         }
 
         ShopHydrateBundles::dispatch($bundle->customer->shop)->delay($this->hydratorsDelay);
-    }
-
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->asAction) {
-            return true;
-        }
-
-        return $request->user()->authTo("crm.{$this->shop->id}.edit");
-    }
-
-    public function asController(Bundle $bundle, ActionRequest $request): void
-    {
-        $this->initialisationFromShop($this->customer->shop, $request);
-
-        $this->handle($bundle);
     }
 }

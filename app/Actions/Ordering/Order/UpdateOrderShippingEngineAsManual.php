@@ -18,7 +18,7 @@ use App\Actions\Traits\WithFixedAddressActions;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Actions\Traits\WithOrderExchanges;
 use App\Enums\Catalogue\Shop\ShopEngineEnum;
-use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Ordering\Order\OrderShippingEngineEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Order\OrderStatusEnum;
@@ -27,8 +27,10 @@ use App\Enums\Ordering\Transaction\TransactionStatusEnum;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
+use App\Actions\Traits\Authorisations\Ordering\WithOrderEditAuthorisation;
 
 class UpdateOrderShippingEngineAsManual extends OrgAction
 {
@@ -38,6 +40,7 @@ class UpdateOrderShippingEngineAsManual extends OrgAction
     use HasOrderHydrators;
     use WithNoStrictRules;
     use WithOrderExchanges;
+    use WithOrderEditAuthorisation;
 
     private Order $order;
 
@@ -62,11 +65,6 @@ class UpdateOrderShippingEngineAsManual extends OrgAction
 
         if (in_array($order->state, [OrderStateEnum::FINALISED, OrderStateEnum::DISPATCHED])) {
             UpdateOrderPaymentsStatus::run($order);
-        }
-
-        if ($order->shop->type == ShopTypeEnum::EXTERNAL && $order->shop->engine == ShopEngineEnum::FAIRE && $order->external_id) {
-            UpdateFaireOrder::run($order);
-            $order->refresh();
         }
 
         return $order;
@@ -156,11 +154,54 @@ class UpdateOrderShippingEngineAsManual extends OrgAction
 
     public function afterValidator(Validator $validator): void
     {
-        if ($this->order->state == OrderStateEnum::CANCELLED) {
+        $isFaire        = $this->order->shop->engine == ShopEngineEnum::FAIRE;
+        $shippingAmount = Arr::get($validator->getData(), 'shipping_amount');
+        if ($isFaire && $this->order->is_shipping_by_external && is_numeric($shippingAmount) && $faireVatMismatch = $this->getFaireShippingVatMismatch((float)$shippingAmount)) {
+            $validator->errors()->add('message', $faireVatMismatch);
+        } elseif ($isFaire && !$this->order->is_shipping_by_external && $this->order->deliveryNotes()->where('state', '!=', DeliveryNoteStateEnum::CANCELLED)->whereHas('shipments')->exists()) {
+            $validator->errors()->add('message', __('The tracking of this order was already sent to Faire. Enter the shipping cost on Faire and it is copied here.'));
+        } elseif ($this->order->state == OrderStateEnum::CANCELLED) {
             $validator->errors()->add('message', __('Shipping can not be changed once order is cancelled.'));
         } elseif (in_array($this->order->state, [OrderStateEnum::DISPATCHED, OrderStateEnum::FINALISED]) && $this->order->invoices()->exists()) {
             $validator->errors()->add('message', __('Shipping can not be changed once order is invoiced.'));
         }
+    }
+
+    /**
+     * Faire does not say what it charged for shipping on its own label, only the VAT on it,
+     * so the amount typed must carry that VAT. When Faire states none, can not be reached, or adds
+     * recargo de equivalencia (which may or may not reach the shipping), the amount is not checked.
+     */
+    private function getFaireShippingVatMismatch(float $shippingAmount): ?string
+    {
+        $vatRate = (float)$this->order->taxCategory?->rate;
+        if ($vatRate <= 0) {
+            return null;
+        }
+
+        try {
+            $faireOrder = $this->order->shop->getFaireOrder((string)$this->order->external_id);
+        } catch (ConnectionException) {
+            return null;
+        }
+
+        $faireTaxes = collect(Arr::get($faireOrder, 'payout_costs.taxes', []));
+        if ($faireTaxes->contains('tax_type', 'RECARGO')) {
+            return null;
+        }
+
+        $shippingTaxes = $faireTaxes->where('taxable_item_type', 'SHIPPING')->values()->all();
+        $shippingVat   = UpdateFaireOrder::make()->getFaireTaxAmount(['payout_costs' => ['taxes' => $shippingTaxes]], $this->order->shop);
+
+        if ($shippingVat < 0.01 || abs($shippingAmount * $vatRate - $shippingVat) < 0.01) {
+            return null;
+        }
+
+        return __('Faire charged :vat VAT on the shipping of this order, which is a shipping of about :shipping, not :typed. Check the shipping on the Faire invoice.', [
+            'vat'      => number_format($shippingVat, 2),
+            'shipping' => number_format($shippingVat / $vatRate, 2),
+            'typed'    => number_format($shippingAmount, 2),
+        ]);
     }
 
     public function asController(Order $order, ActionRequest $request): Order

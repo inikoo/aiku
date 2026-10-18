@@ -10,11 +10,10 @@ namespace App\Actions\HumanResources\Employee\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
-use App\Actions\Traits\Authorisations\WithHumanResourcesSectionAuthorisation;
+use App\Actions\Traits\Authorisations\WithHumanResourcesAuthorisation;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
-use App\Enums\HumanResources\Leave\LeaveStatusEnum;
 use App\Http\Resources\HumanResources\EmployeesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\HumanResources\Employee;
@@ -34,7 +33,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexEmployees extends OrgAction
 {
-    use WithHumanResourcesSectionAuthorisation;
+    use WithHumanResourcesAuthorisation;
 
     private Organisation|JobPosition|Group $parent;
 
@@ -109,7 +108,6 @@ class IndexEmployees extends OrgAction
             $queryBuilder->where('employees.group_id', $parent->id);
         }
         $queryBuilder->leftjoin('organisations', 'employees.organisation_id', '=', 'organisations.id');
-        $this->restrictToSectionEmployees($queryBuilder, 'employees.id');
 
         if ($parent instanceof Organisation && !$this->hasExplicitStateFilter($prefix)) {
             $queryBuilder->where('employees.state', EmployeeStateEnum::WORKING->value);
@@ -124,7 +122,8 @@ class IndexEmployees extends OrgAction
             );
         }
 
-        $queryBuilder->select(['employees.id', 'employees.slug', 'employees.worker_number', 'employees.job_title', 'employees.contact_name', 'employees.state', 'employees.date_of_birth', 'organisations.name as organisation_name', 'organisations.slug as organisation_slug', 'employees.probation_period_days', 'employees.employment_start_at', 'employees.employment_end_at']);
+        $queryBuilder->select(['employees.id', 'employees.slug', 'employees.worker_number', 'employees.job_title', 'employees.contact_name', 'employees.state', 'employees.date_of_birth', 'organisations.name as organisation_name', 'organisations.slug as organisation_slug', 'employees.probation_period_days', 'employees.employment_start_at', 'employees.employment_end_at', 'employees.image_id', 'employees.user_id']);
+        $queryBuilder->with(Employee::AVATAR_RELATIONS);
 
         if (class_basename($parent) == 'Organisation') {
             $jobPositions = DB::table('employee_has_job_positions')
@@ -139,23 +138,11 @@ class IndexEmployees extends OrgAction
             });
             $queryBuilder->addSelect('job_positions');
 
-            $today = now()->toDateString();
-            $covers = DB::table('leaves')
-                ->select('leaves.employee_id', DB::raw("string_agg(DISTINCT cover_employees.contact_name, ', ') as covered_by"))
-                ->join('employees as cover_employees', 'leaves.cover_employee_id', 'cover_employees.id')
-                ->where('leaves.organisation_id', $parent->id)
-                ->where('leaves.status', LeaveStatusEnum::APPROVED->value)
-                ->whereNull('leaves.deleted_at')
-                ->whereDate('leaves.start_date', '<=', $today)
-                ->whereDate('leaves.end_date', '>=', $today)
-                ->groupBy('leaves.employee_id');
-            $queryBuilder->leftJoinSub($covers, 'covers', 'employees.id', '=', 'covers.employee_id');
-            $queryBuilder->addSelect('covers.covered_by');
         }
 
         return $queryBuilder
             ->defaultSort('slug')
-            ->allowedSorts(['slug', 'state', 'contact_name', 'job_title', 'worker_number', 'date_of_birth'])
+            ->allowedSorts(['slug', 'state', 'contact_name', 'job_title', 'worker_number', 'date_of_birth', 'employment_start_at', 'employment_end_at'])
             ->allowedFilters([$globalSearch, 'slug', 'contact_name', 'state', 'birthday_month', 'employment_start_at', 'employment_end_at'])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -210,10 +197,10 @@ class IndexEmployees extends OrgAction
                 ->column(key: 'slug', label: __('Code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'contact_name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'job_title', label: __('Job Title'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'employment_start_at', label: __('Employment Start Date'), canBeHidden: true, sortable: false);
+                ->column(key: 'employment_start_at', label: __('Employment Start Date'), canBeHidden: true, sortable: true);
 
             if ($this->hasLeftStateFilter($prefix)) {
-                $table->column(key: 'employment_end_at', label: __('Employment End Date'), canBeHidden: true, sortable: false);
+                $table->column(key: 'employment_end_at', label: __('Employment End Date'), canBeHidden: true, sortable: true);
             }
 
             $table
@@ -224,7 +211,6 @@ class IndexEmployees extends OrgAction
             }
             if (class_basename($parent) == 'Organisation') {
                 $table->column(key: 'positions', label: __('Responsibilities'), canBeHidden: false);
-                $table->column(key: 'covered_by', label: __('Covered by'), canBeHidden: true);
             }
             $table->defaultSort('slug');
         };

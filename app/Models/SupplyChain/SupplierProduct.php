@@ -8,7 +8,11 @@
 
 namespace App\Models\SupplyChain;
 
+use App\Enums\Goods\TradeUnit\TradeUnitPackagingMaterialEnum;
+use App\Enums\SupplyChain\Supplier\SupplierPackingMethodEnum;
+use App\Enums\SupplyChain\SupplierProduct\SupplierProductAvailabilityStatusEnum;
 use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
+use App\Enums\SupplyChain\SupplierProduct\SupplierProductUnavailableReasonEnum;
 use App\Enums\SupplyChain\SupplierProduct\SupplierProductTradeUnitCompositionEnum;
 use App\Enums\SupplyChain\SupplierProduct\SupplierUnitEnum;
 use App\Models\Goods\Stock;
@@ -73,6 +77,15 @@ use Spatie\Sluggable\SlugOptions;
  * @property array<array-key, mixed> $sources
  * @property numeric $extra_costs Estimated percentage of extra costs
  * @property int|null $minimum_carton_order MOQ in cartons
+ * @property array{l: float, w: float, h: float}|null $carton_dimensions cm
+ * @property Carbon|null $lead_time_confirmed_at
+ * @property int|null $lead_time_confirmed_by_user_id
+ * @property SupplierProductAvailabilityStatusEnum $availability_status
+ * @property SupplierProductUnavailableReasonEnum|null $unavailable_reason
+ * @property Carbon|null $available_from
+ * @property numeric|null $availability_new_cost new unit cost the supplier asks
+ * @property string|null $availability_note
+ * @property array<string, mixed> $packaging_terms
  * @property-read \App\Models\SupplyChain\Agent|null $agent
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Currency $currency
@@ -113,9 +126,18 @@ class SupplierProduct extends Model implements HasMedia, Auditable
         'sources'                => 'array',
         'status'                 => 'boolean',
         'state'                  => SupplierProductStateEnum::class,
+        'packing_method'         => SupplierPackingMethodEnum::class,
+        'packing_material'       => TradeUnitPackagingMaterialEnum::class,
         'trade_unit_composition' => SupplierProductTradeUnitCompositionEnum::class,
         'supplier_unit'          => SupplierUnitEnum::class,
         'units_per_supplier_unit' => 'decimal:4',
+        'carton_dimensions'      => 'array',
+        'packaging_terms'        => 'array',
+        'availability_status'    => SupplierProductAvailabilityStatusEnum::class,
+        'unavailable_reason'     => SupplierProductUnavailableReasonEnum::class,
+        'available_from'         => 'date',
+        'availability_new_cost'  => 'decimal:4',
+        'lead_time_confirmed_at' => 'datetime',
         'fetched_at'             => 'datetime',
         'last_fetched_at'        => 'datetime',
     ];
@@ -124,6 +146,7 @@ class SupplierProduct extends Model implements HasMedia, Auditable
         'data'     => '{}',
         'settings' => '{}',
         'sources'  => '{}',
+        'packaging_terms' => '{}',
     ];
 
     protected $guarded = [];
@@ -149,6 +172,7 @@ class SupplierProduct extends Model implements HasMedia, Auditable
     }
 
     protected array $auditInclude = [
+        'supplier_id',
         'code',
         'name',
         'status',
@@ -159,6 +183,19 @@ class SupplierProduct extends Model implements HasMedia, Auditable
         'units_per_carton',
         'supplier_unit',
         'units_per_supplier_unit',
+        'cbm',
+        'carton_dimensions',
+        'carton_weight',
+        'carton_net_weight',
+        'minimum_carton_order',
+        'estimated_lead_time_days',
+        'lead_time_confirmed_at',
+        'is_available',
+        'availability_status',
+        'unavailable_reason',
+        'available_from',
+        'availability_new_cost',
+        'availability_note',
     ];
 
     public function searchIndexShouldBeUpdated(): bool

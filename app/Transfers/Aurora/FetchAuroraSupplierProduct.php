@@ -139,11 +139,14 @@ class FetchAuroraSupplierProduct extends FetchAurora
                 'fetched_at'            => now(),
                 'last_fetched_at'       => now(),
                 'extra_costs'           => $this->auroraModelData->{'Supplier Part Unit Extra Cost Percentage'} ?? 0,
-                'minimum_carton_order'  => $this->auroraModelData->{'Supplier Part Minimum Carton Order'} ?? null,
                 'delivery_time'         => $this->auroraModelData->{'Supplier Part Average Delivery Days'} ?? null,
                 'unit_expense'          => $this->auroraModelData->{'Supplier Part Unit Expense'} ?? null,
             ];
 
+
+        if ($this->auroraModelData->{'Supplier Part Minimum Carton Order'}) {
+            $this->parsedData['supplierProduct']['minimum_carton_order'] = $this->auroraModelData->{'Supplier Part Minimum Carton Order'};
+        }
 
         if ($this->auroraModelData->{'Supplier Part Carton CBM'}) {
             $this->parsedData['supplierProduct']['cbm'] = $this->auroraModelData->{'Supplier Part Carton CBM'};

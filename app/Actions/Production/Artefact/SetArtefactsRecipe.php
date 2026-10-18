@@ -10,7 +10,9 @@
 namespace App\Actions\Production\Artefact;
 
 use App\Actions\OrgAction;
+use App\Actions\Production\RawMaterial\Hydrators\RawMaterialHydrateFromOrgStock;
 use App\Actions\Production\JobOrderItemTask\GenerateJobOrderItemTasks;
+use App\Actions\Production\ManufactureTaskSession\RecalculateUntargetedManufactureTaskSessions;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
 use App\Models\Production\Artefact;
 use App\Models\Production\ArtefactManufactureTask;
@@ -25,6 +27,9 @@ use Lorisleiva\Actions\ActionRequest;
 
 class SetArtefactsRecipe extends OrgAction
 {
+    /** @var array<int, string> */
+    private array $jobsKeepingTheirCount = [];
+
     /**
      * Gives every selected artefact exactly the steps sent: steps they already have are updated, new ones are added,
      * and steps missing from the list are removed together with their raw materials. A step's raw materials go to every
@@ -70,9 +75,19 @@ class SetArtefactsRecipe extends OrgAction
             ],
         ])->all();
 
-        $removedTaskIds = $artefact->manufactureTasks()->pluck('manufacture_tasks.id')->diff(array_keys($recipe));
+        $previousSteps     = $artefact->manufactureTasks()->get();
+        $previousPositions = $previousSteps->mapWithKeys(fn (ManufactureTask $manufactureTask) => [$manufactureTask->id => $manufactureTask->pivot->position]);
+        $previousUnits     = $previousSteps->mapWithKeys(fn (ManufactureTask $manufactureTask) => [$manufactureTask->id => $manufactureTask->pivot->units_per_artefact])->all();
+        $removedTaskIds    = $previousPositions->keys()->diff(array_keys($recipe));
+        $lastPosition      = $steps->max('position');
+        $replacedSteps     = $steps
+            ->filter(fn (array $step) => !$previousPositions->has($step['manufacture_task_id']) && $step['position'] < $lastPosition)
+            ->mapWithKeys(fn (array $step) => [$step['manufacture_task_id'] => $removedTaskIds->first(fn (int $id) => $previousPositions[$id] == $step['position'])])
+            ->filter()
+            ->all();
 
         $artefact->manufactureTasks()->syncWithoutDetaching($recipe);
+        RecalculateUntargetedManufactureTaskSessions::run($artefact);
 
         foreach ($steps as $step) {
             $recipeStep = ArtefactManufactureTask::where('artefact_id', $artefact->id)
@@ -85,9 +100,13 @@ class SetArtefactsRecipe extends OrgAction
             $rawMaterials->each(fn (array $rawMaterial) => AttachRawMaterialToRecipeStep::make()->handle($recipeStep, $rawMaterial));
         }
 
+        RawMaterialHydrateFromOrgStock::dispatchIntermediatesOf($artefact->id);
+
         JobOrderItem::where('artefact_id', $artefact->id)
             ->whereHas('jobOrder', fn ($query) => $query->whereNotIn('state', [JobOrderStateEnum::RECEIVED, JobOrderStateEnum::NOT_RECEIVED]))
-            ->each(fn (JobOrderItem $jobOrderItem) => GenerateJobOrderItemTasks::run($jobOrderItem));
+            ->each(fn (JobOrderItem $jobOrderItem) => GenerateJobOrderItemTasks::run($jobOrderItem, $replacedSteps, $previousUnits));
+
+        $this->jobsKeepingTheirCount = [...$this->jobsKeepingTheirCount, ...GenerateJobOrderItemTasks::make()->jobsKeepingTheirCount($artefact, $previousUnits)];
 
         ManufactureTask::whereIn('id', $removedTaskIds)
             ->each(fn (ManufactureTask $manufactureTask) => DetachManufactureTaskFromArtefact::make()->handle($artefact, $manufactureTask));
@@ -169,6 +188,16 @@ class SetArtefactsRecipe extends OrgAction
 
     public function htmlResponse(): RedirectResponse
     {
-        return back();
+        if (!$this->jobsKeepingTheirCount) {
+            return back();
+        }
+
+        return back()->with('notification', [
+            'status'      => 'warning',
+            'title'       => __('Jobs already worked on keep their old count'),
+            'description' => __('Work is already recorded on these with the previous units, check them on the job order: :jobs', [
+                'jobs' => implode(', ', $this->jobsKeepingTheirCount),
+            ]),
+        ]);
     }
 }

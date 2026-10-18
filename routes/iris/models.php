@@ -8,6 +8,10 @@
 */
 
 
+use App\Actions\Iris\Appointment\CancelIrisAppointment;
+use App\Actions\Iris\Appointment\RescheduleIrisAppointment;
+use App\Actions\Iris\Appointment\StoreIrisAppointment;
+use App\Actions\Iris\Reviews\StoreIrisOrderReview;
 use App\Actions\Iris\Basket\StoreEcomBasketTransaction;
 use App\Actions\Iris\Basket\UpdateEcomBasketTransaction;
 use App\Actions\Iris\CRM\DeleteIrisBackInStockReminder;
@@ -41,6 +45,13 @@ use App\Actions\Retina\UnsubscribeAurora;
 use Illuminate\Support\Facades\Route;
 
 Route::post('unsubscribe-aurora', UnsubscribeAurora::class)->name('unsubscribe_aurora');
+Route::post('appointment', StoreIrisAppointment::class)->name('appointment.store')->middleware('throttle:iris-appointment-booking');
+Route::name('appointment.')->prefix('appointment/{appointment:id}/{token}')->whereNumber('appointment')->middleware('throttle:iris-appointment-booking')->group(function () {
+    Route::post('cancel', CancelIrisAppointment::class)->name('cancel');
+    Route::post('reschedule', RescheduleIrisAppointment::class)->name('reschedule');
+});
+
+Route::post('review/{order:id}/{token}', StoreIrisOrderReview::class)->name('order_review.store')->whereNumber('order')->middleware('throttle:20,1');
 
 Route::post('portfolio-all-channels', StoreIrisPortfolioToAllChannels::class)->name('all_channels.portfolio.store');
 Route::post('portfolio-multi-channels', StoreIrisPortfolioToMultiChannels::class)->name('multi_channels.portfolio.store');

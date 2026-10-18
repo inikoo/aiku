@@ -1,7 +1,7 @@
 ---
 title: Covering for a colleague on leave
 summary: When someone is off, HR picks a colleague to cover for them. For the days of the leave the cover gets the absent person's permissions, joins their open tasks and tickets, and sees everything they left open in one place. The permissions go back by themselves when the leave ends.
-date: 2026-10-09
+date: 2026-10-12
 tags: hr, tasks
 category: hr
 help_routes: grp.org.hr.covers., grp.org.tasks.covering, grp.org.shops.show.tasks.covering, grp.tasks.covering
@@ -53,7 +53,7 @@ While the leave runs, the cover is added as a collaborator on the absent person'
 
 The <b>Covering for</b> panel in the right sidebar shows the same people, with how many items are left to handle and whether the cover is <b>now</b> or <b>upcoming</b>. A key icon means you have their permissions.
 
-In <b>HR → Employees</b>, the <b>Covered by</b> column shows who covers each person who is off today.
+On <b>Leave Requests</b>, and on the <b>Leave</b> tab of an employee's page, each leave shows who it is <b>Covered by</b>. See <a href="/docs/handling-leave-requests">Handling leave requests</a>.
 
 ## The Absence cover page
 

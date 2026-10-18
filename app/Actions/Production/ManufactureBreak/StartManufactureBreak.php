@@ -12,6 +12,7 @@ use App\Actions\HumanResources\Clocking\StoreClocking;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\User\GetUserCurrentEmployee;
 use App\Enums\HumanResources\TimeTracker\TimeTrackerStatusEnum;
+use App\Enums\Production\Artisan\ArtisanPayTypeEnum;
 use App\Models\HumanResources\Clocking;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\Workplace;
@@ -41,6 +42,12 @@ class StartManufactureBreak extends OrgAction
             }
 
             $employee  = GetUserCurrentEmployee::run($user, $production->organisation_id);
+            if ($employee?->artisan_pay_type === ArtisanPayTypeEnum::HOURLY) {
+                throw ValidationException::withMessages([
+                    'break' => __('Hourly artisans take breaks by clocking out with their QR code'),
+                ]);
+            }
+
             $startedAt = now();
 
             return ManufactureBreak::create([

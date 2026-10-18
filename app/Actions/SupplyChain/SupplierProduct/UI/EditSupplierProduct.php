@@ -8,12 +8,15 @@
 
 namespace App\Actions\SupplyChain\SupplierProduct\UI;
 
+use App\Actions\SupplyChain\Supplier\WithSupplierPacking;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithSupplyChainEditAuthorisation;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
+use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
 use App\Enums\SupplyChain\SupplierProduct\SupplierUnitEnum;
+use App\Enums\SysAdmin\Authorisation\GroupPermissionsEnum;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -22,6 +25,7 @@ use Lorisleiva\Actions\ActionRequest;
 class EditSupplierProduct extends OrgAction
 {
     use WithSupplyChainEditAuthorisation;
+    use WithSupplierPacking;
 
     public function handle(SupplierProduct $supplierProduct): SupplierProduct
     {
@@ -145,7 +149,7 @@ class EditSupplierProduct extends OrgAction
                                 'minimum_carton_order' => [
                                     'type'    => 'input',
                                     'label'   => __('Minimum order (cartons)'),
-                                    'value'   => Arr::get($supplierProduct->data, 'minimum_carton_order'),
+                                    'value'   => $supplierProduct->minimum_carton_order,
                                     'options' => ['inputType' => 'number']
                                 ],
                                 ...($supplierProduct->measured_lead_time_days !== null ? [] : [
@@ -162,11 +166,23 @@ class EditSupplierProduct extends OrgAction
                                     'value'   => Arr::get($supplierProduct->data, 'unit_expense'),
                                     'options' => ['inputType' => 'number']
                                 ],
+                                ...$this->packingEditFields($supplierProduct, $supplierProduct->supplier),
                                 'is_available' => [
                                     'type'  => 'toggle',
                                     'label' => __('Available'),
                                     'value' => $supplierProduct->is_available,
                                 ],
+                                ...($request->user()->authTo(GroupPermissionsEnum::SUPPLY_CHAIN->value) ? [
+                                    'state' => [
+                                        'type'        => 'select',
+                                        'label'       => __('State'),
+                                        'information' => __('Changes the state of this product in every organisation that buys it.'),
+                                        'options'     => collect(SupplierProductStateEnum::labels())->map(fn (string $label, string $value) => ['value' => $value, 'label' => $label])->values()->all(),
+                                        'value'       => $supplierProduct->state->value,
+                                        'required'    => true,
+                                        'mode'        => 'single',
+                                    ],
+                                ] : []),
                             ]
                         ],
                     ],

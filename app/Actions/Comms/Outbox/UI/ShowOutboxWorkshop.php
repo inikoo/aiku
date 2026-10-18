@@ -8,9 +8,13 @@
 
 namespace App\Actions\Comms\Outbox\UI;
 
+use App\Actions\Comms\Email\GetEmailWebsiteTheme;
+use App\Actions\Helpers\Gallery\Json\IndexShopGalleryImages;
+use App\Actions\Comms\Email\GetEmailSocialIcons;
 use App\Actions\Comms\EmailTemplate\UI\IndexEmailTemplates;
 use App\Actions\Comms\EmailTemplate\UI\IndexOtherStoreEmailTemplates;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithCommsAuthorisation;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Enums\Comms\Email\EmailBuilderEnum;
 use App\Enums\UI\Mail\EmailTemplateTabsEnum;
@@ -28,6 +32,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowOutboxWorkshop extends OrgAction
 {
+    use WithCommsAuthorisation;
     use WithActionButtons;
 
 
@@ -58,6 +63,7 @@ class ShowOutboxWorkshop extends OrgAction
      */
     public function asController(Organisation $organisation, Shop $shop, Outbox $outbox, ActionRequest $request): Email
     {
+        abort_unless($outbox->shop_id === $shop->id, 404);
         $this->parent = $shop;
         $this->outbox = $outbox;
         $this->initialisationFromShop($shop, $request)->withTab($this->templateTabs());
@@ -71,6 +77,7 @@ class ShowOutboxWorkshop extends OrgAction
      */
     public function inWebsite(Organisation $organisation, Shop $shop, Website $website, Outbox $outbox, ActionRequest $request): Email
     {
+        abort_unless($outbox->shop_id === $shop->id, 404);
         $this->parent = $shop;
         $this->outbox = $outbox;
         $this->initialisationFromShop($shop, $request)->withTab($this->templateTabs());
@@ -85,6 +92,7 @@ class ShowOutboxWorkshop extends OrgAction
      */
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, Outbox $outbox, ActionRequest $request): Email
     {
+        abort_unless($outbox->shop_id === $fulfilment->shop_id, 404);
         $this->parent = $fulfilment;
         $this->outbox = $outbox;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab($this->templateTabs());
@@ -135,9 +143,16 @@ class ShowOutboxWorkshop extends OrgAction
                 'snapshot' => $email->unpublishedSnapshot,
                 'builder' => $email->builder,
                 'imagesUploadRoute' => [
-                    'name' => 'grp.models.email-templates.images.store',
-                    'parameters' => $email->id
+                    'name' => 'grp.models.email.images.store',
+                    'parameters' => ['email' => $email->id]
                 ],
+                'videoThumbnailRoute' => [
+                    'name'       => 'grp.models.email.video-thumbnail.store',
+                    'parameters' => ['email' => $email->id]
+                ],
+                'emailEditor'         => $email->shop?->emailEditor()->value,
+                'websiteTheme'        => GetEmailWebsiteTheme::run($email->shop),
+                'imageCategories'     => IndexShopGalleryImages::categories($email->shop),
                 'updateRoute' => [
                     'name' => 'grp.models.shop.outboxes.workshop.update',
                     'parameters' => [
@@ -181,6 +196,7 @@ class ShowOutboxWorkshop extends OrgAction
                 ],
                 'mergeTags' => GetOutboxMergeTagByOutbox::run($this->outbox),
                 'status' => $email->outbox->state,
+                'socialIcons' => GetEmailSocialIcons::run($this->organisation->group),
                 'organisationSlug' => $this->organisation->slug,
                 'shopSlug' => $email->shop?->slug,
                 'shopId' => $email->shop_id,

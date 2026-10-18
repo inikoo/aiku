@@ -7,7 +7,7 @@ import Tag from "@/Components/Tag.vue"
 import { routeType } from "@/types/route"
 import { Table as TableTS } from "@/types/Table"
 import { faPencil, faTimes, faTrashAlt, faMoneyCheckEditAlt, faPlus, faMinus } from "@far"
-import { faBarcode, faGift, faRepeat, faTrash, faUndo } from "@fal"
+import { faBarcode, faGift, faRepeat, faStore, faTrash, faUndo } from "@fal"
 import { Link, router } from "@inertiajs/vue3"
 import { notify } from "@kyvg/vue3-notification"
 import { debounce, get, set, toInteger } from "lodash-es"
@@ -33,7 +33,7 @@ import error from "@iris/Pages/Errors/Error.vue"
 import { ctrans } from "@/Composables/useTrans"
 import MarginCell from "@/Components/Margin/MarginCell.vue"
 
-library.add(faBadgePercent, faFragile, faMoneyCheckEditAlt, faBarcode, faGift, faRepeat, faExclamationTriangle)
+library.add(faBadgePercent, faFragile, faMoneyCheckEditAlt, faBarcode, faGift, faRepeat, faStore, faExclamationTriangle)
 
 type ProductRow = {
     id: number
@@ -42,6 +42,9 @@ type ProductRow = {
     asset_name: string
     is_discretionary_offer?: boolean
     quantity_ordered: number
+    quantity_bonus?: number
+    is_gift?: boolean
+    amount_modified?: number
     available_quantity?: number
     quantity_ordered_fractional: [number, [number, number]]
     product_slug?: string
@@ -60,6 +63,8 @@ const props = defineProps<{
     fetchRoute?: routeType
     routesProductsListModification?: routeType
     is_shop_external: boolean
+    /** Name of the sales platform that set the line amounts (e.g. Shopify), shown under each net amount. */
+    marketplace_price_source?: string
     allow_order_modification: boolean
     /** Grp order page only: below lg the table keeps a minimum width and scrolls sideways with arrows instead of squashing. Off by default so RetinaOrder, which shares this table, keeps its layout. */
     scrollOnMobile?: boolean
@@ -303,7 +308,11 @@ defineExpose({
 })
 
 const updateQuantityOrdered = (item: ProductRow, is_cut_view: boolean) => {
-    let valueToCompare = is_cut_view ? (
+    if (item.is_gift) {
+        is_cut_view = false
+    }
+
+    let valueToCompare = item.is_gift ? Number(item.quantity_bonus) : is_cut_view ? (
             (item.quantity_ordered_fractional[0] * item.quantity_ordered_fractional[1][1]) + item.quantity_ordered_fractional[1][0]
         ) : item.quantity_ordered;
 
@@ -317,7 +326,7 @@ const updateQuantityOrdered = (item: ProductRow, is_cut_view: boolean) => {
         }
     }
 
-    if (valueToCompare == item.amount_modified) {
+    if (item.amount_modified === undefined || item.amount_modified === null || valueToCompare == item.amount_modified) {
         editingIds.value.delete(item.id)
         return
     }
@@ -580,10 +589,34 @@ const isOffersData = (offersData: any): boolean => {
             <!-- Column: Quantity Ordered -->
             <template #cell(quantity_ordered)="{ item, proxyItem }">
                 <div class="flex items-center justify-end gap-2">
-                    <div v-if="item.is_gift">
+                    <div v-if="item.is_gift && !editingIds.has(item.id)">
                         {{ locale.number(item.quantity_bonus) }}
                         <span v-tooltip="ctrans('Quantity of free gift')">
                             <FontAwesomeIcon icon="fal fa-gift" class="" fixed-width aria-hidden="true" />
+                        </span>
+                    </div>
+
+                    <div v-else-if="item.is_gift" class="flex items-center gap-x-2">
+                        <InputNumber
+                            :model-value="createNewQty[item.id].amount_modified ?? Number(item.quantity_bonus)"
+                            @update:modelValue="(e: number) => { createNewQty[item.id].amount_modified = e }"
+                            showButtons
+                            buttonLayout="horizontal"
+                            :step="1"
+                            :min="0"
+                            :max="Number(item.quantity_bonus)"
+                            :inputStyle="{ width: quantityInputWidth(createNewQty[item.id].amount_modified ?? item.quantity_bonus, false), textAlign: 'center' }"
+                            fluid
+                        >
+                            <template #incrementbuttonicon>
+                                <FontAwesomeIcon :icon="faPlus" fixed-width />
+                            </template>
+                            <template #decrementbuttonicon>
+                                <FontAwesomeIcon :icon="faMinus" fixed-width />
+                            </template>
+                        </InputNumber>
+                        <span v-tooltip="ctrans('A free gift can be lowered or removed, not raised')">
+                            <FontAwesomeIcon icon="fal fa-gift" fixed-width aria-hidden="true" />
                         </span>
                     </div>
 
@@ -614,16 +647,13 @@ const isOffersData = (offersData: any): boolean => {
                             showButtons 
                             buttonLayout="horizontal"
                             :step="1" 
-                            min='0'
-                            v-bind="bindToTarget" 
+                            :min="0"
                             :suffix="isCutView(proxyItem) && Number(item.quantity_ordered_fractional[1][1]) > 1
                                 ? `/${Number(item.quantity_ordered_fractional[1][1])}`
                                 : undefined
                                 " 
                             :inputStyle="{
-                                    width: bindToTarget?.fluid
-                                        ? undefined
-                                        : quantityInputWidth(item.quantity_ordered, isCutView(proxyItem) && Number(item.quantity_ordered_fractional[1][1]) > 1),
+                                    width: quantityInputWidth(item.quantity_ordered, isCutView(proxyItem) && Number(item.quantity_ordered_fractional[1][1]) > 1),
                                     textAlign: 'center',
                                 }" 
                             fluid
@@ -715,16 +745,13 @@ const isOffersData = (offersData: any): boolean => {
                                 showButtons 
                                 buttonLayout="horizontal"
                                 :step="1" 
-                                min='0'
-                                v-bind="bindToTarget" 
+                                :min="0"
                                 :suffix="proxyItem.is_cut_view && Number(item.quantity_ordered_fractional[1][1]) > 1
                                     ? `/${Number(item.quantity_ordered_fractional[1][1])}`
                                     : undefined
                                     " 
                                 :inputStyle="{
-                                        width: bindToTarget?.fluid
-                                            ? undefined
-                                            : quantityInputWidth(createNewQty[item.id].amount_modified ?? createNewQty[item.id].quantity_ordered, proxyItem.is_cut_view && Number(item.quantity_ordered_fractional[1][1]) > 1),
+                                        width: quantityInputWidth(createNewQty[item.id].amount_modified ?? createNewQty[item.id].quantity_ordered, proxyItem.is_cut_view && Number(item.quantity_ordered_fractional[1][1]) > 1),
                                         textAlign: 'center',
                                     }" 
                                 fluid
@@ -812,7 +839,7 @@ const isOffersData = (offersData: any): boolean => {
                             createNewQty[item.id].quantity_ordered).toFixed(2)) }}
                         </div>
                     </div>
-                    <div v-else>
+                    <div v-else class="text-right">
                         <p class="" :class="item.gross_amount != item.net_amount ? 'text-green-500' : ''">
                             <span v-if="item.gross_amount != item.net_amount"
                                   class="text-gray-500 line-through mr-1 opacity-70">{{
@@ -854,6 +881,12 @@ const isOffersData = (offersData: any): boolean => {
                                     :icon="faUndo" class="ml-1 !px-1 text-red-500 hover:text-red-700" 
                                 />
                             </span>
+                        </p>
+                        <p v-if="marketplace_price_source && item.model_type === 'Product'"
+                            v-tooltip="ctrans('This amount is what :platform charged for the line, after its own discounts and without tax. Aiku did not calculate it.', { platform: marketplace_price_source })"
+                            class="text-xxs text-purple-500 whitespace-nowrap">
+                            <FontAwesomeIcon icon="fal fa-store" class="mr-0.5" fixed-width aria-hidden="true" />
+                            {{ ctrans(':platform price', { platform: marketplace_price_source }) }}
                         </p>
                     </div>
                 </div>

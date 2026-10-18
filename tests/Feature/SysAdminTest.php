@@ -141,7 +141,7 @@ test('create group', function () {
 
     $group = StoreGroup::make()->action($modelData);
     expect($group)->toBeInstanceOf(Group::class)
-        ->and($group->roles()->count())->toBe(17)
+        ->and($group->roles()->count())->toBe(18)
         ->and($group->jobPositionCategories()->count())->toBe($jobPositions->count());
 
     return $group;
@@ -149,14 +149,14 @@ test('create group', function () {
 
 test('group scoped job positions', function (Group $group) {
     $jobPositions = collect(config("blueprint.job_positions.positions"));
-    expect($group->jobPositions()->count())->toBe(16)
+    expect($group->jobPositions()->count())->toBe(17)
         ->and($group->jobPositionCategories()->count())->toBe($jobPositions->count());
 
     $this->artisan('group:seed-job-positions', [
         'group' => $group->slug,
     ])->assertSuccessful();
 
-    expect($group->jobPositions()->count())->toBe(16)
+    expect($group->jobPositions()->count())->toBe(17)
         ->and($group->jobPositionCategories()->count())->toBe($jobPositions->count());
 })->depends('create group');
 
@@ -208,8 +208,8 @@ test('create organisation type shop', function (Group $group) {
 
     expect($organisation)->toBeInstanceOf(Organisation::class)
         ->and($organisation->address)->toBeInstanceOf(Address::class)
-        ->and($organisation->roles()->count())->toBe(10)
-        ->and($group->roles()->count())->toBe(27)
+        ->and($organisation->roles()->count())->toBe(11)
+        ->and($group->roles()->count())->toBe(29)
         ->and($organisation->accountingStats->number_org_payment_service_providers)->toBe(1)
         ->and($organisation->accountingStats->number_org_payment_service_providers_type_account)->toBe(1);
 
@@ -1334,8 +1334,8 @@ test('UI show organisation setting', function () {
             ->has('breadcrumbs', 2)
             ->has('formData.blueprint.0.fields', 5)
             ->has('formData.blueprint.1.fields', 2)
-            ->where('formData.blueprint.10.fields.box_packing_list.type', 'toggle')
-            ->where('formData.blueprint.10.fields.box_packing_list_destinations.type', 'box_packing_list_destinations')
+            ->where('formData.blueprint.11.fields.box_packing_list.type', 'toggle')
+            ->where('formData.blueprint.11.fields.box_packing_list_destinations.type', 'box_packing_list_destinations')
             ->has('pageHead')
             ->has(
                 'formData.args.updateRoute',
@@ -1942,6 +1942,20 @@ test('UI sysadmin user show/edit/create/actions', function (User $user) {
     get(route('grp.sysadmin.users.show', [$user]))->assertOk();
     get(route('grp.sysadmin.users.edit', [$user]))->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page->has('formData.blueprint.permissions.fields.permissions.options.'.$user->getOrganisation()->slug.'.productions'));
+
+    $user->update(['can_use_mcp' => true]);
+    get(route('grp.sysadmin.users.edit', [$user]))->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->missing('formData.blueprint.0.fields.can_use_mcp_sql.boxed')
+            ->where('formData.blueprint.0.fields.can_use_mcp_discontinue.boxed', true)
+            ->where('formData.blueprint.0.fields.can_use_mcp_customer_service.boxed', true)
+            ->where('formData.blueprint.0.fields.can_use_mcp_web.label', 'Can change website content and redirects')
+            ->where('formData.blueprint.0.fields.can_use_mcp_web.help.title', 'Change website content and redirects')
+            ->has('formData.blueprint.0.fields.can_use_mcp_place_orders.help.items', 4)
+            ->has('formData.blueprint.0.fields.can_use_mcp.help.note')
+            ->missing('formData.blueprint.0.fields.can_use_mcp.boxed'));
+    $user->update(['can_use_mcp' => false]);
+
     get(route('grp.sysadmin.users.show.actions.index', [$user]))->assertOk();
     get(route('grp.sysadmin.users.show.visit_logs.index', [$user]))->assertOk();
 })->depends('SetUserAuthorisedModels command');
@@ -2136,6 +2150,21 @@ test('supply chain job positions: the worker views and edits, only the manager d
 
     UpdateUserGroupPseudoJobPositions::make()->action($user, ['permissions' => []]);
     expect($user->refresh()->authTo('supply-chain.view'))->toBeFalse();
+})->depends('SetUserAuthorisedModels command');
+
+test('goods viewer job position sees goods and edits nothing', function (User $user) {
+    app()->instance('group', $user->group);
+    setPermissionsTeamId($user->group->id);
+
+    UpdateUserGroupPseudoJobPositions::make()->action($user, ['permissions' => ['gp-g-v']]);
+    $user->refresh();
+
+    expect($user->authTo('goods.view'))->toBeTrue()
+        ->and($user->authTo('goods.edit'))->toBeFalse()
+        ->and($user->authTo('goods'))->toBeFalse();
+
+    UpdateUserGroupPseudoJobPositions::make()->action($user, ['permissions' => []]);
+    expect($user->refresh()->authTo('goods.view'))->toBeFalse();
 })->depends('SetUserAuthorisedModels command');
 
 test('changing group permissions leaves the cached ui props in sync with the menu', function (User $admin) {
@@ -2615,6 +2644,54 @@ test('supervisors borrow another user\'s permissions and give them back', functi
     post(route('grp.models.user.borrow_permissions', ['user' => $groupAdmin->id]))->assertForbidden();
 })->depends('create guest');
 
+test('borrowing shows what the lender gets through job positions and approver lists, not only permissions', function (Guest $guest) {
+    $group        = $guest->group;
+    $organisation = $guest->getUser()->authorisedOrganisations()->first();
+    app()->instance('group', $group);
+    setPermissionsTeamId($group->id);
+
+    $makeUser = function (string $username) use ($group): User {
+        $guestData = Guest::factory()->definition();
+        data_set($guestData, 'user.username', $username);
+
+        return StoreGuest::make()->action($group, $guestData)->getUser();
+    };
+
+    $borrower = $makeUser('borrower-blind-spots');
+    $lender   = $makeUser('lender-blind-spots');
+
+    $supervisorPosition = JobPosition::where('organisation_id', $organisation->id)->where('code', 'like', '%-m')->whereNotNull('department')->whereNotIn('department', \App\Models\Tasks\StaffTask::NOT_SUPERVISING_DEPARTMENTS)->firstOrFail();
+    \Illuminate\Support\Facades\DB::table('user_has_pseudo_job_positions')->insert(['group_id' => $group->id, 'organisation_id' => $organisation->id, 'user_id' => $lender->id, 'job_position_id' => $supervisorPosition->id, 'scopes' => '{}']);
+    \App\Models\HumanResources\LeaveApprover::query()->create([
+        'organisation_id' => $organisation->id,
+        'user_id'         => $lender->id,
+        'name'            => 'Lender',
+        'sequence_number' => 1,
+        'is_active'       => true,
+    ]);
+    $lender->assignRole(Role::where('name', RolesEnum::HELP_DESK_SUPERVISOR->value)->firstOrFail());
+    $lender->assignRole(Role::where('name', RolesEnum::PROCUREMENT_VIEWER->value.'-'.$organisation->id)->firstOrFail());
+    SetUserAuthorisedModels::run($lender);
+
+    expect(\App\Models\Tasks\StaffTask::isSupervisor($borrower))->toBeFalse()
+        ->and(\App\Models\Tasks\StaffTask::departmentsOf($borrower))->toBe([]);
+
+    $borrower->borrowPermissionsFrom($lender);
+
+    expect(\App\Models\Tasks\StaffTask::isSupervisor($borrower))->toBeTrue()
+        ->and(\App\Models\Tasks\StaffTask::seesEveryTask($borrower))->toBeTrue()
+        ->and(\App\Models\Tasks\StaffTask::departmentsOf($borrower))->toBe([$supervisorPosition->department])
+        ->and($borrower->hasRole(RolesEnum::HELP_DESK_SUPERVISOR->value))->toBeTrue();
+
+    $borrower->borrowPermissionsFrom(null);
+    $borrower->assignRole(RolesEnum::GROUP_ADMIN->value);
+
+    actingAs($borrower);
+    post(route('grp.models.user.borrow_permissions', ['user' => $lender->id]))->assertRedirect();
+    get(route('grp.org.hr.leaves.index', $organisation->slug))->assertOk();
+    get(route('grp.org.hr.employees.index', $organisation->slug))->assertForbidden();
+})->depends('create guest');
+
 test('only users with group access get the devops servers in the footer', function (Guest $guest) {
     $group = $guest->group;
     app()->instance('group', $group);
@@ -2630,4 +2707,54 @@ test('only users with group access get the devops servers in the footer', functi
 
     expect($user->refresh()->hasGroupAccess())->toBeTrue()
         ->and(GetLayout::run($user)['can_view_devops'])->toBeTrue();
+})->depends('create guest');
+
+test('an agent manager is not a task supervisor and sees only the tasks involving them', function (Guest $guest) {
+    $group        = $guest->group;
+    $organisation = $guest->getUser()->authorisedOrganisations()->first();
+    app()->instance('group', $group);
+    setPermissionsTeamId($group->id);
+
+    $guestData = Guest::factory()->definition();
+    data_set($guestData, 'user.username', 'agent-manager-tasks');
+    $agentManager = StoreGuest::make()->action($group, $guestData)->getUser();
+
+    $agentPosition = JobPosition::where('organisation_id', $organisation->id)->where('code', 'like', '%-m')->firstOrFail()->replicate();
+    $agentPosition->forceFill(['code' => 'agt-m-tasks', 'slug' => 'agt-m-tasks', 'name' => 'Agent manager', 'department' => 'agent'])->save();
+    \Illuminate\Support\Facades\DB::table('user_has_pseudo_job_positions')->insert(['group_id' => $group->id, 'organisation_id' => $organisation->id, 'user_id' => $agentManager->id, 'job_position_id' => $agentPosition->id, 'scopes' => '{}']);
+
+    expect(\App\Models\Tasks\StaffTask::isSupervisor($agentManager))->toBeFalse()
+        ->and(\App\Models\Tasks\StaffTask::seesEveryTask($agentManager))->toBeFalse();
+})->depends('create guest');
+
+test('user access tokens are created and deleted only by sysadmin editors', function (Guest $guest) {
+    $group = $guest->group;
+    app()->instance('group', $group);
+    setPermissionsTeamId($group->id);
+
+    $guestData = Guest::factory()->definition();
+    data_set($guestData, 'user.username', 'access-token-holder');
+    $tokenHolder = StoreGuest::make()->action($group, $guestData)->getUser();
+
+    $guestData = Guest::factory()->definition();
+    data_set($guestData, 'user.username', 'access-token-manager');
+    $manager = StoreGuest::make()->action($group, $guestData)->getUser();
+
+    $plainText = StoreUserAccessToken::make()->action($tokenHolder, []);
+    $token     = PersonalAccessToken::findToken(explode('|', $plainText)[1]);
+
+    actingAsUserWithOnlyPermissions($manager, ['sysadmin.view']);
+
+    \Pest\Laravel\postJson(route('grp.models.user.access-token.create', ['user' => $tokenHolder->id]))->assertForbidden();
+    \Pest\Laravel\deleteJson(route('grp.models.access_token.delete', ['token' => $token->id]))->assertForbidden();
+
+    expect($tokenHolder->fresh()->tokens()->count())->toBe(1)
+        ->and(Route::has('grp.models.organisation.store'))->toBeFalse();
+
+    actingAsUserWithOnlyPermissions($manager, ['sysadmin.edit']);
+
+    $response = \Pest\Laravel\postJson(route('grp.models.user.access-token.create', ['user' => $tokenHolder->id]))->assertOk();
+
+    expect($response->json('token'))->toBeString()->toContain('|')
+        ->and($tokenHolder->fresh()->tokens()->count())->toBe(2);
 })->depends('create guest');

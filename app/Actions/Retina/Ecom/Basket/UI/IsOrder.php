@@ -34,6 +34,7 @@ use App\Models\Ordering\Order;
 use App\Helpers\NaturalLanguage;
 use App\Http\Resources\Dispatching\ShipmentsResource;
 use Illuminate\Support\Facades\DB;
+use App\Actions\Dispatching\DeliveryNote\CustomsExport\GetDeliveryNoteCustomsItems;
 
 trait IsOrder
 {
@@ -216,6 +217,7 @@ trait IsOrder
                     'slug'                         => $deliveryNote->slug,
                     'reference'                    => $deliveryNote->reference,
                     'type'                         => $deliveryNote->type,
+                    'is_shipping_by_external'      => (bool) $deliveryNote->is_shipping_by_external,
                     'parcels'                      => $deliveryNote->parcels,
                     'state'                        => $deliveryNote->state,
                     'state_icon'                   => $deliveryNote->state->stateIcon()[$deliveryNote->state->value],
@@ -240,7 +242,9 @@ trait IsOrder
                     ],
                     'shipper_directive'            => $this->getShipperDirective($deliveryNote),
                     'shipments'                    => ShipmentsResource::collection($deliveryNote->shipments)->resolve(),
+                    'customs_export'               => GetDeliveryNoteCustomsItems::make()->exportProp($deliveryNote, request()->user()),
                     'shipments_routes'             => [
+                        'can_work'     => request()->user() instanceof \App\Models\SysAdmin\User && $deliveryNote->canBeShippedBy(request()->user()),
                         'submit_route' => [
                             'name'       => 'grp.models.delivery_note.shipment.store',
                             'parameters' => [

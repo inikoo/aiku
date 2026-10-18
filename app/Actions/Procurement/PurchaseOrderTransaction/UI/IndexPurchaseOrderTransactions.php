@@ -12,6 +12,7 @@ use App\Actions\Procurement\OrgPartner\GetPartnerLeadTime;
 use App\Actions\Procurement\OrgPartner\GetPartnerStockCoverBuckets;
 use App\Actions\Procurement\PurchaseOrder\UI\GetOrgStockBuyingSignals;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrderOrgSupplierProducts;
+use App\Models\Inventory\OrgStockDiscontinueSuggestion;
 use App\Models\Procurement\OrgPartner;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
 use App\Actions\Inventory\OrgStock\GetOrgStocksQuarterlyUsage;
@@ -106,6 +107,7 @@ class IndexPurchaseOrderTransactions extends OrgAction
 
         $query = QueryBuilder::for(PurchaseOrderTransaction::class);
         $query->with([
+            'purchaseOrder.currency',
             'supplierProduct.currency',
             'supplierProduct.supplier',
             'orgSupplierProduct.orgSupplier',
@@ -168,12 +170,14 @@ class IndexPurchaseOrderTransactions extends OrgAction
         $orgStockIds     = $paginator->getCollection()->pluck('org_stock_id')->filter()->unique()->values();
         $quarterlyUsage  = GetOrgStocksQuarterlyUsage::run($orgStockIds);
         $stockDeliveries = GetOrgStocksStockDeliveries::run($orgStockIds);
+        $discontinueSuggestions = OrgStockDiscontinueSuggestion::tallyForOrgStocks($orgStockIds);
         $partnerLeadTimeDays = $parent->parent instanceof OrgPartner ? GetPartnerLeadTime::run($parent->parent)['days'] : null;
         $partnerStocks       = $parent->parent instanceof OrgPartner ? $this->partnerStocks($parent->parent, $orgStockIds) : collect();
         $paginator->getCollection()->each(
             fn (PurchaseOrderTransaction $transaction) => $transaction
                 ->setAttribute('quarterly_usage', $quarterlyUsage->get($transaction->org_stock_id) ?? collect())
                 ->setAttribute('stock_deliveries', $stockDeliveries->get($transaction->org_stock_id))
+                ->setAttribute('discontinue_suggestions', $discontinueSuggestions->get($transaction->org_stock_id) ?? ['times' => 0, 'people' => 0])
                 ->setAttribute('buying_signals', GetOrgStockBuyingSignals::run($transaction->orgStock, $transaction->supplierProduct, $partnerLeadTimeDays))
                 ->setAttribute('partner_stock', $partnerStocks->get($transaction->org_stock_id))
         );

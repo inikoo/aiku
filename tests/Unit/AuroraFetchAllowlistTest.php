@@ -20,7 +20,7 @@ use App\Transfers\AuroraOrganisationService;
 /**
  * Nothing here goes near the database. createOrganisation() builds the one organisation the
  * feature tests share, and creating it from a unit test leaves the suite in a state
- * InventoryTest cannot work from. The guard only reads a slug, so an unsaved model is all
+ * the Inventory feature tests cannot work from. The guard only reads a slug, so an unsaved model is all
  * it needs.
  */
 function auroraStillFeeds(string $fetcherClass, Organisation $organisation): bool

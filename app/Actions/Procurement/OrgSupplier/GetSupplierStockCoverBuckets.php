@@ -8,6 +8,7 @@
 
 namespace App\Actions\Procurement\OrgSupplier;
 
+use App\Actions\Procurement\GetOrganisationStockCoverBuckets;
 use App\Enums\Catalogue\HealthRankEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\Procurement\OrgSupplierProduct\OrgSupplierProductStateEnum;
@@ -40,11 +41,11 @@ class GetSupplierStockCoverBuckets
     }
 
     /**
-     * Per-row lead time: the supplier product's own measured or estimated days, supplier median fallback.
+     * Per-row lead time, the same order the ordering card reads it: the SKO's own, the supplier product's, then the supplier median.
      */
     private function bucketExpression(int $leadDays): string
     {
-        $lead       = "coalesce(sp.measured_lead_time_days, sp.estimated_lead_time_days, $leadDays)";
+        $lead       = "coalesce(os.measured_lead_time_days, os.estimated_lead_time_days, sp.measured_lead_time_days, sp.estimated_lead_time_days, $leadDays)";
         $understock = "coalesce((stock_families.data->'stock_cover'->>'understock_days')::int, 2 * $lead)";
 
         $stocking = "'".OrgStockStateEnum::ACTIVE->value."','".OrgStockStateEnum::DISCONTINUING->value."'";
@@ -52,13 +53,11 @@ class GetSupplierStockCoverBuckets
         return "case
             when os.id is null then 'never'
             when os.state not in ($stocking) then 'dead'
-            when os.quantity_available <= 0 then 'out'
-            when s.days_of_cover <= $lead then 'w1'
-            when s.days_of_cover <= $understock then 'w2'
-            when s.days_of_cover <= 3 * $lead then 'w3'
-            when s.days_of_cover <= 4 * $lead then 'w4'
-            when coalesce(s.predicted_daily_usage, 0) = 0 and s.stock_value > 0 then 'dead'
-            else 'ok' end";
+            ".GetOrganisationStockCoverBuckets::outOfStockCase('os', 's', GetOrganisationStockCoverBuckets::make()->overstockDaysExpression())."
+            else ".GetOrganisationStockCoverBuckets::bucketOnCoverDaysExpression('os', 's', "greatest(4 * $lead, $understock)", "
+                ".GetOrganisationStockCoverBuckets::atRiskCases($lead, $understock, GetOrganisationStockCoverBuckets::make()->overstockDaysExpression(), "4 * $lead")."
+                when coalesce(s.predicted_daily_usage, 0) = 0 and s.stock_value > 0 then 'dead'
+                else 'ok'").' end';
     }
 
     /**
@@ -85,6 +84,15 @@ class GetSupplierStockCoverBuckets
             ->where('p.state', OrgSupplierProductStateEnum::ACTIVE->value)
             ->where('sp.is_available', true)
             ->whereNull('sp.deleted_at');
+    }
+
+    /**
+     * One row per product this supplier can sell us, with the stock group and rank it sits in.
+     */
+    public function bucketsQuery(OrgSupplier $orgSupplier): Builder
+    {
+        return $this->scopedQuery($orgSupplier)
+            ->selectRaw('p.id, os.health_rank, '.$this->bucketExpression(GetSupplierLeadTime::run($orgSupplier)['days']).' as bucket');
     }
 
     private function onShoppingListExpression(): string

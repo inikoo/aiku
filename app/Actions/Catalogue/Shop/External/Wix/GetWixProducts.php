@@ -28,11 +28,11 @@ class GetWixProducts extends OrgAction
 
     public const float MIN_LIVE_RATIO = 0.75;
 
-    public string $commandSignature = 'wix:products {shop}';
+    public string $commandSignature = 'wix:products {shop} {--sku= : Import only the Wix variants with this SKU} {--dry-run : With --sku, show what would be imported without saving}';
 
     public $jobQueue = 'long-running';
 
-    public function handle(Shop $shop, ?Command $command = null): void
+    public function handle(Shop $shop, ?Command $command = null, ?string $sku = null, bool $dryRun = false): void
     {
         if ($shop->type !== ShopTypeEnum::EXTERNAL || $shop->engine !== ShopEngineEnum::WIX) {
             return;
@@ -42,6 +42,12 @@ class GetWixProducts extends OrgAction
 
         if (!$wixUser) {
             $command?->error("Shop $shop->slug is not connected to Wix");
+
+            return;
+        }
+
+        if ($sku) {
+            $this->importWixVariantsBySku($shop, $wixUser, $sku, $dryRun, $command);
 
             return;
         }
@@ -59,13 +65,53 @@ class GetWixProducts extends OrgAction
         }
 
         if ($result['complete'] && $result['variants']) {
-            $liveVariantIds = collect($result['variants'])
+            $liveVariantKeys = collect($result['variants'])
                 ->filter(fn (array $wixVariant) => $wixVariant['sku'])
-                ->mapWithKeys(fn (array $wixVariant) => [$wixVariant['variant_id'] => true])
+                ->mapWithKeys(fn (array $wixVariant) => [$this->getWixVariantKey($wixVariant['product_id'], $wixVariant['variant_id']) => true])
                 ->all();
 
-            $discontinued = $this->discontinueProductsGoneFromWix($shop, $liveVariantIds, $command);
+            $discontinued = $this->discontinueProductsGoneFromWix($shop, $liveVariantKeys, $command);
             $command?->info("Discontinued $discontinued products no longer on Wix");
+        }
+    }
+
+    /**
+     * Imports the variants carrying one SKU and nothing else: no other product is touched and nothing is
+     * discontinued, so a change to the import can be tried on a single product first.
+     */
+    public function importWixVariantsBySku(Shop $shop, WixUser $wixUser, string $sku, bool $dryRun = false, ?Command $command = null): void
+    {
+        $wixVariants = collect($this->getAllWixVariants($wixUser)['variants'])
+            ->filter(fn (array $wixVariant) => $wixVariant['sku'] && strtolower($wixVariant['sku']) === strtolower($sku))
+            ->values();
+
+        if ($wixVariants->isEmpty()) {
+            $command?->error("No Wix variant with SKU $sku");
+
+            return;
+        }
+
+        foreach ($wixVariants as $wixVariant) {
+            $existing = $this->findProduct($shop, $wixVariant);
+
+            $command?->table(['Wix product id', 'Wix variant id', 'SKU', 'Name', 'Price', 'Matches'], [[
+                $wixVariant['product_id'],
+                $wixVariant['variant_id'],
+                $wixVariant['sku'],
+                $wixVariant['name'],
+                $wixVariant['price'],
+                $existing ? "#$existing->id $existing->code ($existing->slug)" : 'nothing, a new product',
+            ]]);
+
+            if ($dryRun) {
+                continue;
+            }
+
+            $product = $this->upsertWixProduct($shop, $wixVariant, $command);
+
+            if ($product) {
+                $command?->info(($existing ? 'Updated' : 'Created')." #$product->id $product->code ($product->slug)");
+            }
         }
     }
 
@@ -80,8 +126,7 @@ class GetWixProducts extends OrgAction
             return null;
         }
 
-        $product = Product::where('shop_id', $shop->id)->where('marketplace_id', $wixVariant['variant_id'])->first()
-            ?? Product::where('shop_id', $shop->id)->whereNull('marketplace_id')->whereRaw('lower(code) = lower(?)', [$sku])->first();
+        $product = $this->findProduct($shop, $wixVariant);
 
         $productData = [
             'code'                  => $sku,
@@ -129,6 +174,44 @@ class GetWixProducts extends OrgAction
     }
 
     /**
+     * A Wix product without options has no variant of its own: every one of them carries the same all-zero
+     * variant id, so a variant is only identified together with its product. A product stored before its Wix
+     * product id was kept is matched by a real variant id alone, and anything left by its SKU.
+     *
+     * @param array{product_id: string, variant_id: string, sku: ?string} $wixVariant
+     */
+    public function findProduct(Shop $shop, array $wixVariant): ?Product
+    {
+        $variantId = $wixVariant['variant_id'];
+
+        $product = Product::where('shop_id', $shop->id)
+            ->where('marketplace_second_id', $wixVariant['product_id'])
+            ->where('marketplace_id', $variantId)
+            ->first();
+
+        if (!$product && $variantId !== self::WIX_V1_DEFAULT_VARIANT_ID) {
+            $product = Product::where('shop_id', $shop->id)
+                ->whereNull('marketplace_second_id')
+                ->where('marketplace_id', $variantId)
+                ->first();
+        }
+
+        return $product ?? Product::where('shop_id', $shop->id)
+            ->whereRaw('lower(code) = lower(?)', [$wixVariant['sku']])
+            ->where(function ($query) {
+                $query->whereNull('marketplace_id')
+                    ->orWhereNull('marketplace_second_id')
+                    ->orWhere('marketplace_id', self::WIX_V1_DEFAULT_VARIANT_ID);
+            })
+            ->first();
+    }
+
+    public function getWixVariantKey(?string $wixProductId, ?string $wixVariantId): string
+    {
+        return $wixProductId.':'.$wixVariantId;
+    }
+
+    /**
      * @return array<string, ProductStateEnum|ProductStatusEnum>
      */
     public function getRepublishedStateData(Product $product): array
@@ -151,16 +234,21 @@ class GetWixProducts extends OrgAction
      * catalogue can say a product is gone. A sudden loss of more than a quarter of the live products is far
      * likelier to be a short read than a real clear-out, so it is reported and nothing is touched.
      *
-     * @param array<string, true> $liveVariantIds
+     * @param array<string, true> $liveVariantKeys keyed by getWixVariantKey()
      */
-    public function discontinueProductsGoneFromWix(Shop $shop, array $liveVariantIds, ?Command $command = null): int
+    public function discontinueProductsGoneFromWix(Shop $shop, array $liveVariantKeys, ?Command $command = null): int
     {
         $candidates = Product::where('shop_id', $shop->id)
             ->whereNotNull('marketplace_id')
-            ->where('state', '!=', ProductStateEnum::DISCONTINUED);
+            ->where('state', '!=', ProductStateEnum::DISCONTINUED)
+            ->get(['id', 'marketplace_id', 'marketplace_second_id']);
 
-        $activeCount    = (clone $candidates)->count();
-        $survivingCount = (clone $candidates)->whereIn('marketplace_id', array_keys($liveVariantIds))->count();
+        $goneIds = $candidates
+            ->reject(fn (Product $product) => isset($liveVariantKeys[$this->getWixVariantKey($product->marketplace_second_id, $product->marketplace_id)]))
+            ->pluck('id');
+
+        $activeCount    = $candidates->count();
+        $survivingCount = $activeCount - $goneIds->count();
         if ($activeCount > 0 && $survivingCount < $activeCount * self::MIN_LIVE_RATIO) {
             Sentry::captureMessage("Wix products discontinue skipped, only $survivingCount live of $activeCount ($shop->slug)");
             $command?->error("Discontinue skipped: only $survivingCount of $activeCount products are still live on Wix");
@@ -170,12 +258,8 @@ class GetWixProducts extends OrgAction
 
         $discontinued = 0;
 
-        $candidates->chunkById(200, function ($products) use ($liveVariantIds, &$discontinued, $command) {
-            foreach ($products as $product) {
-                if (isset($liveVariantIds[$product->marketplace_id])) {
-                    continue;
-                }
-
+        foreach ($goneIds->chunk(200) as $ids) {
+            foreach (Product::whereIn('id', $ids)->get() as $product) {
                 try {
                     UpdateProduct::make()->action($product, ['state' => ProductStateEnum::DISCONTINUED], hydratorsDelay: 120, strict: false);
                     $discontinued++;
@@ -184,7 +268,7 @@ class GetWixProducts extends OrgAction
                     Sentry::captureException($e);
                 }
             }
-        });
+        }
 
         return $discontinued;
     }
@@ -196,7 +280,7 @@ class GetWixProducts extends OrgAction
             ->where('slug', $command->argument('shop'))
             ->firstOrFail();
 
-        $this->handle($shop, $command);
+        $this->handle($shop, $command, $command->option('sku'), (bool) $command->option('dry-run'));
     }
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): void

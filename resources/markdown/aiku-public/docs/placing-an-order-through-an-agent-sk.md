@@ -1,8 +1,8 @@
 ---
 title: Zadanie objednávky cez agenta
 summary: Pre nákupcov - ako sa objednávky, ktoré zadáte dodávateľom agenta, spoja do jednej objednávky agenta, ako pridať produkty, odoslať ju agentovi a kde nájdete objednávku každého dodávateľa.
-date: 2026-10-08
-source_date: 2026-10-08
+date: 2026-10-15
+source_date: 2026-10-15
 tags: procurement, purchase orders, agents
 category: procurement
 ---
@@ -36,3 +36,5 @@ Keď agent odosiela, jedna stock delivery môže niesť objednávky viacerých j
 ## Kto to môže používať
 
 Povolenie na úpravu nákupu pre vašu organizáciu na pridávanie, odosielanie a zasielanie. Povolenie na zobrazenie nákupu na otváranie objednávok agenta a ich tlač. Agenti zaznamenávajú vlastné dátumy podľa popisu v [Zaznamenávanie postupu objednávky ako agent](/docs/recording-order-progress-for-agents-sk).
+
+Keď viaceré organizácie objednávajú od rovnakého dodávateľa, pozrite [Objednávanie od agenta spolu s ďalšími organizáciami](/docs/ordering-from-an-agent-with-other-organisations-sk).

@@ -41,7 +41,7 @@ Alteramos a variante, porque precisamos dela para enviar stock e receber encomen
 - Substituímos a variante única do produto por uma com o nosso SKU, código de barras, peso e custo, e stock no local <b>aiku-</b>.
 - Mantemos o teu preço de venda se a variante já tinha um preço acima de zero. Se não, usamos o teu preço de venda de <b>My Products</b>.
 
-Se vendes os nossos produtos como as variantes de um único produto Shopify, pede-nos no chat do nosso site para ativarmos a ligação a variantes existentes no teu canal. Depois só ligamos a variante que tem o nosso SKU e não alteramos mais nada nela: nem o preço, nem o SKU, nem o código de barras.
+Se vendes os nossos produtos como as variantes de um único produto Shopify, dá a cada variante o SKU do seu produto. Ao associar, só ligamos a variante que tem o nosso SKU e não alteramos mais nada nela: nem o preço, nem o SKU, nem o código de barras. Não há nada para ativar.
 
 ## O que atualizamos depois
 

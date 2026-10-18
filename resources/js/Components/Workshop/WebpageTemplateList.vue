@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { ctrans } from '@/Composables/useTrans'
+import { ctrans, ctransChoice } from '@/Composables/useTrans'
 import { debounce } from 'lodash-es'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import {
@@ -240,7 +240,7 @@ const onShowAllTemplates = () => {
 							{{ template.name }}
 						</span>
 						<span class="block text-[10px] leading-tight truncate text-slate-400">
-							{{ getBlockCount(template) }} {{ ctrans('blocks') }}
+							{{ ctransChoice(':count block|:count blocks', getBlockCount(template)) }}
 							<template v-if="template.username">
 								·
 								<FontAwesomeIcon :icon="faUser" class="text-[9px]" fixed-width />
@@ -259,6 +259,7 @@ const onShowAllTemplates = () => {
 					</span>
 
 					<button
+						v-if="template.can_delete"
 						type="button"
 						v-tooltip="ctrans('Delete this template')"
 						class="h-5 w-5 shrink-0 flex items-center justify-center rounded text-[11px] transition-colors text-slate-400 hover:bg-red-100 hover:text-red-600"

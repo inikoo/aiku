@@ -18,6 +18,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use App\Models\HumanResources\Employee;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
@@ -97,6 +99,7 @@ class ManufactureTask extends Model implements Auditable
         'operative_reward_allowance_type',
         'operative_reward_amount',
         'is_piece_rate',
+        'is_recorded_in_kg',
         'standard_rate',
         'target_override_reason',
     ];
@@ -135,6 +138,17 @@ class ManufactureTask extends Model implements Auditable
     public function artefacts(): BelongsToMany
     {
         return $this->belongsToMany(Artefact::class, 'artefacts_manufacture_tasks');
+    }
+
+    /**
+     * The only artisans who may do this task; when nobody is named, anyone may.
+     */
+    public function artisans(): MorphToMany
+    {
+        return $this->morphToMany(Employee::class, 'artisanable', 'artisan_assignments')
+            ->withPivot('position')
+            ->withTimestamps()
+            ->orderByPivot('position');
     }
 
     public function production(): BelongsTo

@@ -13,6 +13,7 @@ import { PageHeadingTypes } from '@/types/PageHeading'
 import { Tabs as TSTabs } from '@/types/Tabs'
 import TableArtefactRecipe from "@/Components/Tables/Grp/Org/Production/TableArtefactRecipe.vue"
 import TableArtefactCompliance from "@/Components/Tables/Grp/Org/Production/TableArtefactCompliance.vue"
+import TableArtefactBatches from "@/Components/Tables/Grp/Org/Production/TableArtefactBatches.vue"
 import ArtefactShowcase from "@/Components/Showcases/Grp/ArtefactShowcase.vue"
 import ArtefactLabels from "@/Components/Production/Artefact/ArtefactLabels.vue"
 import ArtisanAssignments from "@/Components/Production/ArtisanAssignments.vue"
@@ -23,6 +24,8 @@ const props = defineProps<{
     pageHead: PageHeadingTypes
     tabs: TSTabs
     showcase?: {}
+    current_orders?: {}
+    batches?: {}
     manufacture_tasks?:{}
     labels?: {}
     compliance?: {}
@@ -40,6 +43,8 @@ const component = computed(() => {
 
     const components: Component = {
         showcase: ArtefactShowcase,
+        current_orders: TableArtefactBatches,
+        batches: TableArtefactBatches,
         manufacture_tasks: TableArtefactRecipe,
         labels: ArtefactLabels,
         compliance: TableArtefactCompliance,

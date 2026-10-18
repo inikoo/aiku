@@ -2,6 +2,7 @@
 import { set } from "lodash-es"
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/EditorV2.vue"
 import { getStyles } from "@/Composables/styles"
+import { ctrans } from "@/Composables/useTrans"
 
 defineProps<{
 	modelValue: any
@@ -59,11 +60,10 @@ const editorToggle = [
 							:placeholder="modelValue?.login?.password?.placeholder" />
 
 						<div class="mt-2 flex items-center justify-between">
-							<label v-if="modelValue?.login?.remember?.visible" class="flex select-none items-center gap-x-2 text-sm">
-								<input type="checkbox" disabled />
-								{{ modelValue?.login?.remember?.text }}
+							<label class="flex select-none items-center gap-x-2 text-sm">
+								<input type="checkbox" checked disabled />
+								{{ modelValue?.login?.remember?.text || ctrans("Remember me") }}
 							</label>
-							<span v-else />
 
 							<span class="text-sm underline">
 								{{ modelValue?.login?.forgot_password?.text }}

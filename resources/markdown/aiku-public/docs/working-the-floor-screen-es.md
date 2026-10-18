@@ -1,8 +1,8 @@
 ---
 title: Trabajar la pantalla de planta
 summary: La guía del artesano - la pantalla Mis tareas, la lista de trabajos que se actualiza sola, START y DONE, y qué pulsar cuando hiciste menos de lo pedido.
-date: 2026-10-09
-source_date: 2026-10-09
+date: 2026-10-13
+source_date: 2026-10-13
 tags: production, floor, artisan
 category: production
 series: Ordering from partners
@@ -10,14 +10,14 @@ order: 9
 ---
 
 <aside class="tldr">
-Para las personas que fabrican. <b>Factory → Jobs</b> (Fábrica → Trabajos) es todo tu día en una sola pantalla: los trabajos asignados a ti a la izquierda, el que estás haciendo en el medio. Pulsa <b>START</b> (Empezar), hazlo, escribe cuántos hiciste, pulsa <b>DONE</b> (Terminado). Si hiciste menos de lo pedido, la pantalla te hace una sola pregunta: cerrar el trabajo aquí o pasar el resto a un trabajo nuevo. No hay nada más que rellenar.
+Para las personas que fabrican. <b>Factory → Jobs</b> (Fábrica → Trabajos) es todo tu día en una sola pantalla: los trabajos asignados a ti a la izquierda, el que estás haciendo en el medio. Pulsa <b>START</b> (Empezar), hazlo, escribe cuántos hiciste, pulsa <b>DONE</b> (Terminado). Si hiciste menos de lo pedido, la pantalla te hace una sola pregunta: pausar y seguir más tarde, cerrar el trabajo y pasar el resto a uno nuevo, o terminarlo aquí. No hay nada más que rellenar.
 </aside>
 
 ## La pantalla
 
 La página está organizada como una bandeja de entrada.
 
-**Izquierda, siempre visible:** la lista. Dos contadores arriba - unidades hechas hoy y tareas terminadas hoy. Debajo, <b>Your jobs</b> (Tus trabajos), el trabajo asignado a ti. Si tu puesto te permite coger trabajos del grupo abierto, sigue una sección <b>Open jobs</b> (Trabajos abiertos). Al final, <b>Finished today</b> (Terminado hoy), lo que ya has cerrado.
+**Izquierda, siempre visible:** la lista. Dos contadores arriba - unidades hechas hoy y tareas terminadas hoy. Debajo, <b>Your jobs</b> (Tus trabajos), el trabajo asignado a ti: trabajos enteros con tu nombre, y pasos sueltos que el supervisor te dio en el plan del día (ver [Planificar el día de producción](/docs/planning-the-production-day-es)). Un trabajo puede tener su fabricación con una persona y su embalaje con otra; cada una ve solo su propio paso. Si tu puesto te permite coger trabajos del grupo abierto, sigue una sección <b>Open jobs</b> (Trabajos abiertos). Al final, <b>Finished today</b> (Terminado hoy), lo que ya has cerrado.
 
 **Derecha:** lo que hayas seleccionado. Antes de empezar, son los detalles del trabajo con un botón grande <b>START</b>. Una vez empezado, es la tarjeta de trabajo con el reloj.
 
@@ -46,15 +46,20 @@ Una fila con una ▶ verde y una hora es la que estás trabajando, y cuándo la 
 
 ¿Hiciste todo lo que se pedía? Eso es todo. La tarea se cierra, la orden de trabajo termina y se avisa al almacén de que hay algo que guardar - ver [Guardar la producción terminada](/docs/putting-away-finished-production-es).
 
+## Pasos que se cuentan en paquetes
+
+Algunos pasos, sobre todo el empaquetado, se cuentan en paquetes y no en piezas sueltas: una bandeja de 8 bombas de baño cuenta como 1. La pantalla dice entonces <b>Counted in PACKS of 8</b> (Se cuenta en PAQUETES de 8) en ámbar, y la casilla se llama <b>Packs of 8 made</b> (Paquetes de 8 hechos). Escribe cuántos paquetes completos llenaste: para 56 bombas de baño en 7 bandejas escribe 7, no 56. Debajo de la casilla la pantalla muestra lo que significa tu número, <i>7 packs of 8 = 56 × ABB-06a</i>, y la confirmación lo muestra otra vez. Solo se aceptan paquetes enteros; la única excepción es el número exacto que queda por hacer, que se rellena tocando el número grande. Cuando un encargado tiene que autorizar el exceso, la ventana muestra el exceso en paquetes y en piezas antes de aprobar.
+
 ## Cuando hiciste menos de lo pedido
 
-Escribe el número real y pulsa <b>DONE</b>. La fila de entrada se sustituye por un panel corto: *19 hechos · 6 pendientes* y tres botones.
+Escribe el número real y pulsa <b>DONE</b>. La fila de entrada se sustituye por un panel corto: *19 hechos · 6 pendientes* y cuatro botones.
 
-- <b>Continue later</b> (Continuar más tarde) - el trabajo se cierra en 19, y aparece una nueva orden de trabajo por los 6 restantes en tu lista, asignada a ti. Retómala mañana, o cuando llegue el material.
+- <b>Pause</b> (Pausar) - misma mezcla, sigues más tarde. El trabajo queda abierto con la misma referencia y el mismo código de lote, y la cuenta sigue desde 19. Úsalo cuando el día termina antes que la mezcla.
+- <b>Close at 19 and move remaining 6 to new job …</b> (Cerrar en 19 y pasar los 6 restantes a un trabajo nuevo) - el trabajo se cierra en 19 y los 6 pasan a una nueva orden de trabajo con la letra siguiente (0127 pasa a 0127a) y su propio código de lote. Úsalo cuando el resto será una mezcla nueva. La pantalla te pide confirmar con <b>Yes, close and move</b> (Sí, cerrar y pasar), porque un trabajo cerrado no se puede continuar.
 - <b>Job finished</b> (Trabajo terminado) - el trabajo se cierra en 19 y ahí acaba. El planificador ve una orden de trabajo que pedía 25 y consiguió 19.
 - <b>Back</b> (Atrás) - cambiar el número.
 
-En cualquier caso, el trabajo que tenías abierto se cierra y se paga por lo que hiciste. Nada queda a medias en tu lista.
+Un trabajo pasado a uno nuevo muestra <b>Continued from 0127</b> (Continuación de 0127) en su tarjeta, y el de origen muestra <b>Continued in 0127a</b> (Continuado en 0127a). El trabajo nuevo sigue con las mismas personas y en el plan del mismo día.
 
 ## Cuando hiciste más de lo pedido
 
@@ -66,6 +71,8 @@ Escribe el número real y pulsa **DONE**. La pantalla avisa de las unidades por 
 Solo puede autorizar quien dirige esta planta, y nunca su propio trabajo. Tras cinco tarjetas o PIN erróneos la ventana se bloquea 15 minutos.
 
 Una vez autorizado, el trabajo crece a lo realmente hecho: el almacén guarda todo, lo que ningún pedido pidió va a stock y las materias primas se descuentan por el lote entero. Los pasos siguientes del mismo trabajo crecen también. La página de la orden de trabajo muestra quién hizo el extra, quién lo autorizó, cómo y cuándo.
+
+¿Se escribió un número equivocado, por ejemplo piezas donde se pedían paquetes? Un encargado abre la pestaña <b>Performance</b> (Rendimiento), busca la entrada bajo el trabajador y pulsa <b>Correct quantity</b> (Corregir cantidad). La entrada solo se puede bajar. El trabajo vuelve a lo que realmente se hizo, el exceso autorizado se reduce con él y el pago de esa entrada se calcula de nuevo. Funciona hasta que el almacén empieza a guardar el trabajo.
 
 ## Un lote para varias líneas
 
@@ -81,18 +88,30 @@ A veces un mismo lote sirve a más de un trabajo. Por ejemplo, 100 panes HCS-48 
 
 Hacer más de lo que pidieron todas las líneas requiere la tarjeta o el PIN de un responsable, como arriba; el extra también se reparte entre las líneas. Un responsable puede **Separate** las líneas de nuevo siempre que nadie esté trabajando en ellas. Lo que ya se hizo junto se queda con cada línea.
 
+## La mezcla y otros pasos que se pesan en kg
+
+La mezcla es un paso propio al principio de la receta, y se cuenta en kg, no en piezas. La pantalla muestra **kg** junto a los números y la casilla se llama **Kg made** (Kg hechos): para una mezcla de 50 kg escribe 50. Debajo de la casilla la pantalla muestra lo que da, *50 kg of mix = 500 × ABB-06a*. Una mezcla que sale un poco por encima de lo pedido se acepta tal cual, sin encargado.
+
+Solo los artesanos nombrados en el paso lo ven y pueden empezarlo; no aparece en la lista de nadie más. Se paga por hora a la tarifa base: sin objetivo, sin tramo de pago y sin aviso de bajo objetivo, y el tiempo sigue contando en el coste del producto.
+
+El paso siguiente queda bloqueado con **Waiting for** (Esperando) y el nombre del paso de mezcla hasta que se haya registrado algo de mezcla, y se abre en cuanto se anota la primera. Una mezcla para varias líneas funciona como en la sección anterior: un encargado combina las líneas de mezcla, quien mezcla escribe los kg una vez y cada línea recibe su parte.
+
+**Mezclas en lotes enteros.** Cuando el producto tiene un tamaño de lote de mezcla (25 kg o 50 kg), los kg pedidos se redondean hacia arriba a lotes enteros y se muestran como lotes: 94,1 kg en lotes de 50 kg se muestra *2 × 50 kg batches = 100 kg* (2 lotes de 50 kg = 100 kg). La casilla se llama **Batches of 50 kg made** (Lotes de 50 kg hechos) y se escribe el número de lotes, 2, no los kg. En una mezcla combinada el redondeo se hace sobre el total de todas las líneas. Lo que sobra respecto a lo pedido no cambia el trabajo, las cantidades de formado ni la paga. Los encargados lo ponen en el paso de la receta del producto, en **Mix batch size** (Tamaño de lote de mezcla).
+
+**Configuración (encargados).** En la página de la tarea de fabricación, **Only these artisans can do it** (Solo estos artesanos pueden hacerla) lista quién puede hacerla; ahí se añade o se quita gente. Su formulario de edición tiene **Paid by piece rate** (Pago a destajo; apagado para trabajo por horas) y **Recorded in kg** (Registrado en kg). Los kg de mezcla que lleva una unidad van en el paso de la receta de cada producto.
+
 ## Cosas que conviene saber
 
 - **Un trabajo a la vez.** Mientras tienes un trabajo abierto, los botones START están desactivados. Ciérralo primero.
 - **Tu pago por la tarea** sigue el número en Quantity made, como se explica en [Puestos de fábrica](/docs/factory-positions-es). Las piezas rechazadas no se pagan.
-- **Open jobs** (Trabajos abiertos) son trabajos sin artesano asignado, o con otra persona asignada. Coger uno está bien si tu puesto lo permite; a partir de entonces es tuyo hasta que se cierre.
+- **Open jobs** (Trabajos abiertos) son trabajos y pasos sin nadie asignado, o con otra persona asignada. Coger uno está bien si tu puesto lo permite; a partir de entonces es tuyo hasta que se cierre.
 
 <aside class="wayfinder"><strong>Dónde pulsar en aiku</strong>
 <ul>
 <li><b>Tu pantalla:</b> tu organización → <b>Factory</b> → <b>Jobs</b>.</li>
 <li><b>Empezar:</b> toca la fila → <b>START</b>.</li>
 <li><b>Terminar:</b> escribe <b>Quantity made</b> → <b>DONE</b>.</li>
-<li><b>Menos de lo pedido:</b> <b>DONE</b> → <b>Continue later</b> o <b>Job finished</b>.</li>
+<li><b>Menos de lo pedido:</b> <b>DONE</b> → <b>Pause</b>, <b>Close at … and move remaining …</b> o <b>Job finished</b>.</li>
 <li><b>Un lote para varias líneas:</b> toca una línea → <b>Combine … with other lines into one batch</b> → marca las líneas → <b>Combine</b>. Para deshacer: toca la fila combinada → <b>Separate</b>.</li>
 </ul>
 </aside>

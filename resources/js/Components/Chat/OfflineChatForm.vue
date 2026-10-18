@@ -4,7 +4,7 @@ import axios from "axios"
 import { Textarea, InputText } from "primevue"
 import Button from "../Elements/Buttons/Button.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faMessage, faPaperPlane } from "@fortawesome/free-solid-svg-icons"
+import { faMessage, faPaperPlane, faPaperclip, faXmark } from "@fortawesome/free-solid-svg-icons"
 import { ctrans } from "@/Composables/useTrans"
 
 const props = defineProps({
@@ -38,6 +38,29 @@ const form = reactive({
 })
 
 const error = ref<string | null>(null)
+
+const MAX_ATTACHMENTS = 10
+const MAX_FILE_BYTES = 10 * 1024 * 1024
+const fileInput = ref<HTMLInputElement>()
+const attachments = ref<File[]>([])
+
+const addAttachments = (e: Event) => {
+    error.value = null
+    for (const file of Array.from((e.target as HTMLInputElement).files ?? [])) {
+        if (attachments.value.length >= MAX_ATTACHMENTS) {
+            error.value = ctrans("Maximum :count attachments", { count: MAX_ATTACHMENTS })
+            break
+        }
+        if (file.size > MAX_FILE_BYTES) {
+            error.value = ctrans("Maximum file size 10MB")
+            continue
+        }
+        attachments.value.push(file)
+    }
+    if (fileInput.value) fileInput.value.value = ""
+}
+
+const removeAttachment = (index: number) => attachments.value.splice(index, 1)
 const hasWorkingHours = computed(() => Boolean(props.hours?.start && props.hours?.end))
 const nextOpening = computed(() => props.offlineInfo?.next_opening ?? null)
 const showNextOpening = computed(() =>
@@ -52,22 +75,28 @@ const submitOffline = async () => {
     success.value = false
     error.value = null
     try {
-        const payload: any = {
+        const payload: Record<string, any> = {
             shop_id: props.shopId ?? layout?.iris?.shop?.id,
             session_ulid: props.session?.ulid,
-            web_user_id: layout.user?.id ?? null,
-            sender_id: layout.user?.id ?? null,
+            web_user_id: layout.user?.id,
             sender_type: props.isLoggedIn ? "user" : "guest",
             language_id: 68,
-
             message: form.message,
+            page_url: window.location.href,
         }
 
         if (!props.isLoggedIn) {
             payload.name = form.name
             payload.email = form.email
         }
-        const res = await axios.post(`${baseUrl}/app/api/chats/offline-message`, payload)
+
+        const formData = new FormData()
+        Object.entries(payload).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) formData.append(key, value)
+        })
+        attachments.value.forEach((file) => formData.append("attachments[]", file))
+
+        const res = await axios.post(`${baseUrl}/app/api/chats/offline-message`, formData)
 
         success.value = true
 
@@ -78,6 +107,7 @@ const submitOffline = async () => {
         form.name = ""
         form.email = ""
         form.message = ""
+        attachments.value = []
     } catch (e: any) {
         error.value = e?.response?.data?.message || "Failed to submit"
     } finally {
@@ -125,6 +155,24 @@ const submitOffline = async () => {
 
             <Textarea v-model="form.message" class="text-base" :placeholder="ctrans('Your message')" rows="4"
                 required />
+
+            <div v-if="attachments.length" class="flex flex-col gap-1">
+                <div v-for="(file, index) in attachments" :key="index"
+                    class="flex items-center justify-between gap-2 rounded border px-2 py-1 text-xs text-gray-600">
+                    <span class="truncate">{{ file.name }}</span>
+                    <button type="button" class="text-gray-400 hover:text-red-500 shrink-0"
+                        :aria-label="ctrans('Remove')" @click="removeAttachment(index)">
+                        <FontAwesomeIcon :icon="faXmark" fixed-width />
+                    </button>
+                </div>
+            </div>
+
+            <input ref="fileInput" type="file" multiple class="hidden"
+                accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.pptx,.zip,.mp4,.mov"
+                @change="addAttachments" />
+            <Button type="tertiary" :label="ctrans('Attach photos or files')" :icon="faPaperclip"
+                :disabled="loading || attachments.length >= MAX_ATTACHMENTS" class="justify-center"
+                @click="fileInput?.click()" />
 
             <div v-if="error" class="text-xs text-red-600">
                 {{ error }}

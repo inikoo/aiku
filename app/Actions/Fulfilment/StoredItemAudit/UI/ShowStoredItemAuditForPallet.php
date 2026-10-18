@@ -71,7 +71,12 @@ class ShowStoredItemAuditForPallet extends OrgAction
         $subNavigation = [];
         $editDeltas    = null;
         $deltas        = null;
-        if ($storedItemAudit->state === StoredItemAuditStateEnum::IN_PROCESS) {
+        $canWorkOnAudit = $request->user()->authTo([
+            "fulfilment.$storedItemAudit->warehouse_id.edit",
+            "supervisor-fulfilment.$storedItemAudit->warehouse_id",
+        ]);
+
+        if ($storedItemAudit->state === StoredItemAuditStateEnum::IN_PROCESS && $canWorkOnAudit) {
             $actions    = [
                 [
                     'type'  => 'button',
@@ -222,7 +227,7 @@ class ShowStoredItemAuditForPallet extends OrgAction
             ]
         );
 
-        if ($storedItemAudit->state === StoredItemAuditStateEnum::IN_PROCESS) {
+        if ($storedItemAudit->state === StoredItemAuditStateEnum::IN_PROCESS && $canWorkOnAudit) {
             $render->table(
                 IndexStoredItemDeltasInProcessForPallet::make()->tableStructure(
                     $pallet,

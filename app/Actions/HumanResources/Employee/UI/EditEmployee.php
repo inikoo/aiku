@@ -48,6 +48,8 @@ class EditEmployee extends OrgAction
 
     public function asController(Organisation $organisation, Employee $employee, ActionRequest $request): Employee
     {
+        abort_unless($employee->organisation_id === $organisation->id, 404);
+
         $this->organisation = $organisation;
         $this->initialisation($organisation, $request);
 
@@ -411,7 +413,7 @@ class EditEmployee extends OrgAction
                 ],
                 'notes' => [
                     'type' => 'textarea',
-                    'label' => __('notes'),
+                    'label' => __('Notes'),
                     'value' => $employee->notes
                 ],
             ]
@@ -423,7 +425,7 @@ class EditEmployee extends OrgAction
             'fields' => [
                 'pin' => [
                     'type' => 'pin',
-                    'label' => __('pin'),
+                    'label' => __('PIN'),
                     'route_generate' => [
                         'name' => 'grp.org.hr.employees.generate-pin',
                         'parameters' => [$employee->organisation->slug, $employee->slug]

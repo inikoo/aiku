@@ -33,14 +33,18 @@ import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 import { routeType } from "@/types/route"
 import Image from "@common/Components/Image.vue"
 import Icon from "@/Components/Icon.vue"
-import BoxDisplay from "@/Components/DataDisplay/BoxDisplay.vue"
 import ProductUnitLabel from "@/Components/Utils/Label/ProductUnitLabel.vue"
 import OrgStockLabelModal from "@/Components/Warehouse/Inventory/OrgStockLabelModal.vue"
 import Modal from "@/Components/Utils/Modal.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
+import CopyButton from "@/Components/Utils/CopyButton.vue"
+import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import JsBarcode from "jsbarcode"
 import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
+import InformationIcon from "@/Components/Utils/InformationIcon.vue"
+import ProductImageViewerDialog from "@/Components/Product/ProductImageViewerDialog.vue"
+import AgentSupplierProductPanel from "@/Components/Procurement/AgentSupplierProductPanel.vue"
 
 library.add(
     faBarcode,
@@ -86,6 +90,8 @@ const props = defineProps<{
             name: string | null
             description: string | null
             image: object | null
+            original_url: string | null
+            download_url: string | null
             state: {
                 label: string
                 icon: { icon: string; class?: string; tooltip?: string }
@@ -97,11 +103,12 @@ const props = defineProps<{
         costs: {
             currency_code: string | null
             unit_cost: number
-            extra_costs_percentage: number
-            delivered_unit_cost: number
-            pack_cost: number | null
-            carton_cost: number | null
+            extra_costs_percentage?: number
+            delivered_unit_cost?: number
+            pack_cost?: number | null
+            carton_cost?: number | null
         }
+        agent?: InstanceType<typeof AgentSupplierProductPanel>["$props"]["panel"]
         packaging: {
             units_per_pack: number | null
             units_per_carton: number | null
@@ -170,11 +177,19 @@ const props = defineProps<{
         label_org_stocks?: {
             id: number
             code: string
+            organisation_id: number
             organisation_code: string
             barcodes: Barcode[]
             label_options_route: routeType
             carton_barcode_update_route: routeType | null
         }[]
+        selected_label_org_stock_id?: number | null
+        label_organisation?: {
+            id: number
+            code: string
+            name: string
+            has_org_stock: boolean
+        }
         carton?: {
             supplier_product_id: number
             net_weight: number | null
@@ -187,6 +202,8 @@ const props = defineProps<{
                 id: number
                 is_main: boolean
                 image: object
+                original_url: string
+                download_url: string
                 detach_route: routeType | null
             }[]
         }
@@ -197,14 +214,6 @@ const locale = inject("locale", aikuLocaleStructure)
 
 const money = (value: number | null) =>
     value === null || value === undefined ? "-" : locale.currencyFormat(props.data.costs.currency_code, value)
-
-const costRows = computed(() => [
-    { label: ctrans("Unit cost"), value: money(props.data.costs.unit_cost), strong: true },
-    { label: ctrans("Extra costs"), value: `${locale.number(props.data.costs.extra_costs_percentage)} %` },
-    { label: ctrans("Delivered unit cost"), value: money(props.data.costs.delivered_unit_cost), strong: true },
-    { label: ctrans("Delivered pack cost"), value: money(props.data.costs.pack_cost) },
-    { label: ctrans("Delivered carton cost"), value: money(props.data.costs.carton_cost) },
-])
 
 const packagingRows = computed(() => [
     {
@@ -287,10 +296,54 @@ const formatDimensions = (dimensions: { h?: number; l?: number; w?: number; unit
 }
 
 const labelOrgStocks = computed(() => props.data.label_org_stocks ?? [])
-const selectedLabelOrgStockId = ref<number | null>(labelOrgStocks.value[0]?.id ?? null)
+const selectedLabelOrgStockId = ref<number | null>(props.data.selected_label_org_stock_id ?? labelOrgStocks.value[0]?.id ?? null)
+
+const labelOrgStockOptions = computed(() =>
+    labelOrgStocks.value.map((orgStock) => ({ label: orgStock.organisation_code, value: String(orgStock.id) })))
+
+const selectedLabelOrgStockOption = computed<string | undefined>({
+    get: () => (selectedLabelOrgStockId.value === null ? undefined : String(selectedLabelOrgStockId.value)),
+    set: (value) => {
+        selectedLabelOrgStockId.value = value ? Number(value) : null
+    },
+})
+
+const selectedLabelOrgStock = computed(() =>
+    labelOrgStocks.value.find((orgStock) => orgStock.id === selectedLabelOrgStockId.value) ?? null)
+
+const labelOrganisationNotice = computed(() => {
+    const labelOrganisation = props.data.label_organisation
+
+    if (!labelOrganisation || labelOrganisation.has_org_stock || !selectedLabelOrgStock.value) {
+        return null
+    }
+
+    return ctrans(":organisation has no SKO of this product, so these barcodes and labels are :sko_organisation's. The carton label lets you pick who it is commercialised by.", {
+        organisation: labelOrganisation.code,
+        sko_organisation: selectedLabelOrgStock.value.organisation_code,
+    })
+})
+
+const labelQuery = computed(() => props.data.carton ? { supplier_product: props.data.carton.supplier_product_id } : {})
 
 const shownBarcodes = computed<Barcode[]>(() =>
     labelOrgStocks.value.find((orgStock) => orgStock.id === selectedLabelOrgStockId.value)?.barcodes ?? props.data.barcodes ?? [])
+
+const ean13CheckDigit = (number: string) => {
+    const weightedSum = number
+        .slice(0, 12)
+        .split("")
+        .reduce((sum, digit, index) => sum + Number(digit) * (index % 2 ? 3 : 1), 0)
+
+    return String((10 - (weightedSum % 10)) % 10)
+}
+
+const isValidEan13 = (number: string) => /^\d{13}$/.test(number) && ean13CheckDigit(number) === number[12]
+
+const invalidEan13Warning = (number: string | null) =>
+    number && /^\d{13}$/.test(number) && !isValidEan13(number)
+        ? ctrans("This is not a valid EAN13: its last digit should be :digit. Check it for a typo.", { digit: ean13CheckDigit(number) })
+        : null
 
 const renderBarcodes = () => {
     shownBarcodes.value.forEach((barcode) => {
@@ -299,11 +352,12 @@ const renderBarcodes = () => {
         }
 
         JsBarcode("#supplier-product-barcode-" + barcode.level, barcode.number, {
-            format: /^\d{13}$/.test(barcode.number) ? "EAN13" : "CODE128",
+            format: isValidEan13(barcode.number) ? "EAN13" : "CODE128",
             lineColor: "#000",
             width: 2,
             height: 50,
             displayValue: true,
+            valid: () => {},
         })
     })
 }
@@ -332,13 +386,12 @@ const openLabelModal = async (level: string) => {
     try {
         const { data } = await axios.get(route(orgStock.label_options_route.name, {
             ...orgStock.label_options_route.parameters,
-            ...(props.data.carton ? { supplier_product: props.data.carton.supplier_product_id } : {}),
+            ...labelQuery.value,
+            ...(props.data.label_organisation ? { commercialised_by: props.data.label_organisation.id } : {}),
         }))
 
         labelOptions.value = data.options
-        labelRoute.value = props.data.carton
-            ? { ...data.label_route, parameters: { ...data.label_route.parameters, supplier_product: props.data.carton.supplier_product_id } }
-            : data.label_route
+        labelRoute.value = { ...data.label_route, parameters: { ...data.label_route.parameters, ...labelQuery.value } }
         labelLevel.value = level
         isLabelModalOpen.value = true
     } catch (error) {
@@ -489,6 +542,41 @@ const removeInternalImage = (detachRoute: routeType) => {
     })
 }
 
+const viewerImages = computed(() => {
+    const internalImages = props.data.internal_images?.images ?? []
+
+    if (internalImages.length) {
+        return internalImages.map((internalImage) => ({
+            source: internalImage.image,
+            original_url: internalImage.original_url,
+            download_url: internalImage.download_url,
+            alt: props.data.product.code,
+        }))
+    }
+
+    return props.data.product.image
+        ? [{
+            source: props.data.product.image,
+            original_url: props.data.product.original_url,
+            download_url: props.data.product.download_url,
+            alt: props.data.product.code,
+        }]
+        : []
+})
+
+const isImageViewerVisible = ref(false)
+const imageViewerIndex = ref(0)
+
+const openImageViewer = (index: number) => {
+    imageViewerIndex.value = index
+    isImageViewerVisible.value = true
+}
+
+const openMainImageViewer = () => {
+    const mainIndex = (props.data.internal_images?.images ?? []).findIndex((internalImage) => internalImage.is_main)
+    openImageViewer(Math.max(mainIndex, 0))
+}
+
 const availabilityBadge = (isAvailable: boolean) =>
     isAvailable
         ? { label: ctrans("Available"), class: "bg-green-50 text-green-700 ring-green-600/20" }
@@ -497,9 +585,14 @@ const availabilityBadge = (isAvailable: boolean) =>
 
 <template>
     <div class="grid gap-6 p-6 md:grid-cols-3">
+        <AgentSupplierProductPanel v-if="data.agent" :panel="data.agent" />
+
         <section class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
             <div class="flex gap-4">
-                <Image v-if="data.product.image" :src="data.product.image" class="h-28 w-28 shrink-0" />
+                <button v-if="data.product.image" type="button" class="h-28 w-28 shrink-0 cursor-zoom-in"
+                    v-tooltip="ctrans('View image')" @click="openMainImageViewer">
+                    <Image :src="data.product.image" class="h-full w-full" />
+                </button>
                 <div class="min-w-0">
                     <div class="flex items-center gap-2">
                         <Icon :data="data.product.state.icon" v-tooltip="data.product.state.label" />
@@ -527,9 +620,9 @@ const availabilityBadge = (isAvailable: boolean) =>
             <div v-if="data.internal_images && (data.internal_images.images.length || data.internal_images.upload_route)"
                 class="mt-4 border-t border-gray-100 pt-3">
                 <div class="flex items-center justify-between">
-                    <div class="text-xs font-semibold uppercase tracking-wide text-gray-400"
-                        v-tooltip="ctrans('Only for internal use, these pictures never reach the websites')">
+                    <div class="text-xs font-semibold uppercase tracking-wide text-gray-400">
                         {{ ctrans("Internal pictures") }}
+                        <InformationIcon :information="ctrans('Only for internal use, for example printed on the stock label so the warehouse can recognise the goods. These pictures never reach the websites.')" class="text-gray-700" />
                     </div>
                     <label v-if="data.internal_images.upload_route"
                         class="inline-flex cursor-pointer items-center gap-1.5 text-xs font-medium text-gray-600 hover:text-gray-900"
@@ -540,10 +633,13 @@ const availabilityBadge = (isAvailable: boolean) =>
                     </label>
                 </div>
                 <div v-if="data.internal_images.images.length" class="mt-2 flex flex-wrap gap-2">
-                    <div v-for="internalImage in data.internal_images.images" :key="internalImage.id"
+                    <div v-for="(internalImage, index) in data.internal_images.images" :key="internalImage.id"
                         class="group relative h-16 w-16 overflow-hidden rounded border"
                         :class="internalImage.is_main ? 'border-gray-500' : 'border-gray-200'">
-                        <Image :src="internalImage.image" class="h-full w-full" />
+                        <button type="button" class="h-full w-full cursor-zoom-in" v-tooltip="ctrans('View image')"
+                            @click="openImageViewer(index)">
+                            <Image :src="internalImage.image" class="h-full w-full" />
+                        </button>
                         <button v-if="internalImage.detach_route" type="button"
                             class="absolute right-0.5 top-0.5 hidden rounded bg-white/90 px-1 text-xs text-red-500 group-hover:block"
                             v-tooltip="ctrans('Remove picture')"
@@ -572,25 +668,10 @@ const availabilityBadge = (isAvailable: boolean) =>
             </div>
 
             <Link v-if="data.product.route" :href="route(data.product.route.name, data.product.route.parameters)"
-                class="mt-4 inline-flex items-center gap-1.5 text-xs font-medium text-indigo-500 hover:text-indigo-700">
+                class="mt-4 inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-gray-800">
                 <Icon :data="{ icon: 'fal fa-external-link' }" />
                 {{ ctrans("Supplier product in supply chain") }}
             </Link>
-        </section>
-
-        <section class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-            <h3 class="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                <Icon :data="{ icon: 'fal fa-money-bill' }" />
-                {{ ctrans("Costs") }}
-            </h3>
-            <dl class="divide-y divide-gray-100">
-                <div v-for="row in costRows" :key="row.label" class="flex items-baseline justify-between py-2">
-                    <dt class="text-sm text-gray-500">{{ row.label }}</dt>
-                    <dd class="tabular-nums" :class="row.strong ? 'text-base font-semibold text-gray-800' : 'text-sm text-gray-700'">
-                        {{ row.value }}
-                    </dd>
-                </div>
-            </dl>
         </section>
 
         <section class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
@@ -645,18 +726,16 @@ const availabilityBadge = (isAvailable: boolean) =>
                     <Icon :data="{ icon: 'fal fa-barcode' }" />
                     {{ ctrans("Barcodes") }}
                 </h3>
-                <div v-if="labelOrgStocks.length > 1" class="ml-auto flex flex-wrap items-center gap-1.5 text-xs">
-                    <span class="text-gray-400">{{ ctrans("SKO of") }}</span>
-                    <button v-for="orgStock in labelOrgStocks" :key="orgStock.id" type="button"
-                        v-tooltip="orgStock.code"
-                        class="rounded-full px-2 py-0.5 font-medium ring-1 ring-inset transition"
-                        :class="selectedLabelOrgStockId === orgStock.id
-                            ? 'bg-[--app-accent] text-white ring-[--app-accent]'
-                            : 'bg-white text-gray-600 ring-gray-300 hover:ring-[--app-accent]'"
-                        @click="selectedLabelOrgStockId = orgStock.id">
-                        {{ orgStock.organisation_code }}
-                    </button>
+                <div v-if="labelOrgStocks.length > 1" class="ml-auto flex flex-wrap items-center gap-2 text-sm">
+                    <span class="text-gray-500" v-tooltip="ctrans('The SKO and unit labels print the name and address of the organisation that owns the SKO')">
+                        {{ ctrans("SKO of") }}
+                    </span>
+                    <SegmentedToggle v-model="selectedLabelOrgStockOption" :options="labelOrgStockOptions" :ariaLabel="ctrans('SKO of')" />
                 </div>
+            </div>
+            <div v-if="labelOrganisationNotice" class="mb-3 flex items-start gap-2 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                <Icon :data="{ icon: 'fal fa-exclamation-triangle' }" class="mt-0.5 shrink-0" />
+                <span>{{ labelOrganisationNotice }}</span>
             </div>
             <div class="grid grid-cols-1 gap-3 xl:grid-cols-[auto_auto_auto_1fr] xl:items-center xl:gap-x-4 xl:gap-y-3">
                 <template v-for="barcode in shownBarcodes" :key="selectedLabelOrgStockId + '-' + barcode.level">
@@ -666,23 +745,31 @@ const availabilityBadge = (isAvailable: boolean) =>
                             {{ barcodeLevelLabels[barcode.level] }}
                         </div>
 
-                        <button v-if="isPrintable(barcode)"
-                            type="button"
-                            v-tooltip="ctrans('Print PDF label')"
-                            class="min-w-0 max-w-full justify-self-start transition hover:opacity-60 disabled:cursor-wait"
-                            :disabled="isLoadingLabelOptions"
-                            @click="openLabelModal(barcode.level)">
-                            <svg :id="'supplier-product-barcode-' + barcode.level" class="h-14 max-w-full"></svg>
-                        </button>
-                        <svg v-else-if="barcode.number" :id="'supplier-product-barcode-' + barcode.level" class="h-14 max-w-full justify-self-start"></svg>
-                        <button v-else-if="barcode.level === 'carton' && cartonBarcodeUpdateRoute"
-                            type="button"
-                            class="flex h-14 max-w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 px-2 text-left text-sm text-gray-400 transition hover:border-[--app-accent] hover:text-[--app-accent]"
-                            @click="openCartonBarcodeModal(barcode)">
-                            <Icon :data="{ icon: 'fal fa-plus' }" />
-                            {{ ctrans("Add barcode (type or scan it)") }}
-                        </button>
-                        <div v-else class="flex h-14 items-center text-sm italic text-gray-400">{{ ctrans("No barcode") }}</div>
+                        <div class="flex min-w-0 max-w-full items-center gap-2 justify-self-start">
+                            <button v-if="isPrintable(barcode)"
+                                type="button"
+                                v-tooltip="ctrans('Print PDF label')"
+                                class="min-w-0 max-w-full justify-self-start transition hover:opacity-60 disabled:cursor-wait"
+                                :disabled="isLoadingLabelOptions"
+                                @click="openLabelModal(barcode.level)">
+                                <svg :id="'supplier-product-barcode-' + barcode.level" class="h-14 max-w-full"></svg>
+                            </button>
+                            <svg v-else-if="barcode.number" :id="'supplier-product-barcode-' + barcode.level" class="h-14 max-w-full justify-self-start"></svg>
+                            <button v-else-if="barcode.level === 'carton' && cartonBarcodeUpdateRoute"
+                                type="button"
+                                class="flex h-14 max-w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 px-2 text-left text-sm text-gray-400 transition hover:border-[--app-accent] hover:text-[--app-accent]"
+                                @click="openCartonBarcodeModal(barcode)">
+                                <Icon :data="{ icon: 'fal fa-plus' }" />
+                                {{ ctrans("Add barcode (type or scan it)") }}
+                            </button>
+                            <div v-else class="flex h-14 items-center text-sm italic text-gray-400">{{ ctrans("No barcode") }}</div>
+                            <span v-if="barcode.number" v-tooltip="ctrans('Copy number')" class="shrink-0">
+                                <CopyButton :text="barcode.number" class="h-4 !text-base text-gray-500" />
+                            </span>
+                            <span v-if="invalidEan13Warning(barcode.number)" v-tooltip="invalidEan13Warning(barcode.number)" class="shrink-0">
+                                <Icon :data="{ icon: 'fal fa-exclamation-triangle' }" class="text-amber-500" />
+                            </span>
+                        </div>
 
                         <div v-if="barcode.level === 'carton' && data.carton"
                             class="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-gray-700 xl:col-span-2">
@@ -783,7 +870,7 @@ const availabilityBadge = (isAvailable: boolean) =>
             <div class="flex flex-col gap-4">
                 <div v-for="tradeUnit in data.composition" :key="tradeUnit.slug">
                     <component :is="tradeUnit.route ? Link : 'div'" :href="tradeUnit.route ? route(tradeUnit.route.name, tradeUnit.route.parameters) : undefined"
-                        class="text-sm font-medium text-gray-700 hover:text-indigo-600">
+                        class="text-sm font-medium text-gray-700 hover:text-gray-900 hover:underline">
                         {{ tradeUnit.code }} <span class="text-gray-400 font-normal">{{ tradeUnit.name }}</span>
                     </component>
                     <div v-if="tradeUnit.org_stocks.length" class="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -807,18 +894,11 @@ const availabilityBadge = (isAvailable: boolean) =>
             <div class="flex flex-col divide-y divide-gray-100">
                 <component :is="stock.route ? Link : 'div'" v-for="stock in data.stocks" :key="stock.slug"
                     :href="stock.route ? route(stock.route.name, stock.route.parameters) : undefined"
-                    class="flex items-baseline justify-between gap-3 py-2 hover:text-indigo-600">
+                    class="flex items-baseline justify-between gap-3 py-2 hover:text-gray-900 hover:underline">
                     <span class="truncate text-sm text-gray-700">{{ stock.name }}</span>
                     <span class="shrink-0 text-xs tabular-nums text-gray-400">{{ stock.code }}</span>
                 </component>
             </div>
-        </section>
-
-        <section v-if="data.stats.length" class="md:col-span-3">
-            <h3 class="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                {{ ctrans("Statistics") }}
-            </h3>
-            <BoxDisplay :data="data.stats" />
         </section>
 
         <Modal :isOpen="isCartonBarcodeModalOpen" @onClose="isCartonBarcodeModalOpen = false" width="w-full max-w-md">
@@ -865,5 +945,11 @@ const availabilityBadge = (isAvailable: boolean) =>
             :labelRoute="labelRoute"
             :options="labelOptions"
             @onClose="isLabelModalOpen = false" />
+
+        <ProductImageViewerDialog
+            v-if="viewerImages.length"
+            v-model:visible="isImageViewerVisible"
+            v-model:index="imageViewerIndex"
+            :images="viewerImages" />
     </div>
 </template>

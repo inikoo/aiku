@@ -9,10 +9,12 @@
 namespace App\Actions\SupplyChain\AgentInvoice;
 
 use App\Actions\OrgAction;
+use App\Enums\Procurement\SupplierAgreedTerm\SupplierAgreedTermTypeEnum;
 use App\Models\SupplyChain\AgentInvoice;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -24,6 +26,19 @@ class UpdateAgentInvoiceCharges extends OrgAction
     public const string CHARGE_FREIGHT = 'freight';
 
     public const string CHARGE_OTHER = 'other';
+
+    /**
+     * Freight, other, or one of the charges agreed terms are kept for, so the charge can be checked against its term.
+     *
+     * @return array<int, string>
+     */
+    public static function chargeTypes(): array
+    {
+        return array_merge(
+            [self::CHARGE_FREIGHT, self::CHARGE_OTHER],
+            array_values(array_filter(SupplierAgreedTermTypeEnum::values(), fn (string $type) => SupplierAgreedTermTypeEnum::from($type)->isCharge() && $type !== SupplierAgreedTermTypeEnum::OTHER_CHARGE->value))
+        );
+    }
 
     /**
      * @param  array{charges: array<int, array{description: string, type?: string, amount: float|string}>}  $modelData
@@ -66,7 +81,7 @@ class UpdateAgentInvoiceCharges extends OrgAction
         return [
             'charges'               => ['present', 'array', 'max:50'],
             'charges.*.description' => ['required', 'string', 'max:255'],
-            'charges.*.type'        => ['sometimes', 'string', 'in:'.self::CHARGE_FREIGHT.','.self::CHARGE_OTHER],
+            'charges.*.type'        => ['sometimes', 'string', Rule::in(self::chargeTypes())],
             'charges.*.amount'      => ['required', 'numeric', 'min:0', 'max:999999999999'],
         ];
     }

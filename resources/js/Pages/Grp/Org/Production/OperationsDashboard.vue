@@ -14,6 +14,7 @@ import { faSeedling, faThumbsDown, faUserHardHat, faTasks, faHandshake, faInvent
 import { faCheckCircle, faTimesCircle, faPauseCircle } from "@fas";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { ctrans } from "@/Composables/useTrans";
+import { mixBatchesLabel } from "@/Composables/mixBatches";
 
 import { capitalize } from "@/Composables/capitalize";
 import { useLocaleStore } from "@/Stores/locale";
@@ -32,6 +33,8 @@ interface QueueTask {
     job_order_slug: string
     quantity_made: number
     quantity_required: number
+    unit: string | null
+    mix_batch_kg: number | null
     blocked_by_step: string | null
     start_route: { name: string, parameters: object }
 }
@@ -368,7 +371,8 @@ function elapsedSince(startedAt: string) {
                         · {{ ctrans('Job order') }} <Link :href="jobOrderHref(task.job_order_slug)" class="text-[--app-accent-strong] hover:underline">{{ task.job_order_reference }}</Link>
                     </div>
                     <div class="text-xs text-gray-500 mt-0.5 tabular-nums">
-                        {{ task.quantity_made }} / {{ task.quantity_required }}
+                        {{ task.quantity_made }} / {{ task.quantity_required }}<template v-if="task.unit"> {{ task.unit }}</template>
+                        <template v-if="mixBatchesLabel(task.quantity_required, task.mix_batch_kg)"> · {{ mixBatchesLabel(task.quantity_required, task.mix_batch_kg) }}</template>
                         <span v-if="task.state == 'in_progress'" class="ml-1 text-amber-600 font-medium">{{ ctrans('In progress') }}</span>
                     </div>
                 </div>

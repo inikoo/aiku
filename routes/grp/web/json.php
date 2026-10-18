@@ -6,9 +6,12 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\CRM\Appointment\Json\GetAppointmentActionOptions;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexRecentPurchaseOrderTransactionUploads;
 use App\Actions\Procurement\PartnerShoppingListItem\UI\IndexRecentPartnerShoppingListUploads;
+use App\Actions\Helpers\Gallery\Json\IndexShopGalleryImages;
 use App\Actions\Helpers\Ticket\Json\GetRecentlyUpdatedTickets;
+use App\Actions\Web\Seo\Json\GetSeoContentBrief;
 use App\Actions\Web\Seo\Json\GetSeoKeywordHistory;
 use App\Actions\Masters\MasterAsset\Json\GetMasterProductsByCodes;
 use App\Actions\Masters\MasterProductCategory\Json\GetMasterProductCategoriesByCodes;
@@ -126,6 +129,7 @@ use App\Actions\Fulfilment\PalletDelivery\UI\IndexRecentPalletDeliveryUploads;
 use App\Actions\Fulfilment\PalletReturn\Json\GetPalletsInReturnPalletWholePallets;
 use App\Actions\Fulfilment\StoredItem\Json\GetPalletAuditStoredItems;
 use App\Actions\Goods\Ingredient\Json\ParseIngredientsList;
+use App\Actions\Goods\StockFamily\Json\GetStockFamilyTimeSeriesOrganisations;
 use App\Actions\Goods\TradeUnit\UI\GetTradeUnitsForTradeUnitFamily;
 use App\Actions\Helpers\Address\GetGeocode;
 use App\Actions\Helpers\Brand\Json\GetBrands;
@@ -141,6 +145,7 @@ use App\Actions\Helpers\TimeZone\Json\IndexTimeZones;
 use App\Actions\Inventory\OrgStock\Json\FetchOrgStockLabelOptions;
 use App\Actions\Inventory\OrgStock\Json\FetchOrgStockStocksManagement;
 use App\Actions\Inventory\OrgStock\Json\GetOrgStocks;
+use App\Actions\Procurement\OrgSupplierProducts\Json\GetOrgSupplierProductMinimumOrders;
 use App\Actions\Procurement\OrgSupplierProducts\Json\GetOrgSupplierProducts;
 use App\Actions\Procurement\OrgSupplier\Json\GetOrgSuppliers;
 use App\Actions\Inventory\OrgStock\Json\ScanSkoBarcode;
@@ -177,6 +182,8 @@ use App\Actions\SysAdmin\User\GetSupervisorUsers;
 use App\Actions\Web\Announcement\UI\GetActiveAnnouncement;
 use App\Actions\Web\Announcement\UI\GetAnnouncementTemplates;
 use App\Actions\Web\Announcement\UI\GetIrisAnnouncements;
+use App\Actions\Web\WebsiteDialog\UI\GetWebsiteDialogTemplates;
+use App\Actions\Web\WebsiteDialog\UI\GetWebsiteDialogsForLinkSelect;
 use App\Actions\Web\WebBlockHistory\GetWebBlockHistories;
 use App\Actions\Web\WebBlockType\GetWebBlockTypes;
 use App\Actions\Helpers\Country\UI\GetAddressData;
@@ -193,10 +200,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('web-block-types', GetWebBlockTypes::class)->name('web-block-types.index');
 Route::get('seo-tracked-keyword/{seoTrackedKeyword:id}/history', GetSeoKeywordHistory::class)->name('seo_tracked_keyword.history');
+Route::get('seo-content-brief/{seoContentBrief:id}', GetSeoContentBrief::class)->name('seo_content_brief.show');
 Route::get('countries-address-data', GetAddressData::class)->name('countries_address_data');
 Route::get('announcement-templates', GetAnnouncementTemplates::class)->name('announcement_templates.index');
 Route::get('{website}/active-announcements', GetActiveAnnouncement::class)->name('announcement_active.index');
 Route::get('{website}/iris-announcements', GetIrisAnnouncements::class)->name('announcement_simulation.index');
+Route::get('{website}/website-dialogs-for-link-select', GetWebsiteDialogsForLinkSelect::class)->name('website_dialogs.link_select');
+Route::get('website-dialog-templates', GetWebsiteDialogTemplates::class)->name('website_dialog_templates.index');
 
 Route::get('comms/outboxes/{outbox}/users', GetOutboxUsers::class)->name('outbox.users.index');
 
@@ -223,6 +233,7 @@ Route::get('/mailshot/{mailshot:id}/merge-tags', GetMailshotMergeTags::class)->n
 Route::get('/mailshot/{mailshot:id}/convert-to-page', BeefreeConvertEmailJsonToPageJson::class)->name('mailshot.convert-to-page');
 
 Route::get('email/dispatched-email/{dispatchedEmail:id}/copy', GetEmailCopy::class)->name('email.dispatched-email.copy');
+Route::get('appointment/{appointment:id}/action-options', GetAppointmentActionOptions::class)->name('appointment.action_options')->withoutScopedBindings();
 Route::get('shop/{shop}/payment-accounts', GetShopPaymentAccounts::class)->name('shop.payment-accounts');
 Route::get('shop/{shop}/products-for-website-workshop', GetProductsInWorkshop::class)->name('shop.products_for_website_workshop');
 Route::get('shop/{shop}/products', GetProductsInShop::class)->name('shop.products');
@@ -230,6 +241,8 @@ Route::get('shop/{shop}/products-including-not-for-sale', GetProductsIncludingNo
 
 Route::get('shop/{shop}/products-beefree-search', GetProductsForBeefreeSearch::class)->name('shop.products_beefree_search');
 Route::get('shop/{shop}/dynamic-block-email-templates', GetDynamicBlockEmailTemplates::class)->name('shop.dynamic_block_email_templates');
+Route::get('shop/{shop}/gallery/logos', [IndexShopGalleryImages::class, 'logos'])->name('shop.gallery.logos');
+Route::get('shop/{shop}/gallery/catalogue', [IndexShopGalleryImages::class, 'catalogue'])->name('shop.gallery.catalogue');
 Route::get('shop/{shop:id}/products-for-vol-gr-gift', GetProductsForVolGrGift::class)->name('shop.products_for_vol_gr_gift');
 Route::get('shop/{shop:id}/voucher-customer-list-preview', GetVoucherCustomerListPreview::class)->name('shop.voucher_customer_list_preview');
 
@@ -291,6 +304,7 @@ Route::get('organisation/{organisation}/shippers', GetShippers::class)->name('sh
 Route::get('organisation/{organisation:id}/org-stocks', GetOrgStocks::class)->name('org_stocks.index');
 Route::get('organisation/{organisation}/org-suppliers', GetOrgSuppliers::class)->name('org_suppliers.index');
 Route::get('organisation/{organisation}/org-supplier-products', GetOrgSupplierProducts::class)->name('org_supplier_products.index');
+Route::get('org-supplier-product/{orgSupplierProduct:id}/minimum-orders', GetOrgSupplierProductMinimumOrders::class)->name('org_supplier_product.minimum_orders');
 Route::get('organisation/{organisation:id}/org-stock/{orgStock:id}/batch-codes', GetBatchCodes::class)->name('org_stock.batch_codes.index');
 Route::get('barcodes/next-free', GetNextFreeBarcode::class)->name('barcodes.next_free');
 Route::get('warehouse/{warehouse}/scan-sko-barcode', ScanSkoBarcode::class)->name('warehouse.scan_sko_barcode');
@@ -391,6 +405,7 @@ Route::get('master-product-category/{masterProductCategory:id}/recommended-trade
 Route::get('master-product-category/{masterProductCategory:id}/taken-trade-units', GetTakenTradeUnits::class)->name('master-product-category.taken-trade-units')->withoutScopedBindings();
 Route::get('master-product-category/all-trade-units', GetAllTradeUnitsInGroup::class)->name('master_product_category.all_trade_units');
 Route::get('master-product-category/{masterProductCategory:id}/time-series-organisations', GetMasterProductCategoryTimeSeriesOrganisations::class)->name('master_product_category.time_series_organisations')->withoutScopedBindings();
+Route::get('stock-family/{stockFamily:id}/time-series-organisations', GetStockFamilyTimeSeriesOrganisations::class)->name('stock_family.time_series_organisations')->withoutScopedBindings();
 
 Route::get('brand/{brand:id}/all-trade-units/', [GetAllTradeUnitsInGroup::class, 'inBrand'])->name('brand.all_trade_units');
 

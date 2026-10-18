@@ -13,8 +13,10 @@ use App\Enums\Catalogue\Product\ProductStatusEnum;
 use App\Enums\Catalogue\Product\ProductTradeConfigEnum;
 use App\Enums\Catalogue\Shop\ShopEngineEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\Helpers\TaxCategories\TaxCategoryTypeEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
+use App\Models\Helpers\TaxCategory;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
@@ -33,6 +35,9 @@ class GetShopifyProducts extends OrgAction
     public string $commandSignature = 'external_shop:shopify_products {shop}';
 
     public $jobQueue = 'long-running';
+
+    /** @var array<int, float> */
+    private array $standardTaxRates = [];
 
     public function handle(Shop $shop, ?Command $command = null): void
     {
@@ -65,6 +70,8 @@ class GetShopifyProducts extends OrgAction
         $seenSkus       = [];
 
         foreach ($result['variants'] as $shopifyVariant) {
+            $shopifyVariant['sku'] ??= Product::where('shop_id', $shop->id)->where('marketplace_id', $shopifyVariant['variant_id'])->value('code');
+
             if (!$shopifyVariant['sku']) {
                 $command?->warn('Variant without SKU skipped: '.$shopifyVariant['name']);
 
@@ -114,7 +121,7 @@ class GetShopifyProducts extends OrgAction
             'name'                  => $shopifyVariant['name'],
             'description'           => $shopifyVariant['description'] ?? $shopifyVariant['name'],
             'rrp'                   => $shopifyVariant['price'],
-            'price'                 => $shopifyVariant['price'],
+            'price'                 => $this->getPriceWithoutTax($shop, $shopifyVariant),
             'marketplace_id'        => $shopifyVariant['variant_id'],
             'marketplace_second_id' => $shopifyVariant['product_id'],
             'data'                  => [
@@ -153,6 +160,27 @@ class GetShopifyProducts extends OrgAction
 
             return null;
         }
+    }
+
+    /**
+     * Every amount in Aiku is kept without tax and a line's gross is rebuilt from the product price when it is
+     * picked and invoiced, so a store selling at prices that include tax has its shelf price kept as the RRP and
+     * the price here taken down by the shop country's standard rate.
+     */
+    public function getPriceWithoutTax(Shop $shop, array $shopifyVariant): float
+    {
+        $price = (float) $shopifyVariant['price'];
+
+        if (!($shopifyVariant['price_includes_tax'] ?? false)) {
+            return $price;
+        }
+
+        $this->standardTaxRates[$shop->country_id] ??= (float) TaxCategory::where('country_id', $shop->country_id)
+            ->where('type', TaxCategoryTypeEnum::STANDARD)
+            ->where('status', true)
+            ->value('rate');
+
+        return round($price / (1 + $this->standardTaxRates[$shop->country_id]), 2);
     }
 
     /**

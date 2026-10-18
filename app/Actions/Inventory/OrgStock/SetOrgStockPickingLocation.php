@@ -10,6 +10,7 @@ namespace App\Actions\Inventory\OrgStock;
 
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateReplenishments;
 use App\Models\Inventory\OrgStock;
+use App\Models\Production\Production;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Collection;
@@ -37,7 +38,11 @@ class SetOrgStockPickingLocation implements ShouldBeUnique
             return;
         }
 
-        $locationOrgStocks = $orgStock->locationOrgStocks;
+        $factoryLocationIds = Production::whereNotNull('factory_location_id')->pluck('factory_location_id');
+        $locationOrgStocks  = $orgStock->locationOrgStocks->reject(fn ($locationOrgStock) => $factoryLocationIds->contains($locationOrgStock->location_id));
+        if ($locationOrgStocks->isEmpty()) {
+            $locationOrgStocks = $orgStock->locationOrgStocks;
+        }
 
         $pickLocationId = fn (string $defaultFlag) => (
             $locationOrgStocks->firstWhere($defaultFlag, true)

@@ -22,6 +22,7 @@ RestartSec=10
 Nice=19
 CPUWeight=10
 MemoryMax=64M
+MemorySwapMax=0
 ProtectSystem=strict
 ProtectHome=yes
 PrivateTmp=yes

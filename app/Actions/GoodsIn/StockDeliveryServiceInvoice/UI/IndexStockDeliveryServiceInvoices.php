@@ -80,7 +80,7 @@ class IndexStockDeliveryServiceInvoices extends OrgAction
             'paid_at'          => $serviceInvoice->paid_at?->toDateString(),
             'notes'            => $serviceInvoice->notes,
             'attachments'      => $serviceInvoice->attachments->map(fn (Media $media) => [
-                'name'  => $media->file_name,
+                'name'  => $media->name ?: $media->file_name,
                 'ulid'  => $media->ulid,
             ])->values()->all(),
             'allocations'      => $serviceInvoice->stockDeliveries->map(fn (StockDelivery $stockDelivery) => [
@@ -101,6 +101,7 @@ class IndexStockDeliveryServiceInvoices extends OrgAction
     public static function typeOptions(): array
     {
         return collect(StockDeliveryServiceInvoiceTypeEnum::labels())
+            ->except(StockDeliveryServiceInvoiceTypeEnum::NOT_IN_DELIVERY->value)
             ->map(fn (string $label, string $value) => ['label' => $label, 'value' => $value])
             ->values()
             ->all();

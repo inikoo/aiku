@@ -8,7 +8,9 @@
 
 namespace App\Models\SupplyChain;
 
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderPaymentMethodEnum;
 use App\Models\GoodsIn\StockDelivery;
+use App\Models\Helpers\Media;
 use App\Models\Helpers\Currency;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\InGroup;
@@ -30,6 +32,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $currency_id
  * @property string|null $reference
  * @property string|null $notes
+ * @property PurchaseOrderPaymentMethodEnum|null $method
+ * @property int|null $media_id
+ * @property int|null $created_by
  */
 class AgentPayment extends Model
 {
@@ -41,7 +46,8 @@ class AgentPayment extends Model
     protected function casts(): array
     {
         return [
-            'date' => 'date',
+            'date'   => 'date',
+            'method' => PurchaseOrderPaymentMethodEnum::class,
         ];
     }
 
@@ -63,5 +69,10 @@ class AgentPayment extends Model
     public function currency(): BelongsTo
     {
         return $this->belongsTo(Currency::class);
+    }
+
+    public function bankStatement(): BelongsTo
+    {
+        return $this->belongsTo(Media::class, 'media_id');
     }
 }

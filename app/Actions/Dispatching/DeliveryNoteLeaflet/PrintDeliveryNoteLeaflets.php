@@ -37,6 +37,8 @@ class PrintDeliveryNoteLeaflets extends OrgAction
                     $printed++;
                 }
             }
+        } catch (ValidationException $e) {
+            throw $e;
         } catch (\Throwable $e) {
             Log::error('Error printing delivery note leaflets: '.$e->getMessage());
             throw ValidationException::withMessages([

@@ -21,6 +21,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $org_currency_code
  * @property mixed $parent_slug
  * @property mixed $org_total_cost
+ * @property mixed $supplier_purchase_orders
  * @property mixed $organisation_name
  * @property mixed $organisation_slug
  * @property mixed $quantity_ordered
@@ -31,6 +32,7 @@ class PurchaseOrdersResource extends JsonResource
     public function toArray($request): array
     {
         return [
+            'id'                => $this->id,
             'reference'         => $this->reference,
             'state'             => $this->state,
             'state_label'       => $this->state->labels()[$this->state->value],
@@ -50,6 +52,7 @@ class PurchaseOrdersResource extends JsonResource
             'org_currency_code'     => $this->org_currency_code,
             'org_net_amount'    => $this->org_net_amount,
             'org_total_cost'    => $this->org_total_cost,
+            'supplier_purchase_orders' => $this->supplier_purchase_orders,
             'organisation_name' => $this->organisation_name,
             'organisation_slug' => $this->organisation_slug,
         ];

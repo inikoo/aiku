@@ -53,28 +53,25 @@ const model = defineModel<T>()
 	box-shadow: none;
 }
 .segmented-toggle :deep(.p-togglebutton:not(.p-togglebutton-checked):hover) {
-	background-color: var(--app-accent-soft);
-	color: var(--app-accent-strong);
+	background-color: rgb(229 231 235);
+	color: rgb(17 24 39);
 }
 .segmented-toggle :deep(.p-togglebutton:not(.p-togglebutton-checked):active) {
-	background-color: var(--app-accent-muted);
+	background-color: rgb(209 213 219);
 }
 .segmented-toggle :deep(.p-togglebutton-checked) {
 	font-weight: 600;
 }
 .segmented-toggle :deep(.p-togglebutton-checked .p-togglebutton-content) {
-	background-color: var(--app-accent);
-	color: var(--app-accent-text);
-	box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+	background-color: #fff;
+	color: rgb(17 24 39);
+	box-shadow: 0 1px 2px rgb(0 0 0 / 0.12), 0 0 0 1px rgb(209 213 219);
 }
-.segmented-toggle :deep(.p-togglebutton-checked:hover .p-togglebutton-content) {
-	background-color: var(--app-accent-strong);
-}
-.segmented-toggle :deep(.p-togglebutton-checked:active .p-togglebutton-content) {
-	background-color: var(--app-accent-deep);
+.segmented-toggle :deep(.p-togglebutton-checked .p-togglebutton-content svg) {
+	color: rgb(22 163 74);
 }
 .segmented-toggle :deep(.p-togglebutton:focus-visible) {
-	outline: 2px solid var(--app-accent);
+	outline: 2px solid rgb(156 163 175);
 	outline-offset: 1px;
 }
 .segmented-toggle :deep(.p-togglebutton-content:has([data-tone="gray"])) {

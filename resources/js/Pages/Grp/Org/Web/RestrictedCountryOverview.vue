@@ -7,7 +7,7 @@
 import "@/Composables/initialiseLeaflet"
 import { LMap, LTileLayer, LCircleMarker, LTooltip } from "@vue-leaflet/vue-leaflet"
 import { onMounted, nextTick, ref, watch } from "vue"
-import { ctrans } from "@/Composables/useTrans"
+import { ctrans, ctransChoice } from "@/Composables/useTrans"
 
 interface MapPoint {
     latitude: number
@@ -81,7 +81,7 @@ watch(() => props.data, () => nextTick(() => map.value?.invalidateSize()))
                             <span>{{ point.was_blocked ? ctrans('Blocked') : ctrans('Allowed') }}</span>
                         </div>
                         <div class="text-xs text-gray-500 mt-1">
-                            {{ point.number_requests }} {{ ctrans('requests') }}
+                            {{ ctransChoice(':count request|:count requests', point.number_requests) }}
                         </div>
                     </l-tooltip>
                 </l-circle-marker>

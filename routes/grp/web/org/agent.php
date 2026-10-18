@@ -12,14 +12,30 @@ use App\Actions\Comms\Mailbox\ConnectProcurementMailbox;
 use App\Actions\Comms\Mailbox\DisconnectProcurementMailbox;
 use App\Actions\GoodsIn\StockDelivery\ExportStockDeliveries;
 use App\Actions\GoodsIn\StockDelivery\PdfStockDelivery;
+use App\Actions\GoodsIn\StockDelivery\StoreAgentStockDelivery;
+use App\Actions\GoodsIn\StockDelivery\UI\CreateStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\UI\IndexStockDeliveries;
 use App\Actions\GoodsIn\StockDelivery\UI\ShowAgentContainersBoard;
+use App\Actions\GoodsIn\StockDelivery\UI\EditStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\UI\ShowStockDelivery;
 use App\Actions\Procurement\AgentLabel\DownloadAgentArtefactLabelPdf;
+use App\Actions\SupplyChain\SupplierProduct\UI\IndexRepairSupplierProducts;
 use App\Actions\Procurement\AgentLabel\FetchAgentOrgStockBarcodeLabelOptions;
 use App\Actions\Procurement\AgentLabel\PdfAgentOrgStockBarcodeLabel;
 use App\Actions\Procurement\AgentLabel\UI\IndexAgentBarcodes;
 use App\Actions\Procurement\AgentLabel\UI\IndexAgentLabels;
+use App\Actions\Procurement\AgentGoodsReceipt\CancelAgentGoodsReceipt;
+use App\Actions\Procurement\AgentGoodsReceipt\CheckAgentGoodsReceiptItem;
+use App\Actions\Procurement\AgentGoodsReceipt\DeleteAgentGoodsReceiptAttachment;
+use App\Actions\Procurement\AgentGoodsReceipt\PdfAgentGoodsReceiptNote;
+use App\Actions\Procurement\AgentGoodsReceipt\StoreAgentGoodsReceipt;
+use App\Actions\Procurement\AgentGoodsReceipt\UI\IndexAgentGoodsReceipts;
+use App\Actions\Procurement\AgentGoodsReceipt\UI\ShowAgentGoodsReceipt;
+use App\Actions\Procurement\AgentGoodsReceipt\UploadAgentGoodsReceiptAttachments;
+use App\Actions\Procurement\AgentWarehouseStock\UI\GetAgentProductsInProductionToReceive;
+use App\Actions\Procurement\AgentWarehouseStock\UI\IndexAgentProductsInProduction;
+use App\Actions\Procurement\AgentWarehouseStock\UI\IndexAgentReceivedProducts;
+use App\Actions\Procurement\AgentWarehouseStock\UI\IndexAgentWarehouseStocks;
 use App\Actions\Procurement\OrgSupplier\ExportOrgSuppliers;
 use App\Actions\Procurement\OrgSupplier\UI\EditOrgSupplier;
 use App\Actions\Procurement\OrgSupplier\UI\IndexOrgSuppliers;
@@ -30,6 +46,9 @@ use App\Actions\Procurement\OrgSupplierProducts\UI\ShowOrgSupplierProduct;
 use App\Actions\Procurement\PurchaseOrder\ExportPurchaseOrders;
 use App\Actions\Procurement\PurchaseOrder\ExportPurchaseOrderTransactions;
 use App\Actions\Procurement\PurchaseOrder\PdfPurchaseOrder;
+use App\Actions\Procurement\PurchaseOrder\UI\EditPurchaseOrder;
+use App\Actions\Procurement\PurchaseOrder\UI\GetAgentIncomingPurchaseOrdersCount;
+use App\Actions\Procurement\PurchaseOrder\UI\GetPurchaseOrderChasePanel;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\PurchaseOrder\UI\ShowAgentPurchaseOrdersBoard;
 use App\Actions\Procurement\PurchaseOrder\UI\ShowAgentPurchaseOrdersDashboard;
@@ -60,7 +79,12 @@ use App\Actions\SupplyChain\AspoDeposit\UI\ShowAgentAccountingDashboard;
 use App\Actions\SupplyChain\Supplier\UI\CreateSupplier;
 use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;
 use App\Actions\Procurement\AgentOrder\UI\IndexAgentOrders;
+use App\Actions\Procurement\AgentOrder\UI\IndexAgentWholeOrders;
 use App\Actions\Procurement\AgentOrder\UI\ShowAgentOrder;
+use App\Actions\Procurement\AgentOrder\UI\ShowAgentWholeOrder;
+use App\Actions\Procurement\OrgAgent\UI\IndexAgentSalesProducts;
+use App\Actions\Procurement\OrgAgent\UI\IndexAgentSalesSuppliers;
+use App\Actions\Procurement\OrgAgent\UI\ShowAgentSales;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\Procurement\OrgAgent\UI\ShowAgentOrderPipeline;
 use App\Actions\Procurement\OrgSupplier\UI\IndexOrgAgentSuppliers;
@@ -81,6 +105,7 @@ Route::prefix('suppliers')->as('org_suppliers.')->group(function () {
     Route::get('{orgSupplier}/supplier-products/{orgSupplierProduct}', [ShowOrgSupplierProduct::class, 'inOrgSupplier'])->name('show.supplier_products.show');
     Route::get('{orgSupplier}/purchase-orders', [IndexPurchaseOrders::class, 'inOrgSupplier'])->name('show.purchase_orders.index');
     Route::get('{orgSupplier}/containers', [IndexStockDeliveries::class, 'inOrgSupplier'])->name('show.stock_deliveries.index');
+    Route::get('{orgSupplier}/repair', IndexRepairSupplierProducts::class)->name('show.repair_supplier_products.index');
 });
 
 Route::prefix('supplier-products')->as('org_supplier_products.')->group(function () {
@@ -89,16 +114,28 @@ Route::prefix('supplier-products')->as('org_supplier_products.')->group(function
     Route::get('{orgSupplierProduct}/edit', EditOrgSupplierProduct::class)->name('edit');
 });
 
+Route::get('sales', ShowAgentSales::class)->name('sales.dashboard');
+Route::get('sales/suppliers', IndexAgentSalesSuppliers::class)->name('sales.suppliers.index');
+Route::get('sales/suppliers/{supplier}', [ShowAgentSales::class, 'inSupplier'])->name('sales.suppliers.show');
+Route::get('sales/products', IndexAgentSalesProducts::class)->name('sales.products.index');
+
 Route::prefix('purchase-orders')->as('purchase_orders.')->group(function () {
     Route::get('', ShowAgentPurchaseOrdersDashboard::class)->name('dashboard');
     Route::get('list', IndexPurchaseOrders::class)->name('index');
+    Route::get('agent-orders', IndexAgentWholeOrders::class)->name('agent_orders');
     Route::get('board', ShowAgentPurchaseOrdersBoard::class)->name('board');
     Route::get('reports', ShowAgentPurchaseOrdersReports::class)->name('reports');
     Route::get('export', ExportPurchaseOrders::class)->name('export');
+    Route::get('{purchaseOrder:id}/chase-panel', GetPurchaseOrderChasePanel::class)->name('chase_panel')->withoutScopedBindings();
     Route::get('{purchaseOrder}', ShowPurchaseOrder::class)->name('show');
-    Route::get('{purchaseOrder}/pdf', PdfPurchaseOrder::class)->name('pdf');
+    Route::get('{purchaseOrder}/whole-order', ShowAgentWholeOrder::class)->name('whole_order');
+    Route::get('{purchaseOrder}/edit', EditPurchaseOrder::class)->name('edit');
+    Route::get('{purchaseOrder}/pdf/{filename?}', PdfPurchaseOrder::class)->name('pdf');
     Route::get('{purchaseOrder}/transactions-export', ExportPurchaseOrderTransactions::class)->name('transactions.export');
 });
+
+Route::get('incoming-purchase-orders', [IndexPurchaseOrders::class, 'inAgentIncoming'])->name('incoming_purchase_orders.index');
+Route::get('incoming-purchase-orders/count', GetAgentIncomingPurchaseOrdersCount::class)->name('incoming_purchase_orders.count');
 
 Route::prefix('client-orders')->as('agent_supplier_purchase_orders.')->group(function () {
     Route::get('{agentSupplierPurchaseOrder}', [ShowAgentSupplierPurchaseOrder::class, 'inOrganisation'])->name('show');
@@ -106,12 +143,31 @@ Route::prefix('client-orders')->as('agent_supplier_purchase_orders.')->group(fun
 
 Route::prefix('containers')->as('stock_deliveries.')->group(function () {
     Route::get('', IndexStockDeliveries::class)->name('index');
+    Route::post('', StoreAgentStockDelivery::class)->name('store');
+    Route::get('create', [CreateStockDelivery::class, 'inAgent'])->name('create');
     Route::get('current', [IndexStockDeliveries::class, 'inAgentCurrent'])->name('current');
     Route::get('past', [IndexStockDeliveries::class, 'inAgentPast'])->name('past');
     Route::get('board', ShowAgentContainersBoard::class)->name('board');
     Route::get('export', ExportStockDeliveries::class)->name('export');
     Route::get('{stockDelivery}', ShowStockDelivery::class)->name('show');
-    Route::get('{stockDelivery}/pdf', PdfStockDelivery::class)->name('pdf');
+    Route::get('{stockDelivery}/edit', [EditStockDelivery::class, 'inAgent'])->name('edit');
+    Route::get('{stockDelivery}/pdf/{filename?}', PdfStockDelivery::class)->name('pdf');
+});
+
+Route::get('warehouse', IndexAgentWarehouseStocks::class)->name('warehouse.index');
+Route::get('warehouse/in-production', IndexAgentProductsInProduction::class)->name('warehouse.in_production');
+Route::get('warehouse/in-production/to-receive', GetAgentProductsInProductionToReceive::class)->name('warehouse.in_production.to_receive');
+Route::post('warehouse/in-production/receive', StoreAgentGoodsReceipt::class)->name('warehouse.in_production.receive');
+
+Route::prefix('warehouse/received')->as('warehouse.received.')->group(function () {
+    Route::get('', IndexAgentReceivedProducts::class)->name('index');
+    Route::get('goods-receipts', IndexAgentGoodsReceipts::class)->name('goods_receipts.index');
+    Route::get('goods-receipts/{agentGoodsReceipt}', ShowAgentGoodsReceipt::class)->name('goods_receipts.show');
+    Route::post('goods-receipts/{agentGoodsReceipt}/cancel', CancelAgentGoodsReceipt::class)->name('goods_receipts.cancel');
+    Route::post('goods-receipts/{agentGoodsReceipt}/photos', UploadAgentGoodsReceiptAttachments::class)->name('goods_receipts.photos.store');
+    Route::delete('goods-receipts/{agentGoodsReceipt}/photos/{media:id}', DeleteAgentGoodsReceiptAttachment::class)->name('goods_receipts.photos.destroy')->withoutScopedBindings();
+    Route::get('goods-receipts/{agentGoodsReceipt}/receipt-note', PdfAgentGoodsReceiptNote::class)->name('goods_receipts.receipt_note');
+    Route::post('goods-receipts/{agentGoodsReceipt}/items/{agentGoodsReceiptItem:id}/check', CheckAgentGoodsReceiptItem::class)->name('goods_receipts.items.check')->withoutScopedBindings();
 });
 
 Route::get('barcodes', IndexAgentBarcodes::class)->name('agent_barcodes.index');
@@ -169,7 +225,7 @@ Route::prefix('agents/{orgAgent}')->as('org_agents.show')->group(function () {
     Route::get('purchase-order/{purchaseOrder}', [ShowPurchaseOrder::class, 'inOrgAgent'])->name('.purchase-orders.show');
     Route::get('order-pipeline', ShowAgentOrderPipeline::class)->name('.order_pipeline');
     Route::get('agent-orders', IndexAgentOrders::class)->name('.agent_orders.index');
-    Route::get('agent-orders/{agentOrderReference}/pdf', [PdfPurchaseOrder::class, 'inAgentOrder'])->name('.agent_orders.pdf')->where('agentOrderReference', '.*');
+    Route::get('agent-orders/{agentOrderReference}/pdf/{filename?}', [PdfPurchaseOrder::class, 'inAgentOrder'])->name('.agent_orders.pdf')->where('agentOrderReference', '.*');
     Route::get('agent-orders/{agentOrderReference}', ShowAgentOrder::class)->name('.agent_orders.show')->where('agentOrderReference', '.*');
     Route::get('org-stocks', [IndexOrgStocks::class, 'inOrgAgent'])->name('.org-stocks.index');
     Route::get('containers', [IndexStockDeliveries::class, 'inOrgAgent'])->name('.stock-deliveries.index');

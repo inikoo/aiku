@@ -26,6 +26,7 @@ use App\Actions\Helpers\Media\DetachAttachmentFromModel;
 use App\Actions\Ordering\Order\AddBalanceFromExcessPaymentOrder;
 use App\Actions\Ordering\Order\UpdateOrderProductionReview;
 use App\Actions\Ordering\Order\AddVoucherToOrder;
+use App\Actions\Ordering\Order\ChangeOrderToCashOnDelivery;
 use App\Actions\Ordering\Order\GenerateInvoiceFromOrder;
 use App\Actions\Ordering\Order\ImportTransactionInOrder;
 use App\Actions\Ordering\Order\PayOrder;
@@ -46,7 +47,6 @@ use App\Actions\Ordering\Order\UpdateOrderShippingEngineAsAuto;
 use App\Actions\Ordering\Order\UpdateOrderShippingEngineAsManual;
 use App\Actions\Ordering\Order\UpdateOrderShippingTBCAmount;
 use App\Actions\Ordering\Order\UpdateState\CancelOrder;
-use App\Actions\Ordering\Order\UpdateState\DispatchOrder;
 use App\Actions\Ordering\Order\UpdateState\FinaliseOrder;
 use App\Actions\Ordering\Order\UpdateState\RemoveOrderDiscount;
 use App\Actions\Ordering\Order\UpdateState\RollbackDispatchedOrder;
@@ -89,6 +89,7 @@ Route::name('order.')->prefix('order/{order:id}')->middleware([EnsureNotHandledI
 
     Route::post('pay-with-balance', PayOrderWithCustomerBalance::class)->name('pay_order_with_balance');
     Route::post('write-off-shortfall', WriteOffOrderShortfall::class)->name('write_off_shortfall');
+    Route::patch('change-to-cash-on-delivery', ChangeOrderToCashOnDelivery::class)->name('change_to_cash_on_delivery');
 
     Route::patch('update', UpdateOrder::class)->name('update');
     Route::patch('update-premium-dispatch', UpdateOrderPremiumDispatch::class)->name('update_premium_dispatch');
@@ -138,7 +139,6 @@ Route::name('order.')->prefix('order/{order:id}')->middleware([EnsureNotHandledI
         Route::patch('in-warehouse-unpaid', SendUnpaidOrderToWarehouse::class)->name('in-warehouse-unpaid');
         Route::patch('release-from-gate', ReleaseOrderFromGate::class)->name('release_from_gate');
         Route::patch('finalise', FinaliseOrder::class)->name('finalise');
-        Route::patch('dispatched', DispatchOrder::class)->name('dispatched');
     });
 
     Route::patch('set-shipping-engine-manual', UpdateOrderShippingEngineAsManual::class)->name('set_shipping_engine_manual');

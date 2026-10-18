@@ -10,6 +10,8 @@ namespace App\Actions\Inventory\OrgStock;
 
 use App\Actions\Helpers\Forecast\ForecastWithTimesFm;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
+use App\Enums\Inventory\OrgStockMovement\OrgStockMovementFlowEnum;
+use App\Enums\Inventory\OrgStockMovement\OrgStockMovementTypeEnum;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -206,7 +208,8 @@ class ForecastOrgStockDemand
     }
 
     /**
-     * Units dispatched per week, the last week ending yesterday, from each SKO's first dispatch.
+     * Units used per week, dispatched plus what production and consumption took out (a hub's
+     * components leave that way), the last week ending yesterday, from each SKO's first use.
      *
      * @return array<int, list<float>> org stock id => units per week, oldest first
      */
@@ -221,6 +224,17 @@ class ForecastOrgStockDemand
             ->selectRaw('org_stock_id, floor((?::date - 1 - created_at::date) / 7)::int as weeks_ago, sum(quantity_dispatched)::float as dispatched', [$today->toDateString()])
             ->get();
 
+        $consumed = DB::table('org_stock_movements')
+            ->whereIn('org_stock_id', $orgStockIds)
+            ->where('date', '>=', $today->copy()->subWeeks(self::HISTORY_WEEKS))
+            ->where('date', '<', $today)
+            ->where(fn ($query) => $query->whereIn('type', [OrgStockMovementTypeEnum::CONSUMPTION->value, OrgStockMovementTypeEnum::RETURN_CONSUMPTION->value])
+                ->orWhere(fn ($query) => $query->where('type', OrgStockMovementTypeEnum::PRODUCTION->value)->where('flow', OrgStockMovementFlowEnum::OUT->value)))
+            ->groupBy('org_stock_id', 'weeks_ago')
+            ->selectRaw('org_stock_id, floor((?::date - 1 - date::date) / 7)::int as weeks_ago, -sum(quantity)::float as dispatched', [$today->toDateString()])
+            ->get();
+        $rows = $rows->concat($consumed);
+
         $histories = [];
         foreach ($rows->groupBy('org_stock_id') as $orgStockId => $weeks) {
             $oldest = (int) $weeks->max('weeks_ago');
@@ -229,8 +243,9 @@ class ForecastOrgStockDemand
             }
             $history = array_fill(0, $oldest + 1, 0.0);
             foreach ($weeks as $week) {
-                $history[$oldest - (int) $week->weeks_ago] = (float) $week->dispatched;
+                $history[$oldest - (int) $week->weeks_ago] += (float) $week->dispatched;
             }
+            $history = array_map(fn (float $used) => max(0.0, $used), $history);
             $histories[$orgStockId] = $history;
         }
 

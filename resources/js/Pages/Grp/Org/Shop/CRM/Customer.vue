@@ -40,7 +40,7 @@ import TableCreditTransactions from "@/Components/Tables/Grp/Org/Accounting/Tabl
 import TablePayments from "@/Components/Tables/Grp/Org/Accounting/TablePayments.vue"
 import BoxNote from "@/Components/Pallet/BoxNote.vue"
 import Modal from "@/Components/Utils/Modal.vue"
-import EmailCustomerDialog from "@/Components/Chat/EmailCustomerDialog.vue"
+import EmailCustomerDialog, { type CustomerEmailTemplate } from "@/Components/Chat/EmailCustomerDialog.vue"
 import TableOffers from "@/Components/Shop/Offers/TableOffers.vue"
 import ModalCreateCustomerOffers from "@/Components/Offers/ModalCreateCustomerOffers.vue"
 import ModalCreateCustomerProductFromArtefact from "@/Components/CRM/ModalCreateCustomerProductFromArtefact.vue"
@@ -73,10 +73,20 @@ const props = defineProps<{
     sales_channels: Array<{ id: number, name: string, code: string, type: string, icon: string }>
     can_add_order: boolean
     can_email_customer?: boolean
+    permissions: {
+        edit: boolean
+        edit_customer: boolean
+        edit_address: boolean
+        edit_subscriptions: boolean
+        edit_balance: boolean
+        edit_gift_opt_out: boolean
+    }
     can_make_custom_product?: boolean
     custom_product_artefacts?: Array<{ id: number, code: string, name: string | null }>
     custom_product_artefact_id?: number | null
     emailCustomerRoute?: routeType
+    email_templates?: CustomerEmailTemplate[]
+    email_template_values?: Record<string, string>
     customer_email?: string | null
     products?: {}
     dispatched_emails?: {}
@@ -174,8 +184,6 @@ const layout = inject('layout')
             <ModalCreateCustomerOffers v-if="currentTab === 'offers'" :shop_data="props.shop_data" :customer_id="props.shop_data.customer_id" />
             <Button v-if="currentTab === 'attachments'" @click="() => isModalUploadOpen = true" label="Attach"
                 icon="upload" />
-            <Button v-if="can_email_customer" @click="isEmailModalOpen = true" :label="ctrans('New email')" style="secondary"
-                icon="fal fa-envelope" />
             <ModalCreateCustomerProductFromArtefact v-if="can_make_custom_product" :customer-id="shop_data.customer_id"
                 :currency-code="shop_data.currency_code" :artefacts="custom_product_artefacts"
                 :preselected-artefact-id="custom_product_artefact_id" />
@@ -199,6 +207,7 @@ const layout = inject('layout')
                 <UpcomingTransactionsPanel
                     v-if="props.showcase?.upcoming_transaction_route && shop_data.type !== 'external'"
                     :routes="props.showcase?.upcoming_transaction_route"
+                    :canEdit="permissions.edit"
                     :shopSlug="props.showcase.shop.slug"
                     :temporaryNote="notes?.temporary_note"
                     :hideButton="true"
@@ -226,6 +235,7 @@ const layout = inject('layout')
         :tab="currentTab"
         :gr_data
         :handleTabUpdate
+        :openEmailCustomer="can_email_customer ? () => (isEmailModalOpen = true) : undefined"
         :timeline="props.timeline"
         :detachRoute="attachmentRoutes.detachRoute"
         :temporaryNote="notes?.temporary_note"
@@ -237,7 +247,8 @@ const layout = inject('layout')
     }" progressDescription="Adding Pallet Deliveries" :attachmentRoutes="attachmentRoutes" />
 
     <EmailCustomerDialog v-if="can_email_customer && emailCustomerRoute" v-model:visible="isEmailModalOpen" :send-route="emailCustomerRoute"
-        :email="customer_email" :draft-key="`customer-email:${shop_data.customer_id}`" />
+        :email="customer_email" :draft-key="`customer-email:${shop_data.customer_id}`"
+        :templates="email_templates" :template-values="email_template_values" />
 
     <Modal :isOpen="isOrderModalOpen" @onClose="isOrderModalOpen = false; orderForm.clearErrors()" width="w-full max-w-5xl">
         <div class="p-6 relative">

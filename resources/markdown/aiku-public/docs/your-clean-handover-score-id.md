@@ -1,8 +1,8 @@
 ---
 title: Skor Serah Terima Bersih (CHS) Anda
-summary: Untuk agen — apa arti angka CHS di dasbor Anda, empat pengujian yang harus dilalui setiap pesanan pembelian, bagaimana angka itu menentukan komisi Anda, dan mengapa Anda tidak dapat mengubahnya sendiri.
-date: 2026-09-01
-source_date: 2026-09-01
+summary: Untuk agen — apa arti angka CHS di dasbor Anda, empat pengujian yang harus dilalui setiap pesanan pembelian, bagaimana angka itu menentukan komisi Anda, dan masukan mana yang Anda catat sendiri.
+date: 2026-10-15
+source_date: 2026-10-15
 tags: procurement, agents, supply-chain
 category: procurement
 series: Clean Handover Score
@@ -10,7 +10,7 @@ order: 1
 ---
 
 <aside class="tldr">
-Untuk agen koordinasi. Saat Anda masuk, hal pertama di dasbor Anda adalah tabel per kuartal dengan sebuah persentase. Persentase itu adalah <b>Skor Serah Terima Bersih (Clean Handover Score, CHS)</b> — bagian dari nilai pesanan pembelian yang dijadwalkan Anda serahkan pada kuartal tersebut dan yang sampai ke agen pengiriman dalam keadaan <em>bersih</em>. Angka ini biasanya menentukan tarif komisi Anda. Halaman ini menjelaskannya secara terus terang: apa yang dihitung, apa yang tidak, dan mengapa tidak satu pun darinya dapat Anda ubah sendiri. Sudut pandang perusahaan pembeli ada di <a href="/docs/scoring-agent-clean-handovers">scoring agent clean handovers</a> (bahasa Inggris).
+Untuk agen koordinasi. Saat Anda masuk, hal pertama di dasbor Anda adalah tabel per kuartal dengan sebuah persentase. Persentase itu adalah <b>Skor Serah Terima Bersih (Clean Handover Score, CHS)</b> — bagian dari nilai pesanan pembelian yang dijadwalkan Anda serahkan pada kuartal tersebut dan yang sampai ke agen pengiriman dalam keadaan <em>bersih</em>. Angka ini biasanya menentukan tarif komisi Anda. Halaman ini menjelaskannya secara terus terang: apa yang dihitung, apa yang tidak, dan masukan mana yang Anda catat. Sudut pandang perusahaan pembeli ada di <a href="/docs/scoring-agent-clean-handovers">scoring agent clean handovers</a> (bahasa Inggris).
 </aside>
 
 ## Apa yang diukur oleh skor ini
@@ -61,13 +61,13 @@ Dua hal yang perlu diketahui tentang pengecualian:
 - **Hanya pembeli yang dapat memberikannya**, secara tertulis, disertai alasan. Masalah produksi biasa, kekurangan kapasitas, alasan dari pemasok, dan kegagalan komunikasi tidak dapat dikecualikan — mengelola semua itu justru pekerjaan yang diukur oleh skor ini.
 - **Ajukan lebih awal, dengan bukti.** Pengecualian yang diminta pada hari barang terlambat, dengan foto dan korespondensi terlampir, mudah disetujui. Yang diminta di akhir kuartal tampak seperti upaya mengatur skor, dan akan dibaca seperti itu.
 
-## Terus terang: mengapa Anda tidak bisa mengubah semua ini
+## Terus terang: apa yang Anda catat dan apa yang tidak
 
-Setiap masukan bagi skor Anda — tanggal siap yang disetujui, tanggal serah terima, hasil pemeriksaan mutu, konfirmasi kepatuhan, pengecualian — dicatat oleh staf perusahaan pembeli, bukan oleh Anda. Dasbor Anda adalah jendela, bukan formulir.
+Dua masukan berawal dari Anda. Anda mencatat **tanggal serah terima**: hari barang sampai di agen pengiriman, dari tombol **Handed over** pada tahap-tahap pesanan. Semua yang lain — tanggal siap yang disetujui, hasil pemeriksaan mutu, konfirmasi kepatuhan, pengecualian — dicatat oleh staf perusahaan pembeli. Skornya sendiri dihitung; dasbor Anda adalah jendela, bukan formulir.
 
-Ini disengaja, dan ini bukan tuduhan. Skor yang bisa diubah sendiri oleh agen justru tidak bernilai **bagi Anda**: begitu ada penilaian mandiri di mana pun dalam rantai pasok, setiap skor bagus menjadi meragukan — termasuk yang diperoleh dengan jujur. Nilai dari angka 85% Anda terletak pada kenyataan bahwa semua orang tahu Anda tidak mungkin mengetiknya sendiri. Sistem yang mencegah agen nakal menggelembungkan skor adalah sistem yang sama yang membuat skor agen yang baik berbicara sendiri — dan dalam negosiasi perpanjangan, kemandirian itulah seluruh maksudnya.
+Tanggal serah terima menjadi milik Anda karena Andalah yang berdiri di titik serah terima. Ini bukan tiket gratis. Setiap tanggal menunjukkan siapa yang mencatatnya dan kapan, tanggal yang lebih dari satu hari di masa lalu meminta alasan yang tersimpan di riwayat pesanan, dan pembeli memeriksanya terhadap tanda terima agen pengiriman serta dapat mengoreksinya. Tanggal serah terima yang tidak cocok dengan tanda terima lebih merugikan Anda daripada tanggal yang terlambat: nilai dari angka 85% Anda terletak pada kenyataan bahwa semua orang dapat memercayai cara pencatatannya.
 
-Satu-satunya masukan yang berawal dari Anda adalah **tanggal siap yang diusulkan** — mengusulkan tanggal yang realistis memang keahlian Anda. Namun skor berjalan di atas tanggal yang *disetujui*, dan persetujuan adalah milik pembeli. Perlu dicatat: melonggarkan usulan tanggal agar jendela tujuh hari menjadi mudah itu terlihat di sisi pembeli — selisih antara yang Anda usulkan dan yang disetujui ikut dipantau, dan pola usulan yang selalu longgar terbaca persis sebagaimana adanya.
+Masukan lain yang berawal dari Anda adalah **tanggal siap yang diusulkan** — mengusulkan tanggal yang realistis memang keahlian Anda. Namun skor berjalan di atas tanggal yang *disetujui*, dan persetujuan adalah milik pembeli. Perlu dicatat: melonggarkan usulan tanggal agar jendela tujuh hari menjadi mudah itu terlihat di sisi pembeli — selisih antara yang Anda usulkan dan yang disetujui ikut dipantau, dan pola usulan yang selalu longgar terbaca persis sebagaimana adanya.
 
 ## Cara menjaga agar angkanya tetap tinggi
 
@@ -76,7 +76,7 @@ Tidak ada satu pun di daftar ini yang berupa trik; skor ini dirancang sedemikian
 - **Usulkan tanggal siap yang Anda yakini.** Tanggal realistis yang Anda penuhi selalu mengalahkan tanggal optimistis yang Anda lewatkan.
 - **Laporkan masalah pada hari Anda melihatnya.** Keterlambatan yang dilaporkan awal bisa menjadi peristiwa terdokumentasi yang layak dikecualikan, atau tanggal yang dirundingkan ulang. Keterlambatan yang dilaporkan terlambat hanyalah pengujian yang gagal.
 - **Tutup dokumen sebelum barang bergerak.** Cara paling umum untuk gagal adalah pengujian keempat: barang siap secara fisik, sementara paket kepatuhan masih dikejar lewat email. Pesanan yang diserahkan tanpa dokumennya tidak bersih, sekalipun semuanya akhirnya sampai.
-- **Pastikan serah terimanya tercatat.** Jam berhenti saat pembeli mencatat tanggal serah terima. Jika Anda menyerahkan barang kepada agen pengiriman pada hari Selasa, pastikan tim pembeli mengetahuinya pada hari Selasa juga.
+- **Catat serah terima pada hari itu juga.** Jika Anda menyerahkan barang kepada agen pengiriman pada hari Selasa, tekan **Handed over** pada hari Selasa dan simpan tanda terimanya untuk saat pembeli menanyakannya. Serah terima yang dicatat berhari-hari kemudian meminta alasan dari Anda, dan terbaca seperti itu.
 
 <aside class="wayfinder">
 <b>Di mana mengekliknya di aiku</b><br>
@@ -85,5 +85,5 @@ Masuk → dasbor organisasi Anda (Dashboard). Panel <b>Skor Serah Terima Bersih 
 
 <aside class="wayfinder">
 <b>Izin yang Anda perlukan</b><br>
-Akun masuk untuk organisasi agen Anda. Panel ini hanya-baca — tidak ada yang bisa diubah, dan tidak ada izin yang mengubah hal itu.
+Akun masuk untuk organisasi agen Anda. Panel skor hanya-baca. Tanggal serah terima dicatat pada setiap pesanan, dari tahap-tahap di bagian atas halaman pesanan.
 </aside>

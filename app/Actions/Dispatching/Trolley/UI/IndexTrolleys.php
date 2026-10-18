@@ -9,7 +9,7 @@
 namespace App\Actions\Dispatching\Trolley\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\Inventory\WithWarehouseAuthorisation;
+use App\Actions\Traits\Authorisations\WithDispatchingEquipmentAuthorisation;
 use App\Actions\UI\Dispatch\ShowDispatchHub;
 use App\Enums\UI\Dispatch\TrolleysTabsEnum;
 use App\Http\Resources\Dispatching\TrolleysResource;
@@ -28,7 +28,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexTrolleys extends OrgAction
 {
-    use WithWarehouseAuthorisation;
+    use WithDispatchingEquipmentAuthorisation;
 
     public function handle(Warehouse $warehouse, $prefix = null): LengthAwarePaginator
     {
@@ -108,7 +108,7 @@ class IndexTrolleys extends OrgAction
                     'icon'   => ['fal', 'dolly-flatbed-alt'],
                     'model'  => __('Warehouse'),
                     'actions' => [
-                        [
+                        $this->canEdit ? [
                             'type'  => 'button',
                             'style' => 'create',
                             'label' => __('Create'),
@@ -116,7 +116,7 @@ class IndexTrolleys extends OrgAction
                                 'name'       => 'grp.org.warehouses.show.dispatching.trolleys.create',
                                 'parameters' => array_values($request->route()->originalParameters()),
                             ],
-                        ],
+                        ] : false,
                     ],
                 ],
                 'tabs'                            => [

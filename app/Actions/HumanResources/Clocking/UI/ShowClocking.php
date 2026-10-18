@@ -12,7 +12,7 @@ use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\HumanResources\ClockingMachine\UI\ShowClockingMachine;
 use App\Actions\HumanResources\Workplace\UI\ShowWorkplace;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithHumanResourcesSectionAuthorisation;
+use App\Actions\Traits\Authorisations\WithHumanResourcesAuthorisation;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\HumanResources\ClockingTabsEnum;
 use App\Http\Resources\History\HistoryResource;
@@ -31,7 +31,7 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowClocking extends OrgAction
 {
-    use WithHumanResourcesSectionAuthorisation;
+    use WithHumanResourcesAuthorisation;
 
     private Organisation|Workplace|ClockingMachine $parent;
 
@@ -42,18 +42,18 @@ class ShowClocking extends OrgAction
 
     public function inOrganisation(Organisation $organisation, Clocking $clocking, ActionRequest $request): Clocking
     {
+        abort_unless($clocking->organisation_id === $organisation->id, 404);
+
         $this->parent = $organisation;
         $this->initialisation($organisation, $request)->withTab(ClockingTabsEnum::values());
-        if ($this->isRestrictedToSection()) {
-            abort_unless($clocking->subject_type === 'Employee' && $this->canSeeEmployee($clocking->subject_id), 403);
-        }
-
         return $this->handle($clocking);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inWorkplace(Organisation $organisation, Workplace $workplace, Clocking $clocking, ActionRequest $request): Clocking
     {
+        abort_unless($workplace->organisation_id === $organisation->id, 404);
+
         $this->parent = $workplace;
         $this->initialisation($organisation, $request)->withTab(ClockingTabsEnum::values());
 
@@ -63,6 +63,8 @@ class ShowClocking extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inClockingMachine(Organisation $organisation, ClockingMachine $clockingMachine, Clocking $clocking, ActionRequest $request): Clocking
     {
+        abort_unless($clockingMachine->organisation_id === $organisation->id, 404);
+
         $this->parent = $clockingMachine;
         $this->initialisation($organisation, $request)->withTab(ClockingTabsEnum::values());
 
@@ -73,6 +75,8 @@ class ShowClocking extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inWorkplaceInClockingMachine(Organisation $organisation, Workplace $workplace, ClockingMachine $clockingMachine, Clocking $clocking, ActionRequest $request): Clocking
     {
+        abort_unless($workplace->organisation_id === $organisation->id, 404);
+
         $this->parent = $clockingMachine;
         $this->initialisation($organisation, $request)->withTab(ClockingTabsEnum::values());
 
@@ -221,8 +225,7 @@ class ShowClocking extends OrgAction
                 default:
                     //
             }
-        })->when($this->isRestrictedToSection(), fn ($query) => $query->where('subject_type', 'Employee')->whereIn('subject_id', $this->sectionEmployeeIds))
-            ->orderBy('id', 'desc')->first();
+        })->orderBy('id', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
     }
@@ -241,8 +244,7 @@ class ShowClocking extends OrgAction
                 default:
                     //
             }
-        })->when($this->isRestrictedToSection(), fn ($query) => $query->where('subject_type', 'Employee')->whereIn('subject_id', $this->sectionEmployeeIds))
-            ->orderBy('id')->first();
+        })->orderBy('id')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }

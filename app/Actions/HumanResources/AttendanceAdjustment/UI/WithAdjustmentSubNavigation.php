@@ -21,14 +21,15 @@ trait WithAdjustmentSubNavigation
                 ],
             ],
             [
-                'label'    => __('Adjustment Requests'),
+                'label'    => __('Clocking adjustment'),
                 'route'    => [
                     'name'       => 'grp.org.hr.adjustments.index',
                     'parameters' => $request->route()->originalParameters(),
                 ],
                 'leftIcon' => [
-                    'icon'    => ['fal', 'fa-list'],
-                    'tooltip' => __('Adjustment requests'),
+                    'icon'        => ['fal', 'fa-clock'],
+                    'icon_layers' => [['fal', 'fa-clock'], ['fal', 'fa-pencil']],
+                    'tooltip'     => __('Clocking adjustment'),
                 ],
             ],
         ];

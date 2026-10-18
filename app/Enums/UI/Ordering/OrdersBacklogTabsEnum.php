@@ -37,6 +37,8 @@ enum OrdersBacklogTabsEnum: string
 
     case RETURNED = 'returned';
 
+    case PRE_ORDERS = 'pre_orders';
+
     /**
      * The order states these tabs put in front of staff. Anything live and outside this list is in
      * no queue at all, which is how an order goes missing (HELP-3116), so MonitorOrdersInLimbo

@@ -8,7 +8,10 @@
 
 namespace App\Actions\Procurement\AgentOrder\UI;
 
+use App\Actions\GoodsIn\StockDelivery\DeleteStockDelivery;
 use App\Actions\OrgAction;
+use App\Actions\Procurement\AgentOrder\DeleteAgentOrder;
+use App\Actions\Procurement\PurchaseOrder\PdfPurchaseOrder;
 use App\Actions\Procurement\AgentOrder\ResolveAgentOrderReference;
 use App\Actions\Procurement\OrgAgent\WithOrgAgentSubNavigation;
 use App\Actions\Procurement\PurchaseOrder\SendPurchaseOrderToSupplier;
@@ -87,7 +90,7 @@ class ShowAgentOrder extends OrgAction
                             'target' => '_blank',
                             'route'  => [
                                 'name'       => 'grp.org.procurement.org_agents.show.agent_orders.pdf',
-                                'parameters' => [$this->organisation->slug, $this->orgAgent->slug, $reference],
+                                'parameters' => [$this->organisation->slug, $this->orgAgent->slug, $reference, PdfPurchaseOrder::make()->filenameFor($reference)],
                             ],
                         ] : null,
                     ])),
@@ -112,6 +115,20 @@ class ShowAgentOrder extends OrgAction
                     'can_edit'               => $canEditLines,
                 ],
                 'supplier_orders' => $purchaseOrders->map(fn (PurchaseOrder $purchaseOrder) => $this->supplierOrder($purchaseOrder, $canEditLines && $purchaseOrder->state === PurchaseOrderStateEnum::IN_PROCESS))->values()->all(),
+                'delete_order'    => $this->canEdit && $purchaseOrders->isNotEmpty() ? [
+                    'route'     => [
+                        'name'       => 'grp.models.org-agent.agent-order.delete',
+                        'parameters' => ['orgAgent' => $this->orgAgent->id],
+                        'method'     => 'delete',
+                    ],
+                    'reference' => $reference,
+                    'phrase'    => DeleteStockDelivery::RESPONSIBILITY_PHRASE,
+                    'refusals'  => DeleteAgentOrder::refusals($this->orgAgent, $reference),
+                    'warnings'  => [
+                        __('This deletes all :count supplier orders of :reference, and any container of the agent carrying them.', ['count' => $purchaseOrders->count(), 'reference' => $reference]),
+                        __('If the agent already works on this order, tell them: they are not told by this.'),
+                    ],
+                ] : null,
                 'products_list'   => $canEditLines ? [
                     'name'       => 'grp.json.org-agent.agent-order.org-supplier-products',
                     'parameters' => ['orgAgent' => $this->orgAgent->id, 'agentOrderReference' => $reference],

@@ -29,6 +29,11 @@ class NormaliseWhatsappVideo
     protected const TIMEOUT_SECONDS = 120;
 
     /**
+     * Octane gives the whole request 45 seconds, and the upload to Meta comes after this.
+     */
+    protected const TRANSCODE_TIMEOUT_SECONDS = 35;
+
+    /**
      * Returns a path to a progressive MP4, which is the original when it already is one.
      * A failure here is never fatal: the original is used and Meta decides.
      */
@@ -38,7 +43,7 @@ class NormaliseWhatsappVideo
             return $path;
         }
 
-        $target = tempnam(sys_get_temp_dir(), 'wa-video-').'.mp4';
+        $target = $this->temporaryMp4Path();
 
         $process = new Process([
             config('services.ffmpeg.path', 'ffmpeg'),
@@ -71,6 +76,72 @@ class NormaliseWhatsappVideo
         }
 
         return $target;
+    }
+
+    /**
+     * A phone's video is usually a MOV in HEVC, which Meta refuses outright: it plays only
+     * H.264 with AAC in an MP4, at up to 16MB. Re-encoding at no more than 720p brings a
+     * typical product clip of a minute well under that, in a few seconds.
+     *
+     * Returns the path to the converted MP4, or null when ffmpeg could not read the file.
+     */
+    public function transcode(string $path): ?string
+    {
+        $target = $this->temporaryMp4Path();
+
+        $process = new Process([
+            config('services.ffmpeg.path', 'ffmpeg'),
+            '-y',
+            '-i', $path,
+            '-map', '0:v:0',
+            '-map', '0:a:0?',
+            '-vf', "scale='min(1280,iw)':'min(1280,ih)':force_original_aspect_ratio=decrease:force_divisible_by=2",
+            '-c:v', 'libx264',
+            '-preset', 'veryfast',
+            '-crf', '28',
+            '-maxrate', '1500k',
+            '-bufsize', '3000k',
+            '-pix_fmt', 'yuv420p',
+            '-c:a', 'aac',
+            '-b:a', '96k',
+            '-ac', '2',
+            '-movflags', '+faststart',
+            $target,
+        ]);
+
+        $process->setTimeout(self::TRANSCODE_TIMEOUT_SECONDS);
+
+        try {
+            $process->mustRun();
+        } catch (ProcessFailedException|RuntimeException $e) {
+            @unlink($target);
+
+            Log::warning('Video could not be converted for WhatsApp', [
+                'path'  => $path,
+                'error' => $e->getMessage(),
+            ]);
+
+            return null;
+        }
+
+        if (!is_file($target) || filesize($target) === 0) {
+            @unlink($target);
+
+            return null;
+        }
+
+        return $target;
+    }
+
+    /**
+     * tempnam() creates the file it names, so the .mp4 beside it would leave that one behind.
+     */
+    protected function temporaryMp4Path(): string
+    {
+        $placeholder = tempnam(sys_get_temp_dir(), 'wa-video-');
+        @unlink($placeholder);
+
+        return $placeholder.'.mp4';
     }
 
     /**

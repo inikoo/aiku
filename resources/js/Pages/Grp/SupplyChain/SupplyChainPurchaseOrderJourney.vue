@@ -4,7 +4,8 @@ import { computed, ref, shallowRef, watch } from "vue"
 import { useScrollArrows } from "@/Composables/useScrollArrows"
 import { useElementSize } from "@vueuse/core"
 import ScrollFadeArrow from "@/Components/Utils/ScrollFadeArrow.vue"
-import { Popover, Select, Checkbox, IconField, InputIcon, InputText } from "primevue"
+import { Popover, Select, Checkbox, IconField, InputIcon, InputText, DatePicker, Textarea } from "primevue"
+import Button from "@/Components/Elements/Buttons/Button.vue"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import PillFilterBar from "@/Components/Utils/PillFilterBar.vue"
 import PurchaseOrderJourneyRibbon, { type JourneyRibbon, type JourneySegment } from "@/Components/SupplyChain/PurchaseOrderJourneyRibbon.vue"
@@ -13,9 +14,9 @@ import { ctrans } from "@/Composables/useTrans"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faRoute, faExclamationTriangle, faStopwatch, faHourglassHalf, faCoins, faCalendarCheck, faSearch, faExpandAlt, faCompressAlt, faChevronDown, faSpinner } from "@fal"
+import { faRoute, faExclamationTriangle, faStopwatch, faHourglassHalf, faCoins, faCalendarCheck, faSearch, faExpandAlt, faCompressAlt, faChevronDown, faSpinner, faCheck, faEraser, faGlobe } from "@fal"
 
-library.add(faRoute, faExclamationTriangle, faStopwatch, faHourglassHalf, faCoins, faCalendarCheck, faSearch, faExpandAlt, faCompressAlt, faChevronDown, faSpinner)
+library.add(faRoute, faExclamationTriangle, faStopwatch, faHourglassHalf, faCoins, faCalendarCheck, faSearch, faExpandAlt, faCompressAlt, faChevronDown, faSpinner, faCheck, faEraser, faGlobe)
 
 interface FacetOption {
     value: string
@@ -47,6 +48,7 @@ const props = defineProps<{
     blockages?: { stage: string; label: string; count: number; max_days_overdue: number }[]
     quickStats?: {
         average_lead_days: number | null
+        average_online_days?: number | null
         oldest_open_days: number | null
         open_value: number
         due_30_days: number
@@ -185,8 +187,12 @@ const isKpiSelected = (filter: Record<string, string | boolean | null> | null) =
 
 const markPopover = ref()
 const marking = ref<{ ribbon: JourneyRibbon; segment: JourneySegment } | null>(null)
-const markDate = ref("")
+const markDate = ref<Date | null>(null)
+const markReason = ref("")
+const markErrors = ref<Record<string, string>>({})
 const markProcessing = ref(false)
+
+const toIso = (date: Date | null) => date ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}` : null
 
 function showFilter(group: FilterGroup): boolean {
     if (!active.value || !filters.value) {
@@ -203,7 +209,9 @@ function showFilter(group: FilterGroup): boolean {
 
 function openMark(ribbon: JourneyRibbon, segment: JourneySegment, event: MouseEvent): void {
     marking.value = { ribbon, segment }
-    markDate.value = segment.done_at ?? new Date().toISOString().slice(0, 10)
+    markDate.value = segment.done_at ? new Date(segment.done_at) : new Date()
+    markReason.value = ""
+    markErrors.value = {}
     markPopover.value?.toggle(event)
 }
 
@@ -213,15 +221,14 @@ function saveMark(date: string | null): void {
     }
     router.patch(
         route(marking.value.ribbon.mark_route.name, marking.value.ribbon.mark_route.parameters),
-        { stage: marking.value.segment.key, date },
+        { stage: marking.value.segment.key, date, reason: markReason.value.trim() || null },
         {
             preserveScroll: true,
             preserveState: true,
             onStart: () => (markProcessing.value = true),
-            onFinish: () => {
-                markProcessing.value = false
-                markPopover.value?.hide()
-            }
+            onError: (errors) => (markErrors.value = errors),
+            onSuccess: () => markPopover.value?.hide(),
+            onFinish: () => (markProcessing.value = false)
         }
     )
 }
@@ -386,6 +393,13 @@ function saveMark(date: string | null): void {
                     </div>
                 </div>
                 <div class="flex items-center gap-3 py-1.5">
+                    <FontAwesomeIcon icon="fal fa-globe" class="text-gray-400" fixed-width aria-hidden="true" />
+                    <div>
+                        <div class="text-xs text-gray-500">{{ ctrans("Average days, placed to online") }}</div>
+                        <div class="font-semibold">{{ quickStats.average_online_days != null ? ctrans(":days days", { days: quickStats.average_online_days }) : "—" }}</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 py-1.5">
                     <FontAwesomeIcon icon="fal fa-hourglass-half" class="text-gray-400" fixed-width aria-hidden="true" />
                     <div>
                         <div class="text-xs text-gray-500">{{ ctrans("Oldest open order") }}</div>
@@ -459,23 +473,35 @@ function saveMark(date: string | null): void {
             <div v-if="marking.segment.done_at" class="mb-2 text-xs text-emerald-700">
                 {{ ctrans("Done on :date", { date: useFormatTime(marking.segment.done_at) }) }}
             </div>
-            <input v-model="markDate" type="date" class="w-full rounded-md border-gray-300 text-sm" />
+            <DatePicker v-model="markDate" dateFormat="yy-mm-dd" :maxDate="new Date()" showIcon class="w-full" />
+            <template v-if="markErrors.reason || markReason">
+                <div class="mt-2 text-xs text-amber-700">{{ markErrors.reason }}</div>
+                <Textarea v-model="markReason" rows="2" autoResize class="mt-1 w-full" :placeholder="ctrans('Reason (kept in the order\'s history)')" />
+            </template>
+            <div v-for="key in ['date', 'field', 'stage']" :key="key">
+                <div v-if="markErrors[key]" class="mt-1 text-xs text-red-600">{{ markErrors[key] }}</div>
+            </div>
             <div class="mt-3 flex justify-end gap-2">
-                <button
+                <Button
                     v-if="marking.segment.done_at"
-                    type="button"
-                    class="rounded-md px-3 py-1.5 text-gray-600 hover:bg-gray-100"
+                    type="tertiary"
+                    :label="ctrans('Clear')"
                     :disabled="markProcessing"
                     @click="saveMark(null)">
-                    {{ ctrans("Clear") }}
-                </button>
-                <button
-                    type="button"
-                    class="rounded-md bg-[--app-accent] px-3 py-1.5 text-[--app-accent-text] disabled:opacity-50"
-                    :disabled="markProcessing || !markDate"
-                    @click="saveMark(markDate)">
-                    {{ ctrans("Mark done") }}
-                </button>
+                    <template #icon>
+                        <FontAwesomeIcon icon="fal fa-eraser" class="text-red-500" fixed-width aria-hidden="true" />
+                    </template>
+                </Button>
+                <Button
+                    type="tertiary"
+                    :label="ctrans('Mark done')"
+                    :loading="markProcessing"
+                    :disabled="!markDate || (!!markErrors.reason && !markReason.trim())"
+                    @click="saveMark(toIso(markDate))">
+                    <template #icon>
+                        <FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" />
+                    </template>
+                </Button>
             </div>
         </div>
     </Popover>

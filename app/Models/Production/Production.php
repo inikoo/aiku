@@ -11,12 +11,14 @@ namespace App\Models\Production;
 use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
 use App\Models\Analytics\AikuSection;
 use App\Models\GoodsIn\StockDelivery;
+use App\Models\Inventory\Location;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Role;
 use App\Models\SysAdmin\User;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\InOrganisation;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -42,6 +44,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property array<array-key, mixed> $sources
+ * @property int|null $factory_location_id
+ * @property-read Location|null $factoryLocation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, AikuSection> $aikuScopedSections
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Production\Artefact> $artefacts
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
@@ -88,6 +92,7 @@ class Production extends Model implements Auditable
         'code',
         'name',
         'state',
+        'factory_location_id',
     ];
 
     public function getRouteKeyName(): string
@@ -136,6 +141,20 @@ class Production extends Model implements Auditable
             "productions_rd.{$this->id}.".($toEdit ? 'edit' : 'view'),
             ...Shop::where('organisation_id', $this->organisation_id)->pluck('id')->map(fn (int $shopId) => "products.{$shopId}.edit"),
         ]);
+    }
+
+    /**
+     * Where the warehouse brings materials for the day's production. Stock there stays stock:
+     * production uses it up first, customer orders pick it only after the warehouse shelves.
+     */
+    public function factoryLocation(): BelongsTo
+    {
+        return $this->belongsTo(Location::class, 'factory_location_id');
+    }
+
+    public function materialRequests(): HasMany
+    {
+        return $this->hasMany(ProductionMaterialRequest::class);
     }
 
     public function rawMaterials(): HasMany

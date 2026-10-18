@@ -8,15 +8,23 @@
 
 namespace App\Actions\Inventory\OrgStock\Hydrators;
 
+use App\Actions\Procurement\GetOrganisationStockCoverBuckets;
+use App\Actions\Procurement\OrgAgent\GetAgentLeadTimes;
 use App\Actions\Procurement\OrgPartner\GetPartnerLeadTime;
 use App\Actions\Procurement\OrgPartner\GetPartnerStockCoverBuckets;
+use App\Actions\Procurement\OrgSupplier\GetSupplierLeadTime;
 use App\Actions\Traits\Hydrators\WithHydrateCommand;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
+use App\Enums\Inventory\OrgStockMovement\OrgStockMovementFlowEnum;
+use App\Enums\Inventory\OrgStockMovement\OrgStockMovementTypeEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\ShoppingListItem\ShoppingListItemStateEnum;
 use App\Models\Inventory\OrgStock;
+use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgPartner;
+use App\Models\Procurement\OrgSupplier;
 use App\Models\SupplyChain\SupplierProduct;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Database\Query\Builder;
@@ -34,7 +42,10 @@ use Illuminate\Support\Facades\DB;
  *     wanted it, so an item that was out of stock a lot keeps step 1, which only counts the days
  *     it could be sold, as do SKOs with too little history or no forecast that night.
  *  1. Rebuild the daily demand series over the last 91 days from delivery_note_items.created_at
- *     (delivery_note_items.date is only set on Aurora-fetched rows), counting ONLY days the stock
+ *     (delivery_note_items.date is only set on Aurora-fetched rows) plus what production and
+ *     consumption took out (a hub's components leave that way, not on delivery notes), each day
+ *     far above the stock's usual selling day of the last year cut down to three times the median
+ *     one, so a pallet order or a big production run is not a level of demand. Count ONLY days the stock
  *     was actually on the shelf (running balance from org_stock_movements enough for one order of
  *     its biggest selling product, at most one whole SKO: a few loose units left of a pack cannot
  *     fill a wholesale order, HELP-3842). An item that
@@ -42,10 +53,18 @@ use Illuminate\Support\Facades\DB;
  *  2. Pick a model for that series: Croston with the Syntetos-Boylan correction for
  *     intermittent demand (most days zero), Holt's damped-trend smoothing on weekly rates for
  *     steady movers. Both produce a demand-per-in-stock-day.
- *  3. If there is no local signal at all, borrow: the same stock in sister organisations
- *     (damped) → other stocks of the same family in this organisation (heavily damped).
- *     Neither the item's own older history nor a seasonality factor is used: both were
+ *  3. A stock on the shelf four weeks of the window without selling has no demand. If there is
+ *     no local signal at all, borrow: the same stock in sister organisations (damped, customer
+ *     sales only) → the median stock of the same family in this organisation (heavily damped).
+ *     Neither the item's own older history nor a seasonality factor is blended in: both were
  *     backtested on prod dispatches (Sep 2026) and made per-SKU forecasts worse, not better.
+ *     The exception is an item that was hardly on the shelf all window: there is no local
+ *     signal to blend with, so its own in-stock selling rate over the last year comes before
+ *     borrowing, or an item that sold steadily until it ran out reads as barely wanted (HELP-4067).
+ *     Partner organisations do not count there, and an item that has not sold for six months does
+ *     not use it. The same own-year rate is the floor of an item on the shelf less than 70% of the
+ *     window: the weeks it was running down sell little, and the model read that tail as the
+ *     demand, so an item that ran out after selling 3 a day forecast under 1 a day (HELP-4093).
  *  4. Convert to days of cover, plus a pessimistic bound: solve
  *     qty = days*mu + 1.28*sigma*sqrt(days) so the P90 demand path is also on record.
  */
@@ -61,8 +80,26 @@ class OrgStockHydrateOutOfStockForecast implements ShouldBeUnique
 
     private const float IN_STOCK_RATE_CAP_MULTIPLE = 2.0;
 
+    private const int CAP_YEAR_DAYS = 365;
+
+    private const int MINIMUM_IN_STOCK_DAYS = 28;
+
+    private const int CONSUMPTION_RECENT_DAYS = 28;
+
+    private const int MINIMUM_SELLING_DAYS = 3;
+
+    private const int HISTORY_LAST_SALE_WITHIN_DAYS = 180;
+
+    private const float ONE_OFF_MEDIAN_MULTIPLE = 3.0;
+
     /** @var array<int, int> */
     private array $partnerLeadTimeDays = [];
+
+    /** @var array<int, int> */
+    private array $agentLeadTimeDays = [];
+
+    /** @var array<int, int> */
+    private array $orgSupplierLeadTimeDays = [];
 
     public function __construct()
     {
@@ -113,8 +150,9 @@ class OrgStockHydrateOutOfStockForecast implements ShouldBeUnique
 
     /**
      * SKOs to reorder now: enough to cover the lead time plus one review period at the forecast
-     * rate, plus a safety buffer sized by demand variability, minus what is on the shelf and
-     * already on order (purchase orders and partner shopping list lines) — rounded up to the
+     * rate, plus a safety buffer sized by demand variability, minus what is on the shelf, what is
+     * coming (the cover buckets' coming SKOs: deliveries still to put away and submitted purchase
+     * orders not on a delivery yet), draft purchase orders and partner shopping list lines — rounded up to the
      * supplier's pack size. A SKO that would run out within three lead times (the stock cover
      * buckets' danger edge) with what is held and coming orders at least a month of sales, the
      * same floor a rescue order uses.
@@ -137,14 +175,22 @@ class OrgStockHydrateOutOfStockForecast implements ShouldBeUnique
             ? 1.28 * $sigma * sqrt($leadTimeDays)
             : 0.2 * $dailyUsage * $leadTimeDays;
 
-        $onOrderUnits = (float) DB::table('purchase_order_transactions')
-            ->where('org_stock_id', $orgStock->id)
-            ->whereNull('deleted_at')
-            ->whereIn('state', ['in_process', 'submitted', 'confirmed'])
-            ->sum(DB::raw('coalesce(quantity_ordered, 0) - coalesce(quantity_cancelled, 0)'));
+        $comingSkos = (float) DB::table('org_stocks')
+            ->where('id', $orgStock->id)
+            ->selectRaw(GetOrganisationStockCoverBuckets::comingSkosExpression('org_stocks').' as coming')
+            ->value('coming');
+
+        $onDraftUnits = (float) DB::table('purchase_order_transactions')
+            ->join('purchase_orders', 'purchase_orders.id', 'purchase_order_transactions.purchase_order_id')
+            ->where('purchase_order_transactions.org_stock_id', $orgStock->id)
+            ->whereNull('purchase_order_transactions.deleted_at')
+            ->whereNull('purchase_orders.deleted_at')
+            ->where('purchase_orders.state', PurchaseOrderStateEnum::IN_PROCESS->value)
+            ->sum(DB::raw('coalesce(purchase_order_transactions.quantity_ordered, 0) - coalesce(purchase_order_transactions.quantity_cancelled, 0)'));
 
         $heldAndComing = (float) $orgStock->quantity_available
-            + $onOrderUnits / $packedIn
+            + $comingSkos
+            + $onDraftUnits / $packedIn
             + $this->onPartnerShoppingLists($orgStock);
 
         $need = $dailyUsage * ($leadTimeDays + $reviewDays) + $safety - $heldAndComing;
@@ -167,14 +213,16 @@ class OrgStockHydrateOutOfStockForecast implements ShouldBeUnique
 
     /**
      * Days from ordering to booked in for this SKO: its own measured history, then its active
-     * supplier product, then the manufacturing hub partner that makes it, then 14 days.
+     * supplier product, then the agent it is bought through or its supplier (the lead time the
+     * buying pages show), then the manufacturing hub partner that makes it, then 14 days.
      */
     private function leadTimeDays(OrgStock $orgStock, ?SupplierProduct $supplierProduct): int
     {
         $days = $orgStock->measured_lead_time_days
             ?? $orgStock->estimated_lead_time_days
             ?? $supplierProduct?->measured_lead_time_days
-            ?? $supplierProduct?->estimated_lead_time_days;
+            ?? $supplierProduct?->estimated_lead_time_days
+            ?? $this->buyingLeadTimeDays($orgStock, $supplierProduct);
 
         if ($days) {
             return (int) $days;
@@ -195,6 +243,22 @@ class OrgStockHydrateOutOfStockForecast implements ShouldBeUnique
         }
 
         return $this->partnerLeadTimeDays[$hubPartner->id] ??= GetPartnerLeadTime::run($hubPartner)['days'];
+    }
+
+    private function buyingLeadTimeDays(OrgStock $orgStock, ?SupplierProduct $supplierProduct): ?int
+    {
+        if (!$supplierProduct) {
+            return null;
+        }
+
+        $agentId = $supplierProduct->supplier?->agent_id;
+        if ($agentId && $orgAgent = OrgAgent::where('organisation_id', $orgStock->organisation_id)->where('agent_id', $agentId)->first()) {
+            return $this->agentLeadTimeDays[$orgAgent->id] ??= GetAgentLeadTimes::run($orgAgent)['agent']['days'];
+        }
+
+        $orgSupplier = OrgSupplier::where('organisation_id', $orgStock->organisation_id)->where('supplier_id', $supplierProduct->supplier_id)->first();
+
+        return $orgSupplier ? ($this->orgSupplierLeadTimeDays[$orgSupplier->id] ??= GetSupplierLeadTime::run($orgSupplier)['days']) : null;
     }
 
     /**
@@ -250,26 +314,60 @@ class OrgStockHydrateOutOfStockForecast implements ShouldBeUnique
      */
     private function predictedDailyUsage(OrgStock $orgStock): array
     {
-        $from = now()->subDays(self::WINDOW)->startOfDay();
+        $consumption = $this->consumptionPerDay($orgStock);
+        [$rate, $sigma, $source, $inStockShare] = $this->salesPerDay($orgStock, mayBorrow: $consumption <= 0);
 
-        $dispatchedByDay = DB::table('delivery_note_items')
-            ->where('org_stock_id', $orgStock->id)
-            ->where('quantity_dispatched', '>', 0)
-            ->where('created_at', '>=', $from)
-            ->selectRaw('date(created_at) as day, sum(quantity_dispatched) as dispatched')
-            ->groupBy('day')
-            ->pluck('dispatched', 'day');
-
-        $series = [];
-        $days   = $this->inStockDays($orgStock->id, $from, (float) $orgStock->quantity_available, $this->sellableQuantity($orgStock));
-        foreach ($days as $day => $inStock) {
-            if ($inStock) {
-                $series[$day] = (float) ($dispatchedByDay[$day] ?? 0);
-            }
+        if ($consumption > 0) {
+            return [($rate ?? 0.0) + $consumption, $sigma, $source ?? 'consumption', $inStockShare];
         }
-        $inStockShare = $days ? count($series) / count($days) : 0.0;
+
+        return [$rate, $sigma, $source, $inStockShare];
+    }
+
+    /**
+     * What production and consumption take out per calendar day, net of returns: the lower of the
+     * last four weeks and the window, so a kit no longer made is not read as steady use.
+     * Components go in batches as soon as they arrive and are rarely on the shelf, so a rate per
+     * in-stock day would read every batch as a sold-out shelf. Backtested on production data
+     * (forecast on 20 Aug 2026, checked against the 42 days after): better than the window alone,
+     * the year or their mean in every organisation; adding the year was barely better overall and
+     * would hold a new component to a year it was not used for.
+     */
+    private function consumptionPerDay(OrgStock $orgStock): float
+    {
+        $recently = now()->subDays(self::CONSUMPTION_RECENT_DAYS)->startOfDay();
+        $window   = now()->subDays(self::WINDOW)->startOfDay();
+
+        $consumed = DB::table('org_stock_movements')
+            ->where('org_stock_id', $orgStock->id)
+            ->where('date', '>=', $window)
+            ->where(fn ($query) => $query->whereIn('type', [OrgStockMovementTypeEnum::CONSUMPTION->value, OrgStockMovementTypeEnum::RETURN_CONSUMPTION->value])
+                ->orWhere(fn ($query) => $query->where('type', OrgStockMovementTypeEnum::PRODUCTION->value)->where('flow', OrgStockMovementFlowEnum::OUT->value)))
+            ->selectRaw('-coalesce(sum(quantity) filter (where date >= ?), 0) as recently, -coalesce(sum(quantity), 0) as in_window', [$recently])
+            ->first();
+
+        return max(0.0, min((float) $consumed->recently / self::CONSUMPTION_RECENT_DAYS, (float) $consumed->in_window / self::WINDOW));
+    }
+
+    /**
+     * @return array{0: float|null, 1: float|null, 2: string|null, 3: float} [sales per in-stock day, daily sigma, source, share of the window in stock]
+     */
+    private function salesPerDay(OrgStock $orgStock, bool $mayBorrow): array
+    {
+        $windowFrom = now()->subDays(self::WINDOW)->startOfDay();
+        $yearUsage  = $this->withoutOneOffs($this->dispatchedByDay([$orgStock->id], now()->subDays(self::CAP_YEAR_DAYS)->startOfDay())[$orgStock->id] ?? []);
+        $windowUsage = array_filter($yearUsage, fn (string $day) => $day >= $windowFrom->toDateString(), ARRAY_FILTER_USE_KEY);
+
+        [$series, $dayCount] = $this->inStockSeries($orgStock, $windowFrom, $windowUsage);
+        $inStockShare = $dayCount ? count($series) / $dayCount : 0.0;
 
         if (array_sum($series) <= 0) {
+            if (count($series) >= self::MINIMUM_IN_STOCK_DAYS || !$mayBorrow) {
+                return [null, null, null, $inStockShare];
+            }
+            if ($usage = $this->usageFromOwnYear($orgStock)) {
+                return [...$usage, 'history', $inStockShare];
+            }
             if ($rate = $this->usageFromSiblingOrganisations($orgStock)) {
                 return [$rate, null, 'siblings', $inStockShare];
             }
@@ -291,13 +389,125 @@ class OrgStockHydrateOutOfStockForecast implements ShouldBeUnique
             $source = 'holt';
         }
 
-        $cap = $dispatchedByDay->sum() / self::WINDOW * self::IN_STOCK_RATE_CAP_MULTIPLE;
+        if ($inStockShare < self::TIMESFM_MINIMUM_IN_STOCK_SHARE && ($usage = $this->usageFromOwnYear($orgStock)) && $usage[0] > $rate) {
+            [$rate, $sigma] = $usage;
+            $source         = 'history';
+        }
+
+        $cap = max(array_sum($windowUsage) / self::WINDOW, array_sum($yearUsage) / self::CAP_YEAR_DAYS) * self::IN_STOCK_RATE_CAP_MULTIPLE;
         if ($rate > $cap) {
             $sigma = $sigma !== null ? $sigma * $cap / $rate : null;
             $rate  = $cap;
         }
 
         return [$rate, $sigma, $source, $inStockShare];
+    }
+
+    /**
+     * What was dispatched from each stock each day since $from, optionally leaving out what went
+     * to partner organisations.
+     *
+     * @param  array<int, int>  $orgStockIds
+     *
+     * @return array<int, array<string, float>> org stock id => day => SKOs dispatched
+     */
+    private function dispatchedByDay(array $orgStockIds, Carbon $from, bool $withoutPartners = false): array
+    {
+        $dispatched = [];
+        DB::table('delivery_note_items')
+            ->whereIn('org_stock_id', $orgStockIds)
+            ->where('quantity_dispatched', '>', 0)
+            ->where('created_at', '>=', $from)
+            ->when($withoutPartners, fn ($query) => $query->whereNotExists($this->toPartnerOrganisation(...)))
+            ->selectRaw('org_stock_id, date(created_at)::text as day, sum(quantity_dispatched)::float as dispatched')
+            ->groupBy('org_stock_id', 'day')
+            ->get()
+            ->each(function ($row) use (&$dispatched) {
+                $dispatched[$row->org_stock_id][$row->day] = (float) $row->dispatched;
+            });
+
+        return $dispatched;
+    }
+
+    /**
+     * A day far above the stock's usual selling day over the period (a pallet order, a partner
+     * restocking, one big production run) is cut down to three times the median selling day, so
+     * one order does not read as a level of demand. Under three selling days there is no usual day.
+     *
+     * @param  array<string, float>  $usage
+     *
+     * @return array<string, float>
+     */
+    private function withoutOneOffs(array $usage): array
+    {
+        $selling = array_values(array_filter($usage, fn (float $used) => $used > 0));
+        if (count($selling) < self::MINIMUM_SELLING_DAYS) {
+            return $usage;
+        }
+
+        $ceiling = self::ONE_OFF_MEDIAN_MULTIPLE * $this->median($selling);
+
+        return array_map(fn (float $used) => min($used, $ceiling), $usage);
+    }
+
+    /**
+     * @param  list<float>  $values
+     */
+    private function median(array $values): float
+    {
+        sort($values);
+        $middle = intdiv(count($values), 2);
+
+        return count($values) % 2 ? $values[$middle] : ($values[$middle - 1] + $values[$middle]) / 2;
+    }
+
+    /**
+     * Usage on the days the stock was on the shelf since $from, keyed by day, and the number of
+     * days in the period.
+     *
+     * @param  array<string, float>  $usageByDay
+     *
+     * @return array{0: array<string, float>, 1: int}
+     */
+    private function inStockSeries(OrgStock $orgStock, Carbon $from, array $usageByDay): array
+    {
+        $series = [];
+        $days   = $this->inStockDays($orgStock->id, $from, (float) $orgStock->quantity_available, $this->sellableQuantity($orgStock));
+        foreach ($days as $day => $inStock) {
+            if ($inStock) {
+                $series[$day] = $usageByDay[$day] ?? 0.0;
+            }
+        }
+
+        return [$series, count($days)];
+    }
+
+    /**
+     * What the item sold per day on the shelf over the last year, when it was on the shelf long
+     * enough for that to mean something.
+     *
+     * @return array{0: float, 1: float|null}|null [demand per in-stock day, daily sigma]
+     */
+    private function usageFromOwnYear(OrgStock $orgStock): ?array
+    {
+        $yearFrom = now()->subDays(self::CAP_YEAR_DAYS)->startOfDay();
+        $usage    = $this->withoutOneOffs($this->dispatchedByDay([$orgStock->id], $yearFrom, withoutPartners: true)[$orgStock->id] ?? []);
+        if (!array_filter($usage)) {
+            return null;
+        }
+
+        [$series] = $this->inStockSeries($orgStock, $yearFrom, $usage);
+        $sellingDays = array_filter($series);
+
+        if (count($series) < self::MINIMUM_IN_STOCK_DAYS
+            || count($sellingDays) < self::MINIMUM_SELLING_DAYS
+            || max(array_keys($sellingDays)) < now()->subDays(self::HISTORY_LAST_SALE_WITHIN_DAYS)->toDateString()) {
+            return null;
+        }
+
+        $rate = min(array_sum($series) / count($series), array_sum($usage) / self::CAP_YEAR_DAYS * self::IN_STOCK_RATE_CAP_MULTIPLE);
+
+        return [$rate, $this->standardDeviation(array_values($series))];
     }
 
     /**
@@ -426,34 +636,25 @@ class OrgStockHydrateOutOfStockForecast implements ShouldBeUnique
 
     /**
      * No history here: borrow the demand of the SAME stock sold by sister organisations,
-     * damped to half — their market is similar, not ours.
+     * damped to half — their market is similar, not ours. What a sister ships to a partner
+     * organisation is restocking, not a market, and is not borrowed (HELP-4057).
      */
     private function usageFromSiblingOrganisations(OrgStock $orgStock): ?float
     {
         $siblingIds = OrgStock::where('stock_id', $orgStock->stock_id)
             ->where('id', '!=', $orgStock->id)
-            ->pluck('id');
+            ->pluck('id')
+            ->all();
 
-        if ($siblingIds->isEmpty()) {
-            return null;
-        }
+        $total = array_sum($this->borrowableDailyRates($siblingIds));
 
-        $dispatched = (float) DB::table('delivery_note_items')
-            ->whereIn('org_stock_id', $siblingIds)
-            ->where('quantity_dispatched', '>', 0)
-            ->where('created_at', '>=', now()->subDays(self::WINDOW))
-            ->sum('quantity_dispatched');
-
-        if ($dispatched <= 0) {
-            return null;
-        }
-
-        return round($dispatched / self::WINDOW / $siblingIds->count() * 0.5, 4);
+        return $total > 0 ? round($total / count($siblingIds) * 0.5, 4) : null;
     }
 
     /**
-     * Still nothing: use the average per-SKU demand of the same stock family in this
-     * organisation, heavily damped — related products share a customer, not a demand curve.
+     * Still nothing: use the per-SKU demand of the median stock of the same family in this
+     * organisation, heavily damped — related products share a customer, not a demand curve, and
+     * the median keeps one bulk seller from lending its rate to every other stock of the family.
      */
     private function usageFromFamily(OrgStock $orgStock): ?float
     {
@@ -463,23 +664,47 @@ class OrgStockHydrateOutOfStockForecast implements ShouldBeUnique
 
         $familyStockIds = OrgStock::where('org_stock_family_id', $orgStock->org_stock_family_id)
             ->where('id', '!=', $orgStock->id)
-            ->pluck('id');
+            ->pluck('id')
+            ->all();
 
-        if ($familyStockIds->isEmpty()) {
-            return null;
+        $rates  = $this->borrowableDailyRates($familyStockIds);
+        $median = $rates ? $this->median(array_values($rates)) : 0.0;
+
+        return $median > 0 ? round($median * 0.25, 4) : null;
+    }
+
+    /**
+     * What each stock sold to customers per day over the window, its one-off days cut down
+     * against its own last year.
+     *
+     * @param  array<int, int>  $orgStockIds
+     *
+     * @return array<int, float> org stock id => SKOs per day, every stock asked for
+     */
+    private function borrowableDailyRates(array $orgStockIds): array
+    {
+        if (!$orgStockIds) {
+            return [];
         }
 
-        $dispatched = (float) DB::table('delivery_note_items')
-            ->whereIn('org_stock_id', $familyStockIds)
-            ->where('quantity_dispatched', '>', 0)
-            ->where('created_at', '>=', now()->subDays(self::WINDOW))
-            ->sum('quantity_dispatched');
+        $windowFrom = now()->subDays(self::WINDOW)->startOfDay()->toDateString();
+        $usage      = $this->dispatchedByDay($orgStockIds, now()->subDays(self::CAP_YEAR_DAYS)->startOfDay(), withoutPartners: true);
 
-        if ($dispatched <= 0) {
-            return null;
+        $rates = [];
+        foreach ($orgStockIds as $orgStockId) {
+            $inWindow           = array_filter($this->withoutOneOffs($usage[$orgStockId] ?? []), fn (string $day) => $day >= $windowFrom, ARRAY_FILTER_USE_KEY);
+            $rates[$orgStockId] = array_sum($inWindow) / self::WINDOW;
         }
 
-        return round($dispatched / self::WINDOW / $familyStockIds->count() * 0.25, 4);
+        return $rates;
+    }
+
+    private function toPartnerOrganisation(Builder $query): void
+    {
+        $query->selectRaw('1')
+            ->from('delivery_notes')
+            ->join('org_partners', 'org_partners.customer_id', 'delivery_notes.customer_id')
+            ->whereColumn('delivery_notes.id', 'delivery_note_items.delivery_note_id');
     }
 
     /**

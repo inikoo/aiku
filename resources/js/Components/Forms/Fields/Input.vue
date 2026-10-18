@@ -28,6 +28,7 @@ const props = defineProps<{
         type: string
         placeholder: string
         readonly?: boolean
+        disabled?: boolean
         copyButton: boolean
         maxLength?: number
         uppercase?: boolean
@@ -138,6 +139,7 @@ const updateFormValue = (newValue) => {
                 v-model="value"
                 :inputName="fieldName"
                 :readonly="fieldData?.readonly"
+                :disabled="fieldData?.disabled"
                 :type="fieldData?.type ?? 'text'"
                 :placeholder="fieldData?.placeholder"
                 :maxlength="fieldData?.maxLength"

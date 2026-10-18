@@ -11,6 +11,7 @@ namespace App\Actions\Procurement\ShoppingListItem;
 use App\Actions\OrgAction;
 use App\Enums\Procurement\ShoppingListItem\ShoppingListItemStateEnum;
 use App\Models\Procurement\ShoppingListItem;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -32,7 +33,7 @@ class DeleteShoppingListItem extends OrgAction
         return $shoppingListItem->delete();
     }
 
-    public function asController(ShoppingListItem $shoppingListItem, ActionRequest $request): bool
+    public function asController(Organisation $organisation, ShoppingListItem $shoppingListItem, ActionRequest $request): bool
     {
         $this->initialisation($shoppingListItem->organisation, $request);
 

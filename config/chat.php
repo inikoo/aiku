@@ -27,7 +27,10 @@ return [
     // CHAT_SUGGESTION_MODEL set to one of them ends the comparison.
     'suggestion_model' => env('CHAT_SUGGESTION_MODEL'),
     'suggestion_models' => ['deepseek/deepseek-v4.1-flash', 'openai/gpt-6-luna'],
-    'suggestion_min_covered' => env('CHAT_SUGGESTION_MIN_COVERED', 0.33),
+    // INI-085: open-ended suggestions scored 4 to 16% close outside dropshipping, so only dropshipping shops get them,
+    // and only when well covered. Elsewhere only the looked-up and quoted drafts are shown.
+    'suggestion_shop_types' => array_filter(explode(',', (string) env('CHAT_SUGGESTION_SHOP_TYPES', 'dropshipping'))),
+    'suggestion_min_covered' => env('CHAT_SUGGESTION_MIN_COVERED', 0.66),
     // Shops (by slug) where suggestions are written and scored against the staff reply but never shown, until they are good enough there.
     'suggestion_shadow_shops' => array_filter(explode(',', (string) env('CHAT_SUGGESTION_SHADOW_SHOPS', 'aroma'))),
     // A version Jev finds weak is rewritten from the critic's notes, up to this many times; the best version is kept.

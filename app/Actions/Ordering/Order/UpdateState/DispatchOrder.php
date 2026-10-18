@@ -32,7 +32,6 @@ use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Lorisleiva\Actions\ActionRequest;
 
 class DispatchOrder extends OrgAction
 {
@@ -132,16 +131,7 @@ class DispatchOrder extends OrgAction
      */
     public function action(Order $order, ?DeliveryNote $deliveryNote, ?string $dispatchedAt = null, bool $repair = false): Order
     {
+        $this->asAction = true;
         return $this->handle($order, $deliveryNote, $dispatchedAt, $repair);
-    }
-
-    /**
-     * @throws \Throwable
-     */
-    public function asController(Order $order, ActionRequest $request): Order
-    {
-        $this->initialisationFromShop($order->shop, $request);
-
-        return $this->handle($order);
     }
 }

@@ -11,17 +11,19 @@ import Dialog from "primevue/dialog"
 import Tag from "primevue/tag"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faBell } from "@fal"
+import { faBell, faChevronDown, faChevronRight, faSyncAlt } from "@fal"
 import { faBell as fasBell } from "@fas"
 import SeoKeywordHistoryChart from "@/Components/Seo/SeoKeywordHistoryChart.vue"
 import SeoExportButton from "@/Components/Seo/SeoExportButton.vue"
+import { featureLabel } from "@/Components/Seo/serpFeatures"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import Table from "@/Components/Table/Table.vue"
-import { capitalize } from "@/Composables/capitalize"
+import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import { ctrans } from "@/Composables/useTrans"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { useLocaleStore } from "@/Stores/locale"
 import { routeType } from "@/types/route"
+import type { SeoKeywordOptions } from "@/Components/Seo/types"
 
 type Summary = {
     tracked: number
@@ -50,6 +52,7 @@ type RankingRow = {
     frequency: string
     last_checked_at: string | null
     is_pending: boolean
+    can_check_now: boolean
     position: number | null
     previous_position: number | null
     has_previous_check: boolean
@@ -64,26 +67,33 @@ type RankingRow = {
     alert: string | null
     history_route: routeType
     watch_route: routeType
+    check_ids: number[]
+    can_check_any: boolean
+    other_countries: RankingRow[]
 }
 
 type RankingsData = {
     domain: string | null
+    device: string
     summary: Summary
     intents: IntentRow[]
     competitors: CompetitorRow[]
     isConfigured: boolean
     depths: { weekly: number, daily: number }
+    costPerPage: number
+    checkNow: { keywords: number, cost: number, route: routeType } | null
     runChecksRoute: routeType | null
     table: object
 }
 
 defineOptions({ inheritAttrs: false })
 
-library.add(faBell, fasBell)
+library.add(faBell, fasBell, faChevronDown, faChevronRight, faSyncAlt)
 
 const props = defineProps<{
     data?: RankingsData
     tab: string
+    options: SeoKeywordOptions
 }>()
 
 const summary = computed(() => props.data!.summary)
@@ -112,32 +122,74 @@ const runChecks = () => {
 const locale = useLocaleStore()
 const page = usePage()
 
+const CONFIRM_FROM_USD = 1
+
+const usd = (amount: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: amount < 1 ? 4 : 2 }).format(amount)
+
+const countryName = (code: string) => props.options.countries.find((country) => country.value === code)?.label ?? code
+
+const records = computed<RankingRow[]>(() => (props.data?.table as { data?: RankingRow[] } | undefined)?.data ?? [])
+
+const expandedKeywords = ref<Record<number, boolean>>({})
+
+const toggleCountries = (ranking: RankingRow) => {
+    expandedKeywords.value[ranking.id] = !expandedKeywords.value[ranking.id]
+}
+
+const deviceOptions = computed(() => props.options.devices)
+
+const device = computed({
+    get: () => props.data?.device ?? "mobile",
+    set: (value: string) => {
+        const url = new URL(page.url, window.location.origin)
+
+        url.searchParams.delete(`${props.tab}Page`)
+        url.searchParams.set("device", value)
+
+        router.get(url.pathname + url.search, {}, { preserveScroll: true, preserveState: true, only: [props.tab] })
+    },
+})
+
+const costOf = (ranking: RankingRow) => (ranking.check_ids.length * (ranking.frequency === "daily" ? depths.value.daily : depths.value.weekly)) / 10 * (props.data?.costPerPage ?? 0)
+
+const checking = ref<number | "all" | null>(null)
+
+const checkNow = (ranking?: RankingRow) => {
+    const checkNowData = props.data?.checkNow
+
+    if (!checkNowData) {
+        return
+    }
+
+    if (!ranking && checkNowData.cost >= CONFIRM_FROM_USD && !window.confirm(ctrans("Check :count keywords in Google now? It costs about :cost of DataForSEO credit.", { count: locale.number(checkNowData.keywords), cost: usd(checkNowData.cost) }))) {
+        return
+    }
+
+    router.post(route(checkNowData.route.name, checkNowData.route.parameters), ranking ? { tracked_keyword_ids: ranking.check_ids } : {}, {
+        preserveScroll: true,
+        only: [props.tab],
+        onStart: () => {
+            checking.value = ranking ? ranking.id : "all"
+            runError.value = null
+        },
+        onError: (errors) => runError.value = Object.values(errors)[0] ?? null,
+        onFinish: () => checking.value = null,
+    })
+}
+
+const frequencyLabels: Record<string, string> = {
+    on_request: ctrans("On request"),
+    monthly: ctrans("Monthly"),
+    weekly: ctrans("Weekly"),
+    daily: ctrans("Daily"),
+}
+
 const intentLabels: Record<string, string> = {
     informational: ctrans("Informational"),
     navigational: ctrans("Navigational"),
     commercial: ctrans("Commercial"),
     transactional: ctrans("Transactional"),
 }
-
-const serpFeatureLabels: Record<string, string> = {
-    ai_overview: ctrans("AI Overview"),
-    featured_snippet: ctrans("Featured snippet"),
-    local_pack: ctrans("Local pack"),
-    map: ctrans("Map"),
-    shopping: ctrans("Shopping"),
-    popular_products: ctrans("Popular products"),
-    paid: ctrans("Ads"),
-    people_also_ask: ctrans("People also ask"),
-    people_also_search: ctrans("People also search"),
-    related_searches: ctrans("Related searches"),
-    images: ctrans("Images"),
-    video: ctrans("Videos"),
-    top_stories: ctrans("Top stories"),
-    knowledge_graph: ctrans("Knowledge panel"),
-    discussions_and_forums: ctrans("Forums"),
-}
-
-const featureLabel = (feature: string) => serpFeatureLabels[feature] ?? capitalize(feature.replaceAll("_", " "))
 
 const share = (count: number, total: number) => total ? Math.round(count / total * 100) : 0
 
@@ -238,13 +290,25 @@ const urlPath = (url: string) => {
 
 <template>
     <div v-if="data" class="pb-4">
-        <div v-if="data.runChecksRoute && summary.tracked" class="mx-4 mt-4 flex justify-end">
+        <div v-if="(data.checkNow || data.runChecksRoute) && summary.tracked" class="mx-4 mt-4 flex flex-wrap items-center justify-end gap-2">
             <Button
-                type="secondary"
-                :label="summary.pending ? ctrans('Collect results now') : ctrans('Run checks now')"
+                v-if="data.checkNow"
+                type="tertiary"
+                :label="data.checkNow.keywords ? ctrans('Check :count keywords now', { count: locale.number(data.checkNow.keywords) }) : ctrans('Check now')"
                 icon="fal fa-sync-alt"
+                :loading="checking === 'all'"
+                :disabled="!data.checkNow.keywords"
+                v-tooltip="data.checkNow.keywords
+                    ? ctrans('Reads the Google position of every active keyword not checked today, about :cost of DataForSEO credit. Results arrive within minutes to an hour.', { cost: usd(data.checkNow.cost) })
+                    : ctrans('Every active keyword was checked today or is waiting for its result.')"
+                @click="checkNow()" />
+            <Button
+                v-if="data.runChecksRoute"
+                type="tertiary"
+                :label="summary.pending ? ctrans('Collect results now') : ctrans('Run scheduled jobs now')"
+                icon="fal fa-terminal"
                 :loading="isRunning"
-                v-tooltip="ctrans('Local only. Runs the scheduled jobs for this shop now: volumes, queuing the due Google checks and collecting the finished ones. Google results take a few minutes, so press again to collect them.')"
+                v-tooltip="ctrans('Local only. Runs the scheduled jobs for this shop now: volumes, queuing the monthly, weekly and daily checks that are due and collecting the finished ones. Google results take a few minutes, so press again to collect them.')"
                 @click="runChecks" />
         </div>
 
@@ -259,7 +323,7 @@ const urlPath = (url: string) => {
         <section v-if="!summary.tracked" class="mx-4 mt-4 rounded-xl bg-white px-5 py-6 text-sm text-gray-600 ring-1 ring-gray-200">
             <p class="font-medium text-gray-900">{{ ctrans("No keywords are tracked for this shop yet.") }}</p>
             <p class="mt-1">
-                {{ ctrans("Add keywords in the Tracked keywords tab, or with Track on a Research result, and competitor domains in SEO > Competitors. Each keyword is checked in Google weekly or daily, and its position appears here.") }}
+                {{ ctrans("Add keywords in the Tracked keywords tab, or with Track on a Research result, and competitor domains in SEO > Competitors. A keyword is checked in Google when you press Check now, or monthly, weekly or daily if you set it so, and its position appears here.") }}
             </p>
         </section>
 
@@ -271,7 +335,7 @@ const urlPath = (url: string) => {
                         <p class="mt-1">
                             {{ summary.pending
                                 ? ctrans("Google results are on their way and usually arrive within the hour.")
-                                : ctrans("Keywords are checked every night from 00:30 UTC, and their positions appear here once the results arrive.") }}
+                                : ctrans("Press Check now to read the positions. Keywords set to monthly, weekly or daily are also checked at night from 00:30 UTC.") }}
                         </p>
                     </div>
 
@@ -366,10 +430,11 @@ const urlPath = (url: string) => {
             </div>
 
             <div class="mt-4">
-                <div class="mx-4 mb-2 flex justify-end">
+                <div class="mx-4 mb-2 flex flex-wrap items-center justify-between gap-2">
+                    <SegmentedToggle v-model="device" :options="deviceOptions" :ariaLabel="ctrans('Device')" />
                     <SeoExportButton table="rankings" />
                 </div>
-                <Table :resource="data.table" :name="tab">
+                <Table :resource="data.table" :name="tab" :useExpandTable="true">
                     <template #cell(keyword)="{ item: ranking }: { item: RankingRow }">
                         <div class="flex items-center gap-2">
                             <button
@@ -390,8 +455,34 @@ const urlPath = (url: string) => {
                                 @click="toggleWatch(ranking)">
                                 <FontAwesomeIcon :icon="ranking.is_watched ? fasBell : faBell" fixed-width aria-hidden="true" />
                             </button>
+                            <button
+                                v-if="data.checkNow"
+                                type="button"
+                                :disabled="!ranking.can_check_any || checking !== null"
+                                :aria-label="ctrans('Check :keyword now', { keyword: ranking.keyword })"
+                                v-tooltip="ranking.can_check_any
+                                    ? ctrans('Check now, about :cost of DataForSEO credit', { cost: usd(costOf(ranking)) })
+                                    : (ranking.is_pending ? ctrans('Waiting for the Google result') : ctrans('Already checked today'))"
+                                class="shrink-0 rounded text-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[--app-accent] enabled:hover:text-gray-500 disabled:cursor-not-allowed disabled:opacity-50"
+                                @click="checkNow(ranking)">
+                                <FontAwesomeIcon icon="fal fa-sync-alt" fixed-width aria-hidden="true" :spin="checking === ranking.id" />
+                            </button>
                         </div>
-                        <div class="text-xs text-gray-500">{{ ranking.country_code }} · {{ ranking.device === "mobile" ? ctrans("Mobile") : ctrans("Desktop") }} · {{ ranking.frequency === "daily" ? ctrans("Daily") : ctrans("Weekly") }}</div>
+                        <div class="flex items-center gap-1.5 text-xs text-gray-500">
+                            <button
+                                v-if="ranking.other_countries.length"
+                                type="button"
+                                class="flex items-center gap-1 rounded text-gray-600 hover:text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-[--app-accent]"
+                                :aria-expanded="!!expandedKeywords[ranking.id]"
+                                v-tooltip="expandedKeywords[ranking.id] ? ctrans('Hide the other countries') : ctrans('Best result shown. :count more countries', { count: ranking.other_countries.length })"
+                                @click="toggleCountries(ranking)">
+                                <FontAwesomeIcon :icon="expandedKeywords[ranking.id] ? faChevronDown : faChevronRight" fixed-width aria-hidden="true" />
+                                <span>{{ countryName(ranking.country_code) }} {{ ctrans("+:count", { count: ranking.other_countries.length }) }}</span>
+                            </button>
+                            <span v-else>{{ countryName(ranking.country_code) }}</span>
+                            <span aria-hidden="true">·</span>
+                            <span>{{ frequencyLabels[ranking.frequency] ?? ranking.frequency }}</span>
+                        </div>
                     </template>
 
                     <template #cell(position)="{ item: ranking }: { item: RankingRow }">
@@ -448,6 +539,97 @@ const urlPath = (url: string) => {
                             </li>
                         </ul>
                         <span v-else class="text-gray-400">-</span>
+                    </template>
+
+                    <template #expandRow="{ item }">
+                        <div
+                            v-if="records[item.rowIndex]?.other_countries.length && expandedKeywords[records[item.rowIndex].id]"
+                            class="border-y border-gray-200 bg-gray-50 px-4 py-2">
+                            <table class="w-full text-xs">
+                                <thead>
+                                    <tr class="text-gray-500">
+                                        <th scope="col" class="py-1 pl-6 text-left font-medium">{{ ctrans("Country") }}</th>
+                                        <th scope="col" class="py-1 pr-3 text-right font-medium">{{ ctrans("Position") }}</th>
+                                        <th scope="col" class="py-1 pr-3 text-right font-medium">{{ ctrans("Change") }}</th>
+                                        <th scope="col" class="py-1 pr-3 text-left font-medium">{{ ctrans("Ranking page") }}</th>
+                                        <th scope="col" class="py-1 pr-3 text-right font-medium">{{ ctrans("Monthly searches") }}</th>
+                                        <th scope="col" class="py-1 pr-3 text-left font-medium">{{ ctrans("On the results page") }}</th>
+                                        <th scope="col" class="py-1" />
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    <tr v-for="other in records[item.rowIndex].other_countries" :key="other.id">
+                                        <td class="py-1.5 pl-6 text-gray-700">
+                                            <button
+                                                type="button"
+                                                class="text-left underline-offset-2 hover:underline focus-visible:underline"
+                                                v-tooltip="ctrans('Position history')"
+                                                @click="historyFor = other">
+                                                {{ countryName(other.country_code) }}
+                                            </button>
+                                            <span class="ml-1 text-gray-500">{{ frequencyLabels[other.frequency] ?? other.frequency }}</span>
+                                        </td>
+                                        <td class="py-1.5 pr-3 text-right">
+                                            <span :class="other.position !== null ? 'font-medium tabular-nums text-gray-900' : 'text-gray-500'">{{ positionText(other) }}</span>
+                                        </td>
+                                        <td class="py-1.5 pr-3 text-right">
+                                            <span v-if="change(other)" class="tabular-nums" :class="change(other)!.class">{{ change(other)!.text }}</span>
+                                            <span v-else class="text-gray-400">-</span>
+                                            <Tag v-if="other.alert" severity="danger" :value="alertLabels[other.alert] ?? other.alert" class="ml-1" />
+                                        </td>
+                                        <td class="py-1.5 pr-3">
+                                            <a
+                                                v-if="other.ranking_url"
+                                                :href="other.ranking_url"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                class="block max-w-xs truncate text-[--app-accent] underline-offset-2 hover:underline focus-visible:underline"
+                                                :title="other.ranking_url">
+                                                {{ urlPath(other.ranking_url) }}
+                                            </a>
+                                            <span v-else class="text-gray-400">-</span>
+                                        </td>
+                                        <td class="py-1.5 pr-3 text-right tabular-nums text-gray-700">{{ other.avg_monthly_searches === null ? "-" : locale.number(other.avg_monthly_searches) }}</td>
+                                        <td class="py-1.5 pr-3">
+                                            <div class="flex max-w-xs flex-wrap gap-1">
+                                                <Tag
+                                                    v-for="feature in other.serp_features"
+                                                    :key="feature"
+                                                    :value="featureLabel(feature)"
+                                                    :severity="feature === 'ai_overview' && other.in_ai_overview ? 'success' : 'secondary'" />
+                                            </div>
+                                        </td>
+                                        <td class="py-1.5 pr-2 text-right">
+                                            <span class="inline-flex items-center gap-2">
+                                                <button
+                                                    type="button"
+                                                    :aria-pressed="other.is_watched"
+                                                    :disabled="watching === other.id"
+                                                    :aria-label="other.is_watched ? ctrans('Stop watching :keyword', { keyword: countryName(other.country_code) }) : ctrans('Watch :keyword', { keyword: countryName(other.country_code) })"
+                                                    v-tooltip="other.is_watched ? ctrans('You are told when it falls. Click to stop.') : ctrans('Watch: be told by notification and email when it leaves the top 10 or drops :places places', { places: 5 })"
+                                                    class="rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-[--app-accent]"
+                                                    :class="other.is_watched ? 'text-[--app-accent]' : 'text-gray-300 hover:text-gray-500'"
+                                                    @click="toggleWatch(other)">
+                                                    <FontAwesomeIcon :icon="other.is_watched ? fasBell : faBell" fixed-width aria-hidden="true" />
+                                                </button>
+                                                <button
+                                                    v-if="data.checkNow"
+                                                    type="button"
+                                                    :disabled="!other.can_check_now || checking !== null"
+                                                    :aria-label="ctrans('Check :keyword now', { keyword: countryName(other.country_code) })"
+                                                    v-tooltip="other.can_check_now
+                                                        ? ctrans('Check now, about :cost of DataForSEO credit', { cost: usd(costOf(other)) })
+                                                        : (other.is_pending ? ctrans('Waiting for the Google result') : ctrans('Already checked today'))"
+                                                    class="rounded text-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[--app-accent] enabled:hover:text-gray-500 disabled:cursor-not-allowed disabled:opacity-50"
+                                                    @click="checkNow(other)">
+                                                    <FontAwesomeIcon icon="fal fa-sync-alt" fixed-width aria-hidden="true" :spin="checking === other.id" />
+                                                </button>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </template>
                 </Table>
             </div>

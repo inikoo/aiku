@@ -9,10 +9,10 @@
 namespace App\Actions\Web\Seo;
 
 use App\Actions\OrgAction;
-use App\Enums\Web\Seo\SeoKeywordDeviceEnum;
 use App\Enums\Web\Seo\SeoKeywordFrequencyEnum;
 use App\Models\Web\SeoTrackedKeyword;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -20,18 +20,23 @@ class UpdateSeoTrackedKeyword extends OrgAction
 {
     use WithSeoEditAuthorisation;
 
+    /**
+     * @param  array{is_active?: bool, frequency?: string, all_countries?: bool}  $modelData
+     */
     public function handle(SeoTrackedKeyword $trackedKeyword, array $modelData): SeoTrackedKeyword
     {
-        $trackedKeyword->update($modelData);
+        $everyCountry = Arr::pull($modelData, 'all_countries', false);
 
-        return $trackedKeyword;
+        ($everyCountry ? $trackedKeyword->onEveryMarket() : $trackedKeyword->onEveryDevice())->update($modelData);
+
+        return $trackedKeyword->refresh();
     }
 
     public function rules(): array
     {
         return [
+            'all_countries' => ['sometimes', 'boolean'],
             'is_active' => ['sometimes', 'boolean'],
-            'device'    => ['sometimes', Rule::enum(SeoKeywordDeviceEnum::class)],
             'frequency' => ['sometimes', Rule::enum(SeoKeywordFrequencyEnum::class)],
         ];
     }

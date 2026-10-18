@@ -2,6 +2,7 @@
 
 namespace App\Actions\GoodsIn\StockDelivery\UI;
 
+use App\Enums\Procurement\OrgAgent\OrgAgentOrderContainerEnum;
 use App\Models\GoodsIn\StockDelivery;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -30,6 +31,13 @@ class GetStockDeliveryData
                             ['label' => __('Container'), 'value' => 'container'],
                             ['label' => __('Parcel'), 'value' => 'parcel'],
                         ],
+                    ],
+                    'container_size' => [
+                        'type'    => 'select',
+                        'label'   => __('Container size'),
+                        'value'   => Arr::get($data, 'container_size'),
+                        'hidden'  => $isParcel,
+                        'options' => OrgAgentOrderContainerEnum::selectOptions(),
                     ],
                     'reference'     => [
                         'type'  => 'input',
@@ -65,6 +73,31 @@ class GetStockDeliveryData
                         'type'  => 'date',
                         'label' => __('Estimated receiving date'),
                         'value' => Arr::get($data, 'estimated_receiving_date'),
+                    ],
+                ],
+            ],
+            [
+                'title'  => __('Tracking'),
+                'fields' => [
+                    'shipper_reference' => [
+                        'type'  => 'input',
+                        'label' => __('Shipper reference'),
+                        'value' => Arr::get($data, 'shipper_reference'),
+                    ],
+                    'tracking_number'   => [
+                        'type'  => 'input',
+                        'label' => __('Bill of lading number'),
+                        'value' => Arr::get($data, 'tracking_number'),
+                    ],
+                    'container_number'  => [
+                        'type'  => 'input',
+                        'label' => __('Container number'),
+                        'value' => Arr::get($data, 'container_number'),
+                    ],
+                    'shipping_agent'    => [
+                        'type'  => 'input',
+                        'label' => __('Shipping agent'),
+                        'value' => Arr::get($data, 'shipping_agent'),
                     ],
                 ],
             ],

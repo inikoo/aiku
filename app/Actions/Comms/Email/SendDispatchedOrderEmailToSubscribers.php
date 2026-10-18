@@ -36,7 +36,7 @@ class SendDispatchedOrderEmailToSubscribers extends OrgAction
         $outbox = $order->shop->outboxes()->where('code', OutboxCodeEnum::DELIVERY_NOTE_DISPATCHED->value)->first();
 
         $customer = $order->customer;
-        $deliveryNote = $order->deliveryNotes->first();
+        $deliveryNote = $order->currentDeliveryNote();
         $invoice = $order->invoices?->first() ?? null;
         $invoiceLink = '#';
         $invoiceReference = '';

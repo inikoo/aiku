@@ -41,7 +41,7 @@ Nous changeons la variante, car nous en avons besoin pour envoyer le stock et re
 - Nous remplaçons la variante unique du produit par une variante portant notre SKU, notre code-barres, notre poids et notre coût, et la stockons à l'emplacement <b>aiku-</b>.
 - Nous gardons votre prix de vente si la variante avait un prix supérieur à zéro. Sinon, nous utilisons votre prix de vente issu de <b>My Products</b>.
 
-Si vous vendez nos produits comme les variantes d'un seul produit Shopify, demandez-nous dans le chat de notre site d'activer la liaison aux variantes existantes pour votre canal. Nous ne lions alors que la variante portant notre SKU et ne changeons rien d'autre dessus : ni le prix, ni le SKU, ni le code-barres.
+Si vous vendez nos produits comme les variantes d'un seul produit Shopify, donnez à chaque variante le SKU de son produit. Lors de la correspondance, nous ne lions que la variante portant notre SKU et ne changeons rien d'autre dessus : ni le prix, ni le SKU, ni le code-barres. Il n'y a rien à activer.
 
 ## Ce que nous mettons à jour ensuite
 

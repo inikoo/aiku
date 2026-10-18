@@ -244,6 +244,13 @@ class PartnerShoppingListItem extends Model
         return $this->state === ShoppingListItemStateEnum::OPEN && !$this->transaction_id;
     }
 
+    public function claimedSkos(): float
+    {
+        $toProduce = (float) ($this->quantity_to_produce ?? $this->quantity);
+
+        return $this->partner_organisation_id ? min($toProduce, ceil((float) $this->quantity)) : $toProduce;
+    }
+
     public function jobOrder(): BelongsTo
     {
         return $this->belongsTo(\App\Models\Production\JobOrder::class);

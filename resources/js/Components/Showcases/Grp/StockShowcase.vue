@@ -13,7 +13,8 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { faTrash as falTrash, faShoppingBasket, faEdit, faExternalLink, faStickyNote, faStopCircle, faFilePdf, faWeightHanging, faRulerCombined } from "@fal"
 import { faCircle, faPlay, faTrash, faPlus, faInventory as fasInventory, faShoppingCart as fasShoppingCart, faShoppingBasket as fasShoppingBasket } from "@fas"
 import { faExclamationTriangle, faFireAlt } from "@fad"
-import { faChevronDown } from "@fal"
+import { faChevronDown, faCheck, faTimes, faBarcode, faTrashAlt, faExclamationCircle } from "@fal"
+import InputText from "primevue/inputtext"
 import StocksManagement from "@/Components/Warehouse/Inventory/StocksManagement/StocksManagement.vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import { StocksManagementTS } from "@/types/Inventory/StocksManagement"
@@ -28,12 +29,12 @@ import { useFormatTime } from "@/Composables/useFormatTime"
 import Modal from "@/Components/Utils/Modal.vue"
 import OrgStockLabelModal from "@/Components/Warehouse/Inventory/OrgStockLabelModal.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import { notify } from "@kyvg/vue3-notification"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { useConfirm } from "primevue/useconfirm"
 import ConfirmDialog from "primevue/confirmdialog"
 import SalesAnalysisTeaser from "@/Components/SalesAnalysis/SalesAnalysisTeaser.vue"
 import SalesAnalysisMovers from "@/Components/SalesAnalysis/SalesAnalysisMovers.vue"
+import OrgStockProductionOverview from "@/Components/Production/OrgStockProductionOverview.vue"
 library.add(faChevronDown, faExclamationTriangle, faFireAlt, faCircle, faTrash, falTrash, faShoppingBasket, fasInventory, fasShoppingCart, fasShoppingBasket, faEdit, faExternalLink, faStickyNote, faPlay, faPlus, faStopCircle, faFilePdf, faWeightHanging, faRulerCombined)
 
 const props = defineProps < {
@@ -116,6 +117,7 @@ const props = defineProps < {
             reason_label: string | null
         }[]
         stock_history_route?: routeType
+        production?: Record<string, any> | null
         future_orders?: {
             id: string
             reference: string
@@ -194,8 +196,9 @@ const stockCostStats = computed(() => {
 
 const renderBarcodes = () => {
     props.data.barcodes?.forEach((barcode) => {
-        if (!barcode.number) return
-        JsBarcode("#barcode-" + barcode.level, barcode.number, {
+        const barcodeElement = document.getElementById("barcode-" + barcode.level)
+        if (!barcode.number || !barcodeElement) return
+        JsBarcode(barcodeElement, barcode.number, {
             format: /^\d{13}$/.test(barcode.number) ? "EAN13" : "CODE128",
             lineColor: "#000",
             width: 2,
@@ -217,7 +220,9 @@ const editingLevel = ref<string>("sko")
 const editingHasNumber = ref(false)
 const editingWarning = ref<string | null>(null)
 
-const barcodeInputElement = ref<HTMLInputElement | null>(null)
+const barcodeError = ref<string | null>(null)
+
+const barcodeInputElement = ref<{ $el: HTMLInputElement } | null>(null)
 
 const barcodeRouteForLevel = (level: string): routeType | undefined =>
     level === "unit" ? props.data.unit_barcode_update_route : props.data.barcode_update_route
@@ -232,8 +237,9 @@ const openBarcodeModal = (barcode: { level: string, number: string, warning?: st
     editingHasNumber.value = !!barcode.number
     editingWarning.value = barcode.warning ?? null
     barcodeInput.value = barcode.number || ""
+    barcodeError.value = null
     isBarcodeModalOpen.value = true
-    nextTick(() => barcodeInputElement.value?.focus())
+    nextTick(() => barcodeInputElement.value?.$el?.focus())
 }
 
 const applyBarcodeChange = (value: string | null, fromPool = false) => {
@@ -247,18 +253,18 @@ const applyBarcodeChange = (value: string | null, fromPool = false) => {
         fromPool ? { from_pool: true } : { [field]: value },
         {
             preserveScroll: true,
-            onStart: () => isSavingBarcode.value = true,
+            onStart: () => {
+                isSavingBarcode.value = true
+                barcodeError.value = null
+            },
             onFinish: () => isSavingBarcode.value = false,
             onSuccess: () => {
                 isBarcodeModalOpen.value = false
                 nextTick(renderBarcodes)
             },
             onError: (errors) => {
-                notify({
-                    title: ctrans("Something went wrong"),
-                    text: errors[field] || errors.barcode || ctrans("Could not save the barcode"),
-                    type: "error",
-                })
+                barcodeError.value = errors[field] || errors.barcode || ctrans("Could not save the barcode")
+                nextTick(() => barcodeInputElement.value?.$el?.select())
             },
         }
     )
@@ -385,6 +391,8 @@ const saveBarcode = (value: string | null) => {
                             </div>
                         </div>
                     </div>
+
+                    <OrgStockProductionOverview v-if="data.production" :data="data.production" />
 
                     <template v-if="salesAnalysisTeaser !== undefined">
                         <SalesAnalysisTeaser :teaser="salesAnalysisTeaser" :compact="compact" :onOpenAnalysis="onOpenAnalysis" />
@@ -656,41 +664,64 @@ const saveBarcode = (value: string | null) => {
                 <div class="text-sm text-gray-500">
                     {{ ctrans("Type the barcode, or click the field and scan the item with a barcode scanner.") }}
                 </div>
-                <input
+                <InputText
                     ref="barcodeInputElement"
                     v-model="barcodeInput"
-                    type="text"
                     autocomplete="off"
                     spellcheck="false"
                     maxlength="54"
+                    :invalid="!!barcodeError"
                     :placeholder="ctrans('e.g. 5055796528387')"
-                    class="w-full rounded-md border-gray-300 py-2 px-3 font-mono text-lg tracking-wide focus:border-[--app-accent] focus:ring-[--app-accent]"
+                    class="w-full font-mono text-lg tracking-wide"
+                    @update:modelValue="barcodeError = null"
                     @keydown.enter.prevent="saveBarcode(barcodeInput.trim() || null)"
                 />
+                <div v-if="barcodeError" role="alert" class="flex gap-3 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+                    <FontAwesomeIcon :icon="faExclamationCircle" class="mt-0.5 text-red-500" fixed-width aria-hidden="true" />
+                    <div>
+                        <div class="font-semibold">{{ ctrans("The barcode was not saved") }}</div>
+                        <div class="mt-1">{{ barcodeError }}</div>
+                    </div>
+                </div>
                 <Button
                     v-if="editingLevel === 'unit' && !editingHasNumber"
-                    type="secondary"
-                    icon="fal fa-barcode"
+                    type="tertiary"
                     :label="ctrans('Take the next free barcode from the pool')"
                     :loading="isSavingBarcode"
                     full
-                    @click="assignUnitBarcodeFromPool" />
+                    @click="assignUnitBarcodeFromPool">
+                    <template #icon>
+                        <FontAwesomeIcon :icon="faBarcode" fixed-width aria-hidden="true" />
+                    </template>
+                </Button>
                 <div class="flex justify-between gap-2">
                     <Button
                         v-if="editingHasNumber"
-                        type="negative"
+                        type="tertiary"
                         :label="ctrans('Remove barcode')"
-                        icon="fal fa-trash-alt"
                         :loading="isSavingBarcode"
-                        @click="saveBarcode(null)" />
+                        @click="saveBarcode(null)">
+                        <template #icon>
+                            <FontAwesomeIcon :icon="faTrashAlt" class="text-red-500" fixed-width aria-hidden="true" />
+                        </template>
+                    </Button>
                     <div class="ml-auto flex gap-2 w-full">
-                        <Button type="tertiary" :label="ctrans('Cancel')" @click="isBarcodeModalOpen = false" />
+                        <Button type="tertiary" :label="ctrans('Cancel')" @click="isBarcodeModalOpen = false">
+                            <template #icon>
+                                <FontAwesomeIcon :icon="faTimes" class="text-red-500" fixed-width aria-hidden="true" />
+                            </template>
+                        </Button>
                         <Button
+                            type="tertiary"
                             :label="ctrans('Save')"
                             :loading="isSavingBarcode"
                             full
                             :disabled="!barcodeInput.trim()"
-                            @click="saveBarcode(barcodeInput.trim())" />
+                            @click="saveBarcode(barcodeInput.trim())">
+                            <template #icon>
+                                <FontAwesomeIcon :icon="faCheck" class="text-green-600" fixed-width aria-hidden="true" />
+                            </template>
+                        </Button>
                     </div>
                 </div>
             </div>

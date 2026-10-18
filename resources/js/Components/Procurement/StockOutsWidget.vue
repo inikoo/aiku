@@ -143,9 +143,11 @@ const toneColor = {
 	"red-deep": "#b91c1c",
 	red: "#ef4444",
 	orange: "#f97316",
+	"orange-light": "#fb923c",
 	amber: "#fbbf24",
 	yellow: "#fde047",
 	green: "#16a34a",
+	"red-light": "#f87171",
 	blue: "#3b82f6",
 	gray: "#9ca3af",
 }

@@ -8,7 +8,6 @@
 
 namespace App\Actions\UI\Grp\Layout;
 
-use App\Actions\HumanResources\Employee\GetSectionSupervisedEmployeeIds;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
@@ -143,48 +142,8 @@ trait WithLayoutNavigation
         return $navigation;
     }
 
-    private function getSectionSupervisorHumanResourcesNav(Organisation $organisation): array
-    {
-        $subSection = fn (string $label, array $icon, string $root, string $routeName) => [
-            'label'   => $label,
-            'tooltip' => $label,
-            'icon'    => $icon,
-            'root'    => $root,
-            'route'   => [
-                'name'       => $routeName,
-                'parameters' => [$organisation->slug],
-            ],
-        ];
-
-        return [
-            'label'   => __('Human Resources'),
-            'icon'    => ['fal', 'fa-user-hard-hat'],
-            'root'    => 'grp.org.hr',
-            'route'   => [
-                'name'       => 'grp.org.hr.dashboard',
-                'parameters' => [$organisation->slug],
-            ],
-            'topMenu' => [
-                'subSections' => [
-                    $subSection(__('Dashboard'), ['fal', 'fa-chart-network'], 'grp.org.hr.dashboard', 'grp.org.hr.dashboard'),
-                    $subSection(__('Employees'), ['fal', 'fa-users'], 'grp.org.hr.employees.', 'grp.org.hr.employees.index'),
-                    $subSection(__('Timesheets'), ['fal', 'fa-stopwatch'], 'grp.org.hr.timesheets.', 'grp.org.hr.timesheets.index'),
-                    $subSection(__('Clockings'), ['fal', 'fa-chess-clock'], 'grp.org.hr.clockings.', 'grp.org.hr.clockings.index'),
-                    $subSection(__('Overtime'), ['fal', 'fa-stopwatch'], 'grp.org.hr.overtime.', 'grp.org.hr.overtime.index'),
-                    $subSection(__('Leave Requests'), ['fas', 'fa-house-leave'], 'grp.org.hr.leaves.', 'grp.org.hr.leaves.index'),
-                ],
-            ],
-        ];
-    }
-
     public function getHumanResourcesNavs(User $user, Organisation $organisation, array $navigation): array
     {
-        if (!$user->authTo("human-resources.$organisation->id.view") && GetSectionSupervisedEmployeeIds::make()->getSupervisedSectionPrefixes($user, $organisation)) {
-            $navigation['hr'] = $this->getSectionSupervisorHumanResourcesNav($organisation);
-
-            return $navigation;
-        }
-
         if ($user->authTo("human-resources.$organisation->id.view")) {
             $navigation['hr'] = [
                 'label'   => __('Human Resources'),
@@ -271,6 +230,11 @@ trait WithLayoutNavigation
                             'tooltip' => __('Holidays'),
                             'icon'    => ['fal', 'fa-umbrella'],
                             'root'    => 'grp.org.hr.holidays.',
+                            'roots'   => [
+                                'grp.org.hr.calendars.',
+                                'grp.org.hr.holiday_years.',
+                                'grp.org.hr.restricted_periods.',
+                            ],
                             'route'   => [
                                 'name'       => 'grp.org.hr.holidays.index',
                                 'parameters' => [$organisation->slug],
@@ -281,6 +245,10 @@ trait WithLayoutNavigation
                             'tooltip' => __('Overtime'),
                             'icon'    => ['fal', 'fa-stopwatch'],
                             'root'    => 'grp.org.hr.overtime.',
+                            'roots'   => [
+                                'grp.org.hr.overtime_types.',
+                                'grp.org.hr.overtime_requests.',
+                            ],
                             'route'   => [
                                 'name'       => 'grp.org.hr.overtime.index',
                                 'parameters' => [$organisation->slug],
@@ -291,15 +259,20 @@ trait WithLayoutNavigation
                             'tooltip' => __('Leave Requests'),
                             'icon'    => ['fas', 'fa-house-leave'],
                             'root'    => 'grp.org.hr.leaves.',
+                            'roots'   => [
+                                'grp.org.hr.leave_approvers.',
+                                'grp.org.hr.leave_concurrency_rules.',
+                            ],
                             'route'   => [
                                 'name'       => 'grp.org.hr.leaves.index',
                                 'parameters' => [$organisation->slug],
                             ],
                         ],
                         [
-                            'label'   => __('Adjustments'),
-                            'tooltip' => __('Adjustments'),
+                            'label'   => __('Clocking adjustment'),
+                            'tooltip' => __('Clocking adjustment'),
                             'icon'    => ['fal', 'fa-clock'],
+                            'icon_layers' => [['fal', 'fa-clock'], ['fal', 'fa-pencil']],
                             'root'    => 'grp.org.hr.adjustments.',
                             'route'   => [
                                 'name'       => 'grp.org.hr.adjustments.index',

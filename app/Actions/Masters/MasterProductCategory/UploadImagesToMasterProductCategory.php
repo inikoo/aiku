@@ -9,6 +9,7 @@
 namespace App\Actions\Masters\MasterProductCategory;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithMastersMediaEditAuthorisation;
 use App\Actions\Traits\WithAttachMediaToModel;
 use App\Actions\Traits\WithUploadModelImages;
 use App\Models\Masters\MasterProductCategory;
@@ -16,6 +17,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class UploadImagesToMasterProductCategory extends OrgAction
 {
+    use WithMastersMediaEditAuthorisation;
     use WithAttachMediaToModel;
     use WithUploadModelImages;
 

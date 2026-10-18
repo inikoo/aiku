@@ -123,6 +123,14 @@ interface Customer {
 
 const props = defineProps<{
     data: {
+        permissions: {
+            edit: boolean
+            edit_customer: boolean
+            edit_address: boolean
+            edit_subscriptions: boolean
+            edit_balance: boolean
+            edit_gift_opt_out: boolean
+        }
         customer: Customer
         address_management: {
             can_open_address_management: boolean
@@ -194,6 +202,7 @@ const props = defineProps<{
     }
     tab: string
     handleTabUpdate?: Function
+    openEmailCustomer?: () => void
     timeline?: {
         events: {
             id: string
@@ -471,7 +480,7 @@ const submitNote = async () => {
                 </p>
             </div>
 
-            <div class="mt-5 flex justify-center gap-3">
+            <div v-if="data.permissions.edit" class="mt-5 flex justify-center gap-3">
                 <Link :href="route(data.approveRoute.name, data.approveRoute.parameters)" method="patch"
                       :data="{ status: 'approved' }">
                     <ButtonPrimeVue class="fixed-width-btn" severity="success" size="small" variant="outlined">
@@ -491,7 +500,7 @@ const submitNote = async () => {
     <!-- Quick Actions Bar -->
     <div class="px-4 pt-6 md:px-6 lg:px-8">
         <div class="flex flex-wrap items-center gap-3">
-            <BoxNote v-if="data.shop.type !== 'external'" :noteData="data.internal_note" :updateRoute="data.update_route" :alternativeStyle="true" class="h-full">
+            <BoxNote v-if="data.shop.type !== 'external' && data.permissions.edit" :noteData="data.internal_note" :updateRoute="data.update_route" :alternativeStyle="true" class="h-full">
                 <template #mainIcon>
                     <FontAwesomeIcon icon="fal fa-sticky-note" class="text-amber-500 text-xs" fixed-width />
                     {{ trans("Add Note") }}
@@ -513,8 +522,16 @@ const submitNote = async () => {
                 <FontAwesomeIcon icon="fal fa-code-branch" class="text-green-500 text-xs" fixed-width />
                 {{ trans("Full Timeline") }}
             </button>
+            <button
+                v-if="openEmailCustomer"
+                @click="openEmailCustomer"
+                class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+                <FontAwesomeIcon icon="fal fa-envelope" class="text-blue-500 text-xs" fixed-width />
+                {{ trans("Send Email") }}
+            </button>
             <a
-                v-if="data.customer.email && data.shop.type !== 'external'"
+                v-else-if="data.customer.email && data.shop.type !== 'external'"
                 :href="`mailto:${data.customer.email}`"
                 class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors"
             >
@@ -533,6 +550,7 @@ const submitNote = async () => {
             <UpcomingTransactionsPanel
                 v-if="data.upcoming_transaction_route && data.shop.type !== 'external'"
                 :routes="data.upcoming_transaction_route"
+                :canEdit="data.permissions.edit"
                 :shopSlug="data.shop.slug"
                 :temporaryNote="temporaryNote"
             />
@@ -577,7 +595,7 @@ const submitNote = async () => {
                         </div>
 
                         <!-- Field: Gold reward manual extension -->
-                        <div v-if="gr_data?.shop_has_gr" class="flex items-center w-full flex-none gap-x-4 px-6">
+                        <div v-if="gr_data?.shop_has_gr && data.permissions.edit" class="flex items-center w-full flex-none gap-x-4 px-6">
                             <dt v-tooltip="trans('Manually extend gold reward membership until a given date')" class="flex-none">
                                 <FontAwesomeIcon icon="fas fa-medal" class="text-gray-400" fixed-width aria-hidden="true" />
                             </dt>
@@ -696,7 +714,7 @@ const submitNote = async () => {
                                     <span v-html="data?.customer?.address.formatted_address" />
                                     <div v-if="data.address_management.can_open_address_management && data.shop.type !== 'external'"
                                          @click="() => isModalAddress = true"
-                                         class="w-fit pr-4 whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
+                                         class="w-fit pr-4 whitespace-nowrap select-none text-gray-500 hover:text-[--app-accent] underline cursor-pointer">
                                         <span>{{ trans("Edit") }}</span>
                                     </div>
                                 </div>
@@ -714,7 +732,7 @@ const submitNote = async () => {
                                     <span v-html="data.customer.delivery_address.formatted_address" />
                                     <div v-if="data.address_management.can_open_address_management && data.shop.type !== 'external'"
                                          @click="() => isModalAddress = true"
-                                         class="w-fit pr-4 whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
+                                         class="w-fit pr-4 whitespace-nowrap select-none text-gray-500 hover:text-[--app-accent] underline cursor-pointer">
                                         <span>{{ trans("Edit") }}</span>
                                     </div>
                                 </div>
@@ -769,6 +787,7 @@ const submitNote = async () => {
                                 <span v-if="localGiftOptedOut" class="text-xs text-red-500 font-medium">
                                     {{ trans("Opted out") }}
                                 </span>
+                                <template v-if="data.permissions.edit_gift_opt_out">
                                 <button
                                     v-if="isLoadingGiftOptOut"
                                     class="text-xs text-gray-400 cursor-not-allowed"
@@ -792,6 +811,7 @@ const submitNote = async () => {
                                 >
                                     {{ trans("Opt out") }}
                                 </button>
+                                </template>
                             </dd>
                         </div>
                     </div>
@@ -910,7 +930,7 @@ const submitNote = async () => {
                     <button
                         v-if="handleTabUpdate"
                         @click="() => handleTabUpdate('offers')"
-                        class="text-xs text-indigo-500 hover:text-indigo-700 transition-colors"
+                        class="text-xs text-gray-500 hover:text-gray-700 transition-colors"
                     >
                         {{ trans("View all") }} →
                     </button>
@@ -1096,17 +1116,17 @@ const submitNote = async () => {
                                         locale.currencyFormat(data.currency?.code, value),
                                 }" />
                         </div>
-                        <div class="flex items-center">
+                        <div v-if="data.permissions.edit_balance" class="flex items-center">
                             <div @click="() => isModalBalanceIncrease = true"
                                  v-tooltip="trans('Increase customer balance')"
-                                 class="cursor-pointer text-gray-400 hover:text-indigo-600">
+                                 class="cursor-pointer text-gray-400 hover:text-[--app-accent]">
                                 <FontAwesomeIcon :icon="faArrowAltFromBottom" class="text-base"
                                                  tooltip="Decrease Balance" fixed-width aria-hidden="true" />
                             </div>
                             <span class="mx-2 text-gray-400">|</span>
                             <div @click="() => isModalBalanceDecrease = true"
                                  v-tooltip="trans('Decrease customer balance')"
-                                 class="cursor-pointer text-gray-400 hover:text-indigo-600">
+                                 class="cursor-pointer text-gray-400 hover:text-[--app-accent]">
                                 <FontAwesomeIcon :icon="faArrowAltFromTop" class="text-base"
                                                  tooltip="Decrease Balance" fixed-width aria-hidden="true" />
                             </div>
@@ -1141,7 +1161,7 @@ const submitNote = async () => {
             <!-- Email Subscriptions -->
             <EmailSubscription v-if="data?.customer?.email_subscriptions"
                                :emailSubscriptions="data.customer.email_subscriptions"
-                               :showEditButton="data.shop.type !== 'external'" />
+                               :showEditButton="data.shop.type !== 'external' && data.permissions.edit_subscriptions" />
         </div>
     </div>
 
@@ -1151,14 +1171,14 @@ const submitNote = async () => {
     </Modal>
 
     <!-- Modal: Increase balance -->
-    <Modal v-if="data.shop.type !== 'external'" :isOpen="isModalBalanceIncrease" @onClose="() => (isModalBalanceIncrease = false)" width="max-w-2xl w-full">
+    <Modal v-if="data.shop.type !== 'external' && data.permissions.edit_balance" :isOpen="isModalBalanceIncrease" @onClose="() => (isModalBalanceIncrease = false)" width="max-w-2xl w-full">
         <CustomerDSBalanceIncrease v-model="isModalBalanceIncrease" :routeSubmit="data.balance.route_increase"
                                    :options="data.balance.increase_reasons_options" :currency="data.currency"
                                    :types="data.balance.type_options" :balance="data.customer.balance" />
     </Modal>
 
     <!-- Modal: Decrease balance -->
-    <Modal v-if="data.shop.type !== 'external'" :isOpen="isModalBalanceDecrease" @onClose="() => (isModalBalanceDecrease = false)" width="max-w-2xl w-full">
+    <Modal v-if="data.shop.type !== 'external' && data.permissions.edit_balance" :isOpen="isModalBalanceDecrease" @onClose="() => (isModalBalanceDecrease = false)" width="max-w-2xl w-full">
         <CustomerDSBalanceDecrease v-model="isModalBalanceDecrease" :routeSubmit="data.balance.route_decrease"
                                    :options="data.balance.decrease_reasons_options" :currency="data.currency"
                                    :types="data.balance.type_options" :balance="data.customer.balance" />
@@ -1176,7 +1196,7 @@ const submitNote = async () => {
                 v-model="noteText"
                 rows="4"
                 :placeholder="trans('Write your note...')"
-                class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-400 focus:ring-indigo-400"
+                class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-[--app-accent] focus:ring-[--app-accent]"
             />
 
             <!-- Image picker -->

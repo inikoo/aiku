@@ -8,10 +8,14 @@
 
 namespace App\Actions\SysAdmin\McpChange;
 
+use App\Models\Goods\TradeUnit;
+use App\Actions\Goods\TradeUnit\UpdateTradeUnit;
 use App\Actions\Catalogue\ProductCategory\RelatedProducts\SyncProductCategoryRelatedProducts;
 use App\Actions\Inventory\OrgStock\DiscontinueOrgStocks;
 use App\Actions\Inventory\OrgStock\UpdateOrgStock;
+use App\Actions\Procurement\OrgSupplierProducts\UpdateOrgSupplierProduct;
 use App\Actions\Procurement\PartnerShoppingListItem\DeletePartnerShoppingListItem;
+use App\Actions\SupplyChain\SupplierProduct\UpdateSupplierProduct;
 use App\Actions\Procurement\PartnerShoppingListItem\UpdatePartnerShoppingListItem;
 use App\Actions\Production\Artefact\DetachManufactureTaskFromArtefact;
 use App\Actions\Production\Artefact\SetArtefactsRecipe;
@@ -20,17 +24,30 @@ use App\Actions\Production\Artefact\UpdateArtefact;
 use App\Actions\Production\ManufactureTask\UpdateManufactureTask;
 use App\Actions\Production\RawMaterial\UpdateRawMaterial;
 use App\Actions\Masters\MasterProductCategory\RelatedChild\RelatedMasterProducts\SyncMasterProductCategoryRelatedMasterAssets;
+use App\Actions\GoodsIn\StockDelivery\DeleteStockDeliveryCost;
+use App\Actions\GoodsIn\StockDelivery\EvaluateStockDeliveryCosting;
+use App\Actions\GoodsIn\StockDelivery\UpdateStockDeliveryCost;
+use App\Enums\GoodsIn\StockDelivery\StockDeliveryCostTypeEnum;
 use App\Enums\Production\Artefact\ArtefactStateEnum;
 use App\Enums\SysAdmin\McpChange\McpChangeTypeEnum;
 use App\Models\Catalogue\ProductCategory;
+use App\Models\GoodsIn\StockDelivery;
+use App\Models\GoodsIn\StockDeliveryCost;
 use App\Models\Inventory\OrgStock;
+use App\Actions\Masters\MasterAsset\UpdateMasterAssetPrices;
+use App\Models\Masters\MasterAsset;
 use App\Models\Masters\MasterProductCategory;
+use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\Procurement\PartnerShoppingListItem;
+use App\Models\SupplyChain\SupplierProduct;
 use App\Models\Production\Artefact;
 use App\Models\Production\ManufactureTask;
 use App\Models\Production\RawMaterial;
 use App\Models\SysAdmin\McpChange;
 use App\Models\SysAdmin\User;
+use App\Actions\Web\Redirect\UpdateRedirect;
+use App\Models\Web\Redirect;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -53,6 +70,10 @@ class RevertMcpChange
             throw ValidationException::withMessages(['message' => __('An order already sent cannot be taken back automatically. Cancel it with the partner or supplier.')]);
         }
 
+        if (!$mcpChange->type->canBeReverted()) {
+            throw ValidationException::withMessages(['message' => __('What was done for a customer cannot be taken back automatically. Put it right in the chat or on the order.')]);
+        }
+
         if ($mcpChange->reverted_at) {
             throw ValidationException::withMessages(['message' => __('This change was already reverted')]);
         }
@@ -68,10 +89,15 @@ class RevertMcpChange
             match ($mcpChange->type) {
                 McpChangeTypeEnum::RELATED_PRODUCTS => $this->revertRelatedProducts($target, $mcpChange->before),
                 McpChangeTypeEnum::ORG_STOCK_STATE  => $this->revertOrgStockStates($mcpChange->before),
+                McpChangeTypeEnum::SUPPLIER_PRODUCT_AVAILABILITY => $this->revertSupplierProductAvailability($mcpChange->before),
                 McpChangeTypeEnum::PARTNER_SHOPPING_LIST => $this->revertPartnerShoppingList($mcpChange->before, $mcpChange->after),
                 McpChangeTypeEnum::PRODUCTION_RECORD => $this->revertProductionRecord($target, $mcpChange->before),
                 McpChangeTypeEnum::PRODUCTION_RECIPE => $this->revertProductionRecipes($mcpChange->before),
-                McpChangeTypeEnum::PLACED_ORDER => null,
+                McpChangeTypeEnum::PLACED_ORDER, McpChangeTypeEnum::CUSTOMER_SERVICE => null,
+                McpChangeTypeEnum::MASTER_PRICES => $this->revertMasterPrices($mcpChange->before),
+                McpChangeTypeEnum::STOCK_DELIVERY_COSTS => $this->revertStockDeliveryCosts($target, $mcpChange->before),
+                McpChangeTypeEnum::TRADE_UNIT_PROPERTIES => $this->revertTradeUnitProperties($target, $mcpChange->before, $mcpChange->after),
+                McpChangeTypeEnum::WEBSITE_REDIRECTS => $this->revertWebsiteRedirects($mcpChange->before),
             };
 
             $mcpChange->update([
@@ -81,6 +107,85 @@ class RevertMcpChange
         });
 
         return $mcpChange;
+    }
+
+    private function revertStockDeliveryCosts(array $target, array $before): void
+    {
+        $stockDelivery = StockDelivery::findOrFail($target['stock_delivery_id']);
+        if ($stockDelivery->is_costed) {
+            throw ValidationException::withMessages(['message' => __('This stock delivery is costed now, so its costs cannot be reverted automatically. An accounting manager changes it with Update costing.')]);
+        }
+
+        $costs = $before['costs'];
+
+        $stockDelivery->costs()->where('from_service_invoices', false)->whereNotIn('id', array_keys($costs))->get()->each(function (StockDeliveryCost $cost) use ($stockDelivery) {
+            if ($cost->type === StockDeliveryCostTypeEnum::EXTRA) {
+                DeleteStockDeliveryCost::make()->action($cost);
+
+                return;
+            }
+            $cost->delete();
+            EvaluateStockDeliveryCosting::run($stockDelivery);
+        });
+
+        foreach ($costs as $costId => $fields) {
+            $cost = StockDeliveryCost::withTrashed()->find($costId);
+            if (!$cost || $cost->from_service_invoices) {
+                continue;
+            }
+            if ($cost->trashed()) {
+                $cost->restore();
+            }
+
+            UpdateStockDeliveryCost::make()->action($cost, [
+                'label'                  => $fields['label'],
+                'category'               => $fields['category'],
+                'amount'                 => $fields['amount'],
+                'currency_id'            => $fields['currency_id'],
+                'exchange'               => $fields['exchange'],
+                'is_na'                  => $fields['is_na'],
+                'received_at'            => $fields['received_at'],
+                'is_waiting_for_invoice' => $fields['is_waiting_for_invoice'],
+                'invoice_expected_in_days' => $fields['is_waiting_for_invoice'] && $fields['invoice_expected_at']
+                    ? max(0, min(365, (int) today()->diffInDays(Carbon::parse($fields['invoice_expected_at']), false)))
+                    : null,
+            ]);
+        }
+
+        EvaluateStockDeliveryCosting::run($stockDelivery);
+    }
+
+    /**
+     * A barcode once printed on a label can not be taken back from the log: a person moves it in Goods > Barcodes.
+     */
+    private function revertTradeUnitProperties(array $target, array $before, array $after): void
+    {
+        if ($before['barcode_id'] != $after['barcode_id']) {
+            throw ValidationException::withMessages(['message' => __('This change gave :code a barcode, which cannot be taken back automatically. Change it in Goods > Barcodes.', ['code' => $target['code']])]);
+        }
+
+        UpdateTradeUnit::make()->action(TradeUnit::findOrFail($target['trade_unit_id']), Arr::only($before, GetMcpChangeSnapshot::TRADE_UNIT_FIELDS), strict: false);
+    }
+
+    private function revertWebsiteRedirects(array $before): void
+    {
+        foreach ($before['redirects'] as $redirectId => $toWebpageId) {
+            UpdateRedirect::make()->action(Redirect::findOrFail($redirectId), ['to_webpage_id' => $toWebpageId]);
+        }
+    }
+
+    private function revertMasterPrices(array $before): void
+    {
+        foreach ($before['prices'] as $masterAssetId => $prices) {
+            $updatePrices                    = UpdateMasterAssetPrices::make();
+            $updatePrices->forceAsyncCascade = true;
+            $updatePrices->action(MasterAsset::findOrFail($masterAssetId), [
+                'master_prices' => collect($prices)
+                    ->filter(fn (array $price) => (float) $price['value'] > 0)
+                    ->map(fn (array $price) => ['value' => (float) $price['value'], 'independent' => $price['independent']])
+                    ->all(),
+            ]);
+        }
     }
 
     private function revertRelatedProducts(array $target, array $before): void
@@ -151,6 +256,17 @@ class RevertMcpChange
                 'artefacts' => [$artefact->id],
                 'steps'     => $steps,
             ]);
+        }
+    }
+
+    private function revertSupplierProductAvailability(array $before): void
+    {
+        foreach ($before['org_supplier_products'] as $orgSupplierProductId => $previous) {
+            UpdateOrgSupplierProduct::make()->action(OrgSupplierProduct::findOrFail($orgSupplierProductId), ['is_available' => $previous['is_available']]);
+        }
+
+        foreach ($before['supplier_products'] as $supplierProductId => $previous) {
+            UpdateSupplierProduct::make()->action(SupplierProduct::findOrFail($supplierProductId), ['is_available' => $previous['is_available']]);
         }
     }
 
