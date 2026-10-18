@@ -3457,6 +3457,7 @@ describe('deployment crawling', function () {
                 'organisation_id' => $this->organisation->id,
                 'group_id'        => $this->organisation->group_id,
                 'code'            => "crawl-$index",
+                'name'            => "Crawl $index",
                 'type'            => WebsiteTypeEnum::INFO,
                 'state'           => WebsiteStateEnum::LIVE,
                 'migrated'        => true,

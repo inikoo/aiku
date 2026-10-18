@@ -272,6 +272,8 @@ test('update shipper', function ($createdShipper) {
 })->depends('create shipper');
 
 test('set shipper api credentials from the command', function ($createdShipper) {
+    $originalApiSettings = $createdShipper->only(['api_shipper', 'settings']);
+
     $this->artisan('shipper:api_credentials', ['shipper' => $createdShipper->slug, 'api_shipper' => 'dpd-gb'])
         ->expectsQuestion('Access token (paste the value, JSON for dpd-gb)', '{"username":"u","password":"p","account":"1"}')
         ->assertExitCode(0);
@@ -280,6 +282,8 @@ test('set shipper api credentials from the command', function ($createdShipper) 
 
     expect($createdShipper->api_shipper)->toBe('dpd-gb')
         ->and($createdShipper->settings['access_token'])->toEqual(['username' => 'u', 'password' => 'p', 'account' => '1']);
+
+    $createdShipper->update($originalApiSettings);
 })->depends('create shipper');
 
 test('dpd gb login reads the credentials by name whatever their order', function () {
