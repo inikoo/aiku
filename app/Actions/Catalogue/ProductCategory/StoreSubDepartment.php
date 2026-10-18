@@ -9,6 +9,7 @@
 namespace App\Actions\Catalogue\ProductCategory;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithCatalogueEditAuthorisation;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Catalogue\ProductCategory;
 use App\Rules\AlphaDashDot;
@@ -19,6 +20,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreSubDepartment extends OrgAction
 {
+    use WithCatalogueEditAuthorisation;
+
     public function handle(ProductCategory $department, array $modelData): ProductCategory
     {
         data_set($modelData, 'type', ProductCategoryTypeEnum::SUB_DEPARTMENT);

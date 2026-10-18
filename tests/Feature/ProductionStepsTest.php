@@ -1220,3 +1220,16 @@ test('a recipe change deletes an unworked step from an open job, keeps a worked 
         ->viewData('page')['props']['items'])->firstWhere('id', $line->id);
     expect($item['produced_quantity'])->toBe(700.0);
 });
+
+test('artefacts are uploaded only by organisation supervisors or production r&d editors', function () {
+    $production = $this->production;
+    $user       = \App\Models\SysAdmin\User::factory()->create(['group_id' => $production->group_id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["productions_rd.$production->id.view"]);
+
+    \Pest\Laravel\post(route('grp.models.production.artefacts.upload', $production->id), [
+        'file' => \Illuminate\Http\UploadedFile::fake()->createWithContent('artefacts.csv', "code,name\nART1,Artefact\n"),
+    ])->assertForbidden();
+
+    expect(\Illuminate\Support\Facades\Route::has('grp.models.production.manufacture_tasks.upload'))->toBeFalse();
+});

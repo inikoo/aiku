@@ -12,6 +12,7 @@ namespace App\Actions\Catalogue\Variant;
 use App\Actions\Catalogue\Product\BreakProductInWebpagesCache;
 use App\Actions\Catalogue\Product\StoreProductWebpage;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithCatalogueEditAuthorisation;
 use App\Actions\Catalogue\Variant\Traits\WithVariantDataPreparation;
 use App\Actions\Web\Redirect\StoreRedirectFromWebsite;
 use App\Actions\Web\Redirect\UpdateRedirect;
@@ -32,6 +33,7 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdateVariant extends OrgAction
 {
     use WithVariantDataPreparation;
+    use WithCatalogueEditAuthorisation;
 
     protected MasterVariant $parent;
     protected Shop $shop;

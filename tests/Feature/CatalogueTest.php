@@ -2218,6 +2218,46 @@ test('a shop short name is saved from the edit form and seeded only where it is 
         ->and(\App\Http\Resources\Catalogue\ShopResource::make($shop->fresh())->resolve()['short_name'])->toBe('Czechia');
 });
 
+test('catalogue viewers cannot create sub departments or edit variants, and shipping country routes are gone', function () {
+    [$organisation, , $shop] = createOwnShop('catalogue edit permissions');
+    [, $product]             = createProduct($shop);
+    $department              = $shop->productCategories()->where('type', ProductCategoryTypeEnum::DEPARTMENT)->firstOrFail();
+    $family                  = $product->family;
+
+    $masterVariant = \App\Models\Masters\MasterVariant::create([
+        'group_id' => $product->group_id,
+        'code'     => $product->code.'-perm',
+        'data'     => ['products' => []],
+    ]);
+    $variant = \App\Models\Catalogue\Variant::create([
+        'master_variant_id' => $masterVariant->id,
+        'group_id'          => $product->group_id,
+        'organisation_id'   => $product->organisation_id,
+        'shop_id'           => $shop->id,
+        'family_id'         => $family->id,
+        'code'              => $product->code.'-perm',
+        'data'              => ['products' => []],
+    ]);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $organisation->group_id, 'status' => true]);
+    actingAsUserWithOnlyPermissions($user, ["products.$shop->id.view"]);
+
+    patch(route('grp.models.variant.update', $variant->id), ['option_translations' => ['Plug' => 'Wtyczka']])->assertForbidden();
+    \Pest\Laravel\post(route('grp.models.department.sub_department.store', $department->id), ['code' => 'permsub', 'name' => 'Perm sub'])->assertForbidden();
+    get(route('grp.org.shops.show.catalogue.departments.show.sub_departments.create', [$organisation->slug, $shop->slug, $department->slug]))->assertForbidden();
+    get(route('grp.org.shops.show.catalogue.families.show.variants.edit', [$organisation->slug, $shop->slug, $family->slug, $variant->slug]))->assertForbidden();
+
+    expect($variant->refresh()->option_translations)->toBeEmpty()
+        ->and(\App\Models\Catalogue\ProductCategory::where('shop_id', $shop->id)->where('code', 'permsub')->exists())->toBeFalse()
+        ->and(\Illuminate\Support\Facades\Route::has('grp.models.shipping_country.store'))->toBeFalse()
+        ->and(\Illuminate\Support\Facades\Route::has('grp.models.shipping_country.update'))->toBeFalse()
+        ->and(\Illuminate\Support\Facades\Route::has('grp.models.shipping_country.delete'))->toBeFalse();
+
+    actingAsUserWithOnlyPermissions($user, ["products.$shop->id.edit", "products.$shop->id.view"]);
+
+    get(route('grp.org.shops.show.catalogue.departments.show.sub_departments.create', [$organisation->slug, $shop->slug, $department->slug]))->assertOk();
+});
+
 test('collection sub collections search filters on the collection name and code', function () {
     list($organisation, $user, $shop) = createShop();
 

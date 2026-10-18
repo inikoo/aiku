@@ -8,6 +8,7 @@
 
 namespace App\Actions\CRM\Prospect\UI;
 
+use App\Actions\CRM\Prospect\ImportShopProspects;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
@@ -299,7 +300,7 @@ class IndexProspects extends OrgAction
             unset($navigation[ProspectsTabsEnum::SUCCESS->value]);
         }
 
-        if ($this->parent instanceof Shop) {
+        if ($this->parent instanceof Shop && ImportShopProspects::make()->authorize($request)) {
             $spreadsheetRoute = [
                 'event'           => 'action-progress',
                 'channel'         => 'grp.personal.'.$this->group->id,

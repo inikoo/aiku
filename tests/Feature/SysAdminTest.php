@@ -2726,3 +2726,35 @@ test('an agent manager is not a task supervisor and sees only the tasks involvin
     expect(\App\Models\Tasks\StaffTask::isSupervisor($agentManager))->toBeFalse()
         ->and(\App\Models\Tasks\StaffTask::seesEveryTask($agentManager))->toBeFalse();
 })->depends('create guest');
+
+test('user access tokens are created and deleted only by sysadmin editors', function (Guest $guest) {
+    $group = $guest->group;
+    app()->instance('group', $group);
+    setPermissionsTeamId($group->id);
+
+    $guestData = Guest::factory()->definition();
+    data_set($guestData, 'user.username', 'access-token-holder');
+    $tokenHolder = StoreGuest::make()->action($group, $guestData)->getUser();
+
+    $guestData = Guest::factory()->definition();
+    data_set($guestData, 'user.username', 'access-token-manager');
+    $manager = StoreGuest::make()->action($group, $guestData)->getUser();
+
+    $plainText = StoreUserAccessToken::make()->action($tokenHolder, []);
+    $token     = PersonalAccessToken::findToken(explode('|', $plainText)[1]);
+
+    actingAsUserWithOnlyPermissions($manager, ['sysadmin.view']);
+
+    \Pest\Laravel\postJson(route('grp.models.user.access-token.create', ['user' => $tokenHolder->id]))->assertForbidden();
+    \Pest\Laravel\deleteJson(route('grp.models.access_token.delete', ['token' => $token->id]))->assertForbidden();
+
+    expect($tokenHolder->fresh()->tokens()->count())->toBe(1)
+        ->and(Route::has('grp.models.organisation.store'))->toBeFalse();
+
+    actingAsUserWithOnlyPermissions($manager, ['sysadmin.edit']);
+
+    $response = \Pest\Laravel\postJson(route('grp.models.user.access-token.create', ['user' => $tokenHolder->id]))->assertOk();
+
+    expect($response->json('token'))->toBeString()->toContain('|')
+        ->and($tokenHolder->fresh()->tokens()->count())->toBe(2);
+})->depends('create guest');

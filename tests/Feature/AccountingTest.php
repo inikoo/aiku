@@ -4154,3 +4154,29 @@ test('payment methods dashboard figures are refreshed in the background', functi
     expect(Cache::get('accounting-dashboard-payment-methods:'.$this->organisation->id))
         ->toHaveKeys(['1m', '1q', '1y']);
 });
+
+test('payment account shops are updated only by accounting editors of the payment account organisation', function () {
+    $shop           = $this->shop;
+    $paymentAccount = StorePaymentAccount::make()->action(
+        $this->organisation->orgPaymentServiceProviders()->firstOrFail(),
+        array_merge(PaymentAccount::factory()->definition(), ['type' => PaymentAccountTypeEnum::BANK->value])
+    );
+    $paymentAccountShop = StorePaymentAccountShop::make()->action($paymentAccount, $shop, [
+        'currency_id' => $shop->currency_id,
+        'state'       => PaymentAccountShopStateEnum::ACTIVE,
+    ]);
+    $organisationId = $paymentAccount->organisation_id;
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $shop->group_id, 'status' => true]);
+    actingAsUserWithOnlyPermissions($user, ["accounting.$organisationId.view"]);
+
+    patch(route('grp.models.payment_account_shop.update', $paymentAccountShop->id), ['state' => PaymentAccountShopStateEnum::INACTIVE->value])->assertForbidden();
+
+    expect($paymentAccountShop->refresh()->state)->toBe(PaymentAccountShopStateEnum::ACTIVE);
+
+    actingAsUserWithOnlyPermissions($user, ["accounting.$organisationId.edit"]);
+
+    patch(route('grp.models.payment_account_shop.update', $paymentAccountShop->id), ['state' => PaymentAccountShopStateEnum::INACTIVE->value])->assertSessionHasNoErrors();
+
+    expect($paymentAccountShop->refresh()->state)->toBe(PaymentAccountShopStateEnum::INACTIVE);
+});

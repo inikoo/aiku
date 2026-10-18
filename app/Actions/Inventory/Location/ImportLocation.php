@@ -67,8 +67,21 @@ class ImportLocation
         }
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        $warehouse = $request->route('warehouse') ?? $request->route('warehouseArea')?->warehouse;
+
+        return $warehouse instanceof Warehouse
+            && $request->user()->authTo([
+                "inventory.{$warehouse->organisation_id}.edit",
+                "supervisor-locations.{$warehouse->id}",
+                "locations.{$warehouse->id}.edit",
+            ]);
+    }
+
     public function inWarehouse(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): Upload
     {
+        abort_unless($this->authorize($request), 403);
         $file = $request->file('file');
         Storage::disk('local')->put($this->tmpPath, $file);
 
@@ -77,6 +90,7 @@ class ImportLocation
 
     public function inWarehouseArea(Organisation $organisation, Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): Upload
     {
+        abort_unless($this->authorize($request), 403);
         $file = $request->file('file');
         Storage::disk('local')->put($this->tmpPath, $file);
 

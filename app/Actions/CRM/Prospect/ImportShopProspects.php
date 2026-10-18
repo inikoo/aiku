@@ -11,6 +11,7 @@ namespace App\Actions\CRM\Prospect;
 use App\Actions\Helpers\Upload\ImportUpload;
 use App\Actions\Helpers\Upload\StoreUpload;
 use App\Actions\Traits\WithImportModel;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Http\Resources\Helpers\UploadsResource;
 use App\Imports\CRM\ProspectImport;
 use App\Models\Helpers\Upload;
@@ -53,8 +54,30 @@ class ImportShopProspects
     }
 
 
+    public function authorize(ActionRequest $request): bool
+    {
+        $shop = $request->route('shop');
+        if (!$shop instanceof Shop) {
+            return false;
+        }
+
+        if ($shop->type == ShopTypeEnum::FULFILMENT) {
+            return $request->user()->authTo([
+                "fulfilment-shop.{$shop->fulfilment->id}.edit",
+                "supervisor-fulfilment-shop.{$shop->fulfilment->id}",
+            ]);
+        }
+
+        return $request->user()->authTo([
+            "crm.{$shop->id}.edit",
+            "crm.{$shop->id}.prospects.edit",
+        ]);
+    }
+
     public function inShop(Shop $shop, ActionRequest $request): Upload
     {
+        abort_unless($this->authorize($request), 403);
+
         $file = $request->file('file');
         Storage::disk('local')->put($this->tmpPath, $file);
         return $this->handle($shop, $file);

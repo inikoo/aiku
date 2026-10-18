@@ -83,9 +83,6 @@ use App\Actions\Catalogue\ProductCategory\UpdateProductCategory;
 use App\Actions\Catalogue\ProductCategory\UpdateProductCategoryImages;
 use App\Actions\Catalogue\ProductCategory\UpdateProductCategoryTranslations;
 use App\Actions\Catalogue\ProductCategory\UploadImagesToProductCategory;
-use App\Actions\Catalogue\ShippingCountry\DeleteShippingCountry;
-use App\Actions\Catalogue\ShippingCountry\StoreShippingCountry;
-use App\Actions\Catalogue\ShippingCountry\UpdateShippingCountry;
 use App\Actions\Catalogue\Shop\External\Shopify\ConnectShopifyExternalShop;
 use App\Actions\Catalogue\Shop\StoreExternalShop;
 use App\Actions\Catalogue\Shop\StoreShop;
@@ -614,7 +611,6 @@ use App\Actions\SysAdmin\Group\UpdateGroupSettings;
 use App\Actions\SysAdmin\Guest\DeleteGuest;
 use App\Actions\SysAdmin\Guest\StoreGuest;
 use App\Actions\SysAdmin\Guest\UpdateGuest;
-use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Actions\SysAdmin\Organisation\UpdateOrganisation;
 use App\Actions\SysAdmin\User\DeleteUserAccessToken;
 use App\Actions\SysAdmin\User\StoreUserFromEmployee;
@@ -713,7 +709,6 @@ use App\Actions\Web\Website\PublishWebsiteProductTemplate;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Actions\Web\Website\UpdateWebsite;
 use App\Actions\Web\Website\UploadImagesToWebsite;
-use App\Stubs\UIDummies\ImportDummy;
 use App\Actions\Helpers\Ticket\DeleteTicket;
 use App\Actions\Helpers\TicketProject\AssignWorkToProject;
 use App\Actions\Helpers\TicketProject\AttachWorkToProject;
@@ -1429,7 +1424,6 @@ Route::prefix('fulfilment-customer-space/{fulfilmentCustomer:id}')->as('fulfilme
     Route::post('spaces/{space:id}/stop-rental', StopSpaceRental::class)->name('stop_rental')->withoutScopedBindings();
 });
 
-Route::post('group/{group:id}/organisation', StoreOrganisation::class)->name('organisation.store');
 
 Route::patch('website-not-found-path/{websiteNotFoundPath:id}/ignored', UpdateWebsiteNotFoundPathIgnored::class)->name('website_not_found_path.ignored.update');
 Route::patch('seo-tracked-keyword/{seoTrackedKeyword:id}', UpdateSeoTrackedKeyword::class)->name('seo_tracked_keyword.update');
@@ -1609,7 +1603,6 @@ Route::patch('/org-agent/{orgAgent:id}', UpdateOrgAgent::class)->name('org_agent
 Route::name('production.')->prefix('production/{production:id}')->group(function () {
     Route::post('job-order', StoreJobOrder::class)->name('job-order.store');
     Route::post('raw-materials-upload', ImportRawMaterial::class)->name('raw_materials.upload');
-    Route::post('manufacture-tasks-upload', ImportDummy::class)->name('manufacture_tasks.upload');
     Route::post('raw-materials', StoreRawMaterial::class)->name('raw-materials.store');
     Route::patch('raw-materials/{rawMaterial:id}', UpdateRawMaterial::class)->name('raw-materials.update');
     Route::post('manufacture-tasks', StoreManufactureTask::class)->name('manufacture_tasks.store');
@@ -2000,12 +1993,6 @@ Route::prefix('prospect/{prospect:id}')->name('prospect.')->group(function () {
 
 Route::patch('prospect-mailshot/{mailshot:id}/recipient-filter', UpdateProspectMailshotRecipientFilter::class)->name('shop.prospect.mailshot.recipient-filter.update')->withoutScopedBindings();
 Route::patch('prospect-mailshot/{mailshot:id}', UpdateProspectMailshot::class)->name('shop.prospect.mailshot.update');
-
-Route::post('/shop/{shop:id}/shipping-country/', StoreShippingCountry::class)->name('shipping_country.store');
-Route::prefix('shipping-country/{shippingCountry:id}')->name('shipping_country.')->group(function () {
-    Route::patch('update', UpdateShippingCountry::class)->name('update');
-    Route::delete('delete', DeleteShippingCountry::class)->name('delete');
-});
 
 Route::post('master-product-category/{masterProductCategory:id}/master-variant', StoreMasterVariant::class)->name('master_variant.store');
 Route::patch('master-variant/{masterVariant:id}', UpdateMasterVariant::class)->name('master_variant.update');

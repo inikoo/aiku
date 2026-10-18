@@ -3513,3 +3513,24 @@ test('a crm viewer reads customers, polls and prospects and opens an invoice in 
         actingAsUserWithRoles($this->user, $originalRoles);
     }
 });
+
+test('prospect spreadsheets are uploaded only by crm or prospect editors of the shop', function () {
+    $shop = $this->shop;
+    $user = User::factory()->create(['group_id' => $shop->group_id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["crm.$shop->id.view", "crm.$shop->id.prospects.view"]);
+
+    post(route('grp.models.shop.prospects.upload', ['shop' => $shop->id]), [
+        'file' => \Illuminate\Http\UploadedFile::fake()->createWithContent('prospects.csv', "email\nprospect@example.com\n"),
+    ])->assertForbidden();
+
+    get(route('grp.org.shops.show.crm.prospects.index', [$this->organisation->slug, $shop->slug]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('upload_spreadsheet', null));
+
+    actingAsUserWithOnlyPermissions($user, ["crm.$shop->id.prospects.view", "crm.$shop->id.prospects.edit"]);
+
+    get(route('grp.org.shops.show.crm.prospects.index', [$this->organisation->slug, $shop->slug]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->whereNot('upload_spreadsheet', null));
+});

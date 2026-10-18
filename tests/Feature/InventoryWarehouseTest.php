@@ -1168,3 +1168,16 @@ test('a location counted batch by batch and the best-before of what is on the sh
     expect($mapped['Earliest Best-before'])->toBe($soon)
         ->and($mapped['Expiring within 30 days'])->toBe(4.0);
 })->depends('create warehouse area');
+
+test('locations and warehouse areas are uploaded only by inventory or location editors', function (WarehouseArea $warehouseArea) {
+    $warehouse = $warehouseArea->warehouse;
+    $user      = \App\Models\SysAdmin\User::factory()->create(['group_id' => $warehouse->group_id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["locations.$warehouse->id.view"]);
+
+    $spreadsheet = fn () => ['file' => \Illuminate\Http\UploadedFile::fake()->createWithContent('upload.csv', "code\nLOC1\n")];
+
+    \Pest\Laravel\post(route('grp.models.warehouse.location.upload', $warehouse->id), $spreadsheet())->assertForbidden();
+    \Pest\Laravel\post(route('grp.models.warehouse.warehouse-areas.upload', $warehouse->id), $spreadsheet())->assertForbidden();
+    \Pest\Laravel\post(route('grp.models.warehouse_area.location.upload', $warehouseArea->id), $spreadsheet())->assertForbidden();
+})->depends('create warehouse area');

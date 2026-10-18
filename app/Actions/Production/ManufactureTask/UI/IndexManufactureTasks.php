@@ -196,32 +196,12 @@ class IndexManufactureTasks extends OrgAction
                     ],
                     'actions'   => [
                         $this->canEdit && $this->parent instanceof Production ? [
-                            'type'   => 'buttonGroup',
-                            'key'    => 'upload-add',
-                            'button' => [
-                                [
-                                    'type'  => 'button',
-                                    'style' => 'primary',
-                                    'icon'  => ['fal', 'fa-upload'],
-                                    'label' => 'upload',
-                                    'route' => [
-                                        'name'       => 'grp.models.production.manufacture_tasks.upload',
-                                        'parameters' => [
-                                            $this->parent->id
-                                        ]
-                                    ]
-                                ],
-                                [
-
-                                    'type'  => 'button',
-                                    'style' => 'create',
-                                    'label' => __('task'),
-                                    'route' => [
-                                        'name'       => 'grp.org.productions.show.operations.manufacture_tasks.create',
-                                        'parameters' => $request->route()->originalParameters()
-                                    ]
-
-                                ]
+                            'type'  => 'button',
+                            'style' => 'create',
+                            'label' => __('task'),
+                            'route' => [
+                                'name'       => 'grp.org.productions.show.operations.manufacture_tasks.create',
+                                'parameters' => $request->route()->originalParameters()
                             ]
                         ] : null,
                     ]

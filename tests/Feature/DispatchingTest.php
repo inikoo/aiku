@@ -6521,3 +6521,30 @@ test('boxes and shippers need dispatching edit in the organisation and batch cod
 
     expect(\Illuminate\Support\Facades\Route::has('grp.models.order.state.dispatched'))->toBeFalse();
 });
+
+test('order returns are received only by incoming editors or returns staff of the return warehouse', function () {
+    $orderReturn = \App\Models\GoodsIn\OrderReturn::create([
+        'group_id'        => $this->order->group_id,
+        'organisation_id' => $this->order->organisation_id,
+        'shop_id'         => $this->order->shop_id,
+        'customer_id'     => $this->order->customer_id,
+        'warehouse_id'    => $this->warehouse->id,
+        'reference'       => 'perm-'.Str::random(8),
+        'date'            => now(),
+        'state'           => \App\Enums\GoodsIn\Return\ReturnStateEnum::WAITING_TO_RECEIVE,
+    ]);
+    $warehouseId = $orderReturn->warehouse_id;
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+    actingAsUserWithOnlyPermissions($user, ["incoming.$warehouseId.view"]);
+
+    \Pest\Laravel\patch(route('grp.models.return.receive', ['return' => $orderReturn->id]))->assertForbidden();
+
+    expect($orderReturn->refresh()->state)->toBe(\App\Enums\GoodsIn\Return\ReturnStateEnum::WAITING_TO_RECEIVE);
+
+    actingAsUserWithOnlyPermissions($user, ["returns.$warehouseId"]);
+
+    \Pest\Laravel\patch(route('grp.models.return.receive', ['return' => $orderReturn->id]))->assertSessionHasNoErrors();
+
+    expect($orderReturn->refresh()->state)->toBe(\App\Enums\GoodsIn\Return\ReturnStateEnum::RECEIVED);
+});

@@ -9,14 +9,17 @@
 namespace App\Actions\GoodsIn\Return\UpdateState;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\Inventory\WithReturnsAuthorisation;
 use App\Enums\GoodsIn\Return\ReturnStateEnum;
 use App\Models\GoodsIn\OrderReturn;
 use Illuminate\Support\Facades\Redirect;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class SetReturnAsReceived extends OrgAction
 {
     use AsAction;
+    use WithReturnsAuthorisation;
 
     public function handle(OrderReturn $return): OrderReturn
     {
@@ -29,8 +32,10 @@ class SetReturnAsReceived extends OrgAction
     }
 
 
-    public function asController(OrderReturn $return): OrderReturn
+    public function asController(OrderReturn $return, ActionRequest $request): OrderReturn
     {
+        $this->initialisationFromWarehouse($return->warehouse, $request);
+
         return $this->handle($return);
     }
 

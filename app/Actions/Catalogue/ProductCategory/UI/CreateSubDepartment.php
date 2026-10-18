@@ -30,6 +30,7 @@ class CreateSubDepartment extends OrgAction
     public function asController(Organisation $organisation, Shop $shop, ProductCategory $department, ActionRequest $request): Response
     {
         $this->initialisationFromShop($shop, $request);
+        abort_unless($this->canEdit, 403);
 
         return $this->handle(department: $department, request: $request);
     }
