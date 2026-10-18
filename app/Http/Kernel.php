@@ -15,6 +15,7 @@ use App\Http\Middleware\ApiBindGroupInstance;
 use App\Http\Middleware\CorneaAuthenticate;
 use App\Http\Middleware\DevOpsAuthenticationMiddleware;
 use App\Http\Middleware\DisableSSR;
+use App\Http\Middleware\PreventCachingSsrFallback;
 use App\Http\Middleware\DetectIrisWebsite;
 use App\Http\Middleware\HandleCorneaInertiaRequests;
 use App\Http\Middleware\HandlePupilInertiaRequests;
@@ -212,7 +213,8 @@ class Kernel extends HttpKernel
             HandleIrisInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
             //CaptureTrafficSourceMiddleWare::class,
-            AddFrameOptionsHeader::class
+            AddFrameOptionsHeader::class,
+            PreventCachingSsrFallback::class
         ],
         'retina'      => [
             DisableSSR::class,
