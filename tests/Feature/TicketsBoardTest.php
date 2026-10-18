@@ -137,7 +137,7 @@ test('tickets dashboard counts created, done, status and assignees', function ()
 test('tickets dashboard counts created, started and resolved tickets by the quarter hour of the day in the viewer timezone', function () {
     $hourly = fn (string $timezone = 'UTC') => collect(ShowTicketsReports::make()->handle($this->group, '1w', timezone: $timezone)['by_quarter_hour'])->keyBy('slot');
     $before = $hourly();
-    $day    = now('UTC')->subDay()->startOfDay();
+    $day    = now('UTC')->previousWeekday()->startOfDay();
 
     $ticket = StoreTicket::make()->action($this->group, ['subject' => 'Hour by hour', 'assignee_id' => $this->user->id]);
     $ticket->update([

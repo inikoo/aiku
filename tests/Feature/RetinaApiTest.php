@@ -760,7 +760,7 @@ test('retina api refuses a media file that belongs to nothing of the customers',
 });
 
 test('retina api images accept a portfolio id sent as a product', function () {
-    DB::statement("select setval('portfolios_id_seq', (select max(id) from products) + 1000)");
+    DB::statement("select setval('portfolios_id_seq', greatest((select max(id) from products) + 1000, (select coalesce(max(id), 0) from portfolios) + 1))");
     $portfolio = StorePortfolio::make()->action($this->dropshippingChannel, $this->product, []);
     expect(\App\Models\Catalogue\Product::find($portfolio->id))->toBeNull();
 
@@ -992,7 +992,6 @@ test('bulk unlink and delete queues a large selection instead of running past th
 });
 
 test('portfolio stats count totals, current and per platform in one query', function () {
-    DB::statement("select setval('portfolios_id_seq', (select max(id) from products) + 1000)");
     StorePortfolio::make()->action($this->dropshippingChannel, $this->product, []);
 
     $hydrator = new class () {
