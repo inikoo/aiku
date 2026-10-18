@@ -73,6 +73,7 @@ use App\Models\Web\CruxRecord;
 use App\Actions\Web\WebVital\GetWebVitalsReport;
 use App\Actions\Web\Webpage\GetWebpageEngagementMetrics;
 use App\Actions\Web\WebsitePageView\GetWebsiteOrderJourneys;
+use App\Actions\Web\WebsitePageView\StoreWebsitePageView;
 use App\Actions\Web\Webpage\GetWebpageSeo;
 use App\Enums\Web\WebsiteConversionEvent\WebsiteConversionEventTypeEnum;
 use App\Actions\Web\Webpage\GetWebpagePerformance;
@@ -4041,3 +4042,35 @@ test('website and webpage varnish purges need the web edit permission of the sho
     expect(app('router')->getRoutes()->getByName('grp.models.translate')->methods())->toBe(['POST'])
         ->and(Route::has('grp.profile.update'))->toBeFalse();
 })->depends('launch website');
+
+test('store website page view looks an unknown path up once, then remembers there is no webpage', function (Webpage $webpage) {
+    $website = $webpage->website;
+    $visitorId = DB::table('website_visitors')->insertGetId([
+        'group_id'        => $this->shop->group_id,
+        'organisation_id' => $this->shop->organisation_id,
+        'shop_id'         => $this->shop->id,
+        'website_id'      => $website->id,
+        'session_id'      => 'sess-'.Str::random(10),
+        'visitor_hash'    => Str::random(16),
+        'device_type'     => 'desktop',
+        'os'              => 'linux',
+        'browser'         => 'firefox',
+        'user_agent'      => 'test-agent',
+        'ip_hash'         => Str::random(16),
+        'first_seen_at'   => now(),
+        'last_seen_at'    => now(),
+        'created_at'      => now(),
+        'updated_at'      => now(),
+    ]);
+    $visitor = \App\Models\Web\WebsiteVisitor::find($visitorId);
+
+    $unknownUrl = 'https://test/no-such-page-'.Str::random(8);
+
+    DB::enableQueryLog();
+    StoreWebsitePageView::make()->handle($visitor, $website, $unknownUrl);
+    StoreWebsitePageView::make()->handle($visitor, $website, $unknownUrl);
+    $lookups = collect(DB::getQueryLog())->filter(fn ($query) => str_contains($query['query'], 'substring(canonical_url'));
+    DB::disableQueryLog();
+
+    expect($lookups)->toHaveCount(1);
+})->depends('create webpage');

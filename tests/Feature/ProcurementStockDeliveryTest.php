@@ -2123,6 +2123,19 @@ describe('shopping list', function () {
         expect(ShoppingListItem::find($item->id))->toBeNull();
     });
 
+    test('shopping list item routes resolve the item behind the organisation segment', function () {
+        $item         = StoreShoppingListItem::make()->action($this->orgSupplierProduct, ['quantity_units' => 10]);
+        $organisation = $this->agent->organisation->slug;
+
+        $this->patch(route('grp.org.agent.shopping_list.update', [$organisation, $item->id]), ['quantity_units' => 25])
+            ->assertRedirect();
+        expect((float) $item->fresh()->quantity_units)->toBe(25.0);
+
+        $this->delete(route('grp.org.agent.shopping_list.destroy', [$organisation, $item->id]))
+            ->assertRedirect();
+        expect(ShoppingListItem::find($item->id))->toBeNull();
+    });
+
     test('cherry pick full quantity_units creates or reuses purchase order and marks item ordered', function () {
         $item = StoreShoppingListItem::make()->action($this->orgSupplierProduct, ['quantity_units' => 60]);
         $quantityOrderedBefore = \App\Models\Procurement\PurchaseOrderTransaction::where('org_supplier_product_id', $this->orgSupplierProduct->id)->pluck('quantity_ordered', 'id');

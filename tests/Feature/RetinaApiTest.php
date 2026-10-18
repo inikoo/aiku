@@ -990,3 +990,22 @@ test('bulk unlink and delete queues a large selection instead of running past th
     expect($result)->toBe(['deleted' => 0, 'queued' => count($ids)]);
     \Illuminate\Support\Facades\Queue::assertPushed(\Lorisleiva\Actions\Decorators\JobDecorator::class, count($ids));
 });
+
+test('portfolio stats count totals, current and per platform in one query', function () {
+    DB::statement("select setval('portfolios_id_seq', (select max(id) from products) + 1000)");
+    StorePortfolio::make()->action($this->dropshippingChannel, $this->product, []);
+
+    $hydrator = new class () {
+        use \App\Actions\Traits\Hydrators\WithHydratePortfolios;
+    };
+
+    DB::enableQueryLog();
+    $stats = $hydrator->getPortfoliosStats($this->product->shop);
+    $portfolioQueries = collect(DB::getQueryLog())->filter(fn ($query) => str_contains($query['query'], 'from "portfolios"'));
+    DB::disableQueryLog();
+
+    expect($portfolioQueries)->toHaveCount(1)
+        ->and($stats['number_portfolios'])->toBe($this->product->shop->portfolios()->count())
+        ->and($stats['number_current_portfolios'])->toBe($this->product->shop->portfolios()->where('status', true)->count())
+        ->and($stats['number_portfolios'])->toBeGreaterThan(0);
+});

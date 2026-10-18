@@ -349,11 +349,12 @@ const onScroll = (e: any) => {
 }
 
 const scrollToBottom = () => {
-    if (messagesContainer.value) {
-        setTimeout(() => {
-            messagesContainer.value!.scrollTop = messagesContainer.value!.scrollHeight
-        }, 50)
-    }
+    setTimeout(() => {
+        const el = messagesContainer.value
+        if (el) {
+            el.scrollTop = el.scrollHeight
+        }
+    }, 50)
 }
 
 const isUserMessage = (message: any) => {

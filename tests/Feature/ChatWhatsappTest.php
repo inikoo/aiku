@@ -690,3 +690,39 @@ test('an agent marks a WhatsApp conversation as unread again', function () {
     Event::assertDispatched(\App\Events\BroadcastMetaChatListEvent::class, 1);
     Http::assertNothingSent();
 });
+
+
+test('an agent sets and clears a wait for the customer on a WhatsApp conversation', function () {
+    $agentUser = User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+    ChatAgent::create(['user_id' => $agentUser->id, 'max_concurrent_chats' => 5, 'language_id' => 68, 'is_online' => true, 'is_available' => true, 'current_chat_count' => 0]);
+    makeChatWorker($agentUser, $this->shop);
+
+    $channel = MetaChannel::firstOrCreate(['code' => 'whatsapp'], ['name' => 'WhatsApp']);
+    $session = MetaChatSession::create([
+        'ulid'            => (string) Str::ulid(),
+        'meta_channel_id' => $channel->id,
+        'shop_id'         => $this->shop->id,
+        'phone_number'    => '+4219'.random_int(10000000, 99999999),
+        'status'          => ChatSessionStatusEnum::ACTIVE,
+        'language_id'     => 68,
+        'priority'        => ChatPriorityEnum::NORMAL,
+    ]);
+
+    \Illuminate\Support\Facades\Queue::fake();
+    Http::fake();
+    Event::fake([\App\Events\BroadcastMetaChatListEvent::class]);
+    actingAs($agentUser);
+
+    $route = route('grp.org.chat.agents.whatsapp.sessions.wait_for_customer', [$this->organisation->slug, $session->ulid]);
+
+    $this->patchJson($route)->assertUnprocessable();
+
+    $this->patchJson($route, ['hours' => 24])
+        ->assertOk()
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('waiting_until', fn ($until) => $until !== null);
+
+    $this->patchJson($route, ['hours' => null])
+        ->assertOk()
+        ->assertJsonPath('waiting_until', null);
+});

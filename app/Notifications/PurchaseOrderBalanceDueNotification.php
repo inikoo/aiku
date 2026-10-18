@@ -8,12 +8,15 @@
 
 namespace App\Notifications;
 
+use App\Notifications\Concerns\SendsMailThroughSes;
 use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class PurchaseOrderBalanceDueNotification extends Notification
 {
+    use SendsMailThroughSes;
+
     public bool $byEmail = true;
 
     public function __construct(public PurchaseOrder $purchaseOrder, public string $balance)
@@ -43,7 +46,7 @@ class PurchaseOrderBalanceDueNotification extends Notification
 
     public function toMail($notifiable): MailMessage
     {
-        return (new MailMessage())
+        return $this->newMailMessage()
             ->subject($this->title())
             ->line($this->title())
             ->line(__('Record the payment on the order with its bank statement.'))

@@ -278,6 +278,24 @@ test('customer email change follows web user with matching email', function (Cus
         ->and($rootWebUser->email)->toBe('example@mail.com');
 })->depends('create web user');
 
+test('customer email change leaves a web user whose email would collide with another web user of the website', function (Customer $customer) {
+    $customer->refresh();
+    $follower = $customer->webUsers()->where('email', $customer->email)->first()
+        ?? StoreWebUser::make()->action($customer, [
+            'email'    => $customer->email,
+            'username' => 'colliding-follower',
+            'password' => 'password',
+            'is_root'  => false,
+        ]);
+    $followerEmail = $follower->email;
+    $rootEmail     = $customer->webUsers()->where('is_root', true)->first()->email;
+
+    UpdateCustomer::make()->action($customer, ['email' => $rootEmail]);
+
+    expect($customer->refresh()->email)->toBe($rootEmail)
+        ->and($follower->refresh()->email)->toBe($followerEmail);
+})->depends('create web user');
+
 test('soft deleted web user does not block its email and username', function (Customer $customer) {
     $webUser = StoreWebUser::make()->action(
         $customer,

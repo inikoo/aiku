@@ -2057,6 +2057,12 @@ test('a buyer short of a supplier minimum asks the other organisations, who see 
         App\Notifications\PurchaseOrderMinimumPokeDigestNotification::class,
         fn ($notification) => count($notification->requests) === 1 && str_contains($notification->requests[0]['line'], $supplierProduct->code)
     );
+
+    app()->detectEnvironment(fn () => 'production');
+    $productionMail = (new App\Notifications\PurchaseOrderMinimumPokeDigestNotification([['line' => 'x', 'url' => '']]))->toMail($theirBuyer);
+    app()->detectEnvironment(fn () => 'testing');
+
+    expect($productionMail->mailer)->toBe('ses');
 });
 
 test('agent misplaced shopping list cleanup only accepts non-orderable buckets', function () {

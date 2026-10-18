@@ -2217,3 +2217,39 @@ test('a shop short name is saved from the edit form and seeded only where it is 
     expect($shop->fresh()->short_name)->toBe('Czechia')
         ->and(\App\Http\Resources\Catalogue\ShopResource::make($shop->fresh())->resolve()['short_name'])->toBe('Czechia');
 });
+
+test('collection sub collections search filters on the collection name and code', function () {
+    list($organisation, $user, $shop) = createShop();
+
+    $parent = StoreCollection::make()->action($shop, ['code' => 'PARENT-SRCH', 'name' => 'Parent']);
+    $child  = StoreCollection::make()->action($shop, ['code' => 'CHILD-SRCH', 'name' => 'Wanted child']);
+    AttachModelToCollection::make()->action($parent, $child);
+
+    $route = \Mockery::mock(\Illuminate\Routing\Route::class);
+    $route->shouldReceive('getName')->andReturn('grp.org.shops.show.catalogue.collections.show');
+    $request = request()->merge(['filter' => ['global' => 'wanted']]);
+    $request->setRouteResolver(fn () => $route);
+
+    $found = \App\Actions\Catalogue\Collection\UI\IndexCollectionsInCollection::run($parent);
+
+    expect($found->pluck('code')->all())->toBe(['CHILD-SRCH']);
+});
+
+test('a product image is deleted by staff with web edit on its shop', function () {
+    list($organisation, $user, $shop) = createShop();
+    createProduct($shop);
+    $product = $shop->products()->orderBy('id')->first();
+    $product->updateQuietly(['is_single_trade_unit' => false]);
+
+    $path = tempnam(sys_get_temp_dir(), 'pimg').'.png';
+    file_put_contents($path, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='));
+    $media = \App\Actions\Helpers\Media\StoreMediaFromFile::run($product, ['path' => $path, 'originalName' => 'pimg.png', 'extension' => 'png', 'checksum' => md5_file($path)], 'image');
+    $product->images()->attach($media->id, ['group_id' => $product->group_id, 'organisation_id' => $product->organisation_id, 'scope' => 'image', 'data' => '{}']);
+
+    $staff = \App\Models\SysAdmin\User::factory()->create(['group_id' => $organisation->group_id, 'status' => true]);
+    actingAsUserWithOnlyPermissions($staff, ["web.$shop->id.edit", "web.$shop->id.view"]);
+
+    \Pest\Laravel\delete(route('grp.models.product.images.delete_images', [$product->id, $media->id]))->assertSuccessful();
+
+    expect($product->images()->where('media.id', $media->id)->exists())->toBeFalse();
+});

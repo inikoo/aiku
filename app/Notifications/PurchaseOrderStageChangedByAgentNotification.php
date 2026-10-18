@@ -8,12 +8,15 @@
 
 namespace App\Notifications;
 
+use App\Notifications\Concerns\SendsMailThroughSes;
 use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class PurchaseOrderStageChangedByAgentNotification extends Notification
 {
+    use SendsMailThroughSes;
+
     public function __construct(public PurchaseOrder $purchaseOrder, public string $agentUserName, public string $change)
     {
     }
@@ -38,7 +41,7 @@ class PurchaseOrderStageChangedByAgentNotification extends Notification
 
     public function toMail($notifiable): MailMessage
     {
-        return (new MailMessage())
+        return $this->newMailMessage()
             ->subject(__(':reference: :change', ['reference' => $this->purchaseOrder->reference, 'change' => $this->change]))
             ->line(__(':user, from the agent, recorded on :reference: :change.', [
                 'user'      => $this->agentUserName,

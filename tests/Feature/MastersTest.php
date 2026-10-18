@@ -5135,3 +5135,26 @@ test('a copied variant goes into a shop leader first: a member is refused before
         $this->shop->updateQuietly(['master_shop_id' => $originalMasterShopId]);
     }
 });
+
+test('a master collection stores its image', function () {
+    $masterShop       = createFreshMasterShop();
+    $masterDepartment = StoreMasterDepartment::make()->action($masterShop, [
+        'code' => 'MCI-DEPT-'.uniqid(),
+        'name' => 'Image Department',
+    ]);
+    $masterCollection = StoreMasterCollection::make()->action($masterDepartment, [
+        'code' => 'MCI-COL-'.uniqid(),
+        'name' => 'Image Collection',
+    ]);
+
+    $path = tempnam(sys_get_temp_dir(), 'mci').'.png';
+    file_put_contents($path, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='));
+
+    $masterCollection = \App\Actions\Helpers\Media\SaveModelImage::run(
+        $masterCollection,
+        ['path' => $path, 'originalName' => 'mci.png', 'extension' => 'png'],
+        'catalogue'
+    );
+
+    expect($masterCollection->image_id)->not->toBeNull();
+});
