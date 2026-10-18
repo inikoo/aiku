@@ -46,6 +46,9 @@ use App\Enums\CRM\AppointmentType\AppointmentTypeMeetingModeEnum;
 use App\Models\CRM\Appointment;
 use App\Models\CRM\Prospect;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
+use App\Actions\Retina\Dropshipping\Product\SaveDataFeeds;
+use App\Enums\Catalogue\Shop\ShopStateEnum;
 use Illuminate\Support\Str;
 
 use function Pest\Laravel\actingAs;
@@ -793,4 +796,30 @@ test('a visitor moves and cancels their appointment from the link in their email
     $this->postJson($models.'/cancel')
         ->assertUnprocessable()
         ->assertJsonValidationErrors('state');
+});
+
+test('data feeds are rebuilt hourly only while someone reads them', function () {
+    Storage::fake('data-feeds');
+    $this->shop->update(['is_aiku' => true, 'state' => ShopStateEnum::OPEN]);
+    DetectWebsiteFromDomain::mock()
+        ->shouldReceive('parseDomain')
+        ->andReturn($this->website->domain);
+
+    $path = SaveDataFeeds::path($this->shop);
+    Cache::forget(SaveDataFeeds::readCacheKey($this->shop));
+
+    $this->get('http://'.$this->website->domain.'/data-feed.csv')->assertOk();
+
+    expect(Storage::disk('data-feeds')->allFiles('shop'))->toBe([$path]);
+
+    Storage::disk('data-feeds')->put($path, 'stale');
+    $this->artisan('data_feeds:save')->assertSuccessful();
+
+    expect(Storage::disk('data-feeds')->get($path))->toContain('Product code')
+        ->and(Storage::disk('data-feeds')->allFiles('shop'))->toBe([$path]);
+
+    Cache::forget(SaveDataFeeds::readCacheKey($this->shop));
+    $this->artisan('data_feeds:save')->assertSuccessful();
+
+    Storage::disk('data-feeds')->assertMissing($path);
 });
