@@ -62,6 +62,7 @@ export default defineConfig(
     },
     build  : {
       sourcemap    : true,
+      reportCompressedSize: false,
       devSourcemap : true,
       rollupOptions: {
         output: {

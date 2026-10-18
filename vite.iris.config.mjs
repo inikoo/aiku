@@ -81,6 +81,7 @@ export default defineConfig(({ isSsrBuild }) =>
     },
     build  : {
       sourcemap    : true,
+      reportCompressedSize: false,
       // transpile: ["@fortawesome/vue-fontawesome", "@fortawesome/fontawesome-svg-core"],        
       devSourcemap : true,
       commonjsOptions: FA_COMMONJS_OPTIONS,

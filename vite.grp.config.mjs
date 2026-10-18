@@ -71,6 +71,7 @@ export default ({ mode }) => {
 
       build: {
         sourcemap    : true,
+        reportCompressedSize: false,
         devSourcemap : true,
         rollupOptions: {
           output: {

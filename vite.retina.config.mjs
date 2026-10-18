@@ -81,6 +81,7 @@ export default defineConfig(
     },
     build  : {
       sourcemap    : true,
+      reportCompressedSize: false,
       devSourcemap : true,
       commonjsOptions: FA_COMMONJS_OPTIONS,
       rollupOptions: {
