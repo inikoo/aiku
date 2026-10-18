@@ -10,6 +10,7 @@ use App\Http\Middleware\EnsureHubPartnerOrderFromShoppingList;
 use App\Actions\SupplyChain\StockDeliveryInvoice\StoreActualStockDeliveryInvoice;
 use App\Actions\SupplyChain\AgentInvoice\ApproveAgentInvoiceCharges;
 use App\Actions\SupplyChain\AgentPayment\DeleteAgentPayment;
+use App\Actions\SupplyChain\AgentPayment\StoreAgentLedgerEntry;
 use App\Actions\SupplyChain\AgentPayment\StoreAgentPayment;
 use App\Actions\SupplyChain\SupplierPayment\DeleteSupplierPayment;
 use App\Actions\SupplyChain\SupplierPayment\StoreSupplierPayment;
@@ -1715,6 +1716,7 @@ Route::delete('supplier-payment/{supplierPayment:id}', DeleteSupplierPayment::cl
 Route::post('supplier/{supplier:id}/procurement-note', [StoreProcurementNote::class, 'inSupplier'])->name('supplier.procurement_note.store');
 Route::post('supplier-product/{supplierProduct:id}/procurement-note', [StoreProcurementNote::class, 'inSupplierProduct'])->name('supplier-product.procurement_note.store');
 Route::post('agent/{agent:id}/procurement-note', [StoreProcurementNote::class, 'inAgent'])->name('agent.procurement_note.store');
+Route::post('agent/{agent:id}/ledger-entry', StoreAgentLedgerEntry::class)->name('agent.ledger_entry.store');
 Route::patch('procurement-note/{procurementNote:id}', [UpdateProcurementNote::class, 'update'])->name('procurement_note.update');
 Route::post('supplier/{supplier:id}/agreed-term', [StoreSupplierAgreedTerm::class, 'inSupplier'])->name('supplier.agreed_term.store');
 Route::post('supplier-product/{supplierProduct:id}/agreed-term', [StoreSupplierAgreedTerm::class, 'inSupplierProduct'])->name('supplier-product.agreed_term.store');

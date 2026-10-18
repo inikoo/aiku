@@ -103,6 +103,7 @@ use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Procurement\PurchaseOrder;
+use App\Models\SupplyChain\AgentPayment;
 use App\Models\Procurement\PurchaseOrderTransaction;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
@@ -1383,6 +1384,52 @@ test('payments to an agent carry their method and bank statement, and the agent 
     $this->post(route('grp.models.purchase-order.payment.confirm', $purchaseOrder->id), ['amount' => 500, 'paid_at' => date('Y-m-d'), 'method' => 'bank_transfer', 'bank_statement' => $statement('dep.pdf')])
         ->assertRedirect()->assertSessionHasNoErrors();
     expect($purchaseOrder->refresh()->deposit_paid_by_id)->toBe($agentClerk->id);
+
+    actingAs($this->adminGuest->getUser());
+});
+
+test('the agent keeps each client\'s money in a ledger: transfers in, supplier payments and expenses out, and the wallet balance worked out from them (HELP-4097)', function () {
+    $stockDelivery = createStockDeliveryWithItems($this, 'AGENT-LEDGER-'.Str::random(6), [10]);
+    $stockDelivery->updateQuietly(['agent_id' => $this->agent->id]);
+    [$orgSupplier] = createAgentOrgSupplierWithProduct($this);
+    $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, array_merge(PurchaseOrder::factory()->definition(), ['reference' => 'AGENT-LEDGER-'.uniqid()]), strict: false);
+    $purchaseOrder->update(['state' => PurchaseOrderStateEnum::SUBMITTED]);
+
+    setPermissionsTeamId($this->group->id);
+    actingAs(agentPaymentsClerk($this->agent->organisation));
+
+    $ledger     = route('grp.org.agent.accounting.ledger.index', $this->agent->organisation->slug);
+    $walletOf   = fn () => collect($this->get($ledger)->assertOk()->viewData('page')['props']['wallets'])
+        ->first(fn (array $wallet) => $wallet['organisation_id'] === $this->organisation->id && $wallet['currency_code'] === $this->agent->organisation->currency->code)
+        ?? ['received' => 0, 'paid' => 0, 'balance' => 0];
+    $before     = $walletOf();
+    $storeRoute = route('grp.models.agent.ledger_entry.store', $this->agent->id);
+    $entry      = ['organisation_id' => $this->organisation->id, 'date' => date('Y-m-d')];
+
+    $this->post($storeRoute, $entry + ['type' => 'transfer_received', 'amount' => 10000, 'original_amount' => 1300, 'reference' => 'TT-LEDGER'])->assertSessionHasNoErrors();
+    $this->post($storeRoute, $entry + ['type' => 'supplier_deposit', 'amount' => 3000])->assertSessionHasErrors('purchase_order_id');
+    $this->post($storeRoute, $entry + ['type' => 'supplier_deposit', 'amount' => 3000, 'purchase_order_id' => $purchaseOrder->id])->assertSessionHasNoErrors();
+    $this->post($storeRoute, $entry + ['type' => 'packaging', 'amount' => 500, 'stock_delivery_id' => $stockDelivery->id, 'notes' => 'Hang tags'])->assertSessionHasNoErrors();
+    $this->post($storeRoute, ['organisation_id' => $this->agent->organisation_id, 'date' => date('Y-m-d'), 'type' => 'packaging', 'amount' => 1])->assertSessionHasErrors('organisation_id');
+
+    $transfer = AgentPayment::where('agent_id', $this->agent->id)->where('reference', 'TT-LEDGER')->latest('id')->firstOrFail();
+    $deposit  = AgentPayment::where('purchase_order_id', $purchaseOrder->id)->firstOrFail();
+    expect((float) $transfer->original_amount)->toBe(1300.0)
+        ->and($transfer->original_currency_id)->toBe($this->organisation->currency_id)
+        ->and($transfer->currency_id)->toBe($this->agent->organisation->currency_id)
+        ->and($deposit->supplier_id)->toBe($purchaseOrder->supplier_id)
+        ->and($stockDelivery->agentPayments()->count())->toBe(0)
+        ->and($stockDelivery->agentLedgerEntries()->count())->toBe(1);
+
+    $after = $walletOf();
+    expect($after['received'] - $before['received'])->toEqual(10000)
+        ->and($after['paid'] - $before['paid'])->toEqual(3500)
+        ->and($after['balance'] - $before['balance'])->toEqual(6500);
+
+    $this->get($ledger.'?filter[global]=TT-LEDGER')->assertInertia(fn (AssertableInertia $page) => $page
+        ->component('Org/Procurement/AgentLedger')
+        ->where('data.data.0.money_in', fn ($amount) => (float) $amount === 10000.0)
+        ->where('data.data.0.delete_route.name', 'grp.models.agent_payment.delete'));
 
     actingAs($this->adminGuest->getUser());
 });

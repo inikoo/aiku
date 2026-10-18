@@ -73,6 +73,7 @@ use App\Actions\Procurement\SupplierMessage\UI\IndexSupplierMessages;
 use App\Actions\Procurement\SupplierMessage\UI\ShowSupplierMessage;
 use App\Actions\Procurement\SupplierMessage\Whatsapp\SendSupplierWhatsappMessage;
 use App\Actions\SupplyChain\AgentSupplierPurchaseOrder\UI\ShowAgentSupplierPurchaseOrder;
+use App\Actions\SupplyChain\AgentPayment\UI\IndexAgentLedger;
 use App\Actions\SupplyChain\AspoDeposit\UI\IndexAgentDepositRequests;
 use App\Actions\SupplyChain\AspoDeposit\UI\IndexAgentDeposits;
 use App\Actions\SupplyChain\AspoDeposit\UI\ShowAgentAccountingDashboard;
@@ -178,6 +179,7 @@ Route::prefix('agent-accounting')->as('accounting.')->group(function () {
     Route::get('deposits', IndexAgentDeposits::class)->name('deposits.index');
     Route::get('deposit-requests', IndexAgentDepositRequests::class)->name('deposit_requests.index');
     Route::get('invoices', IndexAgentInvoices::class)->name('invoices.index');
+    Route::get('ledger', IndexAgentLedger::class)->name('ledger.index');
 });
 
 Route::prefix('labels')->as('agent_labels.')->group(function () {
