@@ -6552,3 +6552,22 @@ test('order returns are received only by incoming editors or returns staff of th
 
     expect($orderReturn->refresh()->state)->toBe(\App\Enums\GoodsIn\Return\ReturnStateEnum::RECEIVED);
 });
+
+test('mini delivery note and returnable delivery notes json refuse staff without the warehouse rule', function () {
+    $deliveryNote = makeDeliveryNote($this);
+    $warehouse    = $deliveryNote->warehouse;
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["products.{$this->shop->id}.view"]);
+    getJson(route('grp.json.mini_delivery_note', $deliveryNote->id))->assertForbidden();
+    getJson(route('grp.json.mini_delivery_note_shipments', $deliveryNote->id))->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["dispatching.$warehouse->id.view"]);
+    getJson(route('grp.json.mini_delivery_note', $deliveryNote->id))->assertOk();
+    getJson(route('grp.json.mini_delivery_note_shipments', $deliveryNote->id))->assertOk();
+    getJson(route('grp.json.delivery_note_valid_for_return', $warehouse))->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["returns.$warehouse->id"]);
+    getJson(route('grp.json.delivery_note_valid_for_return', $warehouse))->assertOk();
+});

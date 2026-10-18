@@ -4180,3 +4180,20 @@ test('payment account shops are updated only by accounting editors of the paymen
 
     expect($paymentAccountShop->refresh()->state)->toBe(PaymentAccountShopStateEnum::INACTIVE);
 });
+
+test('shop payment accounts and refund original payments json refuse staff without accounting rights', function () {
+    $shop     = $this->shop;
+    $customer = createCustomer($shop);
+    $invoice  = StoreInvoice::make()->action($customer, Invoice::factory()->definition());
+    $refund   = StoreRefund::make()->action($invoice, []);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $shop->group_id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["products.$shop->id.view"]);
+    $this->getJson(route('grp.json.shop.payment-accounts', $shop))->assertForbidden();
+    $this->getJson(route('grp.json.refund.show.original_invoice_payments.index', $refund->id))->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["accounting.$shop->organisation_id.view"]);
+    $this->getJson(route('grp.json.shop.payment-accounts', $shop))->assertOk();
+    $this->getJson(route('grp.json.refund.show.original_invoice_payments.index', $refund->id))->assertOk();
+});

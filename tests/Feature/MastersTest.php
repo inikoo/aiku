@@ -5158,3 +5158,21 @@ test('a master collection stores its image', function () {
 
     expect($masterCollection->image_id)->not->toBeNull();
 });
+
+test('trade unit pickers json refuse crm staff and serve shop product editors and masters viewers', function () {
+    $masterProductCategory = ensureMasterProductCategory();
+    $allTradeUnitsRoute    = route('grp.json.master_product_category.all_trade_units');
+    $recommendedRoute      = route('grp.json.master-product-category.recommended-trade-units', $masterProductCategory->id);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["crm.{$this->shop->id}.view"]);
+    getJson($allTradeUnitsRoute)->assertForbidden();
+    getJson($recommendedRoute)->assertForbidden();
+
+    foreach (["products.{$this->shop->id}.edit", 'masters.view'] as $permission) {
+        actingAsUserWithOnlyPermissions($user, [$permission]);
+        getJson($allTradeUnitsRoute)->assertOk();
+        getJson($recommendedRoute)->assertOk();
+    }
+});

@@ -22,6 +22,17 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetOrgStocks extends OrgAction
 {
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->authTo([
+            "inventory.{$this->organisation->id}.view",
+            "accounting.{$this->organisation->id}.view",
+            "org-supervisor.{$this->organisation->id}",
+            "warehouses-view.{$this->organisation->id}",
+            "procurement.{$this->organisation->id}.view",
+        ]);
+    }
+
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($organisation, $request);

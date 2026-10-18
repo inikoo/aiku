@@ -4964,3 +4964,21 @@ test('outbox emails, their workshop and subscribers are changed only by marketin
         \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
     }
 });
+
+test('email copy and outbox users json refuse staff without the shop comms rules', function () {
+    $outbox          = createOutboxDirectly($this->shop, OutboxCode::REORDER_REMINDER);
+    $dispatchedEmail = $outbox->dispatchedEmails()->create(['data' => []]);
+    StoreEmailCopy::make()->action($dispatchedEmail, ['subject' => 'Permission subject', 'body' => 'Permission body']);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["products.{$this->shop->id}.view"]);
+    $this->getJson(route('grp.json.email.dispatched-email.copy', $dispatchedEmail->id))->assertForbidden();
+    $this->getJson(route('grp.json.outbox.users.index', $outbox))->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["marketing.{$this->shop->id}.view"]);
+    $this->getJson(route('grp.json.outbox.users.index', $outbox))->assertOk();
+
+    actingAsUserWithOnlyPermissions($user, ["crm.{$this->shop->id}.view"]);
+    $this->getJson(route('grp.json.email.dispatched-email.copy', $dispatchedEmail->id))->assertOk()->assertJsonPath('subject', 'Permission subject');
+});

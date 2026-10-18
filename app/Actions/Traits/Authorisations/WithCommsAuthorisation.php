@@ -8,6 +8,7 @@
 
 namespace App\Actions\Traits\Authorisations;
 
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use Lorisleiva\Actions\ActionRequest;
 
 trait WithCommsAuthorisation
@@ -34,8 +35,8 @@ trait WithCommsAuthorisation
             return false;
         }
 
-        $canView = str_starts_with($routeName, 'grp.org.fulfilments.')
-            ? $user->authTo("fulfilment-shop.{$this->fulfilment->id}.view")
+        $canView = $this->shop->type == ShopTypeEnum::FULFILMENT
+            ? $user->authTo("fulfilment-shop.{$this->shop->fulfilment->id}.view")
             : $user->authTo([
                 "shop-admin.{$this->shop->id}",
                 "marketing.{$this->shop->id}.view",

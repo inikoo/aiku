@@ -10,6 +10,7 @@ namespace App\Actions\Dispatching\DeliveryNote\Json;
 
 use App\Actions\Catalogue\PreferredShipping\WithPreferredShipperResolver;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithDispatchingAuthorisation;
 use App\Actions\Retina\UI\Layout\GetPlatformLogo;
 use App\Enums\Catalogue\Shop\ShopEngineEnum;
 use App\Enums\Ordering\Platform\PlatformTypeEnum;
@@ -20,6 +21,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetMiniDeliveryNoteShipments extends OrgAction
 {
+    use WithDispatchingAuthorisation;
     use AsAction;
     use GetPlatformLogo;
     use WithPreferredShipperResolver;

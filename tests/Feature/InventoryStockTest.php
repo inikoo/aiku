@@ -1298,3 +1298,43 @@ test('operators tick skos packed at a partner goods out location and the tick go
     expect($packedSlot->refresh()->packed_at)->toBeNull()
         ->and($packedSlot->packed_by_user_id)->toBeNull();
 });
+
+test('stock json endpoints refuse users without the warehouse or organisation inventory rule', function () {
+    $warehouse = createWarehouse();
+    list(, , $shop) = createShop();
+    $stock    = StoreStock::make()->action($this->group, array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE]));
+    $orgStock = StoreOrgStock::make()->action($this->organisation, $stock);
+
+    $orgData = \App\Models\SysAdmin\Organisation::factory()->definition();
+    data_set($orgData, 'code', 'acm2');
+    data_set($orgData, 'type', \App\Enums\SysAdmin\Organisation\OrganisationTypeEnum::SHOP);
+    $otherOrganisation = \App\Models\SysAdmin\Organisation::where('code', 'acm2')->first()
+        ?? \App\Actions\SysAdmin\Organisation\StoreOrganisation::make()->action($this->group, $orgData);
+    $otherStock    = StoreStock::make()->action($this->group, array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE]));
+    $otherOrgStock = StoreOrgStock::make()->action($otherOrganisation, $otherStock);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    $lockRoute = route('grp.json.warehouse.low_stock_audit_lock', $warehouse);
+    $lock      = ['org_stock_id' => $orgStock->id, 'is_locked' => true, 'holder' => 'permission-test-tab'];
+
+    actingAsUserWithOnlyPermissions($user, ["stocks.$warehouse->id.view"]);
+    $this->postJson($lockRoute, $lock)->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["stocks.$warehouse->id.edit"]);
+    $this->postJson($lockRoute, $lock)->assertOk()->assertJsonPath('granted', true);
+    $this->postJson($lockRoute, ['org_stock_id' => $otherOrgStock->id] + $lock)->assertUnprocessable()->assertJsonValidationErrors('org_stock_id');
+
+    $managementRoute = route('grp.json.warehouse.org_stock.stocks_management', [$warehouse, $orgStock->id]);
+    $orgStocksRoute  = route('grp.json.org_stocks.index', ['organisation' => $this->organisation->id]);
+
+    actingAsUserWithOnlyPermissions($user, ["products.$shop->id.view"]);
+    $this->getJson($managementRoute)->assertForbidden();
+    $this->getJson($orgStocksRoute)->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["stocks.$warehouse->id.view"]);
+    $this->getJson($managementRoute)->assertOk();
+
+    actingAsUserWithOnlyPermissions($user, ["inventory.{$this->organisation->id}.view"]);
+    $this->getJson($orgStocksRoute)->assertOk();
+});

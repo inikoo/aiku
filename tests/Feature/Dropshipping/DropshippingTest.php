@@ -1517,3 +1517,14 @@ test('staff match and push portfolios to a platform only with crm edit on the ch
         actingAsUserWithRoles($this->user, $originalRoles);
     }
 });
+
+test('staff without crm or accounting rights cannot list a channel marketplace products', function () {
+    $platform             = $this->group->platforms()->where('type', PlatformTypeEnum::EBAY)->first();
+    $customerSalesChannel = StoreCustomerSalesChannel::make()->action($this->customer, $platform, ['reference' => 'json_auth_ebay_'.uniqid()]);
+    $shop                 = $customerSalesChannel->shop;
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+    actingAsUserWithOnlyPermissions($user, ["products.$shop->id.view"]);
+
+    $this->getJson(route('grp.json.dropshipping.customer_sales_channel.ebay_products', $customerSalesChannel->id))->assertForbidden();
+});

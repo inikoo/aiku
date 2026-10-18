@@ -3957,3 +3957,16 @@ test('stored item audits are worked on by the fulfilment staff of their warehous
         \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($user);
     }
 });
+
+test('fulfilment supervisors json refuses staff without the fulfilment shop rule', function () {
+    $fulfilment = createFulfilment($this->organisation);
+    list(, , $shop) = createShop();
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["products.$shop->id.view"]);
+    $this->getJson(route('grp.json.fulfilment.supervisors.index', $fulfilment))->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["fulfilment-shop.$fulfilment->id.view"]);
+    $this->getJson(route('grp.json.fulfilment.supervisors.index', $fulfilment))->assertOk();
+});
