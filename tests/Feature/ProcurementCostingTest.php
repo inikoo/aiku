@@ -817,6 +817,28 @@ test('an agent cannot open the pdf of a container that is not theirs', function 
     actingAs($this->adminGuest->getUser());
 });
 
+test('an agent opens a client\'s supplier message only when it was exchanged with that agent', function () {
+    $orgAgent          = createFreshOrgAgent($this);
+    $agentOrganisation = $orgAgent->agent->organisation;
+
+    $clientMessage = fn (array $counterpart) => \App\Models\Procurement\SupplierMessage::create($counterpart + [
+        'group_id'        => $this->organisation->group_id,
+        'organisation_id' => $this->organisation->id,
+        'direction'       => \App\Enums\Procurement\SupplierMessage\SupplierMessageDirectionEnum::INBOUND,
+        'subject'         => 'Client message '.Str::random(6),
+        'sent_at'         => now(),
+    ]);
+    $withTheAgent   = $clientMessage(['org_agent_id' => $orgAgent->id]);
+    $withASupplier  = $clientMessage(['supplier_id' => $this->orgSupplier->supplier_id, 'org_supplier_id' => $this->orgSupplier->id]);
+
+    actingAs(agentOrganisationAdmin($agentOrganisation, 'agt-sm-'.Str::lower(Str::random(6))));
+
+    $this->get(route('grp.org.agent.supplier_messages.show', [$agentOrganisation->slug, $withTheAgent->id]))->assertOk();
+    $this->get(route('grp.org.agent.supplier_messages.show', [$agentOrganisation->slug, $withASupplier->id]))->assertNotFound();
+
+    actingAs($this->adminGuest->getUser());
+});
+
 test('stock delivery pdf is forbidden without procurement permission', function () {
     setPermissionsTeamId($this->group->id);
     $guest = StoreGuest::make()->action($this->group, array_merge(Guest::factory()->definition(), ['positions' => []]));
