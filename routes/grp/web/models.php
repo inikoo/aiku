@@ -1961,7 +1961,7 @@ Route::patch('snapshot/{snapshot:id}/update', UpdateSnapshot::class)->name('snap
 
 Route::post('master-product-category/{masterProductCategory:id}/trade-units-for-creation', GetTradeUnitDataForMasterProductCreation::class)->name('master_product_category.product_creation_data')->withoutScopedBindings();
 
-Route::any('translate/{languageFrom}/{languageTo}', Translate::class)->name('translate');
+Route::post('translate/{languageFrom}/{languageTo}', Translate::class)->name('translate');
 
 Route::prefix('charge/{charge:id}')->name('charge.')->group(function () {
     Route::patch('update', UpdateCharge::class)->name('update');

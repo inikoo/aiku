@@ -4014,3 +4014,30 @@ test('website write routes need the web edit permission of the shop, INI-073', f
         \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
     }
 })->depends('launch website');
+
+test('website and webpage varnish purges need the web edit permission of the shop, INI-076', function (Website $website) {
+    Config::set('iris.cache.varnish', false);
+    $shop    = $website->shop;
+    $webpage = $website->webpages()->firstOrFail();
+
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ["web.{$shop->id}.view"]);
+        get(route('grp.varnish.website', $website->slug))->assertForbidden();
+        get(route('grp.varnish.webpage', $webpage->slug))->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($this->user, ["web.{$shop->id}.edit"]);
+        get(route('grp.varnish.website', $website->slug))->assertOk();
+        get(route('grp.varnish.webpage', $webpage->slug))->assertOk();
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
+
+    expect(app('router')->getRoutes()->getByName('grp.models.translate')->methods())->toBe(['POST'])
+        ->and(Route::has('grp.profile.update'))->toBeFalse();
+})->depends('launch website');
