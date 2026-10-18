@@ -1479,7 +1479,7 @@ test('the stock push heals a stale variant id by sku, applies threshold and cap,
     expect($fresh->refresh()->stock_last_fail_updated_at)->not->toBeNull();
 });
 
-test('the stock push records one log per product on its channel, stamps only the products shopify took and fails every product of a chunk shopify refuses', function () {
+test('the stock push stores each product log with its outcome in one insert, stamps only the products shopify took and fails every product of a chunk shopify refuses', function () {
     Queue::fake();
     $shopifyUser = shopifyProductChannel($this, 'product-stock-rows');
     $channel     = $shopifyUser->customerSalesChannel;
@@ -1522,7 +1522,9 @@ test('the stock push records one log per product on its channel, stamps only the
     });
     BulkUpdateShopifyPortfolio::run($channel->id);
     $statementsLike = fn (string $start) => count(array_filter($statements, fn (string $sql) => str_starts_with($sql, $start)));
-    expect($statementsLike('insert into "platform_portfolio_logs"'))->toBe(2)
+    expect($statementsLike('insert into "platform_portfolio_logs"'))->toBe(1)
+        ->and($statementsLike('update "platform_portfolio_logs"'))->toBe(0)
+        ->and($statementsLike('update "portfolios" set "stock_last_fail_updated_at"'))->toBe(1)
         ->and($statementsLike('update "portfolios" set "last_stock_value"'))->toBe(2)
         ->and($statementsLike('select * from "customer_sales_channels"'))->toBe(1)
         ->and($statementsLike('select * from "platforms"'))->toBe(1);
@@ -1545,6 +1547,13 @@ test('the stock push records one log per product on its channel, stamps only the
     }
 
     $platformType = $channel->platform->type;
+    $outcomes     = [
+        $active->id    => [PlatformPortfolioLogsStatusEnum::OK, null],
+        $activeToo->id => [PlatformPortfolioLogsStatusEnum::OK, null],
+        $draft->id     => [PlatformPortfolioLogsStatusEnum::OK, 'Stock sent, but this product is draft in your Shopify store, so it is not for sale there'],
+        $refused->id   => [PlatformPortfolioLogsStatusEnum::FAIL, 'Quantity is not allowed'],
+        $gone->id      => [PlatformPortfolioLogsStatusEnum::FAIL, 'This product is no longer in your Shopify store'],
+    ];
     foreach ($portfolios as $portfolio) {
         $logs = $logsOf($portfolio);
         expect($logs)->toHaveCount(1)
@@ -1556,22 +1565,14 @@ test('the stock push records one log per product on its channel, stamps only the
                 'customer_sales_channel_id' => $channel->id,
                 'platform_id'               => $portfolio->platform_id,
                 'platform_type'             => $platformType->value,
-                'status'                    => PlatformPortfolioLogsStatusEnum::PROCESSING,
+                'status'                    => $outcomes[$portfolio->id][0],
                 'type'                      => PlatformPortfolioLogsTypeEnum::UPDATE_STOCK,
-                'response'                  => null,
+                'response'                  => $outcomes[$portfolio->id][1],
             ])
             ->and($logs[0]->created_at->equalTo($firstRun))->toBeTrue()
             ->and($logs[0]->updated_at->equalTo($firstRun))->toBeTrue();
     }
-
-    $updates = $queuedLogUpdates()->keyBy(fn (array $update) => $update['log']->portfolio_id);
-    expect($queuedLogUpdates())->toHaveCount(5)
-        ->and($updates->map(fn (array $update) => $update['log']->exists && $update['log']->is($logsOf(Portfolio::find($update['log']->portfolio_id))[0]))->unique()->values()->all())->toBe([true])
-        ->and($updates[$active->id]['data'])->toBe(['status' => PlatformPortfolioLogsStatusEnum::OK])
-        ->and($updates[$activeToo->id]['data'])->toBe(['status' => PlatformPortfolioLogsStatusEnum::OK])
-        ->and($updates[$draft->id]['data'])->toBe(['status' => PlatformPortfolioLogsStatusEnum::OK, 'response' => 'Stock sent, but this product is draft in your Shopify store, so it is not for sale there'])
-        ->and($updates[$refused->id]['data'])->toBe(['status' => PlatformPortfolioLogsStatusEnum::FAIL, 'response' => 'Quantity is not allowed'])
-        ->and($updates[$gone->id]['data'])->toBe(['status' => PlatformPortfolioLogsStatusEnum::FAIL, 'response' => 'This product is no longer in your Shopify store']);
+    expect($queuedLogUpdates())->toBeEmpty();
 
     Queue::fake();
     ShopifyFake::fake([
@@ -1588,11 +1589,11 @@ test('the stock push records one log per product on its channel, stamps only the
         expect($portfolio->stock_last_fail_updated_at->equalTo($secondRun))->toBeTrue()
             ->and($portfolio->last_stock_value)->toBe($before['last_stock_value'])
             ->and($portfolio->stock_last_updated_at?->toDateTimeString())->toBe($before['stock_last_updated_at']?->toDateTimeString())
-            ->and($logsOf($portfolio))->toHaveCount(2);
+            ->and($logsOf($portfolio))->toHaveCount(2)
+            ->and($logsOf($portfolio)[1]->status)->toBe(PlatformPortfolioLogsStatusEnum::FAIL)
+            ->and($logsOf($portfolio)[1]->response)->toContain('Throttled');
     }
-    $failures = $queuedLogUpdates();
-    expect($failures)->toHaveCount(5)
-        ->and($failures->map(fn (array $update) => [$update['data']['status'], Str::contains((string) $update['data']['response'], 'Throttled'), $update['log']->exists])->unique()->values()->all())->toBe([[PlatformPortfolioLogsStatusEnum::FAIL, true, true]]);
+    expect($queuedLogUpdates())->toBeEmpty();
 });
 
 test('the six-hourly stock push only queues open channels that want stock updates and are live on shopify', function () {
@@ -2360,12 +2361,7 @@ test('the stock push still sends stock to an archived listing and logs that it i
 
     BulkUpdateShopifyPortfolio::run($channel->id);
 
-    $responses = [];
-    UpdatePlatformPortfolioLog::assertPushed(function ($action, $parameters) use (&$responses) {
-        $responses[$parameters[0]->portfolio_id] = [$parameters[1]['status'], $parameters[1]['response'] ?? null];
-
-        return true;
-    });
+    $responses = PlatformPortfolioLogs::whereIn('portfolio_id', [$active->id, $archived->id, $deleted->id])->get()->mapWithKeys(fn (PlatformPortfolioLogs $log) => [$log->portfolio_id => [$log->status, $log->response]]);
 
     expect(array_column(ShopifyFake::calls('inventorySetQuantities')[0]['variables']['input']['quantities'], 'inventoryItemId'))->toBe(['gid://shopify/InventoryItem/7500', 'gid://shopify/InventoryItem/7501'])
         ->and($active->refresh()->platform_status)->toBeTrue()
@@ -2432,12 +2428,7 @@ test('two products linked to one shopify listing: orders go to the product whose
     ]);
     BulkUpdateShopifyPortfolio::run($channel->id);
 
-    $responses = [];
-    UpdatePlatformPortfolioLog::assertPushed(function ($action, $parameters) use (&$responses) {
-        $responses[$parameters[0]->portfolio_id] = $parameters[1]['response'] ?? null;
-
-        return true;
-    });
+    $responses = PlatformPortfolioLogs::whereIn('portfolio_id', [$owner->id, $sharer->id])->pluck('response', 'portfolio_id');
     expect(ShopifyFake::calls('inventorySetQuantities')[0]['variables']['input']['quantities'])->toHaveCount(1)
         ->and($owner->refresh()->last_stock_value)->toBe(7)
         ->and($responses[$sharer->id])->toBe('This Shopify listing is also linked to '.$ownerProduct->code.', so its stock is not sent');

@@ -23,40 +23,25 @@ class StorePlatformPortfolioLog extends OrgAction
     }
 
     /**
-     * One insert for many portfolios, each row as handle() would store it with no extra data.
+     * One insert for many logs, each row as handle() would store it.
      *
-     * @param  iterable<Portfolio>  $portfolios
-     * @return array<int, PlatformPortfolioLogs>  portfolio id => its new log
+     * @param  list<array{0: Portfolio, 1: array}>  $logs  each portfolio with the data its log stores
      */
-    public function handleMany(iterable $portfolios): array
+    public function handleMany(array $logs): void
     {
         $log       = new PlatformPortfolioLogs();
         $timestamp = $log->fromDateTime($log->freshTimestamp());
 
         $rows = [];
-        foreach ($portfolios as $portfolio) {
-            $row = $this->attributes($portfolio, []);
-            foreach ($row as $column => $value) {
-                if ($value instanceof \BackedEnum) {
-                    $row[$column] = $value->value;
-                }
-            }
-            $rows[] = [...$row, 'updated_at' => $timestamp, 'created_at' => $timestamp];
+        foreach ($logs as [$portfolio, $modelData]) {
+            $row = (new PlatformPortfolioLogs())->forceFill(['response' => null, ...$this->attributes($portfolio, $modelData)])->getAttributes();
+            ksort($row);
+            $rows[] = [...$row, 'created_at' => $timestamp, 'updated_at' => $timestamp];
         }
 
-        if (!$rows) {
-            return [];
+        if ($rows) {
+            PlatformPortfolioLogs::insert($rows);
         }
-
-        $query      = PlatformPortfolioLogs::query()->toBase();
-        $connection = $query->getConnection();
-        $inserted   = $connection->selectFromWriteConnection(
-            $query->getGrammar()->compileInsert($query, $rows).' returning *',
-            $query->cleanBindings(Arr::flatten($rows, 1))
-        );
-        $connection->recordsHaveBeenModified();
-
-        return PlatformPortfolioLogs::hydrate($inserted)->keyBy('portfolio_id')->all();
     }
 
     private function attributes(Portfolio $portfolio, array $modelData): array
