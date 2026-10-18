@@ -29,6 +29,7 @@ const props = defineProps<{
             image: ImgTS
             price?: number | string | null
             stock?: number | null
+            is_pre_order?: boolean
             units?: number | string | null
             unit?: string | null
             is_golden_product?: boolean
@@ -308,7 +309,7 @@ const getProductPrice = (product: { price?: number | string | null; unit?: strin
                 @success="() => model = false"
             >
                 <div class="w-40 h-40 bg-gray-50 overflow-hidden flex items-center justify-center mb-4">
-                    <Image v-if="bestProduct.image" :src="bestProduct.image" class="w-full h-full object-contain transition-transform duration-200" :class="{ 'grayscale opacity-60': bestProduct.stock === 0 }" />
+                    <Image v-if="bestProduct.image" :src="bestProduct.image" class="w-full h-full object-contain transition-transform duration-200" :class="{ 'grayscale opacity-60': bestProduct.stock === 0 && !bestProduct.is_pre_order }" />
                     <span v-else class="text-sm text-gray-300 font-bold uppercase">{{ bestProduct.code?.slice(0, 3) }}</span>
                 </div>
                 <GoldenProductBadge v-if="bestProduct.is_golden_product" class="mb-2" />
@@ -352,7 +353,7 @@ const getProductPrice = (product: { price?: number | string | null; unit?: strin
                         @success="() => model = false"
                     >
                         <div class="relative w-14 h-14 bg-gray-50 overflow-hidden flex-shrink-0 flex items-center justify-center">
-                            <Image v-if="product.image" :src="product.image" class="w-full h-full object-cover transition-transform duration-200" :class="{ 'grayscale opacity-60': product.stock === 0 }" />
+                            <Image v-if="product.image" :src="product.image" class="w-full h-full object-cover transition-transform duration-200" :class="{ 'grayscale opacity-60': product.stock === 0 && !product.is_pre_order }" />
                             <span v-else class="text-[10px] text-gray-300 font-bold uppercase">{{ product.code?.slice(0, 3) }}</span>
                             <GoldenProductBadge v-if="product.is_golden_product" class="absolute left-0.5 top-0.5 z-10 origin-top-left scale-[0.62]" />
                         </div>

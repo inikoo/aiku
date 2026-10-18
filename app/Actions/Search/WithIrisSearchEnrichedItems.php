@@ -7,6 +7,7 @@
 
 namespace App\Actions\Search;
 
+use App\Actions\Ordering\PreOrder\GetProductPreOrder;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Http\Resources\Traits\HasPriceMetrics;
 use App\Models\Catalogue\Product;
@@ -128,6 +129,7 @@ trait WithIrisSearchEnrichedItems
 
         if ($model instanceof Product) {
             $item['is_golden_product'] = (bool)$model->is_golden_product;
+            $item['is_pre_order']      = GetProductPreOrder::make()->type($model) !== null;
         }
 
         if (auth()->check()) {

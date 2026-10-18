@@ -1023,6 +1023,43 @@ test('iris variant products list leaves out the variant products that are not fo
         ->and(collect($variantAndProducts['variant_data']['products'])->keys()->all())->toBe([$forSaleProduct->id]);
 });
 
+test('iris variant products list sends the pre-order of an out of stock back-order variant (HELP-4100)', function () {
+    $originalSettings = $this->shop->settings;
+    $this->shop->update(['settings' => array_merge($originalSettings ?? [], ['pre_orders' => ['enabled' => true]])]);
+
+    try {
+        [, $product] = createProduct($this->shop);
+        $product->updateQuietly(['is_for_sale' => true, 'is_back_order' => true, 'available_quantity' => 0]);
+
+        $masterVariant = \App\Models\Masters\MasterVariant::create([
+            'group_id' => $product->group_id,
+            'code'     => $product->code,
+            'data'     => ['products' => []],
+        ]);
+
+        $variant = \App\Models\Catalogue\Variant::create([
+            'master_variant_id' => $masterVariant->id,
+            'group_id'          => $product->group_id,
+            'organisation_id'   => $product->organisation_id,
+            'shop_id'           => $product->shop_id,
+            'family_id'         => $product->family_id,
+            'code'              => $product->code,
+            'leader_id'         => $product->id,
+            'data'              => ['products' => [$product->id => ['product' => ['id' => $product->id]]]],
+        ]);
+        $product->updateQuietly(['variant_id' => $variant->id]);
+
+        $variantProduct = \App\Actions\Catalogue\Product\Json\GetProductsOfVariant::run($variant)['products'][0];
+
+        expect($variantProduct['stock'])->toEqual(0)
+            ->and($variantProduct['pre_order']['type'])->toBe('back_order')
+            ->and($variantProduct['pre_order']['available_label'])->not->toBeEmpty()
+            ->and($variantProduct['pre_order'])->not->toHaveKey('lead_time_days');
+    } finally {
+        $this->shop->update(['settings' => $originalSettings]);
+    }
+});
+
 test('iris variant products list sends the offers and step discount each variant needs to price the selection', function () {
     [, $product] = createProduct($this->shop);
     $product->updateQuietly(['is_for_sale' => true, 'price' => 10]);
