@@ -13,6 +13,7 @@ use App\Actions\Discounts\Offer\VolGr\FinishVolumeGrOfferFromMaster;
 use App\Actions\Discounts\Offer\VolGr\UpdateVolumeGrOfferFromMaster;
 use App\Actions\Helpers\Translations\GetCatalogueTranslationBrief;
 use App\Actions\Helpers\Translations\Translate;
+use App\Actions\Masters\MasterAsset\UpdateMasterAsset;
 use App\Actions\Masters\MasterProductCategory\Hydrators\MasterDepartmentHydrateMasterSubDepartments;
 use App\Actions\Masters\MasterProductCategory\Hydrators\MasterFamilyHydrateTradeUnitFamilyToChildFamily;
 use App\Actions\Masters\MasterShop\Hydrators\MasterShopHydrateMasterDepartments;
@@ -23,6 +24,7 @@ use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateMasterProductCategories;
 use App\Actions\Traits\UI\WithImageCatalogue;
 use App\Enums\Catalogue\MasterProductCategory\MasterProductCategoryTypeEnum;
+use App\Models\Catalogue\Product;
 use App\Models\Helpers\Language;
 use App\Models\Masters\MasterProductCategory;
 use App\Rules\AlphaDashDot;
@@ -145,7 +147,16 @@ class UpdateMasterProductCategory extends OrgAction
             }
         }
 
+        $preOrderData = Arr::only($modelData, Product::PRE_ORDER_FIELDS);
+        $modelData    = Arr::except($modelData, Product::PRE_ORDER_FIELDS);
+
         $masterProductCategory = $this->update($masterProductCategory, $modelData, ['data']);
+
+        if ($preOrderData && $masterProductCategory->type == MasterProductCategoryTypeEnum::FAMILY) {
+            foreach ($masterProductCategory->masterAssets()->get() as $masterAsset) {
+                UpdateMasterAsset::make()->action($masterAsset, $preOrderData);
+            }
+        }
 
         $changed = Arr::except($masterProductCategory->getChanges(), ['updated_at']);
 
@@ -346,6 +357,11 @@ class UpdateMasterProductCategory extends OrgAction
                 'max:100'
             ],
             'trade_unit_family_id'          => ['sometimes', 'integer', 'exists:trade_unit_families,id'],
+            'is_back_order'                 => ['sometimes', 'boolean'],
+            'is_made_to_order'              => ['sometimes', 'boolean'],
+            'pre_order_deposit_percentage'  => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:100'],
+            'pre_order_lead_time_days'      => ['sometimes', 'nullable', 'integer', 'min:1', 'max:1000'],
+            'max_quantity_per_order'        => ['sometimes', 'nullable', 'integer', 'min:1'],
             'faq'                           => ['sometimes', 'array'],
             'faq.*.question'                => ['sometimes', 'nullable', 'string'],
             'faq.*.answer'                  => ['sometimes', 'nullable', 'string'],

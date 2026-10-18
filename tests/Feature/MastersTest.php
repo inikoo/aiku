@@ -2456,6 +2456,43 @@ test('UpdateMultipleMasterProductsFamily moves master assets to a new family', f
     expect($masterAsset->refresh()->master_family_id)->toBe($masterFamilyNew->id);
 });
 
+test('pre-order settings saved on a master family apply to every master product in it', function () {
+    $masterShop       = createFreshMasterShop();
+    $masterDepartment = StoreMasterDepartment::make()->action($masterShop, ['code' => 'PREFAM-DEPT-'.uniqid(), 'name' => 'Pre-order Department']);
+    $masterFamily     = StoreMasterFamily::make()->action($masterDepartment, ['code' => 'PREFAM-'.uniqid(), 'name' => 'Pre-order Family']);
+
+    $masterAssets = collect([1, 2])->map(fn (int $index) => StoreMasterAsset::make()->action($masterFamily, [
+        'code'    => 'PREFAM-AST-'.$index.'-'.uniqid(),
+        'name'    => 'Pre-order asset '.$index,
+        'is_main' => true,
+        'type'    => MasterAssetTypeEnum::RENTAL,
+        'price'   => 10,
+        'stocks'  => [],
+    ]));
+    UpdateMasterAsset::make()->action($masterAssets[0], ['pre_order_lead_time_days' => 7, 'is_back_order' => true]);
+
+    $editRoute = route('grp.masters.master_shops.show.master_families.edit', [$masterShop->slug, $masterFamily->slug]);
+
+    get($editRoute)->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('formData.blueprint', fn ($blueprint) => collect($blueprint)->contains(
+            fn ($section) => data_get($section, 'fields.pre_order_lead_time_days') !== null
+                && data_get($section, 'fields.pre_order_lead_time_days.value') === null
+                && data_get($section, 'fields.is_back_order.value') === false
+        )));
+
+    UpdateMasterProductCategory::make()->action($masterFamily, ['is_back_order' => true, 'pre_order_lead_time_days' => 14]);
+
+    $masterAssets->each(fn (MasterAsset $masterAsset) => expect($masterAsset->refresh())
+        ->is_back_order->toBeTrue()
+        ->pre_order_lead_time_days->toBe(14));
+
+    get($editRoute)->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('formData.blueprint', fn ($blueprint) => collect($blueprint)->contains(
+            fn ($section) => data_get($section, 'fields.pre_order_lead_time_days.value') === 14
+                && data_get($section, 'fields.is_back_order.value') === true
+        )));
+});
+
 
 // ADDITIONAL MASTER COLLECTION ACTIONS
 
