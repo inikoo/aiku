@@ -35,7 +35,9 @@ It holds `etc/`, `usr/local/`, `var/spool/cron/`, `root/.ssh`, `root/.config/rcl
   (copy `etc/netplan/`). boro and litio reach helio on 10.0.0.2.
 - Packages: `postgresql-18 pgbackrest rclone nginx haproxy varnish php8.4-fpm mysql-server
   redis-server supervisor typesense-server cifs-utils`, and
-  `apt install --no-install-recommends smartmontools` (the recommends pull in a mail server).
+  `apt install --no-install-recommends smartmontools` (the recommends pull in a mail server),
+  then the hook in `devops/smartd/50aiku-disk-alert`. Do **not** restore
+  `etc/aiku-smartd-ignore`: it silences the old disks' wear warning, which new disks must not have.
 - Storage box on `/sel`: the `cifs` line from `etc/fstab` and `etc/backup-credentials.txt`.
 - `etc/aiku-alerts.env`, `etc/aiku-backup.pub`, `etc/aiku-server-metrics.env`,
   `usr/local/bin/*`, `usr/local/sbin/*`, `root/.ssh`, `root/.config/rclone`,
