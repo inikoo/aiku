@@ -29,6 +29,8 @@ R2=${AIKU_BACKUP_R2:-}
 SECRETS_DIR=${AIKU_BACKUP_SECRETS_DIR:-/sel/aiku/secrets}
 SECRETS_SOURCE=${AIKU_BACKUP_SECRETS_SOURCE:-/home/aiku/aiku/shared}
 SECRETS_KEY=${AIKU_BACKUP_SECRETS_KEY:-/etc/aiku-backup.pub}
+SECRETS_NAME=${AIKU_BACKUP_SECRETS_NAME:-aiku-secrets}
+SECRETS_FILES=${AIKU_BACKUP_SECRETS_FILES:-.env storage/oauth-private.key storage/oauth-public.key}
 KEEP_SECRETS=${AIKU_BACKUP_KEEP_SECRETS:-7}
 KEEP_DAILY=${AIKU_BACKUP_KEEP_DAILY:-7}
 KEEP_WEEKLY=${AIKU_BACKUP_KEEP_WEEKLY:-4}
@@ -90,7 +92,7 @@ newest() {
 
 DAILY='^aiku-[0-9]{4}-[0-9]{2}-[0-9]{2}\.dump$'
 WEEKLY='^aiku-[0-9]{4}-[0-9]{2}-[0-9]{2}-weekly\.dump$'
-SECRETS='^aiku-secrets-[0-9]{4}-[0-9]{2}-[0-9]{2}\.tar\.gpg$'
+SECRETS="^${SECRETS_NAME}-[0-9]{4}-[0-9]{2}-[0-9]{2}\.tar\.gpg$"
 
 surplus() {
     grep -E "$1" | sort -r | tail -n +$(($2 + 1))
@@ -135,22 +137,25 @@ copy_to_r2() {
 
 run_secrets() {
     local file encrypted
-    mountpoint -q "$MOUNT" || fail "The storage box is not mounted on ${MOUNT}, so .env and the OAuth keys were not backed up."
-    [ -r "$SECRETS_KEY" ] || fail "The public key ${SECRETS_KEY} is missing, so .env and the OAuth keys were not backed up."
+    mountpoint -q "$MOUNT" || fail "The storage box is not mounted on ${MOUNT}, so ${SECRETS_NAME} was not backed up."
+    [ -r "$SECRETS_KEY" ] || fail "The public key ${SECRETS_KEY} is missing, so ${SECRETS_NAME} was not backed up."
     mkdir -p "$SECRETS_DIR" || fail "Cannot create ${SECRETS_DIR}."
 
-    file="$SECRETS_DIR/aiku-secrets-$(date +%F).tar.gpg"
-    encrypted=$(mktemp) || fail 'Cannot create a temporary file for the encrypted .env.'
-    tar -C "$SECRETS_SOURCE" -cf - .env storage/oauth-private.key storage/oauth-public.key \
+    file="$SECRETS_DIR/${SECRETS_NAME}-$(date +%F).tar.gpg"
+    encrypted=$(mktemp) || fail "Cannot create a temporary file for ${SECRETS_NAME}."
+    # shellcheck disable=SC2086 # SECRETS_FILES is a list of paths
+    tar -C "$SECRETS_SOURCE" -cf - $SECRETS_FILES \
         | gpg --batch --yes --encrypt --recipient-file "$SECRETS_KEY" --output "$encrypted" \
         && [ -s "$encrypted" ] \
         && copy_verified "$encrypted" "$file.partial" "$(checksum "$encrypted")" \
-        && mv "$file.partial" "$file"
+        && mv "$file.partial" "$file" \
+        && { [ -z "$R2" ] || r2 copyto "$file" "$R2/${file##*/}"; }
     local result=$?
     rm -f "$encrypted"
-    [ "$result" = 0 ] || fail "Encrypting .env and the OAuth keys to ${SECRETS_DIR} failed."
+    [ "$result" = 0 ] || fail "Encrypting ${SECRETS_NAME} to ${SECRETS_DIR}${R2:+ and R2} failed."
 
     prune "$SECRETS_DIR" "$SECRETS" "$KEEP_SECRETS"
+    [ -z "$R2" ] || prune_r2 "$SECRETS" "$KEEP_SECRETS"
 }
 
 shrunk() {
@@ -319,7 +324,11 @@ self_test() {
         : > "$dir/src/storage/oauth-public.key"
         gpg --homedir "$dir/gnupg" --batch --quiet --passphrase '' --quick-generate-key aiku-backup-self-test default default never 2> /dev/null
         gpg --homedir "$dir/gnupg" --batch --quiet --export aiku-backup-self-test > "$dir/key.pub"
-        (mountpoint() { return 0; }; SECRETS_DIR="$dir/out" SECRETS_SOURCE="$dir/src" SECRETS_KEY="$dir/key.pub" DD_OUT='' DD_IN='' COPY_RETRY_SECONDS=0; run_secrets)
+        (mountpoint() { return 0; }; SECRETS_DIR="$dir/out" SECRETS_SOURCE="$dir/src" SECRETS_KEY="$dir/key.pub" DD_OUT='' DD_IN='' COPY_RETRY_SECONDS=0 R2=''; run_secrets)
+        (mountpoint() { return 0; }; SECRETS_DIR="$dir/out" SECRETS_SOURCE="$dir/src" SECRETS_KEY="$dir/key.pub" DD_OUT='' DD_IN='' COPY_RETRY_SECONDS=0 R2='' \
+            SECRETS_NAME=helio-config SECRETS_FILES='.env storage'; run_secrets)
+        check "$(gpg --homedir "$dir/gnupg" --batch --quiet --decrypt "$dir/out"/helio-config-*.tar.gpg 2> /dev/null | tar -tf - | sort | tr '\n' ' ')" \
+            '.env storage/ storage/oauth-private.key storage/oauth-public.key ' 'a server can back up its own list of files under its own name'
         check "$(ls "$dir/out" | grep -c partial)" 0 'no half-written secrets file is left behind'
         check "$(gpg --homedir "$dir/gnupg" --batch --quiet --decrypt "$dir/out"/aiku-secrets-*.tar.gpg 2> /dev/null | tar -xOf - .env)" \
             'APP_KEY=base64:test' 'secrets encrypted with only the public key open with the private key'
