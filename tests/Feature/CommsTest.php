@@ -4980,3 +4980,26 @@ test('email copy and outbox users json refuse staff without the shop comms rules
     actingAsUserWithOnlyPermissions($user, ["crm.{$this->shop->id}.view"]);
     $this->getJson(route('grp.json.email.dispatched-email.copy', $dispatchedEmail->id))->assertOk()->assertJsonPath('subject', 'Permission subject');
 });
+
+test('mailshot template and urls json answer the marketing staff of any shop and refuse other staff', function (Mailshot $mailshot) {
+    $otherShop = $this->shop;
+    expect($otherShop->id)->not->toBe($mailshot->shop_id);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+    $urls = [
+        route('grp.json.mailshot.template', $mailshot->id),
+        route('grp.json.mailshot.urls', $mailshot->id),
+    ];
+
+    actingAsUserWithOnlyPermissions($user, ["products.$mailshot->shop_id.view"]);
+    foreach ($urls as $url) {
+        $this->getJson($url)->assertForbidden();
+    }
+
+    foreach (["marketing.$mailshot->shop_id.view", "marketing.$otherShop->id.view"] as $marketingRule) {
+        actingAsUserWithOnlyPermissions($user, [$marketingRule]);
+        foreach ($urls as $url) {
+            $this->getJson($url)->assertOk();
+        }
+    }
+})->depends('update mailshot');

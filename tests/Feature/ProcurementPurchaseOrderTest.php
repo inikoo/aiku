@@ -3543,3 +3543,15 @@ test('suppliers record search', function () {
     ReindexSupplierSearch::run();
     $this->artisan('reindex_search:suppliers')->assertExitCode(0);
 });
+
+test('org supplier products json answers procurement staff of the organisation and refuses shop staff', function () {
+    list(, , $shop) = createShop();
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+    $url  = route('grp.json.org_supplier_products.index', $this->organisation->slug);
+
+    actingAsUserWithOnlyPermissions($user, ["products.$shop->id.view"]);
+    $this->getJson($url)->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["procurement.{$this->organisation->id}.view"]);
+    $this->getJson($url)->assertOk();
+});

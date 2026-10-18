@@ -2293,3 +2293,59 @@ test('a product image is deleted by staff with web edit on its shop', function (
 
     expect($product->images()->where('media.id', $media->id)->exists())->toBeFalse();
 });
+
+test('catalogue json lookups answer only staff with the matching rule on the shop', function () {
+    list($organisation, , $shop) = createShop();
+    [, $product] = createProduct($shop);
+    $family     = $product->family;
+    $department = $product->department;
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $organisation->group_id, 'status' => true]);
+
+    $rulesByUrls = [
+        [
+            [
+                route('grp.json.product_category.families.index', $department->slug),
+                route('grp.json.shop.product_categories_by_codes', [$shop->id, 'codes' => $department->code.','.$family->code]),
+                route('grp.json.trade-units.all.under-product', $product->id),
+                route('grp.json.product.external.trade-units-linked', $product->slug),
+                route('grp.json.product_category.products_by_codes', [$family->id, 'codes' => $product->code]),
+                route('grp.json.shop.products_by_codes', [$shop->id, 'codes' => $product->code]),
+            ],
+            "crm.$shop->id.view",
+            "products.$shop->id.view",
+        ],
+        [
+            [route('grp.json.shop.department_and_sub_departments', $shop->slug)],
+            "products.$shop->id.view",
+            "products.$shop->id.edit",
+        ],
+        [
+            [
+                route('grp.json.shop.families.for_related_web_block', $shop->slug),
+                route('grp.json.shop.departments.for_related_web_block', $shop->slug),
+                route('grp.json.shop.sub_departments.for_related_web_block', $shop->slug),
+                route('grp.json.product_category.products.index', $family->id),
+            ],
+            "products.$shop->id.edit",
+            "web.$shop->id.edit",
+        ],
+        [
+            [route('grp.json.product_category.discontinuing_products.index', $family->id)],
+            "products.$shop->id.edit",
+            "discounts.$shop->id.edit",
+        ],
+    ];
+
+    foreach ($rulesByUrls as [$urls, $refusedRule, $allowedRule]) {
+        actingAsUserWithOnlyPermissions($user, [$refusedRule]);
+        foreach ($urls as $url) {
+            expect(get($url)->status())->toBe(403, $url);
+        }
+
+        actingAsUserWithOnlyPermissions($user, [$allowedRule]);
+        foreach ($urls as $url) {
+            expect(get($url)->status())->toBe(200, $url);
+        }
+    }
+});

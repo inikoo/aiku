@@ -10,12 +10,14 @@
 namespace App\Actions\Catalogue\Product\Json;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithCatalogueAuthorisation;
 use App\Models\Catalogue\Product;
 use Lorisleiva\Actions\ActionRequest;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class GetExternalProductTradeUnits extends OrgAction
 {
+    use WithCatalogueAuthorisation;
     public function handle(Product $product): array
     {
         $packedIn = $product->getEffectiveStockPackedInByTradeUnit();
@@ -33,7 +35,7 @@ class GetExternalProductTradeUnits extends OrgAction
 
     public function asController(Product $product, ActionRequest $request): array
     {
-        $this->initialisation($product->organisation, $request);
+        $this->initialisationFromShop($product->shop, $request);
 
         return $this->handle($product);
     }

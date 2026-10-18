@@ -10,6 +10,7 @@
 namespace App\Actions\Catalogue\ProductCategory\Json;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithCatalogueAuthorisation;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Http\Resources\Catalogue\FamiliesResource;
 use App\Models\Catalogue\ProductCategory;
@@ -21,6 +22,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetFamiliesInProductCategory extends OrgAction
 {
+    use WithCatalogueAuthorisation;
     public function asController(ProductCategory $productCategory, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromShop($productCategory->shop, $request);
