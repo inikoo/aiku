@@ -14,7 +14,7 @@ import InputText from "primevue/inputtext"
 import Textarea from "primevue/textarea"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faBoxes, faCheck, faHandHoldingUsd, faTimes } from "@fal"
+import { faBoxes, faCheck, faFilePdf, faHandHoldingUsd, faTimes } from "@fal"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import Icon from "@/Components/Icon.vue"
@@ -25,7 +25,7 @@ import { useLocaleStore } from "@/Stores/locale"
 import { PageHeadingTypes } from "@/types/PageHeading"
 import { routeType } from "@/types/route"
 
-library.add(faBoxes, faCheck, faHandHoldingUsd, faTimes)
+library.add(faBoxes, faCheck, faFilePdf, faHandHoldingUsd, faTimes)
 
 interface Money {
 	currency_code: string
@@ -57,6 +57,9 @@ const props = defineProps<{
 		totals: Money[]
 		deposits: Money[]
 		requested: Money[]
+		paid_to_suppliers: Money[]
+		to_pay: Money[]
+		pdf_route: routeType
 		confirm_route: routeType | null
 		deposits_route: routeType | null
 		deposit_requests_route: routeType
@@ -147,6 +150,13 @@ const requestDeposits = () => {
 	<Head :title="capitalize(title)" />
 	<PageHeading :data="pageHead">
 		<template #other>
+			<a :href="route(whole_order.pdf_route.name, whole_order.pdf_route.parameters)" target="_blank" rel="noopener">
+				<Button type="tertiary" :label="ctrans('Full order PDF')">
+					<template #icon>
+						<FontAwesomeIcon icon="fal fa-file-pdf" class="text-gray-500" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
+			</a>
 			<Button
 				v-if="whole_order.confirm_route"
 				type="tertiary"
@@ -184,6 +194,12 @@ const requestDeposits = () => {
 		<div class="rounded-lg border border-gray-200 bg-white p-4">
 			<div class="text-xs text-gray-400">{{ ctrans("Total") }}</div>
 			<div class="mt-1 text-lg font-semibold text-gray-700">{{ moneyList(whole_order.totals) }}</div>
+			<div class="mt-1 text-sm text-gray-500">
+				{{ ctrans("Paid to suppliers") }}: {{ moneyList(whole_order.paid_to_suppliers) }}
+			</div>
+			<div class="text-sm text-gray-500">
+				{{ ctrans("Still to pay") }}: {{ moneyList(whole_order.to_pay) }}
+			</div>
 		</div>
 		<div class="rounded-lg border border-gray-200 bg-white p-4">
 			<div class="text-xs text-gray-400">{{ ctrans("Deposits requested") }}</div>

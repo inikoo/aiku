@@ -87,6 +87,12 @@ class ShowAgentWholeOrder extends OrgAction
                     'totals'                 => $this->sumByCurrency($live, fn (PurchaseOrder $purchaseOrder) => (float) $purchaseOrder->cost_total),
                     'deposits'               => $this->sumByCurrency($live, fn (PurchaseOrder $purchaseOrder) => $this->depositsOf($purchaseOrder)),
                     'requested'              => $this->sumByCurrency($live, fn (PurchaseOrder $purchaseOrder) => $this->requestedOf($purchaseOrder)),
+                    'paid_to_suppliers'      => $this->sumByCurrency($live, fn (PurchaseOrder $purchaseOrder) => $this->paidToSupplierOf($purchaseOrder)),
+                    'to_pay'                 => $this->sumByCurrency($live, fn (PurchaseOrder $purchaseOrder) => max(0, (float) $purchaseOrder->cost_total - $this->paidToSupplierOf($purchaseOrder))),
+                    'pdf_route'              => [
+                        'name'       => 'grp.org.agent.purchase_orders.whole_order.pdf',
+                        'parameters' => $routeParameters,
+                    ],
                     'confirm_route'          => $this->agentCanAct && $toConfirm->isNotEmpty() ? [
                         'name'       => 'grp.models.purchase-order.agent_order.confirm',
                         'parameters' => ['purchaseOrder' => $this->purchaseOrder->id],
@@ -124,6 +130,13 @@ class ShowAgentWholeOrder extends OrgAction
     {
         return (float) $purchaseOrder->deposits
             ->reject(fn (AspoDeposit $deposit) => in_array($deposit->state, [AspoDepositStateEnum::CANCELLED, AspoDepositStateEnum::REFUNDED], true))
+            ->sum('amount');
+    }
+
+    private function paidToSupplierOf(PurchaseOrder $purchaseOrder): float
+    {
+        return (float) $purchaseOrder->deposits
+            ->filter(fn (AspoDeposit $deposit) => $deposit->state === AspoDepositStateEnum::PAID_TO_SUPPLIER)
             ->sum('amount');
     }
 

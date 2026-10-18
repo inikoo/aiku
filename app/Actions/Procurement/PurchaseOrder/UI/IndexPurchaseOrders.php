@@ -42,6 +42,7 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder as QueryBuilderForSubquery;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -277,6 +278,10 @@ class IndexPurchaseOrders extends OrgAction
             $query->selectRaw('count(*) over (partition by purchase_orders.supplier_id) as supplier_purchase_orders');
         }
 
+        if ($this->wholeAgentOrderOf) {
+            $query->selectSub($this->otherClientsOrdersQuery(), 'other_clients_orders');
+        }
+
         return $query
             ->defaultSort('-purchase_orders.date')
             ->with([
@@ -300,6 +305,23 @@ class IndexPurchaseOrders extends OrgAction
             ->withBetweenDates(['date'])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
+    }
+
+    /**
+     * Open orders other clients of the same agent have with the row's supplier, so the agent sees which factories several clients are buying from at once.
+     */
+    private function otherClientsOrdersQuery(): QueryBuilderForSubquery
+    {
+        return DB::table('purchase_orders as other_orders')
+            ->join('organisations as other_organisations', 'other_organisations.id', 'other_orders.organisation_id')
+            ->join('currencies as other_currencies', 'other_currencies.id', 'other_orders.currency_id')
+            ->whereColumn('other_orders.supplier_id', 'purchase_orders.supplier_id')
+            ->whereColumn('other_orders.agent_id', 'purchase_orders.agent_id')
+            ->whereColumn('other_orders.organisation_id', '!=', 'purchase_orders.organisation_id')
+            ->whereIn('other_orders.state', [PurchaseOrderStateEnum::SUBMITTED->value, PurchaseOrderStateEnum::CONFIRMED->value])
+            ->whereNotNull('other_orders.agent_order_reference')
+            ->whereNull('other_orders.deleted_at')
+            ->selectRaw("coalesce(json_agg(json_build_object('slug', other_orders.slug, 'organisation_code', other_organisations.code, 'agent_order_reference', other_orders.agent_order_reference, 'state', other_orders.state, 'cost_total', other_orders.cost_total, 'currency_code', other_currencies.code) order by other_orders.date desc), '[]')");
     }
 
     public function tableStructure(Group|Organisation|OrgAgent|OrgSupplier|OrgPartner|OrgStock|OrgSupplierProduct|Supplier|StockDelivery $parent, ?array $modelOperations = null, $prefix = null, bool $withRemoveFromContainer = false): Closure
@@ -344,6 +366,10 @@ class IndexPurchaseOrders extends OrgAction
                 $table->column(key: 'organisation_name', label: $organisationAgent ? __('Client') : __('Organisation'), canBeHidden: false, searchable: true);
             }
 
+            if ($this->wholeAgentOrderOf) {
+                $table->column(key: 'other_clients_orders', label: __('Other clients'), canBeHidden: false);
+            }
+
             if ($parent instanceof OrgSupplierProduct) {
                 $table
                     ->column(key: 'quantity_ordered', label: __('Quantity'), canBeHidden: false, sortable: true, align: 'right', type: 'number')
@@ -354,6 +380,10 @@ class IndexPurchaseOrders extends OrgAction
                     ->column(key: 'number_current_purchase_order_transactions', label: __('Items'), canBeHidden: false, sortable: true, align: 'right')
                     ->column(key: 'date', label: __('Date'), canBeHidden: false, sortable: true, searchable: true, align: 'right')
                     ->column(key: 'org_total_cost', label: __('Amount'), canBeHidden: false, sortable: true, searchable: true, type: 'currency');
+            }
+
+            if ($this->wholeAgentOrderOf) {
+                $table->column(key: 'downloads', label: '', canBeHidden: false, align: 'right');
             }
 
             if ($withRemoveFromContainer) {

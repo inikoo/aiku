@@ -17,9 +17,9 @@ import { asProcurementRouteName, isAgentOrganisation } from "@/Composables/useAg
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faTrashAlt } from "@fal"
+import { faFileExcel, faTrashAlt } from "@fal"
 
-library.add(faTrashAlt)
+library.add(faFileExcel, faTrashAlt)
 
 defineProps<{
 	data: {}
@@ -275,6 +275,31 @@ function AgentOrderRoute(purchaseOrder: PurchaseOrder) {
 					</template>
 				</Button>
 			</div>
+		</template>
+
+		<template #cell(other_clients_orders)="{ item: purchaseOrder }">
+			<div v-if="purchaseOrder.other_clients_orders?.length" class="flex flex-wrap gap-1">
+				<Link
+					v-for="otherOrder in purchaseOrder.other_clients_orders"
+					:key="otherOrder.slug"
+					:href="route('grp.org.agent.purchase_orders.whole_order', [route().params['organisation'], otherOrder.slug])"
+					v-tooltip="otherOrder.state_label"
+					class="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-gray-200 px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-100">
+					<span class="font-semibold uppercase text-gray-700">{{ otherOrder.organisation_code }}</span>
+					<span>{{ otherOrder.agent_order_reference }}</span>
+					<span class="text-gray-400">{{ useLocaleStore().currencyFormat(otherOrder.currency_code, otherOrder.cost_total) }}</span>
+				</Link>
+			</div>
+			<span v-else class="text-gray-400">-</span>
+		</template>
+
+		<template #cell(downloads)="{ item: purchaseOrder }">
+			<a
+				:href="route('grp.org.agent.purchase_orders.transactions.export', [route().params['organisation'], purchaseOrder.slug])"
+				v-tooltip="ctrans('Download this supplier order (Excel)')"
+				class="text-gray-500 hover:text-gray-700">
+				<FontAwesomeIcon icon="fal fa-file-excel" fixed-width aria-hidden="true" />
+			</a>
 		</template>
 
 		<template #cell(parent)="{ item: purchaseOrder }">

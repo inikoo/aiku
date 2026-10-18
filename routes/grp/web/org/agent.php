@@ -129,6 +129,7 @@ Route::prefix('purchase-orders')->as('purchase_orders.')->group(function () {
     Route::get('{purchaseOrder:id}/chase-panel', GetPurchaseOrderChasePanel::class)->name('chase_panel')->withoutScopedBindings();
     Route::get('{purchaseOrder}', ShowPurchaseOrder::class)->name('show');
     Route::get('{purchaseOrder}/whole-order', ShowAgentWholeOrder::class)->name('whole_order');
+    Route::get('{purchaseOrder}/whole-order/pdf/{filename?}', [PdfPurchaseOrder::class, 'inWholeAgentOrder'])->name('whole_order.pdf');
     Route::get('{purchaseOrder}/edit', EditPurchaseOrder::class)->name('edit');
     Route::get('{purchaseOrder}/pdf/{filename?}', PdfPurchaseOrder::class)->name('pdf');
     Route::get('{purchaseOrder}/transactions-export', ExportPurchaseOrderTransactions::class)->name('transactions.export');

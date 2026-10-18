@@ -8,6 +8,7 @@
 
 namespace App\Http\Resources\Procurement;
 
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -22,6 +23,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $parent_slug
  * @property mixed $org_total_cost
  * @property mixed $supplier_purchase_orders
+ * @property string|null $other_clients_orders
  * @property mixed $organisation_name
  * @property mixed $organisation_slug
  * @property mixed $quantity_ordered
@@ -55,6 +57,10 @@ class PurchaseOrdersResource extends JsonResource
             'supplier_purchase_orders' => $this->supplier_purchase_orders,
             'organisation_name' => $this->organisation_name,
             'organisation_slug' => $this->organisation_slug,
+            'other_clients_orders' => $this->other_clients_orders === null ? null : array_map(
+                fn (array $order) => $order + ['state_label' => PurchaseOrderStateEnum::from($order['state'])->labels()[$order['state']]],
+                json_decode($this->other_clients_orders, true)
+            ),
         ];
     }
 

@@ -24,4 +24,13 @@ export interface PurchaseOrder {
     supplier_slug: string | null
     supplier_purchase_orders?: number | null
     organisation_slug?: string | null
+    other_clients_orders?: {
+        slug: string
+        organisation_code: string
+        agent_order_reference: string
+        state: string
+        state_label: string
+        cost_total: number
+        currency_code: string
+    }[] | null
 }

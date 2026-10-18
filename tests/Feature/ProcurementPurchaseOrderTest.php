@@ -112,6 +112,9 @@ use App\Enums\Procurement\OrgSupplierProduct\OrgSupplierProductStateEnum;
 use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
 use App\Models\Goods\Stock;
 use App\Models\SysAdmin\Organisation;
+use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
+use App\Actions\SupplyChain\AspoDeposit\StoreAspoDeposit;
+use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\Helpers\Currency;
 use App\Models\Inventory\OrgStock;
@@ -3292,6 +3295,60 @@ test('the agent confirms every supplier order of an agent order and asks the cli
     ])->assertSessionHasErrors('deposits');
 
     expect($otherOrder->deposits()->count())->toBe(0);
+
+    actingAs($this->adminGuest->getUser());
+});
+
+test('the agent sees other clients\' open orders with the same supplier on a whole order, and downloads it as one PDF', function () {
+    $orgAgent          = createFreshOrgAgent($this);
+    $agentOrganisation = $orgAgent->agent->organisation;
+    $otherClient       = Organisation::where('code', 'prc2')->first()
+        ?? StoreOrganisation::make()->action($this->group, array_merge(Organisation::factory()->definition(), ['code' => 'prc2', 'type' => OrganisationTypeEnum::SHOP]));
+    $otherOrgAgent     = StoreOrgAgent::make()->action($otherClient, $orgAgent->agent, []);
+
+    [$orgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this, $orgAgent);
+    $otherOrgSupplier                   = OrgSupplier::where('supplier_id', $orgSupplier->supplier_id)->where('org_agent_id', $otherOrgAgent->id)->firstOrFail();
+    $historicSupplierProduct            = $orgSupplierProduct->supplierProduct->historicSupplierProduct;
+
+    $order = StorePurchaseOrder::make()->action($orgSupplier, []);
+    StorePurchaseOrderTransaction::make()->action($order, $historicSupplierProduct, $this->orgStocks[0], array_merge(PurchaseOrderTransaction::factory()->definition(), ['quantity_ordered' => 5]));
+    $order = UpdatePurchaseOrderStateToSubmitted::make()->action($order->refresh())->refresh();
+
+    $otherOrgStock = createOrgStocks($otherClient, [$this->stocks[0]])[0];
+    $otherOrder    = StorePurchaseOrder::make()->action($otherOrgSupplier, []);
+    StorePurchaseOrderTransaction::make()->action($otherOrder, $historicSupplierProduct, $otherOrgStock, array_merge(PurchaseOrderTransaction::factory()->definition(), ['quantity_ordered' => 7]));
+    $otherOrder = UpdatePurchaseOrderStateToSubmitted::make()->action($otherOrder->refresh())->refresh();
+
+    createPaidAspoDeposit($order, ['amount' => 30]);
+    StoreAspoDeposit::make()->action($order, ['amount' => 50]);
+
+    $otherAgentsOrder = collect(createAgentOrderToSend($this, $this->orgAgent, 1))->first();
+
+    $agentUser = agentOrganisationAdmin($agentOrganisation, 'agt-oc-'.Str::lower(Str::random(6)));
+    actingAs($agentUser);
+
+    $this->get(route('grp.org.agent.purchase_orders.whole_order', [$agentOrganisation->slug, $order->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('whole_order.pdf_route', ['name' => 'grp.org.agent.purchase_orders.whole_order.pdf', 'parameters' => ['organisation' => $agentOrganisation->slug, 'purchaseOrder' => $order->slug]])
+            ->where('whole_order.paid_to_suppliers.0.amount', fn ($amount) => (float) $amount === 30.0)
+            ->where('whole_order.to_pay.0.amount', fn ($amount) => abs((float) $amount - ((float) $order->cost_total - 30)) < 0.001)
+            ->has('data.data', 1)
+            ->has('data.data.0.other_clients_orders', 1)
+            ->where('data.data.0.other_clients_orders.0.slug', $otherOrder->slug)
+            ->where('data.data.0.other_clients_orders.0.organisation_code', 'prc2')
+            ->where('data.data.0.other_clients_orders.0.agent_order_reference', $otherOrder->agent_order_reference)
+            ->where('data.data.0.other_clients_orders.0.state_label', PurchaseOrderStateEnum::SUBMITTED->labels()[PurchaseOrderStateEnum::SUBMITTED->value])
+            ->where('data.data.0.other_clients_orders.0.cost_total', fn ($total) => (float) $total === (float) $otherOrder->cost_total)
+            ->where('data.data.0.other_clients_orders.0.currency_code', $otherOrder->currency->code));
+
+    $this->get(route('grp.org.agent.purchase_orders.whole_order.pdf', [$agentOrganisation->slug, $order->slug]))
+        ->assertOk()
+        ->assertHeader('Content-Type', 'application/pdf');
+
+    $this->get(route('grp.org.agent.purchase_orders.transactions.export', [$agentOrganisation->slug, $order->slug]))->assertOk();
+    $this->get(route('grp.org.agent.purchase_orders.pdf', [$agentOrganisation->slug, $otherAgentsOrder->slug]))->assertNotFound();
+    $this->get(route('grp.org.agent.purchase_orders.transactions.export', [$agentOrganisation->slug, $otherAgentsOrder->slug]))->assertNotFound();
+    $this->get(route('grp.org.agent.purchase_orders.whole_order.pdf', [$agentOrganisation->slug, $otherAgentsOrder->slug]))->assertNotFound();
 
     actingAs($this->adminGuest->getUser());
 });

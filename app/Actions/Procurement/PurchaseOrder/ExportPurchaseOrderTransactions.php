@@ -9,6 +9,7 @@
 namespace App\Actions\Procurement\PurchaseOrder;
 
 use App\Actions\OrgAction;
+use App\Actions\Procurement\WithAgentOrganisation;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
 use App\Exports\Procurement\PurchaseOrderTransactionsExport;
 use App\Models\Procurement\PurchaseOrder;
@@ -16,11 +17,11 @@ use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 
 class ExportPurchaseOrderTransactions extends OrgAction
 {
     use WithProcurementAuthorisation;
+    use WithAgentOrganisation;
 
     public function handle(PurchaseOrder $purchaseOrder): BinaryFileResponse
     {
@@ -32,8 +33,8 @@ class ExportPurchaseOrderTransactions extends OrgAction
 
     public function asController(Organisation $organisation, PurchaseOrder $purchaseOrder, ActionRequest $request): BinaryFileResponse
     {
-        abort_unless($purchaseOrder->organisation_id === $organisation->id || $organisation->type === OrganisationTypeEnum::AGENT, 404);
         $this->initialisation($organisation, $request);
+        $this->authorizeProcurementRecord($purchaseOrder);
 
         return $this->handle($purchaseOrder);
     }

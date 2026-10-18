@@ -807,6 +807,16 @@ test('stock delivery pdf is not found under another organisation', function () {
         ->assertNotFound();
 });
 
+test('an agent cannot open the pdf of a container that is not theirs', function () {
+    $agentOrganisation = createFreshOrgAgent($this)->agent->organisation;
+    actingAs(agentOrganisationAdmin($agentOrganisation, 'agt-sd-'.Str::lower(Str::random(6))));
+
+    $this->get(route('grp.org.agent.stock_deliveries.pdf', [$agentOrganisation->slug, $this->stockDelivery->slug]))
+        ->assertNotFound();
+
+    actingAs($this->adminGuest->getUser());
+});
+
 test('stock delivery pdf is forbidden without procurement permission', function () {
     setPermissionsTeamId($this->group->id);
     $guest = StoreGuest::make()->action($this->group, array_merge(Guest::factory()->definition(), ['positions' => []]));
