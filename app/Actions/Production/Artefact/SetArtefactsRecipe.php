@@ -23,6 +23,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
 class SetArtefactsRecipe extends OrgAction
@@ -159,7 +160,33 @@ class SetArtefactsRecipe extends OrgAction
                 Rule::exists('raw_materials', 'id')->where('organisation_id', $this->organisation->id),
             ],
             'steps.*.artefact_raw_materials.*.raw_materials.*.quantity_per_unit' => ['required', 'numeric', 'gt:0'],
+            'confirm_open_jobs'                                                  => ['sometimes', 'boolean'],
         ];
+    }
+
+    public function afterValidator(Validator $validator): void
+    {
+        if ($this->asAction || filter_var($this->get('confirm_open_jobs'), FILTER_VALIDATE_BOOLEAN) || $validator->errors()->isNotEmpty()) {
+            return;
+        }
+
+        $newUnits = collect($this->get('steps'))->mapWithKeys(fn (array $step) => [(int) $step['manufacture_task_id'] => $step['units_per_artefact']])->all();
+
+        $message = GenerateJobOrderItemTasks::openJobsConfirmationMessage(
+            Artefact::where('production_id', $this->production->id)
+                ->whereIn('id', $this->get('artefacts'))
+                ->get()
+                ->map(fn (Artefact $artefact) => GenerateJobOrderItemTasks::make()->openJobsAffectedBy(
+                    $artefact,
+                    $newUnits,
+                    $artefact->manufactureTasks()->pluck('manufacture_tasks.id')->diff(array_keys($newUnits))->values()->all()
+                ))
+                ->all()
+        );
+
+        if ($message) {
+            $validator->errors()->add('confirm_open_jobs', $message);
+        }
     }
 
     public function getValidationMessages(): array

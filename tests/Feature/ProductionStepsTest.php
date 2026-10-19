@@ -622,14 +622,16 @@ test('a step dropped from the recipe while a session was open on it leaves the j
     $this->artefact->manufactureTasks()->sync([$this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1]]);
 });
 
-test('a change of a step units per artefact reaches open job steps nobody has worked on, and leaves worked ones alone', function () {
+test('a change of a step units per artefact reaches open job steps with nothing recorded, started or not, and leaves worked ones alone', function () {
     $this->artefact->manufactureTasks()->sync([$this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1]]);
 
     $jobOrder      = StoreJobOrder::make()->action($this->production, []);
     $untouchedItem = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 6]);
     $workedItem    = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 6]);
+    $startedItem   = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 6]);
     ConfirmJobOrder::make()->action($jobOrder);
     CloseManufactureTaskSession::make()->action(StartManufactureTaskSession::make()->action($this->guest->getUser(), $workedItem->tasks()->first()), ['quantity_made' => 2]);
+    $startedItem->tasks()->first()->update(['state' => \App\Enums\Production\JobOrderItemTask\JobOrderItemTaskStateEnum::IN_PROGRESS]);
 
     SetArtefactsRecipe::make()->action($this->production, [
         'artefacts' => [$this->artefact->id],
@@ -637,6 +639,7 @@ test('a change of a step units per artefact reaches open job steps nobody has wo
     ]);
 
     expect((float) $untouchedItem->tasks()->first()->quantity_required)->toBe(3.0)
+        ->and((float) $startedItem->tasks()->first()->quantity_required)->toBe(3.0)
         ->and((float) $workedItem->tasks()->first()->quantity_required)->toBe(6.0);
 
     expect(\App\Actions\Production\JobOrderItemTask\GenerateJobOrderItemTasks::make()->jobsKeepingTheirCount($this->artefact, [$this->manufactureTask->id => 1])->all())
@@ -653,6 +656,27 @@ test('a change of a step units per artefact reaches open job steps nobody has wo
         ->and((float) $workedItem->tasks()->first()->quantity_required)->toBe(6.0);
 
     $this->artefact->manufactureTasks()->sync([$this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1]]);
+});
+
+test('a recipe change that reaches open job orders names them, and those with work recorded, before it is saved', function () {
+    $this->artefact->manufactureTasks()->sync([$this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1]]);
+
+    $jobOrder   = StoreJobOrder::make()->action($this->production, []);
+    $workedItem = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 6]);
+    ConfirmJobOrder::make()->action($jobOrder);
+    CloseManufactureTaskSession::make()->action(StartManufactureTaskSession::make()->action($this->guest->getUser(), $workedItem->tasks()->first()), ['quantity_made' => 2]);
+
+    $generate = \App\Actions\Production\JobOrderItemTask\GenerateJobOrderItemTasks::make();
+    $label    = $jobOrder->reference.' '.$this->artefact->code;
+
+    expect($generate->openJobsAffectedBy($this->artefact, [$this->manufactureTask->id => 1]))->toBeNull();
+
+    $affected = $generate->openJobsAffectedBy($this->artefact, [$this->manufactureTask->id => 12]);
+    expect($affected['open']->all())->toContain($label)
+        ->and($affected['keeping']->all())->toContain($label)
+        ->and(\App\Actions\Production\JobOrderItemTask\GenerateJobOrderItemTasks::openJobsConfirmationMessage([$affected, null]))
+        ->toContain($label)->toContain('keep their old count')
+        ->and(\App\Actions\Production\JobOrderItemTask\GenerateJobOrderItemTasks::openJobsConfirmationMessage([null]))->toBeNull();
 });
 
 test('a step counted in packs typed as a rounded fraction asks for whole packs', function () {

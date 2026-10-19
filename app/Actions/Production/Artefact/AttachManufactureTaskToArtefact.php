@@ -17,6 +17,7 @@ use App\Models\Production\Artefact;
 use App\Models\Production\ManufactureTask;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
 class AttachManufactureTaskToArtefact extends OrgAction
@@ -65,7 +66,23 @@ class AttachManufactureTaskToArtefact extends OrgAction
             'units_per_artefact'  => ['sometimes', 'numeric', 'gt:0'],
             'standard_rate'       => ['sometimes', 'nullable', 'numeric', 'gt:0'],
             'mix_batch_kg'        => ['sometimes', 'nullable', Rule::in([25, 50])],
+            'confirm_open_jobs'   => ['sometimes', 'boolean'],
         ];
+    }
+
+    public function afterValidator(Validator $validator): void
+    {
+        if ($this->asAction || filter_var($this->get('confirm_open_jobs'), FILTER_VALIDATE_BOOLEAN) || $validator->errors()->isNotEmpty()) {
+            return;
+        }
+
+        $message = GenerateJobOrderItemTasks::openJobsConfirmationMessage([
+            GenerateJobOrderItemTasks::make()->openJobsAffectedBy($this->artefact, [(int) $this->get('manufacture_task_id') => $this->get('units_per_artefact', 1)]),
+        ]);
+
+        if ($message) {
+            $validator->errors()->add('confirm_open_jobs', $message);
+        }
     }
 
     public function authorize(ActionRequest $request): bool
