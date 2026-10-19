@@ -1070,6 +1070,11 @@ test('replying to a waiting conversation nobody holds claims it instead of refus
         {
             return (string) $this->session->ulid;
         }
+
+        public function named(...$patterns): bool
+        {
+            return false;
+        }
     }));
 
     expect($result['ok'])->toBeTrue()
@@ -1121,6 +1126,11 @@ test('replying to a conversation another agent holds is still refused', function
         public function parameter($name, $default = null)
         {
             return (string) $this->session->ulid;
+        }
+
+        public function named(...$patterns): bool
+        {
+            return false;
         }
     }));
 
