@@ -35,6 +35,7 @@ class UpdateStockDelivery extends OrgAction
     private const DATA_FIELDS = [
         'delivery_type',
         'container_size',
+        'hide_cbm',
         'invoice_number',
         'invoice_date',
         'estimated_dispatched_date',
@@ -50,11 +51,13 @@ class UpdateStockDelivery extends OrgAction
     ];
 
     /**
-     * What the agent of a container enters before it ships: its name, size, references, shipping agent and dates.
+     * What the agent of a container enters before it ships: its name, size, references, shipping agent and dates,
+     * and whether its documents show the CBM.
      */
     public const array AGENT_FIELDS = [
         'reference',
         'container_size',
+        'hide_cbm',
         'shipper_reference',
         'tracking_number',
         'container_number',
@@ -113,6 +116,7 @@ class UpdateStockDelivery extends OrgAction
             ],
             'delivery_type'             => ['sometimes', 'nullable', 'string', 'in:parcel,container'],
             'container_size'            => ['sometimes', 'nullable', Rule::enum(OrgAgentOrderContainerEnum::class)],
+            'hide_cbm'                  => ['sometimes', 'boolean'],
             'invoice_number'            => ['sometimes', 'nullable', 'string'],
             'invoice_date'              => ['sometimes', 'nullable', 'date'],
             'estimated_dispatched_date' => ['sometimes', 'nullable', 'date'],

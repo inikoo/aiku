@@ -27,6 +27,10 @@ use App\Actions\GoodsIn\StockDelivery\DeleteStockDeliveryCost;
 use App\Actions\GoodsIn\StockDelivery\RepairStockDeliveryCostings;
 use App\Actions\GoodsIn\StockDelivery\ReportStockDeliveryReceivedWithoutCosts;
 use App\Actions\GoodsIn\StockDelivery\UI\ShowStockDelivery;
+use App\Actions\GoodsIn\StockDelivery\AddPurchaseOrderItemsToStockDelivery;
+use App\Actions\GoodsIn\StockDelivery\PdfStockDelivery;
+use App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryFromPurchaseOrder;
+use App\Exports\GoodsIn\StockDeliveryItemsExport;
 use App\Actions\GoodsIn\StockDelivery\DispatchStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\UpdateStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\UpdateStockDeliveryStateToReceived;
@@ -3482,4 +3486,68 @@ test('stock deliveries deleted in Aurora before being received are deleted, noth
         ->and(StockDelivery::find($stillInAurora->id))->not->toBeNull()
         ->and(StockDelivery::find($alreadyReceived->id))->not->toBeNull()
         ->and(StockDelivery::find($newerThanAurora->id))->not->toBeNull();
+});
+
+test('an agent fills a container with part of a line, packs a product inside another and downloads it as CSV and PDF with or without the CBM (HELP-4023)', function () {
+    [$orgSupplierOne, $orgSupplierProductOne] = createAgentOrgSupplierWithProduct($this);
+    [$orgSupplierTwo, $orgSupplierProductTwo] = createAgentOrgSupplierWithProduct($this);
+    $orgSupplierProductOne->supplierProduct->update(['cbm' => 0.5]);
+    $orgSupplierProductTwo->supplierProduct->update(['cbm' => 0.5]);
+
+    $orderOne = createConfirmedAgentOrder($this, $orgSupplierOne, $orgSupplierProductOne, 0, 200);
+    $orderTwo = createConfirmedAgentOrder($this, $orgSupplierTwo, $orgSupplierProductTwo, 1, 100);
+    $lineOne  = $orderOne->purchaseOrderTransactions()->firstOrFail();
+    $lineTwo  = $orderTwo->purchaseOrderTransactions()->firstOrFail();
+
+    $container = StoreStockDeliveryFromPurchaseOrder::make()->action($orderOne->refresh(), [
+        'purchase_order_transaction_ids' => [$lineOne->id],
+        'unit_quantities'                => [$lineOne->id => 50],
+    ]);
+    AddPurchaseOrderItemsToStockDelivery::make()->action($container, [
+        'items' => [['purchase_order_transaction_id' => $lineTwo->id, 'unit_quantity' => 100]],
+    ]);
+
+    $container->refresh();
+    $inner = $container->items()->whereRaw("(data->>'purchase_order_transaction_id')::bigint = ?", [$lineOne->id])->firstOrFail();
+    $outer = $container->items()->whereRaw("(data->>'purchase_order_transaction_id')::bigint = ?", [$lineTwo->id])->firstOrFail();
+    $awaiting = AddPurchaseOrderItemsToStockDelivery::addableItems($container)->get()->keyBy('id');
+
+    expect($container->number_stock_delivery_items)->toBe(2)
+        ->and((float) $inner->unit_quantity)->toBe(50.0)
+        ->and((float) $awaiting[$lineOne->id]->quantity_awaiting_delivery)->toBe(150.0)
+        ->and($awaiting->has($lineTwo->id))->toBeFalse()
+        ->and(ShowStockDelivery::make()->getStockDeliveryWeightAndVolume($container)['volume'])->toBe(0.75);
+
+    setPermissionsTeamId($this->group->id);
+    actingAs(agentOrganisationAdmin($this->orgAgent->agent->organisation, 'agt-ctr-'.Str::lower(Str::random(6))));
+
+    $packedInside = fn (StockDeliveryItem $item, ?int $outerId) => $this->patchJson(route('grp.models.stock-delivery-item.packed-inside', $item->id), ['packed_inside_stock_delivery_item_id' => $outerId]);
+
+    $this->patchJson(route('grp.models.stock-delivery-item.cbm-in-container', $outer->id), ['cbm_in_container' => 0.6])->assertOk();
+    $packedInside($inner, $inner->id)->assertUnprocessable();
+    $packedInside($inner, $outer->id)->assertOk();
+    $packedInside($outer, $inner->id)->assertUnprocessable();
+
+    $rows = PdfStockDelivery::rows($container)->keyBy('code');
+    $innerCode = $orgSupplierProductOne->supplierProduct->code;
+    $outerCode = $orgSupplierProductTwo->supplierProduct->code;
+
+    expect(ShowStockDelivery::make()->getStockDeliveryWeightAndVolume($container)['volume'])->toBe(0.6)
+        ->and($rows[$innerCode])->toMatchArray(['units' => 50.0, 'skos' => round(50 / $inner->unitsPerSko(), 2), 'cartons' => 0.5, 'cbm' => 0.0, 'packed_inside' => $outerCode])
+        ->and($rows[$outerCode])->toMatchArray(['cbm' => 0.6, 'contains' => $innerCode])
+        ->and((new StockDeliveryItemsExport($container))->headings())->toContain('cbm', 'packed_inside');
+
+    $this->get(route('grp.org.agent.stock_deliveries.csv', [$this->orgAgent->agent->organisation->slug, $container->slug]))->assertOk();
+    $this->get(route('grp.org.agent.stock_deliveries.pdf', [$this->orgAgent->agent->organisation->slug, $container->slug]))->assertOk();
+
+    $this->patch(route('grp.models.stock-delivery.update', $container->id), ['hide_cbm' => true])->assertSessionHasNoErrors();
+
+    expect((new StockDeliveryItemsExport($container->refresh()))->headings())->not->toContain('cbm')
+        ->and(PdfStockDelivery::showsCbm($container))->toBeFalse();
+
+    $packedInside($inner, null)->assertOk();
+
+    expect(ShowStockDelivery::make()->getStockDeliveryWeightAndVolume($container)['volume'])->toBe(0.85);
+
+    actingAs($this->adminGuest->getUser());
 });

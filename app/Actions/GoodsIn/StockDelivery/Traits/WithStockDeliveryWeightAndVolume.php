@@ -2,6 +2,7 @@
 
 namespace App\Actions\GoodsIn\StockDelivery\Traits;
 
+use App\Actions\GoodsIn\StockDeliveryItem\SetStockDeliveryItemPackedInside;
 use App\Enums\GoodsIn\StockDeliveryItem\StockDeliveryItemStateEnum;
 use App\Models\GoodsIn\StockDelivery;
 use Illuminate\Database\Query\Builder;
@@ -18,7 +19,7 @@ trait WithStockDeliveryWeightAndVolume
             ->selectRaw("sdi.state = '".StockDeliveryItemStateEnum::CANCELLED->value."' as is_cancelled")
             ->selectSub($this->tradeUnitWeightSubQuery('gross_weight'), 'gross_weight')
             ->selectSub($this->tradeUnitWeightSubQuery('net_weight'), 'net_weight')
-            ->selectRaw('coalesce(sdi.cbm_in_container, sp.cbm * sdi.unit_quantity / nullif(sp.units_per_carton, 0)) as volume');
+            ->selectRaw('case when '.SetStockDeliveryItemPackedInside::IS_PACKED_INSIDE_SQL.' then 0 else coalesce(sdi.cbm_in_container, sp.cbm * sdi.unit_quantity / nullif(sp.units_per_carton, 0)) end as volume');
 
         $totals = DB::query()
             ->fromSub($lines, 'line')

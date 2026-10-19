@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { ref, reactive, watch, inject } from 'vue'
+import { computed, ref, reactive, watch, inject } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
 import { notify } from '@kyvg/vue3-notification'
 import axios from 'axios'
@@ -21,19 +21,20 @@ import { routeType } from '@/types/route'
 import { useLocaleStore } from '@/Stores/locale'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faInventory, faBox, faSpellCheck, faBoxCheck, faTrashAlt, faClipboardList, faSeedling, faTruck, faCheck, faClipboardCheck, faCheckDouble, faTimesCircle, faSave, faUndoAlt, faHandHoldingBox, faExclamationCircle as falExclamationCircle } from '@fal'
+import { faInventory, faBox, faSpellCheck, faBoxCheck, faTrashAlt, faClipboardList, faSeedling, faTruck, faCheck, faClipboardCheck, faCheckDouble, faTimesCircle, faSave, faUndoAlt, faHandHoldingBox, faBoxOpen, faExclamationCircle as falExclamationCircle } from '@fal'
 import { faExclamationCircle, faSpinner } from '@fas'
 import ConfirmPopup from 'primevue/confirmpopup'
 import InputNumber from 'primevue/inputnumber'
+import Select from 'primevue/select'
 import { Dialog } from 'primevue'
 import { useConfirm } from 'primevue/useconfirm'
 import { ctrans } from '@/Composables/useTrans'
 
-library.add(faInventory, faBox, faSpellCheck, faBoxCheck, faTrashAlt, faExclamationCircle, faSpinner, faClipboardList, faSeedling, faTruck, faCheck, faClipboardCheck, faCheckDouble, faTimesCircle, faSave, faUndoAlt, faHandHoldingBox, falExclamationCircle)
+library.add(faInventory, faBox, faSpellCheck, faBoxCheck, faTrashAlt, faExclamationCircle, faSpinner, faClipboardList, faSeedling, faTruck, faCheck, faClipboardCheck, faCheckDouble, faTimesCircle, faSave, faUndoAlt, faHandHoldingBox, faBoxOpen, falExclamationCircle)
 
 import DiscontinueSuggestion from "@/Components/Procurement/DiscontinueSuggestion.vue"
 const props = defineProps<{
-    data: { data?: any[] },
+    data: { data?: any[], container_lines?: { id: number, code: string | null, packed_inside_stock_delivery_item_id: number | null }[] },
     tab?: string,
     costing?: {
         is_costed: boolean
@@ -354,6 +355,54 @@ async function saveCbmInContainer(item: any, value: number | null) {
     }
 }
 
+const containerLines = computed(() => props.data?.container_lines ?? [])
+
+const lineCodeById = computed(() => new Map(containerLines.value.map(line => [line.id, line.code ?? '-'])))
+
+function packedInsideCode(item: any) {
+    return item.packed_inside_stock_delivery_item_id ? lineCodeById.value.get(item.packed_inside_stock_delivery_item_id) ?? null : null
+}
+
+function packedItemCodes(item: any) {
+    return containerLines.value
+        .filter(line => line.packed_inside_stock_delivery_item_id === item.id)
+        .map(line => line.code ?? '-')
+}
+
+function outerLineOptions(item: any) {
+    return containerLines.value
+        .filter(line => line.id !== item.id && !line.packed_inside_stock_delivery_item_id)
+        .map(line => ({ label: line.code ?? '-', value: line.id }))
+}
+
+const savingPackedInsideId = ref<number | null>(null)
+
+async function savePackedInside(item: any, outerItemId: number | null) {
+    if (!item.packedInsideRoute) {
+        return
+    }
+
+    savingPackedInsideId.value = item.id
+
+    try {
+        await axios.patch(route(item.packedInsideRoute.name, item.packedInsideRoute.parameters), { packed_inside_stock_delivery_item_id: outerItemId })
+        notify({
+            title: ctrans('Success'),
+            text: outerItemId ? ctrans(':code is packed inside :outer', { code: item.code, outer: lineCodeById.value.get(outerItemId) ?? '' }) : ctrans(':code is not packed inside another product', { code: item.code }),
+            type: 'success',
+        })
+        reloadStockDelivery()
+    } catch (error: any) {
+        notify({
+            title: ctrans('Something went wrong'),
+            text: error?.response?.data?.message || ctrans('Failed to change what the product is packed inside'),
+            type: 'error',
+        })
+    } finally {
+        savingPackedInsideId.value = null
+    }
+}
+
 </script>
 
 <template>
@@ -455,6 +504,14 @@ async function saveCbmInContainer(item: any, value: number | null) {
         <template #cell(description)="{ item }">
             <div class="space-y-0.5">
                 <div>{{ item.name }}</div>
+                <div v-if="packedInsideCode(item)" class="flex w-fit items-center gap-1 rounded bg-amber-50 px-1.5 py-0.5 text-xs font-medium text-amber-800 ring-1 ring-amber-200">
+                    <FontAwesomeIcon icon="fal fa-box-open" fixed-width aria-hidden="true" />
+                    {{ ctrans('Packed inside :code, takes no space of its own', { code: packedInsideCode(item) }) }}
+                </div>
+                <div v-if="packedItemCodes(item).length" class="flex w-fit items-center gap-1 rounded bg-amber-50 px-1.5 py-0.5 text-xs font-medium text-amber-800 ring-1 ring-amber-200">
+                    <FontAwesomeIcon icon="fal fa-box-open" fixed-width aria-hidden="true" />
+                    {{ ctrans('Contains: :codes', { codes: packedItemCodes(item).join(', ') }) }}
+                </div>
                 <div class="text-xs text-gray-500">
                     {{ ctrans('Packed in') }} {{ formatQuantity(Number(item.units_per_pack) || 1) }}s ,
                     {{ ctrans('sko/C') }}: {{ formatQuantity(skosPerCarton(item)) }}
@@ -505,7 +562,10 @@ async function saveCbmInContainer(item: any, value: number | null) {
                     />
                 </div>
 
-                <div v-if="item.cbmInContainerRoute" class="flex items-center gap-1">
+                <div v-if="packedInsideCode(item)" class="whitespace-nowrap text-xs text-amber-700">
+                    {{ ctrans('In container') }}: 0 m³
+                </div>
+                <div v-else-if="item.cbmInContainerRoute" class="flex items-center gap-1">
                     <InputNumber
                         v-model="cbmInContainerDraft[item.id]"
                         v-tooltip="ctrans('CBM in container')"
@@ -548,6 +608,23 @@ async function saveCbmInContainer(item: any, value: number | null) {
                 <div v-else-if="item.is_cbm_in_container_set" v-tooltip="ctrans('CBM in container')" class="whitespace-nowrap text-xs text-gray-500">
                     {{ ctrans('In container') }}: {{ locale.number(item.cbm_in_container) }} m³
                 </div>
+
+                <Select
+                    v-if="item.packedInsideRoute && !packedItemCodes(item).length && (item.packed_inside_stock_delivery_item_id || outerLineOptions(item).length)"
+                    :modelValue="item.packed_inside_stock_delivery_item_id"
+                    :options="outerLineOptions(item)"
+                    optionLabel="label"
+                    optionValue="value"
+                    :placeholder="ctrans('Packed inside…')"
+                    :aria-label="ctrans('Packed inside another product')"
+                    filter
+                    showClear
+                    size="small"
+                    :loading="savingPackedInsideId === item.id"
+                    :disabled="savingPackedInsideId === item.id"
+                    class="w-40"
+                    @update:modelValue="(value: number | null) => savePackedInside(item, value ?? null)"
+                />
             </div>
         </template>
 

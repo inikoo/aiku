@@ -113,8 +113,8 @@ const submitUpload = async () => {
 			}
 		)
 		notify({
-			title: "Success!",
-			text: "The upload has successfully",
+			title: ctrans("Uploaded"),
+			text: ctrans("The file was uploaded"),
 			type: "success",
 		})
 		router.reload({

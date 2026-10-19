@@ -39,6 +39,12 @@ class GetStockDeliveryData
                         'hidden'  => $isParcel,
                         'options' => OrgAgentOrderContainerEnum::selectOptions(),
                     ],
+                    'hide_cbm'       => [
+                        'type'        => 'toggle',
+                        'label'       => __('Hide CBM'),
+                        'information' => __('The PDF and CSV of this container leave the CBM out'),
+                        'value'       => (bool) Arr::get($data, 'hide_cbm', false),
+                    ],
                     'reference'     => [
                         'type'  => 'input',
                         'label' => __('Public Id'),

@@ -9,8 +9,8 @@
 
 namespace App\Actions\GoodsIn\StockDeliveryItem;
 
+use App\Actions\GoodsIn\StockDelivery\AddPurchaseOrdersToStockDelivery;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\GoodsIn\StockDeliveryItem\StockDeliveryItemStateEnum;
 use App\Http\Resources\Procurement\StockDeliveryItemResource;
@@ -19,13 +19,11 @@ use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
- * The space a line takes in the container. Null falls back to the cbm of its cartons; an item packed inside
- * another item takes no space of its own and is set to 0.
+ * The space a line takes in the container. Null falls back to the cbm of its cartons; a line packed inside
+ * another line (SetStockDeliveryItemPackedInside) takes no space whatever is set here.
  */
 class SetStockDeliveryItemCbmInContainer extends OrgAction
 {
-    use WithProcurementEditAuthorisation;
-
     public const array EDITABLE_STATES = [
         StockDeliveryStateEnum::IN_PROCESS,
         StockDeliveryStateEnum::CONFIRMED,
@@ -33,6 +31,15 @@ class SetStockDeliveryItemCbmInContainer extends OrgAction
     ];
 
     private StockDeliveryItem $stockDeliveryItem;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+
+        return AddPurchaseOrdersToStockDelivery::userCanAdd($this->stockDeliveryItem->stockDelivery, $request->user());
+    }
 
     public static function canBeEdited(StockDeliveryItem $stockDeliveryItem): bool
     {

@@ -8,6 +8,7 @@
 
 namespace App\Actions\Procurement\OrgAgent\UI;
 
+use App\Actions\GoodsIn\StockDeliveryItem\SetStockDeliveryItemPackedInside;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\WithAgentShoppingSubNavigation;
@@ -42,7 +43,7 @@ class ShowAgentContainerInPreparation extends OrgAction
 
     private const string CARTONS_SQL = 'sdi.unit_quantity / nullif(sp.units_per_carton, 0)';
 
-    private const string CBM_SQL = 'coalesce(sdi.cbm_in_container, '.self::CARTONS_SQL.' * sp.cbm)';
+    private const string CBM_SQL = 'case when '.SetStockDeliveryItemPackedInside::IS_PACKED_INSIDE_SQL.' then 0 else coalesce(sdi.cbm_in_container, '.self::CARTONS_SQL.' * sp.cbm) end';
 
     private OrgAgent $orgAgent;
 
@@ -116,7 +117,7 @@ class ShowAgentContainerInPreparation extends OrgAction
                 coalesce(sum('.self::CARTONS_SQL.'), 0) as cartons,
                 coalesce(sum(sdi.net_amount), 0) as amount,
                 coalesce(sum('.self::CBM_SQL.'), 0) as cbm,
-                count(*) filter (where sdi.cbm_in_container is null and (sp.cbm is null or coalesce(sp.units_per_carton, 0) = 0)) as products_without_volume')
+                count(*) filter (where sdi.cbm_in_container is null and not '.SetStockDeliveryItemPackedInside::IS_PACKED_INSIDE_SQL.' and (sp.cbm is null or coalesce(sp.units_per_carton, 0) = 0)) as products_without_volume')
             ->toBase()
             ->first();
 

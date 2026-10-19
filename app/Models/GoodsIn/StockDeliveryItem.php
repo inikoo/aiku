@@ -72,6 +72,9 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property numeric $cost_tax
  * @property numeric $cost_total
  * @property numeric|null $cbm_in_container cubic meters the line takes in the container, null means the cbm of its cartons
+ * @property int|null $packed_inside_stock_delivery_item_id the line of the same container this one is packed inside
+ * @property-read StockDeliveryItem|null $packedInside
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, StockDeliveryItem> $packedItems
  * @property-read \App\Models\SysAdmin\Group|null $group
  * @property-read OrgStock|null $orgStock
  * @property-read \App\Models\SysAdmin\Organisation $organisation
@@ -105,6 +108,7 @@ class StockDeliveryItem extends Model implements Auditable
         'discrepancy_outcome',
         'stock_delivery_customs_line_id',
         'cbm_in_container',
+        'packed_inside_stock_delivery_item_id',
     ];
 
     public function generateTags(): array
@@ -144,6 +148,16 @@ class StockDeliveryItem extends Model implements Auditable
     public function stockDelivery(): BelongsTo
     {
         return $this->belongsTo(StockDelivery::class);
+    }
+
+    public function packedInside(): BelongsTo
+    {
+        return $this->belongsTo(StockDeliveryItem::class, 'packed_inside_stock_delivery_item_id');
+    }
+
+    public function packedItems(): HasMany
+    {
+        return $this->hasMany(StockDeliveryItem::class, 'packed_inside_stock_delivery_item_id');
     }
 
     public function supplierProduct(): BelongsTo

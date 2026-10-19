@@ -15,6 +15,7 @@ use App\Actions\Procurement\AgentLabel\PdfAgentOrgStockBarcodeLabel;
 use App\Actions\Procurement\AgentLabel\UI\IndexAgentLabels;
 use App\Actions\GoodsIn\StockDelivery\ExportStockDeliveries;
 use App\Actions\GoodsIn\StockDelivery\PdfStockDelivery;
+use App\Actions\GoodsIn\StockDelivery\ExportStockDeliveryItems;
 use App\Actions\GoodsIn\StockDelivery\UI\CreateStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\UI\EditStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\UI\IndexStockDeliveries;
@@ -303,4 +304,5 @@ Route::prefix('stock-deliveries')->as('stock_deliveries.')->group(function () {
     Route::get('{stockDelivery}', ShowStockDelivery::class)->name('show');
     Route::get('{stockDelivery}/edit', EditStockDelivery::class)->name('edit');
     Route::get('{stockDelivery}/pdf/{filename?}', PdfStockDelivery::class)->name('pdf');
+    Route::get('{stockDelivery}/csv', ExportStockDeliveryItems::class)->name('csv');
 });

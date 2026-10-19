@@ -119,6 +119,12 @@ class StockDeliveryItemResource extends JsonResource
                 'parameters' => ['stockDeliveryItem' => $item->id],
                 'method'     => 'patch',
             ] : null,
+            'packed_inside_stock_delivery_item_id' => $item->packed_inside_stock_delivery_item_id,
+            'packedInsideRoute'     => SetStockDeliveryItemCbmInContainer::canBeEdited($item) ? [
+                'name'       => 'grp.models.stock-delivery-item.packed-inside',
+                'parameters' => ['stockDeliveryItem' => $item->id],
+                'method'     => 'patch',
+            ] : null,
             'state'                 => $item->state->value,
             'state_label'           => StockDeliveryItemStateEnum::labels()[$item->state->value],
             'state_icon'            => StockDeliveryItemStateEnum::stateIcon()[$item->state->value],

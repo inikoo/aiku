@@ -33,6 +33,7 @@ use App\Actions\GoodsIn\StockDelivery\PdfStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\RemoveStockDeliveryUnbackedCosts;
 use App\Actions\GoodsIn\StockDelivery\GetStockDeliveryServiceInvoiceReadings;
 use App\Actions\GoodsIn\StockDelivery\Traits\WithStockDeliveryWeightAndVolume;
+use App\Actions\GoodsIn\StockDeliveryItem\SetStockDeliveryItemPackedInside;
 use App\Actions\GoodsIn\StockDeliveryItem\UI\IndexStockDeliveryItems;
 use App\Actions\GoodsIn\StockDeliveryItem\UI\IndexStockDeliveryUnderOverDeliveredItems;
 use App\Actions\Helpers\History\UI\IndexHistory;
@@ -487,6 +488,23 @@ class ShowStockDelivery extends OrgAction
             ],
         ];
 
+        $csvButton = [
+            'type'    => 'button',
+            'style'   => 'tertiary',
+            'label'   => 'CSV',
+            'tooltip' => __('Download the lines of this delivery'),
+            'target'  => '_blank',
+            'icon'    => 'fal fa-file-csv',
+            'key'     => 'csv',
+            'route'   => [
+                'name'       => 'grp.org.procurement.stock_deliveries.csv',
+                'parameters' => [
+                    'organisation'  => (request()->route('organisation') ?? $stockDelivery->organisation)->slug,
+                    'stockDelivery' => $stockDelivery->slug,
+                ],
+            ],
+        ];
+
         $cancelButton = [
             'label'   => __('Cancel'),
             'tooltip' => $isContainer ? __('Cancel Container') : __('Cancel Stock Delivery'),
@@ -672,7 +690,7 @@ class ShowStockDelivery extends OrgAction
                 : [];
         }
 
-        return array_merge($actions, [$pdfButton]);
+        return array_merge($actions, [$csvButton, $pdfButton]);
     }
 
     private function getAllowedActions(StockDelivery $stockDelivery): array
@@ -1067,7 +1085,8 @@ class ShowStockDelivery extends OrgAction
             );
         }
 
-        return StockDeliveryItemResource::collection(IndexStockDeliveryItems::run($stockDelivery, StockDeliveryTabsEnum::ITEMS->value));
+        return StockDeliveryItemResource::collection(IndexStockDeliveryItems::run($stockDelivery, StockDeliveryTabsEnum::ITEMS->value))
+            ->additional(['container_lines' => SetStockDeliveryItemPackedInside::containerLines($stockDelivery)]);
     }
 
     /**

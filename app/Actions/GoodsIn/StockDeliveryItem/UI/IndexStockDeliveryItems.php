@@ -131,6 +131,7 @@ class IndexStockDeliveryItems extends OrgAction
                 'stock_delivery_items.org_exchange',
                 'stock_delivery_items.org_stock_id',
                 'stock_delivery_items.cbm_in_container',
+                'stock_delivery_items.packed_inside_stock_delivery_item_id',
                 'org_stocks.slug as org_stock_slug',
                 'org_stocks.code as org_stock_code',
                 'org_stocks.name as org_stock_name',
