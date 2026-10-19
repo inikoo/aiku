@@ -110,6 +110,10 @@ class StoreAgentLedgerEntry extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->asAction) {
+            return true;
+        }
+
         return $request->user()->authTo("procurement.{$this->agent->organisation_id}.edit");
     }
 

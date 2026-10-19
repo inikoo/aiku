@@ -36,6 +36,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $supplier_id
  * @property string|null $original_amount
  * @property int|null $original_currency_id
+ * @property int|null $deposit_request_id
  * @property bool $needs_review
  * @property string|null $review_reason
  * @property array<string, mixed> $data
@@ -88,6 +89,11 @@ class AgentPayment extends Model
     public function purchaseOrder(): BelongsTo
     {
         return $this->belongsTo(PurchaseOrder::class);
+    }
+
+    public function depositRequest(): BelongsTo
+    {
+        return $this->belongsTo(DepositRequest::class);
     }
 
     public function supplier(): BelongsTo

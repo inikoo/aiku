@@ -13,7 +13,7 @@ use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Actions\Procurement\WithAgentOrganisation;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
-use App\Enums\SupplyChain\AspoDeposit\AspoDepositStateEnum;
+use App\Enums\SupplyChain\AspoDeposit\DepositRequestStateEnum;
 use App\InertiaTable\InertiaTable;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\Agent;
@@ -51,7 +51,7 @@ class IndexAgentWholeOrders extends OrgAction
 
         $notLive     = "'".PurchaseOrderStateEnum::CANCELLED->value."','".PurchaseOrderStateEnum::NOT_RECEIVED->value."'";
         $awaitingDeposit = "'".PurchaseOrderStateEnum::SUBMITTED->value."','".PurchaseOrderStateEnum::CONFIRMED->value."'";
-        $deadDeposit = "'".AspoDepositStateEnum::CANCELLED->value."','".AspoDepositStateEnum::REFUNDED->value."'";
+        $cancelledRequest = "'".DepositRequestStateEnum::CANCELLED->value."'";
 
         return QueryBuilder::for(PurchaseOrder::class)
             ->join('organisations', 'purchase_orders.organisation_id', 'organisations.id')
@@ -71,7 +71,7 @@ class IndexAgentWholeOrders extends OrgAction
             ->selectRaw('array_to_json(array_agg(distinct purchase_orders.state)) as states')
             ->selectRaw('(array_agg(purchase_orders.slug order by purchase_orders.id))[1] as slug')
             ->selectRaw("count(*) filter (where purchase_orders.state in ($awaitingDeposit)) as number_awaiting_deposit")
-            ->selectRaw("count(*) filter (where purchase_orders.state in ($awaitingDeposit) and exists (select 1 from aspo_deposits where aspo_deposits.purchase_order_id = purchase_orders.id and aspo_deposits.state not in ($deadDeposit))) as number_with_deposit")
+            ->selectRaw("count(*) filter (where purchase_orders.state in ($awaitingDeposit) and exists (select 1 from deposit_request_items join deposit_requests on deposit_requests.id = deposit_request_items.deposit_request_id where deposit_request_items.purchase_order_id = purchase_orders.id and deposit_requests.state != $cancelledRequest)) as number_with_deposit")
             ->selectRaw('max(purchase_orders.id) as last_id')
             ->defaultSort('-last_id')
             ->allowedSorts(['reference', 'organisation_name', 'date', 'number_supplier_orders', 'org_total_cost', 'last_id'])
