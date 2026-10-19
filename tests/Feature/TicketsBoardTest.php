@@ -450,7 +450,14 @@ test('tickets sidebar link opens the board for everyone', function () {
     $clerk->assignRole('help-desk-clerk');
 
     expect(\App\Actions\UI\Grp\Layout\GetGroupNavigation::run($this->user)['tickets']['route']['name'])->toBe('grp.tickets.board')
-        ->and(\App\Actions\UI\Grp\Layout\GetGroupNavigation::run($clerk)['tickets']['route']['name'])->toBe('grp.tickets.board');
+        ->and(\App\Actions\UI\Grp\Layout\GetGroupNavigation::run($clerk)['tickets']['route']['name'])->toBe('grp.tickets.board')
+        ->and(\App\Actions\UI\Grp\Layout\GetOrganisationNavigation::run($clerk, $this->organisation)['tickets']['route']['name'])->toBe('grp.org.tickets.board')
+        ->and(\App\Actions\UI\Grp\Layout\GetShopNavigation::run($this->shop, $clerk)['tickets']['route']['name'])->toBe('grp.org.shops.show.tickets.board');
+
+    $tabs = fn (array $navigation) => collect($navigation['tickets']['topMenu']['subSections'])->pluck('label')->all();
+    expect($tabs(\App\Actions\UI\Grp\Layout\GetOrganisationNavigation::run($clerk, $this->organisation)))->toBe($tabs(\App\Actions\UI\Grp\Layout\GetGroupNavigation::run($clerk)))
+        ->and($tabs(\App\Actions\UI\Grp\Layout\GetShopNavigation::run($this->shop, $clerk)))->toBe($tabs(\App\Actions\UI\Grp\Layout\GetGroupNavigation::run($clerk)))
+        ->and(array_slice($tabs(\App\Actions\UI\Grp\Layout\GetGroupNavigation::run($clerk)), 0, 2))->toBe(['Board', 'Overview']);
 });
 
 test('the assignee edits status, priority, assignee, kind and module of their ticket from the list', function () {
