@@ -10,6 +10,7 @@
 
 namespace App\Actions\Accounting\Invoice;
 
+use App\Actions\Accounting\Reports\MontanaInvoices\UI\IndexMontanaInvoicesReport;
 use App\Actions\Accounting\Reports\SageInvoices\UI\IndexSageInvoicesReport;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
@@ -78,7 +79,7 @@ trait WithInvoicesSubNavigation
                 ],
             ],
 
-            $parent instanceof Shop ? [
+            $parent instanceof Shop && $this->canSeeShopInvoiceReports($parent) ? [
                 'number' => IndexSageInvoicesReport::make()->inReports($parent),
                 'label'  => __('Sage Invoices'),
                 'route'  => [
@@ -87,8 +88,8 @@ trait WithInvoicesSubNavigation
                 ]
             ] : [],
 
-            $parent instanceof Shop ? [
-                'number' => IndexSageInvoicesReport::make()->inReports($parent),
+            $parent instanceof Shop && $this->canSeeShopInvoiceReports($parent) ? [
+                'number' => IndexMontanaInvoicesReport::make()->inReports($parent),
                 'label'  => __('Montana Invoices'),
                 'route'  => [
                     'name'       => $montanaInvoicesRouteName,
@@ -115,5 +116,14 @@ trait WithInvoicesSubNavigation
                 ],
             ],
         ];
+    }
+
+    private function canSeeShopInvoiceReports(Shop $shop): bool
+    {
+        return (bool) request()->user()?->authTo([
+            "accounting.$shop->organisation_id.view",
+            "crm.$shop->id.view",
+            "orders.$shop->id.view",
+        ]);
     }
 }

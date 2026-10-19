@@ -4197,3 +4197,51 @@ test('shop payment accounts and refund original payments json refuse staff witho
     $this->getJson(route('grp.json.shop.payment-accounts', $shop))->assertOk();
     $this->getJson(route('grp.json.refund.show.original_invoice_payments.index', $refund->id))->assertOk();
 });
+
+test('accounting and organisation reports answer only report readers or accountants, INI-076', function () {
+    $org  = $this->organisation;
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    $accountingReports = [
+        route('grp.org.reports.customer-credit', [$org->slug]),
+        route('grp.org.reports.sage-invoices', [$org->slug]),
+        route('grp.org.reports.montana-invoices', [$org->slug]),
+    ];
+    $shopReports = [
+        route('grp.org.shops.show.dashboard.invoices.sage.index', [$org->slug, $this->shop->slug]),
+        route('grp.org.shops.show.dashboard.invoices.montana.index', [$org->slug, $this->shop->slug]),
+    ];
+    $orgReports = [
+        route('grp.org.reports.picker-performance', [$org->slug]),
+        route('grp.org.reports.packer-performance', [$org->slug]),
+        route('grp.org.reports.uk-manufacturing-survey', [$org->slug]),
+    ];
+
+    actingAsUserWithOnlyPermissions($user, ["products.{$this->shop->id}.view"]);
+    foreach ([...$accountingReports, ...$shopReports, ...$orgReports] as $url) {
+        get($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["accounting.$org->id.view"]);
+    foreach ([...$accountingReports, ...$shopReports] as $url) {
+        get($url)->assertOk();
+    }
+    foreach ($orgReports as $url) {
+        get($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["org-reports.$org->id"]);
+    foreach ([...$accountingReports, ...$orgReports] as $url) {
+        get($url)->assertOk();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["orders.{$this->shop->id}.view"]);
+    foreach ($shopReports as $url) {
+        get($url)->assertOk()->assertInertia(fn ($page) => $page->where('can_export', false)->etc());
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["accounting.$org->id.view"]);
+    foreach ($shopReports as $url) {
+        get($url)->assertOk()->assertInertia(fn ($page) => $page->where('can_export', true)->etc());
+    }
+});

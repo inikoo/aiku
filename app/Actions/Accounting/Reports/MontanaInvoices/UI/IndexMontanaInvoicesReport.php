@@ -11,6 +11,7 @@ namespace App\Actions\Accounting\Reports\MontanaInvoices\UI;
 use App\Actions\Accounting\Invoice\WithInvoicesSubNavigation;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithAccountingReportsAuthorisation;
 use App\Actions\UI\Reports\IndexReports;
 use App\Http\Resources\Accounting\MontanaInvoiceResource;
 use App\InertiaTable\InertiaTable;
@@ -28,6 +29,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexMontanaInvoicesReport extends OrgAction
 {
+    use WithAccountingReportsAuthorisation;
     use WithInvoicesSubNavigation;
 
     private int $records;
@@ -172,6 +174,7 @@ class IndexMontanaInvoicesReport extends OrgAction
                         ],
                         'subNavigation' => $this->getInvoicesNavigation($this->parent)
                     ],
+                    'can_export'  => $request->user()->authTo(["accounting.{$this->organisation->id}.view", "org-reports.{$this->organisation->id}"]),
                     'data'        => MontanaInvoiceResource::collection($invoices),
                 ]
             )->table($this->tableStructure());

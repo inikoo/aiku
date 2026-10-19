@@ -3,6 +3,7 @@
 namespace App\Actions\Reports;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithOrgReportsAuthorisation;
 use App\Exports\Reports\UkManufacturingSurveyExport;
 use App\Models\SysAdmin\Organisation;
 use Carbon\Carbon;
@@ -12,6 +13,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ExportUkManufacturingSurvey extends OrgAction
 {
+    use WithOrgReportsAuthorisation;
     public function handle(Organisation $organisation, string $startDate, string $endDate): BinaryFileResponse
     {
         $filename = sprintf(
