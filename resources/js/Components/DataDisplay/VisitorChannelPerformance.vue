@@ -10,6 +10,9 @@ import { Link } from '@inertiajs/vue3'
 import axios from 'axios'
 import { route } from 'ziggy-js'
 import Dialog from 'primevue/dialog'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faInfoCircle } from '@fal'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { useLocaleStore } from '@/Stores/locale'
 import { ctrans } from '@/Composables/useTrans'
@@ -59,6 +62,8 @@ const props = defineProps<{
         }
     }
 }>()
+
+library.add(faInfoCircle)
 
 const locale = useLocaleStore()
 const money = (value: number) => locale.currencyFormat(props.data.currency_code, value)
@@ -132,26 +137,28 @@ const untracedRows = computed(() => [
     {
         key: 'direct',
         label: ctrans('Direct'),
-        help: ctrans('Typed the address, used a bookmark, or came from somewhere that sent no referrer. Counted only when no other channel touched the customer in the window.'),
+        help: ctrans('No referrer: typed the address, a bookmark, or an app. Only gets credit when no other channel touched the customer.'),
         visitors: props.data.untraced.direct.visitors,
         ...props.data.untraced.direct,
     },
     {
         key: 'unlinked',
         label: ctrans('No recorded visits'),
-        help: ctrans('Customers whose visits could not be tied to them: they have not logged in or registered on a browser we saw before. Run the repair command to link older customers.'),
+        help: ctrans('Customers with no visit linked to them yet, so no channel can be named.'),
         visitors: 0,
         ...props.data.untraced.unlinked,
     },
 ])
 
 const columnHelp = {
-    visitors: ctrans('Unique visitors per channel: one browser counts once in a channel however many sessions it opens.'),
-    registrations: ctrans('Registrations credited across the visits before sign-up: 40% to the first touch, 40% to the touch that registered, 20% to the others.'),
-    orders: ctrans('Orders placed in the period, credited across the visits before them.'),
-    revenue: ctrans('Invoiced net amount, credited the same way as the order. A new customer\'s first order is W-shaped (30% first touch, 30% registration touch, 30% last touch, 10% the rest); any other order is U-shaped (40% first, 40% last, 20% the rest).'),
-    pending: ctrans('Orders placed but not invoiced yet.'),
-    spend: ctrans('Recorded ad spend, plus the estimated cost of sending emails for the email channels.'),
+    channel: ctrans('From each visit\'s landing link and referrer.'),
+    visitors: ctrans('Unique browsers.'),
+    spend: ctrans('Ad spend. Email is estimated.'),
+    pending: ctrans('Ordered, not invoiced yet.'),
+    revenue: ctrans('Shared across the customer\'s earlier visits. W-shaped for a new customer\'s first order, U-shaped for other orders.'),
+    registrations: ctrans('Shared across the visits before sign-up, U-shaped.'),
+    orders: ctrans('Same method as revenue.'),
+    roas: ctrans('Revenue divided by spend.'),
 }
 </script>
 
@@ -172,6 +179,10 @@ const columnHelp = {
                     </span>
                 </div>
             </div>
+
+            <p class="mt-2 text-xs text-gray-500">
+                {{ ctrans('Counted from website visits, not from traffic sources.') }}
+            </p>
 
             <div class="mt-4 grid grid-cols-2 md:grid-cols-6 gap-3 text-sm">
                 <div>
@@ -247,14 +258,14 @@ const columnHelp = {
             <table v-if="data.channels.length" class="mt-5 w-full text-xs">
                 <thead class="whitespace-nowrap">
                     <tr class="text-gray-400 border-b border-gray-100">
-                        <th class="text-left font-normal py-1.5 pr-2">{{ ctrans('Channel') }}</th>
-                        <th class="text-right font-normal py-1.5 px-2">{{ ctrans('Visitors') }}<sup v-tooltip="columnHelp.visitors" class="ml-0.5 text-gray-300 cursor-help">?</sup></th>
-                        <th class="text-right font-normal py-1.5 px-2">{{ ctrans('Spend') }}<sup v-tooltip="columnHelp.spend" class="ml-0.5 text-gray-300 cursor-help">?</sup></th>
-                        <th class="text-right font-normal py-1.5 px-2">{{ ctrans('Awaiting invoice') }}<sup v-tooltip="columnHelp.pending" class="ml-0.5 text-gray-300 cursor-help">?</sup></th>
-                        <th class="text-right font-normal py-1.5 px-2">{{ ctrans('Revenue') }}<sup v-tooltip="columnHelp.revenue" class="ml-0.5 text-gray-300 cursor-help">?</sup></th>
-                        <th class="text-right font-normal py-1.5 px-2">{{ ctrans('Registrations') }}<sup v-tooltip="columnHelp.registrations" class="ml-0.5 text-gray-300 cursor-help">?</sup></th>
-                        <th class="text-right font-normal py-1.5 px-2">{{ ctrans('Orders') }}<sup v-tooltip="columnHelp.orders" class="ml-0.5 text-gray-300 cursor-help">?</sup></th>
-                        <th class="text-right font-normal py-1.5 pl-2">{{ ctrans('ROAS') }}</th>
+                        <th class="text-left font-normal py-1.5 pr-2">{{ ctrans('Channel') }}<FontAwesomeIcon v-tooltip="columnHelp.channel" icon="fal fa-info-circle" class="ml-1 text-gray-300 cursor-help" /></th>
+                        <th class="text-right font-normal py-1.5 px-2">{{ ctrans('Visitors') }}<FontAwesomeIcon v-tooltip="columnHelp.visitors" icon="fal fa-info-circle" class="ml-1 text-gray-300 cursor-help" /></th>
+                        <th class="text-right font-normal py-1.5 px-2">{{ ctrans('Spend') }}<FontAwesomeIcon v-tooltip="columnHelp.spend" icon="fal fa-info-circle" class="ml-1 text-gray-300 cursor-help" /></th>
+                        <th class="text-right font-normal py-1.5 px-2">{{ ctrans('Awaiting invoice') }}<FontAwesomeIcon v-tooltip="columnHelp.pending" icon="fal fa-info-circle" class="ml-1 text-gray-300 cursor-help" /></th>
+                        <th class="text-right font-normal py-1.5 px-2">{{ ctrans('Revenue') }}<FontAwesomeIcon v-tooltip="columnHelp.revenue" icon="fal fa-info-circle" class="ml-1 text-gray-300 cursor-help" /></th>
+                        <th class="text-right font-normal py-1.5 px-2">{{ ctrans('Registrations') }}<FontAwesomeIcon v-tooltip="columnHelp.registrations" icon="fal fa-info-circle" class="ml-1 text-gray-300 cursor-help" /></th>
+                        <th class="text-right font-normal py-1.5 px-2">{{ ctrans('Orders') }}<FontAwesomeIcon v-tooltip="columnHelp.orders" icon="fal fa-info-circle" class="ml-1 text-gray-300 cursor-help" /></th>
+                        <th class="text-right font-normal py-1.5 pl-2">{{ ctrans('ROAS') }}<FontAwesomeIcon v-tooltip="columnHelp.roas" icon="fal fa-info-circle" class="ml-1 text-gray-300 cursor-help" /></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -297,10 +308,8 @@ const columnHelp = {
             </table>
 
             <p class="mt-4 text-xs text-gray-400">
-                {{ ctrans('Visits are looked back :days days before each registration or order.', { days: data.lookback_days }) }}
-                {{ ctrans(':w new customer orders are W-shaped, :u other orders are U-shaped.', { w: data.attribution.w_shaped_orders, u: data.attribution.u_shaped_orders }) }}
                 <template v-if="data.attribution.linked_revenue_pct !== null">
-                    {{ ctrans(':pct% of revenue belongs to customers with recorded visits.', { pct: data.attribution.linked_revenue_pct }) }}
+                    {{ ctrans(':pct% of revenue is from customers with recorded visits.', { pct: data.attribution.linked_revenue_pct }) }}
                 </template>
                 <template v-if="data.channels.some(channel => channel.spend_is_estimated)">* {{ ctrans('estimated cost of sending the emails') }}</template>
             </p>
