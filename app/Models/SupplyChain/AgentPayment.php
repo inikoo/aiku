@@ -13,6 +13,7 @@ use App\Enums\SupplyChain\AgentPayment\AgentPaymentTypeEnum;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\Helpers\Media;
 use App\Models\Helpers\Currency;
+use App\Models\Inventory\OrgStock;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\InGroup;
@@ -37,6 +38,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $original_amount
  * @property int|null $original_currency_id
  * @property int|null $deposit_request_id
+ * @property int|null $org_stock_id the SKO a packaging line belongs to
  * @property bool $needs_review
  * @property string|null $review_reason
  * @property array<string, mixed> $data
@@ -89,6 +91,11 @@ class AgentPayment extends Model
     public function purchaseOrder(): BelongsTo
     {
         return $this->belongsTo(PurchaseOrder::class);
+    }
+
+    public function orgStock(): BelongsTo
+    {
+        return $this->belongsTo(OrgStock::class);
     }
 
     public function depositRequest(): BelongsTo

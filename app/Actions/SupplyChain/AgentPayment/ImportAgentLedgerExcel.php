@@ -8,6 +8,7 @@
 
 namespace App\Actions\SupplyChain\AgentPayment;
 
+use App\Actions\SupplyChain\AgentInvoice\SyncAgentInvoiceChargesFromLedger;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\SupplyChain\AgentPayment\AgentPaymentTypeEnum;
 use App\Models\GoodsIn\StockDelivery;
@@ -195,6 +196,10 @@ class ImportAgentLedgerExcel
                 ]);
             }
         });
+
+        StockDelivery::whereIn('id', array_filter(array_unique(array_column($lines, 'stock_delivery_id'))))
+            ->get()
+            ->each(fn (StockDelivery $stockDelivery) => SyncAgentInvoiceChargesFromLedger::run($stockDelivery));
     }
 
     /**

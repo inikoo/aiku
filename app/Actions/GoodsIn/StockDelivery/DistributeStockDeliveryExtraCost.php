@@ -63,7 +63,10 @@ class DistributeStockDeliveryExtraCost extends OrgAction
         return $stockDelivery->refresh();
     }
 
-    public static function distribute(StockDelivery $stockDelivery, string $field, float $amount, string $type = self::DISTRIBUTION_BY_VALUE): void
+    /**
+     * @param  array<int, float>  $itemAmounts  amounts that belong to one line each, by line id, on top of its share; one whose line no longer takes part is shared instead
+     */
+    public static function distribute(StockDelivery $stockDelivery, string $field, float $amount, string $type = self::DISTRIBUTION_BY_VALUE, array $itemAmounts = []): void
     {
         self::clearLeftOutItems($stockDelivery, $field);
 
@@ -72,6 +75,9 @@ class DistributeStockDeliveryExtraCost extends OrgAction
         if ($items->isEmpty()) {
             return;
         }
+
+        $ownAmounts = array_intersect_key($itemAmounts, array_flip($items->pluck('id')->all()));
+        $amount    += array_sum(array_diff_key($itemAmounts, $ownAmounts));
 
         if ($type === self::DISTRIBUTION_BY_WEIGHT && self::itemsWithoutWeight($items)->isNotEmpty()) {
             $type = self::DISTRIBUTION_BY_VALUE;
@@ -82,7 +88,7 @@ class DistributeStockDeliveryExtraCost extends OrgAction
         $shares = self::getShares($items, (int) round($amount * 100), $type, $weights);
 
         foreach ($items as $index => $item) {
-            self::setItemCost($item, $field, $shares[$index] / 100);
+            self::setItemCost($item, $field, round($shares[$index] / 100 + ($ownAmounts[$item->id] ?? 0), 2));
         }
     }
 

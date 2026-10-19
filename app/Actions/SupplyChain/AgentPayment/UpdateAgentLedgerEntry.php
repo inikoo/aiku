@@ -9,6 +9,7 @@
 namespace App\Actions\SupplyChain\AgentPayment;
 
 use App\Actions\OrgAction;
+use App\Actions\SupplyChain\AgentInvoice\SyncAgentInvoiceChargesFromLedger;
 use App\Enums\SupplyChain\AgentPayment\AgentPaymentTypeEnum;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\Procurement\PurchaseOrder;
@@ -32,7 +33,8 @@ class UpdateAgentLedgerEntry extends OrgAction
      */
     public function handle(AgentPayment $agentPayment, array $modelData): AgentPayment
     {
-        $purchaseOrder = ($purchaseOrderId = Arr::get($modelData, 'purchase_order_id')) ? PurchaseOrder::findOrFail($purchaseOrderId) : null;
+        $purchaseOrder   = ($purchaseOrderId = Arr::get($modelData, 'purchase_order_id')) ? PurchaseOrder::findOrFail($purchaseOrderId) : null;
+        $formerContainer = $agentPayment->stock_delivery_id;
 
         $agentPayment->update([
             'date'              => $modelData['date'],
@@ -40,11 +42,16 @@ class UpdateAgentLedgerEntry extends OrgAction
             'purchase_order_id' => $purchaseOrder?->id,
             'supplier_id'       => $purchaseOrder?->supplier_id,
             'stock_delivery_id' => Arr::get($modelData, 'stock_delivery_id'),
+            'org_stock_id'      => $modelData['type'] === AgentPaymentTypeEnum::PACKAGING->value && Arr::get($modelData, 'stock_delivery_id') ? Arr::get($modelData, 'org_stock_id') : null,
             'reference'         => Arr::get($modelData, 'reference'),
             'notes'             => Arr::get($modelData, 'notes'),
             'needs_review'      => false,
             'review_reason'     => null,
         ]);
+
+        StockDelivery::whereIn('id', array_filter(array_unique([$formerContainer, $agentPayment->stock_delivery_id])))
+            ->get()
+            ->each(fn (StockDelivery $stockDelivery) => SyncAgentInvoiceChargesFromLedger::run($stockDelivery));
 
         return $agentPayment;
     }
@@ -58,6 +65,7 @@ class UpdateAgentLedgerEntry extends OrgAction
             'type'              => ['required', Rule::enum(AgentPaymentTypeEnum::class)],
             'purchase_order_id' => ['nullable', 'integer', 'required_if:type,'.$supplierPayments],
             'stock_delivery_id' => ['nullable', 'integer'],
+            'org_stock_id'      => ['nullable', 'integer'],
             'reference'         => ['nullable', 'string', 'max:255'],
             'notes'             => ['nullable', 'string', 'max:2000'],
         ];
@@ -75,6 +83,10 @@ class UpdateAgentLedgerEntry extends OrgAction
             if (!$belongs) {
                 $validator->errors()->add('purchase_order_id', __('Choose an order this client placed through you.'));
             }
+        }
+
+        if (!StoreAgentLedgerEntry::orgStockOfContainer($this->get('org_stock_id') ? (int) $this->get('org_stock_id') : null, $this->get('stock_delivery_id') ? (int) $this->get('stock_delivery_id') : null)) {
+            $validator->errors()->add('org_stock_id', __('Choose a SKO on the container.'));
         }
 
         if ($stockDeliveryId = $this->get('stock_delivery_id')) {

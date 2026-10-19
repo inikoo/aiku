@@ -16,7 +16,6 @@ use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Procurement\OrgSupplierProducts\UI\GetOrgSupplierProductShowcase;
 use App\Actions\SupplyChain\AspoDeposit\StoreAspoDeposit;
 use App\Actions\SupplyChain\AgentInvoice\StoreAgentInvoice;
-use App\Actions\SupplyChain\AgentInvoice\UpdateAgentInvoiceCharges;
 use App\Actions\SupplyChain\AgentPayment\StoreAgentPayment;
 use App\Models\SysAdmin\User;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
@@ -104,6 +103,7 @@ use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\AgentPayment;
+use App\Actions\SupplyChain\AgentPayment\StoreAgentLedgerEntry;
 use App\Enums\SupplyChain\AgentPayment\AgentPaymentTypeEnum;
 use App\Actions\SupplyChain\AgentPayment\ImportAgentLedgerExcel;
 use App\Models\Procurement\PurchaseOrderTransaction;
@@ -1413,6 +1413,9 @@ test('the agent keeps each client\'s money in a ledger: transfers in, supplier p
     $this->post($storeRoute, $entry + ['type' => 'supplier_deposit', 'amount' => 3000, 'purchase_order_id' => $purchaseOrder->id])->assertSessionHasNoErrors();
     $this->post($storeRoute, $entry + ['type' => 'packaging', 'amount' => 500, 'stock_delivery_id' => $stockDelivery->id, 'notes' => 'Hang tags'])->assertSessionHasNoErrors();
     $this->post($storeRoute, ['organisation_id' => $this->agent->organisation_id, 'date' => date('Y-m-d'), 'type' => 'packaging', 'amount' => 1])->assertSessionHasErrors('organisation_id');
+    $this->post($storeRoute, $entry + ['type' => 'packaging', 'amount' => 5, 'org_stock_id' => $this->orgStocks[1]->id])->assertSessionHasErrors('org_stock_id');
+    $this->post($storeRoute, $entry + ['type' => 'inspection', 'amount' => 40, 'reference' => 'INSP-'.Str::random(6)])->assertSessionHasNoErrors();
+    $inspection = AgentPayment::where('agent_id', $this->agent->id)->where('type', AgentPaymentTypeEnum::INSPECTION)->latest('id')->firstOrFail();
 
     $transfer = AgentPayment::where('agent_id', $this->agent->id)->where('reference', 'TT-LEDGER')->latest('id')->firstOrFail();
     $deposit  = AgentPayment::where('purchase_order_id', $purchaseOrder->id)->firstOrFail();
@@ -1425,8 +1428,11 @@ test('the agent keeps each client\'s money in a ledger: transfers in, supplier p
 
     $after = $walletOf();
     expect($after['received'] - $before['received'])->toEqual(10000)
-        ->and($after['paid'] - $before['paid'])->toEqual(3500)
-        ->and($after['balance'] - $before['balance'])->toEqual(6500);
+        ->and($after['paid'] - $before['paid'])->toEqual(3540)
+        ->and($after['balance'] - $before['balance'])->toEqual(6460);
+
+    $unallocated = collect($this->get($ledger.'?elements[unallocated]=unallocated&filter[global]='.$inspection->reference)->viewData('page')['props']['data']['data']);
+    expect($unallocated->pluck('id')->all())->toBe([$inspection->id]);
 
     $this->get($ledger.'?filter[global]=TT-LEDGER')->assertInertia(fn (AssertableInertia $page) => $page
         ->component('Org/Procurement/AgentLedger')
@@ -1512,40 +1518,57 @@ test('an agent\'s Excel balance sheet comes into the ledger as opening lines plu
     actingAs($this->adminGuest->getUser());
 });
 
-test('an agent invoices a container from its lines, adds its charges, takes off what was paid in advance and can not dispatch it without the invoice', function () {
+test('an agent invoices a container from its lines, its charges are the ledger lines of the container with its agent fee, it takes off what was paid in advance and can not dispatch it without the invoice', function () {
+    $orgAgent      = createFreshOrgAgent($this);
+    $agent         = $orgAgent->agent;
     $stockDelivery = createStockDeliveryWithItems($this, 'AGENT-INV-'.Str::random(6), [10, 4]);
-    $stockDelivery->updateQuietly(['agent_id' => $this->agent->id]);
+    $stockDelivery->updateQuietly(['agent_id' => $agent->id]);
+    $agent->organisation->update(['currency_id' => $stockDelivery->currency_id]);
+    $orgAgent->update(['agent_fee_percentage' => 5]);
     [$first, $second] = $stockDelivery->items()->orderBy('id')->get()->all();
     $first->updateQuietly(['net_amount' => 100]);
     $second->updateQuietly(['net_amount' => 40]);
 
     $this->patch(route('grp.models.stock-delivery.dispatch', $stockDelivery->id))->assertSessionHasErrors('invoice');
 
-    $invoice = StoreAgentInvoice::make()->handle($this->agent, $stockDelivery->refresh());
+    $invoice = StoreAgentInvoice::make()->handle($agent, $stockDelivery->refresh());
+    $fee     = AgentPayment::where('stock_delivery_id', $stockDelivery->id)->where('type', AgentPaymentTypeEnum::AGENT_FEE)->sole();
 
     expect($invoice->number_lines)->toBe(2)
         ->and((float) $invoice->goods_amount)->toBe(140.0)
         ->and($invoice->lines[0]['unit_price'])->toEqual(10)
-        ->and($stockDelivery->refresh()->data['invoice_number'])->toBe($invoice->reference);
+        ->and($stockDelivery->refresh()->data['invoice_number'])->toBe($invoice->reference)
+        ->and((float) $fee->amount)->toBe(7.0)
+        ->and($invoice->charges)->toHaveCount(1)
+        ->and((float) $invoice->total_amount)->toBe(147.0);
 
-    $invoice = UpdateAgentInvoiceCharges::make()->handle($invoice, ['charges' => [
-        ['description' => 'Commission', 'amount' => 12.5],
-        ['description' => 'Packing', 'amount' => 3],
-    ]]);
+    $ledgerLine = fn (array $data) => StoreAgentLedgerEntry::make()->action($agent, $data + ['organisation_id' => $stockDelivery->organisation_id, 'date' => date('Y-m-d'), 'stock_delivery_id' => $stockDelivery->id]);
+    $ledgerLine(['type' => 'other_expense', 'amount' => 12.5, 'notes' => 'Commission']);
+    $packaging = $ledgerLine(['type' => 'packaging', 'amount' => 3, 'org_stock_id' => $first->org_stock_id]);
+
+    $invoice = $invoice->refresh();
+    expect($invoice->charges)->toHaveCount(3)
+        ->and(collect($invoice->charges)->firstWhere('ledger_id', $packaging->id))->toMatchArray(['type' => 'packing_charge', 'amount' => 3.0, 'org_stock_id' => $first->org_stock_id])
+        ->and((float) $invoice->total_amount)->toBe(162.5);
+
     StoreAgentPayment::make()->handle($stockDelivery, ['date' => now()->toDateString(), 'amount' => 50, 'reference' => 'TT-1']);
 
-    $again = StoreAgentInvoice::make()->handle($this->agent, $stockDelivery->refresh());
+    $again = StoreAgentInvoice::make()->handle($agent, $stockDelivery->refresh());
 
     expect($again->id)->toBe($invoice->id)
         ->and($again->number)->toBe($invoice->number)
-        ->and((float) $again->total_amount)->toBe(155.5)
+        ->and(AgentPayment::where('stock_delivery_id', $stockDelivery->id)->where('type', AgentPaymentTypeEnum::AGENT_FEE)->count())->toBe(1)
+        ->and((float) $again->total_amount)->toBe(162.5)
         ->and($again->paidAmount())->toBe(50.0)
-        ->and($again->balanceDue())->toBe(105.5);
+        ->and($again->balanceDue())->toBe(112.5);
 
     $summary = ShowStockDelivery::make()->getInvoiceSummary($stockDelivery->refresh());
 
-    expect($summary)->toMatchArray(['kind' => 'agent', 'source' => 'agent', 'reference' => $again->reference, 'goods' => 140.0, 'charges' => 15.5, 'total' => 155.5, 'paid' => 50.0, 'balance_due' => 105.5])
+    expect($summary)->toMatchArray(['kind' => 'agent', 'source' => 'agent', 'reference' => $again->reference, 'goods' => 140.0, 'charges' => 22.5, 'total' => 162.5, 'paid' => 50.0, 'balance_due' => 112.5])
         ->and($summary['org_currency'])->toBe($stockDelivery->organisation->currency->code);
+
+    \App\Actions\SupplyChain\AgentPayment\DeleteAgentPayment::make()->handle($packaging);
+    expect((float) $again->refresh()->total_amount)->toBe(159.5);
 
     $second->updateQuietly(['unit_quantity' => 5]);
     $this->patch(route('grp.models.stock-delivery.dispatch', $stockDelivery->id))->assertSessionHasErrors('invoice');
@@ -1554,8 +1577,7 @@ test('an agent invoices a container from its lines, adds its charges, takes off 
     $this->patch(route('grp.models.stock-delivery.dispatch', $stockDelivery->id))->assertSessionHasErrors('reason');
     $this->patch(route('grp.models.stock-delivery.dispatch', $stockDelivery->id), ['reason' => 'Packing list comes with the goods'])->assertSessionHasNoErrors();
 
-    expect(fn () => StoreAgentInvoice::make()->handle($this->agent, $stockDelivery->refresh()))->toThrow(ValidationException::class)
-        ->and(fn () => UpdateAgentInvoiceCharges::make()->handle($again->refresh(), ['charges' => []]))->toThrow(ValidationException::class);
+    expect(fn () => StoreAgentInvoice::make()->handle($agent, $stockDelivery->refresh()))->toThrow(ValidationException::class);
 });
 
 test('stock delivery counts under and over delivered items', function () {

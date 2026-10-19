@@ -897,6 +897,49 @@ test('stock put away from a delivery is valued at the line price, then at the la
     $stockDeliveryItem->orgStock->update(['packed_in' => $packedIn]);
 });
 
+test('an extra cost that belongs to one line goes to that line whole, the other extras are still split by value (HELP-4097)', function () {
+    $stockDelivery = placedStockDeliveryWithTwoLines($this, 'COST-ONE-LINE-'.Str::random(4));
+    [$first, $second] = $stockDelivery->items()->orderBy('id')->get()->all();
+
+    StoreStockDeliveryCost::make()->action($stockDelivery, ['type' => StockDeliveryCostTypeEnum::EXTRA->value, 'label' => 'Hang tags', 'amount' => 30, 'received_at' => now(), 'stock_delivery_item_id' => $first->id]);
+    StoreStockDeliveryCost::make()->action($stockDelivery, ['type' => StockDeliveryCostTypeEnum::DUTY->value, 'is_na' => true]);
+
+    expect((float) $first->fresh()->cost_extra)->toBe(50.0)
+        ->and((float) $second->fresh()->cost_extra)->toBe(60.0)
+        ->and((float) $first->fresh()->cost_total)->toBe(150.0)
+        ->and($stockDelivery->fresh()->is_costed)->toBeTrue();
+});
+
+test('the packaging of one SKO on an agent invoice becomes an extra cost of that SKO\'s line only (HELP-4097)', function () {
+    $stockDelivery = createStockDeliveryWithItems($this, 'AGENT-SKO-'.Str::random(6), [10, 20]);
+    $stockDelivery->updateQuietly(['agent_id' => $this->agent->id]);
+    $items = $stockDelivery->items()->orderBy('id')->get();
+    $items[0]->updateQuietly(['net_amount' => 100]);
+    $items[1]->updateQuietly(['net_amount' => 300]);
+
+    $invoice = StoreAgentInvoice::make()->handle($this->agent, $stockDelivery->refresh());
+    UpdateAgentInvoiceCharges::make()->handle($invoice, ['charges' => [['description' => 'Commission', 'type' => 'other', 'amount' => 40]]]);
+    $invoice->refresh()->update(['charges' => array_merge($invoice->charges, [['description' => 'Hang tags', 'type' => 'packing_charge', 'amount' => 10, 'org_stock_id' => $items[0]->org_stock_id]]), 'charges_amount' => 50, 'total_amount' => 450]);
+
+    $stockDelivery = DispatchStockDelivery::make()->action($stockDelivery->refresh());
+    $stockDelivery = UpdateStockDeliveryStateToReceived::make()->action($stockDelivery);
+    foreach ($stockDelivery->items()->orderBy('id')->get() as $item) {
+        $item = SetStockDeliveryItemCheckedQuantity::make()->action($item->fresh(), ['unit_quantity_checked' => $item->unit_quantity]);
+        SetStockDeliveryItemAsPlaced::make()->action($item, ['location_org_stock_id' => createLocationOrgStockFor($this, $item)->id]);
+    }
+    $stockDelivery = StartStockDeliveryCosting::make()->action($stockDelivery->fresh());
+    ApproveAgentInvoiceCharges::make()->handle($stockDelivery);
+
+    $items = $stockDelivery->fresh()->items()->orderBy('id')->get();
+    $own   = $stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::EXTRA)->whereNotNull('stock_delivery_item_id')->sole();
+
+    expect($own->stock_delivery_item_id)->toBe($items[0]->id)
+        ->and((float) $own->amount)->toBe(10.0)
+        ->and((float) $items->sum('cost_extra'))->toEqualWithDelta(50, 0.001)
+        ->and((float) $items[0]->cost_extra)->toEqualWithDelta(10 + 40 * 100 / 400, 0.01)
+        ->and((float) $items[1]->cost_extra)->toEqualWithDelta(40 * 300 / 400, 0.01);
+});
+
 test('a placed agent container is costed from its agent invoice and completes itself once our organisation adds the customs', function () {
     $stockDelivery = createStockDeliveryWithItems($this, 'AGENT-COST-'.Str::random(6), [10, 20]);
     $stockDelivery->updateQuietly(['agent_id' => $this->agent->id]);
