@@ -56,6 +56,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_org_stocks_replenishments_wholesale
  * @property int $number_org_stocks_replenishments_dropshipping
  * @property int $number_org_stocks_low_stock_audits
+ * @property int $number_org_stocks_below_minimum_stock
  * @property int $number_fulfilments
  * @property int $number_customers_interest_pallets_storage
  * @property int $number_customers_interest_items_storage

@@ -89,6 +89,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $movements_fixed
  * @property numeric|null $sku_value
  * @property numeric|null $lpp_per_sku
+ * @property numeric|null $minimum_stock
  * @property numeric|null $current_supplier_sku_cost
  * @property int $current_batch_codes
  * @property int|null $main_batch_code_id
@@ -149,6 +150,7 @@ class OrgStock extends Model implements Auditable, HasMedia
         'last_fetched_at'                  => 'datetime',
         'quantity_in_locations'            => 'decimal:3',
         'quantity_available'               => 'decimal:3',
+        'minimum_stock'                    => 'decimal:3',
         'is_shipment_packaging'            => 'boolean',
     ];
 
@@ -202,6 +204,7 @@ class OrgStock extends Model implements Auditable, HasMedia
         'is_fresh',
         'is_made_in_house',
         'is_excluded_from_auto_ordering',
+        'minimum_stock',
         'packed_in',
         'barcode',
     ];

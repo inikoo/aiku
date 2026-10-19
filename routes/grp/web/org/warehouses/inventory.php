@@ -34,6 +34,7 @@ use App\Actions\Inventory\OrgStock\UI\IndexOrgStocksWithNoProducts;
 use App\Actions\Inventory\OrgStock\UI\IndexOrgStockReplenishments;
 use App\Actions\Inventory\OrgStock\UI\IndexNegativeLocationOrgStocks;
 use App\Actions\Inventory\OrgStock\UI\IndexOrgStockLowStockAudits;
+use App\Actions\Inventory\OrgStock\UI\IndexOrgStocksBelowMinimumStock;
 use App\Actions\Inventory\OrgStock\UI\ShowOrgStock;
 use App\Actions\Inventory\OrgStock\UI\ShowOrgStockLabels;
 use App\Actions\Inventory\OrgStock\UI\ShowOrgStockProcurement;
@@ -84,6 +85,11 @@ Route::prefix('stocks')->as('org_stocks.')->group(function () {
 
     Route::prefix('low-stock-audits')->as('low_stock_audits.')->group(function () {
         Route::get('/', IndexOrgStockLowStockAudits::class)->name('index');
+    });
+
+    Route::prefix('below-minimum-stock')->as('below_minimum_stock.')->group(function () {
+        Route::get('/', IndexOrgStocksBelowMinimumStock::class)->name('index');
+        Route::get('/levels', [IndexOrgStocksBelowMinimumStock::class, 'levels'])->name('levels');
     });
 
     Route::prefix('negative-stocks')->as('negative_stocks.')->group(function () {
