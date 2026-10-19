@@ -6477,6 +6477,53 @@ test('picking and packing are warehouse work, the order page shipment and dispat
     }
 });
 
+test('a picking session tells its page whether the user can work the warehouse, INI-076', function (PickingSession $pickingSession) {
+    $url = route('grp.org.warehouses.show.dispatching.picking_sessions.show', [$this->organisation->slug, $this->warehouse->slug, $pickingSession->slug]);
+
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ["dispatching.{$this->warehouse->id}.view"]);
+        $this->get($url)->assertInertia(fn (AssertableInertia $page) => $page->where('can_work', false));
+
+        $this->user->syncPermissions([]);
+        actingAsUserWithRoles($this->user, [RolesEnum::getRoleName(RolesEnum::DISPATCH_CLERK->value, $this->warehouse)]);
+        $this->get($url)->assertInertia(fn (AssertableInertia $page) => $page->where('can_work', true));
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
+})->depends('store picking session');
+
+test('a dispatch clerk packs a delivery note item of their warehouse, and a dispatching viewer is told why the delivery note is read only, INI-076', function () {
+    [$deliveryNote, $item] = handlingDeliveryNoteWithPicking($this, 4);
+    $page                  = fn () => $this->get(route('grp.org.warehouses.show.dispatching.delivery_notes.show', [$this->organisation->slug, $this->warehouse->slug, $deliveryNote->slug]));
+
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ["dispatching.{$this->warehouse->id}.view"]);
+        $page()->assertInertia(fn (AssertableInertia $inertia) => $inertia->whereType('read_only_notice', 'string'));
+
+        $this->user->syncPermissions([]);
+        actingAsUserWithRoles($this->user, [RolesEnum::getRoleName(RolesEnum::DISPATCH_CLERK->value, $this->warehouse)]);
+        $page()->assertInertia(fn (AssertableInertia $inertia) => $inertia->where('read_only_notice', null));
+        $this->patch(route('grp.models.delivery_note_item.packing.store', $item->id), ['packer_user_id' => $this->user->id, 'quantity' => 4])
+            ->assertSessionHasNoErrors();
+
+        expect((float) $item->refresh()->quantity_packed)->toBe(4.0);
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
+});
+
 test('an insert prints from the browser as an A6 PDF and counts as printed, HELP-3891', function () {
     [$deliveryNote] = handlingDeliveryNoteWithPicking($this);
     $leaflet        = \App\Models\Dispatching\DeliveryNoteLeaflet::create([

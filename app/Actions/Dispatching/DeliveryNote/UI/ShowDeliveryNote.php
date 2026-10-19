@@ -1394,6 +1394,12 @@ class ShowDeliveryNote extends OrgAction
             ],
             'warning'       => $warning,
             'aurora_notice' => $lockedInAurora ? __('This delivery note belongs to an order submitted in Aurora. Pick, pack and dispatch it in Aurora, not here.') : null,
+            'read_only_notice' => $this->parent instanceof Warehouse
+                && !$lockedInAurora
+                && !$isEditable
+                && !in_array($deliveryNote->state, [DeliveryNoteStateEnum::DISPATCHED, DeliveryNoteStateEnum::CANCELLED], true)
+                ? __('You can see this delivery note but not pick, pack or dispatch it: that needs a dispatching, fulfilment or returns position in this warehouse.')
+                : null,
             'is_editable'   => $isEditable,
             'packaging'     => $this->getDeliveryNotePackagingProp($deliveryNote),
             'inserts'       => $this->getDeliveryNoteInsertsProp($deliveryNote),
