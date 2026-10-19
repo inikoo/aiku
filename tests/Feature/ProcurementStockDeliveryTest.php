@@ -2849,7 +2849,7 @@ describe('stock delivery service invoices', function () {
 
 describe('supplier deposits', function () {
     beforeEach(function () {
-        [$orgSupplier] = createAgentOrgSupplierWithProduct($this);
+        [$orgSupplier] = createAgentOrgSupplierWithProduct($this, createFreshOrgAgent($this));
 
         $this->depositPurchaseOrder = StorePurchaseOrder::make()->action(
             $orgSupplier,

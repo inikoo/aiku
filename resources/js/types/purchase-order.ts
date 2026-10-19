@@ -30,7 +30,7 @@ export interface PurchaseOrder {
         agent_order_reference: string
         state: string
         state_label: string
-        cost_total: number
+        amount: number
         currency_code: string
     }[] | null
 }

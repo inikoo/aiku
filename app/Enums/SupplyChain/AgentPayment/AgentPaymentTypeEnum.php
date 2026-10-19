@@ -68,4 +68,12 @@ enum AgentPaymentTypeEnum: string
     {
         return array_values(array_map(fn (self $type) => $type->value, array_filter(self::cases(), fn (self $type) => $type->isMoneyIn())));
     }
+
+    /**
+     * @return list<string>
+     */
+    public static function supplierPaymentValues(): array
+    {
+        return array_values(array_map(fn (self $type) => $type->value, array_filter(self::cases(), fn (self $type) => $type->isSupplierPayment())));
+    }
 }

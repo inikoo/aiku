@@ -75,7 +75,7 @@ class GetAgentMoneyRequestLines
                 'purchase_orders.reference',
                 'purchase_orders.agent_order_reference',
                 'purchase_orders.supplier_id',
-                'purchase_orders.cost_total',
+                'purchase_orders.cost_items',
                 'suppliers.code as supplier_code',
                 'suppliers.name as supplier_name',
                 'suppliers.advance_percentage',
@@ -83,7 +83,7 @@ class GetAgentMoneyRequestLines
                 'paid_to_suppliers.amount as paid_to_supplier',
             ])
             ->map(function (PurchaseOrder $purchaseOrder) {
-                $total      = round((float) $purchaseOrder->cost_total, 2);
+                $total      = round((float) $purchaseOrder->cost_items, 2);
                 $requested  = round((float) $purchaseOrder->requested, 2);
                 $paid       = round((float) $purchaseOrder->paid_to_supplier, 2);
                 $covered    = max($requested, $paid);

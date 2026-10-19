@@ -18,6 +18,7 @@ use App\Enums\SupplyChain\AspoDeposit\DepositRequestStateEnum;
 use App\Http\Resources\Procurement\PurchaseOrdersResource;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -42,10 +43,18 @@ class ShowAgentWholeOrder extends OrgAction
      */
     public function handle(PurchaseOrder $purchaseOrder): Collection
     {
-        $supplierPaymentTypes = array_values(array_map(fn (AgentPaymentTypeEnum $type) => $type->value, array_filter(AgentPaymentTypeEnum::cases(), fn (AgentPaymentTypeEnum $type) => $type->isSupplierPayment())));
+        return self::withMoneyFigures($purchaseOrder->wholeAgentOrder()->select('purchase_orders.*'))
+            ->with('currency')
+            ->orderBy('parent_code')
+            ->get();
+    }
 
-        return $purchaseOrder->wholeAgentOrder()
-            ->select('purchase_orders.*')
+    /**
+     * Adds what was asked of the client in money requests (requested_amount) and what the agent's ledger shows paid to the factory (paid_to_suppliers_amount) to each purchase order.
+     */
+    public static function withMoneyFigures(Builder $query): Builder
+    {
+        return $query
             ->selectSub(
                 DB::table('deposit_request_items')
                     ->join('deposit_requests', 'deposit_requests.id', 'deposit_request_items.deposit_request_id')
@@ -57,14 +66,11 @@ class ShowAgentWholeOrder extends OrgAction
             ->selectSub(
                 DB::table('agent_payments')
                     ->whereColumn('agent_payments.purchase_order_id', 'purchase_orders.id')
-                    ->whereIn('agent_payments.type', $supplierPaymentTypes)
+                    ->whereIn('agent_payments.type', AgentPaymentTypeEnum::supplierPaymentValues())
                     ->whereNull('agent_payments.deleted_at')
                     ->selectRaw('coalesce(sum(agent_payments.amount), 0)'),
                 'paid_to_suppliers_amount'
-            )
-            ->with('currency')
-            ->orderBy('parent_code')
-            ->get();
+            );
     }
 
     public function asController(Organisation $organisation, PurchaseOrder $purchaseOrder, ActionRequest $request): Collection
@@ -104,10 +110,10 @@ class ShowAgentWholeOrder extends OrgAction
                     'state'                  => $state,
                     'number_supplier_orders' => $purchaseOrders->count(),
                     'number_to_confirm'      => $toConfirm->count(),
-                    'totals'                 => $this->sumByCurrency($live, fn (PurchaseOrder $purchaseOrder) => (float) $purchaseOrder->cost_total),
+                    'totals'                 => $this->sumByCurrency($live, fn (PurchaseOrder $purchaseOrder) => (float) $purchaseOrder->cost_items),
                     'requested'              => $this->sumByCurrency($live, fn (PurchaseOrder $purchaseOrder) => (float) $purchaseOrder->requested_amount),
                     'paid_to_suppliers'      => $this->sumByCurrency($live, fn (PurchaseOrder $purchaseOrder) => (float) $purchaseOrder->paid_to_suppliers_amount),
-                    'to_pay'                 => $this->sumByCurrency($live, fn (PurchaseOrder $purchaseOrder) => max(0, (float) $purchaseOrder->cost_total - (float) $purchaseOrder->paid_to_suppliers_amount)),
+                    'to_pay'                 => $this->sumByCurrency($live, fn (PurchaseOrder $purchaseOrder) => max(0, (float) $purchaseOrder->cost_items - (float) $purchaseOrder->paid_to_suppliers_amount)),
                     'pdf_route'              => [
                         'name'       => 'grp.org.agent.purchase_orders.whole_order.pdf',
                         'parameters' => $routeParameters,

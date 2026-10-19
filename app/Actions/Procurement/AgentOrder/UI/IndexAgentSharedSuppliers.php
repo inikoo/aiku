@@ -61,7 +61,7 @@ class IndexAgentSharedSuppliers extends OrgAction
         return QueryBuilder::for(Supplier::class)
             ->whereIn('suppliers.id', $shared)
             ->select(['suppliers.id', 'suppliers.slug', 'suppliers.code', 'suppliers.name'])
-            ->selectSub(self::openOrders($agent)->whereColumn('purchase_orders.supplier_id', 'suppliers.id')->selectRaw('coalesce(sum(purchase_orders.cost_total), 0)'), 'total')
+            ->selectSub(self::openOrders($agent)->whereColumn('purchase_orders.supplier_id', 'suppliers.id')->selectRaw('coalesce(sum(purchase_orders.cost_items), 0)'), 'total')
             ->defaultSort('-total')
             ->allowedSorts(['code', 'name', 'total'])
             ->allowedFilters([AllowedFilter::callback('global', fn ($query, $value) => $query->where(fn ($query) => $query
@@ -121,7 +121,7 @@ class IndexAgentSharedSuppliers extends OrgAction
             ->whereIn('purchase_orders.supplier_id', $supplierIds)
             ->join('organisations', 'organisations.id', 'purchase_orders.organisation_id')
             ->orderBy('purchase_orders.date')
-            ->get(['purchase_orders.supplier_id', 'purchase_orders.organisation_id', 'purchase_orders.slug', 'purchase_orders.reference', 'purchase_orders.agent_order_reference', 'purchase_orders.state', 'purchase_orders.date', 'purchase_orders.cost_total', 'organisations.code as client_code'])
+            ->get(['purchase_orders.supplier_id', 'purchase_orders.organisation_id', 'purchase_orders.slug', 'purchase_orders.reference', 'purchase_orders.agent_order_reference', 'purchase_orders.state', 'purchase_orders.date', 'purchase_orders.cost_items', 'organisations.code as client_code'])
             ->groupBy('supplier_id');
 
         $belowMinimum = DB::table('purchase_order_transactions')
@@ -162,7 +162,7 @@ class IndexAgentSharedSuppliers extends OrgAction
 
                     return array_merge(
                         $clients->mapWithKeys(fn (Organisation $client, int $id) => [
-                            'client_'.$id => round((float) $supplierOrders->where('organisation_id', $id)->sum('cost_total'), 2),
+                            'client_'.$id => round((float) $supplierOrders->where('organisation_id', $id)->sum('cost_items'), 2),
                         ])->all(),
                         [
                             'id'                     => $supplier->id,
@@ -177,7 +177,7 @@ class IndexAgentSharedSuppliers extends OrgAction
                                 'agent_order_reference' => $order->agent_order_reference,
                                 'state_label'           => PurchaseOrderStateEnum::from($order->state)->labels()[$order->state],
                                 'date'                  => $order->date,
-                                'amount'                => round((float) $order->cost_total, 2),
+                                'amount'                => round((float) $order->cost_items, 2),
                                 'route'                 => ['name' => 'grp.org.agent.purchase_orders.whole_order', 'parameters' => [$this->organisation->slug, $order->slug]],
                             ])->values()->all(),
                             'sheet_route'            => ['name' => 'grp.org.agent.purchase_orders.shared_suppliers.sheet', 'parameters' => [$this->organisation->slug, $supplier->slug]],

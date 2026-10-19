@@ -20869,5 +20869,18 @@
     "🔒 This page is protected. Changes require approval from :owner.": "🔒 Esta página está protegida. Los cambios requieren la aprobación de :owner.",
     "Counted": "Contado",
     "To count": "Por contar",
-    "This location must be counted too, even if it is empty: confirm its quantity to take the SKO off the list": "Esta ubicación también hay que contarla, aunque esté vacía: confirma su cantidad para que el SKO salga de la lista"
+    "This location must be counted too, even if it is empty: confirm its quantity to take the SKO off the list": "Esta ubicación también hay que contarla, aunque esté vacía: confirma su cantidad para que el SKO salga de la lista",
+    "Money with the agent": "Dinero con el agente",
+    "Clients' balance": "Saldo de clientes",
+    ":count clients owe you money": ":count clientes le deben dinero",
+    "No client owes you money": "Ningún cliente le debe dinero",
+    "Open money requests": "Solicitudes de dinero abiertas",
+    ":value still due": ":value aún pendiente",
+    "Nothing due from clients": "Nada pendiente de los clientes",
+    "Ledger lines to check and correct": "Líneas del libro para revisar y corregir",
+    "Every ledger line is checked": "Todas las líneas del libro están revisadas",
+    "Balance by client": "Saldo por cliente",
+    "No clients yet": "Aún no hay clientes",
+    "Received :received, paid out :paid": "Recibido :received, pagado :paid",
+    "No payment to a supplier recorded yet": "Aún no hay pagos a proveedores registrados"
 }

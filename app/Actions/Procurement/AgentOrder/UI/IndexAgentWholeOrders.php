@@ -66,7 +66,7 @@ class IndexAgentWholeOrders extends OrgAction
             ->selectRaw('count(*) as number_supplier_orders')
             ->selectRaw("string_agg(purchase_orders.parent_code, ', ' order by purchase_orders.parent_code) as suppliers")
             ->selectRaw("coalesce(sum(purchase_orders.number_current_purchase_order_transactions) filter (where purchase_orders.state not in ($notLive)), 0) as number_items")
-            ->selectRaw("coalesce(sum(purchase_orders.cost_total * coalesce(purchase_orders.org_exchange, 1)) filter (where purchase_orders.state not in ($notLive)), 0) as org_total_cost")
+            ->selectRaw("coalesce(sum(purchase_orders.cost_items * coalesce(purchase_orders.org_exchange, 1)) filter (where purchase_orders.state not in ($notLive)), 0) as org_total_cost")
             ->selectRaw('min(purchase_orders.date) as date')
             ->selectRaw('array_to_json(array_agg(distinct purchase_orders.state)) as states')
             ->selectRaw('(array_agg(purchase_orders.slug order by purchase_orders.id))[1] as slug')

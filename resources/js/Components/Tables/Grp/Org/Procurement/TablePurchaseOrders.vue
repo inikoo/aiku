@@ -287,7 +287,7 @@ function AgentOrderRoute(purchaseOrder: PurchaseOrder) {
 					class="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-gray-200 px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-100">
 					<span class="font-semibold uppercase text-gray-700">{{ otherOrder.organisation_code }}</span>
 					<span>{{ otherOrder.agent_order_reference }}</span>
-					<span class="text-gray-400">{{ useLocaleStore().currencyFormat(otherOrder.currency_code, otherOrder.cost_total) }}</span>
+					<span class="text-gray-400">{{ useLocaleStore().currencyFormat(otherOrder.currency_code, otherOrder.amount) }}</span>
 				</Link>
 			</div>
 			<span v-else class="text-gray-400">-</span>

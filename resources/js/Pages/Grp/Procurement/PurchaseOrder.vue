@@ -44,6 +44,7 @@ import StaffTaskDialog from "@/Components/Tasks/StaffTaskDialog.vue"
 import AspoDepositsChecklist from "@/Components/Procurement/AspoDepositsChecklist.vue"
 import PurchaseOrderPayments from "@/Components/Procurement/PurchaseOrderPayments.vue"
 import PurchaseOrderDepositPayments, { type PurchaseOrderPaymentsData } from "@/Components/Procurement/PurchaseOrderDepositPayments.vue"
+import AgentPurchaseOrderMoney, { type AgentPurchaseOrderMoneyData } from "@/Components/Procurement/AgentPurchaseOrderMoney.vue"
 import PurchaseOrderStages from "@/Components/Procurement/PurchaseOrderStages.vue"
 import AgentPurchaseOrderGoodsReceipts from "@/Components/Procurement/AgentPurchaseOrderGoodsReceipts.vue"
 import ZoomableImage from "@/Components/Utils/ZoomableImage.vue"
@@ -138,6 +139,7 @@ const props = defineProps < {
     compliance_summary?: InstanceType<typeof TablePurchaseOrderComplianceDocuments>["$props"]["compliance"]
     deposits?: object | null
     payments?: PurchaseOrderPaymentsData | null
+    agent_money?: AgentPurchaseOrderMoneyData | null
     delivery_items: {
         id: number
         code: string | null
@@ -1102,7 +1104,10 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 	</PageHeading>
 
 	<PurchaseOrderStages v-if="stages" :stages="stages.stages" :route="stages.route" :uploadRoute="stages.upload_route">
-		<template v-if="payments" #stage-deposit_paid>
+		<template v-if="agent_money" #stage-deposit_paid>
+			<AgentPurchaseOrderMoney :money="agent_money" />
+		</template>
+		<template v-else-if="payments" #stage-deposit_paid>
 			<PurchaseOrderDepositPayments :payments="payments" :org-currency-code="box_stats.third_block.org_currency" :org-rate="paymentsOrgRate" />
 		</template>
 	</PurchaseOrderStages>
@@ -1114,7 +1119,10 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 			:format-time="'MMMM d yyyy, HH:mm'"
 		/>
 	</div>
-	<div v-if="!stages && payments" class="max-w-sm border-b border-gray-300 px-4 pb-3">
+	<div v-if="!stages && agent_money" class="max-w-sm border-b border-gray-300 px-4 pb-3">
+		<AgentPurchaseOrderMoney :money="agent_money" />
+	</div>
+	<div v-else-if="!stages && payments" class="max-w-sm border-b border-gray-300 px-4 pb-3">
 		<PurchaseOrderDepositPayments :payments="payments" :org-currency-code="box_stats.third_block.org_currency" :org-rate="paymentsOrgRate" />
 	</div>
 

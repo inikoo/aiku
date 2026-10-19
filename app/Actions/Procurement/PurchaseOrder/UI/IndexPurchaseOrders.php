@@ -267,7 +267,7 @@ class IndexPurchaseOrders extends OrgAction
 
         $query
             ->select(['purchase_orders.*'])
-            ->selectRaw('purchase_orders.org_exchange * purchase_orders.cost_total as org_total_cost');
+            ->selectRaw('purchase_orders.org_exchange * purchase_orders.'.($organisationAgent ? 'cost_items' : 'cost_total').' as org_total_cost');
 
         if ($parent instanceof OrgSupplierProduct) {
             $query->addSelect([
@@ -336,7 +336,7 @@ class IndexPurchaseOrders extends OrgAction
             ->whereIn('other_orders.state', [PurchaseOrderStateEnum::SUBMITTED->value, PurchaseOrderStateEnum::CONFIRMED->value])
             ->whereNotNull('other_orders.agent_order_reference')
             ->whereNull('other_orders.deleted_at')
-            ->selectRaw("coalesce(json_agg(json_build_object('slug', other_orders.slug, 'organisation_code', other_organisations.code, 'agent_order_reference', other_orders.agent_order_reference, 'state', other_orders.state, 'cost_total', other_orders.cost_total, 'currency_code', other_currencies.code) order by other_orders.date desc), '[]')");
+            ->selectRaw("coalesce(json_agg(json_build_object('slug', other_orders.slug, 'organisation_code', other_organisations.code, 'agent_order_reference', other_orders.agent_order_reference, 'state', other_orders.state, 'amount', other_orders.cost_items, 'currency_code', other_currencies.code) order by other_orders.date desc), '[]')");
     }
 
     public function tableStructure(Group|Organisation|OrgAgent|OrgSupplier|OrgPartner|OrgStock|OrgSupplierProduct|Supplier|StockDelivery $parent, ?array $modelOperations = null, $prefix = null, bool $withRemoveFromContainer = false): Closure
