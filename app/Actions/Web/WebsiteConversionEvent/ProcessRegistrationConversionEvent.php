@@ -41,7 +41,7 @@ class ProcessRegistrationConversionEvent
         $webUser = $customer->webUsers()->oldest('id')->first();
 
         if ($webUser) {
-            LinkAnonymousVisitorsToWebUser::run($webUser, $registrationVisitor->website_id, $registrationVisitor->visitor_hash, $registrationVisitor->id);
+            LinkAnonymousVisitorsToWebUser::run($webUser, $registrationVisitor->website_id, $registrationVisitor->visitor_hash, $registrationVisitor->id, visitorUuid: $registrationVisitor->visitor_uuid);
         }
 
         $visitorIds = WebsiteVisitor::query()

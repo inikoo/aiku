@@ -29,7 +29,8 @@ class StoreWebsiteVisitor
         string $userAgent,
         string $currentUrl,
         ?string $referrer,
-        array $geoLocation
+        array $geoLocation,
+        ?string $visitorUuid = null
     ): WebsiteVisitor {
 
         ['ip_hash' => $ipHash, 'visitor_hash' => $visitorHash] = self::hashVisitor($ip, $userAgent);
@@ -49,6 +50,7 @@ class StoreWebsiteVisitor
             'session_id'       => $sessionId,
             'web_user_id'      => $webUser?->id,
             'visitor_hash'     => $visitorHash,
+            'visitor_uuid'     => $visitorUuid,
             'device_type'      => $device,
             'os'               => $os,
             'browser'          => $browser,
@@ -65,7 +67,7 @@ class StoreWebsiteVisitor
             'referrer_url'     => $referrer,
             'is_bounce'        => true,
             'is_new_visitor'   => $isNewVisitor,
-            ...GetWebsiteVisitorTrafficSource::run($currentUrl, $referrer, $website->id, $visitorHash),
+            ...GetWebsiteVisitorTrafficSource::run($currentUrl, $referrer, $website->id, $visitorHash, $visitorUuid),
         ]);
 
         $cacheKey = "visitor:session:$sessionId:$website->id";

@@ -50,7 +50,8 @@ class RepairWebUserAnonymousVisitorLinks
                         $firstLoggedInVisitor->website_id,
                         $firstLoggedInVisitor->visitor_hash,
                         $firstLoggedInVisitor->id,
-                        Carbon::parse($webUser->customer->registered_at)
+                        Carbon::parse($webUser->customer->registered_at),
+                        $firstLoggedInVisitor->visitor_uuid
                     );
 
                     $linkedVisitors = $dryRun ? $anonymousVisitors->count() : $anonymousVisitors->update(['web_user_id' => $webUser->id]);

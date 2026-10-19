@@ -11,6 +11,7 @@ namespace App\Actions\CRM\WebUser\Retina;
 use App\Actions\CRM\WebUser\LogWebUserFailLogin;
 use App\Actions\CRM\WebUser\LogWebUserLogin;
 use App\Actions\IrisAction;
+use App\Actions\Web\Website\Analytics\RecordWebsiteHit;
 use App\Actions\Traits\WithIrisAuthCookie;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\WebUser;
@@ -110,7 +111,8 @@ class GoogleLoginRetina extends IrisAction
             userAgent: $request->header('User-Agent'),
             datetime: now(),
             geoLocation: $geoLocation,
-            source: 'G'
+            source: 'G',
+            visitorUuid: $request->cookie(RecordWebsiteHit::VISITOR_COOKIE)
         )->delay(now()->addSeconds(5));
 
 

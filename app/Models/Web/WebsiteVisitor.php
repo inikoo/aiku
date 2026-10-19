@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $session_id
  * @property int|null $web_user_id
  * @property string $visitor_hash
+ * @property string|null $visitor_uuid
  * @property string $device_type
  * @property string $os
  * @property string $browser

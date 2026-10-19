@@ -11,6 +11,7 @@ use App\Models\CRM\WebUser;
 use App\Models\Web\WebsiteVisitor;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class LinkAnonymousVisitorsToWebUser
@@ -19,16 +20,16 @@ class LinkAnonymousVisitorsToWebUser
 
     public const int LOOKBACK_DAYS = 90;
 
-    public function handle(WebUser $webUser, int $websiteId, string $visitorHash, ?int $anchorVisitorId = null, ?Carbon $until = null): int
+    public function handle(WebUser $webUser, int $websiteId, string $visitorHash, ?int $anchorVisitorId = null, ?Carbon $until = null, ?string $visitorUuid = null): int
     {
-        return $this->anonymousVisitors($webUser, $websiteId, $visitorHash, $anchorVisitorId, $until ?? now())
+        return $this->anonymousVisitors($webUser, $websiteId, $visitorHash, $anchorVisitorId, $until ?? now(), $visitorUuid)
             ->update(['web_user_id' => $webUser->id]);
     }
 
     /**
      * @return Builder<WebsiteVisitor>
      */
-    public function anonymousVisitors(WebUser $webUser, int $websiteId, string $visitorHash, ?int $anchorVisitorId, Carbon $until): Builder
+    public function anonymousVisitors(WebUser $webUser, int $websiteId, string $visitorHash, ?int $anchorVisitorId, Carbon $until, ?string $visitorUuid = null): Builder
     {
         $windowStart = $until->copy()->subDays(self::LOOKBACK_DAYS);
 
@@ -43,8 +44,15 @@ class LinkAnonymousVisitorsToWebUser
         return WebsiteVisitor::query()
             ->where('website_id', $websiteId)
             ->whereNull('web_user_id')
-            ->where(function ($query) use ($anchorVisitorId, $visitorHash, $sharedWithOtherWebUser, $windowStart, $until) {
+            ->where(function ($query) use ($anchorVisitorId, $visitorHash, $visitorUuid, $sharedWithOtherWebUser, $windowStart, $until) {
                 $query->when($anchorVisitorId, fn ($anchor) => $anchor->where('id', $anchorVisitorId), fn ($anchor) => $anchor->whereRaw('false'));
+
+                if ($visitorUuid && Str::isUuid($visitorUuid)) {
+                    $query->orWhere(function ($sameBrowser) use ($visitorUuid, $windowStart, $until) {
+                        $sameBrowser->where('visitor_uuid', $visitorUuid)
+                            ->whereBetween('first_seen_at', [$windowStart, $until]);
+                    });
+                }
 
                 if (! $sharedWithOtherWebUser) {
                     $query->orWhere(function ($sameVisitor) use ($visitorHash, $windowStart, $until) {

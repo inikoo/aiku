@@ -355,13 +355,13 @@ class GetShopVisitorChannelPerformance
             'by_channel' => $base()
                 ->whereNotNull('traffic_source_type')
                 ->groupBy('traffic_source_type')
-                ->selectRaw('traffic_source_type, COUNT(DISTINCT visitor_hash) as visitors')
+                ->selectRaw('traffic_source_type, COUNT(DISTINCT COALESCE(visitor_uuid::text, visitor_hash)) as visitors')
                 ->pluck('visitors', 'traffic_source_type')
                 ->map(fn ($visitors) => (int) $visitors),
             'unique'     => (int) $base()
                 ->where(fn ($query) => $query->whereNull('traffic_source_type')->orWhere('traffic_source_type', '!=', WebsiteVisitorChannelEnum::INTERNAL_TYPE))
                 ->distinct()
-                ->count('visitor_hash'),
+                ->count(DB::raw('COALESCE(visitor_uuid::text, visitor_hash)')),
         ];
     }
 
