@@ -187,6 +187,24 @@ class RouteServiceProvider extends ServiceProvider
             ];
         });
 
+        /*
+         * Every call spends AI credit. Set well above the 60 day peak per user (translate 25 a
+         * minute and 226 an hour, image reading 4 and 13), so only a runaway loop or script hits it.
+         */
+        RateLimiter::for('grp-ai-translate', function (Request $request) {
+            return [
+                Limit::perMinute(60)->by('grp-ai-translate-minute:'.$request->user()?->id),
+                Limit::perHour(600)->by('grp-ai-translate-hour:'.$request->user()?->id),
+            ];
+        });
+
+        RateLimiter::for('grp-ai-vision', function (Request $request) {
+            return [
+                Limit::perMinute(20)->by('grp-ai-vision-minute:'.$request->user()?->id),
+                Limit::perHour(100)->by('grp-ai-vision-hour:'.$request->user()?->id),
+            ];
+        });
+
         RateLimiter::for('iris-feeds', function (Request $request) {
             return [
                 Limit::perMinute(3)->by($request->user()?->id ?: $request->ip()),

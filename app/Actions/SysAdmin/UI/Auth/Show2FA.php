@@ -22,6 +22,9 @@ class Show2FA
 
     public function handle(ActionRequest $request): Response|RedirectResponse
     {
+        $request->query->remove(config('google2fa.otp_input'));
+        $request->request->remove(config('google2fa.otp_input'));
+
         $authenticator = new Authenticator($request);
 
         if ($request->user()?->is_two_factor_required && !$authenticator->isActivated()) {

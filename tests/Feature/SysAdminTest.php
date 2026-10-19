@@ -96,6 +96,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
@@ -2828,3 +2829,38 @@ test('the staff reset email links to the set new password page and its token res
     $this->patch(route('grp.reset-password.email.update'), ['email' => $query['email'], 'password' => 'brand-new-password', 'token' => $query['token']])->assertSessionHasNoErrors();
     expect(Hash::check('brand-new-password', $user->refresh()->password))->toBeTrue();
 });
+
+test('two factor code check locks after five wrong codes and the AI routes are rate limited', function (Guest $guest) {
+    $user = $guest->getUser();
+    $user->update(['google2fa_secret' => 'JBSWY3DPEHPK3PXP']);
+    app()->instance('group', $guest->group);
+    actingAs($user);
+    RateLimiter::clear('2fa:'.$user->id);
+
+    $currentCode = (new Google2FA())->getCurrentOtp('JBSWY3DPEHPK3PXP');
+    $wrongCode   = str_pad((string) (((int) $currentCode + 500000) % 1000000), 6, '0', STR_PAD_LEFT);
+
+    try {
+        foreach (range(1, 5) as $attempt) {
+            $this->post(route('grp.login.auth2fa'), ['one_time_password' => $wrongCode])->assertSessionHasErrors('one_time_password');
+        }
+        $this->post(route('grp.login.auth2fa'), ['one_time_password' => $currentCode])->assertSessionHasErrors('one_time_password');
+        expect(session('errors')->first('one_time_password'))->toStartWith('Too many');
+        expect(session('google2fa.auth_passed'))->toBeNull();
+
+        $this->get(route('grp.dashboard.show', ['one_time_password' => $currentCode]))->assertRedirect(route('grp.login.show2fa'));
+        $this->withoutVite()->get(route('grp.login.show2fa', ['one_time_password' => $currentCode]))->assertOk();
+        $this->post(route('grp.models.translate', ['en', 'es']), ['one_time_password' => $currentCode])->assertRedirect(route('grp.login.show2fa'));
+        expect(session('google2fa.auth_passed'))->toBeNull();
+
+        RateLimiter::clear('2fa:'.$user->id);
+        $this->post(route('grp.login.auth2fa'), ['one_time_password' => $currentCode])->assertRedirect(route('grp.dashboard.show'));
+        expect(RateLimiter::attempts('2fa:'.$user->id))->toBe(0);
+    } finally {
+        RateLimiter::clear('2fa:'.$user->id);
+        $user->update(['google2fa_secret' => null]);
+    }
+
+    expect(app('router')->getRoutes()->getByName('grp.models.translate')->gatherMiddleware())->toContain('throttle:grp-ai-translate')
+        ->and(app('router')->getRoutes()->getByName('grp.ask-bot.vision.index')->gatherMiddleware())->toContain('throttle:grp-ai-vision');
+})->depends('create guest');
