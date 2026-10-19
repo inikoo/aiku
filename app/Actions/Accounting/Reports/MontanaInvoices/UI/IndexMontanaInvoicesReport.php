@@ -192,6 +192,7 @@ class IndexMontanaInvoicesReport extends OrgAction
                         'icon'  => 'fal fa-file-invoice'
                     ],
                 ],
+                'can_export'  => true,
                 'data'        => MontanaInvoiceResource::collection($invoices),
             ]
         )->table($this->tableStructure());

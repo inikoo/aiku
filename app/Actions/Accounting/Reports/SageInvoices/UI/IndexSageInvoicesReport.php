@@ -183,6 +183,7 @@ class IndexSageInvoicesReport extends OrgAction
                         'icon'  => 'fal fa-file-invoice'
                     ],
                 ],
+                'can_export'  => true,
                 'data'        => SageInvoiceResource::collection($invoices),
             ]
         )->table($this->tableStructure());

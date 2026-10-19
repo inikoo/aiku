@@ -39,7 +39,7 @@ const exportExcel = () => {
     <PageHeading :data="pageHead">
         <template #button>
             <Button
-                v-if="can_export !== false"
+                v-if="can_export"
                 @click="exportExcel"
                 :style="'secondary'"
                 icon="fal fa-file-download"

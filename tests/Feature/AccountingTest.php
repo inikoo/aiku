@@ -4259,6 +4259,10 @@ test('accounting and organisation reports answer only report readers or accounta
     foreach ($shopReports as $url) {
         get($url)->assertOk()->assertInertia(fn ($page) => $page->where('can_export', true)->etc());
     }
+
+    foreach ([route('grp.org.reports.sage-invoices', [$org->slug]), route('grp.org.reports.montana-invoices', [$org->slug])] as $url) {
+        get($url)->assertOk()->assertInertia(fn ($page) => $page->where('can_export', true)->etc());
+    }
 });
 
 test('accounting pages follow the overview, accounting module or shop they are opened from, INI-076', function () {
