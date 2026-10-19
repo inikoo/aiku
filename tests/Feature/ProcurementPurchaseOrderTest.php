@@ -3828,6 +3828,14 @@ test('a legacy agent supplier purchase order link redirects to the purchase orde
 
     $this->get(route('grp.supply-chain.agent_supplier_purchase_orders.show', [$orphanAspo->slug]))
         ->assertNotFound();
+
+    $agentOrganisation = $purchaseOrder->agent->organisation;
+    $agentStaff        = User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+    actingAsUserWithOnlyPermissions($agentStaff, ["procurement.$agentOrganisation->id.view"]);
+    $this->get(route('grp.org.agent.agent_supplier_purchase_orders.show', [$agentOrganisation->slug, $splitAspo->slug]))
+        ->assertRedirect(route('grp.org.procurement.purchase_orders.show', [$agentOrganisation->slug, $purchaseOrder->slug]));
+    $this->followingRedirects()->get(route('grp.org.procurement.agent_supplier_purchase_orders.show', [$agentOrganisation->slug, $splitAspo->slug]))
+        ->assertOk();
 });
 
 test('purchase order products are downloaded as excel and uploaded from a spreadsheet', function () {
