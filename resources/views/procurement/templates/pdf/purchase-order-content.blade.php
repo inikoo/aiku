@@ -87,7 +87,12 @@
                     @endif
                 </td>
             @endif
-            <td>{{ $product?->code ?? $line->orgStock?->code }}</td>
+            <td>
+                {{ $product?->code ?? $line->orgStock?->code }}
+                @if($product && $line->orgStock && $line->orgStock->code !== $product->code)
+                    <br><span class="muted">{{ $line->orgStock->code }}</span>
+                @endif
+            </td>
             <td>{{ $product?->name ?? $line->orgStock?->name }}</td>
             <td class="right">{{ $unitsPerCarton ? $quantity($unitsPerCarton) : '' }}</td>
             <td class="right">{{ $unitsPerCarton ? $quantity((float)$line->quantity_ordered / $unitsPerCarton) : '' }}</td>

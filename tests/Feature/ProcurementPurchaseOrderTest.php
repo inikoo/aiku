@@ -73,6 +73,7 @@ use App\Actions\Procurement\OrgSupplier\UpdateOrgSupplier;
 use App\Actions\Procurement\OrgSupplierProducts\UpdateOrgSupplierProduct;
 use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\RevertPurchaseOrderToSubmitted;
+use App\Actions\Procurement\PurchaseOrder\PdfPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrderOrgSupplierProducts;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
@@ -1994,6 +1995,24 @@ test('purchase order pdf downloads', function () {
 
     $response->assertOk()->assertHeader('Content-Type', 'application/pdf');
     expect(str_starts_with($response->getContent(), '%PDF'))->toBeTrue();
+});
+
+test('a purchase order line shows our SKO code next to the supplier code when they differ, on the page and the pdf', function () {
+    [$orgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $purchaseOrder                      = StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition());
+    $line                               = StorePurchaseOrderTransaction::make()->action($purchaseOrder, $orgSupplierProduct->supplierProduct->historicSupplierProduct, $this->orgStocks[0], PurchaseOrderTransaction::factory()->definition());
+    $supplierCode                       = $orgSupplierProduct->supplierProduct->code;
+    $skoCode                            = $this->orgStocks[0]->code;
+
+    expect($skoCode)->not->toBe($supplierCode);
+
+    $row = (new \App\Http\Resources\Procurement\PurchaseOrderTransactionResource($line->refresh()))->toArray(request());
+    expect($row['code'])->toBe($supplierCode)
+        ->and($row['org_stock_code'])->toBe($skoCode);
+
+    $pdfAction = PdfPurchaseOrder::make();
+    $html      = view('procurement.templates.pdf.purchase-order', (fn () => $this->viewData($purchaseOrder->refresh()))->call($pdfAction))->render();
+    expect($html)->toContain($supplierCode)->toContain($skoCode);
 });
 
 test('suppliers set to receive purchase orders by email get an email button on their purchase orders', function () {

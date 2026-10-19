@@ -37,6 +37,7 @@ class PurchaseOrderTransactionResource extends JsonResource
             'supplier_name'        => $supplierProduct?->supplier?->name,
             'supplier_slug'        => $transaction->orgSupplierProduct?->orgSupplier?->slug,
             'org_stock_id'         => $transaction->org_stock_id,
+            'org_stock_code'       => $orgStock?->code,
             'image_thumbnail'      => $tradeUnit?->imageSources(160, 160),
             'image_preview'        => $tradeUnit?->imageSources(480, 480),
             'image_full'           => $tradeUnit?->image?->fullResolutionUrls(),

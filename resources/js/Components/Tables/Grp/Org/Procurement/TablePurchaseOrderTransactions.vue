@@ -438,6 +438,10 @@ function supplierProductRoute(item: { slug?: string, org_supplier_product_slug?:
 }
 
 
+function hasOwnSkuCode(item: { code?: string, org_stock_code?: string | null }) {
+    return !!item.org_stock_code && item.org_stock_code !== item.code
+}
+
 function orgStockRoute(item: { org_stock_id?: number }) {
     if (!item.org_stock_id || isInAgentOrganisation) {
         return ''
@@ -517,7 +521,7 @@ function orgStockRoute(item: { org_stock_id?: number }) {
                         class="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
 
                     <Link
-                        v-if="supplierProductRoute(item) && orgStockRoute(item)"
+                        v-if="supplierProductRoute(item) && orgStockRoute(item) && !hasOwnSkuCode(item)"
                         v-tooltip="ctrans('Part reference is same as supplier product code')"
                         :href="orgStockRoute(item)"
                         class="text-gray-400 hover:text-gray-600"
@@ -525,6 +529,21 @@ function orgStockRoute(item: { org_stock_id?: number }) {
                         <FontAwesomeIcon icon="fal fa-box" aria-hidden="true" fixed-width />
                     </Link>
                 </div>
+                <template v-if="hasOwnSkuCode(item)">
+                    <Link
+                        v-if="orgStockRoute(item)"
+                        v-tooltip="ctrans('SKU code')"
+                        :href="orgStockRoute(item)"
+                        class="whitespace-nowrap text-xs text-gray-500 hover:text-gray-700"
+                    >
+                        <FontAwesomeIcon icon="fal fa-box" aria-hidden="true" fixed-width />
+                        {{ item.org_stock_code }}
+                    </Link>
+                    <span v-else v-tooltip="ctrans('SKU code')" class="whitespace-nowrap text-xs text-gray-500">
+                        <FontAwesomeIcon icon="fal fa-box" aria-hidden="true" fixed-width />
+                        {{ item.org_stock_code }}
+                    </span>
+                </template>
             </div>
         </template>
 
