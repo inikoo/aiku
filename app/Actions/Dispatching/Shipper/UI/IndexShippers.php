@@ -9,6 +9,7 @@
 
 namespace App\Actions\Dispatching\Shipper\UI;
 
+use App\Actions\Traits\Authorisations\WithDispatchingAuthorisation;
 use App\Enums\SysAdmin\Authorisation\WarehousePermissionsEnum;
 use App\Actions\OrgAction;
 use App\Actions\UI\Dispatch\ShowDispatchHub;
@@ -29,6 +30,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexShippers extends OrgAction
 {
     use WithShipperSubNavigation;
+    use WithDispatchingAuthorisation;
 
     public function handle(Organisation $parent, bool $status, $prefix = null): LengthAwarePaginator
     {
@@ -56,6 +58,7 @@ class IndexShippers extends OrgAction
 
     public function asController(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
+        abort_unless($warehouse->organisation_id === $organisation->id, 404);
         $this->initialisationFromWarehouse($warehouse, $request);
 
         return $this->handle($organisation, true);
@@ -64,6 +67,7 @@ class IndexShippers extends OrgAction
 
     public function inInactive(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
+        abort_unless($warehouse->organisation_id === $organisation->id, 404);
         $this->initialisationFromWarehouse($warehouse, $request);
 
         return $this->handle($organisation, false);

@@ -105,7 +105,7 @@ trait WithWebAuthorisation
             ]);
         }
 
-        if (str_starts_with($routeName, 'grp.json.')) {
+        if (str_starts_with($routeName, 'grp.json.') || str_starts_with($routeName, 'grp.websites.')) {
             $permissions = [
                 "websites-view.{$this->shop->organisation_id}",
                 "web.{$this->shop->id}",

@@ -2757,3 +2757,28 @@ test('user access tokens are created and deleted only by sysadmin editors', func
     expect($response->json('token'))->toBeString()->toContain('|')
         ->and($tokenHolder->fresh()->tokens()->count())->toBe(2);
 })->depends('create guest');
+
+test('organisation settings change log needs org admin, a sales channel group access and its edit page sysadmin edit, INI-076', function () {
+    $organisation = createOrganisation();
+    $salesChannel = \App\Models\Ordering\SalesChannel::firstOrFail();
+    $changelog    = route('grp.org.settings.changelogs', $organisation->slug);
+    $show         = route('grp.sales_channels.show', $salesChannel->slug);
+    $edit         = route('grp.sales_channels.edit', $salesChannel->slug);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $organisation->group_id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["human-resources.$organisation->id.view"]);
+    foreach ([$changelog, $show, $edit] as $url) {
+        $this->get($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["org-admin.$organisation->id"]);
+    $this->get($changelog)->assertOk();
+
+    actingAsUserWithOnlyPermissions($user, ['sysadmin.view']);
+    $this->get($show)->assertOk()->assertInertia(fn (AssertableInertia $page) => $page->where('pageHead.actions', []));
+    $this->get($edit)->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ['sysadmin.view', 'sysadmin.edit']);
+    $this->get($edit)->assertOk();
+});

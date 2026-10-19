@@ -455,3 +455,22 @@ test('HELP-3997 a unified label missing the ES or SK name offers to translate it
 
     expect(GetOrgStockLabelOptions::run($orgStock->fresh()->load('tradeUnits'))['unified']['translate_names'])->toBeNull();
 });
+
+test('the label route answers only inventory staff of the organisation, INI-076', function () {
+    $warehouse = StoreWarehouse::make()->action($this->organisation, Warehouse::factory()->definition());
+    $orgStock  = ($this->makeOrgStock)([[]]);
+    $url       = route('grp.org.warehouses.show.inventory.org_stocks.label', [
+        'organisation' => $this->organisation->slug,
+        'warehouse'    => $warehouse->slug,
+        'orgStock'     => $orgStock->slug,
+        'level'        => 'sko',
+    ]);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["human-resources.{$this->organisation->id}.view"]);
+    get($url)->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["inventory.{$this->organisation->id}.view"]);
+    get($url)->assertOk();
+});

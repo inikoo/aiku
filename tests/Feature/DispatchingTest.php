@@ -6719,3 +6719,28 @@ test('delivery note page, its pdfs and the proforma invoice answer only warehous
     get(route('grp.org.shops.show.ordering.delivery-notes.show', [$deliveryNote->organisation->slug, $otherShop->slug, $deliveryNote->slug]))->assertNotFound();
     get(route('grp.org.shops.show.ordering.proforma_invoice.download', [$order->organisation->slug, $otherShop->slug, $order->slug]))->assertNotFound();
 });
+
+test('shippers lists answer dispatching staff of the warehouse and the locations download its location staff, INI-076', function () {
+    $params    = ['organisation' => $this->organisation->slug, 'warehouse' => $this->warehouse->slug];
+    $shippers  = [
+        route('grp.org.warehouses.show.dispatching.shippers.current.index', $params),
+        route('grp.org.warehouses.show.dispatching.shippers.inactive.index', $params),
+    ];
+    $locations = route('grp.org.warehouses.locations.download', [...$params, 'columns' => 'code']);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["human-resources.{$this->organisation->id}.view"]);
+    foreach ([...$shippers, $locations] as $url) {
+        get($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["dispatching.{$this->warehouse->id}.view"]);
+    foreach ($shippers as $url) {
+        get($url)->assertOk();
+    }
+    get($locations)->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["locations.{$this->warehouse->id}.view"]);
+    get($locations)->assertOk();
+});

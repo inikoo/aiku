@@ -4204,3 +4204,29 @@ test('banner and redirect create pages need web edit of the shop, and webpage an
         get($url)->assertOk();
     }
 })->depends('launch website');
+
+test('header, footer, sidebar and website previews answer web staff of the website shop, INI-076', function (Website $website) {
+    $shop    = $website->shop;
+    $webpage = $website->webpages()->firstOrFail();
+    $routes  = [
+        route('grp.websites.header.preview', $website->slug),
+        route('grp.websites.footer.preview', $website->slug),
+        route('grp.websites.sidebar.preview', $website->slug),
+        route('grp.websites.preview', [$website->slug, $webpage->slug]),
+    ];
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $shop->group_id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["human-resources.{$shop->organisation_id}.view"]);
+    foreach ($routes as $url) {
+        get($url)->assertForbidden();
+    }
+
+    foreach (["web.$shop->id.view", "web.$shop->id.edit"] as $permission) {
+        actingAsUserWithOnlyPermissions($user, [$permission]);
+        get($routes[1])->assertOk();
+        foreach ($routes as $url) {
+            expect(get($url)->status())->not->toBe(403);
+        }
+    }
+})->depends('launch website');

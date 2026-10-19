@@ -65,6 +65,11 @@ class EditSalesChannel extends OrgAction
         );
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->authTo('sysadmin.edit');
+    }
+
     public function asController(SalesChannel $salesChannel, ActionRequest $request): SalesChannel
     {
         $this->initialisationFromGroup(app('group'), $request);
