@@ -87,6 +87,7 @@ use App\Models\Inventory\Warehouse;
 use App\Actions\UI\Incoming\ShowIncomingHub;
 use App\Actions\Traits\Authorisations\WithAttachmentEditAuthorisation;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -216,19 +217,23 @@ class ShowStockDelivery extends OrgAction
             default => null,
         };
 
+        $isContainer = DeleteStockDelivery::isAgentDelivery($stockDelivery);
+        $modelLabel  = $isContainer ? __('Container') : __('Stock Delivery');
+
         return Inertia::render(
             'Procurement/StockDelivery',
             [
-                'title'            => __('Stock Delivery'),
+                'title'            => '('.Str::limit($stockDelivery->reference, 12).') '.$modelLabel,
+                'is_container'     => $isContainer,
                 'breadcrumbs'      => $this->goodsIn
                     ? $this->getGoodsInBreadcrumbs($stockDelivery, $request->route()->originalParameters())
                     : $this->getBreadcrumbs($stockDelivery, $request->route()->originalParameters()),
                 'pageHead'         => [
                     'title'      => $stockDelivery->reference,
-                    'model'      => __('Stock Delivery'),
+                    'model'      => $modelLabel,
                     'icon'       => [
-                        'icon'  => ['fal', 'people-arrows'],
-                        'title' => __('Stock Delivery'),
+                        'icon'  => ['fal', $isContainer ? 'truck-container' : 'people-arrows'],
+                        'title' => $modelLabel,
                     ],
                     'afterTitle' => [
                         'label' => $this->getStateLabels($stockDelivery)[$stockDelivery->state->value]
@@ -458,6 +463,8 @@ class ShowStockDelivery extends OrgAction
 
     public function getActions(StockDelivery $stockDelivery): array
     {
+        $isContainer = DeleteStockDelivery::isAgentDelivery($stockDelivery);
+
         $hasPlacements = $stockDelivery->items()
             ->where('state', '!=', StockDeliveryItemStateEnum::CANCELLED)
             ->where('unit_quantity_placed', '>', 0)
@@ -482,7 +489,7 @@ class ShowStockDelivery extends OrgAction
 
         $cancelButton = [
             'label'   => __('Cancel'),
-            'tooltip' => __('Cancel Stock Delivery'),
+            'tooltip' => $isContainer ? __('Cancel Container') : __('Cancel Stock Delivery'),
             'type'    => 'button',
             'style'   => 'delete',
             'icon'    => 'fal fa-times-circle',
@@ -513,7 +520,7 @@ class ShowStockDelivery extends OrgAction
 
         $deleteButton = [
             'label'   => __('Delete'),
-            'tooltip' => __('Delete Stock Delivery'),
+            'tooltip' => $isContainer ? __('Delete Container') : __('Delete Stock Delivery'),
             'type'    => 'button',
             'style'   => 'delete',
             'icon'    => 'fal fa-trash-alt',
@@ -533,7 +540,7 @@ class ShowStockDelivery extends OrgAction
             StockDeliveryStateEnum::READY_TO_SHIP => [
                 [
                     'label'   => __('Mark as Dispatched'),
-                    'tooltip' => __('Mark Stock Delivery as Dispatched'),
+                    'tooltip' => $isContainer ? __('Mark Container as Dispatched') : __('Mark Stock Delivery as Dispatched'),
                     'type'    => 'button',
                     'style'   => 'save',
                     'icon'    => 'fal fa-truck',
@@ -548,7 +555,7 @@ class ShowStockDelivery extends OrgAction
                 ],
                 [
                     'label'   => __('Mark as Received'),
-                    'tooltip' => __('Mark Stock Delivery as Received'),
+                    'tooltip' => $isContainer ? __('Mark Container as Received') : __('Mark Stock Delivery as Received'),
                     'type'    => 'button',
                     'style'   => 'save',
                     'icon'    => 'fal fa-check',
@@ -567,7 +574,7 @@ class ShowStockDelivery extends OrgAction
             StockDeliveryStateEnum::DISPATCHED => [
                 [
                     'label'   => __('Mark as Received'),
-                    'tooltip' => __('Mark Stock Delivery as Received'),
+                    'tooltip' => $isContainer ? __('Mark Container as Received') : __('Mark Stock Delivery as Received'),
                     'type'    => 'button',
                     'style'   => 'save',
                     'icon'    => 'fal fa-check',
@@ -582,7 +589,7 @@ class ShowStockDelivery extends OrgAction
                 ],
                 [
                     'label'   => __('Unmark as Dispatched'),
-                    'tooltip' => __('Revert Stock Delivery to its previous state'),
+                    'tooltip' => $isContainer ? __('Revert Container to its previous state') : __('Revert Stock Delivery to its previous state'),
                     'type'    => 'button',
                     'style'   => 'cancel',
                     'icon'    => 'fal fa-undo',
@@ -600,7 +607,7 @@ class ShowStockDelivery extends OrgAction
             StockDeliveryStateEnum::RECEIVED => [
                 [
                     'label'   => __('Unmark as Received'),
-                    'tooltip' => __('Revert Stock Delivery to its previous state'),
+                    'tooltip' => $isContainer ? __('Revert Container to its previous state') : __('Revert Stock Delivery to its previous state'),
                     'type'    => 'button',
                     'style'   => 'cancel',
                     'icon'    => 'fal fa-undo',
@@ -621,7 +628,7 @@ class ShowStockDelivery extends OrgAction
             StockDeliveryStateEnum::BOOKED_IN => [
                 [
                     'label'   => __('Place'),
-                    'tooltip' => __('Place this stock delivery, this is its final state'),
+                    'tooltip' => $isContainer ? __('Place this container, this is its final state') : __('Place this stock delivery, this is its final state'),
                     'type'    => 'button',
                     'style'   => 'save',
                     'icon'    => 'fal fa-box-usd',
@@ -951,7 +958,7 @@ class ShowStockDelivery extends OrgAction
                     'type'           => 'modelWithIndex',
                     'modelWithIndex' => [
                         'index' => [
-                            'label' => __('Supplier delivery'),
+                            'label' => DeleteStockDelivery::isAgentDelivery($stockDelivery) ? __('Containers') : __('Supplier delivery'),
                             'route' => [
                                 'name' => 'grp.org.procurement.stock_deliveries.index',
                                 'parameters' => $routeParameters,
