@@ -1755,6 +1755,52 @@ test('saving postage and return settings from the channel page updates both eBay
         ->and(Arr::get($channel->settings, 'return.within'))->toBe(30);
 });
 
+test('turning returns on by itself sends eBay a complete return policy', function () {
+    $ebayUser = ebayChannel($this);
+    $ebayUser->customerSalesChannel->update(['settings' => ['return' => ['accepted' => false]]]);
+
+    fakeEbay($this, ebayAccountRoutes([
+        '/sell/account/v1/return_policy/rp-1' => ['returnPolicyId' => 'rp-1', 'returnsAccepted' => true],
+    ]));
+
+    $channel = UpdateEbayCustomerSalesChannel::run($ebayUser->customerSalesChannel, ['return_accepted' => true]);
+
+    $body = sentEbayRequest('PUT', '/sell/account/v1/return_policy/rp-1')->data();
+    expect($body['returnsAccepted'])->toBeTrue()
+        ->and($body['returnShippingCostPayer'])->toBe('BUYER')
+        ->and($body['returnPeriod'])->toBe(['value' => 30, 'unit' => 'DAY'])
+        ->and(Arr::get($channel->refresh()->settings, 'return'))->toMatchArray(['accepted' => true, 'payer' => 'BUYER', 'within' => 30]);
+});
+
+test('a return policy eBay refuses is reported and the channel keeps its previous returns settings', function () {
+    $ebayUser = ebayChannel($this);
+    $ebayUser->customerSalesChannel->update(['settings' => ['return' => ['accepted' => false]]]);
+
+    fakeEbay($this, ebayAccountRoutes([
+        '/sell/account/v1/return_policy/rp-1' => fn () => Http::response(['errors' => [['errorId' => 20403, 'message' => 'Invalid return period.']]], 400),
+    ]));
+
+    expect(fn () => UpdateEbayCustomerSalesChannel::run($ebayUser->customerSalesChannel, ['return_accepted' => true, 'return_payer' => 'BUYER', 'return_within' => 30]))
+        ->toThrow(ValidationException::class, 'Invalid return period.');
+
+    expect(Arr::get($ebayUser->customerSalesChannel->refresh()->settings, 'return.accepted'))->toBeFalse();
+});
+
+test('a postage policy eBay refuses is reported and the channel keeps its previous postage', function () {
+    $ebayUser = ebayChannel($this);
+    $ebayUser->customerSalesChannel->update(['settings' => ['shipping' => ['price' => '3', 'carrier_code' => 'RoyalMail', 'service_code' => 'UK_RoyalMailNextDay']]]);
+
+    fakeEbay($this, ebayAccountRoutes([
+        '/sell/account/v1/fulfillment_policy/fp-1' => fn () => Http::response(['errors' => [['errorId' => 20403, 'message' => 'Invalid shipping service.']]], 400),
+    ]));
+
+    expect(fn () => UpdateEbayCustomerSalesChannel::run($ebayUser->customerSalesChannel, ['shipping_price' => '4.50']))
+        ->toThrow(ValidationException::class, 'Invalid shipping service.');
+
+    expect(sentEbayRequest('PUT', '/sell/account/v1/fulfillment_policy/fp-1')->data()['shippingOptions'][0]['shippingServices'][0]['shippingCost']['value'])->toBe('4.50')
+        ->and(Arr::get($ebayUser->customerSalesChannel->refresh()->settings, 'shipping.price'))->toBe('3');
+});
+
 test('deleting an eBay user closes its channel and soft deletes the user', function () {
     $ebayUser = ebayChannel($this);
     $channel  = $ebayUser->customerSalesChannel;
