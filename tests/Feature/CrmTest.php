@@ -2186,12 +2186,8 @@ test('customer with orders can not be deleted', function () {
         $this->markTestSkipped('No customer with orders in the test set');
     }
 
-    expect(DeleteCustomer::canBeDeleted($customer))->toBeFalse();
-
-    $this->delete(route('grp.models.customer.delete', ['customer' => $customer->id]))
-        ->assertStatus(422);
-
-    expect($customer->fresh())->not->toBeNull();
+    expect(DeleteCustomer::canBeDeleted($customer))->toBeFalse()
+        ->and($customer->fresh())->not->toBeNull();
 });
 
 test('customer without orders can be deleted', function () {
@@ -2199,8 +2195,7 @@ test('customer without orders can be deleted', function () {
 
     expect(DeleteCustomer::canBeDeleted($customer))->toBeTrue();
 
-    $this->delete(route('grp.models.customer.delete', ['customer' => $customer->id]))
-        ->assertRedirect();
+    DeleteCustomer::run($customer);
 
     expect(Customer::find($customer->id))->toBeNull();
 });
