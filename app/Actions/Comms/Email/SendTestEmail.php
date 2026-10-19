@@ -10,6 +10,7 @@ namespace App\Actions\Comms\Email;
 
 use App\Actions\Comms\DispatchedEmail\StoreDispatchedEmail;
 use App\Actions\Comms\Mailshot\InjectUtmToEmailLinks;
+use App\Actions\Comms\Outbox\GetOutboxTestEmailData;
 use App\Actions\Comms\TestEmailRecipient\StoreTestEmailRecipient;
 use App\Actions\Comms\Traits\WithSendBulkEmails;
 use App\Actions\OrgAction;
@@ -87,6 +88,7 @@ class SendTestEmail extends OrgAction
             emailHtmlBody: $entity instanceof Mailshot
                 ? InjectUtmToEmailLinks::run($entity, $modelData['compiled_layout'])
                 : $modelData['compiled_layout'],
+            additionalData: $entity instanceof Outbox ? GetOutboxTestEmailData::run($entity) : [],
             senderName: $senderName,
             isTest: true,
             previewText: $modelData['preview_text'] ?? null

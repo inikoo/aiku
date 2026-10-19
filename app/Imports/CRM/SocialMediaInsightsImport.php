@@ -21,6 +21,7 @@ use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
+use Maatwebsite\Excel\Concerns\WithCustomCsvSettings;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 
@@ -29,8 +30,12 @@ use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
  * their two shapes: content exports, one row per post, and account exports, one row per day. Which
  * one a file is comes from its header row, wherever it sits: Meta puts a separator line and the
  * metric's name above the headers of a single-metric export.
+ *
+ * Both platforms write comma separated files, so the delimiter is set rather than guessed: a content
+ * export's long, multi-line descriptions, links and times make the guess land on the colon, which
+ * leaves every row as one cell and no header to find.
  */
-class SocialMediaInsightsImport implements ToCollection, WithEvents
+class SocialMediaInsightsImport implements ToCollection, WithEvents, WithCustomCsvSettings
 {
     use WithImport;
 
@@ -79,6 +84,14 @@ class SocialMediaInsightsImport implements ToCollection, WithEvents
     public function __construct(public Shop $shop, Upload $upload)
     {
         $this->upload = $upload;
+    }
+
+    /**
+     * @return array{delimiter: string}
+     */
+    public function getCsvSettings(): array
+    {
+        return ['delimiter' => ','];
     }
 
     public function collection(Collection $collection): void
@@ -202,7 +215,7 @@ class SocialMediaInsightsImport implements ToCollection, WithEvents
                 'external_id'             => $externalId,
             ],
             [
-                'type'         => SocialMediaPostTypeEnum::fromExport($value('post_type'), $platform),
+                'type'         => SocialMediaPostTypeEnum::fromExport(str_contains((string) $permalink, '/reel/') ? 'reel' : $value('post_type'), $platform),
                 'description'  => $value('description'),
                 'permalink'    => $permalink,
                 'published_at' => $publishedAt,

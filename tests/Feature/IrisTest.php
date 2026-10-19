@@ -52,6 +52,10 @@ use App\Enums\Catalogue\Shop\ShopStateEnum;
 use Illuminate\Support\Str;
 use App\Actions\Comms\Outbox\ReviewReminder\ProcessReviewReminderRecipients;
 use App\Actions\Iris\Reviews\ShowIrisOrderReview;
+use App\Actions\Iris\Reviews\ShowIrisOrderReviewPreview;
+use App\Actions\Comms\Outbox\GetOutboxTestEmailData;
+use App\Enums\Catalogue\Product\ProductStatusEnum;
+use Inertia\Testing\AssertableInertia;
 use App\Enums\Catalogue\Review\ReviewScopeEnum;
 use App\Models\Reviews\Review;
 
@@ -877,4 +881,41 @@ test('a customer rates their order and its products from the stars in the review
     $this->postJson($site.'/models'.$link, [
         'reviews' => [['scope' => 'product', 'reviewable_id' => 999999999, 'rating' => 5]],
     ])->assertUnprocessable()->assertJsonValidationErrors('reviews.0.reviewable_id');
+});
+
+test('a test review reminder links to a preview of the review page that saves nothing', function () {
+    DetectWebsiteFromDomain::mock()->shouldReceive('parseDomain')->andReturn($this->website->domain);
+    Queue::fake();
+
+    [, $product] = createProduct($this->shop);
+    $product->updateQuietly(['status' => ProductStatusEnum::FOR_SALE]);
+    $outbox = $this->shop->outboxes()->where('code', OutboxCodeEnum::REVIEW_REMINDER)->firstOrFail();
+
+    $links = GetOutboxTestEmailData::run($outbox)['review_reminder_links'];
+    preg_match('#https://'.preg_quote($this->website->domain, '#').'(/review/preview/[^"]+)#', html_entity_decode($links), $match);
+    parse_str((string) parse_url($match[1], PHP_URL_QUERY), $query);
+    $site = 'http://'.$this->website->domain;
+
+    expect($links)->toContain('/review/preview/')
+        ->and(explode(',', $query['products']))->toContain((string) $product->id)
+        ->and($links)->not->toContain('/review/'.$product->id.'/');
+
+    $numberReviews = Review::query()->count();
+
+    $this->get($site.$match[1])
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('OrderReview', false)
+            ->where('isPreview', true)
+            ->where('order.reference', $query['reference'])
+            ->where('order.products', fn ($products) => collect($products)->pluck('reviewable_id')->contains($product->id)));
+
+    $tamperedQuery = http_build_query([...$query, 'products' => $query['products'].',999999999']);
+    $previewPath   = strtok($match[1], '?');
+
+    $this->get($site.$previewPath.'?'.$tamperedQuery)->assertNotFound();
+    $this->get($site.'/review/preview/not-the-token?'.http_build_query($query))->assertNotFound();
+
+    expect(ShowIrisOrderReviewPreview::token($this->shop, $query['reference'], $query['products']))->toBe(basename($previewPath))
+        ->and(Review::query()->count())->toBe($numberReviews);
 });
