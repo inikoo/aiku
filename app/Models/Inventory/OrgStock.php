@@ -90,6 +90,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property numeric|null $sku_value
  * @property numeric|null $lpp_per_sku
  * @property numeric|null $minimum_stock
+ * @property Carbon|null $minimum_stock_alerted_at
  * @property numeric|null $current_supplier_sku_cost
  * @property int $current_batch_codes
  * @property int|null $main_batch_code_id
@@ -151,6 +152,7 @@ class OrgStock extends Model implements Auditable, HasMedia
         'quantity_in_locations'            => 'decimal:3',
         'quantity_available'               => 'decimal:3',
         'minimum_stock'                    => 'decimal:3',
+        'minimum_stock_alerted_at'         => 'datetime',
         'is_shipment_packaging'            => 'boolean',
     ];
 

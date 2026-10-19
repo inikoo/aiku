@@ -15,6 +15,7 @@ import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 import { ctrans } from "@/Composables/useTrans"
 import { RouteParams } from "@/types/route-params"
 import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
+import { currentMinimumStock, currentShortfall, type SavedMinimumStocks } from "@/Composables/minimumStockRow"
 
 const props = defineProps<{
     data: object
@@ -39,6 +40,7 @@ const routeParams = route().params as RouteParams
 
 const savingRows = ref<number[]>([])
 const drafts = ref<Record<number, number | null>>({})
+const savedMinimumStocks = ref<SavedMinimumStocks>({})
 
 function orgStockRoute(orgStock: MinimumStockRow) {
     return route("grp.org.warehouses.show.inventory.org_stocks.all_org_stocks.show", [
@@ -64,7 +66,7 @@ async function saveMinimumStock(orgStock: MinimumStockRow) {
     const draft = drafts.value[orgStock.id]
     const minimumStock = draft === null || draft === undefined ? null : Number(draft)
 
-    if (minimumStock === orgStock.minimum_stock) {
+    if (minimumStock === currentMinimumStock(orgStock, savedMinimumStocks.value)) {
         delete drafts.value[orgStock.id]
         return
     }
@@ -81,9 +83,8 @@ async function saveMinimumStock(orgStock: MinimumStockRow) {
             { minimum_stock: minimumStock }
         )
 
-        orgStock.minimum_stock = minimumStock
+        savedMinimumStocks.value[orgStock.id] = minimumStock
         delete drafts.value[orgStock.id]
-        orgStock.shortfall = minimumStock === null ? null : Math.max(0, minimumStock - Number(orgStock.stock))
 
         notify({
             title: ctrans("Success"),
@@ -129,7 +130,7 @@ async function saveMinimumStock(orgStock: MinimumStockRow) {
             <div v-if="canEdit" class="flex items-center justify-end gap-x-2">
                 <LoadingIcon v-if="savingRows.includes(orgStock.id)" />
                 <InputNumber
-                    :modelValue="drafts[orgStock.id] !== undefined ? drafts[orgStock.id] : orgStock.minimum_stock"
+                    :modelValue="drafts[orgStock.id] !== undefined ? drafts[orgStock.id] : currentMinimumStock(orgStock, savedMinimumStocks)"
                     :min="0"
                     :max="999999"
                     :maxFractionDigits="3"
@@ -141,15 +142,15 @@ async function saveMinimumStock(orgStock: MinimumStockRow) {
                     @keydown.enter="(event: KeyboardEvent) => (event.target as HTMLInputElement).blur()"
                 />
             </div>
-            <span v-else-if="orgStock.minimum_stock !== null" class="tabular-nums">
-                {{ locale.number(Number(orgStock.minimum_stock)) }}
+            <span v-else-if="currentMinimumStock(orgStock, savedMinimumStocks) !== null" class="tabular-nums">
+                {{ locale.number(Number(currentMinimumStock(orgStock, savedMinimumStocks))) }}
             </span>
             <span v-else class="text-gray-400">-</span>
         </template>
 
         <template #cell(shortfall)="{ item: orgStock }">
-            <span v-if="orgStock.shortfall" class="tabular-nums font-semibold text-red-600">
-                {{ locale.number(Number(orgStock.shortfall)) }}
+            <span v-if="currentShortfall(orgStock, savedMinimumStocks)" class="tabular-nums font-semibold text-red-600">
+                {{ locale.number(Number(currentShortfall(orgStock, savedMinimumStocks))) }}
             </span>
             <span v-else class="text-gray-400">-</span>
         </template>

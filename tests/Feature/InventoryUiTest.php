@@ -31,7 +31,9 @@ use App\Models\Goods\Stock;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use App\Notifications\OrgStocksBelowMinimumStockNotification;
 use Config;
+use Illuminate\Support\Facades\Notification;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -688,6 +690,59 @@ test('a SKO whose stock falls below its minimum shows on the below minimum stock
 
     expect($belowMinimumCount())->toBe($baseline)
         ->and($listedRow('grp.org.warehouses.show.inventory.org_stocks.below_minimum_stock.index'))->toBeNull();
+});
+
+test('the stock supervisors are notified once when a SKO falls below its minimum, and again only after it was restocked', function () {
+    Notification::fake();
+
+    $warehouse        = createWarehouse();
+    $stock            = StoreStock::make()->action($this->group, array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE]));
+    $orgStock         = StoreOrgStock::make()->action($this->organisation, $stock);
+    $location         = StoreLocation::make()->action($warehouse, array_merge(Location::factory()->definition(), ['code' => 'BMS-N1']));
+    $locationOrgStock = StoreLocationOrgStock::make()->action($orgStock, $location, []);
+    UpdateLocationOrgStock::make()->action($locationOrgStock, ['quantity' => 3]);
+    OrgStockHydrateQuantityInLocations::run($orgStock->id);
+
+    $this->user->givePermissionTo("supervisor-stocks.$warehouse->id");
+
+    $alertsAboutOrgStock = function () use ($orgStock): int {
+        return Notification::sent($this->user, OrgStocksBelowMinimumStockNotification::class)
+            ->filter(fn (OrgStocksBelowMinimumStockNotification $notification) => in_array($orgStock->code, $notification->codes))
+            ->count();
+    };
+
+    $orgStock->update(['minimum_stock' => 10]);
+    WarehouseHydrateOrgStocksBelowMinimumStock::run($warehouse);
+
+    expect($alertsAboutOrgStock())->toBe(1)
+        ->and($orgStock->refresh()->minimum_stock_alerted_at)->not->toBeNull();
+
+    $notification = Notification::sent($this->user, OrgStocksBelowMinimumStockNotification::class)->last();
+    expect($notification->toArray($this->user)['route'])->toBe([
+        'name'       => 'grp.org.warehouses.show.inventory.org_stocks.below_minimum_stock.index',
+        'parameters' => [$this->organisation->slug, $warehouse->slug],
+    ]);
+
+    WarehouseHydrateOrgStocksBelowMinimumStock::run($warehouse);
+    expect($alertsAboutOrgStock())->toBe(1);
+
+    UpdateLocationOrgStock::make()->action($locationOrgStock->refresh(), ['quantity' => 12]);
+    OrgStockHydrateQuantityInLocations::run($orgStock->id);
+    WarehouseHydrateOrgStocksBelowMinimumStock::run($warehouse);
+
+    expect($alertsAboutOrgStock())->toBe(1)
+        ->and($orgStock->refresh()->minimum_stock_alerted_at)->toBeNull();
+
+    UpdateLocationOrgStock::make()->action($locationOrgStock->refresh(), ['quantity' => 4]);
+    OrgStockHydrateQuantityInLocations::run($orgStock->id);
+    WarehouseHydrateOrgStocksBelowMinimumStock::run($warehouse);
+
+    expect($alertsAboutOrgStock())->toBe(2);
+
+    $orgStock->update(['minimum_stock' => null]);
+    WarehouseHydrateOrgStocksBelowMinimumStock::run($warehouse);
+
+    expect($orgStock->refresh()->minimum_stock_alerted_at)->toBeNull();
 });
 
 test('a SKO minimum stock can be cleared but never negative', function () {

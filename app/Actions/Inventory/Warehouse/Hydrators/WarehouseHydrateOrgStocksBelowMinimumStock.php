@@ -8,6 +8,7 @@
 
 namespace App\Actions\Inventory\Warehouse\Hydrators;
 
+use App\Actions\Inventory\OrgStock\NotifyOrgStocksBelowMinimumStock;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\Warehouse;
@@ -39,5 +40,7 @@ class WarehouseHydrateOrgStocksBelowMinimumStock implements ShouldBeUnique
         $warehouse->stats()->update([
             'number_org_stocks_below_minimum_stock' => self::belowMinimumStock(OrgStock::query(), $warehouse->organisation_id)->count()
         ]);
+
+        NotifyOrgStocksBelowMinimumStock::run($warehouse);
     }
 }
