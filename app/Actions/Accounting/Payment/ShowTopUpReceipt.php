@@ -10,6 +10,7 @@
 namespace App\Actions\Accounting\Payment;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithAccountingPagesAuthorisation;
 use App\Actions\Accounting\TopUp\WithSingleTopUpReceipt;
 use App\Models\Accounting\TopUp;
 use Lorisleiva\Actions\ActionRequest;
@@ -21,6 +22,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ShowTopUpReceipt extends OrgAction
 {
+    use WithAccountingPagesAuthorisation;
     use AsAction;
     use WithAttributes;
     use WithSingleTopUpReceipt;
@@ -32,6 +34,7 @@ class ShowTopUpReceipt extends OrgAction
 
     public function inOrganisation(Organisation $organisation, Payment $payment, TopUp $topUp, ActionRequest $request): Response
     {
+        abort_unless($payment->organisation_id === $organisation->id && $topUp->payment_id === $payment->id, 404);
         $this->initialisation($organisation, $request);
 
         return $this->handle($topUp, $this->validatedData);

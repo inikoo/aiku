@@ -4000,3 +4000,31 @@ test('fulfilment supervisors json refuses staff without the fulfilment shop rule
     actingAsUserWithOnlyPermissions($user, ["fulfilment-shop.$fulfilment->id.view"]);
     $this->getJson(route('grp.json.fulfilment.supervisors.index', $fulfilment))->assertOk();
 });
+
+test('fulfilment rentals, accounting and post room pages answer fulfilment or accounting staff, INI-076', function () {
+    $fulfilment = createFulfilment($this->organisation);
+    $org        = $this->organisation;
+    $routes     = [
+        route('grp.org.fulfilments.show.catalogue.rentals.index', [$org->slug, $fulfilment->slug]),
+        route('grp.org.fulfilments.show.operations.invoices.deleted_invoices.index', [$org->slug, $fulfilment->slug]),
+        route('grp.org.fulfilments.show.operations.accounting.accounts.index', [$org->slug, $fulfilment->slug]),
+    ];
+    $postRooms = route('grp.org.fulfilments.show.operations.comms.post-rooms.index', [$org->slug, $fulfilment->slug]);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $org->group_id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["human-resources.$org->id.view"]);
+    foreach ([...$routes, $postRooms] as $url) {
+        $this->get($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["fulfilment-shop.$fulfilment->id.view"]);
+    foreach ([...$routes, $postRooms] as $url) {
+        $this->get($url)->assertOk();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["accounting.$org->id.view"]);
+    foreach ($routes as $url) {
+        $this->get($url)->assertOk();
+    }
+});

@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\UI\Catalogue\Rentals;
 
 use App\Actions\Fulfilment\UI\Catalogue\ShowFulfilmentCatalogueDashboard;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithAccountingPagesAuthorisation;
 use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Enums\Billables\Rental\RentalStateEnum;
@@ -31,6 +32,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexFulfilmentRentals extends OrgAction
 {
+    use WithAccountingPagesAuthorisation;
     public Fulfilment|Group $parent;
 
     protected function getElementGroups(Fulfilment $parent): array

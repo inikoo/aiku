@@ -97,7 +97,7 @@ trait WithInvoicesSubNavigation
                 ]
             ] : [],
 
-            [
+            $this->canSeeDeletedInvoices($parent) ? [
                 "number" => $numberDeletedInvoices,
                 "label"  => __("Deleted Invoices"),
                 'align'  => 'right',
@@ -105,7 +105,7 @@ trait WithInvoicesSubNavigation
                     "name"       => $deletedInvoicesRouteName,
                     "parameters" => $param,
                 ],
-            ],
+            ] : [],
             [
                 "number" => $numberRefunds,
                 "label"  => __("Refunds"),
@@ -116,6 +116,23 @@ trait WithInvoicesSubNavigation
                 ],
             ],
         ];
+    }
+
+    private function canSeeDeletedInvoices(Organisation|Shop|Fulfilment $parent): bool
+    {
+        if ($parent instanceof Shop) {
+            return $this->canSeeShopInvoiceReports($parent);
+        }
+
+        $permissions = ["accounting.$parent->organisation_id.view"];
+        if ($parent instanceof Organisation) {
+            $permissions = ["accounting.$parent->id.view"];
+        } else {
+            $permissions[] = "fulfilment-shop.$parent->id.view";
+            $permissions[] = "supervisor-fulfilment-shop.$parent->id";
+        }
+
+        return (bool) request()->user()?->authTo($permissions);
     }
 
     private function canSeeShopInvoiceReports(Shop $shop): bool

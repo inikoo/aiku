@@ -4245,3 +4245,51 @@ test('accounting and organisation reports answer only report readers or accounta
         get($url)->assertOk()->assertInertia(fn ($page) => $page->where('can_export', true)->etc());
     }
 });
+
+test('accounting pages follow the overview, accounting module or shop they are opened from, INI-076', function () {
+    $org  = $this->organisation;
+    $shop = $this->shop;
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    $accountingPages = [
+        route('grp.org.accounting.deleted_invoices.index', [$org->slug]),
+        route('grp.org.accounting.invoice-categories.index', [$org->slug]),
+        route('grp.org.accounting.payments.methods.index', [$org->slug]),
+    ];
+    $shopPages = [
+        route('grp.org.shops.show.dashboard.invoices.deleted.index', [$org->slug, $shop->slug]),
+        route('grp.org.shops.show.dashboard.payments.accounting.payments.methods.index', [$org->slug, $shop->slug]),
+        route('grp.org.shops.show.dashboard.payments.accounting.accounts.index', [$org->slug, $shop->slug]),
+        route('grp.org.shops.show.dashboard.payments.accounting.top_ups.index', [$org->slug, $shop->slug]),
+    ];
+    $orgOverview   = [route('grp.org.overview.invoices.index', [$org->slug]), route('grp.org.overview.changelog.index', [$org->slug])];
+    $groupOverview = [route('grp.overview.accounting.deleted_invoices.index')];
+
+    actingAsUserWithOnlyPermissions($user, ["products.$shop->id.view"]);
+    foreach ([...$accountingPages, ...$shopPages, ...$orgOverview, ...$groupOverview] as $url) {
+        get($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["accounting.$org->id.view"]);
+    foreach ([...$accountingPages, ...$shopPages] as $url) {
+        get($url)->assertOk();
+    }
+    foreach ([...$orgOverview, ...$groupOverview] as $url) {
+        get($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["orders.$shop->id.view"]);
+    foreach ($shopPages as $url) {
+        get($url)->assertOk();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["org-reports.$org->id"]);
+    foreach ($orgOverview as $url) {
+        get($url)->assertOk();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ['group-overview']);
+    foreach ($groupOverview as $url) {
+        get($url)->assertOk();
+    }
+});
