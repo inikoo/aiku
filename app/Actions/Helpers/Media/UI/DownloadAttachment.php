@@ -26,6 +26,8 @@ use App\Models\Ordering\Order;
 use App\Models\Procurement\AgentGoodsReceipt;
 use App\Models\Procurement\AgentGoodsReceiptItem;
 use App\Models\Procurement\PurchaseOrder;
+use App\Models\SupplyChain\Agent;
+use App\Models\SupplyChain\AgentPayment;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\User;
 use Illuminate\Database\Eloquent\Model;
@@ -65,7 +67,7 @@ class DownloadAttachment
     public function canDownload(Media $media, User $user): bool
     {
         $verdicts = $this->owners($media)
-            ->map(fn (Model $owner) => $this->canViewOwner($owner, $user))
+            ->map(fn (Model $owner) => $this->canViewOwner($owner, $user, $media))
             ->reject(fn (?bool $verdict) => $verdict === null);
 
         return $verdicts->isEmpty() || $verdicts->contains(true);
@@ -89,7 +91,7 @@ class DownloadAttachment
             ->values();
     }
 
-    private function canViewOwner(Model $owner, User $user): ?bool
+    private function canViewOwner(Model $owner, User $user, Media $media): ?bool
     {
         return match (true) {
             $owner instanceof Employee => $this->isHumanResources($user, $owner->organisation_id)
@@ -132,6 +134,11 @@ class DownloadAttachment
             ]),
             $owner instanceof AgentGoodsReceipt => $user->authTo(["procurement.{$owner->agent->organisation_id}.view"]),
             $owner instanceof Supplier => $user->authTo(['supply-chain.view']),
+            $owner instanceof Agent => $user->authTo(array_merge(
+                ["procurement.$owner->organisation_id.view"],
+                AgentPayment::where('agent_id', $owner->id)->where('media_id', $media->id)->whereNotNull('organisation_id')->distinct()->pluck('organisation_id')
+                    ->flatMap(fn (int $organisationId) => ["procurement.$organisationId.view", "accounting.$organisationId.view"])->all()
+            )),
             $owner instanceof AgentGoodsReceiptItem => $user->authTo(["procurement.{$owner->agentGoodsReceipt?->agent?->organisation_id}.view"]),
             default => null,
         };

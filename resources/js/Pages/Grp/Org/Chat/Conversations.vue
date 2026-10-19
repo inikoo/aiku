@@ -26,7 +26,7 @@ const props = defineProps<{
     pageHead: PageHeadingTypes
     title: string
     data: object
-    exportRoute: { name: string; parameters: Record<string, string> }
+    exportRoute: { name: string; parameters: Record<string, string> } | null
     shops: ShopOption[]
 }>()
 
@@ -68,7 +68,7 @@ function formatDate(date: Date | null): string {
 }
 
 function buildExportUrl(): string {
-    const base = route(props.exportRoute.name, props.exportRoute.parameters)
+    const base = route(props.exportRoute!.name, props.exportRoute!.parameters)
     const params = new URLSearchParams({ format: exportFormat.value })
     if (exportShopId.value) params.set('shop_id', String(exportShopId.value))
     if (exportStatus.value) params.set('status', exportStatus.value)
@@ -125,7 +125,7 @@ function triggerExport(): void {
                         :key="fmt.value"
                         class="flex-1 rounded-lg border px-3 py-2.5 text-left transition-colors"
                         :class="exportFormat === fmt.value
-                            ? 'border-indigo-400 bg-indigo-50 ring-1 ring-indigo-300'
+                            ? 'border-[--app-accent-muted] bg-[--app-accent-soft] ring-1 ring-[--app-accent-muted]'
                             : 'border-gray-200 hover:bg-gray-50'"
                         @click="exportFormat = fmt.value"
                     >

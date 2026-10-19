@@ -369,7 +369,7 @@ class IndexStockDeliveries extends OrgAction
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
-                ->withLabelRecord([__('Stock Delivery'), __('Stock Deliveries')]);
+                ->withLabelRecord($this->isAgentContext() ? [__('Container'), __('Containers')] : [__('Stock Delivery'), __('Stock Deliveries')]);
 
             foreach ($this->getElementGroups($prefix) as $key => $elementGroup) {
                 $table->elementGroup(
@@ -485,10 +485,11 @@ class IndexStockDeliveries extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $suppliers, ActionRequest $request): Response
     {
-        $title         = __('Stock Deliveries');
+        $indexLabel    = $this->isAgentContext() ? __('Containers') : __('Stock Deliveries');
+        $title         = $indexLabel;
         $icon          = [
             'icon'  => ['fal', 'fa-truck-container'],
-            'title' => __('Stock Deliveries'),
+            'title' => $indexLabel,
         ];
         $model         = '';
         $afterTitle    = null;
@@ -505,45 +506,45 @@ class IndexStockDeliveries extends OrgAction
             $title         = $this->parent->agent->organisation->name;
             $icon          = [
                 'icon'  => ['fal', 'fa-people-arrows'],
-                'title' => __('Stock Deliveries'),
+                'title' => $indexLabel,
             ];
-            $afterTitle    = ['label' => __('Stock Deliveries')];
+            $afterTitle    = ['label' => $indexLabel];
             $iconRight     = ['icon' => 'fal fa-truck-container'];
             $subNavigation = $this->getOrgAgentNavigation($this->parent);
         } elseif ($this->parent instanceof OrgPartner) {
             $title         = $this->parent->partner->name;
             $icon          = [
                 'icon'  => ['fal', 'fa-users-class'],
-                'title' => __('Stock Deliveries'),
+                'title' => $indexLabel,
             ];
-            $afterTitle    = ['label' => __('Stock Deliveries')];
+            $afterTitle    = ['label' => $indexLabel];
             $iconRight     = ['icon' => 'fal fa-truck-container'];
             $subNavigation = $this->getOrgPartnerNavigation($this->parent);
         } elseif ($this->parent instanceof OrgSupplier) {
             $title         = $this->parent->supplier->name;
             $icon          = [
                 'icon'  => ['fal', 'fa-person-dolly'],
-                'title' => __('Stock Deliveries'),
+                'title' => $indexLabel,
             ];
-            $afterTitle    = ['label' => __('Stock Deliveries')];
+            $afterTitle    = ['label' => $indexLabel];
             $iconRight     = ['icon' => 'fal fa-truck-container'];
             $subNavigation = $this->getOrgSupplierNavigation($this->parent);
         } elseif ($this->parent instanceof Agent) {
             $title         = $this->parent->organisation->name;
             $icon          = [
                 'icon'  => ['fal', 'fa-people-arrows'],
-                'title' => __('Stock Deliveries'),
+                'title' => $indexLabel,
             ];
-            $afterTitle    = ['label' => __('Stock Deliveries')];
+            $afterTitle    = ['label' => $indexLabel];
             $iconRight     = ['icon' => 'fal fa-truck-container'];
             $subNavigation = $this->getAgentNavigation($this->parent);
         } elseif ($this->parent instanceof Supplier) {
             $title         = $this->parent->name;
             $icon          = [
                 'icon'  => ['fal', 'fa-person-dolly'],
-                'title' => __('Stock Deliveries'),
+                'title' => $indexLabel,
             ];
-            $afterTitle    = ['label' => __('Stock Deliveries')];
+            $afterTitle    = ['label' => $indexLabel];
             $iconRight     = ['icon' => 'fal fa-truck-container'];
             $subNavigation = $this->getSupplierNavigation($this->parent);
         } elseif ($this->parent instanceof Warehouse) {
@@ -554,7 +555,7 @@ class IndexStockDeliveries extends OrgAction
             'Procurement/StockDeliveries',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($this->onlyStagedContainers === null ? $request->route()->getName() : 'grp.org.procurement.stock_deliveries.index', $request->route()->originalParameters()),
-                'title'       => __('Stock Deliveries'),
+                'title'       => $this->onlyStagedContainers === null ? $indexLabel : $title,
                 'navigation'  => $this->getParentSiblingsNavigation($this->parent, $request),
                 'pageHead'    => [
                     'title'         => $title,
@@ -582,7 +583,7 @@ class IndexStockDeliveries extends OrgAction
                             'name'       => 'grp.org.procurement.stock_deliveries.create',
                             'parameters' => array_values($request->route()->originalParameters()),
                         ],
-                        'label' => __('Stock Deliveries'),
+                        'label' => $indexLabel,
                     ] : false,
                     'subNavigation' => $subNavigation,
                 ],
@@ -598,6 +599,8 @@ class IndexStockDeliveries extends OrgAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
+        $indexLabel = isset($this->parent) && $this->isAgentContext() ? __('Containers') : __('Stock deliveries');
+
         return match ($routeName) {
             'grp.org.procurement.stock_deliveries.index' => array_merge(
                 ShowProcurementDashboard::make()->getBreadcrumbs($routeParameters),
@@ -605,7 +608,7 @@ class IndexStockDeliveries extends OrgAction
                     [
                         'type'   => 'simple',
                         'simple' => [
-                            'label' => __('Stock deliveries'),
+                            'label' => $indexLabel,
                             'icon'  => 'fal fa-bars',
                             'route' => [
                                 'name'       => 'grp.org.procurement.stock_deliveries.index',
@@ -621,7 +624,7 @@ class IndexStockDeliveries extends OrgAction
                     [
                         'type'   => 'simple',
                         'simple' => [
-                            'label' => __('Stock deliveries'),
+                            'label' => $indexLabel,
                             'icon'  => 'fal fa-bars',
                             'route' => [
                                 'name'       => 'grp.org.warehouses.show.incoming.stock_deliveries.index',
@@ -637,7 +640,7 @@ class IndexStockDeliveries extends OrgAction
                     [
                         'type'   => 'simple',
                         'simple' => [
-                            'label' => __('Stock deliveries'),
+                            'label' => $indexLabel,
                             'icon'  => 'fal fa-bars',
                             'route' => [
                                 'name'       => 'grp.org.procurement.org_agents.show.stock-deliveries.index',
@@ -653,7 +656,7 @@ class IndexStockDeliveries extends OrgAction
                     [
                         'type'   => 'simple',
                         'simple' => [
-                            'label' => __('Stock deliveries'),
+                            'label' => $indexLabel,
                             'icon'  => 'fal fa-bars',
                             'route' => [
                                 'name'       => 'grp.org.procurement.org_partners.show.stock-deliveries.index',
@@ -670,7 +673,7 @@ class IndexStockDeliveries extends OrgAction
                     [
                         'type'   => 'simple',
                         'simple' => [
-                            'label' => __('Stock deliveries'),
+                            'label' => $indexLabel,
                             'icon'  => 'fal fa-bars',
                             'route' => [
                                 'name'       => $routeName,
@@ -686,7 +689,7 @@ class IndexStockDeliveries extends OrgAction
                     [
                         'type'   => 'simple',
                         'simple' => [
-                            'label' => __('Stock deliveries'),
+                            'label' => $indexLabel,
                             'icon'  => 'fal fa-bars',
                             'route' => [
                                 'name'       => 'grp.supply-chain.agents.show.stock_deliveries.index',
@@ -702,7 +705,7 @@ class IndexStockDeliveries extends OrgAction
                     [
                         'type'   => 'simple',
                         'simple' => [
-                            'label' => __('Stock deliveries'),
+                            'label' => $indexLabel,
                             'icon'  => 'fal fa-bars',
                             'route' => [
                                 'name'       => 'grp.supply-chain.suppliers.stock_deliveries.index',

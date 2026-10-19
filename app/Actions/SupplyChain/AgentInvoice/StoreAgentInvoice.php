@@ -57,7 +57,7 @@ class StoreAgentInvoice extends OrgAction
             throw ValidationException::withMessages(['invoice' => __('The container has no lines to invoice.')]);
         }
 
-        return DB::transaction(function () use ($agent, $stockDelivery, $lines) {
+        $agentInvoice = DB::transaction(function () use ($agent, $stockDelivery, $lines) {
             Agent::whereKey($agent->id)->lockForUpdate()->first();
 
             $agentInvoice = $stockDelivery->agentInvoice()->first();
@@ -88,8 +88,13 @@ class StoreAgentInvoice extends OrgAction
             data_set($data, 'invoice_date', $agentInvoice->date->toDateString());
             $stockDelivery->update(['data' => $data]);
 
+            SyncAgentInvoiceChargesFromLedger::recordAgentFee($agentInvoice);
+            SyncAgentInvoiceChargesFromLedger::run($stockDelivery->refresh());
+
             return $agentInvoice;
         });
+
+        return $agentInvoice->refresh();
     }
 
     /**

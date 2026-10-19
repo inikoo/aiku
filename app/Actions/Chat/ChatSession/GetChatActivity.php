@@ -8,6 +8,7 @@
 
 namespace App\Actions\Chat\ChatSession;
 
+use App\Actions\Chat\WithChatSessionReadAuthorisation;
 use App\Enums\CRM\Livechat\ChatActorTypeEnum;
 use App\Enums\CRM\Livechat\ChatEventTypeEnum;
 use App\Models\Chat\ChatAgent;
@@ -20,6 +21,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetChatActivity
 {
+    use WithChatSessionReadAuthorisation;
     use AsAction;
 
     public function handle(ChatSession $chatSession): array

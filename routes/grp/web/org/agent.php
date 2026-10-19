@@ -73,12 +73,16 @@ use App\Actions\Procurement\SupplierMessage\UI\IndexSupplierMessages;
 use App\Actions\Procurement\SupplierMessage\UI\ShowSupplierMessage;
 use App\Actions\Procurement\SupplierMessage\Whatsapp\SendSupplierWhatsappMessage;
 use App\Actions\SupplyChain\AgentSupplierPurchaseOrder\UI\ShowAgentSupplierPurchaseOrder;
-use App\Actions\SupplyChain\AspoDeposit\UI\IndexAgentDepositRequests;
+use App\Actions\SupplyChain\AgentPayment\UI\IndexAgentLedger;
+use App\Actions\SupplyChain\DepositRequest\UI\CreateAgentMoneyRequest;
+use App\Actions\SupplyChain\DepositRequest\UI\IndexAgentMoneyRequests;
 use App\Actions\SupplyChain\AspoDeposit\UI\IndexAgentDeposits;
 use App\Actions\SupplyChain\AspoDeposit\UI\ShowAgentAccountingDashboard;
 use App\Actions\SupplyChain\Supplier\UI\CreateSupplier;
 use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;
 use App\Actions\Procurement\AgentOrder\UI\IndexAgentOrders;
+use App\Actions\Procurement\AgentOrder\ExportCombinedSupplierSheet;
+use App\Actions\Procurement\AgentOrder\UI\IndexAgentSharedSuppliers;
 use App\Actions\Procurement\AgentOrder\UI\IndexAgentWholeOrders;
 use App\Actions\Procurement\AgentOrder\UI\ShowAgentOrder;
 use App\Actions\Procurement\AgentOrder\UI\ShowAgentWholeOrder;
@@ -91,7 +95,6 @@ use App\Actions\Procurement\OrgSupplier\UI\IndexOrgAgentSuppliers;
 use App\Actions\SupplyChain\AgentInvoice\PdfAgentInvoice;
 use App\Actions\SupplyChain\AgentInvoice\StoreAgentInvoice;
 use App\Actions\SupplyChain\AgentInvoice\UI\IndexAgentInvoices;
-use App\Actions\SupplyChain\AgentInvoice\UpdateAgentInvoiceCharges;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('suppliers')->as('org_suppliers.')->group(function () {
@@ -123,6 +126,8 @@ Route::prefix('purchase-orders')->as('purchase_orders.')->group(function () {
     Route::get('', ShowAgentPurchaseOrdersDashboard::class)->name('dashboard');
     Route::get('list', IndexPurchaseOrders::class)->name('index');
     Route::get('agent-orders', IndexAgentWholeOrders::class)->name('agent_orders');
+    Route::get('shared-suppliers', IndexAgentSharedSuppliers::class)->name('shared_suppliers');
+    Route::get('shared-suppliers/{supplier}/sheet', ExportCombinedSupplierSheet::class)->name('shared_suppliers.sheet');
     Route::get('board', ShowAgentPurchaseOrdersBoard::class)->name('board');
     Route::get('reports', ShowAgentPurchaseOrdersReports::class)->name('reports');
     Route::get('export', ExportPurchaseOrders::class)->name('export');
@@ -176,8 +181,10 @@ Route::get('barcodes', IndexAgentBarcodes::class)->name('agent_barcodes.index');
 Route::prefix('agent-accounting')->as('accounting.')->group(function () {
     Route::get('', ShowAgentAccountingDashboard::class)->name('dashboard');
     Route::get('deposits', IndexAgentDeposits::class)->name('deposits.index');
-    Route::get('deposit-requests', IndexAgentDepositRequests::class)->name('deposit_requests.index');
+    Route::get('deposit-requests', IndexAgentMoneyRequests::class)->name('deposit_requests.index');
+    Route::get('deposit-requests/create', CreateAgentMoneyRequest::class)->name('deposit_requests.create');
     Route::get('invoices', IndexAgentInvoices::class)->name('invoices.index');
+    Route::get('ledger', IndexAgentLedger::class)->name('ledger.index');
 });
 
 Route::prefix('labels')->as('agent_labels.')->group(function () {
@@ -238,6 +245,5 @@ Route::prefix('agents/{orgAgent}')->as('org_agents.show')->group(function () {
 
 Route::post('containers/{stockDelivery}/invoice', StoreAgentInvoice::class)->name('agent_invoices.store');
 Route::prefix('agent-invoices/{agentInvoice}')->as('agent_invoices.')->group(function () {
-    Route::patch('charges', UpdateAgentInvoiceCharges::class)->name('charges.update');
     Route::get('pdf', PdfAgentInvoice::class)->name('pdf');
 });

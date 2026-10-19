@@ -67,7 +67,7 @@ class MergeSuppliers
                 $to = OrgSupplier::where('supplier_id', $kept->id)->where('organisation_id', $from->organisation_id)->first();
 
                 if (!$to) {
-                    $from->update(['supplier_id' => $kept->id, 'code' => $kept->code, 'name' => $kept->name]);
+                    $from->update(['supplier_id' => $kept->id]);
                     $this->renameParent($from, $kept);
                     $touched->push($from);
 

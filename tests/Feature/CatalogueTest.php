@@ -1840,7 +1840,7 @@ test('repair backfills first availability on launched products only, and leaves 
         ->and($alreadyStamped->refresh()->first_available_at->equalTo($stampedAt))->toBeTrue();
 });
 
-test('a product sold before it is stamped available, or created long before the backfill day, is not new in', function () {
+test('a product sold or live with stock before it is stamped available, or created long before the backfill day, is not new in', function () {
     $shop = Shop::orderBy('id')->first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
     $newProduct = fn (): Product => UpdateProduct::make()->action(
         StoreProduct::make()->action($shop, array_merge(Product::factory()->definition(), ['trade_units' => [['id' => $this->tradeUnit1->id, 'quantity' => 1]], 'price' => 10])),
@@ -1862,6 +1862,8 @@ test('a product sold before it is stamped available, or created long before the 
     $wronglyStamped = $newProduct();
     $neverSold      = $newProduct();
     $oldNeverSold   = $newProduct();
+    $liveWithStock  = $newProduct();
+    $ranOutBefore   = $newProduct();
     $sellOnce($relaunched);
     $sellOnce($wronglyStamped);
 
@@ -1870,9 +1872,18 @@ test('a product sold before it is stamped available, or created long before the 
 
     $stampedAt = now()->subDays(3)->startOfSecond();
     $wronglyStamped->updateQuietly(['first_available_at' => $stampedAt]);
-    $neverSold->updateQuietly(['first_available_at' => $stampedAt]);
+    $neverSold->updateQuietly(['first_available_at' => $stampedAt, 'back_in_stock_since' => null]);
     $createdLongBefore = now()->subYears(2)->startOfSecond();
-    $oldNeverSold->updateQuietly(['first_available_at' => $stampedAt, 'created_at' => $createdLongBefore]);
+    $oldNeverSold->updateQuietly(['first_available_at' => $stampedAt, 'created_at' => $createdLongBefore, 'back_in_stock_since' => null]);
+
+    $liveSince    = now()->subMonths(4)->startOfSecond();
+    $inStockSince = now()->subMonths(3)->startOfSecond();
+    foreach ([$liveWithStock, $ranOutBefore] as $product) {
+        $webpage = $product->refresh()->webpage ?? StoreProductWebpage::make()->action($product);
+        $webpage->updateQuietly(['live_at' => $liveSince]);
+    }
+    $liveWithStock->updateQuietly(['first_available_at' => $stampedAt, 'back_in_stock_since' => $inStockSince, 'out_of_stock_since' => null]);
+    $ranOutBefore->updateQuietly(['first_available_at' => $stampedAt, 'back_in_stock_since' => now()->subMonths(6), 'out_of_stock_since' => now()->subMonths(5)]);
 
     $this->artisan('repair:products_first_available_at', ['--stamped-since' => now()->subDays(5)->toDateString(), '--backfill-day' => $stampedAt->toDateString()])->assertExitCode(0);
 
@@ -1880,7 +1891,9 @@ test('a product sold before it is stamped available, or created long before the 
         ->and(ProductBadgeEnum::resolve($wronglyStamped->first_available_at, null))->toBeNull()
         ->and($neverSold->refresh()->first_available_at->equalTo($stampedAt))->toBeTrue()
         ->and(ProductBadgeEnum::resolve($neverSold->first_available_at, null))->toBe(ProductBadgeEnum::NEW_IN)
-        ->and($oldNeverSold->refresh()->first_available_at->equalTo($createdLongBefore))->toBeTrue();
+        ->and($oldNeverSold->refresh()->first_available_at->equalTo($createdLongBefore))->toBeTrue()
+        ->and($liveWithStock->refresh()->first_available_at->equalTo($inStockSince))->toBeTrue()
+        ->and($ranOutBefore->refresh()->first_available_at->equalTo($stampedAt))->toBeTrue();
 });
 
 test('the out of stock date is set when stock runs out and is kept while the product stays out', function () {
@@ -2339,4 +2352,73 @@ test('a product image is deleted by staff with web edit on its shop', function (
     \Pest\Laravel\delete(route('grp.models.product.images.delete_images', [$product->id, $media->id]))->assertSuccessful();
 
     expect($product->images()->where('media.id', $media->id)->exists())->toBeFalse();
+});
+
+test('catalogue json lookups answer only staff with the matching rule on the shop', function () {
+    list($organisation, , $shop) = createShop();
+    [, $product] = createProduct($shop);
+    $family     = $product->family;
+    $department = $product->department;
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $organisation->group_id, 'status' => true]);
+
+    $rulesByUrls = [
+        [
+            [
+                route('grp.json.product_category.families.index', $department->slug),
+                route('grp.json.shop.product_categories_by_codes', [$shop->id, 'codes' => $department->code.','.$family->code]),
+                route('grp.json.trade-units.all.under-product', $product->id),
+                route('grp.json.product.external.trade-units-linked', $product->slug),
+                route('grp.json.product_category.products_by_codes', [$family->id, 'codes' => $product->code]),
+                route('grp.json.shop.products_by_codes', [$shop->id, 'codes' => $product->code]),
+            ],
+            "crm.$shop->id.view",
+            "products.$shop->id.view",
+        ],
+        [
+            [route('grp.json.shop.department_and_sub_departments', $shop->slug)],
+            "products.$shop->id.view",
+            "products.$shop->id.edit",
+        ],
+        [
+            [
+                route('grp.json.shop.families.for_related_web_block', $shop->slug),
+                route('grp.json.shop.departments.for_related_web_block', $shop->slug),
+                route('grp.json.shop.sub_departments.for_related_web_block', $shop->slug),
+                route('grp.json.product_category.products.index', $family->id),
+            ],
+            "products.$shop->id.edit",
+            "web.$shop->id.edit",
+        ],
+        [
+            [route('grp.json.product_category.discontinuing_products.index', $family->id)],
+            "products.$shop->id.edit",
+            "discounts.$shop->id.edit",
+        ],
+    ];
+
+    foreach ($rulesByUrls as [$urls, $refusedRule, $allowedRule]) {
+        actingAsUserWithOnlyPermissions($user, [$refusedRule]);
+        foreach ($urls as $url) {
+            expect(get($url)->status())->toBe(403, $url);
+        }
+
+        actingAsUserWithOnlyPermissions($user, [$allowedRule]);
+        foreach ($urls as $url) {
+            expect(get($url)->status())->toBe(200, $url);
+        }
+    }
+});
+
+test('unused json lookups are removed, INI-076', function () {
+    foreach ([
+        'org_payment_service_providers.index', 'collection.parent.departments.index', 'collection.families.index', 'shop.product_categories',
+        'collection.parent.sub_departments.index', 'variant.products', 'product_category.out_of_stock_products.index', 'collection.products.index',
+        'product_category.see_also_products.index', 'product_category.top_products.index', 'mailshot.convert-to-page',
+        'dashboard_custom-dates.masters_shops_sales', 'dashboard_custom-dates.group.organisation_sales', 'dashboard_custom-dates.group.shops_sales',
+        'dashboard_custom-dates.group.invoice_categories_sales', 'dashboard_custom-dates.organisation.shops_sales', 'dashboard_custom-dates.organisation.invoice_categories_sales',
+        'computers.index', 'printers.index', 'webpage.web_block_histories.index', 'web-block.web_block_histories.index', 'web-block-type.web_block_histories.index',
+    ] as $name) {
+        expect(\Illuminate\Support\Facades\Route::has("grp.json.$name"))->toBeFalse();
+    }
 });

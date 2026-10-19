@@ -132,6 +132,7 @@ class Kernel extends ConsoleKernel
            and re-sending a day replaces its figure instead of adding to it, so the later, better
            number wins and a missed night repairs itself. */
         $schedule->command('traffic-source:fetch-meta-costs --days=2')->dailyAt('06:00')->timezone('UTC')->onOneServer()->withoutOverlapping();
+        $schedule->command('social-media:fetch-meta --days=28')->dailyAt('06:15')->timezone('UTC')->onOneServer()->withoutOverlapping();
         $schedule->command('sync:customers-to-google-ads --all')->dailyAt('04:45')->timezone('UTC')->onOneServer()->withoutOverlapping(120);
         $schedule->command('google-ads:fetch-campaigns')->dailyAt('05:00')->timezone('UTC')->onOneServer()->withoutOverlapping();
         /* Three days rather than one: an account's own time zone can still be on the previous day at

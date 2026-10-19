@@ -12,12 +12,18 @@ use App\Actions\Retina\SysAdmin\ProcessRetinaWebUserRequest;
 use App\Actions\Web\WebsiteVisitor\ProcessWebsiteVisitorTracking;
 use App\Models\CRM\WebUser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Str;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class RecordWebsiteHit
 {
     use AsAction;
+
+    public const string VISITOR_COOKIE = 'aiku_vid';
+
+    public const int VISITOR_COOKIE_MINUTES = 60 * 24 * 120;
 
     public function asController(ActionRequest $request): void
     {
@@ -72,6 +78,8 @@ class RecordWebsiteHit
         ];
 
         if ($this->shouldTrackVisitor($request)) {
+            $visitorUuid = $this->rememberVisitor($request);
+
             ProcessWebsiteVisitorTracking::dispatch(
                 sessionId: $request->session()->getId(),
                 website: $request->input('website'),
@@ -80,7 +88,8 @@ class RecordWebsiteHit
                 ip: request()->ip(),
                 currentUrl: request()->header('referer'),
                 referrer: $request->input('original_referer'),
-                geoLocation: $geoLocation
+                geoLocation: $geoLocation,
+                visitorUuid: $visitorUuid
             )->delay(now()->addSeconds(5));
         }
 
@@ -99,6 +108,24 @@ class RecordWebsiteHit
                 $geoLocation
             )->delay(now()->addSeconds(5));
         }
+    }
+
+    /**
+     * Gives the browser an id that outlives its IP address, and keeps it for as long as the traffic
+     * source cookie is kept. Queued on every tracked hit so the cookie is renewed while the visitor
+     * is active.
+     */
+    protected function rememberVisitor(Request $request): string
+    {
+        $visitorUuid = (string) $request->cookie(self::VISITOR_COOKIE);
+
+        if (! Str::isUuid($visitorUuid)) {
+            $visitorUuid = (string) Str::uuid();
+        }
+
+        Cookie::queue(self::VISITOR_COOKIE, $visitorUuid, self::VISITOR_COOKIE_MINUTES, null, null, null, true, false, 'lax');
+
+        return $visitorUuid;
     }
 
     protected function shouldTrackVisitor(Request $request): bool

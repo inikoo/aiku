@@ -8,6 +8,7 @@
 
 namespace App\Actions\Chat\ChatSession;
 
+use Lorisleiva\Actions\ActionRequest;
 use App\Models\Chat\ChatAgent;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
@@ -16,6 +17,21 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class GetChatAgentByUserId
 {
     use AsAction;
+
+    /**
+     * A colleague's chat profile carries their contact details: it is read by the person
+     * themselves and by those who supervise chat or administer an organisation.
+     */
+    public function authorize(ActionRequest $request): bool
+    {
+        $user = $request->user();
+        if (!$user instanceof \App\Models\SysAdmin\User) {
+            return false;
+        }
+
+        return (int) $request->route('id') === $user->id
+            || $user->getAllPermissions()->contains(fn ($permission) => preg_match('/^(chat-m|fulfilment-chat-m|org-admin)\.\d+$/', $permission->name) === 1);
+    }
 
     public function asController($userId): JsonResponse
     {

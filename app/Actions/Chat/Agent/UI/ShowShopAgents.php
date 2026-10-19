@@ -8,6 +8,7 @@
 
 namespace App\Actions\Chat\Agent\UI;
 
+use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Actions\Chat\WithChatScopeNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithCRMAuthorisation;
@@ -21,6 +22,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowShopAgents extends OrgAction
 {
     use WithCRMAuthorisation;
+    use WithChatAgentAuthorisation;
     use WithChatScopeNavigation;
 
     public function handle(Shop $shop): Shop
@@ -52,7 +54,7 @@ class ShowShopAgents extends OrgAction
                         'title' => __('CRM Agent'),
                         'icon'  => ['fal', 'fa-headset'],
                     ],
-                    'actions' => [
+                    'actions' => $this->userSupervisesChatOnOrganisation($request->user(), $shop->organisation) ? [
                         [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -63,7 +65,7 @@ class ShowShopAgents extends OrgAction
                                 'parameters' => [$shop->organisation->slug],
                             ],
                         ],
-                    ],
+                    ] : [],
                 ],
                 'data'   => ChatAgentResource::collection($agents),
             ]

@@ -2,7 +2,7 @@
 import { faCube, faLink } from "@fal"
 import { faFileDownload } from "@fas"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { ref, computed, onMounted, watch } from "vue"
+import { ref, computed, watch } from "vue"
 import { router } from "@inertiajs/vue3"
 import { notify } from "@kyvg/vue3-notification"
 import { ctrans } from "@/Composables/useTrans"
@@ -10,7 +10,6 @@ import { hasSavedVariantOrder, sortVariantOptions } from "@/Composables/useVaria
 import { isArray } from "lodash-es"
 import { getProductRenderDropshippingComponentWorkshop } from "@/Composables/getWorkshopComponents"
 import { resolveProductImages, resolveProductVideo } from "@/Composables/useProductPage"
-import axios from "axios"
 
 library.add(faCube, faLink, faFileDownload)
 
@@ -103,20 +102,6 @@ const saveDescriptions = (key: string, val: string) => {
 }
 
 
-const getAllProductFromVariant = async () => {
-  if (!variant.value?.id) return
-
-  try {
-    const response = await axios.get(
-      route("grp.json.variant.products", {
-        variant: variant.value.id,
-      })
-    )
-    productsList.value = response.data.products ?? []
-  } catch (e) {
-    console.error("getAllProductFromVariant error", e)
-  }
-}
 
 
 
@@ -167,9 +152,6 @@ const changeSelectedProduct = (item: ProductResource) => {
 }
 
 
-onMounted(() => {
-  getAllProductFromVariant()
-})
 
 
 </script>

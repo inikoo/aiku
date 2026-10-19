@@ -30,6 +30,7 @@ use App\Enums\Ordering\Platform\PlatformTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\Platform;
+use App\Actions\Ordering\Transaction\StoreTransaction;
 use App\Models\Ordering\Order;
 use Illuminate\Support\Facades\DB;
 use App\Actions\Dropshipping\Portfolio\StorePortfolio;
@@ -289,6 +290,15 @@ test('retina api dropshipping orders flow', function () {
     $response->assertJsonPath('data.shipping_notes', 'Leave with neighbour');
     $response->assertJsonPath('data.public_notes', 'Please ship fast');
     expect($order->transactions()->where('model_type', 'Charge')->where('model_id', $premiumCharge->id)->exists())->toBeTrue();
+    $response->assertJsonPath('data.has_insurance', false);
+
+    StoreTransaction::run($order, $premiumCharge->historicAsset, ['quantity_ordered' => 1, 'gross_amount' => 5, 'net_amount' => 5], false);
+    patchJson(route('retina.api.dropshipping.order.update', $order), [
+        'is_premium_dispatch' => true,
+    ])->assertOk();
+    expect($order->transactions()->where('model_type', 'Charge')->where('model_id', $premiumCharge->id)->count())->toBe(1);
+
+    StoreTransaction::run($order, $premiumCharge->historicAsset, ['quantity_ordered' => 1, 'gross_amount' => 5, 'net_amount' => 5], false);
 
     $response = patchJson(route('retina.api.dropshipping.order.update', $order), [
         'is_premium_dispatch' => false,

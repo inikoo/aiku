@@ -2361,3 +2361,31 @@ test('family edit needs catalogue edit and the shop dashboard needs a permission
         \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
     }
 });
+
+test('shop and organisation dashboard data answer only staff of the shop or organisation, INI-076', function () {
+    $org  = $this->organisation;
+    $shop = $this->shop;
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $org->group_id, 'status' => true]);
+
+    $shopRoutes = [
+        route('grp.org.shops.show.dashboard.widgets', [$org->slug, $shop->slug, 'only' => 'top_products']),
+        route('grp.org.shops.show.dashboard.tab-data', [$org->slug, $shop->slug, 'tab' => 'sub_departments']),
+        route('grp.org.shops.show.dashboard.changelogs.index', [$org->slug, $shop->slug]),
+    ];
+    $orgTabData = route('grp.org.dashboard.tab-data', [$org->slug, 'tab' => 'shops']);
+
+    actingAsUserWithOnlyPermissions($user, ['goods.view']);
+    foreach ([...$shopRoutes, $orgTabData] as $url) {
+        getJson($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["products.$shop->id.view"]);
+    foreach ($shopRoutes as $url) {
+        getJson($url)->assertOk();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["accounting.$org->id.view"]);
+    foreach ([...$shopRoutes, $orgTabData] as $url) {
+        getJson($url)->assertOk();
+    }
+});

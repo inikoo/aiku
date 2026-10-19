@@ -65,9 +65,23 @@ class GetPalletAuditStoredItems extends OrgAction
             ->withQueryString();
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        $warehouseId = $request->route('storedItemAudit')->warehouse_id;
+
+        return $request->user()->authTo([
+            "fulfilment-shop.{$this->fulfilment->id}.view",
+            "supervisor-fulfilment-shop.{$this->fulfilment->id}",
+            "fulfilment.$warehouseId.view",
+            "supervisor-fulfilment.$warehouseId",
+            "warehouses-view.{$this->organisation->id}",
+        ]);
+    }
+
     public function asController(FulfilmentCustomer $fulfilmentCustomer, StoredItemAudit $storedItemAudit, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
+        abort_unless($storedItemAudit->fulfilment_customer_id === $fulfilmentCustomer->id, 404);
 
         return $this->handle($fulfilmentCustomer, $storedItemAudit);
     }

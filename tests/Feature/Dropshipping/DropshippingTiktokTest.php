@@ -525,7 +525,7 @@ test('uploading a portfolio creates the tiktok product from the category rules a
     $productId = '17295929697122070'.random_int(10, 99);
 
     fakeTiktok([
-        '/categories/recommend' => tiktokOk(['leaf_category_id' => '852312', 'categories' => [['id' => '852312', 'name' => 'Knitwear', 'is_leaf' => true]]]),
+        '/categories/recommend' => tiktokOk(['leaf_category_id' => '852312', 'categories' => [['id' => '852312', 'name' => 'Knitwear', 'is_leaf' => true, 'permission_statuses' => ['AVAILABLE']]]]),
         '/categories/852312/rules' => tiktokOk(['product_certifications' => [['id' => 'CERT-OPT', 'name' => 'Optional cert', 'is_required' => false]], 'responsible_person' => ['is_required' => false]]),
         '/categories/852312/attributes' => tiktokOk(['attributes' => [
             ['id' => '100392', 'name' => 'Pattern', 'is_required' => true, 'is_customizable' => true, 'values' => [['id' => '7001', 'name' => 'Plain'], ['id' => '7002', 'name' => 'No']]],
@@ -576,6 +576,63 @@ test('uploading a portfolio creates the tiktok product from the category rules a
     });
 });
 
+test('a recommended category the seller is not qualified for falls back to a category they can list in', function () {
+    $tiktokUser = tiktokChannel($this->customer);
+    cache()->forget("tiktok_safe_category_$tiktokUser->id");
+
+    fakeTiktok(['/product/202309/products/search' => tiktokOk(['products' => [], 'total_count' => 0])]);
+    $portfolio = StorePortfolio::make()->action($tiktokUser->customerSalesChannel, $this->product, []);
+    $portfolio->update(['sku' => 'RESTRICTED-1', 'customer_price' => 5]);
+
+    $productId = '17295929697122072'.random_int(10, 99);
+
+    fakeTiktok([
+        '/categories/recommend' => tiktokOk(['leaf_category_id' => '900001', 'categories' => [['id' => '900001', 'name' => 'Soap', 'is_leaf' => true, 'permission_statuses' => ['INVITE_ONLY']]]]),
+        '/categories/900001/rules' => tiktokOk(['product_certifications' => []]),
+        '/categories/852312/rules' => tiktokOk(['product_certifications' => []]),
+        '/categories/852312/attributes' => tiktokOk(['attributes' => []]),
+        '/product/202309/categories' => tiktokOk(['categories' => [['id' => '852312', 'name' => 'Knitwear', 'is_leaf' => true, 'permission_statuses' => ['AVAILABLE']]]]),
+        '/product/202309/products/'.$productId => tiktokOk(['id' => $productId, 'status' => 'ACTIVATE', 'external_product_id' => (string) $portfolio->id, 'skus' => [['id' => 'SKU-R', 'seller_sku' => 'RESTRICTED-1']]]),
+        '/product/202309/products' => tiktokOk(['product_id' => $productId, 'skus' => [['id' => 'SKU-R', 'seller_sku' => 'RESTRICTED-1']]]),
+    ]);
+
+    StoreProductToTiktok::run($portfolio);
+
+    Http::assertSent(fn (Request $request) => str_ends_with(parse_url($request->url(), PHP_URL_PATH), '/product/202309/products')
+        && $request->method() === 'POST'
+        && $request->data()['category_id'] === '852312');
+});
+
+test('when the recommendation carries no permissions the seller category list decides the category is restricted', function () {
+    $tiktokUser = tiktokChannel($this->customer);
+    cache()->forget("tiktok_safe_category_$tiktokUser->id");
+
+    fakeTiktok(['/product/202309/products/search' => tiktokOk(['products' => [], 'total_count' => 0])]);
+    $portfolio = StorePortfolio::make()->action($tiktokUser->customerSalesChannel, $this->product, []);
+    $portfolio->update(['sku' => 'RESTRICTED-2', 'customer_price' => 5]);
+
+    $productId = '17295929697122073'.random_int(10, 99);
+
+    fakeTiktok([
+        '/categories/recommend' => tiktokOk(['leaf_category_id' => '900001']),
+        '/categories/900001/rules' => tiktokOk(['product_certifications' => []]),
+        '/categories/852312/rules' => tiktokOk(['product_certifications' => []]),
+        '/categories/852312/attributes' => tiktokOk(['attributes' => []]),
+        '/product/202309/categories' => tiktokOk(['categories' => [
+            ['id' => '900001', 'name' => 'Soap', 'is_leaf' => true, 'permission_statuses' => ['INVITE_ONLY']],
+            ['id' => '852312', 'name' => 'Knitwear', 'is_leaf' => true, 'permission_statuses' => ['AVAILABLE']],
+        ]]),
+        '/product/202309/products/'.$productId => tiktokOk(['id' => $productId, 'status' => 'ACTIVATE', 'external_product_id' => (string) $portfolio->id, 'skus' => [['id' => 'SKU-R2', 'seller_sku' => 'RESTRICTED-2']]]),
+        '/product/202309/products' => tiktokOk(['product_id' => $productId, 'skus' => [['id' => 'SKU-R2', 'seller_sku' => 'RESTRICTED-2']]]),
+    ]);
+
+    StoreProductToTiktok::run($portfolio);
+
+    Http::assertSent(fn (Request $request) => str_ends_with(parse_url($request->url(), PHP_URL_PATH), '/product/202309/products')
+        && $request->method() === 'POST'
+        && $request->data()['category_id'] === '852312');
+});
+
 test('a rejected upload keeps the portfolio unlisted with the tiktok message as the error', function () {
     $tiktokUser = tiktokChannel($this->customer);
 
@@ -586,6 +643,7 @@ test('a rejected upload keeps the portfolio unlisted with the tiktok message as 
     fakeTiktok([
         '/categories/recommend' => tiktokOk(['leaf_category_id' => '600009']),
         '/rules' => tiktokOk(['product_certifications' => []]),
+        '/product/202309/categories' => tiktokOk(['categories' => [['id' => '600009', 'is_leaf' => true, 'permission_statuses' => ['AVAILABLE']]]]),
         '/attributes' => tiktokOk(['attributes' => []]),
         '/product/202309/products/search' => tiktokOk(['products' => [], 'total_count' => 0]),
         '/product/202309/products' => tiktokError(12052901, 'The weight of the product cannot be 0'),

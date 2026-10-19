@@ -504,7 +504,7 @@ test('an eBay orders page that answers with an error imports nothing and does no
         ->and($ebayUser->debugWebhooks()->count())->toBe(0);
 });
 
-function dispatchedEbayOrder($ctx, EbayUser $ebayUser, bool $withShipment = true): Order
+function dispatchedEbayOrder($ctx, EbayUser $ebayUser, bool $withShipment = true, string $shipperName = 'Royal Mail', string $tradeAs = 'Royal Mail'): Order
 {
     $ebayOrder = ebayOrder();
     fakeEbay($ctx, [
@@ -526,7 +526,7 @@ function dispatchedEbayOrder($ctx, EbayUser $ebayUser, bool $withShipment = true
     ]);
 
     if ($withShipment) {
-        $shipper = StoreShipper::make()->action($ctx->organisation, ['code' => 'RM'.Str::random(4), 'name' => 'Royal Mail', 'trade_as' => 'Royal Mail']);
+        $shipper = StoreShipper::make()->action($ctx->organisation, ['code' => 'RM'.Str::random(4), 'name' => $shipperName, 'trade_as' => $tradeAs]);
         StoreShipment::make()->action($deliveryNote, $shipper, ['tracking' => 'RM123456789GB']);
     }
 
@@ -558,6 +558,26 @@ test('dispatching an eBay order uploads the tracking number and dispatched line 
             && filled($body['shippedDate']);
     });
 });
+
+test('the eBay carrier code comes from the carrier the parcel travels with, not the shipper integration name', function (string $shipperName, string $tradeAs, string $carrierCode) {
+    $ebayUser = ebayChannel($this);
+    listedEbayPortfolio($this, $ebayUser);
+    $order = dispatchedEbayOrder($this, $ebayUser, shipperName: $shipperName, tradeAs: $tradeAs);
+
+    fakeEbay($this, [
+        '/shipping_fulfillment' => fn () => Http::response('', 201),
+    ]);
+
+    FulfillOrderToEbay::run($order);
+
+    Http::assertSent(fn (Request $request) => str_contains($request->url(), '/shipping_fulfillment')
+        && $request->data()['shippingCarrierCode'] === $carrierCode);
+})->with([
+    'Royal Mail through ITD' => ['ITD (api)', 'Royal Mail', 'RoyalMail'],
+    'APC overnight'          => ['APC (API)', 'APC overnight', 'APC'],
+    'GLS'                    => ['GLS General Logistics Systems Slovakia s.r.o.', 'GLS', 'GLS'],
+    'carrier eBay has no code for' => ['Paketa', 'Packeta', 'Packeta'],
+]);
 
 test('an eBay order dispatched without a shipment is fulfilled without tracking instead of crashing the dispatch', function () {
     $ebayUser = ebayChannel($this);

@@ -82,7 +82,7 @@ class GetChatMessages
         return [
             'chatSession' => $chatSession,
             'messages' => $messages,
-            'events' => $this->timelineEvents($chatSession, $messages, $validated),
+            'events' => $this->timelineEvents($chatSession, $messages, $validated, $forStaff),
             'pagination' => [
                 'has_more'    => $hasMore,
                 'next_cursor' => $hasMore ? $nextCursor : null,
@@ -209,12 +209,13 @@ class GetChatMessages
     /**
      * Events are windowed to the messages on this page rather than paginated on their
      * own, so loading older messages brings their events along without a second cursor.
-     * Only the agent view gets them: the visitor widget has no business seeing that its
-     * chat was flagged as spam or moved between agents.
+     * Only staff get them: the visitor widget has no business seeing that its chat was flagged
+     * as spam or moved between agents, nor reading the internal notes. This endpoint is public
+     * and the widget itself sends request_from=agent, so the request cannot vouch for itself.
      */
-    protected function timelineEvents(ChatSession $chatSession, Collection $messages, array $filters): Collection
+    protected function timelineEvents(ChatSession $chatSession, Collection $messages, array $filters, bool $forStaff = false): Collection
     {
-        if (($filters['request_from'] ?? null) !== ChatSenderTypeEnum::AGENT->value || $messages->isEmpty()) {
+        if (!$forStaff || ($filters['request_from'] ?? null) !== ChatSenderTypeEnum::AGENT->value || $messages->isEmpty()) {
             return collect();
         }
 

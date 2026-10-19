@@ -8,6 +8,8 @@
 
 namespace App\Models\SupplyChain;
 
+use App\Enums\SupplyChain\AspoDeposit\DepositRequestItemKindEnum;
+use App\Models\Procurement\PurchaseOrder;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,7 +17,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * @property int $id
  * @property int $deposit_request_id
- * @property int $aspo_deposit_id
+ * @property int|null $aspo_deposit_id
+ * @property DepositRequestItemKindEnum $kind
+ * @property int|null $purchase_order_id
  * @property int $organisation_id
  * @property numeric $amount
  * @property numeric $exchange
@@ -29,6 +33,7 @@ class DepositRequestItem extends Model
     protected $guarded = [];
 
     protected $casts = [
+        'kind'     => DepositRequestItemKindEnum::class,
         'amount'   => 'decimal:2',
         'exchange' => 'decimal:6',
         'paid_at'  => 'datetime',
@@ -42,6 +47,11 @@ class DepositRequestItem extends Model
     public function aspoDeposit(): BelongsTo
     {
         return $this->belongsTo(AspoDeposit::class);
+    }
+
+    public function purchaseOrder(): BelongsTo
+    {
+        return $this->belongsTo(PurchaseOrder::class);
     }
 
     public function organisation(): BelongsTo

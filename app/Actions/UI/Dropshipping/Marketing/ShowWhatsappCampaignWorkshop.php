@@ -89,13 +89,17 @@ class ShowWhatsappCampaignWorkshop extends OrgAction
                     ],
                     'method'     => 'post',
                 ],
-                'createTemplateRoute' => [
+                'createTemplateRoute' => $request->user()->authTo([
+                    "chat-m.{$shop->id}",
+                    "crm.{$shop->id}.edit",
+                    "org-admin.{$shop->organisation_id}",
+                ]) ? [
                     'name'       => 'grp.org.shops.show.chat.whatsapp_templates.create',
                     'parameters' => [
                         'organisation' => $shop->organisation->slug,
                         'shop'         => $shop->slug,
                     ],
-                ],
+                ] : null,
                 'templates'    => $this->getTemplates($shop),
                 'mergeTags'    => GetWhatsappTemplateTags::run($shop),
                 'businessName' => $shop->name,

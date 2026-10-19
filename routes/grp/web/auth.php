@@ -18,11 +18,22 @@ use App\Actions\SysAdmin\User\PasswordResetLink;
 use App\Actions\SysAdmin\User\UI\ShowSetNewPassword;
 use App\Actions\SysAdmin\User\UpdateUserPassword;
 use App\Actions\SysAdmin\User\UpdateUserPasswordViaEmail;
+use App\Actions\SupplyChain\SupplierShareLink\SendSupplierShareCode;
+use App\Actions\SupplyChain\SupplierShareLink\UI\ShowSupplierShare;
+use App\Actions\SupplyChain\SupplierShareLink\VerifySupplierShareCode;
+use App\Http\Middleware\LogUserRequestMiddleware;
 use Illuminate\Support\Facades\Route;
 use Laravel\Passkeys\Http\Controllers\PasskeyLoginController;
 use Laravel\Passkeys\Http\Controllers\PasskeyRegistrationController;
 
 Route::post('redirect-unsubscribe/{encryptedDispatchedEmailID}', UnsubscribeMailshot::class)->name('one_click_unsubscribe');
+
+Route::prefix('supplier-share/{token}')->as('supplier_share.')->where(['token' => '[A-Za-z0-9]{48}'])
+    ->middleware('throttle:supplier-share')->withoutMiddleware(LogUserRequestMiddleware::class)->group(function () {
+        Route::get('', ShowSupplierShare::class)->name('show');
+        Route::post('code', SendSupplierShareCode::class)->middleware('throttle:supplier-share-code')->name('send_code');
+        Route::post('verify', VerifySupplierShareCode::class)->middleware('throttle:supplier-share-verify')->name('verify');
+    });
 
 Route::middleware('guest')->group(function () {
     Route::get('resetpassword', ShowResetPassword::class)->name('reset.password');

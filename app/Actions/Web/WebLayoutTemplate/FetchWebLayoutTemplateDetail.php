@@ -10,6 +10,7 @@
 namespace App\Actions\Web\WebLayoutTemplate;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithWebAuthorisation;
 use App\Enums\Web\WebBlockType\WebBlockTemplateEnum;
 use App\Models\Web\WebLayoutTemplate;
 use App\Models\Web\Webpage;
@@ -17,6 +18,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class FetchWebLayoutTemplateDetail extends OrgAction
 {
+    use WithWebAuthorisation;
     public function handle(Webpage $webpage, WebLayoutTemplate $layoutTemplate)
     {
         $ignoredDynamicTemplate = WebBlockTemplateEnum::allTemplateCodes();
@@ -46,7 +48,7 @@ class FetchWebLayoutTemplateDetail extends OrgAction
 
     public function asController(Webpage $webpage, WebLayoutTemplate $layoutTemplate, ActionRequest $request)
     {
-        $this->initialisationFromGroup($webpage->group, $request);
+        $this->initialisationFromShop($webpage->shop, $request);
 
         return $this->handle($webpage, $layoutTemplate);
     }

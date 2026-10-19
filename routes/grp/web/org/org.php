@@ -20,6 +20,8 @@ Route::prefix("marketing")
     ->group(function () {
         Route::get('/', [App\Actions\UI\Marketing\ShowAggregatedMarketingDashboard::class, 'asController'])->name('dashboard');
         Route::get('/channels/{channelType}', [App\Actions\UI\Marketing\ShowAggregatedMarketingChannel::class, 'asController'])->name('channels.show');
+        Route::get('/social-media', [App\Actions\UI\Marketing\ShowSocialMediaDashboard::class, 'asController'])->name('social_media.dashboard');
+        Route::get('/social-media/export', [App\Actions\UI\Marketing\ExportSocialMediaPosts::class, 'asController'])->name('social_media.export');
     });
 
 Route::prefix("hr")

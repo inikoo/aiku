@@ -10,6 +10,7 @@
 namespace App\Actions\Catalogue\Product\Json;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithWebEditAuthorisation;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Http\Resources\Catalogue\ProductsWebpageResource;
 use App\Models\Catalogue\Product;
@@ -22,6 +23,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetProductsInProductCategory extends OrgAction
 {
+    use WithWebEditAuthorisation;
     public function handle(ProductCategory $parent, $prefix = null, $seeAlso = false): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {

@@ -9,6 +9,7 @@ namespace App\Actions\Ordering\Order;
 
 use App\Actions\OrgAction;
 use App\Models\Ordering\Order;
+use Lorisleiva\Actions\ActionRequest;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as PDF;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -43,8 +44,15 @@ class PdfOrderGiftMessage extends OrgAction
     /**
      * @throws \Mpdf\MpdfException
      */
-    public function asController(Order $order): Response
+    public function asController(Order $order, ActionRequest $request): Response
     {
+        $user = $request->user();
+        abort_unless(
+            $user->authTo(["orders.$order->shop_id.view", "orders.$order->shop_id.edit", "crm.$order->shop_id.view", "org-admin.$order->organisation_id"])
+            || $order->deliveryNotes->contains(fn ($deliveryNote) => $deliveryNote->canBeViewedBy($user)),
+            403
+        );
+
         return $this->handle($order);
     }
 }

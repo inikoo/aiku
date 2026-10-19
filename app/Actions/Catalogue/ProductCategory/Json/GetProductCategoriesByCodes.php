@@ -11,6 +11,7 @@ namespace App\Actions\Catalogue\ProductCategory\Json;
 
 use App\Actions\Masters\MasterAsset\Json\WithProductCodesLookup;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithCatalogueAuthorisation;
 use App\Http\Resources\Masters\RelatedMasterProductsCategoriesResource;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
@@ -19,6 +20,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class GetProductCategoriesByCodes extends OrgAction
 {
+    use WithCatalogueAuthorisation;
     use WithProductCodesLookup;
 
     public function handle(Shop $shop, array $codes): AnonymousResourceCollection

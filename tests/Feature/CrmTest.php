@@ -77,6 +77,7 @@ use App\Actions\CRM\Prospect\UpdateProspectEmailSent;
 use App\Actions\CRM\Prospect\UpdateProspectEmailSoftBounced;
 use App\Actions\CRM\Prospect\UpdateProspectEmailUndoUnsubscribed;
 use App\Actions\CRM\Prospect\UpdateProspectEmailUnsubscribed;
+use App\Actions\Comms\Email\SendResetPasswordEmail;
 use App\Actions\CRM\WebUser\DeleteWebUser;
 use App\Actions\CRM\WebUser\HydrateWebUser;
 use App\Actions\CRM\WebUser\StoreWebUser;
@@ -3069,6 +3070,69 @@ test('web registration rejects a bare dial code when the shop requires a phone n
     } finally {
         $this->shop->update(['settings' => $originalSettings]);
     }
+});
+
+function customerWithoutLogin(Website $website): Customer
+{
+    $customer = StoreCustomer::make()->action($website->shop, array_merge(Customer::factory()->definition(), [
+        'email' => 'claim-'.Str::lower(Str::random(8)).'@example.com',
+    ]));
+    $customer->update(['status' => CustomerStatusEnum::APPROVED]);
+
+    return $customer->refresh();
+}
+
+test('asking for a reset link claims the account of a customer that never had a login', function () {
+    if ($this->website->state != WebsiteStateEnum::LIVE) {
+        LaunchWebsite::make()->action($this->website);
+    }
+    DetectWebsiteFromDomain::mock()->shouldReceive('handle')->andReturn($this->website);
+    SendResetPasswordEmail::mock()->shouldReceive('handle')->once();
+    $customer = customerWithoutLogin($this->website);
+
+    auth()->logout();
+    post(route('retina.reset-password.send'), ['email' => Str::upper($customer->email)])->assertSessionHasNoErrors();
+
+    $webUser = $customer->webUsers()->sole();
+    expect($webUser->website_id)->toBe($this->website->id)
+        ->and($webUser->username)->toBe($customer->email)
+        ->and($webUser->email)->toBe($customer->email)
+        ->and($webUser->is_root)->toBeTrue()
+        ->and($webUser->password)->toBeNull();
+});
+
+test('a customer whose login was deleted is not given a new one by a reset request', function () {
+    if ($this->website->state != WebsiteStateEnum::LIVE) {
+        LaunchWebsite::make()->action($this->website);
+    }
+    DetectWebsiteFromDomain::mock()->shouldReceive('handle')->andReturn($this->website);
+    SendResetPasswordEmail::mock()->shouldNotReceive('handle');
+    $customer = customerWithoutLogin($this->website);
+    $webUser  = StoreWebUser::make()->action($customer, ['username' => $customer->email, 'email' => $customer->email, 'is_root' => true], sendRegistrationEmail: false);
+    $webUser->delete();
+
+    auth()->logout();
+    post(route('retina.reset-password.send'), ['email' => $customer->email])->assertSessionHasErrors('email');
+
+    expect($customer->webUsers()->count())->toBe(0);
+});
+
+test('registering with the email of an existing customer points to the reset link', function () {
+    if ($this->website->state != WebsiteStateEnum::LIVE) {
+        LaunchWebsite::make()->action($this->website);
+    }
+    DetectWebsiteFromDomain::mock()->shouldReceive('handle')->andReturn($this->website);
+    $customer = customerWithoutLogin($this->website);
+
+    auth()->logout();
+    post(route('retina.register_from_standalone.store'), [
+        'contact_name'                  => 'Already A Customer',
+        'email'                         => $customer->email,
+        'password'                      => 'password',
+        'is_opt_in'                     => true,
+        'is_whatsapp_newsletter_opt_in' => false,
+        'contact_address'               => Address::factory()->definition(),
+    ])->assertSessionHasErrors(['email' => __('This email already has an account with us. Use "Forgot password" to set a password and log in.')]);
 });
 
 test('a picked tax number country wins over the customer address country', function () {

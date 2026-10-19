@@ -703,6 +703,38 @@ test('previewing a conversation from the inbox list leaves its messages unread',
     expect($guestMessage->refresh()->is_read)->toBeTrue();
 });
 
+test('internal notes reach the staff thread but never the public messages endpoint, even when it asks as an agent', function () {
+    $chatSession = ChatSession::create([
+        'ulid'             => (string)Str::ulid(),
+        'status'           => ChatSessionStatusEnum::WAITING,
+        'guest_identifier' => 'guest_'.Str::random(5),
+        'language_id'      => 68,
+        'priority'         => ChatPriorityEnum::NORMAL,
+        'shop_id'          => $this->shop->id,
+        'ai_model_version' => 'default',
+    ]);
+
+    ChatMessage::create([
+        'chat_session_id' => $chatSession->id,
+        'message_type'    => ChatMessageTypeEnum::TEXT->value,
+        'sender_type'     => ChatSenderTypeEnum::GUEST->value,
+        'message_text'    => 'My card keeps failing',
+        'is_read'         => false,
+    ]);
+
+    StoreChatEvent::make()->internalNote($chatSession, 'Declined by her bank, suggest a pay link');
+
+    $asAgent = route('grp.api.chats.sessions.messages', ['chatSession' => $chatSession->ulid, 'request_from' => ChatSenderTypeEnum::AGENT->value, 'preview' => 1]);
+
+    $this->getJson($asAgent)->assertOk()
+        ->assertJsonCount(0, 'data.events')
+        ->assertDontSee('suggest a pay link');
+
+    $this->actingAs($this->user)->getJson($asAgent)->assertOk()
+        ->assertJsonPath('data.events.0.event_type', ChatEventTypeEnum::INTERNAL_NOTE->value)
+        ->assertJsonPath('data.events.0.note', 'Declined by her bank, suggest a pay link');
+});
+
 test('chat status for a session moved to trash answers not found instead of failing', function () {
     $chatSession = ChatSession::create([
         'ulid'             => (string)Str::ulid(),

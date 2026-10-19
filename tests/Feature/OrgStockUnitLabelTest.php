@@ -157,6 +157,18 @@ test('a field the org stock has no value for is offered unavailable and unticked
         ->and($fields['with_account_signature']['checked'])->toBeFalse();
 });
 
+test('the carton label offers materials only once the trade unit has them, saying why not', function () {
+    $carton = fn ($orgStock) => collect(GetOrgStockLabelOptions::run($orgStock)['fields']['carton'])->keyBy('key')['with_ingredients'];
+
+    $withoutMaterials = $carton(($this->makeOrgStock)([['marketing_ingredients' => null]]));
+    $withMaterials    = $carton(($this->makeOrgStock)([['marketing_ingredients' => 'Cotton, glass']]));
+
+    expect($withoutMaterials['available'])->toBeFalse()
+        ->and($withoutMaterials['reason'])->toBe('This item has no materials')
+        ->and($withMaterials['available'])->toBeTrue()
+        ->and($withMaterials['checked'])->toBeTrue();
+});
+
 test('every Aurora label size and both layouts render a pdf', function () {
     $orgStock = ($this->makeOrgStock)([[
         'name'              => 'Rainbow Moonstone',

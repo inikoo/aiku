@@ -3,6 +3,7 @@
 namespace App\Actions\Web\Announcement\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithWebAuthorisation;
 use App\Enums\Announcement\AnnouncementStatusEnum;
 use App\Http\Resources\Web\AnnouncementsResource;
 use App\Models\Web\Announcement;
@@ -16,6 +17,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class GetActiveAnnouncement extends OrgAction
 {
+    use WithWebAuthorisation;
     use AsAction;
 
     /**
@@ -41,6 +43,8 @@ class GetActiveAnnouncement extends OrgAction
 
     public function asController(Website $website, ActionRequest $request): Collection
     {
+        $this->initialisationFromShop($website->shop, $request);
+
         return $this->handle(
             $website,
             $request->input('position'),

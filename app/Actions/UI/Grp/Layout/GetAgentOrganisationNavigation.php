@@ -42,6 +42,7 @@ class GetAgentOrganisationNavigation
                     $this->procurementSubSection(__('Dashboard'), 'fa-chart-network', 'grp.org.agent.purchase_orders.dashboard', 'grp.org.agent.purchase_orders.dashboard', $organisation),
                     $this->procurementSubSection(__('List'), 'fa-clipboard-list', 'grp.org.agent.purchase_orders.index', 'grp.org.agent.purchase_orders.index', $organisation),
                     $this->procurementSubSection(__('Agent orders'), 'fa-boxes', 'grp.org.agent.purchase_orders.agent_orders', 'grp.org.agent.purchase_orders.agent_orders', $organisation),
+                    $this->procurementSubSection(__('Shared suppliers'), 'fa-people-carry', 'grp.org.agent.purchase_orders.shared_suppliers', 'grp.org.agent.purchase_orders.shared_suppliers', $organisation),
                     $this->procurementSubSection(__('Board'), 'fa-columns', 'grp.org.agent.purchase_orders.board', 'grp.org.agent.purchase_orders.board', $organisation),
                     $this->procurementSubSection(__('Reports'), 'fa-chart-line', 'grp.org.agent.purchase_orders.reports', 'grp.org.agent.purchase_orders.reports', $organisation),
                 ],
@@ -53,8 +54,9 @@ class GetAgentOrganisationNavigation
                 ],
                 'agent_accounting' => [
                     $this->procurementSubSection(__('Dashboard'), 'fa-chart-network', 'grp.org.agent.accounting.dashboard', 'grp.org.agent.accounting.dashboard', $organisation),
+                    $this->procurementSubSection(__('Ledger'), 'fa-book', 'grp.org.agent.accounting.ledger.', 'grp.org.agent.accounting.ledger.index', $organisation),
                     $this->procurementSubSection(__('Deposits'), 'fa-hand-holding-usd', 'grp.org.agent.accounting.deposits.', 'grp.org.agent.accounting.deposits.index', $organisation),
-                    $this->procurementSubSection(__('Deposit requests'), 'fa-money-check-alt', 'grp.org.agent.accounting.deposit_requests.', 'grp.org.agent.accounting.deposit_requests.index', $organisation),
+                    $this->procurementSubSection(__('Money requests'), 'fa-money-check-alt', 'grp.org.agent.accounting.deposit_requests.', 'grp.org.agent.accounting.deposit_requests.index', $organisation),
                     $this->procurementSubSection(__('Invoices'), 'fa-file-invoice', 'grp.org.agent.accounting.invoices.', 'grp.org.agent.accounting.invoices.index', $organisation),
                 ],
             ];

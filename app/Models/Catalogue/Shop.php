@@ -48,6 +48,7 @@ use App\Models\CRM\Appointment;
 use App\Models\CRM\AppointmentType;
 use App\Models\CRM\Poll;
 use App\Models\CRM\Prospect;
+use App\Models\CRM\SocialMediaAccount;
 use App\Models\CRM\TrafficSource;
 use App\Models\CRM\WebUser;
 use App\Models\Discounts\Offer;
@@ -845,6 +846,11 @@ class Shop extends Model implements HasMedia, Auditable
     public function trafficSources(): HasMany
     {
         return $this->hasMany(TrafficSource::class);
+    }
+
+    public function socialMediaAccounts(): HasMany
+    {
+        return $this->hasMany(SocialMediaAccount::class);
     }
 
     public function platformStats(): HasMany

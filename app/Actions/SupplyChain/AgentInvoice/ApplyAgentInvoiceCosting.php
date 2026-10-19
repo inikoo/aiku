@@ -87,12 +87,17 @@ class ApplyAgentInvoiceCosting
             }
 
             foreach ($charges as $charge) {
-                StoreStockDeliveryCost::make()->action($stockDelivery, [
-                    'type'        => StockDeliveryCostTypeEnum::EXTRA->value,
-                    'label'       => $charge['description'],
-                    'amount'      => $charge['amount'],
-                    'received_at' => $receivedAt,
-                ]);
+                $line = ($orgStockId = Arr::get($charge, 'org_stock_id'))
+                    ? $items->first(fn (StockDeliveryItem $item) => $item->org_stock_id === $orgStockId && $item->state !== StockDeliveryItemStateEnum::CANCELLED)
+                    : null;
+
+                StoreStockDeliveryCost::make()->action($stockDelivery, array_filter([
+                    'type'                   => StockDeliveryCostTypeEnum::EXTRA->value,
+                    'label'                  => $charge['description'],
+                    'amount'                 => $charge['amount'],
+                    'received_at'            => $receivedAt,
+                    'stock_delivery_item_id' => $line?->id,
+                ], fn ($value) => $value !== null));
             }
 
             $invoice     = [

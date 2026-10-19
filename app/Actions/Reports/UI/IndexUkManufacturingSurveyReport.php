@@ -3,6 +3,7 @@
 namespace App\Actions\Reports\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithOrgReportsAuthorisation;
 use App\Actions\UI\Reports\IndexReports;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
@@ -12,6 +13,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class IndexUkManufacturingSurveyReport extends OrgAction
 {
+    use WithOrgReportsAuthorisation;
     use AsAction;
 
     public function asController(Organisation $organisation, ActionRequest $request): Organisation
