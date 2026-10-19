@@ -2801,3 +2801,30 @@ test('a staff password is reset only with a valid reset token for that email, IN
     $this->patch($url, ['email' => $user->email, 'password' => 'new-password-2', 'token' => $token])->assertSessionHasErrors('token');
     expect(Hash::check('new-password-1', $user->refresh()->password))->toBeTrue();
 });
+
+test('the staff reset email links to the set new password page and its token resets the password, and an unknown email is answered the same, INI-076', function () {
+    \Illuminate\Support\Facades\Notification::fake();
+
+    $group = createGroup();
+    $user  = User::factory()->create(['group_id' => $group->id, 'status' => true, 'email' => 'forgot-'.uniqid().'@example.com', 'password' => 'old-password']);
+
+    $this->post(route('grp.password.email'), ['email' => 'nobody-'.uniqid().'@example.com'])->assertSessionHasNoErrors();
+    \Illuminate\Support\Facades\Notification::assertNothingSent();
+
+    $this->post(route('grp.password.email'), ['email' => $user->email])->assertSessionHasNoErrors();
+
+    $url = null;
+    \Illuminate\Support\Facades\Notification::assertSentTo($user, \Illuminate\Auth\Notifications\ResetPassword::class, function ($notification) use ($user, &$url) {
+        $url = $notification->toMail($user)->actionUrl;
+
+        return true;
+    });
+
+    expect(strtok($url, '?'))->toBe(route('grp.email.reset-password.show'));
+    parse_str((string) parse_url($url, PHP_URL_QUERY), $query);
+    expect($query['email'])->toBe($user->email);
+
+    $this->get($url)->assertOk();
+    $this->patch(route('grp.reset-password.email.update'), ['email' => $query['email'], 'password' => 'brand-new-password', 'token' => $query['token']])->assertSessionHasNoErrors();
+    expect(Hash::check('brand-new-password', $user->refresh()->password))->toBeTrue();
+});

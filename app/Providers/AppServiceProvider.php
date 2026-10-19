@@ -13,6 +13,9 @@ use App\Services\GeocoderService;
 use App\Services\Translation;
 use Gnikyt\BasicShopifyAPI\BasicShopifyAPI;
 use Gnikyt\BasicShopifyAPI\Options;
+use App\Models\SysAdmin\User;
+use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Console\Events\CommandStarting;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Queue\Events\JobProcessing;
@@ -126,6 +129,24 @@ class AppServiceProvider extends ServiceProvider
     {
         ini_set('pcre.backtrack_limit', '10000000');
         ini_set('pcre.recursion_limit', '10000000');
+
+        ResetPassword::toMailUsing(function (User $user, string $token): MailMessage {
+            $message = (new MailMessage())
+                ->subject(__('Reset your Aiku password'))
+                ->line(__('You are receiving this email because we received a password reset request for your account.'))
+                ->action(__('Reset Password'), route('grp.email.reset-password.show', [
+                    'token' => $token,
+                    'email' => $user->getEmailForPasswordReset(),
+                ]))
+                ->line(__('This password reset link will expire in :count minutes.', ['count' => config('auth.passwords.users.expire')]))
+                ->line(__('If you did not request a password reset, no further action is required.'));
+
+            if (app()->isProduction()) {
+                $message->mailer('ses')->from('help@aiku.io', 'Aiku');
+            }
+
+            return $message;
+        });
 
         Paginator::queryStringResolver(function (): array {
             parse_str((string) request()->server('QUERY_STRING'), $queryString);

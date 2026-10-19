@@ -44,7 +44,7 @@ Route::middleware('guest')->group(function () {
     Route::post('passkeys/login', [PasskeyLoginController::class, 'store'])->middleware('throttle:6,1')->name('passkey.login');
 
     Route::get('reset-password', ShowSetNewPassword::class)->name('email.reset-password.show');
-    Route::post('reset/password/link', PasswordResetLink::class)->name('password.email');
+    Route::post('reset/password/link', PasswordResetLink::class)->middleware('throttle:6,1')->name('password.email');
     Route::patch('reset/password/email', UpdateUserPasswordViaEmail::class)->middleware('throttle:6,1')->name('reset-password.email.update');
 
     Route::get('redirect-unsubscribe/{encryptedDispatchedEmailID}', RedirectUnsubscribe::class)->name('redirect_unsubscribe');
