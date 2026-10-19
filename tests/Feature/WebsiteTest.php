@@ -4134,3 +4134,36 @@ test('store website page view looks an unknown path up once, then remembers ther
 
     expect($lookups)->toHaveCount(1);
 })->depends('create webpage');
+
+test('website json lookups answer staff of the shop and refuse staff from elsewhere, INI-076', function (Website $website) {
+    $shop     = $website->shop;
+    $webpage  = $website->webpages()->firstOrFail();
+    $template = \App\Models\Web\WebLayoutTemplate::create([
+        'name'     => 'Json permissions template',
+        'scope'    => 'Webpage',
+        'type'     => $webpage->type->value,
+        'sub_type' => $webpage->sub_type->value,
+        'blocks'   => [['type' => 'overview-1']],
+    ]);
+
+    $routes = [
+        route('grp.json.webpages_for_workshop_select', $website),
+        route('grp.json.announcement_active.index', $website),
+        route('grp.json.announcement_simulation.index', $website),
+        route('grp.json.template_layouts.index', $webpage->id),
+        route('grp.json.template_layouts.detail', [$webpage->id, $template->id]),
+        route('grp.json.shop.products.no-webpage', $shop->id),
+    ];
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $shop->group_id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ['goods.view']);
+    foreach ($routes as $url) {
+        getJson($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["web.$shop->id.view"]);
+    foreach ($routes as $url) {
+        getJson($url)->assertOk();
+    }
+})->depends('launch website');

@@ -103,6 +103,9 @@ use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Procurement\PurchaseOrder;
+use App\Models\SupplyChain\AgentPayment;
+use App\Enums\SupplyChain\AgentPayment\AgentPaymentTypeEnum;
+use App\Actions\SupplyChain\AgentPayment\ImportAgentLedgerExcel;
 use App\Models\Procurement\PurchaseOrderTransaction;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
@@ -1383,6 +1386,128 @@ test('payments to an agent carry their method and bank statement, and the agent 
     $this->post(route('grp.models.purchase-order.payment.confirm', $purchaseOrder->id), ['amount' => 500, 'paid_at' => date('Y-m-d'), 'method' => 'bank_transfer', 'bank_statement' => $statement('dep.pdf')])
         ->assertRedirect()->assertSessionHasNoErrors();
     expect($purchaseOrder->refresh()->deposit_paid_by_id)->toBe($agentClerk->id);
+
+    actingAs($this->adminGuest->getUser());
+});
+
+test('the agent keeps each client\'s money in a ledger: transfers in, supplier payments and expenses out, and the wallet balance worked out from them (HELP-4097)', function () {
+    $stockDelivery = createStockDeliveryWithItems($this, 'AGENT-LEDGER-'.Str::random(6), [10]);
+    $stockDelivery->updateQuietly(['agent_id' => $this->agent->id]);
+    [$orgSupplier] = createAgentOrgSupplierWithProduct($this);
+    $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, array_merge(PurchaseOrder::factory()->definition(), ['reference' => 'AGENT-LEDGER-'.uniqid()]), strict: false);
+    $purchaseOrder->update(['state' => PurchaseOrderStateEnum::SUBMITTED]);
+
+    setPermissionsTeamId($this->group->id);
+    actingAs(agentPaymentsClerk($this->agent->organisation));
+
+    $ledger     = route('grp.org.agent.accounting.ledger.index', $this->agent->organisation->slug);
+    $walletOf   = fn () => collect($this->get($ledger)->assertOk()->viewData('page')['props']['wallets'])
+        ->first(fn (array $wallet) => $wallet['organisation_id'] === $this->organisation->id && $wallet['currency_code'] === $this->agent->organisation->currency->code)
+        ?? ['received' => 0, 'paid' => 0, 'balance' => 0];
+    $before     = $walletOf();
+    $storeRoute = route('grp.models.agent.ledger_entry.store', $this->agent->id);
+    $entry      = ['organisation_id' => $this->organisation->id, 'date' => date('Y-m-d')];
+
+    $this->post($storeRoute, $entry + ['type' => 'transfer_received', 'amount' => 10000, 'original_amount' => 1300, 'reference' => 'TT-LEDGER'])->assertSessionHasNoErrors();
+    $this->post($storeRoute, $entry + ['type' => 'supplier_deposit', 'amount' => 3000])->assertSessionHasErrors('purchase_order_id');
+    $this->post($storeRoute, $entry + ['type' => 'supplier_deposit', 'amount' => 3000, 'purchase_order_id' => $purchaseOrder->id])->assertSessionHasNoErrors();
+    $this->post($storeRoute, $entry + ['type' => 'packaging', 'amount' => 500, 'stock_delivery_id' => $stockDelivery->id, 'notes' => 'Hang tags'])->assertSessionHasNoErrors();
+    $this->post($storeRoute, ['organisation_id' => $this->agent->organisation_id, 'date' => date('Y-m-d'), 'type' => 'packaging', 'amount' => 1])->assertSessionHasErrors('organisation_id');
+
+    $transfer = AgentPayment::where('agent_id', $this->agent->id)->where('reference', 'TT-LEDGER')->latest('id')->firstOrFail();
+    $deposit  = AgentPayment::where('purchase_order_id', $purchaseOrder->id)->firstOrFail();
+    expect((float) $transfer->original_amount)->toBe(1300.0)
+        ->and($transfer->original_currency_id)->toBe($this->organisation->currency_id)
+        ->and($transfer->currency_id)->toBe($this->agent->organisation->currency_id)
+        ->and($deposit->supplier_id)->toBe($purchaseOrder->supplier_id)
+        ->and($stockDelivery->agentPayments()->count())->toBe(0)
+        ->and($stockDelivery->agentLedgerEntries()->count())->toBe(1);
+
+    $after = $walletOf();
+    expect($after['received'] - $before['received'])->toEqual(10000)
+        ->and($after['paid'] - $before['paid'])->toEqual(3500)
+        ->and($after['balance'] - $before['balance'])->toEqual(6500);
+
+    $this->get($ledger.'?filter[global]=TT-LEDGER')->assertInertia(fn (AssertableInertia $page) => $page
+        ->component('Org/Procurement/AgentLedger')
+        ->where('data.data.0.money_in', fn ($amount) => (float) $amount === 10000.0)
+        ->where('data.data.0.delete_route.name', 'grp.models.agent_payment.delete'));
+
+    actingAs($this->adminGuest->getUser());
+});
+
+test('an agent\'s Excel balance sheet comes into the ledger as opening lines plus one line per row, with the rows to review flagged, and only when applied (HELP-4097)', function () {
+    $orgAgent      = createFreshOrgAgent($this);
+    $agent         = $orgAgent->agent;
+    $orderNumber   = (string) random_int(100000, 999999);
+    [$orgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this, $orgAgent);
+    $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, []);
+    StorePurchaseOrderTransaction::make()->action($purchaseOrder, $orgSupplierProduct->supplierProduct->historicSupplierProduct, $this->orgStocks[0], array_merge(PurchaseOrderTransaction::factory()->definition(), ['quantity_ordered' => 3]));
+    $purchaseOrder->update(['agent_order_reference' => "LEDGER-$orderNumber", 'date' => '2026-01-20']);
+
+    $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+    $balance     = $spreadsheet->getActiveSheet()->setTitle('Balance');
+    $balance->setCellValue('I1', 3680);
+    $balance->fromArray([
+        ['2025-12-01', 1000, null, 'Notes / Exchange rate', null, null, null, null, null, null],
+        ['2025-12-05', null, 400, 'payment to shop', null, null, null, null, 'OLD', '12'],
+        ['2026-02-01', 5000, null, 'Notes / Exchange rate', null, null, null, 'TT-5000', null, null],
+        ['2026-02-03', null, 1200, 'payment to shop', null, null, null, null, $this->orgStocks[0]->code, $orderNumber],
+        ['2026-02-04', null, 300, 'payment to shop', null, null, null, null, 'ZZZ-NONE', $orderNumber],
+        [null, null, 200, 'Hang tags', 1, 200, null, null, null, null],
+        ['2026-02-05', null, 100, 'inland charge -999999', null, null, 100, null, null, null],
+        ['2026-02-06', null, 50, 'Taxi to the factory', null, null, 50, null, null, null],
+        ['2026-02-07', null, 70, 'payment to shop', null, null, null, null, $this->orgStocks[0]->code, '777'],
+    ], null, 'A7');
+    $fund = $spreadsheet->createSheet()->setTitle('Fund');
+    $fund->fromArray([['2026-01-30', 650, 'EURO', null, null, 5000]], null, 'A5');
+    $path = tempnam(sys_get_temp_dir(), 'ledger').'.xlsx';
+    (new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet))->save($path);
+
+    $import = fn (bool $apply) => ImportAgentLedgerExcel::make()->handle($agent, $this->organisation, $path, Carbon::parse('2026-01-01'), 'LEDGER-#', $apply);
+
+    $dryRun = $import(false);
+    expect(AgentPayment::where('agent_id', $agent->id)->count())->toBe(0)
+        ->and($dryRun['rows'])->toBe(9)
+        ->and($dryRun['opening'])->toBe(['received' => 1000.0, 'paid' => 400.0])
+        ->and($dryRun['balance'])->toBe(3680.0)
+        ->and($dryRun['excel_balance'])->toBe(3680.0);
+
+    $import(true);
+    $lines = AgentPayment::where('agent_id', $agent->id)->where('organisation_id', $this->organisation->id)->get()->keyBy(fn (AgentPayment $line) => $line->data['row'] ?? ($line->type->isMoneyIn() ? 'opening_in' : 'opening_out'));
+
+    expect($lines)->toHaveCount(9)
+        ->and((float) $lines['opening_in']->amount)->toBe(1000.0)
+        ->and($lines['opening_in']->date->toDateString())->toBe('2025-12-31')
+        ->and((float) $lines[9]->original_amount)->toBe(650.0)
+        ->and($lines[10]->type)->toBe(AgentPaymentTypeEnum::SUPPLIER_PAYMENT)
+        ->and($lines[10]->purchase_order_id)->toBe($purchaseOrder->id)
+        ->and($lines[10]->needs_review)->toBeFalse()
+        ->and($lines[11]->review_reason)->toBe('Not tied to one order')
+        ->and($lines[12]->type)->toBe(AgentPaymentTypeEnum::PACKAGING)
+        ->and($lines[12]->review_reason)->toBe('No date in the Excel')
+        ->and($lines[12]->date->toDateString())->toBe('2026-02-04')
+        ->and($lines[13]->type)->toBe(AgentPaymentTypeEnum::INLAND_CHARGE)
+        ->and($lines[14]->review_reason)->toBe('Expense type unclear')
+        ->and($lines[15]->purchase_order_id)->toBe($purchaseOrder->id)
+        ->and($lines[15]->data['linked_by'])->toBe('code')
+        ->and($lines[15]->needs_review)->toBeFalse()
+        ->and(fn () => $import(true))->toThrow(Exception::class);
+
+    setPermissionsTeamId($this->group->id);
+    actingAs(agentOrganisationAdmin($agent->organisation, 'agt-lg-'.Str::lower(Str::random(6))));
+
+    $update = route('grp.models.agent_payment.update', $lines[11]->id);
+    $this->patch($update, ['date' => '2026-02-04', 'type' => 'transfer_received'])->assertSessionHasErrors('type');
+    $this->patch($update, ['date' => '2026-02-04', 'type' => 'supplier_payment'])->assertSessionHasErrors('purchase_order_id');
+    $this->patch($update, ['date' => '2026-02-04', 'type' => 'supplier_payment', 'purchase_order_id' => $purchaseOrder->id])->assertSessionHasNoErrors();
+
+    expect($lines[11]->refresh()->needs_review)->toBeFalse()
+        ->and($lines[11]->supplier_id)->toBe($purchaseOrder->supplier_id)
+        ->and((float) $lines[11]->amount)->toBe(300.0);
+
+    $this->get(route('grp.org.agent.accounting.ledger.index', [$agent->organisation->slug, 'elements' => ['review' => 'needs_review']]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->has('data.data', 2));
 
     actingAs($this->adminGuest->getUser());
 });

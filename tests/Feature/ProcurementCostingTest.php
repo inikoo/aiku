@@ -439,10 +439,17 @@ test('incoming stock tells the customer when an out of stock product is expected
         ->and(GetProductIncomingStock::make()->earliestEta($product))->toBeNull();
 
     $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition());
-    $purchaseOrder->update(['data' => array_merge($purchaseOrder->data ?? [], ['estimated_receiving_date' => now()->addDays(30)->toDateString()])]);
+    $purchaseOrder->update(['estimated_received_at' => now()->addDays(45)]);
     $stockDelivery->purchaseOrders()->syncWithoutDetaching([$purchaseOrder->id]);
 
-    expect(GetProductIncomingStock::make()->earliestEta($product))->toBe(now()->addDays(30)->toDateString());
+    expect(GetProductIncomingStock::make()->earliestIncoming($product))->toBe(['eta' => now()->addDays(45)->toDateString(), 'is_estimate' => true]);
+
+    $purchaseOrder->update([
+        'estimated_received_at' => now()->addDays(30),
+        'data'                  => array_merge($purchaseOrder->data ?? [], ['estimated_receiving_date' => now()->addDays(30)->toDateString()]),
+    ]);
+
+    expect(GetProductIncomingStock::make()->earliestIncoming($product))->toBe(['eta' => now()->addDays(30)->toDateString(), 'is_estimate' => false]);
 
     $expectedEta = now()->addDays(9)->toDateString();
     $stockDelivery->update(['data' => array_merge($stockDelivery->data ?? [], ['estimated_receiving_date' => $expectedEta])]);
@@ -493,7 +500,8 @@ test('incoming stock tells the customer when an out of stock product is expected
     $product->update(['available_quantity' => 0]);
     $productCards = \App\Http\Resources\Catalogue\IrisAuthenticatedProductsInWebpageResource::collection(collect([$product->fresh()]))->resolve();
 
-    expect($productCards[0]['expected_back_in_stock_at'])->toBe($expectedEta);
+    expect($productCards[0]['expected_back_in_stock_at'])->toBe($expectedEta)
+        ->and($productCards[0]['expected_back_in_stock_is_estimate'])->toBeFalse();
 });
 
 test('a partly delivered purchase order still shows the lines that are not in the delivery', function () {
@@ -797,6 +805,38 @@ test('stock delivery pdf is not found under another organisation', function () {
 
     $this->get(route('grp.org.procurement.stock_deliveries.pdf', [$otherOrganisation->slug, $this->stockDelivery->slug]))
         ->assertNotFound();
+});
+
+test('an agent cannot open the pdf of a container that is not theirs', function () {
+    $agentOrganisation = createFreshOrgAgent($this)->agent->organisation;
+    actingAs(agentOrganisationAdmin($agentOrganisation, 'agt-sd-'.Str::lower(Str::random(6))));
+
+    $this->get(route('grp.org.agent.stock_deliveries.pdf', [$agentOrganisation->slug, $this->stockDelivery->slug]))
+        ->assertNotFound();
+
+    actingAs($this->adminGuest->getUser());
+});
+
+test('an agent opens a client\'s supplier message only when it was exchanged with that agent', function () {
+    $orgAgent          = createFreshOrgAgent($this);
+    $agentOrganisation = $orgAgent->agent->organisation;
+
+    $clientMessage = fn (array $counterpart) => \App\Models\Procurement\SupplierMessage::create($counterpart + [
+        'group_id'        => $this->organisation->group_id,
+        'organisation_id' => $this->organisation->id,
+        'direction'       => \App\Enums\Procurement\SupplierMessage\SupplierMessageDirectionEnum::INBOUND,
+        'subject'         => 'Client message '.Str::random(6),
+        'sent_at'         => now(),
+    ]);
+    $withTheAgent   = $clientMessage(['org_agent_id' => $orgAgent->id]);
+    $withASupplier  = $clientMessage(['supplier_id' => $this->orgSupplier->supplier_id, 'org_supplier_id' => $this->orgSupplier->id]);
+
+    actingAs(agentOrganisationAdmin($agentOrganisation, 'agt-sm-'.Str::lower(Str::random(6))));
+
+    $this->get(route('grp.org.agent.supplier_messages.show', [$agentOrganisation->slug, $withTheAgent->id]))->assertOk();
+    $this->get(route('grp.org.agent.supplier_messages.show', [$agentOrganisation->slug, $withASupplier->id]))->assertNotFound();
+
+    actingAs($this->adminGuest->getUser());
 });
 
 test('stock delivery pdf is forbidden without procurement permission', function () {

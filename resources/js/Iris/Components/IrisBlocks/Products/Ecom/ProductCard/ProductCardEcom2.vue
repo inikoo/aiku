@@ -118,7 +118,7 @@ defineExpose({
                         <Image v-if="product?.web_images?.main?.gallery" :src="product?.web_images?.main?.gallery" :sizes="imageSizes"
                             :alt="product.name" :style="{
                                 objectFit: 'contain',
-                                opacity: product.stock > 0 ? 1 : 0.4
+                                opacity: product.stock > 0 || product.pre_order ? 1 : 0.4
                             }" />
 
                          <FontAwesomeIcon v-else icon="fal fa-image"
@@ -127,7 +127,7 @@ defineExpose({
 
 
                        <div
-                            v-if="!product.stock > 0"
+                            v-if="!(product.stock > 0) && !product.pre_order"
                             class="absolute inset-0 z-10 flex items-center justify-center rounded-xl pointer-events-none"
                         >
                             <div
@@ -211,17 +211,17 @@ defineExpose({
             </div>
 
              <div v-if="layout?.iris?.is_logged_in" class="flex items-center justify-start px-1">
-                <LabelComingSoon v-if="product.is_coming_soon" :product class="w-fit text-center w-fit text-xs" />
+                <LabelComingSoon v-if="product.is_coming_soon && !product.pre_order" :product class="w-fit text-center w-fit text-xs" />
                 <div v-else
                     class="flex items-start gap-1 px-2 py-1 rounded-xl font-semibold max-w-[10rem] break-words leading-snug"
-                    :class="product.stock ? 'text-green-700' : 'text-red-600'">
+                    :class="product.stock ? 'text-green-700' : (product.pre_order ? 'text-amber-700' : 'text-red-600')">
 
                     <span class="flex items-center gap-1 text-xs md:w-full " :class="!product?.stock >= 250 ? 'w-full' : 'w-[90%]'">
                        <!--  <FontAwesomeIcon :icon="faCircle" class="text-[6px] shrink-0" /> -->
                         <span>
                            {{ product?.stock >= 250
                                     ? ctrans("Unlimited quantity available")
-                                    : (product.stock > 0 ?   ` ${product.stock} ${ctrans("available")}` : ctrans("Out Of Stock"))
+                                    : (product.stock > 0 ?   ` ${product.stock} ${ctrans("available")}` : (product.pre_order ? `${product.pre_order.available_label} · ${product.pre_order.dispatch_label}` : ctrans("Out Of Stock")))
                                 }}
                         </span>
                     </span>
@@ -257,7 +257,7 @@ defineExpose({
                     <template v-if="layout?.iris?.is_logged_in && !product.variant">
                         <!-- In stock -->
                         <NewAddToCartButton
-                            v-if="product.stock > 0 && basketButton && !product.is_coming_soon"
+                            v-if="((product.stock > 0 && !product.is_coming_soon) || product.pre_order) && basketButton"
                             :hasInBasket="hasInBasket"
                             :product="product"
                             :addToBasketRoute="addToBasketRoute"
@@ -270,7 +270,7 @@ defineExpose({
 
                         <!-- Back in stock notify -->
                          
-                        <button v-else-if="!product.stock && layout?.outboxes?.oos_notification?.state == 'active' && !product.variant" @click.prevent="toggleBackInStock"
+                        <button v-else-if="!product.stock && !product.pre_order && layout?.outboxes?.oos_notification?.state == 'active' && !product.variant" @click.prevent="toggleBackInStock"
                             class="rounded-full bg-gray-200 hover:bg-gray-300 h-10 w-10 flex items-center justify-center transition-all shadow-lg"
                             v-tooltip="product.is_back_in_stock
                                 ? ctrans('You will be notified')

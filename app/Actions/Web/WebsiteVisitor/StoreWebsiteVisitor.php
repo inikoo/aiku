@@ -32,8 +32,7 @@ class StoreWebsiteVisitor
         array $geoLocation
     ): WebsiteVisitor {
 
-        $ipHash      = hash('sha256', $ip.config('app.key'));
-        $visitorHash = hash('sha256', $ipHash.$userAgent);
+        ['ip_hash' => $ipHash, 'visitor_hash' => $visitorHash] = self::hashVisitor($ip, $userAgent);
 
         $isNewVisitor = !WebsiteVisitor::where('visitor_hash', $visitorHash)
             ->where('website_id', $website->id)
@@ -73,5 +72,18 @@ class StoreWebsiteVisitor
         Cache::put($cacheKey, $visitor, 1800);
 
         return $visitor;
+    }
+
+    /**
+     * @return array{ip_hash: string, visitor_hash: string}
+     */
+    public static function hashVisitor(string $ip, string $userAgent): array
+    {
+        $ipHash = hash('sha256', $ip.config('app.key'));
+
+        return [
+            'ip_hash'      => $ipHash,
+            'visitor_hash' => hash('sha256', $ipHash.$userAgent),
+        ];
     }
 }

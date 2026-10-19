@@ -8,6 +8,8 @@
 
 namespace App\Actions\CRM\WebUser;
 
+use App\Actions\Web\WebsiteVisitor\LinkAnonymousVisitorsToWebUser;
+use App\Actions\Web\WebsiteVisitor\StoreWebsiteVisitor;
 use App\Actions\Web\WebsiteVisitor\UI\GetBrowserInfo;
 use App\Models\CRM\WebUser;
 use Illuminate\Support\Carbon;
@@ -42,6 +44,13 @@ class LogWebUserLogin
         ];
 
         $webUser->stats()->update($stats);
+
+        LinkAnonymousVisitorsToWebUser::run(
+            $webUser,
+            $webUser->website_id,
+            StoreWebsiteVisitor::hashVisitor($ip, $userAgent)['visitor_hash'],
+            until: $datetime
+        );
     }
 
 

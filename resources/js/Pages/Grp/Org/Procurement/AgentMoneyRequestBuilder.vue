@@ -1,0 +1,237 @@
+<!--
+  - Author: Raul Perusquia <raul@inikoo.com>
+  - Created: Mon, 19 Oct 2026 Malaysia Time, Kuala Lumpur, Malaysia
+  - Copyright (c) 2026, Raul A Perusquia Flores
+  -->
+
+<script setup lang="ts">
+import { computed, reactive, ref, watch } from "vue"
+import { Head, router } from "@inertiajs/vue3"
+import { notify } from "@kyvg/vue3-notification"
+import Checkbox from "primevue/checkbox"
+import InputNumber from "primevue/inputnumber"
+import InputText from "primevue/inputtext"
+import Select from "primevue/select"
+import Textarea from "primevue/textarea"
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { faPaperPlane } from "@fal"
+import PageHeading from "@/Components/Headings/PageHeading.vue"
+import Button from "@/Components/Elements/Buttons/Button.vue"
+import { capitalize } from "@/Composables/capitalize"
+import { ctrans } from "@/Composables/useTrans"
+import { useLocaleStore } from "@/Stores/locale"
+import { PageHeadingTypes } from "@/types/PageHeading"
+import { routeType } from "@/types/route"
+
+library.add(faPaperPlane)
+
+interface DueOrder {
+	purchase_order_id: number
+	reference: string
+	agent_order_reference: string | null
+	supplier_id: number | null
+	supplier_code: string | null
+	supplier_name: string | null
+	total: number
+	requested: number
+	advance_percentage: number
+	advance_due: number
+	balance_due: number
+}
+
+const props = defineProps<{
+	title: string
+	pageHead: PageHeadingTypes
+	clients: { slug: string; label: string }[]
+	client: { id: number; slug: string; code: string }
+	agent_order: string | null
+	due: {
+		currency_code: string
+		wallet: { received: number; paid: number; balance: number }
+		negative_balance: number
+		orders: DueOrder[]
+	}
+	store_route: routeType
+	advance_route_name: string
+}>()
+
+const locale = useLocaleStore()
+const money = (amount: number) => locale.currencyFormat(props.due.currency_code, amount)
+const fieldFocusClass = "[&.p-focus]:!border-[--app-accent] [&_input:focus]:!border-[--app-accent] focus:!border-[--app-accent]"
+
+interface Line {
+	key: string
+	kind: "advance" | "balance" | "wallet"
+	purchase_order_id: number | null
+	due: number
+}
+
+const lines = computed<Line[]>(() => [
+	...(props.due.negative_balance > 0 ? [{ key: "wallet", kind: "wallet" as const, purchase_order_id: null, due: props.due.negative_balance }] : []),
+	...props.due.orders.flatMap((order) => [
+		...(order.advance_due > 0 ? [{ key: `advance:${order.purchase_order_id}`, kind: "advance" as const, purchase_order_id: order.purchase_order_id, due: order.advance_due }] : []),
+		...(order.balance_due > 0 ? [{ key: `balance:${order.purchase_order_id}`, kind: "balance" as const, purchase_order_id: order.purchase_order_id, due: order.balance_due }] : []),
+	]),
+])
+
+const ticked = reactive<Record<string, boolean>>({})
+const amounts = reactive<Record<string, number | null>>({})
+
+watch(
+	lines,
+	(current) => {
+		current.forEach((line) => {
+			if (!(line.key in ticked)) ticked[line.key] = line.kind !== "balance"
+			amounts[line.key] = line.due
+		})
+	},
+	{ immediate: true }
+)
+
+const percentages = reactive<Record<number, number | null>>({})
+watch(
+	() => props.due.orders,
+	(orders) => orders.forEach((order) => (percentages[order.purchase_order_id] = order.advance_percentage)),
+	{ immediate: true }
+)
+
+const orderOf = (purchaseOrderId: number | null) => props.due.orders.find((order) => order.purchase_order_id === purchaseOrderId)
+
+const chosen = computed(() => lines.value.filter((line) => ticked[line.key] && Number(amounts[line.key]) > 0))
+const total = computed(() => chosen.value.reduce((sum, line) => sum + Number(amounts[line.key]), 0))
+
+const reference = ref(props.agent_order ?? "")
+const notes = ref("")
+const sending = ref(false)
+
+const switchClient = (slug: string) =>
+	router.get(route(route().current() as string, { ...route().params, client: slug }), {}, { preserveScroll: true })
+
+const saveAdvance = (order: DueOrder, percentage: number | null) => {
+	if (!order.supplier_id || percentage === order.advance_percentage) return
+	router.patch(route(props.advance_route_name, { supplier: order.supplier_id }), { advance_percentage: percentage }, {
+		preserveScroll: true,
+		preserveState: true,
+		onSuccess: () => notify({ title: ctrans(":supplier asks :percentage% in advance from now on", { supplier: order.supplier_code ?? "", percentage: String(percentage ?? 30) }), type: "success" }),
+	})
+}
+
+const send = () => {
+	if (!chosen.value.length) return
+	router.post(
+		route(props.store_route.name, props.store_route.parameters),
+		{
+			organisation_id: props.client.id,
+			reference: reference.value || null,
+			notes: notes.value || null,
+			lines: chosen.value.map((line) => ({ kind: line.kind, purchase_order_id: line.purchase_order_id, amount: Number(amounts[line.key]) })),
+		},
+		{
+			onStart: () => (sending.value = true),
+			onFinish: () => (sending.value = false),
+			onSuccess: () => notify({ title: ctrans("Money request sent to :client", { client: props.client.code }), type: "success" }),
+			onError: (errors) => notify({ title: ctrans("Something went wrong"), text: Object.values(errors ?? {})[0] as string, type: "error" }),
+		}
+	)
+}
+</script>
+
+<template>
+	<Head :title="capitalize(title)" />
+	<PageHeading :data="pageHead" />
+
+	<div class="mx-4 mt-4 flex flex-wrap items-end gap-4">
+		<label class="block text-sm">
+			<span class="text-gray-600">{{ ctrans("Client") }}</span>
+			<Select :modelValue="client.slug" :options="clients" optionLabel="label" optionValue="slug" class="mt-1 w-72" :class="fieldFocusClass" @update:modelValue="switchClient" />
+		</label>
+		<div class="rounded-lg border border-gray-200 bg-white px-4 py-2">
+			<div class="text-xs text-gray-400">{{ ctrans("Wallet balance") }}</div>
+			<div class="font-semibold" :class="due.wallet.balance < 0 ? 'text-red-600' : 'text-gray-800'">{{ money(due.wallet.balance) }}</div>
+		</div>
+		<div v-if="agent_order" class="text-sm text-gray-500">{{ ctrans("Only :reference", { reference: agent_order }) }}</div>
+	</div>
+
+	<div class="mx-4 mt-4 overflow-x-auto rounded-lg border border-gray-200 bg-white">
+		<table class="min-w-full text-sm">
+			<thead class="whitespace-nowrap bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
+				<tr>
+					<th class="w-10 px-3 py-2"></th>
+					<th class="px-3 py-2 font-medium">{{ ctrans("For") }}</th>
+					<th class="px-3 py-2 font-medium">{{ ctrans("Supplier") }}</th>
+					<th class="px-3 py-2 text-right font-medium">{{ ctrans("Order total") }}</th>
+					<th class="px-3 py-2 text-right font-medium">{{ ctrans("Already asked") }}</th>
+					<th class="px-3 py-2 text-right font-medium">{{ ctrans("Advance %") }}</th>
+					<th class="px-3 py-2 text-right font-medium">{{ ctrans("Amount") }}</th>
+				</tr>
+			</thead>
+			<tbody class="divide-y divide-gray-100">
+				<tr v-if="!lines.length">
+					<td colspan="7" class="px-3 py-6 text-center text-gray-400">{{ ctrans("Nothing is due from :client", { client: client.code }) }}</td>
+				</tr>
+				<tr v-for="line in lines" :key="line.key" :class="ticked[line.key] ? '' : 'text-gray-400'">
+					<td class="px-3 py-2"><Checkbox v-model="ticked[line.key]" binary /></td>
+					<td class="px-3 py-2">
+						<template v-if="line.kind === 'wallet'">
+							<span class="font-medium">{{ ctrans("Cover the negative balance") }}</span>
+						</template>
+						<template v-else>
+							<span class="font-medium">{{ line.kind === "advance" ? ctrans("Advance") : ctrans("Balance") }}</span>
+							<span class="ml-2 whitespace-nowrap">{{ orderOf(line.purchase_order_id)?.reference }}</span>
+						</template>
+					</td>
+					<td class="px-3 py-2">
+						<span v-if="line.kind !== 'wallet'" class="whitespace-nowrap">{{ orderOf(line.purchase_order_id)?.supplier_code }}</span>
+					</td>
+					<td class="whitespace-nowrap px-3 py-2 text-right">
+						<template v-if="line.kind !== 'wallet'">{{ money(orderOf(line.purchase_order_id)!.total) }}</template>
+					</td>
+					<td class="whitespace-nowrap px-3 py-2 text-right">
+						<template v-if="line.kind !== 'wallet'">{{ orderOf(line.purchase_order_id)!.requested ? money(orderOf(line.purchase_order_id)!.requested) : "-" }}</template>
+					</td>
+					<td class="px-3 py-2 text-right">
+						<InputNumber
+							v-if="line.kind === 'advance'"
+							v-model="percentages[line.purchase_order_id!]"
+							:min="0"
+							:max="100"
+							suffix="%"
+							inputClass="w-20 text-right"
+							:class="fieldFocusClass"
+							@blur="saveAdvance(orderOf(line.purchase_order_id)!, percentages[line.purchase_order_id!])"
+						/>
+					</td>
+					<td class="px-3 py-2 text-right">
+						<InputNumber v-model="amounts[line.key]" mode="currency" :currency="due.currency_code" :min="0" :max="line.due" :disabled="!ticked[line.key]" inputClass="w-36 text-right" :class="fieldFocusClass" />
+					</td>
+				</tr>
+			</tbody>
+			<tfoot v-if="lines.length" class="border-t border-gray-200">
+				<tr>
+					<td colspan="6" class="px-3 py-2 text-right text-xs uppercase tracking-wide text-gray-500">{{ ctrans("To ask for") }}</td>
+					<td class="whitespace-nowrap px-3 py-2 text-right font-semibold text-gray-800">{{ money(total) }}</td>
+				</tr>
+			</tfoot>
+		</table>
+	</div>
+
+	<div class="mx-4 mt-4 grid gap-3 sm:grid-cols-2">
+		<label class="block text-sm">
+			<span class="text-gray-600">{{ ctrans("Reference") }}</span>
+			<InputText v-model="reference" maxlength="255" class="mt-1 w-full" :class="fieldFocusClass" />
+		</label>
+		<label class="block text-sm">
+			<span class="text-gray-600">{{ ctrans("Notes") }}</span>
+			<Textarea v-model="notes" rows="1" autoResize class="mt-1 w-full" :class="fieldFocusClass" />
+		</label>
+	</div>
+
+	<div class="mx-4 my-5 flex justify-end">
+		<Button type="tertiary" :label="ctrans('Send request')" :disabled="!chosen.length" :loading="sending" @click="send">
+			<template #icon>
+				<FontAwesomeIcon icon="fal fa-paper-plane" class="text-green-600" fixed-width aria-hidden="true" />
+			</template>
+		</Button>
+	</div>
+</template>

@@ -11,6 +11,7 @@ namespace App\Models\GoodsIn;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\AgentInvoice;
 use App\Models\SupplyChain\SupplierInvoice;
+use App\Enums\SupplyChain\AgentPayment\AgentPaymentTypeEnum;
 use App\Models\SupplyChain\AgentPayment;
 use App\Models\SupplyChain\SupplierPayment;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryCostTypeEnum;
@@ -448,7 +449,18 @@ class StockDelivery extends Model implements HasMedia, Auditable
         return $this->belongsTo(Agent::class);
     }
 
+    /**
+     * Transfers the client sent the agent against this container, the ones taken off its invoice.
+     */
     public function agentPayments(): HasMany
+    {
+        return $this->hasMany(AgentPayment::class)->where('type', AgentPaymentTypeEnum::TRANSFER_RECEIVED);
+    }
+
+    /**
+     * Every line of the agent's ledger tagged with this container, money in and out.
+     */
+    public function agentLedgerEntries(): HasMany
     {
         return $this->hasMany(AgentPayment::class);
     }

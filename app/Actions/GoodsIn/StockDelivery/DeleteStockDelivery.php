@@ -74,7 +74,7 @@ class DeleteStockDelivery extends OrgAction
     public static function recordsRefusal(StockDelivery $stockDelivery): ?string
     {
         return match (true) {
-            $stockDelivery->agentPayments()->exists(),
+            $stockDelivery->agentLedgerEntries()->exists(),
             $stockDelivery->supplierPayments()->exists(),
             $stockDelivery->depositApplications()->exists()                                                => __(':reference has payments or deposits, remove them first', ['reference' => $stockDelivery->reference]),
             $stockDelivery->claims()->exists()                                                             => __(':reference has claims, remove them first', ['reference' => $stockDelivery->reference]),

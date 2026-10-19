@@ -10,6 +10,7 @@ use App\Actions\OrgAction;
 use App\Actions\Procurement\SupplierAgreedTerm\GetPurchaseOrderAgreedTerms;
 use App\Actions\Procurement\SupplierAgreedTerm\UI\GetPurchaseOrderAgreement;
 use App\Actions\Helpers\Images\GetImgProxyUrl;
+use App\Actions\Procurement\WithAgentOrganisation;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
@@ -28,11 +29,11 @@ use Illuminate\Support\Facades\Http;
 use Lorisleiva\Actions\ActionRequest;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as PDF;
 use Symfony\Component\HttpFoundation\Response;
-use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 
 class PdfPurchaseOrder extends OrgAction
 {
     use WithProcurementAuthorisation;
+    use WithAgentOrganisation;
 
     private const array PDF_RELATIONS = ['organisation.address', 'currency', 'parent', 'agent', 'purchaseOrderTransactions.supplierProduct.currency', 'purchaseOrderTransactions.orgStock'];
 
@@ -226,10 +227,27 @@ class PdfPurchaseOrder extends OrgAction
             ->header('Content-Disposition', 'inline; filename="'.$this->filenameFor($agentOrderReference).'"');
     }
 
+    public function inWholeAgentOrder(Organisation $organisation, PurchaseOrder $purchaseOrder, ActionRequest $request): Response
+    {
+        $this->initialisation($organisation, $request);
+        $this->authorizeProcurementRecord($purchaseOrder);
+        abort_unless($purchaseOrder->isAgentOrder() && $purchaseOrder->agent_order_reference, 404);
+        $this->withImages = $request->boolean('with_images');
+
+        $purchaseOrders = $purchaseOrder->wholeAgentOrder()
+            ->with(self::PDF_RELATIONS)
+            ->orderBy('parent_code')
+            ->get();
+
+        return response($this->handleMany($purchaseOrders), 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="'.$this->filenameFor($purchaseOrder->agent_order_reference).'"');
+    }
+
     public function asController(Organisation $organisation, PurchaseOrder $purchaseOrder, ActionRequest $request): Response
     {
-        abort_unless($purchaseOrder->organisation_id === $organisation->id || $organisation->type === OrganisationTypeEnum::AGENT, 404);
         $this->initialisation($organisation, $request);
+        $this->authorizeProcurementRecord($purchaseOrder);
         $this->withImages = $request->boolean('with_images');
 
         return response($this->handle($purchaseOrder), 200)

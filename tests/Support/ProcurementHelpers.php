@@ -341,6 +341,27 @@ function placedStockDeliveryWithTwoLines($test, string $code): StockDelivery
     return $stockDelivery->fresh();
 }
 
+function agentOrganisationAdmin(Organisation $agentOrganisation, string $username): User
+{
+    $orgAdmin = JobPosition::where('organisation_id', $agentOrganisation->id)->where('code', 'org-admin')->firstOrFail();
+    $employee = StoreEmployee::make()->action($agentOrganisation, [
+        'worker_number'   => $username,
+        'alias'           => $username,
+        'contact_name'    => $username,
+        'state'           => EmployeeStateEnum::WORKING,
+        'type'            => EmployeeTypeEnum::EMPLOYEE,
+        'employment_type' => EmploymentTypeEnum::FULL_TIME,
+        'positions'       => [['slug' => $orgAdmin->slug, 'scopes' => []]],
+    ]);
+
+    return StoreUser::make()->action($employee, [
+        'username'       => $username,
+        'password'       => Str::random(32),
+        'status'         => true,
+        'reset_password' => false,
+    ]);
+}
+
 function userWithJobPosition($test, string $jobPositionCode, string $username): User
 {
     setPermissionsTeamId($test->group->id);

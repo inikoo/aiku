@@ -3,6 +3,7 @@
 namespace App\Actions\GoodsIn\StockDelivery;
 
 use App\Actions\OrgAction;
+use App\Actions\Procurement\WithAgentOrganisation;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\SysAdmin\Organisation;
@@ -11,11 +12,11 @@ use Lorisleiva\Actions\ActionRequest;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as PDF;
 use Mpdf\MpdfException;
 use Symfony\Component\HttpFoundation\Response;
-use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 
 class PdfStockDelivery extends OrgAction
 {
     use WithProcurementAuthorisation;
+    use WithAgentOrganisation;
 
     /**
      * @throws MpdfException
@@ -41,8 +42,8 @@ class PdfStockDelivery extends OrgAction
 
     public function asController(Organisation $organisation, StockDelivery $stockDelivery, ActionRequest $request): Response
     {
-        abort_unless($stockDelivery->organisation_id === $organisation->id || $organisation->type === OrganisationTypeEnum::AGENT, 404);
         $this->initialisation($organisation, $request);
+        $this->authorizeProcurementRecord($stockDelivery);
 
         return $this->handle($stockDelivery);
     }

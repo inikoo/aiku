@@ -58,6 +58,10 @@ class GetProductPreOrder
      */
     public function handle(Product $product): ?array
     {
+        if (!$product->is_made_to_order && !$product->is_back_order) {
+            return null;
+        }
+
         return $this->byProduct(collect([$product]))[$product->id] ?? null;
     }
 

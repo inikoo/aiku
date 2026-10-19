@@ -8,6 +8,7 @@
 
 namespace App\Actions\SupplyChain\AgentPayment;
 
+use App\Enums\SupplyChain\AgentPayment\AgentPaymentTypeEnum;
 use App\Actions\Helpers\Media\SaveModelAttachment;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\SupplierAgreedTerm\CheckAgainstAgreedTerms;
@@ -50,6 +51,7 @@ class StoreAgentPayment extends OrgAction
             'media_id' => $media?->id,
         ]) + [
             'group_id'        => $stockDelivery->group_id,
+            'type'            => AgentPaymentTypeEnum::TRANSFER_RECEIVED,
             'agent_id'        => $stockDelivery->agent_id,
             'organisation_id' => $stockDelivery->organisation_id,
             'currency_id'     => $stockDelivery->currency_id,

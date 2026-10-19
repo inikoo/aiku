@@ -3,6 +3,7 @@
 namespace App\Actions\Catalogue\ProductCategory\Json;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithWebEditAuthorisation;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
@@ -16,6 +17,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class GetProductCategoryForRelatedWebBlock extends OrgAction
 {
+    use WithWebEditAuthorisation;
     public function handle(Shop $parent, ?ProductCategoryTypeEnum $scope = null, ?string $prefix = null)
     {
         $queryBuilder = QueryBuilder::for(ProductCategory::class);

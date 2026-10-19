@@ -13,12 +13,13 @@ use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\WithAgentOrganisation;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
-use App\Enums\SupplyChain\AspoDeposit\AspoDepositStateEnum;
+use App\Enums\SupplyChain\AgentPayment\AgentPaymentTypeEnum;
+use App\Enums\SupplyChain\AspoDeposit\DepositRequestStateEnum;
 use App\Http\Resources\Procurement\PurchaseOrdersResource;
 use App\Models\Procurement\PurchaseOrder;
-use App\Models\SupplyChain\AspoDeposit;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -41,8 +42,27 @@ class ShowAgentWholeOrder extends OrgAction
      */
     public function handle(PurchaseOrder $purchaseOrder): Collection
     {
+        $supplierPaymentTypes = array_values(array_map(fn (AgentPaymentTypeEnum $type) => $type->value, array_filter(AgentPaymentTypeEnum::cases(), fn (AgentPaymentTypeEnum $type) => $type->isSupplierPayment())));
+
         return $purchaseOrder->wholeAgentOrder()
-            ->with(['currency', 'deposits.depositRequestItems'])
+            ->select('purchase_orders.*')
+            ->selectSub(
+                DB::table('deposit_request_items')
+                    ->join('deposit_requests', 'deposit_requests.id', 'deposit_request_items.deposit_request_id')
+                    ->whereColumn('deposit_request_items.purchase_order_id', 'purchase_orders.id')
+                    ->where('deposit_requests.state', '!=', DepositRequestStateEnum::CANCELLED->value)
+                    ->selectRaw('coalesce(sum(deposit_request_items.amount), 0)'),
+                'requested_amount'
+            )
+            ->selectSub(
+                DB::table('agent_payments')
+                    ->whereColumn('agent_payments.purchase_order_id', 'purchase_orders.id')
+                    ->whereIn('agent_payments.type', $supplierPaymentTypes)
+                    ->whereNull('agent_payments.deleted_at')
+                    ->selectRaw('coalesce(sum(agent_payments.amount), 0)'),
+                'paid_to_suppliers_amount'
+            )
+            ->with('currency')
             ->orderBy('parent_code')
             ->get();
     }
@@ -85,51 +105,32 @@ class ShowAgentWholeOrder extends OrgAction
                     'number_supplier_orders' => $purchaseOrders->count(),
                     'number_to_confirm'      => $toConfirm->count(),
                     'totals'                 => $this->sumByCurrency($live, fn (PurchaseOrder $purchaseOrder) => (float) $purchaseOrder->cost_total),
-                    'deposits'               => $this->sumByCurrency($live, fn (PurchaseOrder $purchaseOrder) => $this->depositsOf($purchaseOrder)),
-                    'requested'              => $this->sumByCurrency($live, fn (PurchaseOrder $purchaseOrder) => $this->requestedOf($purchaseOrder)),
+                    'requested'              => $this->sumByCurrency($live, fn (PurchaseOrder $purchaseOrder) => (float) $purchaseOrder->requested_amount),
+                    'paid_to_suppliers'      => $this->sumByCurrency($live, fn (PurchaseOrder $purchaseOrder) => (float) $purchaseOrder->paid_to_suppliers_amount),
+                    'to_pay'                 => $this->sumByCurrency($live, fn (PurchaseOrder $purchaseOrder) => max(0, (float) $purchaseOrder->cost_total - (float) $purchaseOrder->paid_to_suppliers_amount)),
+                    'pdf_route'              => [
+                        'name'       => 'grp.org.agent.purchase_orders.whole_order.pdf',
+                        'parameters' => $routeParameters,
+                    ],
                     'confirm_route'          => $this->agentCanAct && $toConfirm->isNotEmpty() ? [
                         'name'       => 'grp.models.purchase-order.agent_order.confirm',
                         'parameters' => ['purchaseOrder' => $this->purchaseOrder->id],
                         'method'     => 'patch',
                     ] : null,
-                    'deposits_route'         => $this->agentCanAct && $live->isNotEmpty() ? [
-                        'name'       => 'grp.models.purchase-order.agent_order.deposits.request',
-                        'parameters' => ['purchaseOrder' => $this->purchaseOrder->id],
-                        'method'     => 'post',
+                    'money_request_route'    => $this->agentCanAct && $live->isNotEmpty() ? [
+                        'name'       => 'grp.org.agent.accounting.deposit_requests.create',
+                        'parameters' => ['organisation' => $this->organisation->slug, 'client' => $this->purchaseOrder->organisation->slug, 'agent_order' => $reference],
                     ] : null,
                     'deposit_requests_route' => [
                         'name'       => 'grp.org.agent.accounting.deposit_requests.index',
                         'parameters' => [$this->organisation->slug],
                     ],
                 ],
-                'supplier_orders' => $live->map(fn (PurchaseOrder $purchaseOrder) => [
-                    'id'            => $purchaseOrder->id,
-                    'reference'     => $purchaseOrder->reference,
-                    'supplier_code' => $purchaseOrder->parent_code,
-                    'supplier_name' => $purchaseOrder->parent_name,
-                    'state_label'   => $purchaseOrder->state->labels()[$purchaseOrder->state->value],
-                    'currency_code' => $purchaseOrder->currency->code,
-                    'cost_total'    => (float) $purchaseOrder->cost_total,
-                    'deposits'      => $this->depositsOf($purchaseOrder),
-                    'requested'     => $this->requestedOf($purchaseOrder),
-                ])->values()->all(),
                 'data'            => PurchaseOrdersResource::collection(
                     IndexPurchaseOrders::make()->inWholeAgentOrderOf($this->purchaseOrder)->handle($this->organisation)
                 ),
             ]
         )->table(IndexPurchaseOrders::make()->inWholeAgentOrderOf($this->purchaseOrder)->tableStructure($this->organisation));
-    }
-
-    private function depositsOf(PurchaseOrder $purchaseOrder): float
-    {
-        return (float) $purchaseOrder->deposits
-            ->reject(fn (AspoDeposit $deposit) => in_array($deposit->state, [AspoDepositStateEnum::CANCELLED, AspoDepositStateEnum::REFUNDED], true))
-            ->sum('amount');
-    }
-
-    private function requestedOf(PurchaseOrder $purchaseOrder): float
-    {
-        return (float) $purchaseOrder->deposits->sum(fn (AspoDeposit $deposit) => $deposit->depositRequestItems->sum('amount'));
     }
 
     /**

@@ -2,10 +2,13 @@
 
 namespace App\Actions\Maintenance\Catalogue;
 
+use App\Actions\Catalogue\Product\Hydrators\ProductHydrateFirstAvailableAt;
+use App\Enums\Catalogue\Product\ProductBadgeEnum;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\Product\ProductStatusEnum;
 use App\Models\Catalogue\Product;
 use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
 use Laravel\Nightwatch\Facades\Nightwatch;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -19,14 +22,34 @@ class RepairProductsFirstAvailableAt
      * Backfills first_available_at on a product launched before the NEW IN badge existed, from its
      * first stock date or else its creation date, so it does not show up as new.
      * A product never launched (coming soon, in process) keeps it empty and gets it on its launch.
+     * A product stamped later than its first sale, as old products touched before the backfill were, is moved back to that sale.
+     * A never sold product stamped on the backfill day, but created long before it, gets its creation date like the backfill would have given it.
      */
-    public function handle(Product $product): void
+    public function handle(Product $product, ?string $backfillDay = null): void
     {
-        if ($product->first_available_at || $this->isNotLaunched($product)) {
+        if ($product->first_available_at) {
+            $firstInvoicedAt = ProductHydrateFirstAvailableAt::firstInvoicedAt($product);
+
+            if ($firstInvoicedAt && $firstInvoicedAt->lt($product->first_available_at)) {
+                $product->update(['first_available_at' => $firstInvoicedAt]);
+            } elseif (!$firstInvoicedAt && $backfillDay && $this->wasStampedOnBackfillDayLongAfterCreation($product, $backfillDay)) {
+                $product->update(['first_available_at' => $product->created_at]);
+            }
+
+            return;
+        }
+
+        if ($this->isNotLaunched($product)) {
             return;
         }
 
         $product->update(['first_available_at' => $product->first_in_stock_at ?? $product->created_at]);
+    }
+
+    private function wasStampedOnBackfillDayLongAfterCreation(Product $product, string $backfillDay): bool
+    {
+        return $product->first_available_at->isSameDay(Carbon::parse($backfillDay))
+            && $product->created_at->lt($product->first_available_at->copy()->subDays(ProductBadgeEnum::NEW_IN_DAYS));
     }
 
     private function isNotLaunched(Product $product): bool
@@ -35,30 +58,44 @@ class RepairProductsFirstAvailableAt
             || $product->state === ProductStateEnum::IN_PROCESS;
     }
 
-    public string $commandSignature = 'repair:products_first_available_at {--a|async : Dispatch each product as a job instead of repairing it here}';
+    public string $commandSignature = 'repair:products_first_available_at {--a|async : Dispatch each product as a job instead of repairing it here} {--stamped-since= : Also check products stamped on or after this date against their first sale} {--backfill-day= : Give never sold products stamped on this day, and created long before it, their creation date}';
 
     public function asCommand(Command $command): void
     {
         Nightwatch::dontSample();
 
-        $async = (bool) $command->option('async');
-        $count = 0;
+        $async        = (bool) $command->option('async');
+        $stampedSince = $command->option('stamped-since');
+        $backfillDay  = $command->option('backfill-day');
+        $count        = 0;
 
         $query = Product::query()
-            ->whereNull('first_available_at')
-            ->whereNotIn('status', [ProductStatusEnum::COMING_SOON, ProductStatusEnum::IN_PROCESS])
-            ->where('state', '!=', ProductStateEnum::IN_PROCESS);
+            ->where(function ($query) use ($stampedSince, $backfillDay) {
+                $query->where(function ($query) {
+                    $query->whereNull('first_available_at')
+                        ->whereNotIn('status', [ProductStatusEnum::COMING_SOON, ProductStatusEnum::IN_PROCESS])
+                        ->where('state', '!=', ProductStateEnum::IN_PROCESS);
+                });
+
+                if ($stampedSince) {
+                    $query->orWhere('first_available_at', '>=', $stampedSince);
+                }
+
+                if ($backfillDay) {
+                    $query->orWhereBetween('first_available_at', [Carbon::parse($backfillDay)->startOfDay(), Carbon::parse($backfillDay)->endOfDay()]);
+                }
+            });
 
         $progressBar = $command->getOutput()->createProgressBar($query->count());
         $progressBar->setFormat(' %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s% %memory:6s%');
         $progressBar->start();
 
-        $query->chunkById(5000, function ($products) use ($async, &$count, $progressBar) {
+        $query->chunkById(5000, function ($products) use ($async, $backfillDay, &$count, $progressBar) {
             foreach ($products as $product) {
                 if ($async) {
-                    self::dispatch($product);
+                    self::dispatch($product, $backfillDay);
                 } else {
-                    $this->handle($product);
+                    $this->handle($product, $backfillDay);
                 }
                 $count++;
                 $progressBar->advance();
