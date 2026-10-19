@@ -18,7 +18,6 @@ enum MarketingDashboardTabsEnum: string
 
     case DASHBOARD = 'dashboard';
     case OFFERS = 'offers';
-    case VISITOR_CHANNELS = 'visitor_channels';
     case DATA_QUALITY = 'data_quality';
     case FRAUD = 'fraud';
 
@@ -32,10 +31,6 @@ enum MarketingDashboardTabsEnum: string
             MarketingDashboardTabsEnum::OFFERS => [
                 'title' => __('Offer performance'),
                 'icon'  => 'fal fa-badge-percent',
-            ],
-            MarketingDashboardTabsEnum::VISITOR_CHANNELS => [
-                'title' => __('Visitor channels'),
-                'icon'  => 'fal fa-route',
             ],
             MarketingDashboardTabsEnum::DATA_QUALITY => [
                 'title' => __('Data quality'),

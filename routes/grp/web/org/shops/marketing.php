@@ -7,7 +7,6 @@
  */
 
 use App\Actions\Comms\Email\SendTestEmail;
-use App\Actions\CRM\TrafficSource\GetShopVisitorChannelConversions;
 use App\Stubs\UIDummies\EditDummy;
 use App\Stubs\UIDummies\ShowDummy;
 use App\Stubs\UIDummies\CreateDummy;
@@ -28,7 +27,6 @@ use App\Actions\UI\Dropshipping\Marketing\ShowMailshotSettings;
 use App\Actions\UI\Dropshipping\Marketing\UpdateMailshotSettings;
 
 Route::get('', ShowMarketingDashboard::class)->name('dashboard');
-Route::get('visitor-channels/{channel}/{kind}', GetShopVisitorChannelConversions::class)->name('visitor_channels.conversions');
 Route::get('settings', ShowMailshotSettings::class)->name('mailshot_settings');
 Route::patch('settings', UpdateMailshotSettings::class)->name('mailshot_settings.update');
 Route::name("newsletters.")->prefix('newsletters')
