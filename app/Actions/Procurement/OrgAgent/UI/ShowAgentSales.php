@@ -17,6 +17,7 @@ use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
 use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Enums\Procurement\OrgSupplierProduct\OrgSupplierProductStateEnum;
 use App\Models\Procurement\OrgAgent;
+use App\Models\Procurement\OrgSupplier;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Organisation;
@@ -64,14 +65,19 @@ class ShowAgentSales extends OrgAction
 
     /**
      * The cost-of-sales records of every org stock the agent's products are linked to, narrowed to one supplier's
-     * products when asked, in any frequency.
+     * products when asked, in any frequency. A supplier on its own is read whether it sells through an agent or not.
      */
-    public function linkedOrgStocks(Agent $agent, ?int $supplierId = null): Builder
+    public function linkedOrgStocks(Agent|Supplier $seller, ?int $supplierId = null): Builder
     {
+        if ($seller instanceof Supplier) {
+            $supplierId = $seller->id;
+        }
+
         return DB::table('org_stock_has_org_supplier_products as link')
             ->join('org_supplier_products as linked', 'linked.id', 'link.org_supplier_product_id')
-            ->join('org_agents', 'org_agents.id', 'linked.org_agent_id')
-            ->where('org_agents.agent_id', $agent->id)
+            ->when($seller instanceof Agent, fn ($query) => $query
+                ->join('org_agents', 'org_agents.id', 'linked.org_agent_id')
+                ->where('org_agents.agent_id', $seller->id))
             ->where('link.status', true)
             ->when($supplierId, fn ($query) => $query
                 ->join('supplier_products as linked_sp', 'linked_sp.id', 'linked.supplier_product_id')
@@ -79,7 +85,19 @@ class ShowAgentSales extends OrgAction
             ->select('link.org_stock_id');
     }
 
-    public function records(Agent $agent, ?int $supplierId = null): Builder
+    /**
+     * What ties each organisation to the seller: its org agents, or its org suppliers.
+     *
+     * @return Collection<int, OrgAgent|OrgSupplier>
+     */
+    public function relationships(Agent|Supplier $seller): Collection
+    {
+        return ($seller instanceof Agent ? OrgAgent::where('agent_id', $seller->id) : OrgSupplier::where('supplier_id', $seller->id))
+            ->with('organisation.currency')
+            ->get();
+    }
+
+    public function records(Agent|Supplier $agent, ?int $supplierId = null): Builder
     {
         return DB::table('org_stock_time_series as ts')
             ->join('org_stock_time_series_records as r', 'r.org_stock_time_series_id', 'ts.id')
@@ -87,7 +105,7 @@ class ShowAgentSales extends OrgAction
             ->whereIn('ts.org_stock_id', $this->linkedOrgStocks($agent, $supplierId));
     }
 
-    public function monthlySales(Agent $agent, CarbonInterface $from, ?int $supplierId = null): Builder
+    public function monthlySales(Agent|Supplier $agent, CarbonInterface $from, ?int $supplierId = null): Builder
     {
         return $this->records($agent, $supplierId)
             ->where('ts.frequency', TimeSeriesFrequencyEnum::MONTHLY->value)
@@ -95,15 +113,37 @@ class ShowAgentSales extends OrgAction
     }
 
     /**
+     * Day by day this month so far and the same month a year earlier, per organisation, in the group's currency.
+     *
+     * @return Collection<int, Collection<string, float>>
+     */
+    private function dailySales(Agent|Supplier $seller, ?int $supplierId, string $amount): Collection
+    {
+        $thisMonth = now()->startOfMonth();
+        $lastYear  = now()->subYearNoOverflow()->startOfMonth();
+
+        return $this->records($seller, $supplierId)
+            ->where('ts.frequency', TimeSeriesFrequencyEnum::DAILY->value)
+            ->where(fn (Builder $query) => $query
+                ->whereBetween('r.period', [$thisMonth->toDateString(), now()->toDateString()])
+                ->orWhereBetween('r.period', [$lastYear->toDateString(), $lastYear->copy()->endOfMonth()->toDateString()]))
+            ->selectRaw("sold_stock.organisation_id, r.period as day, sum($amount) as sales")
+            ->groupBy('sold_stock.organisation_id', 'r.period')
+            ->get()
+            ->groupBy('organisation_id')
+            ->map(fn (Collection $rows) => $rows->mapWithKeys(fn ($row) => [substr((string) $row->day, 0, 10) => (float) $row->sales]));
+    }
+
+    /**
      * @return array<string, mixed>
      */
-    public function handle(Agent $agent, ?Supplier $supplier = null, ?GetAgentSalesProducts $valuation = null): array
+    public function handle(Agent|Supplier $agent, ?Supplier $supplier = null, ?GetAgentSalesProducts $valuation = null): array
     {
         $valuation              = $valuation ?? GetAgentSalesProducts::make();
         $amount                 = $valuation->amountSql();
         [$currency, $toAgent]   = $valuation->agentCurrency($agent);
         $from         = now()->startOfMonth()->subMonths(self::MONTHS - 1);
-        $orgAgents    = OrgAgent::where('agent_id', $agent->id)->with('organisation.currency')->get();
+        $orgAgents    = $this->relationships($agent);
 
         $year = now()->year;
 
@@ -114,8 +154,14 @@ class ShowAgentSales extends OrgAction
             ->groupBy('organisation_id')
             ->map(fn (Collection $rows) => $rows->pluck('sales', 'month'));
 
-        $salesIn = fn (OrgAgent $orgAgent, string $period): float => round($toAgent * (float) ($byMonth->get($orgAgent->organisation_id)[$period] ?? 0), 2);
-        $inYear  = fn (OrgAgent $orgAgent, int $ofYear, int $untilMonth): array => collect(range(1, $untilMonth))
+        $byDay = $this->dailySales($agent, $supplier?->id, $amount);
+        $onDay = fn (OrgAgent|OrgSupplier $orgAgent, CarbonInterface $month, int $days): array => collect(range(1, $days))
+            ->map(fn (int $day) => round($toAgent * (float) ($byDay->get($orgAgent->organisation_id)[$month->copy()->setDay($day)->toDateString()] ?? 0), 2))
+            ->all();
+        $lastYearMonth = now()->subYearNoOverflow()->startOfMonth();
+
+        $salesIn = fn (OrgAgent|OrgSupplier $orgAgent, string $period): float => round($toAgent * (float) ($byMonth->get($orgAgent->organisation_id)[$period] ?? 0), 2);
+        $inYear  = fn (OrgAgent|OrgSupplier $orgAgent, int $ofYear, int $untilMonth): array => collect(range(1, $untilMonth))
             ->map(fn (int $month) => $salesIn($orgAgent, sprintf('%d-%02d', $ofYear, $month)))
             ->all();
 
@@ -134,6 +180,8 @@ class ShowAgentSales extends OrgAction
                 'sold'      => round(collect(range(0, self::MONTHS - 1))->sum(fn (int $offset) => $salesIn($orgAgent, $from->copy()->addMonths($offset)->format('Y-m'))), 2),
                 'this_year' => $inYear($orgAgent, $year, now()->month),
                 'last_year' => $inYear($orgAgent, $year - 1, 12),
+                'month_this_year' => $onDay($orgAgent, now()->startOfMonth(), now()->day),
+                'month_last_year' => $onDay($orgAgent, $lastYearMonth, $lastYearMonth->daysInMonth),
                 'problems' => collect(['out', 'low', 'dead'])->mapWithKeys(fn (string $problem) => [
                     $problem => $rows->filter(fn ($row) => (self::PROBLEMS[$row->bucket] ?? null) === $problem)->count(),
                 ])->all(),
@@ -158,6 +206,8 @@ class ShowAgentSales extends OrgAction
             'valuation'     => $valuation->valuation($agent),
             'from'          => $from->toDateString(),
             'year'          => $year,
+            'month'         => now()->month,
+            'days_in_month' => now()->daysInMonth,
             'products'      => $products->count(),
             'selling'       => $products->where('sold', '>', 0)->count(),
             'organisations' => $organisations,
@@ -172,7 +222,7 @@ class ShowAgentSales extends OrgAction
      * One row per org stock the organisation holds of this agent's products, with what it sold in the period, in the
      * group's currency, the value of what it holds, in its own, and the stock cover verdict its own buyers see.
      */
-    private function productRows(Agent $agent, OrgAgent $orgAgent, CarbonInterface $from, ?Supplier $supplier, string $amount): Collection
+    private function productRows(Agent|Supplier $agent, OrgAgent|OrgSupplier $orgAgent, CarbonInterface $from, ?Supplier $supplier, string $amount): Collection
     {
         $buckets = GetAgentStockCoverBuckets::make();
 

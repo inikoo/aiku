@@ -590,6 +590,8 @@ use App\Actions\Reviews\ReviewReply\UpdateReviewReply;
 use App\Actions\Reviews\UpdateReview;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SupplyChain\Supplier\UpdateSupplier;
+use App\Actions\SupplyChain\SupplierShareLink\RevokeSupplierShareLink;
+use App\Actions\SupplyChain\SupplierShareLink\StoreSupplierShareLink;
 use App\Actions\SupplyChain\SupplierProduct\ImportSupplierProducts;
 use App\Actions\SupplyChain\SupplierProduct\CopySupplierProductsToSupplier;
 use App\Actions\SupplyChain\SupplierProduct\RepairSupplierProductsSupplier;
@@ -1585,6 +1587,8 @@ Route::name('customer_client.')->prefix('customer-client/{customerClient:id}')->
 
 Route::post('/supplier', StoreSupplier::class)->name('supplier.store');
 Route::patch('/supplier/{supplier:id}', UpdateSupplier::class)->name('supplier.update');
+Route::post('/supplier/{supplier:id}/share-links', StoreSupplierShareLink::class)->name('supplier.share_links.store');
+Route::post('/supplier-share-links/{supplierShareLink:id}/revoke', RevokeSupplierShareLink::class)->name('supplier_share_link.revoke');
 Route::post('/supplier/{supplier:id}/change-request', StoreSupplierChangeRequest::class)->name('supplier.change_request.store');
 Route::patch('/supplier-change-request/{supplierChangeRequest:id}/decide', DecideSupplierChangeRequest::class)->name('supplier_change_request.decide');
 Route::patch('/supplier-product/{supplierProduct:id}', UpdateSupplierProduct::class)->name('supplier-product.update');

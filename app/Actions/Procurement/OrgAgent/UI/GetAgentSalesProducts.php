@@ -19,7 +19,9 @@ use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Enums\Procurement\OrgSupplierProduct\OrgSupplierProductStateEnum;
 use App\Models\Helpers\Currency;
 use App\Models\Procurement\OrgAgent;
+use App\Models\Procurement\OrgSupplier;
 use App\Models\SupplyChain\Agent;
+use App\Models\SupplyChain\Supplier;
 use Carbon\Carbon;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -32,6 +34,7 @@ use Spatie\QueryBuilder\AllowedSort;
  * sub-query per organisation because the verdict embeds that organisation's own lead time, then added up per product
  * and per supplier. Sales are at cost (ShowAgentSales::COST_OF_SALES) or at what customers paid, in the agent's
  * currency, GBP or EUR, as valuedBy() asks. Suppliers that log in themselves must only ever see the cost.
+ * A supplier (independent or behind an agent) is read the same way, through its org suppliers, in its own currency.
  */
 class GetAgentSalesProducts
 {
@@ -52,9 +55,18 @@ class GetAgentSalesProducts
 
     private bool $atWholesale = false;
 
-    public function valuedBy(?string $currencyCode, ?string $measure): static
+    /**
+     * @var array<int, string>
+     */
+    private array $currencies = self::CURRENCIES;
+
+    /**
+     * @param  array<int, string>|null  $currencies  the currencies offered besides the seller's own, GBP and EUR unless told
+     */
+    public function valuedBy(?string $currencyCode, ?string $measure, ?array $currencies = null): static
     {
-        $this->currencyCode = in_array($currencyCode, self::CURRENCIES, true) ? $currencyCode : null;
+        $this->currencies   = $currencies ?? self::CURRENCIES;
+        $this->currencyCode = in_array($currencyCode, $this->currencies, true) ? $currencyCode : null;
         $this->atWholesale  = $measure === 'sales';
 
         return $this;
@@ -76,35 +88,42 @@ class GetAgentSalesProducts
     }
 
     /**
-     * @return array{currency: string, measure: string, agent_currency: string}
+     * @return array{currency: string, measure: string, agent_currency: string, currencies: array<int, string>}
      */
-    public function valuation(Agent $agent): array
+    public function valuation(Agent|Supplier $seller): array
     {
-        $agentCode = $agent->organisation->currency->code;
-        $shownCode = $this->agentCurrency($agent)[0]->code;
+        $agentCode = $this->sellerCurrency($seller)->code;
+        $shownCode = $this->agentCurrency($seller)[0]->code;
 
         return [
             'currency'       => $shownCode === $agentCode ? 'agent' : $shownCode,
             'measure'        => $this->atWholesale ? 'sales' : 'cost',
             'agent_currency' => $agentCode,
+            'currencies'     => $this->currencies,
         ];
     }
 
     /**
      * @return array{0: Currency, 1: float}
      */
-    public function agentCurrency(Agent $agent): array
+    public function agentCurrency(Agent|Supplier $seller): array
     {
-        $organisation = $agent->organisation;
-        $requested    = $this->currencyCode ? Currency::where('code', $this->currencyCode)->first() : null;
-        $toRequested  = $requested ? (float) GetCurrencyExchange::run($organisation->group->currency, $requested) : 0.0;
+        $groupCurrency = $seller->group->currency;
+        $requested     = $this->currencyCode ? Currency::where('code', $this->currencyCode)->first() : null;
+        $toRequested   = $requested ? (float) GetCurrencyExchange::run($groupCurrency, $requested) : 0.0;
         if ($toRequested) {
             return [$requested, $toRequested];
         }
 
-        $toAgent = (float) GetCurrencyExchange::run($organisation->group->currency, $organisation->currency);
+        $sellerCurrency = $this->sellerCurrency($seller);
+        $toAgent        = (float) GetCurrencyExchange::run($groupCurrency, $sellerCurrency);
 
-        return [$toAgent ? $organisation->currency : $organisation->group->currency, $toAgent ?: 1.0];
+        return [$toAgent ? $sellerCurrency : $groupCurrency, $toAgent ?: 1.0];
+    }
+
+    public function sellerCurrency(Agent|Supplier $seller): Currency
+    {
+        return $seller instanceof Agent ? $seller->organisation->currency : $seller->currency;
     }
 
     private function problemSql(string $bucket = 'bucket'): string
@@ -149,13 +168,13 @@ class GetAgentSalesProducts
      * Delivery lines created in the interval that arrived short: never received, or checked in below what was ordered.
      * Lines still on their way (the quantity is only filled once checked) are left out of both counts.
      */
-    private function shortLinesByProduct(Agent $agent, DateIntervalEnum $interval): Builder
+    private function shortLinesByProduct(Agent|Supplier $seller, DateIntervalEnum $interval): Builder
     {
         $settled = [StockDeliveryItemStateEnum::NOT_RECEIVED->value, StockDeliveryItemStateEnum::CHECKED->value, StockDeliveryItemStateEnum::PLACED->value];
 
         return DB::table('stock_delivery_items as line')
             ->join('supplier_products as line_sp', 'line_sp.id', 'line.supplier_product_id')
-            ->join('suppliers as line_sup', fn ($join) => $join->on('line_sup.id', 'line_sp.supplier_id')->where('line_sup.agent_id', $agent->id))
+            ->join('suppliers as line_sup', fn ($join) => $join->on('line_sup.id', 'line_sp.supplier_id')->where($seller instanceof Agent ? 'line_sup.agent_id' : 'line_sup.id', $seller->id))
             ->whereNull('line.deleted_at')
             ->whereIn('line.state', $settled)
             ->when($this->range($interval), fn (Builder $query, array $range) => $query->whereBetween('line.created_at', $range))
@@ -280,7 +299,7 @@ class GetAgentSalesProducts
             ->all();
     }
 
-    private function perOrganisation(Agent $agent, OrgAgent $orgAgent, Currency $currency, float $toAgent, ?int $supplierId, DateIntervalEnum $interval): Builder
+    private function perOrganisation(Agent|Supplier $seller, OrgAgent|OrgSupplier $orgAgent, Currency $currency, float $toAgent, ?int $supplierId, DateIntervalEnum $interval): Builder
     {
         $buckets      = GetAgentStockCoverBuckets::make();
         $stockToAgent = (float) (GetCurrencyExchange::run($orgAgent->organisation->currency, $currency) ?: 1);
@@ -293,7 +312,7 @@ class GetAgentSalesProducts
         [$previous, $previousBindings] = $this->joinParts($previousParts);
 
         $parts  = [...$currentParts, ...$previousParts];
-        $series = collect($parts)->map(fn (array $part) => $part[1][0])->unique()->map(function (string $letter) use ($agent, $supplierId, $orgAgent, $parts, $cost, $current, $previous, $currentBindings, $previousBindings) {
+        $series = collect($parts)->map(fn (array $part) => $part[1][0])->unique()->map(function (string $letter) use ($seller, $supplierId, $orgAgent, $parts, $cost, $current, $previous, $currentBindings, $previousBindings) {
             $own = collect($parts)->filter(fn (array $part) => $part[1][0] === $letter);
 
             $records = DB::table('org_stock_time_series_records as r')
@@ -306,7 +325,7 @@ class GetAgentSalesProducts
                 ->join('org_stocks as sold_stock', 'sold_stock.id', 'ts.org_stock_id')
                 ->where('ts.frequency', collect(TimeSeriesFrequencyEnum::cases())->first(fn (TimeSeriesFrequencyEnum $frequency) => $frequency->singleLetter() === $letter)->value)
                 ->where('sold_stock.organisation_id', $orgAgent->organisation_id)
-                ->whereIn('ts.org_stock_id', ShowAgentSales::make()->linkedOrgStocks($agent, $supplierId))
+                ->whereIn('ts.org_stock_id', ShowAgentSales::make()->linkedOrgStocks($seller, $supplierId))
                 ->joinLateral($records, 'r')
                 ->selectRaw(
                     "ts.org_stock_id,
@@ -345,13 +364,13 @@ class GetAgentSalesProducts
     /**
      * One row per organisation and org stock the agent's products sit in.
      */
-    public function rows(Agent $agent, ?int $supplierId = null, DateIntervalEnum $interval = DateIntervalEnum::ONE_YEAR): Builder
+    public function rows(Agent|Supplier $seller, ?int $supplierId = null, DateIntervalEnum $interval = DateIntervalEnum::ONE_YEAR): Builder
     {
-        [$currency, $toAgent] = $this->agentCurrency($agent);
+        [$currency, $toAgent] = $this->agentCurrency($seller);
 
         $union = null;
-        foreach (OrgAgent::where('agent_id', $agent->id)->with('organisation.currency')->get() as $orgAgent) {
-            $rows  = $this->perOrganisation($agent, $orgAgent, $currency, $toAgent, $supplierId, $interval);
+        foreach (ShowAgentSales::make()->relationships($seller) as $orgAgent) {
+            $rows  = $this->perOrganisation($seller, $orgAgent, $currency, $toAgent, $supplierId, $interval);
             $union = $union ? $union->unionAll($rows) : $rows;
         }
 
@@ -362,10 +381,10 @@ class GetAgentSalesProducts
      * One row per supplier product, added up over the organisations. The organisations column carries each one's
      * sales, stock and problem for the chips.
      */
-    public function products(Agent $agent, ?int $supplierId = null, bool $withOrganisations = true, DateIntervalEnum $interval = DateIntervalEnum::ONE_YEAR): Builder
+    public function products(Agent|Supplier $seller, ?int $supplierId = null, bool $withOrganisations = true, DateIntervalEnum $interval = DateIntervalEnum::ONE_YEAR): Builder
     {
-        $query = DB::query()->fromSub($this->rows($agent, $supplierId, $interval), 'rows')
-            ->leftJoinSub($this->shortLinesByProduct($agent, $interval), 'shortfalls', 'shortfalls.sp_id', '=', 'rows.supplier_product_id')
+        $query = DB::query()->fromSub($this->rows($seller, $supplierId, $interval), 'rows')
+            ->leftJoinSub($this->shortLinesByProduct($seller, $interval), 'shortfalls', 'shortfalls.sp_id', '=', 'rows.supplier_product_id')
             ->groupBy('rows.supplier_product_id', 'code', 'name', 'supplier_id', 'supplier_code', 'supplier_name', 'supplier_slug')
             ->selectRaw(
                 "rows.supplier_product_id as id, code, name, supplier_id, supplier_code, supplier_name, supplier_slug,

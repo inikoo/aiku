@@ -123,6 +123,21 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(120)->by($token instanceof PersonalAccessToken ? 'token:'.$token->id : 'ip:'.$request->ip());
         });
 
+        RateLimiter::for('supplier-share', function (Request $request) {
+            return Limit::perMinute(60)->by('supplier-share:'.$request->ip());
+        });
+
+        RateLimiter::for('supplier-share-code', function (Request $request) {
+            return [
+                Limit::perMinutes(10, 3)->by('supplier-share-code:'.$request->route('token')),
+                Limit::perMinutes(10, 10)->by('supplier-share-code-ip:'.$request->ip()),
+            ];
+        });
+
+        RateLimiter::for('supplier-share-verify', function (Request $request) {
+            return Limit::perMinutes(10, 10)->by('supplier-share-verify:'.$request->ip());
+        });
+
         RateLimiter::for('kiosk', function (Request $request) {
             return Limit::perMinute(600)->by($request->ip());
         });
