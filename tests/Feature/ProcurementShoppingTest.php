@@ -1645,6 +1645,7 @@ test('agent drafts are sent once every organisation is ready, or early with a re
         ->and($ours->fresh()->state)->toBe(PurchaseOrderStateEnum::IN_PROCESS);
 
     expect(App\Actions\Procurement\OrgAgent\SendAgentDraftsToAgent::organisationsNotReady($ours))->toBe([$otherOrganisation->code]);
+    expect(App\Actions\Procurement\OrgAgent\SendAgentDraftsToAgent::organisationsNotReady((clone $ours)->forceFill(['data' => ['from_upload_id' => 1]])))->toBe([]);
 
     $this->patch(route('grp.models.purchase-order.submit', $ours->id))->assertSessionHasErrors('purchase_order');
     expect($ours->fresh()->state)->toBe(PurchaseOrderStateEnum::IN_PROCESS);
