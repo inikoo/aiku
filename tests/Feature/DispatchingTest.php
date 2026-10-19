@@ -6744,3 +6744,16 @@ test('shippers lists answer dispatching staff of the warehouse and the locations
     actingAsUserWithOnlyPermissions($user, ["locations.{$this->warehouse->id}.view"]);
     get($locations)->assertOk();
 });
+
+test('the boxes list answers dispatching staff of the organisation, INI-076', function () {
+    $url  = route('grp.org.warehouses.show.dispatching.boxes.index', [$this->organisation->slug, $this->warehouse->slug]);
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["human-resources.{$this->organisation->id}.view"]);
+    get($url)->assertForbidden();
+
+    foreach (["dispatching.{$this->warehouse->id}.view", "warehouses-view.{$this->organisation->id}"] as $permission) {
+        actingAsUserWithOnlyPermissions($user, [$permission]);
+        get($url)->assertOk();
+    }
+});

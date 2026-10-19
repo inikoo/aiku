@@ -12,6 +12,7 @@ namespace App\Actions\Dispatching\Box\UI;
 use App\Enums\SysAdmin\Authorisation\WarehousePermissionsEnum;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithOrganisationDispatchingViewAuthorisation;
 use App\Http\Resources\Dispatching\BoxesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Dispatching\Box;
@@ -29,6 +30,8 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexBoxes extends OrgAction
 {
+    use WithOrganisationDispatchingViewAuthorisation;
+
     public function handle(Organisation $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -53,6 +56,7 @@ class IndexBoxes extends OrgAction
 
     public function asController(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
+        abort_unless($warehouse->organisation_id === $organisation->id, 404);
         $this->parent = $organisation;
         $this->initialisationFromWarehouse($warehouse, $request);
 
