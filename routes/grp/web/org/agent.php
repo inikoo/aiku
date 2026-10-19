@@ -81,6 +81,8 @@ use App\Actions\SupplyChain\AspoDeposit\UI\ShowAgentAccountingDashboard;
 use App\Actions\SupplyChain\Supplier\UI\CreateSupplier;
 use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;
 use App\Actions\Procurement\AgentOrder\UI\IndexAgentOrders;
+use App\Actions\Procurement\AgentOrder\ExportCombinedSupplierSheet;
+use App\Actions\Procurement\AgentOrder\UI\IndexAgentSharedSuppliers;
 use App\Actions\Procurement\AgentOrder\UI\IndexAgentWholeOrders;
 use App\Actions\Procurement\AgentOrder\UI\ShowAgentOrder;
 use App\Actions\Procurement\AgentOrder\UI\ShowAgentWholeOrder;
@@ -124,6 +126,8 @@ Route::prefix('purchase-orders')->as('purchase_orders.')->group(function () {
     Route::get('', ShowAgentPurchaseOrdersDashboard::class)->name('dashboard');
     Route::get('list', IndexPurchaseOrders::class)->name('index');
     Route::get('agent-orders', IndexAgentWholeOrders::class)->name('agent_orders');
+    Route::get('shared-suppliers', IndexAgentSharedSuppliers::class)->name('shared_suppliers');
+    Route::get('shared-suppliers/{supplier}/sheet', ExportCombinedSupplierSheet::class)->name('shared_suppliers.sheet');
     Route::get('board', ShowAgentPurchaseOrdersBoard::class)->name('board');
     Route::get('reports', ShowAgentPurchaseOrdersReports::class)->name('reports');
     Route::get('export', ExportPurchaseOrders::class)->name('export');

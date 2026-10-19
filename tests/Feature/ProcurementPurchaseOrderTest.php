@@ -3382,6 +3382,50 @@ test('the agent sees other clients\' open orders with the same supplier on a who
     actingAs($this->adminGuest->getUser());
 });
 
+test('the agent sees the factories several clients order from at once and downloads one combined sheet with a block per client (HELP-4097)', function () {
+    $orgAgent          = createFreshOrgAgent($this);
+    $agentOrganisation = $orgAgent->agent->organisation;
+    $otherClient       = Organisation::where('code', 'prc2')->first()
+        ?? StoreOrganisation::make()->action($this->group, array_merge(Organisation::factory()->definition(), ['code' => 'prc2', 'type' => OrganisationTypeEnum::SHOP]));
+    $otherOrgAgent     = StoreOrgAgent::make()->action($otherClient, $orgAgent->agent, []);
+
+    [$orgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this, $orgAgent);
+    $supplierProduct                    = $orgSupplierProduct->supplierProduct;
+    $supplierProduct->update(['minimum_carton_order' => 50]);
+    $otherOrgSupplier = OrgSupplier::where('supplier_id', $orgSupplier->supplier_id)->where('org_agent_id', $otherOrgAgent->id)->firstOrFail();
+
+    $place = function (OrgSupplier $orgSupplier, $orgStock, int $units) use ($supplierProduct) {
+        $order = StorePurchaseOrder::make()->action($orgSupplier, []);
+        StorePurchaseOrderTransaction::make()->action($order, $supplierProduct->historicSupplierProduct, $orgStock, array_merge(PurchaseOrderTransaction::factory()->definition(), ['quantity_ordered' => $units]));
+
+        return UpdatePurchaseOrderStateToSubmitted::make()->action($order->refresh())->refresh();
+    };
+    $order      = $place($orgSupplier, $this->orgStocks[0], 300);
+    $otherOrder = $place($otherOrgSupplier, createOrgStocks($otherClient, [$this->stocks[0]])[0], 500);
+    $agentOrganisation->update(['currency_id' => $order->currency_id]);
+
+    actingAs(agentOrganisationAdmin($agentOrganisation, 'agt-ss-'.Str::lower(Str::random(6))));
+
+    $row = collect($this->get(route('grp.org.agent.purchase_orders.shared_suppliers', [$agentOrganisation->slug]))
+        ->assertOk()->viewData('page')['props']['data']['data'])->firstWhere('id', $orgSupplier->supplier_id);
+
+    expect($row['client_'.$order->organisation_id])->toEqual(round((float) $order->cost_total, 2))
+        ->and($row['client_'.$otherClient->id])->toEqual(round((float) $otherOrder->cost_total, 2))
+        ->and($row['orders'])->toHaveCount(2)
+        ->and($row['products_with_minimum'])->toBe(1)
+        ->and($row['products_below_minimum'])->toBe(1);
+
+    $file  = $this->get(route('grp.org.agent.purchase_orders.shared_suppliers.sheet', [$agentOrganisation->slug, $orgSupplier->supplier->slug]))->assertOk()->baseResponse->getFile()->getPathname();
+    $cells = collect(\PhpOffice\PhpSpreadsheet\IOFactory::load($file)->getActiveSheet()->toArray())->flatten()->filter()->values();
+
+    expect($cells)->toContain($order->agent_order_reference)
+        ->and($cells)->toContain($otherOrder->agent_order_reference)
+        ->and($cells)->toContain($order->organisation->code.' · '.$order->agent_order_reference)
+        ->and($cells)->toContain('prc2 · '.$otherOrder->agent_order_reference);
+
+    actingAs($this->adminGuest->getUser());
+});
+
 test('split agent purchase orders turns an org agent order into one order per supplier', function () {
     [$orgSupplierOne, $orgSupplierProductOne] = createAgentOrgSupplierWithProduct($this);
     [$orgSupplierTwo, $orgSupplierProductTwo] = createAgentOrgSupplierWithProduct($this);
