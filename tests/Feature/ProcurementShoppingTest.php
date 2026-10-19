@@ -2754,7 +2754,15 @@ test('merging duplicate supplier products keeps every organisation on the produc
         ->and($dryRun['refused'])->toHaveKey("DUP-C-$suffix")
         ->and($withTwin->refresh()->code)->toBe("DUP-A-$suffix");
 
+    $duplicateOrgSupplier = $duplicateSupplier->orgSuppliers()->where('organisation_id', $this->organisation->id)->first();
+    $openOrder            = StorePurchaseOrder::make()->action($duplicateOrgSupplier, PurchaseOrder::factory()->definition());
+    $openLine             = StorePurchaseOrderTransaction::make()->action($openOrder, $withTwin->historicSupplierProduct, $this->orgStocks[0], PurchaseOrderTransaction::factory()->definition());
+    $openOrder->updateQuietly(['state' => PurchaseOrderStateEnum::SUBMITTED]);
+
     MergeSupplierProducts::make()->mergeSupplier($duplicateSupplier, $keptSupplier, fix: true);
+
+    expect($openLine->refresh()->supplier_product_id)->toBe($keptWithTwin->id)
+        ->and($openLine->org_supplier_product_id)->toBe($twinRow->id);
 
     $twinLink = OrgStockHasOrgSupplierProduct::where('org_supplier_product_id', $twinRow->id)->where('org_stock_id', $this->orgStocks[0]->id)->firstOrFail();
 
