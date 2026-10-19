@@ -33,6 +33,7 @@ use App\Actions\Dropshipping\Portfolio\StorePortfolio;
 use App\Actions\Iris\Portfolio\StoreIrisPortfolioItemsToChannels;
 use App\Actions\Retina\UI\Dashboard\GetRetinaDropshippingHomeData;
 use App\Actions\Dropshipping\WooCommerce\Product\UpdateInventoryInEbayPortfolio;
+use App\Actions\Dropshipping\CustomerSalesChannel\Hydrators\CustomerSalesChannelsHydratePortfolios;
 use App\Actions\Dropshipping\Portfolio\UpdatePortfolio;
 use App\Actions\Helpers\Images\GetPictureSources;
 use App\Actions\Helpers\Media\SaveModelImages;
@@ -332,6 +333,18 @@ test('update customer portfolio', function (Portfolio $dropshippingCustomerPortf
     return $dropshippingCustomerPortfolio;
 })->depends('add product to customer portfolio');
 
+
+test('switching a portfolio off takes it out of its sales channel product count', function (Portfolio $portfolio) {
+    $channel = $portfolio->customerSalesChannel;
+    CustomerSalesChannelsHydratePortfolios::run($channel);
+    $before = $channel->refresh()->number_portfolios;
+
+    UpdatePortfolio::make()->action($portfolio, ['status' => false]);
+    expect($channel->refresh()->number_portfolios)->toBe($before - 1);
+
+    UpdatePortfolio::make()->action($portfolio->refresh(), ['status' => true]);
+    expect($channel->refresh()->number_portfolios)->toBe($before);
+})->depends('update customer portfolio');
 
 test('get dropshipping access token', function () {
     $token = CreateAccessToken::make()->action($this->group, ['name' => 'test_token', 'abilities' => ['bk-api']]);
