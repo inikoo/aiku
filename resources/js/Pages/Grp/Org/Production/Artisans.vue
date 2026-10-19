@@ -37,6 +37,7 @@ interface ArtisanSession {
     quantity_made: number
     pack_size: number | null
     correct_route: null | { name: string, parameters: object }
+    other_steps: { id: number, task_name: string, unit: string | null, pack_size: number | null, quantity_left: number }[]
     quantity_rejected: number
     earned: number
     units_per_hour: number | null
@@ -207,10 +208,26 @@ function voidSession(session: { void_route: null | { name: string, parameters: o
 const correcting = ref<number | null>(null)
 const correctedQuantity = ref<number | null>(null)
 const correctError = ref<string | null>(null)
+const correctedStepId = ref<number | null>(null)
+
+function movingTo(session: ArtisanSession) {
+    return session.other_steps.find((step) => step.id === correctedStepId.value) ?? null
+}
+
+function correctedPackSize(session: ArtisanSession) {
+    const step = movingTo(session)
+    return step ? step.pack_size : session.pack_size
+}
+
+function canSaveCorrect(session: ArtisanSession) {
+    if (correctedQuantity.value === null) return false
+    return movingTo(session) !== null || correctedQuantity.value < session.quantity_made
+}
 
 function openCorrect(session: ArtisanSession) {
     correcting.value = session.id
     correctedQuantity.value = null
+    correctedStepId.value = null
     correctError.value = null
 }
 
@@ -219,11 +236,11 @@ function saveCorrect(session: ArtisanSession) {
     processing.value = true
     router.patch(
         route(session.correct_route.name, session.correct_route.parameters),
-        { quantity_made: correctedQuantity.value },
+        { quantity_made: correctedQuantity.value, job_order_item_task_id: correctedStepId.value },
         {
             preserveScroll: true,
             onSuccess: () => correcting.value = null,
-            onError: (errors) => correctError.value = errors.quantity_made ?? null,
+            onError: (errors) => correctError.value = errors.quantity_made ?? errors.job_order_item_task_id ?? null,
             onFinish: () => processing.value = false,
         }
     )
@@ -444,7 +461,7 @@ function sessionDuration(session: { started_at: string, ended_at: string, break_
                                     class="text-xs font-medium text-gray-700 hover:underline"
                                     @click="openCorrect(session)"
                                 >
-                                    {{ ctrans('Correct quantity') }}
+                                    {{ session.other_steps.length ? ctrans('Correct quantity or step') : ctrans('Correct quantity') }}
                                 </button>
                                 <button
                                     v-if="session.void_route"
@@ -463,17 +480,23 @@ function sessionDuration(session: { started_at: string, ended_at: string, break_
                         </div>
                         <div v-if="correcting === session.id" class="mb-2 rounded border border-amber-200 bg-amber-50 p-2 text-sm">
                             <div class="flex flex-wrap items-center gap-2">
-                                <span>{{ ctrans(':code · :step was entered as :quantity', { code: session.artefact_code, step: session.task_name, quantity: session.quantity_made }) }}<template v-if="session.pack_size"> {{ ctrans('packs of :size', { size: session.pack_size }) }}</template>. {{ session.pack_size ? ctrans('Whole packs really made:') : ctrans('Really made:') }}</span>
-                                <InputNumber v-model="correctedQuantity" :min="0" :max="session.quantity_made" :maxFractionDigits="session.pack_size ? 0 : 3" inputClass="w-24" :class="fieldFocusClass" />
-                                <span v-if="session.pack_size && correctedQuantity !== null" class="font-medium text-amber-800">= {{ (correctedQuantity * session.pack_size).toLocaleString() }} × {{ session.artefact_code }}</span>
-                                <Button type="tertiary" :label="ctrans('Save correction')" :loading="processing" :disabled="correctedQuantity === null || correctedQuantity >= session.quantity_made" @click="saveCorrect(session)">
+                                <span>{{ ctrans(':code · :step was entered as :quantity', { code: session.artefact_code, step: session.task_name, quantity: session.quantity_made }) }}<template v-if="session.pack_size"> {{ ctrans('packs of :size', { size: session.pack_size }) }}</template>.</span>
+                                <template v-if="session.other_steps.length">
+                                    <span>{{ ctrans('Step really worked:') }}</span>
+                                    <Select v-model="correctedStepId" :options="session.other_steps" optionLabel="task_name" optionValue="id" showClear :placeholder="session.task_name" :class="fieldFocusClass" />
+                                </template>
+                                <span>{{ correctedPackSize(session) ? ctrans('Whole packs really made:') : ctrans('Really made:') }}</span>
+                                <InputNumber v-model="correctedQuantity" :min="0" :max="movingTo(session) ? (movingTo(session)?.unit ? undefined : movingTo(session)?.quantity_left) : session.quantity_made" :maxFractionDigits="correctedPackSize(session) ? 0 : 3" :suffix="movingTo(session)?.unit ? ' ' + movingTo(session)?.unit : undefined" inputClass="w-24" :class="fieldFocusClass" />
+                                <span v-if="correctedPackSize(session) && correctedQuantity !== null" class="font-medium text-amber-800">= {{ (correctedQuantity * (correctedPackSize(session) ?? 1)).toLocaleString() }} × {{ session.artefact_code }}</span>
+                                <Button type="tertiary" :label="ctrans('Save correction')" :loading="processing" :disabled="!canSaveCorrect(session)" @click="saveCorrect(session)">
                                     <template #icon><FontAwesomeIcon :icon="['fal', 'check']" class="text-green-600" fixed-width aria-hidden="true" /></template>
                                 </Button>
                                 <Button type="tertiary" :label="ctrans('Cancel')" @click="correcting = null">
                                     <template #icon><FontAwesomeIcon :icon="['fal', 'times']" class="text-red-500" fixed-width aria-hidden="true" /></template>
                                 </Button>
                             </div>
-                            <div class="mt-1 text-xs text-gray-600">{{ ctrans('The job goes back to what was really made, any authorised overproduction is reduced with it, and the pay for this entry is worked out again.') }}</div>
+                            <div v-if="movingTo(session)" class="mt-1 text-xs text-gray-600">{{ ctrans('The entry moves to :to with what was made there, :from goes back to what is left to do, and the pay for this entry is worked out again as :to.', { to: movingTo(session)?.task_name ?? '', from: session.task_name }) }}</div>
+                            <div v-else class="mt-1 text-xs text-gray-600">{{ ctrans('The job goes back to what was really made, any authorised overproduction is reduced with it, and the pay for this entry is worked out again.') }}</div>
                             <div v-if="correctError" class="mt-1 text-red-700">{{ correctError }}</div>
                         </div>
                         <div v-if="reviewing === session.id" class="mb-2 flex flex-wrap items-end gap-2 rounded border border-amber-200 bg-amber-50 p-2 text-sm">

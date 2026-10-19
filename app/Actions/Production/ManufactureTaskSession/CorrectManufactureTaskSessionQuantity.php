@@ -11,6 +11,7 @@ namespace App\Actions\Production\ManufactureTaskSession;
 use App\Actions\OrgAction;
 use App\Actions\Production\JobOrderItem\UpdateJobOrderItem;
 use App\Actions\Production\JobOrderItemTask\CalculateJobOrderItemTaskQuantities;
+use App\Enums\Production\Artisan\ArtisanPayTypeEnum;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
 use App\Models\Production\JobOrderItemTask;
@@ -42,9 +43,6 @@ class CorrectManufactureTaskSessionQuantity extends OrgAction
             if ($session->is_combined) {
                 $this->refuse(__('A combined batch cannot be corrected, void it and enter it again'));
             }
-            if ($quantity >= $previous) {
-                $this->refuse(__('A correction can only lower the quantity, it was :quantity', ['quantity' => $previous]));
-            }
 
             $task     = JobOrderItemTask::lockForUpdate()->find($session->job_order_item_task_id);
             $item     = $task->jobOrderItem;
@@ -52,6 +50,15 @@ class CorrectManufactureTaskSessionQuantity extends OrgAction
 
             if (!in_array($jobOrder->state, JobOrderStateEnum::open()) || $item->quantity_received > 0) {
                 $this->refuse(__('This job is already being received, its entries can no longer change'));
+            }
+
+            $stepId = $modelData['job_order_item_task_id'] ?? null;
+            if ($stepId && $stepId != $task->id) {
+                return $this->moveToStep($session, $task, $stepId, $quantity);
+            }
+
+            if ($quantity >= $previous) {
+                $this->refuse(__('A correction can only lower the quantity, it was :quantity', ['quantity' => $previous]));
             }
 
             $packSize = $task->packSize();
@@ -102,6 +109,67 @@ class CorrectManufactureTaskSessionQuantity extends OrgAction
         });
     }
 
+    /**
+     * An entry recorded on the wrong step of the line, like a mix entered on Making, goes to the step
+     * really worked with what was made there. The hours stay the artisan's, paid as that step.
+     */
+    private function moveToStep(ManufactureTaskSession $session, JobOrderItemTask $from, int $stepId, float $quantity): ManufactureTaskSession
+    {
+        $to = JobOrderItemTask::lockForUpdate()->where('job_order_item_id', $from->job_order_item_id)->find($stepId);
+        if (!$to || $to->combined_task_id) {
+            $this->refuse(__('Pick another step of the same job line'));
+        }
+
+        $jobOrder = $from->jobOrder;
+        if (collect($jobOrder->data['overproductions'] ?? [])->where('session_id', $session->id)->isNotEmpty()) {
+            $this->refuse(__('A manager authorised extra on this entry, void it and enter it again'));
+        }
+
+        $packSize = $to->packSize();
+        if ($packSize && $quantity != floor($quantity)) {
+            $this->refuse(__('This step is counted in whole packs of :size, enter a whole number', ['size' => $packSize]));
+        }
+        $mixBatchKg = $to->mixBatchKg();
+        if ($mixBatchKg && fmod($quantity, $mixBatchKg) != 0) {
+            $this->refuse(__('This mix is made in whole batches of :kg kg, enter :kg, :double, :triple…', ['kg' => $mixBatchKg, 'double' => 2 * $mixBatchKg, 'triple' => 3 * $mixBatchKg]));
+        }
+        $left = max(0, (float) $to->quantity_required - (float) $to->quantity_made);
+        if (!$to->isRecordedInKg() && $quantity > $left) {
+            $this->refuse(__('Only :left left on :step', ['left' => $left, 'step' => $to->manufactureTask->name]));
+        }
+
+        $data                  = $jobOrder->data ?? [];
+        $data['corrections'][] = [
+            'session_id'    => $session->id,
+            'step'          => $to->manufactureTask->name,
+            'from_step'     => $from->manufactureTask->name,
+            'artefact_code' => $from->jobOrderItem->artefact->code,
+            'pack_size'     => $packSize,
+            'from'          => (float) $session->quantity_made,
+            'to'            => $quantity,
+            'by'            => $this->correctedBy,
+            'at'            => now()->toIso8601String(),
+        ];
+        $jobOrder->update(['data' => $data]);
+
+        $session->fill([
+            'job_order_item_task_id' => $to->id,
+            'manufacture_task_id'    => $to->manufacture_task_id,
+            'quantity_made'          => $quantity,
+            'quantity_rejected'      => 0,
+        ]);
+        $session->setRelation('jobOrderItemTask', $to);
+        $session->unsetRelation('manufactureTask');
+        $session->standard_rate = $session->recipeStandardRate();
+        CloseManufactureTaskSession::make()->applyPayTerms($session, $session->artisan_pay_type ?? ArtisanPayTypeEnum::PIECE_RATE);
+        $session->save();
+
+        CalculateJobOrderItemTaskQuantities::run($from->refresh());
+        CalculateJobOrderItemTaskQuantities::run($to->refresh());
+
+        return CalculateManufactureTaskSessionPay::run($session);
+    }
+
     private function refuse(string $message): never
     {
         throw ValidationException::withMessages(['quantity_made' => $message]);
@@ -110,7 +178,8 @@ class CorrectManufactureTaskSessionQuantity extends OrgAction
     public function rules(): array
     {
         return [
-            'quantity_made' => ['required', 'numeric', 'min:0'],
+            'quantity_made'          => ['required', 'numeric', 'min:0'],
+            'job_order_item_task_id' => ['sometimes', 'nullable', 'integer'],
         ];
     }
 

@@ -638,6 +638,33 @@ test('closing a step at ten times its target rate needs a manager badge or pin',
     CloseManufactureTaskSession::make()->action($session->refresh(), ['quantity_made' => 12, 'manager_code' => $managerPin]);
     expect($item->refresh()->quantity)->toBe(10)
         ->and($jobOrder->refresh()->data['overproductions'] ?? [])->toBe([]);
+
+    $modelData['worker_number'] = 'W'.rand(10000, 99999);
+    $modelData['alias']         = 'Alias '.rand(10000, 99999);
+    $modelData['username']      = 'hourly'.rand(10000, 99999);
+    $hourly                     = StoreEmployee::make()->action($this->organisation, $modelData);
+    $hourly->update(['artisan_pay_type' => \App\Enums\Production\Artisan\ArtisanPayTypeEnum::HOURLY]);
+
+    $untargeted = stepTestManufactureTask($this->production, 'NOTGT', 'Making without target');
+    $untargeted->update(['is_piece_rate' => true, 'is_recorded_in_kg' => false, 'standard_rate' => null]);
+    $this->artefact->manufactureTasks()->sync([$untargeted->id => ['position' => 1, 'units_per_artefact' => 1]]);
+    $jobOrder = StoreJobOrder::make()->action($this->production, []);
+    $item     = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 360]);
+    ConfirmJobOrder::make()->action($jobOrder);
+    $task = $item->tasks()->first();
+
+    $session = StartManufactureTaskSession::make()->action($user, $task);
+    $session->update(['employee_id' => $hourly->id, 'started_at' => now()->subMinutes(40)]);
+    expect(fn () => CloseManufactureTaskSession::make()->action($session->refresh(), ['quantity_made' => 180]))
+        ->toThrow(ValidationException::class, 'a step with no target, by someone paid by the hour: a manager must confirm it')
+        ->and($session->refresh()->state)->toBe(ManufactureTaskSessionStateEnum::OPEN);
+    CloseManufactureTaskSession::make()->action($session->refresh(), ['quantity_made' => 180, 'manager_code' => $managerPin]);
+    expect((float) $task->refresh()->quantity_made)->toBe(180.0);
+
+    $session = StartManufactureTaskSession::make()->action($user, $task);
+    $session->update(['employee_id' => null, 'started_at' => now()->subMinutes(40)]);
+    CloseManufactureTaskSession::make()->action($session->refresh(), ['quantity_made' => 180]);
+    expect($task->refresh()->state)->toBe(JobOrderItemTaskStateEnum::DONE);
 });
 
 test('a step counted in packs says so on the floor and takes whole packs only', function () {

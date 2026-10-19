@@ -16,6 +16,7 @@ use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTy
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionUnderTargetReasonEnum;
 use App\Models\Production\ArtefactManufactureTask;
+use App\Models\Production\JobOrderItemTask;
 use App\Models\Production\ManufactureTask;
 use App\Models\Production\ManufactureTaskSession;
 use App\Models\Production\Production;
@@ -84,7 +85,7 @@ class IndexArtisans extends OrgAction
             ->when($manufactureTaskId, fn ($query) => $query->where('manufacture_task_id', $manufactureTaskId))
             ->when($underTargetOnly, fn ($query) => $query->where('is_under_target', true))
             ->when($payType, fn ($query) => $query->where('artisan_pay_type', $payType))
-            ->with(['user', 'employee', 'manufactureTask', 'underTargetReviewer', 'jobOrderItemTask.jobOrderItem.artefact', 'jobOrderItemTask.jobOrder', 'jobOrder'])
+            ->with(['user', 'employee', 'manufactureTask', 'underTargetReviewer', 'jobOrderItemTask.jobOrderItem.artefact', 'jobOrderItemTask.jobOrderItem.tasks.manufactureTask', 'jobOrderItemTask.jobOrder', 'jobOrder'])
             ->orderByDesc('ended_at')
             ->get();
 
@@ -122,6 +123,15 @@ class IndexArtisans extends OrgAction
                 'name'       => 'grp.models.manufacture-task-session.correct',
                 'parameters' => ['manufactureTaskSession' => $session->id],
             ] : null,
+            'other_steps'         => $canCorrect($session) ? $session->jobOrderItemTask->jobOrderItem->tasks
+                ->reject(fn (JobOrderItemTask $step) => $step->id == $session->job_order_item_task_id || $step->combined_task_id)
+                ->map(fn (JobOrderItemTask $step) => [
+                    'id'                => $step->id,
+                    'task_name'         => $step->manufactureTask->name,
+                    'unit'              => $step->unit(),
+                    'pack_size'         => $step->packSize(),
+                    'quantity_left'     => max(0, (float)$step->quantity_required - (float)$step->quantity_made),
+                ])->values()->all() : [],
             'quantity_rejected'   => (float)$session->quantity_rejected,
             'earned'              => round($session->quantity_made * ($session->task_work_cost ?? 0), 2),
             'units_per_hour'      => $session->paidHours() > 0 ? round($session->quantity_made / $session->paidHours(), 1) : null,

@@ -109,6 +109,7 @@ class CloseManufactureTaskSession extends OrgAction
                 'non_productive_reason'           => $modelData['non_productive_reason'] ?? null,
                 'standard_rate'                   => $session->recipeStandardRate(),
             ]);
+            $payType = $session->employee?->artisan_pay_type ?? ArtisanPayTypeEnum::PIECE_RATE;
             if ($this->isImpossibleRate($session)) {
                 if (empty($modelData['manager_code'])) {
                     throw ValidationException::withMessages([
@@ -121,8 +122,18 @@ class CloseManufactureTaskSession extends OrgAction
                     ]);
                 }
                 $this->overproductionManager($session, $modelData['manager_code']);
+            } elseif ($this->isUncheckedHourlyPieceWork($session, $payType)) {
+                if (empty($modelData['manager_code'])) {
+                    throw ValidationException::withMessages([
+                        'rate' => __(':made on :step, a step with no target, by someone paid by the hour: a manager must confirm it', [
+                            'made' => (float) $session->quantity_made,
+                            'step' => $manufactureTask->name,
+                        ]),
+                    ]);
+                }
+                $this->overproductionManager($session, $modelData['manager_code']);
             }
-            $this->applyPayTerms($session, $session->employee?->artisan_pay_type ?? ArtisanPayTypeEnum::PIECE_RATE);
+            $this->applyPayTerms($session, $payType);
             $session->save();
 
             foreach ($members as $member) {
@@ -352,6 +363,19 @@ class CloseManufactureTaskSession extends OrgAction
         }
 
         return (float) $session->quantity_made > 10 * (float) $session->standard_rate * $session->paidHours();
+    }
+
+    /**
+     * Without a target the speed cannot be checked, and an hourly artisan on a piece-rate step is the
+     * one who recorded a mix on Making when the job had no mix step yet.
+     */
+    private function isUncheckedHourlyPieceWork(ManufactureTaskSession $session, ArtisanPayTypeEnum $payType): bool
+    {
+        return $payType == ArtisanPayTypeEnum::HOURLY
+            && $session->activity_type == ManufactureTaskSessionActivityTypeEnum::PRODUCTION
+            && $session->manufactureTask?->is_piece_rate
+            && $session->standard_rate === null
+            && (float) $session->quantity_made > 0;
     }
 
     public function isUnderTarget(ManufactureTaskSession $session): bool
