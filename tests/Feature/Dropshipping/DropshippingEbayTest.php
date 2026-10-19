@@ -1831,6 +1831,19 @@ test('a channel whose returns and postage differ from eBay takes what eBay holds
         ->and(collect(Http::recorded())->map(fn ($pair) => $pair[0]->method())->unique()->values()->all())->toBe(['GET']);
 });
 
+test('an eBay postage policy without a service code does not put the list of services into the channel settings', function () {
+    $ebayUser = ebayChannel($this);
+
+    fakeEbay($this, ebayAccountRoutes([
+        '/sell/account/v1/return_policy'      => ['returnPolicies' => [['returnPolicyId' => 'rp-1', 'returnsAccepted' => true, 'returnShippingCostPayer' => 'BUYER', 'returnPeriod' => ['value' => 30, 'unit' => 'DAY']]]],
+        '/sell/account/v1/fulfillment_policy' => ['fulfillmentPolicies' => [['fulfillmentPolicyId' => 'fp-1', 'handlingTime' => ['value' => 2, 'unit' => 'DAY'], 'shippingOptions' => []]]],
+    ]));
+
+    $differences = SyncEbayChannelPoliciesFromEbay::run($ebayUser, false);
+
+    expect(array_keys($differences['shipping']))->toBe(['max_dispatch_time']);
+});
+
 test('deleting an eBay user closes its channel and soft deletes the user', function () {
     $ebayUser = ebayChannel($this);
     $channel  = $ebayUser->customerSalesChannel;

@@ -105,7 +105,7 @@ class SyncEbayChannelPoliciesFromEbay
         $carrierCode = Arr::get($service, 'shippingCarrierCode');
 
         return array_filter([
-            ...Arr::get($ebayUser->getServicesWithCarrierInfo(), $serviceCode, [
+            ...Arr::get($ebayUser->getServicesWithCarrierInfo(), (string) $serviceCode, [
                 'service_code' => $serviceCode,
                 'service_name' => $serviceCode,
                 'carrier_code' => $carrierCode,
