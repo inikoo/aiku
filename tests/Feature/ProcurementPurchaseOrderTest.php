@@ -634,12 +634,22 @@ test('agent manager only sees their own agent organisation', function () {
 
     $ownPurchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::SUBMITTED]);
     $directPurchaseOrder = StorePurchaseOrder::make()->action($ownOrgSupplier, PurchaseOrder::factory()->definition());
-    $directPurchaseOrder->updateQuietly(['agent_id' => null, 'state' => PurchaseOrderStateEnum::SUBMITTED]);
+    $directPurchaseOrder->updateQuietly(['agent_id' => null, 'agent_order_reference' => null, 'state' => PurchaseOrderStateEnum::SUBMITTED]);
     $draftPurchaseOrder = StorePurchaseOrder::make()->action($ownOrgSupplier, PurchaseOrder::factory()->definition());
+    $draftPurchaseOrder->updateQuietly(['agent_id' => null, 'agent_order_reference' => null]);
     expect(collect($this->get(route('grp.org.agent.org_suppliers.show.purchase_orders.index', [$organisation->slug, $ownOrgSupplier->slug]))
         ->assertOk()->viewData('page')['props']['data']['data'])->pluck('slug')->all())->toBe([$ownPurchaseOrder->slug]);
     $this->get(route('grp.org.agent.org_suppliers.show.purchase-orders.show', [$organisation->slug, $ownOrgSupplier->slug, $ownPurchaseOrder->slug]))->assertOk();
     $this->get(route('grp.org.agent.org_suppliers.show.purchase-orders.show', [$organisation->slug, $ownOrgSupplier->slug, $directPurchaseOrder->slug]))->assertNotFound();
+
+    $this->artisan('procurement:link_agent_supplier_purchase_orders', ['agent' => $this->agent->slug, '--dry-run' => true])->assertExitCode(0);
+    expect($directPurchaseOrder->refresh()->agent_id)->toBeNull();
+    $this->artisan('procurement:link_agent_supplier_purchase_orders', ['agent' => $this->agent->slug])->assertExitCode(0);
+    expect($directPurchaseOrder->refresh()->agent_id)->toBe($this->agent->id)
+        ->and($directPurchaseOrder->agent_order_reference)->toBeNull()
+        ->and($directPurchaseOrder->data['agent_linked_at'])->not->toBeNull()
+        ->and($draftPurchaseOrder->refresh()->agent_id)->toBeNull();
+    $this->get(route('grp.org.agent.org_suppliers.show.purchase-orders.show', [$organisation->slug, $ownOrgSupplier->slug, $directPurchaseOrder->slug]))->assertOk();
     $directPurchaseOrder->delete();
     $draftPurchaseOrder->delete();
     $ownPurchaseOrder->delete();
