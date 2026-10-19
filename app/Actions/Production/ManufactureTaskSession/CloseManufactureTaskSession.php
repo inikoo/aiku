@@ -356,7 +356,7 @@ class CloseManufactureTaskSession extends OrgAction
      * Ten times the step's target never happens on the floor (real sessions top out near six), so it is
      * a quantity tapped in for work not done in this session, like a step closed seconds after it opened.
      */
-    private function isImpossibleRate(ManufactureTaskSession $session): bool
+    public function isImpossibleRate(ManufactureTaskSession $session): bool
     {
         if ($session->activity_type != ManufactureTaskSessionActivityTypeEnum::PRODUCTION || !$session->standard_rate || (float) $session->quantity_made <= 0) {
             return false;

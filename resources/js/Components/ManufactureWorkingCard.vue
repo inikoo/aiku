@@ -38,6 +38,7 @@ const props = defineProps<{
         carry?: null | { reference: string, units_per_artefact: number, quantity: number }
         close_route: { name: string, parameters: object }
         break_minutes: number
+        left_open_after_shift_at?: string | null
         band_feedback: null | {
             currency_symbol: string
             band0_hourly_rate: number
@@ -293,6 +294,11 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
                 <div class="text-7xl font-mono tabular-nums text-[--app-accent-strong]">{{ elapsed }}</div>
                 <div v-if="session.break_minutes" class="text-sm text-gray-500">{{ session.break_minutes }} {{ ctrans('min on break') }}</div>
             </div>
+        </div>
+
+        <div v-if="session.left_open_after_shift_at" class="mt-6 flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-lg text-amber-800">
+            <FontAwesomeIcon :icon="faExclamationTriangle" class="mt-1" fixed-width aria-hidden="true" />
+            <span>{{ ctrans('This job was left running after the end of the shift (:time). Record what was made and tell your supervisor, who will set the real times.', { time: new Date(session.left_open_after_shift_at).toLocaleString([], { weekday: 'short', hour: '2-digit', minute: '2-digit' }) }) }}</span>
         </div>
 
         <div v-if="closeError" class="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-lg text-red-700">{{ closeError }}</div>

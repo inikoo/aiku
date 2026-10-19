@@ -14,6 +14,7 @@ use App\Enums\Production\Artisan\ArtisanPayTypeEnum;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
+use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionTimeEditReasonEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionUnderTargetReasonEnum;
 use App\Models\Production\ArtefactManufactureTask;
 use App\Models\Production\JobOrderItemTask;
@@ -31,12 +32,15 @@ use Lorisleiva\Actions\ActionRequest;
 
 class IndexArtisans extends OrgAction
 {
+    private bool $canEditClosedPayWeek = false;
+
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->authTo([
             'org-supervisor.'.$this->organisation->id,
             "productions_operations.{$this->production->id}.orchestrate",
         ]);
+        $this->canEditClosedPayWeek = $request->user()->authTo('sysadmin.edit');
 
         return $request->user()->authTo([
             'org-supervisor.'.$this->organisation->id,
@@ -65,6 +69,7 @@ class IndexArtisans extends OrgAction
             'manufacture_task_id' => ['sometimes', 'integer'],
             'under_target'        => ['sometimes', 'boolean'],
             'artisan_pay_type'    => ['sometimes', 'nullable', Rule::enum(ArtisanPayTypeEnum::class)],
+            'time_edited'         => ['sometimes', 'boolean'],
         ];
     }
 
@@ -75,6 +80,7 @@ class IndexArtisans extends OrgAction
         $manufactureTaskId = Arr::get($this->validatedData, 'manufacture_task_id');
         $underTargetOnly   = (bool) Arr::get($this->validatedData, 'under_target', false);
         $payType           = Arr::get($this->validatedData, 'artisan_pay_type');
+        $timeEditedOnly    = (bool) Arr::get($this->validatedData, 'time_edited', false);
 
         $sessions = ManufactureTaskSession::where('manufacture_task_sessions.production_id', $production->id)
             ->whereIn('manufacture_task_sessions.state', [
@@ -85,7 +91,8 @@ class IndexArtisans extends OrgAction
             ->when($manufactureTaskId, fn ($query) => $query->where('manufacture_task_id', $manufactureTaskId))
             ->when($underTargetOnly, fn ($query) => $query->where('is_under_target', true))
             ->when($payType, fn ($query) => $query->where('artisan_pay_type', $payType))
-            ->with(['user', 'employee', 'manufactureTask', 'underTargetReviewer', 'jobOrderItemTask.jobOrderItem.artefact', 'jobOrderItemTask.jobOrderItem.tasks.manufactureTask', 'jobOrderItemTask.jobOrder', 'jobOrder'])
+            ->when($timeEditedOnly, fn ($query) => $query->whereNotNull('time_edited_at'))
+            ->with(['user', 'employee', 'manufactureTask', 'underTargetReviewer', 'timeEditor', 'jobOrderItemTask.jobOrderItem.artefact', 'jobOrderItemTask.jobOrderItem.tasks.manufactureTask', 'jobOrderItemTask.jobOrder', 'jobOrder'])
             ->orderByDesc('ended_at')
             ->get();
 
@@ -108,7 +115,28 @@ class IndexArtisans extends OrgAction
             && in_array($session->jobOrderItemTask->jobOrder->state, JobOrderStateEnum::open())
             && $session->jobOrderItemTask->jobOrderItem->quantity_received <= 0;
 
-        $serializeSession = fn (ManufactureTaskSession $session) => [
+        $userId       = $request->user()->id;
+        $payWeekStart = now()->startOfWeek();
+        $timeEdit     = fn (ManufactureTaskSession $session) => [
+            'time_edit'                => $session->time_edited_at ? [
+                'reason'              => ManufactureTaskSessionTimeEditReasonEnum::labels()[$session->time_edit_reason?->value] ?? null,
+                'note'                => $session->time_edit_note,
+                'edited_by'           => $session->timeEditor?->contact_name ?: $session->timeEditor?->username,
+                'edited_at'           => $session->time_edited_at,
+                'original_started_at' => $session->original_started_at,
+                'original_ended_at'   => $session->original_ended_at,
+            ] : null,
+            'left_open_after_shift_at' => $session->left_open_after_shift_at,
+            'times_route'              => ($this->canEdit || $this->canEditClosedPayWeek)
+                && $session->state == ManufactureTaskSessionStateEnum::CLOSED
+                && $session->user_id != $userId
+                && ($this->canEditClosedPayWeek || $session->ended_at->greaterThanOrEqualTo($payWeekStart)) ? [
+                    'name'       => 'grp.models.manufacture-task-session.times',
+                    'parameters' => ['manufactureTaskSession' => $session->id],
+                ] : null,
+        ];
+
+        $serializeSession = fn (ManufactureTaskSession $session) => $timeEdit($session) + [
             'id'                  => $session->id,
             'state'               => $session->state,
             'task_name'           => $session->manufactureTask->name,
@@ -156,7 +184,7 @@ class IndexArtisans extends OrgAction
 
         $artisans = $sessions
             ->groupBy('user_id')
-            ->map(function (Collection $allUserSessions) use ($totals, $serializeSession) {
+            ->map(function (Collection $allUserSessions) use ($totals, $serializeSession, $timeEdit) {
                 /** @var ManufactureTaskSession $first */
                 $first         = $allUserSessions->first();
                 $userSessions  = $allUserSessions->reject(fn (ManufactureTaskSession $session) => $session->isNonProductive());
@@ -176,7 +204,7 @@ class IndexArtisans extends OrgAction
                     'quantity_made'     => $artisanTotals['quantity_made'],
                     'quantity_rejected' => $artisanTotals['quantity_rejected'],
                     'earned'            => $artisanTotals['earned'],
-                    'non_productive'    => $this->nonProductiveSummary($allUserSessions->filter(fn (ManufactureTaskSession $session) => $session->isNonProductive())),
+                    'non_productive'    => $this->nonProductiveSummary($allUserSessions->filter(fn (ManufactureTaskSession $session) => $session->isNonProductive()), $timeEdit),
                     'under_target_open' => $userSessions->filter(fn (ManufactureTaskSession $session) => $session->is_under_target && $session->state == ManufactureTaskSessionStateEnum::CLOSED && !$session->under_target_reviewed_at)->count(),
                     'jobs'              => $userSessions
                         ->groupBy('jobOrderItemTask.job_order_item_id')
@@ -222,6 +250,12 @@ class IndexArtisans extends OrgAction
                 ],
                 'manufacture_task_id' => $manufactureTaskId ? (int)$manufactureTaskId : null,
                 'under_target'        => $underTargetOnly,
+                'time_edited'         => $timeEditedOnly,
+                'time_edit_reasons'   => array_map(fn (ManufactureTaskSessionTimeEditReasonEnum $reason) => [
+                    'value' => $reason->value,
+                    'label' => ManufactureTaskSessionTimeEditReasonEnum::labels()[$reason->value],
+                ], ManufactureTaskSessionTimeEditReasonEnum::supervisorReasons()),
+                'left_open'           => $this->leftOpenSessions($production),
                 'artisan_pay_type'    => $payType,
                 'artisan_pay_types'   => ArtisanPayTypeEnum::labels(),
                 'under_target_reasons' => ManufactureTaskSessionUnderTargetReasonEnum::labels(),
@@ -243,7 +277,7 @@ class IndexArtisans extends OrgAction
      *
      * @param Collection<int, ManufactureTaskSession> $sessions
      */
-    private function nonProductiveSummary(Collection $sessions): array
+    private function nonProductiveSummary(Collection $sessions, callable $timeEdit): array
     {
         $closed = $sessions->where('state', ManufactureTaskSessionStateEnum::CLOSED);
 
@@ -269,7 +303,7 @@ class IndexArtisans extends OrgAction
             'days'       => $groupedHours(fn (ManufactureTaskSession $session) => $session->ended_at->toDateString(), fn ($session, string $date) => $date),
             'weeks'      => $groupedHours(fn (ManufactureTaskSession $session) => $session->ended_at->copy()->startOfWeek()->toDateString(), fn ($session, string $date) => $date),
             'job_orders' => $groupedHours(fn (ManufactureTaskSession $session) => (string) ($session->job_order_id ?? ''), fn (ManufactureTaskSession $session) => $session->jobOrder?->reference),
-            'sessions'   => $sessions->map(fn (ManufactureTaskSession $session) => [
+            'sessions'   => $sessions->map(fn (ManufactureTaskSession $session) => $timeEdit($session) + [
                 'id'                  => $session->id,
                 'state'               => $session->state,
                 'activity'            => $session->activityLabel(),
@@ -284,6 +318,28 @@ class IndexArtisans extends OrgAction
                 ] : null,
             ])->values(),
         ];
+    }
+
+    /**
+     * Production sessions still running after the operator's shift ended, flagged by production:stop_sessions_after_shift.
+     */
+    private function leftOpenSessions(Production $production): array
+    {
+        return ManufactureTaskSession::where('production_id', $production->id)
+            ->where('state', ManufactureTaskSessionStateEnum::OPEN)
+            ->whereNotNull('left_open_after_shift_at')
+            ->with(['user', 'manufactureTask', 'jobOrder', 'jobOrderItemTask.jobOrder'])
+            ->orderBy('started_at')
+            ->get()
+            ->map(fn (ManufactureTaskSession $session) => [
+                'id'                       => $session->id,
+                'worker'                   => $session->user->contact_name ?: $session->user->username,
+                'task_name'                => $session->manufactureTask?->name ?? $session->activityLabel(),
+                'job_order_reference'      => $session->jobOrder?->reference ?? $session->jobOrderItemTask?->jobOrder?->reference,
+                'started_at'               => $session->started_at,
+                'left_open_after_shift_at' => $session->left_open_after_shift_at,
+            ])
+            ->all();
     }
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array

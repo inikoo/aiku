@@ -28,14 +28,15 @@ class ExportManufacturePayroll extends OrgAction
 
         $filename = sprintf('payroll-%s-%s-%s.csv', $production->slug, $from->toDateString(), $to->toDateString());
 
-        return Excel::download(new ManufacturePayrollExport($production, $from, $to), $filename, ExcelWriter::CSV);
+        return Excel::download(new ManufacturePayrollExport($production, $from, $to, (bool) Arr::get($modelData, 'time_edited', false)), $filename, ExcelWriter::CSV);
     }
 
     public function rules(): array
     {
         return [
             'from' => ['sometimes', 'date'],
-            'to'   => ['sometimes', 'date', 'after_or_equal:from'],
+            'to'          => ['sometimes', 'date', 'after_or_equal:from'],
+            'time_edited' => ['sometimes', 'boolean'],
         ];
     }
 

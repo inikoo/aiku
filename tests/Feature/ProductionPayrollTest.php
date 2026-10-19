@@ -969,6 +969,205 @@ describe('production reward pay bands', function () {
 
         expect((float) $this->artefact->manufactureTasks()->first()->pivot->standard_rate)->toBe(152.0);
     });
+
+    function timeEditSession(\App\Models\Production\JobOrderItemTask $task, \App\Models\SysAdmin\User $user, \Illuminate\Support\Carbon $startedAt, \Illuminate\Support\Carbon $endedAt, float $quantityMade, array $extra = []): ManufactureTaskSession
+    {
+        return ManufactureTaskSession::create(array_merge([
+            'group_id'               => $task->group_id,
+            'organisation_id'        => $task->organisation_id,
+            'production_id'          => $task->production_id,
+            'job_order_item_task_id' => $task->id,
+            'manufacture_task_id'    => $task->manufacture_task_id,
+            'user_id'                => $user->id,
+            'state'                  => ManufactureTaskSessionStateEnum::CLOSED,
+            'started_at'             => $startedAt,
+            'ended_at'               => $endedAt,
+            'quantity_made'          => $quantityMade,
+            'standard_rate'          => 152,
+            'activity_type'          => \App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum::PRODUCTION,
+        ], $extra));
+    }
+
+    function employeeOnDayShift(\App\Models\SysAdmin\Organisation $organisation, string $startTime = '08:00:00', string $endTime = '16:00:00'): Employee
+    {
+        $employee = dayPlanOperator($organisation);
+        $schedule = \App\Models\HumanResources\WorkSchedule::create([
+            'schedulable_type' => 'Employee',
+            'schedulable_id'   => $employee->id,
+            'name'             => 'Day shift',
+            'type'             => 'default',
+            'is_active'        => true,
+        ]);
+        foreach (range(1, 7) as $day) {
+            $schedule->days()->create(['day_of_week' => $day, 'is_working_day' => true, 'start_time' => $startTime, 'end_time' => $endTime]);
+        }
+
+        return $employee;
+    }
+
+    test('a supervisor edits a session left open and its hours, rate and pay are worked out again', function () {
+        $this->travelTo(now()->startOfWeek()->addDays(2)->setTime(18, 0));
+        $this->payBandJobOrderItemTask->manufactureTask->update(['standard_rate' => 152, 'is_piece_rate' => true]);
+        $operator   = stepTestSecondOperator($this->group);
+        $supervisor = stepTestSecondOperator($this->group);
+        $session    = timeEditSession($this->payBandJobOrderItemTask, $operator, now()->subHours(6), now()->subHours(6)->addSeconds((int) round(4.9333 * 3600)), 900);
+        $session    = \App\Actions\Production\ManufactureTaskSession\CalculateManufactureTaskSessionPay::run($session);
+        $started    = $session->started_at->copy();
+        $ended      = $session->ended_at->copy();
+        expect($session->band_code)->toBe('3');
+
+        $edit = \App\Actions\Production\ManufactureTaskSession\EditManufactureTaskSessionTimes::make();
+        $session = $edit->action($session, [
+            'started_at' => $started->toIso8601String(),
+            'ended_at'   => $started->copy()->addHours(5)->addMinutes(30)->toIso8601String(),
+            'reason'     => 'forgot_to_stop',
+        ], $supervisor)->refresh();
+
+        expect($session->band_code)->toBe('1')
+            ->and((float) $session->hours)->toBe(5.5)
+            ->and((float) $session->pay)->toBe(71.5)
+            ->and($session->is_under_target)->toBeFalse()
+            ->and($session->original_ended_at->equalTo($ended->copy()->startOfSecond()))->toBeTrue()
+            ->and($session->time_edited_by)->toBe($supervisor->id)
+            ->and($session->time_edit_reason->value)->toBe('forgot_to_stop');
+
+        $session = \App\Actions\Production\ManufactureTaskSession\EditManufactureTaskSessionTimes::make()->action($session, [
+            'started_at' => $started->toIso8601String(),
+            'ended_at'   => $started->copy()->addHours(10)->toIso8601String() > now()->toIso8601String() ? now()->toIso8601String() : $started->copy()->addHours(6)->toIso8601String(),
+            'reason'     => 'other',
+            'note'       => 'Stayed to clean the line',
+        ], $supervisor)->refresh();
+
+        expect($session->band_code)->toBe('0')
+            ->and($session->is_under_target)->toBeTrue()
+            ->and($session->original_ended_at->equalTo($ended->copy()->startOfSecond()))->toBeTrue()
+            ->and($session->time_edit_note)->toBe('Stayed to clean the line');
+    });
+
+    test('times are refused when wrong, overlapping, own, in a closed pay week or with no note for other', function () {
+        $this->travelTo(now()->startOfWeek()->addDays(2)->setTime(18, 0));
+        $operator   = stepTestSecondOperator($this->group);
+        $supervisor = stepTestSecondOperator($this->group);
+        $session    = timeEditSession($this->payBandJobOrderItemTask, $operator, now()->subHours(8), now()->subHours(6), 100);
+        timeEditSession($this->payBandJobOrderItemTask, $operator, now()->subHours(5), now()->subHours(4), 50);
+        $lastWeek   = timeEditSession($this->payBandJobOrderItemTask, $operator, now()->subWeek()->subHours(3), now()->subWeek()->subHours(2), 50);
+        $edit       = fn (ManufactureTaskSession $session, array $data, $editor = null, bool $sysadmin = false) => \App\Actions\Production\ManufactureTaskSession\EditManufactureTaskSessionTimes::make()->action($session, array_merge(['reason' => 'forgot_to_stop'], $data), $editor ?? $supervisor, $sysadmin);
+
+        expect(fn () => $edit($session, ['started_at' => now()->subHours(6), 'ended_at' => now()->subHours(7)]))->toThrow(ValidationException::class, 'The end must be after the start')
+            ->and(fn () => $edit($session, ['started_at' => now()->subHours(8), 'ended_at' => now()->subHours(4)->subMinutes(30)]))->toThrow(ValidationException::class, 'This overlaps')
+            ->and(fn () => $edit($session, ['started_at' => now()->subHours(8), 'ended_at' => now()->subHours(7)], $operator))->toThrow(ValidationException::class, 'your own session')
+            ->and(fn () => $edit($session, ['started_at' => now()->subHours(8), 'ended_at' => now()->subHours(7), 'reason' => 'other']))->toThrow(ValidationException::class)
+            ->and(fn () => $edit($lastWeek, ['started_at' => now()->subWeek()->subHours(3), 'ended_at' => now()->subWeek()->subHours(2)->subMinutes(30)]))->toThrow(ValidationException::class, 'pay week of this session is closed');
+
+        $lastWeek = $edit($lastWeek, ['started_at' => now()->subWeek()->subHours(3), 'ended_at' => now()->subWeek()->subHours(2)->subMinutes(30)], null, true);
+        expect($lastWeek->refresh()->time_edited_at)->not->toBeNull();
+
+        $tooFast = ['started_at' => now()->subHours(8), 'ended_at' => now()->subHours(8)->addMinutes(2)];
+        expect(fn () => $edit($session, $tooFast))->toThrow(ValidationException::class, 'save again if these times are right');
+        expect((float) $edit($session, $tooFast + ['impossible_rate_confirmed' => true])->refresh()->paidHours())->toBe(2 / 60);
+    });
+
+    test('a night shift is still the shift of the day it started after midnight', function () {
+        $employee = employeeOnDayShift($this->organisation, '22:00:00', '06:00:00');
+        $timezone = $employee->getEffectiveWorkSchedule()->timezone?->name ?? $this->organisation->timezone?->name ?? config('app.timezone');
+        $tuesday  = \Illuminate\Support\Carbon::parse('2026-10-20 02:00:00', $timezone);
+
+        [$start, $end] = $employee->shiftWindowOn($tuesday);
+        expect($start->format('Y-m-d H:i'))->toBe('2026-10-19 22:00')
+            ->and($end->format('Y-m-d H:i'))->toBe('2026-10-20 06:00');
+
+        [$start] = $employee->shiftWindowOn($tuesday->copy()->setTime(12, 0));
+        expect($start->format('Y-m-d H:i'))->toBe('2026-10-20 22:00');
+    });
+
+    test('times outside the operator shift ask to be saved again', function () {
+        $this->travelTo(now()->startOfWeek()->addDays(2)->setTime(23, 0));
+        $employee = employeeOnDayShift($this->organisation);
+        $shiftStart = $employee->shiftWindowOn(now()->subHours(12))[0]->setTimezone(config('app.timezone'));
+        $session  = timeEditSession($this->payBandJobOrderItemTask, stepTestSecondOperator($this->group), $shiftStart->copy()->addHour(), $shiftStart->copy()->addHours(3), 100, ['employee_id' => $employee->id]);
+        $data     = ['started_at' => $shiftStart->copy()->subHour(), 'ended_at' => $shiftStart->copy()->addHours(3), 'reason' => 'forgot_to_start'];
+        $editor   = stepTestSecondOperator($this->group);
+
+        expect(fn () => \App\Actions\Production\ManufactureTaskSession\EditManufactureTaskSessionTimes::make()->action($session, $data, $editor))
+            ->toThrow(ValidationException::class, "shift of 08:00 to 16:00");
+
+        $session = \App\Actions\Production\ManufactureTaskSession\EditManufactureTaskSessionTimes::make()->action($session, $data + ['outside_shift_confirmed' => true], $editor);
+        expect($session->refresh()->started_at->equalTo($shiftStart->copy()->subHour()))->toBeTrue();
+    });
+
+    test('preparation left running is closed at the end of the shift and production left open is flagged', function () {
+        $this->travelTo(now()->startOfWeek()->addDays(2)->setTime(12, 0));
+        $employee = employeeOnDayShift($this->organisation);
+        [$shiftStart, $shiftEnd] = array_map(fn ($moment) => $moment->setTimezone(config('app.timezone')), $employee->shiftWindowOn(now()));
+        $base = [
+            'group_id'        => $this->production->group_id,
+            'organisation_id' => $this->production->organisation_id,
+            'production_id'   => $this->production->id,
+            'employee_id'     => $employee->id,
+            'state'           => ManufactureTaskSessionStateEnum::OPEN,
+            'started_at'      => $shiftStart->copy()->addHour(),
+        ];
+        $cleaning = ManufactureTaskSession::create($base + [
+            'user_id'       => stepTestSecondOperator($this->group)->id,
+            'activity_type' => \App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum::CLEANING,
+        ]);
+        $making = ManufactureTaskSession::create($base + [
+            'user_id'                => stepTestSecondOperator($this->group)->id,
+            'job_order_item_task_id' => $this->payBandJobOrderItemTask->id,
+            'manufacture_task_id'    => $this->payBandJobOrderItemTask->manufacture_task_id,
+            'activity_type'          => \App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum::PRODUCTION,
+        ]);
+
+        $this->travelTo($shiftEnd->copy()->addMinutes(10));
+        \App\Actions\Production\ManufactureTaskSession\StopManufactureTaskSessionsAfterShift::run();
+        expect($cleaning->refresh()->state)->toBe(ManufactureTaskSessionStateEnum::OPEN);
+
+        $this->travelTo($shiftEnd->copy()->addMinutes(31));
+        $this->artisan('production:stop_sessions_after_shift')->assertExitCode(0);
+
+        $cleaning->refresh();
+        $making->refresh();
+        expect($cleaning->state)->toBe(ManufactureTaskSessionStateEnum::CLOSED)
+            ->and($cleaning->ended_at->equalTo($shiftEnd))->toBeTrue()
+            ->and((float) $cleaning->hours)->toBe(7.0)
+            ->and($cleaning->time_edit_reason->value)->toBe('closed_at_shift_end')
+            ->and($making->state)->toBe(ManufactureTaskSessionStateEnum::OPEN)
+            ->and($making->left_open_after_shift_at->equalTo($shiftEnd))->toBeTrue();
+    });
+
+    test('performance and payroll flag sessions with edited times and list only them on request', function () {
+        $this->travelTo(now()->startOfWeek()->addDays(2)->setTime(18, 0));
+        $operator = stepTestSecondOperator($this->group);
+        $edited   = timeEditSession($this->payBandJobOrderItemTask, $operator, now()->subMinutes(50), now()->subMinutes(40), 10);
+        timeEditSession($this->payBandJobOrderItemTask, $operator, now()->subMinutes(30), now()->subMinutes(20), 10);
+
+        $this->patch(route('grp.models.manufacture-task-session.times', $edited->id), [
+            'started_at' => now()->subMinutes(55)->toIso8601String(),
+            'ended_at'   => now()->subMinutes(40)->toIso8601String(),
+            'reason'     => 'forgot_to_start',
+        ])->assertSessionHasNoErrors();
+        expect($edited->refresh()->time_edited_by)->toBe($this->guest->getUser()->id)
+            ->and($edited->started_at->equalTo(now()->subMinutes(55)))->toBeTrue();
+
+        $response = get(route('grp.org.productions.show.artisans.index', [
+            $this->organisation->slug,
+            $this->production->slug,
+            'from'        => now()->toDateString(),
+            'to'          => now()->toDateString(),
+            'time_edited' => 1,
+        ]))->assertOk();
+
+        $jobs     = collect($response->viewData('page')['props']['artisans'])->firstWhere('user_id', $operator->id)['jobs'];
+        $sessions = collect($jobs)->flatMap(fn ($job) => collect($job['steps'])->flatMap(fn ($step) => $step['sessions']));
+        expect($sessions->pluck('id')->all())->toBe([$edited->id])
+            ->and($sessions->first()['time_edit']['reason'])->toBe('Forgot to start')
+            ->and($sessions->first()['times_route'])->not->toBeNull();
+
+        $rows = collect((new \App\Exports\Production\ManufacturePayrollExport($this->production, now()->startOfDay(), now()->endOfDay(), true))->array());
+        expect($rows->sum(fn ($row) => $row[3]))->toBe($rows->sum(fn ($row) => $row[20]))
+            ->and($rows->sum(fn ($row) => $row[20]))->toBeGreaterThanOrEqual(1);
+    });
+
 });
 
 describe('reward sheet import', function () {

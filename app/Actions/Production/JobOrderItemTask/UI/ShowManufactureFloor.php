@@ -264,6 +264,7 @@ class ShowManufactureFloor extends OrgAction
                     ],
                     'band_feedback' => $this->bandFeedback($openSession),
                     'break_minutes' => (int) $openSession->break_minutes,
+                    'left_open_after_shift_at' => $openSession->left_open_after_shift_at,
                     'carry'         => $openSession->is_combined ? null : SettleShortJobOrderItemTask::make()->preview($openSession->jobOrderItemTask),
                 ] : null),
                 'artisan'      => $this->employee?->contact_name,

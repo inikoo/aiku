@@ -1691,6 +1691,15 @@ class Kernel extends ConsoleKernel
             );
 
             $this->logSchedule(
+                $schedule->command('production:stop_sessions_after_shift')->everyFifteenMinutes()->timezone('UTC')->onOneServer()->withoutOverlapping()->sentryMonitor(
+                    monitorSlug: 'StopManufactureTaskSessionsAfterShift',
+                ),
+                name: 'StopManufactureTaskSessionsAfterShift',
+                type: 'command',
+                scheduledAt: now()->format('H:i')
+            );
+
+            $this->logSchedule(
                 $schedule->command('production:raise_scheduled_partner_orders')->dailyAt('06:00')->timezone('Europe/London')->onOneServer()->withoutOverlapping()->sentryMonitor(
                     monitorSlug: 'RaiseScheduledPartnerOrders',
                 ),
