@@ -391,14 +391,6 @@ test('UI Show agent listing for organisation', function () {
     $response->assertOk();
 });
 
-test('UI Show group agents listing', function () {
-    actingAs($this->user);
-
-    $response = get(route('grp.chat.agents.show'));
-
-    $response->assertOk();
-});
-
 it('can render chat sessions index in CRM', function () {
     $this->withoutExceptionHandling();
 

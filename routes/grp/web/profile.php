@@ -7,7 +7,6 @@
  */
 
 use App\Actions\UI\Notification\IndexNotification;
-use App\Actions\UI\Profile\CanVisit;
 use App\Actions\UI\Profile\DeleteProfileApiToken;
 use App\Actions\UI\Profile\DeleteProfilePushSubscription;
 use App\Actions\UI\Profile\StoreProfilePushSubscription;
@@ -31,7 +30,6 @@ Route::get('/borrowable-users', [BorrowUserPermissions::class, 'lenders'])->name
 Route::get('/edit', EditProfile::class)->name('edit');
 
 Route::patch('/bookmarks', UpdateUserBookmarks::class)->name('bookmarks.update');
-Route::get('/can-visit', CanVisit::class)->name('can_visit');
 
 
 Route::get('/notifications', IndexNotification::class)->name('notifications.index');

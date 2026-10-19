@@ -21,7 +21,6 @@ use App\Actions\GoodsIn\StockDelivery\UI\IndexStockDeliveries;
 use App\Actions\GoodsIn\StockDelivery\UI\ShowStockDelivery;
 use App\Actions\GoodsIn\StockDeliveryServiceInvoice\UI\IndexStockDeliveryServiceInvoices;
 use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;
-use App\Actions\Procurement\OrgAgent\ExportOrgAgents;
 use App\Actions\Procurement\OrgAgent\UI\EditOrgAgent;
 use App\Actions\Procurement\OrgAgent\UI\IndexOrgAgents;
 use App\Actions\Procurement\OrgAgent\UI\IndexSuspendedOrgAgents;
@@ -61,7 +60,6 @@ use App\Actions\Procurement\PartnerShoppingListItem\UpdatePartnerShoppingListIte
 use App\Actions\Procurement\OrgPartner\UI\ShowOrgPartner;
 use App\Actions\Procurement\OrgPartner\UI\EditOrgPartner;
 use App\Actions\Procurement\OrgPartner\UpdateOrgPartnerCosmeticSettings;
-use App\Actions\Procurement\OrgSupplier\ExportOrgSuppliers;
 use App\Actions\Procurement\OrgSupplier\UI\CreateOrgSupplier;
 use App\Actions\Procurement\OrgSupplier\UI\EditOrgSupplier;
 use App\Actions\Procurement\OrgSupplier\UI\IndexOrgAgentSuppliers;
@@ -87,7 +85,6 @@ use App\Actions\Procurement\ShoppingListItem\UI\IndexShoppingListItems;
 use App\Actions\Procurement\ShoppingListItem\UI\ShowShoppingListBoard;
 use App\Actions\Procurement\ShoppingListItem\UpdateShoppingListItem;
 use App\Actions\Procurement\PurchaseOrder\ExportPurchaseOrders;
-use App\Actions\Procurement\PurchaseOrder\UI\CreatePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\PdfPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\ExportPurchaseOrderTransactions;
 use App\Actions\Procurement\PurchaseOrder\UI\EditPurchaseOrder;
@@ -146,7 +143,6 @@ Route::prefix('emails')->as('supplier_messages.')->group(function () {
 
 Route::prefix('agents')->as('org_agents.')->group(function () {
     Route::get('', IndexOrgAgents::class)->name('index');
-    Route::get('export', ExportOrgAgents::class)->name('export');
     Route::get('suspended', IndexSuspendedOrgAgents::class)->name('suspended');
 
     Route::prefix('{orgAgent}')->as('show')->group(function () {
@@ -197,7 +193,6 @@ Route::prefix('agent-labels')->as('agent_labels.')->group(function () {
 
 Route::prefix('suppliers')->as('org_suppliers.')->group(function () {
     Route::get('', IndexOrgSuppliers::class)->name('index');
-    Route::get('export', ExportOrgSuppliers::class)->name('export');
     Route::get('create', CreateOrgSupplier::class)->name('create');
     Route::get('create-new', [CreateSupplier::class, 'inOrganisation'])->name('create_new');
     Route::get('{orgSupplier}', ShowOrgSupplier::class)->name('show');
@@ -207,7 +202,6 @@ Route::prefix('suppliers')->as('org_suppliers.')->group(function () {
     Route::get('{orgSupplier}/supplier-products', [IndexOrgSupplierProducts::class, 'inOrgSupplier'])->name('show.supplier_products.index');
     Route::get('{orgSupplier}/supplier-products/{orgSupplierProduct}', [ShowOrgSupplierProduct::class, 'inOrgSupplier'])->name('show.supplier_products.show');
     Route::get('{orgSupplier}/purchase-orders', [IndexPurchaseOrders::class, 'inOrgSupplier'])->name('show.purchase_orders.index');
-    Route::get('{orgSupplier}/purchase-orders/create', CreatePurchaseOrder::class)->name('show.purchase_orders.create');
     Route::get('{orgSupplier}/stock-deliveries', [IndexStockDeliveries::class, 'inOrgSupplier'])->name('show.stock_deliveries.index');
     Route::get('{orgSupplier}/repair', IndexRepairSupplierProducts::class)->name('show.repair_supplier_products.index');
     Route::get('{orgSupplier}/shopping-list', [IndexShoppingListItems::class, 'inOrgSupplier'])->name('show.shopping_list.index');

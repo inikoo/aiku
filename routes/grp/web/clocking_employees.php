@@ -17,6 +17,4 @@ Route::post('/adjustments', StoreAttendanceAdjustment::class)->name('adjustments
 Route::delete('/adjustments/{adjustment}', CancelAttendanceAdjustment::class)->name('adjustments.cancel');
 Route::post('/overtime-requests', StoreEmployeeOvertimeRequest::class)->name('overtime_requests.store');
 Route::post('/overtime-requests/{overtimeRequest}', UpdateEmployeeOvertimeRequest::class)->name('overtime_requests.update');
-Route::get('/leaves', IndexClockingEmployees::class)->name('leaves.index');
-Route::get('/adjustments', IndexClockingEmployees::class)->name('adjustments.index');
 Route::get('/{timesheet}/show', ShowClockingEmployee::class)->name('show');

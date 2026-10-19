@@ -8,7 +8,6 @@
 namespace App\Actions\Accounting\Invoice\UI;
 
 use App\Actions\Catalogue\Product\UI\ShowProduct;
-use App\Actions\Masters\MasterAsset\UI\ShowMasterProduct;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithCatalogueAuthorisation;
 use App\Http\Resources\CRM\InvoicesResource;
@@ -17,8 +16,6 @@ use App\Models\Accounting\Invoice;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
-use App\Models\Masters\MasterAsset;
-use App\Models\Masters\MasterShop;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -30,22 +27,11 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexInvoicesInProduct extends OrgAction
 {
-    use WithCatalogueAuthorisation {
-        authorize as authorizeCatalogue;
-    }
+    use WithCatalogueAuthorisation;
 
-    private MasterAsset|Product $parent;
+    private Product $parent;
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if (str_starts_with($request->route()->getName(), 'grp.masters.')) {
-            return $request->user()->authTo('masters.view');
-        }
-
-        return $this->authorizeCatalogue($request);
-    }
-
-    public function handle(MasterAsset|Asset $parent, ?string $prefix = null): LengthAwarePaginator
+    public function handle(Asset $parent, ?string $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -62,11 +48,7 @@ class IndexInvoicesInProduct extends OrgAction
         $query->leftJoin('currencies', 'invoices.currency_id', 'currencies.id');
         $query->join('invoice_transactions', 'invoices.id', 'invoice_transactions.invoice_id');
 
-        if ($parent instanceof MasterAsset) {
-            $query->where('invoice_transactions.master_asset_id', $parent->id);
-        } elseif ($parent instanceof Asset) {
-            $query->where('invoice_transactions.asset_id', $parent->id);
-        }
+        $query->where('invoice_transactions.asset_id', $parent->id);
 
         $query->distinct();
 
@@ -121,18 +103,9 @@ class IndexInvoicesInProduct extends OrgAction
         return $this->handle($product->asset);
     }
 
-    public function inMaster(MasterShop $masterShop, MasterAsset $masterProduct, ActionRequest $request): LengthAwarePaginator
-    {
-        abort_unless($masterProduct->master_shop_id === $masterShop->id, 404);
-        $this->parent = $masterProduct;
-        $this->initialisationFromGroup($masterShop->group, $request);
-
-        return $this->handle($masterProduct);
-    }
-
     public function htmlResponse(LengthAwarePaginator $invoices, ActionRequest $request): Response
     {
-        $label = ($this->parent instanceof Product) ? __('Product') : __('Master Product');
+        $label = __('Product');
 
         return Inertia::render(
             'InvoicesInProduct',
@@ -168,9 +141,9 @@ class IndexInvoicesInProduct extends OrgAction
         )->table($this->tableStructure());
     }
 
-    public function getBreadcrumbs(Product|MasterAsset $parent, string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(Product $parent, string $routeName, array $routeParameters): array
     {
-        $headCrumb = function (Product|MasterAsset $parent, string $routeName, array $routeParameters) {
+        $headCrumb = function (Product $parent, string $routeName, array $routeParameters) {
             return [
                 [
                     'type'   => 'simple',
@@ -187,19 +160,6 @@ class IndexInvoicesInProduct extends OrgAction
 
 
         return match ($routeName) {
-            'grp.masters.master_shops.show.master_products.invoices' =>
-            array_merge(
-                ShowMasterProduct::make()->getBreadcrumbs(
-                    $parent,
-                    preg_replace('/invoices$/', 'show', $routeName),
-                    $routeParameters
-                ),
-                $headCrumb(
-                    $parent,
-                    $routeName,
-                    $routeParameters
-                )
-            ),
             'grp.org.shops.show.catalogue.products.discontinued_products.invoices',
             'grp.org.shops.show.catalogue.products.in_process_products.invoices',
             'grp.org.shops.show.catalogue.products.current_products.invoices',

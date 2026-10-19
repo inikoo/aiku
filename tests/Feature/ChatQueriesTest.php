@@ -12,7 +12,6 @@ use App\Actions\Chat\ChatSession\AssignChatToAgent;
 use App\Actions\Chat\ChatSession\CloseChatSession;
 use App\Actions\Chat\ChatSession\DownloadChatAttachment;
 use App\Actions\Chat\ChatSession\ExportChatConversations;
-use App\Actions\Chat\ChatSession\GetActiveChatSessions;
 use App\Actions\Chat\ChatSession\GetAgentUnreadMessagesSummary;
 use App\Actions\Chat\ChatSession\GetChatActivity;
 use App\Actions\Chat\ChatSession\GetChatAgentByUserId;
@@ -26,7 +25,6 @@ use App\Actions\Chat\ChatSession\GetChatDashboardVisitors;
 use App\Actions\Chat\ChatSession\GetChatMessages;
 use App\Actions\Chat\ChatSession\GetChatSessions;
 use App\Actions\Chat\ChatSession\GetChatStatus;
-use App\Actions\Chat\ChatSession\GetChatVisitorsByCountry;
 use App\Actions\Chat\ChatSession\HandleChatTyping;
 use App\Actions\Chat\ChatSession\MarkChatMessagesAsRead;
 use App\Actions\Chat\ChatSession\ProcessChatMessageSideEffects;
@@ -978,26 +976,6 @@ test('GetChatAgentSpecializations returns all enum cases with labels', function 
         ->and($result[0])->toHaveKeys(['value', 'label']);
 });
 
-test('GetChatVisitorsByCountry returns aggregated counts by country code', function () {
-    ChatSession::create([
-        'ulid'             => (string)Str::ulid(),
-        'status'           => ChatSessionStatusEnum::ACTIVE,
-        'guest_identifier' => 'guest_'.Str::random(5),
-        'language_id'      => 68,
-        'priority'         => ChatPriorityEnum::NORMAL,
-        'shop_id'          => $this->shop->id,
-        'ai_model_version' => 'default',
-        'geo_country_code' => 'MY',
-        'created_at'       => now(),
-        'updated_at'       => now(),
-    ]);
-
-    $result = GetChatVisitorsByCountry::make()->handle($this->organisation);
-
-    expect($result)->not->toBeEmpty()
-        ->and(collect($result)->pluck('country_code')->map(fn ($code) => trim($code)))->toContain('MY');
-});
-
 test('GetChatCustomerProfile returns empty defaults when session has no web user', function () {
     $chatSession = ChatSession::create([
         'ulid'             => (string)Str::ulid(),
@@ -1082,25 +1060,6 @@ test('GetChatAgents returns only available agents who may work the shop', functi
     $result = GetChatAgents::make()->handle();
 
     expect(collect($result)->pluck('agent_id'))->toContain($agent->id);
-});
-
-test('GetActiveChatSessions returns active and waiting sessions for an organisation', function () {
-    ChatSession::create([
-        'ulid'             => (string)Str::ulid(),
-        'status'           => ChatSessionStatusEnum::WAITING,
-        'guest_identifier' => 'guest_'.Str::random(5),
-        'language_id'      => 68,
-        'priority'         => ChatPriorityEnum::NORMAL,
-        'shop_id'          => $this->shop->id,
-        'ai_model_version' => 'default',
-        'created_at'       => now(),
-        'updated_at'       => now(),
-    ]);
-
-    $result = GetActiveChatSessions::make()->handle($this->organisation);
-
-    expect($result)->not->toBeEmpty()
-        ->and($result[0])->toHaveKeys(['id', 'status', 'has_messages', 'country_code']);
 });
 
 test('TranslateSingleMessage dispatches a translation job when no translation exists yet', function () {

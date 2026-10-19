@@ -26,7 +26,6 @@ use App\Actions\Helpers\Redirects\RedirectMasterProductLink;
 use App\Actions\Helpers\Redirects\RedirectOrder;
 use App\Actions\Helpers\Redirects\RedirectOrgStockFamilyLink;
 use App\Actions\Helpers\Redirects\RedirectOrgStockLink;
-use App\Actions\Helpers\Redirects\RedirectOutboxLink;
 use App\Actions\Helpers\Redirects\RedirectOutboxWorkshopLink;
 use App\Actions\Helpers\Redirects\RedirectPalletDelivery;
 use App\Actions\Helpers\Redirects\RedirectPalletReturn;
@@ -122,7 +121,6 @@ Route::get('redirect-master-product-category/{masterProductCategory:id}', Redire
 Route::get('redirect-master-collections/{masterCollection:id}', RedirectMasterCollectionLink::class)->name('redirect_master_collection');
 
 
-Route::get('redirect-outbox/{outbox:id}', RedirectOutboxLink::class)->name('redirect_outbox');
 Route::get('redirect-outbox-workshop/{outbox:id}', RedirectOutboxWorkShopLink::class)->name('redirect_outbox_workshop');
 
 Route::get('redirect-order/{order:id}', RedirectOrder::class)->name('redirect_order');

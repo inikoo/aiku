@@ -13,7 +13,6 @@ use App\Actions\Catalogue\Collection\UI\IndexCollections;
 use App\Actions\Catalogue\Collection\UI\IndexCollectionsSales;
 use App\Actions\Catalogue\Collection\UI\IndexCollectionsInProductCategory;
 use App\Actions\Catalogue\Collection\UI\ShowCollection;
-use App\Actions\Catalogue\Product\GetProductUploadedImages;
 use App\Actions\Catalogue\Product\UI\CreateProduct;
 use App\Actions\Catalogue\Product\UI\EditProduct;
 use App\Actions\Catalogue\Product\UI\EditProductComposition;
@@ -87,7 +86,6 @@ Route::prefix('products')->as('products.')
 
             Route::prefix('{product}')->group(function () {
                 Route::get('', ShowProduct::class)->name('show');
-                Route::get('images', GetProductUploadedImages::class)->name('images');
                 Route::get('edit', [EditProduct::class, 'inShop'])->name('edit');
                 Route::get('composition', [EditProductComposition::class, 'inShop'])->name('composition');
                 Route::get('invoices', IndexInvoicesInProduct::class)->name('invoices');
@@ -100,7 +98,6 @@ Route::prefix('products')->as('products.')
                 Route::get('create', CreateProduct::class)->name('create');
                 Route::prefix('{product}')->group(function () {
                     Route::get('', ShowProduct::class)->name('show');
-                    Route::get('images', GetProductUploadedImages::class)->name('images');
                     Route::get('edit', [EditProduct::class, 'inShop'])->name('edit');
                     Route::get('invoices', IndexInvoicesInProduct::class)->name('invoices');
                 });
@@ -111,7 +108,6 @@ Route::prefix('products')->as('products.')
                 Route::get('create', CreateProduct::class)->name('create');
                 Route::prefix('{product}')->group(function () {
                     Route::get('', ShowProduct::class)->name('show');
-                    Route::get('images', GetProductUploadedImages::class)->name('images');
                     Route::get('edit', [EditProduct::class, 'inShop'])->name('edit');
                     Route::get('invoices', IndexInvoicesInProduct::class)->name('invoices');
                 });
@@ -122,7 +118,6 @@ Route::prefix('products')->as('products.')
                 Route::get('create', CreateProduct::class)->name('create');
                 Route::prefix('{product}')->group(function () {
                     Route::get('', ShowProduct::class)->name('show');
-                    Route::get('images', GetProductUploadedImages::class)->name('images');
                     Route::get('edit', [EditProduct::class, 'inShop'])->name('edit');
                     Route::get('invoices', IndexInvoicesInProduct::class)->name('invoices');
                 });
@@ -133,7 +128,6 @@ Route::prefix('products')->as('products.')
                 Route::get('create', CreateProduct::class)->name('create');
                 Route::prefix('{product}')->group(function () {
                     Route::get('', ShowProduct::class)->name('show');
-                    Route::get('images', GetProductUploadedImages::class)->name('images');
                     Route::get('edit', [EditProduct::class, 'inShop'])->name('edit');
                     Route::get('invoices', IndexInvoicesInProduct::class)->name('invoices');
                 });
@@ -145,7 +139,6 @@ Route::prefix('products')->as('products.')
             Route::get('create', CreateProduct::class)->name('create');
             Route::prefix('{product}')->group(function () {
                 Route::get('', ShowProduct::class)->name('show');
-                Route::get('images', GetProductUploadedImages::class)->name('images');
                 Route::get('edit', [EditProduct::class, 'inShop'])->name('edit');
                 Route::get('invoices', IndexInvoicesInProduct::class)->name('invoices');
             });
@@ -156,7 +149,6 @@ Route::prefix('products')->as('products.')
             Route::get('create', CreateProduct::class)->name('create');
             Route::prefix('{product}')->group(function () {
                 Route::get('', ShowProduct::class)->name('show');
-                Route::get('images', GetProductUploadedImages::class)->name('images');
                 Route::get('edit', [EditProduct::class, 'inShop'])->name('edit');
                 Route::get('invoices', IndexInvoicesInProduct::class)->name('invoices');
             });
@@ -166,7 +158,6 @@ Route::prefix('products')->as('products.')
             Route::get('', IndexMissingDescriptionProducts::class)->name('index');
             Route::prefix('{product}')->group(function () {
                 Route::get('', ShowProduct::class)->name('show');
-                Route::get('images', GetProductUploadedImages::class)->name('images');
                 Route::get('edit', [EditProduct::class, 'inShop'])->name('edit');
                 Route::get('invoices', IndexInvoicesInProduct::class)->name('invoices');
             });
@@ -177,7 +168,6 @@ Route::prefix('products')->as('products.')
             Route::get('create', CreateProduct::class)->name('create');
             Route::prefix('{product}')->group(function () {
                 Route::get('', ShowProduct::class)->name('show');
-                Route::get('images', GetProductUploadedImages::class)->name('images');
                 Route::get('edit', [EditProduct::class, 'inShop'])->name('edit');
                 Route::get('invoices', IndexInvoicesInProduct::class)->name('invoices');
             });
@@ -189,7 +179,6 @@ Route::prefix('products')->as('products.')
             Route::get('create', CreateProduct::class)->name('create');
             Route::prefix('{product}')->group(function () {
                 Route::get('', ShowProduct::class)->name('show');
-                Route::get('images', GetProductUploadedImages::class)->name('images');
                 Route::get('edit', [EditProduct::class, 'inShop'])->name('edit');
                 Route::get('invoices', IndexInvoicesInProduct::class)->name('invoices');
             });
@@ -200,7 +189,6 @@ Route::prefix('products')->as('products.')
             Route::get('create', CreateProduct::class)->name('create');
             Route::prefix('{product}')->group(function () {
                 Route::get('', ShowProduct::class)->name('show');
-                Route::get('images', GetProductUploadedImages::class)->name('images');
                 Route::get('edit', [EditProduct::class, 'inShop'])->name('edit');
                 Route::get('invoices', IndexInvoicesInProduct::class)->name('invoices');
             });
@@ -215,7 +203,6 @@ Route::prefix('products')->as('products.')
             Route::get('create', CreateProduct::class)->name('create');
             Route::prefix('{product}')->group(function () {
                 Route::get('', ShowProduct::class)->name('show');
-                Route::get('images', GetProductUploadedImages::class)->name('images');
                 Route::get('edit', [EditProduct::class, 'inShop'])->name('edit');
                 Route::get('invoices', IndexInvoicesInProduct::class)->name('invoices');
             });
@@ -226,7 +213,6 @@ Route::prefix('products')->as('products.')
             Route::get('create', CreateProduct::class)->name('create');
             Route::prefix('{product}')->group(function () {
                 Route::get('', ShowProduct::class)->name('show');
-                Route::get('images', GetProductUploadedImages::class)->name('images');
                 Route::get('edit', [EditProduct::class, 'inShop'])->name('edit');
                 Route::get('invoices', IndexInvoicesInProduct::class)->name('invoices');
             });
@@ -237,7 +223,6 @@ Route::prefix('products')->as('products.')
             Route::get('create', CreateProduct::class)->name('create');
             Route::prefix('{product}')->group(function () {
                 Route::get('', ShowProduct::class)->name('show');
-                Route::get('images', GetProductUploadedImages::class)->name('images');
                 Route::get('edit', [EditProduct::class, 'inShop'])->name('edit');
                 Route::get('invoices', IndexInvoicesInProduct::class)->name('invoices');
             });
@@ -248,7 +233,6 @@ Route::prefix('products')->as('products.')
             Route::get('create', CreateProduct::class)->name('create');
             Route::prefix('{product}')->group(function () {
                 Route::get('', ShowProduct::class)->name('show');
-                Route::get('images', GetProductUploadedImages::class)->name('images');
                 Route::get('edit', [EditProduct::class, 'inShop'])->name('edit');
                 Route::get('invoices', IndexInvoicesInProduct::class)->name('invoices');
             });
@@ -259,7 +243,6 @@ Route::prefix('products')->as('products.')
             Route::get('create', CreateProduct::class)->name('create');
             Route::prefix('{product}')->group(function () {
                 Route::get('', ShowProduct::class)->name('show');
-                Route::get('images', GetProductUploadedImages::class)->name('images');
                 Route::get('edit', [EditProduct::class, 'inShop'])->name('edit');
                 Route::get('invoices', IndexInvoicesInProduct::class)->name('invoices');
             });

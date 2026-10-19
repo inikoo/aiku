@@ -1969,12 +1969,6 @@ parameters:
 			path: app/Actions/HydrateModel.php
 
 		-
-			message: '#^Class App\\Exports\\Inventory\\LocationsExport constructor invoked with 0 parameters, 2 required\.$#'
-			identifier: arguments.count
-			count: 1
-			path: app/Actions/Inventory/Location/ExportLocations.php
-
-		-
 			message: '#^Access to an undefined property App\\Actions\\Inventory\\Location\\UI\\EditLocation\:\:\$parent\.$#'
 			identifier: property.notFound
 			count: 1

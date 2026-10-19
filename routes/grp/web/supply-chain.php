@@ -14,7 +14,6 @@ use App\Actions\SupplyChain\AgentSupplierPurchaseOrder\UI\ShowAgentSupplierPurch
 use App\Actions\SupplyChain\Agent\UI\EditAgent;
 use App\Actions\SupplyChain\Agent\UI\IndexAgents;
 use App\Actions\SupplyChain\Agent\UI\ShowAgent;
-use App\Actions\SupplyChain\Supplier\ExportSuppliers;
 use App\Actions\SupplyChain\Supplier\UI\CreateSupplier;
 use App\Actions\SupplyChain\Supplier\UI\EditSupplier;
 use App\Actions\SupplyChain\Supplier\UI\IndexAgentSuppliers;
@@ -91,7 +90,6 @@ Route::prefix("suppliers")->name("suppliers")->group(
     function () {
         Route::get('', IndexSuppliers::class)->name('.index');
         Route::get('create', CreateSupplier::class)->name('.create');
-        Route::get('export', ExportSuppliers::class)->name('.export');
 
 
         Route::prefix('{supplier}')->group(function () {

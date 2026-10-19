@@ -1461,78 +1461,6 @@ test('attach master collection to department', function (MasterProductCategory $
 })->depends('create master department', 'create master collection');
 
 
-test('create master product page loads for family in master shop', function () {
-    $group = $this->group;
-
-    $masterShop = StoreMasterShop::make()->action($group, [
-        'code' => 'MSH-'.uniqid(),
-        'name' => 'Master Shop',
-        'type' => ShopTypeEnum::B2B,
-    ]);
-
-    $masterDepartment = StoreMasterDepartment::make()->action($masterShop, [
-        'code' => 'DEPT-'.uniqid(),
-        'name' => 'Dept',
-    ]);
-
-    $masterFamily = StoreMasterFamily::make()->action($masterDepartment, [
-        'code' => 'FAM-'.uniqid(),
-        'name' => 'Family',
-    ]);
-
-    $response = get(
-        route(
-            'grp.masters.master_shops.show.master_families.master_products.create',
-            [
-                $masterShop,
-                'masterFamily' => $masterFamily,
-            ]
-        )
-    );
-
-    $response->assertInertia(function (AssertableInertia $page) use ($masterFamily) {
-        $page->component('CreateModel')
-            ->where('title', __('New master product'))
-            ->where('pageHead.title', __('New master product'))
-            ->has('breadcrumbs')
-            ->has('formData', function (AssertableInertia $form) use ($masterFamily) {
-                $form->where('route.name', 'grp.models.master_family.store-assets')
-                    ->where('route.parameters.masterFamily', $masterFamily->id)
-                    ->has('blueprint', function (AssertableInertia $bp) use ($masterFamily) {
-                        $bp->has(0, function (AssertableInertia $section) use ($masterFamily) {
-                            $section->where('title', __('Create Master Product'))
-                                ->has('fields.trade_units', function (AssertableInertia $field) use ($masterFamily) {
-                                    $field->where('type', 'list-selector')
-                                        ->where('label', __(key: 'Trade units'))
-                                        ->where('routeFetch.name', 'grp.json.master-product-category.recommended-trade-units')
-                                        ->where('routeFetch.parameters.masterProductCategory', $masterFamily->id)
-                                        ->etc();
-                                })
-                                ->has('fields.code', function (AssertableInertia $field) {
-                                    $field->where('type', 'input')
-                                        ->where('label', __('Code'))
-                                        ->where('required', true)
-                                        ->etc();
-                                })
-                                ->has('fields.name', function (AssertableInertia $field) {
-                                    $field->where('type', 'input')
-                                        ->where('label', __('Name'))
-                                        ->where('required', true)
-                                        ->etc();
-                                })
-                                ->has('fields.price', function (AssertableInertia $field) {
-                                    $field->where('type', 'input')
-                                        ->where('label', __('Price'))
-                                        ->where('required', true)
-                                        ->etc();
-                                });
-                        });
-                    })
-                    ->etc();
-            });
-    });
-});
-
 test('attach master collection to sub department', function (MasterProductCategory $masterSubDepartment, MasterCollection $masterCollection) {
     Bus::fake();
     expect($masterSubDepartment->type)->toBe(MasterProductCategoryTypeEnum::SUB_DEPARTMENT);
@@ -5314,18 +5242,4 @@ test('creating a shop from a master needs org admin of the organisation and the 
     get($createUrl)->assertOk();
     $this->postJson($storeUrl, [])->assertUnprocessable();
     expect($listedOrgs())->toBe([$this->organisation->slug]);
-});
-
-test('invoices of a master product answer only masters staff, INI-076', function () {
-    $masterFamily    = createMasterFamilyInFreshMasterShop('INVPERM');
-    [, $masterAsset] = createMasterVariantOfTwo($masterFamily, 'INVPERM');
-    $url             = route('grp.masters.master_shops.show.master_products.invoices', [$masterFamily->masterShop, $masterAsset]);
-
-    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
-
-    actingAsUserWithOnlyPermissions($user, ["products.{$this->shop->id}.edit"]);
-    get($url)->assertForbidden();
-
-    actingAsUserWithOnlyPermissions($user, ['masters.view']);
-    get($url)->assertOk();
 });

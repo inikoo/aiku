@@ -36,7 +36,6 @@ use App\Actions\Procurement\AgentWarehouseStock\UI\GetAgentProductsInProductionT
 use App\Actions\Procurement\AgentWarehouseStock\UI\IndexAgentProductsInProduction;
 use App\Actions\Procurement\AgentWarehouseStock\UI\IndexAgentReceivedProducts;
 use App\Actions\Procurement\AgentWarehouseStock\UI\IndexAgentWarehouseStocks;
-use App\Actions\Procurement\OrgSupplier\ExportOrgSuppliers;
 use App\Actions\Procurement\OrgSupplier\UI\EditOrgSupplier;
 use App\Actions\Procurement\OrgSupplier\UI\IndexOrgSuppliers;
 use App\Actions\Procurement\OrgSupplier\UI\ShowOrgSupplier;
@@ -99,7 +98,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('suppliers')->as('org_suppliers.')->group(function () {
     Route::get('', IndexOrgSuppliers::class)->name('index');
-    Route::get('export', ExportOrgSuppliers::class)->name('export');
     Route::get('create-new', [CreateSupplier::class, 'inOrganisation'])->name('create_new');
     Route::get('{orgSupplier}', ShowOrgSupplier::class)->name('show');
     Route::get('{orgSupplier}/edit', EditOrgSupplier::class)->name('edit');
