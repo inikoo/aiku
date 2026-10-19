@@ -1,7 +1,7 @@
 ---
 title: Recording order progress as an agent
 summary: For agents — the dates you record on each order to a supplier (deposit paid, production started, production done, proposed ready date, handed over) and your own order number, when and where to record them, what the buying company records instead, and why a missing date shows as a delay.
-date: 2026-10-15
+date: 2026-10-19
 tags: procurement, agents, supply-chain
 category: procurement
 help_routes: grp.org.procurement.purchase_orders
@@ -44,6 +44,12 @@ Some dates you cannot enter, by design:
 - **Compliance pack complete.**
 
 Your <a href="/docs/your-clean-handover-score">Clean Handover Score</a> is calculated from these dates and from the handover date you record. The handover date is yours to record, so record the day the goods actually reached the shipping agent. The buyer sees who recorded it and when, can check it against the shipping agent's receipt, and can correct it; a correction is kept in the order's history with the reason.
+
+## When the supplier changes a price
+
+If a supplier asks for a new price before you confirm an order, do not confirm at the old price. Open the order, find the product in **Items** and click **Supplier changed the price** on its line. Enter the price the supplier asks, per carton as shown, and a short note if it helps, then **Ask the organisation**.
+
+The buying company is notified and answers on the line: it accepts the new price, keeps the old one, or sets another price. You are notified of the answer. Until every price question on the order is answered, **Confirm** stays grey. If the buying company keeps the old price and the supplier will not sell at it, cancel that line before confirming.
 
 ## Good habits
 

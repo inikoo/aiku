@@ -18,6 +18,7 @@ import Button from '@/Components/Elements/Buttons/Button.vue'
 import { useLocaleStore } from '@/Stores/locale'
 import PurchaseOrderItemStockInfo from '@/Components/Procurement/PurchaseOrderItemStockInfo.vue'
 import PurchaseOrderSuggestButton from '@/Components/Procurement/PurchaseOrderSuggestButton.vue'
+import PurchaseOrderLinePriceChange from '@/Components/Procurement/PurchaseOrderLinePriceChange.vue'
 import { getOrderingLevels, unitsPerOrderingLevel, suggestionAtOrderingLevel, type OrderingLevel } from '@/Composables/useOrderingLevel'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -169,7 +170,7 @@ const alsoUpdateSupplierPrice = ref<Record<number, boolean>>({})
 const savingPriceId = ref<number | null>(null)
 
 function canEditPrice(item: any) {
-    return isPriceEditable.value && item.updateRoute && ['in_process', 'submitted'].includes(item.state)
+    return isPriceEditable.value && !isInAgentOrganisation && item.updateRoute && ['in_process', 'submitted'].includes(item.state)
 }
 
 function supplierLevelCostLabel(item: any) {
@@ -585,6 +586,7 @@ function orgStockRoute(item: { org_stock_id?: number }) {
                 <div v-else-if="isInProcess" class="text-xs text-gray-500">
                     {{ level.cost }}: {{ levelCostLabel(item) }}
                 </div>
+                <PurchaseOrderLinePriceChange v-if="!isPartner" :item="item" :unitsPerLevel="unitsPerLevel(item)" :costLabel="level.cost" :updateSupplierCost="!!alsoUpdateSupplierPrice[item.id]" />
                 <div v-if="!isPartner" class="text-xs text-gray-500">
                     {{ ctrans('Packed in') }} {{ formatQuantity(Number(item.units_per_pack) || 1) }}s ,
                     {{ ctrans('sko/C') }}: {{ formatQuantity(skosPerCarton(item)) }}

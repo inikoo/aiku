@@ -9,9 +9,12 @@
 namespace App\Http\Resources\Procurement;
 
 use App\Actions\Procurement\PurchaseOrder\UI\GetOrgStockBuyingSignals;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStateEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionPriceQueryStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Models\Procurement\PurchaseOrderTransaction;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PurchaseOrderTransactionResource extends JsonResource
@@ -90,6 +93,32 @@ class PurchaseOrderTransactionResource extends JsonResource
                 ],
                 'method'     => 'delete',
             ],
+            'price_query'          => $transaction->price_query_state ? [
+                'state'              => $transaction->price_query_state->value,
+                'label'              => $transaction->price_query_state->label(),
+                'unit_cost'          => $transaction->price_query_unit_cost,
+                'previous_unit_cost' => $transaction->price_query_previous_unit_cost,
+                'note'               => $transaction->price_query_note,
+                'asked_by'           => $transaction->priceQueriedBy?->contact_name ?: $transaction->priceQueriedBy?->username,
+                'asked_at'           => $transaction->price_queried_at,
+                'answered_at'        => $transaction->price_query_answered_at,
+            ] : null,
+            'askPriceRoute'        => $this->canAskPrice($transaction, $request) ? [
+                'name'       => 'grp.models.purchase-order.transaction.price_change.ask',
+                'parameters' => [
+                    'purchaseOrder'            => $transaction->purchase_order_id,
+                    'purchaseOrderTransaction' => $transaction->id,
+                ],
+                'method'     => 'post',
+            ] : null,
+            'answerPriceRoute'     => $this->canAnswerPrice($transaction, $request) ? [
+                'name'       => 'grp.models.purchase-order.transaction.price_change.answer',
+                'parameters' => [
+                    'purchaseOrder'            => $transaction->purchase_order_id,
+                    'purchaseOrderTransaction' => $transaction->id,
+                ],
+                'method'     => 'patch',
+            ] : null,
             'cancelRoute'          => $this->isCancellable($transaction) ? [
                 'name'       => 'grp.models.purchase-order.transaction.cancel',
                 'parameters' => [
@@ -99,6 +128,39 @@ class PurchaseOrderTransactionResource extends JsonResource
                 'method'     => 'patch',
             ] : null,
         ];
+    }
+
+    private function canAskPrice(PurchaseOrderTransaction $transaction, $request): bool
+    {
+        $purchaseOrder = $transaction->purchaseOrder;
+
+        if (!$purchaseOrder?->isAgentOrder()
+            || $purchaseOrder->state !== PurchaseOrderStateEnum::SUBMITTED
+            || $transaction->state !== PurchaseOrderTransactionStateEnum::SUBMITTED) {
+            return false;
+        }
+
+        $agentOrganisationId = $purchaseOrder->agent?->organisation_id;
+
+        return $agentOrganisationId !== null
+            && $this->viewingOrganisationId($request) === $agentOrganisationId
+            && $request->user()?->authTo("procurement.$agentOrganisationId.edit");
+    }
+
+    private function canAnswerPrice(PurchaseOrderTransaction $transaction, $request): bool
+    {
+        return $transaction->price_query_state === PurchaseOrderTransactionPriceQueryStateEnum::PENDING
+            && $transaction->state === PurchaseOrderTransactionStateEnum::SUBMITTED
+            && $transaction->purchaseOrder?->state === PurchaseOrderStateEnum::SUBMITTED
+            && $this->viewingOrganisationId($request) === $transaction->organisation_id
+            && $request->user()?->authTo("procurement.$transaction->organisation_id.edit");
+    }
+
+    private function viewingOrganisationId($request): ?int
+    {
+        $organisation = $request->route('organisation');
+
+        return $organisation instanceof Organisation ? $organisation->id : null;
     }
 
     private function isCancellable(PurchaseOrderTransaction $transaction): bool

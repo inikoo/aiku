@@ -10,6 +10,8 @@ namespace App\Models\Procurement;
 
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionPriceQueryStateEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\Helpers\Address;
 use App\Models\SupplyChain\Agent;
@@ -358,6 +360,17 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
     public function areLinesLockedByProduction(): bool
     {
         return $this->isAgentOrder() && $this->hasProductionStarted();
+    }
+
+    /**
+     * Lines whose new supplier price the agent asked about and the organisation has not answered yet.
+     */
+    public function numberPendingPriceChanges(): int
+    {
+        return $this->purchaseOrderTransactions()
+            ->where('state', PurchaseOrderTransactionStateEnum::SUBMITTED)
+            ->where('price_query_state', PurchaseOrderTransactionPriceQueryStateEnum::PENDING)
+            ->count();
     }
 
     /**

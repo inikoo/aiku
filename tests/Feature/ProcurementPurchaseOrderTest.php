@@ -31,6 +31,7 @@ use App\Enums\SupplyChain\AgentSupplierPurchaseOrders\AgentSupplierPurchaseOrder
 use App\Enums\SupplyChain\AgentSupplierPurchaseOrders\AgentSupplierPurchaseOrderStateEnum;
 use App\Models\SupplyChain\AgentSupplierPurchaseOrder;
 use App\Models\SysAdmin\User;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionPriceQueryStateEnum;
 use App\Actions\Transfers\Aurora\RepairAuroraPurchaseOrderBuyers;
 use App\Actions\GoodsIn\StockDelivery\StoreStockDelivery;
 use App\Actions\Procurement\PurchaseOrder\ImportPurchaseOrderTransactions;
@@ -3846,4 +3847,100 @@ test('org supplier products json answers procurement staff of the organisation a
 
     actingAsUserWithOnlyPermissions($user, ["procurement.{$this->organisation->id}.view"]);
     $this->getJson($url)->assertOk();
+});
+
+test('the agent asks the organisation about a new supplier price and confirms only once it is answered', function () {
+    \Illuminate\Support\Facades\Notification::fake();
+    $orgAgent = createFreshOrgAgent($this);
+    $admin    = User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+    $buyerPermissions = ["procurement.{$this->organisation->id}.view", "procurement.{$this->organisation->id}.edit", 'supply-chain.edit'];
+    actingAsUserWithOnlyPermissions($admin, $buyerPermissions);
+    [$order, $siblingOrder] = collect(createAgentOrderToSend($this, $orgAgent, 2))
+        ->map(fn (PurchaseOrder $order) => UpdatePurchaseOrderStateToSubmitted::make()->action($order->refresh())->refresh())
+        ->all();
+    $order->updateQuietly(['buyer_id' => $admin->id]);
+    $agentOrganisation = $orgAgent->agent->organisation;
+    $agentUser         = agentOrganisationAdmin($agentOrganisation, 'agent-price-'.Str::lower(Str::random(6)));
+
+    $line         = $order->purchaseOrderTransactions()->firstOrFail();
+    $oldUnitCost  = (float) $line->unit_cost;
+    $askRoute     = route('grp.models.purchase-order.transaction.price_change.ask', [$order->id, $line->id]);
+    $answerRoute  = route('grp.models.purchase-order.transaction.price_change.answer', [$order->id, $line->id]);
+    $confirmRoute = route('grp.models.purchase-order.confirm', $order->id);
+    $itemLine     = fn (string $url) => collect($this->get($url)->assertOk()->viewData('page')['props']['items']['data'])->firstWhere('id', $line->id);
+
+    actingAs($admin);
+    $this->post($askRoute, ['unit_cost' => $oldUnitCost + 1])->assertForbidden();
+
+    actingAs($agentUser);
+    expect($itemLine(route('grp.org.agent.purchase_orders.show', [$agentOrganisation->slug, $order->slug, 'tab' => 'items'])))
+        ->askPriceRoute->name->toBe('grp.models.purchase-order.transaction.price_change.ask')
+        ->answerPriceRoute->toBeNull();
+
+    $this->post($askRoute, ['unit_cost' => $oldUnitCost + 1, 'note' => 'Raw material went up'])->assertSessionHasNoErrors();
+    $line->refresh();
+    expect($line->price_query_state)->toBe(PurchaseOrderTransactionPriceQueryStateEnum::PENDING)
+        ->and((float) $line->price_query_unit_cost)->toEqual($oldUnitCost + 1)
+        ->and((float) $line->price_query_previous_unit_cost)->toEqual($oldUnitCost)
+        ->and((float) $line->unit_cost)->toEqual($oldUnitCost)
+        ->and($line->price_queried_by_id)->toBe($agentUser->id);
+    \Illuminate\Support\Facades\Notification::assertSentTo(
+        $admin,
+        \App\Notifications\PurchaseOrderStageChangedByAgentNotification::class,
+        fn ($notification) => $notification->purchaseOrder->is($order) && str_contains($notification->change, $line->supplierProduct->code)
+    );
+
+    $this->patch($confirmRoute)->assertSessionHasErrors('price_change');
+    $this->patch(route('grp.models.purchase-order.agent_order.confirm', $order->id))->assertSessionHasErrors('price_change');
+    expect($order->refresh()->state)->toBe(PurchaseOrderStateEnum::SUBMITTED)
+        ->and($siblingOrder->refresh()->state)->toBe(PurchaseOrderStateEnum::SUBMITTED);
+    $this->patch($answerRoute, ['answer' => 'accepted'])->assertForbidden();
+
+    actingAs($admin);
+    $buyerLine = $itemLine(route('grp.org.procurement.purchase_orders.show', [$order->organisation->slug, $order->slug, 'tab' => 'items']));
+    expect($buyerLine['askPriceRoute'])->toBeNull()
+        ->and($buyerLine['answerPriceRoute']['name'])->toBe('grp.models.purchase-order.transaction.price_change.answer')
+        ->and($buyerLine['price_query']['state'])->toBe('pending');
+
+    $this->patch($answerRoute, ['answer' => 'adjusted'])->assertSessionHasErrors('unit_cost');
+    $this->patch($answerRoute, ['answer' => 'accepted'])->assertSessionHasNoErrors();
+    $line->refresh();
+    expect($line->price_query_state)->toBe(PurchaseOrderTransactionPriceQueryStateEnum::ACCEPTED)
+        ->and((float) $line->unit_cost)->toEqual($oldUnitCost + 1)
+        ->and((float) $line->net_amount)->toEqual(round(($oldUnitCost + 1) * (float) $line->quantity_ordered, 2));
+    \Illuminate\Support\Facades\Notification::assertSentTo(
+        $agentUser,
+        \App\Notifications\PurchaseOrderPriceChangeAnsweredNotification::class,
+        fn ($notification) => $notification->purchaseOrderTransaction->is($line) && str_contains($notification->title(), $order->reference)
+    );
+    $this->patch($answerRoute, ['answer' => 'rejected'])->assertSessionHasErrors('answer');
+
+    actingAs($agentUser);
+    $this->post($askRoute, ['unit_cost' => $oldUnitCost + 3])->assertSessionHasNoErrors();
+    actingAs($admin);
+    $this->patch($answerRoute, ['answer' => 'rejected'])->assertSessionHasNoErrors();
+    expect((float) $line->refresh()->unit_cost)->toEqual($oldUnitCost + 1)
+        ->and($line->price_query_state)->toBe(PurchaseOrderTransactionPriceQueryStateEnum::REJECTED);
+
+    actingAs($agentUser);
+    $this->post($askRoute, ['unit_cost' => $oldUnitCost + 3])->assertSessionHasNoErrors();
+    actingAs($admin);
+    $this->patch($answerRoute, ['answer' => 'adjusted', 'unit_cost' => $oldUnitCost + 2, 'update_supplier_cost' => true])->assertSessionHasNoErrors();
+    expect((float) $line->refresh()->unit_cost)->toEqual($oldUnitCost + 2)
+        ->and($line->price_query_state)->toBe(PurchaseOrderTransactionPriceQueryStateEnum::ADJUSTED)
+        ->and((float) $line->supplierProduct->refresh()->cost)->toEqual($oldUnitCost + 2);
+
+    $siblingLine = $siblingOrder->purchaseOrderTransactions()->firstOrFail();
+    actingAs($agentUser);
+    $this->post(route('grp.models.purchase-order.transaction.price_change.ask', [$siblingOrder->id, $siblingLine->id]), ['unit_cost' => (float) $siblingLine->unit_cost + 1])->assertSessionHasNoErrors();
+    CancelPurchaseOrderTransaction::make()->action($siblingLine->refresh());
+    actingAs($admin);
+    $this->patch(route('grp.models.purchase-order.transaction.price_change.answer', [$siblingOrder->id, $siblingLine->id]), ['answer' => 'accepted'])->assertSessionHasErrors('answer');
+    expect((float) $siblingLine->refresh()->net_amount)->toEqual(0.0);
+
+    actingAs($agentUser);
+    $this->patch($confirmRoute)->assertSessionHasNoErrors();
+    expect($order->refresh()->state)->toBe(PurchaseOrderStateEnum::CONFIRMED);
+    $this->post($askRoute, ['unit_cost' => $oldUnitCost + 5])->assertSessionHasErrors('unit_cost');
+    actingAs($this->adminGuest->getUser());
 });
