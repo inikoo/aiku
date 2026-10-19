@@ -455,7 +455,7 @@ class TradeUnit extends Model implements HasMedia, Auditable
     }
 
     /**
-     * Its attachments, with the substance documents (IFRA, SDS, CLP, allergens) taken from its documents trade unit when it has one.
+     * Its attachments, with the substance documents (IFRA, SDS, CLP, allergens, Declaration of Conformity) taken from its documents trade unit when it has one.
      *
      * @return Collection<int, Media>
      */

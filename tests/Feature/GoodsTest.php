@@ -2016,6 +2016,11 @@ test('sizes sharing documents show the source trade unit IFRA, SDS and allergen 
     $ifra = $sourceTradeUnit->attachments()->wherePivot('scope', 'ifra')->first();
     expect($sizeProduct->attachments()->where('media.id', $ifra->id)->exists())->toBeTrue();
 
+    \App\Actions\Helpers\Media\AttachAttachmentToModel::make()->action($sourceTradeUnit, ['attachments' => [$pdf('doc.pdf')], 'scope' => 'doc']);
+    $declarationOfConformity = $sourceTradeUnit->attachments()->wherePivot('scope', 'doc')->first();
+    expect($sizeProduct->attachments()->where('media.id', $declarationOfConformity->id)->exists())->toBeTrue()
+        ->and(collect($attachmentsTab($sizeTradeUnit->fresh())['attachment_category_box']['public'])->keyBy('scope')['doc']['shared_from'])->toBe($sourceTradeUnit->code);
+
     expect(fn () => \App\Actions\Helpers\Media\AttachAttachmentToModel::make()->action($sizeTradeUnit->fresh(), ['attachments' => [$pdf('stray-ifra.pdf')], 'scope' => 'ifra']))
         ->toThrow(\Illuminate\Validation\ValidationException::class);
 

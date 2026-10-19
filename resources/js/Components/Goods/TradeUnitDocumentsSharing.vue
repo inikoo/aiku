@@ -65,7 +65,7 @@ const stopSharing = (tradeUnitId: number) => {
 <template>
     <div class="px-10 pt-4">
         <div class="rounded-xl bg-white p-5">
-            <h3 class="mb-1 text-base font-semibold text-gray-700">{{ ctrans("Shared IFRA, SDS, CLP and allergen documents") }}</h3>
+            <h3 class="mb-1 text-base font-semibold text-gray-700">{{ ctrans("Shared IFRA, SDS, CLP, allergen and conformity documents") }}</h3>
             <div class="mb-4 h-1 border-b border-gray-300"></div>
 
             <div v-if="data.source" class="flex flex-wrap items-center gap-3 text-sm text-gray-700">
