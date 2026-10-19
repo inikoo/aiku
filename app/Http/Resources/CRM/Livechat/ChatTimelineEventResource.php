@@ -30,6 +30,7 @@ class ChatTimelineEventResource extends JsonResource
             'event_type'  => $eventType?->value,
             'actor_name'  => $this->actorName(),
             'description' => $this->describe($eventType),
+            'note'        => $eventType === ChatEventTypeEnum::INTERNAL_NOTE ? $this->payload('text') : null,
             'created_at'  => $this->created_at,
             'timestamp'   => $this->created_at?->timestamp,
         ];
@@ -74,6 +75,7 @@ class ChatTimelineEventResource extends JsonResource
             ChatEventTypeEnum::TRANSFER_TO_AGENT => $this->describeTransfer($actor),
             ChatEventTypeEnum::ASSIGNMENT_TO_SELF => __(':actor took the chat', ['actor' => $actor]),
             ChatEventTypeEnum::MOVED_TO_COURIERS => __(':actor moved the chat to Couriers and added :domain to the courier list', ['actor' => $actor, 'domain' => $this->payload('domain')]),
+            ChatEventTypeEnum::INTERNAL_NOTE => __('Internal note by :actor, not visible to the customer', ['actor' => $actor]),
             default => __(':actor updated the chat', ['actor' => $actor]),
         };
     }

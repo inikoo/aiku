@@ -2623,6 +2623,33 @@ describe('customer service tools', function () {
             ->assertHasErrors(['This chat is closed']);
     });
 
+    test('an internal note is previewed, then kept in the thread for staff without reaching the customer or answering the chat', function () {
+        $messages = $this->chat->messages()->count();
+        $status   = $this->chat->status;
+        $notes    = fn () => $this->chat->chatEvents()->where('event_type', App\Enums\CRM\Livechat\ChatEventTypeEnum::INTERNAL_NOTE)->get();
+        $text     = "Card declined by her bank (scheme compliance), checkout works.\nTell her: try another card or ask for a pay link.";
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'add_note', 'message' => $text])
+            ->assertOk()->assertSee('Nothing was changed');
+
+        expect($notes())->toHaveCount(0);
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'add_note', 'message' => $text, 'confirm' => true, 'request_text' => 'add the investigation note'])
+            ->assertOk()->assertSee('note_id');
+
+        $note     = $notes()->sole();
+        $timeline = (new App\Http\Resources\CRM\Livechat\ChatTimelineEventResource($note))->resolve();
+
+        expect($note->payload['text'])->toBe($text)
+            ->and($timeline['note'])->toBe($text)
+            ->and($timeline['description'])->toContain('not visible to the customer')
+            ->and($this->chat->messages()->count())->toBe($messages)
+            ->and($this->chat->refresh()->status)->toBe($status);
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatTool::class, [])
+            ->assertOk()->assertSee('internal_notes')->assertSee('scheme compliance');
+    });
+
     test('changes notes, products and delivery address of a submitted order, and refuses a dispatched one', function () {
         [, $other] = createProduct($this->shop);
         $order     = StoreOrder::make()->action($this->csCustomer, []);

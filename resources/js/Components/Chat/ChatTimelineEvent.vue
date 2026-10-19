@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faBan, faCheckCircle, faFlag, faExchangeAlt, faUserCheck, faInfoCircle, faPhone, faShare, faTruck, faExclamationTriangle } from "@far"
+import { faBan, faCheckCircle, faFlag, faExchangeAlt, faUserCheck, faInfoCircle, faPhone, faShare, faTruck, faExclamationTriangle, faSearch } from "@far"
 import { ctrans } from "@/Composables/useTrans"
 
 const props = defineProps<{
@@ -9,6 +9,7 @@ const props = defineProps<{
         id?: number
         event_type?: string | null
         description?: string
+        note?: string | null
         payload?: Record<string, any> | null
         created_at?: string
     }
@@ -27,6 +28,7 @@ const ICONS: Record<string, any> = {
     forward: faShare,
     moved_to_couriers: faTruck,
     email_bounce: faExclamationTriangle,
+    internal_note: faSearch,
 }
 
 const icon = computed(() => ICONS[props.event.event_type ?? ""] ?? faInfoCircle)
@@ -34,6 +36,10 @@ const icon = computed(() => ICONS[props.event.event_type ?? ""] ?? faInfoCircle)
 const tone = computed(() => (["spam", "email_bounce"].includes(props.event.event_type ?? "") ? "text-red-500" : "text-gray-400"))
 
 const isPhoneCall = computed(() => props.event.event_type === "phone_call")
+
+// Pink is the colour of "for staff only": the note is read in the thread like a message, so it has to
+// look like nothing the customer could have written or been sent.
+const isInternalNote = computed(() => props.event.event_type === "internal_note")
 
 const payload = computed(() => props.event.payload ?? {})
 
@@ -93,7 +99,17 @@ const stamp = computed(() => {
 </script>
 
 <template>
-    <div class="flex flex-col items-center gap-1 py-1 text-center">
+    <div v-if="isInternalNote" class="flex justify-center py-2">
+        <div class="w-full max-w-xl rounded-lg border border-pink-300 bg-pink-50 px-3 py-2 text-left shadow-sm">
+            <div class="mb-1 flex items-center gap-1.5 text-[11px] font-semibold text-pink-700">
+                <FontAwesomeIcon :icon="faSearch" fixed-width />
+                <span>{{ headline }}</span>
+            </div>
+            <div class="whitespace-pre-line text-xs leading-relaxed text-pink-950">{{ event.note }}</div>
+            <div class="mt-1 text-right text-[10px] text-pink-400">{{ stamp }}</div>
+        </div>
+    </div>
+    <div v-else class="flex flex-col items-center gap-1 py-1 text-center">
         <span class="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center">
             <FontAwesomeIcon :icon="icon" class="text-[9px]" :class="tone" fixed-width />
         </span>
