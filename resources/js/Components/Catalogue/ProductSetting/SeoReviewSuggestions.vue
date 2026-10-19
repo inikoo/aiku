@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue"
 import { router } from "@inertiajs/vue3"
+import { notify } from "@kyvg/vue3-notification"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faPaperPlane } from "@fal"
 import { ctrans } from "@/Composables/useTrans"
@@ -67,7 +68,10 @@ const send = () => {
         {
             preserveScroll: true,
             preserveState: true,
-            onSuccess: () => emit("sent"),
+            onSuccess: () => {
+                notify({ title: ctrans("Suggestions sent"), text: ctrans("The webmaster has a task to implement them."), type: "success" })
+                emit("sent")
+            },
             onError: (validationErrors) => (errors.value = validationErrors as Record<string, string>),
             onFinish: () => (isSending.value = false),
         }

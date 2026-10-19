@@ -99,6 +99,7 @@ class StoreProductSeoReview extends OrgAction
                 'organisation' => $product->organisation->slug,
                 'shop'         => $product->shop->slug,
                 'product'      => $product->slug,
+                'tab'          => 'validation',
             ]), ['model_type' => 'Product', 'model_id' => $product->id]);
         }
 
