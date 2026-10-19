@@ -2422,3 +2422,20 @@ test('unused json lookups are removed, INI-076', function () {
         expect(\Illuminate\Support\Facades\Route::has("grp.json.$name"))->toBeFalse();
     }
 });
+
+test('invoices of a product answer catalogue staff of its shop, and a product of another shop is not found, INI-076', function () {
+    list($organisation, , $shop) = createShop();
+    list(, $product) = createProduct($shop);
+    $otherShop = StoreShop::make()->action($organisation, Shop::factory()->definition());
+
+    $url = route('grp.org.shops.show.catalogue.products.current_products.invoices', [$organisation->slug, $shop->slug, $product->slug]);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $organisation->group_id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["human-resources.$organisation->id.view"]);
+    get($url)->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["products.$shop->id.view"]);
+    get($url)->assertOk();
+    get(route('grp.org.shops.show.catalogue.products.current_products.invoices', [$organisation->slug, $otherShop->slug, $product->slug]))->assertNotFound();
+});

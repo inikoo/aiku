@@ -5315,3 +5315,17 @@ test('creating a shop from a master needs org admin of the organisation and the 
     $this->postJson($storeUrl, [])->assertUnprocessable();
     expect($listedOrgs())->toBe([$this->organisation->slug]);
 });
+
+test('invoices of a master product answer only masters staff, INI-076', function () {
+    $masterFamily    = createMasterFamilyInFreshMasterShop('INVPERM');
+    [, $masterAsset] = createMasterVariantOfTwo($masterFamily, 'INVPERM');
+    $url             = route('grp.masters.master_shops.show.master_products.invoices', [$masterFamily->masterShop, $masterAsset]);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["products.{$this->shop->id}.edit"]);
+    get($url)->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ['masters.view']);
+    get($url)->assertOk();
+});

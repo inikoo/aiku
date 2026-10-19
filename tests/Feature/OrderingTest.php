@@ -6637,3 +6637,16 @@ test('an orders viewer reads an order but cannot change it, and accounts can sti
         actingAsUserWithRoles($this->user, $originalRoles);
     }
 });
+
+test('order channels of a shop answer only its order or accounting staff, INI-076', function () {
+    $url  = route('grp.org.shops.show.ordering.channels.index', [$this->organisation->slug, $this->shop->slug]);
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["products.{$this->shop->id}.edit"]);
+    get($url)->assertForbidden();
+
+    foreach (["orders.{$this->shop->id}.view", "accounting.{$this->organisation->id}.view"] as $permission) {
+        actingAsUserWithOnlyPermissions($user, [$permission]);
+        get($url)->assertOk();
+    }
+});
