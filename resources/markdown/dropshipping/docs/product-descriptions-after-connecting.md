@@ -1,7 +1,7 @@
 ---
 title: What happens to your product descriptions
 summary: Which texts, pictures and prices we write to Shopify when you create or match a product, what we keep updated afterwards, and the one action that replaces your own title and description.
-date: 2026-09-25
+date: 2026-10-19
 tags: shopify, product description, title, seo, match, create new product, price
 category: products
 series: shopify
@@ -45,7 +45,7 @@ If you sell our products as the variants of one Shopify product, give each varia
 
 ## What we update afterwards
 
-After a product is connected we keep its stock up to date in Shopify, while <b>Stock Update</b> is on for the channel.
+After a product is connected we keep its stock up to date in Shopify, while <b>Stock Update</b> is on for the channel. The stock update only sets the quantity at the <b>aiku-</b> location. It never sends the title, description, pictures, price or SEO fields. There is nothing else to switch off.
 
 We do not send later changes to the title, description or pictures. If we improve a description in our catalogue, your Shopify product keeps the old text. This protects the changes you make in Shopify.
 
@@ -58,6 +58,13 @@ When you tick products in <b>My Products</b>, press <b>Edit Price (...)</b> and 
 This does not happen with <b>Save as Draft</b>: that only saves the price with us and sends nothing to Shopify. It also does not happen for products linked to an existing variant.
 
 If you wrote your own texts in Shopify and only want a new price, change the price in Shopify.
+
+## Following our prices without changing yours
+
+When our price changes, your selling price in Shopify stays as it is. We never change it by ourselves.
+
+- <b>My Products</b> shows our current <b>Price</b>, what you pay us, next to the <b>RRP</b> of each product. Compare it with your price in Shopify.
+- A matched product shows <b>Price managed in your Shopify</b>: we never change its price there. Switch it to <b>Price managed by us</b> only if you want the prices you set in <b>My Products</b> sent to Shopify. That sends the price only, never the title or description.
 
 ## A safe way to start
 

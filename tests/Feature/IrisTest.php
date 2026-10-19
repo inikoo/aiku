@@ -570,6 +570,17 @@ test('dropshipping docs are listed in the website language and only for their sh
     }
 });
 
+test('shopify docs explain selling own stock first and following our prices without changing yours', function () {
+    $website = asDropshippingWebsite($this->website, 'dssk', 'en');
+
+    expect(ShowIrisDoc::make()->handle($website, 'shopify-fulfilment-location')['doc']['html'])
+        ->toContain('Selling your own stock of our products')
+        ->toContain('Ranked locations')
+        ->and(ShowIrisDoc::make()->handle($website, 'product-descriptions-after-connecting')['doc']['html'])
+        ->toContain('Following our prices without changing yours')
+        ->toContain('Price managed in your Shopify');
+});
+
 test('docs are not served on a website that is not dropshipping', function () {
     $this->get('http://'.$this->website->domain.'/docs')->assertNotFound();
 });

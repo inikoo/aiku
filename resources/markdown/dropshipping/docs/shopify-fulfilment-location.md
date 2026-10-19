@@ -1,8 +1,8 @@
 ---
 title: The AW fulfilment location in Shopify
 summary: What the aiku- location in your Shopify store does, how it is added to your shipping profile for you, and what to do when products show as sold out or orders do not reach us.
-date: 2026-09-25
-tags: shopify, fulfilment location, shipping profile, stock, sold out
+date: 2026-10-19
+tags: shopify, fulfilment location, shipping profile, stock, sold out, own stock, returns, order routing
 category: sales-channels
 series: shopify
 order: 3
@@ -34,6 +34,17 @@ Shopify only sells stock from locations that are in a shipping profile. When the
 If the location is already in one of your shipping profiles, we change nothing.
 
 You no longer need to add the location by hand, as older guides said.
+
+## Selling your own stock of our products
+
+Sometimes you hold some of our products yourself, for example an unused item a customer returned to you. You can sell those first and let us send the rest.
+
+- Stock the same Shopify product at your own location too, with the quantity you hold. Leave it stocked at the <b>aiku-</b> location as well.
+- We only ever set the quantity at the <b>aiku-</b> location. We never change the quantity at your own locations.
+- Shopify decides which location sends each order. In your Shopify admin, open <b>Settings</b>, <b>Shipping and delivery</b>, then <b>Order routing</b>, and in <b>Ranked locations</b> put your own location above the <b>aiku-</b> location.
+- When Shopify gives an order to your location, nothing reaches us: you send it yourself. When your own stock is 0, Shopify gives the next order to the <b>aiku-</b> location, and it comes to us as usual.
+
+Shopify may split an order between locations, for example when you hold one item and the customer buys two. Then you send your part and we send ours. Check new orders in Shopify to see which location they were given to.
 
 ## Check it yourself
 
