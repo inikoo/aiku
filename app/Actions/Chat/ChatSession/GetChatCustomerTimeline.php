@@ -8,6 +8,7 @@
 
 namespace App\Actions\Chat\ChatSession;
 
+use App\Actions\Chat\WithChatSessionReadAuthorisation;
 use App\Actions\Chat\GetChatContactTimeline;
 use App\Models\Chat\ChatSession;
 use Illuminate\Http\JsonResponse;
@@ -16,6 +17,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetChatCustomerTimeline
 {
+    use WithChatSessionReadAuthorisation;
     use AsAction;
 
     public function handle(ChatSession $chatSession): array

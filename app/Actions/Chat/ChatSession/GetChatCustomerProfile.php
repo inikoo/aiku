@@ -8,6 +8,7 @@
 
 namespace App\Actions\Chat\ChatSession;
 
+use App\Actions\Chat\WithChatSessionReadAuthorisation;
 use App\Enums\UI\CRM\CustomerTabsEnum;
 use App\Models\Chat\ChatSession;
 use Illuminate\Http\JsonResponse;
@@ -31,6 +32,7 @@ use App\Models\Ordering\Order;
 
 class GetChatCustomerProfile
 {
+    use WithChatSessionReadAuthorisation;
     use AsAction;
 
     public function handle(ChatSession $chatSession, ?string $claimOrderReference = null): array

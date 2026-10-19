@@ -8,6 +8,9 @@
 
 namespace App\Actions\Chat\ChatSession;
 
+use App\Models\Catalogue\Shop;
+use Lorisleiva\Actions\ActionRequest;
+use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Actions\Chat\ChatSession\Concerns\WithChatSlackSettings;
 use App\Models\Chat\ChatMessage;
 use Illuminate\Http\JsonResponse;
@@ -15,8 +18,16 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetChatMessageSlackSettings
 {
+    use WithChatAgentAuthorisation;
     use AsAction;
     use WithChatSlackSettings;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        $shop = $request->route('chatMessage')?->chatSession?->shop;
+
+        return $shop instanceof Shop && $this->userCanActOnChatOnShop($request->user(), $shop);
+    }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function asController(string $organisation, ChatMessage $chatMessage): JsonResponse

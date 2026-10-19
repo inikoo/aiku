@@ -115,20 +115,26 @@ class IndexWhatsappMessageTemplates extends OrgAction
     {
         $actions = [];
         // if ($this->canEdit) {
-        $actions[] = [
-            'type'    => 'button',
-            'style'   => 'primary',
-            'icon'    => 'fal fa-plus',
-            'label'   => __('New template'),
-            'route'   => [
-                'method'     => 'get',
-                'name'       => 'grp.org.shops.show.chat.whatsapp_templates.create',
-                'parameters' => [
-                    'organisation' => $this->organisation->slug,
-                    'shop'         => $this->shop->slug,
+        if ($request->user()->authTo([
+            "chat-m.{$this->shop->id}",
+            "crm.{$this->shop->id}.edit",
+            "org-admin.{$this->organisation->id}",
+        ])) {
+            $actions[] = [
+                'type'    => 'button',
+                'style'   => 'primary',
+                'icon'    => 'fal fa-plus',
+                'label'   => __('New template'),
+                'route'   => [
+                    'method'     => 'get',
+                    'name'       => 'grp.org.shops.show.chat.whatsapp_templates.create',
+                    'parameters' => [
+                        'organisation' => $this->organisation->slug,
+                        'shop'         => $this->shop->slug,
+                    ],
                 ],
-            ],
-        ];
+            ];
+        }
         $actions[] = [
             'type'        => 'button',
             'style'       => 'tertiary',
@@ -180,6 +186,17 @@ class IndexWhatsappMessageTemplates extends OrgAction
                 ],
             ]
         )->table($this->tableStructure());
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->authTo([
+            "chat-m.{$this->shop->id}",
+            "crm.{$this->shop->id}.view",
+            "crm.{$this->shop->id}.edit",
+            "org-admin.{$this->organisation->id}",
+            "accounting.{$this->organisation->id}.view",
+        ]);
     }
 
     public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator

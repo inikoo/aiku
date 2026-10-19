@@ -9,6 +9,7 @@
 namespace App\Actions\Chat\ChatSession\UI;
 
 use App\Actions\Chat\ChatSession\IndexChatConversations;
+use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Actions\Chat\WithChatScopeNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithCRMAuthorisation;
@@ -22,6 +23,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowShopChatConversations extends OrgAction
 {
     use WithCRMAuthorisation;
+    use WithChatAgentAuthorisation;
     use WithChatScopeNavigation;
 
     public function handle(Shop $shop): Shop
@@ -41,7 +43,7 @@ class ShowShopChatConversations extends OrgAction
         $chatSessions = IndexChatConversations::make()->handle($shop);
         $routeParams  = $request->route()->originalParameters();
 
-        $exportRoute = $this->chatRoute('conversations.export');
+        $exportRoute = $this->userSupervisesChatOnShop($request->user(), $shop) ? $this->chatRoute('conversations.export') : null;
 
         return Inertia::render(
             'Org/Chat/Conversations',
@@ -54,7 +56,7 @@ class ShowShopChatConversations extends OrgAction
                         'icon'  => ['fal', 'fa-comments'],
                         'title' => __('Conversations'),
                     ],
-                    'actions' => [
+                    'actions' => $exportRoute ? [
                         [
                             'type'  => 'button',
                             'style' => 'secondary',
@@ -62,7 +64,7 @@ class ShowShopChatConversations extends OrgAction
                             'icon'  => ['fal', 'fa-file-download'],
                             'route' => $exportRoute,
                         ],
-                    ],
+                    ] : [],
                 ],
                 'exportRoute' => $exportRoute,
                 'shops'       => [],

@@ -706,3 +706,192 @@ test('unauthenticated request cannot post as system', function () {
 
     expect($senderData['data']['sender_type'] ?? null)->not->toBe(ChatSenderTypeEnum::SYSTEM->value);
 });
+
+test('chat read endpoints, agent profiles, export, visitors, agent creation and whatsapp templates follow the chat permissions', function () {
+    $shopId         = $this->shop->id;
+    $organisationId = $this->organisation->id;
+    $shopParameters = [$this->organisation->slug, $this->shop->slug];
+
+    $session = ChatSession::create([
+        'ulid'             => (string) Str::ulid(),
+        'shop_id'          => $shopId,
+        'language_id'      => 68,
+        'status'           => ChatSessionStatusEnum::ACTIVE->value,
+        'priority'         => ChatPriorityEnum::NORMAL->value,
+        'guest_identifier' => 'guest-'.Str::random(8),
+    ]);
+
+    $metaChatSession = MetaChatSession::create([
+        'ulid'            => (string) Str::ulid(),
+        'meta_channel_id' => MetaChannel::firstOrCreate(['code' => 'whatsapp'], ['name' => 'WhatsApp'])->id,
+        'shop_id'         => $shopId,
+        'phone_number'    => '+628111'.random_int(100000, 999999),
+        'status'          => ChatSessionStatusEnum::ACTIVE,
+        'language_id'     => 68,
+        'priority'        => ChatPriorityEnum::NORMAL,
+    ]);
+
+    $user = User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+
+    $colleague = User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+    foreach ([$user, $colleague] as $agentUser) {
+        ChatAgent::create([
+            'user_id'              => $agentUser->id,
+            'max_concurrent_chats' => 5,
+            'language_id'          => 68,
+            'is_online'            => false,
+            'is_available'         => true,
+            'current_chat_count'   => 0,
+        ]);
+    }
+
+    $as = function (array $permissions) use ($user) {
+        actingAsUserWithOnlyPermissions($user, $permissions);
+        $this->actingAs($user, 'sanctum');
+    };
+
+    $sessionRoutes = [
+        route('grp.api.chats.sessions.customer_profile', $session->ulid),
+        route('grp.api.chats.sessions.customer_timeline', $session->ulid),
+        route('grp.api.chats.sessions.activity', $session->ulid),
+        route('grp.api.chats.sessions.tickets', $session->ulid),
+        route('grp.api.chats.meta.sessions.customer_profile', $metaChatSession->ulid),
+        route('grp.api.chats.meta.sessions.messages', $metaChatSession->ulid),
+    ];
+
+    $as(["products.$shopId.view"]);
+    foreach ($sessionRoutes as $url) {
+        getJson($url)->assertForbidden();
+    }
+
+    $as(["chat.$shopId.view"]);
+    foreach ($sessionRoutes as $url) {
+        getJson($url)->assertOk();
+    }
+
+    $as(["chat.$shopId"]);
+    getJson(route('grp.api.chats.agent.show', $colleague->id))->assertForbidden();
+    getJson(route('grp.api.chats.agent.show', $user->id))->assertOk();
+    get(route('grp.org.shops.show.chat.conversations.export', $shopParameters))->assertForbidden();
+    get(route('grp.org.chat.agents.create', $this->organisation->slug))->assertForbidden();
+    get(route('grp.org.shops.show.chat.whatsapp_templates.index', $shopParameters))->assertForbidden();
+    get(route('grp.org.shops.show.chat.whatsapp_templates.create', $shopParameters))->assertForbidden();
+
+    $as(["chat-m.$shopId"]);
+    getJson(route('grp.api.chats.agent.show', $colleague->id))->assertOk();
+    get(route('grp.org.shops.show.chat.conversations.export', $shopParameters))->assertOk();
+    get(route('grp.org.chat.agents.create', $this->organisation->slug))->assertOk();
+
+    $as(['goods.view']);
+    getJson(route('grp.org.shops.show.chat.dashboard-visitors', $shopParameters))->assertForbidden();
+    getJson(route('grp.org.chat.dashboard-visitors', $this->organisation->slug))->assertForbidden();
+
+    $as(["web.$shopId.view"]);
+    getJson(route('grp.org.shops.show.chat.dashboard-visitors', $shopParameters))->assertOk();
+
+    $as(["accounting.$organisationId.view"]);
+    getJson(route('grp.org.chat.dashboard-visitors', $this->organisation->slug))->assertOk();
+
+    $as(["crm.$shopId.view"]);
+    get(route('grp.org.shops.show.chat.whatsapp_templates.index', $shopParameters))->assertOk();
+
+    $as(["crm.$shopId.edit"]);
+    get(route('grp.org.shops.show.chat.whatsapp_templates.create', $shopParameters))->assertOk();
+});
+
+test('export, create agent and new template buttons show only to who may use them', function () {
+    $this->withoutVite();
+    $shopId         = $this->shop->id;
+    $shopParameters = [$this->organisation->slug, $this->shop->slug];
+
+    $user = User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+    ChatAgent::create([
+        'user_id'              => $user->id,
+        'max_concurrent_chats' => 5,
+        'language_id'          => 68,
+        'is_online'            => false,
+        'is_available'         => true,
+        'current_chat_count'   => 0,
+    ]);
+
+    $actionRoutes = function (string $url, string $actionsPath) {
+        $routeNames = [];
+        get($url)->assertOk()->assertInertia(function ($page) use ($actionsPath, &$routeNames) {
+            $routeNames = collect($page->toArray()['props'])->dot()
+                ->filter(fn ($value, $key) => str_starts_with($key, $actionsPath.'.') && str_ends_with($key, '.route.name'))
+                ->values()
+                ->all();
+        });
+
+        return $routeNames;
+    };
+
+    $pages = fn () => [
+        'export'       => $actionRoutes(route('grp.org.shops.show.chat.conversations.show', $shopParameters), 'pageHead.actions'),
+        'shop_agents'  => $actionRoutes(route('grp.org.shops.show.chat.agents.show', $shopParameters), 'pageHeading.actions'),
+        'settings'     => $actionRoutes(route('grp.org.shops.show.chat.settings', [...$shopParameters, 'tab' => 'agents']), 'pageHead.actions'),
+        'templates'    => $actionRoutes(route('grp.org.shops.show.chat.whatsapp_templates.index', $shopParameters), 'pageHead.actions'),
+    ];
+
+    actingAsUserWithOnlyPermissions($user, ["chat.$shopId", "crm.$shopId.view"]);
+    $agentPages = $pages();
+    expect($agentPages['export'])->not->toContain('grp.org.shops.show.chat.conversations.export')
+        ->and($agentPages['shop_agents'])->not->toContain('grp.org.chat.agents.create')
+        ->and($agentPages['settings'])->not->toContain('grp.org.chat.agents.create')
+        ->and($agentPages['templates'])->not->toContain('grp.org.shops.show.chat.whatsapp_templates.create');
+
+    actingAsUserWithOnlyPermissions($user, ["chat-m.$shopId", "crm.$shopId.view"]);
+    $supervisorPages = $pages();
+    expect($supervisorPages['export'])->toContain('grp.org.shops.show.chat.conversations.export')
+        ->and($supervisorPages['shop_agents'])->toContain('grp.org.chat.agents.create')
+        ->and($supervisorPages['settings'])->toContain('grp.org.chat.agents.create')
+        ->and($supervisorPages['templates'])->toContain('grp.org.shops.show.chat.whatsapp_templates.create');
+});
+
+test('the unclaimed queue opens a waiting session to another shop viewer and the organisation export keeps to supervised shops', function () {
+    $otherShop = \App\Actions\Catalogue\Shop\StoreShop::run($this->organisation, \App\Models\Catalogue\Shop::factory()->definition());
+    $longAgo   = now()->subYear();
+
+    $newSession = function (ChatSessionStatusEnum $status) use ($longAgo) {
+        $session = ChatSession::create([
+            'ulid'                    => (string) Str::ulid(),
+            'shop_id'                 => $this->shop->id,
+            'channel'                 => \App\Enums\CRM\Livechat\ChatChannelEnum::WEBSITE->value,
+            'language_id'             => 68,
+            'status'                  => $status->value,
+            'priority'                => ChatPriorityEnum::NORMAL->value,
+            'guest_identifier'        => 'guest-'.Str::random(8),
+            'last_visitor_message_at' => $longAgo,
+        ]);
+        foreach ([ChatSenderTypeEnum::GUEST, ChatSenderTypeEnum::AGENT] as $senderType) {
+            \App\Models\Chat\ChatMessage::create([
+                'chat_session_id' => $session->id,
+                'message_type'    => \App\Enums\CRM\Livechat\ChatMessageTypeEnum::TEXT,
+                'sender_type'     => $senderType,
+                'message_text'    => 'Hello '.Str::random(6),
+            ]);
+        }
+        $session->update(['created_at' => $longAgo]);
+
+        return $session;
+    };
+
+    $closedSession    = $newSession(ChatSessionStatusEnum::CLOSED);
+    $unclaimedSession = $newSession(ChatSessionStatusEnum::WAITING);
+
+    $user = User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["chat.$otherShop->id.view"]);
+    $this->actingAs($user, 'sanctum');
+    getJson(route('grp.api.chats.sessions.customer_profile', $closedSession->ulid))->assertForbidden();
+    getJson(route('grp.api.chats.sessions.customer_profile', $unclaimedSession->ulid))->assertOk();
+
+    $exportRoute = fn (array $query = []) => route('grp.org.chat.conversations.export', [$this->organisation->slug, ...$query]);
+
+    actingAsUserWithOnlyPermissions($user, ["chat-m.{$this->shop->id}"]);
+    expect(get($exportRoute(['shop_id' => $this->shop->id, 'min_turns' => 1]))->assertOk()->streamedContent())->toContain($closedSession->ulid);
+
+    actingAsUserWithOnlyPermissions($user, ["chat-m.$otherShop->id"]);
+    get($exportRoute(['shop_id' => $this->shop->id]))->assertForbidden();
+    expect(get($exportRoute(['min_turns' => 1]))->assertOk()->streamedContent())->not->toContain($closedSession->ulid);
+});

@@ -30,6 +30,7 @@ const props = defineProps<{
     selectedTemplateId?: number | null
     organisationSlug?: string | null
     shopSlug?: string | null
+    canCreateTemplate: boolean
 }>()
 
 const emit = defineEmits<{
@@ -93,7 +94,7 @@ const cancelHidePopup = () => {
 }
 
 const createTemplateUrl = computed(() => {
-    if (!props.organisationSlug || !props.shopSlug) return null
+    if (!props.canCreateTemplate || !props.organisationSlug || !props.shopSlug) return null
     try {
         return route("grp.org.shops.show.chat.whatsapp_templates.create", [props.organisationSlug, props.shopSlug])
     } catch {
@@ -118,7 +119,7 @@ const createTemplateUrl = computed(() => {
             <a v-if="createTemplateUrl"
                 :href="createTemplateUrl"
                 target="_blank" rel="noopener noreferrer"
-                class="flex items-center gap-2 px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors mb-2">
+                class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors mb-2">
                 <FontAwesomeIcon :icon="faPlus" class="text-xs" fixed-width />
                 {{ ctrans('Create new template') }}
             </a>

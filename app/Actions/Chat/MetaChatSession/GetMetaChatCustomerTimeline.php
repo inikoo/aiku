@@ -2,6 +2,7 @@
 
 namespace App\Actions\Chat\MetaChatSession;
 
+use App\Actions\Chat\WithChatSessionReadAuthorisation;
 use App\Actions\Chat\GetChatContactTimeline;
 use App\Models\Chat\MetaChatSession;
 use Illuminate\Http\JsonResponse;
@@ -10,6 +11,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetMetaChatCustomerTimeline
 {
+    use WithChatSessionReadAuthorisation;
     use AsAction;
 
     public function handle(MetaChatSession $metaChatSession): array

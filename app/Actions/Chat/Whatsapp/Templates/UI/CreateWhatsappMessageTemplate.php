@@ -106,6 +106,15 @@ class CreateWhatsappMessageTemplate extends OrgAction
         ];
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->authTo([
+            "chat-m.{$this->shop->id}",
+            "crm.{$this->shop->id}.edit",
+            "org-admin.{$this->organisation->id}",
+        ]);
+    }
+
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Response
     {
         $this->initialisationFromShop($shop, $request);

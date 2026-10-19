@@ -99,7 +99,7 @@ class ShowChatSettings extends OrgAction
                         'title' => __('Chat settings'),
                         'icon'  => ['fal', 'fa-sliders-h'],
                     ],
-                    'actions' => $this->getActions($isShop),
+                    'actions' => $this->getActions($isShop, $request),
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
@@ -144,9 +144,13 @@ class ShowChatSettings extends OrgAction
         );
     }
 
-    private function getActions(bool $isShop): array
+    private function getActions(bool $isShop, ActionRequest $request): array
     {
         if ($this->tab == ChatSettingsTabsEnum::AGENTS->value) {
+            if (!$this->userSupervisesChatOnOrganisation($request->user(), $this->organisation)) {
+                return [];
+            }
+
             return [
                 [
                     'type'    => 'button',
@@ -170,8 +174,14 @@ class ShowChatSettings extends OrgAction
             'shop'         => $this->shop->slug,
         ];
 
-        return [
-            [
+        $canCreateTemplate = $request->user()->authTo([
+            "chat-m.{$this->shop->id}",
+            "crm.{$this->shop->id}.edit",
+            "org-admin.{$this->organisation->id}",
+        ]);
+
+        return array_values(array_filter([
+            $canCreateTemplate ? [
                 'type'  => 'button',
                 'style' => 'primary',
                 'icon'  => 'fal fa-plus',
@@ -181,7 +191,7 @@ class ShowChatSettings extends OrgAction
                     'name'       => 'grp.org.shops.show.chat.whatsapp_templates.create',
                     'parameters' => $shopParameters,
                 ],
-            ],
+            ] : null,
             [
                 'type'        => 'button',
                 'style'       => 'tertiary',
@@ -195,7 +205,7 @@ class ShowChatSettings extends OrgAction
                     'parameters' => $shopParameters,
                 ],
             ],
-        ];
+        ]));
     }
 
     private function getCouriersProps(ActionRequest $request): array

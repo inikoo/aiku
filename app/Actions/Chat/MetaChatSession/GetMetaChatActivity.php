@@ -2,6 +2,7 @@
 
 namespace App\Actions\Chat\MetaChatSession;
 
+use App\Actions\Chat\WithChatSessionReadAuthorisation;
 use App\Enums\CRM\Livechat\ChatActorTypeEnum;
 use App\Enums\CRM\Livechat\ChatEventTypeEnum;
 use App\Models\Chat\ChatAgent;
@@ -13,6 +14,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetMetaChatActivity
 {
+    use WithChatSessionReadAuthorisation;
     use AsAction;
 
     public function handle(MetaChatSession $metaChatSession): array

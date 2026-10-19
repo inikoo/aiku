@@ -8,6 +8,7 @@
 
 namespace App\Actions\Chat\ChatSession;
 
+use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
@@ -20,6 +21,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetChatDashboardVisitors
 {
+    use WithChatAgentAuthorisation;
     use AsAction;
 
     public const int WINDOW_HOURS            = 24;
@@ -149,6 +151,40 @@ class GetChatDashboardVisitors
             'shop_ids'   => ['nullable', 'array'],
             'shop_ids.*' => ['integer'],
         ];
+    }
+
+    /**
+     * The live visitors of a shop are read by those who see its website or its chat; the
+     * organisation-wide panel by its admins, supervisors, shop viewers and accountants.
+     */
+    public function authorize(ActionRequest $request): bool
+    {
+        $user = $request->user();
+        $shop = $request->route('shop') ?? $request->route('fulfilment')?->shop;
+
+        if ($shop instanceof Shop) {
+            $permissions = [
+                "websites-view.$shop->organisation_id",
+                "web.$shop->id.view",
+                "group-webmaster.view",
+                "accounting.$shop->organisation_id.view",
+            ];
+            if ($shop->fulfilment) {
+                $permissions[] = "fulfilment-shop.{$shop->fulfilment->id}.view";
+                $permissions[] = "supervisor-fulfilment-shop.{$shop->fulfilment->id}";
+            }
+
+            return $this->userCanViewChatOnShop($user, $shop) || $user->authTo($permissions);
+        }
+
+        $organisation = $request->route('organisation');
+
+        return $organisation instanceof Organisation && $user->authTo([
+            "org-admin.$organisation->id",
+            "org-supervisor.$organisation->id",
+            "shops-view.$organisation->id",
+            "accounting.$organisation->id.view",
+        ]);
     }
 
     public function asController(Organisation $organisation, ActionRequest $request): array
