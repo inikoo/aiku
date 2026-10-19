@@ -1498,7 +1498,8 @@ test('UI show agent supplier lists its purchase orders', function () {
     $this->get(route('grp.supply-chain.suppliers.show', [$supplier->slug]))
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->where('pageHead.subNavigation.2.route.name', 'grp.supply-chain.suppliers.purchase_orders.index')
-            ->missing('pageHead.subNavigation.4')
+            ->where('pageHead.subNavigation.4.route.name', 'grp.supply-chain.suppliers.sales')
+            ->missing('pageHead.subNavigation.5')
             ->where('showcase.stats.1.route.name', 'grp.supply-chain.suppliers.purchase_orders.index')
             ->etc());
 

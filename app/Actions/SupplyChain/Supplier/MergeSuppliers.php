@@ -40,7 +40,6 @@ class MergeSuppliers
         'supplier_declarations',
         'supplier_invoices',
         'supplier_messages',
-        'supplier_users',
     ];
 
     private const array AGENT_ORDER_STAGE_DATES = [

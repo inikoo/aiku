@@ -2574,7 +2574,6 @@ test('every audit event has its columns on the audit stats tables', function () 
         'organisation_stats'   => 'auditFields',
         'user_stats'           => 'auditFieldsForNonSystem',
         'web_user_stats'       => 'auditFieldsForNonSystem',
-        'supplier_user_stats'  => 'auditFieldsForNonSystem',
     ];
 
     foreach ($auditFieldsByTable as $tableName => $auditFields) {
