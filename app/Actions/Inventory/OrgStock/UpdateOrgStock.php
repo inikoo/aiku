@@ -16,6 +16,7 @@ use App\Actions\Goods\TradeUnit\Hydrators\TradeUnitsHydrateOrgStocks;
 use App\Actions\Goods\TradeUnit\SetTradeUnitStatus;
 use App\Actions\Inventory\OrgStockFamily\Hydrators\OrgStockFamilyHydrateOrgStocks;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateLowStockAudits;
+use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateOrgStocksBelowMinimumStock;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateOrgStocksWithoutProducts;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateReplenishments;
 use App\Actions\OrgAction;
@@ -92,6 +93,7 @@ class UpdateOrgStock extends OrgAction
 
             foreach ($orgStock->organisation->warehouses as $warehouse) {
                 WarehouseHydrateLowStockAudits::dispatch($warehouse);
+                WarehouseHydrateOrgStocksBelowMinimumStock::dispatch($warehouse);
                 WarehouseHydrateReplenishments::dispatch($warehouse);
                 WarehouseHydrateOrgStocksWithoutProducts::dispatch($warehouse);
             }
@@ -108,6 +110,12 @@ class UpdateOrgStock extends OrgAction
 
             if ($orgStock->stock_id && in_array($orgStock->state, [OrgStockStateEnum::DISCONTINUING, OrgStockStateEnum::DISCONTINUED], true)) {
                 PartnerShoppingListItem::openRestockRequestsFor($orgStock)->get()->each->delete();
+            }
+        }
+
+        if (Arr::has($changes, 'minimum_stock') && !Arr::has($changes, 'state')) {
+            foreach ($orgStock->organisation->warehouses as $warehouse) {
+                WarehouseHydrateOrgStocksBelowMinimumStock::dispatch($warehouse);
             }
         }
 
@@ -169,6 +177,7 @@ class UpdateOrgStock extends OrgAction
             'is_made_in_house' => ['sometimes', 'boolean'],
             'is_excluded_from_auto_ordering' => ['sometimes', 'boolean'],
             'estimated_lead_time_days' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:365'],
+            'minimum_stock'            => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:999999'],
             'name'         => ['sometimes', 'string', 'max:255'],
             'packed_in'    => ['sometimes', 'nullable', 'numeric', 'min:1'],
             'barcode'      => [
