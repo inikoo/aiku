@@ -47,7 +47,9 @@ class RepairWebUserAnonymousVisitorLinks
 
                     $anonymousVisitors = LinkAnonymousVisitorsToWebUser::make()->anonymousVisitors(
                         $webUser,
-                        $firstLoggedInVisitor,
+                        $firstLoggedInVisitor->website_id,
+                        $firstLoggedInVisitor->visitor_hash,
+                        $firstLoggedInVisitor->id,
                         Carbon::parse($webUser->customer->registered_at)
                     );
 
