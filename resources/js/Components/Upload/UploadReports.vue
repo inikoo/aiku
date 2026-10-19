@@ -32,8 +32,8 @@ interface UploadReport {
     number_success: number
     number_fails: number
     fail_reasons: FailReason[]
-    records_route: routeType
-    download_route: routeType
+    records_route: routeType | null
+    download_route: routeType | null
     preview_route?: routeType | null
 }
 
@@ -166,7 +166,7 @@ const loadRows = async (upload: UploadReport, filter: RowFilter, page = 1) => {
     }
 
     try {
-        const { data } = await axios.get(route(upload.records_route.name, upload.records_route.parameters), {
+        const { data } = await axios.get(route(upload.records_route!.name, upload.records_route!.parameters), {
             params: { status: filter === 'all' ? undefined : filter, page, perPage: rowsPerPage },
             headers: { Accept: 'application/json' },
         })
@@ -279,17 +279,20 @@ const recordErrors = (record: UploadRecord): string[] => {
                                 <div class="truncate text-xs text-gray-500">
                                     {{ ctrans('Uploaded by') }} {{ upload.uploaded_by ?? ctrans('unknown user') }}
                                 </div>
-                                <a :href="route(upload.download_route.name, upload.download_route.parameters)"
+                                <a v-if="upload.download_route" :href="route(upload.download_route.name, upload.download_route.parameters)"
                                     class="block truncate text-xs text-gray-400 hover:text-gray-600 hover:underline"
                                     v-tooltip="upload.original_filename">
                                     {{ upload.original_filename }}
                                 </a>
+                                <div v-else class="truncate text-xs text-gray-400" v-tooltip="upload.original_filename">
+                                    {{ upload.original_filename }}
+                                </div>
                                 <div class="mt-1 flex items-center gap-x-2 text-xs text-gray-400">
                                     <span class="inline-flex items-center gap-x-1" v-tooltip="fileType(upload).label">
                                         <FontAwesomeIcon :icon="fileType(upload).icon" :class="fileType(upload).class" fixed-width aria-hidden="true" />
                                         <span class="uppercase">{{ fileType(upload).extension }}</span>
                                     </span>
-                                    <a :href="route(upload.download_route.name, upload.download_route.parameters)"
+                                    <a v-if="upload.download_route" :href="route(upload.download_route.name, upload.download_route.parameters)"
                                         class="text-gray-400 hover:text-gray-700"
                                         :aria-label="ctrans('Download')"
                                         v-tooltip="ctrans('Download')">
@@ -325,7 +328,7 @@ const recordErrors = (record: UploadRecord): string[] => {
                                 </li>
                             </ul>
 
-                            <button v-if="upload.number_success || upload.number_fails" type="button"
+                            <button v-if="upload.records_route && (upload.number_success || upload.number_fails)" type="button"
                                 class="flex items-center gap-x-1 text-xs text-[--app-accent] hover:text-[--app-accent-strong] hover:underline"
                                 @click="toggleRows(upload)">
                                 {{ openRows[upload.id] ? ctrans('Hide rows') : ctrans('Show rows') }}

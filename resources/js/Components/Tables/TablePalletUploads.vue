@@ -56,9 +56,10 @@ function uploadRoutes(upload: {}) {
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(original_filename)="{ item: upload }">
-            <Link :href="uploadRoutes(upload)" class="primaryLink">
+            <Link v-if="upload.can_view" :href="uploadRoutes(upload)" class="primaryLink">
                 {{ upload['original_filename'] }}
             </Link>
+            <template v-else>{{ upload['original_filename'] }}</template>
         </template>
 
         <template #cell(uploaded_at)="{ item: upload }">

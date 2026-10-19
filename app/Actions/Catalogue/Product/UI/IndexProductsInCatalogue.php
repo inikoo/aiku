@@ -495,7 +495,7 @@ class IndexProductsInCatalogue extends OrgAction
                     'iconRight'     => $iconRight,
                     'subNavigation' => $subNavigation,
                     'actions'       => [
-                        $shop->engine === ShopEngineEnum::FAIRE ? [
+                        !$this->canEdit ? [] : ($shop->engine === ShopEngineEnum::FAIRE ? [
                             'type'  => 'button',
                             'style' => 'primary',
                             'label' => __('Fetch Faire Products'),
@@ -519,7 +519,7 @@ class IndexProductsInCatalogue extends OrgAction
                                 'name'       => 'grp.org.shops.show.catalogue.products.all_products.shopify_products.index',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
-                        ] : []))
+                        ] : [])))
                     ]
                 ],
                 'data'                         => ProductsResource::collection($products),

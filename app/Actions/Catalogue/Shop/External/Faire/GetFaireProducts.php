@@ -319,9 +319,14 @@ class GetFaireProducts extends OrgAction
         $this->handle($shop, $modelData, $command);
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->authTo("products.{$this->shop->id}.edit");
+    }
+
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): void
     {
-        $this->initialisation($organisation, $request);
+        $this->initialisationFromShop($shop, $request);
 
         GetFaireProducts::dispatch($shop, $this->validatedData);
     }
