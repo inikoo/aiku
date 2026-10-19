@@ -14,6 +14,7 @@ use App\Enums\CRM\TrafficSource\TrafficSourceCostFetchedViaEnum;
 use App\Enums\CRM\TrafficSource\TrafficSourcesTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\TrafficSource;
+use App\Models\CRM\TrafficSourceCampaignMetric;
 use App\Models\Helpers\Currency;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
@@ -156,7 +157,7 @@ class FetchMetaAdsCosts extends Command
 
         $query = [
             'level'          => 'campaign',
-            'fields'         => 'campaign_id,campaign_name,spend,account_currency',
+            'fields'         => 'campaign_id,campaign_name,spend,impressions,inline_link_clicks,account_currency',
             'breakdowns'     => 'publisher_platform',
             'time_increment' => 1,
             'time_range'     => json_encode(['since' => $since->toDateString(), 'until' => $until->toDateString()]),
@@ -240,7 +241,7 @@ class FetchMetaAdsCosts extends Command
      * they have to be summed here. Storing them one by one would have each overwrite the last and
      * report only whichever platform Meta happened to return last.
      *
-     * @param array<string, array{type: string, campaign_id: ?string, campaign_name: ?string, date: ?string, currency: string, amount: float}> $rows
+     * @param array<string, array{type: string, campaign_id: ?string, campaign_name: ?string, date: ?string, currency: string, amount: float, impressions: int, clicks: int}> $rows
      */
     private function collectRow(array &$rows, array $row): void
     {
@@ -265,14 +266,18 @@ class FetchMetaAdsCosts extends Command
             'date'          => data_get($row, 'date_start'),
             'currency'      => (string) data_get($row, 'account_currency'),
             'amount'        => 0.0,
+            'impressions'   => 0,
+            'clicks'        => 0,
         ];
 
-        $rows[$key]['amount'] += $amount;
+        $rows[$key]['amount']      += $amount;
+        $rows[$key]['impressions'] += (int) data_get($row, 'impressions', 0);
+        $rows[$key]['clicks']      += (int) data_get($row, 'inline_link_clicks', 0);
     }
 
     /**
      * @param \Illuminate\Support\Collection<string, TrafficSource>                                                          $trafficSources
-     * @param array<string, array{type: string, campaign_id: ?string, campaign_name: ?string, date: ?string, currency: string, amount: float}> $rows
+     * @param array<string, array{type: string, campaign_id: ?string, campaign_name: ?string, date: ?string, currency: string, amount: float, impressions: int, clicks: int}> $rows
      */
     private function store(\Illuminate\Support\Collection $trafficSources, array $rows): int
     {
@@ -293,17 +298,31 @@ class FetchMetaAdsCosts extends Command
                 continue;
             }
 
+            $campaignId = GetTrafficSourceCampaign::run(
+                $trafficSource,
+                $this->campaignReference($row['type'], $row['campaign_id']),
+                $row['campaign_name']
+            );
+
             StoreTrafficSourceCost::run($trafficSource, [
                 'date'                       => $row['date'],
                 'source_amount'              => $row['amount'],
                 'source_currency_id'         => $currency->id,
                 'fetched_via'                => TrafficSourceCostFetchedViaEnum::API->value,
-                'traffic_source_campaign_id' => GetTrafficSourceCampaign::run(
-                    $trafficSource,
-                    $this->campaignReference($row['type'], $row['campaign_id']),
-                    $row['campaign_name']
-                ),
+                'traffic_source_campaign_id' => $campaignId,
             ]);
+
+            if ($campaignId) {
+                TrafficSourceCampaignMetric::updateOrCreate(
+                    ['traffic_source_campaign_id' => $campaignId, 'date' => $row['date']],
+                    [
+                        'impressions'        => $row['impressions'],
+                        'clicks'             => $row['clicks'],
+                        'source_cost'        => $row['amount'],
+                        'source_currency_id' => $currency->id,
+                    ]
+                );
+            }
         }
 
         return count($rows);

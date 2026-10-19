@@ -162,6 +162,7 @@ use App\Actions\CRM\Poll\DeletePoll;
 use App\Actions\CRM\Poll\StorePoll;
 use App\Actions\CRM\Poll\UpdatePoll;
 use App\Actions\CRM\Prospect\ImportShopProspects;
+use App\Actions\CRM\SocialMedia\ImportSocialMediaInsights;
 use App\Actions\CRM\Prospect\Mailshots\SendProspectMailShot;
 use App\Actions\CRM\Prospect\Mailshots\StoreProspectMailshot;
 use App\Actions\CRM\Prospect\Mailshots\UpdateProspectMailshot;
@@ -1307,6 +1308,7 @@ Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
     Route::post('email-chat', [StartCustomerEmailChat::class, 'inShop'])->name('email_chat.store');
     Route::patch('customer-email-template/{customerEmailTemplate:id}', UpdateCustomerEmailTemplate::class)->name('customer_email_template.update');
     Route::post('prospect/upload', [ImportShopProspects::class, 'inShop'])->name('prospects.upload');
+    Route::post('social-media/upload', ImportSocialMediaInsights::class)->name('social_media.upload');
     Route::post('prospect/mailshot', StoreProspectMailshot::class)->name('prospect.mailshot.store');
     Route::post('prospect/mailshot/{mailshot:id}/send', SendProspectMailShot::class)->name('prospect.mailshot.send')->withoutScopedBindings();
     Route::post('prospect', StoreProspect::class)->name('prospect.store');

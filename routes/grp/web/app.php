@@ -153,6 +153,8 @@ Route::middleware(
         ->group(function () {
             Route::get('/', [App\Actions\UI\Marketing\ShowAggregatedMarketingDashboard::class, 'inGroup'])->name('dashboard');
             Route::get('/channels/{channelType}', [App\Actions\UI\Marketing\ShowAggregatedMarketingChannel::class, 'inGroup'])->name('channels.show');
+            Route::get('/social-media', [App\Actions\UI\Marketing\ShowSocialMediaDashboard::class, 'inGroup'])->name('social_media.dashboard');
+            Route::get('/social-media/export', [App\Actions\UI\Marketing\ExportSocialMediaPosts::class, 'inGroup'])->name('social_media.export');
         });
     Route::prefix("org/{organisation}")
         ->name("org.")
