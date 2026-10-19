@@ -124,6 +124,7 @@ class CreateWhatsappMessageTemplate extends OrgAction
 
     public function inDraft(Organisation $organisation, Shop $shop, MetaMessageTemplate $metaMessageTemplate, ActionRequest $request): Response
     {
+        abort_unless($metaMessageTemplate->shop_id === $shop->id, 404);
         $this->initialisationFromShop($shop, $request);
 
         return $this->handle($shop, $request, $metaMessageTemplate);
@@ -131,6 +132,7 @@ class CreateWhatsappMessageTemplate extends OrgAction
 
     public function inLanguage(Organisation $organisation, Shop $shop, MetaMessageTemplate $metaMessageTemplate, ActionRequest $request): Response
     {
+        abort_unless($metaMessageTemplate->shop_id === $shop->id, 404);
         $this->initialisationFromShop($shop, $request);
 
         return $this->handle($shop, $request, null, $metaMessageTemplate);

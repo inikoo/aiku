@@ -106,7 +106,7 @@ class ShowChatSettings extends OrgAction
                     'navigation' => $isShop ? ChatSettingsTabsEnum::navigationExcept([ChatSettingsTabsEnum::COURIERS]) : ChatSettingsTabsEnum::navigationExcept([ChatSettingsTabsEnum::OUT_OF_HOURS, ChatSettingsTabsEnum::CLOSING, ChatSettingsTabsEnum::POLICIES]),
                 ],
                 'settingsRoute'  => $this->chatRoute('settings'),
-                'templatesTable' => $isShop ? $this->getShopTemplatesTableProps() : null,
+                'templatesTable' => $isShop ? $this->getShopTemplatesTableProps($request) : null,
                 'outOfHours'     => $isShop ? $this->getOutOfHoursProps($parent) : null,
                 'closing'        => $isShop ? [
                     'close_after_thanks'         => UpdateShopChatClosing::isOn($parent),
@@ -192,7 +192,7 @@ class ShowChatSettings extends OrgAction
                     'parameters' => $shopParameters,
                 ],
             ] : null,
-            [
+            $canCreateTemplate ? [
                 'type'        => 'button',
                 'style'       => 'tertiary',
                 'icon'        => ['fab', 'fa-whatsapp'],
@@ -204,7 +204,7 @@ class ShowChatSettings extends OrgAction
                     'name'       => 'grp.org.shops.show.chat.whatsapp_templates.sync',
                     'parameters' => $shopParameters,
                 ],
-            ],
+            ] : null,
         ]));
     }
 
@@ -253,7 +253,7 @@ class ShowChatSettings extends OrgAction
         ];
     }
 
-    private function getShopTemplatesTableProps(): array
+    private function getShopTemplatesTableProps(ActionRequest $request): array
     {
         $shopParameters = [
             'organisation' => $this->organisation->slug,
@@ -268,6 +268,11 @@ class ShowChatSettings extends OrgAction
             'draftRouteName'    => 'grp.org.shops.show.chat.whatsapp_templates.draft.edit',
             'languageRouteName' => 'grp.org.shops.show.chat.whatsapp_templates.language',
             'routeParameters'   => $shopParameters,
+            'canEdit'           => $request->user()->authTo([
+                "chat-m.{$this->shop->id}",
+                "crm.{$this->shop->id}.edit",
+                "org-admin.{$this->organisation->id}",
+            ]),
             'variablesRoute'    => [
                 'name'       => 'grp.org.shops.show.chat.whatsapp_templates.variables',
                 'parameters' => $shopParameters,

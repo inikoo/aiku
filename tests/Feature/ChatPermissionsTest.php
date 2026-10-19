@@ -1008,3 +1008,54 @@ test('agent profiles are edited by their own agent or a chat supervisor, agents 
         ->and($workerAgent->refresh()->max_concurrent_chats)->toBe(9);
     $this->get($editUrl($workerAgent))->assertOk();
 });
+
+test('whatsapp template writes need template editing on the shop, a template of another shop is not found there, and viewers see no edit actions, INI-076', function () {
+    $otherShop = \App\Actions\Catalogue\Shop\StoreShop::make()->action($this->organisation, \App\Models\Catalogue\Shop::factory()->definition());
+    $template  = fn (\App\Models\Catalogue\Shop $shop, string $status) => \App\Models\Chat\MetaMessageTemplate::create([
+        'group_id'        => $shop->group_id,
+        'organisation_id' => $shop->organisation_id,
+        'shop_id'         => $shop->id,
+        'meta_channel_id' => MetaChannel::firstOrCreate(['code' => 'whatsapp'], ['name' => 'WhatsApp'])->id,
+        'template_id'     => 'tpl'.Str::random(10),
+        'name'            => 'tpl_'.strtolower(Str::random(6)),
+        'status'          => $status,
+    ]);
+    $own     = $template($this->shop, 'APPROVED');
+    $foreign = $template($otherShop, \App\Actions\Chat\Whatsapp\Templates\StoreWhatsappTemplateDraft::STATUS);
+
+    $shopParameters = ['organisation' => $this->organisation->slug, 'shop' => $this->shop->slug];
+    $at             = fn (string $name, \App\Models\Chat\MetaMessageTemplate $t) => route("grp.org.shops.show.chat.whatsapp_templates.$name", [...$shopParameters, 'metaMessageTemplate' => $t->id]);
+    $writes         = [
+        ['post', route('grp.org.shops.show.chat.whatsapp_templates.store', $shopParameters)],
+        ['post', route('grp.org.shops.show.chat.whatsapp_templates.draft.store', $shopParameters)],
+        ['post', route('grp.org.shops.show.chat.whatsapp_templates.sync', $shopParameters)],
+        ['patch', $at('update', $own)],
+        ['delete', $at('delete', $own)],
+        ['post', $at('refresh', $own)],
+        ['patch', $at('variables', $own)],
+        ['post', $at('header_media', $own)],
+        ['post', $at('draft.update', $own)],
+        ['post', $at('draft.submit', $own)],
+    ];
+
+    $user = User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["crm.{$this->shop->id}.view"]);
+    foreach ($writes as [$method, $url]) {
+        $this->json($method, $url)->assertForbidden();
+    }
+    get(route('grp.org.shops.show.chat.whatsapp_templates.index', $shopParameters))->assertInertia(fn (\Inertia\Testing\AssertableInertia $page) => $page
+        ->where('canEdit', false)
+        ->where('pageHead.actions', []));
+
+    actingAsUserWithOnlyPermissions($user, ["crm.{$this->shop->id}.edit"]);
+    $this->patchJson($at('update', $own), ['label' => 'Own label'])->assertRedirect();
+    expect($own->refresh()->data['label'] ?? null)->toBe('Own label');
+    $this->patchJson($at('update', $foreign), ['label' => 'Taken'])->assertNotFound();
+    $this->deleteJson($at('delete', $foreign))->assertNotFound();
+    $this->postJson($at('draft.update', $foreign))->assertNotFound();
+    get($at('edit', $foreign))->assertNotFound();
+    get($at('draft.edit', $foreign))->assertNotFound();
+    expect($foreign->refresh()->shop_id)->toBe($otherShop->id);
+    get(route('grp.org.shops.show.chat.whatsapp_templates.index', $shopParameters))->assertInertia(fn (\Inertia\Testing\AssertableInertia $page) => $page->where('canEdit', true));
+});

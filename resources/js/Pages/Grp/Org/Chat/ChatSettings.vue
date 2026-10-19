@@ -40,6 +40,7 @@ const props = defineProps<{
         draftRouteName: string
         languageRouteName: string
         routeParameters: Record<string, any>
+        canEdit: boolean
     } | null
     outOfHours: {
         message: string
@@ -302,15 +303,15 @@ const saveCouriers = () => {
                     <div class="text-sm font-medium text-gray-800">{{ note.title }}</div>
                     <p class="whitespace-pre-line text-sm text-gray-600">{{ note.body }}</p>
                 </div>
-                <button v-if="policies.can_edit" type="button" class="text-xs text-indigo-700 underline" @click="editNote(note)">{{ ctrans("Edit") }}</button>
+                <button v-if="policies.can_edit" type="button" class="text-xs font-medium text-gray-700 hover:underline" @click="editNote(note)">{{ ctrans("Edit") }}</button>
                 <button v-if="policies.can_edit" type="button" class="text-xs text-red-600 underline" @click="deleteNote(note.id)">{{ ctrans("Remove") }}</button>
             </div>
         </div>
 
-        <div v-if="learnedProposed.length" class="rounded-lg border border-indigo-200 bg-indigo-50/60">
-            <div class="px-4 pt-3 text-sm font-medium text-indigo-900">{{ ctrans("Agents' answers the AI could use") }}</div>
-            <p class="px-4 text-xs text-indigo-800">{{ ctrans("Several customers were told this and nothing we hold says otherwise. Check it is right before the AI uses it.") }}</p>
-            <div v-for="entry in learnedProposed" :key="entry.id" class="flex items-start gap-3 border-t border-indigo-100 px-4 py-3">
+        <div v-if="learnedProposed.length" class="rounded-lg border border-gray-200 bg-gray-50">
+            <div class="px-4 pt-3 text-sm font-medium text-gray-900">{{ ctrans("Agents' answers the AI could use") }}</div>
+            <p class="px-4 text-xs text-gray-700">{{ ctrans("Several customers were told this and nothing we hold says otherwise. Check it is right before the AI uses it.") }}</p>
+            <div v-for="entry in learnedProposed" :key="entry.id" class="flex items-start gap-3 border-t border-gray-100 px-4 py-3">
                 <div class="min-w-0 flex-1">
                     <div class="text-sm font-medium text-gray-800">{{ entry.title }} <span class="text-xs font-normal text-gray-500">· {{ ctrans(":count customers", { count: entry.customers_count }) }}</span></div>
                     <p class="text-sm text-gray-600">{{ entry.body }}</p>
@@ -406,7 +407,8 @@ const saveCouriers = () => {
             :refreshRouteName="templatesTable.refreshRouteName"
             :draftRouteName="templatesTable.draftRouteName"
             :languageRouteName="templatesTable.languageRouteName"
-            :routeParameters="templatesTable.routeParameters" />
+            :routeParameters="templatesTable.routeParameters"
+            :canEdit="templatesTable.canEdit" />
 
         <Table
             v-else

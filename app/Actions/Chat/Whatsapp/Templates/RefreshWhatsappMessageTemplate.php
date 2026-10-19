@@ -10,6 +10,7 @@ namespace App\Actions\Chat\Whatsapp\Templates;
 use App\Actions\Chat\Whatsapp\Concerns\WithWhatsappCredentials;
 use App\Actions\Chat\Whatsapp\Templates\Concerns\WithWhatsappTemplateLocalData;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithWhatsappTemplateEditAuthorisation;
 use App\Models\Catalogue\Shop;
 use App\Models\Chat\MetaMessageTemplate;
 use App\Models\SysAdmin\Organisation;
@@ -27,6 +28,7 @@ class RefreshWhatsappMessageTemplate extends OrgAction
 {
     use WithWhatsappCredentials;
     use WithWhatsappTemplateLocalData;
+    use WithWhatsappTemplateEditAuthorisation;
 
     /**
      * @return array{ok: bool, message?: string, status?: string, changed?: bool}
@@ -76,6 +78,7 @@ class RefreshWhatsappMessageTemplate extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, MetaMessageTemplate $metaMessageTemplate, ActionRequest $request): RedirectResponse
     {
+        abort_unless($metaMessageTemplate->shop_id === $shop->id, 404);
         $this->initialisationFromShop($shop, $request);
 
         $result = $this->handle($shop, $metaMessageTemplate);
