@@ -2778,6 +2778,23 @@ test('merging duplicate supplier products keeps every organisation on the produc
         ->and(StockHasSupplierProduct::where('supplier_product_id', $withTwin->id)->exists())->toBeFalse();
 });
 
+test('merging a duplicate supplier that an organisation buys from alone moves that org supplier to the supplier kept', function () {
+    $duplicate = StoreSupplier::make()->action(parent: $this->group, modelData: Supplier::factory()->definition());
+    $kept      = StoreSupplier::make()->action(parent: $this->group, modelData: Supplier::factory()->definition());
+    $kept->update(['currency_id' => $duplicate->currency_id]);
+
+    $duplicateOrgSupplier = $duplicate->orgSuppliers()->where('organisation_id', $this->organisation->id)->firstOrFail();
+    $keptOrgSupplierId    = $kept->orgSuppliers()->where('organisation_id', $this->organisation->id)->value('id');
+    DB::table('org_supplier_stats')->where('org_supplier_id', $keptOrgSupplierId)->delete();
+    DB::table('org_suppliers')->where('id', $keptOrgSupplierId)->delete();
+
+    App\Actions\SupplyChain\Supplier\MergeSuppliers::run($duplicate, $kept);
+
+    expect($duplicateOrgSupplier->refresh()->supplier_id)->toBe($kept->id)
+        ->and($duplicateOrgSupplier->status)->toBeTrue()
+        ->and($duplicate->refresh()->status)->toBeFalse();
+});
+
 test('storing an org supplier product for a moved supplier product repoints the organisation row instead of adding a second one', function () {
     $supplierA = StoreSupplier::make()->action(
         parent: $this->group,
