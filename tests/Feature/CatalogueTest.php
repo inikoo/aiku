@@ -1840,7 +1840,7 @@ test('repair backfills first availability on launched products only, and leaves 
         ->and($alreadyStamped->refresh()->first_available_at->equalTo($stampedAt))->toBeTrue();
 });
 
-test('a product sold before it is stamped available, or created long before the backfill day, is not new in', function () {
+test('a product sold or live with stock before it is stamped available, or created long before the backfill day, is not new in', function () {
     $shop = Shop::orderBy('id')->first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
     $newProduct = fn (): Product => UpdateProduct::make()->action(
         StoreProduct::make()->action($shop, array_merge(Product::factory()->definition(), ['trade_units' => [['id' => $this->tradeUnit1->id, 'quantity' => 1]], 'price' => 10])),
@@ -1862,6 +1862,8 @@ test('a product sold before it is stamped available, or created long before the 
     $wronglyStamped = $newProduct();
     $neverSold      = $newProduct();
     $oldNeverSold   = $newProduct();
+    $liveWithStock  = $newProduct();
+    $ranOutBefore   = $newProduct();
     $sellOnce($relaunched);
     $sellOnce($wronglyStamped);
 
@@ -1870,9 +1872,18 @@ test('a product sold before it is stamped available, or created long before the 
 
     $stampedAt = now()->subDays(3)->startOfSecond();
     $wronglyStamped->updateQuietly(['first_available_at' => $stampedAt]);
-    $neverSold->updateQuietly(['first_available_at' => $stampedAt]);
+    $neverSold->updateQuietly(['first_available_at' => $stampedAt, 'back_in_stock_since' => null]);
     $createdLongBefore = now()->subYears(2)->startOfSecond();
-    $oldNeverSold->updateQuietly(['first_available_at' => $stampedAt, 'created_at' => $createdLongBefore]);
+    $oldNeverSold->updateQuietly(['first_available_at' => $stampedAt, 'created_at' => $createdLongBefore, 'back_in_stock_since' => null]);
+
+    $liveSince    = now()->subMonths(4)->startOfSecond();
+    $inStockSince = now()->subMonths(3)->startOfSecond();
+    foreach ([$liveWithStock, $ranOutBefore] as $product) {
+        $webpage = $product->refresh()->webpage ?? StoreProductWebpage::make()->action($product);
+        $webpage->updateQuietly(['live_at' => $liveSince]);
+    }
+    $liveWithStock->updateQuietly(['first_available_at' => $stampedAt, 'back_in_stock_since' => $inStockSince, 'out_of_stock_since' => null]);
+    $ranOutBefore->updateQuietly(['first_available_at' => $stampedAt, 'back_in_stock_since' => now()->subMonths(6), 'out_of_stock_since' => now()->subMonths(5)]);
 
     $this->artisan('repair:products_first_available_at', ['--stamped-since' => now()->subDays(5)->toDateString(), '--backfill-day' => $stampedAt->toDateString()])->assertExitCode(0);
 
@@ -1880,7 +1891,9 @@ test('a product sold before it is stamped available, or created long before the 
         ->and(ProductBadgeEnum::resolve($wronglyStamped->first_available_at, null))->toBeNull()
         ->and($neverSold->refresh()->first_available_at->equalTo($stampedAt))->toBeTrue()
         ->and(ProductBadgeEnum::resolve($neverSold->first_available_at, null))->toBe(ProductBadgeEnum::NEW_IN)
-        ->and($oldNeverSold->refresh()->first_available_at->equalTo($createdLongBefore))->toBeTrue();
+        ->and($oldNeverSold->refresh()->first_available_at->equalTo($createdLongBefore))->toBeTrue()
+        ->and($liveWithStock->refresh()->first_available_at->equalTo($inStockSince))->toBeTrue()
+        ->and($ranOutBefore->refresh()->first_available_at->equalTo($stampedAt))->toBeTrue();
 });
 
 test('the out of stock date is set when stock runs out and is kept while the product stays out', function () {
