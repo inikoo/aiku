@@ -21,6 +21,7 @@ use App\Models\Dispatching\Shipper;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use App\Support\Forms\SesConfigurationBlueprint;
+use App\Actions\Procurement\PurchaseOrder\SendPurchaseOrderToSupplier;
 use App\Actions\Procurement\PurchaseOrder\UI\GetPurchaseOrderCompliance;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
@@ -233,6 +234,12 @@ class EditOrganisationSettings extends OrgAction
                                     'label'       => __('Compliance documents due, days before arrival'),
                                     'information' => __('A purchase order\'s compliance documents are due this many days before its arrival estimate.'),
                                     'value'       => (int) Arr::get($organisation->settings, 'procurement.compliance_buffer_days', GetPurchaseOrderCompliance::DEADLINE_BUFFER_DAYS),
+                                ],
+                                'purchase_order_cc' => [
+                                    'type'        => 'input',
+                                    'label'       => __('Copy purchase order emails to'),
+                                    'information' => __('Every purchase order emailed to a supplier or agent is copied to these addresses. Separate them with commas.'),
+                                    'value'       => implode(', ', SendPurchaseOrderToSupplier::copyToEmails($organisation)),
                                 ],
                             ],
                         ],

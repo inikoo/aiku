@@ -1701,6 +1701,61 @@ test('a submitted purchase order is emailed to the supplier through SES with its
     \Illuminate\Support\Facades\Queue::assertPushed(\Lorisleiva\Actions\Decorators\JobDecorator::class, 1);
 });
 
+test('the purchasing team set in the organisation settings gets an untracked copy of every purchase order email', function () {
+    \App\Actions\SysAdmin\Organisation\Seeders\SeedOrganisationOutboxes::run($this->organisation);
+    $originalSettings = $this->organisation->settings;
+    $token            = Str::lower(Str::random(8));
+    $mailbox          = "buying-$token@org.test";
+
+    $settings = $this->organisation->settings ?? [];
+    data_set($settings, 'procurement.gmail', ['email' => $mailbox, 'refresh_token' => 'rt', 'connected_at' => now()->toIso8601String()]);
+    $this->organisation->update(['settings' => $settings]);
+
+    expect(fn () => \App\Actions\SysAdmin\Organisation\UpdateOrganisation::make()->action($this->organisation, ['purchase_order_cc' => 'buying@org.test, not-an-email']))
+        ->toThrow(\Illuminate\Validation\ValidationException::class);
+
+    \App\Actions\SysAdmin\Organisation\UpdateOrganisation::make()->action($this->organisation, ['purchase_order_cc' => '']);
+    $this->organisation->refresh();
+
+    expect(\App\Actions\Procurement\PurchaseOrder\SendPurchaseOrderToSupplier::copyToEmails($this->organisation))->toBe([]);
+
+    \App\Actions\SysAdmin\Organisation\UpdateOrganisation::make()->action($this->organisation, ['purchase_order_cc' => " Purchasing-$token@org.test; buyer-$token@org.test,purchasing-$token@org.test $mailbox"]);
+    $this->organisation->refresh();
+
+    expect(\App\Actions\Procurement\PurchaseOrder\SendPurchaseOrderToSupplier::copyToEmails($this->organisation))->toBe(["purchasing-$token@org.test", "buyer-$token@org.test", $mailbox]);
+
+    $supplier = StoreSupplier::make()->action($this->group, array_merge(Supplier::factory()->definition(), ['email' => "orders@copied-$token.com"]));
+    StoreSupplierProduct::make()->action($supplier, [
+        'code'             => "PO-CC-$token",
+        'name'             => 'PO copy product',
+        'cost'             => 10,
+        'stock_id'         => $this->orgStocks[0]->stock_id,
+        'units_per_pack'   => 1,
+        'units_per_carton' => 10,
+    ]);
+    $purchaseOrder = StorePurchaseOrder::make()->action($supplier->orgSuppliers()->where('organisation_id', $this->organisation->id)->first(), PurchaseOrder::factory()->definition());
+
+    \App\Actions\Procurement\PurchaseOrder\SendPurchaseOrderToSupplier::run($purchaseOrder);
+
+    expect(\App\Models\Procurement\SupplierMessage::where('purchase_order_id', $purchaseOrder->id)->value('cc'))
+        ->toBe([['name' => null, 'address' => "purchasing-$token@org.test"], ['name' => null, 'address' => "buyer-$token@org.test"]]);
+
+    $sesEmail = \App\Actions\Comms\Ses\SendSesEmail::make();
+    $raw      = $sesEmail->getRawEmail($sesEmail->getEmailData('PO', 'from@org.test', "orders@copied-$token.com", '<p>PO</p>', cc: ["purchasing-$token@org.test", "Orders@Copied-$token.com"]));
+
+    expect($raw['Destinations'])->toBe(["orders@copied-$token.com"])
+        ->and($raw['RawMessage']['Data'])->toContain("Cc: purchasing-$token@org.test")
+        ->and($raw['RawMessage']['Data'])->not->toContain("Cc: purchasing-$token@org.test, Orders");
+
+    $sesClient = Mockery::mock(\Aws\Ses\SesClient::class);
+    $sesClient->shouldReceive('sendRawEmail')->once()->with(Mockery::on(fn (array $copy) => $copy['Destinations'] === ["purchasing-$token@org.test"] && ! isset($copy['ConfigurationSetName'])));
+
+    $sesEmail->sendCopy($sesClient, [...$raw, 'ConfigurationSetName' => 'tracking'], ["purchasing-$token@org.test"]);
+    $sesEmail->sendCopy($sesClient, $raw, []);
+
+    $this->organisation->update(['settings' => $originalSettings]);
+});
+
 test('staff reply to a supplier from Aiku through the procurement mailbox, threaded, and agents route and get their purchase orders by email', function () {
     $originalSettings = $this->organisation->settings;
     $token            = Str::lower(Str::random(8));
