@@ -722,7 +722,7 @@ test('internal notes reach the staff thread but never the public messages endpoi
         'is_read'         => false,
     ]);
 
-    StoreChatEvent::make()->internalNote($chatSession, 0, 'Declined by her bank, suggest a pay link');
+    StoreChatEvent::make()->internalNote($chatSession, 'Declined by her bank, suggest a pay link');
 
     $asAgent = route('grp.api.chats.sessions.messages', ['chatSession' => $chatSession->ulid, 'request_from' => ChatSenderTypeEnum::AGENT->value, 'preview' => 1]);
 

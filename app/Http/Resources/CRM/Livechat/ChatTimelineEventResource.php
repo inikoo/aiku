@@ -54,6 +54,10 @@ class ChatTimelineEventResource extends JsonResource
 
         $actorType = is_object($this->actor_type) ? $this->actor_type->value : $this->actor_type;
 
+        if ($actorType === 'ai') {
+            return 'Aiku';
+        }
+
         if ($actorType !== 'agent') {
             return __('The customer');
         }
@@ -75,7 +79,7 @@ class ChatTimelineEventResource extends JsonResource
             ChatEventTypeEnum::TRANSFER_TO_AGENT => $this->describeTransfer($actor),
             ChatEventTypeEnum::ASSIGNMENT_TO_SELF => __(':actor took the chat', ['actor' => $actor]),
             ChatEventTypeEnum::MOVED_TO_COURIERS => __(':actor moved the chat to Couriers and added :domain to the courier list', ['actor' => $actor, 'domain' => $this->payload('domain')]),
-            ChatEventTypeEnum::INTERNAL_NOTE => __('Internal note by :actor, not visible to the customer', ['actor' => $actor]),
+            ChatEventTypeEnum::INTERNAL_NOTE => __('Internal note by Aiku, not visible to the customer'),
             default => __(':actor updated the chat', ['actor' => $actor]),
         };
     }

@@ -2641,8 +2641,10 @@ describe('customer service tools', function () {
         $timeline = (new App\Http\Resources\CRM\Livechat\ChatTimelineEventResource($note))->resolve();
 
         expect($note->payload['text'])->toBe($text)
+            ->and($note->payload['requested_by_user_id'])->toBe($this->user->id)
+            ->and($note->actor_type)->toBe(App\Enums\CRM\Livechat\ChatActorTypeEnum::AI)
             ->and($timeline['note'])->toBe($text)
-            ->and($timeline['description'])->toContain('not visible to the customer')
+            ->and($timeline['description'])->toBe('Internal note by Aiku, not visible to the customer')
             ->and($this->chat->messages()->count())->toBe($messages)
             ->and($this->chat->refresh()->status)->toBe($status);
 

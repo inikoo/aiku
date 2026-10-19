@@ -164,7 +164,7 @@ class CustomerServiceChatWriteTool extends AikuCustomerServiceTool
             return $this->askToConfirm(['action' => 'add_note', 'chat' => $chatSession->ulid, 'note' => $text]);
         }
 
-        $note = StoreChatEvent::make()->internalNote($chatSession, $this->chatAgent->id, $text);
+        $note = StoreChatEvent::make()->internalNote($chatSession, $text, $request->user()->id);
 
         return Response::json([
             'done'    => 'add_note',
