@@ -942,3 +942,69 @@ test('staff chat messages are agent messages of the shop chat staff only, and Sl
     $this->postJson($sendUrl, $payload(ChatSenderTypeEnum::AGENT))->assertSuccessful();
     expect($this->putJson($slackUrl, [])->status())->not->toBe(403);
 });
+
+test('agent profiles are edited by their own agent or a chat supervisor, agents are made by supervisors, and image checks and chat tasks follow the shop chat rule, INI-076', function () {
+    $newAgent = function () {
+        $user = User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+
+        return [$user, ChatAgent::firstOrCreate(['user_id' => $user->id], ['is_online' => true, 'max_concurrent_chats' => 100, 'current_chat_count' => 0])];
+    };
+    [$worker, $workerAgent] = $newAgent();
+    [$colleague, $colleagueAgent] = $newAgent();
+
+    $session = ChatSession::create([
+        'ulid'             => (string) Str::ulid(),
+        'shop_id'          => $this->shop->id,
+        'language_id'      => 68,
+        'status'           => ChatSessionStatusEnum::ACTIVE->value,
+        'priority'         => ChatPriorityEnum::NORMAL->value,
+        'guest_identifier' => 'guest-'.Str::random(8),
+        'ai_model_version' => 'default',
+    ]);
+    $image = \App\Models\Chat\ChatMessage::create([
+        'chat_session_id' => $session->id,
+        'message_type'    => \App\Enums\CRM\Livechat\ChatMessageTypeEnum::IMAGE,
+        'sender_type'     => ChatSenderTypeEnum::GUEST,
+        'message_text'    => 'photo',
+    ]);
+
+    $org        = $this->organisation->slug;
+    $updateUrl  = fn (ChatAgent $agent) => route('grp.org.chat.agents.update', [$org, $agent->id]);
+    $editUrl    = fn (ChatAgent $agent) => route('grp.org.chat.agents.edit', [$org, $agent->id]);
+    $storeUrl   = route('grp.org.chat.agents.store', $org);
+    $verifyUrl  = route('grp.org.chat.agents.messages.verify_image', [$org, $image->id]);
+    $taskUrl    = route('grp.org.chat.agents.sessions.task', [$org, $session->ulid]);
+    $whatsappTaskUrl = route('grp.org.chat.agents.whatsapp.sessions.task', [$org, MetaChatSession::create([
+        'ulid'            => (string) Str::ulid(),
+        'meta_channel_id' => MetaChannel::firstOrCreate(['code' => 'whatsapp'], ['name' => 'WhatsApp'])->id,
+        'shop_id'         => $this->shop->id,
+        'phone_number'    => '+628111'.random_int(100000, 999999),
+        'status'          => ChatSessionStatusEnum::ACTIVE,
+        'language_id'     => 68,
+        'priority'        => ChatPriorityEnum::NORMAL,
+    ])->ulid]);
+    $newProfile = ['organisation_id' => $this->organisation->id, 'user_id' => $colleague->id];
+
+    actingAsUserWithOnlyPermissions($worker, ["human-resources.{$this->organisation->id}.view"]);
+    $this->patchJson($updateUrl($colleagueAgent), ['max_concurrent_chats' => 1])->assertForbidden();
+    $this->postJson($storeUrl, $newProfile)->assertForbidden();
+    $this->postJson($verifyUrl)->assertForbidden();
+    $this->postJson($taskUrl, ['title' => 'x'])->assertForbidden();
+    $this->postJson($whatsappTaskUrl, ['title' => 'x'])->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($worker, ["chat.{$this->shop->id}"]);
+    $this->patchJson($updateUrl($colleagueAgent), ['max_concurrent_chats' => 1])->assertForbidden();
+    $this->patchJson($updateUrl($workerAgent), ['user_id' => $colleague->id])->assertForbidden();
+    expect($this->patchJson($updateUrl($workerAgent), ['max_concurrent_chats' => 7])->status())->not->toBe(403)
+        ->and($workerAgent->refresh()->max_concurrent_chats)->toBe(7);
+    $this->get($editUrl($colleagueAgent))->assertForbidden();
+    $this->get($editUrl($workerAgent))->assertOk();
+    $this->postJson($storeUrl, $newProfile)->assertForbidden();
+    expect($this->postJson($taskUrl, ['title' => 'x'])->status())->not->toBe(403);
+    expect($this->postJson($whatsappTaskUrl, ['title' => 'x'])->status())->not->toBe(403);
+
+    actingAsUserWithOnlyPermissions($colleague, ["chat-m.{$this->shop->id}"]);
+    expect($this->patchJson($updateUrl($workerAgent), ['max_concurrent_chats' => 9])->status())->not->toBe(403)
+        ->and($workerAgent->refresh()->max_concurrent_chats)->toBe(9);
+    $this->get($editUrl($workerAgent))->assertOk();
+});

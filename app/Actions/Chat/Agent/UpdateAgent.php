@@ -8,6 +8,7 @@
 
 namespace App\Actions\Chat\Agent;
 
+use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Actions\OrgAction;
 use App\Models\Chat\ChatAgent;
 use App\Models\SysAdmin\Organisation;
@@ -17,6 +18,27 @@ use Lorisleiva\Actions\ActionRequest;
 
 class UpdateAgent extends OrgAction
 {
+    use WithChatAgentAuthorisation;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+
+        $user  = $request->user();
+        $agent = $request->route('agent');
+
+        if ($this->userSupervisesChatOnOrganisation($user, $this->organisation)) {
+            return true;
+        }
+
+        return $agent instanceof ChatAgent
+            && $agent->user_id === $user->id
+            && (int) $request->input('user_id', $user->id) === $user->id
+            && $this->userCanWorkChatOnOrganisation($user, $this->organisation);
+    }
+
     public function asController(Organisation $organisation, ChatAgent $agent, ActionRequest $request): ?ChatAgent
     {
         $this->initialisation($organisation, $request);
