@@ -21,7 +21,7 @@ class LogWebUserLogin
 
     public string $jobQueue = 'analytics';
 
-    public function handle(WebUser $webUser, string $ip, string $userAgent, Carbon $datetime, array $geoLocation = [], $source = 'A'): void
+    public function handle(WebUser $webUser, string $ip, string $userAgent, Carbon $datetime, array $geoLocation = [], $source = 'A', ?string $visitorUuid = null): void
     {
         $browserData = GetBrowserInfo::run($userAgent);
 
@@ -49,7 +49,8 @@ class LogWebUserLogin
             $webUser,
             $webUser->website_id,
             StoreWebsiteVisitor::hashVisitor($ip, $userAgent)['visitor_hash'],
-            until: $datetime
+            until: $datetime,
+            visitorUuid: $visitorUuid
         );
     }
 

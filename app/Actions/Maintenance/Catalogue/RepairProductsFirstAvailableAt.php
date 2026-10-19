@@ -22,18 +22,23 @@ class RepairProductsFirstAvailableAt
      * Backfills first_available_at on a product launched before the NEW IN badge existed, from its
      * first stock date or else its creation date, so it does not show up as new.
      * A product never launched (coming soon, in process) keeps it empty and gets it on its launch.
-     * A product stamped later than its first sale, as old products touched before the backfill were, is moved back to that sale.
+     * A product stamped later than it was first ordered, invoiced, or live on the website with stock, as old products
+     * touched before the backfill were, is moved back to the earliest of these.
      * A never sold product stamped on the backfill day, but created long before it, gets its creation date like the backfill would have given it.
      */
     public function handle(Product $product, ?string $backfillDay = null): void
     {
         if ($product->first_available_at) {
-            $firstInvoicedAt = ProductHydrateFirstAvailableAt::firstInvoicedAt($product);
+            $firstSoldAt = ProductHydrateFirstAvailableAt::firstSoldAt($product);
 
-            if ($firstInvoicedAt && $firstInvoicedAt->lt($product->first_available_at)) {
-                $product->update(['first_available_at' => $firstInvoicedAt]);
-            } elseif (!$firstInvoicedAt && $backfillDay && $this->wasStampedOnBackfillDayLongAfterCreation($product, $backfillDay)) {
-                $product->update(['first_available_at' => $product->created_at]);
+            $earliestProof = ProductHydrateFirstAvailableAt::earliest([
+                $firstSoldAt,
+                $this->liveWithStockSince($product),
+                !$firstSoldAt && $backfillDay && $this->wasStampedOnBackfillDayLongAfterCreation($product, $backfillDay) ? $product->created_at : null,
+            ]);
+
+            if ($earliestProof && $earliestProof->lt($product->first_available_at)) {
+                $product->update(['first_available_at' => $earliestProof]);
             }
 
             return;
@@ -44,6 +49,24 @@ class RepairProductsFirstAvailableAt
         }
 
         $product->update(['first_available_at' => $product->first_in_stock_at ?? $product->created_at]);
+    }
+
+    private function liveWithStockSince(Product $product): ?Carbon
+    {
+        $liveAt = $product->webpage?->live_at;
+
+        if (!$liveAt || !$product->back_in_stock_since) {
+            return null;
+        }
+
+        $liveWithStockSince = Carbon::parse($product->back_in_stock_since)->max($liveAt);
+        $stockRanOutAt      = $product->out_of_stock_since ? Carbon::parse($product->out_of_stock_since) : null;
+
+        if ($stockRanOutAt && $stockRanOutAt->gt(Carbon::parse($product->back_in_stock_since)) && $stockRanOutAt->lte($liveWithStockSince)) {
+            return null;
+        }
+
+        return $liveWithStockSince;
     }
 
     private function wasStampedOnBackfillDayLongAfterCreation(Product $product, string $backfillDay): bool
@@ -58,7 +81,7 @@ class RepairProductsFirstAvailableAt
             || $product->state === ProductStateEnum::IN_PROCESS;
     }
 
-    public string $commandSignature = 'repair:products_first_available_at {--a|async : Dispatch each product as a job instead of repairing it here} {--stamped-since= : Also check products stamped on or after this date against their first sale} {--backfill-day= : Give never sold products stamped on this day, and created long before it, their creation date}';
+    public string $commandSignature = 'repair:products_first_available_at {--a|async : Dispatch each product as a job instead of repairing it here} {--stamped-since= : Also check products stamped on or after this date against their first order, invoice, or day live with stock} {--backfill-day= : Give never sold products stamped on this day, and created long before it, their creation date}';
 
     public function asCommand(Command $command): void
     {

@@ -15,6 +15,7 @@ use App\Actions\Dropshipping\Tiktok\User\ProcessUnregisterCustomerTiktokUser;
 use App\Actions\Traits\WithIrisAuthCookie;
 use App\Actions\Traits\WithLogin;
 use App\Actions\Traits\WithRetinaAuthRedirect;
+use App\Actions\Web\Website\Analytics\RecordWebsiteHit;
 use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Models\CRM\WebUser;
 use Illuminate\Http\RedirectResponse;
@@ -137,7 +138,8 @@ class RetinaLogin
             ip: request()->ip(),
             userAgent: $request->header('User-Agent'),
             datetime: now(),
-            geoLocation: $geoLocation
+            geoLocation: $geoLocation,
+            visitorUuid: $request->cookie(RecordWebsiteHit::VISITOR_COOKIE)
         )->delay(now()->addSeconds(5));
 
         if ($tiktokCode = $request->input('tiktok_code')) {

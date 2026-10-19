@@ -25,7 +25,7 @@ class GetWebsiteVisitorTrafficSource
     /**
      * @return array{traffic_source_type: string, traffic_source_reference: string|null}
      */
-    public function handle(?string $landingPage, ?string $referrer, int $websiteId, string $visitorHash): array
+    public function handle(?string $landingPage, ?string $referrer, int $websiteId, string $visitorHash, ?string $visitorUuid = null): array
     {
         if ($fromLandingPage = $this->fromLandingPage($landingPage)) {
             return $fromLandingPage;
@@ -33,7 +33,9 @@ class GetWebsiteVisitorTrafficSource
 
         $previousVisit = DB::table('website_visitors')
             ->where('website_id', $websiteId)
-            ->where('visitor_hash', $visitorHash)
+            ->where(fn ($sameBrowser) => $sameBrowser
+                ->where('visitor_hash', $visitorHash)
+                ->when($visitorUuid, fn ($query) => $query->orWhere('visitor_uuid', $visitorUuid)))
             ->where('last_seen_at', '>=', now()->subSeconds(UpdateWebsiteVisitor::MAX_IDLE_SECONDS))
             ->whereNotNull('traffic_source_type')
             ->orderByDesc('last_seen_at')
