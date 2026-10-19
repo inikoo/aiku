@@ -5259,3 +5259,59 @@ test('masters json lookups answer only masters staff, INI-076', function () {
         $this->postJson($url, $data)->assertOk();
     }
 });
+
+test('master collection, product in shop, gold reward and composition pages answer only masters staff, composition is read only without masters edit, INI-076', function () {
+    $masterFamily     = createMasterFamilyInFreshMasterShop('PGPERM');
+    $masterShop       = $masterFamily->masterShop;
+    [, $masterAsset]  = createMasterVariantOfTwo($masterFamily, 'PGPERM');
+    $masterCollection = StoreMasterCollection::make()->action($masterFamily, ['code' => 'PGPERM'.substr(uniqid(), -5), 'name' => 'page permissions'], createChildren: false);
+
+    $pages = [
+        route('grp.masters.master_shops.show.master_collections.collections', [$masterShop, $masterCollection]),
+        route('grp.masters.master_shops.show.master_collections.families', [$masterShop, $masterCollection]),
+        route('grp.masters.master_shops.show.master_collections.products', [$masterShop, $masterCollection]),
+        route('grp.masters.master_shops.show.master_products.products', [$masterShop, $masterAsset]),
+        route('grp.masters.master_shops.show.master_gr.index', $masterShop),
+    ];
+    $compositionUrl = route('grp.masters.master_shops.show.master_products.composition', [$masterShop, $masterAsset]);
+    $readonlyFlags  = fn ($response) => collect($response->viewData('page')['props']['formData']['blueprint'])
+        ->flatMap(fn (array $section) => collect($section['fields'] ?? [])->pluck('readonly'))
+        ->unique()->values()->all();
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["products.{$this->shop->id}.edit"]);
+    foreach ([...$pages, $compositionUrl] as $url) {
+        get($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ['masters.view']);
+    foreach ($pages as $url) {
+        get($url)->assertOk();
+    }
+    expect($readonlyFlags(get($compositionUrl)->assertOk()))->toBe([true]);
+
+    actingAsUserWithOnlyPermissions($user, ['masters.view', 'masters.edit']);
+    expect($readonlyFlags(get($compositionUrl)->assertOk()))->toBe([null]);
+});
+
+test('creating a shop from a master needs org admin of the organisation and the Add Shop list holds only those organisations, INI-076', function () {
+    $masterShop = createFreshMasterShop();
+    $createUrl  = route('grp.masters.master_shops.show.shop.create', [$masterShop, $this->organisation]);
+    $showUrl    = route('grp.masters.master_shops.show', $masterShop);
+    $listedOrgs = fn () => array_keys(get($showUrl)->assertOk()->viewData('page')['props']['organisations_list']);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    $storeUrl   = route('grp.masters.master_shops.show.shop.store', [$masterShop, $this->organisation->id]);
+
+    actingAsUserWithOnlyPermissions($user, ['masters.view', 'masters.edit']);
+    get($createUrl)->assertForbidden();
+    $this->postJson($storeUrl, [])->assertForbidden();
+    expect($listedOrgs())->toBe([]);
+
+    actingAsUserWithOnlyPermissions($user, ['masters.view', "org-admin.{$this->organisation->id}"]);
+    get($createUrl)->assertOk();
+    $this->postJson($storeUrl, [])->assertUnprocessable();
+    expect($listedOrgs())->toBe([$this->organisation->slug]);
+});
