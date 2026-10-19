@@ -6657,3 +6657,45 @@ test('dispatching json lookups refuse staff without warehouse or shop rights, IN
         getJson($url)->assertOk();
     }
 });
+
+test('delivery note page, its pdfs and the proforma invoice answer only warehouse, order or crm staff, INI-076', function () {
+    $deliveryNote = makeDeliveryNote($this);
+    $order        = $this->order;
+
+    $warehousePage = route('grp.org.warehouses.show.dispatching.delivery_notes.show', [$deliveryNote->organisation->slug, $deliveryNote->warehouse->slug, $deliveryNote->slug]);
+    $shopPage      = route('grp.org.shops.show.ordering.delivery-notes.show', [$deliveryNote->organisation->slug, $deliveryNote->shop->slug, $deliveryNote->slug]);
+    $pdfs          = [
+        route('grp.pdfs.delivery-notes', $deliveryNote->slug),
+        route('grp.pdfs.packing-lists', $deliveryNote->slug),
+        route('grp.pdfs.order-gift-message', $order->slug),
+    ];
+    $proforma = route('grp.org.shops.show.ordering.proforma_invoice.download', [$order->organisation->slug, $order->shop->slug, $order->slug]);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["products.$deliveryNote->shop_id.view"]);
+    foreach ([$warehousePage, $shopPage, ...$pdfs, $proforma] as $url) {
+        get($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["dispatching.$deliveryNote->warehouse_id.view"]);
+    foreach ([$warehousePage, ...$pdfs] as $url) {
+        get($url)->assertOk();
+    }
+    get($proforma)->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["orders.$deliveryNote->shop_id.view"]);
+    foreach ([$warehousePage, $shopPage, ...$pdfs, $proforma] as $url) {
+        get($url)->assertOk();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["accounting.$deliveryNote->organisation_id.view"]);
+    foreach ([$warehousePage, $shopPage, ...$pdfs, $proforma] as $url) {
+        get($url)->assertOk();
+    }
+
+    $otherShop = \App\Models\Catalogue\Shop::where('organisation_id', $deliveryNote->organisation_id)->where('id', '!=', $deliveryNote->shop_id)->first()
+        ?? \App\Actions\Catalogue\Shop\StoreShop::run($deliveryNote->organisation, \App\Models\Catalogue\Shop::factory()->definition());
+    get(route('grp.org.shops.show.ordering.delivery-notes.show', [$deliveryNote->organisation->slug, $otherShop->slug, $deliveryNote->slug]))->assertNotFound();
+    get(route('grp.org.shops.show.ordering.proforma_invoice.download', [$order->organisation->slug, $otherShop->slug, $order->slug]))->assertNotFound();
+});
