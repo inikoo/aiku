@@ -25,6 +25,7 @@ use App\Http\Resources\Procurement\ProcurementNoteResource;
 use App\Actions\OrgAction;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
+use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToConfirmed;
 use App\Actions\Procurement\PurchaseOrder\PdfPurchaseOrder;
 use App\Actions\Procurement\OrgAgent\GetAgentStockCoverBuckets;
 use App\Actions\Procurement\OrgAgent\UI\IndexAgentCoverBucketItems;
@@ -656,6 +657,9 @@ class ShowPurchaseOrder extends OrgAction
                     'style'   => 'save',
                     'key'     => 'confirm_purchase_order',
                     'estimated_receiving_date' => $purchaseOrder->estimatedReceivingDate(),
+                    'disabled_reason' => ($pendingPriceChanges = $purchaseOrder->numberPendingPriceChanges())
+                        ? UpdatePurchaseOrderStateToConfirmed::pendingPriceChangesMessage($purchaseOrder, $pendingPriceChanges)
+                        : null,
                     'route'   => [
                         'method'     => 'patch',
                         'name'       => 'grp.models.purchase-order.confirm',

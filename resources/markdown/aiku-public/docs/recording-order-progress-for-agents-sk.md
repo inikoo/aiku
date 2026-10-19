@@ -1,8 +1,8 @@
 ---
 title: Zaznamenávanie postupu objednávky ako agent
 summary: Pre agentov — dátumy, ktoré zaznamenávate na každej objednávke dodávateľovi (zaplatená záloha, začatie výroby, dokončená výroba, navrhovaný dátum pripravenosti, odovzdanie tovaru) a vaše vlastné číslo objednávky, kedy a kde ich zaznamenať, čo namiesto toho zaznamenáva nakupujúca spoločnosť, a prečo sa chýbajúci dátum zobrazuje ako meškanie.
-date: 2026-10-15
-source_date: 2026-10-15
+date: 2026-10-19
+source_date: 2026-10-19
 tags: procurement, agents, supply-chain
 category: procurement
 series: PO journey
@@ -44,6 +44,12 @@ Niektoré dátumy nemôžete zadať vy — je to zámer:
 - **Kompletný compliance balík.**
 
 Vaše <a href="/docs/your-clean-handover-score-sk">Clean Handover Score</a> sa počíta z týchto dátumov a z dátumu odovzdania, ktorý zaznamenávate. Dátum odovzdania zaznamenávate vy, preto zaznamenajte deň, keď tovar skutočne dorazil k prepravnému agentovi. Nákupca vidí, kto ho zaznamenal a kedy, môže ho porovnať s potvrdením prepravného agenta a môže ho opraviť; oprava sa uchová v histórii objednávky spolu s dôvodom.
+
+## Keď dodávateľ zmení cenu
+
+Ak dodávateľ požiada o novú cenu skôr, než objednávku potvrdíte, nepotvrdzujte ju za starú cenu. Otvorte objednávku, nájdite produkt v <b>Items</b> a na jeho riadku kliknite na <b>Supplier changed the price</b>. Zadajte cenu, ktorú dodávateľ žiada, za kartón tak, ako je zobrazená, prípadne krátku poznámku, ak pomôže, a potom <b>Ask the organisation</b>.
+
+Nakupujúca spoločnosť dostane upozornenie a odpovie na riadku: prijme novú cenu, ponechá starú, alebo určí inú cenu. O odpovedi dostanete upozornenie vy. Kým nie je zodpovedaná každá otázka k cene na objednávke, <b>Confirm</b> zostane sivé. Ak nakupujúca spoločnosť ponechá starú cenu a dodávateľ za ňu nepredá, zrušte tento riadok pred potvrdením.
 
 ## Dobré návyky
 

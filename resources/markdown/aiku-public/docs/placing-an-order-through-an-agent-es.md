@@ -1,8 +1,8 @@
 ---
 title: Hacer un pedido a través de un agente
 summary: Para compradores - cómo los pedidos que haces a los proveedores de un agente se reúnen en un único pedido de agente, cómo añadir productos, enviarlo y mandárselo al agente, y dónde vive el pedido de cada proveedor.
-date: 2026-10-15
-source_date: 2026-10-15
+date: 2026-10-19
+source_date: 2026-10-19
 tags: procurement, purchase orders, agents
 category: procurement
 ---
@@ -32,6 +32,18 @@ Los productos añadidos después de enviar van al siguiente pedido de agente.
 Cada bloque del pedido de agente muestra el estado propio de ese proveedor, su llegada prevista, su fecha de listo y su depósito, y su referencia abre la orden de compra del proveedor. Las confirmaciones, los depósitos, las fechas, la entrega limpia (clean handover) y las entregas de stock se registran allí, proveedor por proveedor. Desde la orden de compra de un proveedor, **Whole agent order** te devuelve al pedido completo. La columna **Agent order** de la lista de órdenes de compra muestra a qué pedido de agente pertenece cada pedido de proveedor y lo abre, y puedes buscar en la lista por esa referencia.
 
 Cuando el agente envía, una sola entrega de stock puede llevar los pedidos de varios de sus proveedores: en un pedido confirmado, **New stock delivery** ofrece añadirlo a una entrega del mismo agente que todavía está en proceso.
+
+## Cuando el proveedor cambia un precio
+
+Antes de confirmar un pedido enviado, el agente puede enterarse de que el proveedor quiere un precio nuevo para un producto. El agente lo registra en esa línea, con el precio nuevo y una nota opcional, y recibes una notificación. La línea muestra un recuadro ámbar con el precio que pide el proveedor y el precio al que sustituye.
+
+Responde en la línea con uno de tres botones:
+
+- **Accept**: la línea toma el precio nuevo.
+- **Keep old price**: la línea conserva su precio. Si el proveedor no quiere vender a ese precio, el agente cancela la línea.
+- **Set another price**: escribes el precio con el que estás de acuerdo y la línea lo toma.
+
+Marca **Also update supplier price** en la línea antes de responder para que el precio que elijas pase a ser también el precio del producto del proveedor. El agente no puede confirmar el pedido mientras haya una pregunta de precio sin responder: **Confirm** queda en gris e indica cuántas líneas están esperando. El agente recibe una notificación con tu respuesta.
 
 ## Quién puede usarlo
 

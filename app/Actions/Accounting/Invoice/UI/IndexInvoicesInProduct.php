@@ -10,6 +10,7 @@ namespace App\Actions\Accounting\Invoice\UI;
 use App\Actions\Catalogue\Product\UI\ShowProduct;
 use App\Actions\Masters\MasterAsset\UI\ShowMasterProduct;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithCatalogueAuthorisation;
 use App\Http\Resources\CRM\InvoicesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\Invoice;
@@ -29,7 +30,20 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexInvoicesInProduct extends OrgAction
 {
+    use WithCatalogueAuthorisation {
+        authorize as authorizeCatalogue;
+    }
+
     private MasterAsset|Product $parent;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if (str_starts_with($request->route()->getName(), 'grp.masters.')) {
+            return $request->user()->authTo('masters.view');
+        }
+
+        return $this->authorizeCatalogue($request);
+    }
 
     public function handle(MasterAsset|Asset $parent, ?string $prefix = null): LengthAwarePaginator
     {
@@ -100,6 +114,7 @@ class IndexInvoicesInProduct extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, Product $product, ActionRequest $request): LengthAwarePaginator
     {
+        abort_unless($product->shop_id === $shop->id, 404);
         $this->parent = $product;
         $this->initialisationFromShop($shop, $request);
 
@@ -108,6 +123,7 @@ class IndexInvoicesInProduct extends OrgAction
 
     public function inMaster(MasterShop $masterShop, MasterAsset $masterProduct, ActionRequest $request): LengthAwarePaginator
     {
+        abort_unless($masterProduct->master_shop_id === $masterShop->id, 404);
         $this->parent = $masterProduct;
         $this->initialisationFromGroup($masterShop->group, $request);
 

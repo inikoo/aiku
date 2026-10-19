@@ -1,8 +1,8 @@
 ---
 title: Mencatat kemajuan pesanan sebagai agen
 summary: Untuk agen — tanggal yang Anda catat pada setiap pesanan ke pemasok (deposit paid, production started, production done, proposed ready date, handed over) dan nomor pesanan Anda sendiri, kapan dan di mana mencatatnya, apa yang dicatat oleh perusahaan pembeli sebagai gantinya, dan mengapa tanggal yang hilang tampak sebagai keterlambatan.
-date: 2026-10-15
-source_date: 2026-10-15
+date: 2026-10-19
+source_date: 2026-10-19
 tags: procurement, agents, supply-chain
 category: procurement
 series: PO journey
@@ -44,6 +44,12 @@ Ada tanggal-tanggal yang tidak bisa Anda masukkan sendiri, dan ini memang diseng
 - **Paket kepatuhan lengkap.**
 
 <a href="/docs/your-clean-handover-score-id">Skor Serah Terima Bersih</a> Anda dihitung dari tanggal-tanggal ini dan dari tanggal serah terima yang Anda catat. Tanggal serah terima adalah bagian yang Anda catat sendiri, jadi catatlah hari barang benar-benar sampai di agen pengiriman. Pembeli melihat siapa yang mencatatnya dan kapan, dapat memeriksanya terhadap tanda terima agen pengiriman, dan dapat mengoreksinya; koreksi disimpan di riwayat pesanan beserta alasannya.
+
+## Saat pemasok mengubah harga
+
+Jika pemasok meminta harga baru sebelum Anda mengonfirmasi pesanan, jangan konfirmasi dengan harga lama. Buka pesanan, cari produknya di <b>Items</b> (daftar barang), lalu klik <b>Supplier changed the price</b> (pemasok mengubah harga) pada barisnya. Isi harga yang diminta pemasok, per karton seperti yang tampil, dan catatan singkat jika perlu, lalu klik <b>Ask the organisation</b> (tanya perusahaan pembeli).
+
+Perusahaan pembeli mendapat pemberitahuan dan menjawab di baris itu: menerima harga baru, mempertahankan harga lama, atau menetapkan harga lain. Anda juga mendapat pemberitahuan tentang jawabannya. Selama belum semua pertanyaan harga di pesanan dijawab, tombol <b>Confirm</b> (konfirmasi) tetap abu-abu. Jika perusahaan pembeli mempertahankan harga lama dan pemasok tidak mau menjual dengan harga itu, batalkan baris tersebut sebelum mengonfirmasi.
 
 ## Kebiasaan baik
 

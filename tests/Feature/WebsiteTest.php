@@ -1026,10 +1026,12 @@ test('UI store fulfilment banner', function (Website $website) {
 })->depends('launch fulfilment website from command');
 
 test('UI create banner', function (Website $website) {
+    get(route('grp.org.shops.show.web.banners.create', [$this->organisation->slug, $this->shop->slug, $website->slug]))->assertNotFound();
+
     $response = get(
         route('grp.org.shops.show.web.banners.create', [
             $this->organisation->slug,
-            $this->shop->slug,
+            $website->shop->slug,
             $website->slug,
         ])
     );
@@ -4165,5 +4167,40 @@ test('website json lookups answer staff of the shop and refuse staff from elsewh
     actingAsUserWithOnlyPermissions($user, ["web.$shop->id.view"]);
     foreach ($routes as $url) {
         getJson($url)->assertOk();
+    }
+})->depends('launch website');
+
+test('banner and redirect create pages need web edit of the shop, and webpage and redirect exports web view, INI-076', function (Website $website) {
+    $shop    = $website->shop;
+    $webpage = $website->webpages()->firstOrFail();
+    $params  = [$shop->organisation->slug, $shop->slug, $website->slug];
+
+    $createPages = [
+        route('grp.org.shops.show.web.banners.create', $params),
+        route('grp.org.shops.show.web.webpages.redirect.create', [...$params, $webpage->slug]),
+    ];
+    $exports = [
+        route('grp.org.shops.show.web.webpages.export', [...$params, 'type' => 'csv']),
+        route('grp.org.shops.show.web.redirect.export', [...$params, 'type' => 'csv']),
+    ];
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $shop->group_id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["human-resources.{$shop->organisation_id}.view"]);
+    foreach ([...$createPages, ...$exports] as $url) {
+        get($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["web.$shop->id.view"]);
+    foreach ($createPages as $url) {
+        get($url)->assertForbidden();
+    }
+    foreach ($exports as $url) {
+        get($url)->assertOk();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["web.$shop->id.view", "web.$shop->id.edit"]);
+    foreach ($createPages as $url) {
+        get($url)->assertOk();
     }
 })->depends('launch website');

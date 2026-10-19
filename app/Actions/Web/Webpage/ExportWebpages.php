@@ -8,6 +8,7 @@
 namespace App\Actions\Web\Webpage;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithWebAuthorisation;
 use App\Actions\Traits\WithExportData;
 use App\Exports\Web\WebpagesExport;
 use App\Models\Catalogue\Shop;
@@ -21,6 +22,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 class ExportWebpages extends OrgAction
 {
     use WithAttributes;
+    use WithWebAuthorisation;
     use WithExportData;
 
     /**
@@ -36,6 +38,7 @@ class ExportWebpages extends OrgAction
      */
     public function asController(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): BinaryFileResponse
     {
+        abort_unless($website->shop_id === $shop->id, 404);
         $this->initialisationFromShop($shop, $request);
         $this->setRawAttributes($request->all());
         $this->validateAttributes();
@@ -48,6 +51,7 @@ class ExportWebpages extends OrgAction
      */
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, ActionRequest $request): BinaryFileResponse
     {
+        abort_unless($website->shop_id === $fulfilment->shop_id, 404);
         $this->initialisationFromFulfilment($fulfilment, $request);
         $this->setRawAttributes($request->all());
         $this->validateAttributes();

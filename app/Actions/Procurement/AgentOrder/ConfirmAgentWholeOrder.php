@@ -16,6 +16,7 @@ use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Collection;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
@@ -30,10 +31,20 @@ class ConfirmAgentWholeOrder extends OrgAction
      */
     public function handle(PurchaseOrder $purchaseOrder): Collection
     {
-        return $purchaseOrder->wholeAgentOrder()
+        $supplierOrders = $purchaseOrder->wholeAgentOrder()
             ->where('state', PurchaseOrderStateEnum::SUBMITTED)
-            ->get()
-            ->map(fn (PurchaseOrder $supplierOrder) => UpdatePurchaseOrderStateToConfirmed::make()->action($supplierOrder));
+            ->get();
+
+        $waiting = $supplierOrders
+            ->map(fn (PurchaseOrder $supplierOrder) => [$supplierOrder, $supplierOrder->numberPendingPriceChanges()])
+            ->filter(fn (array $pending) => $pending[1] > 0)
+            ->map(fn (array $pending) => UpdatePurchaseOrderStateToConfirmed::pendingPriceChangesMessage(...$pending));
+
+        if ($waiting->isNotEmpty()) {
+            throw ValidationException::withMessages(['price_change' => $waiting->implode('. ')]);
+        }
+
+        return $supplierOrders->map(fn (PurchaseOrder $supplierOrder) => UpdatePurchaseOrderStateToConfirmed::make()->action($supplierOrder));
     }
 
     public function asController(PurchaseOrder $purchaseOrder, ActionRequest $request): RedirectResponse

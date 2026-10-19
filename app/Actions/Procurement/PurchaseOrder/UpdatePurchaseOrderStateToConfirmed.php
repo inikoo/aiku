@@ -18,6 +18,7 @@ use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Models\Procurement\PurchaseOrder;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -32,6 +33,12 @@ class UpdatePurchaseOrderStateToConfirmed extends OrgAction
     {
         if ($purchaseOrder->state !== PurchaseOrderStateEnum::SUBMITTED) {
             abort(422, __('Purchase order can only be confirmed if it is submitted'));
+        }
+
+        if ($pendingPriceChanges = $purchaseOrder->numberPendingPriceChanges()) {
+            throw ValidationException::withMessages([
+                'price_change' => self::pendingPriceChangesMessage($purchaseOrder, $pendingPriceChanges),
+            ]);
         }
 
         $purchaseOrder->purchaseOrderTransactions()
@@ -56,6 +63,15 @@ class UpdatePurchaseOrderStateToConfirmed extends OrgAction
         $this->purchaseOrderHydrate($purchaseOrder);
 
         return $purchaseOrder;
+    }
+
+    public static function pendingPriceChangesMessage(PurchaseOrder $purchaseOrder, int $pendingPriceChanges): string
+    {
+        return trans_choice(
+            ':reference: the organisation has not answered the new price of :count line yet|:reference: the organisation has not answered the new prices of :count lines yet',
+            $pendingPriceChanges,
+            ['reference' => $purchaseOrder->reference, 'count' => $pendingPriceChanges]
+        );
     }
 
     public function asController(PurchaseOrder $purchaseOrder, ActionRequest $request): PurchaseOrder
