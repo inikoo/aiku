@@ -124,6 +124,33 @@ it('splits a daily export carrying several platforms between their accounts', fu
         ->and($accounts['instagram']->refresh()->followers)->toBe(2000);
 });
 
+it('reads a business suite facebook content export as comma separated, even when its links make the colon look steadier', function () {
+    $upload = ImportSocialMediaInsights::make()->handle($this->shop, socialCsv('facebook-content.csv', [
+        '"Post ID","Page ID","Page name",Description,"Publish time",Permalink,"Post type","Data comment",Date,Views,Reach,Reactions,Comments,Shares,"Total clicks","Link clicks","Seconds viewed"',
+        '1701,100063543606229,"AW Artisan SL","Velas, cristales y jabones","10/01/2026 02:00",https://www.facebook.com/reel/1701/,Videos,,Lifetime,477,411,4,0,0,0,,1475.224',
+        '1702,100063543606229,"AW Artisan SL","Cuencos tibetanos","10/02/2026 02:00",https://www.facebook.com/permalink.php?story_fbid=pfbid02&id=100063543606229,Photos,,Lifetime,276,179,1,0,0,13,6,',
+        '1703,100063543606229,"AW Artisan SL","Joyería de cobre","10/03/2026 02:00",https://www.facebook.com/permalink.php?story_fbid=pfbid03&id=100063543606229,Photos,,Lifetime,184,125,0,0,0,1',
+        '1704,100063543606229,"AW Artisan SL","Bolsos de yute","10/04/2026 02:00",https://www.facebook.com/permalink.php?story_fbid=pfbid04&id=100063543606229,Photos,,Lifetime,190,131,1,0,0,0',
+    ]));
+
+    expect($upload->number_rows)->toBe(4)
+        ->and($upload->number_success)->toBe(4)
+        ->and($upload->number_fails)->toBe(0);
+
+    $account = $this->shop->socialMediaAccounts()->sole();
+    $reel    = $account->posts()->where('external_id', '1701')->sole();
+    $photo   = $account->posts()->where('external_id', '1702')->sole();
+
+    expect($account->platform)->toBe(SocialMediaPlatformEnum::FACEBOOK)
+        ->and($account->external_id)->toBe('100063543606229')
+        ->and($reel->type)->toBe(SocialMediaPostTypeEnum::REEL)
+        ->and($reel->reach)->toBe(411)
+        ->and($reel->impressions)->toBe(477)
+        ->and($photo->type)->toBe(SocialMediaPostTypeEnum::IMAGE)
+        ->and($photo->link_clicks)->toBe(6)
+        ->and($photo->published_at->toDateString())->toBe('2026-10-02');
+});
+
 it('imports a tiktok studio content export without an account id', function () {
     ImportSocialMediaInsights::make()->handle($this->shop, socialCsv('tiktok.csv', [
         'Video title,Video link,Post time,Total likes,Total comments,Total shares,Total views',
