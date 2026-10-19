@@ -14,6 +14,8 @@ use App\Models\Dropshipping\CustomerSalesChannel;
 use App\Models\Dropshipping\Portfolio;
 use App\Models\Dropshipping\WooCommerceUser;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class UpdateWooCustomerSalesChannelPortfolio implements ShouldBeUnique
@@ -63,6 +65,7 @@ class UpdateWooCustomerSalesChannelPortfolio implements ShouldBeUnique
                 'last_stock_value',
                 'stock_last_updated_at',
                 'stock_last_fail_updated_at',
+                DB::raw("CASE WHEN data->'woo_product'->>'type' = 'variation' THEN data->'woo_product'->>'parent_id' END AS woo_variation_parent_id"),
             ])
             ->where('customer_sales_channel_id', $customerSalesChannel->id)
             ->whereNotNull('platform_product_id')
@@ -70,7 +73,7 @@ class UpdateWooCustomerSalesChannelPortfolio implements ShouldBeUnique
             ->where('platform_status', true)
             ->with('item:id,available_quantity,is_for_sale,exclusive_for_customer_id,state,available_quantity_updated_at')
             ->chunkById(500, function ($portfolioChunk) use ($customerSalesChannel, $wooCommerceUser, $force): void {
-                $updates = [];
+                $updatesByVariationParent = [];
 
                 foreach ($portfolioChunk as $portfolio) {
                     if (!$this->checkIfApplicable($portfolio, $customerSalesChannel, $force)) {
@@ -80,19 +83,34 @@ class UpdateWooCustomerSalesChannelPortfolio implements ShouldBeUnique
                     /** @var Product $product */
                     $product = $portfolio->item;
 
-                    $updates[] = [
+                    $updatesByVariationParent[(int) $portfolio->woo_variation_parent_id][] = [
                         'id'             => $portfolio->platform_product_id,
                         'manage_stock'   => true,
                         'stock_quantity' => self::quantityToSend($product, $customerSalesChannel),
                     ];
                 }
 
-                foreach (array_chunk($updates, 20) as $updateChunk) {
-                    UpdateBatchWooCustomerSalesChannelPortfolio::dispatch($wooCommerceUser, [
-                        'update' => $updateChunk,
-                    ]);
+                foreach ($updatesByVariationParent as $variationParentId => $updates) {
+                    foreach (array_chunk($updates, 20) as $updateChunk) {
+                        UpdateBatchWooCustomerSalesChannelPortfolio::dispatch($wooCommerceUser, [
+                            'update' => $updateChunk,
+                        ], $variationParentId ?: null);
+                    }
                 }
             });
+    }
+
+    /**
+     * A portfolio matched to a variation keeps the variation id as its platform product id, and
+     * the parent it has to be written under comes from the product the store last returned.
+     */
+    public static function variationParentId(Portfolio $portfolio): ?int
+    {
+        if (Arr::get($portfolio->data, 'woo_product.type') !== 'variation') {
+            return null;
+        }
+
+        return (int) Arr::get($portfolio->data, 'woo_product.parent_id') ?: null;
     }
 
     public static function quantityToSend(Product $product, CustomerSalesChannel $customerSalesChannel): int

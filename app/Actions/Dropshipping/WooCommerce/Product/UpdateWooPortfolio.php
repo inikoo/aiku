@@ -79,8 +79,9 @@ class UpdateWooPortfolio implements ShouldBeUnique
 
         $wooCommerceUser->setTimeout(45);
         try {
-            $response = $wooCommerceUser->updateWooCommerceProduct(
+            $response = $wooCommerceUser->updateWooCommerceProductOrVariation(
                 $portfolio->platform_product_id,
+                UpdateWooCustomerSalesChannelPortfolio::variationParentId($portfolio),
                 [
                     "stock_quantity" => $availableQuantity,
                 ]

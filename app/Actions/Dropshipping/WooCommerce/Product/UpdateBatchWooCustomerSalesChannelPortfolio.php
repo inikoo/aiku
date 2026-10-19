@@ -22,7 +22,18 @@ class UpdateBatchWooCustomerSalesChannelPortfolio
 
     public string $jobQueue = 'woo';
 
-    public function handle(WooCommerceUser $wooCommerceUser, array $productData): void
+    /**
+     * A portfolio WooCommerce answers with "use the variations endpoint" was matched to a variation
+     * before its parent was known: checking it again saves the variation and its parent, so the next
+     * sync writes it under that parent.
+     */
+    private const array RECHECK_ERROR_CODES = [
+        'woocommerce_rest_product_invalid_id',
+        'woocommerce_rest_product_variation_invalid_id',
+        'woocommerce_rest_invalid_product_id',
+    ];
+
+    public function handle(WooCommerceUser $wooCommerceUser, array $productData, ?int $variationParentId = null): void
     {
         $customerSalesChannel = $wooCommerceUser->customerSalesChannel;
 
@@ -41,7 +52,9 @@ class UpdateBatchWooCustomerSalesChannelPortfolio
             return;
         }
 
-        $response = $wooCommerceUser->batchUpdateWooCommerceProducts($productData);
+        $response = $variationParentId
+            ? $wooCommerceUser->batchUpdateWooCommerceProductVariations($variationParentId, $productData)
+            : $wooCommerceUser->batchUpdateWooCommerceProducts($productData);
         $responseItems = Arr::get($response, 'update');
 
         if (!is_array($responseItems)) {
@@ -64,7 +77,7 @@ class UpdateBatchWooCustomerSalesChannelPortfolio
 
             if (Arr::has($responseItem, 'error')) {
                 $erroredPlatformProductIds[] = (int) $platformProductId;
-                if (Arr::get($responseItem, 'error.code') === 'woocommerce_rest_product_invalid_id') {
+                if (in_array(Arr::get($responseItem, 'error.code'), self::RECHECK_ERROR_CODES)) {
                     $missingPlatformProductIds[] = (string) $platformProductId;
                 }
             } elseif (Arr::get($responseItem, 'status') === 'trash') {
@@ -154,7 +167,7 @@ class UpdateBatchWooCustomerSalesChannelPortfolio
             $messageData = json_decode($rawMessage, true);
 
             if ($messageData) {
-                if (in_array(Arr::get($messageData, 'code'), ['rest_invalid_param', 'woocommerce_rest_product_invalid_id'])
+                if (in_array(Arr::get($messageData, 'code'), ['rest_invalid_param', ...self::RECHECK_ERROR_CODES])
                     || in_array(Arr::get($messageData, 'data.status'), [400, 404])) {
                     $ban = false;
                 }
