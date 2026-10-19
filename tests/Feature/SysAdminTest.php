@@ -2782,3 +2782,22 @@ test('organisation settings change log needs org admin, a sales channel group ac
     actingAsUserWithOnlyPermissions($user, ['sysadmin.view', 'sysadmin.edit']);
     $this->get($edit)->assertOk();
 });
+
+test('a staff password is reset only with a valid reset token for that email, INI-076', function () {
+    $group = createGroup();
+    $user  = User::factory()->create(['group_id' => $group->id, 'status' => true, 'email' => 'reset-'.uniqid().'@example.com', 'password' => 'old-password']);
+    $other = User::factory()->create(['group_id' => $group->id, 'status' => true, 'email' => 'other-'.uniqid().'@example.com']);
+    $url   = route('grp.reset-password.email.update');
+
+    $this->patch($url, ['email' => $user->email, 'password' => 'new-password-1'])->assertSessionHasErrors('token');
+    $this->patch($url, ['email' => $user->email, 'password' => 'new-password-1', 'token' => 'not-a-token'])->assertSessionHasErrors('token');
+    $this->patch($url, ['email' => $user->email, 'password' => 'new-password-1', 'token' => \Illuminate\Support\Facades\Password::broker('users')->createToken($other)])->assertSessionHasErrors('token');
+    expect(Hash::check('old-password', $user->refresh()->password))->toBeTrue();
+
+    $token = \Illuminate\Support\Facades\Password::broker('users')->createToken($user);
+    $this->patch($url, ['email' => $user->email, 'password' => 'new-password-1', 'token' => $token])->assertSessionHasNoErrors();
+    expect(Hash::check('new-password-1', $user->refresh()->password))->toBeTrue();
+
+    $this->patch($url, ['email' => $user->email, 'password' => 'new-password-2', 'token' => $token])->assertSessionHasErrors('token');
+    expect(Hash::check('new-password-1', $user->refresh()->password))->toBeTrue();
+});
