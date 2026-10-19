@@ -37,6 +37,7 @@ const props = defineProps<{
     title: string
     order: VisitorOrderReview
     preselect: { product: number | null; rating: number | null }
+    isPreview?: boolean
 }>()
 
 const itemKey = (item: ReviewItem) => `${item.scope}-${item.reviewable_id}`
@@ -76,8 +77,13 @@ const send = async () => {
         errorMessage.value = ctrans("Choose a star rating first.")
         return
     }
-    isSending.value = true
     errorMessage.value = ""
+    if (props.isPreview) {
+        isSent.value = true
+        window.scrollTo({ top: 0, behavior: "smooth" })
+        return
+    }
+    isSending.value = true
     try {
         const { data } = await axios.post(route("iris.models.order_review.store", { order: props.order.id, token: props.order.token }), {
             reviews: ratedItems.value.map((item) => ({
@@ -110,6 +116,10 @@ const send = async () => {
                         {{ ctrans("How was your order :reference?", { reference: order.reference }) }}
                     </h1>
                     <div v-if="order.date" class="mt-1 text-sm text-slate-500">{{ order.date }}</div>
+
+                    <div v-if="isPreview" class="mt-4 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" role="note">
+                        {{ ctrans("Test preview from a test email. Nothing you send here is saved.") }}
+                    </div>
 
                     <div v-if="isSent" class="mt-4 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800" role="status">
                         <span class="font-semibold">{{ ctrans("Thank you!") }}</span>

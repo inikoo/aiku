@@ -14,8 +14,10 @@ use App\Models\Comms\EmailBulkRun;
 use App\Models\Comms\Outbox;
 use App\Models\CRM\Customer;
 use App\Models\Ordering\Order;
+use Closure;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class ProcessReviewReminderRecipients implements ShouldQueue
@@ -117,27 +119,36 @@ class ProcessReviewReminderRecipients implements ShouldQueue
             ->orderBy('code')
             ->get();
 
+        return $this->reviewBlock($order->shop->name, $order->reference, $products, fn (array $preselect) => $order->reviewUrl($preselect));
+    }
+
+    /**
+     * @param  Collection<int, Product>  $products
+     * @param  Closure(array{product?: int, rating?: int}): ?string  $reviewUrl
+     */
+    public function reviewBlock(string $shopName, string $reference, Collection $products, Closure $reviewUrl): string
+    {
         $rows = $this->reviewRow(
-            __('How would you rate :shop?', ['shop' => e($order->shop->name)]),
+            __('How would you rate :shop?', ['shop' => e($shopName)]),
             null,
-            fn (int $rating) => $order->reviewUrl(['rating' => $rating])
+            fn (int $rating) => $reviewUrl(['rating' => $rating])
         );
 
         foreach ($products->take(self::PRODUCTS_IN_EMAIL) as $product) {
             $rows .= $this->reviewRow(
                 e($product->name),
                 Arr::get($product->imageSources(112, 112), 'png'),
-                fn (int $rating) => $order->reviewUrl(['product' => $product->id, 'rating' => $rating])
+                fn (int $rating) => $reviewUrl(['product' => $product->id, 'rating' => $rating])
             );
         }
 
         if ($products->count() > self::PRODUCTS_IN_EMAIL) {
-            $rows .= '<tr><td colspan="3" style="padding:12px 0 0;font-size:14px;"><a href="'.e($order->reviewUrl()).'" style="color:#111827;font-weight:600;">'
+            $rows .= '<tr><td colspan="3" style="padding:12px 0 0;font-size:14px;"><a href="'.e($reviewUrl([])).'" style="color:#111827;font-weight:600;">'
                 .__('Review all :count products', ['count' => $products->count()]).'</a></td></tr>';
         }
 
         return '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-family:Arial,Helvetica,sans-serif;margin:0 0 24px;">'
-            .'<tr><td colspan="3" style="padding:0 0 4px;font-size:18px;font-weight:700;color:#111827;">'.__('How was your order :reference?', ['reference' => e($order->reference)]).'</td></tr>'
+            .'<tr><td colspan="3" style="padding:0 0 4px;font-size:18px;font-weight:700;color:#111827;">'.__('How was your order :reference?', ['reference' => e($reference)]).'</td></tr>'
             .'<tr><td colspan="3" style="padding:0 0 8px;font-size:14px;color:#6b7280;">'.__('Tap a star to rate, it only takes a few seconds.').'</td></tr>'
             .$rows
             .'</table>';
