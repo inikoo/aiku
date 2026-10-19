@@ -14,7 +14,6 @@ use App\Actions\CRM\TrafficSource\GetShopClickFraud;
 use App\Actions\CRM\TrafficSource\GetShopEmailMarketingPerformance;
 use App\Actions\CRM\TrafficSource\GetShopMarketingOverview;
 use App\Actions\CRM\TrafficSource\GetShopOfferPerformance;
-use App\Actions\CRM\TrafficSource\GetShopVisitorChannelPerformance;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Dashboards\WithMarketingPeriod;
 use App\Enums\UI\Marketing\MarketingDashboardTabsEnum;
@@ -106,9 +105,6 @@ class ShowMarketingDashboard extends OrgAction
                 MarketingDashboardTabsEnum::OFFERS->value => $this->tab == MarketingDashboardTabsEnum::OFFERS->value
                     ? fn () => array_merge(GetShopOfferPerformance::run($this->shop, $this->periodFrom, $this->periodTo), $this->periodLabels())
                     : Inertia::optional(fn () => array_merge(GetShopOfferPerformance::run($this->shop, $this->periodFrom, $this->periodTo), $this->periodLabels())),
-                MarketingDashboardTabsEnum::VISITOR_CHANNELS->value => $this->tab == MarketingDashboardTabsEnum::VISITOR_CHANNELS->value
-                    ? fn () => array_merge(GetShopVisitorChannelPerformance::run($this->shop, $this->periodFrom, $this->periodTo), $this->periodLabels())
-                    : Inertia::optional(fn () => array_merge(GetShopVisitorChannelPerformance::run($this->shop, $this->periodFrom, $this->periodTo), $this->periodLabels())),
                 MarketingDashboardTabsEnum::DATA_QUALITY->value => $this->tab == MarketingDashboardTabsEnum::DATA_QUALITY->value
                     ? fn () => array_merge(GetShopAttributionDataQuality::run($this->shop, $this->periodFrom, $this->periodTo), $this->periodLabels())
                     : Inertia::optional(fn () => array_merge(GetShopAttributionDataQuality::run($this->shop, $this->periodFrom, $this->periodTo), $this->periodLabels())),
