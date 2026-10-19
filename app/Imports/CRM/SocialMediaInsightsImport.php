@@ -8,6 +8,7 @@
 
 namespace App\Imports\CRM;
 
+use App\Actions\CRM\SocialMedia\GetSocialMediaAccount;
 use App\Enums\CRM\SocialMedia\SocialMediaPlatformEnum;
 use App\Enums\CRM\SocialMedia\SocialMediaPostTypeEnum;
 use App\Imports\WithImport;
@@ -292,39 +293,9 @@ class SocialMediaInsightsImport implements ToCollection, WithEvents
         return [$platform, null];
     }
 
-    /**
-     * Accounts are found by the platform's own id when the export carries one. Account exports carry
-     * none, so they go to the shop's one account on that platform.
-     */
     private function account(SocialMediaPlatformEnum $platform, ?string $externalId, ?string $name, ?string $username): SocialMediaAccount
     {
-        $accounts      = $this->shop->socialMediaAccounts()->where('platform', $platform->value)->get();
-        $platformLabel = SocialMediaPlatformEnum::labels()[$platform->value];
-
-        if ($externalId === null && $accounts->count() > 1) {
-            throw new Exception(__('This shop has more than one :platform account and the file does not say which one', ['platform' => $platformLabel]));
-        }
-
-        $account = $externalId === null
-            ? $accounts->first()
-            : ($accounts->firstWhere('external_id', $externalId) ?? $accounts->whereNull('external_id')->first());
-
-        if ($account === null) {
-            $account = $this->shop->socialMediaAccounts()->create([
-                'group_id'        => $this->shop->group_id,
-                'organisation_id' => $this->shop->organisation_id,
-                'platform'        => $platform,
-                'external_id'     => $externalId,
-                'name'            => $name ?? $username ?? $this->shop->name.' '.$platformLabel,
-                'username'        => $username,
-            ]);
-        } elseif ($externalId !== null && ($account->external_id === null || ($name !== null && $account->name !== $name))) {
-            $account->update(array_filter([
-                'external_id' => $externalId,
-                'name'        => $name,
-                'username'    => $username,
-            ]));
-        }
+        $account = GetSocialMediaAccount::run($this->shop, $platform, $externalId, $name, $username);
 
         $this->touchedAccountIds[$account->id] = $account->id;
 
