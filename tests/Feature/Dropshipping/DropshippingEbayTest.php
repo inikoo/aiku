@@ -34,6 +34,7 @@ use App\Actions\Dropshipping\Ebay\UpdateEbayUserData;
 use App\Actions\Dropshipping\Ebay\UpdateReturnPolicyEbayUser;
 use App\Actions\Dropshipping\Ebay\UpdateShippingPolicyEbayUser;
 use App\Actions\Dropshipping\Portfolio\StorePortfolio;
+use App\Actions\Maintenance\Dropshipping\SyncEbayChannelPoliciesFromEbay;
 use App\Actions\Retina\Ebay\PublishRetinaEbayPortfolio;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
@@ -1799,6 +1800,35 @@ test('a postage policy eBay refuses is reported and the channel keeps its previo
 
     expect(sentEbayRequest('PUT', '/sell/account/v1/fulfillment_policy/fp-1')->data()['shippingOptions'][0]['shippingServices'][0]['shippingCost']['value'])->toBe('4.50')
         ->and(Arr::get($ebayUser->customerSalesChannel->refresh()->settings, 'shipping.price'))->toBe('3');
+});
+
+test('a channel whose returns and postage differ from eBay takes what eBay holds, only with apply, and nothing is sent to eBay', function () {
+    $ebayUser = ebayChannel($this);
+    $ebayUser->customerSalesChannel->update(['settings' => [
+        'return'   => ['accepted' => true, 'payer' => 'SELLER', 'within' => 60],
+        'shipping' => ['price' => '4', 'max_dispatch_time' => '1', 'service_code' => 'UK_RoyalMailNextDay', 'service_name' => 'Royal Mail', 'carrier_code' => 'RoyalMail', 'carrier_name' => 'Royal Mail'],
+        'upload_as_draft' => true,
+    ]]);
+
+    fakeEbay($this, ebayAccountRoutes([
+        '/sell/account/v1/return_policy' => ['returnPolicies' => [['returnPolicyId' => 'rp-1', 'returnsAccepted' => false]]],
+    ]));
+
+    $differences = SyncEbayChannelPoliciesFromEbay::run($ebayUser, false);
+
+    expect($differences['returns'])->toBe(['accepted' => ['aw' => true, 'ebay' => false]])
+        ->and($differences['shipping'])->toBe(['price' => ['aw' => '4', 'ebay' => '1.00']])
+        ->and(Arr::get($ebayUser->customerSalesChannel->refresh()->settings, 'return.accepted'))->toBeTrue();
+
+    SyncEbayChannelPoliciesFromEbay::run($ebayUser->refresh(), true);
+
+    $settings = $ebayUser->customerSalesChannel->refresh()->settings;
+    expect($settings['return']['accepted'])->toBeFalse()
+        ->and($settings['shipping']['price'])->toBe('1.00')
+        ->and($settings['shipping']['service_code'])->toBe('UK_RoyalMailNextDay')
+        ->and($settings['upload_as_draft'])->toBeTrue()
+        ->and(SyncEbayChannelPoliciesFromEbay::run($ebayUser->refresh(), false))->toBe(['returns' => [], 'shipping' => []])
+        ->and(collect(Http::recorded())->map(fn ($pair) => $pair[0]->method())->unique()->values()->all())->toBe(['GET']);
 });
 
 test('deleting an eBay user closes its channel and soft deletes the user', function () {
