@@ -23,10 +23,11 @@ import MarketingOverview from '@/Components/DataDisplay/MarketingOverview.vue'
 import AttributionDataQuality from '@/Components/DataDisplay/AttributionDataQuality.vue'
 import ClickFraud from '@/Components/DataDisplay/ClickFraud.vue'
 import OfferPerformance from '@/Components/DataDisplay/OfferPerformance.vue'
+import VisitorChannelPerformance from '@/Components/DataDisplay/VisitorChannelPerformance.vue'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faHeartbeat, faUserSecret, faChartNetwork, faNewspaper, faCog } from '@fal'
+import { faHeartbeat, faUserSecret, faChartNetwork, faNewspaper, faCog, faRoute } from '@fal'
 
-library.add(faHeartbeat, faUserSecret, faChartNetwork, faNewspaper, faCog)
+library.add(faHeartbeat, faUserSecret, faChartNetwork, faNewspaper, faCog, faRoute)
 
 const props = defineProps<{
     title: string,
@@ -43,6 +44,7 @@ const props = defineProps<{
     data_quality?: InstanceType<typeof AttributionDataQuality>['$props']['data']
     fraud?: InstanceType<typeof ClickFraud>['$props']['data']
     offers?: InstanceType<typeof OfferPerformance>['$props']['data']
+    visitor_channels?: InstanceType<typeof VisitorChannelPerformance>['$props']['data']
 
 
 }>()
@@ -56,6 +58,7 @@ const component = computed(() => {
         data_quality: AttributionDataQuality,
         fraud: ClickFraud,
         offers: OfferPerformance,
+        visitor_channels: VisitorChannelPerformance,
     }
 
     return components[currentTab.value]
