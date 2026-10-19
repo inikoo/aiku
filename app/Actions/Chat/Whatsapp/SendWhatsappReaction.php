@@ -7,6 +7,9 @@
 
 namespace App\Actions\Chat\Whatsapp;
 
+use App\Models\SysAdmin\User;
+use App\Models\Catalogue\Shop;
+use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Actions\Chat\MetaChatSession\SetMetaChatMessageReaction;
 use App\Actions\Chat\Whatsapp\Concerns\WithWhatsappCredentials;
 use App\Enums\CRM\Livechat\ChatSenderTypeEnum;
@@ -23,7 +26,15 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class SendWhatsappReaction
 {
     use AsAction;
+    use WithChatAgentAuthorisation;
     use WithWhatsappCredentials;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        $shop = $request->route('metaChatMessage')?->metaChatSession?->shop;
+
+        return $shop instanceof Shop && $request->user() instanceof User && $this->userCanActOnChatOnShop($request->user(), $shop);
+    }
 
     public function rules(): array
     {

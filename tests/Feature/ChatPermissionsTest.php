@@ -1059,3 +1059,75 @@ test('whatsapp template writes need template editing on the shop, a template of 
     expect($foreign->refresh()->shop_id)->toBe($otherShop->id);
     get(route('grp.org.shops.show.chat.whatsapp_templates.index', $shopParameters))->assertInertia(fn (\Inertia\Testing\AssertableInertia $page) => $page->where('canEdit', true));
 });
+
+test('chat api writes from staff need the chat rights of the shop, the customer keeps rating and reacting by session, and agent settings are changed by the agent or a supervisor, INI-076', function () {
+    \Illuminate\Support\Facades\Queue::fake();
+
+    $session = ChatSession::create([
+        'ulid'             => (string) Str::ulid(),
+        'shop_id'          => $this->shop->id,
+        'language_id'      => 68,
+        'status'           => ChatSessionStatusEnum::ACTIVE->value,
+        'priority'         => ChatPriorityEnum::NORMAL->value,
+        'guest_identifier' => 'guest-'.Str::random(8),
+        'ai_model_version' => 'default',
+    ]);
+    $message = \App\Models\Chat\ChatMessage::create([
+        'chat_session_id' => $session->id,
+        'message_type'    => \App\Enums\CRM\Livechat\ChatMessageTypeEnum::TEXT,
+        'sender_type'     => ChatSenderTypeEnum::GUEST,
+        'message_text'    => 'Hola '.Str::random(6),
+    ]);
+    $metaSession = MetaChatSession::create([
+        'ulid'            => (string) Str::ulid(),
+        'meta_channel_id' => MetaChannel::firstOrCreate(['code' => 'whatsapp'], ['name' => 'WhatsApp'])->id,
+        'shop_id'         => $this->shop->id,
+        'phone_number'    => '+628111'.random_int(100000, 999999),
+        'status'          => ChatSessionStatusEnum::ACTIVE,
+        'language_id'     => 68,
+        'priority'        => ChatPriorityEnum::NORMAL,
+    ]);
+    $otherShop     = \App\Actions\Catalogue\Shop\StoreShop::make()->action($this->organisation, \App\Models\Catalogue\Shop::factory()->definition());
+    $otherCustomer = createCustomer($otherShop);
+
+    $user = User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+    $peer = User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+    foreach ([$user, $peer] as $agentUser) {
+        ChatAgent::firstOrCreate(['user_id' => $agentUser->id], ['is_online' => true, 'max_concurrent_chats' => 5, 'current_chat_count' => 0]);
+    }
+
+    $staffWrites = [
+        ['put', route('grp.api.chats.sessions.update', $session->ulid), ['priority' => ChatPriorityEnum::HIGH->value]],
+        ['post', route('grp.api.chats.messages.translate', $message->id), ['target_language_id' => 68]],
+        ['post', route('grp.api.chats.sessions.translate', $session->ulid), ['target_language_id' => 68]],
+        ['post', route('grp.api.chats.messages.reactions.toggle', $message->id), ['emoji' => '👍', 'reactor' => 'agent']],
+        ['post', route('grp.api.chats.sessions.share_to_slack', $session->ulid), []],
+        ['put', route('grp.api.chats.sessions.sync_by_email', $session->ulid), []],
+        ['post', route('grp.api.chats.meta.sessions.read', $metaSession->ulid), []],
+        ['put', route('grp.api.chats.meta.sessions.sync_by_phone', $metaSession->ulid), []],
+        ['post', route('grp.api.chats.meta.sessions.store'), ['shop_id' => $this->shop->id, 'phone_number' => '+628111222333']],
+        ['put', route('grp.api.chats.agents.update', $peer->id), ['is_available' => false]],
+    ];
+
+    actingAsUserWithOnlyPermissions($user, ["human-resources.{$this->organisation->id}.view"]);
+    foreach ($staffWrites as [$method, $url, $data]) {
+        expect($this->json($method, $url, $data)->status())->toBe(403, $url);
+    }
+    expect($session->refresh()->priority)->toBe(ChatPriorityEnum::NORMAL)
+        ->and($this->putJson(route('grp.api.chats.agents.update', $user->id), ['is_available' => false])->status())->not->toBe(403);
+
+    actingAsUserWithOnlyPermissions($user, ["chat.{$this->shop->id}"]);
+    $this->putJson(route('grp.api.chats.sessions.update', $session->ulid), ['priority' => ChatPriorityEnum::HIGH->value, 'user_id' => $peer->id])->assertOk();
+    expect($session->refresh()->priority)->toBe(ChatPriorityEnum::HIGH);
+    $this->postJson(route('grp.api.chats.meta.sessions.store'), ['shop_id' => $this->shop->id, 'customer_id' => $otherCustomer->id])->assertStatus(422);
+    $this->putJson(route('grp.api.chats.agents.update', $peer->id), ['is_available' => false])->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($peer, ["chat-m.{$this->shop->id}"]);
+    expect($this->putJson(route('grp.api.chats.agents.update', $user->id), ['is_available' => true])->status())->not->toBe(403);
+
+    \Illuminate\Support\Facades\Auth::forgetGuards();
+    $this->putJson(route('grp.api.chats.sessions.update', $session->ulid), ['rating' => 5])->assertOk();
+    $this->putJson(route('grp.api.chats.sessions.update', $session->ulid), ['priority' => ChatPriorityEnum::LOW->value])->assertForbidden();
+    expect($this->postJson(route('grp.api.chats.messages.reactions.toggle', $message->id), ['emoji' => '👍', 'reactor' => 'customer', 'session_ulid' => $session->ulid])->status())->toBeLessThan(300);
+    expect((float) $session->refresh()->rating)->toBe(5.0);
+});
