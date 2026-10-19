@@ -100,6 +100,7 @@ library.add(
 
 const props = defineProps<{
 	title: string
+	is_container?: boolean
 	pageHead: PageHeadingTypes
 	stock_delivery: {
 		state: string
@@ -625,7 +626,7 @@ const dispatchStockDelivery = (action: any, data: { reason?: string } = {}) =>
 		onError: (errors) => {
 			notify({
 				title: ctrans("Something went wrong"),
-				text: errors?.invoice ?? errors?.reason ?? ctrans("Failed to dispatch stock delivery"),
+				text: errors?.invoice ?? errors?.reason ?? (props.is_container ? ctrans("Failed to dispatch container") : ctrans("Failed to dispatch stock delivery")),
 				type: "error",
 			})
 		},
@@ -641,9 +642,9 @@ const confirmDispatchStockDelivery = (action: any) => {
 	confirm.require({
 		group: "stock-delivery",
 		message: props.costing.agent_invoice_missing
-			? ctrans("The agent invoice has not been received yet. Are you sure you want to mark this stock delivery as dispatched?")
-			: ctrans("Are you sure you want to mark this stock delivery as dispatched?"),
-		header: ctrans("Dispatch Stock Delivery"),
+			? (props.is_container ? ctrans("The agent invoice has not been received yet. Are you sure you want to mark this container as dispatched?") : ctrans("The agent invoice has not been received yet. Are you sure you want to mark this stock delivery as dispatched?"))
+			: (props.is_container ? ctrans("Are you sure you want to mark this container as dispatched?") : ctrans("Are you sure you want to mark this stock delivery as dispatched?")),
+		header: props.is_container ? ctrans("Dispatch Container") : ctrans("Dispatch Stock Delivery"),
 		rejectProps: { label: ctrans("Cancel"), severity: "secondary", outlined: true },
 		acceptProps: { label: ctrans("Mark as Dispatched"), severity: "primary" },
 		accept: () => dispatchStockDelivery(action),
@@ -653,7 +654,7 @@ const confirmDispatchStockDelivery = (action: any) => {
 const confirmUndispatchStockDelivery = (action: any) => {
 	confirm.require({
 		group: "stock-delivery",
-		message: ctrans("Are you sure you want to unmark this stock delivery as dispatched? It will be reverted to its previous state."),
+		message: props.is_container ? ctrans("Are you sure you want to unmark this container as dispatched? It will be reverted to its previous state.") : ctrans("Are you sure you want to unmark this stock delivery as dispatched? It will be reverted to its previous state."),
 		header: ctrans("Unmark as Dispatched"),
 		rejectProps: { label: ctrans("Cancel"), severity: "secondary", outlined: true },
 		acceptProps: { label: ctrans("Unmark as Dispatched"), severity: "primary" },
@@ -664,7 +665,7 @@ const confirmUndispatchStockDelivery = (action: any) => {
 				onError: () => {
 					notify({
 						title: ctrans("Something went wrong"),
-						text: ctrans("Failed to unmark stock delivery as dispatched"),
+						text: props.is_container ? ctrans("Failed to unmark container as dispatched") : ctrans("Failed to unmark stock delivery as dispatched"),
 						type: "error",
 					})
 				},
@@ -686,7 +687,7 @@ const receiveStockDelivery = (action: any, data: { reason?: string } = {}) =>
 		onError: (errors: Record<string, string>) => {
 			notify({
 				title: ctrans("Something went wrong"),
-				text: Object.values(errors)[0] ?? ctrans("Failed to receive stock delivery"),
+				text: Object.values(errors)[0] ?? (props.is_container ? ctrans("Failed to receive container") : ctrans("Failed to receive stock delivery")),
 				type: "error",
 			})
 		},
@@ -702,8 +703,8 @@ const confirmReceiveStockDelivery = (action: any) => {
 
 	confirm.require({
 		group: "stock-delivery",
-		message: ctrans("Are you sure you want to mark this stock delivery as received? This can not be reverted."),
-		header: ctrans("Receive Stock Delivery"),
+		message: props.is_container ? ctrans("Are you sure you want to mark this container as received? This can not be reverted.") : ctrans("Are you sure you want to mark this stock delivery as received? This can not be reverted."),
+		header: props.is_container ? ctrans("Receive Container") : ctrans("Receive Stock Delivery"),
 		rejectProps: { label: ctrans("Cancel"), severity: "secondary", outlined: true },
 		acceptProps: { label: ctrans("Mark as Received"), severity: "primary" },
 		accept: () => receiveStockDelivery(action),
@@ -713,7 +714,7 @@ const confirmReceiveStockDelivery = (action: any) => {
 const confirmUnreceiveStockDelivery = (action: any) => {
 	confirm.require({
 		group: "stock-delivery",
-		message: ctrans("Are you sure you want to unmark this stock delivery as received? It will be reverted to its previous state."),
+		message: props.is_container ? ctrans("Are you sure you want to unmark this container as received? It will be reverted to its previous state.") : ctrans("Are you sure you want to unmark this stock delivery as received? It will be reverted to its previous state."),
 		header: ctrans("Unmark as Received"),
 		rejectProps: { label: ctrans("Cancel"), severity: "secondary", outlined: true },
 		acceptProps: { label: ctrans("Unmark as Received"), severity: "primary" },
@@ -724,7 +725,7 @@ const confirmUnreceiveStockDelivery = (action: any) => {
 				onError: () => {
 					notify({
 						title: ctrans("Something went wrong"),
-						text: ctrans("Failed to unmark stock delivery as received"),
+						text: props.is_container ? ctrans("Failed to unmark container as received") : ctrans("Failed to unmark stock delivery as received"),
 						type: "error",
 					})
 				},
@@ -736,10 +737,10 @@ const confirmUnreceiveStockDelivery = (action: any) => {
 const confirmCancelStockDelivery = (action: any) => {
 	confirm.require({
 		group: "stock-delivery",
-		message: ctrans("Are you sure you want to cancel this stock delivery? Its items will be emptied and the purchase order will allow a new delivery."),
-		header: ctrans("Cancel Stock Delivery"),
+		message: props.is_container ? ctrans("Are you sure you want to cancel this container? Its items will be emptied and the purchase order will allow a new delivery.") : ctrans("Are you sure you want to cancel this stock delivery? Its items will be emptied and the purchase order will allow a new delivery."),
+		header: props.is_container ? ctrans("Cancel Container") : ctrans("Cancel Stock Delivery"),
 		rejectProps: { label: ctrans("Cancel"), severity: "secondary", outlined: true },
-		acceptProps: { label: ctrans("Cancel Stock Delivery"), severity: "danger" },
+		acceptProps: { label: props.is_container ? ctrans("Cancel Container") : ctrans("Cancel Stock Delivery"), severity: "danger" },
 		accept: () => {
 			router.patch(route(action.route.name, action.route.parameters), {}, {
 				onStart: () => { cancelLoading.value = true },
@@ -747,7 +748,7 @@ const confirmCancelStockDelivery = (action: any) => {
 				onError: () => {
 					notify({
 						title: ctrans("Something went wrong"),
-						text: ctrans("Failed to cancel stock delivery"),
+						text: props.is_container ? ctrans("Failed to cancel container") : ctrans("Failed to cancel stock delivery"),
 						type: "error",
 					})
 				},
@@ -795,8 +796,8 @@ const startCostingLoading = ref(false)
 const confirmStartStockDeliveryCosting = (action: any) => {
 	confirm.require({
 		group: "stock-delivery",
-		message: ctrans("Are you sure you want to place this stock delivery? This is its final state."),
-		header: ctrans("Place stock delivery"),
+		message: props.is_container ? ctrans("Are you sure you want to place this container? This is its final state.") : ctrans("Are you sure you want to place this stock delivery? This is its final state."),
+		header: props.is_container ? ctrans("Place container") : ctrans("Place stock delivery"),
 		rejectProps: { label: ctrans("Cancel"), severity: "secondary", outlined: true },
 		acceptProps: { label: ctrans("Place"), severity: "primary" },
 		accept: () => {
@@ -871,8 +872,8 @@ const confirmDeleteStockDelivery = (action: any) => {
 	}
 	confirm.require({
 		group: "stock-delivery",
-		message: ctrans("Are you sure you want to delete this stock delivery? The purchase order will be reverted to before this delivery."),
-		header: ctrans("Delete Stock Delivery"),
+		message: props.is_container ? ctrans("Are you sure you want to delete this container? The purchase order will be reverted to before this delivery.") : ctrans("Are you sure you want to delete this stock delivery? The purchase order will be reverted to before this delivery."),
+		header: props.is_container ? ctrans("Delete Container") : ctrans("Delete Stock Delivery"),
 		rejectProps: { label: ctrans("Cancel"), severity: "secondary", outlined: true },
 		acceptProps: { label: ctrans("Delete"), severity: "danger" },
 		accept: () => {
@@ -882,7 +883,7 @@ const confirmDeleteStockDelivery = (action: any) => {
 				onError: () => {
 					notify({
 						title: ctrans("Something went wrong"),
-						text: ctrans("Failed to delete stock delivery"),
+						text: props.is_container ? ctrans("Failed to delete container") : ctrans("Failed to delete stock delivery"),
 						type: "error",
 					})
 				},
@@ -1192,8 +1193,8 @@ const confirmDeleteStockDelivery = (action: any) => {
 		<BoxStatPallet class="p-4">
 			<div class="flex justify-center items-center gap-2">
 				<FontAwesomeIcon
-					v-tooltip="ctrans('Stock Delivery')"
-					icon="fal fa-people-arrows"
+					v-tooltip="is_container ? ctrans('Container') : ctrans('Stock Delivery')"
+					:icon="is_container ? 'fal fa-truck-container' : 'fal fa-people-arrows'"
 					class="text-gray-400"
 					fixed-width
 					aria-hidden="true"
@@ -1535,7 +1536,7 @@ const confirmDeleteStockDelivery = (action: any) => {
 			label: ctrans('Upload files'),
 			information: '',
 		}"
-		progressDescription="Adding Stock Delivery Attachments"
+		:progressDescription="is_container ? ctrans('Adding Container Attachments') : ctrans('Adding Stock Delivery Attachments')"
 		withCaption
 		multiple
 		:attachmentRoutes="attachmentRoutes"
