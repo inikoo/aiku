@@ -9,6 +9,7 @@
 namespace App\Actions\Catalogue\Product\Json;
 
 use App\Actions\OrgAction;
+use App\Actions\Catalogue\ProductCategory\UI\WithCategoryOfferPermissions;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Models\Catalogue\Product;
@@ -19,6 +20,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class GetDiscontinuingProductsInFamily extends OrgAction
 {
+    use WithCategoryOfferPermissions;
     /**
      * Discontinued products that still have stock, cheapest first: what a clearance gift gives away.
      * Discontinuing is usually set on the SKOs, not the product, so a product whose SKOs are all discontinuing counts too.
@@ -84,6 +86,11 @@ class GetDiscontinuingProductsInFamily extends OrgAction
             'price'              => $product->price,
             'available_quantity' => (int)$product->available_quantity,
         ])->all();
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        return $this->canEditOffers($request);
     }
 
     public function asController(ProductCategory $productCategory, ActionRequest $request): Collection

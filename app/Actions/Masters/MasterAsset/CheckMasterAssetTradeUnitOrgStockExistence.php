@@ -10,12 +10,14 @@
 namespace App\Actions\Masters\MasterAsset;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithMastersAuthorisation;
 use App\Models\Goods\TradeUnit;
 use App\Models\Masters\MasterAsset;
 use Lorisleiva\Actions\ActionRequest;
 
 class CheckMasterAssetTradeUnitOrgStockExistence extends OrgAction
 {
+    use WithMastersAuthorisation;
     public function handle(MasterAsset $masterAsset, array $modelData): bool
     {
         $isValid = true;

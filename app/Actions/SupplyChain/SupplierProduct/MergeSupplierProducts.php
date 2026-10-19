@@ -12,12 +12,16 @@ use App\Actions\Procurement\OrgSupplier\Hydrators\OrgSupplierHydrateOrgSupplierP
 use App\Actions\Procurement\OrgSupplierProducts\RepairOrgSupplierProductsSupplierDrift;
 use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydrateSupplierProducts;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgSupplierProducts;
+use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\Procurement\OrgSupplierProduct\OrgSupplierProductStateEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
 use App\Models\Goods\StockHasSupplierProduct;
+use App\Models\GoodsIn\StockDeliveryItem;
 use App\Models\Inventory\OrgStockHasOrgSupplierProduct;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\OrgSupplierProduct;
+use App\Models\Procurement\PurchaseOrderTransaction;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\SysAdmin\Organisation;
@@ -39,7 +43,8 @@ class MergeSupplierProducts
     public string $commandSignature = 'supplier_products:merge_duplicates
         {from : Id of the duplicate supplier whose products are retired}
         {to : Id of the supplier kept, which has the same product codes}
-        {--fix : Merge, otherwise dry run}';
+        {--fix : Merge, otherwise dry run}
+        {--open-lines : Only move open purchase order and delivery lines left on products this supplier already merged}';
 
     public function refusal(SupplierProduct $from, SupplierProduct $to): ?string
     {
@@ -100,6 +105,8 @@ class MergeSupplierProducts
                 RepairOrgSupplierProductsSupplierDrift::make()->mergeIntoTwin($orgSupplierProduct, $twin);
             }
 
+            $this->moveOpenLines($from, $to);
+
             StockHasSupplierProduct::where('supplier_product_id', $from->id)
                 ->whereNotIn('id', OrgStockHasOrgSupplierProduct::whereNotNull('stock_has_supplier_product_id')->select('stock_has_supplier_product_id'))
                 ->delete();
@@ -117,6 +124,33 @@ class MergeSupplierProducts
 
             return $touchedOrgSuppliers;
         });
+    }
+
+    /**
+     * Purchase orders and deliveries still on their way receive the kept product, so the goods and their costing
+     * land on it. Finished ones keep the duplicate, as recorded.
+     */
+    public function moveOpenLines(SupplierProduct $from, SupplierProduct $to, bool $fix = true): int
+    {
+        $openPurchaseOrderLines = PurchaseOrderTransaction::where('supplier_product_id', $from->id)
+            ->whereHas('purchaseOrder', fn ($query) => $query->whereIn('state', [
+                PurchaseOrderStateEnum::IN_PROCESS,
+                PurchaseOrderStateEnum::SUBMITTED,
+                PurchaseOrderStateEnum::CONFIRMED,
+            ]));
+
+        $openDeliveryLines = StockDeliveryItem::where('supplier_product_id', $from->id)
+            ->whereHas('stockDelivery', fn ($query) => $query->whereNotIn('state', [
+                StockDeliveryStateEnum::PLACED,
+                StockDeliveryStateEnum::CANCELLED,
+                StockDeliveryStateEnum::NOT_RECEIVED,
+            ]));
+
+        if (!$fix) {
+            return $openPurchaseOrderLines->count() + $openDeliveryLines->count();
+        }
+
+        return $openPurchaseOrderLines->update(['supplier_product_id' => $to->id]) + $openDeliveryLines->update(['supplier_product_id' => $to->id]);
     }
 
     /**
@@ -206,7 +240,21 @@ class MergeSupplierProducts
             return Command::FAILURE;
         }
 
-        $fix    = (bool) $command->option('fix');
+        $fix = (bool) $command->option('fix');
+
+        if ($command->option('open-lines')) {
+            $moved = 0;
+            foreach ($from->supplierProducts()->whereNotNull('data->merged_into_supplier_product_id')->get() as $merged) {
+                $kept = SupplierProduct::find($merged->data['merged_into_supplier_product_id']);
+                if ($kept?->supplier_id === $to->id) {
+                    $moved += $this->moveOpenLines($merged, $kept, $fix);
+                }
+            }
+            $command->info(($fix ? 'Moved' : 'Would move')." $moved open lines to $to->code products");
+
+            return Command::SUCCESS;
+        }
+
         $result = $this->mergeSupplier($from, $to, $fix);
 
         $command->info(($fix ? 'Merged' : 'Would merge')." {$result['merged']} products of $from->code into $to->code");

@@ -11,6 +11,7 @@
 namespace App\Actions\Web\Website;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithWebAuthorisation;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Models\Web\Website;
 use Arr;
@@ -22,6 +23,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetWebsiteCloudflareUniqueVisitors extends OrgAction
 {
+    use WithWebAuthorisation;
     use AsAction;
     use WithNoStrictRules;
 
@@ -57,7 +59,7 @@ class GetWebsiteCloudflareUniqueVisitors extends OrgAction
 
     public function asController(Website $website, ActionRequest $request): array
     {
-        $this->initialisationFromShop($website->shop, []);
+        $this->initialisationFromShop($website->shop, $request);
 
         return $this->handle($website);
     }

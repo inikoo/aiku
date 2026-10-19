@@ -9,6 +9,7 @@
 namespace App\Actions\Masters\MasterCollection\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithMastersAuthorisation;
 use App\Enums\Catalogue\MasterProductCategory\MasterProductCategoryTypeEnum;
 use App\Http\Resources\Masters\MasterFamiliesResource;
 use App\Models\Masters\MasterCollection;
@@ -22,6 +23,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetMasterFamilies extends OrgAction
 {
+    use WithMastersAuthorisation;
     public function asController(MasterShop $masterShop, MasterCollection $scope, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromGroup($masterShop->group, $request);

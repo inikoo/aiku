@@ -20,6 +20,18 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetOrgSupplierProducts extends OrgAction
 {
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->authTo([
+            "procurement.{$this->organisation->id}.view",
+            "procurement.{$this->organisation->id}.edit",
+            "inventory.{$this->organisation->id}.view",
+            "inventory.{$this->organisation->id}.edit",
+            "accounting.{$this->organisation->id}.view",
+            "org-supervisor.{$this->organisation->id}",
+        ]);
+    }
+
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($organisation, $request);
