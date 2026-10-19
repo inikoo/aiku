@@ -8,6 +8,7 @@
 namespace App\Actions\Web\WebsiteConversionEvent;
 
 use App\Actions\CRM\CustomerInterest\RecordCustomerProductInterests;
+use App\Actions\Web\WebsiteVisitor\LinkAnonymousVisitorsToWebUser;
 use App\Enums\Web\WebsiteConversionEvent\WebsiteConversionEventTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\CRM\CustomerInterest;
@@ -35,6 +36,12 @@ class ProcessRegistrationConversionEvent
 
         if (! $registrationVisitor) {
             return;
+        }
+
+        $webUser = $customer->webUsers()->oldest('id')->first();
+
+        if ($webUser) {
+            LinkAnonymousVisitorsToWebUser::run($webUser, $registrationVisitor);
         }
 
         $visitorIds = WebsiteVisitor::query()
