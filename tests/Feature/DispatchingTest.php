@@ -5378,6 +5378,26 @@ test('order transactions show the UN number of dangerous goods (HELP-3658)', fun
     expect(collect($row['un_numbers'])->first())->toMatchArray(['number' => '1197', 'shipping_name' => 'EXTRACTS, LIQUID']);
 });
 
+test('staff order lines show what is on the shelf of an on-demand product, not its storefront quantity (HELP-4114)', function () {
+    [$deliveryNote, $deliveryNoteItem] = handlingDeliveryNoteWithPicking($this);
+    $order       = $deliveryNote->orders->first();
+    $transaction = $order->transactions()->where('model_type', 'Product')->first();
+    $product     = $transaction->model;
+    $orgStock    = $deliveryNoteItem->orgStock;
+
+    $product->orgStocks()->sync([$orgStock->id => ['quantity' => 2]]);
+    $orgStock->update(['is_on_demand' => true, 'quantity_available' => 11]);
+    $product->update(['is_on_demand' => true, 'available_quantity' => \App\Actions\Catalogue\Product\Hydrators\ProductHydrateAvailableQuantity::ON_DEMAND_QUANTITY]);
+
+    request()->setRouteResolver(fn () => new Route('GET', 'test', []));
+    $lineFor = fn (bool $withShelfQuantity) => collect(\App\Http\Resources\Ordering\TransactionsResource::collection(
+        \App\Actions\Ordering\Transaction\UI\IndexTransactions::make()->handle($order, withShelfQuantity: $withShelfQuantity)
+    )->resolve())->firstWhere('id', $transaction->id);
+
+    expect($lineFor(true))->toMatchArray(['is_on_demand' => true, 'shelf_quantity' => 5])
+        ->and($lineFor(false)['shelf_quantity'])->toBeNull();
+});
+
 test('finishing a return only marks the still unhandled quantity as not returned (HELP-3194)', function () {
     [$deliveryNote, $deliveryNoteItem] = handlingDeliveryNoteWithPicking($this);
     $deliveryNote->update(['state' => DeliveryNoteStateEnum::DISPATCHED]);

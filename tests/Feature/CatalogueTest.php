@@ -1769,7 +1769,21 @@ test('an on-demand stock never caps a product, and the shop products json report
             ->and($product->available_quantity)->toBe(ProductHydrateAvailableQuantity::ON_DEMAND_QUANTITY)
             ->and($shelfRow())->toMatchArray(['is_on_demand' => true, 'shelf_quantity' => 0]);
 
+        $onDemandStock->update(['quantity_available' => 100]);
+        ProductHydrateAvailableQuantity::run($product->refresh());
+        request()->setRouteResolver(fn () => new \Illuminate\Routing\Route('GET', 'test', []));
+        request()->query->set('filter', ['global' => $product->code]);
+        $catalogueRow = collect(
+            \App\Http\Resources\Catalogue\ProductsResource::collection(
+                \App\Actions\Catalogue\Product\UI\IndexProductsInCatalogue::make()->handle($shop)
+            )->response()->getData(true)['data']
+        )->firstWhere('id', $product->id);
+
+        expect($product->refresh()->available_quantity)->toBe(ProductHydrateAvailableQuantity::ON_DEMAND_QUANTITY)
+            ->and($catalogueRow)->toMatchArray(['is_on_demand' => true, 'shelf_quantity' => 5]);
+
         $product->orgStocks()->sync([$onDemandStock->id => ['quantity' => 1], $stockedStock->id => ['quantity' => 1]]);
+        $onDemandStock->update(['quantity_available' => 0]);
         ProductHydrateAvailableQuantity::run($product->refresh());
         $product->refresh();
 

@@ -46,6 +46,8 @@ type ProductRow = {
     is_gift?: boolean
     amount_modified?: number
     available_quantity?: number
+    is_on_demand?: boolean
+    shelf_quantity?: number | null
     quantity_ordered_fractional: [number, [number, number]]
     product_slug?: string
     updateRoute: routeType
@@ -280,7 +282,9 @@ const addNewProduct = (products) => {
             quantity_ordered: product.quantity_selected,
             net_amount: product.quantity_selected * product.price,
             asset_name: product.name,
-            available_quantity: product.available_quantity
+            available_quantity: product.available_quantity,
+            is_on_demand: product.is_on_demand,
+            shelf_quantity: product.shelf_quantity
         }
 
         if (existingIndex >= 0) {
@@ -562,11 +566,13 @@ const isOffersData = (offersData: any): boolean => {
                         <FontAwesomeIcon icon="fas fa-exclamation-triangle" class="text-amber-500 mr-1" fixed-width aria-hidden="true" />
                         {{ ctrans('Repacked since ordered') }}: {{ item.product_units }} → {{ item.units_changed_to }}
                     </div>
-                    <div v-if="item.model_type === 'Product' && item.available_quantity !== undefined && item.available_quantity < 1">
+                    <div v-if="item.model_type === 'Product' && !item.is_on_demand && item.available_quantity !== undefined && item.available_quantity < 1">
                         <Tag label="Out of stock" no-hover-color :theme="7" size="xxs" />
                     </div>
                     <div v-else-if="item.model_type === 'Product'" class="text-gray-500 italic text-xs">
-                        Stock: {{ locale.number(item.available_quantity || 0) }} available
+                        <template v-if="item.is_on_demand && item.shelf_quantity != null">{{ ctrans("Stock: :quantity on the shelf, made on demand", { quantity: locale.number(item.shelf_quantity) }) }}</template>
+                        <template v-else-if="item.is_on_demand">{{ ctrans("Made on demand") }}</template>
+                        <template v-else>Stock: {{ locale.number(item.available_quantity || 0) }} available</template>
                         <span v-if="item.is_follow_on" v-tooltip="ctrans('Follow on from a previous order')">
                             <FontAwesomeIcon icon="fal fa-repeat" class="text-sky-500 not-italic ml-1" fixed-width aria-hidden="true" />
                         </span>

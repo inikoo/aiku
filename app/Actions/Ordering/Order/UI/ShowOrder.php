@@ -755,8 +755,8 @@ class ShowOrder extends OrgAction
                 'allow_order_modification'          => $allowOrderModification,
 
                 OrderTabsEnum::TRANSACTIONS->value => $this->tab == OrderTabsEnum::TRANSACTIONS->value ?
-                    fn () => TransactionsResource::collection(IndexTransactions::run(parent: $order, prefix: OrderTabsEnum::TRANSACTIONS->value, withMargins: $withMargins))
-                    : Inertia::optional(fn () => TransactionsResource::collection(IndexTransactions::run(parent: $order, prefix: OrderTabsEnum::TRANSACTIONS->value, withMargins: $withMargins))),
+                    fn () => TransactionsResource::collection(IndexTransactions::run(parent: $order, prefix: OrderTabsEnum::TRANSACTIONS->value, withMargins: $withMargins, withShelfQuantity: true))
+                    : Inertia::optional(fn () => TransactionsResource::collection(IndexTransactions::run(parent: $order, prefix: OrderTabsEnum::TRANSACTIONS->value, withMargins: $withMargins, withShelfQuantity: true))),
 
                 OrderTabsEnum::MARKETING->value => $this->tab == OrderTabsEnum::MARKETING->value ?
                     fn () => GetOrderMarketingJourney::run($order)
