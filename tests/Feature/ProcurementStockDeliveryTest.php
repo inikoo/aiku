@@ -1198,6 +1198,7 @@ test('UI show stock delivery pending and done item tabs', function () {
     $this->get($procurementUrl)->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Procurement/StockDelivery')
+            ->where('costing.costed_on_route', null)
             ->where('tabs.current', StockDeliveryTabsEnum::ITEMS->value)
             ->has('tabs.navigation.'.StockDeliveryTabsEnum::ITEMS->value)
             ->missing('tabs.navigation.'.StockDeliveryTabsEnum::PENDING_ITEMS->value)
@@ -1207,19 +1208,30 @@ test('UI show stock delivery pending and done item tabs', function () {
     $this->get($procurementUrl.'?tab='.StockDeliveryTabsEnum::PENDING_ITEMS->value)
         ->assertInertia(fn (AssertableInertia $page) => $page->where('tabs.current', StockDeliveryTabsEnum::ITEMS->value));
 
-    $this->get($goodsInUrl)->assertInertia(function (AssertableInertia $page) {
+    $this->get($goodsInUrl)->assertInertia(function (AssertableInertia $page) use ($stockDelivery) {
         $page
             ->component('Procurement/StockDelivery')
             ->where('tabs.current', StockDeliveryTabsEnum::PENDING_ITEMS->value)
             ->where('pageHead.edit', false)
             ->where('costing.can_edit', false)
+            ->where('costing.costed_on_route.name', 'grp.org.procurement.stock_deliveries.show')
             ->has('tabs.navigation.'.StockDeliveryTabsEnum::PENDING_ITEMS->value)
             ->has('tabs.navigation.'.StockDeliveryTabsEnum::DONE_ITEMS->value)
             ->missing('tabs.navigation.'.StockDeliveryTabsEnum::ITEMS->value)
             ->missing('tabs.navigation.showcase')
             ->missing('tabs.navigation.'.StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value)
-            ->has(StockDeliveryTabsEnum::PENDING_ITEMS->value.'.data', 2);
+            ->has(StockDeliveryTabsEnum::PENDING_ITEMS->value.'.data', 2)
+            ->where('costing.costed_on_route.parameters', [$this->organisation->slug, $stockDelivery->slug]);
     });
+
+    $goodsInClerk = User::factory()->create(['group_id' => $warehouse->group_id]);
+    $goodsInClerk->assignRole(RolesEnum::getRoleName(RolesEnum::GOODS_IN_CLERK->value, $warehouse));
+    $this->actingAs($goodsInClerk)->get($goodsInUrl)->assertInertia(fn (AssertableInertia $page) => $page->where('costing.costed_on_route', null));
+    $this->actingAs($this->adminGuest->getUser());
+
+    $stockDelivery->update(['is_costed' => true]);
+    $this->get($goodsInUrl)->assertInertia(fn (AssertableInertia $page) => $page->where('costing.costed_on_route', null));
+    $stockDelivery->update(['is_costed' => false]);
 
     $this->withExceptionHandling();
     $this->get($goodsInUrl.'?tab='.StockDeliveryTabsEnum::ITEMS->value)->assertNotFound();

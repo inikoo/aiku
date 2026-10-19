@@ -110,6 +110,8 @@ class ShowStockDelivery extends OrgAction
     private bool $viewedByAgent = false;
     private bool $goodsIn = false;
     private bool $canAddPurchaseOrders = false;
+    private bool $procurementPageCanEditPayments = false;
+    private bool $procurementPageCanUpdateCosting = false;
     private bool $canRemovePurchaseOrders = false;
 
     private const array BOOKING_IN_TABS = [
@@ -129,6 +131,10 @@ class ShowStockDelivery extends OrgAction
         if ($this->goodsIn) {
             $this->canBookIn    = $this->authToBookIn($request, 'incoming.%d.edit');
             $this->canUnreceive = $this->authToBookIn($request, 'supervisor-incoming.%d');
+            $isAgent            = $this->organisation->type === OrganisationTypeEnum::AGENT;
+
+            $this->procurementPageCanEditPayments  = !$isAgent && $request->user()->authTo(["procurement.{$this->organisation->id}.edit", "accounting.{$this->organisation->id}.edit"]);
+            $this->procurementPageCanUpdateCosting = !$isAgent && $request->user()->authTo("org-supervisor.{$this->organisation->id}.accounting");
 
             return $request->user()->authTo("incoming.{$this->warehouse->id}.view");
         }
@@ -1129,6 +1135,11 @@ class ShowStockDelivery extends OrgAction
         ];
     }
 
+    private function isCostingEditable(StockDelivery $stockDelivery, bool $canEditPayments, bool $canUpdateCosting): bool
+    {
+        return !$stockDelivery->is_costed && (Arr::has($stockDelivery->data, 'costing_reopened') ? $canUpdateCosting : ($canEditPayments || $canUpdateCosting));
+    }
+
     private function getCosting(StockDelivery $stockDelivery): array
     {
         $costs       = $stockDelivery->costs()->with(['attachments', 'audits.user'])->orderBy('id')->get();
@@ -1158,7 +1169,7 @@ class ShowStockDelivery extends OrgAction
             'is_costed'                  => $stockDelivery->is_costed,
             'is_partner'                 => $stockDelivery->parent_type === 'OrgPartner',
             'viewed_by_agent'            => $this->viewedByAgent,
-            'can_edit'                   => !$stockDelivery->is_costed && (Arr::has($stockDelivery->data, 'costing_reopened') ? $this->canUpdateCosting : ($this->canEditPayments || $this->canUpdateCosting)),
+            'can_edit'                   => $this->isCostingEditable($stockDelivery, $this->canEditPayments, $this->canUpdateCosting),
             'reopened'                   => $this->getCostingReopened($stockDelivery),
             'unbalanced'                 => $stockDelivery->state === StockDeliveryStateEnum::PLACED && !$stockDelivery->is_costed ? EvaluateStockDeliveryCosting::unbalancedHandSplits($stockDelivery) : [],
             'can_edit_payments'          => $this->canEditPayments,
@@ -1176,6 +1187,10 @@ class ShowStockDelivery extends OrgAction
             'checklist'                  => $checklist,
             'extra_types'                => StockDeliveryServiceInvoiceTypeEnum::extraOptions(),
             'costs_are_users_job'        => $this->canEdit,
+            'costed_on_route'            => $this->goodsIn && $this->isCostingEditable($stockDelivery, $this->procurementPageCanEditPayments, $this->procurementPageCanUpdateCosting) ? [
+                'name'       => 'grp.org.procurement.stock_deliveries.show',
+                'parameters' => [$this->organisation->slug, $stockDelivery->slug],
+            ] : null,
             'put_away_blocked'           => $this->viewedByAgent ? [] : $stockDelivery->costsMissingForPutAway(),
             'shipping_basis'             => DistributeStockDeliveryExtraCost::shippingBasis($stockDelivery),
             'agent_invoice_missing'      => !$agentInvoice?->received_at,

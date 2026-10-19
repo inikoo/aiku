@@ -228,6 +228,7 @@ const props = defineProps<{
 		org_currency_id: number
 		put_away_blocked: string[]
 		costs_are_users_job: boolean
+		costed_on_route: routeType | null
 		agent_invoice_missing: boolean
 		storeCostRoute: routeType
 		distributeExtraCostRoute: routeType | null
@@ -1475,6 +1476,13 @@ const confirmDeleteStockDelivery = (action: any) => {
 				</button>
 			</div>
 		</template>
+		<div v-if="costing.costed_on_route" class="flex items-center gap-2 border-b border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-700">
+			<FontAwesomeIcon icon="fal fa-info-circle" fixed-width aria-hidden="true" />
+			<span>{{ ctrans("Costs are entered on the procurement page of this delivery.") }}</span>
+			<Link :href="route(costing.costed_on_route.name, costing.costed_on_route.parameters)" class="font-medium underline">
+				{{ ctrans("Open the procurement page") }}
+			</Link>
+		</div>
 		<StockDeliveryInvoiceEntry
 			v-if="costingSection === 'invoice' && box_stats.invoice_entry"
 			:route="box_stats.invoice_entry.route"
