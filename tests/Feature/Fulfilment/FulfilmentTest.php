@@ -3497,6 +3497,36 @@ test('update stored item audit', function (StoredItemAudit $storedItemAudit) {
     return $storedItemAudit;
 })->depends('create stored item audit');
 
+test('fulfilment customer pallets and audit stored items json answer fulfilment staff only, INI-076', function (StoredItemAudit $storedItemAudit) {
+    $fulfilmentCustomer = $storedItemAudit->fulfilmentCustomer;
+    $fulfilment         = $fulfilmentCustomer->fulfilment;
+    $routes             = [
+        route('grp.json.fulfilment-customer.storing-pallets.index', $fulfilmentCustomer),
+        route('grp.json.fulfilment-customer.audit.stored-items.index', [$fulfilmentCustomer, $storedItemAudit]),
+    ];
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ['goods.view']);
+    foreach ($routes as $url) {
+        $this->getJson($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["fulfilment-shop.$fulfilment->id.view"]);
+    foreach ($routes as $url) {
+        $this->getJson($url)->assertOk();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["fulfilment.$storedItemAudit->warehouse_id.view"]);
+    $this->getJson($routes[1])->assertOk();
+
+    actingAsUserWithOnlyPermissions($user, ["fulfilment-shop.$fulfilment->id.view"]);
+    $otherCustomer = FulfilmentCustomer::where('id', '!=', $fulfilmentCustomer->id)->where('fulfilment_id', $fulfilment->id)->first();
+    if ($otherCustomer) {
+        $this->getJson(route('grp.json.fulfilment-customer.audit.stored-items.index', [$otherCustomer, $storedItemAudit]))->assertNotFound();
+    }
+})->depends('update stored item audit');
+
 test('create stored item audit delta', function (StoredItemAudit $storedItemAudit) {
     $fulfilmentCustomer = $storedItemAudit->fulfilmentCustomer;
     $palletStoredItems  = PalletStoredItem::whereHas('pallet', function ($query) use ($fulfilmentCustomer) {

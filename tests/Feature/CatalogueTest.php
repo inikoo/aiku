@@ -2396,3 +2396,16 @@ test('catalogue json lookups answer only staff with the matching rule on the sho
         }
     }
 });
+
+test('unused json lookups are removed, INI-076', function () {
+    foreach ([
+        'org_payment_service_providers.index', 'collection.parent.departments.index', 'collection.families.index', 'shop.product_categories',
+        'collection.parent.sub_departments.index', 'variant.products', 'product_category.out_of_stock_products.index', 'collection.products.index',
+        'product_category.see_also_products.index', 'product_category.top_products.index', 'mailshot.convert-to-page',
+        'dashboard_custom-dates.masters_shops_sales', 'dashboard_custom-dates.group.organisation_sales', 'dashboard_custom-dates.group.shops_sales',
+        'dashboard_custom-dates.group.invoice_categories_sales', 'dashboard_custom-dates.organisation.shops_sales', 'dashboard_custom-dates.organisation.invoice_categories_sales',
+        'computers.index', 'printers.index', 'webpage.web_block_histories.index', 'web-block.web_block_histories.index', 'web-block-type.web_block_histories.index',
+    ] as $name) {
+        expect(\Illuminate\Support\Facades\Route::has("grp.json.$name"))->toBeFalse();
+    }
+});
