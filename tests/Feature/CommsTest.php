@@ -5003,3 +5003,22 @@ test('mailshot template and urls json answer the marketing staff of any shop and
         }
     }
 })->depends('update mailshot');
+
+test('the beefree editor token is given only to staff who edit a website, marketing or crm of a shop in the group, INI-076', function () {
+    \Illuminate\Support\Facades\Http::fake(['auth.getbee.io/*' => \Illuminate\Support\Facades\Http::response(['access_token' => 'token'])]);
+    \Illuminate\Support\Facades\Cache::flush();
+    $settings = $this->group->settings ?? [];
+    data_set($settings, 'beefree', array_merge(\Illuminate\Support\Arr::get($settings, 'beefree', []), ['client_id' => 'id', 'client_secret' => 'secret']));
+    $this->group->update(['settings' => $settings]);
+
+    $url  = route('grp.json.beefree.authenticate', $this->organisation->slug);
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["human-resources.{$this->organisation->id}.view"]);
+    postJson($url, ['uid' => 'test-'.$user->id])->assertForbidden();
+
+    foreach (["marketing.{$this->shop->id}.edit", "web.{$this->shop->id}.edit", "crm.{$this->shop->id}.edit"] as $permission) {
+        actingAsUserWithOnlyPermissions($user, [$permission]);
+        postJson($url, ['uid' => 'test-'.$user->id])->assertOk();
+    }
+});

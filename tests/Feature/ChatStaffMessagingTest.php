@@ -660,3 +660,17 @@ describe('staff chat audience seeding', function () {
         expect(\Illuminate\Support\Arr::get($this->shop->fresh()->settings, 'staff_chat.crm_user_ids'))->toBe([$curated->id]);
     });
 });
+
+test('a staff chat on an order opens only for staff who can see that order, INI-076', function () {
+    list(, $product) = createProduct($this->shop);
+    $order           = createOrder($this->customer, $product);
+    $payload         = ['context_type' => 'Order', 'context_id' => $order->id, 'audience' => 'crm'];
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["human-resources.{$this->organisation->id}.view"]);
+    $this->postJson(route('grp.chat.staff.context.open'), $payload)->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["orders.{$this->shop->id}.view"]);
+    $this->postJson(route('grp.chat.staff.context.open'), $payload)->assertSuccessful();
+});
