@@ -50,6 +50,7 @@ class StoreSerpResult
                 'webpage_id'     => $ours && $website ? $this->matchWebpageId((string) Arr::get($ours, 'url'), $this->webpageIds($website)) : null,
                 'serp_features'  => array_values(array_diff(Arr::get($result, 'item_types') ?? $items->pluck('type')->unique()->all(), ['organic'])),
                 'in_ai_overview' => $website && $this->isInAiOverview($items->where('type', 'ai_overview')->all(), $website->domain),
+                'serp_features_owned' => $website ? $this->ownedFeatures($items->where('type', '!=', 'organic')->all(), $website->domain) : [],
                 'depth'          => PostSerpTasks::depth($trackedKeyword->frequency),
             ]
         );
@@ -91,6 +92,36 @@ class StoreSerpResult
                 if (self::isDomain(Arr::get($reference, 'domain') ?? Arr::get($reference, 'url'), $ourDomain)) {
                     return true;
                 }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * The result-page features (local pack, featured snippet, AI Overview…) that show our website.
+     *
+     * @return array<int, string>
+     */
+    private function ownedFeatures(array $features, string $ourDomain): array
+    {
+        return collect($features)
+            ->filter(fn (array $feature) => $this->mentionsDomain($feature, $ourDomain))
+            ->pluck('type')
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    private function mentionsDomain(array $node, string $ourDomain): bool
+    {
+        foreach ($node as $key => $value) {
+            if (is_array($value) && $this->mentionsDomain($value, $ourDomain)) {
+                return true;
+            }
+
+            if (in_array($key, ['domain', 'url'], true) && is_string($value) && self::isDomain($value, $ourDomain)) {
+                return true;
             }
         }
 
@@ -146,6 +177,7 @@ class StoreSerpResult
             'ranking_webpage_id'     => $ranking->webpage_id,
             'serp_features'          => $ranking->serp_features,
             'in_ai_overview'         => $ranking->in_ai_overview,
+            'serp_features_owned'    => $ranking->serp_features_owned,
         ]);
     }
 }

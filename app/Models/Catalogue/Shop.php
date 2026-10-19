@@ -96,6 +96,7 @@ use App\Models\Web\Redirect;
 use App\Models\Web\SeoAiPrompt;
 use App\Models\Web\SeoCompetitor;
 use App\Models\Web\SeoContentBrief;
+use App\Models\Web\SeoKeywordTag;
 use App\Models\Web\SeoTrackedKeyword;
 use App\Models\Web\Website;
 use Eloquent;
@@ -274,6 +275,7 @@ use App\Models\HumanResources\WorkSchedule;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SeoCompetitor> $seoCompetitors
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SeoContentBrief> $seoContentBriefs
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SeoTrackedKeyword> $seoTrackedKeywords
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, SeoKeywordTag> $seoKeywordTags
  * @property-read Website|null $website
  * @property-read LaravelCollection<int, WorkSchedule> $workSchedules
  * @method static \Database\Factories\Catalogue\ShopFactory factory($count = null, $state = [])
@@ -469,6 +471,11 @@ class Shop extends Model implements HasMedia, Auditable
     public function seoTrackedKeywords(): HasMany
     {
         return $this->hasMany(SeoTrackedKeyword::class);
+    }
+
+    public function seoKeywordTags(): HasMany
+    {
+        return $this->hasMany(SeoKeywordTag::class);
     }
 
     public function seoCompetitors(): HasMany

@@ -109,7 +109,7 @@ class ExportSeoTable extends OrgAction
         $rows = $this->allRows('rankings', fn () => IndexSeoRankings::make()->variants($shop, 'rankings'));
 
         return [
-            ['Keyword', 'Country', 'Device', 'Check', 'Position', 'Previous position', 'Last checked', 'Ranking page', 'Monthly searches', 'Intent', 'Search Console position (28 days)', 'On the results page', 'In AI Overview', 'Alert', 'Competitors'],
+            ['Keyword', 'Country', 'Device', 'Check', 'Position', 'Previous position', 'Last checked', 'Ranking page', 'Monthly searches', 'KD', 'Intent', 'Tags', 'Search Console position (28 days)', 'On the results page', 'In AI Overview', 'Alert', 'Competitors'],
             $rows->map(fn ($row) => [
                 $row->keyword,
                 $row->country_code,
@@ -120,7 +120,9 @@ class ExportSeoTable extends OrgAction
                 self::date($row->last_checked_at),
                 $row->ranking_url,
                 $row->avg_monthly_searches,
+                $row->keyword_difficulty,
                 $row->intent,
+                collect($row->tags ?? [])->pluck('name')->implode(', '),
                 $row->search_console_position,
                 implode(', ', $row->serp_features ?? []),
                 $row->in_ai_overview ? 'yes' : 'no',
@@ -135,7 +137,7 @@ class ExportSeoTable extends OrgAction
         $rows = $this->allRows('tracked_keywords', fn () => IndexSeoTrackedKeywords::make()->markets($shop, 'tracked_keywords'));
 
         return [
-            ['Keyword', 'Country', 'Language', 'Check', 'Active', 'Monthly searches', 'Target webpage', 'Added'],
+            ['Keyword', 'Country', 'Language', 'Check', 'Active', 'Monthly searches', 'Tags', 'Target webpage', 'Added'],
             $rows->map(fn ($row) => [
                 $row->keyword,
                 $row->country_code,
@@ -143,6 +145,7 @@ class ExportSeoTable extends OrgAction
                 $row->frequency?->value,
                 $row->is_active ? 'yes' : 'no',
                 $row->avg_monthly_searches,
+                collect($row->tags ?? [])->pluck('name')->implode(', '),
                 $row->target_webpage_code,
                 self::date($row->created_at),
             ])->all(),

@@ -25,6 +25,8 @@ use Spatie\QueryBuilder\AllowedSort;
  */
 class IndexSeoTrackedKeywords extends OrgAction
 {
+    use WithSeoKeywordFilters;
+
     public function handle(Shop $shop, ?string $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -43,6 +45,7 @@ class IndexSeoTrackedKeywords extends OrgAction
                     ->on('seo_keywords.country_code', '=', 'seo_tracked_keywords.country_code')
                     ->on('seo_keywords.language_code', '=', 'seo_tracked_keywords.language_code');
             })
+            ->where(fn ($query) => $this->applyKeywordFilters($query, $this->keywordFilters($prefix)))
             ->leftJoin('webpages', 'webpages.id', '=', 'seo_tracked_keywords.target_webpage_id')
             ->groupBy('seo_tracked_keywords.keyword')
             ->defaultSort('keyword')
@@ -68,6 +71,7 @@ class IndexSeoTrackedKeywords extends OrgAction
             ->withQueryString();
 
         $this->attachCountries($shop, $keywords);
+        $this->attachTags($shop->id, $keywords->getCollection());
 
         return $keywords;
     }
@@ -113,7 +117,7 @@ class IndexSeoTrackedKeywords extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        return QueryBuilder::for(SeoTrackedKeyword::class)
+        $markets = QueryBuilder::for(SeoTrackedKeyword::class)
             ->where('seo_tracked_keywords.shop_id', $shop->id)
             ->leftJoin('seo_keywords', function ($join) {
                 $join->on('seo_keywords.shop_id', '=', 'seo_tracked_keywords.shop_id')
@@ -121,6 +125,7 @@ class IndexSeoTrackedKeywords extends OrgAction
                     ->on('seo_keywords.country_code', '=', 'seo_tracked_keywords.country_code')
                     ->on('seo_keywords.language_code', '=', 'seo_tracked_keywords.language_code');
             })
+            ->where(fn ($query) => $this->applyKeywordFilters($query, $this->keywordFilters($prefix)))
             ->leftJoin('webpages', 'webpages.id', '=', 'seo_tracked_keywords.target_webpage_id')
             ->groupBy('seo_tracked_keywords.keyword', 'seo_tracked_keywords.country_code', 'seo_tracked_keywords.language_code')
             ->defaultSort('keyword')
@@ -139,6 +144,10 @@ class IndexSeoTrackedKeywords extends OrgAction
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
+
+        $this->attachTags($shop->id, $markets->getCollection());
+
+        return $markets;
     }
 
     public function tableStructure(?string $prefix = null): Closure
@@ -162,6 +171,7 @@ class IndexSeoTrackedKeywords extends OrgAction
                 ->column(key: 'language_code', label: __('Language'))
                 ->column(key: 'frequency', label: __('Check'), tooltip: __('How often the Google position is checked: on request only when someone presses Check now in Rankings, monthly or weekly to the top 30, daily to the top 20. Results are in the Rankings tab'), tooltipIcon: true)
                 ->column(key: 'avg_monthly_searches', label: __('Monthly searches'), tooltip: __('Average monthly Google searches for the country and language, from Google Ads data through DataForSEO. Refreshed monthly; a keyword added by hand gets it the next day'), sortable: true, align: 'right', tooltipIcon: true)
+                ->column(key: 'tags', label: __('Tags'))
                 ->column(key: 'is_active', label: __('Active'))
                 ->column(key: 'actions', label: '', canBeHidden: false)
                 ->defaultSort('keyword');

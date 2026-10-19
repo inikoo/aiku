@@ -56,7 +56,7 @@ class StoreSeoTrackedKeyword extends OrgAction
                 $trackedKeywords->push($shop->seoTrackedKeywords()->firstOrCreate([
                     'keyword'       => $modelData['keyword'],
                     'country_code'  => $countryCode,
-                    'language_code' => $this->languageFor($countryCode),
+                    'language_code' => $this->languageFor($countryCode, $modelData['language_code']),
                     'device'        => $device,
                 ], Arr::only($modelData, ['frequency', 'target_webpage_id'])));
             }
@@ -68,7 +68,7 @@ class StoreSeoTrackedKeyword extends OrgAction
     public function prepareForValidation(ActionRequest $request): void
     {
         if ($this->has('keyword')) {
-            $this->set('keyword', Str::lower(trim(preg_replace('/\s+/u', ' ', (string) $this->get('keyword')))));
+            $this->set('keyword', self::normalise((string) $this->get('keyword')));
         }
 
         $countryCodes = $this->has('country_codes') ? Arr::wrap($this->get('country_codes')) : Arr::wrap($this->get('country_code'));
@@ -113,7 +113,7 @@ class StoreSeoTrackedKeyword extends OrgAction
             ->where('shop_id', $this->shop->id)
             ->where('keyword', $keyword)
             ->where('country_code', $countryCode)
-            ->where('language_code', $this->languageFor($countryCode))
+            ->where('language_code', $this->languageFor($countryCode, (string) $this->get('language_code')))
             ->count() < count(SeoKeywordDeviceEnum::cases()));
 
         return !$untracked;
@@ -124,14 +124,18 @@ class StoreSeoTrackedKeyword extends OrgAction
      * country, else the country's own language, so a keyword tracked in Bulgaria, Greece and Denmark
      * is checked in Bulgarian, Greek and Danish. Without DataForSEO the language asked for is kept.
      */
-    private function languageFor(string $countryCode): string
+    public function languageFor(string $countryCode, string $languageCode): string
     {
-        return $this->languages[$countryCode.'|'.$this->get('language_code')] ??= $this->resolveLanguage($countryCode);
+        return $this->languages[$countryCode.'|'.$languageCode] ??= $this->resolveLanguage($countryCode, $languageCode);
     }
 
-    private function resolveLanguage(string $countryCode): string
+    public static function normalise(string $keyword): string
     {
-        $languageCode = (string) $this->get('language_code');
+        return Str::lower(trim(preg_replace('/\s+/u', ' ', $keyword)));
+    }
+
+    private function resolveLanguage(string $countryCode, string $languageCode): string
+    {
         $client       = DataForSeoClient::make();
 
         if (!$client) {

@@ -28,6 +28,9 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string|null $pending_task_id
  * @property int|null $avg_monthly_searches
  * @property string|null $intent
+ * @property int|null $keyword_difficulty
+ * @property array|null $serp_features_owned
+ * @property array|null $tags
  * @property float|null $search_console_position
  * @property array|null $competitor_positions
  * @property bool|null $is_watched
@@ -60,6 +63,9 @@ class SeoRankingResource extends JsonResource
             'in_ai_overview'          => $this->in_ai_overview,
             'avg_monthly_searches'    => $this->avg_monthly_searches !== null ? (int) $this->avg_monthly_searches : null,
             'intent'                  => $this->intent,
+            'keyword_difficulty'      => $this->keyword_difficulty !== null ? (int) $this->keyword_difficulty : null,
+            'serp_features_owned'     => $this->serp_features_owned ?? [],
+            'tags'                    => $this->tags ?? [],
             'search_console_position' => $this->search_console_position !== null ? (float) $this->search_console_position : null,
             'competitor_positions'    => $this->competitor_positions ?? [],
             'is_watched'              => (bool) $this->is_watched,

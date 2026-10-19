@@ -652,6 +652,11 @@ use App\Actions\Web\Seo\StoreSeoAiPrompt;
 use App\Actions\Web\Seo\StoreSeoCompetitor;
 use App\Actions\Web\Seo\StoreSeoContentBrief;
 use App\Actions\Web\Seo\StoreSeoTrackedKeyword;
+use App\Actions\Web\Seo\StoreSeoTrackedKeywords;
+use App\Actions\Web\Seo\StoreSeoKeywordTag;
+use App\Actions\Web\Seo\UpdateSeoKeywordTag;
+use App\Actions\Web\Seo\DeleteSeoKeywordTag;
+use App\Actions\Web\Seo\SetSeoKeywordTags;
 use App\Actions\Web\Seo\UpdateSeoTrackedKeyword;
 use App\Actions\Web\WebsiteNotFoundPath\UpdateWebsiteNotFoundPathIgnored;
 use App\Actions\Web\Announcement\DeleteAnnouncement;
@@ -1301,6 +1306,9 @@ Route::name('banner.')->prefix('banner/{banner:id}')->group(function () {
 
 Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
     Route::post('seo/tracked-keywords', StoreSeoTrackedKeyword::class)->name('seo.tracked_keyword.store');
+    Route::post('seo/tracked-keywords/bulk', StoreSeoTrackedKeywords::class)->name('seo.tracked_keywords.bulk_store');
+    Route::post('seo/keyword-tags', StoreSeoKeywordTag::class)->name('seo.keyword_tag.store');
+    Route::post('seo/keyword-tags/assign', SetSeoKeywordTags::class)->name('seo.keyword_tags.assign');
     Route::post('seo/competitors', StoreSeoCompetitor::class)->name('seo.competitor.store');
     Route::post('seo/rank-checks', RunSeoRankChecks::class)->name('seo.rank_checks.store');
     Route::post('seo/keyword-checks', CheckSeoKeywordsNow::class)->name('seo.keyword_checks.store');
@@ -1442,6 +1450,8 @@ Route::patch('seo-tracked-keyword/{seoTrackedKeyword:id}', UpdateSeoTrackedKeywo
 Route::delete('seo-tracked-keyword/{seoTrackedKeyword:id}', DeleteSeoTrackedKeyword::class)->name('seo_tracked_keyword.delete');
 Route::post('seo-tracked-keyword/{seoTrackedKeyword:id}/watch', ToggleSeoKeywordWatch::class)->name('seo_tracked_keyword.watch');
 Route::delete('seo-competitor/{seoCompetitor:id}', DeleteSeoCompetitor::class)->name('seo_competitor.delete');
+Route::patch('seo-keyword-tag/{seoKeywordTag:id}', UpdateSeoKeywordTag::class)->name('seo_keyword_tag.update');
+Route::delete('seo-keyword-tag/{seoKeywordTag:id}', DeleteSeoKeywordTag::class)->name('seo_keyword_tag.delete');
 Route::post('seo-content-brief/{seoContentBrief:id}/retry', RetrySeoContentBrief::class)->name('seo_content_brief.retry');
 Route::delete('seo-content-brief/{seoContentBrief:id}', DeleteSeoContentBrief::class)->name('seo_content_brief.delete');
 Route::patch('seo-ai-prompt/{seoAiPrompt:id}', UpdateSeoAiPrompt::class)->name('seo_ai_prompt.update');
