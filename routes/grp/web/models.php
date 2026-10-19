@@ -406,9 +406,10 @@ use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\HumanResources\Employee\UploadEmployeeContract;
 use App\Actions\HumanResources\EmployeeContract\DeleteEmployeeContract;
-use App\Actions\HumanResources\EmployeeContract\LinkLeaveBalanceToContract;
+use App\Actions\HumanResources\EmployeeContract\PreviewContractLeaveBalances;
 use App\Actions\HumanResources\EmployeeContract\StoreEmployeeContract;
 use App\Actions\HumanResources\EmployeeContract\UpdateEmployeeContract;
+use App\Actions\HumanResources\EmployeeContract\UpdateLeaveBalanceAdjustment;
 use App\Actions\HumanResources\JobPosition\DeleteJobPosition;
 use App\Actions\HumanResources\JobPosition\StoreJobPosition;
 use App\Actions\HumanResources\JobPosition\UpdateJobPosition;
@@ -792,16 +793,18 @@ Route::prefix('employee/{employee:id}')->name('employee.')->group(function () {
     Route::patch('', UpdateEmployee::class)->name('update');
     Route::delete('', DeleteEmployee::class)->name('.delete');
     Route::post('contracts', StoreEmployeeContract::class)->name('contracts.store');
+    Route::post('contracts/preview', [PreviewContractLeaveBalances::class, 'inEmployee'])->name('contracts.preview_store');
 });
 
 Route::prefix('employee-contract/{contract:id}')->name('employee.contracts.')->group(function () {
     Route::patch('', UpdateEmployeeContract::class)->name('update');
     Route::delete('', DeleteEmployeeContract::class)->name('delete');
     Route::post('generate-balance', GenerateEmployeeLeaveBalance::class)->name('generate_balance');
+    Route::post('preview', [PreviewContractLeaveBalances::class, 'inContract'])->name('preview');
 });
 
 Route::prefix('employee-leave-balance/{balance:id}')->name('employee.leave_balance.')->group(function () {
-    Route::patch('link', LinkLeaveBalanceToContract::class)->name('link');
+    Route::patch('adjustment', UpdateLeaveBalanceAdjustment::class)->name('adjustment');
 });
 
 Route::prefix('workplace/{workplace:id}')->name('workplace.')->group(function () {
