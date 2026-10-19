@@ -3527,6 +3527,55 @@ test('fulfilment customer pallets and audit stored items json answer fulfilment 
     }
 })->depends('update stored item audit');
 
+test('fulfilment customer exports, labels, sales channels and the SKO create page answer fulfilment staff of the customer, INI-076', function (StoredItemAudit $storedItemAudit) {
+    $fulfilmentCustomer = $storedItemAudit->fulfilmentCustomer;
+    $fulfilment         = $fulfilmentCustomer->fulfilment;
+    $org                = $fulfilment->organisation;
+    $params             = [$org->slug, $fulfilment->slug, $fulfilmentCustomer->slug];
+    $pallet             = Pallet::where('fulfilment_customer_id', $fulfilmentCustomer->id)->firstOrFail();
+    $storedItem         = StoredItem::where('fulfilment_customer_id', $fulfilmentCustomer->id)->firstOrFail();
+
+    $viewRoutes = [
+        route('grp.org.fulfilments.show.crm.customers.show.customer_sales_channels.index', $params),
+        route('grp.org.fulfilments.show.crm.customers.show.pallets.index.export', [...$params, 'type' => 'csv']),
+        route('grp.org.fulfilments.show.crm.customers.show.stored-items.export', [...$params, 'type' => 'csv']),
+        route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.export', [...$params, 'type' => 'csv']),
+        route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.stored-items.export', [...$params, 'type' => 'csv']),
+        route('grp.org.fulfilments.show.crm.customers.show.pallets.export', [...$params, $pallet->slug, 'type' => 'pdf']),
+        route('grp.org.fulfilments.show.crm.customers.show.stored-items.export_label', [...$params, $storedItem->slug]),
+    ];
+    $createRoute = route('grp.org.fulfilments.show.crm.customers.show.stored-items.create', $params);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $org->group_id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["human-resources.$org->id.view"]);
+    foreach ([...$viewRoutes, $createRoute] as $url) {
+        $this->get($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["fulfilment-shop.$fulfilment->id.view"]);
+    foreach ($viewRoutes as $url) {
+        $this->get($url)->assertOk();
+    }
+    $this->get($createRoute)->assertForbidden();
+
+    $otherCustomer = FulfilmentCustomer::where('id', '!=', $fulfilmentCustomer->id)->where('fulfilment_id', $fulfilment->id)->first();
+    if ($otherCustomer) {
+        $this->get(route('grp.org.fulfilments.show.crm.customers.show.pallets.export', [$org->slug, $fulfilment->slug, $otherCustomer->slug, $pallet->slug, 'type' => 'pdf']))->assertNotFound();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["accounting.$org->id.view"]);
+    $this->get($viewRoutes[0])->assertOk();
+
+    $palletDelivery = PalletDelivery::where('fulfilment_id', $fulfilment->id)->firstOrFail();
+    $deliveryExport = route('grp.org.fulfilments.show.operations.pallet-deliveries.export', [$org->slug, $fulfilment->slug, $palletDelivery->slug, 'type' => 'csv']);
+    $this->get($deliveryExport)->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["fulfilment-shop.$fulfilment->id.view", "fulfilment-shop.$fulfilment->id.edit"]);
+    $this->get($createRoute)->assertOk();
+    $this->get($deliveryExport)->assertOk();
+})->depends('update stored item audit');
+
 test('create stored item audit delta', function (StoredItemAudit $storedItemAudit) {
     $fulfilmentCustomer = $storedItemAudit->fulfilmentCustomer;
     $palletStoredItems  = PalletStoredItem::whereHas('pallet', function ($query) use ($fulfilmentCustomer) {

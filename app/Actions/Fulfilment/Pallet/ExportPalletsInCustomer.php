@@ -2,6 +2,7 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithExportData;
 use App\Enums\UI\Fulfilment\FulfilmentCustomerPalletsTabsEnum;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ExportPalletsInCustomer extends OrgAction
 {
+    use WithFulfilmentShopAuthorisation;
     use WithExportData {
         rules as exportRules;
     }
@@ -57,6 +59,7 @@ class ExportPalletsInCustomer extends OrgAction
      */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): BinaryFileResponse
     {
+        abort_unless($fulfilmentCustomer->fulfilment_id === $fulfilment->id, 404);
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         $modelData = $this->validatedData;

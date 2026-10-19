@@ -264,14 +264,14 @@ class ShowPalletDelivery extends OrgAction
                         'palletDelivery' => $palletDelivery->id
                     ]
                 ],
-                'export_excel_route' =>  [
+                'export_excel_route' => $palletDelivery->documentsCanBeReadBy($request->user()) ? [
                     'name'       => 'grp.org.fulfilments.show.operations.pallet-deliveries.export',
                     'parameters' => [
                         'organisation' => $palletDelivery->organisation->slug,
                         'fulfilment'   => $palletDelivery->fulfilment->slug,
                         'palletDelivery' => $palletDelivery->slug
                     ]
-                ],
+                ] : null,
 
                 'upload_spreadsheet' => [
                     'event'           => 'action-progress',

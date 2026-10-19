@@ -10,6 +10,7 @@
 
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
+use App\Actions\Traits\Authorisations\WithFulfilmentShopEditAuthorisation;
 use App\Actions\OrgAction;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -20,6 +21,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreateStoredItem extends OrgAction
 {
+    use WithFulfilmentShopEditAuthorisation;
+
     public function handle(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Response
     {
         return Inertia::render(
@@ -86,6 +89,7 @@ class CreateStoredItem extends OrgAction
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Response
     {
+        abort_unless($fulfilmentCustomer->fulfilment_id === $fulfilment->id, 404);
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($fulfilmentCustomer, $request);
