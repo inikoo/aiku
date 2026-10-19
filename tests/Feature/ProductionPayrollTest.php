@@ -773,7 +773,7 @@ describe('production reward pay bands', function () {
             'manufacture_task_id' => $this->manufactureTask->id,
             'position'            => 1,
             'units_per_artefact'  => 1,
-            'standard_rate'       => 1,
+            'standard_rate'       => 20,
         ]);
 
         $openSession = makePayBandSession($this->payBandJobOrderItemTask, 0, 1);
@@ -781,7 +781,7 @@ describe('production reward pay bands', function () {
 
         $closed = CloseManufactureTaskSession::make()->action($openSession, ['quantity_made' => 1])->refresh();
 
-        expect((float) $closed->standard_rate)->toBe(1.0)
+        expect((float) $closed->standard_rate)->toBe(20.0)
             ->and($closed->paidHours())->toBeLessThan(0.1)
             ->and($closed->is_under_target)->toBeFalse();
     });

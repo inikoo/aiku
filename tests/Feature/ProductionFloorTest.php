@@ -582,6 +582,64 @@ test('making more than the job asked for needs a manager badge or pin and grows 
         ]);
 });
 
+test('closing a step at ten times its target rate needs a manager badge or pin', function () {
+    $forming = stepTestManufactureTask($this->production, 'FORM', 'Forming');
+    $forming->update(['is_piece_rate' => true, 'standard_rate' => 92]);
+    $this->artefact->manufactureTasks()->sync([$forming->id => ['position' => 1, 'units_per_artefact' => 1]]);
+    SeedJobPositions::make()->handle($this->organisation);
+    $user = $this->guest->getUser();
+    \Illuminate\Support\Facades\RateLimiter::clear('overproduction-manager-code:'.$user->id);
+
+    $modelData                    = Employee::factory()->make(['organisation_id' => $this->organisation->id])->toArray();
+    $modelData['worker_number']   = 'W'.rand(10000, 99999);
+    $modelData['alias']           = 'Alias '.rand(10000, 99999);
+    $modelData['type']            = \App\Enums\HumanResources\Employee\EmployeeTypeEnum::EMPLOYEE;
+    $modelData['employment_type'] = \App\Enums\HumanResources\Employee\EmploymentTypeEnum::FULL_TIME;
+    $modelData['state']           = \App\Enums\HumanResources\Employee\EmployeeStateEnum::WORKING;
+    $modelData['username']        = 'ratemgr'.rand(10000, 99999);
+    $modelData['password']        = 'secret-password';
+    $manager                      = StoreEmployee::make()->action($this->organisation, $modelData);
+    SyncEmployeeJobPositions::make()->handle($manager, [
+        JobPosition::where('organisation_id', $this->organisation->id)->where('code', 'prod-m')->first()->id => ['Production' => [$this->production->id]],
+    ]);
+    $managerPin = 'MG'.rand(100000, 999999);
+    $manager->update(['pin' => $this->organisation->id.':'.$managerPin]);
+
+    $jobOrder = StoreJobOrder::make()->action($this->production, []);
+    $item     = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 640]);
+    ConfirmJobOrder::make()->action($jobOrder);
+    $task = $item->tasks()->first();
+
+    $session = StartManufactureTaskSession::make()->action($user, $task);
+    $session->update(['started_at' => now()->subSeconds(6)]);
+    expect(fn () => CloseManufactureTaskSession::make()->action($session->refresh(), ['quantity_made' => 640]))
+        ->toThrow(ValidationException::class, 'against a target of 92, a manager must confirm it')
+        ->and($session->refresh()->state)->toBe(ManufactureTaskSessionStateEnum::OPEN)
+        ->and((float) $task->refresh()->quantity_made)->toBe(0.0);
+
+    $session->update(['started_at' => now()->subHour()]);
+    CloseManufactureTaskSession::make()->action($session->refresh(), ['quantity_made' => 300]);
+    expect((float) $task->refresh()->quantity_made)->toBe(300.0);
+
+    $session = StartManufactureTaskSession::make()->action($user, $task);
+    $session->update(['started_at' => now()->subSeconds(6)]);
+    CloseManufactureTaskSession::make()->action($session->refresh(), ['quantity_made' => 340, 'manager_code' => $managerPin]);
+    expect($task->refresh()->state)->toBe(JobOrderItemTaskStateEnum::DONE);
+
+    $mixing = stepTestManufactureTask($this->production, 'KGFAST', 'Mixing by weight');
+    $mixing->update(['is_piece_rate' => true, 'is_recorded_in_kg' => true, 'standard_rate' => 50]);
+    $this->artefact->manufactureTasks()->sync([$mixing->id => ['position' => 1, 'units_per_artefact' => 1]]);
+    $jobOrder = StoreJobOrder::make()->action($this->production, []);
+    $item     = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 10]);
+    ConfirmJobOrder::make()->action($jobOrder);
+
+    $session = StartManufactureTaskSession::make()->action($user, $item->tasks()->first());
+    $session->update(['started_at' => now()->subSeconds(6)]);
+    CloseManufactureTaskSession::make()->action($session->refresh(), ['quantity_made' => 12, 'manager_code' => $managerPin]);
+    expect($item->refresh()->quantity)->toBe(10)
+        ->and($jobOrder->refresh()->data['overproductions'] ?? [])->toBe([]);
+});
+
 test('a step counted in packs says so on the floor and takes whole packs only', function () {
     $this->artefact->manufactureTasks()->sync([
         $this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 0.125],

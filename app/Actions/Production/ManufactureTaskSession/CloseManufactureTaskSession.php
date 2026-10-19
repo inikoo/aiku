@@ -109,6 +109,19 @@ class CloseManufactureTaskSession extends OrgAction
                 'non_productive_reason'           => $modelData['non_productive_reason'] ?? null,
                 'standard_rate'                   => $session->recipeStandardRate(),
             ]);
+            if ($this->isImpossibleRate($session)) {
+                if (empty($modelData['manager_code'])) {
+                    throw ValidationException::withMessages([
+                        'rate' => __(':made in :minutes min is :rate per hour against a target of :target, a manager must confirm it', [
+                            'made'    => (float) $session->quantity_made,
+                            'minutes' => round($session->paidHours() * 60, 1),
+                            'rate'    => number_format((float) $session->quantity_made / max($session->paidHours(), 1 / 3600)),
+                            'target'  => (float) $session->standard_rate,
+                        ]),
+                    ]);
+                }
+                $this->overproductionManager($session, $modelData['manager_code']);
+            }
             $this->applyPayTerms($session, $session->employee?->artisan_pay_type ?? ArtisanPayTypeEnum::PIECE_RATE);
             $session->save();
 
@@ -326,6 +339,19 @@ class CloseManufactureTaskSession extends OrgAction
             'operative_reward_amount'         => $isPieceRate ? $manufactureTask->operative_reward_amount : 0,
         ]);
         $session->is_under_target = $this->isUnderTarget($session);
+    }
+
+    /**
+     * Ten times the step's target never happens on the floor (real sessions top out near six), so it is
+     * a quantity tapped in for work not done in this session, like a step closed seconds after it opened.
+     */
+    private function isImpossibleRate(ManufactureTaskSession $session): bool
+    {
+        if ($session->activity_type != ManufactureTaskSessionActivityTypeEnum::PRODUCTION || !$session->standard_rate || (float) $session->quantity_made <= 0) {
+            return false;
+        }
+
+        return (float) $session->quantity_made > 10 * (float) $session->standard_rate * $session->paidHours();
     }
 
     public function isUnderTarget(ManufactureTaskSession $session): bool
