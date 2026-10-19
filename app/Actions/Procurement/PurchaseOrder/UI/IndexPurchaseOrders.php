@@ -29,6 +29,7 @@ use App\InertiaTable\InertiaTable;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\Inventory\OrgStock;
 use App\Models\Procurement\OrgAgent;
+use App\Models\SupplyChain\Agent;
 use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\OrgSupplierProduct;
@@ -64,6 +65,15 @@ class IndexPurchaseOrders extends OrgAction
 
     private bool $onlyIncoming = false;
 
+    private ?Agent $viewingAgent = null;
+
+    public function viewedFrom(Organisation $organisation): static
+    {
+        $this->viewingAgent = $this->getOrganisationAgent($organisation);
+
+        return $this;
+    }
+
     public function inWholeAgentOrderOf(PurchaseOrder $purchaseOrder): static
     {
         $this->wholeAgentOrderOf = $purchaseOrder;
@@ -89,7 +99,7 @@ class IndexPurchaseOrders extends OrgAction
 
     protected function getElementGroups(Group|Organisation|OrgAgent|OrgSupplier|OrgPartner|OrgStock|OrgSupplierProduct|Supplier|StockDelivery $parent): array
     {
-        $supplierStats = match (true) {
+        $supplierStats = $this->viewingAgent ? null : match (true) {
             $parent instanceof Supplier => $parent->stats,
             $parent instanceof OrgSupplier => $parent->stats,
             default => null,
@@ -101,7 +111,7 @@ class IndexPurchaseOrders extends OrgAction
             'state'          => [
                 'label'    => __('State'),
                 'elements' => collect(PurchaseOrderStateEnum::labels())
-                    ->except($this->getParentOrganisationAgent($parent) ? [PurchaseOrderStateEnum::IN_PROCESS->value] : [])
+                    ->except($organisationAgent || $this->viewingAgent ? [PurchaseOrderStateEnum::IN_PROCESS->value] : [])
                     ->map(
                         fn ($label, $state) => [
                             $label,
@@ -230,6 +240,11 @@ class IndexPurchaseOrders extends OrgAction
             });
         } else {
             $query->where('purchase_orders.organisation_id', $parent->id);
+        }
+
+        if ($this->viewingAgent) {
+            $query->where('purchase_orders.agent_id', $this->viewingAgent->id)
+                ->where('purchase_orders.state', '!=', PurchaseOrderStateEnum::IN_PROCESS);
         }
 
         if ($this->wholeAgentOrderOf) {
@@ -445,6 +460,7 @@ class IndexPurchaseOrders extends OrgAction
     {
         $this->parent = $orgSupplier;
         $this->initialisation($organisation, $request);
+        $this->viewedFrom($organisation);
 
         return $this->handle($orgSupplier);
     }
