@@ -214,6 +214,8 @@ use App\Models\SysAdmin\Permission;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Config;
+use App\Actions\Helpers\SerialReference\GetSerialReference;
+use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -6649,4 +6651,19 @@ test('order channels of a shop answer only its order or accounting staff, INI-07
         actingAsUserWithOnlyPermissions($user, [$permission]);
         get($url)->assertOk();
     }
+});
+
+test('staging order references end in -test so they never match a live order number', function () {
+    $liveReference = GetSerialReference::run($this->shop, SerialReferenceModelEnum::ORDER);
+
+    app()->detectEnvironment(fn () => 'staging');
+    try {
+        $stagingReference = GetSerialReference::run($this->shop, SerialReferenceModelEnum::ORDER);
+    } finally {
+        app()->detectEnvironment(fn () => 'testing');
+    }
+
+    expect($liveReference)->not->toEndWith('-test')
+        ->and($stagingReference)->toEndWith('-test')
+        ->and(substr($stagingReference, 0, -5))->not->toBe($liveReference);
 });
