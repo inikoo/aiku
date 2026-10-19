@@ -94,8 +94,21 @@ const storePayment = (payload: PaymentPayload) => {
 }
 
 const deletePayment = (row: Payment) => {
-	if (!row.delete_route) return
-	router.delete(route(row.delete_route.name, row.delete_route.parameters), { preserveScroll: true })
+	const deleteRoute = row.delete_route
+	if (!deleteRoute) return
+	confirm.require({
+		group: "stock-delivery",
+		message: ctrans("The payment is taken off this container and off the agent's ledger."),
+		header: ctrans("Remove this payment?"),
+		acceptLabel: ctrans("Remove"),
+		rejectLabel: ctrans("Cancel"),
+		accept: () =>
+			router.delete(route(deleteRoute.name, deleteRoute.parameters), {
+				preserveScroll: true,
+				onSuccess: () => notify({ title: ctrans("Payment removed"), type: "success" }),
+				onError,
+			}),
+	})
 }
 
 const errorMessage = computed(() => {
@@ -118,6 +131,7 @@ const makeInvoice = () =>
 
 const confirmRemakeInvoice = () =>
 	confirm.require({
+		group: "stock-delivery",
 		message: ctrans("The goods lines are taken again from the container as it stands now. The invoice number is kept, and the charges follow your ledger."),
 		header: ctrans("Make the invoice again?"),
 		acceptLabel: ctrans("Make again"),

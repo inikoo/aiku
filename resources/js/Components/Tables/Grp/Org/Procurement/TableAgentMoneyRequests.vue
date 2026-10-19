@@ -84,7 +84,7 @@ const stateClass: Record<string, string> = {
 		</template>
 
 		<template #cell(total)="{ item }">
-			<span class="whitespace-nowrap">{{ money(item.currency_code, item.total) }}</span>
+			<span class="whitespace-nowrap" :class="item.state === 'cancelled' ? 'text-gray-400 line-through' : ''">{{ money(item.currency_code, item.total) }}</span>
 		</template>
 
 		<template #cell(paid)="{ item }">

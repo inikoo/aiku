@@ -97,17 +97,6 @@ class EditOrgAgent extends OrgAction
                         'parameters' => $orgAgent->id,
                     ],
                 ],
-                'agent_fee_percentage' => [
-                    'type'        => 'input_number',
-                    'label'       => __('Agent fee %'),
-                    'information' => __('The agent charges this share of the goods of each container, recorded in its ledger when it invoices the container. Empty is 2%.'),
-                    'value'       => $orgAgent->agent_fee_percentage !== null ? (float) $orgAgent->agent_fee_percentage : null,
-                    'bind'        => ['min' => 0, 'max' => 100, 'suffix' => '%', 'maxFractionDigits' => 2],
-                    'updateRoute' => [
-                        'name'       => 'grp.models.org_agent.update',
-                        'parameters' => $orgAgent->id,
-                    ],
-                ],
             ],
         ];
 

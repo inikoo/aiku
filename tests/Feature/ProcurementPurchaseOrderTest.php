@@ -3349,6 +3349,65 @@ test('the agent confirms every supplier order of an agent order and asks the cli
     actingAs($this->adminGuest->getUser());
 });
 
+test('a money request takes off what the agent already paid the supplier, a transfer can not pay more than is due and removing it opens the request again, and only the agent sets its fee (HELP-4097)', function () {
+    $orgAgent          = createFreshOrgAgent($this);
+    $order             = UpdatePurchaseOrderStateToSubmitted::make()->action(collect(createAgentOrderToSend($this, $orgAgent, 1))->first()->refresh())->refresh();
+    $agent             = $orgAgent->agent;
+    $agentOrganisation = $agent->organisation;
+    $client            = $order->organisation;
+    $agentOrganisation->update(['currency_id' => $order->currency_id]);
+
+    $advanceDue = fn () => (float) (collect(\App\Actions\SupplyChain\DepositRequest\GetAgentMoneyRequestLines::run($agent->refresh(), $client)['orders'])->firstWhere('purchase_order_id', $order->id)['advance_due'] ?? 0);
+    $advance    = round((float) $order->cost_total * 0.3, 2);
+    $paid       = round($advance / 2, 2);
+
+    \App\Actions\SupplyChain\AgentPayment\StoreAgentLedgerEntry::make()->action($agent, ['organisation_id' => $client->id, 'type' => 'supplier_deposit', 'date' => date('Y-m-d'), 'amount' => $paid, 'purchase_order_id' => $order->id]);
+    expect(abs($advanceDue() - ($advance - $paid)))->toBeLessThan(0.001);
+
+    actingAs(agentOrganisationAdmin($agentOrganisation, 'agt-mr-'.Str::lower(Str::random(6))));
+
+    $this->post(route('grp.models.agent.money_request.store', $agent->id), ['organisation_id' => $client->id, 'lines' => [['kind' => 'advance', 'purchase_order_id' => $order->id, 'amount' => $advance]]])
+        ->assertSessionHasErrors('lines');
+    $this->post(route('grp.models.agent.money_request.store', $agent->id), ['organisation_id' => $client->id, 'lines' => [['kind' => 'advance', 'purchase_order_id' => $order->id, 'amount' => $advance - $paid]]])
+        ->assertSessionHasNoErrors();
+    $depositRequest = \App\Models\SupplyChain\DepositRequest::where('agent_id', $agent->id)->latest('id')->firstOrFail();
+
+    $this->patch(route('grp.models.deposit_request_item.mark_paid', $depositRequest->items()->firstOrFail()->id))->assertNotFound();
+    $this->patch(route('grp.models.org_agent.agent_fee.update', $orgAgent->id), ['agent_fee_percentage' => 5])->assertSessionHasNoErrors();
+    expect((float) $orgAgent->refresh()->agent_fee_percentage)->toBe(5.0);
+
+    $agentUser = auth()->user();
+    $clientUser = agentOrganisationAdmin($client, 'cli-mr-'.Str::lower(Str::random(6)));
+    actingAs($clientUser);
+
+    $this->patch(route('grp.models.org_agent.agent_fee.update', $orgAgent->id), ['agent_fee_percentage' => 0])->assertForbidden();
+    $this->post(route('grp.models.deposit_request.pay', $depositRequest->id), ['date' => date('Y-m-d'), 'amount' => $advance - $paid + 1])->assertSessionHasErrors('amount');
+    $this->post(route('grp.models.deposit_request.pay', $depositRequest->id), ['date' => date('Y-m-d'), 'amount' => $advance - $paid])->assertSessionHasNoErrors();
+
+    $transfer = \App\Models\SupplyChain\AgentPayment::where('deposit_request_id', $depositRequest->id)->firstOrFail();
+    expect($depositRequest->refresh()->state)->toBe(\App\Enums\SupplyChain\AspoDeposit\DepositRequestStateEnum::SETTLED)
+        ->and($transfer->isRecordedByClient())->toBeTrue();
+
+    actingAs($agentUser);
+    $this->patch(route('grp.models.agent_payment.update', $transfer->id), ['date' => date('Y-m-d'), 'type' => 'transfer_received'])->assertForbidden();
+    $this->delete(route('grp.models.agent_payment.delete', $transfer->id))->assertForbidden();
+
+    actingAs($clientUser);
+    $this->delete(route('grp.models.agent_payment.delete', $transfer->id))->assertSessionHasNoErrors();
+    expect($depositRequest->refresh()->state)->toBe(\App\Enums\SupplyChain\AspoDeposit\DepositRequestStateEnum::REQUESTED)
+        ->and($depositRequest->settled_at)->toBeNull()
+        ->and($depositRequest->items()->whereNotNull('paid_at')->exists())->toBeFalse();
+
+    $walletLine = \App\Actions\SupplyChain\AgentPayment\StoreAgentLedgerEntry::make()->action($agent, ['organisation_id' => $client->id, 'type' => 'transfer_received', 'date' => date('Y-m-d'), 'amount' => 1, 'receipt' => \Illuminate\Http\UploadedFile::fake()->create('receipt.pdf', 10, 'application/pdf')]);
+    $receipt    = \App\Models\Helpers\Media::findOrFail($walletLine->media_id);
+
+    $this->get(route('grp.media.download', $receipt->ulid))->assertOk();
+    actingAs(agentOrganisationAdmin($this->orgAgent->agent->organisation, 'agt-rc-'.Str::lower(Str::random(6))));
+    $this->get(route('grp.media.download', $receipt->ulid))->assertNotFound();
+
+    actingAs($this->adminGuest->getUser());
+});
+
 test('the agent sees other clients\' open orders with the same supplier on a whole order, and downloads it as one PDF', function () {
     $orgAgent          = createFreshOrgAgent($this);
     $agentOrganisation = $orgAgent->agent->organisation;

@@ -90,7 +90,7 @@ class GetAgentShowcase
             ->filter(fn ($row) => $row['organisation_id'])
             ->values();
 
-        $requests = $agent->depositRequests()->with('items.organisation', 'currency')->orderByDesc('id')->limit(20)->get()
+        $requests = $agent->depositRequests()->whereNull('organisation_id')->with('items.organisation', 'currency')->orderByDesc('id')->limit(20)->get()
             ->map(fn ($request) => [
                 'id'            => $request->id,
                 'reference'     => $request->reference,

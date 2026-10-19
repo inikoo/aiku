@@ -9,10 +9,12 @@
 namespace App\Actions\SupplyChain\AgentPayment;
 
 use App\Actions\OrgAction;
+use App\Enums\SupplyChain\AspoDeposit\DepositRequestStateEnum;
 use App\Actions\SupplyChain\AgentInvoice\SyncAgentInvoiceChargesFromLedger;
 use App\Models\SupplyChain\AgentPayment;
 use App\Models\SysAdmin\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\ActionRequest;
 
 class DeleteAgentPayment extends OrgAction
@@ -21,7 +23,16 @@ class DeleteAgentPayment extends OrgAction
 
     public function handle(AgentPayment $agentPayment): AgentPayment
     {
-        $agentPayment->delete();
+        DB::transaction(function () use ($agentPayment) {
+            $agentPayment->delete();
+
+            $depositRequest = $agentPayment->depositRequest()->lockForUpdate()->first();
+            if ($depositRequest?->state === DepositRequestStateEnum::SETTLED
+                && (float) $depositRequest->transfers()->sum('amount') < (float) $depositRequest->items()->sum('amount') - 0.005) {
+                $depositRequest->update(['state' => DepositRequestStateEnum::REQUESTED, 'settled_at' => null]);
+                $depositRequest->items()->update(['paid_at' => null]);
+            }
+        });
 
         if ($agentPayment->stockDelivery) {
             SyncAgentInvoiceChargesFromLedger::run($agentPayment->stockDelivery);
@@ -36,19 +47,18 @@ class DeleteAgentPayment extends OrgAction
     }
 
     /**
-     * The organisation's purchaser or accountant removes any payment; the agent's staff only one they recorded.
+     * Each side removes only its own lines: a payment the client recorded (against a container or a money request)
+     * by the client's purchaser or accountant, every other line of the ledger by the agent's staff.
      */
     public static function canDelete(AgentPayment $agentPayment, User $user): bool
     {
-        if ($user->authTo(["procurement.$agentPayment->organisation_id.edit", "accounting.$agentPayment->organisation_id.edit"])) {
-            return true;
+        if ($agentPayment->isRecordedByClient()) {
+            return $user->authTo(["procurement.$agentPayment->organisation_id.edit", "accounting.$agentPayment->organisation_id.edit"]);
         }
 
         $agentOrganisationId = $agentPayment->agent?->organisation_id;
 
-        return $agentOrganisationId !== null
-            && $agentPayment->created_by === $user->id
-            && $user->authTo("procurement.$agentOrganisationId.edit");
+        return $agentOrganisationId !== null && $user->authTo("procurement.$agentOrganisationId.edit");
     }
 
     public function asController(AgentPayment $agentPayment, ActionRequest $request): AgentPayment

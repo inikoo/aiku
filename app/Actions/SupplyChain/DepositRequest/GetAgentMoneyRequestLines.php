@@ -10,6 +10,7 @@ namespace App\Actions\SupplyChain\DepositRequest;
 
 use App\Actions\SupplyChain\AgentPayment\UI\IndexAgentLedger;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
+use App\Enums\SupplyChain\AgentPayment\AgentPaymentTypeEnum;
 use App\Enums\SupplyChain\AspoDeposit\DepositRequestItemKindEnum;
 use App\Enums\SupplyChain\AspoDeposit\DepositRequestStateEnum;
 use App\Models\Procurement\PurchaseOrder;
@@ -20,8 +21,10 @@ use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
  * What an agent can still ask a client for: on each open supplier order the advance (the supplier's advance %,
- * 30 when not set, less what was already asked for) and the rest of the order, and whatever brings the client's
- * wallet back to zero. Amounts are in the agent's currency; orders in another currency are left out.
+ * 30 when not set) and the rest of the order, less what is already covered, and whatever brings the client's
+ * wallet back to zero. An order is covered by what was asked for it or, when more, by what the ledger shows paid
+ * to its supplier: money paid out that was never asked for is already in the negative wallet, which its own line
+ * asks for, so the order does not ask for it again. Amounts are in the agent's currency; orders in another currency are left out.
  */
 class GetAgentMoneyRequestLines
 {
@@ -46,6 +49,15 @@ class GetAgentMoneyRequestLines
             ->groupBy('deposit_request_items.purchase_order_id')
             ->selectRaw('deposit_request_items.purchase_order_id, sum(deposit_request_items.amount) as amount');
 
+        $paidToSuppliers = DB::table('agent_payments')
+            ->where('agent_payments.agent_id', $agent->id)
+            ->where('agent_payments.organisation_id', $client->id)
+            ->whereIn('agent_payments.type', array_map(fn (AgentPaymentTypeEnum $type) => $type->value, array_values(array_filter(AgentPaymentTypeEnum::cases(), fn (AgentPaymentTypeEnum $type) => $type->isSupplierPayment()))))
+            ->whereNotNull('agent_payments.purchase_order_id')
+            ->whereNull('agent_payments.deleted_at')
+            ->groupBy('agent_payments.purchase_order_id')
+            ->selectRaw('agent_payments.purchase_order_id, sum(agent_payments.amount) as amount');
+
         $orders = PurchaseOrder::query()
             ->where('purchase_orders.organisation_id', $client->id)
             ->where('purchase_orders.agent_id', $agent->id)
@@ -55,6 +67,7 @@ class GetAgentMoneyRequestLines
             ->when($agentOrderReference, fn ($query) => $query->where('purchase_orders.agent_order_reference', $agentOrderReference))
             ->leftJoin('suppliers', 'suppliers.id', 'purchase_orders.supplier_id')
             ->leftJoinSub($requested, 'requested', 'requested.purchase_order_id', 'purchase_orders.id')
+            ->leftJoinSub($paidToSuppliers, 'paid_to_suppliers', 'paid_to_suppliers.purchase_order_id', 'purchase_orders.id')
             ->orderBy('purchase_orders.agent_order_reference')
             ->orderBy('suppliers.code')
             ->get([
@@ -67,12 +80,15 @@ class GetAgentMoneyRequestLines
                 'suppliers.name as supplier_name',
                 'suppliers.advance_percentage',
                 'requested.amount as requested',
+                'paid_to_suppliers.amount as paid_to_supplier',
             ])
             ->map(function (PurchaseOrder $purchaseOrder) {
                 $total      = round((float) $purchaseOrder->cost_total, 2);
                 $requested  = round((float) $purchaseOrder->requested, 2);
+                $paid       = round((float) $purchaseOrder->paid_to_supplier, 2);
+                $covered    = max($requested, $paid);
                 $percentage = $purchaseOrder->advance_percentage !== null ? (float) $purchaseOrder->advance_percentage : self::DEFAULT_ADVANCE_PERCENTAGE;
-                $advanceDue = max(0, round($total * $percentage / 100 - $requested, 2));
+                $advanceDue = max(0, round($total * $percentage / 100 - $covered, 2));
 
                 return [
                     'purchase_order_id'     => $purchaseOrder->id,
@@ -83,9 +99,11 @@ class GetAgentMoneyRequestLines
                     'supplier_name'         => $purchaseOrder->supplier_name,
                     'total'                 => $total,
                     'requested'             => $requested,
+                    'paid_to_supplier'      => $paid,
+                    'covered'               => $covered,
                     'advance_percentage'    => $percentage,
                     'advance_due'           => $advanceDue,
-                    'balance_due'           => max(0, round($total - $requested - $advanceDue, 2)),
+                    'balance_due'           => max(0, round($total - $covered - $advanceDue, 2)),
                 ];
             })
             ->filter(fn (array $order) => $order['advance_due'] > 0 || $order['balance_due'] > 0)

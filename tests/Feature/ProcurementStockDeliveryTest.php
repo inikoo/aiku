@@ -1505,7 +1505,8 @@ test('an agent\'s Excel balance sheet comes into the ledger as opening lines plu
 
     $update = route('grp.models.agent_payment.update', $lines[11]->id);
     $this->patch($update, ['date' => '2026-02-04', 'type' => 'transfer_received'])->assertSessionHasErrors('type');
-    $this->patch($update, ['date' => '2026-02-04', 'type' => 'supplier_payment'])->assertSessionHasErrors('purchase_order_id');
+    $this->patch($update, ['date' => '2026-02-04', 'type' => 'supplier_payment'])->assertSessionHasNoErrors();
+    expect($lines[11]->refresh()->needs_review)->toBeFalse();
     $this->patch($update, ['date' => '2026-02-04', 'type' => 'supplier_payment', 'purchase_order_id' => $purchaseOrder->id])->assertSessionHasNoErrors();
 
     expect($lines[11]->refresh()->needs_review)->toBeFalse()
@@ -1569,6 +1570,12 @@ test('an agent invoices a container from its lines, its charges are the ledger l
 
     \App\Actions\SupplyChain\AgentPayment\DeleteAgentPayment::make()->handle($packaging);
     expect((float) $again->refresh()->total_amount)->toBe(159.5);
+
+    $again->update(['source' => \App\Enums\SupplyChain\StockDeliveryInvoice\StockDeliveryInvoiceSourceEnum::ACTUAL]);
+    $typedFromPaper = $ledgerLine(['type' => 'other_expense', 'amount' => 4]);
+    expect((float) $again->refresh()->total_amount)->toBe(159.5);
+    \App\Actions\SupplyChain\AgentPayment\DeleteAgentPayment::make()->handle($typedFromPaper);
+    $again->update(['source' => \App\Enums\SupplyChain\StockDeliveryInvoice\StockDeliveryInvoiceSourceEnum::AGENT]);
 
     $second->updateQuietly(['unit_quantity' => 5]);
     $this->patch(route('grp.models.stock-delivery.dispatch', $stockDelivery->id))->assertSessionHasErrors('invoice');

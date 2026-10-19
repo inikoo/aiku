@@ -12,6 +12,7 @@ use App\Actions\OrgAction;
 use App\Enums\SupplyChain\AspoDeposit\DepositRequestStateEnum;
 use App\Models\SupplyChain\DepositRequest;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -27,16 +28,19 @@ class CancelAgentMoneyRequest extends OrgAction
      */
     public function handle(DepositRequest $depositRequest): DepositRequest
     {
-        if ($depositRequest->state !== DepositRequestStateEnum::REQUESTED || $depositRequest->transfers()->exists()) {
-            throw ValidationException::withMessages(['request' => __('Only a request nothing has been paid against can be cancelled.')]);
-        }
+        return DB::transaction(function () use ($depositRequest) {
+            $depositRequest = DepositRequest::whereKey($depositRequest->id)->lockForUpdate()->firstOrFail();
+            if ($depositRequest->state !== DepositRequestStateEnum::REQUESTED || $depositRequest->transfers()->exists()) {
+                throw ValidationException::withMessages(['request' => __('Only a request nothing has been paid against can be cancelled.')]);
+            }
 
-        $depositRequest->update([
-            'state'        => DepositRequestStateEnum::CANCELLED,
-            'cancelled_at' => now(),
-        ]);
+            $depositRequest->update([
+                'state'        => DepositRequestStateEnum::CANCELLED,
+                'cancelled_at' => now(),
+            ]);
 
-        return $depositRequest;
+            return $depositRequest;
+        });
     }
 
     public function authorize(ActionRequest $request): bool

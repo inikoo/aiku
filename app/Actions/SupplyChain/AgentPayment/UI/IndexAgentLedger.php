@@ -11,6 +11,7 @@ namespace App\Actions\SupplyChain\AgentPayment\UI;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\WithAgentOrganisation;
 use App\Actions\SupplyChain\AgentPayment\DeleteAgentPayment;
+use App\Actions\SupplyChain\AgentPayment\ImportAgentLedgerExcel;
 use App\Actions\SupplyChain\AspoDeposit\UI\ShowAgentAccountingDashboard;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
@@ -28,6 +29,7 @@ use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -165,8 +167,9 @@ class IndexAgentLedger extends OrgAction
             ->groupBy('organisation_id');
 
         $agentCurrency = $agent->organisation->currency->code;
+        $orgAgents     = OrgAgent::where('agent_id', $agent->id)->get(['id', 'organisation_id', 'agent_fee_percentage'])->keyBy('organisation_id');
 
-        return $this->clients($agent)->flatMap(function (Organisation $client) use ($sums, $agentCurrency) {
+        return $this->clients($agent)->flatMap(function (Organisation $client) use ($sums, $agentCurrency, $orgAgents) {
             $rows = $sums->get($client->id) ?? collect([(object) ['currency_code' => $agentCurrency, 'received' => 0, 'paid' => 0]]);
 
             return $rows->map(fn ($row) => [
@@ -177,6 +180,8 @@ class IndexAgentLedger extends OrgAction
                 'received'        => round((float) $row->received, 2),
                 'paid'            => round((float) $row->paid, 2),
                 'balance'         => round((float) $row->received - (float) $row->paid, 2),
+                'org_agent_id'    => $orgAgents->get($client->id)?->id,
+                'agent_fee_percentage' => $orgAgents->get($client->id)?->agent_fee_percentage !== null ? (float) $orgAgents->get($client->id)->agent_fee_percentage : null,
             ]);
         })->values()->all();
     }
@@ -249,6 +254,7 @@ class IndexAgentLedger extends OrgAction
                 'wallets'     => $this->wallets($this->agent),
                 'form'        => $canEdit ? [
                     'store_route'     => ['name' => 'grp.models.agent.ledger_entry.store', 'parameters' => ['agent' => $this->agent->id]],
+                    'agent_fee_route_name' => 'grp.models.org_agent.agent_fee.update',
                     'currency_code'   => $this->organisation->currency->code,
                     'clients'         => $clients->map(fn (Organisation $client) => [
                         'id'            => $client->id,
@@ -293,8 +299,9 @@ class IndexAgentLedger extends OrgAction
                     'org_stock_code'         => $entry->org_stock_code,
                     'organisation_id'        => $entry->organisation_id,
                     'needs_review'           => $entry->needs_review,
+                    'imported'               => Arr::get($entry->data ?? [], 'source') === ImportAgentLedgerExcel::SOURCE,
                     'review_reason'          => $entry->review_reason ? __($entry->review_reason) : null,
-                    'update_route'           => $canEdit
+                    'update_route'           => $canEdit && !$entry->isRecordedByClient()
                         ? ['name' => 'grp.models.agent_payment.update', 'parameters' => ['agentPayment' => $entry->id]]
                         : null,
                     'delete_route'           => DeleteAgentPayment::canDelete($entry, $user)
@@ -334,13 +341,17 @@ class IndexAgentLedger extends OrgAction
      */
     private function recentContainers(Collection $clients): array
     {
-        return StockDelivery::where('agent_id', $this->agent->id)
+        $containers = StockDelivery::where('agent_id', $this->agent->id)
             ->whereIn('organisation_id', $clients->pluck('id'))
             ->whereNotIn('state', [StockDeliveryStateEnum::CANCELLED, StockDeliveryStateEnum::NOT_RECEIVED])
             ->where('created_at', '>=', now()->subYear())
-            ->with(['items' => fn ($query) => $query->where('state', '!=', StockDeliveryItemStateEnum::CANCELLED)->with('orgStock:id,code')])
             ->orderByDesc('created_at')
-            ->get(['id', 'organisation_id', 'reference', 'is_costed'])
+            ->get(['id', 'organisation_id', 'reference', 'is_costed']);
+
+        $containers->where('is_costed', false)
+            ->load(['items' => fn ($query) => $query->where('state', '!=', StockDeliveryItemStateEnum::CANCELLED)->select(['id', 'stock_delivery_id', 'org_stock_id'])->with('orgStock:id,code')]);
+
+        return $containers
             ->map(fn (StockDelivery $stockDelivery) => [
                 'id'              => $stockDelivery->id,
                 'organisation_id' => $stockDelivery->organisation_id,

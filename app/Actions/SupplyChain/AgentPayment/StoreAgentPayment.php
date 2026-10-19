@@ -60,7 +60,18 @@ class StoreAgentPayment extends OrgAction
             'reference'       => $modelData['reference'] ?? null,
             'notes'           => $modelData['notes'] ?? null,
             'created_by'      => $this->asAction ? null : request()->user()?->id,
+            'data'            => $this->recordedByClient($stockDelivery) ? ['recorded_by' => AgentPayment::RECORDED_BY_CLIENT] : [],
         ]);
+    }
+
+    /**
+     * Recorded on the client's side when the person recording it is the client's purchaser or accountant.
+     */
+    private function recordedByClient(StockDelivery $stockDelivery): bool
+    {
+        $user = $this->asAction ? null : request()->user();
+
+        return $user !== null && $user->authTo(["procurement.$stockDelivery->organisation_id.edit", "accounting.$stockDelivery->organisation_id.edit"]);
     }
 
     /**

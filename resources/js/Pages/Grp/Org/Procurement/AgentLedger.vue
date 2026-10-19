@@ -40,6 +40,8 @@ interface Wallet {
 	received: number
 	paid: number
 	balance: number
+	org_agent_id: number | null
+	agent_fee_percentage: number | null
 }
 
 interface Option {
@@ -58,6 +60,7 @@ interface EntryRow {
 	money_out: number | null
 	currency_code: string
 	original_amount: number | null
+	imported?: boolean
 	original_currency_code: string | null
 	supplier_code: string | null
 	purchase_order: { reference: string; route: routeType } | null
@@ -83,6 +86,7 @@ const props = defineProps<{
 	wallets: Wallet[]
 	form: {
 		store_route: routeType
+		agent_fee_route_name: string
 		currency_code: string
 		clients: { id: number; label: string; currency_code: string }[]
 		types: { value: string; label: string; money_in: boolean; needs_order: boolean }[]
@@ -98,6 +102,25 @@ const money = (code: string, amount: number) => locale.currencyFormat(code, amou
 const fieldFocusClass = "[&.p-focus]:!border-[--app-accent] [&_input:focus]:!border-[--app-accent] focus:!border-[--app-accent]"
 const fullWidthInput = { pcInputText: { root: { class: "!w-full" } } }
 const chooseFilePt = { pcChooseButton: { root: { class: "!border !border-gray-300 !bg-white !text-gray-700 hover:!bg-gray-50" } } }
+
+const feeWallet = ref<Wallet | null>(null)
+const feePercentage = ref<number | null>(null)
+const isFeeOpen = computed({ get: () => feeWallet.value !== null, set: (open: boolean) => !open && (feeWallet.value = null) })
+const openFee = (wallet: Wallet) => {
+	feeWallet.value = wallet
+	feePercentage.value = wallet.agent_fee_percentage
+}
+const saveFee = () => {
+	if (!props.form || !feeWallet.value?.org_agent_id) return
+	router.patch(route(props.form.agent_fee_route_name, { orgAgent: feeWallet.value.org_agent_id }), { agent_fee_percentage: feePercentage.value }, {
+		preserveScroll: true,
+		onSuccess: () => {
+			feeWallet.value = null
+			notify({ title: ctrans("Saved"), type: "success" })
+		},
+		onError,
+	})
+}
 
 const onError = (errors: Record<string, string>) =>
 	notify({ title: ctrans("Something went wrong"), text: Object.values(errors ?? {})[0], type: "error" })
@@ -132,7 +155,12 @@ watch(
 
 const selectedType = computed(() => props.form?.types.find((type) => type.value === entry.value.type))
 const selectedClient = computed(() => props.form?.clients.find((client) => client.id === entry.value.organisation_id))
-const clientOrders = computed(() => props.form?.purchase_orders.filter((order) => order.organisation_id === entry.value.organisation_id) ?? [])
+const withCurrent = (options: Option[], id: number | null | undefined, label: string | null | undefined) =>
+	id && !options.some((option) => option.id === id) ? [{ id, organisation_id: entry.value.organisation_id as number, label: label ?? `#${id}` }, ...options] : options
+
+const clientOrders = computed(() =>
+	withCurrent(props.form?.purchase_orders.filter((order) => order.organisation_id === entry.value.organisation_id) ?? [], editing.value?.purchase_order_id, editing.value?.purchase_order?.reference)
+)
 const containerSkos = computed(() => props.form?.containers.find((container) => container.id === entry.value.stock_delivery_id)?.skos ?? [])
 
 watch(
@@ -142,7 +170,9 @@ watch(
 	}
 )
 
-const clientContainers = computed(() => props.form?.containers.filter((container) => container.organisation_id === entry.value.organisation_id) ?? [])
+const clientContainers = computed(() =>
+	withCurrent(props.form?.containers.filter((container) => container.organisation_id === entry.value.organisation_id) ?? [], editing.value?.stock_delivery_id, editing.value?.stock_delivery?.reference)
+)
 
 const typeOptions = computed(() =>
 	editing.value ? (props.form?.types ?? []).filter((type) => type.money_in === (editing.value!.money_in !== null)) : props.form?.types ?? []
@@ -153,7 +183,7 @@ const canSave = computed(
 		!!entry.value.organisation_id &&
 		!!entry.value.date &&
 		!!entry.value.amount &&
-		(!selectedType.value?.needs_order || !!entry.value.purchase_order_id)
+		(!selectedType.value?.needs_order || !!entry.value.purchase_order_id || !!editing.value?.imported)
 )
 
 const toIsoDate = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
@@ -278,7 +308,7 @@ const confirmRemove = (row: EntryRow) =>
 	<div class="mx-4 mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
 		<div v-for="wallet in wallets" :key="`${wallet.organisation_id}-${wallet.currency_code}`" class="rounded-lg border border-gray-200 bg-white p-4">
 			<div class="flex items-baseline justify-between gap-2">
-				<span class="font-semibold uppercase text-gray-700">{{ wallet.code }}</span>
+				<span class="font-semibold uppercase text-gray-700">{{ wallet.code }} <span class="ml-1 text-xs font-normal text-gray-400">{{ wallet.currency_code }}</span></span>
 				<span class="truncate text-xs text-gray-400">{{ wallet.name }}</span>
 			</div>
 			<div class="mt-2 text-xs text-gray-400">{{ ctrans("Balance") }}</div>
@@ -294,6 +324,12 @@ const confirmRemove = (row: EntryRow) =>
 					<div class="text-gray-400">{{ ctrans("Paid out") }}</div>
 					<div class="whitespace-nowrap">{{ money(wallet.currency_code, wallet.paid) }}</div>
 				</div>
+			</div>
+			<div v-if="wallet.org_agent_id" class="mt-2 flex items-center justify-between border-t border-gray-100 pt-2 text-xs text-gray-500">
+				<span>{{ ctrans("Agent fee") }} {{ wallet.agent_fee_percentage ?? 2 }}%</span>
+				<button v-if="form" type="button" class="text-gray-400 hover:text-gray-700" :title="ctrans('Edit')" :aria-label="ctrans('Edit')" @click="openFee(wallet)">
+					<FontAwesomeIcon icon="fal fa-pencil" fixed-width aria-hidden="true" />
+				</button>
 			</div>
 		</div>
 	</div>
@@ -382,6 +418,7 @@ const confirmRemove = (row: EntryRow) =>
 				<label class="block text-sm">
 					<span class="text-gray-600">{{ ctrans("Amount") }}</span>
 					<InputNumber v-model="entry.amount" mode="currency" :currency="form.currency_code" :min="0" :disabled="!!editing" class="mt-1 w-full" :class="fieldFocusClass" :pt="fullWidthInput" />
+					<span v-if="editing" class="mt-1 block text-xs text-gray-400">{{ ctrans("To change the amount, remove the line and record it again.") }}</span>
 				</label>
 			</div>
 			<label v-if="!editing && selectedType?.value === 'transfer_received' && selectedClient" class="block text-sm">
@@ -391,6 +428,9 @@ const confirmRemove = (row: EntryRow) =>
 			<label class="block text-sm">
 				<span class="text-gray-600">{{ selectedType?.needs_order ? ctrans("Supplier order") : ctrans("Supplier order (optional)") }}</span>
 				<Select v-model="entry.purchase_order_id" :options="clientOrders" optionLabel="label" optionValue="id" filter showClear :disabled="!entry.organisation_id" class="mt-1 w-full" :class="fieldFocusClass" />
+				<span v-if="selectedType?.needs_order && entry.organisation_id && !clientOrders.length" class="mt-1 block text-xs text-amber-700">
+					{{ ctrans("This client has no open order through you: record it as another type, or choose another client.") }}
+				</span>
 			</label>
 			<label class="block text-sm">
 				<span class="text-gray-600">{{ ctrans("Container (optional)") }}</span>
@@ -411,7 +451,11 @@ const confirmRemove = (row: EntryRow) =>
 			<div v-if="!editing" class="block text-sm">
 				<span class="text-gray-600">{{ ctrans("Receipt (optional)") }}</span>
 				<div class="mt-1">
-					<FileUpload mode="basic" :auto="false" customUpload accept=".pdf,image/*" :maxFileSize="20000000" :chooseLabel="ctrans('Choose file')" :pt="chooseFilePt" @select="(event: { files: File[] }) => (entry.receipt = event.files[0] ?? null)" />
+					<FileUpload mode="basic" :auto="false" customUpload accept=".pdf,image/*" :maxFileSize="20000000" :chooseLabel="ctrans('Choose file')" :pt="chooseFilePt" @select="(event: { files: File[] }) => (entry.receipt = event.files[0] ?? null)">
+						<template #chooseicon>
+							<FontAwesomeIcon icon="fal fa-paperclip" class="text-gray-500" fixed-width aria-hidden="true" />
+						</template>
+					</FileUpload>
 				</div>
 			</div>
 		</div>
@@ -422,6 +466,25 @@ const confirmRemove = (row: EntryRow) =>
 				</template>
 			</Button>
 			<Button type="tertiary" :label="editing ? ctrans('Save') : ctrans('Record')" :disabled="!canSave" :loading="saving" @click="editing ? saveEdit() : save()">
+				<template #icon>
+					<FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" />
+				</template>
+			</Button>
+		</div>
+	</Dialog>
+
+	<Dialog v-if="form" v-model:visible="isFeeOpen" modal :header="ctrans('Agent fee for :client', { client: feeWallet?.code ?? '' })" :style="{ width: '24rem', maxWidth: 'calc(100vw - 2rem)' }">
+		<label class="block text-sm">
+			<span class="text-gray-600">{{ ctrans("Share of the goods of each container (empty is 2%)") }}</span>
+			<InputNumber v-model="feePercentage" :min="0" :max="100" :maxFractionDigits="2" suffix="%" class="mt-1 w-full" :class="fieldFocusClass" :pt="fullWidthInput" />
+		</label>
+		<div class="mt-5 flex justify-end gap-2">
+			<Button type="tertiary" :label="ctrans('Cancel')" @click="feeWallet = null">
+				<template #icon>
+					<FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" />
+				</template>
+			</Button>
+			<Button type="tertiary" :label="ctrans('Save')" @click="saveFee">
 				<template #icon>
 					<FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" />
 				</template>

@@ -15,13 +15,13 @@ import InputNumber from "primevue/inputnumber"
 import InputText from "primevue/inputtext"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faCheck, faTimes } from "@fal"
+import { faCheck, faPaperclip, faTimes } from "@fal"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import TableAgentMoneyRequests, { MoneyRequestRow } from "@/Components/Tables/Grp/Org/Procurement/TableAgentMoneyRequests.vue"
 import { ctrans } from "@/Composables/useTrans"
 import { useLocaleStore } from "@/Stores/locale"
 
-library.add(faCheck, faTimes)
+library.add(faCheck, faPaperclip, faTimes)
 
 const props = defineProps<{
 	data: {
@@ -115,7 +115,7 @@ const pay = () => {
 			</div>
 			<label class="block text-sm">
 				<span class="text-gray-600">{{ ctrans("Amount the agent receives (:currency)", { currency: paying.currency_code }) }}</span>
-				<InputNumber v-model="form.amount" mode="currency" :currency="paying.currency_code" :min="0" class="mt-1 w-full" :class="fieldFocusClass" :pt="fullWidthInput" />
+				<InputNumber v-model="form.amount" mode="currency" :currency="paying.currency_code" :min="0" :max="paying.outstanding" class="mt-1 w-full" :class="fieldFocusClass" :pt="fullWidthInput" />
 			</label>
 			<label class="block text-sm">
 				<span class="text-gray-600">{{ ctrans("Reference") }}</span>
@@ -124,7 +124,11 @@ const pay = () => {
 			<div class="block text-sm">
 				<span class="text-gray-600">{{ ctrans("Bank statement (optional)") }}</span>
 				<div class="mt-1">
-					<FileUpload mode="basic" :auto="false" customUpload accept=".pdf,image/*" :maxFileSize="20000000" :chooseLabel="ctrans('Choose file')" :pt="chooseFilePt" @select="(event: { files: File[] }) => (form.receipt = event.files[0] ?? null)" />
+					<FileUpload mode="basic" :auto="false" customUpload accept=".pdf,image/*" :maxFileSize="20000000" :chooseLabel="ctrans('Choose file')" :pt="chooseFilePt" @select="(event: { files: File[] }) => (form.receipt = event.files[0] ?? null)">
+						<template #chooseicon>
+							<FontAwesomeIcon icon="fal fa-paperclip" class="text-gray-500" fixed-width aria-hidden="true" />
+						</template>
+					</FileUpload>
 				</div>
 			</div>
 		</div>

@@ -9,6 +9,7 @@
 namespace App\Actions\SupplyChain\AgentInvoice;
 
 use App\Enums\Procurement\SupplierAgreedTerm\SupplierAgreedTermTypeEnum;
+use App\Enums\SupplyChain\StockDeliveryInvoice\StockDeliveryInvoiceSourceEnum;
 use App\Enums\SupplyChain\AgentPayment\AgentPaymentTypeEnum;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\Procurement\OrgAgent;
@@ -33,7 +34,7 @@ class SyncAgentInvoiceChargesFromLedger
         /** @var AgentInvoice|null $agentInvoice */
         $agentInvoice = $stockDelivery->agentInvoice()->first();
 
-        if (!$agentInvoice || $stockDelivery->is_costed || Arr::get($stockDelivery->data ?? [], ApplyAgentInvoiceCosting::APPLIED_AT)) {
+        if (!$agentInvoice || !self::followsLedger($agentInvoice) || $stockDelivery->is_costed || Arr::get($stockDelivery->data ?? [], ApplyAgentInvoiceCosting::APPLIED_AT)) {
             return null;
         }
 
@@ -66,6 +67,16 @@ class SyncAgentInvoiceChargesFromLedger
     }
 
     /**
+     * Only an invoice the agent issued in Aiku, in the agent's own currency, takes its charges from the ledger; one
+     * our staff typed from the agent's paper invoice keeps the charges they typed.
+     */
+    public static function followsLedger(AgentInvoice $agentInvoice): bool
+    {
+        return $agentInvoice->source === StockDeliveryInvoiceSourceEnum::AGENT
+            && $agentInvoice->currency_id === $agentInvoice->agent->organisation->currency_id;
+    }
+
+    /**
      * The agent fee of a container, its client's fee percentage (2 unless set) of the goods, written to the ledger
      * when the invoice is issued and kept in step when it is issued again. A fee the agent recorded by hand for
      * this container stands instead.
@@ -75,7 +86,7 @@ class SyncAgentInvoiceChargesFromLedger
         $stockDelivery = $agentInvoice->stockDelivery;
         $agent         = $agentInvoice->agent;
 
-        if ($agentInvoice->currency_id !== $agent->organisation->currency_id) {
+        if (!self::followsLedger($agentInvoice)) {
             return;
         }
 

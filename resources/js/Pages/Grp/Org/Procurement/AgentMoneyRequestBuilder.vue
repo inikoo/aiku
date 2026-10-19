@@ -77,13 +77,17 @@ const lines = computed<Line[]>(() => [
 
 const ticked = reactive<Record<string, boolean>>({})
 const amounts = reactive<Record<string, number | null>>({})
+const offeredDue: Record<string, number> = {}
 
 watch(
 	lines,
 	(current) => {
 		current.forEach((line) => {
 			if (!(line.key in ticked)) ticked[line.key] = line.kind !== "balance"
-			amounts[line.key] = line.due
+			const amount = amounts[line.key]
+			const untouched = amount === undefined || amount === null || amount === offeredDue[line.key]
+			amounts[line.key] = untouched ? line.due : Math.min(amount, line.due)
+			offeredDue[line.key] = line.due
 		})
 	},
 	{ immediate: true }
@@ -113,7 +117,14 @@ const saveAdvance = (order: DueOrder, percentage: number | null) => {
 	router.patch(route(props.advance_route_name, { supplier: order.supplier_id }), { advance_percentage: percentage }, {
 		preserveScroll: true,
 		preserveState: true,
-		onSuccess: () => notify({ title: ctrans(":supplier asks :percentage% in advance from now on", { supplier: order.supplier_code ?? "", percentage: String(percentage ?? 30) }), type: "success" }),
+		onSuccess: () =>
+			notify({
+				title:
+					percentage === null
+						? ctrans(":supplier is back to the usual 30% in advance", { supplier: order.supplier_code ?? "" })
+						: ctrans(":supplier asks :percentage% in advance from now on", { supplier: order.supplier_code ?? "", percentage: String(percentage) }),
+				type: "success",
+			}),
 	})
 }
 

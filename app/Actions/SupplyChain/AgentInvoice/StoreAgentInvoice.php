@@ -88,11 +88,11 @@ class StoreAgentInvoice extends OrgAction
             data_set($data, 'invoice_date', $agentInvoice->date->toDateString());
             $stockDelivery->update(['data' => $data]);
 
+            SyncAgentInvoiceChargesFromLedger::recordAgentFee($agentInvoice);
+            SyncAgentInvoiceChargesFromLedger::run($stockDelivery->refresh());
+
             return $agentInvoice;
         });
-
-        SyncAgentInvoiceChargesFromLedger::recordAgentFee($agentInvoice);
-        SyncAgentInvoiceChargesFromLedger::run($stockDelivery->refresh());
 
         return $agentInvoice->refresh();
     }

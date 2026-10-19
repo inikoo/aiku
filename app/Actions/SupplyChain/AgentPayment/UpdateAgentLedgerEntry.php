@@ -63,7 +63,9 @@ class UpdateAgentLedgerEntry extends OrgAction
         return [
             'date'              => ['required', 'date', 'before_or_equal:today'],
             'type'              => ['required', Rule::enum(AgentPaymentTypeEnum::class)],
-            'purchase_order_id' => ['nullable', 'integer', 'required_if:type,'.$supplierPayments],
+            'purchase_order_id' => Arr::get($this->agentPayment->data ?? [], 'source') === ImportAgentLedgerExcel::SOURCE
+                ? ['nullable', 'integer']
+                : ['nullable', 'integer', 'required_if:type,'.$supplierPayments],
             'stock_delivery_id' => ['nullable', 'integer'],
             'org_stock_id'      => ['nullable', 'integer'],
             'reference'         => ['nullable', 'string', 'max:255'],
@@ -101,7 +103,9 @@ class UpdateAgentLedgerEntry extends OrgAction
     {
         $agentOrganisationId = $this->agentPayment->agent?->organisation_id;
 
-        return $agentOrganisationId !== null && $request->user()->authTo("procurement.$agentOrganisationId.edit");
+        return $agentOrganisationId !== null
+            && !$this->agentPayment->isRecordedByClient()
+            && $request->user()->authTo("procurement.$agentOrganisationId.edit");
     }
 
     public function asController(AgentPayment $agentPayment, ActionRequest $request): AgentPayment

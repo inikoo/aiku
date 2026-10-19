@@ -73,6 +73,16 @@ class AgentPayment extends Model
         ];
     }
 
+    public const string RECORDED_BY_CLIENT = 'client';
+
+    /**
+     * A payment the client recorded itself, against a container or a money request: only the client removes it.
+     */
+    public function isRecordedByClient(): bool
+    {
+        return ($this->data['recorded_by'] ?? null) === self::RECORDED_BY_CLIENT;
+    }
+
     public function agent(): BelongsTo
     {
         return $this->belongsTo(Agent::class);

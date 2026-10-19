@@ -605,6 +605,7 @@ use App\Actions\SupplyChain\AspoDeposit\UpdateAspoDepositState;
 use App\Actions\SupplyChain\DepositRequest\StoreDepositRequest;
 use App\Actions\SupplyChain\DepositRequest\MarkDepositRequestItemPaid;
 use App\Actions\SupplyChain\DepositRequest\StoreAgentMoneyRequest;
+use App\Actions\Procurement\OrgAgent\UpdateOrgAgentFeePercentage;
 use App\Actions\SupplyChain\DepositRequest\CancelAgentMoneyRequest;
 use App\Actions\SupplyChain\DepositRequest\PayAgentMoneyRequest;
 use App\Actions\SupplyChain\Supplier\UpdateSupplierAdvancePercentage;
@@ -1725,6 +1726,7 @@ Route::post('supplier-product/{supplierProduct:id}/procurement-note', [StoreProc
 Route::post('agent/{agent:id}/procurement-note', [StoreProcurementNote::class, 'inAgent'])->name('agent.procurement_note.store');
 Route::post('agent/{agent:id}/ledger-entry', StoreAgentLedgerEntry::class)->name('agent.ledger_entry.store');
 Route::post('agent/{agent:id}/money-request', StoreAgentMoneyRequest::class)->name('agent.money_request.store');
+Route::patch('org-agent/{orgAgent:id}/agent-fee', UpdateOrgAgentFeePercentage::class)->name('org_agent.agent_fee.update');
 Route::patch('deposit-request/{depositRequest:id}/cancel', CancelAgentMoneyRequest::class)->name('deposit_request.cancel');
 Route::post('deposit-request/{depositRequest:id}/pay', PayAgentMoneyRequest::class)->name('deposit_request.pay');
 Route::patch('supplier/{supplier:id}/advance-percentage', UpdateSupplierAdvancePercentage::class)->name('supplier.advance_percentage.update');

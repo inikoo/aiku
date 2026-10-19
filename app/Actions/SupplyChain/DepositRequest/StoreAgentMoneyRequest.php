@@ -20,6 +20,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -40,6 +41,11 @@ class StoreAgentMoneyRequest extends OrgAction
         $client = Organisation::findOrFail($modelData['organisation_id']);
 
         return DB::transaction(function () use ($agent, $client, $modelData) {
+            Agent::whereKey($agent->id)->lockForUpdate()->first();
+            if ($error = self::linesError($agent, $client, $modelData['lines'])) {
+                throw ValidationException::withMessages(['lines' => $error]);
+            }
+
             $depositRequest = $agent->depositRequests()->create([
                 'group_id'        => $agent->group_id,
                 'organisation_id' => $client->id,
@@ -54,7 +60,7 @@ class StoreAgentMoneyRequest extends OrgAction
                 $depositRequest->items()->create([
                     'organisation_id'   => $client->id,
                     'kind'              => DepositRequestItemKindEnum::from($line['kind']),
-                    'purchase_order_id' => Arr::get($line, 'purchase_order_id'),
+                    'purchase_order_id' => $line['kind'] === DepositRequestItemKindEnum::WALLET->value ? null : Arr::get($line, 'purchase_order_id'),
                     'amount'            => round((float) $line['amount'], 2),
                 ]);
             }
@@ -82,20 +88,29 @@ class StoreAgentMoneyRequest extends OrgAction
             return;
         }
 
-        $client = Organisation::find($this->get('organisation_id'));
-        $due    = GetAgentMoneyRequestLines::run($this->agent, $client);
+        if ($error = self::linesError($this->agent, Organisation::find($this->get('organisation_id')), $this->get('lines', []))) {
+            $validator->errors()->add('lines', $error);
+        }
+    }
+
+    /**
+     * Why the lines can not be asked for: twice the same line, an order that is not an open order of the client
+     * through this agent, or more than is still due. Null when they can.
+     *
+     * @param  list<array{kind: string, purchase_order_id?: int|null, amount: float|string}>  $lines
+     */
+    public static function linesError(Agent $agent, Organisation $client, array $lines): ?string
+    {
+        $due    = GetAgentMoneyRequestLines::run($agent, $client);
         $orders = collect($due['orders'])->keyBy('purchase_order_id');
         $seen   = [];
 
-        foreach ($this->get('lines', []) as $line) {
-            $kind   = DepositRequestItemKindEnum::from($line['kind']);
-            $amount = (float) $line['amount'];
-            $key    = $kind->value.':'.Arr::get($line, 'purchase_order_id');
+        foreach ($lines as $line) {
+            $kind = DepositRequestItemKindEnum::from($line['kind']);
+            $key  = $kind->value.':'.($kind === DepositRequestItemKindEnum::WALLET ? '' : Arr::get($line, 'purchase_order_id'));
 
             if (isset($seen[$key])) {
-                $validator->errors()->add('lines', __('A line is in the request twice.'));
-
-                return;
+                return __('A line is in the request twice.');
             }
             $seen[$key] = true;
 
@@ -106,17 +121,15 @@ class StoreAgentMoneyRequest extends OrgAction
             };
 
             if ($limit === null) {
-                $validator->errors()->add('lines', __('One of the orders is not an open order of this client through you.'));
-
-                return;
+                return __('One of the orders is not an open order of this client through you.');
             }
 
-            if ($amount > $limit + 0.005) {
-                $validator->errors()->add('lines', __('One of the lines asks for more than is still due.'));
-
-                return;
+            if ((float) $line['amount'] > $limit + 0.005) {
+                return __('One of the lines asks for more than is still due.');
             }
         }
+
+        return null;
     }
 
     public function authorize(ActionRequest $request): bool

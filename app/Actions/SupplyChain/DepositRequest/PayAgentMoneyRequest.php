@@ -19,6 +19,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -46,6 +47,14 @@ class PayAgentMoneyRequest extends OrgAction
         ]) : null;
 
         return DB::transaction(function () use ($depositRequest, $client, $modelData, $media) {
+            $depositRequest = DepositRequest::whereKey($depositRequest->id)->lockForUpdate()->firstOrFail();
+            if ($depositRequest->state !== DepositRequestStateEnum::REQUESTED) {
+                throw ValidationException::withMessages(['request' => __('This request is no longer open.')]);
+            }
+            if ((float) $modelData['amount'] > self::outstanding($depositRequest) + 0.005) {
+                throw ValidationException::withMessages(['amount' => __('That is more than is still due on this request.')]);
+            }
+
             $originalAmount = Arr::get($modelData, 'original_amount');
 
             $transfer = AgentPayment::create([
@@ -63,6 +72,7 @@ class PayAgentMoneyRequest extends OrgAction
                 'notes'                => __('Money request :reference', ['reference' => $depositRequest->reference ?? '#'.$depositRequest->id]),
                 'media_id'             => $media?->id,
                 'created_by'           => $this->asAction ? null : request()->user()?->id,
+                'data'                 => ['recorded_by' => AgentPayment::RECORDED_BY_CLIENT],
             ]);
 
             if ((float) $depositRequest->transfers()->sum('amount') >= (float) $depositRequest->items()->sum('amount') - 0.005) {
@@ -89,7 +99,14 @@ class PayAgentMoneyRequest extends OrgAction
     {
         if ($this->depositRequest->state !== DepositRequestStateEnum::REQUESTED) {
             $validator->errors()->add('request', __('This request is no longer open.'));
+        } elseif ((float) $this->get('amount') > self::outstanding($this->depositRequest) + 0.005) {
+            $validator->errors()->add('amount', __('That is more than is still due on this request.'));
         }
+    }
+
+    public static function outstanding(DepositRequest $depositRequest): float
+    {
+        return round((float) $depositRequest->items()->sum('amount') - (float) $depositRequest->transfers()->sum('amount'), 2);
     }
 
     public function authorize(ActionRequest $request): bool
