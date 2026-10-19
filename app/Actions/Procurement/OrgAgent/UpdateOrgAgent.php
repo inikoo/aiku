@@ -42,6 +42,7 @@ class UpdateOrgAgent extends OrgAction
             'source_id'   => 'sometimes|nullable|string|max:64',
             'status'      => ['sometimes', 'required', 'boolean'],
             'order_container' => ['sometimes', 'required', Rule::enum(OrgAgentOrderContainerEnum::class)],
+            'agent_fee_percentage' => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:100'],
         ], $this->procurementSerialReferenceRules());
     }
 

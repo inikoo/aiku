@@ -9,6 +9,7 @@
 namespace App\Actions\SupplyChain\AgentPayment;
 
 use App\Actions\OrgAction;
+use App\Actions\SupplyChain\AgentInvoice\SyncAgentInvoiceChargesFromLedger;
 use App\Models\SupplyChain\AgentPayment;
 use App\Models\SysAdmin\User;
 use Illuminate\Http\RedirectResponse;
@@ -21,6 +22,10 @@ class DeleteAgentPayment extends OrgAction
     public function handle(AgentPayment $agentPayment): AgentPayment
     {
         $agentPayment->delete();
+
+        if ($agentPayment->stockDelivery) {
+            SyncAgentInvoiceChargesFromLedger::run($agentPayment->stockDelivery);
+        }
 
         return $agentPayment;
     }

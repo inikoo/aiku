@@ -10,9 +10,12 @@ namespace App\Actions\SupplyChain\AgentPayment;
 
 use App\Actions\Helpers\Media\SaveModelAttachment;
 use App\Actions\OrgAction;
+use App\Actions\SupplyChain\AgentInvoice\SyncAgentInvoiceChargesFromLedger;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderAttachmentScopeEnum;
 use App\Enums\SupplyChain\AgentPayment\AgentPaymentTypeEnum;
+use App\Enums\GoodsIn\StockDeliveryItem\StockDeliveryItemStateEnum;
 use App\Models\GoodsIn\StockDelivery;
+use App\Models\GoodsIn\StockDeliveryItem;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\AgentPayment;
@@ -53,7 +56,7 @@ class StoreAgentLedgerEntry extends OrgAction
             'caption'      => pathinfo($receipt->getClientOriginalName(), PATHINFO_FILENAME),
         ]) : null;
 
-        return AgentPayment::create([
+        $entry = AgentPayment::create([
             'group_id'             => $agent->group_id,
             'agent_id'             => $agent->id,
             'organisation_id'      => $client->id,
@@ -64,6 +67,7 @@ class StoreAgentLedgerEntry extends OrgAction
             'purchase_order_id'    => $purchaseOrder?->id,
             'supplier_id'          => $purchaseOrder?->supplier_id,
             'stock_delivery_id'    => $stockDelivery?->id,
+            'org_stock_id'         => $type === AgentPaymentTypeEnum::PACKAGING && $stockDelivery ? Arr::get($modelData, 'org_stock_id') : null,
             'original_amount'      => $originalAmount ? round((float) $originalAmount, 2) : null,
             'original_currency_id' => $originalAmount ? $client->currency_id : null,
             'reference'            => Arr::get($modelData, 'reference'),
@@ -71,6 +75,12 @@ class StoreAgentLedgerEntry extends OrgAction
             'media_id'             => $media?->id,
             'created_by'           => $this->asAction ? null : request()->user()?->id,
         ]);
+
+        if ($stockDelivery) {
+            SyncAgentInvoiceChargesFromLedger::run($stockDelivery);
+        }
+
+        return $entry;
     }
 
     public function rules(): array
@@ -82,6 +92,7 @@ class StoreAgentLedgerEntry extends OrgAction
             'amount'            => ['required', 'numeric', 'gt:0', 'max:999999999999'],
             'purchase_order_id' => ['nullable', 'integer', 'required_if:type,'.AgentPaymentTypeEnum::SUPPLIER_PAYMENT->value.','.AgentPaymentTypeEnum::SUPPLIER_DEPOSIT->value.','.AgentPaymentTypeEnum::SUPPLIER_BALANCE->value],
             'stock_delivery_id' => ['nullable', 'integer'],
+            'org_stock_id'      => ['nullable', 'integer'],
             'original_amount'   => ['nullable', 'numeric', 'gt:0', 'max:999999999999'],
             'reference'         => ['nullable', 'string', 'max:255'],
             'notes'             => ['nullable', 'string', 'max:2000'],
@@ -100,12 +111,28 @@ class StoreAgentLedgerEntry extends OrgAction
             }
         }
 
+        if (!self::orgStockOfContainer($this->get('org_stock_id') ? (int) $this->get('org_stock_id') : null, $this->get('stock_delivery_id') ? (int) $this->get('stock_delivery_id') : null)) {
+            $validator->errors()->add('org_stock_id', __('Choose a SKO on the container.'));
+        }
+
         if ($stockDeliveryId = $this->get('stock_delivery_id')) {
             $belongs = StockDelivery::whereKey($stockDeliveryId)->where('agent_id', $this->agent->id)->where('organisation_id', $organisationId)->exists();
             if (!$belongs) {
                 $validator->errors()->add('stock_delivery_id', __('Choose a container of this client that comes through you.'));
             }
         }
+    }
+
+    public static function orgStockOfContainer(?int $orgStockId, ?int $stockDeliveryId): bool
+    {
+        if (!$orgStockId) {
+            return true;
+        }
+
+        return $stockDeliveryId !== null && StockDeliveryItem::where('stock_delivery_id', $stockDeliveryId)
+            ->where('org_stock_id', $orgStockId)
+            ->where('state', '!=', StockDeliveryItemStateEnum::CANCELLED)
+            ->exists();
     }
 
     public function authorize(ActionRequest $request): bool

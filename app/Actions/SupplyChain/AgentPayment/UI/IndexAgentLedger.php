@@ -14,10 +14,12 @@ use App\Actions\SupplyChain\AgentPayment\DeleteAgentPayment;
 use App\Actions\SupplyChain\AspoDeposit\UI\ShowAgentAccountingDashboard;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
+use App\Enums\GoodsIn\StockDeliveryItem\StockDeliveryItemStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\SupplyChain\AgentPayment\AgentPaymentTypeEnum;
 use App\InertiaTable\InertiaTable;
 use App\Models\GoodsIn\StockDelivery;
+use App\Models\GoodsIn\StockDeliveryItem;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\Agent;
@@ -60,6 +62,12 @@ class IndexAgentLedger extends OrgAction
                 'elements' => ['needs_review' => [__('Needs review'), null]],
                 'engine'   => fn ($query, $elements) => $query->where('agent_payments.needs_review', true),
             ],
+            'unallocated' => [
+                'label'    => __('Container'),
+                'elements' => ['unallocated' => [__('Not on a container'), null]],
+                'engine'   => fn ($query, $elements) => $query->whereNull('agent_payments.stock_delivery_id')
+                    ->whereNotIn('agent_payments.type', array_merge(AgentPaymentTypeEnum::moneyInValues(), [AgentPaymentTypeEnum::SUPPLIER_PAYMENT->value, AgentPaymentTypeEnum::SUPPLIER_DEPOSIT->value, AgentPaymentTypeEnum::SUPPLIER_BALANCE->value])),
+            ],
             'direction' => [
                 'label'    => __('Money'),
                 'elements' => ['in' => [__('In'), null], 'out' => [__('Out'), null]],
@@ -91,7 +99,8 @@ class IndexAgentLedger extends OrgAction
             ->leftJoin('purchase_orders', 'purchase_orders.id', 'agent_payments.purchase_order_id')
             ->leftJoin('suppliers', 'suppliers.id', 'agent_payments.supplier_id')
             ->leftJoin('stock_deliveries', 'stock_deliveries.id', 'agent_payments.stock_delivery_id')
-            ->leftJoin('media', 'media.id', 'agent_payments.media_id');
+            ->leftJoin('media', 'media.id', 'agent_payments.media_id')
+            ->leftJoin('org_stocks', 'org_stocks.id', 'agent_payments.org_stock_id');
 
         foreach ($this->getElementGroups($agent) as $key => $elementGroup) {
             $query->whereElementGroup(
@@ -99,7 +108,7 @@ class IndexAgentLedger extends OrgAction
                 allowedElements: array_keys($elementGroup['elements']),
                 engine: $elementGroup['engine'],
                 prefix: $prefix,
-                optional: $key === 'review',
+                optional: in_array($key, ['review', 'unallocated'], true),
             );
         }
 
@@ -115,6 +124,7 @@ class IndexAgentLedger extends OrgAction
                 'stock_deliveries.reference as stock_delivery_reference',
                 'stock_deliveries.slug as stock_delivery_slug',
                 'media.ulid as receipt_ulid',
+                'org_stocks.code as org_stock_code',
             ])
             ->with('agent:id,organisation_id')
             ->defaultSort('-date')
@@ -279,6 +289,8 @@ class IndexAgentLedger extends OrgAction
                     'receipt'                => $entry->receipt_ulid,
                     'purchase_order_id'      => $entry->purchase_order_id,
                     'stock_delivery_id'      => $entry->stock_delivery_id,
+                    'org_stock_id'           => $entry->org_stock_id,
+                    'org_stock_code'         => $entry->org_stock_code,
                     'organisation_id'        => $entry->organisation_id,
                     'needs_review'           => $entry->needs_review,
                     'review_reason'          => $entry->review_reason ? __($entry->review_reason) : null,
@@ -318,7 +330,7 @@ class IndexAgentLedger extends OrgAction
     /**
      * @param  Collection<int, Organisation>  $clients
      *
-     * @return list<array{id: int, organisation_id: int, label: string}>
+     * @return list<array{id: int, organisation_id: int, label: string, skos: list<array{id: int, label: string|null}>}>
      */
     private function recentContainers(Collection $clients): array
     {
@@ -326,12 +338,16 @@ class IndexAgentLedger extends OrgAction
             ->whereIn('organisation_id', $clients->pluck('id'))
             ->whereNotIn('state', [StockDeliveryStateEnum::CANCELLED, StockDeliveryStateEnum::NOT_RECEIVED])
             ->where('created_at', '>=', now()->subYear())
+            ->with(['items' => fn ($query) => $query->where('state', '!=', StockDeliveryItemStateEnum::CANCELLED)->with('orgStock:id,code')])
             ->orderByDesc('created_at')
-            ->get(['id', 'organisation_id', 'reference'])
+            ->get(['id', 'organisation_id', 'reference', 'is_costed'])
             ->map(fn (StockDelivery $stockDelivery) => [
                 'id'              => $stockDelivery->id,
                 'organisation_id' => $stockDelivery->organisation_id,
                 'label'           => $stockDelivery->reference,
+                'skos'            => $stockDelivery->is_costed ? [] : $stockDelivery->items
+                    ->map(fn (StockDeliveryItem $item) => ['id' => $item->org_stock_id, 'label' => $item->orgStock?->code])
+                    ->unique('id')->sortBy('label')->values()->all(),
             ])->values()->all();
     }
 }

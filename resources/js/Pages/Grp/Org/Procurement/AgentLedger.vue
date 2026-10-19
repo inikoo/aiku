@@ -46,6 +46,7 @@ interface Option {
 	id: number
 	organisation_id: number
 	label: string
+	skos?: { id: number; label: string | null }[]
 }
 
 interface EntryRow {
@@ -68,6 +69,8 @@ interface EntryRow {
 	organisation_id: number
 	purchase_order_id: number | null
 	stock_delivery_id: number | null
+	org_stock_id: number | null
+	org_stock_code: string | null
 	needs_review: boolean
 	review_reason: string | null
 	delete_route: routeType | null
@@ -111,6 +114,7 @@ const emptyEntry = () => ({
 	original_amount: null as number | null,
 	purchase_order_id: null as number | null,
 	stock_delivery_id: null as number | null,
+	org_stock_id: null as number | null,
 	reference: "",
 	notes: "",
 	receipt: null as File | null,
@@ -129,6 +133,15 @@ watch(
 const selectedType = computed(() => props.form?.types.find((type) => type.value === entry.value.type))
 const selectedClient = computed(() => props.form?.clients.find((client) => client.id === entry.value.organisation_id))
 const clientOrders = computed(() => props.form?.purchase_orders.filter((order) => order.organisation_id === entry.value.organisation_id) ?? [])
+const containerSkos = computed(() => props.form?.containers.find((container) => container.id === entry.value.stock_delivery_id)?.skos ?? [])
+
+watch(
+	() => entry.value.stock_delivery_id,
+	() => {
+		if (!containerSkos.value.some((sko) => sko.id === entry.value.org_stock_id)) entry.value.org_stock_id = null
+	}
+)
+
 const clientContainers = computed(() => props.form?.containers.filter((container) => container.organisation_id === entry.value.organisation_id) ?? [])
 
 const typeOptions = computed(() =>
@@ -161,6 +174,7 @@ const openEdit = (row: EntryRow) => {
 		amount: row.money_in ?? row.money_out,
 		purchase_order_id: row.purchase_order_id,
 		stock_delivery_id: row.stock_delivery_id,
+		org_stock_id: row.org_stock_id,
 		reference: row.reference ?? "",
 		notes: row.notes ?? "",
 	}
@@ -178,6 +192,7 @@ const saveEdit = () => {
 			type: entry.value.type,
 			purchase_order_id: entry.value.purchase_order_id,
 			stock_delivery_id: entry.value.stock_delivery_id,
+			org_stock_id: entry.value.type === "packaging" ? entry.value.org_stock_id : null,
 			reference: entry.value.reference || null,
 			notes: entry.value.notes || null,
 		},
@@ -207,6 +222,7 @@ const save = () => {
 			original_amount: selectedType.value?.value === "transfer_received" ? entry.value.original_amount : null,
 			purchase_order_id: entry.value.purchase_order_id,
 			stock_delivery_id: entry.value.stock_delivery_id,
+			org_stock_id: entry.value.type === "packaging" ? entry.value.org_stock_id : null,
 			reference: entry.value.reference || null,
 			notes: entry.value.notes || null,
 			receipt: entry.value.receipt,
@@ -304,6 +320,7 @@ const confirmRemove = (row: EntryRow) =>
 				<Link v-if="item.stock_delivery" :href="route(item.stock_delivery.route.name, item.stock_delivery.route.parameters)" class="secondaryLink whitespace-nowrap">
 					{{ item.stock_delivery.reference }}
 				</Link>
+				<span v-if="item.org_stock_code" class="whitespace-nowrap text-gray-700">{{ item.org_stock_code }}</span>
 				<span v-if="item.notes" class="text-xs text-gray-400">{{ item.notes }}</span>
 			</div>
 			<div v-if="item.needs_review" class="mt-1 inline-flex items-center gap-1 rounded bg-amber-50 px-1.5 py-0.5 text-xs text-amber-700">
@@ -378,6 +395,10 @@ const confirmRemove = (row: EntryRow) =>
 			<label class="block text-sm">
 				<span class="text-gray-600">{{ ctrans("Container (optional)") }}</span>
 				<Select v-model="entry.stock_delivery_id" :options="clientContainers" optionLabel="label" optionValue="id" filter showClear :disabled="!entry.organisation_id" class="mt-1 w-full" :class="fieldFocusClass" />
+			</label>
+			<label v-if="entry.type === 'packaging' && containerSkos.length" class="block text-sm">
+				<span class="text-gray-600">{{ ctrans("SKO it is for (optional)") }}</span>
+				<Select v-model="entry.org_stock_id" :options="containerSkos" optionLabel="label" optionValue="id" filter showClear class="mt-1 w-full" :class="fieldFocusClass" />
 			</label>
 			<label class="block text-sm">
 				<span class="text-gray-600">{{ ctrans("Reference") }}</span>
