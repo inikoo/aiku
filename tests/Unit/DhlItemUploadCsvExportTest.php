@@ -154,3 +154,11 @@ it('checks the typed values against DHL\'s rules', function () {
 it('drops floating point noise from the quantity', function () {
     expect((new DhlItemUploadCsvExport([dhlLine(['quantity' => 90.00000000000001])]))->rows()[0][4])->toBe('90');
 });
+
+it('leaves out of stock and zero value lines out of the customs file, as the invoice does', function () {
+    $items = \App\Actions\Dispatching\DeliveryNote\CustomsExport\GetDeliveryNoteCustomsItems::make();
+
+    expect($items->isDeclared(dhlLine()))->toBeTrue()
+        ->and($items->isDeclared(dhlLine(['quantity' => 0.0, 'unit_value' => null])))->toBeFalse()
+        ->and($items->isDeclared(dhlLine(['unit_value' => 0.0])))->toBeFalse();
+});

@@ -3442,8 +3442,8 @@ describe('checkout.com payment session customer phone', function () {
 });
 
 describe('invoice pdf tax number display', function () {
-    $renderInvoiceTemplate = function ($invoice, $deliveryAddress = null, $isCollection = false) {
-        return view('invoices.templates.pdf.invoice', [
+    $renderInvoiceTemplate = function ($invoice, $deliveryAddress = null, $isCollection = false, array $viewData = []) {
+        return view('invoices.templates.pdf.invoice', $viewData + [
             'shop'                 => $invoice->shop,
             'invoice'              => $invoice,
             'deliveryNote'         => null,
@@ -3472,6 +3472,21 @@ describe('invoice pdf tax number display', function () {
             'dispatch_total_units' => null,
         ])->render();
     };
+
+    test('an export invoice whose lines were all out of stock or free keeps the export layout and does not list them', function () use ($renderInvoiceTemplate) {
+        $customer = createCustomer($this->shop);
+        $invoice  = StoreInvoice::make()->action($customer, Invoice::factory()->definition());
+
+        $outOfStockLine = (object) ['historicAsset' => (object) ['code' => 'OOS-HELP4116', 'name' => 'Never shipped'], 'quantity' => 0, 'net_amount' => 0];
+
+        $html = $renderInvoiceTemplate($invoice, viewData: [
+            'transactions'          => collect([$outOfStockLine]),
+            'export_by_tariff_code' => true,
+            'tariffExportRows'      => collect(),
+        ]);
+
+        expect($html)->toContain('Origin')->not->toContain('OOS-HELP4116');
+    });
 
     test('spanish customer tax number shows even when VIES-invalid', function () use ($renderInvoiceTemplate) {
         $customer = createCustomer($this->shop);
