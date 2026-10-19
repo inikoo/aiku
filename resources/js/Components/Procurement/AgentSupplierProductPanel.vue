@@ -87,7 +87,19 @@ const sourceLabel = (source: Source) =>
 const doneChecks = computed(() => props.panel.checks.filter((check) => check.done).length)
 const progress = computed(() => Math.round((doneChecks.value / props.panel.checks.length) * 100))
 
-const jumpTo = (anchor: string) => document.getElementById(`agent-${anchor}`)?.scrollIntoView({ behavior: "smooth", block: "start" })
+const highlightedSection = ref<string | null>(null)
+let highlightTimeout: ReturnType<typeof setTimeout> | undefined
+
+const jumpTo = (anchor: string, focusFieldId?: string) => {
+    document.getElementById(`agent-${anchor}`)?.scrollIntoView({ behavior: "smooth", block: "start" })
+    document.getElementById(focusFieldId ?? "")?.focus({ preventScroll: true })
+
+    highlightedSection.value = anchor
+    clearTimeout(highlightTimeout)
+    highlightTimeout = setTimeout(() => (highlightedSection.value = null), 2500)
+}
+
+const highlightClass = (anchor: string) => (highlightedSection.value === anchor ? "ring-2 ring-[--app-accent] ring-offset-2" : "")
 
 const savingSection = ref<string | null>(null)
 
@@ -125,30 +137,68 @@ const measurementsForm = ref({
 })
 const contactsForm = ref({ ...props.panel.contacts.values })
 const packagingForm = ref<Record<string, any>>({})
-const availabilityForm = ref({ ...props.panel.availability })
+const availabilityForm = ref({
+    status: props.panel.availability.status,
+    reason: props.panel.availability.reason,
+    available_from: props.panel.availability.available_from,
+    new_cost: props.panel.availability.new_cost,
+    note: props.panel.availability.note,
+})
+
+const formsFromPanel = () => {
+    const carton = props.panel.measurements.carton
+    const availability = props.panel.availability
+
+    return {
+        key: {
+            minimum_carton_order: props.panel.key.moq.source === "product" ? props.panel.key.moq.cartons : null,
+            estimated_lead_time_days: props.panel.key.lead_time.source === "product" ? props.panel.key.lead_time.days : null,
+        },
+        measurements: {
+            l: carton.dimensions?.l ?? null,
+            w: carton.dimensions?.w ?? null,
+            h: carton.dimensions?.h ?? null,
+            cbm: carton.cbm,
+            net_kg: carton.net_weight === null ? null : carton.net_weight / 1000,
+            gross_kg: carton.gross_weight === null ? null : carton.gross_weight / 1000,
+            units_per_carton: props.panel.key.units_per_carton,
+        },
+        contacts: { ...props.panel.contacts.values },
+        packaging: Object.fromEntries(
+            Object.entries(props.panel.packaging.terms).map(([term, data]) => [term, data.source === "product" ? data.value : null])
+        ) as Record<string, any>,
+        availability: {
+            status: availability.status,
+            reason: availability.reason,
+            available_from: availability.available_from,
+            new_cost: availability.new_cost,
+            note: availability.note,
+        },
+    }
+}
+
+const savedForms = computed(formsFromPanel)
 
 const resetForms = () => {
-    const carton = props.panel.measurements.carton
-    keyForm.value = {
-        minimum_carton_order: props.panel.key.moq.source === "product" ? props.panel.key.moq.cartons : null,
-        estimated_lead_time_days: props.panel.key.lead_time.source === "product" ? props.panel.key.lead_time.days : null,
-    }
-    measurementsForm.value = {
-        l: carton.dimensions?.l ?? null,
-        w: carton.dimensions?.w ?? null,
-        h: carton.dimensions?.h ?? null,
-        cbm: carton.cbm,
-        net_kg: carton.net_weight === null ? null : carton.net_weight / 1000,
-        gross_kg: carton.gross_weight === null ? null : carton.gross_weight / 1000,
-        units_per_carton: props.panel.key.units_per_carton,
-    }
-    contactsForm.value = { ...props.panel.contacts.values }
-    packagingForm.value = Object.fromEntries(
-        Object.entries(props.panel.packaging.terms).map(([term, data]) => [term, data.source === "product" ? data.value : null])
-    )
-    availabilityForm.value = { ...props.panel.availability }
+    const forms = formsFromPanel()
+    keyForm.value = forms.key
+    measurementsForm.value = forms.measurements
+    contactsForm.value = forms.contacts
+    packagingForm.value = forms.packaging
+    availabilityForm.value = forms.availability
 }
 watch(() => props.panel, resetForms, { immediate: true })
+
+const blankAsNull = (value: unknown) => (value === "" || value === undefined ? null : value)
+
+const hasChanges = (form: Record<string, unknown>, saved: Record<string, unknown>) =>
+    [...new Set([...Object.keys(form), ...Object.keys(saved)])].some((field) => blankAsNull(form[field]) !== blankAsNull(saved[field]))
+
+const keyFiguresChanged = computed(() => hasChanges(keyForm.value, savedForms.value.key))
+const measurementsChanged = computed(() => hasChanges(measurementsForm.value, savedForms.value.measurements))
+const contactsChanged = computed(() => hasChanges(contactsForm.value, savedForms.value.contacts))
+const packagingChanged = computed(() => hasChanges(packagingForm.value, savedForms.value.packaging))
+const availabilityChanged = computed(() => hasChanges(availabilityForm.value, savedForms.value.availability))
 
 const cbmFromDimensions = computed(() => {
     const { l, w, h } = measurementsForm.value
@@ -280,7 +330,7 @@ const card = "rounded-xl border border-gray-200 bg-white p-4 shadow-sm scroll-mt
                                 </div>
                                 <div v-if="panel.contacts.update_route" class="mt-3 flex items-center justify-between gap-2">
                                     <span class="text-xs text-gray-400">{{ ctrans("Saved on the supplier") }}</span>
-                                    <Button type="tertiary" :label="ctrans('Save')" :loading="savingSection === 'contacts'" @click="saveContacts">
+                                    <Button type="tertiary" :label="ctrans('Save')" :loading="savingSection === 'contacts'" :disabled="!contactsChanged" @click="saveContacts">
                                         <template #icon><FontAwesomeIcon icon="fal fa-save" class="text-green-600" fixed-width aria-hidden="true" /></template>
                                     </Button>
                                 </div>
@@ -366,7 +416,7 @@ const card = "rounded-xl border border-gray-200 bg-white p-4 shadow-sm scroll-mt
                         {{ ctrans("Lead time (days)") }}
                         <InputNumber v-model="keyForm.estimated_lead_time_days" :min="1" :max="365" :useGrouping="false" :placeholder="panel.key.lead_time.days?.toString()" inputClass="!w-24 !py-1 !text-sm" :class="fieldFocusClass" class="mt-1 block" />
                     </label>
-                    <Button type="tertiary" :label="ctrans('Save')" :loading="savingSection === 'key'" @click="saveKeyFigures">
+                    <Button type="tertiary" :label="ctrans('Save')" :loading="savingSection === 'key'" :disabled="!keyFiguresChanged" @click="saveKeyFigures">
                         <template #icon><FontAwesomeIcon icon="fal fa-save" class="text-green-600" fixed-width aria-hidden="true" /></template>
                     </Button>
                     <Button type="tertiary" :label="ctrans('Confirm with supplier')" :loading="savingSection === 'lead_time'"
@@ -376,7 +426,7 @@ const card = "rounded-xl border border-gray-200 bg-white p-4 shadow-sm scroll-mt
                 </div>
             </section>
 
-            <section id="agent-measurements" :class="card">
+            <section id="agent-measurements" :class="[card, 'transition-shadow', highlightClass('measurements')]">
                 <h3 :class="sectionTitle">
                     <FontAwesomeIcon icon="fal fa-ruler-combined" fixed-width aria-hidden="true" />
                     {{ ctrans("Weights and measurements") }}
@@ -390,7 +440,7 @@ const card = "rounded-xl border border-gray-200 bg-white p-4 shadow-sm scroll-mt
                             <th class="py-1 font-medium">{{ ctrans("H (cm)") }}</th>
                             <th class="py-1 font-medium">{{ ctrans("Net (kg)") }}</th>
                             <th class="py-1 font-medium">{{ ctrans("Gross (kg)") }}</th>
-                            <th class="py-1 font-medium">{{ ctrans("CBM") }}</th>
+                            <th class="py-1 font-medium">{{ ctrans("CBM") }} {{ ctrans("(m³)") }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -411,7 +461,7 @@ const card = "rounded-xl border border-gray-200 bg-white p-4 shadow-sm scroll-mt
                                 </td>
                                 <td class="py-2 pr-1"><InputNumber v-model="measurementsForm.net_kg" :min="0" :maxFractionDigits="3" inputClass="!w-20 !py-1 !text-sm" :class="fieldFocusClass" /></td>
                                 <td class="py-2 pr-1"><InputNumber v-model="measurementsForm.gross_kg" :min="0" :maxFractionDigits="3" inputClass="!w-20 !py-1 !text-sm" :class="fieldFocusClass" /></td>
-                                <td class="py-2"><InputNumber v-model="measurementsForm.cbm" :min="0" :maxFractionDigits="6" inputClass="!w-24 !py-1 !text-sm" :class="fieldFocusClass" /></td>
+                                <td class="py-2"><InputNumber v-model="measurementsForm.cbm" inputId="agent-carton-cbm" :min="0" :maxFractionDigits="6" inputClass="!w-24 !py-1 !text-sm" :class="fieldFocusClass" /></td>
                             </template>
                             <template v-else>
                                 <td class="py-2">{{ number(panel.measurements.carton.dimensions?.l ?? null, 1) }}</td>
@@ -435,7 +485,7 @@ const card = "rounded-xl border border-gray-200 bg-white p-4 shadow-sm scroll-mt
                         @click="measurementsForm.cbm = cbmFromDimensions">
                         {{ ctrans("Use :cbm m³ from the carton size", { cbm: cbmFromDimensions }) }}
                     </button>
-                    <Button type="tertiary" class="ml-auto" :label="ctrans('Save')" :loading="savingSection === 'measurements'" @click="saveMeasurements">
+                    <Button type="tertiary" class="ml-auto" :label="ctrans('Save')" :loading="savingSection === 'measurements'" :disabled="!measurementsChanged" @click="saveMeasurements">
                         <template #icon><FontAwesomeIcon icon="fal fa-save" class="text-green-600" fixed-width aria-hidden="true" /></template>
                     </Button>
                 </div>
@@ -465,7 +515,10 @@ const card = "rounded-xl border border-gray-200 bg-white p-4 shadow-sm scroll-mt
                         <dd class="text-base font-semibold tabular-nums text-gray-800">{{ number(cartons) }}</dd>
                     </div>
                 </dl>
-                <p v-else class="text-sm italic text-gray-400">{{ ctrans("Needs the CBM") }}</p>
+                <button v-else type="button" class="text-sm italic text-[--app-accent] underline decoration-dotted underline-offset-2 hover:text-[--app-accent-strong]"
+                    @click="jumpTo('measurements', 'agent-carton-cbm')">
+                    {{ ctrans("Needs the CBM") }}
+                </button>
             </section>
         </div>
 
@@ -517,7 +570,7 @@ const card = "rounded-xl border border-gray-200 bg-white p-4 shadow-sm scroll-mt
                     </div>
                 </div>
                 <div v-if="canEdit" class="mt-3 flex justify-end">
-                    <Button type="tertiary" :label="ctrans('Save')" :loading="savingSection === 'packaging'" @click="savePackaging">
+                    <Button type="tertiary" :label="ctrans('Save')" :loading="savingSection === 'packaging'" :disabled="!packagingChanged" @click="savePackaging">
                         <template #icon><FontAwesomeIcon icon="fal fa-save" class="text-green-600" fixed-width aria-hidden="true" /></template>
                     </Button>
                 </div>
@@ -539,7 +592,7 @@ const card = "rounded-xl border border-gray-200 bg-white p-4 shadow-sm scroll-mt
                     <div class="mt-2 flex items-center justify-between gap-2">
                         <span class="text-xs text-gray-400">{{ ctrans("Purchasing is told when you save") }}</span>
                         <Button type="tertiary" :label="ctrans('Save')" :loading="savingSection === 'availability'"
-                            :disabled="availabilityForm.status !== 'available' && !availabilityForm.reason" @click="saveAvailability">
+                            :disabled="!availabilityChanged || (availabilityForm.status !== 'available' && !availabilityForm.reason)" @click="saveAvailability">
                             <template #icon><FontAwesomeIcon icon="fal fa-save" class="text-green-600" fixed-width aria-hidden="true" /></template>
                         </Button>
                     </div>

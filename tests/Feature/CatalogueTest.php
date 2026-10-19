@@ -53,6 +53,10 @@ use App\Actions\Catalogue\Product\KeepRetiredProductAsSeparate;
 use App\Actions\Catalogue\Product\UI\EditProduct;
 use App\Actions\Web\Webpage\Iris\ShowIrisWebpage;
 use App\Actions\Maintenance\Catalogue\RepairProductsFirstAvailableAt;
+use App\Actions\Accounting\Invoice\StoreInvoice;
+use App\Actions\Accounting\InvoiceTransaction\StoreInvoiceTransaction;
+use App\Models\Accounting\Invoice;
+use App\Enums\Catalogue\Product\ProductBadgeEnum;
 use App\Enums\Catalogue\Product\ProductStatusEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
@@ -1834,6 +1838,49 @@ test('repair backfills first availability on launched products only, and leaves 
         ->and($launchedStock->refresh()->first_available_at->equalTo($firstInStockAt))->toBeTrue()
         ->and($comingSoon->refresh()->first_available_at)->toBeNull()
         ->and($alreadyStamped->refresh()->first_available_at->equalTo($stampedAt))->toBeTrue();
+});
+
+test('a product sold before it is stamped available, or created long before the backfill day, is not new in', function () {
+    $shop = Shop::orderBy('id')->first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
+    $newProduct = fn (): Product => UpdateProduct::make()->action(
+        StoreProduct::make()->action($shop, array_merge(Product::factory()->definition(), ['trade_units' => [['id' => $this->tradeUnit1->id, 'quantity' => 1]], 'price' => 10])),
+        ['state' => ProductStateEnum::ACTIVE]
+    );
+    $soldAt   = now()->subYear()->startOfSecond();
+    $sellOnce = function (Product $product) use ($shop, $soldAt): void {
+        $invoice = StoreInvoice::make()->action(createCustomer($shop), Invoice::factory()->definition());
+        StoreInvoiceTransaction::make()->action($invoice, $product->historicAsset, [
+            'date'            => $soldAt,
+            'tax_category_id' => $invoice->tax_category_id,
+            'quantity'        => 1,
+            'gross_amount'    => 10,
+            'net_amount'      => 10,
+        ]);
+    };
+
+    $relaunched     = $newProduct();
+    $wronglyStamped = $newProduct();
+    $neverSold      = $newProduct();
+    $oldNeverSold   = $newProduct();
+    $sellOnce($relaunched);
+    $sellOnce($wronglyStamped);
+
+    $relaunched->updateQuietly(['is_for_sale' => true, 'has_live_webpage' => true, 'status' => ProductStatusEnum::FOR_SALE, 'first_available_at' => null]);
+    expect(ProductHydrateFirstAvailableAt::run($relaunched->refresh())->first_available_at->equalTo($soldAt))->toBeTrue();
+
+    $stampedAt = now()->subDays(3)->startOfSecond();
+    $wronglyStamped->updateQuietly(['first_available_at' => $stampedAt]);
+    $neverSold->updateQuietly(['first_available_at' => $stampedAt]);
+    $createdLongBefore = now()->subYears(2)->startOfSecond();
+    $oldNeverSold->updateQuietly(['first_available_at' => $stampedAt, 'created_at' => $createdLongBefore]);
+
+    $this->artisan('repair:products_first_available_at', ['--stamped-since' => now()->subDays(5)->toDateString(), '--backfill-day' => $stampedAt->toDateString()])->assertExitCode(0);
+
+    expect($wronglyStamped->refresh()->first_available_at->equalTo($soldAt))->toBeTrue()
+        ->and(ProductBadgeEnum::resolve($wronglyStamped->first_available_at, null))->toBeNull()
+        ->and($neverSold->refresh()->first_available_at->equalTo($stampedAt))->toBeTrue()
+        ->and(ProductBadgeEnum::resolve($neverSold->first_available_at, null))->toBe(ProductBadgeEnum::NEW_IN)
+        ->and($oldNeverSold->refresh()->first_available_at->equalTo($createdLongBefore))->toBeTrue();
 });
 
 test('the out of stock date is set when stock runs out and is kept while the product stays out', function () {
