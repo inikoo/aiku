@@ -15,6 +15,7 @@ use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Dispatching\DeliveryNote\StoreDeliveryNote;
 use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
 use App\Actions\Dropshipping\CustomerSalesChannel\CloseCustomerSalesChannel;
+use App\Actions\Dropshipping\CustomerSalesChannel\UpdateCustomerSalesChannel;
 use App\Actions\Dropshipping\CustomerSalesChannel\UI\ShowCustomerSalesChannel;
 use App\Actions\Dropshipping\Order\RetryOrderImport;
 use App\Actions\Dropshipping\Portfolio\DeletePortfolio;
@@ -760,7 +761,7 @@ test('a retry by the numeric order id recognises an order already imported under
         ->and(wooSent('GET', 'orders/760'))->toHaveCount(0);
 });
 
-test('dispatching a woo order completes it on the store with the tracking and a customer note', function () {
+test('dispatching a woo order completes it on the store with the tracking and a customer note, private when the channel asks', function () {
     $wooCommerceUser = wooConnect(wooCustomer($this->shop));
     $channel         = $wooCommerceUser->customerSalesChannel;
     wooPortfolio($channel, $this->product, '93');
@@ -806,6 +807,18 @@ test('dispatching a woo order completes it on the store with the tracking and a 
     $note = wooSent('POST', 'orders/770/notes')->first()->data();
     expect($note['customer_note'])->toBeTrue()
         ->and($note['note'])->toContain('TRK123');
+
+    $channel->update(['settings' => ['woocommerce' => ['stock_management_off' => true]]]);
+    UpdateCustomerSalesChannel::make()->action($channel, ['private_tracking_notes' => true]);
+    expect(Arr::get($channel->refresh()->settings, 'woocommerce'))->toBe(['stock_management_off' => true, 'private_tracking_notes' => true]);
+
+    wooFake([
+        'PUT orders/770'        => Http::response(array_merge(wooOrder(770, []), ['status' => 'completed'])),
+        'POST orders/770/notes' => Http::response(['id' => 282, 'note' => 'x', 'customer_note' => false], 201),
+    ]);
+    FulfillOrderToWooCommerce::run($order->refresh());
+    expect(wooSent('POST', 'orders/770/notes')->first()->data()['customer_note'])->toBeFalse()
+        ->and(wooSent('PUT', 'orders/770')->first()->data()['status'])->toBe('completed');
 
     $order->update(['is_bypass_platform_update' => true]);
     wooFake();

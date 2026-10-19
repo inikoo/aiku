@@ -770,11 +770,11 @@ trait WithWooCommerceApiRequest
         ]);
     }
 
-    public function createCustomerOrderNote(int $orderId, string $note): array
+    public function createCustomerOrderNote(int $orderId, string $note, bool $isCustomerNote = true): array
     {
         return $this->makeWooCommerceRequest('POST', "orders/$orderId/notes", [
             'note' => $note,
-            'customer_note' => true
+            'customer_note' => $isCustomerNote
         ]);
     }
 }
