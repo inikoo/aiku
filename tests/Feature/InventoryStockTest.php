@@ -1260,6 +1260,9 @@ test('operators tick skos packed at a partner goods out location and the tick go
         $slots[] = $slot->refresh();
     }
     [$packedSlot, $otherSlot] = $slots;
+    $dangerousTradeUnit = StoreTradeUnit::make()->action($this->group, TradeUnit::factory()->definition());
+    $dangerousTradeUnit->update(['un_number' => '1197', 'proper_shipping_name' => 'Extracts, flavouring, liquid']);
+    $orgStocks[0]->tradeUnits()->sync([$dangerousTradeUnit->id => ['quantity' => 1]]);
     $shelfSlot = StoreLocationOrgStock::make()->action($orgStocks[0], $shelf, ['type' => LocationStockTypeEnum::PICKING]);
 
     $pack = fn (LocationOrgStock $slot, bool $packed) => $this->patch(route('grp.models.location_org_stock.packed', $slot->id), ['packed' => $packed]);
@@ -1281,7 +1284,9 @@ test('operators tick skos packed at a partner goods out location and the tick go
     $rows  = collect($props['org_stocks']['data'])->keyBy('location_org_stock_id');
     expect($rows[$packedSlot->id]['is_packed'])->toBeTrue()
         ->and($rows[$packedSlot->id]['packed_by'])->not->toBeNull()
+        ->and($rows[$packedSlot->id]['un_numbers'])->toBe([['number' => '1197', 'shipping_name' => 'Extracts, flavouring, liquid']])
         ->and($rows[$otherSlot->id]['is_packed'])->toBeFalse()
+        ->and($rows[$otherSlot->id]['un_numbers'])->toBe([])
         ->and(collect($props['packing_progress'])->firstWhere('id', $bay->id))->toMatchArray(['packed' => 1, 'total' => 2, 'is_current' => true])
         ->and(collect($page(['org_stocks_elements' => ['packed' => 'packed']])['org_stocks']['data'])->pluck('location_org_stock_id')->all())->toBe([$packedSlot->id])
         ->and(collect($page(['org_stocks_elements' => ['packed' => 'not_packed']])['org_stocks']['data'])->pluck('location_org_stock_id')->all())->toBe([$otherSlot->id])
