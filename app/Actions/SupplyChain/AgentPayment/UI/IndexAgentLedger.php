@@ -55,6 +55,11 @@ class IndexAgentLedger extends OrgAction
                 'elements' => $this->clients($agent)->mapWithKeys(fn (Organisation $client) => [(string) $client->id => [$client->code, null]])->all(),
                 'engine'   => fn ($query, $elements) => $query->whereIn('agent_payments.organisation_id', $elements),
             ],
+            'review'    => [
+                'label'    => __('Review'),
+                'elements' => ['needs_review' => [__('Needs review'), null]],
+                'engine'   => fn ($query, $elements) => $query->where('agent_payments.needs_review', true),
+            ],
             'direction' => [
                 'label'    => __('Money'),
                 'elements' => ['in' => [__('In'), null], 'out' => [__('Out'), null]],
@@ -94,6 +99,7 @@ class IndexAgentLedger extends OrgAction
                 allowedElements: array_keys($elementGroup['elements']),
                 engine: $elementGroup['engine'],
                 prefix: $prefix,
+                optional: $key === 'review',
             );
         }
 
@@ -271,6 +277,14 @@ class IndexAgentLedger extends OrgAction
                     'reference'              => $entry->reference,
                     'notes'                  => $entry->notes,
                     'receipt'                => $entry->receipt_ulid,
+                    'purchase_order_id'      => $entry->purchase_order_id,
+                    'stock_delivery_id'      => $entry->stock_delivery_id,
+                    'organisation_id'        => $entry->organisation_id,
+                    'needs_review'           => $entry->needs_review,
+                    'review_reason'          => $entry->review_reason ? __($entry->review_reason) : null,
+                    'update_route'           => $canEdit
+                        ? ['name' => 'grp.models.agent_payment.update', 'parameters' => ['agentPayment' => $entry->id]]
+                        : null,
                     'delete_route'           => DeleteAgentPayment::canDelete($entry, $user)
                         ? ['name' => 'grp.models.agent_payment.delete', 'parameters' => ['agentPayment' => $entry->id]]
                         : null,

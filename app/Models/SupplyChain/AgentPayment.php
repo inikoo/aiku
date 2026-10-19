@@ -36,6 +36,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $supplier_id
  * @property string|null $original_amount
  * @property int|null $original_currency_id
+ * @property bool $needs_review
+ * @property string|null $review_reason
+ * @property array<string, mixed> $data
  * @property \Illuminate\Support\Carbon $date
  * @property string $amount
  * @property int $currency_id
@@ -52,11 +55,17 @@ class AgentPayment extends Model
 
     protected $guarded = [];
 
+    protected $attributes = [
+        'data' => '{}',
+    ];
+
     protected function casts(): array
     {
         return [
             'date'   => 'date',
-            'type'   => AgentPaymentTypeEnum::class,
+            'type'         => AgentPaymentTypeEnum::class,
+            'needs_review' => 'boolean',
+            'data'         => 'array',
             'method' => PurchaseOrderPaymentMethodEnum::class,
         ];
     }

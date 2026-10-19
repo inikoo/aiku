@@ -20,6 +20,7 @@ enum AgentPaymentTypeEnum: string
 
     case TRANSFER_RECEIVED = 'transfer_received';
     case SUPPLIER_REFUND = 'supplier_refund';
+    case SUPPLIER_PAYMENT = 'supplier_payment';
     case SUPPLIER_DEPOSIT = 'supplier_deposit';
     case SUPPLIER_BALANCE = 'supplier_balance';
     case PACKAGING = 'packaging';
@@ -36,6 +37,7 @@ enum AgentPaymentTypeEnum: string
         return [
             'transfer_received' => __('Transfer received'),
             'supplier_refund'   => __('Refund from supplier'),
+            'supplier_payment'  => __('Supplier payment'),
             'supplier_deposit'  => __('Supplier deposit'),
             'supplier_balance'  => __('Supplier balance'),
             'packaging'         => __('Product packaging'),
@@ -56,7 +58,7 @@ enum AgentPaymentTypeEnum: string
 
     public function isSupplierPayment(): bool
     {
-        return in_array($this, [self::SUPPLIER_DEPOSIT, self::SUPPLIER_BALANCE], true);
+        return in_array($this, [self::SUPPLIER_PAYMENT, self::SUPPLIER_DEPOSIT, self::SUPPLIER_BALANCE], true);
     }
 
     /**

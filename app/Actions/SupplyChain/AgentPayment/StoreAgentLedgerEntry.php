@@ -80,7 +80,7 @@ class StoreAgentLedgerEntry extends OrgAction
             'type'              => ['required', Rule::enum(AgentPaymentTypeEnum::class)],
             'date'              => ['required', 'date', 'before_or_equal:today'],
             'amount'            => ['required', 'numeric', 'gt:0', 'max:999999999999'],
-            'purchase_order_id' => ['nullable', 'integer', 'required_if:type,'.AgentPaymentTypeEnum::SUPPLIER_DEPOSIT->value.','.AgentPaymentTypeEnum::SUPPLIER_BALANCE->value],
+            'purchase_order_id' => ['nullable', 'integer', 'required_if:type,'.AgentPaymentTypeEnum::SUPPLIER_PAYMENT->value.','.AgentPaymentTypeEnum::SUPPLIER_DEPOSIT->value.','.AgentPaymentTypeEnum::SUPPLIER_BALANCE->value],
             'stock_delivery_id' => ['nullable', 'integer'],
             'original_amount'   => ['nullable', 'numeric', 'gt:0', 'max:999999999999'],
             'reference'         => ['nullable', 'string', 'max:255'],

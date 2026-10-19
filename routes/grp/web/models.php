@@ -11,6 +11,7 @@ use App\Actions\SupplyChain\StockDeliveryInvoice\StoreActualStockDeliveryInvoice
 use App\Actions\SupplyChain\AgentInvoice\ApproveAgentInvoiceCharges;
 use App\Actions\SupplyChain\AgentPayment\DeleteAgentPayment;
 use App\Actions\SupplyChain\AgentPayment\StoreAgentLedgerEntry;
+use App\Actions\SupplyChain\AgentPayment\UpdateAgentLedgerEntry;
 use App\Actions\SupplyChain\AgentPayment\StoreAgentPayment;
 use App\Actions\SupplyChain\SupplierPayment\DeleteSupplierPayment;
 use App\Actions\SupplyChain\SupplierPayment\StoreSupplierPayment;
@@ -1711,6 +1712,7 @@ Route::name('purchase-order.')->prefix('purchase-order/{purchaseOrder:id}')->gro
 });
 
 Route::delete('agent-payment/{agentPayment:id}', DeleteAgentPayment::class)->name('agent_payment.delete');
+Route::patch('agent-payment/{agentPayment:id}', UpdateAgentLedgerEntry::class)->name('agent_payment.update');
 Route::delete('supplier-payment/{supplierPayment:id}', DeleteSupplierPayment::class)->name('supplier_payment.delete');
 
 Route::post('supplier/{supplier:id}/procurement-note', [StoreProcurementNote::class, 'inSupplier'])->name('supplier.procurement_note.store');
