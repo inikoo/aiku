@@ -895,3 +895,50 @@ test('the unclaimed queue opens a waiting session to another shop viewer and the
     get($exportRoute(['shop_id' => $this->shop->id]))->assertForbidden();
     expect(get($exportRoute(['min_turns' => 1]))->assertOk()->streamedContent())->not->toContain($closedSession->ulid);
 });
+
+test('staff chat messages are agent messages of the shop chat staff only, and Slack settings and forwards follow the session shop chat rule, INI-076', function () {
+    $session = ChatSession::create([
+        'ulid'             => (string) Str::ulid(),
+        'shop_id'          => $this->shop->id,
+        'language_id'      => 68,
+        'status'           => ChatSessionStatusEnum::ACTIVE->value,
+        'priority'         => ChatPriorityEnum::NORMAL->value,
+        'guest_identifier' => 'guest-'.Str::random(8),
+        'ai_model_version' => 'default',
+    ]);
+    $message = \App\Models\Chat\ChatMessage::create([
+        'chat_session_id' => $session->id,
+        'message_type'    => \App\Enums\CRM\Livechat\ChatMessageTypeEnum::TEXT,
+        'sender_type'     => ChatSenderTypeEnum::GUEST,
+        'message_text'    => 'Hello '.Str::random(6),
+    ]);
+
+    $sendUrl    = route('grp.org.chat.agents.messages.send', [$this->organisation->slug, $session->ulid]);
+    $slackUrl   = route('grp.org.chat.agents.sessions.slack.update', [$this->organisation->slug, $session->ulid]);
+    $forwardUrl = route('grp.org.chat.agents.messages.forward_slack', [$this->organisation->slug, $message->id]);
+    $payload    = fn (ChatSenderTypeEnum $senderType) => ['message_text' => 'Hi', 'message_type' => 'text', 'sender_type' => $senderType->value];
+
+    $user = User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+    ChatAgent::firstOrCreate(['user_id' => $user->id], ['is_online' => true, 'max_concurrent_chats' => 100, 'current_chat_count' => 0]);
+    $before = \App\Models\Chat\ChatMessage::where('chat_session_id', $session->id)->count();
+
+    $session->assignments()->create([
+        'chat_agent_id' => ChatAgent::where('user_id', $user->id)->value('id'),
+        'status'        => \App\Enums\CRM\Livechat\ChatAssignmentStatusEnum::ACTIVE->value,
+        'assigned_by'   => \App\Enums\CRM\Livechat\ChatAssignmentAssignedByEnum::AGENT->value,
+        'assigned_at'   => now(),
+    ]);
+
+    actingAsUserWithOnlyPermissions($user, ["human-resources.{$this->organisation->id}.view"]);
+    foreach ([ChatSenderTypeEnum::GUEST, ChatSenderTypeEnum::USER, ChatSenderTypeEnum::SYSTEM, ChatSenderTypeEnum::AGENT] as $senderType) {
+        $this->postJson($sendUrl, $payload($senderType))->assertForbidden();
+    }
+    $this->putJson($slackUrl, ['token' => 'xoxb-stolen'])->assertForbidden();
+    $this->postJson($forwardUrl, ['destination_keys' => ['channel:C1']])->assertForbidden();
+    expect(\App\Models\Chat\ChatMessage::where('chat_session_id', $session->id)->count())->toBe($before);
+
+    actingAsUserWithOnlyPermissions($user, ["chat.{$this->shop->id}"]);
+    $this->postJson($sendUrl, $payload(ChatSenderTypeEnum::GUEST))->assertForbidden();
+    $this->postJson($sendUrl, $payload(ChatSenderTypeEnum::AGENT))->assertSuccessful();
+    expect($this->putJson($slackUrl, [])->status())->not->toBe(403);
+});

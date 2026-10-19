@@ -8,6 +8,8 @@
 
 namespace App\Actions\Chat\ChatSession;
 
+use App\Models\Catalogue\Shop;
+use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Actions\Chat\ChatSession\Concerns\WithChatSlackSettings;
 use App\Helpers\SlackNotification;
 use App\Models\Chat\ChatMessage;
@@ -22,8 +24,16 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class ForwardChatMessageToSlack
 {
+    use WithChatAgentAuthorisation;
     use AsAction;
     use WithChatSlackSettings;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        $shop = $request->route('chatMessage')?->chatSession?->shop;
+
+        return $shop instanceof Shop && $this->userCanActOnChatOnShop($request->user(), $shop);
+    }
 
     /**
      * @param  array<int, string>  $destinationKeys  composite "type:id" keys, must match configured destinations

@@ -471,6 +471,11 @@ class SendChatMessage
 
         $chatSession = ChatSession::where('ulid', $ulid)->firstOrFail();
 
+        if ($request->routeIs('grp.org.chat.agents.messages.send')) {
+            abort_unless(Arr::get($validated, 'sender_type') === ChatSenderTypeEnum::AGENT->value, 403);
+            abort_unless($chatSession->shop instanceof Shop && $this->userCanActOnChatOnShop($request->user(), $chatSession->shop), 403);
+        }
+
         $senderResult = $this->determineSenderData($validated, $chatSession);
 
         if (!$senderResult['ok']) {
