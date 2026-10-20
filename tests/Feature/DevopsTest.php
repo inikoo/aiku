@@ -926,3 +926,58 @@ it('keeps the pgBackRest report litio pushes and shows the backups and problems 
             ->where('auth.user.is_engineer', $isEngineer)
             ->where('auth.user.devops_problems', $isEngineer ? ['No WAL has reached Cloudflare R2 ever.'] : []));
 });
+
+it('records nightly coverage by module and bundle sizes, imports codecov history and shows them on the code health tab', function () {
+    Config::set('app.devops_token', 'test-devops-token');
+    Config::set('inertia.testing.ensure_pages_exist', false);
+    App\Models\DevOps\CiMetricSnapshot::query()->delete();
+
+    expect(App\Actions\DevOps\CiMetricSnapshot\StoreCoverageSnapshot::moduleOf('app/Actions/CRM/Customer/UI'))->toBe('CRM')
+        ->and(App\Actions\DevOps\CiMetricSnapshot\StoreCoverageSnapshot::moduleOf('app/Http/Resources/CRM'))->toBe('CRM')
+        ->and(App\Actions\DevOps\CiMetricSnapshot\StoreCoverageSnapshot::moduleOf('app/Models/Ordering'))->toBe('Ordering')
+        ->and(App\Actions\DevOps\CiMetricSnapshot\StoreCoverageSnapshot::moduleOf('app/Actions'))->toBe('Shared');
+
+    Http::fake([
+        'api.codecov.io/*/commits/'.str_repeat('a', 40).'/' => Http::response(['report' => ['files' => [
+            ['name' => 'app/Actions/CRM/Customer/StoreCustomer.php', 'totals' => ['lines' => 100, 'hits' => 40]],
+            ['name' => 'app/Models/Ordering/Order.php', 'totals' => ['lines' => 50, 'hits' => 50]],
+        ]]]),
+        'api.codecov.io/*/commits/*' => Http::response(['results' => [
+            ['commitid' => str_repeat('b', 40), 'timestamp' => now()->subDays(30)->toIso8601String(), 'totals' => null],
+            ['commitid' => str_repeat('a', 40), 'timestamp' => now()->subDays(40)->toIso8601String(), 'totals' => ['coverage' => 60]],
+        ]]),
+    ]);
+    $this->artisan('ci-metrics:import-codecov', ['--days' => 365])->assertSuccessful();
+    $this->artisan('ci-metrics:import-codecov', ['--days' => 365])->assertSuccessful();
+    expect(App\Models\DevOps\CiMetricSnapshot::where('type', 'coverage')->count())->toBe(1);
+
+    $coverage = ['run_id' => 9301, 'head_sha' => str_repeat('c', 40), 'directories' => [
+        'app/Actions/CRM/Customer'      => [100, 70],
+        'app/Http/Resources/CRM'        => [100, 70],
+        'app/Actions/Ordering/Order'    => [50, 50],
+        'app/Models/Ordering'           => [50, 0],
+    ]];
+    $this->postJson(route('devops.coverage.store'), $coverage)->assertForbidden();
+    $this->postJson(route('devops.coverage.store'), [...$coverage, 'directories' => ['app/Actions/CRM' => [-1, 0]]], ['X-DEVOPS-TOKEN' => 'test-devops-token'])->assertUnprocessable();
+    $this->postJson(route('devops.coverage.store'), $coverage, ['X-DEVOPS-TOKEN' => 'test-devops-token'])->assertOk()->assertJson(['coverage' => 63.33]);
+
+    $bundle = ['files' => 3, 'js_bytes' => 2_000_000, 'css_bytes' => 100_000, 'gzip_bytes' => 600_000, 'largest' => [['file' => 'assets/app-x.js', 'bytes' => 1_500_000, 'gzip_bytes' => 400_000]]];
+    $this->postJson(route('devops.bundle-sizes.store'), ['run_id' => 9302, 'head_sha' => str_repeat('c', 40), 'bundles' => ['grp' => $bundle, 'iris' => [...$bundle, 'largest' => []]]], ['X-DEVOPS-TOKEN' => 'test-devops-token'])->assertOk();
+
+    $this->actingAs(createAdminGuest(createGroup())->getUser())
+        ->get(route('grp.devops.dashboard'))
+        ->assertInertia(fn (Inertia\Testing\AssertableInertia $page) => $page
+            ->component('Devops/Dashboard', false)
+            ->missing('codeHealth')
+            ->reloadOnly('codeHealth', fn (Inertia\Testing\AssertableInertia $reload) => $reload
+            ->where('codeHealth.coverage.coverage', 63.33)
+            ->where('codeHealth.coverage.change', 3.33)
+            ->where('codeHealth.coverage.modules.0', ['module' => 'CRM', 'lines' => 200, 'hits' => 140, 'coverage' => 70, 'change' => 30])
+            ->where('codeHealth.coverage.modules.1.coverage', 50)
+            ->has('codeHealth.coverage_history', 2)
+            ->where('codeHealth.bundles.bytes', 4_200_000)
+            ->where('codeHealth.bundles.gzip_bytes', 1_200_000)
+            ->where('codeHealth.bundles.bundles.0.name', 'grp')
+            ->where('codeHealth.bundles.bundles.0.largest.0.file', 'assets/app-x.js')
+            ->has('codeHealth.bundle_history', 1)));
+});

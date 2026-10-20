@@ -89,14 +89,6 @@ jobs:
             echo "Documentation translations need attention. See the Editorial translation audit step for missing or stale guides." >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
-      - name: Upload test results to Codecov
-        if: ${{ !cancelled() }}
-        uses: codecov/test-results-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          slug: Inikoo-Ltd/aiku
-          files: junit.xml
-          flags: backend
       - name: Flake check, changed test files run twice 🎲
         run: |
           BEFORE="${{ github.event.before }}"

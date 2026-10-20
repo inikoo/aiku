@@ -1,4 +1,4 @@
-# CI uids may reach the internet (GitHub, packagist, codecov) and nothing else: no loopback
+# CI uids may reach the internet (GitHub, packagist, aiku) and nothing else: no loopback
 # services except DNS, no private network (boro/litio/neon), no Postgres/Redis/MySQL anywhere.
 # Tests reach their own cluster over its unix socket, which netfilter does not see.
 table inet ci_fence
