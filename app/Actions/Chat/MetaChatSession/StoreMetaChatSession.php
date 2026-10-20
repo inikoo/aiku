@@ -119,6 +119,7 @@ class StoreMetaChatSession
                     'name'           => $name,
                     'phone'          => $phoneNumber,
                     'is_new_contact' => $customer === null,
+                    ...array_filter(['whatsapp_username' => Arr::get($modelData, 'whatsapp_username')]),
                 ],
             ]);
         });

@@ -729,7 +729,7 @@ test('an agent sets and clears a wait for the customer on a WhatsApp conversatio
 
 test('a WhatsApp contact who shows only a username gets a conversation and the agent reply goes to their user id', function () {
     Bus::fake();
-    Event::fake([\App\Events\BroadcastRealtimeMetaChat::class, \App\Events\BroadcastMetaChatListEvent::class]);
+    Event::fake([\App\Events\BroadcastRealtimeMetaChat::class, \App\Events\BroadcastMetaChatListEvent::class, \App\Events\BroadcastWhatsappCallEvent::class]);
     $shopSettings         = $this->shop->settings;
     $organisationSettings = $this->organisation->settings;
     MetaChannel::firstOrCreate(['code' => 'whatsapp'], ['name' => 'WhatsApp']);
@@ -752,7 +752,7 @@ test('a WhatsApp contact who shows only a username gets a conversation and the a
         ->and($session->guest_identifier)->toBe('Nepal Beads')
         ->and($session->messages()->count())->toBe(2);
 
-    Http::fake(['graph.facebook.com/*' => Http::response(['messages' => [['id' => 'wamid.TO-USERNAME']]])]);
+    Http::fake(['graph.facebook.com/*' => Http::response(['messages' => [['id' => 'wamid.TO-USERNAME']], 'calls' => [['id' => 'wacid.TO-USERNAME']]])]);
     actingAs($this->user);
     makeChatWorker($this->user, $this->shop);
 
@@ -764,10 +764,29 @@ test('a WhatsApp contact who shows only a username gets a conversation and the a
         && $request['recipient'] === $whatsappUserId
         && !isset($request['to']));
 
+    $found = fn (string $search) => collect(GetMetaChatSessions::make()->handle(['search' => $search, 'shop_id' => $this->shop->id])->items())->pluck('ulid');
+
+    expect($session->refresh()->metadata['whatsapp_username'])->toBe('nepalbeads')
+        ->and($found('@NepalBeads'))->toContain($session->ulid)
+        ->and($found($whatsappUserId))->toContain($session->ulid);
+
+    $call = \App\Actions\Chat\Whatsapp\Calls\StartWhatsappCall::make()->handle($session, $this->user, 'v=0');
+
+    expect($call['ok'])->toBeTrue()
+        ->and((new \App\Events\BroadcastWhatsappCallEvent(\App\Models\Chat\MetaChatCall::findOrFail($call['data']['id'])))->broadcastWith()['caller'])->toBe('Nepal Beads');
+    Http::assertSent(fn (\Illuminate\Http\Client\Request $request) => str_ends_with($request->url(), '/calls')
+        && $request['recipient'] === $whatsappUserId
+        && !isset($request['to']));
+
+    $campaignAudience = \App\Actions\Comms\WhatsappCampaign\GetWhatsappRecipientsQuery::run($this->shop, ['contacted' => true], [])->get();
+
+    expect($campaignAudience->pluck('meta_chat_session_id'))->not->toContain($session->id);
+
     $inbound(['from' => '9779800000001', 'from_user_id' => $whatsappUserId]);
 
     expect(MetaChatSession::where('whatsapp_user_id', $whatsappUserId)->sole()->phone_number)->toBe('+9779800000001');
 
+    \App\Models\Chat\MetaChatCall::where('meta_chat_session_id', $session->id)->delete();
     $session->assignments()->delete();
     $session->messages()->forceDelete();
     $session->forceDelete();

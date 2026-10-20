@@ -94,9 +94,10 @@ class StoreIncomingWhatsappMessage
 
         $digits         = preg_replace('/\D/', '', (string) Arr::get($message, 'from'));
         $whatsappUserId = Arr::get($message, 'from_user_id') ?: Arr::get($value, 'contacts.0.user_id');
-        $profileName    = Arr::get($value, 'contacts.0.profile.name') ?: Arr::get($value, 'contacts.0.profile.username');
+        $username       = Arr::get($value, 'contacts.0.profile.username');
+        $profileName    = Arr::get($value, 'contacts.0.profile.name') ?: $username;
 
-        $metaChatSession = $this->findSession($shop, $metaChannel, $digits, $whatsappUserId);
+        $metaChatSession = $this->findSession($shop, $metaChannel, $digits, $whatsappUserId, $username);
 
         if (!$metaChatSession) {
             $customer = $digits !== '' ? $this->findCustomer($shop, $digits) : null;
@@ -105,8 +106,9 @@ class StoreIncomingWhatsappMessage
                 'shop_id'          => $shop->id,
                 'customer_id'      => $customer?->id,
                 'phone_number'     => $digits !== '' ? '+'.$digits : null,
-                'whatsapp_user_id' => $whatsappUserId,
-                'name'             => $profileName,
+                'whatsapp_user_id'  => $whatsappUserId,
+                'whatsapp_username' => $username,
+                'name'              => $profileName,
             ]));
         } elseif ($metaChatSession->status === ChatSessionStatusEnum::CLOSED) {
             $metaChatSession = ReopenMetaChatSession::make()->reopenToWaiting($metaChatSession);
@@ -175,7 +177,7 @@ class StoreIncomingWhatsappMessage
      * conversation is found by either, the phone first since it is the older thread, and keeps
      * the newest user id, as Meta issues a new one when the phone number changes.
      */
-    protected function findSession(Shop $shop, MetaChannel $metaChannel, string $digits, ?string $whatsappUserId): ?MetaChatSession
+    protected function findSession(Shop $shop, MetaChannel $metaChannel, string $digits, ?string $whatsappUserId, ?string $username = null): ?MetaChatSession
     {
         if ($digits === '' && !$whatsappUserId) {
             return null;
@@ -200,6 +202,9 @@ class StoreIncomingWhatsappMessage
             $metaChatSession->update(array_filter([
                 'whatsapp_user_id' => $whatsappUserId,
                 'phone_number'     => $digits !== '' && !$metaChatSession->phone_number ? '+'.$digits : null,
+                'metadata'         => $username && Arr::get($metaChatSession->metadata, 'whatsapp_username') !== $username
+                    ? array_merge($metaChatSession->metadata ?? [], ['whatsapp_username' => $username])
+                    : null,
             ]));
         }
 
