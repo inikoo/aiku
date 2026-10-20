@@ -82,6 +82,16 @@ test('help ticket gets a HELP reference and defaults', function () {
     return $ticket;
 });
 
+test('a premonition ticket gets a PRE reference with its own numbering', function () {
+    $ticket = StoreTicket::make()->action($this->group, ['subject' => 'Claim list repeats products', 'type' => TicketTypeEnum::PREMONITION->value]);
+    $next   = StoreTicket::make()->action($this->group, ['subject' => 'Balance return on a cancelled order', 'type' => TicketTypeEnum::PREMONITION->value]);
+
+    expect($ticket->type)->toBe(TicketTypeEnum::PREMONITION)
+        ->and($ticket->reference)->toBe('PRE-'.str_pad((string) $ticket->number, 2, '0', STR_PAD_LEFT))
+        ->and($next->number)->toBe($ticket->number + 1)
+        ->and(TicketTypeEnum::PREMONITION->icon()['icon'])->toBe('fal fa-bowling-ball');
+});
+
 test('customer ticket from retina gets an AD reference and the customer attached', function () {
     $ticket = StoreRetinaTicket::make()->action($this->webUser, ['subject' => 'API returns 500', 'priority' => 'high']);
 
