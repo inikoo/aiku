@@ -57,6 +57,7 @@ const props = defineProps<{
     isLoading?: boolean
     showMarketingOptIn?: boolean
     prefill?: { contact_name?: string, email?: string }
+    initialTypeId?: number | null
     book: (payload: AppointmentBookingPayload) => Promise<AppointmentBookingResult>
 }>()
 
@@ -79,7 +80,9 @@ const form = reactive({
 })
 
 watch(() => props.appointmentTypes, (types) => {
-    if (types.length === 1) {
+    if (props.initialTypeId && types.some(type => type.id === props.initialTypeId)) {
+        selectedTypeId.value = props.initialTypeId
+    } else if (types.length === 1) {
         selectedTypeId.value = types[0].id
     }
 }, { immediate: true })
@@ -219,7 +222,7 @@ const fieldPt = { root: { class: "w-full" } }
                 class="appointment-panel border-b border-slate-200 md:border-b-0 md:border-r"
                 :class="step === 'pick' && selectedDate ? 'md:w-[300px] md:shrink-0' : 'md:w-1/2'">
                 <button
-                    v-if="step === 'details' || appointmentTypes.length > 1" type="button"
+                    v-if="step === 'details' || (appointmentTypes.length > 1 && !initialTypeId)" type="button"
                     class="mb-5 flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 text-xl text-[var(--theme-color-0)] transition hover:bg-slate-50"
                     :aria-label="ctrans('Back')"
                     @click="step === 'details' ? (step = 'pick') : (selectedTypeId = null)">

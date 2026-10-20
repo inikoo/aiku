@@ -26,7 +26,7 @@ import { ctrans } from "@/Composables/useTrans"
 import { notify } from "@kyvg/vue3-notification"
 import axios from "axios"
 import { router, usePage } from "@inertiajs/vue3"
-import { faSpinner, faComments, faEnvelope, faPhone, faGlobe, faMapMarkerAlt, faLightbulb, faQuestionCircle, faTruck, faCalendarAlt } from "@fal"
+import { faSpinner, faComments, faEnvelope, faPhone, faGlobe, faMapMarkerAlt, faLightbulb, faQuestionCircle, faTruck, faVideo, faStoreAlt } from "@fal"
 import { useWindowSize } from "@vueuse/core"
 import { useBundle } from "../../../Composables/useBundle"
 import { useFloatingButtonsDrag } from "@/Iris/Composables/useFloatingButtonsDrag"
@@ -41,7 +41,7 @@ const AppointmentDialog = defineAsyncComponent(() => import("@/Iris/Components/A
 library.add(
     faWhatsapp, faFacebookF, faFacebookMessenger, faInstagram, faXTwitter, faTelegram, faTiktok,
     faYoutube, faLinkedinIn, faLine, faWeixin, faPinterest, faSnapchat, faDiscord,
-    faEnvelope, faPhone, faComments, faGlobe, faMapMarkerAlt, faLightbulb, faQuestionCircle, faTruck, faCalendarAlt
+    faEnvelope, faPhone, faComments, faGlobe, faMapMarkerAlt, faLightbulb, faQuestionCircle, faTruck, faVideo, faStoreAlt
 )
 
 interface ChatMessage {
@@ -89,7 +89,7 @@ interface ContactOption {
     icon: string[] | null
     label: string
     url: string
-    isAppointment?: boolean
+    appointmentTypeId?: number
 }
 
 /*
@@ -210,10 +210,12 @@ const configuredContactOptions = computed<ContactOption[]>(() =>
         (option) => !isAtlassianContactOption(option) && !isBrokenContactOption(option)
     )
 )
-const isLiveChatOption = (option: ContactOption) => !option.isAppointment && !option.url?.trim()
+const isLiveChatOption = (option: ContactOption) => !option.appointmentTypeId && !option.url?.trim()
 
-const hasAppointments = computed(() => page.props?.has_appointments === true)
+const appointmentTypes = computed(() => (page.props?.appointment_types as { id: number, name: string, meeting_mode: string }[]) ?? [])
+const hasAppointments = computed(() => appointmentTypes.value.length > 0)
 const isAppointmentDialogVisible = ref(false)
+const selectedAppointmentTypeId = ref<number | null>(null)
 
 const contactOptions = computed<ContactOption[]>(() => {
     const options = configuredContactOptions.value.some(isLiveChatOption)
@@ -224,7 +226,15 @@ const contactOptions = computed<ContactOption[]>(() => {
         return options
     }
 
-    return [...options, { icon: ["fal", "calendar-alt"], label: ctrans("Book an appointment"), url: "", isAppointment: true }]
+    return [
+        ...options,
+        ...appointmentTypes.value.map((appointmentType) => ({
+            icon: ["fal", appointmentType.meeting_mode === "video_call" ? "video" : "store-alt"],
+            label: appointmentType.name,
+            url: "",
+            appointmentTypeId: appointmentType.id,
+        })),
+    ]
 })
 
 const hasContactOptionsPanel = computed(
@@ -660,7 +670,8 @@ const startChat = async () => {
 }
 
 const selectContactOption = async (option: ContactOption) => {
-    if (option.isAppointment) {
+    if (option.appointmentTypeId) {
+        selectedAppointmentTypeId.value = option.appointmentTypeId
         isAppointmentDialogVisible.value = true
         return
     }
@@ -1172,7 +1183,7 @@ if (isClient) {
             </Dialog>
         </TransitionRoot>
 
-        <AppointmentDialog v-if="hasAppointments" v-model:visible="isAppointmentDialogVisible" />
+        <AppointmentDialog v-if="hasAppointments" v-model:visible="isAppointmentDialogVisible" :appointmentTypeId="selectedAppointmentTypeId" />
     </div>
 </template>
 

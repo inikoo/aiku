@@ -670,23 +670,27 @@ test('website lists open appointment types with their free times', function () {
         ->and($types->pluck('id'))->not->toContain($closedType->id);
 });
 
-test('iris layout says whether the shop takes appointments so the floating appointment button shows', function () {
+test('iris layout lists the shop active appointment types for the help panel', function () {
     $sharesAppointments = function () {
         $request = Request::create('http://'.$this->website->domain.'/', 'GET');
         $request->merge(['website' => $this->website->fresh()]);
 
-        return (new HandleIrisInertiaRequests())->share($request)['has_appointments'];
+        return (new HandleIrisInertiaRequests())->share($request)['appointment_types'];
     };
 
     $this->shop->appointmentTypes()->update(['is_active' => false]);
-    expect($sharesAppointments())->toBeFalse();
+    expect($sharesAppointments())->toBe([]);
 
-    StoreAppointmentType::make()->action($this->shop, [
+    $appointmentType = StoreAppointmentType::make()->action($this->shop, [
         'name'             => 'Showroom visit '.Str::random(6),
         'meeting_mode'     => AppointmentTypeMeetingModeEnum::STORE_VISIT->value,
         'duration_minutes' => 60,
     ]);
-    expect($sharesAppointments())->toBeTrue();
+    expect($sharesAppointments())->toBe([[
+        'id'           => $appointmentType->id,
+        'name'         => $appointmentType->name,
+        'meeting_mode' => 'store_visit',
+    ]]);
 });
 
 test('a website video call booking needs a WhatsApp number', function () {

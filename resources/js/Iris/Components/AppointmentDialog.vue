@@ -8,6 +8,10 @@ import type { AppointmentBookingPayload, AppointmentTypeOption } from '@/Compone
 
 const isVisible = defineModel<boolean>('visible', { required: true })
 
+defineProps<{
+    appointmentTypeId?: number | null
+}>()
+
 const layout: any = inject('layout', {})
 
 const appointmentTypes = ref<AppointmentTypeOption[]>([])
@@ -51,7 +55,7 @@ const book = async (payload: AppointmentBookingPayload) => {
         dismissableMask
         :draggable="false"
         :header="ctrans('Book an appointment')"
-        :style="{ width: '56rem', maxWidth: '95vw' }"
+        :style="{ width: '65rem', maxWidth: '100vw' }"
         :breakpoints="{ '640px': '100vw' }"
     >
         <AppointmentBooking
@@ -63,6 +67,7 @@ const book = async (payload: AppointmentBookingPayload) => {
             :isLoading="isLoading"
             :showMarketingOptIn="true"
             :prefill="{ contact_name: layout?.iris_variables?.name, email: layout?.iris_variables?.email }"
+            :initialTypeId="appointmentTypeId"
             :book="book"
         />
     </Dialog>
