@@ -221,7 +221,7 @@ class StoreProductToTiktok extends RetinaAction
                     'upload_warning'  => $warnings ?: $portfolio->upload_warning
                 ]);
 
-                UpdatePlatformPortfolioLog::dispatch($logs, [
+                UpdatePlatformPortfolioLog::run($logs, [
                     'status' => PlatformPortfolioLogsStatusEnum::OK
                 ]);
             } else {
@@ -229,7 +229,7 @@ class StoreProductToTiktok extends RetinaAction
                     'errors_response' => $this->portfolioErrorResponse(Arr::get($tiktokProduct, 'data'))
                 ]);
 
-                UpdatePlatformPortfolioLog::dispatch($logs, [
+                UpdatePlatformPortfolioLog::run($logs, [
                     'status' => PlatformPortfolioLogsStatusEnum::FAIL,
                     'response' => Arr::get($tiktokProduct, 'data')
                 ]);
@@ -242,7 +242,7 @@ class StoreProductToTiktok extends RetinaAction
             ]);
 
             if ($logs) {
-                UpdatePlatformPortfolioLog::dispatch($logs, [
+                UpdatePlatformPortfolioLog::run($logs, [
                     'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
                     'response' => $e->getMessage()
                 ]);

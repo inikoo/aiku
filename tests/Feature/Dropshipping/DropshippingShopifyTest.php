@@ -60,12 +60,10 @@ use App\Actions\Dropshipping\Shopify\Product\RepairShopifyPortfolioConnections;
 use App\Actions\Dropshipping\Shopify\Product\GetShopifyCatalogueSnapshot;
 use App\Actions\Dropshipping\Shopify\Product\LinkShopifyPortfolio;
 use App\Actions\Dropshipping\Shopify\Product\UpdateShopifyInventory;
-use App\Actions\Dropshipping\Portfolio\Logs\UpdatePlatformPortfolioLog;
 use App\Enums\Ordering\PlatformLogs\PlatformPortfolioLogsStatusEnum;
 use App\Enums\Ordering\PlatformLogs\PlatformPortfolioLogsTypeEnum;
 use App\Models\Dropshipping\PlatformPortfolioLogs;
 use App\Helpers\PlatformResponseFormatter;
-use Lorisleiva\Actions\Decorators\JobDecorator;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\ShopifyUser;
 use Illuminate\Support\Facades\Http;
@@ -735,15 +733,9 @@ test('a rejected product upload keeps the portfolio unpublished with a readable 
         ->and(PlatformResponseFormatter::make()->format('Exceeded 2 calls per second for api client. Reduce request rates to resume uninterrupted service.')['hint'])->toContain('limited how fast');
 });
 
-function shopifyLoggedStatuses(): array
+function shopifyLoggedStatuses(Portfolio $portfolio): array
 {
-    return collect(Queue::pushedJobs())
-        ->flatten(1)
-        ->pluck('job')
-        ->filter(fn ($job) => $job instanceof JobDecorator && $job->getAction() instanceof UpdatePlatformPortfolioLog)
-        ->map(fn ($job) => Arr::get($job->getParameters(), '1.status'))
-        ->values()
-        ->all();
+    return PlatformPortfolioLogs::where('portfolio_id', $portfolio->id)->orderBy('id')->pluck('status')->all();
 }
 
 test('an upload records a portfolio log that ends ok when shopify accepts the product and fail when it rejects it', function () {
@@ -763,7 +755,7 @@ test('an upload records a portfolio log that ends ok when shopify accepts the pr
 
     expect($log->type)->toBe(PlatformPortfolioLogsTypeEnum::UPLOAD)
         ->and($log->platform_id)->toBe($portfolio->platform_id)
-        ->and(shopifyLoggedStatuses())->toBe([PlatformPortfolioLogsStatusEnum::FAIL]);
+        ->and(shopifyLoggedStatuses($portfolio))->toBe([PlatformPortfolioLogsStatusEnum::FAIL]);
 
     $created = shopifyProductNode('gid://shopify/Product/7300', 'gid://shopify/ProductVariant/8300', $portfolio->sku);
 
@@ -781,7 +773,7 @@ test('an upload records a portfolio log that ends ok when shopify accepts the pr
     StoreNewProductToCurrentShopify::make()->handle($portfolio, []);
 
     expect(PlatformPortfolioLogs::where('portfolio_id', $portfolio->id)->count())->toBe(2)
-        ->and(shopifyLoggedStatuses())->toBe([PlatformPortfolioLogsStatusEnum::FAIL, PlatformPortfolioLogsStatusEnum::OK]);
+        ->and(shopifyLoggedStatuses($portfolio))->toBe([PlatformPortfolioLogsStatusEnum::FAIL, PlatformPortfolioLogsStatusEnum::OK]);
 });
 
 test('checking an unmatched portfolio stores the shopify matches in the shape the retina table expects', function () {
@@ -1510,11 +1502,6 @@ test('the stock push stores each product log with its outcome in one insert, sta
     ]);
 
     $logsOf = fn (Portfolio $portfolio) => PlatformPortfolioLogs::where('portfolio_id', $portfolio->id)->orderBy('id')->get();
-    $queuedLogUpdates = fn () => collect(Queue::pushedJobs())->flatten(1)->pluck('job')
-        ->filter(fn ($job) => $job instanceof JobDecorator && $job->getAction() instanceof UpdatePlatformPortfolioLog)
-        ->map(fn ($job) => ['log' => $job->getParameters()[0], 'data' => $job->getParameters()[1]])
-        ->values();
-
     $firstRun = $this->freezeSecond();
     $statements = [];
     \Illuminate\Support\Facades\DB::listen(function ($query) use (&$statements) {
@@ -1572,8 +1559,6 @@ test('the stock push stores each product log with its outcome in one insert, sta
             ->and($logs[0]->created_at->equalTo($firstRun))->toBeTrue()
             ->and($logs[0]->updated_at->equalTo($firstRun))->toBeTrue();
     }
-    expect($queuedLogUpdates())->toBeEmpty();
-
     Queue::fake();
     ShopifyFake::fake([
         'getProductsVariants'    => fn (array $variables) => ShopifyFake::graphql(['nodes' => array_map(fn (string $id) => ['id' => $id, 'status' => 'ACTIVE', 'variants' => ['edges' => [$variantEdge((int) Str::after($id, 'Product/76'))]]], $variables['ids'])]),
@@ -1593,7 +1578,6 @@ test('the stock push stores each product log with its outcome in one insert, sta
             ->and($logsOf($portfolio)[1]->status)->toBe(PlatformPortfolioLogsStatusEnum::FAIL)
             ->and($logsOf($portfolio)[1]->response)->toContain('Throttled');
     }
-    expect($queuedLogUpdates())->toBeEmpty();
 });
 
 test('the six-hourly stock push only queues open channels that want stock updates and are live on shopify', function () {
