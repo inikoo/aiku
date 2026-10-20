@@ -23,6 +23,7 @@ use App\Events\BroadcastProductDevelopmentBadgeUpdate;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Inertia\DeferProp;
 use Inertia\Inertia;
 
@@ -40,6 +41,8 @@ class ProductDevelopmentWaitingOn
     public const string KIND_SIGN_OFF = 'sign_off';
 
     public const string REMINDED_SETTING = 'product_development_reminded';
+
+    public const int RAIL_BADGE_CACHE_SECONDS = 120;
 
     public const int WIDGET_LIMIT = 6;
 
@@ -242,11 +245,31 @@ class ProductDevelopmentWaitingOn
 
     /**
      * The rail badge: how much waits on the person and how much of it is late; null for anyone not taking
-     * part in an active development, so the badge never shows for them.
+     * part in an active development, so the badge never shows for them. It is shown on every full page load,
+     * and working it out reads each of the person's developments, so it is kept for two minutes; a reminder
+     * and opening the badge refresh it at once.
      *
      * @return array{waiting: int, late: int, reminded: bool}|null
      */
     public static function railBadge(User $user): ?array
+    {
+        return Cache::remember(self::railBadgeCacheKey($user), self::RAIL_BADGE_CACHE_SECONDS, fn () => self::computeRailBadge($user));
+    }
+
+    public static function forgetRailBadge(User $user): void
+    {
+        Cache::forget(self::railBadgeCacheKey($user));
+    }
+
+    private static function railBadgeCacheKey(User $user): string
+    {
+        return 'product-development-rail-badge:'.$user->id;
+    }
+
+    /**
+     * @return array{waiting: int, late: int, reminded: bool}|null
+     */
+    private static function computeRailBadge(User $user): ?array
     {
         if (!self::takesPart($user)) {
             return null;
@@ -268,6 +291,7 @@ class ProductDevelopmentWaitingOn
     {
         $user->refresh();
         $user->updateQuietly(['settings' => [...($user->settings ?? []), self::REMINDED_SETTING => true]]);
+        self::forgetRailBadge($user);
         BroadcastProductDevelopmentBadgeUpdate::dispatch($user->id, self::railBadge($user));
     }
 
@@ -277,5 +301,6 @@ class ProductDevelopmentWaitingOn
         if (Arr::get($user->settings ?? [], self::REMINDED_SETTING)) {
             $user->updateQuietly(['settings' => [...($user->settings ?? []), self::REMINDED_SETTING => false]]);
         }
+        self::forgetRailBadge($user);
     }
 }
