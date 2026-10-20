@@ -60,6 +60,8 @@ interface Reading {
     charges?: { label: string; amount: number }[]
     charge_types?: { label: string; value: string }[]
     replaces_typed?: { amount: number; currency: string | null } | null
+    not_received?: { amount: number; codes: (string | null)[] } | null
+    not_invoiced?: { amount: number; codes: (string | null)[] } | null
     delivery_currency?: string | null
     currency_mismatch?: boolean
     exchange?: number | null
@@ -313,6 +315,15 @@ const apply = (invoice: Invoice, currencyChoice: { follow_invoice?: boolean; exc
                             :invalid="!drafts[draftKey(invoice)].chargeTypes[index]" :disabled="!canEdit || !invoice.reading.can_apply" />
                     </div>
                 </div>
+
+                <p v-if="invoice.reading.not_received" class="text-amber-700">
+                    <FontAwesomeIcon :icon="faExclamationTriangle" fixed-width aria-hidden="true" />
+                    {{ ctrans("The invoice charges :amount for goods that were not received (:codes): it stays out of the goods cost, ask the supplier for a credit.", { amount: String(money(invoice.reading.not_received.amount, invoice.reading.currency)), codes: invoice.reading.not_received.codes.join(", ") }) }}
+                </p>
+                <p v-if="invoice.reading.not_invoiced" class="text-amber-700">
+                    <FontAwesomeIcon :icon="faExclamationTriangle" fixed-width aria-hidden="true" />
+                    {{ ctrans("More was received than invoiced (:codes): the extra goods are costed at the invoice price, :amount.", { amount: String(money(invoice.reading.not_invoiced.amount, invoice.reading.currency)), codes: invoice.reading.not_invoiced.codes.join(", ") }) }}
+                </p>
 
                 <p v-if="invoice.reading.replaces_typed && invoice.reading.can_apply" class="text-amber-700">
                     <FontAwesomeIcon :icon="faExclamationTriangle" fixed-width aria-hidden="true" />

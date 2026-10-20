@@ -144,6 +144,14 @@ class GetStockDeliveryInvoiceCosting
                 $invoice['quantity'] > 0 => round($invoice['amount'] / $invoice['quantity'] * $quantity, 2),
                 default                  => round($invoice['amount'], 2),
             };
+            $ordered   = (float) $item->unit_quantity;
+            $orderUnit = $expectedInInvoiceCurrency !== null && $ordered > 0 ? $expectedInInvoiceCurrency / $ordered : null;
+            $farFrom   = fn (float $value, float $reference) => abs($value - $reference) > max($reference * self::CHECK_SHARE, self::TOLERANCE);
+            $needsCheck = match (true) {
+                !$invoice || $orderUnit === null => false,
+                $invoice['quantity'] > 0         => $farFrom($invoice['amount'] / $invoice['quantity'], $orderUnit),
+                default                          => $farFrom($invoice['amount'], $expectedInInvoiceCurrency),
+            };
 
             return [
                 'id'               => $item->id,
@@ -157,7 +165,7 @@ class GetStockDeliveryInvoiceCosting
                 'quantity_differs' => $invoice && abs($invoice['quantity'] - $quantity) > self::TOLERANCE,
                 'amount_differs'   => $invoice && $expectedInInvoiceCurrency !== null && abs($invoice['amount'] - $expectedInInvoiceCurrency) > self::TOLERANCE,
                 'proposed_cost'    => $proposed,
-                'needs_check'      => $invoice && $expectedInInvoiceCurrency !== null && abs($proposed - $expectedInInvoiceCurrency) > max($expectedInInvoiceCurrency * self::CHECK_SHARE, self::TOLERANCE),
+                'needs_check'      => $needsCheck,
             ];
         })->values();
 
@@ -186,7 +194,7 @@ class GetStockDeliveryInvoiceCosting
             __('The invoice :reference is already on the delivery :delivery.', ['reference' => (string) $reading['invoice_number'], 'delivery' => (string) $enteredOn]) => (bool) $enteredOn,
             __('The invoice of this delivery is already entered (:reference): change it with Invoice.', ['reference' => (string) $recorded?->reference]) => !$applied && $recorded && $recorded->source !== StockDeliveryInvoiceSourceEnum::ESTIMATED,
             __('Another invoice read for this delivery is already in its costing.') => !$applied && $media && $this->otherReadingApplied($stockDelivery, $media),
-            __('The cost of :codes lands far from what was ordered, the invoice may count packs or cartons: enter it by hand.', ['codes' => $codes($toCheck)]) => $toCheck->isNotEmpty(),
+            __('The invoice price of :codes is far from the order price, the invoice may count packs or cartons: enter it by hand.', ['codes' => $codes($toCheck)]) => $toCheck->isNotEmpty(),
             __('These products of the delivery are not on the invoice: :codes. Enter it by hand.', ['codes' => $codes($notInvoiced)]) => $notInvoiced->isNotEmpty(),
             __('Check what was received before applying the invoice: the costs follow the quantities received.') => !$applied && in_array($stockDelivery->state, [StockDeliveryStateEnum::IN_PROCESS, StockDeliveryStateEnum::CONFIRMED, StockDeliveryStateEnum::READY_TO_SHIP, StockDeliveryStateEnum::DISPATCHED, StockDeliveryStateEnum::RECEIVED], true),
             __('This delivery is costed, an accounting manager can change it with Update costing.') => !$applied && (bool) $stockDelivery->is_costed,
@@ -207,6 +215,8 @@ class GetStockDeliveryInvoiceCosting
             'not_in_delivery'       => $notInDelivery,
             'items'                 => $reviewItems->all(),
             'charge_types'          => StockDeliveryServiceInvoiceTypeEnum::extraOptions(),
+            'not_received'          => $this->quantityGap($reviewItems->filter(fn (array $row) => $row['proposed_cost'] !== null && $row['invoice_amount'] - $row['proposed_cost'] > self::TOLERANCE), fn (array $row) => $row['invoice_amount'] - $row['proposed_cost']),
+            'not_invoiced'          => $this->quantityGap($reviewItems->filter(fn (array $row) => $row['proposed_cost'] !== null && $row['proposed_cost'] - $row['invoice_amount'] > self::TOLERANCE), fn (array $row) => $row['proposed_cost'] - $row['invoice_amount']),
             'replaces_typed'        => $typed && $typed->amount !== null && (StockDeliveryDocumentChecks::normalise($typed->currency?->code ?? $deliveryCurrency) !== StockDeliveryDocumentChecks::normalise($currency?->code) || abs((float) $typed->amount - (float) $total) > self::TOLERANCE)
                 ? ['amount' => (float) $typed->amount, 'currency' => $typed->currency?->code ?? $deliveryCurrency]
                 : null,
@@ -214,6 +224,20 @@ class GetStockDeliveryInvoiceCosting
             'needs_manual_check'    => !$checks['text_available'] || $checks['mentions_delivery'] === null,
             'delivery_confirmation' => $checks['mentions_delivery'] === false && !$applied ? GetStockDeliveryServiceInvoiceReadings::deliveryConfirmation($stockDelivery, $reading) : null,
             'can_apply'             => !$problems && !$applied,
+        ];
+    }
+
+    /**
+     * Lines where what was received differs from what was invoiced, and the money that difference is worth at the
+     * invoice price: paid for and not received is for a supplier claim, received and not invoiced is costed anyway.
+     *
+     * @return array{amount: float, codes: array<int, string|null>}|null
+     */
+    private function quantityGap(\Illuminate\Support\Collection $rows, callable $amount): ?array
+    {
+        return $rows->isEmpty() ? null : [
+            'amount' => round($rows->sum($amount), 2),
+            'codes'  => $rows->pluck('code')->values()->all(),
         ];
     }
 

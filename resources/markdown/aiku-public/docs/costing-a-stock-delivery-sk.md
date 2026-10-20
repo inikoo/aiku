@@ -39,7 +39,9 @@ Priložte faktúru dodávateľa k dodávke ako **Invoice** alebo **Proforma**, p
 
 Sumy sa pri kontrole nedajú meniť. Náklad na tovar každého produktu je cena z faktúry krát prijaté množstvo. Vy iba určíte, kam patrí riadok faktúry, ktorý nezodpovedá žiadnemu produktu (k produktu alebo **Invoiced but not in the delivery**), a aký druh výdavku je každý poplatok, a stlačíte **Apply to costing**. Dá sa to urobiť hneď, ako je dodávka skontrolovaná, aby boli náklady zadané skôr, než sa tovar uloží.
 
-Načítanie sa odmietne a faktúru zadáte ručne, keď niektorá kontrola zlyhá, keď na faktúre chýba produkt dodávky, keď náklad vyjde ďaleko od objednaného (faktúra môže počítať balenia alebo kartóny), keď má faktúra zľavu alebo dobropis, alebo keď je faktúra dodávky už zadaná.
+Keď sa prijalo menej, než je fakturované, kontrola ukáže, koľko faktúra účtuje za tovar, ktorý neprišiel: táto suma zostane mimo nákladu na tovar, preto požiadajte dodávateľa o dobropis. Keď sa prijalo viac, než je fakturované, tovar navyše sa ocení cenou z faktúry.
+
+Načítanie sa odmietne a faktúru zadáte ručne, keď niektorá kontrola zlyhá, keď na faktúre chýba produkt dodávky, keď je cena na faktúre ďaleko od ceny v objednávke (faktúra môže počítať balenia alebo kartóny), keď má faktúra zľavu alebo dobropis, alebo keď je faktúra dodávky už zadaná.
 
 Pri dodávke nakúpenej cez agenta stlačte **Agent payments**, aby ste schválili poplatky agenta a zaznamenali, čo ste agentovi zaplatili. Poplatky agenta sa do oceňovania započítajú až po vašom schválení.
 

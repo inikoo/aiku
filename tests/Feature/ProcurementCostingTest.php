@@ -1945,6 +1945,8 @@ test('a supplier invoice is read by two models and enters the costing exactly as
         ->and($review['items'][0]['invoice_amount'])->toEqual(114)
         ->and($review['items'][0]['quantity_differs'])->toBeTrue()
         ->and($review['items'][0]['proposed_cost'])->toEqual(95)
+        ->and($review['not_received'])->toBe(['amount' => 19.0, 'codes' => ["INVREAD-$token"]])
+        ->and($review['not_invoiced'])->toBeNull()
         ->and($review['unmatched'])->toHaveCount(1)
         ->and($review['unmatched'][0]['index'])->toBe(1)
         ->and((float) $item->fresh()->cost_items)->toEqualWithDelta(0, 0.001);
@@ -2046,7 +2048,7 @@ test('a supplier invoice reading that fails a check is refused and never reaches
     expect($problems($disagree))->toContain('do not agree on: the lines')
         ->and($problems($notPrinted))->toContain('not printed in the document: 101.00')
         ->and($problems($notAddingUp))->toContain('add up to 109.00')
-        ->and($problems($inCartons))->toContain('lands far from what was ordered')
+        ->and($problems($inCartons))->toContain('far from the order price')
         ->and($clean['problems'])->toBe([]);
 
     $stockDelivery->update(['state' => StockDeliveryStateEnum::RECEIVED]);

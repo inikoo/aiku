@@ -39,7 +39,9 @@ Adjunta la factura del proveedor a la entrega como **Invoice** o **Proforma** y,
 
 En la revisión no se pueden cambiar los importes. El coste de cada producto es el precio de la factura por lo recibido. Solo indicas a dónde va una línea de la factura que no coincide con ningún producto (a un producto, o **Invoiced but not in the delivery**) y qué tipo de gasto es cada cargo, y pulsas **Apply to costing**. Se puede aplicar en cuanto la entrega está revisada, para que los costes estén antes de ubicar la mercancía.
 
-La lectura se rechaza, y la factura se introduce a mano, cuando falla una comprobación, cuando falta en la factura un producto de la entrega, cuando un coste queda lejos de lo pedido (la factura puede contar paquetes o cajas), cuando la factura tiene un descuento o abono, o cuando la factura de la entrega ya está introducida.
+Si se recibió menos de lo facturado, la revisión indica cuánto cobra la factura por mercancía que no llegó: ese importe queda fuera del coste de la mercancía, así que pide un abono al proveedor. Si se recibió más de lo facturado, la mercancía de más se valora al precio de la factura.
+
+La lectura se rechaza, y la factura se introduce a mano, cuando falla una comprobación, cuando falta en la factura un producto de la entrega, cuando un precio de la factura queda lejos del precio del pedido (la factura puede contar paquetes o cajas), cuando la factura tiene un descuento o abono, o cuando la factura de la entrega ya está introducida.
 
 Para una entrega comprada a través de un agente, pulsa **Agent payments** para aprobar los cargos del agente y registrar lo que le has pagado. Los cargos del agente solo cuentan en el coste cuando los apruebas.
 

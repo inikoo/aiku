@@ -39,7 +39,9 @@ Attach the supplier's invoice to the delivery as **Invoice** or **Proforma**, th
 
 The amounts cannot be changed in the review. Each product's goods cost is the invoice price times what was received. You only say where an invoice line that matches no product goes (to a product, or **Invoiced but not in the delivery**) and what kind of expense each charge is, then press **Apply to costing**. It can be applied once the delivery is checked, so the costs are in before the goods are put away.
 
-The reading is refused, and you enter the invoice by hand, when a check fails, when a product of the delivery is missing from the invoice, when a cost lands far from what was ordered (the invoice may count packs or cartons), when the invoice has a discount or credit, or when the invoice of the delivery is already entered.
+When fewer were received than invoiced, the review says how much the invoice charges for goods that did not arrive: that money stays out of the goods cost, so ask the supplier for a credit. When more were received than invoiced, the extra goods are costed at the invoice price.
+
+The reading is refused, and you enter the invoice by hand, when a check fails, when a product of the delivery is missing from the invoice, when an invoice price is far from the order price (the invoice may count packs or cartons), when the invoice has a discount or credit, or when the invoice of the delivery is already entered.
 
 For a delivery bought through an agent, press **Agent payments** to approve the agent's charges and to record what you have paid the agent. The agent's charges only count in the costing once you approve them.
 
