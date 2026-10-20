@@ -271,6 +271,22 @@ function waitingShopifyUser(Customer $customer, string $name, string $password, 
     ]);
 }
 
+test('a shopify install that loses the race to create its store row goes on to the app like the one that won, without spending the oauth code again', function () {
+    LaunchWebsite::make()->action(createWebsite($this->shop));
+    $customer = StoreCustomer::make()->action($this->shop, Customer::factory()->definition());
+    waitingShopifyUser($customer, 'raced-store.myshopify.com', 'shpat_merchant_token');
+    Config::set('shopify-app.api_secret', 'test-secret');
+
+    $race = new Illuminate\Database\UniqueConstraintViolationException('pgsql', 'insert into shopify_users', [], new Exception('shopify_users_email_unique'));
+    app()->instance(AuthenticateShop::class, Mockery::mock(AuthenticateShop::class, function ($mock) use ($race) {
+        $mock->shouldReceive('__invoke')->once()->andThrow($race);
+    }));
+
+    $this->get(signedShopifyCallback('raced-store.myshopify.com'))
+        ->assertRedirect()
+        ->assertRedirectContains('raced-store.myshopify.com');
+});
+
 test('typing the name of a store installed by someone else neither links it nor touches its token, it only sends the customer to shopify', function () {
     Http::fake(['*' => Http::response(['myshopify_domain' => 'installed-store.myshopify.com'])]);
     DetectWebsiteFromDomain::mock()->shouldReceive('handle')->andReturn(LaunchWebsite::make()->action(createWebsite($this->shop)));
