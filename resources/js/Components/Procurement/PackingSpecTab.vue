@@ -523,7 +523,7 @@ const liveLinesOf = (level: Level) => props.data.live?.lines.filter((line) => li
 				<div class="space-y-1">
 					<span class="block text-xs text-gray-500">
 						<FontAwesomeIcon :icon="faCamera" fixed-width aria-hidden="true" />
-						{{ data.live?.photo ? ctrans("Photo of an opened carton (keep the current one if empty)") : ctrans("Photo of an opened carton (required)") }}
+						{{ data.live?.photo ? ctrans("Photo of an opened carton (keep the current one if empty)") : ctrans("Photo of an opened carton (optional)") }}
 					</span>
 					<FileUpload mode="basic" accept="image/*" :auto="false" customUpload :chooseLabel="form.photo ? form.photo.name : ctrans('Choose photo')" :pt="chooseFilePt" @select="(event: { files: File[] }) => (form.photo = event.files[0] ?? null)" />
 					<div v-if="form.errors.photo" class="text-xs text-red-600">{{ form.errors.photo }}</div>

@@ -39,7 +39,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 /**
  * The agent declares how a supplier product is packed. Each save is a new version that supersedes the live one, so
- * deliveries keep the packing they were packed with. The opened-carton photo is required, carried over from the
+ * deliveries keep the packing they were packed with. The opened-carton photo is optional, carried over from the
  * version before when no new one is sent. "Same packing as" copies the version to other products of the same agent.
  * A packaging note goes on the supplier so purchasing sees the change.
  */
@@ -191,10 +191,6 @@ class StorePackingSpec extends OrgAction
             if ($component->needs_review && !Arr::get($line, 'description')) {
                 $validator->errors()->add("lines.$index.description", __('Describe the packing material'));
             }
-        }
-
-        if ($this->supplierProduct && !$this->get('photo') && !$this->previousPhoto()) {
-            $validator->errors()->add('photo', __('Add a photo of an opened carton'));
         }
     }
 
