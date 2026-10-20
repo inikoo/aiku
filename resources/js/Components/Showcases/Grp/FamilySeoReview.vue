@@ -153,7 +153,7 @@ const faqParts = [
                 </p>
                 <p v-if="!data.can_review" class="text-sm font-semibold text-amber-800">{{ ctrans("Only the SEO team can write suggestions.") }}</p>
             </div>
-            <Button v-if="data.can_review" type="tertiary" :label="ctrans('Send suggestions to webmaster')" :loading="form.processing" @click="send">
+            <Button v-if="data.can_review" type="tertiary" :label="ctrans('Create task for webmaster')" :loading="form.processing" @click="send">
                 <template #icon>
                     <FontAwesomeIcon :icon="faPaperPlane" class="text-green-600" fixed-width aria-hidden="true" />
                 </template>

@@ -93,7 +93,7 @@ const send = () => {
                 <Button
                     v-if="!isReadOnly"
                     type="tertiary"
-                    :label="ctrans('Send suggestions to webmaster')"
+                    :label="ctrans('Create task for webmaster')"
                     :disabled="!writtenCount || isSending"
                     :loading="isSending"
                     @click="send"
