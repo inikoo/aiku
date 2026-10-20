@@ -35,7 +35,6 @@ import Checkbox from "primevue/checkbox"
 import IconField from "primevue/iconfield"
 import InputIcon from "primevue/inputicon"
 import InputText from "primevue/inputtext"
-import Image from "@common/Components/Image.vue"
 import RadioButton from "primevue/radiobutton"
 import ConfirmDialog from "primevue/confirmdialog"
 import DatePicker from "primevue/datepicker"
@@ -45,7 +44,10 @@ import StaffTaskDialog from "@/Components/Tasks/StaffTaskDialog.vue"
 import AspoDepositsChecklist from "@/Components/Procurement/AspoDepositsChecklist.vue"
 import PurchaseOrderPayments from "@/Components/Procurement/PurchaseOrderPayments.vue"
 import PurchaseOrderDepositPayments, { type PurchaseOrderPaymentsData } from "@/Components/Procurement/PurchaseOrderDepositPayments.vue"
+import AgentPurchaseOrderMoney, { type AgentPurchaseOrderMoneyData } from "@/Components/Procurement/AgentPurchaseOrderMoney.vue"
 import PurchaseOrderStages from "@/Components/Procurement/PurchaseOrderStages.vue"
+import AgentPurchaseOrderGoodsReceipts from "@/Components/Procurement/AgentPurchaseOrderGoodsReceipts.vue"
+import ZoomableImage from "@/Components/Utils/ZoomableImage.vue"
 import ButtonDownloadWithOptions from "@/Components/Utils/ButtonDownloadWithOptions.vue"
 import { useConfirm } from "primevue/useconfirm"
 import { notify } from "@kyvg/vue3-notification"
@@ -132,16 +134,19 @@ const props = defineProps < {
         number_purchase_orders: number
     }[]
     stages?: { stages: InstanceType<typeof PurchaseOrderStages>["$props"]["stages"]; route: routeType; upload_route: routeType | null } | null
+    agent_receiving?: InstanceType<typeof AgentPurchaseOrderGoodsReceipts>["$props"]["receiving"] | null
     compliance?: object
     compliance_summary?: InstanceType<typeof TablePurchaseOrderComplianceDocuments>["$props"]["compliance"]
     deposits?: object | null
     payments?: PurchaseOrderPaymentsData | null
+    agent_money?: AgentPurchaseOrderMoneyData | null
     delivery_items: {
         id: number
         code: string | null
         name: string | null
         quantity_ordered: number | string
         image_thumbnail: object | null
+        image_full: { original_url: string; download_url: string } | null
     }[]
     submit_problems?: SubmitProblem[]
 	agreement: { terms: object[], notes: object[], open_incidents: number, must_acknowledge: boolean }
@@ -379,11 +384,18 @@ const summaryGroups = computed(() => {
 		],
 		[{ label: ctrans("Total"), price_total: Number(total) || 0, information: inOrgCurrency ? `${orgMoney(Number(total) * rate)} · ${moneyTable.value.rateLabel}` : undefined }],
 		...(Number(props.box_stats.third_block.estimated_expenses) > 0
-			? [[{
-				label: ctrans("Estimated total incl. supplier expenses"),
-				price_total: (Number(total) || 0) + Number(props.box_stats.third_block.estimated_expenses),
-				information: ctrans("estimate, for budgeting"),
-			}]]
+			? [[
+				{
+					label: ctrans("Supplier expenses"),
+					price_total: Number(props.box_stats.third_block.estimated_expenses),
+					information: ctrans("unit expense × quantity"),
+				},
+				{
+					label: ctrans("Estimated total incl. supplier expenses"),
+					price_total: (Number(total) || 0) + Number(props.box_stats.third_block.estimated_expenses),
+					information: ctrans("estimate, for budgeting"),
+				},
+			]]
 			: []),
 	]
 })
@@ -1005,7 +1017,17 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 		</template>
 
 		<template #button-confirm-purchase-order="{ action }">
+			<span v-if="action.disabled_reason" v-tooltip="action.disabled_reason" class="inline-flex cursor-not-allowed items-center gap-2">
+				<Button
+					:style="action.style"
+					:label="action.label"
+					:icon="action.icon"
+					disabled
+					class="pointer-events-none"
+				/>
+			</span>
 			<Button
+				v-else
 				:style="action.style"
 				:label="action.label"
 				:icon="action.icon"
@@ -1082,7 +1104,10 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 	</PageHeading>
 
 	<PurchaseOrderStages v-if="stages" :stages="stages.stages" :route="stages.route" :uploadRoute="stages.upload_route">
-		<template v-if="payments" #stage-deposit_paid>
+		<template v-if="agent_money" #stage-deposit_paid>
+			<AgentPurchaseOrderMoney :money="agent_money" />
+		</template>
+		<template v-else-if="payments" #stage-deposit_paid>
 			<PurchaseOrderDepositPayments :payments="payments" :org-currency-code="box_stats.third_block.org_currency" :org-rate="paymentsOrgRate" />
 		</template>
 	</PurchaseOrderStages>
@@ -1094,9 +1119,14 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 			:format-time="'MMMM d yyyy, HH:mm'"
 		/>
 	</div>
-	<div v-if="!stages && payments" class="max-w-sm border-b border-gray-300 px-4 pb-3">
+	<div v-if="!stages && agent_money" class="max-w-sm border-b border-gray-300 px-4 pb-3">
+		<AgentPurchaseOrderMoney :money="agent_money" />
+	</div>
+	<div v-else-if="!stages && payments" class="max-w-sm border-b border-gray-300 px-4 pb-3">
 		<PurchaseOrderDepositPayments :payments="payments" :org-currency-code="box_stats.third_block.org_currency" :org-rate="paymentsOrgRate" />
 	</div>
+
+	<AgentPurchaseOrderGoodsReceipts v-if="agent_receiving" :receiving="agent_receiving" />
 
 	<div
 		v-for="stockDelivery in stock_delivery_timelines"
@@ -1611,6 +1641,10 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 		:draggable="false"
 	>
 		<div class="flex flex-col gap-4">
+			<p v-if="newStockDeliveryAction?.agent_note" class="flex gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+				<FontAwesomeIcon icon="fal fa-exclamation-triangle" class="mt-0.5 text-amber-500" fixed-width aria-hidden="true" />
+				<span>{{ newStockDeliveryAction.agent_note }}</span>
+			</p>
 			<div v-if="open_agent_deliveries.length" class="flex flex-col gap-2">
 				<label for="purchase-order-target-delivery" class="font-medium text-gray-700">{{ ctrans("Add to") }}</label>
 				<Select
@@ -1673,9 +1707,7 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 				class="flex cursor-pointer items-center gap-3 p-3 hover:bg-gray-50"
 			>
 				<Checkbox v-model="selectedDeliveryItemIds" :value="item.id" />
-				<div class="h-12 w-12 flex-none overflow-hidden rounded border border-gray-100">
-					<Image :src="item.image_thumbnail" imageCover class="h-12 w-12" />
-				</div>
+				<ZoomableImage :src="item.image_thumbnail" :full="item.image_full" :alt="item.code" class="h-12 w-12" @click.prevent />
 				<span class="min-w-0 flex-1">
 					<span class="block font-medium text-gray-800">{{ item.code || ctrans("No code") }}</span>
 					<span class="block truncate text-sm text-gray-500">{{ item.name }}</span>

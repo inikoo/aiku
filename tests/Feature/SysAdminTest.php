@@ -96,6 +96,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
@@ -1334,8 +1335,8 @@ test('UI show organisation setting', function () {
             ->has('breadcrumbs', 2)
             ->has('formData.blueprint.0.fields', 5)
             ->has('formData.blueprint.1.fields', 2)
-            ->where('formData.blueprint.10.fields.box_packing_list.type', 'toggle')
-            ->where('formData.blueprint.10.fields.box_packing_list_destinations.type', 'box_packing_list_destinations')
+            ->where('formData.blueprint.11.fields.box_packing_list.type', 'toggle')
+            ->where('formData.blueprint.11.fields.box_packing_list_destinations.type', 'box_packing_list_destinations')
             ->has('pageHead')
             ->has(
                 'formData.args.updateRoute',
@@ -1942,6 +1943,20 @@ test('UI sysadmin user show/edit/create/actions', function (User $user) {
     get(route('grp.sysadmin.users.show', [$user]))->assertOk();
     get(route('grp.sysadmin.users.edit', [$user]))->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page->has('formData.blueprint.permissions.fields.permissions.options.'.$user->getOrganisation()->slug.'.productions'));
+
+    $user->update(['can_use_mcp' => true]);
+    get(route('grp.sysadmin.users.edit', [$user]))->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->missing('formData.blueprint.0.fields.can_use_mcp_sql.boxed')
+            ->where('formData.blueprint.0.fields.can_use_mcp_discontinue.boxed', true)
+            ->where('formData.blueprint.0.fields.can_use_mcp_customer_service.boxed', true)
+            ->where('formData.blueprint.0.fields.can_use_mcp_web.label', 'Can change website content and redirects')
+            ->where('formData.blueprint.0.fields.can_use_mcp_web.help.title', 'Change website content and redirects')
+            ->has('formData.blueprint.0.fields.can_use_mcp_place_orders.help.items', 4)
+            ->has('formData.blueprint.0.fields.can_use_mcp.help.note')
+            ->missing('formData.blueprint.0.fields.can_use_mcp.boxed'));
+    $user->update(['can_use_mcp' => false]);
+
     get(route('grp.sysadmin.users.show.actions.index', [$user]))->assertOk();
     get(route('grp.sysadmin.users.show.visit_logs.index', [$user]))->assertOk();
 })->depends('SetUserAuthorisedModels command');
@@ -2560,7 +2575,6 @@ test('every audit event has its columns on the audit stats tables', function () 
         'organisation_stats'   => 'auditFields',
         'user_stats'           => 'auditFieldsForNonSystem',
         'web_user_stats'       => 'auditFieldsForNonSystem',
-        'supplier_user_stats'  => 'auditFieldsForNonSystem',
     ];
 
     foreach ($auditFieldsByTable as $tableName => $auditFields) {
@@ -2711,4 +2725,142 @@ test('an agent manager is not a task supervisor and sees only the tasks involvin
 
     expect(\App\Models\Tasks\StaffTask::isSupervisor($agentManager))->toBeFalse()
         ->and(\App\Models\Tasks\StaffTask::seesEveryTask($agentManager))->toBeFalse();
+})->depends('create guest');
+
+test('user access tokens are created and deleted only by sysadmin editors', function (Guest $guest) {
+    $group = $guest->group;
+    app()->instance('group', $group);
+    setPermissionsTeamId($group->id);
+
+    $guestData = Guest::factory()->definition();
+    data_set($guestData, 'user.username', 'access-token-holder');
+    $tokenHolder = StoreGuest::make()->action($group, $guestData)->getUser();
+
+    $guestData = Guest::factory()->definition();
+    data_set($guestData, 'user.username', 'access-token-manager');
+    $manager = StoreGuest::make()->action($group, $guestData)->getUser();
+
+    $plainText = StoreUserAccessToken::make()->action($tokenHolder, []);
+    $token     = PersonalAccessToken::findToken(explode('|', $plainText)[1]);
+
+    actingAsUserWithOnlyPermissions($manager, ['sysadmin.view']);
+
+    \Pest\Laravel\postJson(route('grp.models.user.access-token.create', ['user' => $tokenHolder->id]))->assertForbidden();
+    \Pest\Laravel\deleteJson(route('grp.models.access_token.delete', ['token' => $token->id]))->assertForbidden();
+
+    expect($tokenHolder->fresh()->tokens()->count())->toBe(1)
+        ->and(Route::has('grp.models.organisation.store'))->toBeFalse();
+
+    actingAsUserWithOnlyPermissions($manager, ['sysadmin.edit']);
+
+    $response = \Pest\Laravel\postJson(route('grp.models.user.access-token.create', ['user' => $tokenHolder->id]))->assertOk();
+
+    expect($response->json('token'))->toBeString()->toContain('|')
+        ->and($tokenHolder->fresh()->tokens()->count())->toBe(2);
+})->depends('create guest');
+
+test('organisation settings change log needs org admin, a sales channel group access and its edit page sysadmin edit, INI-076', function () {
+    $organisation = createOrganisation();
+    $salesChannel = \App\Models\Ordering\SalesChannel::firstOrFail();
+    $changelog    = route('grp.org.settings.changelogs', $organisation->slug);
+    $show         = route('grp.sales_channels.show', $salesChannel->slug);
+    $edit         = route('grp.sales_channels.edit', $salesChannel->slug);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $organisation->group_id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["human-resources.$organisation->id.view"]);
+    foreach ([$changelog, $show, $edit] as $url) {
+        $this->get($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["org-admin.$organisation->id"]);
+    $this->get($changelog)->assertOk();
+
+    actingAsUserWithOnlyPermissions($user, ['sysadmin.view']);
+    $this->get($show)->assertOk()->assertInertia(fn (AssertableInertia $page) => $page->where('pageHead.actions', []));
+    $this->get($edit)->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ['sysadmin.view', 'sysadmin.edit']);
+    $this->get($edit)->assertOk();
+});
+
+test('a staff password is reset only with a valid reset token for that email, INI-076', function () {
+    $group = createGroup();
+    $user  = User::factory()->create(['group_id' => $group->id, 'status' => true, 'email' => 'reset-'.uniqid().'@example.com', 'password' => 'old-password']);
+    $other = User::factory()->create(['group_id' => $group->id, 'status' => true, 'email' => 'other-'.uniqid().'@example.com']);
+    $url   = route('grp.reset-password.email.update');
+
+    $this->patch($url, ['email' => $user->email, 'password' => 'new-password-1'])->assertSessionHasErrors('token');
+    $this->patch($url, ['email' => $user->email, 'password' => 'new-password-1', 'token' => 'not-a-token'])->assertSessionHasErrors('token');
+    $this->patch($url, ['email' => $user->email, 'password' => 'new-password-1', 'token' => \Illuminate\Support\Facades\Password::broker('users')->createToken($other)])->assertSessionHasErrors('token');
+    expect(Hash::check('old-password', $user->refresh()->password))->toBeTrue();
+
+    $token = \Illuminate\Support\Facades\Password::broker('users')->createToken($user);
+    $this->patch($url, ['email' => $user->email, 'password' => 'new-password-1', 'token' => $token])->assertSessionHasNoErrors();
+    expect(Hash::check('new-password-1', $user->refresh()->password))->toBeTrue();
+
+    $this->patch($url, ['email' => $user->email, 'password' => 'new-password-2', 'token' => $token])->assertSessionHasErrors('token');
+    expect(Hash::check('new-password-1', $user->refresh()->password))->toBeTrue();
+});
+
+test('the staff reset email links to the set new password page and its token resets the password, and an unknown email is answered the same, INI-076', function () {
+    \Illuminate\Support\Facades\Notification::fake();
+
+    $group = createGroup();
+    $user  = User::factory()->create(['group_id' => $group->id, 'status' => true, 'email' => 'forgot-'.uniqid().'@example.com', 'password' => 'old-password']);
+
+    $this->post(route('grp.password.email'), ['email' => 'nobody-'.uniqid().'@example.com'])->assertSessionHasNoErrors();
+    \Illuminate\Support\Facades\Notification::assertNothingSent();
+
+    $this->post(route('grp.password.email'), ['email' => $user->email])->assertSessionHasNoErrors();
+
+    $url = null;
+    \Illuminate\Support\Facades\Notification::assertSentTo($user, \Illuminate\Auth\Notifications\ResetPassword::class, function ($notification) use ($user, &$url) {
+        $url = $notification->toMail($user)->actionUrl;
+
+        return true;
+    });
+
+    expect(strtok($url, '?'))->toBe(route('grp.email.reset-password.show'));
+    parse_str((string) parse_url($url, PHP_URL_QUERY), $query);
+    expect($query['email'])->toBe($user->email);
+
+    $this->get($url)->assertOk();
+    $this->patch(route('grp.reset-password.email.update'), ['email' => $query['email'], 'password' => 'brand-new-password', 'token' => $query['token']])->assertSessionHasNoErrors();
+    expect(Hash::check('brand-new-password', $user->refresh()->password))->toBeTrue();
+});
+
+test('two factor code check locks after five wrong codes and the AI routes are rate limited', function (Guest $guest) {
+    $user = $guest->getUser();
+    $user->update(['google2fa_secret' => 'JBSWY3DPEHPK3PXP']);
+    app()->instance('group', $guest->group);
+    actingAs($user);
+    RateLimiter::clear('2fa:'.$user->id);
+
+    $currentCode = (new Google2FA())->getCurrentOtp('JBSWY3DPEHPK3PXP');
+    $wrongCode   = str_pad((string) (((int) $currentCode + 500000) % 1000000), 6, '0', STR_PAD_LEFT);
+
+    try {
+        foreach (range(1, 5) as $attempt) {
+            $this->post(route('grp.login.auth2fa'), ['one_time_password' => $wrongCode])->assertSessionHasErrors('one_time_password');
+        }
+        $this->post(route('grp.login.auth2fa'), ['one_time_password' => $currentCode])->assertSessionHasErrors('one_time_password');
+        expect(session('errors')->first('one_time_password'))->toStartWith('Too many');
+        expect(session('google2fa.auth_passed'))->toBeNull();
+
+        $this->get(route('grp.dashboard.show', ['one_time_password' => $currentCode]))->assertRedirect(route('grp.login.show2fa'));
+        $this->withoutVite()->get(route('grp.login.show2fa', ['one_time_password' => $currentCode]))->assertOk();
+        $this->post(route('grp.models.translate', ['en', 'es']), ['one_time_password' => $currentCode])->assertRedirect(route('grp.login.show2fa'));
+        expect(session('google2fa.auth_passed'))->toBeNull();
+
+        RateLimiter::clear('2fa:'.$user->id);
+        $this->post(route('grp.login.auth2fa'), ['one_time_password' => $currentCode])->assertRedirect(route('grp.dashboard.show'));
+        expect(RateLimiter::attempts('2fa:'.$user->id))->toBe(0);
+    } finally {
+        RateLimiter::clear('2fa:'.$user->id);
+        $user->update(['google2fa_secret' => null]);
+    }
+
+    expect(app('router')->getRoutes()->getByName('grp.models.translate')->gatherMiddleware())->toContain('throttle:grp-ai-translate')
+        ->and(app('router')->getRoutes()->getByName('grp.ask-bot.vision.index')->gatherMiddleware())->toContain('throttle:grp-ai-vision');
 })->depends('create guest');

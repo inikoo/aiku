@@ -11,7 +11,6 @@ namespace App\Actions\Goods\TradeUnit\UI;
 use App\Actions\Goods\TradeUnit\TranslateTradeUnitName;
 use App\Actions\Goods\TradeUnit\UI\Traits\WithTradeUnitEditSections;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithGoodsAuthorisation;
 use App\Http\Resources\Goods\IngredientsResource;
 use App\Actions\Traits\UI\WithBucketNavigation;
 use App\Enums\Goods\TradeUnit\TradeUnitStatusEnum;
@@ -27,9 +26,20 @@ class EditTradeUnit extends OrgAction
 {
     use WithBucketNavigation;
 
-    use WithGoodsAuthorisation;
     use WithTradeUnitEditSections;
     use WithComplianceEditing;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+
+        $this->canEdit           = $request->user()->authTo('goods.edit');
+        $this->canEditCompliance = $request->user()->authTo('compliance.edit');
+
+        return $this->canEdit || $this->canEditCompliance;
+    }
 
 
     public function handle(TradeUnit $tradeUnit): TradeUnit

@@ -15,6 +15,7 @@ use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Dispatching\DeliveryNote\StoreDeliveryNote;
 use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
 use App\Actions\Dropshipping\CustomerSalesChannel\CloseCustomerSalesChannel;
+use App\Actions\Dropshipping\CustomerSalesChannel\UpdateCustomerSalesChannel;
 use App\Actions\Dropshipping\CustomerSalesChannel\UI\ShowCustomerSalesChannel;
 use App\Actions\Dropshipping\Order\RetryOrderImport;
 use App\Actions\Dropshipping\Portfolio\DeletePortfolio;
@@ -32,6 +33,7 @@ use App\Actions\Dropshipping\WooCommerce\Product\CheckWooPortfolio;
 use App\Actions\Dropshipping\WooCommerce\Product\GetProductForWooCommerce;
 use App\Actions\Dropshipping\WooCommerce\Product\GetWooListedSkus;
 use App\Actions\Dropshipping\WooCommerce\Product\MatchBulkNewProductToCurrentWooCommerce;
+use App\Actions\Dropshipping\WooCommerce\Product\MatchPortfolioToCurrentWooProduct;
 use App\Actions\Dropshipping\WooCommerce\Product\StoreBulkDispatchProductToCurrentWooCommerce;
 use App\Actions\Dropshipping\WooCommerce\Product\StoreBulkNewProductToCurrentWooCommerce;
 use App\Actions\Dropshipping\WooCommerce\Product\StoreNewProductToCurrentWooCommerce;
@@ -760,7 +762,7 @@ test('a retry by the numeric order id recognises an order already imported under
         ->and(wooSent('GET', 'orders/760'))->toHaveCount(0);
 });
 
-test('dispatching a woo order completes it on the store with the tracking and a customer note', function () {
+test('dispatching a woo order completes it on the store with the tracking and a customer note, private when the channel asks', function () {
     $wooCommerceUser = wooConnect(wooCustomer($this->shop));
     $channel         = $wooCommerceUser->customerSalesChannel;
     wooPortfolio($channel, $this->product, '93');
@@ -806,6 +808,18 @@ test('dispatching a woo order completes it on the store with the tracking and a 
     $note = wooSent('POST', 'orders/770/notes')->first()->data();
     expect($note['customer_note'])->toBeTrue()
         ->and($note['note'])->toContain('TRK123');
+
+    $channel->update(['settings' => ['woocommerce' => ['stock_management_off' => true]]]);
+    UpdateCustomerSalesChannel::make()->action($channel, ['private_tracking_notes' => true]);
+    expect(Arr::get($channel->refresh()->settings, 'woocommerce'))->toBe(['stock_management_off' => true, 'private_tracking_notes' => true]);
+
+    wooFake([
+        'PUT orders/770'        => Http::response(array_merge(wooOrder(770, []), ['status' => 'completed'])),
+        'POST orders/770/notes' => Http::response(['id' => 282, 'note' => 'x', 'customer_note' => false], 201),
+    ]);
+    FulfillOrderToWooCommerce::run($order->refresh());
+    expect(wooSent('POST', 'orders/770/notes')->first()->data()['customer_note'])->toBeFalse()
+        ->and(wooSent('PUT', 'orders/770')->first()->data()['status'])->toBe('completed');
 
     $order->update(['is_bypass_platform_update' => true]);
     wooFake();
@@ -1680,4 +1694,100 @@ test('a product upload waits for a free slot when the store already has its maxi
 
     expect(wooSent('POST', 'products'))->toBeEmpty()
         ->and($portfolio->refresh()->platform_status)->toBeFalse();
+});
+
+function wooVariation(int $id, string $sku, string $option, array $overrides = []): array
+{
+    return array_merge([
+        'id'             => $id,
+        'sku'            => $sku,
+        'price'          => '5.50',
+        'status'         => 'publish',
+        'manage_stock'   => true,
+        'stock_quantity' => 3,
+        'attributes'     => [['id' => 1, 'name' => 'Scent', 'option' => $option]],
+        'image'          => ['id' => $id, 'src' => WOO_STORE_URL.'/wp-content/uploads/v'.$id.'.jpg'],
+    ], $overrides);
+}
+
+test('the product picker and the listed skus include the variations of a variable product under their parent', function () {
+    $wooCommerceUser = wooConnect(wooCustomer($this->shop));
+
+    wooFake([
+        'GET products' => Http::response([
+            wooProduct(1, ['name' => 'Lavender Candle', 'sku' => 'LAV-1']),
+            wooProduct(900, ['name' => 'Himalayan Salt', 'sku' => 'SALT', 'type' => 'variable', 'variations' => [901, 902]]),
+        ]),
+        'GET products/900/variations' => fn (Request $request) => Http::response(wooQuery($request)['status'] === 'publish'
+            ? [wooVariation(901, 'ACSalt-01', 'Rose'), wooVariation(902, 'SALT', 'Lime', ['image' => null])]
+            : []),
+    ]);
+
+    $picked = GetProductForWooCommerce::run($wooCommerceUser, 'acsalt');
+
+    expect($picked)->toHaveCount(1)
+        ->and($picked[0]['id'])->toBe(901)
+        ->and($picked[0]['name'])->toBe('Himalayan Salt - Rose')
+        ->and($picked[0]['code'])->toBe('ACSalt-01')
+        ->and($picked[0]['images'][0]['src'])->toBe(WOO_STORE_URL.'/wp-content/uploads/v901.jpg')
+        ->and(Arr::pluck(GetProductForWooCommerce::run($wooCommerceUser, 'himalayan'), 'id'))->toBe([900, 901, 902])
+        ->and(GetProductForWooCommerce::run($wooCommerceUser, 'lime')[0]['images'][0]['src'])->toBe(WOO_STORE_URL.'/wp-content/uploads/900.jpg')
+        ->and(wooSent('GET', 'products/1/variations'))->toBeEmpty();
+
+    expect(GetWooListedSkus::run($wooCommerceUser))->toBe(['lav-1' => '1', 'salt' => '900', 'acsalt-01' => '901']);
+});
+
+test('linking a portfolio to a variation pushes its stock under the parent', function () {
+    $wooCommerceUser = wooConnect(wooCustomer($this->shop));
+    $channel         = $wooCommerceUser->customerSalesChannel;
+    $channel->update(['max_quantity_advertise' => 5]);
+    $this->product->update(['available_quantity' => 64]);
+
+    $portfolio = wooPortfolio($channel, $this->product, null, 'ACSalt-01');
+
+    wooFake([
+        'GET products/901'              => Http::response(wooProduct(901, ['type' => 'variation', 'parent_id' => 900, 'sku' => 'ACSalt-01'])),
+        'PUT products/900/variations/901' => Http::response(wooVariation(901, 'ACSalt-01', 'Rose', ['stock_quantity' => 5])),
+    ]);
+
+    MatchPortfolioToCurrentWooProduct::run($portfolio, ['platform_product_id' => '901']);
+
+    expect($portfolio->refresh()->platform_product_id)->toBe('901')
+        ->and($portfolio->platform_status)->toBeTrue()
+        ->and(wooSent('PUT', 'products/901'))->toBeEmpty()
+        ->and(wooSent('PUT', 'products/900/variations/901')->first()->data()['stock_quantity'])->toBe(5);
+});
+
+test('the stock push writes variations under their parent and rechecks a variation the products batch refuses', function () {
+    $wooCommerceUser = wooConnect(wooCustomer($this->shop));
+    $channel         = $wooCommerceUser->customerSalesChannel;
+    $channel->update(['max_quantity_advertise' => 20]);
+    $this->product->update(['available_quantity' => 64]);
+
+    $simple    = wooPortfolio($channel, $this->product, '794', 'simple-sku');
+    $variation = wooPortfolio($channel, wooSecondProduct($this->shop, $this->product), '901', 'ACSalt-01');
+    $variation->update(['data' => ['woo_product' => ['id' => 901, 'type' => 'variation', 'parent_id' => 900]]]);
+    $unknown = wooPortfolio($channel, wooSecondProduct($this->shop, $this->product), '903', 'ACSalt-03');
+
+    wooFake([
+        'POST products/batch' => Http::response(['update' => [
+            wooProduct(794, ['stock_quantity' => 20]),
+            ['id' => 903, 'error' => ['code' => 'woocommerce_rest_invalid_product_id', 'message' => 'To manipulate product variations you should use the /products/&lt;product_id&gt;/variations/&lt;id&gt; endpoint.', 'data' => ['status' => 404]]],
+        ]]),
+        'POST products/900/variations/batch' => Http::response(['update' => [wooVariation(901, 'ACSalt-01', 'Rose', ['stock_quantity' => 0])]]),
+        'GET products/903'                   => Http::response(wooProduct(903, ['type' => 'variation', 'parent_id' => 900, 'sku' => 'ACSalt-03'])),
+    ]);
+
+    $variation->item->update(['available_quantity' => 0]);
+
+    UpdateWooCustomerSalesChannelPortfolio::run($channel, true);
+
+    expect(Arr::pluck(wooSent('POST', 'products/batch')->first()->data()['update'], 'id'))->toBe(['794', '903'])
+        ->and(wooSent('POST', 'products/900/variations/batch')->first()->data()['update'])->toBe([['id' => '901', 'manage_stock' => true, 'stock_quantity' => 0]])
+        ->and((int) $simple->refresh()->last_stock_value)->toBe(20)
+        ->and((int) $variation->refresh()->last_stock_value)->toBe(0)
+        ->and($variation->stock_last_updated_at)->not->toBeNull()
+        ->and($unknown->refresh()->stock_last_fail_updated_at)->not->toBeNull()
+        ->and($unknown->platform_status)->toBeTrue()
+        ->and(UpdateWooCustomerSalesChannelPortfolio::variationParentId($unknown))->toBe(900);
 });

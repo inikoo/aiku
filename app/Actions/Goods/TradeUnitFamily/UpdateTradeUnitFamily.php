@@ -8,6 +8,7 @@
 
 namespace App\Actions\Goods\TradeUnitFamily;
 
+use App\Actions\Traits\Authorisations\WithGoodsEditAuthorisation;
 use App\Actions\Catalogue\ProductCategory\LabelingGuide\StoreLabelingGuide;
 use App\Actions\OrgAction;
 use App\Actions\Helpers\Brand\AttachBrandToModel;
@@ -20,6 +21,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class UpdateTradeUnitFamily extends OrgAction
 {
+    use WithGoodsEditAuthorisation;
     use WithActionUpdate;
 
     public function handle(TradeUnitFamily $tradeUnitFamily, array $modelData): TradeUnitFamily

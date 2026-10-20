@@ -105,6 +105,26 @@ trait WithWebAuthorisation
             ]);
         }
 
+        if (str_starts_with($routeName, 'grp.json.') || str_starts_with($routeName, 'grp.websites.')) {
+            $permissions = [
+                "websites-view.{$this->shop->organisation_id}",
+                "web.{$this->shop->id}",
+                "web.{$this->shop->id}.view",
+                "web.{$this->shop->id}.edit",
+                "supervisor-web.{$this->shop->id}",
+                "group-webmaster.view",
+                "group-webmaster.edit",
+            ];
+            if ($this->shop->fulfilment) {
+                $permissions[] = "fulfilment-shop.{$this->shop->fulfilment->id}";
+                $permissions[] = "fulfilment-shop.{$this->shop->fulfilment->id}.view";
+                $permissions[] = "fulfilment-shop.{$this->shop->fulfilment->id}.edit";
+                $permissions[] = "supervisor-fulfilment-shop.{$this->shop->fulfilment->id}";
+            }
+
+            return $user->authTo($permissions);
+        }
+
         return false;
     }
 }

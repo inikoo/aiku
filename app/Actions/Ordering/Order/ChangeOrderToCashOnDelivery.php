@@ -23,6 +23,7 @@ use App\Models\Ordering\Order;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -44,15 +45,21 @@ class ChangeOrderToCashOnDelivery extends OrgAction
      */
     public function handle(Order $order): Order
     {
-        $order = DB::transaction(function () use ($order) {
+        return DB::transaction(function () use ($order) {
+            $order = Order::lockForUpdate()->findOrFail($order->id);
+
+            $blockingReason = $this->blockingReason($order);
+            if ($blockingReason) {
+                throw ValidationException::withMessages(['to_be_paid_by' => $blockingReason]);
+            }
+
             $order = $this->addCashOnDeliveryCharges($order);
+            $order = $this->update($order, ['to_be_paid_by' => OrderToBePaidByEnum::CASH_ON_DELIVERY]);
 
-            return $this->update($order, ['to_be_paid_by' => OrderToBePaidByEnum::CASH_ON_DELIVERY]);
+            SendOrderToWarehouse::make()->action($order, []);
+
+            return $order->refresh();
         });
-
-        SendOrderToWarehouse::make()->action($order, []);
-
-        return $order->refresh();
     }
 
     public function blockingReason(Order $order): ?string

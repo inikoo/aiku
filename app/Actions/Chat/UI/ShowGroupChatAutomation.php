@@ -15,6 +15,7 @@ use App\Actions\Chat\Reports\IsWithinWorkingHours;
 use App\Actions\OrgAction;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Actions\UI\WithInertia;
+use App\Actions\Chat\ChatSession\DraftChatReply;
 use App\Enums\CRM\Livechat\ChatAiDraftStatusEnum;
 use App\Enums\CRM\Livechat\ChatAutomationKindEnum;
 use App\Enums\CRM\Livechat\ChatNoiseVerdictEnum;
@@ -442,12 +443,38 @@ class ShowGroupChatAutomation extends OrgAction
      * How the drafts decided in the last 30 days were used: the number that says whether they
      * can ever be trusted to go out on their own.
      *
-     * @return array{decided: int, used: int, edited: int, discarded: int, superseded: int, pending: int, auto_sent: int}
+     * Assistant drafts are counted apart as well, with who connected through which assistant, so
+     * the two sources can be compared on the same yardstick.
+     *
+     * @return array{decided: int, used: int, edited: int, discarded: int, superseded: int, pending: int, auto_sent: int, assistant: array<string, mixed>}
      */
     private function draftStats(Group $group): array
     {
+        $assistant = fn ($query) => $query->where('facts->mode', DraftChatReply::ASSISTANT);
+
+        return $this->draftCounts($group) + [
+            'assistant' => $this->draftCounts($group, $assistant) + [
+                'clients' => ChatAiDraft::where('group_id', $group->id)
+                    ->where('created_at', '>=', now()->subDays(30))
+                    ->where($assistant)
+                    ->selectRaw("coalesce(facts->>'client', 'unnamed') as client, count(*) as total, count(distinct facts->>'user_id') as people")
+                    ->groupBy('client')
+                    ->orderByDesc('total')
+                    ->get()
+                    ->map(fn ($row) => ['client' => $row->client, 'drafts' => (int) $row->total, 'people' => (int) $row->people])
+                    ->all(),
+            ],
+        ];
+    }
+
+    /**
+     * @return array{decided: int, used: int, edited: int, discarded: int, superseded: int, pending: int, auto_sent: int}
+     */
+    private function draftCounts(Group $group, ?Closure $scope = null): array
+    {
         $counts = ChatAiDraft::where('group_id', $group->id)
             ->where('created_at', '>=', now()->subDays(30))
+            ->when($scope, $scope)
             ->selectRaw('status, count(*) as total')
             ->groupBy('status')
             ->pluck('total', 'status');

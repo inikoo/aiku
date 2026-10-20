@@ -14,6 +14,7 @@ const props = defineProps<{
     data: object
     title: string
     pageHead: object
+    can_export?: boolean
 }>()
 
 const exportExcel = () => {
@@ -38,6 +39,7 @@ const exportExcel = () => {
     <PageHeading :data="pageHead">
         <template #button>
             <Button
+                v-if="can_export"
                 @click="exportExcel"
                 :style="'secondary'"
                 icon="fal fa-file-download"

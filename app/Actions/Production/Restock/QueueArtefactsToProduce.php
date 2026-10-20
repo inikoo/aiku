@@ -116,7 +116,7 @@ class QueueArtefactsToProduce extends OrgAction
 
     private function quantityForUnits(int $units, Artefact $artefact): float
     {
-        $packedIn = max(1, (int) $artefact->orgStock->packed_in);
+        $packedIn = $artefact->packedIn();
         $quantum  = BatchedUnitsForDemand::make()->quantumInSkos($packedIn, $artefact->recommended_batch_size) * $packedIn;
 
         return (float) ((int) ceil(max(1, $units) / $quantum) * $quantum / $packedIn);

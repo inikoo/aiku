@@ -25,6 +25,7 @@ use Spatie\MediaLibrary\HasMedia;
  * @property int $group_id
  * @property int $organisation_id
  * @property int $stock_delivery_id
+ * @property int|null $stock_delivery_item_id an extra that belongs to this one line (a SKO's packaging) instead of the whole delivery
  * @property StockDeliveryCostTypeEnum $type
  * @property string|null $label
  * @property numeric|null $amount
@@ -83,6 +84,11 @@ class StockDeliveryCost extends Model implements HasMedia, Auditable
     public function serviceInvoice(): BelongsTo
     {
         return $this->belongsTo(StockDeliveryServiceInvoice::class, 'stock_delivery_service_invoice_id');
+    }
+
+    public function stockDeliveryItem(): BelongsTo
+    {
+        return $this->belongsTo(StockDeliveryItem::class);
     }
 
     public function stockDelivery(): BelongsTo

@@ -23,7 +23,6 @@ use App\Actions\Inventory\OrgStock\GetOrgStocksQuarterlyUsage;
 use App\Actions\Inventory\OrgStock\GetOrgStocksStockDeliveries;
 use App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryFromPurchaseOrder;
 use App\Actions\OrgAction;
-use App\Enums\GoodsIn\StockDeliveryItem\StockDeliveryItemStateEnum;
 use App\Actions\Procurement\OrgPartner\PartnerSkoPrice;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\Procurement\OrgSupplierProduct\OrgSupplierProductStateEnum;
@@ -38,7 +37,6 @@ use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
-use Illuminate\Database\Query\Builder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -72,7 +70,7 @@ class IndexPurchaseOrderOrgSupplierProducts extends OrgAction
                 'supplier_products.id as supplier_product_id',
                 'supplier_products.name',
                 DB::raw('coalesce(purchase_order_transactions.unit_cost, supplier_products.cost) as unit_cost'),
-                'supplier_products.units_per_pack',
+                DB::raw("coalesce((select nullif(packed_in, 0) from org_stocks where id = {$orgStockSub}), supplier_products.units_per_pack) as units_per_pack"),
                 'supplier_products.units_per_carton',
                 'supplier_products.minimum_carton_order',
                 'supplier_products.measured_lead_time_days',
@@ -406,6 +404,8 @@ class IndexPurchaseOrderOrgSupplierProducts extends OrgAction
             return;
         }
 
+        $quantityOnDelivery = StoreStockDeliveryFromPurchaseOrder::quantityOnDelivery();
+
         $openPurchaseOrderLines = DB::table('purchase_order_transactions')
             ->join('purchase_orders', 'purchase_orders.id', 'purchase_order_transactions.purchase_order_id')
             ->where(function ($query) use ($supplierProductIds, $orgStockIds) {
@@ -420,12 +420,7 @@ class IndexPurchaseOrderOrgSupplierProducts extends OrgAction
             ])
             ->whereNull('purchase_orders.deleted_at')
             ->whereNull('purchase_order_transactions.deleted_at')
-            ->whereNotExists(
-                fn (Builder $items) => StoreStockDeliveryFromPurchaseOrder::deliveryItemsOfTransaction($items)
-                    ->join('purchase_order_stock_delivery', 'purchase_order_stock_delivery.stock_delivery_id', 'stock_delivery_items.stock_delivery_id')
-                    ->whereColumn('purchase_order_stock_delivery.purchase_order_id', 'purchase_order_transactions.purchase_order_id')
-                    ->whereNotIn('stock_delivery_items.state', [StockDeliveryItemStateEnum::CANCELLED->value, StockDeliveryItemStateEnum::NOT_RECEIVED->value])
-            )
+            ->whereRaw('purchase_order_transactions.quantity_ordered - ('.$quantityOnDelivery->toSql().') > '.StoreStockDeliveryFromPurchaseOrder::QUANTITY_TOLERANCE, $quantityOnDelivery->getBindings())
             ->orderBy('purchase_orders.id')
             ->select([
                 'purchase_order_transactions.supplier_product_id',
@@ -433,8 +428,8 @@ class IndexPurchaseOrderOrgSupplierProducts extends OrgAction
                 'purchase_orders.slug',
                 'purchase_orders.reference',
                 'purchase_orders.state',
-                'purchase_order_transactions.quantity_ordered',
             ])
+            ->selectRaw('purchase_order_transactions.quantity_ordered - ('.$quantityOnDelivery->toSql().') as quantity_ordered', $quantityOnDelivery->getBindings())
             ->get();
 
         $rows->transform(function ($row) use ($openPurchaseOrderLines) {

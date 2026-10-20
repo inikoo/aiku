@@ -130,6 +130,8 @@ class IndexUploadRecords
 
     public function asController(Upload $upload, ActionRequest $request): LengthAwarePaginator
     {
+        abort_unless($upload->canBeViewedBy($request->user()), 403);
+
         return $this->handle($upload, status: UploadRecordStatusEnum::tryFrom((string) $request->input('status')));
     }
 }

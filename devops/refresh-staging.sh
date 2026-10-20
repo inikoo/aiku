@@ -84,7 +84,21 @@ supervisorctl stop octane horizon || true
 sudo -u postgres psql -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='$STAGING_DB' AND pid<>pg_backend_pid();" >/dev/null || true
 sudo -u postgres psql -c "DROP DATABASE IF EXISTS $STAGING_DB;"
 sudo -u postgres createdb -O "$STAGING_ROLE" --template=template0 --encoding=UTF8 --lc-collate=C.UTF-8 --lc-ctype=C.UTF-8 "$STAGING_DB"
-sudo -u postgres psql -d "$STAGING_DB" -c "CREATE EXTENSION IF NOT EXISTS vector; CREATE EXTENSION IF NOT EXISTS pg_trgm; CREATE EXTENSION IF NOT EXISTS unaccent; CREATE EXTENSION IF NOT EXISTS pg_stat_statements;"
+# As in production: unaccent and the C function behind extensions.remove_accents()
+# (accent-insensitive search) need a superuser, which the restore role is not.
+sudo -u postgres psql -v ON_ERROR_STOP=1 -d "$STAGING_DB" <<SQL
+CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+CREATE SCHEMA extensions AUTHORIZATION $STAGING_ROLE;
+GRANT USAGE ON SCHEMA extensions TO public;
+CREATE EXTENSION unaccent SCHEMA extensions;
+CREATE FUNCTION extensions.immutable_unaccent(regdictionary, text) RETURNS text
+    LANGUAGE c IMMUTABLE PARALLEL SAFE STRICT AS '\$libdir/unaccent', 'unaccent_dict';
+CREATE FUNCTION extensions.remove_accents(text) RETURNS text
+    LANGUAGE sql IMMUTABLE PARALLEL SAFE STRICT
+    BEGIN ATOMIC SELECT extensions.immutable_unaccent(regdictionary 'extensions.unaccent', \$1); END;
+SQL
 
 log "4/9 restore"
 # pg_restore exits non-zero on the expected extension-comment errors; verify

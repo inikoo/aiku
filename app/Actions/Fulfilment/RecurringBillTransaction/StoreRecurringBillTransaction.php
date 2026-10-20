@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\RecurringBillTransaction;
 
+use App\Actions\Traits\Authorisations\WithFulfilmentShopEditAuthorisation;
 use App\Actions\Fulfilment\RecurringBill\CalculateRecurringBillTotals;
 use App\Actions\Fulfilment\RecurringBill\Hydrators\RecurringBillHydrateTransactions;
 use App\Actions\OrgAction;
@@ -24,6 +25,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreRecurringBillTransaction extends OrgAction
 {
+    use WithFulfilmentShopEditAuthorisation;
+
     private bool $skipHydrators = false;
 
     public function handle(RecurringBill $recurringBill, Space|Pallet|StoredItem|FulfilmentTransaction|HistoricAsset $item, array $modelData): RecurringBillTransaction

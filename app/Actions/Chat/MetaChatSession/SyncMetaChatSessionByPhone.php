@@ -2,6 +2,9 @@
 
 namespace App\Actions\Chat\MetaChatSession;
 
+use App\Models\SysAdmin\User;
+use App\Models\Catalogue\Shop;
+use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Models\Chat\MetaChatSession;
 use App\Models\CRM\Customer;
 use Illuminate\Http\JsonResponse;
@@ -11,6 +14,14 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class SyncMetaChatSessionByPhone
 {
     use AsAction;
+    use WithChatAgentAuthorisation;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        $shop = $request->route('metaChatSession')?->shop;
+
+        return $shop instanceof Shop && $request->user() instanceof User && $this->userCanActOnChatOnShop($request->user(), $shop);
+    }
 
     public function rules(): array
     {

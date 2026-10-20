@@ -13,7 +13,7 @@ use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydratePallets;
 use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydrateTransactions;
 use App\Actions\Fulfilment\PalletReturn\SetPalletReturnAutoServices;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopEditAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Models\Fulfilment\Pallet;
@@ -22,7 +22,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class AttachPalletToReturn extends OrgAction
 {
-    use WithFulfilmentShopAuthorisation;
+    use WithFulfilmentShopEditAuthorisation;
 
 
     public function handle(PalletReturn $palletReturn, Pallet $pallet): PalletReturn
@@ -59,6 +59,7 @@ class AttachPalletToReturn extends OrgAction
 
     public function asController(PalletReturn $palletReturn, Pallet $pallet, ActionRequest $request): PalletReturn
     {
+        abort_unless($pallet->fulfilment_customer_id === $palletReturn->fulfilment_customer_id, 404);
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
         return $this->handle($palletReturn, $pallet);
     }

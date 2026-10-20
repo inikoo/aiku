@@ -52,6 +52,10 @@ class UpdateCustomerSalesChannel extends OrgAction
             data_set($modelData, 'settings.pricing.value', Arr::pull($modelData, 'pricing_value'));
         }
 
+        if (Arr::has($modelData, 'private_tracking_notes')) {
+            data_set($modelData, 'settings.woocommerce.private_tracking_notes', (bool) Arr::pull($modelData, 'private_tracking_notes'));
+        }
+
         $stockSettingsBefore = self::stockSettings($customerSalesChannel);
 
         $customerSalesChannel = $this->update($customerSalesChannel, $modelData, 'settings');
@@ -121,6 +125,7 @@ class UpdateCustomerSalesChannel extends OrgAction
             'stock_update' => ['sometimes', 'boolean'],
             'stock_threshold' => ['sometimes', 'nullable', 'numeric'],
             'max_quantity_advertise' => ['sometimes', 'nullable', 'numeric'],
+            'private_tracking_notes' => ['sometimes', 'boolean'],
 
             'closed_at'         => ['sometimes', 'date']
         ];

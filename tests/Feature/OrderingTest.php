@@ -76,6 +76,8 @@ use App\Actions\Ordering\Order\StoreSubmittedOrder;
 use App\Actions\Retina\Dropshipping\Orders\PayRetinaOrderWithBalance;
 use App\Actions\Retina\Ecom\Basket\RetinaEcomUpdateTransaction;
 use App\Actions\Retina\Ecom\Basket\UI\IndexBasketTransactions;
+use App\Actions\Retina\Dropshipping\Orders\IndexRetinaDropshippingOrders;
+use App\Http\Resources\Fulfilment\RetinaDropshippingOrdersInCustomerSalesChannelResources;
 use App\Actions\Catalogue\Product\StoreProduct;
 use App\Actions\Catalogue\Product\StoreProductWebpage;
 use App\Actions\Ordering\Order\UI\ShowOrder;
@@ -212,6 +214,8 @@ use App\Models\SysAdmin\Permission;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Config;
+use App\Actions\Helpers\SerialReference\GetSerialReference;
+use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -226,6 +230,7 @@ use function Pest\Laravel\actingAs;
 use function Pest\Laravel\deleteJson;
 use function Pest\Laravel\get;
 use function Pest\Laravel\getJson;
+use function Pest\Laravel\patch;
 use function Pest\Laravel\patchJson;
 use function Pest\Laravel\postJson;
 
@@ -1781,7 +1786,11 @@ test('a submitted unpaid bank transfer order can be changed to cash on delivery'
     $paymentAccount->update(['data' => ['countries' => [$order->deliveryAddress->country_id]]]);
     $totalBefore = (float)$order->total_amount;
 
-    $order = ChangeOrderToCashOnDelivery::make()->action($order->refresh());
+    $staleOrder = $order->refresh();
+    $order      = ChangeOrderToCashOnDelivery::make()->action($order->refresh());
+
+    expect(fn () => ChangeOrderToCashOnDelivery::make()->action($staleOrder))->toThrow(ValidationException::class)
+        ->and($order->transactions()->where('model_type', 'Charge')->where('model_id', $charge->id)->count())->toBe(1);
 
     $cashOnDeliveryNet = $order->transactions()->where('model_type', 'Charge')->where('model_id', $charge->id)->value('net_amount');
 
@@ -3132,8 +3141,24 @@ test('dispatched order credited for part of its total has nothing left to pay', 
     ]);
     $order->refresh();
 
+    $customerSalesChannel = StoreCustomerSalesChannel::make()->action(
+        $this->customer,
+        Platform::where('type', PlatformTypeEnum::MANUAL)->first(),
+        []
+    );
+    $order->updateQuietly(['customer_sales_channel_id' => $customerSalesChannel->id, 'state' => OrderStateEnum::DISPATCHED]);
+
+    $fakeRoute = new \Illuminate\Routing\Route('GET', '/fake-retina-orders', []);
+    $fakeRoute->name('retina.dropshipping.customer_sales_channels.orders.index');
+    app('request')->setRouteResolver(fn () => $fakeRoute);
+
+    $listedOrder = RetinaDropshippingOrdersInCustomerSalesChannelResources::make(
+        IndexRetinaDropshippingOrders::make()->handle($customerSalesChannel)->getCollection()->firstWhere('id', $order->id)
+    )->toArray(request());
+
     expect(round($total - (float)$order->payment_amount, 2))->toBe($credit)
-        ->and($order->amountStillToPay())->toBe(0.0);
+        ->and($order->amountStillToPay())->toBe(0.0)
+        ->and($listedOrder['amount_to_pay'])->toEqual(0);
 });
 
 test('paid order whose total drops to zero with nothing refunded reads overpaid not refunded', function () {
@@ -5943,6 +5968,45 @@ describe('pre-orders (HELP-3432)', function () {
         expect($through('grp.models.order.update_insurance', $other))->toBe('passed');
     });
 
+    test('the backlog pre-orders tab lists live pre-orders with their supplier, dispatch and balance progress (HELP-4036)', function () {
+        $madeToOrder = ($this->preOrderProduct)(['is_made_to_order' => true]);
+        $customer    = ($this->fundedCustomer)(10000);
+        $basket      = StoreOrder::make()->action($customer, Order::factory()->definition());
+        StoreTransaction::make()->action($basket, $madeToOrder->currentHistoricProduct, array_merge(Transaction::factory()->definition(), ['quantity_ordered' => 1]));
+        \App\Actions\Ordering\PreOrder\AcceptBasketPreOrderTerms::run($basket->fresh(), false);
+        expect(PayRetinaOrderWithBalance::make()->handle($basket->fresh())['success'])->toBeTrue();
+
+        $preOrder = $basket->fresh()->preOrder;
+        $preOrder->update(['supplier_ordered_at' => now()->subDay(), 'estimated_dispatch_from' => now()->subDays(10), 'estimated_dispatch_to' => now()->subDays(3)]);
+        $shopState = $this->shop->state;
+        $this->shop->update(['state' => \App\Enums\Catalogue\Shop\ShopStateEnum::OPEN]);
+
+        $tab = fn () => get(route('grp.org.shops.show.ordering.backlog', [$this->organisation->slug, $this->shop->slug, 'tab' => 'pre_orders']));
+
+        $tab()->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('tabs.current', 'pre_orders')
+            ->where('tabs.navigation', fn ($boxes) => collect($boxes)->last()['tabs'][0]['value'] >= 1)
+            ->where('pre_orders.data', fn ($rows) => ($row = collect($rows)->firstWhere('id', $preOrder->order_id))
+                && $row['pre_order']['state'] === 'waiting_for_goods'
+                && $row['pre_order']['supplier_ordered_at'] !== null
+                && $row['pre_order']['estimated_dispatch_to'] === now()->subDays(3)->toDateString())
+            ->etc());
+
+        get(route('grp.org.overview.ordering.backlog', [$this->organisation->slug, 'tab' => 'pre_orders']))->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('tabs.navigation', fn ($boxes) => ($box = collect($boxes)->last()) && $box['tabs'][0]['value'] >= 1
+                && collect($box['children'])->firstWhere('slug', $this->shop->slug)['tabs'][0]['value'] >= 1)
+            ->where('pre_orders.data', fn ($rows) => collect($rows)->contains('id', $preOrder->order_id))
+            ->etc());
+
+        $preOrder->update(['state' => \App\Enums\Ordering\PreOrder\PreOrderStateEnum::CANCELLED]);
+
+        $tab()->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('pre_orders.data', fn ($rows) => !collect($rows)->contains('id', $preOrder->order_id))
+            ->etc());
+
+        $this->shop->update(['state' => $shopState]);
+    });
+
     test('an unpaid balance is reminded on the shop days and the pre-order cancelled keeping the deposit after the limit', function () {
         $madeToOrder = ($this->preOrderProduct)(['is_made_to_order' => true]);
         $customer    = ($this->fundedCustomer)(10000);
@@ -6009,6 +6073,39 @@ describe('pre-orders (HELP-3432)', function () {
         expect($preOrder->refresh()->state)->toBe(\App\Enums\Ordering\PreOrder\PreOrderStateEnum::CANCELLED)
             ->and($preOrder->order->refresh()->state)->toBe(OrderStateEnum::CANCELLED)
             ->and(round((float) $preOrder->customer->refresh()->balance - $balanceBefore, 2))->toBe($paid);
+    });
+
+    test('a locked pre-order can be unlocked and cancelled from its panel, never with the plain order Cancel that would refund the deposit (HELP-4072)', function () {
+        $madeToOrder = ($this->preOrderProduct)(['is_made_to_order' => true]);
+        $customer    = ($this->fundedCustomer)(10000);
+        $basket      = StoreOrder::make()->action($customer, Order::factory()->definition());
+        StoreTransaction::make()->action($basket, $madeToOrder->currentHistoricProduct, array_merge(Transaction::factory()->definition(), ['quantity_ordered' => 1]));
+        \App\Actions\Ordering\PreOrder\AcceptBasketPreOrderTerms::run($basket->fresh(), false);
+        PayRetinaOrderWithBalance::make()->handle($basket->fresh());
+
+        $preOrder = $basket->fresh()->preOrder;
+        $order    = $preOrder->order;
+        $orderUrl = route('grp.org.shops.show.ordering.orders.show', [$this->organisation->slug, $this->shop->slug, $order->slug]);
+        $hasPlainCancel = fn (array $actions) => collect($actions)->contains('key', 'cancel');
+
+        get($orderUrl)->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('pre_order.lock.is_locked_for_me', true)
+            ->where('pre_order.can_manage', true)
+            ->where('pageHead.actions', fn ($actions) => !$hasPlainCancel(collect($actions)->toArray()))
+            ->where('pageHead.wrapped_actions', fn ($actions) => collect($actions)->contains('key', 'staff-chat')));
+
+        \App\Actions\Ordering\PreOrder\UnlockPreOrder::run($preOrder, $this->user);
+
+        get($orderUrl)->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('pre_order.lock.is_locked_for_me', false)
+            ->where('pageHead.actions', fn ($actions) => !$hasPlainCancel(collect($actions)->toArray())));
+
+        patch(route('grp.models.order.state.cancelled', ['order' => $order->id]))->assertSessionHasErrors('messages');
+        expect($order->refresh()->state)->toBe(OrderStateEnum::SUBMITTED);
+
+        patch(route('grp.models.order.pre_order.update', ['order' => $order->id]), ['operation' => 'cancel', 'cancellation_reason' => 'customer_request'])->assertSessionHasNoErrors();
+        expect($preOrder->refresh()->state)->toBe(\App\Enums\Ordering\PreOrder\PreOrderStateEnum::CANCELLED)
+            ->and($order->refresh()->state)->toBe(OrderStateEnum::CANCELLED);
     });
 
     test('a basket with pre-order lines and no accepted terms is never split, charges in full, and cannot be placed from Retina', function () {
@@ -6541,4 +6638,32 @@ test('an orders viewer reads an order but cannot change it, and accounts can sti
         $this->user->syncPermissions($originalPermissions);
         actingAsUserWithRoles($this->user, $originalRoles);
     }
+});
+
+test('order channels of a shop answer only its order or accounting staff, INI-076', function () {
+    $url  = route('grp.org.shops.show.ordering.channels.index', [$this->organisation->slug, $this->shop->slug]);
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["products.{$this->shop->id}.edit"]);
+    get($url)->assertForbidden();
+
+    foreach (["orders.{$this->shop->id}.view", "accounting.{$this->organisation->id}.view"] as $permission) {
+        actingAsUserWithOnlyPermissions($user, [$permission]);
+        get($url)->assertOk();
+    }
+});
+
+test('staging order references end in -test so they never match a live order number', function () {
+    $liveReference = GetSerialReference::run($this->shop, SerialReferenceModelEnum::ORDER);
+
+    app()->detectEnvironment(fn () => 'staging');
+    try {
+        $stagingReference = GetSerialReference::run($this->shop, SerialReferenceModelEnum::ORDER);
+    } finally {
+        app()->detectEnvironment(fn () => 'testing');
+    }
+
+    expect($liveReference)->not->toEndWith('-test')
+        ->and($stagingReference)->toEndWith('-test')
+        ->and(substr($stagingReference, 0, -5))->not->toBe($liveReference);
 });

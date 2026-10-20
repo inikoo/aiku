@@ -40,6 +40,7 @@ use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Ordering\Order\OrderPayStatusEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
+use App\Enums\Ordering\PreOrder\PreOrderStateEnum;
 use App\Enums\Ordering\Platform\PlatformTypeEnum;
 use App\Enums\Ordering\SalesChannel\SalesChannelTypeEnum;
 use App\Enums\UI\NotesEnum;
@@ -345,6 +346,11 @@ class ShowOrder extends OrgAction
             'key'   => 'add-note'
         ];
 
+        $wrapped_actions[] = [
+            'type' => 'button',
+            'key'  => 'staff-chat'
+        ];
+
         $deliveryNoteRoute    = null;
         $deliveryNoteResource = null;
 
@@ -584,6 +590,7 @@ class ShowOrder extends OrgAction
                         'method'     => 'patch',
                     ],
                     'cancellation_reasons' => PreOrderCancellationReasonEnum::valuesWithLabels(),
+                    'can_manage'           => $this->canEdit && !$lockedInAurora,
                     'lock'                 => [
                         'is_locked'        => $order->preOrder->isLocked(),
                         'is_locked_for_me' => $preOrderLocked,
@@ -745,12 +752,11 @@ class ShowOrder extends OrgAction
                     'icon' => $order->salesChannel->type->icon()
                 ] : null,
                 'is_faire_order'    => $order->shop->engine == ShopEngineEnum::FAIRE,
-                'can_edit_faire_label_shipping' => $request->user()->authTo("accounting.$order->organisation_id.edit"),
                 'allow_order_modification'          => $allowOrderModification,
 
                 OrderTabsEnum::TRANSACTIONS->value => $this->tab == OrderTabsEnum::TRANSACTIONS->value ?
-                    fn () => TransactionsResource::collection(IndexTransactions::run(parent: $order, prefix: OrderTabsEnum::TRANSACTIONS->value, withMargins: $withMargins))
-                    : Inertia::optional(fn () => TransactionsResource::collection(IndexTransactions::run(parent: $order, prefix: OrderTabsEnum::TRANSACTIONS->value, withMargins: $withMargins))),
+                    fn () => TransactionsResource::collection(IndexTransactions::run(parent: $order, prefix: OrderTabsEnum::TRANSACTIONS->value, withMargins: $withMargins, withShelfQuantity: true))
+                    : Inertia::optional(fn () => TransactionsResource::collection(IndexTransactions::run(parent: $order, prefix: OrderTabsEnum::TRANSACTIONS->value, withMargins: $withMargins, withShelfQuantity: true))),
 
                 OrderTabsEnum::MARKETING->value => $this->tab == OrderTabsEnum::MARKETING->value ?
                     fn () => GetOrderMarketingJourney::run($order)
@@ -1176,6 +1182,9 @@ class ShowOrder extends OrgAction
             $query->where('orders.state', OrderStateEnum::SUBMITTED)->payNotSettled();
         } elseif ($bucket == OrdersBacklogTabsEnum::DISPATCHED_TODAY->value) {
             $query->whereDate('orders.dispatched_at', Carbon::today());
+        } elseif ($bucket == OrdersBacklogTabsEnum::PRE_ORDERS->value) {
+            $query->whereHas('preOrder', fn ($query) => $query->where('state', '!=', PreOrderStateEnum::CANCELLED))
+                ->whereNotIn('orders.state', [OrderStateEnum::DISPATCHED, OrderStateEnum::CANCELLED]);
         } else {
             $query->where('orders.state', $order->state);
         }

@@ -77,7 +77,9 @@ class ShowOrgSupplierProduct extends OrgAction
 
     public function htmlResponse(OrgSupplierProduct $orgSupplierProduct, ActionRequest $request): Response
     {
-        $forAgent = $this->organisation->type === OrganisationTypeEnum::AGENT || $orgSupplierProduct->organisation_id !== $this->organisation->id;
+        $forAgent     = $this->organisation->type === OrganisationTypeEnum::AGENT || $orgSupplierProduct->organisation_id !== $this->organisation->id;
+        $supplierCode = $orgSupplierProduct->supplierProduct->code;
+        $internalCode = $this->organisation->type === OrganisationTypeEnum::AGENT ? $orgSupplierProduct->supplierProduct->stocks->first()?->code : null;
 
         return Inertia::render(
             'Procurement/OrgSupplierProduct',
@@ -93,8 +95,8 @@ class ShowOrgSupplierProduct extends OrgAction
                     'next'     => $this->getNext($orgSupplierProduct, $request),
                 ],
                 'pageHead'    => [
-                    'title'      => $orgSupplierProduct->supplierProduct->code,
-                    'afterTitle' => ['label' => $orgSupplierProduct->supplierProduct->name],
+                    'title'      => $internalCode ?? $supplierCode,
+                    'afterTitle' => ['label' => $internalCode ? $supplierCode.' · '.$orgSupplierProduct->supplierProduct->name : $orgSupplierProduct->supplierProduct->name],
                     'icon'  => [
                         'icon'  => ['fal', 'box-usd'],
                         'title' => __('Supplier Product'),
@@ -136,8 +138,8 @@ class ShowOrgSupplierProduct extends OrgAction
                     : Inertia::optional(fn () => GetOrgSupplierProductShowcase::run($orgSupplierProduct)),
 
                 OrgSupplierProductTabsEnum::PURCHASE_ORDERS->value => $this->tab == OrgSupplierProductTabsEnum::PURCHASE_ORDERS->value ?
-                    fn () => PurchaseOrdersResource::collection(IndexPurchaseOrders::run($orgSupplierProduct))
-                    : Inertia::optional(fn () => PurchaseOrdersResource::collection(IndexPurchaseOrders::run($orgSupplierProduct))),
+                    fn () => PurchaseOrdersResource::collection(IndexPurchaseOrders::make()->viewedFrom($this->organisation)->handle($orgSupplierProduct))
+                    : Inertia::optional(fn () => PurchaseOrdersResource::collection(IndexPurchaseOrders::make()->viewedFrom($this->organisation)->handle($orgSupplierProduct))),
 
                 'agreement' => GetAgreement::run($orgSupplierProduct->supplierProduct, $orgSupplierProduct->organisation, $request->user(), $forAgent),
 
@@ -155,7 +157,7 @@ class ShowOrgSupplierProduct extends OrgAction
             ],
         )->table(IndexSupplierAgreedTerms::make()->tableStructure(prefix: OrgSupplierProductTabsEnum::AGREED_TERMS->value))
             ->table(IndexProcurementNotes::make()->tableStructure(prefix: OrgSupplierProductTabsEnum::NOTES->value))
-            ->table(IndexPurchaseOrders::make()->tableStructure(parent: $orgSupplierProduct, prefix: OrgSupplierProductTabsEnum::PURCHASE_ORDERS->value))
+            ->table(IndexPurchaseOrders::make()->viewedFrom($this->organisation)->tableStructure(parent: $orgSupplierProduct, prefix: OrgSupplierProductTabsEnum::PURCHASE_ORDERS->value))
             ->table(IndexHistory::make()->tableStructure(prefix: OrgSupplierProductTabsEnum::HISTORY->value));
     }
 

@@ -7,6 +7,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\CRM\Livechat\ChatSenderTypeEnum;
 use App\Models\Chat\ChatMessage;
 use App\Services\Gmail\GmailClient;
 use App\Services\Gmail\GmailMessageParser;
@@ -42,6 +43,7 @@ class BackfillEmailBodies extends Command
 
         $query = ChatMessage::whereNotNull('metadata->gmail_message_id')
             ->whereNull('html_body')
+            ->where('sender_type', '!=', ChatSenderTypeEnum::SYSTEM->value)
             ->when($shopId, fn ($q) => $q->whereHas('chatSession', fn ($s) => $s->where('shop_id', (int) $shopId)));
 
         $total = (clone $query)->count();

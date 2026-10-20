@@ -137,3 +137,12 @@ export const faPerIconImports = () => {
 export const FA_COMMONJS_OPTIONS = {
     include: [/node_modules/, /[\\/]fa[\\/]pro-[a-z]+-svg-icons[\\/]/]
 };
+
+export const withSharedLangFiles = (plugin) => {
+    if (process.env.LANG_FILES_PREGENERATED) {
+        delete plugin.buildStart;
+        delete plugin.buildEnd;
+    }
+
+    return plugin;
+};

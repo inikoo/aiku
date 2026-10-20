@@ -9,6 +9,7 @@
 namespace App\Actions\Masters\MasterProductCategory\Json;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithMastersAuthorisation;
 use App\Enums\Catalogue\MasterProductCategory\MasterProductCategoryTypeEnum;
 use App\Http\Resources\Catalogue\MasterProductCategoryResource;
 use App\Models\Masters\MasterProductCategory;
@@ -20,6 +21,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetFamiliesInMasterProductCategory extends OrgAction
 {
+    use WithMastersAuthorisation;
     public function asController(MasterProductCategory $masterProductCategory, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromGroup($masterProductCategory->group, $request);

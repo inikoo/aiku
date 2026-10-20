@@ -29,9 +29,12 @@ import StockDeliverySupplierPayments from "@/Components/Procurement/StockDeliver
 import StockDeliveryServiceInvoices from "@/Components/Procurement/StockDeliveryServiceInvoices.vue"
 import AgentContainerInvoicePanel from "@/Components/Procurement/AgentContainerInvoicePanel.vue"
 import AgreedTermDifferences from "@/Components/Procurement/AgreedTermDifferences.vue"
+import StockDeliveryAddItems from "@/Components/Procurement/StockDeliveryAddItems.vue"
+import ModalAcceptResponsibility from "@/Components/Procurement/ModalAcceptResponsibility.vue"
 import TableStockDeliveryItems from "@/Components/Tables/Grp/Org/Procurement/TableStockDeliveryItems.vue"
 import TableStockDeliveryDiscrepancies from "@/Components/Tables/Grp/Org/Procurement/TableStockDeliveryDiscrepancies.vue"
 import StockDeliveryCustoms from "@/Components/Procurement/StockDeliveryCustoms.vue"
+import StockDeliveryGoodsInChecklist from "@/Components/Procurement/StockDeliveryGoodsInChecklist.vue"
 import TablePurchaseOrders from "@/Components/Tables/Grp/Org/Procurement/TablePurchaseOrders.vue"
 import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue"
 import TableProcurementNotes from '@/Components/Tables/Grp/Org/Procurement/TableProcurementNotes.vue'
@@ -51,12 +54,16 @@ import { Timeline as TSTimeline } from "@/types/Timeline"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faSpinnerThird } from "@fad"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faInventory, faWarehouse, faPersonDolly, faBoxUsd, faTruck, faTerminal, faCameraRetro, faPaperclip, faInfoCircle, faHandHoldingBox, faPeopleArrows, faExclamationTriangle, faBoxOpen, faClipboardList, faBalanceScale, faPassport, faCheckCircle, faTimes, faCheck, faSquare, faChevronRight, faChevronDown, faShip, faHashtag, faTrashAlt, faPlus, faContainerStorage } from "@fal"
+import { faInventory, faWarehouse, faPersonDolly, faBoxUsd, faTruck, faTerminal, faCameraRetro, faPaperclip, faInfoCircle, faHandHoldingBox, faPeopleArrows, faExclamationTriangle, faBoxOpen, faClipboardList, faBalanceScale, faPassport, faCheckCircle, faTimes, faCheck, faSquare, faChevronRight, faChevronDown, faShip, faHashtag, faTrashAlt, faPlus, faContainerStorage, faUpload, faTasks, faTruckContainer, faFileCsv } from "@fal"
 import { faBars, faBoxCheck, faInventory as fasInventory, faShare, faArrowCircleRight, faArrowCircleLeft, faExclamationCircle, faBoxFull, faCheckSquare } from "@fas"
 
 library.add(
+	faFileCsv,
+	faTasks,
 	faShip,
+	faUpload,
 	faContainerStorage,
+	faTruckContainer,
 	faHashtag,
 	faPlus,
 	faBalanceScale,
@@ -94,6 +101,7 @@ library.add(
 
 const props = defineProps<{
 	title: string
+	is_container?: boolean
 	pageHead: PageHeadingTypes
 	stock_delivery: {
 		state: string
@@ -114,6 +122,7 @@ const props = defineProps<{
 			in_this_container: boolean
 		}[]
 	} | null
+	add_purchase_order_items?: InstanceType<typeof StockDeliveryAddItems>["$props"]["data"]
 	remove_purchase_orders: Record<number, {
 		reference: string
 		route: routeType
@@ -129,6 +138,7 @@ const props = defineProps<{
 			}
 			delivery: {
 				type: string | null
+				container_size?: string | null
 				incoterm: string | null
 				port_of_export: string | null
 				port_of_import: string | null
@@ -200,8 +210,10 @@ const props = defineProps<{
 		navigation: {}
 	}
 	attachmentRoutes: {
+		canChange: boolean
 		attachRoute: routeType
 		detachRoute: routeType
+		updateRoute: routeType
 	}
 	missing_evidence?: string[]
 	costing: {
@@ -216,6 +228,7 @@ const props = defineProps<{
 		org_currency_id: number
 		put_away_blocked: string[]
 		costs_are_users_job: boolean
+		costed_on_route: routeType | null
 		agent_invoice_missing: boolean
 		storeCostRoute: routeType
 		distributeExtraCostRoute: routeType | null
@@ -223,6 +236,7 @@ const props = defineProps<{
 	items?: {}
 	pending_items?: {}
 	done_items?: {}
+	checklist?: InstanceType<typeof StockDeliveryGoodsInChecklist>["$props"]["data"]
 	under_over_delivered?: {}
 	customs?: {}
 	attachments?: {}
@@ -249,6 +263,7 @@ const component = computed(() => {
 		items: TableStockDeliveryItems,
 		pending_items: TableStockDeliveryItems,
 		done_items: TableStockDeliveryItems,
+		checklist: StockDeliveryGoodsInChecklist,
 		under_over_delivered: TableStockDeliveryDiscrepancies,
 		customs: StockDeliveryCustoms,
 		purchase_orders: TablePurchaseOrders,
@@ -316,6 +331,13 @@ const addPurchaseOrders = () => {
 			})
 		},
 	})
+}
+
+const addItemsOpen = ref(false)
+
+const openAddItems = () => {
+	addItemsOpen.value = true
+	router.reload({ only: ["add_purchase_order_items"] })
 }
 
 const purchaseOrderToRemoveId = ref<number | null>(null)
@@ -606,7 +628,7 @@ const dispatchStockDelivery = (action: any, data: { reason?: string } = {}) =>
 		onError: (errors) => {
 			notify({
 				title: ctrans("Something went wrong"),
-				text: errors?.invoice ?? errors?.reason ?? ctrans("Failed to dispatch stock delivery"),
+				text: errors?.invoice ?? errors?.reason ?? (props.is_container ? ctrans("Failed to dispatch container") : ctrans("Failed to dispatch stock delivery")),
 				type: "error",
 			})
 		},
@@ -622,9 +644,9 @@ const confirmDispatchStockDelivery = (action: any) => {
 	confirm.require({
 		group: "stock-delivery",
 		message: props.costing.agent_invoice_missing
-			? ctrans("The agent invoice has not been received yet. Are you sure you want to mark this stock delivery as dispatched?")
-			: ctrans("Are you sure you want to mark this stock delivery as dispatched?"),
-		header: ctrans("Dispatch Stock Delivery"),
+			? (props.is_container ? ctrans("The agent invoice has not been received yet. Are you sure you want to mark this container as dispatched?") : ctrans("The agent invoice has not been received yet. Are you sure you want to mark this stock delivery as dispatched?"))
+			: (props.is_container ? ctrans("Are you sure you want to mark this container as dispatched?") : ctrans("Are you sure you want to mark this stock delivery as dispatched?")),
+		header: props.is_container ? ctrans("Dispatch Container") : ctrans("Dispatch Stock Delivery"),
 		rejectProps: { label: ctrans("Cancel"), severity: "secondary", outlined: true },
 		acceptProps: { label: ctrans("Mark as Dispatched"), severity: "primary" },
 		accept: () => dispatchStockDelivery(action),
@@ -634,7 +656,7 @@ const confirmDispatchStockDelivery = (action: any) => {
 const confirmUndispatchStockDelivery = (action: any) => {
 	confirm.require({
 		group: "stock-delivery",
-		message: ctrans("Are you sure you want to unmark this stock delivery as dispatched? It will be reverted to its previous state."),
+		message: props.is_container ? ctrans("Are you sure you want to unmark this container as dispatched? It will be reverted to its previous state.") : ctrans("Are you sure you want to unmark this stock delivery as dispatched? It will be reverted to its previous state."),
 		header: ctrans("Unmark as Dispatched"),
 		rejectProps: { label: ctrans("Cancel"), severity: "secondary", outlined: true },
 		acceptProps: { label: ctrans("Unmark as Dispatched"), severity: "primary" },
@@ -645,7 +667,7 @@ const confirmUndispatchStockDelivery = (action: any) => {
 				onError: () => {
 					notify({
 						title: ctrans("Something went wrong"),
-						text: ctrans("Failed to unmark stock delivery as dispatched"),
+						text: props.is_container ? ctrans("Failed to unmark container as dispatched") : ctrans("Failed to unmark stock delivery as dispatched"),
 						type: "error",
 					})
 				},
@@ -667,7 +689,7 @@ const receiveStockDelivery = (action: any, data: { reason?: string } = {}) =>
 		onError: (errors: Record<string, string>) => {
 			notify({
 				title: ctrans("Something went wrong"),
-				text: Object.values(errors)[0] ?? ctrans("Failed to receive stock delivery"),
+				text: Object.values(errors)[0] ?? (props.is_container ? ctrans("Failed to receive container") : ctrans("Failed to receive stock delivery")),
 				type: "error",
 			})
 		},
@@ -683,8 +705,8 @@ const confirmReceiveStockDelivery = (action: any) => {
 
 	confirm.require({
 		group: "stock-delivery",
-		message: ctrans("Are you sure you want to mark this stock delivery as received? This can not be reverted."),
-		header: ctrans("Receive Stock Delivery"),
+		message: props.is_container ? ctrans("Are you sure you want to mark this container as received? This can not be reverted.") : ctrans("Are you sure you want to mark this stock delivery as received? This can not be reverted."),
+		header: props.is_container ? ctrans("Receive Container") : ctrans("Receive Stock Delivery"),
 		rejectProps: { label: ctrans("Cancel"), severity: "secondary", outlined: true },
 		acceptProps: { label: ctrans("Mark as Received"), severity: "primary" },
 		accept: () => receiveStockDelivery(action),
@@ -694,7 +716,7 @@ const confirmReceiveStockDelivery = (action: any) => {
 const confirmUnreceiveStockDelivery = (action: any) => {
 	confirm.require({
 		group: "stock-delivery",
-		message: ctrans("Are you sure you want to unmark this stock delivery as received? It will be reverted to its previous state."),
+		message: props.is_container ? ctrans("Are you sure you want to unmark this container as received? It will be reverted to its previous state.") : ctrans("Are you sure you want to unmark this stock delivery as received? It will be reverted to its previous state."),
 		header: ctrans("Unmark as Received"),
 		rejectProps: { label: ctrans("Cancel"), severity: "secondary", outlined: true },
 		acceptProps: { label: ctrans("Unmark as Received"), severity: "primary" },
@@ -705,7 +727,7 @@ const confirmUnreceiveStockDelivery = (action: any) => {
 				onError: () => {
 					notify({
 						title: ctrans("Something went wrong"),
-						text: ctrans("Failed to unmark stock delivery as received"),
+						text: props.is_container ? ctrans("Failed to unmark container as received") : ctrans("Failed to unmark stock delivery as received"),
 						type: "error",
 					})
 				},
@@ -717,10 +739,10 @@ const confirmUnreceiveStockDelivery = (action: any) => {
 const confirmCancelStockDelivery = (action: any) => {
 	confirm.require({
 		group: "stock-delivery",
-		message: ctrans("Are you sure you want to cancel this stock delivery? Its items will be emptied and the purchase order will allow a new delivery."),
-		header: ctrans("Cancel Stock Delivery"),
+		message: props.is_container ? ctrans("Are you sure you want to cancel this container? Its items will be emptied and the purchase order will allow a new delivery.") : ctrans("Are you sure you want to cancel this stock delivery? Its items will be emptied and the purchase order will allow a new delivery."),
+		header: props.is_container ? ctrans("Cancel Container") : ctrans("Cancel Stock Delivery"),
 		rejectProps: { label: ctrans("Cancel"), severity: "secondary", outlined: true },
-		acceptProps: { label: ctrans("Cancel Stock Delivery"), severity: "danger" },
+		acceptProps: { label: props.is_container ? ctrans("Cancel Container") : ctrans("Cancel Stock Delivery"), severity: "danger" },
 		accept: () => {
 			router.patch(route(action.route.name, action.route.parameters), {}, {
 				onStart: () => { cancelLoading.value = true },
@@ -728,7 +750,7 @@ const confirmCancelStockDelivery = (action: any) => {
 				onError: () => {
 					notify({
 						title: ctrans("Something went wrong"),
-						text: ctrans("Failed to cancel stock delivery"),
+						text: props.is_container ? ctrans("Failed to cancel container") : ctrans("Failed to cancel stock delivery"),
 						type: "error",
 					})
 				},
@@ -776,8 +798,8 @@ const startCostingLoading = ref(false)
 const confirmStartStockDeliveryCosting = (action: any) => {
 	confirm.require({
 		group: "stock-delivery",
-		message: ctrans("Are you sure you want to place this stock delivery? This is its final state."),
-		header: ctrans("Place stock delivery"),
+		message: props.is_container ? ctrans("Are you sure you want to place this container? This is its final state.") : ctrans("Are you sure you want to place this stock delivery? This is its final state."),
+		header: props.is_container ? ctrans("Place container") : ctrans("Place stock delivery"),
 		rejectProps: { label: ctrans("Cancel"), severity: "secondary", outlined: true },
 		acceptProps: { label: ctrans("Place"), severity: "primary" },
 		accept: () => {
@@ -841,11 +863,19 @@ const confirmFinishStockDeliveryCosting = (action: any) => {
 	})
 }
 
+const responsibilityDeleteAction = ref<any>(null)
+const isResponsibilityDeleteOpen = ref(false)
+
 const confirmDeleteStockDelivery = (action: any) => {
+	if (action.responsibility) {
+		responsibilityDeleteAction.value = action
+		isResponsibilityDeleteOpen.value = true
+		return
+	}
 	confirm.require({
 		group: "stock-delivery",
-		message: ctrans("Are you sure you want to delete this stock delivery? The purchase order will be reverted to before this delivery."),
-		header: ctrans("Delete Stock Delivery"),
+		message: props.is_container ? ctrans("Are you sure you want to delete this container? The purchase order will be reverted to before this delivery.") : ctrans("Are you sure you want to delete this stock delivery? The purchase order will be reverted to before this delivery."),
+		header: props.is_container ? ctrans("Delete Container") : ctrans("Delete Stock Delivery"),
 		rejectProps: { label: ctrans("Cancel"), severity: "secondary", outlined: true },
 		acceptProps: { label: ctrans("Delete"), severity: "danger" },
 		accept: () => {
@@ -855,7 +885,7 @@ const confirmDeleteStockDelivery = (action: any) => {
 				onError: () => {
 					notify({
 						title: ctrans("Something went wrong"),
-						text: ctrans("Failed to delete stock delivery"),
+						text: props.is_container ? ctrans("Failed to delete container") : ctrans("Failed to delete stock delivery"),
 						type: "error",
 					})
 				},
@@ -868,13 +898,43 @@ const confirmDeleteStockDelivery = (action: any) => {
 <template>
 	<Head :title="capitalize(title)" />
 	<PageHeading :data="pageHead">
+		<template v-if="add_purchase_orders" #otherBefore>
+			<span v-tooltip="add_purchase_orders.purchase_orders.length === 0 ? ctrans('No confirmed purchase orders of this agent are waiting for a container') : ctrans('Pick single items of the purchase orders, and how many of each')">
+				<Button
+					type="tertiary"
+					:label="ctrans('Add items')"
+					:disabled="add_purchase_orders.purchase_orders.length === 0"
+					@click="openAddItems"
+				>
+					<template #icon>
+						<FontAwesomeIcon icon="fal fa-plus" class="text-green-600" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
+			</span>
+			<span v-tooltip="add_purchase_orders.purchase_orders.length === 0 ? ctrans('No confirmed purchase orders of this agent are waiting for a container') : ctrans('Add everything still awaiting delivery on whole purchase orders')">
+				<Button
+					type="tertiary"
+					:label="ctrans('Add purchase orders')"
+					:disabled="add_purchase_orders.purchase_orders.length === 0"
+					@click="openAddPurchaseOrders"
+				>
+					<template #icon>
+						<FontAwesomeIcon icon="fal fa-plus" class="text-green-600" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
+			</span>
+		</template>
 		<template #other>
 			<Button
-				v-if="currentTab === 'attachments'"
-				label="Attach"
-				icon="upload"
+				v-if="currentTab === 'attachments' && attachmentRoutes.canChange"
+				type="tertiary"
+				:label="ctrans('Upload files')"
 				@click="() => (isModalUploadOpen = true)"
-			/>
+			>
+				<template #icon>
+					<FontAwesomeIcon icon="fal fa-upload" class="text-green-600" fixed-width aria-hidden="true" />
+				</template>
+			</Button>
 		</template>
 
 		<template #button-dispatch-stock-delivery="{ action }">
@@ -988,6 +1048,15 @@ const confirmDeleteStockDelivery = (action: any) => {
 		</template>
 	</PageHeading>
 
+	<ModalAcceptResponsibility
+		v-if="responsibilityDeleteAction"
+		v-model:visible="isResponsibilityDeleteOpen"
+		:header="ctrans('Delete container')"
+		:route="responsibilityDeleteAction.route"
+		:phrase="responsibilityDeleteAction.responsibility.phrase"
+		:warnings="responsibilityDeleteAction.responsibility.warnings"
+	/>
+
 	<!-- Stock Delivery Timeline -->
 	<div v-if="timelines" class="py-2 border-b border-gray-300">
 		<Timeline
@@ -1080,14 +1149,22 @@ const confirmDeleteStockDelivery = (action: any) => {
 						<FontAwesomeIcon v-tooltip="ctrans('Bill of lading number')" icon="fal fa-ship" aria-hidden="true" fixed-width />
 					</dt>
 					<dd>
-						<a :href="`https://www.track-trace.com/container?number=${encodeURIComponent(box_stats.first_block.delivery.tracking_number)}`" target="_blank" rel="noopener" class="underline decoration-dotted underline-offset-2">{{ box_stats.first_block.delivery.tracking_number }}</a>
+						{{ box_stats.first_block.delivery.tracking_number }}
 					</dd>
+				</div>
+				<div v-if="box_stats.first_block.delivery.container_size" class="flex items-center gap-2">
+					<dt>
+						<FontAwesomeIcon v-tooltip="ctrans('Container size')" icon="fal fa-truck-container" aria-hidden="true" fixed-width />
+					</dt>
+					<dd>{{ box_stats.first_block.delivery.container_size }}</dd>
 				</div>
 				<div v-if="box_stats.first_block.delivery.container_number" class="flex items-center gap-2">
 					<dt>
 						<FontAwesomeIcon v-tooltip="ctrans('Container number')" icon="fal fa-container-storage" aria-hidden="true" fixed-width />
 					</dt>
-					<dd>{{ box_stats.first_block.delivery.container_number }}</dd>
+					<dd>
+						<a :href="`https://www.track-trace.com/container?number=${encodeURIComponent(box_stats.first_block.delivery.container_number)}`" target="_blank" rel="noopener" class="underline decoration-dotted underline-offset-2">{{ box_stats.first_block.delivery.container_number }}</a>
+					</dd>
 				</div>
 				<div v-if="box_stats.first_block.delivery.shipper_reference" class="flex items-center gap-2">
 					<dt>
@@ -1118,8 +1195,8 @@ const confirmDeleteStockDelivery = (action: any) => {
 		<BoxStatPallet class="p-4">
 			<div class="flex justify-center items-center gap-2">
 				<FontAwesomeIcon
-					v-tooltip="ctrans('Stock Delivery')"
-					icon="fal fa-people-arrows"
+					v-tooltip="is_container ? ctrans('Container') : ctrans('Stock Delivery')"
+					:icon="is_container ? 'fal fa-truck-container' : 'fal fa-people-arrows'"
 					class="text-gray-400"
 					fixed-width
 					aria-hidden="true"
@@ -1399,6 +1476,13 @@ const confirmDeleteStockDelivery = (action: any) => {
 				</button>
 			</div>
 		</template>
+		<div v-if="costing.costed_on_route" class="flex items-center gap-2 border-b border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-700">
+			<FontAwesomeIcon icon="fal fa-info-circle" fixed-width aria-hidden="true" />
+			<span>{{ ctrans("Costs are entered on the procurement page of this delivery.") }}</span>
+			<Link :href="route(costing.costed_on_route.name, costing.costed_on_route.parameters)" class="font-medium underline">
+				{{ ctrans("Open the procurement page") }}
+			</Link>
+		</div>
 		<StockDeliveryInvoiceEntry
 			v-if="costingSection === 'invoice' && box_stats.invoice_entry"
 			:route="box_stats.invoice_entry.route"
@@ -1423,21 +1507,7 @@ const confirmDeleteStockDelivery = (action: any) => {
 	</Dialog>
 
 	<Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-	<div v-if="currentTab === 'purchase_orders' && add_purchase_orders" class="flex items-center justify-end gap-3 px-4 pt-3">
-		<span v-if="add_purchase_orders.purchase_orders.length === 0" class="text-sm text-gray-500">
-			{{ ctrans("No confirmed purchase orders of this agent are waiting for a container") }}
-		</span>
-		<Button
-			type="tertiary"
-			:label="ctrans('Add purchase orders')"
-			:disabled="add_purchase_orders.purchase_orders.length === 0"
-			@click="openAddPurchaseOrders"
-		>
-			<template #icon>
-				<FontAwesomeIcon icon="fal fa-plus" class="text-green-600" fixed-width aria-hidden="true" />
-			</template>
-		</Button>
-	</div>
+	<StockDeliveryAddItems v-if="add_purchase_orders" v-model:visible="addItemsOpen" :data="add_purchase_order_items" />
 	<component
 		:is="component"
 		:key="currentTab"
@@ -1445,20 +1515,39 @@ const confirmDeleteStockDelivery = (action: any) => {
 		:tab="currentTab"
 		:costing="currentTab === 'items' ? costing : undefined"
 		:detachRoute="attachmentRoutes.detachRoute"
+		:updateRoute="currentTab === 'attachments' ? attachmentRoutes.updateRoute : undefined"
+		:scopeOptions="currentTab === 'attachments' ? attachmentScopes : undefined"
+		:readonly="currentTab === 'attachments' ? !attachmentRoutes.canChange : undefined"
 		:storeRoute="currentTab === 'notes' && note_form?.can_write !== false ? note_store_route : undefined"
 			:agreement="currentTab === 'notes' ? note_form : undefined"
 		:removablePurchaseOrderIds="currentTab === 'purchase_orders' ? removablePurchaseOrderIds : undefined"
 		@removePurchaseOrder="(purchaseOrderId: number) => (purchaseOrderToRemoveId = purchaseOrderId)"
-	/>
+	>
+		<template #button-empty-state-attachments>
+			<Button
+				v-if="currentTab === 'attachments' && attachmentRoutes.canChange"
+				type="tertiary"
+				class="mt-4"
+				:label="ctrans('Upload files')"
+				@click="() => (isModalUploadOpen = true)"
+			>
+				<template #icon>
+					<FontAwesomeIcon icon="fal fa-upload" class="text-green-600" fixed-width aria-hidden="true" />
+				</template>
+			</Button>
+		</template>
+	</component>
 
 	<UploadAttachment
 		v-model="isModalUploadOpen"
 		scope="attachment"
 		:title="{
-			label: 'Upload your file',
-			information: 'The list of column file: customer_reference, notes, stored_items',
+			label: ctrans('Upload files'),
+			information: '',
 		}"
-		progressDescription="Adding Stock Delivery Attachments"
+		:progressDescription="is_container ? ctrans('Adding Container Attachments') : ctrans('Adding Stock Delivery Attachments')"
+		withCaption
+		multiple
 		:attachmentRoutes="attachmentRoutes"
 		:options="attachmentScopes"
 	/>

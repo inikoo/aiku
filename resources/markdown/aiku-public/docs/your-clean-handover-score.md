@@ -1,7 +1,7 @@
 ---
 title: Your Clean Handover Score
-summary: For agents — what the CHS number on your dashboard means, the four tests every purchase order has to pass, how it sets your commission, and why you cannot edit it yourself.
-date: 2026-09-01
+summary: For agents — what the CHS number on your dashboard means, the four tests every purchase order has to pass, how it sets your commission, and which of its inputs you record yourself.
+date: 2026-10-15
 tags: procurement, agents, supply-chain
 category: procurement
 series: Clean Handover Score
@@ -9,7 +9,7 @@ order: 1
 ---
 
 <aside class="tldr">
-For coordination agents. When you log in, the first thing on your dashboard is a table of quarters with a percentage. That percentage is your <b>Clean Handover Score (CHS)</b> — the share of the purchase-order value you were scheduled to hand over that quarter which arrived at the shipping agent <em>clean</em>. It usually decides your commission rate. This page explains the number honestly: what counts, what doesn't, and why none of it is editable by you. The buying company's side of the story is in <a href="/docs/scoring-agent-clean-handovers">scoring agent clean handovers</a>.
+For coordination agents. When you log in, the first thing on your dashboard is a table of quarters with a percentage. That percentage is your <b>Clean Handover Score (CHS)</b> — the share of the purchase-order value you were scheduled to hand over that quarter which arrived at the shipping agent <em>clean</em>. It usually decides your commission rate. This page explains the number honestly: what counts, what doesn't, and which of its inputs you record. The buying company's side of the story is in <a href="/docs/scoring-agent-clean-handovers">scoring agent clean handovers</a>.
 </aside>
 
 ## What the score is
@@ -60,13 +60,13 @@ Two things to know about exclusions:
 - **Only the buyer can grant one**, in writing, with a reason. Ordinary production problems, capacity shortages, supplier excuses and communication failures are not excludable — managing those is precisely the job the score measures.
 - **Ask early, with evidence.** An exclusion requested the day the goods are late, with photographs and correspondence attached, is easy to grant. One requested at quarter end looks like score management, and will be read that way.
 
-## Let's be frank: why you can't edit any of this
+## Let's be frank: what you record and what you don't
 
-Every input to your score — the approved ready date, the handover date, the QC result, the compliance confirmation, the exclusions — is recorded by the buying company's staff, not by you. Your dashboard is a window, not a form.
+Two inputs start with you. You record the **handover date**: the day the goods reached the shipping agent, from the **Handed over** button on the order's stages. Everything else — the approved ready date, the QC result, the compliance confirmation, the exclusions — is recorded by the buying company's staff. The score itself is calculated; your dashboard is a window, not a form.
 
-This is deliberate, and it is not an accusation. A score that an agent could edit would be worthless *to you*: the moment self-scored numbers exist anywhere in a supply chain, every good score becomes suspect, including the honest ones. The value of your 85% is that everyone knows you couldn't have typed it in yourself. The system that stops a bad agent inflating a score is the same system that lets a good agent's score speak for itself — in a renewal negotiation, that independence is the whole point.
+The handover date is yours because you are the one standing at the handover. It is not a free pass. Each date shows who recorded it and when, a date more than a day in the past asks for a reason that stays in the order's history, and the buyer checks it against the shipping agent's receipt and can correct it. A handover date that does not match the receipt is worse for you than a late one: the value of your 85% is that everyone can trust how it was recorded.
 
-The one input that starts with you is the **proposed ready date** — proposing realistic dates is your expertise. But the score runs off the *approved* date, and approval belongs to the buyer. Note that padding proposals to make the seven-day window easy is visible on the buyer's side: the gap between what you propose and what gets approved is tracked, and a pattern of generous proposals reads exactly like what it is.
+The other input that starts with you is the **proposed ready date** — proposing realistic dates is your expertise. But the score runs off the *approved* date, and approval belongs to the buyer. Note that padding proposals to make the seven-day window easy is visible on the buyer's side: the gap between what you propose and what gets approved is tracked, and a pattern of generous proposals reads exactly like what it is.
 
 ## How to keep the number high
 
@@ -75,7 +75,7 @@ Nothing on this list is a trick; the score is designed so that the only way to g
 - **Propose ready dates you believe.** A realistic date you hit beats an optimistic date you miss, every quarter.
 - **Flag trouble the day you see it.** A delay reported early can become a documented, excludable event or a renegotiated date. A delay reported late is just a failed test.
 - **Close the paperwork before the goods move.** The most common way to fail is test four: goods physically ready, compliance pack chasing them by email. An order handed over without its papers is not clean, even if everything arrives eventually.
-- **Confirm the handover is recorded.** The clock stops when the buyer records the handover date. If you handed goods to the shipping agent on Tuesday, make sure the buyer's team knows on Tuesday.
+- **Record the handover on the day.** If you handed goods to the shipping agent on Tuesday, press **Handed over** on Tuesday and keep the receipt to hand for when the buyer asks. A handover recorded days later asks you for a reason, and reads like one.
 
 <aside class="wayfinder">
 <b>Where to click in aiku</b><br>
@@ -84,5 +84,5 @@ Log in → your organisation dashboard. The <b>Clean Handover Score</b> panel is
 
 <aside class="wayfinder">
 <b>Permissions you need</b><br>
-A login for your agent organisation. The panel is read-only — there is nothing to edit and no permission that changes that.
+A login for your agent organisation. The score panel is read-only. The handover date is recorded on each order, from the stages at the top of the order page.
 </aside>

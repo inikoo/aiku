@@ -617,3 +617,35 @@ test('staff customers never leave a search log and the purge removes the old one
     UpdateCustomer::make()->action($linked, ['as_employee_id' => null]);
     expect($linked->fresh()->is_staff)->toBeFalse();
 });
+
+test('a pre-order product in the search results is flagged so its picture is not greyed out (HELP-4100)', function () {
+    $originalSettings = $this->shop->settings;
+    $this->shop->update(['settings' => array_merge($originalSettings ?? [], ['pre_orders' => ['enabled' => true]])]);
+
+    try {
+        [, $product] = createProduct($this->shop);
+        $product->update(['is_for_sale' => true]);
+        $product->updateQuietly(['is_back_order' => true, 'available_quantity' => 0]);
+        $webpage = $product->webpage ?: StoreProductWebpage::make()->action($product);
+        $webpage->update(['state' => WebpageStateEnum::LIVE]);
+
+        Search::shouldRun()->andReturn(irisSearchResults([
+            [
+                'id'    => $product->id,
+                'code'  => $product->code,
+                'name'  => $product->name,
+                'image' => null,
+            ],
+        ]));
+
+        $products = $this->getJson('http://'.$this->website->domain.'/json/search/catalogue?q='.$product->code.'&v=preorder')
+            ->assertOk()
+            ->json('results.products');
+
+        expect($products)->toHaveCount(1)
+            ->and($products[0]['stock'])->toEqual(0)
+            ->and($products[0]['is_pre_order'])->toBeTrue();
+    } finally {
+        $this->shop->update(['settings' => $originalSettings]);
+    }
+});

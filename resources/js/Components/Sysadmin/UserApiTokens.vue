@@ -23,6 +23,7 @@ const props = defineProps<{
 
             <template #cell(actions)="{ item }">
                 <ModalConfirmationDelete
+                    v-if="item.route_delete_token"
                     :routeDelete="item.route_delete_token"
                     :title="ctrans('Are you sure you want to delete this access token?')"
                     isFullLoading

@@ -8,6 +8,7 @@
 
 namespace App\Actions\Billables\Rental;
 
+use App\Actions\Traits\Authorisations\WithFulfilmentShopEditAuthorisation;
 use App\Actions\Catalogue\Asset\StoreAsset;
 use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateRentals;
@@ -31,6 +32,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreRental extends OrgAction
 {
+    use WithFulfilmentShopEditAuthorisation;
+
     public function handle(Shop $shop, array $modelData): Rental
     {
 

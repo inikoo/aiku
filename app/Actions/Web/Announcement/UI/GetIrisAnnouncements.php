@@ -3,14 +3,17 @@
 namespace App\Actions\Web\Announcement\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithWebAuthorisation;
 use App\Enums\Announcement\AnnouncementStatusEnum;
 use App\Models\Web\Announcement;
 use App\Models\Web\Website;
 use Illuminate\Support\Facades\Cache;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetIrisAnnouncements extends OrgAction
 {
+    use WithWebAuthorisation;
     use AsAction;
 
     /**
@@ -101,8 +104,10 @@ class GetIrisAnnouncements extends OrgAction
     /**
      * @return array<int, array<string, mixed>>
      */
-    public function asController(Website $website): array
+    public function asController(Website $website, ActionRequest $request): array
     {
+        $this->initialisationFromShop($website->shop, $request);
+
         return $this->handle($website);
     }
 }

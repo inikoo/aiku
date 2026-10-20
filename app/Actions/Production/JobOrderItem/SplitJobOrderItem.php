@@ -11,7 +11,7 @@ namespace App\Actions\Production\JobOrderItem;
 use App\Actions\OrgAction;
 use App\Events\BroadcastManufactureFloorChanged;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
-use App\Models\Production\ArtefactManufactureTask;
+use App\Enums\Production\JobOrderItemTask\JobOrderItemTaskStateEnum;
 use App\Models\Production\JobOrderItem;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
@@ -55,6 +55,10 @@ class SplitJobOrderItem extends OrgAction
                     UpdateJobOrderItem::make()->action($subJob, ['quantity' => $assignment['quantity']]);
                 }
 
+                if ($subJob->employee_id != $assignment['employee_id']) {
+                    $subJob->tasks()->where('state', '!=', JobOrderItemTaskStateEnum::DONE)->update(['employee_id' => null]);
+                }
+
                 $subJob->update([
                     'employee_id'   => $assignment['employee_id'],
                     'split_from_id' => $subJob->id == $line->id ? null : $line->id,
@@ -87,7 +91,7 @@ class SplitJobOrderItem extends OrgAction
     {
         return JobOrderItem::where('id', $line->id)
             ->orWhere('split_from_id', $line->id)
-            ->with(['tasks.sessions', 'artefact.manufactureTasks'])
+            ->with(['tasks.sessions', 'tasks.manufactureTask', 'artefact.manufactureTasks'])
             ->orderBy('id')
             ->lockForUpdate()
             ->get();
@@ -139,7 +143,7 @@ class SplitJobOrderItem extends OrgAction
             return;
         }
 
-        $packedIn = max(1, (int) $line->artefact->orgStock?->packed_in);
+        $packedIn = $line->artefact->packedIn();
         if ($total % $packedIn === 0 && $assignments->contains(fn (array $assignment) => $assignment['quantity'] % $packedIn)) {
             $validator->errors()->add('assignments', __('Each artisan gets whole outers: multiples of :count units.', ['count' => $packedIn]));
 
@@ -176,13 +180,18 @@ class SplitJobOrderItem extends OrgAction
                 return;
             }
 
-            $unitsPerArtefact = $subJob->artefact->manufactureTasks->pluck('pivot.units_per_artefact', 'id');
-
             foreach ($subJob->tasks as $task) {
-                if (ArtefactManufactureTask::stepQuantity($assignment['quantity'], $unitsPerArtefact[$task->manufacture_task_id] ?? 1) < $task->quantity_made) {
-                    $validator->errors()->add('assignments', __(':artisan already made more than :quantity.', [
+                if ($task->isRecordedInKg()) {
+                    continue;
+                }
+
+                $newRequired = $task->requiredFor($assignment['quantity']);
+                if ($newRequired < $task->quantity_made) {
+                    $validator->errors()->add('assignments', __(':artisan already made :made of :step, more than their new share of :quantity.', [
                         'artisan'  => $subJob->employee?->contact_name ?? __('Someone'),
-                        'quantity' => $assignment['quantity'],
+                        'made'     => (float) $task->quantity_made,
+                        'step'     => $task->manufactureTask->name,
+                        'quantity' => $newRequired,
                     ]));
 
                     return;

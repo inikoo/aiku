@@ -142,7 +142,7 @@ class IndexEmployees extends OrgAction
 
         return $queryBuilder
             ->defaultSort('slug')
-            ->allowedSorts(['slug', 'state', 'contact_name', 'job_title', 'worker_number', 'date_of_birth'])
+            ->allowedSorts(['slug', 'state', 'contact_name', 'job_title', 'worker_number', 'date_of_birth', 'employment_start_at', 'employment_end_at'])
             ->allowedFilters([$globalSearch, 'slug', 'contact_name', 'state', 'birthday_month', 'employment_start_at', 'employment_end_at'])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -197,10 +197,10 @@ class IndexEmployees extends OrgAction
                 ->column(key: 'slug', label: __('Code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'contact_name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'job_title', label: __('Job Title'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'employment_start_at', label: __('Employment Start Date'), canBeHidden: true, sortable: false);
+                ->column(key: 'employment_start_at', label: __('Employment Start Date'), canBeHidden: true, sortable: true);
 
             if ($this->hasLeftStateFilter($prefix)) {
-                $table->column(key: 'employment_end_at', label: __('Employment End Date'), canBeHidden: true, sortable: false);
+                $table->column(key: 'employment_end_at', label: __('Employment End Date'), canBeHidden: true, sortable: true);
             }
 
             $table

@@ -123,6 +123,21 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(120)->by($token instanceof PersonalAccessToken ? 'token:'.$token->id : 'ip:'.$request->ip());
         });
 
+        RateLimiter::for('supplier-share', function (Request $request) {
+            return Limit::perMinute(60)->by('supplier-share:'.$request->ip());
+        });
+
+        RateLimiter::for('supplier-share-code', function (Request $request) {
+            return [
+                Limit::perMinutes(10, 3)->by('supplier-share-code:'.$request->route('token')),
+                Limit::perMinutes(10, 10)->by('supplier-share-code-ip:'.$request->ip()),
+            ];
+        });
+
+        RateLimiter::for('supplier-share-verify', function (Request $request) {
+            return Limit::perMinutes(10, 10)->by('supplier-share-verify:'.$request->ip());
+        });
+
         RateLimiter::for('kiosk', function (Request $request) {
             return Limit::perMinute(600)->by($request->ip());
         });
@@ -169,6 +184,24 @@ class RouteServiceProvider extends ServiceProvider
             return [
                 Limit::perMinute(5)->by($request->ip()),
                 Limit::perDay(30)->by($request->ip()),
+            ];
+        });
+
+        /*
+         * Every call spends AI credit. Set well above the 60 day peak per user (translate 25 a
+         * minute and 226 an hour, image reading 4 and 13), so only a runaway loop or script hits it.
+         */
+        RateLimiter::for('grp-ai-translate', function (Request $request) {
+            return [
+                Limit::perMinute(60)->by('grp-ai-translate-minute:'.$request->user()?->id),
+                Limit::perHour(600)->by('grp-ai-translate-hour:'.$request->user()?->id),
+            ];
+        });
+
+        RateLimiter::for('grp-ai-vision', function (Request $request) {
+            return [
+                Limit::perMinute(20)->by('grp-ai-vision-minute:'.$request->user()?->id),
+                Limit::perHour(100)->by('grp-ai-vision-hour:'.$request->user()?->id),
             ];
         });
 

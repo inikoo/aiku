@@ -9,6 +9,7 @@
 namespace App\Actions\Masters\MasterProductCategory\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithMastersAuthorisation;
 use App\Actions\Masters\MasterCollection\UI\ShowMasterCollection;
 use App\Actions\Masters\MasterCollection\UI\WithMasterCollectionNavigation;
 use App\Actions\Masters\MasterCollection\UI\WithMasterCollectionSubNavigation;
@@ -29,6 +30,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexMasterFamiliesInMasterCollection extends OrgAction
 {
+    use WithMastersAuthorisation;
     use WithMasterCollectionNavigation;
     use WithMasterCollectionSubNavigation;
 

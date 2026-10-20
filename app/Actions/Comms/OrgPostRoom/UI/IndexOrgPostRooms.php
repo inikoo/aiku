@@ -14,6 +14,7 @@ use App\Actions\Comms\Traits\WithCommsSubNavigation;
 use App\Actions\Comms\UI\ShowCommsDashboard;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithCommsAuthorisation;
 use App\Http\Resources\Mail\OrgPostRoomsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
@@ -31,6 +32,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexOrgPostRooms extends OrgAction
 {
+    use WithCommsAuthorisation;
     use WithCommsSubNavigation;
 
 

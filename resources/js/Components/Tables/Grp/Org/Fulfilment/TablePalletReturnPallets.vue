@@ -437,7 +437,7 @@ const generateLocationRoute = (item: any, picking?: any) => {
 
 <template>
     <!-- <pre>{{ data.data[0] }}</pre> -->
-    <Table :resource="data" :name="tab" class="mt-5" :isCheckBox="state == 'in_process'"
+    <Table :resource="data" :name="tab" class="mt-5" :isCheckBox="state == 'in_process' && can_edit_transactions !== false"
         checkboxKey='pallet_id'
         @onChecked="(item) => onCheckTable(item)"
         @onUnchecked="(item) => onCheckTable(item)"

@@ -89,6 +89,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $movements_fixed
  * @property numeric|null $sku_value
  * @property numeric|null $lpp_per_sku
+ * @property numeric|null $minimum_stock
+ * @property Carbon|null $minimum_stock_alerted_at
  * @property numeric|null $current_supplier_sku_cost
  * @property int $current_batch_codes
  * @property int|null $main_batch_code_id
@@ -149,6 +151,8 @@ class OrgStock extends Model implements Auditable, HasMedia
         'last_fetched_at'                  => 'datetime',
         'quantity_in_locations'            => 'decimal:3',
         'quantity_available'               => 'decimal:3',
+        'minimum_stock'                    => 'decimal:3',
+        'minimum_stock_alerted_at'         => 'datetime',
         'is_shipment_packaging'            => 'boolean',
     ];
 
@@ -202,9 +206,15 @@ class OrgStock extends Model implements Auditable, HasMedia
         'is_fresh',
         'is_made_in_house',
         'is_excluded_from_auto_ordering',
+        'minimum_stock',
         'packed_in',
         'barcode',
     ];
+
+    public function packedIn(): int
+    {
+        return max(1, (int) $this->packed_in);
+    }
 
     public function getSlugOptions(): SlugOptions
     {
@@ -239,6 +249,25 @@ class OrgStock extends Model implements Auditable, HasMedia
     {
         return "(coalesce((select gb_stock.is_gb_origin from stocks gb_stock where gb_stock.id = {$orgStockAlias}.stock_id), false)
             and coalesce((select gb_family.gb_separate_pallet from org_stock_families gb_family where gb_family.id = {$orgStockAlias}.org_stock_family_id), true))";
+    }
+
+    /**
+     * SQL for the units in one SKO of a supplier product as the organisation holds it: the packed_in of its org stock
+     * linked to that supplier product, else the supplier's own pack, else 1.
+     */
+    public static function unitsPerSkoSql(string $organisationId, string $supplierProductId): string
+    {
+        $activeState = OrgStockStateEnum::ACTIVE->value;
+
+        return "coalesce(
+            (select nullif(sko.packed_in, 0) from org_stocks sko
+                inner join stock_has_supplier_products sko_link on sko_link.stock_id = sko.stock_id
+                where sko_link.supplier_product_id = {$supplierProductId}
+                    and sko.organisation_id = {$organisationId}
+                order by (sko.state = '{$activeState}') desc, sko.id
+                limit 1),
+            (select sko_sp.units_per_pack from supplier_products sko_sp where sko_sp.id = {$supplierProductId}),
+            1)";
     }
 
     public function locationOrgStocks(): HasMany

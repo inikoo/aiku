@@ -154,9 +154,9 @@ class RepairMissingFixedWebBlocksInFamiliesWebpages
         UpdateWebpageContent::run($webpage);
 
         foreach ($webpage->webBlocks as $webBlock) {
-            print $webBlock->webBlockType->code."\n";
+            $command->line($webBlock->webBlockType->code);
         }
-        print "=========\n";
+        $command->line("=========");
 
         if ($webpage->is_dirty) {
             if (in_array($family->state, [
@@ -210,7 +210,7 @@ class RepairMissingFixedWebBlocksInFamiliesWebpages
         $total   = count($webpagesID);
         $current = 1;
         foreach ($webpagesID as $webpageID) {
-            print "[{$current}/{$total}] Webpage id: {$webpageID->id}\n";
+            $command->line("[{$current}/{$total}] Webpage id: {$webpageID->id}");
             $webpage = Webpage::find($webpageID->id);
             if ($webpage) {
                 $this->handle($webpage, $command);

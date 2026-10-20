@@ -9,6 +9,7 @@
 namespace App\Actions\Accounting\PaymentAccount\Json;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithAccountingShopAuthorisation;
 use App\Http\Resources\Accounting\PaymentAccountsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\PaymentAccount;
@@ -21,6 +22,7 @@ use App\Services\QueryBuilder;
 
 class GetShopPaymentAccounts extends OrgAction
 {
+    use WithAccountingShopAuthorisation;
     public function handle(Shop $shop, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -66,7 +68,11 @@ class GetShopPaymentAccounts extends OrgAction
 
     public function asController(Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisationFromShop($shop, $request);
+        if ($shop->fulfilment) {
+            $this->initialisationFromFulfilment($shop->fulfilment, $request);
+        } else {
+            $this->initialisationFromShop($shop, $request);
+        }
 
         return $this->handle($shop);
     }

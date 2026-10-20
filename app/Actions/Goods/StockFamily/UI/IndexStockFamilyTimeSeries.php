@@ -50,6 +50,7 @@ class IndexStockFamilyTimeSeries extends OrgAction
                 'customers_invoiced',
             ])
             ->selectRaw('? as currency_code', [$stockFamily->group->currency->code])
+            ->selectRaw('? as stock_family_id', [$stockFamily->id])
             ->selectSub(
                 StockFamilyTimeSeriesRecord::query()
                     ->from('stock_family_time_series_records as last_year_records')

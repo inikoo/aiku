@@ -12,6 +12,7 @@ use App\Actions\Procurement\SupplierAgreedTerm\GetEffectiveSupplierAgreedTerms;
 use App\Actions\Procurement\WithAgreedTermsAuthorisation;
 use App\Enums\Procurement\ProcurementNote\ProcurementNoteCategoryEnum;
 use App\Enums\Procurement\ProcurementNote\ProcurementNoteIncidentOutcomeEnum;
+use App\Enums\Procurement\ProcurementNote\ProcurementNoteIncidentTypeEnum;
 use App\Enums\Procurement\ProcurementNote\ProcurementNoteSeverityEnum;
 use App\Enums\Procurement\ProcurementNote\ProcurementNoteVisibilityEnum;
 use App\Enums\Procurement\SupplierAgreedTerm\SupplierAgreedTermTypeEnum;
@@ -88,6 +89,7 @@ class GetAgreement
                 'term_types'    => SupplierAgreedTermTypeEnum::valuesWithLabels(),
                 'value_types'   => collect(SupplierAgreedTermValueTypeEnum::cases())->map(fn ($case) => ['value' => $case->value, 'label' => $case->label(), 'has_amount' => $case->hasAmount()])->all(),
                 'categories'    => collect(ProcurementNoteCategoryEnum::cases())->map(fn ($case) => ['value' => $case->value, 'label' => $case->label(), 'colour' => $case->colour()])->all(),
+                'incident_types' => ProcurementNoteIncidentTypeEnum::valuesWithLabels(),
                 'severities'    => ProcurementNoteSeverityEnum::valuesWithLabels(),
                 'visibilities'  => ProcurementNoteVisibilityEnum::valuesWithLabels(),
                 'currencies'    => Currency::orderBy('code')->get(['id', 'code'])->map(fn (Currency $currency) => ['value' => $currency->id, 'label' => $currency->code])->all(),
@@ -100,21 +102,25 @@ class GetAgreement
 
     /**
      * What the Notes tab of a purchase order or stock delivery needs to offer the full note form
-     * and the pin and resolve buttons. The note always belongs to the document's organisation.
+     * and the pin and resolve buttons. The note always belongs to the document's organisation. Goods in staff
+     * who are not buyers get the form with the incident category only.
      *
      * @return array<string, mixed>
      */
-    public function noteForm(User $user, Group $group, bool $forAgent = false): array
+    public function noteForm(User $user, Group $group, bool $forAgent = false, ?int $organisationId = null): array
     {
-        $canWrite = !$forAgent && $this->canWriteProcurementNotes($user, $group);
+        $canWriteNotes   = !$forAgent && $this->canWriteProcurementNotes($user, $group);
+        $canWrite        = $canWriteNotes || (!$forAgent && $this->canReportIncidents($user, $organisationId));
+        $categories      = $canWriteNotes ? ProcurementNoteCategoryEnum::cases() : [ProcurementNoteCategoryEnum::INCIDENT];
 
         return [
             'can_write'     => $canWrite,
-            'is_supervisor' => $canWrite && $this->isProcurementSupervisor($user, $group),
+            'is_supervisor' => $canWriteNotes && $this->isProcurementSupervisor($user, $group),
             'user_id'       => $user->id,
             'routes'        => null,
             'options'       => $canWrite ? [
-                'categories'      => collect(ProcurementNoteCategoryEnum::cases())->map(fn ($case) => ['value' => $case->value, 'label' => $case->label(), 'colour' => $case->colour()])->all(),
+                'categories'      => collect($categories)->map(fn ($case) => ['value' => $case->value, 'label' => $case->label(), 'colour' => $case->colour()])->all(),
+                'incident_types'  => ProcurementNoteIncidentTypeEnum::valuesWithLabels(),
                 'severities'      => ProcurementNoteSeverityEnum::valuesWithLabels(),
                 'visibilities'    => ProcurementNoteVisibilityEnum::valuesWithLabels(),
                 'currencies'      => Currency::orderBy('code')->get(['id', 'code'])->map(fn (Currency $currency) => ['value' => $currency->id, 'label' => $currency->code])->all(),

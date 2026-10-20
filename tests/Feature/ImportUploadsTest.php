@@ -367,3 +367,70 @@ test('bulk import portfolios route is authorised for a crm user', function () {
     $response->assertStatus(201);
     expect($customerSalesChannel->portfolios()->count())->toBe(1);
 });
+
+test('upload records and file open only for the uploader or an org admin, and the uploads tab links only for them, INI-076', function () {
+    Storage::fake('local');
+
+    $file = csvUpload('prospects-permissions.csv', [
+        ['Contact Name', 'Email'],
+        ['Petra Permission', 'petra.permission@example.com'],
+    ]);
+
+    $upload = ImportShopProspects::make()->handle($this->shop, $file);
+    $upload->update(['user_id' => $this->user->id]);
+
+    $showUrl     = route('grp.helpers.uploads.records.show', $upload->id);
+    $recordsUrl  = route('grp.helpers.uploads.records.index', $upload->id);
+    $downloadUrl = route('grp.helpers.uploads.records.download', $upload->id);
+    $uploadsTab  = route('grp.org.shops.show.crm.prospects.index', [$this->organisation->slug, $this->shop->slug, 'tab' => 'uploads']);
+
+    $colleague = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($colleague, ["crm.{$this->shop->id}.prospects.view"]);
+    get($showUrl)->assertForbidden();
+    getJson($recordsUrl)->assertForbidden();
+    get($downloadUrl)->assertForbidden();
+    get($uploadsTab)->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('uploads.data.0.id', $upload->id)
+        ->where('uploads.data.0.records_route', null)
+        ->where('uploads.data.0.download_route', null));
+
+    actingAsUserWithOnlyPermissions($colleague, ["crm.{$this->shop->id}.prospects.view", "org-admin.{$this->organisation->id}"]);
+    get($showUrl)->assertOk();
+    getJson($recordsUrl)->assertOk();
+    get($uploadsTab)->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('uploads.data.0.records_route.name', 'grp.helpers.uploads.records.index'));
+
+    actingAs($this->user);
+    getJson($recordsUrl)->assertOk()->assertJsonPath('data.0.values.email', 'petra.permission@example.com');
+});
+
+test('fetching faire and wix products needs products edit of the shop, and the fetch button shows only to product editors, INI-076', function () {
+    \Illuminate\Support\Facades\Queue::fake();
+
+    $engine = $this->shop->engine;
+    $this->shop->updateQuietly(['engine' => \App\Enums\Catalogue\Shop\ShopEngineEnum::FAIRE]);
+
+    $productsUrl = route('grp.org.shops.show.catalogue.products.all_products.index', [$this->organisation->slug, $this->shop->slug]);
+    $fetchUrls   = [
+        route('grp.org.shops.show.catalogue.products.all_products.faire_products.index', [$this->organisation->slug, $this->shop->slug]),
+        route('grp.org.shops.show.catalogue.products.all_products.wix_products.index', [$this->organisation->slug, $this->shop->slug]),
+    ];
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["products.{$this->shop->id}.view"]);
+    foreach ($fetchUrls as $url) {
+        get($url)->assertForbidden();
+    }
+    get($productsUrl)->assertInertia(fn (AssertableInertia $page) => $page->where('pageHead.actions', [[]]));
+
+    actingAsUserWithOnlyPermissions($user, ["products.{$this->shop->id}.view", "products.{$this->shop->id}.edit"]);
+    foreach ($fetchUrls as $url) {
+        get($url)->assertSuccessful();
+    }
+    get($productsUrl)->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('pageHead.actions.0.route.name', 'grp.org.shops.show.catalogue.products.all_products.faire_products.index'));
+
+    $this->shop->updateQuietly(['engine' => $engine]);
+});

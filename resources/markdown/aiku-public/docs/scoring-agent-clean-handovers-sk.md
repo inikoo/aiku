@@ -1,7 +1,7 @@
 ---
 title: Bodovanie čistých odovzdávok agenta
 summary: Pre nákupné tímy — prečo existuje Clean Handover Score, ktorých päť faktov musíte zaznamenať pri každej objednávke cez agenta, kto by mal mať na starosti ktoré pole, a ako čítať hygienický pás, ktorý vám povie, kedy je skóre riadené namiesto zaslúžené.
-date: 2026-09-01
+date: 2026-10-15
 source_date: 2026-10-15
 tags: procurement, agents, supply-chain
 category: procurement
@@ -25,7 +25,7 @@ Skóre sa počíta; nikdy sa nezadáva ručne. Počíta sa však z faktov, ktor�
 
 1. **Navrhovaný dátum pripravenosti** — dátum, kedy podľa agenta budú tovar, doklady o kontrole kvality a súbor dokladov o súlade pripravené na odovzdanie. Zaznamenajte to, čo skutočne navrhli, nie to, čo by ste si priali.
 2. **Schválený dátum pripravenosti** — dátum, ktorý ste písomne schválili. Tým sa uzamkne štvrťrok objednávky a spustí sa sedemdňové okno na odovzdanie. Preverte ho ešte pred schválením: toto je jediná chvíľa, kedy je kontrola lacná a jej absencia drahá.
-3. **Odovzdané** — kedy tovar fyzicky dorazil k prepravnému agentovi, potvrdené z vašej strany alebo strany prepravného agenta, nikdy len na základe slova koordinačného agenta.
+3. **Odovzdané** — kedy tovar fyzicky dorazil k prepravnému agentovi. Koordinačný agent ho zaznamenáva zo svojho prihlásenia, v ten deň; porovnajte ho s potvrdením prepravného agenta a opravte ho, ak nesedí.
 4. **Kontrola kvality prešla** — kedy tovar prešiel dohodnutou kontrolou.
 5. **Súbor dokladov o súlade kompletný** — kedy boli dokumenty overené ako kompletné. Pri odovzdaní, nie neskôr.
 
@@ -43,7 +43,8 @@ Konkrétne:
 
 - **Navrhovaný dátum pripravenosti** — pole agenta, časom aj v jeho vlastnom prihlásení. Navrhovanie dátumov je jeho odbornosť a je neškodné: skóre beží podľa schváleného dátumu.
 - **Schválený dátum pripravenosti, výnimky** — vaše, vždy, bez výnimiek. Práve tu žije manipulácia so skóre.
-- **Odovzdanie, kontrola kvality, súlad** — dnes vaše; časom, čím viac budú vychádzať z príjmu na sklade a kontrolných zoznamov dokumentov namiesto ručného zadávania niektorým pracovníkom, tým silnejšie bude skóre.
+- **Odovzdanie** — zaznamenáva ho agent, pretože pri odovzdaní je prítomný; vy ho kontrolujete. Každý dátum ukazuje, kto ho zaznamenal a kedy, dátum v minulosti nesie dôvod a vaša oprava sa uchová v histórii objednávky.
+- **Kontrola kvality, súlad** — dnes vaše; časom, čím viac budú vychádzať z príjmu na sklade a kontrolných zoznamov dokumentov namiesto ručného zadávania niektorým pracovníkom, tým silnejšie bude skóre.
 - **Samotné skóre** — ničie. Je odvodené; nie je tu pole na úpravu.
 
 Agent by nikdy nemal bodovať sám seba — nie preto, že by agenti boli nečestní, ale preto, že číslo, ktoré si niekto vystaví sám, je bezcenné, aj keď je pravdivé. Ak vám dnes agenti posielajú vlastné súhrny výkonnosti mailom, tento systém existuje presne na to, aby to nahradil.
@@ -54,7 +55,7 @@ Odhodlaný agent nemôže upraviť skóre, ale stále sa môže pokúsiť ovplyv
 
 - **Priemerný posun dátumu pripravenosti pri schválení** — priemerný rozdiel medzi tým, čo agent navrhol, a tým, čo bolo schválené. Hodnota blízko nuly so silným CHS je zdravý obraz. Hodnota blízko nuly so slabými dodacími termínami znamená, že návrhy sa razítkujú bez kontroly: prípadné navýšenie prechádza bez povšimnutia. Trvalo veľký rozdiel znamená, že návrhy sú bežne nerealistické — o tom stojí za to hovoriť s agentom.
 - **Vylúčené zo skóre** — podiel plánovanej hodnoty, ktorému boli udelené výnimky. Výnimky sú legitímne (vaše vlastné neskoré zmeny, doložená vyššia moc), ale sú aj poistným ventilom skóre, a toto je meradlo naň. Nad 10 % svieti na červeno. Rastúci podiel výnimiek pri stabilnom skóre znamená, že skóre sa skôr *udržiava*, než že je zaslúžené.
-- **Odovzdané bez kontroly kvality alebo súladu** — objednávky označené ako odovzdané s chýbajúcou jednou z kontrol. Toto by malo byť vždy nula; každý taký prípad je predovšetkým diera vo vašej vlastnej disciplíne zaznamenávania, pretože neskontrolovaná odovzdávka nemôže nikdy počítať ako čistá.
+- **Odovzdané bez kontroly kvality alebo súladu** — objednávky označené ako odovzdané s chýbajúcou jednou z kontrol. Toto by malo byť vždy nula; každý taký prípad znamená, že kontrola kvality alebo súlad neboli zaznamenané skôr, než agent zaznamenal odovzdanie, a neskontrolovaná odovzdávka nemôže nikdy počítať ako čistá.
 
 Každé z týchto polí je auditované: kto ho nastavil, kedy, z akej hodnoty na akú. Vzorec navyšovania, vzorec razítkovania bez kontroly alebo vlna výnimiek na konci štvrťroka sa dá spätne zrekonštruovať.
 
@@ -73,7 +74,7 @@ A ešte jedna prevádzková poznámka: skóre existuje len pre objednávky so sc
 
 <aside class="wayfinder">
 <b>Kam kliknúť v aiku</b><br>
-Skupina → <b>Supply Chain → Agents</b> → vyberte agenta. Prehľad zobrazuje panel <b>Clean Handover Score</b> s hygienickým pásom. Na zaznamenanie piatich faktov: zoznam agenta <b>Purchase Orders</b> → otvorte objednávku. <b>Kontrola kvality prešla</b> je tlačidlo <b>QC approved</b> na fázach v hornej časti objednávky. Ostatné sú v <b>Edit</b> → sekcia <b>Clean handover</b> (navrhovaný/schválený dátum pripravenosti, odovzdané, súlad kompletný, prepínač výnimky + dôvod). Agent vidí svoje skóre bez hygienického pásu na svojom vlastnom prehľade po prihlásení.
+Skupina → <b>Supply Chain → Agents</b> → vyberte agenta. Prehľad zobrazuje panel <b>Clean Handover Score</b> s hygienickým pásom. Na zaznamenanie piatich faktov: zoznam agenta <b>Purchase Orders</b> → otvorte objednávku. Tlačidlá <b>Approved ready date</b>, <b>QC approved</b>, <b>Handed over</b> a <b>Compliance complete</b> sú na fázach v hornej časti objednávky; použiť ich môže ktorýkoľvek nákupca a dátum v minulosti si vyžiada dôvod. Navrhovaný dátum pripravenosti a prepínač výnimky s dôvodom sú v <b>Edit</b> → sekcia <b>Clean handover</b>. Agent vidí svoje skóre bez hygienického pásu na svojom vlastnom prehľade po prihlásení.
 </aside>
 
 <aside class="wayfinder">

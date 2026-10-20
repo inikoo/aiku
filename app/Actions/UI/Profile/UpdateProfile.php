@@ -90,6 +90,10 @@ class UpdateProfile extends OrgAction
             $modelData['settings']['tickets_list_mine'] = (string) Arr::pull($modelData, 'tickets_list_mine');
         }
 
+        if (Arr::exists($modelData, 'sales_quarters')) {
+            $modelData['settings']['sales_quarters'] = (int) Arr::pull($modelData, 'sales_quarters');
+        }
+
         if (Arr::exists($modelData, 'agent_card_sections')) {
             $modelData['settings']['agent_card_sections'] = collect(Arr::pull($modelData, 'agent_card_sections'))
                 ->filter(fn ($isOpen, $key) => preg_match('/^\d+(cover|orders|next_container|stock_delivery)$/', (string) $key))
@@ -266,6 +270,7 @@ class UpdateProfile extends OrgAction
             'agent_card_sections.*'               => ['boolean'],
             'ticket_history_newest_first'         => ['sometimes', 'boolean'],
             'tickets_list_mine'                   => ['sometimes', 'nullable', 'string', 'max:100'],
+            'sales_quarters'                      => ['sometimes', 'integer', 'between:4,8'],
             'rail_hidden_badges'                  => ['sometimes', 'nullable', 'array'],
             'rail_hidden_badges.*'                => ['string', Rule::in(self::RAIL_BADGES)],
         ];

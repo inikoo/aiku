@@ -46,7 +46,7 @@ class RepairMissingFixedWebBlocksInProductsWebpages
         $product = $webpage->model;
 
         if (!$product->is_main) {
-            print "Product is not main product, skipping\n";
+            $command->line("Product is not main product, skipping");
 
             // Delete Webpage
             /*  $redirect = $product->family?->webpage?->id ?? $product->subDepartment?->webpage?->id ?? $product->department?->webpage?->id ?? $webpage->website->storefront_id;
@@ -142,9 +142,9 @@ class RepairMissingFixedWebBlocksInProductsWebpages
 
 
         foreach ($webpage->webBlocks as $webBlock) {
-            print $webBlock->webBlockType->code."\n";
+            $command->line($webBlock->webBlockType->code);
         }
-        print "=========\n";
+        $command->line("=========");
 
         if ($webpage->is_dirty) {
             if (in_array($product->state, [
@@ -237,7 +237,7 @@ class RepairMissingFixedWebBlocksInProductsWebpages
         $query->chunk(100, function ($webpagesID) use ($command, &$current, $total) {
             foreach ($webpagesID as $webpageID) {
                 $current++;
-                print "[{$current}/{$total}] Webpage id: {$webpageID->id}\n";
+                $command->line("[{$current}/{$total}] Webpage id: {$webpageID->id}");
                 $webpage = Webpage::find($webpageID->id);
                 if ($webpage) {
                     $this->handle($webpage, $command);

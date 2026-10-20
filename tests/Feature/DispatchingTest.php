@@ -78,6 +78,7 @@ use App\Actions\Dispatching\Shipment\FetchShipmentLabel;
 use App\Actions\Dispatching\Shipment\StoreShipment;
 use App\Actions\Dispatching\Shipment\UpdateShipment;
 use App\Actions\Dispatching\Shipper\Json\GetShippers;
+use App\Actions\Dispatching\Shipment\ApiCalls\CallApiDpdGbShipping;
 use App\Actions\Dispatching\Shipper\StoreShipper;
 use App\Actions\Dispatching\Shipper\UpdateShipper;
 use App\Actions\Dispatching\Trolley\AttachTrolleyToDeliveryNote;
@@ -269,6 +270,33 @@ test('update shipper', function ($createdShipper) {
 
     expect($updatedShipper->code)->toBe($arrayData['code']);
 })->depends('create shipper');
+
+test('set shipper api credentials from the command', function ($createdShipper) {
+    $originalApiSettings = $createdShipper->only(['api_shipper', 'settings']);
+
+    $this->artisan('shipper:api_credentials', ['shipper' => $createdShipper->slug, 'api_shipper' => 'dpd-gb'])
+        ->expectsQuestion('Access token (paste the value, JSON for dpd-gb)', '{"username":"u","password":"p","account":"1"}')
+        ->assertExitCode(0);
+
+    $createdShipper->refresh();
+
+    expect($createdShipper->api_shipper)->toBe('dpd-gb')
+        ->and($createdShipper->settings['access_token'])->toEqual(['username' => 'u', 'password' => 'p', 'account' => '1']);
+
+    $createdShipper->update($originalApiSettings);
+})->depends('create shipper');
+
+test('dpd gb login reads the credentials by name whatever their order', function () {
+    config(['app.sandbox.shipper_dpd_gb_token' => '{"account":"462302","password":"p","username":"u"}']);
+    Http::fake(['api.dpd.co.uk/*' => Http::response(['data' => ['geoSession' => 'session']])]);
+
+    $headers = (new CallApiDpdGbShipping())->getHeaders(new Shipper());
+
+    expect($headers['GeoSession'])->toBe('session')
+        ->and($headers['GeoClient'])->toBe('account/462302');
+    Http::assertSent(fn ($request) => $request->hasHeader('Authorization', 'Basic '.base64_encode('u:p'))
+        && $request->hasHeader('GeoClient', 'account/462302'));
+});
 
 
 test('create delivery note', function () {
@@ -1338,7 +1366,9 @@ test('UI batch code pages', function () {
         'org_stock_id' => $orgStock->id,
     ]);
 
-    get(route('grp.org.warehouses.show.inventory.batch_codes.index', [$this->organisation->slug, $this->warehouse->slug]))->assertOk();
+    get(route('grp.org.warehouses.show.inventory.batch_codes.index', [$this->organisation->slug, $this->warehouse->slug]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('data.data', fn ($rows) => collect($rows)->contains('id', $batchCode->id)));
     get(route('grp.org.warehouses.show.inventory.batch_codes.create', [$this->organisation->slug, $this->warehouse->slug]))->assertOk();
     get(route('grp.org.warehouses.show.inventory.batch_codes.show', [$this->organisation->slug, $this->warehouse->slug, $batchCode->id]))->assertOk();
 
@@ -1418,6 +1448,19 @@ test('json mini delivery note and valid for return', function () {
     $deliveryNote->updateQuietly(['collection_address_id' => $deliveryNote->shop->address_id]);
     getJson(route('grp.json.mini_delivery_note', [$deliveryNote->id]))->assertOk()->assertJsonPath('delivery_note.is_collection', true);
     get(route('grp.json.delivery_note_valid_for_return', [$this->warehouse->slug]))->assertOk();
+});
+
+test('a delivery note shipped by external on an order without a platform still opens, HELP-4089', function () {
+    $deliveryNote = makeDeliveryNote($this);
+    $deliveryNote->updateQuietly(['is_shipping_by_external' => true]);
+    $this->order->updateQuietly(['platform_id' => null]);
+
+    get(route('grp.org.warehouses.show.dispatching.delivery_notes.show', [$deliveryNote->organisation->slug, $deliveryNote->warehouse->slug, $deliveryNote->slug]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('box_stats.shipments_routes.submit_route.name', 'grp.models.delivery_note.shipment.store')->etc());
+    getJson(route('grp.json.mini_delivery_note_shipments', [$deliveryNote->id]))
+        ->assertOk()
+        ->assertJsonPath('shipment.shipments_routes.submit_route.name', 'grp.models.delivery_note.shipment.store');
 });
 
 test('UI delivery notes in customer group and org stock', function () {
@@ -5335,6 +5378,26 @@ test('order transactions show the UN number of dangerous goods (HELP-3658)', fun
     expect(collect($row['un_numbers'])->first())->toMatchArray(['number' => '1197', 'shipping_name' => 'EXTRACTS, LIQUID']);
 });
 
+test('staff order lines show what is on the shelf of an on-demand product, not its storefront quantity (HELP-4114)', function () {
+    [$deliveryNote, $deliveryNoteItem] = handlingDeliveryNoteWithPicking($this);
+    $order       = $deliveryNote->orders->first();
+    $transaction = $order->transactions()->where('model_type', 'Product')->first();
+    $product     = $transaction->model;
+    $orgStock    = $deliveryNoteItem->orgStock;
+
+    $product->orgStocks()->sync([$orgStock->id => ['quantity' => 2]]);
+    $orgStock->update(['is_on_demand' => true, 'quantity_available' => 11]);
+    $product->update(['is_on_demand' => true, 'available_quantity' => \App\Actions\Catalogue\Product\Hydrators\ProductHydrateAvailableQuantity::ON_DEMAND_QUANTITY]);
+
+    request()->setRouteResolver(fn () => new Route('GET', 'test', []));
+    $lineFor = fn (bool $withShelfQuantity) => collect(\App\Http\Resources\Ordering\TransactionsResource::collection(
+        \App\Actions\Ordering\Transaction\UI\IndexTransactions::make()->handle($order, withShelfQuantity: $withShelfQuantity)
+    )->resolve())->firstWhere('id', $transaction->id);
+
+    expect($lineFor(true))->toMatchArray(['is_on_demand' => true, 'shelf_quantity' => 5])
+        ->and($lineFor(false)['shelf_quantity'])->toBeNull();
+});
+
 test('finishing a return only marks the still unhandled quantity as not returned (HELP-3194)', function () {
     [$deliveryNote, $deliveryNoteItem] = handlingDeliveryNoteWithPicking($this);
     $deliveryNote->update(['state' => DeliveryNoteStateEnum::DISPATCHED]);
@@ -5374,6 +5437,42 @@ test('a return that needs no action can be finished without a refund or a replac
     expect($finished->state)->toBe(\App\Enums\GoodsIn\ReturnDeliveryNote\ReturnDeliveryNoteStateEnum::DONE)
         ->and($finished->refund_id)->toBeNull()
         ->and($finished->replacement_id)->toBeNull();
+});
+
+test('finishing a return with a replacement needs a reason per replaced item and gives it to the replacement (HELP-4079)', function () {
+    [$deliveryNote, $deliveryNoteItem] = handlingDeliveryNoteWithPicking($this);
+    $deliveryNote->update(['state' => DeliveryNoteStateEnum::DISPATCHED]);
+    $deliveryNoteItem->update(['quantity_dispatched' => 2]);
+    $order = $deliveryNote->orders()->first();
+    \App\Actions\Accounting\Invoice\StoreInvoice::make()->action($order, array_merge(\App\Models\Accounting\Invoice::factory()->definition(), [
+        'billing_address' => new Address(Address::factory()->definition()),
+    ]), strict: false);
+
+    $returnDeliveryNote = \App\Actions\GoodsIn\ReturnDeliveryNote\ProcessReturnDeliveryNote::make()->handle($deliveryNote, []);
+    $returnDeliveryNote->update(['state' => \App\Enums\GoodsIn\ReturnDeliveryNote\ReturnDeliveryNoteStateEnum::RETURNED]);
+
+    request()->setUserResolver(fn () => $this->user);
+    $finishWithReason = fn (?string $reason) => \App\Actions\GoodsIn\ReturnDeliveryNote\SetDoneReturnDeliveryNote::make()->handle($returnDeliveryNote->refresh(), [
+        'createRefund'      => false,
+        'createReplacement' => true,
+        'refundedData'      => [
+            $deliveryNoteItem->transaction_id => [
+                'delivery_note_items_id' => $deliveryNoteItem->id,
+                'replaced_quantity'      => 1,
+                'reason'                 => $reason,
+            ],
+        ],
+    ]);
+
+    expect(fn () => $finishWithReason(null))->toThrow(\Illuminate\Validation\ValidationException::class)
+        ->and($returnDeliveryNote->refresh()->state)->toBe(\App\Enums\GoodsIn\ReturnDeliveryNote\ReturnDeliveryNoteStateEnum::RETURNED);
+
+    $finished = $finishWithReason(\App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemReplacementReasonEnum::DAMAGED_IN_TRANSIT->value);
+
+    expect($finished->state)->toBe(\App\Enums\GoodsIn\ReturnDeliveryNote\ReturnDeliveryNoteStateEnum::DONE)
+        ->and($finished->replacement_id)->not->toBeNull()
+        ->and(DeliveryNote::find($finished->replacement_id)->deliveryNoteItems()->first()->replacement_reason?->value)
+        ->toBe(\App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemReplacementReasonEnum::DAMAGED_IN_TRANSIT->value);
 });
 
 test('customer services finish a return from the order shop without warehouse returns permissions (HELP-3569)', function () {
@@ -6375,5 +6474,333 @@ test('picking and packing are warehouse work, the order page shipment and dispat
         $this->user->syncPermissions($originalPermissions);
         actingAsUserWithRoles($this->user, $originalRoles);
         \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
+});
+
+test('a picking session tells its page whether the user can work the warehouse, INI-076', function (PickingSession $pickingSession) {
+    $url = route('grp.org.warehouses.show.dispatching.picking_sessions.show', [$this->organisation->slug, $this->warehouse->slug, $pickingSession->slug]);
+
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ["dispatching.{$this->warehouse->id}.view"]);
+        $this->get($url)->assertInertia(fn (AssertableInertia $page) => $page->where('can_work', false));
+
+        $this->user->syncPermissions([]);
+        actingAsUserWithRoles($this->user, [RolesEnum::getRoleName(RolesEnum::DISPATCH_CLERK->value, $this->warehouse)]);
+        $this->get($url)->assertInertia(fn (AssertableInertia $page) => $page->where('can_work', true));
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
+})->depends('store picking session');
+
+test('a dispatch clerk packs a delivery note item of their warehouse, and a dispatching viewer is told why the delivery note is read only, INI-076', function () {
+    [$deliveryNote, $item] = handlingDeliveryNoteWithPicking($this, 4);
+    $page                  = fn () => $this->get(route('grp.org.warehouses.show.dispatching.delivery_notes.show', [$this->organisation->slug, $this->warehouse->slug, $deliveryNote->slug]));
+
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ["dispatching.{$this->warehouse->id}.view"]);
+        $page()->assertInertia(fn (AssertableInertia $inertia) => $inertia->whereType('read_only_notice', 'string'));
+
+        $this->user->syncPermissions([]);
+        actingAsUserWithRoles($this->user, [RolesEnum::getRoleName(RolesEnum::DISPATCH_CLERK->value, $this->warehouse)]);
+        $page()->assertInertia(fn (AssertableInertia $inertia) => $inertia->where('read_only_notice', null));
+        $this->patch(route('grp.models.delivery_note_item.packing.store', $item->id), ['packer_user_id' => $this->user->id, 'quantity' => 4])
+            ->assertSessionHasNoErrors();
+
+        expect((float) $item->refresh()->quantity_packed)->toBe(4.0);
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
+});
+
+test('an insert prints from the browser as an A6 PDF and counts as printed, HELP-3891', function () {
+    [$deliveryNote] = handlingDeliveryNoteWithPicking($this);
+    $leaflet        = \App\Models\Dispatching\DeliveryNoteLeaflet::create([
+        'group_id'         => $deliveryNote->group_id,
+        'organisation_id'  => $deliveryNote->organisation_id,
+        'shop_id'          => $deliveryNote->shop_id,
+        'delivery_note_id' => $deliveryNote->id,
+        'type'             => \App\Enums\Catalogue\Leaflet\LeafletTypeEnum::PERSONALISED_MESSAGE,
+        'name'             => 'Personalised message',
+        'message'          => 'Thank you for your order',
+        'data'             => [],
+    ]);
+    $print = fn () => $this->post(route('grp.models.delivery_note_leaflet.print_in_browser', $leaflet->id));
+
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ["orders.{$this->shop->id}.edit"]);
+        $print()->assertForbidden();
+        expect($leaflet->fresh()->state)->toBe(\App\Enums\Dispatching\DeliveryNoteLeaflet\DeliveryNoteLeafletStateEnum::PENDING_PRINT);
+
+        actingAsUserWithOnlyPermissions($this->user, ["dispatching.{$this->warehouse->id}.edit"]);
+        $response = $print()->assertOk()->assertHeader('Content-Type', 'application/pdf');
+        expect($response->getContent())->toStartWith('%PDF')
+            ->and($response->getContent())->toMatch('/\/MediaBox\s*\[0 0 297\.6\d* 419\.5\d*\]/')
+            ->and($leaflet->fresh()->state)->toBe(\App\Enums\Dispatching\DeliveryNoteLeaflet\DeliveryNoteLeafletStateEnum::PRINTED)
+            ->and($leaflet->fresh()->printed_by_user_id)->toBe($this->user->id);
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
+});
+
+test('boxes and shippers need dispatching edit in the organisation and batch codes its stock edit, INI-076', function () {
+    $organisation = $this->warehouse->organisation;
+    $warehouse    = $this->warehouse;
+    $user         = $this->adminGuest->getUser();
+
+    $originalRoles       = $user->roles->pluck('name')->toArray();
+    $originalPermissions = $user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($user, ["dispatching.$warehouse->id.view", "inventory.$organisation->id.view"]);
+        $this->post(route('grp.models.org.boxes.store', $organisation->id), [])->assertForbidden();
+        $this->post(route('grp.models.shipper.store', $organisation->id), [])->assertForbidden();
+        $this->post(route('grp.models.warehouse.batch_code.store', $warehouse->id), [])->assertForbidden();
+        $this->post(route('grp.models.warehouse.batch_codes.upload', $warehouse->id), [])->assertForbidden();
+        $this->get(route('grp.org.warehouses.show.dispatching.boxes.create', [$organisation->slug, $warehouse->slug]))->assertForbidden();
+        $this->get(route('grp.org.warehouses.show.inventory.batch_codes.create', [$organisation->slug, $warehouse->slug]))->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($user, ["dispatching.$warehouse->id.edit"]);
+        expect($this->post(route('grp.models.org.boxes.store', $organisation->id), [])->status())->not->toBe(403);
+        $this->post(route('grp.models.warehouse.batch_code.store', $warehouse->id), [])->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($user, ["stocks.$warehouse->id.edit"]);
+        expect($this->post(route('grp.models.warehouse.batch_code.store', $warehouse->id), [])->status())->not->toBe(403);
+        $this->post(route('grp.models.shipper.store', $organisation->id), [])->assertForbidden();
+    } finally {
+        setPermissionsTeamId($user->group_id);
+        $user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($user, $originalRoles);
+    }
+
+    expect(\Illuminate\Support\Facades\Route::has('grp.models.order.state.dispatched'))->toBeFalse();
+});
+
+test('order returns are received only by incoming editors or returns staff of the return warehouse', function () {
+    $orderReturn = \App\Models\GoodsIn\OrderReturn::create([
+        'group_id'        => $this->order->group_id,
+        'organisation_id' => $this->order->organisation_id,
+        'shop_id'         => $this->order->shop_id,
+        'customer_id'     => $this->order->customer_id,
+        'warehouse_id'    => $this->warehouse->id,
+        'reference'       => 'perm-'.Str::random(8),
+        'date'            => now(),
+        'state'           => \App\Enums\GoodsIn\Return\ReturnStateEnum::WAITING_TO_RECEIVE,
+    ]);
+    $warehouseId = $orderReturn->warehouse_id;
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+    actingAsUserWithOnlyPermissions($user, ["incoming.$warehouseId.view"]);
+
+    \Pest\Laravel\patch(route('grp.models.return.receive', ['return' => $orderReturn->id]))->assertForbidden();
+
+    expect($orderReturn->refresh()->state)->toBe(\App\Enums\GoodsIn\Return\ReturnStateEnum::WAITING_TO_RECEIVE);
+
+    actingAsUserWithOnlyPermissions($user, ["returns.$warehouseId"]);
+
+    \Pest\Laravel\patch(route('grp.models.return.receive', ['return' => $orderReturn->id]))->assertSessionHasNoErrors();
+
+    expect($orderReturn->refresh()->state)->toBe(\App\Enums\GoodsIn\Return\ReturnStateEnum::RECEIVED);
+});
+
+test('mini delivery note and returnable delivery notes json refuse staff without the warehouse rule', function () {
+    $deliveryNote = makeDeliveryNote($this);
+    $warehouse    = $deliveryNote->warehouse;
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["products.{$this->shop->id}.view"]);
+    getJson(route('grp.json.mini_delivery_note', $deliveryNote->id))->assertForbidden();
+    getJson(route('grp.json.mini_delivery_note_shipments', $deliveryNote->id))->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["dispatching.$warehouse->id.view"]);
+    getJson(route('grp.json.mini_delivery_note', $deliveryNote->id))->assertOk();
+    getJson(route('grp.json.mini_delivery_note_shipments', $deliveryNote->id))->assertOk();
+    getJson(route('grp.json.delivery_note_valid_for_return', $warehouse))->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["returns.$warehouse->id"]);
+    getJson(route('grp.json.delivery_note_valid_for_return', $warehouse))->assertOk();
+});
+
+test('dispatching json lookups refuse staff without warehouse or shop rights, INI-076', function () {
+    $organisation = $this->organisation;
+    $warehouse    = $this->warehouse;
+    expect($warehouse->organisation_id)->toBe($organisation->id)
+        ->and($this->shop->organisation_id)->toBe($organisation->id);
+
+    [$deliveryNote, $item] = handlingDeliveryNoteWithPicking($this);
+    $deliveryNote->update(['state' => DeliveryNoteStateEnum::UNASSIGNED]);
+    $pickingSession = StorePickingSession::make()->handle($warehouse, [
+        'delivery_notes' => [$deliveryNote->id],
+        'user_id'        => $this->user->id,
+    ]);
+
+    $orgData = \App\Models\SysAdmin\Organisation::factory()->definition();
+    data_set($orgData, 'code', 'acm2');
+    data_set($orgData, 'type', \App\Enums\SysAdmin\Organisation\OrganisationTypeEnum::SHOP);
+    $otherOrganisation = \App\Models\SysAdmin\Organisation::where('code', 'acm2')->first()
+        ?? \App\Actions\SysAdmin\Organisation\StoreOrganisation::make()->action($this->group, $orgData);
+    $otherOrgStock = \App\Models\Inventory\OrgStock::where('organisation_id', $otherOrganisation->id)->where('stock_id', $item->orgStock->stock_id)->first()
+        ?? StoreOrgStock::make()->action($otherOrganisation, $item->orgStock->stock);
+
+    $deliveryNoteItemRoutes = [
+        route('grp.json.delivery_note_item_row', $item->id),
+        route('grp.json.fetch_single_delivery_note_item', $item->id),
+        route('grp.json.fetch_single_delivery_note_item.image', $item->id),
+    ];
+    $equipmentRoutes = [
+        route('grp.json.available_trolleys.list', $warehouse),
+        route('grp.json.unavailable_trolleys.list', $warehouse),
+        route('grp.json.picked_bays.list', $warehouse),
+    ];
+    $pickingSessionRoutes = [
+        route('grp.json.picking_session_item_row', [$pickingSession->id, 'tab' => 'items', 'row_id' => $item->id]),
+        route('grp.json.picking_session.delivery_notes.index', $pickingSession->id),
+    ];
+    $organisationRoutes = [
+        route('grp.json.employees.picker_users', $organisation),
+        route('grp.json.employees.packers', $organisation),
+        route('grp.json.shippers.index', $organisation),
+    ];
+    $batchCodesRoute = route('grp.json.org_stock.batch_codes.index', [$organisation->id, $item->org_stock_id]);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["products.$item->shop_id.view"]);
+    foreach ([...$deliveryNoteItemRoutes, ...$equipmentRoutes, ...$organisationRoutes, $batchCodesRoute] as $url) {
+        getJson($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["orders.$item->shop_id.view"]);
+    foreach ($deliveryNoteItemRoutes as $url) {
+        getJson($url)->assertOk();
+    }
+    foreach ($pickingSessionRoutes as $url) {
+        getJson($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["dispatching.$deliveryNote->warehouse_id.view"]);
+    foreach ([...$deliveryNoteItemRoutes, ...$pickingSessionRoutes, ...$organisationRoutes] as $url) {
+        getJson($url)->assertOk();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["locations.$warehouse->id.view"]);
+    foreach ($equipmentRoutes as $url) {
+        getJson($url)->assertOk();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["orders.{$this->shop->id}.edit"]);
+    getJson(route('grp.json.shippers.index', $organisation))->assertOk();
+    getJson(route('grp.json.employees.packers', $organisation))->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["stocks.$warehouse->id.view"]);
+    getJson($batchCodesRoute)->assertOk();
+    getJson(route('grp.json.org_stock.batch_codes.index', [$organisation->id, $otherOrgStock->id]))->assertNotFound();
+
+    actingAsUserWithOnlyPermissions($user, ["returns.$warehouse->id"]);
+    foreach ([...$deliveryNoteItemRoutes, ...$organisationRoutes, $batchCodesRoute] as $url) {
+        getJson($url)->assertOk();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["org-admin.$organisation->id"]);
+    foreach ([...$deliveryNoteItemRoutes, ...$equipmentRoutes, ...$organisationRoutes, $batchCodesRoute] as $url) {
+        getJson($url)->assertOk();
+    }
+});
+
+test('delivery note page, its pdfs and the proforma invoice answer only warehouse, order or crm staff, INI-076', function () {
+    $deliveryNote = makeDeliveryNote($this);
+    $order        = $this->order;
+
+    $warehousePage = route('grp.org.warehouses.show.dispatching.delivery_notes.show', [$deliveryNote->organisation->slug, $deliveryNote->warehouse->slug, $deliveryNote->slug]);
+    $shopPage      = route('grp.org.shops.show.ordering.delivery-notes.show', [$deliveryNote->organisation->slug, $deliveryNote->shop->slug, $deliveryNote->slug]);
+    $pdfs          = [
+        route('grp.pdfs.delivery-notes', $deliveryNote->slug),
+        route('grp.pdfs.packing-lists', $deliveryNote->slug),
+        route('grp.pdfs.order-gift-message', $order->slug),
+    ];
+    $proforma = route('grp.org.shops.show.ordering.proforma_invoice.download', [$order->organisation->slug, $order->shop->slug, $order->slug]);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["products.$deliveryNote->shop_id.view"]);
+    foreach ([$warehousePage, $shopPage, ...$pdfs, $proforma] as $url) {
+        get($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["dispatching.$deliveryNote->warehouse_id.view"]);
+    foreach ([$warehousePage, ...$pdfs] as $url) {
+        get($url)->assertOk();
+    }
+    get($proforma)->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["orders.$deliveryNote->shop_id.view"]);
+    foreach ([$warehousePage, $shopPage, ...$pdfs, $proforma] as $url) {
+        get($url)->assertOk();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["accounting.$deliveryNote->organisation_id.view"]);
+    foreach ([$warehousePage, $shopPage, ...$pdfs, $proforma] as $url) {
+        get($url)->assertOk();
+    }
+
+    $otherShop = \App\Models\Catalogue\Shop::where('organisation_id', $deliveryNote->organisation_id)->where('id', '!=', $deliveryNote->shop_id)->first()
+        ?? \App\Actions\Catalogue\Shop\StoreShop::run($deliveryNote->organisation, \App\Models\Catalogue\Shop::factory()->definition());
+    get(route('grp.org.shops.show.ordering.delivery-notes.show', [$deliveryNote->organisation->slug, $otherShop->slug, $deliveryNote->slug]))->assertNotFound();
+    get(route('grp.org.shops.show.ordering.proforma_invoice.download', [$order->organisation->slug, $otherShop->slug, $order->slug]))->assertNotFound();
+});
+
+test('shippers lists answer dispatching staff of the warehouse and the locations download its location staff, INI-076', function () {
+    $params    = ['organisation' => $this->organisation->slug, 'warehouse' => $this->warehouse->slug];
+    $shippers  = [
+        route('grp.org.warehouses.show.dispatching.shippers.current.index', $params),
+        route('grp.org.warehouses.show.dispatching.shippers.inactive.index', $params),
+    ];
+    $locations = route('grp.org.warehouses.locations.download', [...$params, 'columns' => 'code']);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["human-resources.{$this->organisation->id}.view"]);
+    foreach ([...$shippers, $locations] as $url) {
+        get($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["dispatching.{$this->warehouse->id}.view"]);
+    foreach ($shippers as $url) {
+        get($url)->assertOk();
+    }
+    get($locations)->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["locations.{$this->warehouse->id}.view"]);
+    get($locations)->assertOk();
+});
+
+test('the boxes list answers dispatching staff of the organisation, INI-076', function () {
+    $url  = route('grp.org.warehouses.show.dispatching.boxes.index', [$this->organisation->slug, $this->warehouse->slug]);
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["human-resources.{$this->organisation->id}.view"]);
+    get($url)->assertForbidden();
+
+    foreach (["dispatching.{$this->warehouse->id}.view", "warehouses-view.{$this->organisation->id}"] as $permission) {
+        actingAsUserWithOnlyPermissions($user, [$permission]);
+        get($url)->assertOk();
     }
 });

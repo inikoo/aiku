@@ -148,6 +148,7 @@ class StoreWhatsappTemplateDraft extends StoreWhatsappMessageTemplate
 
     public function inTemplate(Organisation $organisation, Shop $shop, MetaMessageTemplate $metaMessageTemplate, ActionRequest $request): RedirectResponse
     {
+        abort_unless($metaMessageTemplate->shop_id === $shop->id, 404);
         $this->initialisationFromShop($shop, $request);
 
         if ($metaMessageTemplate->status !== self::STATUS) {

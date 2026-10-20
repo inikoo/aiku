@@ -17,6 +17,7 @@ use App\Actions\Chat\ChatSession\FlagUrgentChatRequest;
 use App\Actions\Chat\ChatSession\SummarizeLongEmail;
 use App\Actions\Helpers\AI\AskJev;
 use App\Enums\CRM\Livechat\ChatChannelEnum;
+use App\Events\BroadcastRealtimeChat;
 use App\Enums\CRM\Livechat\ChatIgnoreReasonEnum;
 use App\Enums\CRM\Livechat\ChatMessageTypeEnum;
 use App\Enums\CRM\Livechat\ChatPriorityEnum;
@@ -166,6 +167,15 @@ class ProcessInboundEmail
             return null;
         }
 
+        $bouncedSession = self::isDeliveryFailure($from['address']) ? $this->findSessionByThread($shop, $threadId) : null;
+
+        if ($bouncedSession) {
+            $note = $this->noteDeliveryFailure($bouncedSession, $raw, $body, $gmailMessageId);
+            $client->fileAway($gmailMessageId, 'aiku/imported', Arr::get($raw, 'labelIds', []));
+
+            return $note;
+        }
+
         $isColleague = $this->isColleague($from['address']);
 
         // A colleague answering inside a customer's thread is not the customer writing back: the
@@ -216,8 +226,10 @@ class ProcessInboundEmail
         $existing    = $this->findSessionByThread($shop, $threadId);
 
         // On its own it is not a conversation at all: answering a mail we never sent leaves
-        // nobody to reply to, so it is filtered rather than opened as new work.
-        if (! $existing && $isAutoReply) {
+        // nobody to reply to, so it is filtered rather than opened as new work. A courier's case
+        // system marks every mail it sends as automatic, damage and return notices included, so
+        // courier mail still reaches the Couriers folder.
+        if (! $existing && $isAutoReply && ($webUser || ! self::isCarrierAddress($from['address'], $shop->group))) {
             $client->fileAway($gmailMessageId, 'aiku/filtered', Arr::get($raw, 'labelIds', []));
 
             return null;
@@ -602,12 +614,14 @@ class ProcessInboundEmail
             ->map(fn (array $address) => strtolower($address['address']))
             ->unique();
 
-        $ourMailboxes = $recipients->filter(fn (string $address) => (self::ourOwnAddresses()[$address] ?? null) === ChatIgnoreReasonEnum::MARKETING
-            || ($mailboxAddress && $address === strtolower($mailboxAddress)));
+        // Every address on the mailbox's domain lands in it: a colleague forwarding to the
+        // webmaster's own address on the shop's domain is writing to this mailbox (HELP-3695).
+        $isToThisMailbox = $recipients->contains(fn (string $address) => SendChatMessageByGmail::deliversToMailbox($address, $mailboxAddress));
 
-        return ! $mailboxAddress
-            || ! $recipients->contains(strtolower($mailboxAddress))
-            || $ourMailboxes->count() > 1;
+        $isToOtherMailboxes = $recipients->contains(fn (string $address) => (self::ourOwnAddresses()[$address] ?? null) === ChatIgnoreReasonEnum::MARKETING
+            && ! SendChatMessageByGmail::deliversToMailbox($address, $mailboxAddress));
+
+        return ! $mailboxAddress || ! $isToThisMailbox || $isToOtherMailboxes;
     }
 
     /**
@@ -640,6 +654,48 @@ class ProcessInboundEmail
 
             return $ours;
         });
+    }
+
+    public static function isDeliveryFailure(?string $address): bool
+    {
+        $localPart = str_replace(['-', '_', '.'], '', strtolower((string) strstr((string) $address, '@', true)));
+
+        return in_array($localPart, ['mailerdaemon', 'postmaster'], true);
+    }
+
+    /**
+     * Gmail files the bounce of an answer in the answer's own thread. Told on the conversation, so
+     * the agent knows the customer never got it; the conversation is not reopened by it (HELP-3695).
+     *
+     * @param  array<string, mixed>  $raw
+     */
+    private function noteDeliveryFailure(ChatSession $session, array $raw, string $body, string $gmailMessageId): ChatMessage
+    {
+        $recipient = trim((string) GmailMessageParser::header($raw, 'X-Failed-Recipients'))
+            ?: (preg_match('/Final-Recipient:\s*rfc822;\s*(\S+)/i', $body, $match) ? $match[1] : null)
+            ?: Arr::get($session->metadata, 'email_reply_to') ?: Arr::get($session->metadata, 'email_from');
+
+        $reason = preg_match('/^\s*([45]\d\d[\s-][45]\.\d{1,3}\.\d{1,3}.*)$/m', $body, $match)
+            || preg_match('/Diagnostic-Code:\s*smtp;\s*(.+)$/mi', $body, $match)
+            ? Str::limit(trim($match[1]), 300)
+            : null;
+
+        $note = $session->messages()->create([
+            'message_text' => 'Email not delivered to '.($recipient ?: 'the customer').($reason ? ": $reason" : ''),
+            'message_type' => ChatMessageTypeEnum::TEXT->value,
+            'sender_type'  => ChatSenderTypeEnum::SYSTEM->value,
+            'is_read'      => true,
+            'read_at'      => now(),
+            'delivered_at' => now(),
+            'metadata'     => [
+                'gmail_message_id' => $gmailMessageId,
+                'email_bounce'     => ['recipient' => $recipient, 'reason' => $reason],
+            ],
+        ]);
+
+        BroadcastRealtimeChat::dispatch($note);
+
+        return $note;
     }
 
     /**
@@ -721,8 +777,8 @@ class ProcessInboundEmail
     {
         // A customer writing back to a finished conversation is new work nobody holds yet, so it
         // returns to the waiting queue rather than to the agent who closed it; assigning it is
-        // what makes it active again.
-        if ($session->isClosed() && ! $isAutoReply) {
+        // what makes it active again. A courier's follow-up is marked automatic like its first mail.
+        if ($session->isClosed() && (! $isAutoReply || $session->is_carrier)) {
             $session->update([
                 'status'    => ChatSessionStatusEnum::WAITING,
                 'closed_by' => null,

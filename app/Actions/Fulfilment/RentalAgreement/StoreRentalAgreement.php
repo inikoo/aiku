@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\RentalAgreement;
 
+use App\Actions\Traits\Authorisations\WithFulfilmentShopEditAuthorisation;
 use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStatus;
@@ -33,6 +34,8 @@ use Illuminate\Support\Facades\Redirect;
 
 class StoreRentalAgreement extends OrgAction
 {
+    use WithFulfilmentShopEditAuthorisation;
+
     private FulfilmentCustomer $fulfilmentCustomer;
     private bool $sendEmail = true;
 

@@ -16,7 +16,7 @@ import { capitalize } from "@/Composables/capitalize"
 import { useTabChange } from "@/Composables/tab-change"
 import { PageHeadingTypes } from "@/types/PageHeading"
 import { Navigation } from "@/types/Tabs"
-import type { SeoKeywordOptions, SeoKeywordRoutes, SeoResearchQuery } from "@/Components/Seo/types"
+import type { SeoKeywordFilterOptions, SeoKeywordOptions, SeoKeywordRoutes, SeoResearchQuery } from "@/Components/Seo/types"
 
 const props = defineProps<{
     title: string
@@ -26,6 +26,7 @@ const props = defineProps<{
     routes: SeoKeywordRoutes
     options: SeoKeywordOptions
     query: SeoResearchQuery
+    keywordFilters: SeoKeywordFilterOptions
     research?: object | null
     tracked_keywords?: object
     rankings?: object
@@ -56,5 +57,6 @@ const tabComponent = computed(() => ({
         :canEdit="canEdit"
         :routes="routes"
         :options="options"
-        :query="query" />
+        :query="query"
+        :filterOptions="keywordFilters" />
 </template>

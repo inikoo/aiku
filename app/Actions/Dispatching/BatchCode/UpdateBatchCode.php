@@ -8,6 +8,7 @@
 
 namespace App\Actions\Dispatching\BatchCode;
 
+use App\Actions\Traits\Authorisations\WithOrganisationStockEditAuthorisation;
 use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateCurrentBatchCodes;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -19,6 +20,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class UpdateBatchCode extends OrgAction
 {
+    use WithOrganisationStockEditAuthorisation;
     use WithActionUpdate;
 
     public function handle(BatchCode $batchCode, array $modelData): BatchCode

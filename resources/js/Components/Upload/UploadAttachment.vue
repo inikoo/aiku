@@ -17,6 +17,7 @@ const props = defineProps<{
 		code: string
 	}[]
     withCaption?: boolean
+    multiple?: boolean
 }>()
 
 
@@ -30,7 +31,7 @@ const emits = defineEmits<{
 
 <template>
     <KeepAlive>
-        <ModalUploadAttachment v-model="model" :scope :title :additionalDataToSend :attachmentRoutes :options :withCaption />
+        <ModalUploadAttachment v-model="model" :scope :title :additionalDataToSend :attachmentRoutes :options :withCaption :multiple />
     </KeepAlive>
 
 </template>

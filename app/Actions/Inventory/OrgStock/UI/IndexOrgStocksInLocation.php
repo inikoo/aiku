@@ -16,12 +16,38 @@ use App\Models\Inventory\LocationOrgStock;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\AllowedSort;
 
 class IndexOrgStocksInLocation extends OrgAction
 {
     use WithInventoryAuthorisation;
+    use WithOrgStockUnNumbers;
+
+    public const string IS_PACKED_SQL = 'location_org_stocks.packed_at IS NOT NULL AND location_org_stocks.packed_quantity = location_org_stocks.quantity';
+
+    protected function getPackedElementGroup(Location $location): array
+    {
+        $counts = DB::table('location_org_stocks')
+            ->where('location_id', $location->id)
+            ->where('quantity', '>', 0)
+            ->selectRaw('count(*) FILTER (WHERE '.self::IS_PACKED_SQL.') as packed, count(*) FILTER (WHERE NOT ('.self::IS_PACKED_SQL.')) as not_packed')
+            ->first();
+
+        return [
+            'packed' => [
+                'label'    => __('Packed'),
+                'elements' => [
+                    'packed'     => [__('Packed'), $counts->packed],
+                    'not_packed' => [__('Not packed'), $counts->not_packed],
+                ],
+                'engine'   => function ($query, $elements) {
+                    $query->whereRaw(in_array('packed', $elements) ? self::IS_PACKED_SQL : 'NOT ('.self::IS_PACKED_SQL.')');
+                },
+            ],
+        ];
+    }
 
 
     public function handle(Location $location, $prefix = null): LengthAwarePaginator
@@ -45,8 +71,24 @@ class IndexOrgStocksInLocation extends OrgAction
         /* A shelf keeps the SKU it is assigned to even when empty, a goods out bay does not:
            stock is staged there for one partner and once it is picked nothing is left there. */
         if ($location->is_goods_out) {
-            $queryBuilder->where('location_org_stocks.quantity', '>', 0);
+            $queryBuilder->where('location_org_stocks.quantity', '>', 0)
+                ->leftJoin('users as packers', 'location_org_stocks.packed_by_user_id', 'packers.id');
+
+            foreach ($this->getPackedElementGroup($location) as $key => $elementGroup) {
+                $queryBuilder->whereElementGroup(
+                    key: $key,
+                    allowedElements: array_keys($elementGroup['elements']),
+                    engine: $elementGroup['engine'],
+                    prefix: $prefix
+                );
+            }
         }
+
+        $packedSelects = $location->is_goods_out ? [
+            'location_org_stocks.packed_at',
+            'location_org_stocks.packed_quantity',
+            DB::raw('COALESCE(packers.contact_name, packers.username) as packed_by'),
+        ] : [];
 
         return $queryBuilder
             ->defaultSort('org_stocks.code')
@@ -63,8 +105,13 @@ class IndexOrgStocksInLocation extends OrgAction
                 'location_org_stocks.dropshipping_pipe',
                 'location_org_stocks.quantity',
                 'location_org_stocks.notes',
+                'un_numbers' => $this->getUnNumbersSubquery(),
+                ...$packedSelects,
             ])
-            ->allowedSorts([AllowedSort::field('code', 'org_stocks.code'), 'type', 'picking_priority', 'value', 'dropshipping_pipe', 'quantity', 'notes'])
+            ->allowedSorts([AllowedSort::field('code', 'org_stocks.code'), 'type', 'picking_priority', 'value', 'dropshipping_pipe', 'quantity', 'notes', AllowedSort::callback('packed', function ($query, bool $descending) {
+                $direction = $descending ? 'DESC' : 'ASC';
+                $query->orderByRaw('COALESCE('.self::IS_PACKED_SQL.", false) $direction, location_org_stocks.packed_at $direction");
+            })])
             ->allowedFilters([$globalSearch, AllowedFilter::exact('state')])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -79,6 +126,16 @@ class IndexOrgStocksInLocation extends OrgAction
                     ->pageName($prefix . 'Page');
             }
 
+            if ($location->is_goods_out) {
+                foreach ($this->getPackedElementGroup($location) as $key => $elementGroup) {
+                    $table->elementGroup(
+                        key: $key,
+                        label: $elementGroup['label'],
+                        elements: $elementGroup['elements']
+                    );
+                }
+            }
+
             $table->column(key: 'type', label: ['fal', 'fa-yin-yang'], type: 'icon', canBeHidden: false, sortable: true, searchable: false);
             $table
                 ->defaultSort('code')
@@ -89,7 +146,13 @@ class IndexOrgStocksInLocation extends OrgAction
                 // ->column(key: 'value', label: __('Sku value'), canBeHidden: false, sortable: true, searchable: true, align: 'right')
              //   ->column(key: 'dropshipping_pipe', label: __('Dropshipping Pipe'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'quantity', label: __('Quantity'), canBeHidden: false, sortable: true, searchable: true, align: 'right')
-                ->column(key: 'notes', label: __('Notes'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'notes', label: __('Notes'), canBeHidden: false, sortable: true, searchable: true);
+
+            if ($location->is_goods_out) {
+                $table->column(key: 'packed', label: __('Packed'), canBeHidden: false, sortable: true, searchable: false);
+            }
+
+            $table
                 ->column(key: 'actions', label: '', canBeHidden: false, sortable: false, searchable: false, align: 'right');
         };
     }

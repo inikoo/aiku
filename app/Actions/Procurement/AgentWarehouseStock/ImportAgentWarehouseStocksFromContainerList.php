@@ -71,7 +71,7 @@ class ImportAgentWarehouseStocksFromContainerList
                 $purchaseOrder  = $purchaseOrderId ? PurchaseOrder::find($purchaseOrderId) : null;
                 $inProduction[] = ['code' => $supplierProduct->code, 'units' => $units, 'purchase_order' => $purchaseOrder?->reference];
                 if (!$dryRun && $purchaseOrder) {
-                    $this->markInProduction($purchaseOrder, $container);
+                    $this->markInProduction($purchaseOrder, "China agent container list $container: still being made by the supplier");
                 }
                 continue;
             }
@@ -92,7 +92,7 @@ class ImportAgentWarehouseStocksFromContainerList
 
         if (!$dryRun) {
             DB::transaction(function () use ($agent, $organisation, $container, $rows) {
-                AgentWarehouseStock::where('agent_id', $agent->id)->where('organisation_id', $organisation->id)->where('notes', $container)->delete();
+                AgentWarehouseStock::where('agent_id', $agent->id)->where('organisation_id', $organisation->id)->where('notes', $container)->whereNull('purchase_order_transaction_id')->delete();
                 AgentWarehouseStock::insert($rows);
             });
         }
@@ -100,7 +100,7 @@ class ImportAgentWarehouseStocksFromContainerList
         return ['rows' => $rows, 'unmatched' => $unmatched, 'in_production' => $inProduction];
     }
 
-    private function markInProduction(PurchaseOrder $purchaseOrder, string $container): void
+    public function markInProduction(PurchaseOrder $purchaseOrder, string $reason, ?string $date = null): void
     {
         if ($purchaseOrder->production_started_at || !in_array($purchaseOrder->state, [PurchaseOrderStateEnum::SUBMITTED, PurchaseOrderStateEnum::CONFIRMED])) {
             return;
@@ -108,8 +108,8 @@ class ImportAgentWarehouseStocksFromContainerList
 
         MarkPurchaseOrderStage::make()->action($purchaseOrder, [
             'field'  => 'production_started_at',
-            'date'   => MarkPurchaseOrderStage::today($purchaseOrder->organisation),
-            'reason' => "China agent container list $container: still being made by the supplier",
+            'date'   => $date ?? MarkPurchaseOrderStage::today($purchaseOrder->organisation),
+            'reason' => $reason,
         ]);
     }
 

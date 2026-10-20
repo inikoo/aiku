@@ -8,6 +8,7 @@
 
 namespace App\Actions\Dropshipping\WooCommerce\Product;
 
+use App\Actions\Traits\Authorisations\WithCustomerSalesChannelEditAuthorisation;
 use App\Actions\Dropshipping\WithPortfolioErrorResponse;
 use App\Actions\OrgAction;
 use App\Events\UploadProductToSalesChannelProgressEvent;
@@ -22,6 +23,7 @@ use Lorisleiva\Actions\Decorators\JobDecorator;
 
 class StoreNewProductToCurrentWooCommerce extends OrgAction implements ShouldBeUnique
 {
+    use WithCustomerSalesChannelEditAuthorisation;
     use WithPortfolioErrorResponse;
     use AsAction;
 

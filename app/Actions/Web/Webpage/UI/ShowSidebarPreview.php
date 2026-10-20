@@ -8,6 +8,7 @@
 
 namespace App\Actions\Web\Webpage\UI;
 
+use App\Actions\Traits\Authorisations\WithWebAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\Web\Website\GetWebsiteWorkshopHeader;
 use App\Actions\Web\Website\GetWebsiteWorkshopMenu;
@@ -22,6 +23,7 @@ use Illuminate\Support\Arr;
 class ShowSidebarPreview extends OrgAction
 {
     use AsAction;
+    use WithWebAuthorisation;
 
     public function handle(Website $website): Website
     {
@@ -43,7 +45,7 @@ class ShowSidebarPreview extends OrgAction
 
     public function asController(Website $website, ActionRequest $request): Website
     {
-        $this->initialisation($website->organisation, $request);
+        $this->initialisationFromShop($website->shop, $request);
 
         return $website;
     }

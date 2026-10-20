@@ -12,6 +12,7 @@ use App\Actions\Accounting\UI\ShowAccountingDashboard;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Comms\Traits\WithAccountingSubNavigation;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithAccountingPagesAuthorisation;
 use App\Actions\Traits\Dashboards\WithMarketingPeriod;
 use App\Enums\Accounting\Payment\PaymentStatusEnum;
 use App\Enums\Accounting\Payment\PaymentTypeEnum;
@@ -26,6 +27,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class IndexPaymentMethods extends OrgAction
 {
+    use WithAccountingPagesAuthorisation;
     use WithPaymentSubNavigation;
     use WithAccountingSubNavigation;
     use WithMarketingPeriod;
@@ -120,6 +122,7 @@ class IndexPaymentMethods extends OrgAction
 
     public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): array
     {
+        abort_unless($shop->organisation_id === $organisation->id, 404);
         $this->parent = $shop;
         $this->initialisation($organisation, $request);
         $this->setMarketingPeriod($request->user()->settings);

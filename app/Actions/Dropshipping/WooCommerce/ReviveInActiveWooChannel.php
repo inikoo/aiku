@@ -8,6 +8,7 @@
 
 namespace App\Actions\Dropshipping\WooCommerce;
 
+use App\Actions\Traits\Authorisations\WithCustomerSalesChannelEditAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Dropshipping\CustomerSalesChannelStatusEnum;
@@ -20,6 +21,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class ReviveInActiveWooChannel extends OrgAction
 {
+    use WithCustomerSalesChannelEditAuthorisation;
     use asAction;
     use WithActionUpdate;
 

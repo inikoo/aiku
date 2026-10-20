@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# Disk health warnings from smartd to Discord (INI-086). Ubuntu's smartd hands every
+# warning to the scripts in /etc/smartmontools/run.d/; the stock one, 10mail, needs a
+# mail server none of our servers has, so until this hook the warnings reached nobody.
+# Install on every server, as root, next to devops/disk-alert.sh (installed as
+# /usr/local/bin/aiku-disk-alert, which also sends the warning):
+#
+#     apt install --no-install-recommends smartmontools     # recommends pull in a mail server
+#     install -m 755 devops/smartd/50aiku-disk-alert /etc/smartmontools/run.d/50aiku-disk-alert
+#     /usr/local/bin/aiku-disk-alert --self-test
+#
+# Test end to end: put "-M test" at the end of the DEVICESCAN line in /etc/smartd.conf,
+# restart smartmontools (one test message per disk), then take it out and restart again.
+#
+# helio's two disks are worn out and say so on every check (Critical Warning 0x04,
+# known and accepted in INI-086). Silence exactly that text there, so anything new still
+# alerts (low spare turns it into 0x05; error log and temperature warnings read differently):
+#     printf 'Critical Warning \\(0x04\\)\n' > /etc/aiku-smartd-ignore
+#
+# Uses the same webhook as the disk usage alert: /etc/aiku-alerts.env where a server has
+# one (helio), otherwise the app's .env.
+[ -r /etc/aiku-alerts.env ] && export DISK_ALERT_ENV_FILE=/etc/aiku-alerts.env
+exec /usr/local/bin/aiku-disk-alert --smartd

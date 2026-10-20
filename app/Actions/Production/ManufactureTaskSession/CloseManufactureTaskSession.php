@@ -14,6 +14,7 @@ use App\Actions\OrgAction;
 use App\Actions\Production\JobOrderItemTask\CalculateJobOrderItemTaskQuantities;
 use App\Actions\Production\JobOrderItemTask\SettleShortJobOrderItemTask;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
+use App\Events\BroadcastManufactureFloorChanged;
 use App\Enums\Production\Artisan\ArtisanPayTypeEnum;
 use App\Enums\Production\ManufactureTask\ManufactureTaskOperativeRewardTermsEnum;
 use App\Enums\Production\JobOrderItemTask\JobOrderItemTaskStateEnum;
@@ -21,7 +22,6 @@ use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTy
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
 use App\Actions\Production\ManufactureBreak\EndManufactureBreak;
 use App\Models\HumanResources\Employee;
-use App\Models\Production\ArtefactManufactureTask;
 use App\Models\Production\ManufactureBreak;
 use App\Models\Production\ManufactureTaskSession;
 use App\Models\Production\ManufactureTaskSessionShare;
@@ -109,7 +109,31 @@ class CloseManufactureTaskSession extends OrgAction
                 'non_productive_reason'           => $modelData['non_productive_reason'] ?? null,
                 'standard_rate'                   => $session->recipeStandardRate(),
             ]);
-            $this->applyPayTerms($session, $session->employee?->artisan_pay_type ?? ArtisanPayTypeEnum::PIECE_RATE);
+            $payType = $session->employee?->artisan_pay_type ?? ArtisanPayTypeEnum::PIECE_RATE;
+            if ($this->isImpossibleRate($session)) {
+                if (empty($modelData['manager_code'])) {
+                    throw ValidationException::withMessages([
+                        'rate' => __(':made in :minutes min is :rate per hour against a target of :target, a manager must confirm it', [
+                            'made'    => (float) $session->quantity_made,
+                            'minutes' => round($session->paidHours() * 60, 1),
+                            'rate'    => number_format((float) $session->quantity_made / max($session->paidHours(), 1 / 3600)),
+                            'target'  => (float) $session->standard_rate,
+                        ]),
+                    ]);
+                }
+                $this->overproductionManager($session, $modelData['manager_code']);
+            } elseif ($this->isUncheckedHourlyPieceWork($session, $payType)) {
+                if (empty($modelData['manager_code'])) {
+                    throw ValidationException::withMessages([
+                        'rate' => __(':made on :step, a step with no target, by someone paid by the hour: a manager must confirm it', [
+                            'made' => (float) $session->quantity_made,
+                            'step' => $manufactureTask->name,
+                        ]),
+                    ]);
+                }
+                $this->overproductionManager($session, $modelData['manager_code']);
+            }
+            $this->applyPayTerms($session, $payType);
             $session->save();
 
             foreach ($members as $member) {
@@ -132,10 +156,33 @@ class CloseManufactureTaskSession extends OrgAction
                 }
             }
 
+            if ($this->isLeftOverFromOldRecipe($session, $task)) {
+                $session->delete();
+                $task->delete();
+                BroadcastManufactureFloorChanged::dispatch($session->production_id);
+
+                return $session;
+            }
+
             CalculateManufactureTaskSessionPay::run($session);
 
             return $session;
         });
+    }
+
+    /**
+     * A session left open on a step while the recipe dropped that step, and closed with nothing made, is the only
+     * thing keeping the step on the job, so both go and the job holds just the recipe it has now.
+     */
+    private function isLeftOverFromOldRecipe(ManufactureTaskSession $session, JobOrderItemTask $task): bool
+    {
+        return !$session->is_combined
+            && (float) $session->quantity_made == 0
+            && (float) $task->quantity_made == 0
+            && $task->combined_task_id === null
+            && $task->jobOrderItem->artefact->manufactureTasks()->whereKey($task->manufacture_task_id)->doesntExist()
+            && $task->sessions()->whereKeyNot($session->id)->doesntExist()
+            && $task->sessionShares()->doesntExist();
     }
 
     /**
@@ -250,13 +297,10 @@ class CloseManufactureTaskSession extends OrgAction
      */
     private function growJobOrderItem(JobOrderItemTask $task, float $taskUnitsMade): void
     {
-        $task->update(['quantity_required' => max((float) $task->quantity_required, $taskUnitsMade)]);
+        $task->setRequiredQuantity(max((float) $task->quantity_required, $taskUnitsMade));
 
-        $item             = $task->jobOrderItem;
-        $unitsPerArtefact = ArtefactManufactureTask::where('artefact_id', $item->artefact_id)
-            ->pluck('units_per_artefact', 'manufacture_task_id');
-
-        $artefacts = (int) ArtefactManufactureTask::artefactsIn($taskUnitsMade, max(0.001, (float) ($unitsPerArtefact[$task->manufacture_task_id] ?? 1)));
+        $item      = $task->jobOrderItem;
+        $artefacts = (int) $task->artefactsIn($taskUnitsMade);
         if ($artefacts <= $item->quantity) {
             return;
         }
@@ -265,8 +309,7 @@ class CloseManufactureTaskSession extends OrgAction
 
         $laterSteps = $item->tasks->skipUntil(fn (JobOrderItemTask $step) => $step->id == $task->id)->skip(1);
         foreach ($laterSteps as $step) {
-            $step->update(['quantity_required' => max(ArtefactManufactureTask::stepQuantity($artefacts, $unitsPerArtefact[$step->manufacture_task_id] ?? 1), (float) $step->quantity_required)]);
-            CalculateJobOrderItemTaskQuantities::run($step);
+            $step->setRequiredQuantity(max($step->requiredFor($artefacts), (float) $step->quantity_required));
         }
     }
 
@@ -307,6 +350,32 @@ class CloseManufactureTaskSession extends OrgAction
             'operative_reward_amount'         => $isPieceRate ? $manufactureTask->operative_reward_amount : 0,
         ]);
         $session->is_under_target = $this->isUnderTarget($session);
+    }
+
+    /**
+     * Ten times the step's target never happens on the floor (real sessions top out near six), so it is
+     * a quantity tapped in for work not done in this session, like a step closed seconds after it opened.
+     */
+    public function isImpossibleRate(ManufactureTaskSession $session): bool
+    {
+        if ($session->activity_type != ManufactureTaskSessionActivityTypeEnum::PRODUCTION || !$session->standard_rate || (float) $session->quantity_made <= 0) {
+            return false;
+        }
+
+        return (float) $session->quantity_made > 10 * (float) $session->standard_rate * $session->paidHours();
+    }
+
+    /**
+     * Without a target the speed cannot be checked, and an hourly artisan on a piece-rate step is the
+     * one who recorded a mix on Making when the job had no mix step yet.
+     */
+    private function isUncheckedHourlyPieceWork(ManufactureTaskSession $session, ArtisanPayTypeEnum $payType): bool
+    {
+        return $payType == ArtisanPayTypeEnum::HOURLY
+            && $session->activity_type == ManufactureTaskSessionActivityTypeEnum::PRODUCTION
+            && $session->manufactureTask?->is_piece_rate
+            && $session->standard_rate === null
+            && (float) $session->quantity_made > 0;
     }
 
     public function isUnderTarget(ManufactureTaskSession $session): bool

@@ -71,9 +71,19 @@ class StoreUserAccessToken extends OrgAction
     }
 
 
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+
+        return $request->user()->authTo('sysadmin.edit');
+    }
+
     public function action(User $user, array $data): string
     {
-        $this->user = $user;
+        $this->asAction = true;
+        $this->user     = $user;
         $this->initialisationFromGroup($user->group, $data);
 
         return $this->handle($user);

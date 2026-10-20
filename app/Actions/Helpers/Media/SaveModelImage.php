@@ -19,6 +19,7 @@ use App\Models\CRM\WebUser;
 use App\Models\Helpers\Brand;
 use App\Models\Helpers\Tag;
 use App\Models\HumanResources\Employee;
+use App\Models\Masters\MasterCollection;
 use App\Models\Masters\MasterProductCategory;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
@@ -39,11 +40,11 @@ class SaveModelImage
     use AsAction;
 
     public function handle(
-        User|WebUser|Agent|Supplier|Employee|Guest|Customer|Group|Organisation|Shop|WebBlockType|MasterProductCategory|ProductCategory|Webpage|Collection|ModelHasContent|Tag|Brand|AnnouncementTemplate|Packaging|UnidentifiedReturn $model,
+        User|WebUser|Agent|Supplier|Employee|Guest|Customer|Group|Organisation|Shop|WebBlockType|MasterProductCategory|MasterCollection|ProductCategory|Webpage|Collection|ModelHasContent|Tag|Brand|AnnouncementTemplate|Packaging|UnidentifiedReturn $model,
         array $imageData,
         string $scope = 'image',
         string $foreignKeyMedia = 'image_id'
-    ): User|WebUser|Agent|Supplier|Employee|Guest|Customer|Group|Organisation|Shop|WebBlockType|MasterProductCategory|ProductCategory|Webpage|Collection|ModelHasContent|Tag|Brand|AnnouncementTemplate|Packaging|UnidentifiedReturn {
+    ): User|WebUser|Agent|Supplier|Employee|Guest|Customer|Group|Organisation|Shop|WebBlockType|MasterProductCategory|MasterCollection|ProductCategory|Webpage|Collection|ModelHasContent|Tag|Brand|AnnouncementTemplate|Packaging|UnidentifiedReturn {
         $oldImage = $model->image;
 
         $checksum = md5_file($imageData['path']);

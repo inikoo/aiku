@@ -8,6 +8,7 @@
 
 namespace App\Actions\DevOps;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -22,12 +23,27 @@ use Lorisleiva\Actions\Concerns\AsAction;
  * it, then cuts it off, and from then on the 12 hour delayed replica on helio,
  * the only way to undo a bad DELETE, has to be copied again before it protects
  * anything. Asked from the primary so a dead replica host is noticed too.
+ *
+ * Also watches the primary's WAL archiving to Cloudflare R2 with pgBackRest
+ * (INI-113), the only copy that allows a restore to a chosen minute.
  */
 class MonitorDatabaseReplicas
 {
     use AsAction;
 
     public const int BEHIND_WARNING_BYTES = 50 * 1024 * 1024 * 1024;
+
+    public const int ARCHIVE_STALE_MINUTES = 15;
+
+    public const int BACKUP_STALE_HOURS = 26;
+
+    public const int BACKUP_REPORT_STALE_MINUTES = 30;
+
+    public const string STANZA = 'aiku';
+
+    public const string PGBACKREST_CACHE_KEY = 'devops:pgbackrest';
+
+    public const string PROBLEMS_CACHE_KEY = 'devops:problems';
 
     /** @var array<string, string> */
     public const array EXPECTED_SLOTS = [
@@ -46,15 +62,18 @@ class MonitorDatabaseReplicas
         Nightwatch::dontSample();
 
         try {
-            $report = $this->report();
+            $report       = $this->report();
+            $backupIssues = $this->backupReport()['issues'];
         } catch (\Exception $e) {
             $issues = ['The replication state of the primary cannot be read: '.$e->getMessage()];
+            Cache::put(self::PROBLEMS_CACHE_KEY, $issues, now()->addMinutes(15));
             $this->alert($issues, 'unreadable', $command);
 
             return $issues;
         }
 
-        $issues = collect($report)->pluck('issue')->filter()->values()->all();
+        $issues = [...collect($report)->pluck('issue')->filter()->values()->all(), ...$backupIssues];
+        Cache::put(self::PROBLEMS_CACHE_KEY, $issues, now()->addMinutes(15));
 
         if ($issues) {
             $this->alert($issues, md5(preg_replace('/[\d.]+ GB/', '', implode('|', $issues))), $command);
@@ -145,6 +164,92 @@ class MonitorDatabaseReplicas
         return $report->values()->all();
     }
 
+    /**
+     * @return object{archive_mode: string, last_archived_time: string|null, last_failed_time: string|null, archived_count: int, failed_count: int}
+     */
+    public function archiver(): object
+    {
+        return DB::selectOne("select current_setting('archive_mode') as archive_mode, last_archived_time, last_failed_time, archived_count, failed_count from pg_stat_archiver");
+    }
+
+    /**
+     * @param  array{received_at: string, stanzas: array<int, array<string, mixed>>}|null  $pgBackRest
+     * @return array{archive_mode: bool, last_archived_at: string|null, last_failed_at: string|null, archived_count: int, failed_count: int, reported_at: string|null, backup_running: bool, backups: array<int, array<string, mixed>>, restore_from: string|null, restore_to: string|null, archive_issue: string|null, backup_issue: string|null, issues: array<int, string>}
+     */
+    public function backupReport(?object $archiver = null, ?array $pgBackRest = null): array
+    {
+        $archiver   ??= $this->archiver();
+        $pgBackRest ??= Cache::get(self::PGBACKREST_CACHE_KEY);
+
+        $stanza     = collect($pgBackRest['stanzas'] ?? [])->firstWhere('name', self::STANZA);
+        $receivedAt = isset($pgBackRest['received_at']) ? CarbonImmutable::parse($pgBackRest['received_at']) : null;
+        $backups    = collect($stanza['backups'] ?? [])
+            ->reject(fn (array $backup) => $backup['error'] || !$backup['finished_at'])
+            ->sortByDesc('finished_at')
+            ->map(fn (array $backup) => [
+                ...$backup,
+                'started_at'       => CarbonImmutable::createFromTimestamp($backup['started_at'])->toIso8601String(),
+                'finished_at'      => CarbonImmutable::createFromTimestamp($backup['finished_at'])->toIso8601String(),
+                'duration_seconds' => $backup['finished_at'] - $backup['started_at'],
+            ])
+            ->values();
+        $newestFinishedAt = $backups->isEmpty() ? null : CarbonImmutable::parse($backups->first()['finished_at']);
+        $isArchiving      = $archiver->archive_mode !== 'off';
+
+        $archiveIssue = $this->archiveIssues($archiver)[0] ?? null;
+        $backupIssue  = null;
+
+        if ($isArchiving) {
+            $backupIssue = match (true) {
+                !$receivedAt || $receivedAt->isBefore(now()->subMinutes(self::BACKUP_REPORT_STALE_MINUTES)) => 'litio has not reported the pgBackRest backups '.($receivedAt ? 'since '.$receivedAt->utc()->format('j M H:i').' UTC' : 'yet').'. Check the report line in /etc/cron.d/pgbackrest-aiku on litio.',
+                !$newestFinishedAt                                                                          => 'There is no pgBackRest backup in Cloudflare R2, so the archived WAL cannot be restored. Run a full backup on litio.',
+                $newestFinishedAt->isBefore(now()->subHours(self::BACKUP_STALE_HOURS))                       => 'The newest pgBackRest backup in Cloudflare R2 finished '.$newestFinishedAt->utc()->format('j M H:i').' UTC: the nightly backup on litio has not run or failed. See /var/log/pgbackrest/aiku-backup.log on litio.',
+                ($stanza['status_code'] ?? 0) !== 0                                                         => 'pgBackRest reports: '.$stanza['status_message'].'.',
+                default                                                                                     => null,
+            };
+        }
+
+        return [
+            'archive_mode'     => $isArchiving,
+            'last_archived_at' => $archiver->last_archived_time ? CarbonImmutable::parse($archiver->last_archived_time)->toIso8601String() : null,
+            'last_failed_at'   => $archiver->last_failed_time ? CarbonImmutable::parse($archiver->last_failed_time)->toIso8601String() : null,
+            'archived_count'   => (int) ($archiver->archived_count ?? 0),
+            'failed_count'     => (int) ($archiver->failed_count ?? 0),
+            'reported_at'      => $receivedAt?->toIso8601String(),
+            'backup_running'   => (bool) ($stanza['backup_running'] ?? false),
+            'backups'          => $backups->all(),
+            'restore_from'     => $backups->last()['finished_at'] ?? null,
+            'restore_to'       => $archiver->last_archived_time ? CarbonImmutable::parse($archiver->last_archived_time)->toIso8601String() : null,
+            'archive_issue'    => $archiveIssue,
+            'backup_issue'     => $backupIssue,
+            'issues'           => array_values(array_filter([$archiveIssue, $backupIssue])),
+        ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function archiveIssues(?object $archiver = null): array
+    {
+        $archiver ??= $this->archiver();
+
+        if ($archiver->archive_mode === 'off') {
+            return [];
+        }
+
+        $lastArchived = $archiver->last_archived_time ? CarbonImmutable::parse($archiver->last_archived_time) : null;
+        $lastFailed   = $archiver->last_failed_time ? CarbonImmutable::parse($archiver->last_failed_time) : null;
+
+        if ($lastArchived?->isAfter(now()->subMinutes(self::ARCHIVE_STALE_MINUTES))) {
+            return [];
+        }
+
+        $since   = $lastArchived ? 'since '.$lastArchived->utc()->format('j M H:i').' UTC' : 'ever';
+        $failing = $lastFailed && (!$lastArchived || $lastFailed->isAfter($lastArchived)) ? ' and the last attempts failed' : '';
+
+        return ["No WAL has reached Cloudflare R2 $since$failing. Point-in-time recovery stops at that moment, and boro keeps the unsent WAL on its disk. Check `pgbackrest --stanza=aiku check` on boro."];
+    }
+
     protected function gigabytes(?int $bytes): string
     {
         return number_format(($bytes ?? 0) / 1024 ** 3, 1).' GB';
@@ -182,7 +287,7 @@ class MonitorDatabaseReplicas
         try {
             Http::post($webhookUrl, [
                 'content' => "🛟 **Database Replica Alert** 🛟   <@&1164019425154969600>\n\n- ".implode("\n- ", $issues)
-                    ."\n\nUntil it is back, a mistake on production cannot be undone from the delayed replica. See the Devops dashboard.",
+                    ."\n\nUntil it is back, a mistake on production may not be recoverable. See the Devops dashboard.",
             ]);
         } catch (\Exception $e) {
             $command?->error('Failed to send Discord notification: '.$e->getMessage());

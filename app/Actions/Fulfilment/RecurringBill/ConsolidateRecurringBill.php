@@ -97,7 +97,10 @@ class ConsolidateRecurringBill extends OrgAction
             return true;
         }
 
-        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        return $request->user()->authTo([
+            "fulfilment-shop.{$this->fulfilment->id}.edit",
+            "supervisor-fulfilment-shop.{$this->fulfilment->id}",
+        ]);
     }
 
     public function htmlResponse(Invoice $invoice, ActionRequest $request): RedirectResponse

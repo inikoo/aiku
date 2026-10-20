@@ -10,7 +10,6 @@ namespace App\Actions\Production\JobOrder;
 
 use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\PartnerShoppingListItem;
-use App\Models\Production\ArtefactManufactureTask;
 use App\Models\Production\JobOrder;
 use App\Models\Production\JobOrderItem;
 use Illuminate\Support\Arr;
@@ -52,7 +51,7 @@ class GetJobOrderDestinationAllocation
         $allocations          = [];
 
         foreach ($items as $item) {
-            $packedIn = max(1, (int) $item->artefact->orgStock?->packed_in);
+            $packedIn = $item->artefact->packedIn();
             $made     = $madeByItem[$item->id] ?? min((float) $item->quantity, $this->producedArtefacts($item));
 
             if ($made <= 0) {
@@ -143,16 +142,6 @@ class GetJobOrderDestinationAllocation
      */
     public function producedArtefacts(JobOrderItem $item): float
     {
-        $lastTask = $item->tasks->last();
-
-        if (!$lastTask) {
-            return 0.0;
-        }
-
-        $unitsPerArtefact = (float) ArtefactManufactureTask::where('artefact_id', $item->artefact_id)
-            ->where('manufacture_task_id', $lastTask->manufacture_task_id)
-            ->value('units_per_artefact') ?: 1;
-
-        return ArtefactManufactureTask::artefactsIn($lastTask->quantity_made, $unitsPerArtefact);
+        return $item->finalTask()?->artefactsIn() ?? 0.0;
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Actions\Accounting\CreditTransaction\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithAccountingReportsAuthorisation;
 use App\Actions\UI\Reports\IndexReports;
 use App\Http\Resources\Accounting\CustomerCreditResource;
 use App\InertiaTable\InertiaTable;
@@ -21,6 +22,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexCustomerCredit extends OrgAction
 {
+    use WithAccountingReportsAuthorisation;
     use AsAction;
 
     private int $records = 0;

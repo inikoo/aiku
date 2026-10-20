@@ -19,7 +19,7 @@ import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
 import BoxStatsDeliveryNote from '@/Components/Warehouse/DeliveryNotes/BoxStatsDeliveryNote.vue'
 import { faBoxOpen, faCheck, faExchangeAlt, faTimes, faUserSlash } from '@fal'
 import { ctrans } from "@/Composables/useTrans"
-import { ToggleSwitch } from 'primevue'
+import { Select, ToggleSwitch } from 'primevue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -86,6 +86,7 @@ const props = defineProps<{
 		state: string
 		updated_at: string
 	}
+	replacement_reasons: { value: string; label: string }[]
 	items?: {}
 	pending_items?: {}
 	done_items?: {}
@@ -228,6 +229,7 @@ const replacementSummary = computed(() => {
 		return {
 			transactionId,
 			replacedAmount: replacement.replaced_quantity ?? 0,
+			reason: replacement.reason ?? null,
 			currencyCode: replacement.currency_code ?? '',
 			stockCode: originalItem?.org_stock_code ?? transactionId,
 			stockName: originalItem?.org_stock_name ?? '',
@@ -238,6 +240,7 @@ const replacementSummary = computed(() => {
 		items,
 		totalItems: items.length,
 		totalQuantity: items.reduce((sum, item) => sum + item.replacedAmount, 0),
+		isReasonMissing: items.some((item) => !item.reason),
 	}
 })
 
@@ -257,7 +260,7 @@ const setAsReturned = (routeData: any) => {
 			onError: (error) => {
 				notify({
 					title: ctrans("Something went wrong"),
-					text: error.message ?? error.error_in_models,
+					text: error.message ?? error.error_in_models ?? Object.values(error)[0],
 					type: "error",
 				})
 			},
@@ -479,7 +482,7 @@ const confirmAndSubmitRefund = () => {
 
 			<div class="overflow-auto max-h-64 rounded-md border border-gray-200" v-if="createRefund">
 				<table class="min-w-full divide-y divide-gray-200 text-sm">
-					<thead class="bg-gray-50 sticky top-0">
+					<thead class="bg-gray-50 sticky top-0 whitespace-nowrap">
 						<tr>
 							<th class="px-3 py-2 text-left font-medium text-gray-600">{{ ctrans('Code') }}</th>
 							<th class="px-3 py-2 text-left font-medium text-gray-600">{{ ctrans('Item') }}</th>
@@ -529,10 +532,11 @@ const confirmAndSubmitRefund = () => {
 
 			<div class="overflow-auto max-h-64 rounded-md border border-gray-200" v-if="createReplacement">
 				<table class="min-w-full divide-y divide-gray-200 text-sm">
-					<thead class="bg-gray-50 sticky top-0">
+					<thead class="bg-gray-50 sticky top-0 whitespace-nowrap">
 						<tr>
 							<th class="px-3 py-2 text-left font-medium text-gray-600">{{ ctrans('Code') }}</th>
 							<th class="px-3 py-2 text-left font-medium text-gray-600">{{ ctrans('Item') }}</th>
+							<th class="px-3 py-2 text-left font-medium text-gray-600">{{ ctrans('Reason') }}</th>
 							<th class="px-3 py-2 text-right font-medium text-gray-600">{{ ctrans('Replaced Qty') }}</th>
 						</tr>
 					</thead>
@@ -540,6 +544,18 @@ const confirmAndSubmitRefund = () => {
 						<tr v-for="item in replacementSummary.items" :key="item.transactionId" class="hover:bg-gray-50">
 							<td class="px-3 py-2 text-gray-500 whitespace-nowrap">{{ item.stockCode }}</td>
 							<td class="px-3 py-2 text-gray-800">{{ item.stockName }}</td>
+							<td class="px-3 py-2">
+								<Select
+									:modelValue="item.reason"
+									@update:modelValue="(value) => set(refundedData, [item.transactionId, 'reason'], value)"
+									:options="replacement_reasons"
+									optionLabel="label"
+									optionValue="value"
+									:placeholder="ctrans('Select a reason')"
+									size="small"
+									class="w-full min-w-44"
+								/>
+							</td>
 							<td class="px-3 py-2 text-right font-medium text-emerald-600 whitespace-nowrap tabular-nums">
 								{{ item.replacedAmount }}
 							</td>
@@ -566,6 +582,8 @@ const confirmAndSubmitRefund = () => {
 					type="primary"
 					full
 					:loading="isSubmittingRefund"
+					:disabled="createReplacement && replacementSummary.isReasonMissing"
+					v-tooltip="createReplacement && replacementSummary.isReasonMissing ? ctrans('Select a reason for each replaced item') : ''"
 				/>
 			</div>
 		</div>

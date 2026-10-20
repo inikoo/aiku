@@ -16,7 +16,9 @@ use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\Procurement\OrgSupplierProduct\OrgSupplierProductStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\ShoppingListItem\ShoppingListItemStateEnum;
+use App\Actions\Procurement\OrgSupplier\GetSupplierLeadTime;
 use App\Models\Procurement\OrgAgent;
+use App\Models\Procurement\OrgSupplier;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -115,14 +117,15 @@ class GetAgentStockCoverBuckets
 
     /**
      * The catalogue scope on any query whose table is aliased osp, so a listing built with the
-     * standard query builder judges the same products as the tiles do.
+     * standard query builder judges the same products as the tiles do. A supplier's catalogue (the
+     * supplier sales views) is only ever read whole, orderable or not.
      *
      * @template TQuery of Builder|\Illuminate\Database\Eloquent\Builder
      *
      * @param  TQuery  $query
      * @return TQuery
      */
-    public function scope(Builder|\Illuminate\Database\Eloquent\Builder $query, OrgAgent $orgAgent, bool $orderableOnly = true): Builder|\Illuminate\Database\Eloquent\Builder
+    public function scope(Builder|\Illuminate\Database\Eloquent\Builder $query, OrgAgent|OrgSupplier $relationship, bool $orderableOnly = true): Builder|\Illuminate\Database\Eloquent\Builder
     {
         $query
             ->join('supplier_products as sp', 'sp.id', 'osp.supplier_product_id')
@@ -130,8 +133,15 @@ class GetAgentStockCoverBuckets
             ->leftJoin('org_stock_stats as s', 's.org_stock_id', 'os.id')
             ->leftJoin('stocks', 'stocks.id', 'os.stock_id')
             ->leftJoin('stock_families', 'stock_families.id', 'stocks.stock_family_id')
-            ->where('osp.org_agent_id', $orgAgent->id)
             ->whereNull('sp.deleted_at');
+
+        if ($relationship instanceof OrgSupplier) {
+            return $query
+                ->where('osp.org_supplier_id', $relationship->id)
+                ->where('sp.supplier_id', $relationship->supplier_id);
+        }
+
+        $query->where('osp.org_agent_id', $relationship->id);
 
         if (!$orderableOnly) {
             return $query;
@@ -165,9 +175,11 @@ class GetAgentStockCoverBuckets
                 and os.id = (select rival_stock.id from (".self::bestOrgStock('rival')->toRawSql().') rival_stock))';
     }
 
-    public function bucketSql(OrgAgent $orgAgent): string
+    public function bucketSql(OrgAgent|OrgSupplier $relationship): string
     {
-        return $this->bucketExpression(GetAgentLeadTimes::run($orgAgent)['agent']['days']);
+        return $this->bucketExpression($relationship instanceof OrgSupplier
+            ? GetSupplierLeadTime::run($relationship)['days']
+            : GetAgentLeadTimes::run($relationship)['agent']['days']);
     }
 
     /**
@@ -186,6 +198,7 @@ class GetAgentStockCoverBuckets
     /**
      * An old code for an SKO the organisation already buys from this agent under another supplier
      * product: the stock is watched there, counting it here as never stocked would be double.
+     * That other product must still be orderable, or the SKO could be ordered from neither.
      */
     private static function boughtUnderAnotherCodeExpression(): string
     {
@@ -197,6 +210,9 @@ class GetAgentStockCoverBuckets
             join org_supplier_products other_osp on other_osp.id = other_link.org_supplier_product_id
                 and other_osp.org_agent_id = osp.org_agent_id
                 and other_osp.id <> osp.id
+                and other_osp.state = '".OrgSupplierProductStateEnum::ACTIVE->value."'
+                and other_osp.is_available
+            join supplier_products other_sp on other_sp.id = other_osp.supplier_product_id and other_sp.deleted_at is null
             where shs.supplier_product_id = sp.id)";
     }
 
@@ -264,7 +280,7 @@ class GetAgentStockCoverBuckets
             ->get()
             ->groupBy('bucket');
 
-        $buckets = collect(self::BUCKETS)->map(function ($meta, $bucket) use ($rows, $leadTime) {
+        $buckets = collect(self::BUCKETS)->map(function ($meta, $bucket) use ($rows) {
             $bucketRows = $rows->get($bucket, collect());
             $byRank     = $bucketRows->keyBy('health_rank');
 

@@ -10,6 +10,7 @@
 namespace App\Actions\Dispatching\Shipper\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithOrganisationDispatchingEditAuthorisation;
 use App\Models\Dispatching\Shipper;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
@@ -19,10 +20,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class EditShipper extends OrgAction
 {
-    public function authorize(ActionRequest $request): bool
-    {
-        return $request->user()->authTo(["dispatching.{$this->warehouse->id}.edit", "supervisor-dispatching.{$this->warehouse->id}"]);
-    }
+    use WithOrganisationDispatchingEditAuthorisation;
 
     public function handle(Shipper $shipper, ActionRequest $request): Response
     {
@@ -93,6 +91,7 @@ class EditShipper extends OrgAction
     public function asController(Organisation $organisation, Warehouse $warehouse, Shipper $shipper, ActionRequest $request): Response
     {
         $this->initialisationFromWarehouse($warehouse, $request);
+        abort_unless($shipper->organisation_id === $warehouse->organisation_id, 404);
 
         return $this->handle($shipper, $request);
     }

@@ -8,6 +8,7 @@
 
 namespace App\Actions\Dropshipping\Shopify\Product;
 
+use App\Actions\Traits\Authorisations\WithCustomerSalesChannelEditAuthorisation;
 use App\Actions\Dropshipping\WithPortfolioErrorResponse;
 use App\Actions\OrgAction;
 use App\Events\UploadProductToSalesChannelProgressEvent;
@@ -19,6 +20,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreNewProductToCurrentShopify extends OrgAction implements ShouldBeUnique
 {
+    use WithCustomerSalesChannelEditAuthorisation;
     use AsAction;
     use WithPortfolioErrorResponse;
 

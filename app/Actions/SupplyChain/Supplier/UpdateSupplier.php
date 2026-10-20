@@ -37,6 +37,8 @@ class UpdateSupplier extends OrgAction
     use WithActionUpdate;
     use WithNoStrictRules;
     use WithSupplierJsonColumns;
+    use WithSupplierPacking;
+
 
     private Supplier $supplier;
     private bool $action = false;
@@ -129,17 +131,6 @@ class UpdateSupplier extends OrgAction
             $supplier->update(['data' => Arr::except($supplier->data, self::CONTAINER_ONLY_FIELDS)]);
         }
 
-        if ($supplier->wasChanged(['name', 'code'])) {
-            foreach ($supplier->orgSuppliers as $orgSupplier) {
-                $orgSupplier->update(
-                    [
-                        'code' => $supplier->code,
-                        'name' => $supplier->name
-                    ]
-                );
-            }
-        }
-
         return $supplier;
     }
 
@@ -203,6 +194,12 @@ class UpdateSupplier extends OrgAction
             'company_name'    => ['sometimes', 'nullable', 'string', 'max:255'],
             'email'           => ['sometimes', 'nullable', 'email'],
             'phone'           => ['sometimes', 'nullable', new Phone()],
+            'wechat'          => ['sometimes', 'nullable', 'string', 'max:255'],
+            'whatsapp'        => ['sometimes', 'nullable', new Phone()],
+            'factory_holidays'         => ['sometimes', 'array'],
+            'factory_holidays.*.from'  => ['required', 'date'],
+            'factory_holidays.*.to'    => ['required', 'date', 'after_or_equal:factory_holidays.*.from'],
+            'factory_holidays.*.note'  => ['sometimes', 'nullable', 'string', 'max:255'],
             'address'         => ['sometimes', 'required', new ValidAddress(requireFullAddress: !$this->asAction)],
             'currency_id'     => [
                 'sometimes',
@@ -225,10 +222,11 @@ class UpdateSupplier extends OrgAction
             ],
         ];
 
-        $rules = array_merge($rules, $this->supplierJsonFieldRules());
+        $rules = array_merge($rules, $this->supplierJsonFieldRules(), $this->packingRules($this->supplier));
 
         if (!$this->strict) {
             $rules['phone']       = ['sometimes', 'nullable', 'max:255'];
+            $rules['whatsapp']    = ['sometimes', 'nullable', 'max:255'];
             $rules['archived_at'] = ['sometimes', 'nullable', 'date'];
             $rules                = $this->noStrictUpdateRules($rules);
         }

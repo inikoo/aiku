@@ -10,13 +10,11 @@ namespace App\Actions\Production\JobOrderItem;
 
 use App\Actions\OrgAction;
 use App\Actions\Production\JobOrder\BatchedUnitsForDemand;
-use App\Actions\Production\JobOrderItemTask\CalculateJobOrderItemTaskQuantities;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
 use App\Enums\Production\JobOrderItem\JobOrderItemStateEnum;
 use App\Enums\Production\JobOrderItem\JobOrderItemStatusEnum;
 use App\Models\CRM\WebUser;
-use App\Models\Production\ArtefactManufactureTask;
 use App\Models\Production\JobOrderItem;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
@@ -37,11 +35,8 @@ class UpdateJobOrderItem extends OrgAction
         $jobOrderItem = $this->update($jobOrderItem, $modelData, ['data']);
 
         if ($jobOrderItem->wasChanged('quantity')) {
-            $unitsPerArtefact = $jobOrderItem->artefact->manufactureTasks()->get()->pluck('pivot.units_per_artefact', 'id');
-
             foreach ($jobOrderItem->tasks as $task) {
-                $task->update(['quantity_required' => ArtefactManufactureTask::stepQuantity($jobOrderItem->quantity, $unitsPerArtefact[$task->manufacture_task_id] ?? 1)]);
-                CalculateJobOrderItemTaskQuantities::run($task);
+                $task->setRequiredQuantity($task->requiredFor($jobOrderItem->quantity));
             }
         }
 
@@ -67,9 +62,8 @@ class UpdateJobOrderItem extends OrgAction
             return;
         }
 
-        $unitsPerArtefact = $this->jobOrderItem->artefact->manufactureTasks()->get()->pluck('pivot.units_per_artefact', 'id');
         foreach ($this->jobOrderItem->tasks as $task) {
-            if (ArtefactManufactureTask::stepQuantity($this->get('quantity'), $unitsPerArtefact[$task->manufacture_task_id] ?? 1) < $task->quantity_made) {
+            if (!$task->isRecordedInKg() && $task->requiredFor($this->get('quantity')) < $task->quantity_made) {
                 $validator->errors()->add('quantity', __('More than that is already made, the quantity cannot go below it.'));
 
                 return;

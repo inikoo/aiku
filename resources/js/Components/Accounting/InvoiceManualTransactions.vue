@@ -18,11 +18,12 @@ import ButtonWithLink from "@/Components/Elements/Buttons/ButtonWithLink.vue"
 
 library.add(faTag, faTrashAlt)
 
-defineProps<{
+withDefaults(defineProps<{
     data: TableTS
     tab?: string
     status?: string
-}>()
+    canEdit?: boolean
+}>(), { canEdit: true })
 
 
 const onUpdateQuantity = (routeUpdate: routeType, id: Number, fulfilment_transaction_id: number, value: number) => {
@@ -78,8 +79,11 @@ const locale = inject("locale", aikuLocaleStructure)
         <!-- Column: quantity -->
         <template #cell(quantity)="{ item }">
             <div class="flex justify-end">
-                <div v-if="item.edit_type !== 'net'">
+                <div v-if="canEdit && item.edit_type !== 'net'">
                     <NumberWithButtonSave v-model="item.quantity" @onSave="(e)=>onUpdateQuantity(item.updateRoute, item.id,item.fulfilment_transaction_id, e)" />
+                </div>
+                <div v-else-if="item.edit_type !== 'net'">
+                    {{ locale.number(item.quantity) }}
                 </div>
                 <div v-else class="text-gray-500">
                     <!-- {{ item.quantity }} -->
@@ -100,7 +104,7 @@ const locale = inject("locale", aikuLocaleStructure)
 
         <template #cell(net_amount)="{ item, proxyItem }">
             <div class="relative">
-                <template v-if="item.edit_type == 'net'">
+                <template v-if="canEdit && item.edit_type == 'net'">
                     <div class="w-72 float-right">
                         <NumberWithButtonSave
                             v-model="proxyItem.net_amount"
@@ -129,6 +133,7 @@ const locale = inject("locale", aikuLocaleStructure)
         <!-- Column: Action -->
         <template #cell(actions)="{ item }">
             <ButtonWithLink
+                v-if="canEdit"
                 :routeTarget="item.deleteRoute"
                 icon="fal fa-trash-alt"
                 type="negative"

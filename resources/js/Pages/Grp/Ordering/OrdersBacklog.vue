@@ -46,6 +46,7 @@ const props = defineProps<{
     picked?: {}
     packing?: {}
     returned?: {}
+    pre_orders?: {}
     backlog_filters?: {
         prefix: string
         current: { scope: 'domestic' | 'export' | null, channel: 'direct' | 'partner' | null, production_review?: 'reviewed' | 'unreviewed' | null, attention?: 'stuck' | 'waiting_stock' | 'waiting_cs' | null, payment?: 'paid' | 'unpaid' | null }
@@ -120,6 +121,7 @@ const stageDescriptions = computed<Record<string, string>>(() => ({
     finalised: ctrans('Finalised, waiting to leave with the courier'),
     dispatched_today: ctrans('Left the warehouse today'),
     returned: ctrans('Returns received from customers'),
+    pre_orders: ctrans('Orders with a pre-order, from the supplier order to dispatch, earliest estimated dispatch first'),
 }))
 
 const stageLabels = computed(() => Object.fromEntries(
@@ -154,6 +156,7 @@ const component = computed(() => {
       packed: TableOrders,
       finalised: TableOrders,
       dispatched_today: TableOrders,
+      pre_orders: TableOrders,
       returned: TableDeliveryNotes
     }
 

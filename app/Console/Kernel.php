@@ -113,6 +113,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('server-metrics:aggregate')->hourlyAt(5)->onOneServer()->withoutOverlapping();
         $schedule->command('tickets:cancel_stale')->everyFifteenMinutes()->onOneServer();
         $schedule->command('staff-tasks:nudge')->hourly()->onOneServer();
+        $schedule->command('accounting:refresh-payment-methods-dashboard')->everySixHours()->onOneServer()->withoutOverlapping()->runInBackground();
         $schedule->command('procurement:send-minimum-poke-digests')->everyFifteenMinutes()->onOneServer()->withoutOverlapping();
         $schedule->command('staff-tasks:remind-due')->hourly()->onOneServer();
         $schedule->command('appointments:close-past')->everyFifteenMinutes()->onOneServer()->withoutOverlapping();
@@ -132,6 +133,7 @@ class Kernel extends ConsoleKernel
            and re-sending a day replaces its figure instead of adding to it, so the later, better
            number wins and a missed night repairs itself. */
         $schedule->command('traffic-source:fetch-meta-costs --days=2')->dailyAt('06:00')->timezone('UTC')->onOneServer()->withoutOverlapping();
+        $schedule->command('social-media:fetch-meta --days=28')->dailyAt('06:15')->timezone('UTC')->onOneServer()->withoutOverlapping();
         $schedule->command('sync:customers-to-google-ads --all')->dailyAt('04:45')->timezone('UTC')->onOneServer()->withoutOverlapping(120);
         $schedule->command('google-ads:fetch-campaigns')->dailyAt('05:00')->timezone('UTC')->onOneServer()->withoutOverlapping();
         /* Three days rather than one: an account's own time zone can still be on the previous day at
@@ -1694,6 +1696,15 @@ class Kernel extends ConsoleKernel
                     monitorSlug: 'ReleaseFullyStockedPrePickLines',
                 ),
                 name: 'ReleaseFullyStockedPrePickLines',
+                type: 'command',
+                scheduledAt: now()->format('H:i')
+            );
+
+            $this->logSchedule(
+                $schedule->command('production:stop_sessions_after_shift')->everyFifteenMinutes()->timezone('UTC')->onOneServer()->withoutOverlapping()->sentryMonitor(
+                    monitorSlug: 'StopManufactureTaskSessionsAfterShift',
+                ),
+                name: 'StopManufactureTaskSessionsAfterShift',
                 type: 'command',
                 scheduledAt: now()->format('H:i')
             );

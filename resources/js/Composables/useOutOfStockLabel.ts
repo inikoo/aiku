@@ -1,7 +1,7 @@
 import { ctrans } from "@/Composables/useTrans"
 import { useFormatTime } from "@/Composables/useFormatTime"
 
-type ProductWithExpectedBackInStock = { expected_back_in_stock_at?: string | null }
+type ProductWithExpectedBackInStock = { expected_back_in_stock_at?: string | null; expected_back_in_stock_is_estimate?: boolean }
 
 export const useExpectedBackInStockDate = (product?: ProductWithExpectedBackInStock): string | null => {
 	const expectedAt = product?.expected_back_in_stock_at
@@ -12,5 +12,11 @@ export const useExpectedBackInStockDate = (product?: ProductWithExpectedBackInSt
 export const useExpectedBackInStockLabel = (product?: ProductWithExpectedBackInStock): string | null => {
 	const date = useExpectedBackInStockDate(product)
 
-	return date ? ctrans("Expected back around :date", { date }) : null
+	if (!date) {
+		return null
+	}
+
+	return product?.expected_back_in_stock_is_estimate
+		? ctrans("Estimated back around :date", { date })
+		: ctrans("Expected back around :date", { date })
 }

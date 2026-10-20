@@ -7,6 +7,9 @@
 
 namespace App\Actions\Chat\ChatSession;
 
+use App\Models\SysAdmin\User;
+use App\Models\Catalogue\Shop;
+use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Enums\CRM\Livechat\ChatSenderTypeEnum;
 use App\Events\BroadcastChatReaction;
 use App\Http\Resources\CRM\Livechat\ChatMessageResource;
@@ -21,6 +24,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class ToggleChatMessageReaction
 {
     use AsAction;
+    use WithChatAgentAuthorisation;
 
     /**
      * @param array{reactor_type: string, reactor_id: int|null} $reactor
@@ -82,6 +86,11 @@ class ToggleChatMessageReaction
 
             if (!$agent) {
                 return ['ok' => false, 'message' => 'Only agents can react.', 'code' => 403];
+            }
+
+            $shop = $chatMessage->chatSession?->shop;
+            if (!$user instanceof User || !$shop instanceof Shop || !$this->userCanActOnChatOnShop($user, $shop)) {
+                return ['ok' => false, 'message' => 'You cannot react in this chat.', 'code' => 403];
             }
 
             return [

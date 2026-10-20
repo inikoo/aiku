@@ -43,6 +43,9 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property string|null $last_fetched_at
  * @property bool $default_wholesale_picking_location
  * @property bool $default_dropshipping_picking_location
+ * @property \Illuminate\Support\Carbon|null $packed_at
+ * @property int|null $packed_by_user_id
+ * @property numeric|null $packed_quantity
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group|null $group
  * @property-read \App\Models\Inventory\Location|null $location
@@ -64,7 +67,8 @@ class LocationOrgStock extends Model implements Auditable
     protected $casts = [
         'data'     => 'array',
         'settings' => 'array',
-        'type'     => LocationStockTypeEnum::class
+        'type'     => LocationStockTypeEnum::class,
+        'packed_at' => 'datetime',
     ];
 
     protected $attributes = [

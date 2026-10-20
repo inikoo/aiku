@@ -7,6 +7,9 @@
 
 namespace App\Actions\Chat\Whatsapp;
 
+use App\Models\SysAdmin\User;
+use App\Models\Catalogue\Shop;
+use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Http\Resources\CRM\Livechat\MetaChatMessageResource;
 use App\Models\Chat\MetaChatMessage;
 use Illuminate\Http\JsonResponse;
@@ -16,6 +19,14 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class TranslateSingleMetaChatMessage
 {
     use AsAction;
+    use WithChatAgentAuthorisation;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        $shop = $request->route('metaChatMessage')?->metaChatSession?->shop;
+
+        return $shop instanceof Shop && $request->user() instanceof User && $this->userCanActOnChatOnShop($request->user(), $shop);
+    }
 
     public function handle(MetaChatMessage $metaChatMessage, int $targetLanguageId): void
     {

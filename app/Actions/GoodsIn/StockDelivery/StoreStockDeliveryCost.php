@@ -39,6 +39,7 @@ class StoreStockDeliveryCost extends OrgAction
             'is_na'       => ['sometimes', 'boolean'],
             'currency_id' => ['sometimes', 'nullable', 'exists:currencies,id'],
             'exchange'    => ['sometimes', 'nullable', 'numeric', 'gt:0'],
+            'stock_delivery_item_id' => ['sometimes', 'nullable', 'integer', Rule::exists('stock_delivery_items', 'id')->where('stock_delivery_id', $this->stockDelivery->id)],
         ], self::waitingRules());
     }
 

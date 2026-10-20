@@ -34,7 +34,9 @@ class OrderApiResource extends JsonResource
 
         $shippingData = is_array($order->shipping_data ?? []) ? $order->shipping_data : [];
 
-        $firstShippingData = $shippingData[0] ?? [];
+        $shipments = array_is_list($shippingData) ? $shippingData : [];
+
+        $firstShippingData = $shipments[0] ?? [];
 
         return [
             'id'            => $order->id,
@@ -50,14 +52,15 @@ class OrderApiResource extends JsonResource
             'charges_amount' => $order->charges_amount,
             'date'          => $order->date,
             'is_premium_dispatch' => $order->is_premium_dispatch,
-            'has_extra_packing' => $order->has_extra_packing,
-            'has_insurance' => $order->has_insurance,
-            'has_gift_message' => $order->has_gift_message,
+            'has_extra_packing' => (bool) $order->has_extra_packing,
+            'has_insurance' => (bool) $order->has_insurance,
+            'has_gift_message' => (bool) $order->has_gift_message,
             'gift_message' => $order->gift_message,
             'public_notes' => $order->public_notes,
             'customer_notes' => $order->customer_notes,
             'shipping_notes' => $order->shipping_notes,
             'customer' => CustomerResource::make($order->customer)->getArray(),
+            'customer_client' => $order->customerClient ? CustomerClientApiResource::make($order->customerClient)->getArray() : null,
             'delivery_address' => AddressResource::make($order->deliveryAddress ?? new Address()),
             'billing_address' => AddressResource::make($order->billingAddress ?? new Address()),
             'products' => [
@@ -74,6 +77,13 @@ class OrderApiResource extends JsonResource
                 'tracking_urls'   => data_get($firstShippingData, 'tracking_urls'),
                 'shipper_label'   => data_get($firstShippingData, 'shipper_label'),
             ],
+            'shipments' => array_map(fn (array $shipment) => [
+                'delivery_note_reference' => data_get($shipment, 'delivery_note_reference'),
+                'shipper_label'           => data_get($shipment, 'shipper_label'),
+                'tracking_number'         => data_get($shipment, 'tracking_number'),
+                'trackings'               => data_get($shipment, 'trackings'),
+                'tracking_urls'           => data_get($shipment, 'tracking_urls'),
+            ], $shipments),
             'transactions' => TransactionsApiResource::collection($order->transactions),
             'payments' => PaymentsApiResource::collection($order->payments),
         ];

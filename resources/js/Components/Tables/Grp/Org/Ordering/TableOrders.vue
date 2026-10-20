@@ -488,6 +488,64 @@ const setNewMarkerDate = (newVal: Date) => {
             </div>
         </template>
 
+        <template #cell(pre_order_state)="{ item: order }">
+            <div v-if="order.pre_order" class="flex flex-col gap-0.5 text-xs">
+                <span class="whitespace-nowrap font-semibold" :class="order.pre_order.state === 'released' ? 'text-green-700' : 'text-gray-700'">
+                    {{ order.pre_order.state_label }}
+                </span>
+                <span class="whitespace-nowrap text-gray-500">
+                    {{ [order.pre_order.has_back_order ? ctrans('Back-order') : null, order.pre_order.has_made_to_order ? ctrans('Made to order') : null].filter(Boolean).join(' · ') }}
+                </span>
+            </div>
+        </template>
+
+        <template #cell(pre_order_goods)="{ item: order }">
+            <div v-if="order.pre_order" class="whitespace-nowrap text-xs leading-5 text-gray-600">
+                <div v-if="order.pre_order.goods_arrived_at" class="text-green-700">
+                    {{ ctrans('Arrived :date', { date: useFormatTime(order.pre_order.goods_arrived_at, { localeCode: locale.language.code, formatTime: 'aiku' }) }) }}
+                </div>
+                <div v-else-if="order.pre_order.supplier_ordered_at">
+                    {{ ctrans('Ordered :date', { date: useFormatTime(order.pre_order.supplier_ordered_at, { localeCode: locale.language.code, formatTime: 'aiku' }) }) }}
+                </div>
+                <div v-else class="text-amber-700">{{ ctrans('Not ordered from supplier yet') }}</div>
+            </div>
+        </template>
+
+        <template #cell(estimated_dispatch_to)="{ item: order }">
+            <div v-if="order.pre_order?.estimated_dispatch_to" class="flex items-center gap-1.5 whitespace-nowrap text-xs">
+                <span class="text-gray-600">
+                    <template v-if="order.pre_order.estimated_dispatch_from && order.pre_order.estimated_dispatch_from !== order.pre_order.estimated_dispatch_to">
+                        {{ useFormatTime(order.pre_order.estimated_dispatch_from, { localeCode: locale.language.code, formatTime: 'aiku' }) }} –
+                    </template>
+                    {{ useFormatTime(order.pre_order.estimated_dispatch_to, { localeCode: locale.language.code, formatTime: 'aiku' }) }}
+                </span>
+                <span v-if="order.pre_order.estimated_dispatch_to.slice(0, 10) < new Date().toLocaleDateString('sv-SE')"
+                    v-tooltip="ctrans('Past the estimated dispatch date and not dispatched yet')"
+                    class="rounded border border-red-300 bg-red-50 px-1.5 py-0.5 font-semibold text-red-700">
+                    {{ ctrans('Late') }}
+                </span>
+            </div>
+        </template>
+
+        <template #cell(pre_order_balance)="{ item: order }">
+            <div v-if="order.pre_order" class="whitespace-nowrap text-xs leading-5 text-gray-600">
+                <div v-if="order.pre_order.balance_paid_at" class="text-green-700">
+                    {{ ctrans('Paid :date', { date: useFormatTime(order.pre_order.balance_paid_at, { localeCode: locale.language.code, formatTime: 'aiku' }) }) }}
+                </div>
+                <template v-else-if="order.pre_order.balance_requested_at">
+                    <div class="text-amber-700">
+                        {{ ctrans(':amount requested', { amount: locale.currencyFormat(order.currency_code || '', order.pre_order.deferred_amount) }) }}
+                    </div>
+                    <div v-if="order.pre_order.balance_due_at">
+                        {{ ctrans('Due :date', { date: useFormatTime(order.pre_order.balance_due_at, { localeCode: locale.language.code, formatTime: 'aiku' }) }) }}
+                    </div>
+                </template>
+                <div v-else-if="Number(order.pre_order.deferred_amount) > 0">
+                    {{ ctrans(':amount on arrival', { amount: locale.currencyFormat(order.currency_code || '', order.pre_order.deferred_amount) }) }}
+                </div>
+            </div>
+        </template>
+
         <template #cell(delivery)="{ item: order }">
 
             <div v-if="order.state === 'cancelled'">

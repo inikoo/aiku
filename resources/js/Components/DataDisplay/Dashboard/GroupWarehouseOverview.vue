@@ -116,7 +116,10 @@ const openBucket = (event: Event, item: (typeof stockItems.value)[number]) => {
 					{{ ctrans("Stock health") }}
 					<FontAwesomeIcon icon="fal fa-question-circle" class="cursor-help text-gray-300" fixed-width aria-hidden="true" v-tooltip="ctrans('Active SKOs by days of cover against their supplier lead time, the same levels as the procurement stock cover. Out of stock uses the same rule as the Out of Stock figure above.')" />
 				</h3>
-				<p class="mt-3 text-xl font-semibold tabular-nums text-gray-800">{{ locale.numberShort(groupStockTotal) }}</p>
+				<p class="mt-3 flex items-baseline gap-x-2">
+					<span class="text-xl font-semibold tabular-nums text-gray-800">{{ locale.numberShort(groupStockTotal) }}</span>
+					<span class="text-xs text-gray-400">{{ ctrans("active SKOs, all organisations") }}</span>
+				</p>
 				<div class="mt-2 flex h-3 w-full overflow-hidden rounded-full bg-gray-100">
 					<button
 						v-for="item in stockItems"

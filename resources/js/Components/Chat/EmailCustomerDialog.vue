@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, toRef, watch } from "vue"
-import { useForm } from "@inertiajs/vue3"
+import { computed, ref, toRef, watch } from "vue"
+import { router, useForm } from "@inertiajs/vue3"
 import Dialog from "primevue/dialog"
 import InputText from "primevue/inputtext"
+import Select from "primevue/select"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import ChatFormattingToolbar from "@/Components/Chat/ChatFormattingToolbar.vue"
 import ChatMessageEditor from "@/Components/Chat/ChatMessageEditor.vue"
@@ -11,15 +12,24 @@ import { ctrans } from "@/Composables/useTrans"
 import { useComposerDraft } from "@/Composables/useComposerDraft"
 import { routeType } from "@/types/route"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faPaperPlane, faExclamationTriangle } from "@fal"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { faPaperPlane, faExclamationTriangle, faSave, faTimes } from "@fal"
 
-library.add(faPaperPlane, faExclamationTriangle)
+library.add(faPaperPlane, faExclamationTriangle, faSave, faTimes)
 
 export interface OutOfStockLine {
     code: string
     name: string
     quantity_ordered: number
     quantity_short: number
+}
+
+export interface CustomerEmailTemplate {
+    id: number
+    name: string
+    subject: string
+    body: string
+    update_route: routeType
 }
 
 const visible = defineModel<boolean>("visible", { required: true })
@@ -30,7 +40,38 @@ const props = defineProps<{
     draftKey: string
     subject?: string
     outOfStockLines?: OutOfStockLine[] | null
+    templates?: CustomerEmailTemplate[]
+    templateValues?: Record<string, string>
 }>()
+
+const noTemplate = { name: ctrans("No template"), subject: "", body: "" } as CustomerEmailTemplate
+const templateOptions = computed(() => [noTemplate, ...(props.templates ?? [])])
+const selectedTemplate = ref<CustomerEmailTemplate | null>(null)
+const isSavingTemplate = ref(false)
+
+const applyTemplate = (template: CustomerEmailTemplate | null) => {
+    if (!template) return
+    form.subject = template.subject
+    form.message = template.body
+}
+
+const saveToTemplate = () => {
+    const template = selectedTemplate.value
+    if (!template?.update_route) return
+    router.patch(route(template.update_route.name, template.update_route.parameters), {
+        subject: form.subject,
+        body: form.message,
+    }, {
+        preserveScroll: true,
+        preserveState: true,
+        onStart: () => (isSavingTemplate.value = true),
+        onFinish: () => (isSavingTemplate.value = false),
+        onSuccess: () => {
+            template.subject = form.subject
+            template.body = form.message
+        },
+    })
+}
 
 const messageEditor = ref<InstanceType<typeof ChatMessageEditor> | null>(null)
 
@@ -80,11 +121,17 @@ const send = () => {
         :style="{ width: '90vw', maxWidth: '560px' }" :breakpoints="{ '640px': '95vw' }">
         <div class="flex flex-col gap-3">
             <p class="text-xs text-gray-500 leading-snug">
-                {{ ctrans("It opens a conversation in the chat inbox, and their reply comes back to it.") }}
+                {{ ctrans("Their reply comes back to the chat inbox.") }}
             </p>
             <div class="flex flex-col gap-1">
                 <label class="text-xs font-medium text-gray-600">{{ ctrans("To") }}</label>
                 <InputText v-model="form.email" :placeholder="ctrans('Email addresses, separated by commas')" fluid />
+            </div>
+            <div v-if="templates?.length" class="flex items-center gap-2">
+                <Select v-model="selectedTemplate" :options="templateOptions" option-label="name" :placeholder="ctrans('Choose a template')"
+                    class="flex-1" @update:model-value="applyTemplate" />
+                <Button v-if="selectedTemplate?.update_route" type="tertiary" size="xs" icon="fal fa-save" :label="ctrans('Save to template')"
+                    :loading="isSavingTemplate" :disabled="!form.subject.trim() || !form.message.trim()" @click="saveToTemplate" />
             </div>
             <InputText v-model="form.subject" :placeholder="ctrans('Subject')" fluid />
             <div>
@@ -97,6 +144,15 @@ const send = () => {
                 <ChatMessageEditor ref="messageEditor" v-model="form.message" :placeholder="ctrans('Message')" allow-underline
                     class="rounded-md border border-gray-300 px-3 py-2 focus-within:border-[--app-accent] [&_.ProseMirror]:min-h-40 [&_.ProseMirror]:max-h-80" />
             </div>
+            <div v-if="templates?.length && templateValues" class="text-xs text-gray-500 leading-snug">
+                <p>{{ ctrans("These are filled in when the email is sent:") }}</p>
+                <dl class="mt-1 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5">
+                    <template v-for="(value, placeholder) in templateValues" :key="placeholder">
+                        <dt class="font-mono text-gray-600">{{ placeholder }}</dt>
+                        <dd class="truncate" :title="value">{{ value.split("\n")[0] || "—" }}</dd>
+                    </template>
+                </dl>
+            </div>
             <EmailAttachmentPicker v-model="form.attachments" :errors="form.errors" />
 
             <p v-if="form.errors.email" class="text-xs text-red-500 leading-snug">{{ form.errors.email }}</p>
@@ -104,9 +160,17 @@ const send = () => {
             <p v-if="form.errors.message" class="text-xs text-red-500 leading-snug">{{ form.errors.message }}</p>
 
             <div class="flex items-center justify-end gap-2 pt-1">
-                <Button type="tertiary" :label="ctrans('Cancel')" @click="visible = false" />
-                <Button type="primary" icon="fal fa-paper-plane" :label="ctrans('Send')" :loading="form.processing"
-                    :disabled="!form.email.trim() || !form.subject.trim() || !form.message.trim()" @click="send" />
+                <Button type="tertiary" :label="ctrans('Cancel')" @click="visible = false">
+                    <template #icon>
+                        <FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" />
+                    </template>
+                </Button>
+                <Button type="tertiary" :label="ctrans('Send')" :loading="form.processing"
+                    :disabled="!form.email.trim() || !form.subject.trim() || !form.message.trim()" @click="send">
+                    <template #icon>
+                        <FontAwesomeIcon icon="fal fa-paper-plane" class="text-green-600" fixed-width aria-hidden="true" />
+                    </template>
+                </Button>
             </div>
         </div>
     </Dialog>

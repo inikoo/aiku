@@ -38,7 +38,7 @@ const remove = (index: number) => {
             </li>
         </ul>
         <input ref="input" type="file" multiple class="hidden"
-            accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.pptx,.zip" @change="add" />
+            accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.pptx,.zip,.mp4,.mov" @change="add" />
         <button v-if="files.length < 30" type="button" class="self-start text-xs text-indigo-600 hover:underline"
             @click="input?.click()">
             <FontAwesomeIcon :icon="faPaperclip" fixed-width aria-hidden="true" />

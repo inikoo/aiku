@@ -203,7 +203,8 @@ trait WithRetinaRegistration
                     extraConditions: [
                         ['column' => 'shop_id', 'value' => $this->shop->id],
                         ['column' => 'deleted_at', 'operator' => 'null'],
-                    ]
+                    ],
+                    message: __('This email already has an account with us. Use "Forgot password" to set a password and log in.')
                 ),
                 ...$this->shop->website ? [
                     new IUnique(

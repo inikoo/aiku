@@ -32,14 +32,11 @@ use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Lorisleiva\Actions\ActionRequest;
-use App\Actions\Traits\Authorisations\Ordering\WithOrderEditAuthorisation;
 
 class DispatchOrder extends OrgAction
 {
     use WithActionUpdate;
     use HasOrderHydrators;
-    use WithOrderEditAuthorisation;
 
     /**
      * @throws \Throwable
@@ -136,15 +133,5 @@ class DispatchOrder extends OrgAction
     {
         $this->asAction = true;
         return $this->handle($order, $deliveryNote, $dispatchedAt, $repair);
-    }
-
-    /**
-     * @throws \Throwable
-     */
-    public function asController(Order $order, ActionRequest $request): Order
-    {
-        $this->initialisationFromShop($order->shop, $request);
-
-        return $this->handle($order);
     }
 }

@@ -8,6 +8,7 @@ import { routeType } from "@/types/route"
 
 interface ProcurementMetric {
 	label: string
+	description?: string
 	value: number
 	route: routeType
 }
@@ -45,12 +46,12 @@ const tone = toneClasses[props.card.tone]
 	<div
 		class="inline-flex items-center bg-white rounded-lg shadow-sm tabular-nums"
 		:class="compact ? 'text-xs' : 'text-sm'">
-		<span class="rounded-l-lg border border-indigo-400 px-3 last:rounded-r-lg bg-indigo-50/50">
+		<span class="rounded-l-lg border border-gray-300 px-3 last:rounded-r-lg bg-gray-50">
 			<Link
 				v-if="card.route"
 				v-tooltip="card.label + (card.description ? ' — ' + card.description : '')"
 				:href="route(card.route.name, card.route.parameters)"
-				class="flex items-center gap-1.5 rounded-l focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+				class="flex items-center gap-1.5 rounded-l focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
 				:class="compact ? 'py-1' : 'py-2'"
 				@start="loadingTarget = 'card'"
 				@finish="loadingTarget = null">
@@ -70,7 +71,7 @@ const tone = toneClasses[props.card.tone]
 
 		<template v-for="(metric, metricIndex) in card.metrics" :key="metric.label">
 			<Link
-				v-tooltip="metric.label"
+				v-tooltip="metric.description ?? metric.label"
 				:href="route(metric.route.name, metric.route.parameters)"
 				class="flex items-center gap-1.5 pl-3 text-gray-500 hover:text-gray-700 border-y border-r border-gray-300 px-3 last:rounded-r-lg"
 				:class="compact ? 'py-1' : 'py-2'"

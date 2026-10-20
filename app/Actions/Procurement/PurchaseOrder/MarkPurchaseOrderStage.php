@@ -12,6 +12,7 @@ use App\Actions\OrgAction;
 use App\Actions\Procurement\PurchaseOrder\UI\GetPurchaseOrderStages;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStageEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
+use App\Events\BroadcastAgentIncomingPurchaseOrdersChanged;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
@@ -57,6 +58,7 @@ class MarkPurchaseOrderStage extends OrgAction
         $old   = $purchaseOrder->{$field}?->toDateString();
 
         $purchaseOrder = UpdatePurchaseOrder::make()->action($purchaseOrder, [$field => $date]);
+        BroadcastAgentIncomingPurchaseOrdersChanged::dispatchFor($purchaseOrder);
 
         if ($reason = Arr::get($modelData, 'reason')) {
             self::auditOverride($purchaseOrder, $field, $old, $date?->toDateString(), $reason);
@@ -88,7 +90,7 @@ class MarkPurchaseOrderStage extends OrgAction
         }
 
         $reasons = [];
-        if (Carbon::parse($date)->toDateString() < Carbon::parse(self::today($purchaseOrder->organisation))->subDay()->toDateString()) {
+        if (!in_array($field, PurchaseOrderStageEnum::PLANNED_FIELDS) && Carbon::parse($date)->toDateString() < Carbon::parse(self::today($purchaseOrder->organisation))->subDay()->toDateString()) {
             $reasons[] = __('the date is more than a day in the past');
         }
 
@@ -106,7 +108,9 @@ class MarkPurchaseOrderStage extends OrgAction
 
         return [
             'field'  => ['required', Rule::in($fields)],
-            'date'   => ['present', 'nullable', 'date', 'before_or_equal:'.Carbon::parse(self::today($this->organisation))->addDay()->toDateString()],
+            'date'   => in_array($this->get('field'), PurchaseOrderStageEnum::PLANNED_FIELDS)
+                ? ['present', 'nullable', 'date']
+                : ['present', 'nullable', 'date', 'before_or_equal:'.Carbon::parse(self::today($this->organisation))->addDay()->toDateString()],
             'reason' => ['sometimes', 'nullable', 'string', 'max:500'],
         ];
     }
@@ -146,6 +150,10 @@ class MarkPurchaseOrderStage extends OrgAction
         $field         = $this->validatedData['field'];
         $purchaseOrder = $this->handle($purchaseOrder, $this->validatedData);
 
+        if ($field === 'qc_passed_at' && $purchaseOrder->qc_passed_at) {
+            NotifyPurchaseOrderBalanceDue::run($purchaseOrder, $request->user());
+        }
+
         $label = PurchaseOrderStageEnum::fieldLabels()[$field];
         NotifyBuyerOfAgentStageChange::run($purchaseOrder, $request->user(), $purchaseOrder->{$field}
             ? __(':stage on :date', ['stage' => $label, 'date' => $purchaseOrder->{$field}->toDateString()])
@@ -170,6 +178,6 @@ class MarkPurchaseOrderStage extends OrgAction
             return null;
         }
 
-        return Carbon::parse($date)->toDateString() >= self::today($this->organisation) ? now() : Carbon::parse($date);
+        return Carbon::parse($date)->toDateString() === self::today($this->organisation) ? now() : Carbon::parse($date);
     }
 }

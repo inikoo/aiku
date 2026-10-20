@@ -148,7 +148,7 @@ class UpdateDeliveryNoteStatePacked extends OrgAction
             if ($deliveryNote->is_shipping_by_external && $deliveryNote->shipments->isEmpty()) {
                 if ($deliveryNote->shop->engine == ShopEngineEnum::FAIRE) {
                     StoreShipmentFromFaire::run($deliveryNote);
-                } elseif ($order->platform->type == PlatformTypeEnum::TIKTOK) {
+                } elseif ($order->platform?->type == PlatformTypeEnum::TIKTOK) {
                     ProcessTiktokOrderShipment::run($order);
                 }
             }

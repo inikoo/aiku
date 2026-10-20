@@ -13,6 +13,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Procurement\ShoppingListItem\ShoppingListItemPriorityEnum;
 use App\Enums\Procurement\ShoppingListItem\ShoppingListItemStateEnum;
 use App\Models\Procurement\ShoppingListItem;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
@@ -59,7 +60,7 @@ class UpdateShoppingListItem extends OrgAction
         return Redirect::back();
     }
 
-    public function asController(ShoppingListItem $shoppingListItem, ActionRequest $request): ShoppingListItem
+    public function asController(Organisation $organisation, ShoppingListItem $shoppingListItem, ActionRequest $request): ShoppingListItem
     {
         $this->shoppingListItem = $shoppingListItem;
         $this->initialisation($shoppingListItem->organisation, $request);

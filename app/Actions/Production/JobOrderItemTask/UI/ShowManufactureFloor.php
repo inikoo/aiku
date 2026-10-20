@@ -11,6 +11,7 @@ namespace App\Actions\Production\JobOrderItemTask\UI;
 use App\Actions\Production\JobOrderItem\GetJobOrderItemMissingMixes;
 use App\Actions\Production\JobOrderItemTask\SettleShortJobOrderItemTask;
 use App\Actions\OrgAction;
+use App\Actions\Production\MaterialRequest\MaterialsCheckAuthorisation;
 use App\Actions\Production\Production\UI\ShowProduction;
 use App\Actions\SysAdmin\User\GetUserCurrentEmployee;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
@@ -263,9 +264,15 @@ class ShowManufactureFloor extends OrgAction
                     ],
                     'band_feedback' => $this->bandFeedback($openSession),
                     'break_minutes' => (int) $openSession->break_minutes,
+                    'left_open_after_shift_at' => $openSession->left_open_after_shift_at,
                     'carry'         => $openSession->is_combined ? null : SettleShortJobOrderItemTask::make()->preview($openSession->jobOrderItemTask),
                 ] : null),
                 'artisan'      => $this->employee?->contact_name,
+                'is_hourly'    => $this->employee?->artisan_pay_type === ArtisanPayTypeEnum::HOURLY,
+                'materials_check_route' => $this->employee && MaterialsCheckAuthorisation::checkingRequest($production, now()->toDateString())?->checker_employee_id === $this->employee->id ? [
+                    'name'       => 'grp.org.productions.show.operations.materials_check',
+                    'parameters' => [$production->organisation->slug, $production->slug],
+                ] : null,
                 'can_pick_open_jobs' => $canPickOpenJobs,
                 'combine_route'      => $this->canCombine ? [
                     'name'       => 'grp.models.production.combined_task.store',
@@ -428,6 +435,7 @@ class ShowManufactureFloor extends OrgAction
             'manufacture_task_id' => $task->manufacture_task_id,
             'task_code'           => $task->manufactureTask->code,
             'task_name'           => $task->manufactureTask->name,
+            'is_piece_rate'       => (bool) $task->manufactureTask->is_piece_rate,
             'artefact_code'       => $members->map(fn (JobOrderItemTask $member) => $member->jobOrderItem->artefact->code)->unique()->implode(' + '),
             'artefact_name'       => $isCombined ? __('Combined batch') : $task->jobOrderItem->artefact->name,
             'job_order_reference' => $members->map(fn (JobOrderItemTask $member) => $member->jobOrder->reference)->unique()->implode(', '),

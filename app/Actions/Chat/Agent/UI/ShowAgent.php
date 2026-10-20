@@ -69,7 +69,7 @@ class ShowAgent extends OrgAction
                         'title' => __('CRM Agent'),
                         'icon'  => ['fal', 'fa-headset'],
                     ],
-                    'actions' => [
+                    'actions' => $this->userSupervisesChatOnOrganisation($request->user(), $this->organisation) ? [
                         [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -80,7 +80,7 @@ class ShowAgent extends OrgAction
                                 'parameters' => [$this->organisation->slug],
                             ],
                         ],
-                    ],
+                    ] : [],
                 ],
                 'data'   => ChatAgentResource::collection($agents),
             ],

@@ -42,6 +42,8 @@ class FulfillOrderToWooCommerce extends OrgAction
             return;
         }
 
+        $isCustomerNote = !Arr::get($order->customerSalesChannel->settings, 'woocommerce.private_tracking_notes');
+
         try {
             /** @var DeliveryNote $deliveryNote */
             $deliveryNote = $order->currentDeliveryNote();
@@ -56,7 +58,7 @@ class FulfillOrderToWooCommerce extends OrgAction
                 ];
 
                 $shippingNote = __("Shipping Tracking (:shipmentTracking): :shipmentTradeAs :shipmentLabelUrl", ['shipmentTracking' => $shipment->tracking, 'shipmentTradeAs' => $shipment->trade_as, 'shipmentLabelUrl' => $shipment->combined_label_url]);
-                $wooCommerceUser->createCustomerOrderNote($fulfillOrderId, $shippingNote);
+                $wooCommerceUser->createCustomerOrderNote($fulfillOrderId, $shippingNote, $isCustomerNote);
             }
 
             $wooCommerceUser->updateWooCommerceOrder($fulfillOrderId, [

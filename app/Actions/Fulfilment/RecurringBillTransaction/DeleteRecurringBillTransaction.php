@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\RecurringBillTransaction;
 
+use App\Actions\Traits\Authorisations\WithFulfilmentShopEditAuthorisation;
 use App\Actions\Fulfilment\RecurringBill\CalculateRecurringBillTotals;
 use App\Actions\Fulfilment\RecurringBill\Hydrators\RecurringBillHydrateTransactions;
 use App\Actions\OrgAction;
@@ -21,6 +22,7 @@ use Throwable;
 
 class DeleteRecurringBillTransaction extends OrgAction
 {
+    use WithFulfilmentShopEditAuthorisation;
     use AsController;
     use WithAttributes;
 

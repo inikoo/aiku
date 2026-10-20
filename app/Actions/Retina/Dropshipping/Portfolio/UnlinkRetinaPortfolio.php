@@ -35,7 +35,8 @@ class UnlinkRetinaPortfolio extends RetinaAction
             'platform_product_variant_id'   => null,
             'exist_in_platform'             => false,
             'has_valid_platform_product_id' => false,
-            'platform_product_id'           => null
+            'platform_product_id'           => null,
+            'platform_sku'                  => null
         ]);
     }
 

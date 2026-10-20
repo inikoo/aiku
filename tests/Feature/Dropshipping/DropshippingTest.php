@@ -33,6 +33,7 @@ use App\Actions\Dropshipping\Portfolio\StorePortfolio;
 use App\Actions\Iris\Portfolio\StoreIrisPortfolioItemsToChannels;
 use App\Actions\Retina\UI\Dashboard\GetRetinaDropshippingHomeData;
 use App\Actions\Dropshipping\WooCommerce\Product\UpdateInventoryInEbayPortfolio;
+use App\Actions\Dropshipping\CustomerSalesChannel\Hydrators\CustomerSalesChannelsHydratePortfolios;
 use App\Actions\Dropshipping\Portfolio\UpdatePortfolio;
 use App\Actions\Helpers\Images\GetPictureSources;
 use App\Actions\Helpers\Media\SaveModelImages;
@@ -332,6 +333,18 @@ test('update customer portfolio', function (Portfolio $dropshippingCustomerPortf
     return $dropshippingCustomerPortfolio;
 })->depends('add product to customer portfolio');
 
+
+test('switching a portfolio off takes it out of its sales channel product count', function (Portfolio $portfolio) {
+    $channel = $portfolio->customerSalesChannel;
+    CustomerSalesChannelsHydratePortfolios::run($channel);
+    $before = $channel->refresh()->number_portfolios;
+
+    UpdatePortfolio::make()->action($portfolio, ['status' => false]);
+    expect($channel->refresh()->number_portfolios)->toBe($before - 1);
+
+    UpdatePortfolio::make()->action($portfolio->refresh(), ['status' => true]);
+    expect($channel->refresh()->number_portfolios)->toBe($before);
+})->depends('update customer portfolio');
 
 test('get dropshipping access token', function () {
     $token = CreateAccessToken::make()->action($this->group, ['name' => 'test_token', 'abilities' => ['bk-api']]);
@@ -1480,4 +1493,51 @@ test('reset channel only resets shopify channels', function () {
     actingAs($this->user);
     $this->patch(route('grp.models.customer_sales_channel.shopify_reset', ['customerSalesChannel' => $ebayChannel->id]))
         ->assertSessionHasErrors('channel');
+});
+
+test('staff match and push portfolios to a platform only with crm edit on the channel shop, INI-076', function () {
+    $unguarded = collect(app('router')->getRoutes()->getRoutes())
+        ->filter(fn ($route) => str_starts_with((string) $route->getName(), 'grp.models.') && is_string($route->getAction('uses')))
+        ->map(fn ($route) => \Illuminate\Support\Str::before($route->getAction('uses'), '@'))
+        ->filter(fn (string $action) => str_starts_with($action, 'App\\Actions\\Dropshipping\\') && !method_exists($action, 'authorize'))
+        ->unique()->values()->all();
+    expect($unguarded)->toBe([]);
+
+    $platform             = $this->group->platforms()->where('type', PlatformTypeEnum::EBAY)->first();
+    $customerSalesChannel = StoreCustomerSalesChannel::make()->action($this->customer, $platform, ['reference' => 'ini076_ebay']);
+    $portfolio            = StorePortfolio::make()->action($customerSalesChannel, $this->product, []);
+    $shop                 = $customerSalesChannel->shop;
+
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ["crm.$shop->id.view", "orders.$shop->id.edit"]);
+        $this->post(route('grp.models.portfolio.match_to_existing_ebay_product', $portfolio->id), ['platform_product_id' => 'x'])->assertForbidden();
+        $this->post(route('grp.models.portfolio.store_new_ebay_product', $portfolio->id))->assertForbidden();
+        $this->post(route('grp.models.ebay.batch_match', $customerSalesChannel->id), [])->assertForbidden();
+        $this->post(route('grp.models.shopify.batch_match', $customerSalesChannel->id), [])->assertForbidden();
+        $this->post(route('grp.models.woo.revive', $customerSalesChannel->id))->assertForbidden();
+        $this->post(route('grp.models.woo.batch_upload', $customerSalesChannel->id), ['portfolios' => [$portfolio->id]])->assertForbidden();
+        $this->post(route('grp.models.shopify.batch_upload', $customerSalesChannel->id), [])->assertForbidden();
+        $this->post(route('grp.models.portfolio.match_to_existing_shopify_product', $portfolio->id), [])->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($this->user, ["crm.$shop->id.edit"]);
+        $this->post(route('grp.models.portfolio.match_to_existing_ebay_product', $portfolio->id), [])->assertSessionHasErrors('platform_product_id');
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+    }
+});
+
+test('staff without crm or accounting rights cannot list a channel marketplace products', function () {
+    $platform             = $this->group->platforms()->where('type', PlatformTypeEnum::EBAY)->first();
+    $customerSalesChannel = StoreCustomerSalesChannel::make()->action($this->customer, $platform, ['reference' => 'json_auth_ebay_'.uniqid()]);
+    $shop                 = $customerSalesChannel->shop;
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+    actingAsUserWithOnlyPermissions($user, ["products.$shop->id.view"]);
+
+    $this->getJson(route('grp.json.dropshipping.customer_sales_channel.ebay_products', $customerSalesChannel->id))->assertForbidden();
 });

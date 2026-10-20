@@ -46,7 +46,18 @@ use App\Enums\CRM\AppointmentType\AppointmentTypeMeetingModeEnum;
 use App\Models\CRM\Appointment;
 use App\Models\CRM\Prospect;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
+use App\Actions\Retina\Dropshipping\Product\SaveDataFeeds;
+use App\Enums\Catalogue\Shop\ShopStateEnum;
 use Illuminate\Support\Str;
+use App\Actions\Comms\Outbox\ReviewReminder\ProcessReviewReminderRecipients;
+use App\Actions\Iris\Reviews\ShowIrisOrderReview;
+use App\Actions\Iris\Reviews\ShowIrisOrderReviewPreview;
+use App\Actions\Comms\Outbox\GetOutboxTestEmailData;
+use App\Enums\Catalogue\Product\ProductStatusEnum;
+use Inertia\Testing\AssertableInertia;
+use App\Enums\Catalogue\Review\ReviewScopeEnum;
+use App\Models\Reviews\Review;
 
 use function Pest\Laravel\actingAs;
 
@@ -559,6 +570,17 @@ test('dropshipping docs are listed in the website language and only for their sh
     }
 });
 
+test('shopify docs explain selling own stock first and following our prices without changing yours', function () {
+    $website = asDropshippingWebsite($this->website, 'dssk', 'en');
+
+    expect(ShowIrisDoc::make()->handle($website, 'shopify-fulfilment-location')['doc']['html'])
+        ->toContain('Selling your own stock of our products')
+        ->toContain('Ranked locations')
+        ->and(ShowIrisDoc::make()->handle($website, 'product-descriptions-after-connecting')['doc']['html'])
+        ->toContain('Following our prices without changing yours')
+        ->toContain('Price managed in your Shopify');
+});
+
 test('docs are not served on a website that is not dropshipping', function () {
     $this->get('http://'.$this->website->domain.'/docs')->assertNotFound();
 });
@@ -793,4 +815,118 @@ test('a visitor moves and cancels their appointment from the link in their email
     $this->postJson($models.'/cancel')
         ->assertUnprocessable()
         ->assertJsonValidationErrors('state');
+});
+
+test('data feeds are rebuilt hourly only while someone reads them', function () {
+    Storage::fake('data-feeds');
+    $this->shop->update(['is_aiku' => true, 'state' => ShopStateEnum::OPEN]);
+    DetectWebsiteFromDomain::mock()
+        ->shouldReceive('parseDomain')
+        ->andReturn($this->website->domain);
+
+    $path = SaveDataFeeds::path($this->shop);
+    Cache::forget(SaveDataFeeds::readCacheKey($this->shop));
+
+    $this->get('http://'.$this->website->domain.'/data-feed.csv')->assertOk();
+
+    expect(Storage::disk('data-feeds')->allFiles('shop'))->toBe([$path]);
+
+    Storage::disk('data-feeds')->put($path, 'stale');
+    $this->artisan('data_feeds:save')->assertSuccessful();
+
+    expect(Storage::disk('data-feeds')->get($path))->toContain('Product code')
+        ->and(Storage::disk('data-feeds')->allFiles('shop'))->toBe([$path]);
+
+    Cache::forget(SaveDataFeeds::readCacheKey($this->shop));
+    $this->artisan('data_feeds:save')->assertSuccessful();
+
+    Storage::disk('data-feeds')->assertMissing($path);
+});
+
+test('a customer rates their order and its products from the stars in the review reminder email', function () {
+    DetectWebsiteFromDomain::mock()->shouldReceive('parseDomain')->andReturn($this->website->domain);
+    $this->withoutMiddleware(ThrottleRequests::class);
+    Queue::fake();
+
+    [, $product] = createProduct($this->shop);
+    $order       = createOrder(createCustomer($this->shop), $product);
+    $page        = ShowIrisOrderReview::make()->handle($order);
+    $productId   = $page['products'][0]['reviewable_id'];
+
+    $link  = '/review/'.$order->id.'/'.$order->reviewToken();
+    $site  = 'http://'.$this->website->domain;
+    $email = (new ProcessReviewReminderRecipients())->generateReviewLinks((string) $order->id);
+
+    expect($order->reviewUrl())->toBe('https://'.$this->website->domain.$link)
+        ->and($email)->toContain(e($order->reviewUrl(['rating' => 5])))
+        ->and($email)->toContain(e($order->reviewUrl(['product' => $productId, 'rating' => 1])))
+        ->and($page['company']['reviewable_id'])->toBe($order->id);
+
+    $this->get($site.'/review/'.$order->id.'/not-the-token')->assertNotFound();
+    $this->postJson($site.'/models/review/'.$order->id.'/not-the-token', [
+        'reviews' => [['scope' => 'order', 'reviewable_id' => $order->id, 'rating' => 5]],
+    ])->assertNotFound();
+
+    $this->postJson($site.'/models'.$link, [
+        'reviews' => [
+            ['scope' => 'order', 'reviewable_id' => $order->id, 'rating' => 5, 'message' => 'Fast delivery'],
+            ['scope' => 'product', 'reviewable_id' => $productId, 'rating' => 4],
+        ],
+    ])->assertOk()
+        ->assertJsonPath('company.rating', 5)
+        ->assertJsonPath('company.message', 'Fast delivery')
+        ->assertJsonPath('products.0.rating', 4);
+
+    $orderReviews = fn () => Review::query()->where('order_id', $order->id);
+    $numberReviews = $orderReviews()->count();
+
+    expect($orderReviews()->where('scope', ReviewScopeEnum::ORDER)->value('customer_id'))->toBe($order->customer_id);
+
+    $this->postJson($site.'/models'.$link, [
+        'reviews' => [['scope' => 'product', 'reviewable_id' => $productId, 'rating' => 2, 'message' => 'Arrived broken']],
+    ])->assertOk()->assertJsonPath('products.0.rating', 2);
+
+    expect($orderReviews()->count())->toBe($numberReviews)
+        ->and((int) $orderReviews()->where('product_id', $productId)->value('rating_main'))->toBe(2);
+
+    $this->postJson($site.'/models'.$link, [
+        'reviews' => [['scope' => 'product', 'reviewable_id' => 999999999, 'rating' => 5]],
+    ])->assertUnprocessable()->assertJsonValidationErrors('reviews.0.reviewable_id');
+});
+
+test('a test review reminder links to a preview of the review page that saves nothing', function () {
+    DetectWebsiteFromDomain::mock()->shouldReceive('parseDomain')->andReturn($this->website->domain);
+    Queue::fake();
+
+    [, $product] = createProduct($this->shop);
+    $product->updateQuietly(['status' => ProductStatusEnum::FOR_SALE]);
+    $outbox = $this->shop->outboxes()->where('code', OutboxCodeEnum::REVIEW_REMINDER)->firstOrFail();
+
+    $links = GetOutboxTestEmailData::run($outbox)['review_reminder_links'];
+    preg_match('#https://'.preg_quote($this->website->domain, '#').'(/review/preview/[^"]+)#', html_entity_decode($links), $match);
+    parse_str((string) parse_url($match[1], PHP_URL_QUERY), $query);
+    $site = 'http://'.$this->website->domain;
+
+    expect($links)->toContain('/review/preview/')
+        ->and(explode(',', $query['products']))->toContain((string) $product->id)
+        ->and($links)->not->toContain('/review/'.$product->id.'/');
+
+    $numberReviews = Review::query()->count();
+
+    $this->get($site.$match[1])
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('OrderReview', false)
+            ->where('isPreview', true)
+            ->where('order.reference', $query['reference'])
+            ->where('order.products', fn ($products) => collect($products)->pluck('reviewable_id')->contains($product->id)));
+
+    $tamperedQuery = http_build_query([...$query, 'products' => $query['products'].',999999999']);
+    $previewPath   = strtok($match[1], '?');
+
+    $this->get($site.$previewPath.'?'.$tamperedQuery)->assertNotFound();
+    $this->get($site.'/review/preview/not-the-token?'.http_build_query($query))->assertNotFound();
+
+    expect(ShowIrisOrderReviewPreview::token($this->shop, $query['reference'], $query['products']))->toBe(basename($previewPath))
+        ->and(Review::query()->count())->toBe($numberReviews);
 });

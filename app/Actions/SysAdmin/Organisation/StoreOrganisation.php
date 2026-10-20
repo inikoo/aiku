@@ -43,13 +43,10 @@ use App\Rules\Phone;
 use App\Rules\ValidAddress;
 use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Lorisleiva\Actions\ActionRequest;
 use Throwable;
 
 class StoreOrganisation extends OrgAction
@@ -250,21 +247,6 @@ class StoreOrganisation extends OrgAction
         $this->initialisationFromGroup($group, $modelData);
 
         return $this->handle($group, $this->validatedData);
-    }
-
-    /**
-     * @throws \Throwable
-     */
-    public function asController(Group $group, ActionRequest $request): Organisation
-    {
-        $this->initialisationFromGroup($group, $request);
-
-        return $this->handle($group, $this->validatedData);
-    }
-
-    public function htmlResponse(Organisation $organisation): RedirectResponse
-    {
-        return Redirect::route('grp.org.dashboard.show', $organisation->slug);
     }
 
     public function getCommandSignature(): string

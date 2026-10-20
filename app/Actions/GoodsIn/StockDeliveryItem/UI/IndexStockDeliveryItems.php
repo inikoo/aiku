@@ -130,6 +130,8 @@ class IndexStockDeliveryItems extends OrgAction
                 'stock_delivery_items.org_net_amount',
                 'stock_delivery_items.org_exchange',
                 'stock_delivery_items.org_stock_id',
+                'stock_delivery_items.cbm_in_container',
+                'stock_delivery_items.packed_inside_stock_delivery_item_id',
                 'org_stocks.slug as org_stock_slug',
                 'org_stocks.code as org_stock_code',
                 'org_stocks.name as org_stock_name',
@@ -241,7 +243,7 @@ class IndexStockDeliveryItems extends OrgAction
                     ->column(key: 'description', label: __('Unit description'), canBeHidden: false)
                     ->column(key: 'quantity', label: __('Qty'), canBeHidden: false)
                     ->column(key: 'weight', label: __('Weight'), canBeHidden: false)
-                    ->column(key: 'volume', label: __('CBM'), canBeHidden: false)
+                    ->column(key: 'volume', label: __('CBM / in container'), canBeHidden: false)
                     ->column(key: 'amount', label: __('Amount'), canBeHidden: false);
 
                 if (in_array($stockDelivery->state, $itemActionStates, true)) {

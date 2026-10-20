@@ -4,6 +4,7 @@ namespace App\Actions\Dispatching\DeliveryNoteItem\UI\Traits;
 
 use App\Actions\Dispatching\PartnerStaging\PartnerBayPickingOrder;
 use App\Actions\Dispatching\DeliveryNote\WithDeliveryNoteHandler;
+use App\Actions\Inventory\OrgStock\UI\WithOrgStockUnNumbers;
 use App\Enums\Dispatching\Picking\PickingTypeEnum;
 use App\Enums\GoodsIn\ReturnDeliveryNote\ReturnDeliveryNoteStateEnum;
 use App\Enums\GoodsIn\ReturnDeliveryNote\ReturnDeliveryNoteTypeEnum;
@@ -16,6 +17,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 trait WithDeliveryNoteItemUI
 {
     use WithDeliveryNoteHandler;
+    use WithOrgStockUnNumbers;
 
     protected function getGlobalSearchFilter(): AllowedFilter
     {
@@ -25,25 +27,6 @@ trait WithDeliveryNoteItemUI
                     ->orWhereStartWith('org_stocks.name', $value);
             });
         });
-    }
-
-    protected function getUnNumbersSubquery(): Builder
-    {
-        return DB::table('trade_units')
-            ->join('model_has_trade_units', function ($join) {
-                $join->on('trade_units.id', '=', 'model_has_trade_units.trade_unit_id')
-                    ->where('model_has_trade_units.model_type', 'OrgStock');
-            })
-            ->whereColumn('model_has_trade_units.model_id', 'org_stocks.id')
-            ->whereNotNull('trade_units.un_number')
-            ->where('trade_units.un_number', '<>', 'None')
-            ->selectRaw("jsonb_object_agg(
-                trade_units.id,
-                jsonb_build_object(
-                    'number', trade_units.un_number,
-                    'shipping_name', trade_units.proper_shipping_name
-                )
-            )");
     }
 
     protected function getIndivisibleSetSubquery(): Builder
@@ -143,7 +126,7 @@ trait WithDeliveryNoteItemUI
             DB::table('location_org_stocks')
                 ->join('locations', 'locations.id', '=', 'location_org_stocks.location_id')
                 ->whereColumn('location_org_stocks.org_stock_id', 'org_stocks.id')
-                ->whereRaw(PartnerBayPickingOrder::sql('delivery_note_items.id').' < 2')
+                ->whereRaw(PartnerBayPickingOrder::sql('delivery_note_items.id').' < 3')
                 ->select([
                     'locations.id',
                     'locations.code',

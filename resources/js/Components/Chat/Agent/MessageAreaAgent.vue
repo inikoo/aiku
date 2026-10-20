@@ -616,7 +616,7 @@ const IMAGE_TYPES = [
     "image/avif",
 ]
 
-const FILE_EXTENSIONS = ["pdf", "doc", "docx", "xls", "xlsx", "csv", "txt", "pptx", "zip"]
+const FILE_EXTENSIONS = ["pdf", "doc", "docx", "xls", "xlsx", "csv", "txt", "pptx", "zip", "mp4", "mov"]
 
 const isSupportedFile = (file: File) => FILE_EXTENSIONS.includes(file.name.split(".").pop()?.toLowerCase() ?? "")
 

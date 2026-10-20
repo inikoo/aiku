@@ -36,6 +36,7 @@ const props = defineProps<{
             discounted_percentage?: string | null
             product_offers_data?: any
             stock?: number | null
+            is_pre_order?: boolean
             units?: number | string | null
             unit?: string | null
             url?: string
@@ -132,7 +133,7 @@ const getPricePerUnit = (product: { price_per_unit?: number | null; discounted_p
                         @success="() => model = false"
                     >
                         <div class="w-14 h-14 bg-gray-50 overflow-hidden flex-shrink-0 flex items-center justify-center">
-                            <Image v-if="product.image" :src="product.image" class="w-full h-full object-cover" :class="{ 'grayscale opacity-60': product.stock === 0 }" />
+                            <Image v-if="product.image" :src="product.image" class="w-full h-full object-cover" :class="{ 'grayscale opacity-60': product.stock === 0 && !product.is_pre_order }" />
                             <span v-else class="text-[10px] text-gray-300 font-bold uppercase">{{ product.code?.slice(0, 3) }}</span>
                         </div>
 

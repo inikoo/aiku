@@ -37,6 +37,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int|null $ranking_webpage_id
  * @property array<array-key, mixed>|null $serp_features
  * @property bool $in_ai_overview
+ * @property array<array-key, mixed>|null $serp_features_owned
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Shop $shop
@@ -63,6 +64,7 @@ class SeoTrackedKeyword extends Model
             'last_checked_at'        => 'datetime',
             'previous_checked_at'    => 'datetime',
             'serp_features'          => 'array',
+            'serp_features_owned' => 'array',
             'in_ai_overview'         => 'boolean',
         ];
     }
@@ -79,6 +81,18 @@ class SeoTrackedKeyword extends Model
             ->where('keyword', $this->keyword)
             ->where('country_code', $this->country_code)
             ->where('language_code', $this->language_code);
+    }
+
+    /**
+     * This keyword in every country and language, on every device.
+     *
+     * @return Builder<SeoTrackedKeyword>
+     */
+    public function onEveryMarket(): Builder
+    {
+        return static::query()
+            ->where('shop_id', $this->shop_id)
+            ->where('keyword', $this->keyword);
     }
 
     public function shop(): BelongsTo

@@ -49,6 +49,11 @@ use App\Actions\UI\Grp\Layout\GetGroupNavigation;
 use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Models\Analytics\AikuScopedSection;
 use App\Models\Goods\TradeUnit;
+use App\Models\Goods\StockFamily;
+use App\Actions\Goods\StockFamily\StoreStockFamily;
+use App\Actions\SupplyChain\SupplierStockFamily\UpdateSupplierStockFamily;
+use App\Enums\SupplyChain\SupplierProduct\SupplierProductAvailabilityStatusEnum;
+use App\Enums\SupplyChain\SupplierProduct\SupplierProductUnavailableReasonEnum;
 use App\Models\Helpers\Upload;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgAgentStats;
@@ -142,7 +147,7 @@ test('agent org admin can log in with aurora legacy password', function (Agent $
     expect($user->auth_type)->toBe(UserAuthTypeEnum::DEFAULT)
         ->and($user->legacy_password)->toBeNull()
         ->and(Hash::check('aurora-password', $user->password))->toBeTrue()
-        ->and(array_keys(GetOrganisationsLayout::run($user)[$organisation->slug]))->toBe(['agent_suppliers', 'agent_products', 'agent_sales', 'agent_purchase_orders', 'agent_warehouse', 'agent_containers', 'agent_accounting', 'hr', 'agent_settings'])
+        ->and(array_keys(GetOrganisationsLayout::run($user)[$organisation->slug]))->toBe(['agent_incoming_purchase_orders', 'agent_suppliers', 'agent_products', 'agent_sales', 'agent_purchase_orders', 'agent_warehouse_navigation', 'agent_containers', 'agent_accounting', 'hr', 'agent_settings'])
         ->and($user->hasGroupAccess())->toBeFalse()
         ->and(array_keys(GetGroupNavigation::run($user)))->toBe(['tickets']);
 
@@ -244,6 +249,21 @@ test('update supplier', function (Supplier $supplier) {
     return $updatedSupplier;
 })->depends('create independent supplier');
 
+test('rename supplier that buying organisations order from', function (Supplier $supplier) {
+    if ($supplier->orgSuppliers()->doesntExist()) {
+        StoreOrgSupplier::make()->action($this->organisation, $supplier);
+    }
+
+    $renamedSupplier = UpdateSupplier::make()->action($supplier, [
+        'code'         => 'REN'.$supplier->id,
+        'company_name' => 'Renamed supplier',
+    ]);
+
+    expect($renamedSupplier->code)->toBe('REN'.$supplier->id)
+        ->and($renamedSupplier->wasChanged('code'))->toBeTrue()
+        ->and($renamedSupplier->orgSuppliers()->exists())->toBeTrue();
+})->depends('update supplier');
+
 test('create independent supplier 2', function () {
     $supplier = StoreSupplier::make()->action(
         parent: $this->group,
@@ -303,6 +323,89 @@ test('the minimum order is saved where purchase orders read it, and an emptied m
 
     expect($supplierProduct->refresh()->minimum_carton_order)->toBeNull();
 })->depends('create supplier product independent supplier');
+
+test('HELP-4019 availability status and is_available follow each other, and back to available clears the reason', function (SupplierProduct $supplierProduct) {
+    $supplierProduct = UpdateSupplierProduct::make()->action($supplierProduct, [
+        'availability_status'   => 'limited',
+        'unavailable_reason'    => 'raw_material_shortage',
+        'available_from'        => '2026-12-01',
+        'availability_new_cost' => 3.2,
+        'availability_note'     => 'Only 200 a month',
+    ]);
+
+    expect($supplierProduct->is_available)->toBeTrue()
+        ->and($supplierProduct->availability_status)->toBe(SupplierProductAvailabilityStatusEnum::LIMITED)
+        ->and($supplierProduct->unavailable_reason)->toBe(SupplierProductUnavailableReasonEnum::RAW_MATERIAL_SHORTAGE);
+
+    $supplierProduct = UpdateSupplierProduct::make()->action($supplierProduct, ['is_available' => false]);
+    expect($supplierProduct->availability_status)->toBe(SupplierProductAvailabilityStatusEnum::UNAVAILABLE);
+
+    $supplierProduct = UpdateSupplierProduct::make()->action($supplierProduct, ['availability_status' => 'available']);
+    expect($supplierProduct->refresh()->is_available)->toBeTrue()
+        ->and($supplierProduct->unavailable_reason)->toBeNull()
+        ->and($supplierProduct->available_from)->toBeNull()
+        ->and($supplierProduct->availability_new_cost)->toBeNull();
+
+    expect(fn () => UpdateSupplierProduct::make()->action($supplierProduct, ['availability_status' => 'unavailable']))
+        ->toThrow(ValidationException::class);
+})->depends('create supplier product independent supplier');
+
+test('HELP-4019 carton dimensions give the CBM, packaging terms merge, and a new lead time estimate drops its confirmation', function (SupplierProduct $supplierProduct) {
+    $supplierProduct = UpdateSupplierProduct::make()->action($supplierProduct, [
+        'carton_dimensions'        => ['l' => 60, 'w' => 40, 'h' => 50],
+        'estimated_lead_time_days' => 45,
+        'confirm_lead_time'        => true,
+        'packaging_terms'          => ['retail_box' => 'supplier', 'silica_gel_sachets' => 2],
+    ]);
+
+    expect((float) $supplierProduct->cbm)->toBe(0.12)
+        ->and($supplierProduct->lead_time_confirmed_at)->not->toBeNull()
+        ->and($supplierProduct->lead_time_confirmed_by_user_id)->toBe($this->adminGuest->getUser()->id);
+
+    $supplierProduct = UpdateSupplierProduct::make()->action($supplierProduct, [
+        'estimated_lead_time_days' => 60,
+        'packaging_terms'          => ['label_application' => 'us'],
+    ]);
+
+    expect($supplierProduct->refresh()->lead_time_confirmed_at)->toBeNull()
+        ->and($supplierProduct->packaging_terms)->toMatchArray(['retail_box' => 'supplier', 'silica_gel_sachets' => 2, 'label_application' => 'us']);
+
+    expect(fn () => UpdateSupplierProduct::make()->action($supplierProduct, ['packaging_terms' => ['retail_box' => 'maybe']]))
+        ->toThrow(ValidationException::class);
+})->depends('create supplier product independent supplier');
+
+test('HELP-4019 a factory takes WeChat, WhatsApp and holidays', function (Supplier $supplier) {
+    $supplier = UpdateSupplier::make()->action($supplier, [
+        'wechat'                 => 'factory_wx',
+        'production_waiting_time' => 30,
+        'delivery_time'           => 10,
+        'factory_holidays'       => [['from' => '2027-01-25', 'to' => '2027-02-15', 'note' => 'Spring Festival']],
+    ]);
+
+    expect($supplier->wechat)->toBe('factory_wx')
+        ->and($supplier->defaultLeadTimeDays())->toBe(40)
+        ->and($supplier->factory_holidays)->toHaveCount(1);
+})->depends('create independent supplier');
+
+test('HELP-4019 a family at a supplier keeps its own MOQ, lead time, packaging terms and production calendar', function (Supplier $supplier) {
+    $stockFamily = StoreStockFamily::make()->action($this->group, StockFamily::factory()->definition());
+
+    $supplierStockFamily = UpdateSupplierStockFamily::make()->action($supplier, $stockFamily, [
+        'minimum_carton_order'     => 10,
+        'estimated_lead_time_days' => 50,
+        'packaging_terms'          => ['extra_wrapping' => 'not_needed'],
+        'production_calendar'      => [1 => 'cannot_produce', 2 => 'cannot_produce', 9 => 'best_to_order'],
+    ]);
+
+    $sameRow = UpdateSupplierStockFamily::make()->action($supplier, $stockFamily, ['production_calendar' => [7 => 'peak_or_slow']]);
+
+    expect($sameRow->id)->toBe($supplierStockFamily->id)
+        ->and($sameRow->minimum_carton_order)->toBe(10)
+        ->and($sameRow->production_calendar)->toMatchArray([1 => 'cannot_produce', 7 => 'peak_or_slow', 9 => 'best_to_order']);
+
+    expect(fn () => UpdateSupplierStockFamily::make()->action($supplier, $stockFamily, ['production_calendar' => [13 => 'best_to_order']]))
+        ->toThrow(ValidationException::class);
+})->depends('create independent supplier');
 
 test('create supplier product independent supplier 2', function ($supplier) {
     $supplierProductData = SupplierProduct::factory()->definition();
@@ -520,7 +623,8 @@ test('confirmed supplier product upload creates families, trade unit, SKO, suppl
         ])
         ->and($supplierProduct->data['unit_expense'])->toEqual(0.1)
         ->and((float)$purchaseOrder->purchaseOrderTransactions()->where('supplier_product_id', $supplierProduct->id)->value('quantity_ordered'))->toBe(240.0)
-        ->and($upload->data['purchase_orders'][strtoupper($this->organisation->code)]['lines'])->toBe(1);
+        ->and($upload->data['purchase_orders'][strtoupper($this->organisation->code)]['lines'])->toBe(1)
+        ->and($purchaseOrder->fresh()->data['from_upload_id'])->toBe($upload->id);
 
     expect(App\Actions\Procurement\PurchaseOrder\UI\ShowPurchaseOrder::make()->estimatedExpenses($purchaseOrder))->toEqual(24.0);
 
@@ -545,6 +649,14 @@ test('confirmed supplier product upload creates families, trade unit, SKO, suppl
     $againFindings = collect($again->records()->first()->data['findings'])->pluck('level', 'code');
 
     expect($againFindings->all())->toMatchArray(['link_trade_unit' => 'link', 'update_supplier_product' => 'block', 'cost_change' => 'block']);
+
+    $orderCurrencyId = $purchaseOrder->currency_id;
+    $purchaseOrder->update(['currency_id' => Currency::where('id', '!=', $supplierProduct->currency_id)->value('id')]);
+    App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange::shouldRun()->andReturn(2.0);
+
+    expect(App\Actions\Procurement\PurchaseOrder\UI\ShowPurchaseOrder::make()->estimatedExpenses($purchaseOrder->refresh()))->toEqual(48.0);
+
+    $purchaseOrder->update(['currency_id' => $orderCurrencyId]);
 });
 
 
@@ -1288,17 +1400,17 @@ test('UI supply chain PO journey', function (Supplier $supplier) {
 
     $purchaseOrder->updateQuietly(['state' => \App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum::SUBMITTED, 'submitted_at' => now()]);
     $this->patch(route('grp.models.purchase-order.journey_stage', ['purchaseOrder' => $purchaseOrder->id]), [
-        'stage' => 'deposit_paid',
+        'stage' => 'in_production',
         'date'  => now()->toDateString(),
     ])->assertRedirect()->assertSessionHasNoErrors();
 
-    expect($purchaseOrder->fresh()->deposit_paid_at)->not->toBeNull();
+    expect($purchaseOrder->fresh()->production_started_at)->not->toBeNull();
 
     $this->get(route('grp.supply-chain.dashboard', ['search' => $purchaseOrder->reference]))
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->loadDeferredProps('journey', fn (AssertableInertia $reload) => $reload
                 ->where('ribbons.0.reference', $purchaseOrder->reference)
-                ->where('ribbons.0.segments', fn ($segments) => collect($segments)->firstWhere('key', 'deposit_paid')['state'] === 'done')));
+                ->where('ribbons.0.segments', fn ($segments) => collect($segments)->firstWhere('key', 'in_production')['state'] === 'done')));
 
     $partial = $this->withHeaders([
         'X-Inertia'                   => 'true',
@@ -1387,7 +1499,8 @@ test('UI show agent supplier lists its purchase orders', function () {
     $this->get(route('grp.supply-chain.suppliers.show', [$supplier->slug]))
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->where('pageHead.subNavigation.2.route.name', 'grp.supply-chain.suppliers.purchase_orders.index')
-            ->missing('pageHead.subNavigation.4')
+            ->where('pageHead.subNavigation.4.route.name', 'grp.supply-chain.suppliers.sales')
+            ->missing('pageHead.subNavigation.5')
             ->where('showcase.stats.1.route.name', 'grp.supply-chain.suppliers.purchase_orders.index')
             ->etc());
 

@@ -14,6 +14,7 @@ use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
+use App\Models\Accounting\InvoiceCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\Catalogue\ShopSalesTarget;
 use App\Models\Ordering\Order;
@@ -217,7 +218,8 @@ trait HasOrdersPipeline
     }
 
     /**
-     * Each invoice category of a shop with its sales and target, in the organisation's currency. A
+     * Each invoice category of a shop with its sales and target, in the organisation's currency,
+     * leaving out a category that now belongs to another shop (Faire once it got its own shop). A
      * category without its own target gets the shop's target (set by management, otherwise last
      * year plus growth) split by its share of the same month last year, so until a category is
      * set the categories add up to the shop's target.
@@ -235,6 +237,11 @@ trait HasOrdersPipeline
         foreach ($categoryTargets->keys() as $categoryId) {
             $sales[$categoryId] ??= ['daily' => [], 'last_year_daily' => []];
         }
+
+        $ofOtherShopIds = InvoiceCategory::whereIn('id', array_filter(array_keys($sales)))->get(['id', 'settings'])
+            ->filter(fn (InvoiceCategory $invoiceCategory) => !empty($invoiceCategory->settings['shop_ids']) && !in_array($shopId, $invoiceCategory->settings['shop_ids']))
+            ->pluck('id')->all();
+        $sales          = array_diff_key($sales, array_flip($ofOtherShopIds));
 
         $lastYearTotal = array_sum(array_map(fn (array $categorySales) => array_sum($categorySales['last_year_daily']), $sales));
         $shopTarget    = $targets->first(fn (ShopSalesTarget $target) => $target->invoice_category_id === null);

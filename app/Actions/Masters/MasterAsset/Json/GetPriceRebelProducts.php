@@ -10,11 +10,13 @@
 namespace App\Actions\Masters\MasterAsset\Json;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithMastersAuthorisation;
 use App\Models\Masters\MasterAsset;
 use Lorisleiva\Actions\ActionRequest;
 
 class GetPriceRebelProducts extends OrgAction
 {
+    use WithMastersAuthorisation;
     public function handle(MasterAsset $masterAsset, array $modelData): array
     {
         $getPrice = data_get($modelData, 'type', 'price') == 'price';

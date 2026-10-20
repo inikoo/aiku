@@ -131,6 +131,7 @@ class ShowLocation extends OrgAction
                     'parameters' => ['location' => $location->id],
                     'method'     => 'post',
                 ] : null,
+                'packing_progress' => $location->is_goods_out ? GetGoodsOutPackingProgress::run($location) : null,
 
                 LocationTabsEnum::SHOWCASE->value => $this->tab == LocationTabsEnum::SHOWCASE->value ?
                     fn () => GetLocationShowcase::run($location)

@@ -67,7 +67,7 @@ class ShowTradeUnitFamily extends OrgAction
                     ],
                     'title'   => $tradeUnitFamily->code,
                     'model'   => __('Trade Unit Family'),
-                    'actions' => [
+                    'actions' => $this->canEdit ? [
                         [
                             'type'  => 'button',
                             'style' => 'edit',
@@ -77,7 +77,7 @@ class ShowTradeUnitFamily extends OrgAction
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ]
-                    ]
+                    ] : []
                 ],
                 'routes' => [
                     'trade_units_route' => [
@@ -108,6 +108,7 @@ class ShowTradeUnitFamily extends OrgAction
 
                 ],
                 'bulk_edit' => $this->canEdit ? $this->getTradeUnitsBulkEdit() : null,
+                'can_edit'  => $this->canEdit,
 
                 TradeUnitFamilyTabsEnum::SHOWCASE->value => $this->tab == TradeUnitFamilyTabsEnum::SHOWCASE->value ?
                 fn () => $this->getShowcase($tradeUnitFamily)

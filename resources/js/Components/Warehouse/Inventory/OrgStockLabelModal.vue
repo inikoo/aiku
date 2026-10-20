@@ -345,16 +345,15 @@ const checkboxPt = {
             <div class="flex flex-col gap-1.5">
                 <div v-for="field in fields" :key="field.key" class="flex flex-col gap-1.5">
                     <label
-                        class="flex w-max items-center gap-2 text-sm"
+                        class="flex w-fit max-w-full flex-wrap items-center gap-x-2 gap-y-0.5 text-sm"
                         :class="field.available ? 'text-gray-700' : 'cursor-not-allowed text-gray-400'">
                         <Checkbox
                             v-model="selected[field.key]"
                             :binary="true"
                             :disabled="!field.available"
                             :pt="checkboxPt" />
-                        <span v-tooltip="field.reason ? { content: field.reason, placement: 'top' } : undefined">
-                            {{ field.label }}
-                        </span>
+                        <span>{{ field.label }}</span>
+                        <span v-if="field.reason" class="text-xs italic text-gray-400">({{ field.reason }})</span>
                     </label>
 
                     <Textarea

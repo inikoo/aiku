@@ -26,6 +26,7 @@ interface Draft {
     id: number
     text: string
     topic_label: string
+    assistant: { of?: string, client?: string } | null
     rating: number | null
     reason: string | null
 }
@@ -268,7 +269,8 @@ onBeforeUnmount(stopListening)
             <div v-if="main === 'draft' && draft" class="rounded-xl border border-[--app-accent-muted] bg-[--app-accent-soft] px-3 py-2">
                 <div class="flex items-center gap-1.5 text-[11px] text-[--app-accent-strong]">
                     <FontAwesomeIcon :icon="faRobot" fixed-width />
-                    <span>{{ ctrans("Draft written by AI from aiku data") }} · {{ draft.topic_label }}</span>
+                    <span v-if="draft.assistant">{{ draft.assistant.of ? ctrans("Draft from :name's assistant", { name: draft.assistant.of }) : ctrans("Draft from an assistant") }}<template v-if="draft.assistant.client"> · {{ draft.assistant.client }}</template></span>
+                    <span v-else>{{ ctrans("Draft written by AI from aiku data") }} · {{ draft.topic_label }}</span>
                 </div>
                 <p role="button" tabindex="0" :aria-expanded="draftOpen" :title="draftOpen ? undefined : draft.text" class="mt-1 cursor-pointer whitespace-pre-line text-gray-800" :class="draftOpen ? 'max-h-48 overflow-y-auto' : 'line-clamp-3'" @click="toggleDraft" @keydown.enter.prevent="toggleDraft">{{ draft.text }}</p>
                 <p v-if="draft.text.includes('[[')" class="mt-1 text-[11px] text-amber-700">{{ ctrans("Fill in or delete the parts marked [[ ]] before sending.") }}</p>

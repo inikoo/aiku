@@ -232,6 +232,7 @@ class ShowPickingSession extends OrgAction
                 'id'           => $pickingSession->user->id,
                 'contact_name' => $pickingSession->user->contact_name,
             ] : null,
+            'can_work'                    => $canWork,
             'routes'                      => [
                 'update'       => !$canWork ? null : [
                     'name'       => 'grp.models.picking_session.update',

@@ -8,7 +8,6 @@
 
 use App\Actions\Search\UI\IndexSearchLogs;
 use App\Actions\SysAdmin\Group\UI\EditGroupSettings;
-use App\Actions\SysAdmin\Guest\ExportGuests;
 use App\Actions\SysAdmin\Guest\UI\CreateGuest;
 use App\Actions\SysAdmin\Guest\UI\EditGuest;
 use App\Actions\SysAdmin\Guest\UI\IndexGuests;
@@ -20,7 +19,6 @@ use App\Actions\SysAdmin\UI\IndexSysAdminScheduledTasks;
 use App\Actions\SysAdmin\UI\IndexUserRequests;
 use App\Actions\SysAdmin\UI\ShowSysAdminAnalyticsDashboard;
 use App\Actions\SysAdmin\UI\ShowSysAdminDashboard;
-use App\Actions\SysAdmin\User\ExportUsers;
 use App\Actions\SysAdmin\User\UI\CreateUser;
 use App\Actions\SysAdmin\User\UI\EditUser;
 use App\Actions\SysAdmin\User\UI\IndexUserActions;
@@ -48,7 +46,6 @@ Route::prefix('users')->as('users.')->group(function () {
     Route::get('active', [IndexUsers::class,'inActive'])->name('index');
     Route::get('suspended', [IndexUsers::class, 'inSuspended'])->name('suspended.index');
     Route::get('all', IndexUsers::class)->name('all.index');
-    Route::get('export', ExportUsers::class)->name('export');
     Route::get('create', CreateUser::class)->name('create');
 
     Route::prefix('{user}')->group(function () {
@@ -64,7 +61,6 @@ Route::prefix('guests')->as('guests.')->group(function () {
     Route::get('inactive', [IndexGuests::class, 'inInactive'])->name('inactive.index');
     Route::get('all', IndexGuests::class)->name('all.index');
     Route::get('create', CreateGuest::class)->name('create');
-    Route::get('export', ExportGuests::class)->name('export');
 
     Route::get('{guest}', ShowGuest::class)->name('show');
     Route::get('{guest}/edit', EditGuest::class)->name('edit');

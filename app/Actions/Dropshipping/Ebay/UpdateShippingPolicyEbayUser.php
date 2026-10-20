@@ -13,6 +13,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Dropshipping\EbayUser;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -27,7 +28,11 @@ class UpdateShippingPolicyEbayUser extends OrgAction
         $customerSalesChannel = $ebayUser->customerSalesChannel;
 
         foreach (['price', 'max_dispatch_time', 'carrier_code', 'carrier_name', 'service_code', 'service_name'] as $shippingSetting) {
-            $value = Arr::get($customerSalesChannel->settings, 'shipping.'.$shippingSetting);
+            $value = Arr::get($modelData, 'settings.shipping.'.$shippingSetting);
+
+            if (blank($value)) {
+                $value = Arr::get($customerSalesChannel->settings, 'shipping.'.$shippingSetting);
+            }
 
             if (filled($value)) {
                 data_set($modelData, 'settings.shipping.'.$shippingSetting, $value);
@@ -36,6 +41,12 @@ class UpdateShippingPolicyEbayUser extends OrgAction
 
         $fulfillmentPolicyId = Arr::get($modelData, 'fulfillment_policy_id', $ebayUser->fulfillment_policy_id);
         $fulfillmentPolicy = $ebayUser->updateFulfilmentPolicy($fulfillmentPolicyId, $modelData);
+
+        if ($error = $ebayUser::ebayResponseError($fulfillmentPolicy)) {
+            throw ValidationException::withMessages([
+                'shipping_service' => __('eBay did not accept the postage policy: :error', ['error' => $error]),
+            ]);
+        }
 
         $updatedFulfillmentPolicyId = Arr::get($fulfillmentPolicy, 'fulfillmentPolicyId');
 

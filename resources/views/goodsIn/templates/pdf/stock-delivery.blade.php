@@ -4,14 +4,16 @@
     <meta charset="UTF-8">
     <title>Stock Delivery - {{ $stockDelivery->reference }}</title>
     <style>
-        body { font-family: sans-serif; font-size: 14px; color: #333; }
+        body { font-family: sans-serif; font-size: 12px; color: #333; }
         .header { text-align: center; margin-bottom: 40px; }
         .header h1 { margin: 0; font-size: 26px; text-transform: uppercase; }
         .meta-info { width: 100%; margin-bottom: 25px; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
         .meta-info td { padding: 5px 0; }
         table.items { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        table.items th, table.items td { border: 1px solid #ddd; padding: 12px 10px; text-align: left; }
-        table.items th { background-color: #f4f4f4; text-transform: uppercase; font-size: 12px; }
+        table.items th, table.items td { border: 1px solid #ddd; padding: 8px 6px; text-align: left; }
+        .text-right { text-align: right; }
+        .note { margin-top: 4px; font-size: 11px; font-weight: bold; color: #92400e; }
+        table.items th { background-color: #f4f4f4; text-transform: uppercase; font-size: 10px; }
         .text-center { text-align: center; }
         .tick-box { width: 24px; height: 24px; border: 1px solid #333; }
         .footer { margin-top: 40px; font-size: 12px; color: #777; text-align: center; font-style: italic; }
@@ -41,22 +43,40 @@
     <table class="items">
         <thead>
             <tr>
-                <th width="15%">{{ __("Code") }}</th>
-                <th width="35%">{{ __("Name") }}</th>
-                <th width="15%" class="text-center">{{ __("Ordered") }}</th>
-                <th width="15%" class="text-center">{{ __("Checked") }}</th>
-                <th width="10%" class="text-center">{{ __("Placed") }}</th>
-                <th width="10%" class="text-center">{{ __("Tick") }}</th>
+                <th>{{ __("Code") }}</th>
+                <th>{{ __("Name") }}</th>
+                <th class="text-right">{{ __("Units") }}</th>
+                <th class="text-right">{{ __("SKO") }}</th>
+                <th class="text-right">{{ __("Cartons") }}</th>
+                @if($showCbm)
+                    <th class="text-right">{{ __("CBM") }}</th>
+                @endif
+                <th class="text-center">{{ __("Checked") }}</th>
+                <th class="text-center">{{ __("Placed") }}</th>
+                <th class="text-center">{{ __("Tick") }}</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($items as $item)
+            @foreach($rows as $row)
                 <tr>
-                    <td>{{ $item->orgStock->code ?? 'Unknown Code' }}</td>
-                    <td>{{ $item->orgStock->name ?? 'Unknown Name' }}</td>
-                    <td class="text-center">{{ number_format((float) $item->unit_quantity, 0) }}</td>
-                    <td class="text-center">{{ number_format((float) $item->unit_quantity_checked, 0) }}</td>
-                    <td class="text-center">{{ number_format((float) $item->unit_quantity_placed, 0) }}</td>
+                    <td style="white-space: nowrap">{{ $row['code'] ?? __('Unknown Code') }}</td>
+                    <td>
+                        {{ $row['name'] ?? __('Unknown Name') }}
+                        @if($row['packed_inside'])
+                            <div class="note">{{ __('Packed inside :code', ['code' => $row['packed_inside']]) }}</div>
+                        @endif
+                        @if($row['contains'])
+                            <div class="note">{{ __('Contains: :codes', ['codes' => $row['contains']]) }}</div>
+                        @endif
+                    </td>
+                    <td class="text-right">{{ number_format($row['units'], 0) }}</td>
+                    <td class="text-right">{{ rtrim(rtrim(number_format($row['skos'], 2), '0'), '.') }}</td>
+                    <td class="text-right">{{ $row['cartons'] === null ? '-' : rtrim(rtrim(number_format($row['cartons'], 2), '0'), '.') }}</td>
+                    @if($showCbm)
+                        <td class="text-right">{{ $row['cbm'] === null ? '-' : rtrim(rtrim(number_format($row['cbm'], 3), '0'), '.') }}</td>
+                    @endif
+                    <td class="text-center">{{ number_format($row['checked'], 0) }}</td>
+                    <td class="text-center">{{ number_format($row['placed'], 0) }}</td>
                     <td class="text-center"><div class="tick-box"></div></td>
                 </tr>
             @endforeach

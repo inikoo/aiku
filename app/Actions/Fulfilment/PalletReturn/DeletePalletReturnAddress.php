@@ -10,12 +10,15 @@
 
 namespace App\Actions\Fulfilment\PalletReturn;
 
+use App\Actions\Traits\Authorisations\WithFulfilmentShopEditAuthorisation;
 use App\Actions\OrgAction;
 use App\Models\Fulfilment\PalletReturn;
 use Lorisleiva\Actions\ActionRequest;
 
 class DeletePalletReturnAddress extends OrgAction
 {
+    use WithFulfilmentShopEditAuthorisation;
+
     public function handle(PalletReturn $palletreturn): PalletReturn
     {
         $address = $palletreturn->deliveryAddress;
@@ -36,6 +39,7 @@ class DeletePalletReturnAddress extends OrgAction
 
     public function action(PalletReturn $palletreturn): PalletReturn
     {
+        $this->asAction = true;
         $this->initialisationFromShop($palletreturn->shop, []);
         return $this->handle($palletreturn);
     }

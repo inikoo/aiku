@@ -47,6 +47,16 @@ class StoreChatEvent
         }
     }
 
+    /**
+     * What Aiku found out about the conversation, kept in the thread for whoever answers it. It is
+     * signed by Aiku, not by whoever asked for it (kept in the payload), and as an event rather than
+     * a message it never reaches the customer and does not answer the chat.
+     */
+    public function internalNote(ChatSession $chatSession, string $text, ?int $requestedByUserId = null): ChatEvent
+    {
+        return $this->handle($chatSession, ChatEventTypeEnum::INTERNAL_NOTE, ChatActorTypeEnum::AI, null, ['text' => $text, 'requested_by_user_id' => $requestedByUserId]);
+    }
+
     public function openSession(
         ChatSession $chatSession,
         ChatActorTypeEnum $actorType,

@@ -4,12 +4,14 @@ namespace App\Providers;
 
 use App\Events\BroadcastFulfilmentCustomerNotification;
 use App\Listeners\MeasurementSharedListener;
+use App\Listeners\RememberMcpClientName;
 use App\Listeners\SetAuditUserContext;
 use Illuminate\Auth\Events\Authenticated;
 use App\Listeners\ShopifyAuthenticatedShopWebhookRegister;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Laravel\Mcp\Events\SessionInitialized;
 use Osiset\ShopifyApp\Messaging\Events\ShopAuthenticatedEvent;
 
 class EventServiceProvider extends ServiceProvider
@@ -31,6 +33,9 @@ class EventServiceProvider extends ServiceProvider
         ],*/
         ShopAuthenticatedEvent::class => [
             ShopifyAuthenticatedShopWebhookRegister::class
+        ],
+        SessionInitialized::class => [
+            RememberMcpClientName::class
         ]
     ];
 

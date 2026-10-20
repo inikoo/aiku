@@ -582,6 +582,37 @@ class DeliveryNote extends Model implements Auditable
     }
 
     /**
+     * The note, its PDFs and its lines are read by the staff of its warehouse (dispatching,
+     * fulfilment, returns, goods in), the order and CRM staff of its shop, the fulfilment staff of
+     * a fulfilment shop, and the organisation's admins, warehouse viewers and accountants, who open
+     * it from orders and invoices.
+     */
+    public function canBeViewedBy(User $user): bool
+    {
+        $permissions = [
+            "dispatching.$this->warehouse_id.view",
+            "supervisor-dispatching.$this->warehouse_id",
+            "fulfilment.$this->warehouse_id.view",
+            "supervisor-fulfilment.$this->warehouse_id",
+            "returns.$this->warehouse_id",
+            "incoming.$this->warehouse_id.view",
+            "supervisor-incoming.$this->warehouse_id",
+            "orders.$this->shop_id.view",
+            "orders.$this->shop_id.edit",
+            "crm.$this->shop_id.view",
+            "org-admin.$this->organisation_id",
+            "warehouses-view.$this->organisation_id",
+            "accounting.$this->organisation_id.view",
+        ];
+
+        if ($this->shop?->fulfilment) {
+            $permissions[] = "fulfilment-shop.{$this->shop->fulfilment->id}.view";
+        }
+
+        return $user->authTo($permissions);
+    }
+
+    /**
      * Picking, packing, finalising and dispatching from the warehouse screens: warehouse dispatch,
      * fulfilment and returns staff. Customer service book shipments through canBeShippedBy().
      */

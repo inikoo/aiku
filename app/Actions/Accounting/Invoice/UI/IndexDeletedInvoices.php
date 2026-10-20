@@ -16,6 +16,7 @@ use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithAccountingPagesAuthorisation;
 use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Enums\UI\Accounting\InvoicesTabsEnum;
 use App\Http\Resources\Accounting\DeletedInvoicesResource;
@@ -36,6 +37,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexDeletedInvoices extends OrgAction
 {
+    use WithAccountingPagesAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
     use WithCustomerSubNavigation;
     use WithInvoicesSubNavigation;

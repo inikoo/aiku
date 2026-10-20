@@ -7,6 +7,7 @@
 
 namespace App\Actions\Chat\Whatsapp\Calls;
 
+use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Enums\CRM\Livechat\MetaChatCallDirectionEnum;
 use App\Enums\CRM\Livechat\MetaChatCallStatusEnum;
 use App\Events\BroadcastWhatsappCallEvent;
@@ -27,6 +28,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class StartWhatsappCall
 {
     use AsAction;
+    use WithChatAgentAuthorisation;
 
     public function handle(MetaChatSession $metaChatSession, User $user, string $sdpOffer): array
     {
@@ -84,7 +86,7 @@ class StartWhatsappCall
     {
         $user = Auth::user();
 
-        if (!$user || !ChatAgent::where('user_id', $user->id)->exists()) {
+        if (!$user || !ChatAgent::where('user_id', $user->id)->exists() || !$this->userIsCustomerServiceOnShop($user, $metaChatSession->shop_id)) {
             return ['ok' => false, 'message' => __('Only agents can start calls.'), 'code' => 403];
         }
 

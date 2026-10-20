@@ -25,6 +25,7 @@ const props = defineProps<{
             image: ImgTS
             price?: number | string | null
             stock?: number | null
+            is_pre_order?: boolean
             units?: number | string | null
             unit?: string | null
             is_golden_product?: boolean
@@ -263,7 +264,7 @@ const getProductPrice = (product: { price?: number | string | null; unit?: strin
                         class="relative bg-gray-50 overflow-hidden flex-shrink-0 flex items-center justify-center"
                         :class="index === 0 && !bestFamily ? 'w-20 h-20' : 'w-14 h-14'"
                     >
-                        <Image v-if="product.image" :src="product.image" class="w-full h-full object-cover" :class="{ 'grayscale opacity-60': product.stock === 0 }" />
+                        <Image v-if="product.image" :src="product.image" class="w-full h-full object-cover" :class="{ 'grayscale opacity-60': product.stock === 0 && !product.is_pre_order }" />
                         <span v-else class="text-[10px] text-gray-300 font-bold uppercase">{{ product.code?.slice(0, 3) }}</span>
                         <GoldenProductBadge v-if="product.is_golden_product" class="absolute left-0.5 top-0.5 z-10 origin-top-left scale-[0.62]" />
                     </div>

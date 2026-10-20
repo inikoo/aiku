@@ -10,6 +10,7 @@
 namespace App\Actions\Fulfilment\Pallet\Json;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -22,6 +23,7 @@ use App\Services\QueryBuilder;
 
 class GetFulfilmentCustomerStoringPallets extends OrgAction
 {
+    use WithFulfilmentShopAuthorisation;
     public function handle(FulfilmentCustomer $fulfilmentCustomer): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {

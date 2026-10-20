@@ -68,8 +68,9 @@ El número de días viene, en este orden:
 
 El sistema ve por sí solo cuándo se envía un pedido, cuándo la mercancía sale y se recibe, cuándo se coloca, y cuándo los productos se publican. La llegada al puerto se introduce en el panel de aduanas del envío. No puede ver cuándo se paga un depósito, empieza la producción o la mercancía supera el control de calidad. Eso lo tiene que marcar alguien.
 
-- **Los agentes** marcan el depósito pagado y la producción iniciada en sus propios pedidos.
-- **Los compradores** pueden marcar todas las etapas, y solo ellos aprueban la muestra y el control de calidad.
+- **El depósito** es el primer pago registrado en el pedido, con su extracto bancario.
+- **Los agentes** marcan la producción iniciada y terminada en sus propios pedidos.
+- **Los compradores** pueden marcar todas las etapas, y solo ellos aprueban la muestra, la fecha de listo y el control de calidad. Aprobar el control de calidad libera el pago del saldo.
 
 Hasta que se marque alguna de estas en un pedido, sus celdas quedan en blanco y el pedido solo se sigue por el envío y la llegada. En cuanto se marca una, el pedido queda a la espera de la siguiente etapa sin marcar, así que empieza por la primera y sigue en orden.
 

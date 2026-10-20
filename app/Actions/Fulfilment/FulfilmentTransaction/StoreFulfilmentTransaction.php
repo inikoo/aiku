@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\FulfilmentTransaction;
 
+use App\Actions\Traits\Authorisations\WithFulfilmentShopEditAuthorisation;
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydrateTransactions;
 use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydrateTransactions;
 use App\Actions\Fulfilment\RecurringBillTransaction\StoreRecurringBillTransaction;
@@ -24,6 +25,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreFulfilmentTransaction extends OrgAction
 {
+    use WithFulfilmentShopEditAuthorisation;
     use WithActionUpdate;
 
     public function handle(PalletDelivery|PalletReturn $parent, array $modelData): FulfilmentTransaction

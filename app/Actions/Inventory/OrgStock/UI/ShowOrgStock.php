@@ -21,6 +21,14 @@ use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Traits\Authorisations\Inventory\WithInventoryAuthorisation;
 use App\Enums\Inventory\OrgStockMovement\OrgStockMovementReasonEnum;
 use App\Enums\UI\Procurement\OrgStockTabsEnum;
+use App\Actions\Production\Artefact\GetOrgStockArtefact;
+use App\Actions\Production\Artefact\UI\GetArtefactCompliance;
+use App\Actions\Production\Artefact\UI\GetArtefactLabels;
+use App\Actions\Production\Artefact\UI\GetArtefactManufactureTasks;
+use App\Actions\Production\Artefact\UI\IndexArtefactBatches;
+use App\Actions\Production\Artefact\UI\ShowArtefact;
+use App\Http\Resources\Production\ArtefactBatchesResource;
+use App\Models\Production\Artefact;
 use App\Http\Resources\Goods\TradeUnitsResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Inventory\OrgStockResource;
@@ -30,6 +38,7 @@ use App\Models\Inventory\OrgStock;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
+use Closure;
 use Lorisleiva\Actions\ActionRequest;
 
 class ShowOrgStock extends OrgAction
@@ -72,6 +81,7 @@ class ShowOrgStock extends OrgAction
         $canDiscontinue = DiscontinueOrgStocks::canChangeStatus($request->user(), $this->organisation);
         $hasMaster     = $orgStock->stock;
         $subNavigation = $this->getOrgStockSubNavigation($orgStock, $request);
+        $artefact      = GetOrgStockArtefact::run($orgStock, $request->user());
 
         $miniBreadcrumbs = [];
         if ($orgStock->orgStockFamily) {
@@ -166,7 +176,7 @@ class ShowOrgStock extends OrgAction
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
-                    'navigation' => OrgStockTabsEnum::navigation()
+                    'navigation' => $this->getTabsNavigation($artefact)
                 ],
                 'master'      => $hasMaster,
                 'masterRoute' => $hasMaster ? [
@@ -223,6 +233,12 @@ class ShowOrgStock extends OrgAction
                     fn () => PurchaseOrdersResource::collection(IndexPurchaseOrders::make()->inOrgStock($this->organisation, $orgStock, $request, OrgStockTabsEnum::PURCHASE_ORDERS->value))
                     : Inertia::optional(fn () => PurchaseOrdersResource::collection(IndexPurchaseOrders::make()->inOrgStock($this->organisation, $orgStock, $request, OrgStockTabsEnum::PURCHASE_ORDERS->value))),
 
+                OrgStockTabsEnum::ARTEFACT_CURRENT_ORDERS->value => $this->artefactTab($artefact, OrgStockTabsEnum::ARTEFACT_CURRENT_ORDERS, fn () => ArtefactBatchesResource::collection(IndexArtefactBatches::run($artefact, OrgStockTabsEnum::ARTEFACT_CURRENT_ORDERS->value, true))),
+                OrgStockTabsEnum::ARTEFACT_BATCHES->value => $this->artefactTab($artefact, OrgStockTabsEnum::ARTEFACT_BATCHES, fn () => IndexArtefactBatches::make()->jobsDone($artefact, OrgStockTabsEnum::ARTEFACT_BATCHES->value)),
+                OrgStockTabsEnum::ARTEFACT_MANUFACTURE_TASKS->value => $this->artefactTab($artefact, OrgStockTabsEnum::ARTEFACT_MANUFACTURE_TASKS, fn () => GetArtefactManufactureTasks::run($artefact)),
+                OrgStockTabsEnum::ARTEFACT_LABELS->value => $this->artefactTab($artefact, OrgStockTabsEnum::ARTEFACT_LABELS, fn () => GetArtefactLabels::run($artefact)),
+                OrgStockTabsEnum::ARTEFACT_COMPLIANCE->value => $this->artefactTab($artefact, OrgStockTabsEnum::ARTEFACT_COMPLIANCE, fn () => GetArtefactCompliance::run($artefact)),
+
                 OrgStockTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == OrgStockTabsEnum::SUPPLIER_PRODUCTS->value ?
                     fn () => OrgStockSupplierProductsResource::collection(IndexOrgStockSupplierProducts::make()->inOrgStock($this->organisation, $orgStock, $request, OrgStockTabsEnum::SUPPLIER_PRODUCTS->value))
                     : Inertia::optional(fn () => OrgStockSupplierProductsResource::collection(IndexOrgStockSupplierProducts::make()->inOrgStock($this->organisation, $orgStock, $request, OrgStockTabsEnum::SUPPLIER_PRODUCTS->value)))
@@ -231,7 +247,33 @@ class ShowOrgStock extends OrgAction
         ->table(IndexTradeUnitsInOrgStock::make()->tableStructure(prefix: OrgStockTabsEnum::TRADE_UNITS->value))
         ->table(IndexHistory::make()->tableStructure(prefix: OrgStockTabsEnum::HISTORY->value, model: $orgStock))
         ->table(IndexPurchaseOrders::make()->tableStructure(parent: $orgStock, prefix: OrgStockTabsEnum::PURCHASE_ORDERS->value))
-        ->table(IndexOrgStockSupplierProducts::make()->tableStructure(prefix: OrgStockTabsEnum::SUPPLIER_PRODUCTS->value));
+        ->table(IndexOrgStockSupplierProducts::make()->tableStructure(prefix: OrgStockTabsEnum::SUPPLIER_PRODUCTS->value))
+        ->table(IndexArtefactBatches::make()->tableStructure(prefix: OrgStockTabsEnum::ARTEFACT_CURRENT_ORDERS->value, open: true))
+        ->table(IndexArtefactBatches::make()->tableStructure(artefact: $artefact, prefix: OrgStockTabsEnum::ARTEFACT_BATCHES->value));
+    }
+
+    private function artefactTab(?Artefact $artefact, OrgStockTabsEnum $tab, Closure $data): mixed
+    {
+        if (!$artefact) {
+            return null;
+        }
+
+        return $this->tab == $tab->value ? $data : Inertia::optional($data);
+    }
+
+    private function getTabsNavigation(?Artefact $artefact): array
+    {
+        if (!$artefact) {
+            return OrgStockTabsEnum::navigationExcept(OrgStockTabsEnum::artefactTabs());
+        }
+
+        $navigation = OrgStockTabsEnum::navigation();
+
+        foreach (ShowArtefact::make()->getTabNumbers($artefact) as $tab => $number) {
+            $navigation['artefact_'.$tab]['number'] = $number;
+        }
+
+        return $navigation;
     }
 
 

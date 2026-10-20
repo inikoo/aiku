@@ -29,11 +29,11 @@ class StoreWebsiteVisitor
         string $userAgent,
         string $currentUrl,
         ?string $referrer,
-        array $geoLocation
+        array $geoLocation,
+        ?string $visitorUuid = null
     ): WebsiteVisitor {
 
-        $ipHash      = hash('sha256', $ip.config('app.key'));
-        $visitorHash = hash('sha256', $ipHash.$userAgent);
+        ['ip_hash' => $ipHash, 'visitor_hash' => $visitorHash] = self::hashVisitor($ip, $userAgent);
 
         $isNewVisitor = !WebsiteVisitor::where('visitor_hash', $visitorHash)
             ->where('website_id', $website->id)
@@ -50,6 +50,7 @@ class StoreWebsiteVisitor
             'session_id'       => $sessionId,
             'web_user_id'      => $webUser?->id,
             'visitor_hash'     => $visitorHash,
+            'visitor_uuid'     => $visitorUuid,
             'device_type'      => $device,
             'os'               => $os,
             'browser'          => $browser,
@@ -66,12 +67,25 @@ class StoreWebsiteVisitor
             'referrer_url'     => $referrer,
             'is_bounce'        => true,
             'is_new_visitor'   => $isNewVisitor,
-            ...GetWebsiteVisitorTrafficSource::run($currentUrl, $referrer, $website->id, $visitorHash),
+            ...GetWebsiteVisitorTrafficSource::run($currentUrl, $referrer, $website->id, $visitorHash, $visitorUuid),
         ]);
 
         $cacheKey = "visitor:session:$sessionId:$website->id";
         Cache::put($cacheKey, $visitor, 1800);
 
         return $visitor;
+    }
+
+    /**
+     * @return array{ip_hash: string, visitor_hash: string}
+     */
+    public static function hashVisitor(string $ip, string $userAgent): array
+    {
+        $ipHash = hash('sha256', $ip.config('app.key'));
+
+        return [
+            'ip_hash'      => $ipHash,
+            'visitor_hash' => hash('sha256', $ipHash.$userAgent),
+        ];
     }
 }

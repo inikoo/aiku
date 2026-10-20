@@ -10,6 +10,7 @@
 namespace App\Actions\SysAdmin\User;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Http\Resources\SysAdmin\SupervisorUsersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
@@ -23,6 +24,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetSupervisorUsers extends OrgAction
 {
+    use WithFulfilmentShopAuthorisation;
     public function inFulfilment(Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromFulfilment($fulfilment, $request);

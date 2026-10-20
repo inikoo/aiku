@@ -23,6 +23,11 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $dropshipping_pipe
  * @property mixed $quantity
  * @property mixed $notes
+ * @property mixed $location_org_stock_id
+ * @property mixed $packed_at
+ * @property mixed $packed_quantity
+ * @property mixed $packed_by
+ * @property string|null $un_numbers
  */
 class OrgStocksInLocationResource extends JsonResource
 {
@@ -45,6 +50,11 @@ class OrgStocksInLocationResource extends JsonResource
             'quantity'              => trimDecimalZeros($this->quantity),
             'notes'                 => $this->notes,
             'location_org_stock_id' => $this->location_org_stock_id,
+            'packed_at'             => $this->packed_at,
+            'packed_by'             => $this->packed_by,
+            'packed_quantity'       => $this->packed_at ? trimDecimalZeros($this->packed_quantity) : null,
+            'un_numbers'            => $this->un_numbers ? array_values(json_decode($this->un_numbers, true)) : [],
+            'is_packed'             => $this->packed_at && (float) $this->packed_quantity == (float) $this->quantity,
         ];
     }
 }

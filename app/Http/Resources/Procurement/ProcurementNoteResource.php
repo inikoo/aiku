@@ -6,6 +6,7 @@
 
 namespace App\Http\Resources\Procurement;
 
+use App\Enums\Procurement\ProcurementNote\ProcurementNoteIncidentTypeEnum;
 use App\Enums\Procurement\ProcurementNote\ProcurementNoteStateEnum;
 use App\Models\Procurement\ProcurementNote;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -51,6 +52,9 @@ class ProcurementNoteResource extends JsonResource
             'incident_currency_code'   => $this->incident_currency_code ?? null,
             'incident_outcome'         => $this->incident_outcome?->value,
             'incident_outcome_label'   => $this->incident_outcome?->label(),
+            'incident_type'            => $this->incident_type?->value,
+            'incident_type_label'      => $this->incident_type ? ProcurementNoteIncidentTypeEnum::labels()[$this->incident_type->value] : null,
+            'incident_quantity'        => $this->incident_quantity,
             'supplier_product_code'    => $this->supplier_product_code ?? null,
             'purchase_order_reference' => $listedElsewhere ? ($this->purchase_order_reference ?? null) : null,
             'number_purchase_orders'   => $onPurchaseOrder && $listedElsewhere ? (int) $this->number_documents : null,

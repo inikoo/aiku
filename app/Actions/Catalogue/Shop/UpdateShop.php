@@ -376,6 +376,9 @@ class UpdateShop extends OrgAction
                     'meta_ads_ad_account_id' => 'settings.meta_ads.ad_account_id',
                     'meta_ads_access_token' => 'settings.meta_ads.access_token',
                     'meta_ads_campaign_name_prefix' => 'settings.meta_ads.campaign_name_prefix',
+                    'meta_social_facebook_page_id' => 'settings.meta_social.facebook_page_id',
+                    'meta_social_instagram_account_id' => 'settings.meta_social.instagram_account_id',
+                    'meta_social_access_token' => 'settings.meta_social.access_token',
                     'mailbox_sender_name' => 'settings.gmail.sender_name',
                     'letter_of_authorisation_enabled' => 'settings.letter_of_authorisation.enabled',
                     'letter_of_authorisation_company_name' => 'settings.letter_of_authorisation.company_name',
@@ -429,6 +432,9 @@ class UpdateShop extends OrgAction
         data_forget($modelData, 'meta_ads_ad_account_id');
         data_forget($modelData, 'meta_ads_access_token');
         data_forget($modelData, 'meta_ads_campaign_name_prefix');
+        data_forget($modelData, 'meta_social_facebook_page_id');
+        data_forget($modelData, 'meta_social_instagram_account_id');
+        data_forget($modelData, 'meta_social_access_token');
         data_forget($modelData, 'mailbox_sender_name');
         data_forget($modelData, 'letter_of_authorisation_enabled');
         data_forget($modelData, 'letter_of_authorisation_company_name');
@@ -1028,6 +1034,9 @@ class UpdateShop extends OrgAction
             'meta_ads_ad_account_id'                                  => ['sometimes', 'nullable', 'string'],
             'meta_ads_access_token'                                   => ['sometimes', 'nullable', 'string'],
             'meta_ads_campaign_name_prefix'                           => ['sometimes', 'nullable', 'string'],
+            'meta_social_facebook_page_id'                            => ['sometimes', 'nullable', 'string', 'regex:/^\d*$/'],
+            'meta_social_instagram_account_id'                        => ['sometimes', 'nullable', 'string', 'regex:/^\d*$/'],
+            'meta_social_access_token'                                => ['sometimes', 'nullable', 'string'],
             'mailbox_sender_name'                                     => ['sometimes', 'nullable', 'string', 'max:128'],
             'letter_of_authorisation_enabled'                         => ['sometimes', 'boolean'],
             'letter_of_authorisation_company_name'                    => ['sometimes', 'nullable', 'string', 'max:255'],

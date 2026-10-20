@@ -12,6 +12,8 @@ import { capitalize } from "@/Composables/capitalize"
 import { PageHeadingTypes } from "@/types/PageHeading"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
+import TableAgentSuppliersDataQuality from "@/Components/Tables/Grp/Org/Procurement/TableAgentSuppliersDataQuality.vue"
+import AgentProductsDashboard from "@/Components/Procurement/AgentProductsDashboard.vue"
 import { useTabChange } from "@/Composables/tab-change"
 import { computed, ref } from "vue"
 
@@ -24,6 +26,8 @@ const props = defineProps<{
     }
     index?: object
     history?: object
+    dashboard?: object
+    suppliers?: object
     copy_products?: object | null
     copy_targets?: { id: number, label: string }[]
 }>()
@@ -31,6 +35,8 @@ const props = defineProps<{
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const component = computed(() => ({
+    dashboard: AgentProductsDashboard,
+    suppliers: TableAgentSuppliersDataQuality,
     index: TableOrgSupplierProducts,
     history: TableHistories,
 })[currentTab.value])

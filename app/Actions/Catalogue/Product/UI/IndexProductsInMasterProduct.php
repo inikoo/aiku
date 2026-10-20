@@ -11,6 +11,7 @@ namespace App\Actions\Catalogue\Product\UI;
 use App\Actions\Masters\MasterAsset\UI\ShowMasterProduct;
 use App\Actions\Masters\MasterAsset\WithMasterProductSubNavigation;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithMastersAuthorisation;
 use App\Actions\Traits\WithListingsColumns;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Catalogue\Product\ProductStateEnum;
@@ -33,6 +34,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexProductsInMasterProduct extends OrgAction
 {
+    use WithMastersAuthorisation;
     use WithMasterProductSubNavigation;
     use WithListingsColumns;
 
@@ -276,7 +278,7 @@ class IndexProductsInMasterProduct extends OrgAction
                     ],
                     'data'                              => ProductsResource::collection($products),
                     'editable_table'                    => false,
-                    'mismatch_trade_unit_with_master'   => $hasMismatch,
+                    'mismatch_trade_unit_with_master'   => $hasMismatch && request()->user()->authTo('masters.edit'),
                     'tabs'                         => [
                         'current'    => $this->tab,
                         'navigation' => ProductsTabsEnum::navigationExcept([ProductsTabsEnum::SALES, ProductsTabsEnum::INDEX_ORDERING]),

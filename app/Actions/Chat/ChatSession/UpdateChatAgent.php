@@ -8,6 +8,9 @@
 
 namespace App\Actions\Chat\ChatSession;
 
+use App\Models\SysAdmin\Organisation;
+use App\Models\SysAdmin\User;
+use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Enums\CRM\Livechat\ChatAgentSpecializationEnum;
 use App\Models\Chat\ChatAgent;
 use Exception;
@@ -21,6 +24,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class UpdateChatAgent
 {
     use AsAction;
+    use WithChatAgentAuthorisation;
 
     public function rules(): array
     {
@@ -43,10 +47,22 @@ class UpdateChatAgent
             ],
         ];
     }
-    // public function authorize(ActionRequest $request, ChatAgent $chatAgent): bool
-    // {
-    //     return true;
-    // }
+    public function authorize(ActionRequest $request): bool
+    {
+        $user = $request->user();
+        if (!$user instanceof User) {
+            return false;
+        }
+
+        if ((int) $request->route('id') === $user->id) {
+            return true;
+        }
+
+        $target = User::find($request->route('id'));
+
+        return $target && $target->authorisedOrganisations()->get()
+            ->contains(fn (Organisation $organisation) => $this->userSupervisesChatOnOrganisation($user, $organisation));
+    }
 
     public function asController(ActionRequest $request, $userId): ChatAgent
     {

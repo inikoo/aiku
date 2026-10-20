@@ -108,6 +108,10 @@ Broadcast::channel('grp.org.{organisationId}.production-queues', function (User 
         ]));
 });
 
+Broadcast::channel('grp.org.{organisationId}.incoming-purchase-orders', function (User $user, int $organisationId) {
+    return $user->authTo("procurement.$organisationId.view");
+});
+
 Broadcast::channel('grp.shop.{shopId}.new-orders', function (User $user, int $shopId) {
     return GetUserOrderAlerts::make()->canHear($user, $shopId);
 });

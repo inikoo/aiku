@@ -8,6 +8,8 @@
 
 namespace App\Actions\Chat\ChatSession;
 
+use App\Models\Catalogue\Shop;
+use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Actions\Chat\ChatSession\Concerns\WithChatSlackSettings;
 use App\Models\Chat\ChatSession;
 use Illuminate\Http\JsonResponse;
@@ -17,8 +19,16 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class UpdateChatSessionSlackSettings
 {
+    use WithChatAgentAuthorisation;
     use AsAction;
     use WithChatSlackSettings;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        $shop = $request->route('chatSession')?->shop;
+
+        return $shop instanceof Shop && $this->userCanActOnChatOnShop($request->user(), $shop);
+    }
 
     /**
      * @param  array<string, mixed>  $modelData

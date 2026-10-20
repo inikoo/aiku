@@ -15,17 +15,26 @@ class SyncPurchaseOrderDepositPaid
 {
     use AsObject;
 
+    /**
+     * The first payment is the deposit and paying the order in full is the balance, as the purchase order stages
+     * read them. An order set to need no deposit keeps that until a payment is made.
+     */
     public function handle(PurchaseOrder $purchaseOrder): PurchaseOrder
     {
+        $payments     = $purchaseOrder->depositPayments()->orderBy('date')->orderBy('id')->get();
+        /** @var PurchaseOrderDepositPayment|null $firstPayment */
+        $firstPayment = $payments->first();
         /** @var PurchaseOrderDepositPayment|null $lastPayment */
-        $lastPayment = $purchaseOrder->depositPayments()->orderBy('date')->orderBy('id')->get()->last();
-        $paid        = self::paidAmount($purchaseOrder);
-        $isPaid      = $lastPayment && self::leftToPay($purchaseOrder) <= 0;
+        $lastPayment  = $payments->last();
+        $paid         = self::paidAmount($purchaseOrder);
+        $isPaid       = $lastPayment && self::leftToPay($purchaseOrder) <= 0;
+        $noDeposit    = $purchaseOrder->deposit_amount !== null && (float) $purchaseOrder->deposit_amount == 0;
 
         $purchaseOrder->update([
-            'deposit_amount'     => $paid > 0 ? $paid : null,
-            'deposit_paid_at'    => $isPaid ? $lastPayment->date->toDateString() : null,
-            'deposit_paid_by_id' => $isPaid ? $lastPayment->created_by : null,
+            'deposit_amount'     => $paid > 0 ? $paid : ($noDeposit ? 0 : null),
+            'deposit_paid_at'    => $firstPayment?->date->toDateString(),
+            'deposit_paid_by_id' => $firstPayment?->created_by,
+            'balance_paid_at'    => $isPaid ? $lastPayment->date->toDateString() : null,
         ]);
 
         return $purchaseOrder;

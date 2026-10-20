@@ -9,6 +9,7 @@
 
 namespace App\Actions\Dropshipping\Ebay\Product;
 
+use App\Actions\Traits\Authorisations\WithCustomerSalesChannelEditAuthorisation;
 use App\Actions\Traits\WithRetinaRouteModelOwnershipCheck;
 use App\Actions\Dropshipping\WithPortfolioErrorResponse;
 use App\Actions\OrgAction;
@@ -21,6 +22,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreNewProductToCurrentEbay extends OrgAction
 {
+    use WithCustomerSalesChannelEditAuthorisation;
     use WithPortfolioErrorResponse;
     use AsAction;
     use WithRetinaRouteModelOwnershipCheck;
@@ -69,6 +71,7 @@ class StoreNewProductToCurrentEbay extends OrgAction
     {
         abort_unless($this->retinaCustomerOwnsRouteModels($request), 403);
 
+        $this->asAction = true;
         $this->asController($portfolio, $request);
     }
 

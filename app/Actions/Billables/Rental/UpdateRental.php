@@ -8,6 +8,7 @@
 
 namespace App\Actions\Billables\Rental;
 
+use App\Actions\Traits\Authorisations\WithFulfilmentShopEditAuthorisation;
 use App\Actions\Catalogue\Asset\UpdateAssetFromModel;
 use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateRentals;
@@ -25,6 +26,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class UpdateRental extends OrgAction
 {
+    use WithFulfilmentShopEditAuthorisation;
     use WithActionUpdate;
 
     private Rental $rental;
@@ -96,6 +98,7 @@ class UpdateRental extends OrgAction
 
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Rental $rental, ActionRequest $request): Rental
     {
+        abort_unless($rental->shop_id === $fulfilment->shop_id, 404);
         $this->rental = $rental;
 
         $this->initialisationFromFulfilment($fulfilment, $request);

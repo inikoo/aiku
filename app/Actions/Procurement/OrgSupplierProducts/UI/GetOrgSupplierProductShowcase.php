@@ -21,6 +21,7 @@ use App\Models\Inventory\OrgStock;
 use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -31,6 +32,30 @@ class GetOrgSupplierProductShowcase
     use WithSupplierProductInfo;
 
     public function handle(OrgSupplierProduct $orgSupplierProduct): array
+    {
+        $viewingOrganisation = request()->route('organisation');
+        if ($viewingOrganisation instanceof Organisation && $viewingOrganisation->type === OrganisationTypeEnum::AGENT) {
+            return $this->withoutLandedCosts(array_merge(
+                $this->showcase($orgSupplierProduct),
+                ['agent' => GetOrgSupplierProductAgentPanel::run($orgSupplierProduct, $viewingOrganisation, $this->canEditCarton($orgSupplierProduct))]
+            ));
+        }
+
+        return $this->showcase($orgSupplierProduct);
+    }
+
+    /**
+     * Agents see the cost agreed with the supplier, never what it costs us landed.
+     */
+    private function withoutLandedCosts(array $showcase): array
+    {
+        $showcase['costs'] = Arr::only($showcase['costs'], ['currency_code', 'unit_cost']);
+        Arr::forget($showcase, ['supplierProductInfo.unit_expense', 'supplierProductInfo.extra_costs']);
+
+        return $showcase;
+    }
+
+    private function showcase(OrgSupplierProduct $orgSupplierProduct): array
     {
         return array_merge(
             $this->getSupplierProductShowcase($orgSupplierProduct->supplierProduct, withSupplyChainLink: true, organisationId: $orgSupplierProduct->organisation_id),

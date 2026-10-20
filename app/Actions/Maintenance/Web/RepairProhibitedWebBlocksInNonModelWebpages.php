@@ -84,7 +84,7 @@ class RepairProhibitedWebBlocksInNonModelWebpages
         $total   = count($webpagesID);
         $current = 1;
         foreach ($webpagesID as $webpageID) {
-            print "[{$current}/{$total}] Webpage id: {$webpageID->id}\n";
+            $command->line("[{$current}/{$total}] Webpage id: {$webpageID->id}");
             $webpage = Webpage::find($webpageID->id);
             if ($webpage) {
                 $this->handle($webpage, $command);

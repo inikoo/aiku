@@ -8,6 +8,7 @@
 
 namespace App\Actions\Dispatching\Shipper;
 
+use App\Actions\Traits\Authorisations\WithOrganisationDispatchingEditAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Dispatching\Shipper;
@@ -19,6 +20,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class UpdateShipper extends OrgAction
 {
+    use WithOrganisationDispatchingEditAuthorisation;
     use WithActionUpdate;
 
 
@@ -105,7 +107,8 @@ class UpdateShipper extends OrgAction
     public function asController(Organisation $organisation, Shipper $shipper, ActionRequest $request): Shipper
     {
         $this->shipper = $shipper;
-        $this->initialisation($organisation, $request);
+        abort_unless($shipper->organisation_id === $organisation->id, 404);
+        $this->initialisation($shipper->organisation, $request);
 
         return $this->handle($shipper, $this->validatedData);
     }

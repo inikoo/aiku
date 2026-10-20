@@ -1,8 +1,8 @@
 ---
 title: Planowanie dnia produkcji
 summary: Dla kierownika produkcji i kierownika hali - wstawianie zadań do planu dnia bez wskazywania osoby, przydzielanie każdego kroku pracownikowi oraz co dzieje się z pracą niezakończoną w swoim dniu.
-date: 2026-10-12
-source_date: 2026-10-12
+date: 2026-10-15
+source_date: 2026-10-15
 tags: production, planning, floor
 category: production
 series: Ordering from partners
@@ -72,6 +72,34 @@ Dopóki nie zostanie naciśnięte jedno z dwóch, zadanie zostaje przed Tobą ka
 
 Gdy pracownik zamyka zadanie z mniejszą ilością i przenosi resztę do nowego zadania (zobacz [Praca z ekranem hali](/docs/working-the-floor-screen-pl)), nowe zadanie zachowuje zaplanowany dzień, miejsce w kolejności i pracownika każdego kroku.
 
+## Poranna kontrola materiałów
+
+Magazyn dowozi materiały do fabryki w całych kartonach, a nie w dokładnych ilościach na dany dzień. **Factory → Operations → Materials check** (Fabryka → Operacje → Kontrola materiałów) pokazuje, czego plan dnia jeszcze potrzebuje, żeby fabryka sprawdziła, co ma, i poprosiła magazyn o resztę jedną czytelną listą.
+
+Każdy wiersz to jeden materiał, zsumowany po wszystkich zadaniach dnia, razem z zadaniami, które go potrzebują (*JOaroma-0141, JOaroma-0145*). Liczone są tylko kroki jeszcze niezrobione: gdy wytwarzanie jest skończone i zostało samo pakowanie, wiersz pokazuje kartony i etykiety, a nie już butelki. Mieszanki powstają w fabryce i nie ma ich na liście. Ilości pochodzą z receptur, więc zadanie, którego receptura nie wymienia materiałów, niczego nie potrzebuje: bursztynowy pasek nad listą wymienia takie zadania, żeby luka w recepturze była widoczna.
+
+| Kolumna | Znaczenie |
+| --- | --- |
+| Material (Materiał) | materiał i kod towaru w magazynie |
+| For jobs (Dla zadań) | zadania dnia, które go potrzebują |
+| Needed (Potrzeba) | ile zużyją kroki, które zostały do zrobienia |
+| At the factory (W fabryce) | ile jest teraz w lokalizacji fabryki i ile już zamówiono dzisiaj |
+| Check (Kontrola) | zaznacz **Have enough** (Wystarczy) albo wpisz, mniej więcej ile brakuje |
+
+Gdy wpiszesz brakującą ilość, wiersz pokazuje, ile przywiezie magazyn, zaokrąglone w górę do jego kartonów: brakuje 1 200 przy 500 w kartonie to *bring 3 boxes (1 500)* (przywieź 3 kartony). Czerwone *Warehouse short* (Brak w magazynie) oznacza, że magazyn nie ma tyle na stanie, więc wiadomo to od razu.
+
+Naciśnij **Send to warehouse** (Wyślij do magazynu). Brakujące wiersze trafiają do magazynu jako jedno zamówienie, a ono pojawia się nad listą, z każdym materiałem oznaczonym jako *To bring* (Do przywiezienia), *Delivered* (Dostarczono) lub *Warehouse short*. Zaznaczenie wszystkiego jako wystarczające i wysłanie zapisuje, że kontrola została wykonana. Kolejna kontrola później w ciągu dnia dodaje tylko to, czego nadal brakuje.
+
+Kontrolę wykonuje kierownik produkcji albo kierownik hali, albo przekazuje ją pracownikowi przez **Checked by** (Sprawdza) u góry. Ten pracownik widzi wtedy na ekranie hali przypomnienie, które otwiera kontrolę.
+
+## Magazyn dowozi materiały
+
+W magazynie **Goods out → For production** (Wydania → Dla produkcji) pokazuje każdy materiał, o który poprosiła fabryka, w kolejności obchodu regałów, z których trzeba go zabrać, z kodem towaru, liczbą kartonów do przywiezienia i lokalizacją w fabryce, do której trafiają. Kompletujący wybiera regał, sprawdza ilość i naciska **Delivered**. Gdy magazyn nie może dowieźć, **Warehouse short** informuje o tym fabrykę.
+
+Dostarczony towar przechodzi z regału do lokalizacji fabryki. Nadal jest zapasem: jest liczony i widoczny jak dotąd, a zamówienie klienta może go tam jeszcze skompletować, gdy regały w magazynie są puste, przy czym regały zawsze mają pierwszeństwo. Niewykorzystane materiały można przenieść z powrotem na regał ze strony lokalizacji fabryki, jak każde inne przeniesienie między lokalizacjami.
+
+Gdy gotowe zadanie jest przyjmowane na stan, jego materiały są zużywane najpierw z lokalizacji fabryki, według ilości z receptury, i dopiero potem z innych lokalizacji. Od czasu do czasu przelicz lokalizację fabryki, żeby skorygować stłuczki i straty.
+
 <aside class="wayfinder"><strong>Gdzie kliknąć w aiku</strong>
 <ul>
 <li><b>Zaplanuj zadanie na dzień:</b> <b>Factory</b> → <b>To produce</b> → upuść kartę na <b>Assigned</b> → wybierz dzień → <b>Plan for this day</b>.</li>
@@ -79,6 +107,9 @@ Gdy pracownik zamyka zadanie z mniejszą ilością i przenosi resztę do nowego 
 <li><b>Zmień kolejność dnia:</b> wpisz numer w <b>Order</b>.</li>
 <li><b>Wczorajsze niezakończone zadanie:</b> <b>Confirm for</b> dzień, albo <b>Take off the plan</b>.</li>
 <li><b>Z tablicy do planu:</b> link <b>Day plan</b> nad tablicą.</li>
+<li><b>Sprawdź materiały na dzień:</b> <b>Factory</b> → <b>Operations</b> → <b>Materials check</b> → <b>Have enough</b> albo brakująca ilość → <b>Send to warehouse</b>.</li>
+<li><b>Przekaż kontrolę pracownikowi:</b> <b>Materials check</b> → <b>Checked by</b>.</li>
+<li><b>Dowiezienie materiałów (magazyn):</b> <b>Goods out</b> → <b>For production</b> → <b>Delivered</b> albo <b>Warehouse short</b>.</li>
 </ul>
 </aside>
 
@@ -88,5 +119,7 @@ Gdy pracownik zamyka zadanie z mniejszą ilością i przenosi resztę do nowego 
 <li>Planowanie dnia, przydzielanie kroków, zmiana kolejności: <b>Floor supervisor</b> dla fabryki.</li>
 <li>Podgląd Day plan bez zmian: <b>Foreman</b>.</li>
 <li>Praca nad przydzielonym krokiem: <b>Operative</b>, na ekranie hali.</li>
+<li>Kontrola materiałów: <b>Floor supervisor</b> albo pracownik, któremu ją przekazano.</li>
+<li>Dowożenie materiałów do fabryki: stanowisko w magazynie, które obsługuje wydania.</li>
 </ul>
 </aside>

@@ -4,7 +4,7 @@ import { router } from "@inertiajs/vue3"
 import { notify } from "@kyvg/vue3-notification"
 import Dialog from "primevue/dialog"
 import DatePicker from "primevue/datepicker"
-import InputNumber from "primevue/inputnumber"
+import InputNumber, { type InputNumberInputEvent } from "primevue/inputnumber"
 import InputText from "primevue/inputtext"
 import Select from "primevue/select"
 import FileUpload from "primevue/fileupload"
@@ -12,13 +12,13 @@ import Textarea from "primevue/textarea"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faCheck, faCheckCircle, faPaperclip, faTimes, faUndo } from "@fal"
+import { faCheck, faCheckCircle, faInfoCircle, faPaperclip, faTimes, faUndo } from "@fal"
 import { useLocaleStore } from "@/Stores/locale"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { ctrans } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
 
-library.add(faCheck, faCheckCircle, faPaperclip, faTimes, faUndo)
+library.add(faCheck, faCheckCircle, faInfoCircle, faPaperclip, faTimes, faUndo)
 
 export interface DepositPayment {
 	id: number
@@ -38,6 +38,7 @@ export interface PurchaseOrderPaymentsData {
 	total: number
 	paid: number
 	left: number
+	balance_awaits_qc?: boolean
 	paid_at: string | null
 	deposits: DepositPayment[]
 	confirm_route: routeType
@@ -73,12 +74,31 @@ const form = ref<{ amount: number | null; paid_at: Date | null; method: string; 
 
 const openPayDialog = () => {
 	form.value = { amount: null, paid_at: new Date(), method: "bank_transfer", reference: "", file: null, reason: "" }
+	percent.value = null
 	isPayDialogOpen.value = true
+}
+
+const roundTo2Decimals = (value: number) => Math.round(value * 100) / 100
+const canPayByPercent = computed(() => props.payments.total > 0)
+const maxPercent = computed(() => (canPayByPercent.value ? roundTo2Decimals((props.payments.left / props.payments.total) * 100) : 0))
+
+const percent = ref<number | null>(null)
+const typedValue = (event: InputNumberInputEvent) => (typeof event.value === "number" ? event.value : null)
+
+const onAmountTyped = (amount: number | null) => {
+	form.value.amount = amount
+	percent.value = amount !== null && canPayByPercent.value ? roundTo2Decimals((amount / props.payments.total) * 100) : null
+}
+
+const onPercentTyped = (typedPercent: number | null) => {
+	percent.value = typedPercent
+	form.value.amount = typedPercent !== null ? Math.min(roundTo2Decimals((props.payments.total * typedPercent) / 100), props.payments.left) : null
 }
 
 const needsStatement = computed(() => form.value.method !== "cash")
 const toIsoDate = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
-const needsReason = computed(() => !!form.value.paid_at && toIsoDate(form.value.paid_at) < toIsoDate(new Date(Date.now() - 86400000)))
+const isPastDate = computed(() => !!form.value.paid_at && toIsoDate(form.value.paid_at) < toIsoDate(new Date(Date.now() - 86400000)))
+const needsReason = computed(() => isPastDate.value || !!props.payments.balance_awaits_qc)
 const canSubmit = computed(
 	() =>
 		!!form.value.amount &&
@@ -162,7 +182,7 @@ const undoPayment = () => {
 			<li v-for="(payment, index) in payments.deposits" :key="payment.id" class="rounded border border-gray-200 bg-white px-2 py-1.5">
 				<div class="flex items-baseline justify-between gap-2">
 					<span class="text-gray-600" v-tooltip="payment.paid_by ? ctrans('confirmed by :name', { name: payment.paid_by }) : undefined">
-						{{ ctrans("Deposit :number", { number: index + 1 }) }} · {{ formatDate(payment.date) }}
+						{{ ctrans("Deposit :number", { number: String(index + 1) }) }} · {{ formatDate(payment.date) }}
 					</span>
 					<span class="tabular-nums font-medium text-gray-700">{{ money(payment.amount) }}</span>
 				</div>
@@ -207,23 +227,34 @@ const undoPayment = () => {
 			</template>
 			<div class="space-y-3">
 				<div class="block text-sm">
-					<span class="text-gray-600">{{ ctrans("Amount") }}</span>
-					<InputNumber v-model="form.amount" mode="currency" :currency="payments.currency_code ?? undefined" :min="0" :max="payments.left" class="mt-1 w-full" :class="fieldFocusClass" :pt="{ pcInputText: { root: { class: '!w-full' } } }" />
+					<div class="flex gap-2">
+						<label class="min-w-0 flex-1">
+							<span class="text-gray-600">{{ ctrans("Amount") }} <span class="text-red-500">*</span></span>
+							<InputNumber :modelValue="form.amount" @update:modelValue="onAmountTyped" @input="(event: InputNumberInputEvent) => onAmountTyped(typedValue(event))" v-bind="locale.currencyInputOptions(payments.currency_code)" :min="0" :max="payments.left" class="mt-1 w-full" :class="fieldFocusClass" :pt="{ pcInputText: { root: { class: '!w-full' } } }" />
+						</label>
+						<label v-if="canPayByPercent" class="w-28 shrink-0">
+							<span class="text-gray-600" v-tooltip="ctrans('Percentage of the total to pay (:total): the order cost plus the supplier\'s estimated expenses, not of what is left to pay', { total: String(money(payments.total)) })">
+								{{ ctrans("% of total") }}
+								<FontAwesomeIcon icon="fal fa-info-circle" class="text-gray-400" aria-hidden="true" />
+							</span>
+							<InputNumber :modelValue="percent" @update:modelValue="onPercentTyped" @input="(event: InputNumberInputEvent) => onPercentTyped(typedValue(event))" suffix="%" :min="0" :max="maxPercent" :minFractionDigits="0" :maxFractionDigits="2" class="mt-1 w-full" :class="fieldFocusClass" :pt="{ pcInputText: { root: { class: '!w-full' } } }" />
+						</label>
+					</div>
 					<span class="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-gray-400">
 						<span v-if="orgMoney(form.amount)">{{ orgMoney(form.amount) }} ·</span>
 						{{ ctrans("Left to pay :amount", { amount: String(money(payments.left)) }) }}
 					</span>
 				</div>
 				<label class="block text-sm">
-					<span class="text-gray-600">{{ ctrans("Date the payment was sent") }}</span>
+					<span class="text-gray-600">{{ ctrans("Date the payment was sent") }} <span class="text-red-500">*</span></span>
 					<DatePicker v-model="form.paid_at" dateFormat="dd/mm/yy" :maxDate="new Date()" :manualInput="false" showIcon iconDisplay="input" class="mt-1 w-full" :class="fieldFocusClass" :pt="{ pcInputText: { root: { class: '!w-full' } } }" />
 				</label>
 				<label v-if="needsReason" class="block text-sm">
-					<span class="text-gray-600">{{ ctrans("Reason for the past date (kept in the order's history)") }}</span>
+					<span class="text-gray-600">{{ payments.balance_awaits_qc ? ctrans("The QC is not approved yet. Why is the balance paid now? (kept in the order's history)") : ctrans("Reason for the past date (kept in the order's history)") }} <span class="text-red-500">*</span></span>
 					<Textarea v-model="form.reason" rows="2" autoResize maxlength="500" class="mt-1 w-full" :class="fieldFocusClass" />
 				</label>
 				<label class="block text-sm">
-					<span class="text-gray-600">{{ ctrans("Payment method") }}</span>
+					<span class="text-gray-600">{{ ctrans("Payment method") }} <span class="text-red-500">*</span></span>
 					<Select v-model="form.method" :options="payments.methods" optionLabel="name" optionValue="code" class="mt-1 w-full" :class="fieldFocusClass" />
 				</label>
 				<label class="block text-sm">
@@ -231,7 +262,7 @@ const undoPayment = () => {
 					<InputText v-model="form.reference" maxlength="255" class="mt-1 w-full" :class="fieldFocusClass" />
 				</label>
 				<div class="block text-sm">
-					<span class="text-gray-600">{{ needsStatement ? ctrans("Bank statement") : ctrans("Receipt (optional)") }}</span>
+					<span class="text-gray-600">{{ needsStatement ? ctrans("Bank statement") : ctrans("Receipt (optional)") }} <span v-if="needsStatement" class="text-red-500">*</span></span>
 					<div class="mt-1 flex flex-wrap items-center gap-2">
 						<FileUpload mode="basic" :auto="false" customUpload accept=".pdf,image/*" :maxFileSize="20000000" :chooseLabel="ctrans('Choose file')" :pt="chooseFilePt" @select="(event: { files: File[] }) => (form.file = event.files[0] ?? null)" />
 					</div>

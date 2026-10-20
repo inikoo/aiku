@@ -84,6 +84,7 @@ const props = defineProps<{
     messages: ChatMessage[]
     session: SessionAPI | null
     organisationSlug: string
+    canCreateTemplate: boolean
     readOnly?: boolean
     showShop?: boolean
 }>()
@@ -320,6 +321,12 @@ const FILE_TYPES = [
     "application/vnd.openxmlformats-officedocument.presentationml.presentation",
 ]
 
+// The server converts any of these to the MP4 WhatsApp plays, so a phone's MOV goes as it is.
+const VIDEO_EXTENSIONS = ["mp4", "mov", "m4v", "3gp", "webm", "avi", "mkv"]
+
+const isVideo = (file: File) =>
+    file.type.startsWith("video/") || VIDEO_EXTENSIONS.includes(file.name.split(".").pop()?.toLowerCase() ?? "")
+
 // Meta's own ceilings; anything larger is refused by WhatsApp after upload.
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024
 const MAX_FILE_SIZE = 100 * 1024 * 1024
@@ -371,10 +378,10 @@ const handleDocSelect = (e: Event) => {
 }
 
 const selectDoc = (file: File) => {
-    if (!FILE_TYPES.includes(file.type)) {
+    if (!FILE_TYPES.includes(file.type) && !isVideo(file)) {
         notify({
             title: ctrans("Failed"),
-            text: ctrans("WhatsApp accepts PDF, Word, Excel, PowerPoint and plain text."),
+            text: ctrans("WhatsApp accepts videos, PDF, Word, Excel, PowerPoint and plain text."),
             type: "error",
         })
         return
@@ -710,7 +717,7 @@ const sendMessage = async () => {
     const formData = new FormData()
     formData.append("message_text", newMessage.value ?? "")
     if (selectedFile.value) {
-        formData.append(messageType === "image" ? "image" : "file", selectedFile.value)
+        formData.append(messageType === "image" ? "image" : isVideo(selectedFile.value) ? "video" : "file", selectedFile.value)
     }
     if (quoted?.id) {
         formData.append("replied_to_id", String(quoted.id))
@@ -1274,7 +1281,7 @@ onUnmounted(() => {
         <footer v-else class="px-3 py-2 bg-white">
             <input ref="imageInput" type="file" accept=".jpg,.jpeg,.png" class="hidden"
                 @change="handleImageSelect" />
-            <input ref="fileInput" type="file" accept=".pdf,.txt,.doc,.docx,.xls,.xlsx,.ppt,.pptx" class="hidden" @change="handleDocSelect" />
+            <input ref="fileInput" type="file" accept=".pdf,.txt,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.mp4,.mov,.m4v,.3gp,.webm,.avi,.mkv" class="hidden" @change="handleDocSelect" />
 
             <div v-if="templateOnly && !hasTemplate"
                 class="flex items-center gap-2 mb-2 px-3 py-2 rounded-lg bg-amber-50 border border-amber-200 text-amber-700 text-[11px]">
@@ -1405,6 +1412,7 @@ onUnmounted(() => {
             :selected-template-id="selectedTemplate?.id"
             :organisation-slug="organisationSlug"
             :shop-slug="session?.shop?.slug"
+            :can-create-template="canCreateTemplate"
             @select="selectTemplate" />
 
         <TicketModal

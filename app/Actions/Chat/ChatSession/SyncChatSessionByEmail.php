@@ -8,6 +8,9 @@
 
 namespace App\Actions\Chat\ChatSession;
 
+use App\Models\SysAdmin\User;
+use App\Models\Catalogue\Shop;
+use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Models\Chat\ChatSession;
 use App\Models\CRM\WebUser;
 use Illuminate\Http\JsonResponse;
@@ -17,6 +20,14 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class SyncChatSessionByEmail
 {
     use AsAction;
+    use WithChatAgentAuthorisation;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        $shop = $request->route('chatSession')?->shop;
+
+        return $shop instanceof Shop && $request->user() instanceof User && $this->userCanActOnChatOnShop($request->user(), $shop);
+    }
 
     public function rules(): array
     {

@@ -51,7 +51,7 @@ class AttachAttachmentToModel extends OrgAction
     {
         if ($model instanceof TradeUnit && $model->documentsTradeUnit && in_array(Arr::get($modelData, 'scope'), TradeAttachmentScopeEnum::substanceScopes())) {
             throw ValidationException::withMessages([
-                'scope' => __('This trade unit takes its IFRA, SDS, CLP and allergen documents from :code, upload them there', ['code' => $model->documentsTradeUnit->code]),
+                'scope' => __('This trade unit takes its IFRA, SDS, CLP, allergen and conformity documents from :code, upload them there', ['code' => $model->documentsTradeUnit->code]),
             ]);
         }
 

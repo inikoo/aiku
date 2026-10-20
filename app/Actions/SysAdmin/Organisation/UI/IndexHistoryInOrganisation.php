@@ -11,6 +11,7 @@
 namespace App\Actions\SysAdmin\Organisation\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithAccountingPagesAuthorisation;
 use App\Actions\Overview\ShowOrganisationOverviewHub;
 use App\Http\Resources\History\HistoryResource;
 use App\InertiaTable\InertiaTable;
@@ -28,6 +29,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexHistoryInOrganisation extends OrgAction
 {
+    use WithAccountingPagesAuthorisation;
     use AsAction;
     use WithAttributes;
 

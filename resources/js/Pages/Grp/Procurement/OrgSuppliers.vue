@@ -6,24 +6,45 @@
 
 <script setup lang="ts">
 import { Head } from "@inertiajs/vue3"
+import { computed, ref } from "vue"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import TableOrgSuppliers from "@/Components/Tables/Grp/Org/Procurement/TableOrgSuppliers.vue"
+import AgentSuppliersDashboard from "@/Components/Procurement/AgentSuppliersDashboard.vue"
+import Tabs from "@/Components/Navigation/Tabs.vue"
+import { useTabChange } from "@/Composables/tab-change"
 import { capitalize } from "@/Composables/capitalize"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faPersonDolly } from "@fal"
-library.add(faPersonDolly)
+import { faPersonDolly, faTachometerAlt, faBars } from "@fal"
+library.add(faPersonDolly, faTachometerAlt, faBars)
 
-defineProps<{
+const props = defineProps<{
 	pageHead: object
 	title: string
-	data: object
+	data?: object
+	tabs?: {
+		current: string
+		navigation: object
+	}
+	dashboard?: object
+	index?: object
 }>()
+
+const currentTab = ref(props.tabs?.current)
+const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
+const component = computed(() => ({
+	dashboard: AgentSuppliersDashboard,
+	index: TableOrgSuppliers,
+})[currentTab.value as string])
 </script>
 
 <template>
 	<div>
 		<Head :title="capitalize(title)" />
 		<PageHeading :data="pageHead" />
-		<TableOrgSuppliers :data="data" />
+		<template v-if="tabs">
+			<Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
+			<component :is="component" v-if="props[currentTab]" :data="props[currentTab]" :tab="currentTab" />
+		</template>
+		<TableOrgSuppliers v-else :data="data" />
 	</div>
 </template>

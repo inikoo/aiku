@@ -9,6 +9,7 @@
 namespace App\Actions\Reports;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithOrgReportsAuthorisation;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
@@ -19,6 +20,7 @@ use ZipArchive;
 
 class DownloadPackagingReport extends OrgAction
 {
+    use WithOrgReportsAuthorisation;
     use AsAction;
 
     public function handle(string $startDate, string $endDate, string $organisationSlug): string

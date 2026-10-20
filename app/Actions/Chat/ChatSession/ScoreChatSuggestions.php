@@ -17,7 +17,7 @@ use Laravel\Nightwatch\Facades\Nightwatch;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
- * Jev compares each suggestion staff answered after with what they really sent, shown or
+ * Jev compares each suggestion and assistant draft staff answered after with what they really sent, shown or
  * shadow, and keeps the score on the suggestion (facts.near_match): close is a score of 2 or
  * more of 3. Run nightly for the day before; the table says, per shop, how often suggestions
  * were close, which is what decides where they are shown.
@@ -36,7 +36,7 @@ class ScoreChatSuggestions
         $byShop = [];
 
         ChatAiDraft::with('shop')
-            ->where('facts->mode', DraftChatReply::SUGGESTION)
+            ->whereIn('facts->mode', [DraftChatReply::SUGGESTION, DraftChatReply::ASSISTANT])
             ->whereNull('facts->near_match')
             ->whereNotNull('reply_message_id')
             ->whereBetween('decided_at', [$day->copy()->startOfDay(), $day->copy()->endOfDay()])
@@ -51,7 +51,7 @@ class ScoreChatSuggestions
 
                 $draft->update(['facts' => $draft->facts + ['near_match' => $match]]);
 
-                $shop                      = $draft->shop->slug.(($draft->facts['shadow'] ?? false) ? ' (shadow)' : '');
+                $shop                      = $draft->shop->slug.(($draft->facts['shadow'] ?? false) ? ' (shadow)' : '').(($draft->facts['mode'] ?? null) === DraftChatReply::ASSISTANT ? ' (assistant)' : '');
                 $byShop[$shop]['scored']   = ($byShop[$shop]['scored'] ?? 0) + 1;
                 $byShop[$shop]['close']    = ($byShop[$shop]['close'] ?? 0) + (int) ($match['score'] >= 2);
             });

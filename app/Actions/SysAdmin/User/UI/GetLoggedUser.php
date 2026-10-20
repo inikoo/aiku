@@ -10,9 +10,12 @@ namespace App\Actions\SysAdmin\User\UI;
 
 use App\Actions\SysAdmin\User\BorrowUserPermissions;
 use App\Actions\Chat\WithChatAgentAuthorisation;
+use App\Actions\DevOps\MonitorDatabaseReplicas;
 use App\Actions\Helpers\TimeZone\Json\IndexTimeZones;
+use App\Models\Helpers\Ticket;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class GetLoggedUser
@@ -28,6 +31,7 @@ class GetLoggedUser
         // menu and given no live updates, because the table knew nothing about them.
         $agentShops = $this->workableShopIdsFor($user);
         $isAgent    = $agentShops !== [];
+        $isEngineer = Ticket::canBeManagedBy($user) && $user->hasGroupAccess();
 
         return [
             'id'           => $user->id,
@@ -39,6 +43,8 @@ class GetLoggedUser
             'email'        => $user->email,
             'is_agent'     => $isAgent,
             'works_only_for_agents' => $user->worksOnlyForAgents(),
+            'is_engineer'     => $isEngineer,
+            'devops_problems' => $isEngineer ? Cache::get(MonitorDatabaseReplicas::PROBLEMS_CACHE_KEY, []) : [],
             'borrowed_permissions_from' => $user->permissionsLender()?->only(['id', 'username', 'contact_name']),
             'can_borrow_permissions'    => BorrowUserPermissions::canBorrowSomebody($user),
             'agent_id'     => $user->chatAgent?->id,
@@ -52,6 +58,7 @@ class GetLoggedUser
                 'alert_sounds' => Arr::get($user->settings, 'alert_sounds'),
                 'alert_preview_seconds' => Arr::get($user->settings, 'alert_preview_seconds'),
                 'rail_hidden_badges' => Arr::get($user->settings, 'rail_hidden_badges') ?? [],
+                'sales_quarters' => (int) Arr::get($user->settings, 'sales_quarters', 5),
             ]
         ];
     }

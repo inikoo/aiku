@@ -10,11 +10,13 @@
 namespace App\Actions\Dispatching\DeliveryNoteItem;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithDeliveryNoteItemReadAuthorisation;
 use App\Models\Dispatching\DeliveryNoteItem;
 use Lorisleiva\Actions\ActionRequest;
 
 class FetchSingleDeliveryNoteItem extends OrgAction
 {
+    use WithDeliveryNoteItemReadAuthorisation;
     public function handle(DeliveryNoteItem $deliveryNoteItem): DeliveryNoteItem
     {
         return $deliveryNoteItem;

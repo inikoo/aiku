@@ -52,7 +52,7 @@ use App\Models\Helpers\TaxCategory;
 use App\Models\Helpers\TaxNumber;
 use App\Models\Masters\MasterAsset;
 use App\Models\Ordering\Order;
-use App\Models\SysAdmin\User;
+use Illuminate\Support\Facades\Http;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dispatching\Shipment;
 use App\Models\Dispatching\Shipper;
@@ -497,45 +497,36 @@ test('a faire line moved to a re-order leaves the original order unless it alrea
     expect($movedLine->order_id)->toBe($reOrder->id);
 });
 
-/** HELP-3906, HELP-3989: Faire does not say what it charged for its own label, so only accounts type it; an order we ship ourselves takes it before its tracking goes to Faire. */
-test('manual shipping on a faire label order is for accounts only and on our own shipping is allowed before the tracking', function () {
+/** HELP-3906, HELP-3989, HELP-4038: Faire states only the VAT on the shipping of its own label, so whoever edits the order types the shipping and it must carry that VAT; an order we ship ourselves takes it before its tracking goes to Faire. */
+test('manual shipping on a faire label order must match the shipping vat faire states and on our own shipping is allowed before the tracking', function () {
     $order = StoreOrder::make()->action($this->customer, []);
     StoreTransaction::make()->action($order->refresh(), $this->standardProduct->historicAsset, ['quantity_ordered' => 1]);
     createWarehouse();
     SubmitOrder::make()->action($order->refresh());
     SendOrderToWarehouse::make()->action($order, []);
-    $order->refresh()->update(['is_shipping_by_external' => true]);
+    $order->refresh()->update(['is_shipping_by_external' => true, 'tax_category_id' => $this->vat20->id]);
 
     $this->shop->updateQuietly(['type' => ShopTypeEnum::EXTERNAL, 'engine' => ShopEngineEnum::FAIRE]);
 
-    $withoutAccounting = new class () extends User {
-        protected $table = 'users';
-
-        public function getMorphClass(): string
-        {
-            return 'User';
-        }
-
-        public function getForeignKey(): string
-        {
-            return 'user_id';
-        }
-
-        public function authTo(string|array $permission): bool
-        {
-            return !str_starts_with(implode('|', (array)$permission), 'accounting.');
-        }
-    };
-    $withoutAccounting->setRawAttributes($this->user->getAttributes(), true);
-    $withoutAccounting->exists = true;
+    $faireTaxes = [
+        ['taxable_item_type' => 'ORDER_ITEM', 'tax_type' => 'VAT', 'value' => ['amount_minor' => 200, 'currency' => $this->shop->currency->code]],
+        ['taxable_item_type' => 'SHIPPING', 'tax_type' => 'VAT', 'value' => ['amount_minor' => 101, 'currency' => $this->shop->currency->code]],
+    ];
+    Http::fake(['*faire.com/*' => function () use (&$faireTaxes) {
+        return Http::response(['payout_costs' => ['taxes' => $faireTaxes]]);
+    }]);
 
     try {
-        actingAs($withoutAccounting);
-        patch(route('grp.models.order.set_shipping_engine_manual', $order->id), ['shipping_amount' => 5.03])
+        patch(route('grp.models.order.set_shipping_engine_manual', $order->id), ['shipping_amount' => 50.30])
             ->assertSessionHasErrors('message');
         expect((float)$order->refresh()->shipping_amount)->toBe(0.0);
 
-        actingAs($this->user);
+        $faireTaxes[] = ['taxable_item_type' => 'SHIPPING', 'tax_type' => 'RECARGO', 'value' => ['amount_minor' => 26, 'currency' => $this->shop->currency->code]];
+        patch(route('grp.models.order.set_shipping_engine_manual', $order->id), ['shipping_amount' => 50.30])
+            ->assertSessionHasNoErrors();
+        expect((float)$order->refresh()->shipping_amount)->toBe(50.30);
+        array_pop($faireTaxes);
+
         patch(route('grp.models.order.set_shipping_engine_manual', $order->id), ['shipping_amount' => 5.03])
             ->assertSessionHasNoErrors();
         expect((float)$order->refresh()->shipping_amount)->toBe(5.03);

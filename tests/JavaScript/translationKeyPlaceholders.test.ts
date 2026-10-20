@@ -160,7 +160,7 @@ test("a word with two meanings is looked up by a key of its own at each call sit
 		["resources/js/Components/Seo/SeoAiPrompts.vue", /ctrans\("Named"\)/, "Brand named"],
 		["resources/js/Components/Offers/ModalCreateStepDiscountProduct.vue", /ctrans\('Add step'\)/, "Add discount step"],
 		["app/Actions/Web/WebsiteNotFoundPath/UI/IndexWebsiteNotFoundPaths.php", /__\('Hits'\)/, "404 visits"],
-		["resources/js/Components/Seo/SeoRankings.vue", /ctrans\("Shopping"\)/, "Shopping results"],
+		["resources/js/Components/Seo/serpFeatures.ts", /ctrans\("Shopping"\)/, "Shopping results"],
 		["resources/js/Components/Utils/Label/DiscountTemplate/CategoryQuantityOrderedOrderInterval/FamilyOfferLabelGRV2.vue", /ctrans\('(Gold|Reward)'\)/, "Gold Reward"],
 		["app/Actions/CRM/TrafficSource/GetShopAttributionDataQuality.php", /__\('touches'\)/, ":count touch|:count touches"],
 		["app/Actions/Chat/ChatSession/GetChatShopFacts.php", /__\('units'\)/, "for :count unit|for :count units"],

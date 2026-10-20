@@ -37,6 +37,7 @@ class StoreWebUser extends OrgAction
 
     private Customer $customer;
     private Customer|FulfilmentCustomer $parent;
+    private bool $sendRegistrationEmail = true;
 
     /**
      * @throws \Throwable
@@ -73,7 +74,9 @@ class StoreWebUser extends OrgAction
         ShopHydrateWebUsers::dispatch($webUser->shop)->delay($this->hydratorsDelay);
         CustomerHydrateWebUsers::dispatch($webUser->customer_id)->delay($this->hydratorsDelay);
 
-        SendWebUserRegistrationEmail::dispatch($webUser, $passwordText);
+        if ($this->sendRegistrationEmail) {
+            SendWebUserRegistrationEmail::dispatch($webUser, $passwordText);
+        }
 
         return $webUser;
     }
@@ -201,8 +204,9 @@ class StoreWebUser extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function action(Customer $customer, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Webuser
+    public function action(Customer $customer, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true, bool $sendRegistrationEmail = true): Webuser
     {
+        $this->sendRegistrationEmail = $sendRegistrationEmail;
         if (!$audit) {
             WebUser::disableAuditing();
         }

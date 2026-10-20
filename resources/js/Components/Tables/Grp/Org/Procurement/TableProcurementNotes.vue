@@ -51,11 +51,11 @@ const props = defineProps<{
 
 const popover = ref()
 const isSaving = ref(false)
-const emptyNote = () => ({ title: '', body: '', category: 'general', severity: 'info', visibility: 'internal', is_pinned: false, only_this_organisation: false, incident_amount: null as number | null, incident_currency_id: null as number | null })
+const options = computed(() => props.agreement?.options ?? null)
+const emptyNote = () => ({ title: '', body: '', category: options.value?.categories?.length === 1 ? options.value.categories[0].value : 'general', severity: 'info', visibility: 'internal', is_pinned: false, only_this_organisation: false, incident_amount: null as number | null, incident_currency_id: null as number | null, incident_type: null as string | null, incident_quantity: null as number | null })
 const note = ref(emptyNote())
 
 const noteStoreRoute = computed(() => props.storeRoute ?? (props.agreement?.can_write ? props.agreement.routes?.store_note : undefined))
-const options = computed(() => props.agreement?.options ?? null)
 const canSave = computed(() => (note.value.body.trim() || note.value.title.trim()) && !isSaving.value)
 
 function reload() {
@@ -75,8 +75,10 @@ function addNote() {
         return
     }
 
-    const { only_this_organisation, incident_amount, incident_currency_id, ...fields } = note.value
-    const incident = fields.category === 'incident' && incident_amount !== null ? { incident_amount, incident_currency_id } : {}
+    const { only_this_organisation, incident_amount, incident_currency_id, incident_type, incident_quantity, ...fields } = note.value
+    const incident = fields.category === 'incident'
+        ? { incident_type, incident_quantity, ...(incident_amount !== null ? { incident_amount, incident_currency_id } : {}) }
+        : {}
     const payload = options.value
         ? { ...fields, ...incident, organisation_id: only_this_organisation ? options.value.organisation_id : null }
         : { body: fields.body }
@@ -123,6 +125,10 @@ function update(item: Note, payload: Record<string, unknown>) {
                         <Select v-model="note.category" :options="options.categories" optionLabel="label" optionValue="value" />
                         <Select v-model="note.severity" :options="options.severities" optionLabel="label" optionValue="value" />
                         <Select v-model="note.visibility" :options="options.visibilities" optionLabel="label" optionValue="value" />
+                    </div>
+                    <div v-if="options?.incident_types && note.category === 'incident'" class="grid grid-cols-2 gap-2">
+                        <Select v-model="note.incident_type" :options="options.incident_types" optionLabel="label" optionValue="value" showClear :placeholder="ctrans('Issue type')" />
+                        <InputNumber v-model="note.incident_quantity" :minFractionDigits="0" :maxFractionDigits="3" :min="0" :placeholder="ctrans('Quantity affected')" fluid />
                     </div>
                     <div v-if="options?.currencies && note.category === 'incident'" class="grid grid-cols-2 gap-2">
                         <InputNumber v-model="note.incident_amount" :minFractionDigits="0" :maxFractionDigits="2" :min="0" :placeholder="ctrans('Amount overcharged or claimed')" fluid />
@@ -175,7 +181,7 @@ function update(item: Note, payload: Record<string, unknown>) {
             </div>
             <div v-if="item.supplier_product_code" class="text-xs text-gray-500">{{ ctrans('On product') }} {{ item.supplier_product_code }}</div>
             <div v-if="item.incident_outcome_label" class="text-xs text-gray-500">
-                {{ item.incident_outcome_label }}<template v-if="item.incident_amount"> · {{ item.incident_currency_code }} {{ item.incident_amount }}</template>
+                <template v-if="item.incident_type_label">{{ item.incident_type_label }}<template v-if="item.incident_quantity"> × {{ Number(item.incident_quantity) }}</template> · </template>{{ item.incident_outcome_label }}<template v-if="item.incident_amount"> · {{ item.incident_currency_code }} {{ item.incident_amount }}</template>
             </div>
             <div v-if="item.number_purchase_orders > 1" class="text-xs text-gray-500">
                 {{ ctrans('On :count purchase orders', { count: item.number_purchase_orders }) }}

@@ -9,6 +9,8 @@
 namespace App\Actions\Inventory\OrgStock\UI;
 
 use App\Actions\Catalogue\Product\GetProductIncomingStock;
+use App\Actions\Production\Artefact\GetOrgStockArtefact;
+use App\Actions\Production\Artefact\UI\GetArtefactShowcase;
 use App\Actions\Inventory\OrgStock\Stock\Concerns\CalculatesOrgStockHistories;
 use App\Http\Resources\Inventory\LocationOrgStocksResource;
 use App\Enums\Inventory\OrgStockMovement\OrgStockMovementClassEnum;
@@ -80,6 +82,7 @@ class GetOrgStockShowcase
                 ],
                 'label_options'      => GetOrgStockLabelOptions::run($orgStock),
                 'future_orders'      => $this->getFutureOrders($orgStock),
+                'production'         => $this->getProduction($orgStock),
                 'is_quantity_excess' => in_array(GetOrganisationStockCoverBuckets::make()->bucketOf($orgStock), ['excess', 'dead'], true),
                 'has_no_products'    => $this->hasNoProducts($orgStock),
                 'latest_movements'   => $this->getLatestMovements($orgStock),
@@ -306,5 +309,12 @@ class GetOrgStockShowcase
                 'images' => $this->getImagesData($tradeUnit),
             ];
         })->toArray();
+    }
+
+    private function getProduction(OrgStock $orgStock): ?array
+    {
+        $artefact = GetOrgStockArtefact::run($orgStock, request()->user());
+
+        return $artefact ? GetArtefactShowcase::make()->overview($artefact) : null;
     }
 }

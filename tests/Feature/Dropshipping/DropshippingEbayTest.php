@@ -34,6 +34,7 @@ use App\Actions\Dropshipping\Ebay\UpdateEbayUserData;
 use App\Actions\Dropshipping\Ebay\UpdateReturnPolicyEbayUser;
 use App\Actions\Dropshipping\Ebay\UpdateShippingPolicyEbayUser;
 use App\Actions\Dropshipping\Portfolio\StorePortfolio;
+use App\Actions\Maintenance\Dropshipping\SyncEbayChannelPoliciesFromEbay;
 use App\Actions\Retina\Ebay\PublishRetinaEbayPortfolio;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
@@ -504,7 +505,7 @@ test('an eBay orders page that answers with an error imports nothing and does no
         ->and($ebayUser->debugWebhooks()->count())->toBe(0);
 });
 
-function dispatchedEbayOrder($ctx, EbayUser $ebayUser, bool $withShipment = true): Order
+function dispatchedEbayOrder($ctx, EbayUser $ebayUser, bool $withShipment = true, string $shipperName = 'Royal Mail', string $tradeAs = 'Royal Mail'): Order
 {
     $ebayOrder = ebayOrder();
     fakeEbay($ctx, [
@@ -526,7 +527,7 @@ function dispatchedEbayOrder($ctx, EbayUser $ebayUser, bool $withShipment = true
     ]);
 
     if ($withShipment) {
-        $shipper = StoreShipper::make()->action($ctx->organisation, ['code' => 'RM'.Str::random(4), 'name' => 'Royal Mail', 'trade_as' => 'Royal Mail']);
+        $shipper = StoreShipper::make()->action($ctx->organisation, ['code' => 'RM'.Str::random(4), 'name' => $shipperName, 'trade_as' => $tradeAs]);
         StoreShipment::make()->action($deliveryNote, $shipper, ['tracking' => 'RM123456789GB']);
     }
 
@@ -558,6 +559,26 @@ test('dispatching an eBay order uploads the tracking number and dispatched line 
             && filled($body['shippedDate']);
     });
 });
+
+test('the eBay carrier code comes from the carrier the parcel travels with, not the shipper integration name', function (string $shipperName, string $tradeAs, string $carrierCode) {
+    $ebayUser = ebayChannel($this);
+    listedEbayPortfolio($this, $ebayUser);
+    $order = dispatchedEbayOrder($this, $ebayUser, shipperName: $shipperName, tradeAs: $tradeAs);
+
+    fakeEbay($this, [
+        '/shipping_fulfillment' => fn () => Http::response('', 201),
+    ]);
+
+    FulfillOrderToEbay::run($order);
+
+    Http::assertSent(fn (Request $request) => str_contains($request->url(), '/shipping_fulfillment')
+        && $request->data()['shippingCarrierCode'] === $carrierCode);
+})->with([
+    'Royal Mail through ITD' => ['ITD (api)', 'Royal Mail', 'RoyalMail'],
+    'APC overnight'          => ['APC (API)', 'APC overnight', 'APC'],
+    'GLS'                    => ['GLS General Logistics Systems Slovakia s.r.o.', 'GLS', 'GLS'],
+    'carrier eBay has no code for' => ['Paketa', 'Packeta', 'Packeta'],
+]);
 
 test('an eBay order dispatched without a shipment is fulfilled without tracking instead of crashing the dispatch', function () {
     $ebayUser = ebayChannel($this);
@@ -904,7 +925,7 @@ test('re-uploading a live listing that does not follow our price keeps the selle
     $portfolio = StorePortfolio::make()->action($ebayUser->customerSalesChannel, $this->product, []);
     $portfolio->update(['customer_price' => 20, 'settings' => ['pricing' => ['type' => 'not_follow', 'value' => null], 'pricing_opt_out' => true]]);
 
-    $existing = ['offerId' => 'offer-live', 'sku' => $portfolio->sku, 'status' => 'PUBLISHED', 'categoryId' => '77777', 'format' => 'FIXED_PRICE'];
+    $existing = ['offerId' => 'offer-live', 'sku' => $portfolio->sku, 'status' => 'PUBLISHED', 'categoryId' => '77777', 'format' => 'FIXED_PRICE', 'pricingSummary' => ['price' => ['value' => '9.99', 'currency' => 'GBP']]];
 
     fakeEbay($this, ebayCatalogueRoutes() + [
         '/sell/inventory/v1/offer' => ebayOfferRoutes(offersForSku: [$existing], offerById: $existing),
@@ -916,6 +937,33 @@ test('re-uploading a live listing that does not follow our price keeps the selle
 
     expect($replaced['pricingSummary']['price']['value'])->toBe('9.99')
         ->and($replaced['categoryId'])->toBe('77777');
+});
+
+test('re-uploading a sku whose old offer on eBay has no price sends our price even when the channel does not update prices', function () {
+    $ebayUser = ebayChannel($this);
+    $ebayUser->customerSalesChannel->update(['settings' => ['do_not_update_prices' => true]]);
+    $portfolio = StorePortfolio::make()->action($ebayUser->customerSalesChannel, $this->product, []);
+    $portfolio->update(['customer_price' => 62.99]);
+
+    $leftover = [
+        'offerId'        => 'offer-leftover',
+        'sku'            => $portfolio->sku,
+        'status'         => 'UNPUBLISHED',
+        'format'         => 'FIXED_PRICE',
+        'pricingSummary' => [],
+        'listing'        => ['listingId' => '287179414510', 'listingStatus' => 'ENDED'],
+    ];
+
+    fakeEbay($this, ebayCatalogueRoutes() + [
+        '/sell/inventory/v1/offer' => ebayOfferRoutes(offersForSku: [$leftover], offerById: $leftover),
+    ]);
+
+    StoreEbayProduct::run($ebayUser, $portfolio->refresh());
+
+    $replaced = sentEbayRequest('PUT', '/sell/inventory/v1/offer/offer-leftover')->data();
+
+    expect((float) $replaced['pricingSummary']['price']['value'])->toBe(62.99)
+        ->and($replaced['pricingSummary']['price']['currency'])->toBe('GBP');
 });
 
 test('uploading a sku whose offer on eBay points at an old postage policy moves the offer onto the channel policies', function () {
@@ -1706,6 +1754,94 @@ test('saving postage and return settings from the channel page updates both eBay
         ->and($channel->refresh()->platform_status)->toBeTrue()
         ->and(Arr::get($channel->settings, 'shipping.carrier_code'))->toBe('RoyalMail')
         ->and(Arr::get($channel->settings, 'return.within'))->toBe(30);
+});
+
+test('turning returns on by itself sends eBay a complete return policy', function () {
+    $ebayUser = ebayChannel($this);
+    $ebayUser->customerSalesChannel->update(['settings' => ['return' => ['accepted' => false]]]);
+
+    fakeEbay($this, ebayAccountRoutes([
+        '/sell/account/v1/return_policy/rp-1' => ['returnPolicyId' => 'rp-1', 'returnsAccepted' => true],
+    ]));
+
+    $channel = UpdateEbayCustomerSalesChannel::run($ebayUser->customerSalesChannel, ['return_accepted' => true]);
+
+    $body = sentEbayRequest('PUT', '/sell/account/v1/return_policy/rp-1')->data();
+    expect($body['returnsAccepted'])->toBeTrue()
+        ->and($body['returnShippingCostPayer'])->toBe('BUYER')
+        ->and($body['returnPeriod'])->toBe(['value' => 30, 'unit' => 'DAY'])
+        ->and(Arr::get($channel->refresh()->settings, 'return'))->toMatchArray(['accepted' => true, 'payer' => 'BUYER', 'within' => 30]);
+});
+
+test('a return policy eBay refuses is reported and the channel keeps its previous returns settings', function () {
+    $ebayUser = ebayChannel($this);
+    $ebayUser->customerSalesChannel->update(['settings' => ['return' => ['accepted' => false]]]);
+
+    fakeEbay($this, ebayAccountRoutes([
+        '/sell/account/v1/return_policy/rp-1' => fn () => Http::response(['errors' => [['errorId' => 20403, 'message' => 'Invalid return period.']]], 400),
+    ]));
+
+    expect(fn () => UpdateEbayCustomerSalesChannel::run($ebayUser->customerSalesChannel, ['return_accepted' => true, 'return_payer' => 'BUYER', 'return_within' => 30]))
+        ->toThrow(ValidationException::class, 'Invalid return period.');
+
+    expect(Arr::get($ebayUser->customerSalesChannel->refresh()->settings, 'return.accepted'))->toBeFalse();
+});
+
+test('a postage policy eBay refuses is reported and the channel keeps its previous postage', function () {
+    $ebayUser = ebayChannel($this);
+    $ebayUser->customerSalesChannel->update(['settings' => ['shipping' => ['price' => '3', 'carrier_code' => 'RoyalMail', 'service_code' => 'UK_RoyalMailNextDay']]]);
+
+    fakeEbay($this, ebayAccountRoutes([
+        '/sell/account/v1/fulfillment_policy/fp-1' => fn () => Http::response(['errors' => [['errorId' => 20403, 'message' => 'Invalid shipping service.']]], 400),
+    ]));
+
+    expect(fn () => UpdateEbayCustomerSalesChannel::run($ebayUser->customerSalesChannel, ['shipping_price' => '4.50']))
+        ->toThrow(ValidationException::class, 'Invalid shipping service.');
+
+    expect(sentEbayRequest('PUT', '/sell/account/v1/fulfillment_policy/fp-1')->data()['shippingOptions'][0]['shippingServices'][0]['shippingCost']['value'])->toBe('4.50')
+        ->and(Arr::get($ebayUser->customerSalesChannel->refresh()->settings, 'shipping.price'))->toBe('3');
+});
+
+test('a channel whose returns and postage differ from eBay takes what eBay holds, only with apply, and nothing is sent to eBay', function () {
+    $ebayUser = ebayChannel($this);
+    $ebayUser->customerSalesChannel->update(['settings' => [
+        'return'   => ['accepted' => true, 'payer' => 'SELLER', 'within' => 60],
+        'shipping' => ['price' => '4', 'max_dispatch_time' => '1', 'service_code' => 'UK_RoyalMailNextDay', 'service_name' => 'Royal Mail', 'carrier_code' => 'RoyalMail', 'carrier_name' => 'Royal Mail'],
+        'upload_as_draft' => true,
+    ]]);
+
+    fakeEbay($this, ebayAccountRoutes([
+        '/sell/account/v1/return_policy' => ['returnPolicies' => [['returnPolicyId' => 'rp-1', 'returnsAccepted' => false]]],
+    ]));
+
+    $differences = SyncEbayChannelPoliciesFromEbay::run($ebayUser, false);
+
+    expect($differences['returns'])->toBe(['accepted' => ['aw' => true, 'ebay' => false]])
+        ->and($differences['shipping'])->toBe(['price' => ['aw' => '4', 'ebay' => '1.00']])
+        ->and(Arr::get($ebayUser->customerSalesChannel->refresh()->settings, 'return.accepted'))->toBeTrue();
+
+    SyncEbayChannelPoliciesFromEbay::run($ebayUser->refresh(), true);
+
+    $settings = $ebayUser->customerSalesChannel->refresh()->settings;
+    expect($settings['return']['accepted'])->toBeFalse()
+        ->and($settings['shipping']['price'])->toBe('1.00')
+        ->and($settings['shipping']['service_code'])->toBe('UK_RoyalMailNextDay')
+        ->and($settings['upload_as_draft'])->toBeTrue()
+        ->and(SyncEbayChannelPoliciesFromEbay::run($ebayUser->refresh(), false))->toBe(['returns' => [], 'shipping' => []])
+        ->and(collect(Http::recorded())->map(fn ($pair) => $pair[0]->method())->unique()->values()->all())->toBe(['GET']);
+});
+
+test('an eBay postage policy without a service code does not put the list of services into the channel settings', function () {
+    $ebayUser = ebayChannel($this);
+
+    fakeEbay($this, ebayAccountRoutes([
+        '/sell/account/v1/return_policy'      => ['returnPolicies' => [['returnPolicyId' => 'rp-1', 'returnsAccepted' => true, 'returnShippingCostPayer' => 'BUYER', 'returnPeriod' => ['value' => 30, 'unit' => 'DAY']]]],
+        '/sell/account/v1/fulfillment_policy' => ['fulfillmentPolicies' => [['fulfillmentPolicyId' => 'fp-1', 'handlingTime' => ['value' => 2, 'unit' => 'DAY'], 'shippingOptions' => []]]],
+    ]));
+
+    $differences = SyncEbayChannelPoliciesFromEbay::run($ebayUser, false);
+
+    expect(array_keys($differences['shipping']))->toBe(['max_dispatch_time']);
 });
 
 test('deleting an eBay user closes its channel and soft deletes the user', function () {

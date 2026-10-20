@@ -3255,9 +3255,7 @@ test('store workshop outbox template', function () {
         'name'   => 'Test Template',
         'layout' => ['body' => 'Test'],
     ];
-    $action = StoreWorkshopOutboxTemplate::make();
-    $action->initialisation($outbox->organisation, $modelData);
-    $emailTemplate = $action->handle($outbox, $modelData);
+    $emailTemplate = StoreWorkshopOutboxTemplate::make()->action($outbox, $modelData);
 
     expect($emailTemplate)->toBeInstanceOf(\App\Models\Comms\EmailTemplate::class)
         ->and($emailTemplate->name)->toBe('Test Template');
@@ -3476,10 +3474,8 @@ test('process review reminder recipients returns early when bulk run not found',
     expect(true)->toBeTrue();
 });
 
-test('process review reminder recipients generates review links', function () {
-    $links = (new ProcessReviewReminderRecipients())->generateReviewLinks('999999999');
-
-    expect($links)->toBeString()->toContain('<ul>');
+test('process review reminder recipients skips orders that no longer exist', function () {
+    expect((new ProcessReviewReminderRecipients())->generateReviewLinks('999999999'))->toBe('');
 });
 
 test('run review reminder email bulk runs with no active outboxes', function () {
@@ -5262,4 +5258,131 @@ test('comms has no email bulk run page', function () {
         ->and(\Illuminate\Support\Facades\Route::has('grp.org.shops.show.dashboard.comms.outboxes.show.email-bulk-runs.show'))->toBeFalse()
         ->and(\Illuminate\Support\Facades\Route::has('grp.org.fulfilments.show.operations.comms.outboxes.show'))->toBeTrue()
         ->and(\Illuminate\Support\Facades\Route::has('grp.org.shops.show.dashboard.comms.outboxes.show'))->toBeTrue();
+});
+
+test('outbox emails, their workshop and subscribers are changed only by marketing staff of the shop, INI-076', function () {
+    $unguarded = collect(app('router')->getRoutes()->getRoutes())
+        ->filter(fn ($route) => str_starts_with((string) $route->getName(), 'grp.models.') && is_string($route->getAction('uses')))
+        ->map(fn ($route) => \Illuminate\Support\Str::before($route->getAction('uses'), '@'))
+        ->filter(fn (string $action) => (str_starts_with($action, 'App\\Actions\\Comms\\') || str_starts_with($action, 'App\\Actions\\Helpers\\AwsEmail\\')) && !method_exists($action, 'authorize'))
+        ->unique()->values()->all();
+    expect($unguarded)->toBe([]);
+
+    $shop       = $this->shop;
+    $parameters = [$this->organisation->slug, $shop->slug];
+    /** @var Outbox $outbox */
+    $outbox = $shop->outboxes()->where('model_type', '!=', 'Mailshot')->whereNotNull('code')
+        ->where('builder', '!=', \App\Enums\Comms\Outbox\OutboxBuilderEnum::BLADE)
+        ->whereHas('emailOngoingRun.email.unpublishedSnapshot')->firstOrFail();
+    $snapshot       = $outbox->emailOngoingRun->email->unpublishedSnapshot;
+    $originalLayout = $snapshot->layout;
+    $outboxName     = $outbox->name;
+
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    $outboxPage = fn () => $this->get(route('grp.org.shops.show.dashboard.comms.outboxes.show', [...$parameters, $outbox->slug, 'tab' => 'showcase']))->assertOk()->viewData('page')['props'];
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ["marketing.$shop->id.view", "web.$shop->id.edit", "crm.$shop->id.view"]);
+        $this->patch(route('grp.models.shop.outboxes.workshop.update', [$shop->id, $outbox->id]), ['layout' => ['changed' => true]])->assertForbidden();
+        $this->post(route('grp.models.shop.outboxes.publish', [$shop->id, $outbox->id]), ['layout' => ['changed' => true], 'compiled_layout' => '<p>x</p>'])->assertForbidden();
+        $this->patch(route('grp.models.shop.outboxes.update', [$shop->id, $outbox->id]), ['name' => 'Changed without permission'])->assertForbidden();
+        $this->post(route('grp.models.shop.outboxes.workshop.store.template', [$shop->id, $outbox->id]), ['layout' => ['changed' => true]])->assertForbidden();
+        $this->post(route('grp.models.outboxes.subscriber.store', [$outbox->slug]), ['external_emails' => ['someone@example.com']])->assertForbidden();
+        $this->get(route('grp.org.shops.show.dashboard.comms.outboxes.workshop', [...$parameters, $outbox->slug]))->assertForbidden();
+        $this->get(route('grp.org.shops.show.dashboard.comms.outboxes.edit', [...$parameters, $outbox->slug]))->assertForbidden();
+        $readOnly = $outboxPage();
+        expect($readOnly['pageHead']['actions'])->toBeEmpty()
+            ->and($readOnly['showcase']['can_edit'])->toBeFalse()
+            ->and($snapshot->refresh()->layout)->toEqual($originalLayout)
+            ->and($outbox->refresh()->name)->toBe($outboxName);
+
+        actingAsUserWithOnlyPermissions($this->user, ["marketing.$shop->id.edit"]);
+        $editable = $outboxPage();
+        expect($editable['pageHead']['actions'])->not->toBeEmpty()
+            ->and($editable['showcase']['can_edit'])->toBeTrue();
+        $this->get(route('grp.org.shops.show.dashboard.comms.outboxes.workshop', [...$parameters, $outbox->slug]))->assertOk();
+        $this->get(route('grp.org.shops.show.dashboard.comms.outboxes.edit', [...$parameters, $outbox->slug]))->assertOk();
+        $this->patch(route('grp.models.shop.outboxes.workshop.update', [$shop->id, $outbox->id]), ['layout' => ['changed' => true]])->assertRedirect()->assertSessionHasNoErrors();
+        expect($outbox->refresh()->emailOngoingRun->email->unpublishedSnapshot->layout)->toEqual(['changed' => true]);
+
+        $groupTemplate = \App\Models\Comms\EmailTemplate::whereNull('shop_id')->firstOrFail();
+        $this->patch(route('grp.models.shop.email-template.update', [$shop->id, $groupTemplate->id]), ['name' => 'Changed without a shop'])->assertForbidden();
+        $this->post(route('grp.models.shop.email-template.send-test', [$shop->id, $groupTemplate->id]), ['email' => 'test@example.com', 'compiled_layout' => '<p>x</p>'])->assertNotFound();
+
+        [, , $otherShop] = createOwnShop('comms-permissions-other-shop');
+        actingAsUserWithOnlyPermissions($this->user, ["marketing.$otherShop->id.edit"]);
+        $this->patch(route('grp.models.shop.outboxes.workshop.update', [$otherShop->id, $outbox->id]), ['layout' => ['changed' => 'elsewhere']])->assertForbidden();
+        $this->post(route('grp.models.shop.outboxes.send.test', [$otherShop->id, $outbox->id]), ['email' => 'test@example.com', 'compiled_layout' => '<p>x</p>'])->assertForbidden();
+        $this->get(route('grp.org.shops.show.dashboard.comms.outboxes.workshop', [$otherShop->organisation->slug, $otherShop->slug, $outbox->slug]))->assertNotFound();
+        $this->get(route('grp.org.shops.show.dashboard.comms.outboxes.show', [$otherShop->organisation->slug, $otherShop->slug, $outbox->slug]))->assertNotFound();
+        expect($outbox->refresh()->emailOngoingRun->email->unpublishedSnapshot->layout)->toEqual(['changed' => true]);
+    } finally {
+        $snapshot->update(['layout' => $originalLayout]);
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
+});
+
+test('email copy and outbox users json refuse staff without the shop comms rules', function () {
+    $outbox          = createOutboxDirectly($this->shop, OutboxCode::REORDER_REMINDER);
+    $dispatchedEmail = $outbox->dispatchedEmails()->create(['data' => []]);
+    StoreEmailCopy::make()->action($dispatchedEmail, ['subject' => 'Permission subject', 'body' => 'Permission body']);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["products.{$this->shop->id}.view"]);
+    $this->getJson(route('grp.json.email.dispatched-email.copy', $dispatchedEmail->id))->assertForbidden();
+    $this->getJson(route('grp.json.outbox.users.index', $outbox))->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["marketing.{$this->shop->id}.view"]);
+    $this->getJson(route('grp.json.outbox.users.index', $outbox))->assertOk();
+
+    actingAsUserWithOnlyPermissions($user, ["crm.{$this->shop->id}.view"]);
+    $this->getJson(route('grp.json.email.dispatched-email.copy', $dispatchedEmail->id))->assertOk()->assertJsonPath('subject', 'Permission subject');
+});
+
+test('mailshot template and urls json answer the marketing staff of any shop and refuse other staff', function (Mailshot $mailshot) {
+    $otherShop = $this->shop;
+    expect($otherShop->id)->not->toBe($mailshot->shop_id);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+    $urls = [
+        route('grp.json.mailshot.template', $mailshot->id),
+        route('grp.json.mailshot.urls', $mailshot->id),
+    ];
+
+    actingAsUserWithOnlyPermissions($user, ["products.$mailshot->shop_id.view"]);
+    foreach ($urls as $url) {
+        $this->getJson($url)->assertForbidden();
+    }
+
+    foreach (["marketing.$mailshot->shop_id.view", "marketing.$otherShop->id.view"] as $marketingRule) {
+        actingAsUserWithOnlyPermissions($user, [$marketingRule]);
+        foreach ($urls as $url) {
+            $this->getJson($url)->assertOk();
+        }
+    }
+})->depends('update mailshot');
+
+test('the beefree editor token is given only to staff who edit a website, marketing or crm of a shop in the group, INI-076', function () {
+    \Illuminate\Support\Facades\Http::fake(['auth.getbee.io/*' => \Illuminate\Support\Facades\Http::response(['access_token' => 'token'])]);
+    \Illuminate\Support\Facades\Cache::flush();
+    $settings = $this->group->settings ?? [];
+    data_set($settings, 'beefree', array_merge(\Illuminate\Support\Arr::get($settings, 'beefree', []), ['client_id' => 'id', 'client_secret' => 'secret']));
+    $this->group->update(['settings' => $settings]);
+
+    $url  = route('grp.json.beefree.authenticate', $this->organisation->slug);
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["human-resources.{$this->organisation->id}.view"]);
+    postJson($url, ['uid' => 'test-'.$user->id])->assertForbidden();
+
+    foreach (["marketing.{$this->shop->id}.edit", "web.{$this->shop->id}.edit", "crm.{$this->shop->id}.edit"] as $permission) {
+        actingAsUserWithOnlyPermissions($user, [$permission]);
+        postJson($url, ['uid' => 'test-'.$user->id])->assertOk();
+    }
 });

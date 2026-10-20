@@ -1,9 +1,9 @@
 ---
 title: Sledovanie objednávky od košíka po expedíciu
-summary: Pozrite sa na celú cestu, ktorou predajná objednávka prechádza v aiku, od zákazníkovho košíka cez vychystávanie a balenie až po fakturáciu a expedíciu, a kde ju v jednotlivých krokoch skontrolovať.
-date: 2026-09-02
-source_date: 2026-09-02
-tags: orders, orders lifecycle
+summary: Pozrite sa na celú cestu, ktorou predajná objednávka prechádza v aiku, od zákazníkovho košíka cez vychystávanie a balenie až po fakturáciu a expedíciu, ako počas nej pridať, zmeniť alebo odstrániť produkty, a kde ju v jednotlivých krokoch skontrolovať.
+date: 2026-10-16
+source_date: 2026-10-16
+tags: orders, orders lifecycle, removing items
 category: orders
 ---
 
@@ -43,6 +43,26 @@ Keď je dodací list skutočne expedovaný zo skladu, stav objednávky sa zmení
 ## Cancelled
 
 Objednávku možno namiesto vyššie uvedených stavov aj zrušiť — napríklad ak sa obchod zatvorí skôr, než sa na objednávke začalo pracovať. Zrušená objednávka sa v procese ďalej neposúva.
+
+## Zmena produktov na objednávke
+
+Zákazníci si rozmyslia veci a objednávku môžete zmeniť za nich. Otvorte ju a prejdite na záložku **Transactions**. Čo môžete urobiť, závisí od toho, ako ďaleko sa objednávka dostala.
+
+**Kým je v košíku**, objednávka sa ešte zostavuje:
+
+- **Odstránenie produktu:** kliknite na červené **X** na konci jeho riadku (popis hovorí *Unselect this product*). Zmizne okamžite, bez potvrdenia, preto skontrolujte, či ste vybrali správny riadok.
+- **Zmena množstva:** použite **+** a **−** vedľa neho. Ukladá sa automaticky. Zníženie na 0 riadok tiež odstráni.
+- **Pridanie produktov:** kliknite na **Add products** a vyberte z katalógu, alebo na tlačidlo nahrávania (*Upload products via spreadsheet*) a nahrajte súbor s dvoma stĺpcami, kódom a množstvom.
+
+**Po odoslaní**, no ešte pred skladom, to funguje rovnako cez tlačidlá množstva: znížte množstvo alebo ho nastavte na 0, čím riadok odstránite. **Add a product** pridá ďalšie a pridanie produktu, ktorý už na objednávke je, len zvýši jeho množstvo.
+
+**Keď je objednávka v sklade**, sklad ju môže už vychystávať, preto sa riadky už neodstraňujú úplne. Kliknite na ceruzku na riadku (*Edit Product Order*), zmeňte množstvo a potom **Save changes**, alebo **Cancel edit**, ak chcete odísť bez zmeny. Počas úprav vedľa vidíte pôvodné množstvo. Ak chcete produkt vyradiť, nastavte 0: riadok zostane na objednávke s 0, takže vidíte, čo bolo zrušené, a vychystávač ho preskočí. aiku aktualizuje dodací list a oznámi vám *Quantity updated, warehouse has been notified*. Ak už bola objednávka vychystaná alebo zabalená a množstvá sa už nezhodujú, dodací list sa vráti späť do vychystávania, aby sa balík opravil.
+
+Produkty môžete pridávať aj vtedy, keď objednávka čaká v sklade, vychystáva sa alebo je vychystaná: kliknite na **Add a product** a pridajú sa na dodací list pre vychystávača. Keď sa balenie začalo, je na pridanie do tejto zásielky neskoro. aiku vám povie, aby ste na extra položky vytvorili nadväzujúcu objednávku.
+
+**Po finalizácii alebo expedícii** faktúra existuje a objednávka je zamknutá. aiku zobrazí *This order can no longer be modified*. Ak chcete vrátiť peniaze za niečo, čo zákazník nechcel, vráťte ich z faktúry. Pozrite [Faktúry, platby a vrátenia](/docs/invoices-payments-and-refunds-sk).
+
+Produkty nemôžete meniť na objednávkach, ktoré prichádzajú z prepojeného marketplace alebo obchodu, ani na objednávkach v externom obchode. Tie sa riadia tým, čo pošle daný kanál.
 
 ## Zmena adresy po odoslaní objednávky
 
@@ -96,6 +116,8 @@ Zoznamy **Backlog** a **Orders** ukazujú ten istý stav v stĺpci **Production 
 <li><b>Skontrolovať priebeh jednej objednávky:</b> kliknite na ňu v zozname — stav sa zobrazí vedľa jej referencie, a záložky <b>Delivery notes</b> a <b>Invoices</b> ukazujú, čo sa udialo ďalej.</li>
 <li><b>Zobraziť, čo čaká na spracovanie:</b> váš obchod → <b>Orders</b> (horné menu) → záložka <b>Backlog</b>.</li>
 <li><b>Označiť objednávku ako skontrolovanú výrobou:</b> otvorte objednávku → <b>Mark production reviewed</b> v lište pod názvom, alebo zaškrtnite objednávky v <b>Backlogu</b> → <b>Mark selected as production reviewed</b>.</li>
+<li><b>Odstrániť produkt z objednávky:</b> otvorte objednávku → záložka <b>Transactions</b>. V košíku kliknite na červené <b>X</b> na riadku alebo nastavte jeho množstvo na 0. V sklade kliknite na ceruzku, nastavte 0 a <b>Save changes</b>. Po finalizácii objednávky nie je možné.</li>
+<li><b>Pridať produkt na objednávku:</b> otvorte objednávku → <b>Add products</b> (košík), <b>Add a product</b> (odoslaná, alebo v sklade, kým sa nezačne balenie).</li>
 <li><b>Zmeniť adresu na odoslanej objednávke:</b> otvorte objednávku → <b>Edit</b> alebo <b>Edit billing address</b> pod blokom adresy, kým nie je expedovaná.</li>
 <li><b>Opraviť adresu na vystavenej faktúre:</b> otvorte objednávku → záložka <b>Invoices</b> → otvorte faktúru → ceruzka vedľa adresy.</li>
 <li><b>Zmeniť, čo sa tlačí na kuriérskom štítku pre jednu objednávku:</b> otvorte objednávku → dvojklik na <b>Shipping Label (From Customer)</b> v riadku poznámok → uložte. Tlačí sa prvých 34 znakov.</li>
@@ -104,5 +126,5 @@ Zoznamy **Backlog** a **Orders** ukazujú ten istý stav v stĺpci **Production 
 </aside>
 
 <aside class="permissions"><strong>Oprávnenia, ktoré potrebujete</strong>
-Na zobrazenie tohto zoznamu a jeho objednávok potrebujete zobrazovací prístup k Orders pre daný obchod, alebo zobrazovací prístup k Accounting pre organizáciu.
+Na zobrazenie tohto zoznamu a jeho objednávok potrebujete zobrazovací prístup k Orders pre daný obchod, alebo zobrazovací prístup k Accounting pre organizáciu. Na pridávanie, zmenu alebo odstraňovanie produktov na objednávke potrebujete editačný prístup k Orders pre daný obchod.
 </aside>

@@ -1,8 +1,8 @@
 ---
 title: Planificarea zilei de producție
 summary: Pentru managerul de producție și supervizorul de hală - cum pui sarcinile în planul unei zile fără să numești pe nimeni, cum dai fiecare pas unui operator și ce se întâmplă cu munca nefinalizată în ziua ei.
-date: 2026-10-12
-source_date: 2026-10-12
+date: 2026-10-15
+source_date: 2026-10-15
 tags: production, planning, floor
 category: production
 series: Ordering from partners
@@ -72,6 +72,34 @@ Până nu apeși una dintre cele două, sarcina rămâne în fața ta în fiecar
 
 Când un operator închide o sarcină cu mai puțin și mută restul într-una nouă (vezi [Lucrul cu ecranul de fabrică](/docs/working-the-floor-screen-ro)), sarcina nouă păstrează ziua planificată, locul în ordine și operatorul fiecărui pas.
 
+## Verificarea de dimineață a materialelor
+
+Depozitul aduce materialele în fabrică în cutii întregi, nu în cantitățile exacte ale zilei. **Factory → Operations → Materials check** (Fabrică → Operațiuni → Verificarea materialelor) listează ce mai are nevoie planul zilei, ca fabrica să verifice ce are și să ceară depozitului restul într-o singură listă clară.
+
+Fiecare rând este un material, însumat pe toate sarcinile zilei, cu sarcinile care îl cer (*JOaroma-0141, JOaroma-0145*). Se numără doar pașii încă nefăcuți: când fabricarea s-a terminat și a rămas doar ambalarea, rândul arată cutiile și etichetele, nu mai sticlele. Mixurile se fac în fabrică și nu apar pe listă. Cantitățile vin din rețete, deci o sarcină a cărei rețetă nu listează materiale nu cere nimic: bara chihlimbarie de deasupra listei numește aceste sarcini, ca golul din rețetă să fie văzut.
+
+| Coloană | Ce înseamnă |
+| --- | --- |
+| Material | materialul și codul de stoc din depozit |
+| For jobs | sarcinile zilei care îl cer |
+| Needed | câte consumă pașii rămași de făcut |
+| At the factory | câte sunt acum în locația din fabrică și câte au fost deja cerute azi |
+| Check | bifează **Have enough** (sunt suficiente) sau scrie aproximativ câte lipsesc |
+
+Când scrii un număr de lipsă, rândul arată ce va aduce depozitul, rotunjit în sus la cutiile lui: dacă lipsesc 1.200 și într-o cutie sunt 500, apare *bring 3 boxes (1.500)* (adu 3 cutii). Un *Warehouse short* (depozitul nu are destul) roșu înseamnă că depozitul nu are atâtea, deci știi imediat.
+
+Apasă **Send to warehouse** (trimite la depozit). Rândurile cu lipsă merg la depozit ca o singură cerere, iar cererea apare deasupra listei, fiecare material marcat *To bring* (de adus), *Delivered* (livrat) sau *Warehouse short*. Dacă bifezi totul ca suficient și trimiți, se înregistrează că verificarea s-a făcut. O a doua verificare mai târziu în zi adaugă doar ce lipsește în continuare.
+
+Managerul sau supervizorul face verificarea sau o dă unui operator prin **Checked by** (verificat de), din partea de sus. Acel operator vede apoi pe ecranul de fabrică un memento care deschide verificarea.
+
+## Depozitul aduce materialele
+
+În depozit, **Goods out → For production** (Ieșiri de marfă → Pentru producție) listează fiecare material cerut de fabrică, în ordinea de parcurs a raftului de unde se ia, cu codul de stoc, cutiile de adus și locația din fabrică unde merg. Cel care pregătește alege raftul, verifică cantitatea și apasă **Delivered**. Când depozitul nu poate aduce, **Warehouse short** anunță fabrica.
+
+Stocul livrat trece de pe raft în locația din fabrică. Rămâne stoc: este numărat și văzut ca înainte, iar o comandă de client îl mai poate culege de acolo când rafturile depozitului sunt goale, rafturile având mereu prioritate. Materialele nefolosite pot fi mutate înapoi pe un raft din pagina locației din fabrică, ca orice altă mutare între locații.
+
+Când o sarcină terminată este recepționată în stoc, materialele ei se consumă mai întâi din locația din fabrică, după cantitățile din rețetă, și abia apoi din alte locații. Numără din când în când locația din fabrică, ca să corectezi spargerile și pierderile.
+
 <aside class="wayfinder"><strong>Unde apeși în aiku</strong>
 <ul>
 <li><b>Planifici o sarcină pe o zi:</b> <b>Factory</b> → <b>To produce</b> → lasă cartela pe <b>Assigned</b> → alege ziua → <b>Plan for this day</b>.</li>
@@ -79,6 +107,9 @@ Când un operator închide o sarcină cu mai puțin și mută restul într-una n
 <li><b>Schimbi ordinea zilei:</b> scrie un număr în <b>Order</b>.</li>
 <li><b>Sarcina nefinalizată de ieri:</b> <b>Confirm for</b> ziua, sau <b>Take off the plan</b>.</li>
 <li><b>De pe tablă în plan:</b> linkul <b>Day plan</b> de deasupra tablei.</li>
+<li><b>Verifici materialele zilei:</b> <b>Factory</b> → <b>Operations</b> → <b>Materials check</b> → <b>Have enough</b> sau un număr de lipsă → <b>Send to warehouse</b>.</li>
+<li><b>Dai verificarea unui operator:</b> <b>Materials check</b> → <b>Checked by</b>.</li>
+<li><b>Aduci materialele (depozit):</b> <b>Goods out</b> → <b>For production</b> → <b>Delivered</b>, sau <b>Warehouse short</b>.</li>
 </ul>
 </aside>
 
@@ -88,5 +119,7 @@ Când un operator închide o sarcină cu mai puțin și mută restul într-una n
 <li>Planificarea unei zile, darea pașilor, schimbarea ordinii: poziția <b>Floor supervisor</b> pentru fabrică.</li>
 <li>Vizualizarea Day plan fără a o modifica: <b>Foreman</b>.</li>
 <li>Lucrul la un pas dat ție: <b>Operative</b>, pe ecranul de fabrică.</li>
+<li>Verificarea materialelor: <b>Floor supervisor</b>, sau operatorul căruia i-a fost dată.</li>
+<li>Aducerea materialelor în fabrică: o poziție de depozit care lucrează la ieșiri de marfă.</li>
 </ul>
 </aside>

@@ -15,7 +15,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowSalesChannel extends OrgAction
 {
-    public function htmlResponse(SalesChannel $salesChannel): Response
+    public function htmlResponse(SalesChannel $salesChannel, ActionRequest $request): Response
     {
         return Inertia::render(
             'Devel/Dummy',
@@ -24,7 +24,7 @@ class ShowSalesChannel extends OrgAction
                 'title'       => $salesChannel->name,
                 'pageHead'    => [
                     'title'   =>  $salesChannel->name,
-                    'actions' => [
+                    'actions' => !$request->user()->authTo('sysadmin.edit') ? [] : [
                         [
                             'type'  => 'button',
                             'style' => 'edit',
@@ -41,6 +41,11 @@ class ShowSalesChannel extends OrgAction
                 ],
             ]
         );
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->hasGroupAccess();
     }
 
     public function asController(SalesChannel $salesChannel, ActionRequest $request): SalesChannel

@@ -19,7 +19,9 @@ use App\Rules\Phone;
 use App\Rules\ValidAddress;
 use Illuminate\Http\UploadedFile;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use Closure;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rules\File;
@@ -150,6 +152,14 @@ class UpdateOrganisation extends OrgAction
 
         if (Arr::has($modelData, 'allow_scan_to_pick')) {
             data_set($modelData, 'settings.orders.allow_scan_to_pick', Arr::pull($modelData, 'allow_scan_to_pick'));
+        }
+
+        if (Arr::has($modelData, 'compliance_buffer_days')) {
+            data_set($modelData, 'settings.procurement.compliance_buffer_days', Arr::pull($modelData, 'compliance_buffer_days'));
+        }
+
+        if (Arr::has($modelData, 'purchase_order_cc')) {
+            data_set($modelData, 'settings.procurement.purchase_order_cc', self::emailList(Arr::pull($modelData, 'purchase_order_cc')));
         }
 
         if (Arr::has($modelData, 'allow_scan_to_pack')) {
@@ -283,6 +293,14 @@ class UpdateOrganisation extends OrgAction
         );
     }
 
+    /**
+     * @return array<int, string>
+     */
+    public static function emailList(?string $emails): array
+    {
+        return array_values(array_unique(array_filter(array_map(fn (string $email) => Str::lower(trim($email)), preg_split('/[\s,;]+/', (string) $emails)))));
+    }
+
     public function rules(): array
     {
         $rules = [
@@ -334,6 +352,19 @@ class UpdateOrganisation extends OrgAction
             'allow_picker_choose_location'          => ['sometimes', 'boolean'],
             'allow_scan_to_pick'                    => ['sometimes', 'boolean'],
             'allow_scan_to_pack'                    => ['sometimes', 'boolean'],
+            'compliance_buffer_days'                => ['sometimes', 'integer', 'min:0', 'max:120'],
+            'purchase_order_cc'                     => [
+                'sometimes',
+                'nullable',
+                'string',
+                function (string $attribute, mixed $value, Closure $fail) {
+                    foreach (self::emailList($value) as $email) {
+                        if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                            $fail(__(':email is not a valid email address.', ['email' => $email]));
+                        }
+                    }
+                },
+            ],
             'staff_chat_crm_user_ids'               => ['sometimes', 'array'],
             'staff_chat_crm_user_ids.*'              => ['integer', Rule::exists('users', 'id')->where('group_id', $this->organisation->group_id)],
             'staff_chat_warehouse_user_ids'         => ['sometimes', 'array'],

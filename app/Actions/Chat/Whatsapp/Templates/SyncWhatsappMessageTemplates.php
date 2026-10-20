@@ -9,6 +9,7 @@ namespace App\Actions\Chat\Whatsapp\Templates;
 
 use App\Actions\Chat\Whatsapp\Templates\Concerns\WithWhatsappTemplateLocalData;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithWhatsappTemplateEditAuthorisation;
 use App\Models\Catalogue\Shop;
 use App\Models\Chat\MetaChannel;
 use App\Models\Chat\MetaMessageTemplate;
@@ -21,6 +22,7 @@ use Lorisleiva\Actions\ActionRequest;
 class SyncWhatsappMessageTemplates extends OrgAction
 {
     use WithWhatsappTemplateLocalData;
+    use WithWhatsappTemplateEditAuthorisation;
 
     public function handle(Shop $shop): int
     {

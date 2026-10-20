@@ -19,6 +19,7 @@ use App\Enums\Web\Redirect\RedirectTypeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Models\Web\Redirect;
 use App\Models\Web\Webpage;
+use App\Actions\Web\Webpage\BanVarnishWebpage;
 use App\Rules\NoDomainString;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
@@ -37,7 +38,8 @@ class UpdateRedirect extends OrgAction
             $url = $redirect->website->domain.'/'.$path;
             data_set($modelData, 'url', $url);
         }
-        $redirect = $this->update($redirect, $modelData);
+        $previousToWebpageId = $redirect->to_webpage_id;
+        $redirect            = $this->update($redirect, $modelData);
 
         $toWebpage = Webpage::find($redirect->to_webpage_id);
 
@@ -48,6 +50,10 @@ class UpdateRedirect extends OrgAction
         }
 
         HydrateRedirect::run($toWebpage);
+        if ($previousToWebpageId != $toWebpage->id && $previousWebpage = Webpage::find($previousToWebpageId)) {
+            HydrateRedirect::run($previousWebpage);
+            BanVarnishWebpage::run($previousWebpage);
+        }
 
         $this->breakCache($redirect, $toWebpage);
 

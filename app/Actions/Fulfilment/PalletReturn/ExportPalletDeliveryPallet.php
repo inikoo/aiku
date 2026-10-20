@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\PalletReturn;
 
+use App\Actions\Traits\Authorisations\WithPalletDocumentAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithExportData;
 use App\Exports\Pallets\PalletDeliveryPalletExport;
@@ -20,6 +21,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 class ExportPalletDeliveryPallet extends OrgAction
 {
     use WithExportData;
+    use WithPalletDocumentAuthorisation;
 
     /**
      * @throws \Throwable
@@ -41,6 +43,7 @@ class ExportPalletDeliveryPallet extends OrgAction
      */
     public function asController(Organisation $organisation, Fulfilment $fulfilment, PalletDelivery $palletDelivery, ActionRequest $request): BinaryFileResponse
     {
+        abort_unless($palletDelivery->fulfilment_id === $fulfilment->id, 404);
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($palletDelivery, $this->validatedData);

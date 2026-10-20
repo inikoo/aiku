@@ -21,6 +21,8 @@ use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Str;
 
@@ -33,20 +35,43 @@ class SaveDataFeeds extends RetinaAction
      */
     public function handle(Shop|ProductCategory|Collection $parent): void
     {
-        $baseFilename = Str::snake(class_basename($parent));
+        $path          = static::path($parent);
+        $temporaryPath = $path.'.'.Str::random(8).'.tmp';
+
         if ($parent instanceof ProductCategory) {
-            $baseFilename = $parent->type->value;
+            Excel::store(new ProductsInProductCategoryExport($parent), $temporaryPath, 'data-feeds', \Maatwebsite\Excel\Excel::CSV);
+        } elseif ($parent instanceof Collection) {
+            Excel::store(new ProductsInCollectionExport($parent), $temporaryPath, 'data-feeds', \Maatwebsite\Excel\Excel::CSV);
+        } else {
+            Excel::store(new ProductsInShopExport($parent), $temporaryPath, 'data-feeds', \Maatwebsite\Excel\Excel::CSV);
         }
 
-        $filename = $baseFilename.'_'.$parent->slug.'.csv';
-        $path     = Str::snake(class_basename($parent)).'/'.$filename;
+        Storage::disk('data-feeds')->move($temporaryPath, $path);
+    }
 
-        if ($parent instanceof ProductCategory) {
-            Excel::store(new ProductsInProductCategoryExport($parent), $path, 'data-feeds');
-        } elseif ($parent instanceof Collection) {
-            Excel::store(new ProductsInCollectionExport($parent), $path, 'data-feeds');
+    public static function path(Shop|ProductCategory|Collection $parent): string
+    {
+        $baseFilename = $parent instanceof ProductCategory ? $parent->type->value : Str::snake(class_basename($parent));
+
+        return Str::snake(class_basename($parent)).'/'.$baseFilename.'_'.$parent->slug.'.csv';
+    }
+
+    public static function markAsRead(Shop|ProductCategory|Collection $parent): void
+    {
+        Cache::put(static::readCacheKey($parent), true, now()->addDays(7));
+    }
+
+    public static function readCacheKey(Shop|ProductCategory|Collection $parent): string
+    {
+        return 'data-feed-read:'.static::path($parent);
+    }
+
+    public function refreshIfRead(Shop|ProductCategory|Collection $parent): void
+    {
+        if (Cache::has(static::readCacheKey($parent))) {
+            $this->handle($parent);
         } else {
-            Excel::store(new ProductsInShopExport($parent), $path, 'data-feeds');
+            Storage::disk('data-feeds')->delete(static::path($parent));
         }
     }
 
@@ -64,20 +89,20 @@ class SaveDataFeeds extends RetinaAction
             ->get();
         /** @var Shop $shop */
         foreach ($shops as $shop) {
-            $this->handle($shop);
+            $this->refreshIfRead($shop);
             $command->info('Shop: '.$shop->name);
             $productCategories = ProductCategory::where('shop_id', $shop->id)
                 ->whereIn('state', [ProductCategoryStateEnum::ACTIVE, ProductCategoryStateEnum::DISCONTINUING])->get();
             /** @var ProductCategory $productCategory */
             foreach ($productCategories as $productCategory) {
-                $this->handle($productCategory);
+                $this->refreshIfRead($productCategory);
                 $command->info('Product Category: '.$productCategory->slug);
             }
             $collections = Collection::where('shop_id', $shop->id)
                 ->where('state', CollectionStateEnum::ACTIVE)
                 ->get();
             foreach ($collections as $collection) {
-                $this->handle($collection);
+                $this->refreshIfRead($collection);
                 $command->info('Collection: '.$collection->slug);
             }
         }

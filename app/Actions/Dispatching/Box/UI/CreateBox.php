@@ -9,6 +9,7 @@
 
 namespace App\Actions\Dispatching\Box\UI;
 
+use App\Actions\Traits\Authorisations\WithOrganisationDispatchingEditAuthorisation;
 use App\Actions\OrgAction;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
@@ -18,6 +19,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreateBox extends OrgAction
 {
+    use WithOrganisationDispatchingEditAuthorisation;
+
     public function asController(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): Response
     {
         $this->initialisation($organisation, $request);

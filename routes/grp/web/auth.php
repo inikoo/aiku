@@ -18,11 +18,22 @@ use App\Actions\SysAdmin\User\PasswordResetLink;
 use App\Actions\SysAdmin\User\UI\ShowSetNewPassword;
 use App\Actions\SysAdmin\User\UpdateUserPassword;
 use App\Actions\SysAdmin\User\UpdateUserPasswordViaEmail;
+use App\Actions\SupplyChain\SupplierShareLink\SendSupplierShareCode;
+use App\Actions\SupplyChain\SupplierShareLink\UI\ShowSupplierShare;
+use App\Actions\SupplyChain\SupplierShareLink\VerifySupplierShareCode;
+use App\Http\Middleware\LogUserRequestMiddleware;
 use Illuminate\Support\Facades\Route;
 use Laravel\Passkeys\Http\Controllers\PasskeyLoginController;
 use Laravel\Passkeys\Http\Controllers\PasskeyRegistrationController;
 
 Route::post('redirect-unsubscribe/{encryptedDispatchedEmailID}', UnsubscribeMailshot::class)->name('one_click_unsubscribe');
+
+Route::prefix('supplier-share/{token}')->as('supplier_share.')->where(['token' => '[A-Za-z0-9]{48}'])
+    ->middleware('throttle:supplier-share')->withoutMiddleware(LogUserRequestMiddleware::class)->group(function () {
+        Route::get('', ShowSupplierShare::class)->name('show');
+        Route::post('code', SendSupplierShareCode::class)->middleware('throttle:supplier-share-code')->name('send_code');
+        Route::post('verify', VerifySupplierShareCode::class)->middleware('throttle:supplier-share-verify')->name('verify');
+    });
 
 Route::middleware('guest')->group(function () {
     Route::get('resetpassword', ShowResetPassword::class)->name('reset.password');
@@ -33,8 +44,8 @@ Route::middleware('guest')->group(function () {
     Route::post('passkeys/login', [PasskeyLoginController::class, 'store'])->middleware('throttle:6,1')->name('passkey.login');
 
     Route::get('reset-password', ShowSetNewPassword::class)->name('email.reset-password.show');
-    Route::post('reset/password/link', PasswordResetLink::class)->name('password.email');
-    Route::patch('reset/password/email', UpdateUserPasswordViaEmail::class)->name('reset-password.email.update');
+    Route::post('reset/password/link', PasswordResetLink::class)->middleware('throttle:6,1')->name('password.email');
+    Route::patch('reset/password/email', UpdateUserPasswordViaEmail::class)->middleware('throttle:6,1')->name('reset-password.email.update');
 
     Route::get('redirect-unsubscribe/{encryptedDispatchedEmailID}', RedirectUnsubscribe::class)->name('redirect_unsubscribe');
     Route::get('unsubscribe-error', ShowUnsubscribeError::class)->name('unsubscribe-error');

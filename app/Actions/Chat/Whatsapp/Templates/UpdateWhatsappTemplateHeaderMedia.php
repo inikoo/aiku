@@ -9,6 +9,7 @@ namespace App\Actions\Chat\Whatsapp\Templates;
 
 use App\Actions\Helpers\Media\StoreMediaFromFile;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithWhatsappTemplateEditAuthorisation;
 use App\Enums\CRM\Livechat\WhatsappMediaTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Chat\MetaMessageTemplate;
@@ -25,6 +26,8 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class UpdateWhatsappTemplateHeaderMedia extends OrgAction
 {
+    use WithWhatsappTemplateEditAuthorisation;
+
     public function rules(): array
     {
         return [
@@ -73,6 +76,7 @@ class UpdateWhatsappTemplateHeaderMedia extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, MetaMessageTemplate $metaMessageTemplate, ActionRequest $request): RedirectResponse
     {
+        abort_unless($metaMessageTemplate->shop_id === $shop->id, 404);
         $this->initialisationFromShop($shop, $request);
 
         $this->handle($metaMessageTemplate, $request->file('header_media'));

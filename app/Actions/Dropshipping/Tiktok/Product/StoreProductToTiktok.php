@@ -66,7 +66,7 @@ class StoreProductToTiktok extends RetinaAction
             ]);
 
             $leafCategoryId = Arr::get($recommendCategory, 'data.leaf_category_id', '600009');
-            $leafCategoryId = $this->resolveSafeCategoryId($tiktokUser, $leafCategoryId);
+            $leafCategoryId = $this->resolveSafeCategoryId($tiktokUser, $leafCategoryId, Arr::get($recommendCategory, 'data.categories', []));
 
             $categoryRules = $tiktokUser->getCategoryRules($leafCategoryId);
 
@@ -259,8 +259,33 @@ class StoreProductToTiktok extends RetinaAction
         $this->handle($portfolio);
     }
 
-    private function resolveSafeCategoryId(TiktokUser $tiktokUser, string $categoryId): string
+    /**
+     * The recommended category is kept unless the seller is not qualified for it (TikTok answers "Precondition Required")
+     * or it needs certifications we cannot supply; only then is the seller's fallback category used.
+     */
+    private function resolveSafeCategoryId(TiktokUser $tiktokUser, string $categoryId, array $recommendedCategories = []): string
     {
+        $sellerCategories   = null;
+        $permissionStatuses = Arr::get(collect($recommendedCategories)->firstWhere('id', $categoryId), 'permission_statuses');
+
+        if (!is_array($permissionStatuses)) {
+            $sellerCategories   = Arr::get($tiktokUser->getCategories(), 'data.categories', []);
+            $permissionStatuses = Arr::get(collect($sellerCategories)->firstWhere('id', $categoryId), 'permission_statuses');
+        }
+
+        $sellerIsQualified = !is_array($permissionStatuses) || in_array('AVAILABLE', $permissionStatuses);
+
+        if ($sellerIsQualified) {
+            $rules = $tiktokUser->getCategoryRules($categoryId);
+            $hasRequiredCerts = collect(Arr::get($rules, 'data.product_certifications', []))
+                ->filter(fn ($cert) => Arr::get($cert, 'is_required') === true)
+                ->isNotEmpty();
+
+            if (!$hasRequiredCerts) {
+                return $categoryId;
+            }
+        }
+
         $cacheKey = "tiktok_safe_category_{$tiktokUser->id}";
 
         $cachedSafeId = cache()->get($cacheKey);
@@ -268,17 +293,8 @@ class StoreProductToTiktok extends RetinaAction
             return $cachedSafeId;
         }
 
-        $rules = $tiktokUser->getCategoryRules($categoryId);
-        $hasRequiredCerts = collect(Arr::get($rules, 'data.product_certifications', []))
-            ->filter(fn ($cert) => Arr::get($cert, 'is_required') === true)
-            ->isNotEmpty();
-
-        if (!$hasRequiredCerts) {
-            return $categoryId;
-        }
-
-        $allCategories = $tiktokUser->getCategories();
-        $leafAvailable = collect(Arr::get($allCategories, 'data.categories', []))
+        $sellerCategories ??= Arr::get($tiktokUser->getCategories(), 'data.categories', []);
+        $leafAvailable = collect($sellerCategories)
             ->filter(
                 fn ($cat) =>
                 Arr::get($cat, 'is_leaf') === true &&

@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\RentalAgreement;
 
+use App\Actions\Traits\Authorisations\WithFulfilmentShopEditAuthorisation;
 use App\Actions\CRM\WebUser\UpdateWebUser;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStatus;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryFulfilmentTransactionClause;
@@ -43,6 +44,7 @@ use OwenIt\Auditing\Events\AuditCustom;
 
 class UpdateRentalAgreement extends OrgAction
 {
+    use WithFulfilmentShopEditAuthorisation;
     use WithActionUpdate;
 
     private FulfilmentCustomer $parent;

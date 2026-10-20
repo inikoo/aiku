@@ -50,7 +50,9 @@ const buildOfferNode = ({
         availability:
             product?.stock > 0
                 ? "https://schema.org/InStock"
-                : "https://schema.org/OutOfStock",
+                : product?.pre_order
+                    ? "https://schema.org/PreOrder"
+                    : "https://schema.org/OutOfStock",
     }
 
     if (currencyCode || product?.currency_code) {

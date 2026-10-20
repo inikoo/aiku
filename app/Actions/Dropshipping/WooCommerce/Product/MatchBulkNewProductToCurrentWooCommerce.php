@@ -8,6 +8,7 @@
 
 namespace App\Actions\Dropshipping\WooCommerce\Product;
 
+use App\Actions\Traits\Authorisations\WithCustomerSalesChannelEditAuthorisation;
 use App\Actions\Dropshipping\Portfolio\MatchBulkPortfoliosToPlatform;
 use App\Actions\OrgAction;
 use App\Models\Dropshipping\CustomerSalesChannel;
@@ -17,6 +18,7 @@ use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class MatchBulkNewProductToCurrentWooCommerce extends OrgAction
 {
+    use WithCustomerSalesChannelEditAuthorisation;
     use AsAction;
     use WithAttributes;
 

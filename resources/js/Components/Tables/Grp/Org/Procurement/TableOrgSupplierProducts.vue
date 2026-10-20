@@ -10,7 +10,8 @@ import Table from "@/Components/Table/Table.vue"
 import { OrgSupplierProduct } from "@/types/org-supplier-product"
 import { ctrans, ctransChoice } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
-import { computed, ref } from "vue"
+import { computed, inject, ref } from "vue"
+import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 import Dialog from "primevue/dialog"
 import Select from "primevue/select"
 import { notify } from "@kyvg/vue3-notification"
@@ -19,8 +20,11 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faCheck, faCopy, faPlus, faTimes } from "@fal"
 import PingIcon from "@/Components/Utils/PingIcon.vue"
+import CompletenessBar from "@/Components/Procurement/CompletenessBar.vue"
 
 library.add(faCheck, faCopy, faPlus, faTimes)
+
+const locale = inject("locale", aikuLocaleStructure)
 
 const props = defineProps<{
   data: object
@@ -115,6 +119,10 @@ function supplierProductRoute(supplierProduct: OrgSupplierProduct) {
         "grp.org.procurement.org_agents.show.supplier_products.show",
         [routeParams["organisation"], routeParams["orgAgent"], supplierProduct.slug])
 
+    case "grp.org.agent.org_supplier_products.index":
+      return route(
+        "grp.org.agent.org_supplier_products.show",
+        [routeParams["organisation"], supplierProduct.slug])
     case "grp.org.procurement.org_suppliers.show":
     case "grp.org.procurement.org_suppliers.show.supplier_products.index":
       return route(
@@ -180,6 +188,28 @@ function orgSupplierRoute(orgSupplierSlug: string) {
         {{ supplier_product.supplier_name }}
       </Link>
       <span v-else>{{ supplier_product.supplier_name }}</span>
+    </template>
+    <template #cell(internal_code)="{ item: supplier_product }">
+      <Link v-if="supplier_product.internal_code" :href="supplierProductRoute(supplier_product)" class="primaryLink">
+        {{ supplier_product.internal_code }}
+      </Link>
+      <span v-else class="italic text-gray-400">{{ ctrans("No SKO") }}</span>
+      <span v-if="supplier_product.availability_status && supplier_product.availability_status !== 'available'"
+        class="ml-1.5 whitespace-nowrap rounded px-1 py-0.5 text-[11px]"
+        :class="supplier_product.availability_status === 'limited' ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700'">
+        {{ supplier_product.availability_status === "limited" ? ctrans("Limited") : ctrans("Not available") }}
+      </span>
+    </template>
+    <template v-for="key in ['cbm', 'lead_time_days', 'moq']" :key="key" #[`cell(${key})`]="{ item: supplier_product }">
+      <span v-if="supplier_product[key] !== null && supplier_product[key] !== undefined">{{ supplier_product[key] }}</span>
+      <span v-else class="text-gray-300">-</span>
+    </template>
+    <template #cell(completeness)="{ item: supplier_product }">
+      <CompletenessBar :value="supplier_product.completeness" :checks="supplier_product.completeness_checks" />
+    </template>
+    <template #cell(group_cost)="{ item: supplier_product }">
+      <span v-if="supplier_product.group_cost !== null" class="tabular-nums">{{ locale.currencyFormat(supplier_product.group_currency_code, supplier_product.group_cost) }}</span>
+      <span v-else class="text-gray-300">-</span>
     </template>
     <template #cell(add)="{ item: supplier_product }">
       <button type="button" class="secondaryLink" @click="addToShoppingList(supplier_product)">

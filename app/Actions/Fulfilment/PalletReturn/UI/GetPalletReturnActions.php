@@ -51,7 +51,9 @@ class GetPalletReturnActions
             $actions = [];
         }
 
-        return $this->addCancelButton($palletReturn, $this->addPdf($palletReturn, $actions));
+        $actions = $this->addPdf($palletReturn, $actions);
+
+        return $canEdit ? $this->addCancelButton($palletReturn, $actions) : $actions;
     }
 
 
@@ -477,7 +479,9 @@ class GetPalletReturnActions
 
     public function addPdf(PalletReturn $palletReturn, array $actions): array
     {
-        if (!in_array($palletReturn->state, [
+        $user = request()->user();
+
+        if ($user && $palletReturn->documentsCanBeReadBy($user) && !in_array($palletReturn->state, [
             PalletReturnStateEnum::IN_PROCESS,
             PalletReturnStateEnum::SUBMITTED
         ])) {

@@ -73,6 +73,7 @@ class SuggestSupplierShoppingList extends OrgAction
                 'os.id as org_stock_id',
                 'os.quantity_available as our_stock',
                 'os.health_rank',
+                'os.packed_in',
                 's.days_of_cover',
                 's.predicted_daily_usage',
                 's.recommended_order_quantity',
@@ -89,6 +90,7 @@ class SuggestSupplierShoppingList extends OrgAction
             'name'                    => $row->name,
             'cost'                    => (float) $row->cost,
             'units_per_carton'        => (int) ($row->units_per_carton ?? 0),
+            'packed_in'               => max(1, (int) ($row->packed_in ?? 1)),
             'minimum_carton_order'    => $row->minimum_carton_order !== null ? (int) $row->minimum_carton_order : null,
             'never_stocked'           => $row->org_stock_id === null,
             'health_rank'             => $row->health_rank,
@@ -122,6 +124,7 @@ class SuggestSupplierShoppingList extends OrgAction
     {
         $ranked = collect($candidates)
             ->filter(fn ($candidate) => $candidate['recommended'] > 0 || $candidate['quarterly_usage'] > 0)
+            ->reject(fn ($candidate) => $candidate['units_per_carton'] > 0 && $candidate['units_per_carton'] < ($candidate['packed_in'] ?? 1))
             ->sortBy([
                 fn ($a, $b) => $this->rankPriority($a['health_rank']) <=> $this->rankPriority($b['health_rank']),
                 fn ($a, $b) => ($a['days_of_cover'] ?? PHP_INT_MAX) <=> ($b['days_of_cover'] ?? PHP_INT_MAX),
@@ -131,9 +134,10 @@ class SuggestSupplierShoppingList extends OrgAction
         $remaining = $budget;
 
         foreach ($ranked as $candidate) {
-            $target = $candidate['recommended'] !== null && $candidate['recommended'] > 0
+            $targetSkos = $candidate['recommended'] !== null && $candidate['recommended'] > 0
                 ? ceil($candidate['recommended'])
                 : max(0.0, ceil($candidate['quarterly_usage'] - $candidate['our_stock']));
+            $target     = $targetSkos * ($candidate['packed_in'] ?? 1);
 
             $minimum  = $this->minimumOrder($candidate);
             $quantity = max($minimum, $this->roundToCarton($target, $candidate['units_per_carton']));

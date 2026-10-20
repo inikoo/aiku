@@ -9,6 +9,7 @@
 namespace App\Actions\Procurement\PurchaseOrder;
 
 use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
+use App\Events\BroadcastAgentIncomingPurchaseOrdersChanged;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\Hydrators\OrgAgentHydratePurchaseOrders;
 use App\Actions\Procurement\OrgSupplier\Hydrators\OrgSupplierHydratePurchaseOrders;
@@ -41,6 +42,7 @@ class DeletePurchaseOrder extends OrgAction
         /** @var OrgSupplier|OrgPartner $parent */
         $parent = $purchaseOrder->parent;
 
+        DeletePurchaseOrderTransaction::reopenShoppingListItems($purchaseOrder->purchaseOrderTransactions()->pluck('id')->all());
         $purchaseOrder->purchaseOrderTransactions()->delete();
         $purchaseOrderDeleted = $purchaseOrder->delete();
 
@@ -55,6 +57,7 @@ class DeletePurchaseOrder extends OrgAction
 
         GroupHydratePurchaseOrders::dispatch($purchaseOrder->group);
         OrganisationHydratePurchaseOrders::dispatch($purchaseOrder->organisation);
+        BroadcastAgentIncomingPurchaseOrdersChanged::dispatchFor($purchaseOrder);
 
         return $purchaseOrderDeleted;
     }

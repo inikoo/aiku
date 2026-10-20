@@ -9,6 +9,7 @@
 namespace App\Actions\Masters\MasterCollection\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithMastersAuthorisation;
 use App\Http\Resources\Masters\MasterCollectionsResource;
 use App\Models\Masters\MasterCollection;
 use App\Models\Masters\MasterProductCategory;
@@ -20,6 +21,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class GetMasterCollections extends OrgAction
 {
+    use WithMastersAuthorisation;
     public function handle(MasterShop $parent, MasterCollection|MasterShop|MasterProductCategory $scope, $prefix = null): LengthAwarePaginator
     {
         $queryBuilder = QueryBuilder::for(MasterCollection::class);

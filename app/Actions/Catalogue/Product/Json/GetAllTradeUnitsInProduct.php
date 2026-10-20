@@ -9,6 +9,7 @@
 namespace App\Actions\Catalogue\Product\Json;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithCatalogueAuthorisation;
 use App\Enums\Goods\TradeUnit\TradeUnitStatusEnum;
 use App\Http\Resources\Goods\TradeUnitsForMasterResource;
 use App\Models\Catalogue\Product;
@@ -22,10 +23,10 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetAllTradeUnitsInProduct extends OrgAction
 {
+    use WithCatalogueAuthorisation;
     public function asController(Product $product, ActionRequest $request): LengthAwarePaginator
     {
-        $parent = $product;
-        $this->initialisationFromGroup($parent->group, $request);
+        $this->initialisationFromShop($product->shop, $request);
 
         return $this->handle($product);
     }

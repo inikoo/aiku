@@ -15,7 +15,7 @@ import {
     faTerminal,
     faPeopleArrows,
     faClipboard, faTruck, faCameraRetro,
-    faPersonDolly,faAddressBook, faInbox, faPaperclip
+    faPersonDolly,faAddressBook, faInbox, faPaperclip, faWallet
 } from '@fal';
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, defineAsyncComponent, ref} from "vue";
@@ -32,6 +32,7 @@ import TableSupplierAgreedTerms from '@/Components/Tables/Grp/Org/Procurement/Ta
 import TableProcurementNotes from '@/Components/Tables/Grp/Org/Procurement/TableProcurementNotes.vue'
 import AgreementSummary from '@/Components/Procurement/AgreementSummary.vue'
 import TableSupplierMessages from "@/Components/Tables/Grp/Org/Procurement/TableSupplierMessages.vue";
+import OrgAgentMoney from "@/Components/Procurement/OrgAgentMoney.vue";
 import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue"
 import UploadAttachment from "@/Components/Upload/UploadAttachment.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
@@ -58,6 +59,7 @@ const props = defineProps<{
     notes?: object
     agreement: object
     inbox?: object
+    money?: object
     attachments?: object
     attachmentRoutes: { attachRoute: routeType; detachRoute: routeType }
     attachmentScopes: { name: string; code: string }[]
@@ -76,6 +78,7 @@ library.add(
     faPeopleArrows,
     faAddressBook,
     faInbox,
+    faWallet,
     faPaperclip
 );
 
@@ -92,6 +95,7 @@ const component = computed(() => {
         purchase_orders: TablePurchaseOrders,
         details: ModelDetails,
         inbox: TableSupplierMessages,
+        money: OrgAgentMoney,
         attachments: TableAttachments,
         agreed_terms: TableSupplierAgreedTerms,
         notes: TableProcurementNotes,

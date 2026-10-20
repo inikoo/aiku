@@ -8,6 +8,7 @@
 
 namespace App\Actions\SupplyChain\SupplierProduct;
 
+use App\Actions\SupplyChain\Supplier\WithSupplierPacking;
 use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateCurrentSupplierSkuCost;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgSupplierProducts\UpdateOrgSupplierProduct;
@@ -17,7 +18,9 @@ use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydrateSupplierProducts;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSupplierProducts;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\SupplyChain\SupplierProduct\SupplierProductAvailabilityStatusEnum;
 use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
+use App\Enums\SupplyChain\SupplierProduct\SupplierProductUnavailableReasonEnum;
 use App\Enums\SysAdmin\Authorisation\GroupPermissionsEnum;
 use App\Http\Resources\SupplyChain\SupplierProductResource;
 use App\Models\Inventory\OrgStock;
@@ -34,6 +37,8 @@ class UpdateSupplierProduct extends OrgAction
     use WithActionUpdate;
     use WithNoStrictRules;
     use WithSupplierProductJsonColumns;
+    use WithPackagingTermsRules;
+    use WithSupplierPacking;
 
     private const UNAVAILABLE_STATES = [
         SupplierProductStateEnum::IN_PROCESS,
@@ -51,6 +56,7 @@ class UpdateSupplierProduct extends OrgAction
     private const STATS_FIELDS = [
         'state',
         'is_available',
+        'availability_status',
         'deleted_at',
     ];
 
@@ -67,11 +73,15 @@ class UpdateSupplierProduct extends OrgAction
             }
         }
 
+        $modelData = $this->syncAvailability($supplierProduct, $modelData);
+        $modelData = $this->fillCbmFromCartonDimensions($modelData);
+        $modelData = $this->stampLeadTimeConfirmation($supplierProduct, $modelData);
+
         $modelData = $this->pullSupplierProductJsonColumns($modelData);
         $modelData = $this->fillUnitsPerSupplierUnitFromWeight($supplierProduct, $modelData);
         $modelData['currency_id'] = $supplierProduct->supplier?->currency_id ?? $supplierProduct->currency_id;
 
-        $supplierProduct = $this->update($supplierProduct, $modelData, ['data', 'settings']);
+        $supplierProduct = $this->update($supplierProduct, $modelData, ['data', 'settings', 'packaging_terms']);
         $changedFields = array_keys($supplierProduct->getChanges());
         $wasChanged    = fn (array $fields): bool => array_intersect($fields, $changedFields) !== [];
 
@@ -105,6 +115,61 @@ class UpdateSupplierProduct extends OrgAction
         }
 
         return $supplierProduct;
+    }
+
+    /**
+     * The availability status is the detailed answer, is_available the yes/no every buyer screen reads; whichever is given sets the other.
+     */
+    private function syncAvailability(SupplierProduct $supplierProduct, array $modelData): array
+    {
+        if (Arr::exists($modelData, 'availability_status')) {
+            $status                    = SupplierProductAvailabilityStatusEnum::from($modelData['availability_status'] instanceof SupplierProductAvailabilityStatusEnum ? $modelData['availability_status']->value : $modelData['availability_status']);
+            $modelData['is_available'] = $status !== SupplierProductAvailabilityStatusEnum::UNAVAILABLE;
+
+            if ($status === SupplierProductAvailabilityStatusEnum::AVAILABLE) {
+                $modelData['unavailable_reason']    = null;
+                $modelData['available_from']        = null;
+                $modelData['availability_new_cost'] = null;
+            }
+
+            return $modelData;
+        }
+
+        if (Arr::exists($modelData, 'is_available')) {
+            if (!$modelData['is_available']) {
+                $modelData['availability_status'] = SupplierProductAvailabilityStatusEnum::UNAVAILABLE;
+            } elseif ($supplierProduct->availability_status === SupplierProductAvailabilityStatusEnum::UNAVAILABLE) {
+                $modelData['availability_status'] = SupplierProductAvailabilityStatusEnum::AVAILABLE;
+            }
+        }
+
+        return $modelData;
+    }
+
+    private function fillCbmFromCartonDimensions(array $modelData): array
+    {
+        $dimensions = Arr::get($modelData, 'carton_dimensions');
+        if ($dimensions && !Arr::exists($modelData, 'cbm')) {
+            $modelData['cbm'] = round($dimensions['l'] * $dimensions['w'] * $dimensions['h'] / 1_000_000, 6);
+        }
+
+        return $modelData;
+    }
+
+    /**
+     * A new estimate is unconfirmed until someone confirms it with the supplier.
+     */
+    private function stampLeadTimeConfirmation(SupplierProduct $supplierProduct, array $modelData): array
+    {
+        if (Arr::pull($modelData, 'confirm_lead_time')) {
+            $modelData['lead_time_confirmed_at']         = now();
+            $modelData['lead_time_confirmed_by_user_id'] = auth()->id();
+        } elseif (Arr::exists($modelData, 'estimated_lead_time_days') && (int) $modelData['estimated_lead_time_days'] !== (int) $supplierProduct->estimated_lead_time_days) {
+            $modelData['lead_time_confirmed_at']         = null;
+            $modelData['lead_time_confirmed_by_user_id'] = null;
+        }
+
+        return $modelData;
     }
 
     /**
@@ -161,9 +226,19 @@ class UpdateSupplierProduct extends OrgAction
             'carton_net_weight'        => ['sometimes', 'nullable', 'integer', 'min:0'],
             'supplier_unit'            => ['sometimes', 'nullable', Rule::enum(SupplierUnitEnum::class)],
             'units_per_supplier_unit'  => ['sometimes', 'nullable', 'numeric', 'gt:0'],
+            'carton_dimensions'        => ['sometimes', 'nullable', 'array:l,w,h'],
+            'carton_dimensions.l'      => ['required_with:carton_dimensions', 'numeric', 'gt:0'],
+            'carton_dimensions.w'      => ['required_with:carton_dimensions', 'numeric', 'gt:0'],
+            'carton_dimensions.h'      => ['required_with:carton_dimensions', 'numeric', 'gt:0'],
+            'confirm_lead_time'        => ['sometimes', 'boolean'],
+            'availability_status'      => ['sometimes', 'required', Rule::enum(SupplierProductAvailabilityStatusEnum::class)],
+            'unavailable_reason'       => ['nullable', Rule::requiredIf(fn () => $this->strict && in_array($this->get('availability_status'), ['limited', 'unavailable'], true)), Rule::enum(SupplierProductUnavailableReasonEnum::class)],
+            'available_from'           => ['sometimes', 'nullable', 'date'],
+            'availability_new_cost'    => ['sometimes', 'nullable', 'numeric', 'min:0'],
+            'availability_note'        => ['sometimes', 'nullable', 'string', 'max:2000'],
         ];
 
-        $rules = array_merge($rules, $this->supplierProductJsonFieldRules());
+        $rules = array_merge($rules, $this->supplierProductJsonFieldRules(), $this->packagingTermsRules(), $this->packingRules($this->supplierProduct->supplier));
 
         if (!$this->strict) {
             $rules['data']             = ['sometimes', 'array'];

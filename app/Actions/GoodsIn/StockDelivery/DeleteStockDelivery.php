@@ -13,9 +13,11 @@ use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliv
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
+use OwenIt\Auditing\Events\AuditCustom;
 
 class DeleteStockDelivery extends OrgAction
 {
@@ -32,18 +34,110 @@ class DeleteStockDelivery extends OrgAction
         StockDeliveryStateEnum::READY_TO_SHIP,
     ];
 
+    private const AGENT_DELIVERABLE_STATES = [
+        StockDeliveryStateEnum::IN_PROCESS,
+        StockDeliveryStateEnum::CONFIRMED,
+        StockDeliveryStateEnum::READY_TO_SHIP,
+        StockDeliveryStateEnum::DISPATCHED,
+    ];
+
+    public const RESPONSIBILITY_PHRASE = 'I accept responsibility';
+
+    public const MIN_REASON_LENGTH = 10;
+
+    public static function isAgentDelivery(StockDelivery $stockDelivery): bool
+    {
+        return $stockDelivery->parent_type === 'OrgAgent';
+    }
+
+    public static function acceptsResponsibility(?string $typed): bool
+    {
+        return mb_strtolower(trim((string) preg_replace('/\s+/u', ' ', (string) $typed), " .\t\n")) === mb_strtolower(self::RESPONSIBILITY_PHRASE);
+    }
+
+    /**
+     * Why an agent's container can not be deleted, or null when it can: only before it is received, since receiving
+     * settles its purchase orders, and never while money, costs or claims are recorded against it.
+     */
+    public static function agentDeliveryRefusal(StockDelivery $stockDelivery): ?string
+    {
+        if (!in_array($stockDelivery->state, self::AGENT_DELIVERABLE_STATES, true) || $stockDelivery->items()->where('unit_quantity_placed', '>', 0)->exists()) {
+            return __(':reference is already received, unreceive it before deleting it', ['reference' => $stockDelivery->reference]);
+        }
+
+        return self::recordsRefusal($stockDelivery);
+    }
+
+    /**
+     * Money, costs and claims recorded against a delivery, whatever its state, that a delete would leave behind.
+     */
+    public static function recordsRefusal(StockDelivery $stockDelivery): ?string
+    {
+        return match (true) {
+            $stockDelivery->agentLedgerEntries()->exists(),
+            $stockDelivery->supplierPayments()->exists(),
+            $stockDelivery->depositApplications()->exists()                                                => __(':reference has payments or deposits, remove them first', ['reference' => $stockDelivery->reference]),
+            $stockDelivery->claims()->exists()                                                             => __(':reference has claims, remove them first', ['reference' => $stockDelivery->reference]),
+            $stockDelivery->costs()->whereNotNull('amount')->where('amount', '!=', 0)->exists(),
+            $stockDelivery->serviceInvoices()->exists()                                                    => __(':reference has costs or service invoices, remove them first', ['reference' => $stockDelivery->reference]),
+            default                                                                                        => null,
+        };
+    }
+
+    public function rules(): array
+    {
+        return [
+            'responsibility' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'reason'         => ['sometimes', 'nullable', 'string', 'max:1000'],
+        ];
+    }
+
+    /**
+     * Keeps why it was deleted on the row and in its history.
+     */
+    public static function recordDeletion(StockDelivery|PurchaseOrder $model, string $reason): void
+    {
+        $model->update(['data' => [...($model->data ?? []), 'deletion' => ['reason' => $reason, 'user_id' => auth()->id(), 'deleted_at' => now()->toIso8601String()]]]);
+
+        $model->auditEvent     = 'deleted';
+        $model->isCustomEvent  = true;
+        $model->auditCustomOld = [];
+        $model->auditCustomNew = ['deletion_reason' => $reason];
+        Event::dispatch(new AuditCustom($model));
+        $model->isCustomEvent = false;
+    }
+
     public function afterValidator(Validator $validator): void
     {
         if (!$this->asAction && $this->stockDelivery->isManagedByPartner()) {
             $validator->errors()->add('state', __('This delivery is managed by the partner until you receive it'));
         }
+
+        if (self::isAgentDelivery($this->stockDelivery)) {
+            if ($refusal = self::agentDeliveryRefusal($this->stockDelivery)) {
+                $validator->errors()->add('state', $refusal);
+            }
+            if (!$this->asAction && !self::acceptsResponsibility($this->get('responsibility'))) {
+                $validator->errors()->add('responsibility', __('Type ":phrase" to delete it', ['phrase' => self::RESPONSIBILITY_PHRASE]));
+            }
+            if (!$this->asAction && mb_strlen(trim((string) $this->get('reason'))) < self::MIN_REASON_LENGTH) {
+                $validator->errors()->add('reason', __('Say why you are deleting it'));
+            }
+
+            return;
+        }
+
         if (!in_array($this->stockDelivery->state, self::DELETABLE_STATES, true)) {
             $validator->errors()->add('state', __('You can not delete this stock delivery with state :state', ['state' => $this->stockDelivery->state->value]));
         }
     }
 
-    public function handle(StockDelivery $stockDelivery): ?PurchaseOrder
+    public function handle(StockDelivery $stockDelivery, ?string $reason = null): ?PurchaseOrder
     {
+        if ($reason) {
+            self::recordDeletion($stockDelivery, $reason);
+        }
+
         $purchaseOrders        = $stockDelivery->purchaseOrders()->get();
         $redirectPurchaseOrder = $purchaseOrders->first();
 
@@ -62,6 +156,19 @@ class DeleteStockDelivery extends OrgAction
 
     private function revertPurchaseOrder(PurchaseOrder $purchaseOrder): void
     {
+        $furthestDeliveryState = $purchaseOrder->stockDeliveries()
+            ->whereNotIn('state', [StockDeliveryStateEnum::CANCELLED, StockDeliveryStateEnum::NOT_RECEIVED])
+            ->pluck('state')
+            ->sortBy(fn (StockDeliveryStateEnum $state) => array_search($state, StockDeliveryStateEnum::cases(), true))
+            ->last();
+
+        if ($furthestDeliveryState) {
+            $purchaseOrder->update(['delivery_state' => PurchaseOrderDeliveryStateEnum::tryFrom($furthestDeliveryState->value) ?? $purchaseOrder->delivery_state]);
+            $this->purchaseOrderHydrate($purchaseOrder);
+
+            return;
+        }
+
         $purchaseOrder->purchaseOrderTransactions()
             ->where('delivery_state', '!=', PurchaseOrderTransactionDeliveryStateEnum::IN_PROCESS)
             ->update(['delivery_state' => PurchaseOrderTransactionDeliveryStateEnum::IN_PROCESS]);
@@ -79,16 +186,16 @@ class DeleteStockDelivery extends OrgAction
         $this->stockDelivery = $stockDelivery;
         $this->initialisation($stockDelivery->organisation, $request);
 
-        return $this->handle($stockDelivery);
+        return $this->handle($stockDelivery, trim((string) $this->get('reason')) ?: null);
     }
 
-    public function action(StockDelivery $stockDelivery): ?PurchaseOrder
+    public function action(StockDelivery $stockDelivery, ?string $reason = null): ?PurchaseOrder
     {
         $this->asAction      = true;
         $this->stockDelivery = $stockDelivery;
         $this->initialisation($stockDelivery->organisation, []);
 
-        return $this->handle($stockDelivery);
+        return $this->handle($stockDelivery, $reason);
     }
 
     public function htmlResponse(?PurchaseOrder $purchaseOrder): RedirectResponse

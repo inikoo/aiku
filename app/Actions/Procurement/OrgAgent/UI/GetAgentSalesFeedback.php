@@ -19,7 +19,8 @@ use Lorisleiva\Actions\Concerns\AsObject;
 /**
  * What customers, purchasing and the warehouse say about an agent's products, or one supplier's. Customers are only
  * quoted when a review is public, the rest of their side (refunds, replacements) is numbers. Purchasing shows only
- * the notes marked as visible to the agent. The warehouse is numbers from goods-in.
+ * the notes marked as visible to the agent, or to the supplier when a supplier is read on its own. The warehouse is
+ * numbers from goods-in.
  */
 class GetAgentSalesFeedback
 {
@@ -34,8 +35,12 @@ class GetAgentSalesFeedback
     /**
      * @return array<string, mixed>
      */
-    public function handle(Agent $agent, ?Supplier $supplier = null): array
+    public function handle(Agent|Supplier $agent, ?Supplier $supplier = null): array
     {
+        if ($agent instanceof Supplier) {
+            $supplier = $agent;
+        }
+
         $products = GetAgentSalesProducts::make()->products($agent, null, false)
             ->when($supplier, fn (Builder $query) => $query->where('supplier_id', $supplier->id))
             ->get();
@@ -63,10 +68,10 @@ class GetAgentSalesFeedback
         ];
     }
 
-    private function agentProducts(Agent $agent, ?Supplier $supplier): Builder
+    private function agentProducts(Agent|Supplier $agent, ?Supplier $supplier): Builder
     {
         return DB::table('org_supplier_products as feedback_osp')
-            ->join('org_agents as feedback_oa', fn ($join) => $join->on('feedback_oa.id', 'feedback_osp.org_agent_id')->where('feedback_oa.agent_id', $agent->id))
+            ->when($agent instanceof Agent, fn (Builder $query) => $query->join('org_agents as feedback_oa', fn ($join) => $join->on('feedback_oa.id', 'feedback_osp.org_agent_id')->where('feedback_oa.agent_id', $agent->id)))
             ->join('supplier_products as feedback_sp', 'feedback_sp.id', 'feedback_osp.supplier_product_id')
             ->whereNull('feedback_sp.deleted_at')
             ->when($supplier, fn (Builder $query) => $query->where('feedback_sp.supplier_id', $supplier->id));
@@ -75,12 +80,12 @@ class GetAgentSalesFeedback
     /**
      * @return array<int, array{code: string, rating: int, message: string, date: string}>
      */
-    private function recentReviews(Agent $agent, ?Supplier $supplier): array
+    private function recentReviews(Agent|Supplier $agent, ?Supplier $supplier): array
     {
         return GetAgentSalesProducts::make()->publicReviews()
             ->join('org_stock_has_org_supplier_products as link', fn ($join) => $join->on('link.org_stock_id', 'phos.org_stock_id')->where('link.status', true))
             ->join('org_supplier_products as feedback_osp', 'feedback_osp.id', 'link.org_supplier_product_id')
-            ->join('org_agents as feedback_oa', fn ($join) => $join->on('feedback_oa.id', 'feedback_osp.org_agent_id')->where('feedback_oa.agent_id', $agent->id))
+            ->when($agent instanceof Agent, fn (Builder $query) => $query->join('org_agents as feedback_oa', fn ($join) => $join->on('feedback_oa.id', 'feedback_osp.org_agent_id')->where('feedback_oa.agent_id', $agent->id)))
             ->join('supplier_products as feedback_sp', 'feedback_sp.id', 'feedback_osp.supplier_product_id')
             ->when($supplier, fn (Builder $query) => $query->where('feedback_sp.supplier_id', $supplier->id))
             ->whereRaw("trim(coalesce(review.message, '')) <> ''")
@@ -101,13 +106,13 @@ class GetAgentSalesFeedback
      *
      * @return array<int, array{title: string, body: string|null, severity: string, category: string, date: string}>
      */
-    private function notes(Agent $agent, ?Supplier $supplier): array
+    private function notes(Agent|Supplier $agent, ?Supplier $supplier): array
     {
-        $suppliers = DB::table('suppliers')->where('agent_id', $agent->id)->when($supplier, fn (Builder $query) => $query->where('id', $supplier->id))->select('id');
+        $suppliers = DB::table('suppliers')->when($agent instanceof Agent, fn (Builder $query) => $query->where('agent_id', $agent->id))->when($supplier, fn (Builder $query) => $query->where('id', $supplier->id))->select('id');
         $products  = $this->agentProducts($agent, $supplier);
 
         return DB::table('procurement_notes as note')
-            ->where('note.visibility', ProcurementNoteVisibilityEnum::AGENT->value)
+            ->where('note.visibility', $agent instanceof Agent ? ProcurementNoteVisibilityEnum::AGENT->value : ProcurementNoteVisibilityEnum::SUPPLIER->value)
             ->where('note.state', ProcurementNoteStateEnum::ACTIVE->value)
             ->where(function (Builder $query) use ($suppliers, $products) {
                 $query

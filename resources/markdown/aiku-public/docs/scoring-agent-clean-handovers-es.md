@@ -1,7 +1,7 @@
 ---
 title: Puntuar las entregas limpias de un agente
 summary: Para equipos de compras — por qué existe el Clean Handover Score, qué cinco datos hay que registrar en cada orden de compra a un agente, quién debe ser dueño de cada uno, y cómo leer la franja de higiene que te dice cuándo la puntuación se está gestionando en lugar de ganarse.
-date: 2026-09-01
+date: 2026-10-15
 source_date: 2026-10-15
 tags: procurement, agents, supply-chain
 category: procurement
@@ -25,7 +25,7 @@ La puntuación se calcula; nunca se teclea directamente. Pero se calcula a parti
 
 1. **Fecha de listo propuesta (proposed ready date)** — la fecha en que el agente dice que la mercancía, la evidencia de control de calidad y el paquete de cumplimiento estarán listos para la entrega. Registra lo que realmente propuso, no lo que te habría gustado que propusiera.
 2. **Fecha de listo aprobada (approved ready date)** — la fecha que aprobaste por escrito. Esto fija el trimestre de la OC y arranca la ventana de siete días para la entrega. Interrógala antes de aprobar: este es el único momento en el que el escrutinio sale barato y su ausencia sale caro.
-3. **Entregado (handed over)** — cuándo la mercancía llegó físicamente al agente de transporte, confirmado desde tu lado o desde el del agente de transporte, nunca a partir de la sola palabra del agente de coordinación.
+3. **Entregado (handed over)** — cuándo la mercancía llegó físicamente al agente de transporte. El agente de coordinación lo registra desde su propio acceso, el mismo día; contrástalo con el recibo del agente de transporte y corrígelo si no coincide.
 4. **Control de calidad superado (QC passed)** — cuándo la mercancía superó la inspección acordada.
 5. **Paquete de cumplimiento completo (compliance pack complete)** — cuándo se verificó que los documentos estaban completos. En el momento de la entrega, no después.
 
@@ -43,7 +43,8 @@ En concreto:
 
 - **Fecha de listo propuesta** — el campo del agente, con el tiempo incluso desde su propio inicio de sesión. Proponer fechas es su especialidad, y es inofensivo: la puntuación funciona sobre la fecha aprobada.
 - **Fecha de listo aprobada, exclusiones** — tuyas, siempre, sin excepciones. Estos dos son donde vive la manipulación de la puntuación.
-- **Entrega, control de calidad, cumplimiento** — tuyas hoy; con el tiempo, cuanto más deriven de recepciones de almacén y listas de verificación de documentos en lugar de la introducción de datos de una persona, más fuerte se vuelve la puntuación.
+- **Entrega** — el agente la registra, porque está presente en la entrega; tú la compruebas. Cada fecha muestra quién la registró y cuándo, una fecha en el pasado lleva un motivo, y una corrección tuya queda en el historial del pedido.
+- **Control de calidad, cumplimiento** — tuyos hoy; con el tiempo, cuanto más deriven de recepciones de almacén y listas de verificación de documentos en lugar de la introducción de datos de una persona, más fuerte se vuelve la puntuación.
 - **La puntuación en sí** — de nadie. Es derivada; no hay ningún campo que editar.
 
 Un agente nunca debe puntuarse a sí mismo — no porque los agentes sean deshonestos, sino porque un número autopuntuado no vale nada aunque sea cierto. Si tus agentes hoy te mandan por correo sus propios resúmenes de rendimiento, este sistema existe precisamente para sustituir eso.
@@ -54,7 +55,7 @@ Un agente decidido no puede editar la puntuación, pero sí puede intentar gesti
 
 - **Desviación media de la fecha de listo al aprobar** — la diferencia media entre lo que propuso el agente y lo que se aprobó. Cerca de cero con un CHS fuerte es la imagen saludable. Cerca de cero con fechas de entrega débiles significa que las propuestas se están aprobando sin más: el margen extra, si lo hay, está colando. Una diferencia consistentemente grande significa que las propuestas son sistemáticamente poco realistas — una conversación que tener con el agente.
 - **Excluido de la puntuación** — la cuota de valor programado a la que se han concedido exclusiones. Las exclusiones son legítimas (tus propios cambios tardíos, causa de fuerza mayor documentada) pero son la válvula de escape de la puntuación, y este es el indicador sobre ella. Se pone en rojo por encima del 10%. Una tasa de exclusión creciente con una puntuación estable significa que la puntuación se está *manteniendo* en lugar de ganarse.
-- **Entregado sin control de calidad o cumplimiento** — pedidos marcados como entregados con alguna de las dos comprobaciones sin hacer. Esto debería ser cero; cada uno es antes que nada un agujero en tu propia disciplina de registro, porque una entrega sin comprobar nunca puede contar como limpia.
+- **Entregado sin control de calidad o cumplimiento** — pedidos marcados como entregados con alguna de las dos comprobaciones sin hacer. Esto debería ser cero; cada uno significa que el control de calidad o el cumplimiento no se registró antes de que el agente registrara la entrega, y una entrega sin comprobar nunca puede contar como limpia.
 
 Cada uno de estos campos queda auditado: quién lo fijó, cuándo, de qué a qué. Un patrón de margen extra, un patrón de aprobación automática, o una avalancha de exclusiones al cierre del trimestre son todos reconstruibles después de los hechos.
 
@@ -73,7 +74,7 @@ Y una advertencia operativa: la puntuación solo existe para pedidos con una fec
 
 <aside class="wayfinder">
 <b>Dónde pulsar en aiku</b><br>
-Group → <b>Supply Chain → Agents</b> → elige el agente. El showcase muestra el panel <b>Clean Handover Score</b> con la franja de higiene. Para registrar los cinco datos: la lista de <b>Purchase Orders</b> del agente → abre una OC. <b>QC passed</b> es el botón <b>QC approved</b> de las etapas en la parte superior del pedido. El resto está en <b>Edit</b> → la sección <b>Clean handover</b> (fechas de listo propuesta/aprobada, entregado, cumplimiento completo, interruptor de exclusión + motivo). El agente ve su puntuación, sin la franja de higiene, en su propio panel al iniciar sesión.
+Group → <b>Supply Chain → Agents</b> → elige el agente. El showcase muestra el panel <b>Clean Handover Score</b> con la franja de higiene. Para registrar los cinco datos: la lista de <b>Purchase Orders</b> del agente → abre una OC. Los botones <b>Approved ready date</b>, <b>QC approved</b>, <b>Handed over</b> y <b>Compliance complete</b> están en las etapas en la parte superior del pedido; cualquier comprador puede usarlos, y una fecha pasada pide un motivo. La fecha de listo propuesta y el interruptor de exclusión con su motivo están en <b>Edit</b> → la sección <b>Clean handover</b>. El agente ve su puntuación, sin la franja de higiene, en su propio panel al iniciar sesión.
 </aside>
 
 <aside class="wayfinder">

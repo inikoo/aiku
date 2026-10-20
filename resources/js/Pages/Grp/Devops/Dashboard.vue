@@ -11,8 +11,9 @@ import { capitalize } from "@/Composables/capitalize"
 import { ctrans } from "@/Composables/useTrans"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { PageHeadingTypes } from "@/types/PageHeading"
-import { faChartLine, faDatabase, faFlask, faRocket, faServer, faSpinnerThird, faTools } from "@fal"
+import { faChartLine, faDatabase, faExclamationTriangle, faFlask, faRocket, faServer, faSpinnerThird, faTools } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { computed, onBeforeUnmount, onMounted, ref } from "vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import CiRunCard, { CiRunDetail, CiRunSummary } from "@/Components/DevOps/CiRunCard.vue"
@@ -23,9 +24,10 @@ import { ExceptionDetailData } from "@/Components/DevOps/ExceptionDetail.vue"
 import { Logs } from "@/Components/DevOps/LogsView.vue"
 import ServerUsageCard, { ServerSummary } from "@/Components/DevOps/ServerUsageCard.vue"
 import DatabaseReplicas, { DatabaseReplica } from "@/Components/DevOps/DatabaseReplicas.vue"
+import DatabaseBackups, { DatabaseBackupsReport } from "@/Components/DevOps/DatabaseBackups.vue"
 import { LiveServerReading, useLiveServerMetrics } from "@/Composables/useLiveServerMetrics"
 
-library.add(faChartLine, faDatabase, faFlask, faRocket, faServer, faSpinnerThird, faTools)
+library.add(faChartLine, faDatabase, faExclamationTriangle, faFlask, faRocket, faServer, faSpinnerThird, faTools)
 
 const props = defineProps<{
     title: string
@@ -33,6 +35,7 @@ const props = defineProps<{
     servers: ServerSummary[]
     liveReadings: Record<string, LiveServerReading[]>
     databaseReplicas: DatabaseReplica[]
+    databaseBackups: DatabaseBackupsReport | null
     ciRuns: {
         deploy: CiRunDetail | null
         tests: CiRunDetail | null
@@ -91,6 +94,11 @@ const changeTab = (tab: string | number) => {
     window.history.replaceState(window.history.state, "", url)
 }
 
+const problems = computed(() => [
+    ...props.databaseReplicas.map((replica) => replica.issue),
+    ...(props.databaseBackups ? [props.databaseBackups.archive_issue, props.databaseBackups.backup_issue] : []),
+].filter((issue): issue is string => !!issue).map((issue) => issue.replace(/`/g, "")))
+
 const serverGroups = computed(() => props.servers.reduce<Record<string, ServerSummary[]>>((groups, server) => {
     (groups[server.group] ??= []).push(server)
     return groups
@@ -101,6 +109,15 @@ const serverGroups = computed(() => props.servers.reduce<Record<string, ServerSu
 <template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead" />
+    <div v-if="problems.length" class="mx-4 mt-3 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-800" role="alert">
+        <div class="flex items-center gap-x-2 font-semibold">
+            <FontAwesomeIcon icon="fal fa-exclamation-triangle" class="text-red-600" fixed-width aria-hidden="true" />
+            {{ ctrans(":count problem(s) with the production database", { count: problems.length }) }}
+        </div>
+        <ul class="mt-1.5 list-disc space-y-1 pl-9">
+            <li v-for="problem in problems" :key="problem">{{ problem }}</li>
+        </ul>
+    </div>
     <Tabs :current="currentTab" :navigation="tabs" @update:tab="changeTab" />
 
     <div class="p-4">
@@ -115,6 +132,7 @@ const serverGroups = computed(() => props.servers.reduce<Record<string, ServerSu
             </section>
         </div>
         <DatabaseReplicas v-if="currentTab === 'servers' && databaseReplicas.length" :replicas="databaseReplicas" class="mb-6" />
+        <DatabaseBackups v-if="currentTab === 'servers' && databaseBackups && (databaseBackups.archive_mode || databaseBackups.backups.length)" :report="databaseBackups" class="mb-6" />
         <div v-if="currentTab === 'deployments'" class="mb-6 max-w-4xl">
             <CiRunCard :title="ctrans('Production deploy')" :run="ciRuns.deploy" :recent="ciRuns.recent_deploys" :usual-seconds="ciRuns.usual_deploy_seconds" />
         </div>

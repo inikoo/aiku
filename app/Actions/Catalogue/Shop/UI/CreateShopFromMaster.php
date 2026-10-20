@@ -22,13 +22,18 @@ use App\Actions\Masters\MasterShop\UI\ShowMasterShop;
 
 class CreateShopFromMaster extends OrgAction
 {
-    // TODO master authorisation to create shop (?)
     private MasterShop $masterShop;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->authTo('org-admin.'.$this->organisation->id);
+    }
 
     public function asController(MasterShop $masterShop, Organisation $organisation, ActionRequest $request): Organisation
     {
-        $group            = group();
-        $this->masterShop = $masterShop;
+        $group              = group();
+        $this->masterShop   = $masterShop;
+        $this->organisation = $organisation;
         $this->initialisationFromGroup($group, $request);
 
         return $organisation;

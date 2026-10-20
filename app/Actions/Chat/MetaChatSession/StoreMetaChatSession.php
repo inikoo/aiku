@@ -2,6 +2,9 @@
 
 namespace App\Actions\Chat\MetaChatSession;
 
+use App\Models\SysAdmin\User;
+use App\Models\Catalogue\Shop;
+use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Enums\CRM\Livechat\ChatActorTypeEnum;
 use App\Enums\CRM\Livechat\ChatAssignmentStatusEnum;
 use App\Enums\CRM\Livechat\ChatSessionStatusEnum;
@@ -18,6 +21,14 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class StoreMetaChatSession
 {
     use AsAction;
+    use WithChatAgentAuthorisation;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        $shop = Shop::find($request->input('shop_id'));
+
+        return $shop instanceof Shop && $request->user() instanceof User && $this->userCanActOnChatOnShop($request->user(), $shop);
+    }
 
     public function rules(): array
     {
@@ -34,6 +45,8 @@ class StoreMetaChatSession
      */
     public function asController(ActionRequest $request): MetaChatSession
     {
+        abort_if($request->filled('customer_id') && Customer::whereKey($request->input('customer_id'))->value('shop_id') !== (int) $request->input('shop_id'), 422);
+
         $metaChatSession = $this->handle($request->validated());
 
         /* ponytail: the agent who opened the thread keeps it. Hand it to the shop's routing

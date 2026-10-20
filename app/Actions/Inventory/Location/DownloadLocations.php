@@ -9,6 +9,7 @@
 
 namespace App\Actions\Inventory\Location;
 
+use App\Actions\Traits\Authorisations\Inventory\WithWarehouseAuthorisation;
 use App\Actions\OrgAction;
 use App\Models\Inventory\Warehouse;
 use Lorisleiva\Actions\ActionRequest;
@@ -18,6 +19,8 @@ use App\Exports\Inventory\LocationsExport;
 
 class DownloadLocations extends OrgAction
 {
+    use WithWarehouseAuthorisation;
+
     /**
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception

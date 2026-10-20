@@ -15,11 +15,17 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $code
  * @property string $name
  * @property string $slug
- * @property string|null $organisations
  * @property string|null $supplier_name
  * @property string|null $org_supplier_slug
  * @property int $cost
  * @property string $currency_code
+ * @property int|null $supplier_product_id
+ * @property string|null $internal_code
+ * @property numeric|null $cbm
+ * @property int|null $lead_time_days
+ * @property int|null $moq
+ * @property string|null $availability_status
+ * @property numeric|null $completeness
  */
 class OrgSupplierProductsResource extends JsonResource
 {
@@ -30,11 +36,20 @@ class OrgSupplierProductsResource extends JsonResource
             'code'              => $this->code,
             'name'              => $this->name,
             'slug'              => $this->slug,
-            'organisations'     => $this->organisations,
             'supplier_name'     => $this->supplier_name,
             'org_supplier_slug' => $this->org_supplier_slug,
             'cost'              => $this->cost,
             'currency_code'     => $this->currency_code,
+            'group_cost'        => $this->group_cost,
+            'group_currency_code' => $this->group_currency_code,
+            'supplier_product_id' => $this->supplier_product_id,
+            'internal_code'     => $this->internal_code,
+            'cbm'               => $this->cbm !== null ? (float) $this->cbm : null,
+            'lead_time_days'    => $this->lead_time_days,
+            'moq'               => $this->moq,
+            'availability_status' => $this->availability_status,
+            'completeness'      => $this->completeness !== null ? (int) $this->completeness : null,
+            'completeness_checks' => $this->completeness_checks ? json_decode($this->completeness_checks, true) : null,
         ];
     }
 }

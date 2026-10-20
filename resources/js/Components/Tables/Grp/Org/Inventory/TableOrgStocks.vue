@@ -35,6 +35,8 @@ import { layoutStructure } from "@/Composables/useLayoutStructure"
 import OrgStockDiscontinuePreviewModal from "@/Components/Warehouse/Inventory/OrgStockDiscontinuePreviewModal.vue"
 import { routeType } from "@/types/route"
 import { faBan } from "@fal"
+import Checkbox from "primevue/checkbox"
+import { useFormatTime } from "@/Composables/useFormatTime"
 
 library.add(faCheckCircle, faTimesCircle, faPauseCircle, faExclamationCircle, faTriangle, faEquals, faMinus, faUnlink)
 
@@ -47,7 +49,32 @@ const props = defineProps<{
     discontinue_preview_route?: routeType | null
     discontinue_route?: routeType | null
     create_order_route?: routeType | null
+    packing_progress?: { id: number, code: string, slug: string, packed: number, total: number, is_current: boolean }[] | null
 }>()
+
+const packingIds = ref<Record<number, boolean>>({})
+
+function onTogglePacked(stock: { location_org_stock_id: number }, packed: boolean) {
+    packingIds.value[stock.location_org_stock_id] = true
+    router.patch(
+        route("grp.models.location_org_stock.packed", { locationOrgStock: stock.location_org_stock_id }),
+        { packed },
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onError: (errors) => {
+                notify({
+                    title: ctrans("Something went wrong"),
+                    text: Object.values(errors).flat().join(" "),
+                    type: "error",
+                })
+            },
+            onFinish: () => {
+                delete packingIds.value[stock.location_org_stock_id]
+            },
+        }
+    )
+}
 
 const isDiscontinuePreviewOpen = ref(false)
 const isSelectable = computed(() => !!props.canMoveAllSku || !!props.discontinue_preview_route || !!props.create_order_route)
@@ -379,6 +406,20 @@ const orgStockRouteProductIndex = (orgStock: OrgStock) => {
 </script>
 
 <template>
+    <div v-if="packing_progress?.length" class="mt-4 px-4 flex flex-wrap gap-2">
+        <Link
+            v-for="bay in packing_progress"
+            :key="bay.id"
+            :href="route('grp.org.warehouses.show.infrastructure.locations.show', { organisation: routeParams.organisation, warehouse: routeParams.warehouse, location: bay.slug, tab: 'org_stocks' })"
+            class="rounded border px-3 py-1.5 text-sm tabular-nums"
+            :class="bay.is_current ? 'border-gray-500 bg-gray-100 font-semibold' : 'border-gray-200 hover:bg-gray-50'"
+        >
+            {{ bay.code }}:
+            <span :class="bay.total > 0 && bay.packed === bay.total ? 'text-green-600' : ''">
+                {{ ctrans(":packed of :total packed", { packed: locale.number(bay.packed), total: locale.number(bay.total) }) }}
+            </span>
+        </Link>
+    </div>
     <Table :resource="data" :name="tab" class="mt-5" :isCheckBox="isSelectable" @onSelectRow="onSelectRow" :key="key">
           <template #add-on-button v-if="isSelectable">
                 <Button v-if="canMoveAllSku" :label="ctrans('Move All SKO')" type="white" :icon="faForklift" size="xs" @click="openMoveAllSku"></Button>
@@ -399,9 +440,16 @@ const orgStockRouteProductIndex = (orgStock: OrgStock) => {
         </template>
 
         <template #cell(code)="{ item: stock }">
-            <Link :href="orgStockHref(stock) as string" class="primaryLink">
-                {{ stock["code"] }}
-            </Link>
+            <span class="whitespace-nowrap">
+                <Link :href="orgStockHref(stock) as string" class="primaryLink">
+                    {{ stock["code"] }}
+                </Link>
+                <span v-for="(unNumber, index) in stock.un_numbers ?? []" :key="index"
+                    v-tooltip="unNumber.shipping_name ? ctrans('Dangerous goods: :name', { name: unNumber.shipping_name }) : ctrans('Dangerous goods')"
+                    class="border border-red-700 rounded-sm px-1 text-red-700 bg-amber-500 ml-1">
+                    {{ unNumber.number }}
+                </span>
+            </span>
         </template>
         <template #cell(name)="{ item: stock }">
             <div class="flex gap-3">
@@ -444,6 +492,25 @@ const orgStockRouteProductIndex = (orgStock: OrgStock) => {
                 <span v-else>
                     {{ stock.quantity }}
                 </span>
+            </div>
+        </template>
+
+        <template #cell(packed)="{ item: stock }">
+            <div class="flex items-start gap-2">
+                <LoadingIcon v-if="packingIds[stock.location_org_stock_id]" />
+                <Checkbox
+                    v-else
+                    :modelValue="stock.is_packed"
+                    binary
+                    @update:modelValue="(value: boolean) => onTogglePacked(stock, value)"
+                />
+                <div v-if="stock.packed_at" class="text-xs leading-tight">
+                    <div class="text-gray-700">{{ stock.packed_by }}</div>
+                    <div class="text-gray-500">{{ useFormatTime(stock.packed_at, { formatTime: "short-datetime" }) }}</div>
+                    <div v-if="!stock.is_packed" class="text-amber-600">
+                        {{ ctrans("Packed :packed, now :quantity: tick again once packed", { packed: stock.packed_quantity, quantity: stock.quantity }) }}
+                    </div>
+                </div>
             </div>
         </template>
 

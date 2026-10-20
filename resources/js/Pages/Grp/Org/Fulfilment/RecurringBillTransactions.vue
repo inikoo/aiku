@@ -20,11 +20,12 @@ import { set } from 'lodash-es'
 import { ctrans } from '@/Composables/useTrans'
 library.add(faTag,faTrashAlt)
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
     data: TableTS
     tab?: string
     status?:string
-}>()
+    canEdit?: boolean
+}>(), { canEdit: true })
 const layout = inject("layout", layoutStructure)
 
 const getRoute = (item: {}) => {
@@ -125,7 +126,7 @@ const locale = inject('locale', aikuLocaleStructure)
         <!-- Column: quantity -->
         <template #cell(quantity)="{ item }">
 			<div class="flex justify-end">
-				<div v-if="item.edit_type !== 'net' && status == 'current' &&  (item.data.type !== 'Pallet' && item.data.type !== 'Space')">
+				<div v-if="canEdit && item.edit_type !== 'net' && status == 'current' &&  (item.data.type !== 'Pallet' && item.data.type !== 'Space')">
 					<NumberWithButtonSave v-model="item.quantity"   @onSave="(e)=>onUpdateQuantity(item.id,item.fulfilment_transaction_id, e)"/>
 				</div>
 				<div v-else-if="item.data.type == 'Pallet'">
@@ -153,7 +154,7 @@ const locale = inject('locale', aikuLocaleStructure)
 
         <template #cell(total)="{ item, proxyItem }">
             <div class="relative">
-                <template v-if="item.edit_type === 'net'">
+                <template v-if="canEdit && item.edit_type === 'net'">
                     <div class="w-72 float-right">
                         <NumberWithButtonSave
                             v-model="proxyItem.total"
@@ -181,7 +182,7 @@ const locale = inject('locale', aikuLocaleStructure)
 
         <!-- Column: Action -->
 		<template #cell(actions)="{ item }">
-			<Button v-if="item.data.type !== 'Pallet' && item.data.type !== 'Space'" @click="() => onDeleteTransaction(item.id,item.fulfilment_transaction_id)"
+			<Button v-if="canEdit && item.data.type !== 'Pallet' && item.data.type !== 'Space'" @click="() => onDeleteTransaction(item.id,item.fulfilment_transaction_id)"
 				:loading="isLoading === 'buttonReset' + item.id" icon="fal fa-trash-alt" type="negative"
 				v-tooltip="'Unselect this field'" />
 		</template>

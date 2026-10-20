@@ -11,6 +11,7 @@ use App\Actions\Chat\Whatsapp\Concerns\WithWhatsappCredentials;
 use App\Actions\Chat\Whatsapp\NormaliseWhatsappVideo;
 use App\Actions\Helpers\Media\StoreMediaFromFile;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithWhatsappTemplateEditAuthorisation;
 use App\Enums\CRM\Livechat\WhatsappMediaTypeEnum;
 use App\Enums\CRM\Livechat\WhatsappTemplateTagEnum;
 use App\Models\Catalogue\Shop;
@@ -30,6 +31,7 @@ use Lorisleiva\Actions\ActionRequest;
 class StoreWhatsappMessageTemplate extends OrgAction
 {
     use WithWhatsappCredentials;
+    use WithWhatsappTemplateEditAuthorisation;
 
     public const CATEGORIES = ['MARKETING', 'UTILITY'];
 

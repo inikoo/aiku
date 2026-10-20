@@ -9,8 +9,11 @@
 namespace App\Actions\Retina\UI\Auth;
 
 use App\Actions\Comms\Email\SendResetPasswordEmail;
+use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\CRM\WebUserPasswordReset\StoreWebUserPasswordReset;
 use App\Actions\RetinaAction;
+use App\Enums\CRM\Customer\CustomerStatusEnum;
+use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
 use Closure;
 use Illuminate\Support\Str;
@@ -29,6 +32,16 @@ class SendRetinaResetPasswordEmail extends RetinaAction
         $webUser = WebUser::where('website_id', $this->website->id)
             ->whereRaw('lower(email) = ?', [strtolower($modelData['email'])])
             ->first();
+
+        if (!$webUser) {
+            $customer = $this->customerWithoutLogin($modelData['email']);
+            $webUser  = StoreWebUser::make()->action($customer, [
+                'contact_name' => $customer->contact_name,
+                'username'     => $customer->email,
+                'email'        => $customer->email,
+                'is_root'      => true,
+            ], sendRegistrationEmail: false);
+        }
 
         $token = Str::random(rand(24, 28));
         $webUserPasswordReset = StoreWebUserPasswordReset::run($webUser, $token);
@@ -72,7 +85,7 @@ class SendRetinaResetPasswordEmail extends RetinaAction
                         ->whereRaw('lower(email) = ?', [strtolower((string) $value)])
                         ->exists();
 
-                    if (! $exists) {
+                    if (! $exists && ! $this->customerWithoutLogin((string) $value)) {
                         $fail(__("We can't find a user with that email address."));
                     }
                 },
@@ -80,6 +93,31 @@ class SendRetinaResetPasswordEmail extends RetinaAction
         ];
     }
 
+
+    /**
+     * Customers brought over from Aurora (and some created in Grp) have no web user, so they can neither log in nor
+     * register again with their email. Asking for a reset link claims the account: the login is only usable after the
+     * link sent to the customer's own address is followed.
+     */
+    private function customerWithoutLogin(string $email): ?Customer
+    {
+        $email = strtolower(trim($email));
+
+        $loginExists = WebUser::withTrashed()
+            ->where('website_id', $this->website->id)
+            ->where(fn ($query) => $query->whereRaw('lower(email) = ?', [$email])->orWhereRaw('lower(username) = ?', [$email]))
+            ->exists();
+
+        if ($loginExists) {
+            return null;
+        }
+
+        return Customer::where('shop_id', $this->shop->id)
+            ->where('status', CustomerStatusEnum::APPROVED)
+            ->whereRaw('lower(email) = ?', [$email])
+            ->whereDoesntHave('webUsers', fn ($query) => $query->withTrashed())
+            ->first();
+    }
 
     public function asController(ActionRequest $request): void
     {

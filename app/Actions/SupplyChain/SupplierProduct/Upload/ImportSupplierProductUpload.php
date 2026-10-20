@@ -429,6 +429,7 @@ class ImportSupplierProductUpload
 
                 continue;
             }
+            $purchaseOrder->update(['data' => array_merge($purchaseOrder->data ?? [], ['from_upload_id' => $upload->id])]);
 
             $added  = 0;
             $errors = [];

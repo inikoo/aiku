@@ -24,6 +24,7 @@ class GetAgentOrganisationNavigation
 
         if ($user->authTo("procurement.$organisation->id.view")) {
             $topMenus = [
+                'agent_incoming_purchase_orders' => [],
                 'agent_suppliers' => [
                     $this->procurementSubSection(__('Suppliers'), 'fa-person-dolly', 'grp.org.agent.org_suppliers.', 'grp.org.agent.org_suppliers.index', $organisation),
                 ],
@@ -40,6 +41,8 @@ class GetAgentOrganisationNavigation
                 'agent_purchase_orders' => [
                     $this->procurementSubSection(__('Dashboard'), 'fa-chart-network', 'grp.org.agent.purchase_orders.dashboard', 'grp.org.agent.purchase_orders.dashboard', $organisation),
                     $this->procurementSubSection(__('List'), 'fa-clipboard-list', 'grp.org.agent.purchase_orders.index', 'grp.org.agent.purchase_orders.index', $organisation),
+                    $this->procurementSubSection(__('Agent orders'), 'fa-boxes', 'grp.org.agent.purchase_orders.agent_orders', 'grp.org.agent.purchase_orders.agent_orders', $organisation),
+                    $this->procurementSubSection(__('Shared suppliers'), 'fa-people-carry', 'grp.org.agent.purchase_orders.shared_suppliers', 'grp.org.agent.purchase_orders.shared_suppliers', $organisation),
                     $this->procurementSubSection(__('Board'), 'fa-columns', 'grp.org.agent.purchase_orders.board', 'grp.org.agent.purchase_orders.board', $organisation),
                     $this->procurementSubSection(__('Reports'), 'fa-chart-line', 'grp.org.agent.purchase_orders.reports', 'grp.org.agent.purchase_orders.reports', $organisation),
                 ],
@@ -49,28 +52,44 @@ class GetAgentOrganisationNavigation
                     $this->procurementSubSection(__('Past containers'), 'fa-history', 'grp.org.agent.stock_deliveries.past', 'grp.org.agent.stock_deliveries.past', $organisation),
                     $this->procurementSubSection(__('Invoices'), 'fa-file-invoice', 'grp.org.agent.accounting.invoices.', 'grp.org.agent.accounting.invoices.index', $organisation),
                 ],
-                'agent_warehouse' => [
-                    $this->procurementSubSection(__('Warehouse'), 'fa-warehouse-alt', 'grp.org.agent.warehouse.', 'grp.org.agent.warehouse.index', $organisation),
-                ],
                 'agent_accounting' => [
                     $this->procurementSubSection(__('Dashboard'), 'fa-chart-network', 'grp.org.agent.accounting.dashboard', 'grp.org.agent.accounting.dashboard', $organisation),
+                    $this->procurementSubSection(__('Ledger'), 'fa-book', 'grp.org.agent.accounting.ledger.', 'grp.org.agent.accounting.ledger.index', $organisation),
                     $this->procurementSubSection(__('Deposits'), 'fa-hand-holding-usd', 'grp.org.agent.accounting.deposits.', 'grp.org.agent.accounting.deposits.index', $organisation),
-                    $this->procurementSubSection(__('Deposit requests'), 'fa-money-check-alt', 'grp.org.agent.accounting.deposit_requests.', 'grp.org.agent.accounting.deposit_requests.index', $organisation),
+                    $this->procurementSubSection(__('Money requests'), 'fa-money-check-alt', 'grp.org.agent.accounting.deposit_requests.', 'grp.org.agent.accounting.deposit_requests.index', $organisation),
                     $this->procurementSubSection(__('Invoices'), 'fa-file-invoice', 'grp.org.agent.accounting.invoices.', 'grp.org.agent.accounting.invoices.index', $organisation),
                 ],
             ];
 
             foreach (
                 [
+                    'agent_incoming_purchase_orders' => [__('Incoming POs'), 'fa-paper-plane', 'grp.org.agent.incoming_purchase_orders'],
                     'agent_suppliers'       => [__('Suppliers'), 'fa-person-dolly', 'grp.org.agent.org_suppliers'],
                     'agent_products'        => [__('Products'), 'fa-box-usd', 'grp.org.agent.org_supplier_products'],
                     'agent_sales'           => [__('Sales'), 'fa-chart-line', 'grp.org.agent.sales'],
                     'agent_purchase_orders' => [__('Purchase Orders'), 'fa-clipboard-list', 'grp.org.agent.purchase_orders'],
-                    'agent_warehouse'       => [__('Warehouse'), 'fa-warehouse-alt', 'grp.org.agent.warehouse'],
                     'agent_containers'      => [__('Containers'), 'fa-truck-container', 'grp.org.agent.stock_deliveries'],
                     'agent_accounting'      => [__('Accounting'), 'fa-file-invoice-dollar', 'grp.org.agent.accounting'],
                 ] as $key => [$label, $icon, $root]
             ) {
+                if ($key === 'agent_containers') {
+                    $navigation['agent_warehouse_navigation'] = [
+                        'warehouse'     => $this->procurementSubSection(__('Warehouse'), 'fa-warehouse-alt', 'grp.org.agent.warehouse.index', 'grp.org.agent.warehouse.index', $organisation),
+                        'in_production' => $this->procurementSubSection(__('In production'), 'fa-industry-alt', 'grp.org.agent.warehouse.in_production', 'grp.org.agent.warehouse.in_production', $organisation),
+                        'received'      => array_merge(
+                            $this->procurementSubSection(__('Received'), 'fa-inbox-in', 'grp.org.agent.warehouse.received.', 'grp.org.agent.warehouse.received.index', $organisation),
+                            [
+                                'topMenu' => [
+                                    'subSections' => [
+                                        $this->procurementSubSection(__('Received'), 'fa-inbox-in', 'grp.org.agent.warehouse.received.index', 'grp.org.agent.warehouse.received.index', $organisation),
+                                        $this->procurementSubSection(__('Goods receipts'), 'fa-clipboard-check', 'grp.org.agent.warehouse.received.goods_receipts.', 'grp.org.agent.warehouse.received.goods_receipts.index', $organisation),
+                                    ],
+                                ],
+                            ]
+                        ),
+                    ];
+                }
+
                 $navigation[$key] = [
                     'root'    => $root.'.',
                     'label'   => $label,
