@@ -1964,6 +1964,12 @@ test('robots txt is generated on demand with absolute sitemap urls', function (W
         ->toContain("://www.$website->domain/sitemap.xml")
         ->toContain("://www.$website->domain/sitemaps/products.xml")
         ->not->toContain('Sitemap: /');
+
+    expect($robotsTxt)
+        ->toContain("User-agent: Amazonbot\nDisallow: /*?variant")
+        ->toContain("Disallow: /email-protection\nDisallow: /i/\n")
+        ->toContain("User-agent: SiteAuditBot\n")
+        ->toContain("User-agent: SplitSignalBot\nDisallow: /\n");
 })->depends('launch website');
 
 test('llms txt core is generated and an upload is only appended', function (Website $website) {
