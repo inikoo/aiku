@@ -142,17 +142,17 @@ class ShowDevopsDashboard extends OrgAction
 
     /** @var array<string, string> */
     /**
-     * @return array{compare_days: int, coverage: array<string, mixed>|null, coverage_history: list<array{day: string, coverage: float|null}>, bundles: array<string, mixed>|null, bundle_history: list<array{day: string, bytes: int, gzip_bytes: int}>}
+     * @return array{compare_days: int, coverage: array<string, mixed>|null, coverage_history: list<array{day: string, source: string, coverage: float|null}>, bundles: array<string, mixed>|null, bundle_history: list<array{day: string, bytes: int, gzip_bytes: int}>}
      */
     public function getCodeHealth(int $days = 180, int $compareDays = 30): array
     {
         $history = fn (string $type) => CiMetricSnapshot::where('type', $type)->where('measured_at', '>=', now()->subDays($days))
-            ->orderBy('measured_at')->get(['measured_at', 'summary'])
+            ->orderBy('measured_at')->get(['measured_at', 'summary', 'github_run_id'])
             ->groupBy(fn (CiMetricSnapshot $snapshot) => $snapshot->measured_at->copy()->setTimezone('Asia/Kuala_Lumpur')->toDateString())
-            ->map(fn (Collection $snapshots, string $day) => ['day' => $day, ...$snapshots->last()->summary])
+            ->map(fn (Collection $snapshots, string $day) => ['day' => $day, 'source' => $snapshots->last()->github_run_id ? 'aiku' : 'codecov', ...$snapshots->last()->summary])
             ->values();
         $latest   = fn (string $type) => CiMetricSnapshot::where('type', $type)->orderByDesc('measured_at')->first();
-        $baseline = fn (string $type, CiMetricSnapshot $latest) => CiMetricSnapshot::where('type', $type)
+        $baseline = fn (string $type, CiMetricSnapshot $latest) => CiMetricSnapshot::where('type', $type)->whereNotNull('github_run_id')
             ->where('measured_at', '<=', $latest->measured_at->copy()->subDays($compareDays))->orderByDesc('measured_at')->first();
 
         $coverage = $latest(CiMetricSnapshot::COVERAGE);
@@ -161,7 +161,7 @@ class ShowDevopsDashboard extends OrgAction
         return [
             'compare_days'     => $compareDays,
             'coverage'         => $coverage ? $this->coverageDetail($coverage, $baseline(CiMetricSnapshot::COVERAGE, $coverage)) : null,
-            'coverage_history' => $history(CiMetricSnapshot::COVERAGE)->map(fn (array $day) => ['day' => $day['day'], 'coverage' => $day['coverage'] ?? null])->all(),
+            'coverage_history' => $history(CiMetricSnapshot::COVERAGE)->map(fn (array $day) => ['day' => $day['day'], 'source' => $day['source'], 'coverage' => $day['coverage'] ?? null])->all(),
             'bundles'          => $bundles ? $this->bundleDetail($bundles, $baseline(CiMetricSnapshot::BUNDLE_SIZE, $bundles)) : null,
             'bundle_history'   => $history(CiMetricSnapshot::BUNDLE_SIZE)->map(fn (array $day) => ['day' => $day['day'], 'bytes' => $day['bytes'] ?? 0, 'gzip_bytes' => $day['gzip_bytes'] ?? 0])->all(),
         ];

@@ -47,6 +47,7 @@ class AppointmentResource extends JsonResource
             'staff_name'       => $appointment->user?->chatName(),
             'contact_name'     => $appointment->contact_name,
             'email'            => $appointment->email,
+            'reminder_sent_at' => $appointment->reminder_sent_at?->toIso8601String(),
             'phone'            => $appointment->phone,
             'whatsapp_url'     => $appointment->appointmentType?->requiresPhone() ? $appointment->whatsappUrl() : null,
             'number_visitors'  => $appointment->number_visitors,

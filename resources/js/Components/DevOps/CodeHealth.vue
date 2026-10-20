@@ -17,7 +17,7 @@ export interface CodeHealthData {
         change: number | null
         modules: { module: string, lines: number, hits: number, coverage: number | null, change: number | null }[]
     } | null
-    coverage_history: { day: string, coverage: number | null }[]
+    coverage_history: { day: string, source: "codecov" | "aiku", coverage: number | null }[]
     bundles: {
         measured_at: string
         head_sha: string | null
@@ -55,8 +55,14 @@ const options = (suffix: string, beginAtZero: boolean) => ({
 
 const coverageChart = computed(() => ({
     labels: props.health.coverage_history.map(day => formatDay(day.day)),
-    datasets: [{ label: ctrans("Line coverage"), data: props.health.coverage_history.map(day => day.coverage), borderColor: "#10b981", backgroundColor: "rgba(16, 185, 129, 0.1)", fill: true, pointRadius: 0, tension: 0.2 }],
+    datasets: [
+        { label: ctrans("Counted by Codecov"), data: props.health.coverage_history.map(day => day.source === "codecov" ? day.coverage : null), borderColor: "#9ca3af", borderDash: [4, 4], pointRadius: 0, tension: 0.2 },
+        { label: ctrans("Counted by aiku"), data: props.health.coverage_history.map(day => day.source === "aiku" ? day.coverage : null), borderColor: "#10b981", backgroundColor: "rgba(16, 185, 129, 0.1)", fill: true, pointRadius: 2, tension: 0.2 },
+    ].filter(dataset => dataset.data.some(value => value !== null)),
 }))
+
+const firstAikuDay = computed(() => props.health.coverage_history.find(day => day.source === "aiku")?.day ?? null)
+const hasCodecovHistory = computed(() => props.health.coverage_history.some(day => day.source === "codecov"))
 
 const bundleChart = computed(() => ({
     labels: props.health.bundle_history.map(day => formatDay(day.day)),
@@ -92,6 +98,7 @@ const bundleChart = computed(() => ({
                     </div>
                 </div>
                 <div v-if="health.coverage_history.length > 1" class="mt-4 h-44"><Line :aria-label="ctrans('Line coverage over time')" :data="coverageChart" :options="options('%', false)" /></div>
+                <p v-if="hasCodecovHistory && firstAikuDay" class="mt-1 text-xs text-gray-500">{{ ctrans("Since :date aiku counts coverage itself. Codecov left out some bracket-only lines, so the line jumps there; changes compare aiku counts only.", { date: formatDay(firstAikuDay) }) }}</p>
                 <div class="mt-4 overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>

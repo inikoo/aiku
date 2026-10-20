@@ -83,6 +83,7 @@ const props = withDefaults(
 		applyingTemplateId?: number | null
 		deletingTemplateId?: number | null
 		templatesFilter?: WebLayoutTemplateFilter
+		matchingTemplatesOnly?: boolean
 	}>(),
 	{
 		canUseTemplate: true,
@@ -92,6 +93,7 @@ const props = withDefaults(
 		applyingTemplateId: null,
 		deletingTemplateId: null,
 		templatesFilter: 'all',
+		matchingTemplatesOnly: false,
 	}
 )
 
@@ -949,6 +951,7 @@ const showBlockVisibilityOptions = computed(
 						:deletingTemplateId="deletingTemplateId"
 						:editable="editable"
 						:filter="templatesFilter"
+						:matchingOnly="matchingTemplatesOnly"
 						@refresh="requestTemplates"
 						@search="onSearchTemplates"
 						@navigate="onNavigateTemplates"

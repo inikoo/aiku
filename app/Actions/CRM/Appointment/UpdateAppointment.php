@@ -33,6 +33,12 @@ class UpdateAppointment extends OrgAction
 
             $appointment = $this->update($appointment, $modelData);
 
+            if (!$appointment->starts_at->equalTo($previousStartsAt)) {
+                $appointment->forceFill([
+                    'reminder_sent_at' => RemindUpcomingAppointments::isInsideReminderWindow($appointment) ? now() : null,
+                ])->saveQuietly();
+            }
+
             $this->notifyVisitorAboutChange($appointment, $previousState, $previousStartsAt);
 
             return $appointment;

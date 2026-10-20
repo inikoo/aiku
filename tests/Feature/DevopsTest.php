@@ -951,6 +951,18 @@ it('records nightly coverage by module and bundle sizes, imports codecov history
     $this->artisan('ci-metrics:import-codecov', ['--days' => 365])->assertSuccessful();
     expect(App\Models\DevOps\CiMetricSnapshot::where('type', 'coverage')->count())->toBe(1);
 
+    $this->actingAs(createAdminGuest(createGroup())->getUser())
+        ->get(route('grp.devops.dashboard'))
+        ->assertInertia(fn (Inertia\Testing\AssertableInertia $page) => $page
+            ->reloadOnly('codeHealth', fn (Inertia\Testing\AssertableInertia $reload) => $reload
+                ->where('codeHealth.coverage.coverage', 60)
+                ->where('codeHealth.coverage.change', null)));
+
+    App\Actions\DevOps\CiMetricSnapshot\StoreCoverageSnapshot::run(['run_id' => 9300, 'head_sha' => str_repeat('d', 40), 'measured_at' => now()->subDays(35)->toIso8601String(), 'directories' => [
+        'app/Actions/CRM/Customer' => [100, 40],
+        'app/Models/Ordering'      => [50, 50],
+    ]]);
+
     $coverage = ['run_id' => 9301, 'head_sha' => str_repeat('c', 40), 'directories' => [
         'app/Actions/CRM/Customer'      => [100, 70],
         'app/Http/Resources/CRM'        => [100, 70],
@@ -974,7 +986,9 @@ it('records nightly coverage by module and bundle sizes, imports codecov history
             ->where('codeHealth.coverage.change', 3.33)
             ->where('codeHealth.coverage.modules.0', ['module' => 'CRM', 'lines' => 200, 'hits' => 140, 'coverage' => 70, 'change' => 30])
             ->where('codeHealth.coverage.modules.1.coverage', 50)
-            ->has('codeHealth.coverage_history', 2)
+            ->has('codeHealth.coverage_history', 3)
+            ->where('codeHealth.coverage_history.0.source', 'codecov')
+            ->where('codeHealth.coverage_history.2.source', 'aiku')
             ->where('codeHealth.bundles.bytes', 4_200_000)
             ->where('codeHealth.bundles.gzip_bytes', 1_200_000)
             ->where('codeHealth.bundles.bundles.0.name', 'grp')
