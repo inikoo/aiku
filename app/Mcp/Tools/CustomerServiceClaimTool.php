@@ -73,7 +73,7 @@ class CustomerServiceClaimTool extends AikuCustomerServiceTool
 
         $claim = GetChatClaimCase::run($chatSession, $this->customerOf($chatSession), $order->reference);
 
-        if (!$claim || $claim['order']['reference'] !== $order->reference || !$claim['lines']) {
+        if (!$claim || $claim['order']['reference'] !== $order->reference || !$claim['products']) {
             return Response::error("{$order->reference} has nothing delivered to claim on. Nothing was changed.");
         }
 
@@ -83,7 +83,7 @@ class CustomerServiceClaimTool extends AikuCustomerServiceTool
 
         $reason     = $request->get('reason') ?: $claim['reason'];
         $percentage = $resolution === 'refund_to_balance' ? (float) ($request->get('percentage') ?: 100) : 100.0;
-        $lines      = collect($claim['lines'])->keyBy(fn (array $line) => strtolower((string) $line['code']));
+        $lines      = collect($claim['products'])->keyBy(fn (array $line) => strtolower((string) $line['code']));
         $claimed    = [];
         $amount     = 0.0;
 
@@ -103,15 +103,16 @@ class CustomerServiceClaimTool extends AikuCustomerServiceTool
                 return Response::error("Only {$line['claimable']} of {$line['code']} is left to claim on {$order->reference}: the rest is already replaced, refunded or waiting in their next order. Nothing was changed.");
             }
 
+            $share = min(1, (float) $item['quantity'] / $line['ordered']);
+
             $claimed[] = [
-                'id'       => $line['id'],
                 'code'     => $line['code'],
                 'name'     => $line['name'],
                 'quantity' => (float) $item['quantity'],
-                'reason'   => $reason,
+                'items'    => array_map(fn (array $stockLine) => ['id' => $stockLine['id'], 'quantity' => round($stockLine['quantity'] * $share, 3), 'reason' => $reason], $line['items']),
             ];
 
-            $amount += ($claim['invoiced'][$line['transaction_id']] ?? 0) * min(1, (float) $item['quantity'] / max($line['ordered'], 0.001)) * $claim['tax_ratio'] * $percentage / 100;
+            $amount += ($claim['invoiced'][$line['transaction_id']] ?? 0) * $share * $claim['tax_ratio'] * $percentage / 100;
         }
 
         $customer = $order->customer;
@@ -135,7 +136,7 @@ class CustomerServiceClaimTool extends AikuCustomerServiceTool
                 McpChangeTypeEnum::CUSTOMER_SERVICE,
                 str_replace('_', ' ', $resolution).' for '.collect($claimed)->map(fn (array $item) => $item['code'].' x'.$item['quantity'])->implode(', ').' of '.$order->reference,
                 ['chat_session_id' => $chatSession->id, 'order_id' => $order->id],
-                fn () => $this->settle($order, $resolution, $claimed, $reason, $percentage, $request->get('note')),
+                fn () => $this->settle($order, $resolution, collect($claimed)->flatMap(fn (array $product) => $product['items'])->all(), $reason, $percentage, $request->get('note')),
                 ['action' => $resolution, 'items' => $claimed, 'percentage' => $percentage]
             );
         } catch (ValidationException $exception) {
@@ -155,14 +156,12 @@ class CustomerServiceClaimTool extends AikuCustomerServiceTool
     }
 
     /**
-     * @param  array<int, array{id: int, code: string, name: string, quantity: float, reason: string}>  $claimed
+     * @param  array<int, array{id: int, quantity: float, reason: string}>  $items  delivery note items, in stocks
      *
      * @throws \Throwable
      */
-    private function settle(Order $order, string $resolution, array $claimed, string $reason, float $percentage, ?string $note): array
+    private function settle(Order $order, string $resolution, array $items, string $reason, float $percentage, ?string $note): array
     {
-        $items = array_map(fn (array $item) => ['id' => $item['id'], 'quantity' => $item['quantity'], 'reason' => $item['reason']], $claimed);
-
         if ($resolution === 'refund_to_balance') {
             $refund = RefundClaimToBalance::make()->handle($order, $items, $percentage);
 

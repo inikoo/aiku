@@ -50,11 +50,13 @@ class GetChatClaimCase
 
         $text  = mb_strtolower($details['text']);
         $left  = CheckClaimCompensation::run($order);
-        $lines = DeliveryNoteItem::query()
+        $items = DeliveryNoteItem::query()
             ->whereIn('delivery_note_id', $order->deliveryNotes()->where('type', DeliveryNoteTypeEnum::ORDER)->pluck('delivery_notes.id'))
             ->with(['transaction.asset', 'orgStock'])
             ->limit(80)
-            ->get()
+            ->get();
+
+        $lines = $items
             ->map(function (DeliveryNoteItem $item) use ($text, $left) {
                 $code = $item->transaction?->asset?->code ?? $item->orgStock?->code;
 
@@ -95,6 +97,7 @@ class GetChatClaimCase
                 ->all(),
             'photos'          => $details['photos'],
             'lines'           => $lines,
+            'products'        => $this->products($items, $text, $left),
             'reason'          => $this->reason($text)->value,
             'reasons'         => collect(DeliveryNoteItemReplacementReasonEnum::cases())
                 ->map(fn (DeliveryNoteItemReplacementReasonEnum $reason) => ['value' => $reason->value, 'label' => $reason->label()])
@@ -137,6 +140,41 @@ class GetChatClaimCase
                 ? ['name' => 'grp.models.order.claim_refund_to_balance', 'parameters' => ['order' => $order->id]]
                 : null,
         ];
+    }
+
+    /**
+     * The lines above are what the warehouse picked, one per stock and counted in stocks: a
+     * 3-pack ordered twice is 6, a set of four stocks is four lines. Customers and the assistant
+     * talk in products as ordered, so these are the same lines per order line, in its units,
+     * with the stock lines a claim on it is spread over.
+     *
+     * @param  \Illuminate\Support\Collection<int, DeliveryNoteItem>  $items
+     * @param  array<int, float>  $left
+     *
+     * @return array<int, array{transaction_id: int, code: ?string, name: ?string, ordered: float, claimable: float, mentioned: bool, items: array<int, array{id: int, quantity: float}>}>
+     */
+    private function products($items, string $text, array $left): array
+    {
+        return $items->filter(fn (DeliveryNoteItem $item) => $item->transaction)
+            ->groupBy('transaction_id')
+            ->map(function ($stockLines, $transactionId) use ($text, $left) {
+                $transaction = $stockLines->first()->transaction;
+                $code        = $transaction->asset?->code;
+                $ordered     = (float) $transaction->quantity_ordered + (float) $transaction->quantity_bonus;
+
+                return [
+                    'transaction_id' => (int) $transactionId,
+                    'code'           => $code,
+                    'name'           => $transaction->asset?->name,
+                    'ordered'        => $ordered,
+                    'claimable'      => floor(($left[$transactionId] ?? 1) * $ordered * 1000 + 0.001) / 1000,
+                    'mentioned'      => $code !== null && str_contains($text, mb_strtolower($code)),
+                    'items'          => $stockLines->map(fn (DeliveryNoteItem $item) => ['id' => $item->id, 'quantity' => (float) $item->quantity_required])->values()->all(),
+                ];
+            })
+            ->filter(fn (array $product) => $product['ordered'] > 0)
+            ->values()
+            ->all();
     }
 
     private function order(Customer $customer, ?string $reference): ?Order

@@ -2764,6 +2764,33 @@ describe('customer service tools', function () {
             ->assertHasErrors(['was not delivered on']);
     });
 
+    test('a pack of several stocks is claimed in the products ordered, not the stocks picked', function () {
+        $this->product->orgStocks()->updateExistingPivot($this->product->orgStocks()->first()->id, ['quantity' => 3]);
+        $order = StoreOrder::make()->action($this->csCustomer, []);
+        App\Actions\Ordering\Transaction\StoreTransaction::make()->action($order, $this->product->historicAsset, ['quantity_ordered' => 2]);
+        App\Actions\Ordering\Order\UpdateState\SubmitOrder::make()->action($order->refresh());
+        $deliveryNote = App\Actions\Ordering\Order\UpdateState\SendOrderToWarehouse::make()->action($order->refresh(), []);
+        $item         = $deliveryNote->deliveryNoteItems()->firstOrFail();
+        $item->update(['quantity_picked' => $item->quantity_required, 'quantity_dispatched' => $item->quantity_required]);
+        $order->update(['state' => OrderStateEnum::DISPATCHED, 'dispatched_at' => now()->subDay()]);
+
+        expect((float) $item->quantity_required)->toBe(6.0);
+
+        Illuminate\Support\Facades\Auth::setUser($this->user);
+        $claimable = json_decode((string) app(App\Mcp\Tools\CustomerServiceChatTool::class)->handle(new Laravel\Mcp\Request(['chat_id' => $this->chat->ulid, 'order' => $order->reference]))->content(), true)['order']['claim']['claimable'];
+        expect($claimable)->toHaveCount(1)
+            ->and($claimable[0])->toMatchArray(['code' => $this->product->code, 'ordered' => 2, 'claimable' => 2]);
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceClaimTool::class, ['order' => $order->reference, 'resolution' => 'replacement', 'items' => [['code' => $this->product->code, 'quantity' => 3]]])
+            ->assertHasErrors(['left to claim']);
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceClaimTool::class, ['order' => $order->reference, 'resolution' => 'replacement', 'items' => [['code' => $this->product->code, 'quantity' => 1]], 'confirm' => true, 'request_text' => 'send one pack'])
+            ->assertOk();
+
+        $replacement = $order->deliveryNotes()->where('type', App\Enums\Dispatching\DeliveryNote\DeliveryNoteTypeEnum::REPLACEMENT)->sole();
+        expect((float) $replacement->deliveryNoteItems()->sole()->quantity_required)->toBe(3.0);
+    });
+
     test('lists the chats waiting on the user, and drops one once it is answered or a colleague holds it', function () {
         $this->chat->update(['last_visitor_message_at' => now()->subMinutes(20), 'last_agent_message_at' => null]);
 
