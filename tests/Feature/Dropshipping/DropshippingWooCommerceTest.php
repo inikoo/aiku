@@ -43,6 +43,7 @@ use Lorisleiva\Actions\Decorators\JobDecorator;
 use App\Http\Resources\CRM\RetinaCustomerSalesChannelResource;
 use App\Jobs\BoundedUniqueJobDecorator;
 use App\Actions\Dropshipping\WooCommerce\Product\StoreWooCommerceProduct;
+use App\Actions\Retina\Woo\StoreRetinaNewProductToCurrentWoo;
 use App\Events\UploadProductToSalesChannelProgressEvent;
 use App\Helpers\PlatformResponseFormatter;
 use App\Actions\Dropshipping\WooCommerce\Product\UpdateInventoryInWooPortfolio;
@@ -1843,4 +1844,34 @@ test('a product upload that failed for good keeps its own error when the queue m
     StoreNewProductToCurrentWooCommerce::make()->jobFailed(new RuntimeException('SKU no válido o duplicado.'), $wooCommerceUser, $portfolio, false);
 
     expect(Arr::get($portfolio->refresh()->errors_response, 'message'))->toBe('SKU no válido o duplicado.');
+});
+
+test('creating one product from retina queues the upload and the job reports the store refusal on the row', function () {
+    Queue::fake();
+    Event::fake([UploadProductToSalesChannelProgressEvent::class]);
+
+    $wooCommerceUser = wooConnect(wooCustomer($this->shop));
+    $portfolio       = wooPortfolio($wooCommerceUser->customerSalesChannel, $this->product, null, 'aw-retina-single');
+
+    wooFake([
+        'POST products' => Http::response(['code' => 'product_invalid_sku', 'message' => 'Invalid or duplicated SKU.', 'data' => ['status' => 400]], 400),
+        'GET products'  => Http::response([]),
+    ]);
+
+    StoreRetinaNewProductToCurrentWoo::make()->handle($portfolio);
+
+    expect(wooSent('POST', 'products'))->toBeEmpty();
+
+    $arguments = null;
+    StoreNewProductToCurrentWooCommerce::assertPushed(function ($job, array $pushed) use ($portfolio, &$arguments) {
+        $arguments = $pushed;
+
+        return $pushed[1]->id === $portfolio->id && $pushed[2] === true && $pushed[3]['total'] === 1;
+    });
+
+    StoreNewProductToCurrentWooCommerce::make()->handle($wooCommerceUser, $portfolio, false, $arguments[3]);
+
+    expect($portfolio->refresh()->platform_status)->toBeFalse()
+        ->and($portfolio->errors_response['message'])->toBe('Invalid or duplicated SKU.');
+    Event::assertDispatched(UploadProductToSalesChannelProgressEvent::class, fn ($event) => $event->portfolio->id === $portfolio->id && $event->statistics === ['total' => 1, 'success' => 0, 'fail' => 1]);
 });

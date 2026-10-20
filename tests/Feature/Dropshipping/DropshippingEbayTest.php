@@ -36,6 +36,8 @@ use App\Actions\Dropshipping\Ebay\UpdateShippingPolicyEbayUser;
 use App\Actions\Dropshipping\Portfolio\StorePortfolio;
 use App\Actions\Maintenance\Dropshipping\SyncEbayChannelPoliciesFromEbay;
 use App\Actions\Retina\Ebay\PublishRetinaEbayPortfolio;
+use App\Actions\Retina\Ebay\StoreRetinaNewProductToCurrentEbay;
+use App\Events\UploadProductToSalesChannelProgressEvent;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -64,6 +66,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use App\Actions\Catalogue\Shop\Seeders\SeedShopOutboxes;
 use App\Actions\Comms\Email\RemindChannelOrdersOnHold;
@@ -1957,4 +1960,34 @@ test('a channel order still unpaid a week later is reminded once, on the day it 
     ]);
     expect(RemindChannelOrdersOnHold::run())->toBe([]);
     SendChannelOrderOnHoldEmail::assertPushed(2);
+});
+
+test('creating one product from retina queues the upload and the job reports the eBay refusal on the row', function () {
+    Queue::fake();
+    Event::fake([UploadProductToSalesChannelProgressEvent::class]);
+
+    $ebayUser  = ebayChannel($this);
+    $portfolio = StorePortfolio::make()->action($ebayUser->customerSalesChannel, $this->product, []);
+
+    fakeEbay($this, ebayCatalogueRoutes() + [
+        '/identity/v1/oauth2/token' => fn () => Http::response(['error' => 'invalid_grant', 'error_description' => 'the provided authorization refresh token is invalid'], 400),
+        '/sell/inventory/v1/offer'  => fn () => Http::response(['errors' => [['errorId' => 1001, 'domain' => 'OAuth', 'category' => 'REQUEST', 'message' => 'Invalid access token']]], 401),
+    ]);
+
+    StoreRetinaNewProductToCurrentEbay::make()->handle($portfolio);
+
+    Http::assertNothingSent();
+
+    $arguments = null;
+    StoreNewProductToCurrentEbay::assertPushed(function ($job, array $pushed) use ($portfolio, &$arguments) {
+        $arguments = $pushed;
+
+        return $pushed[1]->id === $portfolio->id && $pushed[2]['total'] === 1;
+    });
+
+    StoreNewProductToCurrentEbay::make()->handle($ebayUser, $portfolio, $arguments[2]);
+
+    expect($portfolio->refresh()->platform_status)->toBeFalse()
+        ->and($portfolio->upload_warning)->toBe('Invalid access token');
+    Event::assertDispatched(UploadProductToSalesChannelProgressEvent::class, fn ($event) => $event->portfolio->id === $portfolio->id && $event->statistics === ['total' => 1, 'success' => 0, 'fail' => 1]);
 });

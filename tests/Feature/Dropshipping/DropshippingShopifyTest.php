@@ -2911,3 +2911,37 @@ test('the detached report lists the connected stores that no longer hand us thei
     expect(CheckShopifyChannel::make()->ownsFulfilmentService($detachedUser))->toBeNull()
         ->and($detachedUser->customerSalesChannel->refresh()->platform_status)->toBeTrue();
 });
+
+test('creating one product from retina returns at once and the queued job reports the failure on the row', function () {
+    Queue::fake();
+    \Illuminate\Support\Facades\Event::fake([\App\Events\UploadProductToSalesChannelProgressEvent::class]);
+
+    $shopifyUser = shopifyProductChannel($this, 'retina-single-create');
+    $portfolio   = StorePortfolio::make()->action($shopifyUser->customerSalesChannel, $this->product, []);
+    $portfolio->update(['sku' => 'UP-RETINA-1']);
+
+    DetectWebsiteFromDomain::mock()->shouldReceive('handle')->andReturn(LaunchWebsite::make()->action(createWebsite($this->shop)));
+    actingAs(createWebUser($shopifyUser->customerSalesChannel->customer), 'retina');
+
+    ShopifyFake::fake([
+        'productVariantsWithSku' => ShopifyFake::graphql(['productVariants' => ['edges' => []]]),
+        'productCreate'          => fn () => throw new Error('Call to a member function on null'),
+    ]);
+
+    $this->post(route('retina.models.portfolio.store_new_shopify_product', $portfolio))->assertSuccessful();
+
+    expect(ShopifyFake::$requests)->toBeEmpty();
+
+    $arguments = null;
+    StoreNewProductToCurrentShopify::assertPushed(function ($job, array $pushed) use ($portfolio, &$arguments) {
+        $arguments = $pushed;
+
+        return $pushed[0]->id === $portfolio->id && $pushed[1]['total'] === 1;
+    });
+
+    StoreNewProductToCurrentShopify::make()->asJob($portfolio, $arguments[1]);
+
+    expect($portfolio->refresh()->platform_status)->toBeFalse()
+        ->and($portfolio->errors_response['message'])->toContain('Something went wrong on our side');
+    \Illuminate\Support\Facades\Event::assertDispatched(\App\Events\UploadProductToSalesChannelProgressEvent::class, fn ($event) => $event->portfolio->id === $portfolio->id && $event->statistics === ['total' => 1, 'success' => 0, 'fail' => 1]);
+});

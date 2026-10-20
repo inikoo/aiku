@@ -2,7 +2,7 @@
 import { Head, router } from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeadingPublic.vue"
 import { capitalize } from "@/Composables/capitalize"
-import { computed, reactive, ref, watch, onMounted, onBeforeUnmount, inject } from "vue"
+import { computed, reactive, ref, watch, onMounted, onBeforeUnmount, inject, provide } from "vue"
 import { PageHeadingTypes } from "@/types/PageHeading"
 import { Tabs as TSTabs } from "@/types/Tabs"
 import RetinaTablePortfoliosManual from "@/Components/Tables/Retina/RetinaTablePortfoliosManual.vue"
@@ -668,10 +668,26 @@ const initSocketFetchListener = () => {
 	)
 }
 
+const uploadingPortfolioIds = ref<number[]>([])
+provide("uploadingPortfolioIds", uploadingPortfolioIds)
+
+const onSingleUploadFinished = (portfolioId: number) => {
+	router.reload({
+		onFinish: () => {
+			uploadingPortfolioIds.value = uploadingPortfolioIds.value.filter((id) => id !== portfolioId)
+		},
+	})
+}
+
 const initSocketUploadListener = () => {
 	fetchChannel = window.Echo.private(
 		`channel.${props.customer_sales_channel?.id}.upload-product`
 	).listen(".channel-upload-progress", (eventData: any) => {
+		if (eventData.statistics?.total === 1 && !isOpenModalUploadProgress.value) {
+			onSingleUploadFinished(eventData.portfolio?.id)
+			return
+		}
+
 		isOpenModalUploadProgress.value = true
 		uploadProgressData.value = {
 			done: eventData.statistics?.success,
