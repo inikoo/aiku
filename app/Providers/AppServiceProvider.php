@@ -459,6 +459,7 @@ class AppServiceProvider extends ServiceProvider
                 'HistoricSupplierProduct'          => 'App\Models\SupplyChain\HistoricSupplierProduct',
                 'SupplierProductTradeUnit'         => 'App\Models\SupplyChain\SupplierProductTradeUnit',
                 'SupplierProduct'                  => 'App\Models\SupplyChain\SupplierProduct',
+                'SupplierProductPackingSpec'       => 'App\Models\SupplyChain\SupplierProductPackingSpec',
                 'Supplier'                         => 'App\Models\SupplyChain\Supplier',
                 'Agent'                            => 'App\Models\SupplyChain\Agent',
 

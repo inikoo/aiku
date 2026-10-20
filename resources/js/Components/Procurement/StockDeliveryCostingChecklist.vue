@@ -517,7 +517,7 @@ const removeExtra = (row: CostRow) => {
                                         <input
                                             :ref="(el) => { fileInputs[rowKey(row)] = el as HTMLInputElement | null }"
                                             type="file"
-                                            accept=".pdf,image/*"
+                                            accept=".pdf,image/*,.xlsx,.xls,.csv"
                                             multiple
                                             class="hidden"
                                             @change="uploadInvoice(row, $event)"

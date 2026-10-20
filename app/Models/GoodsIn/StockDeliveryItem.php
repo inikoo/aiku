@@ -14,6 +14,7 @@ use App\Enums\GoodsIn\StockDeliveryItem\StockDeliveryItemDiscrepancyOutcomeEnum;
 use App\Enums\GoodsIn\StockDeliveryItem\StockDeliveryItemStateEnum;
 use App\Enums\Inventory\OrgStockMovement\OrgStockMovementCostStatusEnum;
 use App\Models\Inventory\OrgStock;
+use App\Models\SupplyChain\HistoricSupplierProduct;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\InOrganisation;
@@ -163,6 +164,11 @@ class StockDeliveryItem extends Model implements Auditable
     public function supplierProduct(): BelongsTo
     {
         return $this->belongsTo(SupplierProduct::class);
+    }
+
+    public function historicSupplierProduct(): BelongsTo
+    {
+        return $this->belongsTo(HistoricSupplierProduct::class);
     }
 
     public function orgStock(): BelongsTo

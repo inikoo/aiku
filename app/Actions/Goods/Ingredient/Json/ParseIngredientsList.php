@@ -8,7 +8,6 @@ namespace App\Actions\Goods\Ingredient\Json;
 
 use App\Actions\Goods\Ingredient\StoreIngredient;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithGoodsEditAuthorisation;
 use App\Models\Goods\Ingredient;
 use App\Models\SysAdmin\Group;
 use Illuminate\Support\Facades\DB;
@@ -16,8 +15,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ParseIngredientsList extends OrgAction
 {
-    use WithGoodsEditAuthorisation;
-
     /**
      * @return array<int, array{name: string, slug: string|null, is_new: bool}>
      */
@@ -58,6 +55,15 @@ class ParseIngredientsList extends OrgAction
             ->unique(fn (string $name) => mb_strtolower($name))
             ->values()
             ->all();
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+
+        return $request->user()->authTo(['goods.edit', 'compliance.edit']);
     }
 
     public function rules(): array

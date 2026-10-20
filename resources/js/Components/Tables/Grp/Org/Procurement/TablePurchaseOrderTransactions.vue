@@ -22,7 +22,7 @@ import PurchaseOrderLinePriceChange from '@/Components/Procurement/PurchaseOrder
 import { getOrderingLevels, unitsPerOrderingLevel, suggestionAtOrderingLevel, type OrderingLevel } from '@/Composables/useOrderingLevel'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faBox, faPallet, faStopCircle, faTrashAlt, faPeopleArrows, faBalanceScale, faExclamationTriangle } from '@fal'
+import { faBox, faPallet, faStopCircle, faTrashAlt, faPeopleArrows, faBalanceScale, faExclamationTriangle, faBoxOpen } from '@fal'
 import { faExclamationCircle, faSpinner, faMinusCircle } from '@fas'
 import ConfirmPopup from 'primevue/confirmpopup'
 import Popover from 'primevue/popover'
@@ -30,7 +30,7 @@ import { useConfirm } from 'primevue/useconfirm'
 import Toggle from '@/Components/Pure/Toggle.vue'
 import ProductImageViewerDialog from '@/Components/Product/ProductImageViewerDialog.vue'
 
-library.add(faExclamationTriangle, faBalanceScale, faBox, faPallet, faStopCircle, faExclamationCircle, faTrashAlt, faSpinner, faMinusCircle, faPeopleArrows)
+library.add(faExclamationTriangle, faBalanceScale, faBox, faPallet, faStopCircle, faExclamationCircle, faTrashAlt, faSpinner, faMinusCircle, faPeopleArrows, faBoxOpen)
 
 const confirm = useConfirm()
 
@@ -424,6 +424,15 @@ function openImageViewer(item: any) {
 
 const currentOrganisation = route().params.organisation as string | undefined
 const isInAgentOrganisation = isAgentOrganisation(currentOrganisation)
+const currentPurchaseOrder = route().params.purchaseOrder as string | undefined
+
+function packingInstructionsUrl(item: { id: number, has_packing_instructions?: boolean }) {
+    if (!item.has_packing_instructions || !currentOrganisation || !currentPurchaseOrder) {
+        return ''
+    }
+
+    return route('grp.org.procurement.purchase_orders.packing_instructions', { organisation: currentOrganisation, purchaseOrder: currentPurchaseOrder, transaction: item.id })
+}
 
 function supplierProductRoute(item: { slug?: string, org_supplier_product_slug?: string }) {
     if (item.org_supplier_product_slug && isInAgentOrganisation) {
@@ -672,6 +681,16 @@ function orgStockRoute(item: { org_stock_id?: number }) {
 
         <template #cell(actions)="{ item }">
             <div class="flex justify-end items-center gap-2">
+                <a v-if="packingInstructionsUrl(item)" :href="packingInstructionsUrl(item)" target="_blank" rel="noopener">
+                    <Button
+                        :label="ctrans('Packing')"
+                        :tooltip="ctrans('Print the packing instructions of this product')"
+                        icon="fal fa-file-pdf"
+                        type="tertiary"
+                        size="xs"
+                    />
+                </a>
+
                 <Button
                     v-if="item.deleteRoute && state === 'in_process'"
                     :label="ctrans('Remove')"

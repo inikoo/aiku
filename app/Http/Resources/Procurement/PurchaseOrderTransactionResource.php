@@ -59,6 +59,7 @@ class PurchaseOrderTransactionResource extends JsonResource
             'supplier_unit'        => $supplierProduct?->supplier_unit?->value,
             'units_per_supplier_unit' => $supplierProduct?->supplier_unit ? $supplierProduct->unitsPerSupplierUnit() : null,
             'quantity_ordered'     => $transaction->quantity_ordered,
+            'has_packing_instructions' => $supplierProduct !== null,
             'minimum_carton_order' => $supplierProduct?->minimum_carton_order ? (int) $supplierProduct->minimum_carton_order : null,
 
             'net_amount'           => $transaction->net_amount,

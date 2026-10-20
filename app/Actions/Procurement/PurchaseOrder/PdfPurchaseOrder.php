@@ -162,22 +162,34 @@ class PdfPurchaseOrder extends OrgAction
      * @param  Collection<int, PurchaseOrderTransaction>  $lines
      * @return array<int, string>
      */
-    private function lineImages(Collection $lines): array
+    public function lineImages(Collection $lines): array
     {
-        $urls = $lines
-            ->mapWithKeys(fn (PurchaseOrderTransaction $line) => [$line->id => $this->lineImage($line)])
-            ->filter()
-            ->map(fn (Media $media) => GetImgProxyUrl::run($media->getImage()->resize(self::IMAGE_EDGE, self::IMAGE_EDGE)->extension('jpg')));
+        return $this->mediaImages(
+            $lines->mapWithKeys(fn (PurchaseOrderTransaction $line) => [$line->id => $this->lineImage($line)])->filter(),
+            self::IMAGE_EDGE
+        );
+    }
+
+    /**
+     * Images shrunk through imgproxy, fetched together, as data URIs keyed like the media given. Keys whose fetch
+     * failed are left out.
+     *
+     * @param  Collection<int, Media>  $media
+     * @return array<int, string>
+     */
+    public function mediaImages(Collection $media, int $edge): array
+    {
+        $urls = $media->map(fn (Media $image) => GetImgProxyUrl::run($image->getImage()->resize($edge, $edge)->extension('jpg')));
 
         if ($urls->isEmpty()) {
             return [];
         }
 
-        $responses = Http::pool(fn ($pool) => $urls->map(fn (string $url, int $lineId) => $pool->as((string) $lineId)->timeout(15)->get($url))->all(), self::IMAGE_CONCURRENCY);
+        $responses = Http::pool(fn ($pool) => $urls->map(fn (string $url, int $key) => $pool->as((string) $key)->timeout(15)->get($url))->all(), self::IMAGE_CONCURRENCY);
 
         return collect($responses)
             ->filter(fn ($response) => $response instanceof ImageResponse && $response->successful() && $response->body() !== '')
-            ->mapWithKeys(fn ($response, $lineId) => [(int) $lineId => 'data:image/jpeg;base64,'.base64_encode($response->body())])
+            ->mapWithKeys(fn ($response, $key) => [(int) $key => 'data:image/jpeg;base64,'.base64_encode($response->body())])
             ->all();
     }
 

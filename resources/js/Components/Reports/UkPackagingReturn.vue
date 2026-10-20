@@ -7,6 +7,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue"
 import { router } from "@inertiajs/vue3"
+import axios from "axios"
 import Dialog from "primevue/dialog"
 import EprFreezeButton from "@/Components/Reports/EprFreezeButton.vue"
 import Select from "primevue/select"
@@ -14,14 +15,14 @@ import InputNumber from "primevue/inputnumber"
 import InputText from "primevue/inputtext"
 import DatePicker from "primevue/datepicker"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faDownload, faArrowUp, faArrowDown, faFileCertificate, faPlus, faTrashAlt } from "@fal"
+import { faDownload, faArrowUp, faArrowDown, faFileCertificate, faPlus, faTrashAlt, faBoxOpen } from "@fal"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import { ctrans } from "@/Composables/useTrans"
 import { useLocaleStore } from "@/Stores/locale"
 
-library.add(faDownload, faArrowUp, faArrowDown, faFileCertificate, faPlus, faTrashAlt)
+library.add(faDownload, faArrowUp, faArrowDown, faFileCertificate, faPlus, faTrashAlt, faBoxOpen)
 
 type Cell = { kg: number; previous_kg: number | null; change: number | null; warning: boolean }
 
@@ -32,6 +33,7 @@ const props = defineProps<{
 		submission_period: string | null
 		has_data: boolean
 		kg: number
+		inbound_kg?: number
 		previous_kg: number | null
 		materials: string[]
 		form: ({ activity: string; label: string; cells: Record<string, Cell> } & Cell)[]
@@ -118,6 +120,7 @@ const blankLine = () => ({
 const line = ref(blankLine())
 const openDialog = () => {
 	line.value = blankLine()
+	productsWithoutSpec.value = null
 	errors.value = {}
 	dialogOpen.value = true
 }
@@ -134,6 +137,27 @@ const saveLine = () => {
 		onFinish: () => (saving.value = false),
 	})
 }
+const filling = ref(false)
+const productsWithoutSpec = ref<number | null>(null)
+const fillFromPackingSpecs = async () => {
+	filling.value = true
+	errors.value = {}
+	try {
+		const { data: cartons } = await axios.get(
+			route("grp.org.reports.packaging.import-cartons", { organisation: route().params.organisation, from: toIso(line.value.date_from), to: toIso(line.value.date_to) })
+		)
+		const declared = cartons.materials[line.value.material_category] ?? 0
+		productsWithoutSpec.value = cartons.products_without_spec
+		line.value.kg = declared > 0 ? Math.round(declared * 10) / 10 : null
+		line.value.notes = ctrans("From packing specs: :kg kg declared for :cartons cartons", { kg: locale.number(declared), cartons: locale.number(cartons.cartons_with_spec) })
+			+ (cartons.products_without_spec ? "; " + ctrans(":count imported products without a packing spec not included", { count: cartons.products_without_spec }) : "")
+	} catch {
+		errors.value = { kg: ctrans("Could not read the packing specs for this period") }
+	} finally {
+		filling.value = false
+	}
+}
+
 const deleteLine = (id: number) => router.delete(route("grp.models.epr_manual_line.delete", { organisation: props.organisationId, eprManualLine: id }), { preserveScroll: true })
 
 const fieldFocusClass = "[&.p-focus]:!border-[--app-accent] [&_input:focus]:!border-[--app-accent] focus:!border-[--app-accent]"
@@ -178,6 +202,9 @@ const date = (iso: string) => new Date(`${iso}T00:00:00`).toLocaleDateString(und
 							{{ ctrans(":change% vs :kg kg the period before", { change: locale.number(Math.abs(change)), kg: kg(data.previous_kg) }) }}
 						</span>
 					</div>
+				</div>
+				<div v-if="data.inbound_kg" class="text-xs text-gray-500">
+					{{ ctrans("Includes :kg kg of packing material inside imported cartons (Imported, non-household)", { kg: kg(data.inbound_kg) }) }}
 				</div>
 				<div class="text-xs text-gray-500">
 					<template v-if="data.submission_period">{{ ctrans("Submission period :period", { period: data.submission_period }) }}</template>
@@ -320,6 +347,13 @@ const date = (iso: string) => new Date(`${iso}T00:00:00`).toLocaleDateString(und
 							<Select v-model="line.to_nation" :options="nationOptions" optionLabel="label" optionValue="value" showClear class="w-full" :class="fieldFocusClass" :pt="selectPt" />
 						</label>
 					</template>
+					<div v-if="line.activity === 'IM'" class="col-span-2 flex items-center gap-2 rounded border border-gray-200 bg-gray-50 px-2 py-1.5 text-xs text-gray-600">
+						<span class="flex-1">{{ ctrans("Import cartons can be worked out from the agents' packing specs for the dates above. Master cartons are only counted here, never automatically.") }}</span>
+						<Button type="tertiary" size="xs" :label="ctrans('Fill from packing specs')" :icon="['fal', 'box-open']" :loading="filling" @click="fillFromPackingSpecs" />
+					</div>
+					<div v-if="productsWithoutSpec" class="col-span-2 rounded border border-amber-300 bg-amber-50 px-2 py-1.5 text-xs text-amber-800">
+						{{ ctrans(":count products imported in these dates have no packing spec yet, so their cartons are not in the weight. Add them from the container count.", { count: productsWithoutSpec }) }}
+					</div>
 					<label class="space-y-1">
 						<span class="text-xs text-gray-500">{{ ctrans("Weight") }}</span>
 						<InputNumber v-model="line.kg" :maxFractionDigits="3" suffix=" kg" class="w-full" :class="fieldFocusClass" :pt="{ pcInputText: { root: { class: '!py-1 !text-xs w-full' } } }" :invalid="!!errors.kg" />

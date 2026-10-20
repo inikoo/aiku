@@ -86,6 +86,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property numeric|null $availability_new_cost new unit cost the supplier asks
  * @property string|null $availability_note
  * @property array<string, mixed> $packaging_terms
+ * @property list<string>|null $packing_instructions the steps the packers follow, in order
  * @property-read \App\Models\SupplyChain\Agent|null $agent
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Currency $currency
@@ -99,6 +100,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Stock> $stocks
  * @property-read \App\Models\SupplyChain\Supplier|null $supplier
  * @property-read Collection<int, TradeUnit> $tradeUnits
+ * @property-read Collection<int, SupplierProductPackingSpec> $packingSpecs
+ * @property-read SupplierProductPackingSpec|null $livePackingSpec
  * @method static \Database\Factories\SupplyChain\SupplierProductFactory factory($count = null, $state = [])
  * @method static Builder<static>|SupplierProduct newModelQuery()
  * @method static Builder<static>|SupplierProduct newQuery()
@@ -133,6 +136,7 @@ class SupplierProduct extends Model implements HasMedia, Auditable
         'units_per_supplier_unit' => 'decimal:4',
         'carton_dimensions'      => 'array',
         'packaging_terms'        => 'array',
+        'packing_instructions'   => 'array',
         'availability_status'    => SupplierProductAvailabilityStatusEnum::class,
         'unavailable_reason'     => SupplierProductUnavailableReasonEnum::class,
         'available_from'         => 'date',
@@ -317,4 +321,17 @@ class SupplierProduct extends Model implements HasMedia, Auditable
         return null;
     }
 
+
+    public function packingSpecs(): HasMany
+    {
+        return $this->hasMany(SupplierProductPackingSpec::class)->orderByDesc('version');
+    }
+
+    /**
+     * The packing spec in force: the latest version the agent declared that goods in has not replaced.
+     */
+    public function livePackingSpec(): HasOne
+    {
+        return $this->hasOne(SupplierProductPackingSpec::class)->ofMany(['version' => 'max'], fn (Builder $query) => $query->live());
+    }
 }
