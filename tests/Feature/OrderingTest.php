@@ -6691,6 +6691,8 @@ test('adding and removing basket lines keeps totals, discounts, shipping and cha
         'description' => 'small order charge',
         'type'        => ChargeTypeEnum::HANGING,
     ]);
+    $chargeBefore = DB::table('charges')->where('id', $charge->id)->first(['state', 'settings']);
+    $this->beforeApplicationDestroyed(fn () => DB::table('charges')->where('id', $charge->id)->update((array) $chargeBefore));
     UpdateCharge::make()->action($charge, ['state' => ChargeStateEnum::ACTIVE, 'min_order' => 60, 'amount' => 3], strict: false);
 
     $customer = freshCustomerLike($this->shop, $this->customer);
