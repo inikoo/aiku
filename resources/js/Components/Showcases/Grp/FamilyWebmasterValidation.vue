@@ -105,28 +105,28 @@ const openFinding = (type: string) => {
 </script>
 
 <template>
-    <div class="flex flex-col gap-5">
+    <div class="flex flex-col gap-4">
         <WorkflowSteps v-if="steps.length" :steps="steps" :current="currentStep" />
 
-        <section class="rounded-xl border border-[--app-accent-muted] bg-[--app-accent-soft] p-5 flex flex-wrap items-center justify-between gap-3.5">
-            <div class="flex flex-col gap-0.5 flex-[1_1_380px]">
+        <section class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[--app-accent-muted] bg-[--app-accent-soft] px-4 py-3">
+            <div class="flex flex-[1_1_380px] flex-col gap-0.5">
                 <template v-if="data.tasks.length">
-                    <h2 class="text-base font-semibold">
+                    <h2 class="text-sm font-semibold text-gray-900">
                         {{ ctrans(":count SEO suggestions to implement", { count: data.tasks.length }) }} · {{ ctrans("Webmaster") }}
                     </h2>
-                    <p class="text-gray-700">
+                    <p class="text-sm text-gray-600">
                         {{ ctrans("For each one: copy the suggestion, open the setting and paste it, or apply it with Mark implemented.") }}
                         {{ ctrans("Validate becomes active when all are done (:done of :total).", { done: doneCount, total: data.tasks.length }) }}
                     </p>
                     <p v-if="!data.can_validate" class="text-sm font-semibold text-amber-800">{{ ctrans("Only the webmaster can validate.") }}</p>
                 </template>
                 <template v-else-if="data.is_validated">
-                    <h2 class="text-base font-semibold">{{ ctrans("SEO suggestions validated") }}</h2>
-                    <p class="text-gray-700">{{ ctrans("Every suggestion of the last SEO review is implemented.") }}</p>
+                    <h2 class="text-sm font-semibold text-gray-900">{{ ctrans("SEO suggestions validated") }}</h2>
+                    <p class="text-sm text-gray-600">{{ ctrans("Every suggestion of the last SEO review is implemented.") }}</p>
                 </template>
                 <template v-else>
-                    <h2 class="text-base font-semibold">{{ ctrans("No SEO suggestions to implement") }}</h2>
-                    <p class="text-gray-700">{{ ctrans("Suggestions appear here once the SEO team sends its review.") }}</p>
+                    <h2 class="text-sm font-semibold text-gray-900">{{ ctrans("No SEO suggestions to implement") }}</h2>
+                    <p class="text-sm text-gray-600">{{ ctrans("Suggestions appear here once the SEO team sends its review.") }}</p>
                 </template>
             </div>
             <Button v-if="data.tasks.length" type="tertiary" :label="ctrans('Validate')" :disabled="!isAllDone || !data.can_validate"
@@ -143,15 +143,15 @@ const openFinding = (type: string) => {
             </ul>
         </Message>
 
-        <div class="flex flex-wrap gap-5 items-start">
-            <div class="flex-[999_1_680px] min-w-0 flex flex-col gap-5">
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
+            <div class="flex min-w-0 flex-col gap-4">
                 <section v-for="(section, sectionIndex) in sections" :key="sectionIndex"
-                    class="bg-white border border-gray-200 rounded-xl p-5 flex flex-col gap-3.5">
-                    <div class="flex justify-between items-baseline gap-2 flex-wrap">
-                        <h2 class="text-[17px] font-semibold">{{ section.title }}</h2>
+                    class="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-4">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <h2 class="font-semibold text-gray-900">{{ section.title }}</h2>
                         <div class="flex items-center gap-2 flex-wrap">
                             <span class="text-xs text-gray-500">{{ section.subtitle }}</span>
-                            <span v-if="pendingIn(section)" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800">
+                            <span v-if="pendingIn(section)" class="rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
                                 {{ ctrans(":count suggestions pending", { count: pendingIn(section) }) }}
                             </span>
                         </div>
@@ -159,50 +159,50 @@ const openFinding = (type: string) => {
 
                     <template v-for="(card, cardIndex) in section.cards" :key="cardIndex">
                         <template v-if="card.key && tasksByCard[card.key]?.length">
-                            <article v-for="task in tasksByCard[card.key]" :key="task.key" class="border rounded-lg p-4 flex flex-col gap-3"
-                                :class="task.is_done ? 'border-gray-200' : 'border-[--app-accent-muted]'">
-                                <div class="flex justify-between gap-2.5 flex-wrap items-center">
+                            <article v-for="task in tasksByCard[card.key]" :key="task.key" class="flex flex-col gap-2 rounded-md border p-3"
+                                :class="task.is_done ? 'border-green-200' : 'border-[--app-accent-muted]'">
+                                <div class="flex flex-wrap items-center justify-between gap-2">
                                     <div class="flex flex-col gap-0.5">
-                                        <h3 class="text-[15px] font-semibold">{{ task.title ?? card.label }}</h3>
+                                        <h3 class="text-sm font-semibold text-gray-800">{{ task.title ?? card.label }}</h3>
                                         <span v-if="!task.title && card.owner" class="text-xs text-gray-500">{{ card.owner }}</span>
                                     </div>
-                                    <span v-if="task.is_done" class="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-0.5 rounded-full bg-green-50 text-green-800">
+                                    <span v-if="task.is_done" class="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[11px] font-medium text-green-700">
                                         <FontAwesomeIcon :icon="faCheck" fixed-width aria-hidden="true" />
                                         {{ ctrans("Implemented") }}
                                     </span>
-                                    <span v-else-if="task.is_new" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-green-50 text-green-800">{{ ctrans("New question") }}</span>
-                                    <span v-else-if="!task.title && card.check" class="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-0.5 rounded-full"
-                                        :class="card.check.ok ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'">
+                                    <span v-else-if="task.is_new" class="rounded-full bg-green-50 px-2 py-0.5 text-[11px] font-medium text-green-700">{{ ctrans("New question") }}</span>
+                                    <span v-else-if="!task.title && card.check" class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium"
+                                        :class="card.check.ok ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'">
                                         <FontAwesomeIcon :icon="card.check.ok ? faCheck : faTimes" fixed-width aria-hidden="true" />
                                         {{ card.check.note }}
                                     </span>
                                 </div>
 
                                 <div v-for="(row, rowIndex) in task.rows" :key="rowIndex" class="flex flex-col gap-1.5">
-                                    <span v-if="row.label" class="text-xs font-bold uppercase tracking-wider text-gray-500">{{ row.label }}</span>
-                                    <div class="grid grid-cols-1 gap-x-7 gap-y-3" :class="{ 'md:grid-cols-2': !row.is_code }">
-                                        <div class="flex flex-col gap-1.5 min-w-0">
-                                            <span class="text-sm font-semibold">{{ row.is_code ? ctrans("Current custom JSON-LD") : ctrans("Current") }}</span>
-                                            <pre v-if="row.is_code && isFilled(row.current)" class="m-0 bg-gray-100 px-3 py-2 font-mono text-xs leading-5 overflow-x-auto max-h-96">{{ row.current }}</pre>
+                                    <span v-if="row.label" class="text-[11px] font-semibold uppercase tracking-wide text-gray-500">{{ row.label }}</span>
+                                    <div class="grid grid-cols-1 gap-3" :class="{ 'md:grid-cols-2': !row.is_code }">
+                                        <div class="flex min-w-0 flex-col gap-1">
+                                            <span class="text-xs font-medium text-gray-600">{{ row.is_code ? ctrans("Current custom JSON-LD") : ctrans("Current") }}</span>
+                                            <pre v-if="row.is_code && isFilled(row.current)" class="m-0 max-h-64 overflow-auto rounded bg-gray-50 px-3 py-2 font-mono text-xs leading-5 text-gray-700">{{ row.current }}</pre>
                                             <div v-else-if="isFilled(row.current) && row.is_html" v-html="row.current"
-                                                class="bg-gray-100 px-4 py-3 text-sm text-gray-700 break-words max-h-96 overflow-y-auto [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-2" />
-                                            <div v-else-if="isFilled(row.current)" class="bg-gray-100 px-4 py-3 min-h-11 font-medium text-gray-700 whitespace-pre-line break-words">{{ row.current }}</div>
-                                            <div v-else class="bg-gray-100 px-4 py-3 min-h-11 italic text-gray-500">
+                                                class="max-h-64 overflow-auto break-words rounded bg-gray-50 px-3 py-2 text-sm text-gray-700 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-1" />
+                                            <div v-else-if="isFilled(row.current)" class="whitespace-pre-line break-words rounded bg-gray-50 px-3 py-2 text-sm text-gray-700">{{ row.current }}</div>
+                                            <div v-else class="rounded bg-gray-50 px-3 py-2 text-sm italic text-gray-400">
                                                 {{ task.is_new ? ctrans("Not on the page yet") : row.is_code ? ctrans("No custom structured data") : ctrans("Empty") }}
                                             </div>
                                         </div>
-                                        <div class="flex flex-col gap-1.5 min-w-0">
-                                            <span class="text-sm font-semibold">{{ ctrans("SEO Suggestion") }}</span>
-                                            <pre v-if="row.is_code" class="m-0 bg-[--app-accent-soft] px-3 py-2 font-mono text-xs leading-5 overflow-x-auto max-h-96">{{ row.suggestion }}</pre>
-                                            <div v-else-if="isFilled(row.suggestion)" class="bg-[--app-accent-soft] px-4 py-3 min-h-11 text-gray-800 whitespace-pre-line break-words max-h-96 overflow-y-auto">{{ row.suggestion }}</div>
-                                            <div v-else class="border border-dashed border-gray-300 px-4 py-3 min-h-11 text-gray-500">{{ ctrans("No change suggested") }}</div>
+                                        <div class="flex min-w-0 flex-col gap-1">
+                                            <span class="text-xs font-medium text-gray-600">{{ ctrans("SEO Suggestion") }}</span>
+                                            <pre v-if="row.is_code" class="m-0 max-h-64 overflow-auto rounded bg-[--app-accent-soft] px-3 py-2 font-mono text-xs leading-5 text-gray-800">{{ row.suggestion }}</pre>
+                                            <div v-else-if="isFilled(row.suggestion)" class="max-h-64 overflow-auto whitespace-pre-line break-words rounded bg-[--app-accent-soft] px-3 py-2 text-sm text-gray-800">{{ row.suggestion }}</div>
+                                            <div v-else class="rounded border border-dashed border-gray-300 px-3 py-2 text-sm text-gray-500">{{ ctrans("No change suggested") }}</div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <p v-if="task.note" class="text-sm text-gray-700"><span class="font-bold">{{ ctrans("Why") }}:</span> {{ task.note }}</p>
+                                <p v-if="task.note" class="text-sm text-gray-700"><span class="font-semibold">{{ ctrans("Why") }}:</span> {{ task.note }}</p>
 
-                                <div v-if="!task.is_done" class="flex flex-wrap gap-2.5">
+                                <div v-if="!task.is_done" class="flex flex-wrap gap-2">
                                     <Button v-if="task.copy_text" type="tertiary" :label="ctrans('Copy suggestion')" @click="useCopyText(task.copy_text)">
                                         <template #icon>
                                             <FontAwesomeIcon :icon="faCopy" class="text-[--app-accent]" fixed-width aria-hidden="true" />
@@ -226,28 +226,28 @@ const openFinding = (type: string) => {
                     </template>
                 </section>
 
-                <section v-if="pageScore" class="bg-white border border-gray-200 rounded-xl p-5 flex flex-col gap-3.5">
-                    <div class="flex justify-between items-baseline gap-2 flex-wrap">
-                        <h2 class="text-[17px] font-semibold">{{ ctrans("Technical & crawl findings") }}</h2>
+                <section v-if="pageScore" class="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-4">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <h2 class="font-semibold text-gray-900">{{ ctrans("Technical & crawl findings") }}</h2>
                         <span class="text-xs text-gray-500">{{ ctrans("Checked automatically once the page is live") }}</span>
                     </div>
-                    <p v-if="!pageScore.findings" class="italic text-gray-500">{{ ctrans("The page has not been crawled yet.") }}</p>
-                    <p v-else-if="!pageScore.findings.length" class="text-green-800">{{ ctrans("No issues found in the last crawl.") }}</p>
-                    <article v-for="(finding, findingIndex) in pageScore.findings ?? []" :key="findingIndex" class="border border-gray-200 rounded-lg p-4 flex flex-col gap-3">
-                        <div class="flex justify-between gap-2.5 flex-wrap items-center">
+                    <p v-if="!pageScore.findings" class="text-sm italic text-gray-500">{{ ctrans("The page has not been crawled yet.") }}</p>
+                    <p v-else-if="!pageScore.findings.length" class="text-sm text-green-700">{{ ctrans("No issues found in the last crawl.") }}</p>
+                    <article v-for="(finding, findingIndex) in pageScore.findings ?? []" :key="findingIndex" class="flex flex-col gap-2 rounded-md border border-gray-200 p-3">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
                             <div class="flex flex-col gap-0.5">
-                                <h3 class="text-[15px] font-semibold">{{ finding.label }}</h3>
+                                <h3 class="text-sm font-semibold text-gray-800">{{ finding.label }}</h3>
                                 <span class="text-xs text-gray-500">{{ ctrans("Detected by crawler after publish") }}</span>
                             </div>
-                            <span class="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-0.5 rounded-full"
-                                :class="finding.is_error ? 'bg-red-50 text-red-800' : 'bg-amber-50 text-amber-800'">
+                            <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium"
+                                :class="finding.is_error ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'">
                                 <FontAwesomeIcon :icon="faTimes" fixed-width aria-hidden="true" />
                                 {{ finding.is_error ? ctrans("Error") : ctrans("Warning") }}
                             </span>
                         </div>
-                        <div class="flex flex-col gap-1.5">
-                            <span class="text-sm font-semibold">{{ ctrans("Current") }}</span>
-                            <div class="bg-gray-100 px-4 py-3 text-gray-700">{{ finding.description }}</div>
+                        <div class="flex flex-col gap-1">
+                            <span class="text-xs font-medium text-gray-600">{{ ctrans("Current") }}</span>
+                            <div class="rounded bg-gray-50 px-3 py-2 text-sm text-gray-700">{{ finding.description }}</div>
                         </div>
                         <div v-if="findingSetting(finding.type) || workshopRoute">
                             <Button type="tertiary" :label="ctrans('Open setting')" @click="openFinding(finding.type)">
@@ -260,16 +260,16 @@ const openFinding = (type: string) => {
                 </section>
             </div>
 
-            <aside class="flex-[1_1_300px] flex flex-col gap-5">
+            <aside class="flex h-fit flex-col gap-4 lg:sticky lg:top-4">
                 <FamilySeoChecklist v-if="pageScore" :pageScore="pageScore" />
 
-                <section v-if="data.activity.length" class="bg-white border border-gray-200 rounded-xl p-5 flex flex-col gap-2">
-                    <h2 class="text-base font-semibold">{{ ctrans("Activity log") }}</h2>
+                <section v-if="data.activity.length" class="flex flex-col gap-2 rounded-lg border border-gray-200 bg-white p-4">
+                    <h2 class="font-semibold text-gray-900">{{ ctrans("Activity log") }}</h2>
                     <ul class="flex flex-col">
                         <li v-for="(entry, entryIndex) in data.activity" :key="entryIndex" class="py-2 border-b border-gray-100 last:border-b-0 text-sm">
-                            <span class="font-bold">{{ entry.who }}</span>
+                            <span class="font-semibold">{{ entry.who }}</span>
                             · <time :datetime="entry.at" class="text-gray-500">{{ useFormatTime(entry.at, { formatTime: "hm" }) }}</time>
-                            <p class="text-gray-700">{{ entry.text }}</p>
+                            <p class="text-sm text-gray-600">{{ entry.text }}</p>
                         </li>
                     </ul>
                 </section>

@@ -59,6 +59,7 @@ const stateClass = (item: ChecklistItem) => {
             :class="[variant === 'grid' ? 'rounded-md border px-2.5 py-1.5' : 'rounded px-2 py-1', stateClass(item)]"
         >
             <FontAwesomeIcon :icon="iconOf(item).icon" :class="iconOf(item).class" fixed-width aria-hidden="true" />
+            <span class="sr-only">{{ item.done ? ctrans("Met") : item.unchecked ? ctrans("Not checked yet") : ctrans("Not met") }}:</span>
             <span class="leading-tight">{{ item.label }}</span>
         </li>
     </ul>

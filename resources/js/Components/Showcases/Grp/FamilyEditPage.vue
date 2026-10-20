@@ -29,8 +29,8 @@ const canOpenValidation = computed(() => !!props.data.webmaster_validation
     && (props.data.webmaster_validation.tasks.length > 0 || props.data.webmaster_validation.is_validated))
 
 const navClass = (section: string) => currentSection.value === section
-    ? "font-bold bg-[--app-accent-soft] text-[--app-accent]"
-    : "font-semibold text-gray-700 hover:bg-gray-100"
+    ? "bg-[--app-accent-soft] text-[--app-accent-strong]"
+    : "text-gray-700 hover:bg-gray-100"
 
 const openSetting = async (cardKey: string) => {
     currentSection.value = "page_setting"
@@ -40,31 +40,31 @@ const openSetting = async (cardKey: string) => {
 </script>
 
 <template>
-    <div class="p-4 md:p-6 flex flex-col gap-5">
-        <nav :aria-label="ctrans('Edit page sections')" class="flex flex-wrap gap-1.5">
+    <div class="flex flex-col gap-4 p-4">
+        <nav :aria-label="ctrans('Edit page sections')" class="flex flex-wrap gap-1 border-b border-gray-200 pb-2">
             <button type="button" :aria-current="currentSection === 'page_setting' ? 'page' : undefined" @click="currentSection = 'page_setting'"
-                class="inline-flex items-center min-h-10 px-3.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-[--app-accent]" :class="navClass('page_setting')">
+                class="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[--app-accent]" :class="navClass('page_setting')">
                 {{ ctrans("Page setting") }}
             </button>
             <a v-if="data.workshop_route" :href="route(data.workshop_route.name, data.workshop_route.parameters)" target="_blank" rel="noopener noreferrer"
-                class="inline-flex items-center gap-1.5 min-h-10 px-3.5 rounded-lg font-semibold text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[--app-accent]">
+                class="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[--app-accent]">
                 {{ ctrans("Workshop") }}
-                <FontAwesomeIcon :icon="faExternalLink" class="text-xs" fixed-width aria-hidden="true" />
+                <FontAwesomeIcon :icon="faExternalLink" class="text-xs text-gray-500" fixed-width aria-hidden="true" />
                 <span class="sr-only">({{ ctrans("opens in a new window") }})</span>
             </a>
             <button v-if="data.seo_review" type="button" :aria-current="currentSection === 'seo_review' ? 'page' : undefined" @click="currentSection = 'seo_review'"
-                class="inline-flex items-center min-h-10 px-3.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-[--app-accent]" :class="navClass('seo_review')">
+                class="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[--app-accent]" :class="navClass('seo_review')">
                 {{ ctrans("SEO reviews and suggestions") }}
             </button>
             <button v-if="data.webmaster_validation" type="button" :aria-current="currentSection === 'webmaster_validation' ? 'page' : undefined" @click="currentSection = 'webmaster_validation'"
                 :disabled="!canOpenValidation" v-tooltip="canOpenValidation ? '' : ctrans('Opens once the SEO team has saved suggestions')"
-                class="inline-flex items-center min-h-10 px-3.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-[--app-accent] disabled:opacity-50 disabled:cursor-not-allowed" :class="navClass('webmaster_validation')">
+                class="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[--app-accent] disabled:opacity-50 disabled:cursor-not-allowed" :class="navClass('webmaster_validation')">
                 {{ ctrans("Webmaster validation") }}
             </button>
             <button v-if="data.seo_issues" type="button" :aria-current="currentSection === 'issues' ? 'page' : undefined" @click="currentSection = 'issues'"
                 class="inline-flex items-center gap-1.5 min-h-10 px-3.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-[--app-accent]" :class="navClass('issues')">
                 {{ ctrans("Issues") }}
-                <span v-if="data.seo_issues.total" class="min-w-[18px] px-1.5 rounded-full bg-red-700 text-white text-[11px] font-bold text-center">{{ data.seo_issues.total }}</span>
+                <span v-if="data.seo_issues.total" class="rounded-full bg-red-700 px-1.5 text-xs font-semibold text-white">{{ data.seo_issues.total }}</span>
             </button>
         </nav>
 
@@ -78,12 +78,12 @@ const openSetting = async (cardKey: string) => {
 
         <FamilySeoIssues v-else-if="currentSection === 'issues' && data.seo_issues" :data="data.seo_issues" />
 
-        <div v-else class="flex flex-wrap gap-5 items-start">
-            <div class="flex-[999_1_680px] min-w-0 flex flex-col gap-5">
+        <div v-else class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
+            <div class="flex min-w-0 flex-col gap-4">
                 <section v-for="(section, sectionIndex) in data.sections" :key="sectionIndex"
-                    class="bg-white border border-gray-200 rounded-xl p-5 flex flex-col gap-3.5">
-                    <div class="flex justify-between items-baseline gap-2 flex-wrap">
-                        <h2 class="text-[17px] font-semibold">{{ section.title }}</h2>
+                    class="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-4 shadow-md">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <h2 class="font-semibold text-gray-900">{{ section.title }}</h2>
                         <span class="text-xs text-gray-500">{{ section.subtitle }}</span>
                     </div>
 
@@ -92,7 +92,7 @@ const openSetting = async (cardKey: string) => {
                 </section>
             </div>
 
-            <aside class="flex-[1_1_300px] flex flex-col gap-5">
+            <aside class="flex h-fit flex-col gap-4 lg:sticky lg:top-4">
                 <FamilySeoChecklist v-if="data.page_score" :pageScore="data.page_score" />
             </aside>
         </div>
