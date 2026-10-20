@@ -99,6 +99,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Stock> $stocks
  * @property-read \App\Models\SupplyChain\Supplier|null $supplier
  * @property-read Collection<int, TradeUnit> $tradeUnits
+ * @property-read Collection<int, SupplierProductPackingSpec> $packingSpecs
+ * @property-read SupplierProductPackingSpec|null $livePackingSpec
  * @method static \Database\Factories\SupplyChain\SupplierProductFactory factory($count = null, $state = [])
  * @method static Builder<static>|SupplierProduct newModelQuery()
  * @method static Builder<static>|SupplierProduct newQuery()
@@ -317,4 +319,17 @@ class SupplierProduct extends Model implements HasMedia, Auditable
         return null;
     }
 
+
+    public function packingSpecs(): HasMany
+    {
+        return $this->hasMany(SupplierProductPackingSpec::class)->orderByDesc('version');
+    }
+
+    /**
+     * The packing spec in force: the latest version the agent declared that goods in has not replaced.
+     */
+    public function livePackingSpec(): HasOne
+    {
+        return $this->hasOne(SupplierProductPackingSpec::class)->ofMany(['version' => 'max'], fn (Builder $query) => $query->live());
+    }
 }

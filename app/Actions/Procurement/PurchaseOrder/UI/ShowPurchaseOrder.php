@@ -8,6 +8,7 @@
 
 namespace App\Actions\Procurement\PurchaseOrder\UI;
 
+use App\Actions\SupplyChain\PackingSpec\GetPurchaseOrderPackingSpecGaps;
 use App\Events\BroadcastPurchaseOrderLastEdited;
 use App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryFromPurchaseOrder;
 use App\Actions\Procurement\SupplierAgreedTerm\UI\GetAgreement;
@@ -407,6 +408,8 @@ class ShowPurchaseOrder extends OrgAction
                 'showcase' => GetPurchaseOrderData::run($purchaseOrder),
 
                 'agreement' => GetPurchaseOrderAgreement::run($purchaseOrder, $purchaseOrder->organisation_id !== $this->organisation->id),
+
+                'packing_spec_gaps' => GetPurchaseOrderPackingSpecGaps::run($purchaseOrder, $this->organisation),
 
                 'agreed_term_differences' => $purchaseOrder->organisation_id === $this->organisation->id ? CheckAgainstAgreedTerms::make()->forPage($purchaseOrder) : null,
 

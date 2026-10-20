@@ -20,6 +20,7 @@ enum PackagingReportTabsEnum: string
     case UK_RETURN    = 'uk_return';
     case EU_RETURN    = 'eu_return';
     case SHIPMENT     = 'shipment';
+    case INBOUND      = 'inbound';
     case EXPORTS      = 'exports';
 
     public function blueprint(): array
@@ -39,6 +40,10 @@ enum PackagingReportTabsEnum: string
             ],
             self::SHIPMENT => [
                 'title' => __('Shipment packaging'),
+                'icon'  => 'fal fa-box-open',
+            ],
+            self::INBOUND => [
+                'title' => __('Inbound packing'),
                 'icon'  => 'fal fa-box-open',
             ],
             self::EXPORTS => [

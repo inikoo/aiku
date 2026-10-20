@@ -18,7 +18,7 @@ import {
   faBoxUsd,
   faTruck,
   faTerminal,
-  faCameraRetro, faPaperclip, faPoop, faMoneyBill, faClipboard
+  faCameraRetro, faPaperclip, faPoop, faMoneyBill, faClipboard, faBoxOpen
 } from '@fal';
 import SupplierProductShowcase from "@/Components/Showcases/Grp/SupplierProductShowcase.vue";
 import TableSupplierProducts from "@/Components/Tables/Grp/SupplyChain/TableSupplierProducts.vue";
@@ -29,6 +29,7 @@ import TableSupplierAgreedTerms from '@/Components/Tables/Grp/Org/Procurement/Ta
 import TableProcurementNotes from '@/Components/Tables/Grp/Org/Procurement/TableProcurementNotes.vue'
 import AgreementSummary from '@/Components/Procurement/AgreementSummary.vue'
 import MicroStats from '@/Components/DataDisplay/MicroStats.vue'
+import PackingSpecTab from '@/Components/Procurement/PackingSpecTab.vue'
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
 const props = defineProps<{
@@ -52,6 +53,7 @@ const props = defineProps<{
     history?: object
     agreed_terms?: object
     notes?: object
+    packing?: object
     agreement: object
 }>()
 
@@ -68,6 +70,7 @@ library.add(
     faPoop,
     faMoneyBill,
     faClipboard,
+    faBoxOpen,
 );
 
 let currentTab = ref(props.tabs.current);
@@ -81,6 +84,7 @@ const component = computed(() => {
         details: ModelDetails,
         agreed_terms: TableSupplierAgreedTerms,
         notes: TableProcurementNotes,
+        packing: PackingSpecTab,
         history: TableHistories
     };
     return components[currentTab.value];

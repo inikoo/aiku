@@ -16,6 +16,7 @@ import Tabs from "@/Components/Navigation/Tabs.vue"
 import Timeline from "@/Components/Utils/Timeline.vue"
 import ProcurementOrderData from "@/Components/Procurement/ProcurementOrderData.vue"
 import AgreementSummary from "@/Components/Procurement/AgreementSummary.vue"
+import PackingSpecGaps from "@/Components/Procurement/PackingSpecGaps.vue"
 import AgreedTermDifferences from "@/Components/Procurement/AgreedTermDifferences.vue"
 import OrderSummary from "@/Components/Summary/OrderSummary.vue"
 import AgentOrderingItems from "@/Components/Procurement/AgentOrderingItems.vue"
@@ -151,6 +152,7 @@ const props = defineProps < {
     submit_problems?: SubmitProblem[]
 	agreement: { terms: object[], notes: object[], open_incidents: number, must_acknowledge: boolean }
 	agreed_term_differences?: InstanceType<typeof AgreedTermDifferences>["$props"]["differences"] | null
+	packing_spec_gaps?: InstanceType<typeof PackingSpecGaps>["$props"]["gaps"] | null
     tabs: {
         current: string
         navigation: {}
@@ -1350,6 +1352,10 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
 	<div v-if="agreed_term_differences" class="px-4 pt-4">
 		<AgreedTermDifferences :differences="agreed_term_differences" />
+	</div>
+
+	<div v-if="packing_spec_gaps" class="px-4 pt-4">
+		<PackingSpecGaps :gaps="packing_spec_gaps" />
 	</div>
 
 	<Tabs :current="currentTab" :navigation="tabs?.navigation" @update:tab="handleTabUpdate" />

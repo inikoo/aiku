@@ -31,6 +31,7 @@ const props = defineProps<{
 		submission_period: string | null
 		has_data: boolean
 		kg: number
+		inbound_kg?: number
 		previous_kg: number | null
 		materials: string[]
 		form: ({ activity: string; label: string; cells: Record<string, Cell> } & Cell)[]
@@ -174,6 +175,9 @@ const date = (iso: string) => new Date(`${iso}T00:00:00`).toLocaleDateString(und
 							{{ ctrans(":change% vs :kg kg the period before", { change: locale.number(Math.abs(change)), kg: kg(data.previous_kg) }) }}
 						</span>
 					</div>
+				</div>
+				<div v-if="data.inbound_kg" class="text-xs text-gray-500">
+					{{ ctrans("Includes :kg kg of packing material inside imported cartons (Imported, non-household)", { kg: kg(data.inbound_kg) }) }}
 				</div>
 				<div class="text-xs text-gray-500">
 					<template v-if="data.submission_period">{{ ctrans("Submission period :period", { period: data.submission_period }) }}</template>

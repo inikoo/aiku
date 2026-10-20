@@ -8,7 +8,7 @@
 import { Head, router } from "@inertiajs/vue3"
 import { computed, ref } from "vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faBoxes, faDownload, faTasks, faFileCsv } from "@fal"
+import { faBoxes, faDownload, faTasks, faFileCsv, faBoxOpen } from "@fal"
 import DatePicker from "primevue/datepicker"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
@@ -18,11 +18,12 @@ import EprPackagingCompleteness from "@/Components/Reports/EprPackagingCompleten
 import UkPackagingReturn from "@/Components/Reports/UkPackagingReturn.vue"
 import EprShipmentPackaging from "@/Components/Reports/EprShipmentPackaging.vue"
 import EuPackagingReturn from "@/Components/Reports/EuPackagingReturn.vue"
+import EprInboundPacking from "@/Components/Reports/EprInboundPacking.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { ctrans } from "@/Composables/useTrans"
 import { PageHeadingTypes } from "@/types/PageHeading"
 
-library.add(faBoxes, faDownload, faTasks, faFileCsv)
+library.add(faBoxes, faDownload, faTasks, faFileCsv, faBoxOpen)
 
 const props = defineProps<{
 	title: string
@@ -34,6 +35,7 @@ const props = defineProps<{
 	uk_return?: any
 	shipment?: any
 	eu_return?: any
+	inbound?: any
 	euReturnRoute: { name: string; parameters: Record<string, string> }
 	organisationId: number
 	materials: Record<string, string>
@@ -49,7 +51,7 @@ const fromIsoDate = (iso: string): Date => {
 }
 const toLocalIsoDate = (date: Date): string => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
 
-const tabsWithData = ["completeness", "uk_return", "eu_return", "shipment"]
+const tabsWithData = ["completeness", "uk_return", "eu_return", "shipment", "inbound"]
 
 const visit = (period: { from: string; to: string } | null, ownBrandImports = props.ownBrandImports) => {
 	router.get(
@@ -163,6 +165,8 @@ const downloadUrl = computed(() => route(props.downloadRoute.name, { ...props.do
 	<EuPackagingReturn v-else-if="currentTab === 'eu_return'" :data="eu_return" :downloadUrl="euReturnUrl" />
 
 	<EprShipmentPackaging v-else-if="currentTab === 'shipment'" :data="shipment" :organisationId="organisationId" :materials="materials" />
+
+	<EprInboundPacking v-else-if="currentTab === 'inbound'" :data="inbound" />
 
 	<div v-else class="px-4 py-5 max-w-2xl text-sm text-gray-700 space-y-3">
 		<p>{{ ctrans("The four spreadsheets the UK packaging workbook reads, for the period above: one row per SKO with its quantity.") }}</p>

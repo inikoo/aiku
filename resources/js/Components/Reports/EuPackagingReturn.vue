@@ -23,7 +23,7 @@ const props = defineProps<{
 		has_data: boolean
 		kg: number
 		previous_kg: number | null
-		rows: { scheme_material: string; scheme_subcategory: string | null; sales_kg: number; shipment_kg: number; kg: number; previous_kg: number | null; change: number | null }[]
+		rows: { scheme_material: string; scheme_subcategory: string | null; sales_kg: number; shipment_kg: number; inbound_kg: number; kg: number; previous_kg: number | null; change: number | null }[]
 		domestic_parcel_share: number | null
 		plastic_without_polymer: number
 		units: number
@@ -75,6 +75,7 @@ const date = (iso: string) => new Date(`${iso}T00:00:00`).toLocaleDateString(und
 							<th class="px-4 py-2 font-medium">{{ ctrans("Material") }}</th>
 							<th class="px-2 py-2 font-medium text-right">{{ ctrans("Sales packaging") }}</th>
 							<th class="px-2 py-2 font-medium text-right">{{ ctrans("Shipment packaging (estimate)") }}</th>
+							<th class="px-2 py-2 font-medium text-right whitespace-nowrap">{{ ctrans("Inbound packing") }}</th>
 							<th class="px-2 py-2 font-medium text-right">{{ ctrans("Total kg") }}</th>
 							<th class="px-4 py-2 font-medium text-right">{{ ctrans("Change") }}</th>
 						</tr>
@@ -87,6 +88,7 @@ const date = (iso: string) => new Date(`${iso}T00:00:00`).toLocaleDateString(und
 							</td>
 							<td class="px-2 py-2 text-right">{{ kg(row.sales_kg) }}</td>
 							<td class="px-2 py-2 text-right">{{ kg(row.shipment_kg) }}</td>
+							<td class="px-2 py-2 text-right">{{ kg(row.inbound_kg) }}</td>
 							<td class="px-2 py-2 text-right font-medium text-gray-900">{{ kg(row.kg) }}</td>
 							<td class="px-4 py-2 text-right" :class="row.change !== null && Math.abs(row.change) > 30 ? 'text-amber-600' : 'text-gray-500'" v-tooltip="ctrans('Previous period: :kg kg', { kg: kg(row.previous_kg) })">
 								{{ row.change === null ? "—" : `${row.change > 0 ? "+" : ""}${locale.number(row.change)}%` }}

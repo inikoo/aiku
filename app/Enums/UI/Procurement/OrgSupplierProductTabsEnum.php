@@ -19,6 +19,7 @@ enum OrgSupplierProductTabsEnum: string
     case SHOWCASE = 'showcase';
     case AGREED_TERMS = 'agreed_terms';
     case NOTES = 'notes';
+    case PACKING = 'packing';
     case PURCHASE_SALES = 'purchase_sales';
     case SUPPLIER_PRODUCTS = 'supplier_products';
     case PURCHASE_ORDERS = 'purchase_orders';
@@ -39,6 +40,10 @@ enum OrgSupplierProductTabsEnum: string
             OrgSupplierProductTabsEnum::NOTES => [
                 'title' => __('Notes'),
                 'icon'  => 'fal fa-sticky-note',
+            ],
+            OrgSupplierProductTabsEnum::PACKING => [
+                'title' => __('Packing'),
+                'icon'  => 'fal fa-box-open',
             ],
             OrgSupplierProductTabsEnum::SHOWCASE => [
                 'title' => __('Supplier product'),

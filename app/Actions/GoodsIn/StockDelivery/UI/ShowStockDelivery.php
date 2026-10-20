@@ -8,6 +8,7 @@
 
 namespace App\Actions\GoodsIn\StockDelivery\UI;
 
+use App\Actions\GoodsIn\StockDeliveryPackingCheck\UI\GetStockDeliveryPackingChecks;
 use App\Models\SupplyChain\AgentPayment;
 use App\Enums\Procurement\ProcurementNote\ProcurementNoteIncidentTypeEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderPaymentMethodEnum;
@@ -307,6 +308,10 @@ class ShowStockDelivery extends OrgAction
                 StockDeliveryTabsEnum::CHECKLIST->value => $this->tab == StockDeliveryTabsEnum::CHECKLIST->value ?
                     fn () => $this->getGoodsInChecklist($stockDelivery, $request)
                     : Inertia::optional(fn () => $this->getGoodsInChecklist($stockDelivery, $request)),
+
+                StockDeliveryTabsEnum::PACKING_CHECKS->value => $this->tab == StockDeliveryTabsEnum::PACKING_CHECKS->value ?
+                    fn () => GetStockDeliveryPackingChecks::run($stockDelivery, $this->canBookIn)
+                    : Inertia::optional(fn () => GetStockDeliveryPackingChecks::run($stockDelivery, $this->canBookIn)),
 
                 StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value => $this->tab == StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value ?
                     fn () => StockDeliveryUnderOverDeliveredItemResource::collection(IndexStockDeliveryUnderOverDeliveredItems::run($stockDelivery, StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value))
@@ -1586,6 +1591,10 @@ class ShowStockDelivery extends OrgAction
 
         if ($this->viewedByAgent || !in_array($stockDelivery->state, GetStockDeliveryGoodsInChecklist::STATES, true)) {
             $tabs = array_values(array_diff($tabs, [StockDeliveryTabsEnum::CHECKLIST->value]));
+        }
+
+        if ($this->viewedByAgent || !in_array($stockDelivery->state, StockDelivery::STATES_RECEIVED, true)) {
+            $tabs = array_values(array_diff($tabs, [StockDeliveryTabsEnum::PACKING_CHECKS->value]));
         }
 
         if ($this->hasUnderOverDeliveredTab($stockDelivery)) {

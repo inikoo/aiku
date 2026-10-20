@@ -22,7 +22,8 @@ use Lorisleiva\Actions\Concerns\AsAction;
  * country's scheme (Slovakia reports quarterly to its OZV): the sales packaging of what it dispatched to addresses in
  * its country, plus an estimate of the shipment packaging those parcels went out in, taken as the shipment packaging
  * it used in the period times the share of its parcels that stayed in the country. Goods sent to other countries fall
- * under their schemes and are left out. Plastics without a polymer take the scheme's general plastic line.
+ * under their schemes and are left out. Plastics without a polymer take the scheme's general plastic line. The packing
+ * material that came inside imported cartons, from the agents' packing specs, is added as imported packaging.
  */
 class GetEuPackagingReturn
 {
@@ -55,6 +56,7 @@ class GetEuPackagingReturn
                 'scheme_subcategory' => $subcategory ?: null,
                 'sales_kg'           => round($current['sales'][$key] ?? 0.0, 1),
                 'shipment_kg'        => round($current['shipment'][$key] ?? 0.0, 1),
+                'inbound_kg'         => round($current['inbound'][$key] ?? 0.0, 1),
                 'kg'                 => round($kg, 1),
                 'previous_kg'        => $previousKg === null ? null : round($previousKg, 1),
                 'change'             => $previousKg ? round(($kg - $previousKg) / $previousKg * 100, 1) : null,
@@ -79,7 +81,7 @@ class GetEuPackagingReturn
     }
 
     /**
-     * @return array{kg: array<string, float>, sales: array<string, float>, shipment: array<string, float>, has_data: bool, domestic_parcel_share: float|null, plastic_without_polymer: float, units: float, units_without_weights: float}
+     * @return array{kg: array<string, float>, sales: array<string, float>, shipment: array<string, float>, inbound: array<string, float>, has_data: bool, domestic_parcel_share: float|null, plastic_without_polymer: float, units: float, units_without_weights: float}
      */
     private function materials(Organisation $organisation, ?EprSchemeEnum $scheme, Carbon $from, Carbon $to): array
     {
@@ -114,6 +116,17 @@ class GetEuPackagingReturn
             $bindings
         );
 
+        $inbound = DB::select(
+            <<<'SQL'
+            SELECT 'inbound' AS activity, material_category, polymer, SUM(kg) AS kg
+            FROM epr_packing_lines
+            WHERE organisation_id = ? AND date BETWEEN ? AND ?
+              AND activity IN ('imported', 'imported_discarded', 'reused')
+            GROUP BY material_category, polymer
+            SQL,
+            $bindings
+        );
+
         $parcels = DB::selectOne(
             <<<'SQL'
             SELECT COUNT(*) AS all_notes, COUNT(*) FILTER (WHERE dn.delivery_country_id = o.country_id) AS domestic
@@ -127,14 +140,14 @@ class GetEuPackagingReturn
         );
         $share = $parcels->all_notes > 0 ? $parcels->domestic / $parcels->all_notes : null;
 
-        $result = ['kg' => [], 'sales' => [], 'shipment' => [], 'has_data' => $weights !== [], 'domestic_parcel_share' => $share === null ? null : round($share * 100, 1),
+        $result = ['kg' => [], 'sales' => [], 'shipment' => [], 'inbound' => [], 'has_data' => $weights !== [] || $inbound !== [], 'domestic_parcel_share' => $share === null ? null : round($share * 100, 1),
                    'plastic_without_polymer' => 0.0, 'units' => (float)$units->units, 'units_without_weights' => (float)$units->without_weights];
         if (!$scheme) {
             return $result;
         }
 
         $mappings = [];
-        foreach ($weights as $row) {
+        foreach ([...$weights, ...$inbound] as $row) {
             $kg = (float)$row->kg * ($row->activity === 'shipment_packaging' ? ($share ?? 0) : 1);
             if ($kg <= 0) {
                 continue;
@@ -144,7 +157,11 @@ class GetEuPackagingReturn
             $mapping = $mappings[$mappingKey];
             $key     = ($mapping?->scheme_material ?? $row->material_category).'|'.$mapping?->scheme_subcategory;
 
-            $bucket                    = $row->activity === 'shipment_packaging' ? 'shipment' : 'sales';
+            $bucket                    = match ($row->activity) {
+                'shipment_packaging' => 'shipment',
+                'inbound'            => 'inbound',
+                default              => 'sales',
+            };
             $result[$bucket][$key]     = ($result[$bucket][$key] ?? 0) + $kg;
             $result['kg'][$key]        = ($result['kg'][$key] ?? 0) + $kg;
             if ($row->material_category === 'plastic' && !$row->polymer) {
