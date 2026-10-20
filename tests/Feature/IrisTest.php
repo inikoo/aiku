@@ -125,6 +125,36 @@ test('iris footer json includes app version', function () {
         ->assertJsonPath('version', 'v2.369.0');
 });
 
+test('iris shares the out of stock notification outbox only when a page renders, never on json calls', function () {
+    DetectWebsiteFromDomain::mock()->shouldReceive('parseDomain')->andReturn($this->website->domain);
+
+    $outboxQueries = 0;
+    DB::listen(function ($query) use (&$outboxQueries) {
+        if (str_contains($query->sql, 'from "outboxes"')) {
+            $outboxQueries++;
+        }
+    });
+
+    $this->getJson('http://'.$this->website->domain.'/json/footer')->assertOk();
+    expect($outboxQueries)->toBe(0);
+
+    $request = Request::create('http://'.$this->website->domain);
+    $request->merge(['website' => $this->website]);
+    $request->setLaravelSession(app('session.store'));
+    $props = (new \App\Http\Middleware\HandleIrisInertiaRequests())->share($request);
+    $outboxQueriesWhileSharing = $outboxQueries;
+
+    $expected = $this->shop->outboxes()
+        ->where('code', OutboxCodeEnum::OOS_NOTIFICATION)
+        ->get()
+        ->mapWithKeys(fn ($outbox) => [$outbox->code->value => ['id' => $outbox->id, 'state' => $outbox->state]])
+        ->all();
+
+    expect($outboxQueriesWhileSharing)->toBe(0)
+        ->and($props['outboxes'])->toBeInstanceOf(\Closure::class)
+        ->and($props['outboxes']())->toBe($expected);
+});
+
 test('it detects iris website', function () {
     // Mock parseDomain to return the website's domain
     DetectWebsiteFromDomain::mock()
