@@ -33,6 +33,7 @@ const props = withDefaults(
 		deletingTemplateId?: number | null
 		editable?: boolean
 		filter?: WebLayoutTemplateFilter
+		matchingOnly?: boolean
 	}>(),
 	{
 		templates: () => ({ data: [] }),
@@ -42,6 +43,7 @@ const props = withDefaults(
 		deletingTemplateId: null,
 		editable: true,
 		filter: 'all',
+		matchingOnly: false,
 	}
 )
 
@@ -121,7 +123,7 @@ const onGoToPage = (url: string | null) => {
 }
 
 const filterOptions = computed<{ label: string; value: WebLayoutTemplateFilter }[]>(() => [
-	{ label: ctrans('All'), value: 'all' },
+	...(props.matchingOnly ? [] : [{ label: ctrans('All'), value: 'all' as const }]),
 	{ label: ctrans('Matching'), value: 'matching' },
 ])
 
@@ -143,7 +145,7 @@ const onClearSearch = () => {
 const onShowAllTemplates = () => {
 	onClearSearch()
 
-	if (isMatchingFilterActive.value) {
+	if (isMatchingFilterActive.value && !props.matchingOnly) {
 		emits('filter', 'all')
 	}
 }
@@ -289,7 +291,7 @@ const onShowAllTemplates = () => {
 				v-else
 				class="flex flex-col items-center text-center gap-0.5 px-3 py-5 rounded-md border border-dashed border-slate-200 text-slate-500">
 				<FontAwesomeIcon :icon="faShapes" class="text-2xl mb-1 text-slate-300" fixed-width />
-				<template v-if="search || isMatchingFilterActive">
+				<template v-if="search || (isMatchingFilterActive && !matchingOnly)">
 					<span class="text-xs font-medium">
 						{{ isMatchingFilterActive && !search
 							? ctrans('No template matches this page')
@@ -303,7 +305,7 @@ const onShowAllTemplates = () => {
 					</button>
 				</template>
 				<template v-else>
-					<span class="text-xs font-medium">{{ ctrans("You don't have any template") }}</span>
+					<span class="text-xs font-medium">{{ matchingOnly ? ctrans("You don't have any template for this page type") : ctrans("You don't have any template") }}</span>
 					<span class="text-[11px] text-slate-400">
 						{{ ctrans('Save a page as template to reuse its blocks here.') }}
 					</span>
