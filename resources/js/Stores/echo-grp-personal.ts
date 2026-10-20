@@ -123,6 +123,9 @@ export const useEchoGrpPersonal = defineStore("echo-grp-personal", {
             .listen('.task-badges-update', (eventData: { task_badges: TaskBadges }) => {
                 useLayoutStore().task_badges = eventData.task_badges
             })
+            .listen('.development-badges-update', (eventData: { development_badges: { waiting: number, late: number, reminded?: boolean } | null }) => {
+                useLayoutStore().development_badges = eventData.development_badges
+            })
             .listen('.ticket-badges-update', (eventData: { ticket_badges: TicketBadges; notification: { title: string; body: string; route: string; reason?: string } | null }) => {
                 const layout = useLayoutStore()
                 layout.ticket_badges = eventData.ticket_badges

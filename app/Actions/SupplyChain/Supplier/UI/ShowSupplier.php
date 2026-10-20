@@ -31,6 +31,8 @@ use App\Http\Resources\SupplyChain\SupplierResource;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
 use Illuminate\Support\Arr;
+use App\Actions\Goods\ProductDevelopment\ProductDevelopmentAccess;
+use App\Actions\Goods\ProductDevelopment\UI\GetRelatedProductDevelopments;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -104,6 +106,12 @@ class ShowSupplier extends OrgAction
                 SupplierTabsEnum::SHOWCASE->value => $this->tab == SupplierTabsEnum::SHOWCASE->value ?
                     fn () => GetSupplierShowcase::run($supplier)
                     : Inertia::optional(fn () => GetSupplierShowcase::run($supplier)),
+
+                'productDevelopments' => (new ProductDevelopmentAccess())->canSeeAny($request->user())
+
+                    ? ['rows' => GetRelatedProductDevelopments::make()->forSupplier($supplier, $request->user())]
+
+                    : null,
 
                 'agreement' => GetAgreement::run($supplier, null, $request->user())
                     + ['print_route' => ['name' => 'grp.supply-chain.suppliers.agreement.pdf', 'parameters' => [$supplier->slug]]],

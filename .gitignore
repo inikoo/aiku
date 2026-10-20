@@ -138,3 +138,7 @@ lang/texts_to_translate.json
 # third-party Claude skills installed locally
 .claude/skills/archify/
 skills-lock.json
+
+# editor swap files
+*.swp
+*.swo

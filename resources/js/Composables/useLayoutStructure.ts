@@ -95,6 +95,7 @@ export const layoutStructure = {
 
     ticket_badges: null as TicketBadges | null,
     task_badges: null as TaskBadges | null,
+    development_badges: null as { waiting: number, late: number, reminded?: boolean } | null,
     leave_covers: [] as LeaveCover[],
     dispatching_waiting_count: 0 as number,
     crm_waiting_count: 0 as number,
