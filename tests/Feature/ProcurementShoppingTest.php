@@ -51,6 +51,7 @@ use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionState
 use App\Enums\Procurement\OrgSupplierProduct\OrgSupplierProductStateEnum;
 use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
 use App\Models\Goods\Stock;
+use App\Enums\UI\SupplyChain\StockTabsEnum;
 use App\Models\SysAdmin\Organisation;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\GoodsIn\StockDelivery;
@@ -3000,4 +3001,44 @@ test('agent repairs products filed under AWChina: moves them to the real supplie
     $this->get(route('grp.org.agent.org_suppliers.show.repair_supplier_products.index', [$agentOrganisation->slug, $realInAgent->slug]))->assertNotFound();
     $this->get(route('grp.org.procurement.org_suppliers.show.repair_supplier_products.index', [$awcOrgSupplier->organisation->slug, $awcOrgSupplier->slug]))
         ->assertInertia(fn ($page) => $page->component('Procurement/RepairSupplierProducts'));
+});
+
+test('a preferred supplier set on the master SKO becomes the preferred supplier of that SKO in every organisation', function () {
+    $stock    = StoreStock::make()->action($this->group, array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE]));
+    $orgStock = App\Actions\Inventory\OrgStock\StoreOrgStock::make()->action($this->organisation, $stock, OrgStock::factory()->definition());
+
+    $links = collect([10, 0])->map(function (int $localPriority) use ($stock, $orgStock) {
+        [, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+        DB::table('org_stock_has_org_supplier_products')->where('org_supplier_product_id', $orgSupplierProduct->id)->delete();
+        $stockLink = StockHasSupplierProduct::firstOrCreate(['stock_id' => $stock->id, 'supplier_product_id' => $orgSupplierProduct->supplier_product_id], ['available' => true]);
+        $orgLink   = OrgStockHasOrgSupplierProduct::create([
+            'org_stock_id'                  => $orgStock->id,
+            'org_supplier_product_id'       => $orgSupplierProduct->id,
+            'stock_has_supplier_product_id' => $stockLink->id,
+            'status'                        => true,
+            'local_priority'                => $localPriority,
+        ]);
+
+        return [$stockLink, $orgLink];
+    });
+    [[$wasPreferredStockLink, $wasPreferredOrgLink], [$backupStockLink, $backupOrgLink]] = $links->all();
+
+    actingAs($this->adminGuest->getUser());
+    $this->withoutVite()
+        ->get(route('grp.goods.stocks.show', ['stock' => $stock->slug, 'tab' => StockTabsEnum::SUPPLIER_PRODUCTS->value]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Goods/Stock')
+            ->has('supplier_products.data', 2)
+            ->where('supplier_products.data', fn ($rows) => collect($rows)->firstWhere('supplier_product_id', $wasPreferredStockLink->supplier_product_id)['preferred_in'] === $this->organisation->code
+                && collect($rows)->every(fn ($row) => $row['is_preferred'] === false)));
+
+    $this->patch(route('grp.models.stock.supplier_product.set_preferred', [$stock->id, $backupStockLink->supplier_product_id]))->assertRedirect();
+
+    expect($backupStockLink->refresh()->priority)->toBe(10)
+        ->and($wasPreferredStockLink->refresh()->priority)->toBe(0)
+        ->and($backupOrgLink->refresh()->local_priority)->toBe(10)
+        ->and($wasPreferredOrgLink->refresh()->local_priority)->toBe(0);
+
+    $notLinked = SupplierProduct::whereNotIn('id', [$backupStockLink->supplier_product_id, $wasPreferredStockLink->supplier_product_id])->firstOrFail();
+    expect(fn () => App\Actions\Goods\StockHasSupplierProduct\SetStockPreferredSupplierProduct::make()->action($stock, $notLinked))->toThrow(ValidationException::class);
 });

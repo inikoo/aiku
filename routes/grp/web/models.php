@@ -323,6 +323,7 @@ use App\Actions\Goods\Barcode\StoreBarcode;
 use App\Actions\Goods\Barcode\UpdateBarcode;
 use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Goods\Stock\UpdateStock;
+use App\Actions\Goods\StockHasSupplierProduct\SetStockPreferredSupplierProduct;
 use App\Actions\Goods\StockFamily\StoreStockFamily;
 use App\Actions\Goods\StockFamily\UpdateStockFamily;
 use App\Actions\Goods\TradeUnit\AttachTradeUnitsToTradeUnitFamily;
@@ -928,6 +929,7 @@ Route::name('stock.')->prefix('/stock')->group(function () {
     Route::post('/', StoreStock::class)->name('store');
     Route::patch('/{stock:id}', UpdateStock::class)->name('update');
     Route::patch('/{stock:id}/label-mandatory-information', UpdateStockLabelMandatoryInformation::class)->name('label_mandatory_information.update');
+    Route::patch('/{stock:id}/supplier-product/{supplierProduct:id}/set-preferred', SetStockPreferredSupplierProduct::class)->name('supplier_product.set_preferred')->withoutScopedBindings();
 });
 
 Route::post('master-shop', StoreMasterShop::class)->name('master_shop.store');
