@@ -21,6 +21,7 @@ use App\Models\Inventory\OrgStockMovement;
 use App\Models\Inventory\Warehouse;
 use Lorisleiva\Actions\Concerns\AsObject;
 use App\Actions\Traits\HasBucketImages;
+use App\Actions\SupplyChain\SupplierProduct\UI\GetSupplierProductsShowcaseData;
 use App\Actions\Procurement\GetOrganisationStockCoverBuckets;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\SysAdmin\Authorisation\WarehousePermissionsEnum;
@@ -55,6 +56,7 @@ class GetOrgStockShowcase
                 'currency_code'      => $orgStock->organisation->currency->code,
                 'sales_data'         => GetOrgStockTimeSeriesData::run($orgStock),
                 'barcodes'           => GetOrgStockBarcodes::run($orgStock),
+                'supplier_products'  => GetSupplierProductsShowcaseData::make()->forOrgSupplierProducts($orgStock->orgSupplierProducts),
                 'barcode_update_route' => $canEditStock ? [
                     'name'       => 'grp.org.warehouses.show.inventory.org_stocks.update',
                     'parameters' => [
