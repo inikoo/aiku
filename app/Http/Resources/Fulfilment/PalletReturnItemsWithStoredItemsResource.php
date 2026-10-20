@@ -151,7 +151,7 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
                         ] : null
                     ];
                 })
-                ->pipe(fn (Collection $palletStoredItems) => self::sortPalletStoredItems($palletStoredItems)),
+                ->pipe(fn (Collection $palletStoredItems) => self::sortPalletStoredItems($palletStoredItems, $this->pallet_return_state)),
             'total_quantity' => (int) $this->total_quantity,
         ];
     }
@@ -185,7 +185,7 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
                 fn ($q) => $q->where('state', PalletStateEnum::STORING)
             )
             ->when(
-                in_array($palletReturnState, [PalletReturnStateEnum::PICKING->value, PalletReturnStateEnum::PICKED->value, PalletReturnStateEnum::DISPATCHED->value]),
+                self::isPickingStage($palletReturnState),
                 fn ($query) => $query->where(function ($q) use ($palletReturnId) {
                     $q->where('state', '!=', PalletStoredItemStateEnum::RETURNED)
                         ->orWhereHas(
@@ -197,19 +197,35 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
             );
     }
 
-    /**
-     * @param  Collection<int, array{id: int, reference: string|null, location: array{code: string|null}|null}>  $palletStoredItems
-     * @return Collection<int, array{id: int, reference: string|null, location: array{code: string|null}|null}>
-     */
-    public static function sortPalletStoredItems(Collection $palletStoredItems): Collection
+    public static function isPickingStage(?string $palletReturnState): bool
     {
+        return in_array($palletReturnState, [PalletReturnStateEnum::PICKING->value, PalletReturnStateEnum::PICKED->value, PalletReturnStateEnum::DISPATCHED->value]);
+    }
+
+    /**
+     * While picking, pallets follow the warehouse walk order; before that, the pallets holding the fewest units come first so they can be cleared.
+     *
+     * @param  Collection<int, array{id: int, reference: string|null, quantity_in_pallet: int, location: array{code: string|null}|null}>  $palletStoredItems
+     * @return Collection<int, array{id: int, reference: string|null, quantity_in_pallet: int, location: array{code: string|null}|null}>
+     */
+    public static function sortPalletStoredItems(Collection $palletStoredItems, ?string $palletReturnState = null): Collection
+    {
+        $byLocation = fn (array $palletStoredItem) => sprintf(
+            '%s|%s|%012d',
+            $palletStoredItem['location']['code'] ?? '~',
+            $palletStoredItem['reference'] ?? '~',
+            (int) $palletStoredItem['id']
+        );
+
+        if (self::isPickingStage($palletReturnState)) {
+            return $palletStoredItems->sortBy($byLocation)->values();
+        }
+
         return $palletStoredItems
-            ->sortBy(fn (array $palletStoredItem) => sprintf(
-                '%s|%s|%012d',
-                $palletStoredItem['location']['code'] ?? '~',
-                $palletStoredItem['reference'] ?? '~',
-                (int) $palletStoredItem['id']
-            ))
+            ->sortBy([
+                fn (array $a, array $b) => (int) $a['quantity_in_pallet'] <=> (int) $b['quantity_in_pallet'],
+                fn (array $a, array $b) => $byLocation($a) <=> $byLocation($b),
+            ])
             ->values();
     }
 }

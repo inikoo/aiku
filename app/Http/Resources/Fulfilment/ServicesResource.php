@@ -31,6 +31,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property bool $auto_assign_status
  * @property mixed $is_auto_assign
  * @property mixed $historic_asset_id
+ * @property bool $is_pinned
  */
 class ServicesResource extends JsonResource
 {
@@ -64,6 +65,7 @@ class ServicesResource extends JsonResource
             'currency_code'     => $this->currency_code,
             'unit'              => $this->unit,
             'is_pallet_handling' => $this->is_pallet_handling,
+            'is_pinned'         => (bool) $this->is_pinned,
             // 'unit_abbreviation'      => $this->unit ? $this->unit->abbreviations()[$this->unit->value] : 's',
             // 'unit_label'             => $this->unit ? $this->unit->labels()[$this->unit->value] : __('service'),
             'unit_abbreviation' => 's',

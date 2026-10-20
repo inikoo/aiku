@@ -44,16 +44,16 @@ class GetFulfilmentServices extends OrgAction
         $queryBuilder->join('assets', 'services.asset_id', '=', 'assets.id');
         $queryBuilder->join('currencies', 'assets.currency_id', '=', 'currencies.id');
 
-        if ($scope instanceof PalletDelivery || $scope instanceof PalletReturn) {
-            $queryBuilder->whereNotIn('services.asset_id', $scope->services()->pluck('asset_id'))
-                         ->orWhere('services.is_pallet_handling', true);
-        } elseif ($scope instanceof RecurringBill) {
-            $queryBuilder->whereNotIn('services.asset_id', $scope->transactions()->pluck('asset_id'))
-                         ->orWhere('services.is_pallet_handling', true);
-        } elseif ($scope instanceof Invoice) {
-            $queryBuilder->whereNotIn('services.asset_id', $scope->invoiceTransactions()->pluck('asset_id'))
-                         ->orWhere('services.is_pallet_handling', true);
-        }
+        $usedAssetIds = match (true) {
+            $scope instanceof PalletDelivery, $scope instanceof PalletReturn => $scope->services()->pluck('asset_id'),
+            $scope instanceof RecurringBill => $scope->transactions()->pluck('asset_id'),
+            $scope instanceof Invoice => $scope->invoiceTransactions()->pluck('asset_id'),
+        };
+
+        $queryBuilder->where(function ($query) use ($usedAssetIds) {
+            $query->whereNotIn('services.asset_id', $usedAssetIds)
+                ->orWhere('services.is_pallet_handling', true);
+        });
 
         if ($withHandling == false) {
             $queryBuilder->where('services.is_pallet_handling', false);
@@ -62,6 +62,7 @@ class GetFulfilmentServices extends OrgAction
 
 
         $queryBuilder
+            ->orderByDesc('services.is_pinned')
             ->defaultSort('services.id')
             ->select([
                 'services.id',
@@ -71,6 +72,7 @@ class GetFulfilmentServices extends OrgAction
                 'services.price',
                 'services.unit',
                 'services.is_pallet_handling',
+                'services.is_pinned',
                 'assets.name',
                 'assets.code',
                 'assets.current_historic_asset_id as historic_asset_id',

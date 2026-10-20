@@ -19,6 +19,7 @@ trait WithControllerUpdateServiceRules
         return [
 
             'is_public'   => ['sometimes', 'boolean'],
+            'is_pinned'   => ['sometimes', 'boolean'],
             'code'        => [
                 'sometimes',
                 'required',
