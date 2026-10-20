@@ -184,7 +184,7 @@ class IndexArtisans extends OrgAction
 
         $artisans = $sessions
             ->groupBy('user_id')
-            ->map(function (Collection $allUserSessions) use ($totals, $serializeSession, $timeEdit) {
+            ->map(function (Collection $allUserSessions) use ($totals, $serializeSession, $timeEdit, $from, $to) {
                 /** @var ManufactureTaskSession $first */
                 $first         = $allUserSessions->first();
                 $userSessions  = $allUserSessions->reject(fn (ManufactureTaskSession $session) => $session->isNonProductive());
@@ -197,6 +197,13 @@ class IndexArtisans extends OrgAction
                     'artisan_pay_type'  => $employee?->artisan_pay_type,
                     'pay_type_route'    => $this->canEdit && $employee?->organisation_id == $this->organisation->id ? [
                         'name'       => 'grp.org.productions.show.artisans.pay_type.update',
+                        'parameters' => ['organisation' => $this->organisation->slug, 'production' => $this->production->slug, 'employee' => $employee->id],
+                    ] : null,
+                    'is_guru'           => $employee?->guru_since && $employee->guru_since->lessThanOrEqualTo($to) && (!$employee->guru_until || $employee->guru_until->greaterThanOrEqualTo($from->copy()->startOfDay())),
+                    'guru_since'        => $employee?->guru_since?->toDateString(),
+                    'guru_until'        => $employee?->guru_until?->toDateString(),
+                    'guru_route'        => $this->canEdit && $employee?->organisation_id == $this->organisation->id ? [
+                        'name'       => 'grp.org.productions.show.artisans.guru.update',
                         'parameters' => ['organisation' => $this->organisation->slug, 'production' => $this->production->slug, 'employee' => $employee->id],
                     ] : null,
                     'number_sessions'   => $artisanTotals['number_sessions'],

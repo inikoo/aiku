@@ -63,6 +63,8 @@ use App\Models\Traits\HasSearch;
  * @property EmployeeTypeEnum $type
  * @property EmployeeStateEnum $state
  * @property ArtisanPayTypeEnum $artisan_pay_type
+ * @property \Illuminate\Support\Carbon|null $guru_since
+ * @property \Illuminate\Support\Carbon|null $guru_until
  * @property \Illuminate\Support\Carbon|null $employment_start_at
  * @property \Illuminate\Support\Carbon|null $employment_end_at
  * @property array<array-key, mixed>|null $emergency_contact
@@ -170,6 +172,8 @@ class Employee extends Model implements HasMedia, Auditable
         'religion' => 'string',
         'emergency_contact' => 'array',
         'artisan_pay_type' => ArtisanPayTypeEnum::class,
+        'guru_since' => 'date',
+        'guru_until' => 'date',
     ];
     //ss
 

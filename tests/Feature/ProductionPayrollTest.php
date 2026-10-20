@@ -879,6 +879,72 @@ describe('production reward pay bands', function () {
             ->and($sessions->every(fn (array $session) => $session['is_hourly']))->toBeTrue();
     });
 
+    test('a guru gets the guru rate for every paid hour while a guru, at the rate of the day, in the payroll export', function () {
+        \App\Models\Production\ManufacturePayBand::query()->firstOrCreate(
+            ['production_id' => $this->production->id, 'code' => 'GURU'],
+            [
+                'group_id'          => $this->production->group_id,
+                'organisation_id'   => $this->production->organisation_id,
+                'name'              => 'Guru bonus',
+                'hourly_rate'       => 1.00,
+                'target_multiplier' => null,
+                'effective_from'    => now()->subYear(),
+            ]
+        );
+
+        $modelData                    = Employee::factory()->make(['organisation_id' => $this->organisation->id])->toArray();
+        $modelData['worker_number']   = 'W'.rand(1000, 9999);
+        $modelData['alias']           = 'Alias '.rand(1000, 9999);
+        $modelData['type']            = \App\Enums\HumanResources\Employee\EmployeeTypeEnum::EMPLOYEE;
+        $modelData['employment_type'] = \App\Enums\HumanResources\Employee\EmploymentTypeEnum::FULL_TIME;
+        $modelData['state']           = \App\Enums\HumanResources\Employee\EmployeeStateEnum::WORKING;
+        $guru                         = StoreEmployee::make()->action($this->organisation, $modelData);
+
+        $this->patch(route('grp.org.productions.show.artisans.guru.update', [$this->organisation->slug, $this->production->slug, $guru->id]), [
+            'guru_since' => now()->subDay()->toDateString(),
+            'guru_until' => null,
+        ])->assertRedirect();
+        expect($guru->refresh()->guru_since->toDateString())->toBe(now()->subDay()->toDateString())
+            ->and($guru->guru_until)->toBeNull();
+
+        $worked = makePayBandSession($this->payBandJobOrderItemTask, 0, 2.5, 30, \App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum::DEVELOPMENT->value);
+        $worked->update(['employee_id' => $guru->id]);
+        $worked = \App\Actions\Production\ManufactureTaskSession\CalculateManufactureTaskSessionPay::run($worked);
+
+        $leftOpen = makePayBandSession($this->payBandJobOrderItemTask, 0, 3, 0, \App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum::DEVELOPMENT->value);
+        $leftOpen->update(['employee_id' => $guru->id, 'left_open_after_shift_at' => $leftOpen->started_at->clone()->addHour()]);
+        \App\Actions\Production\ManufactureTaskSession\CalculateManufactureTaskSessionPay::run($leftOpen);
+
+        $guruTotals = function () use ($worked) {
+            $rows = collect((new \App\Exports\Production\ManufacturePayrollExport($this->production, $worked->ended_at->clone()->subDay(), $worked->ended_at->clone()->addDay()))->array())
+                ->filter(fn ($row) => $row[1] === $this->manufactureTask->code && $row[15] === 'D');
+
+            expect($rows->every(fn ($row) => $row[23] === round((float) $row[17] + $row[22], 2)))->toBeTrue();
+
+            return [round($rows->sum(fn ($row) => $row[21]), 4), round($rows->sum(fn ($row) => $row[22]), 2)];
+        };
+
+        expect((float) $worked->hours)->toBe(2.5)
+            ->and($guruTotals())->toBe([2.5, 2.5]);
+
+        $leftOpen->update(['shift_end_resolved_at' => now()]);
+        expect($guruTotals())->toBe([5.5, 5.5]);
+
+        \App\Models\Production\ManufacturePayBand::query()->create([
+            'group_id'        => $this->production->group_id,
+            'organisation_id' => $this->production->organisation_id,
+            'production_id'   => $this->production->id,
+            'code'            => 'GURU',
+            'name'            => 'Guru bonus',
+            'hourly_rate'     => 2.00,
+            'effective_from'  => $leftOpen->ended_at->clone()->addMinute(),
+        ]);
+        expect($guruTotals())->toBe([5.5, 5.5]);
+
+        \App\Actions\Production\Artisan\SetArtisanGuru::make()->action($this->production, $guru, ['guru_since' => now()->subDays(10)->toDateString(), 'guru_until' => now()->subDays(2)->toDateString()]);
+        expect($guruTotals())->toBe([0.0, 0.0]);
+    });
+
     test('job lines that share a step are made as one combined batch and the quantity and time are shared back to each line', function () {
         $suffix    = rand(10000, 99999);
         $artefacts = collect(['CMB-A', 'CMB-B'])->map(function (string $code) use ($suffix) {
@@ -1319,7 +1385,7 @@ describe('reward sheet import', function () {
 
         expect((float) $this->rewardTask->refresh()->standard_rate)->toBe(round(13.00 / 0.05, 4))
             ->and($this->rewardTask->target_override_reason)->not->toBeNull()
-            ->and(\App\Models\Production\ManufacturePayBand::where('production_id', $this->production->id)->where('effective_from', now()->startOfYear())->count())->toBe(6);
+            ->and(\App\Models\Production\ManufacturePayBand::where('production_id', $this->production->id)->where('effective_from', now()->startOfYear())->count())->toBe(7);
     });
 
     test('without a file only the pay bands are seeded, with the sheet target multipliers', function () {
@@ -1336,7 +1402,7 @@ describe('reward sheet import', function () {
             ->all();
 
         expect($this->rewardTask->refresh()->standard_rate)->toBeNull()
-            ->and($multipliers)->toEqual(['0' => 1.0, '1' => 1.025, '2' => 1.105, '3' => 1.185, 'D' => null, 'DG' => null]);
+            ->and($multipliers)->toEqual(['0' => 1.0, '1' => 1.025, '2' => 1.105, '3' => 1.185, 'D' => null, 'DG' => null, 'GURU' => null]);
     });
 
     test('create-missing with dry-run creates nothing', function () {

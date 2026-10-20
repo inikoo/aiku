@@ -20,11 +20,11 @@ import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faUserHardHat, faChevronDown, faChevronUp, faCheck, faTimes, faFilter, faClock, faExclamationTriangle } from "@fal"
+import { faUserHardHat, faChevronDown, faChevronUp, faCheck, faTimes, faFilter, faClock, faExclamationTriangle, faHatWizard } from "@fal"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { PageHeadingTypes } from "@/types/PageHeading"
 
-library.add(faUserHardHat, faChevronDown, faChevronUp, faCheck, faTimes, faFilter, faClock, faExclamationTriangle)
+library.add(faUserHardHat, faChevronDown, faChevronUp, faCheck, faTimes, faFilter, faClock, faExclamationTriangle, faHatWizard)
 
 interface TimeEditFields {
     time_edit: null | {
@@ -129,6 +129,10 @@ const props = defineProps<{
         worker: string
         artisan_pay_type: string | null
         pay_type_route: null | { name: string, parameters: object }
+        is_guru: boolean
+        guru_since: string | null
+        guru_until: string | null
+        guru_route: null | { name: string, parameters: object }
         number_sessions: number
         hours_worked: number
         quantity_made: number
@@ -187,6 +191,27 @@ function setPayType(artisan: { pay_type_route: null | { name: string, parameters
         route(artisan.pay_type_route.name, artisan.pay_type_route.parameters),
         { artisan_pay_type: payType },
         { preserveScroll: true, onFinish: () => processing.value = false }
+    )
+}
+
+const guruDates = ref<Record<number, { since: Date | null, until: Date | null }>>(
+    Object.fromEntries(props.artisans.map((artisan) => [artisan.user_id, {
+        since: artisan.guru_since ? fromIsoDate(artisan.guru_since) : null,
+        until: artisan.guru_until ? fromIsoDate(artisan.guru_until) : null,
+    }]))
+)
+
+function setGuru(artisan: { user_id: number, guru_route: null | { name: string, parameters: object } }, remove = false) {
+    if (!artisan.guru_route) return
+    const dates = guruDates.value[artisan.user_id]
+    processing.value = true
+    router.patch(
+        route(artisan.guru_route.name, artisan.guru_route.parameters),
+        {
+            guru_since: !remove && dates.since ? toLocalIsoDate(dates.since) : null,
+            guru_until: !remove && dates.until ? toLocalIsoDate(dates.until) : null,
+        },
+        { preserveScroll: true, preserveState: false, onFinish: () => processing.value = false }
     )
 }
 
@@ -420,6 +445,7 @@ function sessionDuration(session: { started_at: string, ended_at: string, break_
                 <div class="flex items-center gap-2 font-semibold">
                     {{ artisan.worker }}
                     <span v-if="artisan.artisan_pay_type === 'hourly'" class="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600">{{ artisan_pay_types.hourly }}</span>
+                    <span v-if="artisan.is_guru" class="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600"><FontAwesomeIcon :icon="['fal', 'hat-wizard']" fixed-width aria-hidden="true" /> {{ ctrans('Guru') }}</span>
                 </div>
                 <div class="flex items-center gap-6 text-sm text-gray-600 tabular-nums">
                     <span>{{ artisan.number_sessions }} {{ ctrans('tasks') }}</span>
@@ -440,6 +466,14 @@ function sessionDuration(session: { started_at: string, ended_at: string, break_
                     <span>{{ ctrans('Pay type') }}</span>
                     <SegmentedToggle :modelValue="artisan.artisan_pay_type ?? 'piece_rate'" :options="payTypeOptions" :aria-label="ctrans('Pay type')" @update:modelValue="(payType: string) => setPayType(artisan, payType)" />
                     <span class="text-xs text-gray-400">{{ ctrans('Hourly: no tiers, bonus or under-target flags. Applies to this week\'s sessions too.') }}</span>
+                </div>
+                <div v-if="artisan.guru_route" class="py-2 flex flex-wrap items-center gap-3 border-b border-gray-100 text-sm text-gray-600">
+                    <span>{{ ctrans('Guru') }}</span>
+                    <DatePicker v-model="guruDates[artisan.user_id].since" :maxDate="guruDates[artisan.user_id].until ?? undefined" dateFormat="d M yy" :manualInput="false" showIcon iconDisplay="input" size="small" :placeholder="ctrans('Since')" :class="fieldFocusClass" :aria-label="ctrans('Guru since')" />
+                    <DatePicker v-model="guruDates[artisan.user_id].until" :minDate="guruDates[artisan.user_id].since ?? undefined" dateFormat="d M yy" :manualInput="false" showIcon showClear iconDisplay="input" size="small" :placeholder="ctrans('No end date')" :class="fieldFocusClass" :aria-label="ctrans('Guru until')" />
+                    <Button type="tertiary" size="xs" :label="ctrans('Save')" :disabled="processing || !guruDates[artisan.user_id].since" @click="setGuru(artisan)" />
+                    <Button v-if="artisan.guru_since" type="negative" size="xs" :label="ctrans('Not a Guru')" :disabled="processing" @click="setGuru(artisan, true)" />
+                    <span class="text-xs text-gray-400">{{ ctrans('Guru: extra pay for every hour worked between these dates, on top of the band rate.') }}</span>
                 </div>
                 <div v-if="artisan.non_productive.sessions.length" class="py-2 border-b border-gray-100">
                     <div class="flex items-center justify-between gap-3 text-sm font-medium text-gray-700">

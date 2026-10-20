@@ -35,6 +35,7 @@ class ImportManufactureRewardSheet extends Command
         ['code' => '3', 'name' => 'Band 3', 'hourly_rate' => 15.00, 'target_multiplier' => 1.185],
         ['code' => 'D', 'name' => 'Development', 'hourly_rate' => 13.30, 'target_multiplier' => null],
         ['code' => 'DG', 'name' => 'Development Group', 'hourly_rate' => 15.00, 'target_multiplier' => null],
+        ['code' => 'GURU', 'name' => 'Guru bonus', 'hourly_rate' => 1.00, 'target_multiplier' => null],
     ];
 
     public function handle(): int
