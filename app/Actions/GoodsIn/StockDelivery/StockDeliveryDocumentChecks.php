@@ -156,7 +156,7 @@ class StockDeliveryDocumentChecks
             'is_invoice'     => fn (array $reading) => (bool) ($reading['is_invoice'] ?? false),
             'invoice_number' => fn (array $reading) => self::normalise($reading['invoice_number'] ?? null),
             'invoice_date'   => fn (array $reading) => $reading['invoice_date'] ?? null,
-            'currency'       => fn (array $reading) => strtoupper((string) ($reading['currency'] ?? '')),
+            'currency'       => fn (array $reading) => (string) self::currencyCode($reading['currency'] ?? null),
             'net_total'      => fn (array $reading) => $cents($reading['net_total'] ?? null),
             'vat_total'      => fn (array $reading) => $cents($reading['vat_total'] ?? null),
             'total_payable'  => fn (array $reading) => $cents($reading['total_payable'] ?? null),
@@ -166,6 +166,16 @@ class StockDeliveryDocumentChecks
         ];
 
         return array_keys(array_filter($same, fn (callable $value) => $value($first) !== $value($second)));
+    }
+
+    /**
+     * The ISO code of a currency as a reader gave it: Chinese invoices print RMB for CNY.
+     */
+    public static function currencyCode(?string $currency): ?string
+    {
+        $code = strtoupper(trim((string) $currency));
+
+        return ['RMB' => 'CNY'][$code] ?? ($code ?: null);
     }
 
     public static function normalise(?string $value): string

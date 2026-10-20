@@ -2062,6 +2062,145 @@ test('a supplier invoice reading that fails a check is refused and never reaches
     expect($stockDelivery->costs()->count())->toBe(0);
 });
 
+test('invoice lines match by our SKO code, then by a barcode both readers agree on, and a description only suggests a line for the reviewer to confirm (INI-120)', function () {
+    $token         = Str::upper(Str::random(3)).random_int(100, 999);
+    $stockDelivery = createStockDeliveryWithItems($this, "INVMATCH-$token", [10, 10, 10]);
+    $stockDelivery->update(['state' => StockDeliveryStateEnum::CHECKED]);
+    $stockDelivery->items()->update(['net_amount' => 100, 'unit_quantity_checked' => 10]);
+    [$bySko, $byBarcode, $byDescription] = $stockDelivery->items()->orderBy('id')->get()->all();
+    $currency = $stockDelivery->currency->code;
+    $barcode  = '50'.random_int(10000000000, 99999999999);
+    $before   = ['barcode' => $byBarcode->orgStock->unit_barcode, 'name' => $byDescription->orgStock->name];
+    $byBarcode->orgStock->updateQuietly(['unit_barcode' => $barcode]);
+    $byDescription->orgStock->updateQuietly(['name' => "Hop Hare Crystal Candle Moon $token"]);
+    $skoCode = $bySko->orgStock->code;
+
+    [$media, $review] = readSupplierInvoiceDocument(
+        $this,
+        $stockDelivery,
+        "Invoice,INV-$token\nOrder,INVMATCH-$token\n$skoCode,10,100.00\nXYZ-1,$barcode,10,100.00\nZZZ,10,100.00\nTotal,$currency,300.00\n",
+        [
+            'invoice_number' => "INV-$token",
+            'lines'          => [
+                ['code' => $skoCode, 'barcode' => null, 'description' => 'Goods', 'quantity' => 10, 'unit_price' => 10, 'amount' => 100],
+                ['code' => 'XYZ-1', 'barcode' => $barcode, 'description' => 'Goods', 'quantity' => 10, 'unit_price' => 10, 'amount' => 100],
+                ['code' => 'ZZZ', 'barcode' => '5.05637E+12', 'description' => "Hop Hare Crystal Candle Moon $token - boxed", 'quantity' => 10, 'unit_price' => 10, 'amount' => 100],
+            ],
+            'total'          => 300,
+        ]
+    );
+
+    $items = collect($review['items'])->keyBy('id');
+
+    expect($review['problems'])->toBe([])
+        ->and($items[$bySko->id]['matched_by'])->toBe(['sko_code'])
+        ->and($items[$byBarcode->id]['matched_by'])->toBe(['barcode'])
+        ->and($items[$byDescription->id]['invoice_amount'])->toBeNull()
+        ->and($review['unmatched'])->toHaveCount(1)
+        ->and($review['unmatched'][0]['barcode'])->toBeNull()
+        ->and($review['unmatched'][0]['suggested_item_id'])->toBe($byDescription->id);
+
+    $sharedCode            = \App\Actions\GoodsIn\StockDelivery\ReadStockDeliveryInvoice::reading($stockDelivery, $media);
+    $sharedCode['lines'][0]['code'] = "INVMATCH-$token";
+    $ambiguous             = \App\Actions\GoodsIn\StockDelivery\GetStockDeliveryInvoiceCosting::make()->review($stockDelivery, $sharedCode, $media);
+
+    expect(collect($ambiguous['unmatched'])->pluck('index')->all())->toBe([0, 2]);
+
+    $this->post(route('grp.models.stock-delivery.invoice.apply', [$stockDelivery->id, $media->id]), [
+        'read_at'     => $review['read_at'],
+        'assignments' => [['index' => 2, 'item_id' => $byDescription->id]],
+    ])->assertSessionHasNoErrors();
+
+    expect((float) $bySko->fresh()->cost_items)->toEqualWithDelta(100, 0.001)
+        ->and((float) $byBarcode->fresh()->cost_items)->toEqualWithDelta(100, 0.001)
+        ->and((float) $byDescription->fresh()->cost_items)->toEqualWithDelta(100, 0.001);
+
+    $byBarcode->orgStock->updateQuietly(['unit_barcode' => $before['barcode']]);
+    $byDescription->orgStock->updateQuietly(['name' => $before['name']]);
+});
+
+test('freight on a supplier invoice becomes the shipping like the agent invoice freight, and is refused when shipping was typed by hand (INI-120)', function () {
+    $read = function (string $prefix) {
+        $token         = Str::upper(Str::random(3)).random_int(100, 999);
+        $stockDelivery = createStockDeliveryWithItems($this, "$prefix-$token", [10]);
+        $stockDelivery->update(['state' => StockDeliveryStateEnum::CHECKED]);
+        $stockDelivery->items()->update(['net_amount' => 100, 'unit_quantity_checked' => 10]);
+        $currency = $stockDelivery->currency->code;
+
+        [$media, $review] = readSupplierInvoiceDocument(
+            $this,
+            $stockDelivery,
+            "Invoice,INV-$token\nOrder,$prefix-$token\n$prefix-$token,10,100.00\nSea freight,30.00\nTotal,$currency,130.00\n",
+            [
+                'invoice_number' => "INV-$token",
+                'lines'          => [['code' => "$prefix-$token", 'barcode' => null, 'description' => 'Goods', 'quantity' => 10, 'unit_price' => 10, 'amount' => 100]],
+                'charges'        => [['label' => 'Sea freight', 'amount' => 30]],
+                'total'          => 130,
+            ]
+        );
+
+        return [$stockDelivery, $media, $review];
+    };
+    $apply = fn ($stockDelivery, $media, $review) => $this->post(route('grp.models.stock-delivery.invoice.apply', [$stockDelivery->id, $media->id]), ['read_at' => $review['read_at'], 'charge_types' => ['freight']]);
+
+    [$stockDelivery, $media, $review] = $read('INVFRT');
+
+    expect($review['problems'])->toBe([])
+        ->and(array_column($review['charge_types'], 'value'))->toContain('freight')
+        ->and($review['shipping_typed_by_hand'])->toBeFalse();
+
+    $apply($stockDelivery, $media, $review)->assertSessionHasNoErrors();
+
+    $shipping = $stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::SHIPPING)->sole();
+
+    expect((float) $shipping->amount)->toEqualWithDelta(30, 0.001)
+        ->and($shipping->label)->toBe('Sea freight')
+        ->and($stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::EXTRA)->count())->toBe(0)
+        ->and($stockDelivery->fresh()->data[\App\Actions\SupplyChain\AgentInvoice\ApplyAgentInvoiceCosting::FREIGHT]['amount'])->toEqual(30);
+
+    [$billedDelivery, $billedMedia, $billedReview] = $read('INVFWD');
+    \App\Actions\GoodsIn\StockDeliveryServiceInvoice\StoreStockDeliveryServiceInvoice::make()->action($billedDelivery->organisation, [
+        'type'         => 'freight',
+        'issuer'       => 'Sea Forwarder Test',
+        'reference'    => 'FWD-'.Str::random(6),
+        'date'         => '2026-09-18',
+        'currency_id'  => $billedDelivery->organisation->currency_id,
+        'total_amount' => 50,
+        'allocations'  => [['stock_delivery_id' => $billedDelivery->id]],
+    ]);
+    $billedReview = \App\Actions\GoodsIn\StockDelivery\GetStockDeliveryInvoiceCosting::make()->review($billedDelivery->fresh(), \App\Actions\GoodsIn\StockDelivery\ReadStockDeliveryInvoice::reading($billedDelivery, $billedMedia), $billedMedia);
+
+    expect($billedReview['shipping_typed_by_hand'])->toBeFalse();
+
+    $apply($billedDelivery, $billedMedia, $billedReview)->assertSessionHasNoErrors();
+
+    expect((float) $billedDelivery->costs()->where('type', StockDeliveryCostTypeEnum::SHIPPING)->sole()->amountInDeliveryCurrency())->toEqualWithDelta(30 + 50 / (float) ($billedDelivery->fresh()->org_exchange ?: 1), 0.01);
+
+    [$domesticDelivery, $domesticMedia, $domesticReview] = $read('INVDOM');
+    \App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryCost::make()->action($domesticDelivery, ['type' => StockDeliveryCostTypeEnum::SHIPPING->value, 'is_na' => true]);
+    $domesticReview = \App\Actions\GoodsIn\StockDelivery\GetStockDeliveryInvoiceCosting::make()->review($domesticDelivery->fresh(), \App\Actions\GoodsIn\StockDelivery\ReadStockDeliveryInvoice::reading($domesticDelivery, $domesticMedia), $domesticMedia);
+
+    expect($domesticReview['shipping_typed_by_hand'])->toBeFalse();
+
+    $apply($domesticDelivery, $domesticMedia, $domesticReview)->assertSessionHasNoErrors();
+
+    $domesticShipping = $domesticDelivery->costs()->where('type', StockDeliveryCostTypeEnum::SHIPPING)->sole();
+
+    expect((float) $domesticShipping->amount)->toEqualWithDelta(30, 0.001)
+        ->and($domesticShipping->is_na)->toBeFalse();
+
+    [$typedDelivery, $typedMedia, $typedReview] = $read('INVTYP');
+    \App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryCost::make()->action($typedDelivery, ['type' => StockDeliveryCostTypeEnum::SHIPPING->value, 'amount' => 45, 'received_at' => '2026-09-19']);
+    $typedReview = \App\Actions\GoodsIn\StockDelivery\GetStockDeliveryInvoiceCosting::make()->review($typedDelivery->fresh(), \App\Actions\GoodsIn\StockDelivery\ReadStockDeliveryInvoice::reading($typedDelivery, $typedMedia), $typedMedia);
+
+    expect($typedReview['shipping_typed_by_hand'])->toBeTrue();
+
+    $apply($typedDelivery, $typedMedia, $typedReview)->assertSessionHasErrors('charge_types');
+
+    expect((float) $typedDelivery->costs()->where('type', StockDeliveryCostTypeEnum::SHIPPING)->sole()->amount)->toEqualWithDelta(45, 0.001)
+        ->and($typedDelivery->costs()->where('type', StockDeliveryCostTypeEnum::AGENT_INVOICE)->count())->toBe(0);
+});
+
 test('a supplier invoice in another currency is converted into the delivery when the delivery does not follow it', function () {
     \Illuminate\Support\Facades\Http::fake();
     [$stockDelivery, $media, $item, $deliveryCurrency, $organisationCurrency] = stockDeliveryWithInvoiceInAnotherCurrency($this, Str::upper(Str::random(6)));
@@ -2414,6 +2553,12 @@ test('document checks find amounts and delivery numbers the way documents print 
     foreach ([1695, 3955, 154, 5804] as $amount) {
         expect($checks::amountInText($amount, $invoice))->toBeTrue("$amount is on the invoice");
     }
+
+    expect($checks::currencyCode('rmb'))->toBe('CNY')
+        ->and($checks::currencyCode(''))->toBeNull()
+        ->and($checks::disagreements(['currency' => 'RMB', 'lines' => []], ['currency' => 'CNY', 'lines' => []]))->toBe([])
+        ->and(\App\Actions\GoodsIn\StockDelivery\ReadStockDeliveryInvoice::barcode('5.05637E+12'))->toBeNull()
+        ->and(\App\Actions\GoodsIn\StockDelivery\ReadStockDeliveryInvoice::barcode(' 5056368359248 '))->toBe('5056368359248');
 
     expect($checks::amountInText(3595, $invoice))->toBeFalse()
         ->and($checks::amountInText(5840, $invoice))->toBeFalse()

@@ -91,38 +91,51 @@ class GetStockDeliveryInvoiceCosting
         $applied = (bool) Arr::get($reading, 'applied_at');
         $items   = $stockDelivery->items()
             ->where('state', '!=', StockDeliveryItemStateEnum::CANCELLED)
-            ->with('supplierProduct:id,code,name,supplier_unit,units_per_supplier_unit')
+            ->with(['supplierProduct:id,code,name,supplier_unit,units_per_supplier_unit', 'orgStock:id,code,name,barcode,unit_barcode,stock_id', 'orgStock.stock:id,carton_barcode'])
             ->orderBy('id')
             ->get()
             ->keyBy('id');
 
-        $itemsByCode = $items->filter(fn (StockDeliveryItem $item) => $item->supplierProduct)
-            ->groupBy(fn (StockDeliveryItem $item) => self::normaliseCode($item->supplierProduct->code))
-            ->filter(fn ($sameCode) => $sameCode->count() === 1)
-            ->map(fn ($sameCode) => $sameCode->first());
+        $matchers = [
+            'supplier_code' => self::uniqueBy($items, fn (StockDeliveryItem $item) => [self::normaliseCode($item->supplierProduct?->code)]),
+            'sko_code'      => self::uniqueBy($items, fn (StockDeliveryItem $item) => [self::normaliseCode($item->orgStock?->code)]),
+            'barcode'       => self::uniqueBy($items, fn (StockDeliveryItem $item) => array_map(
+                fn (?string $barcode) => ReadStockDeliveryInvoice::barcode($barcode),
+                [$item->orgStock?->unit_barcode, $item->orgStock?->barcode, $item->orgStock?->stock?->carton_barcode]
+            )),
+        ];
+
+        $codeOwners = [];
+        foreach ($items as $item) {
+            foreach (array_filter([self::normaliseCode($item->supplierProduct?->code), self::normaliseCode($item->orgStock?->code)]) as $code) {
+                $codeOwners[$code][$item->id] = true;
+            }
+        }
 
         $invoiced      = [];
         $unmatched     = [];
         $notInDelivery = [];
 
         foreach ($reading['lines'] as $index => $line) {
-            $item = $line['code'] ? $itemsByCode->get(self::normaliseCode($line['code'])) : null;
+            [$item, $matchedBy] = self::match($matchers, $line, $codeOwners);
 
             if (!$item && array_key_exists($index, $assignments)) {
                 if ($assignments[$index] === null) {
                     $notInDelivery[] = ['index' => $index, 'label' => mb_substr(trim(($line['code'] ?? '').' '.($line['description'] ?? '')) ?: __('Invoice line'), 0, 255), 'amount' => $line['amount']];
                     continue;
                 }
-                $item = $items->get($assignments[$index]);
+                $item      = $items->get($assignments[$index]);
+                $matchedBy = 'reviewer';
             }
 
             if (!$item) {
-                $unmatched[] = ['index' => $index, ...$line];
+                $unmatched[] = ['index' => $index, ...$line, 'suggested_item_id' => self::suggestByDescription($items, $line['description'] ?? null)];
                 continue;
             }
 
-            $invoiced[$item->id]['amount']   = ($invoiced[$item->id]['amount'] ?? 0) + (float) $line['amount'];
-            $invoiced[$item->id]['quantity'] = ($invoiced[$item->id]['quantity'] ?? 0) + (float) ($line['quantity'] ?? 0) * ($item->supplierProduct?->unitsPerSupplierUnit() ?? 1);
+            $invoiced[$item->id]['amount']       = ($invoiced[$item->id]['amount'] ?? 0) + (float) $line['amount'];
+            $invoiced[$item->id]['quantity']     = ($invoiced[$item->id]['quantity'] ?? 0) + (float) ($line['quantity'] ?? 0) * ($item->supplierProduct?->unitsPerSupplierUnit() ?? 1);
+            $invoiced[$item->id]['matched_by'][] = $matchedBy;
         }
 
         $deliveryCurrency = $stockDelivery->currency?->code;
@@ -161,6 +174,7 @@ class GetStockDeliveryInvoiceCosting
                 'expected_amount'  => $expected,
                 'current_cost'     => (float) ($item->cost_items ?? $item->net_amount),
                 'invoice_quantity' => $invoice['quantity'] ?? null,
+                'matched_by'       => $invoice ? array_values(array_unique($invoice['matched_by'])) : [],
                 'invoice_amount'   => $invoice ? round($invoice['amount'], 2) : null,
                 'quantity_differs' => $invoice && abs($invoice['quantity'] - $quantity) > self::TOLERANCE,
                 'amount_differs'   => $invoice && $expectedInInvoiceCurrency !== null && abs($invoice['amount'] - $expectedInInvoiceCurrency) > self::TOLERANCE,
@@ -195,7 +209,7 @@ class GetStockDeliveryInvoiceCosting
             __('The invoice of this delivery is already entered (:reference): change it with Invoice.', ['reference' => (string) $recorded?->reference]) => !$applied && $recorded && $recorded->source !== StockDeliveryInvoiceSourceEnum::ESTIMATED,
             __('Another invoice read for this delivery is already in its costing.') => !$applied && $media && $this->otherReadingApplied($stockDelivery, $media),
             __('The invoice price of :codes is far from the order price, the invoice may count packs or cartons: enter it by hand.', ['codes' => $codes($toCheck)]) => $toCheck->isNotEmpty(),
-            __('These products of the delivery are not on the invoice: :codes. Enter it by hand.', ['codes' => $codes($notInvoiced)]) => $notInvoiced->isNotEmpty(),
+            __('These products of the delivery are not on the invoice: :codes. Enter it by hand.', ['codes' => $codes($notInvoiced)]) => $notInvoiced->isNotEmpty() && !$unmatched,
             __('Check what was received before applying the invoice: the costs follow the quantities received.') => !$applied && in_array($stockDelivery->state, [StockDeliveryStateEnum::IN_PROCESS, StockDeliveryStateEnum::CONFIRMED, StockDeliveryStateEnum::READY_TO_SHIP, StockDeliveryStateEnum::DISPATCHED, StockDeliveryStateEnum::RECEIVED], true),
             __('This delivery is costed, an accounting manager can change it with Update costing.') => !$applied && (bool) $stockDelivery->is_costed,
             __('This is a partner delivery, which costs itself from the partner order.') => $stockDelivery->parent_type === 'OrgPartner',
@@ -214,7 +228,8 @@ class GetStockDeliveryInvoiceCosting
             'unmatched'             => $unmatched,
             'not_in_delivery'       => $notInDelivery,
             'items'                 => $reviewItems->all(),
-            'charge_types'          => StockDeliveryServiceInvoiceTypeEnum::extraOptions(),
+            'charge_types'          => [['label' => __('Freight, goes to the shipping'), 'value' => ApplyStockDeliveryInvoiceCosting::FREIGHT], ...StockDeliveryServiceInvoiceTypeEnum::extraOptions()],
+            'shipping_typed_by_hand' => (bool) $stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::SHIPPING)->where('from_service_invoices', false)->where('is_na', false)->whereNotNull('amount')->exists(),
             'not_received'          => $this->quantityGap($reviewItems->filter(fn (array $row) => $row['proposed_cost'] !== null && $row['invoice_amount'] - $row['proposed_cost'] > self::TOLERANCE), fn (array $row) => $row['invoice_amount'] - $row['proposed_cost']),
             'not_invoiced'          => $this->quantityGap($reviewItems->filter(fn (array $row) => $row['proposed_cost'] !== null && $row['proposed_cost'] - $row['invoice_amount'] > self::TOLERANCE), fn (array $row) => $row['proposed_cost'] - $row['invoice_amount']),
             'replaces_typed'        => $typed && $typed->amount !== null && (StockDeliveryDocumentChecks::normalise($typed->currency?->code ?? $deliveryCurrency) !== StockDeliveryDocumentChecks::normalise($currency?->code) || abs((float) $typed->amount - (float) $total) > self::TOLERANCE)
@@ -279,6 +294,82 @@ class GetStockDeliveryInvoiceCosting
             ->whereRaw("data->'invoice_reading'->>'kind' is distinct from ?", [ReadStockDeliveryServiceInvoice::KIND])
             ->whereRaw("data->'invoice_reading'->>'applied_at' is not null")
             ->exists();
+    }
+
+    /**
+     * The invoice line's product, by our supplier product code, then our SKO code, then its barcode (the unit, SKO
+     * or carton barcode): the first that names exactly one line of the delivery. A code that is the supplier or SKO
+     * code of two lines matches by neither, so it can not land on whichever line happens to own it the other way.
+     *
+     * @param  array<string, \Illuminate\Support\Collection<string, StockDeliveryItem>>  $matchers
+     * @param  array<string, mixed>  $line
+     * @param  array<string, array<int, true>>  $codeOwners
+     * @return array{0: ?StockDeliveryItem, 1: ?string}
+     */
+    private static function match(array $matchers, array $line, array $codeOwners): array
+    {
+        $code = self::normaliseCode($line['code'] ?? null);
+        $code = count($codeOwners[$code] ?? []) === 1 ? $code : '';
+        $keys = [
+            'supplier_code' => $code,
+            'sko_code'      => $code,
+            'barcode'       => ReadStockDeliveryInvoice::barcode($line['barcode'] ?? null),
+        ];
+
+        foreach ($matchers as $by => $items) {
+            if ($keys[$by] && $item = $items->get($keys[$by])) {
+                return [$item, $by];
+            }
+        }
+
+        return [null, null];
+    }
+
+    /**
+     * Each key that names exactly one line of the delivery: a code or barcode on two lines names neither.
+     *
+     * @param  \Illuminate\Support\Collection<int, StockDeliveryItem>  $items
+     * @return \Illuminate\Support\Collection<string, StockDeliveryItem>
+     */
+    private static function uniqueBy(\Illuminate\Support\Collection $items, callable $keys): \Illuminate\Support\Collection
+    {
+        $byKey = [];
+        foreach ($items as $item) {
+            foreach (array_unique(array_filter($keys($item))) as $key) {
+                $byKey[$key][$item->id] = $item;
+            }
+        }
+
+        return collect($byKey)->filter(fn (array $sameKey) => count($sameKey) === 1)->map(fn (array $sameKey) => reset($sameKey));
+    }
+
+    /**
+     * The one line of the delivery whose product name the invoice line's description holds, or that holds it. Only
+     * ever a suggestion: the reviewer still says where the line goes.
+     *
+     * @param  \Illuminate\Support\Collection<int, StockDeliveryItem>  $items
+     */
+    private static function suggestByDescription(\Illuminate\Support\Collection $items, ?string $description): ?int
+    {
+        $words       = fn (?string $text) => trim((string) preg_replace('/[^a-z0-9]+/', ' ', mb_strtolower((string) $text)));
+        $description = $words($description);
+
+        if (mb_strlen($description) < 8) {
+            return null;
+        }
+
+        $candidates = $items->filter(function (StockDeliveryItem $item) use ($words, $description) {
+            foreach ([$item->supplierProduct?->name, $item->orgStock?->name] as $name) {
+                $name = $words($name);
+                if (mb_strlen($name) >= 8 && (str_contains($description, $name) || str_contains($name, $description))) {
+                    return true;
+                }
+            }
+
+            return false;
+        });
+
+        return $candidates->count() === 1 ? $candidates->first()->id : null;
     }
 
     public static function normaliseCode(?string $code): string

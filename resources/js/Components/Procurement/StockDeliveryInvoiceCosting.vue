@@ -35,12 +35,15 @@ interface ReviewItem {
     amount_differs: boolean
     proposed_cost: number | null
     needs_check: boolean
+    matched_by: string[]
 }
 
 interface InvoiceLine {
     index: number
     code: string | null
+    barcode?: string | null
     description: string | null
+    suggested_item_id?: number | null
     quantity: number | null
     unit_price: number | null
     amount: number | null
@@ -59,6 +62,7 @@ interface Reading {
     total?: number | null
     charges?: { label: string; amount: number }[]
     charge_types?: { label: string; value: string }[]
+    shipping_typed_by_hand?: boolean
     replaces_typed?: { amount: number; currency: string | null } | null
     not_received?: { amount: number; codes: (string | null)[] } | null
     not_invoiced?: { amount: number; codes: (string | null)[] } | null
@@ -121,7 +125,7 @@ watch(
             }
 
             drafts[draftKey(invoice)] = {
-                assignments: Object.fromEntries((reading.unmatched ?? []).map((line) => [line.index, null])),
+                assignments: Object.fromEntries((reading.unmatched ?? []).map((line) => [line.index, line.suggested_item_id ?? null])),
                 chargeTypes: (reading.charges ?? []).map(() => null),
                 checked: false,
                 confirmation: "",
@@ -151,6 +155,12 @@ const assignmentOptions = (reading: Reading) => [
     ...(reading.items ?? []).map((item) => ({ label: `${ctrans("Add to")} ${item.code}`, value: item.id })),
 ]
 
+const matchedByLabel = (matchedBy: string[]) =>
+    matchedBy
+        .filter((by) => by !== "supplier_code")
+        .map((by) => ({ sko_code: ctrans("matched by our code"), barcode: ctrans("matched by barcode"), reviewer: ctrans("placed by you") })[by] ?? by)
+        .join(", ")
+
 const typed = (text: string) => text.trim().replace(/\s+/g, " ").replace(/\.$/, "").toLowerCase()
 
 const canApply = (invoice: Invoice) => {
@@ -160,6 +170,7 @@ const canApply = (invoice: Invoice) => {
     return Boolean(reading.can_apply)
         && Object.values(draft.assignments).every((value) => value !== null)
         && draft.chargeTypes.every((type) => type)
+        && !(reading.shipping_typed_by_hand && draft.chargeTypes.includes("freight"))
         && (!reading.needs_manual_check || draft.checked)
         && (!reading.delivery_confirmation || typed(draft.confirmation) === typed(reading.delivery_confirmation.phrase))
 }
@@ -276,7 +287,10 @@ const apply = (invoice: Invoice, currencyChoice: { follow_invoice?: boolean; exc
                     </thead>
                     <tbody>
                         <tr v-for="item in invoice.reading.items" :key="item.id" class="border-t border-gray-100" :class="item.needs_check || item.invoice_amount == null ? 'bg-amber-50' : ''">
-                            <td class="py-1"><span class="font-medium">{{ item.code }}</span> {{ item.name }}</td>
+                            <td class="py-1">
+                                <span class="font-medium">{{ item.code }}</span> {{ item.name }}
+                                <span v-if="matchedByLabel(item.matched_by)" class="text-gray-400">· {{ matchedByLabel(item.matched_by) }}</span>
+                            </td>
                             <td class="py-1 text-right tabular-nums">{{ locale.number(item.quantity) }}</td>
                             <td class="py-1 text-right tabular-nums" :class="item.quantity_differs ? 'font-medium text-amber-700' : ''">
                                 {{ item.invoice_quantity == null ? ctrans("not on invoice") : locale.number(item.invoice_quantity) }}
@@ -296,12 +310,16 @@ const apply = (invoice: Invoice, currencyChoice: { follow_invoice?: boolean; exc
                     <div class="mb-1 font-medium text-amber-700">{{ ctrans("Invoice lines that match no product of this delivery: say where each goes") }}</div>
                     <div v-for="line in invoice.reading.unmatched" :key="line.index" class="flex flex-wrap items-center gap-2 text-xs">
                         <span class="font-medium">{{ line.code ?? "—" }}</span>
+                        <span v-if="line.barcode" class="text-gray-500">{{ line.barcode }}</span>
                         <span>{{ line.description }}</span>
                         <span>{{ line.quantity == null ? "" : "× " + locale.number(line.quantity) }}</span>
                         <span class="font-medium tabular-nums">{{ money(line.amount, invoice.reading.currency) }}</span>
                         <Select v-model="drafts[draftKey(invoice)].assignments[line.index]" :options="assignmentOptions(invoice.reading)"
                             optionLabel="label" optionValue="value" size="small" class="w-72" :class="fieldFocusClass"
                             :placeholder="ctrans('Choose')" :invalid="drafts[draftKey(invoice)].assignments[line.index] === null" :disabled="!canEdit || !invoice.reading.can_apply" />
+                        <span v-if="line.suggested_item_id && drafts[draftKey(invoice)].assignments[line.index] === line.suggested_item_id" class="text-amber-700">
+                            {{ ctrans("suggested from the description, check it") }}
+                        </span>
                     </div>
                 </div>
 
@@ -328,6 +346,11 @@ const apply = (invoice: Invoice, currencyChoice: { follow_invoice?: boolean; exc
                 <p v-if="invoice.reading.replaces_typed && invoice.reading.can_apply" class="text-amber-700">
                     <FontAwesomeIcon :icon="faExclamationTriangle" fixed-width aria-hidden="true" />
                     {{ ctrans("The invoice typed by hand says :typed, applying replaces it with :total.", { typed: String(money(invoice.reading.replaces_typed.amount, invoice.reading.replaces_typed.currency)), total: String(money(invoice.reading.total, invoice.reading.currency)) }) }}
+                </p>
+
+                <p v-if="invoice.reading.shipping_typed_by_hand && drafts[draftKey(invoice)].chargeTypes.includes('freight')" class="text-red-600">
+                    <FontAwesomeIcon :icon="faExclamationTriangle" fixed-width aria-hidden="true" />
+                    {{ ctrans("Shipping is already entered by hand on this delivery: put the invoice freight there, or remove it, before applying the invoice.") }}
                 </p>
 
                 <label v-if="invoice.reading.needs_manual_check && invoice.reading.can_apply" class="flex items-start gap-2 text-xs text-amber-700">

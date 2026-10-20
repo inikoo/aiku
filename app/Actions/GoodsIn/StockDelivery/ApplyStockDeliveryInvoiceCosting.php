@@ -9,6 +9,8 @@
 namespace App\Actions\GoodsIn\StockDelivery;
 
 use App\Actions\GoodsIn\StockDeliveryItem\UpdateStockDeliveryItemCost;
+use App\Actions\GoodsIn\StockDeliveryServiceInvoice\SyncStockDeliveryServiceInvoiceCosts;
+use App\Actions\SupplyChain\AgentInvoice\ApplyAgentInvoiceCosting;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryServiceInvoiceTypeEnum;
 use App\Models\Helpers\Currency;
 use App\Actions\OrgAction;
@@ -45,6 +47,11 @@ class ApplyStockDeliveryInvoiceCosting extends OrgAction
 
     private ?Currency $invoiceCurrency = null;
 
+    /**
+     * The charge type a reviewer gives a freight charge: it fills the shipping row, like the agent invoice's freight.
+     */
+    public const string FREIGHT = 'freight';
+
     public function rules(): array
     {
         return [
@@ -53,7 +60,7 @@ class ApplyStockDeliveryInvoiceCosting extends OrgAction
             'assignments.*.index'   => ['required', 'integer', 'min:0'],
             'assignments.*.item_id' => ['present', 'nullable', 'integer'],
             'charge_types'          => ['sometimes', 'array', 'list'],
-            'charge_types.*'        => ['required', Rule::in(array_column(StockDeliveryServiceInvoiceTypeEnum::extraOptions(), 'value'))],
+            'charge_types.*'        => ['required', Rule::in([self::FREIGHT, ...array_column(StockDeliveryServiceInvoiceTypeEnum::extraOptions(), 'value')])],
             'checked'               => ['sometimes', 'boolean'],
             'confirmation'          => ['sometimes', 'nullable', 'string', 'max:255'],
             'follow_invoice'        => ['sometimes', 'boolean'],
@@ -153,8 +160,15 @@ class ApplyStockDeliveryInvoiceCosting extends OrgAction
                 UpdateStockDeliveryItemCost::make()->action($item, ['cost_items' => $cost]);
             }
 
+            $freight = collect($review['charges'])
+                ->filter(fn (array $charge, int $index) => $modelData['charge_types'][$index] === self::FREIGHT && (float) $charge['amount'] > 0);
+
+            if ($freight->isNotEmpty()) {
+                $this->invoiceFreightToShipping($stockDelivery, $freight, $exchange, $review['invoice_date']);
+            }
+
             foreach ($review['charges'] as $index => $charge) {
-                if ((float) $charge['amount'] > 0) {
+                if ((float) $charge['amount'] > 0 && $modelData['charge_types'][$index] !== self::FREIGHT) {
                     StoreStockDeliveryCost::make()->action($stockDelivery, [
                         'type'        => StockDeliveryCostTypeEnum::EXTRA->value,
                         'category'    => $modelData['charge_types'][$index],
@@ -208,6 +222,45 @@ class ApplyStockDeliveryInvoiceCosting extends OrgAction
         });
 
         return $stockDelivery->refresh();
+    }
+
+    /**
+     * Freight on the invoice becomes the shipping, split by weight, and is kept as the invoice freight so the
+     * forwarder's freight bills add to it. A shipping row left not applicable or empty (domestic deliveries are
+     * prefilled so) takes the freight; shipping typed by hand may already hold it, so the invoice is refused rather
+     * than count the freight twice.
+     *
+     * @param  \Illuminate\Support\Collection<int, array{label: string, amount: float}>  $freight
+     *
+     * @throws ValidationException
+     */
+    private function invoiceFreightToShipping(StockDelivery $stockDelivery, \Illuminate\Support\Collection $freight, float $exchange, string $date): void
+    {
+        $shipping = $stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::SHIPPING)->first();
+
+        $placeholder = $shipping && !$shipping->from_service_invoices && ($shipping->is_na || $shipping->amount === null);
+
+        if ($shipping && !$shipping->from_service_invoices && !$placeholder) {
+            throw ValidationException::withMessages(['charge_types' => __('Shipping is already entered by hand on this delivery: put the invoice freight there, or remove it, before applying the invoice.')]);
+        }
+
+        $invoiceFreight = [
+            'label'       => mb_substr($freight->pluck('label')->implode(', '), 0, 250),
+            'amount'      => round($freight->sum('amount') * $exchange, 2),
+            'received_at' => $date,
+        ];
+
+        $data = $stockDelivery->refresh()->data ?? [];
+        data_set($data, ApplyAgentInvoiceCosting::FREIGHT, $invoiceFreight);
+        $stockDelivery->update(['data' => $data]);
+
+        if ($placeholder) {
+            UpdateStockDeliveryCost::make()->action($shipping, [...$invoiceFreight, 'is_na' => false, 'currency_id' => null]);
+        } elseif ($shipping) {
+            SyncStockDeliveryServiceInvoiceCosts::run($stockDelivery->refresh());
+        } else {
+            StoreStockDeliveryCost::make()->action($stockDelivery, ['type' => StockDeliveryCostTypeEnum::SHIPPING->value, ...$invoiceFreight]);
+        }
     }
 
     /**

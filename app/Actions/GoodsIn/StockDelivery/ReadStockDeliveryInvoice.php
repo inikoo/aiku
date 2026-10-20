@@ -107,9 +107,9 @@ class ReadStockDeliveryInvoice extends OrgAction
         }
 
         $expected = $stockDelivery->items()
-            ->with('supplierProduct:id,code,name')
+            ->with(['supplierProduct:id,code,name', 'orgStock:id,code'])
             ->get()
-            ->map(fn (StockDeliveryItem $item) => $item->supplierProduct?->code.' — '.$item->supplierProduct?->name)
+            ->map(fn (StockDeliveryItem $item) => $item->supplierProduct?->code.' / '.$item->orgStock?->code.' — '.$item->supplierProduct?->name)
             ->filter()
             ->implode("\n");
 
@@ -132,6 +132,7 @@ class ReadStockDeliveryInvoice extends OrgAction
         return [
             ...$first,
             'issuer'     => $first['issuer'] ?? $second['issuer'],
+            'lines'      => self::agreedBarcodes($first['lines'], $second['lines']),
             'references' => $references,
             'readers'    => array_slice($readers, 0, 2),
             'checks'     => [
@@ -148,6 +149,34 @@ class ReadStockDeliveryInvoice extends OrgAction
                 'other_deliveries'  => StockDeliveryDocumentChecks::otherDeliveriesMentioned($stockDelivery, $haystack),
             ],
         ];
+    }
+
+    /**
+     * A line keeps its barcode only when both readers read the same one, since a barcode decides which product the
+     * line is costed on. Spreadsheets print long numbers as 5.05637E+12, which is no barcode at all.
+     *
+     * @param  array<int, array<string, mixed>>  $lines
+     * @param  array<int, array<string, mixed>>  $otherLines
+     * @return array<int, array<string, mixed>>
+     */
+    private static function agreedBarcodes(array $lines, array $otherLines): array
+    {
+        $key       = fn (array $line) => StockDeliveryDocumentChecks::normalise($line['code']).'|'.round((float) $line['quantity'], 4).'|'.(int) round((float) $line['amount'] * 100);
+        $remaining = collect($otherLines)->groupBy($key)->map(fn ($same) => $same->pluck('barcode')->all())->all();
+
+        foreach ($lines as &$line) {
+            $theirs          = isset($remaining[$key($line)]) ? array_shift($remaining[$key($line)]) : null;
+            $line['barcode'] = self::barcode($line['barcode']) !== null && self::barcode($line['barcode']) === self::barcode($theirs) ? self::barcode($line['barcode']) : null;
+        }
+
+        return $lines;
+    }
+
+    public static function barcode(?string $barcode): ?string
+    {
+        $barcode = trim((string) $barcode);
+
+        return $barcode === '' || preg_match('/e[+-]?\d/i', $barcode) ? null : (StockDeliveryDocumentChecks::normalise($barcode) ?: null);
     }
 
     /**
@@ -168,12 +197,14 @@ class ReadStockDeliveryInvoice extends OrgAction
     {
         $prompt = 'Read this supplier invoice and return its content as JSON.'
             ."\nCopy every number and product code exactly as printed. Leave a field null when the document does not show it: never guess, round, convert or calculate a missing number."
+            ."\nAn amount printed as a dash (-) is 0."
             ."\nlines are the goods, one per printed line, with the amount of the line before tax; charges are anything else billed (freight, packing, bank fees, samples, discounts as negative amounts)."
             ."\ntotal is the amount payable before tax. Dates as YYYY-MM-DD, currency as the ISO 4217 code printed on the document."
+            ."\nbarcode is the EAN or barcode printed on the line, copied exactly, null when the line shows none."
             ."\nreferences are every order, purchase order, shipment, container and bill of lading number printed on it, copied exactly."
             ."\nissuer is the company that issued the invoice, invoice_number its number."
             ."\nSet is_invoice to false when the document is not an invoice or proforma for goods."
-            ."\nFor reference, the products we expect on it (our supplier code — name):\n".$expected;
+            ."\nFor reference, the products we expect on it (supplier code / our code — name):\n".$expected;
 
         $response = $this->aiRequest()
             ->timeout(240)
@@ -197,6 +228,7 @@ class ReadStockDeliveryInvoice extends OrgAction
 
         $reading['lines'] = array_map(fn ($line) => [
             'code'        => isset($line['code']) ? (string) $line['code'] : null,
+            'barcode'     => isset($line['barcode']) ? (string) $line['barcode'] : null,
             'description' => $line['description'] ?? null,
             'quantity'    => $number($line['quantity'] ?? null),
             'unit_price'  => $number($line['unit_price'] ?? null),
@@ -208,6 +240,7 @@ class ReadStockDeliveryInvoice extends OrgAction
         ], $reading['charges']);
         $reading['total']      = $number($reading['total']);
         $reading['references'] = array_values(array_filter(array_map('strval', $reading['references'])));
+        $reading['currency']   = StockDeliveryDocumentChecks::currencyCode($reading['currency'] ?? null);
 
         return array_intersect_key($reading, array_flip(self::KEYS));
     }
@@ -237,9 +270,10 @@ class ReadStockDeliveryInvoice extends OrgAction
                     'items' => [
                         'type'                 => 'object',
                         'additionalProperties' => false,
-                        'required'             => ['code', 'description', 'quantity', 'unit_price', 'amount'],
+                        'required'             => ['code', 'barcode', 'description', 'quantity', 'unit_price', 'amount'],
                         'properties'           => [
                             'code'        => $nullableString,
+                            'barcode'     => $nullableString,
                             'description' => $nullableString,
                             'quantity'    => $nullableNumber,
                             'unit_price'  => $nullableNumber,
