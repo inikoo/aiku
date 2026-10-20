@@ -3,6 +3,8 @@ import { Head, router } from "@inertiajs/vue3";
 import PageHeading from "@/Components/Headings/PageHeading.vue";
 import MailshotJourney from "@/Components/Navigation/MailshotJourney.vue";
 import MailshotSubjectEdit from "@/Components/Workshop/Mailshot/MailshotSubjectEdit.vue";
+import MailshotAbTest from "@/Components/Workshop/Mailshot/MailshotAbTest.vue";
+import type { AbTest } from "@/Components/Workshop/Mailshot/MailshotAbTest.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import { useTabChange } from "@/Composables/tab-change";
 import { capitalize } from "@/Composables/capitalize";
@@ -37,14 +39,14 @@ library.add(faEnvelope, faDraftingCompass, faStop, faUsers, faPaperPlane, faBull
 
 
 const props = defineProps<{
-    title: string,
+    title: string | number,
     pageHead: PageHeadingTypes
     journey?: any
-    mailshot_copy?: { subject: string, name: string | null, preview_text: string | null }
+    mailshot_copy?: { subject: string, name: string | null, preview_text: string | null, sender_name: string | null }
     updateMailshotRoute?: routeType
     suggestCopyRoute?: routeType
     tabs: TSTabs
-    showcase?: string
+    showcase?: Record<string, any>
     email_preview?: Object
     recipients?: {}
     dispatched_emails?: {}
@@ -69,6 +71,8 @@ const props = defineProps<{
     isHasParentMailshot: boolean
     numberSecondWaveRecipients?: number
     isSecondWave: boolean
+    isAbTestVariant?: boolean
+    abTest?: AbTest | null
     mailshotId: number
     groupId: number
     ownShopTemplates?: { templates: any[], shop_name: string }
@@ -103,17 +107,19 @@ const checked = ref(props.isSecondWaveActive ?? false)
 const subject = ref(props.secondwaveSubject ?? "")
 const hour = ref(props.secondwaveDelayHours ?? 48)
 
+const isLinkedMailshot = computed(() => props.isSecondWave || props.isAbTestVariant)
+
 // Computed property to check if buttons should be shown
 const shouldShowButtons = computed(() => {
-    return props.can_edit && props.status && props.status.toLowerCase() === 'ready' && !props.isSecondWave;
+    return props.can_edit && props.status && props.status.toLowerCase() === 'ready' && !isLinkedMailshot.value;
 });
 
 const shouldShowDeleteButton = computed(() => {
-    return props.can_edit && props.status && ['ready', 'in_process'].includes(props.status.toLowerCase()) && !props.isSecondWave;
+    return props.can_edit && props.status && ['ready', 'in_process'].includes(props.status.toLowerCase()) && !isLinkedMailshot.value;
 });
 
 const shouldShowCancelScheduleButton = computed(() => {
-    return props.can_edit && props.status && props.status.toLowerCase() === 'scheduled' && !props.isSecondWave;
+    return props.can_edit && props.status && props.status.toLowerCase() === 'scheduled' && !isLinkedMailshot.value;
 });
 
 // Schedule datetime picker state
@@ -626,7 +632,7 @@ const secondWaveCancelText = computed(() => {
 })
 
 const showWaveSettings = computed(() =>
-    props.can_edit && ['in_process', 'ready'].includes(props.status ?? '') && !props.isSecondWave
+    props.can_edit && ['in_process', 'ready'].includes(props.status ?? '') && !isLinkedMailshot.value && !props.abTest?.enabled
 )
 
 // for the input subject secondwave validation
@@ -766,7 +772,9 @@ watch(
             <div class="mt-4 flex flex-wrap items-center gap-2 border-t border-gray-100 pt-4">
                 <template v-if="shouldShowButtons">
                     <ModalConfirmation :title="ctrans('Are you sure you want to send this mailshot?')"
-                        :description="ctrans('Please make sure your data or design is correct. This action will send an email to all customers')"
+                        :description="abTest?.enabled && abTest.size_percentage < 100
+                            ? ctrans('Please make sure both versions are correct. Version A and B will be sent to :size% of the list, the winner goes to the rest later.', { size: abTest.size_percentage })
+                            : ctrans('Please make sure your data or design is correct. This action will send an email to all customers')"
                         isFullLoading>
                         <template #default="{ changeModel }">
                             <Button :label="ctrans('Send now')" :disabled="inProgress" icon="fal fa-paper-plane" type="primary" @click="changeModel" />
@@ -899,7 +907,7 @@ watch(
             </div>
         </section>
     </div>
-
+    <MailshotAbTest v-if="abTest && (abTest.enabled || abTest.can_edit_settings)" :abTest="abTest" :canEdit="can_edit" />
     <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" v-bind="currentTab === 'showcase' ? {
         liveStats,
         ownShopTemplates: props.ownShopTemplates,
