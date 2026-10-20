@@ -65,6 +65,7 @@ import ModalConfirmationDelete from "@/Components/Utils/ModalConfirmationDelete.
 import ModalConfirmation from "@/Components/Utils/ModalConfirmation.vue"
 import PureCheckbox from "@/Components/Pure/PureCheckbox.vue"
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
+import TableDispatchedEmailsInOrder from "@/Pages/Grp/Org/Ordering/TableDispatchedEmailsInOrder.vue";
 import ButtonSelectTrolleys from "@/Components/DeliveryNote/ButtonSelectTrolleys.vue"
 import ButtonSelectBays from "@/Components/DeliveryNote/ButtonSelectBays.vue"
 import ButtonPutBackIncompleteSets from "@/Components/DeliveryNote/ButtonPutBackIncompleteSets.vue"
@@ -191,6 +192,7 @@ const props = defineProps<{
         slug: string
     }
 	history?: {}
+	dispatched_emails?: {}
 	shop: {
 		type: string   // 'b2b', 'dropshipping'
 	}
@@ -226,6 +228,7 @@ const component = computed(() => {
         done_items: TableDeliveryNoteItems,
         tariff_codes: TableDeliveryNoteTariffCodes,
 		history: TableHistories,
+		dispatched_emails: TableDispatchedEmailsInOrder,
         pickings: TablePickings
     };
 

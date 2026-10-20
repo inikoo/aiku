@@ -1636,6 +1636,27 @@ test('printing the label of a packed replacement dispatches it', function () {
         ->and($deliveryNote->orders()->first()->invoices()->count())->toBe(0);
 });
 
+test('delivery note page lists the emails sent for it in the dispatched emails tab', function () {
+    [$deliveryNote] = finalisedDeliveryNote($this);
+    $customer       = $deliveryNote->customer;
+    $outbox         = \App\Models\Comms\Outbox::where('shop_id', $deliveryNote->shop_id)->where('code', \App\Enums\Comms\Outbox\OutboxCodeEnum::DELIVERY_CONFIRMATION)->firstOrFail();
+
+    $dispatchedEmail = \App\Actions\Comms\DispatchedEmail\StoreDispatchedEmail::run($outbox->emailOngoingRun, $customer, ['email_address' => 'replacement-tracking@example.com']);
+    $deliveryNote->dispatchedEmails()->attach($dispatchedEmail, ['outbox_id' => $outbox->id]);
+
+    $this->withoutExceptionHandling();
+    get(route('grp.org.warehouses.show.dispatching.delivery_notes.show', [
+        $deliveryNote->organisation->slug,
+        $deliveryNote->warehouse->slug,
+        $deliveryNote->slug,
+        'tab' => DeliveryNoteTabsEnum::DISPATCHED_EMAILS->value,
+    ]))->assertInertia(fn (AssertableInertia $page) => $page
+        ->has('tabs.navigation.'.DeliveryNoteTabsEnum::DISPATCHED_EMAILS->value)
+        ->has(DeliveryNoteTabsEnum::DISPATCHED_EMAILS->value.'.data', 1)
+        ->where(DeliveryNoteTabsEnum::DISPATCHED_EMAILS->value.'.data.0.id', $dispatchedEmail->id)
+        ->where(DeliveryNoteTabsEnum::DISPATCHED_EMAILS->value.'.data.0.email_address', 'replacement-tracking@example.com'));
+});
+
 test('dispatching an intra-EU delivery note queues the intrastat export time series', function () {
     [$deliveryNote] = finalisedDeliveryNote($this);
     $france = \App\Models\Helpers\Country::where('code', 'FR')->first();

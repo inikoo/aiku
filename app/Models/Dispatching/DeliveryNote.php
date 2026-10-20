@@ -16,6 +16,7 @@ use App\Enums\Dispatching\DeliveryNote\DeliveryNoteTypeEnum;
 use App\Helpers\NaturalLanguage;
 use App\Models\Billables\Packaging;
 use App\Models\Catalogue\Shop;
+use App\Models\Comms\DispatchedEmail;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\CustomerSalesChannel;
@@ -174,6 +175,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read CustomerSalesChannel|null $customerSalesChannel
  * @property-read Address|null $deliveryAddress
  * @property-read Collection<int, \App\Models\Dispatching\DeliveryNoteItem> $deliveryNoteItems
+ * @property-read Collection<int, DispatchedEmail> $dispatchedEmails
  * @property-read Collection<int, Feedback> $feedbacks
  * @property-read Collection<int, Address> $fixedAddresses
  * @property-read Group|null $group
@@ -478,6 +480,11 @@ class DeliveryNote extends Model implements Auditable
     public function shipments(): MorphToMany
     {
         return $this->morphToMany(Shipment::class, 'model', 'model_has_shipments');
+    }
+
+    public function dispatchedEmails(): MorphToMany
+    {
+        return $this->morphToMany(DispatchedEmail::class, 'model', 'model_has_dispatched_emails')->withTimestamps();
     }
 
     public function pickings(): HasMany
