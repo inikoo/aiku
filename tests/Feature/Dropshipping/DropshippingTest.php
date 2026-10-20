@@ -984,6 +984,21 @@ test('ebay token refresh marks auth revoked only on invalid grant', function () 
     expect($ebayUser->ebayAuthRevoked)->toBeTrue();
 });
 
+test('a new portfolio recounts the group and organisation portfolios five minutes later, the shop one a minute later', function () {
+    Queue::fake();
+    $platform = $this->group->platforms()->where('type', PlatformTypeEnum::MANUAL)->firstOrFail();
+    $channel  = StoreCustomerSalesChannel::make()->action(createOwnCustomer($this->shop, 'portfolio-hydrator-delays'), $platform, ['reference' => 'portfolio_hydrator_delays']);
+
+    StorePortfolio::make()->action($channel, $this->product, []);
+
+    $delayOf = fn (string $hydrator) => collect(Queue::pushedJobs())->flatten(1)->pluck('job')
+        ->first(fn ($job) => $job instanceof \Lorisleiva\Actions\Decorators\JobDecorator && $job->getAction() instanceof $hydrator)?->delay;
+
+    expect($delayOf(\App\Actions\SysAdmin\Group\Hydrators\GroupHydratePortfolios::class))->toBe(300)
+        ->and($delayOf(\App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePortfolios::class))->toBe(300)
+        ->and($delayOf(\App\Actions\Catalogue\Shop\Hydrators\ShopHydratePortfolios::class))->toBe(60);
+});
+
 test('shop platform portfolio stats count the products of every state, each state on its own', function () {
     $platform = $this->group->platforms()->where('type', PlatformTypeEnum::TIKTOK)->firstOrFail();
     $customer = createOwnCustomer($this->shop, 'shop-platform-portfolio-stats');
