@@ -419,6 +419,25 @@ test('a mentioned user is notified on the channels they chose and the plain comm
     Http::assertSent(fn ($request) => str_contains($request->url(), 'chat.postMessage') && $request['channel'] === 'U999');
 });
 
+test('a reply to a waiting ticket and a new ticket reach the assignee and engineers with the reasons that ring an alert', function () {
+    $engineer = User::factory()->create(['group_id' => $this->group->id]);
+    $engineer->assignRole('help-desk-clerk');
+    $reporter = StoreGuest::make()->action($this->group, Guest::factory()->definition())->getUser();
+
+    Event::fake([BroadcastTicketBadgeUpdate::class]);
+    $ticket = StoreTicket::make()->action($this->group, ['subject' => 'Alert me', 'reporter_type' => 'User', 'reporter_id' => $reporter->id, 'assignee_id' => $this->user->id]);
+    Event::assertDispatched(BroadcastTicketBadgeUpdate::class, fn (BroadcastTicketBadgeUpdate $event) => $event->userId === $engineer->id && ($event->notification['reason'] ?? null) === 'raised');
+
+    $ticket->update(['status' => TicketStatusEnum::WAITING]);
+    Event::fake([BroadcastTicketBadgeUpdate::class]);
+    StoreTicketComment::make()->action($ticket->fresh(), $reporter, ['body' => 'Order 123']);
+    Event::assertDispatched(BroadcastTicketBadgeUpdate::class, fn (BroadcastTicketBadgeUpdate $event) => $event->userId === $this->user->id && ($event->notification['reason'] ?? null) === 'answered');
+
+    Event::fake([BroadcastTicketBadgeUpdate::class]);
+    StoreTicketComment::make()->action($ticket->fresh(), $reporter, ['body' => 'And 124']);
+    Event::assertDispatched(BroadcastTicketBadgeUpdate::class, fn (BroadcastTicketBadgeUpdate $event) => $event->userId === $this->user->id && ($event->notification['reason'] ?? null) === 'comment');
+});
+
 test('slack ticket direct message logs a refused delivery without failing and retries when slack is rate limited', function () {
     Config::set('services.slack.notifications.bot_user_oauth_token', 'xoxb-test');
     $user = StoreGuest::make()->action($this->group, Guest::factory()->definition())->getUser();

@@ -133,12 +133,12 @@ export const useEchoGrpPersonal = defineStore("echo-grp-personal", {
                 if (notification) {
                     layout.notifications.unshift({ id: '', read: false, href: '', created_at: new Date(), ...notification })
                 }
-                if (notification?.reason === 'resolved') {
+                if (notification?.reason && ['resolved', 'raised', 'answered', 'qa'].includes(notification.reason)) {
                     if (notification.title) {
                         showTicketPopup(notification.title, notification.body, notification.route)
                     }
                     alertOnce({
-                        key: `ticket-resolved:${notification.route}`,
+                        key: `ticket-${notification.reason}:${notification.title}`,
                         title: notification.title,
                         body: notification.body,
                         tag: `ticket-${notification.route}`,
