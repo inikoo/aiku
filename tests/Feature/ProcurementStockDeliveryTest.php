@@ -1623,7 +1623,10 @@ test('the buyer enters the paper invoice of an agent container still in process,
         'date'         => '2026-09-30',
         'goods_amount' => 340511.24,
         'charges'      => [],
+        'attachments'  => [\Illuminate\Http\UploadedFile::fake()->create('INR INVOICE.xlsx', 20, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')],
     ])->assertSessionHasNoErrors();
+
+    expect($stockDelivery->attachments()->wherePivot('scope', 'Invoice')->pluck('file_name')->implode(','))->toContain('.xlsx');
 
     $this->patch(route('grp.models.stock-delivery.dispatch', $stockDelivery->id), ['reason' => 'Packing list comes with the goods'])->assertSessionHasNoErrors();
 
@@ -2822,6 +2825,7 @@ describe('stock delivery service invoices', function () {
 
         $attach(['type' => StockDeliveryCostTypeEnum::DUTY->value, 'attachments' => [$pdf('duty-bill.pdf')]])->assertSessionHasNoErrors();
         $attach(['type' => StockDeliveryCostTypeEnum::AGENT_INVOICE->value, 'attachments' => [$pdf('agent-invoice.pdf')]])->assertSessionHasNoErrors();
+        $attach(['type' => StockDeliveryCostTypeEnum::AGENT_INVOICE->value, 'attachments' => [\Illuminate\Http\UploadedFile::fake()->create('agent-invoice.xlsx', 20, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')]])->assertSessionHasNoErrors();
         $attach(['type' => StockDeliveryCostTypeEnum::EXTRA->value, 'attachments' => [$pdf('extra.pdf')]])->assertSessionHasErrors('cost');
 
         $stockDelivery->created_at = '2026-10-01';
@@ -2850,7 +2854,7 @@ describe('stock delivery service invoices', function () {
             ->and($duty->received_at)->toBeNull()
             ->and($duty->attachments()->count())->toBe(1)
             ->and($stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::AGENT_INVOICE)->exists())->toBeFalse()
-            ->and($stockDelivery->attachments()->wherePivot('scope', 'Invoice')->count())->toBe(1)
+            ->and($stockDelivery->attachments()->wherePivot('scope', 'Invoice')->count())->toBe(2)
             ->and($stockDelivery->refresh()->is_costed)->toBeFalse();
 
         $this->patch(route('grp.models.stock-delivery-cost.update', $duty->id), ['is_waiting_for_invoice' => true])->assertSessionHasNoErrors();
