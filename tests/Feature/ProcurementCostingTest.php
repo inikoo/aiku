@@ -3849,6 +3849,24 @@ test('agent order stages follow purchase orders and stock deliveries to arrival'
         ->and($isListedAs('unpaid'))->toBeFalse();
 });
 
+test('the stock deliveries in preparation list gives the same volume as the container page, with CBM in container and packed inside (INI-090)', function () {
+    $stages        = App\Actions\Procurement\OrgAgent\UI\ShowAgentOrderStage::class;
+    $stockDelivery = createStockDeliveryWithItems($this, 'PREP-CBM-'.Str::random(6), [100, 200, 300]);
+    $stockDelivery->updateQuietly(['agent_id' => $this->orgAgent->agent_id, 'state' => StockDeliveryStateEnum::IN_PROCESS, 'cbm' => null]);
+    [$first, $second, $third] = $stockDelivery->items()->orderBy('id')->get()->all();
+
+    DB::table('supplier_products')->where('id', $first->supplier_product_id)->update(['cbm' => 1.0]);
+    $first->updateQuietly(['cbm_in_container' => 0.25]);
+    $third->updateQuietly(['packed_inside_stock_delivery_item_id' => $second->id]);
+
+    $listed = collect($stages::make()->handle($this->orgAgent, $stages::PREPARING)->items())->firstWhere('id', $stockDelivery->id);
+
+    expect($listed['cbm'])->toBe(2.25)
+        ->and($listed['cbm'])->toBe(App\Actions\Procurement\OrgAgent\UI\ShowAgentContainerInPreparation::make()->summary($stockDelivery->refresh())['cbm']);
+
+    $stockDelivery->updateQuietly(['state' => StockDeliveryStateEnum::CANCELLED]);
+});
+
 test('UI agent order stages', function (string $stage) {
     $response = $this->get(route('grp.org.procurement.org_agents.show.shopping.stage', [$this->organisation->slug, $this->orgAgent->slug, $stage]));
     $response->assertOk();

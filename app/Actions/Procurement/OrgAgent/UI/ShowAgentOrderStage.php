@@ -292,21 +292,25 @@ class ShowAgentOrderStage extends OrgAction
      */
     private function totals(string $stage, array $ids): Collection
     {
-        [$table, $key, $units, $cancelled] = $stage === self::ORDERED
-            ? ['purchase_order_transactions', 'purchase_order_id', 'quantity_ordered', PurchaseOrderTransactionStateEnum::CANCELLED->value]
-            : ['stock_delivery_items', 'stock_delivery_id', 'unit_quantity', StockDeliveryItemStateEnum::CANCELLED->value];
+        [$table, $line, $key, $units, $cancelled] = $stage === self::ORDERED
+            ? ['purchase_order_transactions', 'line', 'purchase_order_id', 'quantity_ordered', PurchaseOrderTransactionStateEnum::CANCELLED->value]
+            : ['stock_delivery_items', 'sdi', 'stock_delivery_id', 'unit_quantity', StockDeliveryItemStateEnum::CANCELLED->value];
 
-        return DB::table("$table as line")
-            ->leftJoin('supplier_products as sp', 'sp.id', 'line.supplier_product_id')
-            ->whereIn("line.$key", $ids)
-            ->whereNull('line.deleted_at')
-            ->where('line.state', '!=', $cancelled)
-            ->groupBy("line.$key")
-            ->selectRaw("line.$key as document_id,
+        $cbm = $stage === self::ORDERED
+            ? "line.$units / nullif(sp.units_per_carton, 0) * sp.cbm"
+            : ShowAgentContainerInPreparation::CBM_SQL;
+
+        return DB::table("$table as $line")
+            ->leftJoin('supplier_products as sp', 'sp.id', "$line.supplier_product_id")
+            ->whereIn("$line.$key", $ids)
+            ->whereNull("$line.deleted_at")
+            ->where("$line.state", '!=', $cancelled)
+            ->groupBy("$line.$key")
+            ->selectRaw("$line.$key as document_id,
                 count(*) as lines,
-                sum(line.$units / nullif(sp.units_per_carton, 0)) as cartons,
-                coalesce(sum(line.net_amount), 0) as amount,
-                sum(line.$units / nullif(sp.units_per_carton, 0) * sp.cbm) as cbm")
+                sum($line.$units / nullif(sp.units_per_carton, 0)) as cartons,
+                coalesce(sum($line.net_amount), 0) as amount,
+                sum($cbm) as cbm")
             ->get()
             ->keyBy('document_id');
     }
