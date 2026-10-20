@@ -1135,6 +1135,85 @@ describe('production reward pay bands', function () {
             ->and($making->left_open_after_shift_at->equalTo($shiftEnd))->toBeTrue();
     });
 
+    test('a job paused over the end of the shift closes at the pause or carries on, as the operator answers', function () {
+        $this->travelTo(now()->startOfWeek()->addDays(2)->setTime(12, 0));
+        $employee = employeeOnDayShift($this->organisation);
+        [$shiftStart, $shiftEnd] = array_map(fn ($moment) => $moment->setTimezone(config('app.timezone')), $employee->shiftWindowOn(now()));
+        $operator = stepTestSecondOperator($this->group);
+        ManufactureTaskSession::where('user_id', $operator->id)->where('state', ManufactureTaskSessionStateEnum::OPEN)->update(['state' => ManufactureTaskSessionStateEnum::VOIDED]);
+        \App\Models\Production\ManufactureBreak::where('user_id', $operator->id)->whereNull('ended_at')->update(['ended_at' => now(), 'minutes' => 0]);
+
+        $openJob = fn () => ManufactureTaskSession::create([
+            'group_id'               => $this->production->group_id,
+            'organisation_id'        => $this->production->organisation_id,
+            'production_id'          => $this->production->id,
+            'employee_id'            => $employee->id,
+            'user_id'                => $operator->id,
+            'state'                  => ManufactureTaskSessionStateEnum::OPEN,
+            'started_at'             => $shiftEnd->copy()->subHour(),
+            'job_order_item_task_id' => $this->payBandJobOrderItemTask->id,
+            'manufacture_task_id'    => $this->payBandJobOrderItemTask->manufacture_task_id,
+            'activity_type'          => \App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum::PRODUCTION,
+        ]);
+        $pauseOverShiftEnd = fn () => \App\Models\Production\ManufactureBreak::create([
+            'group_id'        => $this->production->group_id,
+            'organisation_id' => $this->production->organisation_id,
+            'production_id'   => $this->production->id,
+            'user_id'         => $operator->id,
+            'employee_id'     => $employee->id,
+            'planned_minutes' => null,
+            'started_at'      => $shiftEnd->copy()->addMinute(),
+        ]);
+        $nextMorning = fn ($break) => $break->update(['ended_at' => $shiftEnd->copy()->addHours(16), 'minutes' => 16 * 60 - 1]);
+
+        $finished = $openJob();
+        $break    = $pauseOverShiftEnd();
+        $this->travelTo($shiftEnd->copy()->addMinutes(31));
+        \App\Actions\Production\ManufactureTaskSession\StopManufactureTaskSessionsAfterShift::run();
+        expect($finished->refresh()->shiftEndPausedAt()->equalTo($break->started_at))->toBeTrue()
+            ->and($finished->workedSecondsUntil($break->started_at))->toBe(61 * 60);
+
+        $this->travelTo($shiftEnd->copy()->addHours(16)->addMinutes(10));
+        $nextMorning($break);
+        $finished = \App\Actions\Production\ManufactureTaskSession\CloseManufactureTaskSession::make()->action($finished, ['quantity_made' => 0, 'finished_before_shift_end' => true])->refresh();
+        expect($finished->ended_at->equalTo($break->started_at))->toBeTrue()
+            ->and((int) $finished->break_minutes)->toBe(0)
+            ->and($finished->shift_end_answer)->toBe('finished')
+            ->and($finished->shift_end_resolved_at)->not->toBeNull();
+
+        $this->travelTo($shiftEnd->copy()->subHours(2));
+        $continued = $openJob();
+        $break     = $pauseOverShiftEnd();
+        $this->travelTo($shiftEnd->copy()->addMinutes(31));
+        \App\Actions\Production\ManufactureTaskSession\StopManufactureTaskSessionsAfterShift::run();
+        $this->travelTo($shiftEnd->copy()->addHours(16)->addMinutes(10));
+        $nextMorning($break);
+        $continued = \App\Actions\Production\ManufactureTaskSession\ContinueManufactureTaskSessionAfterShift::make()->action($continued->refresh())->refresh();
+        expect($continued->state)->toBe(ManufactureTaskSessionStateEnum::OPEN)
+            ->and($continued->shift_end_answer)->toBe('continued')
+            ->and($continued->shift_end_resolved_at)->not->toBeNull();
+        $continued = \App\Actions\Production\ManufactureTaskSession\CloseManufactureTaskSession::make()->action($continued, ['quantity_made' => 0, 'finished_before_shift_end' => true])->refresh();
+        expect($continued->ended_at->equalTo(now()))->toBeTrue()
+            ->and($continued->shift_end_answer)->toBe('continued');
+        \App\Models\Production\ManufactureBreak::where('user_id', $operator->id)->where('started_at', '>=', $shiftEnd->copy()->subHour())->delete();
+
+        $this->travelTo($shiftEnd->copy()->subHours(2));
+        $neverClockedOut = $openJob();
+        $this->travelTo($shiftEnd->copy()->addMinutes(31));
+        \App\Actions\Production\ManufactureTaskSession\StopManufactureTaskSessionsAfterShift::run();
+        $this->travelTo($shiftEnd->copy()->addHours(20));
+        $nextDayLunch = $pauseOverShiftEnd();
+        $nextDayLunch->update(['started_at' => $shiftEnd->copy()->addHours(19), 'ended_at' => $shiftEnd->copy()->addHours(19)->addMinutes(30), 'minutes' => 30]);
+        $briefBreak = $pauseOverShiftEnd();
+        $briefBreak->update(['started_at' => $shiftEnd->copy()->subMinutes(10), 'ended_at' => $shiftEnd->copy()->addMinutes(5), 'minutes' => 15]);
+        expect($neverClockedOut->refresh()->shiftEndPause())->toBeNull()
+            ->and($neverClockedOut->shiftEndPausedAt()->equalTo($shiftEnd))->toBeTrue();
+        $neverClockedOut = \App\Actions\Production\ManufactureTaskSession\ContinueManufactureTaskSessionAfterShift::make()->action($neverClockedOut->refresh())->refresh();
+        expect($neverClockedOut->shift_end_answer)->toBe('continued')
+            ->and($neverClockedOut->shift_end_resolved_at)->toBeNull();
+        $neverClockedOut->update(['state' => ManufactureTaskSessionStateEnum::VOIDED]);
+    });
+
     test('performance and payroll flag sessions with edited times and list only them on request', function () {
         $this->travelTo(now()->startOfWeek()->addDays(2)->setTime(18, 0));
         $operator = stepTestSecondOperator($this->group);

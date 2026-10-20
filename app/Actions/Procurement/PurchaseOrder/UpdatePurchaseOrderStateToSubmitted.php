@@ -11,6 +11,7 @@ namespace App\Actions\Procurement\PurchaseOrder;
 use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
 use App\Actions\Procurement\SupplierAgreedTerm\CheckAgainstAgreedTerms;
 use App\Actions\Procurement\SupplierAgreedTerm\UI\GetPurchaseOrderAgreement;
+use App\Actions\SupplyChain\PackingSpec\GetPurchaseOrderPackingSpecGaps;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\SendAgentDraftsToAgent;
 use App\Actions\Procurement\PurchaseOrder\Hydrators\PurchaseOrderHydrateTransactions;
@@ -60,6 +61,11 @@ class UpdatePurchaseOrderStateToSubmitted extends OrgAction
 
         if (!$this->asAction && CheckAgainstAgreedTerms::hasUnaccepted(CheckAgainstAgreedTerms::make()->purchaseOrder($this->purchaseOrder))) {
             $validator->errors()->add('agreed_terms', __('This order differs from what was agreed with the supplier. Accept each difference with a reason before submitting.'));
+        }
+
+        $packingSpecGaps = GetPurchaseOrderPackingSpecGaps::run($this->purchaseOrder);
+        if ($packingSpecGaps && $packingSpecGaps['blocking']) {
+            $validator->errors()->add('packing_specs', GetPurchaseOrderPackingSpecGaps::make()->blockingMessage($packingSpecGaps));
         }
 
         if (SendPartnerPurchaseOrderToSeller::appliesTo($this->purchaseOrder)) {

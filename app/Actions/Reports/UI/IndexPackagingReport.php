@@ -10,6 +10,7 @@ namespace App\Actions\Reports\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Reports\GetEprExposure;
+use App\Actions\Reports\GetEprInboundPacking;
 use App\Actions\Reports\GetEprPackagingCompleteness;
 use App\Actions\Reports\GetEprSnapshots;
 use App\Actions\Reports\GetEprShipmentPackaging;
@@ -131,6 +132,9 @@ class IndexPackagingReport extends OrgAction
                 PackagingReportTabsEnum::SHIPMENT->value => $this->tab == PackagingReportTabsEnum::SHIPMENT->value
                     ? fn () => GetEprShipmentPackaging::run($organisation, $from, $to)
                     : Inertia::optional(fn () => GetEprShipmentPackaging::run($organisation, $from, $to)),
+                PackagingReportTabsEnum::INBOUND->value => $this->tab == PackagingReportTabsEnum::INBOUND->value
+                    ? fn () => GetEprInboundPacking::run($organisation, $from, $to, $request->user())
+                    : Inertia::optional(fn () => GetEprInboundPacking::run($organisation, $from, $to, $request->user())),
                 'organisationId' => $organisation->id,
                 'materials'      => PackagingMaterialCategoryEnum::labels(),
                 PackagingReportTabsEnum::UK_RETURN->value => $this->tab == PackagingReportTabsEnum::UK_RETURN->value

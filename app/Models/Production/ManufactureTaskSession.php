@@ -9,6 +9,7 @@
 namespace App\Models\Production;
 
 use App\Enums\Production\Artisan\ArtisanPayTypeEnum;
+use App\Actions\Production\ManufactureTaskSession\StopManufactureTaskSessionsAfterShift;
 use App\Events\BroadcastManufactureFloorChanged;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
@@ -21,6 +22,7 @@ use App\Models\SysAdmin\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 /**
@@ -67,6 +69,8 @@ use Illuminate\Support\Collection;
  * @property int|null $time_edited_by
  * @property \Illuminate\Support\Carbon|null $time_edited_at
  * @property \Illuminate\Support\Carbon|null $left_open_after_shift_at
+ * @property string|null $shift_end_answer
+ * @property \Illuminate\Support\Carbon|null $shift_end_resolved_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Employee|null $employee
@@ -110,6 +114,7 @@ class ManufactureTaskSession extends Model
         'time_edit_reason'         => ManufactureTaskSessionTimeEditReasonEnum::class,
         'time_edited_at'           => 'datetime',
         'left_open_after_shift_at' => 'datetime',
+        'shift_end_resolved_at'    => 'datetime',
     ];
 
     /**
@@ -139,6 +144,46 @@ class ManufactureTaskSession extends Model
     public function activityLabel(): string
     {
         return ManufactureTaskSessionActivityTypeEnum::labels()[$this->activity_type->value];
+    }
+
+    public function breakSecondsUntil(Carbon $until): int
+    {
+        return ManufactureBreak::where('user_id', $this->user_id)
+            ->where('started_at', '<', $until)
+            ->where(fn ($query) => $query->whereNull('ended_at')->orWhere('ended_at', '>', $this->started_at))
+            ->get()
+            ->sum(fn (ManufactureBreak $break) => $break->secondsWithin($this->started_at, $until));
+    }
+
+    public function workedSecondsUntil(Carbon $until): int
+    {
+        return max(0, (int) $this->started_at->diffInSeconds($until) - $this->breakSecondsUntil($until));
+    }
+
+    /**
+     * The kiosk clock-out made before the shift was flagged and still running when it was: where the work stopped for the day.
+     * A break back within the grace, or a clock-out the next day, is not it.
+     */
+    public function shiftEndPause(): ?ManufactureBreak
+    {
+        if (!$this->left_open_after_shift_at) {
+            return null;
+        }
+
+        $flaggedAt = $this->left_open_after_shift_at->copy()->addMinutes(StopManufactureTaskSessionsAfterShift::GRACE_MINUTES);
+
+        return ManufactureBreak::where('user_id', $this->user_id)
+            ->whereNull('planned_minutes')
+            ->where('started_at', '>=', $this->started_at)
+            ->where('started_at', '<=', $flaggedAt)
+            ->where(fn ($query) => $query->whereNull('ended_at')->orWhere('ended_at', '>', $flaggedAt))
+            ->orderBy('started_at')
+            ->first();
+    }
+
+    public function shiftEndPausedAt(): ?Carbon
+    {
+        return $this->shiftEndPause()?->started_at ?? $this->left_open_after_shift_at;
     }
 
     public function paidHours(): float

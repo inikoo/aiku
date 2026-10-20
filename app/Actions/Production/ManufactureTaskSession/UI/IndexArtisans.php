@@ -321,24 +321,38 @@ class IndexArtisans extends OrgAction
     }
 
     /**
-     * Production sessions still running after the operator's shift ended, flagged by production:stop_sessions_after_shift.
+     * Production sessions paused or still running when the operator's shift ended, flagged by production:stop_sessions_after_shift,
+     * until the operator says they finished before the end of the shift, carries on after a clock-out over it, or a supervisor sets the times.
      */
     private function leftOpenSessions(Production $production): array
     {
         return ManufactureTaskSession::where('production_id', $production->id)
-            ->where('state', ManufactureTaskSessionStateEnum::OPEN)
+            ->whereIn('state', [ManufactureTaskSessionStateEnum::OPEN, ManufactureTaskSessionStateEnum::CLOSED])
+            ->whereNotNull('job_order_item_task_id')
             ->whereNotNull('left_open_after_shift_at')
+            ->whereNull('shift_end_resolved_at')
             ->with(['user', 'manufactureTask', 'jobOrder', 'jobOrderItemTask.jobOrder'])
             ->orderBy('started_at')
             ->get()
-            ->map(fn (ManufactureTaskSession $session) => [
-                'id'                       => $session->id,
-                'worker'                   => $session->user->contact_name ?: $session->user->username,
-                'task_name'                => $session->manufactureTask?->name ?? $session->activityLabel(),
-                'job_order_reference'      => $session->jobOrder?->reference ?? $session->jobOrderItemTask?->jobOrder?->reference,
-                'started_at'               => $session->started_at,
-                'left_open_after_shift_at' => $session->left_open_after_shift_at,
-            ])
+            ->map(function (ManufactureTaskSession $session) {
+                $pause = $session->shiftEndPause();
+
+                return [
+                    'id'                       => $session->id,
+                    'worker'                   => $session->user->contact_name ?: $session->user->username,
+                    'task_name'                => $session->manufactureTask?->name ?? $session->activityLabel(),
+                    'job_order_reference'      => $session->jobOrder?->reference ?? $session->jobOrderItemTask?->jobOrder?->reference,
+                    'started_at'               => $session->started_at,
+                    'left_open_after_shift_at' => $session->left_open_after_shift_at,
+                    'paused_at'                => $pause?->started_at,
+                    'ended_at'                 => $session->ended_at,
+                    'status'                   => match (true) {
+                        $session->state == ManufactureTaskSessionStateEnum::CLOSED => 'closed',
+                        $pause && !$pause->ended_at => 'paused',
+                        default => 'running',
+                    },
+                ];
+            })
             ->all();
     }
 

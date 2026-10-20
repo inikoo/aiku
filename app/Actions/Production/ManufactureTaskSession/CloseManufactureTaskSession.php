@@ -54,11 +54,17 @@ class CloseManufactureTaskSession extends OrgAction
             if ($openBreak) {
                 EndManufactureBreak::make()->action($openBreak);
             }
-            CalculateManufactureTaskSessionBreakMinutes::run($session, now());
+
+            $finishedBeforeShiftEnd = !empty($modelData['finished_before_shift_end']) && $session->left_open_after_shift_at && $session->shift_end_answer === null;
+            $endedAt                = $finishedBeforeShiftEnd ? $session->shiftEndPausedAt() : now();
+            if ($finishedBeforeShiftEnd) {
+                $session->fill(['shift_end_answer' => 'finished', 'shift_end_resolved_at' => now()]);
+            }
+            CalculateManufactureTaskSessionBreakMinutes::run($session, $endedAt);
 
             if ($session->isNonProductive()) {
                 $session->update([
-                    'ended_at'         => now(),
+                    'ended_at'         => $endedAt,
                     'state'            => ManufactureTaskSessionStateEnum::CLOSED,
                     'artisan_pay_type' => $session->employee?->artisan_pay_type ?? ArtisanPayTypeEnum::PIECE_RATE,
                 ]);
@@ -103,7 +109,7 @@ class CloseManufactureTaskSession extends OrgAction
             $session->fill([
                 'quantity_made'                   => $modelData['quantity_made'],
                 'quantity_rejected'               => $modelData['quantity_rejected'] ?? 0,
-                'ended_at'                        => now(),
+                'ended_at'                        => $endedAt,
                 'state'                           => ManufactureTaskSessionStateEnum::CLOSED,
                 'activity_type'                   => $modelData['activity_type'] ?? $session->activity_type ?? ManufactureTaskSessionActivityTypeEnum::PRODUCTION,
                 'non_productive_reason'           => $modelData['non_productive_reason'] ?? null,
@@ -404,6 +410,7 @@ class CloseManufactureTaskSession extends OrgAction
             'outcome'                => ['sometimes', 'nullable', Rule::in(['complete', 'carry_over'])],
             'manager_code'           => ['sometimes', 'nullable', 'string', 'max:64'],
             'manager_method'         => ['sometimes', 'nullable', Rule::in(['qr', 'pin'])],
+            'finished_before_shift_end' => ['sometimes', 'boolean'],
             'activity_type'          => ['sometimes', Rule::enum(ManufactureTaskSessionActivityTypeEnum::class)->except(ManufactureTaskSessionActivityTypeEnum::floorActivities())],
             'non_productive_reason'  => [
                 Rule::requiredIf(function () {

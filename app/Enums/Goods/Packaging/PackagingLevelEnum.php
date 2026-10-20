@@ -19,6 +19,7 @@ enum PackagingLevelEnum: string
     case TRANSPORT = 'transport';
     case PALLET    = 'pallet';
     case SERVICE   = 'service';
+    case SHIPMENT  = 'shipment';
 
     public static function labels(): array
     {
@@ -28,6 +29,7 @@ enum PackagingLevelEnum: string
             'transport' => __('Tertiary (carton)'),
             'pallet'    => __('Pallet / transport aid'),
             'service'   => __('Service (e-commerce mailer)'),
+            'shipment'  => __('Inbound shipment packing'),
         ];
     }
 
@@ -55,7 +57,7 @@ enum PackagingLevelEnum: string
             self::PRIMARY, self::SERVICE => $quantity,
             self::GROUPED                => $quantity / max(1, $unitsPerSko),
             self::TRANSPORT              => $quantity / max(1, $unitsPerCarton),
-            self::PALLET                 => 0,
+            self::PALLET, self::SHIPMENT => 0,
         };
     }
 }

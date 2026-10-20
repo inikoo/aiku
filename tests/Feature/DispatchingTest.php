@@ -6310,10 +6310,10 @@ test('EPR flow lines classify received stock deliveries and dispatched delivery 
     $euReturn = \App\Actions\Reports\GetEuPackagingReturn::run($slovak, \Illuminate\Support\Carbon::parse('2001-03-01'), \Illuminate\Support\Carbon::parse('2001-03-31'));
 
     expect($euReturn['scheme'])->toBe('sk')
-        ->and($euReturn['rows'])->toBe([['scheme_material' => 'Sklo', 'scheme_subcategory' => null, 'sales_kg' => 2.9, 'shipment_kg' => 0.0, 'kg' => 2.9, 'previous_kg' => null, 'change' => null]])
+        ->and($euReturn['rows'])->toBe([['scheme_material' => 'Sklo', 'scheme_subcategory' => null, 'sales_kg' => 2.9, 'shipment_kg' => 0.0, 'inbound_kg' => 0.0, 'kg' => 2.9, 'previous_kg' => null, 'change' => null]])
         ->and($euReturn['domestic'])->toBeTrue()
         ->and(array_column($euReturn['schemes'], 'value'))->toBe(['sk', 'de', 'es', 'fr', 'it'])
-        ->and(\App\Actions\Reports\ExportEuPackagingReturn::make()->handle($euReturn))->toBe([['2001-03-01', '2001-03-31', 'Sklo', null, 2.9, 0.0, 2.9]])
+        ->and(\App\Actions\Reports\ExportEuPackagingReturn::make()->handle($euReturn))->toBe([['2001-03-01', '2001-03-31', 'Sklo', null, 2.9, 0.0, 0.0, 2.9]])
         ->and(\App\Actions\Reports\GetEuPackagingReturn::make()->scheme($this->organisation->replicate()->setRelation('country', \App\Models\Helpers\Country::where('code', 'GB')->firstOrFail())))->toBeNull();
 
     $family->update(['brand_ownership' => \App\Enums\Goods\Packaging\PackagingBrandOwnershipEnum::OWN_BRAND]);
@@ -6568,7 +6568,7 @@ test('distance selling scheme returns count consumer parcels, the exposure tab f
     $family->components()->first()->update(['weight_g' => 999]);
     expect($this->get(route('grp.org.reports.packaging.snapshot', [$this->organisation->slug, $snapshot->id, 'part' => 'return']))->assertOk()->streamedContent())
         ->toContain('2001-05-01,2001-05-31,')
-        ->toContain(',0.3,0,0.3')
+        ->toContain(',0.3,0,0,0.3')
         ->and($this->get(route('grp.org.reports.packaging.snapshot', [$this->organisation->slug, $snapshot->id]))->assertOk()->streamedContent())
         ->toStartWith(implode(',', \App\Actions\Reports\ExportEprSnapshot::LINE_COLUMNS))
         ->toContain($orgStock->code.',');

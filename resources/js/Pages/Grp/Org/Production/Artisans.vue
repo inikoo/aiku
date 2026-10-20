@@ -119,7 +119,7 @@ const props = defineProps<{
     under_target: boolean
     time_edited: boolean
     time_edit_reasons: { value: string, label: string }[]
-    left_open: { id: number, worker: string, task_name: string, job_order_reference: string | null, started_at: string, left_open_after_shift_at: string }[]
+    left_open: { id: number, worker: string, task_name: string, job_order_reference: string | null, started_at: string, left_open_after_shift_at: string, paused_at: string | null, ended_at: string | null, status: 'paused' | 'running' | 'closed' }[]
     artisan_pay_type: string | null
     artisan_pay_types: Record<string, string>
     under_target_reasons: Record<string, string>
@@ -397,14 +397,17 @@ function sessionDuration(session: { started_at: string, ended_at: string, break_
         <div v-if="left_open.length" class="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
             <div class="flex items-center gap-2 font-semibold">
                 <FontAwesomeIcon :icon="['fal', 'exclamation-triangle']" fixed-width aria-hidden="true" />
-                {{ ctrans('Still running after the end of the shift') }}
+                {{ ctrans('Paused or left running at the end of the shift, not checked yet') }}
             </div>
-            <div class="mt-1 text-xs text-amber-800">{{ ctrans('Ask the operator to record what was made on the tablet, then set the real times here with Edit times.') }}</div>
+            <div class="mt-1 text-xs text-amber-800">{{ ctrans('When the operator clocks back in the tablet asks if they finished before the end of the shift. If it is not answered, or the job ran on without a clock-out, set the real times here with Edit times.') }}</div>
             <div v-for="open in left_open" :key="open.id" class="mt-1 flex flex-wrap gap-x-3 tabular-nums">
                 <span class="font-medium">{{ open.worker }}</span>
                 <span>{{ open.task_name }}<template v-if="open.job_order_reference"> · {{ open.job_order_reference }}</template></span>
                 <span>{{ ctrans('started :time', { time: clockTime(open.started_at) }) }}</span>
                 <span>{{ ctrans('shift ended :time', { time: clockTime(open.left_open_after_shift_at) }) }}</span>
+                <span v-if="open.status === 'paused'">{{ ctrans('paused since :time', { time: clockTime(open.paused_at) }) }}</span>
+                <span v-else-if="open.status === 'closed'">{{ ctrans('closed :time', { time: clockTime(open.ended_at) }) }}</span>
+                <span v-else>{{ ctrans('still running') }}</span>
             </div>
         </div>
 

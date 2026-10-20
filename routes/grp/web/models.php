@@ -591,6 +591,7 @@ use App\Actions\Production\ManufactureTaskSession\CorrectManufactureTaskSessionQ
 use App\Actions\Production\ManufactureTaskSession\EditManufactureTaskSessionTimes;
 use App\Actions\Production\ManufactureTaskSession\VoidManufactureTaskSession;
 use App\Actions\Production\ManufactureTaskSession\CloseManufactureTaskSession;
+use App\Actions\Production\ManufactureTaskSession\ContinueManufactureTaskSessionAfterShift;
 use App\Actions\Production\ManufactureBreak\StartManufactureBreak;
 use App\Actions\Production\ManufactureTaskSession\StartManufactureNonProductiveSession;
 use App\Actions\Production\ManufactureBreak\EndManufactureBreak;
@@ -769,6 +770,14 @@ use App\Actions\Helpers\Ticket\SyncTicketCollaborators;
 use App\Actions\Helpers\Ticket\StoreTicketLink;
 use App\Actions\Helpers\Ticket\DeleteTicketLink;
 use App\Actions\Helpers\Ticket\UpdateTicketPullRequest;
+use App\Actions\SupplyChain\PackingSpec\PdfPackingSpec;
+use App\Actions\SupplyChain\PackingSpec\ReturnPackingSpec;
+use App\Actions\SupplyChain\PackingSpec\StorePackingSpec;
+use App\Actions\SupplyChain\PackingSpec\UpdateAgentPackingSpecCutOff;
+use App\Actions\SupplyChain\PackingSpec\UpdateSupplierProductPackingInstructions;
+use App\Actions\SupplyChain\PackingSpec\VerifyPackingSpec;
+use App\Actions\GoodsIn\StockDeliveryPackingCheck\CreateStockDeliveryPackingChecks;
+use App\Actions\GoodsIn\StockDeliveryPackingCheck\RecordStockDeliveryPackingCheck;
 use Illuminate\Support\Facades\Route;
 
 Route::patch('/profile', UpdateProfile::class)->name('profile.update');
@@ -1064,6 +1073,11 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::patch('org-supplier-product/{orgSupplierProduct:id}/supplier-contacts', UpdateOrgSupplierProductSupplierContacts::class)->name('org_supplier_product.supplier_contacts.update')->withoutScopedBindings();
     Route::patch('org-supplier-product/{orgSupplierProduct:id}/carton-weights', UpdateOrgSupplierProductCartonWeights::class)->name('org_supplier_product.carton_weights.update')->withoutScopedBindings();
     Route::patch('org-supplier-product/{orgSupplierProduct:id}/stock/{stock:id}/carton-barcode', UpdateOrgSupplierProductCartonBarcode::class)->name('org_supplier_product.carton_barcode.update')->withoutScopedBindings();
+    Route::post('org-supplier-product/{orgSupplierProduct:id}/packing-spec', StorePackingSpec::class)->name('org_supplier_product.packing_spec.store')->withoutScopedBindings();
+    Route::patch('org-supplier-product/{orgSupplierProduct:id}/packing-instructions', UpdateSupplierProductPackingInstructions::class)->name('org_supplier_product.packing_instructions.update')->withoutScopedBindings();
+    Route::post('packing-spec/{packingSpec:id}/return', ReturnPackingSpec::class)->name('packing_spec.return')->withoutScopedBindings();
+    Route::post('packing-spec/{packingSpec:id}/verify', VerifyPackingSpec::class)->name('packing_spec.verify')->withoutScopedBindings();
+    Route::get('packing-spec/{packingSpec:id}/pdf', PdfPackingSpec::class)->name('packing_spec.pdf')->withoutScopedBindings();
 
     Route::post('shop', StoreShop::class)->name('shop.store');
     Route::post('shop-external/{engine}', StoreExternalShop::class)->name('shop.external.store');
@@ -1701,6 +1715,7 @@ Route::patch('/production/{production:id}/materials-check/checker', AssignMateri
 Route::patch('/job-order-item-task/{jobOrderItemTask:id}/assign', AssignJobOrderItemTask::class)->name('job-order-item-task.assign')->withoutScopedBindings();
 Route::patch('/job-order-item-task/{jobOrderItemTask:id}/separate', SeparateJobOrderItemTasks::class)->name('job-order-item-task.separate')->withoutScopedBindings();
 Route::patch('/manufacture-task-session/{manufactureTaskSession:id}/close', CloseManufactureTaskSession::class)->name('manufacture-task-session.close')->withoutScopedBindings();
+Route::patch('/manufacture-task-session/{manufactureTaskSession:id}/continue-after-shift', ContinueManufactureTaskSessionAfterShift::class)->name('manufacture-task-session.continue_after_shift')->withoutScopedBindings();
 Route::post('/production/{production:id}/break', StartManufactureBreak::class)->name('production.break.store')->withoutScopedBindings();
 Route::post('/production/{production:id}/non-productive-session', StartManufactureNonProductiveSession::class)->name('production.non_productive_session.store')->withoutScopedBindings();
 Route::patch('/manufacture-break/{manufactureBreak:id}/end', EndManufactureBreak::class)->name('manufacture-break.end')->withoutScopedBindings();
@@ -1776,11 +1791,13 @@ Route::patch('procurement-note/{procurementNote:id}', [UpdateProcurementNote::cl
 Route::post('supplier/{supplier:id}/agreed-term', [StoreSupplierAgreedTerm::class, 'inSupplier'])->name('supplier.agreed_term.store');
 Route::post('supplier-product/{supplierProduct:id}/agreed-term', [StoreSupplierAgreedTerm::class, 'inSupplierProduct'])->name('supplier-product.agreed_term.store');
 Route::post('agent/{agent:id}/agreed-term', [StoreSupplierAgreedTerm::class, 'inAgent'])->name('agent.agreed_term.store');
+Route::patch('agent/{agent:id}/packing-spec-cut-off', UpdateAgentPackingSpecCutOff::class)->name('agent.packing_spec_cut_off.update');
 Route::patch('supplier-agreed-term/{supplierAgreedTerm:id}/withdraw', [WithdrawSupplierAgreedTerm::class, 'withdraw'])->name('supplier_agreed_term.withdraw');
 
 Route::name('stock-delivery.')->prefix('stock-delivery/{stockDelivery:id}')->group(function () {
     Route::post('note', [StoreProcurementNote::class, 'inStockDelivery'])->name('note.store');
     Route::post('goods-in-check', RecordStockDeliveryGoodsInCheck::class)->name('goods_in_check.store');
+    Route::post('packing-checks', CreateStockDeliveryPackingChecks::class)->name('packing_checks.store');
     Route::post('agreed-terms/accept', [AcceptAgreedTermDifferences::class, 'inStockDelivery'])->name('agreed_terms.accept');
     Route::post('invoice', StoreActualStockDeliveryInvoice::class)->name('invoice.store');
     Route::post('agent-payment', StoreAgentPayment::class)->name('agent_payment.store');
@@ -1829,6 +1846,8 @@ Route::name('stock-delivery-cost.')->prefix('stock-delivery-cost/{stockDeliveryC
 Route::name('stock-delivery-deposit-application.')->prefix('stock-delivery-deposit-application/{stockDeliveryDepositApplication:id}')->group(function () {
     Route::delete('', DeleteStockDeliveryDepositApplication::class)->name('delete');
 });
+
+Route::post('stock-delivery-packing-check/{stockDeliveryPackingCheck:id}', RecordStockDeliveryPackingCheck::class)->name('stock_delivery_packing_check.record');
 
 Route::name('stock-delivery-item.')->prefix('stock-delivery-item/{stockDeliveryItem:id}')->group(function () {
     Route::patch('confirm', UpdateStateToConfirmedStockDeliveryItem::class)->name('confirm')->withoutScopedBindings();
