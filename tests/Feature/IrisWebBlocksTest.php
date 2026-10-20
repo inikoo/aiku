@@ -947,6 +947,58 @@ test('logged-in product list prices a basket line of a fractional-units product 
         ->and($prices['price_per_unit'])->toEqual(round((float) $row->price, 2));
 });
 
+test('logged-in product list reads the customer favourites and back in stock reminders once for the whole list, with the same flags as one product at a time', function () {
+    [, $seed]   = createProduct($this->shop);
+    $newProduct = function () use ($seed) {
+        $product = \App\Actions\Catalogue\Product\StoreProduct::make()->action($seed->family, array_merge(
+            \App\Models\Catalogue\Product::factory()->definition(),
+            ['trade_units' => [['id' => $seed->tradeUnits->first()->id, 'quantity' => 1]], 'price' => 100]
+        ));
+        $product = \App\Actions\Catalogue\Product\UpdateProduct::make()->action($product, ['state' => \App\Enums\Catalogue\Product\ProductStateEnum::ACTIVE]);
+        DB::table('products')->where('id', $product->id)->update(['available_quantity' => 10]);
+
+        return $product->refresh();
+    };
+    [$favouriteProduct, $remindedProduct, $plainProduct] = [$newProduct(), $newProduct(), $newProduct()];
+    $customer = createOwnCustomer($this->shop, 'iris-product-list-flags');
+
+    \App\Actions\CRM\Favourite\StoreFavourite::make()->action($customer, $favouriteProduct, []);
+    $reminder = \App\Actions\Comms\BackInStockReminder\StoreBackInStockReminder::make()->action($customer, $remindedProduct, [], strict: false);
+
+    $products = [$favouriteProduct, $remindedProduct, $plainProduct];
+    foreach ($products as $product) {
+        PublishWebpage::make()->action(StoreProductWebpage::make()->action($product), ['comment' => 'product goes live']);
+    }
+    $rows = fn () => collect($products)->map(
+        fn ($product) => collect(GetIrisProductsInProductCategory::run(productCategory: $product->family)->items())->firstWhere('id', $product->id)
+    );
+
+    request()->setUserResolver(fn () => (object) ['customer' => $customer]);
+    $flagKeys = ['id', 'is_favourite', 'is_back_in_stock', 'back_in_stock_id'];
+
+    $oneAtATime = $rows()->map(fn ($row) => Arr::only((new IrisAuthenticatedProductsInWebpageResource($row))->toArray(request()), $flagKeys))->all();
+
+    $lookups = 0;
+    DB::listen(function ($query) use (&$lookups) {
+        if (preg_match('/from "(favourites|back_in_stock_reminders)"/', $query->sql)) {
+            $lookups++;
+        }
+    });
+    $asList = collect(IrisAuthenticatedProductsInWebpageResource::collection($rows())->resolve(request()))
+        ->map(fn ($item) => Arr::only($item, $flagKeys))
+        ->all();
+
+    request()->setUserResolver(fn () => null);
+
+    expect($asList)->toBe($oneAtATime)
+        ->and($lookups)->toBe(2)
+        ->and($asList[0]['is_favourite'])->toBeTrue()
+        ->and($asList[1]['is_back_in_stock'])->toBeTrue()
+        ->and($asList[1]['back_in_stock_id'])->toBe($reminder->id)
+        ->and($asList[2]['is_favourite'])->toBeFalse()
+        ->and($asList[2]['is_back_in_stock'])->toBeFalse();
+});
+
 test('department web block renders when the department lost its webpage link', function () {
     [, $product] = createProduct($this->shop);
     $department  = $product->department;
