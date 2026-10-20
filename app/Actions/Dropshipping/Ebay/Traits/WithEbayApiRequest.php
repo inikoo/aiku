@@ -2296,46 +2296,102 @@ trait WithEbayApiRequest
     public function getUser($data = [], $queryParams = [])
     {
         try {
-            $config = $this->getEbayConfig();
+            $url = $this->identityUserUrl();
 
-            $baseUrl = $config['sandbox'] ? "https://apiz.sandbox.ebay.com" : "https://apiz.ebay.com";
-
-            $token = $this->getEbayAccessToken();
-            $url   = $baseUrl . "/commerce/identity/v1/user/";
-
-            $response = Http::withHeaders([
-                'Authorization'    => 'Bearer '.$token,
-                'Content-Type'     => 'application/json',
-                'Accept'           => 'application/json',
-                'Content-Language' => 'en-GB'
-            ])->withQueryParameters($queryParams)
+            $response = Http::withHeaders($this->identityUserHeaders($this->getEbayAccessToken()))
+                ->withQueryParameters($queryParams)
                 ->get($url, $data);
+
+            return $this->identityUserFromResponse($response, $url, $data);
+        } catch (Exception $e) {
+            Log::error('eBay API Request Error: '.$e->getMessage());
+        }
+
+        return null;
+    }
+
+    /**
+     * getUser() for many eBay users at once: the first identity request of each goes out in parallel,
+     * the token refresh and retry after a 401 stay sequential
+     *
+     * @param  array<int|string, self>  $ebayUsers
+     *
+     * @return array<int|string, mixed>
+     */
+    public static function getUsers(array $ebayUsers): array
+    {
+        $results  = [];
+        $requests = [];
+
+        foreach ($ebayUsers as $key => $ebayUser) {
+            try {
+                $requests[$key] = [$ebayUser->identityUserUrl(), $ebayUser->identityUserHeaders($ebayUser->getEbayAccessToken())];
+            } catch (Exception $e) {
+                Log::error('eBay API Request Error: '.$e->getMessage());
+                $results[$key] = null;
+            }
+        }
+
+        $responses = Http::pool(fn (Pool $pool) => array_map(
+            fn ($key) => $pool->as((string) $key)->withHeaders($requests[$key][1])->get($requests[$key][0]),
+            array_keys($requests)
+        ));
+
+        foreach ($requests as $key => [$url]) {
+            $results[$key] = null;
+
+            try {
+                $response = $responses[$key];
+
+                if ($response instanceof Exception) {
+                    throw $response;
+                }
+
+                $results[$key] = $ebayUsers[$key]->identityUserFromResponse($response, $url);
+            } catch (Exception $e) {
+                Log::error('eBay API Request Error: '.$e->getMessage());
+            }
+        }
+
+        return $results;
+    }
+
+    protected function identityUserUrl(): string
+    {
+        $baseUrl = $this->getEbayConfig()['sandbox'] ? "https://apiz.sandbox.ebay.com" : "https://apiz.ebay.com";
+
+        return $baseUrl."/commerce/identity/v1/user/";
+    }
+
+    protected function identityUserHeaders($token): array
+    {
+        return [
+            'Authorization'    => 'Bearer '.$token,
+            'Content-Type'     => 'application/json',
+            'Accept'           => 'application/json',
+            'Content-Language' => 'en-GB'
+        ];
+    }
+
+    protected function identityUserFromResponse(Response $response, string $url, array $data = [])
+    {
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        // If unauthorized, try to refresh the token once
+        if ($response->status() === 401) {
+            $token = Arr::get($this->refreshEbayToken(), 'access_token');
+
+            if (!$token) {
+                return [];
+            }
+
+            $response = Http::withHeaders($this->identityUserHeaders($token))->get($url, $data);
 
             if ($response->successful()) {
                 return $response->json();
             }
-
-            // If unauthorized, try to refresh the token once
-            if ($response->status() === 401) {
-                $token = Arr::get($this->refreshEbayToken(), 'access_token');
-
-                if (!$token) {
-                    return [];
-                }
-
-                $response = Http::withHeaders([
-                    'Authorization'    => 'Bearer '.$token,
-                    'Content-Type'     => 'application/json',
-                    'Accept'           => 'application/json',
-                    'Content-Language' => 'en-GB'
-                ])->get($url, $data);
-
-                if ($response->successful()) {
-                    return $response->json();
-                }
-            }
-        } catch (Exception $e) {
-            Log::error('eBay API Request Error: '.$e->getMessage());
         }
 
         return null;

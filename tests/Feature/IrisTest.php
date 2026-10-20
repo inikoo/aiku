@@ -984,3 +984,44 @@ test('a test review reminder links to a preview of the review page that saves no
     expect(ShowIrisOrderReviewPreview::token($this->shop, $query['reference'], $query['products']))->toBe(basename($previewPath))
         ->and(Review::query()->count())->toBe($numberReviews);
 });
+
+test('the hourly data feed run checks every read mark of a shop at once and rebuilds the same feeds', function () {
+    Storage::fake('data-feeds');
+    $this->shop->update(['is_aiku' => true, 'state' => ShopStateEnum::OPEN]);
+
+    [, $product] = createProduct($this->shop);
+    $product->update(['state' => \App\Enums\Catalogue\Product\ProductStateEnum::ACTIVE, 'exclusive_for_customer_id' => null]);
+    $department = $product->department;
+    $family     = $product->family;
+    $department->update(['state' => \App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum::ACTIVE]);
+    $family->update(['state' => \App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum::ACTIVE]);
+    $collection = \App\Actions\Catalogue\Collection\StoreCollection::make()->action($this->shop, ['code' => 'feed-'.uniqid(), 'name' => 'Feed collection']);
+    $collection->update(['state' => \App\Enums\Catalogue\Collection\CollectionStateEnum::ACTIVE]);
+    DB::table('collection_has_models')->insert(['collection_id' => $collection->id, 'model_type' => 'Product', 'model_id' => $product->id, 'created_at' => now(), 'updated_at' => now()]);
+
+    $read   = [$this->shop, $department, $collection];
+    $unread = [$family];
+    foreach ($read as $parent) {
+        SaveDataFeeds::markAsRead($parent);
+    }
+    foreach ([...$read, ...$unread] as $parent) {
+        if (in_array($parent, $unread, true)) {
+            Cache::forget(SaveDataFeeds::readCacheKey($parent));
+        }
+        Storage::disk('data-feeds')->put(SaveDataFeeds::path($parent), 'stale');
+    }
+
+    $this->artisan('data_feeds:save')->assertSuccessful();
+
+    foreach ($read as $parent) {
+        expect(Storage::disk('data-feeds')->get(SaveDataFeeds::path($parent)))->toContain('Product code')->toContain($product->code);
+    }
+    Storage::disk('data-feeds')->assertMissing(SaveDataFeeds::path($family));
+
+    $export     = new \App\Exports\Marketing\ProductsInShopExport($this->shop);
+    $fullRows   = $export->query()->select('products.*', 'families.name as family_name', 'families.code as family_code', 'departments.name as department_name', 'departments.code as department_code', 'sub_departments.name as subdepartment_name', 'sub_departments.code as subdepartment_code')->get();
+    $feedRows   = iterator_to_array($export->generator(), false);
+
+    expect(array_map(fn ($row) => $export->map($row), $feedRows))->toBe($fullRows->map(fn ($row) => $export->map($row))->all())
+        ->and(count($feedRows))->toBeGreaterThan(0);
+});

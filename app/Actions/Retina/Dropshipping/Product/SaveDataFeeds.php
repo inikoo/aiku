@@ -68,7 +68,12 @@ class SaveDataFeeds extends RetinaAction
 
     public function refreshIfRead(Shop|ProductCategory|Collection $parent): void
     {
-        if (Cache::has(static::readCacheKey($parent))) {
+        $this->refreshOrDelete($parent, Cache::has(static::readCacheKey($parent)));
+    }
+
+    public function refreshOrDelete(Shop|ProductCategory|Collection $parent, bool $isRead): void
+    {
+        if ($isRead) {
             $this->handle($parent);
         } else {
             Storage::disk('data-feeds')->delete(static::path($parent));
@@ -89,21 +94,23 @@ class SaveDataFeeds extends RetinaAction
             ->get();
         /** @var Shop $shop */
         foreach ($shops as $shop) {
-            $this->refreshIfRead($shop);
-            $command->info('Shop: '.$shop->name);
             $productCategories = ProductCategory::where('shop_id', $shop->id)
-                ->whereIn('state', [ProductCategoryStateEnum::ACTIVE, ProductCategoryStateEnum::DISCONTINUING])->get();
-            /** @var ProductCategory $productCategory */
-            foreach ($productCategories as $productCategory) {
-                $this->refreshIfRead($productCategory);
-                $command->info('Product Category: '.$productCategory->slug);
-            }
+                ->whereIn('state', [ProductCategoryStateEnum::ACTIVE, ProductCategoryStateEnum::DISCONTINUING])
+                ->get(['id', 'slug', 'type']);
             $collections = Collection::where('shop_id', $shop->id)
                 ->where('state', CollectionStateEnum::ACTIVE)
-                ->get();
-            foreach ($collections as $collection) {
-                $this->refreshIfRead($collection);
-                $command->info('Collection: '.$collection->slug);
+                ->get(['id', 'slug']);
+
+            $parents   = [$shop, ...$productCategories->all(), ...$collections->all()];
+            $readMarks = Cache::many(array_map(fn ($parent) => static::readCacheKey($parent), $parents));
+
+            foreach ($parents as $parent) {
+                $this->refreshOrDelete($parent, $readMarks[static::readCacheKey($parent)] !== null);
+                $command->info(match (true) {
+                    $parent instanceof Shop => 'Shop: '.$parent->name,
+                    $parent instanceof ProductCategory => 'Product Category: '.$parent->slug,
+                    default => 'Collection: '.$parent->slug,
+                });
             }
         }
 
