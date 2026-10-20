@@ -19,6 +19,7 @@ import Dialog from "primevue/dialog"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faBoxOpen, faCheck, faTimes, faPlus, faTrashAlt, faPrint, faUndo, faExclamationTriangle, faCopy, faCamera, faPencil } from "@fal"
 import Button from "@/Components/Elements/Buttons/Button.vue"
+import PingIcon from "@/Components/Utils/PingIcon.vue"
 import { ctrans } from "@/Composables/useTrans"
 import { useLocaleStore } from "@/Stores/locale"
 import { routeType } from "@/types/route"
@@ -209,6 +210,7 @@ const startEditing = () => {
 		: [{ ...blankLine("per_carton"), packaging_component_id: props.data.dropdown.find((item) => item.key === "master_carton")?.id ?? null, quantity: 1 }]
 	form.photo = null
 	form.copy_to = []
+	form.defaults()
 	editing.value = true
 }
 
@@ -545,12 +547,15 @@ const liveLinesOf = (level: Level) => props.data.live?.lines.filter((line) => li
 			<div v-if="form.errors.lines" class="text-xs text-red-600">{{ form.errors.lines }}</div>
 
 			<div class="flex gap-2">
-				<Button type="tertiary" :label="ctrans('Save packing')" :loading="form.processing" @click="submit">
-					<template #icon><FontAwesomeIcon :icon="faCheck" class="text-green-600" fixed-width aria-hidden="true" /></template>
-				</Button>
 				<Button type="tertiary" :label="ctrans('Cancel')" @click="editing = false">
 					<template #icon><FontAwesomeIcon :icon="faTimes" class="text-red-500" fixed-width aria-hidden="true" /></template>
 				</Button>
+				<div class="relative">
+					<Button type="secondary" key="2" :label="ctrans('Save packing')" :loading="form.processing" @click="submit">
+						<template #icon><FontAwesomeIcon :icon="faCheck" class="text-green-600" fixed-width aria-hidden="true" /></template>
+					</Button>
+					<PingIcon v-if="form.isDirty" class="text-[7px] text-red-500 !absolute top-0 right-0" v-tooltip="ctrans('Not saved yet')" aria-hidden="true" />
+				</div>
 			</div>
 		</div>
 
