@@ -225,7 +225,8 @@ class GetUkPackagingReturn
 
     /**
      * Packing material that came inside imported cartons, from the agents' packing specs: non-household, reported once
-     * at import whether it was passed on, discarded or reused for dispatch.
+     * at import whether it was passed on, discarded or reused for dispatch. The master cartons themselves are left to the
+     * Import cartons line typed in by hand (filled from the same specs), so they are not counted twice.
      *
      * @return list<object{level: string, material_category: string, kg: string}>
      */
@@ -237,6 +238,7 @@ class GetUkPackagingReturn
             FROM epr_packing_lines
             WHERE organisation_id = ? AND date BETWEEN ? AND ?
               AND activity IN ('imported', 'imported_discarded', 'reused')
+              AND NOT EXISTS (SELECT 1 FROM packing_spec_lines psl WHERE psl.id = epr_packing_lines.packing_spec_line_id AND psl.role = 'master_carton')
             GROUP BY level, material_category
             SQL,
             [$organisation->id, $from->toDateString(), $to->toDateString()]
