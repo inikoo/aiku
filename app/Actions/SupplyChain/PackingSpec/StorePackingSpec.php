@@ -165,6 +165,17 @@ class StorePackingSpec extends OrgAction
         ];
     }
 
+    public function getValidationMessages(): array
+    {
+        return [
+            'lines.required'                          => __('Add at least one packing material'),
+            'lines.*.packaging_component_id.required' => __('Choose the packing material'),
+            'lines.*.quantity.required'               => __('Enter how many go in'),
+            'lines.*.quantity.gt'                     => __('Enter how many go in'),
+            'lines.*.weight_g_each.gt'                => __('Enter the weight in grams'),
+        ];
+    }
+
     public function afterValidator(Validator $validator): void
     {
         $components = PackagingComponent::whereIn('id', collect($this->get('lines', []))->pluck('packaging_component_id')->filter())->get()->keyBy('id');

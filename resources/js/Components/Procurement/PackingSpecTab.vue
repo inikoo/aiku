@@ -254,6 +254,8 @@ const toMillimetres = (centimetres: number | null) => (centimetres ? Math.round(
 const toCentimetres = (millimetres: number | null) => (millimetres ? formatNumber(millimetres / 10) : "—")
 
 const lineError = (index: number, field: string) => (form.errors as Record<string, string>)[`lines.${index}.${field}`]
+const lineFieldMissing = (index: number, field: keyof FormLine) => !!lineError(index, field) && !form.lines[index]?.[field]
+const shakeClass = (index: number, field: keyof FormLine) => (lineFieldMissing(index, field) ? "errorShake rounded-md" : "")
 
 const submit = () => {
 	const storeRoute = props.data.store_route
@@ -265,7 +267,6 @@ const submit = () => {
 			carton_width_mm: toMillimetres(carton_width_cm),
 			carton_height_mm: toMillimetres(carton_height_cm),
 			effective_from: toIso(data.effective_from),
-			lines: data.lines.filter((line) => line.packaging_component_id),
 			...(data.photo ? { photo: data.photo } : { photo: null }),
 		}))
 		.post(route(storeRoute.name, storeRoute.parameters), {
@@ -464,7 +465,7 @@ const liveLinesOf = (level: Level) => props.data.live?.lines.filter((line) => li
 								optionValue="id"
 								filter
 								:placeholder="ctrans('Material')"
-								:class="fieldFocusClass"
+								:class="[fieldFocusClass, shakeClass(index, 'packaging_component_id')]"
 								class="min-w-0 flex-1"
 								@change="onMaterialChange(line)">
 								<template #option="{ option }">
@@ -481,14 +482,14 @@ const liveLinesOf = (level: Level) => props.data.live?.lines.filter((line) => li
 						<div class="grid grid-cols-2 gap-1">
 							<label>
 								<span class="block text-[11px] text-gray-500">{{ ctrans("Quantity") }}</span>
-								<InputNumber v-model="line.quantity" :min="0" :maxFractionDigits="3" :class="fieldFocusClass" fluid size="small" />
+								<InputNumber v-model="line.quantity" :min="0" :maxFractionDigits="3" :class="[fieldFocusClass, shakeClass(index, 'quantity')]" fluid size="small" />
 							</label>
 							<label>
 								<span class="block text-[11px] text-gray-500">
 									{{ ctrans("Grams each") }}
 									<template v-if="line.packaging_component_id && !dropdownById[line.packaging_component_id]?.is_epr_reportable">({{ ctrans("optional") }})</template>
 								</span>
-								<InputNumber v-model="line.weight_g_each" :min="0" :maxFractionDigits="3" :class="fieldFocusClass" fluid size="small" />
+								<InputNumber v-model="line.weight_g_each" :min="0" :maxFractionDigits="3" :class="[fieldFocusClass, shakeClass(index, 'weight_g_each')]" fluid size="small" />
 							</label>
 						</div>
 						<Select v-model="line.role" :options="roleOptions" optionLabel="label" optionValue="value" filter :placeholder="ctrans('Role')" :class="fieldFocusClass" fluid size="small" />
@@ -496,11 +497,11 @@ const liveLinesOf = (level: Level) => props.data.live?.lines.filter((line) => li
 							v-if="line.packaging_component_id && dropdownById[line.packaging_component_id]?.needs_review"
 							v-model="line.description"
 							:placeholder="ctrans('Describe the material')"
-							:class="fieldFocusClass"
+							:class="[fieldFocusClass, shakeClass(index, 'description')]"
 							fluid
 							size="small" />
-						<div v-for="field in ['packaging_component_id', 'quantity', 'weight_g_each', 'description']" :key="field">
-							<div v-if="lineError(index, field)" class="text-xs text-red-600">{{ lineError(index, field) }}</div>
+						<div v-for="field in (['packaging_component_id', 'quantity', 'weight_g_each', 'description'] as const)" :key="field">
+							<div v-if="lineFieldMissing(index, field)" class="text-xs text-red-600">{{ lineError(index, field) }}</div>
 						</div>
 					</div>
 					<Button type="dashed" size="xs" full :label="ctrans('Add material')" @click="addLine(level)">
