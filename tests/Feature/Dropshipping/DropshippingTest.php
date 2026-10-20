@@ -999,6 +999,14 @@ test('a new portfolio recounts the group and organisation portfolios five minute
         ->and($delayOf(\App\Actions\Catalogue\Shop\Hydrators\ShopHydratePortfolios::class))->toBe(60);
 });
 
+test('portfolios keep no index on item name or barcode', function () {
+    $indexes = collect(\Illuminate\Support\Facades\DB::select("SELECT indexname FROM pg_indexes WHERE tablename = 'portfolios'"))->pluck('indexname');
+
+    expect($indexes)->not->toContain('portfolios_item_name_index')
+        ->and($indexes)->not->toContain('portfolios_barcode_index')
+        ->and($indexes)->toContain('portfolios_source_id_unique');
+});
+
 test('shop platform portfolio stats count the products of every state, each state on its own', function () {
     $platform = $this->group->platforms()->where('type', PlatformTypeEnum::TIKTOK)->firstOrFail();
     $customer = createOwnCustomer($this->shop, 'shop-platform-portfolio-stats');
