@@ -21,15 +21,13 @@ use App\Helpers\TimeSeriesPeriodCalculator;
 use App\Models\Helpers\Country;
 use App\Models\SysAdmin\Organisation;
 use Carbon\Carbon;
-use App\Jobs\BoundedUniqueUntilProcessingJobDecorator;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Support\Facades\DB;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Decorators\UniqueJobDecorator;
+use App\Actions\Traits\AsUniqueUntilProcessingAction;
 
 class ProcessIntrastatExportTimeSeriesRecords implements ShouldBeUniqueUntilProcessing
 {
-    use AsAction;
+    use AsUniqueUntilProcessingAction;
 
     /**
      * Dispatches of a period collapse into one run while it waits, and one arriving while it
@@ -39,10 +37,6 @@ class ProcessIntrastatExportTimeSeriesRecords implements ShouldBeUniqueUntilProc
 
     public string $jobQueue = 'sales_slave';
 
-    public static function makeUniqueJob(mixed ...$arguments): UniqueJobDecorator
-    {
-        return new BoundedUniqueUntilProcessingJobDecorator(static::class, ...$arguments);
-    }
 
     public function getJobUniqueId(int $organisationId, TimeSeriesFrequencyEnum $frequency, string $from, string $to): string
     {

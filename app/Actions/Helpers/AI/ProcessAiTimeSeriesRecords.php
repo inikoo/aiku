@@ -17,7 +17,7 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Support\Facades\DB;
-use Lorisleiva\Actions\Concerns\AsAction;
+use App\Actions\Traits\AsUniqueUntilProcessingAction;
 
 /**
  * Rolls the calls saved in ai_usages up into one time series per feature. Dispatched for today after
@@ -25,7 +25,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
  */
 class ProcessAiTimeSeriesRecords implements ShouldBeUniqueUntilProcessing
 {
-    use AsAction;
+    use AsUniqueUntilProcessingAction;
 
     public string $jobQueue = 'low-priority';
 

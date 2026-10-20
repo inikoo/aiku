@@ -18,7 +18,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Support\Facades\DB;
-use Lorisleiva\Actions\Concerns\AsAction;
+use App\Actions\Traits\AsUniqueUntilProcessingAction;
 
 /**
  * Stamps each movement with the total stock value right after it happened, in all three
@@ -27,7 +27,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
  */
 class CalculateOrgStockMovementRunningValues implements ShouldBeUniqueUntilProcessing
 {
-    use AsAction;
+    use AsUniqueUntilProcessingAction;
     use CalculatesOrgStockHistories;
 
     public string $jobQueue = 'sales_slave_historic';
