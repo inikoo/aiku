@@ -9,7 +9,7 @@ import { Head, useForm, usePage } from '@inertiajs/vue3'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faExclamationCircle, faCheckCircle, faAsterisk, faChevronDown } from '@fas'
-import { faAddressBook, faFileSignature, faPhone, faSave, faTruck, faShip, faCog, faClock, faCreditCard, faFileInvoiceDollar } from '@fal'
+import { faAddressBook, faFileSignature, faPhone, faSave, faTruck, faShip, faCog, faClock, faCreditCard, faFileInvoiceDollar, faCalendar, faCalendarAlt, faCalendarCheck } from '@fal'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { ctrans } from "@/Composables/useTrans"
 import { isArray } from 'lodash-es'
@@ -22,7 +22,7 @@ import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
 import { getComponent } from '@/Composables/Listing/FieldFormList'  // Fieldform list
 import InformationIcon from '@/Components/Utils/InformationIcon.vue'
 
-library.add(faExclamationCircle, faAsterisk, faCheckCircle, faPhone, faChevronDown, faFileSignature, faAddressBook, faTruck, faShip, faCog, faClock, faCreditCard, faFileInvoiceDollar)
+library.add(faExclamationCircle, faAsterisk, faCheckCircle, faPhone, faChevronDown, faFileSignature, faAddressBook, faTruck, faShip, faCog, faClock, faCreditCard, faFileInvoiceDollar, faCalendar, faCalendarAlt, faCalendarCheck)
 
 const props = defineProps<{
     title: string
