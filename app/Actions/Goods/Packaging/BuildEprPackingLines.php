@@ -20,7 +20,9 @@ use Lorisleiva\Actions\Concerns\AsAction;
  * version it was ordered as), one line per packing material in kg. The spec is the
  * version effective on the day it arrived, else the first one declared. Imported material is split by what the
  * warehouse does with it (passed on, discarded, reused for dispatch) but is reported once, at import. Materials that
- * are not packaging for EPR (silica gel) are left out, and every line is non-household.
+ * are not packaging for EPR (silica gel) are left out, and every line is non-household. Material passed on to the buyer
+ * is flagged in_product_packaging when the SKO's trade unit already carries weighed packaging: the weighing of the
+ * product as the buyer gets it includes it, so the returns leave it out rather than count it twice.
  */
 class BuildEprPackingLines
 {
@@ -41,7 +43,7 @@ class BuildEprPackingLines
     {
         return <<<'SQL'
             INSERT INTO epr_packing_lines (group_id, organisation_id, date, activity, stock_delivery_id, stock_delivery_item_id, agent_id, supplier_product_id, packing_spec_id, packing_spec_line_id,
-                packaging_component_id, counterparty_country_id, level, material_category, polymer, fate, spec_status, weight_is_measured, is_household, cartons, quantity, kg, created_at)
+                packaging_component_id, counterparty_country_id, level, material_category, polymer, fate, spec_status, weight_is_measured, is_household, in_product_packaging, cartons, quantity, kg, created_at)
             SELECT sdi.group_id, sd.organisation_id, flow.date,
                 CASE
                     WHEN origin.activity <> 'imported' THEN origin.activity
@@ -51,6 +53,15 @@ class BuildEprPackingLines
                 END,
                 sd.id, sdi.id, sd.agent_id, sdi.supplier_product_id, spec.id, l.id, l.packaging_component_id, flow.country_id, l.level, pc.material_category, pc.polymer,
                 l.fate_at_our_warehouse, spec.status, l.weight_is_measured, FALSE,
+                l.fate_at_our_warehouse = 'passed_on' AND EXISTS (
+                    SELECT 1
+                    FROM model_has_trade_units mhtu
+                    JOIN trade_units tu ON tu.id = mhtu.trade_unit_id
+                    JOIN packaging_families pf ON pf.id = tu.packaging_family_id AND NOT pf.is_product_itself
+                    JOIN packaging_family_has_components fhc ON fhc.packaging_family_id = pf.id
+                    JOIN packaging_components pc ON pc.id = fhc.packaging_component_id AND pc.weight_g > 0
+                    WHERE mhtu.model_type = 'OrgStock' AND mhtu.model_id = sdi.org_stock_id
+                ),
                 carton.cartons, carton.cartons * per_carton.quantity, carton.cartons * per_carton.quantity * l.weight_g_each / 1000, NOW()
             FROM stock_delivery_items sdi
             JOIN stock_deliveries sd ON sd.id = sdi.stock_delivery_id

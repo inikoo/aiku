@@ -37,6 +37,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $spec_status
  * @property bool $weight_is_measured
  * @property bool $is_household
+ * @property bool $in_product_packaging passed on to the buyer and already in the weighed packaging of the product
  * @property string|null $shop_type
  * @property string $cartons
  * @property string $quantity
@@ -51,9 +52,10 @@ class EprPackingLine extends Model
     public const UPDATED_AT = null;
 
     protected $casts = [
-        'date'               => 'date',
-        'weight_is_measured' => 'boolean',
-        'is_household'       => 'boolean',
+        'date'                 => 'date',
+        'weight_is_measured'   => 'boolean',
+        'is_household'         => 'boolean',
+        'in_product_packaging' => 'boolean',
     ];
 
     protected $guarded = [];

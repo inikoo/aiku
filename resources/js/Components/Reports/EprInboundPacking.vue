@@ -27,6 +27,7 @@ const props = defineProps<{
 		has_data: boolean
 		kg: number
 		measured_kg: number
+		in_product_packaging_kg: number
 		activities: Record<string, string>
 		levels: Record<string, string>
 		materials: Record<string, string>
@@ -123,6 +124,9 @@ const bucketClass: Record<string, string> = {
 				</div>
 				<div class="text-xs text-gray-500">
 					{{ ctrans(":kg kg weighed by goods in, the rest as the agents declared it", { kg: kg(data.measured_kg) }) }}
+					<div v-if="data.in_product_packaging_kg > 0">
+						{{ ctrans("Not counted: :kg kg passed on to the buyer that the products' own packaging (Compliance tab) already weighs", { kg: kg(data.in_product_packaging_kg) }) }}
+					</div>
 					<template v-if="data.scheme_label"> · {{ data.scheme_label }}</template>
 				</div>
 			</div>

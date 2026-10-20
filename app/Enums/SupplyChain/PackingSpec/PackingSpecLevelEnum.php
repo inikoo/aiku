@@ -56,6 +56,6 @@ enum PackingSpecLevelEnum: string
 
     public function defaultFate(): PackingSpecFateEnum
     {
-        return $this === self::PER_UNIT ? PackingSpecFateEnum::PASSED_ON : PackingSpecFateEnum::DISCARDED;
+        return $this === self::PER_CARTON ? PackingSpecFateEnum::DISCARDED : PackingSpecFateEnum::PASSED_ON;
     }
 }

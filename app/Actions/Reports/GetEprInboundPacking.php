@@ -26,7 +26,8 @@ use Lorisleiva\Actions\Concerns\AsAction;
  * packing lines: kg by activity, level and material (named as its scheme names it), with the supplier products and
  * deliveries behind them; how much of what arrived has a verified, a declared or no packing spec, with the material of
  * the undeclared estimated from the carton weight less the net weight, else from the kg per carton of what was
- * declared; and how far each agent is with its declarations.
+ * declared; and how far each agent is with its declarations. Material passed on to the buyer that the product's own
+ * packaging already weighs is shown apart and left out of the kg, as the returns leave it out.
  */
 class GetEprInboundPacking
 {
@@ -51,7 +52,7 @@ class GetEprInboundPacking
             <<<'SQL'
             SELECT activity, level, material_category, SUM(kg) AS kg, BOOL_AND(weight_is_measured) AS all_measured, SUM(kg) FILTER (WHERE weight_is_measured) AS measured_kg
             FROM epr_packing_lines
-            WHERE organisation_id = ? AND date BETWEEN ? AND ?
+            WHERE organisation_id = ? AND date BETWEEN ? AND ? AND NOT in_product_packaging
             GROUP BY activity, level, material_category
             SQL,
             $bindings
@@ -83,6 +84,10 @@ class GetEprInboundPacking
             'has_data'      => $rows !== [],
             'kg'            => round(collect($rows)->sum(fn ($row) => (float)$row->kg), 1),
             'measured_kg'   => round(collect($rows)->sum(fn ($row) => (float)$row->measured_kg), 1),
+            'in_product_packaging_kg' => round((float)DB::selectOne(
+                'SELECT SUM(kg) AS kg FROM epr_packing_lines WHERE organisation_id = ? AND date BETWEEN ? AND ? AND in_product_packaging',
+                $bindings
+            )->kg, 1),
             'activities'    => collect(self::ACTIVITIES)->mapWithKeys(fn (string $activity) => [$activity => $this->activityLabel($activity)])->all(),
             'levels'        => PackingSpecLevelEnum::labels(),
             'materials'     => $materials->mapWithKeys(fn (string $category) => [$category => $materialName($category)])->all(),
@@ -120,7 +125,7 @@ class GetEprInboundPacking
             FROM epr_packing_lines l
             JOIN supplier_products sp ON sp.id = l.supplier_product_id
             LEFT JOIN agents a ON a.id = l.agent_id
-            WHERE l.organisation_id = ? AND l.date BETWEEN ? AND ?
+            WHERE l.organisation_id = ? AND l.date BETWEEN ? AND ? AND NOT l.in_product_packaging
             GROUP BY l.supplier_product_id, l.organisation_id, sp.code, sp.name, a.code
             ORDER BY kg DESC
             LIMIT 100
@@ -148,7 +153,7 @@ class GetEprInboundPacking
             FROM epr_packing_lines l
             JOIN stock_deliveries sd ON sd.id = l.stock_delivery_id
             LEFT JOIN agents a ON a.id = l.agent_id
-            WHERE l.organisation_id = ? AND l.date BETWEEN ? AND ?
+            WHERE l.organisation_id = ? AND l.date BETWEEN ? AND ? AND NOT l.in_product_packaging
             GROUP BY sd.id, sd.reference, sd.slug, a.code
             ORDER BY date DESC
             LIMIT 100

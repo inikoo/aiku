@@ -154,6 +154,7 @@ class GetEuPackagingReturn
             FROM epr_packing_lines
             WHERE organisation_id = ? AND date BETWEEN ? AND ?
               AND activity IN ('imported', 'imported_discarded', 'reused')
+              AND NOT in_product_packaging
             GROUP BY material_category, polymer
             SQL,
             $bindings
