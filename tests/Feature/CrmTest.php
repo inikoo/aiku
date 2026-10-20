@@ -47,6 +47,7 @@ use App\Actions\Comms\Email\SendAppointmentEmail;
 use App\Actions\CRM\Appointment\AcceptAppointment;
 use App\Actions\CRM\Appointment\Json\GetAppointmentActionOptions;
 use App\Actions\CRM\Appointment\DeclineAppointment;
+use App\Actions\CRM\Appointment\RemindUpcomingAppointments;
 use App\Actions\CRM\Appointment\RescheduleAppointment;
 use App\Actions\CRM\Appointment\StoreAppointment;
 use App\Actions\CRM\Appointment\SyncAppointmentStaffTask;
@@ -1256,6 +1257,57 @@ test('visitors are emailed when their appointment is requested, accepted, moved,
         ->and($invite)->toContain('UID:appointment-'.$appointment->id.'@')
         ->and($invite)->toContain('LOCATION:Showroom\, Sheffield')
         ->and($sender->calendarInvite($appointment, OutboxCodeEnum::APPOINTMENT_ACCEPTED))->toContain('STATUS:CONFIRMED');
+});
+
+test('accepted appointments are reminded by email the day before, once', function () {
+    $appointmentType = StoreAppointmentType::make()->action($this->shop, [
+        'name'              => 'Reminders '.Str::random(6),
+        'meeting_mode'      => AppointmentTypeMeetingModeEnum::STORE_VISIT->value,
+        'duration_minutes'  => 30,
+        'capacity_per_slot' => 5,
+    ]);
+    $appointmentType->attendees()->syncWithoutDetaching([$this->user->id]);
+
+    $nextWeek = now($this->shop->timezone?->name ?? 'UTC')->addDays(9)->format('Y-m-d');
+    $book     = fn (array $modelData = []) => StoreAppointment::make()->action($this->shop, [
+        'appointment_type_id' => $appointmentType->id,
+        'starts_at'           => $nextWeek.' 12:00',
+        'contact_name'        => 'Reminded visitor '.Str::random(6),
+        'email'               => 'reminded-'.Str::lower(Str::random(8)).'@example.com',
+        'user_id'             => $this->user->id,
+        ...$modelData,
+    ]);
+    $remindedIds = fn (): array => Queue::pushed(JobDecorator::class, fn ($job) => $job->displayName() === SendAppointmentEmail::class && $job->getParameters()[1] === OutboxCodeEnum::APPOINTMENT_REMINDER->value)
+        ->map(fn ($job) => $job->getParameters()[0])
+        ->values()
+        ->all();
+
+    Queue::fake();
+
+    $tomorrow     = $book();
+    $later        = $book();
+    $justAccepted = $book();
+    $requested    = $book(['state' => AppointmentStateEnum::REQUESTED->value]);
+
+    $insideTheDay = ['starts_at' => now()->addHours(20), 'ends_at' => now()->addHours(20)->addMinutes(30)];
+    Appointment::whereIn('id', [$tomorrow->id, $requested->id])->update([...$insideTheDay, 'accepted_at' => now()->subDays(3)]);
+    Appointment::whereKey($justAccepted->id)->update([...$insideTheDay, 'accepted_at' => now()->subHour()]);
+
+    $this->artisan('appointments:remind')->assertSuccessful();
+    $this->artisan('appointments:remind')->assertSuccessful();
+
+    expect($remindedIds())->toBe([$tomorrow->id])
+        ->and($tomorrow->refresh()->reminder_sent_at)->not->toBeNull()
+        ->and($later->refresh()->reminder_sent_at)->toBeNull()
+        ->and(AppointmentResource::make($tomorrow)->resolve()['reminder_sent_at'])->not->toBeNull();
+
+    $body = SendAppointmentEmail::make()->generateBodyHtml($tomorrow, OutboxCodeEnum::APPOINTMENT_REMINDER);
+    expect($body)->toContain('This is a reminder of your appointment')
+        ->and($body)->toContain('Reminded visitor');
+
+    $moved = UpdateAppointment::make()->action($tomorrow, ['starts_at' => $nextWeek.' 14:00']);
+    expect($moved->refresh()->reminder_sent_at)->toBeNull()
+        ->and(RemindUpcomingAppointments::isInsideReminderWindow($moved))->toBeFalse();
 });
 
 test('an appointment email escapes what the visitor typed', function () {

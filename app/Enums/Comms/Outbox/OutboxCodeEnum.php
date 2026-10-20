@@ -54,6 +54,7 @@ enum OutboxCodeEnum: string
     case APPOINTMENT_DECLINED = 'appointment_declined';
     case APPOINTMENT_RESCHEDULED = 'appointment_rescheduled';
     case APPOINTMENT_CANCELLED = 'appointment_cancelled';
+    case APPOINTMENT_REMINDER = 'appointment_reminder';
     case PRE_ORDER_UPDATE = 'pre_order_update';
     case PASSWORD_REMINDER = 'password_reminder';
     case REGISTRATION = 'registration';
@@ -113,6 +114,7 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::APPOINTMENT_DECLINED,
             OutboxCodeEnum::APPOINTMENT_RESCHEDULED,
             OutboxCodeEnum::APPOINTMENT_CANCELLED,
+            OutboxCodeEnum::APPOINTMENT_REMINDER,
             OutboxCodeEnum::PRE_ORDER_UPDATE,
             OutboxCodeEnum::RENTAL_AGREEMENT,
             OutboxCodeEnum::PALLET_DELIVERY_PROCESSED,
@@ -208,6 +210,7 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::APPOINTMENT_DECLINED => 'Appointment declined',
             OutboxCodeEnum::APPOINTMENT_RESCHEDULED => 'Appointment rescheduled',
             OutboxCodeEnum::APPOINTMENT_CANCELLED => 'Appointment cancelled',
+            OutboxCodeEnum::APPOINTMENT_REMINDER => 'Appointment reminder',
             OutboxCodeEnum::PRE_ORDER_UPDATE => 'Pre-order update',
             OutboxCodeEnum::PASSWORD_REMINDER => 'Password reminder',
             OutboxCodeEnum::REGISTRATION => 'Registration',
@@ -281,6 +284,7 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::APPOINTMENT_DECLINED => 'Appointment declined',
             OutboxCodeEnum::APPOINTMENT_RESCHEDULED => 'Appointment rescheduled',
             OutboxCodeEnum::APPOINTMENT_CANCELLED => 'Appointment cancelled',
+            OutboxCodeEnum::APPOINTMENT_REMINDER => 'Appointment reminder',
             OutboxCodeEnum::PRE_ORDER_UPDATE => 'Pre-order update',
             OutboxCodeEnum::PASSWORD_REMINDER => 'Password reminder',
             OutboxCodeEnum::REGISTRATION => 'Registration',
@@ -418,7 +422,8 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::APPOINTMENT_ACCEPTED,
             OutboxCodeEnum::APPOINTMENT_DECLINED,
             OutboxCodeEnum::APPOINTMENT_RESCHEDULED,
-            OutboxCodeEnum::APPOINTMENT_CANCELLED => ['b2b', 'b2c', 'dropshipping'],
+            OutboxCodeEnum::APPOINTMENT_CANCELLED,
+            OutboxCodeEnum::APPOINTMENT_REMINDER => ['b2b', 'b2c', 'dropshipping'],
 
             /** Balance requests, reminders, new dispatch dates and cancellations of pre-orders (HELP-3432) */
             OutboxCodeEnum::PRE_ORDER_UPDATE => ['b2b', 'dropshipping'],
@@ -472,7 +477,8 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::APPOINTMENT_ACCEPTED,
             OutboxCodeEnum::APPOINTMENT_DECLINED,
             OutboxCodeEnum::APPOINTMENT_RESCHEDULED,
-            OutboxCodeEnum::APPOINTMENT_CANCELLED
+            OutboxCodeEnum::APPOINTMENT_CANCELLED,
+            OutboxCodeEnum::APPOINTMENT_REMINDER
             => OutboxStateEnum::ACTIVE,
             default => OutboxStateEnum::IN_PROCESS
         };
@@ -503,6 +509,7 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::APPOINTMENT_DECLINED,
             OutboxCodeEnum::APPOINTMENT_RESCHEDULED,
             OutboxCodeEnum::APPOINTMENT_CANCELLED,
+            OutboxCodeEnum::APPOINTMENT_REMINDER,
             OutboxCodeEnum::PRE_ORDER_UPDATE,
             OutboxCodeEnum::SEND_PURCHASE_ORDER_TO_SUPPLIER
             => OutboxBuilderEnum::BLADE,
@@ -533,6 +540,7 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::APPOINTMENT_DECLINED,
             OutboxCodeEnum::APPOINTMENT_RESCHEDULED,
             OutboxCodeEnum::APPOINTMENT_CANCELLED,
+            OutboxCodeEnum::APPOINTMENT_REMINDER,
             OutboxCodeEnum::PRE_ORDER_UPDATE,
             OutboxCodeEnum::PASSWORD_REMINDER,
             OutboxCodeEnum::REGISTRATION,
@@ -608,6 +616,7 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::APPOINTMENT_DECLINED,
             OutboxCodeEnum::APPOINTMENT_RESCHEDULED,
             OutboxCodeEnum::APPOINTMENT_CANCELLED,
+            OutboxCodeEnum::APPOINTMENT_REMINDER,
             OutboxCodeEnum::PRE_ORDER_UPDATE,
             OutboxCodeEnum::PASSWORD_REMINDER,
             OutboxCodeEnum::REGISTRATION,
@@ -683,6 +692,7 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::APPOINTMENT_DECLINED,
             OutboxCodeEnum::APPOINTMENT_RESCHEDULED,
             OutboxCodeEnum::APPOINTMENT_CANCELLED,
+            OutboxCodeEnum::APPOINTMENT_REMINDER,
             OutboxCodeEnum::PRE_ORDER_UPDATE,
             OutboxCodeEnum::RENTAL_AGREEMENT,
             OutboxCodeEnum::PALLET_DELIVERY_PROCESSED,
