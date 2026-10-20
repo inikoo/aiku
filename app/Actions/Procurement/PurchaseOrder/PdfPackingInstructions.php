@@ -21,6 +21,7 @@ use App\Models\Procurement\PurchaseOrderTransaction;
 use App\Models\SupplyChain\PackingSpecLine;
 use App\Models\SupplyChain\SupplierProductPackingSpec;
 use App\Models\SysAdmin\Organisation;
+use App\Models\SysAdmin\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
@@ -53,8 +54,10 @@ class PdfPackingInstructions extends OrgAction
         'purchaseOrderTransactions.orgStock.tradeUnits.image',
     ];
 
-    public function handle(PurchaseOrder $purchaseOrder, ?int $transactionId = null): string
+    public function handle(PurchaseOrder $purchaseOrder, ?int $transactionId = null, ?User $printedBy = null): string
     {
+        $timezone = $printedBy?->timezone_name ?? $purchaseOrder->organisation->timezone?->name ?? config('app.timezone');
+
         $purchaseOrder->loadMissing(self::RELATIONS);
 
         $lines = PdfPurchaseOrder::make()->lines($purchaseOrder)
@@ -65,6 +68,7 @@ class PdfPackingInstructions extends OrgAction
 
         return PDF::loadView('procurement.templates.pdf.packing-instructions', [
             'purchaseOrder' => $purchaseOrder,
+            'printedAt'     => now($timezone)->format('d M Y H:i').' ('.$timezone.')',
             'organisation'  => $purchaseOrder->organisation->name.($purchaseOrder->organisation->country ? ' ('.$purchaseOrder->organisation->country->name.')' : ''),
             'products'      => $lines->map(fn (PurchaseOrderTransaction $line) => $this->product($line, $images[$line->id] ?? null)),
         ], [], ['autoScriptToLang' => true, 'autoLangToFont' => true])->output();
@@ -86,8 +90,9 @@ class PdfPackingInstructions extends OrgAction
         $barcode         = $supplierProduct->stocks->pluck('carton_barcode')->filter()->first();
 
         return [
-            'code'             => $supplierProduct->code,
-            'name'             => $supplierProduct->name,
+            'code'             => $line->orgStock?->code ?? $supplierProduct->code,
+            'supplier_code'    => $line->orgStock && $line->orgStock->code !== $supplierProduct->code ? $supplierProduct->code : null,
+            'name'             => $line->orgStock?->name ?? $supplierProduct->name,
             'supplier'         => $supplierProduct->supplier?->name,
             'image'            => $image,
             'barcode'          => $barcode,
@@ -193,7 +198,7 @@ class PdfPackingInstructions extends OrgAction
         $this->initialisation($organisation, $request);
         $this->authorizeProcurementRecord($purchaseOrder);
 
-        return response($this->handle($purchaseOrder, $request->integer('transaction') ?: null), 200)
+        return response($this->handle($purchaseOrder, $request->integer('transaction') ?: null, $request->user()), 200)
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'inline; filename="'.$this->filename($purchaseOrder).'"');
     }

@@ -25,6 +25,7 @@
         .sheet .left { text-align: left; }
         .sheet .muted { color: #666; font-size: 8.5pt; }
         .sheet .handwrite { height: 14mm; }
+        .sheet .known { font-size: 9pt; vertical-align: top; text-align: left; }
         .steps { margin: 0; padding-left: 14px; text-align: left; list-style-type: disc; }
         .steps li { padding: 1px 0; }
         .none { color: #777; font-style: italic; }
@@ -45,7 +46,7 @@
         <tr>
             <td class="label">{{ __('Packer name') }}</td>
             <td class="blank"></td>
-            <td></td>
+            <td class="right" style="font-size: 8.5pt; color: #666;">{{ __('Printed') }}: {{ $printedAt }}</td>
         </tr>
         <tr>
             <td class="label">{{ __('Purchase order') }}</td>
@@ -70,12 +71,17 @@
 
     <table class="sheet">
         <tr>
-            <th colspan="2">{{ __('Code') }}</th>
-            <th colspan="2">{{ __('Description') }}</th>
+            <th colspan="2">{{ __('Product code') }}</th>
+            <th colspan="2">{{ __('Product name') }}</th>
             <th style="width: 26%;">{{ __('Product image') }}</th>
         </tr>
         <tr>
-            <td colspan="2" class="big">{{ $product['code'] }}</td>
+            <td colspan="2">
+                <div style="font-size: 13pt; font-weight: bold;">{{ $product['code'] }}</div>
+                @if($product['supplier_code'])
+                    <div class="muted">{{ __('Supplier code') }}: {{ $product['supplier_code'] }}</div>
+                @endif
+            </td>
             <td colspan="2">{{ $product['name'] }}</td>
             <td rowspan="3">
                 @if($product['image'])
@@ -142,8 +148,8 @@
             <th colspan="2">{{ __('Notes') }}</th>
         </tr>
         <tr>
-            <td colspan="2" class="handwrite big">{{ $product['carton_size_cm'] }}</td>
-            <td class="handwrite big">{{ $product['gross_weight_kg'] !== null ? $number($product['gross_weight_kg'], 2) : '' }}</td>
+            <td colspan="2" class="handwrite known">{{ $product['carton_size_cm'] }}</td>
+            <td class="handwrite known">{{ $product['gross_weight_kg'] !== null ? $number($product['gross_weight_kg'], 2) : '' }}</td>
             <td colspan="2" class="handwrite"></td>
         </tr>
     </table>
