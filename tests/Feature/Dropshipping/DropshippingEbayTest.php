@@ -1817,6 +1817,22 @@ test('a return policy eBay refuses is reported and the channel keeps its previou
     expect(Arr::get($ebayUser->customerSalesChannel->refresh()->settings, 'return.accepted'))->toBeFalse();
 });
 
+test('an eBay refusal shows the customer eBay\'s full reason, not just its one-word message', function () {
+    $ebayUser = ebayChannel($this);
+
+    fakeEbay($this, ebayAccountRoutes([
+        '/sell/account/v1/fulfillment_policy/fp-1' => fn () => Http::response(['errors' => [[
+            'errorId'     => 20403,
+            'message'     => 'Invalid.',
+            'longMessage' => 'A policy with the name Shipping already exists.',
+            'parameters'  => [['name' => 'name', 'value' => 'Shipping']],
+        ]]], 400),
+    ]));
+
+    expect(fn () => UpdateEbayCustomerSalesChannel::run($ebayUser->customerSalesChannel, ['shipping_price' => '4.50']))
+        ->toThrow(ValidationException::class, 'Invalid. A policy with the name Shipping already exists. (name Shipping)');
+});
+
 test('a postage policy eBay refuses is reported and the channel keeps its previous postage', function () {
     $ebayUser = ebayChannel($this);
     $ebayUser->customerSalesChannel->update(['settings' => ['shipping' => ['price' => '3', 'carrier_code' => 'RoyalMail', 'service_code' => 'UK_RoyalMailNextDay']]]);
