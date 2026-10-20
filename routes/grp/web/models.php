@@ -591,6 +591,7 @@ use App\Actions\Production\ManufactureTaskSession\CorrectManufactureTaskSessionQ
 use App\Actions\Production\ManufactureTaskSession\EditManufactureTaskSessionTimes;
 use App\Actions\Production\ManufactureTaskSession\VoidManufactureTaskSession;
 use App\Actions\Production\ManufactureTaskSession\CloseManufactureTaskSession;
+use App\Actions\Production\ManufactureTaskSession\ContinueManufactureTaskSessionAfterShift;
 use App\Actions\Production\ManufactureBreak\StartManufactureBreak;
 use App\Actions\Production\ManufactureTaskSession\StartManufactureNonProductiveSession;
 use App\Actions\Production\ManufactureBreak\EndManufactureBreak;
@@ -1701,6 +1702,7 @@ Route::patch('/production/{production:id}/materials-check/checker', AssignMateri
 Route::patch('/job-order-item-task/{jobOrderItemTask:id}/assign', AssignJobOrderItemTask::class)->name('job-order-item-task.assign')->withoutScopedBindings();
 Route::patch('/job-order-item-task/{jobOrderItemTask:id}/separate', SeparateJobOrderItemTasks::class)->name('job-order-item-task.separate')->withoutScopedBindings();
 Route::patch('/manufacture-task-session/{manufactureTaskSession:id}/close', CloseManufactureTaskSession::class)->name('manufacture-task-session.close')->withoutScopedBindings();
+Route::patch('/manufacture-task-session/{manufactureTaskSession:id}/continue-after-shift', ContinueManufactureTaskSessionAfterShift::class)->name('manufacture-task-session.continue_after_shift')->withoutScopedBindings();
 Route::post('/production/{production:id}/break', StartManufactureBreak::class)->name('production.break.store')->withoutScopedBindings();
 Route::post('/production/{production:id}/non-productive-session', StartManufactureNonProductiveSession::class)->name('production.non_productive_session.store')->withoutScopedBindings();
 Route::patch('/manufacture-break/{manufactureBreak:id}/end', EndManufactureBreak::class)->name('manufacture-break.end')->withoutScopedBindings();

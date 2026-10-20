@@ -87,6 +87,8 @@ const props = defineProps<{
         planned_minutes: number | null
         started_at: string
         is_clocked_out: boolean
+        is_shift_end: boolean
+        worked_seconds: number | null
         end_route: { name: string, parameters: object }
     }
     non_productive: {
@@ -106,6 +108,14 @@ const props = defineProps<{
             session: { started_at: string, break_minutes: number, quantity_made: number }
         }
         break_minutes: number
+        left_open_after_shift_at?: string | null
+        shift_end?: null | {
+            paused_at: string
+            worked_seconds: number
+            answer: string | null
+            is_resolved: boolean
+            continue_route: { name: string, parameters: object }
+        }
     }
     artisan: string | null
     is_hourly: boolean
@@ -172,11 +182,27 @@ const breakSecondsLeft = computed(() => {
     return Math.max(0, props.open_break.planned_minutes * 60 - breakSecondsElapsed.value)
 })
 const breakCountdown = computed(() => {
-    const seconds = isKioskBreak.value ? breakSecondsElapsed.value : breakSecondsLeft.value
+    if (isKioskBreak.value) {
+        const minutes = Math.floor(breakSecondsElapsed.value / 60)
+        return `${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, '0')}`
+    }
+    const seconds = breakSecondsLeft.value
     const m = Math.floor(seconds / 60)
     const s = seconds % 60
     return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 })
+
+function durationLabel(seconds: number) {
+    const minutes = Math.floor(seconds / 60)
+    const hours = Math.floor(minutes / 60)
+    return hours ? ctrans(':hours h :minutes min', { hours, minutes: minutes % 60 }) : ctrans(':minutes min', { minutes })
+}
+
+function pausedAtLabel(iso: string) {
+    return new Date(iso).toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+}
+
+const pausedTask = computed(() => props.open_session && !props.open_session.activity ? props.open_session.task : null)
 
 const pendingBreak = ref<number | null>(null)
 const breakProcessing = ref(false)
@@ -409,15 +435,28 @@ function startTask(task: FloorTask) {
         <main class="flex-1 min-w-0 overflow-y-auto p-6 flex flex-col items-center gap-6">
             <div v-if="breakError" class="w-full max-w-5xl rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700">{{ breakError }}</div>
 
-            <div v-if="open_break" class="w-full max-w-5xl rounded-2xl border-2 border-amber-400 bg-amber-50 p-8 flex items-center justify-between gap-6">
-                <div>
-                    <div v-if="isKioskBreak" class="text-xs uppercase tracking-wide text-amber-700">{{ ctrans('Clocked out') }} · {{ ctrans('Job paused') }}</div>
-                    <div v-else class="text-xs uppercase tracking-wide text-amber-700">{{ ctrans('On break') }} · {{ open_break.planned_minutes }} {{ ctrans('min') }}</div>
-                    <div class="text-7xl font-mono tabular-nums text-amber-700">{{ breakCountdown }}</div>
-                    <div v-if="isKioskBreak" class="mt-2 text-amber-700">{{ ctrans('Clock back in with your QR code to carry on with your job.') }}</div>
-                    <div v-else-if="open_break.is_clocked_out" class="mt-2 text-amber-700">{{ ctrans('Clocked out. You are clocked back in when the break ends.') }}</div>
+            <div v-if="open_break && isKioskBreak" class="w-full max-w-5xl rounded-2xl border-2 border-gray-300 bg-gray-50 p-8">
+                <div class="text-xs uppercase tracking-wide text-gray-500">
+                    {{ open_break.is_shift_end ? ctrans('Paused at end of shift, :time', { time: pausedAtLabel(open_break.started_at) }) : ctrans('Clocked out, job paused at :time', { time: pausedAtLabel(open_break.started_at) }) }}
                 </div>
-                <button v-if="!isKioskBreak" type="button"
+                <div class="mt-1 flex items-baseline gap-4">
+                    <span class="text-7xl font-mono tabular-nums text-gray-500">{{ breakCountdown }}</span>
+                    <span class="text-xl text-gray-500">{{ ctrans('paused for :duration', { duration: durationLabel(breakSecondsElapsed) }) }}</span>
+                </div>
+                <div v-if="open_break.worked_seconds !== null" class="mt-3 text-xl text-gray-700">
+                    {{ ctrans('Worked: :duration', { duration: durationLabel(open_break.worked_seconds) }) }}
+                    <template v-if="pausedTask"> · {{ ctrans(':made of :required recorded', { made: pausedTask.quantity_made, required: pausedTask.unit ? `${pausedTask.quantity_required} ${pausedTask.unit}` : pausedTask.quantity_required }) }}</template>
+                </div>
+                <div class="mt-2 text-gray-600">{{ ctrans('Clock back in with your QR code to carry on with your job.') }}</div>
+            </div>
+
+            <div v-else-if="open_break" class="w-full max-w-5xl rounded-2xl border-2 border-amber-400 bg-amber-50 p-8 flex items-center justify-between gap-6">
+                <div>
+                    <div class="text-xs uppercase tracking-wide text-amber-700">{{ ctrans('On break') }} · {{ open_break.planned_minutes }} {{ ctrans('min') }}</div>
+                    <div class="text-7xl font-mono tabular-nums text-amber-700">{{ breakCountdown }}</div>
+                    <div v-if="open_break.is_clocked_out" class="mt-2 text-amber-700">{{ ctrans('Clocked out. You are clocked back in when the break ends.') }}</div>
+                </div>
+                <button type="button"
                     class="rounded-xl bg-amber-600 text-white text-2xl font-semibold px-10 py-5 disabled:opacity-40"
                     :disabled="breakProcessing" @click="endBreak">
                     {{ ctrans('End break') }}
@@ -480,7 +519,7 @@ function startTask(task: FloorTask) {
 
             <div v-if="open_break" class="flex-1 flex items-center text-gray-400 text-lg">{{ isKioskBreak ? ctrans('Clock back in to continue working') : ctrans('Finish your break to continue working') }}</div>
 
-            <ManufactureWorkingCard v-else-if="open_session" :session="open_session" :server-time="server_time" class="w-full max-w-5xl" />
+            <ManufactureWorkingCard v-else-if="open_session" :key="open_session.id" :session="open_session" :server-time="server_time" class="w-full max-w-5xl" />
 
             <div v-else-if="selectedTask" class="flex-1 flex flex-col justify-center w-full max-w-2xl text-center">
                 <div v-if="startError" class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700">{{ startError }}</div>

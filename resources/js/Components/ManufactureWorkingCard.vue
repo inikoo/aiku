@@ -13,8 +13,8 @@ import Password from 'primevue/password'
 import { QrcodeStream } from 'vue-qrcode-reader'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faPause, faShare, faCheck, faTimes, faExclamationTriangle } from '@fal'
-library.add(faPause, faShare, faCheck, faTimes, faExclamationTriangle)
+import { faPause, faShare, faCheck, faTimes, faExclamationTriangle, faPlay } from '@fal'
+library.add(faPause, faShare, faCheck, faTimes, faExclamationTriangle, faPlay)
 
 const props = defineProps<{
     session: {
@@ -39,6 +39,13 @@ const props = defineProps<{
         close_route: { name: string, parameters: object }
         break_minutes: number
         left_open_after_shift_at?: string | null
+        shift_end?: null | {
+            paused_at: string
+            worked_seconds: number
+            answer: string | null
+            is_resolved: boolean
+            continue_route: { name: string, parameters: object }
+        }
         band_feedback: null | {
             currency_symbol: string
             band0_hourly_rate: number
@@ -85,6 +92,25 @@ const elapsed = computed(() => {
     const s = seconds % 60
     return `${h ? h + ':' : ''}${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 })
+
+const finishedBeforeShiftEnd = ref(false)
+const shiftEndQuestion = computed(() => !!props.session.shift_end && !props.session.shift_end.answer && !finishedBeforeShiftEnd.value)
+const pausedAtLabel = computed(() => props.session.shift_end ? new Date(props.session.shift_end.paused_at).toLocaleString([], { weekday: 'short', hour: '2-digit', minute: '2-digit' }) : '')
+const timeLogged = computed(() => {
+    if (!finishedBeforeShiftEnd.value || !props.session.shift_end) return elapsed.value
+    const minutes = Math.floor(props.session.shift_end.worked_seconds / 60)
+    return `${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, '0')}`
+})
+
+function continueAfterShift() {
+    if (!props.session.shift_end) return
+    processing.value = true
+    router.patch(
+        route(props.session.shift_end.continue_route.name, props.session.shift_end.continue_route.parameters),
+        {},
+        { preserveScroll: true, onFinish: () => processing.value = false }
+    )
+}
 
 const elapsedHours = computed(() => {
     const breakMinutes = props.session.break_minutes
@@ -196,6 +222,7 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
             quantity_made: quantityMade.value,
             quantity_rejected: quantityRejected.value || 0,
             outcome,
+            ...(finishedBeforeShiftEnd.value ? { finished_before_shift_end: true } : {}),
             ...(manager ?? {}),
         },
         {
@@ -296,7 +323,29 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
             </div>
         </div>
 
-        <div v-if="session.left_open_after_shift_at" class="mt-6 flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-lg text-amber-800">
+        <div v-if="shiftEndQuestion" class="mt-6 rounded-lg border border-gray-300 bg-white p-4">
+            <div class="text-2xl font-semibold">{{ ctrans('Did you finish this before the end of your shift?') }}</div>
+            <div class="mt-1 text-lg text-gray-600">{{ ctrans('Work stopped :time', { time: pausedAtLabel }) }}</div>
+            <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                <button type="button" class="flex items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white py-4 text-xl font-semibold text-gray-800 hover:bg-gray-50 disabled:opacity-40"
+                    :disabled="processing" @click="finishedBeforeShiftEnd = true">
+                    <FontAwesomeIcon :icon="faCheck" class="text-green-600" fixed-width aria-hidden="true" />
+                    {{ ctrans('Yes, record quantity and close') }}
+                </button>
+                <button type="button" class="flex items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white py-4 text-xl font-semibold text-gray-800 hover:bg-gray-50 disabled:opacity-40"
+                    :disabled="processing" @click="continueAfterShift">
+                    <FontAwesomeIcon :icon="faPlay" class="text-[--app-accent]" fixed-width aria-hidden="true" />
+                    {{ ctrans('No, continue working') }}
+                </button>
+            </div>
+        </div>
+
+        <div v-else-if="finishedBeforeShiftEnd" class="mt-6 flex items-center justify-between gap-3 rounded-lg border border-gray-300 bg-white px-4 py-3 text-lg text-gray-700">
+            <span>{{ ctrans('Enter what was made. The job closes at :time, when work stopped.', { time: pausedAtLabel }) }}</span>
+            <button type="button" class="shrink-0 text-gray-500 underline" @click="finishedBeforeShiftEnd = false">{{ ctrans('Go back') }}</button>
+        </div>
+
+        <div v-else-if="session.left_open_after_shift_at && !session.shift_end?.is_resolved" class="mt-6 flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-lg text-amber-800">
             <FontAwesomeIcon :icon="faExclamationTriangle" class="mt-1" fixed-width aria-hidden="true" />
             <span>{{ ctrans('This job was left running after the end of the shift (:time). Record what was made and tell your supervisor, who will set the real times.', { time: new Date(session.left_open_after_shift_at).toLocaleString([], { weekday: 'short', hour: '2-digit', minute: '2-digit' }) }) }}</span>
         </div>
@@ -307,7 +356,7 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
             <div class="text-2xl font-semibold">{{ ctrans('Are you sure you want to finish :step?', { step: session.task.task_name }) }}</div>
             <div class="mt-2 flex flex-wrap gap-x-6 text-lg text-gray-700">
                 <span>{{ ctrans('Step') }}: <b>{{ session.task.task_name }}</b></span>
-                <span>{{ ctrans('Time logged') }}: <b class="tabular-nums">{{ elapsed }}</b></span>
+                <span>{{ ctrans('Time logged') }}: <b class="tabular-nums">{{ timeLogged }}</b></span>
                 <span>{{ ctrans('Quantity made') }}: <b class="tabular-nums">{{ quantityMade }}<template v-if="unit"> {{ unit }}</template></b>
                     <b v-if="packSize" class="text-amber-700"> {{ ctrans('packs of :size = :pieces × :code', { size: packSize, pieces: inPieces(quantityMade ?? 0), code: session.task.artefact_code ?? '' }) }}</b>
                 </span>
@@ -324,7 +373,7 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
             </div>
         </div>
 
-        <div v-else-if="!askOutcome" class="mt-6 flex items-end gap-4">
+        <div v-else-if="!askOutcome && !shiftEndQuestion" class="mt-6 flex items-end gap-4">
             <div>
                 <label class="block text-lg text-gray-600 mb-1">{{ mixBatch ? ctrans('Batches of :size kg made', { size: mixBatch }) : packSize ? ctrans('Packs of :size made', { size: packSize }) : unit ? ctrans('Kg made') : ctrans('Quantity made') }}</label>
                 <input
