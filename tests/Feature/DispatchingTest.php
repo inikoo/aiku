@@ -292,7 +292,7 @@ test('dpd gb label pdf keeps one page per parcel', function () {
     $pdf = (new CallApiDpdGbShipping())->labelPdf($html, 3);
 
     expect(preg_match_all('/\/Type\s*\/Page[^s]/', $pdf))->toBe(3);
-});
+})->skip(fn () => !is_dir(base_path('node_modules/puppeteer')) && !is_dir(trim((string) shell_exec('npm root -g')).'/puppeteer'), 'puppeteer is not installed');
 
 test('dpd gb login reads the credentials by name whatever their order', function () {
     config(['app.sandbox.shipper_dpd_gb_token' => '{"account":"462302","password":"p","username":"u"}']);

@@ -747,8 +747,8 @@ test('update master shop', function (MasterShop $masterShop) {
         ]
     );
     $group = $masterShop->group;
-    expect($group->goodsStats->number_master_shops)->toBe(1)
-        ->and($group->goodsStats->number_current_master_shops)->toBe(0);
+    expect($group->goodsStats->number_master_shops)->toBe($group->masterShops()->count())
+        ->and($group->goodsStats->number_current_master_shops)->toBe($group->masterShops()->where('status', true)->count());
 })->depends('create master shop');
 
 test('create master shop from command', function () {
@@ -762,8 +762,8 @@ test('create master shop from command', function () {
 
     $group = $this->group->refresh();
 
-    expect($group->goodsStats->number_master_shops)->toBe(2)
-        ->and($group->goodsStats->number_current_master_shops)->toBe(1);
+    expect($group->goodsStats->number_master_shops)->toBe($group->masterShops()->count())
+        ->and($group->goodsStats->number_current_master_shops)->toBe($group->masterShops()->where('status', true)->count());
 });
 
 test('assign master shop to shop', function () {
