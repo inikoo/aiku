@@ -2956,3 +2956,16 @@ test('an upload to a store whose client cannot be built tells the customer why o
     expect($portfolio->refresh()->platform_status)->toBeFalse()
         ->and($portfolio->errors_response['message'])->toBe('Failed to initialize Shopify GraphQL client');
 });
+
+test('a queued upload the queue kills still reports its failure so the waiting page completes', function () {
+    \Illuminate\Support\Facades\Event::fake([\App\Events\UploadProductToSalesChannelProgressEvent::class]);
+
+    $shopifyUser = shopifyProductChannel($this, 'retina-killed-job');
+    $portfolio   = StorePortfolio::make()->action($shopifyUser->customerSalesChannel, $this->product, []);
+    \Illuminate\Support\Facades\Cache::put('upload_progress_killed_fail', 0, now()->addHour());
+
+    StoreNewProductToCurrentShopify::make()->jobFailed(new \Illuminate\Queue\TimeoutExceededException('killed'), $portfolio, ['cache_key' => 'upload_progress_killed', 'total' => 1]);
+
+    expect($portfolio->refresh()->errors_response)->not->toBeNull();
+    \Illuminate\Support\Facades\Event::assertDispatched(\App\Events\UploadProductToSalesChannelProgressEvent::class, fn ($event) => $event->portfolio->id === $portfolio->id && $event->statistics === ['total' => 1, 'success' => 0, 'fail' => 1]);
+});

@@ -2048,3 +2048,16 @@ test('the hourly eBay stock check probes every channel in parallel with the same
         ->and($pooled['c'])->toBeNull()
         ->and($pooled['d'])->toBeNull();
 });
+
+test('a queued upload the queue kills still reports its failure so the waiting page completes', function () {
+    Event::fake([UploadProductToSalesChannelProgressEvent::class]);
+
+    $ebayUser  = ebayChannel($this);
+    $portfolio = StorePortfolio::make()->action($ebayUser->customerSalesChannel, $this->product, []);
+    Cache::put('upload_progress_ebay_killed_fail', 0, now()->addHour());
+
+    StoreNewProductToCurrentEbay::make()->jobFailed(new \Illuminate\Queue\TimeoutExceededException('killed'), $ebayUser, $portfolio, ['cache_key' => 'upload_progress_ebay_killed', 'total' => 1]);
+
+    expect($portfolio->refresh()->errors_response)->not->toBeNull();
+    Event::assertDispatched(UploadProductToSalesChannelProgressEvent::class, fn ($event) => $event->portfolio->id === $portfolio->id && $event->statistics === ['total' => 1, 'success' => 0, 'fail' => 1]);
+});
