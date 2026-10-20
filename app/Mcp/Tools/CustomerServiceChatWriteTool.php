@@ -30,7 +30,7 @@ use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Attributes\Description;
 
-#[Description('Acts on a customer chat, by its Chat ID, as the user: save_draft (puts message on the chat as a draft reply the user reviews and sends from Aiku; nothing reaches the customer, no confirm needed; the usual way to help with a reply), reply (sends message to the customer in the user\'s name; on an email chat it is emailed), assign_to_me, close, wait_for_reply (hours 1-720, the chat closes itself if the customer stays silent), stop_waiting, link_customer (customer = their reference, slug or email), unlink_customer or add_note (message = an internal note for staff, shown in the thread in pink and never sent to the customer: what was found out and what to tell them, in the user\'s language). Call customer-service-chat-tool first. Without confirm=true nothing happens and a preview comes back: show the user the exact reply text, in the customer\'s language, and send only after they say yes in their own words. A chat held by a colleague is refused. Only for users enrolled to serve customers through their assistant, except add_note: a note is signed by Aiku and never reaches the customer.')]
+#[Description('Acts on a customer chat, by its Chat ID, as the user: save_draft (puts message on the chat as a draft reply the user reviews and sends from Aiku, with an optional staff_note shown on the draft; nothing reaches the customer, no confirm needed; the usual way to help with a reply), reply (sends message to the customer in the user\'s name; on an email chat it is emailed), assign_to_me, close, wait_for_reply (hours 1-720, the chat closes itself if the customer stays silent), stop_waiting, link_customer (customer = their reference, slug or email), unlink_customer or add_note (message = an internal note for staff, shown in the thread in pink and never sent to the customer: what was found out and what to tell them, in the user\'s language). Call customer-service-chat-tool first. Without confirm=true nothing happens and a preview comes back: show the user the exact reply text, in the customer\'s language, and send only after they say yes in their own words. A chat held by a colleague is refused. Only for users enrolled to serve customers through their assistant, except add_note: a note is signed by Aiku and never reaches the customer.')]
 class CustomerServiceChatWriteTool extends AikuCustomerServiceTool
 {
     use WithMcpChangeLog;
@@ -43,6 +43,7 @@ class CustomerServiceChatWriteTool extends AikuCustomerServiceTool
             'chat_id'      => ['required', 'string', 'max:40'],
             'action'       => ['required', 'in:'.implode(',', self::ACTIONS)],
             'message'      => ['required_if:action,reply,save_draft,add_note', 'nullable', 'string', 'max:5000'],
+            'staff_note'   => ['sometimes', 'nullable', 'string', 'max:2000'],
             'hours'        => ['required_if:action,wait_for_reply', 'nullable', 'integer', 'min:1', 'max:720'],
             'customer'     => ['required_if:action,link_customer', 'nullable', 'string', 'max:255'],
             'confirm'      => ['sometimes', 'boolean'],
@@ -145,6 +146,10 @@ class CustomerServiceChatWriteTool extends AikuCustomerServiceTool
             $text,
             $request->sessionId() ? Cache::get(RememberMcpClientName::key($request->sessionId())) : null
         );
+
+        if ($staffNote = trim((string) $request->get('staff_note'))) {
+            $draft->update(['facts' => $draft->facts + ['staff_note' => $staffNote]]);
+        }
 
         return Response::json([
             'saved'     => 'draft',
@@ -250,6 +255,7 @@ class CustomerServiceChatWriteTool extends AikuCustomerServiceTool
             'chat_id'      => $schema->string()->description('Chat ID copied from the Overview panel of the chat')->required(),
             'action'       => $schema->string()->enum(self::ACTIONS)->description('What to do on the chat')->required(),
             'message'      => $schema->string()->description('For add_note: the note for staff. For save_draft and reply: the full text for the customer, plain text, in the language reply_in names, signed as the user would sign it. In a draft, [[what to check]] marks something only the user can decide'),
+            'staff_note'   => $schema->string()->description('For save_draft only: a short note for staff shown on the draft itself, never sent to the customer, in the user\'s language. Start it with "Before sending:" when staff must do something first (refund, credit, replacement); otherwise what was checked and anything uncertain'),
             'hours'        => $schema->integer()->description('For wait_for_reply: hours to wait for the customer, 24, 72 or 168 are the usual ones')->min(1)->max(720),
             'customer'     => $schema->string()->description('For link_customer: the customer\'s reference, slug or email'),
             'confirm'      => $schema->boolean()->description('true only after the user has seen the preview and said yes'),

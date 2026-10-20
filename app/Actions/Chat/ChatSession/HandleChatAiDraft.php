@@ -171,6 +171,7 @@ class HandleChatAiDraft
                 'of'     => User::find(data_get($draft->facts, 'user_id'))?->contact_name,
                 'client' => data_get($draft->facts, 'client'),
             ]) : null,
+            'staff_note'  => data_get($draft->facts, 'staff_note'),
             'rating'      => $draft->rating,
             'reason'      => $draft->rating_reason,
         ] : null, 'suggestions' => ClassifyChatTurn::suggestions($chatSession)]);

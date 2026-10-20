@@ -2874,7 +2874,7 @@ describe('customer service tools', function () {
             ->assertOk()->assertSee('Nothing was sent');
         $first = App\Actions\Chat\ChatSession\DraftChatReply::pendingDraft($this->chat);
 
-        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'save_draft', 'message' => 'Sorry about that, could you send a photo of the box too?'])
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'save_draft', 'message' => 'Sorry about that, could you send a photo of the box too?', 'staff_note' => 'Before sending: check the box photo from the warehouse.'])
             ->assertOk();
         $draft = App\Actions\Chat\ChatSession\DraftChatReply::pendingDraft($this->chat);
 
@@ -2888,7 +2888,9 @@ describe('customer service tools', function () {
         Illuminate\Support\Facades\Event::assertDispatched(App\Events\BroadcastChatAiDraft::class);
 
         $this->actingAs($this->user);
-        expect(App\Actions\Chat\ChatSession\HandleChatAiDraft::make()->asController($this->chat)->getData(true)['data']['assistant']['of'])->toBe($this->user->contact_name);
+        $shown = App\Actions\Chat\ChatSession\HandleChatAiDraft::make()->asController($this->chat)->getData(true)['data'];
+        expect($shown['assistant']['of'])->toBe($this->user->contact_name)
+            ->and($shown['staff_note'])->toBe('Before sending: check the box photo from the warehouse.');
 
         $this->user->update(['can_use_mcp_customer_service' => false]);
         ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'save_draft', 'message' => 'Sorry'])
