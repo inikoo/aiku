@@ -162,7 +162,7 @@ class PdfPurchaseOrder extends OrgAction
      * @param  Collection<int, PurchaseOrderTransaction>  $lines
      * @return array<int, string>
      */
-    private function lineImages(Collection $lines): array
+    public function lineImages(Collection $lines): array
     {
         $urls = $lines
             ->mapWithKeys(fn (PurchaseOrderTransaction $line) => [$line->id => $this->lineImage($line)])

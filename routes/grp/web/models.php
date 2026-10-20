@@ -751,6 +751,7 @@ use App\Actions\SupplyChain\PackingSpec\PdfPackingSpec;
 use App\Actions\SupplyChain\PackingSpec\ReturnPackingSpec;
 use App\Actions\SupplyChain\PackingSpec\StorePackingSpec;
 use App\Actions\SupplyChain\PackingSpec\UpdateAgentPackingSpecCutOff;
+use App\Actions\SupplyChain\PackingSpec\UpdateSupplierProductPackingInstructions;
 use App\Actions\SupplyChain\PackingSpec\VerifyPackingSpec;
 use App\Actions\GoodsIn\StockDeliveryPackingCheck\CreateStockDeliveryPackingChecks;
 use App\Actions\GoodsIn\StockDeliveryPackingCheck\RecordStockDeliveryPackingCheck;
@@ -1050,6 +1051,7 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::patch('org-supplier-product/{orgSupplierProduct:id}/carton-weights', UpdateOrgSupplierProductCartonWeights::class)->name('org_supplier_product.carton_weights.update')->withoutScopedBindings();
     Route::patch('org-supplier-product/{orgSupplierProduct:id}/stock/{stock:id}/carton-barcode', UpdateOrgSupplierProductCartonBarcode::class)->name('org_supplier_product.carton_barcode.update')->withoutScopedBindings();
     Route::post('org-supplier-product/{orgSupplierProduct:id}/packing-spec', StorePackingSpec::class)->name('org_supplier_product.packing_spec.store')->withoutScopedBindings();
+    Route::patch('org-supplier-product/{orgSupplierProduct:id}/packing-instructions', UpdateSupplierProductPackingInstructions::class)->name('org_supplier_product.packing_instructions.update')->withoutScopedBindings();
     Route::post('packing-spec/{packingSpec:id}/return', ReturnPackingSpec::class)->name('packing_spec.return')->withoutScopedBindings();
     Route::post('packing-spec/{packingSpec:id}/verify', VerifyPackingSpec::class)->name('packing_spec.verify')->withoutScopedBindings();
     Route::get('packing-spec/{packingSpec:id}/pdf', PdfPackingSpec::class)->name('packing_spec.pdf')->withoutScopedBindings();

@@ -17,9 +17,10 @@ import DatePicker from "primevue/datepicker"
 import FileUpload from "primevue/fileupload"
 import Dialog from "primevue/dialog"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faBoxOpen, faCheck, faTimes, faPlus, faTrashAlt, faPrint, faUndo, faExclamationTriangle, faCopy, faCamera, faPencil } from "@fal"
+import { faBoxOpen, faCheck, faTimes, faPlus, faTrashAlt, faPrint, faUndo, faExclamationTriangle, faCopy, faCamera, faPencil, faListOl, faGripVertical } from "@fal"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import PingIcon from "@/Components/Utils/PingIcon.vue"
+import draggable from "vuedraggable"
 import { ctrans } from "@/Composables/useTrans"
 import { useLocaleStore } from "@/Stores/locale"
 import { routeType } from "@/types/route"
@@ -118,6 +119,9 @@ const props = defineProps<{
 		}
 		copy_candidates: { id: number; code: string; name: string | null; has_spec: boolean }[]
 		store_route: routeType | null
+		instructions: string[]
+		instructions_route: routeType | null
+		purchase_orders: { label: string; url: string }[]
 	}
 	tab: string
 }>()
@@ -279,6 +283,40 @@ const submit = () => {
 		})
 }
 
+type Step = { key: number; text: string }
+
+const instructionsForm = useForm<{ steps: Step[]; copy_to: number[] }>({ steps: [], copy_to: [] })
+const editingInstructions = ref(false)
+let nextStepKey = 0
+const newStep = (text = ""): Step => ({ key: nextStepKey++, text })
+
+const startEditingInstructions = () => {
+	instructionsForm.clearErrors()
+	instructionsForm.steps = props.data.instructions.length ? props.data.instructions.map((text) => newStep(text)) : [newStep()]
+	instructionsForm.copy_to = []
+	instructionsForm.defaults()
+	editingInstructions.value = true
+}
+
+const stepError = (index: number) => (instructionsForm.errors as Record<string, string>)[`instructions.${index}`]
+
+const saveInstructions = () => {
+	const instructionsRoute = props.data.instructions_route
+	if (!instructionsRoute) return
+	instructionsForm.transform(({ steps, copy_to }) => ({ instructions: steps.map((step) => step.text), copy_to })).patch(route(instructionsRoute.name, instructionsRoute.parameters), {
+		preserveScroll: true,
+		onSuccess: () => {
+			editingInstructions.value = false
+			router.reload({ only: [props.tab] })
+		},
+	})
+}
+
+const selectedPurchaseOrder = ref<string | null>(props.data.purchase_orders[0]?.url ?? null)
+const printPackingInstructions = () => {
+	if (selectedPurchaseOrder.value) window.open(selectedPurchaseOrder.value, "_blank")
+}
+
 const returnDialog = ref(false)
 const returnForm = useForm<{ reason: string }>({ reason: "" })
 
@@ -306,6 +344,75 @@ const liveLinesOf = (level: Level) => props.data.live?.lines.filter((line) => li
 
 <template>
 	<div class="max-w-6xl space-y-5 px-6 py-5 text-sm">
+		<!-- Packing instructions -->
+		<div class="space-y-3 rounded border border-gray-200 p-3">
+			<div class="flex flex-wrap items-center gap-2">
+				<FontAwesomeIcon :icon="faListOl" class="text-gray-400" fixed-width aria-hidden="true" />
+				<span class="font-semibold text-gray-800">{{ ctrans("Packing instructions") }}</span>
+				<span class="text-xs text-gray-500">{{ ctrans("The steps the packers follow, printed with each purchase order") }}</span>
+				<Button v-if="data.instructions_route && !editingInstructions" class="ml-auto" type="tertiary" size="xs" :label="ctrans('Edit steps')" @click="startEditingInstructions">
+					<template #icon><FontAwesomeIcon :icon="faPencil" class="text-[--app-accent]" fixed-width aria-hidden="true" /></template>
+				</Button>
+			</div>
+
+			<template v-if="!editingInstructions">
+				<ol v-if="data.instructions.length" class="list-decimal space-y-0.5 pl-5 text-gray-800">
+					<li v-for="(step, index) in data.instructions" :key="index">{{ step }}</li>
+				</ol>
+				<div v-else class="text-xs text-gray-400">{{ ctrans("No packing instructions yet") }}</div>
+			</template>
+
+			<div v-else class="space-y-2">
+				<draggable v-model="instructionsForm.steps" item-key="key" handle=".step-handle" animation="200" class="space-y-1">
+					<template #item="{ element, index }">
+						<div class="flex items-center gap-1">
+							<span class="step-handle cursor-grab px-1 text-gray-400 hover:text-gray-600 active:cursor-grabbing" v-tooltip="ctrans('Drag to reorder')">
+								<FontAwesomeIcon :icon="faGripVertical" fixed-width aria-hidden="true" />
+							</span>
+							<span class="w-5 text-right text-xs text-gray-500">{{ index + 1 }}.</span>
+							<InputText v-model="element.text" :placeholder="ctrans('e.g. Check the goods')" :class="[fieldFocusClass, stepError(index) && !element.text ? 'errorShake rounded-md' : '']" class="flex-1" size="small" />
+							<Button type="tertiary" size="xs" :aria-label="ctrans('Remove')" @click="instructionsForm.steps.splice(index, 1)">
+								<template #icon><FontAwesomeIcon :icon="faTrashAlt" class="text-red-500" fixed-width aria-hidden="true" /></template>
+							</Button>
+						</div>
+					</template>
+				</draggable>
+				<Button type="dashed" size="xs" :label="ctrans('Add step')" @click="instructionsForm.steps.push(newStep())">
+					<template #icon><FontAwesomeIcon :icon="faPlus" class="text-[--app-accent]" fixed-width aria-hidden="true" /></template>
+				</Button>
+				<div v-if="data.copy_candidates.length" class="max-w-xl space-y-1">
+					<span class="block text-xs text-gray-500">
+						<FontAwesomeIcon :icon="faCopy" fixed-width aria-hidden="true" />
+						{{ ctrans("Same steps for other products of this supplier (optional)") }}
+					</span>
+					<MultiSelect v-model="instructionsForm.copy_to" :options="copyOptions" optionLabel="label" optionValue="id" filter display="chip" :maxSelectedLabels="5" :placeholder="ctrans('Choose products')" :class="fieldFocusClass" fluid />
+					<p class="text-[11px] text-gray-500">{{ ctrans("Their steps are replaced by these ones.") }}</p>
+				</div>
+				<div v-if="instructionsForm.errors.instructions" class="text-xs text-red-600">{{ instructionsForm.errors.instructions }}</div>
+				<div class="flex gap-2">
+					<Button type="tertiary" :label="ctrans('Cancel')" @click="editingInstructions = false">
+						<template #icon><FontAwesomeIcon :icon="faTimes" class="text-red-500" fixed-width aria-hidden="true" /></template>
+					</Button>
+					<div class="relative">
+						<Button type="secondary" :label="ctrans('Save steps')" :loading="instructionsForm.processing" @click="saveInstructions">
+							<template #icon><FontAwesomeIcon :icon="faCheck" class="text-green-600" fixed-width aria-hidden="true" /></template>
+						</Button>
+						<PingIcon v-if="instructionsForm.isDirty" class="text-[7px] text-red-500 !absolute -top-0.5 -right-0.5" v-tooltip="ctrans('Not saved yet')" aria-hidden="true" />
+					</div>
+				</div>
+			</div>
+
+			<div class="flex flex-wrap items-center gap-2 border-t border-gray-100 pt-3">
+				<template v-if="data.purchase_orders.length">
+					<Select v-model="selectedPurchaseOrder" :options="data.purchase_orders" optionLabel="label" optionValue="url" filter :placeholder="ctrans('Purchase order')" :class="fieldFocusClass" class="min-w-72" size="small" />
+					<Button type="tertiary" size="xs" :label="ctrans('Print packing instructions')" :disabled="!selectedPurchaseOrder" @click="printPackingInstructions">
+						<template #icon><FontAwesomeIcon :icon="faPrint" class="text-gray-500" fixed-width aria-hidden="true" /></template>
+					</Button>
+				</template>
+				<span v-else class="text-xs text-gray-400">{{ ctrans("No open purchase order with this product to print packing instructions for") }}</span>
+			</div>
+		</div>
+
 		<!-- Live spec header -->
 		<div v-if="data.live && !editing" class="space-y-3">
 			<div class="flex flex-wrap items-center gap-3">
@@ -316,7 +423,7 @@ const liveLinesOf = (level: Level) => props.data.live?.lines.filter((line) => li
 				<span v-if="data.live.verified_at" class="text-xs text-gray-500">{{ ctrans("Verified by :name on :date", { name: data.live.verified_by ?? "—", date: formatDate(data.live.verified_at) }) }}</span>
 				<div class="ml-auto flex flex-wrap gap-2">
 					<a :href="data.versions.find((version) => version.id === data.live?.id)?.pdf_url" target="_blank" rel="noopener">
-						<Button type="tertiary" :label="ctrans('Print packing instruction')">
+						<Button type="tertiary" :label="ctrans('Print packing spec')">
 							<template #icon><FontAwesomeIcon :icon="faPrint" class="text-gray-500" fixed-width aria-hidden="true" /></template>
 						</Button>
 					</a>

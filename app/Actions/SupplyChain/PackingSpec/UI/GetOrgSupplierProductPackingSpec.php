@@ -18,7 +18,10 @@ use App\Enums\SupplyChain\PackingSpec\PackingSpecRoleEnum;
 use App\Enums\SupplyChain\PackingSpec\PackingSpecStatusEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Goods\PackagingComponent;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Models\Procurement\OrgSupplierProduct;
+use App\Models\Procurement\PurchaseOrderTransaction;
 use App\Models\SupplyChain\PackingSpecLine;
 use App\Models\SupplyChain\SupplierProductPackingSpec;
 use App\Models\SysAdmin\Organisation;
@@ -34,6 +37,8 @@ class GetOrgSupplierProductPackingSpec
     use AsAction;
 
     public const int COPY_CANDIDATES = 500;
+
+    public const int PURCHASE_ORDERS = 50;
 
     /**
      * @return array<string, mixed>
@@ -103,6 +108,12 @@ class GetOrgSupplierProductPackingSpec
                 'fates'     => PackingSpecFateEnum::labels(),
             ],
             'copy_candidates' => $canEdit ? $this->copyCandidates($orgSupplierProduct, $isAgent ? $agentId : null) : [],
+            'instructions'    => $supplierProduct->packing_instructions ?? [],
+            'instructions_route' => $canEdit ? [
+                'name'       => 'grp.models.org.org_supplier_product.packing_instructions.update',
+                'parameters' => ['organisation' => $viewer->id, 'orgSupplierProduct' => $orgSupplierProduct->id],
+            ] : null,
+            'purchase_orders' => $this->purchaseOrders($supplierProduct->id, $viewer, $agentId),
             'store_route'     => $canEdit ? [
                 'name'       => 'grp.models.org.org_supplier_product.packing_spec.store',
                 'parameters' => ['organisation' => $viewer->id, 'orgSupplierProduct' => $orgSupplierProduct->id],
@@ -161,6 +172,38 @@ class GetOrgSupplierProductPackingSpec
             'return_route' => $canReview && in_array($spec->status, [PackingSpecStatusEnum::SUBMITTED, PackingSpecStatusEnum::VERIFIED]) ? $specRoute('return', $spec) : null,
             'verify_route' => $canReview && in_array($spec->status, [PackingSpecStatusEnum::SUBMITTED, PackingSpecStatusEnum::RETURNED]) ? $specRoute('verify', $spec) : null,
         ];
+    }
+
+    /**
+     * The open purchase orders with this product the viewer may print packing instructions for: the agent's orders for
+     * an agent organisation, the organisation's own otherwise. Newest first.
+     *
+     * @return list<array{label: string, url: string}>
+     */
+    private function purchaseOrders(int $supplierProductId, Organisation $viewer, ?int $agentId): array
+    {
+        $routeName = $agentId ? 'grp.org.agent.purchase_orders.packing_instructions' : 'grp.org.procurement.purchase_orders.packing_instructions';
+
+        return PurchaseOrderTransaction::query()
+            ->join('purchase_orders', 'purchase_orders.id', 'purchase_order_transactions.purchase_order_id')
+            ->join('organisations', 'organisations.id', 'purchase_orders.organisation_id')
+            ->where('purchase_order_transactions.supplier_product_id', $supplierProductId)
+            ->where('purchase_order_transactions.quantity_ordered', '>', 0)
+            ->where('purchase_order_transactions.state', '!=', PurchaseOrderTransactionStateEnum::CANCELLED)
+            ->whereIn('purchase_orders.state', [PurchaseOrderStateEnum::IN_PROCESS, PurchaseOrderStateEnum::SUBMITTED, PurchaseOrderStateEnum::CONFIRMED])
+            ->when(
+                $agentId,
+                fn ($query) => $query->where('purchase_orders.agent_id', $agentId),
+                fn ($query) => $query->where('purchase_orders.organisation_id', $viewer->id)
+            )
+            ->orderByDesc('purchase_orders.date')
+            ->limit(self::PURCHASE_ORDERS)
+            ->get(['purchase_order_transactions.id', 'purchase_order_transactions.quantity_ordered', 'purchase_orders.slug', 'purchase_orders.reference', 'purchase_orders.state as purchase_order_state', 'organisations.code as organisation_code'])
+            ->map(fn ($row) => [
+                'label' => sprintf('%s · %s · %s %s · %s', $row->reference, $row->organisation_code, rtrim(rtrim(number_format((float)$row->quantity_ordered, 3, '.', ''), '0'), '.'), __('units'), PurchaseOrderStateEnum::labels()[$row->purchase_order_state] ?? $row->purchase_order_state),
+                'url'   => route($routeName, ['organisation' => $viewer->slug, 'purchaseOrder' => $row->slug, 'transaction' => $row->id]),
+            ])
+            ->all();
     }
 
     /**

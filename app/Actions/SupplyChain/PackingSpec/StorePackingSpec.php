@@ -46,16 +46,12 @@ use Lorisleiva\Actions\ActionRequest;
 class StorePackingSpec extends OrgAction
 {
     use WithAgentOrganisation;
+    use WithPackingCopyTargets;
     use WithProcurementEditAuthorisation;
 
     public const string PHOTO_SCOPE = 'opened_carton';
 
     private ?SupplierProduct $supplierProduct = null;
-
-    /**
-     * @var Collection<int, OrgSupplierProduct>
-     */
-    private Collection $copyTargets;
 
     public function handle(SupplierProduct $supplierProduct, array $modelData, ?User $user = null, ?Media $photo = null): SupplierProductPackingSpec
     {
@@ -232,34 +228,6 @@ class StorePackingSpec extends OrgAction
             'extension'    => $file->getClientOriginalExtension(),
             'scope'        => self::PHOTO_SCOPE,
         ]);
-    }
-
-    /**
-     * Products the same packing may be copied to: supplied by the same agent when an agent saves it, of the same
-     * organisation when purchasing saves it.
-     *
-     * @return Collection<int, OrgSupplierProduct>
-     */
-    private function copyTargets(OrgSupplierProduct $orgSupplierProduct, array $ids): Collection
-    {
-        if (!$ids) {
-            return collect();
-        }
-
-        $agent = $this->getOrganisationAgent($this->organisation);
-
-        return OrgSupplierProduct::whereIn('id', $ids)
-            ->where('id', '!=', $orgSupplierProduct->id)
-            ->where('supplier_product_id', '!=', $orgSupplierProduct->supplier_product_id)
-            ->when(
-                $agent,
-                fn ($query) => $query->whereHas('orgAgent', fn ($query) => $query->where('agent_id', $agent->id)),
-                fn ($query) => $query->where('organisation_id', $this->organisation->id)
-            )
-            ->with('supplierProduct')
-            ->get()
-            ->unique('supplier_product_id')
-            ->values();
     }
 
     /**

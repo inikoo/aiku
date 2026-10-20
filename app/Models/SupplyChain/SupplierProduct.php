@@ -86,6 +86,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property numeric|null $availability_new_cost new unit cost the supplier asks
  * @property string|null $availability_note
  * @property array<string, mixed> $packaging_terms
+ * @property list<string>|null $packing_instructions the steps the packers follow, in order
  * @property-read \App\Models\SupplyChain\Agent|null $agent
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Currency $currency
@@ -135,6 +136,7 @@ class SupplierProduct extends Model implements HasMedia, Auditable
         'units_per_supplier_unit' => 'decimal:4',
         'carton_dimensions'      => 'array',
         'packaging_terms'        => 'array',
+        'packing_instructions'   => 'array',
         'availability_status'    => SupplierProductAvailabilityStatusEnum::class,
         'unavailable_reason'     => SupplierProductUnavailableReasonEnum::class,
         'available_from'         => 'date',

@@ -8,6 +8,7 @@
 
 namespace App\Actions\Procurement\PurchaseOrder\UI;
 
+use App\Actions\Procurement\PurchaseOrder\PdfPackingInstructions;
 use App\Actions\SupplyChain\PackingSpec\GetPurchaseOrderPackingSpecGaps;
 use App\Events\BroadcastPurchaseOrderLastEdited;
 use App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryFromPurchaseOrder;
@@ -271,6 +272,19 @@ class ShowPurchaseOrder extends OrgAction
                                 ],
                             ],
                         ],
+                        in_array($purchaseOrder->parent_type, ['OrgAgent', 'OrgSupplier']) ? [
+                            'type'    => 'button',
+                            'style'   => 'tertiary',
+                            'label'   => __('Packing instructions'),
+                            'tooltip' => __('One page per product for the packers. Print a single product from the box icon next to its code.'),
+                            'target'  => '_blank',
+                            'icon'    => 'fal fa-box-open',
+                            'key'     => 'packing_instructions',
+                            'route'   => [
+                                'name'       => 'grp.org.procurement.purchase_orders.packing_instructions',
+                                'parameters' => ['organisation' => $this->organisation->slug, 'purchaseOrder' => $purchaseOrder->slug, 'filename' => PdfPackingInstructions::make()->filename($purchaseOrder)],
+                            ],
+                        ] : false,
                         ...($uploadExcel ? [] : [$this->downloadExcelAction($purchaseOrder)]),
                         ...($this->emailToSupplierAction($purchaseOrder) ?? []),
                         ...match (true) {

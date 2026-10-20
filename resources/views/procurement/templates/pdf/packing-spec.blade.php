@@ -8,7 +8,7 @@
 <html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
-    <title>{{ __('Packing instruction') }} {{ $product->code }}</title>
+    <title>{{ __('Packing spec') }} {{ $product->code }}</title>
     <style>
         body { font-family: sans-serif; font-size: 10pt; color: #222; }
         table { border-collapse: collapse; }
@@ -30,7 +30,7 @@
     </style>
 </head>
 <body>
-    <div class="heading">{{ mb_strtoupper(__('Packing instruction')) }} · {{ $product->code }}</div>
+    <div class="heading">{{ mb_strtoupper(__('Packing spec')) }} · {{ $product->code }}</div>
     <div class="sub">{{ $product->name }}@if($product->supplier) · {{ $product->supplier->name }}@endif</div>
     <div class="sub">{{ __('Version') }} {{ $spec->version }} · {{ __('Effective from') }} {{ $spec->effective_from->format('d/m/Y') }}</div>
 
