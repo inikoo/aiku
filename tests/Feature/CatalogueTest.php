@@ -2090,6 +2090,25 @@ test('faire discontinue is skipped when faire returns far fewer live products th
         ->and($products->every(fn ($product) => $product->refresh()->state !== \App\Enums\Catalogue\Product\ProductStateEnum::DISCONTINUED))->toBeTrue();
 });
 
+test('a packing slip faire refuses is retried, and the last refusal is reported without failing the job', function () {
+    $faireShop = StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), [
+        'type'   => ShopTypeEnum::EXTERNAL->value,
+        'engine' => \App\Enums\Catalogue\Shop\ShopEngineEnum::FAIRE->value,
+    ]));
+    [, $product] = createProduct($faireShop);
+    $order = createOrder(createCustomer($faireShop), $product);
+    $order->update(['external_id' => 'bo_refused_slip']);
+
+    \Illuminate\Support\Facades\Http::fake(['*packing-slip-pdf*' => \Illuminate\Support\Facades\Http::response(['message' => 'Not found'], 404)]);
+
+    expect(fn () => \App\Actions\Catalogue\Shop\External\Faire\DownloadFairePackingPdfSlip::make()->handle($order->id, isLastAttempt: false))
+        ->toThrow(\Exception::class, 'Faire has no packing slip PDF yet');
+
+    \App\Actions\Catalogue\Shop\External\Faire\DownloadFairePackingPdfSlip::run($order->id);
+
+    expect(DB::table('model_has_attachments')->where('model_type', 'Order')->where('model_id', $order->id)->exists())->toBeFalse();
+});
+
 function createRetiredProductSharingReplacementWebpage(Shop $shop, array $tradeUnits): array
 {
     $storeProduct = fn (string $code) => StoreProduct::make()->action($shop, array_merge(

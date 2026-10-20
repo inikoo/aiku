@@ -24,9 +24,9 @@ trait WithBasketStockIssues
      *
      * @return array{low_stock: list<array{transaction_id:int, product_id:int, code:string, name:string, quantity_ordered:float, held_quantity:float, available_quantity:float}>, out_of_stock: list<array{transaction_id:int, product_id:int, code:string, name:string, quantity_ordered:float, held_quantity:float, available_quantity:float}>}
      */
-    protected function getBasketStockIssues(Order $order): array
+    protected function getBasketStockIssues(Order $order, ?array $basketPreOrders = null): array
     {
-        $preOrderTransactionIds = array_keys(GetBasketPreOrders::run($order)['lines']);
+        $preOrderTransactionIds = array_keys(($basketPreOrders ?? GetBasketPreOrders::run($order))['lines']);
 
         $lines = DB::table('transactions')
             ->join('assets', 'transactions.asset_id', '=', 'assets.id')

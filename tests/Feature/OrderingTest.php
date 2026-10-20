@@ -6667,3 +6667,167 @@ test('staging order references end in -test so they never match a live order num
         ->and($stagingReference)->toEndWith('-test')
         ->and(substr($stagingReference, 0, -5))->not->toBe($liveReference);
 });
+
+test('adding and removing basket lines keeps totals, discounts, shipping and charges, in fewer queries', function () {
+    $this->withoutVite();
+    $website = createWebsite($this->shop);
+    $website->update(['status' => true]);
+
+    $schema = StoreShippingZoneSchema::make()->action($this->shop, ['name' => 'basket query budget']);
+    StoreShippingZone::make()->action($schema, [
+        'code'        => 'ZONE-BUDGET',
+        'name'        => 'France',
+        'status'      => true,
+        'price'       => ['type' => 'Step Order Items Net Amount', 'steps' => [['from' => 0, 'to' => 50, 'price' => 8], ['from' => 50, 'to' => 'INF', 'price' => 4]]],
+        'territories' => [['country_code' => 'FR']],
+        'position'    => 1,
+        'is_failover' => false,
+    ]);
+    $this->shop->update(['shipping_zone_schema_id' => $schema->id]);
+
+    $charge = $this->shop->charges()->where('type', ChargeTypeEnum::HANGING)->first() ?? StoreCharge::make()->action($this->shop, [
+        'code'        => 'SOCB',
+        'name'        => 'SOCB',
+        'description' => 'small order charge',
+        'type'        => ChargeTypeEnum::HANGING,
+    ]);
+    $chargeBefore = DB::table('charges')->where('id', $charge->id)->first(['state', 'settings']);
+    $this->beforeApplicationDestroyed(fn () => DB::table('charges')->where('id', $charge->id)->update((array) $chargeBefore));
+    UpdateCharge::make()->action($charge, ['state' => ChargeStateEnum::ACTIVE, 'min_order' => 60, 'amount' => 3], strict: false);
+
+    $customer = freshCustomerLike($this->shop, $this->customer);
+    \App\Actions\Discounts\Offer\StoreCustomerOffers::run($this->shop, [
+        'customer_id'      => $customer->id,
+        'min_order_amount' => 0,
+        'percentage_off'   => 10,
+        'target_type'      => 'shop',
+        'target_id'        => $this->shop->id,
+        'duration'         => 'permanent',
+        'start_at'         => now()->subDay(),
+    ]);
+    $webUser = \App\Actions\CRM\WebUser\StoreWebUser::make()->action($customer, [
+        'username' => 'budget'.$customer->id,
+        'email'    => 'budget'.$customer->id.'@testmail.com',
+        'password' => 'test',
+    ]);
+
+    $modelData = Order::factory()->definition();
+    data_set($modelData, 'billing_address', new Address(Address::factory()->definition()));
+    data_set($modelData, 'delivery_address', new Address(Address::factory()->definition()));
+    $basket = StoreOrder::make()->action($customer, $modelData);
+    $basket->deliveryAddress->update(['country_code' => 'FR', 'postal_code' => '75001']);
+    $customer->update(['current_order_in_basket_id' => $basket->id]);
+
+    [, $bulk] = createProduct($this->shop);
+    $products = collect([10, 20, 30])->map(fn ($price) => tap(StoreProduct::make()->action($bulk->family, array_merge(
+        Product::factory()->definition(),
+        ['trade_units' => [['id' => $bulk->tradeUnits->first()->id, 'quantity' => 1]], 'price' => $price]
+    )))->update(['status' => ProductStatusEnum::FOR_SALE, 'available_quantity' => 100]));
+
+    $count = 0;
+    DB::listen(function () use (&$count) {
+        $count++;
+    });
+    $queriesOf = function (callable $request) use (&$count): int {
+        $count = 0;
+        $request();
+
+        return $count;
+    };
+
+    $snapshot = function () use ($basket) {
+        $order = $basket->fresh();
+
+        return [
+            'order'      => collect($order->only(['net_amount', 'gross_amount', 'goods_amount', 'shipping_amount', 'charges_amount', 'tax_amount', 'total_amount', 'amount_off', 'number_item_transactions']))->map(fn ($value) => (float) $value)->all(),
+            'lines'      => $order->transactions()->orderBy('model_type')->orderBy('gross_amount')->get()->map(fn (Transaction $line) => [
+                $line->model_type, (float) $line->quantity_ordered, (float) $line->gross_amount, (float) $line->net_amount, round((float) $line->current_discount_factor, 6), Arr::get($line->offers_data, 'o.t'),
+            ])->all(),
+            'allowances' => DB::table('transaction_has_offer_allowances')->where('order_id', $order->id)->count(),
+            'in_basket'  => (float) $order->customer->amount_in_basket,
+        ];
+    };
+
+    $storeQueries = $products->map(fn (Product $product) => $queriesOf(fn () => $this->actingAs($webUser->fresh(), 'retina')
+        ->postJson('http://'.$website->domain.'/models/'.$product->id.'/store-transaction', ['quantity' => 2])
+        ->assertOk()))->all();
+
+    expect($snapshot())->toBe([
+        'order'      => ['net_amount' => 112.0, 'gross_amount' => 120.0, 'goods_amount' => 108.0, 'shipping_amount' => 4.0, 'charges_amount' => 0.0, 'tax_amount' => 0.0, 'total_amount' => 112.0, 'amount_off' => 0.0, 'number_item_transactions' => 3.0],
+        'lines'      => [
+            ['Product', 2.0, 20.0, 18.0, 0.9, 'percentage'],
+            ['Product', 2.0, 40.0, 36.0, 0.9, 'percentage'],
+            ['Product', 2.0, 60.0, 54.0, 0.9, 'percentage'],
+            ['ShippingZone', 1.0, 4.0, 4.0, 1.0, null],
+        ],
+        'allowances' => 3,
+        'in_basket'  => 112.0,
+    ]);
+
+    $line          = $basket->transactions()->where('model_type', 'Product')->where('model_id', $products[2]->id)->first();
+    $deleteQueries = $queriesOf(fn () => $this->actingAs($webUser->fresh(), 'retina')
+        ->delete('http://'.$website->domain.'/app/models/transaction/'.$line->id)
+        ->assertSessionHasNoErrors());
+
+    $afterDelete = [
+        'order'      => ['net_amount' => 61.0, 'gross_amount' => 60.0, 'goods_amount' => 54.0, 'shipping_amount' => 4.0, 'charges_amount' => 3.0, 'tax_amount' => 0.0, 'total_amount' => 61.0, 'amount_off' => 0.0, 'number_item_transactions' => 2.0],
+        'lines'      => [
+            ['Charge', 1.0, 3.0, 3.0, 1.0, null],
+            ['Product', 2.0, 20.0, 18.0, 0.9, 'percentage'],
+            ['Product', 2.0, 40.0, 36.0, 0.9, 'percentage'],
+            ['ShippingZone', 1.0, 4.0, 4.0, 1.0, null],
+        ],
+        'allowances' => 2,
+        'in_basket'  => 61.0,
+    ];
+    expect($snapshot())->toBe($afterDelete);
+
+    $page        = null;
+    $showQueries = $queriesOf(function () use ($webUser, $website, &$page) {
+        $page = $this->actingAs($webUser->fresh(), 'retina')->get('http://'.$website->domain.'/app/basket')->assertOk()->viewData('page')['props'];
+    });
+
+    expect($page['pre_orders'])->toMatchArray(['deferred_amount' => 0, 'pay_now_amount' => 61, 'lines' => [], 'has_pre_orders' => false, 'has_in_stock_lines' => true])
+        ->and($page['stock_issues'])->toBe(['low_stock' => [], 'out_of_stock' => []])
+        ->and(collect($page['charges'])->map(fn ($charge) => $charge['id'] ?? null)->all())->toBe(collect([
+            'premium_dispatch' => ChargeTypeEnum::PREMIUM,
+            'extra_packing'    => ChargeTypeEnum::PACKING,
+            'insurance'        => ChargeTypeEnum::INSURANCE,
+            'gift_message'     => ChargeTypeEnum::GIFT_MESSAGE,
+        ])->map(fn (ChargeTypeEnum $type) => $this->shop->charges()->where('type', $type)->where('state', ChargeStateEnum::ACTIVE)->first()?->id)->all())
+        ->and(collect($this->actingAs($webUser->fresh(), 'retina')->get('http://'.$website->domain.'/app/checkout')->assertOk()->viewData('page')['props'])->only(['stock_issues', 'pre_orders'])->all())
+        ->toBe(['stock_issues' => $page['stock_issues'], 'pre_orders' => $page['pre_orders']])
+        ->and($storeQueries[0])->toBeLessThan(210)
+        ->and($storeQueries[1])->toBeLessThan(150)
+        ->and($storeQueries[2])->toBeLessThan(143)
+        ->and($deleteQueries)->toBeLessThan(172)
+        ->and($showQueries)->toBeLessThan(71);
+
+    $rowVersions = fn () => DB::table('transactions')->where('order_id', $basket->id)->orderBy('id')->selectRaw('id, xmin::text as row_version')->pluck('row_version', 'id')->all();
+    $versionsBefore = $rowVersions();
+    \App\Actions\Ordering\Order\CalculateOrderDiscounts::run($basket->fresh());
+    expect($rowVersions())->toBe($versionsBefore)
+        ->and($snapshot())->toBe($afterDelete);
+
+    \App\Models\Discounts\Offer::where('customer_id', $customer->id)->update(['status' => false]);
+    CalculateOrderTotalAmounts::run($basket->fresh(), forceRecalculate: true);
+    expect($snapshot()['lines'])->toBe([
+        ['Product', 2.0, 20.0, 20.0, 1.0, null],
+        ['Product', 2.0, 40.0, 40.0, 1.0, null],
+        ['ShippingZone', 1.0, 4.0, 4.0, 1.0, null],
+    ]);
+});
+
+test('a customer\'s order list dates an order by when it was placed, so an old basket placed today is at the top', function () {
+    $customer  = StoreCustomer::make()->action($this->shop, Customer::factory()->definition());
+    $oldBasket = StoreOrder::make()->action($customer, []);
+    $recent    = StoreOrder::make()->action($customer, []);
+    $oldBasket->update(['state' => OrderStateEnum::SUBMITTED, 'date' => now()->subMonths(3), 'submitted_at' => now()]);
+    $recent->update(['state' => OrderStateEnum::SUBMITTED, 'date' => now()->subWeek(), 'submitted_at' => now()->subWeek()]);
+
+    request()->setRouteResolver(fn () => (new Illuminate\Routing\Route('GET', 'app/orders', []))->name('retina.ecom.orders.index'));
+    $rows = collect(App\Actions\Retina\Ecom\Orders\IndexRetinaEcomOrders::make()->handle($customer)->items());
+
+    expect($rows->pluck('id')->take(2)->all())->toBe([$oldBasket->id, $recent->id])
+        ->and(Illuminate\Support\Carbon::parse($rows->first()->date)->isToday())->toBeTrue();
+});

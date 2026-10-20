@@ -127,9 +127,6 @@ class GetIrisWebBlockBanner
         if (in_array('avif', config('img-proxy.formats')) && !$media->is_animated) {
             $sources['avif'] = GetImgProxyUrl::run($media->getImage()->resize($maxWidth, $maxWidth)->extension('avif'));
         }
-        if (in_array('webp', config('img-proxy.formats'))) {
-            $sources['webp'] = GetImgProxyUrl::run($media->getImage()->resize($maxWidth, $maxWidth)->extension('webp'));
-        }
 
         return $sources;
     }

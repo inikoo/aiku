@@ -1221,12 +1221,23 @@ test('staff can flag a closed-now reply as wrong, but not an ordinary message', 
     outOfHoursTestCleanUp($schedule, [$session]);
 });
 
-test('chat availability answers offline for a shop without a website and needs a shop', function () {
+test('chat availability answers offline for a shop without a website, works it out once per minute and needs a shop', function () {
     $shop = \App\Actions\Catalogue\Shop\StoreShop::make()->action($this->organisation, \App\Models\Catalogue\Shop::factory()->definition());
 
-    $this->getJson(route('grp.api.chats.availability', ['shop_id' => $shop->id]))
-        ->assertOk()
-        ->assertExactJson(['is_online' => false]);
+    $shopLoads = 0;
+    \Illuminate\Support\Facades\DB::listen(function ($query) use (&$shopLoads) {
+        if (str_starts_with($query->sql, 'select * from "shops"')) {
+            $shopLoads++;
+        }
+    });
+
+    foreach ([1, 2] as $poll) {
+        $this->getJson(route('grp.api.chats.availability', ['shop_id' => $shop->id]))
+            ->assertOk()
+            ->assertExactJson(['is_online' => false]);
+    }
+
+    expect($shopLoads)->toBe(1);
 
     $this->getJson(route('grp.api.chats.availability'))->assertUnprocessable();
 });

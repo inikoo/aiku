@@ -35,6 +35,14 @@ class SendSesEmail
 
     private const THROTTLE_BACKOFF_JITTER_MICROSECONDS = 50000;
 
+    private const REUSE_SECONDS = 20;
+
+    /** @var array<int, array{expires_at: float, candidates: array<int, array{key: string, secret: string, region: string, level: string}>}> */
+    private static array $credentialCandidatesByOutbox = [];
+
+    /** @var array<string, array{last_used_at: float, client: SesClient}> */
+    private static array $sesClients = [];
+
     public mixed $message;
 
     // reference: AWS SES error codes
@@ -126,11 +134,11 @@ class SendSesEmail
             print "Start try to send  process to {$dispatchedEmail->emailAddress?->email} ".now()->toDateTimeString()."\n";
         }
 
-        $credentialCandidates = ProcessGetSesClient::run($dispatchedEmail->outbox_id);
+        $credentialCandidates = $this->getCredentialCandidates($dispatchedEmail->outbox_id);
         $sent                 = false;
 
         foreach ($credentialCandidates as $candidateIndex => $credentials) {
-            $sesClient = $this->buildSesClient($credentials);
+            $sesClient = $this->getReusableSesClient($credentials);
             $attempt   = 0;
 
             do {
@@ -241,6 +249,56 @@ class SendSesEmail
 
 
         return $dispatchedEmail;
+    }
+
+    /**
+     * A bulk send asks for the same outbox's credentials once per recipient; reading the outbox and
+     * its shop again for each one is two queries per email. A credential change is picked up within
+     * REUSE_SECONDS.
+     *
+     * @return array<int, array{key: string, secret: string, region: string, level: string}>
+     */
+    public function getCredentialCandidates(?int $outboxId): array
+    {
+        if (!$outboxId) {
+            return ProcessGetSesClient::run($outboxId);
+        }
+
+        $cached = self::$credentialCandidatesByOutbox[$outboxId] ?? null;
+        if ($cached && $cached['expires_at'] > microtime(true)) {
+            return $cached['candidates'];
+        }
+
+        $candidates = ProcessGetSesClient::run($outboxId);
+
+        self::$credentialCandidatesByOutbox[$outboxId] = [
+            'expires_at' => microtime(true) + self::REUSE_SECONDS,
+            'candidates' => $candidates,
+        ];
+
+        return $candidates;
+    }
+
+    /**
+     * A new SesClient opens a new TLS connection to SES, so every email paid for a handshake.
+     * Back-to-back sends reuse the client and its warm connection; one idle for REUSE_SECONDS is
+     * replaced so a send never rides a connection SES may already have closed.
+     */
+    public function getReusableSesClient(array $credentials): SesClient
+    {
+        $now      = microtime(true);
+        $cacheKey = hash('sha256', $credentials['region']."\0".$credentials['key']."\0".$credentials['secret']);
+
+        self::$sesClients = array_filter(self::$sesClients, fn (array $entry) => $now - $entry['last_used_at'] < self::REUSE_SECONDS);
+
+        $client = self::$sesClients[$cacheKey]['client'] ?? $this->buildSesClient($credentials);
+
+        self::$sesClients[$cacheKey] = [
+            'last_used_at' => $now,
+            'client'       => $client,
+        ];
+
+        return $client;
     }
 
     /**

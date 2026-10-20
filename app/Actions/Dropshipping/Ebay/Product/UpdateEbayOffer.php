@@ -76,7 +76,7 @@ class UpdateEbayOffer implements ShouldBeUnique
             $error = EbayUser::ebayResponseError($response);
 
             if ($error) {
-                UpdatePlatformPortfolioLog::dispatch($platformPortfolioLog, [
+                UpdatePlatformPortfolioLog::run($platformPortfolioLog, [
                     'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
                     'response' => 'E1: '.json_encode($response)
                 ]);
@@ -84,11 +84,11 @@ class UpdateEbayOffer implements ShouldBeUnique
                 return $error;
             }
 
-            UpdatePlatformPortfolioLog::dispatch($platformPortfolioLog, [
+            UpdatePlatformPortfolioLog::run($platformPortfolioLog, [
                 'status' => PlatformPortfolioLogsStatusEnum::OK
             ]);
         } catch (Throwable $e) {
-            UpdatePlatformPortfolioLog::dispatch($platformPortfolioLog, [
+            UpdatePlatformPortfolioLog::run($platformPortfolioLog, [
                 'status' => PlatformPortfolioLogsStatusEnum::FAIL,
                 'response' => 'E2: ' . $e->getMessage()
             ]);

@@ -1,5 +1,17 @@
-/home/aiku/aiku/shared/local_storage/logs/*.log /home/aiku/logs/nginx-webhooks-access.log {
+/home/aiku/aiku/shared/local_storage/logs/laravel.log {
     su aiku aiku
+    maxsize 100M
+    daily
+    rotate 7
+    compress
+    delaycompress
+    missingok
+    notifempty
+    copytruncate
+}
+
+/home/aiku/logs/nginx-webhooks-access.log /home/aiku/logs/nginx-octane-error.log {
+    su www-data aiku
     maxsize 100M
     daily
     rotate 7

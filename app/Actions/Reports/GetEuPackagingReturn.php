@@ -12,21 +12,27 @@ use App\Enums\Goods\Packaging\EprSchemeEnum;
 use App\Enums\Goods\Packaging\PackagingMaterialCategoryEnum;
 use App\Enums\Goods\Packaging\PackagingPolymerEnum;
 use App\Models\Goods\EprMaterialMapping;
+use App\Models\Helpers\Country;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
- * The packaging an organisation in an EU country placed on its own market in a period, in the materials of that
- * country's scheme (Slovakia reports quarterly to its OZV): the sales packaging of what it dispatched to addresses in
- * its country, plus an estimate of the shipment packaging those parcels went out in, taken as the shipment packaging
- * it used in the period times the share of its parcels that stayed in the country. Goods sent to other countries fall
- * under their schemes and are left out. Plastics without a polymer take the scheme's general plastic line.
+ * The packaging an organisation placed on one country's market in a period, in the materials of that country's scheme.
+ *
+ * For its own country (Slovakia reports quarterly to its OZV) that is the sales packaging of everything it dispatched to
+ * addresses there. For another country it is distance selling: only parcels to consumers (dropshipping, retail and
+ * marketplace orders) count, because a trade customer who receives the goods is usually the importer and reports them
+ * itself; those are totalled apart so the split can be checked. Both add an estimate of the shipment packaging the
+ * parcels went out in: the shipment packaging used in the period times the share of parcels that count. Plastics
+ * without a polymer take the scheme's general plastic line.
  */
 class GetEuPackagingReturn
 {
     use AsAction;
+
+    public const string CONSUMER_CHANNEL_SQL = "(l.shop_type IN ('dropshipping', 'b2c') OR l.platform_id IS NOT NULL)";
 
     public function scheme(Organisation $organisation): ?EprSchemeEnum
     {
@@ -36,14 +42,31 @@ class GetEuPackagingReturn
     }
 
     /**
+     * The schemes a return can be produced for, the organisation's own first.
+     *
+     * @return list<EprSchemeEnum>
+     */
+    public function schemes(Organisation $organisation): array
+    {
+        $own = $this->scheme($organisation);
+
+        return array_values(array_filter(
+            [$own, ...array_filter(EprSchemeEnum::cases(), fn (EprSchemeEnum $scheme) => $scheme !== $own)],
+            fn (?EprSchemeEnum $scheme) => $scheme && $scheme !== EprSchemeEnum::UK
+        ));
+    }
+
+    /**
      * @return array<string, mixed>
      */
-    public function handle(Organisation $organisation, Carbon $from, Carbon $to): array
+    public function handle(Organisation $organisation, Carbon $from, Carbon $to, ?EprSchemeEnum $scheme = null): array
     {
-        $scheme   = $this->scheme($organisation);
-        $current  = $this->materials($organisation, $scheme, $from, $to);
-        $days     = (int)$from->diffInDays($to) + 1;
-        $previous = $this->materials($organisation, $scheme, $from->copy()->subDays($days), $from->copy()->subDay());
+        $scheme ??= $this->schemes($organisation)[0];
+        $countryId = Country::where('code', $scheme->countryCode())->value('id');
+        $domestic  = $countryId === $organisation->country_id;
+        $current   = $this->materials($organisation, $scheme, $countryId, $domestic, $from, $to);
+        $days      = (int)$from->diffInDays($to) + 1;
+        $previous  = $this->materials($organisation, $scheme, $countryId, $domestic, $from->copy()->subDays($days), $from->copy()->subDay());
 
         $rows = [];
         foreach (array_unique([...array_keys($current['kg']), ...array_keys($previous['kg'])]) as $key) {
@@ -63,15 +86,18 @@ class GetEuPackagingReturn
         usort($rows, fn (array $a, array $b) => $b['kg'] <=> $a['kg']);
 
         return [
-            'scheme'                  => $scheme?->value,
-            'scheme_label'            => $scheme ? EprSchemeEnum::labels()[$scheme->value] : null,
+            'scheme'                  => $scheme->value,
+            'scheme_label'            => EprSchemeEnum::labels()[$scheme->value],
+            'schemes'                 => array_map(fn (EprSchemeEnum $option) => ['value' => $option->value, 'label' => EprSchemeEnum::labels()[$option->value]], $this->schemes($organisation)),
+            'domestic'                => $domestic,
             'from'                    => $from->toDateString(),
             'to'                      => $to->toDateString(),
             'has_data'                => $current['has_data'],
             'kg'                      => round(array_sum($current['kg']), 1),
             'previous_kg'             => $previous['has_data'] ? round(array_sum($previous['kg']), 1) : null,
             'rows'                    => $rows,
-            'domestic_parcel_share'   => $current['domestic_parcel_share'],
+            'trade_kg'                => round($current['trade_kg'], 1),
+            'parcel_share'            => $current['parcel_share'],
             'plastic_without_polymer' => round($current['plastic_without_polymer'], 1),
             'units_without_weights'   => $current['units_without_weights'],
             'units'                   => $current['units'],
@@ -79,15 +105,21 @@ class GetEuPackagingReturn
     }
 
     /**
-     * @return array{kg: array<string, float>, sales: array<string, float>, shipment: array<string, float>, has_data: bool, domestic_parcel_share: float|null, plastic_without_polymer: float, units: float, units_without_weights: float}
+     * @return array{kg: array<string, float>, sales: array<string, float>, shipment: array<string, float>, has_data: bool, parcel_share: float|null, trade_kg: float, plastic_without_polymer: float, units: float, units_without_weights: float}
      */
-    private function materials(Organisation $organisation, ?EprSchemeEnum $scheme, Carbon $from, Carbon $to): array
+    private function materials(Organisation $organisation, EprSchemeEnum $scheme, ?int $countryId, bool $domestic, Carbon $from, Carbon $to): array
     {
+        $consumer = self::CONSUMER_CHANNEL_SQL;
+        $sold     = $domestic
+            ? "l.activity = 'sold_domestic'"
+            : "l.activity = 'exported' AND l.counterparty_country_id = ".(int)$countryId;
+        $counts   = $domestic ? 'TRUE' : $consumer;
         $bindings = [$organisation->id, $from->toDateString(), $to->toDateString()];
 
         $weights = DB::select(
-            <<<'SQL'
-            SELECT l.activity, pc.material_category, pc.polymer, SUM(l.quantity * pc.weight_g * fhc.quantity_per_unit) / 1000 AS kg
+            <<<SQL
+            SELECT CASE WHEN l.activity = 'shipment_packaging' THEN 'shipment' WHEN $counts THEN 'sales' ELSE 'trade' END AS bucket,
+                pc.material_category, pc.polymer, SUM(l.quantity * pc.weight_g * fhc.quantity_per_unit) / 1000 AS kg
             FROM epr_flow_lines l
             LEFT JOIN org_stocks os ON os.id = l.org_stock_id
             JOIN trade_units tu ON tu.id = l.trade_unit_id
@@ -96,57 +128,58 @@ class GetEuPackagingReturn
             JOIN packaging_components pc ON pc.id = fhc.packaging_component_id
             WHERE l.organisation_id = ? AND l.date BETWEEN ? AND ?
               AND pc.weight_g > 0
-              AND ((l.activity = 'sold_domestic' AND NOT COALESCE(os.is_shipment_packaging, FALSE))
+              AND (($sold AND NOT COALESCE(os.is_shipment_packaging, FALSE))
                 OR (l.activity = 'shipment_packaging' AND COALESCE(os.is_shipment_packaging, FALSE)))
-            GROUP BY l.activity, pc.material_category, pc.polymer
+            GROUP BY 1, pc.material_category, pc.polymer
             SQL,
             $bindings
         );
 
         $units = DB::selectOne(
-            <<<'SQL'
+            <<<SQL
             SELECT SUM(l.quantity) AS units,
                 SUM(l.quantity) FILTER (WHERE NOT EXISTS (SELECT 1 FROM packaging_family_has_components c WHERE c.packaging_family_id = tu.packaging_family_id)) AS without_weights
             FROM epr_flow_lines l
             LEFT JOIN trade_units tu ON tu.id = l.trade_unit_id
-            WHERE l.organisation_id = ? AND l.date BETWEEN ? AND ? AND l.activity = 'sold_domestic'
+            WHERE l.organisation_id = ? AND l.date BETWEEN ? AND ? AND $sold AND $counts
             SQL,
             $bindings
         );
 
-        $parcels = DB::selectOne(
-            <<<'SQL'
-            SELECT COUNT(*) AS all_notes, COUNT(*) FILTER (WHERE dn.delivery_country_id = o.country_id) AS domestic
+        $parcelsCount = $domestic ? 'TRUE' : str_replace('l.', 'dn.', $consumer);
+        $parcels      = DB::selectOne(
+            <<<SQL
+            SELECT COUNT(*) AS all_notes, COUNT(*) FILTER (WHERE dn.delivery_country_id = ? AND $parcelsCount) AS counted
             FROM delivery_notes dn
-            JOIN organisations o ON o.id = dn.organisation_id
             WHERE dn.warehouse_id IN (SELECT id FROM warehouses WHERE organisation_id = ?)
-              AND dn.organisation_id = o.id AND dn.deleted_at IS NULL AND dn.state = 'dispatched'
+              AND dn.organisation_id = ? AND dn.deleted_at IS NULL AND dn.state = 'dispatched'
               AND dn.dispatched_at >= ?::date AND dn.dispatched_at < ?::date + 1
             SQL,
-            $bindings
+            [$countryId, $organisation->id, ...$bindings]
         );
-        $share = $parcels->all_notes > 0 ? $parcels->domestic / $parcels->all_notes : null;
+        $share = $parcels->all_notes > 0 ? $parcels->counted / $parcels->all_notes : null;
 
-        $result = ['kg' => [], 'sales' => [], 'shipment' => [], 'has_data' => $weights !== [], 'domestic_parcel_share' => $share === null ? null : round($share * 100, 1),
+        $result = ['kg' => [], 'sales' => [], 'shipment' => [], 'has_data' => false, 'parcel_share' => $share === null ? null : round($share * 100, 1), 'trade_kg' => 0.0,
                    'plastic_without_polymer' => 0.0, 'units' => (float)$units->units, 'units_without_weights' => (float)$units->without_weights];
-        if (!$scheme) {
-            return $result;
-        }
 
         $mappings = [];
         foreach ($weights as $row) {
-            $kg = (float)$row->kg * ($row->activity === 'shipment_packaging' ? ($share ?? 0) : 1);
+            if ($row->bucket === 'trade') {
+                $result['trade_kg'] += (float)$row->kg;
+                continue;
+            }
+            $kg = (float)$row->kg * ($row->bucket === 'shipment' ? ($share ?? 0) : 1);
             if ($kg <= 0) {
                 continue;
             }
+            $result['has_data'] = true;
             $mappingKey = $row->material_category.'|'.$row->polymer;
             $mappings[$mappingKey] ??= EprMaterialMapping::resolve($scheme, PackagingMaterialCategoryEnum::from($row->material_category), $row->polymer ? PackagingPolymerEnum::from($row->polymer) : null);
             $mapping = $mappings[$mappingKey];
             $key     = ($mapping?->scheme_material ?? $row->material_category).'|'.$mapping?->scheme_subcategory;
 
-            $bucket                    = $row->activity === 'shipment_packaging' ? 'shipment' : 'sales';
-            $result[$bucket][$key]     = ($result[$bucket][$key] ?? 0) + $kg;
-            $result['kg'][$key]        = ($result['kg'][$key] ?? 0) + $kg;
+            $result[$row->bucket][$key] = ($result[$row->bucket][$key] ?? 0) + $kg;
+            $result['kg'][$key]         = ($result['kg'][$key] ?? 0) + $kg;
             if ($row->material_category === 'plastic' && !$row->polymer) {
                 $result['plastic_without_polymer'] += $kg;
             }

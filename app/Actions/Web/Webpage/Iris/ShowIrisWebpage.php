@@ -243,9 +243,26 @@ class ShowIrisWebpage
     }
 
 
+    /**
+     * Storefront pictures offer avif with the original as fallback; the webp variants stored in
+     * web_images are for the back office only.
+     */
+    public function withoutWebpImages(array $data): array
+    {
+        foreach ($data as $key => $value) {
+            if (($key === 'webp' || $key === 'webp_2x') && is_string($value)) {
+                unset($data[$key]);
+            } elseif (is_array($value)) {
+                $data[$key] = $this->withoutWebpImages($value);
+            }
+        }
+
+        return $data;
+    }
+
     private function withShortImageUrls(array $webpageData, Website $website): array
     {
-        return ShortenWebsiteImageUrls::run($webpageData, $website, $this->getEnvironmentUrl($website->storefront?->getCanonicalUrl() ?? $website->getUrl()));
+        return ShortenWebsiteImageUrls::run($this->withoutWebpImages($webpageData), $website, $this->getEnvironmentUrl($website->storefront?->getCanonicalUrl() ?? $website->getUrl()));
     }
 
     public function getEnvironmentUrl($url)

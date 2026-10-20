@@ -14,6 +14,7 @@ export type WhatsappCall = {
     status: "ringing" | "in_progress" | "completed" | "missed" | "rejected" | "failed"
     direction: "user_initiated" | "business_initiated"
     phone_number: string | null
+    caller?: string | null
     user_id: number | null
     user_name?: string | null
     duration_seconds: number | null
@@ -49,7 +50,7 @@ const notifyAnsweredElsewhere = (payload: WhatsappCall) =>
         title: ctrans("WhatsApp call answered"),
         text: ctrans(":name is handling the call from :phone", {
             name: payload.user_name ?? ctrans("Another customer service"),
-            phone: payload.phone_number ?? "",
+            phone: payload.caller ?? payload.phone_number ?? "",
         }),
         type: "info",
     })

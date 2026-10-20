@@ -1603,6 +1603,34 @@ test('an agent invoices a container from its lines, its charges are the ledger l
     expect(fn () => StoreAgentInvoice::make()->handle($agent, $stockDelivery->refresh()))->toThrow(ValidationException::class);
 });
 
+test('the buyer enters the paper invoice of an agent container still in process, then dispatches it (HELP-3947)', function () {
+    $this->withoutVite();
+    $agent         = createFreshOrgAgent($this)->agent;
+    $stockDelivery = createStockDeliveryWithItems($this, 'AGENT-PAPER-'.Str::random(6), [10]);
+    $stockDelivery->updateQuietly(['agent_id' => $agent->id]);
+
+    expect($stockDelivery->refresh()->state)->toBe(StockDeliveryStateEnum::IN_PROCESS);
+
+    $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('stock_delivery.state', StockDeliveryStateEnum::IN_PROCESS->value)
+            ->where('box_stats.invoice_entry.is_agent', true));
+
+    $this->patch(route('grp.models.stock-delivery.dispatch', $stockDelivery->id))->assertSessionHasErrors('invoice');
+
+    $this->post(route('grp.models.stock-delivery.invoice.store', $stockDelivery->id), [
+        'reference'    => 'AW CHINA-143',
+        'date'         => '2026-09-30',
+        'goods_amount' => 340511.24,
+        'charges'      => [],
+    ])->assertSessionHasNoErrors();
+
+    $this->patch(route('grp.models.stock-delivery.dispatch', $stockDelivery->id), ['reason' => 'Packing list comes with the goods'])->assertSessionHasNoErrors();
+
+    expect($stockDelivery->refresh()->state)->toBe(StockDeliveryStateEnum::DISPATCHED)
+        ->and($stockDelivery->is_costed)->toBeFalse();
+});
+
 test('stock delivery counts under and over delivered items', function () {
     $stockDelivery = createStockDeliveryWithItems($this, 'UNDER-OVER', [10, 10, 10]);
     $stockDelivery = DispatchStockDelivery::make()->action($stockDelivery);

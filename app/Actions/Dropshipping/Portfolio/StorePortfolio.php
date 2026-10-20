@@ -44,6 +44,8 @@ class StorePortfolio extends OrgAction
 
     private bool $hydrateChannel = true;
 
+    private bool $checkInPlatform = true;
+
     /**
      * @throws \Throwable
      */
@@ -110,20 +112,18 @@ class StorePortfolio extends OrgAction
             /** @var Portfolio $portfolio */
             $portfolio = $customerSalesChannel->portfolios()->create($modelData);
             $portfolio->stats()->create();
+            $portfolio->setRelation('shop', $customerSalesChannel->shop);
+            $portfolio->setRelation('platform', $customerSalesChannel->platform);
 
             return $portfolio;
         });
 
-        match ($customerSalesChannel->platform->type) {
-            PlatformTypeEnum::SHOPIFY => $portfolio = CheckShopifyPortfolio::run($portfolio),
-            PlatformTypeEnum::EBAY => $portfolio = CheckEbayPortfolio::run($portfolio),
-            PlatformTypeEnum::TIKTOK => $portfolio = CheckTiktokPortfolio::run($portfolio),
-            PlatformTypeEnum::WIX => $portfolio = CheckWixPortfolio::run($portfolio),
-            default => null
-        };
+        if ($this->checkInPlatform) {
+            $portfolio = self::checkPortfolioInPlatform($customerSalesChannel->platform->type, $portfolio);
+        }
 
-        GroupHydratePortfolios::dispatch($customerSalesChannel->group)->delay(max($this->hydratorsDelay, 60));
-        OrganisationHydratePortfolios::dispatch($customerSalesChannel->organisation)->delay(max($this->hydratorsDelay, 60));
+        GroupHydratePortfolios::dispatch($customerSalesChannel->group)->delay(max($this->hydratorsDelay, 300));
+        OrganisationHydratePortfolios::dispatch($customerSalesChannel->organisation)->delay(max($this->hydratorsDelay, 300));
         ShopHydratePortfolios::dispatch($customerSalesChannel->shop)->delay(max($this->hydratorsDelay, 60));
         CustomerHydratePortfolios::dispatch($customerSalesChannel->customer_id)->delay(5);
         if ($this->hydrateChannel) {
@@ -132,6 +132,22 @@ class StorePortfolio extends OrgAction
         ShopPlatformStatsHydratePortfolios::dispatch($portfolio->shop, $portfolio->platform)->delay(max($this->hydratorsDelay, 60));
 
         return $portfolio;
+    }
+
+    public static function checksPortfoliosInPlatform(PlatformTypeEnum $platformType): bool
+    {
+        return in_array($platformType, [PlatformTypeEnum::SHOPIFY, PlatformTypeEnum::EBAY, PlatformTypeEnum::TIKTOK, PlatformTypeEnum::WIX]);
+    }
+
+    public static function checkPortfolioInPlatform(PlatformTypeEnum $platformType, Portfolio $portfolio): Portfolio
+    {
+        return match ($platformType) {
+            PlatformTypeEnum::SHOPIFY => CheckShopifyPortfolio::run($portfolio),
+            PlatformTypeEnum::EBAY => CheckEbayPortfolio::run($portfolio),
+            PlatformTypeEnum::TIKTOK => CheckTiktokPortfolio::run($portfolio),
+            PlatformTypeEnum::WIX => CheckWixPortfolio::run($portfolio),
+            default => $portfolio
+        };
     }
 
     /**
@@ -197,8 +213,9 @@ class StorePortfolio extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function action(CustomerSalesChannel $customerSalesChannel, Product|StoredItem $item, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true, bool $hydrateChannel = true): Portfolio
+    public function action(CustomerSalesChannel $customerSalesChannel, Product|StoredItem $item, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true, bool $hydrateChannel = true, bool $checkInPlatform = true): Portfolio
     {
+        $this->checkInPlatform = $checkInPlatform;
         if (!$audit) {
             Portfolio::disableAuditing();
         }

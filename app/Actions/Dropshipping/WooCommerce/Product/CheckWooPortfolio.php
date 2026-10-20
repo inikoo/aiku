@@ -19,6 +19,8 @@ class CheckWooPortfolio
 
     public string $jobQueue = 'woo';
 
+    public bool $jobDeleteWhenMissingModels = true;
+
     /**
      * When the store cannot be asked (error page, timeout) the portfolio keeps whatever it had:
      * flipping a live listing to "missing" on a transient failure would drop it from stock sync

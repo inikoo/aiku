@@ -308,6 +308,35 @@ test('import portfolios in customer sales channel from file, unknown sku fails i
         ->toContain('SKU not found in this shop.');
 });
 
+test('import portfolios from a file without a sku column fails its rows instead of the whole import', function () {
+    Storage::fake('local');
+
+    $customer = createCustomer($this->shop);
+
+    list(, $product) = createProduct($this->shop);
+
+    $platform = $this->group->platforms()->where('type', PlatformTypeEnum::MANUAL)->firstOrFail();
+
+    $customerSalesChannel = StoreCustomerSalesChannel::make()->action(
+        $customer,
+        $platform,
+        ['reference' => 'test_portfolio_import_no_sku_column']
+    );
+
+    $file = csvUpload('portfolios.csv', [
+        ['Product code', 'Title'],
+        [$product->code, $product->name],
+    ]);
+
+    $upload = ImportBulkPortfolios::make()->handle($customerSalesChannel, $file);
+
+    expect($upload->number_success)->toBe(0)
+        ->and($upload->number_fails)->toBe(1)
+        ->and($customerSalesChannel->portfolios()->count())->toBe(0)
+        ->and($upload->records()->where('status', UploadRecordStatusEnum::FAILED)->first()->errors)
+        ->toContain('The row does not contain a valid sku.');
+});
+
 test('import portfolios reports a sku belonging to another shop instead of a null error', function () {
     Storage::fake('local');
 

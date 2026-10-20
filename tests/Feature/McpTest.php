@@ -2652,6 +2652,24 @@ describe('customer service tools', function () {
             ->assertOk()->assertSee('internal_notes')->assertSee('scheme compliance');
     });
 
+    test('an internal note needs no enrolment and is still signed by Aiku while a reply is refused', function () {
+        $this->user->update(['can_use_mcp_customer_service' => false]);
+        $notes = fn () => $this->chat->chatEvents()->where('event_type', App\Enums\CRM\Livechat\ChatEventTypeEnum::INTERNAL_NOTE)->count();
+        $baseline = $notes();
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'add_note', 'message' => 'Dispatched 15 Oct, DPD 0658.', 'confirm' => true, 'request_text' => 'post the note'])
+            ->assertOk()->assertSee('note_id');
+
+        $note = $this->chat->chatEvents()->where('event_type', App\Enums\CRM\Livechat\ChatEventTypeEnum::INTERNAL_NOTE)->latest('id')->first();
+
+        expect($notes())->toBe($baseline + 1)
+            ->and($note->actor_type)->toBe(App\Enums\CRM\Livechat\ChatActorTypeEnum::AI)
+            ->and($note->payload['requested_by_user_id'])->toBe($this->user->id);
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'reply', 'message' => 'Sorry', 'confirm' => true, 'request_text' => 'reply'])
+            ->assertHasErrors(['not enabled for this user']);
+    });
+
     test('changes notes, products and delivery address of a submitted order, and refuses a dispatched one', function () {
         [, $other] = createProduct($this->shop);
         $order     = StoreOrder::make()->action($this->csCustomer, []);

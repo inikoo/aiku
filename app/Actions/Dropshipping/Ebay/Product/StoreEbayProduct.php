@@ -78,7 +78,7 @@ class StoreEbayProduct extends RetinaAction
                     $displayError  = $ebayUser->getDisplayErrors($errorMessage) ?? $errorMessage;
                     $errorResponse = $this->portfolioErrorResponse($displayError) ?? [];
 
-                    UpdatePlatformPortfolioLog::dispatch($logs, [
+                    UpdatePlatformPortfolioLog::run($logs, [
                         'status' => PlatformPortfolioLogsStatusEnum::FAIL,
                         'response' => $displayError
                     ]);
@@ -339,7 +339,7 @@ class StoreEbayProduct extends RetinaAction
                     'platform_status'               => false
                 ]);
 
-                UpdatePlatformPortfolioLog::dispatch($logs, [
+                UpdatePlatformPortfolioLog::run($logs, [
                     'status' => PlatformPortfolioLogsStatusEnum::OK
                 ]);
 
@@ -379,7 +379,7 @@ class StoreEbayProduct extends RetinaAction
             $portfolio->refresh();
 
             if ($portfolio->platform_status) {
-                UpdatePlatformPortfolioLog::dispatch($logs, [
+                UpdatePlatformPortfolioLog::run($logs, [
                     'status' => PlatformPortfolioLogsStatusEnum::OK
                 ]);
             }
@@ -390,7 +390,7 @@ class StoreEbayProduct extends RetinaAction
                 'errors_response' => $this->portfolioErrorResponse($e->getMessage())
             ]);
 
-            UpdatePlatformPortfolioLog::dispatch($logs, [
+            UpdatePlatformPortfolioLog::run($logs, [
                 'status' => PlatformPortfolioLogsStatusEnum::FAIL,
                 'response' => $e->getMessage()
             ]);

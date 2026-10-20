@@ -24,6 +24,17 @@ enum UserNotificationEnum: string
     case PURCHASE_ORDER_MINIMUM_POKE = 'purchase_order_minimum_poke';
     case PURCHASE_ORDER_BALANCE_DUE = 'purchase_order_balance_due';
     case SUPPLIER_PRODUCT_AVAILABILITY = 'supplier_product_availability';
+    case PRODUCT_DEVELOPMENT_TASK = 'product_development_task';
+    case PRODUCT_DEVELOPMENT_MENTION = 'product_development_mention';
+    case PRODUCT_DEVELOPMENT_FILES = 'product_development_files';
+    case PRODUCT_DEVELOPMENT_DIGEST = 'product_development_digest';
+
+    public const array PRODUCT_DEVELOPMENT_EVENTS = [
+        self::PRODUCT_DEVELOPMENT_TASK,
+        self::PRODUCT_DEVELOPMENT_MENTION,
+        self::PRODUCT_DEVELOPMENT_FILES,
+        self::PRODUCT_DEVELOPMENT_DIGEST,
+    ];
 
     public const array PROCUREMENT_EVENTS = [
         self::PURCHASE_ORDER_STAGE_BY_AGENT,
@@ -50,6 +61,10 @@ enum UserNotificationEnum: string
             self::PURCHASE_ORDER_COMPLIANCE_DUE => __('Compliance documents of my purchase order are due'),
             self::PURCHASE_ORDER_BALANCE_DUE    => __('A purchase order passed its QC and its balance can be paid'),
             self::SUPPLIER_PRODUCT_AVAILABILITY => __('An agent changes the availability of a product my organisation buys'),
+            self::PRODUCT_DEVELOPMENT_TASK      => __('A product development gives me a task or reminds me of one'),
+            self::PRODUCT_DEVELOPMENT_MENTION   => __('Someone @mentions me on a product development'),
+            self::PRODUCT_DEVELOPMENT_FILES     => __('A file I need is uploaded to one of my product developments'),
+            self::PRODUCT_DEVELOPMENT_DIGEST    => __('The daily summary of the product developments I own'),
             self::PURCHASE_ORDER_MINIMUM_POKE   => __('Another organisation asks me to add to my draft to reach a supplier minimum (email and Slack come grouped every 15 minutes)'),
         };
     }
@@ -70,6 +85,10 @@ enum UserNotificationEnum: string
 
         if (in_array($this, self::PROCUREMENT_EVENTS, true)) {
             return ['email'];
+        }
+
+        if (in_array($this, self::PRODUCT_DEVELOPMENT_EVENTS, true)) {
+            return ['slack', 'browser'];
         }
 
         return match (Arr::get($user->settings, 'ticket_notifications', 'both')) {
@@ -94,6 +113,10 @@ enum UserNotificationEnum: string
             self::PURCHASE_ORDER_BALANCE_DUE    => 'fal fa-file-invoice',
             self::SUPPLIER_PRODUCT_AVAILABILITY => 'fal fa-box-check',
             self::PURCHASE_ORDER_MINIMUM_POKE   => 'fal fa-hand-point-right',
+            self::PRODUCT_DEVELOPMENT_TASK      => 'fal fa-lightbulb-on',
+            self::PRODUCT_DEVELOPMENT_MENTION   => 'fal fa-at',
+            self::PRODUCT_DEVELOPMENT_FILES     => 'fal fa-paperclip',
+            self::PRODUCT_DEVELOPMENT_DIGEST    => 'fal fa-list',
         };
     }
 

@@ -38,11 +38,15 @@ use App\Actions\Dropshipping\WooCommerce\Product\StoreBulkDispatchProductToCurre
 use App\Actions\Dropshipping\WooCommerce\Product\StoreBulkNewProductToCurrentWooCommerce;
 use App\Actions\Dropshipping\WooCommerce\Product\StoreNewProductToCurrentWooCommerce;
 use App\Actions\Dropshipping\WooCommerce\Product\RetryTimedOutWooUploads;
+use App\Actions\Dropshipping\WooCommerce\Product\DispatchWooUploadQueue;
+use App\Jobs\BoundedUniqueUntilProcessingJobDecorator;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
 use Lorisleiva\Actions\Decorators\JobDecorator;
 use App\Http\Resources\CRM\RetinaCustomerSalesChannelResource;
 use App\Jobs\BoundedUniqueJobDecorator;
 use App\Actions\Dropshipping\WooCommerce\Product\StoreWooCommerceProduct;
+use App\Actions\Retina\Woo\StoreRetinaNewProductToCurrentWoo;
 use App\Events\UploadProductToSalesChannelProgressEvent;
 use App\Helpers\PlatformResponseFormatter;
 use App\Actions\Dropshipping\WooCommerce\Product\UpdateInventoryInWooPortfolio;
@@ -1630,21 +1634,27 @@ test('a bulk upload shares one progress counter across its chunks and a killed p
     Event::assertDispatched(UploadProductToSalesChannelProgressEvent::class, fn ($event) => $event->statistics === ['total' => 1, 'success' => 0, 'fail' => 1]);
 });
 
-test('a bulk upload spaces its product creates by slot round so waiting jobs are not popped over and over', function () {
+test('a bulk upload waits in the store list and only dispatches a create for each free slot', function () {
     Queue::fake();
     wooFake();
 
     $wooCommerceUser = wooConnect(wooCustomer($this->shop));
     $channel         = $wooCommerceUser->customerSalesChannel;
-    $portfolio       = wooPortfolio($channel, $this->product, null, 'aw-bulk-stagger');
+    wooClearUploadQueue($wooCommerceUser);
 
-    StoreBulkDispatchProductToCurrentWooCommerce::run($channel, $channel->portfolios()->whereKey($portfolio->id)->get(), ['cache_key' => 'stagger', 'total' => 9], 9);
+    $portfolios = wooUploadPortfolios($this, $channel, 6, 'aw-bulk-queue');
 
-    $expectedDelay = intdiv(9, StoreNewProductToCurrentWooCommerce::MAX_CONCURRENT_CREATES_PER_STORE) * StoreNewProductToCurrentWooCommerce::STAGGER_SECONDS_PER_SLOT_ROUND;
+    StoreBulkDispatchProductToCurrentWooCommerce::run($channel, $portfolios, ['cache_key' => 'queue', 'total' => 6]);
 
-    Queue::assertPushed(BoundedUniqueJobDecorator::class, fn (BoundedUniqueJobDecorator $job) => $job->getAction() instanceof StoreNewProductToCurrentWooCommerce
-        && abs(now()->diffInSeconds($job->delay) - $expectedDelay) <= 1
-        && $job->uniqueFor === (StoreNewProductToCurrentWooCommerce::RETRY_FOR_HOURS + 1) * 3600);
+    $creates = wooQueuedCreates();
+
+    expect($creates)->toHaveCount(StoreNewProductToCurrentWooCommerce::MAX_CONCURRENT_CREATES_PER_STORE)
+        ->and($creates->every(fn (BoundedUniqueJobDecorator $job) => $job->delay === null && $job->uniqueFor === (StoreNewProductToCurrentWooCommerce::RETRY_FOR_HOURS + 1) * 3600))->toBeTrue()
+        ->and(Redis::llen(DispatchWooUploadQueue::queueKey($wooCommerceUser)))->toBe(2);
+
+    Queue::assertPushed(BoundedUniqueUntilProcessingJobDecorator::class, fn (BoundedUniqueUntilProcessingJobDecorator $job) => $job->getAction() instanceof DispatchWooUploadQueue);
+
+    wooClearUploadQueue($wooCommerceUser);
 });
 
 test('a created product is trusted from the create reply so a slow store is not asked again', function () {
@@ -1666,34 +1676,27 @@ test('a created product is trusted from the create reply so a slow store is not 
         ->and(Arr::get($portfolio->data, 'woo_product.id'))->toBe(802);
 });
 
-test('a product upload waits for a free slot when the store already has its maximum of creates running', function () {
+test('a product upload started for a slot another create took waits a beat holding its place instead of going back to the store list', function () {
+    Queue::fake();
     $wooCommerceUser = wooConnect(wooCustomer($this->shop));
     $portfolio       = wooPortfolio($wooCommerceUser->customerSalesChannel, $this->product, null, 'aw-store-busy');
-    $funnel          = 'woo_product_create_'.$wooCommerceUser->id;
+    $queue           = DispatchWooUploadQueue::queueKey($wooCommerceUser);
+    wooClearUploadQueue($wooCommerceUser);
+    Redis::rpush($queue, 'already-waiting');
 
     wooFake();
 
     $job = Mockery::mock(JobDecorator::class);
-    $job->shouldReceive('release')->once()->with(Mockery::on(fn (int $seconds) => $seconds >= StoreNewProductToCurrentWooCommerce::MIN_WAIT_FOR_SLOT_SECONDS && $seconds <= StoreNewProductToCurrentWooCommerce::MAX_WAIT_FOR_SLOT_SECONDS));
+    $job->shouldReceive('release')->once()->with(DispatchWooUploadQueue::CHECK_AGAIN_SECONDS);
 
-    $holdSlots = function (int $left) use (&$holdSlots, $funnel, $job, $wooCommerceUser, $portfolio) {
-        if ($left === 0) {
-            StoreNewProductToCurrentWooCommerce::make()->asJob($job, $wooCommerceUser, $portfolio, false);
-
-            return;
-        }
-
-        Redis::funnel($funnel)
-            ->limit(StoreNewProductToCurrentWooCommerce::MAX_CONCURRENT_CREATES_PER_STORE)
-            ->releaseAfter(60)
-            ->block(0)
-            ->then(fn () => $holdSlots($left - 1));
-    };
-
-    $holdSlots(StoreNewProductToCurrentWooCommerce::MAX_CONCURRENT_CREATES_PER_STORE);
+    wooHoldCreateSlots($wooCommerceUser, StoreNewProductToCurrentWooCommerce::MAX_CONCURRENT_CREATES_PER_STORE, fn () => StoreNewProductToCurrentWooCommerce::make()->asJob($job, $wooCommerceUser, $portfolio, false));
 
     expect(wooSent('POST', 'products'))->toBeEmpty()
-        ->and($portfolio->refresh()->platform_status)->toBeFalse();
+        ->and($portfolio->refresh()->platform_status)->toBeFalse()
+        ->and(Redis::lrange($queue, 0, -1))->toBe(['already-waiting'])
+        ->and(wooQueuedCreates())->toBeEmpty();
+
+    wooClearUploadQueue($wooCommerceUser);
 });
 
 function wooVariation(int $id, string $sku, string $option, array $overrides = []): array
@@ -1790,4 +1793,160 @@ test('the stock push writes variations under their parent and rechecks a variati
         ->and($unknown->refresh()->stock_last_fail_updated_at)->not->toBeNull()
         ->and($unknown->platform_status)->toBeTrue()
         ->and(UpdateWooCustomerSalesChannelPortfolio::variationParentId($unknown))->toBe(900);
+});
+
+test('a product upload still waiting in the store list when its retry window ends says it timed out so the nightly retry queues it again', function () {
+    Queue::fake();
+    Event::fake([UploadProductToSalesChannelProgressEvent::class]);
+    $wooCommerceUser = wooConnect(wooCustomer($this->shop));
+    $portfolio       = wooPortfolio($wooCommerceUser->customerSalesChannel, $this->product, null, 'aw-store-busy-expired');
+    $wooCommerceUser->customerSalesChannel->update(['can_connect_to_platform' => true]);
+    wooClearUploadQueue($wooCommerceUser);
+
+    wooFake();
+
+    DispatchWooUploadQueue::push($wooCommerceUser, $portfolio, false, ['cache_key' => 'expired', 'total' => 1], now()->subSecond()->getTimestamp());
+    DispatchWooUploadQueue::run($wooCommerceUser);
+
+    expect(wooSent('POST', 'products'))->toBeEmpty()
+        ->and(wooQueuedCreates())->toBeEmpty()
+        ->and(Arr::get($portfolio->refresh()->errors_response, 'message'))->toBe(StoreNewProductToCurrentWooCommerce::GAVE_UP_WAITING_MESSAGE)
+        ->and(RetryTimedOutWooUploads::run($wooCommerceUser->customerSalesChannel)->pluck('id'))->toContain($portfolio->id);
+
+    Event::assertDispatched(UploadProductToSalesChannelProgressEvent::class, fn ($event) => $event->statistics['fail'] === 1);
+});
+
+test('a product upload the queue gives up on says it timed out', function () {
+    $wooCommerceUser = wooConnect(wooCustomer($this->shop));
+    $portfolio       = wooPortfolio($wooCommerceUser->customerSalesChannel, $this->product, null, 'aw-queue-gave-up');
+
+    StoreNewProductToCurrentWooCommerce::make()->jobFailed(new \Illuminate\Queue\MaxAttemptsExceededException('too many'), $wooCommerceUser, $portfolio, false);
+
+    expect(Arr::get($portfolio->refresh()->errors_response, 'message'))->toBe(StoreNewProductToCurrentWooCommerce::GAVE_UP_WAITING_MESSAGE);
+});
+
+test('a product upload that failed for good keeps its own error when the queue marks it failed', function () {
+    $wooCommerceUser = wooConnect(wooCustomer($this->shop));
+    $portfolio       = wooPortfolio($wooCommerceUser->customerSalesChannel, $this->product, null, 'aw-real-error');
+    $portfolio->update(['errors_response' => ['message' => 'SKU no válido o duplicado.']]);
+
+    StoreNewProductToCurrentWooCommerce::make()->jobFailed(new RuntimeException('SKU no válido o duplicado.'), $wooCommerceUser, $portfolio, false);
+
+    expect(Arr::get($portfolio->refresh()->errors_response, 'message'))->toBe('SKU no válido o duplicado.');
+});
+
+test('creating one product from retina queues the upload and the job reports the store refusal on the row', function () {
+    Queue::fake();
+    Event::fake([UploadProductToSalesChannelProgressEvent::class]);
+
+    $wooCommerceUser = wooConnect(wooCustomer($this->shop));
+    $portfolio       = wooPortfolio($wooCommerceUser->customerSalesChannel, $this->product, null, 'aw-retina-single');
+
+    wooFake([
+        'POST products' => Http::response(['code' => 'product_invalid_sku', 'message' => 'Invalid or duplicated SKU.', 'data' => ['status' => 400]], 400),
+        'GET products'  => Http::response([]),
+    ]);
+
+    StoreRetinaNewProductToCurrentWoo::make()->handle($portfolio);
+
+    expect(wooSent('POST', 'products'))->toBeEmpty();
+
+    $arguments = null;
+    StoreNewProductToCurrentWooCommerce::assertPushed(function ($job, array $pushed) use ($portfolio, &$arguments) {
+        $arguments = $pushed;
+
+        return $pushed[1]->id === $portfolio->id && $pushed[2] === true && $pushed[3]['total'] === 1;
+    });
+
+    StoreNewProductToCurrentWooCommerce::make()->handle($wooCommerceUser, $portfolio, false, $arguments[3]);
+
+    expect($portfolio->refresh()->platform_status)->toBeFalse()
+        ->and($portfolio->errors_response['message'])->toBe('Invalid or duplicated SKU.');
+    Event::assertDispatched(UploadProductToSalesChannelProgressEvent::class, fn ($event) => $event->portfolio->id === $portfolio->id && $event->statistics === ['total' => 1, 'success' => 0, 'fail' => 1]);
+});
+
+function wooClearUploadQueue(WooCommerceUser $wooCommerceUser): void
+{
+    $funnel = StoreNewProductToCurrentWooCommerce::funnelName($wooCommerceUser);
+
+    Redis::del(DispatchWooUploadQueue::queueKey($wooCommerceUser), ...array_map(fn (int $slot) => $funnel.$slot, range(1, StoreNewProductToCurrentWooCommerce::MAX_CONCURRENT_CREATES_PER_STORE)));
+}
+
+function wooUploadPortfolios($test, CustomerSalesChannel $channel, int $count, string $skuPrefix): \Illuminate\Support\Collection
+{
+    return collect(range(1, $count))
+        ->map(fn (int $number) => wooPortfolio($channel, $number === 1 ? $test->product : wooSecondProduct($test->shop, $test->product), null, $skuPrefix.'-'.$number));
+}
+
+/**
+ * @return \Illuminate\Support\Collection<int, BoundedUniqueJobDecorator>
+ */
+function wooQueuedCreates(): \Illuminate\Support\Collection
+{
+    return Queue::pushed(BoundedUniqueJobDecorator::class, fn (BoundedUniqueJobDecorator $job) => $job->getAction() instanceof StoreNewProductToCurrentWooCommerce)->values();
+}
+
+function wooHoldCreateSlots(WooCommerceUser $wooCommerceUser, int $slots, Closure $whileHeld): void
+{
+    if ($slots === 0) {
+        $whileHeld();
+
+        return;
+    }
+
+    Redis::funnel(StoreNewProductToCurrentWooCommerce::funnelName($wooCommerceUser))
+        ->limit(StoreNewProductToCurrentWooCommerce::MAX_CONCURRENT_CREATES_PER_STORE)
+        ->releaseAfter(60)
+        ->block(0)
+        ->then(fn () => wooHoldCreateSlots($wooCommerceUser, $slots - 1, $whileHeld));
+}
+
+test('an 8 product bulk upload keeps the store at 4 creates at once and finishes all 8 without a job waiting for a slot', function () {
+    Queue::fake();
+    Event::fake([UploadProductToSalesChannelProgressEvent::class]);
+
+    $wooCommerceUser = wooConnect(wooCustomer($this->shop));
+    $channel         = $wooCommerceUser->customerSalesChannel;
+    wooClearUploadQueue($wooCommerceUser);
+
+    $portfolios = wooUploadPortfolios($this, $channel, 8, 'aw-lane');
+    Cache::put('lanes_success', 0);
+    Cache::put('lanes_fail', 0);
+
+    $job = Mockery::mock(JobDecorator::class);
+    $job->shouldNotReceive('release');
+
+    $started       = 0;
+    $runNextCreate = function () use (&$started, $job) {
+        $creates = wooQueuedCreates();
+        if ($started < $creates->count()) {
+            StoreNewProductToCurrentWooCommerce::make()->asJob($job, ...$creates[$started++]->getParameters());
+        }
+    };
+
+    $inFlight     = 0;
+    $mostInFlight = 0;
+    $productId    = 900;
+    wooFake([
+        'POST products' => function (Request $request) use (&$inFlight, &$mostInFlight, &$productId, $runNextCreate) {
+            $mostInFlight = max($mostInFlight, ++$inFlight);
+            $runNextCreate();
+            $inFlight--;
+
+            return Http::response(wooProduct(++$productId, ['sku' => $request->data()['sku']]), 201);
+        },
+    ]);
+
+    StoreBulkDispatchProductToCurrentWooCommerce::run($channel, $portfolios, ['cache_key' => 'lanes', 'total' => 8]);
+
+    while ($started < wooQueuedCreates()->count()) {
+        $runNextCreate();
+    }
+
+    expect($mostInFlight)->toBe(StoreNewProductToCurrentWooCommerce::MAX_CONCURRENT_CREATES_PER_STORE)
+        ->and(wooSent('POST', 'products'))->toHaveCount(8)
+        ->and(wooQueuedCreates())->toHaveCount(8)
+        ->and($portfolios->every(fn (Portfolio $portfolio) => $portfolio->refresh()->platform_status))->toBeTrue()
+        ->and(Redis::llen(DispatchWooUploadQueue::queueKey($wooCommerceUser)))->toBe(0)
+        ->and((int) Cache::get('lanes_success'))->toBe(8);
 });

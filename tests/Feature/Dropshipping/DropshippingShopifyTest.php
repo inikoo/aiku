@@ -60,12 +60,10 @@ use App\Actions\Dropshipping\Shopify\Product\RepairShopifyPortfolioConnections;
 use App\Actions\Dropshipping\Shopify\Product\GetShopifyCatalogueSnapshot;
 use App\Actions\Dropshipping\Shopify\Product\LinkShopifyPortfolio;
 use App\Actions\Dropshipping\Shopify\Product\UpdateShopifyInventory;
-use App\Actions\Dropshipping\Portfolio\Logs\UpdatePlatformPortfolioLog;
 use App\Enums\Ordering\PlatformLogs\PlatformPortfolioLogsStatusEnum;
 use App\Enums\Ordering\PlatformLogs\PlatformPortfolioLogsTypeEnum;
 use App\Models\Dropshipping\PlatformPortfolioLogs;
 use App\Helpers\PlatformResponseFormatter;
-use Lorisleiva\Actions\Decorators\JobDecorator;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\ShopifyUser;
 use Illuminate\Support\Facades\Http;
@@ -272,6 +270,22 @@ function waitingShopifyUser(Customer $customer, string $name, string $password, 
         'password'        => $password,
     ]);
 }
+
+test('a shopify install that loses the race to create its store row goes on to the app like the one that won, without spending the oauth code again', function () {
+    LaunchWebsite::make()->action(createWebsite($this->shop));
+    $customer = StoreCustomer::make()->action($this->shop, Customer::factory()->definition());
+    waitingShopifyUser($customer, 'raced-store.myshopify.com', 'shpat_merchant_token');
+    Config::set('shopify-app.api_secret', 'test-secret');
+
+    $race = new Illuminate\Database\UniqueConstraintViolationException('pgsql', 'insert into shopify_users', [], new Exception('shopify_users_email_unique'));
+    app()->instance(AuthenticateShop::class, Mockery::mock(AuthenticateShop::class, function ($mock) use ($race) {
+        $mock->shouldReceive('__invoke')->once()->andThrow($race);
+    }));
+
+    $this->get(signedShopifyCallback('raced-store.myshopify.com'))
+        ->assertRedirect()
+        ->assertRedirectContains('raced-store.myshopify.com');
+});
 
 test('typing the name of a store installed by someone else neither links it nor touches its token, it only sends the customer to shopify', function () {
     Http::fake(['*' => Http::response(['myshopify_domain' => 'installed-store.myshopify.com'])]);
@@ -735,15 +749,9 @@ test('a rejected product upload keeps the portfolio unpublished with a readable 
         ->and(PlatformResponseFormatter::make()->format('Exceeded 2 calls per second for api client. Reduce request rates to resume uninterrupted service.')['hint'])->toContain('limited how fast');
 });
 
-function shopifyLoggedStatuses(): array
+function shopifyLoggedStatuses(Portfolio $portfolio): array
 {
-    return collect(Queue::pushedJobs())
-        ->flatten(1)
-        ->pluck('job')
-        ->filter(fn ($job) => $job instanceof JobDecorator && $job->getAction() instanceof UpdatePlatformPortfolioLog)
-        ->map(fn ($job) => Arr::get($job->getParameters(), '1.status'))
-        ->values()
-        ->all();
+    return PlatformPortfolioLogs::where('portfolio_id', $portfolio->id)->orderBy('id')->pluck('status')->all();
 }
 
 test('an upload records a portfolio log that ends ok when shopify accepts the product and fail when it rejects it', function () {
@@ -763,7 +771,7 @@ test('an upload records a portfolio log that ends ok when shopify accepts the pr
 
     expect($log->type)->toBe(PlatformPortfolioLogsTypeEnum::UPLOAD)
         ->and($log->platform_id)->toBe($portfolio->platform_id)
-        ->and(shopifyLoggedStatuses())->toBe([PlatformPortfolioLogsStatusEnum::FAIL]);
+        ->and(shopifyLoggedStatuses($portfolio))->toBe([PlatformPortfolioLogsStatusEnum::FAIL]);
 
     $created = shopifyProductNode('gid://shopify/Product/7300', 'gid://shopify/ProductVariant/8300', $portfolio->sku);
 
@@ -781,7 +789,7 @@ test('an upload records a portfolio log that ends ok when shopify accepts the pr
     StoreNewProductToCurrentShopify::make()->handle($portfolio, []);
 
     expect(PlatformPortfolioLogs::where('portfolio_id', $portfolio->id)->count())->toBe(2)
-        ->and(shopifyLoggedStatuses())->toBe([PlatformPortfolioLogsStatusEnum::FAIL, PlatformPortfolioLogsStatusEnum::OK]);
+        ->and(shopifyLoggedStatuses($portfolio))->toBe([PlatformPortfolioLogsStatusEnum::FAIL, PlatformPortfolioLogsStatusEnum::OK]);
 });
 
 test('checking an unmatched portfolio stores the shopify matches in the shape the retina table expects', function () {
@@ -1510,11 +1518,6 @@ test('the stock push stores each product log with its outcome in one insert, sta
     ]);
 
     $logsOf = fn (Portfolio $portfolio) => PlatformPortfolioLogs::where('portfolio_id', $portfolio->id)->orderBy('id')->get();
-    $queuedLogUpdates = fn () => collect(Queue::pushedJobs())->flatten(1)->pluck('job')
-        ->filter(fn ($job) => $job instanceof JobDecorator && $job->getAction() instanceof UpdatePlatformPortfolioLog)
-        ->map(fn ($job) => ['log' => $job->getParameters()[0], 'data' => $job->getParameters()[1]])
-        ->values();
-
     $firstRun = $this->freezeSecond();
     $statements = [];
     \Illuminate\Support\Facades\DB::listen(function ($query) use (&$statements) {
@@ -1525,7 +1528,7 @@ test('the stock push stores each product log with its outcome in one insert, sta
     expect($statementsLike('insert into "platform_portfolio_logs"'))->toBe(1)
         ->and($statementsLike('update "platform_portfolio_logs"'))->toBe(0)
         ->and($statementsLike('update "portfolios" set "stock_last_fail_updated_at"'))->toBe(1)
-        ->and($statementsLike('update "portfolios" set "last_stock_value"'))->toBe(2)
+        ->and($statementsLike('update "portfolios" set "last_stock_value"'))->toBe(1)
         ->and($statementsLike('select * from "customer_sales_channels"'))->toBe(1)
         ->and($statementsLike('select * from "platforms"'))->toBe(1);
 
@@ -1572,8 +1575,6 @@ test('the stock push stores each product log with its outcome in one insert, sta
             ->and($logs[0]->created_at->equalTo($firstRun))->toBeTrue()
             ->and($logs[0]->updated_at->equalTo($firstRun))->toBeTrue();
     }
-    expect($queuedLogUpdates())->toBeEmpty();
-
     Queue::fake();
     ShopifyFake::fake([
         'getProductsVariants'    => fn (array $variables) => ShopifyFake::graphql(['nodes' => array_map(fn (string $id) => ['id' => $id, 'status' => 'ACTIVE', 'variants' => ['edges' => [$variantEdge((int) Str::after($id, 'Product/76'))]]], $variables['ids'])]),
@@ -1593,7 +1594,6 @@ test('the stock push stores each product log with its outcome in one insert, sta
             ->and($logsOf($portfolio)[1]->status)->toBe(PlatformPortfolioLogsStatusEnum::FAIL)
             ->and($logsOf($portfolio)[1]->response)->toContain('Throttled');
     }
-    expect($queuedLogUpdates())->toBeEmpty();
 });
 
 test('the six-hourly stock push only queues open channels that want stock updates and are live on shopify', function () {
@@ -2926,4 +2926,62 @@ test('the detached report lists the connected stores that no longer hand us thei
     $passing = true;
     expect(CheckShopifyChannel::make()->ownsFulfilmentService($detachedUser))->toBeNull()
         ->and($detachedUser->customerSalesChannel->refresh()->platform_status)->toBeTrue();
+});
+
+test('creating one product from retina returns at once and the queued job reports the failure on the row', function () {
+    Queue::fake();
+    \Illuminate\Support\Facades\Event::fake([\App\Events\UploadProductToSalesChannelProgressEvent::class]);
+
+    $shopifyUser = shopifyProductChannel($this, 'retina-single-create');
+    $portfolio   = StorePortfolio::make()->action($shopifyUser->customerSalesChannel, $this->product, []);
+    $portfolio->update(['sku' => 'UP-RETINA-1']);
+
+    DetectWebsiteFromDomain::mock()->shouldReceive('handle')->andReturn(LaunchWebsite::make()->action(createWebsite($this->shop)));
+    $username = 'retina-single-'.Str::lower(Str::random(8));
+    actingAs(StoreWebUser::make()->action($shopifyUser->customerSalesChannel->customer, ['username' => $username, 'email' => $username.'@testmail.com', 'password' => 'test']), 'retina');
+
+    ShopifyFake::fake([
+        'productVariantsWithSku' => ShopifyFake::graphql(['productVariants' => ['edges' => []]]),
+        'productCreate'          => fn () => throw new Error('Call to a member function on null'),
+    ]);
+
+    $this->post(route('retina.models.portfolio.store_new_shopify_product', $portfolio))->assertSuccessful();
+
+    expect(ShopifyFake::$requests)->toBeEmpty();
+
+    $arguments = null;
+    StoreNewProductToCurrentShopify::assertPushed(function ($job, array $pushed) use ($portfolio, &$arguments) {
+        $arguments = $pushed;
+
+        return $pushed[0]->id === $portfolio->id && $pushed[1]['total'] === 1;
+    });
+
+    StoreNewProductToCurrentShopify::make()->asJob($portfolio, $arguments[1]);
+
+    expect($portfolio->refresh()->platform_status)->toBeFalse()
+        ->and($portfolio->errors_response['message'])->toContain('Something went wrong on our side');
+    \Illuminate\Support\Facades\Event::assertDispatched(\App\Events\UploadProductToSalesChannelProgressEvent::class, fn ($event) => $event->portfolio->id === $portfolio->id && $event->statistics === ['total' => 1, 'success' => 0, 'fail' => 1]);
+});
+
+test('an upload to a store whose client cannot be built tells the customer why on the row', function () {
+    $shopifyUser = shopifyProductChannel($this, 'retina-no-client');
+    $portfolio   = StorePortfolio::make()->action($shopifyUser->customerSalesChannel, $this->product, []);
+
+    StoreNewProductToCurrentShopify::make()->asJob($portfolio, ['cache_key' => 'upload_progress_no_client', 'total' => 1]);
+
+    expect($portfolio->refresh()->platform_status)->toBeFalse()
+        ->and($portfolio->errors_response['message'])->toBe('Failed to initialize Shopify GraphQL client');
+});
+
+test('a queued upload the queue kills still reports its failure so the waiting page completes', function () {
+    \Illuminate\Support\Facades\Event::fake([\App\Events\UploadProductToSalesChannelProgressEvent::class]);
+
+    $shopifyUser = shopifyProductChannel($this, 'retina-killed-job');
+    $portfolio   = StorePortfolio::make()->action($shopifyUser->customerSalesChannel, $this->product, []);
+    \Illuminate\Support\Facades\Cache::put('upload_progress_killed_fail', 0, now()->addHour());
+
+    StoreNewProductToCurrentShopify::make()->jobFailed(new \Illuminate\Queue\TimeoutExceededException('killed'), $portfolio, ['cache_key' => 'upload_progress_killed', 'total' => 1]);
+
+    expect($portfolio->refresh()->errors_response)->not->toBeNull();
+    \Illuminate\Support\Facades\Event::assertDispatched(\App\Events\UploadProductToSalesChannelProgressEvent::class, fn ($event) => $event->portfolio->id === $portfolio->id && $event->statistics === ['total' => 1, 'success' => 0, 'fail' => 1]);
 });

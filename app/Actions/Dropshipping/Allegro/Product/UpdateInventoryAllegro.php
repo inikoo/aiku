@@ -54,7 +54,7 @@ class UpdateInventoryAllegro extends RetinaAction
                 ]
             ]);
 
-            UpdatePlatformPortfolioLog::dispatch($platformPortfolioLog, [
+            UpdatePlatformPortfolioLog::run($platformPortfolioLog, [
                 'status'           => PlatformPortfolioLogsStatusEnum::OK,
                 'last_stock_value' => $availableQuantity
             ]);
@@ -68,7 +68,7 @@ class UpdateInventoryAllegro extends RetinaAction
                 'stock_last_updated_at' => now()
             ]);
         } catch (\Exception $e) {
-            UpdatePlatformPortfolioLog::dispatch($platformPortfolioLog, [
+            UpdatePlatformPortfolioLog::run($platformPortfolioLog, [
                 'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
                 'response' => 'E1: ' . $e->getMessage()
             ]);

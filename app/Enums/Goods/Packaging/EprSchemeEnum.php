@@ -22,6 +22,20 @@ enum EprSchemeEnum: string
     case DE = 'de';
     case ES = 'es';
     case FR = 'fr';
+    case IT = 'it';
+
+    /**
+     * Every EU country runs a packaging EPR scheme, so packaging sent to any of them, or kept in the UK, is reported
+     * somewhere.
+     */
+    public const array COUNTRIES_WITH_SCHEMES = [
+        'GB', 'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE',
+    ];
+
+    public function countryCode(): string
+    {
+        return $this === self::UK ? 'GB' : mb_strtoupper($this->value);
+    }
 
     public static function labels(): array
     {
@@ -31,6 +45,7 @@ enum EprSchemeEnum: string
             'de' => __('Germany (LUCID)'),
             'es' => __('Spain (Ecoembes)'),
             'fr' => __('France (Citeo)'),
+            'it' => __('Italy (CONAI)'),
         ];
     }
 }

@@ -60,6 +60,31 @@ test('a disconnected replica is broken and says how much the primary is holding 
         ->and($report[0]['issue'])->toContain('replica_helio_delayed')->toContain('disconnected')->toContain('30.0 GB');
 });
 
+test('the delayed replica disconnected by a primary restart in the last 13 hours is catching up, not broken, and does not alert', function () {
+    $this->travelTo(CarbonImmutable::parse('2026-10-20 05:00:00 UTC'));
+    $disconnected = ['active' => false, 'retained_bytes' => 10 * 1024 ** 3, 'client_addr' => null, 'state' => null];
+
+    $report = collect(MonitorDatabaseReplicas::make()->report(collect([
+        databaseReplica('replica_helio_delayed', [...$disconnected, 'primary_started_at' => '2026-10-20 01:59:26+00']),
+        databaseReplica('replica_litio', [...$disconnected, 'primary_started_at' => '2026-10-20 01:59:26+00']),
+    ]), []))->keyBy('slot');
+
+    expect($report['replica_helio_delayed']['status'])->toBe('catching_up')
+        ->and($report['replica_helio_delayed']['issue'])->toBeNull()
+        ->and($report['replica_helio_delayed']['note'])->toContain('01:59 UTC')->toContain('around 13:59 UTC')->toContain('10.0 GB')
+        ->and($report['replica_helio_delayed']['reconnects_at'])->toBe('2026-10-20T13:59:26+00:00')
+        ->and($report['replica_litio']['status'])->toBe('broken');
+
+    $this->travelTo(CarbonImmutable::parse('2026-10-20 15:00:00 UTC'));
+    $late = MonitorDatabaseReplicas::make()->report(collect([
+        databaseReplica('replica_helio_delayed', [...$disconnected, 'primary_started_at' => '2026-10-20 01:59:26+00']),
+    ]), []);
+
+    expect($late[0]['status'])->toBe('broken')
+        ->and($late[0]['note'])->toBeNull()
+        ->and($late[0]['reconnects_at'])->toBeNull();
+});
+
 test('a replica the primary cut off, one about to be, and one far behind are told apart', function () {
     $report = collect(MonitorDatabaseReplicas::make()->report(collect([
         databaseReplica('cut_off', ['active' => false, 'wal_status' => 'lost']),

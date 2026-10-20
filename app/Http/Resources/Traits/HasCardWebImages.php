@@ -14,7 +14,7 @@ trait HasCardWebImages
 {
     /**
      * Product cards only render web_images.{main,secondary}.gallery through a picture
-     * element reading avif/webp/original (+ retina variants). When secondary is
+     * element reading avif/original (+ retina variants). When secondary is
      * missing, it falls back to the first non-main gallery in web_images.all.
      *
      * @return array<string, array<string, array<string, string>>>
@@ -33,7 +33,7 @@ trait HasCardWebImages
             }
 
             $cardWebImages[$slot] = [
-                'gallery' => $this->compactGallery(Arr::only($gallery, ['avif', 'avif_2x', 'webp', 'webp_2x', 'original', 'original_2x'])),
+                'gallery' => $this->compactGallery(Arr::only($gallery, ['avif', 'avif_2x', 'original', 'original_2x'])),
             ];
         }
 
@@ -111,6 +111,6 @@ trait HasCardWebImages
             return null;
         }
 
-        return Arr::only($image, ['avif', 'avif_2x', 'webp', 'webp_2x', 'original', 'original_2x', 'alt']);
+        return Arr::only($image, ['avif', 'avif_2x', 'original', 'original_2x', 'alt']);
     }
 }

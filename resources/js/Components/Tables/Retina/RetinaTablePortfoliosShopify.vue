@@ -120,6 +120,7 @@ function portfolioRoute(product: Product) {
 
 const locale = inject('locale', aikuLocaleStructure)
 const layout = inject('layout', retinaLayoutStructure)
+const uploadingPortfolioIds = inject('uploadingPortfolioIds', ref<number[]>([]))
 const _filter_popover = ref()
 
 const toggleFilterPopover = (event: Event) => {
@@ -1019,12 +1020,14 @@ onMounted(() => {
                     } : {}" 
                     isWithError 
                     icon="" 
-                    :label="ctrans('Create new product')" 
+                    :label="uploadingPortfolioIds.includes(item.id) ? ctrans('Uploading…') : ctrans('Create new product')"
+                    :loading="uploadingPortfolioIds.includes(item.id)"
                     size="xxs" 
                     type="tertiary" 
                     :style="'white-w-outline'"
                     :bindToLink="{preserveScroll: true}"
-                    :disabled="disableButtons(item)"
+                    @success="() => uploadingPortfolioIds.push(item.id)"
+                    :disabled="disableButtons(item) || uploadingPortfolioIds.includes(item.id)"
                 />
             </div>
         </template>

@@ -432,7 +432,7 @@ const saveSettings = () => {
             </div>
         </section>
 
-        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <div v-if="packagingOptions.length" class="grid grid-cols-1 lg:grid-cols-5 gap-6">
             <!-- Section 2: Inserts & leaflets -->
             <section class="lg:col-span-3 rounded-lg border border-gray-200 bg-white p-4 sm:p-6">
                 <h2 class="text-base font-semibold">
@@ -520,7 +520,7 @@ const saveSettings = () => {
             </section>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <div v-if="packagingOptions.length" class="grid grid-cols-1 lg:grid-cols-5 gap-6">
             <!-- Section 4: Manage leaflets -->
             <section class="lg:col-span-3 rounded-lg border border-gray-200 bg-white p-4 sm:p-6">
                 <div class="mb-4">

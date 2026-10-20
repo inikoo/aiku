@@ -56,7 +56,7 @@ export const useEchoRetinaPersonal = defineStore("echo-retina-personal", {
                     // console.log(this.progressBars[eventData.action_type][eventData.action_id].estimatedTime)
 
                     // To show the progress bars
-                    if(!this.isShowProgress) this.isShowProgress = true
+                    if(!this.isShowProgress && eventData.action_type === 'Upload') this.isShowProgress = true
 
                     // If already reach 100%
                     if(eventData.done >= eventData.total){
