@@ -402,7 +402,7 @@ const liveLinesOf = (level: Level) => props.data.live?.lines.filter((line) => li
 				</div>
 			</div>
 
-			<div class="flex flex-wrap items-center gap-2 border-t border-gray-100 pt-3">
+			<div class="flex flex-wrap items-center gap-2 border-t border-gray-300 pt-3">
 				<template v-if="data.purchase_orders.length">
 					<Select v-model="selectedPurchaseOrder" :options="data.purchase_orders" optionLabel="label" optionValue="url" filter :placeholder="ctrans('Purchase order')" :class="fieldFocusClass" class="min-w-72" size="small" />
 					<Button type="tertiary" size="xs" :label="ctrans('Print packing instructions')" :disabled="!selectedPurchaseOrder" @click="printPackingInstructions">
