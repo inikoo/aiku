@@ -166,9 +166,9 @@ const blankLine = (level: Level): FormLine => ({ packaging_component_id: null, l
 const form = useForm<{
 	packed_by: string
 	effective_from: Date | null
-	carton_length_mm: number | null
-	carton_width_mm: number | null
-	carton_height_mm: number | null
+	carton_length_cm: number | null
+	carton_width_cm: number | null
+	carton_height_cm: number | null
 	declared_carton_gross_weight_g: number | null
 	lines: FormLine[]
 	photo: File | null
@@ -176,9 +176,9 @@ const form = useForm<{
 }>({
 	packed_by: "agent",
 	effective_from: new Date(),
-	carton_length_mm: null,
-	carton_width_mm: null,
-	carton_height_mm: null,
+	carton_length_cm: null,
+	carton_width_cm: null,
+	carton_height_cm: null,
 	declared_carton_gross_weight_g: null,
 	lines: [],
 	photo: null,
@@ -193,9 +193,9 @@ const startEditing = () => {
 	form.clearErrors()
 	form.packed_by = live?.packed_by ?? (props.data.is_agent ? "agent" : "supplier")
 	form.effective_from = new Date()
-	form.carton_length_mm = live?.carton_length_mm ?? (dimensions?.l ? Math.round(dimensions.l * 10) : null)
-	form.carton_width_mm = live?.carton_width_mm ?? (dimensions?.w ? Math.round(dimensions.w * 10) : null)
-	form.carton_height_mm = live?.carton_height_mm ?? (dimensions?.h ? Math.round(dimensions.h * 10) : null)
+	form.carton_length_cm = live?.carton_length_mm ? live.carton_length_mm / 10 : (dimensions?.l ?? null)
+	form.carton_width_cm = live?.carton_width_mm ? live.carton_width_mm / 10 : (dimensions?.w ?? null)
+	form.carton_height_cm = live?.carton_height_mm ? live.carton_height_mm / 10 : (dimensions?.h ?? null)
 	form.declared_carton_gross_weight_g = live?.declared_carton_gross_weight_g ?? props.data.supplier_product.carton_weight ?? null
 	form.lines = live
 		? live.lines.map((line) => ({
@@ -248,14 +248,20 @@ const weightCheck = computed(() => {
 	return { expected, cartonWeight: gross, deviation, warning: Math.abs(deviation) > props.data.tolerance_pct }
 })
 
+const toMillimetres = (centimetres: number | null) => (centimetres ? Math.round(centimetres * 10) : null)
+const toCentimetres = (millimetres: number | null) => (millimetres ? formatNumber(millimetres / 10) : "—")
+
 const lineError = (index: number, field: string) => (form.errors as Record<string, string>)[`lines.${index}.${field}`]
 
 const submit = () => {
 	const storeRoute = props.data.store_route
 	if (!storeRoute) return
 	form
-		.transform((data) => ({
+		.transform(({ carton_length_cm, carton_width_cm, carton_height_cm, ...data }) => ({
 			...data,
+			carton_length_mm: toMillimetres(carton_length_cm),
+			carton_width_mm: toMillimetres(carton_width_cm),
+			carton_height_mm: toMillimetres(carton_height_cm),
 			effective_from: toIso(data.effective_from),
 			lines: data.lines.filter((line) => line.packaging_component_id),
 			...(data.photo ? { photo: data.photo } : { photo: null }),
@@ -343,7 +349,7 @@ const liveLinesOf = (level: Level) => props.data.live?.lines.filter((line) => li
 					<div>
 						{{ ctrans("Carton") }}:
 						<span class="text-gray-800">
-							<template v-if="data.live.carton_length_mm">{{ data.live.carton_length_mm }} × {{ data.live.carton_width_mm }} × {{ data.live.carton_height_mm }} mm</template>
+							<template v-if="data.live.carton_length_mm">{{ toCentimetres(data.live.carton_length_mm) }} × {{ toCentimetres(data.live.carton_width_mm) }} × {{ toCentimetres(data.live.carton_height_mm) }} cm</template>
 							<template v-else>—</template>
 						</span>
 					</div>
@@ -424,16 +430,16 @@ const liveLinesOf = (level: Level) => props.data.live?.lines.filter((line) => li
 					<DatePicker v-model="form.effective_from" dateFormat="d M yy" showIcon iconDisplay="input" :class="fieldFocusClass" fluid />
 				</label>
 				<label class="space-y-1">
-					<span class="block text-xs text-gray-500">{{ ctrans("Carton length (mm)") }}</span>
-					<InputNumber v-model="form.carton_length_mm" :min="1" :useGrouping="false" :class="fieldFocusClass" fluid />
+					<span class="block text-xs text-gray-500">{{ ctrans("Carton length (cm)") }}</span>
+					<InputNumber v-model="form.carton_length_cm" :min="0" :maxFractionDigits="1" :useGrouping="false" :class="fieldFocusClass" fluid />
 				</label>
 				<label class="space-y-1">
-					<span class="block text-xs text-gray-500">{{ ctrans("Carton width (mm)") }}</span>
-					<InputNumber v-model="form.carton_width_mm" :min="1" :useGrouping="false" :class="fieldFocusClass" fluid />
+					<span class="block text-xs text-gray-500">{{ ctrans("Carton width (cm)") }}</span>
+					<InputNumber v-model="form.carton_width_cm" :min="0" :maxFractionDigits="1" :useGrouping="false" :class="fieldFocusClass" fluid />
 				</label>
 				<label class="space-y-1">
-					<span class="block text-xs text-gray-500">{{ ctrans("Carton height (mm)") }}</span>
-					<InputNumber v-model="form.carton_height_mm" :min="1" :useGrouping="false" :class="fieldFocusClass" fluid />
+					<span class="block text-xs text-gray-500">{{ ctrans("Carton height (cm)") }}</span>
+					<InputNumber v-model="form.carton_height_cm" :min="0" :maxFractionDigits="1" :useGrouping="false" :class="fieldFocusClass" fluid />
 				</label>
 				<label class="space-y-1">
 					<span class="block text-xs text-gray-500">{{ ctrans("Carton gross weight (g)") }}</span>
@@ -483,7 +489,7 @@ const liveLinesOf = (level: Level) => props.data.live?.lines.filter((line) => li
 								<InputNumber v-model="line.weight_g_each" :min="0" :maxFractionDigits="3" :class="fieldFocusClass" fluid size="small" />
 							</label>
 						</div>
-						<Select v-model="line.role" :options="roleOptions" optionLabel="label" optionValue="value" :placeholder="ctrans('Role')" :class="fieldFocusClass" fluid size="small" />
+						<Select v-model="line.role" :options="roleOptions" optionLabel="label" optionValue="value" filter :placeholder="ctrans('Role')" :class="fieldFocusClass" fluid size="small" />
 						<InputText
 							v-if="line.packaging_component_id && dropdownById[line.packaging_component_id]?.needs_review"
 							v-model="line.description"

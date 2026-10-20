@@ -45,7 +45,7 @@
             <td class="label">{{ __('Carton (L × W × H)') }}</td>
             <td>
                 @if($spec->carton_length_mm)
-                    {{ $spec->carton_length_mm }} × {{ $spec->carton_width_mm }} × {{ $spec->carton_height_mm }} mm
+                    {{ $spec->carton_length_mm / 10 }} × {{ $spec->carton_width_mm / 10 }} × {{ $spec->carton_height_mm / 10 }} cm
                 @else
                     —
                 @endif

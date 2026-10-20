@@ -46,7 +46,7 @@ enum OrgSupplierProductTabsEnum: string
                 'icon'  => 'fal fa-box-open',
             ],
             OrgSupplierProductTabsEnum::SHOWCASE => [
-                'title' => __('Supplier product'),
+                'title' => __('Showcase'),
                 'icon'  => 'fas fa-info-circle',
             ],
             OrgSupplierProductTabsEnum::PURCHASE_SALES => [
