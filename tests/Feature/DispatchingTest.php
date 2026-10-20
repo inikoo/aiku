@@ -6190,12 +6190,14 @@ test('EPR flow lines classify received stock deliveries and dispatched delivery 
         ->and(\App\Actions\Reports\GetUkPackagingReturn::make()->submissionPeriod(\Illuminate\Support\Carbon::parse('2026-07-01'), \Illuminate\Support\Carbon::parse('2026-12-31')))->toBe('2026-P4');
 
     $slovak = $this->organisation->replicate()->setRelation('country', \App\Models\Helpers\Country::where('code', 'SK')->firstOrFail());
-    $slovak->id = $this->organisation->id;
+    $slovak->id         = $this->organisation->id;
+    $slovak->country_id = $slovak->country->id;
     $euReturn = \App\Actions\Reports\GetEuPackagingReturn::run($slovak, \Illuminate\Support\Carbon::parse('2001-03-01'), \Illuminate\Support\Carbon::parse('2001-03-31'));
 
     expect($euReturn['scheme'])->toBe('sk')
         ->and($euReturn['rows'])->toBe([['scheme_material' => 'Sklo', 'scheme_subcategory' => null, 'sales_kg' => 2.9, 'shipment_kg' => 0.0, 'kg' => 2.9, 'previous_kg' => null, 'change' => null]])
-        ->and($euReturn['domestic_parcel_share'])->toEqual(100)
+        ->and($euReturn['domestic'])->toBeTrue()
+        ->and(array_column($euReturn['schemes'], 'value'))->toBe(['sk', 'de', 'es', 'fr', 'it'])
         ->and(\App\Actions\Reports\ExportEuPackagingReturn::make()->handle($euReturn))->toBe([['2001-03-01', '2001-03-31', 'Sklo', null, 2.9, 0.0, 2.9]])
         ->and(\App\Actions\Reports\GetEuPackagingReturn::make()->scheme($this->organisation->replicate()->setRelation('country', \App\Models\Helpers\Country::where('code', 'GB')->firstOrFail())))->toBeNull();
 
@@ -6375,6 +6377,94 @@ test('shipment packaging is reported as used and lines added by hand join the UK
     expect($return()['manual_lines'])->toBe([])
         ->and($orgStock->refresh()->is_shipment_packaging)->toBeFalse()
         ->and($return()['lines'])->toBe([]);
+});
+
+test('distance selling scheme returns count consumer parcels, the exposure tab flags unregistered countries and a frozen return keeps its SKO lines', function () {
+    $tradeUnit = \App\Actions\Goods\TradeUnit\StoreTradeUnit::make()->action($this->group, \App\Models\Goods\TradeUnit::factory()->definition());
+    $family    = \App\Actions\Goods\Packaging\StorePackagingFamilyFromComponents::run($this->group, 'EPX-'.Str::random(6), null, [
+        ['packaging_level' => 'primary', 'name' => 'Bottle '.Str::random(6), 'material' => 'Glass', 'material_id_code' => 'GL 70', 'material_category' => 'glass', 'weight_g' => 100, 'quantity' => 1, 'quantity_per_unit' => 1],
+    ]);
+    $tradeUnit->update(['packaging_family_id' => $family->id]);
+    $orgStock = StoreOrgStock::make()->action($this->organisation, StoreStock::make()->action($this->group, Stock::factory()->definition()));
+    $orgStock->update(['code' => 'EPX'.Str::random(6)]);
+    $orgStock->tradeUnits()->sync([$tradeUnit->id => ['quantity' => 1]]);
+
+    $scheme  = $this->organisation->country->code === 'DE' ? \App\Enums\Goods\Packaging\EprSchemeEnum::FR : \App\Enums\Goods\Packaging\EprSchemeEnum::DE;
+    $foreign = \App\Models\Helpers\Country::where('code', $scheme->countryCode())->firstOrFail();
+
+    $dispatch = function (int $countryId, string $shopType, int $quantity) use ($orgStock) {
+        $deliveryNote = StoreDeliveryNote::make()->action($this->order, [
+            'reference'        => 'EPX'.Str::random(6),
+            'state'            => DeliveryNoteStateEnum::UNASSIGNED,
+            'email'            => 'test@email.com',
+            'phone'            => '+62081353890000',
+            'date'             => '2001-05-05',
+            'delivery_address' => new Address(Address::factory()->definition()),
+            'warehouse_id'     => $this->warehouse->id,
+        ]);
+        $item = StoreDeliveryNoteItem::make()->action($deliveryNote, [
+            'delivery_note_id'  => $deliveryNote->id,
+            'org_stock_id'      => $orgStock->id,
+            'transaction_id'    => $this->order->transactions()->first()->id,
+            'quantity_required' => $quantity,
+        ]);
+        $deliveryNote->update(['state' => DeliveryNoteStateEnum::DISPATCHED, 'dispatched_at' => '2001-05-05 12:00:00', 'delivery_country_id' => $countryId, 'shop_type' => $shopType]);
+        $item->update(['quantity_dispatched' => $quantity]);
+    };
+    $dispatch($foreign->id, 'dropshipping', 3);
+    $dispatch($foreign->id, 'b2b', 5);
+    $dispatch($this->organisation->country_id, 'b2b', 2);
+
+    $from = \Illuminate\Support\Carbon::parse('2001-05-01');
+    $to   = \Illuminate\Support\Carbon::parse('2001-05-31');
+    \App\Actions\Goods\Packaging\BuildEprFlowLines::run($this->organisation, $from, $to);
+
+    $return = \App\Actions\Reports\GetEuPackagingReturn::run($this->organisation, $from, $to, $scheme);
+    expect($return['scheme'])->toBe($scheme->value)
+        ->and($return['domestic'])->toBeFalse()
+        ->and($return['kg'])->toEqual(0.3)
+        ->and($return['trade_kg'])->toEqual(0.5)
+        ->and($return['units'])->toEqual(3)
+        ->and($return['rows'][0]['scheme_material'])->toBe(\App\Models\Goods\EprMaterialMapping::resolve($scheme, \App\Enums\Goods\Packaging\PackagingMaterialCategoryEnum::GLASS)->scheme_material)
+        ->and(\App\Models\Goods\EprMaterialMapping::resolve(\App\Enums\Goods\Packaging\EprSchemeEnum::IT, \App\Enums\Goods\Packaging\PackagingMaterialCategoryEnum::PLASTIC, \App\Enums\Goods\Packaging\PackagingPolymerEnum::BIO)->scheme_material)->toBe('Plastica biodegradabile e compostabile');
+
+    $exposure = fn () => \App\Actions\Reports\GetEprExposure::run($this->organisation->refresh(), $from, $to);
+    $abroad   = fn () => collect($exposure()['countries'])->firstWhere('code', $foreign->code);
+
+    expect($exposure()['countries'][0]['own'])->toBeTrue()
+        ->and($exposure()['countries'][0]['kg'])->toEqual(0.2)
+        ->and($abroad())->toMatchArray(['consumer_kg' => 0.3, 'trade_kg' => 0.5, 'kg' => 0.8, 'has_scheme' => true, 'unregistered' => true, 'months' => ['2001-05' => 0.8]])
+        ->and($exposure()['abroad_consumer_kg'])->toEqual(0.3);
+
+    $this->post(route('grp.models.epr_registration.update', $this->organisation->id), ['country_code' => $foreign->code, 'registration_number' => 'DE123', 'scheme_operator' => 'Op'])
+        ->assertRedirect()->assertSessionHasNoErrors();
+    $this->post(route('grp.models.epr_registration.update', $this->organisation->id), ['country_code' => 'US', 'registration_number' => 'X'])->assertSessionHasErrors('country_code');
+    expect($abroad()['unregistered'])->toBeFalse()
+        ->and($abroad()['registration']['registration_number'])->toBe('DE123');
+
+    $this->post(route('grp.models.epr_snapshot.store', $this->organisation->id), ['scheme' => $scheme->value, 'date_from' => '2001-05-01', 'date_to' => '2001-05-31', 'notes' => 'Submitted'])
+        ->assertRedirect()->assertSessionHasNoErrors();
+    $snapshot = \App\Models\Goods\EprSnapshot::where('organisation_id', $this->organisation->id)->latest('id')->firstOrFail();
+
+    expect((float)$snapshot->kg)->toBe(0.3)
+        ->and($snapshot->lines()->orderBy('channel')->get()->map(fn ($line) => [$line->channel, $line->org_stock_code, (float)$line->weight_g, (float)$line->units, (float)$line->kg])->all())
+        ->toBe([['consumer', $orgStock->code, 100.0, 3.0, 0.3], ['trade', $orgStock->code, 100.0, 5.0, 0.5]]);
+
+    $family->components()->first()->update(['weight_g' => 999]);
+    expect($this->get(route('grp.org.reports.packaging.snapshot', [$this->organisation->slug, $snapshot->id, 'part' => 'return']))->assertOk()->streamedContent())
+        ->toContain('2001-05-01,2001-05-31,')
+        ->toContain(',0.3,0,0.3')
+        ->and($this->get(route('grp.org.reports.packaging.snapshot', [$this->organisation->slug, $snapshot->id]))->assertOk()->streamedContent())
+        ->toStartWith(implode(',', \App\Actions\Reports\ExportEprSnapshot::LINE_COLUMNS))
+        ->toContain($orgStock->code.',');
+
+    $this->get(route('grp.org.reports.packaging', [$this->organisation->slug, 'tab' => 'snapshots']))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('snapshots.0.id', $snapshot->id)
+            ->where('snapshots.0.notes', 'Submitted')
+            ->where('snapshots.0.lines', 2));
+    $this->get(route('grp.org.reports.packaging', [$this->organisation->slug, 'tab' => 'eu_return', 'scheme' => $scheme->value, 'from' => '2001-05-01', 'to' => '2001-05-31']))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('scheme', $scheme->value)->where('eu_return.trade_kg', 5));
 });
 
 test('a picking session is closed to staff without dispatching or fulfilment in its warehouse', function () {
