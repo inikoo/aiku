@@ -98,6 +98,7 @@ class HandleIrisInertiaRequests extends Middleware
             'website_dialogs' => $website ? GetIrisWebsiteDialogs::run($website) : [],
             'show_contact_options_panel' => Arr::get($website?->settings ?? [], 'view_contact_options_panel', false),
             'contact_options_panel'      => Arr::get($website?->settings ?? [], 'data_contact_options_panel', []),
+            'has_appointments'           => (bool) $website?->shop?->appointmentTypes()->where('is_active', true)->exists(),
             'canonical_url' => $this->canonicalUrl($request),
             'phpComponent'  => app()->environment('local') ? str_replace('\\', '/', $request->route()->getActionName()) : null,
         ];

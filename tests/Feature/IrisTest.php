@@ -43,6 +43,7 @@ use App\Actions\CRM\AppointmentType\StoreAppointmentType;
 use App\Enums\CRM\Appointment\AppointmentSourceEnum;
 use App\Enums\CRM\Appointment\AppointmentStateEnum;
 use App\Enums\CRM\AppointmentType\AppointmentTypeMeetingModeEnum;
+use App\Http\Middleware\HandleIrisInertiaRequests;
 use App\Models\CRM\Appointment;
 use App\Models\CRM\Prospect;
 use Illuminate\Support\Facades\Storage;
@@ -667,6 +668,25 @@ test('website lists open appointment types with their free times', function () {
         ->and($listed['meeting_mode'])->toBe('store_visit')
         ->and($listed['slots'])->not->toBeEmpty()
         ->and($types->pluck('id'))->not->toContain($closedType->id);
+});
+
+test('iris layout says whether the shop takes appointments so the floating appointment button shows', function () {
+    $sharesAppointments = function () {
+        $request = Request::create('http://'.$this->website->domain.'/', 'GET');
+        $request->merge(['website' => $this->website->fresh()]);
+
+        return (new HandleIrisInertiaRequests())->share($request)['has_appointments'];
+    };
+
+    $this->shop->appointmentTypes()->update(['is_active' => false]);
+    expect($sharesAppointments())->toBeFalse();
+
+    StoreAppointmentType::make()->action($this->shop, [
+        'name'             => 'Showroom visit '.Str::random(6),
+        'meeting_mode'     => AppointmentTypeMeetingModeEnum::STORE_VISIT->value,
+        'duration_minutes' => 60,
+    ]);
+    expect($sharesAppointments())->toBeTrue();
 });
 
 test('a website video call booking needs a WhatsApp number', function () {
