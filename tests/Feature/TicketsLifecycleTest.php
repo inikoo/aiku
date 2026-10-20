@@ -90,6 +90,13 @@ test('a premonition ticket gets a PRE reference with its own numbering', functio
         ->and($ticket->reference)->toBe('PRE-'.str_pad((string) $ticket->number, 2, '0', STR_PAD_LEFT))
         ->and($next->number)->toBe($ticket->number + 1)
         ->and(TicketTypeEnum::PREMONITION->icon()['icon'])->toBe('fal fa-bowling-ball');
+
+    $user = createAdminGuest($this->group)->getUser();
+    foreach (['pre-'.$ticket->number, 'PRE'.$ticket->number, (string) $ticket->number] as $search) {
+        $query = Ticket::query();
+        \App\Actions\Helpers\Ticket\ApplyTicketSearch::run($query, $search, $user);
+        expect($query->pluck('reference')->all())->toContain($ticket->reference);
+    }
 });
 
 test('customer ticket from retina gets an AD reference and the customer attached', function () {

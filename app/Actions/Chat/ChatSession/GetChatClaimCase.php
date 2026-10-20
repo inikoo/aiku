@@ -10,6 +10,7 @@ namespace App\Actions\Chat\ChatSession;
 
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Enums\CRM\Livechat\ChatTopicEnum;
+use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteTypeEnum;
 use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemReplacementReasonEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
@@ -51,7 +52,7 @@ class GetChatClaimCase
         $text  = mb_strtolower($details['text']);
         $left  = CheckClaimCompensation::run($order);
         $items = DeliveryNoteItem::query()
-            ->whereIn('delivery_note_id', $order->deliveryNotes()->where('type', DeliveryNoteTypeEnum::ORDER)->pluck('delivery_notes.id'))
+            ->whereIn('delivery_note_id', $order->deliveryNotes()->where('type', DeliveryNoteTypeEnum::ORDER)->where('state', '!=', DeliveryNoteStateEnum::CANCELLED->value)->pluck('delivery_notes.id'))
             ->with(['transaction.asset', 'orgStock'])
             ->limit(80)
             ->get();
@@ -133,6 +134,7 @@ class GetChatClaimCase
             'invoiced'  => $invoice ? $invoice->invoiceTransactions()->whereNotNull('transaction_id')->with('transactionRefunds')->get()
                 ->mapWithKeys(fn ($line) => [$line->transaction_id => max(0, round((float) $line->net_amount - abs((float) $line->transactionRefunds->where('in_process', false)->sum('net_amount')), 2))])
                 ->all() : [],
+            'invoiced_net' => $invoice ? $invoice->invoiceTransactions()->whereNotNull('transaction_id')->pluck('net_amount', 'transaction_id')->map(fn ($net) => (float) $net)->all() : [],
             'tax_ratio' => $invoice && (float) $invoice->net_amount != 0.0 ? round((float) $invoice->total_amount / (float) $invoice->net_amount, 4) : 1,
             'currency'  => $order->currency?->code,
             'refunds'   => $order->invoices()->where('type', InvoiceTypeEnum::REFUND)->pluck('reference')->all(),

@@ -9,6 +9,7 @@
 namespace App\Actions\Chat\ChatSession;
 
 use App\Actions\Chat\WithChatAgentAuthorisation;
+use App\Enums\CRM\Livechat\ChatAiDraftStatusEnum;
 use App\Enums\SysAdmin\Authorisation\ShopPermissionsEnum;
 use App\Models\Chat\ChatAiDraft;
 use App\Models\Chat\ChatSession;
@@ -41,6 +42,10 @@ class RunChatAiDraftAction
             return response()->json(['success' => false], 403);
         }
 
+        if (!$this->userCanDisposeOfChat($request->user(), $session)) {
+            return response()->json(['success' => false, 'message' => $this->chatHeldByAnotherAgentMessage($session)], 403);
+        }
+
         try {
             $view = DB::transaction(function () use ($chatAiDraft, $index, $session, $request) {
                 $draft  = ChatAiDraft::lockForUpdate()->findOrFail($chatAiDraft->id);
@@ -48,6 +53,7 @@ class RunChatAiDraftAction
 
                 abort_unless(is_array($action), 404);
                 abort_if(isset($action['done']), 409, __('This was already done'));
+                abort_unless(in_array($draft->status, [ChatAiDraftStatusEnum::PENDING, ChatAiDraftStatusEnum::USED, ChatAiDraftStatusEnum::EDITED], true) && !$draft->flagged_wrong_at, 422, __('This draft was discarded or replaced, so its actions can no longer be used'));
 
                 $action['done'] = $this->run($session, $request->user(), $action) + ['at' => now()->toIso8601String(), 'by' => $request->user()->id];
                 $draft->update(['facts' => array_replace_recursive($draft->facts, ['actions' => [$index => $action]])]);
@@ -72,11 +78,16 @@ class RunChatAiDraftAction
     private function run(ChatSession $session, User $user, array $action): array
     {
         if ($action['type'] === 'task') {
+            $assigneeId = isset($action['assignee']) ? $user->group->users()->where('username', $action['assignee'])->value('id') : null;
+            if (isset($action['assignee']) && !$assigneeId) {
+                abort(422, __('There is no user :username to give this task to', ['username' => $action['assignee']]));
+            }
+
             $task = StoreStaffTaskFromChatSession::make()->handle($session, $user, array_filter([
                 'subject'     => $action['subject'],
                 'description' => $action['description'] ?? null,
                 'department'  => $action['department'] ?? null,
-                'assignee_id' => isset($action['assignee']) ? $user->group->users()->where('username', $action['assignee'])->value('id') : null,
+                'assignee_id' => $assigneeId,
                 'priority'    => $action['priority'] ?? null,
             ]));
 
@@ -88,6 +99,7 @@ class RunChatAiDraftAction
 
         $order = self::order($session, $action['order']);
         abort_unless($order, 422, __(':order is not an order of this customer', ['order' => $action['order']]));
+        $order = Order::lockForUpdate()->find($order->id);
 
         $plan = PlanChatClaim::run($session, $order, $action['resolution'], $action['items'], $action['reason'] ?? null, $action['percentage'] ?? null);
         abort_if((bool) $plan['error'], 422, $plan['error'] ?? '');

@@ -415,15 +415,21 @@ const assignSelf = async () => {
     }
 }
 
+const isUsingDraft = ref(false)
 const assignAndUse = async (draftId: number) => {
-    await assignSelf()
-    if (props.session?.status !== "active") return
+    if (isUsingDraft.value) return
+    isUsingDraft.value = true
 
     try {
+        await assignSelf()
+        if (props.session?.status !== "active") return
+
         const { data } = await axios.post(route("grp.api.chats.ai_drafts.take", [draftId]))
         if (data?.data?.text) newMessage.value = data.data.text
     } catch {
         notify({ title: ctrans("Error"), text: ctrans("The draft could not be used, please copy it by hand"), type: "error" })
+    } finally {
+        isUsingDraft.value = false
     }
 }
 
@@ -1689,7 +1695,7 @@ const handleClickOutside = (e: MouseEvent) => {
 
         <!-- Footer: Assign-to-me banner for waiting (unassigned) chats -->
         <footer v-else-if="isWaiting" class="px-3 py-3 bg-white border-t">
-            <ChatAiDraftBox :session-ulid="chatSession?.ulid" preview assignable @assign-and-use="assignAndUse" />
+            <ChatAiDraftBox :session-ulid="chatSession?.ulid" preview assignable :assigning="isAssigningSelf || isUsingDraft" @assign-and-use="assignAndUse" />
             <div class="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg bg-gray-50 border border-gray-200">
                 <div class="text-xs text-gray-600">
                     {{ ctrans('Assign this chat to yourself to start the conversation') }}

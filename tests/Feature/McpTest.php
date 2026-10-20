@@ -2814,17 +2814,39 @@ describe('customer service tools', function () {
             ->and($shown['actions'][0]['label'])->toStartWith('Refund ')
             ->and($shown['actions'][1])->toMatchArray(['index' => 1, 'type' => 'task', 'label' => 'Ask the warehouse to check the box']);
 
+        App\Actions\Helpers\Translations\Translate::shouldRun()->andReturnUsing(fn (?string $text) => '[sk] '.$text);
+        $language = $this->user->language_id;
+        $this->user->update(['language_id' => App\Models\Helpers\Language::where('code', 'sk')->value('id')]);
+        postJson(route('grp.api.chats.ai_drafts.translate', [$draft->id]))->assertOk()
+            ->assertJsonPath('data.staff_note', '[sk] Before sending: refund the broken one.')
+            ->assertJsonPath('data.checked.1', '[sk] No refund given yet')
+            ->assertJsonPath('data.labels.1', '[sk] Ask the warehouse to check the box');
+        $this->user->update(['language_id' => $language]);
+
         $balance = (float) $this->csCustomer->refresh()->balance;
         postJson(route('grp.api.chats.ai_drafts.action', [$draft->id, 0]))->assertOk()->assertJsonPath('data.done', true);
         postJson(route('grp.api.chats.ai_drafts.action', [$draft->id, 0]))->assertStatus(409);
         expect((float) $this->csCustomer->refresh()->balance)->toBeGreaterThan($balance)
             ->and($order->invoices()->where('type', App\Enums\Accounting\Invoice\InvoiceTypeEnum::REFUND)->count())->toBe(1);
 
+        $facts = $draft->refresh()->facts;
+        $draft->update(['facts' => array_replace_recursive($facts, ['actions' => [1 => ['assignee' => 'nobody-'.uniqid()]]])]);
+        postJson(route('grp.api.chats.ai_drafts.action', [$draft->id, 1]))->assertStatus(422)->assertJsonPath('message', fn ($message) => str_contains($message, 'There is no user'));
+        $draft->update(['facts' => $facts]);
+
         $done = postJson(route('grp.api.chats.ai_drafts.action', [$draft->id, 1]))->assertOk()->json('data');
         expect($done['label'])->toStartWith('TASK-')
             ->and(App\Models\Tasks\StaffTask::where('subject', 'Check the box of '.$order->reference)->where('department', 'warehouse')->where('requester_id', $this->user->id)->exists())->toBeTrue();
 
-        $premonition->update(['status' => App\Enums\Helpers\Ticket\TicketStatusEnum::RESOLVED]);
+        $discarded = App\Models\Chat\ChatAiDraft::create([
+            'group_id' => $this->shop->group_id, 'organisation_id' => $this->shop->organisation_id, 'shop_id' => $this->shop->id,
+            'chat_session_id' => $this->chat->id, 'topic' => App\Enums\CRM\Livechat\ChatTopicEnum::OTHER, 'text' => 'Old draft',
+            'status' => App\Enums\CRM\Livechat\ChatAiDraftStatusEnum::DISCARDED, 'facts' => ['actions' => [$refund]],
+        ]);
+        postJson(route('grp.api.chats.ai_drafts.action', [$discarded->id, 0]))->assertStatus(422);
+        $discarded->delete();
+
+        $premonition->update(['status' => App\Enums\Helpers\Ticket\TicketStatusEnum::RESOLVED, 'resolved_at' => now()->addMinute()]);
         $this->chat->update(['last_visitor_message_at' => now(), 'last_agent_message_at' => null]);
         Illuminate\Support\Facades\Auth::setUser($this->user);
         $listed = collect(json_decode((string) app(App\Mcp\Tools\CustomerServiceInboxTool::class)->handle(new Laravel\Mcp\Request(['limit' => 50, 'premonition_fixed_only' => true]))->content(), true)['waiting'] ?? []);
@@ -2882,8 +2904,17 @@ describe('customer service tools', function () {
             return collect(json_decode((string) $response->content(), true)['waiting'] ?? [])->firstWhere('chat_id', $this->chat->ulid);
         };
 
-        expect($listed(['unopened_only' => true]))->toMatchArray(['unopened' => true])
+        expect($listed(['unopened_only' => true]))->toMatchArray(['unopened' => true, 'shop_slug' => $this->shop->slug])
+            ->and($listed(['unopened_only' => true, 'shops' => [$this->shop->slug]]))->not->toBeNull()
+            ->and($listed(['unopened_only' => true, 'shops' => ['no-such-shop']]))->toBeNull()
             ->and($listed([]))->not->toHaveKey('draft_waiting');
+
+        $this->travel(1)->minutes();
+        $note = App\Actions\Chat\ChatSession\StoreChatEvent::make()->internalNote($this->chat, 'Checked: nothing to confirm yet.', $this->user->id);
+        expect($listed(['unopened_only' => true]))->toBeNull()
+            ->and($listed([]))->toMatchArray(['unopened' => true]);
+        $note->delete();
+        $this->travelBack();
 
         App\Models\Chat\ChatAiDraft::create([
             'group_id' => $this->shop->group_id, 'organisation_id' => $this->shop->organisation_id, 'shop_id' => $this->shop->id,

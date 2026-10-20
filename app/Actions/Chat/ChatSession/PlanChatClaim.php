@@ -20,7 +20,8 @@ use Lorisleiva\Actions\Concerns\AsAction;
  * A claim on a chat's order, worked out the way the Claim panel does: which delivered items are
  * claimed, how much is still left to claim of each, and what a refund to the balance comes to.
  * The assistant's claim tool and the action buttons on a draft both plan and settle through here,
- * so a button can never refund more than the tool would.
+ * so a button can never refund more than the tool would. The amount is worked out as
+ * RefundClaimToBalance pays it: the share of each invoiced line, capped at what is left of it.
  */
 class PlanChatClaim
 {
@@ -76,7 +77,7 @@ class PlanChatClaim
                 'items'    => array_map(fn (array $stockLine) => ['id' => $stockLine['id'], 'quantity' => round($stockLine['quantity'] * $share, 3), 'reason' => $reason], $line['items']),
             ];
 
-            $amount += ($claim['invoiced'][$line['transaction_id']] ?? 0) * $share * $claim['tax_ratio'] * $percentage / 100;
+            $amount += min($claim['invoiced'][$line['transaction_id']] ?? 0, round(($claim['invoiced_net'][$line['transaction_id']] ?? 0) * $share * $percentage / 100, 2)) * $claim['tax_ratio'];
         }
 
         return ['error' => null, 'claimed' => $claimed, 'amount' => round($amount, 2), 'currency' => $claim['currency'], 'reason' => $reason, 'percentage' => $percentage];
