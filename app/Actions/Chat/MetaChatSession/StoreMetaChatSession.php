@@ -73,15 +73,16 @@ class StoreMetaChatSession
 
         $customer = isset($modelData['customer_id']) ? Customer::findOrFail($modelData['customer_id']) : null;
 
-        $phoneNumber = $this->normalisePhoneNumber($customer?->phone ?? Arr::get($modelData, 'phone_number'));
+        $phoneNumber    = $this->normalisePhoneNumber($customer?->phone ?? Arr::get($modelData, 'phone_number'));
+        $whatsappUserId = Arr::get($modelData, 'whatsapp_user_id');
 
-        if (blank($phoneNumber)) {
+        if (blank($phoneNumber) && blank($whatsappUserId)) {
             throw ValidationException::withMessages([
                 'phone_number' => __('No phone number available for this chat session.'),
             ]);
         }
 
-        if (str_starts_with($phoneNumber, '+') && !preg_match('/^\+[1-9]\d{7,14}$/', $phoneNumber)) {
+        if ($phoneNumber && str_starts_with($phoneNumber, '+') && !preg_match('/^\+[1-9]\d{7,14}$/', $phoneNumber)) {
             throw ValidationException::withMessages([
                 'phone_number' => __('Enter a valid phone number.'),
             ]);
@@ -89,10 +90,14 @@ class StoreMetaChatSession
 
         $name = $customer?->contact_name ?? $customer?->name ?? Arr::get($modelData, 'name');
 
-        $metaChatSession = DB::transaction(function () use ($metaChannel, $customer, $modelData, $phoneNumber, $name) {
+        $metaChatSession = DB::transaction(function () use ($metaChannel, $customer, $modelData, $phoneNumber, $whatsappUserId, $name) {
             $existing = MetaChatSession::where('meta_channel_id', $metaChannel->id)
                 ->where('shop_id', $modelData['shop_id'])
-                ->where('phone_number', $phoneNumber)
+                ->when(
+                    $phoneNumber,
+                    fn ($query) => $query->where('phone_number', $phoneNumber),
+                    fn ($query) => $query->where('whatsapp_user_id', $whatsappUserId)
+                )
                 ->latest('id')
                 ->first();
 
@@ -105,6 +110,7 @@ class StoreMetaChatSession
                 'shop_id'          => $modelData['shop_id'],
                 'customer_id'      => $customer?->id,
                 'phone_number'     => $phoneNumber,
+                'whatsapp_user_id' => $whatsappUserId,
                 'ulid'             => Str::ulid(),
                 'status'           => ChatSessionStatusEnum::ACTIVE,
                 'guest_identifier' => $name,

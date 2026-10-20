@@ -92,24 +92,22 @@ class StoreIncomingWhatsappMessage
             return;
         }
 
-        $digits      = preg_replace('/\D/', '', (string) Arr::get($message, 'from'));
-        $profileName = Arr::get($value, 'contacts.0.profile.name');
+        $digits         = preg_replace('/\D/', '', (string) Arr::get($message, 'from'));
+        $whatsappUserId = Arr::get($message, 'from_user_id') ?: Arr::get($value, 'contacts.0.user_id');
+        $profileName    = Arr::get($value, 'contacts.0.profile.name') ?: Arr::get($value, 'contacts.0.profile.username');
 
-        $metaChatSession = MetaChatSession::where('meta_channel_id', $metaChannel->id)
-            ->where('shop_id', $shop->id)
-            ->whereIn('phone_number', ['+'.$digits, $digits])
-            ->latest('id')
-            ->first();
+        $metaChatSession = $this->findSession($shop, $metaChannel, $digits, $whatsappUserId);
 
         if (!$metaChatSession) {
-            $customer = $this->findCustomer($shop, $digits);
+            $customer = $digits !== '' ? $this->findCustomer($shop, $digits) : null;
 
-            $metaChatSession = StoreMetaChatSession::run([
-                'shop_id'      => $shop->id,
-                'customer_id'  => $customer?->id,
-                'phone_number' => '+'.$digits,
-                'name'         => $profileName,
-            ]);
+            $metaChatSession = StoreMetaChatSession::run(array_filter([
+                'shop_id'          => $shop->id,
+                'customer_id'      => $customer?->id,
+                'phone_number'     => $digits !== '' ? '+'.$digits : null,
+                'whatsapp_user_id' => $whatsappUserId,
+                'name'             => $profileName,
+            ]));
         } elseif ($metaChatSession->status === ChatSessionStatusEnum::CLOSED) {
             $metaChatSession = ReopenMetaChatSession::make()->reopenToWaiting($metaChatSession);
         }
@@ -170,6 +168,42 @@ class StoreIncomingWhatsappMessage
 
         BroadcastRealtimeMetaChat::dispatch($metaChatMessage);
         BroadcastMetaChatListEvent::dispatch($metaChatMessage, $metaChatSession->fresh());
+    }
+
+    /**
+     * A contact who switches to a WhatsApp username stops sending their phone number, so the
+     * conversation is found by either, the phone first since it is the older thread, and keeps
+     * the newest user id, as Meta issues a new one when the phone number changes.
+     */
+    protected function findSession(Shop $shop, MetaChannel $metaChannel, string $digits, ?string $whatsappUserId): ?MetaChatSession
+    {
+        if ($digits === '' && !$whatsappUserId) {
+            return null;
+        }
+
+        $metaChatSession = MetaChatSession::where('meta_channel_id', $metaChannel->id)
+            ->where('shop_id', $shop->id)
+            ->where(function ($query) use ($digits, $whatsappUserId) {
+                if ($digits !== '') {
+                    $query->whereIn('phone_number', ['+'.$digits, $digits]);
+                }
+
+                if ($whatsappUserId) {
+                    $query->orWhere('whatsapp_user_id', $whatsappUserId);
+                }
+            })
+            ->when($digits !== '', fn ($query) => $query->orderByRaw('phone_number in (?, ?) desc nulls last', ['+'.$digits, $digits]))
+            ->latest('id')
+            ->first();
+
+        if ($metaChatSession) {
+            $metaChatSession->update(array_filter([
+                'whatsapp_user_id' => $whatsappUserId,
+                'phone_number'     => $digits !== '' && !$metaChatSession->phone_number ? '+'.$digits : null,
+            ]));
+        }
+
+        return $metaChatSession;
     }
 
     protected function resolveQuotedMessageId(MetaChatSession $metaChatSession, string $quotedWaMessageId): ?int

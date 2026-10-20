@@ -48,7 +48,7 @@ class SendMetaChatGreeting
 
         $response = Http::withToken($accessToken)->post($this->whatsappEndpoint($phoneNumberId.'/messages'), [
             'messaging_product' => 'whatsapp',
-            'to'                => preg_replace('/\D/', '', (string) $metaChatSession->phone_number),
+            ...$metaChatSession->whatsappRecipient(),
             'type'              => 'text',
             'text'              => ['body' => $text],
         ]);
