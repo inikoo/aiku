@@ -14,7 +14,7 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { ctrans } from "@/Composables/useTrans"
 import { isArray } from 'lodash-es'
 
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from '@/Composables/capitalize'
 import { PageHeadingTypes } from '@/types/PageHeading'
@@ -62,6 +62,12 @@ const form = useForm(
         ? { ...fields, [props.formData.submitField]: 'active' } // This part executes if the condition is truthy
         : fields // This part executes if the condition is falsy
 );
+
+const isSubmitBlocked = computed(() => props.formData.blueprint.some(section =>
+    Object.entries(section.fields).some(([fieldName, fieldData]: [string, any]) =>
+        fieldData.blockSubmitWhenEmpty && (form[fieldName] === null || form[fieldName] === undefined || form[fieldName] === '')
+    )
+))
 
 const isFieldVisible = (fieldData: any) => {
     if (fieldData.hidden) {
@@ -357,6 +363,7 @@ const onSelectSubmitChange = (value) => {
                     <Button
                         v-if="!formData.submitButton"
                         :loading="isLoading"
+                        :disabled="isSubmitBlocked"
                         type="save"
                         :label="formData.submitLabel"
                         @click="handleFormSubmit"
