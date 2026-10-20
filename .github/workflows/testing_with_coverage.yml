@@ -99,7 +99,7 @@ jobs:
             echo "::warning::No coverage driver (pcov/xdebug) for php8.4 on this runner, running tests without coverage"
           fi
           sed 's/name="memory_limit" value="5120M"/name="memory_limit" value="-1"/' phpunit.xml > phpunit.coverage.xml
-          /usr/bin/php8.4 -d memory_limit=-1 -d newrelic.enabled=0 vendor/bin/pest --configuration phpunit.coverage.xml --testsuite=Unit,Feature --parallel --processes=${PEST_PROCESSES:-4} $COVERAGE --log-junit junit.xml
+          /usr/bin/php8.4 -d memory_limit=-1 vendor/bin/pest --configuration phpunit.coverage.xml --testsuite=Unit,Feature --parallel --processes=${PEST_PROCESSES:-4} $COVERAGE --log-junit junit.xml
       - name: Report coverage to aiku
         if: ${{ !cancelled() && hashFiles('clover.xml') != '' }}
         env:
@@ -109,7 +109,7 @@ jobs:
         if: ${{ !cancelled() }}
         continue-on-error: true
         run: |
-          if ! /usr/bin/php8.4 -dxdebug.mode=off -d newrelic.enabled=0 vendor/bin/pest tests/Feature/AikuPublicTest.php --group=editorial; then
+          if ! /usr/bin/php8.4 -dxdebug.mode=off vendor/bin/pest tests/Feature/AikuPublicTest.php --group=editorial; then
             echo "::warning::Documentation translations are missing or stale; see the editorial audit output."
             echo "Documentation translations need attention. See the Editorial translation audit step for missing or stale guides." >> "$GITHUB_STEP_SUMMARY"
             exit 1
