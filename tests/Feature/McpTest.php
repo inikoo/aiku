@@ -2772,6 +2772,34 @@ describe('customer service tools', function () {
             ->assertSee($this->chat->ulid)
             ->assertSee('20 minutes ago');
 
+        $this->chat->messages()->whereIn('sender_type', ['guest', 'user'])->update(['is_read' => true]);
+        $customerMessage = App\Models\Chat\ChatMessage::create([
+            'chat_session_id' => $this->chat->id,
+            'message_type'    => App\Enums\CRM\Livechat\ChatMessageTypeEnum::TEXT,
+            'sender_type'     => App\Enums\CRM\Livechat\ChatSenderTypeEnum::USER,
+            'message_text'    => 'Is my order on its way?',
+        ]);
+        $listed = function (array $arguments) {
+            Illuminate\Support\Facades\Auth::setUser($this->user);
+            $response = app(App\Mcp\Tools\CustomerServiceInboxTool::class)->handle(new Laravel\Mcp\Request(['limit' => 50] + $arguments));
+
+            return collect(json_decode((string) $response->content(), true)['waiting'] ?? [])->firstWhere('chat_id', $this->chat->ulid);
+        };
+
+        expect($listed(['unopened_only' => true]))->toMatchArray(['unopened' => true])
+            ->and($listed([]))->not->toHaveKey('draft_waiting');
+
+        App\Models\Chat\ChatAiDraft::create([
+            'group_id' => $this->shop->group_id, 'organisation_id' => $this->shop->organisation_id, 'shop_id' => $this->shop->id,
+            'chat_session_id' => $this->chat->id, 'trigger_message_id' => $customerMessage->id, 'topic' => App\Enums\CRM\Livechat\ChatTopicEnum::OTHER,
+            'text' => 'On its way.', 'status' => App\Enums\CRM\Livechat\ChatAiDraftStatusEnum::PENDING,
+        ]);
+        $customerMessage->update(['is_read' => true, 'read_at' => now()]);
+
+        expect($listed(['unopened_only' => true]))->toBeNull()
+            ->and($listed([]))->toMatchArray(['draft_waiting' => true])
+            ->and($listed([]))->not->toHaveKey('unopened');
+
         $this->chat->update(['last_agent_message_at' => now()]);
 
         AikuServer::actingAs($this->user)->tool(App\Mcp\Tools\CustomerServiceInboxTool::class, ['limit' => 50])
