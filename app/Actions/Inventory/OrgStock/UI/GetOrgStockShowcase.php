@@ -44,6 +44,8 @@ class GetOrgStockShowcase
         usort($locations, function ($a, $b) {
             return $a['code'] <=> $b['code'];
         });
+        $batches   = GetOrgStockLocationBatches::run($orgStock);
+        $locations = array_map(fn (array $location) => [...$location, 'batches' => $batches->get($location['location']['id'], [])], $locations);
 
         $canEditStock = (bool) request()->user()?->authTo(WarehousePermissionsEnum::getStockEditPermissionNames($warehouse->organisation));
 

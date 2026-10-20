@@ -1162,6 +1162,12 @@ test('a location counted batch by batch and the best-before of what is on the sh
         ->and($listed[$labelled->id]['days_left'])->toBe(20)
         ->and(collect($counted['batches'])->pluck('quantity', 'batch_code_id')->all())->toEqual([$labelled->id => 4.0, $early->id => 3.0]);
 
+    $skoPage = $this->get(route('grp.org.warehouses.show.inventory.org_stocks.all_org_stocks.show', [$this->organisation->slug, $warehouse->slug, $orgStock->slug]))
+        ->assertOk()->viewData('page')['props'];
+    $moveStockLocation = collect($skoPage['showcase']['stocks_management']['locations'])->firstWhere('id', $slot->id);
+    expect(collect($moveStockLocation['batches'])->map(fn ($batch) => [$batch['code'], $batch['expiry_date'], $batch['quantity']])->all())
+        ->toEqual([[$newCode, $soon, 4.0], [$early->code, '2027-01-01', 3.0]]);
+
     $export = new \App\Exports\Inventory\OrgStocksExport($this->organisation);
     $row    = $export->query()->where('org_stocks.id', $orgStock->id)->first();
     $mapped = array_combine($export->headings(), $export->map($row));
