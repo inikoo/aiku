@@ -30,6 +30,15 @@ use App\Actions\Dropshipping\Ebay\StoreEbayUser;
 use App\Actions\Dropshipping\Ebay\Product\CheckEbayPortfolio;
 use App\Actions\Dropshipping\Ebay\Product\UpdateEbayPortfolio;
 use App\Actions\Dropshipping\Portfolio\StorePortfolio;
+use App\Actions\Catalogue\Product\StoreProduct;
+use Illuminate\Support\Str;
+use App\Actions\CRM\WebUser\StoreWebUser;
+use App\Actions\Dropshipping\Portfolio\CheckNewPortfoliosInPlatform;
+use App\Actions\Dropshipping\Portfolio\StoreMultiplePortfolios;
+use App\Events\CloneRetinaPortfolioProgressEvent;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
+use Lorisleiva\Actions\Decorators\JobDecorator;
 use App\Actions\Iris\Portfolio\StoreIrisPortfolioItemsToChannels;
 use App\Actions\Retina\UI\Dashboard\GetRetinaDropshippingHomeData;
 use App\Actions\Dropshipping\WooCommerce\Product\UpdateInventoryInEbayPortfolio;
@@ -1604,4 +1613,89 @@ test('staff without crm or accounting rights cannot list a channel marketplace p
     actingAsUserWithOnlyPermissions($user, ["products.$shop->id.view"]);
 
     $this->getJson(route('grp.json.dropshipping.customer_sales_channel.ebay_products', $customerSalesChannel->id))->assertForbidden();
+});
+
+function storeActiveProductsInFamily(Product $product, int $number): \Illuminate\Support\Collection
+{
+    $tradeUnit = $product->tradeUnits()->first();
+
+    return collect(range(1, $number))->map(fn () => UpdateProduct::make()->action(
+        StoreProduct::make()->action($product->family, array_merge(Product::factory()->definition(), [
+            'trade_units' => [['id' => $tradeUnit->id, 'quantity' => 1]],
+            'price'       => 10,
+        ])),
+        ['state' => ProductStateEnum::ACTIVE]
+    ));
+}
+
+test('adding products to a channel reads the same rows whether it adds one product or five', function () {
+    Queue::fake();
+    $products = storeActiveProductsInFamily($this->product, 6);
+    $platform = $this->group->platforms()->where('type', PlatformTypeEnum::MANUAL)->firstOrFail();
+    $channel  = StoreCustomerSalesChannel::make()->action(createOwnCustomer($this->shop, 'portfolio-batch-queries'), $platform, ['reference' => 'portfolio_batch_queries']);
+
+    $queriesToAdd = function (array $productIds) use ($channel): array {
+        $channel = CustomerSalesChannel::find($channel->id);
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+        StoreMultiplePortfolios::make()->action($channel, ['items' => $productIds]);
+        DB::disableQueryLog();
+
+        return collect(DB::getQueryLog())->pluck('query')->all();
+    };
+
+    $addingOne  = $queriesToAdd([$products[0]->id]);
+    $addingFive = $queriesToAdd($products->slice(1)->pluck('id')->all());
+
+    $isInsert = fn (string $sql) => str_starts_with(strtolower($sql), 'insert');
+
+    expect(count(array_filter($addingFive, fn ($sql) => !$isInsert($sql))))->toBe(count(array_filter($addingOne, fn ($sql) => !$isInsert($sql))))
+        ->and(count(array_filter($addingFive, $isInsert)))->toBe(5 * count(array_filter($addingOne, $isInsert)))
+        ->and($channel->portfolios()->whereIn('item_id', $products->pluck('id'))->where('status', true)->count())->toBe(6)
+        ->and($channel->refresh()->number_portfolios)->toBe(6)
+        ->and(Portfolio::where('customer_sales_channel_id', $channel->id)->whereDoesntHave('stats')->count())->toBe(0);
+});
+
+test('products added to a platform channel are checked in the platform by a queued job, not in the request', function () {
+    Queue::fake();
+    $products = storeActiveProductsInFamily($this->product, 2);
+    $channel  = storeConnectedEbayUser($this->customer, 'test-ebay-batch-check')->customerSalesChannel;
+
+    CheckEbayPortfolio::mock()->shouldNotReceive('handle');
+
+    StoreMultiplePortfolios::make()->action($channel, ['items' => $products->pluck('id')->all()]);
+
+    $newPortfolioIds = $channel->portfolios()->whereIn('item_id', $products->pluck('id'))->orderBy('id')->pluck('id')->all();
+
+    Queue::assertPushedOn('ds', JobDecorator::class, fn (JobDecorator $job) => $job->getAction() instanceof CheckNewPortfoliosInPlatform
+        && $job->getParameters()[1] === $newPortfolioIds);
+});
+
+test('the queued platform check checks each new portfolio and tells the customer when it is done', function () {
+    Event::fake([CloneRetinaPortfolioProgressEvent::class]);
+    $products = storeActiveProductsInFamily($this->product, 2);
+    $website = createWebsite($this->shop);
+    if ($website->state != WebsiteStateEnum::LIVE) {
+        LaunchWebsite::make()->action($website);
+    }
+    $customer = createOwnCustomer($this->shop, 'portfolio-batch-check-job');
+    $webUser  = StoreWebUser::make()->action($customer, ['username' => 'checker-'.Str::random(6), 'email' => Str::random(6).'@testmail.com', 'password' => 'test']);
+    $channel  = storeConnectedEbayUser($customer, 'test-ebay-batch-check-job')->customerSalesChannel;
+
+    $portfolios = $products->map(fn (Product $product) => StorePortfolio::make()->action($channel, $product, [], checkInPlatform: false));
+
+    $checked = [];
+    CheckEbayPortfolio::mock()->shouldReceive('handle')->andReturnUsing(function (Portfolio $portfolio) use (&$checked) {
+        $checked[] = $portfolio->id;
+
+        return $portfolio;
+    });
+
+    CheckNewPortfoliosInPlatform::run($channel, $portfolios->pluck('id')->all());
+
+    expect($checked)->toBe($portfolios->pluck('id')->all());
+
+    Event::assertDispatchedTimes(CloneRetinaPortfolioProgressEvent::class, 1);
+    Event::assertDispatched(CloneRetinaPortfolioProgressEvent::class, fn (CloneRetinaPortfolioProgressEvent $event) => $event->userId === $webUser->id && $event->actionType === CheckNewPortfoliosInPlatform::PROGRESS_ACTION_TYPE
+        && $event->actionId === $channel->id && $event->total === 2 && $event->done === 2 && $event->numberFails === 0);
 });

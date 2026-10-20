@@ -421,6 +421,16 @@ watch(
 	{ deep: true }
 )
 
+watch(
+	() => echoRetinaPersonal.progressBars?.CheckPortfolios?.[props.customer_sales_channel.id],
+	(progress) => {
+		if (progress && progress.total > 0) {
+			router.reload({ only: ["pageHead", "products"] })
+		}
+	},
+	{ deep: true }
+)
+
 // Section: Bulk upload to Shopify/Ebay/etc
 const isLoadingBulkDeleteUpload = ref(false)
 // const selectedPortfoliosToSync = ref([])
