@@ -80,6 +80,10 @@ class StoreShopifyProduct extends RetinaAction
                 'response' => $errorMessage
             ]);
 
+            UpdatePortfolio::run($portfolio, [
+                'errors_response' => $this->portfolioErrorResponse($errorMessage)
+            ]);
+
             return [false, $errorMessage];
         }
 

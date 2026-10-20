@@ -2921,7 +2921,8 @@ test('creating one product from retina returns at once and the queued job report
     $portfolio->update(['sku' => 'UP-RETINA-1']);
 
     DetectWebsiteFromDomain::mock()->shouldReceive('handle')->andReturn(LaunchWebsite::make()->action(createWebsite($this->shop)));
-    actingAs(createWebUser($shopifyUser->customerSalesChannel->customer), 'retina');
+    $username = 'retina-single-'.Str::lower(Str::random(8));
+    actingAs(StoreWebUser::make()->action($shopifyUser->customerSalesChannel->customer, ['username' => $username, 'email' => $username.'@testmail.com', 'password' => 'test']), 'retina');
 
     ShopifyFake::fake([
         'productVariantsWithSku' => ShopifyFake::graphql(['productVariants' => ['edges' => []]]),
@@ -2944,4 +2945,14 @@ test('creating one product from retina returns at once and the queued job report
     expect($portfolio->refresh()->platform_status)->toBeFalse()
         ->and($portfolio->errors_response['message'])->toContain('Something went wrong on our side');
     \Illuminate\Support\Facades\Event::assertDispatched(\App\Events\UploadProductToSalesChannelProgressEvent::class, fn ($event) => $event->portfolio->id === $portfolio->id && $event->statistics === ['total' => 1, 'success' => 0, 'fail' => 1]);
+});
+
+test('an upload to a store whose client cannot be built tells the customer why on the row', function () {
+    $shopifyUser = shopifyProductChannel($this, 'retina-no-client');
+    $portfolio   = StorePortfolio::make()->action($shopifyUser->customerSalesChannel, $this->product, []);
+
+    StoreNewProductToCurrentShopify::make()->asJob($portfolio, ['cache_key' => 'upload_progress_no_client', 'total' => 1]);
+
+    expect($portfolio->refresh()->platform_status)->toBeFalse()
+        ->and($portfolio->errors_response['message'])->toBe('Failed to initialize Shopify GraphQL client');
 });
