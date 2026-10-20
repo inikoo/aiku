@@ -9,7 +9,6 @@
 namespace App\Actions\Production\ManufactureTaskSession\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Production\Artisan\SetArtisanPayType;
 use App\Actions\Production\Production\UI\ShowArtisansDashboard;
 use App\Enums\Production\Artisan\ArtisanPayTypeEnum;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
@@ -17,7 +16,6 @@ use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTy
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionTimeEditReasonEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionUnderTargetReasonEnum;
-use App\Models\HumanResources\Employee;
 use App\Models\Production\ArtefactManufactureTask;
 use App\Models\Production\JobOrderItemTask;
 use App\Models\Production\ManufactureTask;
@@ -98,17 +96,15 @@ class IndexArtisans extends OrgAction
             ->orderByDesc('ended_at')
             ->get();
 
-        $payTypeHistory = $this->payTypeHistory($sessions->pluck('employee')->filter()->unique('id'));
-
         $totals = function (Collection $sessions): array {
             $closed = $sessions->where('state', ManufactureTaskSessionStateEnum::CLOSED);
 
             return [
                 'number_sessions'   => $closed->count(),
                 'hours'             => round($closed->sum(fn (ManufactureTaskSession $session) => $session->paidHours()), 2),
-                'quantity_made'     => (float)$closed->sum('quantity_made'),
-                'quantity_rejected' => (float)$closed->sum('quantity_rejected'),
-                'earned'            => round($closed->sum(fn (ManufactureTaskSession $session) => $session->quantity_made * ($session->task_work_cost ?? 0)), 2),
+                'quantity_made'     => round((float)$closed->sum('quantity_made'), 2),
+                'quantity_rejected' => round((float)$closed->sum('quantity_rejected'), 2),
+                'earned'            => round((float)$closed->sum('pay'), 2),
             ];
         };
 
@@ -165,7 +161,7 @@ class IndexArtisans extends OrgAction
                     'quantity_left'     => max(0, (float)$step->quantity_required - (float)$step->quantity_made),
                 ])->values()->all() : [],
             'quantity_rejected'   => (float)$session->quantity_rejected,
-            'earned'              => round($session->quantity_made * ($session->task_work_cost ?? 0), 2),
+            'earned'              => round((float)$session->pay, 2),
             'units_per_hour'      => $session->paidHours() > 0 ? round($session->quantity_made / $session->paidHours(), 1) : null,
             'standard_rate'       => $session->standard_rate === null ? null : (float)$session->standard_rate,
             'is_under_target'     => $session->is_under_target && $session->state == ManufactureTaskSessionStateEnum::CLOSED,
@@ -188,7 +184,7 @@ class IndexArtisans extends OrgAction
 
         $artisans = $sessions
             ->groupBy('user_id')
-            ->map(function (Collection $allUserSessions) use ($totals, $serializeSession, $timeEdit, $from, $to, $payTypeHistory) {
+            ->map(function (Collection $allUserSessions) use ($totals, $serializeSession, $timeEdit, $from, $to) {
                 /** @var ManufactureTaskSession $first */
                 $first         = $allUserSessions->first();
                 $userSessions  = $allUserSessions->reject(fn (ManufactureTaskSession $session) => $session->isNonProductive());
@@ -203,7 +199,6 @@ class IndexArtisans extends OrgAction
                         'name'       => 'grp.org.productions.show.artisans.pay_type.update',
                         'parameters' => ['organisation' => $this->organisation->slug, 'production' => $this->production->slug, 'employee' => $employee->id],
                     ] : null,
-                    'pay_type_history'  => $employee ? $payTypeHistory->get($employee->id, []) : [],
                     'is_guru'           => $employee?->guru_since && $employee->guru_since->lessThanOrEqualTo($to) && (!$employee->guru_until || $employee->guru_until->greaterThanOrEqualTo($from->copy()->startOfDay())),
                     'guru_since'        => $employee?->guru_since?->toDateString(),
                     'guru_until'        => $employee?->guru_until?->toDateString(),
@@ -248,12 +243,12 @@ class IndexArtisans extends OrgAction
             'Org/Production/Artisans',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
-                'title'       => __('Performance'),
+                'title'       => __('Artisans'),
                 'pageHead'    => [
-                    'title' => __('Performance'),
+                    'title' => __('Artisans'),
                     'icon'  => [
                         'icon'  => ['fal', 'fa-user-hard-hat'],
-                        'title' => __('Performance'),
+                        'title' => __('Artisans'),
                     ],
                 ],
                 'period'   => [
@@ -270,8 +265,6 @@ class IndexArtisans extends OrgAction
                 'left_open'           => $this->leftOpenSessions($production),
                 'artisan_pay_type'    => $payType,
                 'artisan_pay_types'   => ArtisanPayTypeEnum::labels(),
-                'pay_type_effective_from' => SetArtisanPayType::effectiveFrom()->toDateString(),
-                'currency_code'           => $this->organisation->currency->code,
                 'under_target_reasons' => ManufactureTaskSessionUnderTargetReasonEnum::labels(),
                 'non_productive_activities' => array_map(fn (ManufactureTaskSessionActivityTypeEnum $activity) => [
                     'value' => $activity->value,
@@ -384,33 +377,11 @@ class IndexArtisans extends OrgAction
                             'name'       => 'grp.org.productions.show.artisans.index',
                             'parameters' => $routeParameters,
                         ],
-                        'label' => __('Performance'),
+                        'label' => __('Artisans'),
                     ],
                     'suffix' => $suffix,
                 ],
             ]
         );
-    }
-
-    /**
-     * @param  Collection<int, Employee>  $employees
-     * @return Collection<int, array<int, array{changed_at: string, by: string|null, from: string|null, to: string|null, effective_from: string}>>
-     */
-    private function payTypeHistory(Collection $employees): Collection
-    {
-        $labels = ArtisanPayTypeEnum::labels();
-
-        return $employees->isEmpty() ? collect() : Employee::query()->whereIn('id', $employees->pluck('id'))
-            ->with(['audits' => fn ($query) => $query->where('event', 'updated')->whereNotNull('new_values->artisan_pay_type')->with('user')->latest('id')])
-            ->get()
-            ->mapWithKeys(fn (Employee $employee) => [
-                $employee->id => $employee->audits->map(fn ($audit) => [
-                    'changed_at'     => $audit->created_at->toIso8601String(),
-                    'by'             => $audit->user?->contact_name ?: $audit->user?->username,
-                    'from'           => $labels[$audit->old_values['artisan_pay_type'] ?? ''] ?? null,
-                    'to'             => $labels[$audit->new_values['artisan_pay_type']] ?? null,
-                    'effective_from' => SetArtisanPayType::effectiveFrom($audit->created_at)->toDateString(),
-                ])->values()->all(),
-            ]);
     }
 }

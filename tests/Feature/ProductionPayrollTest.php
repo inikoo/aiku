@@ -213,8 +213,9 @@ test('payroll csv export aggregates closed sessions with snapshotted rates', fun
     $response = get(route('grp.org.productions.show.artisans.payroll.export', [
         $this->organisation->slug,
         $this->production->slug,
-        'from' => now()->toDateString(),
-        'to'   => now()->toDateString(),
+        'from'     => now()->toDateString(),
+        'to'       => now()->toDateString(),
+        'detailed' => 1,
     ]));
 
     $response->assertOk();
@@ -877,13 +878,6 @@ describe('production reward pay bands', function () {
         $sessions = $artisans->pluck('jobs')->flatten(1)->pluck('steps')->flatten(1)->pluck('sessions')->flatten(1);
         expect($sessions->pluck('id'))->toContain($fast->id)
             ->and($sessions->every(fn (array $session) => $session['is_hourly']))->toBeTrue();
-
-        $labels  = \App\Enums\Production\Artisan\ArtisanPayTypeEnum::labels();
-        $history = $artisans->firstWhere('pay_type_route.parameters.employee', $artisan->id)['pay_type_history'];
-        expect($history)->toHaveCount(1)
-            ->and($history[0]['from'])->toBe($labels['piece_rate'])
-            ->and($history[0]['to'])->toBe($labels['hourly'])
-            ->and($history[0]['effective_from'])->toBe(now()->startOfWeek()->toDateString());
     });
 
     test('a guru gets the guru rate for every paid hour while a guru, at the rate of the day, in the payroll export', function () {
@@ -1318,6 +1312,67 @@ describe('production reward pay bands', function () {
         $rows = collect((new \App\Exports\Production\ManufacturePayrollExport($this->production, now()->startOfDay(), now()->endOfDay(), true))->array());
         expect($rows->sum(fn ($row) => $row[3]))->toBe($rows->sum(fn ($row) => $row[20]))
             ->and($rows->sum(fn ($row) => $row[20]))->toBeGreaterThanOrEqual(1);
+    });
+
+    test('payroll summary pays working hours at band 0, each band above it, rounds lines to add up and leaves out jobs left running', function () {
+        $day      = now()->addYears(5)->addDays(rand(0, 300))->setTime(9, 0);
+        $sessions = [];
+        foreach ([['3', 1.3333], ['0', 1.3333], ['1', 1.3334], ['0', 10]] as $index => [$band, $hours]) {
+            $sessions[] = \App\Models\Production\ManufactureTaskSession::create([
+                'group_id'               => $this->payBandJobOrderItemTask->group_id,
+                'organisation_id'        => $this->payBandJobOrderItemTask->organisation_id,
+                'production_id'          => $this->production->id,
+                'job_order_item_task_id' => $this->payBandJobOrderItemTask->id,
+                'manufacture_task_id'    => $this->payBandJobOrderItemTask->manufacture_task_id,
+                'user_id'                => auth()->user()->id,
+                'state'                  => ManufactureTaskSessionStateEnum::CLOSED,
+                'started_at'             => $day->clone()->addMinutes($index),
+                'ended_at'               => $day->clone()->addMinutes($index)->addSeconds((int) round($hours * 3600)),
+                'quantity_made'          => 10.33,
+                'hours'                  => $hours,
+                'band_code'              => $band,
+                'left_open_after_shift_at' => $hours == 10 ? $day->clone()->addHours(8) : null,
+            ]);
+        }
+
+        $artisan = \App\Actions\Production\ManufactureTaskSession\GetManufacturePayroll::run($this->production, $day, $day, auth()->user()->id)[0];
+
+        expect($artisan['working_hours'])->toBe(4.0)
+            ->and(round($artisan['band_0_hours'] + $artisan['band_1_hours'] + $artisan['band_3_hours'], 2))->toBe(4.0)
+            ->and($artisan['band_1_hours'])->toBe(1.34)
+            ->and($artisan['working_amount'])->toBe(50.84)
+            ->and($artisan['band_0_amount'])->toBe(0.0)
+            ->and($artisan['band_1_amount'])->toBe(0.39)
+            ->and($artisan['band_3_amount'])->toBe(3.05)
+            ->and($artisan['band_d_hours'])->toBe(0.0)
+            ->and($artisan['total'])->toBe(54.28)
+            ->and($artisan['excluded_sessions'])->toBe(1)
+            ->and(collect($artisan['lines'])->where('excluded', true)->first()['hours'])->toBe(10.0);
+
+        $response = get(route('grp.org.productions.show.artisans.payroll.export', [
+            $this->organisation->slug,
+            $this->production->slug,
+            'from' => $day->toDateString(),
+            'to'   => $day->toDateString(),
+        ]))->assertOk();
+        ob_start();
+        $response->sendContent();
+        $csv = ob_get_clean();
+
+        expect($csv)->toStartWith('"Worker","Working hours hours","Working hours £","Band 0 hours"')
+            ->and($csv)->toContain('"4.00","50.84","1.33","0.00","1.34","0.39","0.00","0.00","1.33","3.05","0.00","0.00","0.00","0.00","0.00","0.00","54.28"');
+
+        get(route('grp.org.productions.show.artisans.payroll', [$this->organisation->slug, $this->production->slug, 'from' => $day->toDateString(), 'to' => $day->toDateString()]))
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->component('Org/Production/ManufacturePayroll')
+                ->where('data.data.0.total', 54.28)
+                ->where('data.data.0.excluded_sessions', 1));
+
+        get(route('grp.org.productions.show.artisans.payroll.show', [$this->organisation->slug, $this->production->slug, auth()->user()->id, 'from' => $day->toDateString(), 'to' => $day->toDateString()]))
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->component('Org/Production/ManufacturePayrollArtisan')
+                ->where('summary.working_hours', 4)
+                ->has('data.data', 4));
     });
 
 });

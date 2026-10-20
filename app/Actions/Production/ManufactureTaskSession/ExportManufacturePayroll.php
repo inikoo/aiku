@@ -10,6 +10,7 @@ namespace App\Actions\Production\ManufactureTaskSession;
 
 use App\Actions\OrgAction;
 use App\Exports\Production\ManufacturePayrollExport;
+use App\Exports\Production\ManufacturePayrollSummaryExport;
 use App\Models\Production\Production;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
@@ -26,9 +27,15 @@ class ExportManufacturePayroll extends OrgAction
         $from = Carbon::parse(Arr::get($modelData, 'from', now()->subWeek()->startOfWeek()->toDateString()));
         $to   = Carbon::parse(Arr::get($modelData, 'to', now()->subWeek()->endOfWeek()->toDateString()));
 
+        if (Arr::get($modelData, 'detailed')) {
+            $filename = sprintf('payroll-detailed-%s-%s-%s.csv', $production->slug, $from->toDateString(), $to->toDateString());
+
+            return Excel::download(new ManufacturePayrollExport($production, $from, $to, (bool) Arr::get($modelData, 'time_edited', false)), $filename, ExcelWriter::CSV);
+        }
+
         $filename = sprintf('payroll-%s-%s-%s.csv', $production->slug, $from->toDateString(), $to->toDateString());
 
-        return Excel::download(new ManufacturePayrollExport($production, $from, $to, (bool) Arr::get($modelData, 'time_edited', false)), $filename, ExcelWriter::CSV);
+        return Excel::download(new ManufacturePayrollSummaryExport(GetManufacturePayroll::run($production, $from, $to)), $filename, ExcelWriter::CSV);
     }
 
     public function rules(): array
@@ -37,6 +44,7 @@ class ExportManufacturePayroll extends OrgAction
             'from' => ['sometimes', 'date'],
             'to'          => ['sometimes', 'date', 'after_or_equal:from'],
             'time_edited' => ['sometimes', 'boolean'],
+            'detailed'    => ['sometimes', 'boolean'],
         ];
     }
 
@@ -49,6 +57,7 @@ class ExportManufacturePayroll extends OrgAction
         return $request->user()->authTo([
             'org-supervisor.'.$this->organisation->id,
             "human-resources.{$this->organisation->id}.view",
+            "accounting.{$this->organisation->id}.view",
         ]);
     }
 
