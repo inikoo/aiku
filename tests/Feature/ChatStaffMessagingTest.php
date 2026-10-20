@@ -674,3 +674,14 @@ test('a staff chat on an order opens only for staff who can see that order, INI-
     actingAsUserWithOnlyPermissions($user, ["orders.{$this->shop->id}.view"]);
     $this->postJson(route('grp.chat.staff.context.open'), $payload)->assertSuccessful();
 });
+
+test('a staff member cannot start a conversation with only themselves', function () {
+    actingAs($this->user);
+    $before = \App\Models\Chat\StaffConversation::count();
+
+    $this->postJson(route('grp.chat.staff.conversations.store'), ['user_ids' => [$this->user->id]])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('user_ids');
+
+    expect(\App\Models\Chat\StaffConversation::count())->toBe($before);
+});

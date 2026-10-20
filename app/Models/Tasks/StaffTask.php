@@ -71,7 +71,7 @@ class StaffTask extends Model implements Auditable, HasMedia
     use InGroup;
     use InTicketProject;
 
-    public const array LINKABLE_MODELS = ['Product', 'Customer', 'Order', 'DeliveryNote', 'Location', 'OrgStock', 'ChatSession', 'MetaChatSession'];
+    public const array LINKABLE_MODELS = ['Product', 'Customer', 'Order', 'DeliveryNote', 'Location', 'OrgStock', 'ChatSession', 'MetaChatSession', 'ProductDevelopment'];
 
     public const array PEOPLE_SCOPED_MODELS = ['Product', 'Customer', 'Order', 'DeliveryNote'];
 

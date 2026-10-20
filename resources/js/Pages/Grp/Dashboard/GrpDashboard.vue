@@ -25,6 +25,7 @@ import ShopMonthTarget from "@/Components/DataDisplay/Dashboard/ShopMonthTarget.
 import GroupWarehouseOverview from "@/Components/DataDisplay/Dashboard/GroupWarehouseOverview.vue"
 import OperationsDashboard from "@/Components/DataDisplay/Dashboard/OperationsDashboard.vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
+import ProductDevelopmentWaitingWidget, { type ProductDevelopmentWaitingWidgetData } from "@/Components/Goods/ProductDevelopment/ProductDevelopmentWaitingWidget.vue"
 import { Dashboard as DashboardTS } from "@/types/Components/Dashboard"
 
 library.add(faTriangle, faSitemap, faChevronDown, faSeedling, faTimesCircle, faFolderOpen, faPlay, faCog, faChartLine, faGiftCard, faBox, faInventory, faSkullCow, faBan, faDollarSign, faBoxesAlt, faCheckCircle, faCircle, faHandsHelping, faMapSigns, faWarehouse, falChartLine, faCity, faDolly)
@@ -68,6 +69,7 @@ const props = defineProps<{
 	} | null
 	warehouseOverview?: InstanceType<typeof GroupWarehouseOverview>['$props']['overview'] | null
 	operations?: { section: string; route: { name: string } } | null
+	productDevelopmentsWaiting?: ProductDevelopmentWaitingWidgetData | null
 }>()
 
 ChartJS.register(ArcElement, Tooltip, Legend, Colors)
@@ -161,6 +163,13 @@ const onChangeDashboardTab = async (tabSlug: string): Promise<void> => {
 	<Head :title="capitalize(title)" />
 
 	<div>
+		<Deferred v-if="productDevelopmentsWaiting !== null" data="productDevelopmentsWaiting">
+			<template #fallback>
+				<div class="mx-3 mt-4 h-40 animate-pulse rounded-lg bg-gray-100 sm:mx-6" />
+			</template>
+			<ProductDevelopmentWaitingWidget v-if="productDevelopmentsWaiting" class="mx-3 mt-4 sm:mx-6" :data="productDevelopmentsWaiting" />
+		</Deferred>
+
 		<Tabs v-if="sectionNavigation" :navigation="sectionNavigation" :current="currentSection" @update:tab="changeSection" />
 
 		<OperationsDashboard v-if="operations" v-show="currentSection === 'operations'" :fetch-route="operations.route" :active="currentSection === 'operations'" />
@@ -392,7 +401,7 @@ const onChangeDashboardTab = async (tabSlug: string): Promise<void> => {
 		/>
 		</div>
 
-		<div v-if="!props.dashboard?.super_blocks?.length && !operations" class="flex flex-col items-center justify-center px-4 py-24" role="status">
+		<div v-if="!props.dashboard?.super_blocks?.length && !operations && productDevelopmentsWaiting === null" class="flex flex-col items-center justify-center px-4 py-24" role="status">
 			<FontAwesomeIcon icon="fal fa-chart-line" class="mb-4 text-6xl text-gray-300" fixed-width aria-hidden="true" />
 			<h3 class="mb-2 text-center text-lg font-medium text-gray-500">
 				{{ ctrans('No sales data to show') }}

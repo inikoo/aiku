@@ -5,6 +5,7 @@
   -->
 
 <script setup lang="ts">
+import ProductDevelopmentRelatedList from "@/Components/Goods/ProductDevelopment/ProductDevelopmentRelatedList.vue"
 import { Head } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -37,6 +38,7 @@ import { capitalize } from '@/Composables/capitalize'
 library.add(faBoxUsd, faClipboardList, faClock, faInbox, faPaperclip, faPersonDolly, faTruckContainer)
 
 const props = defineProps<{
+    productDevelopments?: InstanceType<typeof ProductDevelopmentRelatedList>["$props"]["data"]
     title: string
     pageHead: object
     tabs: {
@@ -82,8 +84,12 @@ const component = computed(() => {
         </template>
     </PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <div v-if="currentTab === 'showcase'" class="px-4 pt-4 max-w-4xl">
+    <div v-if="currentTab === 'showcase'" class="grid items-start gap-4 px-4 pt-4" :class="productDevelopments ? 'xl:grid-cols-[minmax(0,56rem)_minmax(0,1fr)]' : 'max-w-4xl'">
         <AgreementSummary :agreement="agreement" />
+        <section v-if="productDevelopments" class="overflow-hidden rounded-lg border border-gray-200 bg-white">
+            <h3 class="border-b border-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-800">{{ ctrans("Open product developments") }}</h3>
+            <ProductDevelopmentRelatedList :data="productDevelopments" compact :emptyText="ctrans('No open product development')" />
+        </section>
     </div>
     <component :is="component" :data="props[currentTab]" :tab="currentTab" :detachRoute="attachmentRoutes.detachRoute" v-bind="['agreed_terms', 'notes'].includes(currentTab) ? { agreement } : {}" />
 

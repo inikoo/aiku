@@ -44,6 +44,7 @@ class KeepAgentStaffInTheirOrganisation
         'grp.dashboard.show',
         'grp.tickets.',
         'grp.tasks.',
+        'grp.product_developments.',
         'grp.profile.',
         'grp.chat.staff.',
         'grp.clocking_employees.',
