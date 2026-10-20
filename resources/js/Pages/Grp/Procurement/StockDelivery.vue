@@ -257,6 +257,7 @@ const currentTab = ref(props.tabs.current)
 const isModalUploadOpen = ref(false)
 const costingSection = ref<"invoice" | "landed" | null>(null)
 const isCostingVisible = computed(() => !["in_process", "cancelled", "not_received"].includes(props.stock_delivery.state))
+const isInvoiceVisible = computed(() => isCostingVisible.value || (props.stock_delivery.state === "in_process" && !!props.box_stats.invoice_entry?.is_agent))
 
 const component = computed(() => {
 	const components: Component = {
@@ -1409,7 +1410,7 @@ const confirmDeleteStockDelivery = (action: any) => {
 											:orgExchange="box_stats.invoice.org_exchange"
 											:isEstimate="box_stats.invoice.source === 'estimated'"
 										/>
-										<div v-if="isCostingVisible && !costing.viewed_by_agent && blockIndex === 0" class="mt-3">
+										<div v-if="isInvoiceVisible && !costing.viewed_by_agent && blockIndex === 0" class="mt-3">
 											<Button
 												type="tertiary"
 												size="xs"
