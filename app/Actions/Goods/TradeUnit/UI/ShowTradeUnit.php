@@ -28,7 +28,9 @@ use App\Http\Resources\Goods\TradeUnitResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Actions\Traits\UI\WithBucketNavigation;
 use App\Enums\Goods\TradeUnit\TradeUnitStatusEnum;
+use App\Models\SysAdmin\User;
 use App\Models\Goods\TradeUnit;
+use App\Actions\Goods\ProductDevelopment\UI\GetRelatedProductDevelopments;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -129,9 +131,13 @@ class ShowTradeUnit extends OrgAction
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
-                    'navigation' => TradeUnitTabsEnum::navigation()
+                    'navigation' => $this->navigationWithDevelopments($tradeUnit, $request->user())
                 ],
                 'tradeUnitFamilySlug'   => $tradeUnit->tradeUnitFamily?->slug,
+                TradeUnitTabsEnum::PRODUCT_DEVELOPMENTS->value => $this->tab == TradeUnitTabsEnum::PRODUCT_DEVELOPMENTS->value ?
+                    fn () => ['rows' => GetRelatedProductDevelopments::make()->forTradeUnit($tradeUnit, $request->user()), 'create_route' => ['name' => 'grp.product_developments.create', 'parameters' => []]]
+                    : Inertia::optional(fn () => ['rows' => GetRelatedProductDevelopments::make()->forTradeUnit($tradeUnit, $request->user()), 'create_route' => ['name' => 'grp.product_developments.create', 'parameters' => []]]),
+
                 TradeUnitTabsEnum::SHOWCASE->value => $this->tab == TradeUnitTabsEnum::SHOWCASE->value ?
                     fn () => GetTradeUnitShowcase::run($tradeUnit)
                     : Inertia::optional(fn () => GetTradeUnitShowcase::run($tradeUnit)),
@@ -314,5 +320,18 @@ class ShowTradeUnit extends OrgAction
                 ]
             ]
         ];
+    }
+
+    /**
+     * The tabs, with the Development tab counting the developments the viewer may open.
+     *
+     * @return array<string, mixed>
+     */
+    private function navigationWithDevelopments(TradeUnit $model, User $viewer): array
+    {
+        $navigation = TradeUnitTabsEnum::navigation();
+        $navigation[TradeUnitTabsEnum::PRODUCT_DEVELOPMENTS->value]['number'] = count(GetRelatedProductDevelopments::make()->forTradeUnit($model, $viewer));
+
+        return $navigation;
     }
 }

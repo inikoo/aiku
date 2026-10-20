@@ -26,6 +26,8 @@ class StoreNewProductToCurrentShopify extends OrgAction implements ShouldBeUniqu
 
     public string $jobQueue = 'shopify';
 
+    public bool $jobDeleteWhenMissingModels = true;
+
     public function getJobUniqueId(Portfolio $portfolio): int
     {
         return $portfolio->id;
@@ -47,6 +49,25 @@ class StoreNewProductToCurrentShopify extends OrgAction implements ShouldBeUniqu
         if ($bulkProgress) {
             $this->broadcastBulkProgress($portfolio, $bulkProgress);
         }
+    }
+
+    /**
+     * An upload with progress swallows its own errors, so it only fails here when the queue killed it
+     * (timeout, lost worker); without this the page waiting for its result never hears back.
+     */
+    public function jobFailed(\Throwable $e, Portfolio $portfolio, ?array $bulkProgress = null): void
+    {
+        if (!$bulkProgress) {
+            return;
+        }
+
+        $portfolio = $portfolio->fresh() ?? $portfolio;
+
+        if (!$portfolio->platform_status) {
+            $this->recordPortfolioUploadFailure($portfolio, $e);
+        }
+
+        $this->broadcastBulkProgress($portfolio, $bulkProgress);
     }
 
     public function broadcastBulkProgress(Portfolio $portfolio, array $bulkProgress): void

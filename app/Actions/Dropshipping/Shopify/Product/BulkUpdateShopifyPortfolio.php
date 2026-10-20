@@ -20,6 +20,7 @@ use App\Models\Dropshipping\ShopifyUser;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -280,19 +281,20 @@ class BulkUpdateShopifyPortfolio implements ShouldBeUnique
             }
         }
 
-        $sentPortfolioIdsByStock = [];
+        $sentStockBindings = [];
         foreach ($indexToPortfolioId as $index => $portfolioId) {
             if (!isset($failedIndices[$index]) && $portfolios->has($portfolioId)) {
-                $sentPortfolioIdsByStock[$portfoliosToUpdateData[$portfolioId]['last_stock_value']][] = $portfolioId;
+                array_push($sentStockBindings, $portfolioId, $portfoliosToUpdateData[$portfolioId]['last_stock_value']);
             }
         }
 
-        $stockSentAt = now();
-        foreach ($sentPortfolioIdsByStock as $stock => $portfolioIds) {
-            Portfolio::on('aiku_no_sticky')->whereIn('id', $portfolioIds)->update([
-                'last_stock_value'      => $stock,
-                'stock_last_updated_at' => $stockSentAt,
-            ]);
+        if ($sentStockBindings) {
+            $stockSentAt = now();
+            $values      = implode(', ', array_fill(0, count($sentStockBindings) / 2, '(?::bigint, ?::int)'));
+            DB::connection('aiku_no_sticky')->update(
+                "update \"portfolios\" set \"last_stock_value\" = \"sent\".\"stock\", \"stock_last_updated_at\" = ?, \"updated_at\" = ? from (values $values) as \"sent\"(\"id\", \"stock\") where \"portfolios\".\"id\" = \"sent\".\"id\"",
+                [$stockSentAt, $stockSentAt, ...$sentStockBindings]
+            );
         }
 
         foreach ($indexToPortfolioId as $index => $portfolioId) {

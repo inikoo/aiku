@@ -11,13 +11,14 @@ import { capitalize } from "@/Composables/capitalize"
 import { ctrans } from "@/Composables/useTrans"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { PageHeadingTypes } from "@/types/PageHeading"
-import { faChartLine, faDatabase, faExclamationTriangle, faFlask, faRocket, faServer, faSpinnerThird, faTools } from "@fal"
+import { faChartLine, faCode, faDatabase, faExclamationTriangle, faFlask, faRocket, faServer, faSpinnerThird, faTools } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { computed, onBeforeUnmount, onMounted, ref } from "vue"
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import CiRunCard, { CiRunDetail, CiRunSummary } from "@/Components/DevOps/CiRunCard.vue"
 import TestStats, { TestStatsData } from "@/Components/DevOps/TestStats.vue"
+import CodeHealth, { CodeHealthData } from "@/Components/DevOps/CodeHealth.vue"
 import TelemetryPanel, { Telemetry } from "@/Components/DevOps/TelemetryPanel.vue"
 import { Trace } from "@/Components/DevOps/TraceWaterfall.vue"
 import { ExceptionDetailData } from "@/Components/DevOps/ExceptionDetail.vue"
@@ -27,7 +28,7 @@ import DatabaseReplicas, { DatabaseReplica } from "@/Components/DevOps/DatabaseR
 import DatabaseBackups, { DatabaseBackupsReport } from "@/Components/DevOps/DatabaseBackups.vue"
 import { LiveServerReading, useLiveServerMetrics } from "@/Composables/useLiveServerMetrics"
 
-library.add(faChartLine, faDatabase, faExclamationTriangle, faFlask, faRocket, faServer, faSpinnerThird, faTools)
+library.add(faChartLine, faCode, faDatabase, faExclamationTriangle, faFlask, faRocket, faServer, faSpinnerThird, faTools)
 
 const props = defineProps<{
     title: string
@@ -45,6 +46,7 @@ const props = defineProps<{
         usual_tests_seconds: number | null
         test_stats: TestStatsData
     }
+    codeHealth?: CodeHealthData | null
     telemetry?: Telemetry | null
     telemetryTrace?: Trace | null
     telemetryException?: ExceptionDetailData | null
@@ -83,16 +85,23 @@ const tabs = computed(() => ({
         }
         : { title: ctrans("Deployments"), icon: "fal fa-rocket" },
     tests: runningTests.value ? { title: ctrans("Testing"), ...spinning } : { title: ctrans("Tests"), icon: "fal fa-flask" },
+    code: { title: ctrans("Code health"), icon: "fal fa-code" },
     telemetry: { title: ctrans("Telemetry"), icon: "fal fa-chart-line" },
 }))
 const requestedTab = new URLSearchParams(window.location.search).get("tab") ?? ""
-const currentTab = ref<string>(["deployments", "tests", "telemetry"].includes(requestedTab) ? requestedTab : "servers")
+const currentTab = ref<string>(["deployments", "tests", "code", "telemetry"].includes(requestedTab) ? requestedTab : "servers")
 const changeTab = (tab: string | number) => {
     currentTab.value = String(tab)
     const url = new URL(window.location.href)
     url.searchParams.set("tab", currentTab.value)
     window.history.replaceState(window.history.state, "", url)
 }
+
+watch(currentTab, (tab) => {
+    if (tab === "code" && !props.codeHealth) {
+        router.reload({ only: ["codeHealth"] })
+    }
+}, { immediate: true })
 
 const problems = computed(() => [
     ...props.databaseReplicas.map((replica) => replica.issue),
@@ -140,6 +149,13 @@ const serverGroups = computed(() => props.servers.reduce<Record<string, ServerSu
             <TestStats :stats="ciRuns.test_stats" />
             <CiRunCard :title="ctrans('Tests on main')" :run="ciRuns.tests" :recent="ciRuns.recent_tests" :usual-seconds="ciRuns.usual_tests_seconds" />
         </div>
+        <template v-if="currentTab === 'code'">
+            <CodeHealth v-if="codeHealth" :health="codeHealth" class="mb-6 max-w-5xl" />
+            <div v-else class="mb-6 max-w-5xl space-y-4" aria-busy="true">
+                <div class="h-72 animate-pulse rounded-lg bg-gray-100" />
+                <div class="h-72 animate-pulse rounded-lg bg-gray-100" />
+            </div>
+        </template>
         <TelemetryPanel v-if="currentTab === 'telemetry'" :telemetry="telemetry" :trace="telemetryTrace" :exception="telemetryException" :logs="telemetryLogs" />
     </div>
 </template>

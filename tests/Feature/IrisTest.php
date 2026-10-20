@@ -126,6 +126,63 @@ test('iris footer json includes app version', function () {
         ->assertJsonPath('version', 'v2.369.0');
 });
 
+test('iris shares the out of stock notification outbox only when a page renders, never on json calls', function () {
+    DetectWebsiteFromDomain::mock()->shouldReceive('parseDomain')->andReturn($this->website->domain);
+
+    $outboxQueries = 0;
+    DB::listen(function ($query) use (&$outboxQueries) {
+        if (str_contains($query->sql, 'from "outboxes"')) {
+            $outboxQueries++;
+        }
+    });
+
+    $this->getJson('http://'.$this->website->domain.'/json/footer')->assertOk();
+    expect($outboxQueries)->toBe(0);
+
+    $request = Request::create('http://'.$this->website->domain);
+    $request->merge(['website' => $this->website]);
+    $request->setLaravelSession(app('session.store'));
+    $props = (new \App\Http\Middleware\HandleIrisInertiaRequests())->share($request);
+    $outboxQueriesWhileSharing = $outboxQueries;
+
+    $expected = $this->shop->outboxes()
+        ->where('code', OutboxCodeEnum::OOS_NOTIFICATION)
+        ->get()
+        ->mapWithKeys(fn ($outbox) => [$outbox->code->value => ['id' => $outbox->id, 'state' => $outbox->state]])
+        ->all();
+
+    expect($outboxQueriesWhileSharing)->toBe(0)
+        ->and($props['outboxes'])->toBeInstanceOf(\Closure::class)
+        ->and($props['outboxes']())->toBe($expected);
+});
+
+test('iris caches the website with its organisation and group so a request does not query them again', function () {
+    $websiteData = (new DetectIrisWebsite())->getWebsiteData($this->website->domain);
+    $cached      = unserialize(serialize($websiteData['website']));
+
+    $queries = 0;
+    DB::listen(function () use (&$queries) {
+        $queries++;
+    });
+
+    expect($cached->organisation->id)->toBe($this->website->organisation_id)
+        ->and($cached->group->id)->toBe($this->website->group_id)
+        ->and($cached->shop->id)->toBe($this->website->shop_id)
+        ->and($queries)->toBe(0);
+});
+
+test('webpage stats are indexed by webpage', function () {
+    $indexes = collect(DB::select('SELECT indexdef FROM pg_indexes WHERE tablename = ?', ['webpage_stats']))->pluck('indexdef')->implode("\n");
+
+    expect($indexes)->toContain('UNIQUE INDEX webpage_stats_webpage_id_unique');
+});
+
+test('live webpages are indexed by their canonical path', function () {
+    $indexes = collect(DB::select('SELECT indexdef FROM pg_indexes WHERE tablename = ?', ['webpages']))->pluck('indexdef')->implode("\n");
+
+    expect($indexes)->toContain('webpages_site_canonical_path_live_idx');
+});
+
 test('it detects iris website', function () {
     // Mock parseDomain to return the website's domain
     DetectWebsiteFromDomain::mock()
@@ -670,23 +727,27 @@ test('website lists open appointment types with their free times', function () {
         ->and($types->pluck('id'))->not->toContain($closedType->id);
 });
 
-test('iris layout says whether the shop takes appointments so the floating appointment button shows', function () {
+test('iris layout lists the shop active appointment types for the help panel', function () {
     $sharesAppointments = function () {
         $request = Request::create('http://'.$this->website->domain.'/', 'GET');
         $request->merge(['website' => $this->website->fresh()]);
 
-        return (new HandleIrisInertiaRequests())->share($request)['has_appointments'];
+        return (new HandleIrisInertiaRequests())->share($request)['appointment_types'];
     };
 
     $this->shop->appointmentTypes()->update(['is_active' => false]);
-    expect($sharesAppointments())->toBeFalse();
+    expect($sharesAppointments())->toBe([]);
 
-    StoreAppointmentType::make()->action($this->shop, [
+    $appointmentType = StoreAppointmentType::make()->action($this->shop, [
         'name'             => 'Showroom visit '.Str::random(6),
         'meeting_mode'     => AppointmentTypeMeetingModeEnum::STORE_VISIT->value,
         'duration_minutes' => 60,
     ]);
-    expect($sharesAppointments())->toBeTrue();
+    expect($sharesAppointments())->toBe([[
+        'id'           => $appointmentType->id,
+        'name'         => $appointmentType->name,
+        'meeting_mode' => 'store_visit',
+    ]]);
 });
 
 test('a website video call booking needs a WhatsApp number', function () {
@@ -949,4 +1010,45 @@ test('a test review reminder links to a preview of the review page that saves no
 
     expect(ShowIrisOrderReviewPreview::token($this->shop, $query['reference'], $query['products']))->toBe(basename($previewPath))
         ->and(Review::query()->count())->toBe($numberReviews);
+});
+
+test('the hourly data feed run checks every read mark of a shop at once and rebuilds the same feeds', function () {
+    Storage::fake('data-feeds');
+    $this->shop->update(['is_aiku' => true, 'state' => ShopStateEnum::OPEN]);
+
+    [, $product] = createProduct($this->shop);
+    $product->update(['state' => \App\Enums\Catalogue\Product\ProductStateEnum::ACTIVE, 'exclusive_for_customer_id' => null]);
+    $department = $product->department;
+    $family     = $product->family;
+    $department->update(['state' => \App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum::ACTIVE]);
+    $family->update(['state' => \App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum::ACTIVE]);
+    $collection = \App\Actions\Catalogue\Collection\StoreCollection::make()->action($this->shop, ['code' => 'feed-'.uniqid(), 'name' => 'Feed collection']);
+    $collection->update(['state' => \App\Enums\Catalogue\Collection\CollectionStateEnum::ACTIVE]);
+    DB::table('collection_has_models')->insert(['collection_id' => $collection->id, 'model_type' => 'Product', 'model_id' => $product->id, 'created_at' => now(), 'updated_at' => now()]);
+
+    $read   = [$this->shop, $department, $collection];
+    $unread = [$family];
+    foreach ($read as $parent) {
+        SaveDataFeeds::markAsRead($parent);
+    }
+    foreach ([...$read, ...$unread] as $parent) {
+        if (in_array($parent, $unread, true)) {
+            Cache::forget(SaveDataFeeds::readCacheKey($parent));
+        }
+        Storage::disk('data-feeds')->put(SaveDataFeeds::path($parent), 'stale');
+    }
+
+    $this->artisan('data_feeds:save')->assertSuccessful();
+
+    foreach ($read as $parent) {
+        expect(Storage::disk('data-feeds')->get(SaveDataFeeds::path($parent)))->toContain('Product code')->toContain($product->code);
+    }
+    Storage::disk('data-feeds')->assertMissing(SaveDataFeeds::path($family));
+
+    $export     = new \App\Exports\Marketing\ProductsInShopExport($this->shop);
+    $fullRows   = $export->query()->select('products.*', 'families.name as family_name', 'families.code as family_code', 'departments.name as department_name', 'departments.code as department_code', 'sub_departments.name as subdepartment_name', 'sub_departments.code as subdepartment_code')->get();
+    $feedRows   = iterator_to_array($export->generator(), false);
+
+    expect(array_map(fn ($row) => $export->map($row), $feedRows))->toBe($fullRows->map(fn ($row) => $export->map($row))->all())
+        ->and(count($feedRows))->toBeGreaterThan(0);
 });

@@ -33,19 +33,6 @@ class HandleIrisInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $website  = $request->input('website');
-        $outBoxes = $website?->shop?->outboxes()
-            ?->whereIn('code', [OutboxCodeEnum::OOS_NOTIFICATION])
-            ->select('id', 'code', 'state')
-            ->get()
-            ->mapWithKeys(fn ($item) => [
-                $item->code->value => [
-                    'id'    => $item->id,
-                    'state' => $item->state,
-                ],
-            ])
-            ->toArray() ?? [];
-
-
         $firstLoadOnlyProps = [];
 
         if (!$request->inertia() || Session::get('reloadLayout')) {
@@ -76,7 +63,7 @@ class HandleIrisInertiaRequests extends Middleware
                 "layout"   => [
                     "app_theme" => Arr::get($websiteTheme, 'color'),
                 ],
-                'outboxes' => $outBoxes
+                'outboxes' => fn () => $this->getOutboxes($website),
             ];
 
 
@@ -98,7 +85,12 @@ class HandleIrisInertiaRequests extends Middleware
             'website_dialogs' => $website ? GetIrisWebsiteDialogs::run($website) : [],
             'show_contact_options_panel' => Arr::get($website?->settings ?? [], 'view_contact_options_panel', false),
             'contact_options_panel'      => Arr::get($website?->settings ?? [], 'data_contact_options_panel', []),
-            'has_appointments'           => (bool) $website?->shop?->appointmentTypes()->where('is_active', true)->exists(),
+            'appointment_types'          => $website?->shop?->appointmentTypes()->where('is_active', true)->orderBy('name')->get(['id', 'name', 'meeting_mode'])
+                ->map(fn ($appointmentType) => [
+                    'id'           => $appointmentType->id,
+                    'name'         => $appointmentType->name,
+                    'meeting_mode' => $appointmentType->meeting_mode->value,
+                ])->all() ?? [],
             'canonical_url' => $this->canonicalUrl($request),
             'phpComponent'  => app()->environment('local') ? str_replace('\\', '/', $request->route()->getActionName()) : null,
         ];
@@ -114,6 +106,21 @@ class HandleIrisInertiaRequests extends Middleware
             $alwaysProps,
             parent::share($request),
         );
+    }
+
+    public function getOutboxes(?Website $website): array
+    {
+        return $website?->shop?->outboxes()
+            ->whereIn('code', [OutboxCodeEnum::OOS_NOTIFICATION])
+            ->select('id', 'code', 'state')
+            ->get()
+            ->mapWithKeys(fn ($item) => [
+                $item->code->value => [
+                    'id'    => $item->id,
+                    'state' => $item->state,
+                ],
+            ])
+            ->toArray() ?? [];
     }
 
     public function getAnnouncements(Website $website): array

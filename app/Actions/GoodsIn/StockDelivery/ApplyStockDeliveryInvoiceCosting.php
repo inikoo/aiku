@@ -9,25 +9,29 @@
 namespace App\Actions\GoodsIn\StockDelivery;
 
 use App\Actions\GoodsIn\StockDeliveryItem\UpdateStockDeliveryItemCost;
+use App\Actions\GoodsIn\StockDeliveryServiceInvoice\SyncStockDeliveryServiceInvoiceCosts;
+use App\Actions\SupplyChain\AgentInvoice\ApplyAgentInvoiceCosting;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryServiceInvoiceTypeEnum;
 use App\Models\Helpers\Currency;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithStockDeliveryCostingEditAuthorisation;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryCostTypeEnum;
-use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\GoodsIn\StockDeliveryItem;
 use App\Models\Helpers\Media;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
- * Writes the costs someone checked against the supplier invoice: each line's goods cost, the invoice
- * itself as received, and the extra charges they kept. The numbers come from the reviewer, never
- * straight from the reading. What the invoice bills that is not in the delivery is an extra expense of its own.
+ * Writes the costs of a supplier invoice read from its document, exactly as read: each line's goods cost (the
+ * invoice's unit price times what was received), the invoice as received at its total, and its charges as extra
+ * expenses. The reviewer says only where a line that matched no product goes and what kind of expense each charge
+ * is, never how much. The checks run again here, on the reading as stored, while the delivery is locked.
  *
  * An invoice in another currency than the delivery asks the reviewer whether the delivery follows the invoice:
  * yes moves the delivery to the invoice's currency, no keeps it and converts the invoice at the rate they give,
@@ -43,46 +47,33 @@ class ApplyStockDeliveryInvoiceCosting extends OrgAction
 
     private ?Currency $invoiceCurrency = null;
 
+    /**
+     * The charge type a reviewer gives a freight charge: it fills the shipping row, like the agent invoice's freight.
+     */
+    public const string FREIGHT = 'freight';
+
     public function rules(): array
     {
         return [
-            'invoice_number'   => ['nullable', 'string', 'max:255'],
-            'invoice_date'     => ['required', 'date'],
-            'invoice_total'    => ['required', 'numeric', 'gte:0'],
-            'items'            => ['required', 'array'],
-            'items.*.id'       => ['required', 'integer'],
-            'items.*.cost'     => ['required', 'numeric', 'gte:0'],
-            'charges'          => ['sometimes', 'array'],
-            'charges.*.label'  => ['required', 'string', 'max:255'],
-            'charges.*.amount' => ['required', 'numeric', 'gte:0'],
-            'not_in_delivery'          => ['sometimes', 'array'],
-            'not_in_delivery.*.label'  => ['required', 'string', 'max:255'],
-            'not_in_delivery.*.amount' => ['required', 'numeric', 'gt:0'],
-            'follow_invoice'   => ['sometimes', 'boolean'],
-            'exchange'         => ['sometimes', 'nullable', 'numeric', 'gt:0'],
+            'read_at'               => ['required', 'string'],
+            'assignments'           => ['sometimes', 'array', 'list'],
+            'assignments.*.index'   => ['required', 'integer', 'min:0'],
+            'assignments.*.item_id' => ['present', 'nullable', 'integer'],
+            'charge_types'          => ['sometimes', 'array', 'list'],
+            'charge_types.*'        => ['required', Rule::in([self::FREIGHT, ...array_column(StockDeliveryServiceInvoiceTypeEnum::extraOptions(), 'value')])],
+            'checked'               => ['sometimes', 'boolean'],
+            'confirmation'          => ['sometimes', 'nullable', 'string', 'max:255'],
+            'follow_invoice'        => ['sometimes', 'boolean'],
+            'exchange'              => ['sometimes', 'nullable', 'numeric', 'gt:0'],
         ];
     }
 
     public function afterValidator(Validator $validator): void
     {
-        if ($this->stockDelivery->state !== StockDeliveryStateEnum::PLACED || $this->stockDelivery->is_costed) {
-            $validator->errors()->add('state', __('You can only edit the costs while the costing is in progress'));
-        }
+        $currency = Arr::get(ReadStockDeliveryInvoice::reading($this->stockDelivery, $this->media) ?? [], 'currency');
 
-        $reading = ReadStockDeliveryInvoice::reading($this->stockDelivery, $this->media);
-
-        if (Arr::get($reading, 'state') !== 'read') {
-            $validator->errors()->add('invoice', __('This invoice has not been read yet'));
-        } elseif (Arr::get($reading, 'applied_at')) {
-            $validator->errors()->add('invoice', __('This invoice is already in the costing, change the costs in the checklist'));
-        } elseif ($reading['currency'] && strtoupper($reading['currency']) !== $this->stockDelivery->currency?->code) {
-            $this->validateOtherCurrency($validator, strtoupper($reading['currency']));
-        }
-
-        $ids = collect($this->get('items', []))->pluck('id');
-
-        if ($this->stockDelivery->items()->whereIn('id', $ids)->count() !== $ids->unique()->count()) {
-            $validator->errors()->add('items', __('Some lines are not in this stock delivery'));
+        if ($currency && strtoupper($currency) !== $this->stockDelivery->currency?->code) {
+            $this->validateOtherCurrency($validator, strtoupper($currency));
         }
     }
 
@@ -135,12 +126,22 @@ class ApplyStockDeliveryInvoiceCosting extends OrgAction
         return $costs;
     }
 
+    /**
+     * @param  array<string, mixed>  $modelData
+     *
+     * @throws ValidationException
+     */
     public function handle(StockDelivery $stockDelivery, Media $media, array $modelData): StockDelivery
     {
         $invoiceCurrency = $this->invoiceCurrency;
 
-        DB::transaction(function () use ($stockDelivery, $modelData, $invoiceCurrency) {
-            StockDelivery::whereKey($stockDelivery->id)->lockForUpdate()->first();
+        DB::transaction(function () use ($stockDelivery, $media, $modelData, $invoiceCurrency) {
+            $stockDelivery = StockDelivery::whereKey($stockDelivery->id)->lockForUpdate()->firstOrFail();
+            $reading       = ReadStockDeliveryInvoice::reading($stockDelivery, $media);
+            $assignments   = collect(Arr::get($modelData, 'assignments', []))->mapWithKeys(fn (array $row) => [(int) $row['index'] => $row['item_id'] === null ? null : (int) $row['item_id']])->all();
+            $review        = GetStockDeliveryInvoiceCosting::make()->review($stockDelivery, $reading, $media, $assignments);
+
+            $this->refuseUnlessApplicable($stockDelivery, $review, $modelData);
 
             if ($invoiceCurrency && Arr::get($modelData, 'follow_invoice')) {
                 ChangeStockDeliveryCurrency::run($stockDelivery, $invoiceCurrency);
@@ -149,7 +150,8 @@ class ApplyStockDeliveryInvoiceCosting extends OrgAction
 
             $exchange          = $invoiceCurrency ? (float) $modelData['exchange'] : 1.0;
             $inInvoiceCurrency = $invoiceCurrency ? ['currency_id' => $invoiceCurrency->id, 'exchange' => $exchange] : ['currency_id' => null];
-            $costs             = self::convertedCosts($modelData['items'], $exchange);
+            $lines             = collect($review['items'])->whereNotNull('proposed_cost')->map(fn (array $row) => ['id' => $row['id'], 'cost' => $row['proposed_cost']])->values()->all();
+            $costs             = self::convertedCosts($lines, $exchange);
             $items             = $stockDelivery->items()->whereIn('id', array_keys($costs))->get()->keyBy('id');
 
             foreach ($costs as $itemId => $cost) {
@@ -158,31 +160,43 @@ class ApplyStockDeliveryInvoiceCosting extends OrgAction
                 UpdateStockDeliveryItemCost::make()->action($item, ['cost_items' => $cost]);
             }
 
-            foreach (Arr::get($modelData, 'charges', []) as $charge) {
-                StoreStockDeliveryCost::make()->action($stockDelivery, [
-                    'type'        => StockDeliveryCostTypeEnum::EXTRA->value,
-                    'label'       => $charge['label'],
-                    'amount'      => $charge['amount'],
-                    'received_at' => $modelData['invoice_date'],
-                    ...$inInvoiceCurrency,
-                ]);
+            $freight = collect($review['charges'])
+                ->filter(fn (array $charge, int $index) => $modelData['charge_types'][$index] === self::FREIGHT && (float) $charge['amount'] > 0);
+
+            if ($freight->isNotEmpty()) {
+                $this->invoiceFreightToShipping($stockDelivery, $freight, $exchange, $review['invoice_date']);
             }
 
-            foreach (Arr::get($modelData, 'not_in_delivery', []) as $line) {
-                StoreStockDeliveryCost::make()->action($stockDelivery, [
-                    'type'        => StockDeliveryCostTypeEnum::EXTRA->value,
-                    'category'    => StockDeliveryServiceInvoiceTypeEnum::NOT_IN_DELIVERY->value,
-                    'label'       => $line['label'],
-                    'amount'      => $line['amount'],
-                    'received_at' => $modelData['invoice_date'],
-                    ...$inInvoiceCurrency,
-                ]);
+            foreach ($review['charges'] as $index => $charge) {
+                if ((float) $charge['amount'] > 0 && $modelData['charge_types'][$index] !== self::FREIGHT) {
+                    StoreStockDeliveryCost::make()->action($stockDelivery, [
+                        'type'        => StockDeliveryCostTypeEnum::EXTRA->value,
+                        'category'    => $modelData['charge_types'][$index],
+                        'label'       => mb_substr($charge['label'], 0, 255),
+                        'amount'      => $charge['amount'],
+                        'received_at' => $review['invoice_date'],
+                        ...$inInvoiceCurrency,
+                    ]);
+                }
+            }
+
+            foreach ($review['not_in_delivery'] as $line) {
+                if ((float) $line['amount'] > 0) {
+                    StoreStockDeliveryCost::make()->action($stockDelivery, [
+                        'type'        => StockDeliveryCostTypeEnum::EXTRA->value,
+                        'category'    => StockDeliveryServiceInvoiceTypeEnum::NOT_IN_DELIVERY->value,
+                        'label'       => $line['label'],
+                        'amount'      => $line['amount'],
+                        'received_at' => $review['invoice_date'],
+                        ...$inInvoiceCurrency,
+                    ]);
+                }
             }
 
             $invoice     = [
-                'label'       => $modelData['invoice_number'] ? __('Invoice :number', ['number' => $modelData['invoice_number']]) : null,
-                'amount'      => $modelData['invoice_total'],
-                'received_at' => $modelData['invoice_date'],
+                'label'                  => __('Invoice :number', ['number' => $review['invoice_number']]),
+                'amount'                 => $review['total'],
+                'received_at'            => $review['invoice_date'],
                 'is_waiting_for_invoice' => false,
                 ...$inInvoiceCurrency,
             ];
@@ -193,14 +207,90 @@ class ApplyStockDeliveryInvoiceCosting extends OrgAction
             } else {
                 StoreStockDeliveryCost::make()->action($stockDelivery, ['type' => StockDeliveryCostTypeEnum::AGENT_INVOICE->value, ...$invoice]);
             }
+
+            $data = $stockDelivery->refresh()->data ?? [];
+            data_set($data, 'invoice_number', $review['invoice_number']);
+            data_set($data, 'invoice_date', $review['invoice_date']);
+            $stockDelivery->update(['data' => $data]);
+
+            ReadStockDeliveryInvoice::storeReading($stockDelivery, $media, [
+                ...$reading,
+                'applied_at' => now()->toIso8601String(),
+                'applied_by' => auth()->id(),
+                ...($review['delivery_confirmation'] ? ['delivery_confirmed' => ['user_id' => auth()->id(), 'dates_fit' => $review['delivery_confirmation']['dates_fit']]] : []),
+            ]);
         });
 
-        ReadStockDeliveryInvoice::storeReading($stockDelivery, $media, [
-            ...(ReadStockDeliveryInvoice::reading($stockDelivery, $media) ?? []),
-            'applied_at' => now()->toIso8601String(),
-        ]);
-
         return $stockDelivery->refresh();
+    }
+
+    /**
+     * Freight on the invoice becomes the shipping, split by weight, and is kept as the invoice freight so the
+     * forwarder's freight bills add to it. A shipping row left not applicable or empty (domestic deliveries are
+     * prefilled so) takes the freight; shipping typed by hand may already hold it, so the invoice is refused rather
+     * than count the freight twice.
+     *
+     * @param  \Illuminate\Support\Collection<int, array{label: string, amount: float}>  $freight
+     *
+     * @throws ValidationException
+     */
+    private function invoiceFreightToShipping(StockDelivery $stockDelivery, \Illuminate\Support\Collection $freight, float $exchange, string $date): void
+    {
+        $shipping = $stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::SHIPPING)->first();
+
+        $placeholder = $shipping && !$shipping->from_service_invoices && ($shipping->is_na || $shipping->amount === null);
+
+        if ($shipping && !$shipping->from_service_invoices && !$placeholder) {
+            throw ValidationException::withMessages(['charge_types' => __('Shipping is already entered by hand on this delivery: put the invoice freight there, or remove it, before applying the invoice.')]);
+        }
+
+        $invoiceFreight = [
+            'label'       => mb_substr($freight->pluck('label')->implode(', '), 0, 250),
+            'amount'      => round($freight->sum('amount') * $exchange, 2),
+            'received_at' => $date,
+        ];
+
+        $data = $stockDelivery->refresh()->data ?? [];
+        data_set($data, ApplyAgentInvoiceCosting::FREIGHT, $invoiceFreight);
+        $stockDelivery->update(['data' => $data]);
+
+        if ($placeholder) {
+            UpdateStockDeliveryCost::make()->action($shipping, [...$invoiceFreight, 'is_na' => false, 'currency_id' => null]);
+        } elseif ($shipping) {
+            SyncStockDeliveryServiceInvoiceCosts::run($stockDelivery->refresh());
+        } else {
+            StoreStockDeliveryCost::make()->action($stockDelivery, ['type' => StockDeliveryCostTypeEnum::SHIPPING->value, ...$invoiceFreight]);
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $review
+     * @param  array<string, mixed>  $modelData
+     *
+     * @throws ValidationException
+     */
+    private function refuseUnlessApplicable(StockDelivery $stockDelivery, ?array $review, array $modelData): void
+    {
+        $refusal = match (true) {
+            data_get($review, 'state') !== 'read' || !array_key_exists('problems', $review) => ['invoice' => __('This invoice has not been read yet')],
+            (bool) ($review['applied_at'] ?? null)                                           => ['invoice' => __('This invoice is already in the costing, change the costs in the checklist')],
+            ($review['read_at'] ?? null) !== $modelData['read_at']                           => ['invoice' => __('This invoice was read again since you opened it, review it again')],
+            (bool) $review['problems']                                                       => ['invoice' => implode(' ', $review['problems'])],
+            $review['needs_manual_check'] && empty($modelData['checked'])                    => ['checked' => __('This document has no text to check the reading against: confirm you have checked every amount')],
+            $review['delivery_confirmation'] && self::typed($modelData['confirmation'] ?? null) !== self::typed($review['delivery_confirmation']['phrase']) => ['confirmation' => __('The document does not mention :reference: type ":phrase" to add it', ['reference' => $stockDelivery->reference, 'phrase' => $review['delivery_confirmation']['phrase']])],
+            (bool) $review['unmatched']                                                      => ['assignments' => __('Say where every invoice line that matches no product goes')],
+            count(Arr::get($modelData, 'charge_types', [])) !== count($review['charges'])    => ['charge_types' => __('Say what kind of expense every charge is')],
+            default                                                                          => null,
+        };
+
+        if ($refusal) {
+            throw ValidationException::withMessages($refusal);
+        }
+    }
+
+    private static function typed(?string $text): string
+    {
+        return mb_strtolower(trim((string) preg_replace('/\s+/u', ' ', (string) $text), " .\t\n"));
     }
 
     public function asController(StockDelivery $stockDelivery, Media $media, ActionRequest $request): StockDelivery

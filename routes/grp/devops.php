@@ -7,6 +7,8 @@
  */
 
 
+use App\Actions\DevOps\CiMetricSnapshot\StoreBundleSizeSnapshot;
+use App\Actions\DevOps\CiMetricSnapshot\StoreCoverageSnapshot;
 use App\Actions\DevOps\CiRun\StoreDeployProgress;
 use App\Actions\DevOps\CiRun\StoreTestResults;
 use App\Actions\DevOps\StorePgBackRestInfo;
@@ -21,4 +23,6 @@ Route::post('/metrics/{serverSlug}', StoreServerMetric::class)->name('devops.hos
 Route::post('/metrics/{serverSlug}/live', StoreServerLiveMetric::class)->name('devops.host.metrics.live.store')->middleware(Sample::rate(0.05));
 Route::post('/deploy-progress', StoreDeployProgress::class)->name('devops.deploy-progress.store');
 Route::post('/test-results', StoreTestResults::class)->name('devops.test-results.store');
+Route::post('/coverage', StoreCoverageSnapshot::class)->name('devops.coverage.store');
+Route::post('/bundle-sizes', StoreBundleSizeSnapshot::class)->name('devops.bundle-sizes.store');
 Route::post('/pgbackrest', StorePgBackRestInfo::class)->name('devops.pgbackrest.store');

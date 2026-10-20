@@ -3949,6 +3949,84 @@ test('send email delivery channel and store email delivery channel for email bul
     expect(true)->toBeTrue();
 });
 
+function sendMailshotChannelToNewCustomers(Shop $shop, int $numberRecipients): array
+{
+    $outbox   = $shop->outboxes()->where('type', OutboxCodeEnum::MARKETING)->first();
+    $mailshot = createMailshotWithPublishedEmail($shop, StoreMailshot::make()->action($outbox, array_merge(
+        Mailshot::factory()->definition(),
+        ['type' => MailshotTypeEnum::MARKETING, 'state' => MailshotStateEnum::SENDING]
+    ), strict: false));
+
+    $customerIds = collect(range(1, $numberRecipients))->map(fn () => StoreCustomer::make()->action($shop, Customer::factory()->definition())->id)->all();
+
+    Queue::fake();
+    ProcessSendMailshot::make()->handle($mailshot->id, $customerIds);
+    $channel = $mailshot->channels()->latest('id')->first();
+
+    DB::flushQueryLog();
+    DB::enableQueryLog();
+    SendEmailDeliveryChannel::run($channel->id);
+    $queries = array_column(DB::getQueryLog(), 'query');
+    DB::disableQueryLog();
+    DB::flushQueryLog();
+
+    return [$mailshot, $channel->refresh(), $queries];
+}
+
+test('sending a mailshot channel no longer reloads the mailshot, shop, email or outbox per recipient', function () {
+    [$smallMailshot, , $smallRun] = sendMailshotChannelToNewCustomers($this->shop, 2);
+    [$largeMailshot, $largeChannel, $largeRun] = sendMailshotChannelToNewCustomers($this->shop, 6);
+
+    $repeatedLookups = fn (array $queries) => collect($queries)
+        ->filter(fn (string $sql) => preg_match('/^select \* from "(mailshots|shops|emails|outboxes)"/', $sql))
+        ->count();
+
+    expect($repeatedLookups($largeRun))->toBe($repeatedLookups($smallRun))
+        ->and((count($largeRun) - count($smallRun)) / 4)->toBeLessThanOrEqual(5)
+        ->and($largeChannel->state)->toBe(EmailDeliveryChannelStateEnum::SENT)
+        ->and($largeMailshot->dispatchedEmails()->where('state', \App\Enums\Comms\DispatchedEmail\DispatchedEmailStateEnum::READY)->count())->toBe(0)
+        ->and($largeMailshot->dispatchedEmails()->count())->toBe(6)
+        ->and($smallMailshot->dispatchedEmails()->where('state', \App\Enums\Comms\DispatchedEmail\DispatchedEmailStateEnum::READY)->count())->toBe(0);
+});
+
+test('a mailshot stopped before its channel sends leaves every recipient unsent', function () {
+    $outbox   = $this->shop->outboxes()->where('type', OutboxCodeEnum::MARKETING)->first();
+    $mailshot = createMailshotWithPublishedEmail($this->shop, StoreMailshot::make()->action($outbox, array_merge(
+        Mailshot::factory()->definition(),
+        ['type' => MailshotTypeEnum::MARKETING, 'state' => MailshotStateEnum::SENDING]
+    ), strict: false));
+
+    Queue::fake();
+    ProcessSendMailshot::make()->handle($mailshot->id, [
+        StoreCustomer::make()->action($this->shop, Customer::factory()->definition())->id,
+        StoreCustomer::make()->action($this->shop, Customer::factory()->definition())->id,
+    ]);
+    $channel = $mailshot->channels()->latest('id')->first();
+    $mailshot->update(['state' => MailshotStateEnum::STOPPED]);
+
+    SendEmailDeliveryChannel::run($channel->id);
+
+    expect($channel->refresh()->state)->toBe(EmailDeliveryChannelStateEnum::STOPPED)
+        ->and($mailshot->dispatchedEmails()->where('state', \App\Enums\Comms\DispatchedEmail\DispatchedEmailStateEnum::READY)->count())->toBe(2);
+});
+
+test('ses sends reuse the outbox credentials and the client for the same credentials', function () {
+    $outbox      = $this->shop->outboxes()->where('type', OutboxCodeEnum::MARKETING)->first();
+    $sendSes     = \App\Actions\Comms\Ses\SendSesEmail::make();
+    $credentials = ['key' => 'key-a', 'secret' => 'secret-a', 'region' => 'eu-west-1', 'level' => 'default'];
+
+    $first = $sendSes->getCredentialCandidates($outbox->id);
+    DB::enableQueryLog();
+    $second = $sendSes->getCredentialCandidates($outbox->id);
+    $queriesForSecond = count(DB::getQueryLog());
+    DB::disableQueryLog();
+
+    expect($second)->toBe($first)
+        ->and($queriesForSecond)->toBe(0)
+        ->and($sendSes->getReusableSesClient($credentials))->toBe(\App\Actions\Comms\Ses\SendSesEmail::make()->getReusableSesClient($credentials))
+        ->and($sendSes->getReusableSesClient([...$credentials, 'key' => 'key-b']))->not->toBe($sendSes->getReusableSesClient($credentials));
+});
+
 test('get ses client from aws client trait', function () {
     $client = (new class () {
         use \App\Actions\Comms\EmailAddress\Traits\AwsClient;

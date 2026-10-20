@@ -9,12 +9,15 @@
 namespace App\Actions\Reports\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Reports\GetEprExposure;
 use App\Actions\Reports\GetEprInboundPacking;
 use App\Actions\Reports\GetEprPackagingCompleteness;
+use App\Actions\Reports\GetEprSnapshots;
 use App\Actions\Reports\GetEprShipmentPackaging;
 use App\Actions\Reports\GetEuPackagingReturn;
 use App\Actions\Reports\GetUkPackagingReturn;
 use App\Actions\UI\Reports\IndexReports;
+use App\Enums\Goods\Packaging\EprSchemeEnum;
 use App\Enums\Goods\Packaging\PackagingMaterialCategoryEnum;
 use App\Enums\UI\Reports\PackagingReportTabsEnum;
 use App\Models\SysAdmin\Organisation;
@@ -49,11 +52,19 @@ class IndexPackagingReport extends OrgAction
         if ($organisation->country?->code !== 'GB') {
             $excluded[] = PackagingReportTabsEnum::UK_RETURN;
         }
-        if (!GetEuPackagingReturn::make()->scheme($organisation)) {
-            $excluded[] = PackagingReportTabsEnum::EU_RETURN;
-        }
 
         return PackagingReportTabsEnum::navigationExcept($excluded);
+    }
+
+    /**
+     * The scheme asked for on the Scheme return tab, or the organisation's first.
+     */
+    public function scheme(Organisation $organisation, ActionRequest $request): EprSchemeEnum
+    {
+        $schemes = GetEuPackagingReturn::make()->schemes($organisation);
+        $asked   = EprSchemeEnum::tryFrom((string)$request->input('scheme'));
+
+        return in_array($asked, $schemes, true) ? $asked : $schemes[0];
     }
 
     /**
@@ -82,6 +93,7 @@ class IndexPackagingReport extends OrgAction
     public function htmlResponse(Organisation $organisation, ActionRequest $request): Response
     {
         [$from, $to] = $this->period($request);
+        $scheme      = $this->scheme($organisation, $request);
 
         return Inertia::render(
             'Org/Reports/PackagingReport',
@@ -100,8 +112,19 @@ class IndexPackagingReport extends OrgAction
                     ? fn () => GetEprPackagingCompleteness::run($organisation, $from, $to)
                     : Inertia::optional(fn () => GetEprPackagingCompleteness::run($organisation, $from, $to)),
                 PackagingReportTabsEnum::EU_RETURN->value => $this->tab == PackagingReportTabsEnum::EU_RETURN->value
-                    ? fn () => GetEuPackagingReturn::run($organisation, $from, $to)
-                    : Inertia::optional(fn () => GetEuPackagingReturn::run($organisation, $from, $to)),
+                    ? fn () => GetEuPackagingReturn::run($organisation, $from, $to, $scheme)
+                    : Inertia::optional(fn () => GetEuPackagingReturn::run($organisation, $from, $to, $scheme)),
+                PackagingReportTabsEnum::EXPOSURE->value => $this->tab == PackagingReportTabsEnum::EXPOSURE->value
+                    ? fn () => GetEprExposure::run($organisation, $from, $to)
+                    : Inertia::optional(fn () => GetEprExposure::run($organisation, $from, $to)),
+                PackagingReportTabsEnum::SNAPSHOTS->value => $this->tab == PackagingReportTabsEnum::SNAPSHOTS->value
+                    ? fn () => GetEprSnapshots::run($organisation)
+                    : Inertia::optional(fn () => GetEprSnapshots::run($organisation)),
+                'scheme'        => $scheme->value,
+                'snapshotRoute' => [
+                    'name'       => 'grp.org.reports.packaging.snapshot',
+                    'parameters' => $request->route()->originalParameters(),
+                ],
                 'euReturnRoute' => [
                     'name'       => 'grp.org.reports.packaging.eu-return',
                     'parameters' => $request->route()->originalParameters(),

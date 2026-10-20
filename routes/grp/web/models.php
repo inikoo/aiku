@@ -6,6 +6,28 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
+use App\Actions\Goods\ProductDevelopment\MoveProductDevelopmentToNextStage;
+use App\Actions\Goods\ProductDevelopment\StoreProductDevelopment;
+use App\Actions\Goods\ProductDevelopment\StoreProductDevelopmentComment;
+use App\Actions\Goods\ProductDevelopment\SyncProductDevelopmentMembers;
+use App\Actions\Goods\ProductDevelopment\UpdateProductDevelopment;
+use App\Actions\Goods\ProductDevelopment\UpdateProductDevelopmentChecklistItem;
+use App\Actions\Goods\ProductDevelopment\LinkProductDevelopmentSupplierProduct;
+use App\Actions\Goods\ProductDevelopment\UpdateProductDevelopmentCommentStatus;
+use App\Actions\Goods\ProductDevelopment\SignOffProductDevelopment;
+use App\Actions\Goods\ProductDevelopment\UploadProductDevelopmentFactoryPhoto;
+use App\Actions\Goods\ProductDevelopment\RemindProductDevelopmentMembers;
+use App\Actions\Goods\ProductDevelopment\LinkProductDevelopmentPurchaseOrder;
+use App\Actions\Goods\ProductDevelopment\StoreProductDevelopmentPurchaseOrder;
+use App\Actions\Goods\ProductDevelopment\Design\StoreProductDevelopmentDesignVersion;
+use App\Actions\Goods\ProductDevelopment\Design\SkipProductDevelopmentDesignRound;
+use App\Actions\Goods\ProductDevelopment\Design\UpdateProductDevelopmentDesignVersion;
+use App\Actions\Goods\ProductDevelopment\Design\UploadProductDevelopmentDesignImage;
+use App\Actions\Goods\ProductDevelopment\Design\UploadProductDevelopmentDesignArtwork;
+use App\Actions\Goods\ProductDevelopment\Design\SubmitProductDevelopmentDesignVersion;
+use App\Actions\Goods\ProductDevelopment\Design\ReviewProductDevelopmentDesignVersion;
+use App\Actions\Goods\ProductDevelopment\UpdateProductDevelopmentStageDueDate;
+use App\Actions\Goods\ProductDevelopment\UploadProductDevelopmentFiles;
 use App\Http\Middleware\EnsureHubPartnerOrderFromShoppingList;
 use App\Actions\SupplyChain\StockDeliveryInvoice\StoreActualStockDeliveryInvoice;
 use App\Actions\SupplyChain\AgentInvoice\ApproveAgentInvoiceCharges;
@@ -2025,6 +2047,31 @@ Route::name('brand.')->prefix('brand')->group(function () {
 Route::name('barcodes.')->prefix('barcode')->group(function () {
     Route::post('store', StoreBarcode::class)->name('store');
     Route::patch('{barcode:id}/update', UpdateBarcode::class)->name('update')->withoutScopedBindings();
+});
+
+Route::name('product_development.')->prefix('product-development')->group(function () {
+    Route::post('store', StoreProductDevelopment::class)->name('store');
+    Route::patch('{productDevelopment:id}/next-stage', MoveProductDevelopmentToNextStage::class)->name('next_stage')->withoutScopedBindings();
+    Route::patch('{productDevelopment:id}/update', UpdateProductDevelopment::class)->name('update')->withoutScopedBindings();
+    Route::patch('{productDevelopment:id}/members', SyncProductDevelopmentMembers::class)->name('members.sync')->withoutScopedBindings();
+    Route::post('{productDevelopment:id}/files', UploadProductDevelopmentFiles::class)->name('files.upload')->withoutScopedBindings();
+    Route::post('{productDevelopment:id}/comments', StoreProductDevelopmentComment::class)->name('comments.store')->withoutScopedBindings();
+    Route::patch('stage/{productDevelopmentStage:id}/due-date', UpdateProductDevelopmentStageDueDate::class)->name('stage.due_date')->withoutScopedBindings();
+    Route::post('checklist-item/{productDevelopmentChecklistItem:id}/factory-photo', UploadProductDevelopmentFactoryPhoto::class)->name('checklist_item.factory_photo')->withoutScopedBindings();
+    Route::patch('checklist-item/{productDevelopmentChecklistItem:id}', UpdateProductDevelopmentChecklistItem::class)->name('checklist_item.update')->withoutScopedBindings();
+    Route::patch('item/{productDevelopmentItem:id}/supplier-product', LinkProductDevelopmentSupplierProduct::class)->name('item.supplier_product')->withoutScopedBindings();
+    Route::patch('{productDevelopment:id}/purchase-order', LinkProductDevelopmentPurchaseOrder::class)->name('purchase_order')->withoutScopedBindings();
+    Route::post('{productDevelopment:id}/purchase-order', StoreProductDevelopmentPurchaseOrder::class)->name('purchase_order.store')->withoutScopedBindings();
+    Route::post('{productDevelopment:id}/remind', RemindProductDevelopmentMembers::class)->name('remind')->withoutScopedBindings();
+    Route::patch('{productDevelopment:id}/sign-off', SignOffProductDevelopment::class)->name('sign_off')->withoutScopedBindings();
+    Route::patch('comment/{productDevelopmentComment:id}/status', UpdateProductDevelopmentCommentStatus::class)->name('comment.status')->withoutScopedBindings();
+    Route::patch('{productDevelopment:id}/design/skip', SkipProductDevelopmentDesignRound::class)->name('design.skip')->withoutScopedBindings();
+    Route::post('{productDevelopment:id}/design', StoreProductDevelopmentDesignVersion::class)->name('design.store')->withoutScopedBindings();
+    Route::patch('design/{productDevelopmentDesignRound:id}', UpdateProductDevelopmentDesignVersion::class)->name('design.update')->withoutScopedBindings();
+    Route::post('design/{productDevelopmentDesignRound:id}/artwork', UploadProductDevelopmentDesignArtwork::class)->name('design.artwork')->withoutScopedBindings();
+    Route::post('design/{productDevelopmentDesignRound:id}/image', UploadProductDevelopmentDesignImage::class)->name('design.image')->withoutScopedBindings();
+    Route::patch('design/{productDevelopmentDesignRound:id}/submit', SubmitProductDevelopmentDesignVersion::class)->name('design.submit')->withoutScopedBindings();
+    Route::patch('design/{productDevelopmentDesignRound:id}/review', ReviewProductDevelopmentDesignVersion::class)->name('design.review')->withoutScopedBindings();
 });
 
 Route::name('trade_unit_family.')->prefix('trade-unit-family')->group(function () {

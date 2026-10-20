@@ -75,8 +75,8 @@ class UpdatePortfolio extends OrgAction
                 DeactivateShopifyProduct::run($portfolio);
             }
 
-            GroupHydratePortfolios::dispatch($portfolio->group)->delay(max($this->hydratorsDelay, 60));
-            OrganisationHydratePortfolios::dispatch($portfolio->organisation)->delay(max($this->hydratorsDelay, 60));
+            GroupHydratePortfolios::dispatch($portfolio->group)->delay(max($this->hydratorsDelay, 300));
+            OrganisationHydratePortfolios::dispatch($portfolio->organisation)->delay(max($this->hydratorsDelay, 300));
             ShopHydratePortfolios::dispatch($portfolio->shop)->delay(max($this->hydratorsDelay, 60));
             CustomerHydratePortfolios::dispatch($portfolio->customer_id)->delay(5);
         }

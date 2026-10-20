@@ -52,6 +52,25 @@ class StoreNewProductToCurrentEbay extends OrgAction
         return $portfolio;
     }
 
+    /**
+     * An upload with progress swallows its own errors, so it only fails here when the queue killed it
+     * (timeout, lost worker); without this the page waiting for its result never hears back.
+     */
+    public function jobFailed(\Throwable $e, EbayUser $ebayUser, Portfolio $portfolio, ?array $bulkProgress = null): void
+    {
+        if (!$bulkProgress) {
+            return;
+        }
+
+        $portfolio = $portfolio->fresh() ?? $portfolio;
+
+        if (!$portfolio->platform_status) {
+            $this->recordPortfolioUploadFailure($portfolio, $e);
+        }
+
+        $this->broadcastBulkProgress($ebayUser, $portfolio, $bulkProgress);
+    }
+
     public function broadcastBulkProgress(EbayUser $ebayUser, Portfolio $portfolio, array $bulkProgress): void
     {
         $cacheKey = $bulkProgress['cache_key'];

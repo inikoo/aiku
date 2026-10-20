@@ -9,6 +9,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from "vue"
 import type { Component } from "vue"
 import { Head, Link, router } from "@inertiajs/vue3"
 import { ctrans } from "@/Composables/useTrans"
+import type { RelatedProductDevelopment } from "@/Components/Goods/ProductDevelopment/ProductDevelopmentRelatedList.vue"
 import UploadExcel from "@/Components/Upload/UploadExcel.vue"
 
 import PageHeading from "@/Components/Headings/PageHeading.vue"
@@ -106,6 +107,7 @@ interface SubmitProblem {
 }
 
 const props = defineProps < {
+	productDevelopments?: RelatedProductDevelopment[]
     title: string
     pageHead: PageHeadingTypes
     data: {
@@ -1202,6 +1204,12 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 				<div v-else-if="data.data.is_partner" class="flex items-center gap-3 text-sm text-gray-400">
 					<FontAwesomeIcon icon="fal fa-shopping-cart" aria-hidden="true" fixed-width />
 					<span class="italic">{{ ctrans("Their order is created when you submit") }}</span>
+				</div>
+				<div v-for="development in productDevelopments ?? []" :key="development.id" class="flex items-center gap-3 text-sm">
+					<FontAwesomeIcon v-tooltip="ctrans('Product development')" icon="fal fa-lightbulb-on" class="text-gray-400" aria-hidden="true" fixed-width />
+					<Link :href="route(development.route.name, development.route.parameters)" class="primaryLink truncate">{{ development.code }}</Link>
+					<span class="truncate text-gray-600">{{ development.name }}</span>
+					<span class="shrink-0 text-xs text-gray-400">{{ development.stage }}</span>
 				</div>
 				<ProcurementOrderData v-if="showcase" :data="showcase" :isOwnWarehouse="box_stats.first_block.delivery.is_own_warehouse" />
 			</div>

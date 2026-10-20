@@ -191,6 +191,7 @@ class ReadStockDeliveryServiceInvoice extends OrgAction
             'amount'      => isset($line['amount']) && is_numeric($line['amount']) ? (float) $line['amount'] : null,
         ], $reading['lines']);
         $reading['references'] = array_values(array_filter(array_map('strval', $reading['references'])));
+        $reading['currency']   = StockDeliveryDocumentChecks::currencyCode($reading['currency'] ?? null);
 
         return array_intersect_key($reading, array_flip(self::KEYS));
     }

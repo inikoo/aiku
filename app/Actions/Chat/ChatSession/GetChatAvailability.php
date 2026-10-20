@@ -11,6 +11,7 @@ namespace App\Actions\Chat\ChatSession;
 use App\Actions\HumanResources\WorkSchedule\GetChatConfig;
 use App\Models\Catalogue\Shop;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Cache;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -29,8 +30,14 @@ class GetChatAvailability
 
     public function asController(ActionRequest $request): JsonResponse
     {
+        $shopId = (int) $request->validated('shop_id');
+
         return response()->json([
-            'is_online' => $this->handle(Shop::findOrFail($request->validated('shop_id'))),
+            'is_online' => Cache::remember(
+                "chat_availability:$shopId",
+                60,
+                fn () => $this->handle(Shop::findOrFail($shopId))
+            ),
         ]);
     }
 

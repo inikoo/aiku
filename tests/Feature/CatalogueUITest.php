@@ -1245,7 +1245,10 @@ test('website pages swap imgproxy urls for short signed links that serve the sam
         ->and($serve($shortOriginal))->toBe($original)
         ->and($serve(str_replace('0x600', 'rs::0:600::', $shortThumb)))->toBe($thumb)
         ->and($serve(str_replace('0x600', '0x1200', $shortThumb)))->toBeNull()
-        ->and($serve(str_replace('.avif', '.png', $shortThumb)))->toBeNull();
+        ->and($serve(str_replace('.avif', '.png', $shortThumb)))->toBeNull()
+        ->and($serve(str_replace('.jpeg', '', $shortOriginal)))->toBe($original)
+        ->and($serve(str_replace('.jpeg', '.png', $shortOriginal)))->toBeNull()
+        ->and($serve(str_replace('.jpeg', '.a1', $shortOriginal)))->toBeNull();
 
     \Illuminate\Support\Facades\Http::fake(['media.test/*' => \Illuminate\Support\Facades\Http::response('avif-bytes', 200, ['Content-Type' => 'image/avif'])]);
     $this->get(Str::after($shortThumb, 'https://www.shop.test'))
@@ -1264,6 +1267,16 @@ test('website pages swap imgproxy urls for short signed links that serve the sam
 
     \Illuminate\Support\Facades\Http::fake(fn () => throw new \Illuminate\Http\Client\ConnectionException('cURL error 28'));
     $this->get(Str::after($shortThumb, 'https://www.shop.test'))->assertStatus(504)->assertHeader('Cache-Control', 'max-age=60, public');
+
+    config(['img-proxy.accel_location' => '/_imgproxy/']);
+    \Illuminate\Support\Facades\Http::fake();
+    $this->get(Str::after($shortThumb, 'https://www.shop.test'))
+        ->assertOk()
+        ->assertHeader('X-Accel-Redirect', '/_imgproxy'.Str::after($thumb, 'https://media.test'))
+        ->assertHeader('Cache-Control', 'max-age=60, public')
+        ->assertHeader('Content-Type', 'application/octet-stream');
+    $this->get(Str::after($shortOriginal, 'https://www.shop.test'))->assertHeader('X-Accel-Redirect', '/_imgproxy'.Str::after($original, 'https://media.test'));
+    \Illuminate\Support\Facades\Http::assertNothingSent();
 });
 
 test('products export ends with the weight unit columns', function () {

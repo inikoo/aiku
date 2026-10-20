@@ -18,6 +18,7 @@ import DashboardSettings from "@/Components/DataDisplay/Dashboard/DashboardSetti
 import DashboardTable from "@/Components/DataDisplay/Dashboard/DashboardTable.vue"
 import TabsBoxDisplay from "@/Components/Dashboards/TabsBoxDisplay.vue"
 import { Dashboard as DashboardTS } from "@/types/Components/Dashboard"
+import ProductDevelopmentWaitingWidget, { type ProductDevelopmentWaitingWidgetData } from "@/Components/Goods/ProductDevelopment/ProductDevelopmentWaitingWidget.vue"
 import CleanHandoverPanel, { type CleanHandoverData } from "@/Components/Procurement/CleanHandoverPanel.vue"
 import ShopMonthTarget from "@/Components/DataDisplay/Dashboard/ShopMonthTarget.vue"
 import AgentDashboardPurchaseOrders, { type AgentDashboardPurchaseOrdersData } from "@/Components/Procurement/AgentDashboardPurchaseOrders.vue"
@@ -29,6 +30,7 @@ const props = defineProps<{
 	cleanHandover?: CleanHandoverData
 	isAgentOrganisation?: boolean
 	agentPurchaseOrders?: AgentDashboardPurchaseOrdersData
+	productDevelopmentsWaiting?: ProductDevelopmentWaitingWidgetData | null
 }>()
 
 const isLoadingOnTable = ref(false)
@@ -87,6 +89,12 @@ const onChangeDashboardTab = async (tabSlug: string): Promise<void> => {
 				</div>
 			</template>
 			<AgentDashboardPurchaseOrders v-if="props.agentPurchaseOrders" class="mx-4 mt-4" :data="props.agentPurchaseOrders" />
+		</Deferred>
+		<Deferred v-if="props.productDevelopmentsWaiting !== null" data="productDevelopmentsWaiting">
+			<template #fallback>
+				<div class="mx-4 mt-4 h-40 animate-pulse rounded-lg bg-gray-100" />
+			</template>
+			<ProductDevelopmentWaitingWidget v-if="props.productDevelopmentsWaiting" class="mx-4 mt-4" :data="props.productDevelopmentsWaiting" />
 		</Deferred>
 		<CleanHandoverPanel v-if="props.cleanHandover" class="mx-4 mt-4" :data="props.cleanHandover" />
 		<ShopMonthTarget

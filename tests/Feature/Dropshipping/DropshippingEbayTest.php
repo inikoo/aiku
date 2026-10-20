@@ -34,8 +34,11 @@ use App\Actions\Dropshipping\Ebay\UpdateEbayUserData;
 use App\Actions\Dropshipping\Ebay\UpdateReturnPolicyEbayUser;
 use App\Actions\Dropshipping\Ebay\UpdateShippingPolicyEbayUser;
 use App\Actions\Dropshipping\Portfolio\StorePortfolio;
+use App\Actions\Dropshipping\WooCommerce\Product\UpdateInventoryInEbayPortfolio;
 use App\Actions\Maintenance\Dropshipping\SyncEbayChannelPoliciesFromEbay;
 use App\Actions\Retina\Ebay\PublishRetinaEbayPortfolio;
+use App\Actions\Retina\Ebay\StoreRetinaNewProductToCurrentEbay;
+use App\Events\UploadProductToSalesChannelProgressEvent;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -64,6 +67,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use App\Actions\Catalogue\Shop\Seeders\SeedShopOutboxes;
 use App\Actions\Comms\Email\RemindChannelOrdersOnHold;
@@ -1957,4 +1961,103 @@ test('a channel order still unpaid a week later is reminded once, on the day it 
     ]);
     expect(RemindChannelOrdersOnHold::run())->toBe([]);
     SendChannelOrderOnHoldEmail::assertPushed(2);
+});
+
+test('creating one product from retina queues the upload and the job reports the eBay refusal on the row', function () {
+    Queue::fake();
+    Event::fake([UploadProductToSalesChannelProgressEvent::class]);
+
+    $ebayUser  = ebayChannel($this);
+    $portfolio = StorePortfolio::make()->action($ebayUser->customerSalesChannel, $this->product, []);
+
+    fakeEbay($this, ebayCatalogueRoutes() + [
+        '/identity/v1/oauth2/token' => fn () => Http::response(['error' => 'invalid_grant', 'error_description' => 'the provided authorization refresh token is invalid'], 400),
+        '/sell/inventory/v1/offer'  => fn () => Http::response(['errors' => [['errorId' => 1001, 'domain' => 'OAuth', 'category' => 'REQUEST', 'message' => 'Invalid access token']]], 401),
+    ]);
+
+    StoreRetinaNewProductToCurrentEbay::make()->handle($portfolio);
+
+    Http::assertNothingSent();
+
+    $arguments = null;
+    StoreNewProductToCurrentEbay::assertPushed(function ($job, array $pushed) use ($portfolio, &$arguments) {
+        $arguments = $pushed;
+
+        return $pushed[1]->id === $portfolio->id && $pushed[2]['total'] === 1;
+    });
+
+    StoreNewProductToCurrentEbay::make()->handle($ebayUser, $portfolio, $arguments[2]);
+
+    expect($portfolio->refresh()->platform_status)->toBeFalse()
+        ->and($portfolio->upload_warning)->toBe('Invalid access token');
+    Event::assertDispatched(UploadProductToSalesChannelProgressEvent::class, fn ($event) => $event->portfolio->id === $portfolio->id && $event->statistics === ['total' => 1, 'success' => 0, 'fail' => 1]);
+});
+
+test('the hourly eBay stock check probes every channel in parallel with the same outcome per channel as one at a time', function () {
+    Queue::fake();
+
+    $tokens = ['tok-a' => 'ok', 'tok-b' => 'expired', 'tok-b-new' => 'ok', 'tok-c' => 'down', 'tok-d' => 'timeout'];
+    $routes = [
+        '/identity/v1/oauth2/token'   => fn (Request $request) => $request['refresh_token'] === 'refresh-b'
+            ? Http::response(['access_token' => 'tok-b-new', 'expires_in' => 7200])
+            : Http::response(['error' => 'invalid_grant'], 400),
+        '/commerce/identity/v1/user/' => fn (Request $request) => match ($tokens[Str::after($request->header('Authorization')[0], 'Bearer ')] ?? 'down') {
+            'ok'      => Http::response(['userId' => 'u-1', 'username' => 'aw_seller']),
+            'expired' => Http::response(['errors' => [['message' => 'Invalid access token']]], 401),
+            'timeout' => throw new ConnectionException('cURL error 28: timed out'),
+            default   => Http::response(['errors' => [['message' => 'down']]], 500),
+        },
+    ];
+
+    $channels = collect(['a', 'b', 'c', 'd'])->mapWithKeys(function (string $name) {
+        $ebayUser = ebayChannel($this, ['settings' => ['credentials' => [
+            'ebay_access_token'     => 'tok-'.$name,
+            'ebay_refresh_token'    => 'refresh-'.$name,
+            'ebay_token_expires_at' => now()->addHour()->toIso8601String(),
+        ]]]);
+        $ebayUser->customerSalesChannel->update(['stock_update' => true, 'status' => CustomerSalesChannelStatusEnum::OPEN, 'ban_stock_update_util' => now()->subMinute()]);
+
+        return [$name => [$ebayUser, listedEbayPortfolio($this, $ebayUser, '1234567890'.$name, 'offer-'.$name)]];
+    });
+
+    fakeEbay($this, $routes);
+    UpdateInventoryInEbayPortfolio::make()->handle();
+
+    $pushedPortfolioIds = [];
+    UpdateEbayPortfolio::assertPushed(function ($job, array $arguments) use (&$pushedPortfolioIds) {
+        $pushedPortfolioIds[] = $arguments[0];
+
+        return true;
+    });
+
+    $bannedUntil = fn (string $name) => $channels[$name][0]->customerSalesChannel->refresh()->ban_stock_update_util;
+
+    expect(array_intersect($channels->map(fn ($channel) => $channel[1]->id)->all(), $pushedPortfolioIds))->toBe(['a' => $channels['a'][1]->id, 'b' => $channels['b'][1]->id])
+        ->and($bannedUntil('a'))->toBeNull()
+        ->and($bannedUntil('b'))->toBeNull()
+        ->and($bannedUntil('c')->isFuture())->toBeTrue()
+        ->and($bannedUntil('d')->isFuture())->toBeTrue()
+        ->and(Arr::get($channels['b'][0]->refresh()->settings, 'credentials.ebay_access_token'))->toBe('tok-b-new');
+
+    $ebayUsers = $channels->map(fn ($channel) => $channel[0]->refresh())->all();
+    fakeEbay($this, $routes);
+    $pooled = EbayUser::getUsers($ebayUsers);
+
+    expect($pooled)->toBe(array_map(fn (EbayUser $ebayUser) => $ebayUser->getUser(), $ebayUsers))
+        ->and($pooled['a'])->toBe(['userId' => 'u-1', 'username' => 'aw_seller'])
+        ->and($pooled['c'])->toBeNull()
+        ->and($pooled['d'])->toBeNull();
+});
+
+test('a queued upload the queue kills still reports its failure so the waiting page completes', function () {
+    Event::fake([UploadProductToSalesChannelProgressEvent::class]);
+
+    $ebayUser  = ebayChannel($this);
+    $portfolio = StorePortfolio::make()->action($ebayUser->customerSalesChannel, $this->product, []);
+    Cache::put('upload_progress_ebay_killed_fail', 0, now()->addHour());
+
+    StoreNewProductToCurrentEbay::make()->jobFailed(new \Illuminate\Queue\TimeoutExceededException('killed'), $ebayUser, $portfolio, ['cache_key' => 'upload_progress_ebay_killed', 'total' => 1]);
+
+    expect($portfolio->refresh()->errors_response)->not->toBeNull();
+    Event::assertDispatched(UploadProductToSalesChannelProgressEvent::class, fn ($event) => $event->portfolio->id === $portfolio->id && $event->statistics === ['total' => 1, 'success' => 0, 'fail' => 1]);
 });

@@ -34,7 +34,7 @@ watch(isLive, (live) => (isCardOpen.value = !live))
                     <div class="min-w-0">
                         <div class="truncate text-xs font-semibold">{{ statusLabel }}</div>
                         <div class="truncate text-xs opacity-90">
-                            {{ activeCall.phone_number }}
+                            {{ activeCall.caller ?? activeCall.phone_number }}
                             <span v-if="isLive"> · {{ formattedElapsed }}</span>
                         </div>
                     </div>
@@ -58,7 +58,7 @@ watch(isLive, (live) => (isCardOpen.value = !live))
                     <FontAwesomeIcon :icon="faPhoneVolume" class="animate-pulse" fixed-width aria-hidden="true" />
                     <div class="min-w-0">
                         <div class="truncate text-xs font-semibold">{{ ctrans("Incoming WhatsApp call") }}</div>
-                        <div class="truncate text-xs opacity-90">{{ ringing.phone_number }}</div>
+                        <div class="truncate text-xs opacity-90">{{ ringing.caller ?? ringing.phone_number }}</div>
                     </div>
                 </div>
                 <div class="mt-2 flex gap-x-1.5 text-xs">
@@ -87,7 +87,7 @@ watch(isLive, (live) => (isCardOpen.value = !live))
             type="button"
             class="relative flex items-center justify-center gap-x-1 rounded-full bg-green-600 text-white shadow-[0_0_12px_rgba(22,163,74,0.6)]"
             :class="micro ? 'p-0.5' : 'px-2 py-1'"
-            v-tooltip="`${statusLabel} ${call.phone_number ?? ''}`"
+            v-tooltip="`${statusLabel} ${call.caller ?? call.phone_number ?? ''}`"
             @click.stop="isCardOpen = !isCardOpen">
             <FontAwesomeIcon
                 :icon="faPhoneVolume"

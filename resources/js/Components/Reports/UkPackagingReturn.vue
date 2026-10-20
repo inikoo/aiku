@@ -8,6 +8,7 @@
 import { computed, ref } from "vue"
 import { router } from "@inertiajs/vue3"
 import Dialog from "primevue/dialog"
+import EprFreezeButton from "@/Components/Reports/EprFreezeButton.vue"
 import Select from "primevue/select"
 import InputNumber from "primevue/inputnumber"
 import InputText from "primevue/inputtext"
@@ -148,9 +149,12 @@ const date = (iso: string) => new Date(`${iso}T00:00:00`).toLocaleDateString(und
 	<div class="px-4 py-5 space-y-5 text-sm text-gray-700">
 		<div class="flex flex-wrap items-center gap-3">
 			<SegmentedToggle v-model="importMethod" :options="importMethods" :ariaLabel="ctrans('How own-brand imports are counted')" />
-			<a :href="downloadUrl" class="sm:ml-auto">
-				<Button type="tertiary" :icon="['fal', 'download']" :label="ctrans('Download return (csv)')" />
-			</a>
+			<div class="flex gap-2 sm:ml-auto">
+				<EprFreezeButton v-if="data?.has_data" :organisationId="organisationId" scheme="uk" :schemeLabel="ctrans('UK pEPR')" :period="period" :ownBrandImports="ownBrandImports" />
+				<a :href="downloadUrl">
+					<Button type="tertiary" :icon="['fal', 'download']" :label="ctrans('Download return (csv)')" />
+				</a>
+			</div>
 		</div>
 
 		<div v-if="!data" class="space-y-3">
