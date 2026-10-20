@@ -277,7 +277,7 @@ class SearchIrisCataloguePage extends IrisAction
 
         $categories = ProductCategory::query()
             ->whereIn('id', $allCategoryIds)
-            ->with(['webpage' => fn ($webpageQuery) => $webpageQuery->where('website_id', $this->website->id)->with('shop')])
+            ->with(['image', 'webpage' => fn ($webpageQuery) => $webpageQuery->where('website_id', $this->website->id)->with('shop')])
             ->get()
             ->keyBy('id');
 
@@ -392,7 +392,7 @@ class SearchIrisCataloguePage extends IrisAction
 
         return Collection::query()
             ->whereIn('id', $ids)
-            ->with(['webpage' => fn ($webpageQuery) => $webpageQuery->where('website_id', $this->website->id)->where('state', WebpageStateEnum::LIVE)->with('shop')])
+            ->with(['image', 'webpage' => fn ($webpageQuery) => $webpageQuery->where('website_id', $this->website->id)->where('state', WebpageStateEnum::LIVE)->with('shop')])
             ->get()
             ->filter(fn (Collection $collection) => $collection->webpage?->getCanonicalUrl())
             ->map(fn (Collection $collection) => [
