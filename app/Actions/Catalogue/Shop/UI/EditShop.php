@@ -8,6 +8,7 @@
 
 namespace App\Actions\Catalogue\Shop\UI;
 
+use App\Actions\CRM\Appointment\Widget\AppointmentWidgetKey;
 use App\Actions\Catalogue\Shop\External\Shopify\ConnectShopifyExternalShop;
 use App\Actions\Catalogue\Shop\External\Shopify\GetShopifyOrdersInShop;
 use App\Actions\Catalogue\Shop\External\Wix\AuthenticateWixExternalShop;
@@ -148,6 +149,7 @@ class EditShop extends OrgAction
             __('Shopify Settings'),
             __('Wix Settings'),
             __('Chat widget'),
+            __('Appointment widget'),
         ];
         $salesChannels          = SalesChannel::orderBy('id')->get();
         $salesChannelFields     = [];
@@ -973,6 +975,28 @@ class EditShop extends OrgAction
                         ] : [],
                     ],
                 ] : [],
+                [
+                    'label'  => __('Appointment widget'),
+                    'icon'   => 'fal fa-calendar-alt',
+                    'fields' => [
+                        'appointment_widget_enabled' => [
+                            'type'        => 'toggle',
+                            'label'       => __('Booking widget for other websites'),
+                            'value'       => (bool) Arr::get($shop->settings, 'appointments.widget_enabled', false),
+                            'information' => __('Lets customers book appointments from a form placed on another website, such as WordPress or Shopify.'),
+                        ],
+                        ...Arr::get($shop->settings, 'appointments.widget_enabled', false) && Arr::get($shop->settings, 'appointments.widget_key') ? [
+                            'appointment_widget_embed' => [
+                                'type'        => 'textarea',
+                                'disabled'    => true,
+                                'rows'        => 3,
+                                'label'       => __('Embed code'),
+                                'value'       => AppointmentWidgetKey::make()->embedSnippet(Arr::get($shop->settings, 'appointments.widget_key')),
+                                'information' => __('Paste this where the booking form should appear: a Custom HTML block in WordPress, a Custom Liquid section in Shopify.'),
+                            ],
+                        ] : [],
+                    ],
+                ],
                 [
                     'label'  => __('Email editor'),
                     'icon'   => 'fal fa-envelope',

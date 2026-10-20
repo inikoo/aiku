@@ -44,6 +44,8 @@ use App\Enums\CRM\Appointment\AppointmentSourceEnum;
 use App\Enums\CRM\Appointment\AppointmentStateEnum;
 use App\Enums\CRM\AppointmentType\AppointmentTypeMeetingModeEnum;
 use App\Http\Middleware\HandleIrisInertiaRequests;
+use App\Actions\CRM\Appointment\Widget\AppointmentWidgetKey;
+use App\Actions\CRM\Appointment\Widget\EnableShopAppointmentWidget;
 use App\Models\CRM\Appointment;
 use App\Models\CRM\Prospect;
 use Illuminate\Support\Facades\Storage;
@@ -771,6 +773,77 @@ test('visitor books an appointment on the website and becomes a prospect', funct
     $this->postJson('http://'.$this->website->domain.'/models/appointment', [...$payload, 'time' => $slots[$date][1], 'website_url' => 'http://spam.example'])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['website_url' => 'reload the page']);
+});
+
+test('the appointment widget config is served only while the widget is on', function () {
+    $key = EnableShopAppointmentWidget::make()->handle($this->shop)['key'];
+
+    $openType = StoreAppointmentType::make()->action($this->shop, [
+        'name'                => 'Widget visit '.Str::random(6),
+        'meeting_mode'        => AppointmentTypeMeetingModeEnum::STORE_VISIT->value,
+        'duration_minutes'    => 60,
+        'min_notice_hours'    => 0,
+        'booking_window_days' => 14,
+        'availability'        => ['weekly' => array_fill_keys(range(1, 7), [['from' => '09:00', 'to' => '17:00']])],
+    ]);
+
+    $response = $this->getJson('/app/api/appointments/widget-config?key='.$key)->assertOk();
+
+    expect($response->json('data.shop_name'))->toBe($this->shop->name)
+        ->and(collect($response->json('data.appointment_types'))->pluck('id'))->toContain($openType->id)
+        ->and(AppointmentWidgetKey::make()->embedSnippet($key))->toContain('appointment-widget/v1.js?k='.$key)
+        ->and(AppointmentWidgetKey::make()->embedSnippet($key))->toContain('data-aiku-appointments');
+
+    EnableShopAppointmentWidget::make()->handle($this->shop->fresh(), false);
+
+    $this->getJson('/app/api/appointments/widget-config?key='.$key)->assertNotFound();
+    $this->getJson('/app/api/appointments/widget-config?key=doesnotexist')->assertNotFound();
+    $this->getJson('/app/api/appointments/widget-config')->assertNotFound();
+
+    expect(EnableShopAppointmentWidget::make()->handle($this->shop->fresh())['key'])->toBe($key);
+});
+
+test('a visitor on another website books an appointment through the widget', function () {
+    $key = EnableShopAppointmentWidget::make()->handle($this->shop)['key'];
+
+    $appointmentType = StoreAppointmentType::make()->action($this->shop, [
+        'name'                => 'Widget showroom '.Str::random(6),
+        'meeting_mode'        => AppointmentTypeMeetingModeEnum::STORE_VISIT->value,
+        'duration_minutes'    => 60,
+        'min_notice_hours'    => 0,
+        'booking_window_days' => 14,
+        'capacity_per_slot'   => 1,
+        'availability'        => ['weekly' => array_fill_keys(range(1, 7), [['from' => '09:00', 'to' => '17:00']])],
+    ]);
+    $slots = GetAppointmentTypeAvailableSlots::run($appointmentType);
+    $date  = array_key_last($slots);
+    $time  = $slots[$date][0];
+
+    $payload = [
+        'appointment_type_id' => $appointmentType->id,
+        'date'                => $date,
+        'time'                => $time,
+        'contact_name'        => 'Widget visitor',
+        'email'               => 'widget-visitor-'.Str::lower(Str::random(8)).'@example.com',
+    ];
+
+    $this->postJson('/app/api/appointments/widget-booking?key=doesnotexist', $payload)->assertNotFound();
+
+    $this->postJson('/app/api/appointments/widget-booking?key='.$key, $payload)
+        ->assertOk()
+        ->assertJsonPath('starts_at', $date.' '.$time);
+
+    $appointment = Appointment::where('appointment_type_id', $appointmentType->id)->sole();
+
+    expect($appointment->shop_id)->toBe($this->shop->id)
+        ->and($appointment->state)->toBe(AppointmentStateEnum::REQUESTED);
+
+    $otherShop = \App\Actions\Catalogue\Shop\StoreShop::run($this->organisation, \App\Models\Catalogue\Shop::factory()->make()->toArray());
+    $otherKey  = EnableShopAppointmentWidget::make()->handle($otherShop)['key'];
+
+    $this->postJson('/app/api/appointments/widget-booking?key='.$otherKey, [...$payload, 'time' => $slots[$date][1] ?? $time])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('appointment_type_id');
 });
 
 test('a visitor moves and cancels their appointment from the link in their email', function () {

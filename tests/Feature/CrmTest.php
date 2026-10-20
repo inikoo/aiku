@@ -1672,6 +1672,35 @@ test('UI Show appointments dashboard', function (Appointment $appointment) {
         });
 })->depends('cancel and rebook an appointment');
 
+test('the appointments dashboard turns the booking widget on and shows its embed code', function () {
+    $dashboardUrl = route('grp.org.shops.show.crm.appointments.dashboard', [$this->organisation->slug, $this->shop->slug]);
+    $updateUrl    = route('grp.models.org.shop.update', [$this->shop->organisation_id, $this->shop->id]);
+
+    $this->patchJson($updateUrl, ['appointment_widget_enabled' => false])->assertOk();
+
+    $this->get($dashboardUrl)
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('widget.enabled', false)
+            ->where('widget.embed_code', null)
+            ->where('widget.can_toggle', true)
+            ->where('widget.update_route.name', 'grp.models.org.shop.update')
+            ->etc());
+
+    $this->patchJson($updateUrl, ['appointment_widget_enabled' => true])->assertOk();
+
+    $key = Arr::get($this->shop->refresh()->settings, 'appointments.widget_key');
+
+    expect($key)->toBeString()->toHaveLength(32);
+
+    $this->get($dashboardUrl)
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('widget.enabled', true)
+            ->where('widget.embed_code', fn (string $code) => str_contains($code, 'appointment-widget/v1.js?k='.$key) && str_contains($code, 'data-aiku-appointments'))
+            ->etc());
+
+    $this->patchJson($updateUrl, ['appointment_widget_enabled' => false])->assertOk();
+});
+
 test('UI Show appointments calendar', function (Appointment $appointment) {
     $timezone = $this->shop->timezone?->name ?? 'UTC';
     $startsAt = $appointment->refresh()->starts_at->copy()->setTimezone($timezone);

@@ -8,6 +8,7 @@
 
 namespace App\Actions\Catalogue\Shop;
 
+use App\Actions\CRM\Appointment\Widget\EnableShopAppointmentWidget;
 use App\Actions\Chat\Widget\EnableShopChatWidget;
 use App\Actions\CRM\Customer\GetCustomerStateByLastInvoice;
 use App\Actions\CRM\Customer\PdfCustomerLetterOfAuthorisation;
@@ -714,6 +715,8 @@ class UpdateShop extends OrgAction
             data_set($modelData, 'settings.reviews.allow_reactions', Arr::pull($modelData, 'review_allow_reactions'));
         }
 
+        $appointmentWidgetEnabled = Arr::has($modelData, 'appointment_widget_enabled') ? (bool) Arr::pull($modelData, 'appointment_widget_enabled') : null;
+
         if (Arr::exists($modelData, 'review_allow_reply_reactions')) {
             data_set($modelData, 'settings.reviews.allow_reply_reactions', Arr::pull($modelData, 'review_allow_reply_reactions'));
         }
@@ -721,6 +724,11 @@ class UpdateShop extends OrgAction
         $shop    = $this->update($shop, $modelData, ['data', 'settings']);
         $changes = $shop->getChanges();
         $shop->refresh();
+
+        if (!is_null($appointmentWidgetEnabled)) {
+            EnableShopAppointmentWidget::run($shop, $appointmentWidgetEnabled);
+            $shop->refresh();
+        }
 
         /*
          * The toggle is only half of it: the chat permissions are built from this setting, so a
@@ -1047,6 +1055,7 @@ class UpdateShop extends OrgAction
             'letter_of_authorisation_signature'                       => ['sometimes', File::image()->types(['png', 'jpg', 'jpeg'])->max(2 * 1024)],
             'enable_chat'                                             => ['sometimes', 'boolean'],
             'chat_enabled'                                            => ['sometimes', 'boolean'],
+            'appointment_widget_enabled'                              => ['sometimes', 'boolean'],
             'chat_slack_token'                                        => ['sometimes', 'nullable', 'string'],
             'chat_slack_channels'                                     => ['sometimes', 'nullable', 'array'],
             'chat_slack_channels.*'                                   => ['string'],
