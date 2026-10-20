@@ -47,7 +47,6 @@ use App\Actions\Ordering\Order\UpdateOrderShippingEngineAsAuto;
 use App\Actions\Ordering\Order\UpdateOrderShippingEngineAsManual;
 use App\Actions\Ordering\Order\UpdateOrderShippingTBCAmount;
 use App\Actions\Ordering\Order\UpdateState\CancelOrder;
-use App\Actions\Ordering\Order\UpdateState\DispatchOrder;
 use App\Actions\Ordering\Order\UpdateState\FinaliseOrder;
 use App\Actions\Ordering\Order\UpdateState\RemoveOrderDiscount;
 use App\Actions\Ordering\Order\UpdateState\RollbackDispatchedOrder;
@@ -140,7 +139,6 @@ Route::name('order.')->prefix('order/{order:id}')->middleware([EnsureNotHandledI
         Route::patch('in-warehouse-unpaid', SendUnpaidOrderToWarehouse::class)->name('in-warehouse-unpaid');
         Route::patch('release-from-gate', ReleaseOrderFromGate::class)->name('release_from_gate');
         Route::patch('finalise', FinaliseOrder::class)->name('finalise');
-        Route::patch('dispatched', DispatchOrder::class)->name('dispatched');
     });
 
     Route::patch('set-shipping-engine-manual', UpdateOrderShippingEngineAsManual::class)->name('set_shipping_engine_manual');

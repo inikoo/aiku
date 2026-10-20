@@ -8,6 +8,7 @@
 
 namespace App\Actions\Catalogue\Product\UI;
 
+use App\Actions\Catalogue\Product\Hydrators\ProductHydrateAvailableQuantity;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\Catalogue\WithCollectionSubNavigation;
 use App\Actions\Catalogue\WithDepartmentSubNavigation;
@@ -188,6 +189,7 @@ class IndexProductsInCatalogue extends OrgAction
                 'products.slug',
                 'products.web_images',
                 'available_quantity',
+                'products.is_on_demand',
                 'products.is_for_sale',
                 'products.is_bundle',
                 'products.units',
@@ -196,6 +198,7 @@ class IndexProductsInCatalogue extends OrgAction
                 'master_product_id',
             ])
             ->selectRaw("'{$shop->currency->code}'  as currency_code")
+            ->selectSub(ProductHydrateAvailableQuantity::shelfQuantityQuery(), 'shelf_quantity')
             ->leftJoin('product_stats', 'products.id', 'product_stats.product_id');
 
         if ($shop->type == ShopTypeEnum::EXTERNAL) {
@@ -495,7 +498,7 @@ class IndexProductsInCatalogue extends OrgAction
                     'iconRight'     => $iconRight,
                     'subNavigation' => $subNavigation,
                     'actions'       => [
-                        $shop->engine === ShopEngineEnum::FAIRE ? [
+                        !$this->canEdit ? [] : ($shop->engine === ShopEngineEnum::FAIRE ? [
                             'type'  => 'button',
                             'style' => 'primary',
                             'label' => __('Fetch Faire Products'),
@@ -519,7 +522,7 @@ class IndexProductsInCatalogue extends OrgAction
                                 'name'       => 'grp.org.shops.show.catalogue.products.all_products.shopify_products.index',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
-                        ] : []))
+                        ] : [])))
                     ]
                 ],
                 'data'                         => ProductsResource::collection($products),

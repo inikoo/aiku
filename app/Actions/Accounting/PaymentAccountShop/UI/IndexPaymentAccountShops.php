@@ -15,6 +15,7 @@ use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Comms\Traits\WithAccountingSubNavigation;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithAccountingPagesAuthorisation;
 use App\Http\Resources\Accounting\PaymentAccountShopsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\PaymentAccount;
@@ -33,6 +34,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexPaymentAccountShops extends OrgAction
 {
+    use WithAccountingPagesAuthorisation;
     use WithPaymentAccountSubNavigation;
     use WithAccountingSubNavigation;
 
@@ -200,6 +202,7 @@ class IndexPaymentAccountShops extends OrgAction
 
     public function asController(Organisation $organisation, PaymentAccount $paymentAccount, ActionRequest $request): LengthAwarePaginator
     {
+        abort_unless($paymentAccount->organisation_id === $organisation->id, 404);
         $this->parent = $paymentAccount;
         $this->initialisation($organisation, $request);
 

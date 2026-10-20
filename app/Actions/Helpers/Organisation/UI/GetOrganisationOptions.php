@@ -10,18 +10,22 @@
 namespace App\Actions\Helpers\Organisation\UI;
 
 use App\Models\SysAdmin\Organisation;
+use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class GetOrganisationOptions
 {
     use AsObject;
 
-    public function handle(): array
+    public function handle(?User $user = null): array
     {
 
         $selectOptions = [];
         /** @var Organisation $org */
         foreach (Organisation::where('type', 'shop')->get() as $org) {
+            if ($user && !$user->authTo('org-admin.'.$org->id)) {
+                continue;
+            }
 
             $selectOptions[$org->slug] =
                 [

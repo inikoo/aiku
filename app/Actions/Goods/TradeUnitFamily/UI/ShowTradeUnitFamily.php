@@ -69,7 +69,7 @@ class ShowTradeUnitFamily extends OrgAction
                     ],
                     'title'   => $tradeUnitFamily->code,
                     'model'   => __('Trade Unit Family'),
-                    'actions' => [
+                    'actions' => $this->canEdit ? [
                         [
                             'type'  => 'button',
                             'style' => 'edit',
@@ -79,7 +79,7 @@ class ShowTradeUnitFamily extends OrgAction
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ]
-                    ]
+                    ] : []
                 ],
                 'routes' => [
                     'trade_units_route' => [
@@ -110,6 +110,7 @@ class ShowTradeUnitFamily extends OrgAction
 
                 ],
                 'bulk_edit' => $this->canEdit ? $this->getTradeUnitsBulkEdit() : null,
+                'can_edit'  => $this->canEdit,
 
                 TradeUnitFamilyTabsEnum::PRODUCT_DEVELOPMENTS->value => $this->tab == TradeUnitFamilyTabsEnum::PRODUCT_DEVELOPMENTS->value ?
                     fn () => ['rows' => GetRelatedProductDevelopments::make()->forTradeUnitFamily($tradeUnitFamily, $request->user()), 'create_route' => ['name' => 'grp.product_developments.create', 'parameters' => []]]

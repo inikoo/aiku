@@ -93,11 +93,27 @@ const ticketsRoute = computed(() => scopedModuleRoute("tickets"))
 
 const bottomLinks = computed(() => allBottomLinks.value.filter((link) => !layout.user?.works_only_for_agents || [tasksRoute.value.name, ticketsRoute.value.name].includes(link.route)))
 
+const isEngineer = computed(() => !!layout.user?.is_engineer)
+
+const devopsProblems = computed<string[]>(() => layout.user?.devops_problems ?? [])
+
+const devopsLink = computed(() => ({
+    route: "grp.devops.dashboard",
+    parameters: {},
+    root: "grp.devops.",
+    label: ctrans("Devops"),
+    tooltip: devopsProblems.value.length ? devopsProblems.value.map((problem) => problem.replace(/`/g, "")).join(" • ") : ctrans("Devops: servers, database, backups, deploys and tests"),
+    icon: "fal fa-server",
+    problems: devopsProblems.value.length,
+}))
+
+const tasksLink = computed(() => ({ route: tasksRoute.value.name, parameters: tasksRoute.value.parameters, root: tasksRoute.value.root, label: ctrans("Tasks"), tooltip: ctrans("Tasks: ask a colleague or a department for something"), icon: "fal fa-tasks", problems: 0 }))
+
 const allBottomLinks = computed(() => [
-    { route: "grp.projects.index", parameters: {}, root: "grp.projects.", label: ctrans("Projects"), tooltip: ctrans("Projects: big pieces of work with milestones, tickets and tasks"), icon: "fal fa-project-diagram" },
-    { route: tasksRoute.value.name, parameters: tasksRoute.value.parameters, root: tasksRoute.value.root, label: ctrans("Tasks"), tooltip: ctrans("Tasks: ask a colleague or a department for something"), icon: "fal fa-tasks" },
-    { route: ticketsRoute.value.name, parameters: ticketsRoute.value.parameters, root: ticketsRoute.value.root, label: ctrans("Tickets"), tooltip: ctrans("Tickets: report a problem or ask for help"), icon: "fal fa-life-ring" },
-    { route: chatRoute.value.name, parameters: chatRoute.value.parameters, root: chatRoute.value.root, label: ctrans("Chat"), tooltip: ctrans("Chat with customers and colleagues"), icon: "fal fa-comment-alt" },
+    { route: "grp.projects.index", parameters: {}, root: "grp.projects.", label: ctrans("Projects"), tooltip: ctrans("Projects: big pieces of work with milestones, tickets and tasks"), icon: "fal fa-project-diagram", problems: 0 },
+    isEngineer.value ? devopsLink.value : tasksLink.value,
+    { route: ticketsRoute.value.name, parameters: ticketsRoute.value.parameters, root: ticketsRoute.value.root, label: ctrans("Tickets"), tooltip: ctrans("Tickets: report a problem or ask for help"), icon: "fal fa-life-ring", problems: 0 },
+    { route: chatRoute.value.name, parameters: chatRoute.value.parameters, root: chatRoute.value.root, label: ctrans("Chat"), tooltip: ctrans("Chat with customers and colleagues"), icon: "fal fa-comment-alt", problems: 0 },
 ])
 
 const loadingRoute = ref<string | null>(null)
@@ -184,6 +200,7 @@ const onLogoutAuth = () => {
                         class="flex-shrink-0 h-4 w-4"
                         fixed-width
                         :icon="link.icon" />
+                    <span v-if="link.problems" class="absolute left-5 top-0 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-semibold leading-none text-white" :aria-label="ctrans(':count problem(s)', { count: link.problems })">{{ link.problems }}</span>
 
                     <Transition name="slide-to-left">
 						<span

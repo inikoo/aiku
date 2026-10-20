@@ -9,7 +9,7 @@
 namespace App\Actions\Fulfilment\Space;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopEditAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Billables\Rental\RentalTypeEnum;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -19,7 +19,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class UpdateSpace extends OrgAction
 {
-    use WithFulfilmentShopAuthorisation;
+    use WithFulfilmentShopEditAuthorisation;
     use WithActionUpdate;
 
     public function handle(Space $space, array $modelData): Space
@@ -43,6 +43,7 @@ class UpdateSpace extends OrgAction
 
     public function asController(FulfilmentCustomer $fulfilmentCustomer, Space $space, ActionRequest $request): Space
     {
+        abort_unless($space->fulfilment_customer_id === $fulfilmentCustomer->id, 404);
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
         return $this->handle($space, $this->validatedData);

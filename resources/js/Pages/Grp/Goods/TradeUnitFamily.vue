@@ -59,6 +59,7 @@ const props = defineProps<{
   },
   sales_analysis?: object
   sales_analysis_teaser?: object
+  can_edit?: boolean
   trade_units?: Object
   attachments?:any
   history?: Object
@@ -202,8 +203,8 @@ const handleMassAssign = () => {
         @click="isBulkEditVisible = true"
       />
       <BulkTranslateTradeUnitNamesButton v-if="bulk_edit && currentTab === 'trade_units'" :tradeUnits="selectedTradeUnits" />
-      <Button @click="isModalOpenMassAssign = true" :icon="faHandHoldingMagic" label="Edit Brand/Tag" :style="'secondary'"/>
-      <Button @click="isModalOpen = true" :icon="faPlus" label="Trade Unit"/>
+      <Button v-if="can_edit" @click="isModalOpenMassAssign = true" :icon="faHandHoldingMagic" label="Edit Brand/Tag" :style="'secondary'"/>
+      <Button v-if="can_edit" @click="isModalOpen = true" :icon="faPlus" label="Trade Unit"/>
     </template>
   </PageHeading>
 

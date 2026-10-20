@@ -8,6 +8,7 @@
 namespace App\Actions\Chat\Whatsapp\Templates;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithWhatsappTemplateEditAuthorisation;
 use App\Enums\CRM\Livechat\WhatsappTemplateTagEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Chat\MetaMessageTemplate;
@@ -28,6 +29,8 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class UpdateWhatsappTemplateTags extends OrgAction
 {
+    use WithWhatsappTemplateEditAuthorisation;
+
     public function rules(): array
     {
         return [
@@ -57,6 +60,7 @@ class UpdateWhatsappTemplateTags extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, MetaMessageTemplate $metaMessageTemplate, ActionRequest $request): RedirectResponse
     {
+        abort_unless($metaMessageTemplate->shop_id === $shop->id, 404);
         $this->initialisationFromShop($shop, $request);
 
         $this->handle($metaMessageTemplate, $this->validatedData);

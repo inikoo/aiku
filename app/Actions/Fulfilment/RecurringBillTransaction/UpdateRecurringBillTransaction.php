@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\RecurringBillTransaction;
 
+use App\Actions\Traits\Authorisations\WithFulfilmentShopEditAuthorisation;
 use App\Actions\Fulfilment\FulfilmentTransaction\UpdateFulfilmentTransaction;
 use App\Actions\Fulfilment\RecurringBill\CalculateRecurringBillTotals;
 use App\Actions\OrgAction;
@@ -18,6 +19,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class UpdateRecurringBillTransaction extends OrgAction
 {
+    use WithFulfilmentShopEditAuthorisation;
     use WithActionUpdate;
 
     public function handle(RecurringBillTransaction $recurringBillTransaction, array $modelData, bool $isFulfilmentTransactionUpdated = false, bool $calculateParentTotals = true): RecurringBillTransaction

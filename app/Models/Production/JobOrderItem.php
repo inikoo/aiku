@@ -143,6 +143,14 @@ class JobOrderItem extends Model
         return $this->hasMany(JobOrderItem::class, 'split_from_id');
     }
 
+    public function finalTask(): ?JobOrderItemTask
+    {
+        $recipeTaskIds = $this->artefact->manufactureTasks->pluck('id');
+        $inRecipe      = $this->tasks->filter(fn (JobOrderItemTask $task) => $recipeTaskIds->contains($task->manufacture_task_id));
+
+        return ($inRecipe->isNotEmpty() ? $inRecipe : $this->tasks)->last();
+    }
+
     public function tasks(): HasMany
     {
         return $this->hasMany(JobOrderItemTask::class)->orderBy('position')->orderBy('id');

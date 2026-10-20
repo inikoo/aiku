@@ -252,6 +252,8 @@ class CancelOrder extends OrgAction
             $validator->errors()->add('messages', "Cannot cancel an order in '{$order->state->value}' state.");
         } elseif ($order->invoices()->count() > 0) {
             $validator->errors()->add('messages', 'Cannot cancel an order with invoices. Please delete the invoices first.');
+        } elseif (!$this->asAction && in_array($order->preOrder?->state, PreOrderStateEnum::open(), true)) {
+            $validator->errors()->add('messages', __('This is a pre-order: cancel it from the pre-order panel, so the refund and any deposit follow the terms the customer accepted.'));
         }
 
         $deliveryNotes = $order->deliveryNotes()->get();

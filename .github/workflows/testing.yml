@@ -64,8 +64,17 @@ jobs:
         run: cp ../../../../artifacts/aiku.dump tests/datasets/db_dumps/
       - name: Start private Redis
         run: redis-server --port 0 --unixsocket "$REDIS_SOCKET" --unixsocketperm 700 --save '' --appendonly no --maxmemory 512mb --daemonize yes --pidfile /home/aiku_test/redis-ci.pid --logfile /home/aiku_test/redis-ci.log
+      - name: Order test files slowest first
+        run: /usr/bin/php8.4 devops/ci/order-tests-slowest-first.php ../../../../artifacts/last-junit.xml
       - name: Run test without coverage
-        run: /usr/bin/php8.4 -dxdebug.mode=off -d newrelic.enabled=0 vendor/bin/pest --testsuite=Unit,Feature --parallel --processes=${PEST_PROCESSES:-6} --log-junit junit.xml
+        run: /usr/bin/php8.4 -dxdebug.mode=off -d newrelic.enabled=0 vendor/bin/pest --configuration=phpunit.ci.xml --parallel --processes=${PEST_PROCESSES:-6} --log-junit junit.xml
+      - name: Keep test durations for the next run
+        if: ${{ !cancelled() }}
+        run: |
+          if [ -s junit.xml ]; then
+            cp junit.xml ../../../../artifacts/last-junit.xml.tmp
+            mv ../../../../artifacts/last-junit.xml.tmp ../../../../artifacts/last-junit.xml
+          fi
       - name: Report test results to aiku
         if: ${{ !cancelled() }}
         env:
@@ -80,14 +89,6 @@ jobs:
             echo "Documentation translations need attention. See the Editorial translation audit step for missing or stale guides." >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
-      - name: Upload test results to Codecov
-        if: ${{ !cancelled() }}
-        uses: codecov/test-results-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          slug: Inikoo-Ltd/aiku
-          files: junit.xml
-          flags: backend
       - name: Flake check, changed test files run twice 🎲
         run: |
           BEFORE="${{ github.event.before }}"
@@ -99,16 +100,23 @@ jobs:
             echo "No changed test files, skipping"
             exit 0
           fi
+          FILES=""
           for FILE in $CHANGED; do
-            if [ ! -f "$FILE" ]; then
+            if [ -f "$FILE" ]; then
+              FILES="$FILES $FILE"
+            else
               echo "$FILE was deleted, skipping"
-              continue
             fi
-            for RUN in 1 2; do
-              echo "::group::$FILE run $RUN"
-              /usr/bin/php8.4 -dxdebug.mode=off -d newrelic.enabled=0 vendor/bin/pest "$FILE"
-              echo "::endgroup::"
-            done
+          done
+          if [ -z "$FILES" ]; then
+            echo "Only deleted test files, skipping"
+            exit 0
+          fi
+          /usr/bin/php8.4 devops/ci/order-tests-slowest-first.php ../../../../artifacts/last-junit.xml $FILES
+          for RUN in 1 2; do
+            echo "::group::Changed test files run $RUN:$FILES"
+            /usr/bin/php8.4 -dxdebug.mode=off -d newrelic.enabled=0 vendor/bin/pest --configuration=phpunit.ci.xml --parallel --processes=${PEST_PROCESSES:-6}
+            echo "::endgroup::"
           done
       - name: Stop private Redis
         if: ${{ always() }}

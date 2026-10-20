@@ -9,8 +9,7 @@ import laravel from "laravel-vite-plugin";
 import vue from "@vitejs/plugin-vue";
 import i18n from "laravel-vue-i18n/vite";
 import { fileURLToPath, URL } from "node:url";
-import { codecov } from "./vite.codecov.mjs";
-import { langFilter, faPerIconImports, FA_COMMONJS_OPTIONS } from "./vite.app-plugins.mjs";
+import { langFilter, faPerIconImports, FA_COMMONJS_OPTIONS, withSharedLangFiles } from "./vite.app-plugins.mjs";
 import path from "node:path";
 import { analyzer } from 'vite-bundle-analyzer'
 import tailwindcss from 'tailwindcss';
@@ -49,10 +48,9 @@ export default defineConfig(
               }
             }
           }),
-      i18n(),
+      withSharedLangFiles(i18n()),
       langFilter(retinaModuleGraph),
-      faPerIconImports(),
-      codecov("retina")
+      faPerIconImports()
        //, analyzer()
     ],
     ssr    : {
@@ -81,6 +79,7 @@ export default defineConfig(
     },
     build  : {
       sourcemap    : true,
+      reportCompressedSize: false,
       devSourcemap : true,
       commonjsOptions: FA_COMMONJS_OPTIONS,
       rollupOptions: {

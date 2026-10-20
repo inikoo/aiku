@@ -286,6 +286,13 @@ sub vcl_backend_response {
     #       return (deliver);
     #   }
 
+    # Drawn in the browser because the SSR server was down: serve it, never store it.
+    if (beresp.http.X-Aiku-Ssr-Fallback) {
+        set beresp.ttl = 0s;
+        set beresp.uncacheable = true;
+        return (deliver);
+    }
+
     # Inertia/version conflict responses should never be stored.
     if (beresp.status == 409) {
         set beresp.ttl = 0s;

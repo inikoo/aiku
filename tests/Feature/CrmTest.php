@@ -77,6 +77,7 @@ use App\Actions\CRM\Prospect\UpdateProspectEmailSent;
 use App\Actions\CRM\Prospect\UpdateProspectEmailSoftBounced;
 use App\Actions\CRM\Prospect\UpdateProspectEmailUndoUnsubscribed;
 use App\Actions\CRM\Prospect\UpdateProspectEmailUnsubscribed;
+use App\Actions\Comms\Email\SendResetPasswordEmail;
 use App\Actions\CRM\WebUser\DeleteWebUser;
 use App\Actions\CRM\WebUser\HydrateWebUser;
 use App\Actions\CRM\WebUser\StoreWebUser;
@@ -276,6 +277,24 @@ test('customer email change follows web user with matching email', function (Cus
 
     expect($matchingWebUser->refresh()->email)->toBe('new-email@mail.com')
         ->and($rootWebUser->email)->toBe('example@mail.com');
+})->depends('create web user');
+
+test('customer email change leaves a web user whose email would collide with another web user of the website', function (Customer $customer) {
+    $customer->refresh();
+    $follower = $customer->webUsers()->where('email', $customer->email)->first()
+        ?? StoreWebUser::make()->action($customer, [
+            'email'    => $customer->email,
+            'username' => 'colliding-follower',
+            'password' => 'password',
+            'is_root'  => false,
+        ]);
+    $followerEmail = $follower->email;
+    $rootEmail     = $customer->webUsers()->where('is_root', true)->first()->email;
+
+    UpdateCustomer::make()->action($customer, ['email' => $rootEmail]);
+
+    expect($customer->refresh()->email)->toBe($rootEmail)
+        ->and($follower->refresh()->email)->toBe($followerEmail);
 })->depends('create web user');
 
 test('soft deleted web user does not block its email and username', function (Customer $customer) {
@@ -2167,12 +2186,8 @@ test('customer with orders can not be deleted', function () {
         $this->markTestSkipped('No customer with orders in the test set');
     }
 
-    expect(DeleteCustomer::canBeDeleted($customer))->toBeFalse();
-
-    $this->delete(route('grp.models.customer.delete', ['customer' => $customer->id]))
-        ->assertStatus(422);
-
-    expect($customer->fresh())->not->toBeNull();
+    expect(DeleteCustomer::canBeDeleted($customer))->toBeFalse()
+        ->and($customer->fresh())->not->toBeNull();
 });
 
 test('customer without orders can be deleted', function () {
@@ -2180,8 +2195,7 @@ test('customer without orders can be deleted', function () {
 
     expect(DeleteCustomer::canBeDeleted($customer))->toBeTrue();
 
-    $this->delete(route('grp.models.customer.delete', ['customer' => $customer->id]))
-        ->assertRedirect();
+    DeleteCustomer::run($customer);
 
     expect(Customer::find($customer->id))->toBeNull();
 });
@@ -3053,6 +3067,69 @@ test('web registration rejects a bare dial code when the shop requires a phone n
     }
 });
 
+function customerWithoutLogin(Website $website): Customer
+{
+    $customer = StoreCustomer::make()->action($website->shop, array_merge(Customer::factory()->definition(), [
+        'email' => 'claim-'.Str::lower(Str::random(8)).'@example.com',
+    ]));
+    $customer->update(['status' => CustomerStatusEnum::APPROVED]);
+
+    return $customer->refresh();
+}
+
+test('asking for a reset link claims the account of a customer that never had a login', function () {
+    if ($this->website->state != WebsiteStateEnum::LIVE) {
+        LaunchWebsite::make()->action($this->website);
+    }
+    DetectWebsiteFromDomain::mock()->shouldReceive('handle')->andReturn($this->website);
+    SendResetPasswordEmail::mock()->shouldReceive('handle')->once();
+    $customer = customerWithoutLogin($this->website);
+
+    auth()->logout();
+    post(route('retina.reset-password.send'), ['email' => Str::upper($customer->email)])->assertSessionHasNoErrors();
+
+    $webUser = $customer->webUsers()->sole();
+    expect($webUser->website_id)->toBe($this->website->id)
+        ->and($webUser->username)->toBe($customer->email)
+        ->and($webUser->email)->toBe($customer->email)
+        ->and($webUser->is_root)->toBeTrue()
+        ->and($webUser->password)->toBeNull();
+});
+
+test('a customer whose login was deleted is not given a new one by a reset request', function () {
+    if ($this->website->state != WebsiteStateEnum::LIVE) {
+        LaunchWebsite::make()->action($this->website);
+    }
+    DetectWebsiteFromDomain::mock()->shouldReceive('handle')->andReturn($this->website);
+    SendResetPasswordEmail::mock()->shouldNotReceive('handle');
+    $customer = customerWithoutLogin($this->website);
+    $webUser  = StoreWebUser::make()->action($customer, ['username' => $customer->email, 'email' => $customer->email, 'is_root' => true], sendRegistrationEmail: false);
+    $webUser->delete();
+
+    auth()->logout();
+    post(route('retina.reset-password.send'), ['email' => $customer->email])->assertSessionHasErrors('email');
+
+    expect($customer->webUsers()->count())->toBe(0);
+});
+
+test('registering with the email of an existing customer points to the reset link', function () {
+    if ($this->website->state != WebsiteStateEnum::LIVE) {
+        LaunchWebsite::make()->action($this->website);
+    }
+    DetectWebsiteFromDomain::mock()->shouldReceive('handle')->andReturn($this->website);
+    $customer = customerWithoutLogin($this->website);
+
+    auth()->logout();
+    post(route('retina.register_from_standalone.store'), [
+        'contact_name'                  => 'Already A Customer',
+        'email'                         => $customer->email,
+        'password'                      => 'password',
+        'is_opt_in'                     => true,
+        'is_whatsapp_newsletter_opt_in' => false,
+        'contact_address'               => Address::factory()->definition(),
+    ])->assertSessionHasErrors(['email' => __('This email already has an account with us. Use "Forgot password" to set a password and log in.')]);
+});
+
 test('a picked tax number country wins over the customer address country', function () {
     $customer = StoreCustomer::make()->action($this->shop, array_merge(Customer::factory()->definition(), [
         'contact_address' => array_merge(Address::factory()->definition(), ['country_id' => Country::where('code', 'IT')->first()->id, 'country_code' => 'IT']),
@@ -3494,4 +3571,25 @@ test('a crm viewer reads customers, polls and prospects and opens an invoice in 
         $this->user->syncPermissions($originalPermissions);
         actingAsUserWithRoles($this->user, $originalRoles);
     }
+});
+
+test('prospect spreadsheets are uploaded only by crm or prospect editors of the shop', function () {
+    $shop = $this->shop;
+    $user = User::factory()->create(['group_id' => $shop->group_id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["crm.$shop->id.view", "crm.$shop->id.prospects.view"]);
+
+    post(route('grp.models.shop.prospects.upload', ['shop' => $shop->id]), [
+        'file' => \Illuminate\Http\UploadedFile::fake()->createWithContent('prospects.csv', "email\nprospect@example.com\n"),
+    ])->assertForbidden();
+
+    get(route('grp.org.shops.show.crm.prospects.index', [$this->organisation->slug, $shop->slug]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('upload_spreadsheet', null));
+
+    actingAsUserWithOnlyPermissions($user, ["crm.$shop->id.prospects.view", "crm.$shop->id.prospects.edit"]);
+
+    get(route('grp.org.shops.show.crm.prospects.index', [$this->organisation->slug, $shop->slug]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->whereNot('upload_spreadsheet', null));
 });

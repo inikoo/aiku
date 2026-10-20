@@ -42,12 +42,13 @@ interface ShopifyProduct {
     }[] // []
 }
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
     data: {}
     tab?: string
     customerSalesChannel:{}
     progressToUploadToShopifyAll : {}
-}>()
+    canEdit?: boolean
+}>(), { canEdit: true })
 
 const locale = useLocaleStore()
 
@@ -301,7 +302,7 @@ onMounted(() => {
             </li>
         </ul>
     </Message>
-    <Table :resource="data" :name="tab" class="mt-5" :isCheckBox="true"
+    <Table :resource="data" :name="tab" class="mt-5" :isCheckBox="canEdit"
         @onChecked="(item) => onChangeCheked(true, item)" 
         @onUnchecked="(item) => onChangeCheked(false, item)"
         @onCheckedAll="(data) => onCheckedAll(data)"
@@ -375,13 +376,13 @@ onMounted(() => {
         </template>
 
         <template #cell(action)="{ item: portfolio }">
-            <Button @click="() => onDeletePortfolio(portfolio.routes.delete_route, portfolio.item_id)" :key="portfolio.item_id"
+            <Button v-if="canEdit" @click="() => onDeletePortfolio(portfolio.routes.delete_route, portfolio.item_id)" :key="portfolio.item_id"
                     icon="fal fa-trash-alt" type="negative" :disabled="isDeleteLoading === portfolio.item_id"
                     :loading="isDeleteLoading === portfolio.item_id" />
         </template>
 
         <template #cell(matches)="{ item: portfolio }">
-            <template v-if="(portfolio.customer_sales_channel_platform_status)">
+            <template v-if="canEdit && portfolio.customer_sales_channel_platform_status">
                 <template v-if="!portfolio.platform_status">
                     <div v-if="portfolio.platform_possible_matches?.number_matches"  class="flex gap-x-2 items-center">
                         <div class="min-h-12 h-auto max-h-24 min-w-24 w-auto max-w-24 shadow bg-gray-100">
@@ -465,7 +466,7 @@ onMounted(() => {
         
         <!-- Column: actions -->
         <template #cell(actions)="{ item: portfolio }">
-            <div v-if="portfolio.customer_sales_channel_platform_status  && !portfolio.platform_status "  class="flex gap-x-2 items-center">
+            <div v-if="canEdit && portfolio.customer_sales_channel_platform_status && !portfolio.platform_status" class="flex gap-x-2 items-center">
                 <ButtonWithLink
                     v-tooltip="portfolio.is_for_sale ? ctrans('Will create new product in Shopify') : ctrans('Unable to create new product in Shopify. Product is not for sale')"
                     :routeTarget="{

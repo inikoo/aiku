@@ -50,6 +50,7 @@ interface FloorTask {
     manufacture_task_id: number
     task_code: string
     task_name: string
+    is_piece_rate: boolean
     artefact_code: string
     artefact_name: string
     job_order_reference: string
@@ -107,6 +108,7 @@ const props = defineProps<{
         break_minutes: number
     }
     artisan: string | null
+    is_hourly: boolean
     materials_check_route: null | { name: string, parameters: string[] }
     can_pick_open_jobs: boolean
     combine_route: null | { name: string, parameters: object }
@@ -309,7 +311,14 @@ function mixBatches(task: FloorTask): string | null {
     return mixBatchesLabel(task.quantity_required - task.quantity_made, task.mix_batch_kg)
 }
 
+const pieceRateWarningFor = ref<number | null>(null)
+
 function startTask(task: FloorTask) {
+    if (props.is_hourly && task.is_piece_rate && pieceRateWarningFor.value !== task.id) {
+        pieceRateWarningFor.value = task.id
+        return
+    }
+    pieceRateWarningFor.value = null
     processing.value = true
     router.post(
         route(task.start_route.name, task.start_route.parameters),
@@ -492,7 +501,21 @@ function startTask(task: FloorTask) {
                     <FontAwesomeIcon icon="fas fa-lock" fixed-width aria-hidden="true" /> {{ ctrans('Waiting for') }} {{ selectedTask.blocked_by_step }}
                 </div>
                 <div v-else-if="selectedTask.working_on_by.length" class="text-amber-600 font-medium mb-2">{{ ctrans('Working') }}: {{ selectedTask.working_on_by.join(', ') }}</div>
-                <button v-if="selectedTask.can_start" type="button"
+                <div v-if="selectedTask.can_start && pieceRateWarningFor === selectedTask.id" class="rounded-xl border-2 border-amber-300 bg-amber-50 p-5">
+                    <div class="text-2xl font-semibold text-amber-800">{{ ctrans('Are you really doing :step now?', { step: selectedTask.task_name }) }}</div>
+                    <div class="mt-1 text-lg text-amber-800">{{ ctrans('You are paid by the hour. Start :step only if you are doing it now. If the work you did is not on this job, ask your manager to add the step.', { step: selectedTask.task_name }) }}</div>
+                    <div class="mt-4 flex justify-center gap-3">
+                        <button type="button" class="rounded-xl bg-[--app-accent] text-[--app-accent-text] text-xl font-semibold px-8 py-4 disabled:opacity-40"
+                            :disabled="processing" @click="startTask(selectedTask)">
+                            {{ ctrans('Yes, start :step', { step: selectedTask.task_name }) }}
+                        </button>
+                        <button type="button" class="rounded-xl border border-gray-300 bg-white text-gray-700 text-xl font-semibold px-8 py-4"
+                            @click="pieceRateWarningFor = null">
+                            {{ ctrans('Cancel') }}
+                        </button>
+                    </div>
+                </div>
+                <button v-else-if="selectedTask.can_start" type="button"
                     class="rounded-xl bg-[--app-accent] text-[--app-accent-text] text-2xl font-semibold px-16 py-5 disabled:opacity-40"
                     :disabled="processing"
                     @click="startTask(selectedTask)">

@@ -346,6 +346,11 @@ class ShowOrder extends OrgAction
             'key'   => 'add-note'
         ];
 
+        $wrapped_actions[] = [
+            'type' => 'button',
+            'key'  => 'staff-chat'
+        ];
+
         $deliveryNoteRoute    = null;
         $deliveryNoteResource = null;
 
@@ -585,6 +590,7 @@ class ShowOrder extends OrgAction
                         'method'     => 'patch',
                     ],
                     'cancellation_reasons' => PreOrderCancellationReasonEnum::valuesWithLabels(),
+                    'can_manage'           => $this->canEdit && !$lockedInAurora,
                     'lock'                 => [
                         'is_locked'        => $order->preOrder->isLocked(),
                         'is_locked_for_me' => $preOrderLocked,
@@ -749,8 +755,8 @@ class ShowOrder extends OrgAction
                 'allow_order_modification'          => $allowOrderModification,
 
                 OrderTabsEnum::TRANSACTIONS->value => $this->tab == OrderTabsEnum::TRANSACTIONS->value ?
-                    fn () => TransactionsResource::collection(IndexTransactions::run(parent: $order, prefix: OrderTabsEnum::TRANSACTIONS->value, withMargins: $withMargins))
-                    : Inertia::optional(fn () => TransactionsResource::collection(IndexTransactions::run(parent: $order, prefix: OrderTabsEnum::TRANSACTIONS->value, withMargins: $withMargins))),
+                    fn () => TransactionsResource::collection(IndexTransactions::run(parent: $order, prefix: OrderTabsEnum::TRANSACTIONS->value, withMargins: $withMargins, withShelfQuantity: true))
+                    : Inertia::optional(fn () => TransactionsResource::collection(IndexTransactions::run(parent: $order, prefix: OrderTabsEnum::TRANSACTIONS->value, withMargins: $withMargins, withShelfQuantity: true))),
 
                 OrderTabsEnum::MARKETING->value => $this->tab == OrderTabsEnum::MARKETING->value ?
                     fn () => GetOrderMarketingJourney::run($order)

@@ -1,8 +1,8 @@
 ---
 title: Zadanie objednávky cez agenta
 summary: Pre nákupcov - ako sa objednávky, ktoré zadáte dodávateľom agenta, spoja do jednej objednávky agenta, ako pridať produkty, odoslať ju agentovi a kde nájdete objednávku každého dodávateľa.
-date: 2026-10-15
-source_date: 2026-10-15
+date: 2026-10-19
+source_date: 2026-10-19
 tags: procurement, purchase orders, agents
 category: procurement
 ---
@@ -32,6 +32,18 @@ Produkty pridané po odoslaní idú do ďalšej objednávky agenta.
 Každý blok na objednávke agenta ukazuje vlastný stav daného dodávateľa, očakávaný príchod, dátum pripravenosti a zálohu a jeho referencia otvorí purchase order dodávateľa. Potvrdenia, zálohy, dátumy, čisté odovzdanie (clean handover) a stock deliveries sa zaznamenávajú tam, dodávateľ po dodávateľovi. Z purchase order dodávateľa vás **Whole agent order** vráti späť. Stĺpec **Agent order** v zozname purchase orders ukazuje, ku ktorej objednávke agenta každá objednávka dodávateľa patrí, a otvorí ju; v zozname môžete vyhľadávať aj podľa tejto referencie.
 
 Keď agent odosiela, jedna stock delivery môže niesť objednávky viacerých jeho dodávateľov: pri potvrdenej objednávke **New stock delivery** ponúka pridať ju k dodávke toho istého agenta, ktorá je ešte rozpracovaná.
+
+## Keď dodávateľ zmení cenu
+
+Ešte pred potvrdením odoslanej objednávky sa agent môže dozvedieť, že dodávateľ chce za produkt novú cenu. Agent ju zaznamená na danom riadku spolu s novou cenou a voliteľnou poznámkou a vy dostanete upozornenie. Riadok zobrazí oranžový box s cenou, ktorú dodávateľ žiada, a cenou, ktorú nahrádza.
+
+Odpovedzte na riadku jedným z troch tlačidiel:
+
+- **Accept**: riadok prevezme novú cenu.
+- **Keep old price**: riadok si ponechá svoju cenu. Ak dodávateľ za túto cenu nepredá, agent riadok zruší.
+- **Set another price**: zadáte cenu, s ktorou súhlasíte, a riadok ju prevezme.
+
+Ak chcete, aby sa cena, ktorú zvolíte, stala aj cenou produktu dodávateľa, zaškrtnite pred odpoveďou na riadku **Also update supplier price**. Kým je nejaká otázka k cene nezodpovedaná, agent objednávku potvrdiť nemôže: **Confirm** zostane sivé a uvedie, koľko riadkov čaká. Agent dostane upozornenie o vašej odpovedi.
 
 ## Kto to môže používať
 

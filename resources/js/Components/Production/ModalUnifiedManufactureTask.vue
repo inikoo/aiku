@@ -10,6 +10,7 @@ import Modal from '@/Components/Utils/Modal.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import PureSelectInfiniteScroll from '@/Components/Pure/PureSelectInfiniteScroll.vue'
 import InformationIcon from '@/Components/Utils/InformationIcon.vue'
+import ConfirmRecipeOpenJobs from '@/Components/Production/ConfirmRecipeOpenJobs.vue'
 import { routeType } from '@/types/route'
 import { ctrans } from '@/Composables/useTrans'
 
@@ -218,7 +219,9 @@ const reset = () => {
     errors.value = {}
 }
 
-const save = () => {
+const openJobs = ref<string | null>(null)
+
+const save = (confirmOpenJobs = false) => {
     if (!canSave.value) return
 
     const count = props.artefacts.length
@@ -226,6 +229,7 @@ const save = () => {
     router.post(
         route(props.setRecipe.set_route.name, props.setRecipe.set_route.parameters),
         {
+            confirm_open_jobs: confirmOpenJobs,
             artefacts: props.artefacts.map(artefact => artefact.id),
             steps: steps.value.map((step, index) => ({
                 manufacture_task_id: step.manufacture_task_id,
@@ -244,6 +248,7 @@ const save = () => {
             onStart: () => processing.value = true,
             onFinish: () => processing.value = false,
             onSuccess: () => {
+                openJobs.value = null
                 notify({
                     title: ctrans('Manufacture tasks set'),
                     text: count === 1 ? ctrans('1 artefact now follows this recipe') : ctrans(':count artefacts now follow this recipe', { count: count }),
@@ -253,6 +258,10 @@ const save = () => {
                 emits('saved')
             },
             onError: (responseErrors) => {
+                if (responseErrors.confirm_open_jobs) {
+                    openJobs.value = responseErrors.confirm_open_jobs
+                    return
+                }
                 errors.value = responseErrors
                 notify({ title: ctrans('Something went wrong'), text: Object.values(responseErrors)[0], type: 'error' })
             },
@@ -503,11 +512,11 @@ const save = () => {
                         <span v-if="blockingReason" class="mr-auto text-xs text-gray-500">{{ blockingReason }}</span>
                         <Button type="tertiary" :label="ctrans('Cancel')" @click="emits('close')" />
                         <Button
-                            type="primary"
+                            type="tertiary"
                             :label="artefacts.length === 1 ? ctrans('Replace steps on 1 artefact') : ctrans('Replace steps on :count artefacts', { count: artefacts.length })"
                             :loading="processing"
                             :disabled="!canSave"
-                            @click="save" />
+                            @click="save()" />
                     </div>
                 </div>
             </div>
@@ -550,6 +559,7 @@ const save = () => {
                 </div>
             </aside>
         </div>
+        <ConfirmRecipeOpenJobs :jobs="openJobs" :processing="processing" @confirm="save(true)" @cancel="openJobs = null" />
     </Modal>
 </template>
 

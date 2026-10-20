@@ -50,6 +50,13 @@ class ShowChatConversations extends OrgAction
     {
         $chatSessions = IndexChatConversations::make()->handle($organisation);
 
+        $exportRoute = $this->userSupervisesChatOnOrganisation($request->user(), $organisation)
+            ? [
+                'name'       => 'grp.org.chat.conversations.export',
+                'parameters' => $request->route()->originalParameters(),
+            ]
+            : null;
+
         return Inertia::render(
             'Org/Chat/Conversations',
             [
@@ -61,23 +68,17 @@ class ShowChatConversations extends OrgAction
                         'icon'  => ['fal', 'fa-comments'],
                         'title' => __('Conversations'),
                     ],
-                    'actions' => [
+                    'actions' => $exportRoute ? [
                         [
                             'type'  => 'button',
                             'style' => 'secondary',
                             'label' => __('Export Data'),
                             'icon'  => ['fal', 'fa-file-download'],
-                            'route' => [
-                                'name'       => 'grp.org.chat.conversations.export',
-                                'parameters' => $request->route()->originalParameters(),
-                            ],
+                            'route' => $exportRoute,
                         ],
-                    ],
+                    ] : [],
                 ],
-                'exportRoute' => [
-                    'name'       => 'grp.org.chat.conversations.export',
-                    'parameters' => $request->route()->originalParameters(),
-                ],
+                'exportRoute' => $exportRoute,
                 'shops' => $organisation->shops()
                     ->orderBy('name')
                     ->where('state', ShopStateEnum::OPEN)

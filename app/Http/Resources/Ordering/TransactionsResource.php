@@ -55,6 +55,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property bool $is_cut_view
  * @property string|null $batch_codes
  * @property string|null $un_numbers
+ * @property mixed $is_on_demand
+ * @property mixed $shelf_quantity
  * @property mixed $is_gift
  * @property mixed $is_follow_on
  */
@@ -144,6 +146,8 @@ class TransactionsResource extends JsonResource
             'created_at'                     => $this->created_at,
             'currency_code'                  => $this->currency_code,
             'available_quantity'             => $this->available_quantity ?? 0,
+            'is_on_demand'                   => (bool) $this->is_on_demand,
+            'shelf_quantity'                 => $this->shelf_quantity === null ? null : (int) $this->shelf_quantity,
             'webpage_url'                    => $webpageUrl,
             'webpage_canonical_url'          => $webpage?->getCanonicalUrl(),
             'offers_data'                    => $this->offers_data,

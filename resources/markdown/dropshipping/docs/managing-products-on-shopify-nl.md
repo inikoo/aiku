@@ -69,7 +69,9 @@ U kunt ook producten in de lijst aanvinken. Er verschijnen knoppen erboven:
 
 Verkoopt u onze producten al in Shopify, geef dan elk Shopify-product (of elke variant) dezelfde SKU als onze productcode voordat u matcht. Gebruik dan <b>Match all with default product</b>. Dit koppelt uw bestaande vermeldingen en maakt er geen nieuwe aan.
 
-Verkoopt u meerdere van onze producten als varianten van één Shopify-product, bijvoorbeeld één product met een variant per kleur, dan moet elke variant zijn eigen SKU hebben. Vraag het ons in de chat op onze website om koppelen aan bestaande varianten voor uw kanaal aan te zetten. Dit kunt u niet zelf aanzetten. Matchen koppelt dan elk product aan de variant met zijn SKU, en wij wijzigen nooit de prijs, SKU of barcode van uw varianten.
+Verkoopt u meerdere van onze producten als varianten van één Shopify-product, bijvoorbeeld één product met een variant per kleur, geef dan elke variant de SKU van zijn product. Er hoeft niets aangezet te worden: matchen koppelt elk product aan de variant met zijn SKU, en wij wijzigen nooit de prijs, SKU of barcode van uw varianten. Elk van die varianten mag alleen op de locatie <b>aiku-</b> voorraad hebben. Verwijder in Shopify elke andere locatie ervan, ook een die 0 toont, anders wordt het matchen geweigerd, omdat Shopify de bestellingen ervan daarheen zou kunnen sturen en ze ons nooit zouden bereiken.
+
+Een Shopify-product met maar één variant wordt niet op deze manier gekoppeld: matchen vervangt zijn variant door de onze. Zie [Wat er met uw productomschrijvingen gebeurt](/docs/product-descriptions-after-connecting).
 
 ## Producten in de lijst vinden
 
@@ -102,9 +104,9 @@ Om te zien wat er met elke upload is gebeurd, opent u het tabblad <b>Logs</b> in
 
 **"No variant on Shopify matches this sku".** Het product is gekoppeld, maar wij kunnen zijn SKU niet meer vinden in Shopify. De SKU is gewijzigd, of het product of de variant is verwijderd in Shopify. Zet de SKU terug, of koppel het product opnieuw met <b>Connect with other product</b>.
 
-**"You need to add option values for Colour"** (of een andere optie). U matchte met een Shopify-product met opties, zoals kleuren. Geef elke variant zijn eigen SKU en vraag het ons in de chat op onze website om koppelen aan bestaande varianten aan te zetten, of match met een product zonder opties.
+**"You need to add option values for Colour"** (of een andere optie). U matchte met een Shopify-product met opties, zoals kleuren, en geen van de varianten draagt onze SKU. Geef de variant de SKU van ons product en match opnieuw, of match met een product zonder opties.
 
-**"None of the variants of this Shopify product has the sku ...".** Koppelen aan varianten staat aan, maar geen variant draagt onze SKU. Stel de SKU in op de variant die u wilt en match opnieuw.
+**"This Shopify variant is also stocked at your location ...".** De variant heeft ook voorraad op een van uw eigen locaties, dus Shopify zou de bestellingen ervan daarheen kunnen sturen en wij zouden ze nooit ontvangen. Verwijder die locatie van de variant in Shopify, ook als er 0 staat, en match opnieuw.
 
 **"More than one variant of this Shopify product has the sku ...".** Twee varianten hebben dezelfde SKU. Geef elke variant zijn eigen SKU.
 

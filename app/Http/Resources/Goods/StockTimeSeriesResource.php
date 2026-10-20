@@ -34,6 +34,22 @@ class StockTimeSeriesResource extends JsonResource
             'refunds'                           => (int) $this->refunds,
             'orders'                            => (int) $this->orders,
             'customers_invoiced'                => (int) $this->customers_invoiced,
+            'organisations_route'               => $this->organisationsRoute(),
+        ];
+    }
+
+    private function organisationsRoute(): ?array
+    {
+        if (!$this->stock_family_id) {
+            return null;
+        }
+
+        return [
+            'name'       => 'grp.json.stock_family.time_series_organisations',
+            'parameters' => [
+                'stockFamily' => $this->stock_family_id,
+                'record'      => $this->id,
+            ],
         ];
     }
 

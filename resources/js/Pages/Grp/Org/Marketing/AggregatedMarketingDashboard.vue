@@ -12,7 +12,8 @@ import { capitalize } from '@/Composables/capitalize'
 import { ctrans, ctransChoice } from '@/Composables/useTrans'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faChevronDown, faChevronRight } from '@fal'
+import { faChevronDown, faChevronRight, faHashtag } from '@fal'
+import Button from '@/Components/Elements/Buttons/Button.vue'
 import { useLocaleStore } from '@/Stores/locale'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { route } from 'ziggy-js'
@@ -175,7 +176,7 @@ const toggleGroup = (key: string) => {
     }
     closedGroups.value = { ...closedGroups.value, [key]: !closedGroups.value[key] }
 }
-library.add(faChevronDown, faChevronRight)
+library.add(faChevronDown, faChevronRight, faHashtag)
 const chevron = (key: string) => isOpen(key) ? 'fal fa-chevron-down' : 'fal fa-chevron-right'
 
 const groupedChannels = computed(() => {
@@ -350,11 +351,21 @@ const columnHelp: Record<string, string> = {
     orders: ctrans('Orders placed after a touch from this channel, counted when the order is placed rather than when it ships. Touched, not necessarily caused: a customer who would have reordered anyway and clicked a mailshot first still counts here.'),
     roas: ctrans('Revenue divided by spend. Blank while money is still awaiting invoice, since a channel that has sold but not yet invoiced has not returned nothing - it has not finished being measured.'),
 }
+/* Group and organisation share this page; the social media dashboard sits beside it in both. */
+const socialMediaHref = computed(() => route().current()?.startsWith('grp.marketing.')
+    ? route('grp.marketing.social_media.dashboard')
+    : route('grp.org.marketing.social_media.dashboard', [route().params.organisation]))
 </script>
 
 <template>
     <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead" />
+    <PageHeading :data="pageHead">
+        <template #other>
+            <Link :href="socialMediaHref">
+                <Button icon="fal fa-hashtag" :label="ctrans('Social media')" type="tertiary" />
+            </Link>
+        </template>
+    </PageHeading>
     <div class="pt-3">
         <DashboardSettings
             :intervals="intervals"

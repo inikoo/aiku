@@ -7,10 +7,6 @@
  */
 
 use App\Actions\Comms\Email\SendTestEmail;
-use App\Stubs\UIDummies\EditDummy;
-use App\Stubs\UIDummies\ShowDummy;
-use App\Stubs\UIDummies\CreateDummy;
-use App\Stubs\UIDummies\IndexDummies;
 use Illuminate\Support\Facades\Route;
 use App\Actions\Comms\Mailshot\UI\EditMailshot;
 use App\Actions\Comms\Mailshot\UI\ShowMailshot;
@@ -43,13 +39,6 @@ Route::name("mailshots.")->prefix('mailshots')
         Route::get('{mailshot}/workshop', ShowMailshotWorkshop::class)->name('workshop');
         Route::get('{mailshot}/edit', EditMailshot::class)->name('edit');
         Route::get('{mailshot}/recipients', ShowMailshotRecipients::class)->name('recipients');
-    });
-Route::name("notifications.")->prefix('notifications')
-    ->group(function () {
-        Route::get('', IndexDummies::class)->name('index');
-        Route::get('create', CreateDummy::class)->name('create');
-        Route::get('{mailshot}', ShowDummy::class)->name('show');
-        Route::get('{mailshot}/edit', EditDummy::class)->name('edit');
     });
 Route::name("templates.")->prefix('templates')
     ->group(function () {

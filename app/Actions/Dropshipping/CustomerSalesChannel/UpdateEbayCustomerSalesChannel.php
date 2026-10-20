@@ -92,6 +92,11 @@ class UpdateEbayCustomerSalesChannel extends OrgAction
         $returnPolicyId = Arr::pull($modelData, 'return_policy_id');
         $fulfillmentPolicyId = Arr::pull($modelData, 'fulfillment_policy_id');
 
+        if ($returnAccepted) {
+            $returnPayer = $returnPayer ?: (Arr::get($customerSalesChannel->settings, 'return.payer') ?: 'BUYER');
+            $returnWithin = $returnWithin ?: (Arr::get($customerSalesChannel->settings, 'return.within') ?: 30);
+        }
+
         if ($returnAccepted !== null) {
             data_set($modelData, 'settings.return.accepted', $returnAccepted);
         }
@@ -110,6 +115,14 @@ class UpdateEbayCustomerSalesChannel extends OrgAction
 
         $resetAllPrices = (bool) Arr::pull($modelData, 'pricing_reset_all');
 
+        if ($fulfillmentPolicyId || filled($shippingService) || filled($shippingPrice) || filled($shippingDispatchTime)) {
+            UpdateShippingPolicyEbayUser::run($platformUser, $fulfillmentPolicyId ? array_merge($modelData, ['fulfillment_policy_id' => $fulfillmentPolicyId]) : $modelData);
+        }
+
+        if ($returnPolicyId || $returnAccepted !== null || $returnPayer || $returnWithin || $returnDescription) {
+            UpdateReturnPolicyEbayUser::run($platformUser, $returnPolicyId ? array_merge($modelData, ['return_policy_id' => $returnPolicyId]) : $modelData);
+        }
+
         $stockSettingsBefore = UpdateCustomerSalesChannel::stockSettings($customerSalesChannel);
         $pricingSettingsBefore = json_encode(Arr::get($customerSalesChannel->settings, 'pricing'));
         $doNotUpdatePricesBefore = (bool) Arr::get($customerSalesChannel->settings, 'do_not_update_prices');
@@ -125,20 +138,6 @@ class UpdateEbayCustomerSalesChannel extends OrgAction
 
         if ($customerSalesChannel->stock_update && $stockSettingsBefore !== UpdateCustomerSalesChannel::stockSettings($customerSalesChannel)) {
             UpdateInventoryInEbayPortfolio::dispatch($customerSalesChannel, true);
-        }
-
-        if ($fulfillmentPolicyId || filled($shippingService) || filled($shippingPrice) || filled($shippingDispatchTime)) {
-            if ($fulfillmentPolicyId) {
-                data_set($modelData, 'fulfillment_policy_id', $fulfillmentPolicyId);
-            }
-            UpdateShippingPolicyEbayUser::run($platformUser, $modelData);
-        }
-
-        if ($returnPolicyId || $returnAccepted !== null || $returnPayer || $returnWithin || $returnDescription) {
-            if ($returnPolicyId) {
-                data_set($modelData, 'return_policy_id', $returnPolicyId);
-            }
-            UpdateReturnPolicyEbayUser::run($platformUser, $modelData);
         }
 
         if ($paymentPolicyId) {

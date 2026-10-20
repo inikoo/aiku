@@ -12,6 +12,7 @@ use App\Actions\OrgAction;
 use App\Actions\Procurement\PurchaseOrder\UI\GetPurchaseOrderStages;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStageEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
+use App\Events\BroadcastAgentIncomingPurchaseOrdersChanged;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
@@ -57,6 +58,7 @@ class MarkPurchaseOrderStage extends OrgAction
         $old   = $purchaseOrder->{$field}?->toDateString();
 
         $purchaseOrder = UpdatePurchaseOrder::make()->action($purchaseOrder, [$field => $date]);
+        BroadcastAgentIncomingPurchaseOrdersChanged::dispatchFor($purchaseOrder);
 
         if ($reason = Arr::get($modelData, 'reason')) {
             self::auditOverride($purchaseOrder, $field, $old, $date?->toDateString(), $reason);

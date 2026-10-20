@@ -25,7 +25,7 @@ The score is computed; it is never typed in. But it is computed from facts your 
 
 1. **Proposed ready date** — the date the agent says the goods, QC evidence and compliance pack will be ready for handover. Record what they actually proposed, not what you wish they had.
 2. **Approved ready date** — the date you approved in writing. This locks the PO's quarter and starts the seven-day handover window. Interrogate it before approving: this is the single moment where scrutiny is cheap and its absence is expensive.
-3. **Handed over** — when the goods physically reached the shipping agent, confirmed from your side or the shipping agent's, never taken from the coordination agent's word alone.
+3. **Handed over** — when the goods physically reached the shipping agent. The coordination agent records it from their own login, on the day; check it against the shipping agent's receipt and correct it when it does not match.
 4. **QC passed** — when the goods passed the agreed inspection.
 5. **Compliance pack complete** — when the documents were verified complete. At handover, not after.
 
@@ -43,7 +43,8 @@ Concretely:
 
 - **Proposed ready date** — the agent's field, eventually even in their own login. Proposing dates is their expertise, and it is harmless: the score runs off the approved date.
 - **Approved ready date, exclusions** — yours, always, no exceptions. These two are where score-gaming lives.
-- **Handover, QC, compliance** — yours today; over time, the more these derive from warehouse receipts and document checklists rather than a staff member's data entry, the stronger the score gets.
+- **Handover** — the agent's to record, because they are at the handover; yours to check. Each date shows who recorded it and when, a backdated one carries a reason, and a correction you make is kept in the order's history.
+- **QC, compliance** — yours today; over time, the more these derive from warehouse receipts and document checklists rather than a staff member's data entry, the stronger the score gets.
 - **The score itself** — nobody's. It is derived; there is no field to edit.
 
 An agent must never score themselves — not because agents are dishonest, but because a self-scored number is worthless even when it is true. If your agents currently email you their own performance summaries, this system exists to replace exactly that.
@@ -54,7 +55,7 @@ A determined agent cannot edit the score, but can still try to manage its inputs
 
 - **Avg ready-date shift on approval** — the average gap between what the agent proposed and what was approved. Near zero with a strong CHS is the healthy picture. Near zero with weak delivery dates means proposals are being rubber-stamped: the padding, if any, is getting through. A consistently large gap means proposals are routinely unrealistic — a conversation to have with the agent.
 - **Excluded from score** — the share of scheduled value granted exclusions. Exclusions are legitimate (your own late changes, documented force majeure) but they are the score's escape valve, and this is the gauge on it. It runs red above 10%. A rising exclusion rate with a stable score means the score is being *maintained* rather than earned.
-- **Handed over without QC or compliance** — orders marked handed over with either check missing. This should be zero; each one is a hole in your own recording discipline before it is anything else, because an unchecked handover can never count as clean.
+- **Handed over without QC or compliance** — orders marked handed over with either check missing. This should be zero; each one means QC or compliance was not recorded before the agent recorded the handover, and an unchecked handover can never count as clean.
 
 Every one of these fields is audited: who set it, when, from what to what. A padding pattern, a rubber-stamping pattern, or a quarter-end flurry of exclusions is all reconstructable after the fact.
 

@@ -11,6 +11,7 @@ use App\Http\Resources\HasSelfCall;
 use App\Models\Helpers\Upload;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
+use App\Models\SysAdmin\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class UploadReportResource extends JsonResource
@@ -22,6 +23,8 @@ class UploadReportResource extends JsonResource
         /** @var Upload $upload */
         $upload = $this->resource;
 
+        $canView = $request->user() instanceof User && $upload->canBeViewedBy($request->user());
+
         return [
             'id'                => $upload->id,
             'original_filename' => $upload->original_filename,
@@ -31,14 +34,14 @@ class UploadReportResource extends JsonResource
             'number_success'    => $upload->number_success,
             'number_fails'      => $upload->number_fails,
             'fail_reasons'      => $upload->failReasons(),
-            'records_route'     => [
+            'records_route'     => $canView ? [
                 'name'       => 'grp.helpers.uploads.records.index',
                 'parameters' => ['upload' => $upload->id],
-            ],
-            'download_route'    => [
+            ] : null,
+            'download_route'    => $canView ? [
                 'name'       => 'grp.helpers.uploads.records.download',
                 'parameters' => ['upload' => $upload->id],
-            ],
+            ] : null,
             'preview_route'     => $this->previewRoute($upload),
         ];
     }

@@ -30,9 +30,19 @@ use App\Actions\Dropshipping\Ebay\StoreEbayUser;
 use App\Actions\Dropshipping\Ebay\Product\CheckEbayPortfolio;
 use App\Actions\Dropshipping\Ebay\Product\UpdateEbayPortfolio;
 use App\Actions\Dropshipping\Portfolio\StorePortfolio;
+use App\Actions\Catalogue\Product\StoreProduct;
+use Illuminate\Support\Str;
+use App\Actions\CRM\WebUser\StoreWebUser;
+use App\Actions\Dropshipping\Portfolio\CheckNewPortfoliosInPlatform;
+use App\Actions\Dropshipping\Portfolio\StoreMultiplePortfolios;
+use App\Events\CloneRetinaPortfolioProgressEvent;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
+use Lorisleiva\Actions\Decorators\JobDecorator;
 use App\Actions\Iris\Portfolio\StoreIrisPortfolioItemsToChannels;
 use App\Actions\Retina\UI\Dashboard\GetRetinaDropshippingHomeData;
 use App\Actions\Dropshipping\WooCommerce\Product\UpdateInventoryInEbayPortfolio;
+use App\Actions\Dropshipping\CustomerSalesChannel\Hydrators\CustomerSalesChannelsHydratePortfolios;
 use App\Actions\Dropshipping\Portfolio\UpdatePortfolio;
 use App\Actions\Helpers\Images\GetPictureSources;
 use App\Actions\Helpers\Media\SaveModelImages;
@@ -332,6 +342,18 @@ test('update customer portfolio', function (Portfolio $dropshippingCustomerPortf
     return $dropshippingCustomerPortfolio;
 })->depends('add product to customer portfolio');
 
+
+test('switching a portfolio off takes it out of its sales channel product count', function (Portfolio $portfolio) {
+    $channel = $portfolio->customerSalesChannel;
+    CustomerSalesChannelsHydratePortfolios::run($channel);
+    $before = $channel->refresh()->number_portfolios;
+
+    UpdatePortfolio::make()->action($portfolio, ['status' => false]);
+    expect($channel->refresh()->number_portfolios)->toBe($before - 1);
+
+    UpdatePortfolio::make()->action($portfolio->refresh(), ['status' => true]);
+    expect($channel->refresh()->number_portfolios)->toBe($before);
+})->depends('update customer portfolio');
 
 test('get dropshipping access token', function () {
     $token = CreateAccessToken::make()->action($this->group, ['name' => 'test_token', 'abilities' => ['bk-api']]);
@@ -971,6 +993,70 @@ test('ebay token refresh marks auth revoked only on invalid grant', function () 
     expect($ebayUser->ebayAuthRevoked)->toBeTrue();
 });
 
+test('a new portfolio recounts the group and organisation portfolios five minutes later, the shop one a minute later', function () {
+    Queue::fake();
+    $platform = $this->group->platforms()->where('type', PlatformTypeEnum::MANUAL)->firstOrFail();
+    $channel  = StoreCustomerSalesChannel::make()->action(createOwnCustomer($this->shop, 'portfolio-hydrator-delays'), $platform, ['reference' => 'portfolio_hydrator_delays']);
+
+    StorePortfolio::make()->action($channel, $this->product, []);
+
+    $delayOf = fn (string $hydrator) => collect(Queue::pushedJobs())->flatten(1)->pluck('job')
+        ->first(fn ($job) => $job instanceof \Lorisleiva\Actions\Decorators\JobDecorator && $job->getAction() instanceof $hydrator)?->delay;
+
+    expect($delayOf(\App\Actions\SysAdmin\Group\Hydrators\GroupHydratePortfolios::class))->toBe(300)
+        ->and($delayOf(\App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePortfolios::class))->toBe(300)
+        ->and($delayOf(\App\Actions\Catalogue\Shop\Hydrators\ShopHydratePortfolios::class))->toBe(60);
+});
+
+test('portfolios keep no index on item name or barcode', function () {
+    $indexes = collect(\Illuminate\Support\Facades\DB::select("SELECT indexname FROM pg_indexes WHERE tablename = 'portfolios'"))->pluck('indexname');
+
+    expect($indexes)->not->toContain('portfolios_item_name_index')
+        ->and($indexes)->not->toContain('portfolios_barcode_index')
+        ->and($indexes)->toContain('portfolios_source_id_unique');
+});
+
+test('shop platform portfolio stats count the products of every state, each state on its own', function () {
+    $platform = $this->group->platforms()->where('type', PlatformTypeEnum::TIKTOK)->firstOrFail();
+    $customer = createOwnCustomer($this->shop, 'shop-platform-portfolio-stats');
+    $channel  = StoreCustomerSalesChannel::make()->action($customer, $platform, ['reference' => 'shop_platform_portfolio_stats']);
+
+    $family     = $this->shop->productCategories()->where('type', \App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum::FAMILY)->first();
+    $newProduct = fn (ProductStateEnum $state) => tap(\App\Actions\Catalogue\Product\StoreProduct::make()->action($family, array_merge(
+        Product::factory()->definition(),
+        ['trade_units' => [['id' => $this->product->tradeUnits->first()->id, 'quantity' => 1]], 'price' => 50]
+    )), fn (Product $product) => \Illuminate\Support\Facades\DB::table('products')->where('id', $product->id)->update(['state' => $state->value]));
+
+    foreach ([
+        ProductStateEnum::ACTIVE,
+        ProductStateEnum::ACTIVE,
+        ProductStateEnum::DISCONTINUING,
+        ProductStateEnum::DISCONTINUED,
+    ] as $state) {
+        StorePortfolio::make()->action($channel, $newProduct($state), []);
+    }
+
+    \App\Actions\Catalogue\ShopPlatformStats\ShopPlatformStatsHydratePortfolios::run($this->shop, $platform);
+
+    $portfoliosOfShopPlatform = fn () => \Illuminate\Support\Facades\DB::table('portfolios')
+        ->leftJoin('products', 'portfolios.item_id', '=', 'products.id')
+        ->where('portfolios.item_type', 'Product')
+        ->where('portfolios.shop_id', $this->shop->id)
+        ->where('portfolios.platform_id', $platform->id)
+        ->distinct();
+    $expected = ['number_products' => $portfoliosOfShopPlatform()->count('portfolios.item_id')];
+    foreach (ProductStateEnum::cases() as $state) {
+        $expected['number_products_state_'.$state->snake()] = $portfoliosOfShopPlatform()->where('products.state', $state->value)->count('portfolios.item_id');
+    }
+
+    $stats = $this->shop->platformStats()->where('platform_id', $platform->id)->firstOrFail()->only(array_keys($expected));
+
+    expect($stats)->toBe($expected)
+        ->and($stats['number_products_state_active'])->toBeGreaterThanOrEqual(2)
+        ->and($stats['number_products_state_discontinuing'])->toBeGreaterThanOrEqual(1)
+        ->and($stats['number_products_state_discontinued'])->toBeGreaterThanOrEqual(1);
+});
+
 test('bulk price rule prices each product from its own rrp', function () {
     $platform = $this->group->platforms()->where('type', PlatformTypeEnum::EBAY)->first();
     $customerSalesChannel = StoreCustomerSalesChannel::make()->action($this->customer, $platform, ['reference' => 'test_ebay_bulk_price']);
@@ -1480,4 +1566,136 @@ test('reset channel only resets shopify channels', function () {
     actingAs($this->user);
     $this->patch(route('grp.models.customer_sales_channel.shopify_reset', ['customerSalesChannel' => $ebayChannel->id]))
         ->assertSessionHasErrors('channel');
+});
+
+test('staff match and push portfolios to a platform only with crm edit on the channel shop, INI-076', function () {
+    $unguarded = collect(app('router')->getRoutes()->getRoutes())
+        ->filter(fn ($route) => str_starts_with((string) $route->getName(), 'grp.models.') && is_string($route->getAction('uses')))
+        ->map(fn ($route) => \Illuminate\Support\Str::before($route->getAction('uses'), '@'))
+        ->filter(fn (string $action) => str_starts_with($action, 'App\\Actions\\Dropshipping\\') && !method_exists($action, 'authorize'))
+        ->unique()->values()->all();
+    expect($unguarded)->toBe([]);
+
+    $platform             = $this->group->platforms()->where('type', PlatformTypeEnum::EBAY)->first();
+    $customerSalesChannel = StoreCustomerSalesChannel::make()->action($this->customer, $platform, ['reference' => 'ini076_ebay']);
+    $portfolio            = StorePortfolio::make()->action($customerSalesChannel, $this->product, []);
+    $shop                 = $customerSalesChannel->shop;
+
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ["crm.$shop->id.view", "orders.$shop->id.edit"]);
+        $this->post(route('grp.models.portfolio.match_to_existing_ebay_product', $portfolio->id), ['platform_product_id' => 'x'])->assertForbidden();
+        $this->post(route('grp.models.portfolio.store_new_ebay_product', $portfolio->id))->assertForbidden();
+        $this->post(route('grp.models.ebay.batch_match', $customerSalesChannel->id), [])->assertForbidden();
+        $this->post(route('grp.models.shopify.batch_match', $customerSalesChannel->id), [])->assertForbidden();
+        $this->post(route('grp.models.woo.revive', $customerSalesChannel->id))->assertForbidden();
+        $this->post(route('grp.models.woo.batch_upload', $customerSalesChannel->id), ['portfolios' => [$portfolio->id]])->assertForbidden();
+        $this->post(route('grp.models.shopify.batch_upload', $customerSalesChannel->id), [])->assertForbidden();
+        $this->post(route('grp.models.portfolio.match_to_existing_shopify_product', $portfolio->id), [])->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($this->user, ["crm.$shop->id.edit"]);
+        $this->post(route('grp.models.portfolio.match_to_existing_ebay_product', $portfolio->id), [])->assertSessionHasErrors('platform_product_id');
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+    }
+});
+
+test('staff without crm or accounting rights cannot list a channel marketplace products', function () {
+    $platform             = $this->group->platforms()->where('type', PlatformTypeEnum::EBAY)->first();
+    $customerSalesChannel = StoreCustomerSalesChannel::make()->action($this->customer, $platform, ['reference' => 'json_auth_ebay_'.uniqid()]);
+    $shop                 = $customerSalesChannel->shop;
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+    actingAsUserWithOnlyPermissions($user, ["products.$shop->id.view"]);
+
+    $this->getJson(route('grp.json.dropshipping.customer_sales_channel.ebay_products', $customerSalesChannel->id))->assertForbidden();
+});
+
+function storeActiveProductsInFamily(Product $product, int $number): \Illuminate\Support\Collection
+{
+    $tradeUnit = $product->tradeUnits()->first();
+
+    return collect(range(1, $number))->map(fn () => UpdateProduct::make()->action(
+        StoreProduct::make()->action($product->family, array_merge(Product::factory()->definition(), [
+            'trade_units' => [['id' => $tradeUnit->id, 'quantity' => 1]],
+            'price'       => 10,
+        ])),
+        ['state' => ProductStateEnum::ACTIVE]
+    ));
+}
+
+test('adding products to a channel reads the same rows whether it adds one product or five', function () {
+    Queue::fake();
+    $products = storeActiveProductsInFamily($this->product, 6);
+    $platform = $this->group->platforms()->where('type', PlatformTypeEnum::MANUAL)->firstOrFail();
+    $channel  = StoreCustomerSalesChannel::make()->action(createOwnCustomer($this->shop, 'portfolio-batch-queries'), $platform, ['reference' => 'portfolio_batch_queries']);
+
+    $queriesToAdd = function (array $productIds) use ($channel): array {
+        $channel = CustomerSalesChannel::find($channel->id);
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+        StoreMultiplePortfolios::make()->action($channel, ['items' => $productIds]);
+        DB::disableQueryLog();
+
+        return collect(DB::getQueryLog())->pluck('query')->all();
+    };
+
+    $addingOne  = $queriesToAdd([$products[0]->id]);
+    $addingFive = $queriesToAdd($products->slice(1)->pluck('id')->all());
+
+    $isInsert = fn (string $sql) => str_starts_with(strtolower($sql), 'insert');
+
+    expect(count(array_filter($addingFive, fn ($sql) => !$isInsert($sql))))->toBe(count(array_filter($addingOne, fn ($sql) => !$isInsert($sql))))
+        ->and(count(array_filter($addingFive, $isInsert)))->toBe(5 * count(array_filter($addingOne, $isInsert)))
+        ->and($channel->portfolios()->whereIn('item_id', $products->pluck('id'))->where('status', true)->count())->toBe(6)
+        ->and($channel->refresh()->number_portfolios)->toBe(6)
+        ->and(Portfolio::where('customer_sales_channel_id', $channel->id)->whereDoesntHave('stats')->count())->toBe(0);
+});
+
+test('products added to a platform channel are checked in the platform by a queued job, not in the request', function () {
+    Queue::fake();
+    $products = storeActiveProductsInFamily($this->product, 2);
+    $channel  = storeConnectedEbayUser($this->customer, 'test-ebay-batch-check')->customerSalesChannel;
+
+    CheckEbayPortfolio::mock()->shouldNotReceive('handle');
+
+    StoreMultiplePortfolios::make()->action($channel, ['items' => $products->pluck('id')->all()]);
+
+    $newPortfolioIds = $channel->portfolios()->whereIn('item_id', $products->pluck('id'))->orderBy('id')->pluck('id')->all();
+
+    Queue::assertPushedOn('ds', JobDecorator::class, fn (JobDecorator $job) => $job->getAction() instanceof CheckNewPortfoliosInPlatform
+        && $job->getParameters()[1] === $newPortfolioIds);
+});
+
+test('the queued platform check checks each new portfolio and tells the customer when it is done', function () {
+    Event::fake([CloneRetinaPortfolioProgressEvent::class]);
+    $products = storeActiveProductsInFamily($this->product, 2);
+    $website = createWebsite($this->shop);
+    if ($website->state != WebsiteStateEnum::LIVE) {
+        LaunchWebsite::make()->action($website);
+    }
+    $customer = createOwnCustomer($this->shop, 'portfolio-batch-check-job');
+    $webUser  = StoreWebUser::make()->action($customer, ['username' => 'checker-'.Str::random(6), 'email' => Str::random(6).'@testmail.com', 'password' => 'test']);
+    $channel  = storeConnectedEbayUser($customer, 'test-ebay-batch-check-job')->customerSalesChannel;
+
+    $portfolios = $products->map(fn (Product $product) => StorePortfolio::make()->action($channel, $product, [], checkInPlatform: false));
+
+    $checked = [];
+    CheckEbayPortfolio::mock()->shouldReceive('handle')->andReturnUsing(function (Portfolio $portfolio) use (&$checked) {
+        $checked[] = $portfolio->id;
+
+        return $portfolio;
+    });
+
+    CheckNewPortfoliosInPlatform::run($channel, $portfolios->pluck('id')->all());
+
+    expect($checked)->toBe($portfolios->pluck('id')->all());
+
+    Event::assertDispatchedTimes(CloneRetinaPortfolioProgressEvent::class, 1);
+    Event::assertDispatched(CloneRetinaPortfolioProgressEvent::class, fn (CloneRetinaPortfolioProgressEvent $event) => $event->userId === $webUser->id && $event->actionType === CheckNewPortfoliosInPlatform::PROGRESS_ACTION_TYPE
+        && $event->actionId === $channel->id && $event->total === 2 && $event->done === 2 && $event->numberFails === 0);
 });

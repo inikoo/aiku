@@ -30,6 +30,7 @@ class UpdateShopService extends OrgAction
 
     public function asController(Service $service, ActionRequest $request): Service
     {
+        abort_if($service->shop->fulfilment, 404);
         $this->service = $service;
         $this->initialisationFromShop($service->shop, $request);
 

@@ -87,7 +87,7 @@ class GetMasterProductShowcase
             ->filter(fn ($item) => $item->shop->state->value !== 'closed');
 
         $parentLink = null;
-        if ($masterAsset->not_for_sale_from_trade_unit) {
+        if ($masterAsset->not_for_sale_from_trade_unit && request()->user()?->authTo(['goods.edit', 'compliance.edit'])) {
             $parentLink = [
                 'url'    => "grp.trade_units.units.edit",
                 'params' => [

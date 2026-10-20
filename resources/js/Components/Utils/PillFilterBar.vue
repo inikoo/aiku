@@ -12,6 +12,7 @@ interface PillOption {
     value: string
     label: string
     count?: number
+    tooltip?: string
 }
 
 const props = withDefaults(
@@ -67,6 +68,7 @@ function choose(value: string | null): void {
                     :key="option.value"
                     type="button"
                     class="flex items-center gap-1 rounded-md px-2.5 py-1 transition duration-200"
+                    v-tooltip="option.tooltip"
                     :class="selected === option.value ? selectedClass(option.value) : idleClass"
                     @click="choose(option.value)">
                     {{ option.label }}
@@ -90,6 +92,7 @@ function choose(value: string | null): void {
             :key="option.value"
             type="button"
             class="flex items-center gap-1 rounded-md px-2 py-0.5 transition duration-200"
+            v-tooltip="option.tooltip"
             :class="selected === option.value ? selectedClass(option.value) : idleClass"
             @click="emit('select', option.value)">
             {{ option.label }}

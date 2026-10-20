@@ -8,6 +8,8 @@
 
 namespace App\Actions\Comms\BeeFreeSDK;
 
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\Catalogue\Shop;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -66,6 +68,32 @@ class AuthenticateBeefreeAccount extends OrgAction
         throw new \Exception('Failed to authenticate with BeeFree');
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+
+        $permissions = ['group-webmaster.view'];
+        foreach (Shop::where('group_id', $this->group->id)->get(['id', 'organisation_id']) as $shop) {
+            array_push(
+                $permissions,
+                "web.$shop->id.edit",
+                "supervisor-web.$shop->id",
+                "crm.$shop->id.edit",
+                "crm.$shop->id.prospects.edit",
+                "marketing.$shop->id.edit",
+                "supervisor-marketing.$shop->id",
+                "org-admin.$shop->organisation_id"
+            );
+        }
+        foreach (Fulfilment::where('group_id', $this->group->id)->pluck('id') as $fulfilmentId) {
+            array_push($permissions, "fulfilment-shop.$fulfilmentId.edit", "supervisor-fulfilment-shop.$fulfilmentId");
+        }
+
+        return $request->user()->authTo(array_values(array_unique($permissions)));
+    }
+
     public function asController(Organisation $organisation, ActionRequest $request): array
     {
         $this->initialisation($organisation, $request);
@@ -95,6 +123,7 @@ class AuthenticateBeefreeAccount extends OrgAction
             return;
         }
         $modelData = $command->argument('modelData') ?? [];
+        $this->asAction = true;
         $this->initialisation($organisation, $modelData);
         $result = $this->handle($organisation, $modelData);
         $command->info('BeeFree authentication successful');

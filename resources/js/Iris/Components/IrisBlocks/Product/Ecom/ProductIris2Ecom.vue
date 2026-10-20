@@ -44,6 +44,8 @@ import { useLocaleStore } from "@/Stores/locale"
 import { ctrans } from "@/Composables/useTrans"
 import StockInfoPopover from "@/Components/Iris/Products/StockInfoPopover.vue"
 import ButtonOutOfStock from "@/Components/Iris/Products/ButtonOutOfStock.vue"
+import PreOrderInfo from "@/Components/Iris/Products/PreOrderInfo.vue"
+import { PreOrder } from "@/types/Iris/Products"
 import { urlLoginWithRedirect } from "@/Composables/urlLoginWithRedirect"
 import { getStyles } from "@/Composables/styles"
 import { ulid } from "ulid"
@@ -106,6 +108,7 @@ interface ProductResource {
     unit: string
     units: number
     stock: number
+    pre_order?: PreOrder | null
 
     rating?: number
     url?: string | null
@@ -385,18 +388,18 @@ onMounted(async () => {
                         <div v-if="layout?.iris?.is_logged_in" class="flex justify-between items-center mt-2">
                             <div class="flex items-center gap-2 text-sm">
                                 <StockInfoPopover :product="product">
-                                    <span :class="product.stock > 0 ? 'text-green-600' : 'text-red-600'">
+                                    <span :class="product.stock > 0 ? 'text-green-600' : (product.pre_order ? 'text-amber-600' : 'text-red-600')">
                                         {{
                                             product.stock > 0
                                                 ? `${ctrans("In stock")}`
-                                                : ctrans("Out of stock")
+                                                : (product.pre_order ? `${product.pre_order.available_label} · ${product.pre_order.dispatch_label}` : ctrans("Out of stock"))
                                         }}
                                     </span>
                                 </StockInfoPopover>
                             </div>
 
                             <!-- REMIND ME -->
-                            <button v-if="product.stock <= 0 && layout?.outboxes?.oos_notification?.state == 'active'"
+                            <button v-if="product.stock <= 0 && !product.pre_order && layout?.outboxes?.oos_notification?.state == 'active'"
                                 @click="
                                     customerData?.back_in_stock
                                         ? onUnselectBackInStock(product)
@@ -514,7 +517,8 @@ onMounted(async () => {
                 <!-- ADD TO CART -->
                 <div class="flex gap-2 mt-4 mb-4">
                     <div v-if="layout?.iris?.is_logged_in" class="w-full">
-                        <EcomAddToBasketv2 v-if="product.stock > 0" ref="_desktopAddToBasket" v-model:product="product" :customerData="customerData" :key="keyCustomer" :buttonStyle="getStyles(fieldValue?.button?.properties, screenType)"  class="button-basket"/>
+                        <PreOrderInfo v-if="layout?.iris?.is_logged_in && product.pre_order && !(product.stock > 0)" class="mb-3" :preOrder="customerData?.pre_order ?? product.pre_order" :stock="product.stock" />
+                        <EcomAddToBasketv2 v-if="product.stock > 0 || product.pre_order" ref="_desktopAddToBasket" v-model:product="product" :customerData="customerData" :key="keyCustomer" :buttonStyle="getStyles(fieldValue?.button?.properties, screenType)"  class="button-basket"/>
                         <ButtonOutOfStock v-else :product="product" />
                     </div>
 
@@ -736,11 +740,11 @@ onMounted(async () => {
             <div v-if="layout?.iris?.is_logged_in" class="flex items-center justify-between mt-1">
                 <!-- STOCK -->
                 <StockInfoPopover :product="product">
-                    <span class="text-sm font-medium" :class="product.stock > 0 ? 'text-green-600' : 'text-red-600'">
+                    <span class="text-sm font-medium" :class="product.stock > 0 ? 'text-green-600' : (product.pre_order ? 'text-amber-600' : 'text-red-600')">
                         {{
                             product.stock > 0
                                 ? `${ctrans('In stock')}`
-                                : ctrans("Out of stock")
+                                : (product.pre_order ? `${product.pre_order.available_label} · ${product.pre_order.dispatch_label}` : ctrans("Out of stock"))
                         }}
                     </span>
                 </StockInfoPopover>
@@ -838,7 +842,7 @@ onMounted(async () => {
 
 
             <!-- REMIND ME -->
-            <button v-if="product.stock <= 0 && layout?.outboxes?.oos_notification?.state === 'active'" @click="
+            <button v-if="product.stock <= 0 && !product.pre_order && layout?.outboxes?.oos_notification?.state === 'active'" @click="
                 customerData?.back_in_stock
                     ? onUnselectBackInStock(product)
                     : onAddBackInStock(product)
@@ -855,7 +859,8 @@ onMounted(async () => {
             </button>
 
             <!-- ADD TO CART -->
-            <EcomAddToBasketv2 v-if="product.stock > 0" ref="_mobileAddToBasket" v-model:product="product" :customerData="customerData" :key="keyCustomer" class="w-full button-basket" />
+            <PreOrderInfo v-if="layout?.iris?.is_logged_in && product.pre_order && !(product.stock > 0)" class="mb-3" :preOrder="customerData?.pre_order ?? product.pre_order" :stock="product.stock" />
+            <EcomAddToBasketv2 v-if="product.stock > 0 || (product.pre_order && layout?.iris?.is_logged_in)" ref="_mobileAddToBasket" v-model:product="product" :customerData="customerData" :key="keyCustomer" class="w-full button-basket" />
             <ButtonOutOfStock v-else :product="product" />
 
             <!-- DOWNLOAD -->

@@ -108,7 +108,7 @@ class ReceiveJobOrderIntoStock extends OrgAction
                 }
 
                 $orgStock = $item->artefact->orgStock;
-                $producedSkos = $producedUnits / max(1, (int) $orgStock->packed_in);
+                $producedSkos = $producedUnits / $orgStock->packedIn();
 
                 if (!LocationOrgStock::where('location_id', $location->id)->where('org_stock_id', $orgStock->id)->exists()) {
                     StoreLocationOrgStock::make()->action($orgStock, $location, []);
@@ -194,23 +194,19 @@ class ReceiveJobOrderIntoStock extends OrgAction
 
     private function producedQuantity(JobOrderItem $item): float
     {
-        $lastTask = $item->tasks->last();
+        $lastTask = $item->finalTask();
 
         if (!$lastTask) {
             return 0.0;
         }
 
-        $unitsPerArtefact = ArtefactManufactureTask::where('artefact_id', $item->artefact_id)
-            ->where('manufacture_task_id', $lastTask->manufacture_task_id)
-            ->value('units_per_artefact');
-
-        if ($unitsPerArtefact === null || (float) $unitsPerArtefact <= 0) {
+        if (!$lastTask->isInRecipe()) {
             throw ValidationException::withMessages([
                 'location_id' => __('Artefact :code no longer has task :task in its recipe', ['code' => $item->artefact->code, 'task' => $lastTask->manufactureTask?->name]),
             ]);
         }
 
-        return min((float) $item->quantity, ArtefactManufactureTask::artefactsIn($lastTask->quantity_made, $unitsPerArtefact));
+        return min((float) $item->quantity, $lastTask->artefactsIn());
     }
 
     private function deductRawMaterials(JobOrderItem $item, float $producedArtefactUnits, ?int $userId): void
@@ -256,7 +252,7 @@ class ReceiveJobOrderIntoStock extends OrgAction
             }
 
             StoreOrgStockMovement::make()->action($orgStock, $deductionLocationOrgStock->location, [
-                'quantity' => -$consumption['quantity'] / max(1, (int) $orgStock->packed_in),
+                'quantity' => -$consumption['quantity'] / $orgStock->packedIn(),
                 'type'     => OrgStockMovementTypeEnum::PRODUCTION,
                 'user_id'  => $userId,
             ]);

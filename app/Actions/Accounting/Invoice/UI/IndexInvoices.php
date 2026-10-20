@@ -37,6 +37,7 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Organisation;
+use App\Actions\Traits\Authorisations\WithInvoiceCategoryListAuthorisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -53,7 +54,7 @@ class IndexInvoices extends OrgAction
     use WithCustomerSubNavigation;
     use WithInvoicesSubNavigation;
     use WithInvoiceCategorySubNavigation;
-
+    use WithInvoiceCategoryListAuthorisation;
 
     private Organisation|Fulfilment|Customer|FulfilmentCustomer|InvoiceCategory|Shop $parent;
     private string $bucket = '';
@@ -105,6 +106,9 @@ class IndexInvoices extends OrgAction
             $queryBuilder->where('invoices.order_id', $parent->id);
         } elseif ($parent instanceof InvoiceCategory) {
             $queryBuilder->where('invoices.invoice_category_id', $parent->id);
+            if ($this->invoiceCategoryViewableShopIds !== null) {
+                $queryBuilder->whereIn('invoices.shop_id', $this->invoiceCategoryViewableShopIds);
+            }
         } elseif ($parent instanceof OrgPaymentServiceProvider) {
             $queryBuilder->leftJoin('model_has_payments', function ($join) {
                 $join->on('invoices.id', '=', 'model_has_payments.model_id')
@@ -256,7 +260,7 @@ class IndexInvoices extends OrgAction
                 'bucket'       => $this->bucket,
                 'type'         => 'invoice',
             ]);
-        } elseif ($this->parent instanceof InvoiceCategory) {
+        } elseif ($this->parent instanceof InvoiceCategory && $this->invoiceCategoryViewableShopIds === null) {
             $route      = 'grp.org.accounting.invoice-categories.show.invoices.index.omega';
             $parameters = array_filter([
                 'organisation' => $this->organisation->slug,
@@ -559,6 +563,10 @@ class IndexInvoices extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         $routeName = $request->route()->getName();
+
+        if ($routeName === 'grp.org.accounting.invoice-categories.show.invoices.index') {
+            return $this->authorizeInvoiceCategoryList($request->user(), $this->organisation);
+        }
 
         if (str_starts_with($routeName, 'grp.org.accounting.')) {
             return $request->user()->authTo("accounting.{$this->organisation->id}.view");

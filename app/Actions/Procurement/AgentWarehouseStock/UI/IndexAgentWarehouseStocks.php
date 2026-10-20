@@ -46,6 +46,7 @@ class IndexAgentWarehouseStocks extends OrgAction
 
         $query = QueryBuilder::for(AgentWarehouseStock::class)
             ->where('agent_warehouse_stocks.agent_id', $agent->id)
+            ->where('agent_warehouse_stocks.quantity', '>', 0)
             ->join('organisations', 'organisations.id', 'agent_warehouse_stocks.organisation_id')
             ->join('supplier_products', 'supplier_products.id', 'agent_warehouse_stocks.supplier_product_id')
             ->leftJoin('suppliers', 'suppliers.id', 'supplier_products.supplier_id')
@@ -110,22 +111,24 @@ class IndexAgentWarehouseStocks extends OrgAction
     }
 
     /**
-     * @return array{state: array<int, array{label: string, value: string, count: int}>, organisation: array<int, array{label: string, value: string, count: int}>}
+     * @return array{state: array<int, array{label: string, value: string, count: int}>, organisation: array<int, array{label: string, value: string, count: int, tooltip: string}>}
      */
     public function filterOptions(Agent $agent): array
     {
-        $stateCounts = AgentWarehouseStock::where('agent_id', $agent->id)->selectRaw('state, count(*) as total')->groupBy('state')->pluck('total', 'state');
+        $stateCounts = AgentWarehouseStock::where('agent_id', $agent->id)->where('quantity', '>', 0)->selectRaw('state, count(*) as total')->groupBy('state')->pluck('total', 'state');
 
         $organisations = AgentWarehouseStock::where('agent_warehouse_stocks.agent_id', $agent->id)
+            ->where('agent_warehouse_stocks.quantity', '>', 0)
             ->join('organisations', 'organisations.id', 'agent_warehouse_stocks.organisation_id')
-            ->selectRaw('organisations.slug, organisations.code, count(*) as total')
-            ->groupBy('organisations.slug', 'organisations.code')
+            ->leftJoin('countries', 'countries.id', 'organisations.country_id')
+            ->selectRaw('organisations.slug, organisations.code, organisations.name, countries.name as country_name, count(*) as total')
+            ->groupBy('organisations.slug', 'organisations.code', 'organisations.name', 'countries.name')
             ->orderBy('organisations.code')
             ->get();
 
         return [
             'state'        => collect(AgentWarehouseStockStateEnum::labels())->map(fn ($label, $state) => ['label' => $label, 'value' => $state, 'count' => (int) ($stateCounts[$state] ?? 0)])->values()->all(),
-            'organisation' => $organisations->map(fn ($organisation) => ['label' => strtoupper($organisation->code), 'value' => $organisation->slug, 'count' => (int) $organisation->total])->all(),
+            'organisation' => $organisations->map(fn ($organisation) => ['label' => strtoupper($organisation->code), 'value' => $organisation->slug, 'count' => (int) $organisation->total, 'tooltip' => $organisation->country_name ? "{$organisation->name} ({$organisation->country_name})" : $organisation->name])->all(),
         ];
     }
 
@@ -138,6 +141,7 @@ class IndexAgentWarehouseStocks extends OrgAction
         $organisation = $request->input('filter.organisation');
 
         $rows = AgentWarehouseStock::where('agent_warehouse_stocks.agent_id', $agent->id)
+            ->where('agent_warehouse_stocks.quantity', '>', 0)
             ->join('organisations', 'organisations.id', 'agent_warehouse_stocks.organisation_id')
             ->leftJoin('countries', 'countries.id', 'organisations.country_id')
             ->join('supplier_products', 'supplier_products.id', 'agent_warehouse_stocks.supplier_product_id')

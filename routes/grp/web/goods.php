@@ -8,7 +8,6 @@
 
 use App\Actions\Goods\Ingredient\UI\IndexIngredients;
 use App\Actions\Goods\Ingredient\UI\ShowIngredient;
-use App\Actions\Goods\Stock\ExportStocks;
 use App\Actions\Goods\Stock\UI\CreateStock;
 use App\Actions\Goods\Stock\UI\EditStock;
 use App\Actions\Goods\Stock\UI\EditStockComposition;
@@ -51,7 +50,6 @@ Route::get('tariff-codes', IndexTariffCodes::class)->name('tariff_codes.index');
 
 Route::prefix('stocks')->as('stocks.')->group(function () {
     Route::get('/', IndexStocks::class)->name('index');
-    Route::get('/export', ExportStocks::class)->name('export');
     Route::get('/create', CreateStock::class)->name('create');
 
 

@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Actions\Accounting\Invoice\WithPalletExport;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithExportData;
@@ -26,6 +27,7 @@ class PdfPallet extends OrgAction
     use WithAttributes;
     use WithExportData;
     use WithPalletExport;
+    use WithFulfilmentShopAuthorisation;
 
     public function handle(Pallet $pallet): Response
     {
@@ -34,6 +36,7 @@ class PdfPallet extends OrgAction
 
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, Pallet $pallet, ActionRequest $request): Response
     {
+        abort_unless($fulfilmentCustomer->fulfilment_id === $fulfilment->id && $pallet->fulfilment_customer_id === $fulfilmentCustomer->id, 404);
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($pallet);

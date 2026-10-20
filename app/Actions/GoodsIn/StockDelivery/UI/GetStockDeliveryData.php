@@ -2,6 +2,7 @@
 
 namespace App\Actions\GoodsIn\StockDelivery\UI;
 
+use App\Enums\Procurement\OrgAgent\OrgAgentOrderContainerEnum;
 use App\Models\GoodsIn\StockDelivery;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -30,6 +31,19 @@ class GetStockDeliveryData
                             ['label' => __('Container'), 'value' => 'container'],
                             ['label' => __('Parcel'), 'value' => 'parcel'],
                         ],
+                    ],
+                    'container_size' => [
+                        'type'    => 'select',
+                        'label'   => __('Container size'),
+                        'value'   => Arr::get($data, 'container_size'),
+                        'hidden'  => $isParcel,
+                        'options' => OrgAgentOrderContainerEnum::selectOptions(),
+                    ],
+                    'hide_cbm'       => [
+                        'type'        => 'toggle',
+                        'label'       => __('Hide CBM'),
+                        'information' => __('The PDF and CSV of this container leave the CBM out'),
+                        'value'       => (bool) Arr::get($data, 'hide_cbm', false),
                     ],
                     'reference'     => [
                         'type'  => 'input',

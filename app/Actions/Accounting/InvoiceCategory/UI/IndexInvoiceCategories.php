@@ -11,6 +11,7 @@ namespace App\Actions\Accounting\InvoiceCategory\UI;
 
 use App\Actions\Accounting\UI\ShowAccountingDashboard;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithAccountingPagesAuthorisation;
 use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Http\Resources\Accounting\InvoiceCategoriesResource;
 use App\InertiaTable\InertiaTable;
@@ -27,6 +28,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexInvoiceCategories extends OrgAction
 {
+    use WithAccountingPagesAuthorisation;
     public function handle(Organisation $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {

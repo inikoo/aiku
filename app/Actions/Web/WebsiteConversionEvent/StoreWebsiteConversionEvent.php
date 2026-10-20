@@ -7,15 +7,13 @@
 
 namespace App\Actions\Web\WebsiteConversionEvent;
 
-use App\Enums\Web\Webpage\WebpageStateEnum;
+use App\Actions\Web\Webpage\ResolveWebpageByPath;
 use App\Enums\Web\WebsiteConversionEvent\WebsiteConversionEventTypeEnum;
 use App\Models\Ordering\Order;
-use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use App\Models\Web\WebsiteConversionEvent;
 use App\Models\Web\WebsiteVisitor;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Support\Facades\Cache;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreWebsiteConversionEvent
@@ -56,7 +54,7 @@ class StoreWebsiteConversionEvent
 
         $path = parse_url($url, PHP_URL_PATH) ?: '/';
 
-        $webpage = $this->resolveWebpage($website, $path);
+        $webpage = ResolveWebpageByPath::run($website, $path);
 
         $eventData = [
             'group_id'           => $visitor->group_id,
@@ -96,21 +94,5 @@ class StoreWebsiteConversionEvent
         }
 
         WebsiteConversionEvent::create($eventData);
-    }
-
-    protected function resolveWebpage(Website $website, string $path): ?Webpage
-    {
-        $cacheKey = "webpage_resolve:{$website->id}:" . md5($path);
-
-        return Cache::remember($cacheKey, 86400, function () use ($website, $path) {
-            return Webpage::query()
-                ->where('website_id', $website->id)
-                ->where('state', WebpageStateEnum::LIVE)
-                ->where(function ($query) use ($path) {
-                    $query->whereRaw("substring(canonical_url from 'https?://[^/]+(/.*)$') = ?", [$path])
-                        ->orWhere('url', ltrim($path, '/'));
-                })
-                ->first();
-        });
     }
 }

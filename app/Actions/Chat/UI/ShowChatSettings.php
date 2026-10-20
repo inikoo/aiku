@@ -99,14 +99,14 @@ class ShowChatSettings extends OrgAction
                         'title' => __('Chat settings'),
                         'icon'  => ['fal', 'fa-sliders-h'],
                     ],
-                    'actions' => $this->getActions($isShop),
+                    'actions' => $this->getActions($isShop, $request),
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => $isShop ? ChatSettingsTabsEnum::navigationExcept([ChatSettingsTabsEnum::COURIERS]) : ChatSettingsTabsEnum::navigationExcept([ChatSettingsTabsEnum::OUT_OF_HOURS, ChatSettingsTabsEnum::CLOSING, ChatSettingsTabsEnum::POLICIES]),
                 ],
                 'settingsRoute'  => $this->chatRoute('settings'),
-                'templatesTable' => $isShop ? $this->getShopTemplatesTableProps() : null,
+                'templatesTable' => $isShop ? $this->getShopTemplatesTableProps($request) : null,
                 'outOfHours'     => $isShop ? $this->getOutOfHoursProps($parent) : null,
                 'closing'        => $isShop ? [
                     'close_after_thanks'         => UpdateShopChatClosing::isOn($parent),
@@ -144,9 +144,13 @@ class ShowChatSettings extends OrgAction
         );
     }
 
-    private function getActions(bool $isShop): array
+    private function getActions(bool $isShop, ActionRequest $request): array
     {
         if ($this->tab == ChatSettingsTabsEnum::AGENTS->value) {
+            if (!$this->userSupervisesChatOnOrganisation($request->user(), $this->organisation)) {
+                return [];
+            }
+
             return [
                 [
                     'type'    => 'button',
@@ -170,8 +174,14 @@ class ShowChatSettings extends OrgAction
             'shop'         => $this->shop->slug,
         ];
 
-        return [
-            [
+        $canCreateTemplate = $request->user()->authTo([
+            "chat-m.{$this->shop->id}",
+            "crm.{$this->shop->id}.edit",
+            "org-admin.{$this->organisation->id}",
+        ]);
+
+        return array_values(array_filter([
+            $canCreateTemplate ? [
                 'type'  => 'button',
                 'style' => 'primary',
                 'icon'  => 'fal fa-plus',
@@ -181,8 +191,8 @@ class ShowChatSettings extends OrgAction
                     'name'       => 'grp.org.shops.show.chat.whatsapp_templates.create',
                     'parameters' => $shopParameters,
                 ],
-            ],
-            [
+            ] : null,
+            $canCreateTemplate ? [
                 'type'        => 'button',
                 'style'       => 'tertiary',
                 'icon'        => ['fab', 'fa-whatsapp'],
@@ -194,8 +204,8 @@ class ShowChatSettings extends OrgAction
                     'name'       => 'grp.org.shops.show.chat.whatsapp_templates.sync',
                     'parameters' => $shopParameters,
                 ],
-            ],
-        ];
+            ] : null,
+        ]));
     }
 
     private function getCouriersProps(ActionRequest $request): array
@@ -243,7 +253,7 @@ class ShowChatSettings extends OrgAction
         ];
     }
 
-    private function getShopTemplatesTableProps(): array
+    private function getShopTemplatesTableProps(ActionRequest $request): array
     {
         $shopParameters = [
             'organisation' => $this->organisation->slug,
@@ -258,6 +268,11 @@ class ShowChatSettings extends OrgAction
             'draftRouteName'    => 'grp.org.shops.show.chat.whatsapp_templates.draft.edit',
             'languageRouteName' => 'grp.org.shops.show.chat.whatsapp_templates.language',
             'routeParameters'   => $shopParameters,
+            'canEdit'           => $request->user()->authTo([
+                "chat-m.{$this->shop->id}",
+                "crm.{$this->shop->id}.edit",
+                "org-admin.{$this->organisation->id}",
+            ]),
             'variablesRoute'    => [
                 'name'       => 'grp.org.shops.show.chat.whatsapp_templates.variables',
                 'parameters' => $shopParameters,

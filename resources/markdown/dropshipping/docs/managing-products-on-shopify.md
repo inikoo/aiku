@@ -70,7 +70,9 @@ You can also tick products in the list. Buttons appear above it:
 
 If you already sell our products in Shopify, give each Shopify product (or variant) the same SKU as our product code before you match. Then use <b>Match all with default product</b>. This links your existing listings and does not create new ones.
 
-If you sell several of our products as the variants of one Shopify product, for example one product with a variant per colour, each variant must have its own SKU. Ask us in the chat on our website to turn on linking to existing variants for your channel. You cannot turn it on yourself. Then matching links each product to the variant with its SKU, and we never change the price, SKU or barcode of your variants.
+If you sell several of our products as the variants of one Shopify product, for example one product with a variant per colour, give each variant the SKU of its product. There is nothing to turn on: matching links each product to the variant with its SKU, and we never change the price, SKU or barcode of your variants. Each of those variants must be stocked only at the <b>aiku-</b> location. Remove every other location from it in Shopify, even one showing 0, or the match is refused, because Shopify could send its orders there and they would never reach us.
+
+A Shopify product with a single variant is not linked this way: matching replaces its variant with ours. See [What happens to your product descriptions](/docs/product-descriptions-after-connecting).
 
 ## Find products in the list
 
@@ -103,9 +105,9 @@ To see what happened with each upload, open the <b>Logs</b> tab in <b>My Product
 
 **"No variant on Shopify matches this sku".** The product is linked, but we cannot find its SKU in Shopify any more. The SKU was changed, or the product or variant was deleted in Shopify. Put the SKU back, or link the product again with <b>Connect with other product</b>.
 
-**"You need to add option values for Colour"** (or another option). You matched with a Shopify product that has options, such as colours. Give each variant its own SKU and ask us in the chat on our website to turn on linking to existing variants, or match with a product without options.
+**"You need to add option values for Colour"** (or another option). You matched with a Shopify product that has options, such as colours, and none of its variants carries our SKU. Give the variant the SKU of our product and match again, or match with a product without options.
 
-**"None of the variants of this Shopify product has the sku ...".** Linking to variants is on, but no variant carries our SKU. Set the SKU on the variant you want and match again.
+**"This Shopify variant is also stocked at your location ...".** The variant is also stocked at one of your own locations, so Shopify could send its orders there and we would never receive them. Remove that location from the variant in Shopify, even if it shows 0, and match again.
 
 **"More than one variant of this Shopify product has the sku ...".** Two variants have the same SKU. Give each variant its own SKU.
 

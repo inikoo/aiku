@@ -59,6 +59,8 @@ class IndexAgentCoverBucketItems extends OrgAction
 
     private bool $onAnyDraftOnly = false;
 
+    private bool $hideDiscontinued = false;
+
     private ?string $prefix = null;
 
     private int $agentLeadDays = 0;
@@ -89,8 +91,9 @@ class IndexAgentCoverBucketItems extends OrgAction
         $this->orgAgent   = $orgAgent;
         $this->bucket     = null;
         $this->rank       = null;
-        $this->supplierId = $supplierId;
-        $this->prefix     = $prefix;
+        $this->supplierId       = $supplierId;
+        $this->prefix           = $prefix;
+        $this->hideDiscontinued = true;
 
         InertiaTable::updateQueryBuilderParameters($prefix);
         $this->readOrderingFilters($prefix);
@@ -115,8 +118,9 @@ class IndexAgentCoverBucketItems extends OrgAction
      */
     public function orderingFilters(OrgAgent $orgAgent, int $supplierId, string $currency, string $prefix): array
     {
-        $this->orgAgent   = $orgAgent;
-        $this->supplierId = $supplierId;
+        $this->orgAgent         = $orgAgent;
+        $this->supplierId       = $supplierId;
+        $this->hideDiscontinued = true;
         $this->readOrderingFilters($prefix);
 
         $options = $this->filterOptions(request()->input($prefix.'_filter.global', ''));
@@ -158,6 +162,7 @@ class IndexAgentCoverBucketItems extends OrgAction
             ->when($supplierId, fn ($query) => $query->where('sp.supplier_id', $supplierId))
             ->when($this->onDraftsOnly, fn ($query) => $query->whereRaw($this->onDraftSql()))
             ->when($this->hideOnOrder, fn ($query) => $query->whereRaw('not '.$this->onOrderSql()))
+            ->when($this->hideDiscontinued, fn ($query) => $query->whereRaw($this->stillOrderableSql()))
             ->when($this->onAnyDraftOnly, fn ($query) => $query->whereExists(
                 fn ($drafts) => $drafts->selectRaw('1')
                     ->fromSub(ShowAgentDraftsToSend::drafts($orgAgent), 'po')
@@ -171,7 +176,7 @@ class IndexAgentCoverBucketItems extends OrgAction
                 'sp.code',
                 'sp.name',
                 'sp.cost',
-                'sp.units_per_pack',
+                'os.packed_in as units_per_pack',
                 'sp.units_per_carton',
                 'sp.minimum_carton_order',
                 'sup.code as supplier_code',
@@ -364,6 +369,17 @@ class IndexAgentCoverBucketItems extends OrgAction
         return $this->bucket === null ? __('Ordering') : GetAgentStockCoverBuckets::make()->bucketLabel($this->bucket);
     }
 
+    /**
+     * A purchase order lists only what can still be bought: not a product whose SKO is being
+     * discontinued or one the supplier no longer has, as on a supplier purchase order. One already
+     * on a draft stays, so it can be taken off.
+     */
+    private function stillOrderableSql(): string
+    {
+        return "((sp.is_available and (os.state is null or os.state not in ('".OrgStockStateEnum::DISCONTINUING->value."', '".OrgStockStateEnum::DISCONTINUED->value."')))
+            or ".$this->onDraftSql().')';
+    }
+
     private function onDraftSql(): string
     {
         return "exists (select 1 from purchase_order_transactions pot
@@ -418,6 +434,7 @@ class IndexAgentCoverBucketItems extends OrgAction
             ->when($this->supplierId, fn ($query) => $query->where('sp.supplier_id', $this->supplierId))
             ->when($this->onDraftsOnly, fn ($query) => $query->whereRaw($this->onDraftSql()))
             ->when($this->hideOnOrder, fn ($query) => $query->whereRaw('not '.$this->onOrderSql()))
+            ->when($this->hideDiscontinued, fn ($query) => $query->whereRaw($this->stillOrderableSql()))
             ->when($search !== '', fn ($query) => $query->whereRaw('(sp.code collate "C" ilike ? or sp.name ilike ?)', [$like, $like]))
             ->groupByRaw($buckets->bucketSql($this->orgAgent).', os.health_rank')
             ->selectRaw($buckets->bucketSql($this->orgAgent).' as bucket, os.health_rank, count(*) as products')

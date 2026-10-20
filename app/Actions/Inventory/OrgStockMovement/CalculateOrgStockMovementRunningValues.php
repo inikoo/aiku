@@ -18,7 +18,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Support\Facades\DB;
-use Lorisleiva\Actions\Concerns\AsAction;
+use App\Actions\Traits\AsUniqueUntilProcessingAction;
 
 /**
  * Stamps each movement with the total stock value right after it happened, in all three
@@ -27,8 +27,15 @@ use Lorisleiva\Actions\Concerns\AsAction;
  */
 class CalculateOrgStockMovementRunningValues implements ShouldBeUniqueUntilProcessing
 {
-    use AsAction;
-    use CalculatesOrgStockHistories;
+    use AsUniqueUntilProcessingAction;
+    use CalculatesOrgStockHistories {
+        getLppPerSku as lppPerSkuFromPurchases;
+    }
+
+    private const int WRITE_CHUNK_SIZE = 1000;
+
+    /** @var array<string, float> */
+    private array $lppPerSkuByDay = [];
 
     public string $jobQueue = 'sales_slave_historic';
 
@@ -42,8 +49,34 @@ class CalculateOrgStockMovementRunningValues implements ShouldBeUniqueUntilProce
         $this->handle($orgStockId);
     }
 
+    /**
+     * Runs for the same org stock are serialised, so one that overlaps another waits, then
+     * replays the movements as they are once the earlier run is done, and its values win.
+     * A session lock rather than a transaction, so each chunk commits and no movement row
+     * stays locked against pickings while the rest of the stock is written.
+     */
     public function handle(int $orgStockId): void
     {
+        DB::selectOne("select pg_advisory_lock(hashtext('org_stock_movement_running_values'), ?)", [$orgStockId], false);
+        try {
+            $this->calculate($orgStockId);
+        } finally {
+            DB::selectOne("select pg_advisory_unlock(hashtext('org_stock_movement_running_values'), ?)", [$orgStockId], false);
+        }
+    }
+
+    /**
+     * Movements without purchases price themselves from the same day lookup again and again.
+     */
+    public function getLppPerSku(OrgStock $orgStock, Carbon $date): float
+    {
+        return $this->lppPerSkuByDay[$date->toDateString()] ??= $this->lppPerSkuFromPurchases($orgStock, $date);
+    }
+
+    private function calculate(int $orgStockId): void
+    {
+        $this->lppPerSkuByDay = [];
+
         $orgStock = OrgStock::find($orgStockId);
         if (!$orgStock) {
             return;
@@ -68,8 +101,9 @@ class CalculateOrgStockMovementRunningValues implements ShouldBeUniqueUntilProce
             ? $this->initValuationState($orgStock, $wacStartDate)
             : ['onHand' => 0.0, 'wac' => null, 'layers' => []];
 
-        $lppPerSku         = null;
+        $lppPerSku          = null;
         $locationQuantities = [];
+        $runningValues      = [];
 
         foreach ($movements as $movement) {
             $inValuationWindow = $wacStartDate === null || !Carbon::parse($movement->date)->lt($wacStartDate);
@@ -102,12 +136,34 @@ class CalculateOrgStockMovementRunningValues implements ShouldBeUniqueUntilProce
             $wacPerSku  = $inValuationWindow && $wacStartDate !== null ? $state['wac'] : null;
             $fifoPerSku = $inValuationWindow && $wacStartDate !== null ? $this->fifoPerSkuFromLayers($state['layers']) : null;
 
-            DB::table('org_stock_movements')->where('id', $movement->id)->update([
-                'running_lpp_value'  => round($quantity * $lppPerSku, 2),
-                'running_wac_value'  => $wacPerSku === null ? null : round($quantity * $wacPerSku, 2),
-                'running_fifo_value' => $fifoPerSku === null ? null : round($quantity * $fifoPerSku, 2),
-            ]);
+            $runningValues[] = [
+                $movement->id,
+                round($quantity * $lppPerSku, 2),
+                $wacPerSku === null ? null : round($quantity * $wacPerSku, 2),
+                $fifoPerSku === null ? null : round($quantity * $fifoPerSku, 2),
+            ];
         }
+
+        foreach (array_chunk($runningValues, self::WRITE_CHUNK_SIZE) as $chunk) {
+            $this->writeRunningValues($chunk);
+        }
+    }
+
+    /**
+     * @param  array<int, array{0: int, 1: float, 2: ?float, 3: ?float}>  $rows
+     */
+    private function writeRunningValues(array $rows): void
+    {
+        $values = implode(',', array_fill(0, count($rows), '(?::bigint, ?::numeric, ?::numeric, ?::numeric)'));
+
+        DB::update(
+            "update org_stock_movements as m
+                set running_lpp_value = v.lpp, running_wac_value = v.wac, running_fifo_value = v.fifo
+               from (values $values) as v(id, lpp, wac, fifo)
+              where m.id = v.id
+                and (m.running_lpp_value, m.running_wac_value, m.running_fifo_value) is distinct from (v.lpp, v.wac, v.fifo)",
+            array_merge(...$rows)
+        );
     }
 
     public function getCommandSignature(): string

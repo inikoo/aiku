@@ -45,6 +45,8 @@ class MarkDepositRequestItemPaid extends OrgAction
 
     public function asController(DepositRequestItem $depositRequestItem, ActionRequest $request): DepositRequestItem
     {
+        abort_if($depositRequestItem->depositRequest->organisation_id !== null, 404);
+
         $this->initialisation($depositRequestItem->organisation, $request);
 
         return $this->handle($depositRequestItem);

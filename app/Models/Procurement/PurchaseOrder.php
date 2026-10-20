@@ -10,6 +10,8 @@ namespace App\Models\Procurement;
 
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionPriceQueryStateEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\Helpers\Address;
 use App\Models\SupplyChain\Agent;
@@ -344,6 +346,34 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
     }
 
     /**
+     * The supplier is making the goods: a stage from production start on is recorded.
+     */
+    public function hasProductionStarted(): bool
+    {
+        return $this->production_started_at !== null || $this->sample_approved_at !== null || $this->produced_at !== null;
+    }
+
+    /**
+     * An order through an agent can no longer lose lines once its supplier is making the goods: the agent receives them
+     * in batches against those lines.
+     */
+    public function areLinesLockedByProduction(): bool
+    {
+        return $this->isAgentOrder() && $this->hasProductionStarted();
+    }
+
+    /**
+     * Lines whose new supplier price the agent asked about and the organisation has not answered yet.
+     */
+    public function numberPendingPriceChanges(): int
+    {
+        return $this->purchaseOrderTransactions()
+            ->where('state', PurchaseOrderTransactionStateEnum::SUBMITTED)
+            ->where('price_query_state', PurchaseOrderTransactionPriceQueryStateEnum::PENDING)
+            ->count();
+    }
+
+    /**
      * The org agent this order was placed through. Read from the order, not from its supplier, which
      * may have moved to another agent or become independent since.
      */
@@ -371,6 +401,18 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
             ->where('agent_id', $agentId)
             ->where('parent_type', 'OrgSupplier')
             ->where('agent_order_reference', $agentOrderReference);
+    }
+
+    /**
+     * This order and the orders to the agent's other suppliers that went out with it, under the same agent order reference.
+     */
+    public function wholeAgentOrder(): Builder
+    {
+        if (!$this->isAgentOrder() || !$this->agent_order_reference) {
+            return self::query()->whereKey($this->id);
+        }
+
+        return self::inAgentOrder($this->organisation_id, $this->agent_id, $this->agent_order_reference);
     }
 
     public function deposits(): HasMany

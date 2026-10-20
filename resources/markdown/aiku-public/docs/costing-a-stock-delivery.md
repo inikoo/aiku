@@ -31,6 +31,18 @@ Until a real invoice is entered, a delivery that came from the old system shows 
 
 The same window holds the **Invoice exchange rate**, the **Settlement** with the deposits applied and the balance due, and the costs read from an attached invoice.
 
+A container bought through an agent needs its invoice before it can be marked as dispatched, so its **Invoice** button is there while it is still in process.
+
+### Reading the supplier invoice from its file
+
+Attach the supplier's invoice to the delivery as **Invoice** or **Proforma**, then under **Costs from the supplier invoice** press **Read invoice** and, once it is read, **Review invoice**. It is read twice, by two different AI models, and aiku checks the reading the same way as a bill of the landed costs: the two readings must agree on every line, code, quantity and amount, every amount must be printed in the document, the lines and charges must add up to the total, and it must name the delivery or one of its purchase orders and no other delivery.
+
+Each invoice line is matched to a product of the delivery by the supplier's code, then by our SKO code, then by its barcode (unit, SKO or carton). A line that matches none of them is suggested from its description when one product fits, and you confirm it. The amounts cannot be changed in the review. Each product's goods cost is the invoice price times what was received. You only say where an invoice line that matches no product goes (to a product, or **Invoiced but not in the delivery**) and what kind of expense each charge is, then press **Apply to costing**. A charge marked **Freight** becomes the shipping, shared by weight, and the forwarder's freight bills add to it; if the shipping was typed by hand, put the freight there instead. It can be applied once the delivery is checked, so the costs are in before the goods are put away.
+
+When fewer were received than invoiced, the review says how much the invoice charges for goods that did not arrive: that money stays out of the goods cost, so ask the supplier for a credit. When more were received than invoiced, the extra goods are costed at the invoice price.
+
+The reading is refused, and you enter the invoice by hand, when a check fails, when a product of the delivery is missing from the invoice, when an invoice price is far from the order price (the invoice may count packs or cartons), when the invoice has a discount or credit, or when the invoice of the delivery is already entered. An invoice that prints no total, and a container bought through an agent, are always entered by hand.
+
 For a delivery bought through an agent, press **Agent payments** to approve the agent's charges and to record what you have paid the agent. The agent's charges only count in the costing once you approve them.
 
 ## The landed costs: one line per bill

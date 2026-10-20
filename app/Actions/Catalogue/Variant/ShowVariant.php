@@ -84,7 +84,7 @@ class ShowVariant extends OrgAction
                     ]
                 ]
             ],
-            [
+            $this->canEdit ? [
                 'type'  => 'button',
                 'style' => 'edit',
                 'label' => __('Edit'),
@@ -92,7 +92,7 @@ class ShowVariant extends OrgAction
                     'name'       => preg_replace('/show$/', 'edit', request()->route()->getName()),
                     'parameters' => request()->route()->originalParameters()
                 ]
-            ]
+            ] : null
         ];
 
         $warning = null;

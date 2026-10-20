@@ -47,6 +47,7 @@ const props = defineProps<{
     pallet_deliveries?: {}
     pallet_returns?: {}
     status_rb: string
+    can_edit: boolean
     updateRoute: routeType
     timeline_rb: {
         start_date: string
@@ -393,7 +394,7 @@ const isLoading = ref(false)
 
 <!--                    v-if="compareAsc(new Date(timeline_rb.end_date), new Date()) === 1 && status_rb === 'current'" class=""-->
                 <component
-                    v-if="timeline_rb.is_display_consolidate_button && status_rb === 'current'" class=""
+                    v-if="can_edit && timeline_rb.is_display_consolidate_button && status_rb === 'current'" class=""
                     :is="consolidateRoute?.name ? Link : 'div'"
                     :href="consolidateRoute?.name ? route(consolidateRoute.name, consolidateRoute.parameters) : '#'"
                     @start="() => isLoading = true"
@@ -409,7 +410,7 @@ const isLoading = ref(false)
                     :startDate="timeline_rb.start_date"
                     :endDate="timeline_rb.end_date"
                     :updateRoute
-                    :isEndDateNotEditable="status_rb === 'former'"
+                    :isEndDateNotEditable="!can_edit || status_rb === 'former'"
                 />
             </div>
 
@@ -420,5 +421,5 @@ const isLoading = ref(false)
     <BoxStatsRecurringBills :boxStats="box_stats" :currency="currency" />
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab"  :status="status_rb" />
+    <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab"  :status="status_rb" :canEdit="can_edit" />
 </template>

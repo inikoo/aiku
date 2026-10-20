@@ -11,6 +11,7 @@ namespace App\Actions\Comms\Mailshot;
 use App\Actions\Comms\Traits\WithEmailLinkContentLabels;
 use App\Actions\Comms\Traits\WithMailshotUtmLinks;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithMailshotReadAuthorisation;
 use App\Enums\Comms\Mailshot\MailshotUtmParameterEnum;
 use App\Models\Comms\Mailshot;
 use Illuminate\Support\Arr;
@@ -19,6 +20,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class GetMailshotUrls extends OrgAction
 {
+    use WithMailshotReadAuthorisation;
     use WithEmailLinkContentLabels;
     use WithMailshotUtmLinks;
 

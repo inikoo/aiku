@@ -22,6 +22,7 @@ import { PageHeadingTypes } from "@/types/PageHeading"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import InputText from "primevue/inputtext"
+import Select from "primevue/select"
 import { faPauseCircle, faPlayCircle, faCheck, faTimes } from "@fal"
 
 library.add(faSortShapesDown, faPlus, faTrashAlt, faUsers, faLink, faPauseCircle, faPlayCircle, faCheck, faTimes)
@@ -47,6 +48,7 @@ interface ItemTask {
     unit: string | null
     mix_batch_kg: number | null
     combined_with: string | null
+    owners: { id: number, sub_job: string | null, owner_id: number | null, owner: string | null, only_for: number[], can_assign: boolean }[]
 }
 
 interface SubJob {
@@ -76,6 +78,12 @@ interface Item {
     waiting_for: { code: string, needed: number, on_hand: number }[]
     tasks: ItemTask[]
     sub_jobs: SubJob[]
+}
+
+const selectPt = { label: { class: "!py-0.5 !text-xs" } }
+
+function assignStep(stepId: number, employeeId: number | null) {
+    router.patch(route("grp.models.job-order-item-task.assign", { jobOrderItemTask: stepId }), { employee_id: employeeId ?? null }, { preserveScroll: true })
 }
 
 const props = defineProps<{
@@ -474,6 +482,26 @@ function receiveIntoStock() {
                         {{ task.quantity_made }} / {{ task.quantity_required }}<template v-if="task.unit"> {{ task.unit }}</template>
                         <span v-if="mixBatchesLabel(task.quantity_required, task.mix_batch_kg)" class="ml-1 text-gray-500">· {{ mixBatchesLabel(task.quantity_required, task.mix_batch_kg) }}</span>
                         <span v-if="task.quantity_rejected" class="text-red-500 ml-1">({{ task.quantity_rejected }} {{ ctrans('rejected') }})</span>
+                    </div>
+                </div>
+                <div class="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
+                    <div v-for="owner in task.owners" :key="owner.id" class="flex items-center gap-2">
+                        <span v-if="owner.sub_job" class="whitespace-nowrap">{{ owner.sub_job }}</span>
+                        <Select
+                            v-if="owner.can_assign"
+                            :modelValue="owner.owner_id"
+                            :options="owner.only_for.length ? artisan_options.filter((option) => owner.only_for.includes(option.id)) : artisan_options"
+                            optionLabel="name"
+                            optionValue="id"
+                            filter
+                            showClear
+                            :placeholder="owner.owner ?? ctrans('Nobody')"
+                            class="w-44"
+                            :class="{ '!border-amber-400': !owner.owner }"
+                            :pt="selectPt"
+                            :aria-label="ctrans('Operator of :step', { step: task.task_name })"
+                            @update:modelValue="(employeeId: number | null) => assignStep(owner.id, employeeId)" />
+                        <span v-else :class="owner.owner ? 'text-gray-700' : 'text-gray-400'">{{ owner.owner ?? ctrans('Nobody') }}</span>
                     </div>
                 </div>
                 <div class="mt-1 h-2 rounded-full bg-gray-100 overflow-hidden">

@@ -8,6 +8,7 @@
 
 namespace App\Actions\Dropshipping\WooCommerce\Product;
 
+use App\Actions\Traits\Authorisations\WithCustomerSalesChannelEditAuthorisation;
 use App\Actions\OrgAction;
 use App\Events\UploadProductToWooCommerceProgressEvent;
 use App\Models\Catalogue\Product;
@@ -19,6 +20,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class MatchPortfolioToCurrentWooProduct extends OrgAction
 {
+    use WithCustomerSalesChannelEditAuthorisation;
     use AsAction;
 
     public string $jobQueue = 'woo';
@@ -48,7 +50,7 @@ class MatchPortfolioToCurrentWooProduct extends OrgAction
         $portfolio->update(['errors_response' => null]);
 
         $quantity = UpdateWooCustomerSalesChannelPortfolio::quantityToSend($portfolio->item, $portfolio->customerSalesChannel);
-        $response = $wooCommerceUser->updateWooCommerceProduct($portfolio->platform_product_id, [
+        $response = $wooCommerceUser->updateWooCommerceProductOrVariation($portfolio->platform_product_id, UpdateWooCustomerSalesChannelPortfolio::variationParentId($portfolio), [
             'manage_stock' => true,
             'stock_quantity' => $quantity,
             'stock_status' => $quantity > 0 ? 'instock' : 'outofstock'

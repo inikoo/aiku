@@ -43,6 +43,12 @@ class UpdateBulkProduct extends OrgAction
             }
 
             UpdateProduct::make()->action($product, $dataToUpdate);
+
+            if (Arr::exists($dataToUpdate, 'unit') && $product->is_variant_leader && $product->variant) {
+                foreach ($product->variant->minionProduct as $minion) {
+                    UpdateProduct::make()->action($minion, ['unit' => $dataToUpdate['unit']]);
+                }
+            }
         }
     }
 

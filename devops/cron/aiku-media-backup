@@ -1,0 +1,34 @@
+# Nightly copy of the media files (product images, attachments) to Cloudflare R2,
+# so they survive losing Hetzner (INI-078). Install on BORO only, as root:
+#     install -m 644 devops/cron/aiku-media-backup /etc/cron.d/aiku-media-backup
+#
+# /home/inikoo/backup_aiku.sh already copies the media to the storage box, but that
+# is Hetzner too, on the same Helsinki site. On 15 Oct 2026 the media was 183 GB in
+# 255,509 files (one per directory), growing about 1,100 files a day: about $2.75 a
+# month in R2, and the first upload fits in the free million requests of a month.
+#
+# R2: a bucket of its own, aiku-media-backup, EU jurisdiction, private, and a token
+# limited to that bucket with Object Read & Write and an IP filter for boro
+# (65.109.156.60, 2a01:4f9:3080:1324::/64). Not the aiku-media bucket, which belongs
+# to the unused media-r2 disk, and never the app's token. Then, as root:
+#     rclone config create r2-media s3 provider=Cloudflare access_key_id=... secret_access_key=... \
+#         endpoint=https://8c8a97c6d4117196e5275c09a53bf8ea.eu.r2.cloudflarestorage.com no_check_bucket=true
+# no_check_bucket: otherwise every rclone command first tries to create the bucket,
+# which this token may not do, and fails with 403 AccessDenied on CreateBucket.
+#
+# copy, not sync: a file deleted on boro stays in R2. It costs cents and keeps an
+# image that was deleted by mistake.
+# --fast-list: one listing of the whole bucket instead of one per directory, which
+# would be 255,000 paid requests a night.
+# --update --use-server-modtime: upload only what is new or changed since the last
+# upload, read from the listing; comparing rclone's own modification time would ask
+# R2 once per file.
+# The first run uploads everything, start it by hand inside tmux.
+#
+# A failure is reported on Discord through aiku-db-backup (devops/cron/aiku-db-backup).
+#
+# Restore check, byte for byte against one top directory of the media:
+#     rclone check /home/aiku/aiku/shared/storage/media r2-media:aiku-media-backup --one-way --download --include '/1G/**'
+# Restore everything:
+#     rclone copy r2-media:aiku-media-backup /home/aiku/aiku/shared/storage/media --transfers 32 --progress
+0 4 * * * root rclone copy /home/aiku/aiku/shared/storage/media r2-media:aiku-media-backup --fast-list --update --use-server-modtime --transfers 16 --s3-no-check-bucket --log-level NOTICE --log-file /var/log/aiku-media-backup.log || /usr/local/bin/aiku-db-backup --alert "Copying the media files to R2 failed. See /var/log/aiku-media-backup.log on boro."

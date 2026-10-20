@@ -100,6 +100,7 @@ class EditWhatsappMessageTemplate extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, MetaMessageTemplate $metaMessageTemplate, ActionRequest $request): Response
     {
+        abort_unless($metaMessageTemplate->shop_id === $shop->id, 404);
         $this->initialisationFromShop($shop, $request);
 
         return $this->handle($shop, $metaMessageTemplate, $request);

@@ -41,6 +41,8 @@ const props = defineProps<{
     returnType?: string
     dispatchableReturns?: any[]
     allow_waiting: boolean
+    can_work?: boolean
+    can_handle?: boolean
     allow_picker_set_not_picked: boolean
     picker?: { id: number, contact_name: string } | null
     staff_chat?: { context_type: string; context_id: number; audiences: { key: string; label: string }[] }
@@ -245,7 +247,7 @@ const handleModalSuccess = () => {
                     v-tooltip="ctrans('Everything in this picking session is picked by this person. Changing it here moves the whole session at once.')"
                 />
             </div>
-            <div v-if="data.data.state === 'in_process'" class="flex gap-2">
+            <div v-if="data.data.state === 'in_process' && can_work !== false" class="flex gap-2">
                 <Button
                     class="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded transition-colors"
                     @click="openAddModal"
@@ -293,6 +295,7 @@ const handleModalSuccess = () => {
             :allowWaiting="allow_waiting"
             :allowPickerSetNotPicked="allow_picker_set_not_picked"
             :incompleteSets="incomplete_sets"
+            v-bind="isFulfilmentSession ? { canWork: (can_handle ?? can_work) !== false } : {}"
             :key="`${currentTab}${props.data.state}`"
         />
     </div>

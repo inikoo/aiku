@@ -61,13 +61,13 @@ class GetOrgSupplierProductAgentPanel
             'whatsapp'     => $supplier->whatsapp,
         ];
 
-        $hasDirectContact = !$supplier->is_generic && ($supplier->phone || $supplier->email || $supplier->wechat || $supplier->whatsapp);
+        $hasDirectContact = $supplier->phone || $supplier->email || $supplier->wechat || $supplier->whatsapp;
 
         return [
             'internal_code' => $stock?->code ?? $supplierProduct->code,
             'supplier_code' => $supplierProduct->code,
             'breadcrumb'    => [
-                'supplier' => ['code' => $supplier->code, 'name' => $supplier->name, 'is_generic' => $supplier->is_generic],
+                'supplier' => ['code' => $supplier->code, 'name' => $supplier->name],
                 'family'   => $family ? ['code' => $family->code, 'name' => $family->name] : null,
             ],
             'currency'      => $supplierProduct->currency->code,
@@ -128,8 +128,7 @@ class GetOrgSupplierProductAgentPanel
             ],
             'contacts'      => [
                 'values'       => $contacts,
-                'is_generic'   => $supplier->is_generic,
-                'update_route' => $canEdit && !$supplier->is_generic ? $this->route('grp.models.org.org_supplier_product.supplier_contacts.update', $orgSupplierProduct, $viewingOrganisation) : null,
+                'update_route' => $canEdit ? $this->route('grp.models.org.org_supplier_product.supplier_contacts.update', $orgSupplierProduct, $viewingOrganisation) : null,
             ],
             'packaging'     => [
                 'terms'   => $packagingTerms,

@@ -57,6 +57,31 @@ class OpenStaffContextConversation
         ];
     }
 
+    private function contextCanBeViewedBy(DeliveryNote|Order|PickingSession $context, User $user): bool
+    {
+        if ($context instanceof DeliveryNote) {
+            return $context->canBeViewedBy($user);
+        }
+
+        if ($context instanceof PickingSession) {
+            return $user->authTo([
+                "dispatching.$context->warehouse_id.view",
+                "fulfilment.$context->warehouse_id.view",
+            ]);
+        }
+
+        $permissions = [
+            "orders.$context->shop_id.view",
+            "crm.$context->shop_id.view",
+            "accounting.$context->organisation_id.view",
+        ];
+        if ($fulfilmentId = $context->shop?->fulfilment?->id) {
+            array_push($permissions, "fulfilment-shop.$fulfilmentId.view", "supervisor-fulfilment-shop.$fulfilmentId");
+        }
+
+        return $user->authTo($permissions);
+    }
+
     public function asController(ActionRequest $request): StaffConversationResource
     {
         $validated = $request->validated();
@@ -65,7 +90,7 @@ class OpenStaffContextConversation
             'PickingSession' => PickingSession::findOrFail($validated['context_id']),
             default          => Order::findOrFail($validated['context_id']),
         };
-        abort_unless($context->group_id === $request->user()->group_id, 403);
+        abort_unless($context->group_id === $request->user()->group_id && $this->contextCanBeViewedBy($context, $request->user()), 403);
 
         $conversation = $this->handle($request->user(), $context, $validated['audience']);
         $conversation->load('participants');

@@ -14,13 +14,14 @@ import { cloneDeep } from 'lodash-es'
 import { getComponent } from '@/Composables/Listing/FieldFormList'  // Field form list
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faSave as fadSave, } from '@fad'
-import { faSave as falSave, faInfoCircle, faRobot } from '@fal'
+import { faSave as falSave, faInfoCircle, faRobot, faQuestionCircle } from '@fal'
 import { faAsterisk, faQuestion } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import Modal from '../Utils/Modal.vue'
 import { ctrans } from '@/Composables/useTrans'
 import Button from '../Elements/Buttons/Button.vue'
-library.add(fadSave, faQuestion, falSave, faInfoCircle, faAsterisk, faRobot)
+import Dialog from 'primevue/dialog'
+library.add(fadSave, faQuestion, falSave, faInfoCircle, faAsterisk, faRobot, faQuestionCircle)
 
 const props = defineProps<{
     field: string
@@ -46,6 +47,7 @@ const props = defineProps<{
         isWithRefreshFieldForm?: boolean
         revisit_after_save?: boolean
         information?: string  // Tooltip on an info icon beside the label
+        help?: { title: string, items: string[], note?: string }  // (?) beside the label opening a dialog
         warning?: string      // Amber box under the label, for caveats the label cannot carry
         information_warning?: { description: string }[]
         saveConfirmation?: {   // On click save will show modal confirmation
@@ -142,6 +144,8 @@ const save = () => {
 
 
 
+const isHelpOpen = ref(false)
+
 const classVerification = ref('')
 const isVerificationLoading = ref(false)
 const labelVerification = ref('')
@@ -224,6 +228,9 @@ const needsSaveConfirmation = computed(() => {
                     <div v-if="fieldData.information" v-tooltip="fieldData.information" class="opacity-50 hover:opacity-100 cursor-pointer ml-1">
                         <FontAwesomeIcon icon="fal fa-info-circle" class="text-gray-500" fixed-width aria-hidden="true" />
                     </div>
+                    <button v-if="fieldData.help" type="button" @click="isHelpOpen = true" :aria-label="ctrans('What it can do')" class="ml-0.5 text-gray-400 hover:text-gray-700">
+                        <FontAwesomeIcon icon="fal fa-question-circle" fixed-width aria-hidden="true" />
+                    </button>
                 </div>
                 
                 <!-- Section: Warning -->
@@ -373,5 +380,12 @@ const needsSaveConfirmation = computed(() => {
                 </div>
             </div>
         </Modal>
+
+        <Dialog v-if="fieldData.help" v-model:visible="isHelpOpen" :header="fieldData.help.title" modal dismissableMask :style="{ width: '32rem' }" :breakpoints="{ '575px': '92vw' }">
+            <ul class="list-disc space-y-1.5 pl-5 text-sm text-gray-700">
+                <li v-for="(item, index) in fieldData.help.items" :key="index">{{ item }}</li>
+            </ul>
+            <p v-if="fieldData.help.note" class="mt-3 text-sm text-gray-500">{{ fieldData.help.note }}</p>
+        </Dialog>
     </form>
 </template>

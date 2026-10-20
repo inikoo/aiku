@@ -10,6 +10,7 @@ namespace App\Models\Production;
 
 use App\Events\BroadcastManufactureFloorChanged;
 use App\Events\BroadcastPartnerProductionChanged;
+use App\Actions\Production\JobOrderItemTask\CalculateJobOrderItemTaskQuantities;
 use App\Enums\Production\JobOrderItemTask\JobOrderItemTaskStateEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
 use App\Models\HumanResources\Employee;
@@ -113,7 +114,31 @@ class JobOrderItemTask extends Model
 
     public function unitsPerArtefact(): float
     {
-        return (float) ($this->recipeStep()?->units_per_artefact ?: 1);
+        $units = (float) ($this->recipeStep()?->units_per_artefact ?: 1);
+
+        return $this->isRecordedInKg() ? $units : ArtefactManufactureTask::exactUnits($units);
+    }
+
+    public function requiredFor(float|int|string $artefacts): float
+    {
+        return round((float) $artefacts * $this->unitsPerArtefact(), 3);
+    }
+
+    public function artefactsIn(float|int|string|null $stepQuantity = null): float
+    {
+        return floor(round((float) ($stepQuantity ?? $this->quantity_made) / $this->unitsPerArtefact(), 3));
+    }
+
+    public function isInRecipe(): bool
+    {
+        return $this->recipeStep() !== null;
+    }
+
+    public function setRequiredQuantity(float $quantity): self
+    {
+        $this->update(['quantity_required' => $quantity]);
+
+        return CalculateJobOrderItemTaskQuantities::run($this);
     }
 
     public function mixBatchKg(): ?int
@@ -204,6 +229,13 @@ class JobOrderItemTask extends Model
         }
 
         return $this->isRestricted() ? null : $this->jobOrderItem->artisan();
+    }
+
+    public function scopeUnworked(Builder $query): Builder
+    {
+        return $query->where('state', JobOrderItemTaskStateEnum::TODO)
+            ->whereDoesntHave('sessions')
+            ->whereDoesntHave('sessionShares');
     }
 
     public function scopeLive(Builder $query): Builder

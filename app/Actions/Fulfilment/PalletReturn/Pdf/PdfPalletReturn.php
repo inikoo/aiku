@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\PalletReturn\Pdf;
 
+use App\Actions\Traits\Authorisations\WithPalletDocumentAuthorisation;
 use App\Actions\Traits\WithExportData;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Models\Fulfilment\PalletReturn;
@@ -20,6 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PdfPalletReturn
 {
+    use WithPalletDocumentAuthorisation;
     use AsAction;
     use WithAttributes;
     use WithExportData;
@@ -104,6 +106,8 @@ class PdfPalletReturn
      */
     public function asController(PalletReturn $palletReturn, ActionRequest $request): Response
     {
+        abort_unless($this->authorize($request), 403);
+
         return $this->handle($palletReturn);
     }
 }

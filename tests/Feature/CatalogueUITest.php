@@ -1245,7 +1245,10 @@ test('website pages swap imgproxy urls for short signed links that serve the sam
         ->and($serve($shortOriginal))->toBe($original)
         ->and($serve(str_replace('0x600', 'rs::0:600::', $shortThumb)))->toBe($thumb)
         ->and($serve(str_replace('0x600', '0x1200', $shortThumb)))->toBeNull()
-        ->and($serve(str_replace('.avif', '.png', $shortThumb)))->toBeNull();
+        ->and($serve(str_replace('.avif', '.png', $shortThumb)))->toBeNull()
+        ->and($serve(str_replace('.jpeg', '', $shortOriginal)))->toBe($original)
+        ->and($serve(str_replace('.jpeg', '.png', $shortOriginal)))->toBeNull()
+        ->and($serve(str_replace('.jpeg', '.a1', $shortOriginal)))->toBeNull();
 
     \Illuminate\Support\Facades\Http::fake(['media.test/*' => \Illuminate\Support\Facades\Http::response('avif-bytes', 200, ['Content-Type' => 'image/avif'])]);
     $this->get(Str::after($shortThumb, 'https://www.shop.test'))
@@ -1264,6 +1267,16 @@ test('website pages swap imgproxy urls for short signed links that serve the sam
 
     \Illuminate\Support\Facades\Http::fake(fn () => throw new \Illuminate\Http\Client\ConnectionException('cURL error 28'));
     $this->get(Str::after($shortThumb, 'https://www.shop.test'))->assertStatus(504)->assertHeader('Cache-Control', 'max-age=60, public');
+
+    config(['img-proxy.accel_location' => '/_imgproxy/']);
+    \Illuminate\Support\Facades\Http::fake();
+    $this->get(Str::after($shortThumb, 'https://www.shop.test'))
+        ->assertOk()
+        ->assertHeader('X-Accel-Redirect', '/_imgproxy'.Str::after($thumb, 'https://media.test'))
+        ->assertHeader('Cache-Control', 'max-age=60, public')
+        ->assertHeader('Content-Type', 'application/octet-stream');
+    $this->get(Str::after($shortOriginal, 'https://www.shop.test'))->assertHeader('X-Accel-Redirect', '/_imgproxy'.Str::after($original, 'https://media.test'));
+    \Illuminate\Support\Facades\Http::assertNothingSent();
 });
 
 test('products export ends with the weight unit columns', function () {
@@ -1769,7 +1782,12 @@ test('a shop selling under several invoice categories targets their sum, partner
     $invoice('2037-05-15', $movedToOwnShop->id, 400);
     Cache::tags(["dashboard-shop-$shop->id"])->flush();
 
-    expect(collect(GetShopMonthSalesTarget::run($shop, null, $today)['children'])->pluck('invoice_category_id'))->not->toContain($movedToOwnShop->id);
+    $block = GetShopMonthSalesTarget::run($shop, null, $today);
+
+    expect(collect($block['children'])->pluck('invoice_category_id'))->not->toContain($movedToOwnShop->id)
+        ->and($block['target']['amount'])->toEqualWithDelta(2000, 0.05)
+        ->and(collect($block['children'])->sum('target.amount'))->toEqualWithDelta($block['target']['amount'], 0.05)
+        ->and(GetShopMonthSalesTarget::run($this->organisation, null, $today)['target']['amount'])->toEqualWithDelta($organisationTarget - 1000 * (1 + $growth) + 2000, 0.05);
 
     $shop->stats->update(['sales_forecast' => ['version' => '3', 'from' => '2038-05-10', 'org' => collect(range(10, 31))->mapWithKeys(fn (int $day) => [sprintf('2038-05-%02d', $day) => [10.0, 4.0]])->all(), 'grp' => null]]);
     $block      = GetShopMonthSalesTarget::run($shop, null, $today);
@@ -2354,5 +2372,33 @@ test('family edit needs catalogue edit and the shop dashboard needs a permission
         $this->user->syncPermissions($originalPermissions);
         actingAsUserWithRoles($this->user, $originalRoles);
         \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
+});
+
+test('shop and organisation dashboard data answer only staff of the shop or organisation, INI-076', function () {
+    $org  = $this->organisation;
+    $shop = $this->shop;
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $org->group_id, 'status' => true]);
+
+    $shopRoutes = [
+        route('grp.org.shops.show.dashboard.widgets', [$org->slug, $shop->slug, 'only' => 'top_products']),
+        route('grp.org.shops.show.dashboard.tab-data', [$org->slug, $shop->slug, 'tab' => 'sub_departments']),
+        route('grp.org.shops.show.dashboard.changelogs.index', [$org->slug, $shop->slug]),
+    ];
+    $orgTabData = route('grp.org.dashboard.tab-data', [$org->slug, 'tab' => 'shops']);
+
+    actingAsUserWithOnlyPermissions($user, ['goods.view']);
+    foreach ([...$shopRoutes, $orgTabData] as $url) {
+        getJson($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["products.$shop->id.view"]);
+    foreach ($shopRoutes as $url) {
+        getJson($url)->assertOk();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["accounting.$org->id.view"]);
+    foreach ([...$shopRoutes, $orgTabData] as $url) {
+        getJson($url)->assertOk();
     }
 });

@@ -12,6 +12,7 @@ use App\Actions\GoodsIn\StockDelivery\StoreAgentStockDelivery;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\WithAgentOrganisation;
 use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
+use App\Enums\Procurement\OrgAgent\OrgAgentOrderContainerEnum;
 use App\Models\Procurement\OrgAgent;
 use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Organisation;
@@ -143,6 +144,14 @@ class CreateStockDelivery extends OrgAction
                                     'required'    => true,
                                     'options'     => $organisationOptions->all(),
                                     'value'       => $organisationOptions->count() === 1 ? $organisationOptions->first()['value'] : null,
+                                ],
+                                'container_size' => [
+                                    'type'        => 'select',
+                                    'label'       => __('Container size'),
+                                    'information' => __('It can be changed later.'),
+                                    'required'    => true,
+                                    'options'     => OrgAgentOrderContainerEnum::selectOptions(),
+                                    'value'       => OrgAgentOrderContainerEnum::FORTY_FOOT->value,
                                 ],
                                 'currency'     => [
                                     'type'        => 'input',

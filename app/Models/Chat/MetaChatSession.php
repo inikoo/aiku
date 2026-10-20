@@ -83,6 +83,20 @@ class MetaChatSession extends Model
         return $this->belongsTo(MetaChannel::class);
     }
 
+    /**
+     * Who a WhatsApp message goes to: the phone number when we have one, which Meta prefers when
+     * both are sent, and the business-scoped user id for a contact who only shows a username.
+     *
+     * @return array{to?: string, recipient?: string}
+     */
+    public function whatsappRecipient(): array
+    {
+        return array_filter([
+            'to'        => preg_replace('/\D/', '', (string) $this->phone_number),
+            'recipient' => $this->whatsapp_user_id,
+        ]);
+    }
+
     public function shop(): BelongsTo
     {
         return $this->belongsTo(Shop::class);

@@ -12,7 +12,8 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Validation\Rules\Password as PasswordRule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
@@ -34,9 +35,9 @@ class UpdateUserPasswordViaEmail
     public function rules(): array
     {
         return [
-            'password' => ['required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)],
-            'token'    => ['nullable', 'string'],
-            'email'    => ['nullable', 'string']
+            'password' => ['required', app()->isLocal() || app()->environment('testing') ? null : PasswordRule::min(8)],
+            'token'    => ['required', 'string'],
+            'email'    => ['required', 'email']
         ];
     }
 
@@ -47,28 +48,19 @@ class UpdateUserPasswordViaEmail
     {
         $request->validate();
 
-        $this->handle(User::where('email', $request->input('email'))->first(), [
-            'password'       => Hash::make($request->input('password')),
-            'reset_password' => false
-        ]);
-
-        /*$response = \Illuminate\Support\Facades\Password::broker('web-users')->reset(
-            [
-                'email'    => $request->input('email'),
-                'password' => $request->input('password'),
-                'token'    => bcrypt($request->input('token'))
-            ],
-            function ($user, $password) {
+        $status = Password::broker('users')->reset(
+            $request->only('email', 'password', 'token'),
+            function (User $user, string $password) {
                 $this->handle($user, [
-                    'password'       => $password,
+                    'password'       => Hash::make($password),
                     'reset_password' => false
                 ]);
             }
         );
 
-        \Illuminate\Support\Facades\Password::INVALID_TOKEN === $response
-            ? throw ValidationException::withMessages(['token' => 'Token has been expired.'])
-            : throw ValidationException::withMessages(['status' => 'Error while changing the password']);*/
+        if ($status !== Password::PASSWORD_RESET) {
+            throw ValidationException::withMessages(['token' => __('This password reset link is invalid or has expired.')]);
+        }
     }
 
     public function action(User $user, $objectData): User

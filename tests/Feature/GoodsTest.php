@@ -332,12 +332,66 @@ test("UI Show Stock Family sales and history tabs render their tables", function
             ->component('Goods/StockFamily')
             ->where('sales.data.0.sales_grp_currency_external', 321)
             ->where('sales.data.0.invoices', 4)
+            ->where('sales.data.0.organisations_route.name', 'grp.json.stock_family.time_series_organisations')
             ->has('sales.data.0.period'));
 
     get(route('grp.goods.stock-families.show', ['stockFamily' => $stockFamily->slug, 'tab' => \App\Enums\UI\SupplyChain\StockFamilyTabsEnum::HISTORY->value]))
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->component('Goods/StockFamily')
             ->has('history.data'));
+});
+
+test("stock family sales split by organisation", function () {
+    $stockFamily = StoreStockFamily::make()->action($this->group, array_merge(StockFamily::factory()->definition(), ['code' => 'GSORGS']));
+    $stock       = StoreStock::make()->action($stockFamily, array_merge(Stock::factory()->definition(), ['code' => 'GSORGS-1']));
+
+    $customer             = createCustomer($this->shop);
+    $invoiceTransactionId = DB::table('invoice_transactions')->insertGetId([
+        'group_id'        => $this->group->id,
+        'organisation_id' => $this->organisation->id,
+        'shop_id'         => $this->shop->id,
+        'customer_id'     => $customer->id,
+        'date'            => '2013-06-11 10:00:00',
+        'tax_category_id' => DB::table('tax_categories')->value('id'),
+        'net_amount'      => 12.5,
+        'data'            => '{}',
+    ]);
+    DB::table('invoice_transaction_has_stocks')->insert([
+        'invoice_transaction_id' => $invoiceTransactionId,
+        'stock_id'               => $stock->id,
+        'stock_family_id'        => $stockFamily->id,
+        'grp_net_amount'         => 12.5,
+        'org_net_amount'         => 12.5,
+        'created_at'             => now(),
+        'updated_at'             => now(),
+    ]);
+
+    $date         = \Carbon\Carbon::parse('2013-06-11');
+    $timeSeriesId = DB::table('stock_family_time_series')->insertGetId([
+        'stock_family_id' => $stockFamily->id,
+        'frequency'       => 'monthly',
+        'created_at'      => now(),
+        'updated_at'      => now(),
+    ]);
+    $recordId = DB::table('stock_family_time_series_records')->insertGetId([
+        'stock_family_time_series_id' => $timeSeriesId,
+        'frequency'                   => 'M',
+        'sales_grp_currency_external' => 12.5,
+        'from'                        => $date->copy()->startOfMonth(),
+        'to'                          => $date->copy()->endOfMonth(),
+        'created_at'                  => now(),
+        'updated_at'                  => now(),
+    ]);
+
+    get(route('grp.json.stock_family.time_series_organisations', ['stockFamily' => $stockFamily->id, 'record' => $recordId]))
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.organisation_id', $this->organisation->id)
+        ->assertJsonPath('data.0.sales_grp_currency_external', 12.5)
+        ->assertJsonPath('data.0.customers_invoiced', 1);
+
+    get(route('grp.json.stock_family.time_series_organisations', ['stockFamily' => $stockFamily->id, 'record' => 0]))
+        ->assertNotFound();
 });
 
 test("UI Show Stocks sales and history tabs render their tables", function () {
@@ -1962,6 +2016,11 @@ test('sizes sharing documents show the source trade unit IFRA, SDS and allergen 
     $ifra = $sourceTradeUnit->attachments()->wherePivot('scope', 'ifra')->first();
     expect($sizeProduct->attachments()->where('media.id', $ifra->id)->exists())->toBeTrue();
 
+    \App\Actions\Helpers\Media\AttachAttachmentToModel::make()->action($sourceTradeUnit, ['attachments' => [$pdf('doc.pdf')], 'scope' => 'doc']);
+    $declarationOfConformity = $sourceTradeUnit->attachments()->wherePivot('scope', 'doc')->first();
+    expect($sizeProduct->attachments()->where('media.id', $declarationOfConformity->id)->exists())->toBeTrue()
+        ->and(collect($attachmentsTab($sizeTradeUnit->fresh())['attachment_category_box']['public'])->keyBy('scope')['doc']['shared_from'])->toBe($sourceTradeUnit->code);
+
     expect(fn () => \App\Actions\Helpers\Media\AttachAttachmentToModel::make()->action($sizeTradeUnit->fresh(), ['attachments' => [$pdf('stray-ifra.pdf')], 'scope' => 'ifra']))
         ->toThrow(\Illuminate\Validation\ValidationException::class);
 
@@ -2088,4 +2147,38 @@ test('HELP-3997 a name the translator hands back in English is reported and left
     expect($tradeUnit->fresh()->getTranslation('name_i8n', 'sk'))->toBe('SK Everything is Magic T-shirt');
 
     $this->shop->update($shopBefore);
+});
+
+test('brands, trade unit families and trade unit translations are changed with goods edit only, INI-076', function () {
+    $unguarded = collect(app('router')->getRoutes()->getRoutes())
+        ->filter(fn ($route) => str_starts_with((string) $route->getName(), 'grp.models.') && is_string($route->getAction('uses')))
+        ->map(fn ($route) => \Illuminate\Support\Str::before($route->getAction('uses'), '@'))
+        ->filter(fn (string $action) => (str_starts_with($action, 'App\\Actions\\Helpers\\Brand\\') || str_starts_with($action, 'App\\Actions\\Goods\\')) && !method_exists($action, 'authorize'))
+        ->unique()->values()->all();
+    expect($unguarded)->toBe([]);
+
+    $family = StoreTradeUnitFamily::make()->action($this->group, ['code' => 'INI076-F', 'name' => 'Before']);
+    $user   = $this->adminGuest->getUser();
+
+    $originalRoles       = $user->roles->pluck('name')->toArray();
+    $originalPermissions = $user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($user, ['goods.view', 'masters.edit']);
+        $this->post(route('grp.models.brand.store'), ['name' => 'INI076 brand', 'reference' => 'INI076'])->assertForbidden();
+        $this->post(route('grp.models.trade_unit_family.store'), ['code' => 'INI076-G', 'name' => 'Refused'])->assertForbidden();
+        $this->patch(route('grp.models.trade_unit_family.update', $family->id), ['name' => 'Changed without goods edit'])->assertForbidden();
+        $this->get(route('grp.goods.trade-unit-families.edit', $family->slug))->assertForbidden();
+        $this->get(route('grp.trade_units.brands.create'))->assertForbidden();
+        expect($family->refresh()->name)->toBe('Before')
+            ->and(\App\Models\Helpers\Brand::where('reference', 'INI076')->exists())->toBeFalse();
+
+        actingAsUserWithOnlyPermissions($user, ['goods.edit']);
+        $this->patch(route('grp.models.trade_unit_family.update', $family->id), ['name' => 'Changed with goods edit'])->assertRedirect();
+        expect($family->refresh()->name)->toBe('Changed with goods edit');
+    } finally {
+        setPermissionsTeamId($user->group_id);
+        $user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($user, $originalRoles);
+    }
 });

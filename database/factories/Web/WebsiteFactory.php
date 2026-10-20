@@ -14,10 +14,12 @@ class WebsiteFactory extends Factory
 {
     public function definition(): array
     {
+        $code = fake()->lexify('??????');
+
         return [
-            'code'                     => fake()->lexify('??????'),
-            'name'                     => fake()->company(),
-            'domain'                   => fake()->domainName,
+            'code'                     => $code,
+            'name'                     => fake()->company().' '.$code,
+            'domain'                   => $code.'.'.fake()->domainName,
             'cloudflare_token'         => fake()->password(40, 40),
         ];
     }

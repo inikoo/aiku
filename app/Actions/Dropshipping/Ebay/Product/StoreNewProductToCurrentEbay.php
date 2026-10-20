@@ -9,6 +9,7 @@
 
 namespace App\Actions\Dropshipping\Ebay\Product;
 
+use App\Actions\Traits\Authorisations\WithCustomerSalesChannelEditAuthorisation;
 use App\Actions\Traits\WithRetinaRouteModelOwnershipCheck;
 use App\Actions\Dropshipping\WithPortfolioErrorResponse;
 use App\Actions\OrgAction;
@@ -21,6 +22,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreNewProductToCurrentEbay extends OrgAction
 {
+    use WithCustomerSalesChannelEditAuthorisation;
     use WithPortfolioErrorResponse;
     use AsAction;
     use WithRetinaRouteModelOwnershipCheck;
@@ -50,6 +52,25 @@ class StoreNewProductToCurrentEbay extends OrgAction
         return $portfolio;
     }
 
+    /**
+     * An upload with progress swallows its own errors, so it only fails here when the queue killed it
+     * (timeout, lost worker); without this the page waiting for its result never hears back.
+     */
+    public function jobFailed(\Throwable $e, EbayUser $ebayUser, Portfolio $portfolio, ?array $bulkProgress = null): void
+    {
+        if (!$bulkProgress) {
+            return;
+        }
+
+        $portfolio = $portfolio->fresh() ?? $portfolio;
+
+        if (!$portfolio->platform_status) {
+            $this->recordPortfolioUploadFailure($portfolio, $e);
+        }
+
+        $this->broadcastBulkProgress($ebayUser, $portfolio, $bulkProgress);
+    }
+
     public function broadcastBulkProgress(EbayUser $ebayUser, Portfolio $portfolio, array $bulkProgress): void
     {
         $cacheKey = $bulkProgress['cache_key'];
@@ -69,6 +90,7 @@ class StoreNewProductToCurrentEbay extends OrgAction
     {
         abort_unless($this->retinaCustomerOwnsRouteModels($request), 403);
 
+        $this->asAction = true;
         $this->asController($portfolio, $request);
     }
 

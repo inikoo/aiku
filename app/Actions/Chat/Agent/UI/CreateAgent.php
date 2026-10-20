@@ -8,6 +8,7 @@
 
 namespace App\Actions\Chat\Agent\UI;
 
+use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Actions\Helpers\Language\UI\GetLanguagesOptions;
 use App\Actions\Helpers\Organisation\UI\GetOrganisationOptions;
 use App\Actions\OrgAction;
@@ -19,6 +20,12 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreateAgent extends OrgAction
 {
+    use WithChatAgentAuthorisation;
+    public function authorize(ActionRequest $request): bool
+    {
+        return $this->userSupervisesChatOnOrganisation($request->user(), $this->organisation);
+    }
+
     public function asController(Organisation $organisation, ActionRequest $request): Response
     {
         $this->initialisation($organisation, $request);

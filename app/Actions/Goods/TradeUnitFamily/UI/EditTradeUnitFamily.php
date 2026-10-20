@@ -2,6 +2,7 @@
 
 namespace App\Actions\Goods\TradeUnitFamily\UI;
 
+use App\Actions\Traits\Authorisations\WithGoodsEditAuthorisation;
 use App\Actions\OrgAction;
 use App\Models\Goods\TradeUnitFamily;
 use Inertia\Inertia;
@@ -10,6 +11,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class EditTradeUnitFamily extends OrgAction
 {
+    use WithGoodsEditAuthorisation;
+
     public function asController(TradeUnitFamily $tradeUnitFamily, ActionRequest $request): Response
     {
         $this->initialisationFromGroup(group(), $request);

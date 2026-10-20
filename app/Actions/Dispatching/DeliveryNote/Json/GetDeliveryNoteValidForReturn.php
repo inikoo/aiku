@@ -3,6 +3,7 @@
 namespace App\Actions\Dispatching\DeliveryNote\Json;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\Inventory\WithReturnsAuthorisation;
 use App\Actions\Search\WithTypesenseApi;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\GoodsIn\ReturnDeliveryNote\ReturnDeliveryNoteStateEnum;
@@ -19,6 +20,7 @@ use Throwable;
 
 class GetDeliveryNoteValidForReturn extends OrgAction
 {
+    use WithReturnsAuthorisation;
     use WithTypesenseApi;
 
     protected const int HITS_LIMIT = 30;

@@ -23,10 +23,25 @@ class HandleLowStockAuditLock
     // ponytail: a tab that dies without releasing (crash, lost beacon) must not hold the SKO for ever
     private const int LOCK_SECONDS = 1800;
 
+    public function authorize(ActionRequest $request): bool
+    {
+        $warehouse = $request->route('warehouse');
+
+        return $warehouse instanceof Warehouse && $request->user()->authTo([
+            "inventory.$warehouse->organisation_id.edit",
+            "org-admin.$warehouse->organisation_id",
+            "supervisor-stocks.$warehouse->id",
+            "stocks.$warehouse->id.edit",
+            "dispatching.$warehouse->id.edit",
+            "supervisor-dispatching.$warehouse->id",
+            "fulfilment.$warehouse->id.edit",
+        ]);
+    }
+
     public function rules(): array
     {
         return [
-            'org_stock_id'          => ['required', 'integer', Rule::exists('org_stocks', 'id')],
+            'org_stock_id'          => ['required', 'integer', Rule::exists('org_stocks', 'id')->where('organisation_id', request()->route('warehouse')?->organisation_id)],
             'location_org_stock_id' => ['sometimes', 'nullable', 'integer', Rule::exists('location_org_stocks', 'id')],
             'is_locked'             => ['required', 'boolean'],
             'source'                => ['sometimes', 'nullable', 'string', 'in:list,detail'],

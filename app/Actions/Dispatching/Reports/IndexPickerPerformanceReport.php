@@ -3,6 +3,7 @@
 namespace App\Actions\Dispatching\Reports;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithOrgReportsAuthorisation;
 use App\Actions\UI\Reports\IndexReports;
 use App\Enums\UI\Dispatching\PerformanceReportTabsEnum;
 use App\Http\Resources\Dispatching\Reports\PerformanceReportResource;
@@ -22,6 +23,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexPickerPerformanceReport extends OrgAction
 {
+    use WithOrgReportsAuthorisation;
     private int $records;
 
     public function handle(Organisation $organisation, $prefix = null, $dateFilter = null): LengthAwarePaginator

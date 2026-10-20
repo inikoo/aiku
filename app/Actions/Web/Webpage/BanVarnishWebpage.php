@@ -9,6 +9,7 @@
 namespace App\Actions\Web\Webpage;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithWebEditAuthorisation;
 use App\Models\Web\Webpage;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\ActionRequest;
@@ -17,6 +18,7 @@ use App\Actions\Traits\WithVarnishBan;
 class BanVarnishWebpage extends OrgAction
 {
     use WithVarnishBan;
+    use WithWebEditAuthorisation;
 
     public function handle(Webpage $webpage, ?Command $command = null): void
     {

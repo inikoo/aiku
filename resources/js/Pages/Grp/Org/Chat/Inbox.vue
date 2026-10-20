@@ -44,6 +44,7 @@ const props = defineProps<{
         type: string | null
         is_read_only?: boolean
         can_start_email?: boolean
+        can_create_template?: boolean
         channels: Array<{
             key: string
             name: string
@@ -3054,6 +3055,7 @@ onUnmounted(() => {
                 <WhatsappMessageAreaAgent v-if="activeChannel === 'whatsapp'" class="flex-1 min-h-0"
                     :messages="messages" :session="selectedSession"
                     :organisation-slug="organisation.slug"
+                    :can-create-template="inboxes.find((inbox) => inbox.id === selectedSession?.shop?.id)?.can_create_template === true"
                     :read-only="isReadOnly" :show-shop="crossShopView"
                     @back="selectedSession = null" @messages-read="onMessagesRead"
                     @assign-self-success="onAssignSelfSuccess"

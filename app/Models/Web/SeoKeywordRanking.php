@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $webpage_id
  * @property array<array-key, mixed>|null $serp_features
  * @property bool $in_ai_overview
+ * @property array<array-key, mixed>|null $serp_features_owned
  * @property int $depth
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -40,6 +41,7 @@ class SeoKeywordRanking extends Model
         return [
             'date'           => 'date',
             'serp_features'  => 'array',
+            'serp_features_owned' => 'array',
             'in_ai_overview' => 'boolean',
         ];
     }

@@ -25,6 +25,10 @@ are suggestions; rename them freely, but keep the boundaries.
   `App\Services\SeoApi\SeoApiBudget` adds up the month's cost in `seo_api_requests`; every client
   checks it before a billable call. Reading results already paid for is never blocked. Feature
   screens do not show the spend; the API usage page does.
+- **Visitors are filtered by channel per platform (HELP-4062).** The Channel filter of the Visitors
+  tab lists Organic Google, Google Ads, Organic Bing, Bing Ads, Organic Meta, Meta Ads and the other
+  organic and paid sources one by one (only those with visitors), then Email, AI, Direct, Internal
+  and Other, so Google is never mixed with Bing or Meta.
 - **The SEO dashboard stays the entry point.** Its tabs, at the top like those of a website: Overview
   (the cards filtered by the dashboard interval and the table tabs Top pages, Conversions, Search
   queries, Low CTR queries and Page speed, switched with the `table` query parameter), Visitors,
@@ -270,8 +274,13 @@ that contain the same words (last 90 days). Every result has a Track action.
   check frequency (on request, monthly, weekly, daily), optional target webpage, active. Unique per
   shop, keyword, country, language and device. Adding a keyword stores one row per device, so every
   keyword is tracked on mobile and on desktop and nobody picks a device. A check costs twice as much.
-  The Tracked keywords tab and its Excel export list one row per keyword, country and language;
-  changing the check frequency, pausing or removing it applies to both devices.
+  A keyword is added once for one or more countries (HELP-4031, up to 30 at a time) and gets a row
+  per country and device. The language is a preference: each country is checked in it when DataForSEO
+  has data for that country in it, else in the country's own language (Bulgarian in Bulgaria, Dutch
+  in the Netherlands). The Tracked keywords tab lists one row per keyword, with the
+  countries in a dropdown under it; changing the check frequency, pausing or removing the row applies
+  to every country and device, and each country can also be changed or removed on its own. The Excel
+  export has a row per keyword and country.
 - `seo_competitors`: shop, domain (stored without scheme, `www.` and path), optional name.
 - SEO > Keywords, tab Tracked keywords (competitors: SEO > Competitors): add, change frequency inline,
   pause, remove.
@@ -317,7 +326,10 @@ Built on 9 October 2026 on DataForSEO's SERP API.
 - Commands for a manual run: `seo:post_serp_tasks`, `seo:collect_serp_tasks`,
   `seo:refresh_keyword_volumes`.
 
-**Screen.** SEO > Keywords, tab Rankings:
+**Screen.** SEO > Keywords, tab Rankings: a Mobile / Desktop switch, one row per keyword
+showing the country where it ranks best, with the other countries in a dropdown under the
+row (each with its own position, change, page, volume, SERP features, watch and check). Check now on
+a row checks all its countries. The Excel export has a row per keyword, country and device.
 
 - Visibility: share of checked keywords in the top 3, 10 and 20, how many went up or down since the
   previous check, how many AI Overviews cite us.

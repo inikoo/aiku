@@ -12,6 +12,7 @@ use App\Actions\CRM\Customer\GetTopCustomersStats;
 use App\Actions\CRM\TrafficSource\GetShopEmailMarketingPerformance;
 use App\Actions\CRM\TrafficSource\GetShopMarketingOverview;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithShopDashboardAuthorisation;
 use App\Actions\Traits\Dashboards\WithPerformanceDateResolution;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Enums\Catalogue\Product\ProductStateEnum;
@@ -43,6 +44,7 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class GetShopDashboardWidgets extends OrgAction
 {
+    use WithShopDashboardAuthorisation;
     use WithPerformanceDateResolution;
 
     private const int LIMIT = 10;

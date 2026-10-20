@@ -8,6 +8,7 @@
 
 namespace App\Actions\Goods\TradeUnitFamily;
 
+use App\Actions\Traits\Authorisations\WithGoodsEditAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateTradeUnitFamilies;
 use App\Models\Goods\TradeUnitFamily;
@@ -20,6 +21,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreTradeUnitFamily extends OrgAction
 {
+    use WithGoodsEditAuthorisation;
+
     public function handle(Group $group, array $modelData): TradeUnitFamily
     {
         /** @var TradeUnitFamily $tradeUnitFamily */
@@ -69,6 +72,7 @@ class StoreTradeUnitFamily extends OrgAction
 
     public function action(Group $group, array $modelData): TradeUnitFamily
     {
+        $this->asAction = true;
         $this->initialisationFromGroup($group, $modelData);
 
         return $this->handle($group, $this->validatedData);

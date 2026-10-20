@@ -10,7 +10,6 @@ namespace App\Actions\UI\Grp\Layout;
 
 use App\Actions\Goods\ProductDevelopment\ProductDevelopmentAccess;
 use App\Models\Helpers\Ticket;
-use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -55,6 +54,26 @@ class GetGroupNavigation
                 ],
             ]
         ];
+        $groupNavigation['tasks'] = [
+            'label'   => __('Tasks'),
+            'icon'    => ['fal', 'fa-tasks'],
+            'root'    => 'grp.tasks.',
+            'route'   => [
+                'name' => 'grp.tasks.index',
+            ],
+            'topMenu' => [
+                'subSections' => [
+                    ['label' => __('My tasks'), 'icon' => ['fal', 'fa-tasks'], 'root' => 'grp.tasks.index', 'route' => ['name' => 'grp.tasks.index']],
+                    ['label' => __('All'), 'icon' => ['fal', 'fa-list'], 'root' => 'grp.tasks.list_all', 'route' => ['name' => 'grp.tasks.list_all']],
+                    ['label' => __('To review & publish'), 'icon' => ['fal', 'fa-clipboard-check'], 'root' => 'grp.tasks.review', 'route' => ['name' => 'grp.tasks.review']],
+                    ['label' => __('Board'), 'icon' => ['fal', 'fa-columns'], 'root' => 'grp.tasks.board', 'route' => ['name' => 'grp.tasks.board']],
+                    ['label' => __('ETA map'), 'icon' => ['fal', 'fa-calendar-alt'], 'root' => 'grp.tasks.eta_map', 'route' => ['name' => 'grp.tasks.eta_map']],
+                    ['label' => __('Reports'), 'icon' => ['fal', 'fa-chart-line'], 'root' => 'grp.tasks.reports', 'route' => ['name' => 'grp.tasks.reports']],
+                    ['label' => __('Covering'), 'icon' => ['fal', 'fa-user-friends'], 'root' => 'grp.tasks.covering', 'route' => ['name' => 'grp.tasks.covering']],
+                ],
+            ],
+        ];
+
         $canSeeProductDevelopments = (new ProductDevelopmentAccess())->canSeeAny($user);
         if ($canSeeProductDevelopments) {
             $groupNavigation['product-developments'] = $this->getProductDevelopmentsNavs();
@@ -101,37 +120,25 @@ class GetGroupNavigation
             ];
         }
 
-        $groupNavigation['tasks'] = [
-            'label'   => __('Tasks'),
-            'icon'    => ['fal', 'fa-tasks'],
-            'root'    => 'grp.tasks.',
-            'route'   => [
-                'name' => 'grp.tasks.index',
-            ],
-            'topMenu' => [
-                'subSections' => [
-                    ['label' => __('My tasks'), 'icon' => ['fal', 'fa-tasks'], 'root' => 'grp.tasks.index', 'route' => ['name' => 'grp.tasks.index']],
-                    ['label' => __('All'), 'icon' => ['fal', 'fa-list'], 'root' => 'grp.tasks.list_all', 'route' => ['name' => 'grp.tasks.list_all']],
-                    ['label' => __('To review & publish'), 'icon' => ['fal', 'fa-clipboard-check'], 'root' => 'grp.tasks.review', 'route' => ['name' => 'grp.tasks.review']],
-                    ['label' => __('Board'), 'icon' => ['fal', 'fa-columns'], 'root' => 'grp.tasks.board', 'route' => ['name' => 'grp.tasks.board']],
-                    ['label' => __('ETA map'), 'icon' => ['fal', 'fa-calendar-alt'], 'root' => 'grp.tasks.eta_map', 'route' => ['name' => 'grp.tasks.eta_map']],
-                    ['label' => __('Reports'), 'icon' => ['fal', 'fa-chart-line'], 'root' => 'grp.tasks.reports', 'route' => ['name' => 'grp.tasks.reports']],
-                    ['label' => __('Covering'), 'icon' => ['fal', 'fa-user-friends'], 'root' => 'grp.tasks.covering', 'route' => ['name' => 'grp.tasks.covering']],
-                ],
-            ],
-        ];
-
         $groupNavigation['tickets'] = [
             'label'   => __('Tickets'),
             'icon'    => ['fal', 'fa-life-ring'],
             'root'    => 'grp.tickets.',
             'route'   => [
-                'name' => $user->hasRole(RolesEnum::HELP_DESK_SUPERVISOR->value) ? 'grp.tickets.board' : 'grp.tickets.index',
+                'name' => 'grp.tickets.board',
             ],
             'topMenu' => [
                 'subSections' => [
                     [
-                        'label' => __('Dashboard'),
+                        'label' => __('Board'),
+                        'icon'  => ['fal', 'fa-columns'],
+                        'root'  => 'grp.tickets.board',
+                        'route' => [
+                            'name' => 'grp.tickets.board',
+                        ],
+                    ],
+                    [
+                        'label' => __('Overview'),
                         'icon'  => ['fal', 'fa-tachometer-alt'],
                         'root'  => 'grp.tickets.index',
                         'route' => [
@@ -154,14 +161,6 @@ class GetGroupNavigation
                             'name' => 'grp.tickets.qa_list',
                         ],
                     ]] : []),
-                    [
-                        'label' => __('Board'),
-                        'icon'  => ['fal', 'fa-columns'],
-                        'root'  => 'grp.tickets.board',
-                        'route' => [
-                            'name' => 'grp.tickets.board',
-                        ],
-                    ],
                     [
                         'label' => __('Reports'),
                         'icon'  => ['fal', 'fa-chart-line'],

@@ -47,7 +47,7 @@ trait WithWebEditAuthorisation
             ]);
         }
 
-        if (str_starts_with($routeName, 'grp.models.')) {
+        if (str_starts_with($routeName, 'grp.models.') || str_starts_with($routeName, 'grp.varnish.') || str_starts_with($routeName, 'grp.json.')) {
             $permissions = [
                 "group-webmaster.view",
                 "supervisor-web.{$this->shop->id}",

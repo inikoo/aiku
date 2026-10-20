@@ -29,7 +29,7 @@ class GenerateEmployeeLeaveBalance
         $start = $periodStart ?? $contract->start_date;
         $end   = $this->periodEnd($contract, $start);
 
-        return EmployeeLeaveBalance::firstOrCreate(
+        $balance = EmployeeLeaveBalance::firstOrCreate(
             [
                 'employee_contract_id' => $contract->id,
                 'period_start'         => $start->toDateString(),
@@ -42,6 +42,44 @@ class GenerateEmployeeLeaveBalance
                 'unpaid_used'  => 0,
             ]
         );
+
+        if ($balance->wasRecentlyCreated) {
+            $this->moveRecordedLeavesInto($balance);
+        }
+
+        return $balance;
+    }
+
+    private function moveRecordedLeavesInto(EmployeeLeaveBalance $newBalance): void
+    {
+        $balances = EmployeeLeaveBalance::query()->where('employee_id', $newBalance->employee_id)->orderBy('id')->get();
+        $leaves   = RecalculateEmployeeLeaveBalance::approvedLeaves($newBalance->employee_id);
+        $layout   = $balances->map(fn (EmployeeLeaveBalance $balance): array => RecalculateEmployeeLeaveBalance::layoutRow($balance));
+
+        $recordedBefore = RecalculateEmployeeLeaveBalance::recordedByOwner($leaves, $layout->reject(fn (array $row): bool => $row['key'] === (string) $newBalance->id));
+        $recordedAfter  = RecalculateEmployeeLeaveBalance::recordedByOwner($leaves, $layout);
+
+        foreach ($balances as $balance) {
+            if ($balance->id === $newBalance->id) {
+                RecalculateEmployeeLeaveBalance::run($newBalance);
+
+                continue;
+            }
+
+            $before = $recordedBefore[(string) $balance->id] ?? null;
+            $after  = $recordedAfter[(string) $balance->id] ?? null;
+
+            if ($before === null || $after === null || $before === $after) {
+                continue;
+            }
+
+            $used = [];
+            foreach (RecalculateEmployeeLeaveBalance::BUCKET_COLUMNS as $column) {
+                $used[$column] = round(max($after[$column], (float) $balance->getAttribute($column) - $before[$column] + $after[$column]), 2);
+            }
+
+            $balance->update($used);
+        }
     }
 
     public function periodStartFor(EmployeeContract $contract, CarbonInterface $date): Carbon

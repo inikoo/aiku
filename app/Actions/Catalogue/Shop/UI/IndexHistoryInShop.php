@@ -11,6 +11,7 @@
 namespace App\Actions\Catalogue\Shop\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithShopDashboardAuthorisation;
 use App\Models\SysAdmin\Organisation;
 use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Http\Resources\History\HistoryResource;
@@ -27,6 +28,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexHistoryInShop extends OrgAction
 {
+    use WithShopDashboardAuthorisation;
     public function handle(Shop $shop, $prefix = null): LengthAwarePaginator|array|bool
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {

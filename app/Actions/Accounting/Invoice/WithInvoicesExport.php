@@ -141,7 +141,7 @@ trait WithInvoicesExport
         $nameResolver ??= fn (string $tariffCode) => TariffCode::exportNameFor($tariffCode);
 
         return $transactions
-            ->filter(fn ($transaction) => (float)$transaction->quantity > 0)
+            ->filter(fn ($transaction) => (float)$transaction->quantity > 0 && (float)$transaction->net_amount > 0)
             ->groupBy(fn ($transaction) => ($transaction->model?->tariff_code ?? '').'|'.($transaction->model?->country_of_origin ?? ''))
             ->map(function (Collection $group) use ($nameResolver) {
                 $tariffCode   = $group->first()->model?->tariff_code ?? '';

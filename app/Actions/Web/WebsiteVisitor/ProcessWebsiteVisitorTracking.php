@@ -35,7 +35,8 @@ class ProcessWebsiteVisitorTracking
         string $ip,
         string $currentUrl,
         ?string $referrer,
-        array $geoLocation
+        array $geoLocation,
+        ?string $visitorUuid = null
     ): void {
         if (IsBot::run($userAgent)) {
             return;
@@ -50,6 +51,10 @@ class ProcessWebsiteVisitorTracking
 
         if ($visitor) {
             $visitor = UpdateWebsiteVisitor::run($visitor, $currentUrl);
+
+            if ($visitorUuid && ! $visitor->visitor_uuid) {
+                $visitor->update(['visitor_uuid' => $visitorUuid]);
+            }
         } else {
             $browserData = GetBrowserInfo::run($userAgent);
 
@@ -64,7 +69,8 @@ class ProcessWebsiteVisitorTracking
                 userAgent: $userAgent,
                 currentUrl: $currentUrl,
                 referrer: $referrer,
-                geoLocation: $geoLocation
+                geoLocation: $geoLocation,
+                visitorUuid: $visitorUuid
             );
         }
 

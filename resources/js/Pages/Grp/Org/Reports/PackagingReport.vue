@@ -8,7 +8,7 @@
 import { Head, router } from "@inertiajs/vue3"
 import { computed, ref } from "vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faBoxes, faDownload, faTasks, faFileCsv } from "@fal"
+import { faBoxes, faDownload, faTasks, faFileCsv, faGlobeEurope, faArchive } from "@fal"
 import DatePicker from "primevue/datepicker"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
@@ -18,11 +18,13 @@ import EprPackagingCompleteness from "@/Components/Reports/EprPackagingCompleten
 import UkPackagingReturn from "@/Components/Reports/UkPackagingReturn.vue"
 import EprShipmentPackaging from "@/Components/Reports/EprShipmentPackaging.vue"
 import EuPackagingReturn from "@/Components/Reports/EuPackagingReturn.vue"
+import EprExposure from "@/Components/Reports/EprExposure.vue"
+import EprSnapshots from "@/Components/Reports/EprSnapshots.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { ctrans } from "@/Composables/useTrans"
 import { PageHeadingTypes } from "@/types/PageHeading"
 
-library.add(faBoxes, faDownload, faTasks, faFileCsv)
+library.add(faBoxes, faDownload, faTasks, faFileCsv, faGlobeEurope, faArchive)
 
 const props = defineProps<{
 	title: string
@@ -35,6 +37,10 @@ const props = defineProps<{
 	shipment?: any
 	eu_return?: any
 	euReturnRoute: { name: string; parameters: Record<string, string> }
+	exposure?: any
+	snapshots?: any
+	scheme: string
+	snapshotRoute: { name: string; parameters: Record<string, string> }
 	organisationId: number
 	materials: Record<string, string>
 	ownBrandImports: boolean
@@ -49,16 +55,16 @@ const fromIsoDate = (iso: string): Date => {
 }
 const toLocalIsoDate = (date: Date): string => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
 
-const tabsWithData = ["completeness", "uk_return", "eu_return", "shipment"]
+const tabsWithData = ["completeness", "exposure", "uk_return", "eu_return", "shipment", "snapshots"]
 
-const visit = (period: { from: string; to: string } | null, ownBrandImports = props.ownBrandImports) => {
+const visit = (period: { from: string; to: string } | null, ownBrandImports = props.ownBrandImports, scheme = props.scheme) => {
 	router.get(
 		route(route().current() as string, props.downloadRoute.parameters),
-		{ ...(period ?? {}), tab: currentTab.value, ...(ownBrandImports ? { own_brand_imports: 1 } : {}) },
+		{ ...(period ?? {}), tab: currentTab.value, scheme, ...(ownBrandImports ? { own_brand_imports: 1 } : {}) },
 		{
 			preserveState: true,
 			preserveScroll: true,
-			only: ["period", "tabs", "ownBrandImports", ...(tabsWithData.includes(currentTab.value) ? [currentTab.value] : [])],
+			only: ["period", "tabs", "ownBrandImports", "scheme", ...(tabsWithData.includes(currentTab.value) ? [currentTab.value] : [])],
 		}
 	)
 }
@@ -129,7 +135,7 @@ const ukReturnUrl = computed(() =>
 	route(props.ukReturnRoute.name, { ...props.ukReturnRoute.parameters, from: props.period.from, to: props.period.to, ...(props.ownBrandImports ? { own_brand_imports: 1 } : {}) })
 )
 
-const euReturnUrl = computed(() => route(props.euReturnRoute.name, { ...props.euReturnRoute.parameters, from: props.period.from, to: props.period.to }))
+const euReturnUrl = computed(() => route(props.euReturnRoute.name, { ...props.euReturnRoute.parameters, from: props.period.from, to: props.period.to, scheme: props.scheme }))
 
 const downloadUrl = computed(() => route(props.downloadRoute.name, { ...props.downloadRoute.parameters, start_date: props.period.from, end_date: props.period.to }))
 </script>
@@ -139,7 +145,7 @@ const downloadUrl = computed(() => route(props.downloadRoute.name, { ...props.do
 	<PageHeading :data="pageHead" />
 	<Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
 
-	<div class="flex flex-wrap items-center gap-3 px-4 pt-4 text-xs text-gray-600">
+	<div v-if="currentTab !== 'snapshots'" class="flex flex-wrap items-center gap-3 px-4 pt-4 text-xs text-gray-600">
 		<SegmentedToggle v-model="selectedHalf" :options="periodOptions" :ariaLabel="ctrans('Period')" />
 		<div class="flex items-center gap-2">
 			<DatePicker v-model="rangeFrom" :maxDate="rangeTo ?? undefined" dateFormat="d M yy" :manualInput="false" showIcon iconDisplay="input" :class="fieldFocusClass" :pt="datePickerPt" :aria-label="ctrans('From')" />
@@ -160,7 +166,18 @@ const downloadUrl = computed(() => route(props.downloadRoute.name, { ...props.do
 		:period="period"
 		@update:ownBrandImports="(value) => visit(period, value)" />
 
-	<EuPackagingReturn v-else-if="currentTab === 'eu_return'" :data="eu_return" :downloadUrl="euReturnUrl" />
+	<EprExposure v-else-if="currentTab === 'exposure'" :data="exposure" :organisationId="organisationId" />
+
+	<EuPackagingReturn
+		v-else-if="currentTab === 'eu_return'"
+		:data="eu_return"
+		:downloadUrl="euReturnUrl"
+		:scheme="scheme"
+		:organisationId="organisationId"
+		:period="period"
+		@update:scheme="(value) => visit(period, ownBrandImports, value)" />
+
+	<EprSnapshots v-else-if="currentTab === 'snapshots'" :data="snapshots" :snapshotRoute="snapshotRoute" />
 
 	<EprShipmentPackaging v-else-if="currentTab === 'shipment'" :data="shipment" :organisationId="organisationId" :materials="materials" />
 

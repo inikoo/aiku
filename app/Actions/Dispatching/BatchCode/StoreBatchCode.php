@@ -8,6 +8,7 @@
 
 namespace App\Actions\Dispatching\BatchCode;
 
+use App\Actions\Traits\Authorisations\WithOrganisationStockEditAuthorisation;
 use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateCurrentBatchCodes;
 use App\Actions\OrgAction;
 use App\Models\Dispatching\BatchCode;
@@ -21,6 +22,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreBatchCode extends OrgAction
 {
+    use WithOrganisationStockEditAuthorisation;
+
     public function handle(Warehouse|Organisation $parent, array $modelData): BatchCode
     {
         data_set($modelData, 'group_id', $parent->group_id);

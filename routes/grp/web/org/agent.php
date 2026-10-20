@@ -12,6 +12,7 @@ use App\Actions\Comms\Mailbox\ConnectProcurementMailbox;
 use App\Actions\Comms\Mailbox\DisconnectProcurementMailbox;
 use App\Actions\GoodsIn\StockDelivery\ExportStockDeliveries;
 use App\Actions\GoodsIn\StockDelivery\PdfStockDelivery;
+use App\Actions\GoodsIn\StockDelivery\ExportStockDeliveryItems;
 use App\Actions\GoodsIn\StockDelivery\StoreAgentStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\UI\CreateStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\UI\IndexStockDeliveries;
@@ -19,14 +20,23 @@ use App\Actions\GoodsIn\StockDelivery\UI\ShowAgentContainersBoard;
 use App\Actions\GoodsIn\StockDelivery\UI\EditStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\UI\ShowStockDelivery;
 use App\Actions\Procurement\AgentLabel\DownloadAgentArtefactLabelPdf;
+use App\Actions\SupplyChain\SupplierProduct\UI\IndexRepairSupplierProducts;
 use App\Actions\Procurement\AgentLabel\FetchAgentOrgStockBarcodeLabelOptions;
 use App\Actions\Procurement\AgentLabel\PdfAgentOrgStockBarcodeLabel;
 use App\Actions\Procurement\AgentLabel\UI\IndexAgentBarcodes;
 use App\Actions\Procurement\AgentLabel\UI\IndexAgentLabels;
+use App\Actions\Procurement\AgentGoodsReceipt\CancelAgentGoodsReceipt;
+use App\Actions\Procurement\AgentGoodsReceipt\CheckAgentGoodsReceiptItem;
+use App\Actions\Procurement\AgentGoodsReceipt\DeleteAgentGoodsReceiptAttachment;
+use App\Actions\Procurement\AgentGoodsReceipt\PdfAgentGoodsReceiptNote;
+use App\Actions\Procurement\AgentGoodsReceipt\StoreAgentGoodsReceipt;
+use App\Actions\Procurement\AgentGoodsReceipt\UI\IndexAgentGoodsReceipts;
+use App\Actions\Procurement\AgentGoodsReceipt\UI\ShowAgentGoodsReceipt;
+use App\Actions\Procurement\AgentGoodsReceipt\UploadAgentGoodsReceiptAttachments;
+use App\Actions\Procurement\AgentWarehouseStock\UI\GetAgentProductsInProductionToReceive;
 use App\Actions\Procurement\AgentWarehouseStock\UI\IndexAgentProductsInProduction;
 use App\Actions\Procurement\AgentWarehouseStock\UI\IndexAgentReceivedProducts;
 use App\Actions\Procurement\AgentWarehouseStock\UI\IndexAgentWarehouseStocks;
-use App\Actions\Procurement\OrgSupplier\ExportOrgSuppliers;
 use App\Actions\Procurement\OrgSupplier\UI\EditOrgSupplier;
 use App\Actions\Procurement\OrgSupplier\UI\IndexOrgSuppliers;
 use App\Actions\Procurement\OrgSupplier\UI\ShowOrgSupplier;
@@ -37,6 +47,7 @@ use App\Actions\Procurement\PurchaseOrder\ExportPurchaseOrders;
 use App\Actions\Procurement\PurchaseOrder\ExportPurchaseOrderTransactions;
 use App\Actions\Procurement\PurchaseOrder\PdfPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UI\EditPurchaseOrder;
+use App\Actions\Procurement\PurchaseOrder\UI\GetAgentIncomingPurchaseOrdersCount;
 use App\Actions\Procurement\PurchaseOrder\UI\GetPurchaseOrderChasePanel;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\PurchaseOrder\UI\ShowAgentPurchaseOrdersBoard;
@@ -62,13 +73,19 @@ use App\Actions\Procurement\SupplierMessage\UI\IndexSupplierMessages;
 use App\Actions\Procurement\SupplierMessage\UI\ShowSupplierMessage;
 use App\Actions\Procurement\SupplierMessage\Whatsapp\SendSupplierWhatsappMessage;
 use App\Actions\SupplyChain\AgentSupplierPurchaseOrder\UI\ShowAgentSupplierPurchaseOrder;
-use App\Actions\SupplyChain\AspoDeposit\UI\IndexAgentDepositRequests;
+use App\Actions\SupplyChain\AgentPayment\UI\IndexAgentLedger;
+use App\Actions\SupplyChain\DepositRequest\UI\CreateAgentMoneyRequest;
+use App\Actions\SupplyChain\DepositRequest\UI\IndexAgentMoneyRequests;
 use App\Actions\SupplyChain\AspoDeposit\UI\IndexAgentDeposits;
 use App\Actions\SupplyChain\AspoDeposit\UI\ShowAgentAccountingDashboard;
 use App\Actions\SupplyChain\Supplier\UI\CreateSupplier;
 use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;
 use App\Actions\Procurement\AgentOrder\UI\IndexAgentOrders;
+use App\Actions\Procurement\AgentOrder\ExportCombinedSupplierSheet;
+use App\Actions\Procurement\AgentOrder\UI\IndexAgentSharedSuppliers;
+use App\Actions\Procurement\AgentOrder\UI\IndexAgentWholeOrders;
 use App\Actions\Procurement\AgentOrder\UI\ShowAgentOrder;
+use App\Actions\Procurement\AgentOrder\UI\ShowAgentWholeOrder;
 use App\Actions\Procurement\OrgAgent\UI\IndexAgentSalesProducts;
 use App\Actions\Procurement\OrgAgent\UI\IndexAgentSalesSuppliers;
 use App\Actions\Procurement\OrgAgent\UI\ShowAgentSales;
@@ -78,12 +95,10 @@ use App\Actions\Procurement\OrgSupplier\UI\IndexOrgAgentSuppliers;
 use App\Actions\SupplyChain\AgentInvoice\PdfAgentInvoice;
 use App\Actions\SupplyChain\AgentInvoice\StoreAgentInvoice;
 use App\Actions\SupplyChain\AgentInvoice\UI\IndexAgentInvoices;
-use App\Actions\SupplyChain\AgentInvoice\UpdateAgentInvoiceCharges;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('suppliers')->as('org_suppliers.')->group(function () {
     Route::get('', IndexOrgSuppliers::class)->name('index');
-    Route::get('export', ExportOrgSuppliers::class)->name('export');
     Route::get('create-new', [CreateSupplier::class, 'inOrganisation'])->name('create_new');
     Route::get('{orgSupplier}', ShowOrgSupplier::class)->name('show');
     Route::get('{orgSupplier}/edit', EditOrgSupplier::class)->name('edit');
@@ -92,6 +107,7 @@ Route::prefix('suppliers')->as('org_suppliers.')->group(function () {
     Route::get('{orgSupplier}/supplier-products/{orgSupplierProduct}', [ShowOrgSupplierProduct::class, 'inOrgSupplier'])->name('show.supplier_products.show');
     Route::get('{orgSupplier}/purchase-orders', [IndexPurchaseOrders::class, 'inOrgSupplier'])->name('show.purchase_orders.index');
     Route::get('{orgSupplier}/containers', [IndexStockDeliveries::class, 'inOrgSupplier'])->name('show.stock_deliveries.index');
+    Route::get('{orgSupplier}/repair', IndexRepairSupplierProducts::class)->name('show.repair_supplier_products.index');
 });
 
 Route::prefix('supplier-products')->as('org_supplier_products.')->group(function () {
@@ -108,15 +124,23 @@ Route::get('sales/products', IndexAgentSalesProducts::class)->name('sales.produc
 Route::prefix('purchase-orders')->as('purchase_orders.')->group(function () {
     Route::get('', ShowAgentPurchaseOrdersDashboard::class)->name('dashboard');
     Route::get('list', IndexPurchaseOrders::class)->name('index');
+    Route::get('agent-orders', IndexAgentWholeOrders::class)->name('agent_orders');
+    Route::get('shared-suppliers', IndexAgentSharedSuppliers::class)->name('shared_suppliers');
+    Route::get('shared-suppliers/{supplier}/sheet', ExportCombinedSupplierSheet::class)->name('shared_suppliers.sheet');
     Route::get('board', ShowAgentPurchaseOrdersBoard::class)->name('board');
     Route::get('reports', ShowAgentPurchaseOrdersReports::class)->name('reports');
     Route::get('export', ExportPurchaseOrders::class)->name('export');
     Route::get('{purchaseOrder:id}/chase-panel', GetPurchaseOrderChasePanel::class)->name('chase_panel')->withoutScopedBindings();
     Route::get('{purchaseOrder}', ShowPurchaseOrder::class)->name('show');
+    Route::get('{purchaseOrder}/whole-order', ShowAgentWholeOrder::class)->name('whole_order');
+    Route::get('{purchaseOrder}/whole-order/pdf/{filename?}', [PdfPurchaseOrder::class, 'inWholeAgentOrder'])->name('whole_order.pdf');
     Route::get('{purchaseOrder}/edit', EditPurchaseOrder::class)->name('edit');
     Route::get('{purchaseOrder}/pdf/{filename?}', PdfPurchaseOrder::class)->name('pdf');
     Route::get('{purchaseOrder}/transactions-export', ExportPurchaseOrderTransactions::class)->name('transactions.export');
 });
+
+Route::get('incoming-purchase-orders', [IndexPurchaseOrders::class, 'inAgentIncoming'])->name('incoming_purchase_orders.index');
+Route::get('incoming-purchase-orders/count', GetAgentIncomingPurchaseOrdersCount::class)->name('incoming_purchase_orders.count');
 
 Route::prefix('client-orders')->as('agent_supplier_purchase_orders.')->group(function () {
     Route::get('{agentSupplierPurchaseOrder}', [ShowAgentSupplierPurchaseOrder::class, 'inOrganisation'])->name('show');
@@ -133,19 +157,34 @@ Route::prefix('containers')->as('stock_deliveries.')->group(function () {
     Route::get('{stockDelivery}', ShowStockDelivery::class)->name('show');
     Route::get('{stockDelivery}/edit', [EditStockDelivery::class, 'inAgent'])->name('edit');
     Route::get('{stockDelivery}/pdf/{filename?}', PdfStockDelivery::class)->name('pdf');
+    Route::get('{stockDelivery}/csv', ExportStockDeliveryItems::class)->name('csv');
 });
 
 Route::get('warehouse', IndexAgentWarehouseStocks::class)->name('warehouse.index');
 Route::get('warehouse/in-production', IndexAgentProductsInProduction::class)->name('warehouse.in_production');
-Route::get('warehouse/received', IndexAgentReceivedProducts::class)->name('warehouse.received');
+Route::get('warehouse/in-production/to-receive', GetAgentProductsInProductionToReceive::class)->name('warehouse.in_production.to_receive');
+Route::post('warehouse/in-production/receive', StoreAgentGoodsReceipt::class)->name('warehouse.in_production.receive');
+
+Route::prefix('warehouse/received')->as('warehouse.received.')->group(function () {
+    Route::get('', IndexAgentReceivedProducts::class)->name('index');
+    Route::get('goods-receipts', IndexAgentGoodsReceipts::class)->name('goods_receipts.index');
+    Route::get('goods-receipts/{agentGoodsReceipt}', ShowAgentGoodsReceipt::class)->name('goods_receipts.show');
+    Route::post('goods-receipts/{agentGoodsReceipt}/cancel', CancelAgentGoodsReceipt::class)->name('goods_receipts.cancel');
+    Route::post('goods-receipts/{agentGoodsReceipt}/photos', UploadAgentGoodsReceiptAttachments::class)->name('goods_receipts.photos.store');
+    Route::delete('goods-receipts/{agentGoodsReceipt}/photos/{media:id}', DeleteAgentGoodsReceiptAttachment::class)->name('goods_receipts.photos.destroy')->withoutScopedBindings();
+    Route::get('goods-receipts/{agentGoodsReceipt}/receipt-note', PdfAgentGoodsReceiptNote::class)->name('goods_receipts.receipt_note');
+    Route::post('goods-receipts/{agentGoodsReceipt}/items/{agentGoodsReceiptItem:id}/check', CheckAgentGoodsReceiptItem::class)->name('goods_receipts.items.check')->withoutScopedBindings();
+});
 
 Route::get('barcodes', IndexAgentBarcodes::class)->name('agent_barcodes.index');
 
 Route::prefix('agent-accounting')->as('accounting.')->group(function () {
     Route::get('', ShowAgentAccountingDashboard::class)->name('dashboard');
     Route::get('deposits', IndexAgentDeposits::class)->name('deposits.index');
-    Route::get('deposit-requests', IndexAgentDepositRequests::class)->name('deposit_requests.index');
+    Route::get('deposit-requests', IndexAgentMoneyRequests::class)->name('deposit_requests.index');
+    Route::get('deposit-requests/create', CreateAgentMoneyRequest::class)->name('deposit_requests.create');
     Route::get('invoices', IndexAgentInvoices::class)->name('invoices.index');
+    Route::get('ledger', IndexAgentLedger::class)->name('ledger.index');
 });
 
 Route::prefix('labels')->as('agent_labels.')->group(function () {
@@ -206,6 +245,5 @@ Route::prefix('agents/{orgAgent}')->as('org_agents.show')->group(function () {
 
 Route::post('containers/{stockDelivery}/invoice', StoreAgentInvoice::class)->name('agent_invoices.store');
 Route::prefix('agent-invoices/{agentInvoice}')->as('agent_invoices.')->group(function () {
-    Route::patch('charges', UpdateAgentInvoiceCharges::class)->name('charges.update');
     Route::get('pdf', PdfAgentInvoice::class)->name('pdf');
 });

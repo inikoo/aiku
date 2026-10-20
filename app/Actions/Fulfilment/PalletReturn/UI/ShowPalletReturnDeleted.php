@@ -222,7 +222,7 @@ class ShowPalletReturnDeleted extends OrgAction
                     ]
                 ],
 
-                'can_edit_transactions' => true,
+                'can_edit_transactions' => $this->canEdit,
 
                 'option_attach_file' => [
                     [

@@ -8,11 +8,14 @@
 
 namespace App\Notifications;
 
+use App\Notifications\Concerns\SendsMailThroughSes;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class PurchaseOrderMinimumPokeDigestNotification extends Notification
 {
+    use SendsMailThroughSes;
+
     /**
      * @param array<int, array{line: string, url: string}> $requests
      */
@@ -27,7 +30,7 @@ class PurchaseOrderMinimumPokeDigestNotification extends Notification
 
     public function toMail($notifiable): MailMessage
     {
-        $mail = (new MailMessage())
+        $mail = $this->newMailMessage()
             ->subject(trans_choice('A colleague asks you to add to your draft to reach a supplier minimum|:count requests to add to your drafts to reach supplier minimums', count($this->requests), ['count' => count($this->requests)]));
 
         foreach ($this->requests as $request) {

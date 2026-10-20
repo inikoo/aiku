@@ -9,7 +9,6 @@
 namespace App\Actions\SysAdmin\User;
 
 use Illuminate\Support\Facades\Password;
-use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -19,20 +18,11 @@ class PasswordResetLink
 {
     use AsController;
 
-    /**
-     * @throws \Illuminate\Validation\ValidationException
-     */
     public function handle(ActionRequest $request): void
     {
-        $status = Password::broker('users')->sendResetLink(
-            $request->only('email')
-        );
+        $credentials = $request->only('email');
 
-        if ($status === Password::INVALID_USER) {
-            throw ValidationException::withMessages([
-                'email' => [trans($status)],
-            ]);
-        }
+        dispatch(fn () => Password::broker('users')->sendResetLink($credentials))->afterResponse();
     }
 
     public function create(): Response
@@ -45,7 +35,7 @@ class PasswordResetLink
     public function rules(): array
     {
         return [
-            'email' => ['required', 'email', 'exists:users'],
+            'email' => ['required', 'email'],
         ];
     }
 

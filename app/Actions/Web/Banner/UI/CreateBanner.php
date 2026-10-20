@@ -9,6 +9,7 @@
 namespace App\Actions\Web\Banner\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithWebEditAuthorisation;
 use App\Enums\Web\Banner\BannerTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
@@ -21,8 +22,11 @@ use Spatie\LaravelOptions\Options;
 
 class CreateBanner extends OrgAction
 {
+    use WithWebEditAuthorisation;
+
     public function asController(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): Response
     {
+        abort_unless($website->shop_id === $shop->id, 404);
         $this->initialisationFromShop($shop, $request);
 
         return $this->handle($website, $request);
@@ -31,6 +35,7 @@ class CreateBanner extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, ActionRequest $request): Response
     {
+        abort_unless($website->shop_id === $fulfilment->shop_id, 404);
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($website, $request);

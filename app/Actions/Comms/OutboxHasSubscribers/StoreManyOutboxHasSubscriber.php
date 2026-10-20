@@ -17,10 +17,12 @@ use App\Models\Comms\Outbox;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Lorisleiva\Actions\ActionRequest;
+use App\Actions\Traits\Authorisations\WithCommsEditAuthorisation;
 
 class StoreManyOutboxHasSubscriber extends OrgAction
 {
     use WithNoStrictRules;
+    use WithCommsEditAuthorisation;
 
     protected Outbox $outbox;
 

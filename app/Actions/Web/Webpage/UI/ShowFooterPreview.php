@@ -8,6 +8,7 @@
 
 namespace App\Actions\Web\Webpage\UI;
 
+use App\Actions\Traits\Authorisations\WithWebAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\Web\Website\GetWebsiteWorkshopFooter;
 use App\Models\Web\Website;
@@ -20,6 +21,7 @@ use Illuminate\Support\Arr;
 class ShowFooterPreview extends OrgAction
 {
     use AsAction;
+    use WithWebAuthorisation;
 
     public function handle(Website $website): Website
     {
@@ -39,7 +41,7 @@ class ShowFooterPreview extends OrgAction
 
     public function asController(Website $website, ActionRequest $request): Website
     {
-        $this->initialisation($website->organisation, $request);
+        $this->initialisationFromShop($website->shop, $request);
 
         return $website;
     }

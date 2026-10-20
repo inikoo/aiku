@@ -68,6 +68,7 @@ class GetMcpChangeSnapshot
             McpChangeTypeEnum::STOCK_DELIVERY_COSTS => $this->stockDeliveryCosts($target),
             McpChangeTypeEnum::CUSTOMER_SERVICE => $this->customerService($target),
             McpChangeTypeEnum::TRADE_UNIT_PROPERTIES => $this->tradeUnitProperties($target),
+            McpChangeTypeEnum::WEBSITE_REDIRECTS => $this->websiteRedirects($target),
         };
     }
 
@@ -157,6 +158,15 @@ class GetMcpChangeSnapshot
             return $target['code'].': '.collect($snapshot)->except('barcode_id')->map(fn ($value, $field) => $field.'='.($value ?? '-'))->implode(', ');
         }
 
+        if ($type === McpChangeTypeEnum::WEBSITE_REDIRECTS) {
+            $fromPaths = DB::table('redirects')->whereIn('id', array_keys($snapshot['redirects']))->pluck('from_path', 'id');
+            $toPaths   = DB::table('webpages')->whereIn('id', array_values($snapshot['redirects']))->pluck('url', 'id');
+
+            return collect($snapshot['redirects'])
+                ->map(fn ($toWebpageId, $redirectId) => '/'.($fromPaths[$redirectId] ?? '#'.$redirectId).' -> /'.($toPaths[$toWebpageId] ?? '#'.$toWebpageId))
+                ->implode(', ');
+        }
+
         if ($type === McpChangeTypeEnum::PRODUCTION_RECORD) {
             return collect($snapshot)->map(fn ($value, $field) => $field.'='.($value ?? '-'))->implode(', ') ?: 'not there';
         }
@@ -182,6 +192,18 @@ class GetMcpChangeSnapshot
             ->pluck('code', 'id');
 
         return collect($snapshot['ids'])->map(fn ($id) => $codes[$id] ?? '#'.$id)->implode(', ') ?: '-';
+    }
+
+    private function websiteRedirects(array $target): array
+    {
+        return [
+            'redirects' => DB::table('redirects')
+                ->whereIn('id', $target['redirect_ids'])
+                ->orderBy('id')
+                ->pluck('to_webpage_id', 'id')
+                ->map(fn ($toWebpageId) => (int) $toWebpageId)
+                ->all(),
+        ];
     }
 
     private function tradeUnitProperties(array $target): array

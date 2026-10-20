@@ -9,6 +9,7 @@
 namespace App\Actions\Helpers\Upload;
 
 use App\Models\Helpers\Upload;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -25,8 +26,10 @@ class DownloadUploads
         return response()->download(storage_path('app/'.$upload->path . '/' . $upload->filename));
     }
 
-    public function asController(Upload $upload): BinaryFileResponse
+    public function asController(Upload $upload, ActionRequest $request): BinaryFileResponse
     {
+        abort_unless($upload->canBeViewedBy($request->user()), 403);
+
         return $this->handle($upload);
     }
 }

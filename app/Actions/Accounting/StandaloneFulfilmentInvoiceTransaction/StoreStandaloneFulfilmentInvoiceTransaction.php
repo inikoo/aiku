@@ -9,6 +9,7 @@
 
 namespace App\Actions\Accounting\StandaloneFulfilmentInvoiceTransaction;
 
+use App\Actions\Traits\Authorisations\WithFulfilmentShopEditAuthorisation;
 use App\Actions\Accounting\Invoice\CalculateInvoiceTotals;
 use App\Actions\Accounting\InvoiceTransaction\StoreInvoiceTransaction;
 use App\Actions\OrgAction;
@@ -22,6 +23,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreStandaloneFulfilmentInvoiceTransaction extends OrgAction
 {
+    use WithFulfilmentShopEditAuthorisation;
+
     public function handle(Invoice $invoice, HistoricAsset $historicAsset, array $modelData): InvoiceTransaction
     {
         $grossAmount = $historicAsset->price * Arr::get($modelData, 'quantity');
@@ -77,6 +80,7 @@ class StoreStandaloneFulfilmentInvoiceTransaction extends OrgAction
 
     public function action(Invoice $invoice, HistoricAsset $historicAsset, array $modelData): InvoiceTransaction
     {
+        $this->asAction = true;
         $this->initialisationFromShop($invoice->shop, $modelData);
 
         return $this->handle($invoice, $historicAsset, $this->validatedData);

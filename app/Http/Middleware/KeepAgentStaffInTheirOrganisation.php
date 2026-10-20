@@ -46,7 +46,6 @@ class KeepAgentStaffInTheirOrganisation
         'grp.tasks.',
         'grp.product_developments.',
         'grp.profile.',
-        'grp.notifications',
         'grp.chat.staff.',
         'grp.clocking_employees.',
         'grp.clocking_scan',

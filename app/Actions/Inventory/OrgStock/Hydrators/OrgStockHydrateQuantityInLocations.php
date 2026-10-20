@@ -11,6 +11,7 @@ namespace App\Actions\Inventory\OrgStock\Hydrators;
 use App\Actions\Catalogue\Product\Hydrators\ProductHydrateAvailableQuantity;
 use App\Actions\Dispatching\FulfilmentGate\ReleaseCoverableOrdersAtGate;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateLowStockAudits;
+use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateOrgStocksBelowMinimumStock;
 use App\Actions\Ordering\PreOrder\AllocatePreOrderStock;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateReplenishments;
 use App\Actions\Production\PartnerShippingList\ReleaseUncoveredPrePicks;
@@ -134,6 +135,7 @@ class OrgStockHydrateQuantityInLocations implements ShouldBeUnique
 
             foreach ($orgStock->organisation->warehouses as $warehouse) {
                 WarehouseHydrateLowStockAudits::dispatch($warehouse)->delay(2);
+                WarehouseHydrateOrgStocksBelowMinimumStock::dispatch($warehouse)->delay(2);
                 WarehouseHydrateReplenishments::dispatch($warehouse)->delay(2);
             }
 

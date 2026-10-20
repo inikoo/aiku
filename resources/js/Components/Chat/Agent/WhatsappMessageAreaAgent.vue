@@ -84,6 +84,7 @@ const props = defineProps<{
     messages: ChatMessage[]
     session: SessionAPI | null
     organisationSlug: string
+    canCreateTemplate: boolean
     readOnly?: boolean
     showShop?: boolean
 }>()
@@ -1411,6 +1412,7 @@ onUnmounted(() => {
             :selected-template-id="selectedTemplate?.id"
             :organisation-slug="organisationSlug"
             :shop-slug="session?.shop?.slug"
+            :can-create-template="canCreateTemplate"
             @select="selectTemplate" />
 
         <TicketModal

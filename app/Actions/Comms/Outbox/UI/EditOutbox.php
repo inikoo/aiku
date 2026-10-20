@@ -9,6 +9,7 @@
 namespace App\Actions\Comms\Outbox\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithCommsEditAuthorisation;
 use App\Enums\UI\Mail\OutboxTabsEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\Outbox;
@@ -21,6 +22,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class EditOutbox extends OrgAction
 {
+    use WithCommsEditAuthorisation;
+
     private Fulfilment|Shop $parent;
 
     /**
@@ -86,27 +89,13 @@ class EditOutbox extends OrgAction
         );
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->parent instanceof Fulfilment) {
-            return $this->canEdit = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-        }
-
-        return $request->user()->authTo([
-            'shop-admin.' . $this->shop->id,
-            'marketing.' . $this->shop->id . '.view',
-            'web.' . $this->shop->id . '.view',
-            'orders.' . $this->shop->id . '.view',
-            'crm.' . $this->shop->id . '.view',
-        ]);
-    }
-
     /** @noinspection PhpUnusedParameterInspection */
     /**
      * @throws \Exception
      */
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Outbox $outbox, ActionRequest $request): Response
     {
+        abort_unless($outbox->shop_id === $fulfilment->shop_id, 404);
         $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(OutboxTabsEnum::values());
 

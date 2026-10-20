@@ -201,6 +201,12 @@ class UpdateProduct extends OrgAction
             ]);
         }
 
+        if (Arr::get($modelData, 'is_for_sale')
+            && $product->state == ProductStateEnum::IN_PROCESS
+            && $product->shop->type !== ShopTypeEnum::EXTERNAL) {
+            data_set($modelData, 'state', ProductStateEnum::ACTIVE, false);
+        }
+
         if (Arr::hasAny($modelData, ['is_for_sale'])) {
             data_set($modelData, 'not_for_sale_since', $modelData['is_for_sale'] ? null : Carbon::now('UTC'));
             // For auditing | Ignore not_for_sale_since

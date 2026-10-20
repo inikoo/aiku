@@ -26,7 +26,6 @@ use App\Actions\Discounts\OfferCampaign\UI\IndexOrdersInOffer;
 use App\Actions\Discounts\OfferCampaign\UI\IndexOrdersInOfferTotal;
 use App\Actions\Discounts\OfferCampaign\UI\ShowOfferCampaign;
 use App\Actions\Discounts\UI\ShowOffersInsights;
-use App\Stubs\UIDummies\EditDummy;
 use Illuminate\Support\Facades\Route;
 
 Route::get('insights', ShowOffersInsights::class)->name('insights');
@@ -60,7 +59,6 @@ Route::name("campaigns.")->prefix('campaigns')
                 Route::get('{offer}/edit', [EditOffer::class, 'inAmnestyCampaign'])->name('edit');
             });
 
-        Route::get('{offerCampaign}/edit', EditDummy::class)->name('edit');
         Route::get('{offerCampaign}/create-vol-gr-gift', CreateVolGrGift::class)->name('create_vol_gr_gift');
         Route::get('{offerCampaign}/edit-vol-gr-gift', EditVolGrGift::class)->name('edit_vol_gr_gift')->withoutScopedBindings();
         Route::get('{offerCampaign}/create-gr-amnesty-offer', CreateGrAmnesty::class)->name('create_gr_amnesty_offer');

@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\FulfilmentTransaction;
 
+use App\Actions\Traits\Authorisations\WithFulfilmentShopEditAuthorisation;
 use App\Actions\Fulfilment\RecurringBillTransaction\UpdateRecurringBillTransaction;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -17,6 +18,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class UpdateFulfilmentTransaction extends OrgAction
 {
+    use WithFulfilmentShopEditAuthorisation;
     use WithActionUpdate;
 
 

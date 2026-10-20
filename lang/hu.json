@@ -1862,6 +1862,7 @@
     "Expected Back on :date": "Várható érkezés :date",
     "Expected Next Order": "Várható következő rendelés",
     "Expected Qty": "Várt mennyiség",
+    "Expected around :date": "Várható :date",
     "Expected next order": "Várható következő rendelés",
     "Expected to place next order in :days days on :date": "A következő rendelés várhatóan :days napon belül kerül leadásra, :date dátummal",
     "Expected to place next order today: :date": "Várhatóan ma adják le a következő rendelést: :date",

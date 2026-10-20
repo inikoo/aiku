@@ -8,6 +8,8 @@
 
 namespace App\Actions\CRM\WebUser;
 
+use App\Actions\Web\WebsiteVisitor\LinkAnonymousVisitorsToWebUser;
+use App\Actions\Web\WebsiteVisitor\StoreWebsiteVisitor;
 use App\Actions\Web\WebsiteVisitor\UI\GetBrowserInfo;
 use App\Models\CRM\WebUser;
 use Illuminate\Support\Carbon;
@@ -19,7 +21,7 @@ class LogWebUserLogin
 
     public string $jobQueue = 'analytics';
 
-    public function handle(WebUser $webUser, string $ip, string $userAgent, Carbon $datetime, array $geoLocation = [], $source = 'A'): void
+    public function handle(WebUser $webUser, string $ip, string $userAgent, Carbon $datetime, array $geoLocation = [], $source = 'A', ?string $visitorUuid = null): void
     {
         $browserData = GetBrowserInfo::run($userAgent);
 
@@ -42,6 +44,14 @@ class LogWebUserLogin
         ];
 
         $webUser->stats()->update($stats);
+
+        LinkAnonymousVisitorsToWebUser::run(
+            $webUser,
+            $webUser->website_id,
+            StoreWebsiteVisitor::hashVisitor($ip, $userAgent)['visitor_hash'],
+            until: $datetime,
+            visitorUuid: $visitorUuid
+        );
     }
 
 

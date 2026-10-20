@@ -18,6 +18,7 @@ enum UserNotificationEnum: string
     case TICKET_MENTION = 'ticket_mention';
     case TICKET_NEEDS_REPLY = 'ticket_needs_reply';
     case PURCHASE_ORDER_STAGE_BY_AGENT = 'purchase_order_stage_by_agent';
+    case PURCHASE_ORDER_PRICE_ANSWERED = 'purchase_order_price_answered';
     case PURCHASE_ORDERS_STUCK = 'purchase_orders_stuck';
     case PURCHASE_ORDER_COMPLIANCE_DUE = 'purchase_order_compliance_due';
     case PURCHASE_ORDER_MINIMUM_POKE = 'purchase_order_minimum_poke';
@@ -37,6 +38,7 @@ enum UserNotificationEnum: string
 
     public const array PROCUREMENT_EVENTS = [
         self::PURCHASE_ORDER_STAGE_BY_AGENT,
+        self::PURCHASE_ORDER_PRICE_ANSWERED,
         self::PURCHASE_ORDERS_STUCK,
         self::PURCHASE_ORDER_COMPLIANCE_DUE,
         self::PURCHASE_ORDER_MINIMUM_POKE,
@@ -54,6 +56,7 @@ enum UserNotificationEnum: string
             self::TICKET_MENTION     => __('Someone @mentions me on a ticket'),
             self::TICKET_NEEDS_REPLY => __('My ticket needs more information from me'),
             self::PURCHASE_ORDER_STAGE_BY_AGENT => __('An agent moves one of my purchase orders to another stage'),
+            self::PURCHASE_ORDER_PRICE_ANSWERED => __('An organisation answers a new supplier price I asked about'),
             self::PURCHASE_ORDERS_STUCK         => __('The weekly list of purchase orders past their expected date'),
             self::PURCHASE_ORDER_COMPLIANCE_DUE => __('Compliance documents of my purchase order are due'),
             self::PURCHASE_ORDER_BALANCE_DUE    => __('A purchase order passed its QC and its balance can be paid'),
@@ -104,6 +107,7 @@ enum UserNotificationEnum: string
             self::TICKET_MENTION     => 'fal fa-at',
             self::TICKET_NEEDS_REPLY => 'fal fa-question-circle',
             self::PURCHASE_ORDER_STAGE_BY_AGENT => 'fal fa-truck-loading',
+            self::PURCHASE_ORDER_PRICE_ANSWERED => 'fal fa-tags',
             self::PURCHASE_ORDERS_STUCK         => 'fal fa-hourglass-half',
             self::PURCHASE_ORDER_COMPLIANCE_DUE => 'fal fa-clipboard-check',
             self::PURCHASE_ORDER_BALANCE_DUE    => 'fal fa-file-invoice',

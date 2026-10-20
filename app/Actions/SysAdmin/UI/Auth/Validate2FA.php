@@ -11,6 +11,7 @@ namespace App\Actions\SysAdmin\UI\Auth;
 
 use Illuminate\Support\Arr;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
@@ -29,6 +30,15 @@ class Validate2FA
      */
     public function handle(ActionRequest $request): RedirectResponse
     {
+        $throttleKey = '2fa:'.$request->user()->id;
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            throw ValidationException::withMessages([
+                'one_time_password' => __('Too many wrong codes. Please try again in :minutes minutes.', [
+                    'minutes' => ceil(RateLimiter::availableIn($throttleKey) / 60),
+                ]),
+            ]);
+        }
+
         $authenticator = new Authenticator(request());
         $google2fa = new Google2FA();
         $otp = Arr::get($request->validated(), 'one_time_password');
@@ -36,11 +46,14 @@ class Validate2FA
         $validated = $google2fa->verifyKey($secret, $otp);
 
         if (!$validated) {
+            RateLimiter::hit($throttleKey, 900);
+
             throw ValidationException::withMessages([
                 'one_time_password' => trans('Invalid OTP is given. Please check your Authenticator App'),
             ]);
         }
 
+        RateLimiter::clear($throttleKey);
         $authenticator->login();
 
         Session::put('reloadLayout', '1');

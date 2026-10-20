@@ -9,6 +9,7 @@
 namespace App\Actions\Retina\Shopify;
 
 use App\Actions\Dropshipping\Shopify\Product\StoreNewProductToCurrentShopify;
+use App\Actions\Dropshipping\WithSingleUploadProgress;
 use App\Actions\RetinaAction;
 use App\Actions\Traits\WithRetinaCustomerOwnedRouteModels;
 use App\Models\Dropshipping\Portfolio;
@@ -19,17 +20,18 @@ class StoreRetinaNewProductToCurrentShopify extends RetinaAction
 {
     use WithRetinaCustomerOwnedRouteModels;
     use AsAction;
+    use WithSingleUploadProgress;
 
-    public function handle(Portfolio $portfolio, array $modelData): void
+    public function handle(Portfolio $portfolio): void
     {
-        StoreNewProductToCurrentShopify::run($portfolio, $modelData);
+        StoreNewProductToCurrentShopify::dispatch($portfolio, $this->singleUploadProgress($portfolio));
     }
 
     public function asController(Portfolio $portfolio, ActionRequest $request): void
     {
 
         $this->initialisation($request);
-        $this->handle($portfolio, $this->validatedData);
+        $this->handle($portfolio);
     }
 
 }

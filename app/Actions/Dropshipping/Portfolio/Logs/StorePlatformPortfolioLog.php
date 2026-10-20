@@ -19,6 +19,33 @@ class StorePlatformPortfolioLog extends OrgAction
 {
     public function handle(Portfolio $portfolio, array $modelData): PlatformPortfolioLogs
     {
+        return PlatformPortfolioLogs::create($this->attributes($portfolio, $modelData));
+    }
+
+    /**
+     * One insert for many logs, each row as handle() would store it.
+     *
+     * @param  list<array{0: Portfolio, 1: array}>  $logs  each portfolio with the data its log stores
+     */
+    public function handleMany(array $logs): void
+    {
+        $log       = new PlatformPortfolioLogs();
+        $timestamp = $log->fromDateTime($log->freshTimestamp());
+
+        $rows = [];
+        foreach ($logs as [$portfolio, $modelData]) {
+            $row = (new PlatformPortfolioLogs())->forceFill(['response' => null, ...$this->attributes($portfolio, $modelData)])->getAttributes();
+            ksort($row);
+            $rows[] = [...$row, 'created_at' => $timestamp, 'updated_at' => $timestamp];
+        }
+
+        if ($rows) {
+            PlatformPortfolioLogs::insert($rows);
+        }
+    }
+
+    private function attributes(Portfolio $portfolio, array $modelData): array
+    {
         data_set($modelData, 'group_id', $portfolio->group_id);
         data_set($modelData, 'organisation_id', $portfolio->organisation_id);
         data_set($modelData, 'shop_id', $portfolio->shop_id);
@@ -36,7 +63,7 @@ class StorePlatformPortfolioLog extends OrgAction
             data_set($modelData, 'type', PlatformPortfolioLogsTypeEnum::UPDATE_STOCK);
         }
 
-        return PlatformPortfolioLogs::create($modelData);
+        return $modelData;
     }
 
 }

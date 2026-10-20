@@ -45,7 +45,6 @@ trait WithAgentProductFacts
                 'fam.stock_family_id',
                 'fam.internal_code',
                 'sf.code as family_code',
-                's.is_generic',
                 's.phone',
                 's.email',
                 's.wechat',
@@ -64,20 +63,38 @@ trait WithAgentProductFacts
     }
 
     /**
+     * @return array<string, string>
+     */
+    protected function completenessChecks(string $alias = 'f'): array
+    {
+        return [
+            'cbm'                  => "$alias.cbm > 0",
+            'carton_dimensions'    => "$alias.carton_dimensions is not null",
+            'carton_weight'        => "$alias.carton_weight > 0",
+            'carton_net_weight'    => "$alias.carton_net_weight > 0",
+            'moq'                  => "$alias.moq is not null",
+            'lead_time'            => "$alias.lead_time_days is not null",
+            'lead_time_confirmed'  => "$alias.lead_time_confirmed_at is not null",
+        ];
+    }
+
+    /**
      * How many of the 7 product checks a fact row passes; the supplier contact and packaging checks are counted on the supplier.
      */
     protected function completenessSql(string $alias = 'f'): string
     {
-        $checks = [
-            "$alias.cbm > 0",
-            "$alias.carton_dimensions is not null",
-            "$alias.carton_weight > 0",
-            "$alias.carton_net_weight > 0",
-            "$alias.moq is not null",
-            "$alias.lead_time_days is not null",
-            "$alias.lead_time_confirmed_at is not null",
-        ];
+        $checks = $this->completenessChecks($alias);
 
         return '((' . implode(' + ', array_map(fn (string $check) => "coalesce($check, false)::int", $checks)) . ') * 100.0 / ' . count($checks) . ')';
+    }
+
+    protected function completenessChecksSql(string $alias = 'f'): string
+    {
+        $pairs = [];
+        foreach ($this->completenessChecks($alias) as $key => $check) {
+            $pairs[] = "'$key', coalesce(bool_or($check), false)";
+        }
+
+        return 'jsonb_build_object('.implode(', ', $pairs).')';
     }
 }

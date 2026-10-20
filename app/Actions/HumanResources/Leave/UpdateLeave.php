@@ -107,8 +107,19 @@ class UpdateLeave extends OrgAction
             $updates['duration_days'] = $this->calculateDurationDays($startDate, $endDate, $leave->organisation_id);
         }
 
+        $isApproved      = $leave->status === LeaveStatusEnum::APPROVED;
+        $previousBalance = $isApproved ? RecalculateEmployeeLeaveBalance::make()->balanceForLeave($leave, false) : null;
+
         if (!empty($updates)) {
             $leave->update($updates);
+        }
+
+        if ($isApproved && !empty($updates)) {
+            $currentBalance = RecalculateEmployeeLeaveBalance::make()->forLeave($leave->load('leaveType'));
+
+            if ($previousBalance && $previousBalance->id !== $currentBalance?->id) {
+                RecalculateEmployeeLeaveBalance::run($previousBalance);
+            }
         }
 
         if ((isset($updates['start_date']) || isset($updates['end_date'])) && $leave->coverEmployee) {
@@ -216,12 +227,10 @@ class UpdateLeave extends OrgAction
                 abort(403, __('Only medical leave can be edited.'));
             }
 
-            if (!$request->routeIs('grp.org.hr.leaves.update')) {
-                $user = $request->user();
+            $user = $request->user();
 
-                if (!$user || !$user->employees()->where('employees.id', $leave->employee_id)->exists()) {
-                    abort(403, __('You can only edit your own leave requests.'));
-                }
+            if (!$user || !$user->employees()->where('employees.id', $leave->employee_id)->exists()) {
+                abort(403, __('You can only edit your own leave requests.'));
             }
         }
 

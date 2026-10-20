@@ -30,9 +30,19 @@ class PdfProformaInvoice extends OrgAction
         WithProformaInvoicePdf::rules insteadof WithExportData;
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->authTo([
+            "orders.{$this->shop->id}.view",
+            "orders.{$this->shop->id}.edit",
+            "accounting.{$this->organisation->id}.view",
+        ]);
+    }
+
     public function asController(Organisation $organisation, Shop $shop, Order $order, ActionRequest $request): Response
     {
-        $this->initialisation($organisation, $request);
+        abort_unless($order->shop_id === $shop->id, 404);
+        $this->initialisationFromShop($shop, $request);
 
         return $this->handle($order, $this->validatedData);
     }

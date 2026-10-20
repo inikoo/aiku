@@ -21,6 +21,7 @@ use App\Actions\Ordering\Order\UpdateState\SendOrderToWarehouse;
 use App\Actions\Ordering\Order\UpdateState\SubmitOrder;
 use App\Actions\Ordering\Transaction\StoreTransaction;
 use App\Actions\Ordering\Transaction\UpdateTransactionProductQuantityOrdered;
+use App\Actions\Ordering\UpcomingTransaction\StoreUpcomingTransaction;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
@@ -29,6 +30,8 @@ use App\Enums\Ordering\Order\OrderPayStatusEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStatusEnum;
+use App\Enums\Ordering\Transaction\UpcomingTransactionStateEnum;
+use App\Enums\Ordering\Transaction\UpcomingTransactionTypeEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Ordering\Transaction;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -365,4 +368,92 @@ test('the order page offers adding a product while the order is in the warehouse
 
     $order->updateQuietly(['state' => OrderStateEnum::PACKING]);
     expect($hasAddToWarehouseOrder())->toBeFalse();
+});
+
+function pickedOrderWithGift($customer, $product, float $giftQuantity = 2): array
+{
+    [$order] = submittedOrderWithTransaction($customer, $product);
+    $gift = StoreTransaction::make()->action($order, $product->historicAsset, [
+        'quantity_ordered' => 0,
+        'quantity_bonus'   => $giftQuantity,
+        'is_gift'          => true,
+    ], strict: false);
+
+    $deliveryNote = SendOrderToWarehouse::make()->action($order->refresh(), []);
+    foreach ($deliveryNote->deliveryNoteItems()->get() as $item) {
+        $item->updateQuietly(['quantity_picked' => $item->quantity_required]);
+    }
+    $deliveryNote->updateQuietly(['state' => DeliveryNoteStateEnum::PICKED]);
+    $order->refresh()->updateQuietly(['state' => OrderStateEnum::PICKED]);
+
+    return [$order->refresh(), $gift->refresh(), $deliveryNote];
+}
+
+test('a free gift can be removed from a picked order and the note goes back to picking', function () {
+    [$order, $gift, $deliveryNote] = pickedOrderWithGift($this->customer, $this->product);
+
+    expect($deliveryNote->deliveryNoteItems()->where('transaction_id', $gift->id)->exists())->toBeTrue();
+
+    SaveOrderModification::make()->action($order, [
+        'transactions' => [$gift->id => ['newQty' => 0]]
+    ], $this->user);
+
+    $giftItems = $deliveryNote->deliveryNoteItems()->where('transaction_id', $gift->id)->get();
+
+    expect((float)$gift->refresh()->quantity_bonus)->toBe(0.0)
+        ->and((float)$gift->quantity_ordered)->toBe(0.0)
+        ->and($giftItems->every(fn ($item) => (float)$item->quantity_required == 0))->toBeTrue()
+        ->and($deliveryNote->refresh()->state)->toEqual(DeliveryNoteStateEnum::HANDLING)
+        ->and($order->refresh()->state)->toEqual(OrderStateEnum::HANDLING);
+});
+
+test('a free gift can be lowered but never raised', function () {
+    [$order, $gift] = pickedOrderWithGift($this->customer, $this->product, 3);
+
+    UpdateTransactionProductQuantityOrdered::make()->action($gift, ['quantity_ordered' => 1], $this->user);
+
+    expect((float)$gift->refresh()->quantity_bonus)->toBe(1.0)
+        ->and(fn () => UpdateTransactionProductQuantityOrdered::make()->action($gift, ['quantity_ordered' => 2], $this->user))
+        ->toThrow(fn (HttpException $exception) => expect($exception->getStatusCode())->toBe(422))
+        ->and((float)$gift->refresh()->quantity_bonus)->toBe(1.0)
+        ->and((float)$order->refresh()->net_amount)->toBeGreaterThan(0.0);
+});
+
+test('a removed follow-on gift goes back to the customer to ship with the next order', function () {
+    [$order, $gift] = pickedOrderWithGift($this->customer, $this->product);
+
+    $upcomingTransaction = StoreUpcomingTransaction::run($this->customer, [
+        'product_id'     => $this->product->id,
+        'quantity'       => 2,
+        'type'           => UpcomingTransactionTypeEnum::FOLLOW_ON,
+        'state'          => UpcomingTransactionStateEnum::APPLIED,
+        'order_id'       => $order->id,
+        'transaction_id' => $gift->id,
+    ]);
+
+    UpdateTransactionProductQuantityOrdered::make()->action($gift, ['quantity_ordered' => 0], $this->user);
+
+    $upcomingTransaction->refresh();
+
+    expect($upcomingTransaction->state)->toEqual(UpcomingTransactionStateEnum::READY)
+        ->and($upcomingTransaction->order_id)->toBeNull()
+        ->and($upcomingTransaction->transaction_id)->toBeNull();
+
+    $upcomingTransaction->delete();
+});
+
+test('a free gift removed before the order reaches the warehouse is deleted, so no empty line is sent to picking', function () {
+    [$order] = submittedOrderWithTransaction($this->customer, $this->product);
+    $gift = StoreTransaction::make()->action($order, $this->product->historicAsset, [
+        'quantity_ordered' => 0,
+        'quantity_bonus'   => 2,
+        'is_gift'          => true,
+    ], strict: false);
+
+    UpdateTransactionProductQuantityOrdered::make()->action($gift->refresh(), ['quantity_ordered' => 0], $this->user);
+
+    $deliveryNote = SendOrderToWarehouse::make()->action($order->refresh(), []);
+
+    expect(Transaction::find($gift->id))->toBeNull()
+        ->and($deliveryNote->deliveryNoteItems()->where('transaction_id', $gift->id)->exists())->toBeFalse();
 });

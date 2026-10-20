@@ -69,6 +69,7 @@ export default defineConfig({
         emptyOutDir: true,
         cssCodeSplit: false,
         sourcemap: false,
+        reportCompressedSize: false,
         target: "es2019",
         lib: {
             entry: fileURLToPath(new URL("./resources/js/chat-widget.ts", import.meta.url)),

@@ -9,6 +9,7 @@
 
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Actions\Dropshipping\CustomerSalesChannel\UI\ShowCustomerSalesChannelInFulfilment;
 use App\Actions\Fulfilment\WithFulfilmentCustomerPlatformSubNavigation;
 use App\Actions\OrgAction;
@@ -31,6 +32,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexStoredItemsInFulfilmentCustomerPlatform extends OrgAction
 {
     use WithFulfilmentCustomerPlatformSubNavigation;
+    use WithFulfilmentShopAuthorisation;
 
     private CustomerSalesChannel $customerSalesChannel;
 
@@ -128,6 +130,7 @@ class IndexStoredItemsInFulfilmentCustomerPlatform extends OrgAction
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, CustomerSalesChannel $customerSalesChannel, ActionRequest $request): LengthAwarePaginator
     {
+        abort_unless($fulfilmentCustomer->fulfilment_id === $fulfilment->id && $customerSalesChannel->customer_id === $fulfilmentCustomer->customer_id, 404);
         $this->customerSalesChannel = $customerSalesChannel;
         $this->initialisationFromFulfilment($fulfilment, $request);
 

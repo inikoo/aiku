@@ -16,8 +16,16 @@ import NavigationScope from "@/Layouts/Grp/NavigationScope.vue"
 import NavigationHorizontal from "@/Layouts/Grp/NavigationHorizontal.vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import { ctrans } from "@/Composables/useTrans"
+import { useAgentIncomingPurchaseOrders } from "@/Stores/agentIncomingPurchaseOrders"
 
 const layout = inject('layout', layoutStructure)
+
+const incomingPurchaseOrders = useAgentIncomingPurchaseOrders()
+watch(
+    () => get(layout, ['navigation', 'org', layout.currentParams?.organisation, 'agent_incoming_purchase_orders']) ? layout.currentParams.organisation : null,
+    (organisation) => incomingPurchaseOrders.watch(organisation),
+    { immediate: true }
+)
 
 onMounted(() => {
     if (typeof window !== "undefined") {
@@ -35,7 +43,7 @@ onMounted(() => {
     }
 })
 
-const bottomNavigationKeys = ['projects', 'tasks', 'tickets', 'chat']
+const bottomNavigationKeys = computed(() => layout.user?.is_engineer ? ['projects', 'devops', 'tickets', 'chat'] : ['projects', 'tasks', 'tickets', 'chat'])
 
 const navigationScroll = ref<HTMLElement | null>(null)
 const scrolledFromTop = ref(0)
@@ -198,6 +206,10 @@ const iconList: { [key: string]: string } = {
                             root="grp.org.productions.show."
                         />
                     </template>
+                </template>
+
+                <template v-else-if="itemKey == 'agent_incoming_purchase_orders'">
+                    <NavigationSimple :nav="orgNav" :navKey="itemKey" :number="incomingPurchaseOrders.count" />
                 </template>
 
                 <template v-else-if="itemKey == 'agent_warehouse_navigation'">

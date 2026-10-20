@@ -22,7 +22,8 @@ class ManufacturePayrollExport implements FromArray, WithHeadings
     public function __construct(
         protected Production $production,
         protected Carbon $from,
-        protected Carbon $to
+        protected Carbon $to,
+        protected bool $timeEditedOnly = false
     ) {
     }
 
@@ -49,6 +50,7 @@ class ManufacturePayrollExport implements FromArray, WithHeadings
             'Pay',
             'Bonus',
             'Pay type',
+            'Sessions with edited times',
         ];
     }
 
@@ -60,6 +62,7 @@ class ManufacturePayrollExport implements FromArray, WithHeadings
             ->where('manufacture_task_sessions.production_id', $this->production->id)
             ->where('manufacture_task_sessions.state', ManufactureTaskSessionStateEnum::CLOSED)
             ->whereBetween('manufacture_task_sessions.ended_at', [$this->from->startOfDay(), $this->to->endOfDay()])
+            ->when($this->timeEditedOnly, fn ($query) => $query->whereNotNull('manufacture_task_sessions.time_edited_at'))
             ->groupBy(
                 'users.id',
                 'users.username',
@@ -97,6 +100,7 @@ class ManufacturePayrollExport implements FromArray, WithHeadings
             ->selectRaw('avg(manufacture_task_sessions.units_per_hour) as avg_units_per_hour')
             ->selectRaw('sum(manufacture_task_sessions.pay) as sum_pay')
             ->selectRaw('sum(manufacture_task_sessions.bonus) as sum_bonus')
+            ->selectRaw('count(manufacture_task_sessions.time_edited_at) as number_time_edited')
             ->orderBy('users.username')
             ->orderBy('manufacture_tasks.code')
             ->get()
@@ -121,6 +125,7 @@ class ManufacturePayrollExport implements FromArray, WithHeadings
                 $row->sum_pay !== null ? round((float)$row->sum_pay, 2) : null,
                 $row->sum_bonus !== null ? round((float)$row->sum_bonus, 2) : null,
                 ArtisanPayTypeEnum::labels()[$row->artisan_pay_type->value],
+                (int)$row->number_time_edited,
             ])->all();
     }
 }

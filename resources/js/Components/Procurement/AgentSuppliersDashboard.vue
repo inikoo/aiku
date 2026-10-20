@@ -9,7 +9,7 @@ import { computed, inject, ref, watch } from "vue"
 import { Link, router } from "@inertiajs/vue3"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faPersonDolly, faClipboardList, faBullhorn, faShip, faStopwatch, faBalanceScale, faArchive, faChevronRight, faClone, faPencil, faCompressAlt, faBoxOpen, faExclamationTriangle } from "@fal"
+import { faClipboardList, faBullhorn, faShip, faStopwatch, faBalanceScale, faArchive, faChevronRight, faClone, faPencil, faCompressAlt, faBoxOpen, faExclamationTriangle } from "@fal"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 import { ctrans } from "@/Composables/useTrans"
@@ -22,7 +22,7 @@ import SuggestSupplierChangeDialog from "@/Components/Procurement/SuggestSupplie
 import AgentSupplierChangeRequests, { SupplierChangeRequestRow } from "@/Components/Procurement/AgentSupplierChangeRequests.vue"
 import AgentSupplierPacking from "@/Components/Procurement/AgentSupplierPacking.vue"
 
-library.add(faPersonDolly, faClipboardList, faBullhorn, faShip, faStopwatch, faBalanceScale, faArchive, faChevronRight, faClone, faPencil, faCompressAlt, faBoxOpen, faExclamationTriangle)
+library.add(faClipboardList, faBullhorn, faShip, faStopwatch, faBalanceScale, faArchive, faChevronRight, faClone, faPencil, faCompressAlt, faBoxOpen, faExclamationTriangle)
 
 type PerformanceRow = {
 	code: string
@@ -53,7 +53,6 @@ const props = defineProps<{
 			currencies: string[]
 		}
 		kpis: {
-			active_suppliers: { value: number; route: routeType }
 			open: { value: number; amount: number; without_eta: number; route: routeType }
 			chase: { value: number; past_eta: number; unconfirmed: number; route: routeType }
 			in_transit: { value: number; amount: number; route: routeType }
@@ -209,16 +208,6 @@ const tiles = computed(() => [
 		route: null,
 		anchor: "#issues",
 	},
-	{
-		key: "active",
-		label: ctrans("Active suppliers"),
-		information: ctrans("Suppliers of this agent marked active."),
-		icon: "fal fa-person-dolly",
-		value: number(kpis.value.active_suppliers.value),
-		detail: null,
-		tone: "neutral",
-		route: kpis.value.active_suppliers.route,
-	},
 ])
 
 const toneClasses: Record<string, string> = {
@@ -265,21 +254,21 @@ const dormantSuppliers = computed(() => props.data.cleanup.dormant.filter((suppl
 			</div>
 		</div>
 
-		<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-9">
-			<article v-for="tile in tiles" :key="tile.key" class="group flex flex-col rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition hover:border-gray-300">
+		<div class="grid grid-cols-[repeat(auto-fill,minmax(10.5rem,1fr))] gap-3">
+			<article v-for="tile in tiles" :key="tile.key" class="group flex flex-col rounded-lg border border-gray-200 bg-white px-3 py-2.5 shadow-sm transition hover:border-gray-300">
 				<component :is="tile.route ? Link : 'a'" :href="tile.route ? href(tile.route) : tile.anchor" class="block">
-					<div class="flex items-center gap-2.5">
-						<span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md" :class="toneClasses[tile.tone]">
-							<FontAwesomeIcon :icon="tile.icon" class="text-sm" fixed-width aria-hidden="true" />
+					<div class="flex items-start gap-2">
+						<span class="flex h-6 w-6 shrink-0 items-center justify-center rounded" :class="toneClasses[tile.tone]">
+							<FontAwesomeIcon :icon="tile.icon" class="text-xs" fixed-width aria-hidden="true" />
 						</span>
-						<h2 class="truncate text-sm font-semibold text-gray-600">{{ tile.label }}</h2>
-						<InformationIcon :information="tile.information" class="shrink-0 text-xs text-gray-500" @click.prevent />
+						<h2 class="min-w-0 flex-1 pt-1 text-xs font-semibold leading-tight text-gray-700">{{ tile.label }}</h2>
+						<InformationIcon :information="tile.information" class="shrink-0 pt-1 text-xs text-gray-400" @click.prevent />
 					</div>
-					<div class="mt-3 text-3xl font-semibold tracking-tight tabular-nums" :class="tile.tone === 'red' ? 'text-red-600' : 'text-gray-800'">
+					<div class="mt-1.5 whitespace-nowrap text-2xl font-semibold tracking-tight tabular-nums" :class="tile.tone === 'red' ? 'text-red-600' : 'text-gray-900'">
 						{{ tile.value }}
 					</div>
 				</component>
-				<p v-if="tile.detail" class="mt-1 text-xs leading-relaxed text-gray-500">{{ tile.detail }}</p>
+				<p v-if="tile.detail" class="mt-0.5 text-xs leading-snug text-gray-500">{{ tile.detail }}</p>
 			</article>
 		</div>
 

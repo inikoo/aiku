@@ -28,6 +28,7 @@ const props = defineProps<{
     tab?: string
     pickingSession: any
     dispatchableReturns?: any[]
+    canWork?: boolean
 }>()
 
 const isPickingLoading = ref<number | boolean>(false)
@@ -651,7 +652,7 @@ const locationRoute = (item: any) => {
                             </div>
 
                             <div class="flex gap-x-2">
-                                <template v-if="pallet.updateRoute?.name && pallet.state === 'picking'">
+                                <template v-if="canWork !== false && pallet.updateRoute?.name && pallet.state === 'picking'">
                                     <Link
                                         as="div"
                                         :href="route(pallet.updateRoute.name, pallet.updateRoute.parameters)"
@@ -693,7 +694,7 @@ const locationRoute = (item: any) => {
                                         fixed-width
                                         aria-hidden="true"
                                     />
-                                    <Link v-if="isPickingFinished()"
+                                    <Link v-if="isPickingFinished() && canWork !== false"
                                         as="div"
                                         :href="route(pallet.undoPickingRoute.name, pallet.undoPickingRoute.parameters)"
                                         method="patch"
@@ -853,7 +854,7 @@ const locationRoute = (item: any) => {
         <template #cell(actions)="{ item }">
             <div class="flex flex-col items-end gap-y-1">
                 <div class="flex gap-x-2">
-                    <template v-if="item.updateRoute?.name && item.state === 'picking'">
+                    <template v-if="canWork !== false && item.updateRoute?.name && item.state === 'picking'">
                         <Link
                             as="div"
                             :href="route(item.updateRoute.name, item.updateRoute.parameters)"
@@ -888,6 +889,7 @@ const locationRoute = (item: any) => {
                             aria-hidden="true"
                         />
                         <Link
+                            v-if="canWork !== false"
                             as="div"
                             :href="route(item.undoPickingRoute.name, item.undoPickingRoute.parameters)"
                             method="patch"
@@ -917,7 +919,7 @@ const locationRoute = (item: any) => {
                 </div>
 
                 <div v-if="isFirstReturnRow(item) && (isPickingFinished() || isPackingFinished())" class="flex justify-end gap-x-2">
-                    <template v-if="getDispatchableReturn(item)?.state === 'picking'">
+                    <template v-if="canWork !== false && getDispatchableReturn(item)?.state === 'picking'">
                         <Button
                             v-if="canRowSetAsPicked(item)"
                             icon="fas fa-save"
@@ -990,7 +992,7 @@ const locationRoute = (item: any) => {
             <div class="rounded-lg border border-gray-200 bg-white p-4">
                 <div v-if="!selectedDispatchableReturn?.isCollection" class="text-base font-semibold text-gray-800 mb-3">{{ ctrans("Shipping") }}</div>
 
-                <div v-if="selectedDispatchableReturn?.isCollection" class="border-l-4 border-indigo-300 bg-indigo-50 px-2 py-0.5">
+                <div v-if="selectedDispatchableReturn?.isCollection" class="border-l-4 border-gray-300 bg-gray-50 px-2 py-0.5">
                     {{ ctrans("For Collection: Yes") }}
                 </div>
                 <div v-else class="space-y-1 text-sm text-gray-700">
@@ -1020,7 +1022,7 @@ const locationRoute = (item: any) => {
 
             <div class="rounded-lg border border-gray-200 bg-white p-4">
                 <div class="space-y-2 text-sm">
-                    <div class="flex items-center gap-x-2 border-l-4 border-indigo-300 bg-indigo-50 px-2 py-0.5">
+                    <div class="flex items-center gap-x-2 border-l-4 border-gray-300 bg-gray-50 px-2 py-0.5">
                         <div class="text-gray-500">{{ ctrans("Picker") }}:</div>
                         <div class="font-medium text-gray-800">
                             {{ selectedDispatchableReturn?.picker?.contact_name || "-" }}
@@ -1165,7 +1167,7 @@ const locationRoute = (item: any) => {
                     :key="shipment.id"
                     @click="() => formTrackingNumber.shipping_id = shipment"
                     class="relative w-full max-w-52 h-20 border rounded-md px-5 py-3 cursor-pointer"
-                    :class="[formTrackingNumber.shipping_id?.id == shipment.id ? 'bg-indigo-200 border-indigo-300' : 'hover:bg-gray-100 border-gray-300']"
+                    :class="[formTrackingNumber.shipping_id?.id == shipment.id ? 'bg-gray-200 border-gray-400' : 'hover:bg-gray-100 border-gray-300']"
                 >
                     <div class="font-bold text-sm">{{ shipment.name }}</div>
                     <div class="text-xs text-gray-500 italic">{{ shipment.phone }}</div>

@@ -8,6 +8,7 @@
 
 namespace App\Actions\Goods\TradeUnit;
 
+use App\Actions\Traits\Authorisations\WithGoodsEditAuthorisation;
 use App\Actions\OrgAction;
 use App\Models\Goods\TradeUnit;
 use Lorisleiva\Actions\ActionRequest;
@@ -15,6 +16,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class UpdateTradeUnitTranslations extends OrgAction
 {
+    use WithGoodsEditAuthorisation;
     use asAction;
 
     public function handle(TradeUnit $tradeUnit, array $modelData): TradeUnit

@@ -12,6 +12,7 @@ use App\Enums\Production\Artisan\ArtisanPayTypeEnum;
 use App\Events\BroadcastManufactureFloorChanged;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
+use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionTimeEditReasonEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionUnderTargetReasonEnum;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Group;
@@ -59,6 +60,13 @@ use Illuminate\Support\Collection;
  * @property \Illuminate\Support\Carbon|null $under_target_reviewed_at
  * @property bool $is_combined
  * @property ArtisanPayTypeEnum $artisan_pay_type
+ * @property \Illuminate\Support\Carbon|null $original_started_at
+ * @property \Illuminate\Support\Carbon|null $original_ended_at
+ * @property ManufactureTaskSessionTimeEditReasonEnum|null $time_edit_reason
+ * @property string|null $time_edit_note
+ * @property int|null $time_edited_by
+ * @property \Illuminate\Support\Carbon|null $time_edited_at
+ * @property \Illuminate\Support\Carbon|null $left_open_after_shift_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Employee|null $employee
@@ -71,6 +79,7 @@ use Illuminate\Support\Collection;
  * @property-read \App\Models\Production\Production|null $production
  * @property-read User|null $user
  * @property-read User|null $underTargetReviewer
+ * @property-read User|null $timeEditor
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Production\ManufactureTaskSessionShare> $shares
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ManufactureTaskSession newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ManufactureTaskSession newQuery()
@@ -96,6 +105,11 @@ class ManufactureTaskSession extends Model
         'under_target_reason'      => ManufactureTaskSessionUnderTargetReasonEnum::class,
         'under_target_reviewed_at' => 'datetime',
         'artisan_pay_type'         => ArtisanPayTypeEnum::class,
+        'original_started_at'      => 'datetime',
+        'original_ended_at'        => 'datetime',
+        'time_edit_reason'         => ManufactureTaskSessionTimeEditReasonEnum::class,
+        'time_edited_at'           => 'datetime',
+        'left_open_after_shift_at' => 'datetime',
     ];
 
     /**
@@ -247,6 +261,11 @@ class ManufactureTaskSession extends Model
     public function underTargetReviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'under_target_reviewed_by');
+    }
+
+    public function timeEditor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'time_edited_by');
     }
 
     public function employee(): BelongsTo

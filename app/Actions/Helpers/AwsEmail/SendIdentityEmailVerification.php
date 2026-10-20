@@ -20,11 +20,13 @@ use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Throwable;
+use App\Actions\Traits\Authorisations\WithCommsEditAuthorisation;
 
 class SendIdentityEmailVerification extends OrgAction
 {
     use WithActionUpdate;
     use AwsClient;
+    use WithCommsEditAuthorisation;
 
     /**
      * @var \App\Models\Comms\SenderEmail|null

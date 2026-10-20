@@ -43,6 +43,7 @@ const props = defineProps<{
     draftRouteName: string
     languageRouteName: string
     routeParameters: Record<string, any>
+    canEdit?: boolean
 }>()
 
 const rowRoute = (name: string, id: number) => route(name, { ...props.routeParameters, metaMessageTemplate: id })
@@ -166,7 +167,7 @@ const save = () => {
             </template>
 
             <template #cell(actions)="{ item: template }">
-                <div class="flex items-center justify-end gap-1">
+                <div v-if="canEdit" class="flex items-center justify-end gap-1">
                     <a v-if="!template.is_draft" :href="rowRoute(languageRouteName, template.id)"
                         v-tooltip="ctrans('Add another language')"
                         class="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600">
@@ -208,6 +209,12 @@ const save = () => {
 
             <template #cell(variables)="{ item: template }">
                 <span v-if="!template.variable_count" class="text-xs text-gray-400">—</span>
+
+                <span v-else-if="!canEdit" class="text-xs text-gray-500">
+                    {{ template.merge_tags?.length
+                        ? ctrans("Auto-filled")
+                        : ctrans(":count to map", { count: template.variable_count }) }}
+                </span>
 
                 <button v-else type="button" @click="openMapping(template)"
                     class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] transition"

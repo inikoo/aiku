@@ -77,12 +77,12 @@ class StoreProductToWix extends RetinaAction
                     'errors_response' => $this->portfolioErrorResponse($mediaError)
                 ]);
 
-                UpdatePlatformPortfolioLog::dispatch($logs, [
+                UpdatePlatformPortfolioLog::run($logs, [
                     'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
                     'response' => $mediaError
                 ]);
             } elseif ($portfolio->platform_status) {
-                UpdatePlatformPortfolioLog::dispatch($logs, [
+                UpdatePlatformPortfolioLog::run($logs, [
                     'status' => PlatformPortfolioLogsStatusEnum::OK
                 ]);
             } else {
@@ -90,7 +90,7 @@ class StoreProductToWix extends RetinaAction
                     'errors_response' => $this->portfolioErrorResponse($wixProduct)
                 ]);
 
-                UpdatePlatformPortfolioLog::dispatch($logs, [
+                UpdatePlatformPortfolioLog::run($logs, [
                     'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
                     'response' => json_encode($wixProduct)
                 ]);
@@ -98,7 +98,7 @@ class StoreProductToWix extends RetinaAction
 
             return $portfolio;
         } catch (\Throwable $e) {
-            UpdatePlatformPortfolioLog::dispatch($logs, [
+            UpdatePlatformPortfolioLog::run($logs, [
                 'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
                 'response' => $e->getMessage()
             ]);

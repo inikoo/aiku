@@ -103,7 +103,10 @@ class AttachPalletsToReturn extends OrgAction
             return true;
         }
 
-        return $request->user()->authTo("fulfilment.{$this->fulfilment->id}.edit");
+        return $request->user()->authTo([
+            "fulfilment-shop.{$this->fulfilment->id}.edit",
+            "supervisor-fulfilment-shop.{$this->fulfilment->id}",
+        ]);
     }
 
     public function rules(): array

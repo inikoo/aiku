@@ -230,6 +230,8 @@ const submit = () => {
 		return
 	}
 
+	const addedCount = selectedItems.value.length
+
 	router.post(route(props.data.route.name, props.data.route.parameters), {
 		items: selectedItems.value.map(item => ({
 			purchase_order_transaction_id: item.id,
@@ -242,7 +244,7 @@ const submit = () => {
 			visible.value = false
 			notify({
 				title: ctrans("Items added"),
-				text: ctrans(":count items are in this container", { count: selectedItems.value.length }),
+				text: addedCount === 1 ? ctrans("1 item added to this container") : ctrans(":count items added to this container", { count: addedCount }),
 				type: "success",
 			})
 		},
@@ -313,7 +315,7 @@ const submit = () => {
 						<div class="text-xs text-gray-700">
 							{{ ctrans("Awaiting delivery") }}: <span class="font-medium">{{ breakdown(item, item.quantity_awaiting_delivery) }}</span>
 							<span v-if="round(item.quantity_awaiting_delivery) < round(item.quantity_ordered)" class="text-gray-500">
-								({{ ctrans("of :ordered units ordered, the rest is in other containers", { ordered: formatNumber(item.quantity_ordered) }) }})
+								({{ ctrans("of :ordered units ordered, the rest is already in a container", { ordered: formatNumber(item.quantity_ordered) }) }})
 							</span>
 						</div>
 					</div>

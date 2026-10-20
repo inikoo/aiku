@@ -46,7 +46,7 @@ use Laravel\Mcp\Server\Tool;
  * never created without its SKO: one created bare leaves an in-process twin beside the real one,
  * which is how awa ended up with ACLB-08 and ACLB-08_.
  */
-#[Description('Shows, creates or edits the records a production is set up from: artefacts (what is made), raw materials (what it is made from, with their unit cost) and manufacture tasks (the steps people record on the tablets, e.g. POUR, LABEL, PACK). Without code it lists the records of that kind (filter with search, and artefacts with family). With code and no fields it shows that record. With fields it edits the record; to create one pass create=true. A new artefact needs its SKO: pass sko with an existing SKO code, or new_sko to create the stock, its trade unit and the SKO in one go. Recipes (which steps an artefact has and the raw materials each step uses) are set with production-recipe-tool. A raw material linked to a SKO takes its unit cost from the preferred supplier, so a unit_cost set by hand on it is overwritten. Risky edits (renaming a code, a unit cost moving by more than half, discontinuing an artefact still in open job orders) are refused with warnings until called again with accept naming them, which only the user may agree to; a SKO already used by another artefact is always refused. Show the user what you will create or change and write only after they confirmed in their own words, passing their request text. Only for users enrolled to set up production through their assistant.')]
+#[Description('Shows, creates or edits the records a production is set up from: artefacts (what is made), raw materials (what it is made from, with their unit cost) and manufacture tasks (the steps people record on the tablets, e.g. POUR, LABEL, PACK). Without code it lists the records of that kind (filter with search, and artefacts with family). With code and no fields it shows that record. With fields it edits the record; to create one pass create=true. A new artefact needs its SKO: pass sko with an existing SKO code, or new_sko to create the stock, its trade unit and the SKO in one go. Recipes (which steps an artefact has and the raw materials each step uses) are set with production-recipe-tool. A raw material linked to a SKO takes its unit cost from the preferred supplier, so a unit_cost set by hand on it is overwritten. Something made in-house that goes into other recipes (a dilute, a mix) is a raw material of type intermediate on the SKO of its artefact: making the other recipe takes it out of stock, and its unit cost is the materials cost of the recipe of that artefact per unit. Risky edits (renaming a code, a unit cost moving by more than half, discontinuing an artefact still in open job orders) are refused with warnings until called again with accept naming them, which only the user may agree to; a SKO already used by another artefact is always refused for a new or edited artefact. Show the user what you will create or change and write only after they confirmed in their own words, passing their request text. Only for users enrolled to set up production through their assistant.')]
 class ProductionRecordsTool extends Tool
 {
     use WithMcpPermissions;
@@ -131,14 +131,14 @@ class ProductionRecordsTool extends Tool
             $modelData = $this->modelData($production, $kind, $fields);
 
             if ($kind === 'raw_material' && array_key_exists('unit_cost', $modelData) && ($modelData['org_stock_id'] ?? $record?->org_stock_id)) {
-                return Response::error("{$code} is linked to a SKO, so its unit cost comes from the preferred supplier and a cost set here would be overwritten. Change the supplier cost instead, or unlink the SKO (sko: null) first. Nothing was changed.");
+                return Response::error("{$code} is linked to a SKO, so its unit cost comes from the preferred supplier, or from its artefact's recipe when it is an intermediate, and a cost set here would be overwritten. Change the supplier cost or that recipe instead, or unlink the SKO (sko: null) first. Nothing was changed.");
             }
 
             if (!$record && $kind === 'artefact' && !Arr::get($modelData, 'org_stock_id') && !$request->has('new_sko')) {
                 return Response::error('A new artefact needs its SKO: pass fields.sko with an existing SKO code, or new_sko {units, name?, description?} to create the stock, trade unit and SKO with the artefact code. Nothing was changed.');
             }
 
-            if ($refusal = $this->skoTaken($production, $record, $modelData) ?? $this->unacceptedWarnings($request, $this->warnings($kind, $record, $modelData))) {
+            if ($refusal = $this->skoTaken($kind, $record, $modelData) ?? $this->unacceptedWarnings($request, $this->warnings($kind, $record, $modelData))) {
                 return $refusal;
             }
 
@@ -167,9 +167,9 @@ class ProductionRecordsTool extends Tool
      * One SKO, one artefact: a second artefact on the same SKO is how the half-made twins
      * beside ACLB-08_ came about, and stock would no longer know which recipe makes it.
      */
-    private function skoTaken(Production $production, Artefact|RawMaterial|ManufactureTask|null $record, array $modelData): ?Response
+    private function skoTaken(string $kind, Artefact|RawMaterial|ManufactureTask|null $record, array $modelData): ?Response
     {
-        if (!($record instanceof Artefact || ($record === null && array_key_exists('org_stock_id', $modelData))) || !Arr::get($modelData, 'org_stock_id')) {
+        if ($kind !== 'artefact' || !Arr::get($modelData, 'org_stock_id')) {
             return null;
         }
 

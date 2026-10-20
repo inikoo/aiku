@@ -6,6 +6,7 @@
 
 namespace App\Actions\Procurement\ProcurementNote;
 
+use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\Helpers\Media\SaveModelAttachment;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\WithAgreedTermsAuthorisation;
@@ -16,6 +17,7 @@ use App\Enums\Procurement\ProcurementNote\ProcurementNoteSeverityEnum;
 use App\Enums\Procurement\ProcurementNote\ProcurementNoteStateEnum;
 use App\Enums\Procurement\ProcurementNote\ProcurementNoteVisibilityEnum;
 use App\Models\GoodsIn\StockDelivery;
+use App\Models\Helpers\Currency;
 use App\Models\Procurement\ProcurementNote;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\Agent;
@@ -51,6 +53,11 @@ class StoreProcurementNote extends OrgAction
             $modelData['organisation_id'] = $subject->organisation_id;
         }
 
+        if (Arr::get($modelData, 'incident_amount') !== null && Arr::get($modelData, 'incident_currency_id')) {
+            $exchange                         = GetCurrencyExchange::run(Currency::find($modelData['incident_currency_id']), $subject->group->currency);
+            $modelData['grp_incident_amount'] = $exchange ? round($modelData['incident_amount'] * $exchange, 2) : null;
+        }
+
         $note = ProcurementNote::create(array_merge($modelData, [
             'group_id'       => $subject->group_id,
             'subject_type'   => $subject->getMorphClass(),
@@ -78,7 +85,8 @@ class StoreProcurementNote extends OrgAction
             return true;
         }
 
-        return $this->canWriteProcurementNotes($request->user(), $this->group, $this->documentOrganisationId ?? ($request->integer('organisation_id') ?: null));
+        return $this->canWriteProcurementNotes($request->user(), $this->group, $this->documentOrganisationId ?? ($request->integer('organisation_id') ?: null))
+            || ($request->input('category') === ProcurementNoteCategoryEnum::INCIDENT->value && $this->canReportIncidents($request->user(), $this->documentOrganisationId));
     }
 
     public function rules(): array

@@ -24,14 +24,12 @@ use App\Actions\Accounting\InvoiceCategory\UI\IndexInvoiceCategories;
 use App\Actions\Accounting\InvoiceCategory\UI\ShowInvoiceCategory;
 use App\Actions\Accounting\OrgPaymentServiceProvider\UI\IndexOrgPaymentServiceProviders;
 use App\Actions\Accounting\OrgPaymentServiceProvider\UI\ShowOrgPaymentServiceProvider;
-use App\Actions\Accounting\Payment\ExportPayments;
 use App\Actions\Accounting\Payment\ShowTopUpReceipt;
 use App\Actions\Accounting\Payment\UI\CreatePayment;
 use App\Actions\Accounting\Payment\UI\EditPayment;
 use App\Actions\Accounting\Payment\UI\IndexPaymentMethods;
 use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Accounting\Payment\UI\ShowPayment;
-use App\Actions\Accounting\PaymentAccount\ExportPaymentAccounts;
 use App\Actions\Accounting\PaymentAccount\UI\CreatePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UI\EditPaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UI\IndexCustomersInPaymentAccount;
@@ -71,7 +69,6 @@ Route::get('/providers/{orgPaymentServiceProvider}/payments/{payment}', [ShowPay
 Route::get('/accounts/{paymentAccount}/edit', EditPaymentAccount::class)->name('payment-accounts.edit');
 
 Route::get('/accounts/create', CreatePaymentAccount::class)->name('payment-accounts.create');
-Route::get('/accounts/export', ExportPaymentAccounts::class)->name('payment-accounts.export');
 Route::get('/accounts/{paymentAccount}/payments/create', [CreatePayment::class, 'inPaymentAccount'])->name('payment-accounts.show.payments.create');
 Route::get('/payments/create', CreatePayment::class)->name('payments.create');
 Route::get('/accounts', IndexPaymentAccounts::class)->name('payment-accounts.index');
@@ -84,7 +81,6 @@ Route::get('/accounts/{paymentAccount}/shops/{paymentAccountShop}/edit', EditPay
 Route::get('/accounts/{paymentAccount}/payments', [IndexPayments::class, 'inPaymentAccount'])->name('payment-accounts.show.payments.index');
 Route::get('/accounts/{paymentAccount}/payments/{payment}', [ShowPayment::class, 'inPaymentAccount'])->name('payment-accounts.show.payments.show');
 Route::get('/accounts/{paymentAccount}/payments/{payment}/edit', [EditPayment::class, 'inPaymentAccount'])->name('payment-accounts.show.payments.edit');
-Route::get('/payments/export', ExportPayments::class)->name('payments.export');
 Route::get('/payments/methods', IndexPaymentMethods::class)->name('payments.methods.index');
 Route::get('/payments', [IndexPayments::class, 'inOrganisation'])->name('payments.index');
 Route::get('/payments/{payment}', [ShowPayment::class, 'inOrganisation'])->name('payments.show');

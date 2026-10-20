@@ -70,7 +70,7 @@ class IndexPurchaseOrderOrgSupplierProducts extends OrgAction
                 'supplier_products.id as supplier_product_id',
                 'supplier_products.name',
                 DB::raw('coalesce(purchase_order_transactions.unit_cost, supplier_products.cost) as unit_cost'),
-                'supplier_products.units_per_pack',
+                DB::raw("coalesce((select nullif(packed_in, 0) from org_stocks where id = {$orgStockSub}), supplier_products.units_per_pack) as units_per_pack"),
                 'supplier_products.units_per_carton',
                 'supplier_products.minimum_carton_order',
                 'supplier_products.measured_lead_time_days',

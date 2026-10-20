@@ -78,6 +78,7 @@ use App\Actions\Dispatching\Shipment\FetchShipmentLabel;
 use App\Actions\Dispatching\Shipment\StoreShipment;
 use App\Actions\Dispatching\Shipment\UpdateShipment;
 use App\Actions\Dispatching\Shipper\Json\GetShippers;
+use App\Actions\Dispatching\Shipment\ApiCalls\CallApiDpdGbShipping;
 use App\Actions\Dispatching\Shipper\StoreShipper;
 use App\Actions\Dispatching\Shipper\UpdateShipper;
 use App\Actions\Dispatching\Trolley\AttachTrolleyToDeliveryNote;
@@ -269,6 +270,33 @@ test('update shipper', function ($createdShipper) {
 
     expect($updatedShipper->code)->toBe($arrayData['code']);
 })->depends('create shipper');
+
+test('set shipper api credentials from the command', function ($createdShipper) {
+    $originalApiSettings = $createdShipper->only(['api_shipper', 'settings']);
+
+    $this->artisan('shipper:api_credentials', ['shipper' => $createdShipper->slug, 'api_shipper' => 'dpd-gb'])
+        ->expectsQuestion('Access token (paste the value, JSON for dpd-gb)', '{"username":"u","password":"p","account":"1"}')
+        ->assertExitCode(0);
+
+    $createdShipper->refresh();
+
+    expect($createdShipper->api_shipper)->toBe('dpd-gb')
+        ->and($createdShipper->settings['access_token'])->toEqual(['username' => 'u', 'password' => 'p', 'account' => '1']);
+
+    $createdShipper->update($originalApiSettings);
+})->depends('create shipper');
+
+test('dpd gb login reads the credentials by name whatever their order', function () {
+    config(['app.sandbox.shipper_dpd_gb_token' => '{"account":"462302","password":"p","username":"u"}']);
+    Http::fake(['api.dpd.co.uk/*' => Http::response(['data' => ['geoSession' => 'session']])]);
+
+    $headers = (new CallApiDpdGbShipping())->getHeaders(new Shipper());
+
+    expect($headers['GeoSession'])->toBe('session')
+        ->and($headers['GeoClient'])->toBe('account/462302');
+    Http::assertSent(fn ($request) => $request->hasHeader('Authorization', 'Basic '.base64_encode('u:p'))
+        && $request->hasHeader('GeoClient', 'account/462302'));
+});
 
 
 test('create delivery note', function () {
@@ -1338,7 +1366,9 @@ test('UI batch code pages', function () {
         'org_stock_id' => $orgStock->id,
     ]);
 
-    get(route('grp.org.warehouses.show.inventory.batch_codes.index', [$this->organisation->slug, $this->warehouse->slug]))->assertOk();
+    get(route('grp.org.warehouses.show.inventory.batch_codes.index', [$this->organisation->slug, $this->warehouse->slug]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('data.data', fn ($rows) => collect($rows)->contains('id', $batchCode->id)));
     get(route('grp.org.warehouses.show.inventory.batch_codes.create', [$this->organisation->slug, $this->warehouse->slug]))->assertOk();
     get(route('grp.org.warehouses.show.inventory.batch_codes.show', [$this->organisation->slug, $this->warehouse->slug, $batchCode->id]))->assertOk();
 
@@ -1418,6 +1448,19 @@ test('json mini delivery note and valid for return', function () {
     $deliveryNote->updateQuietly(['collection_address_id' => $deliveryNote->shop->address_id]);
     getJson(route('grp.json.mini_delivery_note', [$deliveryNote->id]))->assertOk()->assertJsonPath('delivery_note.is_collection', true);
     get(route('grp.json.delivery_note_valid_for_return', [$this->warehouse->slug]))->assertOk();
+});
+
+test('a delivery note shipped by external on an order without a platform still opens, HELP-4089', function () {
+    $deliveryNote = makeDeliveryNote($this);
+    $deliveryNote->updateQuietly(['is_shipping_by_external' => true]);
+    $this->order->updateQuietly(['platform_id' => null]);
+
+    get(route('grp.org.warehouses.show.dispatching.delivery_notes.show', [$deliveryNote->organisation->slug, $deliveryNote->warehouse->slug, $deliveryNote->slug]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('box_stats.shipments_routes.submit_route.name', 'grp.models.delivery_note.shipment.store')->etc());
+    getJson(route('grp.json.mini_delivery_note_shipments', [$deliveryNote->id]))
+        ->assertOk()
+        ->assertJsonPath('shipment.shipments_routes.submit_route.name', 'grp.models.delivery_note.shipment.store');
 });
 
 test('UI delivery notes in customer group and org stock', function () {
@@ -1602,7 +1645,122 @@ test('dispatching an intra-EU delivery note queues the intrastat export time ser
     $deliveryNote = \App\Actions\Dispatching\DeliveryNote\UpdateState\DispatchDeliveryNote::make()->action($deliveryNote->refresh());
 
     expect($deliveryNote->state)->toBe(DeliveryNoteStateEnum::DISPATCHED);
-    Queue::assertPushed(\App\Jobs\BoundedUniqueJobDecorator::class, fn ($job) => $job->getAction() instanceof \App\Actions\Accounting\Reports\IntrastatExportTimeSeries\ProcessIntrastatExportTimeSeriesRecords);
+    Queue::assertPushed(
+        \App\Jobs\BoundedUniqueUntilProcessingJobDecorator::class,
+        fn ($job) => $job->getAction() instanceof \App\Actions\Accounting\Reports\IntrastatExportTimeSeries\ProcessIntrastatExportTimeSeriesRecords
+            && $job->delay >= \App\Actions\Accounting\Reports\IntrastatExportTimeSeries\ProcessIntrastatExportTimeSeriesRecords::DEBOUNCE_SECONDS
+    );
+    Queue::assertPushed(
+        \App\Jobs\BoundedUniqueUntilProcessingJobDecorator::class,
+        fn ($job) => $job->getAction() instanceof \App\Actions\Accounting\Reports\IntrastatImportTimeSeries\ProcessIntrastatImportTimeSeriesRecords
+            && $job->delay >= \App\Actions\Accounting\Reports\IntrastatImportTimeSeries\ProcessIntrastatImportTimeSeriesRecords::DEBOUNCE_SECONDS
+    );
+    expect(\App\Actions\Accounting\Reports\IntrastatExportTimeSeries\ProcessIntrastatExportTimeSeriesRecords::makeJob($deliveryNote->organisation_id, \App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum::DAILY, '2026-03-10', '2026-03-10'))
+        ->toBeInstanceOf(\Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing::class);
+});
+
+test('intrastat export keeps each nature of transaction on its own line, adds up the rest and rebuilds the window', function () {
+    $tariffCode = '99'.random_int(10000000, 99999999);
+    $product    = StoreProduct::make()->action($this->product->family, array_merge(
+        Product::factory()->definition(),
+        ['trade_units' => [['id' => $this->product->tradeUnits->first()->id, 'quantity' => 1]], 'price' => 10]
+    ));
+    DB::table('products')->where('id', $product->id)->update(['tariff_code' => $tariffCode]);
+
+    $country = \App\Models\Helpers\Country::whereIn('code', ['FR', 'DE'])->where('id', '!=', $this->organisation->country_id)->firstOrFail();
+    $lines   = [
+        'order'       => ['type' => DeliveryNoteTypeEnum::ORDER, 'quantity' => 10, 'revenue' => 100],
+        'replacement' => ['type' => DeliveryNoteTypeEnum::REPLACEMENT, 'quantity' => 2, 'revenue' => 20],
+        'second'      => ['type' => DeliveryNoteTypeEnum::ORDER, 'quantity' => 5, 'revenue' => 50],
+    ];
+    $taxCategoryId = null;
+    foreach ($lines as $name => $line) {
+        [$deliveryNote, $item] = finalisedDeliveryNote($this);
+        $product->orgStocks()->syncWithoutDetaching([$item->org_stock_id => ['quantity' => 1]]);
+        $taxCategoryId ??= DB::table('transactions')->where('id', $item->transaction_id)->value('tax_category_id');
+        DB::table('transactions')->where('id', $item->transaction_id)->update(['tax_category_id' => $taxCategoryId]);
+        DB::table('delivery_notes')->where('id', $deliveryNote->id)->update([
+            'state'               => DeliveryNoteStateEnum::DISPATCHED->value,
+            'type'                => $line['type']->value,
+            'dispatched_at'       => '2026-03-10 10:00:00',
+            'delivery_country_id' => $country->id,
+        ]);
+        DB::table('delivery_note_items')->where('id', $item->id)->update([
+            'quantity_dispatched'     => $line['quantity'],
+            'org_revenue_amount'      => $line['revenue'],
+            'estimated_picked_weight' => 100,
+        ]);
+        $lines[$name]['delivery_note_id'] = $deliveryNote->id;
+    }
+
+    $orderNature = $this->shop->type === \App\Enums\Catalogue\Shop\ShopTypeEnum::DROPSHIPPING ? '12' : '11';
+    $daily       = \App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum::DAILY;
+    $process     = fn (\App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum $frequency = \App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum::DAILY) => \App\Actions\Accounting\Reports\IntrastatExportTimeSeries\ProcessIntrastatExportTimeSeriesRecords::run($this->organisation->id, $frequency, '2026-03-10', '2026-03-10');
+    $lineOf      = fn (string $frequency) => DB::table('intrastat_export_time_series_records as record')
+        ->join('intrastat_export_time_series as series', 'series.id', '=', 'record.intrastat_export_time_series_id')
+        ->where('series.tariff_code', $tariffCode)
+        ->where('record.frequency', $frequency)
+        ->orderBy('series.nature_of_transaction')
+        ->get(['series.nature_of_transaction', 'record.nature_of_transaction as record_nature', 'record.delivery_note_type', 'record.quantity', 'record.value_org_currency', 'record.weight', 'record.delivery_notes_count', 'record.period'])
+        ->map(fn ($row) => (array) $row)
+        ->all();
+
+    $legacySeriesId = DB::table('intrastat_export_time_series')->insertGetId([
+        'organisation_id' => $this->organisation->id, 'tariff_code' => $tariffCode, 'country_id' => $country->id, 'tax_category_id' => $taxCategoryId,
+        'frequency' => $daily->value, 'data' => '[]', 'number_records' => 1, 'created_at' => now(), 'updated_at' => now(),
+    ]);
+    DB::table('intrastat_export_time_series_records')->insert([
+        'intrastat_export_time_series_id' => $legacySeriesId, 'organisation_id' => $this->organisation->id, 'frequency' => 'D', 'period' => '2026-03-10',
+        'from' => '2026-03-10 00:00:00', 'to' => '2026-03-10 23:59:59', 'quantity' => 12, 'nature_of_transaction' => '21',
+    ]);
+
+    $queries = 0;
+    DB::listen(function () use (&$queries) {
+        $queries++;
+    });
+    $process();
+    $queriesOfOneRun = $queries;
+
+    $expectedDaily = [
+        ['nature_of_transaction' => $orderNature, 'record_nature' => $orderNature, 'delivery_note_type' => 'order', 'quantity' => '15.00', 'value_org_currency' => '150.00', 'weight' => 200, 'delivery_notes_count' => 2, 'period' => '2026-03-10'],
+        ['nature_of_transaction' => '21', 'record_nature' => '21', 'delivery_note_type' => 'replacement', 'quantity' => '2.00', 'value_org_currency' => '20.00', 'weight' => 100, 'delivery_notes_count' => 1, 'period' => '2026-03-10'],
+    ];
+    expect($lineOf('D'))->toBe($expectedDaily)
+        ->and($queriesOfOneRun)->toBeLessThan(15)
+        ->and(DB::table('intrastat_export_time_series')->where('id', $legacySeriesId)->value('number_records'))->toBe(0);
+
+    $process(\App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum::MONTHLY);
+    expect($lineOf('M'))->toBe(array_map(fn (array $line) => [...$line, 'period' => '2026-03'], $expectedDaily));
+
+    $rowVersions = fn () => DB::table('intrastat_export_time_series_records as record')
+        ->join('intrastat_export_time_series as series', 'series.id', '=', 'record.intrastat_export_time_series_id')
+        ->where('series.tariff_code', $tariffCode)
+        ->where('record.frequency', 'D')
+        ->orderBy('record.id')
+        ->selectRaw('record.xmin::text as row_version')
+        ->pluck('row_version')
+        ->all();
+    $versionsBeforeRerun = $rowVersions();
+
+    $process();
+    expect($lineOf('D'))->toBe($expectedDaily)
+        ->and($rowVersions())->toBe($versionsBeforeRerun);
+
+    DB::table('delivery_notes')->whereIn('id', [$lines['second']['delivery_note_id'], $lines['replacement']['delivery_note_id']])->update(['state' => DeliveryNoteStateEnum::CANCELLED->value]);
+    $process();
+
+    $replacementSeries = DB::table('intrastat_export_time_series')->where('tariff_code', $tariffCode)->where('frequency', $daily->value)->where('nature_of_transaction', '21')->first();
+    expect($lineOf('D'))->toBe([[...$expectedDaily[0], 'quantity' => '10.00', 'value_org_currency' => '100.00', 'weight' => 100, 'delivery_notes_count' => 1]])
+        ->and($replacementSeries->number_records)->toBe(0)
+        ->and($replacementSeries->from)->toBeNull();
+});
+
+test('intrastat export redo works a year of dispatches at a time', function () {
+    expect(\App\Actions\Accounting\Reports\IntrastatExportTimeSeries\RedoIntrastatExportTimeSeries::make()->yearSlices('2024-11-05', '2026-02-01'))->toBe([
+        ['2024-11-05', '2024-12-31'],
+        ['2025-01-01', '2025-12-31'],
+        ['2026-01-01', '2026-02-01'],
+    ]);
 });
 
 function finalisedDeliveryNote($ctx): array
@@ -5335,6 +5493,26 @@ test('order transactions show the UN number of dangerous goods (HELP-3658)', fun
     expect(collect($row['un_numbers'])->first())->toMatchArray(['number' => '1197', 'shipping_name' => 'EXTRACTS, LIQUID']);
 });
 
+test('staff order lines show what is on the shelf of an on-demand product, not its storefront quantity (HELP-4114)', function () {
+    [$deliveryNote, $deliveryNoteItem] = handlingDeliveryNoteWithPicking($this);
+    $order       = $deliveryNote->orders->first();
+    $transaction = $order->transactions()->where('model_type', 'Product')->first();
+    $product     = $transaction->model;
+    $orgStock    = $deliveryNoteItem->orgStock;
+
+    $product->orgStocks()->sync([$orgStock->id => ['quantity' => 2]]);
+    $orgStock->update(['is_on_demand' => true, 'quantity_available' => 11]);
+    $product->update(['is_on_demand' => true, 'available_quantity' => \App\Actions\Catalogue\Product\Hydrators\ProductHydrateAvailableQuantity::ON_DEMAND_QUANTITY]);
+
+    request()->setRouteResolver(fn () => new Route('GET', 'test', []));
+    $lineFor = fn (bool $withShelfQuantity) => collect(\App\Http\Resources\Ordering\TransactionsResource::collection(
+        \App\Actions\Ordering\Transaction\UI\IndexTransactions::make()->handle($order, withShelfQuantity: $withShelfQuantity)
+    )->resolve())->firstWhere('id', $transaction->id);
+
+    expect($lineFor(true))->toMatchArray(['is_on_demand' => true, 'shelf_quantity' => 5])
+        ->and($lineFor(false)['shelf_quantity'])->toBeNull();
+});
+
 test('finishing a return only marks the still unhandled quantity as not returned (HELP-3194)', function () {
     [$deliveryNote, $deliveryNoteItem] = handlingDeliveryNoteWithPicking($this);
     $deliveryNote->update(['state' => DeliveryNoteStateEnum::DISPATCHED]);
@@ -5374,6 +5552,42 @@ test('a return that needs no action can be finished without a refund or a replac
     expect($finished->state)->toBe(\App\Enums\GoodsIn\ReturnDeliveryNote\ReturnDeliveryNoteStateEnum::DONE)
         ->and($finished->refund_id)->toBeNull()
         ->and($finished->replacement_id)->toBeNull();
+});
+
+test('finishing a return with a replacement needs a reason per replaced item and gives it to the replacement (HELP-4079)', function () {
+    [$deliveryNote, $deliveryNoteItem] = handlingDeliveryNoteWithPicking($this);
+    $deliveryNote->update(['state' => DeliveryNoteStateEnum::DISPATCHED]);
+    $deliveryNoteItem->update(['quantity_dispatched' => 2]);
+    $order = $deliveryNote->orders()->first();
+    \App\Actions\Accounting\Invoice\StoreInvoice::make()->action($order, array_merge(\App\Models\Accounting\Invoice::factory()->definition(), [
+        'billing_address' => new Address(Address::factory()->definition()),
+    ]), strict: false);
+
+    $returnDeliveryNote = \App\Actions\GoodsIn\ReturnDeliveryNote\ProcessReturnDeliveryNote::make()->handle($deliveryNote, []);
+    $returnDeliveryNote->update(['state' => \App\Enums\GoodsIn\ReturnDeliveryNote\ReturnDeliveryNoteStateEnum::RETURNED]);
+
+    request()->setUserResolver(fn () => $this->user);
+    $finishWithReason = fn (?string $reason) => \App\Actions\GoodsIn\ReturnDeliveryNote\SetDoneReturnDeliveryNote::make()->handle($returnDeliveryNote->refresh(), [
+        'createRefund'      => false,
+        'createReplacement' => true,
+        'refundedData'      => [
+            $deliveryNoteItem->transaction_id => [
+                'delivery_note_items_id' => $deliveryNoteItem->id,
+                'replaced_quantity'      => 1,
+                'reason'                 => $reason,
+            ],
+        ],
+    ]);
+
+    expect(fn () => $finishWithReason(null))->toThrow(\Illuminate\Validation\ValidationException::class)
+        ->and($returnDeliveryNote->refresh()->state)->toBe(\App\Enums\GoodsIn\ReturnDeliveryNote\ReturnDeliveryNoteStateEnum::RETURNED);
+
+    $finished = $finishWithReason(\App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemReplacementReasonEnum::DAMAGED_IN_TRANSIT->value);
+
+    expect($finished->state)->toBe(\App\Enums\GoodsIn\ReturnDeliveryNote\ReturnDeliveryNoteStateEnum::DONE)
+        ->and($finished->replacement_id)->not->toBeNull()
+        ->and(DeliveryNote::find($finished->replacement_id)->deliveryNoteItems()->first()->replacement_reason?->value)
+        ->toBe(\App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemReplacementReasonEnum::DAMAGED_IN_TRANSIT->value);
 });
 
 test('customer services finish a return from the order shop without warehouse returns permissions (HELP-3569)', function () {
@@ -6091,12 +6305,14 @@ test('EPR flow lines classify received stock deliveries and dispatched delivery 
         ->and(\App\Actions\Reports\GetUkPackagingReturn::make()->submissionPeriod(\Illuminate\Support\Carbon::parse('2026-07-01'), \Illuminate\Support\Carbon::parse('2026-12-31')))->toBe('2026-P4');
 
     $slovak = $this->organisation->replicate()->setRelation('country', \App\Models\Helpers\Country::where('code', 'SK')->firstOrFail());
-    $slovak->id = $this->organisation->id;
+    $slovak->id         = $this->organisation->id;
+    $slovak->country_id = $slovak->country->id;
     $euReturn = \App\Actions\Reports\GetEuPackagingReturn::run($slovak, \Illuminate\Support\Carbon::parse('2001-03-01'), \Illuminate\Support\Carbon::parse('2001-03-31'));
 
     expect($euReturn['scheme'])->toBe('sk')
         ->and($euReturn['rows'])->toBe([['scheme_material' => 'Sklo', 'scheme_subcategory' => null, 'sales_kg' => 2.9, 'shipment_kg' => 0.0, 'kg' => 2.9, 'previous_kg' => null, 'change' => null]])
-        ->and($euReturn['domestic_parcel_share'])->toEqual(100)
+        ->and($euReturn['domestic'])->toBeTrue()
+        ->and(array_column($euReturn['schemes'], 'value'))->toBe(['sk', 'de', 'es', 'fr', 'it'])
         ->and(\App\Actions\Reports\ExportEuPackagingReturn::make()->handle($euReturn))->toBe([['2001-03-01', '2001-03-31', 'Sklo', null, 2.9, 0.0, 2.9]])
         ->and(\App\Actions\Reports\GetEuPackagingReturn::make()->scheme($this->organisation->replicate()->setRelation('country', \App\Models\Helpers\Country::where('code', 'GB')->firstOrFail())))->toBeNull();
 
@@ -6278,6 +6494,94 @@ test('shipment packaging is reported as used and lines added by hand join the UK
         ->and($return()['lines'])->toBe([]);
 });
 
+test('distance selling scheme returns count consumer parcels, the exposure tab flags unregistered countries and a frozen return keeps its SKO lines', function () {
+    $tradeUnit = \App\Actions\Goods\TradeUnit\StoreTradeUnit::make()->action($this->group, \App\Models\Goods\TradeUnit::factory()->definition());
+    $family    = \App\Actions\Goods\Packaging\StorePackagingFamilyFromComponents::run($this->group, 'EPX-'.Str::random(6), null, [
+        ['packaging_level' => 'primary', 'name' => 'Bottle '.Str::random(6), 'material' => 'Glass', 'material_id_code' => 'GL 70', 'material_category' => 'glass', 'weight_g' => 100, 'quantity' => 1, 'quantity_per_unit' => 1],
+    ]);
+    $tradeUnit->update(['packaging_family_id' => $family->id]);
+    $orgStock = StoreOrgStock::make()->action($this->organisation, StoreStock::make()->action($this->group, Stock::factory()->definition()));
+    $orgStock->update(['code' => 'EPX'.Str::random(6)]);
+    $orgStock->tradeUnits()->sync([$tradeUnit->id => ['quantity' => 1]]);
+
+    $scheme  = $this->organisation->country->code === 'DE' ? \App\Enums\Goods\Packaging\EprSchemeEnum::FR : \App\Enums\Goods\Packaging\EprSchemeEnum::DE;
+    $foreign = \App\Models\Helpers\Country::where('code', $scheme->countryCode())->firstOrFail();
+
+    $dispatch = function (int $countryId, string $shopType, int $quantity) use ($orgStock) {
+        $deliveryNote = StoreDeliveryNote::make()->action($this->order, [
+            'reference'        => 'EPX'.Str::random(6),
+            'state'            => DeliveryNoteStateEnum::UNASSIGNED,
+            'email'            => 'test@email.com',
+            'phone'            => '+62081353890000',
+            'date'             => '2001-05-05',
+            'delivery_address' => new Address(Address::factory()->definition()),
+            'warehouse_id'     => $this->warehouse->id,
+        ]);
+        $item = StoreDeliveryNoteItem::make()->action($deliveryNote, [
+            'delivery_note_id'  => $deliveryNote->id,
+            'org_stock_id'      => $orgStock->id,
+            'transaction_id'    => $this->order->transactions()->first()->id,
+            'quantity_required' => $quantity,
+        ]);
+        $deliveryNote->update(['state' => DeliveryNoteStateEnum::DISPATCHED, 'dispatched_at' => '2001-05-05 12:00:00', 'delivery_country_id' => $countryId, 'shop_type' => $shopType]);
+        $item->update(['quantity_dispatched' => $quantity]);
+    };
+    $dispatch($foreign->id, 'dropshipping', 3);
+    $dispatch($foreign->id, 'b2b', 5);
+    $dispatch($this->organisation->country_id, 'b2b', 2);
+
+    $from = \Illuminate\Support\Carbon::parse('2001-05-01');
+    $to   = \Illuminate\Support\Carbon::parse('2001-05-31');
+    \App\Actions\Goods\Packaging\BuildEprFlowLines::run($this->organisation, $from, $to);
+
+    $return = \App\Actions\Reports\GetEuPackagingReturn::run($this->organisation, $from, $to, $scheme);
+    expect($return['scheme'])->toBe($scheme->value)
+        ->and($return['domestic'])->toBeFalse()
+        ->and($return['kg'])->toEqual(0.3)
+        ->and($return['trade_kg'])->toEqual(0.5)
+        ->and($return['units'])->toEqual(3)
+        ->and($return['rows'][0]['scheme_material'])->toBe(\App\Models\Goods\EprMaterialMapping::resolve($scheme, \App\Enums\Goods\Packaging\PackagingMaterialCategoryEnum::GLASS)->scheme_material)
+        ->and(\App\Models\Goods\EprMaterialMapping::resolve(\App\Enums\Goods\Packaging\EprSchemeEnum::IT, \App\Enums\Goods\Packaging\PackagingMaterialCategoryEnum::PLASTIC, \App\Enums\Goods\Packaging\PackagingPolymerEnum::BIO)->scheme_material)->toBe('Plastica biodegradabile e compostabile');
+
+    $exposure = fn () => \App\Actions\Reports\GetEprExposure::run($this->organisation->refresh(), $from, $to);
+    $abroad   = fn () => collect($exposure()['countries'])->firstWhere('code', $foreign->code);
+
+    expect($exposure()['countries'][0]['own'])->toBeTrue()
+        ->and($exposure()['countries'][0]['kg'])->toEqual(0.2)
+        ->and($abroad())->toMatchArray(['consumer_kg' => 0.3, 'trade_kg' => 0.5, 'kg' => 0.8, 'has_scheme' => true, 'unregistered' => true, 'months' => ['2001-05' => 0.8]])
+        ->and($exposure()['abroad_consumer_kg'])->toEqual(0.3);
+
+    $this->post(route('grp.models.epr_registration.update', $this->organisation->id), ['country_code' => $foreign->code, 'registration_number' => 'DE123', 'scheme_operator' => 'Op'])
+        ->assertRedirect()->assertSessionHasNoErrors();
+    $this->post(route('grp.models.epr_registration.update', $this->organisation->id), ['country_code' => 'US', 'registration_number' => 'X'])->assertSessionHasErrors('country_code');
+    expect($abroad()['unregistered'])->toBeFalse()
+        ->and($abroad()['registration']['registration_number'])->toBe('DE123');
+
+    $this->post(route('grp.models.epr_snapshot.store', $this->organisation->id), ['scheme' => $scheme->value, 'date_from' => '2001-05-01', 'date_to' => '2001-05-31', 'notes' => 'Submitted'])
+        ->assertRedirect()->assertSessionHasNoErrors();
+    $snapshot = \App\Models\Goods\EprSnapshot::where('organisation_id', $this->organisation->id)->latest('id')->firstOrFail();
+
+    expect((float)$snapshot->kg)->toBe(0.3)
+        ->and($snapshot->lines()->orderBy('channel')->get()->map(fn ($line) => [$line->channel, $line->org_stock_code, (float)$line->weight_g, (float)$line->units, (float)$line->kg])->all())
+        ->toBe([['consumer', $orgStock->code, 100.0, 3.0, 0.3], ['trade', $orgStock->code, 100.0, 5.0, 0.5]]);
+
+    $family->components()->first()->update(['weight_g' => 999]);
+    expect($this->get(route('grp.org.reports.packaging.snapshot', [$this->organisation->slug, $snapshot->id, 'part' => 'return']))->assertOk()->streamedContent())
+        ->toContain('2001-05-01,2001-05-31,')
+        ->toContain(',0.3,0,0.3')
+        ->and($this->get(route('grp.org.reports.packaging.snapshot', [$this->organisation->slug, $snapshot->id]))->assertOk()->streamedContent())
+        ->toStartWith(implode(',', \App\Actions\Reports\ExportEprSnapshot::LINE_COLUMNS))
+        ->toContain($orgStock->code.',');
+
+    $this->get(route('grp.org.reports.packaging', [$this->organisation->slug, 'tab' => 'snapshots']))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('snapshots.0.id', $snapshot->id)
+            ->where('snapshots.0.notes', 'Submitted')
+            ->where('snapshots.0.lines', 2));
+    $this->get(route('grp.org.reports.packaging', [$this->organisation->slug, 'tab' => 'eu_return', 'scheme' => $scheme->value, 'from' => '2001-05-01', 'to' => '2001-05-31']))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('scheme', $scheme->value)->where('eu_return.trade_kg', 5));
+});
+
 test('a picking session is closed to staff without dispatching or fulfilment in its warehouse', function () {
     [$deliveryNote] = handlingDeliveryNoteWithPicking($this);
     $deliveryNote->update(['state' => DeliveryNoteStateEnum::UNASSIGNED]);
@@ -6378,6 +6682,53 @@ test('picking and packing are warehouse work, the order page shipment and dispat
     }
 });
 
+test('a picking session tells its page whether the user can work the warehouse, INI-076', function (PickingSession $pickingSession) {
+    $url = route('grp.org.warehouses.show.dispatching.picking_sessions.show', [$this->organisation->slug, $this->warehouse->slug, $pickingSession->slug]);
+
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ["dispatching.{$this->warehouse->id}.view"]);
+        $this->get($url)->assertInertia(fn (AssertableInertia $page) => $page->where('can_work', false));
+
+        $this->user->syncPermissions([]);
+        actingAsUserWithRoles($this->user, [RolesEnum::getRoleName(RolesEnum::DISPATCH_CLERK->value, $this->warehouse)]);
+        $this->get($url)->assertInertia(fn (AssertableInertia $page) => $page->where('can_work', true));
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
+})->depends('store picking session');
+
+test('a dispatch clerk packs a delivery note item of their warehouse, and a dispatching viewer is told why the delivery note is read only, INI-076', function () {
+    [$deliveryNote, $item] = handlingDeliveryNoteWithPicking($this, 4);
+    $page                  = fn () => $this->get(route('grp.org.warehouses.show.dispatching.delivery_notes.show', [$this->organisation->slug, $this->warehouse->slug, $deliveryNote->slug]));
+
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ["dispatching.{$this->warehouse->id}.view"]);
+        $page()->assertInertia(fn (AssertableInertia $inertia) => $inertia->whereType('read_only_notice', 'string'));
+
+        $this->user->syncPermissions([]);
+        actingAsUserWithRoles($this->user, [RolesEnum::getRoleName(RolesEnum::DISPATCH_CLERK->value, $this->warehouse)]);
+        $page()->assertInertia(fn (AssertableInertia $inertia) => $inertia->where('read_only_notice', null));
+        $this->patch(route('grp.models.delivery_note_item.packing.store', $item->id), ['packer_user_id' => $this->user->id, 'quantity' => 4])
+            ->assertSessionHasNoErrors();
+
+        expect((float) $item->refresh()->quantity_packed)->toBe(4.0);
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
+});
+
 test('an insert prints from the browser as an A6 PDF and counts as printed, HELP-3891', function () {
     [$deliveryNote] = handlingDeliveryNoteWithPicking($this);
     $leaflet        = \App\Models\Dispatching\DeliveryNoteLeaflet::create([
@@ -6411,5 +6762,250 @@ test('an insert prints from the browser as an A6 PDF and counts as printed, HELP
         $this->user->syncPermissions($originalPermissions);
         actingAsUserWithRoles($this->user, $originalRoles);
         \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
+});
+
+test('boxes and shippers need dispatching edit in the organisation and batch codes its stock edit, INI-076', function () {
+    $organisation = $this->warehouse->organisation;
+    $warehouse    = $this->warehouse;
+    $user         = $this->adminGuest->getUser();
+
+    $originalRoles       = $user->roles->pluck('name')->toArray();
+    $originalPermissions = $user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($user, ["dispatching.$warehouse->id.view", "inventory.$organisation->id.view"]);
+        $this->post(route('grp.models.org.boxes.store', $organisation->id), [])->assertForbidden();
+        $this->post(route('grp.models.shipper.store', $organisation->id), [])->assertForbidden();
+        $this->post(route('grp.models.warehouse.batch_code.store', $warehouse->id), [])->assertForbidden();
+        $this->post(route('grp.models.warehouse.batch_codes.upload', $warehouse->id), [])->assertForbidden();
+        $this->get(route('grp.org.warehouses.show.dispatching.boxes.create', [$organisation->slug, $warehouse->slug]))->assertForbidden();
+        $this->get(route('grp.org.warehouses.show.inventory.batch_codes.create', [$organisation->slug, $warehouse->slug]))->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($user, ["dispatching.$warehouse->id.edit"]);
+        expect($this->post(route('grp.models.org.boxes.store', $organisation->id), [])->status())->not->toBe(403);
+        $this->post(route('grp.models.warehouse.batch_code.store', $warehouse->id), [])->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($user, ["stocks.$warehouse->id.edit"]);
+        expect($this->post(route('grp.models.warehouse.batch_code.store', $warehouse->id), [])->status())->not->toBe(403);
+        $this->post(route('grp.models.shipper.store', $organisation->id), [])->assertForbidden();
+    } finally {
+        setPermissionsTeamId($user->group_id);
+        $user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($user, $originalRoles);
+    }
+
+    expect(\Illuminate\Support\Facades\Route::has('grp.models.order.state.dispatched'))->toBeFalse();
+});
+
+test('order returns are received only by incoming editors or returns staff of the return warehouse', function () {
+    $orderReturn = \App\Models\GoodsIn\OrderReturn::create([
+        'group_id'        => $this->order->group_id,
+        'organisation_id' => $this->order->organisation_id,
+        'shop_id'         => $this->order->shop_id,
+        'customer_id'     => $this->order->customer_id,
+        'warehouse_id'    => $this->warehouse->id,
+        'reference'       => 'perm-'.Str::random(8),
+        'date'            => now(),
+        'state'           => \App\Enums\GoodsIn\Return\ReturnStateEnum::WAITING_TO_RECEIVE,
+    ]);
+    $warehouseId = $orderReturn->warehouse_id;
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+    actingAsUserWithOnlyPermissions($user, ["incoming.$warehouseId.view"]);
+
+    \Pest\Laravel\patch(route('grp.models.return.receive', ['return' => $orderReturn->id]))->assertForbidden();
+
+    expect($orderReturn->refresh()->state)->toBe(\App\Enums\GoodsIn\Return\ReturnStateEnum::WAITING_TO_RECEIVE);
+
+    actingAsUserWithOnlyPermissions($user, ["returns.$warehouseId"]);
+
+    \Pest\Laravel\patch(route('grp.models.return.receive', ['return' => $orderReturn->id]))->assertSessionHasNoErrors();
+
+    expect($orderReturn->refresh()->state)->toBe(\App\Enums\GoodsIn\Return\ReturnStateEnum::RECEIVED);
+});
+
+test('mini delivery note and returnable delivery notes json refuse staff without the warehouse rule', function () {
+    $deliveryNote = makeDeliveryNote($this);
+    $warehouse    = $deliveryNote->warehouse;
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["products.{$this->shop->id}.view"]);
+    getJson(route('grp.json.mini_delivery_note', $deliveryNote->id))->assertForbidden();
+    getJson(route('grp.json.mini_delivery_note_shipments', $deliveryNote->id))->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["dispatching.$warehouse->id.view"]);
+    getJson(route('grp.json.mini_delivery_note', $deliveryNote->id))->assertOk();
+    getJson(route('grp.json.mini_delivery_note_shipments', $deliveryNote->id))->assertOk();
+    getJson(route('grp.json.delivery_note_valid_for_return', $warehouse))->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["returns.$warehouse->id"]);
+    getJson(route('grp.json.delivery_note_valid_for_return', $warehouse))->assertOk();
+});
+
+test('dispatching json lookups refuse staff without warehouse or shop rights, INI-076', function () {
+    $organisation = $this->organisation;
+    $warehouse    = $this->warehouse;
+    expect($warehouse->organisation_id)->toBe($organisation->id)
+        ->and($this->shop->organisation_id)->toBe($organisation->id);
+
+    [$deliveryNote, $item] = handlingDeliveryNoteWithPicking($this);
+    $deliveryNote->update(['state' => DeliveryNoteStateEnum::UNASSIGNED]);
+    $pickingSession = StorePickingSession::make()->handle($warehouse, [
+        'delivery_notes' => [$deliveryNote->id],
+        'user_id'        => $this->user->id,
+    ]);
+
+    $orgData = \App\Models\SysAdmin\Organisation::factory()->definition();
+    data_set($orgData, 'code', 'acm2');
+    data_set($orgData, 'type', \App\Enums\SysAdmin\Organisation\OrganisationTypeEnum::SHOP);
+    $otherOrganisation = \App\Models\SysAdmin\Organisation::where('code', 'acm2')->first()
+        ?? \App\Actions\SysAdmin\Organisation\StoreOrganisation::make()->action($this->group, $orgData);
+    $otherOrgStock = \App\Models\Inventory\OrgStock::where('organisation_id', $otherOrganisation->id)->where('stock_id', $item->orgStock->stock_id)->first()
+        ?? StoreOrgStock::make()->action($otherOrganisation, $item->orgStock->stock);
+
+    $deliveryNoteItemRoutes = [
+        route('grp.json.delivery_note_item_row', $item->id),
+        route('grp.json.fetch_single_delivery_note_item', $item->id),
+        route('grp.json.fetch_single_delivery_note_item.image', $item->id),
+    ];
+    $equipmentRoutes = [
+        route('grp.json.available_trolleys.list', $warehouse),
+        route('grp.json.unavailable_trolleys.list', $warehouse),
+        route('grp.json.picked_bays.list', $warehouse),
+    ];
+    $pickingSessionRoutes = [
+        route('grp.json.picking_session_item_row', [$pickingSession->id, 'tab' => 'items', 'row_id' => $item->id]),
+        route('grp.json.picking_session.delivery_notes.index', $pickingSession->id),
+    ];
+    $organisationRoutes = [
+        route('grp.json.employees.picker_users', $organisation),
+        route('grp.json.employees.packers', $organisation),
+        route('grp.json.shippers.index', $organisation),
+    ];
+    $batchCodesRoute = route('grp.json.org_stock.batch_codes.index', [$organisation->id, $item->org_stock_id]);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["products.$item->shop_id.view"]);
+    foreach ([...$deliveryNoteItemRoutes, ...$equipmentRoutes, ...$organisationRoutes, $batchCodesRoute] as $url) {
+        getJson($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["orders.$item->shop_id.view"]);
+    foreach ($deliveryNoteItemRoutes as $url) {
+        getJson($url)->assertOk();
+    }
+    foreach ($pickingSessionRoutes as $url) {
+        getJson($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["dispatching.$deliveryNote->warehouse_id.view"]);
+    foreach ([...$deliveryNoteItemRoutes, ...$pickingSessionRoutes, ...$organisationRoutes] as $url) {
+        getJson($url)->assertOk();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["locations.$warehouse->id.view"]);
+    foreach ($equipmentRoutes as $url) {
+        getJson($url)->assertOk();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["orders.{$this->shop->id}.edit"]);
+    getJson(route('grp.json.shippers.index', $organisation))->assertOk();
+    getJson(route('grp.json.employees.packers', $organisation))->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["stocks.$warehouse->id.view"]);
+    getJson($batchCodesRoute)->assertOk();
+    getJson(route('grp.json.org_stock.batch_codes.index', [$organisation->id, $otherOrgStock->id]))->assertNotFound();
+
+    actingAsUserWithOnlyPermissions($user, ["returns.$warehouse->id"]);
+    foreach ([...$deliveryNoteItemRoutes, ...$organisationRoutes, $batchCodesRoute] as $url) {
+        getJson($url)->assertOk();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["org-admin.$organisation->id"]);
+    foreach ([...$deliveryNoteItemRoutes, ...$equipmentRoutes, ...$organisationRoutes, $batchCodesRoute] as $url) {
+        getJson($url)->assertOk();
+    }
+});
+
+test('delivery note page, its pdfs and the proforma invoice answer only warehouse, order or crm staff, INI-076', function () {
+    $deliveryNote = makeDeliveryNote($this);
+    $order        = $this->order;
+
+    $warehousePage = route('grp.org.warehouses.show.dispatching.delivery_notes.show', [$deliveryNote->organisation->slug, $deliveryNote->warehouse->slug, $deliveryNote->slug]);
+    $shopPage      = route('grp.org.shops.show.ordering.delivery-notes.show', [$deliveryNote->organisation->slug, $deliveryNote->shop->slug, $deliveryNote->slug]);
+    $pdfs          = [
+        route('grp.pdfs.delivery-notes', $deliveryNote->slug),
+        route('grp.pdfs.packing-lists', $deliveryNote->slug),
+        route('grp.pdfs.order-gift-message', $order->slug),
+    ];
+    $proforma = route('grp.org.shops.show.ordering.proforma_invoice.download', [$order->organisation->slug, $order->shop->slug, $order->slug]);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["products.$deliveryNote->shop_id.view"]);
+    foreach ([$warehousePage, $shopPage, ...$pdfs, $proforma] as $url) {
+        get($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["dispatching.$deliveryNote->warehouse_id.view"]);
+    foreach ([$warehousePage, ...$pdfs] as $url) {
+        get($url)->assertOk();
+    }
+    get($proforma)->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["orders.$deliveryNote->shop_id.view"]);
+    foreach ([$warehousePage, $shopPage, ...$pdfs, $proforma] as $url) {
+        get($url)->assertOk();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["accounting.$deliveryNote->organisation_id.view"]);
+    foreach ([$warehousePage, $shopPage, ...$pdfs, $proforma] as $url) {
+        get($url)->assertOk();
+    }
+
+    $otherShop = \App\Models\Catalogue\Shop::where('organisation_id', $deliveryNote->organisation_id)->where('id', '!=', $deliveryNote->shop_id)->first()
+        ?? \App\Actions\Catalogue\Shop\StoreShop::run($deliveryNote->organisation, \App\Models\Catalogue\Shop::factory()->definition());
+    get(route('grp.org.shops.show.ordering.delivery-notes.show', [$deliveryNote->organisation->slug, $otherShop->slug, $deliveryNote->slug]))->assertNotFound();
+    get(route('grp.org.shops.show.ordering.proforma_invoice.download', [$order->organisation->slug, $otherShop->slug, $order->slug]))->assertNotFound();
+});
+
+test('shippers lists answer dispatching staff of the warehouse and the locations download its location staff, INI-076', function () {
+    $params    = ['organisation' => $this->organisation->slug, 'warehouse' => $this->warehouse->slug];
+    $shippers  = [
+        route('grp.org.warehouses.show.dispatching.shippers.current.index', $params),
+        route('grp.org.warehouses.show.dispatching.shippers.inactive.index', $params),
+    ];
+    $locations = route('grp.org.warehouses.locations.download', [...$params, 'columns' => 'code']);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["human-resources.{$this->organisation->id}.view"]);
+    foreach ([...$shippers, $locations] as $url) {
+        get($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["dispatching.{$this->warehouse->id}.view"]);
+    foreach ($shippers as $url) {
+        get($url)->assertOk();
+    }
+    get($locations)->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["locations.{$this->warehouse->id}.view"]);
+    get($locations)->assertOk();
+});
+
+test('the boxes list answers dispatching staff of the organisation, INI-076', function () {
+    $url  = route('grp.org.warehouses.show.dispatching.boxes.index', [$this->organisation->slug, $this->warehouse->slug]);
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["human-resources.{$this->organisation->id}.view"]);
+    get($url)->assertForbidden();
+
+    foreach (["dispatching.{$this->warehouse->id}.view", "warehouses-view.{$this->organisation->id}"] as $permission) {
+        actingAsUserWithOnlyPermissions($user, [$permission]);
+        get($url)->assertOk();
     }
 });

@@ -69,7 +69,9 @@ Sie können auch Produkte in der Liste anhaken. Darüber erscheinen Schaltfläch
 
 Verkaufen Sie unsere Produkte bereits in Shopify, geben Sie jedem Shopify-Produkt (oder jeder Variante) vor dem Abgleich denselben SKU wie unseren Produktcode. Nutzen Sie dann <b>Match all with default product</b>. Dies verknüpft Ihre bestehenden Listings, ohne neue anzulegen.
 
-Verkaufen Sie mehrere unserer Produkte als Varianten eines Shopify-Produkts, zum Beispiel ein Produkt mit einer Variante pro Farbe, muss jede Variante ihre eigene SKU haben. Kontaktieren Sie uns im Chat auf unserer Website und bitten Sie darum, die Verknüpfung mit bestehenden Varianten für Ihren Kanal zu aktivieren. Sie können dies nicht selbst einschalten. Danach verknüpft der Abgleich jedes Produkt mit der Variante mit seiner SKU, und wir ändern nie Preis, SKU oder Barcode Ihrer Varianten.
+Verkaufen Sie mehrere unserer Produkte als Varianten eines Shopify-Produkts, zum Beispiel ein Produkt mit einer Variante pro Farbe, geben Sie jeder Variante die SKU ihres Produkts. Sie müssen nichts aktivieren: Der Abgleich verknüpft jedes Produkt mit der Variante mit seiner SKU, und wir ändern nie Preis, SKU oder Barcode Ihrer Varianten. Jede dieser Varianten darf nur am Standort <b>aiku-</b> geführt werden. Entfernen Sie in Shopify jeden anderen Standort von ihr, auch einen mit Bestand 0, sonst wird der Abgleich abgelehnt, weil Shopify ihre Bestellungen dorthin senden könnte und sie uns nie erreichen würden.
+
+Ein Shopify-Produkt mit nur einer Variante wird nicht auf diese Weise verknüpft: Der Abgleich ersetzt seine Variante durch unsere. Siehe [What happens to your product descriptions](/docs/product-descriptions-after-connecting).
 
 ## Produkte in der Liste finden
 
@@ -102,9 +104,9 @@ Um zu sehen, was bei jedem Upload passiert ist, öffnen Sie den Tab <b>Logs</b> 
 
 **"No variant on Shopify matches this sku".** Das Produkt ist verknüpft, aber wir finden seine SKU in Shopify nicht mehr. Die SKU wurde geändert, oder das Produkt oder die Variante wurde in Shopify gelöscht. Setzen Sie die SKU zurück, oder verknüpfen Sie das Produkt erneut mit <b>Connect with other product</b>.
 
-**"You need to add option values for Colour"** (oder eine andere Option). Sie haben mit einem Shopify-Produkt verknüpft, das Optionen wie Farben hat. Geben Sie jeder Variante ihre eigene SKU und kontaktieren Sie uns im Chat auf unserer Website, um die Verknüpfung mit bestehenden Varianten zu aktivieren, oder verknüpfen Sie mit einem Produkt ohne Optionen.
+**"You need to add option values for Colour"** (oder eine andere Option). Sie haben mit einem Shopify-Produkt verknüpft, das Optionen wie Farben hat, und keine seiner Varianten trägt unsere SKU. Geben Sie der Variante die SKU unseres Produkts und verknüpfen Sie erneut, oder verknüpfen Sie mit einem Produkt ohne Optionen.
 
-**"None of the variants of this Shopify product has the sku ...".** Die Verknüpfung mit Varianten ist aktiviert, aber keine Variante trägt unsere SKU. Setzen Sie die SKU an der gewünschten Variante und verknüpfen Sie erneut.
+**"This Shopify variant is also stocked at your location ...".** Die Variante wird auch an einem Ihrer eigenen Standorte geführt, daher könnte Shopify ihre Bestellungen dorthin senden und wir würden sie nie erhalten. Entfernen Sie diesen Standort in Shopify von der Variante, auch wenn er 0 anzeigt, und verknüpfen Sie erneut.
 
 **"More than one variant of this Shopify product has the sku ...".** Zwei Varianten haben dieselbe SKU. Geben Sie jeder Variante ihre eigene SKU.
 

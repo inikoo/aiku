@@ -8,15 +8,18 @@
 
 namespace App\Actions\Dropshipping\WooCommerce\Product;
 
+use App\Actions\Traits\Authorisations\WithCustomerSalesChannelEditAuthorisation;
 use App\Actions\OrgAction;
 use App\Models\Dropshipping\CustomerSalesChannel;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StoreBulkNewProductToCurrentWooCommerce extends OrgAction
 {
+    use WithCustomerSalesChannelEditAuthorisation;
     use AsAction;
     use WithAttributes;
 
@@ -46,7 +49,25 @@ class StoreBulkNewProductToCurrentWooCommerce extends OrgAction
         ];
 
         foreach ($portfolios->values()->chunk(100) as $portfolioChunk) {
-            StoreBulkDispatchProductToCurrentWooCommerce::dispatch($customerSalesChannel, $portfolioChunk, $bulkProgress, $portfolioChunk->keys()->first());
+            StoreBulkDispatchProductToCurrentWooCommerce::dispatch($customerSalesChannel, $portfolioChunk, $bulkProgress);
         }
+    }
+
+    public function rules(): array
+    {
+        return [
+            'portfolios'   => ['required', 'array'],
+            'portfolios.*' => ['required', 'integer'],
+        ];
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function asController(CustomerSalesChannel $customerSalesChannel, ActionRequest $request): void
+    {
+        $this->initialisation($customerSalesChannel->organisation, $request);
+
+        $this->handle($customerSalesChannel, $this->validatedData);
     }
 }

@@ -31,6 +31,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $is_premium_dispatch
  * @property mixed $has_extra_packing
  * @property mixed $has_insurance
+ * @property mixed $refunded_amount
  */
 class RetinaDropshippingOrdersInCustomerSalesChannelResources extends JsonResource
 {
@@ -65,6 +66,7 @@ class RetinaDropshippingOrdersInCustomerSalesChannelResources extends JsonResour
             'total_amount'             => $this->total_amount,
             'payment_amount'           => $this->payment_amount,
             'is_fully_paid'            => $this->total_amount == $this->payment_amount,
+            'amount_to_pay'            => round($this->total_amount + $this->refunded_amount - $this->payment_amount, 2),
             'number_item_transactions' => $this->number_item_transactions,
             'client_ulid'              => $this->client_ulid,
             'has_modified'             => $this->has_modified,

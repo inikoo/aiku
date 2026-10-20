@@ -9,11 +9,57 @@
 namespace App\Exports\Marketing;
 
 use App\Helpers\NaturalLanguage;
+use Generator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 trait DataFeedsMapping
 {
+    /**
+     * The product columns map() reads; the feed queries select only these
+     */
+    public const array DATA_FEED_PRODUCT_COLUMNS = [
+        'products.id',
+        'products.state',
+        'products.code',
+        'products.barcode',
+        'products.cpnp_number',
+        'products.price',
+        'products.units',
+        'products.unit',
+        'products.name',
+        'products.rrp',
+        'products.marketing_weight',
+        'products.gross_weight',
+        'products.marketing_dimensions',
+        'products.marketing_ingredients',
+        'products.description_title',
+        'products.description',
+        'products.description_extra',
+        'products.country_of_origin',
+        'products.tariff_code',
+        'products.duty_rate',
+        'products.hts_us',
+        'products.web_images',
+        'products.updated_at',
+        'products.available_quantity_updated_at',
+        'products.price_updated_at',
+        'products.images_updated_at',
+        'products.available_quantity',
+        'products.is_for_sale',
+        'products.is_bundle',
+    ];
+
+    /**
+     * Pages by id instead of the offset paging FromQuery uses, which rescans every earlier page
+     */
+    public function generator(): Generator
+    {
+        foreach ($this->query()->lazyById(1000, 'products.id', 'id') as $row) {
+            yield $row;
+        }
+    }
+
     public function map($row): array
     {
         $dimensions      = NaturalLanguage::make()->dimensions($row->marketing_dimensions);

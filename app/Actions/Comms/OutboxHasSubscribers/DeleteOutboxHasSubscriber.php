@@ -15,12 +15,13 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\OutBoxHasSubscriber;
-use App\Models\Inventory\Warehouse;
 use Lorisleiva\Actions\ActionRequest;
+use App\Actions\Traits\Authorisations\WithCommsEditAuthorisation;
 
 class DeleteOutboxHasSubscriber extends OrgAction
 {
     use WithNoStrictRules;
+    use WithCommsEditAuthorisation;
 
     /**
      * @throws \Throwable
@@ -30,18 +31,9 @@ class DeleteOutboxHasSubscriber extends OrgAction
         $outBoxHasSubscriber->delete();
     }
 
-    // public function authorize(ActionRequest $request): bool
-    // {
-    //     if ($this->asAction) {
-    //         return true;
-    //     }
-
-    //     return $request->user()->authTo("locations.{$this->warehouse->id}.edit");
-    // }
-
     public function asController(Outbox $outbox, OutBoxHasSubscriber $outBoxHasSubscriber, ActionRequest $request): void
     {
-        $this->outbox = $outbox;
+        abort_unless($outBoxHasSubscriber->outbox_id === $outbox->id, 404);
         $this->initialisationFromShop($outbox->shop, $request);
 
         $this->handle($outBoxHasSubscriber);

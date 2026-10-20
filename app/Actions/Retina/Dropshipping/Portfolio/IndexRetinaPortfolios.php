@@ -9,7 +9,6 @@
 namespace App\Actions\Retina\Dropshipping\Portfolio;
 
 use App\Actions\Dropshipping\Portfolio\Logs\IndexPlatformPortfolioLogs;
-use App\Actions\Dropshipping\Shopify\Product\AdoptShopifyProductVariant;
 use App\Actions\Retina\Dropshipping\Bundle\UI\IndexRetinaBundles;
 use App\Actions\Retina\Platform\ShowRetinaCustomerSalesChannelDashboard;
 use App\Actions\RetinaAction;
@@ -669,7 +668,6 @@ class IndexRetinaPortfolios extends RetinaAction
 
 
                 'is_platform_connected'                                     => $this->customerSalesChannel->platform_status,
-                'shopify_links_existing_variants'                           => AdoptShopifyProductVariant::isEnabledFor($this->customerSalesChannel),
                 'customer_sales_channel'                                    => RetinaCustomerSalesChannelResource::make($this->customerSalesChannel)->toArray(request()),
                 'channels'                                                  => CustomerSalesChannelsResourceTOFIX::collection($channels), //  Do now use the resource. Use an array of necessary data
                 'download_portfolio_customer_sales_channel_url'             => $last_active_download_portfolio_customer_sales_channel_url,

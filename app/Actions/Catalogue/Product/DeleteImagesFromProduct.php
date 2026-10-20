@@ -56,7 +56,7 @@ class DeleteImagesFromProduct extends OrgAction
 
     public function asController(Product $product, Media $media, ActionRequest $request): void
     {
-        $this->initialisation($product->organisation, $request);
+        $this->initialisationFromShop($product->shop, $request);
         $this->handle($product, $media);
     }
 }

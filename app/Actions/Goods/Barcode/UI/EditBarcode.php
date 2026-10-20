@@ -20,6 +20,11 @@ use Lorisleiva\Actions\ActionRequest;
 
 class EditBarcode extends OrgAction
 {
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->authTo('goods.edit');
+    }
+
     public function asController(Barcode $barcode, ActionRequest $request): Barcode
     {
         $this->initialisationFromGroup(group(), $request);
