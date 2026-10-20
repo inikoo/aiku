@@ -1512,7 +1512,7 @@ test('the stock push stores each product log with its outcome in one insert, sta
     expect($statementsLike('insert into "platform_portfolio_logs"'))->toBe(1)
         ->and($statementsLike('update "platform_portfolio_logs"'))->toBe(0)
         ->and($statementsLike('update "portfolios" set "stock_last_fail_updated_at"'))->toBe(1)
-        ->and($statementsLike('update "portfolios" set "last_stock_value"'))->toBe(2)
+        ->and($statementsLike('update "portfolios" set "last_stock_value"'))->toBe(1)
         ->and($statementsLike('select * from "customer_sales_channels"'))->toBe(1)
         ->and($statementsLike('select * from "platforms"'))->toBe(1);
 
