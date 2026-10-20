@@ -90,6 +90,7 @@ use Inertia\Testing\AssertableInertia;
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 use function Pest\Laravel\getJson;
+use function Pest\Laravel\patch;
 
 uses()->group('ui');
 
@@ -2462,3 +2463,27 @@ test('UI show refund', function (Invoice $refund) {
             ->has('breadcrumbs', 4);
     });
 })->depends('UI create refund');
+
+test('a pallet only offers Move to people who can edit its warehouse locations, and the move is refused for others', function () {
+    $pallet = $this->pallet->fresh();
+    expect($pallet->warehouse_id)->not->toBeNull();
+
+    $admin   = $this->adminGuest->getUser();
+    $viewer  = \App\Actions\SysAdmin\Guest\StoreGuest::make()->action($this->organisation->group, [...\App\Models\SysAdmin\Guest::factory()->definition(), 'positions' => []])->getUser();
+    $canMove = function (?\App\Models\SysAdmin\User $user) use ($pallet) {
+        $request = \Illuminate\Http\Request::create('/');
+        $request->setUserResolver(fn () => $user);
+
+        return \App\Http\Resources\Fulfilment\PalletsResource::canMoveIn($request, $pallet->warehouse_id);
+    };
+
+    expect($canMove($admin))->toBeTrue()
+        ->and($canMove($viewer))->toBeFalse()
+        ->and($canMove(null))->toBeFalse();
+
+    $locationBefore = $pallet->location_id;
+    $target         = $this->warehouse->locations()->when($locationBefore, fn ($query) => $query->where('id', '!=', $locationBefore))->first();
+    actingAs($viewer);
+    patch(route('grp.models.warehouse.pallets.location.update', [$pallet->warehouse_id, $pallet->id]), ['location_id' => $target?->id])->assertForbidden();
+    expect($pallet->fresh()->location_id)->toBe($locationBefore);
+});
