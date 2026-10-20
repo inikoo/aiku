@@ -284,7 +284,7 @@ test('ticket badges count my tickets and the engineer queue, and engineers hear 
         ->and($count($this->user, 'queue', 'waiting'))->toBe($baseline['waiting']['count'] + 1);
 
     StoreTicketComment::make()->action($ticket, $reporter, ['body' => 'The red one']);
-    Notification::assertSentTo($this->user, TicketNotification::class, fn ($notification) => str_contains($notification->subject, 'new comment'));
+    Notification::assertSentTo($this->user, TicketNotification::class, fn ($notification) => str_contains($notification->subject, 'answered '.$ticket->reference));
 
     expect($count($this->user, 'queue', 'replied'))->toBe($baseline['replied']['count'] + 1)
         ->and($count($this->user, 'queue', 'waiting'))->toBe($baseline['waiting']['count'])
