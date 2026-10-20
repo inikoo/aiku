@@ -21,6 +21,7 @@ use App\Services\QueryBuilder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use Closure;
@@ -56,12 +57,12 @@ class IndexRetinaEcomOrders extends RetinaAction
             'orders.has_extra_packing',
             'orders.has_insurance',
             'order_stats.number_item_transactions as number_item_transactions',
-            'orders.date',
+            DB::raw('coalesce(orders.submitted_at, orders.date) as date'),
             'orders.total_amount',
             'orders.payment_amount',
         );
 
-        return $query->defaultSort('-orders.date')
+        return $query->defaultSort('-date')
             ->allowedSorts(['state', 'reference', 'date', 'number_item_transactions', 'total_amount', 'payment_amount'])
             ->allowedFilters([$globalSearch])
             ->withRetinaPaginator($prefix, tableName: request()->route()->getName())

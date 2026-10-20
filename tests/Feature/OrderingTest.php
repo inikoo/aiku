@@ -6817,3 +6817,17 @@ test('adding and removing basket lines keeps totals, discounts, shipping and cha
         ['ShippingZone', 1.0, 4.0, 4.0, 1.0, null],
     ]);
 });
+
+test('a customer\'s order list dates an order by when it was placed, so an old basket placed today is at the top', function () {
+    $customer  = StoreCustomer::make()->action($this->shop, Customer::factory()->definition());
+    $oldBasket = StoreOrder::make()->action($customer, []);
+    $recent    = StoreOrder::make()->action($customer, []);
+    $oldBasket->update(['state' => OrderStateEnum::SUBMITTED, 'date' => now()->subMonths(3), 'submitted_at' => now()]);
+    $recent->update(['state' => OrderStateEnum::SUBMITTED, 'date' => now()->subWeek(), 'submitted_at' => now()->subWeek()]);
+
+    request()->setRouteResolver(fn () => (new Illuminate\Routing\Route('GET', 'app/orders', []))->name('retina.ecom.orders.index'));
+    $rows = collect(App\Actions\Retina\Ecom\Orders\IndexRetinaEcomOrders::make()->handle($customer)->items());
+
+    expect($rows->pluck('id')->take(2)->all())->toBe([$oldBasket->id, $recent->id])
+        ->and(Illuminate\Support\Carbon::parse($rows->first()->date)->isToday())->toBeTrue();
+});
