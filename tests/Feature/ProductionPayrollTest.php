@@ -877,6 +877,13 @@ describe('production reward pay bands', function () {
         $sessions = $artisans->pluck('jobs')->flatten(1)->pluck('steps')->flatten(1)->pluck('sessions')->flatten(1);
         expect($sessions->pluck('id'))->toContain($fast->id)
             ->and($sessions->every(fn (array $session) => $session['is_hourly']))->toBeTrue();
+
+        $labels  = \App\Enums\Production\Artisan\ArtisanPayTypeEnum::labels();
+        $history = $artisans->firstWhere('pay_type_route.parameters.employee', $artisan->id)['pay_type_history'];
+        expect($history)->toHaveCount(1)
+            ->and($history[0]['from'])->toBe($labels['piece_rate'])
+            ->and($history[0]['to'])->toBe($labels['hourly'])
+            ->and($history[0]['effective_from'])->toBe(now()->startOfWeek()->toDateString());
     });
 
     test('a guru gets the guru rate for every paid hour while a guru, at the rate of the day, in the payroll export', function () {

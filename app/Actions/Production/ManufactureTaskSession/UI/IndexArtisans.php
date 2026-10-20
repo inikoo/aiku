@@ -9,6 +9,7 @@
 namespace App\Actions\Production\ManufactureTaskSession\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Production\Artisan\SetArtisanPayType;
 use App\Actions\Production\Production\UI\ShowArtisansDashboard;
 use App\Enums\Production\Artisan\ArtisanPayTypeEnum;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
@@ -16,6 +17,7 @@ use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTy
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionTimeEditReasonEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionUnderTargetReasonEnum;
+use App\Models\HumanResources\Employee;
 use App\Models\Production\ArtefactManufactureTask;
 use App\Models\Production\JobOrderItemTask;
 use App\Models\Production\ManufactureTask;
@@ -95,6 +97,8 @@ class IndexArtisans extends OrgAction
             ->with(['user', 'employee', 'manufactureTask', 'underTargetReviewer', 'timeEditor', 'jobOrderItemTask.jobOrderItem.artefact', 'jobOrderItemTask.jobOrderItem.tasks.manufactureTask', 'jobOrderItemTask.jobOrder', 'jobOrder'])
             ->orderByDesc('ended_at')
             ->get();
+
+        $payTypeHistory = $this->payTypeHistory($sessions->pluck('employee')->filter()->unique('id'));
 
         $totals = function (Collection $sessions): array {
             $closed = $sessions->where('state', ManufactureTaskSessionStateEnum::CLOSED);
@@ -184,7 +188,7 @@ class IndexArtisans extends OrgAction
 
         $artisans = $sessions
             ->groupBy('user_id')
-            ->map(function (Collection $allUserSessions) use ($totals, $serializeSession, $timeEdit, $from, $to) {
+            ->map(function (Collection $allUserSessions) use ($totals, $serializeSession, $timeEdit, $from, $to, $payTypeHistory) {
                 /** @var ManufactureTaskSession $first */
                 $first         = $allUserSessions->first();
                 $userSessions  = $allUserSessions->reject(fn (ManufactureTaskSession $session) => $session->isNonProductive());
@@ -199,6 +203,7 @@ class IndexArtisans extends OrgAction
                         'name'       => 'grp.org.productions.show.artisans.pay_type.update',
                         'parameters' => ['organisation' => $this->organisation->slug, 'production' => $this->production->slug, 'employee' => $employee->id],
                     ] : null,
+                    'pay_type_history'  => $employee ? $payTypeHistory->get($employee->id, []) : [],
                     'is_guru'           => $employee?->guru_since && $employee->guru_since->lessThanOrEqualTo($to) && (!$employee->guru_until || $employee->guru_until->greaterThanOrEqualTo($from->copy()->startOfDay())),
                     'guru_since'        => $employee?->guru_since?->toDateString(),
                     'guru_until'        => $employee?->guru_until?->toDateString(),
@@ -243,12 +248,12 @@ class IndexArtisans extends OrgAction
             'Org/Production/Artisans',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
-                'title'       => __('Artisans'),
+                'title'       => __('Performance'),
                 'pageHead'    => [
-                    'title' => __('Artisans'),
+                    'title' => __('Performance'),
                     'icon'  => [
                         'icon'  => ['fal', 'fa-user-hard-hat'],
-                        'title' => __('Artisans'),
+                        'title' => __('Performance'),
                     ],
                 ],
                 'period'   => [
@@ -265,6 +270,8 @@ class IndexArtisans extends OrgAction
                 'left_open'           => $this->leftOpenSessions($production),
                 'artisan_pay_type'    => $payType,
                 'artisan_pay_types'   => ArtisanPayTypeEnum::labels(),
+                'pay_type_effective_from' => SetArtisanPayType::effectiveFrom()->toDateString(),
+                'currency_code'           => $this->organisation->currency->code,
                 'under_target_reasons' => ManufactureTaskSessionUnderTargetReasonEnum::labels(),
                 'non_productive_activities' => array_map(fn (ManufactureTaskSessionActivityTypeEnum $activity) => [
                     'value' => $activity->value,
@@ -377,11 +384,33 @@ class IndexArtisans extends OrgAction
                             'name'       => 'grp.org.productions.show.artisans.index',
                             'parameters' => $routeParameters,
                         ],
-                        'label' => __('Artisans'),
+                        'label' => __('Performance'),
                     ],
                     'suffix' => $suffix,
                 ],
             ]
         );
+    }
+
+    /**
+     * @param  Collection<int, Employee>  $employees
+     * @return Collection<int, array<int, array{changed_at: string, by: string|null, from: string|null, to: string|null, effective_from: string}>>
+     */
+    private function payTypeHistory(Collection $employees): Collection
+    {
+        $labels = ArtisanPayTypeEnum::labels();
+
+        return $employees->isEmpty() ? collect() : Employee::query()->whereIn('id', $employees->pluck('id'))
+            ->with(['audits' => fn ($query) => $query->where('event', 'updated')->whereNotNull('new_values->artisan_pay_type')->with('user')->latest('id')])
+            ->get()
+            ->mapWithKeys(fn (Employee $employee) => [
+                $employee->id => $employee->audits->map(fn ($audit) => [
+                    'changed_at'     => $audit->created_at->toIso8601String(),
+                    'by'             => $audit->user?->contact_name ?: $audit->user?->username,
+                    'from'           => $labels[$audit->old_values['artisan_pay_type'] ?? ''] ?? null,
+                    'to'             => $labels[$audit->new_values['artisan_pay_type']] ?? null,
+                    'effective_from' => SetArtisanPayType::effectiveFrom($audit->created_at)->toDateString(),
+                ])->values()->all(),
+            ]);
     }
 }

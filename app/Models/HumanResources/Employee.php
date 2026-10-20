@@ -218,6 +218,7 @@ class Employee extends Model implements HasMedia, Auditable
         'insurance_number',
         'religion',
         'probation_period_days',
+        'artisan_pay_type',
     ];
 
     protected array $attributeModifiers = [
