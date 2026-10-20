@@ -12,12 +12,9 @@ use App\Actions\Catalogue\Product\CheckProductWebpage;
 use App\Enums\Web\Crawl\CrawlIssueTypeEnum;
 use App\Enums\Web\Crawl\CrawlStateEnum;
 use App\Enums\Web\Crawl\CrawlTypeEnum;
-use App\Models\Web\Crawl;
 use App\Models\Web\CrawlIssue;
 use App\Models\Web\CrawlPage;
 use App\Models\Web\Webpage;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -36,7 +33,7 @@ class GetProductWebpageAudit
     public function handle(Webpage $webpage): array
     {
         $auditPage   = $this->latestCrawlPages(collect([$webpage]))->get($webpage->id);
-        $crawlPage   = $this->withPageCheck($webpage, $auditPage);
+        $crawlPage   = CheckProductWebpage::checkedPage($webpage, $auditPage);
         $brokenLinks = $auditPage ? CrawlIssue::whereIn('type', [CrawlIssueTypeEnum::HTTP_4XX, CrawlIssueTypeEnum::HTTP_5XX])
             ->where('crawl_id', $auditPage->crawl_id)
             ->whereJsonContains('details->linked_from', $auditPage->url)
@@ -81,41 +78,11 @@ class GetProductWebpageAudit
             return [
                 $webpage->id => $this->checks(
                     $webpage,
-                    $this->withPageCheck($webpage, $auditPage),
+                    CheckProductWebpage::checkedPage($webpage, $auditPage),
                     $auditPage ? $brokenPageLinks->get($auditPage->crawl_id)?->has($auditPage->url) ?? false : null
                 ),
             ];
         })->all();
-    }
-
-    /**
-     * The product page checked on its own (CheckProductWebpage) after the latest site audit stands in
-     * for the audited page, as an unsaved crawl page. Sitemap issues need the whole website, so they
-     * stay those of the audit.
-     */
-    private function withPageCheck(Webpage $webpage, ?CrawlPage $auditPage): ?CrawlPage
-    {
-        $check     = CheckProductWebpage::cached($webpage);
-        $checkedAt = $check ? Carbon::parse($check['checked_at']) : null;
-
-        if (!$checkedAt || ($auditPage?->crawl->end_at && $auditPage->crawl->end_at->gte($checkedAt))) {
-            return $auditPage;
-        }
-
-        $sitemapTypes = [CrawlIssueTypeEnum::NOT_IN_SITEMAP, CrawlIssueTypeEnum::NOINDEX_IN_SITEMAP];
-        $issues       = collect($check['issues'])
-            ->map(function (array $issue, int $index) {
-                $type = CrawlIssueTypeEnum::from($issue['type']);
-
-                return (new CrawlIssue(['type' => $type, 'severity' => $type->severity(), 'details' => $issue['details']]))->setAttribute('id', "check-$index");
-            })
-            ->merge($auditPage?->issues->filter(fn (CrawlIssue $issue) => in_array($issue->type, $sitemapTypes, true)) ?? []);
-
-        $page = new CrawlPage(['url' => $check['url'], 'status_code' => $check['status_code'], 'response_ms' => $check['response_ms']]);
-        $page->setRelation('crawl', new Crawl(['end_at' => $checkedAt]));
-        $page->setRelation('issues', new EloquentCollection($issues->values()->all()));
-
-        return $page;
     }
 
     /**

@@ -6,6 +6,7 @@
 
 namespace App\Actions\Catalogue\ProductCategory\UI;
 
+use App\Actions\Catalogue\ProductCategory\CheckFamilyWebpage;
 use App\Actions\Traits\Authorisations\WithShopPpcPermissions;
 use App\Enums\Web\Crawl\CrawlIssueSeverityEnum;
 use App\Enums\Web\Crawl\CrawlIssueTypeEnum;
@@ -29,7 +30,8 @@ class GetFamilyPageScore
 
     /**
      * How far the family webpage is through its SEO workflow and which of its checks pass. Checks
-     * read from the site audit are null until an audit has crawled the page.
+     * read from the site audit are null until an audit or a page check (CheckFamilyWebpage) has
+     * crawled the page.
      *
      * @return null|array{steps: array<int, array{key: string, label: string, owner: string, is_done: bool}>, score: int, passed: int, total: int, last_crawl_at: ?string, findings: ?array<int, array{type: string, label: string, description: string, is_error: bool}>, areas: array<int, array{key: string, label: string, checks: array<int, array{key: string, label: string, is_passed: ?bool}>}>, crawl_route: ?array, issues_route: array}
      */
@@ -41,7 +43,8 @@ class GetFamilyPageScore
             return null;
         }
 
-        $crawlPage             = $this->latestCrawlPage($webpage);
+        $auditPage  = $this->latestCrawlPage($webpage);
+        $crawlPage  = CheckFamilyWebpage::checkedPage($webpage, $auditPage);
         $issueTypes = $crawlPage?->issues->map(fn (CrawlIssue $issue) => $issue->type);
         $isClearOf  = fn (array $types): ?bool => $issueTypes ? !$issueTypes->contains(fn (CrawlIssueTypeEnum $type) => in_array($type, $types, true)) : null;
         $visibility = $webpage->searchEngineVisibility();
@@ -66,7 +69,7 @@ class GetFamilyPageScore
             ]],
             'links'     => [__('Links & images'), [
                 'alt_image'    => [__('Alt image'), $isClearOf([CrawlIssueTypeEnum::IMAGES_WITHOUT_ALT])],
-                'broken_links' => [__('Broken links'), $crawlPage ? !$this->linksToBrokenPages($crawlPage) : null],
+                'broken_links' => [__('Broken links'), $auditPage ? !$this->linksToBrokenPages($auditPage) : null],
                 'image'        => [__('Image'), (bool)$family->image_id],
             ]],
             'indexing'  => [__('Indexing'), [
@@ -115,8 +118,8 @@ class GetFamilyPageScore
                 'is_error'    => $issue->type->severity() === CrawlIssueSeverityEnum::ERROR,
             ])->values()->all(),
             'crawl_route'   => $user && $this->canEditSeo($user, $shop) ? [
-                'name'       => 'grp.models.website.site_audit.store',
-                'parameters' => [$website->id],
+                'name'       => 'grp.models.family.webpage_check.store',
+                'parameters' => ['family' => $family->id],
                 'method'     => 'post',
             ] : null,
             'issues_route'  => [

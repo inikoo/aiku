@@ -6,6 +6,7 @@
 
 /** @noinspection PhpUnhandledExceptionInspection */
 
+use App\Actions\Catalogue\ProductCategory\CheckFamilyWebpage;
 use App\Actions\Catalogue\ProductCategory\StoreProductCategoryWebpage;
 use App\Actions\Catalogue\ProductCategory\UI\GetFamilyPageScore;
 use App\Actions\Catalogue\ProductCategory\UI\GetFamilySeoIssues;
@@ -18,6 +19,8 @@ use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Models\Web\CrawlIssue;
 use App\Models\Web\CrawlPage;
 use App\Models\Web\SeoContentSuggestion;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 
 beforeEach(function () {
     loadDB();
@@ -52,6 +55,7 @@ beforeEach(function () {
 
     CrawlPage::where('webpage_id', $this->webpage->id)->delete();
     SeoContentSuggestion::where('webpage_id', $this->webpage->id)->delete();
+    Cache::forget(CheckFamilyWebpage::cacheKey($this->webpage));
 });
 
 function pageScoreChecks(array $pageScore): array
@@ -155,4 +159,38 @@ test('the issues tab groups the latest site audit findings by kind, most severe 
         ->and(collect($issues['groups'])->pluck('key')->all())->toBe([GetFamilySeoIssues::BROKEN_LINKS, 'multiple_h1', 'title_too_short'])
         ->and($issues['groups'][0]['items'][0])->toMatchArray(['title' => 'Broken link', 'type' => 'http_4xx', 'severity' => 'error', 'url' => 'https://ecom.test/gone'])
         ->and($issues['groups'][1]['items'][0])->toMatchArray(['severity' => 'warning', 'details' => ['h1_count' => 2], 'url' => null]);
+});
+
+test('crawl page checks the family webpage alone and its findings stand in for the audit in the page score and issues', function () {
+    Http::fake(['*' => Http::response(
+        '<html><head><title>Short</title></head><body><h1>One</h1><h1>Two</h1><img src="a.png"></body></html>',
+        200,
+        ['Content-Type' => 'text/html; charset=UTF-8']
+    )]);
+
+    $check = CheckFamilyWebpage::run($this->webpage->fresh());
+
+    expect(collect($check['issues'])->pluck('type')->all())->toBe(['images_without_alt', 'missing_canonical', 'title_too_short', 'missing_meta_description', 'multiple_h1'])
+        ->and(CheckFamilyWebpage::cached($this->webpage))->toBe($check);
+
+    $pageScore = GetFamilyPageScore::run($this->family->fresh());
+    $checks    = pageScoreChecks($pageScore);
+
+    expect($pageScore['last_crawl_at'])->not->toBeNull()
+        ->and($checks)->toMatchArray([
+            'meta_title'       => false,
+            'meta_description' => false,
+            'h1'               => false,
+            'canonical_url'    => false,
+            'alt_image'        => false,
+            'sitemap'          => true,
+            'page_speed'       => true,
+            'broken_links'     => null,
+        ]);
+
+    $issues = GetFamilySeoIssues::run($this->family->fresh());
+
+    expect($issues['total'])->toBe(5)
+        ->and($issues['last_crawl_at'])->toBe($pageScore['last_crawl_at'])
+        ->and(collect($issues['groups'])->pluck('key')->all())->toContain('multiple_h1', 'title_too_short');
 });

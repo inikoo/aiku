@@ -9,215 +9,16 @@
 namespace App\Actions\Catalogue\Product;
 
 use App\Actions\OrgAction;
-use App\Actions\Web\Crawl\AuditWebsite;
 use App\Actions\Web\Seo\WithSeoEditAuthorisation;
-use App\Enums\Catalogue\Shop\ShopTypeEnum;
-use App\Enums\Web\Crawl\CrawlIssueTypeEnum;
+use App\Actions\Web\Webpage\WithWebpageCheck;
 use App\Models\Catalogue\Product;
-use App\Models\Web\Webpage;
-use App\Services\SiteAudit\AuditedHtml;
-use Illuminate\Http\Client\Response;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
-use Throwable;
 
-/**
- * "Crawl page" on a product: fetches only the product webpage, at once, and runs on it the page
- * checks of DetectCrawlIssues. A site audit crawls the whole website, which takes minutes and waits
- * in the queue. The result is cached rather than stored as a crawl, so it never stands in for the
- * website's latest audit; links and sitemap still come from that audit.
- */
 class CheckProductWebpage extends OrgAction
 {
     use WithSeoEditAuthorisation;
-
-    public static function cacheKey(Webpage $webpage): string
-    {
-        return "product-webpage-check:$webpage->id";
-    }
-
-    /**
-     * @return array{checked_at: string, url: string, status_code: ?int, response_ms: ?int, fetch_error: ?string, issues: array<int, array{type: string, details: ?array}>}|null
-     */
-    public static function cached(Webpage $webpage): ?array
-    {
-        return Cache::get(self::cacheKey($webpage));
-    }
-
-    /**
-     * @throws ValidationException
-     */
-    public function handle(Webpage $webpage): array
-    {
-        $url = $this->pageUrl($webpage);
-
-        try {
-            $response = Http::withHeaders(['User-Agent' => AuditWebsite::USER_AGENT])
-                ->withOptions(['allow_redirects' => ['max' => 5]])
-                ->when(!app()->isProduction(), fn ($request) => $request->withoutVerifying())
-                ->connectTimeout(10)
-                ->timeout(30)
-                ->get($url);
-            $url = (string)($response->transferStats?->getEffectiveUri() ?? $url);
-        } catch (Throwable $exception) {
-            $response = $exception;
-        }
-
-        $check = [
-            'checked_at'  => now()->toIso8601String(),
-            'url'         => $url,
-            'status_code' => $response instanceof Response ? $response->status() : null,
-            'response_ms' => $response instanceof Response && $response->transferStats?->getTransferTime() !== null ? (int)round($response->transferStats->getTransferTime() * 1000) : null,
-            'fetch_error' => $response instanceof Throwable ? Str::limit($response->getMessage(), 500) : null,
-            'issues'      => $this->issues($url, $response),
-        ];
-
-        Cache::put(self::cacheKey($webpage), $check, now()->addDays(30));
-
-        return $check;
-    }
-
-    /**
-     * The same page rules as DetectCrawlIssues, for the issues one page can show without the rest
-     * of the website.
-     *
-     * @return array<int, array{type: string, details: ?array}>
-     */
-    private function issues(string $url, Response|Throwable $response): array
-    {
-        $issues = [];
-        $add    = function (CrawlIssueTypeEnum $type, ?array $details = null) use (&$issues) {
-            $issues[] = ['type' => $type->value, 'details' => $details];
-        };
-
-        if (!$response instanceof Response) {
-            $add(CrawlIssueTypeEnum::FETCH_FAILED, ['error' => Str::limit($response->getMessage(), 500)]);
-
-            return $issues;
-        }
-
-        if ($response->status() >= 500) {
-            $add(CrawlIssueTypeEnum::HTTP_5XX, ['status_code' => $response->status()]);
-        } elseif ($response->status() >= 400) {
-            $add(CrawlIssueTypeEnum::HTTP_4XX, ['status_code' => $response->status()]);
-        }
-
-        $responseMs = $response->transferStats?->getTransferTime() !== null ? (int)round($response->transferStats->getTransferTime() * 1000) : null;
-        if ($responseMs !== null && $responseMs > CrawlIssueTypeEnum::SLOW_RESPONSE_MS) {
-            $add(CrawlIssueTypeEnum::SLOW_RESPONSE, ['response_ms' => $responseMs]);
-        }
-
-        if (!$response->successful() || !str_contains(strtolower((string)$response->header('Content-Type')), 'html')) {
-            return $issues;
-        }
-
-        $html      = AuditedHtml::parse($response->body());
-        $isNoindex = $html->isNoindex() || str_contains(strtolower((string)$response->header('X-Robots-Tag')), 'noindex');
-        $canonical = $this->absoluteUrl($url, $html->canonical);
-
-        if ($html->imagesWithoutAlt > 0) {
-            $add(CrawlIssueTypeEnum::IMAGES_WITHOUT_ALT, ['images' => $html->imagesWithoutAlt]);
-        }
-
-        if (!$isNoindex && $canonical === null) {
-            $add(CrawlIssueTypeEnum::MISSING_CANONICAL);
-        } elseif (!$isNoindex && !$this->isSamePage($canonical, $url)) {
-            $add(CrawlIssueTypeEnum::CANONICAL_TO_OTHER_PAGE, ['canonical' => $canonical]);
-        }
-
-        if ($isNoindex || ($canonical !== null && !$this->isSamePage($canonical, $url))) {
-            return $issues;
-        }
-
-        $titleLength = mb_strlen((string)$html->title);
-        if ($html->title === null) {
-            $add(CrawlIssueTypeEnum::MISSING_TITLE);
-        } elseif ($titleLength > CrawlIssueTypeEnum::TITLE_MAX_LENGTH) {
-            $add(CrawlIssueTypeEnum::TITLE_TOO_LONG, ['title' => $html->title, 'length' => $titleLength]);
-        } elseif ($titleLength < CrawlIssueTypeEnum::TITLE_MIN_LENGTH) {
-            $add(CrawlIssueTypeEnum::TITLE_TOO_SHORT, ['title' => $html->title, 'length' => $titleLength]);
-        }
-
-        $descriptionLength = mb_strlen((string)$html->metaDescription);
-        if ($html->metaDescription === null) {
-            $add(CrawlIssueTypeEnum::MISSING_META_DESCRIPTION);
-        } elseif ($descriptionLength > CrawlIssueTypeEnum::META_DESCRIPTION_MAX_LENGTH) {
-            $add(CrawlIssueTypeEnum::META_DESCRIPTION_TOO_LONG, ['length' => $descriptionLength]);
-        } elseif ($descriptionLength < CrawlIssueTypeEnum::META_DESCRIPTION_MIN_LENGTH) {
-            $add(CrawlIssueTypeEnum::META_DESCRIPTION_TOO_SHORT, ['length' => $descriptionLength]);
-        }
-
-        if ($html->h1Count === 0) {
-            $add(CrawlIssueTypeEnum::MISSING_H1);
-        } elseif ($html->h1Count > 1) {
-            $add(CrawlIssueTypeEnum::MULTIPLE_H1, ['h1_count' => $html->h1Count]);
-        }
-
-        return $issues;
-    }
-
-    /**
-     * The page as this environment serves it, like Webpage::getUrl(): the live website in
-     * production, canary in staging, and locally ecom.test or ds.test, which serve only the website
-     * set in app.local.
-     *
-     * @throws ValidationException
-     */
-    private function pageUrl(Webpage $webpage): string
-    {
-        if (app()->isProduction()) {
-            return $webpage->canonical_url ?: $webpage->getUrl();
-        }
-
-        if (app()->environment('local')) {
-            $localDomain = match ($webpage->shop->type) {
-                ShopTypeEnum::DROPSHIPPING            => config('app.local.retina_dropshipping_domain'),
-                ShopTypeEnum::B2B, ShopTypeEnum::B2C  => config('app.local.retina_b2b_domain'),
-                default                               => config('app.local.retina_fulfilment_domain'),
-            };
-
-            if (Str::after($webpage->website->domain, 'www.') !== Str::after((string)$localDomain, 'www.')) {
-                throw ValidationException::withMessages([
-                    'check' => __('Locally only :domain is served, so a page of :website cannot be checked here.', ['domain' => $localDomain, 'website' => $webpage->website->domain]),
-                ]);
-            }
-        }
-
-        return $webpage->getUrl();
-    }
-
-    /**
-     * Locally the page canonical still names the live domain, so only the path is compared there.
-     */
-    private function isSamePage(string $canonical, string $url): bool
-    {
-        $canonicalParts = parse_url($canonical);
-        $urlParts       = parse_url($url);
-        $isSamePath     = rtrim($canonicalParts['path'] ?? '/', '/') === rtrim($urlParts['path'] ?? '/', '/');
-
-        return app()->isProduction() ? $isSamePath && ($canonicalParts['host'] ?? null) === ($urlParts['host'] ?? null) : $isSamePath;
-    }
-
-    private function absoluteUrl(string $pageUrl, ?string $href): ?string
-    {
-        $href = trim((string)$href);
-
-        if ($href === '') {
-            return null;
-        }
-
-        if (preg_match('/^https?:\/\//i', $href)) {
-            return $href;
-        }
-
-        $base = parse_url($pageUrl);
-
-        return $base['scheme'].'://'.$base['host'].'/'.ltrim($href, '/');
-    }
+    use WithWebpageCheck;
 
     /**
      * @throws ValidationException
@@ -229,10 +30,5 @@ class CheckProductWebpage extends OrgAction
         $this->initialisationFromShop($product->shop, $request);
 
         return $this->handle($product->webpage);
-    }
-
-    public function htmlResponse(): RedirectResponse
-    {
-        return back();
     }
 }

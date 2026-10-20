@@ -7,6 +7,7 @@
 
 namespace App\Actions\Catalogue\ProductCategory\UI;
 
+use App\Actions\Catalogue\ProductCategory\CheckFamilyWebpage;
 use App\Enums\Web\Crawl\CrawlIssueSeverityEnum;
 use App\Enums\Web\Crawl\CrawlIssueTypeEnum;
 use App\Enums\Web\Crawl\CrawlStateEnum;
@@ -24,7 +25,7 @@ class GetFamilySeoIssues
     public const string BROKEN_LINKS = 'broken_links';
 
     /**
-     * What the latest site audit found on the family webpage, grouped by kind and most severe first.
+     * What the latest site audit, or a later page check (CheckFamilyWebpage), found on the family webpage, grouped by kind and most severe first.
      * A broken link is recorded on the page it points to, so links from this page to pages that
      * answer with an error are read from those pages.
      *
@@ -38,12 +39,13 @@ class GetFamilySeoIssues
             return null;
         }
 
-        $crawlPage = CrawlPage::where('webpage_id', $webpage->id)
+        $auditPage = CrawlPage::where('webpage_id', $webpage->id)
             ->whereHas('crawl', fn ($query) => $query->where('type', CrawlTypeEnum::AUDIT)->where('state', CrawlStateEnum::FINISH))
             ->with(['crawl', 'issues'])
             ->orderByDesc('crawl_id')
             ->orderByRaw('status_code = 200 desc nulls last')
             ->first();
+        $crawlPage = CheckFamilyWebpage::checkedPage($webpage, $auditPage);
 
         if (!$crawlPage) {
             return ['last_crawl_at' => null, 'total' => 0, 'groups' => []];
@@ -58,11 +60,11 @@ class GetFamilySeoIssues
                 $issues->map(fn (CrawlIssue $issue) => $this->item($issue, CrawlIssueTypeEnum::labels()[$type]))
             ));
 
-        $brokenLinks = CrawlIssue::where('crawl_id', $crawlPage->crawl_id)
+        $brokenLinks = $auditPage ? CrawlIssue::where('crawl_id', $auditPage->crawl_id)
             ->whereIn('type', [CrawlIssueTypeEnum::HTTP_4XX, CrawlIssueTypeEnum::HTTP_5XX, CrawlIssueTypeEnum::FETCH_FAILED])
-            ->whereJsonContains('details->linked_from', $crawlPage->url)
+            ->whereJsonContains('details->linked_from', $auditPage->url)
             ->with('crawlPage')
-            ->get();
+            ->get() : collect();
 
         if ($brokenLinks->isNotEmpty()) {
             $groups->put(self::BROKEN_LINKS, $this->group(
