@@ -31,6 +31,16 @@ Mientras no haya una factura real, una entrega que viene del sistema antiguo mue
 
 La misma ventana contiene el **Invoice exchange rate**, el **Settlement** con los depósitos aplicados y el saldo pendiente, y los costes leídos de una factura adjunta.
 
+Un contenedor comprado a través de un agente necesita su factura antes de marcarlo como enviado, por eso su botón **Invoice** está disponible mientras sigue en proceso.
+
+### Leer la factura del proveedor desde su archivo
+
+Adjunta la factura del proveedor a la entrega como **Invoice** o **Proforma** y, en **Costs from the supplier invoice**, pulsa **Read invoice** y, cuando esté leída, **Review invoice**. Se lee dos veces, con dos modelos de IA distintos, y aiku comprueba la lectura igual que una factura de los costes de importación: las dos lecturas deben coincidir en cada línea, código, cantidad e importe, cada importe debe estar impreso en el documento, las líneas y los cargos deben sumar el total, y debe nombrar la entrega o uno de sus pedidos de compra y ninguna otra entrega.
+
+En la revisión no se pueden cambiar los importes. El coste de cada producto es el precio de la factura por lo recibido. Solo indicas a dónde va una línea de la factura que no coincide con ningún producto (a un producto, o **Invoiced but not in the delivery**) y qué tipo de gasto es cada cargo, y pulsas **Apply to costing**. Se puede aplicar en cuanto la entrega está revisada, para que los costes estén antes de ubicar la mercancía.
+
+La lectura se rechaza, y la factura se introduce a mano, cuando falla una comprobación, cuando falta en la factura un producto de la entrega, cuando un coste queda lejos de lo pedido (la factura puede contar paquetes o cajas), cuando la factura tiene un descuento o abono, o cuando la factura de la entrega ya está introducida.
+
 Para una entrega comprada a través de un agente, pulsa **Agent payments** para aprobar los cargos del agente y registrar lo que le has pagado. Los cargos del agente solo cuentan en el coste cuando los apruebas.
 
 ## Los costes de llegada: una línea por factura

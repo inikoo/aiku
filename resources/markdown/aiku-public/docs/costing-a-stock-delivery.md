@@ -31,6 +31,16 @@ Until a real invoice is entered, a delivery that came from the old system shows 
 
 The same window holds the **Invoice exchange rate**, the **Settlement** with the deposits applied and the balance due, and the costs read from an attached invoice.
 
+A container bought through an agent needs its invoice before it can be marked as dispatched, so its **Invoice** button is there while it is still in process.
+
+### Reading the supplier invoice from its file
+
+Attach the supplier's invoice to the delivery as **Invoice** or **Proforma**, then under **Costs from the supplier invoice** press **Read invoice** and, once it is read, **Review invoice**. It is read twice, by two different AI models, and aiku checks the reading the same way as a bill of the landed costs: the two readings must agree on every line, code, quantity and amount, every amount must be printed in the document, the lines and charges must add up to the total, and it must name the delivery or one of its purchase orders and no other delivery.
+
+The amounts cannot be changed in the review. Each product's goods cost is the invoice price times what was received. You only say where an invoice line that matches no product goes (to a product, or **Invoiced but not in the delivery**) and what kind of expense each charge is, then press **Apply to costing**. It can be applied once the delivery is checked, so the costs are in before the goods are put away.
+
+The reading is refused, and you enter the invoice by hand, when a check fails, when a product of the delivery is missing from the invoice, when a cost lands far from what was ordered (the invoice may count packs or cartons), when the invoice has a discount or credit, or when the invoice of the delivery is already entered.
+
 For a delivery bought through an agent, press **Agent payments** to approve the agent's charges and to record what you have paid the agent. The agent's charges only count in the costing once you approve them.
 
 ## The landed costs: one line per bill

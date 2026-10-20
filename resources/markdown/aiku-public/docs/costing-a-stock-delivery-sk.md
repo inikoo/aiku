@@ -31,6 +31,16 @@ Kým nie je zadaná skutočná faktúra, dodávka zo starého systému ukazuje *
 
 V tom istom okne nájdete **Invoice exchange rate** (kurz faktúry), **Settlement** (vyrovnanie) s uplatnenými zálohami a zostatkom na úhradu a náklady načítané z priloženej faktúry.
 
+Kontajner nakúpený cez agenta potrebuje faktúru skôr, než ho označíte ako odoslaný, preto je jeho tlačidlo **Invoice** k dispozícii, aj keď je ešte v spracovaní.
+
+### Načítanie faktúry dodávateľa zo súboru
+
+Priložte faktúru dodávateľa k dodávke ako **Invoice** alebo **Proforma**, potom v časti **Costs from the supplier invoice** stlačte **Read invoice** a po načítaní **Review invoice**. Faktúru prečítajú dvakrát dva rôzne modely AI a aiku načítanie overí rovnako ako faktúru za náklady dovozu: obe načítania sa musia zhodovať v každom riadku, kóde, množstve a sume, každá suma musí byť v dokumente vytlačená, riadky a poplatky musia dať spolu celkovú sumu a faktúra musí uvádzať dodávku alebo jednu z jej objednávok a žiadnu inú dodávku.
+
+Sumy sa pri kontrole nedajú meniť. Náklad na tovar každého produktu je cena z faktúry krát prijaté množstvo. Vy iba určíte, kam patrí riadok faktúry, ktorý nezodpovedá žiadnemu produktu (k produktu alebo **Invoiced but not in the delivery**), a aký druh výdavku je každý poplatok, a stlačíte **Apply to costing**. Dá sa to urobiť hneď, ako je dodávka skontrolovaná, aby boli náklady zadané skôr, než sa tovar uloží.
+
+Načítanie sa odmietne a faktúru zadáte ručne, keď niektorá kontrola zlyhá, keď na faktúre chýba produkt dodávky, keď náklad vyjde ďaleko od objednaného (faktúra môže počítať balenia alebo kartóny), keď má faktúra zľavu alebo dobropis, alebo keď je faktúra dodávky už zadaná.
+
 Pri dodávke nakúpenej cez agenta stlačte **Agent payments**, aby ste schválili poplatky agenta a zaznamenali, čo ste agentovi zaplatili. Poplatky agenta sa do oceňovania započítajú až po vašom schválení.
 
 ## Landed costs: jeden riadok na jeden účet

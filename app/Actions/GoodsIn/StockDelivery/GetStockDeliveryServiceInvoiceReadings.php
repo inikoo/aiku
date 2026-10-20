@@ -114,7 +114,7 @@ class GetStockDeliveryServiceInvoiceReadings
             'net_total'          => $net,
             'problems'           => $applied ? [] : $problems,
             'needs_manual_check' => !$checks['text_available'] || $checks['mentions_delivery'] === null,
-            'delivery_confirmation' => $checks['mentions_delivery'] === false && !$applied ? $this->deliveryConfirmation($stockDelivery, $reading) : null,
+            'delivery_confirmation' => $checks['mentions_delivery'] === false && !$applied ? self::deliveryConfirmation($stockDelivery, $reading) : null,
             'can_apply'          => !$problems && !$applied,
         ];
     }
@@ -122,7 +122,7 @@ class GetStockDeliveryServiceInvoiceReadings
     /**
      * @return array<string, string>
      */
-    private static function fieldLabels(): array
+    public static function fieldLabels(): array
     {
         return [
             'is_invoice'     => __('whether it is an invoice'),
@@ -132,7 +132,9 @@ class GetStockDeliveryServiceInvoiceReadings
             'net_total'      => __('the total before VAT'),
             'vat_total'      => __('the VAT'),
             'total_payable'  => __('the amount to pay'),
-            'lines'          => __('the amounts of the lines'),
+            'total'          => __('the total'),
+            'lines'          => __('the lines'),
+            'charges'        => __('the charges'),
         ];
     }
 
@@ -144,7 +146,7 @@ class GetStockDeliveryServiceInvoiceReadings
      * @param  array<string, mixed>  $reading
      * @return array{phrase: string, reference: string, printed: array<int, string>, dates_fit: ?bool, left_at: ?string, arrived_at: ?string}
      */
-    private function deliveryConfirmation(StockDelivery $stockDelivery, array $reading): array
+    public static function deliveryConfirmation(StockDelivery $stockDelivery, array $reading): array
     {
         $leftAt    = $stockDelivery->dispatched_at ?? $stockDelivery->created_at;
         $arrivedAt = $stockDelivery->received_at;
@@ -161,7 +163,7 @@ class GetStockDeliveryServiceInvoiceReadings
         ];
     }
 
-    private static function isDate(?string $date): bool
+    public static function isDate(?string $date): bool
     {
         return (bool) preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $date) && strtotime((string) $date) !== false;
     }

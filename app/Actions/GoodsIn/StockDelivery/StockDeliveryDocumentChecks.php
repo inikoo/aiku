@@ -131,7 +131,9 @@ class StockDeliveryDocumentChecks
     }
 
     /**
-     * What two readings of the same service invoice do not agree on. Wording is free to differ, numbers are not.
+     * What two readings of the same invoice do not agree on. Wording is free to differ, numbers and product codes
+     * are not: a line is its code, quantity and amount, and a service invoice line, which has neither code nor
+     * quantity, its amount alone.
      *
      * @param  array<string, mixed>  $first
      * @param  array<string, mixed>  $second
@@ -139,14 +141,18 @@ class StockDeliveryDocumentChecks
      */
     public static function disagreements(array $first, array $second): array
     {
-        $cents     = fn ($amount) => $amount === null ? null : (int) round((float) $amount * 100);
-        $lineCents = function (array $reading) use ($cents) {
-            $amounts = array_map(fn (array $line) => $cents($line['amount'] ?? null), $reading['lines'] ?? []);
-            sort($amounts);
+        $cents  = fn ($amount) => $amount === null ? null : (int) round((float) $amount * 100);
+        $sorted = function (array $values) {
+            sort($values);
 
-            return $amounts;
+            return $values;
         };
-        $same = [
+        $lines   = fn (array $reading) => $sorted(array_map(
+            fn (array $line) => self::normalise($line['code'] ?? null).'|'.(isset($line['quantity']) ? round((float) $line['quantity'], 4) : '').'|'.$cents($line['amount'] ?? null),
+            $reading['lines'] ?? []
+        ));
+        $charges = fn (array $reading) => $sorted(array_map(fn (array $charge) => $cents($charge['amount'] ?? null), $reading['charges'] ?? []));
+        $same    = [
             'is_invoice'     => fn (array $reading) => (bool) ($reading['is_invoice'] ?? false),
             'invoice_number' => fn (array $reading) => self::normalise($reading['invoice_number'] ?? null),
             'invoice_date'   => fn (array $reading) => $reading['invoice_date'] ?? null,
@@ -154,7 +160,9 @@ class StockDeliveryDocumentChecks
             'net_total'      => fn (array $reading) => $cents($reading['net_total'] ?? null),
             'vat_total'      => fn (array $reading) => $cents($reading['vat_total'] ?? null),
             'total_payable'  => fn (array $reading) => $cents($reading['total_payable'] ?? null),
-            'lines'          => $lineCents,
+            'total'          => fn (array $reading) => $cents($reading['total'] ?? null),
+            'lines'          => $lines,
+            'charges'        => $charges,
         ];
 
         return array_keys(array_filter($same, fn (callable $value) => $value($first) !== $value($second)));
