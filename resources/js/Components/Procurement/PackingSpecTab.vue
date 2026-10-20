@@ -489,7 +489,7 @@ const liveLinesOf = (level: Level) => props.data.live?.lines.filter((line) => li
 									{{ ctrans("Grams each") }}
 									<template v-if="line.packaging_component_id && !dropdownById[line.packaging_component_id]?.is_epr_reportable">({{ ctrans("optional") }})</template>
 								</span>
-								<InputNumber v-model="line.weight_g_each" :min="0" :maxFractionDigits="3" :class="[fieldFocusClass, shakeClass(index, 'weight_g_each')]" fluid size="small" />
+								<InputNumber v-model="line.weight_g_each" :min="0" :maxFractionDigits="3" :class="[fieldFocusClass, shakeClass(index, 'weight_g_each')]" fluid size="small" :suffix="' ' + ctrans('grams')" />
 							</label>
 						</div>
 						<Select v-model="line.role" :options="roleOptions" optionLabel="label" optionValue="value" filter :placeholder="ctrans('Role')" :class="fieldFocusClass" fluid size="small" />
