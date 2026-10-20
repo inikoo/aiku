@@ -8,9 +8,12 @@
 
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
+use App\Enums\Fulfilment\StoredItemMovement\StoredItemMovementTypeEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\StoredItem;
+use App\Models\Fulfilment\StoredItemMovement;
+use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class GetStoredItemShowcase
@@ -25,6 +28,7 @@ class GetStoredItemShowcase
             ->with('reservingPalletReturnItems.palletReturn')
             ->get()
             ->keyBy('pallet_id');
+        $lastPicks = $this->lastPickLocations($storedItem);
 
         return [
             'stored_item'         => StoredItemResource::make($storedItem)->getArray(),
@@ -36,7 +40,7 @@ class GetStoredItemShowcase
                 ],
                 'method'     => 'patch'
             ],
-            'pallets'             => $storedItem->pallets->map(function (Pallet $pallet) use ($palletStoredItems) {
+            'pallets'             => $storedItem->pallets->map(function (Pallet $pallet) use ($palletStoredItems, $lastPicks) {
                 return [
                     'id'          => $pallet->id,
                     'slug'        => $pallet->slug,
@@ -49,6 +53,7 @@ class GetStoredItemShowcase
                         'code'   => $pallet->location?->code,
                         'slug'   => $pallet->location?->slug,
                     ],
+                    'last_picked_from' => $pallet->location_id ? null : $lastPicks->get($pallet->id),
                     'quantity' => (int) $pallet->pivot->quantity,
                     'reserved_quantity'         => 0,
                     'available_quantity'        => (int) $pallet->pivot->quantity,
@@ -73,6 +78,32 @@ class GetStoredItemShowcase
                 ]
             ]
         ];
+    }
+
+    /**
+     * Where this SKU was last picked from on each of its pallets, to show where a pallet that has
+     * left the warehouse went out from; the Movements tab lists the same picks.
+     *
+     * @return Collection<int, array{code: string, moved_at: string|null}>
+     */
+    private function lastPickLocations(StoredItem $storedItem): Collection
+    {
+        return StoredItemMovement::query()
+            ->where('stored_item_movements.stored_item_id', $storedItem->id)
+            ->where('stored_item_movements.type', StoredItemMovementTypeEnum::PICKED->value)
+            ->whereNotNull('stored_item_movements.location_id')
+            ->join('locations', 'locations.id', '=', 'stored_item_movements.location_id')
+            ->orderBy('stored_item_movements.pallet_id')
+            ->orderByDesc('stored_item_movements.moved_at')
+            ->orderByDesc('stored_item_movements.id')
+            ->get(['stored_item_movements.pallet_id', 'stored_item_movements.moved_at', 'locations.code'])
+            ->unique('pallet_id')
+            ->mapWithKeys(fn (StoredItemMovement $movement) => [
+                $movement->pallet_id => [
+                    'code'     => $movement->code,
+                    'moved_at' => $movement->moved_at?->toIso8601String(),
+                ],
+            ]);
     }
 
     public function getDashboardData(StoredItem $parent): array

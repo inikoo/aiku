@@ -2487,3 +2487,34 @@ test('a pallet only offers Move to people who can edit its warehouse locations, 
     patch(route('grp.models.warehouse.pallets.location.update', [$pallet->warehouse_id, $pallet->id]), ['location_id' => $target?->id])->assertForbidden();
     expect($pallet->fresh()->location_id)->toBe($locationBefore);
 });
+
+test('a stored item shows where a pallet without a location was last picked from, linking to its movements', function () {
+    $pallet        = $this->pallet->fresh();
+    $storedItem    = $this->storedItem->fresh();
+    $location      = $this->warehouse->locations()->first();
+    $savedLocation = $pallet->location_id;
+    expect($location)->not->toBeNull();
+
+    $pallet->storedItems()->syncWithoutDetaching([$storedItem->id => ['quantity' => 5]]);
+    $pallet->updateQuietly(['location_id' => null]);
+    $movement = \App\Models\Fulfilment\StoredItemMovement::create([
+        'stored_item_id' => $storedItem->id,
+        'pallet_id'      => $pallet->id,
+        'location_id'    => $location->id,
+        'type'           => \App\Enums\Fulfilment\StoredItemMovement\StoredItemMovementTypeEnum::PICKED->value,
+        'quantity'       => -5,
+        'moved_at'       => now(),
+    ]);
+
+    try {
+        $row = collect(\App\Actions\Fulfilment\StoredItem\UI\GetStoredItemShowcase::run($storedItem->fresh())['pallets'])->firstWhere('id', $pallet->id);
+        expect($row['last_picked_from']['code'])->toBe($location->code);
+
+        $pallet->updateQuietly(['location_id' => $location->id]);
+        $row = collect(\App\Actions\Fulfilment\StoredItem\UI\GetStoredItemShowcase::run($storedItem->fresh())['pallets'])->firstWhere('id', $pallet->id);
+        expect($row['last_picked_from'])->toBeNull();
+    } finally {
+        $movement->delete();
+        $pallet->updateQuietly(['location_id' => $savedLocation]);
+    }
+});
