@@ -45,6 +45,7 @@ use App\Actions\Procurement\OrgSupplierProducts\UI\IndexOrgSupplierProducts;
 use App\Actions\Procurement\OrgSupplierProducts\UI\ShowOrgSupplierProduct;
 use App\Actions\Procurement\PurchaseOrder\ExportPurchaseOrders;
 use App\Actions\Procurement\PurchaseOrder\ExportPurchaseOrderTransactions;
+use App\Actions\Procurement\PurchaseOrder\PdfPackingInstructions;
 use App\Actions\Procurement\PurchaseOrder\PdfPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UI\EditPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UI\GetAgentIncomingPurchaseOrdersCount;
@@ -136,6 +137,7 @@ Route::prefix('purchase-orders')->as('purchase_orders.')->group(function () {
     Route::get('{purchaseOrder}/whole-order/pdf/{filename?}', [PdfPurchaseOrder::class, 'inWholeAgentOrder'])->name('whole_order.pdf');
     Route::get('{purchaseOrder}/edit', EditPurchaseOrder::class)->name('edit');
     Route::get('{purchaseOrder}/pdf/{filename?}', PdfPurchaseOrder::class)->name('pdf');
+    Route::get('{purchaseOrder}/packing-instructions/{filename?}', PdfPackingInstructions::class)->name('packing_instructions');
     Route::get('{purchaseOrder}/transactions-export', ExportPurchaseOrderTransactions::class)->name('transactions.export');
 });
 

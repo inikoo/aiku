@@ -26,6 +26,7 @@ use App\Actions\Reports\ExportUkManufacturingSurvey;
 use App\Actions\Reports\ExportEprSnapshot;
 use App\Actions\Reports\ExportEuPackagingReturn;
 use App\Actions\Reports\ExportUkPackagingReturn;
+use App\Actions\Reports\GetEprImportCartons;
 use App\Actions\Reports\UI\IndexPackagingReport;
 use App\Actions\Reports\UI\IndexUkManufacturingSurveyReport;
 use App\Actions\UI\Reports\IndexReports;
@@ -55,6 +56,7 @@ Route::get('/packaging', IndexPackagingReport::class)->name('packaging');
 Route::get('/packaging/download', DownloadPackagingReport::class)->name('packaging.download');
 Route::get('/packaging/uk-return', ExportUkPackagingReturn::class)->name('packaging.uk-return');
 Route::get('/packaging/eu-return', ExportEuPackagingReturn::class)->name('packaging.eu-return');
+Route::get('/packaging/import-cartons', GetEprImportCartons::class)->name('packaging.import-cartons');
 Route::get('/packaging/snapshots/{eprSnapshot:id}', ExportEprSnapshot::class)->name('packaging.snapshot')->withoutScopedBindings();
 
 Route::get('/uk-manufacturing-survey', IndexUkManufacturingSurveyReport::class)->name('uk-manufacturing-survey');

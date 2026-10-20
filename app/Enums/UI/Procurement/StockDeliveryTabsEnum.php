@@ -20,6 +20,7 @@ enum StockDeliveryTabsEnum: string
     case PENDING_ITEMS        = 'pending_items';
     case DONE_ITEMS           = 'done_items';
     case CHECKLIST            = 'checklist';
+    case PACKING_CHECKS       = 'packing_checks';
     case UNDER_OVER_DELIVERED = 'under_over_delivered';
     case CUSTOMS              = 'customs';
     case PURCHASE_ORDERS      = 'purchase_orders';
@@ -45,6 +46,10 @@ enum StockDeliveryTabsEnum: string
             StockDeliveryTabsEnum::CHECKLIST            => [
                 'title' => __('Checklist'),
                 'icon'  => 'fal fa-tasks',
+            ],
+            StockDeliveryTabsEnum::PACKING_CHECKS       => [
+                'title' => __('Packing checks'),
+                'icon'  => 'fal fa-weight',
             ],
             StockDeliveryTabsEnum::UNDER_OVER_DELIVERED => [
                 'title' => __('Under/Over delivered items'),

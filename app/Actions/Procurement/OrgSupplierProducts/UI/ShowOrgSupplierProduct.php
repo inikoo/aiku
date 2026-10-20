@@ -21,6 +21,7 @@ use App\Actions\Procurement\OrgSupplier\UI\ShowOrgSupplier;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Actions\Procurement\WithAgentOrganisation;
+use App\Actions\SupplyChain\PackingSpec\UI\GetOrgSupplierProductPackingSpec;
 use App\Enums\SysAdmin\Authorisation\GroupPermissionsEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Enums\UI\Procurement\OrgSupplierProductTabsEnum;
@@ -150,6 +151,10 @@ class ShowOrgSupplierProduct extends OrgAction
                 OrgSupplierProductTabsEnum::NOTES->value => $this->tab == OrgSupplierProductTabsEnum::NOTES->value ?
                     fn () => ProcurementNoteResource::collection(IndexProcurementNotes::run($orgSupplierProduct->supplierProduct, OrgSupplierProductTabsEnum::NOTES->value, $orgSupplierProduct->organisation, $forAgent))
                     : Inertia::optional(fn () => ProcurementNoteResource::collection(IndexProcurementNotes::run($orgSupplierProduct->supplierProduct, OrgSupplierProductTabsEnum::NOTES->value, $orgSupplierProduct->organisation, $forAgent))),
+
+                OrgSupplierProductTabsEnum::PACKING->value => $this->tab == OrgSupplierProductTabsEnum::PACKING->value ?
+                    fn () => GetOrgSupplierProductPackingSpec::run($orgSupplierProduct, $this->organisation, $request->user())
+                    : Inertia::optional(fn () => GetOrgSupplierProductPackingSpec::run($orgSupplierProduct, $this->organisation, $request->user())),
 
                 OrgSupplierProductTabsEnum::HISTORY->value => $this->tab == OrgSupplierProductTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($orgSupplierProduct, OrgSupplierProductTabsEnum::HISTORY->value))
@@ -308,6 +313,7 @@ class ShowOrgSupplierProduct extends OrgAction
     {
         return [
             OrgSupplierProductTabsEnum::SHOWCASE->value,
+            OrgSupplierProductTabsEnum::PACKING->value,
             OrgSupplierProductTabsEnum::AGREED_TERMS->value,
             OrgSupplierProductTabsEnum::NOTES->value,
             OrgSupplierProductTabsEnum::PURCHASE_ORDERS->value,
