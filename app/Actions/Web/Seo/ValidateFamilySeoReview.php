@@ -34,7 +34,9 @@ class ValidateFamilySeoReview extends OrgAction
             throw ValidationException::withMessages(['validate' => __('Implement every suggestion before validating.')]);
         }
 
-        $acceptedCount = $suggestions()->where('state', SeoContentSuggestionStateEnum::IMPLEMENTED)->update(['state' => SeoContentSuggestionStateEnum::ACCEPTED]);
+        $acceptedCount = $suggestions()->where('state', SeoContentSuggestionStateEnum::IMPLEMENTED)->get()
+            ->each(fn (SeoContentSuggestion $suggestion) => $suggestion->update(['state' => SeoContentSuggestionStateEnum::ACCEPTED]))
+            ->count();
         AskWebmastersToImplementSeoReview::make()->close($family->webpage);
 
         return $acceptedCount;

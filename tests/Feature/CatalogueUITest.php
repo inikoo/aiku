@@ -62,6 +62,7 @@ use App\Actions\Catalogue\ProductCategory\StoreProductCategoryWebpage;
 use App\Enums\Web\Seo\SeoKeywordDeviceEnum;
 use App\Enums\Web\Seo\SeoKeywordFrequencyEnum;
 use App\Models\Web\SeoTrackedKeyword;
+use App\Models\Helpers\Audit;
 use App\Models\Web\SeoContentSuggestion;
 use App\Enums\Web\Seo\SeoContentSuggestionStateEnum;
 use App\Actions\Catalogue\ProductCategory\UI\GetFamilyPageScore;
@@ -421,7 +422,9 @@ test('SEO team sends a family page review that replaces the last one and moves t
     ])->assertSessionHasNoErrors()->assertRedirect();
 
     $suggestions = $pending();
+    $audits      = fn (string $event, $ids) => Audit::where('auditable_type', 'SeoContentSuggestion')->whereIn('auditable_id', $ids)->where('event', $event)->get();
     expect($suggestions->keys()->sort()->values()->all())->toBe(['faq', 'structured_data', 'title', 'top_desc'])
+        ->and($audits('created', $suggestions->pluck('id'))->pluck('user_id')->unique()->all())->toBe([$this->user->id])
         ->and(json_decode($suggestions['faq']->suggestion, true)['new'])->toBe([['question' => 'How do I clean one?', 'answer' => 'Unplug it first.']])
         ->and(json_decode($suggestions['structured_data']->suggestion, true)['why'])->toBe('Mark up the FAQ')
         ->and($targeted())->toBe(['aroma diffuser', 'essential oil nebuliser'])
@@ -430,7 +433,8 @@ test('SEO team sends a family page review that replaces the last one and moves t
     post($reviewRoute, ['keywords' => 'aroma diffuser', 'suggestions' => ['url' => 'electric-aroma-diffusers']])->assertRedirect();
 
     expect($pending()->keys()->all())->toBe(['url'])
-        ->and($targeted())->toBe(['aroma diffuser']);
+        ->and($targeted())->toBe(['aroma diffuser'])
+        ->and($audits('deleted', $suggestions->pluck('id')))->toHaveCount(4);
 
     get(route('grp.org.shops.show.catalogue.families.show', [$this->organisation->slug, $this->shop->slug, $family->slug, 'tab' => FamilyTabsEnum::EDIT_PAGE->value]))
         ->assertInertia(fn (AssertableInertia $page) => $page
@@ -439,6 +443,12 @@ test('SEO team sends a family page review that replaces the last one and moves t
             ->where('edit_page.seo_review.fields.2.key', 'url')
             ->where('edit_page.seo_review.fields.2.suggestion', 'electric-aroma-diffusers')
             ->etc());
+
+    $urlSuggestion = $pending()['url'];
+    patch(route('grp.models.seo_content_suggestion.dismiss', ['seoContentSuggestion' => $urlSuggestion->id]))->assertSessionHasNoErrors();
+
+    expect($audits('updated', [$urlSuggestion->id])->map(fn (Audit $audit) => [$audit->new_values['state'] ?? null, $audit->user_id])->all())
+        ->toBe([[SeoContentSuggestionStateEnum::DISMISSED->value, $this->user->id]]);
 });
 
 test('webmaster implements the SEO review one suggestion at a time, keeps what was already pasted, then validates it', function () {
@@ -502,7 +512,12 @@ test('webmaster implements the SEO review one suggestion at a time, keeps what w
 
     $validate()->assertSessionHasNoErrors();
 
-    expect(SeoContentSuggestion::whereIn('id', $suggestions->pluck('id'))->pluck('state')->unique()->values()->all())->toBe([SeoContentSuggestionStateEnum::ACCEPTED]);
+    expect(SeoContentSuggestion::whereIn('id', $suggestions->pluck('id'))->pluck('state')->unique()->values()->all())->toBe([SeoContentSuggestionStateEnum::ACCEPTED])
+        ->and($suggestions['title']->audits()->orderBy('id')->get()->map(fn (Audit $audit) => [$audit->event, $audit->new_values['state'] ?? null, $audit->user_id])->all())->toBe([
+            ['created', SeoContentSuggestionStateEnum::PENDING->value, $this->user->id],
+            ['updated', SeoContentSuggestionStateEnum::IMPLEMENTED->value, $this->user->id],
+            ['updated', SeoContentSuggestionStateEnum::ACCEPTED->value, $this->user->id],
+        ]);
 
     get($editPage)->assertInertia(fn (AssertableInertia $page) => $page
         ->where('edit_page.webmaster_validation.is_validated', true)

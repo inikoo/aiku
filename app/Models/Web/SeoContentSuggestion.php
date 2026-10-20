@@ -9,12 +9,15 @@ namespace App\Models\Web;
 
 use App\Enums\Web\Seo\SeoContentSuggestionStateEnum;
 use App\Models\SysAdmin\User;
+use App\Models\Traits\HasHistory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use OwenIt\Auditing\Contracts\Auditable;
 
 /**
  * A meta title or description written by the AI gateway for a webpage. Never published by itself:
- * it waits until someone accepts it, possibly edited, or dismisses it.
+ * it waits until someone accepts it, possibly edited, or dismisses it. Audited, so the history
+ * keeps who sent, implemented, accepted, dismissed or replaced each suggestion, and when.
  *
  * @property int $id
  * @property int $website_id
@@ -38,8 +41,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SeoContentSuggestion query()
  * @mixin \Eloquent
  */
-class SeoContentSuggestion extends Model
+class SeoContentSuggestion extends Model implements Auditable
 {
+    use HasHistory;
+
     public const string FIELD_TITLE = 'title';
 
     public const string FIELD_DESCRIPTION = 'description';
@@ -56,6 +61,25 @@ class SeoContentSuggestion extends Model
     protected $attributes = [
         'state' => 'pending',
     ];
+
+    protected array $auditInclude = [
+        'webpage_id',
+        'field',
+        'current_value',
+        'suggestion',
+        'reason',
+        'state',
+        'requested_by_user_id',
+        'decided_by_user_id',
+        'decided_at',
+    ];
+
+    public function generateTags(): array
+    {
+        return [
+            'websites',
+        ];
+    }
 
     protected function casts(): array
     {

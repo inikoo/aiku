@@ -74,7 +74,8 @@ class GenerateSeoContentSuggestions
                     ->where('field', $field)
                     ->whereNot('reason', SeoContentSuggestion::REASON_SEO_REVIEW)
                     ->where('state', SeoContentSuggestionStateEnum::PENDING)
-                    ->delete();
+                    ->get()
+                    ->each->delete();
 
                 return SeoContentSuggestion::create([
                     'website_id'           => $webpage->website_id,
