@@ -72,6 +72,7 @@ test('the delayed replica disconnected by a primary restart in the last 13 hours
     expect($report['replica_helio_delayed']['status'])->toBe('catching_up')
         ->and($report['replica_helio_delayed']['issue'])->toBeNull()
         ->and($report['replica_helio_delayed']['note'])->toContain('01:59 UTC')->toContain('around 13:59 UTC')->toContain('10.0 GB')
+        ->and($report['replica_helio_delayed']['reconnects_at'])->toBe('2026-10-20T13:59:26+00:00')
         ->and($report['replica_litio']['status'])->toBe('broken');
 
     $this->travelTo(CarbonImmutable::parse('2026-10-20 15:00:00 UTC'));
@@ -80,7 +81,8 @@ test('the delayed replica disconnected by a primary restart in the last 13 hours
     ]), []);
 
     expect($late[0]['status'])->toBe('broken')
-        ->and($late[0]['note'])->toBeNull();
+        ->and($late[0]['note'])->toBeNull()
+        ->and($late[0]['reconnects_at'])->toBeNull();
 });
 
 test('a replica the primary cut off, one about to be, and one far behind are told apart', function () {

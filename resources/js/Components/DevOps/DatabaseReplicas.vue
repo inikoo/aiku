@@ -13,6 +13,7 @@ export interface DatabaseReplica {
     status: "healthy" | "warning" | "catching_up" | "broken"
     issue: string | null
     note: string | null
+    reconnects_at: string | null
     active: boolean
     wal_status: string | null
     retained_bytes: number | null
@@ -39,6 +40,15 @@ const formatSize = (bytes: number | null) => {
     return megabytes >= 1024 ? `${(megabytes / 1024).toFixed(1)} GB` : `${megabytes.toFixed(megabytes < 10 ? 1 : 0)} MB`
 }
 
+const reconnectEta = (iso: string) => {
+    const reconnectsAt = new Date(iso)
+    const minutes = Math.max(0, Math.round((reconnectsAt.getTime() - Date.now()) / 60000))
+    const local = reconnectsAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    const utc = reconnectsAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", timeZone: "UTC" })
+
+    return ctrans("Reconnects around :local (:utc UTC), in :hours h :minutes m", { local, utc, hours: Math.floor(minutes / 60), minutes: minutes % 60 })
+}
+
 const connection = (replica: DatabaseReplica) => replica.active
     ? [replica.state ? ctrans(replica.state) : ctrans("connected"), replica.client_addr].filter(Boolean).join(" · ")
     : ctrans("Disconnected")
@@ -56,6 +66,7 @@ const connection = (replica: DatabaseReplica) => replica.active
                     </span>
                 </div>
                 <div class="mt-0.5 text-xs text-gray-500">{{ connection(replica) }}</div>
+                <div v-if="replica.reconnects_at" class="mt-2 text-sm font-semibold text-amber-700 tabular-nums">{{ reconnectEta(replica.reconnects_at) }}</div>
                 <p v-if="replica.issue || replica.note" class="mt-3 text-sm" :class="statuses[replica.status].text">{{ (replica.issue ?? replica.note)?.replace(/`/g, "") }}</p>
                 <dl class="mt-3 grid grid-cols-2 gap-3">
                     <div class="rounded bg-white/60 p-3 ring-1 ring-gray-100">

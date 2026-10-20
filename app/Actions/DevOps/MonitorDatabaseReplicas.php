@@ -117,7 +117,7 @@ class MonitorDatabaseReplicas
 
     /**
      * @param  array<string, string>|null  $expectedSlots
-     * @return array<int, array{slot: string, label: string, status: string, issue: string|null, note: string|null, active: bool, wal_status: string|null, retained_bytes: int|null, client_addr: string|null, state: string|null, unapplied_bytes: int|null}>
+     * @return array<int, array{slot: string, label: string, status: string, issue: string|null, note: string|null, reconnects_at: string|null, active: bool, wal_status: string|null, retained_bytes: int|null, client_addr: string|null, state: string|null, unapplied_bytes: int|null}>
      */
     public function report(?Collection $replicas = null, ?array $expectedSlots = null): array
     {
@@ -145,6 +145,7 @@ class MonitorDatabaseReplicas
                 'status'             => $status,
                 'issue'              => $issue,
                 'note'               => $reconnectsAt ? 'The primary restarted at '.CarbonImmutable::parse($replica->primary_started_at)->utc()->format('j M H:i')." UTC. The replica first applies the 12 hours of changes it already holds, then reconnects by itself around {$reconnectsAt->utc()->format('H:i')} UTC. The primary is keeping $retained of changes for it." : null,
+                'reconnects_at'      => $reconnectsAt?->toIso8601String(),
                 'active'             => (bool) $replica->active,
                 'wal_status'         => $replica->wal_status,
                 'retained_bytes'     => $retainedBytes,
@@ -161,6 +162,7 @@ class MonitorDatabaseReplicas
                 'status'             => 'broken',
                 'issue'              => "$label (`$slot`) no longer exists on the primary. It has to be copied again from the primary.",
                 'note'               => null,
+                'reconnects_at'      => null,
                 'active'             => false,
                 'wal_status'         => null,
                 'retained_bytes'     => null,
