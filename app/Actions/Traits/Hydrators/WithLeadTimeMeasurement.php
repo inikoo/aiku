@@ -15,7 +15,8 @@ trait WithLeadTimeMeasurement
     /**
      * Days from submitting a purchase order to its delivery landing, averaged over the orders of
      * the last 12 months. A supplier ordered from once a year has fewer than 3 of those, so its
-     * last 3 orders of any age are used instead of falling back to the hand-typed estimate.
+     * last 3 orders of any age are used instead of falling back to the hand-typed estimate. Each order
+     * counts once, landing with its first delivery, however many deliveries or lines it was split into.
      *
      * @return array{measured_lead_time_days: int|null, lead_time_samples: int}
      */
@@ -29,8 +30,10 @@ trait WithLeadTimeMeasurement
             ->whereNull('purchase_orders.deleted_at')
             ->whereNotNull('purchase_orders.submitted_at')
             ->whereRaw('coalesce(stock_deliveries.booked_in_at, stock_deliveries.placed_at) is not null')
+            ->groupBy('purchase_orders.id', 'purchase_orders.submitted_at')
             ->orderByDesc('purchase_orders.submitted_at')
-            ->selectRaw('extract(epoch from coalesce(stock_deliveries.booked_in_at, stock_deliveries.placed_at) - purchase_orders.submitted_at) / 86400 as days')
+            ->orderByDesc('purchase_orders.id')
+            ->selectRaw('extract(epoch from min(coalesce(stock_deliveries.booked_in_at, stock_deliveries.placed_at)) - purchase_orders.submitted_at) / 86400 as days')
             ->selectRaw("purchase_orders.submitted_at >= now() - interval '12 months' as is_recent")
             ->get()
             ->filter(fn (object $row, int $index) => $row->is_recent || $index < 3)
