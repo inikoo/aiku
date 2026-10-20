@@ -268,8 +268,9 @@ onBeforeUnmount(stopListening)
             </div>
             <div v-if="main === 'draft' && draft" class="rounded-xl border border-[--app-accent-muted] bg-[--app-accent-soft] px-3 py-2">
                 <div class="flex items-center gap-1.5 text-[11px] text-[--app-accent-strong]">
-                    <FontAwesomeIcon :icon="faRobot" fixed-width />
-                    <span v-if="draft.assistant">{{ draft.assistant.of ? ctrans("Draft from :name's assistant", { name: draft.assistant.of }) : ctrans("Draft from an assistant") }}<template v-if="draft.assistant.client"> · {{ draft.assistant.client }}</template></span>
+                    <img v-if="draft.assistant" src="/art/invader.svg" alt="aiku" class="h-3.5 select-none" />
+                    <FontAwesomeIcon v-else :icon="faRobot" fixed-width />
+                    <span v-if="draft.assistant" :title="draft.assistant.of ? ctrans('Asked by :name', { name: draft.assistant.of }) + (draft.assistant.client ? ` · ${draft.assistant.client}` : '') : undefined">{{ ctrans("Draft by Aiku") }}</span>
                     <span v-else>{{ ctrans("Draft written by AI from aiku data") }} · {{ draft.topic_label }}</span>
                 </div>
                 <p role="button" tabindex="0" :aria-expanded="draftOpen" :title="draftOpen ? undefined : draft.text" class="mt-1 cursor-pointer whitespace-pre-line text-gray-800" :class="draftOpen ? 'max-h-48 overflow-y-auto' : 'line-clamp-3'" @click="toggleDraft" @keydown.enter.prevent="toggleDraft">{{ draft.text }}</p>
