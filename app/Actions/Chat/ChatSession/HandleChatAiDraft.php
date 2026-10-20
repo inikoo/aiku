@@ -10,6 +10,9 @@ namespace App\Actions\Chat\ChatSession;
 
 use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Enums\CRM\Livechat\ChatAiDraftStatusEnum;
+use App\Enums\Helpers\Ticket\TicketStatusEnum;
+use App\Enums\Helpers\Ticket\TicketTypeEnum;
+use App\Models\Helpers\Ticket;
 use App\Models\Chat\ChatAiDraft;
 use App\Models\Chat\ChatSession;
 use App\Models\Chat\MetaChatSession;
@@ -172,6 +175,17 @@ class HandleChatAiDraft
                 'client' => data_get($draft->facts, 'client'),
             ]) : null,
             'staff_note'  => data_get($draft->facts, 'staff_note'),
+            'checked'     => data_get($draft->facts, 'checked', []),
+            'premonitions' => Ticket::whereIn('reference', data_get($draft->facts, 'premonitions', []))
+                ->where('type', TicketTypeEnum::PREMONITION)
+                ->get(['reference', 'subject', 'status'])
+                ->map(fn (Ticket $ticket) => [
+                    'reference' => $ticket->reference,
+                    'subject'   => $ticket->subject,
+                    'fixed'     => $ticket->status === TicketStatusEnum::RESOLVED,
+                    'url'       => route('grp.tickets.show', $ticket->reference),
+                ])->all(),
+            'actions'     => $chatSession instanceof ChatSession ? RunChatAiDraftAction::views($chatSession, $draft) : [],
             'rating'      => $draft->rating,
             'reason'      => $draft->rating_reason,
         ] : null, 'suggestions' => ClassifyChatTurn::suggestions($chatSession)]);

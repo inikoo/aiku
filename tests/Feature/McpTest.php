@@ -2764,6 +2764,75 @@ describe('customer service tools', function () {
             ->assertHasErrors(['was not delivered on']);
     });
 
+    test('a draft carries one-click claim and task buttons, the facts checked and its PRE tickets, and each button runs once', function () {
+        App\Actions\Helpers\Translations\DetectLanguageWithJev::shouldRun()->andReturn(App\Models\Helpers\Language::firstWhere('code', 'en'));
+        $order = StoreOrder::make()->action($this->csCustomer, []);
+        App\Actions\Ordering\Transaction\StoreTransaction::make()->action($order, $this->product->historicAsset, ['quantity_ordered' => 2]);
+        App\Actions\Ordering\Order\UpdateState\SubmitOrder::make()->action($order->refresh());
+        $deliveryNote = App\Actions\Ordering\Order\UpdateState\SendOrderToWarehouse::make()->action($order->refresh(), []);
+        $item         = $deliveryNote->deliveryNoteItems()->firstOrFail();
+        $item->update(['quantity_picked' => $item->quantity_required, 'quantity_dispatched' => $item->quantity_required]);
+        $invoice      = App\Actions\Ordering\Order\GenerateInvoiceFromOrder::make()->action($order->refresh());
+        App\Actions\Accounting\Invoice\PayInvoice::make()->action(
+            $invoice->refresh(),
+            App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProviderAccount::make()->action(
+                $this->organisation,
+                App\Models\Accounting\PaymentServiceProvider::where('type', App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum::CASH->value)->first(),
+                ['code' => 'MCD'.mt_rand(1000, 9999), 'name' => 'Draft action account']
+            ),
+            [
+                'amount' => $invoice->total_amount,
+                'status' => App\Enums\Accounting\Payment\PaymentStatusEnum::SUCCESS->value,
+                'state'  => App\Enums\Accounting\Payment\PaymentStateEnum::COMPLETED->value,
+            ]
+        );
+        $order->update(['state' => OrderStateEnum::DISPATCHED, 'dispatched_at' => now()->subDay()]);
+        $premonition = App\Actions\Helpers\Ticket\StoreTicket::make()->action($this->organisation->group, ['subject' => 'Claim list repeats '.$order->reference, 'type' => 'premonition']);
+        $refund      = ['type' => 'claim', 'order' => $order->reference, 'resolution' => 'refund_to_balance', 'items' => [['code' => $this->product->code, 'quantity' => 1]], 'reason' => 'damaged_in_transit'];
+        $task        = ['type' => 'task', 'label' => 'Ask the warehouse to check the box', 'subject' => 'Check the box of '.$order->reference, 'department' => 'warehouse'];
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'save_draft', 'message' => 'Sorry it arrived broken, we have refunded it.', 'actions' => [[...$refund, 'items' => [['code' => $this->product->code, 'quantity' => 5]]]]])
+            ->assertHasErrors(['Action 1: Only 2 of']);
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, [
+            'action'       => 'save_draft',
+            'message'      => 'Sorry it arrived broken, we have refunded it.',
+            'staff_note'   => 'Before sending: refund the broken one.',
+            'checked'      => [$order->reference.' dispatched yesterday', 'No refund given yet'],
+            'premonitions' => [$premonition->reference, 'PRE-9999'],
+            'actions'      => [$refund, $task],
+        ])->assertOk();
+
+        $draft = App\Actions\Chat\ChatSession\DraftChatReply::pendingDraft($this->chat);
+        $this->actingAs($this->user);
+        $shown = App\Actions\Chat\ChatSession\HandleChatAiDraft::make()->asController($this->chat)->getData(true)['data'];
+
+        expect($shown['checked'])->toBe([$order->reference.' dispatched yesterday', 'No refund given yet'])
+            ->and($shown['premonitions'])->toHaveCount(1)
+            ->and($shown['premonitions'][0])->toMatchArray(['reference' => $premonition->reference, 'fixed' => false])
+            ->and($shown['actions'][0])->toMatchArray(['index' => 0, 'type' => 'claim', 'done' => false, 'available' => true])
+            ->and($shown['actions'][0]['label'])->toStartWith('Refund ')
+            ->and($shown['actions'][1])->toMatchArray(['index' => 1, 'type' => 'task', 'label' => 'Ask the warehouse to check the box']);
+
+        $balance = (float) $this->csCustomer->refresh()->balance;
+        postJson(route('grp.api.chats.ai_drafts.action', [$draft->id, 0]))->assertOk()->assertJsonPath('data.done', true);
+        postJson(route('grp.api.chats.ai_drafts.action', [$draft->id, 0]))->assertStatus(409);
+        expect((float) $this->csCustomer->refresh()->balance)->toBeGreaterThan($balance)
+            ->and($order->invoices()->where('type', App\Enums\Accounting\Invoice\InvoiceTypeEnum::REFUND)->count())->toBe(1);
+
+        $done = postJson(route('grp.api.chats.ai_drafts.action', [$draft->id, 1]))->assertOk()->json('data');
+        expect($done['label'])->toStartWith('TASK-')
+            ->and(App\Models\Tasks\StaffTask::where('subject', 'Check the box of '.$order->reference)->where('department', 'warehouse')->where('requester_id', $this->user->id)->exists())->toBeTrue();
+
+        $premonition->update(['status' => App\Enums\Helpers\Ticket\TicketStatusEnum::RESOLVED]);
+        $this->chat->update(['last_visitor_message_at' => now(), 'last_agent_message_at' => null]);
+        Illuminate\Support\Facades\Auth::setUser($this->user);
+        $listed = collect(json_decode((string) app(App\Mcp\Tools\CustomerServiceInboxTool::class)->handle(new Laravel\Mcp\Request(['limit' => 50, 'premonition_fixed_only' => true]))->content(), true)['waiting'] ?? []);
+
+        expect(App\Actions\Chat\ChatSession\HandleChatAiDraft::make()->asController($this->chat)->getData(true)['data']['premonitions'][0]['fixed'])->toBeTrue()
+            ->and($listed->firstWhere('chat_id', $this->chat->ulid))->toMatchArray(['premonition_fixed' => true]);
+    });
+
     test('a pack of several stocks is claimed in the products ordered, not the stocks picked', function () {
         $this->product->orgStocks()->updateExistingPivot($this->product->orgStocks()->first()->id, ['quantity' => 3]);
         $order = StoreOrder::make()->action($this->csCustomer, []);
