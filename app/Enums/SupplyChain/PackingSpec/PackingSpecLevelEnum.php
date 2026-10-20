@@ -42,15 +42,15 @@ enum PackingSpecLevelEnum: string
     }
 
     /**
-     * The UK packaging class the material is reported in: wraps on the unit are primary, packs are secondary,
-     * everything that only holds the carton together is tertiary.
+     * The UK packaging class the material is reported in: wraps on the unit are primary; packs and the carton that
+     * groups them are secondary, as the UK returns have always reported import cartons.
      */
     public function ukPackagingClass(): string
     {
         return match ($this) {
             self::PER_UNIT   => 'P1',
             self::PER_PACK   => 'P2',
-            self::PER_CARTON => 'P4',
+            self::PER_CARTON => 'P2',
         };
     }
 
