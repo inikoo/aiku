@@ -2,6 +2,7 @@
 
 namespace App\Actions\Retina\CRM\Appointment;
 
+use App\Enums\CRM\Appointment\AppointmentStateEnum;
 use App\Models\CRM\Appointment;
 use App\Models\CRM\Customer;
 use Illuminate\Validation\ValidationException;
@@ -36,6 +37,8 @@ trait WithRetinaAppointment
             'appointment_type_id' => $appointment->appointment_type_id,
             'appointment_type'    => $appointmentType?->name,
             'meeting_mode'        => $appointmentType?->meeting_mode->value,
+            'media'               => $appointmentType?->media()?->value,
+            'zoom_join_url'       => $appointment->state === AppointmentStateEnum::ACCEPTED ? $appointment->zoomJoinUrl() : null,
             'location'            => $appointmentType?->location,
             'date_label'          => $startsAt->translatedFormat('l j F Y'),
             'time'                => $startsAt->format('H:i'),

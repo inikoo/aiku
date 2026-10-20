@@ -36,12 +36,13 @@ const props = defineProps<{
         date_label: string
         is_past: boolean
         timezone: string
-        appointment_type: { name: string, meeting_mode: string, meeting_mode_label: string, location: string | null, duration_minutes: number }
+        appointment_type: { name: string, meeting_mode: string, meeting_mode_label: string, media: string | null, location: string | null, duration_minutes: number }
         staff_name: string | null
         contact_name: string
         email: string | null
         phone: string | null
         whatsapp_url: string | null
+        zoom_join_url: string | null
         number_visitors: number
         notes: string | null
         visitor: { type: string, label: string, name: string, route: RouteDefinition } | null
@@ -156,6 +157,11 @@ const statusMessage = computed(() => ({
                                 class="inline-flex items-center gap-1 rounded-md border border-green-500 px-2 py-0.5 text-xs font-medium text-green-700 hover:bg-green-50">
                                 <FontAwesomeIcon :icon="faWhatsapp" fixed-width aria-hidden="true" /> {{ ctrans("Call on WhatsApp") }}
                             </a>
+                        </li>
+                        <li v-if="appointment.appointment_type.media === 'zoom'" class="flex flex-wrap items-center gap-2">
+                            <FontAwesomeIcon icon="fal fa-video" class="text-gray-400" fixed-width aria-hidden="true" />
+                            <a v-if="appointment.zoom_join_url" :href="appointment.zoom_join_url" target="_blank" rel="noopener" class="break-all text-[--app-accent] hover:underline">{{ appointment.zoom_join_url }}</a>
+                            <span v-else class="text-gray-500">{{ ctrans("The Zoom meeting is created when the appointment is accepted") }}</span>
                         </li>
                         <li v-if="appointment.appointment_type.meeting_mode === 'store_visit'" class="flex gap-2">
                             <FontAwesomeIcon icon="fal fa-users" class="mt-0.5 text-gray-400" fixed-width aria-hidden="true" />

@@ -21,6 +21,8 @@ type CustomerAppointment = {
     appointment_type_id: number
     appointment_type: string | null
     meeting_mode: "store_visit" | "video_call" | null
+    media: "whatsapp" | "zoom" | null
+    zoom_join_url: string | null
     location: string | null
     date_label: string
     time: string
@@ -139,7 +141,9 @@ const cancel = () => send("cancel", { reason: cancelReason.value })
                             </div>
                             <div class="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
                                 <span v-if="appointment.meeting_mode === 'video_call'">
-                                    <FontAwesomeIcon icon="fal fa-video" fixed-width aria-hidden="true" /> {{ ctrans("Video call on WhatsApp") }}
+                                    <FontAwesomeIcon icon="fal fa-video" fixed-width aria-hidden="true" />
+                                    <a v-if="appointment.zoom_join_url" :href="appointment.zoom_join_url" target="_blank" rel="noopener" class="text-[--app-accent] hover:underline">{{ ctrans("Join the Zoom meeting") }}</a>
+                                    <template v-else>{{ appointment.media === "zoom" ? ctrans("Video call on Zoom") : ctrans("Video call on WhatsApp") }}</template>
                                 </span>
                                 <span v-if="appointment.location">
                                     <FontAwesomeIcon icon="fal fa-map-marker-alt" fixed-width aria-hidden="true" /> {{ appointment.location }}

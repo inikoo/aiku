@@ -2,6 +2,8 @@
 
 namespace App\Actions\CRM\Appointment;
 
+use Illuminate\Support\Arr;
+use App\Actions\CRM\Appointment\Zoom\SyncAppointmentZoomMeeting;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\CRM\Appointment\AppointmentStateEnum;
@@ -39,6 +41,10 @@ class UpdateAppointment extends OrgAction
         });
 
         SyncAppointmentStaffTask::run($appointment);
+
+        if ($appointment->appointmentType?->isZoomCall() || Arr::has($appointment->data, 'zoom')) {
+            SyncAppointmentZoomMeeting::dispatch($appointment->id);
+        }
 
         return $appointment;
     }

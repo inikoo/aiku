@@ -41,6 +41,7 @@ class AppointmentResource extends JsonResource
                 'name'               => $appointment->appointmentType?->name,
                 'meeting_mode'       => $appointment->appointmentType?->meeting_mode->value,
                 'meeting_mode_label' => $appointment->appointmentType?->meeting_mode->label(),
+                'media'              => $appointment->appointmentType?->media()?->value,
                 'location'           => $appointment->appointmentType?->location,
                 'duration_minutes'   => $appointment->appointmentType?->duration_minutes,
             ],
@@ -49,6 +50,7 @@ class AppointmentResource extends JsonResource
             'email'            => $appointment->email,
             'phone'            => $appointment->phone,
             'whatsapp_url'     => $appointment->appointmentType?->requiresPhone() ? $appointment->whatsappUrl() : null,
+            'zoom_join_url'    => $appointment->zoomJoinUrl(),
             'number_visitors'  => $appointment->number_visitors,
             'notes'            => $appointment->notes,
             'visitor'          => match (true) {

@@ -2,6 +2,8 @@
 
 namespace App\Actions\Comms\Email;
 
+use App\Enums\CRM\Appointment\AppointmentStateEnum;
+use App\Actions\CRM\Appointment\Zoom\SyncAppointmentZoomMeeting;
 use App\Actions\Comms\DispatchedEmail\StoreDispatchedEmail;
 use App\Actions\Comms\Traits\WithSendBulkEmails;
 use App\Actions\OrgAction;
@@ -16,6 +18,8 @@ use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\HtmlString;
+use Throwable;
 
 class SendAppointmentEmail extends OrgAction
 {
@@ -38,6 +42,10 @@ class SendAppointmentEmail extends OrgAction
         $emailAddress = $appointment->email ?: $visitor->email;
         if (!$emailAddress) {
             return null;
+        }
+
+        if ($appointment->appointmentType?->isZoomCall() && in_array($code, [OutboxCodeEnum::APPOINTMENT_ACCEPTED, OutboxCodeEnum::APPOINTMENT_RESCHEDULED], true)) {
+            $appointment = $this->withZoomMeeting($appointment);
         }
 
         /** @var Outbox|null $outbox */
@@ -90,6 +98,17 @@ class SendAppointmentEmail extends OrgAction
                 ],
             ]
         );
+    }
+
+    private function withZoomMeeting(Appointment $appointment): Appointment
+    {
+        try {
+            SyncAppointmentZoomMeeting::make()->handle($appointment->id);
+        } catch (Throwable $exception) {
+            report($exception);
+        }
+
+        return $appointment->refresh()->load(['shop', 'appointmentType', 'visitor', 'user']);
     }
 
     public function subject(Appointment $appointment, OutboxCodeEnum $code, Outbox $outbox): string
@@ -173,8 +192,14 @@ class SendAppointmentEmail extends OrgAction
             'END:VCALENDAR',
         ];
 
-        if ($location = $appointment->appointmentType?->location) {
+        $zoomUrl = $isCancelled ? null : $appointment->zoomJoinUrl();
+
+        if ($location = $zoomUrl ?? $appointment->appointmentType?->location) {
             array_splice($lines, -3, 0, ['LOCATION:'.$escape($location)]);
+        }
+
+        if ($zoomUrl) {
+            array_splice($lines, -3, 0, ['URL:'.$zoomUrl, 'DESCRIPTION:'.$escape(__('Join the Zoom meeting: :url', ['url' => $zoomUrl]))]);
         }
 
         return implode("\r\n", $lines)."\r\n";
@@ -187,9 +212,7 @@ class SendAppointmentEmail extends OrgAction
         $rows  = [
             __('What')  => $type?->name.($type ? ' · '.$type->meeting_mode->label() : ''),
             __('When')  => $start->translatedFormat('l j F Y').', '.$start->format('H:i').'–'.$appointment->ends_at->copy()->setTimezone($start->timezone)->format('H:i').' ('.$start->timezone->getName().')',
-            __('Where') => $type?->meeting_mode === AppointmentTypeMeetingModeEnum::VIDEO_CALL
-                ? __('Video call on WhatsApp, we will call you on :phone', ['phone' => $appointment->phone ?: '-'])
-                : $type?->location,
+            __('Where') => $this->meetingPlace($appointment),
         ];
         if ($appointment->user) {
             $rows[__('With')] = $appointment->user->contact_name;
@@ -202,6 +225,27 @@ class SendAppointmentEmail extends OrgAction
         }
 
         return $html.'</table>';
+    }
+
+    private function meetingPlace(Appointment $appointment): string|HtmlString|null
+    {
+        $type = $appointment->appointmentType;
+
+        if ($type?->isZoomCall()) {
+            $joinUrl = $appointment->zoomJoinUrl();
+
+            return $joinUrl
+                ? new HtmlString(e(__('Zoom meeting')).': <a href="'.e($joinUrl).'">'.e($joinUrl).'</a>')
+                : ($appointment->state === AppointmentStateEnum::REQUESTED
+                    ? __('Zoom meeting, we will send you the link once your appointment is confirmed')
+                    : __('Zoom meeting, we will send you the link separately'));
+        }
+
+        if ($type?->meeting_mode === AppointmentTypeMeetingModeEnum::VIDEO_CALL) {
+            return __('Video call on WhatsApp, we will call you on :phone', ['phone' => $appointment->phone ?: '-']);
+        }
+
+        return $type?->location;
     }
 
     private function paragraph(string $text): string

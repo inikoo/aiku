@@ -108,7 +108,12 @@ class AppointmentType extends Model implements Auditable
 
     public function requiresPhone(): bool
     {
-        return $this->meeting_mode === AppointmentTypeMeetingModeEnum::VIDEO_CALL;
+        return $this->media() === AppointmentTypeMediaEnum::WHATSAPP;
+    }
+
+    public function isZoomCall(): bool
+    {
+        return $this->media() === AppointmentTypeMediaEnum::ZOOM;
     }
 
     public function attendees(): BelongsToMany

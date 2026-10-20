@@ -138,7 +138,10 @@ use App\Models\Tasks\StaffTask;
 use App\Models\Web\Website;
 use App\Notifications\StaffTaskNotification;
 use Illuminate\Http\UploadedFile;
+use App\Actions\CRM\Appointment\Zoom\SyncAppointmentZoomMeeting;
+use App\Actions\CRM\Appointment\Zoom\ZoomClient;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\Auth;
@@ -1699,6 +1702,114 @@ test('the appointments dashboard turns the booking widget on and shows its embed
             ->etc());
 
     $this->patchJson($updateUrl, ['appointment_widget_enabled' => false])->assertOk();
+});
+
+test('zoom credentials are checked with zoom and the secret is stored encrypted', function () {
+    Http::fake([
+        'zoom.us/oauth/token' => Http::sequence()
+            ->push(['error' => 'invalid_client'], 401)
+            ->push(['access_token' => 'zoom-token', 'expires_in' => 3600])
+            ->whenEmpty(Http::response(['access_token' => 'zoom-token', 'expires_in' => 3600])),
+    ]);
+
+    $clientId = 'client-'.Str::random(8);
+
+    expect(fn () => UpdateShop::make()->action($this->shop, [
+        'zoom_account_id'    => 'account-1',
+        'zoom_client_id'     => $clientId,
+        'zoom_client_secret' => 'wrong-secret',
+    ]))->toThrow(ValidationException::class);
+
+    $shop = UpdateShop::make()->action($this->shop->refresh(), [
+        'zoom_account_id'    => 'account-1',
+        'zoom_client_id'     => $clientId,
+        'zoom_client_secret' => 'right-secret',
+    ]);
+
+    expect(Arr::get($shop->settings, 'zoom.client_secret'))->not->toBe('right-secret')
+        ->and(Crypt::decryptString(Arr::get($shop->settings, 'zoom.client_secret')))->toBe('right-secret')
+        ->and(ZoomClient::make()->isConfigured($shop))->toBeTrue();
+
+    $shop = UpdateShop::make()->action($shop, ['zoom_client_secret' => '', 'zoom_host_email' => 'host@example.com']);
+
+    expect(ZoomClient::make()->credentials($shop)['client_secret'])->toBe('right-secret')
+        ->and(ZoomClient::make()->credentials($shop)['host'])->toBe('host@example.com');
+});
+
+test('a zoom appointment gets its own meeting that follows accept, reschedule and cancel', function () {
+    Http::fake([
+        'zoom.us/oauth/token'             => Http::response(['access_token' => 'zoom-token', 'expires_in' => 3600]),
+        'api.zoom.us/v2/users/*/meetings' => Http::response(['id' => 987654321, 'join_url' => 'https://zoom.us/j/987654321'], 201),
+        'api.zoom.us/v2/meetings/*'       => Http::response(null, 204),
+    ]);
+
+    $settings = $this->shop->settings ?? [];
+    unset($settings['zoom']);
+    $this->shop->update(['settings' => $settings]);
+
+    $zoomType = [
+        'name'                => 'Zoom call '.Str::random(6),
+        'meeting_mode'        => AppointmentTypeMeetingModeEnum::VIDEO_CALL->value,
+        'media'               => AppointmentTypeMediaEnum::ZOOM->value,
+        'duration_minutes'    => 30,
+        'min_notice_hours'    => 0,
+        'booking_window_days' => 14,
+        'availability'        => ['weekly' => array_fill_keys(range(1, 7), [['from' => '09:00', 'to' => '17:00']])],
+    ];
+
+    expect(fn () => StoreAppointmentType::make()->action($this->shop, $zoomType))->toThrow(ValidationException::class);
+
+    $shop = UpdateShop::make()->action($this->shop->refresh(), [
+        'zoom_account_id'    => 'account-1',
+        'zoom_client_id'     => 'client-'.Str::random(8),
+        'zoom_client_secret' => 'secret',
+    ]);
+
+    $appointmentType = StoreAppointmentType::make()->action($shop, $zoomType);
+
+    expect($appointmentType->isZoomCall())->toBeTrue()
+        ->and($appointmentType->requiresPhone())->toBeFalse();
+
+    $slots = GetAppointmentTypeAvailableSlots::run($appointmentType);
+    $date  = array_key_last($slots);
+
+    $appointment = StoreAppointment::make()->action($shop, [
+        'appointment_type_id' => $appointmentType->id,
+        'starts_at'           => $date.' '.$slots[$date][0],
+        'contact_name'        => 'Zoom visitor',
+        'email'               => 'zoom-visitor-'.Str::lower(Str::random(8)).'@example.com',
+        'state'               => AppointmentStateEnum::REQUESTED->value,
+    ]);
+    SyncAppointmentZoomMeeting::make()->handle($appointment->id);
+
+    expect($appointment->refresh()->zoomJoinUrl())->toBeNull();
+
+    UpdateAppointment::make()->action($appointment, ['state' => AppointmentStateEnum::ACCEPTED->value]);
+    SyncAppointmentZoomMeeting::make()->handle($appointment->id);
+
+    expect($appointment->refresh()->zoomJoinUrl())->toBe('https://zoom.us/j/987654321')
+        ->and(Arr::get($appointment->data, 'zoom.meeting_id'))->toBe('987654321');
+
+    Http::assertSent(fn ($request) => $request->method() === 'POST'
+        && str_ends_with($request->url(), '/users/me/meetings')
+        && $request['start_time'] === $appointment->starts_at->copy()->utc()->format('Y-m-d\TH:i:s\Z')
+        && $request['duration'] === 30);
+
+    $email = SendAppointmentEmail::make();
+    expect($email->generateBodyHtml($appointment, OutboxCodeEnum::APPOINTMENT_ACCEPTED))->toContain('href="https://zoom.us/j/987654321"')
+        ->and($email->calendarInvite($appointment, OutboxCodeEnum::APPOINTMENT_ACCEPTED))->toContain('URL:https://zoom.us/j/987654321');
+
+    UpdateAppointment::make()->action($appointment, ['starts_at' => $date.' '.$slots[$date][1]]);
+    SyncAppointmentZoomMeeting::make()->handle($appointment->id);
+
+    Http::assertSent(fn ($request) => $request->method() === 'PATCH' && str_ends_with($request->url(), '/meetings/987654321'));
+
+    UpdateAppointment::make()->action($appointment->refresh(), ['state' => AppointmentStateEnum::CANCELLED->value]);
+    SyncAppointmentZoomMeeting::make()->handle($appointment->id);
+
+    Http::assertSent(fn ($request) => $request->method() === 'DELETE' && str_ends_with($request->url(), '/meetings/987654321'));
+
+    expect($appointment->refresh()->zoomJoinUrl())->toBeNull();
 });
 
 test('UI Show appointments calendar', function (Appointment $appointment) {

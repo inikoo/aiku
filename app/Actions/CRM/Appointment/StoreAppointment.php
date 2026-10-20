@@ -2,6 +2,8 @@
 
 namespace App\Actions\CRM\Appointment;
 
+use Illuminate\Support\Arr;
+use App\Actions\CRM\Appointment\Zoom\SyncAppointmentZoomMeeting;
 use App\Actions\OrgAction;
 use App\Enums\CRM\Appointment\AppointmentSourceEnum;
 use App\Enums\CRM\Appointment\AppointmentStateEnum;
@@ -43,6 +45,10 @@ class StoreAppointment extends OrgAction
         });
 
         SyncAppointmentStaffTask::run($appointment);
+
+        if ($appointment->appointmentType?->isZoomCall() || Arr::has($appointment->data, 'zoom')) {
+            SyncAppointmentZoomMeeting::dispatch($appointment->id);
+        }
 
         return $appointment;
     }
