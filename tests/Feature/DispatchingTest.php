@@ -1727,8 +1727,19 @@ test('intrastat export keeps each nature of transaction on its own line, adds up
     $process(\App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum::MONTHLY);
     expect($lineOf('M'))->toBe(array_map(fn (array $line) => [...$line, 'period' => '2026-03'], $expectedDaily));
 
+    $rowVersions = fn () => DB::table('intrastat_export_time_series_records as record')
+        ->join('intrastat_export_time_series as series', 'series.id', '=', 'record.intrastat_export_time_series_id')
+        ->where('series.tariff_code', $tariffCode)
+        ->where('record.frequency', 'D')
+        ->orderBy('record.id')
+        ->selectRaw('record.xmin::text as row_version')
+        ->pluck('row_version')
+        ->all();
+    $versionsBeforeRerun = $rowVersions();
+
     $process();
-    expect($lineOf('D'))->toBe($expectedDaily);
+    expect($lineOf('D'))->toBe($expectedDaily)
+        ->and($rowVersions())->toBe($versionsBeforeRerun);
 
     DB::table('delivery_notes')->whereIn('id', [$lines['second']['delivery_note_id'], $lines['replacement']['delivery_note_id']])->update(['state' => DeliveryNoteStateEnum::CANCELLED->value]);
     $process();

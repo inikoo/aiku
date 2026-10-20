@@ -246,11 +246,7 @@ class ProcessIntrastatExportTimeSeriesRecords implements ShouldBeUniqueUntilProc
         $staleRecords = $existingRecords->reject(fn (object $record) => isset($written[$record->intrastat_export_time_series_id.'|'.$record->period]));
 
         foreach (array_chunk($records, 1000) as $chunk) {
-            DB::table('intrastat_export_time_series_records')->upsert(
-                $chunk,
-                ['intrastat_export_time_series_id', 'frequency', 'period'],
-                array_diff(array_keys($chunk[0]), ['intrastat_export_time_series_id', 'frequency', 'period', 'created_at'])
-            );
+            $this->upsertChangedRecords($chunk);
         }
 
         foreach ($staleRecords->pluck('id')->chunk(1000) as $staleIds) {
@@ -263,6 +259,32 @@ class ProcessIntrastatExportTimeSeriesRecords implements ShouldBeUniqueUntilProc
         $this->hydrateSeries(
             $frequencyLetter,
             array_unique([...array_column($records, 'intrastat_export_time_series_id'), ...$staleRecords->pluck('intrastat_export_time_series_id')->all()])
+        );
+    }
+
+    /**
+     * Inserts the new records and rewrites an existing one only when one of its figures changed,
+     * so rerunning a period leaves its unchanged rows, and the table, untouched.
+     */
+    protected function upsertChangedRecords(array $records): void
+    {
+        $columns      = array_keys($records[0]);
+        $quoted       = array_map(fn (string $column) => '"'.$column.'"', $columns);
+        $compared     = array_values(array_diff($columns, ['intrastat_export_time_series_id', 'frequency', 'period', 'created_at', 'updated_at']));
+        $rowSql       = '('.implode(', ', array_fill(0, count($columns), '?')).')';
+        $bindings     = [];
+
+        foreach ($records as $record) {
+            array_push($bindings, ...array_values($record));
+        }
+
+        DB::insert(
+            'INSERT INTO intrastat_export_time_series_records ('.implode(', ', $quoted).') VALUES '.implode(', ', array_fill(0, count($records), $rowSql)).'
+            ON CONFLICT (intrastat_export_time_series_id, frequency, period) DO UPDATE SET '
+            .implode(', ', array_map(fn (string $column) => "\"$column\" = EXCLUDED.\"$column\"", [...$compared, 'updated_at'])).'
+            WHERE ('.implode(', ', array_map(fn (string $column) => "intrastat_export_time_series_records.\"$column\"", $compared)).')
+                IS DISTINCT FROM ('.implode(', ', array_map(fn (string $column) => "EXCLUDED.\"$column\"", $compared)).')',
+            $bindings
         );
     }
 
