@@ -85,7 +85,7 @@ enum UserNotificationEnum: string
         }
 
         if (in_array($this, self::PRODUCT_DEVELOPMENT_EVENTS, true)) {
-            return ['slack'];
+            return ['slack', 'browser'];
         }
 
         return match (Arr::get($user->settings, 'ticket_notifications', 'both')) {

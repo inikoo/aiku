@@ -11,6 +11,9 @@ import { router } from "@inertiajs/vue3"
 import Select from "primevue/select"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { ctrans } from "@/Composables/useTrans"
+import { useScrollArrows } from "@/Composables/useScrollArrows"
+import TicketAttachmentPreview, { isPreviewableAttachment, type TicketAttachment } from "@/Components/Tickets/TicketAttachmentPreview.vue"
+import ScrollFadeArrow from "@/Components/Utils/ScrollFadeArrow.vue"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { routeType } from "@/types/route"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
@@ -64,6 +67,18 @@ const props = defineProps<{
 }>()
 
 const scope = ref<string | null>(null)
+
+/** The full-screen preview used on tickets: images, PDFs and documents, stepping through the group's files */
+const preview = ref<{ files: TicketAttachment[], index: number | null }>({ files: [], index: null })
+const asAttachment = (file: { name: string, url: string | null, size: number | null, mime: string | null }): TicketAttachment => ({ name: file.name, url: file.url ?? "", size: file.size ?? undefined, mime: file.mime })
+const canPreview = (file: { name: string, url: string | null, size: number | null, mime: string | null }) => !!file.url && isPreviewableAttachment(asAttachment(file))
+
+function openPreview(files: { id: number, name: string, url: string | null, size: number | null, mime: string | null }[], fileId: number) {
+    const previewable = files.filter(canPreview)
+    preview.value = { files: previewable.map(asAttachment), index: previewable.findIndex((file) => file.id === fileId) }
+}
+const scopeScroller = ref<HTMLElement | null>(null)
+const { canScrollLeft, canScrollRight, scrollBy: scrollScopes } = useScrollArrows(scopeScroller)
 
 const scopeTabs = computed(() => {
     const counts: Record<string, number> = {}
@@ -137,8 +152,10 @@ const formatSize = (bytes: number | null) => !bytes ? "" : bytes > 1048576 ? `${
 
 <template>
     <div v-if="data" class="space-y-4 p-4">
-        <div class="border-b border-gray-200">
-            <nav class="flex gap-1 overflow-x-auto overflow-y-hidden [scrollbar-width:thin]" :aria-label="ctrans('File types')">
+        <div class="relative isolate border-b border-gray-200">
+            <ScrollFadeArrow direction="left" :visible="canScrollLeft" @click="scrollScopes(-1)" />
+            <ScrollFadeArrow direction="right" :visible="canScrollRight" @click="scrollScopes(1)" />
+            <nav ref="scopeScroller" class="flex gap-1 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" :aria-label="ctrans('File types')">
                 <button
                     v-for="tab in scopeTabs"
                     :key="tab.value ?? 'all'"
@@ -213,9 +230,19 @@ const formatSize = (bytes: number | null) => !bytes ? "" : bytes > 1048576 ? `${
 
             <ul class="divide-y divide-gray-100">
                 <li v-for="file in group.current" :key="file.id" class="flex items-center gap-3 px-3 py-2 text-sm">
-                    <img v-if="file.preview_url" :src="file.preview_url" :alt="file.name" class="h-10 w-10 shrink-0 rounded object-cover ring-1 ring-gray-200" loading="lazy" />
+                    <button
+                        v-if="file.preview_url && canPreview(file)"
+                        type="button"
+                        class="group/thumb relative shrink-0 overflow-hidden rounded-md ring-1 ring-gray-200 transition hover:ring-2 hover:ring-[--app-accent]"
+                        :aria-label="ctrans('Preview :file', { file: file.name })"
+                        @click="openPreview(group.current, file.id)"
+                    >
+                        <img :src="file.preview_url" :alt="file.name" class="h-16 w-16 object-cover transition-transform group-hover/thumb:scale-105" loading="lazy" />
+                    </button>
+                    <img v-else-if="file.preview_url" :src="file.preview_url" :alt="file.name" class="h-16 w-16 shrink-0 rounded-md object-cover ring-1 ring-gray-200" loading="lazy" />
                     <div class="min-w-0 flex-1">
-                        <a v-if="file.url" :href="file.url" class="primaryLink block truncate">{{ file.name }}</a>
+                        <button v-if="canPreview(file)" type="button" class="block max-w-full truncate text-left text-[--app-accent-strong] hover:underline" @click="openPreview(group.current, file.id)">{{ file.name }}</button>
+                        <a v-else-if="file.url" :href="file.url" class="block max-w-full truncate text-[--app-accent-strong] hover:underline">{{ file.name }}</a>
                         <span v-else class="block truncate text-gray-400">{{ file.name }}</span>
                         <span class="text-xs text-gray-500">
                             <template v-if="group.versioned">v{{ file.version }} · </template>{{ [file.uploaded_by, formatWhen(file.uploaded_at), formatSize(file.size)].filter(Boolean).join(" · ") }}
@@ -243,5 +270,6 @@ const formatSize = (bytes: number | null) => !bytes ? "" : bytes > 1048576 ? `${
         </section>
 
         <p v-if="!visibleGroups.length" class="py-6 text-center text-sm text-gray-400">{{ ctrans("No files yet") }}</p>
+        <TicketAttachmentPreview v-model:index="preview.index" :files="preview.files" />
     </div>
 </template>

@@ -52,8 +52,10 @@ class RemindProductDevelopmentMembers extends OrgAction
         $notifier   = NotifyProductDevelopmentUsers::make();
         $roleLabels = ProductDevelopmentMemberRoleEnum::labels();
         $reminded   = [];
+        $remindedKeys = [];
+        $remindedUsers = collect();
 
-        foreach ((new ProductDevelopmentWaitingOn())->byRole($productDevelopment) as $role => $rows) {
+        foreach (self::remindable($productDevelopment) as $role => $rows) {
             $recipients = $notifier->usersWithRole($productDevelopment, ProductDevelopmentMemberRoleEnum::from($role))->reject(fn (User $user) => $user->id === $sender->id);
             if ($recipients->isEmpty()) {
                 continue;
@@ -68,12 +70,18 @@ class RemindProductDevelopmentMembers extends OrgAction
                 UserNotificationEnum::PRODUCT_DEVELOPMENT_TASK,
                 __(':name is waiting on you for :code', ['name' => $sender->contact_name ?: $sender->username, 'code' => $productDevelopment->code]),
                 $body,
+                null,
+                self::openAt($rows[0]),
             );
-            $reminded[] = $roleLabels[$role];
+            $reminded[]     = $roleLabels[$role];
+            $remindedKeys[] = $role;
+            $remindedUsers = $remindedUsers->merge($recipients);
         }
 
+        $remindedUsers->unique('id')->each(fn (User $user) => ProductDevelopmentWaitingOn::markReminded($user));
+
         $data                       = $productDevelopment->data ?? [];
-        $data['reminders_sent']     = ['at' => now()->toIso8601String(), 'by' => $sender->contact_name ?: $sender->username, 'roles' => $reminded];
+        $data['reminders_sent']     = ['at' => now()->toIso8601String(), 'by' => $sender->contact_name ?: $sender->username, 'roles' => $reminded, 'role_keys' => $remindedKeys];
         $productDevelopment->updateQuietly(['data' => $data]);
 
         RecordProductDevelopmentActivity::record($productDevelopment, RecordProductDevelopmentActivity::REMINDERS_SENT, [], ['roles' => $reminded]);
@@ -81,10 +89,48 @@ class RemindProductDevelopmentMembers extends OrgAction
         return $reminded;
     }
 
+    /**
+     * What a reminder may chase, by role: checklist items only for the roles whose stage is the current
+     * one, as the scheduled reminders do, so nobody is nagged about a stage that has not started. Design,
+     * review and sign-off rows already only appear once their round or sign-off is open.
+     *
+     * @return array<string, array<int, array<string, mixed>>>
+     */
+    public static function remindable(ProductDevelopment $productDevelopment): array
+    {
+        $currentRoles = $productDevelopment->stages()
+            ->where('position', $productDevelopment->current_position)
+            ->get()
+            ->map(fn ($stage) => $stage->role->value)
+            ->unique()
+            ->all();
+
+        return collect((new ProductDevelopmentWaitingOn())->byRole($productDevelopment))
+            ->map(fn (array $rows, string $role) => array_values(array_filter($rows, fn (array $row) => $row['kind'] !== ProductDevelopmentWaitingOn::KIND_CHECKLIST || in_array($role, $currentRoles, true))))
+            ->filter()
+            ->all();
+    }
+
+    /**
+     * Where a reminder opens: the page of the first thing waiting, and for a checklist item its tab with
+     * that field brought into view.
+     *
+     * @param array<string, mixed> $row
+     */
+    public static function openAt(array $row): string
+    {
+        $parameters = $row['route']['parameters'];
+        if ($row['kind'] === ProductDevelopmentWaitingOn::KIND_CHECKLIST && !empty($row['items'])) {
+            $parameters['focus'] = 'pd-check-'.$row['items'][0];
+        }
+
+        return route($row['route']['name'], $parameters);
+    }
+
     public function afterValidator(Validator $validator): void
     {
-        if ((new ProductDevelopmentWaitingOn())->byRole($this->productDevelopment) === []) {
-            $validator->errors()->add('reminders', __('Nothing is waiting on anyone'));
+        if (self::remindable($this->productDevelopment) === []) {
+            $validator->errors()->add('reminders', __('Nothing is waiting on anyone at this stage'));
         }
     }
 

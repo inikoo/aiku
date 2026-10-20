@@ -18,6 +18,7 @@ import DatePicker from "primevue/datepicker"
 import { useFitToViewport } from "@/Components/Goods/ProductDevelopment/useFitToViewport"
 import ProductDevelopmentRemoteSelect from "@/Components/Goods/ProductDevelopment/ProductDevelopmentRemoteSelect.vue"
 import ProductDevelopmentUserSelect from "@/Components/Goods/ProductDevelopment/ProductDevelopmentUserSelect.vue"
+import ProductDevelopmentMemberAccessWarning from "@/Components/Goods/ProductDevelopment/ProductDevelopmentMemberAccessWarning.vue"
 import ProductDevelopmentMarketSelect from "@/Components/Goods/ProductDevelopment/ProductDevelopmentMarketSelect.vue"
 import ProductDevelopmentRoleSelect from "@/Components/Goods/ProductDevelopment/ProductDevelopmentRoleSelect.vue"
 import { peopleForRole, type MemberUserOption } from "@/Components/Goods/ProductDevelopment/productDevelopmentMembers"
@@ -28,7 +29,8 @@ import { PageHeadingTypes } from "@/types/PageHeading"
 import { routeType } from "@/types/route"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faPlus, faTimes, faSave, faLightbulbOn, faArrowLeft, faSparkles, faPaintBrush, faTag } from "@fal"
+import { faPlus, faTimes, faLightbulbOn, faArrowLeft, faSparkles, faPaintBrush, faTag } from "@fal"
+import { faSave } from "@fas"
 library.add(faPlus, faTimes, faSave, faLightbulbOn, faArrowLeft, faSparkles, faPaintBrush, faTag)
 
 interface Option {
@@ -390,14 +392,17 @@ function submit() {
                         <p class="text-xs text-gray-500">{{ ctrans("One person can hold several roles: add a row for each role") }}</p>
 
                         <div class="mt-3 space-y-2">
-                            <div v-for="(member, index) in members" :key="index" class="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
-                                <div class="grid min-w-0 gap-2 sm:grid-cols-[11rem_minmax(0,1fr)]">
-                                    <ProductDevelopmentRoleSelect v-model="member.role" :options="options.roles as any" :placeholder="ctrans('Role')" @update:modelValue="onRoleChange(member)" />
-                                    <ProductDevelopmentUserSelect v-model="member.user_id" :options="peopleFor(member.role) as any" :disabled="!peopleFor(member.role).length" :placeholder="personPlaceholder(member.role)" />
+                            <div v-for="(member, index) in members" :key="index" class="space-y-1.5">
+                            <div class="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
+                                    <div class="grid min-w-0 gap-2 sm:grid-cols-[11rem_minmax(0,1fr)]">
+                                        <ProductDevelopmentRoleSelect v-model="member.role" :options="options.roles as any" :placeholder="ctrans('Role')" @update:modelValue="onRoleChange(member)" />
+                                        <ProductDevelopmentUserSelect v-model="member.user_id" :options="peopleFor(member.role) as any" :disabled="!peopleFor(member.role).length" :placeholder="personPlaceholder(member.role)" />
+                                    </div>
+                                    <Button type="tertiary" :tooltip="ctrans('Remove')" class="h-10 w-10 justify-center" @click="members.splice(index, 1)">
+                                        <template #icon><FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" /></template>
+                                    </Button>
                                 </div>
-                                <Button type="tertiary" :tooltip="ctrans('Remove')" class="h-10 w-10 justify-center" @click="members.splice(index, 1)">
-                                    <template #icon><FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" /></template>
-                                </Button>
+                                <ProductDevelopmentMemberAccessWarning :userId="member.user_id" :role="member.role" />
                             </div>
                         </div>
 
@@ -413,7 +418,7 @@ function submit() {
             <Button
                 type="primary"
                 nativeType="submit"
-                icon="fal fa-save"
+                icon="fas fa-save"
                 :label="ctrans('Create development')"
                 :loading="saving"
                 :disabled="hasCodeProblems"

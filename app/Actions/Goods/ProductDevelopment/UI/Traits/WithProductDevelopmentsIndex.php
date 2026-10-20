@@ -9,6 +9,7 @@
 
 namespace App\Actions\Goods\ProductDevelopment\UI\Traits;
 
+use App\Actions\Goods\ProductDevelopment\ProductDevelopmentWaitingOn;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentFlagEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentMemberRoleEnum;
@@ -82,8 +83,13 @@ trait WithProductDevelopmentsIndex
     /**
      * @return array<int, array<string, mixed>>
      */
-    public function viewSwitch(string $current): array
+    /**
+     * The List / Board / Waiting on me switch; the last one carries how much waits on the viewer.
+     */
+    public function viewSwitch(string $current, ?int $waitingCount = null): array
     {
+        $waitingCount ??= request()->user() ? (ProductDevelopmentWaitingOn::railBadge(request()->user())['waiting'] ?? 0) : 0;
+
         return [
             [
                 'key'   => 'list',
@@ -105,6 +111,7 @@ trait WithProductDevelopmentsIndex
                 'icon'   => 'fal fa-hourglass-half',
                 'route'  => ['name' => 'grp.product_developments.waiting_on_me', 'parameters' => []],
                 'active' => $current === 'waiting',
+                'count'  => $waitingCount,
             ],
         ];
     }

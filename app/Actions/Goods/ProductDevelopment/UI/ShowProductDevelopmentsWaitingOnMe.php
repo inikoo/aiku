@@ -44,8 +44,8 @@ class ShowProductDevelopmentsWaitingOnMe extends OrgAction
                         'icon'  => 'fal fa-lightbulb-on',
                     ],
                 ],
-                'viewSwitch'  => $this->viewSwitch('waiting'),
-                'rows'        => $this->withFields((new ProductDevelopmentWaitingOn())->forUser($request->user()), $request->user()),
+                'viewSwitch'  => $this->viewSwitch('waiting', count($rows = (new ProductDevelopmentWaitingOn())->forUser($request->user()))),
+                'rows'        => $this->withFields($rows, $request->user()),
             ]
         );
     }

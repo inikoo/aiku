@@ -248,7 +248,8 @@ test('the development page shows the header, stage bar and a blocked move with i
             ->has('overview.strip', count(ProductDevelopmentStageEnum::cases()) + 1)
             ->has('overview.roles', 5)
             ->has('overview.products', 2)
-            ->where('overview.waiting_on', fn ($rows) => count($rows) > 0)
+            ->where('overview.waiting_on', fn ($rows) => count($rows) > 0 && collect($rows)->every(fn ($row) => in_array($row['tab'], ['brief', 'products', 'compliance'], true)
+                && \App\Models\Goods\ProductDevelopmentChecklistItem::whereKey((int) str_replace('pd-check-', '', $row['target']))->where('product_development_id', $productDevelopment->id)->exists()))
             ->where('header.type.color', 'teal')
             ->where('recentActivity', fn ($entries) => count($entries) > 0 && count($entries) <= 5)
             ->where('stageMove.can_move', false)
@@ -913,8 +914,13 @@ test('compliance confirms pictograms and label marks, and links ingredients, str
 
 test('send reminders tells each role what is waiting on it, and only the owner or purchasing can send them', function () {
     [$productDevelopment, $people] = developmentWithDesignTeam($this, 1);
+    $productDevelopment->update(['current_position' => 2]);
 
     $reminded = \App\Actions\Goods\ProductDevelopment\RemindProductDevelopmentMembers::make()->action($productDevelopment, $this->user);
+    $agentRows = \App\Actions\Goods\ProductDevelopment\RemindProductDevelopmentMembers::remindable($productDevelopment->fresh())[ProductDevelopmentMemberRoleEnum::AGENT->value];
+    expect(\App\Actions\Goods\ProductDevelopment\RemindProductDevelopmentMembers::openAt($agentRows[0]))
+        ->toContain('tab=products')
+        ->toContain('focus=pd-check-'.$agentRows[0]['items'][0]);
     expect($reminded)->toContain('Agent')
         ->and($productDevelopment->fresh()->data['reminders_sent']['roles'])->toContain('Agent')
         ->and(collect(GetProductDevelopmentActivity::run($productDevelopment->fresh()))->pluck('sentence')->first())->toContain('Sent reminders to');
@@ -1049,4 +1055,271 @@ test('concept is uploaded and marked up with pins and freehand lines, and packag
 
     $skip->action($productDevelopment->fresh(), $this->user, ['round' => 'packaging', 'operation' => 'undo']);
     expect(\App\Actions\Goods\ProductDevelopment\Design\ProductDevelopmentDesignRounds::isSkipped($productDevelopment->fresh(), \App\Enums\Goods\ProductDevelopment\ProductDevelopmentDesignRoundEnum::PACKAGING))->toBeFalse();
+});
+
+function purchaseOrderFor(object $test, \App\Models\SupplyChain\Supplier $supplier, ?\App\Models\SupplyChain\HistoricSupplierProduct $orderedProduct = null): \App\Models\Procurement\PurchaseOrder
+{
+    $organisation = createOrganisation();
+    $orgSupplier  = \App\Models\Procurement\OrgSupplier::where('organisation_id', $organisation->id)->where('supplier_id', $supplier->id)->first()
+        ?? \App\Actions\Procurement\OrgSupplier\StoreOrgSupplier::make()->action($organisation, $supplier);
+
+    $purchaseOrder = \App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder::make()->action(
+        $orgSupplier,
+        [...\App\Models\Procurement\PurchaseOrder::factory()->definition(), 'reference' => 'PD-PO-'.Str::upper(Str::random(6))],
+        strict: false
+    );
+
+    if ($orderedProduct) {
+        $stock    = \App\Actions\Goods\Stock\StoreStock::make()->action($test->group, [...\App\Models\Goods\Stock::factory()->definition(), 'state' => \App\Enums\Goods\Stock\StockStateEnum::ACTIVE]);
+        $orgStock = \App\Actions\Inventory\OrgStock\StoreOrgStock::make()->action($organisation, $stock);
+        \App\Actions\Procurement\PurchaseOrderTransaction\StorePurchaseOrderTransaction::make()->action($purchaseOrder, $orderedProduct, $orgStock, \App\Models\Procurement\PurchaseOrderTransaction::factory()->definition());
+    }
+
+    return $purchaseOrder->fresh();
+}
+
+test('a trade unit and its family show their developments in a Development tab, only to people who may see them', function () {
+    $productDevelopment = storeDevelopmentWithNewSkus($this, 1);
+    $tradeUnit          = $productDevelopment->items->first()->tradeUnit;
+    $family             = \App\Actions\Goods\TradeUnitFamily\StoreTradeUnitFamily::make()->action($this->group, ['code' => 'TUF-'.Str::upper(Str::random(5)), 'name' => 'Candles family']);
+    $tradeUnit->update(['trade_unit_family_id' => $family->id]);
+
+    get(route('grp.trade_units.units.show', [$tradeUnit->slug, 'tab' => 'product_developments']))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Goods/TradeUnit')
+            ->where('tabs.navigation.product_developments.number', 1)
+            ->where('product_developments.rows.0.code', $productDevelopment->code)
+            ->where('product_developments.rows.0.route.parameters.productDevelopment', $productDevelopment->slug));
+
+    get(route('grp.trade_units.families.show', [$family->slug, 'tab' => 'product_developments']))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Goods/TradeUnitFamily')
+            ->where('product_developments.rows', fn ($rows) => collect($rows)->pluck('code')->contains($productDevelopment->code)));
+
+    $outsider = newGuestUser($this);
+    expect(\App\Actions\Goods\ProductDevelopment\UI\GetRelatedProductDevelopments::make()->forTradeUnit($tradeUnit, $outsider))->toBe([])
+        ->and(\App\Actions\Goods\ProductDevelopment\UI\GetRelatedProductDevelopments::make()->forTradeUnitFamily($family, $outsider))->toBe([]);
+});
+
+test('the supplier and agent pages list only the open developments the viewer may see', function () {
+    $open      = developmentWithSupplier($this);
+    $supplier  = $open->supplier;
+    $cancelled = StoreProductDevelopment::make()->action($this->group, $this->user, [
+        'name'        => 'Cancelled '.Str::upper(Str::random(5)),
+        'type'        => 'new',
+        'supplier_id' => $supplier->id,
+        'items'       => [['code' => 'CX-'.Str::upper(Str::random(5)), 'name' => 'Cancelled SKU']],
+    ]);
+    $cancelled->update(['status' => ProductDevelopmentStatusEnum::CANCELLED]);
+
+    get(route('grp.supply-chain.suppliers.show', [$supplier->slug]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('SupplyChain/Supplier')
+            ->where('productDevelopments.rows', fn ($rows) => collect($rows)->pluck('code')->all() === [$open->code]));
+
+    get(route('grp.supply-chain.agents.show', [$supplier->agent->slug]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('SupplyChain/Agent')
+            ->where('productDevelopments.rows', fn ($rows) => collect($rows)->pluck('code')->all() === [$open->code]));
+
+    $outsider = newGuestUser($this);
+    expect(\App\Actions\Goods\ProductDevelopment\UI\GetRelatedProductDevelopments::make()->forSupplier($supplier, $outsider))->toBe([])
+        ->and(\App\Actions\Goods\ProductDevelopment\UI\GetRelatedProductDevelopments::make()->forAgent($supplier->agent, $outsider))->toBe([]);
+});
+
+test('a purchase order ordering a development\'s SKU links on its own, and others are linked and unlinked by hand', function () {
+    $productDevelopment = developmentWithSupplier($this);
+    $item               = $productDevelopment->items->first();
+    LinkProductDevelopmentSupplierProduct::make()->action($item, $this->user, ['code' => 'SP-'.Str::upper(Str::random(6)), 'cost' => 1.25, 'units_per_pack' => 1, 'units_per_carton' => 12]);
+    $supplierProduct = $item->fresh()->supplierProduct;
+
+    $ordering = purchaseOrderFor($this, $productDevelopment->supplier, $supplierProduct->historicSupplierProduct);
+    $other    = purchaseOrderFor($this, $productDevelopment->supplier);
+    $links    = fn () => collect(\App\Actions\Goods\ProductDevelopment\ProductDevelopmentPurchaseOrders::rows($productDevelopment->fresh()))->pluck('linked', 'reference')->all();
+
+    expect($links())->toBe([$ordering->reference => 'auto']);
+
+    \App\Actions\Goods\ProductDevelopment\LinkProductDevelopmentPurchaseOrder::make()->action($productDevelopment, $this->user, ['purchase_order_ids' => [$other->id], 'operation' => 'link']);
+    expect($links())->toEqualCanonicalizing([$ordering->reference => 'auto', $other->reference => 'manual'])
+        ->and(collect(GetProductDevelopmentActivity::make()->handle($productDevelopment->fresh()))->pluck('sentence')->implode(' '))->toContain($other->reference);
+
+    get(route('grp.product_developments.show', [$productDevelopment->slug]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('header.number_purchase_orders', 2)
+            ->where('header.purchase_orders.link.route.name', 'grp.models.product_development.purchase_order'));
+
+    get(route('grp.org.procurement.purchase_orders.show', [$other->organisation->slug, $other->slug]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Procurement/PurchaseOrder')
+            ->where('productDevelopments.0.code', $productDevelopment->code)
+            ->where('productDevelopments.0.linked', 'manual'));
+    expect(collect(\App\Actions\Goods\ProductDevelopment\UI\GetRelatedProductDevelopments::make()->forPurchaseOrder($ordering, $this->user))->pluck('linked')->all())->toBe(['auto'])
+        ->and(\App\Actions\Goods\ProductDevelopment\UI\GetRelatedProductDevelopments::make()->forPurchaseOrder($ordering, newGuestUser($this)))->toBe([]);
+
+    patch(route('grp.models.product_development.purchase_order', [$productDevelopment->id]), ['purchase_order_ids' => [$other->id], 'operation' => 'unlink'])->assertRedirect();
+    expect($links())->toBe([$ordering->reference => 'auto']);
+
+    $otherSupplier = \App\Actions\SupplyChain\Supplier\StoreSupplier::make()->action($productDevelopment->agent, \App\Models\SupplyChain\Supplier::factory()->definition());
+    $foreign       = purchaseOrderFor($this, $otherSupplier);
+    expect(fn () => \App\Actions\Goods\ProductDevelopment\LinkProductDevelopmentPurchaseOrder::make()->action($productDevelopment, $this->user, ['purchase_order_ids' => [$foreign->id], 'operation' => 'link']))
+        ->toThrow(ValidationException::class);
+});
+
+test('a purchase order is raised from the development for an organisation buying from its supplier, and opens linked to it', function () {
+    $productDevelopment = developmentWithSupplier($this);
+    $open               = purchaseOrderFor($this, $productDevelopment->supplier);
+    LinkProductDevelopmentSupplierProduct::make()->action($productDevelopment->items->first(), $this->user, ['code' => 'SP-'.Str::upper(Str::random(6)), 'cost' => 1.25, 'units_per_pack' => 1, 'units_per_carton' => 12]);
+    $orgSupplier = \App\Models\Procurement\OrgSupplier::where('supplier_id', $productDevelopment->supplier_id)->where('organisation_id', $open->organisation_id)->first();
+    $store       = fn () => post(route('grp.models.product_development.purchase_order.store', [$productDevelopment->id]), ['org_supplier_ids' => [$orgSupplier->id]]);
+
+    get(route('grp.product_developments.show', [$productDevelopment->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('header.purchase_orders.link.create.options', fn ($options) => collect($options)->pluck('value')->contains($orgSupplier->id)));
+
+    $store()->assertSessionHasErrors(['org_supplier_ids' => $orgSupplier->organisation->name.': '.__('There is already an open purchase order (:reference). Add the products to it, or submit or delete it before creating a new one.', ['reference' => $open->reference])]);
+
+    $open->update(['state' => \App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum::SUBMITTED]);
+    $before = \App\Models\Procurement\PurchaseOrder::where('supplier_id', $productDevelopment->supplier_id)->count();
+    $store()->assertSessionHasNoErrors()->assertRedirect();
+
+    $raised = \App\Models\Procurement\PurchaseOrder::where('supplier_id', $productDevelopment->supplier_id)->latest('id')->first();
+    expect(\App\Models\Procurement\PurchaseOrder::where('supplier_id', $productDevelopment->supplier_id)->count())->toBe($before + 1)
+        ->and(collect(\App\Actions\Goods\ProductDevelopment\ProductDevelopmentPurchaseOrders::rows($productDevelopment->fresh()))->firstWhere('reference', $raised->reference)['linked'] ?? null)->toBe('manual')
+        ->and(collect(GetProductDevelopmentActivity::make()->handle($productDevelopment->fresh()))->pluck('sentence')->implode(' '))->toContain('Raised purchase order '.$raised->reference);
+
+    $withoutSupplier = storeDevelopmentWithNewSkus($this, 1);
+    post(route('grp.models.product_development.purchase_order.store', [$withoutSupplier->id]), ['org_supplier_ids' => [$orgSupplier->id]])->assertSessionHasErrors('org_supplier_ids');
+});
+
+test('the rail shows a developments badge with what waits on the person, and nothing for someone not taking part', function () {
+    [$productDevelopment, $people] = developmentWithDesignTeam($this, 1);
+    $badge                         = \App\Actions\Goods\ProductDevelopment\ProductDevelopmentWaitingOn::railBadge($people['agent']);
+
+    expect($badge['waiting'])->toBeGreaterThan(0)
+        ->and(\App\Actions\Goods\ProductDevelopment\ProductDevelopmentWaitingOn::railBadge(newGuestUser($this)))->toBeNull()
+        ->and(\App\Actions\UI\Grp\GetFirstLoadProps::run($people['agent'])['development_badges'])->toBe($badge);
+
+    actingAs($people['agent']);
+    foreach (['grp.product_developments.index', 'grp.product_developments.waiting_on_me'] as $page) {
+        get(route($page))->assertInertia(fn (AssertableInertia $inertia) => $inertia->where('viewSwitch.2.count', $badge['waiting']));
+    }
+    $list = get(route('grp.product_developments.json.waiting_badge'))->assertOk()->json();
+    expect($list['total'])->toBe($badge['waiting'])
+        ->and(collect($list['rows'])->pluck('development.code'))->toContain($productDevelopment->code);
+
+    patch(route('grp.models.profile.update'), ['rail_hidden_badges' => ['developments']]);
+    expect($people['agent']->fresh()->settings['rail_hidden_badges'] ?? [])->toBe(['developments']);
+});
+
+test('a sent reminder makes the reminded person\'s rail badge pulse until they open it', function () {
+    [$productDevelopment, $people] = developmentWithDesignTeam($this, 1);
+    $agent                         = $people['agent'];
+    $productDevelopment->update(['current_position' => 2]);
+    \Illuminate\Support\Facades\Event::fake([\App\Events\BroadcastProductDevelopmentBadgeUpdate::class]);
+
+    expect(\App\Actions\Goods\ProductDevelopment\ProductDevelopmentWaitingOn::railBadge($agent->fresh())['reminded'])->toBeFalse();
+
+    \App\Actions\Goods\ProductDevelopment\RemindProductDevelopmentMembers::make()->action($productDevelopment, $this->user);
+
+    expect(\App\Actions\Goods\ProductDevelopment\ProductDevelopmentWaitingOn::railBadge($agent->fresh())['reminded'])->toBeTrue()
+        ->and(\App\Actions\Goods\ProductDevelopment\ProductDevelopmentWaitingOn::railBadge($this->user->fresh())['reminded'] ?? false)->toBeFalse();
+    \Illuminate\Support\Facades\Event::assertDispatched(\App\Events\BroadcastProductDevelopmentBadgeUpdate::class, fn ($event) => $event->userId === $agent->id && $event->developmentBadges['reminded'] === true);
+
+    actingAs($agent);
+    expect(get(route('grp.product_developments.json.waiting_badge'))->assertOk()->json('reminded'))->toBeFalse()
+        ->and(\App\Actions\Goods\ProductDevelopment\ProductDevelopmentWaitingOn::railBadge($agent->fresh())['reminded'])->toBeFalse();
+});
+
+test('send reminders only chases the roles of the current stage, not a stage that has not started', function () {
+    $productDevelopment = storeDevelopmentWithNewSkus($this, 1);
+    $remindable         = \App\Actions\Goods\ProductDevelopment\RemindProductDevelopmentMembers::remindable($productDevelopment->fresh());
+    $byRole             = (new \App\Actions\Goods\ProductDevelopment\ProductDevelopmentWaitingOn())->byRole($productDevelopment->fresh());
+
+    expect($productDevelopment->fresh()->current_position)->toBe(1)
+        ->and(array_keys($byRole))->toContain(ProductDevelopmentMemberRoleEnum::AGENT->value)
+        ->and(array_keys($remindable))->not->toContain(ProductDevelopmentMemberRoleEnum::AGENT->value)
+        ->and(array_keys($remindable))->not->toContain(ProductDevelopmentMemberRoleEnum::PURCHASING->value)
+        ->and(array_keys($remindable))->not->toContain(ProductDevelopmentMemberRoleEnum::COMPLIANCE->value)
+        ->and(array_keys($remindable))->not->toContain(ProductDevelopmentMemberRoleEnum::DESIGNER->value);
+});
+
+test('development notifications go to Slack and browser push by default, and a saved choice still wins', function () {
+    $user = newGuestUser($this);
+
+    foreach (\App\Enums\SysAdmin\User\UserNotificationEnum::PRODUCT_DEVELOPMENT_EVENTS as $event) {
+        expect($event->channelsFor($user))->toBe(['slack', 'browser']);
+    }
+
+    $user->update(['settings' => [...($user->settings ?? []), 'notifications' => ['product_development_task' => ['email']]]]);
+    expect(\App\Enums\SysAdmin\User\UserNotificationEnum::PRODUCT_DEVELOPMENT_TASK->channelsFor($user->fresh()))->toBe(['email']);
+
+    Config::set('services.webpush.public_key', 'test-public-key');
+    $productDevelopment = storeDevelopmentWithNewSkus($this, 1);
+    get(route('grp.product_developments.show', [$productDevelopment->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('push.public_key', 'test-public-key'));
+
+    $settings = $this->user->settings ?? [];
+    $this->user->update(['settings' => [...$settings, 'notifications' => ['product_development_task' => ['slack']]]]);
+    get(route('grp.product_developments.show', [$productDevelopment->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('push', null));
+    $this->user->update(['settings' => $settings]);
+});
+
+test('picking a member warns what their permissions will stop them doing, and nothing for someone with full access', function () {
+    $outsider = newGuestUser($this);
+    $check    = fn (\App\Models\SysAdmin\User $user, ?string $role) => get(route('grp.product_developments.json.member_access', ['user_id' => $user->id, 'role' => $role]))->assertOk()->json('warnings');
+
+    expect($check($outsider, ProductDevelopmentMemberRoleEnum::DESIGNER->value))->toHaveCount(1)
+        ->and($check($outsider, ProductDevelopmentMemberRoleEnum::PURCHASING->value))->toHaveCount(2)
+        ->and($check($this->user, ProductDevelopmentMemberRoleEnum::DESIGNER->value))->toBe([]);
+});
+
+test('a design version downloads as a vector PDF at its real size, drawing every item type, and only for people who may see it', function () {
+    $designer           = newGuestUser($this);
+    $buyer              = newGuestUser($this);
+    $agent              = newAgentUser($this);
+    $productDevelopment = storeDevelopmentWithNewSkus($this, 1);
+    SyncProductDevelopmentMembers::make()->action($productDevelopment, ['members' => [
+        ['user_id' => $designer->id, 'role' => 'designer'],
+        ['user_id' => $buyer->id, 'role' => 'buyer'],
+        ['user_id' => $agent->id, 'role' => 'agent'],
+    ]]);
+    approveDesign($productDevelopment, 'concept', ['designer' => $designer, 'buyer' => $buyer, 'agent' => $agent]);
+
+    $version  = StoreProductDevelopmentDesignVersion::make()->action($productDevelopment, $designer, ['round' => 'packaging']);
+    $elements = [
+        ['id' => 'text', 'type' => 'text', 'x' => 2, 'y' => 2, 'w' => 40, 'h' => 8, 'text' => 'Incense', 'font_size' => 12, 'rotate' => 15],
+        ['id' => 'image', 'type' => 'image', 'x' => 2, 'y' => 12, 'w' => 10, 'h' => 10],
+        ['id' => 'shape', 'type' => 'shape', 'shape' => 'ellipse', 'x' => 14, 'y' => 12, 'w' => 10, 'h' => 10, 'fill' => 'radial:#fde047:#16a34a', 'stroke' => '#111827', 'stroke_px' => 1],
+        ['id' => 'data', 'type' => 'data', 'source' => 'product_name', 'x' => 26, 'y' => 12, 'w' => 30, 'h' => 8],
+        ['id' => 'pictogram', 'type' => 'pictogram', 'source' => 'pictogram_flammable', 'x' => 2, 'y' => 24, 'w' => 10, 'h' => 10],
+        ['id' => 'barcode', 'type' => 'barcode', 'source' => 'unit', 'x' => 14, 'y' => 24, 'w' => 20, 'h' => 10],
+        ['id' => 'zone', 'type' => 'zone', 'zone' => 'compliance', 'x' => 36, 'y' => 24, 'w' => 20, 'h' => 10],
+    ];
+    $layout = [...$version->data['layout'], 'width' => 60, 'length' => 50, 'height' => 40];
+    $layout['faces']['front']['elements'] = $elements;
+    UpdateProductDevelopmentDesignVersion::make()->action($version, $designer, ['layout' => $layout]);
+
+    preg_match('/export type ElementType = ([^\n]+)/', file_get_contents(resource_path('js/Components/Goods/ProductDevelopment/Design/boxNet.ts')), $editorTypes);
+    preg_match_all('/"(\w+)"/', $editorTypes[1], $editorTypeNames);
+    expect(\App\Actions\Goods\ProductDevelopment\Design\ProductDevelopmentDesignPdf::ELEMENT_TYPES)->toEqualCanonicalizing($editorTypeNames[1])
+        ->and(collect($elements)->pluck('type')->all())->toEqualCanonicalizing(\App\Actions\Goods\ProductDevelopment\Design\ProductDevelopmentDesignPdf::ELEMENT_TYPES)
+        ->and(\App\Actions\Goods\ProductDevelopment\Design\ProductDevelopmentDesignLayout::netSize($layout))->toEqual(['width' => 235, 'height' => 190]);
+
+    $parameters = ['productDevelopment' => $productDevelopment->slug, 'designRound' => $version->id];
+    $response   = get(route('grp.product_developments.design.pdf', $parameters))->assertOk()->assertHeader('Content-Type', 'application/pdf');
+    $pdf        = $response->getContent();
+    preg_match('/\/MediaBox\s*\[\s*0\s+0\s+([\d.]+)\s+([\d.]+)\s*\]/', $pdf, $mediaBox);
+    expect(str_starts_with($pdf, '%PDF'))->toBeTrue()
+        ->and(round((float) $mediaBox[1] / 72 * 25.4))->toEqual(235.0)
+        ->and(round((float) $mediaBox[2] / 72 * 25.4))->toEqual(190.0);
+
+    actingAs(newGuestUser($this));
+    get(route('grp.product_developments.design.pdf', $parameters))->assertForbidden();
 });

@@ -5,6 +5,7 @@
   -->
 
 <script setup lang="ts">
+import ProductDevelopmentRelatedList from "@/Components/Goods/ProductDevelopment/ProductDevelopmentRelatedList.vue"
 import { Head, router, Link } from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -39,6 +40,7 @@ library.add(faInventory, faArrowRight, faBox, faClock, faCameraRetro, faPapercli
 const isModalUploadOpen = ref(false)
 
 const props = defineProps<{
+    product_developments?: InstanceType<typeof ProductDevelopmentRelatedList>["$props"]["data"]
     title: string,
     pageHead: PageHeadingTypes
     tabs: {
@@ -96,7 +98,8 @@ const component = computed(() => {
         products: TableProducts,
         stocks: TableStocks,
         org_stocks: TableOrgStocks,
-        images: TradeUnitImagesManagement
+        images: TradeUnitImagesManagement,
+        product_developments: ProductDevelopmentRelatedList
     }
     return components[currentTab.value]
 

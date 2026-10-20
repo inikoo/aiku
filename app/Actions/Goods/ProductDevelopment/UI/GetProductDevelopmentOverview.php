@@ -18,6 +18,7 @@ use App\Models\Goods\ProductDevelopment;
 use App\Models\Goods\ProductDevelopmentChecklistItem;
 use App\Models\Goods\ProductDevelopmentItem;
 use App\Models\Goods\ProductDevelopmentStage;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -121,9 +122,10 @@ class GetProductDevelopmentOverview
      */
     private function roleCards(ProductDevelopment $productDevelopment, Collection $required): array
     {
-        $roleLabels = ProductDevelopmentMemberRoleEnum::labels();
+        $roleLabels   = ProductDevelopmentMemberRoleEnum::labels();
+        $lastReminder = $this->lastReminder($productDevelopment);
 
-        return collect(self::ROLE_CARDS)->map(function (ProductDevelopmentMemberRoleEnum $role) use ($productDevelopment, $required, $roleLabels) {
+        return collect(self::ROLE_CARDS)->map(function (ProductDevelopmentMemberRoleEnum $role) use ($productDevelopment, $required, $roleLabels, $lastReminder) {
             $tally          = $this->tally($required->where('role', $role));
             $startsAfterGate = $role === ProductDevelopmentMemberRoleEnum::DESIGNER && $productDevelopment->current_position <= self::GATE_POSITION;
 
@@ -131,6 +133,7 @@ class GetProductDevelopmentOverview
                 'role'              => $role->value,
                 'label'             => $roleLabels[$role->value],
                 'starts_after_gate' => $startsAfterGate,
+                'reminded'          => $lastReminder && in_array($role->value, $lastReminder['roles'], true) ? ['at' => $lastReminder['at'], 'by' => $lastReminder['by']] : null,
                 ...$tally,
             ];
         })->values()->all();
@@ -173,15 +176,16 @@ class GetProductDevelopmentOverview
      */
     private function waitingOn(ProductDevelopment $productDevelopment, Collection $required): array
     {
-        $roleLabels = ProductDevelopmentMemberRoleEnum::labels();
-        $roleDueAt  = $productDevelopment->stages
+        $roleLabels   = ProductDevelopmentMemberRoleEnum::labels();
+        $lastReminder = $this->lastReminder($productDevelopment);
+        $roleDueAt    = $productDevelopment->stages
             ->groupBy(fn (ProductDevelopmentStage $stage) => $stage->role->value)
             ->map(fn (Collection $stages) => $stages->sortBy('position')->first()?->due_at);
 
         return $required
             ->filter(fn (ProductDevelopmentChecklistItem $item) => $item->state === ProductDevelopmentChecklistItemStateEnum::MISSING && !$this->isHiddenCost($item))
             ->groupBy(fn (ProductDevelopmentChecklistItem $item) => $item->role->value.'|'.$item->key)
-            ->map(function (Collection $items) use ($roleLabels, $roleDueAt) {
+            ->map(function (Collection $items) use ($roleLabels, $roleDueAt, $lastReminder) {
                 /** @var ProductDevelopmentChecklistItem $first */
                 $first = $items->first();
                 $dueAt = $roleDueAt->get($first->role->value);
@@ -193,11 +197,33 @@ class GetProductDevelopmentOverview
                     'skus'    => $skus->count() > 3 ? __(':count SKUs', ['count' => $skus->count()]) : $skus->implode(', '),
                     'due_at'  => $dueAt?->toDateString(),
                     'is_late' => $dueAt?->isPast() && !$dueAt->isToday(),
+                    'tab'     => $first->role === ProductDevelopmentMemberRoleEnum::COMPLIANCE ? 'compliance' : ($first->level->value === 'family' ? 'brief' : 'products'),
+                    'target'  => 'pd-check-'.$first->id,
+                    'reminded' => $lastReminder && in_array($first->role->value, $lastReminder['roles'], true),
                 ];
             })
             ->sortBy(fn (array $row) => $row['due_at'] ?? '9999-12-31')
             ->take(self::WAITING_ON_LIMIT)
             ->values()
             ->all();
+    }
+
+    /**
+     * The last "Send reminders": when, by whom and which roles it went to.
+     *
+     * @return array{at: string, by: string, roles: array<int, string>}|null
+     */
+    private function lastReminder(ProductDevelopment $productDevelopment): ?array
+    {
+        $sent = Arr::get($productDevelopment->data ?? [], 'reminders_sent');
+        if (!$sent) {
+            return null;
+        }
+
+        return [
+            'at'    => $sent['at'],
+            'by'    => $sent['by'] ?? '',
+            'roles' => $sent['role_keys'] ?? array_keys(array_intersect(ProductDevelopmentMemberRoleEnum::labels(), $sent['roles'] ?? [])),
+        ];
     }
 }

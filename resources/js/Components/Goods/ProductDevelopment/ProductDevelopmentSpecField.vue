@@ -22,9 +22,9 @@ import ProductDevelopmentSpecGroup from "@/Components/Goods/ProductDevelopment/P
 import { formatChecklistValue, type ChecklistDimensions, type ChecklistGroupOptions, type ChecklistRow } from "@/Components/Goods/ProductDevelopment/productDevelopmentChecklist"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faSpinner, faPencil, faCheck, faTimes, faInfoCircle } from "@fal"
-import { faAsterisk } from "@fas"
-library.add(faSpinner, faPencil, faCheck, faTimes, faInfoCircle, faAsterisk)
+import { faSpinner, faPencil, faTimes, faInfoCircle } from "@fal"
+import { faAsterisk, faSave } from "@fas"
+library.add(faSpinner, faPencil, faTimes, faInfoCircle, faAsterisk, faSave)
 
 const props = defineProps<{
     row: ChecklistRow
@@ -118,18 +118,23 @@ function currentPayloadValue(): unknown {
 
 function commitOnBlur() {
     if (isMissing.value) {
-        commit()
+        commit(true)
     }
 }
 
-function commit() {
+function commit(fromBlur = false) {
     if (!editable.value || saving.value) {
         return
     }
     const value = currentPayloadValue()
     if (value === null) {
+        if (fromBlur) {
+            return
+        }
+        error.value = props.row.input_type === "dimensions" ? ctrans("Fill in width, length and height first") : ctrans("Fill this in first")
         return
     }
+    error.value = null
     if (isGroup.value) {
         const original = props.row.input_type === "ingredients" ? JSON.stringify(ingredientList.value.map((ingredient) => ingredient.slug)) : JSON.stringify(props.row.value ?? {})
         if (original === JSON.stringify(value) && !isMissing.value) {
@@ -179,7 +184,7 @@ const missingClass = computed(() => isMissing.value && editable.value && props.r
 </script>
 
 <template>
-    <div class="min-w-0 space-y-1" @keydown.esc="editing && cancelEditing()">
+    <div :id="`pd-check-${row.id}`" tabindex="-1" class="min-w-0 scroll-mt-24 space-y-1 focus:outline-none" @keydown.esc="editing && cancelEditing()">
         <div class="flex items-center justify-between gap-2">
             <label class="flex min-w-0 items-center gap-1 text-sm text-gray-700" :for="`spec-${row.id}`">
                 <span class="truncate">{{ row.label }}<template v-if="row.input_type === 'dimensions'"> W × L × H</template></span>
@@ -213,7 +218,7 @@ const missingClass = computed(() => isMissing.value && editable.value && props.r
                 </div>
                 <div v-if="editable" class="flex justify-end gap-1.5">
                     <Button v-if="editing" type="negative" size="xs" icon="fal fa-times" :label="ctrans('Cancel')" @click="cancelEditing" />
-                    <Button type="primary" size="xs" icon="fal fa-check" :label="isMissing ? ctrans('Confirm') : ctrans('Save')" :loading="saving" @click="commit" />
+                    <Button type="primary" size="xs" icon="fas fa-save" :label="isMissing ? ctrans('Confirm') : ctrans('Save')" :tooltip="isMissing ? ctrans('Confirm') : ctrans('Save')" hide_label :loading="saving" @click="commit()" />
                 </div>
             </template>
         </template>
@@ -232,37 +237,42 @@ const missingClass = computed(() => isMissing.value && editable.value && props.r
         </div>
 
         <template v-else>
-            <div v-if="row.input_type === 'dimensions'" class="flex items-center gap-1.5">
-                <InputNumber v-for="side in (['w', 'l', 'h'] as const)" :key="side" v-model="dimensions[side]" :inputId="side === 'w' ? `spec-${row.id}` : undefined" :disabled="!editable" :min="0" :maxFractionDigits="2" :placeholder="side.toUpperCase()" size="small" class="min-w-0 flex-1" :inputClass="['w-full', missingClass]" @blur="commitOnBlur" @keydown.enter="commit" />
-                <Select v-model="dimensions.units" :options="['mm', 'cm']" :disabled="!editable" size="small" class="w-24 shrink-0" overlayClass="text-sm" @change="commitOnBlur" />
-            </div>
+            <div class="flex items-center gap-1.5">
+                <div class="min-w-0 flex-1">
+                    <div v-if="row.input_type === 'dimensions'" class="flex items-center gap-1.5">
+                        <InputNumber v-for="side in (['w', 'l', 'h'] as const)" :key="side" v-model="dimensions[side]" :inputId="side === 'w' ? `spec-${row.id}` : undefined" :disabled="!editable" :min="0" :maxFractionDigits="2" :placeholder="side.toUpperCase()" size="small" class="min-w-0 flex-1" :inputClass="['w-full', missingClass]" @blur="commitOnBlur" @keydown.enter="commit()" />
+                        <Select v-model="dimensions.units" :options="['mm', 'cm']" :disabled="!editable" size="small" class="w-24 shrink-0" overlayClass="text-sm" @change="commitOnBlur" />
+                    </div>
 
-            <Select v-else-if="row.input_type === 'country'" v-model="draft" :inputId="`spec-${row.id}`" :options="countries" optionLabel="label" optionValue="value" filter :disabled="!editable" :placeholder="editable ? (row.placeholder ?? '') : '—'" class="w-full" :class="missingClass" overlayClass="text-sm" @change="commitOnBlur" />
+                    <Select v-else-if="row.input_type === 'country'" v-model="draft" :inputId="`spec-${row.id}`" :options="countries" optionLabel="label" optionValue="value" filter :disabled="!editable" :placeholder="editable ? (row.placeholder ?? '') : '—'" class="w-full" :class="missingClass" overlayClass="text-sm" @change="commitOnBlur" />
 
-            <Textarea v-else-if="row.input_type === 'textarea'" :id="`spec-${row.id}`" v-model="draft as string" :disabled="!editable" rows="1" autoResize :placeholder="editable ? (row.placeholder ?? '') : '—'" class="w-full text-sm" :class="missingClass" @blur="commitOnBlur" />
+                    <Textarea v-else-if="row.input_type === 'textarea'" :id="`spec-${row.id}`" v-model="draft as string" :disabled="!editable" rows="1" autoResize :placeholder="editable ? (row.placeholder ?? '') : '—'" class="w-full text-sm" :class="missingClass" @blur="commitOnBlur" />
 
-            <InputText v-else-if="row.input_type === 'text'" :id="`spec-${row.id}`" v-model="draft as string" :disabled="!editable" :placeholder="editable ? (row.placeholder ?? '') : '—'" class="w-full" :class="missingClass" @blur="commitOnBlur" @keydown.enter="commit" />
+                    <InputText v-else-if="row.input_type === 'text'" :id="`spec-${row.id}`" v-model="draft as string" :disabled="!editable" :placeholder="editable ? (row.placeholder ?? '') : '—'" class="w-full" :class="missingClass" @blur="commitOnBlur" @keydown.enter="commit()" />
 
-            <div v-else class="flex items-center gap-2">
-                <InputNumber
-                    v-model="draft as number | null"
-                    :inputId="`spec-${row.id}`"
-                    :disabled="!editable"
-                    :min="0"
-                    :useGrouping="false"
-                    :maxFractionDigits="row.input_type === 'decimal' ? 4 : 0"
-                    :placeholder="editable ? (row.placeholder ?? '') : '—'"
-                    class="min-w-0 flex-1"
-                    :inputClass="['w-full', missingClass]"
-                    @blur="commitOnBlur"
-                    @keydown.enter="commit"
-                />
-                <span v-if="unitLabel" class="shrink-0 text-sm text-gray-500">{{ unitLabel }}</span>
+                    <div v-else class="flex items-center gap-2">
+                        <InputNumber
+                            v-model="draft as number | null"
+                            :inputId="`spec-${row.id}`"
+                            :disabled="!editable"
+                            :min="0"
+                            :useGrouping="false"
+                            :maxFractionDigits="row.input_type === 'decimal' ? 4 : 0"
+                            :placeholder="editable ? (row.placeholder ?? '') : '—'"
+                            class="min-w-0 flex-1"
+                            :inputClass="['w-full', missingClass]"
+                            @blur="commitOnBlur"
+                            @keydown.enter="commit()"
+                        />
+                        <span v-if="unitLabel" class="shrink-0 text-sm text-gray-500">{{ unitLabel }}</span>
+                    </div>
+                </div>
+                <Button v-if="editable && !editing" type="primary" size="s" icon="fas fa-save" :label="ctrans('Save')" :tooltip="ctrans('Save')" hide_label :loading="saving" class="shrink-0" @click="commit()" />
             </div>
 
             <div v-if="editing" class="flex justify-end gap-1.5">
                 <Button type="negative" size="xs" icon="fal fa-times" :label="ctrans('Cancel')" @click="cancelEditing" />
-                <Button type="primary" size="xs" icon="fal fa-check" :label="ctrans('Save')" :loading="saving" @click="commit" />
+                <Button type="primary" size="xs" icon="fas fa-save" :label="ctrans('Save')" :tooltip="ctrans('Save')" hide_label :loading="saving" @click="commit()" />
             </div>
         </template>
 

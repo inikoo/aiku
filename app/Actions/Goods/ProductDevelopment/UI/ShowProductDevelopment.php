@@ -10,10 +10,13 @@
 namespace App\Actions\Goods\ProductDevelopment\UI;
 
 use App\Actions\Goods\ProductDevelopment\GetProductDevelopmentStageGate;
+use App\Actions\Goods\ProductDevelopment\ProductDevelopmentPurchaseOrders;
+use App\Actions\Goods\ProductDevelopment\StoreProductDevelopmentPurchaseOrder;
 use App\Actions\Goods\ProductDevelopment\SignOffProductDevelopment;
 use App\Actions\Goods\ProductDevelopment\UI\Traits\WithProductDevelopmentsIndex;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithProductDevelopmentAuthorisation;
+use App\Enums\SysAdmin\User\UserNotificationEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentFileScopeEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentMemberRoleEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStageEnum;
@@ -127,11 +130,26 @@ class ShowProductDevelopment extends OrgAction
                         'name'       => 'grp.models.product_development.update',
                         'parameters' => ['productDevelopment' => $productDevelopment->id],
                     ],
-                    'number_purchase_orders' => $productDevelopment->purchaseOrders()->count(),
+                    'purchase_orders'    => [
+                        'rows' => $purchaseOrders = ProductDevelopmentPurchaseOrders::rows($productDevelopment),
+                        'link' => $this->canEditProductDevelopment($request->user(), $productDevelopment) ? [
+                            'route'        => ['name' => 'grp.models.product_development.purchase_order', 'parameters' => ['productDevelopment' => $productDevelopment->id]],
+                            'search_route' => ['name' => 'grp.product_developments.json.purchase_orders', 'parameters' => ['productDevelopment' => $productDevelopment->slug]],
+                            'create'       => [
+                                'route'   => ['name' => 'grp.models.product_development.purchase_order.store', 'parameters' => ['productDevelopment' => $productDevelopment->id]],
+                                'options' => StoreProductDevelopmentPurchaseOrder::options($productDevelopment, $request->user()),
+                                'empty'   => $productDevelopment->supplier_id ? __('None of your organisations buys from this supplier yet') : __('Set the supplier of this development first'),
+                            ],
+                        ] : null,
+                    ],
+                    'number_purchase_orders' => count($purchaseOrders),
                     'number_missing'     => (int) $productDevelopment->stats?->number_required_missing,
                 ],
                 'overview'    => $overview,
                 'finalApproval' => $this->finalApproval($productDevelopment, $request->user()),
+                'push'          => config('services.webpush.public_key') && in_array('browser', UserNotificationEnum::PRODUCT_DEVELOPMENT_TASK->channelsFor($request->user()), true)
+                    ? ['public_key' => config('services.webpush.public_key'), 'profile_route' => ['name' => 'grp.profile.show', 'parameters' => []]]
+                    : null,
                 'reminders'     => $this->canEditProductDevelopment($request->user(), $productDevelopment) ? [
                     'route'     => ['name' => 'grp.models.product_development.remind', 'parameters' => ['productDevelopment' => $productDevelopment->id]],
                     'last_sent' => $productDevelopment->data['reminders_sent'] ?? null,

@@ -23,6 +23,17 @@ const props = defineProps<{
 
 const model = defineModel<number | null>()
 
+const emit = defineEmits<{
+    picked: [option: Option]
+}>()
+
+function onChange(event: { value: number | null }) {
+    const option = options.value.find((candidate) => candidate.value === event.value)
+    if (option) {
+        emit("picked", option)
+    }
+}
+
 const options = ref<Option[]>([])
 const loading = ref(false)
 let searchTimer: ReturnType<typeof setTimeout> | undefined
@@ -72,5 +83,6 @@ function onShow() {
         overlayClass="text-sm"
         @filter="onFilter"
         @show="onShow"
+        @change="onChange"
     />
 </template>

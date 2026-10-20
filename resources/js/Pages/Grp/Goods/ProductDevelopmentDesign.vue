@@ -6,10 +6,12 @@
   -->
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue"
+import { computed, onBeforeUnmount, ref, watch } from "vue"
 import { Head, Link, router } from "@inertiajs/vue3"
 import axios from "axios"
+import pdfWorkerUrl from "pdfjs-dist/legacy/build/pdf.worker.min.mjs?url"
 import { notify } from "@kyvg/vue3-notification"
+import Popover from "primevue/popover"
 import Dialog from "primevue/dialog"
 import InputNumber from "primevue/inputnumber"
 import Textarea from "primevue/textarea"
@@ -32,8 +34,8 @@ import { routeType } from "@/types/route"
 import type { Mentionable } from "@/Components/Goods/ProductDevelopment/ProductDevelopmentCommentComposer.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faLightbulbOn, faBoxOpen, faTag, faLock, faPencilRuler, faEye, faUndo, faPlus, faPaperPlane, faCheck, faCommentAlt, faArrowLeft, faSpinner, faCloudUpload, faMapPin, faPencil, faForward, faFilePdf, faExclamationTriangle } from "@fal"
-library.add(faLightbulbOn, faBoxOpen, faTag, faLock, faPencilRuler, faEye, faUndo, faPlus, faPaperPlane, faCheck, faCommentAlt, faArrowLeft, faSpinner, faCloudUpload, faMapPin, faPencil, faForward, faFilePdf, faExclamationTriangle)
+import { faLightbulbOn, faBoxOpen, faTag, faLock, faPencilRuler, faEye, faUndo, faPlus, faPaperPlane, faCheck, faCommentAlt, faArrowLeft, faSpinner, faCloudUpload, faMapPin, faPencil, faForward, faFilePdf, faExclamationTriangle, faWindowMaximize, faWindowRestore, faDownload, faFileImage } from "@fal"
+library.add(faWindowMaximize, faWindowRestore, faDownload, faFileImage, faLightbulbOn, faBoxOpen, faTag, faLock, faPencilRuler, faEye, faUndo, faPlus, faPaperPlane, faCheck, faCommentAlt, faArrowLeft, faSpinner, faCloudUpload, faMapPin, faPencil, faForward, faFilePdf, faExclamationTriangle)
 
 interface Status {
     value: "draft" | "in_review" | "changes_requested" | "approved"
@@ -175,6 +177,105 @@ function setSize(key: "width" | "length" | "height", value: number | null) {
 }
 
 const editingFace = ref<FaceKey | null>(null)
+
+const downloadMenu = ref<InstanceType<typeof Popover> | null>(null)
+type DesignExportFormat = "pdf" | "jpg"
+const exporting = ref<DesignExportFormat | null>(null)
+const exportFormats = computed(() => [
+    { value: "pdf" as const, label: "PDF", hint: ctrans("Vector, real size"), icon: "fal fa-file-pdf" },
+    { value: "jpg" as const, label: "JPG", hint: "", icon: "fal fa-file-image" },
+])
+
+const JPG_DPI = { min: 72, max: 600, default: 300 }
+const jpgDpi = ref(JPG_DPI.default)
+
+const POINTS_PER_INCH = 72
+const isAppleMobile = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+const MAX_IMAGE_PIXELS = isAppleMobile ? 16_000_000 : 50_000_000
+const MAX_IMAGE_SIDE = 16_000
+
+function saveBlob(blob: Blob, fileName: string) {
+    const link = document.createElement("a")
+    link.href = URL.createObjectURL(blob)
+    link.download = fileName
+    link.click()
+    setTimeout(() => URL.revokeObjectURL(link.href), 10000)
+}
+
+/**
+ * The PDF is drawn on the server as vector artwork at real size, from the saved version, so unsaved edits
+ * are saved first. The JPG is that PDF rendered here at the dpi chosen, lowered only as far as this device
+ * can hold the image (iPhones and iPads allow about 16 million pixels).
+ */
+async function downloadFromServer(format: DesignExportFormat, designRoundId: number) {
+    await flushSave()
+    const developmentSlug = (props.developmentRoute.parameters as Record<string, unknown> | undefined)?.productDevelopment
+    const response = await axios.get(route("grp.product_developments.design.pdf", { productDevelopment: String(developmentSlug), designRound: designRoundId }), { responseType: "blob" })
+    const pdfName = /filename="([^"]+)"/.exec(response.headers["content-disposition"] ?? "")?.[1] ?? "design.pdf"
+
+    if (format === "pdf") {
+        saveBlob(response.data, pdfName)
+        return
+    }
+
+    const { getDocument, GlobalWorkerOptions } = await import("pdfjs-dist/legacy/build/pdf.mjs")
+    GlobalWorkerOptions.workerSrc = pdfWorkerUrl
+    const loadingTask = getDocument({ data: await (response.data as Blob).arrayBuffer() })
+    const pdfDocument = await loadingTask.promise
+    const page = await pdfDocument.getPage(1)
+    const pageSize = page.getViewport({ scale: 1 })
+
+    const wanted = Math.min(Math.max(Math.round(jpgDpi.value || JPG_DPI.default), JPG_DPI.min), JPG_DPI.max)
+    const largest = Math.min(
+        POINTS_PER_INCH * Math.sqrt(MAX_IMAGE_PIXELS / (pageSize.width * pageSize.height)),
+        POINTS_PER_INCH * MAX_IMAGE_SIDE / Math.max(pageSize.width, pageSize.height),
+    )
+    const dpi = Math.max(Math.floor(Math.min(wanted, largest)), JPG_DPI.min)
+
+    const viewport = page.getViewport({ scale: dpi / POINTS_PER_INCH })
+    const canvas = document.createElement("canvas")
+    canvas.width = Math.floor(viewport.width)
+    canvas.height = Math.floor(viewport.height)
+    const context = canvas.getContext("2d")!
+    context.fillStyle = "#ffffff"
+    context.fillRect(0, 0, canvas.width, canvas.height)
+    await page.render({ canvasContext: context, viewport, canvas } as Parameters<typeof page.render>[0]).promise
+    await loadingTask.destroy()
+
+    const jpg = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.92))
+    canvas.width = 0
+    canvas.height = 0
+    if (!jpg) {
+        throw new Error("jpg")
+    }
+    saveBlob(jpg, pdfName.replace(/\.pdf$/, `-${dpi}dpi.jpg`))
+    if (dpi < wanted) {
+        notify({ title: ctrans("Saved at :dpi dpi", { dpi: String(dpi) }), text: ctrans("That is the most this device can hold for a design this size."), type: "info" })
+    }
+}
+
+async function download(format: DesignExportFormat) {
+    downloadMenu.value?.hide()
+    if (!props.version || exporting.value) {
+        return
+    }
+    exporting.value = format
+    try {
+        await downloadFromServer(format, props.version.id)
+    } catch {
+        notify({ title: ctrans("Download failed"), text: ctrans("The design could not be turned into a :format", { format: format.toUpperCase() }), type: "error" })
+    } finally {
+        exporting.value = null
+    }
+}
+
+/** The designer opens full screen; it can be switched to a window and back */
+const editorMaximized = ref(true)
+watch(editingFace, (face, previous) => {
+    if (face && !previous) {
+        editorMaximized.value = true
+    }
+})
 const faceLabels = computed<Record<FaceKey, string>>(() => ({
     front: ctrans("Front"),
     back: ctrans("Back"),
@@ -255,11 +356,46 @@ async function submitForReview() {
     send(props.version.routes.submit, {}, "submit")
 }
 
+const CHECK_DEBOUNCE_MS = 500
+
+/** A tick shows at once; it is saved once that box has been left alone for half a second */
+const pendingChecks = ref<Record<string, boolean>>({})
+const checkTimers = new Map<string, ReturnType<typeof setTimeout>>()
+
+const isTicked = (check: Check) => pendingChecks.value[check.key] ?? !!check.ticked_by
+
 function toggleCheck(check: Check, ticked: boolean) {
-    if (props.version) {
-        send(props.version.routes.review, { operation: ticked ? "check" : "uncheck", check: check.key }, `check-${check.key}`)
-    }
+    pendingChecks.value[check.key] = ticked
+    scheduleCheckSave(check, CHECK_DEBOUNCE_MS)
 }
+
+function scheduleCheckSave(check: Check, delay: number) {
+    clearTimeout(checkTimers.get(check.key))
+    checkTimers.set(check.key, setTimeout(() => {
+        if (busy.value !== null) {
+            scheduleCheckSave(check, 150)
+            return
+        }
+        checkTimers.delete(check.key)
+        const saved = !!props.version?.checks.find((candidate) => candidate.key === check.key)?.ticked_by
+        const wanted = pendingChecks.value[check.key]
+        if (!props.version || wanted === undefined || wanted === saved) {
+            delete pendingChecks.value[check.key]
+            return
+        }
+        send(props.version.routes.review, { operation: wanted ? "check" : "uncheck", check: check.key }, `check-${check.key}`)
+    }, delay))
+}
+
+watch(() => props.version?.checks, (checks) => {
+    for (const check of checks ?? []) {
+        if (!checkTimers.has(check.key) && pendingChecks.value[check.key] === !!check.ticked_by) {
+            delete pendingChecks.value[check.key]
+        }
+    }
+}, { deep: true })
+
+onBeforeUnmount(() => checkTimers.forEach((timer) => clearTimeout(timer)))
 
 function review(operation: "approve" | "request_changes") {
     if (props.version) {
@@ -517,10 +653,57 @@ const formatWhen = (date: string | null) => date ? useFormatTime(date, { formatT
                             <SegmentedToggle v-if="canEdit" v-model="layout.units" :options="unitOptions" :ariaLabel="ctrans('Units')" />
                             <span v-else class="text-gray-500">{{ layout.units }}</span>
                         </div>
-                        <label v-if="previous?.layout && hasSize(previous.layout)" class="ml-auto flex items-center gap-2 text-sm text-gray-700">
-                            <Checkbox v-model="compare" binary />
-                            {{ ctrans("Compare with v:version", { version: String(previous.version) }) }}
-                        </label>
+                        <div class="ml-auto flex flex-wrap items-center gap-3">
+                            <label v-if="previous?.layout && hasSize(previous.layout)" class="flex items-center gap-2 text-sm text-gray-700">
+                                <Checkbox v-model="compare" binary />
+                                {{ ctrans("Compare with v:version", { version: String(previous.version) }) }}
+                            </label>
+                            <Button
+                                v-if="hasSize(layout)"
+                                type="tertiary"
+                                size="xs"
+                                icon="fal fa-download"
+                                :label="ctrans('Download')"
+                                :loading="!!exporting"
+                                aria-haspopup="menu"
+                                @click="(event: Event) => downloadMenu?.toggle(event)"
+                            />
+                            <Popover ref="downloadMenu">
+                                <div class="w-60 text-sm" role="menu">
+                                    <div v-for="format in exportFormats" :key="format.value" class="flex items-center gap-1 rounded-md hover:bg-gray-50">
+                                        <button
+                                            type="button"
+                                            role="menuitem"
+                                            class="flex min-w-0 flex-1 items-center gap-2.5 px-2 py-2 text-left text-gray-800"
+                                            @click="download(format.value)"
+                                        >
+                                            <FontAwesomeIcon :icon="format.icon" class="text-[--app-accent]" fixed-width aria-hidden="true" />
+                                            <span class="flex-1">{{ format.label }}</span>
+                                            <span v-if="format.hint" class="text-xs text-gray-400">{{ format.hint }}</span>
+                                        </button>
+                                        <label v-if="format.value === 'jpg'" class="flex shrink-0 items-center gap-1 pr-2 text-xs text-gray-500" @click.stop>
+                                            <InputNumber
+                                                v-model="jpgDpi"
+                                                :min="JPG_DPI.min"
+                                                :max="JPG_DPI.max"
+                                                :step="50"
+                                                :useGrouping="false"
+                                                size="small"
+                                                inputClass="!w-16 !py-1 text-right text-xs"
+                                                :aria-label="ctrans('JPG resolution in dpi')"
+                                                @keydown.enter="download('jpg')"
+                                            />
+                                            dpi
+                                        </label>
+                                    </div>
+                                    <div class="mx-2 mb-1 mt-1.5 space-y-1 rounded-md px-2 py-1.5 text-xs" :class="jpgDpi > JPG_DPI.default ? 'bg-amber-50 text-amber-800' : 'bg-gray-50 text-gray-500'">
+                                        <p>{{ ctrans("JPG is made on this device from the PDF, :min to :max dpi.", { min: String(JPG_DPI.min), max: String(JPG_DPI.max) }) }}</p>
+                                        <p v-if="jpgDpi > JPG_DPI.default">{{ ctrans("Above :dpi dpi it can take a while and use a lot of memory, especially on phones. iPhones and iPads save large designs at a lower dpi.", { dpi: String(JPG_DPI.default) }) }}</p>
+                                        <p v-else>{{ ctrans("For printing, use the PDF: it stays sharp at any size.") }}</p>
+                                    </div>
+                                </div>
+                            </Popover>
+                        </div>
                     </div>
 
                     <p class="text-xs text-gray-500">
@@ -608,7 +791,7 @@ const formatWhen = (date: string | null) => date ? useFormatTime(date, { formatT
                     <h2 class="text-sm font-semibold text-gray-800">{{ ctrans("Before approving") }}</h2>
                     <ul class="space-y-2">
                         <li v-for="check in version.checks" :key="check.key" class="flex items-start gap-2 text-sm">
-                            <Checkbox :modelValue="!!check.ticked_by" binary :disabled="!check.can_tick || busy !== null" :inputId="`check-${check.key}`" class="mt-0.5" @update:modelValue="(value) => toggleCheck(check, !!value)" />
+                            <Checkbox :modelValue="isTicked(check)" binary :disabled="!check.can_tick" :inputId="`check-${check.key}`" class="mt-0.5" @update:modelValue="(value) => toggleCheck(check, !!value)" />
                             <label :for="`check-${check.key}`" class="min-w-0">
                                 <span class="text-gray-800">{{ check.label }}</span>
                                 <span v-if="check.ticked_by" class="block text-xs text-gray-500">{{ check.ticked_by }} · {{ formatWhen(check.ticked_at) }}</span>
@@ -664,11 +847,24 @@ const formatWhen = (date: string | null) => date ? useFormatTime(date, { formatT
         <Dialog
             :visible="!!editingFace && !!layout"
             modal
-            :header="editingFace ? [faceLabels[editingFace], skus.find((item) => item.id === sku)?.code, `v${version?.version}`].filter(Boolean).join(' · ') : ''"
-            class="h-[92vh] w-[96vw] max-w-[110rem]"
+            :class="editorMaximized ? '!m-0 h-screen !max-h-screen w-screen !max-w-none !rounded-none' : 'h-[92vh] w-[96vw] max-w-[110rem]'"
             :pt="{ content: { class: 'flex-1 min-h-0 !p-0' }, root: { class: 'flex flex-col' } }"
             @update:visible="(value) => !value && (editingFace = null)"
         >
+            <template #header>
+                <div class="flex min-w-0 flex-1 items-center gap-2">
+                    <span class="truncate text-lg font-semibold text-gray-900">{{ editingFace ? [faceLabels[editingFace], skus.find((item) => item.id === sku)?.code, `v${version?.version}`].filter(Boolean).join(" · ") : "" }}</span>
+                    <button
+                        type="button"
+                        class="ml-auto flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800"
+                        v-tooltip="editorMaximized ? ctrans('Show as a window') : ctrans('Maximise')"
+                        :aria-label="editorMaximized ? ctrans('Show as a window') : ctrans('Maximise')"
+                        @click="editorMaximized = !editorMaximized"
+                    >
+                        <FontAwesomeIcon :icon="editorMaximized ? 'fal fa-window-restore' : 'fal fa-window-maximize'" fixed-width aria-hidden="true" />
+                    </button>
+                </div>
+            </template>
             <DesignFaceEditor
                 v-if="editingFace && layout && version"
                 :modelValue="layout.faces[editingFace]!"

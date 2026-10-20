@@ -23,8 +23,9 @@ import TaskBadgeList from './TaskBadgeList.vue';
 import CreatedTaskBadgeList from './CreatedTaskBadgeList.vue';
 import ReviewTaskBadgeList from './ReviewTaskBadgeList.vue';
 import RailBadgeVisibilityToggle from './RailBadgeVisibilityToggle.vue';
+import DevelopmentBadgeList from './DevelopmentBadgeList.vue';
 import axios from 'axios'
-import { faTasks } from '@fal'
+import { faTasks, faLightbulbOn } from '@fal'
 import CustomersWaiting from './CustomersWaiting.vue';
 import WhatsappCallAlert from './WhatsappCallAlert.vue';
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
@@ -112,6 +113,10 @@ const catalogueCount = computed(() => countOnRail([['master_updated', layout?.ma
 const isFolded = (group: BadgeGroup) => isCompact.value && expandedGroup.value !== group
 
 const tasksOnRail = computed(() => myTasksOnRail.value || createdTasksOnRail.value || reviewTasksOnRail.value)
+const developmentsWaiting = computed(() => layout.development_badges?.waiting ?? 0)
+const developmentsLate = computed(() => layout.development_badges?.late ?? 0)
+const developmentsReminded = computed(() => !!layout.development_badges?.reminded)
+const developmentsOnRail = computed(() => shownOnRail('developments', developmentsWaiting.value > 0))
 const ordersSectionShown = computed(() => (isFolded('orders') ? ordersCount.value > 0 : ordersOnRail.value))
 const catalogueSectionShown = computed(() => (isFolded('catalogue') ? catalogueCount.value > 0 : catalogueOnRail.value))
 
@@ -233,7 +238,7 @@ onBeforeUnmount(clearCollapseTimer)
         </div>
 
         <div
-            v-if="ticketsOnRail && (tasksOnRail || ordersSectionShown || catalogueSectionShown)"
+            v-if="ticketsOnRail && (tasksOnRail || developmentsOnRail || ordersSectionShown || catalogueSectionShown)"
             class="border-[var(--chat-line)] shrink-0"
             :class="layout.messagingSidebar.show ? 'w-full border-t' : 'w-6 border-t'"
             aria-hidden="true" />
@@ -289,6 +294,36 @@ onBeforeUnmount(clearCollapseTimer)
                         </template>
                         <template #content="{ close }">
                             <ReviewTaskBadgeList :review="reviewTasks" :close="close" />
+                        </template>
+                    </Popover>
+                </div>
+            </div>
+
+            <div v-if="developmentsOnRail || ordersSectionShown || catalogueSectionShown" class="shrink-0 border-[var(--chat-line)]" :class="layout.messagingSidebar.show ? 'w-full border-t' : 'w-6 border-t'" aria-hidden="true" />
+        </template>
+
+        <template v-if="developmentsOnRail">
+            <div class="shrink-0" :class="layout.messagingSidebar.show ? 'flex flex-wrap items-center gap-2' : 'flex flex-col items-center'">
+                <FontAwesomeIcon :icon="faLightbulbOn" class="w-4 shrink-0 text-center text-xs text-white" :class="layout.messagingSidebar.show ? '' : 'mb-1'" fixed-width v-tooltip="ctrans('Product development')" aria-hidden="true" />
+                <!-- Badge: Developments waiting on me -->
+                <div class="relative flex shrink-0 items-center justify-center" :class="dimmedClass('developments')">
+                    <RailBadgeVisibilityToggle v-if="layout.messagingSidebar.show" :hidden="isHiddenBadge('developments')" @toggle="toggleBadge('developments')" />
+                    <Popover width="w-80" position="right-full mr-2 top-0" fit-viewport arrow="right">
+                        <template #button>
+                            <div
+                                v-tooltip="developmentsReminded ? ctrans('You were sent a reminder · open to see what is waiting on you') : developmentsLate ? ctrans('Developments waiting on me · :count overdue', { count: String(developmentsLate) }) : ctrans('Developments waiting on me')"
+                                class="relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-md bg-violet-300 font-medium tabular-nums text-violet-900 hover:opacity-100"
+                                :class="developmentsReminded ? 'animate-pulse opacity-100 ring-2 ring-violet-400 ring-offset-1 ring-offset-[var(--chat-bg,#1f2937)]' : 'opacity-80'">
+                                <Transition name="spin-to-right"><span :key="developmentsWaiting"><span :class="developmentsWaiting > 99 ? 'text-xxs' : 'text-xs'">{{ developmentsWaiting > 99 ? '99+' : developmentsWaiting }}</span></span></Transition>
+                                <template v-if="developmentsReminded">
+                                    <FontAwesomeIcon icon="fas fa-circle" class="absolute top-0 -right-0.5 animate-ping text-[6px] text-fuchsia-500" fixed-width aria-hidden="true" />
+                                    <FontAwesomeIcon icon="fas fa-circle" class="absolute top-0 -right-0.5 text-[6px] text-fuchsia-500" fixed-width aria-hidden="true" />
+                                </template>
+                                <FontAwesomeIcon v-else-if="developmentsLate" icon="fas fa-circle" class="absolute top-0 -right-0.5 animate-ping text-[5px] text-red-500" fixed-width aria-hidden="true" />
+                            </div>
+                        </template>
+                        <template #content="{ open, close }">
+                            <DevelopmentBadgeList :open="open" :close="close" />
                         </template>
                     </Popover>
                 </div>

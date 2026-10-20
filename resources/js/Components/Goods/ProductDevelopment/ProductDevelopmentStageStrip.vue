@@ -13,7 +13,8 @@ import DatePicker from "primevue/datepicker"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faPencil, faSave } from "@fal"
+import { faPencil } from "@fal"
+import { faSave } from "@fas"
 library.add(faPencil, faSave)
 import { ctrans } from "@/Composables/useTrans"
 import { useScrollArrows } from "@/Composables/useScrollArrows"
@@ -137,7 +138,7 @@ const statusClass = (segment: Segment) => {
             <div class="text-xs text-gray-500">{{ ctrans("Due date of :stage", { stage: editing?.label ?? "" }) }}</div>
             <DatePicker v-model="editDate" size="small" dateFormat="dd M yy" showIcon iconDisplay="input" showButtonBar class="w-full" panelClass="text-sm" />
             <div class="flex justify-end">
-                <Button type="primary" size="xs" icon="fal fa-save" :label="ctrans('Save')" :loading="savingDate" @click="saveDate" />
+                <Button type="primary" size="xs" icon="fas fa-save" :label="ctrans('Save')" :loading="savingDate" @click="saveDate" />
             </div>
         </div>
     </Popover>

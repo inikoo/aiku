@@ -51,9 +51,9 @@ const done = computed(() => entries.value.filter((entry) => !entry.missing))
 
 const filter = ref<Filter>(todo.value.length ? "todo" : "all")
 const filters = computed(() => [
-    { value: "todo" as Filter, label: `${ctrans("To do")} ${todo.value.length}` },
-    { value: "done" as Filter, label: `${ctrans("Done")} ${done.value.length}` },
-    { value: "all" as Filter, label: `${ctrans("All")} ${entries.value.length}` },
+    { value: "todo" as Filter, label: ctrans("To do"), count: todo.value.length, tone: "amber" as const },
+    { value: "done" as Filter, label: ctrans("Done"), count: done.value.length, tone: "emerald" as const },
+    { value: "all" as Filter, label: ctrans("All"), count: entries.value.length, tone: "gray" as const },
 ])
 const visible = computed(() => filter.value === "todo" ? todo.value : filter.value === "done" ? done.value : entries.value)
 
@@ -70,7 +70,7 @@ const color = computed(() => productDevelopmentColor(props.role.color))
             <h3 class="text-sm font-semibold text-gray-900">{{ ctrans(titles[role.value] ?? role.label) }}</h3>
             <span class="text-xs text-gray-500">{{ ctrans(":done of :total SKUs done", { done: String(done.length), total: String(entries.length) }) }}</span>
             <span class="ml-auto hidden text-xs text-gray-500 xl:inline">{{ ctrans("Saved values go straight to the trade unit and supplier product") }}</span>
-            <SegmentedToggle v-model="filter" :options="filters" :ariaLabel="ctrans('Show')" class="ml-auto xl:ml-0" />
+            <SegmentedToggle v-model="filter" :options="filters" :ariaLabel="ctrans('Show')" soft class="ml-auto xl:ml-0" />
         </header>
 
         <div class="divide-y divide-gray-100">

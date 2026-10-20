@@ -21,7 +21,8 @@ import { productDevelopmentColor } from "@/Components/Goods/ProductDevelopment/p
 import { formatChecklistValue, type ChecklistDimensions, type ChecklistRow } from "@/Components/Goods/ProductDevelopment/productDevelopmentChecklist"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faCheckCircle, faCircle, faMinusCircle, faPencil, faSave, faBan, faUndo, faLink } from "@fal"
+import { faCheckCircle, faCircle, faMinusCircle, faPencil, faBan, faUndo, faLink } from "@fal"
+import { faSave } from "@fas"
 library.add(faCheckCircle, faCircle, faMinusCircle, faPencil, faSave, faBan, faUndo, faLink)
 
 const props = defineProps<{
@@ -119,7 +120,7 @@ const firstError = computed(() => Object.values(errors.value)[0] ?? null)
 </script>
 
 <template>
-    <li class="py-2.5 text-sm">
+    <li :id="`pd-check-${row.id}`" tabindex="-1" class="scroll-mt-24 py-2.5 text-sm focus:outline-none">
         <div class="flex items-start gap-2">
             <FontAwesomeIcon :icon="stateIcon[row.state].icon" :class="stateIcon[row.state].class" class="mt-0.5 shrink-0" fixed-width :aria-label="ctrans(stateIcon[row.state].label)" />
             <div class="min-w-0 flex-1">
@@ -177,7 +178,7 @@ const firstError = computed(() => Object.values(errors.value)[0] ?? null)
                         <Button
                             type="primary"
                             size="xs"
-                            :icon="mode === 'edit' ? 'fal fa-save' : 'fal fa-ban'"
+                            :icon="mode === 'edit' ? 'fas fa-save' : 'fal fa-ban'"
                             :label="mode === 'edit' ? ctrans('Save') : ctrans('Mark not applicable')"
                             :loading="saving"
                             :disabled="!canSubmit"

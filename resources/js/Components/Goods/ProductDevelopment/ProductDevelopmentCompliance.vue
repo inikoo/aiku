@@ -6,7 +6,7 @@
   -->
 
 <script setup lang="ts">
-import { computed } from "vue"
+import { computed, ref } from "vue"
 import { ctrans } from "@/Composables/useTrans"
 import ProductDevelopmentProgressBar from "@/Components/Goods/ProductDevelopment/ProductDevelopmentProgressBar.vue"
 import ProductDevelopmentRoleSpecs from "@/Components/Goods/ProductDevelopment/ProductDevelopmentRoleSpecs.vue"
@@ -23,12 +23,48 @@ const summary = (sku: ChecklistSku) => {
     return { done: required.length - missing.length, total: required.length, missing: missing.map((row) => row.label) }
 }
 
+const MISSING_PREVIEW = 4
+const expanded = ref<Record<number, boolean>>({})
+
 const role = computed(() => props.data?.skus.flatMap((sku) => sku.rows)[0]?.role ?? null)
 </script>
 
 <template>
     <div v-if="data" class="space-y-4">
-        <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white [scrollbar-width:thin]">
+        <ul class="space-y-2 md:hidden">
+            <li v-for="sku in data.skus" :key="sku.id" class="rounded-lg border border-gray-200 bg-white px-4 py-3">
+                <div class="flex items-baseline gap-2">
+                    <span class="shrink-0 font-medium text-gray-900">{{ sku.code }}</span>
+                    <span class="min-w-0 truncate text-sm text-gray-700">{{ sku.name }}</span>
+                </div>
+                <div class="mt-3">
+                    <div class="mb-1 flex items-center justify-between text-xs text-gray-500">
+                        <span>{{ ctrans("Compliance") }}</span>
+                        <span class="tabular-nums">{{ summary(sku).done }}/{{ summary(sku).total }}</span>
+                    </div>
+                    <ProductDevelopmentProgressBar :done="summary(sku).done" :total="summary(sku).total" />
+                </div>
+                <div class="mt-3 border-t border-gray-100 pt-2.5">
+                    <template v-if="summary(sku).missing.length">
+                        <div class="mb-1.5 text-xs text-gray-500">{{ ctrans("Still missing (:count)", { count: String(summary(sku).missing.length) }) }}</div>
+                        <div class="flex flex-wrap gap-1.5">
+                            <span v-for="missing in (expanded[sku.id] ? summary(sku).missing : summary(sku).missing.slice(0, MISSING_PREVIEW))" :key="missing" class="rounded-md bg-amber-50 px-2 py-0.5 text-xs text-amber-800">{{ missing }}</span>
+                            <button
+                                v-if="summary(sku).missing.length > MISSING_PREVIEW"
+                                type="button"
+                                class="rounded-md px-2 py-0.5 text-xs font-medium text-[--app-accent] hover:bg-[--app-accent-soft]"
+                                @click="expanded[sku.id] = !expanded[sku.id]"
+                            >
+                                {{ expanded[sku.id] ? ctrans("Show less") : ctrans("+:count more", { count: String(summary(sku).missing.length - MISSING_PREVIEW) }) }}
+                            </button>
+                        </div>
+                    </template>
+                    <span v-else class="inline-block rounded-md bg-green-50 px-2 py-0.5 text-xs text-green-700">{{ ctrans("Complete") }}</span>
+                </div>
+            </li>
+            <li v-if="!data.skus.length" class="rounded-lg border border-gray-200 bg-white px-4 py-6 text-center text-sm text-gray-400">{{ ctrans("No SKUs in this development yet") }}</li>
+        </ul>
+        <div class="hidden overflow-x-auto rounded-lg border border-gray-200 bg-white [scrollbar-width:thin] md:block">
             <table class="w-full min-w-[40rem] table-fixed text-sm">
                 <thead class="border-b border-gray-200 text-left text-xs text-gray-500">
                     <tr>

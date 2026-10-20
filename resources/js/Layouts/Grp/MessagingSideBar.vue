@@ -10,7 +10,7 @@ import axios from "axios"
 import { ctrans } from "@/Composables/useTrans"
 import { compactCount } from "@/Composables/useCompactCount"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faChevronLeft, faChevronDoubleLeft, faChevronDoubleRight, faSearch, faUser, faComments, faStar as faStarRegular, faPlus, faTimes, faComment, faGopuram, faHomeAlt, faHeart, faExpandAlt, faPencil, faLifeRing, faShoppingCart, faCube, faCircle, faSpinner, faCheckCircle, faBan, faTasks, faEye, faEyeSlash } from "@fal"
+import { faChevronLeft, faChevronDoubleLeft, faChevronDoubleRight, faSearch, faUser, faComments, faStar as faStarRegular, faPlus, faTimes, faComment, faGopuram, faHomeAlt, faHeart, faExpandAlt, faPencil, faLifeRing, faShoppingCart, faCube, faCircle, faSpinner, faCheckCircle, faBan, faTasks, faEye, faEyeSlash, faLightbulbOn } from "@fal"
 import { faStar as faStarSolid, faEye as faEyeSolid } from "@fas"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { router } from "@inertiajs/vue3"
@@ -25,7 +25,7 @@ import CustomersWaiting from "@/Layouts/Grp/CustomersWaiting.vue"
 import WhatsappCallAlert from "@/Layouts/Grp/WhatsappCallAlert.vue"
 import { useTruncate } from "@/Composables/useTruncate"
 
-library.add(faChevronLeft, faChevronDoubleLeft, faChevronDoubleRight, faSearch, faUser, faComments, faStarRegular, faStarSolid, faPlus, faTimes, faComment, faGopuram, faHomeAlt, faHeart, faExpandAlt, faPencil, faLifeRing, faShoppingCart, faCube, faCircle, faSpinner, faCheckCircle, faBan, faTasks, faEye, faEyeSlash, faEyeSolid)
+library.add(faChevronLeft, faChevronDoubleLeft, faChevronDoubleRight, faSearch, faUser, faComments, faStarRegular, faStarSolid, faPlus, faTimes, faComment, faGopuram, faHomeAlt, faHeart, faExpandAlt, faPencil, faLifeRing, faShoppingCart, faCube, faCircle, faSpinner, faCheckCircle, faBan, faTasks, faEye, faEyeSlash, faEyeSolid, faLightbulbOn)
 
 const openFullMessaging = () => router.visit(route("grp.chat.staff.index"))
 
@@ -67,6 +67,14 @@ const stripBadgeGroups = computed(() => [
             { key: "mine", label: ctrans("My tasks"), class: "text-cyan-300", value: sumBadgeCounts(layout.task_badges?.mine, ["todo", "in_progress"]) },
             { key: "created", label: ctrans("Tasks I created"), class: "text-cyan-100", value: layout.task_badges?.created?.open ?? 0 },
             { key: "review", label: ctrans("To review & publish"), class: "text-teal-200", value: layout.task_badges?.review?.open ?? 0 },
+        ],
+    },
+    {
+        key: "developments",
+        icon: "fal fa-lightbulb-on",
+        label: ctrans("Product development"),
+        counts: [
+            { key: "waiting", label: ctrans("Developments waiting on me"), class: "text-violet-300", value: layout.development_badges?.waiting ?? 0 },
         ],
     },
     {

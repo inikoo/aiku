@@ -40,7 +40,7 @@ const imageMap = computed<Record<number, string | null>>(() => Object.fromEntrie
 </script>
 
 <template>
-    <div v-if="data" class="grid gap-4 p-4 md:grid-cols-3">
+    <div v-if="data" class="grid gap-4 md:grid-cols-3">
         <component
             :is="round.unlocked ? Link : 'div'"
             v-for="round in data.rounds"

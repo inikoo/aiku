@@ -39,6 +39,12 @@ class RecordProductDevelopmentActivity
 
     public const string REMINDERS_SENT = 'reminders_sent';
 
+    public const string PURCHASE_ORDER_LINKED = 'purchase_order_linked';
+
+    public const string PURCHASE_ORDER_CREATED = 'purchase_order_created';
+
+    public const string PURCHASE_ORDER_UNLINKED = 'purchase_order_unlinked';
+
     public const string DESIGN_ROUND_SKIPPED = 'design_round_skipped';
 
     public const string DESIGN_ROUND_UNSKIPPED = 'design_round_unskipped';

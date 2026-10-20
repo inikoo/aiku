@@ -281,6 +281,34 @@ class ProductDevelopmentDesignLayout
     /**
      * @param array<string, mixed> $layout
      */
+    /**
+     * The size of the flat artwork in millimetres: the label page, or the box laid out as its net with
+     * the same flaps the editor draws (resources/js/Components/Goods/ProductDevelopment/Design/boxNet.ts).
+     *
+     * @return array{width: float, height: float}|null
+     */
+    public static function netSize(array $layout): ?array
+    {
+        if (!self::hasSize($layout)) {
+            return null;
+        }
+
+        $width  = (float) $layout['width'];
+        $height = (float) $layout['height'];
+        if (Arr::get($layout, 'kind') === self::KIND_SHEET) {
+            return ['width' => $width, 'height' => $height];
+        }
+
+        $length = (float) $layout['length'];
+        $tuck   = min(max($length * 0.6, 8), 25);
+        $glue   = min(max($length * 0.35, 8), 15);
+
+        return [
+            'width'  => 2 * $length + 2 * $width + $glue,
+            'height' => $tuck * 2 + $length * 2 + $height,
+        ];
+    }
+
     public static function hasSize(array $layout): bool
     {
         if (Arr::get($layout, 'kind') === self::KIND_SHEET) {

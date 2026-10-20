@@ -38,6 +38,10 @@ const props = defineProps<{
     }
 }>()
 
+const MISSING_PREVIEW = 4
+const expanded = ref<Record<number, boolean>>({})
+const missingShown = (item: { id: number, still_missing: string[] }) => expanded.value[item.id] ? item.still_missing : item.still_missing.slice(0, MISSING_PREVIEW)
+
 const linkDialog = ref<InstanceType<typeof ProductDevelopmentSupplierProductLink> | null>(null)
 
 const roles = computed(() => {
@@ -56,7 +60,57 @@ const roles = computed(() => {
 
 <template>
     <div v-if="data" class="space-y-4">
-    <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white [scrollbar-width:thin]">
+    <ul class="space-y-2 md:hidden">
+        <li v-for="item in data.rows" :key="item.id" class="rounded-lg border border-gray-200 bg-white px-4 py-3">
+            <div class="flex items-baseline gap-2">
+                <Link :href="route(item.route.name, item.route.parameters)" class="primaryLink shrink-0 font-medium">{{ item.code }}</Link>
+                <span class="min-w-0 truncate text-sm text-gray-700">{{ item.name }}</span>
+            </div>
+            <div v-if="item.supplier_product" class="truncate text-xs text-gray-500">{{ item.supplier_product }}</div>
+
+            <div class="mt-3 grid grid-cols-2 gap-x-4 gap-y-1">
+                <div>
+                    <div class="mb-1 flex items-center justify-between text-xs text-gray-500">
+                        <span>{{ ctrans("Specs (agent)") }}</span>
+                        <span class="tabular-nums">{{ item.specs.done }}/{{ item.specs.total }}</span>
+                    </div>
+                    <ProductDevelopmentProgressBar :done="item.specs.done" :total="item.specs.total" />
+                </div>
+                <div>
+                    <div class="mb-1 flex items-center justify-between text-xs text-gray-500">
+                        <span>{{ ctrans("Compliance") }}</span>
+                        <span class="tabular-nums">{{ item.compliance.done }}/{{ item.compliance.total }}</span>
+                    </div>
+                    <ProductDevelopmentProgressBar :done="item.compliance.done" :total="item.compliance.total" />
+                </div>
+            </div>
+
+            <div class="mt-3 text-xs text-gray-500">
+                {{ ctrans("Label") }}: <span class="text-gray-700">{{ item.label_status }}</span>
+            </div>
+
+            <div class="mt-3 border-t border-gray-100 pt-2.5">
+                <template v-if="item.still_missing.length">
+                    <div class="mb-1.5 text-xs text-gray-500">{{ ctrans("Still missing (:count)", { count: String(item.still_missing.length) }) }}</div>
+                    <div class="flex flex-wrap gap-1.5">
+                        <span v-for="missing in missingShown(item)" :key="missing" class="rounded-md bg-amber-50 px-2 py-0.5 text-xs text-amber-800">{{ missing }}</span>
+                        <button
+                            v-if="item.still_missing.length > MISSING_PREVIEW"
+                            type="button"
+                            class="rounded-md px-2 py-0.5 text-xs font-medium text-[--app-accent] hover:bg-[--app-accent-soft]"
+                            @click="expanded[item.id] = !expanded[item.id]"
+                        >
+                            {{ expanded[item.id] ? ctrans("Show less") : ctrans("+:count more", { count: String(item.still_missing.length - MISSING_PREVIEW) }) }}
+                        </button>
+                    </div>
+                </template>
+                <span v-else class="inline-block rounded-md bg-green-50 px-2 py-0.5 text-xs text-green-700">{{ ctrans("Complete") }}</span>
+            </div>
+        </li>
+        <li v-if="!data.rows.length" class="rounded-lg border border-gray-200 bg-white px-4 py-6 text-center text-sm text-gray-400">{{ ctrans("No SKUs in this development yet") }}</li>
+    </ul>
+
+    <div class="hidden overflow-x-auto rounded-lg border border-gray-200 bg-white [scrollbar-width:thin] md:block">
         <table class="w-full min-w-[56rem] table-fixed text-sm">
             <thead class="border-b border-gray-200 text-left text-xs text-gray-500">
                 <tr>

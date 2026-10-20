@@ -13,13 +13,15 @@ import ProductDevelopmentMarketSelect from "@/Components/Goods/ProductDevelopmen
 import DatePicker from "primevue/datepicker"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import ProductDevelopmentUserSelect from "@/Components/Goods/ProductDevelopment/ProductDevelopmentUserSelect.vue"
+import ProductDevelopmentMemberAccessWarning from "@/Components/Goods/ProductDevelopment/ProductDevelopmentMemberAccessWarning.vue"
 import ProductDevelopmentRoleSelect from "@/Components/Goods/ProductDevelopment/ProductDevelopmentRoleSelect.vue"
 import { peopleForRole, type MemberUserOption } from "@/Components/Goods/ProductDevelopment/productDevelopmentMembers"
 import { ctrans } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faPlus, faTimes, faSave } from "@fal"
+import { faPlus, faTimes } from "@fal"
+import { faSave } from "@fas"
 library.add(faPlus, faTimes, faSave)
 
 export type ProductDevelopmentEditKind = "markets" | "dates" | "members"
@@ -147,12 +149,15 @@ function save() {
 
             <template v-else>
                 <p class="text-xs text-gray-500">{{ ctrans("One person can hold several roles: add a row for each role") }}</p>
-                <div v-for="(member, index) in members" :key="index" class="grid grid-cols-[11rem_minmax(0,1fr)_auto] items-center gap-2">
-                    <ProductDevelopmentRoleSelect v-model="member.role" :options="editor.options.roles as any" size="small" :placeholder="ctrans('Role')" @update:modelValue="onRoleChange(member)" />
-                    <ProductDevelopmentUserSelect v-model="member.user_id" :options="peopleFor(member.role) as any" :disabled="!peopleFor(member.role).length" size="small" :placeholder="personPlaceholder(member.role)" />
-                    <Button type="tertiary" size="xs" :tooltip="ctrans('Remove')" @click="members.splice(index, 1)">
-                        <template #icon><FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" /></template>
-                    </Button>
+                <div v-for="(member, index) in members" :key="index" class="space-y-1.5">
+                <div class="grid grid-cols-[11rem_minmax(0,1fr)_auto] items-center gap-2">
+                        <ProductDevelopmentRoleSelect v-model="member.role" :options="editor.options.roles as any" size="small" :placeholder="ctrans('Role')" @update:modelValue="onRoleChange(member)" />
+                        <ProductDevelopmentUserSelect v-model="member.user_id" :options="peopleFor(member.role) as any" :disabled="!peopleFor(member.role).length" size="small" :placeholder="personPlaceholder(member.role)" />
+                        <Button type="tertiary" size="xs" :tooltip="ctrans('Remove')" @click="members.splice(index, 1)">
+                            <template #icon><FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" /></template>
+                        </Button>
+                    </div>
+                    <ProductDevelopmentMemberAccessWarning :userId="member.user_id" :role="member.role" />
                 </div>
                 <p v-if="Object.keys(errors).length" class="text-xs text-red-600">{{ Object.values(errors)[0] }}</p>
                 <Button type="tertiary" size="xs" :label="ctrans('Add member')" @click="members.push({ user_id: null, role: null })">
@@ -165,7 +170,7 @@ function save() {
             <Button type="tertiary" size="xs" :label="ctrans('Cancel')" @click="visible = false">
                 <template #icon><FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" /></template>
             </Button>
-            <Button type="primary" size="xs" icon="fal fa-save" :label="ctrans('Save')" :loading="saving" @click="save" />
+            <Button type="primary" size="xs" icon="fas fa-save" :label="ctrans('Save')" :loading="saving" @click="save" />
         </template>
     </Dialog>
 </template>

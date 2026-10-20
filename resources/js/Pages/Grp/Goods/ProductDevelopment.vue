@@ -6,7 +6,7 @@
   -->
 
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { computed, onMounted, ref } from "vue"
 import { Head, router } from "@inertiajs/vue3"
 import { notify } from "@kyvg/vue3-notification"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
@@ -26,6 +26,7 @@ import ProductDevelopmentStageStrip from "@/Components/Goods/ProductDevelopment/
 import ProductDevelopmentRoleCards from "@/Components/Goods/ProductDevelopment/ProductDevelopmentRoleCards.vue"
 import ProductDevelopmentFinalApproval from "@/Components/Goods/ProductDevelopment/ProductDevelopmentFinalApproval.vue"
 import ProductDevelopmentWaitingOn from "@/Components/Goods/ProductDevelopment/ProductDevelopmentWaitingOn.vue"
+import ProductDevelopmentPushPrompt from "@/Components/Goods/ProductDevelopment/ProductDevelopmentPushPrompt.vue"
 import ProductDevelopmentBrief from "@/Components/Goods/ProductDevelopment/ProductDevelopmentBrief.vue"
 import ProductDevelopmentProducts from "@/Components/Goods/ProductDevelopment/ProductDevelopmentProducts.vue"
 import ProductDevelopmentCompliance from "@/Components/Goods/ProductDevelopment/ProductDevelopmentCompliance.vue"
@@ -69,6 +70,7 @@ const props = defineProps<{
     tasks?: object
     comments: any
     recentActivity: any[]
+    push?: { public_key: string, profile_route: routeType } | null
     reminders: { route: routeType, last_sent: { at: string, by: string, roles: string[] } | null } | null
     finalApproval: InstanceType<typeof ProductDevelopmentFinalApproval>["$props"]["data"] | null
     editor: any
@@ -77,6 +79,42 @@ const props = defineProps<{
 
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
+
+const JUMP_WAIT_MS = 8000
+const JUMP_HIGHLIGHT = ["rounded-md", "ring-2", "ring-[--app-accent]", "ring-offset-4"]
+
+/**
+ * From "Waiting on": opens the tab the field lives on, waits for it to load, then brings the field into
+ * view and outlines it for a moment. The field's box takes focus, not its input, so no phone keyboard opens.
+ */
+function jumpTo({ tab, target }: { tab: string, target: string }) {
+    if (currentTab.value !== tab) {
+        handleTabUpdate(tab)
+    }
+    const startedAt = Date.now()
+    const reveal = () => {
+        const element = document.getElementById(target)
+        if (!element || element.offsetParent === null) {
+            if (Date.now() - startedAt < JUMP_WAIT_MS) {
+                requestAnimationFrame(reveal)
+            }
+            return
+        }
+        element.scrollIntoView({ behavior: "smooth", block: "center" })
+        element.focus({ preventScroll: true })
+        element.classList.add(...JUMP_HIGHLIGHT)
+        setTimeout(() => element.classList.remove(...JUMP_HIGHLIGHT), 2000)
+    }
+    requestAnimationFrame(reveal)
+}
+
+/** A link from a reminder can name the field to bring into view, e.g. ?tab=products&focus=pd-check-12 */
+onMounted(() => {
+    const focus = new URLSearchParams(window.location.search).get("focus")
+    if (focus && /^pd-check-\d+$/.test(focus)) {
+        jumpTo({ tab: currentTab.value, target: focus })
+    }
+})
 
 const component = computed(() => {
     const components: Record<string, any> = {
@@ -133,14 +171,15 @@ function moveToNextStage() {
     <div class="grid gap-4 px-4 pb-6 md:px-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div class="min-w-0 space-y-3">
             <ProductDevelopmentTabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
-            <div :class="['products', 'compliance'].includes(currentTab) ? '' : 'overflow-hidden rounded-lg border border-gray-200 bg-white'">
+            <div :class="['products', 'compliance', 'brief', 'design'].includes(currentTab) ? '' : 'overflow-hidden rounded-lg border border-gray-200 bg-white'">
                 <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" v-bind="currentTab === 'brief' ? { editor } : {}" />
             </div>
         </div>
 
         <aside class="space-y-4">
+            <ProductDevelopmentPushPrompt v-if="push" :push="push" />
             <ProductDevelopmentFinalApproval v-if="finalApproval" :data="finalApproval" />
-            <ProductDevelopmentWaitingOn :rows="overview.waiting_on" :reminders="reminders" />
+            <ProductDevelopmentWaitingOn :rows="overview.waiting_on" :reminders="reminders" @jump="jumpTo" />
             <ProductDevelopmentSidePanel :title="ctrans('Comments')">
                 <template #actions>
                     <ProductDevelopmentActivityOrder v-model="commentOrder" />

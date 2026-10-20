@@ -67,6 +67,8 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Models\Ordering\Order;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
+use App\Actions\Goods\ProductDevelopment\ProductDevelopmentAccess;
+use App\Actions\Goods\ProductDevelopment\UI\GetRelatedProductDevelopments;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -384,6 +386,9 @@ class ShowPurchaseOrder extends OrgAction
                 'showcase' => GetPurchaseOrderData::run($purchaseOrder),
 
                 'agreement' => GetPurchaseOrderAgreement::run($purchaseOrder, $purchaseOrder->organisation_id !== $this->organisation->id),
+                'productDevelopments' => (new ProductDevelopmentAccess())->canSeeAny($request->user())
+                    ? GetRelatedProductDevelopments::make()->forPurchaseOrder($purchaseOrder, $request->user())
+                    : [],
 
                 'agreed_term_differences' => $purchaseOrder->organisation_id === $this->organisation->id ? CheckAgainstAgreedTerms::make()->forPage($purchaseOrder) : null,
 

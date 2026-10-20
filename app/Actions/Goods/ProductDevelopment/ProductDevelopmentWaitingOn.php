@@ -19,6 +19,7 @@ use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStatusEnum;
 use App\Models\Goods\ProductDevelopment;
 use App\Models\Goods\ProductDevelopmentChecklistItem;
 use App\Models\Goods\ProductDevelopmentDesignRound;
+use App\Events\BroadcastProductDevelopmentBadgeUpdate;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -37,6 +38,8 @@ class ProductDevelopmentWaitingOn
     public const string KIND_REVIEW = 'review';
     public const string KIND_PRINT_LIMITS = 'print_limits';
     public const string KIND_SIGN_OFF = 'sign_off';
+
+    public const string REMINDED_SETTING = 'product_development_reminded';
 
     public const int WIDGET_LIMIT = 6;
 
@@ -214,12 +217,7 @@ class ProductDevelopmentWaitingOn
      */
     public static function dashboardWidget(User $user): ?DeferProp
     {
-        $takesPart = ProductDevelopment::query()
-            ->where('status', ProductDevelopmentStatusEnum::ACTIVE->value)
-            ->where(fn ($query) => $query->where('owner_id', $user->id)->orWhereHas('members', fn ($members) => $members->where('user_id', $user->id)))
-            ->exists();
-
-        if (!$takesPart) {
+        if (!self::takesPart($user)) {
             return null;
         }
 
@@ -232,5 +230,52 @@ class ProductDevelopmentWaitingOn
                 'route' => ['name' => 'grp.product_developments.waiting_on_me', 'parameters' => []],
             ];
         });
+    }
+
+    public static function takesPart(User $user): bool
+    {
+        return ProductDevelopment::query()
+            ->where('status', ProductDevelopmentStatusEnum::ACTIVE->value)
+            ->where(fn ($query) => $query->where('owner_id', $user->id)->orWhereHas('members', fn ($members) => $members->where('user_id', $user->id)))
+            ->exists();
+    }
+
+    /**
+     * The rail badge: how much waits on the person and how much of it is late; null for anyone not taking
+     * part in an active development, so the badge never shows for them.
+     *
+     * @return array{waiting: int, late: int, reminded: bool}|null
+     */
+    public static function railBadge(User $user): ?array
+    {
+        if (!self::takesPart($user)) {
+            return null;
+        }
+
+        $rows = (new self())->forUser($user);
+
+        return [
+            'waiting'  => count($rows),
+            'late'     => count(array_filter($rows, fn (array $row) => $row['is_late'])),
+            'reminded' => (bool) Arr::get($user->settings ?? [], self::REMINDED_SETTING),
+        ];
+    }
+
+    /**
+     * Someone sent this person a reminder: their rail badge pulses until they open it.
+     */
+    public static function markReminded(User $user): void
+    {
+        $user->refresh();
+        $user->updateQuietly(['settings' => [...($user->settings ?? []), self::REMINDED_SETTING => true]]);
+        BroadcastProductDevelopmentBadgeUpdate::dispatch($user->id, self::railBadge($user));
+    }
+
+    public static function markSeen(User $user): void
+    {
+        $user->refresh();
+        if (Arr::get($user->settings ?? [], self::REMINDED_SETTING)) {
+            $user->updateQuietly(['settings' => [...($user->settings ?? []), self::REMINDED_SETTING => false]]);
+        }
     }
 }

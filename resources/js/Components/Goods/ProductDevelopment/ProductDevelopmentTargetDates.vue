@@ -16,7 +16,8 @@ import { useFormatTime } from "@/Composables/useFormatTime"
 import { routeType } from "@/types/route"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faChevronDown, faSave } from "@fal"
+import { faChevronDown } from "@fal"
+import { faSave } from "@fas"
 library.add(faChevronDown, faSave)
 
 const props = defineProps<{
@@ -84,7 +85,7 @@ function save() {
                     <p v-if="errors.target_online_date" class="mt-1 text-xs text-red-600">{{ errors.target_online_date }}</p>
                 </div>
                 <div v-if="canEdit" class="flex justify-end">
-                    <Button type="primary" size="xs" icon="fal fa-save" :label="ctrans('Save')" :loading="saving" @click="save" />
+                    <Button type="primary" size="xs" icon="fas fa-save" :label="ctrans('Save')" :loading="saving" @click="save" />
                 </div>
                 <p v-else class="text-xs text-gray-400">{{ ctrans("Only the owner and purchasing can change these dates") }}</p>
             </div>

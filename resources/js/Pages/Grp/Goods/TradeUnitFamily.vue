@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ProductDevelopmentRelatedList from "@/Components/Goods/ProductDevelopment/ProductDevelopmentRelatedList.vue"
 import { Head, router } from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -40,6 +41,7 @@ library.add(
 )
 
 const props = defineProps<{
+    product_developments?: InstanceType<typeof ProductDevelopmentRelatedList>["$props"]["data"]
   title: string,
   pageHead: PageHeadingTypes
   tabs: {
@@ -91,7 +93,8 @@ const component = computed(() => {
     sales_analysis: SalesAnalysis,
     trade_units: TableTradeUnits,
     attachments : AttachmentManagement,
-    history: TableHistories
+    history: TableHistories,
+    product_developments: ProductDevelopmentRelatedList
   }
   return components[currentTab.value]
 })

@@ -291,6 +291,95 @@ const selectedId = computed<string | null>({
     set: (id) => selectedIds.value = id ? [id] : [],
 })
 const selected = computed(() => face.value.elements.find((element) => element.id === selectedId.value) ?? null)
+
+/** The side itself or its drawn artwork, not an item's box or handles, which sit above with their own clicks */
+const isEmptySpace = (event: Event) => event.target === event.currentTarget || !!(event.target as HTMLElement).closest?.("[data-face-artwork]")
+
+function onFacePointerDown(event: PointerEvent) {
+    if (isEmptySpace(event)) {
+        startMarquee(event)
+    }
+}
+
+/* Drag-to-select: a rectangle drawn from empty space selects every unlocked item it touches */
+const MARQUEE_THRESHOLD_PX = 3
+const marquee = ref<{ startX: number, startY: number, x: number, y: number, moved: boolean, additive: boolean, base: string[] } | null>(null)
+
+const marqueeStyle = computed(() => {
+    const box = marquee.value
+    const stageBox = stage.value?.getBoundingClientRect()
+    if (!box?.moved || !stageBox) {
+        return null
+    }
+    return {
+        left: `${Math.min(box.startX, box.x) - stageBox.left}px`,
+        top: `${Math.min(box.startY, box.y) - stageBox.top}px`,
+        width: `${Math.abs(box.x - box.startX)}px`,
+        height: `${Math.abs(box.y - box.startY)}px`,
+    }
+})
+
+function marqueeHits(): string[] {
+    const box = marquee.value
+    const faceBox = faceEl.value?.getBoundingClientRect()
+    if (!box || !faceBox || !scale.value) {
+        return []
+    }
+    const left = (Math.min(box.startX, box.x) - faceBox.left) / scale.value
+    const right = (Math.max(box.startX, box.x) - faceBox.left) / scale.value
+    const top = (Math.min(box.startY, box.y) - faceBox.top) / scale.value
+    const bottom = (Math.max(box.startY, box.y) - faceBox.top) / scale.value
+
+    return face.value.elements
+        .filter((element) => !element.locked)
+        .filter((element) => {
+            const bounds = boundsOf([element])
+            return !!bounds && bounds.x < right && bounds.x + bounds.w > left && bounds.y < bottom && bounds.y + bounds.h > top
+        })
+        .map((element) => element.id)
+}
+
+function onMarqueeMove(event: PointerEvent) {
+    const box = marquee.value
+    if (!box) {
+        return
+    }
+    box.x = event.clientX
+    box.y = event.clientY
+    if (!box.moved && Math.hypot(box.x - box.startX, box.y - box.startY) < MARQUEE_THRESHOLD_PX) {
+        return
+    }
+    box.moved = true
+    selectedIds.value = [...new Set([...box.base, ...marqueeHits()])]
+}
+
+function endMarquee() {
+    window.removeEventListener("pointermove", onMarqueeMove)
+    window.removeEventListener("pointerup", endMarquee)
+    window.removeEventListener("pointercancel", endMarquee)
+    const box = marquee.value
+    marquee.value = null
+    if (box && !box.moved && !box.additive) {
+        selectedIds.value = []
+    }
+}
+
+function startMarquee(event: PointerEvent) {
+    if (event.button !== 0 || drawingShape.value || editingBackground.value) {
+        return
+    }
+    const additive = event.shiftKey || event.ctrlKey || event.metaKey
+    marquee.value = { startX: event.clientX, startY: event.clientY, x: event.clientX, y: event.clientY, moved: false, additive, base: additive ? [...selectedIds.value] : [] }
+    window.addEventListener("pointermove", onMarqueeMove)
+    window.addEventListener("pointerup", endMarquee)
+    window.addEventListener("pointercancel", endMarquee)
+}
+
+function onFaceDoubleClick(event: MouseEvent) {
+    if (isEmptySpace(event)) {
+        toggleBackgroundEditing()
+    }
+}
 const selection = computed(() => face.value.elements.filter((element) => selectedIds.value.includes(element.id)))
 
 /** shared by every side and every editor, so items can be copied from one side and pasted on another */
@@ -495,6 +584,13 @@ function pasteElements(elements: DesignElement[], offset: number, sourceNames: R
     face.value = { ...face.value, elements: [...face.value.elements, ...pasted], groups: { ...(face.value.groups ?? {}), ...names } }
     selectedIds.value = pasted.map((element) => element.id)
 }
+
+const itemActions = computed(() => [
+    { key: "forward", label: ctrans("Bring forward"), icon: "fal fa-arrow-up", danger: false, run: () => moveLayer(1) },
+    { key: "backward", label: ctrans("Send backward"), icon: "fal fa-arrow-down", danger: false, run: () => moveLayer(-1) },
+    { key: "duplicate", label: ctrans("Duplicate"), icon: "fal fa-clone", danger: false, run: () => duplicateSelected() },
+    { key: "delete", label: ctrans("Delete"), icon: "fal fa-trash-alt", danger: true, run: () => removeSelected() },
+])
 
 function duplicateSelected() {
     pasteElements(selection.value.map((element) => ({ ...element })), 3, face.value.groups ?? {})
@@ -838,9 +934,27 @@ function toggleGroupLock(groupId: string) {
     replaceItems(members.map((element) => ({ ...element, locked: lock })))
 }
 
+const layerAnchor = ref<string | null>(null)
+
+/**
+ * Like a file list: a click selects one layer, Ctrl/Cmd-click adds or removes one, Shift-click selects
+ * every layer from the last one clicked to this one, and Shift+Ctrl adds that run to the selection.
+ */
 function selectLayer(event: MouseEvent, element: DesignElement) {
     editingBackground.value = false
-    if (event.shiftKey || event.ctrlKey || event.metaKey) {
+    const toggle = event.ctrlKey || event.metaKey
+    const order = layers.value.flatMap((row) => row.kind === "item" ? [row.element.id] : [])
+    const anchorIndex = layerAnchor.value ? order.indexOf(layerAnchor.value) : -1
+
+    if (event.shiftKey && anchorIndex !== -1) {
+        const clickedIndex = order.indexOf(element.id)
+        const run = order.slice(Math.min(anchorIndex, clickedIndex), Math.max(anchorIndex, clickedIndex) + 1)
+        selectedIds.value = toggle ? [...new Set([...selectedIds.value, ...run])] : run
+        return
+    }
+
+    layerAnchor.value = element.id
+    if (toggle || event.shiftKey) {
         selectedIds.value = selectedIds.value.includes(element.id)
             ? selectedIds.value.filter((id) => id !== element.id)
             : [...selectedIds.value, element.id]
@@ -856,10 +970,12 @@ function toggleLayerLock(element: DesignElement) {
 
 const draggedLayer = ref<string | null>(null)
 const dropTarget = ref<string | null>(null)
+const DROP_AT_BACK = "back"
 
 /**
  * Puts what was dragged (one item, or every member of a dragged group) just in front of the item it was
- * dropped on, or in front of a whole group when dropped on the group's row.
+ * dropped on, in front of a whole group when dropped on the group's row, or behind everything when
+ * dropped below the list.
  */
 function dropLayer(target: string) {
     const dragged = draggedLayer.value
@@ -871,6 +987,12 @@ function dropLayer(target: string) {
     const movingIds = dragged.startsWith("group:")
         ? face.value.elements.filter((element) => element.group_id === dragged.slice(6)).map((element) => element.id)
         : [dragged]
+    if (target === DROP_AT_BACK) {
+        remember()
+        const moving = face.value.elements.filter((element) => movingIds.includes(element.id))
+        face.value = { ...face.value, elements: [...moving, ...face.value.elements.filter((element) => !movingIds.includes(element.id))] }
+        return
+    }
     const targetIds = target.startsWith("group:")
         ? face.value.elements.filter((element) => element.group_id === target.slice(6)).map((element) => element.id)
         : [target]
@@ -1212,6 +1334,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+    endMarquee()
     observer?.disconnect()
     window.removeEventListener("keydown", onKeydown)
 })
@@ -1291,7 +1414,7 @@ onBeforeUnmount(endGesture)
                         </button>
                     </span>
                 </div>
-                <ul class="min-h-0 flex-1 overflow-y-auto py-1 [scrollbar-width:thin]">
+                <ul class="flex min-h-0 flex-1 flex-col overflow-y-auto py-1 [scrollbar-width:thin]">
                     <template v-for="row in layers" :key="row.kind === 'group' ? `group:${row.id}` : row.element.id">
                         <li
                             v-if="row.kind === 'group'"
@@ -1364,10 +1487,22 @@ onBeforeUnmount(endGesture)
                         </li>
                     </template>
                     <li v-if="!face.elements.length" class="px-3 py-4 text-xs text-gray-400">{{ ctrans("Nothing on this side yet") }}</li>
+                    <li
+                        v-if="face.elements.length"
+                        class="min-h-10 flex-1 border-t-2 px-3 pt-1.5 text-xs transition-colors"
+                        :class="draggedLayer ? (dropTarget === DROP_AT_BACK ? 'border-[--app-accent] bg-[--app-accent-soft]/40 text-[--app-accent-strong]' : 'border-transparent text-gray-400') : 'border-transparent text-transparent'"
+                        :aria-hidden="!draggedLayer"
+                        @dragover.prevent="dropTarget = DROP_AT_BACK"
+                        @dragleave="dropTarget === DROP_AT_BACK && (dropTarget = null)"
+                        @drop.prevent="dropLayer(DROP_AT_BACK)"
+                    >
+                        {{ ctrans("Drop here to send to the back") }}
+                    </li>
                 </ul>
             </aside>
 
-            <div ref="stage" class="relative flex min-h-[18rem] flex-1 items-center justify-center overflow-hidden bg-gray-100" @pointerdown.self="selectedId = null">
+            <div ref="stage" class="relative flex min-h-[18rem] flex-1 select-none items-center justify-center overflow-hidden bg-gray-100" @pointerdown.self="startMarquee">
+                <div v-if="marqueeStyle" class="pointer-events-none absolute z-50 rounded-sm border border-[--app-accent] bg-[--app-accent-soft] opacity-60" :style="marqueeStyle" />
                 <div v-if="drawingShape" class="pointer-events-none absolute left-1/2 top-3 z-50 -translate-x-1/2 rounded-full bg-gray-900/80 px-3 py-1 text-xs text-white">
                     {{ drawingShape === "line" ? ctrans("Drag to draw the line (Shift snaps the angle) · Esc to cancel") : ctrans("Drag to draw the shape (Shift keeps it even) · click for a default size · Esc to cancel") }}
                 </div>
@@ -1375,8 +1510,8 @@ onBeforeUnmount(endGesture)
                     ref="faceEl"
                     class="relative shadow-md"
                     :style="{ width: `${size.w * scale}px`, height: `${size.h * scale}px` }"
-                    @pointerdown.self="selectedId = null"
-                    @dblclick.self="toggleBackgroundEditing"
+                    @pointerdown="onFacePointerDown"
+                    @dblclick="onFaceDoubleClick"
                 >
                     <img
                         v-if="editingBackground && backgroundUrl && backgroundGhostStyle"
@@ -1386,11 +1521,11 @@ onBeforeUnmount(endGesture)
                         :style="backgroundGhostStyle"
                         draggable="false"
                     />
-                    <DesignFaceRender :face="face" :scale="scale" :images="images" :size="size" :data="data" />
+                    <DesignFaceRender data-face-artwork :face="face" :scale="scale" :images="images" :size="size" :data="data" />
 
                     <div
                         v-if="drawingShape"
-                        class="absolute inset-0 z-40 cursor-crosshair touch-none"
+                        class="draw-cursor absolute inset-0 z-40 touch-none"
                         @pointerdown="startShapeDraw"
                         @pointermove="moveShapeDraw"
                         @pointerup="finishShapeDraw"
@@ -1490,13 +1625,21 @@ onBeforeUnmount(endGesture)
                 </div>
 
                 <template v-if="selected">
-                    <div class="flex items-center justify-between">
-                        <span class="font-medium text-gray-800">{{ ({ text: ctrans('Text'), image: ctrans('Image'), zone: ctrans('Reserved area'), data: ctrans('Trade unit data'), pictogram: ctrans('Pictogram'), barcode: ctrans('Barcode'), shape: ctrans('Shape') } as Record<string, string>)[selected.type] }}</span>
-                        <div class="flex gap-1">
-                            <Button type="tertiary" size="xs" icon="fal fa-arrow-up" :tooltip="ctrans('Bring forward')" @click="moveLayer(1)" />
-                            <Button type="tertiary" size="xs" icon="fal fa-arrow-down" :tooltip="ctrans('Send backward')" @click="moveLayer(-1)" />
-                            <Button type="tertiary" size="xs" icon="fal fa-clone" :tooltip="ctrans('Duplicate')" @click="duplicateSelected" />
-                            <Button type="negative" size="xs" icon="fal fa-trash-alt" :tooltip="ctrans('Delete')" @click="removeSelected" />
+                    <div class="space-y-2">
+                        <span class="block truncate font-medium text-gray-800">{{ ({ text: ctrans('Text'), image: ctrans('Image'), zone: ctrans('Reserved area'), data: ctrans('Trade unit data'), pictogram: ctrans('Pictogram'), barcode: ctrans('Barcode'), shape: ctrans('Shape') } as Record<string, string>)[selected.type] }}</span>
+                        <div class="grid grid-cols-4 divide-x divide-gray-200 overflow-hidden rounded-md border border-gray-200 bg-white" role="toolbar" :aria-label="ctrans('Item actions')">
+                            <button
+                                v-for="action in itemActions"
+                                :key="action.key"
+                                type="button"
+                                class="flex h-8 items-center justify-center text-sm transition-colors"
+                                :class="action.danger ? 'text-red-500 hover:bg-red-50 hover:text-red-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'"
+                                v-tooltip="action.label"
+                                :aria-label="action.label"
+                                @click="action.run"
+                            >
+                                <FontAwesomeIcon :icon="action.icon" fixed-width aria-hidden="true" />
+                            </button>
                         </div>
                     </div>
 
@@ -1640,10 +1783,18 @@ onBeforeUnmount(endGesture)
                     </label>
                     <p v-if="editingBackground" class="rounded-md bg-[--app-accent-soft] px-2 py-1.5 text-xs text-[--app-accent-deep]">{{ ctrans("Drag the image to choose which part shows. It always covers the whole side.") }}</p>
                     <p class="text-xs leading-relaxed text-gray-500">
-                        {{ ctrans("Drag an item to move it, its corners to resize (Shift keeps the shape) and the round handle to rotate; hold Alt to stop snapping. Shift-click to select several. Ctrl+C, Ctrl+X and Ctrl+V copy, cut and paste (also onto another side), Ctrl+D duplicates, Ctrl+A selects all, Ctrl+Z undoes and Ctrl+Y redoes. Arrow keys nudge by 1 mm (Shift: 5 mm), Delete removes. Double-click the side to move its background.") }}
+                        {{ ctrans("Drag an item to move it, its corners to resize (Shift keeps the shape) and the round handle to rotate; hold Alt to stop snapping. Shift-click, or drag a box from an empty spot, to select several. Ctrl+C, Ctrl+X and Ctrl+V copy, cut and paste (also onto another side), Ctrl+D duplicates, Ctrl+A selects all, Ctrl+Z undoes and Ctrl+Y redoes. Arrow keys nudge by 1 mm (Shift: 5 mm), Delete removes. Double-click the side to move its background.") }}
                     </p>
                 </template>
             </aside>
         </div>
     </div>
 </template>
+
+<style scoped>
+/* A dark crosshair with a white outline, so it shows on white artwork and on dark artwork alike;
+   the system crosshair is white on some computers and vanishes on a white side */
+.draw-cursor {
+    cursor: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path d='M12 2v8M12 14v8M2 12h8M14 12h8' stroke='white' stroke-width='4' stroke-linecap='round'/><path d='M12 2v8M12 14v8M2 12h8M14 12h8' stroke='%23111827' stroke-width='1.5' stroke-linecap='round'/><circle cx='12' cy='12' r='1.5' fill='%23111827' stroke='white' stroke-width='1'/></svg>") 12 12, crosshair;
+}
+</style>

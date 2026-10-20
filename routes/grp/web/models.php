@@ -17,6 +17,8 @@ use App\Actions\Goods\ProductDevelopment\UpdateProductDevelopmentCommentStatus;
 use App\Actions\Goods\ProductDevelopment\SignOffProductDevelopment;
 use App\Actions\Goods\ProductDevelopment\UploadProductDevelopmentFactoryPhoto;
 use App\Actions\Goods\ProductDevelopment\RemindProductDevelopmentMembers;
+use App\Actions\Goods\ProductDevelopment\LinkProductDevelopmentPurchaseOrder;
+use App\Actions\Goods\ProductDevelopment\StoreProductDevelopmentPurchaseOrder;
 use App\Actions\Goods\ProductDevelopment\Design\StoreProductDevelopmentDesignVersion;
 use App\Actions\Goods\ProductDevelopment\Design\SkipProductDevelopmentDesignRound;
 use App\Actions\Goods\ProductDevelopment\Design\UpdateProductDevelopmentDesignVersion;
@@ -2005,6 +2007,8 @@ Route::name('product_development.')->prefix('product-development')->group(functi
     Route::post('checklist-item/{productDevelopmentChecklistItem:id}/factory-photo', UploadProductDevelopmentFactoryPhoto::class)->name('checklist_item.factory_photo')->withoutScopedBindings();
     Route::patch('checklist-item/{productDevelopmentChecklistItem:id}', UpdateProductDevelopmentChecklistItem::class)->name('checklist_item.update')->withoutScopedBindings();
     Route::patch('item/{productDevelopmentItem:id}/supplier-product', LinkProductDevelopmentSupplierProduct::class)->name('item.supplier_product')->withoutScopedBindings();
+    Route::patch('{productDevelopment:id}/purchase-order', LinkProductDevelopmentPurchaseOrder::class)->name('purchase_order')->withoutScopedBindings();
+    Route::post('{productDevelopment:id}/purchase-order', StoreProductDevelopmentPurchaseOrder::class)->name('purchase_order.store')->withoutScopedBindings();
     Route::post('{productDevelopment:id}/remind', RemindProductDevelopmentMembers::class)->name('remind')->withoutScopedBindings();
     Route::patch('{productDevelopment:id}/sign-off', SignOffProductDevelopment::class)->name('sign_off')->withoutScopedBindings();
     Route::patch('comment/{productDevelopmentComment:id}/status', UpdateProductDevelopmentCommentStatus::class)->name('comment.status')->withoutScopedBindings();

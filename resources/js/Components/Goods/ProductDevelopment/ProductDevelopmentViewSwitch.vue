@@ -18,6 +18,7 @@ interface ViewOption {
     icon: string
     route: routeType
     active: boolean
+    count?: number
 }
 
 const props = defineProps<{
@@ -37,7 +38,7 @@ watch(current, (key) => {
 <template>
     <SegmentedToggle
         v-model="current"
-        :options="options.map((option) => ({ label: option.label, value: option.key, icon: option.icon }))"
+        :options="options.map((option) => ({ label: option.label, value: option.key, icon: option.icon, count: option.count }))"
         :ariaLabel="ctrans('View')"
     />
 </template>

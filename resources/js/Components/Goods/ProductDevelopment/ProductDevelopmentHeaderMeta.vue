@@ -11,6 +11,7 @@ import TicketUserHoverCard from "@/Components/Tickets/TicketUserHoverCard.vue"
 import { ctrans } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
 import { productDevelopmentColor } from "@/Components/Goods/ProductDevelopment/productDevelopmentColors"
+import ProductDevelopmentPurchaseOrders from "@/Components/Goods/ProductDevelopment/ProductDevelopmentPurchaseOrders.vue"
 import ProductDevelopmentTargetDates from "@/Components/Goods/ProductDevelopment/ProductDevelopmentTargetDates.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -39,6 +40,7 @@ defineProps<{
         can_edit: boolean
         update_route: routeType
         number_purchase_orders: number
+        purchase_orders: InstanceType<typeof ProductDevelopmentPurchaseOrders>["$props"]["data"]
     }
 }>()
 
@@ -94,7 +96,7 @@ const linkClass = (color: string) => [productDevelopmentColor(color).active, pro
             </div>
             <div>
                 <dt class="text-xs text-gray-500">{{ ctrans("Purchase orders") }}</dt>
-                <dd class="mt-1 text-gray-800">{{ header.number_purchase_orders ? header.number_purchase_orders : ctrans("Not raised yet") }}</dd>
+                <dd class="mt-1"><ProductDevelopmentPurchaseOrders :data="header.purchase_orders" /></dd>
             </div>
             <div>
                 <dt class="text-xs text-gray-500">{{ ctrans("Owner") }}</dt>
