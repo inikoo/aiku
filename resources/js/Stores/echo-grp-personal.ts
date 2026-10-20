@@ -11,7 +11,12 @@ import { differenceInMilliseconds } from 'date-fns'
 import { defineStore } from "pinia";
 import { useLayoutStore } from "@/Stores/layout"
 import { useStaffMessaging } from "@/Stores/staff-messaging"
-import { alertOnce, chosenAlertSound, showTicketPopup } from "@/Composables/useNotificationSound"
+import { ctrans } from "@/Composables/useTrans"
+import { alertOnce, chosenAlertSound, showTicketPopup, type AlertSoundKind } from "@/Composables/useNotificationSound"
+
+const ticketAlertSpokenLines = (): Record<string, string> => ({ raised: ctrans('New ticket'), answered: ctrans('Ticket answered'), qa: ctrans('Ticket QA') })
+
+const TICKET_ALERT_SOUND_KINDS: Record<string, AlertSoundKind> = { resolved: 'ticket', raised: 'ticket_new', answered: 'ticket_answered', qa: 'ticket_qa' }
 
 interface ProgressBar {
     [key: string]: {
@@ -133,7 +138,8 @@ export const useEchoGrpPersonal = defineStore("echo-grp-personal", {
                 if (notification) {
                     layout.notifications.unshift({ id: '', read: false, href: '', created_at: new Date(), ...notification })
                 }
-                if (notification?.reason && ['resolved', 'raised', 'answered', 'qa'].includes(notification.reason)) {
+                const soundKind = notification?.reason ? TICKET_ALERT_SOUND_KINDS[notification.reason] : undefined
+                if (notification && soundKind) {
                     if (notification.title) {
                         showTicketPopup(notification.title, notification.body, notification.route)
                     }
@@ -142,7 +148,8 @@ export const useEchoGrpPersonal = defineStore("echo-grp-personal", {
                         title: notification.title,
                         body: notification.body,
                         tag: `ticket-${notification.route}`,
-                        sound: chosenAlertSound('ticket'),
+                        sound: chosenAlertSound(soundKind),
+                        spoken: ticketAlertSpokenLines()[notification.reason ?? ''] ?? '',
                         url: notification.route,
                     })
                 }
