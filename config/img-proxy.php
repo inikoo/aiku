@@ -10,6 +10,7 @@
 return [
     'base_url'       => env('IMGPROXY_URL'),
     'internal_url'   => env('IMGPROXY_INTERNAL_URL'),
+    'accel_location' => env('IMGPROXY_ACCEL_LOCATION'),
 
     //security
     'key'            => env('IMGPROXY_KEY'),
