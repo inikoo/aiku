@@ -21,11 +21,11 @@ import { capitalize } from "@/Composables/capitalize"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { useLocaleStore } from "@/Stores/locale"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faUserHardHat, faChevronDown, faChevronUp, faCheck, faTimes, faFilter, faClock, faExclamationTriangle, faHatWizard, faCog } from "@fal"
+import { faUserHardHat, faChevronDown, faChevronUp, faCheck, faTimes, faFilter, faClock, faExclamationTriangle, faHatWizard, faCog, faPlus } from "@fal"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { PageHeadingTypes } from "@/types/PageHeading"
 
-library.add(faUserHardHat, faChevronDown, faChevronUp, faCheck, faTimes, faFilter, faClock, faExclamationTriangle, faHatWizard, faCog)
+library.add(faUserHardHat, faChevronDown, faChevronUp, faCheck, faTimes, faFilter, faClock, faExclamationTriangle, faHatWizard, faCog, faPlus)
 
 interface TimeEditFields {
     time_edit: null | {
@@ -91,6 +91,9 @@ interface NonProductiveSummary {
         id: number
         state: string
         activity: string
+        reason: string | null
+        reason_note: string | null
+        reason_note_original: string | null
         job_order_reference: string | null
         started_at: string
         ended_at: string
@@ -111,6 +114,11 @@ interface ArtisanJob {
     steps: ArtisanJobStep[]
 }
 
+interface ActivityTotal {
+    hours: number
+    number_sessions: number
+}
+
 type Props = {
     title: string
     pageHead: PageHeadingTypes
@@ -127,6 +135,16 @@ type Props = {
     currency_code: string
     under_target_reasons: Record<string, string>
     non_productive_activities: { value: string, label: string }[]
+    activity: string | null
+    preparation_reason: string | null
+    preparation_reasons: { id: number, name: string, is_other: boolean }[]
+    preparation_reasons_route: null | { name: string, parameters: object }
+    retired_preparation_reasons: { id: number, name: string }[]
+    activity_totals: null | {
+        total: ActivityTotal
+        reasons: (ActivityTotal & { key: string, label: string, notes: (ActivityTotal & { label: string })[] })[]
+        artisans: (ActivityTotal & { worker: string })[]
+    }
     artisans: {
         user_id: number
         worker: string
@@ -174,6 +192,43 @@ const manufactureTaskId = ref<number | null>(props.manufacture_task_id)
 const payTypeFilter = ref<string | null>(props.artisan_pay_type)
 const payTypeFilterOptions = computed(() => [{ value: null, label: ctrans('All pay types') }, ...Object.entries(props.artisan_pay_types).map(([value, label]) => ({ value, label }))])
 const payTypeOptions = computed(() => Object.entries(props.artisan_pay_types).map(([value, label]) => ({ value, label })))
+const activityFilter = ref<string | null>(props.activity)
+const activityOptions = computed(() => [{ value: null, label: ctrans('All activities') }, { value: 'production', label: ctrans('Production') }, ...props.non_productive_activities])
+const preparationReasonFilter = ref<string | null>(props.preparation_reason)
+const preparationReasonOptions = computed(() => [
+    { value: null, label: ctrans('All reasons') },
+    ...props.preparation_reasons.map((reason) => ({ value: String(reason.id), label: reason.name })),
+    ...props.retired_preparation_reasons.map((reason) => ({ value: String(reason.id), label: ctrans(':reason (removed)', { reason: reason.name }) })),
+    { value: 'none', label: ctrans('No reason recorded') },
+])
+const editingReasons = ref<{ id: number | null, name: string }[] | null>(null)
+const reasonsErrors = ref<Record<string, string>>({})
+
+function openReasons() {
+    editingReasons.value = props.preparation_reasons.filter((reason) => !reason.is_other).map((reason) => ({ id: reason.id, name: reason.name }))
+    reasonsErrors.value = {}
+}
+
+function moveReason(index: number, offset: number) {
+    const reasons = editingReasons.value
+    if (!reasons || index + offset < 0 || index + offset >= reasons.length) return
+    reasons.splice(index + offset, 0, reasons.splice(index, 1)[0])
+}
+
+function saveReasons() {
+    if (!props.preparation_reasons_route || !editingReasons.value) return
+    processing.value = true
+    router.patch(
+        route(props.preparation_reasons_route.name, props.preparation_reasons_route.parameters),
+        { reasons: editingReasons.value },
+        {
+            preserveScroll: true,
+            onSuccess: () => editingReasons.value = null,
+            onError: (errors) => reasonsErrors.value = errors,
+            onFinish: () => processing.value = false,
+        }
+    )
+}
 const underTargetOnly = ref(props.under_target)
 const timeEditedOnly = ref(props.time_edited)
 const reviewing = ref<number | null>(null)
@@ -198,7 +253,7 @@ const processing = ref(false)
 function applyPeriod() {
     router.get(
         window.location.pathname,
-        { from: from.value, to: to.value, manufacture_task_id: manufactureTaskId.value || undefined, under_target: underTargetOnly.value ? 1 : undefined, time_edited: timeEditedOnly.value ? 1 : undefined, artisan_pay_type: payTypeFilter.value || undefined },
+        { from: from.value, to: to.value, manufacture_task_id: manufactureTaskId.value || undefined, under_target: underTargetOnly.value ? 1 : undefined, time_edited: timeEditedOnly.value ? 1 : undefined, artisan_pay_type: payTypeFilter.value || undefined, activity: activityFilter.value || undefined, preparation_reason: activityFilter.value === 'preparation' ? preparationReasonFilter.value || undefined : undefined },
         { preserveState: false }
     )
 }
@@ -450,6 +505,14 @@ const quantityLabel = (quantity: number | string) => Number(quantity).toLocaleSt
                 <label class="block text-xs text-gray-500 mb-1">{{ ctrans('Pay type') }}</label>
                 <Select v-model="payTypeFilter" :options="payTypeFilterOptions" optionLabel="label" optionValue="value" :placeholder="ctrans('All pay types')" class="min-w-40" :class="fieldFocusClass" />
             </div>
+            <div>
+                <label class="block text-xs text-gray-500 mb-1">{{ ctrans('Activity') }}</label>
+                <Select v-model="activityFilter" :options="activityOptions" optionLabel="label" optionValue="value" :placeholder="ctrans('All activities')" class="min-w-40" :class="fieldFocusClass" />
+            </div>
+            <div v-if="activityFilter === 'preparation'">
+                <label class="block text-xs text-gray-500 mb-1">{{ ctrans('Reason') }}</label>
+                <Select v-model="preparationReasonFilter" :options="preparationReasonOptions" optionLabel="label" optionValue="value" :placeholder="ctrans('All reasons')" class="min-w-56" :class="fieldFocusClass" />
+            </div>
             <label class="flex items-center gap-2 pb-2 text-sm text-gray-600 whitespace-nowrap">
                 <Checkbox v-model="underTargetOnly" binary />
                 {{ ctrans('Under target only') }}
@@ -461,6 +524,56 @@ const quantityLabel = (quantity: number | string) => Number(quantity).toLocaleSt
             <Button type="tertiary" :label="ctrans('Apply')" @click="applyPeriod">
                 <template #icon><FontAwesomeIcon :icon="['fal', 'filter']" fixed-width aria-hidden="true" /></template>
             </Button>
+            <Button v-if="preparation_reasons_route" type="tertiary" :label="ctrans('Preparation reasons')" class="ml-auto" @click="openReasons">
+                <template #icon><FontAwesomeIcon :icon="['fal', 'cog']" fixed-width aria-hidden="true" /></template>
+            </Button>
+        </div>
+
+        <div v-if="activity_totals" class="mb-6 flex flex-wrap gap-10">
+            <table v-if="activity === 'preparation'" class="w-auto text-sm tabular-nums">
+                <thead class="whitespace-nowrap">
+                    <tr class="border-b border-gray-200 text-xs text-gray-500">
+                        <th class="py-2 pr-6 text-left font-medium">{{ ctrans('Reason') }}</th>
+                        <th class="py-2 px-3 text-right font-medium">{{ ctrans('Time (h:mm)') }}</th>
+                        <th class="py-2 pl-3 text-right font-medium">{{ ctrans('Sessions') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template v-for="reason in activity_totals.reasons" :key="reason.key">
+                        <tr class="border-b border-gray-100 text-gray-700">
+                            <td class="py-1.5 pr-6">{{ reason.label }}</td>
+                            <td class="py-1.5 px-3 text-right">{{ clockHours(reason.hours) }}</td>
+                            <td class="py-1.5 pl-3 text-right">{{ reason.number_sessions }}</td>
+                        </tr>
+                        <tr v-for="note in reason.notes" :key="reason.key + note.label" class="text-xs text-gray-500">
+                            <td class="py-1 pl-4 pr-6">{{ note.label }}</td>
+                            <td class="py-1 px-3 text-right">{{ clockHours(note.hours) }}</td>
+                            <td class="py-1 pl-3 text-right">{{ note.number_sessions }}</td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+            <table class="w-auto text-sm tabular-nums">
+                <thead class="whitespace-nowrap">
+                    <tr class="border-b border-gray-200 text-xs text-gray-500">
+                        <th class="py-2 pr-6 text-left font-medium">{{ ctrans('Artisan') }}</th>
+                        <th class="py-2 px-3 text-right font-medium">{{ ctrans('Time (h:mm)') }}</th>
+                        <th class="py-2 pl-3 text-right font-medium">{{ ctrans('Sessions') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="row in activity_totals.artisans" :key="row.worker" class="border-b border-gray-100 text-gray-700">
+                        <td class="py-1.5 pr-6 whitespace-nowrap">{{ row.worker }}</td>
+                        <td class="py-1.5 px-3 text-right">{{ clockHours(row.hours) }}</td>
+                        <td class="py-1.5 pl-3 text-right">{{ row.number_sessions }}</td>
+                    </tr>
+                    <tr class="font-semibold text-gray-800">
+                        <td class="py-1.5 pr-6">{{ ctrans('Total') }}</td>
+                        <td class="py-1.5 px-3 text-right">{{ clockHours(activity_totals.total.hours) }}</td>
+                        <td class="py-1.5 pl-3 text-right">{{ activity_totals.total.number_sessions }}</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
         <div v-if="left_open.length" class="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
@@ -557,6 +670,7 @@ const quantityLabel = (quantity: number | string) => Number(quantity).toLocaleSt
                                     <div class="flex items-center gap-2 whitespace-nowrap text-gray-400">
                                         {{ useFormatTime(session.ended_at) }}
                                         <span class="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600">{{ session.activity }}</span>
+                                        <span v-if="session.reason" class="text-xs text-gray-600">{{ session.reason }}<template v-if="session.reason_note">: <span v-tooltip="session.reason_note_original ? ctrans('Typed as: :text', { text: session.reason_note_original }) : undefined" :class="session.reason_note_original ? 'cursor-help underline decoration-dotted' : ''">{{ session.reason_note }}</span></template></span>
                                         <span class="text-xs">{{ session.job_order_reference ?? ctrans('General') }}</span>
                                         <span v-if="session.break_minutes" class="text-xs">{{ ctrans(':minutes m break', { minutes: session.break_minutes }) }}</span>
                                         <span v-if="session.time_edit" class="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600">{{ ctrans('Times edited') }}</span>
@@ -694,6 +808,37 @@ const quantityLabel = (quantity: number | string) => Number(quantity).toLocaleSt
             </tbody>
         </table>
         </div>
+
+        <Dialog :visible="!!editingReasons" modal :closable="!processing" :header="ctrans('Preparation reasons')" :style="{ width: '36rem' }" @update:visible="(visible: boolean) => { if (!visible && !processing) editingReasons = null }">
+            <div class="text-xs text-gray-500">{{ ctrans('Artisans choose one of these when they finish Preparation. A reason taken off the list stays on the sessions that used it. "Other" is always last and asks them to type the reason.') }}</div>
+            <div v-for="(reason, index) in editingReasons ?? []" :key="index" class="mt-2 flex items-center gap-2">
+                <InputText v-model="reason.name" class="flex-1" :class="fieldFocusClass" maxlength="120" :invalid="!!reasonsErrors[`reasons.${index}.name`]" :aria-label="ctrans('Reason')" />
+                <button type="button" class="rounded px-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700 disabled:opacity-30" :disabled="index === 0" :aria-label="ctrans('Move up')" @click="moveReason(index, -1)">
+                    <FontAwesomeIcon :icon="['fal', 'chevron-up']" fixed-width aria-hidden="true" />
+                </button>
+                <button type="button" class="rounded px-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700 disabled:opacity-30" :disabled="index === (editingReasons?.length ?? 0) - 1" :aria-label="ctrans('Move down')" @click="moveReason(index, 1)">
+                    <FontAwesomeIcon :icon="['fal', 'chevron-down']" fixed-width aria-hidden="true" />
+                </button>
+                <button type="button" class="rounded px-1 text-red-500 hover:bg-gray-100" :aria-label="ctrans('Remove')" @click="editingReasons?.splice(index, 1)">
+                    <FontAwesomeIcon :icon="['fal', 'times']" fixed-width aria-hidden="true" />
+                </button>
+            </div>
+            <div class="mt-2 rounded border border-dashed border-gray-200 px-3 py-2 text-sm text-gray-500">{{ ctrans('Other') }}</div>
+            <div v-for="(error, key) in reasonsErrors" :key="key" class="mt-2 text-sm text-red-600">{{ error }}</div>
+            <div class="mt-4 flex justify-between gap-2">
+                <Button type="tertiary" :label="ctrans('Add reason')" @click="editingReasons?.push({ id: null, name: '' })">
+                    <template #icon><FontAwesomeIcon :icon="['fal', 'plus']" fixed-width aria-hidden="true" /></template>
+                </Button>
+                <div class="flex gap-2">
+                    <Button type="tertiary" :label="ctrans('Cancel')" :disabled="processing" @click="editingReasons = null">
+                        <template #icon><FontAwesomeIcon :icon="['fal', 'times']" fixed-width class="text-red-500" aria-hidden="true" /></template>
+                    </Button>
+                    <Button type="tertiary" :label="ctrans('Save')" :disabled="processing" @click="saveReasons">
+                        <template #icon><FontAwesomeIcon :icon="['fal', 'check']" fixed-width class="text-green-600" aria-hidden="true" /></template>
+                    </Button>
+                </div>
+            </div>
+        </Dialog>
 
         <Dialog :visible="!!breakdownArtisan" modal :header="ctrans(':name · preparation and cleaning', { name: breakdownArtisan?.worker ?? '' })" :style="{ width: '48rem' }" @update:visible="(visible: boolean) => { if (!visible) breakdownArtisan = null }">
             <template v-for="artisan in breakdownArtisan ? [breakdownArtisan] : []" :key="artisan.user_id">

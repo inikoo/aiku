@@ -10,6 +10,7 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { ctrans } from '@/Composables/useTrans'
 import Dialog from 'primevue/dialog'
 import Password from 'primevue/password'
+import InputText from 'primevue/inputtext'
 import { QrcodeStream } from 'vue-qrcode-reader'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -22,6 +23,7 @@ const props = defineProps<{
         started_at: string
         can_reject?: boolean
         activity?: { type: string, label: string }
+        preparation_reasons?: { id: number, label: string, is_other: boolean }[] | null
         task: {
             task_name: string
             artefact_code: string | null
@@ -60,7 +62,7 @@ const props = defineProps<{
 const page = usePage()
 const closeError = computed(() => {
     const errors = page.props.errors as Record<string, string> | undefined
-    return errors?.quantity_made ?? errors?.state ?? errors?.quantity_rejected ?? errors?.non_productive_reason
+    return errors?.quantity_made ?? errors?.state ?? errors?.quantity_rejected ?? errors?.non_productive_reason ?? errors?.preparation_reason_id ?? errors?.preparation_reason_note
 })
 const managerError = computed(() => (page.props.errors as Record<string, string> | undefined)?.manager_code)
 
@@ -208,11 +210,16 @@ function confirmDone() {
     closeSession()
 }
 
+const preparationReasonId = ref<number | null>(null)
+const preparationReasonNote = ref('')
+const isOtherReason = computed(() => !!props.session.preparation_reasons?.find((reason) => reason.id === preparationReasonId.value)?.is_other)
+const canFinishActivity = computed(() => !props.session.preparation_reasons?.length || (preparationReasonId.value !== null && (!isOtherReason.value || preparationReasonNote.value.trim() !== '')))
+
 function finishActivity() {
     processing.value = true
     router.patch(
         route(props.session.close_route.name, props.session.close_route.parameters),
-        {},
+        props.session.preparation_reasons?.length ? { preparation_reason_id: preparationReasonId.value, preparation_reason_note: isOtherReason.value ? preparationReasonNote.value.trim() : null } : {},
         { preserveScroll: true, onFinish: () => { processing.value = false; confirming.value = false } }
     )
 }
@@ -280,13 +287,28 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
         <div v-if="confirming" class="mt-6 rounded-lg border border-green-300 bg-green-50 p-4">
             <div class="text-2xl font-semibold">{{ ctrans('Finish :activity?', { activity: session.activity.label }) }}</div>
             <div class="mt-2 text-lg text-gray-700">{{ ctrans('Time logged') }}: <b class="tabular-nums">{{ elapsed }}</b></div>
+            <template v-if="session.preparation_reasons?.length">
+                <div class="mt-4 text-xl font-semibold">{{ ctrans('Why did you need preparation?') }}</div>
+                <div class="mt-2 grid gap-3 sm:grid-cols-2">
+                    <button v-for="reason in session.preparation_reasons" :key="reason.id" type="button"
+                        class="min-h-20 rounded-lg border-2 px-4 py-3 text-left text-xl font-medium"
+                        :class="preparationReasonId === reason.id ? 'border-[--app-accent] bg-[--app-accent-soft] text-gray-900' : 'border-gray-300 bg-white text-gray-700'"
+                        :aria-pressed="preparationReasonId === reason.id"
+                        @click="preparationReasonId = reason.id">
+                        <FontAwesomeIcon v-if="preparationReasonId === reason.id" :icon="['fal', 'check']" fixed-width class="mr-1 text-[--app-accent]" aria-hidden="true" />
+                        {{ reason.label }}
+                    </button>
+                </div>
+                <InputText v-if="isOtherReason" v-model="preparationReasonNote" :placeholder="ctrans('Type the reason')" :aria-label="ctrans('Type the reason')"
+                    maxlength="500" class="mt-3 w-full !py-4 !text-xl" autofocus />
+            </template>
             <div class="mt-4 grid gap-3 sm:grid-cols-2">
                 <button type="button" class="rounded-lg border border-gray-300 bg-white text-gray-700 text-xl font-semibold py-4"
                     @click="confirming = false">
                     {{ ctrans('Cancel / Go back') }}
                 </button>
                 <button type="button" class="rounded-lg bg-green-600 text-white text-xl font-semibold py-4 disabled:opacity-40"
-                    :disabled="processing" @click="finishActivity">
+                    :disabled="processing || !canFinishActivity" @click="finishActivity">
                     {{ ctrans('Confirm & finish') }}
                 </button>
             </div>

@@ -23,6 +23,8 @@ use App\Models\Production\ArtefactManufactureTask;
 use App\Models\Production\JobOrder;
 use App\Models\Production\JobOrderItemTask;
 use App\Models\Production\ManufacturePayBand;
+use App\Models\Production\ManufacturePreparationReason;
+use App\Models\Helpers\Language;
 use App\Actions\Production\ManufactureBreak\StartManufactureBreak;
 use App\Models\Production\ManufactureBreak;
 use App\Enums\Production\Artisan\ArtisanPayTypeEnum;
@@ -333,6 +335,13 @@ class ShowManufactureFloor extends OrgAction
             ],
             'band_feedback' => null,
             'break_minutes' => (int) $session->break_minutes,
+            'preparation_reasons' => $session->activity_type == ManufactureTaskSessionActivityTypeEnum::PREPARATION
+                ? ManufacturePreparationReason::forProduction($session->production)->map(fn (ManufacturePreparationReason $reason) => [
+                    'id'       => $reason->id,
+                    'label'    => $reason->nameIn(Language::where('code', app()->getLocale())->first()),
+                    'is_other' => $reason->is_other,
+                ])->all()
+                : null,
         ];
     }
 

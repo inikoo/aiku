@@ -21,6 +21,7 @@ use App\Models\HumanResources\Employee;
 use App\Models\Production\ArtefactManufactureTask;
 use App\Models\Production\JobOrderItemTask;
 use App\Models\Production\ManufactureTask;
+use App\Models\Production\ManufacturePreparationReason;
 use App\Models\Production\ManufactureTaskSession;
 use App\Models\Production\Production;
 use App\Models\SysAdmin\Organisation;
@@ -72,6 +73,8 @@ class IndexArtisans extends OrgAction
             'under_target'        => ['sometimes', 'boolean'],
             'artisan_pay_type'    => ['sometimes', 'nullable', Rule::enum(ArtisanPayTypeEnum::class)],
             'time_edited'         => ['sometimes', 'boolean'],
+            'activity'            => ['sometimes', 'nullable', Rule::in(['production', ManufactureTaskSessionActivityTypeEnum::PREPARATION->value, ManufactureTaskSessionActivityTypeEnum::CLEANING->value])],
+            'preparation_reason'  => ['sometimes', 'nullable', 'string', 'regex:/^(none|\d+)$/'],
         ];
     }
 
@@ -83,6 +86,8 @@ class IndexArtisans extends OrgAction
         $underTargetOnly   = (bool) Arr::get($this->validatedData, 'under_target', false);
         $payType           = Arr::get($this->validatedData, 'artisan_pay_type');
         $timeEditedOnly    = (bool) Arr::get($this->validatedData, 'time_edited', false);
+        $activity          = Arr::get($this->validatedData, 'activity');
+        $preparationReason = $activity == ManufactureTaskSessionActivityTypeEnum::PREPARATION->value ? Arr::get($this->validatedData, 'preparation_reason') : null;
 
         $sessions = ManufactureTaskSession::where('manufacture_task_sessions.production_id', $production->id)
             ->whereIn('manufacture_task_sessions.state', [
@@ -94,7 +99,11 @@ class IndexArtisans extends OrgAction
             ->when($underTargetOnly, fn ($query) => $query->where('is_under_target', true))
             ->when($payType, fn ($query) => $query->where('artisan_pay_type', $payType))
             ->when($timeEditedOnly, fn ($query) => $query->whereNotNull('time_edited_at'))
-            ->with(['user', 'employee', 'manufactureTask', 'underTargetReviewer', 'timeEditor', 'jobOrderItemTask.jobOrderItem.artefact', 'jobOrderItemTask.jobOrderItem.tasks.manufactureTask', 'jobOrderItemTask.jobOrder', 'jobOrder'])
+            ->when($activity == 'production', fn ($query) => $query->whereNotNull('job_order_item_task_id'))
+            ->when($activity && $activity != 'production', fn ($query) => $query->whereNull('job_order_item_task_id')->where('activity_type', $activity))
+            ->when($preparationReason == 'none', fn ($query) => $query->whereNull('preparation_reason_id'))
+            ->when($preparationReason && $preparationReason != 'none', fn ($query) => $query->where('preparation_reason_id', (int) $preparationReason))
+            ->with(['user', 'employee', 'manufactureTask', 'underTargetReviewer', 'timeEditor', 'jobOrderItemTask.jobOrderItem.artefact', 'jobOrderItemTask.jobOrderItem.tasks.manufactureTask', 'jobOrderItemTask.jobOrder', 'jobOrder', 'preparationReason'])
             ->orderByDesc('ended_at')
             ->get();
 
@@ -281,6 +290,22 @@ class IndexArtisans extends OrgAction
                     ->where('production_id', $production->id)
                     ->orderBy('name')
                     ->get(['id', 'name']),
+                'activity'                  => $activity,
+                'preparation_reason'        => $preparationReason,
+                'preparation_reasons'       => ManufacturePreparationReason::forProduction($production)->map(fn (ManufacturePreparationReason $reason) => [
+                    'id'       => $reason->id,
+                    'name'     => $reason->name,
+                    'is_other' => $reason->is_other,
+                ])->all(),
+                'retired_preparation_reasons' => ManufacturePreparationReason::onlyTrashed()->where('production_id', $production->id)
+                    ->whereIn('id', ManufactureTaskSession::select('preparation_reason_id')->where('production_id', $production->id)->whereNotNull('preparation_reason_id'))
+                    ->orderBy('name')
+                    ->get(['id', 'name']),
+                'preparation_reasons_route' => $this->canEdit ? [
+                    'name'       => 'grp.models.production.preparation_reasons.update',
+                    'parameters' => ['production' => $production->id],
+                ] : null,
+                'activity_totals'           => $activity && $activity != 'production' ? $this->activityTotals($sessions) : null,
                 'artisans' => $artisans,
             ]
         );
@@ -321,6 +346,9 @@ class IndexArtisans extends OrgAction
                 'id'                  => $session->id,
                 'state'               => $session->state,
                 'activity'            => $session->activityLabel(),
+                'reason'              => $session->activity_type == ManufactureTaskSessionActivityTypeEnum::PREPARATION ? ($session->preparationReason?->name ?? __('No reason recorded')) : null,
+                'reason_note'         => $session->preparation_reason_note ? ($session->preparation_reason_note_en ?? $session->preparation_reason_note) : null,
+                'reason_note_original' => $session->preparation_reason_note && $session->preparation_reason_note_en && $session->preparation_reason_note_en !== $session->preparation_reason_note ? $session->preparation_reason_note : null,
                 'job_order_reference' => $session->jobOrder?->reference,
                 'started_at'          => $session->started_at,
                 'ended_at'            => $session->ended_at,
@@ -331,6 +359,47 @@ class IndexArtisans extends OrgAction
                     'parameters' => ['manufactureTaskSession' => $session->id],
                 ] : null,
             ])->values(),
+        ];
+    }
+
+    /**
+     * Time and sessions of the chosen activity for the period, per artisan and, for Preparation, per reason:
+     * "Other" is split by the English text typed, and sessions from before reasons were asked count as "No reason recorded".
+     *
+     * @param Collection<int, ManufactureTaskSession> $sessions
+     */
+    private function activityTotals(Collection $sessions): array
+    {
+        $closed = $sessions->where('state', ManufactureTaskSessionStateEnum::CLOSED);
+        $totals = fn (Collection $group) => [
+            'hours'           => round($group->sum(fn (ManufactureTaskSession $session) => $session->paidHours()), 2),
+            'number_sessions' => $group->count(),
+        ];
+
+        $reasonNote = fn (ManufactureTaskSession $session) => trim($session->preparation_reason_note_en ?? $session->preparation_reason_note ?? '');
+
+        return [
+            'total'    => $totals($closed),
+            'reasons'  => $closed->where('activity_type', ManufactureTaskSessionActivityTypeEnum::PREPARATION)
+                ->groupBy(fn (ManufactureTaskSession $session) => (string) ($session->preparation_reason_id ?? 'none'))
+                ->map(fn (Collection $group, string $key) => [
+                    'key'   => $key,
+                    'label' => $group->first()->preparationReason?->name ?? __('No reason recorded'),
+                    'notes' => $group->first()->preparationReason?->is_other ? $group
+                        ->groupBy(fn (ManufactureTaskSession $session) => mb_strtolower($reasonNote($session)))
+                        ->map(fn (Collection $noteGroup) => ['label' => $reasonNote($noteGroup->first())] + $totals($noteGroup))
+                        ->sortByDesc('hours')
+                        ->values()
+                        ->all() : [],
+                ] + $totals($group))
+                ->sortByDesc('hours')
+                ->values()
+                ->all(),
+            'artisans' => $closed->groupBy('user_id')
+                ->map(fn (Collection $group) => ['worker' => $group->first()->user->contact_name ?: $group->first()->user->username] + $totals($group))
+                ->sortByDesc('hours')
+                ->values()
+                ->all(),
         ];
     }
 

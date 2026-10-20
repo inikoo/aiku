@@ -23,6 +23,7 @@ use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
 use App\Actions\Production\ManufactureBreak\EndManufactureBreak;
 use App\Models\HumanResources\Employee;
 use App\Models\Production\ManufactureBreak;
+use App\Models\Production\ManufacturePreparationReason;
 use App\Models\Production\ManufactureTaskSession;
 use App\Models\Production\ManufactureTaskSessionShare;
 use Illuminate\Support\Collection;
@@ -71,7 +72,10 @@ class CloseManufactureTaskSession extends OrgAction
                     'ended_at'         => $endedAt,
                     'state'            => ManufactureTaskSessionStateEnum::CLOSED,
                     'artisan_pay_type' => $session->employee?->artisan_pay_type ?? ArtisanPayTypeEnum::PIECE_RATE,
-                ]);
+                ] + $this->preparationReason($session, $modelData));
+                if ($session->preparation_reason_note) {
+                    TranslateManufacturePreparationReasonNote::dispatch($session->id)->afterCommit();
+                }
 
                 return CalculateManufactureTaskSessionPay::run($session);
             }
@@ -181,6 +185,24 @@ class CloseManufactureTaskSession extends OrgAction
 
             return $session;
         });
+    }
+
+    /**
+     * @return array{preparation_reason_id?: int, preparation_reason_note?: string|null}
+     */
+    private function preparationReason(ManufactureTaskSession $session, array $modelData): array
+    {
+        if ($session->activity_type != ManufactureTaskSessionActivityTypeEnum::PREPARATION) {
+            return [];
+        }
+
+        $reason = ManufacturePreparationReason::find($modelData['preparation_reason_id']);
+        $note   = trim($modelData['preparation_reason_note'] ?? '');
+
+        return [
+            'preparation_reason_id'   => $reason->id,
+            'preparation_reason_note' => $reason->is_other ? $note : null,
+        ];
     }
 
     /**
@@ -419,6 +441,19 @@ class CloseManufactureTaskSession extends OrgAction
             'manager_method'         => ['sometimes', 'nullable', Rule::in(['qr', 'pin'])],
             'finished_before_shift_end' => ['sometimes', 'boolean'],
             'activity_type'          => ['sometimes', Rule::enum(ManufactureTaskSessionActivityTypeEnum::class)->except(ManufactureTaskSessionActivityTypeEnum::floorActivities())],
+            'preparation_reason_id'   => [
+                Rule::requiredIf(fn () => $this->manufactureTaskSession->activity_type == ManufactureTaskSessionActivityTypeEnum::PREPARATION),
+                'nullable',
+                'integer',
+                Rule::exists('manufacture_preparation_reasons', 'id')->where('production_id', $this->manufactureTaskSession->production_id)->whereNull('deleted_at'),
+            ],
+            'preparation_reason_note' => [
+                Rule::requiredIf(fn () => $this->manufactureTaskSession->activity_type == ManufactureTaskSessionActivityTypeEnum::PREPARATION
+                    && ManufacturePreparationReason::whereKey($this->get('preparation_reason_id'))->where('is_other', true)->exists()),
+                'nullable',
+                'string',
+                'max:500',
+            ],
             'non_productive_reason'  => [
                 Rule::requiredIf(function () {
                     $activityType = $this->get('activity_type');
@@ -429,6 +464,15 @@ class CloseManufactureTaskSession extends OrgAction
                 'string',
                 'max:255',
             ],
+        ];
+    }
+
+    public function getValidationMessages(): array
+    {
+        return [
+            'preparation_reason_id.required'   => __('Choose why you needed preparation'),
+            'preparation_reason_id.exists'     => __('This reason is no longer on the list, choose another'),
+            'preparation_reason_note.required' => __('Type the reason'),
         ];
     }
 
