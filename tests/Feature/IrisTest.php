@@ -156,6 +156,12 @@ test('iris shares the out of stock notification outbox only when a page renders,
         ->and($props['outboxes']())->toBe($expected);
 });
 
+test('webpage stats are indexed by webpage', function () {
+    $indexes = collect(DB::select('SELECT indexdef FROM pg_indexes WHERE tablename = ?', ['webpage_stats']))->pluck('indexdef')->implode("\n");
+
+    expect($indexes)->toContain('UNIQUE INDEX webpage_stats_webpage_id_unique');
+});
+
 test('it detects iris website', function () {
     // Mock parseDomain to return the website's domain
     DetectWebsiteFromDomain::mock()
