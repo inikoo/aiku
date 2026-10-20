@@ -27,8 +27,8 @@ class GenerateJobOrderItemTasks
      * A step that takes the place of a removed one is not asked for again where the removed step is already
      * finished, so the same work neither holds up the steps after it nor is paid twice.
      *
-     * A step nobody has worked on yet follows a change of the recipe's units per artefact; once work is
-     * recorded the step keeps what it asked for, so nothing already counted or paid is restated.
+     * A step with nothing recorded yet, even one already started, follows a change of the recipe's units per
+     * artefact; once work is recorded the step keeps what it asked for, so nothing already counted or paid is restated.
      *
      * @param  array<int, int>  $replacedSteps  removed manufacture task id by the id of the step replacing it
      * @param  array<int, float|string>  $previousUnitsPerArtefact  units per artefact before the recipe changed, by manufacture task id
@@ -75,14 +75,86 @@ class GenerateJobOrderItemTasks
             $previousUnits = ArtefactManufactureTask::exactUnits($previousUnitsPerArtefact[$manufactureTask->id] ?? 0);
             $units         = ArtefactManufactureTask::exactUnits($manufactureTask->pivot->units_per_artefact);
             if (!$task->wasRecentlyCreated && $previousUnits > 0 && abs($previousUnits - $units) > 1e-9
-                && $task->state == JobOrderItemTaskStateEnum::TODO && (float) $task->quantity_made == 0) {
-                $task->update(['quantity_required' => round((float) $task->quantity_required * $units / $previousUnits, 3)]);
+                && $task->state != JobOrderItemTaskStateEnum::DONE && (float) $task->quantity_made == 0) {
+                $task->setRequiredQuantity(round((float) $task->quantity_required * $units / $previousUnits, 3));
             }
 
             $tasks[] = $task;
         }
 
+        if (in_array($jobOrder->state, JobOrderStateEnum::open())) {
+            $jobOrderItem->tasks()
+                ->whereNotIn('manufacture_task_id', $artefact->manufactureTasks()->pluck('manufacture_tasks.id'))
+                ->unworked()
+                ->delete();
+            $jobOrderItem->unsetRelation('tasks');
+        }
+
         return $tasks;
+    }
+
+    /**
+     * What a recipe change is about to do to the open job orders of an artefact, so whoever saves it is told and confirms first.
+     *
+     * @param  array<int, float|string>  $newUnitsPerArtefact  units per artefact the recipe is changing to, by manufacture task id; steps left out are unchanged
+     * @param  array<int, int>  $removedTaskIds  steps the change takes out of the recipe
+     * @return array{open: Collection<int, string>, keeping: Collection<int, string>}|null null when no open job order is affected
+     */
+    public function openJobsAffectedBy(Artefact $artefact, array $newUnitsPerArtefact, array $removedTaskIds = []): ?array
+    {
+        $currentUnits   = $artefact->manufactureTasks()->get()->mapWithKeys(fn (ManufactureTask $manufactureTask) => [$manufactureTask->id => $manufactureTask->pivot->units_per_artefact]);
+        $changedTaskIds = collect($newUnitsPerArtefact)
+            ->filter(fn ($units, int $taskId) => !$currentUnits->has($taskId)
+                || abs(ArtefactManufactureTask::exactUnits($currentUnits[$taskId]) - ArtefactManufactureTask::exactUnits($units)) > 1e-9)
+            ->keys()
+            ->merge($removedTaskIds);
+
+        if ($changedTaskIds->isEmpty()) {
+            return null;
+        }
+
+        $openItems = JobOrderItem::where('artefact_id', $artefact->id)
+            ->whereHas('jobOrder', fn ($query) => $query->whereNotIn('state', [JobOrderStateEnum::RECEIVED, JobOrderStateEnum::NOT_RECEIVED]))
+            ->with('jobOrder')
+            ->get();
+
+        if ($openItems->isEmpty()) {
+            return null;
+        }
+
+        $label = fn (JobOrderItem $jobOrderItem) => $jobOrderItem->jobOrder->reference.' '.$artefact->code;
+
+        return [
+            'open'    => $openItems->map($label)->unique()->values(),
+            'keeping' => JobOrderItemTask::whereIn('job_order_item_id', $openItems->pluck('id'))
+                ->whereIn('manufacture_task_id', $changedTaskIds)
+                ->where('quantity_made', '>', 0)
+                ->get()
+                ->map(fn (JobOrderItemTask $task) => $label($openItems->firstWhere('id', $task->job_order_item_id)))
+                ->unique()
+                ->values(),
+        ];
+    }
+
+    /**
+     * @param  array<int, array{open: Collection<int, string>, keeping: Collection<int, string>}|null>  $affected
+     */
+    public static function openJobsConfirmationMessage(array $affected): ?string
+    {
+        $affected = array_filter($affected);
+        if (!$affected) {
+            return null;
+        }
+
+        $open    = collect($affected)->flatMap(fn (array $jobs) => $jobs['open'])->unique();
+        $keeping = collect($affected)->flatMap(fn (array $jobs) => $jobs['keeping'])->unique();
+
+        $message = __('Open job orders that change with this recipe: :jobs.', ['jobs' => $open->implode(', ')]);
+        if ($keeping->isNotEmpty()) {
+            $message .= ' '.__('Work is already recorded on :jobs, so those steps keep their old count.', ['jobs' => $keeping->implode(', ')]);
+        }
+
+        return $message;
     }
 
     /**
@@ -99,7 +171,7 @@ class GenerateJobOrderItemTasks
         return JobOrderItemTask::whereIn('manufacture_task_id', $changedTaskIds)
             ->whereHas('jobOrderItem', fn ($query) => $query->where('artefact_id', $artefact->id))
             ->whereHas('jobOrder', fn ($query) => $query->whereNotIn('state', [JobOrderStateEnum::RECEIVED, JobOrderStateEnum::NOT_RECEIVED]))
-            ->where(fn ($query) => $query->where('quantity_made', '>', 0)->orWhere('state', JobOrderItemTaskStateEnum::IN_PROGRESS))
+            ->where('quantity_made', '>', 0)
             ->with('jobOrder')
             ->get()
             ->map(fn (JobOrderItemTask $task) => $task->jobOrder->reference.' '.$artefact->code)

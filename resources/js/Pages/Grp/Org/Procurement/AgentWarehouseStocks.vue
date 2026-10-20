@@ -21,7 +21,7 @@ import { PageHeadingTypes } from "@/types/PageHeading"
 
 library.add(faTable, faThLarge)
 
-type FilterOption = { label: string; value: string; count: number }
+type FilterOption = { label: string; value: string; count: number; tooltip?: string }
 type OrganisationCard = {
 	code: string
 	slug: string

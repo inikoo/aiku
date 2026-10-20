@@ -2,7 +2,7 @@
 import { Head, router } from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeadingPublic.vue"
 import { capitalize } from "@/Composables/capitalize"
-import { computed, reactive, ref, watch, onMounted, onBeforeUnmount, inject } from "vue"
+import { computed, reactive, ref, watch, onMounted, onBeforeUnmount, inject, provide } from "vue"
 import { PageHeadingTypes } from "@/types/PageHeading"
 import { Tabs as TSTabs } from "@/types/Tabs"
 import RetinaTablePortfoliosManual from "@/Components/Tables/Retina/RetinaTablePortfoliosManual.vue"
@@ -132,7 +132,6 @@ const props = defineProps<{
 		type: string
 	}
 	is_platform_connected: boolean
-	shopify_links_existing_variants?: boolean
 	customer_sales_channel: CustomerSalesChannel
 	channels: object
 	count_product_not_synced: number
@@ -422,6 +421,16 @@ watch(
 	{ deep: true }
 )
 
+watch(
+	() => echoRetinaPersonal.progressBars?.CheckPortfolios?.[props.customer_sales_channel.id],
+	(progress) => {
+		if (progress && progress.total > 0) {
+			router.reload({ only: ["pageHead", "products"] })
+		}
+	},
+	{ deep: true }
+)
+
 // Section: Bulk upload to Shopify/Ebay/etc
 const isLoadingBulkDeleteUpload = ref(false)
 // const selectedPortfoliosToSync = ref([])
@@ -508,7 +517,7 @@ const onSuccessBulkMatch = () => {
 
 const managePriceOnMatch = ref(false)
 const matchPriceData = computed(() =>
-	props.shopify_links_existing_variants ? { manage_price: managePriceOnMatch.value } : {}
+	props.platform_data.type === 'shopify' ? { manage_price: managePriceOnMatch.value } : {}
 )
 
 const isOpenBulkPriceManagement = ref(false)
@@ -669,10 +678,26 @@ const initSocketFetchListener = () => {
 	)
 }
 
+const uploadingPortfolioIds = ref<number[]>([])
+provide("uploadingPortfolioIds", uploadingPortfolioIds)
+
+const onSingleUploadFinished = (portfolioId: number) => {
+	router.reload({
+		onFinish: () => {
+			uploadingPortfolioIds.value = uploadingPortfolioIds.value.filter((id) => id !== portfolioId)
+		},
+	})
+}
+
 const initSocketUploadListener = () => {
 	fetchChannel = window.Echo.private(
 		`channel.${props.customer_sales_channel?.id}.upload-product`
 	).listen(".channel-upload-progress", (eventData: any) => {
+		if (eventData.statistics?.total === 1 && !isOpenModalUploadProgress.value) {
+			onSingleUploadFinished(eventData.portfolio?.id)
+			return
+		}
+
 		isOpenModalUploadProgress.value = true
 		uploadProgressData.value = {
 			done: eventData.statistics?.success,
@@ -1503,14 +1528,14 @@ const layout = inject("layout", layoutStructure)
 				size="xs" />
 
 			<div
-				v-if="selectedProducts.length > 0 && props.routes.batch_match && shopify_links_existing_variants"
+				v-if="selectedProducts.length > 0 && props.routes.batch_match && platform_data.type === 'shopify'"
 				class="flex items-center gap-x-2 text-xs text-gray-600">
 				<Checkbox v-model="managePriceOnMatch" binary inputId="manage-price-on-match" />
 				<label for="manage-price-on-match">{{ ctrans("Let us manage the price of these products") }}</label>
 			</div>
 
 			<Button
-				v-if="selectedProducts.length > 0 && props.routes.shopify_price_management && shopify_links_existing_variants"
+				v-if="selectedProducts.length > 0 && props.routes.shopify_price_management"
 				v-tooltip="ctrans('Choose who manages the price of the selected products in your Shopify')"
 				:type="'tertiary'"
 				:label="ctrans('Price (:_count)', { _count: selectedProducts?.length })"
@@ -1605,7 +1630,7 @@ const layout = inject("layout", layoutStructure)
 						isWithError
 						@success="onSuccessBulkMatch()" />
 				</div>
-				<div v-if="props.routes.batch_match && shopify_links_existing_variants" class="flex items-center gap-x-2 text-xs">
+				<div v-if="props.routes.batch_match && platform_data.type === 'shopify'" class="flex items-center gap-x-2 text-xs">
 					<Checkbox v-model="managePriceOnMatch" binary inputId="manage-price-on-match-all" />
 					<label for="manage-price-on-match-all">{{ ctrans("Let us manage the price of these products") }}</label>
 				</div>

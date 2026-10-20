@@ -14,6 +14,7 @@ use App\Actions\Traits\Dashboards\WithLatestStockHistory;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Models\Inventory\LocationOrgStock;
+use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use App\Stubs\Migrations\HasInventoryStats;
@@ -140,6 +141,27 @@ class ShowInventoryDashboard extends OrgAction
                             'route'    => [
                                 'name'       => 'grp.models.warehouse.low_stock_threshold.update',
                                 'parameters' => ['warehouse' => $this->warehouse->id]
+                            ],
+                        ],
+                    ],
+                    [
+                        'key'             => 'below_minimum_stock',
+                        'label'           => __('Below Minimum Stock'),
+                        'route'           => [
+                            'name'       => 'grp.org.warehouses.show.inventory.org_stocks.below_minimum_stock.index',
+                            'parameters' => $routeParameters
+                        ],
+                        'icon'            => 'fal fa-arrow-to-bottom',
+                        'backgroundColor' => '#e11d4811',
+                        'color'           => '#be123cff',
+                        'value'           => $this->warehouse->stats->number_org_stocks_below_minimum_stock,
+                        'metaRight'       => [
+                            'tooltip' => __('Set minimum stock levels'),
+                            'icon'    => ['icon' => 'fal fa-sliders-h', 'class' => 'mr-1'],
+                            'count'   => OrgStock::where('organisation_id', $this->organisation->id)->where('state', OrgStockStateEnum::ACTIVE)->whereNotNull('minimum_stock')->count(),
+                            'route'   => [
+                                'name'       => 'grp.org.warehouses.show.inventory.org_stocks.below_minimum_stock.levels',
+                                'parameters' => $routeParameters
                             ],
                         ],
                     ],

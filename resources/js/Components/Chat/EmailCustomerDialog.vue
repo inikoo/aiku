@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, toRef, watch } from "vue"
+import { computed, ref, toRef, watch } from "vue"
 import { router, useForm } from "@inertiajs/vue3"
 import Dialog from "primevue/dialog"
 import InputText from "primevue/inputtext"
@@ -44,6 +44,8 @@ const props = defineProps<{
     templateValues?: Record<string, string>
 }>()
 
+const noTemplate = { name: ctrans("No template"), subject: "", body: "" } as CustomerEmailTemplate
+const templateOptions = computed(() => [noTemplate, ...(props.templates ?? [])])
 const selectedTemplate = ref<CustomerEmailTemplate | null>(null)
 const isSavingTemplate = ref(false)
 
@@ -55,7 +57,7 @@ const applyTemplate = (template: CustomerEmailTemplate | null) => {
 
 const saveToTemplate = () => {
     const template = selectedTemplate.value
-    if (!template) return
+    if (!template?.update_route) return
     router.patch(route(template.update_route.name, template.update_route.parameters), {
         subject: form.subject,
         body: form.message,
@@ -126,9 +128,9 @@ const send = () => {
                 <InputText v-model="form.email" :placeholder="ctrans('Email addresses, separated by commas')" fluid />
             </div>
             <div v-if="templates?.length" class="flex items-center gap-2">
-                <Select v-model="selectedTemplate" :options="templates" option-label="name" :placeholder="ctrans('Choose a template')"
+                <Select v-model="selectedTemplate" :options="templateOptions" option-label="name" :placeholder="ctrans('Choose a template')"
                     class="flex-1" @update:model-value="applyTemplate" />
-                <Button v-if="selectedTemplate" type="tertiary" size="xs" icon="fal fa-save" :label="ctrans('Save to template')"
+                <Button v-if="selectedTemplate?.update_route" type="tertiary" size="xs" icon="fal fa-save" :label="ctrans('Save to template')"
                     :loading="isSavingTemplate" :disabled="!form.subject.trim() || !form.message.trim()" @click="saveToTemplate" />
             </div>
             <InputText v-model="form.subject" :placeholder="ctrans('Subject')" fluid />

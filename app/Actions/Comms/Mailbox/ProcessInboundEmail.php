@@ -226,8 +226,10 @@ class ProcessInboundEmail
         $existing    = $this->findSessionByThread($shop, $threadId);
 
         // On its own it is not a conversation at all: answering a mail we never sent leaves
-        // nobody to reply to, so it is filtered rather than opened as new work.
-        if (! $existing && $isAutoReply) {
+        // nobody to reply to, so it is filtered rather than opened as new work. A courier's case
+        // system marks every mail it sends as automatic, damage and return notices included, so
+        // courier mail still reaches the Couriers folder.
+        if (! $existing && $isAutoReply && ($webUser || ! self::isCarrierAddress($from['address'], $shop->group))) {
             $client->fileAway($gmailMessageId, 'aiku/filtered', Arr::get($raw, 'labelIds', []));
 
             return null;
@@ -775,8 +777,8 @@ class ProcessInboundEmail
     {
         // A customer writing back to a finished conversation is new work nobody holds yet, so it
         // returns to the waiting queue rather than to the agent who closed it; assigning it is
-        // what makes it active again.
-        if ($session->isClosed() && ! $isAutoReply) {
+        // what makes it active again. A courier's follow-up is marked automatic like its first mail.
+        if ($session->isClosed() && (! $isAutoReply || $session->is_carrier)) {
             $session->update([
                 'status'    => ChatSessionStatusEnum::WAITING,
                 'closed_by' => null,

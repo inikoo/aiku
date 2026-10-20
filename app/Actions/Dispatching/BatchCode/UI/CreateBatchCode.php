@@ -26,6 +26,7 @@ class CreateBatchCode extends OrgAction
     public function asController(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): Response
     {
         $this->initialisationFromWarehouse($warehouse, $request);
+        abort_unless($this->canEdit, 403);
 
         return $this->handle($request, null);
     }
@@ -33,6 +34,7 @@ class CreateBatchCode extends OrgAction
     public function inOrgStock(Organisation $organisation, Warehouse $warehouse, OrgStock $orgStock, ActionRequest $request): Response
     {
         $this->initialisationFromWarehouse($warehouse, $request);
+        abort_unless($this->canEdit, 403);
 
         return $this->handle($request, $orgStock);
     }

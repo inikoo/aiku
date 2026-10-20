@@ -12,59 +12,12 @@ use App\Models\Chat\ChatAgent;
 use App\Models\SysAdmin\User;
 use Exception;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreChatAgent
 {
     use AsAction;
-
-    public function rules(): array
-    {
-        return [
-            'user_id' => [
-                'required',
-                'exists:users,id',
-
-                function ($attribute, $value, $fail) {
-                    $exists = ChatAgent::where('user_id', $value)
-                        ->whereNull('deleted_at')
-                        ->exists();
-
-                    if ($exists) {
-                        $fail('User already has an active chat agent profile.');
-                    }
-                }
-            ],
-
-            'max_concurrent_chats' => 'nullable|integer|min:1|max:50',
-            'is_online'            => 'nullable|boolean',
-            'is_available'         => 'nullable|boolean',
-            'specialization'       => 'nullable|array',
-            'specialization.*'     => 'string|max:50',
-            'auto_accept'          => 'nullable|boolean',
-        ];
-    }
-
-
-    public function asController(ActionRequest $request): ChatAgent
-    {
-        $validated = $request->validated();
-
-        if (!$this->authorizeCreateAgent()) {
-            throw new HttpResponseException(
-                response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized to create chat agent profiles.'
-                ], 403)
-            );
-        }
-
-        return $this->handle($validated);
-    }
-
 
     public function handle(array $data): ChatAgent
     {
@@ -104,21 +57,5 @@ class StoreChatAgent
                 ], 500)
             );
         }
-    }
-
-
-
-    public function jsonResponse(ChatAgent $chatAgent): JsonResponse
-    {
-        return response()->json([
-            'success' => true,
-            'message' => 'Chat agent profile created successfully',
-            'data'    => $chatAgent,
-        ]);
-    }
-
-    protected function authorizeCreateAgent(): bool
-    {
-        return true;
     }
 }

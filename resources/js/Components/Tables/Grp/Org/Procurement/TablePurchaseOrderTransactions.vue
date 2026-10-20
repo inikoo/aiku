@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
-import { ctrans } from '@/Composables/useTrans'
+import { ctrans, ctransChoice } from '@/Composables/useTrans'
 import { isAgentOrganisation } from '@/Composables/useAgentRoutes'
 import { notify } from '@kyvg/vue3-notification'
 import axios from 'axios'
@@ -18,17 +18,19 @@ import Button from '@/Components/Elements/Buttons/Button.vue'
 import { useLocaleStore } from '@/Stores/locale'
 import PurchaseOrderItemStockInfo from '@/Components/Procurement/PurchaseOrderItemStockInfo.vue'
 import PurchaseOrderSuggestButton from '@/Components/Procurement/PurchaseOrderSuggestButton.vue'
+import PurchaseOrderLinePriceChange from '@/Components/Procurement/PurchaseOrderLinePriceChange.vue'
 import { getOrderingLevels, unitsPerOrderingLevel, suggestionAtOrderingLevel, type OrderingLevel } from '@/Composables/useOrderingLevel'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faBox, faPallet, faStopCircle, faTrashAlt, faPeopleArrows, faBalanceScale } from '@fal'
+import { faBox, faPallet, faStopCircle, faTrashAlt, faPeopleArrows, faBalanceScale, faExclamationTriangle } from '@fal'
 import { faExclamationCircle, faSpinner, faMinusCircle } from '@fas'
 import ConfirmPopup from 'primevue/confirmpopup'
 import Popover from 'primevue/popover'
 import { useConfirm } from 'primevue/useconfirm'
 import Toggle from '@/Components/Pure/Toggle.vue'
+import ProductImageViewerDialog from '@/Components/Product/ProductImageViewerDialog.vue'
 
-library.add(faBalanceScale, faBox, faPallet, faStopCircle, faExclamationCircle, faTrashAlt, faSpinner, faMinusCircle, faPeopleArrows)
+library.add(faExclamationTriangle, faBalanceScale, faBox, faPallet, faStopCircle, faExclamationCircle, faTrashAlt, faSpinner, faMinusCircle, faPeopleArrows)
 
 const confirm = useConfirm()
 
@@ -126,6 +128,31 @@ function quantityBreakdown(item: any) {
     return `${formatQuantity(units)}u. | ${formatQuantity(units / pack)}sko. | ${formatQuantity(units / carton)}C.${supplierUnitQuantity(item)}`
 }
 
+function orderedCartons(item: any) {
+    return Number(item.quantity_ordered) / (Number(item.units_per_carton) || 1)
+}
+
+function isBelowMinimumCartonOrder(item: any) {
+    return !!item.minimum_carton_order
+        && item.state !== 'cancelled'
+        && Number(item.quantity_ordered) > 0
+        && orderedCartons(item) < item.minimum_carton_order
+}
+
+function cartonsLabel(cartons: number) {
+    const rounded = Math.round(cartons * 100) / 100
+
+    return ctransChoice(':number carton|:number cartons', rounded, { number: locale.number(rounded) })
+}
+
+function belowMinimumCartonOrderTooltip(item: any) {
+    return ctrans("Ordered :ordered, below the supplier's minimum of :moq (short by :short)", {
+        ordered: cartonsLabel(orderedCartons(item)),
+        moq: cartonsLabel(item.minimum_carton_order),
+        short: cartonsLabel(item.minimum_carton_order - orderedCartons(item)),
+    })
+}
+
 function amount(item: any) {
     const net = locale.currencyFormat(item.net_currency ?? 'EUR', item.net_amount ?? 0)
 
@@ -143,7 +170,7 @@ const alsoUpdateSupplierPrice = ref<Record<number, boolean>>({})
 const savingPriceId = ref<number | null>(null)
 
 function canEditPrice(item: any) {
-    return isPriceEditable.value && item.updateRoute && ['in_process', 'submitted'].includes(item.state)
+    return isPriceEditable.value && !isInAgentOrganisation && item.updateRoute && ['in_process', 'submitted'].includes(item.state)
 }
 
 function supplierLevelCostLabel(item: any) {
@@ -377,6 +404,24 @@ function hideImagePreview() {
     imagePreviewPopover.value?.hide()
 }
 
+const isImageViewerVisible = ref(false)
+const viewedImages = ref<{ source: any; alt?: string; original_url?: string | null; download_url?: string | null }[]>([])
+
+function openImageViewer(item: any) {
+    if (!item.image_full) {
+        return
+    }
+
+    hideImagePreview()
+    viewedImages.value = [{
+        source: item.image_preview ?? item.image_thumbnail,
+        alt: item.code,
+        original_url: item.image_full.original_url,
+        download_url: item.image_full.download_url,
+    }]
+    isImageViewerVisible.value = true
+}
+
 const currentOrganisation = route().params.organisation as string | undefined
 const isInAgentOrganisation = isAgentOrganisation(currentOrganisation)
 
@@ -392,6 +437,10 @@ function supplierProductRoute(item: { slug?: string, org_supplier_product_slug?:
     return route('grp.supply-chain.supplier_products.show', [item.slug])
 }
 
+
+function hasOwnSkuCode(item: { code?: string, org_stock_code?: string | null }) {
+    return !!item.org_stock_code && item.org_stock_code !== item.code
+}
 
 function orgStockRoute(item: { org_stock_id?: number }) {
     if (!item.org_stock_id || isInAgentOrganisation) {
@@ -472,7 +521,7 @@ function orgStockRoute(item: { org_stock_id?: number }) {
                         class="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
 
                     <Link
-                        v-if="supplierProductRoute(item) && orgStockRoute(item)"
+                        v-if="supplierProductRoute(item) && orgStockRoute(item) && !hasOwnSkuCode(item)"
                         v-tooltip="ctrans('Part reference is same as supplier product code')"
                         :href="orgStockRoute(item)"
                         class="text-gray-400 hover:text-gray-600"
@@ -480,15 +529,32 @@ function orgStockRoute(item: { org_stock_id?: number }) {
                         <FontAwesomeIcon icon="fal fa-box" aria-hidden="true" fixed-width />
                     </Link>
                 </div>
+                <template v-if="hasOwnSkuCode(item)">
+                    <Link
+                        v-if="orgStockRoute(item)"
+                        v-tooltip="ctrans('SKU code')"
+                        :href="orgStockRoute(item)"
+                        class="whitespace-nowrap text-xs text-gray-500 hover:text-gray-700"
+                    >
+                        <FontAwesomeIcon icon="fal fa-box" aria-hidden="true" fixed-width />
+                        {{ item.org_stock_code }}
+                    </Link>
+                    <span v-else v-tooltip="ctrans('SKU code')" class="whitespace-nowrap text-xs text-gray-500">
+                        <FontAwesomeIcon icon="fal fa-box" aria-hidden="true" fixed-width />
+                        {{ item.org_stock_code }}
+                    </span>
+                </template>
             </div>
         </template>
 
         <template #cell(image_thumbnail)="{ item }">
             <div
                 class="h-20 w-20 flex-none overflow-hidden rounded border border-gray-100"
-                :class="{ 'cursor-zoom-in': item.image_preview }"
+                :class="{ 'cursor-zoom-in': item.image_preview || item.image_full }"
+                v-tooltip="item.image_full ? ctrans('Click to enlarge and download in full resolution') : undefined"
                 @mouseenter="showImagePreview($event, item)"
                 @mouseleave="hideImagePreview"
+                @click="openImageViewer(item)"
             >
                 <Image :src="item['image_thumbnail']" imageCover class="h-20 w-20" />
             </div>
@@ -539,6 +605,7 @@ function orgStockRoute(item: { org_stock_id?: number }) {
                 <div v-else-if="isInProcess" class="text-xs text-gray-500">
                     {{ level.cost }}: {{ levelCostLabel(item) }}
                 </div>
+                <PurchaseOrderLinePriceChange v-if="!isPartner" :item="item" :unitsPerLevel="unitsPerLevel(item)" :costLabel="level.cost" :updateSupplierCost="!!alsoUpdateSupplierPrice[item.id]" />
                 <div v-if="!isPartner" class="text-xs text-gray-500">
                     {{ ctrans('Packed in') }} {{ formatQuantity(Number(item.units_per_pack) || 1) }}s ,
                     {{ ctrans('sko/C') }}: {{ formatQuantity(skosPerCarton(item)) }}
@@ -592,6 +659,15 @@ function orgStockRoute(item: { org_stock_id?: number }) {
                 <PurchaseOrderSuggestButton :item="item" :isPartner="isPartner" :typedSkosById="typedSkos" :quantityLabel="(skos: number) => suggestionLabel(item, skos)" @suggest="(skos) => applySuggestion(item, skos)" />
             </div>
             <span v-else class="text-gray-500">{{ quantityBreakdown(item) }}</span>
+            <div
+                v-if="isBelowMinimumCartonOrder(item)"
+                v-tooltip="belowMinimumCartonOrderTooltip(item)"
+                class="flex items-center gap-1 pt-1 text-xs font-medium text-amber-600 tabular-nums whitespace-nowrap"
+                :class="isInProcess ? 'justify-end' : ''"
+            >
+                <FontAwesomeIcon icon="fal fa-exclamation-triangle" fixed-width aria-hidden="true" />
+                {{ ctrans('Below MOQ: :ordered / :moq', { ordered: locale.number(Math.round(orderedCartons(item) * 100) / 100), moq: cartonsLabel(item.minimum_carton_order) }) }}
+            </div>
         </template>
 
         <template #cell(actions)="{ item }">
@@ -676,6 +752,8 @@ function orgStockRoute(item: { org_stock_id?: number }) {
     </Table>
 
     <ConfirmPopup />
+
+    <ProductImageViewerDialog v-if="viewedImages.length" v-model:visible="isImageViewerVisible" :images="viewedImages" />
 
     <Popover ref="imagePreviewPopover" class="pointer-events-none">
         <Image v-if="imagePreview" :src="imagePreview" class="flex h-80 w-80 items-center justify-center [&>img]:max-h-full [&>img]:max-w-full" />

@@ -8,6 +8,7 @@
 
 namespace App\Actions\Web\Webpage\UI;
 
+use App\Actions\Traits\Authorisations\WithWebAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\Web\Website\GetWebsiteWorkshopFooter;
 use App\Actions\Web\Website\GetWebsiteWorkshopHeader;
@@ -23,10 +24,12 @@ use Illuminate\Support\Arr;
 
 class ShowWebsitePreview extends OrgAction
 {
+    use WithWebAuthorisation;
+
     public function asController(Website $website, Webpage $webpage, ActionRequest $request): Webpage
     {
-
-        $this->initialisation($website->organisation, $request);
+        abort_unless($webpage->website_id === $website->id, 404);
+        $this->initialisationFromShop($website->shop, $request);
 
         return $webpage;
     }

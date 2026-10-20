@@ -9,6 +9,7 @@
 namespace App\Actions\Catalogue\ProductCategory\Json;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithCatalogueEditAuthorisation;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Http\Resources\Catalogue\ProductCategoriesResource;
 use App\Models\Catalogue\ProductCategory;
@@ -21,6 +22,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetDepartmentAndSubDepartments extends OrgAction
 {
+    use WithCatalogueEditAuthorisation;
     public function asController(Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromShop($shop, $request);

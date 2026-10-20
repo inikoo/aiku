@@ -1216,7 +1216,11 @@ const familyRoute = (item) => {
         </template>
 
         <template #cell(available_quantity)="{ item }">
-            {{ item['available_quantity'] ?? 0 }}
+            <span v-if="item.is_on_demand" v-tooltip="ctrans('Made on demand: always available to customers, this is what is on the shelf')" class="whitespace-nowrap">
+                {{ locale.number(item.shelf_quantity ?? 0) }}
+                <span class="text-xs italic text-gray-400">{{ ctrans("on demand") }}</span>
+            </span>
+            <template v-else>{{ item['available_quantity'] ?? 0 }}</template>
         </template>
 
         <template #cell(workflow)="{ item: product }">

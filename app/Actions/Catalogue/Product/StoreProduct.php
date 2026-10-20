@@ -336,6 +336,22 @@ class StoreProduct extends OrgAction
     }
 
 
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+
+        if ($this->shop->fulfilment) {
+            return $request->user()->authTo([
+                "fulfilment-shop.{$this->shop->fulfilment->id}.edit",
+                "supervisor-fulfilment-shop.{$this->shop->fulfilment->id}",
+            ]);
+        }
+
+        return $request->user()->authTo("products.{$this->shop->id}.edit");
+    }
+
     /**
      * @throws \Throwable
      */
@@ -367,6 +383,7 @@ class StoreProduct extends OrgAction
      */
     public function inFamily(Organisation $organisation, Shop $shop, ProductCategory $family, ActionRequest $request): RedirectResponse
     {
+        abort_unless($family->shop_id === $shop->id, 404);
         $this->initialisationFromShop($shop, $request);
         $this->handle($family, $this->validatedData);
 

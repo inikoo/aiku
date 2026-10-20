@@ -7,6 +7,8 @@
 
 namespace App\Actions\Chat\MetaChatSession;
 
+use App\Models\Catalogue\Shop;
+use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Actions\Chat\Whatsapp\Templates\ResolveWhatsappTemplateTags;
 use App\Models\Chat\MetaChatSession;
 use App\Models\Chat\MetaMessageTemplate;
@@ -19,6 +21,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetMetaMessageTemplates
 {
+    use WithChatAgentAuthorisation;
     use AsAction;
 
     public function rules(): array
@@ -85,6 +88,16 @@ class GetMetaMessageTemplates
         }
 
         return $body;
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        $shop    = Shop::find((int) $request->input('shop_id'));
+        $session = $request->input('session_ulid') ? MetaChatSession::where('ulid', $request->input('session_ulid'))->first() : null;
+
+        return $shop
+            && (!$session || $session->shop_id === $shop->id)
+            && $this->userCanViewChatOnShop($request->user(), $shop);
     }
 
     public function asController(ActionRequest $request): Collection

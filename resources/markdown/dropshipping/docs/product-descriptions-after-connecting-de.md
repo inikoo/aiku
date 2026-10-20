@@ -41,7 +41,7 @@ Wir ändern die Variante, weil wir sie brauchen, um Bestand zu senden und Bestel
 - Wir ersetzen die einzelne Variante des Produkts durch eine mit unserer SKU, unserem Barcode, Gewicht und Einkaufspreis, und lagern sie am Standort <b>aiku-</b> ein.
 - Wir behalten Ihren Verkaufspreis, wenn die Variante einen Preis über null hatte. Wenn nicht, verwenden wir Ihren Verkaufspreis aus <b>My Products</b>.
 
-Verkaufen Sie unsere Produkte als Varianten eines einzigen Shopify-Produkts, kontaktieren Sie uns im Chat auf unserer Website und bitten Sie darum, für Ihren Kanal die Verknüpfung mit bestehenden Varianten zu aktivieren. Dann verknüpfen wir nur die Variante, die unsere SKU trägt, und ändern sonst nichts daran: nicht den Preis, nicht die SKU, nicht den Barcode.
+Verkaufen Sie unsere Produkte als Varianten eines einzigen Shopify-Produkts, geben Sie jeder Variante die SKU ihres Produkts. Beim Abgleich verknüpfen wir nur die Variante, die unsere SKU trägt, und ändern sonst nichts daran: nicht den Preis, nicht die SKU, nicht den Barcode. Sie müssen nichts aktivieren.
 
 ## Was wir danach aktualisieren
 

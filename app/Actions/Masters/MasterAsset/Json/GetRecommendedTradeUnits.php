@@ -9,6 +9,7 @@
 namespace App\Actions\Masters\MasterAsset\Json;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithTradeUnitPickerAuthorisation;
 use App\Http\Resources\Goods\TradeUnitsForMasterResource;
 use App\Models\Catalogue\Product;
 use App\Models\Goods\TradeUnit;
@@ -24,6 +25,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetRecommendedTradeUnits extends OrgAction
 {
+    use WithTradeUnitPickerAuthorisation;
     public function asController(MasterProductCategory $masterProductCategory, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromGroup($masterProductCategory->group, $request);

@@ -21,6 +21,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemReplacementReasonEnum;
 use App\Enums\GoodsIn\ReturnDeliveryNote\ReturnDeliveryNoteStateEnum;
 use App\Enums\GoodsIn\ReturnDeliveryNote\ReturnDeliveryNoteTypeEnum;
 use App\Enums\GoodsIn\ReturnDeliveryNoteItem\ReturnDeliveryNoteItemStateEnum;
@@ -29,6 +30,7 @@ use App\Models\Dispatching\DeliveryNote;
 use App\Models\GoodsIn\ReturnDeliveryNote;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -71,6 +73,19 @@ class SetDoneReturnDeliveryNote extends OrgAction
             throw ValidationException::withMessages([
                 'message' => __('A marketplace order is refunded on the marketplace. The goods can be received back here, but no refund is issued in Aiku.'),
             ]);
+        }
+
+        if (Arr::get($modelData, 'createReplacement')) {
+            $replacedItemsWithoutReason = array_filter(
+                Arr::get($modelData, 'refundedData', []),
+                fn ($item) => data_get($item, 'replaced_quantity') > 0 && !data_get($item, 'reason')
+            );
+
+            if ($replacedItemsWithoutReason) {
+                throw ValidationException::withMessages([
+                    'message' => __('Choose a reason for every replaced item.'),
+                ]);
+            }
         }
 
         data_set($modelData, 'state', ReturnDeliveryNoteStateEnum::DONE);
@@ -162,6 +177,7 @@ class SetDoneReturnDeliveryNote extends OrgAction
             return [
                 'id'        => data_get($item, 'delivery_note_items_id'),
                 'quantity'  => data_get($item, 'replaced_quantity'),
+                'reason'    => data_get($item, 'reason'),
             ];
         });
 
@@ -180,6 +196,7 @@ class SetDoneReturnDeliveryNote extends OrgAction
             'refundedData.*.delivery_note_items_id'     => ['sometimes', 'numeric'],
             'refundedData.*.refund_amount'              => ['sometimes', 'numeric'],
             'refundedData.*.replaced_quantity'          => ['sometimes', 'numeric'],
+            'refundedData.*.reason'                     => ['sometimes', 'nullable', Rule::enum(DeliveryNoteItemReplacementReasonEnum::class)],
             'createRefund'                              => ['required', 'boolean'],
             'createReplacement'                         => ['required', 'boolean'],
         ];

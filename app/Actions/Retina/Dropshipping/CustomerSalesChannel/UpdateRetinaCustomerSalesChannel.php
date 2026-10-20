@@ -77,6 +77,7 @@ class UpdateRetinaCustomerSalesChannel extends RetinaAction
             'stock_update' => ['sometimes', 'boolean'],
             'stock_threshold' => ['sometimes', 'nullable', 'numeric'],
             'max_quantity_advertise' => ['sometimes', 'nullable', 'numeric'],
+            'private_tracking_notes' => ['sometimes', 'boolean'],
 
             'return_accepted' => ['sometimes', 'boolean'],
             'return_payer' => ['sometimes', 'string'],

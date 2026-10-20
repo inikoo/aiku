@@ -9,6 +9,7 @@
 
 namespace App\Actions\Accounting\StandaloneFulfilmentInvoice;
 
+use App\Actions\Traits\Authorisations\WithFulfilmentShopEditAuthorisation;
 use App\Actions\Accounting\Invoice\StoreInvoice;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
@@ -22,6 +23,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreStandaloneFulfilmentInvoice extends OrgAction
 {
+    use WithFulfilmentShopEditAuthorisation;
     use WithFixedAddressActions;
     use WithOrderExchanges;
     use WithNoStrictRules;

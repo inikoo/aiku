@@ -10,6 +10,7 @@
 namespace App\Actions\Dispatching\Picking\Picker\Json;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithOrganisationDispatchingViewAuthorisation;
 use App\Http\Resources\Ordering\PickersResource;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Organisation;
@@ -22,6 +23,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetPickerUsers extends OrgAction
 {
+    use WithOrganisationDispatchingViewAuthorisation;
     public function handle(Organisation $organisation, $quick = false): LengthAwarePaginator|Collection
     {
 

@@ -10,6 +10,7 @@
 namespace App\Actions\Web\WebLayoutTemplate;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithWebAuthorisation;
 use App\Http\Resources\Web\WebLayoutTemplatesResource;
 use App\Models\Web\WebLayoutTemplate;
 use App\Models\Web\Webpage;
@@ -21,6 +22,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexWebLayoutTemplates extends OrgAction
 {
+    use WithWebAuthorisation;
     public function handle(Webpage $webpage, ?string $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -71,7 +73,7 @@ class IndexWebLayoutTemplates extends OrgAction
 
     public function asController(Webpage $webpage, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisationFromGroup($webpage->group, $request);
+        $this->initialisationFromShop($webpage->shop, $request);
 
         return $this->handle($webpage);
     }

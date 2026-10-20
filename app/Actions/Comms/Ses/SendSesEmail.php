@@ -17,6 +17,7 @@ use App\Enums\Comms\DispatchedEmail\DispatchedEmailStateEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Models\Comms\DispatchedEmail;
 use Aws\Exception\AwsException;
+use Aws\Ses\SesClient;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 use PHPMailer\PHPMailer\Exception;
@@ -33,6 +34,14 @@ class SendSesEmail
     private const THROTTLE_BACKOFF_CAP_MICROSECONDS = 2000000;
 
     private const THROTTLE_BACKOFF_JITTER_MICROSECONDS = 50000;
+
+    private const REUSE_SECONDS = 20;
+
+    /** @var array<int, array{expires_at: float, candidates: array<int, array{key: string, secret: string, region: string, level: string}>}> */
+    private static array $credentialCandidatesByOutbox = [];
+
+    /** @var array<string, array{last_used_at: float, client: SesClient}> */
+    private static array $sesClients = [];
 
     public mixed $message;
 
@@ -53,8 +62,9 @@ class SendSesEmail
 
     /**
      * @param array<int, array{content: string, filename: string}> $attachments
+     * @param array<int, string> $cc sent a copy only in production, a test send never reaches them
      */
-    public function handle(string $subject, string $emailHtmlBody, DispatchedEmail $dispatchedEmail, string $sender, ?string $unsubscribeUrl = null, ?string $senderName = null, bool $isTest = false, bool $debug = false, array $attachments = [], ?string $replyTo = null): DispatchedEmail
+    public function handle(string $subject, string $emailHtmlBody, DispatchedEmail $dispatchedEmail, string $sender, ?string $unsubscribeUrl = null, ?string $senderName = null, bool $isTest = false, bool $debug = false, array $attachments = [], ?string $replyTo = null, array $cc = []): DispatchedEmail
     {
         if ($dispatchedEmail->state != DispatchedEmailStateEnum::READY) {
             return $dispatchedEmail;
@@ -113,7 +123,8 @@ class SendSesEmail
             $unsubscribeUrl,
             $senderName,
             $attachments,
-            $replyTo
+            $replyTo,
+            app()->isProduction() && !$isTest ? $cc : []
         );
 
 
@@ -123,11 +134,11 @@ class SendSesEmail
             print "Start try to send  process to {$dispatchedEmail->emailAddress?->email} ".now()->toDateTimeString()."\n";
         }
 
-        $credentialCandidates = ProcessGetSesClient::run($dispatchedEmail->outbox_id);
+        $credentialCandidates = $this->getCredentialCandidates($dispatchedEmail->outbox_id);
         $sent                 = false;
 
         foreach ($credentialCandidates as $candidateIndex => $credentials) {
-            $sesClient = $this->buildSesClient($credentials);
+            $sesClient = $this->getReusableSesClient($credentials);
             $attempt   = 0;
 
             do {
@@ -136,7 +147,8 @@ class SendSesEmail
                         print "Start try to send   attempt $attempt  Start  to {$dispatchedEmail->emailAddress?->email} ".now()->toDateTimeString()."\n";
                     }
 
-                    $result = $sesClient->sendRawEmail($this->getRawEmail($emailData));
+                    $rawEmail = $this->getRawEmail($emailData);
+                    $result   = $sesClient->sendRawEmail($rawEmail);
 
                     if ($debug) {
                         print "Start try to send  attempt $attempt  End  to {$dispatchedEmail->emailAddress?->email} ".now()->toDateTimeString()."\n";
@@ -150,6 +162,8 @@ class SendSesEmail
                             'ses_id'  => $isTest ? null : Arr::get($result, 'MessageId'),
                         ]
                     );
+
+                    $this->sendCopy($sesClient, $rawEmail, $emailData['Destination']['CcAddresses']);
 
                     if (!$isTest && $dispatchedEmail->outbox
                         && in_array($dispatchedEmail->outbox->code, [
@@ -237,6 +251,75 @@ class SendSesEmail
         return $dispatchedEmail;
     }
 
+    /**
+     * A bulk send asks for the same outbox's credentials once per recipient; reading the outbox and
+     * its shop again for each one is two queries per email. A credential change is picked up within
+     * REUSE_SECONDS.
+     *
+     * @return array<int, array{key: string, secret: string, region: string, level: string}>
+     */
+    public function getCredentialCandidates(?int $outboxId): array
+    {
+        if (!$outboxId) {
+            return ProcessGetSesClient::run($outboxId);
+        }
+
+        $cached = self::$credentialCandidatesByOutbox[$outboxId] ?? null;
+        if ($cached && $cached['expires_at'] > microtime(true)) {
+            return $cached['candidates'];
+        }
+
+        $candidates = ProcessGetSesClient::run($outboxId);
+
+        self::$credentialCandidatesByOutbox[$outboxId] = [
+            'expires_at' => microtime(true) + self::REUSE_SECONDS,
+            'candidates' => $candidates,
+        ];
+
+        return $candidates;
+    }
+
+    /**
+     * A new SesClient opens a new TLS connection to SES, so every email paid for a handshake.
+     * Back-to-back sends reuse the client and its warm connection; one idle for REUSE_SECONDS is
+     * replaced so a send never rides a connection SES may already have closed.
+     */
+    public function getReusableSesClient(array $credentials): SesClient
+    {
+        $now      = microtime(true);
+        $cacheKey = hash('sha256', $credentials['region']."\0".$credentials['key']."\0".$credentials['secret']);
+
+        self::$sesClients = array_filter(self::$sesClients, fn (array $entry) => $now - $entry['last_used_at'] < self::REUSE_SECONDS);
+
+        $client = self::$sesClients[$cacheKey]['client'] ?? $this->buildSesClient($credentials);
+
+        self::$sesClients[$cacheKey] = [
+            'last_used_at' => $now,
+            'client'       => $client,
+        ];
+
+        return $client;
+    }
+
+    /**
+     * The copy is its own SES message, outside the configuration set, so a bounce, complaint or open
+     * from a copied address never lands on the recipient's dispatched email.
+     *
+     * @param array<int, string> $cc
+     */
+    public function sendCopy(SesClient $sesClient, array $rawEmail, array $cc): void
+    {
+        if (!$cc) {
+            return;
+        }
+
+        try {
+            $sesClient->sendRawEmail([...Arr::except($rawEmail, 'ConfigurationSetName'), 'Destinations' => $cc]);
+        } catch (AwsException $e) {
+            Sentry::captureException($e);
+        }
+    }
+
     public function markSubjectAsNotProduction(string $subject): string
     {
         return '⚠️ ['.strtoupper(app()->environment()).' - TEST EMAIL] '.$subject;
@@ -270,7 +353,7 @@ class SendSesEmail
             + rand(0, self::THROTTLE_BACKOFF_JITTER_MICROSECONDS);
     }
 
-    public function getEmailData($subject, $sender, $to, $emailHtmlBody, $unsubscribeUrl = null, ?string $senderName = null, array $attachments = [], ?string $replyTo = null): array
+    public function getEmailData($subject, $sender, $to, $emailHtmlBody, $unsubscribeUrl = null, ?string $senderName = null, array $attachments = [], ?string $replyTo = null, array $cc = []): array
     {
         $message = [
             'Message' => [
@@ -298,7 +381,8 @@ class SendSesEmail
             'Destination' => [
                 'ToAddresses' => [
                     $to
-                ]
+                ],
+                'CcAddresses' => array_values(array_udiff($cc, [$to], 'strcasecmp')),
             ],
             'Message'     => $message['Message'],
             'Headers'     => $headers,
@@ -316,6 +400,10 @@ class SendSesEmail
 
         $mail->addAddress($emailData['Destination']['ToAddresses'][0]);
         $mail->setFrom($emailData['Source'], $emailData['SourceName'] ?? '');
+
+        foreach (Arr::get($emailData, 'Destination.CcAddresses', []) as $ccAddress) {
+            $mail->addCC($ccAddress);
+        }
 
         if (Arr::get($emailData, 'ReplyTo')) {
             $mail->addReplyTo($emailData['ReplyTo']);

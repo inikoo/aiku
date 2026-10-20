@@ -166,6 +166,7 @@ class CalculateOrderShipping
 
 
             if ($shippingTransaction) {
+                $shippingTransaction->setRelation('shop', $order->shop);
                 $shippingTransaction = $this->updateShippingTransaction($shippingTransaction, $shippingZone, $shippingAmount);
             } else {
                 $shippingTransaction = $this->storeShippingTransaction($order, $shippingZone, $shippingAmount);

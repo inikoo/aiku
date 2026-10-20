@@ -49,6 +49,7 @@ class UpdateCustomerSalesChannelSettings extends OrgAction
             'tax_category_id'        => ['sometimes', 'nullable', 'integer', Rule::exists('tax_categories', 'id')],
             'pricing_type'           => ['sometimes', Rule::in(['percent', 'fixed'])],
             'pricing_value'          => ['sometimes', 'numeric', 'gt:-100'],
+            'private_tracking_notes' => ['sometimes', 'boolean'],
         ];
 
         if (!$this->customerSalesChannel->user instanceof EbayUser) {

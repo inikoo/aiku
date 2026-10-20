@@ -66,6 +66,7 @@ test('export by tariff code collapses lines into one row per tariff code and ori
         $line('SBIS-09', 'Rose Sticks', 'Incense', '3307410000', 'IND', 4, 17.79),
         $line('SelB-01', 'Selenite Round Bowl', 'Bowls', '2520100000', 'MAR', 1, 7.3),
         $line('OOS-01', 'Never shipped', 'Bowls', '2520100000', 'MAR', 0, 0),
+        $line('FREE-01', 'Free gift', 'Bowls', '2520100000', 'MAR', 1, 0),
     ]), fn (string $tariffCode) => ['3307410000' => 'Incense'][$tariffCode] ?? null);
 
     expect($rows)->toHaveCount(3)

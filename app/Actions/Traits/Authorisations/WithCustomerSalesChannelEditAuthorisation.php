@@ -16,7 +16,7 @@ trait WithCustomerSalesChannelEditAuthorisation
             return true;
         }
 
-        $customerSalesChannel = $request->route('customerSalesChannel');
+        $customerSalesChannel = $request->route('customerSalesChannel') ?? $request->route('portfolio')?->customerSalesChannel;
         if (!$customerSalesChannel instanceof CustomerSalesChannel) {
             return false;
         }

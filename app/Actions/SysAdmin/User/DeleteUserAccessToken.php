@@ -48,8 +48,18 @@ class DeleteUserAccessToken extends OrgAction
         }
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+
+        return $request->user()->authTo('sysadmin.edit');
+    }
+
     public function action(PersonalAccessToken $token): void
     {
+        $this->asAction = true;
         $this->initialisationFromGroup($token->tokenable->group, []);
 
         $this->handle($token);
@@ -57,6 +67,7 @@ class DeleteUserAccessToken extends OrgAction
 
     public function asController(PersonalAccessToken $token, ActionRequest $request)
     {
+        abort_unless($token->tokenable instanceof User, 404);
         $this->initialisationFromGroup($token->tokenable->group, $request);
         $this->handle($token);
     }

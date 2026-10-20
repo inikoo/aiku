@@ -21,6 +21,7 @@ defineProps<{
     draftRouteName: string
     languageRouteName: string
     routeParameters: Record<string, any>
+    canEdit: boolean
 }>()
 </script>
 
@@ -36,5 +37,6 @@ defineProps<{
         :refreshRouteName="refreshRouteName"
         :draftRouteName="draftRouteName"
         :languageRouteName="languageRouteName"
-        :routeParameters="routeParameters" />
+        :routeParameters="routeParameters"
+        :canEdit="canEdit" />
 </template>

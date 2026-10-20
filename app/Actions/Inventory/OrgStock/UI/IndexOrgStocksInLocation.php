@@ -23,6 +23,7 @@ use Spatie\QueryBuilder\AllowedSort;
 class IndexOrgStocksInLocation extends OrgAction
 {
     use WithInventoryAuthorisation;
+    use WithOrgStockUnNumbers;
 
     public const string IS_PACKED_SQL = 'location_org_stocks.packed_at IS NOT NULL AND location_org_stocks.packed_quantity = location_org_stocks.quantity';
 
@@ -104,6 +105,7 @@ class IndexOrgStocksInLocation extends OrgAction
                 'location_org_stocks.dropshipping_pipe',
                 'location_org_stocks.quantity',
                 'location_org_stocks.notes',
+                'un_numbers' => $this->getUnNumbersSubquery(),
                 ...$packedSelects,
             ])
             ->allowedSorts([AllowedSort::field('code', 'org_stocks.code'), 'type', 'picking_priority', 'value', 'dropshipping_pipe', 'quantity', 'notes', AllowedSort::callback('packed', function ($query, bool $descending) {

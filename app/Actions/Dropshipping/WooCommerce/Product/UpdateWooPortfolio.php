@@ -79,8 +79,9 @@ class UpdateWooPortfolio implements ShouldBeUnique
 
         $wooCommerceUser->setTimeout(45);
         try {
-            $response = $wooCommerceUser->updateWooCommerceProduct(
+            $response = $wooCommerceUser->updateWooCommerceProductOrVariation(
                 $portfolio->platform_product_id,
+                UpdateWooCustomerSalesChannelPortfolio::variationParentId($portfolio),
                 [
                     "stock_quantity" => $availableQuantity,
                 ]
@@ -88,7 +89,7 @@ class UpdateWooPortfolio implements ShouldBeUnique
 
 
             if (Arr::get($response, 'stock_quantity') == $availableQuantity) {
-                UpdatePlatformPortfolioLog::dispatch($platformPortfolioLog, [
+                UpdatePlatformPortfolioLog::run($platformPortfolioLog, [
                     'status'           => PlatformPortfolioLogsStatusEnum::OK,
                     'last_stock_value' => $availableQuantity
                 ]);
@@ -118,7 +119,7 @@ class UpdateWooPortfolio implements ShouldBeUnique
                 }
 
 
-                UpdatePlatformPortfolioLog::dispatch($platformPortfolioLog, [
+                UpdatePlatformPortfolioLog::run($platformPortfolioLog, [
                     'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
                     'response' => 'E1: '.$message
                 ]);
@@ -134,7 +135,7 @@ class UpdateWooPortfolio implements ShouldBeUnique
                 ]);
             }
         } catch (Throwable $e) {
-            UpdatePlatformPortfolioLog::dispatch($platformPortfolioLog, [
+            UpdatePlatformPortfolioLog::run($platformPortfolioLog, [
                 'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
                 'response' => 'E2: '.$e->getMessage()
             ]);

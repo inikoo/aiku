@@ -56,6 +56,7 @@ const props = defineProps<{
         dashboard_stats: string
         outbox_subscribe: any
         has_user_subscribers: boolean
+        can_edit: boolean
         builder: string
     }
 }>()
@@ -72,9 +73,9 @@ const isLoadingVisit = ref(false)
         <EmptyState
             :data="{
 				title: ctrans('Outbox is still in process'),
-				description: ctrans('You can edit it in workshop'),
+				description: data.can_edit ? ctrans('You can edit it in workshop') : ctrans('You do not have permission to edit it'),
 			}">
-            <template #button-empty-state>
+            <template v-if="data.can_edit" #button-empty-state>
                 <Link
                     :href="
 						route('grp.majordomo.redirect_outbox_workshop', {
@@ -108,7 +109,7 @@ const isLoadingVisit = ref(false)
                         class="bg-white p-4 rounded-lg drop-shadow-2xl overflow-auto relative h-full">
                         <button
                             @click="previewOpen = true"
-                            class="absolute top-2 right-2 bg-gray-300 text-white px-2 py-1 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                            class="absolute top-2 right-2 bg-gray-300 text-white px-2 py-1 rounded-lg hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-400">
                             <FontAwesomeIcon :icon="faExpand" fixed-width />
                         </button>
                         <!-- Email Preview Header -->
@@ -132,7 +133,7 @@ const isLoadingVisit = ref(false)
             <!-- Right Column: UserSubscribe -->
 
             <div class="h-full" v-if="data.has_user_subscribers">
-                <UserSubscribe :widget="props.data.outbox_subscribe.data" class="h-full" />
+                <UserSubscribe :widget="props.data.outbox_subscribe.data" :canEdit="data.can_edit" class="h-full" />
             </div>
         </div>
     </div>

@@ -19,13 +19,20 @@ use App\Models\Accounting\IntrastatImportTimeSeries;
 use App\Models\Helpers\Country;
 use App\Models\SysAdmin\Organisation;
 use Carbon\Carbon;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Support\Facades\DB;
-use Lorisleiva\Actions\Concerns\AsAction;
+use App\Actions\Traits\AsUniqueUntilProcessingAction;
 
-class ProcessIntrastatImportTimeSeriesRecords implements ShouldBeUnique
+class ProcessIntrastatImportTimeSeriesRecords implements ShouldBeUniqueUntilProcessing
 {
-    use AsAction;
+    use AsUniqueUntilProcessingAction;
+
+    /**
+     * Dispatches of a period collapse into one run while it waits, so two runs of the same
+     * window rarely overlap now that a dispatch during a run queues the next one.
+     */
+    public const int DEBOUNCE_SECONDS = 300;
+
     public string $jobQueue = 'sales_slave';
     public function getJobUniqueId(int $organisationId, TimeSeriesFrequencyEnum $frequency, string $from, string $to): string
     {

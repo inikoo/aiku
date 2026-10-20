@@ -25,6 +25,7 @@ use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasAttachments;
+use App\Models\Traits\HasPalletDocumentReaders;
 use App\Models\Traits\HasHistory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
@@ -149,6 +150,7 @@ class PalletReturn extends Model implements HasMedia, Auditable
     use HasAddress;
     use HasAddresses;
     use HasAttachments;
+    use HasPalletDocumentReaders;
     use HasHistory;
 
     protected $guarded = [];

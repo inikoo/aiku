@@ -56,8 +56,8 @@ Route::name('delivery_note.')->prefix('delivery-note/{deliveryNote:id}')->middle
     });
 
     Route::get('tariff-codes/export', ExportDeliveryNoteTariffCodes::class)->name('tariff_codes.export');
-    Route::get('customs-items/export', ExportDeliveryNoteCustomsItems::class)->name('customs_items.export');
-    Route::get('customs-items/preview', PreviewDeliveryNoteCustomsItems::class)->name('customs_items.preview');
+    Route::post('customs-items/export', ExportDeliveryNoteCustomsItems::class)->name('customs_items.export');
+    Route::post('customs-items/preview', PreviewDeliveryNoteCustomsItems::class)->name('customs_items.preview');
 
     Route::patch('update', UpdateDeliveryNote::class)->name('update');
     Route::patch('update-packaging', UpdateDeliveryNotePackaging::class)->name('update_packaging');

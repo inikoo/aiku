@@ -19,6 +19,8 @@ use App\Actions\Chat\ChatSession\WaitForCustomerReply;
 use App\Actions\Chat\GetCustomerChatHistory;
 use App\Actions\Ordering\Order\SaveOrderModification;
 use App\Enums\CRM\Livechat\ChatAssignmentStatusEnum;
+use App\Enums\CRM\Livechat\ChatEventTypeEnum;
+use App\Models\Chat\ChatEvent;
 use App\Models\Chat\ChatKnowledgeEntry;
 use App\Models\Chat\ChatMessage;
 use App\Models\Chat\ChatSession;
@@ -27,6 +29,7 @@ use App\Models\Dispatching\DeliveryNote;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
@@ -67,6 +70,7 @@ class CustomerServiceChatTool extends AikuCustomerServiceTool
             'chat'                   => $this->chat($chatSession, $request),
             'reply_in'               => $language?->name,
             'messages'               => $this->messages($chatSession),
+            'internal_notes'         => $this->internalNotes($chatSession) ?: null,
             'customer'               => $customer ? $this->customer($customer) : 'Not linked to a customer yet',
             'orders'                 => $customer ? $this->orders($customer) : null,
             'order'                  => $order ? $this->order($chatSession, $customer, $order) : null,
@@ -186,6 +190,22 @@ class CustomerServiceChatTool extends AikuCustomerServiceTool
             ])
             ->map(fn (array $message) => array_filter($message, fn ($value) => $value !== null))
             ->values()
+            ->all();
+    }
+
+    /**
+     * What staff found out about this conversation; never shown to the customer.
+     */
+    private function internalNotes(ChatSession $chatSession): array
+    {
+        return $chatSession->chatEvents()
+            ->where('event_type', ChatEventTypeEnum::INTERNAL_NOTE)
+            ->orderBy('created_at')
+            ->get()
+            ->map(fn (ChatEvent $note) => [
+                'at'   => $note->created_at?->toDateTimeString(),
+                'note' => Arr::get($note->payload, 'text'),
+            ])
             ->all();
     }
 

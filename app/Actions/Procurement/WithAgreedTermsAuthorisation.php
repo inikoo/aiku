@@ -9,6 +9,7 @@
 namespace App\Actions\Procurement;
 
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
+use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\User;
 
@@ -26,6 +27,22 @@ trait WithAgreedTermsAuthorisation
         }
 
         return $this->hasProcurementPermission($user, $group, $organisationId, fn (int $id) => "procurement.$id.edit");
+    }
+
+    /**
+     * Goods in staff of any of the organisation's warehouses may report incidents on what arrives, but write no other note.
+     */
+    protected function canReportIncidents(User $user, ?int $organisationId): bool
+    {
+        if ($organisationId === null) {
+            return false;
+        }
+
+        $permissions = Warehouse::where('organisation_id', $organisationId)->pluck('id')
+            ->map(fn (int $warehouseId) => "incoming.$warehouseId.edit")
+            ->all();
+
+        return $permissions !== [] && $user->authTo($permissions);
     }
 
     protected function isProcurementSupervisor(User $user, Group $group, ?int $organisationId = null): bool

@@ -58,6 +58,14 @@ class IndexHistoryInOrganisationSetting extends OrgAction
             ->withQueryString();
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->authTo([
+            'organisations.edit',
+            'org-admin.'.$this->organisation->id,
+        ]);
+    }
+
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->organisation = $organisation;

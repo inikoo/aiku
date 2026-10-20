@@ -93,6 +93,10 @@ class EnsureOrganisationIsAuthorised
             return DB::table('org_agents')->where('id', $attributes['org_agent_id'])->value('agent_id');
         }
 
+        if (isset($attributes['agent_goods_receipt_id'])) {
+            return DB::table('agent_goods_receipts')->where('id', $attributes['agent_goods_receipt_id'])->value('agent_id');
+        }
+
         if (isset($attributes['supplier_id']) && !array_key_exists('organisation_id', $attributes)) {
             return DB::table('suppliers')->where('id', $attributes['supplier_id'])->value('agent_id');
         }

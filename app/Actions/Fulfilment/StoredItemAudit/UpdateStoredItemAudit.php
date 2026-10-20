@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\StoredItemAudit;
 
+use App\Actions\Traits\Authorisations\WithStoredItemAuditAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Fulfilment\StoredItemAuditsResource;
@@ -16,6 +17,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class UpdateStoredItemAudit extends OrgAction
 {
+    use WithStoredItemAuditAuthorisation;
     use WithActionUpdate;
 
 
@@ -25,13 +27,6 @@ class UpdateStoredItemAudit extends OrgAction
     }
 
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->asAction) {
-            return true;
-        }
-        return $request->user()->authTo("fulfilment.{$this->fulfilment->id}.edit");
-    }
 
     public function rules(): array
     {
@@ -44,6 +39,7 @@ class UpdateStoredItemAudit extends OrgAction
 
     public function asController(StoredItemAudit $storedItemAudit, ActionRequest $request): StoredItemAudit
     {
+        $this->warehouse = $storedItemAudit->warehouse;
         $this->initialisationFromFulfilment($storedItemAudit->fulfilment, $request);
 
         return $this->handle($storedItemAudit, $this->validatedData);

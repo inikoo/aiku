@@ -11,7 +11,9 @@ namespace App\Actions\Procurement\OrgSupplierProducts\UI;
 use App\Actions\Procurement\WithParentSiblingsNavigation;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
+use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\OrgAction;
+use App\Models\Helpers\Currency;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\Procurement\OrgAgent\WithOrgAgentSubNavigation;
 use App\Actions\Procurement\OrgSupplier\UI\ShowOrgSupplier;
@@ -164,7 +166,6 @@ class IndexOrgSupplierProducts extends OrgAction
 
         if ($organisationAgent) {
             $queryBuilder
-                ->leftJoin('organisations', 'org_supplier_products.organisation_id', 'organisations.id')
                 ->select([
                     'supplier_products.code',
                     'supplier_products.name',
@@ -176,18 +177,27 @@ class IndexOrgSupplierProducts extends OrgAction
                 ->selectRaw('min(org_supplier_products.id) as id')
                 ->selectRaw('min(org_supplier_products.slug) as slug')
                 ->selectRaw('min(org_suppliers.slug) as org_supplier_slug')
-                ->selectRaw("string_agg(distinct organisations.code, ', ' order by organisations.code) as organisations")
                 ->groupBy('supplier_products.id', 'currencies.code', 'suppliers.name');
 
             $this->addAgentProductFacts($queryBuilder, $organisationAgent);
         }
+
+        $groupCurrency = $parent->group->currency;
+        $rates         = [];
 
         return $queryBuilder
             ->defaultSort('supplier_products.code')
             ->allowedSorts($organisationAgent ? ['code', 'name', 'supplier_name', 'cost', 'internal_code', 'cbm', 'completeness'] : ['code', 'name', 'supplier_name', 'cost'])
             ->allowedFilters($organisationAgent ? [$globalSearch, ...$this->agentProductFilters()] : [$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
-            ->withQueryString();
+            ->withQueryString()
+            ->through(function ($row) use ($groupCurrency, &$rates) {
+                $rates[$row->currency_code] ??= GetCurrencyExchange::run(Currency::where('code', $row->currency_code)->first(), $groupCurrency);
+                $row->group_cost          = $rates[$row->currency_code] !== null ? $row->cost * $rates[$row->currency_code] : null;
+                $row->group_currency_code = $groupCurrency->code;
+
+                return $row;
+            });
     }
 
     private function addAgentProductFacts(QueryBuilder $queryBuilder, Agent $agent): void
@@ -195,14 +205,13 @@ class IndexOrgSupplierProducts extends OrgAction
         $queryBuilder
             ->leftJoinSub($this->agentProductFacts($agent), 'f', 'f.id', 'supplier_products.id')
             ->addSelect('supplier_products.id as supplier_product_id')
-            ->selectRaw('bool_or(f.is_generic) as is_generic')
             ->selectRaw('max(f.internal_code) as internal_code')
-            ->selectRaw('max(f.family_code) as family_code')
             ->selectRaw('max(f.cbm) as cbm')
             ->selectRaw('max(f.lead_time_days) as lead_time_days')
             ->selectRaw('max(f.moq) as moq')
             ->selectRaw('max(f.availability_status) as availability_status')
-            ->selectRaw('max(round('.$this->completenessSql().')) as completeness');
+            ->selectRaw('max(round('.$this->completenessSql().')) as completeness')
+            ->selectRaw($this->completenessChecksSql().' as completeness_checks');
     }
 
     /**
@@ -213,7 +222,6 @@ class IndexOrgSupplierProducts extends OrgAction
         return [
             AllowedFilter::callback('focus', function ($query, $value) {
                 match ($value) {
-                    'generic'           => $query->where('f.is_generic', true),
                     'missing_cbm'       => $query->whereRaw('coalesce(f.cbm, 0) = 0'),
                     'missing_lead_time' => $query->whereNull('f.lead_time_days'),
                     'without_family'    => $query->whereNull('f.stock_family_id'),
@@ -269,17 +277,15 @@ class IndexOrgSupplierProducts extends OrgAction
                         'missing_lead_time' => __('Missing lead time'),
                         'not_available'     => __('Not available'),
                         'without_family'    => __('Without family'),
-                        'generic'           => __('Under generic records'),
                     ], __('Show'), noFilterOptionLabel: __('All products'))
-                    ->column(key: 'family_code', label: __('Family'))
-                    ->column(key: 'organisations', label: __('Organisations'), canBeHidden: false)
                     ->column(key: 'cbm', label: __('CBM'), sortable: true, type: 'number')
                     ->column(key: 'lead_time_days', label: __('Lead time'), type: 'number')
                     ->column(key: 'moq', label: __('MOQ'), type: 'number')
                     ->column(key: 'completeness', label: __('Complete'), sortable: true, type: 'number');
             }
 
-            $table->column(key: 'cost', label: __('Cost'), canBeHidden: false, sortable: true, type: 'currency');
+            $table->column(key: 'cost', label: __('Unit cost'), canBeHidden: false, sortable: true, type: 'currency');
+            $table->column(key: 'group_cost', label: __('Unit cost').' ('.$parent->group->currency->code.')', type: 'currency');
 
             if ($parent instanceof Organisation && !$this->getParentOrganisationAgent($parent)) {
                 $table->column(key: 'add', label: '', canBeHidden: false);
@@ -312,6 +318,12 @@ class IndexOrgSupplierProducts extends OrgAction
         $this->authorizeProcurementRecord($orgSupplier);
 
         return $this->handle($orgSupplier, OrgSupplierProductsTabsEnum::INDEX->value);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inOrgSupplierInOrgAgent(Organisation $organisation, OrgAgent $orgAgent, OrgSupplier $orgSupplier, ActionRequest $request): LengthAwarePaginator
+    {
+        return $this->inOrgSupplier($organisation, $orgSupplier, $request);
     }
 
     public function jsonResponse(LengthAwarePaginator $orgSupplierProducts): AnonymousResourceCollection
@@ -393,11 +405,6 @@ class IndexOrgSupplierProducts extends OrgAction
                         ? fn () => AgentSuppliersDataQualityResource::collection(IndexAgentSuppliersDataQuality::run($agent, $this->parent, OrgSupplierProductsTabsEnum::SUPPLIERS->value))
                         : Inertia::optional(fn () => AgentSuppliersDataQualityResource::collection(IndexAgentSuppliersDataQuality::run($agent, $this->parent, OrgSupplierProductsTabsEnum::SUPPLIERS->value))))
                     : null,
-                'move_products' => $agent && $request->user()->authTo("procurement.{$this->organisation->id}.edit") ? [
-                    'targets'         => Supplier::where('agent_id', $agent->id)->where('is_generic', false)->where('status', true)->orderBy('code')->get(['id', 'code', 'name'])->toArray(),
-                    'route_name'      => 'grp.models.org.agent_supplier.move_products',
-                    'organisation_id' => $this->organisation->id,
-                ] : null,
                 'copy_products' => $this->getCopyProducts($request),
                 'copy_targets'  => Inertia::optional(fn () => $this->getCopyTargets($request)),
                 OrgSupplierProductsTabsEnum::HISTORY->value => $this->parent instanceof OrgSupplier && $this->tab == OrgSupplierProductsTabsEnum::HISTORY->value
@@ -508,12 +515,13 @@ class IndexOrgSupplierProducts extends OrgAction
                     ],
                 ),
             ),
-            'grp.org.procurement.org_suppliers.show.supplier_products.index' =>
+            'grp.org.procurement.org_suppliers.show.supplier_products.index',
+            'grp.org.procurement.org_agents.show.suppliers.show.supplier_products.index' =>
             array_merge(
                 (new ShowOrgSupplier())->getBreadcrumbs($routeName, $routeParameters),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.procurement.org_suppliers.show.supplier_products.index',
+                        'name'       => $routeName,
                         'parameters' => $routeParameters,
                     ],
                 ),

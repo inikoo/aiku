@@ -27,7 +27,7 @@ class CrawlWebsite
 
     public string $jobQueue = 'cache-warming';
 
-    private const TRAFFIC_COVERAGE = 0.9;
+    private const TRAFFIC_COVERAGE = 0.5;
 
     /**
      * Every unit of concurrency is one in-flight SSR render, competing with live customer
@@ -97,7 +97,8 @@ class CrawlWebsite
 
     /**
      * Most-visited pages first, stopping once TRAFFIC_COVERAGE of the weighted views is
-     * covered: the remaining tail is ~60% more fetching for the last tenth of the traffic.
+     * covered: half the views land on ~4.4k of the fleet's ~150k viewed pages, and since a
+     * cache miss renders in ~0.15s the long tail is cheaper to build on its first visit.
      *
      * @return array<int, string>
      */

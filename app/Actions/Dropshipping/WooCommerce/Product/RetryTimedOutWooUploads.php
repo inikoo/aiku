@@ -22,8 +22,8 @@ use Lorisleiva\Actions\Concerns\AsAction;
 /**
  * Uploads that died because the store ran out of time (full size images before CUS-1745, or the
  * host's gateway giving up with a 504) are queued again, only on open channels that still connect;
- * a product the store created anyway is linked by its sku instead of duplicated. The per-store funnel in
- * StoreNewProductToCurrentWooCommerce keeps each host at a few creates at once.
+ * a product the store created anyway is linked by its sku instead of duplicated. They wait in the
+ * store's DispatchWooUploadQueue, which keeps each host at a few creates at once.
  *
  * The nightly run only takes uploads tried in the last few days and gives up after a few attempts:
  * an upload the customer asked for months ago must not suddenly appear in their store, and a store
@@ -137,14 +137,15 @@ class RetryTimedOutWooUploads
         }
 
         $queued = 0;
-        foreach ($portfolios as $portfolio) {
-            $wooCommerceUser = $portfolio->customerSalesChannel->user;
+        foreach ($portfolios->groupBy('customer_sales_channel_id') as $channelPortfolios) {
+            $wooCommerceUser = $channelPortfolios->first()->customerSalesChannel->user;
             if (!$wooCommerceUser instanceof WooCommerceUser) {
                 continue;
             }
 
-            StoreNewProductToCurrentWooCommerce::dispatch($wooCommerceUser, $portfolio);
-            $queued++;
+            $channelPortfolios->each(fn (Portfolio $portfolio) => DispatchWooUploadQueue::push($wooCommerceUser, $portfolio));
+            DispatchWooUploadQueue::run($wooCommerceUser);
+            $queued += $channelPortfolios->count();
         }
 
         $command->info($queued.' uploads queued');

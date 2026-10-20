@@ -2603,6 +2603,29 @@ describe('fetching meta ads costs', function () {
 
         expect(TrafficSourceCost::where('traffic_source_id', $this->metaAds->id)->get())->toHaveCount(0);
     });
+
+    it('keeps impressions and link clicks per campaign day, summed across facebook platforms', function () {
+        Http::fake([
+            'graph.facebook.com/*' => Http::response(metaInsights([
+                metaRow('120000020', 10.00, $this->shop->currency->code) + ['impressions' => '1000', 'inline_link_clicks' => '25'],
+                metaRow('120000020', 5.00, $this->shop->currency->code, platform: 'audience_network') + ['impressions' => '500', 'inline_link_clicks' => '5'],
+                metaRow('120000020', 7.00, $this->shop->currency->code, platform: 'instagram') + ['impressions' => '800', 'inline_link_clicks' => '12'],
+            ])),
+        ]);
+
+        Artisan::call('traffic-source:fetch-meta-costs', ['shop' => $this->shop->slug]);
+
+        $metrics = TrafficSourceCampaignMetric::whereIn(
+            'traffic_source_campaign_id',
+            TrafficSourceCampaign::whereIn('traffic_source_id', [$this->metaAds->id, $this->instagramAds->id])->pluck('id')
+        )->get()->keyBy(fn ($metric) => $metric->trafficSourceCampaign->traffic_source_id);
+
+        expect($metrics[$this->metaAds->id]->impressions)->toBe(1500)
+            ->and($metrics[$this->metaAds->id]->clicks)->toBe(30)
+            ->and((float) $metrics[$this->metaAds->id]->source_cost)->toBe(15.0)
+            ->and($metrics[$this->instagramAds->id]->impressions)->toBe(800)
+            ->and($metrics[$this->instagramAds->id]->clicks)->toBe(12);
+    });
 });
 
 describe('fetching google ads campaigns', function () {

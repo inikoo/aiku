@@ -21,11 +21,18 @@ trait WithHydratePortfolios
         $shopifyPlatform = Platform::where('type', PlatformTypeEnum::SHOPIFY)->first();
         $wooCommercePlatform = Platform::where('type', PlatformTypeEnum::WOOCOMMERCE)->first();
 
+        $counts = $model->portfolios()->toBase()
+            ->selectRaw(
+                'count(*) as total, count(*) filter (where status = true) as current, count(*) filter (where platform_id = ?) as shopify, count(*) filter (where platform_id = ?) as woocommerce',
+                [$shopifyPlatform->id, $wooCommercePlatform->id]
+            )
+            ->first();
+
         return [
-            'number_portfolios'                      => $model->portfolios()->count(),
-            'number_current_portfolios'              => $model->portfolios()->where('status', true)->count(),
-            'number_portfolios_platform_shopify'     => $model->portfolios()->where('platform_id', $shopifyPlatform->id)->count(),
-            'number_portfolios_platform_woocommerce' => $model->portfolios()->where('platform_id', $wooCommercePlatform->id)->count(),
+            'number_portfolios'                      => (int) $counts->total,
+            'number_current_portfolios'              => (int) $counts->current,
+            'number_portfolios_platform_shopify'     => (int) $counts->shopify,
+            'number_portfolios_platform_woocommerce' => (int) $counts->woocommerce,
         ];
     }
 }

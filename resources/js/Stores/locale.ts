@@ -78,6 +78,21 @@ export const useLocaleStore = defineStore("locale", () => {
 		return formatter.format(num);
 	};
 
+	const currencyInputOptions = (currencyCode: string | null | undefined) => {
+		if (!currencyCode) {
+			return {}
+		}
+
+		return {
+			mode: "currency",
+			currency: currencyCode,
+			locale: localeForCurrency(currencyCode),
+			currencyDisplay: "narrowSymbol",
+			minFractionDigits: WHOLE_NUMBER_PRACTICE_CURRENCIES.includes(currencyCode) ? 0 : 2,
+			maxFractionDigits: 2,
+		}
+	}
+
 	const currencySymbolNarrow = (currencyCode: string) => {
 		const resolvedCurrency = currencyInertia.value?.code || currencyCode || ''
 
@@ -128,5 +143,5 @@ export const useLocaleStore = defineStore("locale", () => {
 
 	}
 
-	return { language, locale_iso, languageOptions, number, numberShort, currencySymbolNarrow, currencyFormat, currencyFormatRrp, CurrencyShort, currencySymbol, languageAssetsOptions  }
+	return { language, locale_iso, languageOptions, number, numberShort, currencySymbolNarrow, currencyFormat, currencyFormatRrp, currencyInputOptions, CurrencyShort, currencySymbol, languageAssetsOptions  }
 })

@@ -2,6 +2,9 @@
 
 namespace App\Actions\Chat\MetaChatSession;
 
+use App\Models\SysAdmin\User;
+use App\Models\Catalogue\Shop;
+use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Enums\CRM\Livechat\ChatActorTypeEnum;
 use App\Enums\CRM\Livechat\ChatAssignmentStatusEnum;
 use App\Enums\CRM\Livechat\ChatSessionStatusEnum;
@@ -18,6 +21,14 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class StoreMetaChatSession
 {
     use AsAction;
+    use WithChatAgentAuthorisation;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        $shop = Shop::find($request->input('shop_id'));
+
+        return $shop instanceof Shop && $request->user() instanceof User && $this->userCanActOnChatOnShop($request->user(), $shop);
+    }
 
     public function rules(): array
     {
@@ -34,6 +45,8 @@ class StoreMetaChatSession
      */
     public function asController(ActionRequest $request): MetaChatSession
     {
+        abort_if($request->filled('customer_id') && Customer::whereKey($request->input('customer_id'))->value('shop_id') !== (int) $request->input('shop_id'), 422);
+
         $metaChatSession = $this->handle($request->validated());
 
         /* ponytail: the agent who opened the thread keeps it. Hand it to the shop's routing
@@ -60,15 +73,16 @@ class StoreMetaChatSession
 
         $customer = isset($modelData['customer_id']) ? Customer::findOrFail($modelData['customer_id']) : null;
 
-        $phoneNumber = $this->normalisePhoneNumber($customer?->phone ?? Arr::get($modelData, 'phone_number'));
+        $phoneNumber    = $this->normalisePhoneNumber($customer?->phone ?? Arr::get($modelData, 'phone_number'));
+        $whatsappUserId = Arr::get($modelData, 'whatsapp_user_id');
 
-        if (blank($phoneNumber)) {
+        if (blank($phoneNumber) && blank($whatsappUserId)) {
             throw ValidationException::withMessages([
                 'phone_number' => __('No phone number available for this chat session.'),
             ]);
         }
 
-        if (str_starts_with($phoneNumber, '+') && !preg_match('/^\+[1-9]\d{7,14}$/', $phoneNumber)) {
+        if ($phoneNumber && str_starts_with($phoneNumber, '+') && !preg_match('/^\+[1-9]\d{7,14}$/', $phoneNumber)) {
             throw ValidationException::withMessages([
                 'phone_number' => __('Enter a valid phone number.'),
             ]);
@@ -76,10 +90,14 @@ class StoreMetaChatSession
 
         $name = $customer?->contact_name ?? $customer?->name ?? Arr::get($modelData, 'name');
 
-        $metaChatSession = DB::transaction(function () use ($metaChannel, $customer, $modelData, $phoneNumber, $name) {
+        $metaChatSession = DB::transaction(function () use ($metaChannel, $customer, $modelData, $phoneNumber, $whatsappUserId, $name) {
             $existing = MetaChatSession::where('meta_channel_id', $metaChannel->id)
                 ->where('shop_id', $modelData['shop_id'])
-                ->where('phone_number', $phoneNumber)
+                ->when(
+                    $phoneNumber,
+                    fn ($query) => $query->where('phone_number', $phoneNumber),
+                    fn ($query) => $query->where('whatsapp_user_id', $whatsappUserId)
+                )
                 ->latest('id')
                 ->first();
 
@@ -92,6 +110,7 @@ class StoreMetaChatSession
                 'shop_id'          => $modelData['shop_id'],
                 'customer_id'      => $customer?->id,
                 'phone_number'     => $phoneNumber,
+                'whatsapp_user_id' => $whatsappUserId,
                 'ulid'             => Str::ulid(),
                 'status'           => ChatSessionStatusEnum::ACTIVE,
                 'guest_identifier' => $name,
@@ -100,6 +119,7 @@ class StoreMetaChatSession
                     'name'           => $name,
                     'phone'          => $phoneNumber,
                     'is_new_contact' => $customer === null,
+                    ...array_filter(['whatsapp_username' => Arr::get($modelData, 'whatsapp_username')]),
                 ],
             ]);
         });

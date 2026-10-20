@@ -425,3 +425,16 @@ test('a mistyped or already known barcode is refused', function () {
 
     expect($tradeUnit->refresh()->barcode)->toBeNull();
 });
+
+test('the barcode edit page needs goods edit, INI-076', function () {
+    $barcode = Barcode::where('group_id', $this->group->id)->where('number', $this->poolBarcode)->firstOrFail();
+    $url     = route('grp.trade_units.barcodes.edit', $barcode);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ['goods.view']);
+    get($url)->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ['goods.view', 'goods.edit']);
+    get($url)->assertOk();
+});

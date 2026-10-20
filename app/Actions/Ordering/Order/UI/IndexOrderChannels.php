@@ -10,6 +10,7 @@ namespace App\Actions\Ordering\Order\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\Ordering\WithOrderingAuthorisation;
 use App\Actions\Traits\Dashboards\WithMarketingPeriod;
 use App\Enums\Ordering\Order\OrderPayStatusEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
@@ -24,6 +25,7 @@ use Lorisleiva\Actions\ActionRequest;
 class IndexOrderChannels extends OrgAction
 {
     use WithMarketingPeriod;
+    use WithOrderingAuthorisation;
 
     protected Shop $shop;
 

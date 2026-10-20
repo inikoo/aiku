@@ -9,8 +9,8 @@
 namespace App\Actions\Production\Artefact;
 
 use App\Actions\OrgAction;
+use App\Actions\Production\RawMaterial\Hydrators\RawMaterialHydrateFromOrgStock;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
-use App\Enums\Production\JobOrderItemTask\JobOrderItemTaskStateEnum;
 use App\Events\BroadcastManufactureFloorChanged;
 use App\Models\Production\Artefact;
 use App\Models\Production\JobOrderItemTask;
@@ -24,11 +24,10 @@ class DetachManufactureTaskFromArtefact extends OrgAction
     public function handle(Artefact $artefact, ManufactureTask $manufactureTask): Artefact
     {
         $artefact->manufactureTasks()->detach($manufactureTask->id);
+        RawMaterialHydrateFromOrgStock::dispatchIntermediatesOf($artefact->id);
 
         $removedTasks = JobOrderItemTask::where('manufacture_task_id', $manufactureTask->id)
-            ->where('state', JobOrderItemTaskStateEnum::TODO)
-            ->whereDoesntHave('sessions')
-            ->whereDoesntHave('sessionShares')
+            ->unworked()
             ->whereHas('jobOrderItem', fn ($query) => $query->where('artefact_id', $artefact->id)
                 ->whereHas('tasks', fn ($query) => $query->where('manufacture_task_id', '!=', $manufactureTask->id)))
             ->whereHas('jobOrder', fn ($query) => $query->whereIn('state', JobOrderStateEnum::open()))

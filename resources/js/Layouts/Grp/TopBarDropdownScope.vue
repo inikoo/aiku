@@ -113,6 +113,11 @@ const getOrgHref = (slug?: string): string | undefined => {
         return dashboardHref
     }
 
+    const isTargetAnAgent = layout.agents.data.some((agent: any) => agent.slug === slug)
+    if (currentRoute.startsWith('grp.org.agent.') !== isTargetAnAgent) {
+        return dashboardHref
+    }
+
     return resolveRouteOrFallback(currentRoute, { ...currentRouteParams, organisation: slug }, dashboardHref)
 }
 

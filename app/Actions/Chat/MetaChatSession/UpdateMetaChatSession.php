@@ -10,9 +10,6 @@ namespace App\Actions\Chat\MetaChatSession;
 use App\Enums\CRM\Livechat\ChatActorTypeEnum;
 use App\Enums\CRM\Livechat\ChatEventTypeEnum;
 use App\Models\Chat\MetaChatSession;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
-use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
@@ -22,13 +19,6 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class UpdateMetaChatSession
 {
     use AsAction;
-
-    public function rules(): array
-    {
-        return [
-            'rating' => ['required', 'numeric', 'min:1', 'max:5'],
-        ];
-    }
 
     public function handle(MetaChatSession $metaChatSession, array $data, ?int $agentId = null): array
     {
@@ -48,22 +38,5 @@ class UpdateMetaChatSession
         );
 
         return ['rating' => $data['rating']];
-    }
-
-    public function asController(MetaChatSession $metaChatSession, ActionRequest $request): JsonResponse
-    {
-        $updatedFields = $this->handle(
-            $metaChatSession,
-            $request->validated(),
-            Auth::user()?->chatAgent?->id
-        );
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Rating updated successfully',
-            'data'    => [
-                'updated_fields' => $updatedFields,
-            ],
-        ]);
     }
 }

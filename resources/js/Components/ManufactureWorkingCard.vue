@@ -38,6 +38,7 @@ const props = defineProps<{
         carry?: null | { reference: string, units_per_artefact: number, quantity: number }
         close_route: { name: string, parameters: object }
         break_minutes: number
+        left_open_after_shift_at?: string | null
         band_feedback: null | {
             currency_symbol: string
             band0_hourly_rate: number
@@ -134,6 +135,8 @@ const managerPin = ref('')
 const facingMode = ref<'environment' | 'user'>('environment')
 const cameraError = ref<string | null>(null)
 const rejectedBadge = ref<string | null>(null)
+const rateWarning = ref<string | null>(null)
+const pendingOutcome = ref<'complete' | 'carry_over' | null>(null)
 
 function openManagerCheck() {
     askManager.value = true
@@ -145,7 +148,7 @@ function openManagerCheck() {
 
 function onBadgeDetected(detectedCodes: { rawValue: string }[]) {
     const code = detectedCodes[0]?.rawValue
-    if (code && code !== rejectedBadge.value && !processing.value) closeSession(null, { manager_code: code, manager_method: 'qr' })
+    if (code && code !== rejectedBadge.value && !processing.value) closeSession(pendingOutcome.value, { manager_code: code, manager_method: 'qr' })
 }
 
 function onCameraError(error: Error) {
@@ -161,6 +164,7 @@ function onDone() {
 function confirmDone() {
     confirming.value = false
     if (surplus.value > 0) {
+        pendingOutcome.value = null
         openManagerCheck()
         return
     }
@@ -182,6 +186,7 @@ function finishActivity() {
 
 function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager: { manager_code: string, manager_method: 'qr' | 'pin' } | null = null) {
     if (quantityMade.value === null) return
+    if (!manager) pendingOutcome.value = outcome
     askOutcome.value = false
     confirmingMove.value = false
     processing.value = true
@@ -197,13 +202,18 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
             preserveScroll: true,
             onSuccess: () => {
                 askManager.value = false
+                rateWarning.value = null
+                pendingOutcome.value = null
                 quantityMade.value = null
                 quantityRejected.value = 0
             },
             onError: (errors) => {
                 if (manager?.manager_method === 'qr') rejectedBadge.value = manager.manager_code
                 managerPin.value = ''
-                if (!errors.manager_code) {
+                if (errors.rate) {
+                    rateWarning.value = errors.rate
+                    openManagerCheck()
+                } else if (!errors.manager_code) {
                     askManager.value = false
                 }
             },
@@ -286,6 +296,11 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
             </div>
         </div>
 
+        <div v-if="session.left_open_after_shift_at" class="mt-6 flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-lg text-amber-800">
+            <FontAwesomeIcon :icon="faExclamationTriangle" class="mt-1" fixed-width aria-hidden="true" />
+            <span>{{ ctrans('This job was left running after the end of the shift (:time). Record what was made and tell your supervisor, who will set the real times.', { time: new Date(session.left_open_after_shift_at).toLocaleString([], { weekday: 'short', hour: '2-digit', minute: '2-digit' }) }) }}</span>
+        </div>
+
         <div v-if="closeError" class="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-lg text-red-700">{{ closeError }}</div>
 
         <div v-if="confirming" class="mt-6 rounded-lg border border-green-300 bg-green-50 p-4">
@@ -357,11 +372,12 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
             {{ ctrans(':surplus above target, a manager must authorise it', { surplus }) }}
         </div>
 
-        <Dialog v-model:visible="askManager" modal :closable="!processing" :header="ctrans('Manager authorisation required for overproduction')" class="w-[32rem] max-w-[95vw]">
-            <div class="text-center text-lg text-gray-600">
+        <Dialog v-model:visible="askManager" modal :closable="!processing" :header="rateWarning && !surplus ? ctrans('Manager authorisation required') : ctrans('Manager authorisation required for overproduction')" class="w-[32rem] max-w-[95vw]" @hide="rateWarning = null">
+            <div v-if="rateWarning" class="mb-2 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-center text-xl font-semibold text-amber-800">{{ rateWarning }}</div>
+            <div v-if="surplus" class="text-center text-lg text-gray-600">
                 {{ ctrans('Target') }} <b>{{ remaining }}</b> · {{ ctrans('Made') }} <b>{{ quantityMade }}</b> · {{ ctrans('Surplus') }} <b class="text-amber-600">+{{ surplus }}</b>
             </div>
-            <div v-if="packSize" class="mt-2 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-center text-xl font-semibold text-amber-800">
+            <div v-if="packSize && surplus" class="mt-2 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-center text-xl font-semibold text-amber-800">
                 {{ ctrans('+:surplus packs of :size = :pieces × :code extra, approve?', { surplus, size: packSize, pieces: inPieces(surplus), code: session.task.artefact_code ?? '' }) }}
             </div>
 
@@ -382,7 +398,7 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
                 </div>
             </div>
 
-            <form v-else ref="pinField" class="mt-4" @submit.prevent="managerPin && closeSession(null, { manager_code: managerPin, manager_method: 'pin' })">
+            <form v-else ref="pinField" class="mt-4" @submit.prevent="managerPin && closeSession(pendingOutcome, { manager_code: managerPin, manager_method: 'pin' })">
                 <div v-if="cameraError" class="mb-2 text-sm text-gray-500">{{ ctrans('Camera not available') }}</div>
                 <Password v-model="managerPin" :feedback="false" toggleMask fluid
                     :inputProps="{ autocapitalize: 'characters', autocomplete: 'off' }"

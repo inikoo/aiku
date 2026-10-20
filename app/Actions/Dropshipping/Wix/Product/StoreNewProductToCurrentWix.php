@@ -6,6 +6,7 @@
 
 namespace App\Actions\Dropshipping\Wix\Product;
 
+use App\Actions\Traits\Authorisations\WithCustomerSalesChannelEditAuthorisation;
 use App\Actions\OrgAction;
 use App\Models\Dropshipping\Portfolio;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -14,6 +15,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreNewProductToCurrentWix extends OrgAction implements ShouldBeUnique
 {
+    use WithCustomerSalesChannelEditAuthorisation;
     use AsAction;
 
     public string $jobQueue = 'dropshipping-long';

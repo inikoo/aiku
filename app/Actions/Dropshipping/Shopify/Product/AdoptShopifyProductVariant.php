@@ -12,7 +12,6 @@ use App\Actions\Dropshipping\Portfolio\UpdatePortfolio;
 use App\Actions\Dropshipping\Shopify\CheckShopifyChannel;
 use App\Actions\Dropshipping\WithPortfolioErrorResponse;
 use App\Models\Catalogue\Product;
-use App\Models\Dropshipping\CustomerSalesChannel;
 use App\Models\Dropshipping\Portfolio;
 use App\Models\Dropshipping\ShopifyUser;
 use Illuminate\Support\Arr;
@@ -21,15 +20,15 @@ use Lorisleiva\Actions\Concerns\AsAction;
 use Throwable;
 
 /**
- * Matching links the portfolio to the variant the merchant already has instead of creating ours
- * (HELP-3180, INI-028 step 4): replacing it deleted the merchant's variant with its sku, price and
- * barcode. On a product with several variants the one carrying our sku is taken; a product with a
- * single variant is taken whatever its sku, and a sku that is not ours is kept in platform_sku.
+ * Matching a Shopify product with several variants, one of them carrying our sku, links the portfolio
+ * to that variant instead of adding ours next to it (HELP-3180, INI-028 step 4, CUS-1788): the
+ * merchant combined our products as variants of one listing. Two variants carrying our sku are refused.
+ * A single-variant product, or one with no variant carrying our sku, returns null and goes through
+ * StoreShopifyProductVariant as before.
  *
  * The merchant's sku and barcode are never written, nor the price unless the merchant asked us to
  * manage it. A variant stocked at any other location, even with 0, is refused: Shopify could route its orders
- * there and they would never reach us. Only on channels with the link_existing_variants switch;
- * the others still go through StoreShopifyProductVariant.
+ * there and they would never reach us.
  */
 class AdoptShopifyProductVariant
 {
@@ -41,7 +40,7 @@ class AdoptShopifyProductVariant
     private const int MAX_VARIANT_PAGES = 10;
 
     /**
-     * @return array{0: bool, 1: string}|null null when the channel does not adopt variants
+     * @return array{0: bool, 1: string}|null null when the product is not one to adopt a variant of
      */
     public function handle(Portfolio $portfolio, string $shopifyProductId, ?bool $priceManagedByUs = null): ?array
     {
@@ -51,21 +50,17 @@ class AdoptShopifyProductVariant
             return null;
         }
 
-        if (!self::isEnabledFor($portfolio->customerSalesChannel)) {
-            return null;
-        }
-
         try {
             $variants = $this->getVariants($shopifyUser, $shopifyProductId);
 
-            if ($variants === []) {
-                return $this->fail($portfolio, 'This Shopify product is no longer in your store');
+            if (count($variants) < 2) {
+                return null;
             }
 
-            $matchingVariants = count($variants) === 1 ? $variants : self::variantsCarryingPortfolioSku($portfolio, $variants);
+            $matchingVariants = self::variantsCarryingPortfolioSku($portfolio, $variants);
 
-            if (empty($matchingVariants)) {
-                return $this->fail($portfolio, 'None of the variants of this Shopify product has the sku '.$portfolio->sku.'. Set that sku on the variant you want to link and try again');
+            if ($matchingVariants === []) {
+                return null;
             }
 
             if (count($matchingVariants) > 1) {
@@ -110,7 +105,7 @@ class AdoptShopifyProductVariant
 
         [$linked, $refusal] = LinkShopifyPortfolio::run($portfolio, $shopifyProductId, $variant['id'], [
             'platform_status' => false,
-            'platform_sku'    => self::variantsCarryingPortfolioSku($portfolio, [$variant]) === [] && $variant['sku'] !== '' ? $variant['sku'] : null,
+            'platform_sku'    => null,
             'errors_response' => null
         ]);
 
@@ -179,11 +174,6 @@ class AdoptShopifyProductVariant
     {
         return $locationId !== null && $ourLocationId !== null
             && Str::afterLast($locationId, '/') === Str::afterLast($ourLocationId, '/');
-    }
-
-    public static function isEnabledFor(?CustomerSalesChannel $customerSalesChannel): bool
-    {
-        return (bool) data_get($customerSalesChannel?->settings, 'shopify.link_existing_variants', false);
     }
 
     /**

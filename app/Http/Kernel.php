@@ -12,11 +12,10 @@ use App\Http\Middleware\AcceptClientHintsMiddleware;
 use App\Http\Middleware\AddSentryBrowserProfilingHeader;
 use App\Http\Middleware\AddFrameOptionsHeader;
 use App\Http\Middleware\ApiBindGroupInstance;
-use App\Http\Middleware\CorneaAuthenticate;
 use App\Http\Middleware\DevOpsAuthenticationMiddleware;
 use App\Http\Middleware\DisableSSR;
+use App\Http\Middleware\PreventCachingSsrFallback;
 use App\Http\Middleware\DetectIrisWebsite;
-use App\Http\Middleware\HandleCorneaInertiaRequests;
 use App\Http\Middleware\HandlePupilInertiaRequests;
 use App\Http\Middleware\RestrictCountryRegions;
 use App\Http\Middleware\RetinaPreparingAccount;
@@ -37,7 +36,6 @@ use App\Http\Middleware\LogUserRequestMiddleware;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\HandleIrisInertiaRequests;
-use App\Http\Middleware\NewRelicTransactionMiddleware;
 use App\Http\Middleware\ResetUserPasswordMiddleware;
 use App\Http\Middleware\ResolveShopifyShopDomain;
 use App\Http\Middleware\ResetWebUserPasswordMiddleware;
@@ -89,7 +87,6 @@ class Kernel extends HttpKernel
         //AddFrameOptionsHeader::class, // add individually to retina, iris. etc. except pupil
         AddSentryBrowserProfilingHeader::class,
         AcceptClientHintsMiddleware::class,
-        NewRelicTransactionMiddleware::class,
     ];
 
     protected $middlewareGroups = [
@@ -212,7 +209,8 @@ class Kernel extends HttpKernel
             HandleIrisInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
             //CaptureTrafficSourceMiddleWare::class,
-            AddFrameOptionsHeader::class
+            AddFrameOptionsHeader::class,
+            PreventCachingSsrFallback::class
         ],
         'retina'      => [
             DisableSSR::class,
@@ -246,18 +244,6 @@ class Kernel extends HttpKernel
             SameSiteSession::class,
         ],
 
-        'cornea'  => [
-            DisableSSR::class,
-            EncryptCookies::class,
-            AddQueuedCookiesToResponse::class,
-            StartSession::class,
-            ShareErrorsFromSession::class,
-            VerifyCsrfToken::class,
-            SubstituteBindings::class,
-            HandleCorneaInertiaRequests::class,
-            //AddLinkHeadersForPreloadedAssets::class,
-            AddFrameOptionsHeader::class
-        ],
 
         //==== Other Middleware Groups
         'horizon' => [
@@ -288,7 +274,6 @@ class Kernel extends HttpKernel
     protected $routeMiddleware = [
         'auth'                   => Authenticate::class,
         'retina-auth'            => RetinaAuthenticate::class,
-        'cornea-auth'            => CorneaAuthenticate::class,
         'iris-relax-auth'        => IrisRelaxAuthenticate::class, // Everybody can access, but we have user data if logged in
         'auth.basic'             => AuthenticateWithBasicAuth::class,
         'auth.session'           => AuthenticateSession::class,

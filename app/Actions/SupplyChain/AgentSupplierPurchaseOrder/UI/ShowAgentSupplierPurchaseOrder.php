@@ -8,6 +8,7 @@
 
 namespace App\Actions\SupplyChain\AgentSupplierPurchaseOrder\UI;
 
+use App\Actions\Helpers\Redirects\RedirectPurchaseOrderLink;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\AgentSupplierPurchaseOrder;
 use App\Models\SysAdmin\Organisation;
@@ -28,17 +29,17 @@ class ShowAgentSupplierPurchaseOrder
     public function handle(AgentSupplierPurchaseOrder $agentSupplierPurchaseOrder, ActionRequest $request): RedirectResponse
     {
         $purchaseOrder = PurchaseOrder::where('agent_supplier_purchase_order_id', $agentSupplierPurchaseOrder->id)->first();
+        abort_unless($purchaseOrder, 404);
 
-        abort_if(
-            !$purchaseOrder
-            || !($request->user()->authTo("procurement.$purchaseOrder->organisation_id.view") || $request->user()->authTo('supply-chain.view')),
-            404
-        );
+        $user = $request->user();
+        if ($user->authTo("procurement.$purchaseOrder->organisation_id.view") || $user->authTo('supply-chain.view')) {
+            return Redirect::route('grp.org.procurement.purchase_orders.show', [
+                'organisation'  => $purchaseOrder->organisation->slug,
+                'purchaseOrder' => $purchaseOrder->slug,
+            ]);
+        }
 
-        return Redirect::route('grp.org.procurement.purchase_orders.show', [
-            'organisation'  => $purchaseOrder->organisation->slug,
-            'purchaseOrder' => $purchaseOrder->slug,
-        ]);
+        return RedirectPurchaseOrderLink::make()->handle($purchaseOrder, $user);
     }
 
     public function asController(AgentSupplierPurchaseOrder $agentSupplierPurchaseOrder, ActionRequest $request): RedirectResponse

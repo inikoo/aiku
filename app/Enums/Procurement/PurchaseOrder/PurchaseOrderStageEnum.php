@@ -50,6 +50,7 @@ enum PurchaseOrderStageEnum: string
     public const array AGENT_MARKABLE_FIELDS = [
         'production_started_at',
         'produced_at',
+        'handed_over_at',
     ];
 
     public static function ofField(string $field): ?self

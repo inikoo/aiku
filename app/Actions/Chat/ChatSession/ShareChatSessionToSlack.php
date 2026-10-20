@@ -8,6 +8,9 @@
 
 namespace App\Actions\Chat\ChatSession;
 
+use App\Models\SysAdmin\User;
+use App\Models\Catalogue\Shop;
+use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Actions\Chat\ChatSession\Concerns\WithChatSlackSettings;
 use App\Helpers\SlackNotification;
 use App\Models\Chat\ChatSession;
@@ -23,7 +26,15 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class ShareChatSessionToSlack
 {
     use AsAction;
+    use WithChatAgentAuthorisation;
     use WithChatSlackSettings;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        $shop = $request->route('chatSession')?->shop;
+
+        return $shop instanceof Shop && $request->user() instanceof User && $this->userCanActOnChatOnShop($request->user(), $shop);
+    }
 
     /**
      * @param  array<int, array{type: string, id: string, name: string}>  $destinations

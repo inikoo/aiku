@@ -11,6 +11,7 @@
 use App\Actions\Iris\Appointment\CancelIrisAppointment;
 use App\Actions\Iris\Appointment\RescheduleIrisAppointment;
 use App\Actions\Iris\Appointment\StoreIrisAppointment;
+use App\Actions\Iris\Reviews\StoreIrisOrderReview;
 use App\Actions\Iris\Basket\StoreEcomBasketTransaction;
 use App\Actions\Iris\Basket\UpdateEcomBasketTransaction;
 use App\Actions\Iris\CRM\DeleteIrisBackInStockReminder;
@@ -49,6 +50,8 @@ Route::name('appointment.')->prefix('appointment/{appointment:id}/{token}')->whe
     Route::post('cancel', CancelIrisAppointment::class)->name('cancel');
     Route::post('reschedule', RescheduleIrisAppointment::class)->name('reschedule');
 });
+
+Route::post('review/{order:id}/{token}', StoreIrisOrderReview::class)->name('order_review.store')->whereNumber('order')->middleware('throttle:20,1');
 
 Route::post('portfolio-all-channels', StoreIrisPortfolioToAllChannels::class)->name('all_channels.portfolio.store');
 Route::post('portfolio-multi-channels', StoreIrisPortfolioToMultiChannels::class)->name('multi_channels.portfolio.store');

@@ -11,6 +11,7 @@ namespace App\Actions\Ordering\Order\UI;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Ordering\Order\OrderCancellationReasonEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
+use App\Enums\Ordering\PreOrder\PreOrderStateEnum;
 use App\Enums\Ordering\Platform\PlatformTypeEnum;
 use App\Models\Dropshipping\Platform;
 use App\Models\Ordering\Order;
@@ -66,7 +67,7 @@ class GetDropshippingOrderActions
                                 'icon'    => ['fal', 'fa-upload'],
                                 'label'   => '',
                                 'key'     => 'upload',
-                                'tooltip' => __('Upload pallets via spreadsheet'),
+                                'tooltip' => __('Upload products via spreadsheet'),
                             ],
                         ],
                     ] : [],
@@ -212,7 +213,8 @@ class GetDropshippingOrderActions
                     OrderStateEnum::FINALISED
                 ])
                 || $order->invoices()->count() > 0
-                || $order->deliveryNotes()->where('state', DeliveryNoteStateEnum::DISPATCHED)->count() > 0) {
+                || $order->deliveryNotes()->where('state', DeliveryNoteStateEnum::DISPATCHED)->count() > 0
+                || in_array($order->preOrder?->state, PreOrderStateEnum::open(), true)) {
                 $showCancel = false;
             }
 

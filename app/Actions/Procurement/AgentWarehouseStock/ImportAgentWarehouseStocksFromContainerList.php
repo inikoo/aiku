@@ -92,7 +92,7 @@ class ImportAgentWarehouseStocksFromContainerList
 
         if (!$dryRun) {
             DB::transaction(function () use ($agent, $organisation, $container, $rows) {
-                AgentWarehouseStock::where('agent_id', $agent->id)->where('organisation_id', $organisation->id)->where('notes', $container)->delete();
+                AgentWarehouseStock::where('agent_id', $agent->id)->where('organisation_id', $organisation->id)->where('notes', $container)->whereNull('purchase_order_transaction_id')->delete();
                 AgentWarehouseStock::insert($rows);
             });
         }
@@ -100,7 +100,7 @@ class ImportAgentWarehouseStocksFromContainerList
         return ['rows' => $rows, 'unmatched' => $unmatched, 'in_production' => $inProduction];
     }
 
-    public function markInProduction(PurchaseOrder $purchaseOrder, string $reason): void
+    public function markInProduction(PurchaseOrder $purchaseOrder, string $reason, ?string $date = null): void
     {
         if ($purchaseOrder->production_started_at || !in_array($purchaseOrder->state, [PurchaseOrderStateEnum::SUBMITTED, PurchaseOrderStateEnum::CONFIRMED])) {
             return;
@@ -108,7 +108,7 @@ class ImportAgentWarehouseStocksFromContainerList
 
         MarkPurchaseOrderStage::make()->action($purchaseOrder, [
             'field'  => 'production_started_at',
-            'date'   => MarkPurchaseOrderStage::today($purchaseOrder->organisation),
+            'date'   => $date ?? MarkPurchaseOrderStage::today($purchaseOrder->organisation),
             'reason' => $reason,
         ]);
     }

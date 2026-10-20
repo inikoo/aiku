@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\StoredItem;
 
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Actions\OrgAction;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -25,6 +26,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class PdfStoredItem extends OrgAction
 {
+    use WithFulfilmentShopAuthorisation;
+
     public function handle(StoredItem $storedItem): Response
     {
         try {
@@ -56,6 +59,7 @@ class PdfStoredItem extends OrgAction
 
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, StoredItem $storedItem, ActionRequest $request): Response
     {
+        abort_unless($fulfilmentCustomer->fulfilment_id === $fulfilment->id && $storedItem->fulfilment_customer_id === $fulfilmentCustomer->id, 404);
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($storedItem);

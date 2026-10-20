@@ -33,12 +33,12 @@ class ApiTokensResource extends JsonResource
             'created_at'         => $this->created_at,
             'updated_at'         => $this->updated_at,
             'expires_at'         => $this->expires_at,
-            'route_delete_token' => [
+            'route_delete_token' => $request->user()?->authTo('sysadmin.edit') ? [
                 'name'       => 'grp.models.access_token.delete',
                 'parameters' => [
                     'token' => $this->id
                 ]
-            ]
+            ] : null
         ];
     }
 }

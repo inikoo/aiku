@@ -56,9 +56,9 @@ class GetAgentContainerInvoiceData
                 'name'       => 'grp.org.agent.agent_invoices.store',
                 'parameters' => [$organisation->slug, $stockDelivery->slug],
             ],
-            'charges_update_route' => $invoice ? [
-                'name'       => 'grp.org.agent.agent_invoices.charges.update',
-                'parameters' => [$organisation->slug, $invoice->id],
+            'ledger_route'         => $organisation->agent ? [
+                'name'       => 'grp.org.agent.accounting.ledger.index',
+                'parameters' => [$organisation->slug, 'filter' => ['global' => $stockDelivery->reference]],
             ] : null,
         ];
     }

@@ -8,11 +8,14 @@
 
 namespace App\Notifications;
 
+use App\Notifications\Concerns\SendsMailThroughSes;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class StuckPurchaseOrdersSummaryNotification extends Notification
 {
+    use SendsMailThroughSes;
+
     /**
      * @param array<int, array{reference: string, parent: ?string, organisation: ?string, waiting: ?string, days_overdue: int, buyer: ?string, url: string}> $orders
      */
@@ -45,7 +48,7 @@ class StuckPurchaseOrdersSummaryNotification extends Notification
 
     public function toMail($notifiable): MailMessage
     {
-        $message = (new MailMessage())
+        $message = $this->newMailMessage()
             ->subject($this->title())
             ->line($this->ownOrdersOnly
                 ? __('Your purchase orders that are past the expected date of their current stage, most late first:')

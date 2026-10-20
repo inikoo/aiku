@@ -114,38 +114,43 @@ class IndexWhatsappMessageTemplates extends OrgAction
     public function htmlResponse(LengthAwarePaginator $templates, ActionRequest $request): Response
     {
         $actions = [];
-        // if ($this->canEdit) {
-        $actions[] = [
-            'type'    => 'button',
-            'style'   => 'primary',
-            'icon'    => 'fal fa-plus',
-            'label'   => __('New template'),
-            'route'   => [
-                'method'     => 'get',
-                'name'       => 'grp.org.shops.show.chat.whatsapp_templates.create',
-                'parameters' => [
-                    'organisation' => $this->organisation->slug,
-                    'shop'         => $this->shop->slug,
+        $canEdit = $request->user()->authTo([
+            "chat-m.{$this->shop->id}",
+            "crm.{$this->shop->id}.edit",
+            "org-admin.{$this->organisation->id}",
+        ]);
+        if ($canEdit) {
+            $actions[] = [
+                'type'    => 'button',
+                'style'   => 'primary',
+                'icon'    => 'fal fa-plus',
+                'label'   => __('New template'),
+                'route'   => [
+                    'method'     => 'get',
+                    'name'       => 'grp.org.shops.show.chat.whatsapp_templates.create',
+                    'parameters' => [
+                        'organisation' => $this->organisation->slug,
+                        'shop'         => $this->shop->slug,
+                    ],
                 ],
-            ],
-        ];
-        $actions[] = [
-            'type'        => 'button',
-            'style'       => 'tertiary',
-            'icon'        => ['fab', 'fa-whatsapp'],
-            'tooltip'     => __('Fetch the message templates from Meta'),
-            'label'       => __('Synchronize'),
-            'fullLoading' => true,
-            'route'       => [
-                'method'     => 'post',
-                'name'       => 'grp.org.shops.show.chat.whatsapp_templates.sync',
-                'parameters' => [
-                    'organisation' => $this->organisation->slug,
-                    'shop'         => $this->shop->slug,
+            ];
+            $actions[] = [
+                'type'        => 'button',
+                'style'       => 'tertiary',
+                'icon'        => ['fab', 'fa-whatsapp'],
+                'tooltip'     => __('Fetch the message templates from Meta'),
+                'label'       => __('Synchronize'),
+                'fullLoading' => true,
+                'route'       => [
+                    'method'     => 'post',
+                    'name'       => 'grp.org.shops.show.chat.whatsapp_templates.sync',
+                    'parameters' => [
+                        'organisation' => $this->organisation->slug,
+                        'shop'         => $this->shop->slug,
+                    ],
                 ],
-            ],
-        ];
-        // }
+            ];
+        }
 
         return Inertia::render(
             'Org/Chat/WhatsappTemplates',
@@ -162,6 +167,7 @@ class IndexWhatsappMessageTemplates extends OrgAction
                 ],
                 'data'        => MetaMessageTemplatesResource::collection($templates),
                 'mergeTags'   => GetWhatsappTemplateTags::run($this->shop),
+                'canEdit'     => $canEdit,
                 'editRouteName'  => 'grp.org.shops.show.chat.whatsapp_templates.edit',
                 'deleteRouteName' => 'grp.org.shops.show.chat.whatsapp_templates.delete',
                 'refreshRouteName' => 'grp.org.shops.show.chat.whatsapp_templates.refresh',
@@ -180,6 +186,17 @@ class IndexWhatsappMessageTemplates extends OrgAction
                 ],
             ]
         )->table($this->tableStructure());
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->authTo([
+            "chat-m.{$this->shop->id}",
+            "crm.{$this->shop->id}.view",
+            "crm.{$this->shop->id}.edit",
+            "org-admin.{$this->organisation->id}",
+            "accounting.{$this->organisation->id}.view",
+        ]);
     }
 
     public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator

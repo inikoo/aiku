@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import CheckoutComSandboxTestCard from "@/Components/Retina/CheckoutComSandboxTestCard.vue"
 import { onMounted } from "vue"
 import { useCheckoutCom } from "@/Composables/useCheckoutComFlow"
 import { faCheckCircle } from "@fas"
@@ -42,6 +43,7 @@ onMounted(() => {
         </div>
 
         <div class="mx-auto mt-6 relative w-full max-w-xl min-h-[200px]">
+            <CheckoutComSandboxTestCard :environment="props.checkout_com_data?.environment" />
             <div id="flow-container" class="w-full" />
             <div v-show="isLoading" class="pointer-events-none absolute top-0 h-full w-full z-10">
                 <div class="w-full min-h-[200px] h-full skeleton">

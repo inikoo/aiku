@@ -2,6 +2,7 @@
 
 namespace App\Actions\Chat\MetaChatSession;
 
+use App\Actions\Chat\WithChatSessionReadAuthorisation;
 use App\Enums\UI\CRM\CustomerTabsEnum;
 use App\Models\Chat\MetaChatSession;
 use App\Actions\Chat\ChatSession\GetChatCustomerProfile;
@@ -12,6 +13,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetMetaChatCustomerProfile
 {
+    use WithChatSessionReadAuthorisation;
     use AsAction;
 
     public function handle(MetaChatSession $metaChatSession, ?string $claimOrderReference = null): array

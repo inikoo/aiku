@@ -2,10 +2,15 @@
 
 namespace App\Http\Resources\CRM\Livechat;
 
+use App\Actions\Chat\WithChatAgentAuthorisation;
+use App\Models\SysAdmin\Organisation;
+use App\Models\SysAdmin\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ChatAgentResource extends JsonResource
 {
+    use WithChatAgentAuthorisation;
+
     public function toArray($request): array
     {
         $isDeletedInOrg = $this->deleted_at !== null;
@@ -29,7 +34,7 @@ class ChatAgentResource extends JsonResource
             'is_deleted_in_org'    => $isDeletedInOrg,
         ];
 
-        if (!$isDeletedInOrg) {
+        if (!$isDeletedInOrg && $this->canBeEditedBy($request->user(), $orgSlug)) {
             $data['route_edit'] = [
                 'name'       => 'grp.org.chat.agents.edit',
                 'parameters' => [$orgSlug, $this->id],
@@ -37,5 +42,24 @@ class ChatAgentResource extends JsonResource
         }
 
         return $data;
+    }
+
+    private function canBeEditedBy(?User $user, ?string $organisationSlug): bool
+    {
+        if (!$user) {
+            return false;
+        }
+
+        if ($this->user_id === $user->id) {
+            return true;
+        }
+
+        $key = 'chat_supervises_'.$organisationSlug;
+        if (!request()->attributes->has($key)) {
+            $organisation = Organisation::where('slug', $organisationSlug)->first();
+            request()->attributes->set($key, $organisation && $this->userSupervisesChatOnOrganisation($user, $organisation));
+        }
+
+        return request()->attributes->get($key);
     }
 }

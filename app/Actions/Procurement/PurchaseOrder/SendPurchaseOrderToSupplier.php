@@ -25,7 +25,9 @@ use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\SupplierMessage;
+use App\Models\SysAdmin\Organisation;
 use App\Services\Gmail\GmailClient;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -111,6 +113,8 @@ class SendPurchaseOrderToSupplier
                 ->map(fn (SupplierAgreedTerm $term) => ['term' => $term->term_type->label().($term->product_code ? ' ('.$term->product_code.')' : ''), 'value' => $term->valueLabel()])->all(),
         ])->render();
 
+        $copyTo = array_values(array_udiff(self::copyToEmails($organisation), array_filter([$mailbox, $recipient]), 'strcasecmp'));
+
         $sender = app()->isProduction()
             ? ($mailbox ?: $organisation->email)
             : config('app.email_address_in_non_production_env');
@@ -123,6 +127,7 @@ class SendPurchaseOrderToSupplier
             senderName: $organisation->name,
             attachments: [$document],
             replyTo: $mailbox,
+            cc: $copyTo,
         );
 
         SupplierMessage::create([
@@ -136,6 +141,7 @@ class SendPurchaseOrderToSupplier
             'from_address'        => $sender,
             'from_name'           => $organisation->name,
             'to'                  => [['name' => self::counterpartName($counterpart), 'address' => $recipient]],
+            'cc'                  => array_map(fn (string $address) => ['name' => null, 'address' => $address], $copyTo),
             'subject'             => $subject,
             'snippet'             => __('Purchase order :reference sent with the PDF attached.', ['reference' => $reference]),
             'body_html'           => $html,
@@ -217,6 +223,16 @@ class SendPurchaseOrderToSupplier
         });
 
         return filter_var($email, FILTER_VALIDATE_EMAIL) ? $email : null;
+    }
+
+    /**
+     * The organisation's purchasing team gets a copy of every purchase order sent by email.
+     *
+     * @return array<int, string>
+     */
+    public static function copyToEmails(Organisation $organisation): array
+    {
+        return Arr::get($organisation->settings, 'procurement.purchase_order_cc') ?? [];
     }
 
     /**

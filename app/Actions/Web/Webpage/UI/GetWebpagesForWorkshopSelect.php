@@ -12,7 +12,6 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithWebAuthorisation;
 use App\Enums\Web\Webpage\WebpageSubTypeEnum;
 use App\Http\Resources\Web\WebpagesForWorkshopSelectResource;
-use App\Models\Catalogue\Shop;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use App\Services\QueryBuilder;
@@ -23,12 +22,12 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetWebpagesForWorkshopSelect extends OrgAction
 {
-    // use WithWebAuthorisation;
+    use WithWebAuthorisation;
 
 
     public function asController(Website $website, ActionRequest $request): LengthAwarePaginator
     {
-        // $this->initialisationFromShop($website->shop, $request);
+        $this->initialisationFromShop($website->shop, $request);
 
 
         return $this->handle($website);

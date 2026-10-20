@@ -8,6 +8,7 @@
 
 namespace App\Actions\Dispatching\Shipper;
 
+use App\Actions\Traits\Authorisations\WithOrganisationDispatchingEditAuthorisation;
 use App\Actions\OrgAction;
 use App\Models\Dispatching\Shipper;
 use App\Models\Inventory\Warehouse;
@@ -21,6 +22,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreShipper extends OrgAction
 {
+    use WithOrganisationDispatchingEditAuthorisation;
+
     /**
      * @throws \Throwable
      */

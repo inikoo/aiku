@@ -28,10 +28,15 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string|null $pending_task_id
  * @property int|null $avg_monthly_searches
  * @property string|null $intent
+ * @property int|null $keyword_difficulty
+ * @property array|null $serp_features_owned
+ * @property array|null $tags
  * @property float|null $search_console_position
  * @property array|null $competitor_positions
  * @property bool|null $is_watched
  * @property string|null $alert
+ * @property \Illuminate\Support\Collection|null $other_countries
+ * @property array<int, int>|null $check_ids
  */
 class SeoRankingResource extends JsonResource
 {
@@ -39,6 +44,8 @@ class SeoRankingResource extends JsonResource
 
     public function toArray($request): array
     {
+        $otherCountries = collect($this->other_countries ?? []);
+
         return [
             'id'                      => $this->id,
             'keyword'                 => $this->keyword,
@@ -56,12 +63,19 @@ class SeoRankingResource extends JsonResource
             'in_ai_overview'          => $this->in_ai_overview,
             'avg_monthly_searches'    => $this->avg_monthly_searches !== null ? (int) $this->avg_monthly_searches : null,
             'intent'                  => $this->intent,
+            'keyword_difficulty'      => $this->keyword_difficulty !== null ? (int) $this->keyword_difficulty : null,
+            'serp_features_owned'     => $this->serp_features_owned ?? [],
+            'tags'                    => $this->tags ?? [],
             'search_console_position' => $this->search_console_position !== null ? (float) $this->search_console_position : null,
             'competitor_positions'    => $this->competitor_positions ?? [],
             'is_watched'              => (bool) $this->is_watched,
             'alert'                   => $this->alert,
             'history_route'           => ['name' => 'grp.json.seo_tracked_keyword.history', 'parameters' => [$this->id]],
             'watch_route'             => ['name' => 'grp.models.seo_tracked_keyword.watch', 'parameters' => [$this->id]],
+            'check_ids'               => $this->check_ids ?? [$this->id],
+            'can_check_any'           => ($this->pending_task_id === null && !$this->last_checked_at?->isToday())
+                || $otherCountries->contains(fn ($other) => $other->pending_task_id === null && !$other->last_checked_at?->isToday()),
+            'other_countries'         => $otherCountries->map(fn ($other) => (new self($other))->toArray($request))->values()->all(),
         ];
     }
 }

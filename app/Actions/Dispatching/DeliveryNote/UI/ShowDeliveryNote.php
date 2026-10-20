@@ -94,6 +94,19 @@ class ShowDeliveryNote extends OrgAction
 
     private bool $hasPickingScanTabs = false;
 
+    public function authorize(ActionRequest $request): bool
+    {
+        $deliveryNote = $request->route('deliveryNote');
+        $warehouse    = $request->route('warehouse');
+        $shop         = $request->route('shop');
+
+        abort_unless($deliveryNote instanceof DeliveryNote, 404);
+        abort_if($warehouse instanceof Warehouse && $deliveryNote->warehouse_id !== $warehouse->id, 404);
+        abort_if($shop instanceof Shop && $deliveryNote->shop_id !== $shop->id, 404);
+
+        return $deliveryNote->canBeViewedBy($request->user());
+    }
+
     public function handle(DeliveryNote $deliveryNote): DeliveryNote
     {
         if (AssignDefaultPackagingToOrderWithoutPackaging::make()->forDeliveryNote($deliveryNote)) {
@@ -927,7 +940,7 @@ class ShowDeliveryNote extends OrgAction
                         ]
                     ],
                 ];
-            } elseif ($order->platform->type == PlatformTypeEnum::TIKTOK) {
+            } elseif ($order->platform?->type == PlatformTypeEnum::TIKTOK) {
                 $additionalShipmentRoutes = [
                     'get_external_shipment_route' => [
                         'label'      => __('Get shipment from Tiktok'),
@@ -938,7 +951,9 @@ class ShowDeliveryNote extends OrgAction
                     ]
                 ];
             }
-        } else {
+        }
+
+        if (!$additionalShipmentRoutes) {
             $additionalShipmentRoutes = [
                 'submit_route' => [
                     'name'       => 'grp.models.delivery_note.shipment.store',
@@ -1379,6 +1394,12 @@ class ShowDeliveryNote extends OrgAction
             ],
             'warning'       => $warning,
             'aurora_notice' => $lockedInAurora ? __('This delivery note belongs to an order submitted in Aurora. Pick, pack and dispatch it in Aurora, not here.') : null,
+            'read_only_notice' => $this->parent instanceof Warehouse
+                && !$lockedInAurora
+                && !$isEditable
+                && !in_array($deliveryNote->state, [DeliveryNoteStateEnum::DISPATCHED, DeliveryNoteStateEnum::CANCELLED], true)
+                ? __('You can see this delivery note but not pick, pack or dispatch it: that needs a dispatching, fulfilment or returns position in this warehouse.')
+                : null,
             'is_editable'   => $isEditable,
             'packaging'     => $this->getDeliveryNotePackagingProp($deliveryNote),
             'inserts'       => $this->getDeliveryNoteInsertsProp($deliveryNote),

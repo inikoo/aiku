@@ -10,6 +10,7 @@
 
 namespace App\Actions\Helpers\Brand;
 
+use App\Actions\Traits\Authorisations\WithGoodsEditAuthorisation;
 use App\Actions\Helpers\Brand\Hydrators\BrandHydrateModels;
 use App\Actions\Helpers\Brand\Hydrators\BrandHydrateProducts;
 use App\Actions\Helpers\Brand\Hydrators\BrandHydrateTradeUnits;
@@ -20,6 +21,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class DetachBrandFromModel extends OrgAction
 {
+    use WithGoodsEditAuthorisation;
+
     public function handle(TradeUnit $model, Brand $brand): void
     {
         $model->Brands()->detach([$brand->id]);

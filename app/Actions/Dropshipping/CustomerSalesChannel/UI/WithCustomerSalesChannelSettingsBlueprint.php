@@ -4,6 +4,7 @@ namespace App\Actions\Dropshipping\CustomerSalesChannel\UI;
 
 use App\Models\Dropshipping\CustomerSalesChannel;
 use App\Models\Dropshipping\EbayUser;
+use App\Models\Dropshipping\WooCommerceUser;
 use App\Models\Helpers\TaxCategory;
 use Illuminate\Support\Arr;
 use Spatie\LaravelOptions\Options;
@@ -58,6 +59,21 @@ trait WithCustomerSalesChannelSettingsBlueprint
                 ]
             ],
         ];
+
+        if ($user instanceof WooCommerceUser) {
+            $properties[] = [
+                "label" => __("Orders"),
+                'icon' => 'fa-light fa-truck',
+                'fields' => [
+                    'private_tracking_notes' => [
+                        'type' => 'toggle',
+                        'label' => __('Private tracking notes'),
+                        'information' => __('When an order is dispatched we add its tracking to the order in WooCommerce as a note. Off: the note is for the customer, and WooCommerce emails it to them. On: the note is private, only you see it, and WooCommerce does not email it to your customer. Either way the order is completed with its tracking, and WooCommerce still sends its own order completed email if you have it switched on.'),
+                        'value' => (bool) Arr::get($customerSalesChannel->settings, 'woocommerce.private_tracking_notes')
+                    ],
+                ]
+            ];
+        }
 
         if ($user instanceof EbayUser) {
             $pricingPolicy = Arr::get($customerSalesChannel->settings, 'do_not_update_prices')

@@ -6,7 +6,6 @@
  * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
-use App\Actions\Dispatching\DeliveryNote\PdfDeliveryNote;
 use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
 use App\Actions\Dispatching\DeliveryNote\UI\ShowDeliveryNote;
 use App\Actions\UI\Dispatch\ShowAgentDispatchHub;
@@ -22,4 +21,3 @@ Route::get('/stock-deliveries/packed', [IndexDeliveryNotes::class, 'packed'])->n
 Route::get('/stock-deliveries/finalised', [IndexDeliveryNotes::class, 'finalised'])->name('finalised.stock_deliveries');
 Route::get('/stock-deliveries/dispatched', [IndexDeliveryNotes::class, 'dispatched'])->name('dispatched.stock_deliveries');
 Route::get('/stock-deliveries/{deliveryNote}', [ShowDeliveryNote::class, 'inWarehouse'])->name('stock_deliveries.show');
-Route::get('/stock-deliveries/{deliveryNote}/pdf', PdfDeliveryNote::class)->name('stock_deliveries.pdf');

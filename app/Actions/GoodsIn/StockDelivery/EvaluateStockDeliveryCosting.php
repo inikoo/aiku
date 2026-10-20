@@ -78,7 +78,9 @@ class EvaluateStockDeliveryCosting
      */
     public static function redistribute(StockDelivery $stockDelivery, ?array $amounts = null): void
     {
-        $amounts ??= self::splitAmounts($stockDelivery->costs()->get());
+        $costs         = $stockDelivery->costs()->get();
+        $amounts ??= self::splitAmounts($costs);
+        $itemExtras    = self::itemExtras($costs);
         $handSplit     = Arr::get($stockDelivery->data, 'costing_hand_split', []);
         $keptHandSplit = [];
 
@@ -87,15 +89,17 @@ class EvaluateStockDeliveryCosting
                 $keptHandSplit[$field] = $handSplit[$field];
                 continue;
             }
+            $lineAmounts = $field === 'cost_extra' ? $itemExtras : [];
             DistributeStockDeliveryExtraCost::distribute(
                 $stockDelivery,
                 $field,
-                $amount,
+                $amount - array_sum($lineAmounts),
                 match (true) {
                     $field === 'cost_shipping' => DistributeStockDeliveryExtraCost::DISTRIBUTION_BY_WEIGHT,
                     $field === 'cost_duties' && $stockDelivery->customsLines()->exists() => DistributeStockDeliveryExtraCost::DISTRIBUTION_BY_CUSTOMS_LINE,
                     default => DistributeStockDeliveryExtraCost::DISTRIBUTION_BY_VALUE,
-                }
+                },
+                $lineAmounts
             );
         }
 
@@ -121,6 +125,22 @@ class EvaluateStockDeliveryCosting
             ->sum(fn (StockDeliveryCost $cost) => $cost->amountInDeliveryCurrency());
 
         return $amounts;
+    }
+
+    /**
+     * Extras that belong to one line of the delivery (the packaging of one SKO), by line, in the delivery currency:
+     * that line takes them whole instead of sharing them with the others.
+     *
+     * @return array<int, float>
+     */
+    public static function itemExtras(Collection $costs): array
+    {
+        return $costs
+            ->where('type', StockDeliveryCostTypeEnum::EXTRA)
+            ->filter(fn (StockDeliveryCost $cost) => !$cost->is_na && $cost->stock_delivery_item_id)
+            ->groupBy('stock_delivery_item_id')
+            ->map(fn (Collection $rows) => round($rows->sum(fn (StockDeliveryCost $cost) => $cost->amountInDeliveryCurrency()), 2))
+            ->all();
     }
 
     /**

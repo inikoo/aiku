@@ -53,6 +53,8 @@ enum ChatEventTypeEnum: string
 
     case MOVED_TO_COURIERS = 'moved_to_couriers';
 
+    case INTERNAL_NOTE = 'internal_note';
+
     /**
      * Events shown as chips inside the conversation. Close and reopen are absent on
      * purpose: both channels already store a system message for them, which the thread
@@ -80,6 +82,7 @@ enum ChatEventTypeEnum: string
             self::RELEASED->value,
             self::PHONE_CALL->value,
             self::MOVED_TO_COURIERS->value,
+            self::INTERNAL_NOTE->value,
         ];
     }
 
@@ -112,6 +115,7 @@ enum ChatEventTypeEnum: string
             'ticket'      => __('Ticket Created'),
             'forward'     => __('Forwarded to a Colleague'),
             'moved_to_couriers' => __('Moved to Couriers'),
+            'internal_note' => __('Internal Note'),
         ];
     }
 
@@ -212,6 +216,11 @@ enum ChatEventTypeEnum: string
                 'tooltip' => __('Moved to Couriers'),
                 'icon' => 'fas fa-truck',
                 'class' => 'text-gray-600',
+            ],
+            'internal_note' => [
+                'tooltip' => __('Internal Note'),
+                'icon' => 'fas fa-search',
+                'class' => 'text-pink-600',
             ],
             'ticket' => [
                 'tooltip' => __('Ticket Created'),

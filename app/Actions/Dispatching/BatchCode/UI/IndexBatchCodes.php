@@ -160,7 +160,7 @@ class IndexBatchCodes extends OrgAction
         return [
             'stock' => [
                 'label'    => __('Stock'),
-                'default'  => 'on_hand',
+                'default'  => 'on_hand,empty',
                 'elements' => [
                     'on_hand' => [__('On the shelves')],
                     'empty'   => [__('None left')],
@@ -232,7 +232,7 @@ class IndexBatchCodes extends OrgAction
                     'title'     => __('Batch Codes'),
                     'icon'      => ['icon' => ['fal', 'fa-barcode'], 'title' => __('Batch Codes')],
                     'model'     => $orgStock ? __('SKO') : __('Warehouse'),
-                    'actions'   => $orgStock ? [
+                    'actions'   => !$this->canEdit ? [] : ($orgStock ? [
                         [
                             'type'  => 'button',
                             'style' => 'create',
@@ -268,9 +268,9 @@ class IndexBatchCodes extends OrgAction
                                 ],
                             ],
                         ],
-                    ],
+                    ]),
                 ],
-                'upload_batch_codes' => $orgStock ? null : [
+                'upload_batch_codes' => $orgStock || !$this->canEdit ? null : [
                     'title' => [
                         'label'       => __('Upload Batch Codes'),
                         'information' => __('The list of column file: code, expiry_date, sku'),
@@ -301,7 +301,7 @@ class IndexBatchCodes extends OrgAction
                         ],
                     ],
                 ],
-                'allow_edit' => !$orgStock,
+                'allow_edit' => !$orgStock && $this->canEdit,
                 'batch_count' => $orgStock ? $this->batchCount($orgStock) : null,
                 'data' => BatchCodeResource::collection($batchCodes),
             ]

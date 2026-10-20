@@ -90,12 +90,16 @@ class ClockInTimeTracker
         ];
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        $organisationId = $request->route('timeTracker')->timesheet->organisation_id;
+
+        return $request->user()->authTo(["human-resources.$organisationId.edit", "org-supervisor.$organisationId.human-resources"]);
+    }
+
     public function asController(TimeTracker $timeTracker, ActionRequest $request)
     {
         $timeTracker->loadMissing('timesheet', 'subject');
-        if (!$request->user()->authTo("human-resources.{$timeTracker->timesheet->organisation_id}.edit")) {
-            abort(403);
-        }
 
         $validatedData = $request->validated();
 

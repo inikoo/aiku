@@ -3,6 +3,8 @@
   -->
 
 <script setup lang="ts">
+import { computed, inject } from 'vue'
+import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 import { ctrans } from '@/Composables/useTrans'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -12,7 +14,7 @@ import { noteCategoryClass, noteSeverityIcon } from '@/Components/Procurement/pr
 
 library.add(faHandshake, faInfoCircle, faExclamationTriangle, faThumbtack, faPrint, faExclamationCircle)
 
-defineProps<{
+const props = defineProps<{
     agreement: {
         terms: {
             id: number
@@ -40,7 +42,34 @@ defineProps<{
         suppliers?: { code: string, name: string, warnings: number, open_incidents: number }[] | null
     }
     showLevel?: boolean
+    costs?: {
+        currency_code: string
+        unit_cost?: number | null
+        extra_costs_percentage?: number | null
+        delivered_unit_cost?: number | null
+        pack_cost?: number | null
+        carton_cost?: number | null
+    } | null
 }>()
+
+const locale = inject("locale", aikuLocaleStructure)
+
+const money = (value: number | null | undefined) =>
+    value === null || value === undefined ? "-" : locale.currencyFormat(props.costs!.currency_code, value)
+
+const costRows = computed(() => {
+    if (!props.costs) {
+        return []
+    }
+
+    return [
+        { key: "unit_cost", label: ctrans("Unit cost"), value: money(props.costs.unit_cost), strong: true },
+        { key: "extra_costs_percentage", label: ctrans("Extra costs"), value: `${locale.number(props.costs.extra_costs_percentage)} %` },
+        { key: "delivered_unit_cost", label: ctrans("Delivered unit cost"), value: money(props.costs.delivered_unit_cost), strong: true },
+        { key: "pack_cost", label: ctrans("Delivered pack cost"), value: money(props.costs.pack_cost) },
+        { key: "carton_cost", label: ctrans("Delivered carton cost"), value: money(props.costs.carton_cost) },
+    ].filter((row) => row.key in props.costs!)
+})
 </script>
 
 <template>
@@ -57,6 +86,13 @@ defineProps<{
                 {{ ctrans('Handover sheet') }}
             </a>
         </header>
+
+        <dl v-if="costRows.length" class="divide-y divide-gray-100 border-b border-gray-100">
+            <div v-for="row in costRows" :key="row.key" class="flex items-baseline justify-between px-3 py-1.5">
+                <dt class="text-gray-500">{{ row.label }}</dt>
+                <dd class="tabular-nums" :class="row.strong ? 'font-semibold text-gray-900' : 'text-gray-700'">{{ row.value }}</dd>
+            </div>
+        </dl>
 
         <div v-if="!agreement.terms.length && !agreement.notes.length" class="px-3 py-4 text-gray-500">
             {{ ctrans('Nothing recorded yet: no agreed terms and no pinned notes.') }}

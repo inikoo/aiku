@@ -9,12 +9,14 @@
 namespace App\Models\Procurement;
 
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStateEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionPriceQueryStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Models\Inventory\OrgStock;
 use App\Models\SupplyChain\AgentSupplierPurchaseOrder;
 use App\Models\SupplyChain\HistoricSupplierProduct;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\Traits\HasHistory;
+use App\Models\SysAdmin\User;
 use App\Models\Traits\InOrganisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -78,7 +80,10 @@ class PurchaseOrderTransaction extends Model implements Auditable
     protected $casts = [
         'data'            => 'array',
         'state'           => PurchaseOrderTransactionStateEnum::class,
-        'delivery_state' => PurchaseOrderTransactionDeliveryStateEnum::class
+        'delivery_state' => PurchaseOrderTransactionDeliveryStateEnum::class,
+        'price_query_state'       => PurchaseOrderTransactionPriceQueryStateEnum::class,
+        'price_queried_at'        => 'datetime',
+        'price_query_answered_at' => 'datetime',
     ];
 
     protected $attributes = [
@@ -90,6 +95,11 @@ class PurchaseOrderTransaction extends Model implements Auditable
     public function purchaseOrder(): BelongsTo
     {
         return $this->belongsTo(PurchaseOrder::class);
+    }
+
+    public function priceQueriedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'price_queried_by_id');
     }
 
     public function agentSupplierPurchaseOrder(): BelongsTo

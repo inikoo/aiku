@@ -18,10 +18,12 @@ use Lorisleiva\Actions\ActionRequest;
 use App\Enums\Comms\EmailTemplate\EmailTemplateStateEnum;
 use App\Enums\Comms\EmailTemplate\EmailTemplateBuilderEnum;
 use App\Models\Comms\EmailTemplate;
+use App\Actions\Traits\Authorisations\WithCommsEditAuthorisation;
 
 class StoreWorkshopOutboxTemplate extends OrgAction
 {
     use WithActionUpdate;
+    use WithCommsEditAuthorisation;
 
     public function handle(Outbox $outbox, array $modelData): EmailTemplate
     {
@@ -58,9 +60,17 @@ class StoreWorkshopOutboxTemplate extends OrgAction
         ];
     }
 
+    public function action(Outbox $outbox, array $modelData): EmailTemplate
+    {
+        $this->asAction = true;
+        $this->initialisationFromShop($outbox->shop, $modelData);
+
+        return $this->handle($outbox, $this->validatedData);
+    }
+
     public function asController(Shop $shop, Outbox $outbox, ActionRequest $request): EmailTemplate
     {
-        $this->initialisation($outbox->organisation, $request);
+        $this->initialisationFromShop($outbox->shop, $request);
 
         return $this->handle($outbox, $this->validatedData);
     }

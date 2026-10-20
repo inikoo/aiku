@@ -8,6 +8,9 @@
 
 namespace App\Actions\Chat\ChatSession;
 
+use App\Models\SysAdmin\User;
+use App\Models\Catalogue\Shop;
+use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Enums\CRM\Livechat\ChatSenderTypeEnum;
 use App\Events\TranslationChatIndicator;
 use App\Models\Chat\ChatSession;
@@ -19,6 +22,18 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class TranslateSessionMessages
 {
     use AsAction;
+    use WithChatAgentAuthorisation;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if (!$request->user() instanceof User) {
+            return false;
+        }
+
+        $shop = $request->route('chatSession')?->shop;
+
+        return $shop instanceof Shop && $request->user() instanceof User && $this->userCanActOnChatOnShop($request->user(), $shop);
+    }
 
     public function handle(ChatSession $chatSession, int $targetLanguageId): void
     {

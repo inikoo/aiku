@@ -1873,6 +1873,106 @@ describe('family related products tool', function () {
     });
 });
 
+describe('website redirects tools', function () {
+    beforeEach(function () {
+        $this->website = createWebsite($this->shop);
+        $this->home    = $this->website->storefront;
+        $this->home->update(['state' => App\Enums\Web\Webpage\WebpageStateEnum::LIVE]);
+
+        $this->closedPage = App\Actions\Web\Webpage\StoreWebpage::make()->action($this->home, App\Models\Web\Webpage::factory()->definition());
+        $this->target     = App\Actions\Web\Webpage\StoreWebpage::make()->action($this->home, App\Models\Web\Webpage::factory()->definition());
+        $this->target->update(['state' => App\Enums\Web\Webpage\WebpageStateEnum::LIVE]);
+
+        $this->redirect = App\Actions\Web\Redirect\StoreRedirect::make()->action($this->closedPage, [
+            'type'          => App\Enums\Web\Redirect\RedirectTypeEnum::PERMANENT,
+            'to_webpage_id' => $this->home->id,
+        ]);
+
+        $this->user->update(['can_use_mcp_web' => true]);
+    });
+
+    test('a user not enrolled is refused and told not to retry', function () {
+        $this->user->update(['can_use_mcp_web' => false]);
+
+        AikuServer::actingAs($this->user)->tool(App\Mcp\Tools\WebsiteRedirectsTool::class, [
+            'website'      => $this->website->slug,
+            'redirects'    => [['from' => $this->closedPage->url, 'to' => $this->target->url]],
+            'request_text' => 'point it to the target',
+        ])->assertHasErrors(['Changing website content is not enabled for this user']);
+
+        expect($this->redirect->refresh()->to_webpage_id)->toBe($this->home->id);
+    });
+
+    test('the preview shows the change and the errors without changing anything', function () {
+        AikuServer::actingAs($this->user)->tool(App\Mcp\Tools\WebsiteRedirectsPreviewTool::class, [
+            'website'   => 'https://www.'.$this->website->domain,
+            'redirects' => [
+                ['from' => strtoupper($this->redirect->from_url), 'to' => '/'.strtoupper($this->target->url).'/'],
+                ['from' => 'no-such-page-xyz', 'to' => $this->target->url],
+                ['from' => $this->closedPage->url, 'to' => 'not-live-xyz'],
+            ],
+        ])->assertOk()
+            ->assertSee('"changes":1')
+            ->assertSee('"errors":2')
+            ->assertSee('no redirect for this path')
+            ->assertSee('is listed twice');
+
+        expect($this->redirect->refresh()->to_webpage_id)->toBe($this->home->id);
+    });
+
+    test('a row with an error changes nothing', function () {
+        AikuServer::actingAs($this->user)->tool(App\Mcp\Tools\WebsiteRedirectsTool::class, [
+            'website'      => $this->website->slug,
+            'redirects'    => [
+                ['from' => $this->closedPage->url, 'to' => $this->target->url],
+                ['from' => 'no-such-page-xyz', 'to' => $this->target->url],
+            ],
+            'request_text' => 'redirect them',
+        ])->assertHasErrors(['Nothing was changed']);
+
+        expect($this->redirect->refresh()->to_webpage_id)->toBe($this->home->id);
+    });
+
+    test('an old page that is live again is skipped', function () {
+        $this->closedPage->update(['state' => App\Enums\Web\Webpage\WebpageStateEnum::LIVE]);
+
+        AikuServer::actingAs($this->user)->tool(App\Mcp\Tools\WebsiteRedirectsTool::class, [
+            'website'      => $this->website->slug,
+            'redirects'    => [['from' => $this->closedPage->url, 'to' => $this->target->url]],
+            'request_text' => 'redirect it',
+        ])->assertOk()->assertSee('"changed":0');
+
+        expect($this->redirect->refresh()->to_webpage_id)->toBe($this->home->id);
+    });
+
+    test('more than 25 rows are refused', function () {
+        AikuServer::actingAs($this->user)->tool(App\Mcp\Tools\WebsiteRedirectsPreviewTool::class, [
+            'website'   => $this->website->slug,
+            'redirects' => array_fill(0, 26, ['from' => $this->closedPage->url, 'to' => $this->target->url]),
+        ])->assertHasErrors();
+    });
+
+    test('re-points the redirect, logs it and the log reverts it', function () {
+        AikuServer::actingAs($this->user)->tool(App\Mcp\Tools\WebsiteRedirectsTool::class, [
+            'website'      => $this->website->slug,
+            'redirects'    => [['from' => $this->redirect->from_url, 'to' => $this->target->canonical_url]],
+            'request_text' => 'redirect it to the target page',
+        ])->assertOk()->assertSee('"changed":1')->assertSee('change_log_id');
+
+        expect($this->redirect->refresh()->to_webpage_id)->toBe($this->target->id)
+            ->and($this->closedPage->refresh()->redirect_webpage_id)->toBe($this->target->id);
+
+        $mcpChange = App\Models\SysAdmin\McpChange::latest('id')->first();
+        expect($mcpChange->type)->toBe(App\Enums\SysAdmin\McpChange\McpChangeTypeEnum::WEBSITE_REDIRECTS)
+            ->and($mcpChange->before)->toBe(['redirects' => [$this->redirect->id => $this->home->id]])
+            ->and($mcpChange->data['after_text'])->toBe('/'.$this->redirect->from_path.' -> /'.$this->target->url);
+
+        App\Actions\SysAdmin\McpChange\RevertMcpChange::run($mcpChange, $this->user);
+
+        expect($this->redirect->refresh()->to_webpage_id)->toBe($this->home->id);
+    });
+});
+
 describe('family pricing review tool', function () {
     beforeEach(function () {
         $this->reviewMasterShop = StoreMasterShop::make()->action($this->group, [
@@ -2521,6 +2621,53 @@ describe('customer service tools', function () {
 
         ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'close', 'confirm' => true, 'request_text' => 'close it'])
             ->assertHasErrors(['This chat is closed']);
+    });
+
+    test('an internal note is previewed, then kept in the thread for staff without reaching the customer or answering the chat', function () {
+        $messages = $this->chat->messages()->count();
+        $status   = $this->chat->status;
+        $notes    = fn () => $this->chat->chatEvents()->where('event_type', App\Enums\CRM\Livechat\ChatEventTypeEnum::INTERNAL_NOTE)->get();
+        $text     = "Card declined by her bank (scheme compliance), checkout works.\nTell her: try another card or ask for a pay link.";
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'add_note', 'message' => $text])
+            ->assertOk()->assertSee('Nothing was changed');
+
+        expect($notes())->toHaveCount(0);
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'add_note', 'message' => $text, 'confirm' => true, 'request_text' => 'add the investigation note'])
+            ->assertOk()->assertSee('note_id');
+
+        $note     = $notes()->sole();
+        $timeline = (new App\Http\Resources\CRM\Livechat\ChatTimelineEventResource($note))->resolve();
+
+        expect($note->payload['text'])->toBe($text)
+            ->and($note->payload['requested_by_user_id'])->toBe($this->user->id)
+            ->and($note->actor_type)->toBe(App\Enums\CRM\Livechat\ChatActorTypeEnum::AI)
+            ->and($timeline['note'])->toBe($text)
+            ->and($timeline['description'])->toBe('Internal note by Aiku, not visible to the customer')
+            ->and($this->chat->messages()->count())->toBe($messages)
+            ->and($this->chat->refresh()->status)->toBe($status);
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatTool::class, [])
+            ->assertOk()->assertSee('internal_notes')->assertSee('scheme compliance');
+    });
+
+    test('an internal note needs no enrolment and is still signed by Aiku while a reply is refused', function () {
+        $this->user->update(['can_use_mcp_customer_service' => false]);
+        $notes = fn () => $this->chat->chatEvents()->where('event_type', App\Enums\CRM\Livechat\ChatEventTypeEnum::INTERNAL_NOTE)->count();
+        $baseline = $notes();
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'add_note', 'message' => 'Dispatched 15 Oct, DPD 0658.', 'confirm' => true, 'request_text' => 'post the note'])
+            ->assertOk()->assertSee('note_id');
+
+        $note = $this->chat->chatEvents()->where('event_type', App\Enums\CRM\Livechat\ChatEventTypeEnum::INTERNAL_NOTE)->latest('id')->first();
+
+        expect($notes())->toBe($baseline + 1)
+            ->and($note->actor_type)->toBe(App\Enums\CRM\Livechat\ChatActorTypeEnum::AI)
+            ->and($note->payload['requested_by_user_id'])->toBe($this->user->id);
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'reply', 'message' => 'Sorry', 'confirm' => true, 'request_text' => 'reply'])
+            ->assertHasErrors(['not enabled for this user']);
     });
 
     test('changes notes, products and delivery address of a submitted order, and refuses a dispatched one', function () {

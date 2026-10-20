@@ -96,11 +96,21 @@ class GetDeliveryNoteCustomsItems
                 'origin_country_code' => $countryCodes->get($product?->origin_country_id) ?? $this->originFromText($product?->country_of_origin),
                 'tax_paid'            => $netAmount > 0 && (float) $taxRates->get($transaction->tax_category_id, 0) > 0,
             ];
-        })->values()->all();
+        })->filter(fn (array $line) => $this->isDeclared($line))->values()->all();
 
         return [
             'lines' => $lines,
         ];
+    }
+
+    /**
+     * Out of stock and zero value lines are left out of the invoice, so they are left out of the customs file too (HELP-4116).
+     *
+     * @param  array{quantity: float, unit_value: float|null}  $line
+     */
+    public function isDeclared(array $line): bool
+    {
+        return $line['quantity'] > 0 && $line['unit_value'] > 0;
     }
 
     private function originFromText(?string $origin): ?string

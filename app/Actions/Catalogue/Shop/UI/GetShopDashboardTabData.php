@@ -3,6 +3,7 @@
 namespace App\Actions\Catalogue\Shop\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithShopDashboardAuthorisation;
 use App\Actions\Traits\Dashboards\Settings\WithDashboardPartnersTypeSettings;
 use App\Actions\Traits\Dashboards\WithPerformanceDateResolution;
 use App\Enums\Dashboards\ShopDashboardSalesTableTabsEnum;
@@ -15,6 +16,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class GetShopDashboardTabData extends OrgAction
 {
+    use WithShopDashboardAuthorisation;
     use WithDashboardPartnersTypeSettings;
     use WithPerformanceDateResolution;
 

@@ -2,6 +2,7 @@
 
 namespace App\Actions\UI\Dashboards;
 
+use App\Actions\Goods\ProductDevelopment\ProductDevelopmentWaitingOn;
 use App\Actions\Catalogue\Shop\SalesTarget\GetShopMonthSalesTarget;
 use App\Actions\Catalogue\Shop\SalesTarget\GetShopYearSalesTarget;
 use App\Actions\Helpers\Dashboard\DashboardIntervalFilters;
@@ -52,6 +53,7 @@ class ShowGroupDashboard extends OrgAction
                         'super_blocks' => []
                     ],
                     'operations'  => $operations,
+                    'productDevelopmentsWaiting' => ProductDevelopmentWaitingOn::dashboardWidget($user),
                 ]
             );
         }
@@ -127,6 +129,7 @@ class ShowGroupDashboard extends OrgAction
                 'stockHistoryGroup'  => $this->getGroupStockHistoryData($group),
                 'warehouseOverview'  => Inertia::defer(fn () => GetGroupWarehouseDashboardData::run($group)),
                 'operations'         => $operations,
+                'productDevelopmentsWaiting' => ProductDevelopmentWaitingOn::dashboardWidget($user),
             ]
         );
     }

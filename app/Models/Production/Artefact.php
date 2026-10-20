@@ -164,6 +164,11 @@ class Artefact extends Model implements Auditable, HasMedia
         return $this->hasOne(RawMaterial::class);
     }
 
+    public function packedIn(): int
+    {
+        return max(1, (int) $this->orgStock?->packed_in);
+    }
+
     public function orgStock(): BelongsTo
     {
         return $this->belongsTo(OrgStock::class);

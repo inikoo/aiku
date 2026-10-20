@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\UI\Catalogue\Rentals;
 
 use App\Actions\Fulfilment\UI\Catalogue\ShowFulfilmentCatalogueDashboard;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithAccountingPagesAuthorisation;
 use App\Enums\Billables\Rental\RentalStateEnum;
 use App\Enums\UI\Fulfilment\FulfilmentRentalTabsEnum;
 use App\Http\Resources\Fulfilment\RentalsResource;
@@ -22,6 +23,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowRental extends OrgAction
 {
+    use WithAccountingPagesAuthorisation;
     public function handle(Rental $rental): Rental
     {
         return $rental;

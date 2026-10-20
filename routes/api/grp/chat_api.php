@@ -20,7 +20,6 @@ use App\Actions\Chat\ChatSession\HandleChatRead;
 use App\Actions\Chat\ChatSession\HandleChatTyping;
 use App\Actions\Chat\ChatSession\SendChatMessage;
 use App\Actions\Chat\ChatSession\ShareChatSessionToSlack;
-use App\Actions\Chat\ChatSession\StoreChatAgent;
 use App\Actions\Chat\ChatSession\StoreChatSession;
 use App\Actions\Chat\ChatSession\StoreGuestProfile;
 use App\Actions\Chat\ChatSession\StoreOfflineMessage;
@@ -47,7 +46,6 @@ use App\Actions\Chat\MetaChatSession\GetMetaChatActivity;
 use App\Actions\Chat\MetaChatSession\GetMetaChatCustomerProfile;
 use App\Actions\Chat\MetaChatSession\GetMetaChatCustomerTimeline;
 use App\Actions\Chat\MetaChatSession\SyncMetaChatSessionByPhone;
-use App\Actions\Chat\MetaChatSession\UpdateMetaChatSession;
 use App\Actions\Chat\MetaChatSession\UI\GetMetaChatSessions;
 use App\Actions\Helpers\Language\UI\GetLanguagesOptions;
 use Illuminate\Support\Facades\Route;
@@ -62,7 +60,6 @@ Route::post('/offline-message', StoreOfflineMessage::class)->name('offline-messa
 Route::post('/messages/{chatSession:ulid}/send', SendChatMessage::class)->name('messages.send');
 Route::put('/sessions/{chatSession:ulid}/update', UpdateChatSession::class)->name('sessions.update');
 Route::put('/sessions/{chatSession:ulid}/close', [CloseChatSession::class, 'asApiController'])->name('sessions.close');
-Route::post('/sessions/{chatSession:ulid}/typing', HandleChatTyping::class)->name('sessions.typing');
 Route::get('/sessions/{chatSession:ulid}/messages', GetChatMessages::class)->name('sessions.messages')->withTrashed();
 Route::post('/sessions/{chatSession:ulid}/guest-profile', StoreGuestProfile::class)->name('sessions.guest_profile');
 Route::post('/typing', HandleChatTyping::class)->name('typing');
@@ -85,7 +82,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/meta/sessions', StoreMetaChatSession::class)->name('meta.sessions.store');
     Route::get('/meta/sessions/{metaChatSession:ulid}/messages', GetMetaChatMessages::class)->name('meta.sessions.messages')->withTrashed();
     Route::post('/meta/sessions/{metaChatSession:ulid}/read', MarkMetaChatMessagesAsRead::class)->name('meta.sessions.read');
-    Route::put('/meta/sessions/{metaChatSession:ulid}/update', UpdateMetaChatSession::class)->name('meta.sessions.update')->withTrashed();
     Route::get('/meta/templates', GetMetaMessageTemplates::class)->name('meta.templates.index');
     Route::post('/meta/messages/{metaChatMessage}/reactions', SendWhatsappReaction::class)->name('meta.messages.reactions');
     Route::post('/meta/messages/{metaChatMessage}/translate', TranslateSingleMetaChatMessage::class)->name('meta.messages.translate');
@@ -121,7 +117,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/agents', GetChatAgents::class)->name('agents.index');
     Route::get('/agents/specializations', GetChatAgentSpecializations::class)->name('agent.specializations');
-    Route::post('/agents/store', StoreChatAgent::class)->name('agents.store');
     Route::put('/agents/{id}/update', UpdateChatAgent::class)->name('agents.update');
     Route::get('/agents/{id}', GetChatAgentByUserId::class)->name('agent.show');
 

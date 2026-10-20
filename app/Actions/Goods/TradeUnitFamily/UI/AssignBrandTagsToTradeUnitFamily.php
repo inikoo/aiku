@@ -2,6 +2,7 @@
 
 namespace App\Actions\Goods\TradeUnitFamily\UI;
 
+use App\Actions\Traits\Authorisations\WithGoodsEditAuthorisation;
 use App\Actions\Goods\TradeUnit\HydrateTradeUnitBrandTagsFromFamily;
 use App\Actions\OrgAction;
 use App\Actions\Helpers\Brand\AttachBrandToModel;
@@ -13,6 +14,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class AssignBrandTagsToTradeUnitFamily extends OrgAction
 {
+    use WithGoodsEditAuthorisation;
     use WithActionUpdate;
 
     public function handle(TradeUnitFamily $tradeUnitFamily, array $modelData): void

@@ -52,12 +52,13 @@ import PureCheckbox from "@/Components/Pure/PureCheckbox.vue"
 
 library.add(faHandshake, faHandshakeSlash, faHandPointer, fadExclamationTriangle, faSyncAlt, faConciergeBell, faGarage, faExclamationTriangle, faPencil, faSearch, faThLarge, faListUl, faStar, faFilter, falStar, faTrashAlt, faCheck, faExclamationCircle, faClone, faLink, faScrewdriver, faTools)
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
     data: {}
     tab?: string
     routes: {}
     customerSalesChannel: {}
-}>()
+    canEdit?: boolean
+}>(), { canEdit: true })
 const locale = useLocaleStore()
 const selectedPortfolio = ref(null)
 const isLoadingTable = ref<null | string>(null)
@@ -324,7 +325,7 @@ if (props.customerSalesChannel?.platform?.name === 'Ebay') {
         </template>
 
         <template #cell(matches)="{ item }">
-            <template v-if="item.customer_sales_channel_platform_status">
+            <template v-if="canEdit && item.customer_sales_channel_platform_status">
                 <template v-if="!item.platform_status">
                     <div v-if="item.platform_possible_matches?.number_matches" class="border  rounded p-1"
                         :class="selectedProducts?.includes(item.id) ? 'bg-green-200 border-green-400' : 'border-gray-300'">
@@ -389,7 +390,7 @@ if (props.customerSalesChannel?.platform?.name === 'Ebay') {
         <!-- Column: actions -->
         <template #cell(actions)="{ item }">
             <div class="flex gap-2">
-                <div v-if="item.customer_sales_channel_platform_status && !item.platform_status" class="flex gap-x-2 items-center">
+                <div v-if="canEdit && item.customer_sales_channel_platform_status && !item.platform_status" class="flex gap-x-2 items-center">
                     <ButtonWithLink v-tooltip="ctrans('Will create new product')" :routeTarget="{
                         method: 'post',
                         name: props.routes.single_create_new.name,
@@ -401,7 +402,7 @@ if (props.customerSalesChannel?.platform?.name === 'Ebay') {
                 }" />
                 </div>
 
-                <ButtonWithLink v-tooltip="ctrans('Unselect product')" type="negative" icon="fal fa-skull"
+                <ButtonWithLink v-if="canEdit" v-tooltip="ctrans('Unselect product')" type="negative" icon="fal fa-skull"
                     :routeTarget="item.routes.delete_route" :body="{
                         'status': false,
                     }" size="xs" :bindToLink="{

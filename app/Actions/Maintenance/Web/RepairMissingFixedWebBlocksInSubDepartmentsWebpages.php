@@ -83,9 +83,9 @@ class RepairMissingFixedWebBlocksInSubDepartmentsWebpages
 
         UpdateWebpageContent::run($webpage);
         foreach ($webpage->webBlocks as $webBlock) {
-            print $webBlock->webBlockType->code."\n";
+            $command->line($webBlock->webBlockType->code);
         }
-        print "=========\n";
+        $command->line("=========");
 
         if ($webpage->is_dirty) {
             $command->line('Webpage '.$webpage->code.' is dirty, publishing after upgrade');

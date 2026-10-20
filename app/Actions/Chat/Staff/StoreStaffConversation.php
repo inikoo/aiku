@@ -58,7 +58,11 @@ class StoreStaffConversation
     public function rules(): array
     {
         return [
-            'user_ids'     => ['required', 'array', 'min:1'],
+            'user_ids'     => ['required', 'array', 'min:1', function (string $attribute, mixed $value, \Closure $fail): void {
+                if (collect($value)->map(fn ($userId) => (int) $userId)->reject(fn (int $userId) => $userId === request()->user()->id)->isEmpty()) {
+                    $fail(__('You cannot start a conversation with only yourself.'));
+                }
+            }],
             'user_ids.*'   => ['integer', Rule::exists('users', 'id')->where('group_id', request()->user()->group_id)],
             'name'         => ['sometimes', 'nullable', 'string', 'max:255'],
         ];

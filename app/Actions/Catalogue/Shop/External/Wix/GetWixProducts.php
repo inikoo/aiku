@@ -283,9 +283,14 @@ class GetWixProducts extends OrgAction
         $this->handle($shop, $command, $command->option('sku'), (bool) $command->option('dry-run'));
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->authTo("products.{$this->shop->id}.edit");
+    }
+
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): void
     {
-        $this->initialisation($organisation, $request);
+        $this->initialisationFromShop($shop, $request);
 
         GetWixProducts::dispatch($shop);
     }

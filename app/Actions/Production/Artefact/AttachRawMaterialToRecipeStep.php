@@ -9,6 +9,7 @@
 namespace App\Actions\Production\Artefact;
 
 use App\Actions\OrgAction;
+use App\Actions\Production\RawMaterial\Hydrators\RawMaterialHydrateFromOrgStock;
 use App\Models\Production\ArtefactManufactureTask;
 use App\Models\Production\RecipeStepRawMaterial;
 use Illuminate\Http\RedirectResponse;
@@ -20,7 +21,7 @@ class AttachRawMaterialToRecipeStep extends OrgAction
 {
     public function handle(ArtefactManufactureTask $recipeStep, array $modelData): RecipeStepRawMaterial
     {
-        return RecipeStepRawMaterial::updateOrCreate(
+        $recipeStepRawMaterial = RecipeStepRawMaterial::updateOrCreate(
             [
                 'artefact_manufacture_task_id' => $recipeStep->id,
                 'raw_material_id'              => $modelData['raw_material_id'],
@@ -31,6 +32,10 @@ class AttachRawMaterialToRecipeStep extends OrgAction
                 'organisation_id'   => $recipeStep->artefact->organisation_id,
             ]
         );
+
+        RawMaterialHydrateFromOrgStock::dispatchIntermediatesOf($recipeStep->artefact_id);
+
+        return $recipeStepRawMaterial;
     }
 
     public function rules(): array

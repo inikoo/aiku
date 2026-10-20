@@ -29,7 +29,7 @@ const props = defineProps<{
     currency: string | null
     orgCurrency: string
     orgExchange: number | null
-    container: { label: string, cbm: number }
+    container: { label: string, cbm: number, fill: number, is_worth_booking: boolean }
     summary: {
         products: number
         suppliers: number
@@ -49,8 +49,6 @@ const money = (amount: number) => (props.currency ? locale.currencyFormat(props.
 const orgMoney = (amount: number) => (props.orgExchange ? locale.currencyFormat(props.orgCurrency, amount * props.orgExchange) : null)
 const volume = (cbm: number | null) => (cbm === null ? "—" : `${locale.number(cbm)} m³`)
 
-const fill = computed(() => (props.container.cbm ? (props.summary.cbm / props.container.cbm) * 100 : 0))
-const isWorthBooking = computed(() => fill.value >= 90)
 const volumeToGo = computed(() => Math.max(0, Math.round((props.container.cbm - props.summary.cbm) * 100) / 100))
 </script>
 
@@ -66,7 +64,7 @@ const volumeToGo = computed(() => Math.max(0, Math.round((props.container.cbm - 
             </div>
             <div class="flex gap-2">
                 <Link :href="listUrl">
-                    <Button :label="ctrans('All organisations')" type="tertiary" icon="fal fa-list" size="s" />
+                    <Button :label="ctrans('All in preparation')" type="tertiary" icon="fal fa-list" size="s" />
                 </Link>
                 <Link :href="stockDelivery.url">
                     <Button :label="ctrans('Stock delivery')" type="tertiary" icon="fal fa-truck-container" size="s" />
@@ -79,7 +77,7 @@ const volumeToGo = computed(() => Math.max(0, Math.round((props.container.cbm - 
                 <div class="flex items-end justify-between gap-3">
                     <div>
                         <div class="text-xs text-gray-500">{{ ctrans("Of a :container", { container: container.label }) }}</div>
-                        <div class="text-3xl font-semibold tabular-nums" :class="isWorthBooking ? 'text-green-600' : 'text-gray-900'">{{ locale.number(Math.round(fill * 10) / 10) }}%</div>
+                        <div class="text-3xl font-semibold tabular-nums" :class="container.is_worth_booking ? 'text-green-600' : 'text-gray-900'">{{ locale.number(container.fill) }}%</div>
                     </div>
                     <div class="text-right text-sm tabular-nums text-gray-700">
                         <div>
@@ -88,11 +86,11 @@ const volumeToGo = computed(() => Math.max(0, Math.round((props.container.cbm - 
                                 <FontAwesomeIcon :icon="faExclamationTriangle" aria-hidden="true" />
                             </span>
                         </div>
-                        <div class="text-xs text-gray-500">{{ isWorthBooking ? ctrans("Enough to book a container") : ctrans(":volume to go", { volume: volume(volumeToGo) }) }}</div>
+                        <div class="text-xs text-gray-500">{{ container.is_worth_booking ? ctrans("Enough to book a container") : ctrans(":volume to go", { volume: volume(volumeToGo) }) }}</div>
                     </div>
                 </div>
-                <div class="mt-3 h-3 w-full overflow-hidden rounded-full bg-gray-100" role="progressbar" :aria-valuenow="Math.round(fill)" aria-valuemin="0" aria-valuemax="100">
-                    <div class="h-full rounded-full" :class="isWorthBooking ? 'bg-green-500' : 'bg-gray-500'" :style="{ width: `${Math.min(100, fill)}%` }" />
+                <div class="mt-3 h-3 w-full overflow-hidden rounded-full bg-gray-100" role="progressbar" :aria-valuenow="Math.round(container.fill)" aria-valuemin="0" aria-valuemax="100">
+                    <div class="h-full rounded-full" :class="container.is_worth_booking ? 'bg-green-500' : 'bg-gray-500'" :style="{ width: `${Math.min(100, container.fill)}%` }" />
                 </div>
             </section>
 

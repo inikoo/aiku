@@ -92,3 +92,42 @@ test('a grp error page is not sent to the storefront SSR bundle', function () {
     expect(config('inertia.ssr.enabled'))->toBeFalse();
     Http::assertNothingSent();
 });
+
+test('a page drawn in the browser because SSR was down is never stored by Varnish', function () {
+    Http::preventStrayRequests();
+    Http::fake([
+        'http://127.0.0.1:13714/render' => fn () => throw new \Illuminate\Http\Client\ConnectionException('Connection refused'),
+    ]);
+    $request = \Illuminate\Http\Request::create('/catalogue/family/example');
+    app()->instance('request', $request);
+
+    app(ReportingSsrGateway::class)->dispatch(['url' => '/catalogue/family/example', 'component' => 'Catalogue/Family']);
+
+    $response = (new \App\Http\Middleware\PreventCachingSsrFallback())->handle(
+        $request,
+        fn () => response('<div id="app"></div>')->header('Cache-Control', 'public, s-maxage=300, max-age=0')
+    );
+
+    expect($response->headers->get('X-Aiku-Ssr-Fallback'))->toBe('1')
+        ->and($response->headers->get('Cache-Control'))->toContain('no-store')
+        ->and($response->headers->get('Cache-Control'))->not->toContain('s-maxage');
+});
+
+test('a server rendered page keeps its cache headers', function () {
+    Http::preventStrayRequests();
+    Http::fake([
+        'http://127.0.0.1:13714/render' => Http::response(['head' => [], 'body' => '<div>Family</div>']),
+    ]);
+    $request = \Illuminate\Http\Request::create('/catalogue/family/example');
+    app()->instance('request', $request);
+
+    app(ReportingSsrGateway::class)->dispatch(['url' => '/catalogue/family/example', 'component' => 'Catalogue/Family']);
+
+    $response = (new \App\Http\Middleware\PreventCachingSsrFallback())->handle(
+        $request,
+        fn () => response('<div>Family</div>')->header('Cache-Control', 'public, s-maxage=300, max-age=0')
+    );
+
+    expect($response->headers->has('X-Aiku-Ssr-Fallback'))->toBeFalse()
+        ->and($response->headers->get('Cache-Control'))->toContain('s-maxage=300');
+});

@@ -8,6 +8,8 @@
 
 namespace App\Actions\Chat\ChatSession;
 
+use App\Models\Catalogue\Shop;
+use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Actions\Tasks\StoreStaffTask;
 use App\Http\Resources\Tasks\StaffTaskResource;
 use App\Models\Chat\ChatSession;
@@ -21,6 +23,14 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class StoreStaffTaskFromChatSession
 {
     use AsAction;
+    use WithChatAgentAuthorisation;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        $shop = ($request->route('chatSession') ?? $request->route('metaChatSession'))?->shop;
+
+        return $shop instanceof Shop && $this->userCanActOnChatOnShop($request->user(), $shop);
+    }
 
     public function handle(ChatSession|MetaChatSession $session, User $requester, array $modelData): StaffTask
     {
@@ -45,6 +55,8 @@ class StoreStaffTaskFromChatSession
     /** @noinspection PhpUnusedParameterInspection */
     public function inMetaChatSession(?string $organisation, MetaChatSession $metaChatSession, ActionRequest $request): StaffTaskResource
     {
+        $request->validate();
+
         return new StaffTaskResource($this->handle($metaChatSession, $request->user(), $request->all()));
     }
 }

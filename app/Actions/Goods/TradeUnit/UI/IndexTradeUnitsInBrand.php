@@ -106,7 +106,7 @@ class IndexTradeUnitsInBrand extends OrgAction
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()),
                 'title'       => $title,
                 'pageHead'    => [
-                    'actions' => [
+                    'actions' => !$this->canEdit ? [] : [
                         [
                             'type'    => 'button',
                             'style'   => 'create',

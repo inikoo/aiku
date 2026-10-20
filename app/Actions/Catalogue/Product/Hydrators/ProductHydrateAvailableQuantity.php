@@ -17,6 +17,8 @@ use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class ProductHydrateAvailableQuantity implements ShouldBeUnique
@@ -26,6 +28,19 @@ class ProductHydrateAvailableQuantity implements ShouldBeUnique
 
     /** Storefronts read a stock of 250 or more as "Unlimited quantity available". */
     public const int ON_DEMAND_QUANTITY = 250;
+
+    /**
+     * What is really on the shelf for a product, correlated on products.id. On-demand products
+     * store ON_DEMAND_QUANTITY as their available quantity, so staff views read this instead.
+     */
+    public static function shelfQuantityQuery(): Builder
+    {
+        return DB::table('product_has_org_stocks')
+            ->join('org_stocks', 'org_stocks.id', '=', 'product_has_org_stocks.org_stock_id')
+            ->selectRaw('greatest(min(floor(org_stocks.quantity_available / product_has_org_stocks.quantity)), 0)')
+            ->whereColumn('product_has_org_stocks.product_id', 'products.id')
+            ->where('product_has_org_stocks.quantity', '>', 0);
+    }
 
     public function getJobUniqueId(Product $product): string
     {

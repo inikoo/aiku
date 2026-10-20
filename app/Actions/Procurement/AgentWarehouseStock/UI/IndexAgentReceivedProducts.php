@@ -51,7 +51,10 @@ class IndexAgentReceivedProducts extends OrgAction
     private function receivedItems(Agent $agent): QueryBuilderBase
     {
         $inWarehouse = DB::table('agent_warehouse_stocks')
+            ->leftJoin('agent_goods_receipt_items', 'agent_goods_receipt_items.agent_warehouse_stock_id', 'agent_warehouse_stocks.id')
+            ->leftJoin('agent_goods_receipts', 'agent_goods_receipts.id', 'agent_goods_receipt_items.agent_goods_receipt_id')
             ->where('agent_warehouse_stocks.agent_id', $agent->id)
+            ->where('agent_warehouse_stocks.quantity', '>', 0)
             ->selectRaw("'warehouse-' || agent_warehouse_stocks.id as row_key")
             ->selectRaw("'warehouse' as location")
             ->selectRaw('agent_warehouse_stocks.state as warehouse_state')
@@ -61,7 +64,10 @@ class IndexAgentReceivedProducts extends OrgAction
             ->selectRaw('agent_warehouse_stocks.organisation_id::int as organisation_id')
             ->selectRaw('agent_warehouse_stocks.supplier_product_id::int as supplier_product_id')
             ->selectRaw('agent_warehouse_stocks.purchase_order_id::int as purchase_order_id')
-            ->selectRaw('agent_warehouse_stocks.quantity::numeric as quantity');
+            ->selectRaw('agent_warehouse_stocks.quantity::numeric as quantity')
+            ->selectRaw('(agent_goods_receipt_items.id is not null and agent_goods_receipt_items.checked_at is null) as is_unchecked')
+            ->selectRaw('agent_goods_receipts.reference as goods_receipt_reference')
+            ->selectRaw('agent_goods_receipts.slug as goods_receipt_slug');
 
         $inContainers = DB::table('stock_delivery_items')
             ->join('stock_deliveries', 'stock_deliveries.id', 'stock_delivery_items.stock_delivery_id')
@@ -81,7 +87,10 @@ class IndexAgentReceivedProducts extends OrgAction
             ->selectRaw('stock_deliveries.organisation_id::int as organisation_id')
             ->selectRaw('stock_delivery_items.supplier_product_id::int as supplier_product_id')
             ->selectRaw('container_lines.purchase_order_id::int as purchase_order_id')
-            ->selectRaw('stock_delivery_items.unit_quantity::numeric as quantity');
+            ->selectRaw('stock_delivery_items.unit_quantity::numeric as quantity')
+            ->selectRaw('false as is_unchecked')
+            ->selectRaw('null::varchar as goods_receipt_reference')
+            ->selectRaw('null::varchar as goods_receipt_slug');
 
         return $inWarehouse->unionAll($inContainers);
     }
@@ -102,6 +111,9 @@ class IndexAgentReceivedProducts extends OrgAction
                 'received_items.container_slug',
                 'received_items.container_state',
                 'received_items.quantity',
+                'received_items.is_unchecked',
+                'received_items.goods_receipt_reference',
+                'received_items.goods_receipt_slug',
             ]),
             'received_items'
         );
@@ -109,7 +121,7 @@ class IndexAgentReceivedProducts extends OrgAction
         $filters   = $this->productRowFilters();
         $filters[] = AllowedFilter::callback('location', fn ($query, $value) => $query->where('received_items.location', $value));
 
-        return QueryBuilder::for($query)
+        return $this->withProductImages(QueryBuilder::for($query)
             ->defaultSort('code')
             ->allowedSorts([
                 AllowedSort::field('code', 'supplier_products.code'),
@@ -128,7 +140,10 @@ class IndexAgentReceivedProducts extends OrgAction
                 'location_icon'       => $this->locationIcon($row),
                 'container_reference' => $row->container_reference,
                 'container_slug'      => $row->container_slug,
-            ]));
+                'is_unchecked'        => (bool) $row->is_unchecked,
+                'goods_receipt_reference' => $row->goods_receipt_reference,
+                'goods_receipt_slug'      => $row->goods_receipt_slug,
+            ])));
     }
 
     private function locationIcon(AgentWarehouseStock $row): array
@@ -155,6 +170,7 @@ class IndexAgentReceivedProducts extends OrgAction
                 ->withEmptyState(['title' => __('Nothing received yet')])
                 ->column(key: 'organisation_code', label: __('For'), canBeHidden: false, sortable: true)
                 ->column(key: 'location', label: __('Where'), canBeHidden: false, sortable: true)
+                ->column(key: 'image_thumbnail', label: __('Image'), canBeHidden: false)
                 ->column(key: 'code', label: __('Code'), canBeHidden: false, sortable: true)
                 ->column(key: 'name', label: __('Name'), canBeHidden: false, sortable: true)
                 ->column(key: 'supplier_code', label: __('Supplier'), canBeHidden: false, sortable: true)
@@ -179,14 +195,17 @@ class IndexAgentReceivedProducts extends OrgAction
     {
         $counts = DB::query()->fromSub($this->receivedItems($this->agent), 'received_items')
             ->join('organisations', 'organisations.id', 'received_items.organisation_id')
-            ->selectRaw('organisations.slug, organisations.code, received_items.location, count(*) as total')
-            ->groupBy('organisations.slug', 'organisations.code', 'received_items.location')
+            ->leftJoin('countries', 'countries.id', 'organisations.country_id')
+            ->selectRaw('organisations.slug, organisations.code, organisations.name, countries.name as country_name, received_items.location, count(*) as total')
+            ->groupBy('organisations.slug', 'organisations.code', 'organisations.name', 'countries.name', 'received_items.location')
             ->get();
 
         $organisationCounts = $counts->groupBy('slug')->map(fn ($rows) => (object) [
-            'slug'  => $rows->first()->slug,
-            'code'  => $rows->first()->code,
-            'total' => $rows->sum('total'),
+            'slug'         => $rows->first()->slug,
+            'code'         => $rows->first()->code,
+            'name'         => $rows->first()->name,
+            'country_name' => $rows->first()->country_name,
+            'total'        => $rows->sum('total'),
         ]);
 
         return $this->productRowsResponse(
@@ -194,7 +213,7 @@ class IndexAgentReceivedProducts extends OrgAction
             $request,
             __('Received'),
             'fal fa-inbox-in',
-            'grp.org.agent.warehouse.received',
+            'grp.org.agent.warehouse.received.index',
             'received',
             $this->organisationOptions($organisationCounts),
             [
@@ -203,6 +222,6 @@ class IndexAgentReceivedProducts extends OrgAction
                     ['label' => __('In a container not dispatched'), 'value' => 'container', 'count' => (int) $counts->where('location', 'container')->sum('total')],
                 ],
             ]
-        )->table($this->tableStructure());
+        )->with('receive', $this->canEdit ? IndexAgentProductsInProduction::receiveScopes($this->agent) : null)->table($this->tableStructure());
     }
 }

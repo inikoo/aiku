@@ -8,7 +8,6 @@
 
 
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
-use App\Actions\Inventory\Location\ExportLocations;
 use App\Actions\Inventory\Location\UI\CreateLocation;
 use App\Actions\Inventory\Location\UI\EditLocation;
 use App\Actions\Inventory\Location\UI\IndexLocations;
@@ -33,7 +32,6 @@ Route::scopeBindings()->prefix('areas')->name('warehouse_areas.')->group(functio
         Route::get('', ShowWarehouseArea::class)->name('show');
         Route::get('edit', EditWarehouseArea::class)->name('edit');
         Route::scopeBindings()->prefix('locations')->name('show.locations.')->group(function () {
-            Route::get('export', ExportLocations::class)->name('export');
             Route::get('create', CreateLocation::class)->name('create');
             Route::get('', IndexLocations::class)->name('index');
 

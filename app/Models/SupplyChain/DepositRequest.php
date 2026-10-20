@@ -11,6 +11,7 @@ namespace App\Models\SupplyChain;
 use App\Enums\SupplyChain\AspoDeposit\DepositRequestStateEnum;
 use App\Models\Helpers\Currency;
 use App\Models\Traits\InGroup;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -19,6 +20,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $id
  * @property int $group_id
  * @property int $agent_id
+ * @property int|null $organisation_id
+ * @property string|null $notes
  * @property string|null $reference
  * @property int $currency_id
  * @property DepositRequestStateEnum $state
@@ -50,6 +53,19 @@ class DepositRequest extends Model
     public function currency(): BelongsTo
     {
         return $this->belongsTo(Currency::class);
+    }
+
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
+    }
+
+    /**
+     * Transfers the client recorded against this request, in the agent's ledger.
+     */
+    public function transfers(): HasMany
+    {
+        return $this->hasMany(AgentPayment::class);
     }
 
     public function items(): HasMany

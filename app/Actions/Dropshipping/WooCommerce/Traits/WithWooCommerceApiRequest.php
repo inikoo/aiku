@@ -462,6 +462,29 @@ trait WithWooCommerceApiRequest
         return $this->makeWooCommerceRequest('POST', 'products/batch', $batch);
     }
 
+    public function getWooCommerceProductVariations(int $productId, array $params = []): ?array
+    {
+        return $this->makeWooCommerceRequest('GET', "products/$productId/variations", $params);
+    }
+
+    /**
+     * WooCommerce refuses a variation on products/{id} and products/batch, it is only written
+     * under its parent.
+     */
+    public function batchUpdateWooCommerceProductVariations(int $productId, array $batch): ?array
+    {
+        return $this->makeWooCommerceRequest('POST', "products/$productId/variations/batch", $batch);
+    }
+
+    public function updateWooCommerceProductOrVariation(int $productId, ?int $variationParentId, array $productData): ?array
+    {
+        if ($variationParentId) {
+            return $this->makeWooCommerceRequest('PUT', "products/$variationParentId/variations/$productId", $productData);
+        }
+
+        return $this->updateWooCommerceProduct($productId, $productData);
+    }
+
     /**
      * Batch updates multiple orders in WooCommerce
      *
@@ -770,11 +793,11 @@ trait WithWooCommerceApiRequest
         ]);
     }
 
-    public function createCustomerOrderNote(int $orderId, string $note): array
+    public function createCustomerOrderNote(int $orderId, string $note, bool $isCustomerNote = true): array
     {
         return $this->makeWooCommerceRequest('POST', "orders/$orderId/notes", [
             'note' => $note,
-            'customer_note' => true
+            'customer_note' => $isCustomerNote
         ]);
     }
 }

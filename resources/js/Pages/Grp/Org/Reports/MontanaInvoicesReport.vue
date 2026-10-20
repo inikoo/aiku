@@ -13,6 +13,7 @@ const props = defineProps<{
     data: object
     title: string
     pageHead: object
+    can_export?: boolean
 }>()
 
 const documentHref = (item: { slug: string, type: { code: string } }) => {
@@ -45,6 +46,7 @@ const exportExcel = () => {
     <PageHeading :data="pageHead">
         <template #button>
             <Button
+                v-if="can_export"
                 @click="exportExcel"
                 :style="'secondary'"
                 icon="fal fa-file-download"

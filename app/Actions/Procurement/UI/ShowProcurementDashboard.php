@@ -23,6 +23,9 @@ use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Dispatching\Shipper;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\GoodsIn\StockDeliveryServiceInvoice;
+use App\Enums\Procurement\ProcurementNote\ProcurementNoteCategoryEnum;
+use App\Enums\Procurement\ProcurementNote\ProcurementNoteIncidentOutcomeEnum;
+use App\Models\Procurement\ProcurementNote;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Organisation;
@@ -158,6 +161,19 @@ class ShowProcurementDashboard extends OrgAction
                 'grp.org.procurement.service_invoices.index',
                 [],
                 ['paid' => 'unpaid']
+            ),
+            $this->dashboardCard(
+                __('Supplier incidents'),
+                __('Open incidents per supplier, with what was disputed and recovered'),
+                'fal fa-exclamation-triangle',
+                ProcurementNote::where('group_id', $organisation->group_id)
+                    ->forOrganisation($organisation)
+                    ->where('category', ProcurementNoteCategoryEnum::INCIDENT)
+                    ->where('incident_outcome', ProcurementNoteIncidentOutcomeEnum::OPEN)
+                    ->active()
+                    ->count(),
+                'amber',
+                'grp.org.procurement.supplier_incidents.index'
             ),
         ]);
     }

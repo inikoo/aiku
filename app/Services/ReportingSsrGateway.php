@@ -25,6 +25,8 @@ use Inertia\Ssr\Response;
  */
 class ReportingSsrGateway extends HttpGateway
 {
+    public const string FALLBACK_ATTRIBUTE = 'inertia_ssr_fallback';
+
     public function dispatch(array $page): ?Response
     {
         if (!$this->shouldDispatch()) {
@@ -49,7 +51,7 @@ class ReportingSsrGateway extends HttpGateway
                 report($e);
             }
 
-            return null;
+            return $this->fallBackToClientRendering();
         } catch (Exception $e) {
             if ($e instanceof StrayRequestException) {
                 throw $e;
@@ -62,7 +64,7 @@ class ReportingSsrGateway extends HttpGateway
             ]);
             report($e);
 
-            return null;
+            return $this->fallBackToClientRendering();
         }
 
         if (is_null($response)) {
@@ -71,12 +73,19 @@ class ReportingSsrGateway extends HttpGateway
                 'component' => Arr::get($page, 'component'),
             ]);
 
-            return null;
+            return $this->fallBackToClientRendering();
         }
 
         return new Response(
             implode("\n", $response['head']),
             $response['body']
         );
+    }
+
+    private function fallBackToClientRendering(): null
+    {
+        request()->attributes->set(self::FALLBACK_ATTRIBUTE, true);
+
+        return null;
     }
 }

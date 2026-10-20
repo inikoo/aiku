@@ -56,6 +56,7 @@ use App\Http\Resources\Traits\HasProductOfferPrices;
  * @property mixed $variant_id
  * @property mixed $step_discount_data
  * @property string|null $expected_back_in_stock_at
+ * @property bool $expected_back_in_stock_is_estimate
  * @property array|null $pre_order
  */
 class IrisAuthenticatedProductsInWebpageResource extends JsonResource
@@ -76,13 +77,42 @@ class IrisAuthenticatedProductsInWebpageResource extends JsonResource
             ->pluck('id')
             ->all();
 
-        $expectedBackInStockAt = GetProductIncomingStock::make()->earliestEtaByProduct($outOfStockProductIds);
+        $expectedBackInStock = GetProductIncomingStock::make()->earliestIncomingByProduct($outOfStockProductIds);
 
-        $preOrders = GetProductPreOrder::make()->byProductId($products->pluck('id')->all());
+        $productIds = $products->pluck('id')->all();
 
-        $products->each(function ($product) use ($expectedBackInStockAt, $preOrders) {
-            $product->expected_back_in_stock_at = $expectedBackInStockAt[$product->id] ?? null;
+        $preOrders = GetProductPreOrder::make()->byProductId($productIds);
+
+        $favourites             = null;
+        $backInStockReminderIds = null;
+
+        $customer = request()->user()?->customer;
+        if ($customer) {
+            $favourites = $customer->favourites()
+                ->whereIn('product_id', $productIds)
+                ->orderBy('id')
+                ->get(['id', 'product_id', 'unfavourited_at'])
+                ->unique('product_id')
+                ->keyBy('product_id');
+
+            $backInStockReminderIds = $customer->backInStockReminder()
+                ->whereIn('product_id', $productIds)
+                ->orderBy('id')
+                ->get(['id', 'product_id'])
+                ->unique('product_id')
+                ->pluck('id', 'product_id');
+        }
+
+        $products->each(function ($product) use ($expectedBackInStock, $preOrders, $customer, $favourites, $backInStockReminderIds) {
+            $product->expected_back_in_stock_at          = $expectedBackInStock[$product->id]['eta'] ?? null;
+            $product->expected_back_in_stock_is_estimate = $expectedBackInStock[$product->id]['is_estimate'] ?? false;
             $product->pre_order                 = $preOrders[$product->id] ?? null;
+
+            if ($customer) {
+                $product->customer_flags_preloaded  = true;
+                $product->customer_favourite        = $favourites->get($product->id);
+                $product->back_in_stock_reminder_id = $backInStockReminderIds->get($product->id);
+            }
         });
 
         return parent::collection($resource);
@@ -94,27 +124,23 @@ class IrisAuthenticatedProductsInWebpageResource extends JsonResource
         $back_in_stock_id = null;
         $back_in_stock    = false;
 
-        if ($request->user()) {
-            $customer = $request->user()->customer;
-            if ($customer) {
-                $favourite = $customer->favourites()?->where('product_id', $this->id)->first();
+        if ($this->resource->customer_flags_preloaded ?? false) {
+            $favourite        = $this->resource->customer_favourite;
+            $back_in_stock_id = $this->resource->back_in_stock_reminder_id;
+            $back_in_stock    = $back_in_stock_id !== null;
+        } elseif ($customer = $request->user()?->customer) {
+            $favourite = $customer->favourites()->where('product_id', $this->id)->first();
+
+            $set_data_back_in_stock = $customer->backInStockReminder()
+                ->where('product_id', $this->id)
+                ->first();
+
+            if ($set_data_back_in_stock) {
+                $back_in_stock    = true;
+                $back_in_stock_id = $set_data_back_in_stock->id;
             }
         }
 
-
-        if ($request->user()) {
-            $customer = $request->user()->customer;
-            if ($customer) {
-                $set_data_back_in_stock = $customer->BackInStockReminder()
-                    ?->where('product_id', $this->id)
-                    ->first();
-
-                if ($set_data_back_in_stock) {
-                    $back_in_stock    = true;
-                    $back_in_stock_id = $set_data_back_in_stock->id;
-                }
-            }
-        }
         [$margin, $rrpPerUnit, $profit, $profitPerUnit, $units, $pricePerUnit] = $this->getPriceMetrics($this->rrp, $this->price, $this->units);
 
         $offerNetAmountPerQuantity = (int)$this->quantity_ordered ? ($this->net_amount / ((int)$this->quantity_ordered)) : null;
@@ -152,6 +178,7 @@ class IrisAuthenticatedProductsInWebpageResource extends JsonResource
             'price_per_unit'             => $pricePerUnit,
             'available_quantity'         => $this->available_quantity,
             'expected_back_in_stock_at'  => $this->expected_back_in_stock_at ?? null,
+            'expected_back_in_stock_is_estimate' => $this->expected_back_in_stock_is_estimate ?? false,
             'is_on_demand'               => $this->is_on_demand,
             'pre_order'                  => GetProductPreOrder::make()->withPalletEstimateFor($this->pre_order ?? null, $request->user()?->customer),
             'offers_data'                => $this->offers_data, // this comes from transaction.offers_data

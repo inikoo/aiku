@@ -136,6 +136,7 @@ class ShowRetinaPackagingPreferences extends RetinaAction
     private function getSelectedFamilyCode(): ?string
     {
         return $this->customerPackagingQuery()
+            ->whereHas('packaging', fn (Builder $query) => $query->where('state', PackagingStateEnum::ACTIVE))
             ->with('packaging')
             ->first()
             ?->packaging

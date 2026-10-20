@@ -87,11 +87,13 @@ enum TradeAttachmentScopeEnum: string
             self::MSDS->value,
             self::CLP->value,
             self::ALLERGEN_DECLARATIONS->value,
+            self::DOC->value,
             self::IFRA_PRIVATE->value,
             self::SDS_PRIVATE->value,
             self::MSDS_PRIVATE->value,
             self::CLP_PRIVATE->value,
             self::ALLERGEN_DECLARATIONS_PRIVATE->value,
+            self::DOC_PRIVATE->value,
         ];
     }
 }

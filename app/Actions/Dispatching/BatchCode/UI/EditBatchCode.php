@@ -26,6 +26,8 @@ class EditBatchCode extends OrgAction
     public function asController(Organisation $organisation, Warehouse $warehouse, BatchCode $batchCode, ActionRequest $request): Response
     {
         $this->initialisationFromWarehouse($warehouse, $request);
+        abort_unless($this->canEdit, 403);
+        abort_unless($batchCode->organisation_id === $warehouse->organisation_id, 404);
 
         return $this->handle($batchCode, $request);
     }

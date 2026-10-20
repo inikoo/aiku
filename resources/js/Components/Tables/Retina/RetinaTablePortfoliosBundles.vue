@@ -167,6 +167,7 @@ function portfolioRoute(product: Product) {
 
 const locale = inject("locale", aikuLocaleStructure)
 const layout = inject("layout", retinaLayoutStructure)
+const uploadingPortfolioIds = inject("uploadingPortfolioIds", ref<number[]>([]))
 const isEbay = computed(() => props.platform_data?.type === "ebay")
 const selectedProducts = defineModel<number[]>("selectedProducts")
 // Table: Filter out-of-stock and discontinued
@@ -365,11 +366,9 @@ watch(
 	{ immediate: true }
 )
 
-const listErrorProducts = ref({})
 
 // Section: Modal Error Product (i.e Ebay title too long)
 const selectedEditProduct = ref<any>(null)
-const selectedErrorProduct = ref(null)
 const isOpenModalEditProduct = ref(false)
 const isLoadingSubmitErrorTitle = ref(false)
 
@@ -1414,23 +1413,13 @@ onBeforeUnmount(() => {
 							},
 						}
 						: {}
-						" isWithError icon="" :label="ctrans('Create new product')" size="xxs" type="tertiary" :style="'white-w-outline'"
+						" isWithError icon=""
+					:label="uploadingPortfolioIds.includes(item.id) ? ctrans('Uploading…') : ctrans('Create new product')"
+					:loading="uploadingPortfolioIds.includes(item.id)" size="xxs" type="tertiary" :style="'white-w-outline'"
 					:bindToLink="{
 						preserveScroll: true,
-					}" @success="
-						(a) => {
-							// console.log('zvvcvc', a)
-						}
-					" @error="
-						(e) => {
-							// console.log('aaaaaaaaaaaa', e, item)
-							selectedErrorProduct = {
-								product: item,
-								error: e,
-							}
-							set(listErrorProducts, [`x${item.id}`], e)
-						}
-					" :disabled="disableButtons(item)" />
+					}" @success="() => uploadingPortfolioIds.push(item.id)"
+					:disabled="disableButtons(item) || uploadingPortfolioIds.includes(item.id)" />
 			</div>
 		</template>
 

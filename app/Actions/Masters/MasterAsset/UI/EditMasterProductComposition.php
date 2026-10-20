@@ -11,6 +11,7 @@ use App\Actions\Masters\MasterAsset\GetMasterAssetAnomalies;
 use App\Actions\Masters\MasterAsset\WithMasterProductSubNavigation;
 use App\Actions\Masters\MasterShop\GetMasterShopCurrenciesRate;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithMastersAuthorisation;
 use App\Actions\Traits\WithMasterAssetTradeUnits;
 use App\Actions\Traits\WithUnitsChangeConfirmation;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -31,6 +32,7 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class EditMasterProductComposition extends OrgAction
 {
+    use WithMastersAuthorisation;
     use WithUnitsChangeConfirmation;
     use WithMasterAssetTradeUnits;
     use WithMasterProductSubNavigation;
@@ -82,7 +84,7 @@ class EditMasterProductComposition extends OrgAction
                 ],
                 'anomalies' => $this->getAnomalies($masterAsset),
                 'formData' => [
-                    'blueprint' => $this->getBlueprint($masterAsset),
+                    'blueprint' => $this->canEdit ? $this->getBlueprint($masterAsset) : $this->readOnlyBlueprint($this->getBlueprint($masterAsset)),
                     'args'      => [
                         'updateRoute' => [
                             'name'       => 'grp.models.master_asset.update',
@@ -94,6 +96,15 @@ class EditMasterProductComposition extends OrgAction
                 ]
             ]
         );
+    }
+
+    private function readOnlyBlueprint(array $blueprint): array
+    {
+        return array_map(function (array $section) {
+            $section['fields'] = array_map(fn (array $field) => array_merge($field, ['readonly' => true]), $section['fields'] ?? []);
+
+            return $section;
+        }, $blueprint);
     }
 
     /**

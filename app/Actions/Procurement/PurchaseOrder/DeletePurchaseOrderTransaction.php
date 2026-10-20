@@ -45,6 +45,7 @@ class DeletePurchaseOrderTransaction extends OrgAction
     {
         $purchaseOrder = $purchaseOrderTransaction->purchaseOrder;
         self::reopenShoppingListItems([$purchaseOrderTransaction->id]);
+        self::rememberRemovedFromDraft($purchaseOrder, $purchaseOrderTransaction);
         $purchaseOrderTransaction->delete();
         CalculatePurchaseOrderTotalAmounts::run($purchaseOrder);
         PurchaseOrderHydrateTransactions::dispatch($purchaseOrder);
@@ -56,6 +57,24 @@ class DeletePurchaseOrderTransaction extends OrgAction
             'purchase_order_transaction_id' => null,
             'state'                         => ShoppingListItemStateEnum::OPEN,
         ]);
+    }
+
+    /**
+     * A product the buyer took off a draft stays off it: Prepare order skips it while the draft is open.
+     */
+    private static function rememberRemovedFromDraft(PurchaseOrder $purchaseOrder, PurchaseOrderTransaction $purchaseOrderTransaction): void
+    {
+        if ($purchaseOrder->state !== PurchaseOrderStateEnum::IN_PROCESS || !$purchaseOrderTransaction->org_supplier_product_id) {
+            return;
+        }
+
+        $data    = $purchaseOrder->data ?? [];
+        $removed = $data['removed_org_supplier_product_ids'] ?? [];
+
+        if (!in_array($purchaseOrderTransaction->org_supplier_product_id, $removed, true)) {
+            $data['removed_org_supplier_product_ids'] = [...$removed, $purchaseOrderTransaction->org_supplier_product_id];
+            $purchaseOrder->update(['data' => $data]);
+        }
     }
 
     public function action(PurchaseOrderTransaction $purchaseOrderTransaction): void

@@ -9,18 +9,23 @@
 namespace App\Actions\Comms\Mailshot;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithMailshotReadAuthorisation;
 use App\Models\Comms\Mailshot;
 use Illuminate\Http\JsonResponse;
+use Lorisleiva\Actions\ActionRequest;
 
 class GetMailshotTemplate extends OrgAction
 {
+    use WithMailshotReadAuthorisation;
     public function handle(Mailshot $mailshot): Mailshot
     {
         return $mailshot;
     }
 
-    public function asController(Mailshot $mailshot): Mailshot
+    public function asController(Mailshot $mailshot, ActionRequest $request): Mailshot
     {
+        $this->initialisationFromShop($mailshot->shop, $request);
+
         return $this->handle($mailshot);
     }
 

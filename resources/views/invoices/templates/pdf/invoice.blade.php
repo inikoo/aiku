@@ -305,7 +305,7 @@
 @php($hidePriceQtyColumns = $isRefund && $transactions->every(fn ($t) => $t->is_refund && !($t->net_amount == 0 && $t->tax_amount != 0) && refundQuantityLabel($t->quantity, soldPackUnits($t->historicAsset?->units, $t->model?->units)) === null))
 @php($isTaxOnlyRefund = $isRefund && $invoice->is_tax_only)
 @php($showDiscountColumn = !empty($show_discounts) && !$isRefund)
-@php($exportByTariffCode = !empty($export_by_tariff_code) && $tariffExportRows->isNotEmpty())
+@php($exportByTariffCode = !empty($export_by_tariff_code) && !$isRefund)
 @php($totalsFillerColspan = $exportByTariffCode ? 3 : ($hidePriceQtyColumns ? 2 : ($isTaxOnlyRefund ? 3 : 4)))
 @php($totalsLabelColspan = $showDiscountColumn || $exportByTariffCode ? 2 : 1)
 <table class="items" width="100%" style="font-size: 9pt; border-collapse: collapse;" cellpadding="8">

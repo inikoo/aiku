@@ -130,6 +130,17 @@ class Upload extends Model implements Auditable
             ->all();
     }
 
+    public function canBeViewedBy(User $user): bool
+    {
+        if ($this->user_id === $user->id) {
+            return true;
+        }
+
+        $organisationId = $this->organisation_id ?? $this->parent?->organisation_id;
+
+        return $organisationId && $user->authTo('org-admin.'.$organisationId);
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

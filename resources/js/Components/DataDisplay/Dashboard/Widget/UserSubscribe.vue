@@ -21,7 +21,7 @@ import Tag from "@/Components/Tag.vue"
 // Add icons to the library
 library.add(faEdit, faTrashAlt, faPlus, faSave, faSignOutAlt, faExclamationTriangle)
 
-const props = withDefaults(defineProps<{ widget: any[] }>(), { widget: () => [] })
+const props = withDefaults(defineProps<{ widget: any[], canEdit?: boolean }>(), { widget: () => [], canEdit: true })
 
 // Create reactive copy for deletion handling
 const subscriberList = ref([...props.widget])
@@ -246,8 +246,9 @@ const confirmDeleteWidgetItem = (event: Event, item: any, index: number) => {
 			<div class="px-4 py-5 flex items-center justify-between">
 				<dt class="text-lg font-semibold text-gray-500">{{ ctrans("Subscriber") }}</dt>
 				<FontAwesomeIcon
+					v-if="canEdit"
 					:icon="faEdit"
-					class="text-blue-500 cursor-pointer"
+					class="text-gray-400 hover:text-gray-600 cursor-pointer"
 					@click="toggleEdit" fixed-width />
 			</div>
 			<div class="pl-4 pr-4 pb-5">

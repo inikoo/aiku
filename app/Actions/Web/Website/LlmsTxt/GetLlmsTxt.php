@@ -36,8 +36,8 @@ class GetLlmsTxt
             return $llmsTxt->content;
         }
 
-        return $website->organisation->settings['llms_txt']['content']
-            ?? $website->group->settings['llms_txt']['content']
+        return $website->organisation()->first()?->settings['llms_txt']['content']
+            ?? $website->group()->first()?->settings['llms_txt']['content']
             ?? null;
     }
 

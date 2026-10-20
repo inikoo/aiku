@@ -106,6 +106,15 @@ class CreateWhatsappMessageTemplate extends OrgAction
         ];
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->authTo([
+            "chat-m.{$this->shop->id}",
+            "crm.{$this->shop->id}.edit",
+            "org-admin.{$this->organisation->id}",
+        ]);
+    }
+
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Response
     {
         $this->initialisationFromShop($shop, $request);
@@ -115,6 +124,7 @@ class CreateWhatsappMessageTemplate extends OrgAction
 
     public function inDraft(Organisation $organisation, Shop $shop, MetaMessageTemplate $metaMessageTemplate, ActionRequest $request): Response
     {
+        abort_unless($metaMessageTemplate->shop_id === $shop->id, 404);
         $this->initialisationFromShop($shop, $request);
 
         return $this->handle($shop, $request, $metaMessageTemplate);
@@ -122,6 +132,7 @@ class CreateWhatsappMessageTemplate extends OrgAction
 
     public function inLanguage(Organisation $organisation, Shop $shop, MetaMessageTemplate $metaMessageTemplate, ActionRequest $request): Response
     {
+        abort_unless($metaMessageTemplate->shop_id === $shop->id, 404);
         $this->initialisationFromShop($shop, $request);
 
         return $this->handle($shop, $request, null, $metaMessageTemplate);

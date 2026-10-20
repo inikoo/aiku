@@ -43,6 +43,7 @@ export interface ProductResource {
 	is_favourite?: boolean
 	is_back_in_stock?: boolean
 	expected_back_in_stock_at?: string | null
+	expected_back_in_stock_is_estimate?: boolean
 	pre_order?: PreOrder | null
 	is_golden_product?: boolean
 	is_variant?: boolean

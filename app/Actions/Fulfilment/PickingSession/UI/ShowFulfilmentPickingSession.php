@@ -100,7 +100,10 @@ class ShowFulfilmentPickingSession extends OrgAction
             }
         }
 
-        if ($pickingSession->state == PickingSessionStateEnum::IN_PROCESS) {
+        $canWork   = $pickingSession->warehouse->canBeWorkedInBy($request->user());
+        $canHandle = $canWork || $this->canEdit;
+
+        if ($canWork && $pickingSession->state == PickingSessionStateEnum::IN_PROCESS) {
             $actions[] = [
                 'type'    => 'button',
                 'style'   => 'save',
@@ -145,7 +148,9 @@ class ShowFulfilmentPickingSession extends OrgAction
             ],
             'data'        => PickingSessionResource::make($pickingSession),
             'returnType'  => $this->getPalletReturnType($pickingSession),
-            'dispatchableReturns' => $this->getDispatchableReturns($pickingSession),
+            'dispatchableReturns' => $this->getDispatchableReturns($pickingSession, $canHandle),
+            'can_work'    => $canWork,
+            'can_handle'  => $canHandle,
         ];
 
         $props = array_merge($props, $this->getItems($pickingSession));
@@ -287,7 +292,7 @@ class ShowFulfilmentPickingSession extends OrgAction
         return PalletReturnTypeEnum::tryFrom($type)?->value ?? PalletReturnTypeEnum::PALLET->value;
     }
 
-    private function getDispatchableReturns(PickingSession $pickingSession): array
+    private function getDispatchableReturns(PickingSession $pickingSession, bool $canWork = true): array
     {
         return $pickingSession->palletReturns()
             ->select([
@@ -318,7 +323,7 @@ class ShowFulfilmentPickingSession extends OrgAction
             ])
             ->withCount('items')
             ->get()
-            ->map(function ($palletReturn) use ($pickingSession) {
+            ->map(function ($palletReturn) use ($pickingSession, $canWork) {
                 $baseQuery = $palletReturn->pallets()->whereNot('pallets.state', [PalletStateEnum::DISPATCHED]);
                 $palletCount = (clone $baseQuery)->count();
                 $completedPickingCount = (clone $baseQuery)
@@ -328,7 +333,7 @@ class ShowFulfilmentPickingSession extends OrgAction
                         PalletReturnItemStateEnum::CANCEL->value,
                     ])
                     ->count();
-                $canSetAsPicked = $palletCount > 0 && $palletCount === $completedPickingCount;
+                $canSetAsPicked = $canWork && $palletCount > 0 && $palletCount === $completedPickingCount;
 
                 $showRouteName = $palletReturn->type?->value === PalletReturnTypeEnum::STORED_ITEM->value
                     ? 'grp.org.warehouses.show.dispatching.pallet-return-with-stored-items.show'
@@ -389,7 +394,7 @@ class ShowFulfilmentPickingSession extends OrgAction
                         ],
                         'method' => 'post',
                     ],
-                    'revertToPickingRoute' => [
+                    'revertToPickingRoute' => !$canWork ? null : [
                         'name'       => 'grp.models.pallet-return.revert-to-picking',
                         'parameters' => [
                             'palletReturn' => $palletReturn->id,
@@ -466,7 +471,7 @@ class ShowFulfilmentPickingSession extends OrgAction
                         ],
                     ],
                     'canSetAsPicked' => $canSetAsPicked,
-                    'canDispatch' => $palletReturn->state?->value === 'picked',
+                    'canDispatch' => $canWork && $palletReturn->state?->value === 'picked',
                 ];
             })
             ->values()

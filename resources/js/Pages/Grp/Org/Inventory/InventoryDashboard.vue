@@ -11,7 +11,7 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { Pie } from "vue-chartjs"
 import { ctrans } from "@/Composables/useTrans"
-import { faBox, faInventory, faSkullCow, faDollarSign, faBan, faClipboardListCheck, faChartNetwork, faBoxesAlt, faBars, faBarcodeRead } from "@fal"
+import { faBox, faInventory, faSkullCow, faDollarSign, faBan, faClipboardListCheck, faChartNetwork, faBoxesAlt, faBars, faBarcodeRead, faArrowToBottom, faSlidersH } from "@fal"
 import { faCheckCircle, faTimesCircle, faPauseCircle, faExclamationCircle, faDollyFlatbedEmpty, faShoppingBasket } from "@fas"
 
 import { capitalize } from "@/Composables/capitalize"
@@ -36,7 +36,7 @@ library.add(
     faBan,
     faClipboardListCheck,
     faDollyFlatbedEmpty,
-    faShoppingBasket, faChartNetwork, faBoxesAlt, faBars, faBarcodeRead
+    faShoppingBasket, faChartNetwork, faBoxesAlt, faBars, faBarcodeRead, faArrowToBottom, faSlidersH
 )
 
 ChartJS.register(ArcElement, Tooltip, Legend, Colors)

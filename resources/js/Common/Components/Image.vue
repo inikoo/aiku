@@ -22,7 +22,7 @@ const props = withDefaults(defineProps<{
   height?: string
 
   sizes?: string
-  srcset?: { original?: string; avif?: string; webp?: string }
+  srcset?: { original?: string; avif?: string }
 
   preload?: boolean
 
@@ -66,7 +66,6 @@ const buildDensitySrcSet = (url?: string, url2x?: string) => {
 }
 
 const avif = computed(() => props.srcset?.avif ?? buildDensitySrcSet(imageSrc.value?.avif, imageSrc.value?.avif_2x))
-const webp = computed(() => props.srcset?.webp ?? buildDensitySrcSet(imageSrc.value?.webp, imageSrc.value?.webp_2x))
 const original = computed(() => props.srcset?.original ?? buildDensitySrcSet(imageSrc.value?.original, imageSrc.value?.original_2x))
 
 const defaultSrc = computed(() => imageSrc.value?.original || fallbackPath)
@@ -75,7 +74,6 @@ const defaultSrc = computed(() => imageSrc.value?.original || fallbackPath)
 <template>
   <picture :class="[props.class ?? 'w-full h-full flex justify-center items-center']">
     <source v-if="avif" type="image/avif" :srcset="avif" :sizes="sizes" />
-    <source v-if="webp" type="image/webp" :srcset="webp" :sizes="sizes" />
 
     <img
       :src="defaultSrc"

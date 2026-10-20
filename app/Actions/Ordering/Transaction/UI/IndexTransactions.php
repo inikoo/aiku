@@ -8,6 +8,7 @@
 
 namespace App\Actions\Ordering\Transaction\UI;
 
+use App\Actions\Catalogue\Product\Hydrators\ProductHydrateAvailableQuantity;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithMarginData;
 use Illuminate\Support\Facades\DB;
@@ -33,7 +34,7 @@ class IndexTransactions extends OrgAction
 {
     use WithMarginData;
 
-    public function handle(Organisation|Shop|Customer|Order|Invoice|Asset $parent, $prefix = null, bool $withMargins = false): LengthAwarePaginator
+    public function handle(Organisation|Shop|Customer|Order|Invoice|Asset $parent, $prefix = null, bool $withMargins = false, bool $withShelfQuantity = false): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -118,6 +119,7 @@ class IndexTransactions extends OrgAction
                 'products.slug as product_slug',
                 'products.image_id as product_image_id',
                 'products.available_quantity as available_quantity',
+                'products.is_on_demand',
                 'currencies.code as currency_code',
                 'orders.id as order_id',
                 'transactions.offers_data',
@@ -142,6 +144,7 @@ class IndexTransactions extends OrgAction
                     AND trade_units.un_number <> 'None'
                 ) as un_numbers")
             ])
+            ->when($withShelfQuantity, fn ($q) => $q->selectSub(ProductHydrateAvailableQuantity::shelfQuantityQuery(), 'shelf_quantity'))
             ->when($withMargins, fn ($q) => $q->addSelect([
                 'transactions.org_net_amount',
                 DB::raw($this->actualCostSql('transactions.id').' as margin_actual_cost'),

@@ -10,6 +10,7 @@ namespace App\Actions\Dispatching\DeliveryNote\Json;
 
 use App\Actions\Catalogue\PreferredShipping\WithPreferredShipperResolver;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithDispatchingAuthorisation;
 use App\Actions\Retina\UI\Layout\GetPlatformLogo;
 use App\Enums\Catalogue\Shop\ShopEngineEnum;
 use App\Enums\Ordering\Platform\PlatformTypeEnum;
@@ -20,6 +21,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetMiniDeliveryNoteShipments extends OrgAction
 {
+    use WithDispatchingAuthorisation;
     use AsAction;
     use GetPlatformLogo;
     use WithPreferredShipperResolver;
@@ -53,7 +55,7 @@ class GetMiniDeliveryNoteShipments extends OrgAction
                         ]
                     ],
                 ];
-            } elseif ($order->platform->type == PlatformTypeEnum::TIKTOK) {
+            } elseif ($order->platform?->type == PlatformTypeEnum::TIKTOK) {
                 $additionalShipmentRoutes = [
                     'get_external_shipment_route' => [
                         'label'      => __('Get shipment from Tiktok'),
@@ -64,7 +66,9 @@ class GetMiniDeliveryNoteShipments extends OrgAction
                     ]
                 ];
             }
-        } else {
+        }
+
+        if (!$additionalShipmentRoutes) {
             $additionalShipmentRoutes = [
                 'submit_route' => [
                     'name'       => 'grp.models.delivery_note.shipment.store',

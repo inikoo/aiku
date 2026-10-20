@@ -10,12 +10,14 @@
 
 namespace App\Actions\Masters\MasterProductCategory\UI;
 
+use App\Actions\Catalogue\Product\Traits\WithPreOrderEditFields;
 use App\Actions\Goods\TradeUnitFamily\GetTradeUnitFamilyForFamilies;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithMastersEditAuthorisation;
 use App\Enums\Catalogue\MasterProductCategory\MasterProductCategoryTypeEnum;
 use App\Enums\Catalogue\ProductCategory\FamilyCustomizeEnum;
 use App\Enums\Catalogue\ProductCategory\FamilyStorageConditionEnum;
+use App\Models\Catalogue\Product;
 use App\Models\Masters\MasterProductCategory;
 use App\Models\Masters\MasterShop;
 use Inertia\Inertia;
@@ -26,6 +28,7 @@ class EditMasterFamily extends OrgAction
 {
     use WithMastersEditAuthorisation;
     use WithMasterFamilyNavigation;
+    use WithPreOrderEditFields;
 
     public function asController(MasterShop $masterShop, MasterProductCategory $masterFamily, ActionRequest $request): Response
     {
@@ -68,7 +71,7 @@ class EditMasterFamily extends OrgAction
 
         $iconLinks = [];
 
-        if ($masterProductCategory->tradeUnitFamily) {
+        if ($masterProductCategory->tradeUnitFamily && $request->user()->authTo('goods.edit')) {
             $iconLinks[] = [
                 'icon'    => 'fal fa-atom-alt',
                 'tooltip' => __('Go to Edit Trade Unit Family'),
@@ -151,6 +154,10 @@ class EditMasterFamily extends OrgAction
                                 'master_product_category_id' => $masterProductCategory->id,
                             ],
                         ],
+                        $this->preOrderEditFieldsSection(
+                            $this->sharedPreOrderValues($masterProductCategory),
+                            __('Saving applies it to all :count master products in this family and their shop products. Shown off or empty when the products differ.', ['count' => $masterProductCategory->masterAssets()->count()])
+                        ),
                     ],
                     [
                         'label'  => __('Storage & Shelf Life'),
@@ -207,6 +214,25 @@ class EditMasterFamily extends OrgAction
         );
     }
 
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function sharedPreOrderValues(MasterProductCategory $masterFamily): array
+    {
+        $masterAssets = $masterFamily->masterAssets()->get(Product::PRE_ORDER_FIELDS);
+
+        $values = [
+            'is_back_order'    => $masterAssets->isNotEmpty() && $masterAssets->every('is_back_order'),
+            'is_made_to_order' => $masterAssets->isNotEmpty() && $masterAssets->every('is_made_to_order'),
+        ];
+        foreach (['pre_order_lead_time_days', 'pre_order_deposit_percentage', 'max_quantity_per_order'] as $field) {
+            $distinctValues = $masterAssets->pluck($field)->unique();
+            $values[$field] = $distinctValues->count() === 1 ? $distinctValues->first() : null;
+        }
+
+        return $values;
+    }
 
     public function getBreadcrumbs(MasterProductCategory $masterFamily, string $routeName, array $routeParameters): array
     {

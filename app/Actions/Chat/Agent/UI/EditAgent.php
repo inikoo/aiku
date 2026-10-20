@@ -24,8 +24,12 @@ class EditAgent extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $this->userCanWorkChatOnOrganisation($request->user(), $this->organisation)
-            || $this->userSupervisesChatOnOrganisation($request->user(), $this->organisation);
+        if ($this->userSupervisesChatOnOrganisation($request->user(), $this->organisation)) {
+            return true;
+        }
+
+        return (int) ChatAgent::whereKey($request->route('agentId'))->value('user_id') === $request->user()->id
+            && $this->userCanWorkChatOnOrganisation($request->user(), $this->organisation);
     }
 
     /**

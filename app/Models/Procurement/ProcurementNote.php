@@ -49,6 +49,7 @@ use Spatie\MediaLibrary\HasMedia;
  * @property int|null $purchase_order_id
  * @property numeric|null $incident_amount
  * @property int|null $incident_currency_id
+ * @property numeric|null $grp_incident_amount
  * @property ProcurementNoteIncidentOutcomeEnum|null $incident_outcome
  * @property ProcurementNoteIncidentTypeEnum|null $incident_type
  * @property numeric|null $incident_quantity

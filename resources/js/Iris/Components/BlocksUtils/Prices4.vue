@@ -42,6 +42,7 @@ interface ProductResource {
     unit: string
     stock: number
     expected_back_in_stock_at?: string | null
+    expected_back_in_stock_is_estimate?: boolean
     pre_order?: PreOrder | null
     rating: number
     price: number

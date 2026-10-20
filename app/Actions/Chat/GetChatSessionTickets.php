@@ -19,6 +19,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetChatSessionTickets
 {
+    use WithChatSessionReadAuthorisation;
     use AsAction;
 
     public function handle(ChatSession|MetaChatSession $session): AnonymousResourceCollection

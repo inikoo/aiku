@@ -1218,6 +1218,30 @@ class EditShop extends OrgAction
                     ],
                 ],
                 [
+                    'label'       => __('Social media (Meta)'),
+                    'icon'        => 'fa-brands fa-facebook',
+                    'information' => __('Aiku pulls this shop\'s Facebook Page and Instagram posts, reach and followers nightly into Marketing > Social media. Leave the token empty to use the Meta Ads one.'),
+                    'fields'      => [
+                        'meta_social_facebook_page_id'     => [
+                            'type'        => 'input',
+                            'label'       => __('Facebook Page ID'),
+                            'value'       => Arr::get($shop->settings, 'meta_social.facebook_page_id', ''),
+                        ],
+                        'meta_social_instagram_account_id' => [
+                            'type'        => 'input',
+                            'label'       => __('Instagram account ID'),
+                            'placeholder' => __('The Instagram professional account ID, digits only'),
+                            'value'       => Arr::get($shop->settings, 'meta_social.instagram_account_id', ''),
+                        ],
+                        'meta_social_access_token'         => [
+                            'type'        => 'input',
+                            'label'       => __('Access Token'),
+                            'placeholder' => __('Only when the page belongs to another business manager'),
+                            'value'       => Arr::get($shop->settings, 'meta_social.access_token', ''),
+                        ],
+                    ],
+                ],
+                [
                     'label'  => __('Customer mailbox'),
                     'icon'   => 'fa-light fa-envelope',
                     'fields' => [

@@ -125,6 +125,8 @@ class WaitForCustomerReply
     /** @noinspection PhpUnusedParameterInspection */
     public function inWhatsapp(?string $organisation, MetaChatSession $metaChatSession, ActionRequest $request): JsonResponse
     {
+        $request->validate();
+
         return $this->respond($metaChatSession, $request->validated('hours'));
     }
 

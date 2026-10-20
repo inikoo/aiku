@@ -11,9 +11,10 @@ import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import { ctrans } from "@/Composables/useTrans"
 
 export interface Valuation {
-	currency: "agent" | "GBP" | "EUR"
+	currency: string
 	measure: "cost" | "sales"
 	agent_currency: string
+	currencies: string[]
 }
 
 const props = defineProps<{
@@ -22,7 +23,7 @@ const props = defineProps<{
 
 const currencyOptions = computed(() => [
 	{ label: props.valuation.agent_currency, value: "agent" },
-	...["GBP", "EUR"].filter((code) => code !== props.valuation.agent_currency).map((code) => ({ label: code, value: code })),
+	...props.valuation.currencies.filter((code) => code !== props.valuation.agent_currency).map((code) => ({ label: code, value: code })),
 ])
 
 const measureOptions = [

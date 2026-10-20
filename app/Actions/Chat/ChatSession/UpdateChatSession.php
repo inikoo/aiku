@@ -8,6 +8,9 @@
 
 namespace App\Actions\Chat\ChatSession;
 
+use App\Models\SysAdmin\User;
+use App\Models\Catalogue\Shop;
+use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Enums\CRM\Livechat\ChatActorTypeEnum;
 use App\Enums\CRM\Livechat\ChatEventTypeEnum;
 use App\Enums\CRM\Livechat\ChatPriorityEnum;
@@ -21,6 +24,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class UpdateChatSession
 {
     use AsAction;
+    use WithChatAgentAuthorisation;
 
     public function rules(): array
     {
@@ -84,6 +88,12 @@ class UpdateChatSession
     public function asController(ChatSession $chatSession, ActionRequest $request): JsonResponse
     {
         $validated = $request->validated();
+
+        if (array_key_exists('priority', $validated) || array_key_exists('user_id', $validated)) {
+            $user = $request->user();
+            abort_unless($user instanceof User && $chatSession->shop instanceof Shop && $this->userCanActOnChatOnShop($user, $chatSession->shop), 403);
+            $validated['user_id'] = $user->id;
+        }
 
         $updatedFields = $this->handle($chatSession, $validated);
 

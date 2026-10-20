@@ -132,6 +132,13 @@ class EditOrgStock extends OrgAction
                         'value'       => $orgStock->is_excluded_from_auto_ordering,
                         'information' => __('Procurement auto-fill proposals skip this SKO. It can still be added to shopping lists by hand.'),
                     ],
+                    'minimum_stock' => [
+                        'type'        => 'input',
+                        'label'       => __('Minimum stock (SKOs)'),
+                        'value'       => $orgStock->minimum_stock !== null ? (float) $orgStock->minimum_stock : null,
+                        'information' => __('When the stock in all locations falls below this level the SKO shows in Below minimum stock on the inventory dashboard, so it can be reordered in time. Leave empty to not watch it.'),
+                        'options'     => ['inputType' => 'number']
+                    ],
                     ...($orgStock->measured_lead_time_days !== null ? [] : [
                         'estimated_lead_time_days' => [
                             'type'    => 'input',

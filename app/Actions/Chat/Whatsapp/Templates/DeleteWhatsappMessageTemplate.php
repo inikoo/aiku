@@ -9,6 +9,7 @@ namespace App\Actions\Chat\Whatsapp\Templates;
 
 use App\Actions\Chat\Whatsapp\Concerns\WithWhatsappCredentials;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithWhatsappTemplateEditAuthorisation;
 use App\Models\Catalogue\Shop;
 use App\Models\Chat\MetaMessageTemplate;
 use App\Models\SysAdmin\Organisation;
@@ -21,6 +22,7 @@ use Lorisleiva\Actions\ActionRequest;
 class DeleteWhatsappMessageTemplate extends OrgAction
 {
     use WithWhatsappCredentials;
+    use WithWhatsappTemplateEditAuthorisation;
 
     /**
      * Meta deletes by name, which removes every language variant of the template. The
@@ -67,6 +69,7 @@ class DeleteWhatsappMessageTemplate extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, MetaMessageTemplate $metaMessageTemplate, ActionRequest $request): RedirectResponse
     {
+        abort_unless($metaMessageTemplate->shop_id === $shop->id, 404);
         $this->initialisationFromShop($shop, $request);
 
         $result = $this->handle($shop, $metaMessageTemplate);

@@ -50,17 +50,6 @@ class IndexRecentUploads
         return UploadsResource::collection($collection);
     }
 
-    public function inPalletDelivery(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, ActionRequest $request): array|Collection
-    {
-
-        $this->initialisationFromFulfilment($fulfilment, $request);
-
-        return $this->handle(class_basename(Pallet::class), [
-            'user_id'   =>  $request->user()->id
-
-        ]);
-    }
-
     public function inPalletReturn(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, ActionRequest $request): array|Collection
     {
         return $this->handle(class_basename(PalletReturnItem::class), [

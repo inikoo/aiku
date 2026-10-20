@@ -47,8 +47,8 @@ class PalletDeliveryPalletExport implements FromQuery, WithHeadings, ShouldAutoS
         return [
             $pallet->reference,
             $pallet->customer_reference,
-            $pallet->rental->code,
-            $pallet->location->code,
+            $pallet->rental?->code,
+            $pallet->location?->code,
             $storedItems
         ];
     }

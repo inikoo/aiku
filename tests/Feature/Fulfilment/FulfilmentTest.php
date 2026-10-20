@@ -1965,6 +1965,52 @@ test('can create dispatched pallet return pdf', function (PalletReturn $palletRe
         ->and(PdfPalletReturn::run($palletReturn)->getContent())->toStartWith('%PDF');
 })->depends('dispatch pallet return');
 
+test('pallet return services and documents need a fulfilment permission on the record, INI-076', function (PalletReturn $palletReturn) {
+    $unguarded = collect(app('router')->getRoutes()->getRoutes())
+        ->filter(fn ($route) => str_starts_with((string) $route->getName(), 'grp.models.') && is_string($route->getAction('uses')))
+        ->map(fn ($route) => \Illuminate\Support\Str::before($route->getAction('uses'), '@'))
+        ->filter(fn (string $action) => (str_starts_with($action, 'App\\Actions\\Fulfilment\\') || str_starts_with($action, 'App\\Actions\\Billables\\') || str_starts_with($action, 'App\\Actions\\Accounting\\StandaloneFulfilment')) && !method_exists($action, 'authorize'))
+        ->unique()->values()->all();
+    expect($unguarded)->toBe([]);
+
+    $fulfilment = $palletReturn->fulfilment;
+    $user       = $this->adminGuest->getUser();
+
+    $originalRoles       = $user->roles->pluck('name')->toArray();
+    $originalPermissions = $user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($user, ["fulfilment-shop.$fulfilment->id.view"]);
+        $this->post(route('grp.models.pallet-return.transaction.store', $palletReturn->id), [])->assertForbidden();
+        $pallet = $palletReturn->pallets()->firstOrFail();
+        $this->post(route('grp.models.pallet-return.pallet.attach', [$palletReturn, $pallet]))->assertForbidden();
+        $this->delete(route('grp.models.pallet-return.pallet.detach', [$palletReturn, $pallet]))->assertForbidden();
+        $this->post(route('grp.models.fulfilment_customer_space.store', $palletReturn->fulfilmentCustomer), [])->assertForbidden();
+        $this->post(route('grp.models.pallet-return.pallet.store', $palletReturn), [])->assertForbidden();
+        $this->post(route('grp.models.fulfilment-customer.stored-items.bulk_edit.import', $palletReturn->fulfilmentCustomer), [])->assertForbidden();
+        $this->post(route('grp.models.pallet-delivery.pallet.upload', $palletReturn->fulfilmentCustomer->palletDeliveries()->firstOrFail()), [])->assertForbidden();
+        expect($palletReturn->pallets()->whereKey($pallet->id)->exists())->toBeTrue();
+        $this->get(route('grp.models.pallet-return.pdf', $palletReturn->id))->assertOk();
+
+        actingAsUserWithOnlyPermissions($user, ["group-reports"]);
+        $this->get(route('grp.models.pallet-return.pdf', $palletReturn->id))->assertForbidden();
+        $this->get(route('grp.models.pallet-return.pallet_picking.pdf', $palletReturn->id))->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($user, ["fulfilment.$palletReturn->warehouse_id.view"]);
+        $this->get(route('grp.models.pallet-return.pdf', $palletReturn->id))->assertOk();
+        $this->post(route('grp.models.pallet-return.transaction.store', $palletReturn->id), [])->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($user, ["fulfilment-shop.$fulfilment->id.edit"]);
+        expect($this->post(route('grp.models.pallet-return.transaction.store', $palletReturn->id), [])->status())->not->toBe(403);
+        expect($this->post(route('grp.models.fulfilment_customer_space.store', $palletReturn->fulfilmentCustomer), [])->status())->not->toBe(403);
+    } finally {
+        setPermissionsTeamId($user->group_id);
+        $user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($user);
+    }
+})->depends('dispatch pallet return');
+
 test('create pallet no delivery', function (Fulfilment $fulfilment) {
     $customer = StoreCustomer::make()->action(
         $fulfilment->shop,
@@ -3451,6 +3497,85 @@ test('update stored item audit', function (StoredItemAudit $storedItemAudit) {
     return $storedItemAudit;
 })->depends('create stored item audit');
 
+test('fulfilment customer pallets and audit stored items json answer fulfilment staff only, INI-076', function (StoredItemAudit $storedItemAudit) {
+    $fulfilmentCustomer = $storedItemAudit->fulfilmentCustomer;
+    $fulfilment         = $fulfilmentCustomer->fulfilment;
+    $routes             = [
+        route('grp.json.fulfilment-customer.storing-pallets.index', $fulfilmentCustomer),
+        route('grp.json.fulfilment-customer.audit.stored-items.index', [$fulfilmentCustomer, $storedItemAudit]),
+    ];
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ['goods.view']);
+    foreach ($routes as $url) {
+        $this->getJson($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["fulfilment-shop.$fulfilment->id.view"]);
+    foreach ($routes as $url) {
+        $this->getJson($url)->assertOk();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["fulfilment.$storedItemAudit->warehouse_id.view"]);
+    $this->getJson($routes[1])->assertOk();
+
+    actingAsUserWithOnlyPermissions($user, ["fulfilment-shop.$fulfilment->id.view"]);
+    $otherCustomer = FulfilmentCustomer::where('id', '!=', $fulfilmentCustomer->id)->where('fulfilment_id', $fulfilment->id)->first();
+    if ($otherCustomer) {
+        $this->getJson(route('grp.json.fulfilment-customer.audit.stored-items.index', [$otherCustomer, $storedItemAudit]))->assertNotFound();
+    }
+})->depends('update stored item audit');
+
+test('fulfilment customer exports, labels, sales channels and the SKO create page answer fulfilment staff of the customer, INI-076', function (StoredItemAudit $storedItemAudit) {
+    $fulfilmentCustomer = $storedItemAudit->fulfilmentCustomer;
+    $fulfilment         = $fulfilmentCustomer->fulfilment;
+    $org                = $fulfilment->organisation;
+    $params             = [$org->slug, $fulfilment->slug, $fulfilmentCustomer->slug];
+    $pallet             = Pallet::where('fulfilment_customer_id', $fulfilmentCustomer->id)->firstOrFail();
+    $storedItem         = StoredItem::where('fulfilment_customer_id', $fulfilmentCustomer->id)->firstOrFail();
+
+    $viewRoutes = [
+        route('grp.org.fulfilments.show.crm.customers.show.customer_sales_channels.index', $params),
+        route('grp.org.fulfilments.show.crm.customers.show.pallets.index.export', [...$params, 'type' => 'csv']),
+        route('grp.org.fulfilments.show.crm.customers.show.stored-items.export', [...$params, 'type' => 'csv']),
+        route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.export', [...$params, 'type' => 'csv']),
+        route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.stored-items.export', [...$params, 'type' => 'csv']),
+        route('grp.org.fulfilments.show.crm.customers.show.pallets.export', [...$params, $pallet->slug, 'type' => 'pdf']),
+        route('grp.org.fulfilments.show.crm.customers.show.stored-items.export_label', [...$params, $storedItem->slug]),
+    ];
+    $createRoute = route('grp.org.fulfilments.show.crm.customers.show.stored-items.create', $params);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $org->group_id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["human-resources.$org->id.view"]);
+    foreach ([...$viewRoutes, $createRoute] as $url) {
+        $this->get($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["fulfilment-shop.$fulfilment->id.view"]);
+    foreach ($viewRoutes as $url) {
+        $this->get($url)->assertOk();
+    }
+    $this->get($createRoute)->assertForbidden();
+
+    $otherCustomer = FulfilmentCustomer::where('id', '!=', $fulfilmentCustomer->id)->where('fulfilment_id', $fulfilment->id)->first();
+    if ($otherCustomer) {
+        $this->get(route('grp.org.fulfilments.show.crm.customers.show.pallets.export', [$org->slug, $fulfilment->slug, $otherCustomer->slug, $pallet->slug, 'type' => 'pdf']))->assertNotFound();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["accounting.$org->id.view"]);
+    $this->get($viewRoutes[0])->assertOk();
+
+    $palletDelivery = PalletDelivery::where('fulfilment_id', $fulfilment->id)->firstOrFail();
+    $deliveryExport = route('grp.org.fulfilments.show.operations.pallet-deliveries.export', [$org->slug, $fulfilment->slug, $palletDelivery->slug, 'type' => 'csv']);
+    $this->get($deliveryExport)->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["fulfilment-shop.$fulfilment->id.view", "fulfilment-shop.$fulfilment->id.edit"]);
+    $this->get($createRoute)->assertOk();
+    $this->get($deliveryExport)->assertOk();
+})->depends('update stored item audit');
+
 test('create stored item audit delta', function (StoredItemAudit $storedItemAudit) {
     $fulfilmentCustomer = $storedItemAudit->fulfilmentCustomer;
     $palletStoredItems  = PalletStoredItem::whereHas('pallet', function ($query) use ($fulfilmentCustomer) {
@@ -3887,4 +4012,68 @@ test('fulfilment customer status follows invoicing recency', function () {
     $fulfilmentCustomer->rentalAgreement->update(['created_at' => now()->subMonths(7)]);
     FulfilmentCustomerHydrateStatus::run($fulfilmentCustomer->fresh());
     expect($fulfilmentCustomer->fresh()->status)->toBe(FulfilmentCustomerStatusEnum::UNACCOMPLISHED);
+});
+
+test('stored item audits are worked on by the fulfilment staff of their warehouse, INI-076', function () {
+    $storedItemAudit = StoredItemAudit::whereNotNull('warehouse_id')->latest('id')->firstOrFail();
+    $user            = $this->adminGuest->getUser();
+
+    $originalRoles       = $user->roles->pluck('name')->toArray();
+    $originalPermissions = $user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($user, ["fulfilment-shop.$storedItemAudit->fulfilment_id.edit"]);
+        $this->patch(route('grp.models.stored_item_audit.update', $storedItemAudit->id), ['public_notes' => 'without warehouse'])->assertForbidden();
+        $this->post(route('grp.models.stored_item_audit.stored_item_audit_delta.store', $storedItemAudit->id), [])->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($user, ["fulfilment.$storedItemAudit->warehouse_id.edit"]);
+        expect($this->patch(route('grp.models.stored_item_audit.update', $storedItemAudit->id), ['public_notes' => 'checked in the warehouse'])->status())->toBeLessThan(400)
+            ->and($storedItemAudit->refresh()->public_notes)->toBe('checked in the warehouse');
+    } finally {
+        setPermissionsTeamId($user->group_id);
+        $user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($user);
+    }
+});
+
+test('fulfilment supervisors json refuses staff without the fulfilment shop rule', function () {
+    $fulfilment = createFulfilment($this->organisation);
+    list(, , $shop) = createShop();
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["products.$shop->id.view"]);
+    $this->getJson(route('grp.json.fulfilment.supervisors.index', $fulfilment))->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["fulfilment-shop.$fulfilment->id.view"]);
+    $this->getJson(route('grp.json.fulfilment.supervisors.index', $fulfilment))->assertOk();
+});
+
+test('fulfilment rentals, accounting and post room pages answer fulfilment or accounting staff, INI-076', function () {
+    $fulfilment = createFulfilment($this->organisation);
+    $org        = $this->organisation;
+    $routes     = [
+        route('grp.org.fulfilments.show.catalogue.rentals.index', [$org->slug, $fulfilment->slug]),
+        route('grp.org.fulfilments.show.operations.invoices.deleted_invoices.index', [$org->slug, $fulfilment->slug]),
+        route('grp.org.fulfilments.show.operations.accounting.accounts.index', [$org->slug, $fulfilment->slug]),
+    ];
+    $postRooms = route('grp.org.fulfilments.show.operations.comms.post-rooms.index', [$org->slug, $fulfilment->slug]);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $org->group_id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["human-resources.$org->id.view"]);
+    foreach ([...$routes, $postRooms] as $url) {
+        $this->get($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["fulfilment-shop.$fulfilment->id.view"]);
+    foreach ([...$routes, $postRooms] as $url) {
+        $this->get($url)->assertOk();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["accounting.$org->id.view"]);
+    foreach ($routes as $url) {
+        $this->get($url)->assertOk();
+    }
 });

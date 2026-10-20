@@ -12,6 +12,7 @@ use App\Actions\Dispatching\DeliveryNoteItem\UI\IndexDeliveryNoteItems;
 use App\Actions\Dispatching\DeliveryNoteItem\UI\IndexDeliveryNoteItemsStateHandling;
 use App\Actions\Dispatching\DeliveryNoteItem\UI\IndexDeliveryNoteItemsStateUnassigned;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithDeliveryNoteItemReadAuthorisation;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStateEnum;
 use App\Enums\UI\Dispatch\DeliveryNoteTabsEnum;
@@ -31,6 +32,7 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class FetchDeliveryNoteItemRow extends OrgAction
 {
+    use WithDeliveryNoteItemReadAuthorisation;
     public function handle(DeliveryNoteItem $deliveryNoteItem, ?string $tab = null): ?JsonResource
     {
         $deliveryNote = $deliveryNoteItem->deliveryNote;

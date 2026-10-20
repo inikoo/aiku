@@ -13,6 +13,7 @@ use App\Actions\Accounting\PaymentAccount\Hydrators\PaymentAccountHydratePAS;
 use App\Actions\Billables\Charge\StoreCharge;
 use App\Actions\Billables\Charge\UpdateCharge;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithAccountingEditAuthorisation;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
@@ -31,6 +32,7 @@ class UpdatePaymentAccountShop extends OrgAction
 {
     use WithActionUpdate;
     use WithNoStrictRules;
+    use WithAccountingEditAuthorisation;
 
     /**
      * @var \App\Models\Accounting\PaymentAccountShop
@@ -197,7 +199,8 @@ class UpdatePaymentAccountShop extends OrgAction
 
     public function action(PaymentAccountShop $paymentAccountShop, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): PaymentAccountShop
     {
-        $this->strict = $strict;
+        $this->asAction = true;
+        $this->strict   = $strict;
         if (!$audit) {
             PaymentAccountShop::disableAuditing();
         }

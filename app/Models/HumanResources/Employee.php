@@ -35,6 +35,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -383,6 +384,55 @@ class Employee extends Model implements HasMedia, Auditable
         }
 
         return $this->organisation?->getDefaultWorkSchedule();
+    }
+
+    /**
+     * The shift this employee was working at the moment given, in the schedule's own time zone: the shift of that
+     * day, or the night shift of the day before while it is still running. Null when no schedule says anything
+     * about that day; an empty window for a day off.
+     *
+     * @return array{0: Carbon, 1: Carbon}|array{}|null
+     */
+    public function shiftWindowOn(Carbon $moment): ?array
+    {
+        $schedule = $this->getEffectiveWorkSchedule();
+        if (!$schedule) {
+            return null;
+        }
+
+        $timezone = $schedule->timezone?->name ?? $this->organisation?->timezone?->name ?? config('app.timezone');
+        $local    = $moment->copy()->setTimezone($timezone);
+
+        $previousNight = $this->scheduledShift($schedule, $local->copy()->subDay(), $timezone);
+        if ($previousNight && $local->lessThan($previousNight[1])) {
+            return $previousNight;
+        }
+
+        $day = $schedule->days->firstWhere('day_of_week', $local->dayOfWeekIso);
+        if (!$day) {
+            return null;
+        }
+
+        return $this->scheduledShift($schedule, $local, $timezone) ?? [];
+    }
+
+    /**
+     * @return array{0: Carbon, 1: Carbon}|null
+     */
+    private function scheduledShift(WorkSchedule $schedule, Carbon $localDay, string $timezone): ?array
+    {
+        $day = $schedule->days->firstWhere('day_of_week', $localDay->dayOfWeekIso);
+        if (!$day || !$day->is_working_day || !$day->start_time || !$day->end_time) {
+            return null;
+        }
+
+        $start = Carbon::parse($localDay->toDateString().' '.$day->start_time, $timezone);
+        $end   = Carbon::parse($localDay->toDateString().' '.$day->end_time, $timezone);
+        if ($end->lessThanOrEqualTo($start)) {
+            $end->addDay();
+        }
+
+        return [$start, $end];
     }
 
     public function hrAnnouncements(): MorphMany

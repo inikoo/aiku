@@ -11,6 +11,7 @@ namespace App\Http\Resources\Helpers;
 
 use App\Http\Resources\HasSelfCall;
 use App\Models\Helpers\Upload;
+use App\Models\SysAdmin\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PalletUploadsResource extends JsonResource
@@ -30,6 +31,7 @@ class PalletUploadsResource extends JsonResource
             'number_success'    => $upload->number_success,
             'number_fails'      => $upload->number_fails,
             'path'              => $upload->path,
+            'can_view'          => !$request->user() instanceof User || $upload->canBeViewedBy($request->user()),
         ];
     }
 }

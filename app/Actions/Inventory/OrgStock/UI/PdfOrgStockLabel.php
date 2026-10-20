@@ -8,6 +8,7 @@
 
 namespace App\Actions\Inventory\OrgStock\UI;
 
+use App\Actions\Traits\Authorisations\Inventory\WithInventoryAuthorisation;
 use App\Models\Inventory\OrgStock;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\Inventory\Warehouse;
@@ -23,6 +24,12 @@ use Symfony\Component\HttpFoundation\Response;
 class PdfOrgStockLabel
 {
     use AsAction;
+    use WithInventoryAuthorisation {
+        authorize as authorizeInventory;
+    }
+
+    private Organisation $organisation;
+    private bool $canEdit = false;
 
     /**
      * The label stocks Aurora offered, kept to the millimetre so a roll bought for the old system
@@ -650,11 +657,19 @@ class PdfOrgStockLabel
         ];
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        $this->organisation = $request->route('organisation');
+
+        return $this->authorizeInventory($request);
+    }
+
     /**
      * @throws \Mpdf\MpdfException
      */
     public function asController(Organisation $organisation, Warehouse $warehouse, OrgStock $orgStock, ActionRequest $request): Response
     {
+        abort_unless($warehouse->organisation_id === $organisation->id && $orgStock->organisation_id === $organisation->id, 404);
         $request->validate($this->rules());
 
         return $this->handle($orgStock, $request->input('level', 'unit'), $request->all());

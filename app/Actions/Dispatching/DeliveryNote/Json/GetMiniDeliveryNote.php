@@ -9,6 +9,7 @@
 namespace App\Actions\Dispatching\DeliveryNote\Json;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithDispatchingAuthorisation;
 use App\Actions\Retina\UI\Layout\GetPlatformLogo;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Http\Resources\CRM\CustomerResource;
@@ -20,6 +21,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetMiniDeliveryNote extends OrgAction
 {
+    use WithDispatchingAuthorisation;
     use AsAction;
     use GetPlatformLogo;
 

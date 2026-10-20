@@ -31,21 +31,20 @@ class ShopPlatformStatsHydratePortfolios implements ShouldBeUnique
 
     public function handle(Shop $shop, Platform $platform): void
     {
-        $query = DB::table('portfolios')
-            ->where('item_type', class_basename(Product::class))
-            ->leftJoin('products', 'portfolios.item_id', '=', 'products.id')
-            ->where('portfolios.shop_id', $shop->id)
-            ->where('portfolios.platform_id', $platform->id)
-            ->distinct('item_id');
-        $stats = [
-            'number_products' => $query->count('product_id')
-
-        ];
-
+        $selects  = ['count(distinct portfolios.item_id) as number_products'];
+        $bindings = [];
         foreach (ProductStateEnum::cases() as $state) {
-            $stats['number_products_state_' . $state->value] = $query->where('products.state', $state->value)->count('product_id');
+            $selects[]  = 'count(distinct portfolios.item_id) filter (where products.state = ?) as number_products_state_'.$state->snake();
+            $bindings[] = $state->value;
         }
 
+        $stats = (array) DB::table('portfolios')
+            ->leftJoin('products', 'portfolios.item_id', '=', 'products.id')
+            ->where('portfolios.item_type', class_basename(Product::class))
+            ->where('portfolios.shop_id', $shop->id)
+            ->where('portfolios.platform_id', $platform->id)
+            ->selectRaw(implode(', ', $selects), $bindings)
+            ->first();
 
         $shop->platformStats()->where('platform_id', $platform->id)->update($stats);
     }

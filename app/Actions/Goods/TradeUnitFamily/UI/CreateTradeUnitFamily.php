@@ -11,7 +11,7 @@ class CreateTradeUnitFamily extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->authTo(['goods.edit', 'masters.edit']);
+        return $request->user()->authTo('goods.edit');
     }
 
     public function asController(ActionRequest $request): Response

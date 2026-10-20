@@ -4,7 +4,6 @@
  * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
-import { BrowserAgent } from '@newrelic/browser-agent/loaders/browser-agent'
 import "./bootstrap";
 import "../css/app.css";
 import { createApp, h } from "vue";
@@ -25,48 +24,6 @@ import { setAgentOrganisations, withAgentRoutes } from "@/Composables/useAgentRo
 import { ctrans } from "@/Composables/useTrans";
 import { sentryDenyUrls, sentryIgnoreErrors } from "@/Composables/sentryNoise";
 
-if (import.meta.env.VITE_NEW_RELIC_BROWSER_ENABLED) {
-  const options = {
-    "info": {
-      "applicationID": import.meta.env.VITE_NEW_RELIC_BROWSER_AIKU,
-      "beacon": "bam.nr-data.net",
-      "errorBeacon": "bam.nr-data.net",
-      "licenseKey": import.meta.env.VITE_NEW_RELIC_BROWSER_LICENCE_KEY,
-      "sa": 1
-    },
-    "init": {
-      "ajax": {
-        "deny_list": [
-          "bam.nr-data.net"
-        ]
-      },
-      "browser_consent_mode": {
-        "enabled": false
-      },
-      "distributed_tracing": {
-        "enabled": true
-      },
-      "performance": {
-        "capture_detail": false,
-        "capture_marks": false,
-        "capture_measures": true
-      },
-      "privacy": {
-        "cookies_enabled": true
-      }
-    },
-    "loader_config": {
-      "accountID": import.meta.env.VITE_NEW_RELIC_BROWSER_ACCOUNT_ID,
-      "agentID": import.meta.env.VITE_NEW_RELIC_BROWSER_AIKU,
-      "applicationID": import.meta.env.VITE_NEW_RELIC_BROWSER_AIKU,
-      "licenseKey": import.meta.env.VITE_NEW_RELIC_BROWSER_LICENCE_KEY,
-      "trustKey":  import.meta.env.VITE_NEW_RELIC_BROWSER_ACCOUNT_ID
-    }
-  }
-  const nrba = new BrowserAgent(options)
-
-}
-
 const appName = "aiku";
 
 const MyPreset = definePreset(Aura, {
@@ -83,6 +40,18 @@ const MyPreset = definePreset(Aura, {
       800: "{gray.800}",
       900: "{gray.900}",
       950: "{gray.950}"
+    }
+  },
+  components: {
+    dialog: {
+      header: { padding: "1rem 1.25rem 0.5rem", gap: "0.5rem" },
+      title : { fontSize: "0.875rem", fontWeight: "600" },
+      css   : `
+        .p-dialog .p-dialog-title { color: #374151; }
+        .p-dialog .p-dialog-header .p-dialog-close-button.p-button { width: 1.75rem; height: 1.75rem; min-width: 0; padding: 0; border: 0; background: transparent; color: #9ca3af; box-shadow: none; outline: none; }
+        .p-dialog .p-dialog-header .p-dialog-close-button.p-button:hover,
+        .p-dialog .p-dialog-header .p-dialog-close-button.p-button:focus-visible { background: #f3f4f6; color: #374151; box-shadow: none; outline: none; }
+      `
     }
   }
 });

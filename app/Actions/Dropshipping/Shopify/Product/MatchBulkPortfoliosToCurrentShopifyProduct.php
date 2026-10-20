@@ -8,6 +8,7 @@
 
 namespace App\Actions\Dropshipping\Shopify\Product;
 
+use App\Actions\Traits\Authorisations\WithCustomerSalesChannelEditAuthorisation;
 use App\Actions\Dropshipping\Portfolio\MatchBulkPortfoliosToPlatform;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -18,6 +19,7 @@ use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class MatchBulkPortfoliosToCurrentShopifyProduct extends OrgAction
 {
+    use WithCustomerSalesChannelEditAuthorisation;
     use AsAction;
     use WithAttributes;
     use WithActionUpdate;

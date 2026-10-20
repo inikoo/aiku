@@ -21,6 +21,7 @@ class GetProductForWooCommerce
     use AsAction;
     use WithAttributes;
     use WithPlatformListedProducts;
+    use WithWooProductVariations;
 
     public $commandSignature = 'dropshipping:wooCommerce:product:get {wooCommerceUser}';
 
@@ -67,6 +68,10 @@ class GetProductForWooCommerce
 
             foreach ($products as $product) {
                 $listedProducts[] = $this->transformToStandardFormat($product);
+
+                foreach ($this->getPublishedVariations($wooCommerceUser, $product) as $variation) {
+                    $listedProducts[] = $this->transformVariationToStandardFormat($product, $variation);
+                }
             }
 
             if (count($products) < self::PAGE_SIZE) {
@@ -91,6 +96,18 @@ class GetProductForWooCommerce
             'code'   => Arr::get($product, 'sku'),
             'price'  => Arr::get($product, 'price'),
             'images' => Arr::get($product, 'images')
+        ];
+    }
+
+    private function transformVariationToStandardFormat(array $product, array $variation): array
+    {
+        return [
+            'id'     => Arr::get($variation, 'id'),
+            'name'   => $this->variationName($product, $variation),
+            'slug'   => Arr::get($product, 'slug'),
+            'code'   => Arr::get($variation, 'sku'),
+            'price'  => Arr::get($variation, 'price'),
+            'images' => Arr::get($variation, 'image') ? [Arr::get($variation, 'image')] : Arr::get($product, 'images')
         ];
     }
 

@@ -12,7 +12,7 @@ namespace App\Actions\Fulfilment\StoredItem;
 use App\Actions\Helpers\Upload\ImportUpload;
 use App\Actions\Helpers\Upload\StoreUpload;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopEditAuthorisation;
 use App\Actions\Traits\WithImportModel;
 use App\Imports\Fulfilment\StoredItemsImport;
 use App\Models\Fulfilment\Fulfilment;
@@ -24,7 +24,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ImportStoredItems extends OrgAction
 {
     use WithImportModel;
-    use WithFulfilmentShopAuthorisation;
+    use WithFulfilmentShopEditAuthorisation;
 
     private Fulfilment $parent;
     public function handle(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Upload
@@ -70,10 +70,7 @@ class ImportStoredItems extends OrgAction
     {
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
-        $file = $request->file('file');
-        Storage::disk('local')->put($this->tmpPath, $file);
-
-        return $this->handle($fulfilmentCustomer, $file, $this->validatedData);
+        return $this->handle($fulfilmentCustomer, $request);
     }
 
     public function runImportForCommand($file, $command): Upload

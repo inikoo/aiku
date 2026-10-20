@@ -10,6 +10,7 @@
 
 namespace App\Actions\Helpers\Brand;
 
+use App\Actions\Traits\Authorisations\WithGoodsEditAuthorisation;
 use App\Actions\OrgAction;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Brand;
@@ -19,6 +20,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class DeleteBrand extends OrgAction
 {
+    use WithGoodsEditAuthorisation;
+
     public function handle(Brand $brand): bool
     {
         $brand->tradeUnits()->detach();

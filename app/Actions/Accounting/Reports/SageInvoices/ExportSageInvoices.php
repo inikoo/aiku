@@ -9,6 +9,7 @@
 namespace App\Actions\Accounting\Reports\SageInvoices;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithAccountingReportsAuthorisation;
 use App\Actions\Traits\WithExportData;
 use App\Exports\Accounting\SageInvoicesExport;
 use App\Models\SysAdmin\Organisation;
@@ -19,6 +20,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ExportSageInvoices extends OrgAction
 {
+    use WithAccountingReportsAuthorisation;
     use WithExportData;
 
     private const STREAM_THRESHOLD = 20000;

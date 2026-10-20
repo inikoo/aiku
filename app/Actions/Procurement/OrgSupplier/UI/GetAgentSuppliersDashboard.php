@@ -91,7 +91,7 @@ class GetAgentSuppliersDashboard
         ];
         $purchaseOrdersRoute = fn (array $elements) => $route('grp.org.procurement.purchase_orders.index', [], [
             ...collect($elements)->mapWithKeys(fn ($value, $key) => ["elements[$key]" => $value])->all(),
-            ...($buyer ? ['elements[organisation]' => $buyer->slug] : []),
+            ...($buyer ? ['filter[organisation]' => $buyer->slug] : []),
             'sort' => 'date',
         ]);
         $supplierRoute = fn (?string $slug) => $slug ? $route('grp.org.procurement.org_suppliers.show', ['orgSupplier' => $slug]) : null;
@@ -118,10 +118,6 @@ class GetAgentSuppliersDashboard
                 'currencies' => $currencies->keys()->values(),
             ],
             'kpis'        => [
-                'active_suppliers' => [
-                    'value' => $suppliers->where('status', true)->count(),
-                    'route' => $route('grp.org.procurement.org_suppliers.index', [], ['tab' => 'index']),
-                ],
                 'open'             => [
                     'value'       => $sent->count(),
                     'amount'      => $money($sent->sum('amount')),

@@ -1,10 +1,11 @@
 ---
 title: Zaznamenanie dohody s dodávateľom
 summary: Zapíšte si podmienky dohodnuté s dodávateľom alebo agentom - Incoterm, poplatky, menu, dodaciu lehotu - spolu s dôkazom a pridajte poznámky a upozornenia, aby sa zobrazili na každej objednávke a prežili zmenu nákupcu.
-date: 2026-10-14
-source_date: 2026-10-14
+date: 2026-10-16
+source_date: 2026-10-16
 tags: procurement, suppliers, agents, purchase orders, agreed terms, notes, incidents
 category: procurement
+help_routes: grp.org.procurement.org_suppliers, grp.org.procurement.org_agents, grp.org.procurement.purchase_orders, grp.org.procurement.supplier_incidents, grp.org.procurement.stock_deliveries
 ---
 
 <aside class="tldr">
@@ -108,6 +109,25 @@ Každý rozdiel je červeno uvedený v paneli **Iné, ako bolo dohodnuté** hore
 
 Každý prijatý rozdiel sa stane otvorenou poznámkou **Incident** na dodávateľovi alebo agentovi so sumou a vaším dôvodom a dostane o ňom upozornenie vedúci nákupu a nákupca objednávky. Zoznamy dodávateľov ukazujú počet otvorených incidentov vedľa kódu dodávateľa.
 
+## Kontrola dodávky pri prijatí
+
+Odo dňa odoslania dodávky na sklad má dodávka kartu **Kontrolný zoznam**, na stránke obstarávania dodávky aj na stránke príjmu tovaru skladu. Pre každého dodávateľa na dodávke a potom pre každý jeho produkt uvádza:
+
+- **Balenie** - kto tovar balí a do akého materiálu, ak je to zaznamenané pri dodávateľovi alebo pri produkte;
+- každú otvorenú poznámku kategórie **Obal** alebo **Produkt** napísanú pri tomto dodávateľovi alebo produkte.
+
+Číslo na karte ukazuje, koľko kontrol ešte zostáva. Stlačte **Vyhovelo**, keď tovar zodpovedá. Stlačte **Nepodarilo sa**, keď nezodpovedá: vyberte typ problému, zadajte dotknuté množstvo, ak ho poznáte, napíšte, čo je zle, a stlačte **Otvoriť incident**. aiku otvorí poznámku **Incident** pri tomto dodávateľovi alebo produkte, prepojenú s objednávkou, na ktorej tovar prišiel, a pri kontrole ostane zaznamenané, kto ju označil ako nevyhovujúcu a kedy.
+
+Pracovníci príjmu tovaru môžu zaškrtávať kontrolný zoznam a môžu písať **Incident** na karte **Notes** dodávky na sklad. Poznámky iných kategórií písať nemôžu.
+
+## Dodávky s meškaním
+
+Keď sa dodávka prijme, aiku zmeria každú jej nákupnú objednávku od dňa odoslania objednávky po deň prijatia dodávky a porovná ju s dohodnutou hodnotou **Dodacia lehota v dňoch** u dodávateľa alebo jeho agenta. Objednávka, ktorá mešká o viac ako 7 dní oproti dohodnutému, dostane pri dodávateľovi **Incident** typu **S meškaním**, prepojený s objednávkou, s počtom dní, ktoré trvala. Zapíše sa raz pre každú objednávku. Dodávateľ bez dohodnutej dodacej lehoty sa nemeria.
+
+## Prehľad incidentov dodávateľov
+
+Karta **Incidenty dodávateľov** na paneli obstarávania, ktorá počíta otvorené incidenty, otvorí prehľad s každým dodávateľom alebo agentom s incidentmi vo vašej organizácii: koľko ich je, koľko je ešte otvorených, sporná suma a získaná suma, s dátumom posledného. Incident pri produkte dodávateľa alebo pri nákupnej objednávke sa počíta jej dodávateľovi. Sumy sú v mene skupiny, prepočítané ku dňu, keď bol incident zapísaný. **Recovered** (získané) je suma incidentov, ktorých výsledok bol nastavený na **Pripísané**. Stlačte kód dodávateľa a otvoria sa jeho poznámky.
+
 <aside class="wayfinder"><strong>Kde klikať v aiku</strong>
 <ul>
 <li><b>Pozrieť, čo sa s dodávateľom dohodlo:</b> vaša organizácia → <b>Procurement → Suppliers</b> → dodávateľ → panel <b>What was agreed</b>.</li>
@@ -118,10 +138,12 @@ Každý prijatý rozdiel sa stane otvorenou poznámkou **Incident** na dodávate
 <li><b>Podmienka alebo poznámka pre jeden produkt:</b> dodávateľ → jeho produkty → produkt → <b>Agreed terms</b> alebo <b>Notes</b>.</li>
 <li><b>Potvrdiť kritické poznámky:</b> objednávka → zaškrtnite <b>I have read the critical notes for this order</b> → <b>Submit</b>.</li>
 <li><b>Vytlačiť odovzdávací list:</b> dodávateľ → panel <b>What was agreed</b> → <b>Handover sheet</b>.</li>
+<li><b>Skontrolovať dodávku:</b> dodávka na sklad → <b>Kontrolný zoznam</b> → <b>Vyhovelo</b> alebo <b>Nepodarilo sa</b> na každom riadku.</li>
+<li><b>Pozrieť incidenty podľa dodávateľa:</b> panel <b>Procurement</b> → karta <b>Incidenty dodávateľov</b>.</li>
 <li><b>Prijať rozdiel:</b> nákupná objednávka alebo dodávka → <b>Iné, ako bolo dohodnuté</b> → napíšte dôvod → <b>Prijať</b>.</li>
 </ul>
 </aside>
 
 <aside class="permissions"><strong>Oprávnenia, ktoré potrebujete</strong>
-Na zobrazenie podmienok a poznámok potrebujete oprávnenie zobrazovať obstarávanie organizácie a na pridanie poznámky alebo podmienky oprávnenie upravovať obstarávanie. Zmena alebo odvolanie podmienky, ktorú dohodol niekto iný, a pripnutie alebo vyriešenie poznámky napísanej niekým iným vyžadujú pozíciu vedúceho obstarávania. Prijatie rozdielu oproti dohodnutému vyžaduje oprávnenie upravovať nákup v organizácii, ktorá platí.
+Na zobrazenie podmienok a poznámok potrebujete oprávnenie zobrazovať obstarávanie organizácie a na pridanie poznámky alebo podmienky oprávnenie upravovať obstarávanie. Zmena alebo odvolanie podmienky, ktorú dohodol niekto iný, a pripnutie alebo vyriešenie poznámky napísanej niekým iným vyžadujú pozíciu vedúceho obstarávania. Prijatie rozdielu oproti dohodnutému vyžaduje oprávnenie upravovať nákup v organizácii, ktorá platí. Pracovníci príjmu tovaru s oprávnením upravovať príjem tovaru pre niektorý sklad organizácie môžu zaškrtávať kontrolný zoznam dodávky a hlásiť incidenty.
 </aside>

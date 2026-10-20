@@ -68,7 +68,7 @@ const layout = inject('layout', aikuLocaleStructure)
                 <!-- Section: See Documentation -->
                 <div class="mt-6 flex flex-col gap-x-6">
                     <div class="mb-2 text-sm text-gray-500">{{ ctrans("Full reference of the available endpoints, parameters and examples:") }}</div>
-                    <a :href="layout?.retina?.type === 'fulfilment' ? 'https://documenter.getpostman.com/view/28816137/2sBY4WmwBA' : 'https://documenter.getpostman.com/view/28816137/2sB34Zrjrp'" target="_blank" rel="noopener noreferrer" class="w-fit">
+                    <a :href="layout?.retina?.type === 'fulfilment' ? 'https://documenter.getpostman.com/view/28816137/2sBY4WmwBA' : 'https://documenter.getpostman.com/view/12089926/2sBYHSy1KG'" target="_blank" rel="noopener noreferrer" class="w-fit">
                         <Button
                             :label="ctrans('API documentation')"
                             iconRight="fal fa-external-link"

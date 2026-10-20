@@ -13,7 +13,6 @@ use App\Actions\Comms\Mailbox\CallbackShopMailbox;
 use App\Actions\HumanResources\ClockingMachine\UI\RedirectClockingMachineQrScan;
 use App\Actions\SysAdmin\Group\Seeders\SeedWebBlockTypes;
 use App\Actions\SysAdmin\UI\ShowGrpLlmsTxt;
-use App\Actions\UI\Notification\IndexNotification;
 use App\Actions\Web\Webpage\BanVarnishWebpage;
 use App\Actions\Web\Website\BreakAllWebsitesVarnishCache;
 use App\Actions\Web\Website\BreakWebsiteVarnishCache;
@@ -117,7 +116,6 @@ Route::middleware(
     Route::get('ban/varnish/webpage/{webpage}', BanVarnishWebpage::class)->name('varnish.webpage');
     Route::get('ban/varnish/website/{website}', BreakWebsiteVarnishCache::class)->name('varnish.website');
 
-    Route::get('/notifications', IndexNotification::class)->name('notifications');
     Route::get('/deploys', IndexAppDeployments::class)->name('deploys');
     Route::get('/docs', ShowDocsDashboard::class)->name('docs');
     Route::get('/docs/aiku-public-analytics', ShowAikuPublicAnalytics::class)->name('docs.aiku-public-analytics');
@@ -136,6 +134,9 @@ Route::middleware(
     Route::prefix("masters")
         ->name("masters.")
         ->group(__DIR__."/masters.php");
+    Route::prefix("product-developments")
+        ->name("product_developments.")
+        ->group(__DIR__."/product_developments.php");
     Route::prefix("trade-units")
         ->name("trade_units.")
         ->group(__DIR__."/trade_units.php");
@@ -153,6 +154,8 @@ Route::middleware(
         ->group(function () {
             Route::get('/', [App\Actions\UI\Marketing\ShowAggregatedMarketingDashboard::class, 'inGroup'])->name('dashboard');
             Route::get('/channels/{channelType}', [App\Actions\UI\Marketing\ShowAggregatedMarketingChannel::class, 'inGroup'])->name('channels.show');
+            Route::get('/social-media', [App\Actions\UI\Marketing\ShowSocialMediaDashboard::class, 'inGroup'])->name('social_media.dashboard');
+            Route::get('/social-media/export', [App\Actions\UI\Marketing\ExportSocialMediaPosts::class, 'inGroup'])->name('social_media.export');
         });
     Route::prefix("org/{organisation}")
         ->name("org.")

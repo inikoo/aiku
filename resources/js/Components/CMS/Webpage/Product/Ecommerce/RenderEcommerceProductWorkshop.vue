@@ -7,7 +7,6 @@ import { getProductRenderB2bComponent } from "@/Composables/getWorkshopComponent
 import { ref, inject, onMounted, computed, watch, onUnmounted } from "vue"
 import { set } from "lodash-es"
 import { resolveProductImages, resolveProductVideo } from "@/Composables/useProductPage"
-import axios from "axios"
 import { hasSavedVariantOrder, sortVariantOptions } from "@/Composables/useVariantOrder"
 
 library.add(faCube, faLink, faFilePdf, faFileDownload)
@@ -59,21 +58,6 @@ const onAddBackInStock = (productData: ProductResource) => {}
 const onUnselectBackInStock = (productData: ProductResource) => {}
 
 const getOrderingProduct = async () => {}
-
-const getAllProductFromVariant = async () => {
-  if (!variant.value?.id) return
-
-  try {
-    const response = await axios.get(
-      route("grp.json.variant.products", {
-        variant: variant.value.id,
-      })
-    )
-    productsList.value = response.data.products ?? []
-  } catch (e) {
-    console.error("getAllProductFromVariant error", e)
-  }
-}
 
 const variantProducts = computed<any[]>(() =>
   Object.values(variant.value?.data?.products ?? {})
@@ -145,7 +129,6 @@ watch(
 
 onMounted(() => {
     set(layout, "temp.fetchIrisProductCustomerData", getOrderingProduct)
-    getAllProductFromVariant()
 })
 
 onUnmounted(() => {

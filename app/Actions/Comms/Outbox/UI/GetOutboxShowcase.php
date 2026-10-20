@@ -18,7 +18,7 @@ class GetOutboxShowcase
 {
     use AsObject;
 
-    public function handle(Outbox $outbox): array
+    public function handle(Outbox $outbox, bool $canEdit = false): array
     {
         $outboxStats = $outbox->stats;
         $stateCount  = fn (string $state): int => (int) $outboxStats->{'number_dispatched_emails_state_'.$state};
@@ -135,6 +135,7 @@ class GetOutboxShowcase
             ],
             'outbox_subscribe'     => $userSubscribers,
             'has_user_subscribers' => $outbox->type == OutboxTypeEnum::USER_NOTIFICATION,
+            'can_edit'             => $canEdit,
         ];
     }
 }

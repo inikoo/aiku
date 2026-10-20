@@ -6,12 +6,13 @@
 
 <script setup lang="ts">
 import { Head, router } from "@inertiajs/vue3"
-import { computed, ref } from "vue"
+import { computed, ref, watch } from "vue"
 import DatePicker from "primevue/datepicker"
 import Select from "primevue/select"
 import Checkbox from "primevue/checkbox"
 import InputText from "primevue/inputtext"
 import InputNumber from "primevue/inputnumber"
+import Dialog from "primevue/dialog"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { ctrans, ctransChoice } from "@/Composables/useTrans"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
@@ -19,13 +20,26 @@ import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faUserHardHat, faChevronDown, faChevronUp, faCheck, faTimes, faFilter } from "@fal"
+import { faUserHardHat, faChevronDown, faChevronUp, faCheck, faTimes, faFilter, faClock, faExclamationTriangle } from "@fal"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { PageHeadingTypes } from "@/types/PageHeading"
 
-library.add(faUserHardHat, faChevronDown, faChevronUp, faCheck, faTimes, faFilter)
+library.add(faUserHardHat, faChevronDown, faChevronUp, faCheck, faTimes, faFilter, faClock, faExclamationTriangle)
 
-interface ArtisanSession {
+interface TimeEditFields {
+    time_edit: null | {
+        reason: string | null
+        note: string | null
+        edited_by: string | null
+        edited_at: string
+        original_started_at: string | null
+        original_ended_at: string | null
+    }
+    left_open_after_shift_at: string | null
+    times_route: null | { name: string, parameters: object }
+}
+
+interface ArtisanSession extends TimeEditFields {
     id: number
     state: string
     task_name: string
@@ -37,6 +51,7 @@ interface ArtisanSession {
     quantity_made: number
     pack_size: number | null
     correct_route: null | { name: string, parameters: object }
+    other_steps: { id: number, task_name: string, unit: string | null, pack_size: number | null, quantity_left: number }[]
     quantity_rejected: number
     earned: number
     units_per_hour: number | null
@@ -71,7 +86,7 @@ interface NonProductiveSummary {
     days: NonProductiveGroup[]
     weeks: NonProductiveGroup[]
     job_orders: NonProductiveGroup[]
-    sessions: {
+    sessions: (TimeEditFields & {
         id: number
         state: string
         activity: string
@@ -81,7 +96,7 @@ interface NonProductiveSummary {
         break_minutes: number
         pay: number | null
         void_route: null | { name: string, parameters: object }
-    }[]
+    })[]
 }
 
 interface ArtisanJob {
@@ -102,6 +117,9 @@ const props = defineProps<{
     manufacture_task_id: number | null
     manufacture_tasks: { id: number, name: string }[]
     under_target: boolean
+    time_edited: boolean
+    time_edit_reasons: { value: string, label: string }[]
+    left_open: { id: number, worker: string, task_name: string, job_order_reference: string | null, started_at: string, left_open_after_shift_at: string }[]
     artisan_pay_type: string | null
     artisan_pay_types: Record<string, string>
     under_target_reasons: Record<string, string>
@@ -147,6 +165,7 @@ const payTypeFilter = ref<string | null>(props.artisan_pay_type)
 const payTypeFilterOptions = computed(() => [{ value: null, label: ctrans('All pay types') }, ...Object.entries(props.artisan_pay_types).map(([value, label]) => ({ value, label }))])
 const payTypeOptions = computed(() => Object.entries(props.artisan_pay_types).map(([value, label]) => ({ value, label })))
 const underTargetOnly = ref(props.under_target)
+const timeEditedOnly = ref(props.time_edited)
 const reviewing = ref<number | null>(null)
 const reviewReason = ref<string | null>(null)
 const reviewNote = ref('')
@@ -156,7 +175,7 @@ const processing = ref(false)
 function applyPeriod() {
     router.get(
         window.location.pathname,
-        { from: from.value, to: to.value, manufacture_task_id: manufactureTaskId.value || undefined, under_target: underTargetOnly.value ? 1 : undefined, artisan_pay_type: payTypeFilter.value || undefined },
+        { from: from.value, to: to.value, manufacture_task_id: manufactureTaskId.value || undefined, under_target: underTargetOnly.value ? 1 : undefined, time_edited: timeEditedOnly.value ? 1 : undefined, artisan_pay_type: payTypeFilter.value || undefined },
         { preserveState: false }
     )
 }
@@ -207,10 +226,26 @@ function voidSession(session: { void_route: null | { name: string, parameters: o
 const correcting = ref<number | null>(null)
 const correctedQuantity = ref<number | null>(null)
 const correctError = ref<string | null>(null)
+const correctedStepId = ref<number | null>(null)
+
+function movingTo(session: ArtisanSession) {
+    return session.other_steps.find((step) => step.id === correctedStepId.value) ?? null
+}
+
+function correctedPackSize(session: ArtisanSession) {
+    const step = movingTo(session)
+    return step ? step.pack_size : session.pack_size
+}
+
+function canSaveCorrect(session: ArtisanSession) {
+    if (correctedQuantity.value === null) return false
+    return movingTo(session) !== null || correctedQuantity.value < session.quantity_made
+}
 
 function openCorrect(session: ArtisanSession) {
     correcting.value = session.id
     correctedQuantity.value = null
+    correctedStepId.value = null
     correctError.value = null
 }
 
@@ -219,11 +254,11 @@ function saveCorrect(session: ArtisanSession) {
     processing.value = true
     router.patch(
         route(session.correct_route.name, session.correct_route.parameters),
-        { quantity_made: correctedQuantity.value },
+        { quantity_made: correctedQuantity.value, job_order_item_task_id: correctedStepId.value },
         {
             preserveScroll: true,
             onSuccess: () => correcting.value = null,
-            onError: (errors) => correctError.value = errors.quantity_made ?? null,
+            onError: (errors) => correctError.value = errors.quantity_made ?? errors.job_order_item_task_id ?? null,
             onFinish: () => processing.value = false,
         }
     )
@@ -247,6 +282,73 @@ function saveReview(session: ArtisanSession) {
             onFinish: () => processing.value = false,
         }
     )
+}
+
+interface EditableSession extends TimeEditFields {
+    id: number
+    started_at: string
+    ended_at: string
+    task_name?: string
+    activity?: string
+}
+
+const editingTimes = ref<EditableSession | null>(null)
+const editWorker = ref("")
+const editStart = ref<Date | null>(null)
+const editEnd = ref<Date | null>(null)
+const editReason = ref<string | null>(null)
+const editNote = ref("")
+const editErrors = ref<Record<string, string>>({})
+const outsideShiftConfirmed = ref(false)
+const impossibleRateConfirmed = ref(false)
+const warningConfirmed = computed(() => outsideShiftConfirmed.value || impossibleRateConfirmed.value)
+watch([editStart, editEnd], () => {
+    outsideShiftConfirmed.value = false
+    impossibleRateConfirmed.value = false
+})
+const canSaveTimes = computed(() => !!editStart.value && !!editEnd.value && !!editReason.value && (editReason.value !== "other" || editNote.value.trim() !== "") && editEnd.value > editStart.value)
+
+function openTimes(session: EditableSession, worker: string) {
+    editingTimes.value = session
+    editWorker.value = worker
+    editStart.value = new Date(session.started_at)
+    editEnd.value = new Date(session.ended_at)
+    editReason.value = null
+    editNote.value = ""
+    editErrors.value = {}
+    outsideShiftConfirmed.value = false
+    impossibleRateConfirmed.value = false
+}
+
+function saveTimes() {
+    const session = editingTimes.value
+    if (!session?.times_route || !canSaveTimes.value) return
+    processing.value = true
+    router.patch(
+        route(session.times_route.name, session.times_route.parameters),
+        {
+            started_at: editStart.value?.toISOString(),
+            ended_at: editEnd.value?.toISOString(),
+            reason: editReason.value,
+            note: editNote.value || null,
+            outside_shift_confirmed: outsideShiftConfirmed.value,
+            impossible_rate_confirmed: impossibleRateConfirmed.value,
+        },
+        {
+            preserveScroll: true,
+            onSuccess: () => editingTimes.value = null,
+            onError: (errors) => {
+                editErrors.value = errors
+                outsideShiftConfirmed.value ||= !!errors.outside_shift
+                impossibleRateConfirmed.value ||= !!errors.impossible_rate
+            },
+            onFinish: () => processing.value = false,
+        }
+    )
+}
+
+function clockTime(iso: string | null) {
+    return iso ? new Date(iso).toLocaleString([], { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "—"
 }
 
 function sessionDuration(session: { started_at: string, ended_at: string, break_minutes: number }) {
@@ -283,9 +385,27 @@ function sessionDuration(session: { started_at: string, ended_at: string, break_
                 <Checkbox v-model="underTargetOnly" binary />
                 {{ ctrans('Under target only') }}
             </label>
+            <label class="flex items-center gap-2 pb-2 text-sm text-gray-600">
+                <Checkbox v-model="timeEditedOnly" binary />
+                {{ ctrans('Edited times only') }}
+            </label>
             <Button type="tertiary" :label="ctrans('Apply')" @click="applyPeriod">
                 <template #icon><FontAwesomeIcon :icon="['fal', 'filter']" fixed-width aria-hidden="true" /></template>
             </Button>
+        </div>
+
+        <div v-if="left_open.length" class="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            <div class="flex items-center gap-2 font-semibold">
+                <FontAwesomeIcon :icon="['fal', 'exclamation-triangle']" fixed-width aria-hidden="true" />
+                {{ ctrans('Still running after the end of the shift') }}
+            </div>
+            <div class="mt-1 text-xs text-amber-800">{{ ctrans('Ask the operator to record what was made on the tablet, then set the real times here with Edit times.') }}</div>
+            <div v-for="open in left_open" :key="open.id" class="mt-1 flex flex-wrap gap-x-3 tabular-nums">
+                <span class="font-medium">{{ open.worker }}</span>
+                <span>{{ open.task_name }}<template v-if="open.job_order_reference"> · {{ open.job_order_reference }}</template></span>
+                <span>{{ ctrans('started :time', { time: clockTime(open.started_at) }) }}</span>
+                <span>{{ ctrans('shift ended :time', { time: clockTime(open.left_open_after_shift_at) }) }}</span>
+            </div>
         </div>
 
         <div v-if="!artisans.length" class="text-gray-400 text-center py-16 border border-dashed border-gray-200 rounded-lg">
@@ -361,13 +481,14 @@ function sessionDuration(session: { started_at: string, ended_at: string, break_
                         </tbody>
                     </table>
 
-                    <div v-for="session in artisan.non_productive.sessions" :key="session.id"
-                        class="py-1 flex items-center justify-between gap-3 text-sm"
+                    <template v-for="session in artisan.non_productive.sessions" :key="session.id">
+                    <div class="py-1 flex items-center justify-between gap-3 text-sm"
                         :class="session.state == 'voided' ? 'opacity-40 line-through' : ''">
                         <span class="flex items-center gap-2 text-gray-400">
                             {{ useFormatTime(session.ended_at) }}
                             <span class="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600">{{ session.activity }}</span>
                             <span class="text-xs">{{ session.job_order_reference ?? ctrans('General') }}</span>
+                            <span v-if="session.time_edit" class="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600">{{ ctrans('Times edited') }}</span>
                         </span>
                         <div class="flex items-center gap-4 shrink-0 tabular-nums text-gray-700">
                             <span class="text-gray-400">
@@ -375,6 +496,11 @@ function sessionDuration(session: { started_at: string, ended_at: string, break_
                                 <span v-if="session.break_minutes">({{ session.break_minutes }}m {{ ctrans('break') }})</span>
                             </span>
                             <span class="w-16 text-right">{{ session.pay === null ? '—' : session.pay.toFixed(2) }}</span>
+                            <button v-if="session.times_route" type="button"
+                                class="text-xs font-medium text-gray-700 hover:underline"
+                                @click="openTimes(session, artisan.worker)">
+                                {{ ctrans('Edit times') }}
+                            </button>
                             <button v-if="session.void_route" type="button"
                                 class="text-xs text-red-600 hover:underline disabled:opacity-40"
                                 :disabled="processing" @click="voidSession(session)">
@@ -382,6 +508,13 @@ function sessionDuration(session: { started_at: string, ended_at: string, break_
                             </button>
                         </div>
                     </div>
+                        <div v-if="session.time_edit" class="pb-1 pl-2 text-xs text-gray-500">
+                            {{ ctrans('Times edited (:reason)', { reason: session.time_edit.reason ?? '' }) }}:
+                            {{ ctrans('first recorded :from to :to', { from: clockTime(session.time_edit.original_started_at), to: clockTime(session.time_edit.original_ended_at) }) }}
+                            <template v-if="session.time_edit.note"> · {{ session.time_edit.note }}</template>
+                            — {{ session.time_edit.edited_by ?? ctrans('automatic') }}, {{ clockTime(session.time_edit.edited_at) }}
+                        </div>
+                    </template>
                 </div>
 
                 <div v-for="job in artisan.jobs" :key="job.job_order_item_id" class="py-2 border-b border-gray-100 last:border-0">
@@ -413,6 +546,8 @@ function sessionDuration(session: { started_at: string, ended_at: string, break_
                             <span class="flex items-center gap-2 text-gray-400">
                                 {{ useFormatTime(session.ended_at) }}
                                 <span v-if="session.is_hourly" class="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600">{{ artisan_pay_types.hourly }}</span>
+                                <span v-if="session.time_edit" class="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600">{{ ctrans('Times edited') }}</span>
+                                <span v-else-if="session.left_open_after_shift_at" class="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-800">{{ ctrans('Left running after shift') }}</span>
                                 <span v-if="session.is_under_target"
                                     class="rounded px-1.5 py-0.5 text-xs font-medium"
                                     :class="session.under_target_review ? 'bg-gray-100 text-gray-600' : 'bg-amber-100 text-amber-800'">
@@ -439,12 +574,20 @@ function sessionDuration(session: { started_at: string, ended_at: string, break_
                                     {{ session.under_target_review ? ctrans('Change reason') : ctrans('Log reason') }}
                                 </button>
                                 <button
+                                    v-if="session.times_route"
+                                    type="button"
+                                    class="text-xs font-medium text-gray-700 hover:underline"
+                                    @click="openTimes(session, artisan.worker)"
+                                >
+                                    {{ ctrans('Edit times') }}
+                                </button>
+                                <button
                                     v-if="session.correct_route && correcting !== session.id"
                                     type="button"
                                     class="text-xs font-medium text-gray-700 hover:underline"
                                     @click="openCorrect(session)"
                                 >
-                                    {{ ctrans('Correct quantity') }}
+                                    {{ session.other_steps.length ? ctrans('Correct quantity or step') : ctrans('Correct quantity') }}
                                 </button>
                                 <button
                                     v-if="session.void_route"
@@ -457,23 +600,35 @@ function sessionDuration(session: { started_at: string, ended_at: string, break_
                                 </button>
                             </div>
                         </div>
+                        <div v-if="session.time_edit" class="pb-1 pl-2 text-xs text-gray-500">
+                            {{ ctrans('Times edited (:reason)', { reason: session.time_edit.reason ?? '' }) }}:
+                            {{ ctrans('first recorded :from to :to', { from: clockTime(session.time_edit.original_started_at), to: clockTime(session.time_edit.original_ended_at) }) }}
+                            <template v-if="session.time_edit.note"> · {{ session.time_edit.note }}</template>
+                            — {{ session.time_edit.edited_by ?? ctrans('automatic') }}, {{ clockTime(session.time_edit.edited_at) }}
+                        </div>
                         <div v-if="session.under_target_review?.note && reviewing !== session.id" class="pb-1 pl-2 text-xs text-gray-500">
                             {{ session.under_target_review.note }}
                             <span v-if="session.under_target_review.reviewed_by">— {{ session.under_target_review.reviewed_by }}</span>
                         </div>
                         <div v-if="correcting === session.id" class="mb-2 rounded border border-amber-200 bg-amber-50 p-2 text-sm">
                             <div class="flex flex-wrap items-center gap-2">
-                                <span>{{ ctrans(':code · :step was entered as :quantity', { code: session.artefact_code, step: session.task_name, quantity: session.quantity_made }) }}<template v-if="session.pack_size"> {{ ctrans('packs of :size', { size: session.pack_size }) }}</template>. {{ session.pack_size ? ctrans('Whole packs really made:') : ctrans('Really made:') }}</span>
-                                <InputNumber v-model="correctedQuantity" :min="0" :max="session.quantity_made" :maxFractionDigits="session.pack_size ? 0 : 3" inputClass="w-24" :class="fieldFocusClass" />
-                                <span v-if="session.pack_size && correctedQuantity !== null" class="font-medium text-amber-800">= {{ (correctedQuantity * session.pack_size).toLocaleString() }} × {{ session.artefact_code }}</span>
-                                <Button type="tertiary" :label="ctrans('Save correction')" :loading="processing" :disabled="correctedQuantity === null || correctedQuantity >= session.quantity_made" @click="saveCorrect(session)">
+                                <span>{{ ctrans(':code · :step was entered as :quantity', { code: session.artefact_code, step: session.task_name, quantity: session.quantity_made }) }}<template v-if="session.pack_size"> {{ ctrans('packs of :size', { size: session.pack_size }) }}</template>.</span>
+                                <template v-if="session.other_steps.length">
+                                    <span>{{ ctrans('Step really worked:') }}</span>
+                                    <Select v-model="correctedStepId" :options="session.other_steps" optionLabel="task_name" optionValue="id" showClear :placeholder="session.task_name" :class="fieldFocusClass" />
+                                </template>
+                                <span>{{ correctedPackSize(session) ? ctrans('Whole packs really made:') : ctrans('Really made:') }}</span>
+                                <InputNumber v-model="correctedQuantity" :min="0" :max="movingTo(session) ? (movingTo(session)?.unit ? undefined : movingTo(session)?.quantity_left) : session.quantity_made" :maxFractionDigits="correctedPackSize(session) ? 0 : 3" :suffix="movingTo(session)?.unit ? ' ' + movingTo(session)?.unit : undefined" inputClass="w-24" :class="fieldFocusClass" />
+                                <span v-if="correctedPackSize(session) && correctedQuantity !== null" class="font-medium text-amber-800">= {{ (correctedQuantity * (correctedPackSize(session) ?? 1)).toLocaleString() }} × {{ session.artefact_code }}</span>
+                                <Button type="tertiary" :label="ctrans('Save correction')" :loading="processing" :disabled="!canSaveCorrect(session)" @click="saveCorrect(session)">
                                     <template #icon><FontAwesomeIcon :icon="['fal', 'check']" class="text-green-600" fixed-width aria-hidden="true" /></template>
                                 </Button>
                                 <Button type="tertiary" :label="ctrans('Cancel')" @click="correcting = null">
                                     <template #icon><FontAwesomeIcon :icon="['fal', 'times']" class="text-red-500" fixed-width aria-hidden="true" /></template>
                                 </Button>
                             </div>
-                            <div class="mt-1 text-xs text-gray-600">{{ ctrans('The job goes back to what was really made, any authorised overproduction is reduced with it, and the pay for this entry is worked out again.') }}</div>
+                            <div v-if="movingTo(session)" class="mt-1 text-xs text-gray-600">{{ ctrans('The entry moves to :to with what was made there, :from goes back to what is left to do, and the pay for this entry is worked out again as :to.', { to: movingTo(session)?.task_name ?? '', from: session.task_name }) }}</div>
+                            <div v-else class="mt-1 text-xs text-gray-600">{{ ctrans('The job goes back to what was really made, any authorised overproduction is reduced with it, and the pay for this entry is worked out again.') }}</div>
                             <div v-if="correctError" class="mt-1 text-red-700">{{ correctError }}</div>
                         </div>
                         <div v-if="reviewing === session.id" class="mb-2 flex flex-wrap items-end gap-2 rounded border border-amber-200 bg-amber-50 p-2 text-sm">
@@ -491,5 +646,48 @@ function sessionDuration(session: { started_at: string, ended_at: string, break_
                 </div>
             </div>
         </div>
+
+        <Dialog :visible="!!editingTimes" modal :header="ctrans('Edit times')" :style="{ width: '32rem' }" @update:visible="(visible: boolean) => { if (!visible) editingTimes = null }">
+            <div v-if="editingTimes" class="space-y-3 text-sm">
+                <div class="text-gray-600">
+                    <span class="font-medium text-gray-800">{{ editWorker }}</span> · {{ editingTimes.task_name ?? editingTimes.activity }}
+                </div>
+                <div class="text-xs text-gray-500">
+                    {{ ctrans('Recorded :from to :to', { from: clockTime(editingTimes.time_edit?.original_started_at ?? editingTimes.started_at), to: clockTime(editingTimes.time_edit?.original_ended_at ?? editingTimes.ended_at) }) }}
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">{{ ctrans('Start') }}</label>
+                        <DatePicker v-model="editStart" showTime hourFormat="24" dateFormat="d M yy" :maxDate="editEnd ?? undefined" fluid :class="fieldFocusClass" :aria-label="ctrans('Start')" />
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">{{ ctrans('End') }}</label>
+                        <DatePicker v-model="editEnd" showTime hourFormat="24" dateFormat="d M yy" :minDate="editStart ?? undefined" :maxDate="new Date()" fluid :class="fieldFocusClass" :aria-label="ctrans('End')" />
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">{{ ctrans('Reason') }}</label>
+                    <Select v-model="editReason" :options="time_edit_reasons" optionLabel="label" optionValue="value" :placeholder="ctrans('Choose a reason')" fluid :class="fieldFocusClass" />
+                </div>
+                <div v-if="editReason">
+                    <label class="block text-xs text-gray-500 mb-1">{{ editReason === 'other' ? ctrans('Note') : ctrans('Note (optional)') }}</label>
+                    <InputText v-model="editNote" maxlength="1000" fluid />
+                </div>
+                <div class="text-xs text-gray-500">{{ ctrans('Hours, rate per hour and pay are worked out again for the new times. The first times recorded are kept.') }}</div>
+                <div v-for="(message, field) in editErrors" :key="field"
+                    class="rounded px-2 py-1"
+                    :class="['outside_shift', 'impossible_rate'].includes(field) ? 'border border-amber-200 bg-amber-50 text-amber-800' : 'border border-red-200 bg-red-50 text-red-700'">
+                    {{ message }}
+                </div>
+                <div class="flex justify-end gap-2">
+                    <Button type="tertiary" :label="ctrans('Cancel')" @click="editingTimes = null">
+                        <template #icon><FontAwesomeIcon :icon="['fal', 'times']" class="text-red-500" fixed-width aria-hidden="true" /></template>
+                    </Button>
+                    <Button type="tertiary" :label="warningConfirmed ? ctrans('Save anyway') : ctrans('Save times')" :loading="processing" :disabled="!canSaveTimes" @click="saveTimes">
+                        <template #icon><FontAwesomeIcon :icon="['fal', warningConfirmed ? 'exclamation-triangle' : 'check']" :class="warningConfirmed ? 'text-amber-600' : 'text-green-600'" fixed-width aria-hidden="true" /></template>
+                    </Button>
+                </div>
+            </div>
+        </Dialog>
     </div>
 </template>

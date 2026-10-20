@@ -263,29 +263,31 @@ class IndexStoredItems extends OrgAction
                     }
                 }
 
-                $actions[] = [
-                    'type' => 'button',
-                    'style' => 'create',
-                    'tooltip' => __("Create SKO"),
-                    'label' => __("Create SKO"),
-                    'key' => 'create_sku',
-                    'route' => [
-                        'name' => 'grp.org.fulfilments.show.crm.customers.show.stored-items.create',
-                        'parameters' => $request->route()->originalParameters()
-                    ]
-                ];
+                if ($this->canEdit) {
+                    $actions[] = [
+                        'type' => 'button',
+                        'style' => 'create',
+                        'tooltip' => __("Create SKO"),
+                        'label' => __("Create SKO"),
+                        'key' => 'create_sku',
+                        'route' => [
+                            'name' => 'grp.org.fulfilments.show.crm.customers.show.stored-items.create',
+                            'parameters' => $request->route()->originalParameters()
+                        ]
+                    ];
 
-                $actions[] = [
-                    'type' => 'button',
-                    'style' => 'edit',
-                    'tooltip' => __("Bulk Edit SKO"),
-                    'label' => __("Bulk Edit SKO"),
-                    'key' => 'edit_sku',
-                    'route' => [
-                        'name' => 'grp.org.fulfilments.show.crm.customers.show.stored-items.create',
-                        'parameters' => $request->route()->originalParameters()
-                    ]
-                ];
+                    $actions[] = [
+                        'type' => 'button',
+                        'style' => 'edit',
+                        'tooltip' => __("Bulk Edit SKO"),
+                        'label' => __("Bulk Edit SKO"),
+                        'key' => 'edit_sku',
+                        'route' => [
+                            'name' => 'grp.org.fulfilments.show.crm.customers.show.stored-items.create',
+                            'parameters' => $request->route()->originalParameters()
+                        ]
+                    ];
+                }
             }
         }
 

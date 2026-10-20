@@ -11,21 +11,24 @@ import { capitalize } from "@/Composables/capitalize"
 import { ctrans } from "@/Composables/useTrans"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { PageHeadingTypes } from "@/types/PageHeading"
-import { faChartLine, faDatabase, faFlask, faRocket, faServer, faSpinnerThird, faTools } from "@fal"
+import { faChartLine, faCode, faDatabase, faExclamationTriangle, faFlask, faRocket, faServer, faSpinnerThird, faTools } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { computed, onBeforeUnmount, onMounted, ref } from "vue"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import CiRunCard, { CiRunDetail, CiRunSummary } from "@/Components/DevOps/CiRunCard.vue"
 import TestStats, { TestStatsData } from "@/Components/DevOps/TestStats.vue"
+import CodeHealth, { CodeHealthData } from "@/Components/DevOps/CodeHealth.vue"
 import TelemetryPanel, { Telemetry } from "@/Components/DevOps/TelemetryPanel.vue"
 import { Trace } from "@/Components/DevOps/TraceWaterfall.vue"
 import { ExceptionDetailData } from "@/Components/DevOps/ExceptionDetail.vue"
 import { Logs } from "@/Components/DevOps/LogsView.vue"
 import ServerUsageCard, { ServerSummary } from "@/Components/DevOps/ServerUsageCard.vue"
 import DatabaseReplicas, { DatabaseReplica } from "@/Components/DevOps/DatabaseReplicas.vue"
+import DatabaseBackups, { DatabaseBackupsReport } from "@/Components/DevOps/DatabaseBackups.vue"
 import { LiveServerReading, useLiveServerMetrics } from "@/Composables/useLiveServerMetrics"
 
-library.add(faChartLine, faDatabase, faFlask, faRocket, faServer, faSpinnerThird, faTools)
+library.add(faChartLine, faCode, faDatabase, faExclamationTriangle, faFlask, faRocket, faServer, faSpinnerThird, faTools)
 
 const props = defineProps<{
     title: string
@@ -33,6 +36,7 @@ const props = defineProps<{
     servers: ServerSummary[]
     liveReadings: Record<string, LiveServerReading[]>
     databaseReplicas: DatabaseReplica[]
+    databaseBackups: DatabaseBackupsReport | null
     ciRuns: {
         deploy: CiRunDetail | null
         tests: CiRunDetail | null
@@ -42,6 +46,7 @@ const props = defineProps<{
         usual_tests_seconds: number | null
         test_stats: TestStatsData
     }
+    codeHealth?: CodeHealthData | null
     telemetry?: Telemetry | null
     telemetryTrace?: Trace | null
     telemetryException?: ExceptionDetailData | null
@@ -80,16 +85,28 @@ const tabs = computed(() => ({
         }
         : { title: ctrans("Deployments"), icon: "fal fa-rocket" },
     tests: runningTests.value ? { title: ctrans("Testing"), ...spinning } : { title: ctrans("Tests"), icon: "fal fa-flask" },
+    code: { title: ctrans("Code health"), icon: "fal fa-code" },
     telemetry: { title: ctrans("Telemetry"), icon: "fal fa-chart-line" },
 }))
 const requestedTab = new URLSearchParams(window.location.search).get("tab") ?? ""
-const currentTab = ref<string>(["deployments", "tests", "telemetry"].includes(requestedTab) ? requestedTab : "servers")
+const currentTab = ref<string>(["deployments", "tests", "code", "telemetry"].includes(requestedTab) ? requestedTab : "servers")
 const changeTab = (tab: string | number) => {
     currentTab.value = String(tab)
     const url = new URL(window.location.href)
     url.searchParams.set("tab", currentTab.value)
     window.history.replaceState(window.history.state, "", url)
 }
+
+watch(currentTab, (tab) => {
+    if (tab === "code" && !props.codeHealth) {
+        router.reload({ only: ["codeHealth"] })
+    }
+}, { immediate: true })
+
+const problems = computed(() => [
+    ...props.databaseReplicas.map((replica) => replica.issue),
+    ...(props.databaseBackups ? [props.databaseBackups.archive_issue, props.databaseBackups.backup_issue] : []),
+].filter((issue): issue is string => !!issue).map((issue) => issue.replace(/`/g, "")))
 
 const serverGroups = computed(() => props.servers.reduce<Record<string, ServerSummary[]>>((groups, server) => {
     (groups[server.group] ??= []).push(server)
@@ -101,6 +118,15 @@ const serverGroups = computed(() => props.servers.reduce<Record<string, ServerSu
 <template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead" />
+    <div v-if="problems.length" class="mx-4 mt-3 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-800" role="alert">
+        <div class="flex items-center gap-x-2 font-semibold">
+            <FontAwesomeIcon icon="fal fa-exclamation-triangle" class="text-red-600" fixed-width aria-hidden="true" />
+            {{ ctrans(":count problem(s) with the production database", { count: problems.length }) }}
+        </div>
+        <ul class="mt-1.5 list-disc space-y-1 pl-9">
+            <li v-for="problem in problems" :key="problem">{{ problem }}</li>
+        </ul>
+    </div>
     <Tabs :current="currentTab" :navigation="tabs" @update:tab="changeTab" />
 
     <div class="p-4">
@@ -115,6 +141,7 @@ const serverGroups = computed(() => props.servers.reduce<Record<string, ServerSu
             </section>
         </div>
         <DatabaseReplicas v-if="currentTab === 'servers' && databaseReplicas.length" :replicas="databaseReplicas" class="mb-6" />
+        <DatabaseBackups v-if="currentTab === 'servers' && databaseBackups && (databaseBackups.archive_mode || databaseBackups.backups.length)" :report="databaseBackups" class="mb-6" />
         <div v-if="currentTab === 'deployments'" class="mb-6 max-w-4xl">
             <CiRunCard :title="ctrans('Production deploy')" :run="ciRuns.deploy" :recent="ciRuns.recent_deploys" :usual-seconds="ciRuns.usual_deploy_seconds" />
         </div>
@@ -122,6 +149,13 @@ const serverGroups = computed(() => props.servers.reduce<Record<string, ServerSu
             <TestStats :stats="ciRuns.test_stats" />
             <CiRunCard :title="ctrans('Tests on main')" :run="ciRuns.tests" :recent="ciRuns.recent_tests" :usual-seconds="ciRuns.usual_tests_seconds" />
         </div>
+        <template v-if="currentTab === 'code'">
+            <CodeHealth v-if="codeHealth" :health="codeHealth" class="mb-6 max-w-5xl" />
+            <div v-else class="mb-6 max-w-5xl space-y-4" aria-busy="true">
+                <div class="h-72 animate-pulse rounded-lg bg-gray-100" />
+                <div class="h-72 animate-pulse rounded-lg bg-gray-100" />
+            </div>
+        </template>
         <TelemetryPanel v-if="currentTab === 'telemetry'" :telemetry="telemetry" :trace="telemetryTrace" :exception="telemetryException" :logs="telemetryLogs" />
     </div>
 </template>
