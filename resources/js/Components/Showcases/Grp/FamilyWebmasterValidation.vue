@@ -3,6 +3,7 @@ import { computed, ref } from "vue"
 import { router } from "@inertiajs/vue3"
 import { notify } from "@kyvg/vue3-notification"
 import { Message } from "primevue"
+import Dialog from "primevue/dialog"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faCheck, faTimes, faCopy, faSlidersH, faPlus, faExternalLink } from "@fal"
 import Button from "@/Components/Elements/Buttons/Button.vue"
@@ -56,7 +57,8 @@ const tasksByCard = computed(() => props.data.tasks.reduce<Record<string, Task[]
     return groups
 }, {}))
 const doneCount = computed(() => props.data.tasks.filter((task) => task.is_done).length)
-const isAllDone = computed(() => props.data.tasks.length > 0 && doneCount.value === props.data.tasks.length)
+const pendingCount = computed(() => props.data.tasks.length - doneCount.value)
+const isConfirmingValidate = ref(false)
 const pendingIn = (section: { cards: FamilyEditCardData[] }) =>
     section.cards.flatMap((card) => tasksByCard.value[card.key ?? ""] ?? []).filter((task) => !task.is_done).length
 
@@ -86,11 +88,23 @@ const implement = (task: Task) => router.patch(
     visitOptions(task.key, task.is_new ? ctrans("Question added to the FAQ") : ctrans("Suggestion implemented")),
 )
 
-const validate = () => router.post(
-    route(props.data.validate_route.name, props.data.validate_route.parameters),
-    {},
-    visitOptions("validate", ctrans("SEO suggestions validated")),
-)
+const validate = () => {
+    isConfirmingValidate.value = false
+    router.post(
+        route(props.data.validate_route.name, props.data.validate_route.parameters),
+        {},
+        visitOptions("validate", ctrans("SEO suggestions validated")),
+    )
+}
+
+const requestValidate = () => {
+    if (pendingCount.value > 0) {
+        isConfirmingValidate.value = true
+        return
+    }
+
+    validate()
+}
 
 const findingSetting = (type: string) => type.includes("meta_description") ? "description" : type.includes("title") ? "title" : null
 
@@ -116,26 +130,36 @@ const openFinding = (type: string) => {
                     </h2>
                     <p class="text-sm text-gray-600">
                         {{ ctrans("For each one: copy the suggestion, open the setting and paste it, or apply it with Mark implemented.") }}
-                        {{ ctrans("Validate becomes active when all are done (:done of :total).", { done: doneCount, total: data.tasks.length }) }}
+                        {{ ctrans("Implemented: :done of :total.", { done: doneCount, total: data.tasks.length }) }}
                     </p>
                     <p v-if="!data.can_validate" class="text-sm font-semibold text-amber-800">{{ ctrans("Only the webmaster can validate.") }}</p>
                 </template>
                 <template v-else-if="data.is_validated">
                     <h2 class="text-sm font-semibold text-gray-900">{{ ctrans("SEO suggestions validated") }}</h2>
-                    <p class="text-sm text-gray-600">{{ ctrans("Every suggestion of the last SEO review is implemented.") }}</p>
+                    <p class="text-sm text-gray-600">{{ ctrans("The last SEO review is validated.") }}</p>
                 </template>
                 <template v-else>
                     <h2 class="text-sm font-semibold text-gray-900">{{ ctrans("No SEO suggestions to implement") }}</h2>
                     <p class="text-sm text-gray-600">{{ ctrans("Suggestions appear here once the SEO team sends its review.") }}</p>
                 </template>
             </div>
-            <Button v-if="data.tasks.length" type="tertiary" :label="ctrans('Validate')" :disabled="!isAllDone || !data.can_validate"
-                :loading="busyKey === 'validate'" @click="validate">
+            <Button v-if="data.tasks.length" type="tertiary" :label="ctrans('Validate')" :disabled="!data.can_validate"
+                :loading="busyKey === 'validate'" @click="requestValidate">
                 <template #icon>
                     <FontAwesomeIcon :icon="faCheck" class="text-green-600" fixed-width aria-hidden="true" />
                 </template>
             </Button>
         </section>
+
+        <Dialog v-model:visible="isConfirmingValidate" modal :header="ctrans('Validate with suggestions pending?')" class="w-full max-w-md">
+            <p class="text-sm text-gray-600">
+                {{ ctrans(":pending of :total suggestions are not marked as implemented. They will not be updated: validating skips them and closes the SEO review.", { pending: pendingCount, total: data.tasks.length }) }}
+            </p>
+            <template #footer>
+                <Button type="tertiary" :label="ctrans('Cancel')" @click="isConfirmingValidate = false" />
+                <Button type="primary" :label="ctrans('Validate anyway')" @click="validate" />
+            </template>
+        </Dialog>
 
         <Message v-if="errorMessages.length" severity="error">
             <ul>

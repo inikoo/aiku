@@ -276,7 +276,7 @@ class GetFamilyEditPage
         }
 
         $validatedAt = $suggestions->isEmpty()
-            ? SeoContentSuggestion::where('webpage_id', $webpage->id)->where('reason', SeoContentSuggestion::REASON_SEO_REVIEW)->where('state', SeoContentSuggestionStateEnum::ACCEPTED)->latest('updated_at')->value('updated_at')
+            ? SeoContentSuggestion::where('webpage_id', $webpage->id)->where('reason', SeoContentSuggestion::REASON_SEO_REVIEW)->whereIn('state', [SeoContentSuggestionStateEnum::ACCEPTED, SeoContentSuggestionStateEnum::DISMISSED])->latest('updated_at')->value('updated_at')
             : null;
         $doneCount   = collect($tasks)->where('is_done', true)->count();
 

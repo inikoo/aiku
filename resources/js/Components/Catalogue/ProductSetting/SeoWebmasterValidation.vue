@@ -5,6 +5,7 @@ import { notify } from "@kyvg/vue3-notification"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faCheck, faCopy, faSlidersH } from "@fal"
 import { ctrans } from "@/Composables/useTrans"
+import Dialog from "primevue/dialog"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { htmlFields, productSettingActionsId, type SeoReview, type SeoSuggestionField } from "@/Components/Catalogue/ProductSetting/types"
 
@@ -19,8 +20,9 @@ const emit = defineEmits<{
 
 const suggestedFields = computed(() => props.review.fields.filter((field) => field.suggestion))
 const total = computed(() => suggestedFields.value.length)
-const canValidate = computed(() => props.review.can_validate && total.value > 0 && props.review.pending === 0)
+const canValidate = computed(() => props.review.can_validate && total.value > 0)
 const isValidating = ref(false)
+const isConfirmingValidate = ref(false)
 
 const sections = computed(() => [
     { key: "search", title: ctrans("Search appearance"), hint: ctrans("Suggestions from the SEO team") },
@@ -64,10 +66,22 @@ const implement = (field: SeoSuggestionField) => {
 const validate = () => router.post(route(props.review.validate_route.name, props.review.validate_route.parameters), {}, {
     preserveScroll: true,
     onStart: () => (isValidating.value = true),
-    onSuccess: () => emit("validated"),
+    onSuccess: () => {
+        isConfirmingValidate.value = false
+        emit("validated")
+    },
     onError: notifyError,
     onFinish: () => (isValidating.value = false),
 })
+
+const requestValidate = () => {
+    if (props.review.pending > 0) {
+        isConfirmingValidate.value = true
+        return
+    }
+
+    validate()
+}
 </script>
 
 <template>
@@ -79,15 +93,18 @@ const validate = () => router.post(route(props.review.validate_route.name, props
                         {{ ctrans(":count SEO suggestions to implement", { count: String(total) }) }} · {{ ctrans("Webmaster") }}
                     </div>
                     <div class="text-sm text-gray-600">
-                        {{ ctrans("For each one: copy the suggestion, open the setting and paste it, or apply it with Mark Implemented. Validate becomes active when all are done (:done of :total).", { done: String(review.implemented), total: String(total) }) }}
+                        {{ ctrans("For each one: copy the suggestion, open the setting and paste it, or apply it with Mark Implemented. Implemented: :done of :total.", { done: String(review.implemented), total: String(total) }) }}
+                    </div>
+                    <div v-if="total && !review.can_validate" class="text-sm font-semibold text-amber-800">
+                        {{ ctrans("Only the webmaster can validate.") }}
                     </div>
                 </div>
                 <Button
                     type="tertiary"
                     :label="ctrans('Validate')"
                     :disabled="!canValidate"
-                    :loading="isValidating"
-                    @click="validate"
+                    :loading="isValidating && !isConfirmingValidate"
+                    @click="requestValidate"
                 >
                     <template #icon>
                         <FontAwesomeIcon :icon="faCheck" class="text-green-600" fixed-width aria-hidden="true" />
@@ -95,6 +112,16 @@ const validate = () => router.post(route(props.review.validate_route.name, props
                 </Button>
             </div>
         </Teleport>
+
+        <Dialog v-model:visible="isConfirmingValidate" modal :header="ctrans('Validate with suggestions pending?')" class="w-full max-w-md">
+            <p class="text-sm text-gray-600">
+                {{ ctrans(":pending of :total suggestions are not marked as implemented. Validating will skip them and close the SEO review.", { pending: String(review.pending), total: String(total) }) }}
+            </p>
+            <template #footer>
+                <Button type="tertiary" :label="ctrans('Cancel')" :disabled="isValidating" @click="isConfirmingValidate = false" />
+                <Button type="primary" :label="ctrans('Validate anyway')" :loading="isValidating" @click="validate" />
+            </template>
+        </Dialog>
 
         <div v-if="!total" class="rounded-lg border border-gray-200 bg-white px-4 py-10 text-center text-sm text-gray-500">
             {{ review.is_validated ? ctrans("The SEO review of this page has been validated") : ctrans("The SEO team has not sent suggestions for this page yet") }}

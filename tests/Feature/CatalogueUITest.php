@@ -67,6 +67,10 @@ use App\Models\Web\SeoContentSuggestion;
 use App\Enums\Web\Seo\SeoContentSuggestionStateEnum;
 use App\Actions\Catalogue\ProductCategory\UI\GetFamilyPageScore;
 use App\Actions\Web\Seo\AskWebmastersToImplementSeoReview;
+use App\Actions\Web\Seo\StoreProductSeoReview;
+use App\Actions\Web\Seo\ValidateProductSeoReview;
+use App\Actions\Catalogue\Product\StoreProductWebpage;
+use App\Actions\Catalogue\Product\UI\GetProductSeoReview;
 use App\Enums\Tasks\StaffTaskStatusEnum;
 use App\Events\BroadcastStaffTaskBadgeUpdate;
 use App\Events\BroadcastStaffTaskChanged;
@@ -483,8 +487,6 @@ test('webmaster implements the SEO review one suggestion at a time, keeps what w
             && !collect($tasks)->contains('is_done', true))
         ->etc());
 
-    $validate()->assertSessionHasErrors('validate');
-
     $implement('title')->assertSessionHasNoErrors();
     $implement('breadcrumb_label')->assertSessionHasNoErrors();
     $implement('top_desc')->assertSessionHasNoErrors();
@@ -524,6 +526,39 @@ test('webmaster implements the SEO review one suggestion at a time, keeps what w
         ->has('edit_page.webmaster_validation.tasks', 0)
         ->where('edit_page.webmaster_validation.activity', fn ($activity) => collect($activity)->contains('text', 'Validated the SEO suggestions.'))
         ->etc());
+});
+
+test('webmaster validates a family SEO review with suggestions still pending, which dismisses them and leaves those fields as they were', function () {
+    createWebsite($this->shop);
+    $family  = $this->family->refresh();
+    $webpage = $family->webpage ?? StoreProductCategoryWebpage::make()->action($family);
+    $webpage->update(['title' => 'Aroma Diffusers']);
+    $family->update(['description' => 'Old copy']);
+
+    post(route('grp.models.product_category.seo_review.store', ['productCategory' => $family->id]), [
+        'suggestions' => ['title' => 'Electric Aroma Diffusers', 'top_desc' => 'Better copy'],
+    ])->assertSessionHasNoErrors();
+
+    $suggestions = SeoContentSuggestion::where('webpage_id', $webpage->id)
+        ->where('reason', SeoContentSuggestion::REASON_SEO_REVIEW)
+        ->where('state', SeoContentSuggestionStateEnum::PENDING)
+        ->get()
+        ->keyBy('field');
+
+    patch(route('grp.models.product_category.seo_review.implement', ['productCategory' => $family->id, 'seoContentSuggestion' => $suggestions['title']->id]))->assertSessionHasNoErrors();
+    post(route('grp.models.product_category.seo_review.validate', ['productCategory' => $family->id]))->assertSessionHasNoErrors();
+
+    expect($suggestions['title']->refresh()->state)->toBe(SeoContentSuggestionStateEnum::ACCEPTED)
+        ->and($suggestions['top_desc']->refresh())
+        ->state->toBe(SeoContentSuggestionStateEnum::DISMISSED)
+        ->decided_by_user_id->toBe($this->user->id)
+        ->and($family->refresh()->description)->toBe('Old copy');
+
+    get(route('grp.org.shops.show.catalogue.families.show', [$this->organisation->slug, $this->shop->slug, $family->slug, 'tab' => FamilyTabsEnum::EDIT_PAGE->value]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('edit_page.webmaster_validation.is_validated', true)
+            ->has('edit_page.webmaster_validation.tasks', 0)
+            ->etc());
 });
 
 test('sending the SEO review tasks the webmasters handling the page as assignee and collaborators, keeps one open task per page, and validating closes it', function () {
@@ -572,6 +607,27 @@ test('sending the SEO review tasks the webmasters handling the page as assignee 
     expect($openTasks()->sole())
         ->assignee_id->toBeNull()
         ->department->toBe('webmaster');
+});
+
+test('webmaster validates a product SEO review with suggestions still pending, which dismisses them', function () {
+    createWebsite($this->shop);
+    $product = $this->product->refresh();
+    $webpage = $product->webpage ?? StoreProductWebpage::make()->action($product);
+    $product->refresh();
+
+    StoreProductSeoReview::make()->handle($product, ['suggestions' => ['title' => 'Electric Aroma Diffuser', 'description' => 'Better meta description']], null);
+    $suggestions = SeoContentSuggestion::where('webpage_id', $webpage->id)->where('reason', SeoContentSuggestion::REASON_SEO_REVIEW)->whereIn('state', [SeoContentSuggestionStateEnum::PENDING])->get()->keyBy('field');
+    $suggestions['title']->update(['state' => SeoContentSuggestionStateEnum::IMPLEMENTED]);
+
+    expect(ValidateProductSeoReview::make()->handle($product, $this->user))->toBe(1)
+        ->and($suggestions['title']->refresh()->state)->toBe(SeoContentSuggestionStateEnum::ACCEPTED)
+        ->and($suggestions['description']->refresh())
+        ->state->toBe(SeoContentSuggestionStateEnum::DISMISSED)
+        ->decided_by_user_id->toBe($this->user->id);
+
+    expect(GetProductSeoReview::run($webpage, $product, $this->user))
+        ->pending->toBe(0)
+        ->is_validated->toBeTrue();
 });
 
 test('UI show family sales analysis tab', function () {

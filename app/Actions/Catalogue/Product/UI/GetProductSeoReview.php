@@ -85,7 +85,7 @@ class GetProductSeoReview
             'implemented'    => $suggestions->count() - $pending,
             'is_validated'   => $suggestions->isEmpty() && SeoContentSuggestion::where('webpage_id', $webpage->id)
                 ->where('reason', SeoContentSuggestion::REASON_SEO_REVIEW)
-                ->where('state', SeoContentSuggestionStateEnum::ACCEPTED)
+                ->whereIn('state', [SeoContentSuggestionStateEnum::ACCEPTED, SeoContentSuggestionStateEnum::DISMISSED])
                 ->exists(),
             'can_validate'   => ImplementProductSeoSuggestion::isWebmaster($user, $product),
             'store_route'    => ['name' => 'grp.models.product.seo_review.store', 'parameters' => ['product' => $product->id]],
