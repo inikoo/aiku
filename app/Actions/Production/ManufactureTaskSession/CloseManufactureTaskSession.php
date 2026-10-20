@@ -60,6 +60,10 @@ class CloseManufactureTaskSession extends OrgAction
             if ($finishedBeforeShiftEnd) {
                 $session->fill(['shift_end_answer' => 'finished', 'shift_end_resolved_at' => now()]);
             }
+            $isQuantityOnly = !$session->isNonProductive() && $session->manufactureTask?->is_quantity_only;
+            if ($isQuantityOnly) {
+                $session->started_at = $endedAt;
+            }
             CalculateManufactureTaskSessionBreakMinutes::run($session, $endedAt);
 
             if ($session->isNonProductive()) {
@@ -116,7 +120,7 @@ class CloseManufactureTaskSession extends OrgAction
                 'standard_rate'                   => $session->recipeStandardRate(),
             ]);
             $payType = $session->employee?->artisan_pay_type ?? ArtisanPayTypeEnum::PIECE_RATE;
-            if ($this->isImpossibleRate($session)) {
+            if (!$isQuantityOnly && $this->isImpossibleRate($session)) {
                 if (empty($modelData['manager_code'])) {
                     throw ValidationException::withMessages([
                         'rate' => __(':made in :minutes min is :rate per hour against a target of :target, a manager must confirm it', [
@@ -128,7 +132,7 @@ class CloseManufactureTaskSession extends OrgAction
                     ]);
                 }
                 $this->overproductionManager($session, $modelData['manager_code']);
-            } elseif ($this->isUncheckedHourlyPieceWork($session, $payType)) {
+            } elseif (!$isQuantityOnly && $this->isUncheckedHourlyPieceWork($session, $payType)) {
                 if (empty($modelData['manager_code'])) {
                     throw ValidationException::withMessages([
                         'rate' => __(':made on :step, a step with no target, by someone paid by the hour: a manager must confirm it', [

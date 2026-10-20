@@ -34,6 +34,7 @@ const props = defineProps<{
             kg_per_unit?: number | null
             mix_batch_kg?: number | null
             continued_from?: string | null
+            is_quantity_only?: boolean
         }
         carry?: null | { reference: string, units_per_artefact: number, quantity: number }
         close_route: { name: string, parameters: object }
@@ -92,6 +93,8 @@ const elapsed = computed(() => {
     const s = seconds % 60
     return `${h ? h + ':' : ''}${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 })
+
+const isQuantityOnly = computed(() => !!props.session.task.is_quantity_only)
 
 const finishedBeforeShiftEnd = ref(false)
 const shiftEndQuestion = computed(() => !!props.session.shift_end && !props.session.shift_end.answer && !finishedBeforeShiftEnd.value)
@@ -184,6 +187,10 @@ function onCameraError(error: Error) {
 
 function onDone() {
     if (quantityMade.value === null || notWholePacks.value) return
+    if (isQuantityOnly.value) {
+        confirmDone()
+        return
+    }
     confirming.value = true
 }
 
@@ -294,7 +301,7 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
     <div v-else class="rounded-2xl border-2 border-[--app-accent] bg-[--app-accent-soft] p-10">
         <div class="flex items-baseline justify-between">
             <div>
-                <div class="text-xs uppercase tracking-wide text-[--app-accent]">{{ ctrans('Working on') }}</div>
+                <div class="text-xs uppercase tracking-wide text-[--app-accent]">{{ isQuantityOnly ? ctrans('Record quantity made') : ctrans('Working on') }}</div>
                 <div class="text-4xl font-semibold mt-1">{{ session.task.task_name }}</div>
                 <div class="text-2xl text-gray-600 mt-1">
                     {{ session.task.artefact_code }} — {{ session.task.artefact_name }}
@@ -317,7 +324,7 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
                     {{ ctrans('Counted in PACKS of :size (1 pack = :size × :code)', { size: packSize, code: session.task.artefact_code ?? '' }) }}
                 </div>
             </div>
-            <div class="text-right">
+            <div v-if="!isQuantityOnly" class="text-right">
                 <div class="text-7xl font-mono tabular-nums text-[--app-accent-strong]">{{ elapsed }}</div>
                 <div v-if="session.break_minutes" class="text-sm text-gray-500">{{ session.break_minutes }} {{ ctrans('min on break') }}</div>
             </div>
@@ -356,7 +363,7 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
             <div class="text-2xl font-semibold">{{ ctrans('Are you sure you want to finish :step?', { step: session.task.task_name }) }}</div>
             <div class="mt-2 flex flex-wrap gap-x-6 text-lg text-gray-700">
                 <span>{{ ctrans('Step') }}: <b>{{ session.task.task_name }}</b></span>
-                <span>{{ ctrans('Time logged') }}: <b class="tabular-nums">{{ timeLogged }}</b></span>
+                <span v-if="!isQuantityOnly">{{ ctrans('Time logged') }}: <b class="tabular-nums">{{ timeLogged }}</b></span>
                 <span>{{ ctrans('Quantity made') }}: <b class="tabular-nums">{{ quantityMade }}<template v-if="unit"> {{ unit }}</template></b>
                     <b v-if="packSize" class="text-amber-700"> {{ ctrans('packs of :size = :pieces × :code', { size: packSize, pieces: inPieces(quantityMade ?? 0), code: session.task.artefact_code ?? '' }) }}</b>
                 </span>
@@ -516,7 +523,7 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
             </div>
         </div>
 
-        <div v-if="session.band_feedback" class="mt-6 border-t border-[--app-accent-muted] pt-4">
+        <div v-if="session.band_feedback && !isQuantityOnly" class="mt-6 border-t border-[--app-accent-muted] pt-4">
             <div class="text-center text-3xl font-semibold tabular-nums">
                 {{ currentRate.toFixed(1) }} <span class="text-base font-normal text-gray-600">{{ ctrans('units/hour') }}</span>
             </div>

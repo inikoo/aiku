@@ -451,6 +451,7 @@ class ShowManufactureFloor extends OrgAction
             'task_code'           => $task->manufactureTask->code,
             'task_name'           => $task->manufactureTask->name,
             'is_piece_rate'       => (bool) $task->manufactureTask->is_piece_rate,
+            'is_quantity_only'    => (bool) $task->manufactureTask->is_quantity_only,
             'artefact_code'       => $members->map(fn (JobOrderItemTask $member) => $member->jobOrderItem->artefact->code)->unique()->implode(' + '),
             'artefact_name'       => $isCombined ? __('Combined batch') : $task->jobOrderItem->artefact->name,
             'job_order_reference' => $members->map(fn (JobOrderItemTask $member) => $member->jobOrder->reference)->unique()->implode(', '),
