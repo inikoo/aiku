@@ -537,17 +537,6 @@ function orgStockRoute(item: { org_stock_id?: number }) {
                     >
                         <FontAwesomeIcon icon="fal fa-box" aria-hidden="true" fixed-width />
                     </Link>
-                    <a
-                        v-if="packingInstructionsUrl(item)"
-                        v-tooltip="ctrans('Print the packing instructions of this product')"
-                        :href="packingInstructionsUrl(item)"
-                        target="_blank"
-                        rel="noopener"
-                        class="text-gray-400 hover:text-[--app-accent]"
-                        :aria-label="ctrans('Print the packing instructions of this product')"
-                    >
-                        <FontAwesomeIcon icon="fal fa-box-open" aria-hidden="true" fixed-width />
-                    </a>
                 </div>
                 <template v-if="hasOwnSkuCode(item)">
                     <Link
@@ -692,6 +681,16 @@ function orgStockRoute(item: { org_stock_id?: number }) {
 
         <template #cell(actions)="{ item }">
             <div class="flex justify-end items-center gap-2">
+                <a v-if="packingInstructionsUrl(item)" :href="packingInstructionsUrl(item)" target="_blank" rel="noopener">
+                    <Button
+                        :label="ctrans('Packing')"
+                        :tooltip="ctrans('Print the packing instructions of this product')"
+                        icon="fal fa-file-pdf"
+                        type="tertiary"
+                        size="xs"
+                    />
+                </a>
+
                 <Button
                     v-if="item.deleteRoute && state === 'in_process'"
                     :label="ctrans('Remove')"
