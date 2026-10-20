@@ -36,6 +36,7 @@ import axios from "axios"
 import TableFulfilmentTransactions from "@/Components/Tables/Grp/Org/Fulfilment/TableFulfilmentTransactions.vue"
 import { notify } from "@kyvg/vue3-notification"
 import PureMultiselectInfiniteScroll from "@/Components/Pure/PureMultiselectInfiniteScroll.vue"
+import ServiceSelectOption from "@/Components/Fulfilment/ServiceSelectOption.vue"
 import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue"
 import UploadAttachment from "@/Components/Upload/UploadAttachment.vue"
 import { Table as TableTS } from "@/types/Table"
@@ -516,18 +517,8 @@ provide("listError", listError.value)
 									</div>
 								</template>
 
-								<template #option="{ option, isSelected, isPointed }">
-									<div class="">
-										{{ option.name }}
-										<span class="text-sm text-gray-400"
-											>({{
-												locale.currencyFormat(
-													option.currency_code,
-													option.price
-												)
-											}}/{{ option.unit }})</span
-										>
-									</div>
+								<template #option="{ option }">
+									<ServiceSelectOption :option="option" />
 								</template>
 							</PureMultiselectInfiniteScroll>
 
