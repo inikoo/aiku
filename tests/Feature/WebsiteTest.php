@@ -4230,3 +4230,15 @@ test('header, footer, sidebar and website previews answer web staff of the websi
         }
     }
 })->depends('launch website');
+
+test('rechecking external links marks a link that is not a url as an error and still checks the rest', function () {
+    Http::fake(['*' => Http::response('ok')]);
+
+    $notAUrl = StoreExternalLink::make()->action($this->organisation->group, ['url' => 'aromatherapy body lotion '.Str::random(6), 'status' => '200']);
+    $url     = StoreExternalLink::make()->action($this->organisation->group, ['url' => 'https://example.com/'.Str::random(6), 'status' => 'error']);
+
+    \App\Actions\Web\ExternalLink\RecheckExternalLinkStatuses::run();
+
+    expect($notAUrl->refresh()->status)->toBe('error')
+        ->and($url->refresh()->status)->toBe('200');
+});

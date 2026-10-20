@@ -26,6 +26,8 @@ class StoreNewProductToCurrentShopify extends OrgAction implements ShouldBeUniqu
 
     public string $jobQueue = 'shopify';
 
+    public bool $jobDeleteWhenMissingModels = true;
+
     public function getJobUniqueId(Portfolio $portfolio): int
     {
         return $portfolio->id;

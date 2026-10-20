@@ -1791,3 +1791,56 @@ test('the stock push writes variations under their parent and rechecks a variati
         ->and($unknown->platform_status)->toBeTrue()
         ->and(UpdateWooCustomerSalesChannelPortfolio::variationParentId($unknown))->toBe(900);
 });
+
+test('a product upload still waiting for a slot when its retry window ends says it timed out so the nightly retry queues it again', function () {
+    $wooCommerceUser = wooConnect(wooCustomer($this->shop));
+    $portfolio       = wooPortfolio($wooCommerceUser->customerSalesChannel, $this->product, null, 'aw-store-busy-expired');
+    $wooCommerceUser->customerSalesChannel->update(['can_connect_to_platform' => true]);
+    $funnel          = 'woo_product_create_'.$wooCommerceUser->id;
+
+    wooFake();
+
+    $job      = Mockery::mock(JobDecorator::class);
+    $job->job = Mockery::mock(\Illuminate\Contracts\Queue\Job::class);
+    $job->job->shouldReceive('retryUntil')->andReturn(now()->addSeconds(StoreNewProductToCurrentWooCommerce::MIN_WAIT_FOR_SLOT_SECONDS - 1)->getTimestamp());
+    $job->shouldNotReceive('release');
+
+    $holdSlots = function (int $left) use (&$holdSlots, $funnel, $job, $wooCommerceUser, $portfolio) {
+        if ($left === 0) {
+            StoreNewProductToCurrentWooCommerce::make()->asJob($job, $wooCommerceUser, $portfolio, false);
+
+            return;
+        }
+
+        Redis::funnel($funnel)
+            ->limit(StoreNewProductToCurrentWooCommerce::MAX_CONCURRENT_CREATES_PER_STORE)
+            ->releaseAfter(60)
+            ->block(0)
+            ->then(fn () => $holdSlots($left - 1));
+    };
+
+    $holdSlots(StoreNewProductToCurrentWooCommerce::MAX_CONCURRENT_CREATES_PER_STORE);
+
+    expect(wooSent('POST', 'products'))->toBeEmpty()
+        ->and(Arr::get($portfolio->refresh()->errors_response, 'message'))->toBe(StoreNewProductToCurrentWooCommerce::GAVE_UP_WAITING_MESSAGE)
+        ->and(RetryTimedOutWooUploads::run($wooCommerceUser->customerSalesChannel)->pluck('id'))->toContain($portfolio->id);
+});
+
+test('a product upload the queue gives up on says it timed out', function () {
+    $wooCommerceUser = wooConnect(wooCustomer($this->shop));
+    $portfolio       = wooPortfolio($wooCommerceUser->customerSalesChannel, $this->product, null, 'aw-queue-gave-up');
+
+    StoreNewProductToCurrentWooCommerce::make()->jobFailed(new \Illuminate\Queue\MaxAttemptsExceededException('too many'), $wooCommerceUser, $portfolio, false);
+
+    expect(Arr::get($portfolio->refresh()->errors_response, 'message'))->toBe(StoreNewProductToCurrentWooCommerce::GAVE_UP_WAITING_MESSAGE);
+});
+
+test('a product upload that failed for good keeps its own error when the queue marks it failed', function () {
+    $wooCommerceUser = wooConnect(wooCustomer($this->shop));
+    $portfolio       = wooPortfolio($wooCommerceUser->customerSalesChannel, $this->product, null, 'aw-real-error');
+    $portfolio->update(['errors_response' => ['message' => 'SKU no válido o duplicado.']]);
+
+    StoreNewProductToCurrentWooCommerce::make()->jobFailed(new RuntimeException('SKU no válido o duplicado.'), $wooCommerceUser, $portfolio, false);
+
+    expect(Arr::get($portfolio->refresh()->errors_response, 'message'))->toBe('SKU no válido o duplicado.');
+});
