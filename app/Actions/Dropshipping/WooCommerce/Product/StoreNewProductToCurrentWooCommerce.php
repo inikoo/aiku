@@ -15,6 +15,7 @@ use App\Actions\OrgAction;
 use App\Events\UploadProductToSalesChannelProgressEvent;
 use App\Models\Dropshipping\Portfolio;
 use App\Models\Dropshipping\WooCommerceUser;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Queue\MaxAttemptsExceededException;
@@ -44,27 +45,15 @@ class StoreNewProductToCurrentWooCommerce extends OrgAction implements ShouldBeU
     public const int MAX_CONCURRENT_CREATES_PER_STORE = 4;
 
     /**
-     * At 4 creates at a time a store takes ~750 products an hour, so an 8k bulk upload queues for
-     * ~11h. A spread wait keeps thousands of waiting jobs from being popped every few seconds in
-     * lockstep, and retryUntil must outlast the whole upload. ponytail: fixed window, derive it from
-     * the store's backlog if uploads above ~18k products appear.
+     * At 4 creates at a time a store takes ~750 products an hour, so an 8k bulk upload waits in
+     * DispatchWooUploadQueue for ~11h, and an upload's window must outlast the whole upload.
      */
-    public const int MIN_WAIT_FOR_SLOT_SECONDS = 20;
-
-    public const int MAX_WAIT_FOR_SLOT_SECONDS = 180;
-
     public const int RETRY_FOR_HOURS = 24;
 
     /**
      * Worded with "timed out" so the nightly RetryTimedOutWooUploads queues the upload again.
      */
     public const string GAVE_UP_WAITING_MESSAGE = 'Timed out waiting for the store to accept more products';
-
-    /**
-     * A bulk upload staggers its creates at this pace so slots are rarely busy when a job arrives
-     * and waiting jobs are not popped over and over; a slow store still falls back to the funnel.
-     */
-    public const int STAGGER_SECONDS_PER_SLOT_ROUND = 10;
 
     public int $jobUniqueFor = (self::RETRY_FOR_HOURS + 1) * 3600;
 
@@ -107,41 +96,50 @@ class StoreNewProductToCurrentWooCommerce extends OrgAction implements ShouldBeU
     }
 
     /**
-     * Waiting for a slot releases the job instead of blocking a worker; a release is an attempt, so
-     * the job lives by retryUntil and only real exceptions count against it.
+     * A job only runs once DispatchWooUploadQueue found it a free slot, and frees it to the next in
+     * the store's list. A burst of finishes can start a job for a slot another job then takes; that
+     * one waits a beat holding its unique lock, as back in the list a finishing create could pop it
+     * while the lock is still held and its dispatch would be dropped.
      */
-    public function asJob(JobDecorator $job, WooCommerceUser $wooCommerceUser, Portfolio $portfolio, bool $checkConnection = true, ?array $bulkProgress = null): void
+    public function asJob(JobDecorator $job, WooCommerceUser $wooCommerceUser, Portfolio $portfolio, bool $checkConnection = true, ?array $bulkProgress = null, ?int $retryUntil = null): void
     {
-        Redis::funnel('woo_product_create_'.$wooCommerceUser->id)
-            ->limit(self::MAX_CONCURRENT_CREATES_PER_STORE)
-            ->releaseAfter(StoreWooCommerceProduct::CREATE_TIMEOUT_SECONDS * 3)
-            ->block(0)
-            ->then(
-                fn () => $this->handle($wooCommerceUser, $portfolio, $checkConnection, $bulkProgress),
-                fn () => $this->waitForSlot($job, $wooCommerceUser, $portfolio, $bulkProgress)
-            );
-    }
+        $hadSlot = null;
 
-    /**
-     * A wait that would run past retryUntil ends the upload with a retryable message instead: the
-     * queue would otherwise fail the job without a word on the product, and the nightly retry only
-     * picks up uploads that say they timed out.
-     */
-    private function waitForSlot(JobDecorator $job, WooCommerceUser $wooCommerceUser, Portfolio $portfolio, ?array $bulkProgress): void
-    {
-        $wait       = random_int(self::MIN_WAIT_FOR_SLOT_SECONDS, self::MAX_WAIT_FOR_SLOT_SECONDS);
-        $retryUntil = $job->job?->retryUntil();
+        try {
+            $hadSlot = Redis::funnel(self::funnelName($wooCommerceUser))
+                ->limit(self::MAX_CONCURRENT_CREATES_PER_STORE)
+                ->releaseAfter(StoreWooCommerceProduct::CREATE_TIMEOUT_SECONDS * 3)
+                ->block(0)
+                ->then(
+                    function () use ($wooCommerceUser, $portfolio, $checkConnection, $bulkProgress) {
+                        $this->handle($wooCommerceUser, $portfolio, $checkConnection, $bulkProgress);
 
-        if (!$retryUntil || now()->addSeconds($wait)->getTimestamp() < $retryUntil) {
-            $job->release($wait);
-
-            return;
+                        return true;
+                    },
+                    fn () => false
+                );
+        } finally {
+            if ($hadSlot !== false) {
+                DispatchWooUploadQueue::run($wooCommerceUser);
+            }
         }
 
+        if (!$hadSlot) {
+            $job->release(DispatchWooUploadQueue::CHECK_AGAIN_SECONDS);
+        }
+    }
+
+    public static function funnelName(WooCommerceUser $wooCommerceUser): string
+    {
+        return 'woo_product_create_'.$wooCommerceUser->id;
+    }
+
+    public function giveUpWaiting(WooCommerceUser $wooCommerceUser, Portfolio $portfolio, ?array $bulkProgress): void
+    {
         $this->recordGaveUpWaiting($portfolio);
 
         if ($bulkProgress) {
-            $this->broadcastBulkProgress($wooCommerceUser, $portfolio, $bulkProgress);
+            $this->broadcastBulkProgress($wooCommerceUser, $portfolio->refresh(), $bulkProgress);
         }
     }
 
@@ -152,9 +150,12 @@ class StoreNewProductToCurrentWooCommerce extends OrgAction implements ShouldBeU
         ]);
     }
 
-    public function getJobRetryUntil(): \DateTimeInterface
+    /**
+     * An upload that waited in the store's list keeps the window it was given when it was queued.
+     */
+    public function getJobRetryUntil(WooCommerceUser $wooCommerceUser, Portfolio $portfolio, bool $checkConnection = true, ?array $bulkProgress = null, ?int $retryUntil = null): \DateTimeInterface
     {
-        return now()->addHours(self::RETRY_FOR_HOURS);
+        return $retryUntil ? Carbon::createFromTimestamp($retryUntil) : now()->addHours(self::RETRY_FOR_HOURS);
     }
 
     /**

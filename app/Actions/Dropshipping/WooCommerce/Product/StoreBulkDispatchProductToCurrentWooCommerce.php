@@ -24,18 +24,17 @@ class StoreBulkDispatchProductToCurrentWooCommerce extends OrgAction
     /**
      * @throws \Exception
      */
-    public function handle(CustomerSalesChannel $customerSalesChannel, $portfolios, array $bulkProgress, int $firstPosition = 0): void
+    public function handle(CustomerSalesChannel $customerSalesChannel, $portfolios, array $bulkProgress): void
     {
         /** @var WooCommerceUser $wooCommerceUser */
         $wooCommerceUser = $customerSalesChannel->user;
 
         $needCheckConnection = !$wooCommerceUser->checkConnection();
 
-        foreach ($portfolios->values() as $index => $portfolio) {
-            $slotRound = intdiv($firstPosition + $index, StoreNewProductToCurrentWooCommerce::MAX_CONCURRENT_CREATES_PER_STORE);
-
-            StoreNewProductToCurrentWooCommerce::dispatch($wooCommerceUser, $portfolio, $needCheckConnection, $bulkProgress)
-                ->delay(now()->addSeconds($slotRound * StoreNewProductToCurrentWooCommerce::STAGGER_SECONDS_PER_SLOT_ROUND));
+        foreach ($portfolios as $portfolio) {
+            DispatchWooUploadQueue::push($wooCommerceUser, $portfolio, $needCheckConnection, $bulkProgress);
         }
+
+        DispatchWooUploadQueue::run($wooCommerceUser);
     }
 }
