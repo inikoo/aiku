@@ -1650,6 +1650,11 @@ test('dispatching an intra-EU delivery note queues the intrastat export time ser
         fn ($job) => $job->getAction() instanceof \App\Actions\Accounting\Reports\IntrastatExportTimeSeries\ProcessIntrastatExportTimeSeriesRecords
             && $job->delay >= \App\Actions\Accounting\Reports\IntrastatExportTimeSeries\ProcessIntrastatExportTimeSeriesRecords::DEBOUNCE_SECONDS
     );
+    Queue::assertPushed(
+        \App\Jobs\BoundedUniqueUntilProcessingJobDecorator::class,
+        fn ($job) => $job->getAction() instanceof \App\Actions\Accounting\Reports\IntrastatImportTimeSeries\ProcessIntrastatImportTimeSeriesRecords
+            && $job->delay >= \App\Actions\Accounting\Reports\IntrastatImportTimeSeries\ProcessIntrastatImportTimeSeriesRecords::DEBOUNCE_SECONDS
+    );
     expect(\App\Actions\Accounting\Reports\IntrastatExportTimeSeries\ProcessIntrastatExportTimeSeriesRecords::makeJob($deliveryNote->organisation_id, \App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum::DAILY, '2026-03-10', '2026-03-10'))
         ->toBeInstanceOf(\Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing::class);
 });
