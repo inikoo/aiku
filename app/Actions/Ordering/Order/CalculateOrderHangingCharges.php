@@ -45,6 +45,7 @@ class CalculateOrderHangingCharges
 
         if ($chargeTransactionID) {
             $chargeTransaction = Transaction::find($chargeTransactionID);
+            $chargeTransaction?->setRelation('shop', $order->shop);
         }
 
 

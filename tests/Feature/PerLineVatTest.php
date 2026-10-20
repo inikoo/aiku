@@ -37,6 +37,7 @@ use App\Actions\Billables\ShippingZone\StoreShippingZone;
 use App\Actions\Billables\ShippingZoneSchema\StoreShippingZoneSchema;
 use App\Actions\Maintenance\Accounting\RepairInvoiceTaxHeader;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Actions\Helpers\TaxCategory\GetTaxCategory;
 use App\Models\Helpers\Address;
@@ -827,3 +828,28 @@ test('the invoice totals read the lines afresh, not a relation cached before the
     expect((float)$invoice->refresh()->net_amount)->toBe(120.0)
         ->and((float)$invoice->total_amount)->toBe(144.0);
 })->depends('the invoice header is derived from the same lines it stores, not from the order columns');
+
+test('a line whose historic asset is deleted falls back to the master map, and one whose asset is deleted to the order category', function () {
+    $order = StoreOrder::make()->action($this->customer, []);
+    $order->updateQuietly(['tax_category_id' => $this->vat20->id]);
+
+    $tea = createZeroRatedProduct($this->standardProduct, $this->vat20, $this->vat0);
+    StoreTransaction::make()->action($order->refresh(), $tea->historicAsset, ['quantity_ordered' => 1]);
+    $line        = $order->transactions()->where('asset_id', $tea->asset_id)->first();
+    $originalMap = DB::table('historic_assets')->where('id', $line->historic_asset_id)->value('tax_category');
+
+    $line->historicAsset->updateQuietly(['tax_category' => [$this->vat20->id => $this->vat20->id]]);
+    CalculateOrderTotalAmounts::make()->applyLineTaxCategories($order->refresh());
+    expect($line->refresh()->tax_category_id)->toBe($this->vat20->id);
+
+    DB::table('historic_assets')->where('id', $line->historic_asset_id)->update(['deleted_at' => now()]);
+    CalculateOrderTotalAmounts::make()->applyLineTaxCategories($order);
+    expect($line->refresh()->tax_category_id)->toBe($this->vat0->id);
+
+    DB::table('assets')->where('id', $tea->asset_id)->update(['deleted_at' => now()]);
+    CalculateOrderTotalAmounts::make()->applyLineTaxCategories($order);
+    expect($line->refresh()->tax_category_id)->toBe($this->vat20->id);
+
+    DB::table('assets')->where('id', $tea->asset_id)->update(['deleted_at' => null]);
+    DB::table('historic_assets')->where('id', $line->historic_asset_id)->update(['deleted_at' => null, 'tax_category' => $originalMap]);
+});

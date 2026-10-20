@@ -11,6 +11,7 @@ namespace App\Actions\Traits;
 use App\Enums\Catalogue\Charge\ChargeStateEnum;
 use App\Enums\Catalogue\Charge\ChargeTypeEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
+use App\Models\Billables\Charge;
 use App\Models\Catalogue\Product;
 use App\Models\Ordering\Order;
 use Illuminate\Support\Arr;
@@ -22,11 +23,18 @@ trait HasBasketDetails
 {
     protected function getBasketCharges(Order $order): array
     {
+        $charges = $order->shop->charges()
+            ->whereIn('type', [ChargeTypeEnum::PREMIUM, ChargeTypeEnum::PACKING, ChargeTypeEnum::INSURANCE, ChargeTypeEnum::GIFT_MESSAGE])
+            ->where('state', ChargeStateEnum::ACTIVE)
+            ->orderBy('id')
+            ->get()
+            ->each(fn (Charge $charge) => $charge->setRelation('shop', $order->shop));
+
         return [
-            'premium_dispatch' => $order->shop->charges()->where('type', ChargeTypeEnum::PREMIUM)->where('state', ChargeStateEnum::ACTIVE)->first(),
-            'extra_packing'    => $order->shop->charges()->where('type', ChargeTypeEnum::PACKING)->where('state', ChargeStateEnum::ACTIVE)->first(),
-            'insurance'        => $order->shop->charges()->where('type', ChargeTypeEnum::INSURANCE)->where('state', ChargeStateEnum::ACTIVE)->first(),
-            'gift_message'     => $order->shop->charges()->where('type', ChargeTypeEnum::GIFT_MESSAGE)->where('state', ChargeStateEnum::ACTIVE)->first(),
+            'premium_dispatch' => $charges->first(fn (Charge $charge) => $charge->type == ChargeTypeEnum::PREMIUM->value),
+            'extra_packing'    => $charges->first(fn (Charge $charge) => $charge->type == ChargeTypeEnum::PACKING->value),
+            'insurance'        => $charges->first(fn (Charge $charge) => $charge->type == ChargeTypeEnum::INSURANCE->value),
+            'gift_message'     => $charges->first(fn (Charge $charge) => $charge->type == ChargeTypeEnum::GIFT_MESSAGE->value),
         ];
     }
 
