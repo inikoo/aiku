@@ -7,6 +7,7 @@
 import { ref, provide } from "vue";
 import axios from "axios";
 import { Head } from "@inertiajs/vue3";
+import { useFreshAfterHistoryRestore } from "@/Composables/useFreshAfterHistoryRestore"
 
 // Utils
 import { capitalize } from "@/Composables/capitalize";
@@ -59,6 +60,10 @@ provide('isInWorkshop', true);
 
 // State
 const data = ref(props.webpage);
+
+const isRefreshingLayout = useFreshAfterHistoryRestore(['webpage', 'pageHead'], () => {
+  data.value = props.webpage;
+});
 const comment = ref("");
 const isSavingBlock = ref(false);
 const isLoadingPublish = ref(false);
@@ -249,8 +254,9 @@ const openWebsite = () => window.open(props.url, '_blank');
     </template>
   </ConfirmDialog>
 
+  <div v-if="isRefreshingLayout" />
    <Beefree
-    v-if="webpage_sub_type === 'mailshot'"
+    v-else-if="webpage_sub_type === 'mailshot'"
     :snapshot="webpage.layout.web_blocks[0].web_block.layout.data.fieldValue.beefree.json"
     :mergeTags="webpage.mergeTags ?? []"
     :updateRoute="webpage.updateRoute"

@@ -62,9 +62,10 @@ class ShowMailshotWorkshop extends OrgAction
     {
         $email = $mailshot->email;
         $hasPublishedVersion = $email?->liveSnapshot?->compiled_layout ? true : false;
+        $isDraftUntouched    = $email->unpublishedSnapshot->created_at->eq($email->unpublishedSnapshot->updated_at);
 
         $templateLayout = null;
-        if ($request->has('template') && !$hasPublishedVersion) {
+        if ($request->has('template') && !$hasPublishedVersion && $isDraftUntouched) {
             $templateSlug = $request->get('template');
             $template = EmailTemplate::findBySlug($templateSlug);
             if ($template) {
@@ -206,7 +207,7 @@ class ShowMailshotWorkshop extends OrgAction
                 ],
                 'journey' => $this->getMailshotJourney($mailshot, 'compose'),
                 'can_edit'             => $this->canEdit,
-                'openTemplateSelector' => $this->canEdit && !$hasPublishedVersion && !$templateLayout && !$request->boolean('blank') && $email->unpublishedSnapshot->created_at->eq($email->unpublishedSnapshot->updated_at),
+                'openTemplateSelector' => $this->canEdit && !$hasPublishedVersion && !$templateLayout && !$request->boolean('blank') && $isDraftUntouched,
                 'mailshot' => [
                     'subject'      => $mailshot->subject,
                     'name'         => $mailshot->name,

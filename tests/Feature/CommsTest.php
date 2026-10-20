@@ -5100,3 +5100,30 @@ test('the beefree editor token is given only to staff who edit a website, market
         postJson($url, ['uid' => 'test-'.$user->id])->assertOk();
     }
 });
+
+test('workshop opened with a template keeps the saved draft once it has been edited', function () {
+    $outbox   = $this->shop->outboxes()->where('outboxes.code', OutboxCodeEnum::MARKETING)->first();
+    $mailshot = StoreMailshot::make()->action($outbox, Mailshot::factory()->definition());
+    $template = $this->group->emailTemplates()->create([
+        'slug'      => 'help-4152-'.$mailshot->id,
+        'name'      => 'HELP-4152 template',
+        'state'     => EmailTemplateStateEnum::ACTIVE,
+        'builder'   => EmailTemplateBuilderEnum::BEEFREE,
+        'layout'    => ['body' => 'template content'],
+        'arguments' => [],
+        'data'      => [],
+        'is_seeded' => false,
+        'active_at' => now(),
+    ]);
+    $workshopUrl = route('grp.org.shops.show.marketing.mailshots.workshop', [$this->organisation, $this->shop, $mailshot->slug, 'template' => $template->slug]);
+
+    $this->get($workshopUrl)->assertInertia(fn (AssertableInertia $page) => $page->where('unpublished_layout', ['body' => 'template content'])->etc());
+
+    $this->travel(2)->seconds();
+    UpdateWorkshopMailShot::make()->handle($mailshot->refresh(), ['layout' => ['body' => 'translated draft']]);
+
+    $this->get($workshopUrl)->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('unpublished_layout', ['body' => 'translated draft'])
+        ->where('openTemplateSelector', false)
+        ->etc());
+});
