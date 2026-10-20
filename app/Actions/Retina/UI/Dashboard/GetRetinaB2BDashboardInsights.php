@@ -585,7 +585,7 @@ class GetRetinaB2BDashboardInsights
      */
     private function slimImage(?array $image): ?array
     {
-        return $image ? Arr::only($image, ['avif', 'webp', 'original']) : null;
+        return $image ? Arr::only($image, ['avif', 'original']) : null;
     }
 
     private function slimRecommendations(array $products): array

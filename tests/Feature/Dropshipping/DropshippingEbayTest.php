@@ -1760,6 +1760,32 @@ test('saving postage and return settings from the channel page updates both eBay
         ->and(Arr::get($channel->settings, 'return.within'))->toBe(30);
 });
 
+test('choosing the customer\'s own eBay postage and return policies links them without sending anything to eBay and shows what they hold, even with fields filled', function () {
+    $ebayUser = ebayChannel($this, ['fulfillment_policy_id' => null, 'return_policy_id' => null]);
+    $ebayUser->customerSalesChannel->update(['settings' => [
+        'shipping' => ['price' => '3', 'max_dispatch_time' => '2', 'service_code' => 'UK_RoyalMailNextDay'],
+        'return'   => ['accepted' => true, 'payer' => 'SELLER', 'within' => 60],
+    ]]);
+
+    fakeEbay($this, ebayAccountRoutes([]));
+
+    $channel = UpdateEbayCustomerSalesChannel::run($ebayUser->customerSalesChannel, [
+        'fulfillment_policy_id'      => 'fp-1',
+        'return_policy_id'           => 'rp-list',
+        'shipping_price'             => '0',
+        'shipping_max_dispatch_time' => '4',
+        'return_accepted'            => true,
+    ]);
+
+    Http::assertNotSent(fn ($request) => $request->method() === 'PUT' && str_contains($request->url(), '_policy/'));
+
+    expect($ebayUser->refresh()->fulfillment_policy_id)->toBe('fp-1')
+        ->and($ebayUser->return_policy_id)->toBe('rp-list')
+        ->and(Arr::get($channel->refresh()->settings, 'shipping.price'))->toBe('1.00')
+        ->and(Arr::get($channel->settings, 'shipping.max_dispatch_time'))->toBe('1')
+        ->and(Arr::get($channel->settings, 'return.accepted'))->toBeFalse();
+});
+
 test('turning returns on by itself sends eBay a complete return policy', function () {
     $ebayUser = ebayChannel($this);
     $ebayUser->customerSalesChannel->update(['settings' => ['return' => ['accepted' => false]]]);
@@ -1789,6 +1815,22 @@ test('a return policy eBay refuses is reported and the channel keeps its previou
         ->toThrow(ValidationException::class, 'Invalid return period.');
 
     expect(Arr::get($ebayUser->customerSalesChannel->refresh()->settings, 'return.accepted'))->toBeFalse();
+});
+
+test('an eBay refusal shows the customer eBay\'s full reason, not just its one-word message', function () {
+    $ebayUser = ebayChannel($this);
+
+    fakeEbay($this, ebayAccountRoutes([
+        '/sell/account/v1/fulfillment_policy/fp-1' => fn () => Http::response(['errors' => [[
+            'errorId'     => 20403,
+            'message'     => 'Invalid.',
+            'longMessage' => 'A policy with the name Shipping already exists.',
+            'parameters'  => [['name' => 'name', 'value' => 'Shipping']],
+        ]]], 400),
+    ]));
+
+    expect(fn () => UpdateEbayCustomerSalesChannel::run($ebayUser->customerSalesChannel, ['shipping_price' => '4.50']))
+        ->toThrow(ValidationException::class, 'Invalid. A policy with the name Shipping already exists. (name Shipping)');
 });
 
 test('a postage policy eBay refuses is reported and the channel keeps its previous postage', function () {

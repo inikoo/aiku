@@ -87,3 +87,18 @@ test('neither master nor slave schedules register when both flags are disabled',
             \App\Actions\Reviews\AutoPublishReviews::class,
         );
 });
+
+test('logged commands run in the background so a long one cannot delay the next, and keep the same log key in the finish process', function () {
+    config(['app.master' => true, 'app.slave' => true]);
+
+    $findCommand = fn (Schedule $schedule, string $command) => collect($schedule->events())->first(fn ($event) => str_contains((string) $event->command, $command));
+
+    $first  = $findCommand(rebuildSchedule(), 'production:release_pre_pick');
+    $second = $findCommand(rebuildSchedule(), 'production:release_pre_pick');
+    $jobs   = collect(rebuildSchedule()->events())->filter(fn ($event) => $event instanceof Illuminate\Console\Scheduling\CallbackEvent);
+
+    expect($first->runInBackground)->toBeTrue()
+        ->and($findCommand(rebuildSchedule(), 'woo:ping_active_channel')->runInBackground)->toBeTrue()
+        ->and($first->mutexName())->toBe($second->mutexName())
+        ->and($jobs->every(fn ($event) => !$event->runInBackground))->toBeTrue();
+});

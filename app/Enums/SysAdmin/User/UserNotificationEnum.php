@@ -113,6 +113,10 @@ enum UserNotificationEnum: string
             self::PURCHASE_ORDER_BALANCE_DUE    => 'fal fa-file-invoice',
             self::SUPPLIER_PRODUCT_AVAILABILITY => 'fal fa-box-check',
             self::PURCHASE_ORDER_MINIMUM_POKE   => 'fal fa-hand-point-right',
+            self::PRODUCT_DEVELOPMENT_TASK      => 'fal fa-lightbulb-on',
+            self::PRODUCT_DEVELOPMENT_MENTION   => 'fal fa-at',
+            self::PRODUCT_DEVELOPMENT_FILES     => 'fal fa-paperclip',
+            self::PRODUCT_DEVELOPMENT_DIGEST    => 'fal fa-list',
         };
     }
 

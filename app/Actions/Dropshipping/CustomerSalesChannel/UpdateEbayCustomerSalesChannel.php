@@ -14,6 +14,7 @@ use App\Actions\Dropshipping\Ebay\UpdateEbayUser;
 use App\Actions\Dropshipping\WooCommerce\Product\UpdateInventoryInEbayPortfolio;
 use App\Actions\Dropshipping\Ebay\UpdateReturnPolicyEbayUser;
 use App\Actions\Dropshipping\Ebay\UpdateShippingPolicyEbayUser;
+use App\Actions\Maintenance\Dropshipping\SyncEbayChannelPoliciesFromEbay;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Dropshipping\CustomerSalesChannelStateEnum;
@@ -115,12 +116,18 @@ class UpdateEbayCustomerSalesChannel extends OrgAction
 
         $resetAllPrices = (bool) Arr::pull($modelData, 'pricing_reset_all');
 
-        if ($fulfillmentPolicyId || filled($shippingService) || filled($shippingPrice) || filled($shippingDispatchTime)) {
-            UpdateShippingPolicyEbayUser::run($platformUser, $fulfillmentPolicyId ? array_merge($modelData, ['fulfillment_policy_id' => $fulfillmentPolicyId]) : $modelData);
+        if ($fulfillmentPolicyId) {
+            data_forget($modelData, 'settings.shipping');
+            UpdateEbayUser::run($platformUser, ['fulfillment_policy_id' => $fulfillmentPolicyId]);
+        } elseif (filled($shippingService) || filled($shippingPrice) || filled($shippingDispatchTime)) {
+            UpdateShippingPolicyEbayUser::run($platformUser, $modelData);
         }
 
-        if ($returnPolicyId || $returnAccepted !== null || $returnPayer || $returnWithin || $returnDescription) {
-            UpdateReturnPolicyEbayUser::run($platformUser, $returnPolicyId ? array_merge($modelData, ['return_policy_id' => $returnPolicyId]) : $modelData);
+        if ($returnPolicyId) {
+            data_forget($modelData, 'settings.return');
+            UpdateEbayUser::run($platformUser, ['return_policy_id' => $returnPolicyId]);
+        } elseif ($returnAccepted !== null || $returnPayer || $returnWithin || $returnDescription) {
+            UpdateReturnPolicyEbayUser::run($platformUser, $modelData);
         }
 
         $stockSettingsBefore = UpdateCustomerSalesChannel::stockSettings($customerSalesChannel);
@@ -128,6 +135,11 @@ class UpdateEbayCustomerSalesChannel extends OrgAction
         $doNotUpdatePricesBefore = (bool) Arr::get($customerSalesChannel->settings, 'do_not_update_prices');
 
         $customerSalesChannel = UpdateCustomerSalesChannel::run($customerSalesChannel, $modelData);
+
+        if ($fulfillmentPolicyId || $returnPolicyId) {
+            SyncEbayChannelPoliciesFromEbay::make()->handle($platformUser->refresh(), true);
+            $customerSalesChannel->refresh();
+        }
 
         if (
             !Arr::get($customerSalesChannel->settings, 'do_not_update_prices')
