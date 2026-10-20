@@ -286,6 +286,14 @@ test('set shipper api credentials from the command', function ($createdShipper) 
     $createdShipper->update($originalApiSettings);
 })->depends('create shipper');
 
+test('dpd gb label pdf keeps one page per parcel', function () {
+    $html = str_repeat('<div style="page-break-after: always">label</div>', 3);
+
+    $pdf = (new CallApiDpdGbShipping())->labelPdf($html, 3);
+
+    expect(preg_match_all('/\/Type\s*\/Page[^s]/', $pdf))->toBe(3);
+});
+
 test('dpd gb login reads the credentials by name whatever their order', function () {
     config(['app.sandbox.shipper_dpd_gb_token' => '{"account":"462302","password":"p","username":"u"}']);
     Http::fake(['api.dpd.co.uk/*' => Http::response(['data' => ['geoSession' => 'session']])]);
