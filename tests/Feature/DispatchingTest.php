@@ -1645,7 +1645,106 @@ test('dispatching an intra-EU delivery note queues the intrastat export time ser
     $deliveryNote = \App\Actions\Dispatching\DeliveryNote\UpdateState\DispatchDeliveryNote::make()->action($deliveryNote->refresh());
 
     expect($deliveryNote->state)->toBe(DeliveryNoteStateEnum::DISPATCHED);
-    Queue::assertPushed(\App\Jobs\BoundedUniqueJobDecorator::class, fn ($job) => $job->getAction() instanceof \App\Actions\Accounting\Reports\IntrastatExportTimeSeries\ProcessIntrastatExportTimeSeriesRecords);
+    Queue::assertPushed(
+        \App\Jobs\BoundedUniqueUntilProcessingJobDecorator::class,
+        fn ($job) => $job->getAction() instanceof \App\Actions\Accounting\Reports\IntrastatExportTimeSeries\ProcessIntrastatExportTimeSeriesRecords
+            && $job->delay >= \App\Actions\Accounting\Reports\IntrastatExportTimeSeries\ProcessIntrastatExportTimeSeriesRecords::DEBOUNCE_SECONDS
+    );
+    expect(\App\Actions\Accounting\Reports\IntrastatExportTimeSeries\ProcessIntrastatExportTimeSeriesRecords::makeJob($deliveryNote->organisation_id, \App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum::DAILY, '2026-03-10', '2026-03-10'))
+        ->toBeInstanceOf(\Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing::class);
+});
+
+test('intrastat export keeps each nature of transaction on its own line, adds up the rest and rebuilds the window', function () {
+    $tariffCode = '99'.random_int(10000000, 99999999);
+    $product    = StoreProduct::make()->action($this->product->family, array_merge(
+        Product::factory()->definition(),
+        ['trade_units' => [['id' => $this->product->tradeUnits->first()->id, 'quantity' => 1]], 'price' => 10]
+    ));
+    DB::table('products')->where('id', $product->id)->update(['tariff_code' => $tariffCode]);
+
+    $country = \App\Models\Helpers\Country::whereIn('code', ['FR', 'DE'])->where('id', '!=', $this->organisation->country_id)->firstOrFail();
+    $lines   = [
+        'order'       => ['type' => DeliveryNoteTypeEnum::ORDER, 'quantity' => 10, 'revenue' => 100],
+        'replacement' => ['type' => DeliveryNoteTypeEnum::REPLACEMENT, 'quantity' => 2, 'revenue' => 20],
+        'second'      => ['type' => DeliveryNoteTypeEnum::ORDER, 'quantity' => 5, 'revenue' => 50],
+    ];
+    $taxCategoryId = null;
+    foreach ($lines as $name => $line) {
+        [$deliveryNote, $item] = finalisedDeliveryNote($this);
+        $product->orgStocks()->syncWithoutDetaching([$item->org_stock_id => ['quantity' => 1]]);
+        $taxCategoryId ??= DB::table('transactions')->where('id', $item->transaction_id)->value('tax_category_id');
+        DB::table('transactions')->where('id', $item->transaction_id)->update(['tax_category_id' => $taxCategoryId]);
+        DB::table('delivery_notes')->where('id', $deliveryNote->id)->update([
+            'state'               => DeliveryNoteStateEnum::DISPATCHED->value,
+            'type'                => $line['type']->value,
+            'dispatched_at'       => '2026-03-10 10:00:00',
+            'delivery_country_id' => $country->id,
+        ]);
+        DB::table('delivery_note_items')->where('id', $item->id)->update([
+            'quantity_dispatched'     => $line['quantity'],
+            'org_revenue_amount'      => $line['revenue'],
+            'estimated_picked_weight' => 100,
+        ]);
+        $lines[$name]['delivery_note_id'] = $deliveryNote->id;
+    }
+
+    $orderNature = $this->shop->type === \App\Enums\Catalogue\Shop\ShopTypeEnum::DROPSHIPPING ? '12' : '11';
+    $daily       = \App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum::DAILY;
+    $process     = fn (\App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum $frequency = \App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum::DAILY) => \App\Actions\Accounting\Reports\IntrastatExportTimeSeries\ProcessIntrastatExportTimeSeriesRecords::run($this->organisation->id, $frequency, '2026-03-10', '2026-03-10');
+    $lineOf      = fn (string $frequency) => DB::table('intrastat_export_time_series_records as record')
+        ->join('intrastat_export_time_series as series', 'series.id', '=', 'record.intrastat_export_time_series_id')
+        ->where('series.tariff_code', $tariffCode)
+        ->where('record.frequency', $frequency)
+        ->orderBy('series.nature_of_transaction')
+        ->get(['series.nature_of_transaction', 'record.nature_of_transaction as record_nature', 'record.delivery_note_type', 'record.quantity', 'record.value_org_currency', 'record.weight', 'record.delivery_notes_count', 'record.period'])
+        ->map(fn ($row) => (array) $row)
+        ->all();
+
+    $legacySeriesId = DB::table('intrastat_export_time_series')->insertGetId([
+        'organisation_id' => $this->organisation->id, 'tariff_code' => $tariffCode, 'country_id' => $country->id, 'tax_category_id' => $taxCategoryId,
+        'frequency' => $daily->value, 'data' => '[]', 'number_records' => 1, 'created_at' => now(), 'updated_at' => now(),
+    ]);
+    DB::table('intrastat_export_time_series_records')->insert([
+        'intrastat_export_time_series_id' => $legacySeriesId, 'organisation_id' => $this->organisation->id, 'frequency' => 'D', 'period' => '2026-03-10',
+        'from' => '2026-03-10 00:00:00', 'to' => '2026-03-10 23:59:59', 'quantity' => 12, 'nature_of_transaction' => '21',
+    ]);
+
+    $queries = 0;
+    DB::listen(function () use (&$queries) {
+        $queries++;
+    });
+    $process();
+    $queriesOfOneRun = $queries;
+
+    $expectedDaily = [
+        ['nature_of_transaction' => $orderNature, 'record_nature' => $orderNature, 'delivery_note_type' => 'order', 'quantity' => '15.00', 'value_org_currency' => '150.00', 'weight' => 200, 'delivery_notes_count' => 2, 'period' => '2026-03-10'],
+        ['nature_of_transaction' => '21', 'record_nature' => '21', 'delivery_note_type' => 'replacement', 'quantity' => '2.00', 'value_org_currency' => '20.00', 'weight' => 100, 'delivery_notes_count' => 1, 'period' => '2026-03-10'],
+    ];
+    expect($lineOf('D'))->toBe($expectedDaily)
+        ->and($queriesOfOneRun)->toBeLessThan(15)
+        ->and(DB::table('intrastat_export_time_series')->where('id', $legacySeriesId)->value('number_records'))->toBe(0);
+
+    $process(\App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum::MONTHLY);
+    expect($lineOf('M'))->toBe(array_map(fn (array $line) => [...$line, 'period' => '2026-03'], $expectedDaily));
+
+    $process();
+    expect($lineOf('D'))->toBe($expectedDaily);
+
+    DB::table('delivery_notes')->whereIn('id', [$lines['second']['delivery_note_id'], $lines['replacement']['delivery_note_id']])->update(['state' => DeliveryNoteStateEnum::CANCELLED->value]);
+    $process();
+
+    $replacementSeries = DB::table('intrastat_export_time_series')->where('tariff_code', $tariffCode)->where('frequency', $daily->value)->where('nature_of_transaction', '21')->first();
+    expect($lineOf('D'))->toBe([[...$expectedDaily[0], 'quantity' => '10.00', 'value_org_currency' => '100.00', 'weight' => 100, 'delivery_notes_count' => 1]])
+        ->and($replacementSeries->number_records)->toBe(0)
+        ->and($replacementSeries->from)->toBeNull();
+});
+
+test('intrastat export redo works a year of dispatches at a time', function () {
+    expect(\App\Actions\Accounting\Reports\IntrastatExportTimeSeries\RedoIntrastatExportTimeSeries::make()->yearSlices('2024-11-05', '2026-02-01'))->toBe([
+        ['2024-11-05', '2024-12-31'],
+        ['2025-01-01', '2025-12-31'],
+        ['2026-01-01', '2026-02-01'],
+    ]);
 });
 
 function finalisedDeliveryNote($ctx): array

@@ -55,7 +55,7 @@ trait HasDeliveryNoteHydrators
         $dispatchedDate = ($deliveryNote->dispatched_at ?? now())->toDateString();
 
         foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
-            ProcessIntrastatExportTimeSeriesRecords::dispatch($deliveryNote->organisation_id, $frequency, $dispatchedDate, $dispatchedDate)->delay($this->hydratorsDelay);
+            ProcessIntrastatExportTimeSeriesRecords::dispatch($deliveryNote->organisation_id, $frequency, $dispatchedDate, $dispatchedDate)->delay(max($this->hydratorsDelay, ProcessIntrastatExportTimeSeriesRecords::DEBOUNCE_SECONDS));
             ProcessIntrastatImportTimeSeriesRecords::dispatch($deliveryNote->organisation_id, $frequency, $dispatchedDate, $dispatchedDate)->delay($this->hydratorsDelay);
         }
     }
