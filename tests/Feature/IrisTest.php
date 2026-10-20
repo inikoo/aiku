@@ -162,6 +162,12 @@ test('webpage stats are indexed by webpage', function () {
     expect($indexes)->toContain('UNIQUE INDEX webpage_stats_webpage_id_unique');
 });
 
+test('live webpages are indexed by their canonical path', function () {
+    $indexes = collect(DB::select('SELECT indexdef FROM pg_indexes WHERE tablename = ?', ['webpages']))->pluck('indexdef')->implode("\n");
+
+    expect($indexes)->toContain('webpages_site_canonical_path_live_idx');
+});
+
 test('it detects iris website', function () {
     // Mock parseDomain to return the website's domain
     DetectWebsiteFromDomain::mock()
