@@ -870,8 +870,8 @@ describe('production reward pay bands', function () {
         $development = makePayBandSession($this->payBandJobOrderItemTask, 0, 2, 0, \App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum::DEVELOPMENT->value);
         $development->update(['artisan_pay_type' => \App\Enums\Production\Artisan\ArtisanPayTypeEnum::HOURLY]);
         $development = \App\Actions\Production\ManufactureTaskSession\CalculateManufactureTaskSessionPay::run($development);
-        expect($development->band_code)->toBe('0')
-            ->and((float) $development->bonus)->toBe(0.0);
+        expect($development->band_code)->toBe('D')
+            ->and((float) $development->hourly_rate)->toBe(13.30);
 
         $artisans = collect(get(route('grp.org.productions.show.artisans.index', [$this->organisation->slug, $this->production->slug, 'artisan_pay_type' => 'hourly']))
             ->viewData('page')['props']['artisans']);
@@ -918,7 +918,7 @@ describe('production reward pay bands', function () {
 
         $guruTotals = function () use ($worked) {
             $rows = collect((new \App\Exports\Production\ManufacturePayrollExport($this->production, $worked->ended_at->clone()->subDay(), $worked->ended_at->clone()->addDay()))->array())
-                ->filter(fn ($row) => $row[1] === $this->manufactureTask->code && $row[15] === 'D');
+                ->filter(fn ($row) => $row[1] === $this->manufactureTask->code && $row[15] === 'DG');
 
             expect($rows->every(fn ($row) => $row[23] === round((float) $row[17] + $row[22], 2)))->toBeTrue();
 
@@ -944,6 +944,58 @@ describe('production reward pay bands', function () {
 
         \App\Actions\Production\Artisan\SetArtisanGuru::make()->action($this->production, $guru, ['guru_since' => now()->subDays(10)->toDateString(), 'guru_until' => now()->subDays(2)->toDateString()]);
         expect($guruTotals())->toBe([0.0, 0.0]);
+    });
+
+    test('hours on a product in development go to the development band, guru dev for a guru, with no target check or manager pin', function () {
+        $this->manufactureTask->update(['standard_rate' => null, 'is_piece_rate' => true]);
+        $this->artefact->manufactureTasks()->updateExistingPivot($this->manufactureTask->id, ['standard_rate' => null]);
+
+        $modelData                    = Employee::factory()->make(['organisation_id' => $this->organisation->id])->toArray();
+        $modelData['worker_number']   = 'W'.rand(1000, 9999);
+        $modelData['alias']           = 'Alias '.rand(1000, 9999);
+        $modelData['type']            = \App\Enums\HumanResources\Employee\EmployeeTypeEnum::EMPLOYEE;
+        $modelData['employment_type'] = \App\Enums\HumanResources\Employee\EmploymentTypeEnum::FULL_TIME;
+        $modelData['state']           = \App\Enums\HumanResources\Employee\EmployeeStateEnum::WORKING;
+        $artisan                      = StoreEmployee::make()->action($this->organisation, $modelData);
+        \App\Actions\Production\Artisan\SetArtisanPayType::make()->action($this->production, $artisan->refresh(), ['artisan_pay_type' => 'hourly']);
+
+        $closeOpen = function () use ($artisan) {
+            $session = makePayBandSession($this->payBandJobOrderItemTask, 0, 1);
+            $session->update(['state' => \App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum::OPEN, 'employee_id' => $artisan->id, 'started_at' => now()->subHour(), 'ended_at' => null]);
+
+            try {
+                return CloseManufactureTaskSession::make()->action($session, ['quantity_made' => 30])->refresh();
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                $session->delete();
+                throw $e;
+            }
+        };
+        $setInDevelopment = fn (bool $isInDevelopment) => $this->patch(
+            route('grp.models.production.artefacts.update', [$this->production->id, $this->artefact->id]),
+            ['is_in_development' => $isInDevelopment]
+        )->assertSessionHasNoErrors();
+
+        expect($closeOpen)->toThrow(\Illuminate\Validation\ValidationException::class, 'a step with no target, by someone paid by the hour: a manager must confirm it');
+
+        $setInDevelopment(true);
+        expect($this->artefact->refresh()->is_in_development)->toBeTrue();
+
+        $development = $closeOpen();
+        expect($development->activity_type)->toBe(\App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum::DEVELOPMENT)
+            ->and($development->band_code)->toBe('D')
+            ->and((float) $development->hourly_rate)->toBe(13.30)
+            ->and($development->is_under_target)->toBeFalse()
+            ->and($development->artefactCode())->toBe($this->artefact->code);
+
+        \App\Actions\Production\Artisan\SetArtisanGuru::make()->action($this->production, $artisan, ['guru_since' => now()->subDay()->toDateString(), 'guru_until' => null]);
+        $guruDevelopment = $closeOpen();
+        expect($guruDevelopment->band_code)->toBe('DG')
+            ->and((float) $guruDevelopment->hourly_rate)->toBe(15.00);
+
+        $setInDevelopment(false);
+        expect($closeOpen)->toThrow(\Illuminate\Validation\ValidationException::class, 'a step with no target, by someone paid by the hour: a manager must confirm it');
+
+        expect(\App\Actions\Production\ManufactureTaskSession\CalculateManufactureTaskSessionPay::run($guruDevelopment)->band_code)->toBe('DG');
     });
 
     test('job lines that share a step are made as one combined batch and the quantity and time are shared back to each line', function () {

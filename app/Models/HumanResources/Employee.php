@@ -35,6 +35,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use DateTimeInterface;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
@@ -511,6 +512,17 @@ class Employee extends Model implements HasMedia, Auditable
         return $this->getCurrentDepartment();
     }
 
+    public function isGuruOn(?DateTimeInterface $moment): bool
+    {
+        if (!$moment || !$this->guru_since) {
+            return false;
+        }
+
+        $day = Carbon::parse($moment)->utc()->toDateString();
+
+        return $day >= $this->guru_since->toDateString()
+            && (!$this->guru_until || $day <= $this->guru_until->toDateString());
+    }
 
     public function toSearchableArray(): array
     {

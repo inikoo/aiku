@@ -67,12 +67,14 @@ class CalculateManufactureTaskSessionPay
 
     private function selectBand(ManufactureTaskSession $session, Collection $bands, float $hours, ?float $standardRate): ?ManufacturePayBand
     {
-        if ($session->artisan_pay_type == ArtisanPayTypeEnum::HOURLY) {
-            return $bands->firstWhere('code', '0');
+        if ($session->activity_type == ManufactureTaskSessionActivityTypeEnum::DEVELOPMENT) {
+            $developmentBand = $bands->firstWhere('code', $session->employee?->isGuruOn($session->ended_at) ? 'DG' : 'D');
+
+            return $developmentBand ?? $bands->firstWhere('code', '0');
         }
 
-        if ($session->activity_type == ManufactureTaskSessionActivityTypeEnum::DEVELOPMENT) {
-            return $bands->firstWhere('code', 'D') ?? $bands->firstWhere('code', 'DG') ?? $bands->firstWhere('code', '0');
+        if ($session->artisan_pay_type == ArtisanPayTypeEnum::HOURLY) {
+            return $bands->firstWhere('code', '0');
         }
 
         if ($session->activity_type != ManufactureTaskSessionActivityTypeEnum::PRODUCTION) {

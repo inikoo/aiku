@@ -41,6 +41,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $description
  * @property int|null $stock_family_id
  * @property ArtefactStateEnum $state
+ * @property bool $is_in_development
  * @property array<array-key, mixed> $settings
  * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -85,7 +86,8 @@ class Artefact extends Model implements Auditable, HasMedia
     protected $casts = [
         'data'                   => 'array',
         'settings'               => 'array',
-        'state'                  => ArtefactStateEnum::class
+        'state'                  => ArtefactStateEnum::class,
+        'is_in_development'      => 'boolean',
     ];
 
     protected $attributes = [
@@ -102,6 +104,7 @@ class Artefact extends Model implements Auditable, HasMedia
         'state',
         'artefact_department_id',
         'recommended_batch_size',
+        'is_in_development',
     ];
 
     public function getRouteKeyName(): string

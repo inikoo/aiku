@@ -3,6 +3,7 @@ import { ref } from "vue"
 import axios from "axios"
 import { Link, router } from "@inertiajs/vue3"
 import { notify } from "@kyvg/vue3-notification"
+import ToggleSwitch from "primevue/toggleswitch"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { ctrans } from "@/Composables/useTrans"
 import { useFormatTime } from "@/Composables/useFormatTime"
@@ -25,6 +26,7 @@ interface ArtefactShowcaseData {
     code: string
     name: string
     state_label: string
+    is_in_development: boolean
     compliance_status: string
     compliance_label: string
     recommended_batch_size: number | null
@@ -79,6 +81,25 @@ const onSaveBatchSize = async () => {
         notify({ title: ctrans("Something went wrong"), text: error.message, type: "error" })
     } finally {
         isSavingBatchSize.value = false
+    }
+}
+
+const isInDevelopment = ref(props.data.is_in_development)
+const isSavingInDevelopment = ref(false)
+const onToggleInDevelopment = async (value: boolean) => {
+    try {
+        isSavingInDevelopment.value = true
+        await axios.patch(
+            route(props.data.update_route.name, props.data.update_route.parameters),
+            { is_in_development: value }
+        )
+        notify({ title: ctrans("Updated"), text: value ? ctrans("Hours on this product are now paid at the Development rate") : ctrans("Hours on this product are now paid in the normal bands"), type: "success" })
+        router.reload()
+    } catch (error: any) {
+        isInDevelopment.value = !value
+        notify({ title: ctrans("Something went wrong"), text: error.response?.data?.message ?? error.message, type: "error" })
+    } finally {
+        isSavingInDevelopment.value = false
     }
 }
 </script>
@@ -164,6 +185,13 @@ const onSaveBatchSize = async () => {
                 <div>
                     <dt class="text-xs text-gray-500 uppercase tracking-wide">{{ ctrans('State') }}</dt>
                     <dd class="text-sm">{{ data.state_label }}</dd>
+                </div>
+                <div>
+                    <dt id="artefact-in-development-label" class="text-xs text-gray-500 uppercase tracking-wide">{{ ctrans('In development') }}</dt>
+                    <dd class="flex items-center gap-2 text-sm">
+                        <ToggleSwitch v-model="isInDevelopment" :disabled="isSavingInDevelopment" aria-labelledby="artefact-in-development-label" @update:modelValue="onToggleInDevelopment" />
+                        <span class="text-xs text-gray-500">{{ isInDevelopment ? ctrans('Being tested: hours paid at the Development rate, no target') : ctrans('Normal pay bands against the target') }}</span>
+                    </dd>
                 </div>
                 <div>
                     <dt class="text-xs text-gray-500 uppercase tracking-wide">{{ ctrans('Family') }}</dt>
