@@ -16,6 +16,7 @@ import SegmentedToggle from '@/Components/Utils/SegmentedToggle.vue'
 import UploadExcel from '@/Components/Upload/UploadExcel.vue'
 import UploadReports from '@/Components/Upload/UploadReports.vue'
 import Select from 'primevue/select'
+import DatePicker from 'primevue/datepicker'
 import Dialog from 'primevue/dialog'
 import { capitalize } from '@/Composables/capitalize'
 import { ctrans } from '@/Composables/useTrans'
@@ -44,6 +45,12 @@ interface Kpis {
     impressions: number
     engagements: number
     engagement_rate: number | null
+    views: number
+    interactions: number
+    interaction_rate: number | null
+    avg_daily_viewers: number | null
+    visits: number | null
+    new_follows: number | null
     link_clicks: number
     followers: number | null
     follower_growth: number | null
@@ -87,7 +94,7 @@ interface Performance {
     period: string
     period_label: string
     currency_code: string
-    filters: { shop: string | null, country: string | null, platform: string | null }
+    filters: { shop: string | null, country: string | null, platform: string | null, compare: string, compare_from: string | null, compare_to: string | null }
     options: {
         shops: { id: number, slug: string, name: string, country_code: string, has_accounts: boolean }[]
         countries: { code: string, name: string }[]
@@ -95,11 +102,12 @@ interface Performance {
     }
     data_until: string | null
     kpis: { current: Kpis, previous: Kpis | null }
-    trend: { bucket: 'day' | 'week' | 'month', points: { date: string, posts: number, reach: number, engagements: number, followers: number | null }[] }
-    platforms: { platform: string, label: string, posts: number, reach: number, share: number | null, engagements: number, engagement_rate: number | null, followers: number | null }[]
+    trend: { bucket: 'day' | 'week' | 'month', points: { date: string, posts: number, reach: number, engagements: number, views: number, interactions: number, followers: number | null }[] }
+    platforms: { platform: string, label: string, posts: number, reach: number, share: number | null, views: number, views_share: number | null, engagements: number, engagement_rate: number | null, followers: number | null }[]
+    insight: string | null
     formats: { type: string, label: string, posts: number, reach: number, average_reach: number, engagements: number, saves: number, shares: number, engagement_rate: number | null }[]
     top_posts: Post[]
-    accounts: { id: number, name: string, username: string | null, platform: string, platform_label: string, shop_name: string, shop_slug: string, country_code: string, followers: number | null, followers_at: string | null, posts: number, reach: number, engagements: number, link_clicks: number, engagement_rate: number | null }[]
+    accounts: { id: number, name: string, username: string | null, platform: string, platform_label: string, shop_name: string, shop_slug: string, country_code: string, followers: number | null, followers_at: string | null, posts: number, reach: number, engagements: number, link_clicks: number, engagement_rate: number | null, views: number, interactions: number, interaction_rate: number | null }[]
     paid: {
         channels: { type: string, label: string, spend: number, revenue: number, orders: number, roas: number | null, impressions: number, clicks: number, ctr: number | null }[]
         campaigns: { name: string, channel: string, owner: string | null, spend: number, revenue: number, orders: number, impressions: number, clicks: number, ctr: number | null, cpa: number | null, roas: number | null }[]
@@ -143,19 +151,67 @@ const tabs = {
 const shopFilter = ref<string | null>(null)
 const countryFilter = ref<string | null>(null)
 const platformFilter = ref<string | null>(null)
+const compareMode = ref('previous')
+const compareRange = ref<{ from: string | null, to: string | null }>({ from: null, to: null })
 const isReloading = ref(false)
 
 watch(() => props.performance?.filters, (filters) => {
     shopFilter.value = filters?.shop ?? null
     countryFilter.value = filters?.country ?? null
     platformFilter.value = filters?.platform ?? null
+    compareMode.value = filters?.compare ?? 'previous'
+    compareRange.value = { from: filters?.compare_from ?? null, to: filters?.compare_to ?? null }
 }, { immediate: true })
 
 const filterQuery = computed(() => ({
     shop: shopFilter.value ?? '',
     country: countryFilter.value ?? '',
     platform: platformFilter.value ?? '',
+    compare: compareMode.value === 'previous' ? '' : compareMode.value,
+    compare_from: compareMode.value === 'custom' ? compareRange.value.from ?? '' : '',
+    compare_to: compareMode.value === 'custom' ? compareRange.value.to ?? '' : '',
 }))
+
+/* The comparison: the same number of days just before, the same dates a year earlier, or a range
+   picked by hand, which reloads once both of its dates are set. */
+const compareOptions = [
+    { label: ctrans('vs previous period'), value: 'previous' },
+    { label: ctrans('vs same period last year'), value: 'year' },
+    { label: ctrans('vs custom range'), value: 'custom' },
+]
+const onCompareMode = () => {
+    if (compareMode.value !== 'custom' || (compareRange.value.from && compareRange.value.to)) applyFilters()
+}
+const fromIsoDate = (iso: string): Date => {
+    const [year, month, dayOfMonth] = iso.split('-').map(Number)
+    return new Date(year, month - 1, dayOfMonth)
+}
+const toLocalIsoDate = (date: Date): string => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+const compareDate = (key: 'from' | 'to') => computed<Date | null>({
+    get: () => compareRange.value[key] ? fromIsoDate(compareRange.value[key]!) : null,
+    set: (value) => {
+        if (!value) return
+        compareRange.value = { ...compareRange.value, [key]: toLocalIsoDate(value) }
+        if (compareRange.value.from && compareRange.value.to) applyFilters()
+    },
+})
+const compareFrom = compareDate('from')
+const compareTo = compareDate('to')
+const datePickerPt = { pcInputText: { root: { class: '!w-32 !py-1 !text-xs' } } }
+const fieldFocusClass = '[&.p-focus]:!border-[--app-accent] [&_input:focus]:!border-[--app-accent]'
+
+const comparedIsEmpty = computed(() => {
+    const p = props.performance?.kpis.previous
+    return p !== null && p !== undefined && !p.posts && !p.views && !p.interactions && !p.spend && !p.ad_impressions
+})
+
+const versusLabel = computed(() => {
+    const p = props.performance
+    if (!p?.previous_from) return ctrans('vs previous')
+    if (p.filters.compare === 'year') return ctrans('vs last year')
+    if (p.filters.compare === 'custom') return ctrans('vs') + ' ' + day(p.previous_from) + ' – ' + day(p.previous_to)
+    return ctrans('vs previous')
+})
 
 const applyFilters = () => {
     router.reload({
@@ -169,6 +225,11 @@ const applyFilters = () => {
 const exportHref = computed(() => route(props.export_route.name, {
     ...(props.export_route.parameters as object),
     ...Object.fromEntries(Object.entries(filterQuery.value).filter(([, value]) => value !== '')),
+}))
+const reportHref = computed(() => route(props.export_route.name, {
+    ...(props.export_route.parameters as object),
+    ...Object.fromEntries(Object.entries(filterQuery.value).filter(([, value]) => value !== '')),
+    report: 'summary',
 }))
 
 const selectPt = { label: { class: '!py-1 !text-xs' }, root: { class: '!border-gray-300 !shadow-none' } }
@@ -208,14 +269,33 @@ const followersSub = computed(() => {
     return (growth > 0 ? '+' : '−') + count(Math.abs(growth)) + ' ' + ctrans('this period')
 })
 
+/* Meta replaced reach with viewers in October 2026. Viewers are people counted once a day, so a
+   period shows the average day: adding the days up would count the same person every day. */
+const viewsHelp = ctrans('Views from the accounts\' daily figures where they were imported, otherwise from their posts. Meta counts content shown in ads too unless the export is organic only.')
+const viewersHelp = ctrans('People who saw the accounts\' content on an average day of the period.')
+
+const viewersSub = computed(() => {
+    const viewers = current.value?.avg_daily_viewers
+    return viewers === null || viewers === undefined ? undefined : short(viewers) + ' ' + ctrans('viewers a day')
+})
+
+const audienceKpi = computed<Kpi>(() => {
+    const c = current.value!
+    const p = previous.value
+    if (c.followers !== null) {
+        return kpi('followers', ctrans('Followers'), short(c.followers), null, followersSub.value, ctrans('Followers across every account at the latest imported day. Growth is the change over the period.'))
+    }
+    return kpi('new_follows', ctrans('New follows'), c.new_follows === null ? '–' : short(c.new_follows), delta(c.new_follows, p?.new_follows), undefined, ctrans('Follows over the period, from the accounts\' daily figures.'))
+})
+
 const overviewKpis = computed<Kpi[]>(() => {
     const c = current.value
     const p = previous.value
     if (!c) return []
     return [
-        kpi('reach', ctrans('Total reach'), short(c.reach), delta(c.reach, p?.reach), count(c.posts) + ' ' + ctrans('posts')),
-        kpi('engagement_rate', ctrans('Engagement rate'), pct(c.engagement_rate), delta(c.engagement_rate, p?.engagement_rate, { points: true }), short(c.engagements) + ' ' + ctrans('engagements'), ctrans('Reactions, comments, shares and saves divided by reach.')),
-        kpi('followers', ctrans('Followers'), c.followers === null ? '–' : short(c.followers), null, followersSub.value, ctrans('Followers across every account at the latest imported day. Growth is the change over the period.')),
+        kpi('views', ctrans('Views'), short(c.views), delta(c.views, p?.views), viewersSub.value, viewsHelp),
+        kpi('interaction_rate', ctrans('Interaction rate'), pct(c.interaction_rate), delta(c.interaction_rate, p?.interaction_rate, { points: true }), short(c.interactions) + ' ' + ctrans('interactions'), ctrans('Interactions (reactions, comments, shares and saves) per 100 views.')),
+        audienceKpi.value,
         kpi('link_clicks', ctrans('Link clicks'), short(c.link_clicks), delta(c.link_clicks, p?.link_clicks)),
         kpi('spend', ctrans('Paid spend'), money(c.spend), delta(c.spend, p?.spend, { lowerIsBetter: true }), c.orders ? count(c.orders) + ' ' + ctrans('orders') : undefined),
         kpi('roas', ctrans('ROAS'), ratio(c.roas), delta(c.roas, p?.roas), c.revenue ? money(c.revenue) + ' ' + ctrans('attributed') : undefined, ctrans('Attributed revenue divided by spend.')),
@@ -228,11 +308,11 @@ const organicKpis = computed<Kpi[]>(() => {
     if (!c) return []
     return [
         kpi('posts', ctrans('Posts'), count(c.posts), delta(c.posts, p?.posts)),
-        kpi('reach', ctrans('Reach'), short(c.reach), delta(c.reach, p?.reach)),
-        kpi('impressions', ctrans('Impressions / views'), short(c.impressions), delta(c.impressions, p?.impressions)),
-        kpi('engagements', ctrans('Engagements'), short(c.engagements), delta(c.engagements, p?.engagements)),
-        kpi('engagement_rate', ctrans('Engagement rate'), pct(c.engagement_rate), delta(c.engagement_rate, p?.engagement_rate, { points: true })),
-        kpi('followers', ctrans('Followers'), c.followers === null ? '–' : short(c.followers), null, followersSub.value),
+        kpi('views', ctrans('Views'), short(c.views), delta(c.views, p?.views), undefined, viewsHelp),
+        kpi('viewers', ctrans('Viewers per day'), c.avg_daily_viewers === null ? '–' : short(c.avg_daily_viewers), delta(c.avg_daily_viewers, p?.avg_daily_viewers), undefined, viewersHelp),
+        kpi('interactions', ctrans('Interactions'), short(c.interactions), delta(c.interactions, p?.interactions)),
+        kpi('visits', ctrans('Profile visits'), c.visits === null ? '–' : short(c.visits), delta(c.visits, p?.visits)),
+        audienceKpi.value,
     ]
 })
 
@@ -273,7 +353,7 @@ const bucketLabel = (date: string) => {
 }
 
 const trendLabels = computed(() => (props.performance?.trend.points ?? []).map(point => bucketLabel(point.date)))
-const hasTrend = computed(() => (props.performance?.trend.points ?? []).some(point => point.reach > 0 || point.engagements > 0))
+const hasTrend = computed(() => (props.performance?.trend.points ?? []).some(point => point.views > 0 || point.interactions > 0))
 const hasFollowersTrend = computed(() => (props.performance?.trend.points ?? []).some(point => point.followers !== null))
 
 const lineDataset = (label: string, data: number[], color: string, fill: boolean) => ({
@@ -289,15 +369,15 @@ const lineDataset = (label: string, data: number[], color: string, fill: boolean
     borderWidth: 2,
 })
 
-/* Reach and engagements live an order of magnitude apart, so they share the x axis as two stacked
+/* Views and interactions live an order of magnitude apart, so they share the x axis as two stacked
    panes rather than fighting over one y axis or inventing a second one. */
 const reachChart = computed(() => ({
     labels: trendLabels.value,
-    datasets: [lineDataset(ctrans('Reach'), (props.performance?.trend.points ?? []).map(point => point.reach), SERIES.reach, true)],
+    datasets: [lineDataset(ctrans('Views'), (props.performance?.trend.points ?? []).map(point => point.views), SERIES.reach, true)],
 }))
 const engagementsChart = computed(() => ({
     labels: trendLabels.value,
-    datasets: [lineDataset(ctrans('Engagements'), (props.performance?.trend.points ?? []).map(point => point.engagements), SERIES.engagements, false)],
+    datasets: [lineDataset(ctrans('Interactions'), (props.performance?.trend.points ?? []).map(point => point.interactions), SERIES.engagements, false)],
 }))
 const followersChart = computed(() => ({
     labels: trendLabels.value,
@@ -335,7 +415,7 @@ const chartOptions = (showX: boolean, beginAtZero = true) => ({
 const maxOf = (values: number[]) => Math.max(0, ...values)
 const barWidth = (value: number, max: number) => max > 0 ? Math.max(1, value / max * 100) + '%' : '0%'
 
-const platformRows = computed(() => (props.performance?.platforms ?? []).filter(row => row.posts > 0 || row.reach > 0))
+const platformRows = computed(() => (props.performance?.platforms ?? []).filter(row => row.posts > 0 || row.views > 0).sort((a, b) => b.views - a.views))
 const formatRows = computed(() => [...(props.performance?.formats ?? [])].filter(row => row.posts > 0).sort((a, b) => b.average_reach - a.average_reach))
 const maxFormatReach = computed(() => maxOf(formatRows.value.map(row => row.average_reach)))
 
@@ -345,7 +425,7 @@ type PostSort = 'engagement_rate' | 'reach' | 'engagements'
 const postSort = ref<PostSort>('engagement_rate')
 const postSortOptions = [
     { label: ctrans('Engagement rate'), value: 'engagement_rate' as PostSort },
-    { label: ctrans('Reach'), value: 'reach' as PostSort },
+    { label: ctrans('Viewers'), value: 'reach' as PostSort },
     { label: ctrans('Engagements'), value: 'engagements' as PostSort },
 ]
 const showAllPosts = ref(false)
@@ -354,7 +434,7 @@ const visiblePosts = computed(() => sortedPosts.value.slice(0, showAllPosts.valu
 const overviewPosts = computed(() => [...(props.performance?.top_posts ?? [])].sort((a, b) => b.engagement_rate - a.engagement_rate).slice(0, 5))
 const postTitle = (post: Post) => post.description?.trim() || ctrans('Untitled :type', { type: post.type_label })
 
-const accounts = computed(() => [...(props.performance?.accounts ?? [])].sort((a, b) => b.reach - a.reach))
+const accounts = computed(() => [...(props.performance?.accounts ?? [])].sort((a, b) => b.views - a.views))
 
 const paidChannels = computed(() => (props.performance?.paid.channels ?? []).filter(channel => channel.spend > 0 || channel.impressions > 0))
 const maxChannelSpend = computed(() => maxOf(paidChannels.value.map(channel => channel.spend)))
@@ -365,17 +445,23 @@ const hasOrganic = computed(() => props.performance?.data_until !== null && prop
 /* Every ROAS pill says the same thing: paid back or not. Colour is information here. */
 const roasClass = (roas: number | null) => roas === null ? 'bg-gray-100 text-gray-400' : roas >= 1 ? 'bg-green-50 text-green-700 ring-1 ring-green-200' : 'bg-red-50 text-red-700 ring-1 ring-red-200'
 
-/* Upload: the import lands on one shop, so the shop is chosen first and the modal opens after. */
+/* Upload: the import lands on one shop, so the shop is chosen first and the modal opens after.
+   The platform is only needed for a single-metric chart export whose title does not name it. */
 const isUploadOpen = ref(false)
 const isShopPickerOpen = ref(false)
 const uploadShop = ref<{ id: number, name: string, route: routeType } | null>(null)
 const uploadShopOptions = computed(() => props.upload_shops ?? [])
+const uploadPlatform = ref('')
+const uploadPlatformOptions = [
+    { label: ctrans('Detect'), value: '' },
+    { label: 'Facebook', value: 'facebook' },
+    { label: 'Instagram', value: 'instagram' },
+    { label: 'TikTok', value: 'tiktok' },
+]
 
 const startUpload = () => {
     if (uploadShopOptions.value.length === 1) {
         uploadShop.value = uploadShopOptions.value[0]
-        isUploadOpen.value = true
-        return
     }
     isShopPickerOpen.value = true
 }
@@ -391,7 +477,14 @@ const uploadSpreadsheet = computed(() => uploadShop.value ? {
     channel: 'grp.personal.' + layout.group?.id,
     required_fields: [],
     template: { label: '' },
-    route: { upload: uploadShop.value.route },
+    route: {
+        upload: {
+            name: uploadShop.value.route.name,
+            parameters: uploadPlatform.value
+                ? { ...uploadShop.value.route.parameters, _query: { platform: uploadPlatform.value } }
+                : uploadShop.value.route.parameters,
+        },
+    },
 } as any : undefined)
 
 const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Business Suite (Insights → Export data → Content, or Results/Audience per day) and TikTok Studio. Content exports add or update posts; daily exports add followers, reach and visits per day. Re-uploading a period updates its figures, it never duplicates them.')
@@ -402,6 +495,9 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #other>
+            <a :href="reportHref" download data-test="social-export-report">
+                <Button icon="fal fa-file-export" :label="ctrans('Export report')" type="tertiary" v-tooltip="ctrans('The period on one sheet: every figure beside the compared period, platforms, accounts and the best posts. Pick Last Month for the monthly report.')" />
+            </a>
             <a :href="exportHref" download>
                 <Button icon="fal fa-file-export" :label="ctrans('Export posts')" type="tertiary" />
             </a>
@@ -450,6 +546,16 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                 :placeholder="ctrans('All markets')" class="w-40" :pt="selectPt" @change="applyFilters" />
                         <Select v-model="platformFilter" :options="performance.options.platforms" optionLabel="label" optionValue="value" showClear
                                 :placeholder="ctrans('All platforms')" class="w-40" :pt="selectPt" @change="applyFilters" />
+                        <Select v-model="compareMode" :options="compareOptions" optionLabel="label" optionValue="value"
+                                class="w-48" :class="fieldFocusClass" :pt="selectPt" data-test="social-compare" @change="onCompareMode" />
+                        <span v-if="comparedIsEmpty" class="text-xs text-gray-400" data-test="social-compare-empty">{{ ctrans('No figures in the compared period') }}</span>
+                        <template v-if="compareMode === 'custom'">
+                            <DatePicker v-model="compareFrom" :maxDate="compareTo ?? undefined" dateFormat="d M yy" :manualInput="false" showIcon iconDisplay="input"
+                                        :class="fieldFocusClass" :pt="datePickerPt" :aria-label="ctrans('Compare from')" />
+                            <span class="text-gray-400">–</span>
+                            <DatePicker v-model="compareTo" :minDate="compareFrom ?? undefined" dateFormat="d M yy" :manualInput="false" showIcon iconDisplay="input"
+                                        :class="fieldFocusClass" :pt="datePickerPt" :aria-label="ctrans('Compare to')" />
+                        </template>
                     </div>
                 </div>
 
@@ -485,7 +591,7 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                 <div v-if="card.delta" class="mt-0.5 text-xs flex items-center gap-1 tabular-nums" :class="card.delta.direction === 'flat' ? 'text-gray-400' : card.delta.good ? 'text-green-700' : 'text-red-600'">
                                     <FontAwesomeIcon v-if="card.delta.direction !== 'flat'" :icon="card.delta.direction === 'up' ? 'fal fa-arrow-up' : 'fal fa-arrow-down'" fixed-width />
                                     <span>{{ card.delta.text }}</span>
-                                    <span class="text-gray-400">{{ ctrans('vs previous') }}</span>
+                                    <span class="text-gray-400">{{ versusLabel }}</span>
                                 </div>
                                 <div v-else-if="card.sub" class="mt-0.5 text-xs text-gray-400 tabular-nums">{{ card.sub }}</div>
                             </div>
@@ -499,20 +605,23 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                         <span class="ml-2 text-xs text-gray-400">{{ performance.period_label }}</span>
                                     </div>
                                     <div class="flex items-center gap-3 text-xs text-gray-500">
-                                        <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm" :style="{ background: SERIES.reach }" />{{ ctrans('Reach') }}</span>
-                                        <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm" :style="{ background: SERIES.engagements }" />{{ ctrans('Engagements') }}</span>
+                                        <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm" :style="{ background: SERIES.reach }" />{{ ctrans('Views') }}</span>
+                                        <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm" :style="{ background: SERIES.engagements }" />{{ ctrans('Interactions') }}</span>
                                     </div>
                                 </div>
                                 <template v-if="hasTrend">
                                     <div class="h-44 mt-3"><Line :data="reachChart" :options="chartOptions(false)" /></div>
                                     <div class="h-28"><Line :data="engagementsChart" :options="chartOptions(true)" /></div>
                                 </template>
-                                <p v-else class="text-sm text-gray-400 py-16 text-center">{{ ctrans('No posts in this period') }}</p>
+                                <p v-else class="text-sm text-gray-400 py-16 text-center">{{ ctrans('No figures in this period') }}</p>
+                                <div v-if="performance.insight" class="mt-4 rounded-lg bg-green-50 px-3 py-2 text-xs text-gray-700 ring-1 ring-green-100" data-test="social-insight">
+                                    <span class="font-medium text-green-800">{{ ctrans('Performance insight') }}:</span> {{ performance.insight }}
+                                </div>
                             </div>
 
                             <div class="rounded-xl ring-1 ring-gray-200 bg-white p-5">
                                 <span class="text-sm font-medium text-gray-800">{{ ctrans('Platform contribution') }}</span>
-                                <span class="ml-2 text-xs text-gray-400">{{ ctrans('share of reach') }}</span>
+                                <span class="ml-2 text-xs text-gray-400">{{ ctrans('share of views') }}</span>
                                 <div v-if="platformRows.length" class="mt-4 space-y-4">
                                     <div v-for="row in platformRows" :key="row.platform">
                                         <div class="flex items-baseline justify-between text-sm">
@@ -520,18 +629,18 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                                 <span class="h-2.5 w-2.5 rounded-full" :style="{ background: platformColor(row.platform) }" />
                                                 {{ row.label }}
                                             </span>
-                                            <span class="tabular-nums text-gray-900">{{ short(row.reach) }}</span>
+                                            <span class="tabular-nums text-gray-900">{{ short(row.views) }}</span>
                                         </div>
                                         <div class="mt-1.5 h-1.5 rounded-full bg-gray-100 overflow-hidden">
-                                            <div class="h-full rounded-full" :style="{ width: (row.share ?? 0) + '%', background: platformColor(row.platform) }" />
+                                            <div class="h-full rounded-full" :style="{ width: (row.views_share ?? 0) + '%', background: platformColor(row.platform) }" />
                                         </div>
                                         <div class="mt-1 flex justify-between text-xs text-gray-400 tabular-nums">
-                                            <span>{{ pct(row.share) }} {{ ctrans('of total') }} · {{ count(row.posts) }} {{ ctrans('posts') }}</span>
+                                            <span>{{ pct(row.views_share) }} {{ ctrans('of total') }} · {{ count(row.posts) }} {{ ctrans('posts') }}</span>
                                             <span>{{ ctrans('ER') }} {{ pct(row.engagement_rate) }}</span>
                                         </div>
                                     </div>
                                 </div>
-                                <p v-else class="text-sm text-gray-400 py-16 text-center">{{ ctrans('No posts in this period') }}</p>
+                                <p v-else class="text-sm text-gray-400 py-16 text-center">{{ ctrans('No figures in this period') }}</p>
                             </div>
                         </div>
 
@@ -545,7 +654,7 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                     <thead class="text-xs text-gray-400 whitespace-nowrap">
                                         <tr class="text-left">
                                             <th class="font-normal pb-2 pr-3">{{ ctrans('Content') }}</th>
-                                            <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Reach') }}</th>
+                                            <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Viewers') }}</th>
                                             <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Engagements') }}</th>
                                             <th class="font-normal pb-2 text-right">{{ ctrans('ER') }}</th>
                                         </tr>
@@ -599,7 +708,7 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                 <div v-if="card.delta" class="mt-0.5 text-xs flex items-center gap-1 tabular-nums" :class="card.delta.direction === 'flat' ? 'text-gray-400' : card.delta.good ? 'text-green-700' : 'text-red-600'">
                                     <FontAwesomeIcon v-if="card.delta.direction !== 'flat'" :icon="card.delta.direction === 'up' ? 'fal fa-arrow-up' : 'fal fa-arrow-down'" fixed-width />
                                     <span>{{ card.delta.text }}</span>
-                                    <span class="text-gray-400">{{ ctrans('vs previous') }}</span>
+                                    <span class="text-gray-400">{{ versusLabel }}</span>
                                 </div>
                                 <div v-else-if="card.sub" class="mt-0.5 text-xs text-gray-400 tabular-nums">{{ card.sub }}</div>
                             </div>
@@ -608,17 +717,17 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
                             <div class="lg:col-span-2 rounded-xl ring-1 ring-gray-200 bg-white p-5">
                                 <div class="flex items-baseline justify-between gap-4">
-                                    <span class="text-sm font-medium text-gray-800">{{ ctrans('Reach and engagements') }}</span>
+                                    <span class="text-sm font-medium text-gray-800">{{ ctrans('Views and interactions') }}</span>
                                     <div class="flex items-center gap-3 text-xs text-gray-500">
-                                        <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm" :style="{ background: SERIES.reach }" />{{ ctrans('Reach') }}</span>
-                                        <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm" :style="{ background: SERIES.engagements }" />{{ ctrans('Engagements') }}</span>
+                                        <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm" :style="{ background: SERIES.reach }" />{{ ctrans('Views') }}</span>
+                                        <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm" :style="{ background: SERIES.engagements }" />{{ ctrans('Interactions') }}</span>
                                     </div>
                                 </div>
                                 <template v-if="hasTrend">
                                     <div class="h-40 mt-3"><Line :data="reachChart" :options="chartOptions(false)" /></div>
                                     <div class="h-24"><Line :data="engagementsChart" :options="chartOptions(!hasFollowersTrend)" /></div>
                                 </template>
-                                <p v-else class="text-sm text-gray-400 py-16 text-center">{{ ctrans('No posts in this period') }}</p>
+                                <p v-else class="text-sm text-gray-400 py-16 text-center">{{ ctrans('No figures in this period') }}</p>
                                 <template v-if="hasFollowersTrend">
                                     <div class="mt-3 flex items-center gap-1.5 text-xs text-gray-500"><span class="h-2 w-2 rounded-sm" :style="{ background: SERIES.followers }" />{{ ctrans('Followers') }}</div>
                                     <div class="h-24"><Line :data="followersChart" :options="chartOptions(true, false)" /></div>
@@ -627,7 +736,7 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
 
                             <div class="rounded-xl ring-1 ring-gray-200 bg-white p-5">
                                 <span class="text-sm font-medium text-gray-800">{{ ctrans('Format comparison') }}</span>
-                                <span class="ml-2 text-xs text-gray-400">{{ ctrans('average reach per post') }}</span>
+                                <span class="ml-2 text-xs text-gray-400">{{ ctrans('average viewers per post') }}</span>
                                 <div v-if="formatRows.length" class="mt-4 space-y-4">
                                     <div v-for="row in formatRows" :key="row.type">
                                         <div class="flex items-baseline justify-between text-sm">
@@ -667,7 +776,7 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                             <th class="font-normal pb-2 pr-3">{{ ctrans('Content') }}</th>
                                             <th class="font-normal pb-2 pr-3">{{ ctrans('Account') }}</th>
                                             <th class="font-normal pb-2 pr-3">{{ ctrans('Published') }}</th>
-                                            <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Reach') }}</th>
+                                            <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Viewers') }}</th>
                                             <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Engagements') }}</th>
                                             <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('ER') }}</th>
                                             <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Saves') }}</th>
@@ -721,10 +830,10 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                             <th class="font-normal pb-2 pr-3">{{ ctrans('Market') }}</th>
                                             <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Followers') }}</th>
                                             <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Posts') }}</th>
-                                            <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Reach') }}</th>
-                                            <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Engagements') }}</th>
+                                            <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Views') }}</th>
+                                            <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Interactions') }}</th>
                                             <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Clicks') }}</th>
-                                            <th class="font-normal pb-2 text-right">{{ ctrans('ER') }}</th>
+                                            <th class="font-normal pb-2 text-right" v-tooltip="ctrans('Interactions per 100 views')">{{ ctrans('Rate') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-100">
@@ -742,10 +851,10 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                                 <span v-tooltip="account.followers_at ? ctrans('at') + ' ' + day(account.followers_at) : undefined">{{ account.followers === null ? '–' : short(account.followers) }}</span>
                                             </td>
                                             <td class="py-2 pr-3 text-right tabular-nums">{{ count(account.posts) }}</td>
-                                            <td class="py-2 pr-3 text-right tabular-nums">{{ short(account.reach) }}</td>
-                                            <td class="py-2 pr-3 text-right tabular-nums">{{ short(account.engagements) }}</td>
+                                            <td class="py-2 pr-3 text-right tabular-nums">{{ short(account.views) }}</td>
+                                            <td class="py-2 pr-3 text-right tabular-nums">{{ short(account.interactions) }}</td>
                                             <td class="py-2 pr-3 text-right tabular-nums">{{ short(account.link_clicks) }}</td>
-                                            <td class="py-2 text-right"><span class="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs tabular-nums text-gray-700">{{ pct(account.engagement_rate) }}</span></td>
+                                            <td class="py-2 text-right"><span class="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs tabular-nums text-gray-700">{{ pct(account.interaction_rate) }}</span></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -771,7 +880,7 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                 <div v-if="card.delta" class="mt-0.5 text-xs flex items-center gap-1 tabular-nums" :class="card.delta.direction === 'flat' ? 'text-gray-400' : card.delta.good ? 'text-green-700' : 'text-red-600'">
                                     <FontAwesomeIcon v-if="card.delta.direction !== 'flat'" :icon="card.delta.direction === 'up' ? 'fal fa-arrow-up' : 'fal fa-arrow-down'" fixed-width />
                                     <span>{{ card.delta.text }}</span>
-                                    <span class="text-gray-400">{{ ctrans('vs previous') }}</span>
+                                    <span class="text-gray-400">{{ versusLabel }}</span>
                                 </div>
                                 <div v-else-if="card.sub" class="mt-0.5 text-xs text-gray-400 tabular-nums">{{ card.sub }}</div>
                             </div>
@@ -858,9 +967,17 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
         </Deferred>
     </div>
 
-    <Dialog v-model:visible="isShopPickerOpen" modal :header="ctrans('Which brand is this export for?')" :style="{ width: '26rem' }">
-        <p class="text-xs text-gray-500">{{ ctrans('Posts and daily figures are stored against the brand they belong to, so the dashboard can compare brands and markets.') }}</p>
-        <Select v-model="uploadShop" :options="uploadShopOptions" optionLabel="name" :placeholder="ctrans('Choose a brand')" class="mt-3 w-full" />
+    <Dialog v-model:visible="isShopPickerOpen" modal :header="ctrans('Which brand is this export for?')" :style="{ width: '28rem' }">
+        <template v-if="uploadShopOptions.length > 1">
+            <p class="text-xs text-gray-500">{{ ctrans('Posts and daily figures are stored against the brand they belong to, so the dashboard can compare brands and markets.') }}</p>
+            <Select v-model="uploadShop" :options="uploadShopOptions" optionLabel="name" :placeholder="ctrans('Choose a brand')" class="mt-3 w-full" data-test="social-upload-shop" />
+        </template>
+        <p v-else class="text-sm text-gray-700">{{ uploadShop?.name }}</p>
+        <div class="mt-4">
+            <p class="text-xs font-medium text-gray-600">{{ ctrans('Platform') }}</p>
+            <SegmentedToggle v-model="uploadPlatform" :options="uploadPlatformOptions" :ariaLabel="ctrans('Platform')" class="mt-1" data-test="social-upload-platform" />
+            <p class="mt-1 text-xs text-gray-500">{{ ctrans('Leave on Detect for content exports. Choose the platform for a single chart export, such as Views or Content interactions, whose title does not name it.') }}</p>
+        </div>
         <div class="mt-4 flex justify-end gap-2">
             <Button :label="ctrans('Cancel')" icon="fal fa-times" type="tertiary" @click="isShopPickerOpen = false">
                 <template #icon><FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width /></template>

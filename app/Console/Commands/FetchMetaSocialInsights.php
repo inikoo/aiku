@@ -18,9 +18,13 @@ use App\Models\CRM\SocialMediaPost;
 use Generator;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Laravel\Nightwatch\Facades\Nightwatch;
+use Throwable;
 
 /**
  * Pulls a shop's organic Facebook Page and Instagram figures into the same rows the uploaded
@@ -33,7 +37,15 @@ use Laravel\Nightwatch\Facades\Nightwatch;
  * the page's own token, which the system user token is exchanged for.
  *
  * Posts keep gaining reach for weeks, so every run re-reads the posts published in the last --days.
+ * A Facebook post is kept under the post's own id, without the "{page id}_" the Graph API puts in
+ * front of it, because that is the Post ID Business Suite exports: an uploaded post and a synced one
+ * are the same row.
  * Metric names are Meta's "media view" family, which replaced impressions and reach in June 2026.
+ *
+ * Meta renames and retires metrics often, and one name it does not know fails a whole request, so
+ * every daily metric is asked for on its own and the post metrics beyond the basic ones fall back to
+ * the basic ones. Whatever Meta refuses is skipped and listed at the end of the run, so a first
+ * --dry-run with a new token says which names to change at the top of this command.
  */
 class FetchMetaSocialInsights extends Command
 {
@@ -47,13 +59,57 @@ class FetchMetaSocialInsights extends Command
 
     public const string FACEBOOK_POST_METRICS = 'post_total_media_view_unique,post_media_view';
 
-    public const string FACEBOOK_PAGE_METRICS = 'page_total_media_view_unique,page_media_view,page_daily_follows_unique';
+    public const string FACEBOOK_POST_CLICK_METRIC = 'post_clicks_by_type';
+
+    /**
+     * Reactions are read from the post's insights, which read_insights covers: the reactions edge
+     * would need pages_read_user_content, a permission that can also delete people's comments.
+     */
+    public const string FACEBOOK_POST_REACTION_METRIC = 'post_reactions_by_type_total';
+
+    /**
+     * Facebook Page metric per day => the daily stats column it fills.
+     *
+     * Interactions are not among them: page_post_engagements also counts clicks and engagement on
+     * ads, 3,442 against Business Suite's 149 content interactions for the same 28 days in October
+     * 2026, so they stay with the Content interactions export until Meta offers the same figure.
+     */
+    public const array FACEBOOK_PAGE_METRICS = [
+        'page_total_media_view_unique' => 'reach',
+        'page_media_view'              => 'impressions',
+        'page_daily_follows_unique'    => 'new_follows',
+        'page_views_total'             => 'profile_visits',
+    ];
 
     public const string INSTAGRAM_MEDIA_METRICS = 'reach,views,saved,shares';
 
-    public const string INSTAGRAM_ACCOUNT_METRICS = 'reach,follower_count';
+    public const string INSTAGRAM_STORY_METRICS = 'reach,views,shares';
+
+    /**
+     * Instagram account metrics Meta gives day by day => the daily stats column they fill.
+     */
+    public const array INSTAGRAM_ACCOUNT_METRICS = [
+        'reach'          => 'reach',
+        'follower_count' => 'new_follows',
+    ];
+
+    /**
+     * Instagram account metrics Meta only gives as a total for a range, so they are asked for one
+     * day at a time => the daily stats column they fill.
+     */
+    public const array INSTAGRAM_ACCOUNT_TOTALS = [
+        'views'              => 'impressions',
+        'total_interactions' => 'engagements',
+        'profile_views'      => 'profile_visits',
+        'website_clicks'     => 'link_clicks',
+    ];
 
     private const int INSTAGRAM_ACCOUNT_MAX_DAYS = 30;
+
+    /**
+     * @var array<int, string>
+     */
+    private array $unavailable = [];
 
     public function handle(): int
     {
@@ -91,10 +147,14 @@ class FetchMetaSocialInsights extends Command
                     $this->info("{$shop->slug} {$platform->value}: {$posts} post(s), {$days} day(s).");
                 } catch (\Throwable $e) {
                     $failed++;
-                    $this->error("{$shop->slug} {$platform->value}: ".$e->getMessage());
-                    Log::error('Meta social insights fetch failed', ['shop' => $shop->slug, 'platform' => $platform->value, 'error' => $e->getMessage()]);
+                    $this->error("{$shop->slug} {$platform->value}: ".$this->withoutToken($e->getMessage()));
+                    Log::error('Meta social insights fetch failed', ['shop' => $shop->slug, 'platform' => $platform->value, 'error' => $this->withoutToken($e->getMessage())]);
                 }
             }
+        }
+
+        if ($this->unavailable !== []) {
+            $this->warn('Meta did not give, so they were skipped: '.implode(', ', array_unique($this->unavailable)).'. Check these names at the top of '.class_basename(self::class).'.');
         }
 
         return $failed > 0 ? Command::FAILURE : Command::SUCCESS;
@@ -109,36 +169,51 @@ class FetchMetaSocialInsights extends Command
         $pageToken = (string) (data_get($page, 'access_token') ?: $this->token($shop));
         $account   = $this->account($shop, SocialMediaPlatformEnum::FACEBOOK, $pageId, data_get($page, 'name'), null);
 
+        $basic     = 'id,message,created_time,permalink_url,attachments{media_type},shares';
+        $comments  = 'comments.summary(total_count).limit(0)';
+        $insights  = fn (string ...$metrics) => 'insights.metric('.implode(',', [self::FACEBOOK_POST_METRICS, ...$metrics]).')';
+        $all       = $insights(self::FACEBOOK_POST_CLICK_METRIC, self::FACEBOOK_POST_REACTION_METRIC);
+        $reactions = $insights(self::FACEBOOK_POST_REACTION_METRIC);
+        $noComment = 'facebook comment counts (the token needs pages_read_user_content)';
+        $noClicks  = 'facebook '.self::FACEBOOK_POST_CLICK_METRIC;
+        $noReacts  = 'facebook '.self::FACEBOOK_POST_REACTION_METRIC;
+
         $posts = 0;
-        foreach ($this->rows($this->url($pageId.'/posts'), [
-            'fields' => 'id,message,created_time,permalink_url,attachments{media_type},shares,reactions.summary(total_count).limit(0),comments.summary(total_count).limit(0),insights.metric('.self::FACEBOOK_POST_METRICS.')',
-            'since'  => $since->copy()->startOfDay()->timestamp,
-            'until'  => $until->copy()->endOfDay()->timestamp,
-            'limit'  => 50,
-        ], $pageToken) as $post) {
+        foreach ($this->rowsWithFirstAccepted(
+            $this->url($pageId.'/posts'),
+            [
+                ['fields' => "$basic,$comments,$all", 'missing' => []],
+                ['fields' => "$basic,$all", 'missing' => [$noComment]],
+                ['fields' => "$basic,$reactions", 'missing' => [$noComment, $noClicks]],
+                ['fields' => "$basic,".$insights(), 'missing' => [$noComment, $noClicks, $noReacts]],
+            ],
+            [
+                'since' => $since->copy()->startOfDay()->timestamp,
+                'until' => $until->copy()->endOfDay()->timestamp,
+                'limit' => 50,
+            ],
+            $pageToken
+        ) as $post) {
             $insights  = $this->insightValues($post);
             $permalink = data_get($post, 'permalink_url');
             $mediaType = str_contains((string) $permalink, '/reel/') ? 'reel' : (data_get($post, 'attachments.data.0.media_type') ?? 'text');
 
-            $this->storePost($account, (string) data_get($post, 'id'), [
+            $this->storePost($account, Str::afterLast((string) data_get($post, 'id'), '_'), [
                 'type'         => SocialMediaPostTypeEnum::fromExport($mediaType, SocialMediaPlatformEnum::FACEBOOK),
                 'description'  => data_get($post, 'message'),
                 'permalink'    => $permalink,
                 'published_at' => Carbon::parse(data_get($post, 'created_time')),
                 'reach'        => (int) ($insights['post_total_media_view_unique'] ?? 0),
                 'impressions'  => (int) ($insights['post_media_view'] ?? 0),
-                'reactions'    => (int) data_get($post, 'reactions.summary.total_count', 0),
+                'reactions'    => (int) array_sum(array_filter((array) data_get(collect(data_get($post, 'insights.data', []))->firstWhere('name', self::FACEBOOK_POST_REACTION_METRIC), 'values.0.value', []), 'is_numeric')),
                 'comments'     => (int) data_get($post, 'comments.summary.total_count', 0),
                 'shares'       => (int) data_get($post, 'shares.count', 0),
+                'link_clicks'  => (int) data_get(collect(data_get($post, 'insights.data', []))->firstWhere('name', self::FACEBOOK_POST_CLICK_METRIC), 'values.0.value.link clicks', 0),
             ]);
             $posts++;
         }
 
-        $days = $this->storeDays($account, $this->dailyInsights($pageId, self::FACEBOOK_PAGE_METRICS, $since, $until, $pageToken), [
-            'page_total_media_view_unique' => 'reach',
-            'page_media_view'              => 'impressions',
-            'page_daily_follows_unique'    => 'new_follows',
-        ]);
+        $days = $this->storeDays($account, $this->eachDailyMetric($pageId, self::FACEBOOK_PAGE_METRICS, $since, $until, $pageToken, 'facebook'));
 
         $this->storeFollowers($account, data_get($page, 'followers_count'));
 
@@ -178,16 +253,157 @@ class FetchMetaSocialInsights extends Command
             $posts++;
         }
 
+        $posts += $this->fetchInstagramStories($account, $instagramId, $token);
+
         $accountSince = $since->copy()->max($until->copy()->subDays(self::INSTAGRAM_ACCOUNT_MAX_DAYS - 1));
 
-        $days = $this->storeDays($account, $this->dailyInsights($instagramId, self::INSTAGRAM_ACCOUNT_METRICS, $accountSince, $until, $token), [
-            'reach'          => 'reach',
-            'follower_count' => 'new_follows',
-        ]);
+        $days = $this->storeDays($account, array_merge_recursive(
+            $this->eachDailyMetric($instagramId, self::INSTAGRAM_ACCOUNT_METRICS, $accountSince, $until, $token, 'instagram'),
+            $this->instagramDailyTotals($instagramId, $accountSince, $until, $token)
+        ));
 
         $this->storeFollowers($account, data_get($profile, 'followers_count'));
 
         return [$posts, $days];
+    }
+
+    /**
+     * Stories are only listed while they are live, so the nightly run keeps the ones of the last day.
+     */
+    private function fetchInstagramStories(SocialMediaAccount $account, string $instagramId, string $token): int
+    {
+        $stories = 0;
+
+        try {
+            foreach ($this->rows($this->url($instagramId.'/stories'), [
+                'fields' => 'id,caption,media_type,media_product_type,permalink,timestamp,insights.metric('.self::INSTAGRAM_STORY_METRICS.')',
+            ], $token) as $story) {
+                $insights = $this->insightValues($story);
+
+                $this->storePost($account, (string) data_get($story, 'id'), [
+                    'type'         => SocialMediaPostTypeEnum::STORY,
+                    'description'  => data_get($story, 'caption'),
+                    'permalink'    => data_get($story, 'permalink'),
+                    'published_at' => Carbon::parse(data_get($story, 'timestamp')),
+                    'reach'        => (int) ($insights['reach'] ?? 0),
+                    'impressions'  => (int) ($insights['views'] ?? 0),
+                    'shares'       => (int) ($insights['shares'] ?? 0),
+                ]);
+                $stories++;
+            }
+        } catch (\RuntimeException) {
+            $this->unavailable[] = 'instagram stories';
+        }
+
+        return $stories;
+    }
+
+    /**
+     * Every metric asked for on its own, so one name Meta has retired does not lose the others.
+     *
+     * @param array<string, string> $metrics metric => column
+     *
+     * @return array<string, array<string, int>> date => column => value
+     */
+    private function eachDailyMetric(string $id, array $metrics, Carbon $since, Carbon $until, string $token, string $platform): array
+    {
+        $byDate = [];
+
+        foreach ($metrics as $metric => $column) {
+            try {
+                foreach ($this->dailyInsights($id, $metric, $since, $until, $token) as $date => $values) {
+                    if (array_key_exists($metric, $values)) {
+                        $byDate[$date][$column] = $values[$metric];
+                    }
+                }
+            } catch (\RuntimeException) {
+                $this->unavailable[] = $platform.' '.$metric;
+            }
+        }
+
+        return $byDate;
+    }
+
+    /**
+     * Instagram gives these account metrics only as a total for a range: the names Meta takes are
+     * found on the first day, one by one, and every day after asks for those together.
+     *
+     * @return array<string, array<string, int>> date => column => value
+     */
+    private function instagramDailyTotals(string $instagramId, Carbon $since, Carbon $until, string $token): array
+    {
+        $byDate    = [];
+        $available = [];
+
+        for ($day = $since->copy()->startOfDay(); $day->lte($until); $day->addDay()) {
+            $requests = $day->eq($since->copy()->startOfDay())
+                ? array_map(fn (string $metric) => [$metric], array_keys(self::INSTAGRAM_ACCOUNT_TOTALS))
+                : [array_values($available)];
+
+            foreach ($requests as $metrics) {
+                if ($metrics === []) {
+                    continue;
+                }
+
+                try {
+                    $response = $this->get($this->url($instagramId.'/insights'), [
+                        'metric'      => implode(',', $metrics),
+                        'metric_type' => 'total_value',
+                        'period'      => 'day',
+                        'since'       => $day->timestamp,
+                        'until'       => $day->copy()->addDay()->timestamp,
+                    ], $token);
+                } catch (\RuntimeException) {
+                    $this->unavailable[] = 'instagram '.implode(',', $metrics);
+
+                    continue;
+                }
+
+                foreach (data_get($response, 'data', []) as $row) {
+                    $name = data_get($row, 'name');
+                    if (!isset(self::INSTAGRAM_ACCOUNT_TOTALS[$name]) || !is_numeric(data_get($row, 'total_value.value'))) {
+                        continue;
+                    }
+
+                    $byDate[$day->toDateString()][self::INSTAGRAM_ACCOUNT_TOTALS[$name]] = (int) data_get($row, 'total_value.value');
+                    $available[$name] = $name;
+                }
+            }
+        }
+
+        return $byDate;
+    }
+
+    /**
+     * The edge read with the richest fields Meta accepts for this token, best first: one row is asked
+     * for with each until one is taken, so a missing permission or retired metric costs a request
+     * rather than the account's posts, and what was left out is reported.
+     *
+     * @param array<int, array{fields: string, missing: array<int, string>}> $candidates
+     *
+     * @return Generator<int, array>
+     */
+    private function rowsWithFirstAccepted(string $url, array $candidates, array $query, string $token): Generator
+    {
+        $refusal = null;
+
+        foreach ($candidates as $candidate) {
+            try {
+                $this->get($url, ['fields' => $candidate['fields'], 'limit' => 1] + $query, $token);
+            } catch (\RuntimeException $e) {
+                $refusal = $e;
+
+                continue;
+            }
+
+            array_push($this->unavailable, ...$candidate['missing']);
+
+            yield from $this->rows($url, ['fields' => $candidate['fields']] + $query, $token);
+
+            return;
+        }
+
+        throw $refusal ?? new \RuntimeException('Meta accepted none of the field sets for '.$url);
     }
 
     private function account(Shop $shop, SocialMediaPlatformEnum $platform, string $externalId, ?string $name, ?string $username): SocialMediaAccount
@@ -214,19 +430,11 @@ class FetchMetaSocialInsights extends Command
     }
 
     /**
-     * @param array<string, array<string, int>> $byDate
-     * @param array<string, string>             $fields metric name => column
+     * @param array<string, array<string, int>> $byDate date => column => value
      */
-    private function storeDays(SocialMediaAccount $account, array $byDate, array $fields): int
+    private function storeDays(SocialMediaAccount $account, array $byDate): int
     {
-        foreach ($byDate as $date => $metrics) {
-            $values = [];
-            foreach ($fields as $metric => $column) {
-                if (array_key_exists($metric, $metrics)) {
-                    $values[$column] = $metrics[$metric];
-                }
-            }
-
+        foreach ($byDate as $date => $values) {
             if ($values === [] || $this->option('dry-run')) {
                 continue;
             }
@@ -294,8 +502,29 @@ class FetchMetaSocialInsights extends Command
     private function insightValues(array $row): array
     {
         return collect(data_get($row, 'insights.data', []))
+            ->filter(fn (array $metric) => is_numeric(data_get($metric, 'values.0.value')))
             ->mapWithKeys(fn (array $metric) => [data_get($metric, 'name') => (int) data_get($metric, 'values.0.value', 0)])
             ->all();
+    }
+
+    /**
+     * A dropped or slow connection is retried, so one blip does not lose a whole account's run.
+     * Meta's own refusals come back as responses and are not retried.
+     */
+    private function http(): PendingRequest
+    {
+        return Http::timeout(60)
+            ->connectTimeout(20)
+            ->retry(3, 2000, fn (Throwable $exception) => $exception instanceof ConnectionException, throw: false);
+    }
+
+    /**
+     * Connection errors quote the URL, and the URL carries the token: it never reaches the output
+     * or the log.
+     */
+    private function withoutToken(string $message): string
+    {
+        return (string) preg_replace('/access_token=[^&\s"\']+/', 'access_token=***', $message);
     }
 
     private function token(Shop $shop): string
@@ -312,7 +541,7 @@ class FetchMetaSocialInsights extends Command
 
     private function get(string $url, array $query, string $token): array
     {
-        $response = Http::timeout(60)->get($url.'?'.http_build_query($query + ['access_token' => $token]));
+        $response = $this->http()->get($url.'?'.http_build_query($query + ['access_token' => $token]));
 
         if ($response->failed()) {
             throw new \RuntimeException('Meta returned '.$response->status().': '.data_get($response->json(), 'error.message', $response->body()));
@@ -336,7 +565,7 @@ class FetchMetaSocialInsights extends Command
         while ($next !== null && !isset($seen[$next])) {
             $seen[$next] = true;
 
-            $response = Http::timeout(60)->get($next);
+            $response = $this->http()->get($next);
 
             if ($response->failed()) {
                 throw new \RuntimeException('Meta returned '.$response->status().': '.data_get($response->json(), 'error.message', $response->body()));

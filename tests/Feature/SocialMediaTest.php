@@ -10,6 +10,7 @@
 
 use App\Actions\CRM\SocialMedia\GetSocialMediaPerformance;
 use App\Actions\CRM\SocialMedia\ImportSocialMediaInsights;
+use App\Console\Commands\FetchMetaSocialInsights;
 use App\Enums\CRM\SocialMedia\SocialMediaPlatformEnum;
 use App\Enums\CRM\SocialMedia\SocialMediaPostTypeEnum;
 use App\Enums\Helpers\Import\UploadRecordStatusEnum;
@@ -177,6 +178,59 @@ it('explains the rows it cannot import', function () {
         ->and($upload->records()->where('status', UploadRecordStatusEnum::FAILED)->sole()->errors)->toBe(['Post has no publish time']);
 });
 
+it('reads a chart export whose title does not name the platform into the platform chosen at upload, viewers as reach', function () {
+    $chart = fn (string $title, string $value) => socialCsv('Viewers.csv', [
+        'sep=,',
+        '"'.$title.'"',
+        '"Date","Primary"',
+        '"2026-08-01T00:00:00","'.$value.'"',
+    ]);
+
+    $unknown = ImportSocialMediaInsights::make()->handle($this->shop, $chart('Viewers', '300'));
+
+    expect($unknown->number_fails)->toBe(1)
+        ->and($this->shop->socialMediaAccounts()->count())->toBe(0);
+
+    ImportSocialMediaInsights::make()->handle($this->shop, $chart('Viewers', '300'), SocialMediaPlatformEnum::INSTAGRAM);
+    ImportSocialMediaInsights::make()->handle($this->shop, $chart('Views', '450'), SocialMediaPlatformEnum::INSTAGRAM);
+
+    $day = $this->shop->socialMediaAccounts()->sole()->dailyStats()->sole();
+
+    expect($day->socialMediaAccount->platform)->toBe(SocialMediaPlatformEnum::INSTAGRAM)
+        ->and($day->reach)->toBe(300)
+        ->and($day->impressions)->toBe(450);
+});
+
+it('takes the platform chosen at upload through the shop route', function () {
+    $this->post(route('grp.models.shop.social_media.upload', ['shop' => $this->shop->id, 'platform' => 'facebook']), [
+        'file' => socialCsv('Views.csv', ['sep=,', '"Views"', '"Date","Primary"', '"2026-08-01T00:00:00","120"']),
+    ])->assertCreated();
+
+    expect($this->shop->socialMediaAccounts()->sole()->platform)->toBe(SocialMediaPlatformEnum::FACEBOOK);
+});
+
+it('says a file is empty when meta exported no figures', function () {
+    $upload = ImportSocialMediaInsights::make()->handle($this->shop, socialCsv('Follows.csv', ['sep=,']));
+
+    expect($upload->number_fails)->toBe(1)
+        ->and($upload->records()->sole()->errors)->toContain(__('The file is empty: Meta exported no figures for this metric and period'));
+});
+
+it('keeps one account when a content export names the page by another id than the one the shop has', function () {
+    $post = fn (string $pageId, string $postId) => socialCsv('facebook-posts.csv', [
+        '"Post ID","Page ID","Page name",Description,"Publish time",Permalink,"Post type",Views,Reach,Reactions',
+        $postId.','.$pageId.',"Ancient Wisdom","A post","08/12/2026 07:29",https://www.facebook.com/permalink.php?story_fbid='.$postId.',Photos,100,80,3',
+    ]);
+
+    ImportSocialMediaInsights::make()->handle($this->shop, $post('128699543823945', '9001'));
+    ImportSocialMediaInsights::make()->handle($this->shop, $post('100064762416556', '9002'));
+
+    $account = $this->shop->socialMediaAccounts()->sole();
+
+    expect($account->external_id)->toBe('128699543823945')
+        ->and($account->posts()->pluck('external_id')->sort()->values()->all())->toBe(['9001', '9002']);
+});
+
 it('rejects a file that is not a social media export', function () {
     $upload = ImportSocialMediaInsights::make()->handle($this->shop, socialCsv('prospects.csv', [
         'Name,Email',
@@ -214,6 +268,61 @@ it('reports a period with its previous one, formats, platforms and top posts', f
         ->and($performance['accounts'][0]['posts'])->toBe(2)
         ->and($performance['trend']['bucket'])->toBe('day')
         ->and($performance['trend']['points'])->toHaveCount(31);
+});
+
+it('takes views, viewers and visits from the accounts\' daily figures over their posts, and says what moved', function () {
+    ImportSocialMediaInsights::make()->handle($this->shop, instagramContentExport());
+
+    $chart = fn (string $title, array $days) => socialCsv('chart.csv', [
+        'sep=,',
+        '"'.$title.'"',
+        '"Date","Primary"',
+        ...array_map(fn (string $date, int $value) => '"'.$date.'T00:00:00","'.$value.'"', array_keys($days), $days),
+    ]);
+
+    ImportSocialMediaInsights::make()->handle($this->shop, $chart('Views', ['2026-08-10' => 4000, '2026-08-11' => 2000]), SocialMediaPlatformEnum::INSTAGRAM);
+    ImportSocialMediaInsights::make()->handle($this->shop, $chart('Viewers', ['2026-08-10' => 900, '2026-08-11' => 300]), SocialMediaPlatformEnum::INSTAGRAM);
+    ImportSocialMediaInsights::make()->handle($this->shop, $chart('Instagram profile visits', ['2026-08-10' => 7, '2026-08-11' => 3]));
+
+    $performance = GetSocialMediaPerformance::run(
+        $this->organisation,
+        Carbon::parse('2026-08-01')->startOfDay(),
+        Carbon::parse('2026-08-31')->endOfDay(),
+        ['shop' => $this->shop->slug]
+    );
+
+    $current = $performance['kpis']['current'];
+
+    expect($current['views'])->toBe(6000)
+        ->and($current['avg_daily_viewers'])->toBe(600)
+        ->and($current['visits'])->toBe(10)
+        ->and($current['interactions'])->toBe(140)
+        ->and($current['interaction_rate'])->toBe(round(140 / 6000 * 100, 2))
+        ->and($current['reach'])->toBe(1800)
+        ->and($performance['platforms'][0]['views'])->toBe(6000)
+        ->and($performance['platforms'][0]['views_share'])->toBe(100.0)
+        ->and(collect($performance['trend']['points'])->sum('views'))->toBe(6000)
+        ->and($performance['accounts'][0]['views'])->toBe(6000)
+        ->and($performance['accounts'][0]['interactions'])->toBe(140)
+        ->and($performance['insight'])->toContain(__('Reel'));
+});
+
+it('compares the period with the same dates last year or with a range chosen by hand', function () {
+    $period = fn (array $compare) => GetSocialMediaPerformance::run(
+        $this->organisation,
+        Carbon::parse('2026-08-01')->startOfDay(),
+        Carbon::parse('2026-08-31')->endOfDay(),
+        ['shop' => $this->shop->slug, ...$compare]
+    );
+
+    $lastYear = $period(['compare' => 'year']);
+    $custom   = $period(['compare' => 'custom', 'compare_from' => '2026-06-01', 'compare_to' => '2026-06-15']);
+    $broken   = $period(['compare' => 'custom', 'compare_from' => '2026-06-15', 'compare_to' => '2026-06-01']);
+
+    expect([$lastYear['previous_from'], $lastYear['previous_to']])->toBe(['2025-08-01', '2025-08-31'])
+        ->and([$custom['previous_from'], $custom['previous_to']])->toBe(['2026-06-01', '2026-06-15'])
+        ->and($custom['filters']['compare'])->toBe('custom')
+        ->and([$broken['previous_from'], $broken['previous_to']])->toBe(['2026-07-01', '2026-07-31']);
 });
 
 it('filters by platform and leaves out shops outside the filter', function () {
@@ -260,6 +369,22 @@ it('exports the posts of the period as csv', function () {
         ->and($csv)->toContain('Instagram');
 });
 
+it('exports the period as a summary report beside the compared period', function () {
+    ImportSocialMediaInsights::make()->handle($this->shop, instagramContentExport());
+    $this->user->update(['settings' => array_merge($this->user->settings ?? [], ['selected_interval' => 'all'])]);
+
+    $csv = $this->get(route('grp.org.marketing.social_media.export', [
+        'organisation' => $this->organisation->slug,
+        'shop'         => $this->shop->slug,
+        'report'       => 'summary',
+    ]))->assertOk()->streamedContent();
+
+    expect($csv)->toContain(__('Social media report'))
+        ->and($csv)->toContain(__('Views'))
+        ->and($csv)->toContain(__('Share of views %'))
+        ->and($csv)->toContain('Halloween range reveal');
+});
+
 function fakeMetaSocialGraph(array &$requests): void
 {
     Http::fake(function (Illuminate\Http\Client\Request $request) use (&$requests) {
@@ -292,14 +417,24 @@ function fakeMetaSocialGraph(array &$requests): void
                         'insights'      => ['data' => [
                             ['name' => 'post_total_media_view_unique', 'values' => [['value' => 1200]]],
                             ['name' => 'post_media_view', 'values' => [['value' => 2000]]],
+                            ...(str_contains($query['fields'] ?? '', 'post_clicks_by_type')
+                                ? [['name' => 'post_clicks_by_type', 'values' => [['value' => ['link clicks' => 15, 'other clicks' => 4]]]]]
+                                : []),
+                            ...(str_contains($query['fields'] ?? '', 'post_reactions_by_type_total')
+                                ? [['name' => 'post_reactions_by_type_total', 'values' => [['value' => ['like' => 30, 'love' => 10]]]]]
+                                : []),
                         ]],
                     ]],
                     'paging' => ['next' => 'https://graph.facebook.com/v21.0/111/posts?after=cursor2&access_token=page-token'],
                 ]),
-            '/v21.0/111/insights' => Http::response(['data' => [
-                ['name' => 'page_total_media_view_unique', 'values' => [['value' => 300, 'end_time' => '2026-08-02T07:00:00+0000']]],
-                ['name' => 'page_daily_follows_unique', 'values' => [['value' => 4, 'end_time' => '2026-08-02T07:00:00+0000']]],
-            ], 'paging' => ['next' => 'https://graph.facebook.com/v21.0/111/insights?since=later']]),
+            '/v21.0/111/insights' => str_contains($query['metric'] ?? '', 'page_views_total')
+                ? Http::response(['error' => ['message' => '(#100) The value must be a valid insights metric']], 400)
+                : Http::response(['data' => collect([
+                    ['name' => 'page_total_media_view_unique', 'values' => [['value' => 300, 'end_time' => '2026-08-02T07:00:00+0000']]],
+                    ['name' => 'page_daily_follows_unique', 'values' => [['value' => 4, 'end_time' => '2026-08-02T07:00:00+0000']]],
+                    ['name' => 'page_media_view', 'values' => [['value' => 1000, 'end_time' => '2026-08-02T07:00:00+0000']]],
+                    ['name' => 'page_post_engagements', 'values' => [['value' => 25, 'end_time' => '2026-08-02T07:00:00+0000']]],
+                ])->whereIn('name', explode(',', $query['metric'] ?? ''))->values()->all(), 'paging' => ['next' => 'https://graph.facebook.com/v21.0/111/insights?since=later']]),
             '/v21.0/222' => Http::response(['id' => '222', 'username' => 'awgifts.eu', 'name' => 'AW Gifts Europe', 'followers_count' => 2000]),
             '/v21.0/222/media' => Http::response(['data' => [[
                 'id'                 => '1801',
@@ -317,10 +452,28 @@ function fakeMetaSocialGraph(array &$requests): void
                     ['name' => 'shares', 'values' => [['value' => 3]]],
                 ]],
             ]]]),
-            '/v21.0/222/insights' => Http::response(['data' => [
-                ['name' => 'reach', 'values' => [['value' => 650, 'end_time' => '2026-08-05T07:00:00+0000']]],
-                ['name' => 'follower_count', 'values' => [['value' => 9, 'end_time' => '2026-08-05T07:00:00+0000']]],
-            ]]),
+            '/v21.0/222/insights' => match (true) {
+                ($query['metric_type'] ?? null) !== 'total_value' => Http::response(['data' => collect([
+                    ['name' => 'reach', 'values' => [['value' => 650, 'end_time' => '2026-08-05T07:00:00+0000']]],
+                    ['name' => 'follower_count', 'values' => [['value' => 9, 'end_time' => '2026-08-05T07:00:00+0000']]],
+                ])->whereIn('name', explode(',', $query['metric'] ?? ''))->values()->all()]),
+                str_contains($query['metric'] ?? '', 'website_clicks') => Http::response(['error' => ['message' => '(#100) metric[0] must be one of the following values']], 400),
+                default => Http::response(['data' => collect(['views' => 700, 'total_interactions' => 45, 'profile_views' => 12])
+                    ->only(explode(',', $query['metric'] ?? ''))
+                    ->map(fn (int $value, string $name) => ['name' => $name, 'period' => 'day', 'total_value' => ['value' => $value]])
+                    ->values()->all()]),
+            },
+            '/v21.0/222/stories' => Http::response(['data' => [[
+                'id'                 => '1901',
+                'media_type'         => 'IMAGE',
+                'media_product_type' => 'STORY',
+                'permalink'          => 'https://www.instagram.com/stories/awgifts.eu/1901/',
+                'timestamp'          => '2026-08-30T18:00:00+0000',
+                'insights'           => ['data' => [
+                    ['name' => 'reach', 'values' => [['value' => 400]]],
+                    ['name' => 'views', 'values' => [['value' => 520]]],
+                ]],
+            ]]]),
             default => Http::response(['error' => ['message' => 'unexpected '.$path]], 404),
         };
     });
@@ -343,7 +496,7 @@ describe('fetching meta organic insights', function () {
         expect(Artisan::call('social-media:fetch-meta', ['shop' => $this->shop->slug, '--date' => '2026-08-31', '--days' => 31]))->toBe(0);
 
         $page = $this->shop->socialMediaAccounts()->where('platform', 'facebook')->sole();
-        $reel = $page->posts()->where('external_id', '111_1')->sole();
+        $reel = $page->posts()->where('external_id', '1')->sole();
 
         expect($page->external_id)->toBe('111')
             ->and($page->name)->toBe('AW Gifts Europe')
@@ -354,9 +507,9 @@ describe('fetching meta organic insights', function () {
             ->and($reel->impressions)->toBe(2000)
             ->and($reel->reactions)->toBe(40)
             ->and($reel->shares)->toBe(7)
-            ->and($page->posts()->where('external_id', '111_2')->value('type'))->toBe(SocialMediaPostTypeEnum::CAROUSEL)
+            ->and($page->posts()->where('external_id', '2')->value('type'))->toBe(SocialMediaPostTypeEnum::CAROUSEL)
             ->and(collect($requests)->filter(fn ($url) => str_contains($url, '/111/posts'))->every(fn ($url) => str_contains($url, 'access_token=page-token')))->toBeTrue()
-            ->and(collect($requests)->filter(fn ($url) => str_contains($url, '/111/insights'))->count())->toBe(1);
+            ->and(collect($requests)->filter(fn ($url) => str_contains($url, '/111/insights'))->count())->toBe(count(FetchMetaSocialInsights::FACEBOOK_PAGE_METRICS));
 
         $day = $page->dailyStats()->where('date', '2026-08-01')->sole();
 
@@ -372,7 +525,7 @@ describe('fetching meta organic insights', function () {
         Artisan::call('social-media:fetch-meta', ['shop' => $this->shop->slug, '--date' => '2026-08-31', '--days' => 31]);
 
         $instagram = $this->shop->socialMediaAccounts()->where('platform', 'instagram')->sole();
-        $media     = $instagram->posts()->sole();
+        $media     = $instagram->posts()->where('external_id', '1801')->sole();
 
         expect($instagram->username)->toBe('awgifts.eu')
             ->and($instagram->followers)->toBe(2000)
@@ -397,6 +550,55 @@ describe('fetching meta organic insights', function () {
         Artisan::call('social-media:fetch-meta', ['shop' => $this->shop->slug, '--date' => '2026-08-31', '--days' => 31]);
 
         expect($this->shop->socialMediaAccounts()->where('platform', 'instagram')->sole()->external_id)->toBe('222');
+    });
+
+    it('reads the daily views, interactions and visits, stories and post link clicks, and skips the names meta refuses', function () {
+        $requests = [];
+        fakeMetaSocialGraph($requests);
+
+        $exitCode = Artisan::call('social-media:fetch-meta', ['shop' => $this->shop->slug, '--date' => '2026-08-31', '--days' => 31]);
+        $output   = Artisan::output();
+
+        expect($exitCode)->toBe(0)
+            ->and($output)->toContain('page_views_total')
+            ->and($output)->toContain('website_clicks');
+
+        $page      = $this->shop->socialMediaAccounts()->where('platform', 'facebook')->sole();
+        $pageDay   = $page->dailyStats()->where('date', '2026-08-01')->sole();
+        $instagram = $this->shop->socialMediaAccounts()->where('platform', 'instagram')->sole();
+        $igDay     = $instagram->dailyStats()->where('date', '2026-08-04')->sole();
+        $story     = $instagram->posts()->where('external_id', '1901')->sole();
+
+        expect($pageDay->impressions)->toBe(1000)
+            ->and($pageDay->engagements)->toBeNull()
+            ->and($pageDay->profile_visits)->toBeNull()
+            ->and($page->posts()->where('external_id', '1')->value('link_clicks'))->toBe(15)
+            ->and($igDay->impressions)->toBe(700)
+            ->and($igDay->engagements)->toBe(45)
+            ->and($igDay->profile_visits)->toBe(12)
+            ->and($igDay->link_clicks)->toBeNull()
+            ->and($story->type)->toBe(SocialMediaPostTypeEnum::STORY)
+            ->and($story->reach)->toBe(400)
+            ->and($story->impressions)->toBe(520);
+    });
+
+    it('still stores facebook posts and their reactions when the token may not read comments', function () {
+        Http::fake(fn (Illuminate\Http\Client\Request $request) => str_contains($request->url(), '/111/posts') && str_contains(urldecode($request->url()), 'comments.summary')
+            ? Http::response(['error' => ['message' => "(#10) This endpoint requires the 'pages_read_user_content' permission"]], 400)
+            : null);
+        $requests = [];
+        fakeMetaSocialGraph($requests);
+
+        expect(Artisan::call('social-media:fetch-meta', ['shop' => $this->shop->slug, '--date' => '2026-08-31', '--days' => 31]))->toBe(0)
+            ->and(Artisan::output())->toContain('pages_read_user_content');
+
+        $reel = $this->shop->socialMediaAccounts()->where('platform', 'facebook')->sole()->posts()->where('external_id', '1')->sole();
+
+        expect($reel->reach)->toBe(1200)
+            ->and($reel->link_clicks)->toBe(15)
+            ->and($reel->shares)->toBe(7)
+            ->and($reel->reactions)->toBe(40)
+            ->and(collect($requests)->filter(fn (string $url) => str_contains($url, '/111/posts') && str_contains($url, 'limit=50'))->every(fn (string $url) => !str_contains(urldecode($url), 'comments.summary')))->toBeTrue();
     });
 
     it('reports a meta error as a failure and writes nothing on a dry run', function () {
