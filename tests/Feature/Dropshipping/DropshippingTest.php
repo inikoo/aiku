@@ -984,6 +984,47 @@ test('ebay token refresh marks auth revoked only on invalid grant', function () 
     expect($ebayUser->ebayAuthRevoked)->toBeTrue();
 });
 
+test('shop platform portfolio stats count the products of every state, each state on its own', function () {
+    $platform = $this->group->platforms()->where('type', PlatformTypeEnum::TIKTOK)->firstOrFail();
+    $customer = createOwnCustomer($this->shop, 'shop-platform-portfolio-stats');
+    $channel  = StoreCustomerSalesChannel::make()->action($customer, $platform, ['reference' => 'shop_platform_portfolio_stats']);
+
+    $family     = $this->shop->productCategories()->where('type', \App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum::FAMILY)->first();
+    $newProduct = fn (ProductStateEnum $state) => tap(\App\Actions\Catalogue\Product\StoreProduct::make()->action($family, array_merge(
+        Product::factory()->definition(),
+        ['trade_units' => [['id' => $this->product->tradeUnits->first()->id, 'quantity' => 1]], 'price' => 50]
+    )), fn (Product $product) => \Illuminate\Support\Facades\DB::table('products')->where('id', $product->id)->update(['state' => $state->value]));
+
+    foreach ([
+        ProductStateEnum::ACTIVE,
+        ProductStateEnum::ACTIVE,
+        ProductStateEnum::DISCONTINUING,
+        ProductStateEnum::DISCONTINUED,
+    ] as $state) {
+        StorePortfolio::make()->action($channel, $newProduct($state), []);
+    }
+
+    \App\Actions\Catalogue\ShopPlatformStats\ShopPlatformStatsHydratePortfolios::run($this->shop, $platform);
+
+    $portfoliosOfShopPlatform = fn () => \Illuminate\Support\Facades\DB::table('portfolios')
+        ->leftJoin('products', 'portfolios.item_id', '=', 'products.id')
+        ->where('portfolios.item_type', 'Product')
+        ->where('portfolios.shop_id', $this->shop->id)
+        ->where('portfolios.platform_id', $platform->id)
+        ->distinct();
+    $expected = ['number_products' => $portfoliosOfShopPlatform()->count('portfolios.item_id')];
+    foreach (ProductStateEnum::cases() as $state) {
+        $expected['number_products_state_'.$state->snake()] = $portfoliosOfShopPlatform()->where('products.state', $state->value)->count('portfolios.item_id');
+    }
+
+    $stats = $this->shop->platformStats()->where('platform_id', $platform->id)->firstOrFail()->only(array_keys($expected));
+
+    expect($stats)->toBe($expected)
+        ->and($stats['number_products_state_active'])->toBeGreaterThanOrEqual(2)
+        ->and($stats['number_products_state_discontinuing'])->toBeGreaterThanOrEqual(1)
+        ->and($stats['number_products_state_discontinued'])->toBeGreaterThanOrEqual(1);
+});
+
 test('bulk price rule prices each product from its own rrp', function () {
     $platform = $this->group->platforms()->where('type', PlatformTypeEnum::EBAY)->first();
     $customerSalesChannel = StoreCustomerSalesChannel::make()->action($this->customer, $platform, ['reference' => 'test_ebay_bulk_price']);
