@@ -74,7 +74,7 @@ class ShowMailshot extends OrgAction
 
         $hasSourceReference = filled($mailshot->source_id) || filled($mailshot->source_alt_id) || filled($mailshot->source_alt2_id);
 
-        $estimatedRecipients = ($mailshot->type === MailshotTypeEnum::MARKETING && in_array($mailshot->state, [MailshotStateEnum::IN_PROCESS, MailshotStateEnum::READY, MailshotStateEnum::SCHEDULED]))
+        $estimatedRecipients = (in_array($mailshot->type, [MailshotTypeEnum::MARKETING, MailshotTypeEnum::NEWSLETTER]) && in_array($mailshot->state, [MailshotStateEnum::IN_PROCESS, MailshotStateEnum::READY, MailshotStateEnum::SCHEDULED]))
             ? (GetMailshotRecipientsQueryBuilder::make()->handle($mailshot)?->count('customers.id') ?? 0)
             : 0;
 

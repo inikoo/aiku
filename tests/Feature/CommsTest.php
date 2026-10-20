@@ -1848,6 +1848,24 @@ test('prepare newsletter recipients dispatches process send mailshot for subscri
     expect($mailshot->refresh()->recipients_prepared_at)->not->toBeNull();
 })->depends('outbox seeded when shop created');
 
+test('UI show newsletter estimates its subscribed recipients', function (Shop $shop) {
+    $outbox   = $shop->outboxes()->where('type', OutboxCodeEnum::NEWSLETTER)->first();
+    $mailshot = StoreMailshot::make()->action($outbox, array_merge(
+        Mailshot::factory()->definition(),
+        ['type' => MailshotTypeEnum::NEWSLETTER]
+    ));
+
+    $subscribed = StoreCustomer::make()->action($shop, Customer::factory()->definition());
+    $subscribed->comms()->update(['is_subscribed_to_newsletter' => true]);
+
+    $expected = PrepareNewsletterRecipients::make()->audienceQuery($mailshot)->count('customers.id');
+
+    $this->get(route('grp.org.shops.show.marketing.newsletters.show', [$shop->organisation, $shop, $mailshot->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('estimatedRecipients', $expected));
+
+    expect($expected)->toBeGreaterThan(0);
+})->depends('outbox seeded when shop created');
+
 test('prepare mailshot second wave recipients skips when no parent', function (Mailshot $mailshot) {
     $orphan = $mailshot->replicate();
     $orphan->parent_mailshot_id     = null;

@@ -9,7 +9,6 @@
 namespace App\Actions\Comms\Mailshot;
 
 use App\Enums\Comms\Mailshot\MailshotStateEnum;
-use App\Enums\Comms\Mailshot\MailshotTypeEnum;
 use App\Models\Comms\Mailshot;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
@@ -90,10 +89,6 @@ class PrepareMailshotAbTestRecipients
 
     public function audienceQuery(Mailshot $mailshot): ?Builder
     {
-        if ($mailshot->type === MailshotTypeEnum::NEWSLETTER) {
-            return PrepareNewsletterRecipients::make()->audienceQuery($mailshot);
-        }
-
         return GetMailshotRecipientsQueryBuilder::make()->handle($mailshot);
     }
 
