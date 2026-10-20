@@ -57,11 +57,7 @@ class ShowManufacturePayroll extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->authTo([
-            'org-supervisor.'.$this->organisation->id,
-            "human-resources.{$this->organisation->id}.view",
-            "accounting.{$this->organisation->id}.view",
-        ]);
+        return ShowArtisansDashboard::canSeeArtisanPay($request->user(), $this->production);
     }
 
     public function asController(Organisation $organisation, Production $production, ActionRequest $request): array

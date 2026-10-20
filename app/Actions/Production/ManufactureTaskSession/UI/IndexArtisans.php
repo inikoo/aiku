@@ -45,11 +45,7 @@ class IndexArtisans extends OrgAction
         ]);
         $this->canEditClosedPayWeek = $request->user()->authTo('sysadmin.edit');
 
-        return $request->user()->authTo([
-            'org-supervisor.'.$this->organisation->id,
-            'productions-view.'.$this->organisation->id,
-            "productions_operations.{$this->production->id}.view",
-        ]);
+        return ShowArtisansDashboard::canSeeArtisanPay($request->user(), $this->production);
     }
 
     public function asController(Organisation $organisation, Production $production, ActionRequest $request): Production

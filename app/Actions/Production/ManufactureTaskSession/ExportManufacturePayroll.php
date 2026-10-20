@@ -8,6 +8,7 @@
 
 namespace App\Actions\Production\ManufactureTaskSession;
 
+use App\Actions\Production\Production\UI\ShowArtisansDashboard;
 use App\Actions\OrgAction;
 use App\Exports\Production\ManufacturePayrollExport;
 use App\Exports\Production\ManufacturePayrollSummaryExport;
@@ -54,11 +55,7 @@ class ExportManufacturePayroll extends OrgAction
             return true;
         }
 
-        return $request->user()->authTo([
-            'org-supervisor.'.$this->organisation->id,
-            "human-resources.{$this->organisation->id}.view",
-            "accounting.{$this->organisation->id}.view",
-        ]);
+        return ShowArtisansDashboard::canSeeArtisanPay($request->user(), $this->production);
     }
 
     public function asController(Organisation $organisation, Production $production, ActionRequest $request): BinaryFileResponse

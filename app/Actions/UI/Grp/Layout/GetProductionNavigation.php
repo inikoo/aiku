@@ -8,6 +8,7 @@
 
 namespace App\Actions\UI\Grp\Layout;
 
+use App\Actions\Production\Production\UI\ShowArtisansDashboard;
 use App\Models\Production\Production;
 use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -216,8 +217,9 @@ class GetProductionNavigation
                     ],
                 ];
             }
+        }
 
-
+        if (ShowArtisansDashboard::canSeeArtisanPay($user, $production)) {
             $navigation['artisans'] = [
                 'root'  => 'grp.org.productions.show.artisans.',
                 'label' => __('Artisans'),
@@ -250,7 +252,7 @@ class GetProductionNavigation
                                 'parameters' => [$production->organisation->slug, $production->slug]
                             ],
                         ],
-                        ...($user->hasAnyPermission(['org-supervisor.'.$production->organisation->id, "human-resources.{$production->organisation->id}.view", "accounting.{$production->organisation->id}.view"]) ? [[
+                        [
                             'label'   => __('Payroll'),
                             'tooltip' => __('Piece-rate payroll export'),
                             'icon'    => ['fal', 'fa-money-check-alt'],
@@ -259,27 +261,9 @@ class GetProductionNavigation
                                 'name'       => 'grp.org.productions.show.artisans.payroll',
                                 'parameters' => [$production->organisation->slug, $production->slug]
                             ],
-                        ]] : []),
+                        ],
                     ]
                 ]
-            ];
-        }
-
-        $canSeeArtisansDashboard = $user->hasAnyPermission([
-            'org-supervisor.'.$production->organisation->id,
-            'productions-view.'.$production->organisation->id,
-            "productions_operations.$production->id.view",
-            "productions_operations.$production->id.orchestrate",
-        ]);
-        if (!$canSeeArtisansDashboard && $user->hasAnyPermission(["human-resources.{$production->organisation->id}.view", "accounting.{$production->organisation->id}.view"])) {
-            $navigation['payroll'] = [
-                'root'  => 'grp.org.productions.show.artisans.payroll',
-                'label' => __('Payroll'),
-                'icon'  => ['fal', 'fa-money-check-alt'],
-                'route' => [
-                    'name'       => 'grp.org.productions.show.artisans.payroll',
-                    'parameters' => [$production->organisation->slug, $production->slug]
-                ],
             ];
         }
 

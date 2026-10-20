@@ -61,7 +61,7 @@ interface SubJob {
     quantity_target: number
     state: "assigned" | "in_progress" | "complete"
     seconds: number
-    reward: string
+    reward: string | null
     can_remove: boolean
 }
 
@@ -104,6 +104,7 @@ const props = defineProps<{
         hold: Hold | null
         holds: Hold[]
     }
+    can_see_pay: boolean
     hold_route: null | { name: string, parameters: object }
     hold_kind_options: { value: string, label: string }[]
     artisan_options: { id: number, name: string }[]
@@ -423,7 +424,7 @@ function receiveIntoStock() {
             <div v-for="entry in job_order.non_productive" :key="entry.activity" class="flex gap-6 tabular-nums">
                 <span class="w-32">{{ entry.activity }}</span>
                 <span>{{ entry.hours }} h</span>
-                <span>{{ entry.pay ?? '—' }}</span>
+                <span v-if="can_see_pay">{{ entry.pay ?? '—' }}</span>
             </div>
         </div>
         <div v-if="confirm_route" class="mb-6 -mt-3 text-sm text-amber-600">
@@ -528,7 +529,7 @@ function receiveIntoStock() {
                                 <th class="py-1 pr-3 font-medium">{{ ctrans('Completed') }}</th>
                                 <th class="py-1 pr-3 font-medium">{{ ctrans('Status') }}</th>
                                 <th class="py-1 pr-3 font-medium text-right">{{ ctrans('Time') }}</th>
-                                <th class="py-1 font-medium text-right">{{ ctrans('Reward') }}</th>
+                                <th v-if="can_see_pay" class="py-1 font-medium text-right">{{ ctrans('Reward') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
@@ -546,7 +547,7 @@ function receiveIntoStock() {
                                     <span class="rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap" :class="subJobStateClasses[subJob.state]">{{ subJobStateLabels[subJob.state] }}</span>
                                 </td>
                                 <td class="py-2 pr-3 text-right tabular-nums whitespace-nowrap">{{ formatDuration(subJob.seconds) }}</td>
-                                <td class="py-2 text-right tabular-nums">{{ subJob.reward }}</td>
+                                <td v-if="can_see_pay" class="py-2 text-right tabular-nums">{{ subJob.reward }}</td>
                             </tr>
                         </tbody>
                     </table>

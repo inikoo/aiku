@@ -1644,3 +1644,46 @@ test('a task that is not piece rate snapshots a zero rate when its session close
 
     $this->manufactureTask->update(['is_piece_rate' => true]);
 });
+
+test('the artisans section and job order pay are hidden from foremen and mixers', function () {
+    $jobOrder   = StoreJobOrder::make()->action($this->production, []);
+    $parameters = [$this->organisation->slug, $this->production->slug];
+
+    $userWith = function (array $permissions) {
+        $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id]);
+        $user->givePermissionTo($permissions);
+
+        return $user;
+    };
+
+    $foreman = $userWith(["productions_operations.{$this->production->id}.edit", "productions_operations.{$this->production->id}.view"]);
+    $mixer   = $userWith(["productions_operations.{$this->production->id}.prepare", "productions_operations.{$this->production->id}.view"]);
+
+    foreach ([$foreman, $mixer] as $user) {
+        actingAs($user);
+        foreach (['dashboard', 'index', 'payroll', 'payroll.export'] as $page) {
+            get(route("grp.org.productions.show.artisans.$page", $parameters))->assertForbidden();
+        }
+        get(route('grp.org.productions.show.artisans.payroll.show', [...$parameters, $user->id]))->assertForbidden();
+
+        expect(\App\Actions\UI\Grp\Layout\GetProductionNavigation::run($this->production, $user))->not->toHaveKey('artisans');
+
+        get(route('grp.org.productions.show.operations.job-orders.show', [...$parameters, $jobOrder->slug]))
+            ->assertInertia(fn (AssertableInertia $page) => $page->where('can_see_pay', false));
+    }
+
+    $supervisor = $userWith(["productions_operations.{$this->production->id}"]);
+    $accountant = $userWith(["accounting.{$this->organisation->id}.view"]);
+
+    foreach ([$supervisor, $accountant] as $user) {
+        actingAs($user);
+        get(route('grp.org.productions.show.artisans.payroll', $parameters))->assertOk();
+        expect(\App\Actions\UI\Grp\Layout\GetProductionNavigation::run($this->production, $user))->toHaveKey('artisans');
+    }
+
+    actingAs($supervisor);
+    get(route('grp.org.productions.show.operations.job-orders.show', [...$parameters, $jobOrder->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('can_see_pay', true));
+
+    actingAs($this->guest->getUser());
+});
