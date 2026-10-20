@@ -2,6 +2,7 @@
 
 namespace App\Actions\CRM\AppointmentType;
 
+use App\Actions\CRM\Appointment\GoogleCalendar\GetGoogleCalendarBusyPeriods;
 use App\Enums\CRM\Appointment\AppointmentStateEnum;
 use App\Models\CRM\Appointment;
 use App\Models\CRM\AppointmentType;
@@ -36,6 +37,7 @@ class GetAppointmentTypeAvailableSlots
         $booked   = $this->bookedPeriods($appointmentType, $now, $lastDay->copy()->endOfDay(), $buffer);
         $staffIds = $appointmentType->attendees()->where('users.status', true)->pluck('users.id');
         $busy     = $this->staffBusyElsewhere($appointmentType, $staffIds, $now, $lastDay->copy()->endOfDay());
+        $calendar = GetGoogleCalendarBusyPeriods::run($appointmentType->shop, $now->copy()->startOfHour(), $lastDay->copy()->endOfDay());
 
         $slots = [];
         for ($day = $now->copy()->startOfDay(); $day->lte($lastDay); $day->addDay()) {
@@ -52,6 +54,9 @@ class GetAppointmentTypeAvailableSlots
                         continue;
                     }
                     if ($this->countOverlapping($booked, $slot, $slot->copy()->addMinutes($duration + $buffer)) >= $appointmentType->capacity_per_slot) {
+                        continue;
+                    }
+                    if ($this->countOverlapping($calendar, $slot, $slot->copy()->addMinutes($duration)) > 0) {
                         continue;
                     }
                     if ($this->hasStaffFree($staffIds, $busy, $slot, $slot->copy()->addMinutes($duration))) {

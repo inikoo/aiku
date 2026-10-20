@@ -20,11 +20,17 @@ const props = defineProps<{
             connect_url: string
             disconnect_route: { name: string; parameters: any }
             inbox_url?: string
+            connected_query?: string
             texts?: {
                 connected?: string
                 not_connected?: string
+                not_connected_title?: string
                 success?: string
+                success_title?: string
                 confirm_disconnect?: string
+                connect?: string
+                reconnect?: string
+                revoked?: string
             }
         }
     }
@@ -33,8 +39,10 @@ const props = defineProps<{
 const isDisconnecting = ref(false)
 const showSuccessDialog = ref(false)
 
+const connectedQuery = props.fieldData.value.connected_query ?? "mailbox_connected"
+
 onMounted(() => {
-    if (new URLSearchParams(window.location.search).get("mailbox_connected") === "1") {
+    if (new URLSearchParams(window.location.search).get(connectedQuery) === "1") {
         showSuccessDialog.value = true
     }
 })
@@ -42,7 +50,7 @@ onMounted(() => {
 const closeSuccessDialog = () => {
     showSuccessDialog.value = false
     const url = new URL(window.location.href)
-    url.searchParams.delete("mailbox_connected")
+    url.searchParams.delete(connectedQuery)
     history.replaceState(null, "", url.toString())
 }
 
@@ -58,7 +66,7 @@ const disconnect = () => {
 </script>
 
 <template>
-    <Dialog v-model:visible="showSuccessDialog" :header="ctrans('Mailbox connected')" modal :style="{ width: '32rem' }">
+    <Dialog v-model:visible="showSuccessDialog" :header="fieldData.value.texts?.success_title ?? ctrans('Mailbox connected')" modal :style="{ width: '32rem' }">
         <div class="space-y-4">
             <p v-if="fieldData.value.texts?.success" class="text-sm text-gray-700">{{ fieldData.value.texts.success }}</p>
             <p v-else class="text-sm text-gray-700">
@@ -82,9 +90,9 @@ const disconnect = () => {
                     <div class="text-sm font-medium text-gray-700 truncate">{{ fieldData.value.email }}</div>
                     <div v-if="fieldData.value.revoked_at" class="text-xs text-amber-700">
                         {{ ctrans("Google stopped this connection") }} · {{ useFormatTime(fieldData.value.revoked_at) }}.
-                        {{ ctrans("No mail is fetched until it is reconnected.") }}
+                        {{ fieldData.value.texts?.revoked ?? ctrans("No mail is fetched until it is reconnected.") }}
                         <a :href="fieldData.value.connect_url" class="mt-2 block">
-                            <Button :label="ctrans('Reconnect Google mailbox')" :icon="faEnvelope" type="primary" size="xs" />
+                            <Button :label="fieldData.value.texts?.reconnect ?? ctrans('Reconnect Google mailbox')" :icon="faEnvelope" type="primary" size="xs" />
                         </a>
                     </div>
                     <div v-else class="text-xs text-gray-500">
@@ -102,12 +110,12 @@ const disconnect = () => {
             <div class="flex items-start gap-3">
                 <FontAwesomeIcon :icon="faEnvelope" class="mt-0.5 text-gray-400" fixed-width />
                 <div class="min-w-0 flex-1">
-                    <div class="text-sm font-medium text-gray-700">{{ ctrans("No mailbox connected") }}</div>
+                    <div class="text-sm font-medium text-gray-700">{{ fieldData.value.texts?.not_connected_title ?? ctrans("No mailbox connected") }}</div>
                     <p class="mt-1 text-xs text-gray-500">
                         {{ fieldData.value.texts?.not_connected ?? ctrans("Sign in with the address customers write to, for example info@ or care@ of this shop, not with your own account. The account you pick is the inbox that gets connected.") }}
                     </p>
                     <a :href="fieldData.value.connect_url" class="mt-3 inline-block">
-                        <Button :label="ctrans('Connect Google mailbox')" :icon="faEnvelope" type="primary" size="xs" />
+                        <Button :label="fieldData.value.texts?.connect ?? ctrans('Connect Google mailbox')" :icon="faEnvelope" type="primary" size="xs" />
                     </a>
                 </div>
             </div>

@@ -10,6 +10,7 @@ use App\Actions\DevOps\UI\IndexAppDeployments;
 use App\Actions\Docs\UI\ShowAikuPublicAnalytics;
 use App\Actions\Docs\UI\ShowDocsDashboard;
 use App\Actions\Comms\Mailbox\CallbackShopMailbox;
+use App\Actions\CRM\Appointment\GoogleCalendar\CallbackShopGoogleCalendar;
 use App\Actions\HumanResources\ClockingMachine\UI\RedirectClockingMachineQrScan;
 use App\Actions\SysAdmin\Group\Seeders\SeedWebBlockTypes;
 use App\Actions\SysAdmin\UI\ShowGrpLlmsTxt;
@@ -37,6 +38,7 @@ Route::middleware(
     Route::get('llms.txt', ShowGrpLlmsTxt::class)->name('llms_txt');
 
     Route::get('gmail/callback', CallbackShopMailbox::class)->name('gmail.callback');
+    Route::get('google-calendar/callback', CallbackShopGoogleCalendar::class)->name('google_calendar.callback');
 
     if (!app()->isProduction()) {
         Route::get('routes', function () {

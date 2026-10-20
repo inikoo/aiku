@@ -2,6 +2,7 @@
 
 namespace App\Actions\CRM\Appointment;
 
+use App\Actions\CRM\Appointment\GoogleCalendar\SyncAppointmentGoogleCalendarEvent;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\CRM\Appointment\AppointmentStateEnum;
@@ -45,6 +46,7 @@ class UpdateAppointment extends OrgAction
         });
 
         SyncAppointmentStaffTask::run($appointment);
+        SyncAppointmentGoogleCalendarEvent::dispatchFor($appointment);
 
         return $appointment;
     }
