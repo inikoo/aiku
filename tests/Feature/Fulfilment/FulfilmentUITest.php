@@ -90,6 +90,7 @@ use Inertia\Testing\AssertableInertia;
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 use function Pest\Laravel\getJson;
+use function Pest\Laravel\patch;
 
 uses()->group('ui');
 
@@ -2462,3 +2463,58 @@ test('UI show refund', function (Invoice $refund) {
             ->has('breadcrumbs', 4);
     });
 })->depends('UI create refund');
+
+test('a pallet only offers Move to people who can edit its warehouse locations, and the move is refused for others', function () {
+    $pallet = $this->pallet->fresh();
+    expect($pallet->warehouse_id)->not->toBeNull();
+
+    $admin   = $this->adminGuest->getUser();
+    $viewer  = \App\Actions\SysAdmin\Guest\StoreGuest::make()->action($this->organisation->group, [...\App\Models\SysAdmin\Guest::factory()->definition(), 'positions' => []])->getUser();
+    $canMove = function (?\App\Models\SysAdmin\User $user) use ($pallet) {
+        $request = \Illuminate\Http\Request::create('/');
+        $request->setUserResolver(fn () => $user);
+
+        return \App\Http\Resources\Fulfilment\PalletsResource::canMoveIn($request, $pallet->warehouse_id);
+    };
+
+    expect($canMove($admin))->toBeTrue()
+        ->and($canMove($viewer))->toBeFalse()
+        ->and($canMove(null))->toBeFalse();
+
+    $locationBefore = $pallet->location_id;
+    $target         = $this->warehouse->locations()->when($locationBefore, fn ($query) => $query->where('id', '!=', $locationBefore))->first();
+    actingAs($viewer);
+    patch(route('grp.models.warehouse.pallets.location.update', [$pallet->warehouse_id, $pallet->id]), ['location_id' => $target?->id])->assertForbidden();
+    expect($pallet->fresh()->location_id)->toBe($locationBefore);
+});
+
+test('a stored item shows where a pallet without a location was last picked from, linking to its movements', function () {
+    $pallet        = $this->pallet->fresh();
+    $storedItem    = $this->storedItem->fresh();
+    $location      = $this->warehouse->locations()->first();
+    $savedLocation = $pallet->location_id;
+    expect($location)->not->toBeNull();
+
+    $pallet->storedItems()->syncWithoutDetaching([$storedItem->id => ['quantity' => 5]]);
+    $pallet->updateQuietly(['location_id' => null]);
+    $movement = \App\Models\Fulfilment\StoredItemMovement::create([
+        'stored_item_id' => $storedItem->id,
+        'pallet_id'      => $pallet->id,
+        'location_id'    => $location->id,
+        'type'           => \App\Enums\Fulfilment\StoredItemMovement\StoredItemMovementTypeEnum::PICKED->value,
+        'quantity'       => -5,
+        'moved_at'       => now(),
+    ]);
+
+    try {
+        $row = collect(\App\Actions\Fulfilment\StoredItem\UI\GetStoredItemShowcase::run($storedItem->fresh())['pallets'])->firstWhere('id', $pallet->id);
+        expect($row['last_picked_from']['code'])->toBe($location->code);
+
+        $pallet->updateQuietly(['location_id' => $location->id]);
+        $row = collect(\App\Actions\Fulfilment\StoredItem\UI\GetStoredItemShowcase::run($storedItem->fresh())['pallets'])->firstWhere('id', $pallet->id);
+        expect($row['last_picked_from'])->toBeNull();
+    } finally {
+        $movement->delete();
+        $pallet->updateQuietly(['location_id' => $savedLocation]);
+    }
+});
