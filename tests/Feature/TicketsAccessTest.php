@@ -380,10 +380,13 @@ test('help desk staff and QA can raise engineering tickets with an INI reference
 
     actingAs($engineer);
     get(route('grp.tickets.create'))->assertOk()->assertInertia(
-        fn (AssertableInertia $page) => $page->where('types', fn ($types) => collect($types)->pluck('value')->all() === ['help', 'engineer', 'customer'])
+        fn (AssertableInertia $page) => $page->where('types', fn ($types) => collect($types)->pluck('value')->all() === ['help', 'engineer', 'customer', 'premonition'])
     );
     post(route('grp.models.ticket.store'), ['subject' => 'Refactor the queue', 'type' => 'engineer'])->assertRedirect()->assertSessionHasNoErrors();
     expect(Ticket::where('subject', 'Refactor the queue')->value('reference'))->toStartWith('INI-');
+
+    AikuServer::actingAs($engineer)->tool(TicketWriteTool::class, ['subject' => 'Claim list repeats products', 'type' => 'premonition'])->assertOk();
+    expect(Ticket::where('subject', 'Claim list repeats products')->value('reference'))->toStartWith('PRE-');
 
     actingAs($qa);
     post(route('grp.models.ticket.store'), ['subject' => 'Test plan', 'type' => 'engineer'])->assertRedirect()->assertSessionHasNoErrors();
@@ -391,6 +394,7 @@ test('help desk staff and QA can raise engineering tickets with an INI reference
     actingAs($colleague);
     get(route('grp.tickets.create'))->assertOk()->assertInertia(fn (AssertableInertia $page) => $page->where('types', []));
     post(route('grp.models.ticket.store'), ['subject' => 'Not for me', 'type' => 'engineer'])->assertSessionHasErrors('type');
+    AikuServer::actingAs($colleague)->tool(TicketWriteTool::class, ['subject' => 'Not mine to raise', 'type' => 'premonition'])->assertHasErrors();
     post(route('grp.models.ticket.store'), ['subject' => 'Plain help'])->assertRedirect()->assertSessionHasNoErrors();
     post(route('grp.models.ticket.store'), ['subject' => 'Empty type', 'type' => null])->assertRedirect()->assertSessionHasNoErrors();
     expect(Ticket::where('subject', 'Plain help')->value('reference'))->toStartWith('HELP-')
