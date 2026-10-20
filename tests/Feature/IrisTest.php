@@ -156,6 +156,21 @@ test('iris shares the out of stock notification outbox only when a page renders,
         ->and($props['outboxes']())->toBe($expected);
 });
 
+test('iris caches the website with its organisation and group so a request does not query them again', function () {
+    $websiteData = (new DetectIrisWebsite())->getWebsiteData($this->website->domain);
+    $cached      = unserialize(serialize($websiteData['website']));
+
+    $queries = 0;
+    DB::listen(function () use (&$queries) {
+        $queries++;
+    });
+
+    expect($cached->organisation->id)->toBe($this->website->organisation_id)
+        ->and($cached->group->id)->toBe($this->website->group_id)
+        ->and($cached->shop->id)->toBe($this->website->shop_id)
+        ->and($queries)->toBe(0);
+});
+
 test('webpage stats are indexed by webpage', function () {
     $indexes = collect(DB::select('SELECT indexdef FROM pg_indexes WHERE tablename = ?', ['webpage_stats']))->pluck('indexdef')->implode("\n");
 
