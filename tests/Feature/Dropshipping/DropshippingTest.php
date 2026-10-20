@@ -1542,6 +1542,45 @@ test('customer downloads the signed letter of authorisation from account setting
         ->assertInertia(fn (AssertableInertia $page) => $page->where('pageHead.actions.0.route.name', 'retina.sysadmin.letter_of_authorisation.pdf'));
 });
 
+test('packaging preferences list only active packagings and never preselect a retired one the customer had saved', function () {
+    $website = createWebsite($this->shop);
+    if ($website->state != WebsiteStateEnum::LIVE) {
+        LaunchWebsite::make()->action($website);
+    }
+    $customer = createCustomer($this->shop);
+    $customer->update(['status' => CustomerStatusEnum::APPROVED]);
+    $webUser = createWebUser($customer);
+
+    DetectWebsiteFromDomain::mock()->shouldReceive('handle')->with('localhost')->andReturn($website);
+    Config::set('inertia.testing.page_paths', [resource_path('js/Pages/Retina')]);
+
+    $shop = $webUser->customer->shop;
+    $shop->update(['settings' => array_replace_recursive($shop->settings ?? [], ['packaging_and_inserts' => ['enabled' => true]])]);
+
+    $suffix  = strtoupper(Str::random(6));
+    $store   = fn (string $family, \App\Enums\Catalogue\Packaging\PackagingStateEnum $state) => \App\Actions\Billables\Packaging\StorePackaging::make()->action($shop, [
+        'code'        => $family.'-'.$suffix,
+        'family_code' => $family.$suffix,
+        'name'        => $family.' box',
+        'type'        => \App\Enums\Catalogue\Packaging\PackagingTypeEnum::STANDARD->value,
+        'price'       => 1,
+        'state'       => $state->value,
+    ]);
+    $active  = $store('LIVEPK', \App\Enums\Catalogue\Packaging\PackagingStateEnum::ACTIVE);
+    $retired = $store('OLDPK', \App\Enums\Catalogue\Packaging\PackagingStateEnum::DISCONTINUED);
+
+    \App\Models\CRM\CustomerHasPackaging::create(['customer_id' => $customer->id, 'packaging_id' => $retired->id, 'personalised_message' => 'Thank you for shopping with us', 'data' => []]);
+
+    actingAs($webUser, 'retina');
+    $this->get(route('retina.sysadmin.packaging-preferences.show'))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('SysAdmin/RetinaPackagingPreferences')
+            ->where('packagingOptions', fn ($options) => collect($options)->pluck('family_code')->contains($active->family_code)
+                && !collect($options)->pluck('family_code')->contains($retired->family_code))
+            ->where('selectedFamilyCode', null)
+            ->where('personalisedMessage', 'Thank you for shopping with us'));
+});
+
 test('an ebay match that crashes marks its upload log failed instead of leaving it processing', function () {
     Http::fake(fn ($request) => str_contains($request->url(), 'oauth2/token')
         ? Http::response(['access_token' => 'tok', 'refresh_token' => 'ref', 'expires_in' => 7200])
