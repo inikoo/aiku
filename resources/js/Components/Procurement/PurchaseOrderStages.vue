@@ -12,8 +12,8 @@ import Textarea from "primevue/textarea"
 import { routeType } from "@/types/route"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faCheck, faCheckCircle, faPencil, faTimes, faTruck, faPaperclip, faUpload, faSpinnerThird } from "@fal"
-library.add(faCheck, faCheckCircle, faPencil, faTimes, faTruck, faPaperclip, faUpload, faSpinnerThird)
+import { faCheck, faCheckCircle, faPencil, faTimes, faTruck, faPaperclip, faUpload, faSpinnerThird, faBan, faUndo } from "@fal"
+library.add(faCheck, faCheckCircle, faPencil, faTimes, faTruck, faPaperclip, faUpload, faSpinnerThird, faBan, faUndo)
 
 interface Step {
     key: string
@@ -61,7 +61,25 @@ const props = defineProps<{
     stages: Stage[]
     route: routeType
     uploadRoute?: routeType | null
+    deposit?: { not_needed: boolean, route: routeType } | null
 }>()
+
+const savingDeposit = ref(false)
+
+async function setDepositNotNeeded(notNeeded: boolean) {
+    if (!props.deposit) {
+        return
+    }
+    savingDeposit.value = true
+    try {
+        await axios.patch(route(props.deposit.route.name, props.deposit.route.parameters), { deposit_amount: notNeeded ? 0 : null })
+        router.reload({ only: ["stages"] })
+    } catch (error: any) {
+        notify({ title: ctrans("Something went wrong"), text: error?.response?.data?.message ?? "", type: "error" })
+    } finally {
+        savingDeposit.value = false
+    }
+}
 
 const uploading = ref<string | null>(null)
 
@@ -201,6 +219,21 @@ function save() {
                 >
                     <template #icon>
                         <FontAwesomeIcon :icon="mark.date ? 'fal fa-pencil' : 'fal fa-check'" class="text-gray-500" fixed-width aria-hidden="true" />
+                    </template>
+                </Button>
+            </div>
+
+            <div v-if="stage.key === 'deposit_paid' && deposit" class="mt-2">
+                <Button
+                    type="tertiary"
+                    size="xs"
+                    :label="deposit.not_needed ? ctrans('Deposit needed after all') : ctrans('No deposit needed')"
+                    :tooltip="deposit.not_needed ? ctrans('The supplier wants a deposit before production') : ctrans('The supplier starts production without a deposit')"
+                    :loading="savingDeposit"
+                    @click="setDepositNotNeeded(!deposit.not_needed)"
+                >
+                    <template #icon>
+                        <FontAwesomeIcon :icon="deposit.not_needed ? 'fal fa-undo' : 'fal fa-ban'" :class="deposit.not_needed ? 'text-gray-500' : 'text-amber-600'" fixed-width aria-hidden="true" />
                     </template>
                 </Button>
             </div>

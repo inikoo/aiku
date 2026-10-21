@@ -136,7 +136,7 @@ const props = defineProps < {
         date: string | null
         number_purchase_orders: number
     }[]
-    stages?: { stages: InstanceType<typeof PurchaseOrderStages>["$props"]["stages"]; route: routeType; upload_route: routeType | null } | null
+    stages?: { stages: InstanceType<typeof PurchaseOrderStages>["$props"]["stages"]; route: routeType; upload_route: routeType | null; deposit: InstanceType<typeof PurchaseOrderStages>["$props"]["deposit"] } | null
     agent_receiving?: InstanceType<typeof AgentPurchaseOrderGoodsReceipts>["$props"]["receiving"] | null
     compliance?: object
     compliance_summary?: InstanceType<typeof TablePurchaseOrderComplianceDocuments>["$props"]["compliance"]
@@ -1107,7 +1107,7 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 		</template>
 	</PageHeading>
 
-	<PurchaseOrderStages v-if="stages" :stages="stages.stages" :route="stages.route" :uploadRoute="stages.upload_route">
+	<PurchaseOrderStages v-if="stages" :stages="stages.stages" :route="stages.route" :uploadRoute="stages.upload_route" :deposit="stages.deposit">
 		<template v-if="agent_money" #stage-deposit_paid>
 			<AgentPurchaseOrderMoney :money="agent_money" />
 		</template>
