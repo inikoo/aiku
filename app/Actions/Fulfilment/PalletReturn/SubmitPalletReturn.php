@@ -43,9 +43,9 @@ class SubmitPalletReturn extends OrgAction
     {
         $state = PalletReturn::query()->whereKey($palletReturn->id)->lockForUpdate()->value('state');
 
-        if ($state !== PalletReturnStateEnum::IN_PROCESS->value) {
+        if ($state !== PalletReturnStateEnum::IN_PROCESS) {
             throw ValidationException::withMessages([
-                'message' => __('This return is :state and cannot be submitted.', ['state' => PalletReturnStateEnum::labels()[$state] ?? $state]),
+                'message' => __('This return is :state and cannot be submitted.', ['state' => PalletReturnStateEnum::labels()[$state->value] ?? $state->value]),
             ]);
         }
     }
