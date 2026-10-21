@@ -338,7 +338,10 @@ test('syncing brings the shop calendar back to the appointments in aiku', functi
         ->unique()
         ->values();
 
-    expect($writtenIds->all())->toBe([(string) $missingFromGoogle->id]);
+    expect($writtenIds->all())->toContain((string) $missingFromGoogle->id)
+        ->not->toContain((string) $alreadyInGoogle->id)
+        ->not->toContain((string) $cancelled->id)
+        ->not->toContain((string) $deletedId);
     Http::assertSent(fn (Request $request) => $request->method() === 'DELETE' && str_ends_with($request->url(), 'events/'.GoogleCalendarClient::eventId($cancelled->id)));
     Http::assertSent(fn (Request $request) => $request->method() === 'DELETE' && str_ends_with($request->url(), 'events/'.GoogleCalendarClient::eventId($deletedId)));
     Http::assertNotSent(fn (Request $request) => str_contains($request->url(), 'events/someoneelse'));

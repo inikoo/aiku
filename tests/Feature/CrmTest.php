@@ -1118,6 +1118,7 @@ test('staff accepts, reschedules and declines an appointment request', function 
         'capacity_per_slot'   => 1,
         'availability'        => ['weekly' => array_fill_keys(range(1, 7), [['from' => '09:00', 'to' => '17:00']])],
     ]);
+    $appointmentType->attendees()->detach($this->user->id);
 
     $slots     = GetAppointmentTypeAvailableSlots::run($appointmentType);
     $date      = array_key_last($slots);
