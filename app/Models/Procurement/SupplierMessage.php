@@ -136,24 +136,11 @@ class SupplierMessage extends Model
     }
 
     /**
-     * A message about an agent order answers every supplier order in it, though only the first is
-     * stored on the message.
-     *
      * @return Collection<int, PurchaseOrder>
      */
     public function linkedPurchaseOrders(): Collection
     {
-        $purchaseOrder = $this->purchaseOrder;
-
-        if (! $purchaseOrder) {
-            return new Collection();
-        }
-
-        if (! $purchaseOrder->isAgentOrder() || ! $purchaseOrder->agent_order_reference) {
-            return new Collection([$purchaseOrder]);
-        }
-
-        return $purchaseOrder->agentOrderPurchaseOrders()->orderBy('reference')->get();
+        return new Collection($this->purchaseOrder ? [$this->purchaseOrder] : []);
     }
 
     public function dispatchedEmail(): BelongsTo

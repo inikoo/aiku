@@ -81,12 +81,8 @@ use App\Actions\SupplyChain\AspoDeposit\UI\IndexAgentDeposits;
 use App\Actions\SupplyChain\AspoDeposit\UI\ShowAgentAccountingDashboard;
 use App\Actions\SupplyChain\Supplier\UI\CreateSupplier;
 use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;
-use App\Actions\Procurement\AgentOrder\UI\IndexAgentOrders;
 use App\Actions\Procurement\AgentOrder\ExportCombinedSupplierSheet;
 use App\Actions\Procurement\AgentOrder\UI\IndexAgentSharedSuppliers;
-use App\Actions\Procurement\AgentOrder\UI\IndexAgentWholeOrders;
-use App\Actions\Procurement\AgentOrder\UI\ShowAgentOrder;
-use App\Actions\Procurement\AgentOrder\UI\ShowAgentWholeOrder;
 use App\Actions\Procurement\OrgAgent\UI\IndexAgentSalesProducts;
 use App\Actions\Procurement\OrgAgent\UI\IndexAgentSalesSuppliers;
 use App\Actions\Procurement\OrgAgent\UI\ShowAgentSales;
@@ -125,7 +121,6 @@ Route::get('sales/products', IndexAgentSalesProducts::class)->name('sales.produc
 Route::prefix('purchase-orders')->as('purchase_orders.')->group(function () {
     Route::get('', ShowAgentPurchaseOrdersDashboard::class)->name('dashboard');
     Route::get('list', IndexPurchaseOrders::class)->name('index');
-    Route::get('agent-orders', IndexAgentWholeOrders::class)->name('agent_orders');
     Route::get('shared-suppliers', IndexAgentSharedSuppliers::class)->name('shared_suppliers');
     Route::get('shared-suppliers/{supplier}/sheet', ExportCombinedSupplierSheet::class)->name('shared_suppliers.sheet');
     Route::get('board', ShowAgentPurchaseOrdersBoard::class)->name('board');
@@ -133,8 +128,6 @@ Route::prefix('purchase-orders')->as('purchase_orders.')->group(function () {
     Route::get('export', ExportPurchaseOrders::class)->name('export');
     Route::get('{purchaseOrder:id}/chase-panel', GetPurchaseOrderChasePanel::class)->name('chase_panel')->withoutScopedBindings();
     Route::get('{purchaseOrder}', ShowPurchaseOrder::class)->name('show');
-    Route::get('{purchaseOrder}/whole-order', ShowAgentWholeOrder::class)->name('whole_order');
-    Route::get('{purchaseOrder}/whole-order/pdf/{filename?}', [PdfPurchaseOrder::class, 'inWholeAgentOrder'])->name('whole_order.pdf');
     Route::get('{purchaseOrder}/edit', EditPurchaseOrder::class)->name('edit');
     Route::get('{purchaseOrder}/pdf/{filename?}', PdfPurchaseOrder::class)->name('pdf');
     Route::get('{purchaseOrder}/packing-instructions/{filename?}', PdfPackingInstructions::class)->name('packing_instructions');
@@ -143,6 +136,7 @@ Route::prefix('purchase-orders')->as('purchase_orders.')->group(function () {
 
 Route::get('incoming-purchase-orders', [IndexPurchaseOrders::class, 'inAgentIncoming'])->name('incoming_purchase_orders.index');
 Route::get('incoming-purchase-orders/count', GetAgentIncomingPurchaseOrdersCount::class)->name('incoming_purchase_orders.count');
+Route::get('incoming-purchase-orders/{purchaseOrder}', ShowPurchaseOrder::class)->name('incoming_purchase_orders.show');
 
 Route::prefix('client-orders')->as('agent_supplier_purchase_orders.')->group(function () {
     Route::get('{agentSupplierPurchaseOrder}', [ShowAgentSupplierPurchaseOrder::class, 'inOrganisation'])->name('show');
@@ -234,9 +228,6 @@ Route::prefix('agents/{orgAgent}')->as('org_agents.show')->group(function () {
     Route::get('purchase-orders', [IndexPurchaseOrders::class, 'inOrgAgent'])->name('.purchase-orders.index');
     Route::get('purchase-order/{purchaseOrder}', [ShowPurchaseOrder::class, 'inOrgAgent'])->name('.purchase-orders.show');
     Route::get('order-pipeline', ShowAgentOrderPipeline::class)->name('.order_pipeline');
-    Route::get('agent-orders', IndexAgentOrders::class)->name('.agent_orders.index');
-    Route::get('agent-orders/{agentOrderReference}/pdf/{filename?}', [PdfPurchaseOrder::class, 'inAgentOrder'])->name('.agent_orders.pdf')->where('agentOrderReference', '.*');
-    Route::get('agent-orders/{agentOrderReference}', ShowAgentOrder::class)->name('.agent_orders.show')->where('agentOrderReference', '.*');
     Route::get('org-stocks', [IndexOrgStocks::class, 'inOrgAgent'])->name('.org-stocks.index');
     Route::get('containers', [IndexStockDeliveries::class, 'inOrgAgent'])->name('.stock-deliveries.index');
     Route::get('suppliers/{orgSupplier}', [ShowOrgSupplier::class, 'inOrgAgent'])->name('.suppliers.show');

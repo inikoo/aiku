@@ -122,9 +122,14 @@ trait WithProcurementSerialReferences
 
     private function procurementReferenceIsUsed(OrgSupplier|OrgAgent|OrgPartner $parent, SerialReferenceModelEnum $model, string $reference): bool
     {
-        $query = $model === SerialReferenceModelEnum::STOCK_DELIVERY ? StockDelivery::query() : PurchaseOrder::query();
+        if ($model === SerialReferenceModelEnum::STOCK_DELIVERY) {
+            return StockDelivery::query()->where('organisation_id', $parent->organisation_id)->where('reference', $reference)->exists();
+        }
 
-        return $query->where('organisation_id', $parent->organisation_id)->where('reference', $reference)->exists();
+        return PurchaseOrder::withTrashed()
+            ->where('organisation_id', $parent->organisation_id)
+            ->where(fn ($query) => $query->where('reference', $reference)->orWhere('agent_order_reference', $reference))
+            ->exists();
     }
 
     private function parentSerialReference(OrgSupplier|OrgAgent|OrgPartner $parent, SerialReferenceModelEnum $model): ?SerialReference

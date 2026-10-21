@@ -33,9 +33,9 @@ class GetAgentMoneyRequestLines
     public const float DEFAULT_ADVANCE_PERCENTAGE = 30;
 
     /**
-     * @return array{currency_code: string, wallet: array{received: float, paid: float, balance: float}, negative_balance: float, orders: list<array{purchase_order_id: int, reference: string, agent_order_reference: string|null, supplier_id: int|null, supplier_code: string|null, supplier_name: string|null, total: float, requested: float, advance_percentage: float, advance_due: float, balance_due: float}>}
+     * @return array{currency_code: string, wallet: array{received: float, paid: float, balance: float}, negative_balance: float, orders: list<array{purchase_order_id: int, reference: string, supplier_id: int|null, supplier_code: string|null, supplier_name: string|null, total: float, requested: float, advance_percentage: float, advance_due: float, balance_due: float}>}
      */
-    public function handle(Agent $agent, Organisation $client, ?string $agentOrderReference = null): array
+    public function handle(Agent $agent, Organisation $client, ?int $purchaseOrderId = null): array
     {
         $currency = $agent->organisation->currency;
         $wallet   = collect(IndexAgentLedger::make()->wallets($agent))
@@ -62,18 +62,17 @@ class GetAgentMoneyRequestLines
             ->where('purchase_orders.organisation_id', $client->id)
             ->where('purchase_orders.agent_id', $agent->id)
             ->where('purchase_orders.currency_id', $currency->id)
-            ->whereNotNull('purchase_orders.agent_order_reference')
+            ->trackedThroughAgent()
             ->whereIn('purchase_orders.state', [PurchaseOrderStateEnum::SUBMITTED, PurchaseOrderStateEnum::CONFIRMED])
-            ->when($agentOrderReference, fn ($query) => $query->where('purchase_orders.agent_order_reference', $agentOrderReference))
+            ->when($purchaseOrderId, fn ($query) => $query->where('purchase_orders.id', $purchaseOrderId))
             ->leftJoin('suppliers', 'suppliers.id', 'purchase_orders.supplier_id')
             ->leftJoinSub($requested, 'requested', 'requested.purchase_order_id', 'purchase_orders.id')
             ->leftJoinSub($paidToSuppliers, 'paid_to_suppliers', 'paid_to_suppliers.purchase_order_id', 'purchase_orders.id')
-            ->orderBy('purchase_orders.agent_order_reference')
+            ->orderBy('purchase_orders.reference')
             ->orderBy('suppliers.code')
             ->get([
                 'purchase_orders.id',
                 'purchase_orders.reference',
-                'purchase_orders.agent_order_reference',
                 'purchase_orders.supplier_id',
                 'purchase_orders.cost_items',
                 'suppliers.code as supplier_code',
@@ -93,7 +92,6 @@ class GetAgentMoneyRequestLines
                 return [
                     'purchase_order_id'     => $purchaseOrder->id,
                     'reference'             => $purchaseOrder->reference,
-                    'agent_order_reference' => $purchaseOrder->agent_order_reference,
                     'supplier_id'           => $purchaseOrder->supplier_id,
                     'supplier_code'         => $purchaseOrder->supplier_code,
                     'supplier_name'         => $purchaseOrder->supplier_name,

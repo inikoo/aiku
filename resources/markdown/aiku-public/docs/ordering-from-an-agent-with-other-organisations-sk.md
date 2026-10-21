@@ -50,4 +50,4 @@ Návrhy sú pre agenta skryté, kým nie sú predložené. Keď predložíte, n�
 
 ## Kto to môže používať
 
-Povolenie na úpravu nákupu pre vašu organizáciu na označovanie a predkladanie. Povolenie na zobrazenie nákupu na prezeranie. K samotnej objednávke agenta pozrite [Zadanie objednávky cez agenta](/docs/placing-an-order-through-an-agent-sk).
+Povolenie na úpravu nákupu pre vašu organizáciu na označovanie a predkladanie. Povolenie na zobrazenie nákupu na prezeranie. K objednávke každému dodávateľovi pozrite [Zadanie objednávky cez agenta](/docs/placing-an-order-through-an-agent-sk).

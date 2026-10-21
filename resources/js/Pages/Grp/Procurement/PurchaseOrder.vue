@@ -907,17 +907,6 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 			<Button v-if="currentTab === 'attachments'" :label="ctrans('Attach')" icon="upload" @click="() => (isModalUploadAttachmentOpen = true)" />
 		</template>
 
-		<template #button-whole-agent-order="{ action }">
-			<Link :href="route(action.route.name, action.route.parameters)">
-				<Button
-					type="tertiary"
-					:label="action.label"
-					icon="far fa-arrow-left"
-					:tooltip="action.tooltip"
-				/>
-			</Link>
-		</template>
-
 		<template #button-pdf="{ action }">
 			<ButtonDownloadWithOptions :action="action" />
 		</template>

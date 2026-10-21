@@ -1471,10 +1471,15 @@ test('an agent\'s Excel balance sheet comes into the ledger as opening lines plu
     $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, []);
     StorePurchaseOrderTransaction::make()->action($purchaseOrder, $orgSupplierProduct->supplierProduct->historicSupplierProduct, $this->orgStocks[0], array_merge(PurchaseOrderTransaction::factory()->definition(), ['quantity_ordered' => 3]));
     $purchaseOrder->update(['agent_order_reference' => "LEDGER-$orderNumber", 'date' => '2026-01-20']);
+    $newOrderNumber   = (string) random_int(100000, 999999);
+    [$newOrgSupplier, $newOrgSupplierProduct] = createAgentOrgSupplierWithProduct($this, $orgAgent);
+    $newPurchaseOrder = StorePurchaseOrder::make()->action($newOrgSupplier, []);
+    StorePurchaseOrderTransaction::make()->action($newPurchaseOrder, $newOrgSupplierProduct->supplierProduct->historicSupplierProduct, $this->orgStocks[1], array_merge(PurchaseOrderTransaction::factory()->definition(), ['quantity_ordered' => 2]));
+    $newPurchaseOrder->update(['reference' => "LEDGER-$newOrderNumber"]);
 
     $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
     $balance     = $spreadsheet->getActiveSheet()->setTitle('Balance');
-    $balance->setCellValue('I1', 3680);
+    $balance->setCellValue('I1', 3650);
     $balance->fromArray([
         ['2025-12-01', 1000, null, 'Notes / Exchange rate', null, null, null, null, null, null],
         ['2025-12-05', null, 400, 'payment to shop', null, null, null, null, 'OLD', '12'],
@@ -1485,6 +1490,7 @@ test('an agent\'s Excel balance sheet comes into the ledger as opening lines plu
         ['2026-02-05', null, 100, 'inland charge -999999', null, null, 100, null, null, null],
         ['2026-02-06', null, 50, 'Taxi to the factory', null, null, 50, null, null, null],
         ['2026-02-07', null, 70, 'payment to shop', null, null, null, null, $this->orgStocks[0]->code, '777'],
+        ['2026-02-08', null, 30, 'payment to shop', null, null, null, null, $this->orgStocks[1]->code, $newOrderNumber],
     ], null, 'A7');
     $fund = $spreadsheet->createSheet()->setTitle('Fund');
     $fund->fromArray([['2026-01-30', 650, 'EURO', null, null, 5000]], null, 'A5');
@@ -1495,15 +1501,15 @@ test('an agent\'s Excel balance sheet comes into the ledger as opening lines plu
 
     $dryRun = $import(false);
     expect(AgentPayment::where('agent_id', $agent->id)->count())->toBe(0)
-        ->and($dryRun['rows'])->toBe(9)
+        ->and($dryRun['rows'])->toBe(10)
         ->and($dryRun['opening'])->toBe(['received' => 1000.0, 'paid' => 400.0])
-        ->and($dryRun['balance'])->toBe(3680.0)
-        ->and($dryRun['excel_balance'])->toBe(3680.0);
+        ->and($dryRun['balance'])->toBe(3650.0)
+        ->and($dryRun['excel_balance'])->toBe(3650.0);
 
     $import(true);
     $lines = AgentPayment::where('agent_id', $agent->id)->where('organisation_id', $this->organisation->id)->get()->keyBy(fn (AgentPayment $line) => $line->data['row'] ?? ($line->type->isMoneyIn() ? 'opening_in' : 'opening_out'));
 
-    expect($lines)->toHaveCount(9)
+    expect($lines)->toHaveCount(10)
         ->and((float) $lines['opening_in']->amount)->toBe(1000.0)
         ->and($lines['opening_in']->date->toDateString())->toBe('2025-12-31')
         ->and((float) $lines[9]->original_amount)->toBe(650.0)
@@ -1519,6 +1525,8 @@ test('an agent\'s Excel balance sheet comes into the ledger as opening lines plu
         ->and($lines[15]->purchase_order_id)->toBe($purchaseOrder->id)
         ->and($lines[15]->data['linked_by'])->toBe('code')
         ->and($lines[15]->needs_review)->toBeFalse()
+        ->and($lines[16]->purchase_order_id)->toBe($newPurchaseOrder->id)
+        ->and($lines[16]->needs_review)->toBeFalse()
         ->and(fn () => $import(true))->toThrow(Exception::class);
 
     setPermissionsTeamId($this->group->id);

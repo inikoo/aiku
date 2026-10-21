@@ -28,7 +28,6 @@ use App\Models\Procurement\SupplierMessage;
 use App\Models\SysAdmin\Organisation;
 use App\Services\Gmail\GmailClient;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class SendPurchaseOrderToSupplier
@@ -42,29 +41,8 @@ class SendPurchaseOrderToSupplier
      */
     public function handle(PurchaseOrder $purchaseOrder, string $channel = 'email'): DispatchedEmail|SupplierMessage|null
     {
-        return $this->send(collect([$purchaseOrder]), $purchaseOrder->reference, $channel);
-    }
-
-    /**
-     * The supplier orders of one agent order go to the agent together: one message, one PDF with
-     * a section per supplier order.
-     *
-     * @param  Collection<int, PurchaseOrder>  $purchaseOrders
-     */
-    public function sendAgentOrder(Collection $purchaseOrders, string $agentOrderReference, string $channel = 'email'): DispatchedEmail|SupplierMessage|null
-    {
-        return $this->send($purchaseOrders, $agentOrderReference, $channel);
-    }
-
-    /**
-     * @param  Collection<int, PurchaseOrder>  $purchaseOrders
-     */
-    private function send(Collection $purchaseOrders, string $reference, string $channel): DispatchedEmail|SupplierMessage|null
-    {
-        $purchaseOrder = $purchaseOrders->first();
-        $document      = $purchaseOrders->count() === 1
-            ? ['content' => PdfPurchaseOrder::make()->handle($purchaseOrder), 'filename' => PdfPurchaseOrder::make()->filename($purchaseOrder)]
-            : ['content' => PdfPurchaseOrder::make()->handleMany($purchaseOrders), 'filename' => PdfPurchaseOrder::make()->filenameFor($reference)];
+        $reference = $purchaseOrder->reference;
+        $document  = ['content' => PdfPurchaseOrder::make()->handle($purchaseOrder), 'filename' => PdfPurchaseOrder::make()->filename($purchaseOrder)];
 
         if ($channel === 'whatsapp') {
             return $this->sendByWhatsapp($purchaseOrder, $reference, $document);
@@ -88,14 +66,12 @@ class SendPurchaseOrderToSupplier
             'email_address_id' => StoreEmailAddress::run($organisation->group, $recipient)->id,
         ]);
 
-        foreach ($purchaseOrders as $order) {
-            ModelHasDispatchedEmail::create([
-                'model_type'          => 'PurchaseOrder',
-                'model_id'            => $order->id,
-                'dispatched_email_id' => $dispatchedEmail->id,
-                'outbox_id'           => $outbox->id,
-            ]);
-        }
+        ModelHasDispatchedEmail::create([
+            'model_type'          => 'PurchaseOrder',
+            'model_id'            => $purchaseOrder->id,
+            'dispatched_email_id' => $dispatchedEmail->id,
+            'outbox_id'           => $outbox->id,
+        ]);
 
         $subject = __('Purchase order :reference from :organisation', [
             'reference'    => $reference,
@@ -107,9 +83,8 @@ class SendPurchaseOrderToSupplier
             'date'             => $purchaseOrder->submitted_at ?? now(),
             'supplierName'     => self::counterpartName($counterpart, contact: true),
             'organisationName' => $organisation->name,
-            'numberItems'      => $purchaseOrders->sum(fn (PurchaseOrder $order) => $order->purchaseOrderTransactions->count()),
-            'supplierOrders'   => $purchaseOrders->count() > 1 ? $purchaseOrders->map(fn (PurchaseOrder $order) => ['reference' => $order->reference, 'supplier' => $order->parent_name])->all() : [],
-            'agreedTerms'      => $purchaseOrders->count() > 1 ? [] : GetPurchaseOrderAgreedTerms::run($purchaseOrder, forDocument: true)
+            'numberItems'      => $purchaseOrder->purchaseOrderTransactions->count(),
+            'agreedTerms'      => GetPurchaseOrderAgreedTerms::run($purchaseOrder, forDocument: true)
                 ->map(fn (SupplierAgreedTerm $term) => ['term' => $term->term_type->label().($term->product_code ? ' ('.$term->product_code.')' : ''), 'value' => $term->valueLabel()])->all(),
         ])->render();
 

@@ -50,4 +50,4 @@ Los borradores permanecen ocultos para el agente hasta que se envían. Si envía
 
 ## Quién puede usarlo
 
-Permiso de edición de compras para tu organización para marcar y enviar. Permiso de visualización de compras para consultar. Para el pedido de agente en sí, consulta [Hacer un pedido a través de un agente](/docs/placing-an-order-through-an-agent-es).
+Permiso de edición de compras para tu organización para marcar y enviar. Permiso de visualización de compras para consultar. Para el pedido a cada proveedor, consulta [Hacer un pedido a través de un agente](/docs/placing-an-order-through-an-agent-es).

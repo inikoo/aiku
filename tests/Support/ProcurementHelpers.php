@@ -554,7 +554,7 @@ function readServiceInvoiceDocument($test, StockDelivery $stockDelivery, string 
 /**
  * @return array<int, PurchaseOrder>
  */
-function createAgentOrderToSend(object $test, OrgAgent $orgAgent, int $numberOfOrders): array
+function createAgentPurchaseOrders(object $test, OrgAgent $orgAgent, int $numberOfOrders): array
 {
     $orders = [];
 

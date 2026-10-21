@@ -73,10 +73,10 @@ const money = (amount: number) => locale.currencyFormat(props.currency_code, amo
 					v-for="order in item.orders"
 					:key="order.reference"
 					:href="route(order.route.name, order.route.parameters)"
-					v-tooltip="`${order.reference} · ${order.state_label} · ${useFormatTime(order.date)}`"
+					v-tooltip="`${order.state_label} · ${useFormatTime(order.date)}`"
 					class="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-gray-200 px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-100">
 					<span class="font-semibold uppercase text-gray-700">{{ order.client_code }}</span>
-					<span>{{ order.agent_order_reference }}</span>
+					<span>{{ order.reference }}</span>
 					<span class="text-gray-400">{{ money(order.amount) }}</span>
 				</Link>
 			</div>

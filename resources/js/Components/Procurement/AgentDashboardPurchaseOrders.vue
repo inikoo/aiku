@@ -3,14 +3,13 @@ import { computed, inject } from "vue"
 import { Link } from "@inertiajs/vue3"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faClipboardCheck, faExclamationTriangle, faBoxOpen, faClipboardList, faChevronRight, faPersonDolly, faTruckContainer, faShip, faIndustryAlt } from "@fal"
-import { useFormatTime } from "@/Composables/useFormatTime"
+import { faClipboardCheck, faExclamationTriangle, faBoxOpen, faClipboardList, faChevronRight, faPersonDolly, faShip, faIndustryAlt } from "@fal"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 import { ctrans } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
 import InformationIcon from "@/Components/Utils/InformationIcon.vue"
 
-library.add(faClipboardCheck, faExclamationTriangle, faBoxOpen, faClipboardList, faChevronRight, faPersonDolly, faTruckContainer, faShip, faIndustryAlt)
+library.add(faClipboardCheck, faExclamationTriangle, faBoxOpen, faClipboardList, faChevronRight, faPersonDolly, faShip, faIndustryAlt)
 
 export interface AgentDashboardPurchaseOrdersData {
 	currency: string
@@ -37,7 +36,6 @@ export interface AgentDashboardPurchaseOrdersData {
 		reference: string
 		supplier: string
 		organisation: string | null
-		agent_order: string | null
 		state: string
 		state_label: string
 		amount: number
@@ -54,18 +52,6 @@ export interface AgentDashboardPurchaseOrdersData {
 		unconfirmed: number
 		overdue: number
 		oldest_unconfirmed_days: number | null
-		route: routeType
-	}[]
-	agent_orders: {
-		reference: string
-		open_count: number
-		open_value: number
-		unconfirmed: number
-		confirmed: number
-		overdue: number
-		suppliers: number
-		oldest_days: number
-		expected_at: string | null
 		route: routeType
 	}[]
 	organisations: { name: string; code: string; open_count: number; open_value: number }[]
@@ -237,7 +223,6 @@ const toneClasses: Record<string, string> = {
 							<p class="truncate text-xs text-gray-500">
 								{{ purchaseOrder.supplier }}
 								<span v-if="purchaseOrder.organisation"> · {{ purchaseOrder.organisation }}</span>
-								<span v-if="purchaseOrder.agent_order"> · {{ purchaseOrder.agent_order }}</span>
 							</p>
 						</div>
 						<span class="hidden text-xs text-gray-500 sm:block">{{ purchaseOrder.state_label }}</span>
@@ -289,40 +274,5 @@ const toneClasses: Record<string, string> = {
 			</section>
 		</div>
 
-		<section v-if="data.agent_orders.length" class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-			<header class="flex items-center gap-2 border-b border-gray-200 px-4 py-3">
-				<FontAwesomeIcon icon="fal fa-truck-container" class="text-gray-400" fixed-width aria-hidden="true" />
-				<h2 class="text-sm font-semibold text-gray-700">{{ ctrans("Agent orders still open, oldest first") }}</h2>
-				<InformationIcon :information="ctrans('Your orders grouped by agent order reference, with how many of their supplier orders are confirmed, unconfirmed or late.')" class="text-xs text-gray-500" />
-			</header>
-			<table class="w-full text-sm">
-				<thead class="bg-gray-50 text-xs text-gray-500">
-					<tr>
-						<th class="px-4 py-2 text-left font-medium">{{ ctrans("Agent order") }}</th>
-						<th class="px-4 py-2 text-right font-medium">{{ ctrans("Sub-suppliers") }}</th>
-						<th class="px-4 py-2 text-right font-medium">{{ ctrans("Unconfirmed") }}</th>
-						<th class="px-4 py-2 text-right font-medium">{{ ctrans("Confirmed") }}</th>
-						<th class="hidden px-4 py-2 text-right font-medium sm:table-cell">{{ ctrans("Late") }}</th>
-						<th class="px-4 py-2 text-right font-medium">{{ ctrans("Open value") }}</th>
-						<th class="hidden px-4 py-2 text-right font-medium md:table-cell">{{ ctrans("Oldest") }}</th>
-						<th class="hidden px-4 py-2 text-right font-medium md:table-cell">{{ ctrans("Expected") }}</th>
-					</tr>
-				</thead>
-				<tbody class="divide-y divide-gray-100">
-					<tr v-for="agentOrder in data.agent_orders" :key="agentOrder.reference" class="hover:bg-gray-50">
-						<td class="px-4 py-2 font-medium">
-							<Link :href="href(agentOrder.route)" class="text-gray-900 hover:underline">{{ agentOrder.reference }}</Link>
-						</td>
-						<td class="px-4 py-2 text-right tabular-nums text-gray-600">{{ agentOrder.suppliers }}</td>
-						<td class="px-4 py-2 text-right tabular-nums" :class="agentOrder.unconfirmed ? 'text-amber-700' : 'text-gray-400'">{{ agentOrder.unconfirmed }}</td>
-						<td class="px-4 py-2 text-right tabular-nums" :class="agentOrder.confirmed ? 'text-gray-700' : 'text-gray-400'">{{ agentOrder.confirmed }}</td>
-						<td class="hidden px-4 py-2 text-right tabular-nums sm:table-cell" :class="agentOrder.overdue ? 'font-semibold text-red-600' : 'text-gray-400'">{{ agentOrder.overdue }}</td>
-						<td class="px-4 py-2 text-right tabular-nums text-gray-700">{{ money(agentOrder.open_value) }}</td>
-						<td class="hidden px-4 py-2 text-right tabular-nums text-gray-500 md:table-cell">{{ days(agentOrder.oldest_days) }}</td>
-						<td class="hidden px-4 py-2 text-right text-gray-500 md:table-cell">{{ agentOrder.expected_at ? useFormatTime(agentOrder.expected_at) : "—" }}</td>
-					</tr>
-				</tbody>
-			</table>
-		</section>
 	</div>
 </template>

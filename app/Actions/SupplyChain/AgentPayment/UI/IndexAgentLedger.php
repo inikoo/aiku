@@ -321,7 +321,7 @@ class IndexAgentLedger extends OrgAction
     {
         return PurchaseOrder::where('agent_id', $this->agent->id)
             ->whereIn('organisation_id', $clients->pluck('id'))
-            ->whereNotNull('agent_order_reference')
+            ->trackedThroughAgent()
             ->where(fn ($query) => $query
                 ->whereIn('state', [PurchaseOrderStateEnum::SUBMITTED, PurchaseOrderStateEnum::CONFIRMED])
                 ->orWhere(fn ($query) => $query->where('state', PurchaseOrderStateEnum::SETTLED)->where('date', '>=', now()->subMonths(6))))

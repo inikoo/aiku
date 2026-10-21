@@ -37,10 +37,6 @@ use App\Actions\SupplyChain\AgentPayment\UpdateAgentLedgerEntry;
 use App\Actions\SupplyChain\AgentPayment\StoreAgentPayment;
 use App\Actions\SupplyChain\SupplierPayment\DeleteSupplierPayment;
 use App\Actions\SupplyChain\SupplierPayment\StoreSupplierPayment;
-use App\Actions\Procurement\AgentOrder\StoreAgentOrder;
-use App\Actions\Procurement\AgentOrder\StoreAgentOrderLine;
-use App\Actions\Procurement\AgentOrder\DeleteAgentOrder;
-use App\Actions\Procurement\AgentOrder\SubmitAgentOrder;
 use App\Actions\Accounting\CreditTransaction\DecreaseCreditTransactionCustomer;
 use App\Http\Middleware\EnsureNotHandledInAurora;
 use App\Actions\Accounting\CreditTransaction\IncreaseCreditTransactionCustomer;
@@ -541,7 +537,6 @@ use App\Actions\SupplyChain\SupplierChangeRequest\StoreSupplierChangeRequest;
 use App\Actions\Procurement\PurchaseOrder\AttachPurchaseOrderComplianceDocument;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToCancelled;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToConfirmed;
-use App\Actions\Procurement\AgentOrder\ConfirmAgentWholeOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToInProcess;
 use App\Actions\Procurement\PurchaseOrder\SetPurchaseOrderReadyToSend;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToSubmitted;
@@ -1901,12 +1896,6 @@ Route::post('stock-delivery-claim/{stockDeliveryClaim:id}/update', UpdateStockDe
 Route::name('org-supplier.')->prefix('org-supplier/{orgSupplier:id}')->group(function () {
     Route::post('purchase-order/store', [StorePurchaseOrder::class, 'inOrgSupplier'])->name('purchase-order.store');
 });
-Route::name('org-agent.agent-order.')->prefix('org-agent/{orgAgent:id}/agent-order')->group(function () {
-    Route::post('', StoreAgentOrder::class)->name('store');
-    Route::post('line/{orgSupplierProduct:id}', StoreAgentOrderLine::class)->name('line.store')->withoutScopedBindings();
-    Route::patch('submit', SubmitAgentOrder::class)->name('submit');
-    Route::delete('', DeleteAgentOrder::class)->name('delete');
-});
 Route::name('org-partner.')->prefix('org-partner/{orgPartner:id}')->group(function () {
     Route::post('purchase-order/store', [StorePurchaseOrder::class, 'inOrgPartner'])->name('purchase-order.store');
     Route::post('rescue-purchase-order', StoreRescuePurchaseOrder::class)->name('rescue_purchase_order.store');
@@ -1929,7 +1918,6 @@ Route::name('purchase-order.')->prefix('purchase-order/{purchaseOrder:id}')->gro
     Route::post('note', [StoreProcurementNote::class, 'inPurchaseOrder'])->name('note.store');
     Route::post('agreed-terms/accept', [AcceptAgreedTermDifferences::class, 'inPurchaseOrder'])->name('agreed_terms.accept');
     Route::patch('confirm', UpdatePurchaseOrderStateToConfirmed::class)->name('confirm');
-    Route::patch('agent-order/confirm', ConfirmAgentWholeOrder::class)->name('agent_order.confirm');
     Route::patch('undo-confirm', RevertPurchaseOrderToSubmitted::class)->name('undo-confirm');
     Route::patch('cancel', UpdatePurchaseOrderStateToCancelled::class)->name('cancel');
     Route::post('stock-delivery', StoreStockDeliveryFromPurchaseOrder::class)->name('stock-delivery.store');

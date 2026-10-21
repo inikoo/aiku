@@ -43,7 +43,7 @@ class CombinedSupplierSheetExport implements FromArray, ShouldAutoSize, WithTitl
 
     public static function cartonMark(PurchaseOrder $purchaseOrder): string
     {
-        return $purchaseOrder->organisation->code.' · '.$purchaseOrder->agent_order_reference;
+        return $purchaseOrder->organisation->code.' · '.$purchaseOrder->reference;
     }
 
     public function array(): array
@@ -62,7 +62,6 @@ class CombinedSupplierSheetExport implements FromArray, ShouldAutoSize, WithTitl
 
             $rows[] = [
                 $purchaseOrder->organisation->code.' · '.$purchaseOrder->organisation->name,
-                $purchaseOrder->agent_order_reference,
                 $purchaseOrder->reference,
                 $purchaseOrder->date?->toDateString(),
                 $purchaseOrder->state->labels()[$purchaseOrder->state->value],
