@@ -61,6 +61,24 @@ it('captures an instagram ads click as its own channel', function () {
     expect($cookies['aiku_lts']['value'])->toBe('uig-120230926608450511');
 });
 
+it('captures a meta ads click tagged with utm_medium=Ads and the campaign id in utm_id', function () {
+    irisAjaxRequest('https://ecom.test/?utm_source=Facebook&utm_medium=Ads&utm_campaign=Registration&utm_content=Carousel&fbclid=XYZ&utm_id=120201872641450667');
+
+    expect(CaptureTrafficSource::make()->getCookies()['aiku_lts']['value'])->toBe('f120201872641450667');
+});
+
+it('captures an instagram ads click whose campaign id rides in utm_id', function () {
+    irisAjaxRequest('https://ecom.test/?utm_source=ig&utm_medium=CPC&utm_campaign=Purchase&fbclid=XYZ&utm_id=120204931146880667');
+
+    expect(CaptureTrafficSource::make()->getCookies()['aiku_lts']['value'])->toBe('uig-120204931146880667');
+});
+
+it('does not take a facebook link without a paid medium for an ad', function () {
+    irisAjaxRequest('https://ecom.test/?fbclid=XYZ&utm_source=Facebook&utm_medium=social');
+
+    expect(CaptureTrafficSource::make()->getCookies()['aiku_lts']['value'] ?? '')->not->toStartWith('f');
+});
+
 it('keeps the other meta placements under meta ads', function () {
     irisAjaxRequest('https://ecom.test/?fbclid=XYZ&utm_source=an&utm_medium=paid&utm_campaign=120230926608450511');
 
