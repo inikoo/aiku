@@ -19,6 +19,8 @@ class StoreAppointment extends OrgAction
     use WithAppointmentRules;
     use WithAppointmentNotification;
 
+    private bool $notifyVisitor = true;
+
     /**
      * @throws \Throwable
      */
@@ -38,7 +40,9 @@ class StoreAppointment extends OrgAction
             /** @var Appointment $appointment */
             $appointment = $shop->appointments()->create($modelData);
 
-            $this->notifyVisitorAboutNewAppointment($appointment);
+            if ($this->notifyVisitor) {
+                $this->notifyVisitorAboutNewAppointment($appointment);
+            }
 
             return $appointment;
         });
@@ -99,11 +103,15 @@ class StoreAppointment extends OrgAction
         ]);
     }
 
-    public function action(Shop $shop, array $modelData): Appointment
+    /**
+     * @param array<string, mixed> $data kept on the appointment as it is, e.g. where it was imported from
+     */
+    public function action(Shop $shop, array $modelData, bool $notifyVisitor = true, array $data = []): Appointment
     {
-        $this->asAction = true;
+        $this->asAction      = true;
+        $this->notifyVisitor = $notifyVisitor;
         $this->initialisationFromShop($shop, $modelData);
 
-        return $this->handle($shop, $this->validatedData);
+        return $this->handle($shop, $data ? [...$this->validatedData, 'data' => $data] : $this->validatedData);
     }
 }

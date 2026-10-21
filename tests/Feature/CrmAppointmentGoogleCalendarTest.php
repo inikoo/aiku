@@ -2,6 +2,7 @@
 
 use App\Actions\CRM\Appointment\GoogleCalendar\CallbackShopGoogleCalendar;
 use App\Actions\CRM\Appointment\GoogleCalendar\DisconnectShopGoogleCalendar;
+use App\Actions\CRM\Appointment\GoogleCalendar\ReconcileShopGoogleCalendar;
 use App\Actions\CRM\Appointment\GoogleCalendar\SyncAppointmentGoogleCalendarEvent;
 use App\Actions\CRM\Appointment\StoreAppointment;
 use App\Actions\CRM\Appointment\UpdateAppointment;
@@ -10,6 +11,7 @@ use App\Actions\CRM\AppointmentType\StoreAppointmentType;
 use App\Enums\CRM\Appointment\AppointmentStateEnum;
 use App\Enums\CRM\AppointmentType\AppointmentTypeMeetingModeEnum;
 use App\Models\Catalogue\Shop;
+use App\Models\CRM\Appointment;
 use App\Models\CRM\AppointmentType;
 use App\Services\GoogleCalendar\GoogleCalendarClient;
 use Illuminate\Http\Client\Request;
@@ -22,6 +24,10 @@ use Illuminate\Support\Str;
 use Lorisleiva\Actions\Decorators\JobDecorator;
 
 use function Pest\Laravel\actingAs;
+
+beforeAll(function () {
+    loadDB();
+});
 
 beforeEach(function () {
     list($this->organisation, $this->user, $this->shop) = createShop();
@@ -109,6 +115,18 @@ test('the connect button sends the shop admin to Google', function () {
         ->assertRedirectContains('client_id=calendar-client-id');
 });
 
+test('a configured redirect uri replaces the callback route when sending the shop admin to Google', function () {
+    config([
+        'services.google_calendar.client_id'     => 'calendar-client-id',
+        'services.google_calendar.client_secret' => 'calendar-client-secret',
+        'services.google_calendar.redirect_uri'  => 'http://localhost:8765/google-calendar/callback',
+    ]);
+
+    actingAs($this->user)
+        ->get(route('grp.org.shops.show.settings.google_calendar.connect', [$this->organisation->slug, $this->shop->slug]))
+        ->assertRedirectContains('redirect_uri='.urlencode('http://localhost:8765/google-calendar/callback'));
+});
+
 test('the connect button explains the missing credentials instead of sending the shop admin to Google', function () {
     config(['services.google_calendar.client_id' => null, 'services.google_calendar.client_secret' => null]);
 
@@ -173,4 +191,69 @@ test('time taken in the shop calendar is not offered to website visitors', funct
 
     expect($slotsBeforeConnecting)->toBe(['09:00', '10:00', '11:00', '12:00'])
         ->and($slots)->toBe(['09:00', '11:00', '12:00']);
+});
+
+test('syncing brings the shop calendar back to the appointments in aiku', function () {
+    ($this->connectCalendar)();
+    Queue::fake();
+
+    $timezone        = $this->shop->timezone?->name ?? 'UTC';
+    $appointmentType = ($this->appointmentType)();
+    $book            = fn (int $days) => StoreAppointment::make()->action($this->shop, [
+        'appointment_type_id' => $appointmentType->id,
+        'starts_at'           => now($timezone)->addDays($days)->format('Y-m-d').' 12:00',
+        'contact_name'        => 'Calendar visitor '.Str::random(6),
+    ]);
+
+    $missingFromGoogle = $book(11);
+    $alreadyInGoogle   = $book(12);
+    $cancelled         = $book(13);
+    UpdateAppointment::make()->action($cancelled, ['state' => AppointmentStateEnum::CANCELLED->value]);
+
+    $sync           = SyncAppointmentGoogleCalendarEvent::make();
+    $deletedId      = (int) Appointment::withTrashed()->max('id') + 1000;
+    $orphanEvent    = [...$sync->event($cancelled->refresh()), 'extendedProperties' => ['private' => [GoogleCalendarClient::EVENT_PROPERTY => (string) $deletedId]]];
+    $unrelatedEvent = ['summary' => 'Team lunch', 'start' => ['dateTime' => now()->addDays(11)->toIso8601String()], 'end' => ['dateTime' => now()->addDays(11)->addHour()->toIso8601String()]];
+
+    ($this->fakeGoogle)([
+        ['id' => GoogleCalendarClient::eventId($alreadyInGoogle->id), ...$sync->event($alreadyInGoogle->refresh())],
+        ['id' => GoogleCalendarClient::eventId($cancelled->id), ...$sync->event($cancelled)],
+        ['id' => GoogleCalendarClient::eventId($deletedId), ...$orphanEvent],
+        ['id' => 'someoneelse', ...$unrelatedEvent],
+    ]);
+
+    actingAs($this->user)
+        ->from(route('grp.org.shops.show.settings.edit', [$this->organisation->slug, $this->shop->slug]))
+        ->post(route('grp.org.shops.show.settings.google_calendar.sync', [$this->organisation->slug, $this->shop->slug]))
+        ->assertSessionHas('notification.status', 'success');
+
+    Queue::assertPushed(JobDecorator::class, fn ($job) => $job->displayName() === ReconcileShopGoogleCalendar::class);
+    Http::assertNothingSent();
+
+    ReconcileShopGoogleCalendar::make()->handle($this->shop->refresh());
+
+    $writtenIds = collect(Http::recorded())
+        ->map(fn (array $exchange) => $exchange[0])
+        ->filter(fn (Request $request) => in_array($request->method(), ['PUT', 'POST']) && str_contains($request->url(), '/events'))
+        ->map(fn (Request $request) => Arr::get($request->data(), 'extendedProperties.private.'.GoogleCalendarClient::EVENT_PROPERTY))
+        ->unique()
+        ->values();
+
+    expect($writtenIds->all())->toBe([(string) $missingFromGoogle->id]);
+    Http::assertSent(fn (Request $request) => $request->method() === 'DELETE' && str_ends_with($request->url(), 'events/'.GoogleCalendarClient::eventId($cancelled->id)));
+    Http::assertSent(fn (Request $request) => $request->method() === 'DELETE' && str_ends_with($request->url(), 'events/'.GoogleCalendarClient::eventId($deletedId)));
+    Http::assertNotSent(fn (Request $request) => str_contains($request->url(), 'events/someoneelse'));
+});
+
+test('the calendar sync command runs and an event at the same moment in another timezone counts as unchanged', function () {
+    $this->artisan('appointments:reconcile-google-calendar')->assertSuccessful();
+
+    expect(ReconcileShopGoogleCalendar::make()->sameEvent(
+        ['summary' => 'Visit', 'status' => 'confirmed', 'start' => ['dateTime' => '2026-11-02T12:00:00+00:00'], 'end' => ['dateTime' => '2026-11-02T13:00:00+00:00']],
+        ['summary' => 'Visit', 'status' => 'confirmed', 'start' => ['dateTime' => '2026-11-02T13:00:00+01:00'], 'end' => ['dateTime' => '2026-11-02T14:00:00+01:00']],
+    ))->toBeTrue()
+        ->and(ReconcileShopGoogleCalendar::make()->sameEvent(
+            ['summary' => 'Visit', 'description' => "Accepted\nhttp://app.aiku.test/appointments/1", 'status' => 'confirmed', 'start' => ['dateTime' => '2026-11-02T12:00:00+00:00'], 'end' => ['dateTime' => '2026-11-02T13:00:00+00:00']],
+            ['summary' => 'Visit', 'description' => "Accepted\nhttps://app.aiku.test/appointments/1", 'status' => 'confirmed', 'start' => ['dateTime' => '2026-11-02T12:00:00+00:00'], 'end' => ['dateTime' => '2026-11-02T13:00:00+00:00']],
+        ))->toBeTrue();
 });

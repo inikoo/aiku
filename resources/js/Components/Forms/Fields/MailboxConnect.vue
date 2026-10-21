@@ -3,7 +3,7 @@ import { ref, onMounted } from "vue"
 import { router } from "@inertiajs/vue3"
 import { ctrans } from "@/Composables/useTrans"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faEnvelope, faCheckCircle, faExclamationTriangle } from "@fal"
+import { faEnvelope, faCheckCircle, faExclamationTriangle, faSyncAlt } from "@fal"
 import Dialog from "primevue/dialog"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { useFormatTime } from "@/Composables/useFormatTime"
@@ -19,6 +19,7 @@ const props = defineProps<{
             revoked_at?: string | null
             connect_url: string
             disconnect_route: { name: string; parameters: any }
+            sync_route?: { name: string; parameters: any }
             inbox_url?: string
             connected_query?: string
             texts?: {
@@ -31,12 +32,14 @@ const props = defineProps<{
                 connect?: string
                 reconnect?: string
                 revoked?: string
+                sync?: string
             }
         }
     }
 }>()
 
 const isDisconnecting = ref(false)
+const isSyncing = ref(false)
 const showSuccessDialog = ref(false)
 
 const connectedQuery = props.fieldData.value.connected_query ?? "mailbox_connected"
@@ -61,6 +64,17 @@ const disconnect = () => {
     router.post(route(props.fieldData.value.disconnect_route.name, props.fieldData.value.disconnect_route.parameters), {}, {
         onStart: () => (isDisconnecting.value = true),
         onFinish: () => (isDisconnecting.value = false),
+    })
+}
+
+const sync = () => {
+    if (!props.fieldData.value.sync_route) {
+        return
+    }
+    router.post(route(props.fieldData.value.sync_route.name, props.fieldData.value.sync_route.parameters), {}, {
+        preserveScroll: true,
+        onStart: () => (isSyncing.value = true),
+        onFinish: () => (isSyncing.value = false),
     })
 }
 </script>
@@ -102,7 +116,14 @@ const disconnect = () => {
                         {{ fieldData.value.texts?.connected ?? ctrans("Customer emails arriving in this mailbox appear as conversations in the CRM inbox. Replies written there are sent from this address.") }}
                     </p>
                 </div>
-                <Button :label="ctrans('Disconnect')" type="negative" size="xs" :loading="isDisconnecting" @click="disconnect" />
+                <div class="flex shrink-0 gap-2">
+                    <Button v-if="fieldData.value.sync_route && !fieldData.value.revoked_at" :label="fieldData.value.texts?.sync ?? ctrans('Sync now')" type="tertiary" size="xs" :loading="isSyncing" @click="sync">
+                        <template #icon>
+                            <FontAwesomeIcon :icon="faSyncAlt" class="text-gray-500" fixed-width />
+                        </template>
+                    </Button>
+                    <Button :label="ctrans('Disconnect')" type="negative" size="xs" :loading="isDisconnecting" @click="disconnect" />
+                </div>
             </div>
         </template>
 

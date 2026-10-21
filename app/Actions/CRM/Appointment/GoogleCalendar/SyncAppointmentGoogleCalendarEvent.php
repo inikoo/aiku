@@ -41,13 +41,18 @@ class SyncAppointmentGoogleCalendarEvent
             return;
         }
 
-        if ($appointment->trashed() || in_array($appointment->state, AppointmentStateEnum::closed(), true)) {
+        if (!$this->belongsInCalendar($appointment)) {
             $client->deleteEvent($appointment->id);
 
             return;
         }
 
         $client->saveEvent($appointment->id, $this->event($appointment));
+    }
+
+    public function belongsInCalendar(Appointment $appointment): bool
+    {
+        return !$appointment->trashed() && !in_array($appointment->state, AppointmentStateEnum::closed(), true);
     }
 
     public function event(Appointment $appointment): array

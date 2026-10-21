@@ -23,6 +23,8 @@ final class GoogleCalendarClient
 
     public const string EVENT_PROPERTY = 'aiku_appointment_id';
 
+    public const string BLOCK_EVENT_PROPERTY = 'aiku_appointment_block_id';
+
     private const string OAUTH_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 
     private const string OAUTH_TOKEN_URL = 'https://oauth2.googleapis.com/token';
@@ -46,7 +48,7 @@ final class GoogleCalendarClient
 
     public static function redirectUri(): string
     {
-        return route('grp.google_calendar.callback');
+        return config('services.google_calendar.redirect_uri') ?: route('grp.google_calendar.callback');
     }
 
     public static function authorizationUrl(string $state): string
@@ -88,6 +90,11 @@ final class GoogleCalendarClient
         return 'aikuappointment'.$appointmentId;
     }
 
+    public static function blockEventId(int $blockId): string
+    {
+        return 'aikublock'.$blockId;
+    }
+
     public static function calendarName(string $accessToken): ?string
     {
         return Http::withToken($accessToken)
@@ -127,7 +134,16 @@ final class GoogleCalendarClient
 
     public function saveEvent(int $appointmentId, array $event): void
     {
-        $eventId  = self::eventId($appointmentId);
+        $this->putEvent(self::eventId($appointmentId), $event);
+    }
+
+    public function deleteEvent(int $appointmentId): void
+    {
+        $this->removeEvent(self::eventId($appointmentId));
+    }
+
+    public function putEvent(string $eventId, array $event): void
+    {
         $response = $this->request()->put('events/'.$eventId, $event);
 
         if ($response->notFound()) {
@@ -137,9 +153,9 @@ final class GoogleCalendarClient
         $response->throw();
     }
 
-    public function deleteEvent(int $appointmentId): void
+    public function removeEvent(string $eventId): void
     {
-        $response = $this->request()->delete('events/'.self::eventId($appointmentId));
+        $response = $this->request()->delete('events/'.$eventId);
 
         if (!$response->notFound() && $response->status() !== 410) {
             $response->throw();
@@ -147,12 +163,61 @@ final class GoogleCalendarClient
     }
 
     /**
-     * Time taken in the calendar by anything other than our own appointments. An event marked as
+     * Time taken in the calendar by anything other than our own appointments and blocks. An event marked as
      * free in Google does not block, and an all-day event blocks the whole day.
      *
      * @return Collection<int, array{0: Carbon, 1: Carbon}>
      */
     public function busyPeriods(Carbon $from, Carbon $to, string $timezone): Collection
+    {
+        return $this->events($from, $to, $timezone)
+            ->reject(fn (array $event) => Arr::get($event, 'status') === 'cancelled'
+                || Arr::get($event, 'transparency') === 'transparent'
+                || filled(Arr::get($event, 'extendedProperties.private.'.self::EVENT_PROPERTY))
+                || filled(Arr::get($event, 'extendedProperties.private.'.self::BLOCK_EVENT_PROPERTY)))
+            ->map(fn (array $event) => [
+                $this->eventTime(Arr::get($event, 'start', []), $timezone),
+                $this->eventTime(Arr::get($event, 'end', []), $timezone),
+            ])
+            ->filter(fn (array $period) => $period[0] && $period[1])
+            ->values();
+    }
+
+    /**
+     * The events Aiku wrote for appointments, keyed by appointment id.
+     *
+     * @return Collection<int, array<string, mixed>>
+     */
+    public function appointmentEvents(Carbon $from, Carbon $to): Collection
+    {
+        return $this->taggedEvents($from, $to, self::EVENT_PROPERTY);
+    }
+
+    /**
+     * The events Aiku wrote for blocked time, keyed by block id.
+     *
+     * @return Collection<int, array<string, mixed>>
+     */
+    public function blockEvents(Carbon $from, Carbon $to): Collection
+    {
+        return $this->taggedEvents($from, $to, self::BLOCK_EVENT_PROPERTY);
+    }
+
+    /**
+     * @return Collection<int, array<string, mixed>>
+     */
+    private function taggedEvents(Carbon $from, Carbon $to, string $property): Collection
+    {
+        return $this->events($from, $to)
+            ->reject(fn (array $event) => Arr::get($event, 'status') === 'cancelled')
+            ->filter(fn (array $event) => filled(Arr::get($event, 'extendedProperties.private.'.$property)))
+            ->keyBy(fn (array $event) => (int) Arr::get($event, 'extendedProperties.private.'.$property));
+    }
+
+    /**
+     * @return Collection<int, array<string, mixed>>
+     */
+    private function events(Carbon $from, Carbon $to, ?string $timezone = null): Collection
     {
         $events    = collect();
         $pageToken = null;
@@ -171,16 +236,7 @@ final class GoogleCalendarClient
             $pageToken = $response->json('nextPageToken');
         } while ($pageToken);
 
-        return $events
-            ->reject(fn (array $event) => Arr::get($event, 'status') === 'cancelled'
-                || Arr::get($event, 'transparency') === 'transparent'
-                || filled(Arr::get($event, 'extendedProperties.private.'.self::EVENT_PROPERTY)))
-            ->map(fn (array $event) => [
-                $this->eventTime(Arr::get($event, 'start', []), $timezone),
-                $this->eventTime(Arr::get($event, 'end', []), $timezone),
-            ])
-            ->filter(fn (array $period) => $period[0] && $period[1])
-            ->values();
+        return $events;
     }
 
     private function eventTime(array $time, string $timezone): ?Carbon

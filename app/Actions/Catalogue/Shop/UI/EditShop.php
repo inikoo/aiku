@@ -1289,6 +1289,10 @@ class EditShop extends OrgAction
                                     'name'       => 'grp.org.shops.show.settings.google_calendar.disconnect',
                                     'parameters' => [$shop->organisation->slug, $shop->slug],
                                 ],
+                                'sync_route'       => [
+                                    'name'       => 'grp.org.shops.show.settings.google_calendar.sync',
+                                    'parameters' => [$shop->organisation->slug, $shop->slug],
+                                ],
                                 'connected_query'  => 'google_calendar_connected',
                                 'texts'            => [
                                     'connected'           => __('Every appointment of this shop is written into this calendar, and time already taken in it is not offered to visitors on the website.'),
@@ -1300,6 +1304,7 @@ class EditShop extends OrgAction
                                     'connect'             => __('Connect Google Calendar'),
                                     'reconnect'           => __('Reconnect Google Calendar'),
                                     'revoked'             => __('Appointments are not written into it until it is reconnected.'),
+                                    'sync'                => __('Sync now'),
                                 ],
                             ],
                         ],

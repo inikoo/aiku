@@ -2,9 +2,11 @@
 
 namespace App\Actions\CRM\Appointment\UI;
 
+use App\Actions\CRM\AppointmentType\GetAppointmentTypeAvailableSlots;
 use App\Enums\CRM\Appointment\AppointmentStateEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Appointment;
+use App\Models\CRM\AppointmentType;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -37,8 +39,14 @@ trait WithAppointmentForm
                 'type'        => 'appointment_slot',
                 'label'       => __('Date and time'),
                 'required'    => true,
-                'information' => __('In the shop\'s timezone (:timezone).', ['timezone' => $timezone]),
-                'minuteStep'  => 30,
+                'full'        => true,
+                'information' => __('Only the free times of the chosen type are offered, the same as on the website. In the shop\'s timezone (:timezone).', ['timezone' => $timezone]),
+                'timezone'            => $timezone,
+                'appointment_type_id' => $appointment?->appointment_type_id,
+                'slots'       => (object) $shop->appointmentTypes()
+                    ->get()
+                    ->mapWithKeys(fn (AppointmentType $appointmentType) => [$appointmentType->id => (object) GetAppointmentTypeAvailableSlots::run($appointmentType)])
+                    ->all(),
                 'value'       => $appointment?->starts_at->copy()->setTimezone($timezone)->format('Y-m-d H:i'),
             ],
             'user_id'             => [
