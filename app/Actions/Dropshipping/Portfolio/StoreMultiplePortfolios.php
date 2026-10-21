@@ -16,6 +16,7 @@ use App\Enums\Dropshipping\CustomerSalesChannelStatusEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Dropshipping\CustomerSalesChannel;
 use App\Models\Fulfilment\StoredItem;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
@@ -74,13 +75,17 @@ class StoreMultiplePortfolios extends OrgAction
                 continue;
             }
 
-            $newPortfolioIds[] = StorePortfolio::make()->action(
-                customerSalesChannel: $customerSalesChannel,
-                item: $item,
-                modelData: [],
-                hydrateChannel: false,
-                checkInPlatform: false
-            )->id;
+            try {
+                $newPortfolioIds[] = StorePortfolio::make()->action(
+                    customerSalesChannel: $customerSalesChannel,
+                    item: $item,
+                    modelData: [],
+                    hydrateChannel: false,
+                    checkInPlatform: false
+                )->id;
+            } catch (UniqueConstraintViolationException) {
+                continue;
+            }
         }
 
 

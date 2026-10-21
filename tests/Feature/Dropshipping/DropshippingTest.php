@@ -1695,6 +1695,17 @@ test('adding products to a channel reads the same rows whether it adds one produ
         ->and(Portfolio::where('customer_sales_channel_id', $channel->id)->whereDoesntHave('stats')->count())->toBe(0);
 });
 
+test('a product sent twice in one add is added once instead of failing the whole add', function () {
+    Queue::fake();
+    $products = storeActiveProductsInFamily($this->product, 2);
+    $channel  = storeConnectedEbayUser($this->customer, 'test-ebay-duplicate-add')->customerSalesChannel;
+    $itemIds  = $products->pluck('id')->all();
+
+    DB::transaction(fn () => StoreMultiplePortfolios::make()->action($channel, ['items' => [...$itemIds, $itemIds[0]]]));
+
+    expect($channel->portfolios()->whereIn('item_id', $itemIds)->count())->toBe(2);
+});
+
 test('products added to a platform channel are checked in the platform by a queued job, not in the request', function () {
     Queue::fake();
     $products = storeActiveProductsInFamily($this->product, 2);

@@ -149,181 +149,182 @@ const getIcon = (type: string) => {
 </script>
 
 <template>
-    <!-- <pre>{{ props.data.attachments }}</pre> -->
-    <div v-if="!editable" class="px-10 pt-4">
-        <Message severity="warn" closable>
-            <template #icon>
-                <FontAwesomeIcon :icon="faInfoCircle" fixed-width />
-            </template>
-            <span class="ml-2">
-                You can only view this attachment because of insufficient permissions.
-            </span>
-        </Message>
-    </div>
-
-    <TradeUnitDocumentsSharing v-if="props.data.documents_sharing" :data="props.data.documents_sharing" :editable="editable" />
-
-    <div class="px-10">
-        <div v-if="props.data.attachment_category_box?.public?.length" class="rounded-xl bg-white p-5 lg:col-span-2">
-            <div class="text-base font-semibold text-gray-700">
-                <h3 class="mb-1">
-                    {{ ctrans("Attachment Public") }}
-                </h3>
-                <div class="border-b border-gray-300 h-1 mb-4"></div>
-            </div>
-
-
-            <TransitionGroup name="fade-move" tag="ul"
-                class="grid grid-cols-2 sm:grid-cols-4 gap-4 overflow-y-auto max-h-[600px]">
-                <li v-for="categoryBox in props.data.attachment_category_box?.public" :key="categoryBox.scope"
-                    class="relative flex flex-col overflow-hidden rounded-xl border bg-gray-50 transition duration-300 ease-in-out"
-                    :class="{
-                        'border-[--app-accent] ring-2 ring-[--app-accent-muted] bg-[--app-accent-soft] shadow-md': activeCategory === categoryBox.scope,
-                        'cursor-pointer': editable,
-                        'cursor-not-allowed': !editable,
-                    }" @dragover.prevent @dragenter.prevent="activeCategory = categoryBox.scope"
-                    @dragleave="activeCategory = null" @drop="onDropFile($event, categoryBox)">
-                    <!-- Header -->
-                    <div class="flex items-center justify-between px-3 py-2 bg-gray-100 border-b">
-                        <span class="truncate text-sm font-medium text-gray-700" :title="categoryBox.label">
-                            {{ categoryBox.label }}
-                        </span>
-                        <div class="flex items-center gap-2">
-                            <FontAwesomeIcon v-if="categoryBox.information" v-tooltip="categoryBox.information"
-                                icon="fal fa-info-circle" class="text-gray-400 hover:text-gray-600" fixed-width />
-                            <span v-if="categoryBox.shared_from" class="text-[11px] text-gray-500" v-tooltip="ctrans('Shared from :code, change it there', { code: categoryBox.shared_from })">
-                                {{ ctrans("from :code", { code: categoryBox.shared_from }) }}
-                            </span>
-                            <FontAwesomeIcon v-if="categoryBox.attachment && editable && !categoryBox.shared_from" :icon="faUnlink"
-                                @click.stop="() => onDeletefilesInBox(categoryBox)"
-                                class="text-red-600 cursor-pointer text-xs" fixed-width />
-                        </div>
-                    </div>
-
-                    <!-- Drop Zone / Preview -->
-                    <div
-                        class="flex flex-col h-36 w-full transition bg-gray-50 hover:bg-gray-100 rounded-md overflow-hidden relative">
-                        <template v-if="categoryBox.attachment">
-                            <a :href="route(categoryBox.download_route.name, categoryBox.download_route.parameters)" target="_blank"
-                                class="flex flex-col items-center justify-center h-full text-green-700 bg-green-50  shadow-inner transition hover:bg-green-100 hover:scale-[1.02] cursor-pointer p-3">
-                                <FontAwesomeIcon :icon="getIcon(categoryBox.attachment.type)"
-                                    class="mb-2 text-3xl text-green-500 animate-pulse" fixed-width />
-                                <span class="text-[13px] font-semibold text-green-700 text-center">
-                                    {{ categoryBox.attachment.name || ctrans("Attachment uploaded") }}
-                                </span>
-                                 <a class="text-[11px] text-green-500 mt-1" :href="route(categoryBox.download_route.name, categoryBox.download_route.parameters)"
-                                    v-if="categoryBox.download_route" target="_blank" method="get">
-                                {{ ctrans("Click to view") }}
-                                </a>
-                            </a>
-                        </template>
-
-                        <template v-else>
-                            <div @click="onClickBox(categoryBox)"
-                                class="flex flex-col items-center justify-center text-gray-400 h-full bg-gray-50  rounded-md hover:bg-gray-100 transition cursor-pointer p-3">
-                                <FontAwesomeIcon :icon="faFile" class="mb-2 text-2xl" fixed-width />
-                                <span class="text-[12px] font-medium">
-                                    {{ categoryBox.shared_from ? ctrans("Not on :code yet", { code: categoryBox.shared_from }) : ctrans("Drop or click to upload") }}
-                                </span>
-                            </div>
-                        </template>
-
-                        <!-- ProgressBar always at the bottom -->
-                        <div v-if="uploadProgress[categoryBox.scope] > 0" class="absolute bottom-3 left-0 w-full p-3">
-                            <ProgressBar :value="uploadProgress[categoryBox.scope]" showValue
-                                class="h-2 rounded-b-md" />
-                        </div>
-                    </div>
-                </li>
-            </TransitionGroup>
+    <template v-if="props.data">
+        <div v-if="!editable" class="px-10 pt-4">
+            <Message severity="warn" closable>
+                <template #icon>
+                    <FontAwesomeIcon :icon="faInfoCircle" fixed-width />
+                </template>
+                <span class="ml-2">
+                    {{ ctrans("You can only view this attachment because of insufficient permissions.") }}
+                </span>
+            </Message>
         </div>
-    </div>
 
+        <TradeUnitDocumentsSharing v-if="props.data.documents_sharing" :data="props.data.documents_sharing" :editable="editable" />
 
         <div class="px-10">
-        <div v-if="props.data.attachment_category_box?.private?.length" class="rounded-xl bg-white p-5 lg:col-span-2">
-            <div class="text-base font-semibold text-gray-700">
-                <h3 class="mb-1">
-                    {{ ctrans("Attachment Private") }}
-                </h3>
-                <div class="border-b border-gray-300 h-1 mb-4"></div>
-            </div>
+            <div v-if="props.data.attachment_category_box?.public?.length" class="rounded-xl bg-white p-5 lg:col-span-2">
+                <div class="text-base font-semibold text-gray-700">
+                    <h3 class="mb-1">
+                        {{ ctrans("Attachment Public") }}
+                    </h3>
+                    <div class="border-b border-gray-300 h-1 mb-4"></div>
+                </div>
 
-            <TransitionGroup name="fade-move" tag="ul"
-                class="grid grid-cols-2 sm:grid-cols-4 gap-4 overflow-y-auto max-h-[600px]">
-                <li v-for="categoryBox in props.data.attachment_category_box.private" :key="categoryBox.scope"
-                    class="relative flex flex-col overflow-hidden rounded-xl border bg-gray-50 transition duration-300 ease-in-out"
-                    :class="{
-                        'border-[--app-accent] ring-2 ring-[--app-accent-muted] bg-[--app-accent-soft] shadow-md': activeCategory === categoryBox.scope,
-                        'cursor-pointer': editable,
-                        'cursor-not-allowed': !editable,
-                    }" @dragover.prevent @dragenter.prevent="activeCategory = categoryBox.scope"
-                    @dragleave="activeCategory = null" @drop="onDropFile($event, categoryBox)">
-                    <!-- Header -->
-                    <div class="flex items-center justify-between px-3 py-2 bg-gray-100 border-b">
-                        <span class="truncate text-sm font-medium text-gray-700" :title="categoryBox.label">
-                            {{ categoryBox.label }}
-                        </span>
-                        <div class="flex items-center gap-2">
-                            <FontAwesomeIcon v-if="categoryBox.information" v-tooltip="categoryBox.information"
-                                icon="fal fa-info-circle" class="text-gray-400 hover:text-gray-600" fixed-width />
-                            <span v-if="categoryBox.shared_from" class="text-[11px] text-gray-500" v-tooltip="ctrans('Shared from :code, change it there', { code: categoryBox.shared_from })">
-                                {{ ctrans("from :code", { code: categoryBox.shared_from }) }}
+
+                <TransitionGroup name="fade-move" tag="ul"
+                    class="grid grid-cols-2 sm:grid-cols-4 gap-4 overflow-y-auto max-h-[600px]">
+                    <li v-for="categoryBox in props.data.attachment_category_box?.public" :key="categoryBox.scope"
+                        class="relative flex flex-col overflow-hidden rounded-xl border bg-gray-50 transition duration-300 ease-in-out"
+                        :class="{
+                            'border-[--app-accent] ring-2 ring-[--app-accent-muted] bg-[--app-accent-soft] shadow-md': activeCategory === categoryBox.scope,
+                            'cursor-pointer': editable,
+                            'cursor-not-allowed': !editable,
+                        }" @dragover.prevent @dragenter.prevent="activeCategory = categoryBox.scope"
+                        @dragleave="activeCategory = null" @drop="onDropFile($event, categoryBox)">
+                        <!-- Header -->
+                        <div class="flex items-center justify-between px-3 py-2 bg-gray-100 border-b">
+                            <span class="truncate text-sm font-medium text-gray-700" :title="categoryBox.label">
+                                {{ categoryBox.label }}
                             </span>
-                            <FontAwesomeIcon v-if="categoryBox.attachment && editable && !categoryBox.shared_from" :icon="faUnlink"
-                                @click.stop="() => onDeletefilesInBox(categoryBox)"
-                                class="text-red-600 cursor-pointer text-xs" fixed-width />
-                        </div>
-                    </div>
-
-                    <!-- Drop Zone / Preview -->
-                    <div
-                        class="flex flex-col h-36 w-full transition bg-gray-50 hover:bg-gray-100 rounded-md overflow-hidden relative">
-                        <template v-if="categoryBox.attachment">
-                            <a :href="route(categoryBox.download_route.name, categoryBox.download_route.parameters)" target="_blank"
-                                class="flex flex-col items-center justify-center h-full text-green-700 bg-green-50  shadow-inner transition hover:bg-green-100 hover:scale-[1.02] cursor-pointer p-3">
-                                <FontAwesomeIcon :icon="getIcon(categoryBox.attachment.type)"
-                                    class="mb-2 text-3xl text-green-500 animate-pulse" fixed-width />
-                                <span class="text-[13px] font-semibold text-green-700 text-center">
-                                    {{ categoryBox.attachment.name || ctrans("Attachment uploaded") }}
+                            <div class="flex items-center gap-2">
+                                <FontAwesomeIcon v-if="categoryBox.information" v-tooltip="categoryBox.information"
+                                    icon="fal fa-info-circle" class="text-gray-400 hover:text-gray-600" fixed-width />
+                                <span v-if="categoryBox.shared_from" class="text-[11px] text-gray-500" v-tooltip="ctrans('Shared from :code, change it there', { code: categoryBox.shared_from })">
+                                    {{ ctrans("from :code", { code: categoryBox.shared_from }) }}
                                 </span>
-                                <a class="text-[11px] text-green-500 mt-1"  :href="route(categoryBox.download_route.name, categoryBox.download_route.parameters)"
-                                    v-if="categoryBox.download_route" target="_blank">
-                                {{ ctrans("Click to view") }}
-                                </a>
-                            </a>
-                        </template>
-
-                        <template v-else>
-                            <div @click="onClickBox(categoryBox)"
-                                class="flex flex-col items-center justify-center text-gray-400 h-full bg-gray-50  rounded-md hover:bg-gray-100 transition cursor-pointer p-3">
-                                <FontAwesomeIcon :icon="faFile" class="mb-2 text-2xl" fixed-width />
-                                <span class="text-[12px] font-medium">
-                                    {{ categoryBox.shared_from ? ctrans("Not on :code yet", { code: categoryBox.shared_from }) : ctrans("Drop or click to upload") }}
-                                </span>
+                                <FontAwesomeIcon v-if="categoryBox.attachment && editable && !categoryBox.shared_from" :icon="faUnlink"
+                                    @click.stop="() => onDeletefilesInBox(categoryBox)"
+                                    class="text-red-600 cursor-pointer text-xs" fixed-width />
                             </div>
-                        </template>
-
-
-                        <!-- ProgressBar always at the bottom -->
-                        <div v-if="uploadProgress[categoryBox.scope] > 0" class="absolute bottom-3 left-0 w-full p-3">
-                            <ProgressBar :value="uploadProgress[categoryBox.scope]" showValue
-                                class="h-2 rounded-b-md" />
                         </div>
-                    </div>
 
+                        <!-- Drop Zone / Preview -->
+                        <div
+                            class="flex flex-col h-36 w-full transition bg-gray-50 hover:bg-gray-100 rounded-md overflow-hidden relative">
+                            <template v-if="categoryBox.attachment">
+                                <a :href="route(categoryBox.download_route.name, categoryBox.download_route.parameters)" target="_blank"
+                                    class="flex flex-col items-center justify-center h-full text-green-700 bg-green-50  shadow-inner transition hover:bg-green-100 hover:scale-[1.02] cursor-pointer p-3">
+                                    <FontAwesomeIcon :icon="getIcon(categoryBox.attachment.type)"
+                                        class="mb-2 text-3xl text-green-500 animate-pulse" fixed-width />
+                                    <span class="text-[13px] font-semibold text-green-700 text-center">
+                                        {{ categoryBox.attachment.name || ctrans("Attachment uploaded") }}
+                                    </span>
+                                     <a class="text-[11px] text-green-500 mt-1" :href="route(categoryBox.download_route.name, categoryBox.download_route.parameters)"
+                                        v-if="categoryBox.download_route" target="_blank" method="get">
+                                    {{ ctrans("Click to view") }}
+                                    </a>
+                                </a>
+                            </template>
 
-                </li>
-            </TransitionGroup>
+                            <template v-else>
+                                <div @click="onClickBox(categoryBox)"
+                                    class="flex flex-col items-center justify-center text-gray-400 h-full bg-gray-50  rounded-md hover:bg-gray-100 transition cursor-pointer p-3">
+                                    <FontAwesomeIcon :icon="faFile" class="mb-2 text-2xl" fixed-width />
+                                    <span class="text-[12px] font-medium">
+                                        {{ categoryBox.shared_from ? ctrans("Not on :code yet", { code: categoryBox.shared_from }) : ctrans("Drop or click to upload") }}
+                                    </span>
+                                </div>
+                            </template>
+
+                            <!-- ProgressBar always at the bottom -->
+                            <div v-if="uploadProgress[categoryBox.scope] > 0" class="absolute bottom-3 left-0 w-full p-3">
+                                <ProgressBar :value="uploadProgress[categoryBox.scope]" showValue
+                                    class="h-2 rounded-b-md" />
+                            </div>
+                        </div>
+                    </li>
+                </TransitionGroup>
+            </div>
         </div>
-    </div>
 
-    <TradeUnitDocuments
-        v-if="props.data.family_documents?.length"
-        :documents="props.data.family_documents"
-        :title="ctrans('From its trade unit family')"
-        note="These come from the trade unit family and go to the products too. Change them on the trade unit family."
-    />
+
+            <div class="px-10">
+            <div v-if="props.data.attachment_category_box?.private?.length" class="rounded-xl bg-white p-5 lg:col-span-2">
+                <div class="text-base font-semibold text-gray-700">
+                    <h3 class="mb-1">
+                        {{ ctrans("Attachment Private") }}
+                    </h3>
+                    <div class="border-b border-gray-300 h-1 mb-4"></div>
+                </div>
+
+                <TransitionGroup name="fade-move" tag="ul"
+                    class="grid grid-cols-2 sm:grid-cols-4 gap-4 overflow-y-auto max-h-[600px]">
+                    <li v-for="categoryBox in props.data.attachment_category_box.private" :key="categoryBox.scope"
+                        class="relative flex flex-col overflow-hidden rounded-xl border bg-gray-50 transition duration-300 ease-in-out"
+                        :class="{
+                            'border-[--app-accent] ring-2 ring-[--app-accent-muted] bg-[--app-accent-soft] shadow-md': activeCategory === categoryBox.scope,
+                            'cursor-pointer': editable,
+                            'cursor-not-allowed': !editable,
+                        }" @dragover.prevent @dragenter.prevent="activeCategory = categoryBox.scope"
+                        @dragleave="activeCategory = null" @drop="onDropFile($event, categoryBox)">
+                        <!-- Header -->
+                        <div class="flex items-center justify-between px-3 py-2 bg-gray-100 border-b">
+                            <span class="truncate text-sm font-medium text-gray-700" :title="categoryBox.label">
+                                {{ categoryBox.label }}
+                            </span>
+                            <div class="flex items-center gap-2">
+                                <FontAwesomeIcon v-if="categoryBox.information" v-tooltip="categoryBox.information"
+                                    icon="fal fa-info-circle" class="text-gray-400 hover:text-gray-600" fixed-width />
+                                <span v-if="categoryBox.shared_from" class="text-[11px] text-gray-500" v-tooltip="ctrans('Shared from :code, change it there', { code: categoryBox.shared_from })">
+                                    {{ ctrans("from :code", { code: categoryBox.shared_from }) }}
+                                </span>
+                                <FontAwesomeIcon v-if="categoryBox.attachment && editable && !categoryBox.shared_from" :icon="faUnlink"
+                                    @click.stop="() => onDeletefilesInBox(categoryBox)"
+                                    class="text-red-600 cursor-pointer text-xs" fixed-width />
+                            </div>
+                        </div>
+
+                        <!-- Drop Zone / Preview -->
+                        <div
+                            class="flex flex-col h-36 w-full transition bg-gray-50 hover:bg-gray-100 rounded-md overflow-hidden relative">
+                            <template v-if="categoryBox.attachment">
+                                <a :href="route(categoryBox.download_route.name, categoryBox.download_route.parameters)" target="_blank"
+                                    class="flex flex-col items-center justify-center h-full text-green-700 bg-green-50  shadow-inner transition hover:bg-green-100 hover:scale-[1.02] cursor-pointer p-3">
+                                    <FontAwesomeIcon :icon="getIcon(categoryBox.attachment.type)"
+                                        class="mb-2 text-3xl text-green-500 animate-pulse" fixed-width />
+                                    <span class="text-[13px] font-semibold text-green-700 text-center">
+                                        {{ categoryBox.attachment.name || ctrans("Attachment uploaded") }}
+                                    </span>
+                                    <a class="text-[11px] text-green-500 mt-1"  :href="route(categoryBox.download_route.name, categoryBox.download_route.parameters)"
+                                        v-if="categoryBox.download_route" target="_blank">
+                                    {{ ctrans("Click to view") }}
+                                    </a>
+                                </a>
+                            </template>
+
+                            <template v-else>
+                                <div @click="onClickBox(categoryBox)"
+                                    class="flex flex-col items-center justify-center text-gray-400 h-full bg-gray-50  rounded-md hover:bg-gray-100 transition cursor-pointer p-3">
+                                    <FontAwesomeIcon :icon="faFile" class="mb-2 text-2xl" fixed-width />
+                                    <span class="text-[12px] font-medium">
+                                        {{ categoryBox.shared_from ? ctrans("Not on :code yet", { code: categoryBox.shared_from }) : ctrans("Drop or click to upload") }}
+                                    </span>
+                                </div>
+                            </template>
+
+
+                            <!-- ProgressBar always at the bottom -->
+                            <div v-if="uploadProgress[categoryBox.scope] > 0" class="absolute bottom-3 left-0 w-full p-3">
+                                <ProgressBar :value="uploadProgress[categoryBox.scope]" showValue
+                                    class="h-2 rounded-b-md" />
+                            </div>
+                        </div>
+
+
+                    </li>
+                </TransitionGroup>
+            </div>
+        </div>
+
+        <TradeUnitDocuments
+            v-if="props.data.family_documents?.length"
+            :documents="props.data.family_documents"
+            :title="ctrans('From its trade unit family')"
+            note="These come from the trade unit family and go to the products too. Change them on the trade unit family."
+        />
+    </template>
 </template>
 
 <style scoped>
