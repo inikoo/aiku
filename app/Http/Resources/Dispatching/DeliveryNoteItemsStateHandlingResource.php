@@ -10,8 +10,10 @@ namespace App\Http\Resources\Dispatching;
 
 use App\Http\Resources\Inventory\LocationOrgStocksForPickingActionsResource;
 use App\Models\Dispatching\DeliveryNoteItem;
+use App\Models\Dispatching\Picking;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\AbstractPaginator;
 
 /**
  * @property mixed $org_stock_id
@@ -66,6 +68,27 @@ class DeliveryNoteItemsStateHandlingResource extends JsonResource
         return str_replace(':qty', (string)(0 + $this->transaction_quantity_ordered), $note);
     }
 
+    /**
+     * @return array<int|string, mixed>
+     */
+    private static function relations(): array
+    {
+        return [
+            'pickings.location',
+            'pickings.batchCode',
+            'packings.packer',
+        ];
+    }
+
+    public static function collection($resource)
+    {
+        $items = $resource instanceof AbstractPaginator ? $resource->getCollection() : collect($resource);
+
+        EloquentCollection::make($items->whereInstanceOf(DeliveryNoteItem::class)->all())->loadMissing(self::relations());
+
+        return parent::collection($resource);
+    }
+
     public function toArray($request): array
     {
         $packedIn = $this->packed_in;
@@ -112,19 +135,16 @@ class DeliveryNoteItemsStateHandlingResource extends JsonResource
         $isPicked = $quantityToPick == 0;
         $isPacked = $isPicked && $this->quantity_packed == $this->quantity_picked;
 
-        $pickings = $deliveryNoteItem
-            ->pickings()
-            ->leftJoin('batch_codes', 'batch_codes.id', 'pickings.batch_code_id')
-            ->select([
-                'pickings.*',
-                'batch_codes.id as batch_code_id',
-                'batch_codes.code as batch_code',
-                DB::raw("'$this->org_stocks_batch_code_id' as org_stocks_batch_code_id"),
-                DB::raw("'$this->org_stocks_batch_code' as org_stocks_batch_code"),
-                DB::raw("'$this->org_stocks_batch_code_count' as org_stocks_batch_code_count"),
-                DB::raw("'$packedIn' as packed_in"),
-            ])
-            ->get();
+        $deliveryNoteItem->loadMissing(self::relations());
+        $pickings = $deliveryNoteItem->pickings->each(fn (Picking $picking) => $picking->setRawAttributes([
+            ...$picking->getAttributes(),
+            'batch_code_id'               => $picking->batchCode?->id,
+            'batch_code'                  => $picking->batchCode?->code,
+            'org_stocks_batch_code_id'    => (string) $this->org_stocks_batch_code_id,
+            'org_stocks_batch_code'       => (string) $this->org_stocks_batch_code,
+            'org_stocks_batch_code_count' => (string) $this->org_stocks_batch_code_count,
+            'packed_in'                   => (string) $packedIn,
+        ]));
 
         $warehouseArea = '';
         if ($this->warehouse_area_picking_position) {

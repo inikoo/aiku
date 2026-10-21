@@ -139,7 +139,7 @@ trait HasOrdersPipeline
      */
     private function salesShopIds(Shop|Organisation|Group $parent): array
     {
-        return $parent instanceof Shop ? [$parent->id] : $parent->shops()->pluck('id')->all();
+        return $parent instanceof Shop ? [$parent->id] : once(fn () => $parent->shops()->pluck('id')->all());
     }
 
     /**
@@ -149,7 +149,7 @@ trait HasOrdersPipeline
      */
     private function targetShopIds(Shop|Organisation|Group $parent): array
     {
-        return $parent instanceof Shop ? [$parent->id] : $parent->shops()->where('state', '!=', ShopStateEnum::CLOSED)->pluck('id')->all();
+        return $parent instanceof Shop ? [$parent->id] : once(fn () => $parent->shops()->where('state', '!=', ShopStateEnum::CLOSED)->pluck('id')->all());
     }
 
     /**

@@ -27,11 +27,11 @@ class LocationOrgStocksForPickingActionsResource extends JsonResource
 {
     public static $wrap = null;
 
-    // ponytail: one organisation read per item row, no static memo so a settings toggle takes effect at once under Octane
+    // ponytail: once() is flushed per request under Octane, so a settings toggle still takes effect at once
     public static function collectionForPicking($locations, ?int $organisationId): mixed
     {
         $canChoose = $organisationId && (bool)data_get(
-            Organisation::find($organisationId)?->settings,
+            once(fn () => Organisation::find($organisationId))?->settings,
             'orders.allow_picker_choose_location',
             false
         );

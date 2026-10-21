@@ -120,7 +120,7 @@ class ShowTicketsDashboard extends OrgAction
 
     private function tickets(Builder $query): array
     {
-        return TicketResource::collection($query->with(['reporter', 'assignee', 'customer', 'collaborators', 'qaUser'])->get())->toArray(request());
+        return TicketResource::collection($query->with(TicketResource::eagerLoads())->get())->toArray(request());
     }
 
     public function asController(ActionRequest $request): array

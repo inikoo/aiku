@@ -7038,3 +7038,38 @@ test('the boxes list answers dispatching staff of the organisation, INI-076', fu
         get($url)->assertOk();
     }
 });
+
+test('picking screen rows load pickings with their locations and batch codes, and packings, up front', function () {
+    /** @var DeliveryNoteItem $deliveryNoteItem */
+    $deliveryNoteItem = DeliveryNoteItem::whereNotNull('org_stock_id')
+        ->whereColumn('quantity_required', '>=', DB::raw('coalesce(quantity_picked, 0) + 1'))
+        ->latest('id')
+        ->firstOrFail();
+    $locationOrgStock = StoreLocationOrgStock::make()->action(
+        orgStock: $deliveryNoteItem->orgStock,
+        location: StoreLocation::make()->action($this->warehouse, Location::factory()->definition()),
+        modelData: ['quantity' => 150, 'type' => LocationStockTypeEnum::PICKING, 'fetched_at' => now()],
+        strict: false
+    );
+    $picking = StorePicking::make()->action($deliveryNoteItem, $this->user, [
+        'picker_user_id'        => $this->user->id,
+        'location_org_stock_id' => $locationOrgStock->id,
+        'quantity'              => 1,
+    ]);
+
+    request()->setRouteResolver(fn () => new Route('GET', 'test', []));
+    $items = IndexDeliveryNoteItemsStateHandling::run($deliveryNoteItem->deliveryNote, ignoreParentPagination: true, deliveryNoteItemId: $deliveryNoteItem->id);
+
+    DB::flushQueryLog();
+    DB::enableQueryLog();
+    $rows = DeliveryNoteItemsStateHandlingResource::collection($items)->resolve();
+    $queries = collect(DB::getQueryLog())->pluck('query');
+    DB::disableQueryLog();
+
+    $pickingRow = collect($rows[0]['pickings']->resolve())->firstWhere('id', $picking->id);
+
+    expect($queries->filter(fn (string $query) => str_contains($query, 'from "pickings"'))->count())->toBeLessThanOrEqual(1)
+        ->and($queries->filter(fn (string $query) => str_contains($query, 'from "packings"'))->count())->toBe(1)
+        ->and($pickingRow['location_code'])->toBe($picking->location->code)
+        ->and($pickingRow['batch_code_id'])->toBe($picking->batch_code_id ?? (string) $picking->orgStock->main_batch_code_id);
+});

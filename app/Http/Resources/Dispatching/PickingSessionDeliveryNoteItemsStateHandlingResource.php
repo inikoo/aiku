@@ -12,8 +12,9 @@ use App\Actions\Dispatching\PartnerStaging\PartnerBayPickingOrder;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Http\Resources\Inventory\LocationOrgStocksForPickingActionsResource;
 use App\Models\Dispatching\DeliveryNoteItem;
-use App\Models\Dispatching\Picking;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Pagination\AbstractPaginator;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -57,6 +58,24 @@ class PickingSessionDeliveryNoteItemsStateHandlingResource extends JsonResource
 {
     use WithOrderedAsset;
 
+    private const array RELATIONS = [
+        'organisation',
+        'packings.packer',
+        'pickings.picker',
+        'pickings.location',
+        'pickings.batchCode',
+        'pickings.orgStock.mainBatchCode',
+    ];
+
+    public static function collection($resource)
+    {
+        $items = $resource instanceof AbstractPaginator ? $resource->getCollection() : collect($resource);
+
+        EloquentCollection::make($items->whereInstanceOf(DeliveryNoteItem::class)->all())->loadMissing(self::RELATIONS);
+
+        return parent::collection($resource);
+    }
+
     public function toArray($request): array
     {
         $packedIn = $this->packed_in;
@@ -72,7 +91,8 @@ class PickingSessionDeliveryNoteItemsStateHandlingResource extends JsonResource
         );
 
 
-        $deliveryNoteItem = DeliveryNoteItem::find($this->id);
+        /** @var DeliveryNoteItem $deliveryNoteItem */
+        $deliveryNoteItem = $this->resource->loadMissing(self::RELATIONS);
         $fullWarning      = [
             'disabled' => false,
             'message'  => ''
@@ -121,7 +141,7 @@ class PickingSessionDeliveryNoteItemsStateHandlingResource extends JsonResource
         $isPacked = $isPicked && $this->quantity_packed == $this->quantity_picked;
 
 
-        $pickings = Picking::where('delivery_note_item_id', $this->id)->get();
+        $pickings = $deliveryNoteItem->pickings;
 
 
         $warehouseArea = '';
