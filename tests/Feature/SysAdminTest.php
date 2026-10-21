@@ -45,6 +45,7 @@ use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Actions\SysAdmin\Organisation\UI\EditOrganisation;
 use App\Http\Resources\Inventory\LocationOrgStocksForPickingActionsResource;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Once;
 use App\Actions\SysAdmin\User\BorrowUserPermissions;
 use App\Actions\SysAdmin\User\HydrateUser;
 use App\Actions\SysAdmin\User\SetUserAuthorisedModels;
@@ -287,6 +288,7 @@ test('picker location choice setting trims the picking locations', function (Org
         ->and(LocationOrgStocksForPickingActionsResource::collectionForPicking($locations, $organisation->id)->collection->map(fn ($resource) => $resource->resource->id)->all())
         ->toBe([1, 3]);
 
+    Once::flush();
     $organisation = UpdateOrganisation::make()->action($organisation, ['allow_picker_choose_location' => true]);
     expect(LocationOrgStocksForPickingActionsResource::collectionForPicking($locations, $organisation->id)->collection->count())->toBe(3);
 })->depends('create organisation by command');
