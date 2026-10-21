@@ -645,11 +645,18 @@ describe('fetching meta organic insights', function () {
             ->and($status['paid'])->toBeFalse()
             ->and($status['running'])->toBeFalse()
             ->and($status['last_sync']['ok'])->toBeTrue()
+            ->and($status['available_at'])->not->toBeNull()
             ->and($status['organic_updated_at'])->not->toBeNull();
 
         $this->postJson(route('grp.models.shop.social_media.sync', ['shop' => $this->shop->id]))
             ->assertUnprocessable()
-            ->assertJsonValidationErrors('shop');
+            ->assertJsonValidationErrors(['shop' => 'Try again in 10 minutes']);
+
+        $this->travel(SyncShopFromMeta::COOLDOWN_MINS + 1)->minutes();
+
+        expect(SyncShopFromMeta::status($this->shop)['available_at'])->toBeNull();
+
+        $this->postJson(route('grp.models.shop.social_media.sync', ['shop' => $this->shop->id]))->assertOk();
     });
 
     it('says a brand is not set up for meta rather than syncing it', function () {

@@ -83,9 +83,8 @@ class SyncShopFromMeta
             throw ValidationException::withMessages(['shop' => __('This brand is not set up for Meta yet: add its Facebook Page ID, Instagram account ID or Meta Ads account in Edit shop')]);
         }
 
-        $last = Cache::get(self::resultKey($shop));
-        if ($last && Carbon::parse($last['finished_at'])->gt(now()->subMinutes(self::COOLDOWN_MINS))) {
-            throw ValidationException::withMessages(['shop' => __('This brand was synced a few minutes ago. Try again after :time.', ['time' => Carbon::parse($last['finished_at'])->addMinutes(self::COOLDOWN_MINS)->format('H:i')])]);
+        if ($availableAt = self::availableAt($shop)) {
+            throw ValidationException::withMessages(['shop' => trans_choice('This brand was synced a few minutes ago. Try again in :count minute.|This brand was synced a few minutes ago. Try again in :count minutes.', $minutes = (int) ceil(now()->diffInSeconds($availableAt) / 60), ['count' => $minutes])]);
         }
 
         if (!Cache::add(self::runningKey($shop), now()->toIso8601String(), now()->addMinutes(self::RUNNING_MINS))) {
@@ -102,7 +101,7 @@ class SyncShopFromMeta
      * a sync is running, how the last one ended, and when its figures last changed, whether a sync,
      * the nightly run or an upload changed them.
      *
-     * @return array{organic: bool, paid: bool, running: bool, last_sync: array{finished_at: string, ok: bool, message: string|null}|null, organic_updated_at: string|null, paid_updated_at: string|null}
+     * @return array{organic: bool, paid: bool, running: bool, last_sync: array{finished_at: string, ok: bool, message: string|null}|null, available_at: string|null, organic_updated_at: string|null, paid_updated_at: string|null}
      */
     public static function status(Shop $shop): array
     {
@@ -124,9 +123,21 @@ class SyncShopFromMeta
             'paid'               => self::hasPaid($shop),
             'running'            => Cache::has(self::runningKey($shop)),
             'last_sync'          => Cache::get(self::resultKey($shop)),
+            'available_at'       => self::availableAt($shop)?->toIso8601String(),
             'organic_updated_at' => $organicUpdatedAt?->toIso8601String(),
             'paid_updated_at'    => $paidUpdatedAt ? Carbon::parse($paidUpdatedAt)->toIso8601String() : null,
         ];
+    }
+
+    /**
+     * When a brand synced a few minutes ago may sync again; null once it may.
+     */
+    public static function availableAt(Shop $shop): ?Carbon
+    {
+        $finishedAt = data_get(Cache::get(self::resultKey($shop)), 'finished_at');
+        $availableAt = $finishedAt ? Carbon::parse($finishedAt)->addMinutes(self::COOLDOWN_MINS) : null;
+
+        return $availableAt?->isFuture() ? $availableAt : null;
     }
 
     public static function hasOrganic(Shop $shop): bool

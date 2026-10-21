@@ -130,6 +130,7 @@ interface MetaSync {
     paid: boolean
     running: boolean
     last_sync: { finished_at: string, ok: boolean, message: string | null } | null
+    available_at: string | null
     organic_updated_at: string | null
     paid_updated_at: string | null
 }
@@ -477,6 +478,10 @@ const selectedSync = computed(() => shopFilter.value ? (props.meta_sync ?? []).f
 const isSetUp = (shop: MetaSync) => shop.organic || shop.paid
 const anyRunning = computed(() => (props.meta_sync ?? []).some(shop => shop.running))
 const time = (value: string | null | undefined) => value ? useFormatTime(value, { formatTime: 'hm' }) : '–'
+const now = ref(Date.now())
+const nowTimer = setInterval(() => now.value = Date.now(), 15000)
+const isCoolingDown = (shop: MetaSync) => !!shop.available_at && new Date(shop.available_at).getTime() > now.value
+const syncLabel = (shop: MetaSync) => shop.running ? ctrans('Syncing…') : isCoolingDown(shop) ? ctrans('Sync again at :time', { time: new Date(shop.available_at as string).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }) : ctrans('Sync now')
 
 let pollTimer: ReturnType<typeof setInterval> | null = null
 const stopPolling = () => {
@@ -495,7 +500,10 @@ watch(anyRunning, (running, wasRunning) => {
     stopPolling()
     if (wasRunning) applyFilters()
 }, { immediate: true })
-onBeforeUnmount(stopPolling)
+onBeforeUnmount(() => {
+    stopPolling()
+    clearInterval(nowTimer)
+})
 
 const syncShop = async (shop: MetaSync) => {
     syncErrors.value = { ...syncErrors.value, [shop.id]: '' }
@@ -506,7 +514,7 @@ const syncShop = async (shop: MetaSync) => {
         syncErrors.value = { ...syncErrors.value, [shop.id]: error?.response?.data?.errors?.shop?.[0] ?? error?.response?.data?.message ?? ctrans('The sync could not start') }
     }
 }
-const syncAll = () => syncShops.value.filter(shop => isSetUp(shop) && !shop.running).forEach(syncShop)
+const syncAll = () => syncShops.value.filter(shop => isSetUp(shop) && !shop.running && !isCoolingDown(shop)).forEach(syncShop)
 
 /* Upload: the import lands on one shop, so the shop is chosen first and the modal opens after.
    The platform is only needed for a single-metric chart export whose title does not name it. */
@@ -1083,7 +1091,7 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                     <div v-if="syncErrors[shop.id]" class="mt-1 text-xs text-red-600">{{ syncErrors[shop.id] }}</div>
                 </div>
                 <div class="shrink-0">
-                    <Button v-if="isSetUp(shop)" :label="shop.running ? ctrans('Syncing…') : ctrans('Sync now')" type="tertiary" size="s" :disabled="shop.running" :data-test="'social-sync-' + shop.slug" @click="syncShop(shop)">
+                    <Button v-if="isSetUp(shop)" :label="syncLabel(shop)" type="tertiary" size="s" :disabled="shop.running || isCoolingDown(shop)" v-tooltip="isCoolingDown(shop) ? ctrans('A brand can sync again :minutes minutes after its last sync, so Meta\'s rate limit is not spent twice', { minutes: 10 }) : undefined" :data-test="'social-sync-' + shop.slug" @click="syncShop(shop)">
                         <template #icon><FontAwesomeIcon icon="fal fa-sync-alt" :spin="shop.running" class="text-[--app-accent]" fixed-width /></template>
                     </Button>
                     <a v-else :href="route(shop.edit_route.name, shop.edit_route.parameters)" class="inline-flex">
