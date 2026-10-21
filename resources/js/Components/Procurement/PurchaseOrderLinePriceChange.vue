@@ -13,6 +13,7 @@ import Textarea from "primevue/textarea"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faCheck, faTimes, faTags, faPen } from "@fal"
 import Button from "@/Components/Elements/Buttons/Button.vue"
+import PingIcon from "@/Components/Utils/PingIcon.vue"
 import { ctrans } from "@/Composables/useTrans"
 import { useLocaleStore } from "@/Stores/locale"
 import { notify } from "@kyvg/vue3-notification"
@@ -58,6 +59,8 @@ const stateStyles: Record<PriceQuery["state"], { icon: typeof faTags; iconClass:
 }
 
 const stateStyle = computed(() => (query.value ? stateStyles[query.value.state] : null))
+
+const isWaitingForAnswer = computed(() => isPending.value && !!props.item.answerPriceRoute)
 
 const dialog = ref<"ask" | "adjust" | null>(null)
 
@@ -118,7 +121,13 @@ function answer(answerValue: "accepted" | "rejected" | "adjusted") {
 <template>
 	<div>
 		<div v-if="query || item.askPriceRoute" class="space-y-1 text-xs">
-			<div v-if="query && stateStyle" class="space-y-0.5 rounded border px-2 py-1" :class="stateStyle.boxClass">
+			<div v-if="query && stateStyle" class="relative space-y-0.5 rounded border px-2 py-1" :class="stateStyle.boxClass">
+				<PingIcon
+					v-if="isWaitingForAnswer"
+					v-tooltip="ctrans('Waiting for your answer')"
+					class="!absolute -right-1 -top-1 text-[7px] text-amber-500"
+					aria-hidden="true"
+				/>
 				<div class="flex items-center gap-1.5 font-medium">
 					<FontAwesomeIcon :icon="stateStyle.icon" :class="stateStyle.iconClass" fixed-width aria-hidden="true" />
 					{{ query.label }}
@@ -131,7 +140,7 @@ function answer(answerValue: "accepted" | "rejected" | "adjusted") {
 					{{ ctrans("New price: :price", { price: money(item.unit_cost) }) }}
 					<span class="font-normal text-gray-500">({{ costLabel }})</span>
 				</div>
-				<div v-if="query.note" class="italic">{{ query.note }}</div>
+				<div v-if="query.note" class="italic opacity-60">{{ query.note }}</div>
 				<div v-if="query.asked_by" class="text-gray-500">{{ ctrans("Asked by :name", { name: query.asked_by }) }}</div>
 			</div>
 
