@@ -659,6 +659,40 @@ describe('fetching meta organic insights', function () {
         $this->postJson(route('grp.models.shop.social_media.sync', ['shop' => $this->shop->id]))->assertOk();
     });
 
+    it('asks meta for a page\'s days in windows it accepts and syncs a new brand\'s whole history first', function () {
+        $requests = [];
+        fakeMetaSocialGraph($requests);
+
+        $this->postJson(route('grp.models.shop.social_media.sync', ['shop' => $this->shop->id]), ['days' => 45])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('days');
+
+        $this->postJson(route('grp.models.shop.social_media.sync', ['shop' => $this->shop->id]))->assertOk();
+
+        parse_str((string) parse_url(collect($requests)->first(fn (string $url) => str_contains($url, '/111/insights')), PHP_URL_QUERY), $firstWindow);
+
+        expect(Carbon::createFromTimestamp($firstWindow['since'], config('app.timezone'))->toDateString())->toBe(now()->subDay()->subDays(SyncShopFromMeta::MAX_DAYS - 1)->toDateString());
+
+        $requests = [];
+        Artisan::call('social-media:fetch-meta', ['shop' => $this->shop->slug, '--date' => '2026-08-31', '--days' => 120]);
+
+        expect(collect($requests)->filter(fn (string $url) => str_contains($url, '/111/insights') && str_contains($url, 'metric=page_media_view&'))->count())->toBe(2);
+    });
+
+    it('stops a run before meta\'s usage limit instead of pushing on into a block', function () {
+        Http::fake(['graph.facebook.com/*' => Http::response(
+            ['id' => '111', 'name' => 'AW Gifts Europe', 'followers_count' => 5000, 'access_token' => 'page-token'],
+            200,
+            ['X-Business-Use-Case-Usage' => json_encode(['111' => [['type' => 'pages', 'call_count' => 85, 'total_cputime' => 10, 'total_time' => 10, 'estimated_time_to_regain_access' => 12]]])]
+        )]);
+
+        expect(Artisan::call('social-media:fetch-meta', ['shop' => $this->shop->slug, '--date' => '2026-08-31', '--days' => 31]))->toBe(1)
+            ->and(Artisan::output())->toContain('usage limit')
+            ->and($this->shop->socialMediaAccounts()->count())->toBe(0);
+
+        Http::assertSentCount(1);
+    });
+
     it('says a brand is not set up for meta rather than syncing it', function () {
         $settings = $this->shop->settings;
         data_forget($settings, 'meta_social');

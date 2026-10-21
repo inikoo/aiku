@@ -131,6 +131,7 @@ interface MetaSync {
     running: boolean
     last_sync: { finished_at: string, ok: boolean, message: string | null } | null
     available_at: string | null
+    first_sync: boolean
     organic_updated_at: string | null
     paid_updated_at: string | null
 }
@@ -505,10 +506,17 @@ onBeforeUnmount(() => {
     clearInterval(nowTimer)
 })
 
+const syncDays = ref<number | null>(null)
+const syncRangeOptions = [
+    { value: null, label: ctrans('Recent days (organic :organic, ads :paid)', { organic: 28, paid: 7 }) },
+    { value: 7, label: ctrans('Last :days days', { days: 7 }) },
+    { value: 28, label: ctrans('Last :days days', { days: 28 }) },
+    { value: 90, label: ctrans('Last :days days (the most)', { days: 90 }) },
+]
 const syncShop = async (shop: MetaSync) => {
     syncErrors.value = { ...syncErrors.value, [shop.id]: '' }
     try {
-        await axios.post(route(shop.route.name, shop.route.parameters))
+        await axios.post(route(shop.route.name, shop.route.parameters), { days: syncDays.value })
         router.reload({ only: ['meta_sync'] })
     } catch (error: any) {
         syncErrors.value = { ...syncErrors.value, [shop.id]: error?.response?.data?.errors?.shop?.[0] ?? error?.response?.data?.message ?? ctrans('The sync could not start') }
@@ -1064,7 +1072,11 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
     </div>
 
     <Dialog v-model:visible="isSyncOpen" modal :header="ctrans('Sync from Meta')" :style="{ width: '46rem' }" :breakpoints="{ '768px': '95vw' }">
-        <p class="text-xs text-gray-500">{{ ctrans('Every brand has its own Facebook Page, Instagram account and Meta Ads account, so each is synced on its own: the organic figures of the last :organic days and the ad spend of the last :paid days. Figures also sync by themselves every night.', { organic: 28, paid: 7 }) }}</p>
+        <p class="text-xs text-gray-500">{{ ctrans('Every brand has its own Facebook Page, Instagram account and Meta Ads account, so each is synced on its own, one brand at a time. A brand\'s first sync fetches the last :max days; after that the recent days, or the range chosen here. Figures also sync by themselves every night, and a sync stops by itself before Meta\'s usage limit.', { max: 90 }) }}</p>
+        <div class="mt-3 flex flex-wrap items-center gap-2 text-xs text-gray-600">
+            <span>{{ ctrans('Range') }}</span>
+            <Select v-model="syncDays" :options="syncRangeOptions" optionLabel="label" optionValue="value" :placeholder="syncRangeOptions[0].label" class="w-72" :pt="selectPt" data-test="social-sync-range" />
+        </div>
         <ul class="mt-3 divide-y divide-gray-100" data-test="social-sync-list">
             <li v-for="shop in syncShops" :key="shop.id" class="py-3 flex flex-col sm:flex-row sm:items-center gap-3">
                 <div class="min-w-0 flex-1">
@@ -1083,6 +1095,7 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                             <template v-else>{{ ctrans('no Meta Ads account set') }}</template>
                         </span>
                     </div>
+                    <div v-if="shop.first_sync && !shop.running" class="mt-1 text-xs text-gray-500"><FontAwesomeIcon icon="fal fa-history" fixed-width /> {{ ctrans('First sync: fetches the last :days days', { days: syncDays ?? 90 }) }}</div>
                     <div v-if="shop.running" class="mt-1 text-xs text-gray-500"><FontAwesomeIcon icon="fal fa-spinner-third" spin fixed-width /> {{ ctrans('Syncing… the figures refresh when it is done.') }}</div>
                     <div v-else-if="shop.last_sync" class="mt-1 text-xs" :class="shop.last_sync.ok ? 'text-gray-500' : 'text-red-600'">
                         <FontAwesomeIcon :icon="shop.last_sync.ok ? 'fal fa-check' : 'fal fa-exclamation-triangle'" fixed-width />
