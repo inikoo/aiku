@@ -10,6 +10,9 @@ import { ref } from "vue"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import Image from "@common/Components/Image.vue"
 import NumberWithButtonSave from "@/Components/NumberWithButtonSave.vue"
+import PurchaseOrderItemStockInfo from "@/Components/Procurement/PurchaseOrderItemStockInfo.vue"
+import RenderWhenVisible from "@/Components/Utils/RenderWhenVisible.vue"
+import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { useLocaleStore } from "@/Stores/locale"
 import { ctrans } from "@/Composables/useTrans"
@@ -31,6 +34,9 @@ type BucketItem = {
     ordered_quantity: number
     sent_quantity: number
     order_quantum: number
+    org_stock_id: number | null
+    units_per_pack: number
+    quantity_ordered: number
 }
 
 const props = defineProps<{
@@ -41,6 +47,8 @@ const props = defineProps<{
     bucket: string
     bucketLabel: string
     rank: string | null
+    perPage: number
+    perPageOptions: number[]
     items: { data: BucketItem[], total: number, prev_page_url: string | null, next_page_url: string | null, from: number | null, to: number | null }
 }>()
 
@@ -97,6 +105,17 @@ function commitQuantity(item: BucketItem) {
     }
 }
 
+const withTypedQuantity = (item: BucketItem): BucketItem =>
+    quantities.value[item.id] === undefined
+        ? item
+        : { ...item, quantity_ordered: quantities.value[item.id] * (Number(item.units_per_pack) || 1) }
+
+const perPageOptions = props.perPageOptions.map((option) => ({ label: String(option), value: option }))
+
+function changePerPage(perPage: number) {
+    router.reload({ data: { per_page: perPage, page: 1 }, only: ["items", "perPage"], preserveScroll: true })
+}
+
 const amountOf = (item: BucketItem) => quantityFor(item) * Number(item.price ?? 0)
 </script>
 
@@ -111,12 +130,21 @@ const amountOf = (item: BucketItem) => quantityFor(item) * Number(item.price ?? 
                 <span v-if="rank"> · {{ rank }}</span>
                 — {{ useLocaleStore().number(items.total) }} {{ ctrans("items") }}
             </span>
-            <span v-if="items.from">{{ items.from }}–{{ items.to }} / {{ useLocaleStore().number(items.total) }}</span>
+            <span class="flex items-center gap-3">
+                <span v-if="items.from">{{ items.from }}–{{ items.to }} / {{ useLocaleStore().number(items.total) }}</span>
+                <SegmentedToggle
+                    v-if="items.total > perPageOptions[0].value"
+                    :modelValue="perPage"
+                    :options="perPageOptions"
+                    :ariaLabel="ctrans('Items per page')"
+                    soft
+                    @update:modelValue="changePerPage" />
+            </span>
         </div>
 
         <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white">
             <table class="min-w-full divide-y divide-gray-200 text-sm">
-                <thead class="bg-gray-50 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
+                <thead class="whitespace-nowrap bg-gray-50 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
                     <tr>
                         <th class="px-4 py-2">{{ ctrans("Code") }}</th>
                         <th class="px-4 py-2">{{ ctrans("Info") }}</th>
@@ -146,10 +174,13 @@ const amountOf = (item: BucketItem) => quantityFor(item) * Number(item.price ?? 
                                             </span>
                                         </template>
                                     </div>
+                                    <RenderWhenVisible v-if="item.org_stock_id" minHeight="9rem">
+                                        <PurchaseOrderItemStockInfo :item="withTypedQuantity(item)" isPartner :typedSkosById="quantities" />
+                                    </RenderWhenVisible>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-4 py-2">
+                        <td class="px-4 py-2 align-top">
                             <div class="flex items-center justify-end gap-2">
                                 <NumberWithButtonSave
                                     :modelValue="quantityFor(item)"
@@ -173,7 +204,7 @@ const amountOf = (item: BucketItem) => quantityFor(item) * Number(item.price ?? 
                                 <button
                                     type="button"
                                     class="cursor-pointer whitespace-nowrap rounded-md border border-dashed px-2 py-1 text-xs font-medium tabular-nums"
-                                    :class="item.recommended_quantity ? 'border-indigo-300 text-indigo-600 hover:bg-indigo-50' : 'border-gray-200 text-gray-400 hover:bg-gray-50'"
+                                    :class="item.recommended_quantity ? 'border-gray-300 text-gray-700 hover:bg-gray-50' : 'border-gray-200 text-gray-400 hover:bg-gray-50'"
                                     :title="ctrans('Suggested order, click to fill')"
                                     @click="setQuantity(item, item.recommended_quantity ?? 0)"
                                 >
