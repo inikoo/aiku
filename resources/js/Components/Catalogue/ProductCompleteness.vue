@@ -48,6 +48,8 @@ const startCrawl = () => {
     })
 }
 
+const isOpeningSetting = ref(false)
+
 const checklist = computed(() => props.completeness.checklist)
 
 const score = computed(() => (checklist.value?.total ? Math.round((checklist.value.complete / checklist.value.total) * 100) : 0))
@@ -138,7 +140,8 @@ const groups = computed(() => [
                         <Button
                             type="primary"
                             :label="ctrans('Edit in Product setting')"
-                            @click="router.visit(route(completeness.setting_route.name, completeness.setting_route.parameters))"
+                            :loading="isOpeningSetting"
+                            @click="router.visit(route(completeness.setting_route.name, completeness.setting_route.parameters), { onStart: () => (isOpeningSetting = true), onFinish: () => (isOpeningSetting = false) })"
                         >
                             <template #icon>
                                 <FontAwesomeIcon :icon="faSlidersH" fixed-width aria-hidden="true" />

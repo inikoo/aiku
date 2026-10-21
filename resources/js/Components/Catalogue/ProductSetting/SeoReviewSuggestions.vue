@@ -6,8 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faPaperPlane } from "@fal"
 import { ctrans } from "@/Composables/useTrans"
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import PureInput from "@/Components/Pure/PureInput.vue"
-import PureTextarea from "@/Components/Pure/PureTextarea.vue"
+import { InputText, Textarea } from "primevue"
 import RichTextField from "@/Components/Catalogue/ProductSetting/RichTextField.vue"
 import { htmlFields, productSettingActionsId, type SeoReview, type SeoSuggestionField } from "@/Components/Catalogue/ProductSetting/types"
 
@@ -116,7 +115,7 @@ const send = () => {
                 <span class="text-xs text-gray-500">{{ ctrans("Set by the SEO team · 2–3 for this product in the :shop shop", { shop: shopCode }) }}</span>
             </header>
             <label for="seo-keywords" class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Keywords, separated by commas") }}</label>
-            <PureInput v-model="keywords" inputName="seo-keywords" :placeholder="ctrans('e.g. aroma atomiser, usb aroma diffuser')" :disabled="isReadOnly" :isError="!!errors.keywords" />
+            <InputText id="seo-keywords" v-model="keywords" :placeholder="ctrans('e.g. aroma atomiser, usb aroma diffuser')" fluid :disabled="isReadOnly" :invalid="!!errors.keywords" />
             <p v-if="errors.keywords" class="mt-1 text-xs text-red-600">{{ errors.keywords }}</p>
         </section>
 
@@ -165,16 +164,17 @@ const send = () => {
                                 :disabled="isReadOnly"
                                 :isError="!!errors[`suggestions.${field.field}`]"
                             />
-                            <PureTextarea
+                            <Textarea
                                 v-else
+                                :id="`seo-suggestion-${field.field}`"
                                 v-model="suggestions[field.field]"
-                                :inputName="`seo-suggestion-${field.field}`"
                                 :rows="field.group === 'structured_data' ? 8 : 2"
-                                full
-                                :class="{ 'font-mono !text-xs': field.group === 'structured_data' || field.field === 'url' }"
-                                :placeholder="isReadOnly ? ' ' : ctrans('Write a suggestion, or leave empty if no change is needed')"
+                                :autoResize="field.group !== 'structured_data'"
+                                fluid
+                                :class="{ 'font-mono text-xs leading-5': field.group === 'structured_data' || field.field === 'url' }"
+                                :placeholder="isReadOnly ? '' : ctrans('Write a suggestion, or leave empty if no change is needed')"
                                 :disabled="isReadOnly"
-                                :isError="!!errors[`suggestions.${field.field}`] || (field.field === 'structured_data' && !!errors.structured_data)"
+                                :invalid="!!errors[`suggestions.${field.field}`] || (field.field === 'structured_data' && !!errors.structured_data)"
                             />
                             <p v-if="errors[`suggestions.${field.field}`] || (field.field === 'structured_data' && errors.structured_data)" class="mt-1 text-xs text-red-600">
                                 {{ errors[`suggestions.${field.field}`] ?? errors.structured_data }}

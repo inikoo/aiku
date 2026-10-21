@@ -7,6 +7,7 @@
  */
 
 use App\Actions\Accounting\Invoice\UI\IndexInvoicesInMasterFamily;
+use App\Actions\Accounting\Invoice\UI\IndexInvoicesInProduct;
 use App\Actions\Catalogue\Collection\UI\IndexCollectionsInMasterCollection;
 use App\Actions\Catalogue\Shop\StoreShopFromMaster;
 use App\Actions\Catalogue\Product\UI\IndexProductsInMasterProduct;

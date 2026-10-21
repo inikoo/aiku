@@ -81,7 +81,7 @@ const summaryCards = computed<SummaryCard[]>(() => {
     }
 
     return [
-        { key: "total", value: props.productStats.total, label: ctrans("Products"), description: ctrans("All products in the :shop shop", { shop: props.shop_code ?? "" }), tone: "accent" },
+        { key: "total", value: props.productStats.total, label: ctrans("Products"), description: ctrans("All products in this category"), tone: "accent" },
         { key: "active", value: props.productStats.active, label: ctrans("Active"), description: ctrans("Product status"), tone: "green" },
         { key: "discontinued", value: props.productStats.discontinued, label: ctrans("Discontinued"), description: ctrans("Product status"), tone: "gray" },
         { key: "incomplete", value: props.productStats.incomplete, label: ctrans("Incomplete information"), description: ctrans("Products with missing product information"), tone: "red" },

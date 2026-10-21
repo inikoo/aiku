@@ -6,10 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faArrowLeft, faCheck, faImage, faInfoCircle } from "@fal"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import PureInput from "@/Components/Pure/PureInput.vue"
-import PureInputNumber from "@/Components/Pure/PureInputNumber.vue"
-import PureTextarea from "@/Components/Pure/PureTextarea.vue"
-import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
+import { InputNumber, InputText, Select, Textarea } from "primevue"
 import Image from "@common/Components/Image.vue"
 import RichTextField from "@/Components/Catalogue/ProductSetting/RichTextField.vue"
 import ProductChecklistCard from "@/Components/Catalogue/ProductSetting/ProductChecklistCard.vue"
@@ -179,7 +176,7 @@ const changedPayload = computed(() => {
 })
 
 const changeCount = computed(() => Object.keys(changedPayload.value).length)
-const canSave = computed(() => props.canEdit && changeCount.value > 0 && Object.keys(clientErrors.value).length === 0 && !isSaving.value)
+const canSave = computed(() => props.canEdit && changeCount.value > 0 && !isSaving.value)
 
 const save = () => {
     if (!canSave.value) {
@@ -233,14 +230,14 @@ const save = () => {
                 <div class="grid min-w-0 flex-1 grid-cols-1 gap-3 md:grid-cols-2">
                     <div>
                         <label for="product-code" class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Product code") }} <span class="text-red-500">*</span></label>
-                        <PureInput v-model="form.code" inputName="product-code" classInput="font-mono" :disabled="!canEdit" :isError="!!errorOf('code')" />
+                        <InputText id="product-code" v-model="form.code" class="font-mono" fluid :disabled="!canEdit" :invalid="!!errorOf('code')" />
                         <p class="mt-1 text-xs" :class="errorOf('code') ? 'text-red-600' : 'text-gray-500'">
                             {{ errorOf("code") ?? ctrans("Letters, numbers and hyphens, e.g. :code", { code: product.code }) }}
                         </p>
                     </div>
                     <div>
                         <label for="product-name" class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Product name") }} <span class="text-red-500">*</span></label>
-                        <PureInput v-model="form.name" inputName="product-name" :disabled="!canEdit" :isError="!!errorOf('name')" />
+                        <InputText id="product-name" v-model="form.name" fluid :disabled="!canEdit" :invalid="!!errorOf('name')" />
                         <p v-if="errorOf('name')" class="mt-1 text-xs text-red-600">{{ errorOf("name") }}</p>
                     </div>
                 </div>
@@ -254,9 +251,9 @@ const save = () => {
                         <h3 class="font-semibold text-gray-900">1 · {{ ctrans("Price") }}</h3>
                         <span class="text-xs text-gray-500">{{ ctrans("Master price, before shop-specific pricing") }}</span>
                     </header>
-                    <label class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Price (:currency)", { currency: product.currency_code }) }}</label>
+                    <label for="product-price" class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Price (:currency)", { currency: product.currency_code }) }}</label>
                     <div class="max-w-xs">
-                        <PureInputNumber v-model="form.price" :prefix="product.currency_code" minValue="0" step="0.01" :disabled="!canEdit" />
+                        <InputNumber v-model="form.price" inputId="product-price" :prefix="`${product.currency_code} `" :min="0" :minFractionDigits="2" :maxFractionDigits="2" fluid :disabled="!canEdit" :invalid="!!errorOf('price')" />
                     </div>
                     <p v-if="errorOf('price')" class="mt-1 text-xs text-red-600">{{ errorOf("price") }}</p>
                 </section>
@@ -299,13 +296,13 @@ const save = () => {
 
                     <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                         <div>
-                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Net weight (g)") }}</label>
-                            <PureInputNumber v-model="form.marketing_weight" minValue="0" step="1" :disabled="!canEdit || !information.is_editable" />
+                            <label for="net-weight" class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Net weight (g)") }}</label>
+                            <InputNumber v-model="form.marketing_weight" inputId="net-weight" :min="0" :useGrouping="false" fluid :disabled="!canEdit || !information.is_editable" :invalid="!!errorOf('marketing_weight')" />
                             <p class="mt-1 text-xs" :class="errorOf('marketing_weight') ? 'text-red-600' : 'text-gray-500'">{{ errorOf("marketing_weight") ?? ctrans("Weight of the product itself") }}</p>
                         </div>
                         <div>
-                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Shipping weight (g)") }}</label>
-                            <PureInputNumber v-model="form.gross_weight" minValue="0" step="1" :disabled="!canEdit || !information.is_editable" />
+                            <label for="shipping-weight" class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Shipping weight (g)") }}</label>
+                            <InputNumber v-model="form.gross_weight" inputId="shipping-weight" :min="0" :useGrouping="false" fluid :disabled="!canEdit || !information.is_editable" :invalid="!!errorOf('gross_weight')" />
                             <p class="mt-1 text-xs" :class="errorOf('gross_weight') ? 'text-red-600' : 'text-gray-500'">{{ errorOf("gross_weight") ?? ctrans("Weight including packaging") }}</p>
                         </div>
                     </div>
@@ -314,8 +311,8 @@ const save = () => {
                         <div class="mb-1 text-sm font-medium text-gray-700">{{ ctrans("Dimensions (cm)") }}</div>
                         <div class="grid grid-cols-3 gap-3">
                             <div v-for="side in [{ key: 'l' as const, label: ctrans('Length') }, { key: 'w' as const, label: ctrans('Width') }, { key: 'h' as const, label: ctrans('Height') }]" :key="side.key">
-                                <label class="mb-1 block text-xs text-gray-500">{{ side.label }}</label>
-                                <PureInputNumber v-model="form.dimensions_cm[side.key]" minValue="1" step="0.1" :disabled="!canEdit || !information.is_editable" />
+                                <label :for="`dimension-${side.key}`" class="mb-1 block text-xs text-gray-500">{{ side.label }}</label>
+                                <InputNumber v-model="form.dimensions_cm[side.key]" :inputId="`dimension-${side.key}`" :min="1" :maxFractionDigits="2" :useGrouping="false" fluid :disabled="!canEdit || !information.is_editable" :invalid="!!errorOf('dimensions_cm')" />
                             </div>
                         </div>
                         <p v-if="errorOf('dimensions_cm')" class="mt-1 text-xs text-red-600">{{ errorOf("dimensions_cm") }}</p>
@@ -323,11 +320,12 @@ const save = () => {
 
                     <div class="mt-3">
                         <label for="material" class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Material / ingredients") }}</label>
-                        <PureTextarea
+                        <Textarea
+                            id="material"
                             v-model="form.marketing_ingredients"
-                            inputName="material"
                             :rows="3"
-                            full
+                            autoResize
+                            fluid
                             :placeholder="ctrans('e.g. Glass reservoir, ABS plastic base')"
                             :disabled="!canEdit || !information.is_editable"
                         />
@@ -336,18 +334,22 @@ const save = () => {
                     <div class="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
                         <div>
                             <label for="barcode" class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Barcode (EAN)") }}</label>
-                            <PureInput v-model="form.barcode" inputName="barcode" :placeholder="ctrans('8, 12 or 13 digits')" :disabled="!canEdit" :isError="!!errorOf('barcode')" />
+                            <InputText id="barcode" v-model="form.barcode" :placeholder="ctrans('8, 12 or 13 digits')" fluid :disabled="!canEdit" :invalid="!!errorOf('barcode')" />
                             <p class="mt-1 text-xs" :class="errorOf('barcode') ? 'text-red-600' : 'text-gray-500'">
                                 {{ errorOf("barcode") ?? ctrans("8, 12 or 13 digits, and a free barcode of the barcode pool (not used by another product or trade unit)") }}
                             </p>
                         </div>
                         <div>
-                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Origin country") }}</label>
-                            <PureMultiselect
+                            <label for="origin-country" class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Origin country") }}</label>
+                            <Select
                                 v-model="form.origin_country_id"
+                                inputId="origin-country"
                                 :options="countries"
-                                mode="single"
-                                searchable
+                                optionLabel="label"
+                                optionValue="value"
+                                filter
+                                showClear
+                                fluid
                                 :placeholder="ctrans('Not set')"
                                 :disabled="!canEdit || !information.is_editable"
                             />

@@ -9,10 +9,7 @@ import { faInfoCircle, faExclamationTriangle, faTimes, faSitemap, faExternalLink
 import { ctrans } from "@/Composables/useTrans"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import PureInput from "@/Components/Pure/PureInput.vue"
-import PureTextarea from "@/Components/Pure/PureTextarea.vue"
-import PureInputNumber from "@/Components/Pure/PureInputNumber.vue"
-import Toggle from "@/Components/Pure/Toggle.vue"
+import { InputGroup, InputGroupAddon, InputNumber, InputText, Textarea, ToggleSwitch } from "primevue"
 import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import RichTextField from "@/Components/Catalogue/ProductSetting/RichTextField.vue"
 import { productSettingActionsId, settingFieldId, type MasterProductData, type SharedInformationValue, type ShopProductSetting } from "@/Components/Catalogue/ProductSetting/types"
@@ -348,12 +345,13 @@ const [DefineMasterValue, MasterValue] = createReusableTemplate<{ value: string 
                     </div>
                     <MasterValue :value="master[field.key]" :isHtml="field.isLong" />
                     <div v-if="form.content[field.key].mode === 'customise'" class="mt-2">
-                        <PureInput
+                        <InputText
                             v-if="!field.isLong"
+                            :id="`content-${field.key}`"
                             v-model="form.content[field.key].value"
-                            :inputName="`content-${field.key}`"
+                            fluid
                             :disabled="!canEdit"
-                            :isError="!!errors[`product_${field.key}`]"
+                            :invalid="!!errors[`product_${field.key}`]"
                         />
                         <RichTextField
                             v-else
@@ -379,7 +377,7 @@ const [DefineMasterValue, MasterValue] = createReusableTemplate<{ value: string 
                         <label for="meta-title" class="font-medium text-gray-700">{{ ctrans("Meta title") }}</label>
                         <span class="tabular-nums" :class="form.title.length > 60 ? 'text-red-600' : 'text-gray-400'">{{ form.title.length }} / 60</span>
                     </div>
-                    <PureInput v-model="form.title" inputName="meta-title" :disabled="!canEdit" :isError="!!errors.title" />
+                    <InputText id="meta-title" v-model="form.title" fluid :disabled="!canEdit" :invalid="!!errors.title" />
                     <p v-if="errors.title" class="mt-1 text-xs text-red-600">{{ errors.title }}</p>
                 </div>
                 <div :id="settingFieldId('description')">
@@ -387,13 +385,16 @@ const [DefineMasterValue, MasterValue] = createReusableTemplate<{ value: string 
                         <label for="meta-description" class="font-medium text-gray-700">{{ ctrans("Meta description") }}</label>
                         <span class="tabular-nums" :class="form.description.length > 160 ? 'text-red-600' : 'text-gray-400'">{{ form.description.length }} / 160</span>
                     </div>
-                    <PureTextarea v-model="form.description" inputName="meta-description" :rows="2" full :disabled="!canEdit" :isError="!!errors.description" />
+                    <Textarea id="meta-description" v-model="form.description" :rows="2" autoResize fluid :disabled="!canEdit" :invalid="!!errors.description" />
                     <p v-if="errors.description" class="mt-1 text-xs text-red-600">{{ errors.description }}</p>
                 </div>
                 <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                     <div :id="settingFieldId('url')">
                         <label for="url" class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("URL") }}</label>
-                        <PureInput v-model="form.url" inputName="url" :prefix="{ label: '/' }" classInput="font-mono" :disabled="!canEdit" :isError="!!errors.url" />
+                        <InputGroup>
+                            <InputGroupAddon>/</InputGroupAddon>
+                            <InputText id="url" v-model="form.url" class="font-mono" :disabled="!canEdit" :invalid="!!errors.url" />
+                        </InputGroup>
                         <p v-if="errors.url" class="mt-1 text-xs text-red-600">{{ errors.url }}</p>
                     </div>
                     <div :id="settingFieldId('breadcrumb_label')">
@@ -401,7 +402,7 @@ const [DefineMasterValue, MasterValue] = createReusableTemplate<{ value: string 
                             <label for="breadcrumb-label" class="font-medium text-gray-700">{{ ctrans("Breadcrumb label") }}</label>
                             <span class="tabular-nums" :class="form.breadcrumb_label.length > 40 ? 'text-red-600' : 'text-gray-400'">{{ form.breadcrumb_label.length }} / 40</span>
                         </div>
-                        <PureInput v-model="form.breadcrumb_label" inputName="breadcrumb-label" :disabled="!canEdit" :isError="!!errors.breadcrumb_label" />
+                        <InputText id="breadcrumb-label" v-model="form.breadcrumb_label" fluid :disabled="!canEdit" :invalid="!!errors.breadcrumb_label" />
                         <p v-if="errors.breadcrumb_label" class="mt-1 text-xs text-red-600">{{ errors.breadcrumb_label }}</p>
                     </div>
                 </div>
@@ -430,12 +431,16 @@ const [DefineMasterValue, MasterValue] = createReusableTemplate<{ value: string 
                     {{ ctrans("The shop sells it at :price, converted to :currency", { price: String(formatMoney(shop.product.currency_code, shop.product.price) ?? "-"), currency: shop.product.currency_code }) }}
                 </p>
                 <div v-if="form.price.mode === 'customise'" class="mt-2 max-w-xs">
-                    <PureInputNumber
+                    <InputNumber
                         v-model="form.price.value"
-                        :prefix="shop.product.currency_code"
-                        minValue="0"
-                        step="0.01"
+                        inputId="shop-price"
+                        :prefix="`${shop.product.currency_code} `"
+                        :min="0"
+                        :minFractionDigits="2"
+                        :maxFractionDigits="2"
+                        fluid
                         :disabled="!canEdit"
+                        :invalid="!!errors.price"
                     />
                     <p v-if="errors.price" class="mt-1 text-xs text-red-600">{{ errors.price }}</p>
                 </div>
@@ -476,12 +481,12 @@ const [DefineMasterValue, MasterValue] = createReusableTemplate<{ value: string 
             </header>
             <div v-if="shop.webpage" class="space-y-3">
                 <div class="flex items-center gap-4 text-sm text-gray-700">
-                    <Toggle v-model="form.index_page" size="sm" :disabled="!canEdit" />
-                    {{ ctrans("Index page") }}
+                    <ToggleSwitch v-model="form.index_page" inputId="index-page" :disabled="!canEdit" />
+                    <label for="index-page">{{ ctrans("Index page") }}</label>
                 </div>
                 <div class="flex items-center gap-4 text-sm text-gray-700">
-                    <Toggle v-model="form.follow_link" size="sm" :disabled="!canEdit" />
-                    {{ ctrans("Follow link") }}
+                    <ToggleSwitch v-model="form.follow_link" inputId="follow-link" :disabled="!canEdit" />
+                    <label for="follow-link">{{ ctrans("Follow link") }}</label>
                 </div>
             </div>
         </section>
@@ -514,15 +519,17 @@ const [DefineMasterValue, MasterValue] = createReusableTemplate<{ value: string 
                         </Button>
                     </div>
                 </div>
-                <PureTextarea
+                <Textarea
+                    id="structured-data"
                     v-model="form.structured_data"
-                    inputName="structured-data"
                     :rows="8"
-                    full
-                    class="font-mono !text-xs"
+                    fluid
+                    spellcheck="false"
+                    wrap="off"
+                    class="font-mono text-xs leading-5"
                     :placeholder="ctrans('Paste or write JSON-LD here')"
                     :disabled="!canEdit"
-                    :isError="!!errors.structured_data || !!structuredDataCheck.error"
+                    :invalid="!!errors.structured_data || !!structuredDataCheck.error"
                 />
                 <p v-if="structuredDataCheck.error || errors.structured_data" class="text-xs text-red-600">{{ structuredDataCheck.error ?? errors.structured_data }}</p>
                 <p v-if="structuredDataCheck.warning" class="flex items-center gap-1 text-xs text-amber-700">

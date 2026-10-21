@@ -2,9 +2,9 @@
 import { computed, nextTick, ref, watch } from "vue"
 import { Head, router } from "@inertiajs/vue3"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faExternalLink, faSlidersH } from "@fal"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
+import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import WorkflowSteps from "@/Components/DataDisplay/WorkflowSteps.vue"
 import ProductChecklistCard from "@/Components/Catalogue/ProductSetting/ProductChecklistCard.vue"
 import ProductSettingForm from "@/Components/Catalogue/ProductSetting/ProductSettingForm.vue"
@@ -44,12 +44,25 @@ const selectTab = (tab: ProductSettingTab) => {
     router.get(settingUrl(tab), {}, { preserveState: true, preserveScroll: true, replace: true, only: ["tab"] })
 }
 
-const subMenu = computed(() => [
-    { key: "setting" as ProductSettingTab, label: ctrans("Setting") },
-    { key: "seo_review" as ProductSettingTab, label: ctrans("SEO review & suggestions") },
-    { key: "validation" as ProductSettingTab, label: ctrans("Webmaster validation") },
-    { key: "issues" as ProductSettingTab, label: ctrans("Issues"), count: props.shop?.audit?.issue_count },
-])
+const subMenu = computed(() => {
+    const issueCount = props.shop?.audit?.issue_count || undefined
+
+    return [
+        { value: "setting" as ProductSettingTab | "workshop", label: ctrans("Setting") },
+        ...(props.shop?.webpage?.workshop_route ? [{ value: "workshop" as const, label: ctrans("Workshop"), icon: faExternalLink }] : []),
+        { value: "seo_review" as const, label: ctrans("SEO review & suggestions") },
+        { value: "validation" as const, label: ctrans("Webmaster validation") },
+        { value: "issues" as const, label: ctrans("Issues"), count: issueCount, tone: issueCount ? "red" as const : undefined },
+    ]
+})
+
+const onSelectTab = (tab?: ProductSettingTab | "workshop") => {
+    if (tab === "workshop") {
+        openWorkshop()
+    } else if (tab) {
+        selectTab(tab)
+    }
+}
 
 const openWorkshop = () => {
     const workshopRoute = props.shop?.webpage?.workshop_route
@@ -78,28 +91,8 @@ const reloadShop = () => router.reload({ only: ["shop"] })
     <PageHeading :data="pageHead" />
 
     <div class="space-y-4 p-4">
-        <nav class="flex flex-wrap gap-1 border-b border-gray-200 pb-2" :aria-label="ctrans('Product setting')">
-            <template v-for="item in subMenu" :key="item.key">
-                <button
-                    type="button"
-                    class="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium"
-                    :class="currentTab === item.key ? 'bg-[--app-accent-soft] text-[--app-accent-strong]' : 'text-gray-700 hover:bg-gray-100'"
-                    :aria-current="currentTab === item.key ? 'page' : undefined"
-                    @click="selectTab(item.key)"
-                >
-                    {{ item.label }}
-                    <span v-if="item.count" class="rounded-full bg-red-700 px-1.5 text-xs font-semibold text-white">{{ item.count }}</span>
-                </button>
-                <button
-                    v-if="item.key === 'setting' && shop.webpage?.workshop_route"
-                    type="button"
-                    class="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100"
-                    @click="openWorkshop"
-                >
-                    {{ ctrans("Workshop") }}
-                    <FontAwesomeIcon :icon="faExternalLink" class="text-xs text-gray-500" fixed-width aria-hidden="true" />
-                </button>
-            </template>
+        <nav class="flex flex-wrap items-center gap-2 border-b border-gray-200 pb-2" :aria-label="ctrans('Product setting')">
+            <SegmentedToggle :modelValue="currentTab" :options="subMenu" :ariaLabel="ctrans('Product setting')" @update:modelValue="onSelectTab" />
         </nav>
 
         <WorkflowSteps
