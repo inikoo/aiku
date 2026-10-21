@@ -341,6 +341,11 @@ const correcting = ref<number | null>(null)
 const correctedQuantity = ref<number | null>(null)
 const correctError = ref<string | null>(null)
 const correctedStepId = ref<number | null>(null)
+const correctReason = ref('')
+
+function isRaising(session: ArtisanSession) {
+    return movingTo(session) === null && correctedQuantity.value !== null && correctedQuantity.value > session.quantity_made
+}
 
 function movingTo(session: ArtisanSession) {
     return session.other_steps.find((step) => step.id === correctedStepId.value) ?? null
@@ -353,13 +358,15 @@ function correctedPackSize(session: ArtisanSession) {
 
 function canSaveCorrect(session: ArtisanSession) {
     if (correctedQuantity.value === null) return false
-    return movingTo(session) !== null || correctedQuantity.value < session.quantity_made
+    if (movingTo(session) !== null || correctedQuantity.value < session.quantity_made) return true
+    return isRaising(session) && correctReason.value.trim() !== ''
 }
 
 function openCorrect(session: ArtisanSession) {
     correcting.value = session.id
     correctedQuantity.value = null
     correctedStepId.value = null
+    correctReason.value = ''
     correctError.value = null
 }
 
@@ -368,7 +375,7 @@ function saveCorrect(session: ArtisanSession) {
     processing.value = true
     router.patch(
         route(session.correct_route.name, session.correct_route.parameters),
-        { quantity_made: correctedQuantity.value, job_order_item_task_id: correctedStepId.value },
+        { quantity_made: correctedQuantity.value, job_order_item_task_id: correctedStepId.value, reason: isRaising(session) ? correctReason.value : null },
         {
             preserveScroll: true,
             onSuccess: () => correcting.value = null,
@@ -784,8 +791,9 @@ const quantityLabel = (quantity: number | string) => Number(quantity).toLocaleSt
                                     <Select v-model="correctedStepId" :options="session.other_steps" optionLabel="task_name" optionValue="id" showClear :placeholder="session.task_name" :class="fieldFocusClass" />
                                 </template>
                                 <span>{{ correctedPackSize(session) ? ctrans('Whole packs really made:') : ctrans('Really made:') }}</span>
-                                <InputNumber v-model="correctedQuantity" :min="0" :max="movingTo(session) ? (movingTo(session)?.unit ? undefined : movingTo(session)?.quantity_left) : session.quantity_made" :maxFractionDigits="correctedPackSize(session) ? 0 : 3" :suffix="movingTo(session)?.unit ? ' ' + movingTo(session)?.unit : undefined" inputClass="w-24" :class="fieldFocusClass" />
+                                <InputNumber v-model="correctedQuantity" :min="0" :max="movingTo(session) && !movingTo(session)?.unit ? movingTo(session)?.quantity_left : undefined" :maxFractionDigits="correctedPackSize(session) ? 0 : 3" :suffix="movingTo(session)?.unit ? ' ' + movingTo(session)?.unit : undefined" inputClass="w-24" :class="fieldFocusClass" />
                                 <span v-if="correctedPackSize(session) && correctedQuantity !== null" class="font-medium text-amber-800">= {{ (correctedQuantity * (correctedPackSize(session) ?? 1)).toLocaleString() }} × {{ session.artefact_code }}</span>
+                                <InputText v-if="isRaising(session)" v-model="correctReason" maxlength="500" :placeholder="ctrans('Why it goes up')" class="min-w-0 flex-1" :class="fieldFocusClass" />
                                 <Button type="tertiary" :label="ctrans('Save correction')" :loading="processing" :disabled="!canSaveCorrect(session)" @click="saveCorrect(session)">
                                     <template #icon><FontAwesomeIcon :icon="['fal', 'check']" class="text-green-600" fixed-width aria-hidden="true" /></template>
                                 </Button>
@@ -794,6 +802,7 @@ const quantityLabel = (quantity: number | string) => Number(quantity).toLocaleSt
                                 </Button>
                             </div>
                             <div v-if="movingTo(session)" class="mt-1 text-xs text-gray-600">{{ ctrans('The entry moves to :to with what was made there, :from goes back to what is left to do, and the pay for this entry is worked out again as :to.', { to: movingTo(session)?.task_name ?? '', from: session.task_name }) }}</div>
+                            <div v-else-if="isRaising(session)" class="mt-1 text-xs text-gray-600">{{ ctrans('The entry goes up to what was really made, as long as the step has that much left to do, and the pay for this entry is worked out again.') }}</div>
                             <div v-else class="mt-1 text-xs text-gray-600">{{ ctrans('The job goes back to what was really made, any authorised overproduction is reduced with it, and the pay for this entry is worked out again.') }}</div>
                             <div v-if="correctError" class="mt-1 text-red-700">{{ correctError }}</div>
                         </div>

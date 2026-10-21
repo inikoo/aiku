@@ -27,8 +27,9 @@ class CorrectManufactureTaskSessionQuantity extends OrgAction
     private ?string $correctedBy = null;
 
     /**
-     * A finished entry typed too high is brought down to what was really made. Whatever the job
-     * grew by on a manager's authorisation shrinks back with it, and the pay is worked out again.
+     * A finished entry is set to what was really made. Brought down, whatever the job grew by on a
+     * manager's authorisation shrinks back with it; raised, it needs a reason and fits in what is left
+     * on the step. The pay is worked out again either way.
      */
     public function handle(ManufactureTaskSession $session, array $modelData): ManufactureTaskSession
     {
@@ -57,8 +58,19 @@ class CorrectManufactureTaskSessionQuantity extends OrgAction
                 return $this->moveToStep($session, $task, $stepId, $quantity);
             }
 
-            if ($quantity >= $previous) {
-                $this->refuse(__('A correction can only lower the quantity, it was :quantity', ['quantity' => $previous]));
+            if ($quantity == $previous) {
+                $this->refuse(__('The entry is already :quantity', ['quantity' => $previous]));
+            }
+
+            $reason = trim($modelData['reason'] ?? '');
+            if ($quantity > $previous) {
+                if ($reason === '') {
+                    $this->refuse(__('Say why the entry goes up'));
+                }
+                $left = max(0, round((float) $task->quantity_required - (float) $task->quantity_made, 3));
+                if (!$task->isRecordedInKg() && $quantity - $previous > $left) {
+                    $this->refuse(__('Only :left left on :step', ['left' => $left, 'step' => $task->manufactureTask->name]));
+                }
             }
 
             $packSize = $task->packSize();
@@ -73,7 +85,7 @@ class CorrectManufactureTaskSessionQuantity extends OrgAction
             $data       = $jobOrder->data ?? [];
             $authorised = collect($data['overproductions'] ?? [])->where('session_id', $session->id);
             $extra      = (float) $authorised->sum('quantity');
-            $extraLeft  = round(max(0, $extra - ($previous - $quantity)), 3);
+            $extraLeft  = round(max(0, $extra - max(0, $previous - $quantity)), 3);
 
             $data['overproductions'] = collect($data['overproductions'] ?? [])
                 ->map(fn (array $entry) => ($entry['session_id'] ?? null) == $session->id ? array_merge($entry, ['quantity' => $extraLeft]) : $entry)
@@ -87,6 +99,7 @@ class CorrectManufactureTaskSessionQuantity extends OrgAction
                 'pack_size'     => $packSize,
                 'from'          => $previous,
                 'to'            => $quantity,
+                'reason'        => $reason ?: null,
                 'by'            => $this->correctedBy,
                 'at'            => now()->toIso8601String(),
             ];
@@ -164,7 +177,7 @@ class CorrectManufactureTaskSessionQuantity extends OrgAction
         CloseManufactureTaskSession::make()->applyPayTerms($session, $session->artisan_pay_type ?? ArtisanPayTypeEnum::PIECE_RATE);
         $session->save();
 
-        CalculateJobOrderItemTaskQuantities::run($from->refresh());
+        CalculateJobOrderItemTaskQuantities::run($from->refresh())->followRecipeWhenNothingRecorded();
         CalculateJobOrderItemTaskQuantities::run($to->refresh());
 
         return CalculateManufactureTaskSessionPay::run($session);
@@ -180,6 +193,7 @@ class CorrectManufactureTaskSessionQuantity extends OrgAction
         return [
             'quantity_made'          => ['required', 'numeric', 'min:0'],
             'job_order_item_task_id' => ['sometimes', 'nullable', 'integer'],
+            'reason'                 => ['sometimes', 'nullable', 'string', 'max:500'],
         ];
     }
 

@@ -1128,6 +1128,9 @@ test('a mix entered on Making by mistake is moved to the mix step and Making goe
     expect($artisansSession['other_steps'])->toHaveCount(1)
         ->and($artisansSession['other_steps'][0])->toMatchArray(['id' => $mix->id, 'unit' => 'kg', 'quantity_left' => 100.8]);
 
+    \App\Actions\Production\Artefact\AttachManufactureTaskToArtefact::make()->action($artefact, ['manufacture_task_id' => $makingTask->id, 'position' => 1, 'units_per_artefact' => 0.3333]);
+    expect((float) $making->refresh()->quantity_required)->toBe(180.0);
+
     $correct = fn (array $data) => \App\Actions\Production\ManufactureTaskSession\CorrectManufactureTaskSessionQuantity::make()->action($session->refresh(), $data, 'Supervisor');
     $otherJobOrder = StoreJobOrder::make()->action($this->production, []);
     $otherStep     = StoreJobOrderItem::make()->action($otherJobOrder, ['artefact_id' => $artefact->id, 'quantity' => 10])->tasks()->first();
@@ -1140,10 +1143,14 @@ test('a mix entered on Making by mistake is moved to the mix step and Making goe
         ->and((float) $moved->quantity_made)->toBe(100.8)
         ->and($moved->standard_rate)->toBeNull()
         ->and((float) $making->refresh()->quantity_made)->toBe(0.0)
+        ->and((float) $making->quantity_required)->toBe(60.0)
         ->and($making->state)->toBe(JobOrderItemTaskStateEnum::TODO)
         ->and((float) $mix->refresh()->quantity_made)->toBe(100.8)
         ->and($mix->state)->toBe(JobOrderItemTaskStateEnum::DONE)
         ->and($jobOrder->refresh()->data['corrections'][0])->toMatchArray(['from_step' => 'Making '.$suffix, 'step' => 'Mixing '.$suffix, 'from' => 180.0, 'to' => 100.8, 'by' => 'Supervisor']);
+
+    $making->update(['quantity_required' => 40]);
+    expect((float) $making->followRecipeWhenNothingRecorded()->quantity_required)->toBe(40.0);
 });
 
 test('the day plan lists the materials its open steps need, the check asks the warehouse in whole boxes, and the warehouse walks them to the factory location', function () {

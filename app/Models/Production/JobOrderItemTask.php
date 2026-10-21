@@ -141,6 +141,26 @@ class JobOrderItemTask extends Model
         return CalculateJobOrderItemTaskQuantities::run($this);
     }
 
+    /**
+     * A step left with nothing recorded and asking for more than the recipe says today comes down to
+     * the recipe, so a count it kept through a recipe change because of an entry that was later moved
+     * away or voided does not stay behind. A count lowered on purpose, like work credited to a carried
+     * job, is never raised back.
+     */
+    public function followRecipeWhenNothingRecorded(): self
+    {
+        if ((float) $this->quantity_made > 0 || !$this->isInRecipe()) {
+            return $this;
+        }
+
+        $recipeQuantity = $this->requiredFor($this->jobOrderItem->quantity);
+        if ((float) $this->quantity_required <= $recipeQuantity) {
+            return $this;
+        }
+
+        return $this->setRequiredQuantity($recipeQuantity);
+    }
+
     public function mixBatchKg(): ?int
     {
         return $this->isRecordedInKg() ? ($this->recipeStep()?->mix_batch_kg ?: null) : null;

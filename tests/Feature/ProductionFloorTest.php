@@ -766,7 +766,7 @@ test('a supervisor corrects an entry typed too high and the grown job shrinks ba
 
     $correct = fn (float $quantity) => \App\Actions\Production\ManufactureTaskSession\CorrectManufactureTaskSessionQuantity::make()->action($session->refresh(), ['quantity_made' => $quantity], 'Supervisor');
 
-    expect(fn () => $correct(300))->toThrow(\Illuminate\Validation\ValidationException::class, 'only lower')
+    expect(fn () => $correct(300))->toThrow(\Illuminate\Validation\ValidationException::class, 'Say why')
         ->and(fn () => $correct(6.5))->toThrow(\Illuminate\Validation\ValidationException::class, 'whole packs of 8');
 
     $correct(31);
@@ -782,6 +782,17 @@ test('a supervisor corrects an entry typed too high and the grown job shrinks ba
         ->and((float) $task->refresh()->quantity_required)->toBe(7.0)
         ->and($task->state)->toBe(JobOrderItemTaskStateEnum::IN_PROGRESS)
         ->and($jobOrder->refresh()->data['overproductions'])->toBe([]);
+
+    $raise = fn (float $quantity, ?string $reason) => \App\Actions\Production\ManufactureTaskSession\CorrectManufactureTaskSessionQuantity::make()->action($session->refresh(), ['quantity_made' => $quantity, 'reason' => $reason], 'Supervisor');
+    expect(fn () => $raise(7, null))->toThrow(\Illuminate\Validation\ValidationException::class, 'Say why')
+        ->and(fn () => $raise(8, 'Entered on the wrong session'))->toThrow(\Illuminate\Validation\ValidationException::class, 'Only 1 left');
+
+    $raise(7, 'Entered on the wrong session');
+    expect((float) $session->refresh()->quantity_made)->toBe(7.0)
+        ->and((float) $task->refresh()->quantity_made)->toBe(7.0)
+        ->and($task->state)->toBe(JobOrderItemTaskStateEnum::DONE)
+        ->and($item->refresh()->quantity)->toBe(56)
+        ->and(collect($jobOrder->refresh()->data['corrections'])->last())->toMatchArray(['from' => 6.0, 'to' => 7.0, 'reason' => 'Entered on the wrong session']);
 
     get(route('grp.org.productions.show.artisans.index', [$this->organisation->slug, $this->production->slug]))
         ->assertInertia(fn (AssertableInertia $page) => $page->has('artisans')->etc());
