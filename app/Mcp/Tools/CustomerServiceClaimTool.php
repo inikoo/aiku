@@ -8,14 +8,9 @@
 
 namespace App\Mcp\Tools;
 
-use App\Actions\Accounting\Invoice\RefundClaimToBalance;
-use App\Actions\Chat\ChatSession\GetChatClaimCase;
-use App\Actions\Dispatching\DeliveryNote\StoreReplacementDeliveryNote;
-use App\Actions\Ordering\UpcomingTransaction\StoreClaimFollowOns;
+use App\Actions\Chat\ChatSession\PlanChatClaim;
 use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemReplacementReasonEnum;
-use App\Enums\SysAdmin\Authorisation\ShopPermissionsEnum;
 use App\Enums\SysAdmin\McpChange\McpChangeTypeEnum;
-use App\Models\Ordering\Order;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -29,14 +24,12 @@ class CustomerServiceClaimTool extends AikuCustomerServiceTool
 {
     use WithMcpChangeLog;
 
-    private const array RESOLUTIONS = ['refund_to_balance', 'replacement', 'next_order'];
-
     public function handle(Request $request): Response
     {
         $request->validate([
             'chat_id'          => ['required', 'string', 'max:40'],
             'order'            => ['required', 'string', 'max:64'],
-            'resolution'       => ['required', 'in:'.implode(',', self::RESOLUTIONS)],
+            'resolution'       => ['required', 'in:'.implode(',', PlanChatClaim::RESOLUTIONS)],
             'items'            => ['required', 'array', 'min:1', 'max:80'],
             'items.*.code'     => ['required', 'string'],
             'items.*.quantity' => ['required', 'numeric', 'gt:0'],
@@ -64,55 +57,18 @@ class CustomerServiceClaimTool extends AikuCustomerServiceTool
 
         $resolution = $request->string('resolution')->toString();
 
-        $denied = $resolution === 'replacement'
-            ? $this->cannotOnShop($request, $chatSession, ShopPermissionsEnum::ORDERS_EDIT, 'create replacements')
-            : $this->cannotOnShop($request, $chatSession, ShopPermissionsEnum::CRM_EDIT, 'settle claims');
+        $denied = $this->cannotOnShop($request, $chatSession, PlanChatClaim::permission($resolution), $resolution === 'replacement' ? 'create replacements' : 'settle claims');
         if ($denied) {
             return $denied;
         }
 
-        $claim = GetChatClaimCase::run($chatSession, $this->customerOf($chatSession), $order->reference);
+        $plan = PlanChatClaim::run($chatSession, $order, $resolution, $request->get('items'), $request->get('reason'), $request->get('percentage') !== null ? (float) $request->get('percentage') : null);
 
-        if (!$claim || $claim['order']['reference'] !== $order->reference || !$claim['lines']) {
-            return Response::error("{$order->reference} has nothing delivered to claim on. Nothing was changed.");
+        if ($plan['error']) {
+            return Response::error($plan['error']);
         }
 
-        if ($claim['order']['too_old']) {
-            return Response::error("Claims are taken for {$claim['max_age_days']} days after the order is dispatched, and {$order->reference} is older. Nothing was changed.");
-        }
-
-        $reason     = $request->get('reason') ?: $claim['reason'];
-        $percentage = $resolution === 'refund_to_balance' ? (float) ($request->get('percentage') ?: 100) : 100.0;
-        $lines      = collect($claim['lines'])->keyBy(fn (array $line) => strtolower((string) $line['code']));
-        $claimed    = [];
-        $amount     = 0.0;
-
-        $items      = collect($request->get('items'))
-            ->groupBy(fn (array $item) => strtolower(trim($item['code'])))
-            ->map(fn ($sameCode) => ['code' => trim($sameCode->first()['code']), 'quantity' => (float) $sameCode->sum('quantity')])
-            ->values();
-
-        foreach ($items as $item) {
-            $line = $lines->get(strtolower($item['code']));
-
-            if (!$line) {
-                return Response::error("{$item['code']} was not delivered on {$order->reference}. Delivered: ".$lines->pluck('code')->implode(', ').'. Nothing was changed.');
-            }
-
-            if ((float) $item['quantity'] > $line['claimable'] + 0.0005) {
-                return Response::error("Only {$line['claimable']} of {$line['code']} is left to claim on {$order->reference}: the rest is already replaced, refunded or waiting in their next order. Nothing was changed.");
-            }
-
-            $claimed[] = [
-                'id'       => $line['id'],
-                'code'     => $line['code'],
-                'name'     => $line['name'],
-                'quantity' => (float) $item['quantity'],
-                'reason'   => $reason,
-            ];
-
-            $amount += ($claim['invoiced'][$line['transaction_id']] ?? 0) * min(1, (float) $item['quantity'] / max($line['ordered'], 0.001)) * $claim['tax_ratio'] * $percentage / 100;
-        }
+        ['claimed' => $claimed, 'amount' => $amount, 'reason' => $reason, 'percentage' => $percentage] = $plan;
 
         $customer = $order->customer;
 
@@ -123,7 +79,7 @@ class CustomerServiceClaimTool extends AikuCustomerServiceTool
                 'customer'   => $customer->name,
                 'reason'     => DeliveryNoteItemReplacementReasonEnum::from($reason)->label(),
                 'items'      => collect($claimed)->map(fn (array $item) => $item['code'].' x'.$item['quantity'].' '.$item['name'])->all(),
-                'credit'     => $resolution === 'refund_to_balance' ? 'about '.round($amount, 2).' '.$claim['currency'].' to the balance of '.$customer->name.' (now '.(float) $customer->balance.')' : null,
+                'credit'     => $resolution === 'refund_to_balance' ? 'about '.round($amount, 2).' '.$plan['currency'].' to the balance of '.$customer->name.' (now '.(float) $customer->balance.')' : null,
                 'percentage' => $resolution === 'refund_to_balance' && $percentage < 100 ? $percentage : null,
                 'note'       => $request->get('note'),
             ]));
@@ -135,7 +91,7 @@ class CustomerServiceClaimTool extends AikuCustomerServiceTool
                 McpChangeTypeEnum::CUSTOMER_SERVICE,
                 str_replace('_', ' ', $resolution).' for '.collect($claimed)->map(fn (array $item) => $item['code'].' x'.$item['quantity'])->implode(', ').' of '.$order->reference,
                 ['chat_session_id' => $chatSession->id, 'order_id' => $order->id],
-                fn () => $this->settle($order, $resolution, $claimed, $reason, $percentage, $request->get('note')),
+                fn () => PlanChatClaim::make()->settle($order, $resolution, $claimed, $reason, $percentage, $request->get('note')),
                 ['action' => $resolution, 'items' => $claimed, 'percentage' => $percentage]
             );
         } catch (ValidationException $exception) {
@@ -149,40 +105,9 @@ class CustomerServiceClaimTool extends AikuCustomerServiceTool
             'order'         => $order->reference,
             'result'        => $result,
             'balance'       => (float) $customer->refresh()->balance,
-            'currency'      => $claim['currency'],
+            'currency'      => $plan['currency'],
             'change_log_id' => $this->mcpChange?->id,
         ]);
-    }
-
-    /**
-     * @param  array<int, array{id: int, code: string, name: string, quantity: float, reason: string}>  $claimed
-     *
-     * @throws \Throwable
-     */
-    private function settle(Order $order, string $resolution, array $claimed, string $reason, float $percentage, ?string $note): array
-    {
-        $items = array_map(fn (array $item) => ['id' => $item['id'], 'quantity' => $item['quantity'], 'reason' => $item['reason']], $claimed);
-
-        if ($resolution === 'refund_to_balance') {
-            $refund = RefundClaimToBalance::make()->handle($order, $items, $percentage);
-
-            return ['refund' => $refund->reference, 'credited' => abs((float) $refund->total_amount)];
-        }
-
-        if ($resolution === 'next_order') {
-            return [
-                'in_next_order' => StoreClaimFollowOns::make()->handle($order, $items, $reason, $note)
-                    ->map(fn ($followOn) => $followOn->product?->code.' x'.(float) $followOn->quantity)
-                    ->all(),
-            ];
-        }
-
-        $deliveryNote = StoreReplacementDeliveryNote::make()->action($order, array_filter([
-            'delivery_note_items'    => $items,
-            'private_warehouse_note' => $note,
-        ]));
-
-        return ['replacement' => $deliveryNote->reference, 'state' => $deliveryNote->state->value];
     }
 
     /**
@@ -193,7 +118,7 @@ class CustomerServiceClaimTool extends AikuCustomerServiceTool
         return [
             'chat_id'      => $schema->string()->description('Chat ID copied from the Overview panel of the chat')->required(),
             'order'        => $schema->string()->description('Reference of the dispatched order the claim is about, e.g. GB589603')->required(),
-            'resolution'   => $schema->string()->enum(self::RESOLUTIONS)->description('How the claim is settled')->required(),
+            'resolution'   => $schema->string()->enum(PlanChatClaim::RESOLUTIONS)->description('How the claim is settled')->required(),
             'items'        => $schema->array()->items($schema->object([
                 'code'     => $schema->string()->description('Product code as delivered, e.g. SelCH-03')->required(),
                 'quantity' => $schema->number()->description('Quantity claimed, in the units the customer ordered')->required(),

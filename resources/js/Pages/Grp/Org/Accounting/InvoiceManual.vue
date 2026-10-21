@@ -61,6 +61,7 @@ import NeedToPay from '@/Components/Utils/NeedToPay.vue'
 import EmptyState from '@/Components/Utils/EmptyState.vue'
 import InvoiceManualTransactions from '@/Components/Accounting/InvoiceManualTransactions.vue'
 import PureMultiselectInfiniteScroll from '@/Components/Pure/PureMultiselectInfiniteScroll.vue'
+import ServiceSelectOption from '@/Components/Fulfilment/ServiceSelectOption.vue'
 import { Action } from '@/types/Action'
 import { get } from 'lodash-es'
 // const locale = useLocaleStore()
@@ -385,12 +386,8 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                                         <div class="w-full text-left pl-4">{{ value.name }} <span class="text-sm text-gray-400">({{ locale.currencyFormat(value.currency_code, value.price) }}/{{ value.unit }})</span></div>
                                     </template>
 
-                                    <template #option="{ option, isSelected, isPointed }">
-                                        <div class="">
-                                            <FontAwesomeIcon v-if="option?.is_pallet_handling" v-tooltip="ctrans('Special service')" icon="fas fa-diamond" class="text-teal-500 text-sm" fixed-width aria-hidden="true" />
-                                            {{ option.name }}
-                                            <span class="text-sm text-gray-400">({{ locale.currencyFormat(option.currency_code, option.price) }}/{{ option.unit }})</span>
-                                        </div>
+                                    <template #option="{ option }">
+                                        <ServiceSelectOption :option="option" />
                                     </template>
                                 </PureMultiselectInfiniteScroll>
 

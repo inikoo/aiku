@@ -26,7 +26,8 @@ use Lorisleiva\Actions\Concerns\AsAction;
  * marketplace orders) count, because a trade customer who receives the goods is usually the importer and reports them
  * itself; those are totalled apart so the split can be checked. Both add an estimate of the shipment packaging the
  * parcels went out in: the shipment packaging used in the period times the share of parcels that count. Plastics
- * without a polymer take the scheme's general plastic line.
+ * without a polymer take the scheme's general plastic line. In its own country it also reports, as importer, the packing
+ * material that came inside the cartons it imported, from the agents' packing specs; distance selling does not.
  */
 class GetEuPackagingReturn
 {
@@ -78,6 +79,7 @@ class GetEuPackagingReturn
                 'scheme_subcategory' => $subcategory ?: null,
                 'sales_kg'           => round($current['sales'][$key] ?? 0.0, 1),
                 'shipment_kg'        => round($current['shipment'][$key] ?? 0.0, 1),
+                'inbound_kg'         => round($current['inbound'][$key] ?? 0.0, 1),
                 'kg'                 => round($kg, 1),
                 'previous_kg'        => $previousKg === null ? null : round($previousKg, 1),
                 'change'             => $previousKg ? round(($kg - $previousKg) / $previousKg * 100, 1) : null,
@@ -105,7 +107,7 @@ class GetEuPackagingReturn
     }
 
     /**
-     * @return array{kg: array<string, float>, sales: array<string, float>, shipment: array<string, float>, has_data: bool, parcel_share: float|null, trade_kg: float, plastic_without_polymer: float, units: float, units_without_weights: float}
+     * @return array{kg: array<string, float>, sales: array<string, float>, shipment: array<string, float>, inbound: array<string, float>, has_data: bool, parcel_share: float|null, trade_kg: float, plastic_without_polymer: float, units: float, units_without_weights: float}
      */
     private function materials(Organisation $organisation, EprSchemeEnum $scheme, ?int $countryId, bool $domestic, Carbon $from, Carbon $to): array
     {
@@ -146,6 +148,18 @@ class GetEuPackagingReturn
             $bindings
         );
 
+        $inbound = $domestic ? DB::select(
+            <<<'SQL'
+            SELECT 'inbound' AS bucket, material_category, polymer, SUM(kg) AS kg
+            FROM epr_packing_lines
+            WHERE organisation_id = ? AND date BETWEEN ? AND ?
+              AND activity IN ('imported', 'imported_discarded', 'reused')
+              AND NOT in_product_packaging
+            GROUP BY material_category, polymer
+            SQL,
+            $bindings
+        ) : [];
+
         $parcelsCount = $domestic ? 'TRUE' : str_replace('l.', 'dn.', $consumer);
         $parcels      = DB::selectOne(
             <<<SQL
@@ -159,11 +173,11 @@ class GetEuPackagingReturn
         );
         $share = $parcels->all_notes > 0 ? $parcels->counted / $parcels->all_notes : null;
 
-        $result = ['kg' => [], 'sales' => [], 'shipment' => [], 'has_data' => false, 'parcel_share' => $share === null ? null : round($share * 100, 1), 'trade_kg' => 0.0,
+        $result = ['kg' => [], 'sales' => [], 'shipment' => [], 'inbound' => [], 'has_data' => false, 'parcel_share' => $share === null ? null : round($share * 100, 1), 'trade_kg' => 0.0,
                    'plastic_without_polymer' => 0.0, 'units' => (float)$units->units, 'units_without_weights' => (float)$units->without_weights];
 
         $mappings = [];
-        foreach ($weights as $row) {
+        foreach ([...$weights, ...$inbound] as $row) {
             if ($row->bucket === 'trade') {
                 $result['trade_kg'] += (float)$row->kg;
                 continue;

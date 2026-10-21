@@ -12,6 +12,7 @@ use App\Enums\Goods\Packaging\PackagingLevelEnum;
 use App\Enums\Goods\Packaging\PackagingMaterialCategoryEnum;
 use App\Enums\Goods\Packaging\PackagingPolymerEnum;
 use App\Enums\Goods\Packaging\PackagingRamRatingEnum;
+use App\Enums\SupplyChain\PackingSpec\PackingSpecRoleEnum;
 use App\Models\Traits\InGroup;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -51,6 +52,13 @@ use Illuminate\Support\Carbon;
  * @property string|null $label_coverage_pct
  * @property bool|null $has_carbon_black
  * @property bool|null $is_laminated
+ * @property bool $is_dropdown_item
+ * @property string|null $dropdown_key
+ * @property array<string, string>|null $dropdown_labels
+ * @property int|null $dropdown_position
+ * @property PackingSpecRoleEnum|null $default_role
+ * @property bool $is_epr_reportable
+ * @property bool $needs_review
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, PackagingFamily> $families
@@ -74,6 +82,11 @@ class PackagingComponent extends Model
         'ram_assessed_at'       => 'date',
         'has_carbon_black'      => 'boolean',
         'is_laminated'          => 'boolean',
+        'is_dropdown_item'      => 'boolean',
+        'dropdown_labels'       => 'array',
+        'default_role'          => PackingSpecRoleEnum::class,
+        'is_epr_reportable'     => 'boolean',
+        'needs_review'          => 'boolean',
     ];
 
     protected $attributes = [
@@ -86,5 +99,13 @@ class PackagingComponent extends Model
     {
         return $this->belongsToMany(PackagingFamily::class, 'packaging_family_has_components')
             ->withPivot(['quantity', 'quantity_per_unit'])->withTimestamps();
+    }
+
+    public function dropdownLabel(?string $locale = null): string
+    {
+        $labels = $this->dropdown_labels ?? [];
+        $locale = mb_strtolower(substr($locale ?? app()->getLocale(), 0, 2));
+
+        return $labels[$locale] ?? $labels['en'] ?? (string)$this->name;
     }
 }

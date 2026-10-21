@@ -498,6 +498,20 @@ test('a faire line moved to a re-order leaves the original order unless it alrea
     expect($movedLine->order_id)->toBe($reOrder->id);
 });
 
+/** HELP-4149: refreshing Faire data on a cancelled order put Faire's lines back onto it. */
+test('a cancelled faire order is never refreshed from faire', function () {
+    $order = StoreOrder::make()->action($this->customer, []);
+    $order->updateQuietly(['state' => OrderStateEnum::CANCELLED, 'external_id' => 'help4149_'.uniqid()]);
+
+    Http::fake();
+
+    UpdateFaireOrder::make()->handle($order->refresh());
+
+    Http::assertNothingSent();
+    expect($order->transactions()->count())->toBe(0)
+        ->and($order->refresh()->state)->toBe(OrderStateEnum::CANCELLED);
+});
+
 /** HELP-3906, HELP-3989, HELP-4038: Faire states only the VAT on the shipping of its own label, so whoever edits the order types the shipping and it must carry that VAT; an order we ship ourselves takes it before its tracking goes to Faire. */
 test('manual shipping on a faire label order must match the shipping vat faire states and on our own shipping is allowed before the tracking', function () {
     $order = StoreOrder::make()->action($this->customer, []);

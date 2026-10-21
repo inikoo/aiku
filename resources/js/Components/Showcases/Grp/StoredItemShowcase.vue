@@ -29,6 +29,12 @@ import { faShare, faSeedling, faInventory, faSignOutAlt, faGhost, faCheck, faTim
 
 library.add(faShare, faSeedling, faInventory, faSignOutAlt, faGhost, faCheck, faTimes, faCheckDouble, faWarehouseAlt, faFragile, faSpellCheck, faPencil, faPlus)
 
+/** The Movements tab of this same page, narrowed to one pallet */
+const movementsHref = (palletReference: string) => {
+    const query = new URLSearchParams({ tab: "movements", "movements_filter[global]": palletReference })
+    return `${window.location.pathname}?${query.toString()}`
+}
+
 ChartJS.register(ArcElement, Tooltip, Legend, Colors)
 
 const props = defineProps<{
@@ -44,7 +50,20 @@ const props = defineProps<{
             }[]
         },
         route_pallets: routeType,
-        pallets: Array<{ label: string, location: string, value: number }>
+        pallets: Array<{
+            id: number
+            slug: string
+            reference: string | null
+            state: string
+            state_label: string
+            state_icon: any
+            location: { id: number | null, code: string | null, slug: string | null }
+            last_picked_from: { code: string, moved_at: string | null } | null
+            quantity: number
+            reserved_quantity: number
+            available_quantity: number
+            reserved_in_other_returns: unknown[]
+        }>
         route_update_stored_item: routeType
         barcode?: string | null
         barcode_update_route?: routeType
@@ -378,6 +397,14 @@ const saveBarcode = (value: string | null) => {
                                 <span v-if="pallet.location?.code" class="shrink-0 rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500">{{ pallet.location.code }}</span>
                             </component>
                             <div class="flex shrink-0 items-center gap-x-3">
+                                <Link
+                                    v-if="pallet.last_picked_from?.code"
+                                    :href="movementsHref(pallet.reference ?? '')"
+                                    v-tooltip="ctrans('Last picked from :location on :date · see movements', { location: pallet.last_picked_from.code, date: useFormatTime(pallet.last_picked_from.moved_at ?? undefined) })"
+                                    class="shrink-0 rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500 transition-colors hover:bg-[--app-accent-soft] hover:text-[--app-accent-strong]"
+                                >
+                                    {{ ctrans("from :location", { location: pallet.last_picked_from.code }) }}
+                                </Link>
                                 <span class="text-xs text-gray-400">{{ pallet.state_label }}</span>
                                 <PalletStoredItemAvailableStock
                                     class="font-semibold text-gray-800"

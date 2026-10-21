@@ -286,6 +286,14 @@ test('set shipper api credentials from the command', function ($createdShipper) 
     $createdShipper->update($originalApiSettings);
 })->depends('create shipper');
 
+test('dpd gb label pdf keeps one page per parcel', function () {
+    $html = str_repeat('<div style="page-break-after: always">label</div>', 3);
+
+    $pdf = (new CallApiDpdGbShipping())->labelPdf($html, 3);
+
+    expect(preg_match_all('/\/Type\s*\/Page[^s]/', $pdf))->toBe(3);
+})->skip(fn () => !is_dir(base_path('node_modules/puppeteer')) && !is_dir(trim((string) shell_exec('npm root -g')).'/puppeteer'), 'puppeteer is not installed');
+
 test('dpd gb login reads the credentials by name whatever their order', function () {
     config(['app.sandbox.shipper_dpd_gb_token' => '{"account":"462302","password":"p","username":"u"}']);
     Http::fake(['api.dpd.co.uk/*' => Http::response(['data' => ['geoSession' => 'session']])]);
@@ -1634,6 +1642,27 @@ test('printing the label of a packed replacement dispatches it', function () {
     expect($deliveryNote->state)->toBe(DeliveryNoteStateEnum::DISPATCHED)
         ->and($deliveryNote->orders()->first()->state)->toBe($orderState)
         ->and($deliveryNote->orders()->first()->invoices()->count())->toBe(0);
+});
+
+test('delivery note page lists the emails sent for it in the dispatched emails tab', function () {
+    [$deliveryNote] = finalisedDeliveryNote($this);
+    $customer       = $deliveryNote->customer;
+    $outbox         = \App\Models\Comms\Outbox::where('shop_id', $deliveryNote->shop_id)->where('code', \App\Enums\Comms\Outbox\OutboxCodeEnum::DELIVERY_CONFIRMATION)->firstOrFail();
+
+    $dispatchedEmail = \App\Actions\Comms\DispatchedEmail\StoreDispatchedEmail::run($outbox->emailOngoingRun, $customer, ['email_address' => 'replacement-tracking@example.com']);
+    $deliveryNote->dispatchedEmails()->attach($dispatchedEmail, ['outbox_id' => $outbox->id]);
+
+    $this->withoutExceptionHandling();
+    get(route('grp.org.warehouses.show.dispatching.delivery_notes.show', [
+        $deliveryNote->organisation->slug,
+        $deliveryNote->warehouse->slug,
+        $deliveryNote->slug,
+        'tab' => DeliveryNoteTabsEnum::DISPATCHED_EMAILS->value,
+    ]))->assertInertia(fn (AssertableInertia $page) => $page
+        ->has('tabs.navigation.'.DeliveryNoteTabsEnum::DISPATCHED_EMAILS->value)
+        ->has(DeliveryNoteTabsEnum::DISPATCHED_EMAILS->value.'.data', 1)
+        ->where(DeliveryNoteTabsEnum::DISPATCHED_EMAILS->value.'.data.0.id', $dispatchedEmail->id)
+        ->where(DeliveryNoteTabsEnum::DISPATCHED_EMAILS->value.'.data.0.email_address', 'replacement-tracking@example.com'));
 });
 
 test('dispatching an intra-EU delivery note queues the intrastat export time series', function () {
@@ -6310,10 +6339,10 @@ test('EPR flow lines classify received stock deliveries and dispatched delivery 
     $euReturn = \App\Actions\Reports\GetEuPackagingReturn::run($slovak, \Illuminate\Support\Carbon::parse('2001-03-01'), \Illuminate\Support\Carbon::parse('2001-03-31'));
 
     expect($euReturn['scheme'])->toBe('sk')
-        ->and($euReturn['rows'])->toBe([['scheme_material' => 'Sklo', 'scheme_subcategory' => null, 'sales_kg' => 2.9, 'shipment_kg' => 0.0, 'kg' => 2.9, 'previous_kg' => null, 'change' => null]])
+        ->and($euReturn['rows'])->toBe([['scheme_material' => 'Sklo', 'scheme_subcategory' => null, 'sales_kg' => 2.9, 'shipment_kg' => 0.0, 'inbound_kg' => 0.0, 'kg' => 2.9, 'previous_kg' => null, 'change' => null]])
         ->and($euReturn['domestic'])->toBeTrue()
         ->and(array_column($euReturn['schemes'], 'value'))->toBe(['sk', 'de', 'es', 'fr', 'it'])
-        ->and(\App\Actions\Reports\ExportEuPackagingReturn::make()->handle($euReturn))->toBe([['2001-03-01', '2001-03-31', 'Sklo', null, 2.9, 0.0, 2.9]])
+        ->and(\App\Actions\Reports\ExportEuPackagingReturn::make()->handle($euReturn))->toBe([['2001-03-01', '2001-03-31', 'Sklo', null, 2.9, 0.0, 0.0, 2.9]])
         ->and(\App\Actions\Reports\GetEuPackagingReturn::make()->scheme($this->organisation->replicate()->setRelation('country', \App\Models\Helpers\Country::where('code', 'GB')->firstOrFail())))->toBeNull();
 
     $family->update(['brand_ownership' => \App\Enums\Goods\Packaging\PackagingBrandOwnershipEnum::OWN_BRAND]);
@@ -6568,7 +6597,7 @@ test('distance selling scheme returns count consumer parcels, the exposure tab f
     $family->components()->first()->update(['weight_g' => 999]);
     expect($this->get(route('grp.org.reports.packaging.snapshot', [$this->organisation->slug, $snapshot->id, 'part' => 'return']))->assertOk()->streamedContent())
         ->toContain('2001-05-01,2001-05-31,')
-        ->toContain(',0.3,0,0.3')
+        ->toContain(',0.3,0,0,0.3')
         ->and($this->get(route('grp.org.reports.packaging.snapshot', [$this->organisation->slug, $snapshot->id]))->assertOk()->streamedContent())
         ->toStartWith(implode(',', \App\Actions\Reports\ExportEprSnapshot::LINE_COLUMNS))
         ->toContain($orgStock->code.',');

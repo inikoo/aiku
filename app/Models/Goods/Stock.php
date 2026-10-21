@@ -260,7 +260,7 @@ class Stock extends Model implements HasMedia, Auditable
     public function supplierProducts(): BelongsToMany
     {
         return $this->belongsToMany(SupplierProduct::class, 'stock_has_supplier_products')
-            ->withPivot(['priority', 'status', 'source_id', 'source_slug', 'fetched_at', 'last_fetched_at'])->withTimestamps();
+            ->withPivot(['priority', 'available'])->withTimestamps();
     }
 
     public function timeSeries(): HasMany

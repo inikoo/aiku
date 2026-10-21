@@ -241,7 +241,7 @@ const save = () => {
 			<div class="sm:col-span-2">
 				<span class="text-gray-600">{{ ctrans("Invoice file") }}</span>
 				<div class="mt-1 flex flex-wrap items-center gap-2">
-					<FileUpload mode="basic" :auto="false" customUpload multiple accept=".pdf,image/*" :maxFileSize="50000000" :chooseLabel="ctrans('Choose file')" @select="(event: { files: File[] }) => (form.files = event.files)" />
+					<FileUpload mode="basic" :auto="false" customUpload multiple accept=".pdf,image/*,.xlsx,.xls,.csv" :maxFileSize="50000000" :chooseLabel="ctrans('Choose file')" @select="(event: { files: File[] }) => (form.files = event.files)" />
 					<span v-for="file in invoice?.attachments ?? []" :key="file.ulid" class="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">{{ file.name }}</span>
 				</div>
 			</div>

@@ -10,6 +10,7 @@ import { computed, inject, ref } from 'vue'
 import type { Component } from 'vue'
 import Popover from '@/Components/Popover.vue'
 import PureMultiselectInfiniteScroll from '@/Components/Pure/PureMultiselectInfiniteScroll.vue'
+import ServiceSelectOption from '@/Components/Fulfilment/ServiceSelectOption.vue'
 import { get } from 'lodash-es'
 import { notify } from '@kyvg/vue3-notification'
 import PureInput from '@/Components/Pure/PureInput.vue'
@@ -203,12 +204,8 @@ const isLoading = ref(false)
                                         <template #singlelabel="{ value }">
                                             <div class="w-full text-left pl-4">{{ value.name }} <span class="text-sm text-gray-400">({{ locale.currencyFormat(value.currency_code, value.price) }}/{{ value.unit }})</span></div>
                                         </template>
-                                        <template #option="{ option, isSelected, isPointed }">
-                                            <div class="">
-                                                <FontAwesomeIcon v-if="option?.is_pallet_handling" v-tooltip="ctrans('Special service')" icon="fas fa-diamond" class="text-teal-500 text-sm" fixed-width aria-hidden="true" />
-                                                {{ option.name }}
-                                                <span class="text-sm text-gray-400">({{ locale.currencyFormat(option.currency_code, option.price) }}/{{ option.unit }})</span>
-                                            </div>
+                                        <template #option="{ option }">
+                                            <ServiceSelectOption :option="option" />
                                         </template>
                                     </PureMultiselectInfiniteScroll>
                                     <p v-if="get(formAddService, ['errors', 'service_id'])" class="mt-2 text-sm text-red-500">

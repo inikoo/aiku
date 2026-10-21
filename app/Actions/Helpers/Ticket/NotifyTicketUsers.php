@@ -88,18 +88,22 @@ class NotifyTicketUsers
             return;
         }
 
+        $answersWaiting = $ticket->status === TicketStatusEnum::ANSWERED && $ticket->wasChanged('status');
+
         $this->handle(
             $ticket,
             $author,
             $recipient,
-            __(':reference has a new comment', ['reference' => $ticket->reference]),
+            $answersWaiting
+                ? __(':author answered :reference', ['author' => $authorName, 'reference' => $ticket->reference])
+                : __(':reference has a new comment', ['reference' => $ticket->reference]),
             [
                 __(':author commented on :reference (:subject):', ['author' => $authorName, 'reference' => $ticket->reference, 'subject' => $ticket->subject]),
                 Str::limit($body, 2000),
             ],
             __('Open the ticket'),
             UserNotificationEnum::TICKET_COMMENT,
-            reason: 'comment'
+            reason: $answersWaiting ? 'answered' : 'comment'
         );
     }
 

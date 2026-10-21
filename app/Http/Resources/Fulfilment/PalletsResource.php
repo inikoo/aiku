@@ -10,6 +10,8 @@ namespace App\Http\Resources\Fulfilment;
 
 use App\Models\Billables\Rental;
 use App\Models\Fulfilment\StoredItem;
+use App\Models\SysAdmin\User;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -35,6 +37,25 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class PalletsResource extends JsonResource
 {
+    /**
+     * Moving a pallet from the warehouse needs edit rights on that warehouse's locations
+     * (UpdatePalletLocation::inWarehouse), worked out once per request for each warehouse.
+     */
+    public static function canMoveIn(Request $request, ?int $warehouseId): bool
+    {
+        if (!$warehouseId) {
+            return false;
+        }
+
+        $key = 'pallets-resource.can-move-in.'.$warehouseId;
+        if (!$request->attributes->has($key)) {
+            $user = $request->user();
+            $request->attributes->set($key, $user instanceof User && $user->authTo("locations.$warehouseId.edit"));
+        }
+
+        return $request->attributes->get($key);
+    }
+
     public function toArray($request): array
     {
         $rental = Rental::find($this->rental_id) ?? null;
@@ -149,10 +170,10 @@ class PalletsResource extends JsonResource
                 'name'       => 'grp.models.pallet.undo_book_in',
                 'parameters' => [$this->id]
             ],
-            'updateLocationRoute'      => [
+            'updateLocationRoute'      => self::canMoveIn($request, $this->warehouse_id) ? [
                 'name'       => 'grp.models.warehouse.pallets.location.update',
                 'parameters' => [$this->warehouse_id, $this->id]
-            ],
+            ] : null,
             'setAsLost'                => [
                 'name'       => 'grp.models.pallet.lost',
                 'parameters' => [$this->id]

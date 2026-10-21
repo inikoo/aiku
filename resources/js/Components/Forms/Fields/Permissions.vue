@@ -4,6 +4,7 @@ import { Collapse } from "vue-collapsed"
 import { set } from "lodash-es"
 import EmployeePosition from "@/Components/Forms/Fields/EmployeePosition.vue"
 import { ctrans } from "@/Composables/useTrans"
+import { notify } from "@kyvg/vue3-notification"
 import Fieldset from "primevue/fieldset"
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
@@ -255,10 +256,14 @@ const submitGroupPermissions = () => {
         .transform((data) => ({
             permissions: data[props.fieldName].group
         }))
-        [props.fieldData.updatePseudoJobPositionsRoute.method](route(props.fieldData.updatePseudoJobPositionsRoute.name, props.fieldData.updatePseudoJobPositionsRoute.parameters), { preserveScroll: true })
-
-
-
+        [props.fieldData.updatePseudoJobPositionsRoute.method](route(props.fieldData.updatePseudoJobPositionsRoute.name, props.fieldData.updatePseudoJobPositionsRoute.parameters), {
+            preserveScroll: true,
+            onError: (errors: Record<string, string>) => notify({
+                title: ctrans("Group permissions not saved"),
+                text: errors.error_in_models?.replace(/^\d{3}:\s*/, "") || ctrans("Failed to update the permissions"),
+                type: "error"
+            })
+        })
 }
 
 const selectedOrganisation = ref(null)

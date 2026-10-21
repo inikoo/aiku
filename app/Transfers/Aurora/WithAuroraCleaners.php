@@ -8,8 +8,15 @@
 
 namespace App\Transfers\Aurora;
 
+use App\Actions\Maintenance\Goods\RepairSpreadsheetErrorNames;
+
 trait WithAuroraCleaners
 {
+    public function withoutSpreadsheetError(?string $value): string
+    {
+        return RepairSpreadsheetErrorNames::isSpreadsheetError($value) ? '' : (string) $value;
+    }
+
     public function sanitiseText($string): string
     {
         return str_replace("\0", "", $string);

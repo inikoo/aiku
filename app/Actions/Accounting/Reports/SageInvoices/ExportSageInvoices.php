@@ -36,8 +36,8 @@ class ExportSageInvoices extends OrgAction
             $raw = $filters['between']['date'];
             [$start, $end] = explode('-', $raw);
 
-            $startDate = Carbon::createFromFormat('Ymd', $start)->format('Y-m-d');
-            $endDate = Carbon::createFromFormat('Ymd', $end)->format('Y-m-d');
+            $startDate = Carbon::createFromFormat('Ymd', $start)->startOfDay()->toDateTimeString();
+            $endDate = Carbon::createFromFormat('Ymd', $end)->endOfDay()->toDateTimeString();
         }
 
         $export = new SageInvoicesExport($organisation, $startDate, $endDate);

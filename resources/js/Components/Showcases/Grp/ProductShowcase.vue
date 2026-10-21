@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import SupplierProductsShowcaseBox from "@/Components/SupplyChain/SupplierProductsShowcaseBox.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import Image from "@common/Components/Image.vue"
@@ -111,6 +112,7 @@ const props = defineProps<{
 		}
 		images: any
 		main_image: ImageTS
+		supplier_products?: InstanceType<typeof SupplierProductsShowcaseBox>["$props"]["supplierProducts"]
 	}
 	tab?: string
 	handleTabUpdate?: Function
@@ -384,6 +386,8 @@ const getTooltips = () => {
 			<div v-if="data.search_in_website_availability" class="mt-4 border-t border-gray-200 pt-4 px-2">
 				<SearchInWebsiteAvailabilityChecklist :availability="data.search_in_website_availability" />
 			</div>
+
+			<SupplierProductsShowcaseBox v-if="data.supplier_products?.length" discreet :supplierProducts="data.supplier_products" class="mt-4 px-2" />
 		</div>
 
 	</div>

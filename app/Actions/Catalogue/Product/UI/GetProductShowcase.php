@@ -8,6 +8,7 @@
 
 namespace App\Actions\Catalogue\Product\UI;
 
+use App\Actions\SupplyChain\SupplierProduct\UI\GetSupplierProductsShowcaseData;
 use App\Actions\Catalogue\Product\GetProductIncomingStock;
 use App\Actions\Traits\Authorisations\WithShopPpcPermissions;
 use App\Actions\Traits\HasBucketImages;
@@ -121,6 +122,7 @@ class GetProductShowcase
             'org_stocks'                   => OrgStocksResource::collection(GetOrgStocksInProduct::run($product))->resolve(),
             'stock_locations'              => $this->getStockLocations($product),
             'incoming_stock'               => GetProductIncomingStock::run($product),
+            'supplier_products'            => GetSupplierProductsShowcaseData::make()->forOrgSupplierProducts($product->orgStocks->load('orgSupplierProducts')->flatMap->orgSupplierProducts->unique('id')),
             'stats'                        => $product->stats,
             'images'                       => $this->getImagesData($product, true),
             'brand'                        => $product->brand(),

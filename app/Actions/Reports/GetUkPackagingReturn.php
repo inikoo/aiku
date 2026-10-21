@@ -8,6 +8,7 @@
 
 namespace App\Actions\Reports;
 
+use App\Enums\SupplyChain\PackingSpec\PackingSpecLevelEnum;
 use App\Models\Goods\EprManualLine;
 use App\Models\Goods\EprMaterialMapping;
 use App\Models\SysAdmin\Organisation;
@@ -25,7 +26,8 @@ use Lorisleiva\Actions\Concerns\AsAction;
  * Imported unless $countOwnBrandImports asks for the method used until 2026. Packaging that is itself the product
  * (candle jars) is never reported. Shipment packaging is reported as used, under Packed or filled as household
  * shipment packaging, the way the compliance scheme advised; buying or selling those SKOs reports nothing. Lines
- * typed in by hand for the period (import cartons, self-managed waste) are added as they are.
+ * typed in by hand for the period (import cartons, self-managed waste) are added as they are, and so is the packing
+ * material that came inside imported cartons, from the agents' packing specs, as non-household imports.
  */
 class GetUkPackagingReturn
 {
@@ -67,6 +69,7 @@ class GetUkPackagingReturn
             'submission_period' => $this->submissionPeriod($from, $to),
             'has_data'          => $lines->isNotEmpty(),
             'kg'                => round($lines->sum('kg')),
+            'inbound_kg'        => round(collect($this->inboundPacking($organisation, $from, $to))->sum(fn ($row) => (float)$row->kg)),
             'previous_kg'       => $previous->isNotEmpty() ? round($previous->sum('kg')) : null,
             'materials'         => $materials->all(),
             'form'              => collect(self::ACTIVITIES)->map(fn (string $label, string $code) => [
@@ -195,6 +198,15 @@ class GetUkPackagingReturn
             $lines[$key]['kg'] += (float)$row->kg;
         }
 
+        foreach ($this->inboundPacking($organisation, $from, $to) as $row) {
+            $material = $materials->get($row->material_category)?->scheme_code ?? 'OT';
+            $class    = PackingSpecLevelEnum::from($row->level)->ukPackagingClass();
+
+            $key            = implode('|', ['IM', 'NH', $class, $material, null]);
+            $lines[$key] ??= ['activity' => 'IM', 'type' => 'NH', 'class' => $class, 'material' => $material, 'ram' => null, 'kg' => 0.0];
+            $lines[$key]['kg'] += (float)$row->kg;
+        }
+
         foreach ($this->manualLines($organisation, $from, $to) as $manual) {
             $mapping  = $materials->get($manual->material_category->value);
             $material = $mapping?->scheme_code ?? 'OT';
@@ -209,6 +221,30 @@ class GetUkPackagingReturn
         }
 
         return collect(array_values($lines));
+    }
+
+    /**
+     * Packing material that came inside imported cartons, from the agents' packing specs: non-household, reported once
+     * at import whether it was passed on, discarded or reused for dispatch. The master cartons themselves are left to the
+     * Import cartons line typed in by hand (filled from the same specs), and material passed on to the buyer that the
+     * product's own packaging already weighs is left to it, so neither is counted twice.
+     *
+     * @return list<object{level: string, material_category: string, kg: string}>
+     */
+    public function inboundPacking(Organisation $organisation, Carbon $from, Carbon $to): array
+    {
+        return DB::select(
+            <<<'SQL'
+            SELECT level, material_category, SUM(kg) AS kg
+            FROM epr_packing_lines
+            WHERE organisation_id = ? AND date BETWEEN ? AND ?
+              AND activity IN ('imported', 'imported_discarded', 'reused')
+              AND NOT in_product_packaging
+              AND NOT EXISTS (SELECT 1 FROM packing_spec_lines psl WHERE psl.id = epr_packing_lines.packing_spec_line_id AND psl.role = 'master_carton')
+            GROUP BY level, material_category
+            SQL,
+            [$organisation->id, $from->toDateString(), $to->toDateString()]
+        );
     }
 
     /**

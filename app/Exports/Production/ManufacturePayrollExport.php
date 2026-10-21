@@ -51,6 +51,9 @@ class ManufacturePayrollExport implements FromArray, WithHeadings
             'Bonus',
             'Pay type',
             'Sessions with edited times',
+            'Guru bonus hours',
+            'Guru bonus',
+            'Total pay',
         ];
     }
 
@@ -59,6 +62,7 @@ class ManufacturePayrollExport implements FromArray, WithHeadings
         return ManufactureTaskSession::query()
             ->join('users', 'users.id', 'manufacture_task_sessions.user_id')
             ->leftJoin('manufacture_tasks', 'manufacture_tasks.id', 'manufacture_task_sessions.manufacture_task_id')
+            ->leftJoin('employees', 'employees.id', 'manufacture_task_sessions.employee_id')
             ->where('manufacture_task_sessions.production_id', $this->production->id)
             ->where('manufacture_task_sessions.state', ManufactureTaskSessionStateEnum::CLOSED)
             ->whereBetween('manufacture_task_sessions.ended_at', [$this->from->startOfDay(), $this->to->endOfDay()])
@@ -101,6 +105,8 @@ class ManufacturePayrollExport implements FromArray, WithHeadings
             ->selectRaw('sum(manufacture_task_sessions.pay) as sum_pay')
             ->selectRaw('sum(manufacture_task_sessions.bonus) as sum_bonus')
             ->selectRaw('count(manufacture_task_sessions.time_edited_at) as number_time_edited')
+            ->selectRaw('sum(case when '.$this->guruCondition().' then manufacture_task_sessions.hours else 0 end) as guru_hours')
+            ->selectRaw('sum(case when '.$this->guruCondition().' then manufacture_task_sessions.hours * '.$this->guruRate().' else 0 end) as guru_bonus')
             ->orderBy('users.username')
             ->orderBy('manufacture_tasks.code')
             ->get()
@@ -126,6 +132,34 @@ class ManufacturePayrollExport implements FromArray, WithHeadings
                 $row->sum_bonus !== null ? round((float)$row->sum_bonus, 2) : null,
                 ArtisanPayTypeEnum::labels()[$row->artisan_pay_type->value],
                 (int)$row->number_time_edited,
+                round((float)$row->guru_hours, 4),
+                round((float)$row->guru_bonus, 2),
+                round((float)$row->sum_pay + (float)$row->guru_bonus, 2),
             ])->all();
+    }
+
+    /**
+     * A session counts while the artisan was a Guru on the day it ended, unless it was left running past the shift and nobody has checked its times yet.
+     */
+    private function guruCondition(): string
+    {
+        $sessionDate = "(manufacture_task_sessions.ended_at at time zone 'UTC')::date";
+
+        return "(employees.guru_since is not null
+            and $sessionDate >= employees.guru_since
+            and (employees.guru_until is null or $sessionDate <= employees.guru_until)
+            and not (manufacture_task_sessions.job_order_item_task_id is not null
+                and manufacture_task_sessions.left_open_after_shift_at is not null
+                and manufacture_task_sessions.shift_end_resolved_at is null))";
+    }
+
+    private function guruRate(): string
+    {
+        return "coalesce((select guru_bands.hourly_rate from manufacture_pay_bands as guru_bands
+            where guru_bands.production_id = manufacture_task_sessions.production_id
+            and guru_bands.code = 'GURU'
+            and guru_bands.effective_from <= manufacture_task_sessions.ended_at
+            and (guru_bands.effective_to is null or guru_bands.effective_to > manufacture_task_sessions.ended_at)
+            order by guru_bands.effective_from desc limit 1), 0)";
     }
 }

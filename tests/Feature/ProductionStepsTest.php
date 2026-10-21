@@ -24,6 +24,7 @@ use App\Actions\Production\ManufactureTaskSession\CloseManufactureTaskSession;
 use App\Actions\Production\ManufactureTaskSession\StartManufactureNonProductiveSession;
 use App\Actions\Production\ManufactureTaskSession\StartManufactureTaskSession;
 use App\Actions\Production\ManufactureTaskSession\VoidManufactureTaskSession;
+use App\Actions\Production\Production\UpdateManufacturePreparationReasons;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
 use App\Enums\Production\JobOrderItemTask\JobOrderItemTaskStateEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
@@ -383,6 +384,8 @@ test('preparation and cleaning are timed at the base rate, never overlap product
             ->where('open_session.task.job_order_reference', $jobOrder->reference)
             ->has('non_productive.activities', 2)
             ->where('non_productive.job_orders', fn ($jobOrders) => collect($jobOrders)->contains('id', $jobOrder->id))
+            ->has('open_session.preparation_reasons', count(\App\Models\Production\ManufacturePreparationReason::DEFAULT_REASONS) + 1)
+            ->where('open_session.preparation_reasons.'.count(\App\Models\Production\ManufacturePreparationReason::DEFAULT_REASONS).'.is_other', true)
             ->etc());
 
     $this->travel(20)->minutes();
@@ -390,7 +393,16 @@ test('preparation and cleaning are timed at the base rate, never overlap product
     $this->travel(10)->minutes();
     \App\Actions\Production\ManufactureBreak\EndManufactureBreak::make()->action($break);
     $this->travel(10)->minutes();
-    $preparation = CloseManufactureTaskSession::make()->action($preparation, []);
+    $otherReason = \App\Models\Production\ManufacturePreparationReason::forProduction($this->production)->firstWhere('is_other', true);
+    expect(fn () => CloseManufactureTaskSession::make()->action($preparation, []))->toThrow(ValidationException::class)
+        ->and(fn () => CloseManufactureTaskSession::make()->action($preparation, ['preparation_reason_id' => $otherReason->id]))->toThrow(ValidationException::class);
+    $malay = \App\Models\Helpers\Language::where('code', 'ms')->first() ?? \App\Models\Helpers\Language::where('code', '!=', 'en')->first();
+    \App\Actions\Helpers\Translations\DetectLanguage::mock()->shouldReceive('handle')->andReturn($malay);
+    \App\Actions\Helpers\Translations\Translate::mock()->shouldReceive('handle')->andReturn('Sorting the labels');
+    $preparation = CloseManufactureTaskSession::make()->action($preparation, ['preparation_reason_id' => $otherReason->id, 'preparation_reason_note' => ' Menyusun label ']);
+    expect($preparation->refresh()->preparation_reason_note)->toBe('Menyusun label')
+        ->and($preparation->preparation_reason_note_en)->toBe('Sorting the labels')
+        ->and($preparation->preparation_reason_note_language_id)->toBe($malay->id);
 
     expect($preparation->state)->toBe(ManufactureTaskSessionStateEnum::CLOSED)
         ->and($preparation->break_minutes)->toBe(10)
@@ -418,7 +430,32 @@ test('preparation and cleaning are timed at the base rate, never overlap product
         ->and(collect($artisan['non_productive']['sessions'])->pluck('id')->all())->toContain($preparation->id, $cleaning->id)
         ->and($preparationRow['hours']['preparation'])->toEqual(0.5)
         ->and($generalRow['hours']['cleaning'])->toBeGreaterThanOrEqual(0.25)
-        ->and($artisan['non_productive']['days'])->not->toBeEmpty();
+        ->and($artisan['non_productive']['days'])->not->toBeEmpty()
+        ->and(collect($artisan['non_productive']['sessions'])->firstWhere('id', $preparation->id))->toMatchArray(['reason' => 'Other', 'reason_note' => 'Sorting the labels', 'reason_note_original' => 'Menyusun label']);
+
+    $performance = fn (array $filters) => get(route('grp.org.productions.show.artisans.index', [$this->organisation->slug, $this->production->slug, 'from' => now()->toDateString(), 'to' => now()->toDateString()] + $filters))
+        ->viewData('page')['props'];
+    $sessionIds  = fn (array $props) => collect($props['artisans'])->flatMap(fn ($row) => collect($row['non_productive']['sessions'])->pluck('id')
+        ->merge(collect($row['jobs'])->flatMap(fn ($job) => collect($job['steps'])->flatMap(fn ($step) => collect($step['sessions'])->pluck('id')))));
+
+    $preparationOnly = $performance(['activity' => 'preparation']);
+    $otherTotals     = collect($preparationOnly['activity_totals']['reasons'])->firstWhere('key', (string) $otherReason->id);
+    expect($sessionIds($preparationOnly))->toContain($preparation->id)->not->toContain($cleaning->id, $production->id)
+        ->and($otherTotals['label'])->toBe('Other')
+        ->and(collect($otherTotals['notes'])->firstWhere('label', 'Sorting the labels'))->not->toBeNull()
+        ->and(collect($preparationOnly['activity_totals']['artisans'])->pluck('worker'))->toContain($user->contact_name ?: $user->username)
+        ->and($sessionIds($performance(['activity' => 'preparation', 'preparation_reason' => 'none'])))->not->toContain($preparation->id)
+        ->and($sessionIds($performance(['activity' => 'preparation', 'preparation_reason' => (string) $otherReason->id])))->toContain($preparation->id)
+        ->and($sessionIds($performance(['activity' => 'cleaning'])))->toContain($cleaning->id)->not->toContain($preparation->id)
+        ->and($sessionIds($performance(['activity' => 'production'])))->toContain($production->id)->not->toContain($preparation->id, $cleaning->id)
+        ->and($performance(['activity' => 'cleaning'])['activity_totals']['reasons'])->toBeEmpty();
+
+    $untold = $preparation->replicate()->fill(['preparation_reason_id' => null, 'preparation_reason_note' => null, 'preparation_reason_note_en' => null, 'preparation_reason_note_language_id' => null]);
+    $untold->saveQuietly();
+    $noReasonRow = collect($performance(['activity' => 'preparation'])['activity_totals']['reasons'])->firstWhere('key', 'none');
+    expect($noReasonRow['label'])->toBe('No reason recorded')
+        ->and($noReasonRow['number_sessions'])->toBeGreaterThanOrEqual(1);
+    $untold->delete();
 
     get(route('grp.org.productions.show.operations.job-orders.show', [$this->organisation->slug, $this->production->slug, $jobOrder->slug]))
         ->assertInertia(fn (AssertableInertia $page) => $page
@@ -428,7 +465,7 @@ test('preparation and cleaning are timed at the base rate, never overlap product
 
     get(route('grp.org.productions.show.operations.dashboard', [$this->organisation->slug, $this->production->slug]))->assertOk();
 
-    $export = get(route('grp.org.productions.show.artisans.payroll.export', [$this->organisation->slug, $this->production->slug, 'from' => now()->toDateString(), 'to' => now()->toDateString()]));
+    $export = get(route('grp.org.productions.show.artisans.payroll.export', [$this->organisation->slug, $this->production->slug, 'from' => now()->toDateString(), 'to' => now()->toDateString(), 'detailed' => 1]));
     ob_start();
     $export->sendContent();
     expect(ob_get_clean())->toContain('Preparation')->toContain('Cleaning');
@@ -436,6 +473,26 @@ test('preparation and cleaning are timed at the base rate, never overlap product
     VoidManufactureTaskSession::make()->action($cleaning);
     expect($cleaning->refresh()->state)->toBe(ManufactureTaskSessionStateEnum::VOIDED);
     $this->travelBack();
+});
+
+test('the production manager edits the preparation reasons, and a reason taken off the list stays on its sessions', function () {
+    $reasons = \App\Models\Production\ManufacturePreparationReason::forProduction($this->production);
+    $kept    = $reasons->reject(fn ($reason) => $reason->is_other)->values();
+
+    UpdateManufacturePreparationReasons::make()->action($this->production, ['reasons' => [
+        ['id' => $kept[1]->id, 'name' => 'Cutting rope and twine'],
+        ['id' => null, 'name' => 'Looking for tools'],
+        ['id' => $kept[0]->id, 'name' => $kept[0]->name],
+    ]]);
+
+    $after = \App\Models\Production\ManufacturePreparationReason::forProduction($this->production);
+    expect($after->pluck('name')->all())->toBe(['Cutting rope and twine', 'Looking for tools', $kept[0]->name, 'Other'])
+        ->and(\App\Models\Production\ManufacturePreparationReason::onlyTrashed()->whereKey($kept[2]->id)->exists())->toBeTrue()
+        ->and(fn () => UpdateManufacturePreparationReasons::make()->action($this->production, ['reasons' => [['name' => 'Same'], ['name' => 'same']]]))->toThrow(ValidationException::class)
+        ->and(fn () => UpdateManufacturePreparationReasons::make()->action($this->production, ['reasons' => [['id' => $after->last()->id, 'name' => 'Renamed other']]]))->toThrow(ValidationException::class);
+
+    UpdateManufacturePreparationReasons::make()->action($this->production, ['reasons' => $kept->map(fn ($reason) => ['name' => $reason->name])->all()]);
+    expect(\App\Models\Production\ManufacturePreparationReason::forProduction($this->production)->pluck('name')->all())->toBe([...$kept->pluck('name')->all(), 'Other']);
 });
 
 test('a job carried at a part pack still walks whole units, and the bays can be served in any order', function () {

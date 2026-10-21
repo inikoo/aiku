@@ -74,7 +74,7 @@ class ShowMailshot extends OrgAction
 
         $hasSourceReference = filled($mailshot->source_id) || filled($mailshot->source_alt_id) || filled($mailshot->source_alt2_id);
 
-        $estimatedRecipients = ($mailshot->type === MailshotTypeEnum::MARKETING && in_array($mailshot->state, [MailshotStateEnum::IN_PROCESS, MailshotStateEnum::READY, MailshotStateEnum::SCHEDULED]))
+        $estimatedRecipients = (in_array($mailshot->type, [MailshotTypeEnum::MARKETING, MailshotTypeEnum::NEWSLETTER]) && in_array($mailshot->state, [MailshotStateEnum::IN_PROCESS, MailshotStateEnum::READY, MailshotStateEnum::SCHEDULED]))
             ? (GetMailshotRecipientsQueryBuilder::make()->handle($mailshot)?->count('customers.id') ?? 0)
             : 0;
 
@@ -108,6 +108,7 @@ class ShowMailshot extends OrgAction
                     'subject'      => $mailshot->subject,
                     'name'         => $mailshot->name,
                     'preview_text' => $mailshot->preview_text,
+                    'sender_name'  => $mailshot->sender_name,
                 ],
                 'updateMailshotRoute'             => [
                     'name'       => 'grp.models.shop.mailshot.update',
@@ -328,6 +329,8 @@ class ShowMailshot extends OrgAction
                 'secondwaveDelayHours' => $mailshotSecondWave?->send_delay_hours,
                 'isHasParentMailshot' => $isHasParentMailshot,
                 'isSecondWave' => $mailshot->is_second_wave,
+                'isAbTestVariant' => $mailshot->isAbTestVariant(),
+                'abTest' => GetMailshotAbTest::run($mailshot, $this->canEdit),
                 'numberSecondWaveRecipients' => $mailshotSecondWave?->recipients?->count() ?? 0,
                 'mailshotId' => $mailshot->id,
                 'groupId' => $mailshot->group_id,

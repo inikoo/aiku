@@ -12,6 +12,7 @@ use App\Actions\Goods\Stock\StoreStock;
 use App\Enums\Goods\Stock\StockStateEnum;
 use App\Actions\GoodsIn\StockDelivery\StoreStockDelivery;
 use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateLeadTime;
+use App\Actions\SupplyChain\SupplierProduct\Hydrators\SupplierProductHydrateLeadTime;
 use App\Actions\Inventory\OrgStock\UpdateOrgStock;
 use App\Actions\Procurement\OrgAgent\StoreOrgAgent;
 use App\Actions\Procurement\OrgPartner\StoreOrgPartner;
@@ -50,6 +51,7 @@ use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionState
 use App\Enums\Procurement\OrgSupplierProduct\OrgSupplierProductStateEnum;
 use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
 use App\Models\Goods\Stock;
+use App\Enums\UI\SupplyChain\StockTabsEnum;
 use App\Models\SysAdmin\Organisation;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\GoodsIn\StockDelivery;
@@ -923,6 +925,50 @@ test('org stock lead time hydrator measures from delivery history', function () 
     UpdateOrgStock::make()->action($orgStock, ['estimated_lead_time_days' => 21]);
 
     expect($orgStock->refresh()->estimated_lead_time_days)->toBe(21);
+});
+
+test('lead time of a supplier ordered from once a year is measured from its last 3 orders, not the estimate, each order counted once at its first delivery', function () {
+    $stock = StoreStock::make()->action($this->group, array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE]));
+
+    [$orgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $supplierProduct = $orgSupplierProduct->supplierProduct;
+    $supplierProduct->update(['estimated_lead_time_days' => 45]);
+    StockHasSupplierProduct::firstOrCreate(['stock_id' => $stock->id, 'supplier_product_id' => $supplierProduct->id], ['available' => true]);
+
+    $orgStock = App\Actions\Inventory\OrgStock\StoreOrgStock::make()->action($this->organisation, $stock, OrgStock::factory()->definition());
+
+    $order = function (int $submittedDaysAgo, int ...$leadDaysPerDelivery) use ($orgSupplier, $supplierProduct, $orgStock): void {
+        $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition());
+        StorePurchaseOrderTransaction::make()->action($purchaseOrder, $supplierProduct->historicSupplierProduct, $orgStock, [...PurchaseOrderTransaction::factory()->definition(), 'quantity_ordered' => 10]);
+        $purchaseOrder->update(['state' => PurchaseOrderStateEnum::SUBMITTED, 'submitted_at' => now()->subDays($submittedDaysAgo)]);
+
+        foreach ($leadDaysPerDelivery as $leadDays) {
+            $stockDelivery = StoreStockDelivery::make()->action($orgSupplier, ['reference' => 'LEAD-'.uniqid(), 'date' => date('Y-m-d')], strict: false);
+            DB::table('stock_deliveries')->where('id', $stockDelivery->id)->update(['booked_in_at' => null, 'placed_at' => now()->subDays($submittedDaysAgo - $leadDays)]);
+            DB::table('purchase_order_stock_delivery')->insert(['purchase_order_id' => $purchaseOrder->id, 'stock_delivery_id' => $stockDelivery->id, 'created_at' => now(), 'updated_at' => now()]);
+        }
+    };
+
+    $order(1800, 400);
+    $order(1400, 220);
+    $order(1000, 200);
+    $order(600, 180, 500, 520);
+
+    SupplierProductHydrateLeadTime::run($supplierProduct);
+    OrgStockHydrateLeadTime::run($orgStock);
+
+    expect($supplierProduct->refresh()->measured_lead_time_days)->toBe(200)
+        ->and($supplierProduct->lead_time_samples)->toBe(3)
+        ->and($orgStock->refresh()->measured_lead_time_days)->toBe(200);
+
+    $order(300, 30);
+    $order(200, 30);
+    $order(100, 30);
+
+    SupplierProductHydrateLeadTime::run($supplierProduct);
+
+    expect($supplierProduct->refresh()->measured_lead_time_days)->toBe(30)
+        ->and($supplierProduct->lead_time_samples)->toBe(3);
 });
 
 test('agent lead times roll up per sub-supplier', function () {
@@ -2955,4 +3001,44 @@ test('agent repairs products filed under AWChina: moves them to the real supplie
     $this->get(route('grp.org.agent.org_suppliers.show.repair_supplier_products.index', [$agentOrganisation->slug, $realInAgent->slug]))->assertNotFound();
     $this->get(route('grp.org.procurement.org_suppliers.show.repair_supplier_products.index', [$awcOrgSupplier->organisation->slug, $awcOrgSupplier->slug]))
         ->assertInertia(fn ($page) => $page->component('Procurement/RepairSupplierProducts'));
+});
+
+test('a preferred supplier set on the master SKO becomes the preferred supplier of that SKO in every organisation', function () {
+    $stock    = StoreStock::make()->action($this->group, array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE]));
+    $orgStock = App\Actions\Inventory\OrgStock\StoreOrgStock::make()->action($this->organisation, $stock, OrgStock::factory()->definition());
+
+    $links = collect([10, 0])->map(function (int $localPriority) use ($stock, $orgStock) {
+        [, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+        DB::table('org_stock_has_org_supplier_products')->where('org_supplier_product_id', $orgSupplierProduct->id)->delete();
+        $stockLink = StockHasSupplierProduct::firstOrCreate(['stock_id' => $stock->id, 'supplier_product_id' => $orgSupplierProduct->supplier_product_id], ['available' => true]);
+        $orgLink   = OrgStockHasOrgSupplierProduct::create([
+            'org_stock_id'                  => $orgStock->id,
+            'org_supplier_product_id'       => $orgSupplierProduct->id,
+            'stock_has_supplier_product_id' => $stockLink->id,
+            'status'                        => true,
+            'local_priority'                => $localPriority,
+        ]);
+
+        return [$stockLink, $orgLink];
+    });
+    [[$wasPreferredStockLink, $wasPreferredOrgLink], [$backupStockLink, $backupOrgLink]] = $links->all();
+
+    actingAs($this->adminGuest->getUser());
+    $this->withoutVite()
+        ->get(route('grp.goods.stocks.show', ['stock' => $stock->slug, 'tab' => StockTabsEnum::SUPPLIER_PRODUCTS->value]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Goods/Stock')
+            ->has('supplier_products.data', 2)
+            ->where('supplier_products.data', fn ($rows) => collect($rows)->firstWhere('supplier_product_id', $wasPreferredStockLink->supplier_product_id)['preferred_in'] === $this->organisation->code
+                && collect($rows)->every(fn ($row) => $row['is_preferred'] === false)));
+
+    $this->patch(route('grp.models.stock.supplier_product.set_preferred', [$stock->id, $backupStockLink->supplier_product_id]))->assertRedirect();
+
+    expect($backupStockLink->refresh()->priority)->toBe(10)
+        ->and($wasPreferredStockLink->refresh()->priority)->toBe(0)
+        ->and($backupOrgLink->refresh()->local_priority)->toBe(10)
+        ->and($wasPreferredOrgLink->refresh()->local_priority)->toBe(0);
+
+    $notLinked = SupplierProduct::whereNotIn('id', [$backupStockLink->supplier_product_id, $wasPreferredStockLink->supplier_product_id])->firstOrFail();
+    expect(fn () => App\Actions\Goods\StockHasSupplierProduct\SetStockPreferredSupplierProduct::make()->action($stock, $notLinked))->toThrow(ValidationException::class);
 });

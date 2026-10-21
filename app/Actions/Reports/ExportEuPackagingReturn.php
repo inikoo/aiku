@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class ExportEuPackagingReturn extends OrgAction
 {
-    public const array COLUMNS = ['period_from', 'period_to', 'material', 'subcategory', 'sales_packaging_kg', 'shipment_packaging_kg', 'total_kg'];
+    public const array COLUMNS = ['period_from', 'period_to', 'material', 'subcategory', 'sales_packaging_kg', 'shipment_packaging_kg', 'inbound_packing_kg', 'total_kg'];
 
     /**
      * @return list<list<string|float|null>>
@@ -27,7 +27,7 @@ class ExportEuPackagingReturn extends OrgAction
     public function handle(array $return): array
     {
         return array_map(fn (array $row) => [
-            $return['from'], $return['to'], $row['scheme_material'], $row['scheme_subcategory'], $row['sales_kg'], $row['shipment_kg'], $row['kg'],
+            $return['from'], $return['to'], $row['scheme_material'], $row['scheme_subcategory'], $row['sales_kg'], $row['shipment_kg'], $row['inbound_kg'], $row['kg'],
         ], array_values(array_filter($return['rows'], fn (array $row) => $row['kg'] > 0)));
     }
 

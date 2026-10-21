@@ -31,6 +31,7 @@ import { useTabChange } from "@/Composables/tab-change";
 import TemplatePicker from "@/Components/Mailshot/TemplatePicker.vue"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { usePage } from "@inertiajs/vue3"
+import { useFreshAfterHistoryRestore } from "@/Composables/useFreshAfterHistoryRestore"
 
 library.add(faUserCog, faArrowAltToTop, faArrowAltToBottom, faTh, faBrowser, faCube, faPalette, faCheeseburger, faDraftingCompass, faWindow, faExclamationTriangle)
 
@@ -345,6 +346,13 @@ const schedulePublish = async () => {
 const isModalCloneTemplateEmail = ref(false)
 const activeSnapshot = ref(props.snapshot)
 
+const isRefreshingLayout = useFreshAfterHistoryRestore(['unpublished_layout', 'snapshot', 'compiledLayout', 'mailshot', 'pageHead'], () => {
+    Object.assign(mailshotData, props.mailshot)
+    activeSnapshot.value = props.snapshot
+    compiledLayout.value = props.compiledLayout ?? ''
+    isPublished.value = !!props.compiledLayout
+})
+
 const page = usePage()
 const tabs = computed(() => page.props.tabs)
 const currentTab = ref<string>(tabs.value.current)
@@ -370,10 +378,6 @@ watch(
 )
 
 onMounted(() => {
-  window.addEventListener('popstate', () => {
-    router.reload()
-  });
-
   if (props.openTemplateSelector) {
     isModalCloneTemplateEmail.value = true
   }
@@ -433,7 +437,7 @@ onMounted(() => {
             @select-snapshot="onSelectTemplateSnapshot" />
     </Dialog>
 
-    <template v-if="builder == 'beefree'">
+    <template v-if="builder == 'beefree' && !isRefreshingLayout">
         <Beetree v-if="emailEditor === 'beefree'" :updateRoute="updateRoute" :imagesUploadRoute="imagesUploadRoute"
             :snapshot="activeSnapshot" :unpublished_layout="unpublished_layout" :mergeTags="mergeTags"
             :mergeContents="mergeContents" :organisationSlug="organisationSlug" :shopSlug="shopSlug" :shopId="shopId"
@@ -456,7 +460,7 @@ onMounted(() => {
         </EmailWorkshop>
     </template>
 
-    <Unlayer v-else-if="builder == 'unlayer'" :updateRoute="updateRoute" :imagesUploadRoute="imagesUploadRoute"
+    <Unlayer v-else-if="builder == 'unlayer' && !isRefreshingLayout" :updateRoute="updateRoute" :imagesUploadRoute="imagesUploadRoute"
         :snapshot="snapshot" ref="_unlayer" />
 
     <div v-if="builder == 'beefree' && compiledLayoutSize > 102"

@@ -91,6 +91,7 @@ use App\Actions\Ordering\Order\UpdateOrderPaymentsStatus;
 use App\Actions\Ordering\Order\UpdateOrderIsShippingTBC;
 use App\Actions\Ordering\Order\UpdateOrderShippingTBCAmount;
 use App\Actions\Billables\Service\StoreService;
+use App\Actions\Ordering\Order\UpdateState\CancelOrder;
 use App\Actions\Ordering\Order\UpdateState\DispatchOrder;
 use App\Actions\Ordering\Order\UpdateState\FinaliseOrder;
 use App\Actions\Ordering\Order\UpdateState\SendOrderToWarehouse;
@@ -109,6 +110,7 @@ use App\Actions\Retina\Dropshipping\Orders\ImportRetinaOrderTransaction;
 use App\Actions\Retina\Ordering\StoreRetinaTransaction;
 use App\Actions\Retina\Ordering\UpdateRetinaTransaction;
 use App\Actions\Maintenance\Ordering\RemoveDiscontinuedProductsFromBaskets;
+use App\Actions\Maintenance\Ordering\RepairCancelledOrdersLiveTransactions;
 use App\Actions\Ordering\Transaction\StoreTransaction;
 use App\Actions\Ordering\Transaction\SyncBasketLinesWithProductStock;
 use Illuminate\Support\Str;
@@ -6816,4 +6818,44 @@ test('adding and removing basket lines keeps totals, discounts, shipping and cha
         ['Product', 2.0, 40.0, 40.0, 1.0, null],
         ['ShippingZone', 1.0, 4.0, 4.0, 1.0, null],
     ]);
+});
+
+test('a customer\'s order list dates an order by when it was placed, so an old basket placed today is at the top', function () {
+    $customer  = StoreCustomer::make()->action($this->shop, Customer::factory()->definition());
+    $oldBasket = StoreOrder::make()->action($customer, []);
+    $recent    = StoreOrder::make()->action($customer, []);
+    $oldBasket->update(['state' => OrderStateEnum::SUBMITTED, 'date' => now()->subMonths(3), 'submitted_at' => now()]);
+    $recent->update(['state' => OrderStateEnum::SUBMITTED, 'date' => now()->subWeek(), 'submitted_at' => now()->subWeek()]);
+
+    request()->setRouteResolver(fn () => (new Illuminate\Routing\Route('GET', 'app/orders', []))->name('retina.ecom.orders.index'));
+    $rows = collect(App\Actions\Retina\Ecom\Orders\IndexRetinaEcomOrders::make()->handle($customer)->items());
+
+    expect($rows->pluck('id')->take(2)->all())->toBe([$oldBasket->id, $recent->id])
+        ->and(Illuminate\Support\Carbon::parse($rows->first()->date)->isToday())->toBeTrue();
+});
+
+test('cancelling an order in the warehouse cancels every line, and the repair catches lines left live (INI-123)', function () {
+    $order = StoreOrder::make()->action($this->customer, [
+        'date'             => date('Y-m-d'),
+        'delivery_address' => new Address(Address::factory()->definition()),
+        'billing_address'  => new Address(Address::factory()->definition()),
+    ]);
+    StoreTransaction::make()->action($order, $this->product->historicAsset, Transaction::factory()->definition());
+    $order = SubmitOrder::make()->action($order->refresh());
+    SendOrderToWarehouse::make()->action($order, []);
+
+    $order = CancelOrder::make()->action($order->refresh());
+
+    $liveLines = fn () => $order->transactions()->where('state', '!=', TransactionStateEnum::CANCELLED)->count();
+
+    expect($order->transactions()->count())->toBeGreaterThan(0)
+        ->and($liveLines())->toBe(0)
+        ->and($order->transactions()->whereColumn('quantity_cancelled', '!=', 'quantity_ordered')->count())->toBe(0)
+        ->and($order->stats->refresh()->number_current_item_transactions)->toBe(0);
+
+    $order->transactions()->update(['state' => TransactionStateEnum::IN_WAREHOUSE]);
+
+    RepairCancelledOrdersLiveTransactions::run($order->refresh());
+
+    expect($liveLines())->toBe(0);
 });

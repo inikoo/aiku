@@ -453,6 +453,22 @@ test('a question about an order gets a draft written from that customer\'s order
 
     expect($retyped->refresh()->status)->toBe(\App\Enums\CRM\Livechat\ChatAiDraftStatusEnum::USED);
 
+    $session->update(['last_agent_message_at' => now()]);
+    $this->travel(1)->minutes();
+    $ask($session, 'Where is my order, please?');
+    $replaced = \App\Actions\Chat\ChatSession\DraftChatReply::make()->handle($session);
+    $this->travel(1)->minutes();
+    $ask($session, 'Hello? Where is my order?');
+    $newer = \App\Actions\Chat\ChatSession\DraftChatReply::make()->handle($session);
+    $newer->update(['text' => 'Sorry for the wait, we are checking with the courier now.']);
+    $sentReplaced = $ask($session, $replaced->text, ChatSenderTypeEnum::AGENT);
+    $sentReplaced->update(['sender_id' => $agent->id]);
+    \App\Actions\Chat\ChatSession\SettleChatAiDraft::run($session, $sentReplaced);
+
+    expect($replaced->refresh()->status)->toBe(\App\Enums\CRM\Livechat\ChatAiDraftStatusEnum::USED)
+        ->and($replaced->reply_message_id)->toBe($sentReplaced->id)
+        ->and($newer->refresh()->status)->toBe(\App\Enums\CRM\Livechat\ChatAiDraftStatusEnum::SUPERSEDED);
+
     // Answering a question we asked them ("yes", "please") gets no draft: what they want is in our question.
     $this->travel(1)->minutes();
     $ourQuestion = $ask($session, 'Do you mean the orders still with us?', ChatSenderTypeEnum::AGENT);

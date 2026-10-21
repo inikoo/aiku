@@ -136,6 +136,11 @@ class ChatSession extends Model implements Auditable
         return $this->hasMany(ChatMessage::class, 'chat_session_id');
     }
 
+    public function aiDrafts(): HasMany
+    {
+        return $this->hasMany(ChatAiDraft::class);
+    }
+
     /**
      * Raised off this conversation, so the thread can say what is outstanding on it.
      */

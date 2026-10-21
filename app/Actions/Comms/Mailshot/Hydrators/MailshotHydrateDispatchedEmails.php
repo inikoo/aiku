@@ -60,7 +60,7 @@ class MailshotHydrateDispatchedEmails implements ShouldBeUnique
 
         $stats = $this->addArchivedDispatchedEmails($mailshot->stats, $stats);
 
-        $mailshot->stats()->update($stats);
+        $mailshot->stats->update($stats);
         MailshotHydrateCumulativeDispatchedEmails::run($mailshot);
 
         $mailshot->refresh();

@@ -92,6 +92,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use App\Models\SysAdmin\Guest;
+use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -100,6 +101,7 @@ use function Pest\Laravel\patch;
 use function Pest\Laravel\post;
 use function Pest\Laravel\getJson;
 use function Pest\Laravel\patchJson;
+use function Pest\Laravel\postJson;
 
 uses()->group('ui');
 
@@ -2397,6 +2399,39 @@ test('a compliance editor sees supply chain, goods and products, and edits only 
 
     patch(route('grp.models.product.update', $this->product->id), ['price' => 1])->assertForbidden();
     patch(route('grp.models.trade-unit.update', $tradeUnit->id), ['gpsr_warnings' => 'x'])->assertForbidden();
+});
+
+test('a compliance editor pastes an ingredients list onto a trade unit', function () {
+    setPermissionsTeamId($this->group->id);
+    $newUser = fn () => StoreGuest::make()->action(
+        $this->group,
+        array_merge(Guest::factory()->definition(), ['positions' => []])
+    )->getUser();
+
+    $tradeUnit  = $this->product->tradeUnits()->first();
+    $ingredient = 'Compliance pasted '.Str::random(8);
+
+    $viewer = $newUser();
+    $viewer->givePermissionTo('compliance.view');
+    actingAs($viewer);
+    postJson(route('grp.json.ingredients.parse'), ['text' => $ingredient])->assertForbidden();
+
+    $compliance = $newUser();
+    $compliance->givePermissionTo(['compliance.view', 'compliance.edit']);
+    actingAs($compliance);
+
+    postJson(route('grp.json.ingredients.parse'), ['text' => $ingredient.'*'])
+        ->assertOk()
+        ->assertJsonPath('0.name', $ingredient)
+        ->assertJsonPath('0.is_new', true);
+
+    $slug = postJson(route('grp.json.ingredients.parse'), ['text' => $ingredient, 'commit' => true])
+        ->assertOk()
+        ->json('0.slug');
+
+    patch(route('grp.models.trade-unit.update', $tradeUnit->id), ['ingredients' => [$slug]])->assertSessionHasNoErrors();
+
+    expect($tradeUnit->refresh()->ingredients()->pluck('slug')->all())->toBe([$slug]);
 });
 
 test('only goods, masters or media editors change trade unit media, and attachments follow the edit permission of their model', function () {

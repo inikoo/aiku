@@ -1665,7 +1665,22 @@ trait WithEbayApiRequest
         }
 
         if ($errors = Arr::get($response, 'errors')) {
-            return (string) (Arr::get($errors, '0.message') ?? json_encode($errors));
+            $message = Arr::get($errors, '0.message');
+            if ($message === null) {
+                return json_encode($errors);
+            }
+
+            $longMessage = Arr::get($errors, '0.longMessage');
+            $parameters  = collect(Arr::get($errors, '0.parameters', []))
+                ->map(fn ($parameter) => trim(Arr::get($parameter, 'name', '').' '.Arr::get($parameter, 'value', '')))
+                ->filter()
+                ->implode(', ');
+
+            return trim(implode(' ', array_filter([
+                $message,
+                filled($longMessage) && $longMessage !== $message ? $longMessage : null,
+                $parameters !== '' ? '('.$parameters.')' : null,
+            ])));
         }
 
         if ($error = Arr::get($response, 'error')) {

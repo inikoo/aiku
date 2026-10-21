@@ -8,6 +8,7 @@
 
 namespace App\Actions\Dispatching\BatchCode\UI;
 
+use App\Actions\Inventory\OrgStock\UI\GetOrgStockLocationBatches;
 use App\Actions\Inventory\OrgStock\UI\ShowOrgStock;
 use App\Actions\Inventory\UI\ShowInventoryDashboard;
 use App\Actions\OrgAction;
@@ -119,15 +120,7 @@ class IndexBatchCodes extends OrgAction
      */
     private function batchCount(OrgStock $orgStock): array
     {
-        $batches = DB::table('org_stock_movement_batches')
-            ->join('batch_codes', 'batch_codes.id', '=', 'org_stock_movement_batches.batch_code_id')
-            ->where('org_stock_movement_batches.org_stock_id', $orgStock->id)
-            ->groupBy('org_stock_movement_batches.location_id', 'batch_codes.id', 'batch_codes.code', 'batch_codes.expiry_date')
-            ->havingRaw('sum(org_stock_movement_batches.quantity) > 0.000001')
-            ->orderByRaw('batch_codes.expiry_date asc nulls last, batch_codes.id')
-            ->selectRaw('org_stock_movement_batches.location_id, batch_codes.id as batch_code_id, batch_codes.code, batch_codes.expiry_date, sum(org_stock_movement_batches.quantity) as quantity')
-            ->get()
-            ->groupBy('location_id');
+        $batches = GetOrgStockLocationBatches::run($orgStock);
 
         return [
             'locations' => DB::table('location_org_stocks')
@@ -140,12 +133,7 @@ class IndexBatchCodes extends OrgAction
                     'location_org_stock_id' => $location->id,
                     'code'                  => $location->code,
                     'quantity'              => (float) $location->quantity,
-                    'batches'               => $batches->get($location->location_id, collect())->map(fn ($batch) => [
-                        'batch_code_id' => $batch->batch_code_id,
-                        'code'          => $batch->code,
-                        'expiry_date'   => $batch->expiry_date,
-                        'quantity'      => (float) $batch->quantity,
-                    ])->values()->all(),
+                    'batches'               => $batches->get($location->location_id, []),
                 ])->all(),
             'batch_codes' => $orgStock->batchCodes()->orderByDesc('id')->limit(200)->get(['id', 'code', 'expiry_date'])->map(fn ($batchCode) => [
                 'batch_code_id' => $batchCode->id,

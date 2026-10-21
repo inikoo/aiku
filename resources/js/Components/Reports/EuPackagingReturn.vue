@@ -29,7 +29,7 @@ const props = defineProps<{
 		has_data: boolean
 		kg: number
 		previous_kg: number | null
-		rows: { scheme_material: string; scheme_subcategory: string | null; sales_kg: number; shipment_kg: number; kg: number; previous_kg: number | null; change: number | null }[]
+		rows: { scheme_material: string; scheme_subcategory: string | null; sales_kg: number; shipment_kg: number; inbound_kg: number; kg: number; previous_kg: number | null; change: number | null }[]
 		parcel_share: number | null
 		plastic_without_polymer: number
 		units: number
@@ -93,6 +93,7 @@ const date = (iso: string) => new Date(`${iso}T00:00:00`).toLocaleDateString(und
 							<th class="px-4 py-2 font-medium">{{ ctrans("Material") }}</th>
 							<th class="px-2 py-2 font-medium text-right">{{ ctrans("Sales packaging") }}</th>
 							<th class="px-2 py-2 font-medium text-right">{{ ctrans("Shipment packaging (estimate)") }}</th>
+							<th v-if="data.domestic" class="px-2 py-2 font-medium text-right whitespace-nowrap">{{ ctrans("Inbound packing") }}</th>
 							<th class="px-2 py-2 font-medium text-right">{{ ctrans("Total kg") }}</th>
 							<th class="px-4 py-2 font-medium text-right">{{ ctrans("Change") }}</th>
 						</tr>
@@ -105,6 +106,7 @@ const date = (iso: string) => new Date(`${iso}T00:00:00`).toLocaleDateString(und
 							</td>
 							<td class="px-2 py-2 text-right">{{ kg(row.sales_kg) }}</td>
 							<td class="px-2 py-2 text-right">{{ kg(row.shipment_kg) }}</td>
+							<td v-if="data.domestic" class="px-2 py-2 text-right">{{ kg(row.inbound_kg) }}</td>
 							<td class="px-2 py-2 text-right font-medium text-gray-900">{{ kg(row.kg) }}</td>
 							<td class="px-4 py-2 text-right" :class="row.change !== null && Math.abs(row.change) > 30 ? 'text-amber-600' : 'text-gray-500'" v-tooltip="ctrans('Previous period: :kg kg', { kg: kg(row.previous_kg) })">
 								{{ row.change === null ? "—" : `${row.change > 0 ? "+" : ""}${locale.number(row.change)}%` }}
@@ -116,6 +118,7 @@ const date = (iso: string) => new Date(`${iso}T00:00:00`).toLocaleDateString(und
 
 			<ul class="space-y-1.5 text-xs text-gray-500">
 				<li v-if="data.domestic">{{ ctrans("Sales packaging of what was dispatched to addresses in the country. Goods sent to other countries fall under their schemes and are not included.") }}</li>
+				<li v-if="data.domestic">{{ ctrans("Inbound packing is the packing material that came inside the cartons imported in the period, from the agents' packing specs. It counts only in the organisation's own country.") }}</li>
 				<li v-else>{{ ctrans("Distance selling: sales packaging of the parcels sent to consumers in the country (dropshipping, retail and marketplace orders).") }}</li>
 				<li v-if="!data.domestic && data.trade_kg > 0">
 					{{ ctrans("Not included: :kg kg sent to trade customers in the country, who usually import and report it themselves. Check with a compliance adviser for the country.", { kg: kg(data.trade_kg) }) }}

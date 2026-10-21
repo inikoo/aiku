@@ -104,6 +104,7 @@ class GetRecentlyUpdatedTickets extends OrgAction
         return match (true) {
             str_contains($title, 'mentioned you')     => 'mention',
             str_contains($title, 'new comment')       => 'comment',
+            str_contains($title, ' answered ')        => 'answered',
             str_contains($title, 'needs your reply')  => 'needs_reply',
             str_contains($title, 'ready for qa'), str_contains($title, ': qa ') => 'qa',
             str_contains($title, ' is done')          => 'resolved',
@@ -120,6 +121,7 @@ class GetRecentlyUpdatedTickets extends OrgAction
             'mention'      => __('Mentioned you'),
             'comment'      => __('New comment'),
             'needs_reply'  => __('Needs your reply'),
+            'answered'     => __('Answered'),
             'qa'           => __('QA'),
             'resolved'     => __('Done'),
             'status'       => __('Status changed'),
@@ -136,6 +138,7 @@ class GetRecentlyUpdatedTickets extends OrgAction
             'mention'      => 'fal fa-at',
             'comment'      => 'fal fa-comment-lines',
             'needs_reply'  => 'fal fa-question-circle',
+            'answered'     => 'fal fa-reply',
             'qa'           => 'fal fa-vial',
             'resolved'     => 'fal fa-check-double',
             'status'       => 'fal fa-exchange',
