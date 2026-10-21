@@ -43,6 +43,7 @@ export type AppointmentBookingPayload = {
 }
 
 export type AppointmentBookingResult = {
+    state: "requested" | "accepted"
     appointment_type: string
     starts_at: string
     ends_at: string
@@ -172,8 +173,8 @@ const fieldPt = { root: { class: "w-full" } }
 
         <div v-else-if="result" class="mx-auto max-w-2xl rounded-lg border border-slate-200 bg-white px-6 py-12 text-center shadow-[0_1px_8px_rgba(0,0,0,0.08)]">
             <FontAwesomeIcon icon="fas fa-check-circle" class="text-5xl text-green-500" fixed-width aria-hidden="true" />
-            <h3 class="mt-4 text-xl font-bold text-slate-800">{{ ctrans("Your request is sent") }}</h3>
-            <p class="mt-1 text-slate-500">{{ ctrans("We will confirm your appointment shortly.") }}</p>
+            <h3 class="mt-4 text-xl font-bold text-slate-800">{{ result.state === "accepted" ? ctrans("Your appointment is confirmed") : ctrans("Your request is sent") }}</h3>
+            <p v-if="result.state !== 'accepted'" class="mt-1 text-slate-500">{{ ctrans("We will confirm your appointment shortly.") }}</p>
             <p class="mt-1 text-sm text-slate-500">{{ ctrans("We have emailed you the details with a calendar invitation.") }}</p>
             <div class="mx-auto mt-6 max-w-sm space-y-3 rounded-lg border border-slate-200 p-5 text-left text-sm font-semibold text-slate-600">
                 <div class="text-base font-bold text-slate-800">{{ result.appointment_type }}</div>

@@ -81,6 +81,35 @@ class GetAppointmentTypeAvailableSlots
     }
 
     /**
+     * The member of staff a booking that arrives on its own is given: someone who arranges this
+     * type and is not at an appointment of another type then, the least booked that day first.
+     */
+    public function freeStaffId(AppointmentType $appointmentType, Carbon $startsAt, Carbon $endsAt): ?int
+    {
+        $staffIds     = $appointmentType->attendees()->where('users.status', true)->pluck('users.id');
+        $busyStaffIds = $this->staffBusyElsewhere($appointmentType, $staffIds, $startsAt->copy()->utc(), $endsAt->copy()->utc())->pluck(2);
+        $freeStaffIds = $staffIds->diff($busyStaffIds)->values();
+
+        if ($freeStaffIds->isEmpty()) {
+            return null;
+        }
+
+        $bookingsThatDay = Appointment::whereIn('user_id', $freeStaffIds)
+            ->whereIn('state', AppointmentStateEnum::holdingSlot())
+            ->whereBetween('starts_at', [$startsAt->copy()->startOfDay()->utc(), $startsAt->copy()->endOfDay()->utc()])
+            ->selectRaw('user_id, count(*) as bookings')
+            ->groupBy('user_id')
+            ->pluck('bookings', 'user_id');
+
+        return $freeStaffIds
+            ->sortBy([
+                fn (int $a, int $b) => ($bookingsThatDay[$a] ?? 0) <=> ($bookingsThatDay[$b] ?? 0),
+                fn (int $a, int $b) => $a <=> $b,
+            ])
+            ->first();
+    }
+
+    /**
      * @return Collection<int, array{0: Carbon, 1: Carbon}>
      */
     private function bookedPeriods(AppointmentType $appointmentType, Carbon $from, Carbon $to, int $buffer): Collection

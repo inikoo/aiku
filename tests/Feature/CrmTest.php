@@ -1291,7 +1291,7 @@ test('visitors are emailed when their appointment is requested, accepted, moved,
         ->and($sender->calendarInvite($appointment, OutboxCodeEnum::APPOINTMENT_ACCEPTED))->toContain('STATUS:CONFIRMED');
 });
 
-test('accepted appointments are reminded by email the day before, once', function () {
+test('accepted appointments are reminded by email 12 hours before, once', function () {
     $appointmentType = StoreAppointmentType::make()->action($this->shop, [
         'name'              => 'Reminders '.Str::random(6),
         'meeting_mode'      => AppointmentTypeMeetingModeEnum::STORE_VISIT->value,
@@ -1318,12 +1318,14 @@ test('accepted appointments are reminded by email the day before, once', functio
 
     $tomorrow     = $book();
     $later        = $book();
+    $tonight      = $book();
     $justAccepted = $book();
     $requested    = $book(['state' => AppointmentStateEnum::REQUESTED->value]);
 
-    $insideTheDay = ['starts_at' => now()->addHours(20), 'ends_at' => now()->addHours(20)->addMinutes(30)];
-    Appointment::whereIn('id', [$tomorrow->id, $requested->id])->update([...$insideTheDay, 'accepted_at' => now()->subDays(3)]);
-    Appointment::whereKey($justAccepted->id)->update([...$insideTheDay, 'accepted_at' => now()->subHour()]);
+    $insideTheWindow = ['starts_at' => now()->addHours(10), 'ends_at' => now()->addHours(10)->addMinutes(30)];
+    Appointment::whereIn('id', [$tomorrow->id, $requested->id])->update([...$insideTheWindow, 'accepted_at' => now()->subDays(3)]);
+    Appointment::whereKey($justAccepted->id)->update([...$insideTheWindow, 'accepted_at' => now()->subHour()]);
+    Appointment::whereKey($tonight->id)->update(['starts_at' => now()->addHours(20), 'ends_at' => now()->addHours(20)->addMinutes(30), 'accepted_at' => now()->subDays(3)]);
 
     $this->artisan('appointments:remind')->assertSuccessful();
     $this->artisan('appointments:remind')->assertSuccessful();
@@ -1331,6 +1333,7 @@ test('accepted appointments are reminded by email the day before, once', functio
     expect($remindedIds())->toBe([$tomorrow->id])
         ->and($tomorrow->refresh()->reminder_sent_at)->not->toBeNull()
         ->and($later->refresh()->reminder_sent_at)->toBeNull()
+        ->and($tonight->refresh()->reminder_sent_at)->toBeNull()
         ->and(AppointmentResource::make($tomorrow)->resolve()['reminder_sent_at'])->not->toBeNull();
 
     $body = SendAppointmentEmail::make()->generateBodyHtml($tomorrow, OutboxCodeEnum::APPOINTMENT_REMINDER);

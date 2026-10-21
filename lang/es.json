@@ -20889,5 +20889,7 @@
     "Appointment Details": "Detalles de la cita",
     "Previous Appointment Date": "Fecha anterior de la cita",
     "Decline Reason": "Motivo del rechazo",
-    "Manage Appointment Link": "Enlace para gestionar la cita"
+    "Manage Appointment Link": "Enlace para gestionar la cita",
+    "A reminder is emailed 12 hours before": "Se envía un recordatorio 12 horas antes",
+    "Your appointment is confirmed": "Su cita está confirmada"
 }

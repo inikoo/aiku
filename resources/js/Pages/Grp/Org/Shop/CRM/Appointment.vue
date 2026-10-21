@@ -155,7 +155,7 @@ const statusMessage = computed(() => ({
                         <li v-if="appointment.email && (appointment.reminder_sent_at || (appointment.state === 'accepted' && !appointment.is_past))" class="flex gap-2 text-gray-500">
                             <FontAwesomeIcon icon="fal fa-bell" class="mt-0.5 text-gray-400" fixed-width aria-hidden="true" />
                             <span v-if="appointment.reminder_sent_at">{{ ctrans("Reminder emailed :time", { time: useFormatTime(appointment.reminder_sent_at, { formatTime: "hm" }) }) }}</span>
-                            <span v-else>{{ ctrans("A reminder is emailed the day before") }}</span>
+                            <span v-else>{{ ctrans("A reminder is emailed 12 hours before") }}</span>
                         </li>
                         <li v-if="appointment.phone" class="flex flex-wrap items-center gap-2">
                             <FontAwesomeIcon icon="fal fa-phone" class="text-gray-400" fixed-width aria-hidden="true" />
