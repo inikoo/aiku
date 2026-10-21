@@ -391,6 +391,7 @@ return [
                     'ds',
                     'shopify',
                     'shopify-bulk',
+                    'ebay-upload',
                     'ebay',
                     'tiktok',
                     'woo'
@@ -641,7 +642,7 @@ return [
         'staging'    => array_map(fn () => ['maxProcesses' => 0], $supervisorDefaults) + [
             'redis' => [
                 'connection'      => 'redis',
-                'queue'           => ['urgent', 'default', 'common', 'price_change_control', 'price_change', 'hydrators-slave', 'sales', 'sales_slave', 'stock-control', 'search', 'ds', 'shopify', 'shopify-bulk', 'ebay', 'tiktok', 'woo', 'shopify-slave', 'ses-send', 'ses', 'ses-analytics', 'ses-low', 'hydrators-slave-low-priority', 'translate', 'translate-model', 'translate-chat', 'sales_slave_historic', 'low-priority'],
+                'queue'           => ['urgent', 'default', 'common', 'price_change_control', 'price_change', 'hydrators-slave', 'sales', 'sales_slave', 'stock-control', 'search', 'ds', 'shopify', 'shopify-bulk', 'ebay-upload', 'ebay', 'tiktok', 'woo', 'shopify-slave', 'ses-send', 'ses', 'ses-analytics', 'ses-low', 'hydrators-slave-low-priority', 'translate', 'translate-model', 'translate-chat', 'sales_slave_historic', 'low-priority'],
                 'balance'         => false,
                 'maxProcesses'    => env('HORIZON_STAGING_WORKERS', 4),
                 'maxTime'         => 0,

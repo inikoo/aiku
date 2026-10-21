@@ -1104,8 +1104,8 @@ test('bulk upload queues one upload job per selected active portfolio and counts
     StoreBulkNewProductToCurrentEbay::run($ebayUser, ['portfolios' => [$portfolio->id, $inactive->id]]);
 
     StoreNewProductToCurrentEbay::assertPushed(1);
-    StoreNewProductToCurrentEbay::assertPushed(function ($job, $arguments) use ($portfolio) {
-        return $arguments[1]->id === $portfolio->id && $arguments[2]['total'] === 1;
+    StoreNewProductToCurrentEbay::assertPushedOn('ebay-upload', function ($action, $arguments, $job) use ($portfolio) {
+        return $arguments[1]->id === $portfolio->id && $arguments[2]['total'] === 1 && $job->deleteWhenMissingModels === true;
     });
 });
 
