@@ -4816,6 +4816,26 @@ test('the stranded sweep releases a blocked note whose flags outlived their reas
         ->and($item->fresh()->is_dirty)->toBeFalse();
 });
 
+test('the stranded sweep does not report a note the warehouse released after the sweep loaded it', function () {
+    [$deliveryNote, $item] = handlingDeliveryNoteWithPicking($this);
+    settleSiblingDeliveryNoteItems($deliveryNote, $item);
+    DeliveryNote::whereKey($deliveryNote->id)->update(['state' => DeliveryNoteStateEnum::HANDLING_BLOCKED->value, 'updated_at' => now()->subHour()]);
+
+    $releasedByWarehouse = false;
+    DeliveryNote::retrieved(function (DeliveryNote $retrieved) use ($deliveryNote, &$releasedByWarehouse) {
+        if (!$releasedByWarehouse && $retrieved->id === $deliveryNote->id) {
+            $releasedByWarehouse = true;
+            DeliveryNote::whereKey($deliveryNote->id)->update(['state' => DeliveryNoteStateEnum::PICKED->value, 'updated_at' => now()]);
+        }
+    });
+
+    $stats = \App\Actions\Dispatching\DeliveryNote\SweepStrandedDeliveryNotes::run();
+
+    expect($releasedByWarehouse)->toBeTrue()
+        ->and($stats['stranded'])->not->toContain($deliveryNote->reference)
+        ->and($deliveryNote->fresh()->state)->toBe(DeliveryNoteStateEnum::PICKED);
+});
+
 test('deleting the last blocking line releases the delivery note', function () {
     [$deliveryNote, $item] = handlingDeliveryNoteWithPicking($this);
     settleSiblingDeliveryNoteItems($deliveryNote, $item);

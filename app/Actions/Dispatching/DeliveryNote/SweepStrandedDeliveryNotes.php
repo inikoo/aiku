@@ -38,8 +38,15 @@ class SweepStrandedDeliveryNotes
 
         DeliveryNote::where('state', DeliveryNoteStateEnum::HANDLING_BLOCKED)
             ->where('updated_at', '<', now()->subMinutes(30))
-            ->orderBy('id')
-            ->each(function (DeliveryNote $deliveryNote) use ($dry, &$stats) {
+            ->eachById(function (DeliveryNote $deliveryNote) use ($dry, &$stats) {
+                $deliveryNote = $deliveryNote->fresh();
+
+                if (!$deliveryNote
+                    || $deliveryNote->state != DeliveryNoteStateEnum::HANDLING_BLOCKED
+                    || $deliveryNote->updated_at->gt(now()->subMinutes(30))) {
+                    return;
+                }
+
                 $stats['checked']++;
 
                 if (!$deliveryNote->hasBlockingItems()) {
