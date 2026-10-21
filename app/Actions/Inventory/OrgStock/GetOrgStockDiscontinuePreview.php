@@ -11,6 +11,7 @@ namespace App\Actions\Inventory\OrgStock;
 use App\Models\Procurement\PartnerShoppingListItem;
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
@@ -138,6 +139,7 @@ class GetOrgStockDiscontinuePreview extends OrgAction
             ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_transactions.purchase_order_id')
             ->where('purchase_order_transactions.org_stock_id', $orgStock->id)
             ->whereNull('purchase_order_transactions.deleted_at')
+            ->whereNotIn('purchase_order_transactions.state', [PurchaseOrderTransactionStateEnum::CANCELLED->value, PurchaseOrderTransactionStateEnum::NOT_RECEIVED->value])
             ->whereIn('purchase_orders.state', [
                 PurchaseOrderStateEnum::IN_PROCESS->value,
                 PurchaseOrderStateEnum::SUBMITTED->value,

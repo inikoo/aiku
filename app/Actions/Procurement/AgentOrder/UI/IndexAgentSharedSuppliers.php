@@ -13,6 +13,7 @@ use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Actions\Procurement\WithAgentOrganisation;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\InertiaTable\InertiaTable;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\PurchaseOrder;
@@ -132,6 +133,7 @@ class IndexAgentSharedSuppliers extends OrgAction
             ->joinSub(self::openOrders($this->agent)->whereIn('purchase_orders.supplier_id', $supplierIds)->select('purchase_orders.id', 'purchase_orders.supplier_id'), 'open_orders', 'open_orders.id', 'purchase_order_transactions.purchase_order_id')
             ->join('supplier_products', 'supplier_products.id', 'purchase_order_transactions.supplier_product_id')
             ->whereNull('purchase_order_transactions.deleted_at')
+            ->whereNotIn('purchase_order_transactions.state', [PurchaseOrderTransactionStateEnum::CANCELLED->value, PurchaseOrderTransactionStateEnum::NOT_RECEIVED->value])
             ->where('supplier_products.minimum_carton_order', '>', 0)
             ->where('supplier_products.units_per_carton', '>', 0)
             ->groupBy('open_orders.supplier_id', 'supplier_products.id', 'supplier_products.minimum_carton_order', 'supplier_products.units_per_carton')

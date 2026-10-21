@@ -14,6 +14,7 @@ use App\Actions\Procurement\GetOrganisationStockCoverBuckets;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Actions\UI\WithInertia;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteTypeEnum;
 use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemReplacementReasonEnum;
 use App\Enums\Ordering\Transaction\UpcomingTransactionTypeEnum;
@@ -732,6 +733,7 @@ class ShowGoodsDashboard extends OrgAction
                 ->join('org_stocks', 'org_stocks.id', 'purchase_order_transactions.org_stock_id')
                 ->whereIn('purchase_order_transactions.org_stock_id', $chunk)
                 ->whereNull('purchase_order_transactions.deleted_at')
+                ->whereNotIn('purchase_order_transactions.state', [PurchaseOrderTransactionStateEnum::CANCELLED->value, PurchaseOrderTransactionStateEnum::NOT_RECEIVED->value])
                 ->whereNull('purchase_orders.deleted_at')
                 ->whereNotIn('purchase_orders.state', [
                     PurchaseOrderStateEnum::IN_PROCESS->value,

@@ -10,6 +10,7 @@ namespace App\Actions\Goods\UI;
 
 use App\Actions\OrgAction;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum;
@@ -181,6 +182,7 @@ class ShowGoodsProductDetail extends OrgAction
             ->join('org_stocks', 'org_stocks.id', 'purchase_order_transactions.org_stock_id')
             ->whereIn('purchase_order_transactions.org_stock_id', $orgStockIds)
             ->whereNull('purchase_order_transactions.deleted_at')
+            ->whereNotIn('purchase_order_transactions.state', [PurchaseOrderTransactionStateEnum::CANCELLED->value, PurchaseOrderTransactionStateEnum::NOT_RECEIVED->value])
             ->whereNull('purchase_orders.deleted_at')
             ->whereNotIn('purchase_orders.state', [
                 PurchaseOrderStateEnum::IN_PROCESS->value,

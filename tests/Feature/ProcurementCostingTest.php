@@ -59,6 +59,7 @@ use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrderOrgSupplierProducts;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToSubmitted;
 use App\Actions\Procurement\PurchaseOrderTransaction\StorePurchaseOrderTransaction;
+use App\Actions\Procurement\PurchaseOrderTransaction\CancelPurchaseOrderTransaction;
 use App\Actions\Catalogue\Product\GetProductIncomingStock;
 use App\Enums\Masters\MasterAsset\MasterAssetTypeEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -524,7 +525,7 @@ test('a partly delivered purchase order still shows the lines that are not in th
     }
 
     $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition());
-    StorePurchaseOrderTransaction::make()->action(
+    $orderedLine   = StorePurchaseOrderTransaction::make()->action(
         $purchaseOrder,
         $orgSupplierProducts[0]->supplierProduct->historicSupplierProduct,
         $orderedOrgStock,
@@ -562,6 +563,15 @@ test('a partly delivered purchase order still shows the lines that are not in th
         ->and($ordered['type'])->toBe('purchase_order')
         ->and($ordered['quantity'])->toBe(90.0)
         ->and(collect($incoming)->where('org_stock_code', $deliveredOrgStock->code)->count())->toBe(0);
+
+    $comingSkos = fn () => (float) DB::table('org_stocks')->where('id', $orderedOrgStock->id)
+        ->selectRaw(GetOrganisationStockCoverBuckets::comingSkosExpression('org_stocks').' as coming')->value('coming');
+    $comingBeforeCancel = $comingSkos();
+
+    CancelPurchaseOrderTransaction::make()->action($orderedLine->refresh());
+
+    expect(collect(GetProductIncomingStock::run($product))->firstWhere('reference', $purchaseOrder->reference))->toBeNull()
+        ->and($comingSkos())->toBeLessThan($comingBeforeCancel);
 });
 
 test('sko showcase shows days of cover and the purchase orders still to arrive', function () {

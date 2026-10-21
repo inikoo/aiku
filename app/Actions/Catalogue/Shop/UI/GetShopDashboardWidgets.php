@@ -15,6 +15,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithShopDashboardAuthorisation;
 use App\Actions\Traits\Dashboards\WithPerformanceDateResolution;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\Product\ProductStatusEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
@@ -331,6 +332,7 @@ class GetShopDashboardWidgets extends OrgAction
                 PurchaseOrderTransactionDeliveryStateEnum::DISPATCHED->value,
             ])
             ->whereNull('pot.deleted_at')
+            ->whereNotIn('pot.state', [PurchaseOrderTransactionStateEnum::CANCELLED->value, PurchaseOrderTransactionStateEnum::NOT_RECEIVED->value])
             ->orderByDesc('po.date')
             ->get(['pos.product_id', 'po.reference', 'po.date', 'pot.delivery_state', 'pot.quantity_ordered'])
             ->unique('product_id')
