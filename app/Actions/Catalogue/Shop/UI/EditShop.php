@@ -148,6 +148,8 @@ class EditShop extends OrgAction
             __('Shopify Settings'),
             __('Wix Settings'),
             __('Chat widget'),
+            __('Meta Ads'),
+            __('Social media (Meta)'),
         ];
         $salesChannels          = SalesChannel::orderBy('id')->get();
         $salesChannelFields     = [];

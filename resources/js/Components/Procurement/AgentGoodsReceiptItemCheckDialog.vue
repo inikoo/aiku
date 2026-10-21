@@ -139,7 +139,7 @@ function submit() {
 					<FontAwesomeIcon :icon="faTimes" class="text-red-500" fixed-width aria-hidden="true" />
 				</template>
 			</Button>
-			<Button type="tertiary" :label="ctrans('Save check')" :loading="form.processing" @click="submit">
+			<Button type="secondary" :label="ctrans('Save check')" :loading="form.processing" @click="submit">
 				<template #icon>
 					<FontAwesomeIcon :icon="faCheck" class="text-green-600" fixed-width aria-hidden="true" />
 				</template>

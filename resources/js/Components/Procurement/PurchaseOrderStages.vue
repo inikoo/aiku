@@ -128,6 +128,11 @@ function markTooltip(mark: Mark) {
         : ctrans("Click to record the date of :step", { step: mark.label })
 }
 
+const markDescriptions: Record<string, string> = {
+    production_started_at: "Mark production started on the day the supplier began making the products of this order. It is set by itself when the first goods of this order arrive at the warehouse.",
+    produced_at: "Mark production done once every product of this order is in the warehouse and nothing is left at the supplier.",
+}
+
 const editing = ref<Mark | null>(null)
 const date = ref<Date | null>(null)
 const reason = ref("")
@@ -279,6 +284,10 @@ function save() {
         @update:visible="(visible: boolean) => !visible && (editing = null)"
     >
         <div class="space-y-4 text-sm">
+            <p v-if="editing && markDescriptions[editing.field]" class="text-gray-600">
+                {{ ctrans(markDescriptions[editing.field]) }}
+            </p>
+
             <label class="block space-y-1">
                 <span class="block text-xs text-gray-500">{{ ctrans("Date") }}</span>
                 <DatePicker v-model="date" dateFormat="yy-mm-dd" :maxDate="editing?.planned ? undefined : new Date()" showIcon showButtonBar class="w-full" />
@@ -303,7 +312,7 @@ function save() {
                     <FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" />
                 </template>
             </Button>
-            <Button type="tertiary" :label="ctrans('Save')" :loading="saving" :disabled="needsReason && !reason.trim()" @click="save">
+            <Button :type="editing && markDescriptions[editing.field] ? 'secondary' : 'tertiary'" :label="ctrans('Save')" :loading="saving" :disabled="needsReason && !reason.trim()" @click="save" full>
                 <template #icon>
                     <FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" />
                 </template>
