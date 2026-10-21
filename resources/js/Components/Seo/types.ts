@@ -18,6 +18,7 @@ export type SeoKeywordOptions = {
 export type SeoKeywordRoutes = {
     track: routeType & { method: string }
     bulkTrack: routeType & { method: string }
+    bulkDelete: routeType & { method: string }
     storeTag: routeType & { method: string }
     assignTags: routeType & { method: string }
 }

@@ -57,7 +57,7 @@ class ShowSeoKeywords extends OrgAction
     /**
      * @return array{seed: string, url: string, scope: string, country_code: string, language_code: string}
      */
-    private function researchQuery(Shop $shop, ActionRequest $request): array
+    public function researchQuery(Shop $shop, ActionRequest $request): array
     {
         $url = Str::limit((string) $request->query('url', ''), 2048, '');
 
@@ -70,7 +70,7 @@ class ShowSeoKeywords extends OrgAction
         ];
     }
 
-    private function research(Shop $shop, array $query): ?array
+    public function research(Shop $shop, array $query): ?array
     {
         $seedKeywords = array_values(array_filter(array_map('trim', preg_split('/[,\n]+/', $query['seed']))));
 
@@ -285,6 +285,11 @@ class ShowSeoKeywords extends OrgAction
                         'name'       => 'grp.models.shop.seo.tracked_keywords.bulk_store',
                         'parameters' => [$shop->id],
                         'method'     => 'post',
+                    ],
+                    'bulkDelete'     => [
+                        'name'       => 'grp.models.shop.seo.tracked_keywords.delete',
+                        'parameters' => [$shop->id],
+                        'method'     => 'delete',
                     ],
                     'storeTag'       => [
                         'name'       => 'grp.models.shop.seo.keyword_tag.store',

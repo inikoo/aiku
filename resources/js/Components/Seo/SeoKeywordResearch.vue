@@ -14,6 +14,7 @@ import Column from "primevue/column"
 import Tag from "primevue/tag"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
+import SeoExportButton from "@/Components/Seo/SeoExportButton.vue"
 import { featureLabel } from "@/Components/Seo/serpFeatures"
 import { ctrans } from "@/Composables/useTrans"
 import { useLocaleStore } from "@/Stores/locale"
@@ -209,7 +210,13 @@ const trendBars = (idea: KeywordIdea) => {
                         <h2 class="text-sm font-medium text-gray-900">{{ ctrans("Keyword ideas") }}</h2>
                         <p class="text-xs text-gray-500">{{ ctrans(":count keywords, Google search data from DataForSEO", { count: locale.number(data.keyword_data.ideas.length) }) }}</p>
                     </div>
-                    <SegmentedToggle v-if="data.keyword_data.ideas.length" v-model="intentFilter" :options="intentOptions" :ariaLabel="ctrans('Search intent')" />
+                    <div v-if="data.keyword_data.ideas.length" class="flex flex-wrap items-center gap-2">
+                        <SegmentedToggle v-model="intentFilter" :options="intentOptions" :ariaLabel="ctrans('Search intent')" />
+                        <SeoExportButton
+                            table="research"
+                            :extra="{ intent: intentFilter === 'all' ? null : intentFilter }"
+                            :tooltip="ctrans('Download these keyword ideas as an Excel file, with the intent chosen here')" />
+                    </div>
                 </div>
 
                 <div v-if="data.keyword_data.error" role="alert" class="px-5 py-4 text-sm text-gray-700">
