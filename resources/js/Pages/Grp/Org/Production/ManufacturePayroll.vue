@@ -59,6 +59,7 @@ function applyPeriod() {
 }
 
 const money = (amount: number) => `£${amount.toFixed(2)}`
+const clockMinutes = (minutes: number) => `${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, "0")}`
 </script>
 
 <template>
@@ -105,6 +106,9 @@ const money = (amount: number) => `£${amount.toFixed(2)}`
                 <Link :href="route(item.route.name, item.route.parameters)" class="font-medium text-gray-700 hover:underline">{{ item.worker }}</Link>
                 <span v-if="item.artisan_pay_type === 'hourly'" class="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600">{{ ctrans('Hourly') }}</span>
                 <span v-if="item.is_guru" class="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600"><FontAwesomeIcon :icon="['fal', 'hat-wizard']" fixed-width aria-hidden="true" /> {{ ctrans('Guru') }}</span>
+                <span v-if="item.not_authorised_overtime" class="cursor-help rounded bg-red-100 px-1.5 py-0.5 text-xs font-medium text-red-800" v-tooltip="item.not_authorised_overtime.days.map((day) => `${day.date}: +${clockMinutes(day.minutes)}${day.note ? ' · ' + day.note : ''}${day.by ? ' (' + day.by + ')' : ''}`).join('\n')">
+                    {{ ctrans('Overtime not authorised :time', { time: clockMinutes(item.not_authorised_overtime.minutes) }) }}
+                </span>
                 <span v-if="item.excluded_sessions" class="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-800" v-tooltip="ctrans('Left running after the end of the shift: not counted until the times are checked on the Performance page')">
                     {{ ctrans(':count to check', { count: item.excluded_sessions }) }}
                 </span>

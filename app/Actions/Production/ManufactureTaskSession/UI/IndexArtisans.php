@@ -10,6 +10,7 @@ namespace App\Actions\Production\ManufactureTaskSession\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Production\Artisan\SetArtisanPayType;
+use App\Actions\Production\ManufactureArtisanDay\HydrateManufactureArtisanDays;
 use App\Actions\Production\Production\UI\ShowArtisansDashboard;
 use App\Enums\Production\Artisan\ArtisanPayTypeEnum;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
@@ -19,6 +20,7 @@ use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionTimeEditRe
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionUnderTargetReasonEnum;
 use App\Models\HumanResources\Employee;
 use App\Models\Production\ArtefactManufactureTask;
+use App\Models\Production\ManufactureArtisanDay;
 use App\Models\Production\JobOrderItemTask;
 use App\Models\Production\ManufactureTask;
 use App\Models\Production\ManufacturePreparationReason;
@@ -36,6 +38,7 @@ use Lorisleiva\Actions\ActionRequest;
 class IndexArtisans extends OrgAction
 {
     private bool $canEditClosedPayWeek = false;
+    private bool $canSeePay = false;
 
     public function authorize(ActionRequest $request): bool
     {
@@ -44,8 +47,9 @@ class IndexArtisans extends OrgAction
             "productions_operations.{$this->production->id}.orchestrate",
         ]);
         $this->canEditClosedPayWeek = $request->user()->authTo('sysadmin.edit');
+        $this->canSeePay            = ShowArtisansDashboard::canSeeArtisanPay($request->user(), $this->production);
 
-        return ShowArtisansDashboard::canSeeArtisanPay($request->user(), $this->production);
+        return ShowArtisansDashboard::canSeeArtisans($request->user(), $this->production);
     }
 
     public function asController(Organisation $organisation, Production $production, ActionRequest $request): Production
@@ -113,7 +117,7 @@ class IndexArtisans extends OrgAction
                 'hours'             => round($closed->sum(fn (ManufactureTaskSession $session) => $session->paidHours()), 2),
                 'quantity_made'     => round((float)$closed->sum('quantity_made'), 2),
                 'quantity_rejected' => round((float)$closed->sum('quantity_rejected'), 2),
-                'earned'            => round((float)$closed->sum('pay'), 2),
+                'earned'            => $this->canSeePay ? round((float)$closed->sum('pay'), 2) : null,
             ];
         };
 
@@ -170,7 +174,7 @@ class IndexArtisans extends OrgAction
                     'quantity_left'     => max(0, (float)$step->quantity_required - (float)$step->quantity_made),
                 ])->values()->all() : [],
             'quantity_rejected'   => (float)$session->quantity_rejected,
-            'earned'              => round((float)$session->pay, 2),
+            'earned'              => $this->canSeePay ? round((float)$session->pay, 2) : null,
             'units_per_hour'      => $session->paidHours() > 0 ? round($session->quantity_made / $session->paidHours(), 1) : null,
             'standard_rate'       => $session->standard_rate === null ? null : (float)$session->standard_rate,
             'is_under_target'     => $session->is_under_target && $session->state == ManufactureTaskSessionStateEnum::CLOSED,
@@ -273,10 +277,12 @@ class IndexArtisans extends OrgAction
                     'label' => ManufactureTaskSessionTimeEditReasonEnum::labels()[$reason->value],
                 ], ManufactureTaskSessionTimeEditReasonEnum::supervisorReasons()),
                 'left_open'           => $this->leftOpenSessions($production),
+                'daily_hours_warnings' => $this->dailyHoursWarnings($production, $from, $to),
                 'artisan_pay_type'    => $payType,
                 'artisan_pay_types'   => ArtisanPayTypeEnum::labels(),
                 'pay_type_effective_from' => SetArtisanPayType::effectiveFrom()->toDateString(),
                 'currency_code'           => $this->organisation->currency->code,
+                'can_see_pay'             => $this->canSeePay,
                 'under_target_reasons' => ManufactureTaskSessionUnderTargetReasonEnum::labels(),
                 'non_productive_activities' => array_map(fn (ManufactureTaskSessionActivityTypeEnum $activity) => [
                     'value' => $activity->value,
@@ -333,7 +339,7 @@ class IndexArtisans extends OrgAction
 
         return [
             'hours'      => round($closed->sum(fn (ManufactureTaskSession $session) => $session->paidHours()), 2),
-            'pay'        => $closed->whereNotNull('pay')->isEmpty() ? null : round((float) $closed->sum('pay'), 2),
+            'pay'        => !$this->canSeePay || $closed->whereNotNull('pay')->isEmpty() ? null : round((float) $closed->sum('pay'), 2),
             'activities' => $hoursByActivity($closed),
             'days'       => $groupedHours(fn (ManufactureTaskSession $session) => $session->ended_at->toDateString(), fn ($session, string $date) => $date),
             'weeks'      => $groupedHours(fn (ManufactureTaskSession $session) => $session->ended_at->copy()->startOfWeek()->toDateString(), fn ($session, string $date) => $date),
@@ -349,7 +355,7 @@ class IndexArtisans extends OrgAction
                 'started_at'          => $session->started_at,
                 'ended_at'            => $session->ended_at,
                 'break_minutes'       => (int) $session->break_minutes,
-                'pay'                 => $session->pay === null ? null : (float) $session->pay,
+                'pay'                 => !$this->canSeePay || $session->pay === null ? null : (float) $session->pay,
                 'void_route'          => $this->canEdit && $session->state == ManufactureTaskSessionStateEnum::CLOSED ? [
                     'name'       => 'grp.models.manufacture-task-session.void',
                     'parameters' => ['manufactureTaskSession' => $session->id],
@@ -433,6 +439,31 @@ class IndexArtisans extends OrgAction
                 ];
             })
             ->all();
+    }
+
+    /**
+     * @return array{count: int, route: array{name: string, parameters: array<string, mixed>}}
+     */
+    private function dailyHoursWarnings(Production $production, Carbon $from, Carbon $to): array
+    {
+        HydrateManufactureArtisanDays::run($production, $from, $to);
+
+        return [
+            'count' => ManufactureArtisanDay::where('production_id', $production->id)
+                ->whereBetween('date', [$from->toDateString(), $to->toDateString()])
+                ->where('is_warning_open', true)
+                ->count(),
+            'route' => [
+                'name'       => 'grp.org.productions.show.artisans.daily_hours',
+                'parameters' => [
+                    'organisation' => $production->organisation->slug,
+                    'production'   => $production->slug,
+                    'from'         => $from->toDateString(),
+                    'to'           => $to->toDateString(),
+                    'open_only'    => 1,
+                ],
+            ],
+        ];
     }
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array

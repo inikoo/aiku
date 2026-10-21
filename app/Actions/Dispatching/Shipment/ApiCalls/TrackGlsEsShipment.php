@@ -17,6 +17,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Lorisleiva\Actions\Concerns\AsAction;
+use RuntimeException;
 use SimpleXMLElement;
 
 /**
@@ -86,6 +87,10 @@ class TrackGlsEsShipment
         }
 
         $xml = @simplexml_load_string($response->body());
+
+        if ($xml && isset($xml->Error)) {
+            throw new RuntimeException('GLS Spain tracking refused: '.trim((string)$xml->Error));
+        }
 
         return $xml && isset($xml->exp[0]) ? $xml->exp[0] : null;
     }

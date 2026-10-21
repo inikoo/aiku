@@ -51,7 +51,7 @@ De bundelknop verschijnt alleen bij producten die op voorraad zijn. Zolang een b
 
 De bundel staat nu in <b>My Bundles</b>. Hij werkt als een rij in <b>My Products</b>: druk op <b>Create new product</b> om hem in uw winkel te maken, of koppel hem aan een bestaande vermelding. Zie [Mijn producten gebruiken](/docs/my-products).
 
-Een bundel heeft zijn eigen productcode, wat de SKU is die naar uw winkel wordt gestuurd.
+De SKU die naar uw winkel wordt gestuurd is niet de productcode van de bundel. Hij wordt opgebouwd uit de voorraadcodes van de producten in de bundel, in kleine letters en verbonden met streepjes: een bundel van GJC-04, GJC-05 en GJC-06 wordt verstuurd als <b>gjc-04-gjc-05-gjc-06</b>. Bevat de bundel meer dan één van dezelfde voorraadsoort, dan wordt het aantal erachter gezet, bijvoorbeeld <b>gjc-04-x2</b>.
 
 ## Een bundel wijzigen of verwijderen
 

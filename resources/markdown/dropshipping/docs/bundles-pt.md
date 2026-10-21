@@ -51,7 +51,7 @@ O botão de conjunto só aparece em produtos que têm stock. Enquanto um conjunt
 
 O conjunto está agora em <b>My Bundles</b>. Funciona como uma linha em <b>My Products</b>: prime <b>Create new product</b> para o criares na tua loja, ou associa-o a um anúncio que já tens. Consulta [Usar My Products](/docs/my-products).
 
-Um conjunto tem o seu próprio código de produto, que é o SKU enviado para a tua loja.
+O SKU enviado para a tua loja não é o código de produto do conjunto. É construído a partir dos códigos de stock dos produtos incluídos, em minúsculas e unidos por hífenes: um conjunto de GJC-04, GJC-05 e GJC-06 é enviado como <b>gjc-04-gjc-05-gjc-06</b>. Se o conjunto tiver mais de uma unidade do mesmo stock, a quantidade é acrescentada a seguir, por exemplo <b>gjc-04-x2</b>.
 
 ## Alterar ou remover um conjunto
 

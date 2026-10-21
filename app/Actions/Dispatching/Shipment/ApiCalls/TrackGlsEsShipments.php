@@ -11,12 +11,15 @@ namespace App\Actions\Dispatching\Shipment\ApiCalls;
 use App\Models\Dispatching\Shipment;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
+use RuntimeException;
 use Sentry;
 use Throwable;
 
 /**
  * GLS Spain delivers in one to three days, so a parcel still undelivered after 30 days is lost or
- * returned and is no longer asked about. Production only: a copy of the production database
+ * returned and is no longer asked about. GLS stops answering ("Servicio no disponible") after a few
+ * hundred lookups in quick succession, so they are spaced a second apart and a refusal ends the run;
+ * the next hour carries on from the shipments still undelivered. Production only: a copy of the production database
  * elsewhere would otherwise mark real merchants' Shopify orders delivered.
  */
 class TrackGlsEsShipments
@@ -41,14 +44,20 @@ class TrackGlsEsShipments
             ->whereHas('shipper', fn ($query) => $query->where('api_shipper', 'gls-es')->whereNotNull('settings->guid'))
             ->with('shipper')
             ->eachById(function (Shipment $shipment) use (&$stats) {
-                $stats['checked']++;
                 try {
                     if (TrackGlsEsShipment::run($shipment)->delivered_at) {
                         $stats['delivered']++;
                     }
+                    $stats['checked']++;
+                } catch (RuntimeException $e) {
+                    Sentry::captureMessage($e->getMessage().' after '.$stats['checked'].' shipments', Sentry\Severity::warning());
+
+                    return false;
                 } catch (Throwable $e) {
                     Sentry::captureException($e);
                 }
+
+                sleep(1);
             });
 
         return $stats;

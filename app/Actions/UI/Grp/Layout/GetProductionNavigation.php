@@ -219,7 +219,7 @@ class GetProductionNavigation
             }
         }
 
-        if (ShowArtisansDashboard::canSeeArtisanPay($user, $production)) {
+        if (ShowArtisansDashboard::canSeeArtisans($user, $production)) {
             $navigation['artisans'] = [
                 'root'  => 'grp.org.productions.show.artisans.',
                 'label' => __('Artisans'),
@@ -244,7 +244,7 @@ class GetProductionNavigation
                         ],
                         [
                             'label'   => __('Performance'),
-                            'tooltip' => __('Sessions, output and earnings per artisan'),
+                            'tooltip' => __('Sessions and output per artisan'),
                             'icon'    => ['fal', 'fa-user-hard-hat'],
                             'root'    => 'grp.org.productions.show.artisans.index',
                             'route'   => [
@@ -253,6 +253,16 @@ class GetProductionNavigation
                             ],
                         ],
                         [
+                            'label'   => __('Daily hours'),
+                            'tooltip' => __('Each artisan\'s day against their shift: overtime and short days'),
+                            'icon'    => ['fal', 'fa-user-clock'],
+                            'root'    => 'grp.org.productions.show.artisans.daily_hours',
+                            'route'   => [
+                                'name'       => 'grp.org.productions.show.artisans.daily_hours',
+                                'parameters' => [$production->organisation->slug, $production->slug]
+                            ],
+                        ],
+                        ...(ShowArtisansDashboard::canSeeArtisanPay($user, $production) ? [[
                             'label'   => __('Payroll'),
                             'tooltip' => __('Piece-rate payroll export'),
                             'icon'    => ['fal', 'fa-money-check-alt'],
@@ -261,7 +271,7 @@ class GetProductionNavigation
                                 'name'       => 'grp.org.productions.show.artisans.payroll',
                                 'parameters' => [$production->organisation->slug, $production->slug]
                             ],
-                        ],
+                        ]] : []),
                     ]
                 ]
             ];

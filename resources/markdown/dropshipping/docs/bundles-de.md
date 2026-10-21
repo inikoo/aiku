@@ -51,7 +51,7 @@ Die Set-Schaltfläche wird nur bei Produkten angezeigt, die vorrätig sind. Sola
 
 Das Set befindet sich jetzt unter <b>My Bundles</b>. Es funktioniert wie eine Zeile auf <b>My Products</b>: Drücken Sie <b>Create new product</b>, um es in Ihrem Shop anzulegen, oder ordnen Sie es einem bereits vorhandenen Listing zu. Siehe [Using My Products](/docs/my-products).
 
-Ein Set hat einen eigenen Produktcode, der als SKU an Ihren Shop gesendet wird.
+Die SKU, die an Ihren Shop gesendet wird, ist nicht der Produktcode des Sets. Sie wird aus den Lagercodes der enthaltenen Produkte gebildet, in Kleinbuchstaben und mit Bindestrichen verbunden: Ein Set aus GJC-04, GJC-05 und GJC-06 wird als <b>gjc-04-gjc-05-gjc-06</b> gesendet. Enthält das Set mehr als eines von einem Lagerartikel, wird die Menge angehängt, zum Beispiel <b>gjc-04-x2</b>.
 
 ## Ein Set ändern oder entfernen
 

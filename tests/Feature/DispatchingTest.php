@@ -2175,6 +2175,103 @@ test('packeta refuses a cash on delivery delivery note', function () {
         ->and($response['errorData']['message'])->toContain('does not collect cash on delivery');
 });
 
+function fakePacketaSoapClient(bool $hasExternalCarrier): \SoapClient
+{
+    return new class ($hasExternalCarrier) extends \SoapClient {
+        public array $calls = [];
+
+        public array $packetAttributes = [];
+
+        public function __construct(private readonly bool $hasExternalCarrier)
+        {
+        }
+
+        public function createPacket(string $apiPassword, array $packetAttributes): object
+        {
+            $this->packetAttributes = $packetAttributes;
+
+            return (object)['id' => '2442041790', 'barcode' => 'Z2442041790', 'barcodeText' => 'Z 244 2041 790'];
+        }
+
+        public function packetCourierNumber(string $apiPassword, string $packetId): string
+        {
+            $this->calls[] = 'packetCourierNumber';
+            if (!$this->hasExternalCarrier) {
+                throw new \SoapFault('Server', 'Not supported', null, (object)['NotSupportedFault' => (object)[]]);
+            }
+
+            return 'VEN123';
+        }
+
+        public function packetCourierLabelPdf(string $apiPassword, string $packetId, string $courierNumber): string
+        {
+            $this->calls[] = 'packetCourierLabelPdf:'.$courierNumber;
+
+            return 'carrier-label';
+        }
+
+        public function packetLabelPdf(string $apiPassword, string $packetId, string $format, int $offset): string
+        {
+            $this->calls[] = 'packetLabelPdf';
+
+            return 'packeta-label';
+        }
+    };
+}
+
+test('packeta prints the carrier label when another carrier delivers the packet', function (bool $hasExternalCarrier, string $expectedLabel, array $expectedCalls) {
+    config(['app.sandbox.shipper_packeta_access_token' => json_encode(['api_password' => 'test'])]);
+    $client = fakePacketaSoapClient($hasExternalCarrier);
+    $action = \Mockery::mock(\App\Actions\Dispatching\Shipment\ApiCalls\CallApiPacketaShipping::class)->makePartial();
+    $action->shouldReceive('soapClient')->andReturn($client);
+
+    expect(base64_decode($action->getLabel('2816776610', new \App\Models\Dispatching\Shipper())))->toBe($expectedLabel)
+        ->and($client->calls)->toBe($expectedCalls);
+})->with([
+    'external carrier (Venipak, InPost)' => [true, 'carrier-label', ['packetCourierNumber', 'packetCourierLabelPdf:VEN123']],
+    'packeta own network'                => [false, 'packeta-label', ['packetCourierNumber', 'packetLabelPdf']],
+]);
+
+test('packeta sends a Polish parcel locker delivery to the InPost locker the customer chose', function () {
+    [$deliveryNote] = handlingDeliveryNoteWithPicking($this);
+    $poland = \App\Models\Helpers\Country::where('code', 'PL')->firstOrFail();
+    \App\Actions\Dispatching\DeliveryNote\StoreDeliveryNoteAddress::make()->action($deliveryNote, ['address' => new Address(array_merge(Address::factory()->definition(), [
+        'address_line_1' => 'Parcel Locker Paczkomat InPost BYD21N',
+        'address_line_2' => 'Toruńska 30',
+        'locality'       => 'Bydgoszcz',
+        'postal_code'    => '85-023',
+        'country_id'     => $poland->id,
+        'country_code'   => 'PL',
+    ]))]);
+    $deliveryNote->update(['is_cash_on_delivery' => false, 'parcels' => [['weight' => 1.6]]]);
+
+    config(['app.sandbox.shipper_packeta_access_token' => json_encode(['api_password' => 'test'])]);
+    $client = fakePacketaSoapClient(true);
+    $action = \Mockery::mock(\App\Actions\Dispatching\Shipment\ApiCalls\CallApiPacketaShipping::class)->makePartial();
+    $action->shouldReceive('soapClient')->andReturn($client);
+
+    $response = $action->handle($deliveryNote->refresh(), new \App\Models\Dispatching\Shipper());
+
+    expect($response['status'])->toBe('success')
+        ->and($client->packetAttributes['addressId'])->toBe(\App\Actions\Dispatching\Shipment\ApiCalls\CallApiPacketaShipping::PL_INPOST_PACZKOMATY_BOX)
+        ->and($client->packetAttributes['carrierPickupPoint'])->toBe('BYD21N')
+        ->and(base64_decode($response['modelData']['label']))->toBe('carrier-label');
+});
+
+test('packeta reads the InPost parcel locker code from a Polish address', function (string $countryCode, float $weight, array $lines, ?string $expected) {
+    expect(\App\Actions\Dispatching\Shipment\ApiCalls\CallApiPacketaShipping::make()->getParcelLockerCode($countryCode, $weight, $lines))->toBe($expected);
+})->with([
+    'locker in line 1'          => ['PL', 1.6, [null, 'Parcel Locker Paczkomat InPost BYD21N', 'Toruńska 30'], 'BYD21N'],
+    'locker in company'         => ['PL', 1, ['Paczkomat SWD02N', 'Dworcowa 7', null], 'SWD02N'],
+    'locker with long suffix'   => ['PL', 1, ['InPost XIU01BAPP', 'Paczkomat XIU01BAPP', ''], 'XIU01BAPP'],
+    'locker word misspelt'      => ['PL', 1, [null, 'Paczlkomat InPost POZ98M', 'Kargowska 7'], 'POZ98M'],
+    'zabka pick up point'       => ['PL', 1, [null, 'Pick Up Point Sklep Żabka 802666', 'Moniuszki 126'], null],
+    'home address'              => ['PL', 1, [null, 'ul. Dąbrowskiego 14', null], null],
+    'locker word without code'  => ['PL', 1, [null, 'Paczkomat przy Biedronce', null], null],
+    'too heavy for a locker'    => ['PL', 15, [null, 'Paczkomat BYD21N', null], null],
+    'other country'             => ['EE', 1, [null, 'Parcel locker ABC12D', null], null],
+]);
+
 test('change picking bay on delivery note', function () {
     [$deliveryNote] = handlingDeliveryNoteWithPicking($this);
     $pickedBay = StorePickedBay::make()->handle($this->warehouse, ['code' => 'CPB'.Str::random(4)]);

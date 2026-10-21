@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { Head, router } from "@inertiajs/vue3"
+import { Head, Link, router } from "@inertiajs/vue3"
 import { computed, ref, watch } from "vue"
 import DatePicker from "primevue/datepicker"
 import Select from "primevue/select"
@@ -54,7 +54,7 @@ interface ArtisanSession extends TimeEditFields {
     correct_route: null | { name: string, parameters: object }
     other_steps: { id: number, task_name: string, unit: string | null, pack_size: number | null, quantity_left: number }[]
     quantity_rejected: number
-    earned: number
+    earned: number | null
     units_per_hour: number | null
     standard_rate: number | null
     is_under_target: boolean
@@ -70,7 +70,7 @@ interface ArtisanJobStep {
     hours: number
     quantity_made: number
     quantity_rejected: number
-    earned: number
+    earned: number | null
     sessions: ArtisanSession[]
 }
 
@@ -110,7 +110,7 @@ interface ArtisanJob {
     hours: number
     quantity_made: number
     quantity_rejected: number
-    earned: number
+    earned: number | null
     steps: ArtisanJobStep[]
 }
 
@@ -129,10 +129,12 @@ type Props = {
     time_edited: boolean
     time_edit_reasons: { value: string, label: string }[]
     left_open: { id: number, worker: string, task_name: string, job_order_reference: string | null, started_at: string, left_open_after_shift_at: string, paused_at: string | null, ended_at: string | null, status: 'paused' | 'running' | 'closed' }[]
+    daily_hours_warnings: { count: number, route: { name: string, parameters: Record<string, string | number> } }
     artisan_pay_type: string | null
     artisan_pay_types: Record<string, string>
     pay_type_effective_from: string
     currency_code: string
+    can_see_pay: boolean
     under_target_reasons: Record<string, string>
     non_productive_activities: { value: string, label: string }[]
     activity: string | null
@@ -159,7 +161,7 @@ type Props = {
         hours_worked: number
         quantity_made: number
         quantity_rejected: number
-        earned: number
+        earned: number | null
         under_target_open: number
         non_productive: NonProductiveSummary
         jobs: ArtisanJob[]
@@ -474,7 +476,7 @@ function sessionHours(session: { started_at: string, ended_at: string, break_min
 }
 
 const locale = useLocaleStore()
-const money = (amount: number) => locale.currencyFormat(props.currency_code, amount)
+const money = (amount: number | null) => amount === null ? '' : locale.currencyFormat(props.currency_code, amount)
 const quantityLabel = (quantity: number | string) => Number(quantity).toLocaleString(undefined, { maximumFractionDigits: 2 })
 
 </script>
@@ -576,6 +578,12 @@ const quantityLabel = (quantity: number | string) => Number(quantity).toLocaleSt
             </table>
         </div>
 
+        <div v-if="daily_hours_warnings.count" class="mb-4 flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-900">
+            <FontAwesomeIcon :icon="['fal', 'exclamation-triangle']" fixed-width aria-hidden="true" />
+            <span>{{ ctrans(':count artisan days over or under the shift to deal with', { count: daily_hours_warnings.count }) }}</span>
+            <Link :href="route(daily_hours_warnings.route.name, daily_hours_warnings.route.parameters)" class="font-medium underline">{{ ctrans('Daily hours') }}</Link>
+        </div>
+
         <div v-if="left_open.length" class="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
             <div class="flex items-center gap-2 font-semibold">
                 <FontAwesomeIcon :icon="['fal', 'exclamation-triangle']" fixed-width aria-hidden="true" />
@@ -613,7 +621,7 @@ const quantityLabel = (quantity: number | string) => Number(quantity).toLocaleSt
                     <th class="py-2 px-3 text-right font-medium whitespace-nowrap">{{ ctrans('Per hour / target') }}</th>
                     <th class="py-2 px-3 text-left font-medium whitespace-nowrap">{{ ctrans('Preparation and cleaning') }}</th>
                     <th class="py-2 px-3 text-right font-medium whitespace-nowrap">{{ ctrans('Under target') }}</th>
-                    <th class="py-2 px-3 text-right font-medium whitespace-nowrap">{{ ctrans('Earned') }}</th>
+                    <th v-if="can_see_pay" class="py-2 px-3 text-right font-medium whitespace-nowrap">{{ ctrans('Earned') }}</th>
                     <th></th>
                 </tr>
             </thead>
@@ -641,7 +649,7 @@ const quantityLabel = (quantity: number | string) => Number(quantity).toLocaleSt
                     <td class="py-2 px-3 text-right">
                         <span v-if="artisan.under_target_open" class="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-800">{{ artisan.under_target_open }}</span>
                     </td>
-                    <td class="py-2 px-3 text-right font-semibold text-gray-800">{{ money(artisan.earned) }}</td>
+                    <td v-if="can_see_pay" class="py-2 px-3 text-right font-semibold text-gray-800">{{ money(artisan.earned) }}</td>
                     <td class="py-2 text-right">
                         <button type="button" class="text-gray-400" :aria-expanded="expanded.has(artisan.user_id)" :aria-label="artisan.worker" @click.stop="toggle(artisan.user_id)">
                             <FontAwesomeIcon :icon="['fal', expanded.has(artisan.user_id) ? 'chevron-up' : 'chevron-down']" fixed-width aria-hidden="true" />
@@ -661,7 +669,7 @@ const quantityLabel = (quantity: number | string) => Number(quantity).toLocaleSt
                             <td></td>
                             <td class="py-1.5 px-3 text-right">{{ clockHours(artisan.non_productive.hours) }}</td>
                             <td colspan="5"></td>
-                            <td class="py-1.5 px-3 text-right">{{ artisan.non_productive.pay === null ? '—' : money(artisan.non_productive.pay) }}</td>
+                            <td v-if="can_see_pay" class="py-1.5 px-3 text-right">{{ artisan.non_productive.pay === null ? '—' : money(artisan.non_productive.pay) }}</td>
                             <td></td>
                         </tr>
                         <template v-for="session in expandedNonProductive.has(artisan.user_id) ? artisan.non_productive.sessions : []" :key="session.id">
@@ -679,7 +687,7 @@ const quantityLabel = (quantity: number | string) => Number(quantity).toLocaleSt
                                 <td></td>
                                 <td class="py-1.5 px-3 text-right">{{ sessionHours(session) }}</td>
                                 <td colspan="5"></td>
-                                <td class="py-1.5 px-3 text-right">{{ session.pay === null ? '—' : money(session.pay) }}</td>
+                                <td v-if="can_see_pay" class="py-1.5 px-3 text-right">{{ session.pay === null ? '—' : money(session.pay) }}</td>
                                 <td class="py-1.5 pl-3 text-right whitespace-nowrap">
                                     <button v-if="session.times_route" type="button" class="text-xs font-medium text-gray-700 hover:underline" @click="openTimes(session, artisan.worker)">{{ ctrans('Edit times') }}</button>
                                     <button v-if="session.void_route" type="button" class="ml-3 text-xs text-red-600 hover:underline disabled:opacity-40" :disabled="processing" @click="voidSession(session)">{{ ctrans('Void') }}</button>
@@ -704,7 +712,7 @@ const quantityLabel = (quantity: number | string) => Number(quantity).toLocaleSt
                             <td class="py-1.5 px-3 text-right">{{ quantityLabel(job.quantity_made) }}</td>
                             <td class="py-1.5 px-3 text-right text-red-500">{{ job.quantity_rejected ? quantityLabel(job.quantity_rejected) : '' }}</td>
                             <td colspan="3"></td>
-                            <td class="py-1.5 px-3 text-right">{{ money(job.earned) }}</td>
+                            <td v-if="can_see_pay" class="py-1.5 px-3 text-right">{{ money(job.earned) }}</td>
                             <td></td>
                         </tr>
                         <template v-for="step in job.steps" :key="step.manufacture_task_id">
@@ -715,7 +723,7 @@ const quantityLabel = (quantity: number | string) => Number(quantity).toLocaleSt
                                 <td class="py-1 px-3 text-right">{{ quantityLabel(step.quantity_made) }}</td>
                                 <td class="py-1 px-3 text-right text-red-500">{{ step.quantity_rejected ? quantityLabel(step.quantity_rejected) : '' }}</td>
                                 <td colspan="3"></td>
-                                <td class="py-1 px-3 text-right">{{ money(step.earned) }}</td>
+                                <td v-if="can_see_pay" class="py-1 px-3 text-right">{{ money(step.earned) }}</td>
                                 <td></td>
                             </tr>
                             <template v-for="session in step.sessions" :key="session.id">
@@ -744,7 +752,7 @@ const quantityLabel = (quantity: number | string) => Number(quantity).toLocaleSt
                                             {{ session.under_target_review ? session.under_target_review.reason : ctrans('Action required') }}
                                         </span>
                                     </td>
-                                    <td class="py-1.5 px-3 text-right">{{ money(session.earned) }}</td>
+                                    <td v-if="can_see_pay" class="py-1.5 px-3 text-right">{{ money(session.earned) }}</td>
                                     <td class="py-1.5 pl-3 text-right whitespace-nowrap">
                                         <button v-if="session.review_route && reviewing !== session.id" type="button" class="text-xs font-medium text-gray-700 hover:underline" @click="openReview(session)">{{ session.under_target_review ? ctrans('Change reason') : ctrans('Log reason') }}</button>
                                         <button v-if="session.times_route" type="button" class="ml-3 text-xs font-medium text-gray-700 hover:underline" @click="openTimes(session, artisan.worker)">{{ ctrans('Edit times') }}</button>

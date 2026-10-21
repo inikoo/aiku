@@ -969,7 +969,11 @@ test('a gls spain parcel reported delivered marks the shopify fulfilment deliver
         ->and($shipment->carrier_status)->toBe('ENTREGADO');
     MarkShopifyFulfilmentDelivered::assertPushed(1);
 
-    $shipment->update(['delivered_at' => null]);
+    $shipment->update(['delivered_at' => null, 'carrier_status' => null]);
+    ShopifyFake::fake(['POST GetExpCli' => Http::response('<?xml version="1.0" encoding="utf-8"?><expediciones><Error>Servicio no disponible en este momento</Error></expediciones>')]);
+    expect(fn () => TrackGlsEsShipment::run($shipment->refresh()))->toThrow(RuntimeException::class, 'Servicio no disponible')
+        ->and($shipment->refresh()->carrier_status)->toBeNull();
+
     ShopifyFake::fake(['POST GetExpCli' => $glsReply('7', 'ENTREGADO', now('Europe/Madrid')->subDays(3)->format('d/m/Y H:i:s'))]);
     TrackGlsEsShipment::run($shipment->refresh());
     expect($shipment->refresh()->delivered_at->lt(now()->subDays(2)))->toBeTrue();

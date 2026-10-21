@@ -44,7 +44,7 @@ class GetShopOrderAttribution
             $from = $startedAt;
         }
 
-        $key = implode(':', ['marketing-v2-orders', $shop->id, $from?->timestamp ?? 0, $to?->timestamp ?? 0]);
+        $key = implode(':', ['marketing-v2-orders', implode(',', AttributionModelEnum::values()), $shop->id, $from?->timestamp ?? 0, $to?->timestamp ?? 0]);
 
         return Cache::remember($key, now()->addMinutes(10), fn () => $this->calculate($shop, $from, $to));
     }
@@ -138,7 +138,7 @@ class GetShopOrderAttribution
                 return $row;
             })
             ->sortBy(fn (array $row) => [
-                -max($row[AttributionModelEnum::FIRST_TOUCH->value]['orders'], $row[AttributionModelEnum::LINEAR->value]['orders']),
+                -max(array_map(fn (AttributionModelEnum $model) => $row[$model->value]['orders'], AttributionModelEnum::cases())),
                 -$row['spend'],
                 $row['name'],
             ])

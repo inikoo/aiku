@@ -46,8 +46,11 @@ use App\Actions\Production\JobOrder\UI\IndexJobOrderPlan;
 use App\Actions\Production\MaterialRequest\UI\IndexDayMaterialsCheck;
 use App\Actions\Production\ManufactureTaskSession\ExportManufacturePayroll;
 use App\Actions\Production\ManufactureTaskSession\UI\IndexArtisans;
+use App\Actions\Production\ManufactureArtisanDay\SetManufactureHoursTolerance;
+use App\Actions\Production\ManufactureArtisanDay\UI\IndexManufactureArtisanDays;
 use App\Actions\Production\ManufactureTaskSession\UI\ShowManufacturePayroll;
 use App\Actions\Production\ManufactureTaskSession\UI\ShowManufacturePayrollArtisan;
+use App\Actions\Production\ManufactureTaskSession\UI\ShowMyManufacturePerformance;
 use App\Actions\Production\ManufactureTask\UI\CreateManufactureTask;
 use App\Actions\Production\ManufactureTask\UI\EditManufactureTask;
 use App\Actions\Production\ManufactureTask\UI\IndexManufactureTasks;
@@ -76,6 +79,7 @@ Route::prefix('{production}')
         Route::name('show')
             ->group(function () {
                 Route::get('floor', ShowManufactureFloor::class)->name('.floor');
+                Route::get('floor/my-performance', ShowMyManufacturePerformance::class)->name('.floor.my_performance');
 
                 Route::name('.operations.')->prefix('operations')
                     ->group(function () {
@@ -96,6 +100,8 @@ Route::prefix('{production}')
                     ->group(function () {
                         Route::get('', ShowArtisansDashboard::class)->name('dashboard');
                         Route::get('performance', IndexArtisans::class)->name('index');
+                        Route::get('daily-hours', IndexManufactureArtisanDays::class)->name('daily_hours');
+                        Route::post('daily-hours/tolerance', SetManufactureHoursTolerance::class)->name('daily_hours.tolerance');
                         Route::get('payroll', ShowManufacturePayroll::class)->name('payroll');
                         Route::get('payroll/export', ExportManufacturePayroll::class)->name('payroll.export');
                         Route::get('payroll/{user:id}', ShowManufacturePayrollArtisan::class)->name('payroll.show')->withoutScopedBindings();
