@@ -524,7 +524,7 @@ test('the rounding repair changes nothing on a dry run, then makes the quantitie
     $drift($this->masterAsset, 'MasterAsset');
     $drift($this->product, 'Product');
     $this->product->updateQuietly(['not_follow_master_trade_units' => false]);
-    $this->masterAsset->updateQuietly(['price_review' => null]);
+    $this->masterAsset->updateQuietly(['price_review' => null, 'unit' => 'lamp set']);
 
     $lampQuantity = fn ($model, string $modelType) => (float)DB::table('model_has_trade_units')
         ->where('model_type', $modelType)->where('model_id', $model->id)->where('trade_unit_id', $this->lamp->id)->value('quantity');
@@ -539,5 +539,14 @@ test('the rounding repair changes nothing on a dry run, then makes the quantitie
     expect($lampQuantity($this->masterAsset, 'MasterAsset'))->toBe(1.0)
         ->and($lampQuantity($this->product, 'Product'))->toBe(1.0)
         ->and($this->masterAsset->refresh()->price_review)->toBeNull()
+        ->and($this->masterAsset->unit)->toBe('lamp set')
         ->and($this->masterAsset->tradeUnits)->toHaveCount(2);
+
+    $drift($this->masterAsset, 'MasterAsset');
+    $this->masterAsset->updateQuietly(['unit' => null]);
+
+    RepairTradeUnitQuantityRounding::make()->handle(commit: true);
+
+    expect($lampQuantity($this->masterAsset, 'MasterAsset'))->toBe(0.99999996)
+        ->and($this->masterAsset->refresh()->unit)->toBeNull();
 });

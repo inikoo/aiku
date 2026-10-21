@@ -23,7 +23,7 @@ use Throwable;
  * PRE-03: trade unit quantities left at 0.99999996 by the Aurora 1/12 × 12 multiplication.
  * Only the quantity moves: a master is saved only when every child following it has the same
  * composition, so the cascade cannot rewrite a child built differently, and anything whose
- * units would also change is listed and left for a person. The save clears mismatch_detected,
+ * units or unit label would also change is listed and left for a person. The save clears mismatch_detected,
  * so it is recomputed from the master's anomalies straight after.
  */
 class RepairTradeUnitQuantityRounding
@@ -82,11 +82,12 @@ class RepairTradeUnitQuantityRounding
             );
 
             $updateMasterAsset = UpdateMasterAsset::make();
-            $unitsAfter        = $updateMasterAsset->getUnitsFromTradeUnits($this->tradeUnitsData($after))['units'];
+            $unitsAfter        = $updateMasterAsset->getUnitsFromTradeUnits($this->tradeUnitsData($after));
 
             $reason = match (true) {
                 $differentChildren->isNotEmpty() => 'children built differently: '.$differentChildren->map(fn (Product $product) => $product->shop->slug.' '.$product->code)->implode(', '),
-                !$masterAsset->has_independent_units && $unitsAfter !== null && (float)$unitsAfter != (float)$masterAsset->units => "units would change $masterAsset->units → $unitsAfter",
+                !$masterAsset->has_independent_units && $unitsAfter['units'] !== null && (float)$unitsAfter['units'] != (float)$masterAsset->units => "units would change $masterAsset->units → {$unitsAfter['units']}",
+                $masterAsset->unit === null && $unitsAfter['unit'] !== null => "unit label would be set to {$unitsAfter['unit']}",
                 default => null,
             };
 
@@ -98,10 +99,10 @@ class RepairTradeUnitQuantityRounding
                 $reason,
                 $children->count().' children',
                 function () use ($updateMasterAsset, $masterAsset, $after) {
-                    $masterAsset = $updateMasterAsset->action($masterAsset, [
+                    $masterAsset = $updateMasterAsset->action($masterAsset, array_filter([
                         'trade_units' => $this->tradeUnitsData($after),
                         'unit'        => $masterAsset->unit,
-                    ]);
+                    ], fn ($value) => $value !== null));
                     MasterAssetHydrateMismatch::run($masterAsset);
                 },
                 'masters'
@@ -126,18 +127,20 @@ class RepairTradeUnitQuantityRounding
             $before = $this->composition($product->tradeUnits);
             $after  = $before->map(fn ($quantity) => wholeTradeUnitQuantity($quantity));
 
+            $unitLabelAfter = UpdateProduct::make()->getUnitsFromTradeUnits($this->tradeUnitsData($after))['unit'];
+
             $this->write(
                 "PRODUCT {$product->shop->slug} $product->code",
                 $product->tradeUnits->pluck('code', 'id'),
                 $before,
                 $after,
-                null,
+                $product->unit === null && $unitLabelAfter !== null ? "unit label would be set to $unitLabelAfter" : null,
                 $product->state->value,
-                fn () => UpdateProduct::make()->action($product, [
+                fn () => UpdateProduct::make()->action($product, array_filter([
                     'trade_units' => $this->tradeUnitsData($after),
                     'units'       => $product->units,
                     'unit'        => $product->unit,
-                ]),
+                ], fn ($value) => $value !== null)),
                 'products'
             );
         }
