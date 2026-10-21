@@ -8,6 +8,7 @@
 
 namespace App\Actions\Production\JobOrder\UI;
 
+use App\Actions\Production\JobOrder\CancelJobOrder;
 use App\Actions\Production\JobOrder\HoldJobOrder;
 use App\Actions\Production\JobOrderItem\GetOpenJobOrderItemsOffBatch;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
@@ -160,12 +161,18 @@ class ShowJobOrder extends OrgAction
                     'non_productive'  => $this->nonProductive($jobOrder, $currencySymbol),
                     'hold'            => $this->holdWithLabel($jobOrder->data['hold'] ?? null),
                     'holds'           => array_map(fn (array $hold) => $this->holdWithLabel($hold), $jobOrder->data['holds'] ?? []),
+                    'cancellation'    => $this->cancellationWithLabel($jobOrder->data['cancellation'] ?? null),
                 ],
                 'can_see_pay'       => $this->canSeePay,
                 'hold_route'        => $this->canHold && ($isOpen || isset($jobOrder->data['hold'])) ? [
                     'name'       => 'grp.models.job-order.hold',
                     'parameters' => ['jobOrder' => $jobOrder->id],
                 ] : null,
+                'cancel_route'      => $this->canHold && $isOpen && !isset($jobOrder->data['cancellation']) ? [
+                    'name'       => 'grp.models.job-order.cancel',
+                    'parameters' => ['jobOrder' => $jobOrder->id],
+                ] : null,
+                'cancel_kind_options' => collect(CancelJobOrder::kindLabels())->map(fn (string $label, string $value) => ['value' => $value, 'label' => $label])->values()->all(),
                 'hold_kind_options' => collect(HoldJobOrder::kindLabels())->map(fn (string $label, string $value) => ['value' => $value, 'label' => $label])->values()->all(),
                 'artisan_options' => $this->canEdit ? Employee::where('organisation_id', $this->organisation->id)
                     ->where('state', EmployeeStateEnum::WORKING)
@@ -201,6 +208,11 @@ class ShowJobOrder extends OrgAction
                 ] : null,
             ]
         );
+    }
+
+    private function cancellationWithLabel(?array $cancellation): ?array
+    {
+        return $cancellation ? array_merge($cancellation, ['kind_label' => CancelJobOrder::kindLabels()[$cancellation['kind'] ?? 'other'] ?? null]) : null;
     }
 
     private function holdWithLabel(?array $hold): ?array

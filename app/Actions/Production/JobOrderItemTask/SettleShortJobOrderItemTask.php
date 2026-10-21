@@ -161,44 +161,7 @@ class SettleShortJobOrderItemTask
             ->get();
 
         foreach ($lines as $line) {
-            $wantedSkos  = $line->claimedSkos();
-            $coveredSkos = round(($coveredUnits[$line->id] ?? 0) / $packedIn, 3);
-
-            if ($coveredSkos <= 0) {
-                $line->update(['job_order_id' => $carried->id]);
-                continue;
-            }
-
-            if ($coveredSkos >= $wantedSkos) {
-                continue;
-            }
-
-            PartnerShoppingListItem::create([
-                ...$line->only([
-                    'group_id',
-                    'organisation_id',
-                    'org_partner_id',
-                    'partner_organisation_id',
-                    'stock_id',
-                    'org_stock_id',
-                    'priority',
-                    'needed_by',
-                    'notes',
-                    'transaction_id',
-                    'added_by_user_id',
-                    'state',
-                ]),
-                'parent_id'           => $line->id,
-                'quantity'            => round($wantedSkos - $coveredSkos, 3),
-                'quantity_to_produce' => round($wantedSkos - $coveredSkos, 3),
-                'job_order_id'        => $carried->id,
-                'created_at'          => $line->created_at,
-            ]);
-
-            $line->update([
-                'quantity'            => min((float) $line->quantity, $coveredSkos),
-                'quantity_to_produce' => $coveredSkos,
-            ]);
+            $line->moveUncoveredTo(round(($coveredUnits[$line->id] ?? 0) / $packedIn, 3), $carried->id);
         }
     }
 }
