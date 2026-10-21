@@ -594,6 +594,28 @@ test('finish offer', function () {
     FinishOffer::run($offer);
 });
 
+test('finishing a product percentage offer takes it off the product offers data', function () {
+    $offer = StoreProductDiscount::make()->action(
+        $this->product,
+        [
+            'type'                       => 'quantity',
+            'trigger_data_item_quantity' => 1,
+            'percentage_off'             => 0.20,
+            'duration'                   => 'interval',
+            'start_at'                   => now(),
+            'end_at'                     => now()->addDays(14)->toDateTimeString(),
+        ]
+    );
+
+    expect(Arr::has($this->product->refresh()->offers_data, 'offers.'.$offer->id))->toBeTrue();
+
+    FinishOffer::run($offer->refresh());
+
+    $offersData = $this->product->refresh()->offers_data;
+    expect(Arr::has($offersData, 'offers.'.$offer->id))->toBeFalse()
+        ->and(Arr::get($offersData, 'best_percentage_off.offer_id'))->not->toBe($offer->id);
+});
+
 test('get offer calendar data', function () {
     SeedShopOfferCampaigns::run($this->shop);
     $offerCampaign = $this->shop->offerCampaigns()->first();
