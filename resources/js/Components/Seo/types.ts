@@ -12,6 +12,7 @@ export type SeoKeywordOptions = {
     languages: SelectOption[]
     devices: SelectOption[]
     frequencies: SelectOption[]
+    scopes: SelectOption[]
 }
 
 export type SeoKeywordRoutes = {
@@ -69,6 +70,7 @@ export type SeoKeywordFilterValues = {
 export type SeoResearchQuery = {
     seed: string
     url: string
+    scope: string
     country_code: string
     language_code: string
 }

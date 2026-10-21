@@ -19,6 +19,7 @@ use App\Enums\UI\Web\SeoKeywordsTabsEnum;
 use App\Enums\Web\Seo\SeoContentBriefStateEnum;
 use App\Enums\Web\Seo\SeoKeywordDeviceEnum;
 use App\Enums\Web\Seo\SeoKeywordFrequencyEnum;
+use App\Enums\Web\Seo\SeoResearchScopeEnum;
 use App\Http\Resources\Web\SeoRankingResource;
 use App\Http\Resources\Web\SeoTrackedKeywordResource;
 use App\Models\Catalogue\Shop;
@@ -54,13 +55,16 @@ class ShowSeoKeywords extends OrgAction
     }
 
     /**
-     * @return array{seed: string, url: string, country_code: string, language_code: string}
+     * @return array{seed: string, url: string, scope: string, country_code: string, language_code: string}
      */
     private function researchQuery(Shop $shop, ActionRequest $request): array
     {
+        $url = Str::limit((string) $request->query('url', ''), 2048, '');
+
         return [
             'seed'          => Str::limit((string) $request->query('seed', ''), 1000, ''),
-            'url'           => Str::limit((string) $request->query('url', ''), 2048, ''),
+            'url'           => $url,
+            'scope'         => (SeoResearchScopeEnum::tryFrom((string) $request->query('scope')) ?? SeoResearchScopeEnum::guess($url))->value,
             'country_code'  => strtoupper((string) $request->query('country_code', $shop->country?->code ?? '')),
             'language_code' => strtolower((string) $request->query('language_code', $shop->language?->code ?? '')),
         ];
@@ -77,7 +81,7 @@ class ShowSeoKeywords extends OrgAction
         $keywordData = ['ideas' => [], 'error' => null];
 
         try {
-            $keywordData = [...GetKeywordIdeas::run($shop, $seedKeywords, $query['url'] ?: null, $query['country_code'], $query['language_code']), 'error' => null];
+            $keywordData = [...GetKeywordIdeas::run($shop, $seedKeywords, $query['url'] ?: null, $query['country_code'], $query['language_code'], SeoResearchScopeEnum::from($query['scope'])), 'error' => null];
         } catch (ValidationException $e) {
             $keywordData['error'] = Arr::first(Arr::flatten($e->errors()));
         }
@@ -299,6 +303,7 @@ class ShowSeoKeywords extends OrgAction
                     'languages'   => Language::orderBy('name')->get(['code', 'name'])->map(fn (Language $language) => ['value' => $language->code, 'label' => $language->name])->all(),
                     'devices'     => collect(SeoKeywordDeviceEnum::labels())->map(fn ($label, $value) => ['value' => $value, 'label' => $label])->values()->all(),
                     'frequencies' => collect(SeoKeywordFrequencyEnum::labels())->map(fn ($label, $value) => ['value' => $value, 'label' => $label])->values()->all(),
+                    'scopes'      => collect(SeoResearchScopeEnum::labels())->map(fn ($label, $value) => ['value' => $value, 'label' => $label])->values()->all(),
                 ],
                 'query'       => $query,
 

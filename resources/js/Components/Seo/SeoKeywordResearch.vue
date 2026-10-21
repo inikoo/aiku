@@ -68,6 +68,29 @@ const firstRow = ref(0)
 
 watch(intentFilter, () => firstRow.value = 0)
 
+const guessScope = (url: string) => {
+    const value = url.trim()
+    let path = ""
+
+    try {
+        path = new URL(value.includes("://") ? value : `https://${value}`).pathname
+    } catch {
+        return "root_domain"
+    }
+
+    if (!value || path.replace(/^\/+|\/+$/g, "") === "") {
+        return "root_domain"
+    }
+
+    return path.endsWith("/") ? "subfolder" : "exact_url"
+}
+
+watch(() => form.url, (url, previousUrl) => {
+    if (form.scope === guessScope(previousUrl ?? "")) {
+        form.scope = guessScope(url)
+    }
+})
+
 const search = () => {
     router.get(window.location.pathname, { tab: "research", ...form }, {
         preserveState: true,
@@ -152,14 +175,17 @@ const trendBars = (idea: KeywordIdea) => {
 
 <template>
     <div class="space-y-4 px-4 py-4">
-        <form class="grid grid-cols-1 gap-3 rounded-xl bg-white p-4 ring-1 ring-gray-200 lg:grid-cols-[minmax(0,2fr)_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-end" @submit.prevent="search">
+        <form class="grid grid-cols-1 gap-3 rounded-xl bg-white p-4 ring-1 ring-gray-200 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)_minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-end" @submit.prevent="search">
             <label class="flex flex-col gap-1 text-sm">
                 <span class="font-medium text-gray-700">{{ ctrans("Keywords") }}</span>
                 <InputText v-model="form.seed" class="h-10 w-full" :placeholder="ctrans('Up to 5, comma separated, for example: incense sticks, aroma oil')" />
             </label>
             <label class="flex flex-col gap-1 text-sm">
-                <span class="font-medium text-gray-700">{{ ctrans("Or a URL") }}</span>
-                <InputText v-model="form.url" class="h-10 w-full" :placeholder="ctrans('Lists the keywords the page ranks for')" />
+                <span class="font-medium text-gray-700">{{ ctrans("Or a domain or URL") }}</span>
+                <span class="flex gap-2">
+                    <InputText v-model="form.url" class="h-10 min-w-0 flex-1" :placeholder="ctrans('Lists the keywords it ranks for, for example: aw-dropship.es')" />
+                    <Select v-model="form.scope" class="h-10 w-36 shrink-0 items-center" :options="options.scopes" optionLabel="label" optionValue="value" :aria-label="ctrans('Scope')" />
+                </span>
             </label>
             <label class="flex flex-col gap-1 text-sm">
                 <span class="font-medium text-gray-700">{{ ctrans("Country") }}</span>
