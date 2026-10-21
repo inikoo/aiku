@@ -1357,7 +1357,7 @@ test('filter by order value adds amount range clause', function (Shop $shop) {
     $filtered = (new FilterByOrderValue())->apply(clone $baseQuery, [
         'by_order_value' => ['value' => ['amount_range' => ['min' => 5, 'max' => 50]]],
     ]);
-    expect($filtered->toSql())->toContain('org_net_amount');
+    expect($filtered->toSql())->toContain('"orders"."net_amount"')->toContain('"orders"."state"');
 
     $noRange = (new FilterByOrderValue())->apply(clone $baseQuery, ['by_order_value' => ['value' => ['amount_range' => []]]]);
     expect($noRange->count())->toBe($baseQuery->count());
