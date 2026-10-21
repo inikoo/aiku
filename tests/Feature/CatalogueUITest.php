@@ -382,6 +382,12 @@ test('UI show family edit page tab lays out the webpage and content fields with 
             ->where('edit_page.notice', null)
             ->where('edit_page.workshop_route.parameters.webpage', $webpage->slug)
             ->where('edit_page.sections.0.cards.0.fields.state_data.type', 'toggle_state_webpage')
+            ->where('edit_page.sections.0.cards.0.fields.state_data.fetch_params', [
+                'organisation' => $this->organisation->slug,
+                'shop'         => $this->shop->slug,
+                'website'      => $webpage->website->slug,
+                'webpage'      => $webpage->slug,
+            ])
             ->where('edit_page.sections.1.cards.0.keywords', ['aroma diffusers'])
             ->where('edit_page.sections.2.cards.0.update_route.name', 'grp.models.webpage.update')
             ->where('edit_page.sections.2.cards.0.fields.title.value', 'Wholesale <b>Aroma</b> Diffusers')

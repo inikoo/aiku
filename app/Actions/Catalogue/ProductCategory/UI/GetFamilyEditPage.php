@@ -469,6 +469,12 @@ class GetFamilyEditPage
             'required'           => true,
             'options'            => Options::forEnum(WebpageStateEnum::class),
             'searchable'         => true,
+            'fetch_params'       => [
+                'organisation' => $webpage->organisation->slug,
+                'shop'         => $webpage->shop->slug,
+                'website'      => $webpage->website->slug,
+                'webpage'      => $webpage->slug,
+            ],
             'default_storefront' => $storefront ? getFieldWebpageData($storefront) : null,
             'init_options'       => $webpage->redirectWebpage ? [getFieldWebpageData($webpage->redirectWebpage)] : null,
             'value'              => [
