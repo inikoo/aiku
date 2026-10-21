@@ -24,7 +24,7 @@ class AttachDeliveryNoteToPickedBay extends OrgAction
 
     public function handle(PickedBay $pickedBay, DeliveryNote $deliveryNote): void
     {
-        $pickedBay->deliveryNotes()->attach([
+        $pickedBay->deliveryNotes()->syncWithoutDetaching([
             $deliveryNote->id => [
                 'group_id'        => $deliveryNote->group_id,
                 'organisation_id' => $deliveryNote->organisation_id
