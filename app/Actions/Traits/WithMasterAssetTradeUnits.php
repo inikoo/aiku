@@ -37,8 +37,11 @@ trait WithMasterAssetTradeUnits
     {
         $tradeUnits = $model->tradeUnits;
 
+        /** One trade unit states its own pack size, unless somebody set the units by hand: then the switch back must be reachable. */
         if ($tradeUnits->count() < 2) {
-            return ['shown' => false, 'canToggle' => false, 'byHand' => false];
+            return $model->has_independent_units
+                ? ['shown' => true, 'canToggle' => true, 'byHand' => true]
+                : ['shown' => false, 'canToggle' => false, 'byHand' => false];
         }
 
         $impliedUnits = $this->getSharedTradeUnitQuantity(
@@ -100,6 +103,21 @@ trait WithMasterAssetTradeUnits
             'hasOther'         => ['name' => 'has_independent_units', 'value' => $editability['byHand']],
             'saveConfirmation' => $saveConfirmation,
         ];
+    }
+
+    /**
+     * Switching units back to "use the composition" posts only the flag, so the units are read
+     * off the composition already saved. Null when it implies none and the units stay as they are.
+     */
+    public function getUnitsFromCurrentTradeUnits(MasterAsset|Product $model): ?float
+    {
+        if ($model->tradeUnits->isEmpty()) {
+            return null;
+        }
+
+        return $this->getUnitsFromTradeUnits(
+            $model->tradeUnits->map(fn ($tradeUnit) => ['quantity' => $tradeUnit->pivot->quantity, 'type' => $tradeUnit->type])->all()
+        )['units'];
     }
 
     /**

@@ -214,7 +214,7 @@ class EditMasterProductComposition extends OrgAction
                     'trade_units' => [
                         'label'            => __('Trade units'),
                         'saveConfirmation' => $this->getUnitsChangeConfirmation($masterProduct),
-                        'priceContext'     => [
+                        'priceContext'     => $masterProduct->has_independent_units ? null : [
                             'price'    => (float) data_get($masterProduct->master_prices, 'EUR.value', $masterProduct->price),
                             'rrp'      => (float) data_get($masterProduct->master_rrps, 'EUR.value', $masterProduct->rrp),
                             'currency' => 'EUR',

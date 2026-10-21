@@ -25,6 +25,7 @@ const props = defineProps<{
     dirty?: boolean
     placeholder?: string
     units?: number
+    perUnits?: number
     impact?: {
         dirty: boolean
         delta: number | null
@@ -65,6 +66,15 @@ const unitPrice = computed(() => {
 
     return (Number(model.value.value) / props.units).toFixed(props.currency.fraction_digits ?? 2)
 })
+
+/* A value typed per unit is stored for the whole outer: show that total, as the price shows its per unit. */
+const outerPrice = computed(() => {
+    if (!props.perUnits || props.perUnits <= 1 || model.value.value == null) {
+        return null
+    }
+
+    return (Number(model.value.value) * props.perUnits).toFixed(props.currency.fraction_digits ?? 2)
+})
 </script>
 
 <template>
@@ -93,12 +103,15 @@ const unitPrice = computed(() => {
                 @update:modelValue="emits('change')"
             />
             <span
-                v-if="impact || unitPrice"
+                v-if="impact || unitPrice || outerPrice"
                 class="pointer-events-none absolute inset-y-0 right-3 flex items-center gap-x-2 text-xs tabular-nums"
                 aria-hidden="true"
             >
                 <span v-if="unitPrice" class="text-gray-600">
-                    {{ unitPrice }}<span class="text-gray-400">/u</span>
+                    {{ unitPrice }} <span class="text-gray-400">/ {{ ctrans('Unit') }}</span>
+                </span>
+                <span v-if="outerPrice" class="text-gray-600">
+                    {{ outerPrice }} <span class="text-gray-400">/ {{ ctrans('Outer') }}</span>
                 </span>
                 <span
                     v-if="impact && impact.delta !== null"

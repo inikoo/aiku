@@ -34,9 +34,11 @@ const setByHand = () => {
     isOpen.value = true
 }
 
+/* Collapsed there is no save button, so handing the units back to the composition saves at once. */
 const backToAuto = () => {
     props.form.has_independent_units = false
     isOpen.value = false
+    props.submit?.()
 }
 </script>
 

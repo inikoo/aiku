@@ -90,7 +90,8 @@ class EditProductComposition extends OrgAction
     {
         $canEditTradeUnits = !$product->masterProduct || $product->not_follow_master_trade_units;
 
-        $priceContext = [
+        /** Units set by hand do not move with the composition, so there is no units or price change to preview. */
+        $priceContext = $product->has_independent_units ? null : [
             'price'    => (float) $product->price,
             'rrp'      => (float) $product->rrp,
             'currency' => $product->currency->code,

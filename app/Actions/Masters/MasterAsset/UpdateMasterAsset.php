@@ -224,6 +224,11 @@ class UpdateMasterAsset extends OrgAction
                 }
 
                 data_set($modelData, 'mismatch_detected', false);
+            } elseif (Arr::has($modelData, 'has_independent_units') && !Arr::get($modelData, 'has_independent_units') && $masterAsset->has_independent_units) {
+                $unitsFromComposition = $this->getUnitsFromCurrentTradeUnits($masterAsset);
+                if ($unitsFromComposition !== null) {
+                    data_set($modelData, 'units', $unitsFromComposition);
+                }
             }
 
             $this->update($masterAsset, $modelData);
@@ -315,7 +320,12 @@ class UpdateMasterAsset extends OrgAction
             }
         }
 
-        if ($wasChanged('units')) {
+        $unitsHandedBackToComposition = $wasChanged('has_independent_units') && !$masterAsset->has_independent_units;
+        if ($unitsHandedBackToComposition) {
+            $masterAsset->products()->whereNot('products.not_follow_master_trade_units', true)->update(['has_independent_units' => false]);
+        }
+
+        if ($wasChanged('units') || $unitsHandedBackToComposition) {
             foreach ($masterAsset->products()->where('has_independent_units', false)->get() as $product) {
                 UpdateProduct::run($product, [
                     'units' => $masterAsset->units,
