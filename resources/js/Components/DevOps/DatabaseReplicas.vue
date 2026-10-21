@@ -6,6 +6,7 @@
 
 <script setup lang="ts">
 import { ctrans } from "@/Composables/useTrans"
+import ProgressBar from "primevue/progressbar"
 
 export interface DatabaseReplica {
     slot: string
@@ -27,7 +28,7 @@ defineProps<{ replicas: DatabaseReplica[] }>()
 const statuses = {
     healthy: { dot: "bg-emerald-500", text: "text-emerald-700", label: ctrans("Healthy") },
     warning: { dot: "bg-amber-500", text: "text-amber-700", label: ctrans("Falling behind") },
-    catching_up: { dot: "bg-amber-500", text: "text-amber-700", label: ctrans("Catching up after primary restart") },
+    catching_up: { dot: "bg-amber-500", text: "text-amber-700", label: ctrans("Catching up after a restart") },
     broken: { dot: "bg-red-500", text: "text-red-700", label: ctrans("Broken") },
 }
 
@@ -49,6 +50,14 @@ const reconnectEta = (iso: string) => {
     return ctrans("Reconnects around :local (:utc UTC), in :hours h :minutes m", { local, utc, hours: Math.floor(minutes / 60), minutes: minutes % 60 })
 }
 
+const CATCH_UP_MS = 12 * 60 * 60 * 1000
+
+const catchUpPercent = (iso: string) => {
+    const remaining = new Date(iso).getTime() - Date.now()
+
+    return Math.round(Math.min(100, Math.max(0, (1 - remaining / CATCH_UP_MS) * 100)))
+}
+
 const connection = (replica: DatabaseReplica) => replica.active
     ? [replica.state ? ctrans(replica.state) : ctrans("connected"), replica.client_addr].filter(Boolean).join(" · ")
     : ctrans("Disconnected")
@@ -67,6 +76,10 @@ const connection = (replica: DatabaseReplica) => replica.active
                 </div>
                 <div class="mt-0.5 text-xs text-gray-500">{{ connection(replica) }}</div>
                 <div v-if="replica.reconnects_at" class="mt-2 text-sm font-semibold text-amber-700 tabular-nums">{{ reconnectEta(replica.reconnects_at) }}</div>
+                <div v-if="replica.reconnects_at" class="mt-2 flex items-center gap-2">
+                    <ProgressBar :value="catchUpPercent(replica.reconnects_at)" :showValue="false" class="flex-1" style="height: 6px" :pt="{ value: { class: 'bg-amber-500' } }" />
+                    <span class="text-xs font-semibold text-amber-700 tabular-nums">{{ catchUpPercent(replica.reconnects_at) }}%</span>
+                </div>
                 <p v-if="replica.issue || replica.note" class="mt-3 text-sm" :class="statuses[replica.status].text">{{ (replica.issue ?? replica.note)?.replace(/`/g, "") }}</p>
                 <dl class="mt-3 grid grid-cols-2 gap-3">
                     <div class="rounded bg-white/60 p-3 ring-1 ring-gray-100">

@@ -41,6 +41,8 @@ class MonitorDatabaseReplicas
 
     public const int DELAYED_CATCH_UP_HOURS = 13;
 
+    public const int DELAYED_CATCH_UP_MAX_BYTES = 70 * 1024 * 1024 * 1024;
+
     public const string DELAYED_SLOT = 'replica_helio_delayed';
 
     public const string STANZA = 'aiku';
@@ -95,7 +97,7 @@ class MonitorDatabaseReplicas
     }
 
     /**
-     * @return Collection<int, object{slot_name: string, active: bool, wal_status: string|null, retained_bytes: int|null, client_addr: string|null, state: string|null, unapplied_bytes: int|null, primary_started_at: string}>
+     * @return Collection<int, object{slot_name: string, active: bool, wal_status: string|null, retained_bytes: int|null, client_addr: string|null, state: string|null, unapplied_bytes: int|null, inactive_since: string|null}>
      */
     public function replicas(): Collection
     {
@@ -107,7 +109,7 @@ class MonitorDatabaseReplicas
                    host(r.client_addr) as client_addr,
                    r.state,
                    pg_wal_lsn_diff(r.flush_lsn, r.replay_lsn)::bigint as unapplied_bytes,
-                   pg_postmaster_start_time() as primary_started_at
+                   s.inactive_since
             from pg_replication_slots s
             left join pg_stat_replication r on r.pid = s.active_pid
             where s.slot_type = 'physical'
@@ -144,7 +146,7 @@ class MonitorDatabaseReplicas
                 'label'              => $label,
                 'status'             => $status,
                 'issue'              => $issue,
-                'note'               => $reconnectsAt ? 'The primary restarted at '.CarbonImmutable::parse($replica->primary_started_at)->utc()->format('j M H:i')." UTC. The replica first applies the 12 hours of changes it already holds, then reconnects by itself around {$reconnectsAt->utc()->format('H:i')} UTC. The primary is keeping $retained of changes for it." : null,
+                'note'               => $reconnectsAt ? 'Disconnected at '.CarbonImmutable::parse($replica->inactive_since)->utc()->format('j M H:i')." UTC, after a restart of the primary or of the replica. The replica first applies the 12 hours of changes it already holds, then reconnects by itself around {$reconnectsAt->utc()->format('H:i')} UTC. The primary is keeping $retained of changes for it." : null,
                 'reconnects_at'      => $reconnectsAt?->toIso8601String(),
                 'active'             => (bool) $replica->active,
                 'wal_status'         => $replica->wal_status,
@@ -262,18 +264,20 @@ class MonitorDatabaseReplicas
     }
 
     /**
-     * A restart of the primary drops the delayed replica's connection, and it only
-     * reconnects once it has applied the 12 hours of WAL it already received.
+     * A restart of the primary or of the replica drops the delayed replica's connection,
+     * and it only reconnects once it has applied the 12 hours of WAL it already received.
+     * A replica that keeps dropping restarts that clock, so more retained WAL than one
+     * catch-up produces is broken however recent the last drop was.
      */
     protected function delayedReconnectsAt(object $replica): ?CarbonImmutable
     {
-        if ($replica->slot_name !== self::DELAYED_SLOT || $replica->active || $replica->wal_status === 'unreserved' || empty($replica->primary_started_at)) {
+        if ($replica->slot_name !== self::DELAYED_SLOT || $replica->active || $replica->wal_status === 'unreserved' || empty($replica->inactive_since) || $replica->retained_bytes > self::DELAYED_CATCH_UP_MAX_BYTES) {
             return null;
         }
 
-        $primaryStartedAt = CarbonImmutable::parse($replica->primary_started_at);
+        $disconnectedAt = CarbonImmutable::parse($replica->inactive_since);
 
-        return $primaryStartedAt->isAfter(now()->subHours(self::DELAYED_CATCH_UP_HOURS)) ? $primaryStartedAt->addHours(12) : null;
+        return $disconnectedAt->isAfter(now()->subHours(self::DELAYED_CATCH_UP_HOURS)) ? $disconnectedAt->addHours(12) : null;
     }
 
     protected function gigabytes(?int $bytes): string
