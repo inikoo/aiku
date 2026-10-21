@@ -44,13 +44,15 @@ class SendAppointmentEmail extends OrgAction
             return null;
         }
 
-        if ($appointment->appointmentType?->isZoomCall() && in_array($code, [OutboxCodeEnum::APPOINTMENT_ACCEPTED, OutboxCodeEnum::APPOINTMENT_RESCHEDULED], true)) {
+        if ($appointment->appointmentType?->isZoomCall() && in_array($code, [OutboxCodeEnum::APPOINTMENT_ACCEPTED, OutboxCodeEnum::APPOINTMENT_RESCHEDULED, OutboxCodeEnum::APPOINTMENT_REMINDER], true)) {
             $appointment = $this->withZoomMeeting($appointment);
         }
 
         /** @var Outbox|null $outbox */
         $outbox = $appointment->shop->outboxes()->where('code', $code->value)->first();
         if (!$outbox || $outbox->state != OutboxStateEnum::ACTIVE || !$outbox->is_applicable || !$outbox->emailOngoingRun?->email?->liveSnapshot) {
+            $this->releaseReminder($appointment, $code);
+
             return null;
         }
 
@@ -58,6 +60,8 @@ class SendAppointmentEmail extends OrgAction
             ? Arr::get($outbox->emailOngoingRun->email->liveSnapshot->layout, 'blade_template')
             : $outbox->emailOngoingRun->email->liveSnapshot->compiled_layout;
         if (!$emailHtmlBody) {
+            $this->releaseReminder($appointment, $code);
+
             return null;
         }
 
@@ -98,6 +102,17 @@ class SendAppointmentEmail extends OrgAction
                 ],
             ]
         );
+    }
+
+    /**
+     * A reminder the shop's email is not set up to send is not counted as sent, so the next run
+     * tries again while the appointment is still ahead.
+     */
+    private function releaseReminder(Appointment $appointment, OutboxCodeEnum $code): void
+    {
+        if ($code === OutboxCodeEnum::APPOINTMENT_REMINDER) {
+            $appointment->forceFill(['reminder_sent_at' => null])->saveQuietly();
+        }
     }
 
     private function withZoomMeeting(Appointment $appointment): Appointment

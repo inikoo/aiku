@@ -96,6 +96,7 @@ class ImportCalendlyAppointments
                         'calendly_invitee_uuid' => $inviteeUuid ?: null,
                     ])
                 );
+                $this->keepBookedAt($appointment, Arr::get($row, 'Event Created Date & Time'), $timezone);
                 $result['imported'][] = [...$summary, 'appointment_id' => $appointment->id];
             } catch (ValidationException $exception) {
                 $result['failed'][] = [...$summary, 'reason' => collect($exception->errors())->flatten()->implode(' ')];
@@ -145,6 +146,24 @@ class ImportCalendlyAppointments
         fclose($handle);
 
         return $rows;
+    }
+
+    /**
+     * The visitor was confirmed by Calendly when they booked, not when the file was imported. Kept
+     * that way, an appointment imported inside the reminder window still gets its reminder, which
+     * is held back only for visitors confirmed by Aiku that recently.
+     */
+    private function keepBookedAt(Appointment $appointment, ?string $createdAt, string $timezone): void
+    {
+        try {
+            $bookedAt = Carbon::createFromFormat('Y-m-d H:i', trim((string) $createdAt), $timezone);
+        } catch (Throwable) {
+            return;
+        }
+
+        if ($bookedAt->isPast()) {
+            $appointment->forceFill(['accepted_at' => $bookedAt->utc()])->saveQuietly();
+        }
     }
 
     private function email(?string $email): ?string

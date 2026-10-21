@@ -31,7 +31,7 @@ beforeEach(function () {
     ]);
 
     $this->csv = function (array $rows): string {
-        $header = ['Invitee Name', 'Invitee Email', 'Text Reminder Number', 'Event Type Name', 'Start Date & Time', 'End Date & Time', 'Canceled', 'Question 1', 'Response 1', 'Guest Email(s)', 'Event UUID', 'Invitee UUID'];
+        $header = ['Invitee Name', 'Invitee Email', 'Text Reminder Number', 'Event Type Name', 'Start Date & Time', 'End Date & Time', 'Event Created Date & Time', 'Canceled', 'Question 1', 'Response 1', 'Guest Email(s)', 'Event UUID', 'Invitee UUID'];
         $path   = tempnam(sys_get_temp_dir(), 'calendly').'.csv';
         $handle = fopen($path, 'w');
         fputcsv($handle, $header, escape: '');
@@ -48,8 +48,9 @@ beforeEach(function () {
         'Invitee Email'        => 'calendly-'.Str::lower(Str::random(8)).'@example.com',
         'Text Reminder Number' => "'+44 7700 900123",
         'Event Type Name'      => 'Showroom Appointment',
-        'Start Date & Time'    => now($this->timezone)->addDays(5)->format('Y-m-d').' 10:30',
-        'Canceled'             => 'false',
+        'Start Date & Time'         => now($this->timezone)->addDays(5)->format('Y-m-d').' 10:30',
+        'Event Created Date & Time' => now($this->timezone)->subDays(4)->format('Y-m-d').' 16:30',
+        'Canceled'                  => 'false',
         'Event UUID'           => (string) Str::uuid(),
         'Invitee UUID'         => (string) Str::uuid(),
         ...$overrides,
@@ -87,7 +88,8 @@ test('upcoming Calendly bookings become appointments without emailing the visito
         ->and($appointment->number_visitors)->toBe(3)
         ->and($appointment->notes)->toContain("We run a gift shop.\nWe want bath products.")
         ->and($appointment->notes)->toContain('guest-two@example.com')
-        ->and($appointment->data['imported_from'])->toBe('calendly');
+        ->and($appointment->data['imported_from'])->toBe('calendly')
+        ->and($appointment->accepted_at->copy()->setTimezone($this->timezone)->format('Y-m-d H:i'))->toBe($booking['Event Created Date & Time']);
 
     Queue::assertNotPushed(JobDecorator::class, fn ($job) => $job->displayName() === SendAppointmentEmail::class);
 

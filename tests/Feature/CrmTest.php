@@ -1313,6 +1313,35 @@ test('accepted appointments are reminded by email the day before, once', functio
         ->and(RemindUpcomingAppointments::isInsideReminderWindow($moved))->toBeFalse();
 });
 
+test('a reminder the shop email cannot send yet is not counted as sent', function () {
+    $appointmentType = StoreAppointmentType::make()->action($this->shop, [
+        'name'              => 'Unsent reminders '.Str::random(6),
+        'meeting_mode'      => AppointmentTypeMeetingModeEnum::STORE_VISIT->value,
+        'duration_minutes'  => 30,
+        'capacity_per_slot' => 5,
+    ]);
+
+    Queue::fake();
+    $appointment = StoreAppointment::make()->action($this->shop, [
+        'appointment_type_id' => $appointmentType->id,
+        'starts_at'           => now($this->shop->timezone?->name ?? 'UTC')->addDays(10)->format('Y-m-d').' 12:00',
+        'contact_name'        => 'Unsent reminder '.Str::random(6),
+        'email'               => 'unsent-'.Str::lower(Str::random(8)).'@example.com',
+    ]);
+    $appointment->forceFill(['reminder_sent_at' => now()])->saveQuietly();
+
+    $outbox        = $this->shop->outboxes()->where('code', OutboxCodeEnum::APPOINTMENT_REMINDER->value)->first();
+    $previousState = $outbox?->state;
+    $outbox?->update(['state' => OutboxStateEnum::SUSPENDED]);
+
+    try {
+        expect(SendAppointmentEmail::make()->handle($appointment->id, OutboxCodeEnum::APPOINTMENT_REMINDER->value))->toBeNull()
+            ->and($appointment->refresh()->reminder_sent_at)->toBeNull();
+    } finally {
+        $outbox?->update(['state' => $previousState]);
+    }
+});
+
 test('an appointment email escapes what the visitor typed', function () {
     $appointmentType = StoreAppointmentType::make()->action($this->shop, [
         'name'             => 'Escape '.Str::random(6),
