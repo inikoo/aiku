@@ -436,7 +436,7 @@ const [DefineMasterValue, MasterValue] = createReusableTemplate<{ value: string 
                             :class="form.price.mode === 'follow' ? 'bg-gray-100 text-gray-600' : 'bg-amber-50 text-amber-700'"
                         >{{ form.price.mode === "follow" ? ctrans("Follows master") : ctrans("Customised in this shop") }}</span>
                     </div>
-                    <SegmentedToggle v-if="canEdit && master.has_master" v-model="form.price.mode" :options="followOptions" :ariaLabel="ctrans('Price')" />
+                    <!-- <SegmentedToggle v-if="canEdit && master.has_master" v-model="form.price.mode" :options="followOptions" :ariaLabel="ctrans('Price')" /> -->
                 </div>
                 <MasterValue :value="formatMoney(master.currency_code, master.price)" />
                 <p v-if="form.price.mode === 'follow' && shop.product.currency_code !== master.currency_code" class="mt-2 text-xs text-gray-500">

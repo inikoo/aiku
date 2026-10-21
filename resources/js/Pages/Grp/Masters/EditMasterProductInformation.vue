@@ -253,7 +253,7 @@ const save = () => {
                     </header>
                     <label for="product-price" class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Price (:currency)", { currency: product.currency_code }) }}</label>
                     <div class="max-w-xs">
-                        <InputNumber v-model="form.price" inputId="product-price" :prefix="`${product.currency_code} `" :min="0" :minFractionDigits="2" :maxFractionDigits="2" fluid :disabled="!canEdit" :invalid="!!errorOf('price')" />
+                        <InputNumber v-model="form.price" inputId="product-price" :prefix="`${product.currency_code} `" :min="0" :minFractionDigits="2" :maxFractionDigits="2" fluid disabled :invalid="!!errorOf('price')" />
                     </div>
                     <p v-if="errorOf('price')" class="mt-1 text-xs text-red-600">{{ errorOf("price") }}</p>
                 </section>
