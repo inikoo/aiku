@@ -63,6 +63,7 @@ const stateStyle = computed(() => (query.value ? stateStyles[query.value.state] 
 const isWaitingForAnswer = computed(() => isPending.value && !!props.item.answerPriceRoute)
 
 const dialog = ref<"ask" | "adjust" | null>(null)
+const answeringWith = ref<"accepted" | "rejected" | "adjusted" | null>(null)
 
 const form = useForm<{ price: number | null; note: string | null }>({
 	price: null,
@@ -104,6 +105,7 @@ function answer(answerValue: "accepted" | "rejected" | "adjusted") {
 		return
 	}
 
+	answeringWith.value = answerValue
 	form
 		.transform(() => ({
 			answer: answerValue,
@@ -114,6 +116,7 @@ function answer(answerValue: "accepted" | "rejected" | "adjusted") {
 			preserveScroll: true,
 			onSuccess: () => (dialog.value = null),
 			onError,
+			onFinish: () => (answeringWith.value = null),
 		})
 }
 </script>
@@ -145,17 +148,31 @@ function answer(answerValue: "accepted" | "rejected" | "adjusted") {
 			</div>
 
 			<div v-if="item.answerPriceRoute" class="flex flex-wrap items-center gap-1.5">
-				<Button type="tertiary" size="xs" :label="ctrans('Accept')" :loading="form.processing" @click="answer('accepted')">
+				<Button
+					type="tertiary"
+					size="xs"
+					:label="ctrans('Accept')"
+					:loading="answeringWith === 'accepted'"
+					:disabled="!!answeringWith && answeringWith !== 'accepted'"
+					@click="answer('accepted')"
+				>
 					<template #icon>
 						<FontAwesomeIcon :icon="faCheck" class="text-green-600" fixed-width aria-hidden="true" />
 					</template>
 				</Button>
-				<Button type="tertiary" size="xs" :label="ctrans('Keep old price')" :loading="form.processing" @click="answer('rejected')">
+				<Button
+					type="tertiary"
+					size="xs"
+					:label="ctrans('Keep old price')"
+					:loading="answeringWith === 'rejected'"
+					:disabled="!!answeringWith && answeringWith !== 'rejected'"
+					@click="answer('rejected')"
+				>
 					<template #icon>
 						<FontAwesomeIcon :icon="faTimes" class="text-red-500" fixed-width aria-hidden="true" />
 					</template>
 				</Button>
-				<Button type="tertiary" size="xs" :label="ctrans('Set another price')" @click="openDialog('adjust')">
+				<Button type="tertiary" size="xs" :label="ctrans('Set another price')" :disabled="!!answeringWith" @click="openDialog('adjust')">
 					<template #icon>
 						<FontAwesomeIcon :icon="faPen" class="text-gray-500" fixed-width aria-hidden="true" />
 					</template>

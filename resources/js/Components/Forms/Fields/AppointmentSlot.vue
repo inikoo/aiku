@@ -1,22 +1,17 @@
 <script setup lang="ts">
-import { computed } from "vue"
-import Select from "primevue/select"
-import DatePicker from "primevue/datepicker"
+import { computed, ref, watch } from "vue"
+import AppointmentSlotPicker from "@/Components/CMS/Webpage/Appointment/AppointmentSlotPicker.vue"
 import { ctrans } from "@/Composables/useTrans"
 
 const props = defineProps<{
     form: any
     fieldName: string
     fieldData?: {
-        minuteStep?: number
+        timezone?: string
+        appointment_type_id?: number | null
+        slots?: Record<string, Record<string, string[]>>
     }
 }>()
-
-const minuteStep = props.fieldData?.minuteStep ?? 30
-const timeOptions: string[] = []
-for (let minutes = 0; minutes < 24 * 60; minutes += minuteStep) {
-    timeOptions.push(`${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`)
-}
 
 const fromIsoDate = (iso: string): Date => {
     const [year, month, day] = iso.split("-").map(Number)
@@ -24,50 +19,107 @@ const fromIsoDate = (iso: string): Date => {
 }
 const toLocalIsoDate = (date: Date): string => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
 
-const datePart = computed(() => (props.form[props.fieldName] ?? "").split(" ")[0] || null)
-const timePart = computed(() => (props.form[props.fieldName] ?? "").split(" ")[1] || null)
+const [savedDate, savedTime] = (props.form[props.fieldName] ?? "").split(" ")
+const typeId = computed(() => props.form.appointment_type_id ?? props.fieldData?.appointment_type_id)
+const savedTypeId = typeId.value
 
-const setValue = (date: string | null, time: string | null) => {
-    props.form[props.fieldName] = date && time ? `${date} ${time}` : date ? `${date} ` : null
+const slots = computed<Record<string, string[]>>(() => {
+    const free = { ...(props.fieldData?.slots?.[typeId.value] ?? {}) }
+    if (savedDate && savedTime && typeId.value === savedTypeId && !free[savedDate]?.includes(savedTime)) {
+        free[savedDate] = [...(free[savedDate] ?? []), savedTime].sort()
+    }
+    return free
+})
+
+const firstFreeDate = () => {
+    const first = Object.keys(slots.value).sort()[0]
+    return first ? fromIsoDate(first) : null
 }
 
-const dateModel = computed<Date | null>({
-    get: () => (datePart.value ? fromIsoDate(datePart.value) : null),
-    set: (value) => setValue(value ? toLocalIsoDate(value) : null, timePart.value),
+const selectedDate = ref<Date | null>(savedDate ? fromIsoDate(savedDate) : firstFreeDate())
+const selectedTime = ref<string | null>(savedTime || null)
+
+watch([selectedDate, selectedTime], ([date, time]) => {
+    props.form[props.fieldName] = date && time ? `${toLocalIsoDate(date)} ${time}` : null
 })
 
-const timeModel = computed<string | null>({
-    get: () => timePart.value,
-    set: (value) => setValue(datePart.value, value),
+watch(typeId, () => {
+    if (!selectedDate.value || !selectedTime.value || !slots.value[toLocalIsoDate(selectedDate.value)]?.includes(selectedTime.value)) {
+        selectedTime.value = null
+        selectedDate.value = firstFreeDate()
+    }
 })
-
-const fieldFocusClass = "[&.p-focus]:!border-[--app-accent] [&_input:focus]:!border-[--app-accent]"
 </script>
 
 <template>
-    <div>
-        <div class="flex flex-wrap items-center gap-2">
-            <DatePicker
-                v-model="dateModel"
-                dateFormat="D d M yy"
-                :manualInput="false"
-                :placeholder="ctrans('Date')"
-                showIcon
-                iconDisplay="input"
-                :class="fieldFocusClass"
-                :pt="{ pcInputText: { root: { class: '!w-48 !py-1.5 !text-sm' } } }"
-                :aria-label="ctrans('Date')" />
-            <Select
-                v-model="timeModel"
-                :options="timeOptions"
-                :placeholder="ctrans('Time')"
-                :class="fieldFocusClass"
-                :pt="{ label: { class: '!py-1.5 !text-sm' } }"
-                class="w-28"
-                :aria-label="ctrans('Time')" />
-        </div>
-        <p v-if="form.errors?.[fieldName]" class="mt-2 text-sm text-red-600">
-            {{ form.errors[fieldName] }}
+    <div class="max-w-4xl">
+        <p v-if="!typeId" class="rounded-lg border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500">
+            {{ ctrans("Choose the type first to see its free times.") }}
         </p>
+        <div v-else class="appointment-slot-field rounded-lg border border-gray-200 bg-white p-4 sm:p-6">
+            <AppointmentSlotPicker
+                :key="typeId"
+                v-model:date="selectedDate"
+                v-model:time="selectedTime"
+                :slots="slots"
+                :timezone="fieldData?.timezone"
+                :error="form.errors?.[fieldName]"
+                hideTitle />
+            <p v-if="form.errors?.[fieldName] && !selectedDate" class="mt-2 text-sm text-red-600">{{ form.errors[fieldName] }}</p>
+        </div>
     </div>
 </template>
+
+<style scoped>
+.appointment-slot-field :deep(.appointment-pick) {
+    gap: 2rem;
+}
+
+.appointment-slot-field :deep(.appointment-pick > div:first-child) {
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: 22rem;
+}
+
+.appointment-slot-field :deep(.appointment-times) {
+    flex: 1 1 0%;
+    width: auto;
+    min-width: 0;
+    padding-top: 0;
+}
+
+.appointment-slot-field :deep(.appointment-times > div:first-child) {
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.appointment-slot-field :deep(.appointment-times-frame) {
+    flex: none;
+}
+
+.appointment-slot-field :deep(.appointment-times-list) {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
+    gap: 0.5rem;
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+}
+
+.appointment-slot-field :deep(.appointment-time) {
+    height: 2.75rem;
+    font-size: 0.95rem;
+}
+
+@media (min-width: 768px) {
+    .appointment-slot-field :deep(.appointment-pick) {
+        flex-direction: row;
+    }
+
+    .appointment-slot-field :deep(.appointment-times) {
+        border-left: 1px solid #e5e7eb;
+        padding-left: 2rem;
+    }
+}
+</style>

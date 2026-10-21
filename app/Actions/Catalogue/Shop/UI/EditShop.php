@@ -36,6 +36,7 @@ use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Enums\Ordering\SalesChannel\SalesChannelTypeEnum;
 use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Models\Catalogue\Shop;
+use App\Services\GoogleCalendar\GoogleCalendarClient;
 use App\Models\Helpers\SerialReference;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
@@ -1321,6 +1322,45 @@ class EditShop extends OrgAction
                             'label'       => __('Sender name'),
                             'placeholder' => $shop->name,
                             'value'       => Arr::get($shop->settings, 'gmail.sender_name', ''),
+                        ],
+                    ],
+                ],
+                [
+                    'label'  => __('Appointments calendar'),
+                    'icon'   => 'fal fa-calendar-alt',
+                    'fields' => [
+                        'google_calendar' => [
+                            'type'         => 'mailbox_connect',
+                            'noTitle'      => true,
+                            'noSaveButton' => true,
+                            'value'        => [
+                                'connected'        => filled(Arr::get($shop->settings, GoogleCalendarClient::SETTINGS_KEY.'.refresh_token')),
+                                'email'            => Arr::get($shop->settings, GoogleCalendarClient::SETTINGS_KEY.'.calendar'),
+                                'connected_at'     => Arr::get($shop->settings, GoogleCalendarClient::SETTINGS_KEY.'.connected_at'),
+                                'revoked_at'       => Arr::get($shop->settings, GoogleCalendarClient::SETTINGS_KEY.'.revoked_at'),
+                                'connect_url'      => route('grp.org.shops.show.settings.google_calendar.connect', [$shop->organisation->slug, $shop->slug]).($request->query('section') ? '?section='.$request->query('section') : ''),
+                                'disconnect_route' => [
+                                    'name'       => 'grp.org.shops.show.settings.google_calendar.disconnect',
+                                    'parameters' => [$shop->organisation->slug, $shop->slug],
+                                ],
+                                'sync_route'       => [
+                                    'name'       => 'grp.org.shops.show.settings.google_calendar.sync',
+                                    'parameters' => [$shop->organisation->slug, $shop->slug],
+                                ],
+                                'connected_query'  => 'google_calendar_connected',
+                                'texts'            => [
+                                    'connected'           => __('Every appointment of this shop is written into this calendar, and time already taken in it is not offered to visitors on the website.'),
+                                    'not_connected'       => __('Sign in with the Google account whose main calendar the shop uses for appointments. Bookings are written into it, and its busy times are kept free of website bookings.'),
+                                    'not_connected_title' => __('No calendar connected'),
+                                    'success'             => __('Upcoming appointments are being written into the calendar now, and time already taken in it is no longer offered on the website.'),
+                                    'success_title'       => __('Google Calendar connected'),
+                                    'confirm_disconnect'  => __('Disconnect this calendar? New appointments will no longer be written into it, and its busy times will stop blocking bookings.'),
+                                    'connect'             => __('Connect Google Calendar'),
+                                    'reconnect'           => __('Reconnect Google Calendar'),
+                                    'revoked'             => __('Appointments are not written into it until it is reconnected.'),
+                                    'sync'                => __('Sync now'),
+                                ],
+                            ],
                         ],
                     ],
                 ],

@@ -15,8 +15,9 @@ import SeoKeywordBulkImport from "@/Components/Seo/SeoKeywordBulkImport.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faChevronDown, faChevronRight, faListUl, faPlus, faTags, faMinus, faSyncAlt } from "@fal"
+import { faChevronDown, faChevronRight, faListUl, faPlus, faTags, faMinus, faSyncAlt, faTasks, faTrashAlt } from "@fal"
 import InputText from "primevue/inputtext"
+import Menu from "primevue/menu"
 import MultiSelect from "primevue/multiselect"
 import Select from "primevue/select"
 import ToggleSwitch from "primevue/toggleswitch"
@@ -52,7 +53,7 @@ type TrackedKeywordRow = {
     delete_route: routeType & { method: string }
 }
 
-library.add(faChevronDown, faChevronRight, faListUl, faPlus, faTags, faMinus, faSyncAlt)
+library.add(faChevronDown, faChevronRight, faListUl, faPlus, faTags, faMinus, faSyncAlt, faTasks, faTrashAlt)
 
 defineOptions({ inheritAttrs: false })
 
@@ -146,6 +147,32 @@ const selectedKeywords = computed(() => selectedIds.value.map((id) => keywordsBy
 const bulkTagIds = ref<number[]>([])
 const isTagging = ref(false)
 const tagError = ref<string | null>(null)
+const isRemoving = ref(false)
+const actionsMenu = ref<InstanceType<typeof Menu> | null>(null)
+
+const removeSelected = () => {
+    if (!window.confirm(ctrans("Stop tracking :count keywords in every country?", { count: selectedKeywords.value.length }))) {
+        return
+    }
+
+    router.delete(route(props.routes.bulkDelete.name, props.routes.bulkDelete.parameters), {
+        data: { keywords: selectedKeywords.value },
+        preserveScroll: true,
+        preserveState: true,
+        only: [props.tab, "keywordFilters", "flash"],
+        onStart: () => {
+            isRemoving.value = true
+            tagError.value = null
+        },
+        onError: (errors) => tagError.value = Object.values(errors)[0] ?? null,
+        onSuccess: () => table.value?.clearSelection(),
+        onFinish: () => isRemoving.value = false,
+    })
+}
+
+const bulkActions = computed(() => [
+    { label: ctrans("Remove keywords"), icon: faTrashAlt, iconClass: "text-red-500", command: removeSelected },
+])
 
 const tagSelected = (action: "add" | "remove") => {
     router.post(route(props.routes.assignTags.name, props.routes.assignTags.parameters), {
@@ -189,7 +216,7 @@ const checkNow = (trackedKeyword?: TrackedKeywordRow) => {
     router.post(route(checkNowData.value.route.name, checkNowData.value.route.parameters), trackedKeyword ? { tracked_keyword_ids: trackedKeyword.check_ids } : {}, {
         preserveScroll: true,
         preserveState: true,
-        only: [props.tab],
+        only: [props.tab, "flash"],
         onStart: () => {
             checking.value = trackedKeyword ? trackedKeyword.id : "all"
             checkError.value = null
@@ -263,6 +290,23 @@ const labelOf = (options: { value: string, label: string }[], value: string) => 
 
         <div v-if="canEdit && selectedKeywords.length" class="mx-4 mb-2 flex flex-wrap items-center gap-2 rounded-lg bg-gray-50 px-3 py-2 text-sm ring-1 ring-gray-200">
             <span class="font-medium text-gray-900">{{ ctrans(":count keywords selected", { count: selectedKeywords.length }) }}</span>
+            <Button
+                type="tertiary"
+                size="xs"
+                icon="fal fa-tasks"
+                iconRight="fal fa-chevron-down"
+                :label="ctrans('Actions')"
+                :loading="isRemoving"
+                aria-haspopup="true"
+                @click="(event: Event) => actionsMenu?.toggle(event)" />
+            <Menu ref="actionsMenu" :model="bulkActions" popup>
+                <template #item="{ item, props: itemProps }">
+                    <a v-bind="itemProps.action" class="flex items-center gap-2">
+                        <FontAwesomeIcon :icon="item.icon" :class="item.iconClass" fixed-width aria-hidden="true" />
+                        <span>{{ item.label }}</span>
+                    </a>
+                </template>
+            </Menu>
             <MultiSelect
                 v-model="bulkTagIds"
                 :options="filterOptions.tags"

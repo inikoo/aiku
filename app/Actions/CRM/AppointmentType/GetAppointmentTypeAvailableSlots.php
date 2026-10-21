@@ -2,8 +2,10 @@
 
 namespace App\Actions\CRM\AppointmentType;
 
+use App\Actions\CRM\Appointment\GoogleCalendar\GetGoogleCalendarBusyPeriods;
 use App\Enums\CRM\Appointment\AppointmentStateEnum;
 use App\Models\CRM\Appointment;
+use App\Models\CRM\AppointmentBlock;
 use App\Models\CRM\AppointmentType;
 use App\Models\CRM\AppointmentTypeDate;
 use Illuminate\Support\Arr;
@@ -36,6 +38,8 @@ class GetAppointmentTypeAvailableSlots
         $booked   = $this->bookedPeriods($appointmentType, $now, $lastDay->copy()->endOfDay(), $buffer);
         $staffIds = $appointmentType->attendees()->where('users.status', true)->pluck('users.id');
         $busy     = $this->staffBusyElsewhere($appointmentType, $staffIds, $now, $lastDay->copy()->endOfDay());
+        $calendar = GetGoogleCalendarBusyPeriods::run($appointmentType->shop, $now->copy()->startOfHour(), $lastDay->copy()->endOfDay())
+            ->concat($this->blockedPeriods($appointmentType, $now, $lastDay->copy()->endOfDay()));
 
         $slots = [];
         for ($day = $now->copy()->startOfDay(); $day->lte($lastDay); $day->addDay()) {
@@ -52,6 +56,9 @@ class GetAppointmentTypeAvailableSlots
                         continue;
                     }
                     if ($this->countOverlapping($booked, $slot, $slot->copy()->addMinutes($duration + $buffer)) >= $appointmentType->capacity_per_slot) {
+                        continue;
+                    }
+                    if ($this->countOverlapping($calendar, $slot, $slot->copy()->addMinutes($duration)) > 0) {
                         continue;
                     }
                     if ($this->hasStaffFree($staffIds, $busy, $slot, $slot->copy()->addMinutes($duration))) {
@@ -84,6 +91,18 @@ class GetAppointmentTypeAvailableSlots
             ->where('ends_at', '>', $from->copy()->subMinutes($buffer))
             ->get(['starts_at', 'ends_at'])
             ->map(fn (Appointment $appointment) => [$appointment->starts_at, $appointment->ends_at->copy()->addMinutes($buffer)]);
+    }
+
+    /**
+     * @return Collection<int, array{0: Carbon, 1: Carbon}>
+     */
+    private function blockedPeriods(AppointmentType $appointmentType, Carbon $from, Carbon $to): Collection
+    {
+        return AppointmentBlock::where('shop_id', $appointmentType->shop_id)
+            ->affecting($appointmentType->id)
+            ->overlapping($from, $to)
+            ->get(['starts_at', 'ends_at'])
+            ->map(fn (AppointmentBlock $block) => [$block->starts_at, $block->ends_at]);
     }
 
     /**

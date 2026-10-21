@@ -1962,6 +1962,13 @@ test('UI Create appointment', function () {
             $page
                 ->component('CreateModel')
                 ->where('formData.blueprint.0.fields.starts_at.type', 'appointment_slot')
+                ->where('formData.blueprint.0.fields.starts_at.slots', function ($slots) {
+                    $slots = collect($slots)->toArray();
+
+                    return $this->shop->appointmentTypes()->get()->every(
+                        fn (AppointmentType $appointmentType) => collect($slots[$appointmentType->id] ?? [])->toArray() == GetAppointmentTypeAvailableSlots::run($appointmentType)
+                    );
+                })
                 ->where('formData.blueprint.0.fields.user_id.type', 'appointment_staff')
                 ->where('formData.blueprint.0.fields.user_id.options', function ($options) {
                     $arranged = DB::table('appointment_type_user')
