@@ -26,6 +26,7 @@ import { faBox, faPallet, faStopCircle, faTrashAlt, faPeopleArrows, faBalanceSca
 import { faExclamationCircle, faSpinner, faMinusCircle } from '@fas'
 import ConfirmPopup from 'primevue/confirmpopup'
 import Popover from 'primevue/popover'
+import Checkbox from 'primevue/checkbox'
 import { useConfirm } from 'primevue/useconfirm'
 import Toggle from '@/Components/Pure/Toggle.vue'
 import ProductImageViewerDialog from '@/Components/Product/ProductImageViewerDialog.vue'
@@ -171,6 +172,10 @@ const savingPriceId = ref<number | null>(null)
 
 function canEditPrice(item: any) {
     return isPriceEditable.value && !isInAgentOrganisation && item.updateRoute && ['in_process', 'submitted'].includes(item.state)
+}
+
+function isPriceQueryAnswered(item: any) {
+    return !!item.price_query && item.price_query.state !== 'pending'
 }
 
 function supplierLevelCostLabel(item: any) {
@@ -606,8 +611,13 @@ function orgStockRoute(item: { org_stock_id?: number }) {
                             {{ ctrans('Use this price as supplier price') }}
                         </button>
                     </div>
-                    <label v-if="item.can_update_supplier_cost" class="flex items-center gap-1 cursor-pointer select-none">
-                        <input v-model="alsoUpdateSupplierPrice[item.id]" type="checkbox" class="rounded border-gray-300" />
+                    <label
+                        v-if="item.can_update_supplier_cost"
+                        class="flex items-center gap-1 select-none"
+                        :class="isPriceQueryAnswered(item) ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'"
+                        v-tooltip="isPriceQueryAnswered(item) ? ctrans('The supplier price change was already answered') : undefined"
+                    >
+                        <Checkbox v-model="alsoUpdateSupplierPrice[item.id]" binary size="small" :disabled="isPriceQueryAnswered(item)" />
                         {{ ctrans('Also update supplier price') }}
                     </label>
                 </div>
