@@ -107,9 +107,26 @@ const toIso = (date: Date | null) => date ? `${date.getFullYear()}-${String(date
 
 const editLabels: Record<string, string> = {
     production_started_at: "Edit production date",
+    produced_at: "Edit production done",
 }
 
 const markLabel = (mark: Mark) => mark.date && editLabels[mark.field] ? ctrans(editLabels[mark.field]) : mark.label
+
+const markTooltips: Record<string, { record: string, edit: string }> = {
+    production_started_at: { record: "Click to record the date production started", edit: "Click to change the date production started" },
+    produced_at: { record: "Click to record the date production finished", edit: "Click to change the date production finished" },
+}
+
+function markTooltip(mark: Mark) {
+    const tooltip = markTooltips[mark.field]
+    if (tooltip) {
+        return ctrans(mark.date ? tooltip.edit : tooltip.record)
+    }
+
+    return mark.date
+        ? ctrans("Click to change the date of :step", { step: mark.label })
+        : ctrans("Click to record the date of :step", { step: mark.label })
+}
 
 const editing = ref<Mark | null>(null)
 const date = ref<Date | null>(null)
@@ -217,13 +234,15 @@ function save() {
                 </div>
             </div>
 
-            <div v-if="stage.marks.length" class="mt-2 flex flex-wrap gap-1">
+            <div v-if="stage.marks.length" class="mt-2 flex flex-col gap-1">
                 <Button
                     v-for="mark in stage.marks"
                     :key="mark.field"
                     type="tertiary"
                     size="xs"
+                    full
                     :label="markLabel(mark)"
+                    :tooltip="markTooltip(mark)"
                     @click="openMark(mark)"
                 >
                     <template #icon>
@@ -236,6 +255,7 @@ function save() {
                 <Button
                     type="tertiary"
                     size="xs"
+                    full
                     :label="deposit.not_needed ? ctrans('Deposit needed after all') : ctrans('No deposit needed')"
                     :tooltip="deposit.not_needed ? ctrans('Click to ask for a deposit again, if the supplier wants one before production') : ctrans('Click to mark this order as needing no deposit, when the supplier starts production without one')"
                     :loading="savingDeposit"
