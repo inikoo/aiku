@@ -55,7 +55,8 @@ class CloneMailshotForSecondWave extends OrgAction
 
     public function copyEmail(Mailshot $sourceMailshot, Mailshot $targetMailshot): void
     {
-        $sourceEmail = $sourceMailshot->email;
+        $sourceEmail    = $sourceMailshot->email;
+        $sourceSnapshot = $sourceEmail->designSnapshot();
 
         StoreEmail::make()->action(
             $targetMailshot,
@@ -63,12 +64,12 @@ class CloneMailshotForSecondWave extends OrgAction
             modelData: [
                 'subject' => $targetMailshot->subject,
                 'builder' => $sourceEmail->builder,
-                'layout' => $sourceEmail->liveSnapshot?->layout ?? $sourceEmail->unpublishedSnapshot?->layout,
-                'compiled_layout' => $sourceEmail->liveSnapshot?->compiled_layout,
-                'snapshot_state' => $sourceEmail->liveSnapshot?->state ?? $sourceEmail->unpublishedSnapshot?->state,
-                'snapshot_published_at' => $sourceEmail->liveSnapshot?->published_at ??  $sourceEmail->unpublishedSnapshot?->published_at,
-                'snapshot_recyclable' => $sourceEmail->liveSnapshot?->recyclable ?? $sourceEmail->unpublishedSnapshot?->recyclable ?? false,
-                'snapshot_first_commit' => $sourceEmail->liveSnapshot?->first_commit ?? $sourceEmail->unpublishedSnapshot?->first_commit ?? true,
+                'layout' => $sourceSnapshot?->layout,
+                'compiled_layout' => $sourceSnapshot?->compiled_layout,
+                'snapshot_state' => $sourceSnapshot?->state,
+                'snapshot_published_at' => $sourceSnapshot?->published_at,
+                'snapshot_recyclable' => $sourceSnapshot?->recyclable ?? false,
+                'snapshot_first_commit' => $sourceSnapshot?->first_commit ?? true,
             ],
             strict: false
         );

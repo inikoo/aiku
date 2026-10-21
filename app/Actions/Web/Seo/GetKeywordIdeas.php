@@ -8,6 +8,7 @@
 
 namespace App\Actions\Web\Seo;
 
+use App\Enums\Web\Seo\SeoResearchScopeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Web\SeoKeyword;
 use App\Services\DataForSeo\DataForSeoClient;
@@ -33,18 +34,19 @@ class GetKeywordIdeas
     /**
      * Each seed keyword brings its own figures and the keywords that contain it, sharing the
      * MAX_IDEAS rows between the seeds so the cost of a search stays the same; a URL brings the
-     * keywords that page ranks for in Google.
+     * keywords its root domain, subdomain, subfolder or exact page ranks for in Google, by scope.
      *
      * @param  array<int, string>  $seedKeywords
      * @return array{ideas: array<int, array>}
      * @throws ValidationException
      */
-    public function handle(Shop $shop, array $seedKeywords, ?string $url, string $countryCode, string $languageCode): array
+    public function handle(Shop $shop, array $seedKeywords, ?string $url, string $countryCode, string $languageCode, ?SeoResearchScopeEnum $scope = null): array
     {
         $seedKeywords = array_values(array_unique(array_filter(array_map(fn ($keyword) => Str::lower(trim($keyword)), $seedKeywords))));
         $url          = $url ? trim($url) : null;
         $countryCode  = strtoupper($countryCode);
         $languageCode = strtolower($languageCode);
+        $target       = $url ? self::rankedKeywordsTarget($url, $scope ?? SeoResearchScopeEnum::guess($url)) : null;
 
         if ($seedKeywords === [] && !$url) {
             throw ValidationException::withMessages(['seed' => __('Enter at least one keyword or a URL.')]);
@@ -60,13 +62,13 @@ class GetKeywordIdeas
             throw ValidationException::withMessages(['seed' => __('DataForSEO is not set up. Add DATAFORSEO_LOGIN and DATAFORSEO_PASSWORD to the environment.')]);
         }
 
-        $cacheKey = 'seo:keyword_suggestions:'.md5(json_encode([$seedKeywords, $url, $countryCode, $languageCode]));
+        $cacheKey = 'seo:keyword_suggestions:'.md5(json_encode([$seedKeywords, $target, $countryCode, $languageCode]));
 
         try {
             $ideas = Cache::get($cacheKey);
 
             if ($ideas === null) {
-                $ideas = $this->fetchIdeas($client, $shop, $seedKeywords, $url, ...$this->location($client, $countryCode, $languageCode));
+                $ideas = $this->fetchIdeas($client, $shop, $seedKeywords, $target, ...$this->location($client, $countryCode, $languageCode));
 
                 $this->store($shop, $ideas, $countryCode, $languageCode);
 
@@ -104,11 +106,64 @@ class GetKeywordIdeas
     }
 
     /**
+     * The ranked_keywords target for a URL: the domain with or without its subdomains, the page
+     * itself, or the domain narrowed to the pages under one folder of it (with or without www).
+     *
+     * @return array{target: string, include_subdomains?: bool, filters?: array}
+     * @throws ValidationException
+     */
+    public static function rankedKeywordsTarget(string $url, SeoResearchScopeEnum $scope): array
+    {
+        $absoluteUrl = Str::contains($url, '://') ? $url : "https://$url";
+        $host        = Str::lower((string) parse_url($absoluteUrl, PHP_URL_HOST));
+        $domain      = StoreSerpResult::normaliseDomain($host);
+
+        if ($domain === '') {
+            throw ValidationException::withMessages(['url' => __('Enter a valid domain or URL.')]);
+        }
+
+        return match ($scope) {
+            SeoResearchScopeEnum::ROOT_DOMAIN => ['target' => self::rootDomain($domain), 'include_subdomains' => true],
+            SeoResearchScopeEnum::SUBDOMAIN   => ['target' => $domain, 'include_subdomains' => false],
+            SeoResearchScopeEnum::EXACT_URL   => ['target' => $absoluteUrl],
+            SeoResearchScopeEnum::SUBFOLDER   => self::subfolderTarget($host, $domain, (string) parse_url($absoluteUrl, PHP_URL_PATH)),
+        };
+    }
+
+    /**
+     * The registered domain of a host without a public suffix list: the last two labels, or the
+     * last three under a second level suffix such as co.uk or com.au.
+     */
+    public static function rootDomain(string $domain): string
+    {
+        $labels         = explode('.', $domain);
+        $underSecondLevelSuffix = count($labels) > 2 && in_array($labels[count($labels) - 2], ['co', 'com', 'net', 'org', 'gov', 'edu', 'ac', 'ltd', 'plc', 'or', 'ne', 'go'], true);
+
+        return implode('.', array_slice($labels, $underSecondLevelSuffix ? -3 : -2));
+    }
+
+    /**
+     * @return array{target: string, include_subdomains: bool, filters: array}
+     */
+    private static function subfolderTarget(string $host, string $domain, string $path): array
+    {
+        $folder  = trim($path, '/') === '' ? '/' : '/'.trim($path, '/').'/';
+        $hosts   = in_array($host, [$domain, "www.$domain"], true) ? [$domain, "www.$domain"] : [$host];
+        $filters = array_map(fn (string $folderHost) => ['ranked_serp_element.serp_item.url', 'like', "%://$folderHost$folder%"], $hosts);
+
+        return [
+            'target'             => $domain,
+            'include_subdomains' => true,
+            'filters'            => count($filters) === 1 ? $filters[0] : [$filters[0], 'or', $filters[1]],
+        ];
+    }
+
+    /**
      * @param  array<int, string>  $seedKeywords
      * @return array<int, array>
      * @throws DataForSeoException
      */
-    private function fetchIdeas(DataForSeoClient $client, Shop $shop, array $seedKeywords, ?string $url, int $locationCode, string $languageCode): array
+    private function fetchIdeas(DataForSeoClient $client, Shop $shop, array $seedKeywords, ?array $target, int $locationCode, string $languageCode): array
     {
         $location = ['location_code' => $locationCode, 'language_code' => $languageCode];
         $items    = [];
@@ -130,8 +185,8 @@ class GetKeywordIdeas
             array_push($items, ...Arr::get($suggestions, 'items') ?? []);
         }
 
-        if ($url) {
-            $rankedKeywords = Arr::get($client->live('dataforseo_labs/google/ranked_keywords/live', [...$location, 'target' => $url, 'include_serp_info' => true, 'limit' => self::MAX_IDEAS, 'order_by' => ['keyword_data.keyword_info.search_volume,desc']], $shop->website), '0.items') ?? [];
+        if ($target) {
+            $rankedKeywords = Arr::get($client->live('dataforseo_labs/google/ranked_keywords/live', [...$location, ...$target, 'include_serp_info' => true, 'limit' => self::MAX_IDEAS, 'order_by' => ['keyword_data.keyword_info.search_volume,desc']], $shop->website), '0.items') ?? [];
 
             array_push($items, ...array_map(fn (array $item) => Arr::get($item, 'keyword_data', []), $rankedKeywords));
         }

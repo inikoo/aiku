@@ -12,8 +12,8 @@ import Textarea from "primevue/textarea"
 import { routeType } from "@/types/route"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faCheck, faCheckCircle, faPencil, faTimes, faTruck, faPaperclip, faUpload, faSpinnerThird } from "@fal"
-library.add(faCheck, faCheckCircle, faPencil, faTimes, faTruck, faPaperclip, faUpload, faSpinnerThird)
+import { faCheck, faCheckCircle, faPencil, faTimes, faTruck, faPaperclip, faUpload, faSpinnerThird, faBan, faUndo } from "@fal"
+library.add(faCheck, faCheckCircle, faPencil, faTimes, faTruck, faPaperclip, faUpload, faSpinnerThird, faBan, faUndo)
 
 interface Step {
     key: string
@@ -61,7 +61,25 @@ const props = defineProps<{
     stages: Stage[]
     route: routeType
     uploadRoute?: routeType | null
+    deposit?: { not_needed: boolean, route: routeType } | null
 }>()
+
+const savingDeposit = ref(false)
+
+async function setDepositNotNeeded(notNeeded: boolean) {
+    if (!props.deposit) {
+        return
+    }
+    savingDeposit.value = true
+    try {
+        await axios.patch(route(props.deposit.route.name, props.deposit.route.parameters), { deposit_amount: notNeeded ? 0 : null })
+        router.reload({ only: ["stages"] })
+    } catch (error: any) {
+        notify({ title: ctrans("Something went wrong"), text: error?.response?.data?.message ?? "", type: "error" })
+    } finally {
+        savingDeposit.value = false
+    }
+}
 
 const uploading = ref<string | null>(null)
 
@@ -86,6 +104,29 @@ async function upload(evidence: Evidence, event: Event) {
 const formatDate = (date: string | null) => date ? useFormatTime(date, { formatTime: "d MMM yyyy" }) : null
 
 const toIso = (date: Date | null) => date ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}` : null
+
+const editLabels: Record<string, string> = {
+    production_started_at: "Edit production date",
+    produced_at: "Edit production done",
+}
+
+const markLabel = (mark: Mark) => mark.date && editLabels[mark.field] ? ctrans(editLabels[mark.field]) : mark.label
+
+const markTooltips: Record<string, { record: string, edit: string }> = {
+    production_started_at: { record: "Click to record the date production started", edit: "Click to change the date production started" },
+    produced_at: { record: "Click to record the date production finished", edit: "Click to change the date production finished" },
+}
+
+function markTooltip(mark: Mark) {
+    const tooltip = markTooltips[mark.field]
+    if (tooltip) {
+        return ctrans(mark.date ? tooltip.edit : tooltip.record)
+    }
+
+    return mark.date
+        ? ctrans("Click to change the date of :step", { step: mark.label })
+        : ctrans("Click to record the date of :step", { step: mark.label })
+}
 
 const editing = ref<Mark | null>(null)
 const date = ref<Date | null>(null)
@@ -138,11 +179,14 @@ function save() {
         <div
             v-for="stage in stages"
             :key="stage.key"
-            class="bg-white p-3 text-sm"
-            :class="stage.current ? 'bg-[--app-accent-soft]' : ''"
+            class="p-3 text-sm"
+            :class="[
+                stage.current ? '' : '',
+                stage.reached ? 'bg-green-50' : 'bg-white',
+            ]"
         >
             <div class="flex items-center gap-2 font-medium" :class="stage.reached ? 'text-gray-800' : 'text-gray-400'" v-tooltip="stage.description">
-                <FontAwesomeIcon v-if="stage.reached" icon="fal fa-check-circle" class="text-green-600" fixed-width aria-hidden="true" />
+                <FontAwesomeIcon v-if="stage.reached" icon="fas fa-check-circle" class="text-green-600" fixed-width aria-hidden="true" />
                 <span v-else class="w-4 text-center tabular-nums">{{ stage.number }}</span>
                 {{ stage.label }}
             </div>
@@ -190,17 +234,35 @@ function save() {
                 </div>
             </div>
 
-            <div v-if="stage.marks.length" class="mt-2 flex flex-wrap gap-1">
+            <div v-if="stage.marks.length" class="mt-2 flex flex-col gap-1">
                 <Button
                     v-for="mark in stage.marks"
                     :key="mark.field"
                     type="tertiary"
                     size="xs"
-                    :label="mark.label"
+                    full
+                    :label="markLabel(mark)"
+                    :tooltip="markTooltip(mark)"
                     @click="openMark(mark)"
                 >
                     <template #icon>
                         <FontAwesomeIcon :icon="mark.date ? 'fal fa-pencil' : 'fal fa-check'" class="text-gray-500" fixed-width aria-hidden="true" />
+                    </template>
+                </Button>
+            </div>
+
+            <div v-if="stage.key === 'deposit_paid' && deposit" class="mt-2">
+                <Button
+                    type="tertiary"
+                    size="xs"
+                    full
+                    :label="deposit.not_needed ? ctrans('Deposit needed after all') : ctrans('No deposit needed')"
+                    :tooltip="deposit.not_needed ? ctrans('Click to ask for a deposit again, if the supplier wants one before production') : ctrans('Click to mark this order as needing no deposit, when the supplier starts production without one')"
+                    :loading="savingDeposit"
+                    @click="setDepositNotNeeded(!deposit.not_needed)"
+                >
+                    <template #icon>
+                        <FontAwesomeIcon :icon="deposit.not_needed ? 'fal fa-undo' : 'fal fa-ban'" :class="deposit.not_needed ? 'text-gray-500' : 'text-amber-600'" fixed-width aria-hidden="true" />
                     </template>
                 </Button>
             </div>
@@ -212,7 +274,7 @@ function save() {
     <Dialog
         :visible="!!editing"
         modal
-        :header="editing?.label"
+        :header="editing ? markLabel(editing) : undefined"
         :style="{ width: '28rem' }"
         @update:visible="(visible: boolean) => !visible && (editing = null)"
     >

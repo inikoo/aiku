@@ -26,7 +26,7 @@ class FetchAuroraTradeUnit extends FetchAurora
         $sourceSlug = Str::lower($reference);
 
 
-        $name = $this->auroraModelData->{'Part Recommended Product Unit Name'};
+        $name = $this->withoutSpreadsheetError($this->auroraModelData->{'Part Recommended Product Unit Name'});
         if ($name == '') {
             $name = $reference;
         }

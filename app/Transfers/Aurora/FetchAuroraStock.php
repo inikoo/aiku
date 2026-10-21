@@ -51,9 +51,9 @@ class FetchAuroraStock extends FetchAurora
         $code       = $this->cleanTradeUnitReference($this->auroraModelData->{'Part Reference'});
         $sourceSlug = Str::kebab(strtolower($code));
 
-        $name = $this->auroraModelData->{'Part Recommended Product Unit Name'};
+        $name = $this->withoutSpreadsheetError($this->auroraModelData->{'Part Recommended Product Unit Name'});
         if ($name == '') {
-            $name = $this->auroraModelData->{'Part Package Description'};
+            $name = $this->withoutSpreadsheetError($this->auroraModelData->{'Part Package Description'});
         }
         if ($name == '') {
             $name = 'Not set';
