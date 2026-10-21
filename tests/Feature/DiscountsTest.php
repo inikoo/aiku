@@ -65,6 +65,7 @@ use App\Actions\Catalogue\Collection\AttachModelToCollection;
 use App\Actions\Catalogue\Collection\StoreCollection;
 use App\Actions\Catalogue\Product\StoreProduct;
 use App\Actions\Catalogue\Product\UpdateProduct;
+use App\Actions\Catalogue\Product\UpdateProductFamily;
 use App\Actions\Catalogue\ProductCategory\StoreProductCategory;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Masters\MasterProductCategory\StoreMasterFamily;
@@ -1235,6 +1236,58 @@ test('create product category discount', function () {
 
     expect($offer2)->toBeInstanceOf(Offer::class)
         ->and($offer2->offerAllowances->count())->toBe(1);
+});
+
+test('moving a product to another family swaps the family offers in its offers data', function () {
+    $shop = $this->shop;
+    if (!$shop->offerCampaigns()->where('type', OfferCampaignTypeEnum::CATEGORY_OFFERS)->exists()) {
+        SeedShopOfferCampaigns::run($shop);
+    }
+
+    $createFamilyWithOffer = function (string $code) use ($shop): array {
+        $family = ProductCategory::factory()->create([
+            'shop_id'         => $shop->id,
+            'organisation_id' => $shop->organisation_id,
+            'group_id'        => $shop->group_id,
+            'code'            => $code,
+            'type'            => ProductCategoryTypeEnum::FAMILY->value,
+        ]);
+
+        $offer = StoreProductCategoryDiscount::make()->action(
+            $family,
+            [
+                'type'                       => 'quantity',
+                'trigger_data_item_quantity' => 2,
+                'percentage_off'             => .15,
+                'free_quantity'              => null,
+                'free_product_id'            => null,
+                'duration'                   => 'permanent',
+                'start_at'                   => now()->toDateTimeString(),
+            ]
+        );
+
+        return [$family, $offer->refresh()];
+    };
+
+    [$oldFamily, $oldFamilyOffer] = $createFamilyWithOffer('MOVE-OLD');
+    [$newFamily, $newFamilyOffer] = $createFamilyWithOffer('MOVE-NEW');
+
+    expect($oldFamilyOffer->status)->toBeTrue()
+        ->and($newFamilyOffer->status)->toBeTrue();
+
+    $product          = $this->product;
+    $originalFamilyId = $product->family_id;
+
+    UpdateProductFamily::make()->action($product, ['family_id' => $oldFamily->id]);
+    expect(Arr::has($product->refresh()->offers_data, 'offers.'.$oldFamilyOffer->id))->toBeTrue();
+
+    UpdateProductFamily::make()->action($product, ['family_id' => $newFamily->id]);
+    $offersData = $product->refresh()->offers_data;
+    expect(Arr::has($offersData, 'offers.'.$oldFamilyOffer->id))->toBeFalse()
+        ->and(Arr::has($offersData, 'offers.'.$newFamilyOffer->id))->toBeTrue();
+
+    UpdateProductFamily::make()->action($product, ['family_id' => $originalFamilyId]);
+    expect(Arr::has($product->refresh()->offers_data, 'offers.'.$newFamilyOffer->id))->toBeFalse();
 });
 
 test('editing discount and trigger of a live offer rewrites allowance data, signature and trigger data', function () {
