@@ -21,7 +21,7 @@ import { MODEL_COLORS, channelColor } from "@/Components/Marketing/V2/palette"
 
 library.add(faSearch, faUser)
 
-type ModelKey = "linear" | "first_touch" | "w_shaped"
+type ModelKey = "linear" | "first_touch" | "u_shaped" | "w_shaped"
 
 type Role = "first" | "registration" | "order"
 
@@ -38,6 +38,7 @@ const props = defineProps<{
             acquisition_range_days: number
             new_customer_window: number
             existing_customer_window: number
+            u_shaped: { milestone: number, middle: number }
             w_shaped: { milestone: number, middle: number }
         }
         customer?: {
@@ -107,8 +108,11 @@ const roleLabels: Record<Role, string> = {
     order: ctrans("Before order"),
 }
 
+const roleModels = (role: Role) =>
+    ((role === "registration" ? ["w_shaped"] : ["u_shaped", "w_shaped"]) as ModelKey[]).map(key => modelLabel(key)).join(" · ")
+
 const touchRoles = (touch: { is_acquisition: boolean, roles: Role[] }) =>
-    touch.roles.filter(role => !(role === "first" && touch.is_acquisition)).map(role => roleLabels[role])
+    touch.roles.filter(role => !(role === "first" && touch.is_acquisition))
 
 const percent = (value: number) => Math.round(value * 100) + "%"
 </script>
@@ -189,7 +193,7 @@ const percent = (value: number) => Math.round(value * 100) + "%"
                             <span class="text-sm font-medium text-gray-800">{{ touch.name }}</span>
                             <span class="text-xs text-gray-500">{{ date(touch.date) }}</span>
                             <span v-if="touch.is_acquisition" class="rounded-full bg-[--app-accent-soft] px-2 py-0.5 text-xs font-medium text-[--app-accent-deep]">{{ ctrans("Acquisition") }}</span>
-                            <span v-for="role in touchRoles(touch)" :key="role" v-tooltip="modelLabel('w_shaped')" class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">{{ role }}</span>
+                            <span v-for="role in touchRoles(touch)" :key="role" v-tooltip="roleModels(role)" class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">{{ roleLabels[role] }}</span>
                         </div>
                     </div>
                 </div>
@@ -216,7 +220,7 @@ const percent = (value: number) => Math.round(value * 100) + "%"
 
         <section class="space-y-3" aria-labelledby="v2-rules">
             <h2 id="v2-rules" class="text-sm font-medium text-gray-800">{{ ctrans("Rules") }}</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
                 <div class="rounded-xl ring-1 ring-gray-200 bg-white p-4">
                     <div class="text-xs text-gray-500">{{ modelLabel("linear") }}</div>
                     <div class="mt-1 text-lg font-semibold text-gray-900">{{ ctrans("Even split") }}</div>
@@ -236,6 +240,13 @@ const percent = (value: number) => Math.round(value * 100) + "%"
                     <div class="text-xs text-gray-500">{{ modelLabel("first_touch") }} · {{ ctrans("existing customer") }}</div>
                     <div class="mt-1 text-lg font-semibold text-gray-900">{{ ctrans(":days days", { days: data.rules.existing_customer_window }) }}</div>
                     <div class="text-xs text-gray-500">{{ ctrans("after the first recorded touch") }}</div>
+                </div>
+                <div class="rounded-xl ring-1 ring-gray-200 bg-white p-4">
+                    <div class="text-xs text-gray-500">{{ modelLabel("u_shaped") }}</div>
+                    <div class="mt-1 text-lg font-semibold text-gray-900 tabular-nums">
+                        {{ percent(data.rules.u_shaped.milestone) }} · {{ percent(data.rules.u_shaped.middle) }} · {{ percent(data.rules.u_shaped.milestone) }}
+                    </div>
+                    <div class="text-xs text-gray-500">{{ ctrans("first, the touches between, last before order") }}</div>
                 </div>
                 <div class="rounded-xl ring-1 ring-gray-200 bg-white p-4">
                     <div class="text-xs text-gray-500">{{ modelLabel("w_shaped") }}</div>

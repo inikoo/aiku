@@ -49,6 +49,10 @@ class GetShopOrderJourney
                 'acquisition_range_days'  => SplitOrderAttribution::ACQUISITION_RANGE_DAYS,
                 'new_customer_window'     => SplitOrderAttribution::NEW_CUSTOMER_WINDOW_DAYS,
                 'existing_customer_window' => SplitOrderAttribution::EXISTING_CUSTOMER_WINDOW_DAYS,
+                'u_shaped'                => [
+                    'milestone' => SplitOrderAttribution::U_SHAPED_MILESTONE_SHARE,
+                    'middle'    => SplitOrderAttribution::U_SHAPED_MIDDLE_SHARE,
+                ],
                 'w_shaped'                => [
                     'milestone' => SplitOrderAttribution::W_SHAPED_MILESTONE_SHARE,
                     'middle'    => SplitOrderAttribution::W_SHAPED_MIDDLE_SHARE,
