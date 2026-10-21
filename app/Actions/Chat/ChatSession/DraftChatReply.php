@@ -11,6 +11,7 @@ namespace App\Actions\Chat\ChatSession;
 use App\Actions\Helpers\AI\AskToAi;
 use App\Actions\Helpers\Translations\DetectLanguageWithJev;
 use App\Enums\CRM\Livechat\ChatAiDraftStatusEnum;
+use App\Enums\CRM\Livechat\ChatChannelEnum;
 use App\Enums\CRM\Livechat\ChatNoiseVerdictEnum;
 use App\Enums\CRM\Livechat\ChatSenderTypeEnum;
 use App\Enums\CRM\Livechat\ChatTopicEnum;
@@ -77,6 +78,10 @@ class DraftChatReply implements ShouldBeUnique
         return class_basename($chatSession).':'.$chatSession->id;
     }
 
+    /**
+     * Emails get no quick draft: nobody answers them in seconds, so the hourly Aiku routine has time
+     * to write a checked one instead.
+     */
     public function handle(ChatSession|MetaChatSession $chatSession): ?ChatAiDraft
     {
         $chatSession->refresh();
@@ -84,6 +89,7 @@ class DraftChatReply implements ShouldBeUnique
 
         if (!config('chat.ai_drafts')
             || !$shop
+            || ($chatSession instanceof ChatSession && $chatSession->channel === ChatChannelEnum::EMAIL)
             || $chatSession->is_spam
             || $chatSession->is_rubbish
             || ChatNoiseVerdictEnum::tryFrom((string) $chatSession->noise_verdict)?->isNoise()) {
