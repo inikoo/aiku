@@ -36,7 +36,11 @@ class FulfillOrderToEbay extends OrgAction
         'gls'           => 'GLS',
     ];
 
-    public function handle(Order $order): array|null
+    private const int MAX_ATTEMPTS = 4;
+
+    public string $jobQueue = 'ebay';
+
+    public function handle(Order $order, int $attempt = 1): array|null
     {
         $fulfillOrderId = Arr::get($order->data, 'ebay_order.orderId');
 
@@ -73,7 +77,11 @@ class FulfillOrderToEbay extends OrgAction
         ]);
 
         if (Arr::get($result, 'errors')) {
-            \Sentry::captureMessage('eBay rejected fulfilment of order '.$order->slug.': '.json_encode(Arr::get($result, 'errors')));
+            if ($attempt < self::MAX_ATTEMPTS) {
+                self::dispatch($order, $attempt + 1)->delay(now()->addMinutes(15 * $attempt))->afterCommit();
+            } else {
+                \Sentry::captureMessage('eBay rejected fulfilment of order '.$order->slug.' '.$attempt.' times: '.json_encode(Arr::get($result, 'errors')));
+            }
         }
 
         return $result;

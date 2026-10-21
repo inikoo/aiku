@@ -78,6 +78,7 @@ use App\Enums\Comms\Outbox\OutboxStateEnum;
 use App\Models\Comms\DispatchedEmail;
 use App\Models\Comms\Outbox;
 use Illuminate\Support\Facades\Queue;
+use Lorisleiva\Actions\Decorators\JobDecorator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -633,6 +634,29 @@ test('an eBay fulfilment rejected by eBay hands the error back to the caller', f
     expect(Arr::get($result, 'errors.0.errorId'))->toBe(32100);
 });
 
+test('an eBay fulfilment eBay rejects is tried again later, and given up after the last attempt', function () {
+    Queue::fake();
+    $ebayUser = ebayChannel($this);
+    listedEbayPortfolio($this, $ebayUser);
+    $order = dispatchedEbayOrder($this, $ebayUser);
+
+    fakeEbay($this, [
+        '/shipping_fulfillment' => fn () => Http::response(['errors' => [['errorId' => 30500, 'message' => 'System error.']]], 500),
+    ]);
+
+    FulfillOrderToEbay::run($order);
+
+    Queue::assertPushedOn('ebay', JobDecorator::class, fn (JobDecorator $job) => $job->getAction() instanceof FulfillOrderToEbay
+        && $job->getParameters()[0]->is($order)
+        && $job->getParameters()[1] === 2);
+
+    Queue::fake();
+
+    FulfillOrderToEbay::run($order, 4);
+
+    Queue::assertNothingPushed();
+});
+
 /**
  * The offer resource answers three ways: GET /offer?sku= lists offers for a SKU, POST /offer creates one,
  * GET|PUT /offer/{offerId} reads or replaces one. A single callable keeps them apart by method and path.
@@ -1104,8 +1128,8 @@ test('bulk upload queues one upload job per selected active portfolio and counts
     StoreBulkNewProductToCurrentEbay::run($ebayUser, ['portfolios' => [$portfolio->id, $inactive->id]]);
 
     StoreNewProductToCurrentEbay::assertPushed(1);
-    StoreNewProductToCurrentEbay::assertPushed(function ($job, $arguments) use ($portfolio) {
-        return $arguments[1]->id === $portfolio->id && $arguments[2]['total'] === 1;
+    StoreNewProductToCurrentEbay::assertPushedOn('ebay-upload', function ($action, $arguments, $job) use ($portfolio) {
+        return $arguments[1]->id === $portfolio->id && $arguments[2]['total'] === 1 && $job->deleteWhenMissingModels === true;
     });
 });
 

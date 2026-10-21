@@ -16,6 +16,12 @@ class GetTrafficSourceFromUrl
 {
     use AsAction;
 
+    /**
+     * The utm_medium values that mark a Meta click as bought, compared without case: ads are tagged
+     * by hand in each account, so `paid`, `Ads` and `cpc` all turn up for the same kind of click.
+     */
+    public const array META_PAID_MEDIUMS = ['paid', 'ads', 'ad', 'cpc', 'paid_social', 'paidsocial', 'paid-social'];
+
     public function handle($url): ?string
     {
         $urlComponents = parse_url($url);
@@ -34,13 +40,13 @@ class GetTrafficSourceFromUrl
                 $this->sanitizeCampaignRef(Arr::get($queryParams, 'gad_campaignid'));
         }
 
-        if (array_key_exists('fbclid', $queryParams) && array_key_exists('utm_medium', $queryParams) && $queryParams['utm_medium'] == 'paid') {
+        if (array_key_exists('fbclid', $queryParams) && in_array(strtolower(trim((string) Arr::get($queryParams, 'utm_medium'))), self::META_PAID_MEDIUMS, true)) {
             /* Instagram ads are bought in the same Meta ad account as Facebook ones, so the click id
                cannot tell them apart; Meta's `{{site_source_name}}` macro can, and the ads already
                carry it as utm_source (`ig`, `fb`, `an`, `msg`, `th`). Anything that is not Instagram
                stays under Meta Ads, matching how the spend is split on the cost side. */
             $isInstagram = in_array(strtolower((string) Arr::get($queryParams, 'utm_source')), ['ig', 'instagram'], true);
-            $campaignRef = $this->sanitizeCampaignRef(Arr::get($queryParams, 'utm_campaign'));
+            $campaignRef = $this->metaCampaignRef($queryParams);
 
             if ($isInstagram) {
                 return
@@ -69,6 +75,25 @@ class GetTrafficSourceFromUrl
 
 
         return null;
+    }
+
+    /**
+     * Meta's campaign id, which the cost side keys campaigns on: `utm_campaign={{campaign.id}}` when
+     * the ads are tagged that way, otherwise `utm_id={{campaign.id}}` beside a campaign name, as the
+     * Ads Manager URL builder tags them. A name is kept only when no id is given.
+     *
+     * @param array<string, mixed> $queryParams
+     */
+    private function metaCampaignRef(array $queryParams): string
+    {
+        $campaign = $this->sanitizeCampaignRef(Arr::get($queryParams, 'utm_campaign'));
+        $id       = $this->sanitizeCampaignRef(Arr::get($queryParams, 'utm_id'));
+
+        return match (true) {
+            ctype_digit($campaign) => $campaign,
+            ctype_digit($id)       => $id,
+            default                => $campaign,
+        };
     }
 
     /**

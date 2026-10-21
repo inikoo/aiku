@@ -37,6 +37,7 @@ class GetChatSessionTickets
                     $query->orWhere('customer_id', $customer->id);
                 }
             })
+            ->with(TicketResource::eagerLoads())
             ->orderByDesc('created_at')
             ->limit(30)
             ->get();

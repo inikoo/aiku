@@ -13,7 +13,7 @@ import { Link, router } from '@inertiajs/vue3'
 import { notify } from '@kyvg/vue3-notification'
 import { ctrans } from '@/Composables/useTrans'
 import { debounce } from 'lodash-es'
-import { inject, ref } from 'vue'
+import { computed, inject, ref } from 'vue'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faGift } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -45,6 +45,7 @@ function productRoute(product) {
 
 // Section: Quantity
 const isLoading = ref<string | boolean>(false)
+const isRemoving = computed(() => typeof isLoading.value === 'string' && isLoading.value.startsWith('unselect'))
 const onUpdateQuantity = (routeUpdate: routeType, idTransaction: number, value: number) => {
     router.patch(
         route(routeUpdate.name, routeUpdate.parameters),
@@ -201,9 +202,9 @@ const debounceUpdateQuantity = debounce(
                         :href="route(item.deleteRoute.name, item.deleteRoute.parameters)" as="button"
                         :method="item.deleteRoute.method" @start="() => isLoading = 'unselect' + item.id"
                         @finish="() => isLoading = false" v-tooltip="ctrans('Unselect this product')"
-                        :preserveScroll="true">
+                        :preserveScroll="true" :disabled="isRemoving">
                         <Button v-if="!readonly" icon="fal fa-times" type="negative" size="xs"
-                            :loading="isLoading === 'unselect' + item.id" />
+                            :loading="isLoading === 'unselect' + item.id" :disabled="isRemoving && isLoading !== 'unselect' + item.id" />
                     </Link>
                 </div>
                 <!-- {{ locale.currencyFormat(item.currency_code, item.net_amount) }} -->

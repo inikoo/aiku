@@ -27,8 +27,8 @@ class StoreNewProductToCurrentEbay extends OrgAction
     use AsAction;
     use WithRetinaRouteModelOwnershipCheck;
 
-    public string $jobQueue = 'ebay';
-
+    public string $jobQueue = 'ebay-upload';
+    public bool $jobDeleteWhenMissingModels = true;
 
     /**
      * @throws \Exception

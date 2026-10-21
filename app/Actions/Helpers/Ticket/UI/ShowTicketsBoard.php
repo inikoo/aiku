@@ -80,7 +80,7 @@ class ShowTicketsBoard extends OrgAction
                     });
                 }
             })
-            ->with(['reporter', 'assignee', 'customer', 'collaborators'])
+            ->with(TicketResource::eagerLoads())
             ->orderByRaw("CASE priority WHEN 'urgent' THEN 0 WHEN 'high' THEN 1 WHEN 'normal' THEN 2 ELSE 3 END")
             ->orderByDesc('updated_at')
             ->get()

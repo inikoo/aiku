@@ -4816,6 +4816,26 @@ test('the stranded sweep releases a blocked note whose flags outlived their reas
         ->and($item->fresh()->is_dirty)->toBeFalse();
 });
 
+test('the stranded sweep does not report a note the warehouse released after the sweep loaded it', function () {
+    [$deliveryNote, $item] = handlingDeliveryNoteWithPicking($this);
+    settleSiblingDeliveryNoteItems($deliveryNote, $item);
+    DeliveryNote::whereKey($deliveryNote->id)->update(['state' => DeliveryNoteStateEnum::HANDLING_BLOCKED->value, 'updated_at' => now()->subHour()]);
+
+    $releasedByWarehouse = false;
+    DeliveryNote::retrieved(function (DeliveryNote $retrieved) use ($deliveryNote, &$releasedByWarehouse) {
+        if (!$releasedByWarehouse && $retrieved->id === $deliveryNote->id) {
+            $releasedByWarehouse = true;
+            DeliveryNote::whereKey($deliveryNote->id)->update(['state' => DeliveryNoteStateEnum::PICKED->value, 'updated_at' => now()]);
+        }
+    });
+
+    $stats = \App\Actions\Dispatching\DeliveryNote\SweepStrandedDeliveryNotes::run();
+
+    expect($releasedByWarehouse)->toBeTrue()
+        ->and($stats['stranded'])->not->toContain($deliveryNote->reference)
+        ->and($deliveryNote->fresh()->state)->toBe(DeliveryNoteStateEnum::PICKED);
+});
+
 test('deleting the last blocking line releases the delivery note', function () {
     [$deliveryNote, $item] = handlingDeliveryNoteWithPicking($this);
     settleSiblingDeliveryNoteItems($deliveryNote, $item);
@@ -7037,4 +7057,39 @@ test('the boxes list answers dispatching staff of the organisation, INI-076', fu
         actingAsUserWithOnlyPermissions($user, [$permission]);
         get($url)->assertOk();
     }
+});
+
+test('picking screen rows load pickings with their locations and batch codes, and packings, up front', function () {
+    /** @var DeliveryNoteItem $deliveryNoteItem */
+    $deliveryNoteItem = DeliveryNoteItem::whereNotNull('org_stock_id')
+        ->whereColumn('quantity_required', '>=', DB::raw('coalesce(quantity_picked, 0) + 1'))
+        ->latest('id')
+        ->firstOrFail();
+    $locationOrgStock = StoreLocationOrgStock::make()->action(
+        orgStock: $deliveryNoteItem->orgStock,
+        location: StoreLocation::make()->action($this->warehouse, Location::factory()->definition()),
+        modelData: ['quantity' => 150, 'type' => LocationStockTypeEnum::PICKING, 'fetched_at' => now()],
+        strict: false
+    );
+    $picking = StorePicking::make()->action($deliveryNoteItem, $this->user, [
+        'picker_user_id'        => $this->user->id,
+        'location_org_stock_id' => $locationOrgStock->id,
+        'quantity'              => 1,
+    ]);
+
+    request()->setRouteResolver(fn () => new Route('GET', 'test', []));
+    $items = IndexDeliveryNoteItemsStateHandling::run($deliveryNoteItem->deliveryNote, ignoreParentPagination: true, deliveryNoteItemId: $deliveryNoteItem->id);
+
+    DB::flushQueryLog();
+    DB::enableQueryLog();
+    $rows = DeliveryNoteItemsStateHandlingResource::collection($items)->resolve();
+    $queries = collect(DB::getQueryLog())->pluck('query');
+    DB::disableQueryLog();
+
+    $pickingRow = collect($rows[0]['pickings']->resolve())->firstWhere('id', $picking->id);
+
+    expect($queries->filter(fn (string $query) => str_contains($query, 'from "pickings"'))->count())->toBeLessThanOrEqual(1)
+        ->and($queries->filter(fn (string $query) => str_contains($query, 'from "packings"'))->count())->toBe(1)
+        ->and($pickingRow['location_code'])->toBe($picking->location->code)
+        ->and($pickingRow['batch_code_id'])->toBe($picking->batch_code_id ?? (string) $picking->orgStock->main_batch_code_id);
 });

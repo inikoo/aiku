@@ -51,14 +51,19 @@ trait WithSocialMediaScope
     }
 
     /**
-     * @return array{shop: string|null, country: string|null, platform: string|null}
+     * @return array{shop: string|null, country: string|null, platform: string|null, compare: string, compare_from: string|null, compare_to: string|null}
      */
     public function filters(ActionRequest $request): array
     {
+        $date = fn (string $key) => preg_match('/^\d{4}-\d{2}-\d{2}$/', $request->string($key)->toString()) ? $request->string($key)->toString() : null;
+
         return [
-            'shop'     => $request->string('shop')->toString() ?: null,
-            'country'  => $request->string('country')->toString() ?: null,
-            'platform' => $request->string('platform')->toString() ?: null,
+            'shop'         => $request->string('shop')->toString() ?: null,
+            'country'      => $request->string('country')->toString() ?: null,
+            'platform'     => $request->string('platform')->toString() ?: null,
+            'compare'      => in_array($request->string('compare')->toString(), ['previous', 'year', 'custom'], true) ? $request->string('compare')->toString() : 'previous',
+            'compare_from' => $date('compare_from'),
+            'compare_to'   => $date('compare_to'),
         ];
     }
 }

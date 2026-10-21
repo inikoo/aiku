@@ -39,6 +39,7 @@ interface Draft {
     topic_label: string
     assistant: { of?: string, client?: string } | null
     staff_note?: string | null
+    aiku_by?: string | null
     checked?: string[]
     premonitions?: { reference: string, subject: string, fixed: boolean, url: string }[]
     actions?: DraftAction[]
@@ -282,6 +283,12 @@ const checkedLines = computed(() => showTranslation.value && staffTranslation.va
 const actionLabel = (action: DraftAction) => !action.done && showTranslation.value && staffTranslation.value?.labels?.[action.index] ? staffTranslation.value.labels[action.index] : action.label
 const hasStaffText = computed(() => !!(draft.value?.staff_note || draft.value?.checked?.length || draft.value?.actions?.some((action) => action.type === "task")))
 
+const aikuByLabel = (iso: string) => {
+    const when = new Date(iso)
+    const time = when.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    return when.toDateString() === new Date().toDateString() ? time : `${when.toLocaleDateString([], { weekday: "short" })} ${time}`
+}
+
 const ratingReasons = computed(() => [
     { key: "missing_info", label: ctrans("Missing info we know") },
     { key: "wrong_fact", label: ctrans("Wrong fact") },
@@ -365,6 +372,10 @@ onBeforeUnmount(stopListening)
                     <FontAwesomeIcon :icon="faRobot" fixed-width />
                     <span>{{ ctrans("Draft written by AI from aiku data") }} · {{ draft.topic_label }}</span>
                 </div>
+                <p v-if="!draft.assistant && draft.aiku_by" class="mt-0.5 flex items-center gap-1 text-[11px] text-gray-500">
+                    <img src="/art/invader.svg" alt="" class="h-3 select-none" />
+                    {{ ctrans("A quick suggestion: Aiku checks this chat properly around :time if nobody takes it first", { time: aikuByLabel(draft.aiku_by) }) }}
+                </p>
                 <div v-if="staffNote || draft.actions?.length" class="mr-12 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-md border border-violet-200 bg-violet-50 px-2 py-1 text-[11px] text-violet-900">
                     <FontAwesomeIcon :icon="faExclamationTriangle" class="text-violet-600" fixed-width aria-hidden="true" />
                     <span v-if="staffNote" class="min-w-0 flex-1 whitespace-pre-line">{{ staffNote }}</span>

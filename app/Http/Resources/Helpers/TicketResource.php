@@ -18,6 +18,7 @@ use App\Enums\Helpers\Ticket\TicketModuleEnum;
 use App\Enums\Helpers\Ticket\TicketQaStatusEnum;
 use App\Enums\Helpers\Ticket\TicketStatusEnum;
 use App\Models\Helpers\Ticket;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -25,6 +26,30 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class TicketResource extends JsonResource
 {
+    /**
+     * Everything toArray() reads, for lists to eager load instead of querying per ticket.
+     *
+     * @return array<int|string, mixed>
+     */
+    public static function eagerLoads(): array
+    {
+        return [
+            'reporter' => fn (MorphTo $morphTo) => $morphTo->morphWith([User::class => ['image']]),
+            'source'   => fn (MorphTo $morphTo) => $morphTo->morphWith([
+                ChatSession::class     => ['webUser.customer', 'shop.organisation'],
+                MetaChatSession::class => ['customer', 'shop.organisation'],
+            ]),
+            'assignee.image',
+            'qaUser.image',
+            'collaborators.image',
+            'customer',
+            'shop',
+            'organisation',
+            'escalations:id,model_id,model_type,reference',
+            'media',
+        ];
+    }
+
     public function toArray($request): array
     {
         return [
@@ -49,7 +74,7 @@ class TicketResource extends JsonResource
             'qa_checked_at'  => $this->qa_checked_at,
             'kind_label'     => $this->kind ? TicketKindEnum::labels()[$this->kind->value] : null,
             'parent'         => $this->model_type === 'Ticket' ? $this->model?->reference : null,
-            'escalations'    => $this->escalations()->pluck('reference'),
+            'escalations'    => $this->escalations->pluck('reference'),
             'status'         => $this->status->value,
             'status_label'   => TicketStatusEnum::labels()[$this->status->value],
             'status_icon'    => TicketStatusEnum::stateIcon()[$this->status->value],

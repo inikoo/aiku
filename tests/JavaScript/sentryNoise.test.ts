@@ -1,6 +1,6 @@
 import assert from "node:assert/strict"
 import test from "node:test"
-import { sentryIgnoreErrors } from "../../resources/js/Composables/sentryNoise.ts"
+import { isIosChromeInjectedRecursion, sentryIgnoreErrors } from "../../resources/js/Composables/sentryNoise.ts"
 
 const ignored = (message: string) => sentryIgnoreErrors.some((pattern) => (typeof pattern === "string" ? message.includes(pattern) : pattern.test(message)))
 
@@ -27,4 +27,13 @@ test("our own errors still reach sentry", () => {
 	]) {
 		assert.ok(!ignored(message), message)
 	}
+})
+
+const recursion = { exception: { values: [{ type: "RangeError", value: "Maximum call stack size exceeded." }] } }
+
+test("the recursion iOS Chrome and the Google app inject is dropped, ours still reports", () => {
+	assert.ok(isIosChromeInjectedRecursion(recursion, "Mozilla/5.0 (iPhone; CPU iPhone OS 26_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/141.0 Mobile/15E148 Safari/604.1"))
+	assert.ok(isIosChromeInjectedRecursion(recursion, "Mozilla/5.0 (iPhone; CPU iPhone OS 26_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) GSA/443.5.997327796 Mobile/15E148 Safari/604.1"))
+	assert.ok(!isIosChromeInjectedRecursion(recursion, "Mozilla/5.0 (iPhone; CPU iPhone OS 26_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1"))
+	assert.ok(!isIosChromeInjectedRecursion({ exception: { values: [{ type: "TypeError", value: "x is undefined" }] } }, "CriOS/141.0"))
 })

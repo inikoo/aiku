@@ -66,7 +66,7 @@ class GetRecentlyUpdatedTickets extends OrgAction
         $tickets = Ticket::where('tickets.group_id', $group->id)
             ->visibleTo($user)
             ->whereIn('tickets.id', $updates->keys())
-            ->with(['reporter', 'assignee', 'customer', 'collaborators', 'qaUser'])
+            ->with(TicketResource::eagerLoads())
             ->get()
             ->keyBy('id');
 

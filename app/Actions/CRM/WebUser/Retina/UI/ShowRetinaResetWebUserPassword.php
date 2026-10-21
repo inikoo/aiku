@@ -65,6 +65,12 @@ class ShowRetinaResetWebUserPassword extends RetinaAction
 
     public function afterValidator(Validator $validator, ActionRequest $request): void
     {
+        $this->errors = $validator->errors();
+
+        if ($this->errors->isNotEmpty()) {
+            return;
+        }
+
         $webUserPasswordReset = WebUserPasswordReset::find($request->input('id'));
 
         if (!$webUserPasswordReset) {
@@ -77,11 +83,6 @@ class ShowRetinaResetWebUserPassword extends RetinaAction
                 $validator->errors()->add('token', __('Token expired, the token is only valid for 30 minutes.'));
             }
         }
-
-
-
-        $this->errors = $validator->errors();
-
     }
     public function asController(ActionRequest $request): Response
     {
