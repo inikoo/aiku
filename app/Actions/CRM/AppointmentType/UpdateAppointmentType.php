@@ -23,10 +23,16 @@ class UpdateAppointmentType extends OrgAction
         $availability = $this->pullAvailability($modelData);
         $modelData    = $this->applyMeetingPlace($modelData, $appointmentType);
 
-        return DB::transaction(function () use ($appointmentType, $modelData, $availability) {
+        $previousMeetingMode = $appointmentType->meeting_mode;
+
+        return DB::transaction(function () use ($appointmentType, $modelData, $availability, $previousMeetingMode) {
             $appointmentType = $this->update($appointmentType, $modelData);
 
             $this->saveDates($appointmentType, $availability);
+
+            if ($appointmentType->meeting_mode !== $previousMeetingMode) {
+                $this->syncStaffOfMeetingMode($appointmentType);
+            }
 
             return $appointmentType->refresh();
         });

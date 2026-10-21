@@ -865,13 +865,13 @@ test('add appointment staff', function (AppointmentType $appointmentType) {
     StoreAppointmentStaff::make()->action(
         $this->shop,
         [
-            'user_id'           => $this->user->id,
-            'appointment_types' => [$appointmentType->id, $otherAppointmentType->id],
+            'user_id'       => $this->user->id,
+            'meeting_modes' => [AppointmentTypeMeetingModeEnum::STORE_VISIT->value, AppointmentTypeMeetingModeEnum::VIDEO_CALL->value],
         ]
     );
 
-    expect($appointmentType->attendees()->pluck('users.id')->all())->toBe([$this->user->id])
-        ->and($otherAppointmentType->attendees()->pluck('users.id')->all())->toBe([$this->user->id]);
+    expect($appointmentType->attendees()->pluck('users.id')->all())->toContain($this->user->id)
+        ->and($otherAppointmentType->attendees()->pluck('users.id')->all())->toContain($this->user->id);
 
     return $otherAppointmentType;
 })->depends('update appointment type');
@@ -880,26 +880,49 @@ test('change the appointments a staff arranges', function (AppointmentType $othe
     UpdateAppointmentStaff::make()->action(
         $this->shop,
         $this->user,
-        ['appointment_types' => [$otherAppointmentType->id]]
+        ['meeting_modes' => [AppointmentTypeMeetingModeEnum::VIDEO_CALL->value]]
     );
 
-    expect($appointmentType->attendees()->count())->toBe(0)
-        ->and($otherAppointmentType->attendees()->pluck('users.id')->all())->toBe([$this->user->id]);
+    expect($appointmentType->attendees()->pluck('users.id')->all())->not->toContain($this->user->id)
+        ->and($otherAppointmentType->attendees()->pluck('users.id')->all())->toContain($this->user->id);
 })->depends('add appointment staff', 'update appointment type');
+
+test('a new appointment type is arranged by the staff of its meeting mode', function (AppointmentType $otherAppointmentType) {
+    $videoCall = StoreAppointmentType::make()->action($this->shop, [
+        'name'             => 'Video call '.Str::random(6),
+        'meeting_mode'     => AppointmentTypeMeetingModeEnum::VIDEO_CALL->value,
+        'duration_minutes' => 30,
+    ]);
+    $storeVisit = StoreAppointmentType::make()->action($this->shop, [
+        'name'             => 'Store visit '.Str::random(6),
+        'meeting_mode'     => AppointmentTypeMeetingModeEnum::STORE_VISIT->value,
+        'duration_minutes' => 30,
+    ]);
+
+    expect($videoCall->attendees()->pluck('users.id')->all())->toContain($this->user->id)
+        ->and($storeVisit->attendees()->pluck('users.id')->all())->not->toContain($this->user->id);
+
+    $storeVisit = UpdateAppointmentType::make()->action($storeVisit, ['meeting_mode' => AppointmentTypeMeetingModeEnum::VIDEO_CALL->value]);
+
+    expect($storeVisit->attendees()->pluck('users.id')->all())->toContain($this->user->id);
+
+    DeleteAppointmentType::make()->action($videoCall);
+    DeleteAppointmentType::make()->action($storeVisit);
+})->depends('add appointment staff', 'change the appointments a staff arranges');
 
 test('appointment staff must be a user of the group', function (AppointmentType $appointmentType) {
     $otherGroupUserId = DB::table('users')->where('group_id', '!=', $this->shop->group_id)->value('id') ?? 0;
 
     StoreAppointmentStaff::make()->action(
         $this->shop,
-        ['user_id' => $otherGroupUserId, 'appointment_types' => [$appointmentType->id]]
+        ['user_id' => $otherGroupUserId, 'meeting_modes' => [$appointmentType->meeting_mode->value]]
     );
 })->depends('update appointment type')->throws(ValidationException::class);
 
 test('appointment staff needs at least one appointment', function () {
     StoreAppointmentStaff::make()->action(
         $this->shop,
-        ['user_id' => $this->user->id, 'appointment_types' => []]
+        ['user_id' => $this->user->id, 'meeting_modes' => []]
     );
 })->throws(ValidationException::class);
 
@@ -910,7 +933,7 @@ test('UI Index appointment staff', function () {
                 ->component('Org/Shop/CRM/AppointmentStaff')
                 ->has('breadcrumbs', 3)
                 ->has('pageHead.subNavigation', 5)
-                ->where('data.data', fn ($rows) => collect($rows)->contains('id', $this->user->id));
+                ->where('data.data', fn ($rows) => collect($rows)->firstWhere('id', $this->user->id)['meeting_modes'] === 'Video call');
         });
 })->depends('change the appointments a staff arranges');
 
@@ -920,7 +943,10 @@ test('UI Create appointment staff', function () {
             $page
                 ->component('CreateModel')
                 ->has('formData.blueprint.0.fields.user_id')
-                ->has('formData.blueprint.0.fields.appointment_types')
+                ->where('formData.blueprint.0.fields.meeting_modes.options', [
+                    ['id' => AppointmentTypeMeetingModeEnum::STORE_VISIT->value, 'name' => 'Store visit'],
+                    ['id' => AppointmentTypeMeetingModeEnum::VIDEO_CALL->value, 'name' => 'Video call'],
+                ])
                 ->where('formData.route.name', 'grp.models.shop.appointment_staff.store');
         });
 });
@@ -930,7 +956,7 @@ test('UI Edit appointment staff', function (AppointmentType $otherAppointmentTyp
         ->assertInertia(function (AssertableInertia $page) use ($otherAppointmentType) {
             $page
                 ->component('EditModel')
-                ->where('formData.blueprint.0.fields.appointment_types.value', [$otherAppointmentType->id])
+                ->where('formData.blueprint.0.fields.meeting_modes.value', [$otherAppointmentType->meeting_mode->value])
                 ->where('formData.args.updateRoute.name', 'grp.models.shop.appointment_staff.update');
         });
 })->depends('add appointment staff');
@@ -939,7 +965,7 @@ test('remove appointment staff', function (AppointmentType $otherAppointmentType
     $this->delete(route('grp.models.shop.appointment_staff.delete', ['shop' => $this->shop->id, 'user' => $this->user->id]))
         ->assertRedirect(route('grp.org.shops.show.crm.appointments.staff.index', [$this->organisation->slug, $this->shop->slug]));
 
-    expect($otherAppointmentType->attendees()->count())->toBe(0);
+    expect($otherAppointmentType->attendees()->pluck('users.id')->all())->not->toContain($this->user->id);
 })->depends('add appointment staff');
 
 test('book an appointment for a visitor', function () {
@@ -951,7 +977,7 @@ test('book an appointment for a visitor', function () {
             'duration_minutes' => 45,
         ]
     );
-    UpdateAppointmentStaff::make()->action($this->shop, $this->user, ['appointment_types' => [$appointmentType->id]]);
+    UpdateAppointmentStaff::make()->action($this->shop, $this->user, ['meeting_modes' => [$appointmentType->meeting_mode->value]]);
 
     $customer = StoreCustomer::make()->action($this->shop, Customer::factory()->definition());
     $timezone = $this->shop->timezone?->name ?? 'UTC';
@@ -1442,7 +1468,7 @@ test('an arranged appointment is a task for its staff that follows the appointme
         'meeting_mode'     => AppointmentTypeMeetingModeEnum::STORE_VISIT->value,
         'duration_minutes' => 30,
     ]);
-    UpdateAppointmentStaff::make()->action($this->shop, $this->user, ['appointment_types' => [$appointmentType->id]]);
+    UpdateAppointmentStaff::make()->action($this->shop, $this->user, ['meeting_modes' => [$appointmentType->meeting_mode->value]]);
 
     $timezone    = $this->shop->timezone?->name ?? 'UTC';
     $contactName = 'Task visitor '.Str::random(6);

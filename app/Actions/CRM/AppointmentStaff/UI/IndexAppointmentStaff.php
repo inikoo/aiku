@@ -48,15 +48,13 @@ class IndexAppointmentStaff extends OrgAction
                 'users.id',
                 'users.username',
                 'users.contact_name',
-                DB::raw("string_agg(appointment_types.name, ', ' order by appointment_types.name) as appointment_types"),
-                DB::raw('count(appointment_types.id) as number_appointment_types'),
+                DB::raw("string_agg(distinct appointment_types.meeting_mode, ',' order by appointment_types.meeting_mode) as meeting_modes"),
             ])
             ->groupBy('users.id')
             ->defaultSort('users.contact_name')
             ->allowedSorts([
                 AllowedSort::field('contact_name', 'users.contact_name'),
                 AllowedSort::field('username', 'users.username'),
-                'number_appointment_types',
             ])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
@@ -89,7 +87,7 @@ class IndexAppointmentStaff extends OrgAction
                 ])
                 ->column(key: 'contact_name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'username', label: __('Username'), canBeHidden: true, sortable: true, searchable: true)
-                ->column(key: 'appointment_types', label: __('Appointments they arrange'), canBeHidden: false);
+                ->column(key: 'meeting_modes', label: __('Appointments they arrange'), canBeHidden: false);
         };
     }
 

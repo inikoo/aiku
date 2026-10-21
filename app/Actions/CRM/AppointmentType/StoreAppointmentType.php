@@ -30,6 +30,7 @@ class StoreAppointmentType extends OrgAction
             $appointmentType = $shop->appointmentTypes()->create($modelData);
 
             $this->saveDates($appointmentType, $availability);
+            $this->syncStaffOfMeetingMode($appointmentType);
 
             return $appointmentType->refresh();
         });

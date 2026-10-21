@@ -9,6 +9,7 @@ use App\Models\CRM\AppointmentType;
 use App\Rules\IUnique;
 use Closure;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
@@ -189,5 +190,20 @@ trait WithAppointmentTypeRules
                 ['hours' => $this->sortedRanges((array) Arr::get($dateData, 'hours', []))]
             );
         }
+    }
+
+    protected function syncStaffOfMeetingMode(AppointmentType $appointmentType): void
+    {
+        $appointmentType->attendees()->sync(
+            DB::table('appointment_type_user')
+                ->join('appointment_types', 'appointment_types.id', '=', 'appointment_type_user.appointment_type_id')
+                ->where('appointment_types.shop_id', $appointmentType->shop_id)
+                ->where('appointment_types.meeting_mode', $appointmentType->meeting_mode->value)
+                ->where('appointment_types.id', '!=', $appointmentType->id)
+                ->whereNull('appointment_types.deleted_at')
+                ->distinct()
+                ->pluck('appointment_type_user.user_id')
+                ->all()
+        );
     }
 }
