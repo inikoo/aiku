@@ -2303,6 +2303,35 @@ test('a delivery note waiting for the warehouse can be given a picked bay', func
         ->and($deliveryNote->sort_picked_bays)->toBe($pickedBay->code);
 });
 
+test('a delivery note leaves its picked bay when dispatched and can not be put in one once packing started (HELP-4200)', function () {
+    [$deliveryNote, $item] = handlingDeliveryNoteWithPicking($this);
+    $pickedBay = StorePickedBay::make()->handle($this->warehouse, ['code' => 'DPB'.Str::random(4)]);
+
+    AttachDeliveryNoteToPickedBay::run($pickedBay, $deliveryNote);
+    $deliveryNote = \App\Actions\Dispatching\DeliveryNote\UpdateState\UpdateDeliveryNoteStateToPicked::run($deliveryNote);
+    $deliveryNote = \App\Actions\Dispatching\DeliveryNote\UpdateState\StartPackingDeliveryNote::make()->action($deliveryNote, $this->user);
+    expect($pickedBay->refresh()->number_delivery_notes)->toBe(0);
+
+    expect(fn () => \App\Actions\Dispatching\PickedBay\ChangePickingBaysDeliveryNote::run($deliveryNote->refresh(), ['picked_bay' => $pickedBay->id]))
+        ->toThrow(\Symfony\Component\HttpKernel\Exception\HttpException::class);
+    expect($pickedBay->refresh()->number_delivery_notes)->toBe(0);
+
+    giveParcelDimensions($item->deliveryNote);
+    StorePacking::make()->action($item->refresh(), $this->user, []);
+    $deliveryNote = UpdateDeliveryNoteStatePacked::make()->action($deliveryNote->refresh(), $this->user);
+    $shipper      = StoreShipper::make()->action($this->organisation, ['code' => 'SH'.Str::random(4), 'name' => 'Sh', 'trade_as' => 'sh']);
+    StoreShipment::make()->action($deliveryNote, $shipper, ['tracking' => 'TRK'.Str::random(4)]);
+    $deliveryNote = \App\Actions\Dispatching\DeliveryNote\UpdateState\FinaliseDeliveryNote::make()->action($deliveryNote->refresh());
+
+    $pickedBay->deliveryNotes()->attach($deliveryNote->id, ['group_id' => $deliveryNote->group_id, 'organisation_id' => $deliveryNote->organisation_id]);
+
+    $deliveryNote = \App\Actions\Dispatching\DeliveryNote\UpdateState\DispatchDeliveryNote::make()->action($deliveryNote);
+
+    expect($deliveryNote->state)->toBe(DeliveryNoteStateEnum::DISPATCHED)
+        ->and($deliveryNote->pickedBays()->count())->toBe(0)
+        ->and($pickedBay->refresh()->number_delivery_notes)->toBe(0);
+});
+
 test('delivery note item delete and fetch', function () {
     [$deliveryNote, $item] = handlingDeliveryNoteWithPicking($this);
 
