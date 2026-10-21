@@ -1308,6 +1308,13 @@ test('resetting the password signs out every remembered device and remembers thi
         ->and(collect($response->headers->getCookies())->first(fn ($cookie) => str_starts_with($cookie->getName(), 'remember_retina_')))->not->toBeNull();
 });
 
+test('a reset password link with a mangled id redirects to the error page instead of failing', function () {
+    auth('retina')->logout();
+
+    $this->get(route('retina.reset-password.show', ['id' => '7346~~', 'token' => Str::random(26)]))
+        ->assertRedirect();
+});
+
 test('only the main user manages the customer web users, and the main user can not be disabled or deleted', function () {
     $this->webUser->updateQuietly(['is_root' => true, 'status' => true]);
     $mainUser = $this->webUser;

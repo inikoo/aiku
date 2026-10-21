@@ -15,3 +15,9 @@ export const sentryDenyUrls: RegExp[] = [
     /^(chrome|moz|safari|safari-web|ms-browser)-extension:\/\//,
     /^iabjs:\/\//,
 ]
+
+type SentryExceptionEvent = { exception?: { values?: { type?: string, value?: string }[] } }
+
+export const isIosChromeInjectedRecursion = (event: SentryExceptionEvent, userAgent: string): boolean =>
+    /\b(CriOS|GSA)\//.test(userAgent)
+    && (event.exception?.values ?? []).some((exception) => exception.type === "RangeError" && /Maximum call stack size exceeded/.test(exception.value ?? ""))

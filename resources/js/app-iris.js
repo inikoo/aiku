@@ -23,7 +23,7 @@ import { definePreset } from "@primevue/themes";
 import ConfirmationService from "primevue/confirmationservice";
 import { ctrans } from "@/Composables/useTrans";
 import { irisI18nOptions, loadLocaleMessages, normalizeLocale } from "@/Composables/useIrisTranslations";
-import { sentryDenyUrls, sentryIgnoreErrors } from "@/Composables/sentryNoise";
+import { isIosChromeInjectedRecursion, sentryDenyUrls, sentryIgnoreErrors } from "@/Composables/sentryNoise";
 
 const MyPreset = definePreset(Aura, {
   semantic: {
@@ -118,6 +118,7 @@ createInertiaApp(
                         tracesSampleRate: 0.05,
                         ignoreErrors    : sentryIgnoreErrors,
                         denyUrls        : sentryDenyUrls,
+                        beforeSend      : (event) => (isIosChromeInjectedRecursion(event, navigator.userAgent) ? null : event),
                         integrations    : [sentryTracing()]
                       });
         });
