@@ -129,6 +129,7 @@ function markTooltip(mark: Mark) {
 }
 
 const markDescriptions: Record<string, string> = {
+    production_started_at: "Mark production started on the day the supplier began making the products of this order. It is set by itself when the first goods of this order arrive at the warehouse.",
     produced_at: "Mark production done once every product of this order is in the warehouse and nothing is left at the supplier.",
 }
 
