@@ -19,10 +19,12 @@ use App\Actions\Comms\Mailshot\UI\IndexMarketingMailshots;
 use App\Actions\Comms\Mailshot\UI\IndexNewsletterMailshots;
 use App\Actions\Comms\Mailshot\UI\ShowMailshotTemplateWorkshop;
 use App\Actions\UI\Dropshipping\Marketing\ShowMarketingDashboard;
+use App\Actions\UI\Dropshipping\Marketing\ShowMarketingDashboardV2;
 use App\Actions\UI\Dropshipping\Marketing\ShowMailshotSettings;
 use App\Actions\UI\Dropshipping\Marketing\UpdateMailshotSettings;
 
 Route::get('', ShowMarketingDashboard::class)->name('dashboard');
+Route::get('dashboard-v2', ShowMarketingDashboardV2::class)->name('dashboard_v2');
 Route::get('settings', ShowMailshotSettings::class)->name('mailshot_settings');
 Route::patch('settings', UpdateMailshotSettings::class)->name('mailshot_settings.update');
 Route::name("newsletters.")->prefix('newsletters')
