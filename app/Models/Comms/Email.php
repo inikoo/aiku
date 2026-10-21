@@ -108,6 +108,19 @@ class Email extends Model implements Auditable
         return $this->belongsTo(Snapshot::class, 'live_snapshot_id');
     }
 
+    /**
+     * The published design when there is one, otherwise the draft, so a design picked but not yet published is not
+     * mistaken for the blank live snapshot every new email starts with.
+     */
+    public function designSnapshot(): ?Snapshot
+    {
+        if ($this->liveSnapshot?->compiled_layout) {
+            return $this->liveSnapshot;
+        }
+
+        return $this->unpublishedSnapshot ?? $this->liveSnapshot;
+    }
+
     public function deployments(): MorphMany
     {
         return $this->morphMany(Deployment::class, 'model');
