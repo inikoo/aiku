@@ -8,6 +8,7 @@
 
 namespace App\Actions\Chat\ChatSession;
 
+use App\Actions\Ordering\Order\CalculateOrderShipping;
 use App\Actions\Ordering\Order\WithOrderForbiddenCountryCheck;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
@@ -19,6 +20,7 @@ use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
 use App\Models\Chat\ChatSession;
 use App\Models\Chat\MetaChatSession;
+use App\Models\Billables\ShippingZone;
 use App\Models\CRM\Customer;
 use App\Models\Web\Webpage;
 use Illuminate\Support\Facades\DB;
@@ -75,9 +77,9 @@ class GetChatShopFacts
         $zones = $shop->currentShippingZoneSchema?->shippingZones()->where('status', true)->orderBy('position')->get() ?? collect();
 
         return array_values(array_filter([
-            ...$zones->map(fn ($zone) => data_get($zone->price, 'type') === 'TBC'
+            ...$zones->map(fn ($zone) => data_get($this->zonePrice($zone), 'type') === 'TBC'
                 ? ['title' => __('Delivery').': '.$zone->name, 'body' => $zone->name.': '.__('delivery price to be confirmed by customer service')]
-                : ['title' => __('Delivery').': '.$zone->name, 'body' => $zone->name.' ('.$this->zoneCountries($zone).'): '.$this->steps($shop, $zone->price).' ('.__('goods before VAT').')'])
+                : ['title' => __('Delivery').': '.$zone->name, 'body' => $zone->name.' ('.$this->zoneCountries($zone).'): '.$this->deliveryPrice($shop, $this->zonePrice($zone))])
                 ->all(),
             ($banned = $this->bannedCountries($shop)) ? ['title' => __('Blocked delivery countries'), 'body' => $banned] : null,
             ($free = $this->freeShipping($shop)) ? ['title' => __('Free delivery offer'), 'body' => $free] : null,
@@ -96,15 +98,31 @@ class GetChatShopFacts
     }
 
     /**
+     * The price the checkout charges with no shipper picked yet: a shipper price replaces the zone's own.
+     *
+     * @return array<string, mixed>
+     */
+    private function zonePrice(ShippingZone $zone): array
+    {
+        return CalculateOrderShipping::make()->getZonePriceDataForShipper($zone, null);
+    }
+
+    /**
+     * The zone's price steps as the checkout reads them (CalculateOrderShipping): bounds are the
+     * goods amount, or the order's estimated weight in kg for a weight priced zone.
+     *
      * @param  array<string, mixed>|null  $price
      */
-    private function steps(Shop $shop, ?array $price): string
+    public function deliveryPrice(Shop $shop, ?array $price): string
     {
+        $byWeight = data_get($price, 'type') === 'Step Order Estimated Weight';
+        $bound    = fn ($value) => $byWeight ? Number::format((float) $value, maxPrecision: 2).' kg' : $this->money($shop, (float) $value);
+
         return collect(data_get($price, 'steps', []))
             ->map(fn ($step) => (float) $step['price'] === 0.0
-                ? __('free from').' '.$this->money($shop, (float) $step['from'])
-                : $this->money($shop, (float) $step['price']).($step['to'] !== 'INF' ? ' '.__('up to').' '.$this->money($shop, (float) $step['to']) : ''))
-            ->join(', ');
+                ? __('free from').' '.$bound($step['from'])
+                : $this->money($shop, (float) $step['price']).($step['to'] !== 'INF' ? ' '.__('up to').' '.$bound($step['to']) : ''))
+            ->join(', ').' ('.($byWeight ? __('estimated order weight') : __('goods before VAT')).')';
     }
 
     private function bannedCountries(Shop $shop): ?string
@@ -130,13 +148,11 @@ class GetChatShopFacts
             ->get()
             ->first(fn ($zone) => collect($zone->territories ?? [])->contains(fn ($territory) => data_get($territory, 'country_code') === $country && !data_get($territory, 'included_postcodes'))) : null;
 
-        if (!$zone || data_get($zone->price, 'type') === 'TBC') {
+        if (!$zone || data_get($this->zonePrice($zone), 'type') === 'TBC') {
             return null;
         }
 
-        $steps = $this->steps($shop, $zone->price);
-
-        return __('Delivery to').' '.(Locale::getDisplayRegion('-'.$country, 'en') ?: $country).': '.$steps.' ('.__('goods before VAT').')';
+        return __('Delivery to').' '.(Locale::getDisplayRegion('-'.$country, 'en') ?: $country).': '.$this->deliveryPrice($shop, $this->zonePrice($zone));
     }
 
     private function freeShipping(Shop $shop): ?string

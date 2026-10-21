@@ -1630,3 +1630,20 @@ test('staff flag an AI summary of an email or of a chat as wrong, saying why, on
     $plain->delete();
     $session->delete();
 });
+
+test('a delivery zone priced by weight is described in kg of estimated order weight, not in money', function () {
+    $facts = \App\Actions\Chat\ChatSession\GetChatShopFacts::make();
+    $steps = [['from' => 0, 'to' => 10, 'price' => 39.95], ['from' => 10, 'to' => 75.5, 'price' => 249.95], ['from' => 75.5, 'to' => 'INF', 'price' => 0]];
+    $money = fn (float $amount) => \Illuminate\Support\Number::currency($amount, $this->shop->currency?->code ?? 'GBP');
+
+    expect($facts->deliveryPrice($this->shop, ['type' => 'Step Order Estimated Weight', 'steps' => $steps]))
+        ->toBe($money(39.95).' up to 10 kg, '.$money(249.95).' up to 75.5 kg, free from 75.5 kg (estimated order weight)')
+        ->and($facts->deliveryPrice($this->shop, ['type' => 'Step Order Items Net Amount', 'steps' => $steps]))
+        ->toBe($money(39.95).' up to '.$money(10).', '.$money(249.95).' up to '.$money(75.5).', free from '.$money(75.5).' (goods before VAT)');
+
+    $zone = new \App\Models\Billables\ShippingZone([
+        'price'          => ['type' => 'Step Order Items Net Amount', 'steps' => [['from' => 0, 'to' => 'INF', 'price' => 0]]],
+        'shippers_price' => [['shipper_id' => 1, 'type' => 'Step Order Estimated Weight', 'steps' => $steps]],
+    ]);
+    expect((fn () => $this->zonePrice($zone))->call($facts))->toBe($zone->shippers_price[0]);
+});
