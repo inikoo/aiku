@@ -2243,7 +2243,7 @@ test('packeta sends a Polish parcel locker delivery to the InPost locker the cus
         'country_id'     => $poland->id,
         'country_code'   => 'PL',
     ]))]);
-    $deliveryNote->update(['is_cash_on_delivery' => false, 'parcels' => [['weight' => 1.6]], 'shipping_notes' => $shippingNotes]);
+    $deliveryNote->update(['is_cash_on_delivery' => false, 'parcels' => [['weight' => 1.6, 'dimensions' => [35, 30, 15]]], 'shipping_notes' => $shippingNotes]);
 
     config(['app.sandbox.shipper_packeta_access_token' => json_encode(['api_password' => 'test'])]);
     $client = fakePacketaSoapClient(true);
@@ -2255,6 +2255,7 @@ test('packeta sends a Polish parcel locker delivery to the InPost locker the cus
     expect($response['status'])->toBe('success')
         ->and($client->packetAttributes['addressId'])->toBe(\App\Actions\Dispatching\Shipment\ApiCalls\CallApiPacketaShipping::PL_INPOST_PACZKOMATY_BOX)
         ->and($client->packetAttributes['carrierPickupPoint'])->toBe('BYD21N')
+        ->and($client->packetAttributes['size'])->toBe(['length' => 350, 'width' => 300, 'height' => 150])
         ->and(base64_decode($response['modelData']['label']))->toBe('carrier-label');
 })->with([
     'locker in the address'       => ['Parcel Locker Paczkomat InPost BYD21N', null],

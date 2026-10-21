@@ -116,6 +116,12 @@ class CallApiPacketaShipping extends OrgAction
         ];
         if ($lockerCode) {
             $packetAttributes['carrierPickupPoint'] = $lockerCode;
+            $dimensions                             = Arr::get($parcels, '0.dimensions', []);
+            $packetAttributes['size']               = [
+                'length' => (int) round(Arr::get($dimensions, 0, 0) * 10),
+                'width'  => (int) round(Arr::get($dimensions, 1, 0) * 10),
+                'height' => (int) round(Arr::get($dimensions, 2, 0) * 10),
+            ];
         }
 
         $errorData = [];
