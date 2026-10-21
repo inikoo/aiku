@@ -67,6 +67,11 @@ function supplierProductRoute(supplierProduct: SupplierProduct) {
                 {{ supplier_product['code'] }}
             </Link>
         </template>
+        <template #cell(supplier_name)="{ item: supplier_product }">
+            <Link v-if="supplier_product.supplier_slug" :href="route('grp.supply-chain.suppliers.show', [supplier_product.supplier_slug])" class="secondaryLink">
+                {{ supplier_product.supplier_name }}
+            </Link>
+        </template>
     </Table>
 </template>
 

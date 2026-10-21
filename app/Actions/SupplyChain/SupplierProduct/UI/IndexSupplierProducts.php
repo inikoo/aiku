@@ -81,7 +81,8 @@ class IndexSupplierProducts extends OrgAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereStartWith('supplier_products.code', $value)
-                    ->orWhereAnyWordStartWith('supplier_products.name', $value);
+                    ->orWhereAnyWordStartWith('supplier_products.name', $value)
+                    ->orWhereAnyWordStartWith('suppliers.name', $value);
             });
         });
 
@@ -91,6 +92,7 @@ class IndexSupplierProducts extends OrgAction
 
         $queryBuilder = QueryBuilder::for(SupplierProduct::class);
         $queryBuilder->leftJoin('currencies', 'supplier_products.currency_id', 'currencies.id');
+        $queryBuilder->leftJoin('suppliers', 'supplier_products.supplier_id', 'suppliers.id');
 
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
@@ -111,6 +113,8 @@ class IndexSupplierProducts extends OrgAction
                 'supplier_products.name',
                 'supplier_products.cost',
                 'currencies.code as currency_code',
+                'suppliers.slug as supplier_slug',
+                'suppliers.name as supplier_name',
             ])
             ->leftJoin('supplier_product_stats', 'supplier_product_stats.supplier_product_id', 'supplier_products.id')
             ->when($parent, function ($query) use ($parent) {
@@ -129,7 +133,7 @@ class IndexSupplierProducts extends OrgAction
                     }
                 }
             })
-            ->allowedSorts(['code', 'name', 'cost'])
+            ->allowedSorts(['code', 'name', 'cost', 'supplier_name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -159,7 +163,11 @@ class IndexSupplierProducts extends OrgAction
                 ->withGlobalSearch()
                 ->withLabelRecord([__('Supplier Product'), __('Supplier Products')])
                 ->column(key: 'code', label: __('Code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true);
+            if (!$parent instanceof Supplier) {
+                $table->column(key: 'supplier_name', label: __('Supplier'), sortable: true);
+            }
+            $table
                 ->column(key: 'cost', label: __('Cost'), canBeHidden: false, sortable: true, type: 'currency')
                 ->defaultSort('code');
         };
