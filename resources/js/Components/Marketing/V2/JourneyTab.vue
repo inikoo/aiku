@@ -4,11 +4,12 @@
   -->
 
 <script setup lang="ts">
-import { ref } from "vue"
+import { computed, ref } from "vue"
 import { Link, router } from "@inertiajs/vue3"
 import { route } from "ziggy-js"
 import InputText from "primevue/inputtext"
 import Button from "@/Components/Elements/Buttons/Button.vue"
+import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import { useLocaleStore } from "@/Stores/locale"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { ctrans } from "@/Composables/useTrans"
@@ -20,7 +21,9 @@ import { MODEL_COLORS, channelColor } from "@/Components/Marketing/V2/palette"
 
 library.add(faSearch, faUser)
 
-type ModelKey = "linear" | "first_touch"
+type ModelKey = "linear" | "first_touch" | "w_shaped"
+
+type Role = "first" | "registration" | "order"
 
 type Split = { type: string, name: string, share: number }
 
@@ -35,6 +38,7 @@ const props = defineProps<{
             acquisition_range_days: number
             new_customer_window: number
             existing_customer_window: number
+            w_shaped: { milestone: number, middle: number }
         }
         customer?: {
             name: string
@@ -59,6 +63,7 @@ const props = defineProps<{
                 name: string
                 campaign: string | null
                 is_acquisition: boolean
+                roles: Role[]
                 shares: Record<ModelKey, number | null>
             }[]
             splits: Record<ModelKey, Split[]>
@@ -89,17 +94,40 @@ const submit = () => {
 }
 
 const modelLabel = (key: ModelKey) => props.data.rules.models.find(model => model.key === key)?.label ?? key
+
+const highlightedModel = ref<ModelKey>("w_shaped")
+const modelOptions = computed(() => props.data.rules.models.map(model => ({ label: model.label, value: model.key })))
+const otherModels = computed(() => props.data.rules.models.filter(model => model.key !== highlightedModel.value))
+
+const hasCredit = (shares: Record<ModelKey, number | null>) => Object.values(shares).some(value => value !== null)
+
+const roleLabels: Record<Role, string> = {
+    first: ctrans("First"),
+    registration: ctrans("Registration"),
+    order: ctrans("Before order"),
+}
+
+const touchRoles = (touch: { is_acquisition: boolean, roles: Role[] }) =>
+    touch.roles.filter(role => !(role === "first" && touch.is_acquisition)).map(role => roleLabels[role])
+
+const percent = (value: number) => Math.round(value * 100) + "%"
 </script>
 
 <template>
     <div class="px-4 py-5 md:px-6 space-y-6">
-        <form class="flex flex-wrap items-end gap-3" @submit.prevent="submit">
-            <label class="flex flex-col gap-1 text-xs text-gray-500">
-                {{ ctrans("Find order") }}
-                <InputText v-model="search" :placeholder="ctrans('Order number')" class="w-64" />
-            </label>
-            <Button type="tertiary" nativeType="submit" icon="fal fa-search" :label="ctrans('Show journey')" :loading="isSearching" />
-        </form>
+        <div class="flex flex-wrap items-end justify-between gap-3">
+            <form class="flex flex-wrap items-end gap-3" @submit.prevent="submit">
+                <label class="flex flex-col gap-1 text-xs text-gray-500">
+                    {{ ctrans("Find order") }}
+                    <InputText v-model="search" :placeholder="ctrans('Order number')" class="w-64" />
+                </label>
+                <Button type="tertiary" nativeType="submit" icon="fal fa-search" :label="ctrans('Show journey')" :loading="isSearching" />
+            </form>
+            <div v-if="data.found" class="flex flex-col gap-1 text-xs text-gray-500">
+                {{ ctrans("Share shown on each touch") }}
+                <SegmentedToggle v-model="highlightedModel" :options="modelOptions" :ariaLabel="ctrans('Attribution model')" />
+            </div>
+        </div>
 
         <div v-if="!data.query" class="rounded-xl ring-1 ring-gray-200 bg-white py-10 text-center text-sm text-gray-500">
             {{ ctrans("Enter an order number to see how its credit is split") }}
@@ -152,15 +180,16 @@ const modelLabel = (key: ModelKey) => props.data.rules.models.find(model => mode
                         <div v-for="(touch, index) in order.touches" :key="index"
                              v-tooltip="touch.campaign ? `${touch.name} · ${touch.campaign}` : touch.name"
                              class="relative flex w-28 flex-col items-center gap-1 text-center"
-                             :class="touch.shares.first_touch === null && touch.shares.linear === null ? 'opacity-50' : ''">
+                             :class="hasCredit(touch.shares) ? '' : 'opacity-50'">
                             <div class="flex h-16 w-16 items-center justify-center rounded-full text-sm font-semibold text-white ring-4 ring-white tabular-nums"
                                  :style="{ background: channelColor(touch.type) }">
-                                {{ share(touch.shares.first_touch) }}
+                                {{ share(touch.shares[highlightedModel]) }}
                             </div>
-                            <span class="text-xs text-gray-500 tabular-nums">{{ modelLabel("linear") }} {{ share(touch.shares.linear) }}</span>
+                            <span v-for="model in otherModels" :key="model.key" class="text-xs text-gray-500 tabular-nums">{{ model.label }} {{ share(touch.shares[model.key]) }}</span>
                             <span class="text-sm font-medium text-gray-800">{{ touch.name }}</span>
                             <span class="text-xs text-gray-500">{{ date(touch.date) }}</span>
                             <span v-if="touch.is_acquisition" class="rounded-full bg-[--app-accent-soft] px-2 py-0.5 text-xs font-medium text-[--app-accent-deep]">{{ ctrans("Acquisition") }}</span>
+                            <span v-for="role in touchRoles(touch)" :key="role" v-tooltip="modelLabel('w_shaped')" class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">{{ role }}</span>
                         </div>
                     </div>
                 </div>
@@ -187,7 +216,7 @@ const modelLabel = (key: ModelKey) => props.data.rules.models.find(model => mode
 
         <section class="space-y-3" aria-labelledby="v2-rules">
             <h2 id="v2-rules" class="text-sm font-medium text-gray-800">{{ ctrans("Rules") }}</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
                 <div class="rounded-xl ring-1 ring-gray-200 bg-white p-4">
                     <div class="text-xs text-gray-500">{{ modelLabel("linear") }}</div>
                     <div class="mt-1 text-lg font-semibold text-gray-900">{{ ctrans("Even split") }}</div>
@@ -207,6 +236,13 @@ const modelLabel = (key: ModelKey) => props.data.rules.models.find(model => mode
                     <div class="text-xs text-gray-500">{{ modelLabel("first_touch") }} · {{ ctrans("existing customer") }}</div>
                     <div class="mt-1 text-lg font-semibold text-gray-900">{{ ctrans(":days days", { days: data.rules.existing_customer_window }) }}</div>
                     <div class="text-xs text-gray-500">{{ ctrans("after the first recorded touch") }}</div>
+                </div>
+                <div class="rounded-xl ring-1 ring-gray-200 bg-white p-4">
+                    <div class="text-xs text-gray-500">{{ modelLabel("w_shaped") }}</div>
+                    <div class="mt-1 text-lg font-semibold text-gray-900 tabular-nums">
+                        {{ percent(data.rules.w_shaped.milestone) }} · {{ percent(data.rules.w_shaped.milestone) }} · {{ percent(data.rules.w_shaped.milestone) }} · {{ percent(data.rules.w_shaped.middle) }}
+                    </div>
+                    <div class="text-xs text-gray-500">{{ ctrans("first, registration, last before order, the touches between") }}</div>
                 </div>
                 <div class="rounded-xl ring-1 ring-green-200 bg-green-50 p-4">
                     <div class="text-xs text-green-800">{{ ctrans("Per order") }}</div>

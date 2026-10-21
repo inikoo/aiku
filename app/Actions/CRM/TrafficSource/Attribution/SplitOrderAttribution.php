@@ -23,6 +23,10 @@ class SplitOrderAttribution
 
     public const int EXISTING_CUSTOMER_WINDOW_DAYS = 90;
 
+    public const float W_SHAPED_MILESTONE_SHARE = 0.3;
+
+    public const float W_SHAPED_MIDDLE_SHARE = 0.1;
+
     private const int DAY = 86400;
 
     /**
@@ -37,6 +41,7 @@ class SplitOrderAttribution
         return match ($model) {
             AttributionModelEnum::LINEAR      => $this->linear($touches, $placedAt, $windowDays),
             AttributionModelEnum::FIRST_TOUCH => $this->firstTouch($touches, $registeredAt, $placedAt),
+            AttributionModelEnum::W_SHAPED    => $this->wShaped($touches, $registeredAt, $placedAt, $windowDays),
         };
     }
 
@@ -81,6 +86,56 @@ class SplitOrderAttribution
     /**
      * @param array<int, array{timestamp: int, type: TrafficSourcesTypeEnum, campaign_ref: string|null}> $touches
      *
+     * @return array{timestamp: int, type: TrafficSourcesTypeEnum, campaign_ref: string|null}|null
+     */
+    public function registrationTouch(array $touches, int $registeredAt): ?array
+    {
+        $rangeStart        = $registeredAt - self::ACQUISITION_RANGE_DAYS * self::DAY;
+        $registrationTouch = null;
+
+        foreach ($touches as $touch) {
+            if ($touch['timestamp'] > $registeredAt) {
+                break;
+            }
+
+            if ($touch['timestamp'] >= $rangeStart) {
+                $registrationTouch = $touch;
+            }
+        }
+
+        return $registrationTouch;
+    }
+
+    /**
+     * @param array<int, array{timestamp: int, type: TrafficSourcesTypeEnum, campaign_ref: string|null}> $touches
+     *
+     * @return array{first: array{timestamp: int, type: TrafficSourcesTypeEnum, campaign_ref: string|null}|null, registration: array{timestamp: int, type: TrafficSourcesTypeEnum, campaign_ref: string|null}|null, order: array{timestamp: int, type: TrafficSourcesTypeEnum, campaign_ref: string|null}|null}
+     */
+    public function milestones(array $touches, int $registeredAt, int $placedAt, int $windowDays): array
+    {
+        $acquisitionTouch  = $this->acquisitionTouch($touches, $registeredAt);
+        $firstTouch        = $acquisitionTouch ?? ($touches[0] ?? null);
+        $registrationTouch = $acquisitionTouch ? $this->registrationTouch($touches, $registeredAt) : null;
+        $orderTouch        = null;
+
+        foreach ($touches as $touch) {
+            if ($touch['timestamp'] > $placedAt) {
+                break;
+            }
+
+            $orderTouch = $touch;
+        }
+
+        return [
+            'first'        => $this->claims($firstTouch, $placedAt, $acquisitionTouch ? self::NEW_CUSTOMER_WINDOW_DAYS : self::EXISTING_CUSTOMER_WINDOW_DAYS) ? $firstTouch : null,
+            'registration' => $this->claims($registrationTouch, $placedAt, self::NEW_CUSTOMER_WINDOW_DAYS) ? $registrationTouch : null,
+            'order'        => $this->claims($orderTouch, $placedAt, $windowDays) ? $orderTouch : null,
+        ];
+    }
+
+    /**
+     * @param array<int, array{timestamp: int, type: TrafficSourcesTypeEnum, campaign_ref: string|null}> $touches
+     *
      * @return array<int, array{type: string, campaign_ref: string|null, timestamp: int, share: float}>
      */
     private function linear(array $touches, int $placedAt, int $windowDays): array
@@ -120,11 +175,90 @@ class SplitOrderAttribution
         $touch            = $acquisitionTouch ?? ($touches[0] ?? null);
         $windowDays       = $acquisitionTouch ? self::NEW_CUSTOMER_WINDOW_DAYS : self::EXISTING_CUSTOMER_WINDOW_DAYS;
 
-        if (!$touch || $touch['timestamp'] > $placedAt || $placedAt > $touch['timestamp'] + $windowDays * self::DAY) {
+        if (!$this->claims($touch, $placedAt, $windowDays)) {
             return [];
         }
 
         return [$this->credit($touch, 1.0)];
+    }
+
+    /**
+     * @param array<int, array{timestamp: int, type: TrafficSourcesTypeEnum, campaign_ref: string|null}> $touches
+     *
+     * @return array<int, array{type: string, campaign_ref: string|null, timestamp: int, share: float}>
+     */
+    private function wShaped(array $touches, int $registeredAt, int $placedAt, int $windowDays): array
+    {
+        $milestones = array_filter($this->milestones($touches, $registeredAt, $placedAt, $windowDays));
+
+        if (empty($milestones)) {
+            return [];
+        }
+
+        $credited = [];
+        $weights  = [];
+
+        foreach ($milestones as $touch) {
+            $key            = $this->touchKey($touch);
+            $credited[$key] = $touch;
+            $weights[$key]  = ($weights[$key] ?? 0) + self::W_SHAPED_MILESTONE_SHARE;
+        }
+
+        $middleTouches = $this->middleTouches($touches, $milestones, $placedAt, $windowDays);
+
+        foreach ($middleTouches as $touch) {
+            $key            = $this->touchKey($touch);
+            $credited[$key] = $touch;
+            $weights[$key]  = self::W_SHAPED_MIDDLE_SHARE / count($middleTouches);
+        }
+
+        $total = array_sum($weights);
+
+        uasort($credited, fn (array $a, array $b) => $a['timestamp'] <=> $b['timestamp']);
+
+        return array_values(array_map(fn (string $key) => $this->credit($credited[$key], $weights[$key] / $total), array_keys($credited)));
+    }
+
+    /**
+     * @param array<int, array{timestamp: int, type: TrafficSourcesTypeEnum, campaign_ref: string|null}> $touches
+     * @param array<string, array{timestamp: int, type: TrafficSourcesTypeEnum, campaign_ref: string|null}> $milestones
+     *
+     * @return array<int, array{timestamp: int, type: TrafficSourcesTypeEnum, campaign_ref: string|null}>
+     */
+    private function middleTouches(array $touches, array $milestones, int $placedAt, int $windowDays): array
+    {
+        if (!isset($milestones['order'])) {
+            return [];
+        }
+
+        $start         = min(array_map(fn (array $touch) => $touch['timestamp'], $milestones));
+        $end           = $milestones['order']['timestamp'];
+        $milestoneKeys = array_flip(array_map(fn (array $touch) => $this->touchKey($touch), array_values($milestones)));
+        $lastOfPair    = [];
+
+        foreach ($touches as $touch) {
+            if ($touch['timestamp'] > $end) {
+                break;
+            }
+
+            if ($touch['timestamp'] < $start || isset($milestoneKeys[$this->touchKey($touch)]) || !$this->claims($touch, $placedAt, $windowDays)) {
+                continue;
+            }
+
+            $lastOfPair[$this->pairKey($touch)] = $touch;
+        }
+
+        return array_values($lastOfPair);
+    }
+
+    /**
+     * @param array{timestamp: int, type: TrafficSourcesTypeEnum, campaign_ref: string|null}|null $touch
+     */
+    private function claims(?array $touch, int $placedAt, int $windowDays): bool
+    {
+        return $touch !== null
+            && $touch['timestamp'] <= $placedAt
+            && ($windowDays <= 0 || $placedAt <= $touch['timestamp'] + $windowDays * self::DAY);
     }
 
     /**
@@ -133,6 +267,14 @@ class SplitOrderAttribution
     private function pairKey(array $touch): string
     {
         return $touch['type']->value.'|'.($touch['campaign_ref'] ?? '');
+    }
+
+    /**
+     * @param array{timestamp: int, type: TrafficSourcesTypeEnum, campaign_ref: string|null} $touch
+     */
+    public function touchKey(array $touch): string
+    {
+        return $touch['timestamp'].'|'.$touch['type']->value.'|'.$touch['campaign_ref'];
     }
 
     /**

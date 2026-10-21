@@ -49,6 +49,10 @@ class GetShopOrderJourney
                 'acquisition_range_days'  => SplitOrderAttribution::ACQUISITION_RANGE_DAYS,
                 'new_customer_window'     => SplitOrderAttribution::NEW_CUSTOMER_WINDOW_DAYS,
                 'existing_customer_window' => SplitOrderAttribution::EXISTING_CUSTOMER_WINDOW_DAYS,
+                'w_shaped'                => [
+                    'milestone' => SplitOrderAttribution::W_SHAPED_MILESTONE_SHARE,
+                    'middle'    => SplitOrderAttribution::W_SHAPED_MIDDLE_SHARE,
+                ],
             ],
         ];
 
@@ -170,8 +174,16 @@ class GetShopOrderJourney
                 ->all();
         }
 
+        $roles = [];
+
+        foreach ($splitter->milestones($touches, $registeredAt, $placedAt, $windowDays) as $role => $touch) {
+            if ($touch) {
+                $roles[$splitter->touchKey($touch)][] = $role;
+            }
+        }
+
         $before   = array_values(array_filter($touches, fn (array $touch) => $touch['timestamp'] <= $placedAt));
-        $credited = fn (array $touch) => isset($shares[$this->touchKey($touch)]);
+        $credited = fn (array $touch) => isset($shares[$splitter->touchKey($touch)]);
         $isAcquisition = fn (array $touch) => $acquisition && $touch['timestamp'] === $acquisition['timestamp'] && $touch['type'] === $acquisition['type'];
 
         $keep = [];
@@ -199,20 +211,13 @@ class GetShopOrderJourney
                 'name'           => $channelName($touch['type']->value),
                 'campaign'       => $touch['campaign_ref'] ? ($campaigns[$touch['campaign_ref']] ?? $touch['campaign_ref']) : null,
                 'is_acquisition' => $isAcquisition($touch),
+                'roles'          => $roles[$splitter->touchKey($touch)] ?? [],
                 'shares'         => array_map(
-                    fn (AttributionModelEnum $model) => $shares[$this->touchKey($touch)][$model->value] ?? null,
+                    fn (AttributionModelEnum $model) => $shares[$splitter->touchKey($touch)][$model->value] ?? null,
                     array_combine(AttributionModelEnum::values(), AttributionModelEnum::cases())
                 ),
             ], $keep),
             'splits'      => $splits,
         ];
-    }
-
-    /**
-     * @param array{timestamp: int, type: TrafficSourcesTypeEnum, campaign_ref: string|null} $touch
-     */
-    private function touchKey(array $touch): string
-    {
-        return $touch['timestamp'].'|'.$touch['type']->value.'|'.$touch['campaign_ref'];
     }
 }
