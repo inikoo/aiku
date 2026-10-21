@@ -92,7 +92,8 @@ class GetChatShopFacts
     {
         return collect($zone->territories ?? [])
             ->map(fn ($territory) => (Locale::getDisplayRegion('-'.data_get($territory, 'country_code'), 'en') ?: data_get($territory, 'country_code'))
-                .(data_get($territory, 'included_postcodes') ? ' ('.__('some postcodes').')' : ''))
+                .(data_get($territory, 'included_postal_codes') ? ' ('.__('only postcodes matching').' '.data_get($territory, 'included_postal_codes').')' : '')
+                .(data_get($territory, 'excluded_postal_codes') ? ' ('.__('except postcodes matching').' '.data_get($territory, 'excluded_postal_codes').')' : ''))
             ->unique()
             ->join(', ') ?: __('rest of the world');
     }
@@ -136,17 +137,15 @@ class GetChatShopFacts
     }
 
     /**
-     * The delivery price steps of the zone for the customer's own delivery country, from the
-     * shipping zones the checkout uses. Nothing for somebody we do not know: the shop's own
+     * The delivery price steps of the zone the checkout would charge the customer's own delivery
+     * address, postcode included. Nothing for somebody we do not know: the shop's own
      * country is a guess, and a price for the wrong country reads as a fact.
      */
     private function shippingCost(Shop $shop, ?Customer $customer): ?string
     {
         $country = $customer?->deliveryAddress?->country_code;
-        $zone    = $country ? $shop->currentShippingZoneSchema?->shippingZones()
-            ->where('status', true)
-            ->get()
-            ->first(fn ($zone) => collect($zone->territories ?? [])->contains(fn ($territory) => data_get($territory, 'country_code') === $country && !data_get($territory, 'included_postcodes'))) : null;
+        $schema  = $shop->currentShippingZoneSchema;
+        $zone    = $country && $schema ? CalculateOrderShipping::zoneForAddress($schema, $country, $customer->deliveryAddress->postal_code) : null;
 
         if (!$zone || data_get($this->zonePrice($zone), 'type') === 'TBC') {
             return null;

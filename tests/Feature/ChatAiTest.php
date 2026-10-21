@@ -1647,3 +1647,13 @@ test('a delivery zone priced by weight is described in kg of estimated order wei
     ]);
     expect((fn () => $this->zonePrice($zone))->call($facts))->toBe($zone->shippers_price[0]);
 });
+
+test('a delivery zone kept to some postcodes says which, and is matched by postcode the way the checkout charges it', function () {
+    $northernIreland = new \App\Models\Billables\ShippingZone(['slug' => 'ni', 'name' => 'Zone 2', 'territories' => [['country_code' => 'GB', 'included_postal_codes' => '/^BT/']]]);
+    $restOfUk        = new \App\Models\Billables\ShippingZone(['slug' => 'uk', 'name' => 'Zone 1', 'territories' => [['country_code' => 'GB', 'excluded_postal_codes' => '/^BT/']]]);
+
+    expect(\App\Actions\Ordering\Order\CalculateOrderShipping::zoneCoversAddress($northernIreland, 'GB', 'BT1 1AA'))->toBeTrue()
+        ->and(\App\Actions\Ordering\Order\CalculateOrderShipping::zoneCoversAddress($northernIreland, 'GB', 'SW1A 1AA'))->toBeFalse()
+        ->and((fn () => $this->zoneCountries($northernIreland))->call(\App\Actions\Chat\ChatSession\GetChatShopFacts::make()))->toBe('United Kingdom (only postcodes matching /^BT/)')
+        ->and((fn () => $this->zoneCountries($restOfUk))->call(\App\Actions\Chat\ChatSession\GetChatShopFacts::make()))->toBe('United Kingdom (except postcodes matching /^BT/)');
+});
