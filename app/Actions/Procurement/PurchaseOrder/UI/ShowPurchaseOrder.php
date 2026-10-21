@@ -884,6 +884,29 @@ class ShowPurchaseOrder extends OrgAction
                 'name'       => 'grp.models.purchase-order.attachment.attach',
                 'parameters' => ['purchaseOrder' => $purchaseOrder->id],
             ] : null,
+            'deposit'      => $this->getDepositChoice($purchaseOrder, $buyerCanEdit),
+        ];
+    }
+
+    /**
+     * Some suppliers start production without a deposit: the buyer or the agent can say so on an agent order
+     * while nothing is paid and no deposit amount is set, and take it back the same way.
+     */
+    private function getDepositChoice(PurchaseOrder $purchaseOrder, bool $buyerCanEdit): ?array
+    {
+        if (!$purchaseOrder->isAgentOrder() || !($buyerCanEdit || $this->agentCanEdit)
+            || $purchaseOrder->deposit_paid_at !== null
+            || (float) $purchaseOrder->deposit_amount > 0
+            || $purchaseOrder->depositPayments()->exists()) {
+            return null;
+        }
+
+        return [
+            'not_needed' => $purchaseOrder->deposit_amount !== null,
+            'route'      => [
+                'name'       => 'grp.models.purchase-order.update',
+                'parameters' => ['purchaseOrder' => $purchaseOrder->id],
+            ],
         ];
     }
 

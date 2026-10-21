@@ -24,6 +24,7 @@ export interface PurchaseOrder {
     supplier_slug: string | null
     supplier_purchase_orders?: number | null
     organisation_slug?: string | null
+    number_pending_price_changes?: number
     other_clients_orders?: {
         slug: string
         organisation_code: string

@@ -14,6 +14,7 @@ import Column from "primevue/column"
 import Tag from "primevue/tag"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
+import SeoExportButton from "@/Components/Seo/SeoExportButton.vue"
 import { featureLabel } from "@/Components/Seo/serpFeatures"
 import { ctrans } from "@/Composables/useTrans"
 import { useLocaleStore } from "@/Stores/locale"
@@ -67,6 +68,29 @@ const intentFilter = ref("all")
 const firstRow = ref(0)
 
 watch(intentFilter, () => firstRow.value = 0)
+
+const guessScope = (url: string) => {
+    const value = url.trim()
+    let path = ""
+
+    try {
+        path = new URL(value.includes("://") ? value : `https://${value}`).pathname
+    } catch {
+        return "root_domain"
+    }
+
+    if (!value || path.replace(/^\/+|\/+$/g, "") === "") {
+        return "root_domain"
+    }
+
+    return path.endsWith("/") ? "subfolder" : "exact_url"
+}
+
+watch(() => form.url, (url, previousUrl) => {
+    if (form.scope === guessScope(previousUrl ?? "")) {
+        form.scope = guessScope(url)
+    }
+})
 
 const search = () => {
     router.get(window.location.pathname, { tab: "research", ...form }, {
@@ -152,14 +176,17 @@ const trendBars = (idea: KeywordIdea) => {
 
 <template>
     <div class="space-y-4 px-4 py-4">
-        <form class="grid grid-cols-1 gap-3 rounded-xl bg-white p-4 ring-1 ring-gray-200 lg:grid-cols-[minmax(0,2fr)_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-end" @submit.prevent="search">
+        <form class="grid grid-cols-1 gap-3 rounded-xl bg-white p-4 ring-1 ring-gray-200 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)_minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-end" @submit.prevent="search">
             <label class="flex flex-col gap-1 text-sm">
                 <span class="font-medium text-gray-700">{{ ctrans("Keywords") }}</span>
                 <InputText v-model="form.seed" class="h-10 w-full" :placeholder="ctrans('Up to 5, comma separated, for example: incense sticks, aroma oil')" />
             </label>
             <label class="flex flex-col gap-1 text-sm">
-                <span class="font-medium text-gray-700">{{ ctrans("Or a URL") }}</span>
-                <InputText v-model="form.url" class="h-10 w-full" :placeholder="ctrans('Lists the keywords the page ranks for')" />
+                <span class="font-medium text-gray-700">{{ ctrans("Or a domain or URL") }}</span>
+                <span class="flex gap-2">
+                    <InputText v-model="form.url" class="h-10 min-w-0 flex-1" :placeholder="ctrans('Lists the keywords it ranks for, for example: aw-dropship.es')" />
+                    <Select v-model="form.scope" class="h-10 w-36 shrink-0 items-center" :options="options.scopes" optionLabel="label" optionValue="value" :aria-label="ctrans('Scope')" />
+                </span>
             </label>
             <label class="flex flex-col gap-1 text-sm">
                 <span class="font-medium text-gray-700">{{ ctrans("Country") }}</span>
@@ -183,7 +210,13 @@ const trendBars = (idea: KeywordIdea) => {
                         <h2 class="text-sm font-medium text-gray-900">{{ ctrans("Keyword ideas") }}</h2>
                         <p class="text-xs text-gray-500">{{ ctrans(":count keywords, Google search data from DataForSEO", { count: locale.number(data.keyword_data.ideas.length) }) }}</p>
                     </div>
-                    <SegmentedToggle v-if="data.keyword_data.ideas.length" v-model="intentFilter" :options="intentOptions" :ariaLabel="ctrans('Search intent')" />
+                    <div v-if="data.keyword_data.ideas.length" class="flex flex-wrap items-center gap-2">
+                        <SegmentedToggle v-model="intentFilter" :options="intentOptions" :ariaLabel="ctrans('Search intent')" />
+                        <SeoExportButton
+                            table="research"
+                            :extra="{ intent: intentFilter === 'all' ? null : intentFilter }"
+                            :tooltip="ctrans('Download these keyword ideas as an Excel file, with the intent chosen here')" />
+                    </div>
                 </div>
 
                 <div v-if="data.keyword_data.error" role="alert" class="px-5 py-4 text-sm text-gray-700">

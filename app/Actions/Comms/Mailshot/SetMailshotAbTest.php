@@ -115,9 +115,24 @@ class SetMailshotAbTest extends OrgAction
             $variant->stats()->create();
 
             CloneMailshotForSecondWave::make()->copyEmail($mailshot, $variant);
+            $this->markCopiedDraftAsEdited($mailshot->email, $variant->refresh()->email);
 
             return $variant;
         });
+    }
+
+    /**
+     * A copied draft is written in one go, so it would look untouched and the workshop would offer the template picker
+     * instead of version A's design.
+     */
+    private function markCopiedDraftAsEdited(Email $sourceEmail, Email $targetEmail): void
+    {
+        $sourceDraft = $sourceEmail->unpublishedSnapshot;
+        if ($sourceEmail->liveSnapshot?->compiled_layout || !$sourceDraft || $sourceDraft->updated_at->eq($sourceDraft->created_at)) {
+            return;
+        }
+
+        $targetEmail->unpublishedSnapshot()->update(['created_at' => $sourceDraft->created_at]);
     }
 
     /**
@@ -136,8 +151,8 @@ class SetMailshotAbTest extends OrgAction
 
     private function copyEmailDesign(Email $sourceEmail, Email $targetEmail, string $subject): void
     {
-        $sourceLiveSnapshot = $sourceEmail->liveSnapshot;
-        $sourceSnapshot     = $sourceLiveSnapshot ?? $sourceEmail->unpublishedSnapshot;
+        $sourceSnapshot     = $sourceEmail->designSnapshot();
+        $sourceLiveSnapshot = $sourceEmail->liveSnapshot?->compiled_layout ? $sourceEmail->liveSnapshot : null;
 
         $this->update($targetEmail->unpublishedSnapshot, [
             'layout'          => $sourceSnapshot?->layout,
