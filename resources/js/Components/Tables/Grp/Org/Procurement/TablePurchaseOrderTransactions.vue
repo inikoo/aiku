@@ -640,7 +640,7 @@ function orgStockRoute(item: { org_stock_id?: number }) {
                         <template v-if="item.partner_stock !== null"> | </template>{{ ctrans('their carton ~:count sko', { count: formatQuantity(skosPerCarton({ units_per_pack: item.units_per_pack, units_per_carton: item.partner_units_per_carton })) }) }}
                     </span>
                 </div>
-                <PurchaseOrderItemStockInfo :item="item" :isPartner="isPartner" :typedSkosById="typedSkos" :isOrderClosed="isTransactionClosed(item)" :isOrderLocked="!!state && state !== 'in_process'" />
+                <PurchaseOrderItemStockInfo :item="item" :isPartner="isPartner" :typedSkosById="typedSkos" :isOrderClosed="isTransactionClosed(item)" :isOrderLocked="!!state && state !== 'in_process'" :inCartons="currentLevel === 'cartons'" />
             </div>
         </template>
 

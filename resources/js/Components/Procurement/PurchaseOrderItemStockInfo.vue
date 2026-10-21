@@ -485,13 +485,13 @@ function purchaseOrderRoute(slug: string) {
 			<div v-for="delivery in comingDeliveries" :key="delivery.slug" class="contents">
 				<span class="text-[10px] uppercase tracking-wide text-emerald-700">{{ delivery.state_label }}</span>
 				<Link :href="stockDeliveryRoute(delivery.slug)" class="font-mono text-gray-700 hover:underline">{{ delivery.reference }}</Link>
-				<span class="text-right tabular-nums">{{ formatNumber(Number(delivery.quantity) / pack) }}</span>
+				<span class="text-right tabular-nums">{{ formatSales(Number(delivery.quantity) / pack) }}</span>
 			</div>
 			<div v-for="order in otherOrders" :key="order.slug ?? order.reference" class="contents">
 				<span class="text-[10px] uppercase tracking-wide text-amber-700">{{ order.stage ?? (order.state === "sent" ? ctrans("Requested") : ctrans("Ordered")) }}</span>
 				<Link v-if="order.slug" :href="purchaseOrderRoute(order.slug)" class="font-mono text-gray-700 hover:underline">{{ order.reference }}</Link>
 				<span v-else class="text-gray-700">{{ order.reference }}</span>
-				<span class="text-right tabular-nums">{{ formatNumber(Number(order.quantity_ordered) / pack) }}</span>
+				<span class="text-right tabular-nums">{{ formatSales(Number(order.quantity_ordered) / pack) }}</span>
 			</div>
 		</div>
 		<div v-else-if="!isOrderClosed" class="text-gray-400">{{ ctrans("Nothing on order or coming") }}</div>
@@ -506,7 +506,7 @@ function purchaseOrderRoute(slug: string) {
 				<div v-for="delivery in recentDeliveries" :key="delivery.slug" class="flex items-baseline gap-1.5">
 					<span class="w-24 shrink-0">{{ useFormatTime(delivery.received_at) }}</span>
 					<Link :href="stockDeliveryRoute(delivery.slug)" class="font-mono hover:text-gray-600 hover:underline">{{ delivery.reference }}</Link>
-					<span class="tabular-nums">{{ formatNumber(Number(delivery.quantity) / pack) }}</span>
+					<span class="tabular-nums">{{ formatSales(Number(delivery.quantity) / pack) }}</span>
 				</div>
 			</div>
 		</div>
