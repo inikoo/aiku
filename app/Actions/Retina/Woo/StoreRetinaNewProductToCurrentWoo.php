@@ -9,6 +9,7 @@
 namespace App\Actions\Retina\Woo;
 
 use App\Actions\Dropshipping\WooCommerce\Product\StoreNewProductToCurrentWooCommerce;
+use App\Actions\Dropshipping\WithSingleUploadProgress;
 use App\Actions\RetinaAction;
 use App\Actions\Traits\WithRetinaCustomerOwnedRouteModels;
 use App\Models\Dropshipping\Portfolio;
@@ -19,10 +20,11 @@ class StoreRetinaNewProductToCurrentWoo extends RetinaAction
 {
     use WithRetinaCustomerOwnedRouteModels;
     use AsAction;
+    use WithSingleUploadProgress;
 
     public function handle(Portfolio $portfolio): void
     {
-        StoreNewProductToCurrentWooCommerce::run($portfolio->customerSalesChannel->user, $portfolio);
+        StoreNewProductToCurrentWooCommerce::dispatch($portfolio->customerSalesChannel->user, $portfolio, true, $this->singleUploadProgress($portfolio));
     }
 
     public function asController(Portfolio $portfolio, ActionRequest $request): void

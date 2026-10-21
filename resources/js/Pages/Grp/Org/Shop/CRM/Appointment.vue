@@ -12,10 +12,10 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import {
     faCalendar, faCalendarCheck, faClock, faMapMarkerAlt, faStoreAlt, faVideo, faUser, faEnvelope, faPhone,
-    faUsers, faStickyNote, faHourglassHalf, faBan, faCheckCircle, faUserSlash, faTimesCircle, faCheck, faTimes, faCalendarEdit, faCalendarPlus, faGlobe,
+    faUsers, faStickyNote, faHourglassHalf, faBan, faCheckCircle, faUserSlash, faTimesCircle, faCheck, faTimes, faCalendarEdit, faCalendarPlus, faGlobe, faBell,
 } from "@fal"
 
-library.add(faCalendar, faCalendarCheck, faClock, faMapMarkerAlt, faStoreAlt, faVideo, faUser, faEnvelope, faPhone, faUsers, faStickyNote, faHourglassHalf, faBan, faCheckCircle, faUserSlash, faTimesCircle, faCheck, faTimes, faCalendarEdit, faCalendarPlus, faGlobe)
+library.add(faCalendar, faCalendarCheck, faClock, faMapMarkerAlt, faStoreAlt, faVideo, faUser, faEnvelope, faPhone, faUsers, faStickyNote, faHourglassHalf, faBan, faCheckCircle, faUserSlash, faTimesCircle, faCheck, faTimes, faCalendarEdit, faCalendarPlus, faGlobe, faBell)
 
 type RouteDefinition = { name: string, parameters: Record<string, string | number> }
 
@@ -40,6 +40,7 @@ const props = defineProps<{
         staff_name: string | null
         contact_name: string
         email: string | null
+        reminder_sent_at: string | null
         phone: string | null
         whatsapp_url: string | null
         zoom_join_url: string | null
@@ -149,6 +150,11 @@ const statusMessage = computed(() => ({
                         <li v-if="appointment.email" class="flex gap-2">
                             <FontAwesomeIcon icon="fal fa-envelope" class="mt-0.5 text-gray-400" fixed-width aria-hidden="true" />
                             <a :href="`mailto:${appointment.email}`" class="text-[--app-accent] hover:underline">{{ appointment.email }}</a>
+                        </li>
+                        <li v-if="appointment.email && (appointment.reminder_sent_at || (appointment.state === 'accepted' && !appointment.is_past))" class="flex gap-2 text-gray-500">
+                            <FontAwesomeIcon icon="fal fa-bell" class="mt-0.5 text-gray-400" fixed-width aria-hidden="true" />
+                            <span v-if="appointment.reminder_sent_at">{{ ctrans("Reminder emailed :time", { time: useFormatTime(appointment.reminder_sent_at, { formatTime: "hm" }) }) }}</span>
+                            <span v-else>{{ ctrans("A reminder is emailed the day before") }}</span>
                         </li>
                         <li v-if="appointment.phone" class="flex flex-wrap items-center gap-2">
                             <FontAwesomeIcon icon="fal fa-phone" class="text-gray-400" fixed-width aria-hidden="true" />

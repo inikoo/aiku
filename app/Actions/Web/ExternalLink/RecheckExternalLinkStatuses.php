@@ -30,7 +30,7 @@ class RecheckExternalLinkStatuses
         $checkedLinks = 0;
 
         ExternalLink::query()->orderBy('id')->chunkById(self::CONCURRENCY, function (Collection $externalLinks) use (&$checkedLinks) {
-            $responses = Http::pool(fn (Pool $pool) => $externalLinks->map(
+            $responses = Http::pool(fn (Pool $pool) => $externalLinks->filter(fn (ExternalLink $externalLink) => filter_var($externalLink->url, FILTER_VALIDATE_URL))->map(
                 fn (ExternalLink $externalLink) => $pool->as((string) $externalLink->id)
                     ->withHeaders(['User-Agent' => AuditWebsite::USER_AGENT])
                     ->connectTimeout(10)

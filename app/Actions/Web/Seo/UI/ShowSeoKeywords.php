@@ -143,18 +143,30 @@ class ShowSeoKeywords extends OrgAction
                 'daily'  => PostSerpTasks::DAILY_DEPTH,
             ],
             'costPerPage'    => PostSerpTasks::COST_PER_PAGE,
-            'checkNow'       => $this->canEdit ? [
-                ...PostSerpTasks::make()->requestable($shop),
-                'route' => [
-                    'name'       => 'grp.models.shop.seo.keyword_checks.store',
-                    'parameters' => [$shop->id],
-                ],
-            ] : null,
+            'checkNow'       => $this->checkNow($shop),
             'runChecksRoute' => app()->environment('local') && $this->canEdit ? [
                 'name'       => 'grp.models.shop.seo.rank_checks.store',
                 'parameters' => [$shop->id],
             ] : null,
             'table'          => SeoRankingResource::collection(IndexSeoRankings::run($shop, SeoKeywordsTabsEnum::RANKINGS->value, $device)),
+        ];
+    }
+
+    /**
+     * @return array{keywords: int, cost: float, route: array{name: string, parameters: array<int, int>}}|null
+     */
+    private function checkNow(Shop $shop): ?array
+    {
+        if (!$this->canEdit) {
+            return null;
+        }
+
+        return [
+            ...PostSerpTasks::make()->requestable($shop),
+            'route' => [
+                'name'       => 'grp.models.shop.seo.keyword_checks.store',
+                'parameters' => [$shop->id],
+            ],
         ];
     }
 
@@ -298,6 +310,7 @@ class ShowSeoKeywords extends OrgAction
                 SeoKeywordsTabsEnum::TRACKED_KEYWORDS->value => $this->tabProp(
                     SeoKeywordsTabsEnum::TRACKED_KEYWORDS,
                     fn () => SeoTrackedKeywordResource::collection(IndexSeoTrackedKeywords::run($shop, SeoKeywordsTabsEnum::TRACKED_KEYWORDS->value))
+                        ->additional(['checkNow' => $this->checkNow($shop)])
                 ),
 
                 SeoKeywordsTabsEnum::RANKINGS->value => $this->tabProp(

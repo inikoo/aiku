@@ -146,15 +146,6 @@ class CalculateOrderDiscounts implements ShouldBeUnique
                 ->where('is_gift', false)
                 ->where('order_id', $order->id)->delete();
 
-            DB::table('transactions')->where('order_id', $order->id)
-                ->where('quantity_ordered', '>', 0)
-                ->where('model_type', '!=', 'Charge')
-                ->update([
-                    'net_amount'              => DB::raw('gross_amount'),
-                    'offers_data'             => [],
-                    'current_discount_factor' => 1,
-                ]);
-
             $offerAllowancePivots = [];
             $transactionUpdates   = [];
 
@@ -209,6 +200,17 @@ class CalculateOrderDiscounts implements ShouldBeUnique
                     );
                 }
             }
+
+            DB::table('transactions')->where('order_id', $order->id)
+                ->where('quantity_ordered', '>', 0)
+                ->where('model_type', '!=', 'Charge')
+                ->whereNotIn('id', array_keys($transactionUpdates))
+                ->whereRaw("(net_amount is distinct from gross_amount or current_discount_factor is distinct from 1 or offers_data::text is distinct from '[]')")
+                ->update([
+                    'net_amount'              => DB::raw('gross_amount'),
+                    'offers_data'             => [],
+                    'current_discount_factor' => 1,
+                ]);
 
             $this->bulkUpdateTransactionDiscounts($transactionUpdates);
 
@@ -1162,7 +1164,9 @@ class CalculateOrderDiscounts implements ShouldBeUnique
             DB::update(
                 'UPDATE transactions SET gross_amount = v.gross_amount, net_amount = v.net_amount, current_discount_factor = v.current_discount_factor, offers_data = v.offers_data '
                 .'FROM (VALUES '.implode(', ', $valueRows).') AS v (id, gross_amount, net_amount, current_discount_factor, offers_data) '
-                .'WHERE transactions.id = v.id',
+                .'WHERE transactions.id = v.id '
+                .'AND (transactions.gross_amount, transactions.net_amount, transactions.current_discount_factor, transactions.offers_data::text) '
+                .'IS DISTINCT FROM (v.gross_amount, v.net_amount, v.current_discount_factor, v.offers_data::text)',
                 $bindings
             );
         }

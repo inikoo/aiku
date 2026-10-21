@@ -41,9 +41,9 @@ class ShowAgentContainerInPreparation extends OrgAction
     use WithAgentShoppingSubNavigation;
     use WithProcurementAuthorisation;
 
-    private const string CARTONS_SQL = 'sdi.unit_quantity / nullif(sp.units_per_carton, 0)';
+    public const string CARTONS_SQL = 'sdi.unit_quantity / nullif(sp.units_per_carton, 0)';
 
-    private const string CBM_SQL = 'case when '.SetStockDeliveryItemPackedInside::IS_PACKED_INSIDE_SQL.' then 0 else coalesce(sdi.cbm_in_container, '.self::CARTONS_SQL.' * sp.cbm) end';
+    public const string CBM_SQL = 'case when '.SetStockDeliveryItemPackedInside::IS_PACKED_INSIDE_SQL.' then 0 else coalesce(sdi.cbm_in_container, '.self::CARTONS_SQL.' * sp.cbm) end';
 
     private OrgAgent $orgAgent;
 

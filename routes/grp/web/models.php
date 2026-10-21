@@ -6,6 +6,28 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
+use App\Actions\Goods\ProductDevelopment\MoveProductDevelopmentToNextStage;
+use App\Actions\Goods\ProductDevelopment\StoreProductDevelopment;
+use App\Actions\Goods\ProductDevelopment\StoreProductDevelopmentComment;
+use App\Actions\Goods\ProductDevelopment\SyncProductDevelopmentMembers;
+use App\Actions\Goods\ProductDevelopment\UpdateProductDevelopment;
+use App\Actions\Goods\ProductDevelopment\UpdateProductDevelopmentChecklistItem;
+use App\Actions\Goods\ProductDevelopment\LinkProductDevelopmentSupplierProduct;
+use App\Actions\Goods\ProductDevelopment\UpdateProductDevelopmentCommentStatus;
+use App\Actions\Goods\ProductDevelopment\SignOffProductDevelopment;
+use App\Actions\Goods\ProductDevelopment\UploadProductDevelopmentFactoryPhoto;
+use App\Actions\Goods\ProductDevelopment\RemindProductDevelopmentMembers;
+use App\Actions\Goods\ProductDevelopment\LinkProductDevelopmentPurchaseOrder;
+use App\Actions\Goods\ProductDevelopment\StoreProductDevelopmentPurchaseOrder;
+use App\Actions\Goods\ProductDevelopment\Design\StoreProductDevelopmentDesignVersion;
+use App\Actions\Goods\ProductDevelopment\Design\SkipProductDevelopmentDesignRound;
+use App\Actions\Goods\ProductDevelopment\Design\UpdateProductDevelopmentDesignVersion;
+use App\Actions\Goods\ProductDevelopment\Design\UploadProductDevelopmentDesignImage;
+use App\Actions\Goods\ProductDevelopment\Design\UploadProductDevelopmentDesignArtwork;
+use App\Actions\Goods\ProductDevelopment\Design\SubmitProductDevelopmentDesignVersion;
+use App\Actions\Goods\ProductDevelopment\Design\ReviewProductDevelopmentDesignVersion;
+use App\Actions\Goods\ProductDevelopment\UpdateProductDevelopmentStageDueDate;
+use App\Actions\Goods\ProductDevelopment\UploadProductDevelopmentFiles;
 use App\Http\Middleware\EnsureHubPartnerOrderFromShoppingList;
 use App\Actions\SupplyChain\StockDeliveryInvoice\StoreActualStockDeliveryInvoice;
 use App\Actions\SupplyChain\AgentInvoice\ApproveAgentInvoiceCharges;
@@ -109,6 +131,8 @@ use App\Actions\Comms\Mailshot\DeleteMailshotTemplate;
 use App\Actions\Comms\Mailshot\PublishMailShot;
 use App\Actions\Comms\Mailshot\ResumeMailshot;
 use App\Actions\Comms\Mailshot\SendMailShot;
+use App\Actions\Comms\Mailshot\SendMailshotAbTestWinner;
+use App\Actions\Comms\Mailshot\SetMailshotAbTest;
 use App\Actions\Comms\Mailshot\SetMailshotAsScheduled;
 use App\Actions\Comms\Mailshot\SetMailshotSecondWaveStatus;
 use App\Actions\Comms\Mailshot\StopMailshot;
@@ -301,6 +325,7 @@ use App\Actions\Goods\Barcode\StoreBarcode;
 use App\Actions\Goods\Barcode\UpdateBarcode;
 use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Goods\Stock\UpdateStock;
+use App\Actions\Goods\StockHasSupplierProduct\SetStockPreferredSupplierProduct;
 use App\Actions\Goods\StockFamily\StoreStockFamily;
 use App\Actions\Goods\StockFamily\UpdateStockFamily;
 use App\Actions\Goods\TradeUnit\AttachTradeUnitsToTradeUnitFamily;
@@ -569,8 +594,10 @@ use App\Actions\Production\ManufactureTaskSession\CorrectManufactureTaskSessionQ
 use App\Actions\Production\ManufactureTaskSession\EditManufactureTaskSessionTimes;
 use App\Actions\Production\ManufactureTaskSession\VoidManufactureTaskSession;
 use App\Actions\Production\ManufactureTaskSession\CloseManufactureTaskSession;
+use App\Actions\Production\ManufactureTaskSession\ContinueManufactureTaskSessionAfterShift;
 use App\Actions\Production\ManufactureBreak\StartManufactureBreak;
 use App\Actions\Production\ManufactureTaskSession\StartManufactureNonProductiveSession;
+use App\Actions\Production\Production\UpdateManufacturePreparationReasons;
 use App\Actions\Production\ManufactureBreak\EndManufactureBreak;
 use App\Actions\Production\ManufactureTaskSession\StartManufactureTaskSession;
 use App\Actions\Production\JobOrderItemTask\AssignJobOrderItemTask;
@@ -747,6 +774,14 @@ use App\Actions\Helpers\Ticket\SyncTicketCollaborators;
 use App\Actions\Helpers\Ticket\StoreTicketLink;
 use App\Actions\Helpers\Ticket\DeleteTicketLink;
 use App\Actions\Helpers\Ticket\UpdateTicketPullRequest;
+use App\Actions\SupplyChain\PackingSpec\PdfPackingSpec;
+use App\Actions\SupplyChain\PackingSpec\ReturnPackingSpec;
+use App\Actions\SupplyChain\PackingSpec\StorePackingSpec;
+use App\Actions\SupplyChain\PackingSpec\UpdateAgentPackingSpecCutOff;
+use App\Actions\SupplyChain\PackingSpec\UpdateSupplierProductPackingInstructions;
+use App\Actions\SupplyChain\PackingSpec\VerifyPackingSpec;
+use App\Actions\GoodsIn\StockDeliveryPackingCheck\CreateStockDeliveryPackingChecks;
+use App\Actions\GoodsIn\StockDeliveryPackingCheck\RecordStockDeliveryPackingCheck;
 use Illuminate\Support\Facades\Route;
 
 Route::patch('/profile', UpdateProfile::class)->name('profile.update');
@@ -897,6 +932,7 @@ Route::name('stock.')->prefix('/stock')->group(function () {
     Route::post('/', StoreStock::class)->name('store');
     Route::patch('/{stock:id}', UpdateStock::class)->name('update');
     Route::patch('/{stock:id}/label-mandatory-information', UpdateStockLabelMandatoryInformation::class)->name('label_mandatory_information.update');
+    Route::patch('/{stock:id}/supplier-product/{supplierProduct:id}/set-preferred', SetStockPreferredSupplierProduct::class)->name('supplier_product.set_preferred')->withoutScopedBindings();
 });
 
 Route::post('master-shop', StoreMasterShop::class)->name('master_shop.store');
@@ -1042,6 +1078,11 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::patch('org-supplier-product/{orgSupplierProduct:id}/supplier-contacts', UpdateOrgSupplierProductSupplierContacts::class)->name('org_supplier_product.supplier_contacts.update')->withoutScopedBindings();
     Route::patch('org-supplier-product/{orgSupplierProduct:id}/carton-weights', UpdateOrgSupplierProductCartonWeights::class)->name('org_supplier_product.carton_weights.update')->withoutScopedBindings();
     Route::patch('org-supplier-product/{orgSupplierProduct:id}/stock/{stock:id}/carton-barcode', UpdateOrgSupplierProductCartonBarcode::class)->name('org_supplier_product.carton_barcode.update')->withoutScopedBindings();
+    Route::post('org-supplier-product/{orgSupplierProduct:id}/packing-spec', StorePackingSpec::class)->name('org_supplier_product.packing_spec.store')->withoutScopedBindings();
+    Route::patch('org-supplier-product/{orgSupplierProduct:id}/packing-instructions', UpdateSupplierProductPackingInstructions::class)->name('org_supplier_product.packing_instructions.update')->withoutScopedBindings();
+    Route::post('packing-spec/{packingSpec:id}/return', ReturnPackingSpec::class)->name('packing_spec.return')->withoutScopedBindings();
+    Route::post('packing-spec/{packingSpec:id}/verify', VerifyPackingSpec::class)->name('packing_spec.verify')->withoutScopedBindings();
+    Route::get('packing-spec/{packingSpec:id}/pdf', PdfPackingSpec::class)->name('packing_spec.pdf')->withoutScopedBindings();
 
     Route::post('shop', StoreShop::class)->name('shop.store');
     Route::post('shop-external/{engine}', StoreExternalShop::class)->name('shop.external.store');
@@ -1402,6 +1443,8 @@ Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
         Route::get('convert-to-blog', ConvertMailshotToBlog::class)->name('convert-to-blog')->withoutScopedBindings();
         Route::post('second-wave', SetMailshotSecondWaveStatus::class)->name('second-wave')->withoutScopedBindings();
         Route::patch('second-wave', UpdateMailshotSecondWave::class)->name('second-wave.update')->withoutScopedBindings();
+        Route::post('ab-test', SetMailshotAbTest::class)->name('ab-test')->withoutScopedBindings();
+        Route::post('ab-test/winner', SendMailshotAbTestWinner::class)->name('ab-test.winner')->withoutScopedBindings();
         Route::post('send-test', SendTestEmail::class)->name('send-test');
     });
 
@@ -1679,8 +1722,10 @@ Route::patch('/production/{production:id}/materials-check/checker', AssignMateri
 Route::patch('/job-order-item-task/{jobOrderItemTask:id}/assign', AssignJobOrderItemTask::class)->name('job-order-item-task.assign')->withoutScopedBindings();
 Route::patch('/job-order-item-task/{jobOrderItemTask:id}/separate', SeparateJobOrderItemTasks::class)->name('job-order-item-task.separate')->withoutScopedBindings();
 Route::patch('/manufacture-task-session/{manufactureTaskSession:id}/close', CloseManufactureTaskSession::class)->name('manufacture-task-session.close')->withoutScopedBindings();
+Route::patch('/manufacture-task-session/{manufactureTaskSession:id}/continue-after-shift', ContinueManufactureTaskSessionAfterShift::class)->name('manufacture-task-session.continue_after_shift')->withoutScopedBindings();
 Route::post('/production/{production:id}/break', StartManufactureBreak::class)->name('production.break.store')->withoutScopedBindings();
 Route::post('/production/{production:id}/non-productive-session', StartManufactureNonProductiveSession::class)->name('production.non_productive_session.store')->withoutScopedBindings();
+Route::patch('/production/{production:id}/preparation-reasons', UpdateManufacturePreparationReasons::class)->name('production.preparation_reasons.update')->withoutScopedBindings();
 Route::patch('/manufacture-break/{manufactureBreak:id}/end', EndManufactureBreak::class)->name('manufacture-break.end')->withoutScopedBindings();
 
 Route::patch('stored-items/{storedItem:id}', UpdateStoredItem::class)->name('stored-items.update');
@@ -1754,11 +1799,13 @@ Route::patch('procurement-note/{procurementNote:id}', [UpdateProcurementNote::cl
 Route::post('supplier/{supplier:id}/agreed-term', [StoreSupplierAgreedTerm::class, 'inSupplier'])->name('supplier.agreed_term.store');
 Route::post('supplier-product/{supplierProduct:id}/agreed-term', [StoreSupplierAgreedTerm::class, 'inSupplierProduct'])->name('supplier-product.agreed_term.store');
 Route::post('agent/{agent:id}/agreed-term', [StoreSupplierAgreedTerm::class, 'inAgent'])->name('agent.agreed_term.store');
+Route::patch('agent/{agent:id}/packing-spec-cut-off', UpdateAgentPackingSpecCutOff::class)->name('agent.packing_spec_cut_off.update');
 Route::patch('supplier-agreed-term/{supplierAgreedTerm:id}/withdraw', [WithdrawSupplierAgreedTerm::class, 'withdraw'])->name('supplier_agreed_term.withdraw');
 
 Route::name('stock-delivery.')->prefix('stock-delivery/{stockDelivery:id}')->group(function () {
     Route::post('note', [StoreProcurementNote::class, 'inStockDelivery'])->name('note.store');
     Route::post('goods-in-check', RecordStockDeliveryGoodsInCheck::class)->name('goods_in_check.store');
+    Route::post('packing-checks', CreateStockDeliveryPackingChecks::class)->name('packing_checks.store');
     Route::post('agreed-terms/accept', [AcceptAgreedTermDifferences::class, 'inStockDelivery'])->name('agreed_terms.accept');
     Route::post('invoice', StoreActualStockDeliveryInvoice::class)->name('invoice.store');
     Route::post('agent-payment', StoreAgentPayment::class)->name('agent_payment.store');
@@ -1807,6 +1854,8 @@ Route::name('stock-delivery-cost.')->prefix('stock-delivery-cost/{stockDeliveryC
 Route::name('stock-delivery-deposit-application.')->prefix('stock-delivery-deposit-application/{stockDeliveryDepositApplication:id}')->group(function () {
     Route::delete('', DeleteStockDeliveryDepositApplication::class)->name('delete');
 });
+
+Route::post('stock-delivery-packing-check/{stockDeliveryPackingCheck:id}', RecordStockDeliveryPackingCheck::class)->name('stock_delivery_packing_check.record');
 
 Route::name('stock-delivery-item.')->prefix('stock-delivery-item/{stockDeliveryItem:id}')->group(function () {
     Route::patch('confirm', UpdateStateToConfirmedStockDeliveryItem::class)->name('confirm')->withoutScopedBindings();
@@ -2008,6 +2057,31 @@ Route::name('brand.')->prefix('brand')->group(function () {
 Route::name('barcodes.')->prefix('barcode')->group(function () {
     Route::post('store', StoreBarcode::class)->name('store');
     Route::patch('{barcode:id}/update', UpdateBarcode::class)->name('update')->withoutScopedBindings();
+});
+
+Route::name('product_development.')->prefix('product-development')->group(function () {
+    Route::post('store', StoreProductDevelopment::class)->name('store');
+    Route::patch('{productDevelopment:id}/next-stage', MoveProductDevelopmentToNextStage::class)->name('next_stage')->withoutScopedBindings();
+    Route::patch('{productDevelopment:id}/update', UpdateProductDevelopment::class)->name('update')->withoutScopedBindings();
+    Route::patch('{productDevelopment:id}/members', SyncProductDevelopmentMembers::class)->name('members.sync')->withoutScopedBindings();
+    Route::post('{productDevelopment:id}/files', UploadProductDevelopmentFiles::class)->name('files.upload')->withoutScopedBindings();
+    Route::post('{productDevelopment:id}/comments', StoreProductDevelopmentComment::class)->name('comments.store')->withoutScopedBindings();
+    Route::patch('stage/{productDevelopmentStage:id}/due-date', UpdateProductDevelopmentStageDueDate::class)->name('stage.due_date')->withoutScopedBindings();
+    Route::post('checklist-item/{productDevelopmentChecklistItem:id}/factory-photo', UploadProductDevelopmentFactoryPhoto::class)->name('checklist_item.factory_photo')->withoutScopedBindings();
+    Route::patch('checklist-item/{productDevelopmentChecklistItem:id}', UpdateProductDevelopmentChecklistItem::class)->name('checklist_item.update')->withoutScopedBindings();
+    Route::patch('item/{productDevelopmentItem:id}/supplier-product', LinkProductDevelopmentSupplierProduct::class)->name('item.supplier_product')->withoutScopedBindings();
+    Route::patch('{productDevelopment:id}/purchase-order', LinkProductDevelopmentPurchaseOrder::class)->name('purchase_order')->withoutScopedBindings();
+    Route::post('{productDevelopment:id}/purchase-order', StoreProductDevelopmentPurchaseOrder::class)->name('purchase_order.store')->withoutScopedBindings();
+    Route::post('{productDevelopment:id}/remind', RemindProductDevelopmentMembers::class)->name('remind')->withoutScopedBindings();
+    Route::patch('{productDevelopment:id}/sign-off', SignOffProductDevelopment::class)->name('sign_off')->withoutScopedBindings();
+    Route::patch('comment/{productDevelopmentComment:id}/status', UpdateProductDevelopmentCommentStatus::class)->name('comment.status')->withoutScopedBindings();
+    Route::patch('{productDevelopment:id}/design/skip', SkipProductDevelopmentDesignRound::class)->name('design.skip')->withoutScopedBindings();
+    Route::post('{productDevelopment:id}/design', StoreProductDevelopmentDesignVersion::class)->name('design.store')->withoutScopedBindings();
+    Route::patch('design/{productDevelopmentDesignRound:id}', UpdateProductDevelopmentDesignVersion::class)->name('design.update')->withoutScopedBindings();
+    Route::post('design/{productDevelopmentDesignRound:id}/artwork', UploadProductDevelopmentDesignArtwork::class)->name('design.artwork')->withoutScopedBindings();
+    Route::post('design/{productDevelopmentDesignRound:id}/image', UploadProductDevelopmentDesignImage::class)->name('design.image')->withoutScopedBindings();
+    Route::patch('design/{productDevelopmentDesignRound:id}/submit', SubmitProductDevelopmentDesignVersion::class)->name('design.submit')->withoutScopedBindings();
+    Route::patch('design/{productDevelopmentDesignRound:id}/review', ReviewProductDevelopmentDesignVersion::class)->name('design.review')->withoutScopedBindings();
 });
 
 Route::name('trade_unit_family.')->prefix('trade-unit-family')->group(function () {

@@ -85,7 +85,7 @@ class UpdateEbayPortfolio implements ShouldBeUnique
             if (!Arr::get($offer, 'offerId')) {
                 $errors = Arr::get($offer, 'errors', $offer);
 
-                UpdatePlatformPortfolioLog::dispatch($platformPortfolioLog, [
+                UpdatePlatformPortfolioLog::run($platformPortfolioLog, [
                     'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
                     'response' => 'E1: '.json_encode($errors)
                 ]);
@@ -135,7 +135,7 @@ class UpdateEbayPortfolio implements ShouldBeUnique
             } else {
                 $errors = self::bulkUpdateErrors($response);
 
-                UpdatePlatformPortfolioLog::dispatch($platformPortfolioLog, [
+                UpdatePlatformPortfolioLog::run($platformPortfolioLog, [
                     'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
                     'response' => 'E1: '.json_encode($errors)
                 ]);
@@ -147,7 +147,7 @@ class UpdateEbayPortfolio implements ShouldBeUnique
                 $this->markBrokenIfListingEnded($portfolio, $errors);
             }
         } catch (Throwable $e) {
-            UpdatePlatformPortfolioLog::dispatch($platformPortfolioLog, [
+            UpdatePlatformPortfolioLog::run($platformPortfolioLog, [
                 'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
                 'response' => 'E2: '.$e->getMessage()
             ]);
@@ -240,7 +240,7 @@ class UpdateEbayPortfolio implements ShouldBeUnique
 
     public function markUpdated(Portfolio $portfolio, CustomerSalesChannel $customerSalesChannel, $platformPortfolioLog, int $availableQuantity): void
     {
-        UpdatePlatformPortfolioLog::dispatch($platformPortfolioLog, [
+        UpdatePlatformPortfolioLog::run($platformPortfolioLog, [
             'status'           => PlatformPortfolioLogsStatusEnum::OK,
             'last_stock_value' => $availableQuantity
         ]);

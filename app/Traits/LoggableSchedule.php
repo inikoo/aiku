@@ -10,32 +10,39 @@ namespace App\Traits;
 
 use App\Helpers\ScheduleLogger;
 use Exception;
+use App\Models\Helpers\ScheduledTaskLog;
+use Illuminate\Console\Scheduling\CallbackEvent;
 use Illuminate\Console\Scheduling\Event;
+use Illuminate\Support\Facades\Cache;
 
 trait LoggableSchedule
 {
     /**
-     * Wrap schedule event with logging
+     * Commands run in the background so a long one never holds back the tasks after it in the same
+     * schedule:run, which made them start late and miss their Sentry check-in. The log id travels
+     * through the cache under the event's mutex name because the after hook of a background command
+     * runs in a separate schedule:finish process.
      */
     protected function logSchedule(Event $event, string $name, string $type, string $scheduledAt): Event
     {
-        // Generate unique key for this schedule instance
-        $key = "schedule_log_" . md5($name . $scheduledAt . now()->timestamp);
+        if (!$event instanceof CallbackEvent) {
+            $event->runInBackground();
+        }
+
+        $key = 'schedule_log:'.$event->mutexName();
 
         $event->before(function () use ($key, $name, $type, $scheduledAt) {
-            // Store the log instance in service container
-            app()->instance($key, ScheduleLogger::start($name, $type, $scheduledAt));
+            Cache::put($key, ScheduleLogger::start($name, $type, $scheduledAt)->id, now()->addDay());
         });
 
         $event->after(function () use ($key) {
             try {
-                if (app()->bound($key)) {
-                    $log = app($key);
+                $log = ScheduledTaskLog::find(Cache::pull($key));
+                if ($log) {
                     ScheduleLogger::finish($log);
                 }
             } catch (Exception $e) {
-                // Log error but don't break the schedule
-                logger()->error('Failed to finish schedule log: ' . $e->getMessage());
+                logger()->error('Failed to finish schedule log: '.$e->getMessage());
             }
         });
 

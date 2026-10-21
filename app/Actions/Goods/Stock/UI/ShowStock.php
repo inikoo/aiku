@@ -18,6 +18,7 @@ use App\Actions\Inventory\OrgStock\UI\IndexOrgStocksInStock;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithGoodsAuthorisation;
 use App\Enums\UI\SupplyChain\StockTabsEnum;
+use App\Http\Resources\Goods\StockSupplierProductsResource;
 use App\Http\Resources\Goods\StockTimeSeriesResource;
 use App\Http\Resources\Goods\TradeUnitsResource;
 use App\Http\Resources\History\HistoryResource;
@@ -151,6 +152,11 @@ class ShowStock extends OrgAction
                     fn () => OrgStocksResource::collection(IndexOrgStocksInStock::run($stock, StockTabsEnum::ORG_STOCKS->value))
                     : Inertia::optional(fn () => OrgStocksResource::collection(IndexOrgStocksInStock::run($stock, StockTabsEnum::ORG_STOCKS->value))),
 
+                StockTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == StockTabsEnum::SUPPLIER_PRODUCTS->value ?
+                    fn () => StockSupplierProductsResource::collection(IndexStockSupplierProducts::run($stock, StockTabsEnum::SUPPLIER_PRODUCTS->value))
+                    : Inertia::optional(fn () => StockSupplierProductsResource::collection(IndexStockSupplierProducts::run($stock, StockTabsEnum::SUPPLIER_PRODUCTS->value))),
+                'can_set_preferred_supplier'           => $this->canEdit,
+
                 StockTabsEnum::TRADE_UNITS->value => $this->tab == StockTabsEnum::TRADE_UNITS->value ?
                     fn () => TradeUnitsResource::collection(IndexTradeUnitsInStock::run($stock, StockTabsEnum::TRADE_UNITS->value))
                     : Inertia::optional(fn () => TradeUnitsResource::collection(IndexTradeUnitsInStock::run($stock, StockTabsEnum::TRADE_UNITS->value))),
@@ -163,6 +169,7 @@ class ShowStock extends OrgAction
             ]
         )->table(IndexTradeUnitsInStock::make()->tableStructure(prefix: StockTabsEnum::TRADE_UNITS->value))
             ->table(IndexOrgStocksInStock::make()->tableStructure(prefix: StockTabsEnum::ORG_STOCKS->value))
+            ->table(IndexStockSupplierProducts::make()->tableStructure(prefix: StockTabsEnum::SUPPLIER_PRODUCTS->value))
             ->table(IndexStockTimeSeries::make()->tableStructure(prefix: StockTabsEnum::SALES->value))
             ->table(IndexHistory::make()->tableStructure(prefix: StockTabsEnum::HISTORY->value, model: $stock));
     }

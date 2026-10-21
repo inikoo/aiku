@@ -123,7 +123,10 @@ class GetOrganisationNavigation
         $navigation = $this->getWarehouseNavs($user, $organisation, $navigation);
 
         $navigation['productions_navigation'] = [];
-        foreach ($user->authorisedProductions->where('organisation_id', $organisation->id) as $production) {
+        $productions = $user->authTo(["human-resources.$organisation->id.view", "accounting.$organisation->id.view"])
+            ? $organisation->productions
+            : $user->authorisedProductions->where('organisation_id', $organisation->id);
+        foreach ($productions as $production) {
             $navigation['productions_navigation'][$production->slug] = GetProductionNavigation::run($production, $user);
         }
 

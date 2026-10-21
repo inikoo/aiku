@@ -11,7 +11,6 @@ namespace App\Actions\Web\WebLayoutTemplate;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithWebEditAuthorisation;
-use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Models\SysAdmin\User;
 use App\Models\Web\WebLayoutTemplate;
 use App\Models\Web\Webpage;
@@ -25,7 +24,7 @@ class StoreWebLayoutTemplate extends OrgAction
 
     public function handle(Webpage $webpage, array $modelData): void
     {
-        if (in_array($webpage->type, [WebpageTypeEnum::STOREFRONT, WebpageTypeEnum::BLOG])) {
+        if (!ApplyWebLayoutTemplate::canUseTemplates($webpage)) {
             abort(422);
         }
 

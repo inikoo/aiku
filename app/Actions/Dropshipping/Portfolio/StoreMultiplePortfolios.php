@@ -41,7 +41,15 @@ class StoreMultiplePortfolios extends OrgAction
         $isFulfilment = $customerSalesChannel->customer->is_fulfilment;
         $itemModel    = $isFulfilment ? new StoredItem() : new Product();
 
-        $items = $itemModel->newQuery()->whereIn('id', $itemIds)->get()->keyBy('id');
+        $itemsQuery = $itemModel->newQuery()->whereIn('id', $itemIds);
+        if (!$isFulfilment) {
+            $itemsQuery->with('orgStocks.stock');
+        }
+        $items = $itemsQuery->get()->keyBy('id');
+
+        $customerSalesChannel->loadMissing(['platform', 'group', 'organisation', 'shop', 'customer']);
+        $checkInPlatform = StorePortfolio::checksPortfoliosInPlatform($customerSalesChannel->platform->type);
+        $newPortfolioIds = [];
 
         $existingPortfolios = $customerSalesChannel->portfolios()
             ->where('item_type', $itemModel->getMorphClass())
@@ -66,16 +74,21 @@ class StoreMultiplePortfolios extends OrgAction
                 continue;
             }
 
-            StorePortfolio::make()->action(
+            $newPortfolioIds[] = StorePortfolio::make()->action(
                 customerSalesChannel: $customerSalesChannel,
                 item: $item,
                 modelData: [],
-                hydrateChannel: false
-            );
+                hydrateChannel: false,
+                checkInPlatform: false
+            )->id;
         }
 
 
         CustomerSalesChannelsHydratePortfolios::run($customerSalesChannel);
+
+        if ($checkInPlatform && $newPortfolioIds) {
+            CheckNewPortfoliosInPlatform::dispatch($customerSalesChannel, $newPortfolioIds)->afterCommit();
+        }
     }
 
     public function rules(): array

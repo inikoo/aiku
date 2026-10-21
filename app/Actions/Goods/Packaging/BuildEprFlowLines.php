@@ -30,19 +30,20 @@ class BuildEprFlowLines
     public string $commandSignature = 'epr:build-flow-lines {organisations?* : organisation slugs, every shop organisation when empty} {--from= : first day, default the start of last month} {--to= : last day, default today}';
 
     /**
-     * @return array{purchases: int, sales: int, shipment_packaging: int}
+     * @return array{purchases: int, sales: int, shipment_packaging: int, inbound_packing: int}
      */
     public function handle(Organisation $organisation, Carbon $from, Carbon $to): array
     {
         $bindings = ['organisation_id' => $organisation->id, 'from' => $from->toDateString(), 'to' => $to->toDateString()];
 
-        return DB::transaction(function () use ($bindings) {
+        return DB::transaction(function () use ($bindings, $organisation, $from, $to) {
             DB::delete('DELETE FROM epr_flow_lines WHERE organisation_id = :organisation_id AND date BETWEEN :from AND :to', $bindings);
 
             return [
                 'purchases'          => DB::affectingStatement($this->purchasesSql(), $bindings),
                 'sales'              => DB::affectingStatement($this->salesSql(), $bindings),
                 'shipment_packaging' => DB::affectingStatement($this->shipmentPackagingSql(), $bindings),
+                'inbound_packing'    => BuildEprPackingLines::run($organisation, $from, $to),
             ];
         });
     }
@@ -158,7 +159,7 @@ class BuildEprFlowLines
 
         foreach ($organisations as $organisation) {
             $built = $this->handle($organisation, $from, $to);
-            $command->info("$organisation->slug {$from->toDateString()}..{$to->toDateString()}: {$built['purchases']} purchase lines, {$built['sales']} sale lines, {$built['shipment_packaging']} shipment packaging lines");
+            $command->info("$organisation->slug {$from->toDateString()}..{$to->toDateString()}: {$built['purchases']} purchase lines, {$built['sales']} sale lines, {$built['shipment_packaging']} shipment packaging lines, {$built['inbound_packing']} inbound packing lines");
         }
 
         return 0;

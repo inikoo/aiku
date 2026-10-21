@@ -173,3 +173,46 @@ function ensureWarehouseLayoutAndOrgStockFamily(\App\Models\SysAdmin\Organisatio
         \App\Actions\Inventory\OrgStockFamily\StoreOrgStockFamily::make()->action($organisation, $stockFamily, []);
     }
 }
+
+/**
+ * @return array{0: \App\Models\Inventory\OrgStock, 1: array<int, int>}
+ */
+function runningValuesStockWithMovements($group, $organisation, string $code, int $repeats = 1): array
+{
+    [$orgStock, $location] = costFixStockInLocation($group, $organisation, $code);
+    $secondLocation        = StoreLocation::make()->action($location->warehouse, array_merge(Location::factory()->definition(), ['code' => 'CF-'.$code.'2']));
+    StoreLocationOrgStock::make()->action($orgStock, $secondLocation, ['type' => LocationStockTypeEnum::STORING]);
+    $orgStock->update(['current_supplier_sku_cost' => 1.75]);
+
+    $movements = [
+        [$location, \App\Enums\Inventory\OrgStockMovement\OrgStockMovementTypeEnum::FOUND, 5, null, 0, 40],
+        [$location, \App\Enums\Inventory\OrgStockMovement\OrgStockMovementTypeEnum::PURCHASE, 12, 1.37, 0, 35],
+        [$location, \App\Enums\Inventory\OrgStockMovement\OrgStockMovementTypeEnum::PICKED, -4, null, 0, 25],
+        [$location, \App\Enums\Inventory\OrgStockMovement\OrgStockMovementTypeEnum::PURCHASE, 9, null, 26.1, 18],
+        [$secondLocation, \App\Enums\Inventory\OrgStockMovement\OrgStockMovementTypeEnum::FOUND, 3, null, 0, 16],
+        [$location, \App\Enums\Inventory\OrgStockMovement\OrgStockMovementTypeEnum::PICKED, -30, null, 0, 14],
+        [$location, \App\Enums\Inventory\OrgStockMovement\OrgStockMovementTypeEnum::FOUND, 2, null, 0, 13],
+        [$secondLocation, \App\Enums\Inventory\OrgStockMovement\OrgStockMovementTypeEnum::FOUND, 1, null, 0, 13],
+        [$location, \App\Enums\Inventory\OrgStockMovement\OrgStockMovementTypeEnum::PURCHASE, 7, 3.11, 0, 10],
+        [$location, \App\Enums\Inventory\OrgStockMovement\OrgStockMovementTypeEnum::AUDIT, 6, null, 0, 8],
+        [$secondLocation, \App\Enums\Inventory\OrgStockMovement\OrgStockMovementTypeEnum::PICKED, -2, null, 0, 6],
+        [$location, \App\Enums\Inventory\OrgStockMovement\OrgStockMovementTypeEnum::PURCHASE, 4, 0, 0, 3],
+        [$location, \App\Enums\Inventory\OrgStockMovement\OrgStockMovementTypeEnum::PICKED, -1, null, 0, 1],
+    ];
+
+    $movementIds = [];
+    for ($repeat = 0; $repeat < $repeats; $repeat++) {
+        foreach ($movements as [$movementLocation, $type, $quantity, $costPerSku, $orgAmount, $daysAgo]) {
+            $movement = \App\Actions\Inventory\OrgStockMovement\StoreOrgStockMovement::make()->action($orgStock, $movementLocation, ['type' => $type->value, 'quantity' => $quantity]);
+            $movement->update([
+                'cost_per_sku' => $costPerSku,
+                'org_amount'   => $orgAmount,
+                'date'         => now()->subDays($daysAgo)->addMinutes($repeat),
+                'source_id'    => $type === \App\Enums\Inventory\OrgStockMovement\OrgStockMovementTypeEnum::AUDIT ? $organisation->id.':99'.$movement->id : null,
+            ]);
+            $movementIds[] = $movement->id;
+        }
+    }
+
+    return [$orgStock, $movementIds];
+}

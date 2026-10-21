@@ -83,6 +83,13 @@ class CreateManufactureTask extends OrgAction
                                     'value'       => false,
                                     'required'    => true
                                 ],
+                                'is_quantity_only' => [
+                                    'type'        => 'toggle',
+                                    'label'       => __('Quantity only, no timer'),
+                                    'information' => __('Turn on for hourly work such as filling to order: the artisan enters the quantity made and presses Done, with no Start/Stop timer. The session keeps who made it and when, with no hours.'),
+                                    'value'       => false,
+                                    'required'    => true
+                                ],
                                 'status' => [
                                     'type'     => 'toggle',
                                     'label'    => __('Active'),

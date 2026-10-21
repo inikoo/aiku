@@ -328,6 +328,13 @@ class AppServiceProvider extends ServiceProvider
                 'StockFamily'                      => 'App\Models\Goods\StockFamily',
                 'TradeUnit'                        => 'App\Models\Goods\TradeUnit',
                 'TradeUnitFamily'                  => 'App\Models\Goods\TradeUnitFamily',
+                'ProductDevelopment'               => 'App\Models\Goods\ProductDevelopment',
+                'ProductDevelopmentItem'           => 'App\Models\Goods\ProductDevelopmentItem',
+                'ProductDevelopmentChecklistItem'  => 'App\Models\Goods\ProductDevelopmentChecklistItem',
+                'ProductDevelopmentFile'           => 'App\Models\Goods\ProductDevelopmentFile',
+                'ProductDevelopmentDesignRound'    => 'App\Models\Goods\ProductDevelopmentDesignRound',
+                'ProductDevelopmentStage'          => 'App\Models\Goods\ProductDevelopmentStage',
+                'ProductDevelopmentComment'        => 'App\Models\Goods\ProductDevelopmentComment',
                 'TradeUnitTariffCodeOverride'      => 'App\Models\Goods\TradeUnitTariffCodeOverride',
 
 
@@ -452,6 +459,7 @@ class AppServiceProvider extends ServiceProvider
                 'HistoricSupplierProduct'          => 'App\Models\SupplyChain\HistoricSupplierProduct',
                 'SupplierProductTradeUnit'         => 'App\Models\SupplyChain\SupplierProductTradeUnit',
                 'SupplierProduct'                  => 'App\Models\SupplyChain\SupplierProduct',
+                'SupplierProductPackingSpec'       => 'App\Models\SupplyChain\SupplierProductPackingSpec',
                 'Supplier'                         => 'App\Models\SupplyChain\Supplier',
                 'Agent'                            => 'App\Models\SupplyChain\Agent',
 

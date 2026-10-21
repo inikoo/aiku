@@ -11,6 +11,7 @@
 namespace App\Actions\Pupil\Auth;
 
 use App\Actions\Dropshipping\ShopifyUser\ClaimShopifyUser;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -48,8 +49,11 @@ class AuthShopifyUser extends AuthController
 
         ClaimShopifyUser::make()->retireUnprovenOwner($request, $shopDomain->toNative());
 
-        // Run the action
-        [$result, $status] = $authShop($request);
+        try {
+            [$result, $status] = $authShop($request);
+        } catch (UniqueConstraintViolationException) {
+            [$result, $status] = [[], true];
+        }
 
         if ($status === null) {
             $this->logAuthFailure('Invalid HMAC verification', $request, $shopDomain, $result);

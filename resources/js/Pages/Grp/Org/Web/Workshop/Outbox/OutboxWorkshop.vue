@@ -2,6 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import type { Component } from 'vue'
 import { Head, router, usePage } from '@inertiajs/vue3'
+import { useFreshAfterHistoryRestore } from "@/Composables/useFreshAfterHistoryRestore"
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import Unlayer from "@/Components/CMS/Website/Outboxes/Unlayer/UnlayerV2.vue"
@@ -234,6 +235,10 @@ const isModalChooseTemplate = ref(false)
 const isBeefreeReady = ref(false)
 const activeSnapshot = ref(props.snapshot)
 
+const isRefreshingLayout = useFreshAfterHistoryRestore(['snapshot'], () => {
+    activeSnapshot.value = props.snapshot
+})
+
 const page = usePage()
 const tabs = computed(() => page.props.tabs)
 const currentTab = ref<string>(tabs.value.current)
@@ -316,7 +321,8 @@ const schedulePublish = async () => {
             @select-snapshot="onSelectTemplateSnapshot" />
     </Modal>
 
-    <Beetree v-if="builder == 'beefree' && emailEditor === 'beefree'" :updateRoute="updateRoute" :imagesUploadRoute="imagesUploadRoute"
+    <div v-if="isRefreshingLayout" />
+    <Beetree v-else-if="builder == 'beefree' && emailEditor === 'beefree'" :updateRoute="updateRoute" :imagesUploadRoute="imagesUploadRoute"
         :snapshot="activeSnapshot" :mergeTags="mergeTags" :organisationSlug="organisationSlug" :shopSlug="shopSlug"
         :shopId="shopId" @onSave="onSendPublish"
         @sendTest="openSendTest" @auto-save="autoSave" @saveTemplate="onSaveTemplate" ref="_beefree"

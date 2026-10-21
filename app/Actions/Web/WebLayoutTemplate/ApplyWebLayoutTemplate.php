@@ -14,6 +14,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithWebEditAuthorisation;
 use App\Actions\Web\Webpage\UpdateWebpageContent;
 use App\Actions\Web\Webpage\WithStoreWebpage;
+use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Models\Web\WebLayoutTemplate;
 use App\Models\Web\Webpage;
 use Illuminate\Support\Arr;
@@ -32,6 +33,10 @@ class ApplyWebLayoutTemplate extends OrgAction
 
         if (!$template) {
             abort(404, 'Invalid Template being selected');
+        }
+
+        if (!self::canUseTemplates($webpage) || !self::templateFits($webpage, $template)) {
+            abort(422, 'This template cannot be used on this webpage');
         }
 
         $webpage = DB::transaction(function () use ($webpage, $modelData, $template) {
@@ -73,6 +78,19 @@ class ApplyWebLayoutTemplate extends OrgAction
         });
 
         UpdateWebpageContent::run($webpage->refresh());
+    }
+
+    public static function canUseTemplates(Webpage $webpage): bool
+    {
+        return !in_array($webpage->type, [WebpageTypeEnum::BLOG, WebpageTypeEnum::SYSTEM_PAGE], true);
+    }
+
+    /**
+     * Storefront templates go only on storefronts, and storefronts take only storefront templates.
+     */
+    public static function templateFits(Webpage $webpage, WebLayoutTemplate $template): bool
+    {
+        return ($webpage->type === WebpageTypeEnum::STOREFRONT) === ($template->type === WebpageTypeEnum::STOREFRONT->value);
     }
 
     public function rules(): array

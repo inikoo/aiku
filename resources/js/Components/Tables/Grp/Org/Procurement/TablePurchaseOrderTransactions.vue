@@ -22,15 +22,16 @@ import PurchaseOrderLinePriceChange from '@/Components/Procurement/PurchaseOrder
 import { getOrderingLevels, unitsPerOrderingLevel, suggestionAtOrderingLevel, type OrderingLevel } from '@/Composables/useOrderingLevel'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faBox, faPallet, faStopCircle, faTrashAlt, faPeopleArrows, faBalanceScale, faExclamationTriangle } from '@fal'
+import { faBox, faPallet, faStopCircle, faTrashAlt, faPeopleArrows, faBalanceScale, faExclamationTriangle, faBoxOpen } from '@fal'
 import { faExclamationCircle, faSpinner, faMinusCircle } from '@fas'
 import ConfirmPopup from 'primevue/confirmpopup'
 import Popover from 'primevue/popover'
+import Checkbox from 'primevue/checkbox'
 import { useConfirm } from 'primevue/useconfirm'
 import Toggle from '@/Components/Pure/Toggle.vue'
 import ProductImageViewerDialog from '@/Components/Product/ProductImageViewerDialog.vue'
 
-library.add(faExclamationTriangle, faBalanceScale, faBox, faPallet, faStopCircle, faExclamationCircle, faTrashAlt, faSpinner, faMinusCircle, faPeopleArrows)
+library.add(faExclamationTriangle, faBalanceScale, faBox, faPallet, faStopCircle, faExclamationCircle, faTrashAlt, faSpinner, faMinusCircle, faPeopleArrows, faBoxOpen)
 
 const confirm = useConfirm()
 
@@ -171,6 +172,10 @@ const savingPriceId = ref<number | null>(null)
 
 function canEditPrice(item: any) {
     return isPriceEditable.value && !isInAgentOrganisation && item.updateRoute && ['in_process', 'submitted'].includes(item.state)
+}
+
+function isPriceQueryAnswered(item: any) {
+    return !!item.price_query && item.price_query.state !== 'pending'
 }
 
 function supplierLevelCostLabel(item: any) {
@@ -424,6 +429,15 @@ function openImageViewer(item: any) {
 
 const currentOrganisation = route().params.organisation as string | undefined
 const isInAgentOrganisation = isAgentOrganisation(currentOrganisation)
+const currentPurchaseOrder = route().params.purchaseOrder as string | undefined
+
+function packingInstructionsUrl(item: { id: number, has_packing_instructions?: boolean }) {
+    if (!item.has_packing_instructions || !currentOrganisation || !currentPurchaseOrder) {
+        return ''
+    }
+
+    return route('grp.org.procurement.purchase_orders.packing_instructions', { organisation: currentOrganisation, purchaseOrder: currentPurchaseOrder, transaction: item.id })
+}
 
 function supplierProductRoute(item: { slug?: string, org_supplier_product_slug?: string }) {
     if (item.org_supplier_product_slug && isInAgentOrganisation) {
@@ -597,8 +611,13 @@ function orgStockRoute(item: { org_stock_id?: number }) {
                             {{ ctrans('Use this price as supplier price') }}
                         </button>
                     </div>
-                    <label v-if="item.can_update_supplier_cost" class="flex items-center gap-1 cursor-pointer select-none">
-                        <input v-model="alsoUpdateSupplierPrice[item.id]" type="checkbox" class="rounded border-gray-300" />
+                    <label
+                        v-if="item.can_update_supplier_cost"
+                        class="flex items-center gap-1 select-none"
+                        :class="isPriceQueryAnswered(item) ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'"
+                        v-tooltip="isPriceQueryAnswered(item) ? ctrans('The supplier price change was already answered') : undefined"
+                    >
+                        <Checkbox v-model="alsoUpdateSupplierPrice[item.id]" binary size="small" :disabled="isPriceQueryAnswered(item)" />
                         {{ ctrans('Also update supplier price') }}
                     </label>
                 </div>
@@ -672,6 +691,16 @@ function orgStockRoute(item: { org_stock_id?: number }) {
 
         <template #cell(actions)="{ item }">
             <div class="flex justify-end items-center gap-2">
+                <a v-if="packingInstructionsUrl(item)" :href="packingInstructionsUrl(item)" target="_blank" rel="noopener">
+                    <Button
+                        :label="ctrans('Packing')"
+                        :tooltip="ctrans('Print the packing instructions of this product')"
+                        icon="fal fa-file-pdf"
+                        type="tertiary"
+                        size="xs"
+                    />
+                </a>
+
                 <Button
                     v-if="item.deleteRoute && state === 'in_process'"
                     :label="ctrans('Remove')"

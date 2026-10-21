@@ -11,7 +11,9 @@ namespace App\Actions\DevOps\UI;
 use App\Actions\DevOps\MonitorDatabaseReplicas;
 use App\Actions\DevOps\Server\StoreServerLiveMetric;
 use App\Actions\OrgAction;
+use App\Models\DevOps\CiMetricSnapshot;
 use App\Models\DevOps\CiRun;
+use App\Actions\DevOps\CiMetricSnapshot\StoreCoverageSnapshot;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\SysAdmin\Group;
@@ -70,6 +72,7 @@ class ShowDevopsDashboard extends OrgAction
                 'databaseReplicas' => rescue(fn () => MonitorDatabaseReplicas::make()->report(), []),
                 'databaseBackups'  => rescue(fn () => MonitorDatabaseReplicas::make()->backupReport(), null),
                 'ciRuns'           => $this->getCiRuns(),
+                'codeHealth'       => Inertia::optional(fn () => $this->getCodeHealth()),
                 'liveReadings'     => $servers->mapWithKeys(fn (object $server) => [$server->slug => StoreServerLiveMetric::recentReadings($server->slug)]),
                 'telemetry'        => Inertia::optional(fn () => app(GetNightOwlTelemetry::class)->overview(GetNightOwlTelemetry::range($request->query('range')))),
                 'telemetryException' => Inertia::optional(fn () => $request->filled('exception') ? app(GetNightOwlTelemetry::class)->exception((string) $request->query('exception'), $request->integer('occurrence') ?: null, $request->query('occurrence_at')) : null),
@@ -138,6 +141,73 @@ class ShowDevopsDashboard extends OrgAction
     public const string TESTS_WORKFLOW = 'Backend Tests';
 
     /** @var array<string, string> */
+    /**
+     * @return array{compare_days: int, coverage: array<string, mixed>|null, coverage_history: list<array{day: string, source: string, coverage: float|null}>, bundles: array<string, mixed>|null, bundle_history: list<array{day: string, bytes: int, gzip_bytes: int}>}
+     */
+    public function getCodeHealth(int $days = 180, int $compareDays = 30): array
+    {
+        $history = fn (string $type) => CiMetricSnapshot::where('type', $type)->where('measured_at', '>=', now()->subDays($days))
+            ->orderBy('measured_at')->get(['measured_at', 'summary', 'github_run_id'])
+            ->groupBy(fn (CiMetricSnapshot $snapshot) => $snapshot->measured_at->copy()->setTimezone('Asia/Kuala_Lumpur')->toDateString())
+            ->map(fn (Collection $snapshots, string $day) => ['day' => $day, 'source' => $snapshots->last()->github_run_id ? 'aiku' : 'codecov', ...$snapshots->last()->summary])
+            ->values();
+        $latest   = fn (string $type) => CiMetricSnapshot::where('type', $type)->orderByDesc('measured_at')->first();
+        $baseline = fn (string $type, CiMetricSnapshot $latest) => CiMetricSnapshot::where('type', $type)->whereNotNull('github_run_id')
+            ->where('measured_at', '<=', $latest->measured_at->copy()->subDays($compareDays))->orderByDesc('measured_at')->first();
+
+        $coverage = $latest(CiMetricSnapshot::COVERAGE);
+        $bundles  = $latest(CiMetricSnapshot::BUNDLE_SIZE);
+
+        return [
+            'compare_days'     => $compareDays,
+            'coverage'         => $coverage ? $this->coverageDetail($coverage, $baseline(CiMetricSnapshot::COVERAGE, $coverage)) : null,
+            'coverage_history' => $history(CiMetricSnapshot::COVERAGE)->map(fn (array $day) => ['day' => $day['day'], 'source' => $day['source'], 'coverage' => $day['coverage'] ?? null])->all(),
+            'bundles'          => $bundles ? $this->bundleDetail($bundles, $baseline(CiMetricSnapshot::BUNDLE_SIZE, $bundles)) : null,
+            'bundle_history'   => $history(CiMetricSnapshot::BUNDLE_SIZE)->map(fn (array $day) => ['day' => $day['day'], 'bytes' => $day['bytes'] ?? 0, 'gzip_bytes' => $day['gzip_bytes'] ?? 0])->all(),
+        ];
+    }
+
+    public function coverageDetail(CiMetricSnapshot $snapshot, ?CiMetricSnapshot $baseline): array
+    {
+        $coverageOf = fn (?array $totals) => $totals ? StoreCoverageSnapshot::percentage($totals['hits'], $totals['lines']) : null;
+
+        return [
+            'measured_at' => $snapshot->measured_at->toIso8601String(),
+            'head_sha'    => $snapshot->head_sha ? substr($snapshot->head_sha, 0, 10) : null,
+            'coverage'    => $snapshot->summary['coverage'] ?? null,
+            'lines'       => $snapshot->summary['lines'] ?? 0,
+            'hits'        => $snapshot->summary['hits'] ?? 0,
+            'change'      => isset($snapshot->summary['coverage'], $baseline?->summary['coverage']) ? round($snapshot->summary['coverage'] - $baseline->summary['coverage'], 2) : null,
+            'modules'     => collect($snapshot->breakdown)->map(fn (array $totals, string $module) => [
+                'module'   => $module,
+                'lines'    => $totals['lines'],
+                'hits'     => $totals['hits'],
+                'coverage' => $coverage = $coverageOf($totals),
+                'change'   => $baseline && isset($baseline->breakdown[$module]) && $coverage !== null ? round($coverage - $coverageOf($baseline->breakdown[$module]), 2) : null,
+            ])->sortByDesc('lines')->values()->all(),
+        ];
+    }
+
+    public function bundleDetail(CiMetricSnapshot $snapshot, ?CiMetricSnapshot $baseline): array
+    {
+        return [
+            'measured_at' => $snapshot->measured_at->toIso8601String(),
+            'head_sha'    => $snapshot->head_sha ? substr($snapshot->head_sha, 0, 10) : null,
+            'bytes'       => $snapshot->summary['bytes'] ?? 0,
+            'gzip_bytes'  => $snapshot->summary['gzip_bytes'] ?? 0,
+            'change'      => $baseline ? ($snapshot->summary['gzip_bytes'] ?? 0) - ($baseline->summary['gzip_bytes'] ?? 0) : null,
+            'bundles'     => collect($snapshot->breakdown)->map(fn (array $bundle, string $name) => [
+                'name'       => $name,
+                'files'      => $bundle['files'],
+                'js_bytes'   => $bundle['js_bytes'],
+                'css_bytes'  => $bundle['css_bytes'],
+                'gzip_bytes' => $bundle['gzip_bytes'],
+                'change'     => $baseline && isset($baseline->breakdown[$name]) ? $bundle['gzip_bytes'] - $baseline->breakdown[$name]['gzip_bytes'] : null,
+                'largest'    => array_slice($bundle['largest'] ?? [], 0, 5),
+            ])->values()->all(),
+        ];
+    }
+
     public const array DEPLOY_HOST_NAMES = ['aiku' => 'boro', 'aiku_litio' => 'litio'];
 
     /** @return array{deploy: array<string, mixed>|null, tests: array<string, mixed>|null, recent_deploys: array<int, array<string, mixed>>, recent_tests: array<int, array<string, mixed>>, usual_deploy_seconds: int|null, usual_tests_seconds: int|null, test_stats: array<string, mixed>} */

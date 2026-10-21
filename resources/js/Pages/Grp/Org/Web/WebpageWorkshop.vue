@@ -135,7 +135,7 @@ const TEMPLATE_DELETE_ROUTE = "grp.models.web_layout_template.delete";
 const TEMPLATES_PER_PAGE = 10;
 const templates = ref<WebLayoutTemplateList>({ data: [] });
 const templatesSearch = ref("");
-const templatesFilter = ref<WebLayoutTemplateFilter>("all");
+const templatesFilter = ref<WebLayoutTemplateFilter>(props.webpage.type === 'storefront' ? "matching" : "all");
 const isLoadingTemplates = ref(false);
 const templatesErrorMessage = ref<string | null>(null);
 const applyingTemplateId = ref<number | null>(null);
@@ -153,7 +153,8 @@ const COPIED_BLOCK_STORAGE_KEY = "webpageWorkshop.copiedBlock";
 const canUndo = computed(() => history.value.length > 1);
 const canRedo = computed(() => future.value.length > 0);
 
-const WEBPAGE_TYPES_WITHOUT_TEMPLATE = ['storefront', 'blog', 'system_page'];
+const WEBPAGE_TYPES_WITHOUT_TEMPLATE = ['blog', 'system_page'];
+const showsMatchingTemplatesOnly = props.webpage.type === 'storefront';
 const canUseTemplate = computed(() => !WEBPAGE_TYPES_WITHOUT_TEMPLATE.includes(props.webpage.type));
 
 
@@ -1265,6 +1266,7 @@ const openWebsite = () => {
           :applyingTemplateId="applyingTemplateId"
           :deletingTemplateId="deletingTemplateId"
           :templatesFilter="templatesFilter"
+          :matchingTemplatesOnly="showsMatchingTemplatesOnly"
           @fetchTemplates="fetchTemplates()"
           @searchTemplates="onSearchTemplates"
           @filterTemplates="onFilterTemplates"

@@ -5,6 +5,7 @@
   -->
 
 <script setup lang="ts">
+import ProductDevelopmentRelatedList from "@/Components/Goods/ProductDevelopment/ProductDevelopmentRelatedList.vue"
 import { Head } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import AlertMessage from "@/Components/Utils/AlertMessage.vue"
@@ -39,6 +40,7 @@ import { ctrans } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
 
 const props = defineProps<{
+    productDevelopments?: InstanceType<typeof ProductDevelopmentRelatedList>["$props"]["data"]
     title: string,
     suspended_alert?: { status: string, title: string, description: string } | null,
     pageHead: object,
@@ -131,8 +133,12 @@ const getErrors = () => {
     <!--suppress TypeScriptUnresolvedReference -->
     <div v-if="props.errors.purchase_order">{{ getErrors() }}</div>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <div v-if="currentTab === 'showcase'" class="px-4 pt-4 max-w-4xl">
+    <div v-if="currentTab === 'showcase'" class="grid items-start gap-4 px-4 pt-4" :class="productDevelopments ? 'xl:grid-cols-[minmax(0,56rem)_minmax(0,1fr)]' : 'max-w-4xl'">
         <AgreementSummary :agreement="agreement" />
+        <section v-if="productDevelopments" class="overflow-hidden rounded-lg border border-gray-200 bg-white">
+            <h3 class="border-b border-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-800">{{ ctrans("Open product developments") }}</h3>
+            <ProductDevelopmentRelatedList :data="productDevelopments" compact :emptyText="ctrans('No open product development')" />
+        </section>
     </div>
     <component :is="component" :data="props[currentTab]" :tab="currentTab" :detachRoute="attachmentRoutes.detachRoute" v-bind="['agreed_terms', 'notes'].includes(currentTab) ? { agreement } : {}"></component>
 

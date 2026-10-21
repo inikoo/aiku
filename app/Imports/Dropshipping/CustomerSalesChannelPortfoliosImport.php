@@ -52,7 +52,9 @@ class CustomerSalesChannelPortfoliosImport implements ToCollection, WithHeadingR
         $sku = Arr::get($rowData, 'sku');
 
         if (! $sku) {
-            throw ValidationException::withMessages(['sku' => 'The row is not contains valid sku.']);
+            $this->setRecordAsFailed($uploadRecord, ['The row does not contain a valid sku.']);
+
+            return;
         }
 
         $modelData = [

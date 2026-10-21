@@ -15,7 +15,7 @@ trait HasEmail
 {
     use Notifiable;
 
-    public function routeNotificationForMail(Notification $notification): array|string
+    public function routeNotificationForMail(Notification $notification): array|string|null
     {
         if (!app()->isProduction()) {
             return config('mail.testing_mail_to');

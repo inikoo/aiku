@@ -32,6 +32,7 @@ class GetArtefactShowcase
             'name'              => $artefact->name,
             'state'             => $artefact->state,
             'state_label'       => $artefact->state->labels()[$artefact->state->value],
+            'is_in_development' => $artefact->is_in_development,
             'artefact_department'   => $artefact->artefactDepartment ? ['slug' => $artefact->artefactDepartment->slug, 'name' => $artefact->artefactDepartment->name] : null,
             'tags'              => $artefact->tags->pluck('name'),
             'compliance_status' => $compliance['status'],

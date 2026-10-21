@@ -27,7 +27,7 @@ const organisation = computed(() => props.organisation ?? call.value?.organisati
         <div class="min-w-0 flex-1">
             <div class="truncate text-sm font-medium text-green-900">{{ statusLabel }}</div>
             <div class="truncate text-xs text-green-700">
-                {{ call.phone_number }}
+                {{ call.caller ?? call.phone_number }}
                 <span v-if="isLive"> · {{ formattedElapsed }}</span>
             </div>
         </div>

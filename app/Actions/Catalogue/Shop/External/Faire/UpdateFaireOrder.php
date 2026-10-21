@@ -63,6 +63,10 @@ class UpdateFaireOrder extends OrgAction
      */
     public function handle(Order $order): void
     {
+        if ($order->state == OrderStateEnum::CANCELLED) {
+            return;
+        }
+
         $shop = $order->shop;
 
         $orderFaireData = $shop->getFaireOrder($order->external_id);

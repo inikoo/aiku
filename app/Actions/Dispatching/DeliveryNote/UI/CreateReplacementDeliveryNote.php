@@ -232,7 +232,7 @@ class CreateReplacementDeliveryNote extends OrgAction
             'warning'       => $warning,
             'tabs'          => [
                 'current'    => $this->tab,
-                'navigation' => DeliveryNoteTabsEnum::navigationExcept($deliveryNote, [DeliveryNoteTabsEnum::PICKING_TODO_ITEMS, DeliveryNoteTabsEnum::PICKING_DONE_ITEMS, DeliveryNoteTabsEnum::TARIFF_CODES])
+                'navigation' => DeliveryNoteTabsEnum::navigationExcept($deliveryNote, [DeliveryNoteTabsEnum::PICKING_TODO_ITEMS, DeliveryNoteTabsEnum::PICKING_DONE_ITEMS, DeliveryNoteTabsEnum::TARIFF_CODES, DeliveryNoteTabsEnum::DISPATCHED_EMAILS])
             ],
             'delivery_note' => DeliveryNoteResource::make($deliveryNote)->toArray(request()),
 

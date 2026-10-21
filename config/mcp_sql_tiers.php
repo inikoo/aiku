@@ -141,7 +141,7 @@ return [
         ],
 
         'procurement' => [
-            'suppliers', 'supplier_*', 'historic_supplier_product*', 'org_suppliers', 'org_supplier_*',
+            'suppliers', 'supplier_*', 'packing_spec_lines', 'historic_supplier_product*', 'org_suppliers', 'org_supplier_*',
             'agents', 'agent_*', 'org_agents', 'org_partners', 'partner_shopping_list_items',
             'purchase_order*', 'stock_deliver*', 'aspo_deposits', 'deposit_request*', 'competitor*',
             'org_stock_discontinue_suggestions', 'procurement_notes',
@@ -177,7 +177,7 @@ return [
         'engineering' => [
             'users', 'user_*', 'admins', 'roles', 'role_*', 'permissions', 'model_has_permissions', 'model_has_roles', 'job_position_role',
             'audits', 'failed_jobs', 'job_exceptions', 'job_statistics', 'queue_statistics', 'queries', 'query_has_models', 'scheduled_task_logs',
-            'deployments', 'app_deployments', 'ci_runs', 'committers', 'servers', 'server_metric*', 'debug_webhooks', 'payment_gateway_logs',
+            'deployments', 'app_deployments', 'ci_runs', 'ci_metric_snapshots', 'committers', 'servers', 'server_metric*', 'debug_webhooks', 'payment_gateway_logs',
             'fetch*', 'chunks', 'uploads', 'upload_records', 'mcp_*', 'ai_usages', 'notifications', 'retina_api_requests', 'aiku_*',
             'staff_conversations', 'staff_conversation_participants',
             'model_has_attachments', 'external_subscriber_*', 'web_vital_samples', 'restricted_country_region_logs', 'subscription_events',

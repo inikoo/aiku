@@ -98,6 +98,8 @@ class GetTradeUnitAttachment
             return [];
         }
         $isSharingLine = fn (TradeUnit $candidate) => in_array(Str::lower(Str::beforeLast($candidate->code, '-')), $sharingPrefixes);
+        $sizeRoot      = $this->sizeRoot($prefix);
+        $isTicked      = fn (TradeUnit $candidate) => $isSharingLine($candidate) || $sizeRoot !== '' && $this->sizeRoot(Str::beforeLast($candidate->code, '-')) === $sizeRoot;
 
         return TradeUnit::where('group_id', $tradeUnit->group_id)
             ->whereLike('code', '%-'.$this->escapeLike($suffix), caseSensitive: false)
@@ -116,7 +118,7 @@ class GetTradeUnitAttachment
             ->get(['id', 'code', 'name'])
             ->filter(fn (TradeUnit $candidate) => $isSharingLine($candidate) || $this->prefixesOverlap($prefix, Str::beforeLast($candidate->code, '-')))
             ->sortBy([
-                fn (TradeUnit $a, TradeUnit $b) => $isSharingLine($b) <=> $isSharingLine($a),
+                fn (TradeUnit $a, TradeUnit $b) => $isTicked($b) <=> $isTicked($a),
                 fn (TradeUnit $a, TradeUnit $b) => $this->sharedWordCount($b->name, $substanceWords) <=> $this->sharedWordCount($a->name, $substanceWords),
                 fn (TradeUnit $a, TradeUnit $b) => strcasecmp($a->code, $b->code),
             ])
@@ -126,7 +128,7 @@ class GetTradeUnitAttachment
                 'id'      => $suggestion->id,
                 'code'    => $suggestion->code,
                 'name'    => $suggestion->name,
-                'checked' => $isSharingLine($suggestion),
+                'checked' => $isTicked($suggestion),
             ])
             ->all();
     }
@@ -162,6 +164,15 @@ class GetTradeUnitAttachment
         }
 
         return false;
+    }
+
+    /**
+     * The line a code prefix belongs to once the size markers are taken off: PrEOUL, EOKG, EOB, EOUL and PrEO are all sizes of EO,
+     * while EOSC, OrgEO or EOB5 stay lines of their own.
+     */
+    private function sizeRoot(string $prefix): string
+    {
+        return preg_replace(['/^pr/', '/(ul)$/', '/(kg|b)$/'], '', Str::lower($prefix));
     }
 
     /**

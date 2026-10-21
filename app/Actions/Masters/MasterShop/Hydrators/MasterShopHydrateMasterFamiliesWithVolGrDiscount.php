@@ -12,11 +12,11 @@ use App\Enums\Catalogue\MasterProductCategory\MasterProductCategoryTypeEnum;
 use App\Models\Masters\MasterShop;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Support\Facades\DB;
-use Lorisleiva\Actions\Concerns\AsAction;
+use App\Actions\Traits\AsUniqueUntilProcessingAction;
 
 class MasterShopHydrateMasterFamiliesWithVolGrDiscount implements ShouldBeUniqueUntilProcessing
 {
-    use AsAction;
+    use AsUniqueUntilProcessingAction;
 
     public function getJobUniqueId(MasterShop $masterShop): string
     {

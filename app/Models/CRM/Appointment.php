@@ -36,6 +36,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property \Illuminate\Support\Carbon|null $accepted_at
  * @property \Illuminate\Support\Carbon|null $declined_at
  * @property string|null $state_reason
+ * @property \Illuminate\Support\Carbon|null $reminder_sent_at
  * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -56,14 +57,15 @@ class Appointment extends Model implements Auditable
     use HasHistory;
 
     protected $casts = [
-        'state'        => AppointmentStateEnum::class,
-        'source'       => AppointmentSourceEnum::class,
-        'starts_at'    => 'datetime',
-        'ends_at'      => 'datetime',
-        'cancelled_at' => 'datetime',
-        'accepted_at'  => 'datetime',
-        'declined_at'  => 'datetime',
-        'data'         => 'array',
+        'state'            => AppointmentStateEnum::class,
+        'source'           => AppointmentSourceEnum::class,
+        'starts_at'        => 'datetime',
+        'ends_at'          => 'datetime',
+        'cancelled_at'     => 'datetime',
+        'accepted_at'      => 'datetime',
+        'declined_at'      => 'datetime',
+        'reminder_sent_at' => 'datetime',
+        'data'             => 'array',
     ];
 
     protected $attributes = [

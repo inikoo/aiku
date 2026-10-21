@@ -108,7 +108,7 @@ class MatchPortfolioToCurrentEbayProduct extends OrgAction
                     'platform_status'               => false
                 ]);
 
-                UpdatePlatformPortfolioLog::dispatch($logs, [
+                UpdatePlatformPortfolioLog::run($logs, [
                     'status' => PlatformPortfolioLogsStatusEnum::OK
                 ]);
 
@@ -134,7 +134,7 @@ class MatchPortfolioToCurrentEbayProduct extends OrgAction
                 'data'            => ['is_platform_draft' => false]
             ]);
 
-            UpdatePlatformPortfolioLog::dispatch($logs, [
+            UpdatePlatformPortfolioLog::run($logs, [
                 'status' => PlatformPortfolioLogsStatusEnum::OK
             ]);
         }
@@ -142,7 +142,7 @@ class MatchPortfolioToCurrentEbayProduct extends OrgAction
         if ($errorMessage = Arr::get($publishedOffer, 'errors')) {
             $displayError = $ebayUser->getDisplayErrors($errorMessage) ?? $errorMessage;
 
-            UpdatePlatformPortfolioLog::dispatch($logs, [
+            UpdatePlatformPortfolioLog::run($logs, [
                 'status' => PlatformPortfolioLogsStatusEnum::FAIL,
                 'response' => $displayError
             ]);

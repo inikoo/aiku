@@ -125,6 +125,7 @@ class SendAppointmentEmail extends OrgAction
             OutboxCodeEnum::APPOINTMENT_ACCEPTED    => __('Your appointment on :date is confirmed', ['date' => $date]),
             OutboxCodeEnum::APPOINTMENT_DECLINED    => __('We cannot see you on :date', ['date' => $date]),
             OutboxCodeEnum::APPOINTMENT_RESCHEDULED => __('Your appointment has moved to :date', ['date' => $date]),
+            OutboxCodeEnum::APPOINTMENT_REMINDER    => __('Reminder: your appointment on :date', ['date' => $date]),
             default                                 => __('Your appointment on :date is cancelled', ['date' => $date]),
         };
     }
@@ -150,10 +151,11 @@ class SendAppointmentEmail extends OrgAction
                     ])
                     : __('Your appointment has moved to :date at :time.', $when)
             ),
+            OutboxCodeEnum::APPOINTMENT_REMINDER => $this->paragraph(__('This is a reminder of your appointment on :date at :time. We look forward to seeing you.', $when)),
             default => $this->paragraph(__('Your appointment on :date at :time has been cancelled.', $when)),
         };
 
-        if (in_array($code, [OutboxCodeEnum::APPOINTMENT_REQUESTED, OutboxCodeEnum::APPOINTMENT_ACCEPTED, OutboxCodeEnum::APPOINTMENT_RESCHEDULED], true)) {
+        if (in_array($code, [OutboxCodeEnum::APPOINTMENT_REQUESTED, OutboxCodeEnum::APPOINTMENT_ACCEPTED, OutboxCodeEnum::APPOINTMENT_RESCHEDULED, OutboxCodeEnum::APPOINTMENT_REMINDER], true)) {
             $html .= $this->detailsTable($appointment);
 
             if ($manageUrl = $appointment->manageUrl()) {

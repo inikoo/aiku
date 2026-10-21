@@ -9,6 +9,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from "vue"
 import type { Component } from "vue"
 import { Head, Link, router } from "@inertiajs/vue3"
 import { ctrans } from "@/Composables/useTrans"
+import type { RelatedProductDevelopment } from "@/Components/Goods/ProductDevelopment/ProductDevelopmentRelatedList.vue"
 import UploadExcel from "@/Components/Upload/UploadExcel.vue"
 
 import PageHeading from "@/Components/Headings/PageHeading.vue"
@@ -16,6 +17,7 @@ import Tabs from "@/Components/Navigation/Tabs.vue"
 import Timeline from "@/Components/Utils/Timeline.vue"
 import ProcurementOrderData from "@/Components/Procurement/ProcurementOrderData.vue"
 import AgreementSummary from "@/Components/Procurement/AgreementSummary.vue"
+import PackingSpecGaps from "@/Components/Procurement/PackingSpecGaps.vue"
 import AgreedTermDifferences from "@/Components/Procurement/AgreedTermDifferences.vue"
 import OrderSummary from "@/Components/Summary/OrderSummary.vue"
 import AgentOrderingItems from "@/Components/Procurement/AgentOrderingItems.vue"
@@ -105,6 +107,7 @@ interface SubmitProblem {
 }
 
 const props = defineProps < {
+	productDevelopments?: RelatedProductDevelopment[]
     title: string
     pageHead: PageHeadingTypes
     data: {
@@ -151,6 +154,7 @@ const props = defineProps < {
     submit_problems?: SubmitProblem[]
 	agreement: { terms: object[], notes: object[], open_incidents: number, must_acknowledge: boolean }
 	agreed_term_differences?: InstanceType<typeof AgreedTermDifferences>["$props"]["differences"] | null
+	packing_spec_gaps?: InstanceType<typeof PackingSpecGaps>["$props"]["gaps"] | null
     tabs: {
         current: string
         navigation: {}
@@ -1201,6 +1205,12 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 					<FontAwesomeIcon icon="fal fa-shopping-cart" aria-hidden="true" fixed-width />
 					<span class="italic">{{ ctrans("Their order is created when you submit") }}</span>
 				</div>
+				<div v-for="development in productDevelopments ?? []" :key="development.id" class="flex items-center gap-3 text-sm">
+					<FontAwesomeIcon v-tooltip="ctrans('Product development')" icon="fal fa-lightbulb-on" class="text-gray-400" aria-hidden="true" fixed-width />
+					<Link :href="route(development.route.name, development.route.parameters)" class="primaryLink truncate">{{ development.code }}</Link>
+					<span class="truncate text-gray-600">{{ development.name }}</span>
+					<span class="shrink-0 text-xs text-gray-400">{{ development.stage }}</span>
+				</div>
 				<ProcurementOrderData v-if="showcase" :data="showcase" :isOwnWarehouse="box_stats.first_block.delivery.is_own_warehouse" />
 			</div>
 		</BoxStatPallet>
@@ -1350,6 +1360,10 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
 	<div v-if="agreed_term_differences" class="px-4 pt-4">
 		<AgreedTermDifferences :differences="agreed_term_differences" />
+	</div>
+
+	<div v-if="packing_spec_gaps" class="px-4 pt-4">
+		<PackingSpecGaps :gaps="packing_spec_gaps" />
 	</div>
 
 	<Tabs :current="currentTab" :navigation="tabs?.navigation" @update:tab="handleTabUpdate" />

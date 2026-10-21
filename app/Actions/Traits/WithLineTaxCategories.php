@@ -17,6 +17,7 @@ use App\Enums\Ordering\Order\OrderStateEnum;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\Ordering\Order;
+use App\Models\Ordering\Transaction;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
@@ -269,15 +270,27 @@ trait WithLineTaxCategories
             return;
         }
 
-        $transactions = $order->transactions()
-            ->with(['historicAsset:id,tax_category', 'asset:id,master_asset_id', 'asset.masterAsset:id,tax_category'])
-            ->get(['id', 'order_id', 'asset_id', 'historic_asset_id', 'tax_category_id']);
+        $lines = DB::table('transactions')
+            ->leftJoin('historic_assets', fn ($join) => $join->on('historic_assets.id', '=', 'transactions.historic_asset_id')->whereNull('historic_assets.deleted_at'))
+            ->leftJoin('assets', fn ($join) => $join->on('assets.id', '=', 'transactions.asset_id')->whereNull('assets.deleted_at'))
+            ->leftJoin('master_assets', fn ($join) => $join->on('master_assets.id', '=', 'assets.master_asset_id')->whereNull('master_assets.deleted_at'))
+            ->where('transactions.order_id', $order->id)
+            ->whereNull('transactions.deleted_at')
+            ->get([
+                'transactions.id',
+                'transactions.tax_category_id',
+                'historic_assets.tax_category as historic_asset_tax_category',
+                'master_assets.tax_category as master_asset_tax_category',
+            ]);
 
-        foreach ($transactions as $transaction) {
-            $taxCategoryId = $this->getLineTaxCategoryId($order, $transaction);
+        foreach ($lines as $line) {
+            $taxCategoryId = $this->getLineTaxCategoryId($order, (object)[
+                'historicAsset' => (object)['tax_category' => json_decode($line->historic_asset_tax_category ?? 'null', true)],
+                'asset'         => (object)['masterAsset' => (object)['tax_category' => json_decode($line->master_asset_tax_category ?? 'null', true)]],
+            ]);
 
-            if ($transaction->tax_category_id !== $taxCategoryId) {
-                $transaction->updateQuietly(['tax_category_id' => $taxCategoryId]);
+            if ($line->tax_category_id !== $taxCategoryId) {
+                Transaction::whereKey($line->id)->update(['tax_category_id' => $taxCategoryId]);
             }
         }
     }

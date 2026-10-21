@@ -11,11 +11,11 @@ namespace App\Actions\Inventory\OrgStockMovement;
 use App\Actions\Inventory\OrgStock\Stock\Concerns\CalculatesOrgStockHistories;
 use App\Models\Inventory\OrgStockMovement;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
-use Lorisleiva\Actions\Concerns\AsAction;
+use App\Actions\Traits\AsUniqueUntilProcessingAction;
 
 class CalculateRunningQuantityOrgStockMovement implements ShouldBeUniqueUntilProcessing
 {
-    use AsAction;
+    use AsUniqueUntilProcessingAction;
     use CalculatesOrgStockHistories;
 
     public string $jobQueue = 'stock-history-urgent';

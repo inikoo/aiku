@@ -41,6 +41,7 @@ set -a; source "$ENV_FILE"; set +a
 INSTALL_SCHEDULER="${INSTALL_SCHEDULER:-0}"
 : "${HORIZON_DB_READ_HOSTS?set it in $ENV_FILE — empty on boro, 127.0.0.1 on litio}"
 export OCTANE_PORT="${OCTANE_PORT:-8000}"
+export IMGPROXY_ACCEL_UPSTREAM="${IMGPROXY_ACCEL_UPSTREAM:-127.0.0.1:8094}"
 
 # place <src> <dst> [mode]
 # Substitutes every {{VAR}} from the environment (dies on an unset placeholder,

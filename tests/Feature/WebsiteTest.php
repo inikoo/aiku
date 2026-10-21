@@ -1964,6 +1964,12 @@ test('robots txt is generated on demand with absolute sitemap urls', function (W
         ->toContain("://www.$website->domain/sitemap.xml")
         ->toContain("://www.$website->domain/sitemaps/products.xml")
         ->not->toContain('Sitemap: /');
+
+    expect($robotsTxt)
+        ->toContain("User-agent: Amazonbot\nDisallow: /*?variant")
+        ->toContain("Disallow: /email-protection\nDisallow: /i/\n")
+        ->toContain("User-agent: SiteAuditBot\n")
+        ->toContain("User-agent: SplitSignalBot\nDisallow: /\n");
 })->depends('launch website');
 
 test('llms txt core is generated and an upload is only appended', function (Website $website) {
@@ -1999,6 +2005,22 @@ test('llms txt core is generated and an upload is only appended', function (Webs
     $website->update(['settings' => array_merge($website->settings, ['webpage' => ['show_price' => true]])]);
 
     expect(App\Actions\Web\Website\LlmsTxt\GetLlmsTxt::run($website->refresh()))->toContain('Prices are public.');
+})->depends('launch website');
+
+test('llms txt reads the organisation fallback fresh even from a cached website', function (Website $website) {
+    $website->loadMissing(['organisation', 'group']);
+    $organisation     = $website->organisation;
+    $originalSettings = $organisation->settings;
+    App\Models\Web\WebsiteLlmsTxt::where('website_id', $website->id)->update(['is_active' => false]);
+
+    $organisation->newQuery()->whereKey($organisation->id)->update(['settings' => json_encode(array_merge($originalSettings ?? [], ['llms_txt' => ['content' => 'ORGANISATION FALLBACK EDITED']]))]);
+
+    $content = App\Actions\Web\Website\LlmsTxt\GetLlmsTxt::run($website);
+
+    $organisation->newQuery()->whereKey($organisation->id)->update(['settings' => json_encode($originalSettings ?? [])]);
+    App\Models\Web\WebsiteLlmsTxt::where('website_id', $website->id)->update(['is_active' => true]);
+
+    expect($content)->toContain("## Additional information\n\nORGANISATION FALLBACK EDITED");
 })->depends('launch website');
 
 test('update webpage canonical url', function (Webpage $webpage) {
@@ -4230,3 +4252,15 @@ test('header, footer, sidebar and website previews answer web staff of the websi
         }
     }
 })->depends('launch website');
+
+test('rechecking external links marks a link that is not a url as an error and still checks the rest', function () {
+    Http::fake(['*' => Http::response('ok')]);
+
+    $notAUrl = StoreExternalLink::make()->action($this->organisation->group, ['url' => 'aromatherapy body lotion '.Str::random(6), 'status' => '200']);
+    $url     = StoreExternalLink::make()->action($this->organisation->group, ['url' => 'https://example.com/'.Str::random(6), 'status' => 'error']);
+
+    \App\Actions\Web\ExternalLink\RecheckExternalLinkStatuses::run();
+
+    expect($notAUrl->refresh()->status)->toBe('error')
+        ->and($url->refresh()->status)->toBe('200');
+});

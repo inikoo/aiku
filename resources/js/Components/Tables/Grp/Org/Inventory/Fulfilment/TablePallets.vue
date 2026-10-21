@@ -97,12 +97,20 @@ const onMovePallet = async (url: string, locationId: number, palletReference: st
       onFinish: () => {
         isLoadingMove.value = false
       },
-      onSuccess: (e) => {
+      onSuccess: () => {
         closePopup()
         notify({
           title: ctrans("Success!"),
           text: ctrans("Pallet has been moved"),
           type: "success"
+        })
+      },
+      onError: (errors) => {
+        const message = String(Object.values(errors)[0] ?? "")
+        notify({
+          title: ctrans("Pallet not moved"),
+          text: message.startsWith("403") ? ctrans("You do not have permission to move pallets in this warehouse") : message.replace(/^\d{3}:\s*/, "") || ctrans("Please try again"),
+          type: "error"
         })
       }
     }
@@ -174,7 +182,7 @@ const onUpdateStatus=(routes,data)=>{
     <template #cell(actions)="{ item, proxyItem }">
       <div class="flex gap-x-1 gap-y-1.5 isolate">
         <!-- Action: Move Pallet -->
-        <VDropdown v-if="item.status === 'storing' && isMovePallet" placement="bottom-end" :distance="6"
+        <VDropdown v-if="item.status === 'storing' && isMovePallet && item.updateLocationRoute" placement="bottom-end" :distance="6"
           popper-class="movePalletPopper">
           <Button
             @click="initPalletSelected(item)"

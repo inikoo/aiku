@@ -15,7 +15,7 @@ import StaffTaskDialog from "@/Components/Tasks/StaffTaskDialog.vue"
 import { useStaffMessaging } from "@/Stores/staff-messaging"
 
 const props = defineProps<{
-    modelType: "Product" | "Customer" | "Order" | "DeliveryNote"
+    modelType: "Product" | "Customer" | "Order" | "DeliveryNote" | "ProductDevelopment"
     modelId: number
 }>()
 

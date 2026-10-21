@@ -23,6 +23,7 @@ enum StockTabsEnum: string
 
     case TRADE_UNITS = 'trade_units';
     case ORG_STOCKS = 'org_stocks';
+    case SUPPLIER_PRODUCTS = 'supplier_products';
 
 
     case HISTORY = 'history';
@@ -82,6 +83,10 @@ enum StockTabsEnum: string
             StockTabsEnum::ORG_STOCKS => [
                 'title' => __('Org SKOs'),
                 'icon'  => 'fal fa-box',
+            ],
+            StockTabsEnum::SUPPLIER_PRODUCTS => [
+                'title' => __("Supplier's products"),
+                'icon'  => 'fal fa-hand-receiving',
             ],
         };
     }

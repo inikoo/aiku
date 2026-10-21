@@ -612,10 +612,10 @@ describe('staff messaging chat theme', function () {
 
     test('each person chooses their own alert sounds, which reach the layout', function () {
         actingAs($this->user)
-            ->patchJson(route('grp.models.profile.update'), ['alert_sounds' => ['chat' => 'submarine', 'whatsapp' => 'fart', 'email' => 'voice', 'colleague' => 'silent', 'waiting' => 'silent', 'ticket' => 'genie', 'pager' => 'bells']])
+            ->patchJson(route('grp.models.profile.update'), ['alert_sounds' => ['chat' => 'submarine', 'whatsapp' => 'fart', 'email' => 'voice', 'colleague' => 'silent', 'waiting' => 'silent', 'ticket' => 'genie', 'ticket_new' => 'bells', 'ticket_answered' => 'knock', 'ticket_qa' => 'voice', 'pager' => 'bells']])
             ->assertOk();
 
-        $expected = ['chat' => 'submarine', 'whatsapp' => 'fart', 'email' => 'voice', 'colleague' => 'silent', 'waiting' => 'silent', 'ticket' => 'genie'];
+        $expected = ['chat' => 'submarine', 'whatsapp' => 'fart', 'email' => 'voice', 'colleague' => 'silent', 'waiting' => 'silent', 'ticket' => 'genie', 'ticket_new' => 'bells', 'ticket_answered' => 'knock', 'ticket_qa' => 'voice'];
 
         expect(Arr::get($this->user->fresh()->settings, 'alert_sounds'))->toEqual($expected)
             ->and(\App\Actions\SysAdmin\User\UI\GetLoggedUser::run($this->user->fresh())['settings']['alert_sounds'])->toEqual($expected);
@@ -673,4 +673,15 @@ test('a staff chat on an order opens only for staff who can see that order, INI-
 
     actingAsUserWithOnlyPermissions($user, ["orders.{$this->shop->id}.view"]);
     $this->postJson(route('grp.chat.staff.context.open'), $payload)->assertSuccessful();
+});
+
+test('a staff member cannot start a conversation with only themselves', function () {
+    actingAs($this->user);
+    $before = \App\Models\Chat\StaffConversation::count();
+
+    $this->postJson(route('grp.chat.staff.conversations.store'), ['user_ids' => [$this->user->id]])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('user_ids');
+
+    expect(\App\Models\Chat\StaffConversation::count())->toBe($before);
 });

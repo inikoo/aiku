@@ -292,6 +292,8 @@ class GetMetaChatSessions
             $query->where(function ($q) use ($term, $matchingMessages) {
                 $q->whereRaw('LOWER(meta_chat_sessions.guest_identifier COLLATE "C") LIKE ?', ["%{$term}%"])
                     ->orWhereRaw('LOWER(meta_chat_sessions.phone_number COLLATE "C") LIKE ?', ["%{$term}%"])
+                    ->orWhereRaw('LOWER(meta_chat_sessions.whatsapp_user_id COLLATE "C") LIKE ?', ["%{$term}%"])
+                    ->orWhereRaw('LOWER(meta_chat_sessions.metadata->>\'whatsapp_username\' COLLATE "C") LIKE ?', ['%'.ltrim($term, '@').'%'])
                     ->orWhereHas('customer', function ($q2) use ($term) {
                         $q2->whereRaw('LOWER(contact_name COLLATE "C") LIKE ?', ["%{$term}%"])
                             ->orWhereRaw('LOWER(name COLLATE "C") LIKE ?', ["%{$term}%"]);

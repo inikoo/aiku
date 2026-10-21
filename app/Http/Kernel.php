@@ -36,7 +36,6 @@ use App\Http\Middleware\LogUserRequestMiddleware;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\HandleIrisInertiaRequests;
-use App\Http\Middleware\NewRelicTransactionMiddleware;
 use App\Http\Middleware\ResetUserPasswordMiddleware;
 use App\Http\Middleware\ResolveShopifyShopDomain;
 use App\Http\Middleware\ResetWebUserPasswordMiddleware;
@@ -88,7 +87,6 @@ class Kernel extends HttpKernel
         //AddFrameOptionsHeader::class, // add individually to retina, iris. etc. except pupil
         AddSentryBrowserProfilingHeader::class,
         AcceptClientHintsMiddleware::class,
-        NewRelicTransactionMiddleware::class,
     ];
 
     protected $middlewareGroups = [

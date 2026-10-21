@@ -56,6 +56,7 @@ use App\Models\Traits\HasSearch;
  * @property ServiceEditTypeEnum|null $edit_type
  * @property bool $is_public
  * @property bool $is_pallet_handling
+ * @property bool $is_pinned
  * @property-read \App\Models\Catalogue\Asset|null $asset
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\Helpers\Currency $currency
@@ -92,6 +93,7 @@ class Service extends Model implements Auditable
         'status'    => 'boolean',
         'data'      => 'array',
         'settings'  => 'array',
+        'is_pinned' => 'boolean',
     ];
 
     protected $attributes = [

@@ -8,6 +8,7 @@
 
 namespace App\Actions\Dashboard;
 
+use App\Actions\Goods\ProductDevelopment\ProductDevelopmentWaitingOn;
 use App\Actions\Catalogue\Shop\SalesTarget\GetShopMonthSalesTarget;
 use App\Actions\Catalogue\Shop\SalesTarget\GetShopYearSalesTarget;
 use App\Actions\Helpers\Dashboard\DashboardIntervalFilters;
@@ -128,6 +129,7 @@ class ShowOrganisationDashboard extends OrgAction
                 'cleanHandover' => $this->getCleanHandover($organisation, $request->user()),
                 'isAgentOrganisation' => $organisation->type === OrganisationTypeEnum::AGENT,
                 'agentPurchaseOrders' => $organisation->type === OrganisationTypeEnum::AGENT ? Inertia::defer(fn () => $this->getAgentPurchaseOrders($organisation)) : null,
+                'productDevelopmentsWaiting' => ProductDevelopmentWaitingOn::dashboardWidget($request->user()),
             ]
         );
     }

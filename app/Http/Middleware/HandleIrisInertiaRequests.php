@@ -33,19 +33,6 @@ class HandleIrisInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $website  = $request->input('website');
-        $outBoxes = $website?->shop?->outboxes()
-            ?->whereIn('code', [OutboxCodeEnum::OOS_NOTIFICATION])
-            ->select('id', 'code', 'state')
-            ->get()
-            ->mapWithKeys(fn ($item) => [
-                $item->code->value => [
-                    'id'    => $item->id,
-                    'state' => $item->state,
-                ],
-            ])
-            ->toArray() ?? [];
-
-
         $firstLoadOnlyProps = [];
 
         if (!$request->inertia() || Session::get('reloadLayout')) {
@@ -76,7 +63,7 @@ class HandleIrisInertiaRequests extends Middleware
                 "layout"   => [
                     "app_theme" => Arr::get($websiteTheme, 'color'),
                 ],
-                'outboxes' => $outBoxes
+                'outboxes' => fn () => $this->getOutboxes($website),
             ];
 
 
@@ -119,6 +106,21 @@ class HandleIrisInertiaRequests extends Middleware
             $alwaysProps,
             parent::share($request),
         );
+    }
+
+    public function getOutboxes(?Website $website): array
+    {
+        return $website?->shop?->outboxes()
+            ->whereIn('code', [OutboxCodeEnum::OOS_NOTIFICATION])
+            ->select('id', 'code', 'state')
+            ->get()
+            ->mapWithKeys(fn ($item) => [
+                $item->code->value => [
+                    'id'    => $item->id,
+                    'state' => $item->state,
+                ],
+            ])
+            ->toArray() ?? [];
     }
 
     public function getAnnouncements(Website $website): array

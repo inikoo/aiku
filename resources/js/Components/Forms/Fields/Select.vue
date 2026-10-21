@@ -21,6 +21,7 @@ const props = defineProps<{
     fieldData: {
         placeholder?: string
         required?: boolean
+        noAutoSelect?: boolean
         mode?: "multiple" | "single" | "tags"
 		searchable?: boolean
         readonly?: boolean
@@ -66,7 +67,7 @@ const filteredOptions = computed(() => {
 
 // Auto assign to first option if 'required' and value is null
 onMounted(() => {
-    if(props.fieldData?.required && !props.form[props.fieldName]) {
+    if(props.fieldData?.required && !props.fieldData?.noAutoSelect && !props.form[props.fieldName]) {
         props.form[props.fieldName] = selectOptions.value?.[0]?.[props.fieldData.valueProp || 'value']
     }
 })

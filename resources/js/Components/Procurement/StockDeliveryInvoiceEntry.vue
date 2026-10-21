@@ -149,8 +149,8 @@ const save = () => {
 			<div class="mt-4 text-sm">
 				<span class="text-gray-600">{{ ctrans("Invoice file") }}</span>
 				<div class="mt-1 flex flex-wrap items-center gap-2">
-					<FileUpload mode="basic" :auto="false" customUpload multiple accept=".pdf,image/*" :maxFileSize="50000000" :chooseLabel="ctrans('Choose file')" @select="(event: { files: File[] }) => (files = event.files)" />
-					<span class="text-xs text-gray-500">{{ ctrans("PDF or image of the invoice, kept with the delivery") }}</span>
+					<FileUpload mode="basic" :auto="false" customUpload multiple accept=".pdf,image/*,.xlsx,.xls,.csv" :maxFileSize="50000000" :chooseLabel="ctrans('Choose file')" @select="(event: { files: File[] }) => (files = event.files)" />
+					<span class="text-xs text-gray-500">{{ ctrans("PDF, Excel or image of the invoice, kept with the delivery") }}</span>
 				</div>
 				<span v-if="Object.keys(errors).some(key => key.startsWith('attachments'))" class="mt-1 block text-xs text-red-600">{{ ctrans("The file could not be uploaded") }}</span>
 			</div>

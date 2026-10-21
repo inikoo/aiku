@@ -35,6 +35,7 @@ import ConfirmDialog from "primevue/confirmdialog"
 import SalesAnalysisTeaser from "@/Components/SalesAnalysis/SalesAnalysisTeaser.vue"
 import SalesAnalysisMovers from "@/Components/SalesAnalysis/SalesAnalysisMovers.vue"
 import OrgStockProductionOverview from "@/Components/Production/OrgStockProductionOverview.vue"
+import SupplierProductsShowcaseBox from "@/Components/SupplyChain/SupplierProductsShowcaseBox.vue"
 library.add(faChevronDown, faExclamationTriangle, faFireAlt, faCircle, faTrash, falTrash, faShoppingBasket, fasInventory, fasShoppingCart, fasShoppingBasket, faEdit, faExternalLink, faStickyNote, faPlay, faPlus, faStopCircle, faFilePdf, faWeightHanging, faRulerCombined)
 
 const props = defineProps < {
@@ -117,6 +118,7 @@ const props = defineProps < {
             reason_label: string | null
         }[]
         stock_history_route?: routeType
+        supplier_products?: InstanceType<typeof SupplierProductsShowcaseBox>["$props"]["supplierProducts"]
         production?: Record<string, any> | null
         future_orders?: {
             id: string
@@ -401,6 +403,8 @@ const saveBarcode = (value: string | null) => {
 
                     <!-- Card: Sales Analytics -->
                     <SalesAnalyticsCompact v-if="!compact && data.sales_data && !data.has_no_products" :salesData="data.sales_data" />
+
+                    <SupplierProductsShowcaseBox v-if="data.supplier_products" :supplierProducts="data.supplier_products" />
                 </div>
             </div>
         </div>

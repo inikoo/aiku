@@ -8,6 +8,7 @@
 
 namespace App\Models\Accounting;
 
+use App\Enums\Accounting\Intrastat\IntrastatNatureOfTransactionEnum;
 use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\TaxCategory;
@@ -27,6 +28,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $origin_country_id
  * @property int|null $tax_category_id
  * @property string|null $partner_tax_number Counterparty VAT retained for Intrastat, null means unknown (QV)
+ * @property IntrastatNatureOfTransactionEnum|null $nature_of_transaction Intrastat nature of transaction, a declaration line of its own
  * @property TimeSeriesFrequencyEnum $frequency
  * @property string|null $from
  * @property string|null $to
@@ -52,8 +54,9 @@ class IntrastatExportTimeSeries extends Model
     protected function casts(): array
     {
         return [
-            'data'      => 'array',
-            'frequency' => TimeSeriesFrequencyEnum::class,
+            'data'                  => 'array',
+            'frequency'             => TimeSeriesFrequencyEnum::class,
+            'nature_of_transaction' => IntrastatNatureOfTransactionEnum::class,
         ];
     }
 

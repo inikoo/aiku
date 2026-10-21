@@ -18,6 +18,7 @@ use App\Models\Production\ManufactureTaskSession;
 use App\Models\Production\Production;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
@@ -39,7 +40,7 @@ class SetArtisanPayType extends OrgAction
             ManufactureTaskSession::where('production_id', $production->id)
                 ->where('employee_id', $employee->id)
                 ->where('state', ManufactureTaskSessionStateEnum::CLOSED)
-                ->where('ended_at', '>=', now()->startOfWeek())
+                ->where('ended_at', '>=', self::effectiveFrom())
                 ->lockForUpdate()
                 ->get()
                 ->each(function (ManufactureTaskSession $session) use ($closeAction, $payType) {
@@ -54,6 +55,11 @@ class SetArtisanPayType extends OrgAction
 
             return $employee;
         });
+    }
+
+    public static function effectiveFrom(?Carbon $changedAt = null): Carbon
+    {
+        return ($changedAt ?? now())->copy()->startOfWeek();
     }
 
     public function rules(): array

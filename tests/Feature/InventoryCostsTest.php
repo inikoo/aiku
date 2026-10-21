@@ -373,6 +373,52 @@ describe('aurora provisional cost fix', function () {
         expect((float) $picked->fresh()->running_fifo_value)->toBe(120.0);
     });
 
+    test('running values are written in batches with the same values and only where they changed', function () {
+        $this->organisation->update(['wac_calculations_start_date' => now()->subDays(20)->toDateString()]);
+        [$orgStock] = runningValuesStockWithMovements($this->group, $this->organisation, 'CFRV');
+        $readValues = fn () => DB::table('org_stock_movements')->where('org_stock_id', $orgStock->id)->orderBy('id')->get(['running_lpp_value', 'running_wac_value', 'running_fifo_value'])->map(fn ($row) => array_values((array) $row))->all();
+        $readVersions = fn () => DB::table('org_stock_movements')->where('org_stock_id', $orgStock->id)->orderBy('id')->pluck('xmin', 'id')->all();
+
+        \App\Actions\Inventory\OrgStockMovement\CalculateOrgStockMovementRunningValues::run($orgStock->id);
+
+        $expected = [
+            ['6.22', '6.22', '6.22'], ['0.00', '0.00', '0.00'], ['6.85', null, null], ['23.29', null, null], ['17.81', null, null],
+            ['30.14', '43.91', '43.91'], ['34.25', '49.90', '49.90'], ['-6.85', '-9.98', null], ['-4.11', '-5.99', null], ['-2.74', '-3.99', null],
+            ['15.55', '15.55', '15.55'], ['34.21', '34.21', '34.21'], ['27.99', '27.99', '27.99'], ['40.43', '40.43', '40.43'], ['37.32', '37.32', '37.32'],
+        ];
+        expect($readValues())->toBe($expected);
+
+        $staleId = DB::table('org_stock_movements')->where('org_stock_id', $orgStock->id)->orderBy('id')->skip(5)->value('id');
+        DB::table('org_stock_movements')->where('id', $staleId)->update(['running_lpp_value' => 1, 'running_wac_value' => null, 'running_fifo_value' => 2]);
+        $versionsBefore = $readVersions();
+
+        \App\Actions\Inventory\OrgStockMovement\CalculateOrgStockMovementRunningValues::run($orgStock->id);
+
+        $versionsAfter = $readVersions();
+        expect($readValues())->toBe($expected)
+            ->and(array_keys(array_diff_assoc($versionsAfter, $versionsBefore)))->toBe([$staleId]);
+    });
+
+    test('running values take the same number of queries however many movements a stock has', function () {
+        $this->organisation->update(['wac_calculations_start_date' => now()->subDays(20)->toDateString()]);
+        [$fewMovements]  = runningValuesStockWithMovements($this->group, $this->organisation, 'CFRQ1');
+        [$manyMovements] = runningValuesStockWithMovements($this->group, $this->organisation, 'CFRQ2', 6);
+
+        $queries = 0;
+        DB::listen(function () use (&$queries) {
+            $queries++;
+        });
+        $countQueries = function (int $orgStockId) use (&$queries) {
+            $queries = 0;
+            \App\Actions\Inventory\OrgStockMovement\CalculateOrgStockMovementRunningValues::run($orgStockId);
+
+            return $queries;
+        };
+
+        expect(DB::table('org_stock_movements')->where('org_stock_id', $manyMovements->id)->count())->toBe(80)
+            ->and($countQueries($manyMovements->id))->toBe($countQueries($fewMovements->id));
+    });
+
     test('the batched current stock history run writes the same rows as the one stock at a time calculation', function () {
         \Illuminate\Support\Facades\Queue::fake();
         $this->organisation->update(['wac_calculations_start_date' => now()->subDays(8)->toDateString()]);

@@ -104,9 +104,6 @@ class SendEmailDeliveryChannel
                 continue;
             }
 
-            $model->refresh();
-
-
             if ($this->isModelStopped($model)) {
                 UpdateEmailDeliveryChannel::run(
                     $emailDeliveryChannel,
@@ -221,15 +218,16 @@ class SendEmailDeliveryChannel
         ];
     }
 
+    /**
+     * Reads only the state column, so a stop pressed mid-send halts the next recipient without
+     * reloading the model and its shop, email and outbox once per recipient. A row deleted mid-send
+     * counts as stopped, as the refresh it replaces failed the job instead of sending on.
+     */
     private function isModelStopped(Mailshot|EmailBulkRun $model): bool
     {
-        if ($model instanceof Mailshot) {
-            $stopped = $model->state == MailshotStateEnum::STOPPED;
-        } else {
-            $stopped = $model->state == EmailBulkRunStateEnum::STOPPED;
-        }
+        $stoppedState = $model instanceof Mailshot ? MailshotStateEnum::STOPPED : EmailBulkRunStateEnum::STOPPED;
 
-        return $stopped;
+        return in_array($model->newQueryWithoutScopes()->whereKey($model->getKey())->value('state'), [$stoppedState, null], true);
     }
 
 
