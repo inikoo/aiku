@@ -20,6 +20,14 @@ class ConnectShopGoogleCalendar extends OrgAction
 
     public function handle(Shop $shop, int $userId, ?string $section = null): RedirectResponse
     {
+        if (blank(config('services.google_calendar.client_id')) || blank(config('services.google_calendar.client_secret'))) {
+            return Redirect::back()->with('notification', [
+                'status'      => 'error',
+                'title'       => __('Google Calendar is not set up'),
+                'description' => __('The Google Calendar app credentials are missing on this server. Ask a developer to set GOOGLE_CALENDAR_CLIENT_ID and GOOGLE_CALENDAR_CLIENT_SECRET.'),
+            ]);
+        }
+
         $returnUrl = route('grp.org.shops.show.settings.edit', [$shop->organisation->slug, $shop->slug])
             .'?'.http_build_query(array_filter(['section' => $section, 'google_calendar_connected' => 1]));
 

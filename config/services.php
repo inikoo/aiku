@@ -89,8 +89,8 @@ return [
         'client_secret' => env('GMAIL_CLIENT_SECRET'),
     ],
     'google_calendar' => [
-        'client_id'     => env('GOOGLE_CALENDAR_CLIENT_ID', env('GMAIL_CLIENT_ID')),
-        'client_secret' => env('GOOGLE_CALENDAR_CLIENT_SECRET', env('GMAIL_CLIENT_SECRET')),
+        'client_id'     => env('GOOGLE_CALENDAR_CLIENT_ID', env('GOOGLE_CLIENT_ID')),
+        'client_secret' => env('GOOGLE_CALENDAR_CLIENT_SECRET', env('GOOGLE_CLIENT_SECRET')),
     ],
     'meta_ads'  => [
         /* A Business Manager system user token, which does not expire and normally covers every ad

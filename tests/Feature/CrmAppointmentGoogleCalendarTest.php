@@ -100,10 +100,23 @@ test('connecting the shop calendar keeps the token encrypted and writes its upco
 });
 
 test('the connect button sends the shop admin to Google', function () {
+    config(['services.google_calendar.client_id' => 'calendar-client-id', 'services.google_calendar.client_secret' => 'calendar-client-secret']);
+
     actingAs($this->user)
         ->get(route('grp.org.shops.show.settings.google_calendar.connect', [$this->organisation->slug, $this->shop->slug]))
         ->assertRedirectContains('accounts.google.com')
-        ->assertRedirectContains(urlencode(GoogleCalendarClient::SCOPES));
+        ->assertRedirectContains(urlencode(GoogleCalendarClient::SCOPES))
+        ->assertRedirectContains('client_id=calendar-client-id');
+});
+
+test('the connect button explains the missing credentials instead of sending the shop admin to Google', function () {
+    config(['services.google_calendar.client_id' => null, 'services.google_calendar.client_secret' => null]);
+
+    actingAs($this->user)
+        ->from(route('grp.org.shops.show.settings.edit', [$this->organisation->slug, $this->shop->slug]))
+        ->get(route('grp.org.shops.show.settings.google_calendar.connect', [$this->organisation->slug, $this->shop->slug]))
+        ->assertRedirect(route('grp.org.shops.show.settings.edit', [$this->organisation->slug, $this->shop->slug]))
+        ->assertSessionHas('notification.status', 'error');
 });
 
 test('an appointment is written into the shop calendar and removed when it is cancelled', function () {
