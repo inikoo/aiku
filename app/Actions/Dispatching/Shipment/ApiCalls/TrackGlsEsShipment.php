@@ -22,6 +22,8 @@ use SimpleXMLElement;
 /**
  * Asks GLS Spain where each parcel of the shipment is (GetExpCli, the same client uid that prints
  * the labels). The shipment counts as delivered once every parcel is, at the time the last one was.
+ * Only a delivery from the last day reaches the store: an older one, such as the backlog the first
+ * run finds, is recorded here but would make Shopify email shoppers about long-delivered orders.
  */
 class TrackGlsEsShipment
 {
@@ -64,7 +66,7 @@ class TrackGlsEsShipment
         $isNewlyDelivered = $shipment->isDirty('delivered_at');
         $shipment->save();
 
-        if ($isNewlyDelivered) {
+        if ($isNewlyDelivered && $shipment->delivered_at->gt(now()->subDay())) {
             $this->tellPlatforms($shipment, $shipment->delivered_at);
         }
 

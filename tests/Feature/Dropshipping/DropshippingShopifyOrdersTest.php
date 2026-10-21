@@ -948,12 +948,13 @@ test('a gls spain parcel reported delivered marks the shopify fulfilment deliver
     $glsReply = fn (string $code, string $status, string $pod) => Http::response(
         '<?xml version="1.0" encoding="utf-8"?><expediciones><exp><codestado>'.$code.'</codestado><estado>'.$status.'</estado><pod>'.$pod.'</pod><codbar>61292316529405</codbar></exp></expediciones>'
     );
-    $notFound = Http::response('<?xml version="1.0" encoding="utf-8"?><expediciones></expediciones>');
+    $deliveredAt = now()->subHours(2)->startOfMinute();
+    $notFound    = Http::response('<?xml version="1.0" encoding="utf-8"?><expediciones></expediciones>');
     ShopifyFake::fake(['POST GetExpCli' => Http::sequence()
         ->pushResponse($notFound)
         ->pushResponse($glsReply('6', 'EN REPARTO', ''))
         ->pushResponse($notFound)
-        ->pushResponse($glsReply('7', 'ENTREGADO', '20/10/2026 12:01:00'))]);
+        ->pushResponse($glsReply('7', 'ENTREGADO', $deliveredAt->copy()->setTimezone('Europe/Madrid')->format('d/m/Y H:i:s')))]);
 
     TrackGlsEsShipment::run($shipment->refresh());
     expect($shipment->refresh()->delivered_at)->toBeNull()
@@ -964,9 +965,16 @@ test('a gls spain parcel reported delivered marks the shopify fulfilment deliver
     MarkShopifyFulfilmentDelivered::assertNotPushed();
 
     TrackGlsEsShipment::run($shipment);
-    expect($shipment->refresh()->delivered_at->utc()->toDateTimeString())->toBe('2026-10-20 10:01:00')
+    expect($shipment->refresh()->delivered_at->utc()->toDateTimeString())->toBe($deliveredAt->copy()->utc()->toDateTimeString())
         ->and($shipment->carrier_status)->toBe('ENTREGADO');
     MarkShopifyFulfilmentDelivered::assertPushed(1);
+
+    $shipment->update(['delivered_at' => null]);
+    ShopifyFake::fake(['POST GetExpCli' => $glsReply('7', 'ENTREGADO', now('Europe/Madrid')->subDays(3)->format('d/m/Y H:i:s'))]);
+    TrackGlsEsShipment::run($shipment->refresh());
+    expect($shipment->refresh()->delivered_at->lt(now()->subDays(2)))->toBeTrue();
+    MarkShopifyFulfilmentDelivered::assertPushed(1);
+    $shipment->update(['delivered_at' => $deliveredAt]);
 
     ShopifyFake::fake([
         'fulfilmentOrderFulfillments' => ShopifyFake::graphql(['fulfillmentOrder' => ['fulfillments' => ['nodes' => [
