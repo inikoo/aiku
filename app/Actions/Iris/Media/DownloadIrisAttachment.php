@@ -28,11 +28,20 @@ class DownloadIrisAttachment
 
     public function asController(Media $media): BinaryFileResponse
     {
-        if (!self::isPublic($media)) {
+        if (!self::isPublic($media) || (!auth('retina')->check() && !self::isWebpageAttachment($media))) {
             abort(404);
         }
 
         return $this->handle($media);
+    }
+
+    public static function isWebpageAttachment(Media $media): bool
+    {
+        return DB::table('model_has_attachments')
+            ->where('media_id', $media->id)
+            ->where('model_type', 'Webpage')
+            ->where('scope', 'webpage')
+            ->exists();
     }
 
     public static function isPublic(Media $media): bool

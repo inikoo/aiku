@@ -3,6 +3,7 @@
 namespace App\Actions\Web\Webpage\Iris;
 
 use App\Actions\IrisAction;
+use App\Http\Middleware\HideRetailPricesFromIrisVisitors;
 use App\Http\Resources\Catalogue\ProductResource;
 use App\Models\Catalogue\Product;
 use Inertia\Inertia;
@@ -25,6 +26,8 @@ class ShowIrisProduct extends IrisAction
 
     public function htmlResponse(Product $product, ActionRequest $request): Response
     {
+        $productData = ProductResource::make($product)->resolve();
+
         return Inertia::render(
             'Catalogue/Product',
             [
@@ -91,7 +94,7 @@ class ShowIrisProduct extends IrisAction
                 ]),
 
                 'data' => [
-                    'product'       => ProductResource::make($product)->resolve(),
+                    'product'       => $request->user('retina') ? $productData : HideRetailPricesFromIrisVisitors::withoutHiddenKeys($productData),
                     'data_feed_url' => route('iris.catalogue.feeds.product.download', ['product' => $product->slug]),
                 ],
             ]

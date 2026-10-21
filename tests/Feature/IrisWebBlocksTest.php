@@ -36,6 +36,8 @@ use App\Actions\Web\Webpage\PublishWebpage;
 use App\Actions\Web\Webpage\ReopenWebpage;
 use App\Actions\Web\Webpage\StoreWebpage;
 use App\Actions\Web\Webpage\WithIrisGetWebpageWebBlocks;
+use App\Actions\Web\Webpage\Iris\ShowIrisWebpage;
+use App\Http\Middleware\HideRetailPricesFromIrisVisitors;
 use App\Actions\Web\WebBlock\Iris\GetIrisWebBlockFamiliesOverview;
 use App\Actions\Web\WebBlock\Iris\GetWebBlockProduct as IrisGetWebBlockProduct;
 use App\Actions\Web\WebBlock\Traits\WithFamiliesQuery;
@@ -1490,4 +1492,56 @@ test('iris variant shows its option groups and options in the shop language and 
     \App\Actions\Catalogue\Variant\UpdateVariant::make()->action($variant, ['option_translations' => ['Plug' => 'Wtyczka', 'UK Plug' => 'Wtyczka UK', 'EU Plug' => '', '0.5kg' => '0,5 kg']]);
 
     expect($variant->refresh()->option_translations)->toEqual(['Plug' => 'Wtyczka', 'UK Plug' => 'Wtyczka UK', '0.5kg' => '0,5 kg']);
+});
+
+test('logged-out product page leaves out the rrp, what is worked out from it and the product documents (HELP-4214)', function () {
+    [, $product] = createProduct($this->shop);
+    $product->updateQuietly(['rrp' => 30, 'is_for_sale' => true]);
+    createAttachedMedia('Product', $product->id, 'sds');
+
+    $webpage      = $product->refresh()->webpage ?? StoreProductWebpage::make()->action($product);
+    $webBlockType = $this->website->group->webBlockTypes()->where('code', 'product-3')->firstOrFail();
+    StoreModelHasWebBlock::make()->action($webpage, ['web_block_type_id' => $webBlockType->id, 'position' => 0]);
+    $webpage = PublishWebpage::make()->action($webpage, ['comment' => 'rrp visibility test']);
+
+    $productInBlocks = fn (array $webpageData) => collect($webpageData['web_blocks'])
+        ->map(fn ($block) => Arr::get($block, 'structure.product'))
+        ->filter()
+        ->first();
+
+    $loggedOut = ShowIrisWebpage::make()->getWebpageData($webpage->id, [], false);
+    $loggedIn  = ShowIrisWebpage::make()->getWebpageData($webpage->id, [], true);
+
+    expect($productInBlocks($loggedOut))->toHaveKey('price')
+        ->not->toHaveKeys(['rrp', 'rrp_per_unit', 'margin', 'profit', 'profit_per_unit', 'attachments'])
+        ->and($productInBlocks($loggedIn))->toHaveKeys(['rrp', 'rrp_per_unit', 'margin', 'profit', 'attachments'])
+        ->and($productInBlocks($loggedIn)['attachments'])->not->toBeEmpty()
+        ->and($loggedOut['is_different_when_logged_in'])->toBeTrue()
+        ->and($loggedIn['is_different_when_logged_in'])->toBeTrue();
+});
+
+test('hiding retail prices keeps a web block margin style that has no rrp beside it (HELP-4214)', function () {
+    $hidden = HideRetailPricesFromIrisVisitors::withoutHiddenKeys([
+        'container' => ['properties' => ['margin' => ['top' => 10], 'profit' => 'kept']],
+        'products'  => [['code' => 'A-1', 'rrp' => 10, 'margin' => '20%', 'profit' => 2, 'labeling_guide' => ['label' => 'x']]],
+    ]);
+
+    expect($hidden['container']['properties'])->toBe(['margin' => ['top' => 10], 'profit' => 'kept'])
+        ->and($hidden['products'][0])->toBe(['code' => 'A-1']);
+});
+
+test('iris product detail json leaves out the documents and discounted profit for visitors only (HELP-4214)', function () {
+    [, $product] = createProduct($this->shop);
+    $product->updateQuietly(['rrp' => 30]);
+    createAttachedMedia('Product', $product->id, 'sds');
+    $url = 'http://'.$this->website->domain.'/catalogue/product/'.$product->slug;
+
+    $visitor = $this->getJson($url)->assertOk()->json();
+
+    $this->actingAs(createWebUser(createCustomer($this->shop)), 'retina');
+    $customer = $this->getJson($url)->assertOk()->json();
+
+    expect($visitor)->toHaveKey('discounted_price')
+        ->not->toHaveKeys(['attachments', 'discounted_profit', 'discounted_margin'])
+        ->and($customer)->toHaveKeys(['attachments', 'discounted_profit', 'discounted_margin']);
 });

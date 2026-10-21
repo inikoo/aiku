@@ -36,6 +36,7 @@ use App\Actions\Iris\Reviews\ShowIrisProductReview;
 use App\Actions\Iris\Reviews\ShowIrisReviews;
 use App\Actions\Iris\Docs\ShowIrisDoc;
 use App\Actions\Iris\Docs\ShowIrisDocs;
+use App\Http\Middleware\HideRetailPricesFromIrisVisitors;
 use Laravel\Nightwatch\Http\Middleware\Sample;
 
 Route::get('robots.txt', ShowIrisRobotsTxt::class)->name('iris_robots');
@@ -75,12 +76,12 @@ Route::middleware(Sample::always())->prefix("unsubscribe")
 
 Route::get('/unsubscribe.php', ShowUnsubscribeFromAurora::class)->name('unsubscribe.aurora')->middleware(Sample::always());
 
-Route::middleware(Sample::always())->prefix("json")
+Route::middleware([Sample::always(), HideRetailPricesFromIrisVisitors::class])->prefix("json")
     ->name("json.")
     ->group(__DIR__."/json.php");
 
 Route::get('audio/{media:ulid}', ShowIrisAudio::class)->name('audio');
-Route::middleware(["iris-relax-auth:retina"])->group(function () {
+Route::middleware(["iris-relax-auth:retina", HideRetailPricesFromIrisVisitors::class])->group(function () {
     Route::middleware(Sample::always())->prefix("models")
         ->name("models.")
         ->group(__DIR__."/models.php");

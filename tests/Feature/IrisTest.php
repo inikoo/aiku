@@ -518,20 +518,30 @@ test('iris streams a product ingredients label pdf only for its own shop product
     $this->get($url)->assertNotFound();
 });
 
-test('iris attachment routes only serve public product documents and labeling guides', function () {
+test('iris attachment routes serve public product documents and labeling guides to logged-in customers only (HELP-4214)', function () {
     Storage::fake('local');
     [, $product] = createProduct($this->shop);
     $customer    = createCustomer($this->shop);
     $baseUrl     = 'http://'.$this->website->domain.'/attachment/';
 
-    $productSds       = createAttachedMedia('Product', $product->id, 'sds');
-    $tradeUnitIfra    = createAttachedMedia('TradeUnit', 1, 'ifra');
-    $labelingGuide    = createAttachedMedia('TradeUnitFamily', 1, 'labeling_guide');
-    $privateSds       = createAttachedMedia('TradeUnit', 1, 'sds_private');
-    $employeeContract = createAttachedMedia('Employee', 1, 'Contract');
-    $customerNote     = createAttachedMedia('Customer', $customer->id, 'CustomerNote');
+    $productSds        = createAttachedMedia('Product', $product->id, 'sds');
+    $tradeUnitIfra     = createAttachedMedia('TradeUnit', 1, 'ifra');
+    $labelingGuide     = createAttachedMedia('TradeUnitFamily', 1, 'labeling_guide');
+    $webpageAttachment = createAttachedMedia('Webpage', 1, 'webpage');
+    $privateSds        = createAttachedMedia('TradeUnit', 1, 'sds_private');
+    $employeeContract  = createAttachedMedia('Employee', 1, 'Contract');
+    $customerNote      = createAttachedMedia('Customer', $customer->id, 'CustomerNote');
 
     foreach ([$productSds, $tradeUnitIfra, $labelingGuide] as $media) {
+        $this->get($baseUrl.$media->ulid)->assertNotFound();
+        $this->get($baseUrl.$media->ulid.'/download')->assertNotFound();
+    }
+
+    $this->get($baseUrl.$webpageAttachment->ulid.'/download')->assertOk();
+
+    actingAs(createWebUser($customer), 'retina');
+
+    foreach ([$productSds, $tradeUnitIfra, $labelingGuide, $webpageAttachment] as $media) {
         $this->get($baseUrl.$media->ulid)->assertOk();
         $this->get($baseUrl.$media->ulid.'/download')->assertOk();
     }
@@ -695,6 +705,26 @@ test('iris family page does not ship the family products twice', function () {
     expect($page['component'])->toBe('Catalogue/Family')
         ->and($page['props']['data']['family']['slug'])->toBe($family->slug)
         ->and($page['props']['data']['family'])->not->toHaveKey('products');
+});
+
+test('iris catalogue product page leaves out the rrp for visitors only (HELP-4214)', function () {
+    [, $product] = createProduct($this->shop);
+    $product->updateQuietly(['rrp' => 30]);
+    $url = 'http://'.$this->website->domain.'/catalogue/products/'.$product->slug;
+
+    $productProp = function () use ($url) {
+        preg_match('/data-page="([^"]+)"/', $this->withoutVite()->get($url)->assertOk()->getContent(), $matches);
+
+        return json_decode(html_entity_decode($matches[1], ENT_QUOTES), true)['props']['data']['product'];
+    };
+
+    $visitorProduct = $productProp();
+    actingAs(createWebUser(createCustomer($this->shop)), 'retina');
+    $customerProduct = $productProp();
+
+    expect($visitorProduct)->toHaveKey('price')
+        ->not->toHaveKeys(['rrp', 'rrp_per_unit', 'margin', 'profit'])
+        ->and($customerProduct['rrp'])->toEqual(30);
 });
 
 test('website lists open appointment types with their free times', function () {
