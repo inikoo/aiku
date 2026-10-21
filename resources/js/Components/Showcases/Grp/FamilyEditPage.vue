@@ -23,7 +23,10 @@ const props = defineProps<{
     }
 }>()
 
-const currentSection = ref<"page_setting" | "seo_review" | "webmaster_validation" | "issues">("page_setting")
+type EditPageSection = "page_setting" | "seo_review" | "webmaster_validation" | "issues"
+
+const sectionFromUrl = new URLSearchParams(window.location.search).get("section")
+const currentSection = ref<EditPageSection>(sectionFromUrl === "issues" && props.data.seo_issues ? "issues" : "page_setting")
 
 const canOpenValidation = computed(() => !!props.data.webmaster_validation
     && (props.data.webmaster_validation.tasks.length > 0 || props.data.webmaster_validation.is_validated))

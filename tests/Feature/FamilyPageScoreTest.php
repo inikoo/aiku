@@ -82,6 +82,12 @@ test('checks read from the site audit are not checked before the page is crawled
         ->and($pageScore['passed'])->toBe(11)
         ->and($pageScore['score'])->toBe(58)
         ->and($pageScore['last_crawl_at'])->toBeNull()
+        ->and(route($pageScore['setting_route']['name'], $pageScore['setting_route']['parameters'], false))
+        ->toBe("/org/{$this->organisation->slug}/shops/{$this->shop->slug}/catalogue/families/{$this->family->slug}?tab=edit_page&section=page_setting")
+        ->and(route($pageScore['issues_route']['name'], $pageScore['issues_route']['parameters'], false))
+        ->toBe("/org/{$this->organisation->slug}/shops/{$this->shop->slug}/catalogue/families/{$this->family->slug}?tab=edit_page&section=issues")
+        ->and(collect($pageScore['areas'])->flatMap(fn (array $area) => $area['checks'])->where('is_crawl', true)->pluck('key')->all())
+        ->toBe(['h1', 'canonical_url', 'sitemap', 'alt_image', 'broken_links', 'page_speed'])
         ->and(collect($pageScore['steps'])->pluck('is_done', 'key')->all())->toBe([
             'created'     => true,
             'published'   => true,

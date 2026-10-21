@@ -3,7 +3,7 @@ import { computed, ref } from "vue"
 import { router } from "@inertiajs/vue3"
 import { notify } from "@kyvg/vue3-notification"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faCheck, faTimes, faMinus, faArrowRight, faSearch } from "@fal"
+import { faCheck, faTimes, faMinus, faArrowRight, faSearch, faPencil } from "@fal"
 import { faSync } from "@far"
 import { ctrans, ctransChoice } from "@/Composables/useTrans"
 import { useFormatTime } from "@/Composables/useFormatTime"
@@ -14,6 +14,7 @@ interface Check {
     key: string
     label: string
     is_passed: boolean | null
+    is_crawl: boolean
 }
 
 const props = defineProps<{
@@ -25,6 +26,7 @@ const props = defineProps<{
         last_crawl_at: string | null
         areas: Array<{ key: string, label: string, checks: Check[] }>
         crawl_route: routeType | null
+        setting_route: routeType
         issues_route: routeType
     }
 }>()
@@ -82,6 +84,8 @@ const sortedChecks = computed(() => {
     return [...allChecks.value].sort((a, b) => order(a) - order(b))
 })
 const failedChecks = computed(() => allChecks.value.filter(check => check.is_passed === false))
+const hasFailedSettingChecks = computed(() => failedChecks.value.some(check => !check.is_crawl))
+const hasFailedCrawlChecks = computed(() => failedChecks.value.some(check => check.is_crawl))
 const hasUncheckedChecks = computed(() => allChecks.value.some(check => check.is_passed === null))
 
 const labelsOf = (checks: Check[], isPassed: boolean | null) => checks.filter(check => check.is_passed === isPassed).map(check => check.label).join(", ")
@@ -258,11 +262,18 @@ const startCrawl = () => {
                     <div v-if="failedChecks.length" class="mt-auto rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-gray-700">
                         <span class="font-semibold text-red-600">{{ ctransChoice(":count check needs fixing|:count checks need fixing", failedChecks.length, { count: failedChecks.length }) }}</span>
                         · {{ failedChecks.map(check => check.label).join(", ") }}
-                        <Button type="tertiary" :label="ctrans('View issues')" class="mt-3" @click="router.visit(route(data.issues_route.name, data.issues_route.parameters))">
-                            <template #icon>
-                                <FontAwesomeIcon :icon="faSearch" class="text-red-500" fixed-width aria-hidden="true" />
-                            </template>
-                        </Button>
+                        <div class="mt-3 flex flex-wrap gap-2">
+                            <Button v-if="hasFailedSettingChecks" type="tertiary" :label="ctrans('Fix in page setting')" @click="router.visit(route(data.setting_route.name, data.setting_route.parameters))">
+                                <template #icon>
+                                    <FontAwesomeIcon :icon="faPencil" class="text-red-500" fixed-width aria-hidden="true" />
+                                </template>
+                            </Button>
+                            <Button v-if="hasFailedCrawlChecks" type="tertiary" :label="ctrans('View issues')" @click="router.visit(route(data.issues_route.name, data.issues_route.parameters))">
+                                <template #icon>
+                                    <FontAwesomeIcon :icon="faSearch" class="text-red-500" fixed-width aria-hidden="true" />
+                                </template>
+                            </Button>
+                        </div>
                     </div>
                     <div v-else-if="!hasUncheckedChecks" class="mt-auto rounded-lg border border-green-200 bg-green-50 p-3 text-sm font-semibold text-green-700">
                         {{ ctrans("All checks passed") }}

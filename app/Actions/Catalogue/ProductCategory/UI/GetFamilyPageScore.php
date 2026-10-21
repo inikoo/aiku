@@ -8,6 +8,7 @@ namespace App\Actions\Catalogue\ProductCategory\UI;
 
 use App\Actions\Catalogue\ProductCategory\CheckFamilyWebpage;
 use App\Actions\Traits\Authorisations\WithShopPpcPermissions;
+use App\Enums\UI\Catalogue\FamilyTabsEnum;
 use App\Enums\Web\Crawl\CrawlIssueSeverityEnum;
 use App\Enums\Web\Crawl\CrawlIssueTypeEnum;
 use App\Enums\Web\Crawl\CrawlStateEnum;
@@ -28,12 +29,14 @@ class GetFamilyPageScore
     use AsObject;
     use WithShopPpcPermissions;
 
+    private const array CRAWL_CHECKS = ['h1', 'canonical_url', 'sitemap', 'alt_image', 'broken_links', 'page_speed'];
+
     /**
      * How far the family webpage is through its SEO workflow and which of its checks pass. Checks
      * read from the site audit are null until an audit or a page check (CheckFamilyWebpage) has
      * crawled the page.
      *
-     * @return null|array{steps: array<int, array{key: string, label: string, owner: string, is_done: bool}>, score: int, passed: int, total: int, last_crawl_at: ?string, findings: ?array<int, array{type: string, label: string, description: string, is_error: bool}>, areas: array<int, array{key: string, label: string, checks: array<int, array{key: string, label: string, is_passed: ?bool}>}>, crawl_route: ?array, issues_route: array}
+     * @return null|array{steps: array<int, array{key: string, label: string, owner: string, is_done: bool}>, score: int, passed: int, total: int, last_crawl_at: ?string, findings: ?array<int, array{type: string, label: string, description: string, is_error: bool}>, areas: array<int, array{key: string, label: string, checks: array<int, array{key: string, label: string, is_passed: ?bool, is_crawl: bool}>}>, crawl_route: ?array, setting_route: array, issues_route: array}
      */
     public function handle(ProductCategory $family): ?array
     {
@@ -87,6 +90,7 @@ class GetFamilyPageScore
                 'key'       => $checkKey,
                 'label'     => $check[0],
                 'is_passed' => $check[1],
+                'is_crawl'  => in_array($checkKey, self::CRAWL_CHECKS, true),
             ])->values()->all(),
         ])->values();
 
@@ -95,7 +99,6 @@ class GetFamilyPageScore
 
         $suggestionStates = SeoContentSuggestion::where('webpage_id', $webpage->id)->distinct()->pluck('state');
         $isReviewed       = $suggestionStates->isNotEmpty();
-        $website          = $webpage->website;
         $shop             = $family->shop;
         $user             = request()->user();
 
@@ -122,9 +125,21 @@ class GetFamilyPageScore
                 'parameters' => ['family' => $family->id],
                 'method'     => 'post',
             ] : null,
-            'issues_route'  => [
-                'name'       => 'grp.org.shops.show.web.webpages.show',
-                'parameters' => [$shop->organisation->slug, $shop->slug, $website->slug, $webpage->slug],
+            'setting_route' => $this->editPageRoute($family, 'page_setting'),
+            'issues_route'  => $this->editPageRoute($family, 'issues'),
+        ];
+    }
+
+    private function editPageRoute(ProductCategory $family, string $section): array
+    {
+        return [
+            'name'       => 'grp.org.shops.show.catalogue.families.show',
+            'parameters' => [
+                'organisation' => $family->organisation->slug,
+                'shop'         => $family->shop->slug,
+                'family'       => $family->slug,
+                'tab'          => FamilyTabsEnum::EDIT_PAGE->value,
+                'section'      => $section,
             ],
         ];
     }
