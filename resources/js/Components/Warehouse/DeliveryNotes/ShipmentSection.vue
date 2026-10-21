@@ -10,6 +10,7 @@ import { ctrans } from "@/Composables/useTrans"
 import { router, useForm } from "@inertiajs/vue3"
 import { notify } from "@kyvg/vue3-notification"
 import { useTruncate } from "@/Composables/useTruncate"
+import { useFormatTime } from "@/Composables/useFormatTime"
 import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { routeType } from "@/types/route"
@@ -43,6 +44,8 @@ const props = withDefaults(defineProps<{
 		label_type?: string
 		combined_label_url?: string
 		is_printable?: boolean
+		carrier_status?: string | null
+		delivered_at?: string | null
 		formatted_tracking_urls: {
 			url: string
 			tracking: string
@@ -649,6 +652,13 @@ const onClickButtonShipmentPlatform = () => {
 							</template>
 						</div>
 						<!-- <div class="font-semibold text-sm">{{ shipment.name }}</div> -->
+						<div v-if="shipment.delivered_at" class="text-xs text-green-600">
+							<FontAwesomeIcon icon="fal fa-check" fixed-width aria-hidden="true" />
+							{{ ctrans("Delivered :date", { date: useFormatTime(shipment.delivered_at, { formatTime: "short-datetime" }) }) }}
+						</div>
+						<div v-else-if="shipment.carrier_status" class="text-xs text-gray-500">
+							{{ shipment.carrier_status }}
+						</div>
 						<div
 							v-if="
 								shipment.formatted_tracking_urls &&

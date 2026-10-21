@@ -38,7 +38,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $error_message
  * @property array<array-key, mixed> $data
  * @property string|null $shipped_at
- * @property string|null $tracked_at
+ * @property \Illuminate\Support\Carbon|null $tracked_at
+ * @property \Illuminate\Support\Carbon|null $delivered_at
+ * @property string|null $carrier_status
  * @property int $number_shipment_trackings
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -83,6 +85,8 @@ class Shipment extends Model
         'tracking_urls' => 'array',
         'label_urls'    => 'array',
         'label_type'    => ShipmentLabelTypeEnum::class,
+        'delivered_at'  => 'datetime',
+        'tracked_at'    => 'datetime',
     ];
 
     protected $attributes = [

@@ -58,6 +58,8 @@ class ShipmentsResource extends JsonResource
             'data'                    => $shipment->data,   //  faire_feedback.msg, faire_feedback.status
             'label_type'              => $shipment->label_type,
             'is_printable'            => $isPrintable,
+            'carrier_status'          => $shipment->carrier_status,
+            'delivered_at'            => $shipment->delivered_at,
         ];
     }
 }

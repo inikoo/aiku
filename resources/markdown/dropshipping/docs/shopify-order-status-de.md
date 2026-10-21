@@ -1,7 +1,7 @@
 ---
 title: Ihre Shopify-Bestellungen und ihr Status
 summary: Wie Bestellungen aus Ihrem Shopify-Shop uns erreichen, wie sie bezahlt werden, was jeder Status bedeutet, warum eine Bestellung als Submitted warten kann oder gar nicht ankommt, und was wir an Shopify zurücksenden.
-date: 2026-09-25
+date: 2026-10-21
 source_date: 2026-09-25
 tags: Shopify, Bestellungen, Status, Zahlung, Submitted, Unbezahlt, Fulfilment-Anfrage
 category: orders
@@ -59,6 +59,7 @@ Mehr zur Bestellseite finden Sie unter [Reviewing your orders](/docs/reviewing-o
 ## Was wir an Shopify zurücksenden
 
 - Wird die Bestellung versendet, markieren wir sie in Shopify mit Tracking-Nummer und Link als erfüllt. Shopify informiert Ihren Kunden.
+- Wird ein Paket, das wir mit GLS aus Spanien verschickt haben, zugestellt, markieren wir es in Shopify auch als <b>Zugestellt</b>, meist innerhalb einer Stunde nach der Zustellung durch GLS. Sie können das in Shopify nicht selbst einstellen; es kommt von uns.
 - Wird eine Bestellung storniert, schließen wir die Anfrage in Shopify. Bei einer stornierten Bestellung können Sie die Sync-Schaltfläche (<b>Sync order state</b>) drücken, um die Stornierung erneut an Shopify zu senden. Ist Shopify bereits aktuell, sehen Sie <b>The order state on Shopify is up-to-date</b>.
 
 ## Eine Bestellung fehlt in meinen Orders

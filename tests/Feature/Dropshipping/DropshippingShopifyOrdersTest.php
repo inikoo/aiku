@@ -13,6 +13,7 @@ use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Dispatching\DeliveryNote\StoreDeliveryNote;
 use App\Actions\Dispatching\Shipment\StoreShipment;
+use App\Actions\Dispatching\Shipment\ApiCalls\TrackGlsEsShipment;
 use App\Actions\Dispatching\Shipper\StoreShipper;
 use App\Actions\Dropshipping\CustomerSalesChannel\CloseCustomerSalesChannel;
 use App\Actions\Dropshipping\Order\RetryOrderImport;
@@ -23,6 +24,7 @@ use App\Actions\Dropshipping\Shopify\Fulfilment\Webhooks\CreateFulfilmentOrderFr
 use App\Actions\Dropshipping\Shopify\Fulfilment\CancelFulfillOrderToShopify;
 use App\Actions\Dropshipping\Shopify\Fulfilment\CloseFulfillOrderToShopify;
 use App\Actions\Dropshipping\Shopify\Fulfilment\FulfillOrderToShopify;
+use App\Actions\Dropshipping\Shopify\Fulfilment\MarkShopifyFulfilmentDelivered;
 use App\Actions\Dropshipping\Shopify\Fulfilment\UI\SyncOrderCancellationToShopify;
 use App\Actions\Dropshipping\Shopify\FulfilmentService\AdoptShopifyFulfilmentService;
 use App\Actions\Dropshipping\Shopify\FulfilmentService\DeleteAllFulfilmentServices;
@@ -913,6 +915,80 @@ test('dispatching sends the fulfilment to shopify with the tracking of the deliv
     ]);
     FulfillOrderToShopify::run($order, $deliveryNote);
     expect(ShopifyFake::calls('fulfillmentCreate'))->toHaveCount(1);
+});
+
+test('a gls spain parcel reported delivered marks the shopify fulfilment delivered, once', function () {
+    Queue::fake();
+    config(['app.sandbox.shipper_gls_es_token' => 'test-uid']);
+    $shopifyUser = shopifyOrderChannel($this, 'orders-delivered');
+    shopifyPortfolioFor($this, $shopifyUser);
+
+    ShopifyFake::fake([
+        'assignedFulfillmentOrders' => shopifyAssignedOrdersReply([shopifyFulfilmentOrder([[]], ['id' => 'gid://shopify/FulfillmentOrder/6045'])]),
+        'acceptFulfillmentRequest'  => ShopifyFake::graphql(['fulfillmentOrderAcceptFulfillmentRequest' => ['fulfillmentOrder' => ['status' => 'OPEN', 'requestStatus' => 'ACCEPTED'], 'userErrors' => []]]),
+    ]);
+    CallbackFulfillmentOrderNotification::run($shopifyUser, ['kind' => 'FULFILLMENT_REQUEST']);
+    $order = Order::where('platform_order_id', 'gid://shopify/FulfillmentOrder/6045')->firstOrFail();
+
+    $deliveryNote = StoreDeliveryNote::make()->action($order, [
+        'reference'        => 'DN'.Str::random(6),
+        'state'            => DeliveryNoteStateEnum::UNASSIGNED,
+        'email'            => 'test@email.com',
+        'phone'            => '+62081353890000',
+        'date'             => date('Y-m-d'),
+        'delivery_address' => new Address(Address::factory()->definition()),
+        'warehouse_id'     => $this->warehouse->id,
+    ]);
+    $shipper = StoreShipper::make()->action($this->organisation, ['code' => 'GL'.Str::random(4), 'name' => 'General Logistics Systems', 'trade_as' => 'GLS']);
+    StoreShipment::make()->action($deliveryNote, $shipper, ['tracking' => '61292316529405']);
+    $shipper->update(['api_shipper' => 'gls-es']);
+    $shipment = $deliveryNote->shipments()->first();
+    $shipment->update(['trackings' => ['Z7A26XIW'], 'data' => ['codbarras' => '61292316529405']]);
+
+    $glsReply = fn (string $code, string $status, string $pod) => Http::response(
+        '<?xml version="1.0" encoding="utf-8"?><expediciones><exp><codestado>'.$code.'</codestado><estado>'.$status.'</estado><pod>'.$pod.'</pod><codbar>61292316529405</codbar></exp></expediciones>'
+    );
+    $notFound = Http::response('<?xml version="1.0" encoding="utf-8"?><expediciones></expediciones>');
+    ShopifyFake::fake(['POST GetExpCli' => Http::sequence()
+        ->pushResponse($notFound)
+        ->pushResponse($glsReply('6', 'EN REPARTO', ''))
+        ->pushResponse($notFound)
+        ->pushResponse($glsReply('7', 'ENTREGADO', '20/10/2026 12:01:00'))]);
+
+    TrackGlsEsShipment::run($shipment->refresh());
+    expect($shipment->refresh()->delivered_at)->toBeNull()
+        ->and($shipment->carrier_status)->toBe('EN REPARTO')
+        ->and($shipment->tracked_at)->not->toBeNull();
+    Http::assertSent(fn ($request) => str_ends_with($request->url(), '/b2b.asmx/GetExpCli') && $request['codigo'] === 'Z7A26XIW' && $request['uid'] === 'test-uid');
+    Http::assertSent(fn ($request) => str_ends_with($request->url(), '/b2b.asmx/GetExpCli') && $request['codigo'] === '61292316529405');
+    MarkShopifyFulfilmentDelivered::assertNotPushed();
+
+    TrackGlsEsShipment::run($shipment);
+    expect($shipment->refresh()->delivered_at->utc()->toDateTimeString())->toBe('2026-10-20 10:01:00')
+        ->and($shipment->carrier_status)->toBe('ENTREGADO');
+    MarkShopifyFulfilmentDelivered::assertPushed(1);
+
+    ShopifyFake::fake([
+        'fulfilmentOrderFulfillments' => ShopifyFake::graphql(['fulfillmentOrder' => ['fulfillments' => ['nodes' => [
+            ['id' => 'gid://shopify/Fulfillment/71', 'status' => 'SUCCESS', 'displayStatus' => 'IN_TRANSIT'],
+            ['id' => 'gid://shopify/Fulfillment/72', 'status' => 'SUCCESS', 'displayStatus' => 'DELIVERED'],
+            ['id' => 'gid://shopify/Fulfillment/73', 'status' => 'CANCELLED', 'displayStatus' => 'CANCELED'],
+        ]]]]),
+        'fulfillmentEventCreate' => ShopifyFake::graphql(['fulfillmentEventCreate' => ['fulfillmentEvent' => ['id' => 'gid://shopify/FulfillmentEvent/1'], 'userErrors' => []]]),
+    ]);
+    expect(MarkShopifyFulfilmentDelivered::run($order, $shipment->delivered_at))->toBe(['gid://shopify/Fulfillment/71'])
+        ->and(ShopifyFake::calls('fulfilmentOrderFulfillments')[0]['variables'])->toBe(['id' => 'gid://shopify/FulfillmentOrder/6045'])
+        ->and(ShopifyFake::calls('fulfillmentEventCreate'))->toHaveCount(1)
+        ->and(ShopifyFake::calls('fulfillmentEventCreate')[0]['variables']['fulfillmentEvent'])->toBe([
+            'fulfillmentId' => 'gid://shopify/Fulfillment/71',
+            'status'        => 'DELIVERED',
+            'happenedAt'    => $shipment->delivered_at->toIso8601String(),
+        ]);
+
+    ShopifyFake::fake(['fulfillmentEventCreate' => ShopifyFake::graphql(['fulfillmentEventCreate' => ['fulfillmentEvent' => null, 'userErrors' => [['field' => ['fulfillmentId'], 'message' => 'Fulfillment not found']]]]),
+        'fulfilmentOrderFulfillments' => ShopifyFake::graphql(['fulfillmentOrder' => ['fulfillments' => ['nodes' => [['id' => 'gid://shopify/Fulfillment/71', 'status' => 'SUCCESS', 'displayStatus' => 'IN_TRANSIT']]]]]),
+    ]);
+    expect(fn () => MarkShopifyFulfilmentDelivered::run($order, $shipment->delivered_at))->toThrow(RuntimeException::class, 'Fulfillment not found');
 });
 
 test('closing and cancelling a fulfilment order in shopify send the fulfilment order id and refuse to sync a live order', function () {

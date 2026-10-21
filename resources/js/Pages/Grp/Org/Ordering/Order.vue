@@ -111,6 +111,7 @@ import { Icon as IconTS } from "@/types/Utils/Icon"
 import ShipmentSection from "@/Components/Warehouse/DeliveryNotes/ShipmentSection.vue"
 import CustomsExportLink from "@/Components/Warehouse/DeliveryNotes/CustomsExportLink.vue"
 import { ctrans } from "@/Composables/useTrans"
+import { useFormatTime } from "@/Composables/useFormatTime"
 
 library.add(faParachuteBox, faEllipsisH, faSortNumericDown, fadExclamationTriangle, faExclamationTriangle, faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faEdit, faWeight, faStickyNote, faExclamation, faTruck, faFilePdf, faPaperclip, faSpinnerThird, faMapMarkerAlt, faUndo, faStar, faShieldAlt, faPlus, faCopy, faMoneyCheckEditAlt, faSackDollar, faInfoCircle)
 
@@ -2476,6 +2477,9 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
                                         <span v-else-if="shipment.name" class="text-gray-400 italic">
                                             {{ ctrans("No shipment information") }}
                                         </span>
+                                        <div v-if="shipment.delivered_at" class="text-green-600">
+                                            {{ ctrans('Delivered :date', { date: useFormatTime(shipment.delivered_at, { formatTime: 'short-datetime' }) }) }}
+                                        </div>
                                     </li>
                                 </ul>
                             </div>

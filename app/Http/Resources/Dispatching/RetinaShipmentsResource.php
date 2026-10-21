@@ -54,6 +54,7 @@ class RetinaShipmentsResource extends JsonResource
             'tracking'                => $shipment->tracking,
             'trackings'               => $shipment->trackings,
             'formatted_tracking_urls' => $formattedTrackingURls,
+            'delivered_at'            => $shipment->delivered_at,
         ];
     }
 }

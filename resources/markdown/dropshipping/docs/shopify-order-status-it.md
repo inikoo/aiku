@@ -1,7 +1,7 @@
 ---
 title: I tuoi ordini Shopify e il loro stato
 summary: Come gli ordini dal tuo negozio Shopify arrivano a noi, come vengono pagati, cosa significa ogni stato, perché un ordine può restare in Submitted o non arrivare affatto, e cosa rimandiamo a Shopify.
-date: 2026-09-25
+date: 2026-10-21
 source_date: 2026-09-25
 tags: shopify, ordini, stato, pagamento, submitted, non pagato, richiesta di evasione
 category: orders
@@ -59,6 +59,7 @@ Per saperne di più sulla pagina dell'ordine, vedi [Controllare i tuoi ordini](/
 ## Cosa rimandiamo a Shopify
 
 - Quando l'ordine viene spedito, lo segniamo evaso in Shopify con il numero e il link di tracking. Shopify lo comunica al tuo cliente.
+- Quando un pacco che abbiamo spedito con GLS dalla Spagna viene consegnato, lo segniamo anche come <b>Consegnato</b> in Shopify, di solito entro un'ora dalla consegna di GLS. Non puoi impostarlo tu in Shopify; arriva da noi.
 - Quando un ordine viene annullato, chiudiamo la richiesta in Shopify. Su un ordine annullato puoi premere il pulsante di sincronizzazione (<b>Sync order state</b>) per inviare di nuovo l'annullamento a Shopify. Se Shopify è già aggiornato vedi <b>The order state on Shopify is up-to-date</b>.
 
 ## Un ordine non è nei miei Orders

@@ -2,6 +2,7 @@
 
 import OrderSummary from "@/Components/Summary/OrderSummary.vue"
 import { ctrans } from "@/Composables/useTrans"
+import { useFormatTime } from "@/Composables/useFormatTime"
 import { inject, onMounted, ref } from "vue"
 import { Link, router } from "@inertiajs/vue3"
 import { AddressManagement } from "@/types/PureComponent/Address"
@@ -289,6 +290,9 @@ const onPayWithBalance = () => {
                                         :href="shipment.shipper_url">{{ ctrans('Tracking url') }} </a>
 
                                 </template>
+                                <div v-if="shipment.delivered_at" class="text-green-600">
+                                    {{ ctrans('Delivered :date', { date: useFormatTime(shipment.delivered_at, { formatTime: 'short-datetime' }) }) }}
+                                </div>
                             </li>
 
                         </ul>
