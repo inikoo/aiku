@@ -78,7 +78,7 @@ class GetChatShopFacts
 
         return array_values(array_filter([
             ...$zones->map(fn ($zone) => data_get($this->zonePrice($zone), 'type') === 'TBC'
-                ? ['title' => __('Delivery').': '.$zone->name, 'body' => $zone->name.': '.__('delivery price to be confirmed later by customer service')]
+                ? ['title' => __('Delivery').': '.$zone->name, 'body' => $zone->name.': '.__('delivery price to be confirmed by customer service')]
                 : ['title' => __('Delivery').': '.$zone->name, 'body' => $zone->name.' ('.$this->zoneCountries($zone).'): '.$this->deliveryPrice($shop, $this->zonePrice($zone))])
                 ->all(),
             ($banned = $this->bannedCountries($shop)) ? ['title' => __('Blocked delivery countries'), 'body' => $banned] : null,
@@ -121,7 +121,7 @@ class GetChatShopFacts
 
         return collect(data_get($price, 'steps', []))
             ->map(fn ($step) => match (true) {
-                $step['price'] === 'TBC'           => __('from').' '.$bound($step['from']).' '.__('price to be confirmed later by customer service'),
+                $step['price'] === 'TBC'           => __('from').' '.$bound($step['from']).': '.__('delivery price to be confirmed by customer service'),
                 (float) $step['price'] === 0.0     => __('free from').' '.$bound($step['from']),
                 default                            => $this->money($shop, (float) $step['price']).($step['to'] !== 'INF' ? ' '.__('up to').' '.$bound($step['to']) : ''),
             })

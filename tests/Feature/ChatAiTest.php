@@ -1641,7 +1641,7 @@ test('a delivery zone priced by weight is described in kg of estimated order wei
         ->and($facts->deliveryPrice($this->shop, ['type' => 'Step Order Items Net Amount', 'steps' => $steps]))
         ->toBe($money(39.95).' up to '.$money(10).', '.$money(249.95).' up to '.$money(75.5).', free from '.$money(75.5).' (goods before VAT)')
         ->and($facts->deliveryPrice($this->shop, ['type' => 'Step Order Items Net Amount', 'steps' => [['from' => 0, 'to' => 30, 'price' => 18.5], ['from' => 30, 'to' => 'INF', 'price' => 'TBC']]]))
-        ->toBe($money(18.5).' up to '.$money(30).', from '.$money(30).' price to be confirmed later by customer service (goods before VAT)');
+        ->toBe($money(18.5).' up to '.$money(30).', from '.$money(30).': delivery price to be confirmed by customer service (goods before VAT)');
 
     $zone = new \App\Models\Billables\ShippingZone([
         'price'          => ['type' => 'Step Order Items Net Amount', 'steps' => [['from' => 0, 'to' => 'INF', 'price' => 0]]],
@@ -1663,7 +1663,7 @@ test('a delivery zone priced as to be confirmed says the price is confirmed late
     $shop = $this->shop->replicate()->setRelation('currentShippingZoneSchema', $schema);
 
     expect(\App\Actions\Chat\ChatSession\GetChatShopFacts::make()->shopFacts($shop))
-        ->toContain(['title' => 'Delivery: Far away', 'body' => 'Far away: delivery price to be confirmed later by customer service']);
+        ->toContain(['title' => 'Delivery: Far away', 'body' => 'Far away: delivery price to be confirmed by customer service']);
 });
 
 test('a delivery zone kept to some postcodes says which, and is matched by postcode the way the checkout charges it', function () {
