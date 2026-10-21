@@ -128,6 +128,10 @@ function markTooltip(mark: Mark) {
         : ctrans("Click to record the date of :step", { step: mark.label })
 }
 
+const markDescriptions: Record<string, string> = {
+    produced_at: "Mark production done once every product of this order is in the warehouse and nothing is left at the supplier.",
+}
+
 const editing = ref<Mark | null>(null)
 const date = ref<Date | null>(null)
 const reason = ref("")
@@ -279,6 +283,10 @@ function save() {
         @update:visible="(visible: boolean) => !visible && (editing = null)"
     >
         <div class="space-y-4 text-sm">
+            <p v-if="editing && markDescriptions[editing.field]" class="text-gray-600">
+                {{ ctrans(markDescriptions[editing.field]) }}
+            </p>
+
             <label class="block space-y-1">
                 <span class="block text-xs text-gray-500">{{ ctrans("Date") }}</span>
                 <DatePicker v-model="date" dateFormat="yy-mm-dd" :maxDate="editing?.planned ? undefined : new Date()" showIcon showButtonBar class="w-full" />
