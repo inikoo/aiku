@@ -100,12 +100,8 @@ class PostSerpTasks
 
         $posted = 0;
 
-        $this->checkableKeywords()
-            ->where('shop_id', $shop->id)
+        $this->requestableKeywords($shop)
             ->when($trackedKeywordIds !== null, fn (Builder $query) => $query->whereIn('id', $trackedKeywordIds))
-            ->where(fn (Builder $query) => $query
-                ->whereNull('last_checked_at')
-                ->orWhere('last_checked_at', '<', today()))
             ->chunkById(self::TASKS_PER_REQUEST, function (Collection $trackedKeywords) use ($client, &$posted) {
                 $posted += $this->post($client, $trackedKeywords);
             });
@@ -121,17 +117,38 @@ class PostSerpTasks
      */
     public function requestable(Shop $shop): array
     {
-        $keywords = $this->checkableKeywords()
-            ->where('shop_id', $shop->id)
-            ->where(fn (Builder $query) => $query
-                ->whereNull('last_checked_at')
-                ->orWhere('last_checked_at', '<', today()))
-            ->pluck('frequency');
+        $keywords = $this->requestableKeywords($shop)->pluck('frequency');
 
         return [
             'keywords' => $keywords->count(),
-            'cost'     => round($keywords->sum(fn (SeoKeywordFrequencyEnum $frequency) => self::depth($frequency) / 10 * self::COST_PER_PAGE), 4),
+            'cost'     => self::cost($keywords),
         ];
+    }
+
+    /**
+     * What DataForSEO bills to check keywords of these frequencies: one page of 10 results at a
+     * time, to each keyword's depth.
+     *
+     * @param  iterable<int, SeoKeywordFrequencyEnum>  $frequencies
+     */
+    public static function cost(iterable $frequencies): float
+    {
+        return round(collect($frequencies)->sum(fn (SeoKeywordFrequencyEnum $frequency) => self::depth($frequency) / 10 * self::COST_PER_PAGE), 4);
+    }
+
+    /**
+     * The shop's keywords a check now would queue: active, not checked today and not waiting for a
+     * result.
+     *
+     * @return Builder<SeoTrackedKeyword>
+     */
+    public function requestableKeywords(Shop $shop): Builder
+    {
+        return $this->checkableKeywords()
+            ->where('shop_id', $shop->id)
+            ->where(fn (Builder $query) => $query
+                ->whereNull('last_checked_at')
+                ->orWhere('last_checked_at', '<', today()));
     }
 
     /**
