@@ -219,7 +219,7 @@ class GetProductionNavigation
             }
         }
 
-        if (ShowArtisansDashboard::canSeeArtisanPay($user, $production)) {
+        if (ShowArtisansDashboard::canSeeArtisans($user, $production)) {
             $navigation['artisans'] = [
                 'root'  => 'grp.org.productions.show.artisans.',
                 'label' => __('Artisans'),
@@ -244,7 +244,7 @@ class GetProductionNavigation
                         ],
                         [
                             'label'   => __('Performance'),
-                            'tooltip' => __('Sessions, output and earnings per artisan'),
+                            'tooltip' => __('Sessions and output per artisan'),
                             'icon'    => ['fal', 'fa-user-hard-hat'],
                             'root'    => 'grp.org.productions.show.artisans.index',
                             'route'   => [
@@ -252,7 +252,7 @@ class GetProductionNavigation
                                 'parameters' => [$production->organisation->slug, $production->slug]
                             ],
                         ],
-                        [
+                        ...(ShowArtisansDashboard::canSeeArtisanPay($user, $production) ? [[
                             'label'   => __('Payroll'),
                             'tooltip' => __('Piece-rate payroll export'),
                             'icon'    => ['fal', 'fa-money-check-alt'],
@@ -261,7 +261,7 @@ class GetProductionNavigation
                                 'name'       => 'grp.org.productions.show.artisans.payroll',
                                 'parameters' => [$production->organisation->slug, $production->slug]
                             ],
-                        ],
+                        ]] : []),
                     ]
                 ]
             ];

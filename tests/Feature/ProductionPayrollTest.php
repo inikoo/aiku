@@ -1645,7 +1645,7 @@ test('a task that is not piece rate snapshots a zero rate when its session close
     $this->manufactureTask->update(['is_piece_rate' => true]);
 });
 
-test('the artisans section and job order pay are hidden from foremen and mixers', function () {
+test('the artisans section is hidden from foremen and mixers, and its money from floor supervisors', function () {
     $jobOrder   = StoreJobOrder::make()->action($this->production, []);
     $parameters = [$this->organisation->slug, $this->production->slug];
 
@@ -1675,15 +1675,24 @@ test('the artisans section and job order pay are hidden from foremen and mixers'
     $supervisor = $userWith(["productions_operations.{$this->production->id}"]);
     $accountant = $userWith(["accounting.{$this->organisation->id}.view"]);
 
-    foreach ([$supervisor, $accountant] as $user) {
-        actingAs($user);
-        get(route('grp.org.productions.show.artisans.payroll', $parameters))->assertOk();
-        expect(\App\Actions\UI\Grp\Layout\GetProductionNavigation::run($this->production, $user))->toHaveKey('artisans');
-    }
+    $payrollMenuItem = fn ($user) => collect(\App\Actions\UI\Grp\Layout\GetProductionNavigation::run($this->production, $user)['artisans']['topMenu']['subSections'])
+        ->contains('label', __('Payroll'));
 
     actingAs($supervisor);
+    get(route('grp.org.productions.show.artisans.index', $parameters))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('can_see_pay', false)->where('artisans', fn ($artisans) => collect($artisans)->every(fn ($artisan) => $artisan['earned'] === null)));
+    foreach (['payroll', 'payroll.export'] as $page) {
+        get(route("grp.org.productions.show.artisans.$page", $parameters))->assertForbidden();
+    }
     get(route('grp.org.productions.show.operations.job-orders.show', [...$parameters, $jobOrder->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('can_see_pay', false));
+    expect($payrollMenuItem($supervisor))->toBeFalse();
+
+    actingAs($accountant);
+    get(route('grp.org.productions.show.artisans.payroll', $parameters))->assertOk();
+    get(route('grp.org.productions.show.artisans.index', $parameters))
         ->assertInertia(fn (AssertableInertia $page) => $page->where('can_see_pay', true));
+    expect($payrollMenuItem($accountant))->toBeTrue();
 
     actingAs($this->guest->getUser());
 });
