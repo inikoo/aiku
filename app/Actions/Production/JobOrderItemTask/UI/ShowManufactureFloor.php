@@ -224,7 +224,19 @@ class ShowManufactureFloor extends OrgAction
                         'icon'  => ['fal', 'fa-industry'],
                         'title' => __('Manufacture floor'),
                     ],
-                    'title' => __('My tasks'),
+                    'title'   => __('My tasks'),
+                    'actions' => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'tertiary',
+                            'icon'  => 'fal fa-chart-line',
+                            'label' => __('My performance'),
+                            'route' => [
+                                'name'       => 'grp.org.productions.show.floor.my_performance',
+                                'parameters' => [$production->organisation->slug, $production->slug],
+                            ],
+                        ],
+                    ],
                 ],
                 'production_id' => $this->production->id,
                 'break_options' => $this->employee?->artisan_pay_type === ArtisanPayTypeEnum::HOURLY ? [] : StartManufactureBreak::ALLOWED_MINUTES,

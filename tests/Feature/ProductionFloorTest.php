@@ -29,6 +29,7 @@ use App\Actions\Production\JobOrderItem\StoreJobOrderItem;
 use App\Actions\Production\ManufactureTaskSession\CloseManufactureTaskSession;
 use App\Actions\Production\ManufactureTaskSession\StartManufactureTaskSession;
 use App\Actions\Production\ManufactureTaskSession\VoidManufactureTaskSession;
+use App\Enums\Production\Artisan\ArtisanPayTypeEnum;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
 use App\Enums\Production\JobOrderItemTask\JobOrderItemTaskStateEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
@@ -1204,4 +1205,35 @@ test('a job order line is split between artisans who each work, and are paid for
         ->and($subJobs[0]->refresh()->data)->not->toHaveKey('carried_to');
 
     $this->guest->getUser()->employees()->detach($artisanA->id);
+});
+
+test('my performance shows the artisan only their own finished work, with targets and no money', function () {
+    $this->artefact->manufactureTasks()->sync([$this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1]]);
+    $jobOrder     = StoreJobOrder::make()->action($this->production, []);
+    $jobOrderItem = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 10]);
+    ConfirmJobOrder::make()->action($jobOrder);
+    $task = $jobOrderItem->tasks()->first();
+
+    $mine   = CloseManufactureTaskSession::make()->action(StartManufactureTaskSession::make()->action($this->guest->getUser(), $task), ['quantity_made' => 4]);
+    $theirs = CloseManufactureTaskSession::make()->action(StartManufactureTaskSession::make()->action(stepTestSecondOperator($this->group), $task), ['quantity_made' => 3]);
+
+    $url   = route('grp.org.productions.show.floor.my_performance', [$this->organisation->slug, $this->production->slug]);
+    $props = get($url)->assertOk()->viewData('page')['props'];
+    $rows  = collect($props['data']['data']);
+
+    expect($props['period']['key'])->toBe('this_week')
+        ->and($rows->pluck('id'))->toContain($mine->id)->not->toContain($theirs->id)
+        ->and($props['totals']['quantity_made'])->toBeGreaterThanOrEqual(4.0)
+        ->and(array_keys($props['totals']))->toContain('preparation_hours', 'cleaning_hours', 'on_target')
+        ->and(collect(array_keys($rows->firstWhere('id', $mine->id)))->intersect(['pay', 'earned', 'amount', 'band', 'correct_route', 'void_route', 'times_route']))->toBeEmpty()
+        ->and(json_encode($props))->not->toContain('earned')->not->toContain('"pay"');
+
+    $mine->update(['artisan_pay_type' => ArtisanPayTypeEnum::HOURLY, 'standard_rate' => 999999, 'is_under_target' => false, 'started_at' => $mine->ended_at->copy()->subHour()]);
+    expect(collect(get($url)->viewData('page')['props']['data']['data'])->firstWhere('id', $mine->id)['is_under_target'])->toBeTrue();
+
+    expect(collect(get($url.'?period=last_week')->viewData('page')['props']['data']['data'])->pluck('id'))->not->toContain($mine->id);
+    get($url.'?period=custom')->assertSessionHasErrors(['from', 'to']);
+
+    get(route('grp.org.productions.show.floor', [$this->organisation->slug, $this->production->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('pageHead.actions.0.route.name', 'grp.org.productions.show.floor.my_performance'));
 });

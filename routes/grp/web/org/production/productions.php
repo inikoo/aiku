@@ -48,6 +48,7 @@ use App\Actions\Production\ManufactureTaskSession\ExportManufacturePayroll;
 use App\Actions\Production\ManufactureTaskSession\UI\IndexArtisans;
 use App\Actions\Production\ManufactureTaskSession\UI\ShowManufacturePayroll;
 use App\Actions\Production\ManufactureTaskSession\UI\ShowManufacturePayrollArtisan;
+use App\Actions\Production\ManufactureTaskSession\UI\ShowMyManufacturePerformance;
 use App\Actions\Production\ManufactureTask\UI\CreateManufactureTask;
 use App\Actions\Production\ManufactureTask\UI\EditManufactureTask;
 use App\Actions\Production\ManufactureTask\UI\IndexManufactureTasks;
@@ -76,6 +77,7 @@ Route::prefix('{production}')
         Route::name('show')
             ->group(function () {
                 Route::get('floor', ShowManufactureFloor::class)->name('.floor');
+                Route::get('floor/my-performance', ShowMyManufacturePerformance::class)->name('.floor.my_performance');
 
                 Route::name('.operations.')->prefix('operations')
                     ->group(function () {
