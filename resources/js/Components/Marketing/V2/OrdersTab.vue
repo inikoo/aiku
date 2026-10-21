@@ -15,7 +15,7 @@ import { MODEL_COLORS, ORDER_TYPE_COLORS, BAR_TRACK_COLOR, NO_FIRST_TOUCH_COLOR 
 
 library.add(faCheckCircle, faExclamationTriangle)
 
-type ModelKey = "linear" | "first_touch" | "w_shaped"
+type ModelKey = "linear" | "first_touch" | "u_shaped" | "w_shaped"
 
 type ComparedModelKey = Exclude<ModelKey, "linear">
 

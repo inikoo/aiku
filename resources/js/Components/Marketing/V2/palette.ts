@@ -6,6 +6,7 @@
 export const MODEL_COLORS: Record<string, string> = {
     linear: "#86857f",
     first_touch: "#2a78d6",
+    u_shaped: "#e07b1f",
     w_shaped: "#c2549b",
 }
 

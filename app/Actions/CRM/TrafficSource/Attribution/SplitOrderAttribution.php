@@ -23,6 +23,10 @@ class SplitOrderAttribution
 
     public const int EXISTING_CUSTOMER_WINDOW_DAYS = 90;
 
+    public const float U_SHAPED_MILESTONE_SHARE = 0.4;
+
+    public const float U_SHAPED_MIDDLE_SHARE = 0.2;
+
     public const float W_SHAPED_MILESTONE_SHARE = 0.3;
 
     public const float W_SHAPED_MIDDLE_SHARE = 0.1;
@@ -41,7 +45,8 @@ class SplitOrderAttribution
         return match ($model) {
             AttributionModelEnum::LINEAR      => $this->linear($touches, $placedAt, $windowDays),
             AttributionModelEnum::FIRST_TOUCH => $this->firstTouch($touches, $registeredAt, $placedAt),
-            AttributionModelEnum::W_SHAPED    => $this->wShaped($touches, $registeredAt, $placedAt, $windowDays),
+            AttributionModelEnum::U_SHAPED    => $this->positionBased($touches, $registeredAt, $placedAt, $windowDays, ['first', 'order'], self::U_SHAPED_MILESTONE_SHARE, self::U_SHAPED_MIDDLE_SHARE),
+            AttributionModelEnum::W_SHAPED    => $this->positionBased($touches, $registeredAt, $placedAt, $windowDays, ['first', 'registration', 'order'], self::W_SHAPED_MILESTONE_SHARE, self::W_SHAPED_MIDDLE_SHARE),
         };
     }
 
@@ -184,12 +189,13 @@ class SplitOrderAttribution
 
     /**
      * @param array<int, array{timestamp: int, type: TrafficSourcesTypeEnum, campaign_ref: string|null}> $touches
+     * @param array<int, string> $roles
      *
      * @return array<int, array{type: string, campaign_ref: string|null, timestamp: int, share: float}>
      */
-    private function wShaped(array $touches, int $registeredAt, int $placedAt, int $windowDays): array
+    private function positionBased(array $touches, int $registeredAt, int $placedAt, int $windowDays, array $roles, float $milestoneShare, float $middleShare): array
     {
-        $milestones = array_filter($this->milestones($touches, $registeredAt, $placedAt, $windowDays));
+        $milestones = array_filter(array_intersect_key($this->milestones($touches, $registeredAt, $placedAt, $windowDays), array_flip($roles)));
 
         if (empty($milestones)) {
             return [];
@@ -201,7 +207,7 @@ class SplitOrderAttribution
         foreach ($milestones as $touch) {
             $key            = $this->touchKey($touch);
             $credited[$key] = $touch;
-            $weights[$key]  = ($weights[$key] ?? 0) + self::W_SHAPED_MILESTONE_SHARE;
+            $weights[$key]  = ($weights[$key] ?? 0) + $milestoneShare;
         }
 
         $middleTouches = $this->middleTouches($touches, $milestones, $placedAt, $windowDays);
@@ -209,7 +215,7 @@ class SplitOrderAttribution
         foreach ($middleTouches as $touch) {
             $key            = $this->touchKey($touch);
             $credited[$key] = $touch;
-            $weights[$key]  = self::W_SHAPED_MIDDLE_SHARE / count($middleTouches);
+            $weights[$key]  = $middleShare / count($middleTouches);
         }
 
         $total = array_sum($weights);
