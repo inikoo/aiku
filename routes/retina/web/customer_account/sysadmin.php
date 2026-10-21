@@ -6,6 +6,10 @@
  * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
+use App\Actions\Retina\Fulfilment\Leaflet\DeleteRetinaFulfilmentInsert;
+use App\Actions\Retina\Fulfilment\Leaflet\StoreRetinaFulfilmentInsert;
+use App\Actions\Retina\Fulfilment\Leaflet\UI\ShowRetinaFulfilmentInserts;
+use App\Actions\Retina\Fulfilment\Leaflet\UpdateRetinaFulfilmentInsert;
 use App\Actions\Retina\SysAdmin\DeleteRetinaLeaflet;
 use App\Actions\Retina\SysAdmin\DownloadRetinaLeaflet;
 use App\Actions\Retina\SysAdmin\PdfRetinaLetterOfAuthorisation;
@@ -37,6 +41,10 @@ Route::post('/packaging-preferences/leaflet-upload', UploadRetinaLeaflet::class)
 Route::post('/packaging-preferences/leaflet-update', UpdateRetinaLeaflet::class)->name('packaging-preferences.leaflet.update');
 Route::post('/packaging-preferences/leaflet-delete', DeleteRetinaLeaflet::class)->name('packaging-preferences.leaflet.delete');
 Route::get('/packaging-preferences/leaflet-download/{customerLeaflet:id}', DownloadRetinaLeaflet::class)->name('packaging-preferences.leaflet.download');
+Route::get('/inserts', ShowRetinaFulfilmentInserts::class)->name('inserts.show');
+Route::post('/inserts', StoreRetinaFulfilmentInsert::class)->name('inserts.store');
+Route::post('/inserts/{customerLeaflet:id}', UpdateRetinaFulfilmentInsert::class)->name('inserts.update')->whereNumber('customerLeaflet');
+Route::delete('/inserts/{customerLeaflet:id}', DeleteRetinaFulfilmentInsert::class)->name('inserts.delete')->whereNumber('customerLeaflet');
 Route::get('/users', IndexRetinaWebUsers::class)->name('web-users.index');
 Route::get('/users/create', CreateRetinaWebUser::class)->name('web-users.create');
 Route::get('/users/{webUser}', ShowRetinaWebUser::class)->name('web-users.show');

@@ -9,6 +9,7 @@
 namespace App\Actions\Retina\SysAdmin;
 
 use App\Actions\RetinaAction;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Billables\ModelHasLeaflet;
 use Illuminate\Support\Facades\Storage;
 use Lorisleiva\Actions\ActionRequest;
@@ -29,8 +30,10 @@ class DownloadRetinaLeaflet extends RetinaAction
 
     public function authorize(ActionRequest $request): bool
     {
+        $shop = $request->user()->customer?->shop;
+
         return $request->user()->is_root
-            && $request->user()->customer?->shop?->hasPackagingAndInserts();
+            && ($shop?->hasPackagingAndInserts() || $shop?->type === ShopTypeEnum::FULFILMENT);
     }
 
     public function asController(ModelHasLeaflet $customerLeaflet, ActionRequest $request): StreamedResponse

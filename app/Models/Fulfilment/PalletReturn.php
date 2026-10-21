@@ -8,6 +8,7 @@
 
 namespace App\Models\Fulfilment;
 
+use App\Enums\Dispatching\DeliveryNoteLeaflet\DeliveryNoteLeafletStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnItemNoSetReasonStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnCourierEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
@@ -112,6 +113,7 @@ use App\Models\SysAdmin\User;
  * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $attachments
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletReturnLeaflet> $leaflets
  * @property-read Currency $currency
  * @property-read CustomerSalesChannel|null $customerSalesChannel
  * @property-read Address|null $deliveryAddress
@@ -296,6 +298,26 @@ class PalletReturn extends Model implements HasMedia, Auditable
     public function items(): HasMany
     {
         return $this->hasMany(PalletReturnItem::class);
+    }
+
+    public function leaflets(): HasMany
+    {
+        return $this->hasMany(PalletReturnLeaflet::class);
+    }
+
+    public function unprintedLeaflets(): HasMany
+    {
+        return $this->leaflets()
+            ->printable()
+            ->whereNotIn('state', [
+                DeliveryNoteLeafletStateEnum::PRINTED,
+                DeliveryNoteLeafletStateEnum::INCLUDED,
+            ]);
+    }
+
+    public function hasUnprintedLeaflets(): bool
+    {
+        return $this->unprintedLeaflets()->exists();
     }
 
     public function shipments(): MorphToMany

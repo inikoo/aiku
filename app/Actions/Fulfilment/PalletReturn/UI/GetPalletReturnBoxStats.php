@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\PalletReturn\UI;
 
+use App\Enums\Catalogue\Leaflet\LeafletTypeEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnAttachmentScopeEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnCourierEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
@@ -17,6 +18,7 @@ use App\Http\Resources\Helpers\CurrencyResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\PalletReturnLeaflet;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -52,6 +54,7 @@ class GetPalletReturnBoxStats
                 'courier_options' => PalletReturnCourierEnum::options(),
                 'shipping_label'  => $this->getCustomerShippingLabel($palletReturn, $fromRetina),
             ],
+            'leaflets'          => $fromRetina ? null : $this->getLeaflets($palletReturn),
             'delivery_state'      => PalletReturnStateEnum::stateIcon()[$palletReturn->state->value],
             'order_summary'       => [
                 [
@@ -199,6 +202,32 @@ class GetPalletReturnBoxStats
         return $invoiceData;
     }
 
+
+    /**
+     * @return array{items: array<int, array{id: int, name: string, type_label: string, state: string, printable: bool}>, print_all_route: array{name: string, parameters: array<string, int>}}|null
+     */
+    private function getLeaflets(PalletReturn $palletReturn): ?array
+    {
+        $leaflets = $palletReturn->leaflets()->orderBy('id')->get();
+
+        if ($leaflets->isEmpty()) {
+            return null;
+        }
+
+        return [
+            'items'           => $leaflets->map(fn (PalletReturnLeaflet $leaflet) => [
+                'id'         => $leaflet->id,
+                'name'       => $leaflet->name,
+                'type_label' => LeafletTypeEnum::labels()[$leaflet->type->value],
+                'state'      => $leaflet->state->value,
+                'printable'  => $leaflet->isPrintable(),
+            ])->all(),
+            'print_all_route' => [
+                'name'       => 'grp.models.pallet-return.leaflets.print',
+                'parameters' => ['palletReturn' => $palletReturn->id],
+            ],
+        ];
+    }
 
     private function getCustomerShippingLabel(PalletReturn $palletReturn, bool $fromRetina): ?array
     {

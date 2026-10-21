@@ -195,6 +195,18 @@ export interface BoxStats {
         dimensions: number[]
     }[]
     customer_shipping?: CustomerShipping
+    leaflets?: PalletReturnLeaflets | null
+}
+
+export interface PalletReturnLeaflets {
+    items: {
+        id: number
+        name: string
+        type_label: string
+        state: string
+        printable: boolean
+    }[]
+    print_all_route: routeType
 }
 
 export interface CustomerShipping {

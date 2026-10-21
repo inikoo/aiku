@@ -22,12 +22,12 @@ import Button from '@/Components/Elements/Buttons/Button.vue'
 import { ctrans } from '@/Composables/useTrans'
 import { Table as TableTS } from '@/types/Table'
 
-// import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faExchange, faFragile, faNarwhal } from '@fal'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faExchange, faFragile, faNarwhal, faUpload } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import StockItemsMovements from '@/Components/Showcases/Grp/StockItemsMovements.vue'
 import TableStoredItemAuditDeltas from '@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemAuditDeltas.vue'
-library.add(faFragile, faNarwhal, faExchange)
+library.add(faFragile, faNarwhal, faExchange, faUpload)
 
 
 const props = defineProps<{
@@ -88,8 +88,11 @@ const component = computed(() => {
                 v-if="currentTab === 'attachments'"
                 @click="() => (isModalUploadFileOpen = true)"
                 :label="ctrans('Attach manual')"
-                icon="fal fa-upload"
-                type="secondary" />
+                type="tertiary">
+                <template #icon>
+                    <FontAwesomeIcon icon="fal fa-upload" class="text-green-600" fixed-width aria-hidden="true" />
+                </template>
+            </Button>
         </template>
     </PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
@@ -100,8 +103,11 @@ const component = computed(() => {
                 v-if="currentTab === 'attachments'"
                 @click="() => (isModalUploadFileOpen = true)"
                 :label="ctrans('Attach manual')"
-                icon="fal fa-upload"
-                type="secondary" />
+                type="tertiary">
+                <template #icon>
+                    <FontAwesomeIcon icon="fal fa-upload" class="text-green-600" fixed-width aria-hidden="true" />
+                </template>
+            </Button>
         </template>
     </component>
 

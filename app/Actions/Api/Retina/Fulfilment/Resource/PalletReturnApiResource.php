@@ -24,6 +24,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $state
  * @property mixed $type
  * @property mixed $customer_reference
+ * @property mixed $customer_courier
  * @property mixed $number_pallets
  * @property mixed $number_services
  * @property mixed $number_stored_items

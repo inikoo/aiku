@@ -23,7 +23,7 @@ import ToggleSwitch from "primevue/toggleswitch"
 import RadioButton from "primevue/radiobutton"
 import Popover from '@/Components/Popover.vue'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faQuestionCircle, faPencil, faPenSquare, faCalendarDay, faExternalLink, faExchange, faHashtag, faShippingFast } from "@fal"
+import { faQuestionCircle, faPencil, faPenSquare, faCalendarDay, faExternalLink, faExchange, faHashtag, faShippingFast, faGift, faPrint, faBrowser, faCheck, faHourglassHalf } from "@fal"
 import { faCubes } from "@fas"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import DeliveryAddressManagementModal from "@/Components/Utils/DeliveryAddressManagementModal.vue"
@@ -41,7 +41,9 @@ import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
 import { AddressManagement } from "@/types/PureComponent/Address";
 import { useTruncate } from "@/Composables/useTruncate"
 import PureMultiselectInfiniteScroll from "@/Components/Pure/PureMultiselectInfiniteScroll.vue"
-library.add(faQuestionCircle, faPencil, faPenSquare, faCalendarDay, faExternalLink, faCubes, faExchange, faHashtag, faShippingFast)
+import axios from "axios"
+import { printPdfInBrowser } from "@/Composables/printPdfInBrowser"
+library.add(faQuestionCircle, faPencil, faPenSquare, faCalendarDay, faExternalLink, faCubes, faExchange, faHashtag, faShippingFast, faGift, faPrint, faBrowser, faCheck, faHourglassHalf)
 
 const props = defineProps<{
 
@@ -63,6 +65,61 @@ const props = defineProps<{
 	}
 
 }>()
+
+// Section: Customer inserts
+const isLeafletPrinted = (leaflet: { state: string }) => leaflet.state === "printed" || leaflet.state === "included"
+
+const printingLeafletId = ref<number | null>(null)
+const onPrintLeaflet = (leaflet: { id: number }) => {
+	router.post(
+		route("grp.models.pallet_return_leaflet.print", { palletReturnLeaflet: leaflet.id }),
+		{},
+		{
+			preserveScroll: true,
+			onStart: () => (printingLeafletId.value = leaflet.id),
+			onFinish: () => (printingLeafletId.value = null),
+			onError: (errors) => notify({ title: ctrans("Something went wrong"), text: errors?.messages ?? ctrans("Failed to print insert"), type: "error" }),
+		}
+	)
+}
+
+const onPrintLeafletInBrowser = async (leaflet: { id: number }) => {
+	try {
+		printingLeafletId.value = leaflet.id
+		const response = await axios.post(
+			route("grp.models.pallet_return_leaflet.print_in_browser", { palletReturnLeaflet: leaflet.id }),
+			{},
+			{ responseType: "blob" }
+		)
+		printPdfInBrowser(response.data)
+		router.reload({ only: ["box_stats", "pageHead"] })
+	} catch (error: any) {
+		const message = error?.response?.data instanceof Blob
+			? JSON.parse(await error.response.data.text())?.message
+			: null
+		notify({ title: ctrans("Something went wrong"), text: message ?? ctrans("Failed to print insert"), type: "error" })
+	} finally {
+		printingLeafletId.value = null
+	}
+}
+
+const isPrintingAllLeaflets = ref(false)
+const onPrintAllLeaflets = () => {
+	if (!props.boxStats.leaflets) {
+		return
+	}
+
+	router.post(
+		route(props.boxStats.leaflets.print_all_route.name, props.boxStats.leaflets.print_all_route.parameters),
+		{},
+		{
+			preserveScroll: true,
+			onStart: () => (isPrintingAllLeaflets.value = true),
+			onFinish: () => (isPrintingAllLeaflets.value = false),
+			onError: (errors) => notify({ title: ctrans("Something went wrong"), text: errors?.messages ?? ctrans("Failed to print inserts"), type: "error" }),
+		}
+	)
+}
 
 // Section: Box Stats loading state
 const isBoxStatsLoading = ref(false)
@@ -806,6 +863,57 @@ const base64HtmlToPdf = async (base64: string, index) => {
 							{{ boxStats.customer_shipping.shipping_label.name }}
 						</a>
 					</div>
+				</div>
+			</div>
+
+			<!-- Section: Customer inserts -->
+			<div v-if="boxStats.leaflets?.items?.length" class="flex gap-x-1 py-0.5">
+				<FontAwesomeIcon v-tooltip="ctrans('Customer inserts')" icon="fal fa-gift" class="text-gray-400" fixed-width aria-hidden="true" />
+				<div class="w-full text-sm">
+					<div class="flex items-center justify-between">
+						<span>{{ ctrans("Inserts") }} ({{ boxStats.leaflets.items.length }})</span>
+						<Button
+							:label="ctrans('Print all')"
+							type="tertiary"
+							size="xs"
+							:loading="isPrintingAllLeaflets"
+							@click="onPrintAllLeaflets">
+							<template #icon>
+								<FontAwesomeIcon icon="fal fa-print" class="text-green-600" fixed-width aria-hidden="true" />
+							</template>
+						</Button>
+					</div>
+					<ul class="mt-1 space-y-1">
+						<li v-for="leaflet in boxStats.leaflets.items" :key="leaflet.id" class="flex items-center justify-between gap-x-2">
+							<span class="truncate" v-tooltip="leaflet.type_label">
+								<FontAwesomeIcon
+									:icon="isLeafletPrinted(leaflet) ? 'fal fa-check' : 'fal fa-hourglass-half'"
+									:class="isLeafletPrinted(leaflet) ? 'text-green-600' : 'text-amber-500'"
+									fixed-width
+									aria-hidden="true" />
+								{{ leaflet.name }}
+							</span>
+							<span v-if="leaflet.printable" class="flex shrink-0 gap-x-1">
+								<button
+									type="button"
+									class="p-0.5 text-gray-400 hover:text-[--app-accent] disabled:text-gray-300"
+									v-tooltip="ctrans('Print by PrintNode')"
+									:disabled="printingLeafletId === leaflet.id"
+									@click="onPrintLeaflet(leaflet)">
+									<FontAwesomeIcon icon="fal fa-print" fixed-width aria-hidden="true" />
+								</button>
+								<button
+									type="button"
+									class="p-0.5 text-gray-400 hover:text-[--app-accent] disabled:text-gray-300"
+									v-tooltip="ctrans('Print in browser')"
+									:disabled="printingLeafletId === leaflet.id"
+									@click="onPrintLeafletInBrowser(leaflet)">
+									<FontAwesomeIcon icon="fal fa-browser" fixed-width aria-hidden="true" />
+								</button>
+							</span>
+							<span v-else class="shrink-0 text-xs text-gray-400">{{ ctrans("No file") }}</span>
+						</li>
+					</ul>
 				</div>
 			</div>
 

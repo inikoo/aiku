@@ -12,6 +12,7 @@ use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletReturns;
 use App\Actions\Dropshipping\CustomerSalesChannel\Hydrators\CustomerSalesChannelsHydrateFulfilmentOrders;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletReturns;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
+use App\Actions\Fulfilment\PalletReturnLeaflet\StorePalletReturnLeafletsFromCustomer;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePalletReturns;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletReturns;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePalletReturns;
@@ -56,6 +57,8 @@ trait WithSubmitConformPalletReturn
         }
 
         $palletReturn = $this->update($palletReturn, $modelData);
+
+        StorePalletReturnLeafletsFromCustomer::run($palletReturn);
 
         GroupHydratePalletReturns::dispatch($palletReturn->group);
         OrganisationHydratePalletReturns::dispatch($palletReturn->organisation);

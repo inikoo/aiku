@@ -516,7 +516,7 @@ class GetPalletReturnActions
                 'type'    => 'button',
                 'style'   => 'tertiary',
                 'label'   => __('Print documents'),
-                'tooltip' => __('Invoice, delivery note and leaflets attached to the return, and the manuals of its products, in one PDF'),
+                'tooltip' => __('Invoice and delivery note attached to the return, and the manuals of its products, in one PDF'),
                 'target'  => '_blank',
                 'icon'    => 'fal fa-print',
                 'key'     => 'print-documents',

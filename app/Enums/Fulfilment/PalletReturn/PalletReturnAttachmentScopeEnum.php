@@ -17,7 +17,6 @@ enum PalletReturnAttachmentScopeEnum: string
     case INVOICE        = 'Invoice';
     case DELIVERY_NOTE  = 'Delivery note';
     case SHIPPING_LABEL = 'Shipping label';
-    case LEAFLET        = 'Leaflet';
     case OTHER          = 'Other';
 
     public static function labels(): array
@@ -26,7 +25,6 @@ enum PalletReturnAttachmentScopeEnum: string
             'Invoice'        => __('Invoice'),
             'Delivery note'  => __('Delivery note'),
             'Shipping label' => __('Shipping label'),
-            'Leaflet'        => __('Leaflet'),
             'Other'          => __('Other'),
         ];
     }
@@ -50,7 +48,6 @@ enum PalletReturnAttachmentScopeEnum: string
         return [
             self::INVOICE->value,
             self::DELIVERY_NOTE->value,
-            self::LEAFLET->value,
         ];
     }
 

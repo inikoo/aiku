@@ -23,12 +23,11 @@ class PdfPalletReturnParcelDocuments
     {
         return $this->mergedPdfResponse(
             [
-                ...$this->attachmentDocuments($palletReturn, [PalletReturnAttachmentScopeEnum::INVOICE->value, PalletReturnAttachmentScopeEnum::DELIVERY_NOTE->value]),
+                ...$this->attachmentDocuments($palletReturn, PalletReturnAttachmentScopeEnum::parcelDocumentScopes()),
                 ...$this->productManualDocuments($palletReturn),
-                ...$this->attachmentDocuments($palletReturn, [PalletReturnAttachmentScopeEnum::LEAFLET->value]),
             ],
             'documents-'.$palletReturn->slug.'.pdf',
-            __('There is no invoice, delivery note or leaflet attached to this return, and no manual on its products.')
+            __('There is no invoice or delivery note attached to this return, and no manual on its products.')
         );
     }
 

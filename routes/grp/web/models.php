@@ -262,6 +262,9 @@ use App\Actions\Fulfilment\PalletReturn\DeletePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\DeletePalletReturnAddress;
 use App\Actions\Fulfilment\PalletReturn\DetachPalletFromReturn;
 use App\Actions\Fulfilment\PalletReturn\DispatchPalletReturn;
+use App\Actions\Fulfilment\PalletReturnLeaflet\PrintPalletReturnLeaflet;
+use App\Actions\Fulfilment\PalletReturnLeaflet\PrintPalletReturnLeafletInBrowser;
+use App\Actions\Fulfilment\PalletReturnLeaflet\PrintPalletReturnLeaflets;
 use App\Actions\Fulfilment\PalletReturn\Pdf\PdfPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\Pdf\PdfPalletReturnParcelDocuments;
 use App\Actions\Fulfilment\PalletReturn\Pdf\PdfPalletReturnShippingLabel;
@@ -1185,6 +1188,7 @@ Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(
 
     Route::post('attachment/attach', [AttachAttachmentToModel::class, 'inPalletReturn'])->name('attachment.attach');
     Route::delete('attachment/{attachment:id}/detach', [DetachAttachmentFromModel::class, 'inPalletReturn'])->name('attachment.detach')->withoutScopedBindings();
+    Route::post('leaflets/print', PrintPalletReturnLeaflets::class)->name('leaflets.print');
 
     Route::post('transaction', [StoreFulfilmentTransaction::class, 'inPalletReturn'])->name('transaction.store');
     Route::post('pallet', AttachPalletsToReturn::class)->name('pallet.store');
@@ -1668,6 +1672,8 @@ Route::patch('/manufacture-break/{manufactureBreak:id}/end', EndManufactureBreak
 Route::patch('stored-items/{storedItem:id}', UpdateStoredItem::class)->name('stored-items.update');
 
 Route::patch('stored-items/{storedItem:id}/mark-as-discontinuing', MarkStoredItemAsDiscontinuing::class)->name('stored-items.mark-as-discontinuing');
+Route::post('pallet-return-leaflet/{palletReturnLeaflet:id}/print', PrintPalletReturnLeaflet::class)->name('pallet_return_leaflet.print');
+Route::post('pallet-return-leaflet/{palletReturnLeaflet:id}/print-in-browser', PrintPalletReturnLeafletInBrowser::class)->name('pallet_return_leaflet.print_in_browser');
 Route::post('stored-items/{storedItem:id}/attachment/attach', [AttachAttachmentToModel::class, 'inStoredItem'])->name('stored-items.attachment.attach');
 Route::delete('stored-items/{storedItem:id}/attachment/{attachment:id}/detach', [DetachAttachmentFromModel::class, 'inStoredItem'])->name('stored-items.attachment.detach')->withoutScopedBindings();
 

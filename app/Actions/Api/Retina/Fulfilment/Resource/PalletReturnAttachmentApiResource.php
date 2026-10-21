@@ -13,6 +13,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * @mixin Media
+ * @property \Illuminate\Database\Eloquent\Relations\Pivot|null $pivot
  */
 class PalletReturnAttachmentApiResource extends JsonResource
 {

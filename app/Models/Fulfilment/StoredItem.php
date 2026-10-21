@@ -125,6 +125,11 @@ class StoredItem extends Model implements HasMedia, Auditable
         return $this->belongsTo(FulfilmentCustomer::class);
     }
 
+    public function shouldDeletePreservingMedia(): bool
+    {
+        return true;
+    }
+
     public function warehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class);

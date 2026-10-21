@@ -250,6 +250,16 @@ class GetRetinaFulfilmentNavigation
                             ],
 
                             [
+                                'label' => __('inserts'),
+                                'icon'  => ['fal', 'fa-gift'],
+                                'root'  => 'retina.sysadmin.inserts.',
+                                'route' => [
+                                    'name' => 'retina.sysadmin.inserts.show',
+
+                                ]
+                            ],
+
+                            [
                                 'label' => __('account settings'),
                                 'icon'  => ['fal', 'fa-cog'],
                                 'root'  => 'retina.sysadmin.settings.',

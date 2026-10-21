@@ -82,6 +82,12 @@ use App\Actions\Fulfilment\RentalAgreement\UpdateRentalAgreement;
 use App\Actions\Fulfilment\Space\StoreSpace;
 use App\Actions\Fulfilment\Space\UpdateSpace;
 use App\Actions\Fulfilment\StoredItem\AttachStoredItemManual;
+use App\Models\Billables\ModelHasLeaflet;
+use App\Enums\Dispatching\DeliveryNoteLeaflet\DeliveryNoteLeafletStateEnum;
+use App\Enums\Catalogue\Leaflet\LeafletTypeEnum;
+use App\Enums\Catalogue\Leaflet\LeafletStateEnum;
+use App\Actions\Helpers\Media\StoreMediaFromFile;
+use App\Actions\Fulfilment\PalletReturnLeaflet\PrintPalletReturnLeafletInBrowser;
 use App\Actions\Fulfilment\StoredItem\AttachStoredItemToReturn;
 use App\Actions\Fulfilment\StoredItem\DeleteStoredItem;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
@@ -2913,8 +2919,41 @@ test('customer documents of a return print in one click and its own shipping lab
         ->and(fn () => SubmitPalletReturn::run($documentsReturn->refresh(), []))->toThrow(ValidationException::class, 'Choose the courier (DPD, Royal Mail) for the shipping label attached to this return.')
         ->and($documentsReturn->refresh()->state)->toBe(PalletReturnStateEnum::IN_PROCESS);
 
+    $customer   = $documentsReturn->fulfilmentCustomer->customer;
+    $insertFile = $pdf('thank-you.pdf');
+    $insert     = ModelHasLeaflet::create([
+        'group_id'        => $customer->group_id,
+        'organisation_id' => $customer->organisation_id,
+        'shop_id'         => $customer->shop_id,
+        'model_type'      => 'Customer',
+        'model_id'        => $customer->id,
+        'type'            => LeafletTypeEnum::THANK_YOU_CARD,
+        'name'            => 'Thank you card',
+        'media_id'        => StoreMediaFromFile::run($customer, [
+            'path'         => $insertFile->getPathname(),
+            'originalName' => $insertFile->getClientOriginalName(),
+            'extension'    => 'pdf',
+            'checksum'     => md5_file($insertFile->getPathname()),
+        ], 'leaflets', 'leaflet')->id,
+        'state'           => LeafletStateEnum::ACTIVE,
+    ]);
+
     UpdatePalletReturn::make()->action($documentsReturn, ['customer_courier' => PalletReturnCourierEnum::ROYAL_MAIL->value]);
     SubmitPalletReturn::run($documentsReturn->refresh(), []);
+
+    $returnInsert = $documentsReturn->leaflets()->sole();
+
+    expect($returnInsert->model_has_leaflet_id)->toBe($insert->id)
+        ->and($returnInsert->media_id)->toBe($insert->media_id)
+        ->and($returnInsert->state)->toBe(DeliveryNoteLeafletStateEnum::PENDING_PRINT)
+        ->and(fn () => DispatchPalletReturn::make()->action($documentsReturn->refresh()))->toThrow(ValidationException::class, 'Print the customer inserts of this return before dispatching it.');
+
+    $insertPdf = PrintPalletReturnLeafletInBrowser::make()->handle($returnInsert);
+
+    expect($insertPdf->headers->get('Content-Type'))->toBe('application/pdf')
+        ->and($returnInsert->refresh()->state)->toBe(DeliveryNoteLeafletStateEnum::PRINTED)
+        ->and($documentsReturn->hasUnprintedLeaflets())->toBeFalse()
+        ->and(GetPalletReturnBoxStats::run($documentsReturn, $documentsReturn->fulfilmentCustomer)['leaflets']['items'][0]['state'])->toBe('printed');
 
     $customerShipping = GetPalletReturnBoxStats::run($documentsReturn->refresh(), $documentsReturn->fulfilmentCustomer)['customer_shipping'];
 
@@ -2935,6 +2974,8 @@ test('customer documents of a return print in one click and its own shipping lab
         ->and($palletStoredItem->storedItem->attachments()->wherePivot('scope', StoredItemAttachmentScopeEnum::MANUAL->value)->count())->toBe(1);
 
     $palletStoredItem->storedItem->attachments()->detach();
+    $documentsReturn->leaflets()->delete();
+    $insert->forceDelete();
     $documentsReturn->attachments()->detach();
     $documentsReturn->items()->delete();
     $documentsReturn->delete();
