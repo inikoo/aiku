@@ -312,7 +312,7 @@ function save() {
                     <FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" />
                 </template>
             </Button>
-            <Button type="tertiary" :label="ctrans('Save')" :loading="saving" :disabled="needsReason && !reason.trim()" @click="save">
+            <Button :type="editing && markDescriptions[editing.field] ? 'secondary' : 'tertiary'" :label="ctrans('Save')" :loading="saving" :disabled="needsReason && !reason.trim()" @click="save" full>
                 <template #icon>
                     <FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" />
                 </template>
