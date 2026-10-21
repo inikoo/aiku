@@ -51,7 +51,7 @@ Le bouton lot n'apparaît que sur les produits en stock. Tant qu'un lot est ouve
 
 Le lot se trouve maintenant dans <b>My Bundles</b>. Il fonctionne comme une ligne de <b>My Products</b> : appuyez sur <b>Create new product</b> pour le créer sur votre boutique, ou associez-le à une fiche que vous avez déjà. Voir [Utiliser My Products](/docs/my-products).
 
-Un lot a son propre code produit, qui est le SKU envoyé à votre boutique.
+Le SKU envoyé à votre boutique n'est pas le code produit du lot. Il est construit à partir des codes de stock des produits contenus, en minuscules et reliés par des tirets : un lot de GJC-04, GJC-05 et GJC-06 est envoyé sous la forme <b>gjc-04-gjc-05-gjc-06</b>. Si le lot contient plus d'un exemplaire d'un même stock, la quantité est ajoutée à la suite, par exemple <b>gjc-04-x2</b>.
 
 ## Modifier ou supprimer un lot
 

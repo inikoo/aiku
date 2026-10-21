@@ -51,7 +51,7 @@ Il pulsante del bundle compare solo sui prodotti disponibili. Mentre un bundle �
 
 Il bundle è ora in <b>My Bundles</b>. Funziona come una riga di <b>My Products</b>: premi <b>Create new product</b> per crearlo nel tuo negozio, oppure abbinalo a un'inserzione che hai già. Vedi [Usare My Products](/docs/my-products).
 
-Un bundle ha un proprio codice prodotto, che è lo SKU inviato al tuo negozio.
+Lo SKU inviato al tuo negozio non è il codice prodotto del bundle. Viene costruito con i codici di stock dei prodotti contenuti, in minuscolo e uniti da trattini: un bundle di GJC-04, GJC-05 e GJC-06 viene inviato come <b>gjc-04-gjc-05-gjc-06</b>. Se il bundle contiene più di un pezzo di uno stesso stock, la quantità viene aggiunta dopo, per esempio <b>gjc-04-x2</b>.
 
 ## Modificare o rimuovere un bundle
 
