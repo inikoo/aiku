@@ -8,6 +8,7 @@
 
 namespace App\Actions\Catalogue\Shop\UI;
 
+use App\Actions\CRM\Appointment\Widget\AppointmentWidgetKey;
 use App\Actions\Catalogue\Shop\External\Shopify\ConnectShopifyExternalShop;
 use App\Actions\Catalogue\Shop\External\Shopify\GetShopifyOrdersInShop;
 use App\Actions\Catalogue\Shop\External\Wix\AuthenticateWixExternalShop;
@@ -149,6 +150,8 @@ class EditShop extends OrgAction
             __('Shopify Settings'),
             __('Wix Settings'),
             __('Chat widget'),
+            __('Appointment widget'),
+            __('Zoom'),
         ];
         $salesChannels          = SalesChannel::orderBy('id')->get();
         $salesChannelFields     = [];
@@ -974,6 +977,57 @@ class EditShop extends OrgAction
                         ] : [],
                     ],
                 ] : [],
+                [
+                    'label'  => __('Zoom'),
+                    'icon'   => 'fal fa-video',
+                    'fields' => [
+                        'zoom_account_id'    => [
+                            'type'        => 'input',
+                            'label'       => __('Zoom account ID'),
+                            'value'       => Arr::get($shop->settings, 'zoom.account_id', ''),
+                            'information' => __('From the Server-to-Server OAuth app in the Zoom App Marketplace. Video call appointment types with Zoom as media get their own Zoom meeting when they are accepted.'),
+                        ],
+                        'zoom_client_id'     => [
+                            'type'  => 'input',
+                            'label' => __('Zoom client ID'),
+                            'value' => Arr::get($shop->settings, 'zoom.client_id', ''),
+                        ],
+                        'zoom_client_secret' => [
+                            'type'        => 'password',
+                            'label'       => __('Zoom client secret'),
+                            'value'       => '',
+                            'information' => Arr::get($shop->settings, 'zoom.client_secret') ? __('A secret is saved. Enter a new one only to replace it.') : __('Saved encrypted.'),
+                        ],
+                        'zoom_host_email'    => [
+                            'type'        => 'input',
+                            'label'       => __('Zoom host email'),
+                            'value'       => Arr::get($shop->settings, 'zoom.host_email', ''),
+                            'information' => __('The Zoom user who hosts the meetings. Leave empty to use the user who created the Zoom app.'),
+                        ],
+                    ],
+                ],
+                [
+                    'label'  => __('Appointment widget'),
+                    'icon'   => 'fal fa-calendar-alt',
+                    'fields' => [
+                        'appointment_widget_enabled' => [
+                            'type'        => 'toggle',
+                            'label'       => __('Booking widget for other websites'),
+                            'value'       => (bool) Arr::get($shop->settings, 'appointments.widget_enabled', false),
+                            'information' => __('Lets customers book appointments from a form placed on another website, such as WordPress or Shopify.'),
+                        ],
+                        ...Arr::get($shop->settings, 'appointments.widget_enabled', false) && Arr::get($shop->settings, 'appointments.widget_key') ? [
+                            'appointment_widget_embed' => [
+                                'type'        => 'textarea',
+                                'disabled'    => true,
+                                'rows'        => 3,
+                                'label'       => __('Embed code'),
+                                'value'       => AppointmentWidgetKey::make()->embedSnippet(Arr::get($shop->settings, 'appointments.widget_key')),
+                                'information' => __('Paste this where the booking form should appear: a Custom HTML block in WordPress, a Custom Liquid section in Shopify.'),
+                            ],
+                        ] : [],
+                    ],
+                ],
                 [
                     'label'  => __('Email editor'),
                     'icon'   => 'fal fa-envelope',

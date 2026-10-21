@@ -8,6 +8,10 @@
 
 namespace App\Actions\Catalogue\Shop;
 
+use App\Actions\CRM\Appointment\Zoom\ZoomClient;
+use Illuminate\Support\Facades\Crypt;
+use Throwable;
+use App\Actions\CRM\Appointment\Widget\EnableShopAppointmentWidget;
 use App\Actions\Chat\Widget\EnableShopChatWidget;
 use App\Actions\CRM\Customer\GetCustomerStateByLastInvoice;
 use App\Actions\CRM\Customer\PdfCustomerLetterOfAuthorisation;
@@ -714,6 +718,10 @@ class UpdateShop extends OrgAction
             data_set($modelData, 'settings.reviews.allow_reactions', Arr::pull($modelData, 'review_allow_reactions'));
         }
 
+        $appointmentWidgetEnabled = Arr::has($modelData, 'appointment_widget_enabled') ? (bool) Arr::pull($modelData, 'appointment_widget_enabled') : null;
+
+        $modelData = $this->applyZoomSettings($shop, $modelData);
+
         if (Arr::exists($modelData, 'review_allow_reply_reactions')) {
             data_set($modelData, 'settings.reviews.allow_reply_reactions', Arr::pull($modelData, 'review_allow_reply_reactions'));
         }
@@ -721,6 +729,11 @@ class UpdateShop extends OrgAction
         $shop    = $this->update($shop, $modelData, ['data', 'settings']);
         $changes = $shop->getChanges();
         $shop->refresh();
+
+        if (!is_null($appointmentWidgetEnabled)) {
+            EnableShopAppointmentWidget::run($shop, $appointmentWidgetEnabled);
+            $shop->refresh();
+        }
 
         /*
          * The toggle is only half of it: the chat permissions are built from this setting, so a
@@ -1047,6 +1060,11 @@ class UpdateShop extends OrgAction
             'letter_of_authorisation_signature'                       => ['sometimes', File::image()->types(['png', 'jpg', 'jpeg'])->max(2 * 1024)],
             'enable_chat'                                             => ['sometimes', 'boolean'],
             'chat_enabled'                                            => ['sometimes', 'boolean'],
+            'appointment_widget_enabled'                              => ['sometimes', 'boolean'],
+            'zoom_account_id'                                         => ['sometimes', 'nullable', 'string', 'max:255'],
+            'zoom_client_id'                                          => ['sometimes', 'nullable', 'string', 'max:255'],
+            'zoom_client_secret'                                      => ['sometimes', 'nullable', 'string', 'max:255'],
+            'zoom_host_email'                                         => ['sometimes', 'nullable', 'email', 'max:255'],
             'chat_slack_token'                                        => ['sometimes', 'nullable', 'string'],
             'chat_slack_channels'                                     => ['sometimes', 'nullable', 'array'],
             'chat_slack_channels.*'                                   => ['string'],
@@ -1240,6 +1258,49 @@ class UpdateShop extends OrgAction
         $this->initialisation($shop->organisation, $modelData);
 
         return $this->handle($shop, $this->validatedData);
+    }
+
+    private function applyZoomSettings(Shop $shop, array $modelData): array
+    {
+        $fields = ['account_id', 'client_id', 'client_secret', 'host_email'];
+        $sent   = array_filter($fields, fn (string $field) => Arr::exists($modelData, 'zoom_'.$field));
+
+        if (!$sent) {
+            return $modelData;
+        }
+
+        $zoom = Arr::get($shop->settings, 'zoom', []);
+
+        foreach ($sent as $field) {
+            $value = trim((string) Arr::pull($modelData, 'zoom_'.$field));
+
+            if ($field === 'client_secret') {
+                if ($value !== '') {
+                    $zoom['client_secret'] = Crypt::encryptString($value);
+                }
+                continue;
+            }
+
+            $zoom[$field] = $value;
+        }
+
+        $accountId    = Arr::get($zoom, 'account_id');
+        $clientId     = Arr::get($zoom, 'client_id');
+        $clientSecret = Arr::get($zoom, 'client_secret') ? Crypt::decryptString($zoom['client_secret']) : null;
+
+        if ($accountId && $clientId && $clientSecret) {
+            try {
+                ZoomClient::make()->requestAccessToken($accountId, $clientId, $clientSecret);
+            } catch (Throwable) {
+                throw ValidationException::withMessages([
+                    'zoom_'.Arr::first($sent) => __('Zoom did not accept these details. Check the account ID, client ID and client secret of the Server-to-Server OAuth app.'),
+                ]);
+            }
+        }
+
+        data_set($modelData, 'settings.zoom', $zoom);
+
+        return $modelData;
     }
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Shop

@@ -146,4 +146,9 @@ class Appointment extends Model implements Auditable
     {
         return $this->belongsTo(User::class, 'created_by_user_id');
     }
+
+    public function zoomJoinUrl(): ?string
+    {
+        return data_get($this->data, 'zoom.join_url') ?: null;
+    }
 }
