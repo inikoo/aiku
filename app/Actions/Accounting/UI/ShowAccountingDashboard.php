@@ -8,6 +8,7 @@
 
 namespace App\Actions\Accounting\UI;
 
+use App\Actions\Accounting\Invoice\UI\GetInvoiceCountriesPeriods;
 use App\Actions\Accounting\Payment\UI\GetPaymentMethodsPeriods;
 use App\Actions\Procurement\GetUncostedStockDeliveriesCard;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
@@ -66,6 +67,13 @@ class ShowAccountingDashboard extends OrgAction
                     'periods' => GetPaymentMethodsPeriods::run($organisation),
                     'route'   => [
                         'name'       => 'grp.org.accounting.payments.methods.index',
+                        'parameters' => [$organisation->slug],
+                    ],
+                ],
+                'invoice_countries' => [
+                    'periods' => GetInvoiceCountriesPeriods::run($organisation),
+                    'route'   => [
+                        'name'       => 'grp.org.accounting.invoices_by_country.index',
                         'parameters' => [$organisation->slug],
                     ],
                 ],

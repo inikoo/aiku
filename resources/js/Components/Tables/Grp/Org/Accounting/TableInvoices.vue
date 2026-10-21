@@ -95,6 +95,7 @@ function customerRoute(invoice: Invoice) {
 
   switch (current) {
     case "grp.org.accounting.invoice-categories.show.invoices.index":
+    case "grp.org.accounting.invoice-categories.show.countries.show.invoices.index":
       return route("grp.org.shops.show.crm.customers.show", [
         params.organisation,
         invoice.shop_slug,

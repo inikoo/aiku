@@ -97,6 +97,15 @@ trait WithInvoicesSubNavigation
                 ]
             ] : [],
 
+            $parent instanceof Organisation ? [
+                "label"   => __('By country'),
+                'tooltip' => __('Invoices by the country they were delivered to'),
+                "route"   => [
+                    "name"       => 'grp.org.accounting.invoices_by_country.index',
+                    "parameters" => $param,
+                ],
+            ] : [],
+
             $this->canSeeDeletedInvoices($parent) ? [
                 "number" => $numberDeletedInvoices,
                 "label"  => __("Deleted Invoices"),

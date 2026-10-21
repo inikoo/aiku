@@ -948,6 +948,82 @@ test('customer services open the invoices and refunds of an invoice category, li
     get($invoicesRoute)->assertOk()->assertInertia(fn (AssertableInertia $page) => $page->has('data.data', 0));
 });
 
+test('invoice category invoices list and download the delivery country, within the dates and shops the user can see', function () {
+    $invoiceCategory = StoreInvoiceCategory::make()->action($this->organisation, [
+        'name'        => 'Export By Country Category',
+        'state'       => InvoiceCategoryStateEnum::ACTIVE,
+        'type'        => InvoiceCategoryTypeEnum::SHOP_FALLBACK,
+        'currency_id' => $this->organisation->currency_id,
+        'priority'    => 1
+    ]);
+    $country = \App\Models\Helpers\Country::where('code', 'DE')->firstOrFail();
+
+    $inRange = StoreInvoice::make()->action(createCustomer($this->shop), Invoice::factory()->definition());
+    $outOfRange = StoreInvoice::make()->action(createCustomer($this->shop), Invoice::factory()->definition());
+    DB::table('invoices')->whereIn('id', [$inRange->id, $outOfRange->id])->update(['invoice_category_id' => $invoiceCategory->id, 'in_process' => false, 'delivery_country_id' => $country->id]);
+    DB::table('invoices')->where('id', $inRange->id)->update(['date' => '2026-03-15 10:00:00']);
+    DB::table('invoices')->where('id', $outOfRange->id)->update(['date' => '2025-03-15 10:00:00']);
+    $customerWithOrder = createCustomer($this->shop);
+    $invoiceWithoutDeliveryCountry = StoreInvoice::make()->action($customerWithOrder, Invoice::factory()->definition());
+    [, $product] = createProduct($this->shop);
+    $order = createOrder($customerWithOrder, $product);
+    DB::table('invoices')->where('id', $invoiceWithoutDeliveryCountry->id)->update(['invoice_category_id' => $invoiceCategory->id, 'in_process' => false, 'delivery_country_id' => null, 'order_id' => $order->id, 'date' => '2026-03-16 10:00:00']);
+    DB::table('addresses')->where('id', $order->delivery_address_id)->update(['country_id' => $country->id]);
+
+    $otherShop = StoreShop::run($this->organisation, Shop::factory()->definition());
+    $otherShopInvoice = StoreInvoice::make()->action(createCustomer($otherShop), Invoice::factory()->definition());
+    DB::table('invoices')->where('id', $otherShopInvoice->id)->update(['invoice_category_id' => $invoiceCategory->id, 'in_process' => false, 'date' => '2026-03-15 10:00:00']);
+
+    get(route('grp.org.accounting.invoice-categories.show.invoices.index', [$this->organisation->slug, $invoiceCategory->slug, 'between' => ['date' => '20260101-20261231']]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('invoiceExportOptions.0.name', 'grp.org.accounting.invoice-categories.show.invoices.index.export')
+            ->where('invoiceExportOptions.0.parameters.between.date', '20260101-20261231'));
+
+    get(route('grp.org.accounting.invoice-categories.show.countries.index', [$this->organisation->slug, $invoiceCategory->slug, 'between' => ['date' => '20260101-20261231']]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Org/Accounting/InvoicesByCountry')
+            ->where('data.data', fn ($rows) => collect($rows)->firstWhere('country_code', 'DE')['number_invoices'] == 2
+                && collect($rows)->whereNull('country_code')->first()['number_invoices'] == 1));
+
+    get(route('grp.org.accounting.invoice-categories.show.countries.show.invoices.index', [$this->organisation->slug, $invoiceCategory->slug, 'DE', 'between' => ['date' => '20260101-20261231']]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->has('data.data', 2)
+            ->where('invoiceExportOptions.0.parameters.country', 'DE'));
+
+    get(route('grp.org.accounting.invoices_by_country.index', [$this->organisation->slug, 'between' => ['date' => '20260101-20261231']]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('data.data', fn ($rows) => collect($rows)->firstWhere('country_code', 'DE')['number_invoices'] >= 2));
+
+    get(route('grp.org.accounting.invoices_by_country.show.invoices.index', [$this->organisation->slug, 'DE', 'between' => ['date' => '20260101-20261231']]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('data.data', fn ($rows) => collect($rows)->pluck('reference')->contains($inRange->reference)
+                && !collect($rows)->pluck('reference')->contains($otherShopInvoice->reference)));
+
+    setPermissionsTeamId($this->group->id);
+    $customerServices = \App\Actions\SysAdmin\Guest\StoreGuest::make()->action(
+        $this->group,
+        array_merge(\App\Models\SysAdmin\Guest::factory()->definition(), ['positions' => []])
+    )->getUser();
+    $customerServices->givePermissionTo("crm.{$this->shop->id}.view");
+    actingAs($customerServices->refresh());
+
+    $csv = get(route('grp.org.accounting.invoice-categories.show.invoices.index.export', [$this->organisation->slug, $invoiceCategory->slug, 'between' => ['date' => '20260101-20261231']]))
+        ->assertOk()
+        ->streamedContent();
+
+    expect($csv)->toContain('Delivery country')
+        ->and($csv)->toContain($inRange->reference.',2026-03-15')
+        ->and($csv)->toContain($country->name.',DE')
+        ->and(collect(explode("\n", $csv))->first(fn ($line) => str_starts_with($line, $invoiceWithoutDeliveryCountry->reference.',')))->toContain($country->name.',DE')
+        ->and($csv)->not->toContain($outOfRange->reference)
+        ->and($csv)->not->toContain($otherShopInvoice->reference);
+});
+
 test('UI Edit invoice categories', function (InvoiceCategory $invoiceCategory) {
     $response = get(route('grp.org.accounting.invoice-categories.edit', [$this->organisation->slug, $invoiceCategory->slug]));
 
@@ -995,6 +1071,9 @@ test('UI show accounting dashboard', function () {
             ->has('payment_methods.periods.1m.summary.methods')
             ->has('payment_methods.periods.1q.summary.methods')
             ->has('payment_methods.periods.1y.summary.methods')
+            ->has('invoice_countries.periods.1m.countries')
+            ->has('invoice_countries.periods.1y.between')
+            ->where('invoice_countries.route.name', 'grp.org.accounting.invoices_by_country.index')
             ->where('intervals.value', '1m');
     });
 });

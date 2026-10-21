@@ -14,7 +14,7 @@ import Tabs from '@/Components/Navigation/Tabs.vue'
 import { computed, ref } from 'vue'
 import {
   faFileMinus,
-  faArrowCircleLeft, faFileInvoiceDollar
+  faArrowCircleLeft, faFileInvoiceDollar, faFileCsv
 } from "@fal";
 import { useTabChange } from '@/Composables/tab-change'
 import { PageHeadingTypes } from "@/types/PageHeading";
@@ -23,7 +23,7 @@ import { Icon } from "@/types/Utils/Icon";
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { faOmega, faExclamationCircle } from '@fas'
 
-library.add(faFileMinus, faArrowCircleLeft, faOmega, faFileInvoiceDollar, faExclamationCircle);
+library.add(faFileMinus, faArrowCircleLeft, faFileCsv, faOmega, faFileInvoiceDollar, faExclamationCircle);
 
 const props = defineProps<{
   pageHead: PageHeadingTypes

@@ -8,6 +8,7 @@
 
 use App\Actions\Accounting\CreditTransaction\UI\IndexCreditTransactionsAll;
 use App\Actions\Accounting\Invoice\ExportInvoices;
+use App\Actions\Accounting\Invoice\ExportInvoicesInInvoiceCategory;
 use App\Actions\Accounting\Invoice\ISDocInvoice;
 use App\Actions\Accounting\Invoice\OmegaInvoice;
 use App\Actions\Accounting\Invoice\OmegaManyInvoice;
@@ -15,6 +16,7 @@ use App\Actions\Accounting\Invoice\PdfInvoice;
 use App\Actions\Accounting\Invoice\UI\EditInvoice;
 use App\Actions\Accounting\Invoice\UI\IndexDeletedInvoices;
 use App\Actions\Accounting\Invoice\UI\IndexInvoices;
+use App\Actions\Accounting\Invoice\UI\IndexInvoicesByCountry;
 use App\Actions\Accounting\Invoice\UI\IndexRefunds;
 use App\Actions\Accounting\Invoice\UI\ShowDeletedInvoice;
 use App\Actions\Accounting\Invoice\UI\ShowInvoice;
@@ -108,6 +110,8 @@ Route::get('/refunds/{refund}', ShowRefund::class)->name('refunds.show');
 
 Route::get('/invoices-unpaid', [IndexInvoices::class, 'unpaid'])->name('unpaid_invoices.index');
 Route::get('/invoices-paid', [IndexInvoices::class, 'paid'])->name('paid_invoices.index');
+Route::get('/invoices-by-country', IndexInvoicesByCountry::class)->name('invoices_by_country.index');
+Route::get('/invoices-by-country/{country:code}', [IndexInvoices::class, 'inOrganisationCountry'])->withoutScopedBindings()->name('invoices_by_country.show.invoices.index');
 
 Route::get('/invoices-deleted', IndexDeletedInvoices::class)->name('deleted_invoices.index');
 Route::get('/invoices-deleted/{invoiceSlug}', ShowDeletedInvoice::class)->name('deleted_invoices.show');
@@ -116,6 +120,9 @@ Route::get('/invoice-categories', IndexInvoiceCategories::class)->name('invoice-
 Route::get('/invoice-categories/{invoiceCategory}', ShowInvoiceCategory::class)->name('invoice-categories.show');
 Route::get('/invoice-categories/{invoiceCategory}/invoices', [IndexInvoices::class, 'inInvoiceCategory'])->name('invoice-categories.show.invoices.index');
 Route::get('/invoice-categories/{invoiceCategory}/invoices/omega', [OmegaManyInvoice::class, 'inInvoiceCategory'])->name('invoice-categories.show.invoices.index.omega');
+Route::get('/invoice-categories/{invoiceCategory}/invoices/export', ExportInvoicesInInvoiceCategory::class)->name('invoice-categories.show.invoices.index.export');
+Route::get('/invoice-categories/{invoiceCategory}/countries', [IndexInvoicesByCountry::class, 'inInvoiceCategory'])->name('invoice-categories.show.countries.index');
+Route::get('/invoice-categories/{invoiceCategory}/countries/{country:code}/invoices', [IndexInvoices::class, 'inInvoiceCategoryCountry'])->withoutScopedBindings()->name('invoice-categories.show.countries.show.invoices.index');
 
 Route::get('/invoice-categories/{invoiceCategory}/refunds', [IndexRefunds::class, 'inInvoiceCategory'])->name('invoice-categories.show.refunds.index');
 Route::get('/invoice-categories/{invoiceCategory}/backlog', IndexOrdersBacklogInInvoiceCategory::class)->name('invoice-categories.show.backlog.index');
