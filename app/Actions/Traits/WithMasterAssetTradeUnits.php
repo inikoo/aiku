@@ -153,7 +153,7 @@ trait WithMasterAssetTradeUnits
         foreach ($tradeUnitsRaw as $item) {
             $tradeUnit                  = TradeUnit::find(Arr::get($item, 'id'));
             $tradeUnits[$tradeUnit->id] = [
-                'quantity' => Arr::get($item, 'quantity')
+                'quantity' => wholeTradeUnitQuantity(Arr::get($item, 'quantity'))
             ];
 
             foreach ($tradeUnit->stocks as $stock) {

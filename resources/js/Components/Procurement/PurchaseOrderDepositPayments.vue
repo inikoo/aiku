@@ -242,7 +242,14 @@ const undoPayment = () => {
 					</div>
 					<span class="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-gray-400">
 						<span v-if="orgMoney(form.amount)">{{ orgMoney(form.amount) }} ·</span>
-						{{ ctrans("Left to pay :amount", { amount: String(money(payments.left)) }) }}
+						<button
+							type="button"
+							class="cursor-pointer underline decoration-dotted underline-offset-2 hover:text-[--app-accent]"
+							v-tooltip="ctrans('Click to fill in the amount left to pay')"
+							@click="onAmountTyped(payments.left)"
+						>
+							{{ ctrans("Left to pay :amount", { amount: String(money(payments.left)) }) }}
+						</button>
 					</span>
 				</div>
 				<label class="block text-sm">
@@ -274,7 +281,7 @@ const undoPayment = () => {
 						<FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" />
 					</template>
 				</Button>
-				<Button type="tertiary" :label="ctrans('Confirm payment')" :disabled="!canSubmit" :loading="isLoading" @click="confirmPayment">
+				<Button type="secondary" full :label="ctrans('Confirm payment')" :disabled="!canSubmit" :loading="isLoading" @click="confirmPayment">
 					<template #icon>
 						<FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" />
 					</template>

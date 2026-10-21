@@ -76,7 +76,7 @@ class UpdateMasterAsset extends OrgAction
      */
     private function compositionSignature(Collection $tradeUnits): array
     {
-        return $tradeUnits->mapWithKeys(fn (TradeUnit $tradeUnit) => [$tradeUnit->id => (float) $tradeUnit->pivot->quantity])->sortKeys()->all();
+        return $tradeUnits->mapWithKeys(fn (TradeUnit $tradeUnit) => [$tradeUnit->id => round((float) $tradeUnit->pivot->quantity, 6)])->sortKeys()->all();
     }
 
     /**

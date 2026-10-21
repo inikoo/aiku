@@ -312,23 +312,36 @@ class CalculateOrderShipping
 
     private function matchTerritories(Order $order, ShippingZone $shippingZone): bool
     {
+        return self::zoneCoversAddress($shippingZone, $order->deliveryAddress->country_code, $order->deliveryAddress->postal_code);
+    }
+
+    public static function zoneCoversAddress(ShippingZone $shippingZone, ?string $countryCode, ?string $postalCode): bool
+    {
         if (!$shippingZone->territories) {
             // The rest of the world does not have territories defined
             return true;
         }
-        $helperZone      = new Zone([
+        $helperZone = new Zone([
             'id'          => $shippingZone->slug,
             'label'       => $shippingZone->name,
             'territories' => $shippingZone->territories,
         ]);
-        $deliveryAddress = $order->deliveryAddress;
-        $helperAddress   = new Address();
-        $helperAddress   = $helperAddress
-            ->withCountryCode($deliveryAddress->country_code)
-            ->withPostalCode($deliveryAddress->postal_code ?? '');
 
+        return $helperZone->match((new Address())->withCountryCode($countryCode)->withPostalCode($postalCode ?? ''));
+    }
 
-        return $helperZone->match($helperAddress);
+    /**
+     * The zone the checkout charges an address in: the first live zone, highest position first,
+     * whose territories cover it, the rest of the world last.
+     */
+    public static function zoneForAddress(ShippingZoneSchema $shippingZoneSchema, ?string $countryCode, ?string $postalCode): ?ShippingZone
+    {
+        return $shippingZoneSchema->shippingZones()
+            ->where('status', true)
+            ->orderBy('position', 'desc')
+            ->get()
+            ->sortBy(fn (ShippingZone $shippingZone) => empty($shippingZone->territories) ? 1 : 0)
+            ->first(fn (ShippingZone $shippingZone) => self::zoneCoversAddress($shippingZone, $countryCode, $postalCode));
     }
 
     public function matchScopedShippingOffer(Order $order, array $shopOffersData): ?array

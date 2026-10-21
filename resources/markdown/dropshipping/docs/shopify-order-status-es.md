@@ -1,7 +1,7 @@
 ---
 title: Tus pedidos de Shopify y su estado
 summary: Cómo nos llegan los pedidos de tu tienda de Shopify, cómo se pagan, qué significa cada estado, por qué un pedido puede quedarse en Submitted o no llegar, y qué enviamos de vuelta a Shopify.
-date: 2026-09-25
+date: 2026-10-21
 source_date: 2026-09-25
 tags: shopify, pedidos, estado, pago, submitted, no pagado, solicitud de fulfilment
 category: orders
@@ -59,6 +59,7 @@ Para más sobre la página del pedido, consulta [Revisar tus pedidos](/docs/revi
 ## Qué enviamos de vuelta a Shopify
 
 - Cuando el pedido se expide, lo marcamos como completado en Shopify con el número de seguimiento y el enlace. Shopify avisa a tu cliente.
+- Cuando un paquete que enviamos con GLS desde España se entrega, también lo marcamos como <b>Entregado</b> en Shopify, normalmente en la hora siguiente a la entrega de GLS. No puedes cambiarlo tú en Shopify; lo hacemos nosotros.
 - Cuando se cancela un pedido, cerramos la solicitud en Shopify. En un pedido cancelado puedes pulsar el botón de sincronización (<b>Sync order state</b>) para enviar la cancelación a Shopify de nuevo. Si Shopify ya está actualizado, verás <b>The order state on Shopify is up-to-date</b>.
 
 ## Un pedido no está en mis Orders

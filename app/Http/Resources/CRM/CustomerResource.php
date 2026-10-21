@@ -48,7 +48,12 @@ class CustomerResource extends JsonResource
                 'is_subscribed'   => $comms->is_subscribed_to_marketing,
                 'unsubscribed_at' => $comms->marketing_unsubscribed_at
             ],
-
+            'review_reminder' => [
+                'label'           => __('Review Requests'),
+                'field'           => 'is_subscribed_to_review_reminder',
+                'is_subscribed'   => $comms->is_subscribed_to_review_reminder,
+                'unsubscribed_at' => $comms->review_reminder_unsubscribed_at
+            ],
         ];
 
         $shop = $customer->shop;
