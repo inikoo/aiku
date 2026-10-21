@@ -51,7 +51,7 @@ class SocialMediaInsightsImport implements ToCollection, WithEvents, WithCustomC
         'permalink'           => ['permalink', 'post_link', 'video_link'],
         'published_at'        => ['publish_time', 'post_time', 'published_time', 'created_time', 'date_posted', 'posted_on'],
         'post_type'           => ['post_type', 'media_type', 'type'],
-        'reach'               => ['reach', 'accounts_reached'],
+        'reach'               => ['reach', 'accounts_reached', 'viewers'],
         'impressions'         => ['impressions', 'views', 'video_views', 'total_views', 'plays'],
         'reactions'           => ['reactions', 'likes', 'total_likes'],
         'comments'            => ['comments', 'total_comments'],
@@ -67,7 +67,7 @@ class SocialMediaInsightsImport implements ToCollection, WithEvents, WithCustomC
     public const array DAY_ALIASES = [
         'followers'      => ['followers', 'total_followers', 'page_followers', 'follower_count', 'lifetime_followers'],
         'new_follows'    => ['follows', 'new_follows', 'new_followers', 'net_followers', 'difference_in_followers_from_previous_day', 'new_likes'],
-        'reach'          => ['reach', 'page_reach', 'accounts_reached'],
+        'reach'          => ['reach', 'page_reach', 'accounts_reached', 'viewers', 'page_viewers'],
         'impressions'    => ['impressions', 'views', 'video_views', 'page_views'],
         'engagements'    => ['engagements', 'interactions', 'content_interactions', 'engagement'],
         'profile_visits' => ['visits', 'profile_visits', 'profile_views', 'page_visits'],
@@ -81,9 +81,16 @@ class SocialMediaInsightsImport implements ToCollection, WithEvents, WithCustomC
      */
     private array $touchedAccountIds = [];
 
-    public function __construct(public Shop $shop, Upload $upload)
+    /**
+     * The platform chosen at upload, for a chart export whose title does not name it. A plain
+     * property with a default, so an upload queued before this existed still reads it as unset.
+     */
+    public ?SocialMediaPlatformEnum $platform = null;
+
+    public function __construct(public Shop $shop, Upload $upload, ?SocialMediaPlatformEnum $platform = null)
     {
-        $this->upload = $upload;
+        $this->upload   = $upload;
+        $this->platform = $platform;
     }
 
     /**
@@ -97,6 +104,16 @@ class SocialMediaInsightsImport implements ToCollection, WithEvents, WithCustomC
     public function collection(Collection $collection): void
     {
         $rows = $collection->map(fn (Collection $row) => $row->values()->all())->values();
+
+        if ($rows->filter(fn (array $row) => array_filter($row, fn ($value) => $value !== null && trim((string) $value) !== '') !== [])->isEmpty()) {
+            $this->upload->update(['number_rows' => 1]);
+            $this->setRecordAsFailed(
+                $this->createUploadRecord(collect(), 1),
+                [__('The file is empty: Meta exported no figures for this metric and period')]
+            );
+
+            return;
+        }
 
         $headerIndex = $rows->search(fn (array $row) => $this->isHeaderRow($row));
 
@@ -190,7 +207,7 @@ class SocialMediaInsightsImport implements ToCollection, WithEvents, WithCustomC
                 isset($columns['username'])                             => SocialMediaPlatformEnum::INSTAGRAM,
                 SocialMediaPlatformEnum::fromText($value('post_type')) !== null => SocialMediaPlatformEnum::fromText($value('post_type')),
                 in_array('page_id', $headers, true)                    => SocialMediaPlatformEnum::FACEBOOK,
-                default                                                 => $this->platformFromFilename(),
+                default                                                 => $this->platform ?? $this->platformFromFilename(),
             };
 
         if ($platform === null) {
@@ -260,10 +277,10 @@ class SocialMediaInsightsImport implements ToCollection, WithEvents, WithCustomC
                 continue;
             }
 
-            $platform ??= SocialMediaPlatformEnum::fromText($title) ?? $this->platformFromFilename() ?? $this->onlyPlatform();
+            $platform ??= SocialMediaPlatformEnum::fromText($title) ?? $this->platform ?? $this->platformFromFilename() ?? $this->onlyPlatform();
 
             if ($platform === null) {
-                throw new Exception(__('Could not tell whether these figures are Facebook, Instagram or TikTok: put the platform in the file name'));
+                throw new Exception(__('Could not tell whether these figures are Facebook, Instagram or TikTok: choose the platform when uploading, or put it in the file name'));
             }
 
             $number = $this->number($this->text($row[$position] ?? null));

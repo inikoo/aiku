@@ -11,19 +11,21 @@ namespace App\Actions\CRM\SocialMedia;
 use App\Actions\Helpers\Upload\ImportUpload;
 use App\Actions\Helpers\Upload\StoreUpload;
 use App\Actions\Traits\WithImportModel;
+use App\Enums\CRM\SocialMedia\SocialMediaPlatformEnum;
 use App\Http\Resources\Helpers\UploadsResource;
 use App\Imports\CRM\SocialMediaInsightsImport;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\SocialMediaPost;
 use App\Models\Helpers\Upload;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class ImportSocialMediaInsights
 {
     use WithImportModel;
 
-    public function handle(Shop $shop, $file): Upload
+    public function handle(Shop $shop, $file, ?SocialMediaPlatformEnum $platform = null): Upload
     {
         $upload = StoreUpload::make()->fromFile(
             $shop->group,
@@ -36,10 +38,10 @@ class ImportSocialMediaInsights
         );
 
         if ($this->isSync) {
-            ImportUpload::run($file, new SocialMediaInsightsImport($shop, $upload));
+            ImportUpload::run($file, new SocialMediaInsightsImport($shop, $upload, $platform));
             $upload->refresh();
         } else {
-            ImportUpload::dispatch($this->tmpPath.$upload->filename, new SocialMediaInsightsImport($shop, $upload));
+            ImportUpload::dispatch($this->tmpPath.$upload->filename, new SocialMediaInsightsImport($shop, $upload, $platform));
         }
 
         return $upload;
@@ -55,7 +57,8 @@ class ImportSocialMediaInsights
     public function rules(): array
     {
         return [
-            'file' => ['required', 'file', 'mimes:xlsx,xls,csv,txt'],
+            'file'     => ['required', 'file', 'mimes:xlsx,xls,csv,txt'],
+            'platform' => ['sometimes', 'nullable', Rule::enum(SocialMediaPlatformEnum::class)],
         ];
     }
 
@@ -64,7 +67,7 @@ class ImportSocialMediaInsights
         $file = $request->file('file');
         Storage::disk('local')->put($this->tmpPath, $file);
 
-        return $this->handle($shop, $file);
+        return $this->handle($shop, $file, SocialMediaPlatformEnum::tryFrom((string) $request->input('platform')));
     }
 
     public function jsonResponse(Upload $upload): array
