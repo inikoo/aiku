@@ -105,6 +105,12 @@ const formatDate = (date: string | null) => date ? useFormatTime(date, { formatT
 
 const toIso = (date: Date | null) => date ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}` : null
 
+const editLabels: Record<string, string> = {
+    production_started_at: "Edit production date",
+}
+
+const markLabel = (mark: Mark) => mark.date && editLabels[mark.field] ? ctrans(editLabels[mark.field]) : mark.label
+
 const editing = ref<Mark | null>(null)
 const date = ref<Date | null>(null)
 const reason = ref("")
@@ -156,11 +162,14 @@ function save() {
         <div
             v-for="stage in stages"
             :key="stage.key"
-            class="bg-white p-3 text-sm"
-            :class="stage.current ? 'bg-[--app-accent-soft]' : ''"
+            class="p-3 text-sm"
+            :class="[
+                stage.current ? '' : '',
+                stage.reached ? 'bg-green-50' : 'bg-white',
+            ]"
         >
             <div class="flex items-center gap-2 font-medium" :class="stage.reached ? 'text-gray-800' : 'text-gray-400'" v-tooltip="stage.description">
-                <FontAwesomeIcon v-if="stage.reached" icon="fal fa-check-circle" class="text-green-600" fixed-width aria-hidden="true" />
+                <FontAwesomeIcon v-if="stage.reached" icon="fas fa-check-circle" class="text-green-600" fixed-width aria-hidden="true" />
                 <span v-else class="w-4 text-center tabular-nums">{{ stage.number }}</span>
                 {{ stage.label }}
             </div>
@@ -214,7 +223,7 @@ function save() {
                     :key="mark.field"
                     type="tertiary"
                     size="xs"
-                    :label="mark.label"
+                    :label="markLabel(mark)"
                     @click="openMark(mark)"
                 >
                     <template #icon>
@@ -228,7 +237,7 @@ function save() {
                     type="tertiary"
                     size="xs"
                     :label="deposit.not_needed ? ctrans('Deposit needed after all') : ctrans('No deposit needed')"
-                    :tooltip="deposit.not_needed ? ctrans('The supplier wants a deposit before production') : ctrans('The supplier starts production without a deposit')"
+                    :tooltip="deposit.not_needed ? ctrans('Click to ask for a deposit again, if the supplier wants one before production') : ctrans('Click to mark this order as needing no deposit, when the supplier starts production without one')"
                     :loading="savingDeposit"
                     @click="setDepositNotNeeded(!deposit.not_needed)"
                 >
@@ -245,7 +254,7 @@ function save() {
     <Dialog
         :visible="!!editing"
         modal
-        :header="editing?.label"
+        :header="editing ? markLabel(editing) : undefined"
         :style="{ width: '28rem' }"
         @update:visible="(visible: boolean) => !visible && (editing = null)"
     >
