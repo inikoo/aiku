@@ -44,6 +44,7 @@ use App\Actions\CRM\Favourite\StoreFavourite;
 use App\Actions\CRM\Favourite\UnFavourite;
 use App\Actions\CRM\Favourite\UpdateFavourite;
 use App\Actions\Comms\Email\SendAppointmentEmail;
+use App\Actions\Comms\Email\SendNewAppointmentEmailToShop;
 use App\Actions\CRM\Appointment\AcceptAppointment;
 use App\Actions\CRM\Appointment\Json\GetAppointmentActionOptions;
 use App\Actions\CRM\Appointment\DeclineAppointment;
@@ -1183,6 +1184,7 @@ test('staff decline an appointment request from the list', function () {
         'starts_at'           => now()->addDays(3)->format('Y-m-d').' 10:00',
         'contact_name'        => 'Page visitor',
         'phone'               => '+441234567891',
+        'email'               => 'page-visitor@example.com',
         'state'               => AppointmentStateEnum::REQUESTED->value,
     ]);
 
@@ -1379,6 +1381,7 @@ test('an appointment email escapes what the visitor typed', function () {
         'starts_at'           => now()->addDays(2)->format('Y-m-d').' 10:00',
         'contact_name'        => '<script>alert(1)</script>',
         'phone'               => '+441234567892',
+        'email'               => 'escape-visitor@example.com',
     ]);
 
     expect(SendAppointmentEmail::make()->generateBodyHtml($appointment, OutboxCodeEnum::APPOINTMENT_REQUESTED))
@@ -1386,21 +1389,23 @@ test('an appointment email escapes what the visitor typed', function () {
         ->toContain('&lt;script&gt;');
 });
 
-test('a video call needs a WhatsApp number with its country code', function () {
+test('a video call needs an email and a WhatsApp number with its country code', function () {
     $appointmentType = StoreAppointmentType::make()->action($this->shop, [
         'name'             => 'WhatsApp '.Str::random(6),
         'meeting_mode'     => AppointmentTypeMeetingModeEnum::VIDEO_CALL->value,
         'duration_minutes' => 30,
     ]);
-    $booking = fn (?string $phone) => fn () => StoreAppointment::make()->action($this->shop, array_filter([
+    $booking = fn (?string $phone, ?string $email = 'whatsapp-visitor@example.com') => fn () => StoreAppointment::make()->action($this->shop, array_filter([
         'appointment_type_id' => $appointmentType->id,
         'starts_at'           => now()->addDays(2)->format('Y-m-d').' 11:00',
         'contact_name'        => 'WhatsApp visitor',
         'phone'               => $phone,
+        'email'               => $email,
     ]));
 
     expect($booking(null))->toThrow(ValidationException::class, 'WhatsApp')
-        ->and($booking('07700 900123'))->toThrow(ValidationException::class, 'country code');
+        ->and($booking('07700 900123'))->toThrow(ValidationException::class, 'country code')
+        ->and($booking('+44 7700 900123', null))->toThrow(ValidationException::class, 'Video calls need an email');
 
     $appointment = $booking('+44 7700 900123')();
 
@@ -1762,6 +1767,7 @@ test('UI Show appointments dashboard', function (Appointment $appointment) {
         'starts_at'           => $day->format('Y-m-d').' 10:00',
         'contact_name'        => 'Dashboard visitor',
         'phone'               => '+441234567893',
+        'email'               => 'dashboard-visitor@example.com',
         'number_visitors'     => 3,
         'state'               => AppointmentStateEnum::REQUESTED->value,
     ]);
@@ -1809,6 +1815,84 @@ test('the appointments dashboard turns the booking widget on and shows its embed
             ->etc());
 
     $this->patchJson($updateUrl, ['appointment_widget_enabled' => false])->assertOk();
+});
+
+test('the appointment settings sit together, appointments first then zoom and google', function () {
+    $labels = collect(
+        $this->get(route('grp.org.shops.show.settings.edit', [$this->organisation->slug, $this->shop->slug]))
+            ->assertOk()
+            ->viewData('page')['props']['formData']['blueprint']
+    )->pluck('label')->values();
+
+    $appointmentSettings = $labels->search('Appointment settings');
+
+    expect($appointmentSettings)->not->toBeFalse()
+        ->and($labels->slice($appointmentSettings, 3)->values()->all())->toBe(['Appointment settings', 'Zoom', 'Google Calendar & Meet'])
+        ->and($labels)->not->toContain('Appointment widget')
+        ->and($labels)->not->toContain('Appointments calendar');
+
+    $this->get(route('grp.org.shops.show.settings.edit', [$this->organisation->slug, $this->shop->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->has("formData.blueprint.$appointmentSettings.fields.appointment_widget_enabled")
+            ->has("formData.blueprint.$appointmentSettings.fields.appointment_notify_shop")
+            ->has("formData.blueprint.$appointmentSettings.fields.appointment_notify_email")
+            ->where('formData.blueprint.'.($appointmentSettings + 2).'.icon', 'fab fa-google')
+            ->has('formData.blueprint.'.($appointmentSettings + 2).'.fields.google_calendar')
+            ->etc());
+});
+
+test('the shop is emailed about website bookings only while its booking emails are on', function () {
+    $updateUrl       = route('grp.models.org.shop.update', [$this->shop->organisation_id, $this->shop->id]);
+    $appointmentType = StoreAppointmentType::make()->action($this->shop, [
+        'name'                => 'Shop emails '.Str::random(6),
+        'meeting_mode'        => AppointmentTypeMeetingModeEnum::STORE_VISIT->value,
+        'duration_minutes'    => 30,
+        'min_notice_hours'    => 0,
+        'booking_window_days' => 14,
+        'availability'        => ['weekly' => array_fill_keys(range(1, 7), [['from' => '09:00', 'to' => '17:00']])],
+    ]);
+    $slots = GetAppointmentTypeAvailableSlots::run($appointmentType);
+    $date  = array_key_last($slots);
+
+    $book = fn (string $time, AppointmentSourceEnum $source) => StoreAppointment::make()->action($this->shop, [
+        'appointment_type_id' => $appointmentType->id,
+        'starts_at'           => $date.' '.$time,
+        'contact_name'        => 'Booking visitor',
+        'email'               => 'booking-visitor-'.Str::lower(Str::random(8)).'@example.com',
+        'notes'               => 'Wants to talk about SEO',
+        'source'              => $source->value,
+        'state'               => AppointmentStateEnum::REQUESTED->value,
+    ]);
+    $queuedShopEmails = fn (): int => Queue::pushed(JobDecorator::class, fn ($job) => $job->displayName() === SendNewAppointmentEmailToShop::class)->count();
+
+    Queue::fake();
+
+    $this->patchJson($updateUrl, ['appointment_notify_shop' => false])->assertOk();
+    $book($slots[$date][0], AppointmentSourceEnum::WEBSITE);
+
+    expect($queuedShopEmails())->toBe(0)
+        ->and(SendNewAppointmentEmailToShop::recipientEmail($this->shop->refresh()))->toBeNull();
+
+    $this->patchJson($updateUrl, ['appointment_notify_shop' => true, 'appointment_notify_email' => 'bookings@example.com'])->assertOk();
+
+    expect(SendNewAppointmentEmailToShop::recipientEmail($this->shop->refresh()))->toBe('bookings@example.com');
+
+    $appointment = $book($slots[$date][1], AppointmentSourceEnum::WEBSITE);
+    $book($slots[$date][2], AppointmentSourceEnum::STAFF);
+
+    expect($queuedShopEmails())->toBe(1)
+        ->and(SendNewAppointmentEmailToShop::make()->generateBodyHtml($appointment))
+        ->toContain('Booking visitor')
+        ->toContain('Wants to talk about SEO')
+        ->toContain('It is waiting for you to accept it.')
+        ->toContain(route('grp.org.shops.show.crm.appointments.show', [$this->organisation->slug, $this->shop->slug, $appointment->id]));
+
+    $this->patchJson($updateUrl, ['appointment_notify_email' => ''])->assertOk();
+
+    expect(SendNewAppointmentEmailToShop::recipientEmail($this->shop->refresh()))->toBe($this->shop->email);
+
+    $this->patchJson($updateUrl, ['appointment_notify_email' => 'not-an-email'])->assertUnprocessable();
+    $this->patchJson($updateUrl, ['appointment_notify_shop' => false])->assertOk();
 });
 
 test('zoom credentials are checked with zoom and the secret is stored encrypted', function () {
@@ -2038,6 +2122,9 @@ test('UI Create appointment', function () {
                         && collect($options)->mapWithKeys(fn ($option) => [$option['id'] => collect($option['appointment_type_ids'])->sort()->values()->all()])->all() === $arranged->all();
                 })
                 ->has('formData.blueprint.1.fields.contact_name')
+                ->where('formData.blueprint.1.fields.email.requiredIf.field', 'appointment_type_id')
+                ->where('formData.blueprint.1.fields.email.requiredIf.values', fn ($ids) => collect($ids)->sort()->values()->all() === $this->shop->appointmentTypes()->where('meeting_mode', AppointmentTypeMeetingModeEnum::VIDEO_CALL)->pluck('id')->sort()->values()->all())
+                ->where('formData.blueprint.1.fields.phone.requiredIf.values', fn ($ids) => collect($ids)->sort()->values()->all() === $this->shop->appointmentTypes()->get()->filter(fn (AppointmentType $appointmentType) => $appointmentType->requiresPhone())->pluck('id')->sort()->values()->all())
                 ->where('formData.blueprint.1.fields.phone.type', 'phone')
                 ->where('formData.blueprint.1.fields.phone.options.defaultCountry', $this->shop->country?->code)
                 ->where('formData.route.name', 'grp.models.shop.appointment.store');

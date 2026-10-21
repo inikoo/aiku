@@ -3,6 +3,7 @@
 namespace App\Actions\Comms\Email;
 
 use App\Enums\CRM\Appointment\AppointmentStateEnum;
+use App\Actions\CRM\Appointment\GoogleCalendar\SyncAppointmentGoogleCalendarEvent;
 use App\Actions\CRM\Appointment\Zoom\SyncAppointmentZoomMeeting;
 use App\Actions\Comms\DispatchedEmail\StoreDispatchedEmail;
 use App\Actions\Comms\Traits\WithSendBulkEmails;
@@ -46,6 +47,10 @@ class SendAppointmentEmail extends OrgAction
 
         if ($appointment->appointmentType?->isZoomCall() && in_array($code, [OutboxCodeEnum::APPOINTMENT_ACCEPTED, OutboxCodeEnum::APPOINTMENT_RESCHEDULED, OutboxCodeEnum::APPOINTMENT_REMINDER], true)) {
             $appointment = $this->withZoomMeeting($appointment);
+        }
+
+        if ($appointment->appointmentType?->isGoogleMeetCall() && !$appointment->googleMeetJoinUrl() && in_array($code, [OutboxCodeEnum::APPOINTMENT_ACCEPTED, OutboxCodeEnum::APPOINTMENT_RESCHEDULED, OutboxCodeEnum::APPOINTMENT_REMINDER], true)) {
+            $appointment = $this->withGoogleMeet($appointment);
         }
 
         /** @var Outbox|null $outbox */
@@ -113,6 +118,17 @@ class SendAppointmentEmail extends OrgAction
         if ($code === OutboxCodeEnum::APPOINTMENT_REMINDER) {
             $appointment->forceFill(['reminder_sent_at' => null])->saveQuietly();
         }
+    }
+
+    private function withGoogleMeet(Appointment $appointment): Appointment
+    {
+        try {
+            SyncAppointmentGoogleCalendarEvent::make()->handle($appointment->id);
+        } catch (Throwable $exception) {
+            report($exception);
+        }
+
+        return $appointment->refresh()->load(['shop', 'appointmentType', 'visitor', 'user']);
     }
 
     private function withZoomMeeting(Appointment $appointment): Appointment
@@ -209,20 +225,23 @@ class SendAppointmentEmail extends OrgAction
             'END:VCALENDAR',
         ];
 
-        $zoomUrl = $isCancelled ? null : $appointment->zoomJoinUrl();
+        $zoomUrl       = $isCancelled ? null : $appointment->zoomJoinUrl();
+        $googleMeetUrl = $isCancelled || $zoomUrl ? null : $this->visibleGoogleMeetUrl($appointment);
+        $joinUrl       = $zoomUrl ?? $googleMeetUrl;
 
-        if ($location = $zoomUrl ?? $appointment->appointmentType?->location) {
+        if ($location = $joinUrl ?? $appointment->appointmentType?->location) {
             array_splice($lines, -3, 0, ['LOCATION:'.$escape($location)]);
         }
 
-        if ($zoomUrl) {
-            array_splice($lines, -3, 0, ['URL:'.$zoomUrl, 'DESCRIPTION:'.$escape(__('Join the Zoom meeting: :url', ['url' => $zoomUrl]))]);
+        if ($joinUrl) {
+            $joinText = $zoomUrl ? __('Join the Zoom meeting: :url', ['url' => $joinUrl]) : __('Join the Google Meet: :url', ['url' => $joinUrl]);
+            array_splice($lines, -3, 0, ['URL:'.$joinUrl, 'DESCRIPTION:'.$escape($joinText)]);
         }
 
         return implode("\r\n", $lines)."\r\n";
     }
 
-    private function detailsTable(Appointment $appointment): string
+    public function detailsTable(Appointment $appointment, array $extraRows = []): string
     {
         $start = $this->localStart($appointment);
         $type  = $appointment->appointmentType;
@@ -234,6 +253,7 @@ class SendAppointmentEmail extends OrgAction
         if ($appointment->user) {
             $rows[__('With')] = $appointment->user->contact_name;
         }
+        $rows = [...$rows, ...$extraRows];
 
         $cell = 'style="font-family: \'Helvetica Neue\',Helvetica,Arial,sans-serif; font-size: 14px; color: #333; padding: 6px 12px 6px 0; vertical-align: top;"';
         $html = '<table cellpadding="0" cellspacing="0" style="margin: 0 0 20px; border-top: 1px solid #e9e9e9; width: 100%;">';
@@ -258,6 +278,18 @@ class SendAppointmentEmail extends OrgAction
                     : __('Zoom meeting, we will send you the link separately'));
         }
 
+        if ($type?->isGoogleMeetCall()) {
+            if ($appointment->state === AppointmentStateEnum::REQUESTED) {
+                return __('Google Meet, we will send you the link once your appointment is confirmed');
+            }
+
+            $joinUrl = $this->visibleGoogleMeetUrl($appointment);
+
+            return $joinUrl
+                ? new HtmlString(e(__('Google Meet')).': <a href="'.e($joinUrl).'">'.e($joinUrl).'</a>')
+                : __('Video call on Google Meet');
+        }
+
         if ($type?->meeting_mode === AppointmentTypeMeetingModeEnum::VIDEO_CALL) {
             return __('Video call on WhatsApp, we will call you on :phone', ['phone' => $appointment->phone ?: '-']);
         }
@@ -265,12 +297,21 @@ class SendAppointmentEmail extends OrgAction
         return $type?->location;
     }
 
-    private function paragraph(string $text): string
+    /**
+     * The Meet is made with the calendar event, already while the appointment is a request, but the
+     * visitor only gets the link once it is accepted.
+     */
+    private function visibleGoogleMeetUrl(Appointment $appointment): ?string
+    {
+        return $appointment->state === AppointmentStateEnum::REQUESTED ? null : $appointment->googleMeetJoinUrl();
+    }
+
+    public function paragraph(string $text): string
     {
         return '<p '.self::PARAGRAPH.'>'.$text.'</p>';
     }
 
-    private function localStart(Appointment $appointment): Carbon
+    public function localStart(Appointment $appointment): Carbon
     {
         return $appointment->starts_at->copy()->setTimezone($appointment->shop->timezone?->name ?? 'UTC');
     }

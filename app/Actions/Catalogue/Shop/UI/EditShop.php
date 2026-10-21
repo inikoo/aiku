@@ -150,7 +150,7 @@ class EditShop extends OrgAction
             __('Shopify Settings'),
             __('Wix Settings'),
             __('Chat widget'),
-            __('Appointment widget'),
+            __('Appointment settings'),
             __('Zoom'),
             __('Meta Ads'),
             __('Social media (Meta)'),
@@ -980,6 +980,41 @@ class EditShop extends OrgAction
                     ],
                 ] : [],
                 [
+                    'label'  => __('Appointment settings'),
+                    'icon'   => 'fal fa-calendar-alt',
+                    'fields' => [
+                        'appointment_widget_enabled' => [
+                            'type'        => 'toggle',
+                            'label'       => __('Booking widget for other websites'),
+                            'value'       => (bool) Arr::get($shop->settings, 'appointments.widget_enabled', false),
+                            'information' => __('Lets customers book appointments from a form placed on another website, such as WordPress or Shopify.'),
+                        ],
+                        ...Arr::get($shop->settings, 'appointments.widget_enabled', false) && Arr::get($shop->settings, 'appointments.widget_key') ? [
+                            'appointment_widget_embed' => [
+                                'type'        => 'textarea',
+                                'disabled'    => true,
+                                'rows'        => 3,
+                                'label'       => __('Embed code'),
+                                'value'       => AppointmentWidgetKey::make()->embedSnippet(Arr::get($shop->settings, 'appointments.widget_key')),
+                                'information' => __('Paste this where the booking form should appear: a Custom HTML block in WordPress, a Custom Liquid section in Shopify.'),
+                            ],
+                        ] : [],
+                        'appointment_notify_shop'    => [
+                            'type'        => 'toggle',
+                            'label'       => __('Email new bookings to the shop'),
+                            'value'       => (bool) Arr::get($shop->settings, 'appointments.notify_shop', false),
+                            'information' => __('Sends an email to the shop for every appointment booked on the website or through the booking widget. When off, the shop only sees new bookings in Aiku and in the connected Google Calendar.'),
+                        ],
+                        'appointment_notify_email'   => [
+                            'type'        => 'input',
+                            'label'       => __('Email for new bookings'),
+                            'placeholder' => $shop->email,
+                            'value'       => Arr::get($shop->settings, 'appointments.notify_email', ''),
+                            'information' => __('Leave empty to use the shop email.'),
+                        ],
+                    ],
+                ],
+                [
                     'label'  => __('Zoom'),
                     'icon'   => 'fal fa-video',
                     'fields' => [
@@ -1009,25 +1044,42 @@ class EditShop extends OrgAction
                     ],
                 ],
                 [
-                    'label'  => __('Appointment widget'),
-                    'icon'   => 'fal fa-calendar-alt',
+                    'label'  => __('Google Calendar & Meet'),
+                    'icon'   => 'fab fa-google',
                     'fields' => [
-                        'appointment_widget_enabled' => [
-                            'type'        => 'toggle',
-                            'label'       => __('Booking widget for other websites'),
-                            'value'       => (bool) Arr::get($shop->settings, 'appointments.widget_enabled', false),
-                            'information' => __('Lets customers book appointments from a form placed on another website, such as WordPress or Shopify.'),
-                        ],
-                        ...Arr::get($shop->settings, 'appointments.widget_enabled', false) && Arr::get($shop->settings, 'appointments.widget_key') ? [
-                            'appointment_widget_embed' => [
-                                'type'        => 'textarea',
-                                'disabled'    => true,
-                                'rows'        => 3,
-                                'label'       => __('Embed code'),
-                                'value'       => AppointmentWidgetKey::make()->embedSnippet(Arr::get($shop->settings, 'appointments.widget_key')),
-                                'information' => __('Paste this where the booking form should appear: a Custom HTML block in WordPress, a Custom Liquid section in Shopify.'),
+                        'google_calendar' => [
+                            'type'         => 'mailbox_connect',
+                            'noTitle'      => true,
+                            'noSaveButton' => true,
+                            'value'        => [
+                                'connected'        => filled(Arr::get($shop->settings, GoogleCalendarClient::SETTINGS_KEY.'.refresh_token')),
+                                'email'            => Arr::get($shop->settings, GoogleCalendarClient::SETTINGS_KEY.'.calendar'),
+                                'connected_at'     => Arr::get($shop->settings, GoogleCalendarClient::SETTINGS_KEY.'.connected_at'),
+                                'revoked_at'       => Arr::get($shop->settings, GoogleCalendarClient::SETTINGS_KEY.'.revoked_at'),
+                                'connect_url'      => route('grp.org.shops.show.settings.google_calendar.connect', [$shop->organisation->slug, $shop->slug]).($request->query('section') ? '?section='.$request->query('section') : ''),
+                                'disconnect_route' => [
+                                    'name'       => 'grp.org.shops.show.settings.google_calendar.disconnect',
+                                    'parameters' => [$shop->organisation->slug, $shop->slug],
+                                ],
+                                'sync_route'       => [
+                                    'name'       => 'grp.org.shops.show.settings.google_calendar.sync',
+                                    'parameters' => [$shop->organisation->slug, $shop->slug],
+                                ],
+                                'connected_query'  => 'google_calendar_connected',
+                                'texts'            => [
+                                    'connected'           => __('Every appointment of this shop is written into this calendar, and time already taken in it is not offered to visitors on the website.'),
+                                    'not_connected'       => __('Sign in with the Google account whose main calendar the shop uses for appointments. Bookings are written into it, and its busy times are kept free of website bookings.'),
+                                    'not_connected_title' => __('No calendar connected'),
+                                    'success'             => __('Upcoming appointments are being written into the calendar now, and time already taken in it is no longer offered on the website.'),
+                                    'success_title'       => __('Google Calendar connected'),
+                                    'confirm_disconnect'  => __('Disconnect this calendar? New appointments will no longer be written into it, and its busy times will stop blocking bookings.'),
+                                    'connect'             => __('Connect Google Calendar'),
+                                    'reconnect'           => __('Reconnect Google Calendar'),
+                                    'revoked'             => __('Appointments are not written into it until it is reconnected.'),
+                                    'sync'                => __('Sync now'),
+                                ],
                             ],
-                        ] : [],
+                        ],
                     ],
                 ],
                 [
@@ -1324,45 +1376,6 @@ class EditShop extends OrgAction
                             'label'       => __('Sender name'),
                             'placeholder' => $shop->name,
                             'value'       => Arr::get($shop->settings, 'gmail.sender_name', ''),
-                        ],
-                    ],
-                ],
-                [
-                    'label'  => __('Appointments calendar'),
-                    'icon'   => 'fal fa-calendar-alt',
-                    'fields' => [
-                        'google_calendar' => [
-                            'type'         => 'mailbox_connect',
-                            'noTitle'      => true,
-                            'noSaveButton' => true,
-                            'value'        => [
-                                'connected'        => filled(Arr::get($shop->settings, GoogleCalendarClient::SETTINGS_KEY.'.refresh_token')),
-                                'email'            => Arr::get($shop->settings, GoogleCalendarClient::SETTINGS_KEY.'.calendar'),
-                                'connected_at'     => Arr::get($shop->settings, GoogleCalendarClient::SETTINGS_KEY.'.connected_at'),
-                                'revoked_at'       => Arr::get($shop->settings, GoogleCalendarClient::SETTINGS_KEY.'.revoked_at'),
-                                'connect_url'      => route('grp.org.shops.show.settings.google_calendar.connect', [$shop->organisation->slug, $shop->slug]).($request->query('section') ? '?section='.$request->query('section') : ''),
-                                'disconnect_route' => [
-                                    'name'       => 'grp.org.shops.show.settings.google_calendar.disconnect',
-                                    'parameters' => [$shop->organisation->slug, $shop->slug],
-                                ],
-                                'sync_route'       => [
-                                    'name'       => 'grp.org.shops.show.settings.google_calendar.sync',
-                                    'parameters' => [$shop->organisation->slug, $shop->slug],
-                                ],
-                                'connected_query'  => 'google_calendar_connected',
-                                'texts'            => [
-                                    'connected'           => __('Every appointment of this shop is written into this calendar, and time already taken in it is not offered to visitors on the website.'),
-                                    'not_connected'       => __('Sign in with the Google account whose main calendar the shop uses for appointments. Bookings are written into it, and its busy times are kept free of website bookings.'),
-                                    'not_connected_title' => __('No calendar connected'),
-                                    'success'             => __('Upcoming appointments are being written into the calendar now, and time already taken in it is no longer offered on the website.'),
-                                    'success_title'       => __('Google Calendar connected'),
-                                    'confirm_disconnect'  => __('Disconnect this calendar? New appointments will no longer be written into it, and its busy times will stop blocking bookings.'),
-                                    'connect'             => __('Connect Google Calendar'),
-                                    'reconnect'           => __('Reconnect Google Calendar'),
-                                    'revoked'             => __('Appointments are not written into it until it is reconnected.'),
-                                    'sync'                => __('Sync now'),
-                                ],
-                            ],
                         ],
                     ],
                 ],

@@ -81,6 +81,14 @@ const isFieldVisible = (fieldData: any) => {
     return form[fieldData.showIf.field] === fieldData.showIf.value
 }
 
+const isFieldRequired = (fieldData: any) => {
+    if (fieldData.required) {
+        return true
+    }
+
+    return !!fieldData.requiredIf && fieldData.requiredIf.values.includes(form[fieldData.requiredIf.field])
+}
+
 const fieldLabel = (fieldData: any) => {
     if (!fieldData.labelFrom) {
         return fieldData.label
@@ -325,7 +333,7 @@ const onSelectSubmitChange = (value) => {
                                         <div class="inline-flex items-start leading-none">
                                             <span>{{ fieldLabel(fieldData) }}</span>
                                             <!-- Icon: Required -->
-                                            <FontAwesomeIcon v-if="fieldData.required" :icon="['fas', 'asterisk']"
+                                            <FontAwesomeIcon v-if="isFieldRequired(fieldData)" :icon="['fas', 'asterisk']"
                                                 class="ml-1 font-light text-[8px] text-red-400 mr-1 opacity-75" fixed-width />
                                             <InformationIcon v-if="fieldData.information" :information="fieldData.information" class="ml-1" />
                                         </div>

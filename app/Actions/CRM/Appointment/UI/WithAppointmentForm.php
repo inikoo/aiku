@@ -6,6 +6,7 @@ use App\Actions\CRM\AppointmentType\GetAppointmentTypeAvailableSlots;
 use App\Enums\CRM\Appointment\AppointmentStateEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Appointment;
+use App\Enums\CRM\AppointmentType\AppointmentTypeMeetingModeEnum;
 use App\Models\CRM\AppointmentType;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Collection;
@@ -71,6 +72,10 @@ trait WithAppointmentForm
 
     protected function appointmentVisitorFields(Shop $shop, ?Appointment $appointment = null): array
     {
+        $videoCallTypes = $shop->appointmentTypes()
+            ->where('meeting_mode', AppointmentTypeMeetingModeEnum::VIDEO_CALL)
+            ->get();
+
         return [
             'contact_name'    => [
                 'type'     => 'input',
@@ -81,13 +86,15 @@ trait WithAppointmentForm
             'email'           => [
                 'type'        => 'input',
                 'label'       => __('Email'),
-                'information' => __('Linked to the customer or prospect with this email or phone. Someone new is added as a prospect who gets no marketing emails.'),
+                'information' => __('Required for video calls. Linked to the customer or prospect with this email or phone. Someone new is added as a prospect who gets no marketing emails.'),
+                'requiredIf'  => ['field' => 'appointment_type_id', 'values' => $videoCallTypes->pluck('id')->values()->all()],
                 'value'       => $appointment?->email ?? '',
             ],
             'phone'           => [
                 'type'        => 'phone',
                 'label'       => __('Phone'),
-                'information' => __('Required for video calls, which we make on WhatsApp.'),
+                'information' => __('Required for video calls on WhatsApp.'),
+                'requiredIf'  => ['field' => 'appointment_type_id', 'values' => $videoCallTypes->filter(fn (AppointmentType $appointmentType) => $appointmentType->requiresPhone())->pluck('id')->values()->all()],
                 'value'       => $appointment?->phone ?? '',
                 'options'     => [
                     'defaultCountry' => $shop->country?->code,

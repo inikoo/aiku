@@ -24,7 +24,7 @@ class ConnectShopGoogleCalendar extends OrgAction
             return Redirect::back()->with('notification', [
                 'status'      => 'error',
                 'title'       => __('Google Calendar is not set up'),
-                'description' => __('The Google Calendar app credentials are missing on this server. Ask a developer to set GOOGLE_CALENDAR_CLIENT_ID and GOOGLE_CALENDAR_CLIENT_SECRET.'),
+                'description' => __('The Google Calendar app credentials are missing on this server. Ask a developer to set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET.'),
             ]);
         }
 

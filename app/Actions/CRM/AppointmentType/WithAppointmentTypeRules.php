@@ -4,6 +4,7 @@ namespace App\Actions\CRM\AppointmentType;
 
 use App\Actions\CRM\Appointment\Zoom\ZoomClient;
 use App\Enums\CRM\AppointmentType\AppointmentTypeMediaEnum;
+use App\Services\GoogleCalendar\GoogleCalendarClient;
 use App\Enums\CRM\AppointmentType\AppointmentTypeMeetingModeEnum;
 use App\Models\CRM\AppointmentType;
 use App\Rules\IUnique;
@@ -34,7 +35,7 @@ trait WithAppointmentTypeRules
             'description'                   => [...$optional, 'nullable', 'string', 'max:5000'],
             'meeting_mode'                  => [...$required, Rule::enum(AppointmentTypeMeetingModeEnum::class)],
             'location'                      => [...$optional, 'nullable', 'string', 'max:255', $this->belongsToMeetingMode(AppointmentTypeMeetingModeEnum::STORE_VISIT, $appointmentType)],
-            'media'                         => [...$optional, 'nullable', Rule::enum(AppointmentTypeMediaEnum::class), $this->belongsToMeetingMode(AppointmentTypeMeetingModeEnum::VIDEO_CALL, $appointmentType), $this->zoomIsConfigured()],
+            'media'                         => [...$optional, 'nullable', Rule::enum(AppointmentTypeMediaEnum::class), $this->belongsToMeetingMode(AppointmentTypeMeetingModeEnum::VIDEO_CALL, $appointmentType), $this->zoomIsConfigured(), $this->googleCalendarIsConnected()],
             'duration_minutes'              => [...$required, 'integer', 'min:5', 'max:480'],
             'buffer_minutes'                => [...$optional, 'integer', 'min:0', 'max:240'],
             'min_notice_hours'              => [...$optional, 'integer', 'min:0', 'max:720'],
@@ -116,6 +117,15 @@ trait WithAppointmentTypeRules
         return function (string $attribute, mixed $value, Closure $fail) {
             if ($value === AppointmentTypeMediaEnum::ZOOM->value && !ZoomClient::make()->isConfigured($this->shop)) {
                 $fail(__('Add the Zoom details in the shop settings first, so each appointment can get its own Zoom meeting.'));
+            }
+        };
+    }
+
+    private function googleCalendarIsConnected(): Closure
+    {
+        return function (string $attribute, mixed $value, Closure $fail) {
+            if ($value === AppointmentTypeMediaEnum::GOOGLE_MEET->value && !GoogleCalendarClient::isConnected($this->shop)) {
+                $fail(__('Connect Google Calendar in the shop settings first, so each appointment can get its own Google Meet link.'));
             }
         };
     }

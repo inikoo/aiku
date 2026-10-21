@@ -91,8 +91,10 @@ class ReconcileShopGoogleCalendar extends OrgAction
 
             $expected = $sync->event($appointment);
 
-            if (!$event || !$this->sameEvent($expected, $event)) {
-                $client->saveEvent($appointment->id, $expected);
+            $isMissingMeet = $appointment->appointmentType?->isGoogleMeetCall() && !$appointment->googleMeetJoinUrl();
+
+            if (!$event || $isMissingMeet || !$this->sameEvent($expected, $event)) {
+                $sync->write($client, $appointment);
                 $written++;
             }
         }

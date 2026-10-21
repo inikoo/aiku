@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\Comms\Email\SendAppointmentEmail;
 use App\Actions\CRM\Appointment\GoogleCalendar\CallbackShopGoogleCalendar;
 use App\Actions\CRM\Appointment\GoogleCalendar\DisconnectShopGoogleCalendar;
 use App\Actions\CRM\Appointment\GoogleCalendar\ReconcileShopGoogleCalendar;
@@ -9,10 +10,13 @@ use App\Actions\CRM\Appointment\UpdateAppointment;
 use App\Actions\CRM\AppointmentType\GetAppointmentTypeAvailableSlots;
 use App\Actions\CRM\AppointmentType\StoreAppointmentType;
 use App\Enums\CRM\Appointment\AppointmentStateEnum;
+use App\Enums\CRM\AppointmentType\AppointmentTypeMediaEnum;
 use App\Enums\CRM\AppointmentType\AppointmentTypeMeetingModeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Appointment;
 use App\Models\CRM\AppointmentType;
+use App\Enums\Comms\Outbox\OutboxCodeEnum;
+use Illuminate\Validation\ValidationException;
 use App\Services\GoogleCalendar\GoogleCalendarClient;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Arr;
@@ -166,6 +170,101 @@ test('an appointment is written into the shop calendar and removed when it is ca
     SyncAppointmentGoogleCalendarEvent::run($appointment->id);
 
     Http::assertSent(fn (Request $request) => $request->method() === 'DELETE' && str_ends_with($request->url(), 'events/'.$eventId));
+});
+
+test('google meet video calls need the shop calendar connected and are not described as whatsapp', function () {
+    $googleMeetType = [
+        'meeting_mode' => AppointmentTypeMeetingModeEnum::VIDEO_CALL->value,
+        'media'        => AppointmentTypeMediaEnum::GOOGLE_MEET->value,
+    ];
+
+    expect(fn () => ($this->appointmentType)($googleMeetType))
+        ->toThrow(ValidationException::class, 'Connect Google Calendar in the shop settings first');
+
+    ($this->connectCalendar)();
+    Queue::fake();
+
+    $appointmentType = ($this->appointmentType)($googleMeetType);
+
+    expect($appointmentType->media())->toBe(AppointmentTypeMediaEnum::GOOGLE_MEET)
+        ->and($appointmentType->isGoogleMeetCall())->toBeTrue()
+        ->and($appointmentType->requiresPhone())->toBeFalse();
+
+    $appointment = StoreAppointment::make()->action($this->shop, [
+        'appointment_type_id' => $appointmentType->id,
+        'starts_at'           => now($this->shop->timezone?->name ?? 'UTC')->addDays(9)->format('Y-m-d').' 12:00',
+        'contact_name'        => 'Meet visitor '.Str::random(6),
+        'email'               => 'meet-'.Str::lower(Str::random(8)).'@example.com',
+    ]);
+
+    expect(SyncAppointmentGoogleCalendarEvent::make()->event($appointment)['location'])->toBe('Video call on Google Meet')
+        ->and(SendAppointmentEmail::make()->generateBodyHtml($appointment, OutboxCodeEnum::APPOINTMENT_ACCEPTED))
+        ->toContain('Video call on Google Meet')
+        ->not->toContain('WhatsApp');
+});
+
+test('a google meet video call gets its meet link from the shop calendar and the visitor sees it once accepted', function () {
+    ($this->connectCalendar)();
+    Queue::fake();
+
+    $meetUrl        = 'https://meet.google.com/abc-defg-hij';
+    $conferenceData = [
+        'conferenceId'       => 'abc-defg-hij',
+        'conferenceSolution' => ['key' => ['type' => 'hangoutsMeet'], 'name' => 'Google Meet'],
+        'entryPoints'        => [['entryPointType' => 'video', 'uri' => $meetUrl]],
+    ];
+
+    Http::fake(function (Request $request) use ($meetUrl, $conferenceData) {
+        if (str_contains($request->url(), 'oauth2.googleapis.com/token')) {
+            return Http::response(['access_token' => 'access-token', 'expires_in' => 3600]);
+        }
+
+        return match ($request->method()) {
+            'PUT'   => Http::response(['error' => ['code' => 404]], 404),
+            'POST'  => Http::response([...$request->data(), 'hangoutLink' => $meetUrl, 'conferenceData' => [...$conferenceData, 'createRequest' => ['status' => ['statusCode' => 'success']]]]),
+            default => Http::response(['items' => []]),
+        };
+    });
+
+    $appointmentType = ($this->appointmentType)([
+        'meeting_mode' => AppointmentTypeMeetingModeEnum::VIDEO_CALL->value,
+        'media'        => AppointmentTypeMediaEnum::GOOGLE_MEET->value,
+    ]);
+    $appointment = StoreAppointment::make()->action($this->shop, [
+        'appointment_type_id' => $appointmentType->id,
+        'starts_at'           => now($this->shop->timezone?->name ?? 'UTC')->addDays(9)->format('Y-m-d').' 14:00',
+        'contact_name'        => 'Meet visitor '.Str::random(6),
+        'email'               => 'meet-'.Str::lower(Str::random(8)).'@example.com',
+        'state'               => AppointmentStateEnum::REQUESTED->value,
+    ]);
+
+    SyncAppointmentGoogleCalendarEvent::run($appointment->id);
+
+    Http::assertSent(fn (Request $request) => $request->method() === 'POST'
+        && str_contains($request->url(), 'conferenceDataVersion=1')
+        && Arr::get($request->data(), 'conferenceData.createRequest.requestId') === 'aiku-appointment-'.$appointment->id
+        && Arr::get($request->data(), 'conferenceData.createRequest.conferenceSolutionKey.type') === 'hangoutsMeet');
+
+    $appointment->refresh();
+    $email = SendAppointmentEmail::make();
+
+    expect($appointment->googleMeetJoinUrl())->toBe($meetUrl)
+        ->and(SyncAppointmentGoogleCalendarEvent::make()->event($appointment)['conferenceData'])->toEqualCanonicalizing($conferenceData)
+        ->and($email->generateBodyHtml($appointment, OutboxCodeEnum::APPOINTMENT_REQUESTED))
+        ->not->toContain($meetUrl)
+        ->toContain('we will send you the link once your appointment is confirmed')
+        ->and($email->calendarInvite($appointment, OutboxCodeEnum::APPOINTMENT_REQUESTED))->not->toContain($meetUrl);
+
+    UpdateAppointment::make()->action($appointment, ['state' => AppointmentStateEnum::ACCEPTED->value]);
+    $appointment->refresh();
+
+    expect($email->generateBodyHtml($appointment, OutboxCodeEnum::APPOINTMENT_ACCEPTED))->toContain('href="'.$meetUrl.'"')
+        ->and($email->calendarInvite($appointment, OutboxCodeEnum::APPOINTMENT_ACCEPTED))->toContain('URL:'.$meetUrl);
+
+    UpdateAppointment::make()->action($appointment, ['state' => AppointmentStateEnum::CANCELLED->value]);
+    SyncAppointmentGoogleCalendarEvent::run($appointment->id);
+
+    expect($appointment->refresh()->googleMeetJoinUrl())->toBeNull();
 });
 
 test('time taken in the shop calendar is not offered to website visitors', function () {

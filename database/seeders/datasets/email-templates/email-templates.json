@@ -569,7 +569,8 @@
       "appointment_declined",
       "appointment_rescheduled",
       "appointment_cancelled",
-      "appointment_reminder"
+      "appointment_reminder",
+      "new_appointment"
     ],
     "name": "Appointment notification",
     "content": "appointment_notification.blade.php",

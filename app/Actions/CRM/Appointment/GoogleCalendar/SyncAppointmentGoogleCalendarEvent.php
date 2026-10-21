@@ -7,12 +7,15 @@ use App\Enums\CRM\AppointmentType\AppointmentTypeMeetingModeEnum;
 use App\Models\CRM\Appointment;
 use App\Services\GoogleCalendar\GoogleCalendarClient;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
  * The event follows the appointment: it is written when the appointment is booked, moved or
  * changed, and removed when it is declined or cancelled. A request still waiting for an answer is
- * a tentative event.
+ * a tentative event. A Google Meet video call gets its Meet on the event, and the appointment
+ * keeps the link.
  */
 class SyncAppointmentGoogleCalendarEvent
 {
@@ -34,20 +37,63 @@ class SyncAppointmentGoogleCalendarEvent
      */
     public function handle(int $appointmentId): void
     {
-        $appointment = Appointment::withTrashed()->with(['shop', 'appointmentType', 'user'])->find($appointmentId);
-        $client      = $appointment ? GoogleCalendarClient::forShop($appointment->shop) : null;
+        Cache::lock('appointment-google-calendar-'.$appointmentId, 30)->block(20, function () use ($appointmentId) {
+            $appointment = Appointment::withTrashed()->with(['shop', 'appointmentType', 'user'])->find($appointmentId);
+            $client      = $appointment ? GoogleCalendarClient::forShop($appointment->shop) : null;
 
-        if (!$client) {
-            return;
+            if (!$client) {
+                return;
+            }
+
+            if (!$this->belongsInCalendar($appointment)) {
+                $client->deleteEvent($appointment->id);
+                $this->storeGoogleMeet($appointment, null);
+
+                return;
+            }
+
+            $this->write($client, $appointment);
+        });
+    }
+
+    /**
+     * @throws RequestException
+     */
+    public function write(GoogleCalendarClient $client, Appointment $appointment): Appointment
+    {
+        $saved = $client->saveEvent($appointment->id, $this->event($appointment));
+
+        if (!$appointment->appointmentType?->isGoogleMeetCall()) {
+            return $this->storeGoogleMeet($appointment, null);
         }
 
-        if (!$this->belongsInCalendar($appointment)) {
-            $client->deleteEvent($appointment->id);
-
-            return;
+        if (!$joinUrl = Arr::get($saved, 'hangoutLink')) {
+            return $appointment;
         }
 
-        $client->saveEvent($appointment->id, $this->event($appointment));
+        return $this->storeGoogleMeet($appointment, [
+            'join_url'        => $joinUrl,
+            'conference_data' => Arr::only(Arr::get($saved, 'conferenceData', []), ['conferenceId', 'conferenceSolution', 'entryPoints']),
+        ]);
+    }
+
+    private function storeGoogleMeet(Appointment $appointment, ?array $meet): Appointment
+    {
+        $data = $appointment->data ?? [];
+
+        if (Arr::get($data, 'google_meet') == $meet) {
+            return $appointment;
+        }
+
+        if ($meet) {
+            $data['google_meet'] = $meet;
+        } else {
+            unset($data['google_meet']);
+        }
+
+        $appointment->updateQuietly(['data' => $data]);
+
+        return $appointment;
     }
 
     public function belongsInCalendar(Appointment $appointment): bool
@@ -70,14 +116,25 @@ class SyncAppointmentGoogleCalendarEvent
             route('grp.org.shops.show.crm.appointments.show', [$appointment->organisation->slug, $appointment->shop->slug, $appointment->id]),
         ]);
 
-        return [
+        $event = [
             'summary'            => $appointment->contact_name.($type ? ' · '.$type->name : ''),
             'description'        => implode("\n", $description),
-            'location'           => $type?->meeting_mode === AppointmentTypeMeetingModeEnum::VIDEO_CALL ? __('Video call on WhatsApp') : $type?->location,
+            'location'           => $type?->media() ? __('Video call on :media', ['media' => $type->media()->label()]) : $type?->location,
             'status'             => $appointment->state === AppointmentStateEnum::REQUESTED ? 'tentative' : 'confirmed',
             'start'              => ['dateTime' => $appointment->starts_at->copy()->setTimezone($timezone)->toIso8601String(), 'timeZone' => $timezone],
             'end'                => ['dateTime' => $appointment->ends_at->copy()->setTimezone($timezone)->toIso8601String(), 'timeZone' => $timezone],
             'extendedProperties' => ['private' => [GoogleCalendarClient::EVENT_PROPERTY => (string) $appointment->id]],
         ];
+
+        if ($type?->isGoogleMeetCall()) {
+            $event['conferenceData'] = data_get($appointment->data, 'google_meet.conference_data') ?: [
+                'createRequest' => [
+                    'requestId'             => 'aiku-appointment-'.$appointment->id,
+                    'conferenceSolutionKey' => ['type' => 'hangoutsMeet'],
+                ],
+            ];
+        }
+
+        return $event;
     }
 }

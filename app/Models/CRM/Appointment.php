@@ -151,4 +151,9 @@ class Appointment extends Model implements Auditable
     {
         return data_get($this->data, 'zoom.join_url') ?: null;
     }
+
+    public function googleMeetJoinUrl(): ?string
+    {
+        return data_get($this->data, 'google_meet.join_url') ?: null;
+    }
 }

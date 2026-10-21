@@ -132,9 +132,12 @@ final class GoogleCalendarClient
         $this->shop->updateQuietly(['settings' => $settings]);
     }
 
-    public function saveEvent(int $appointmentId, array $event): void
+    /**
+     * @return array<string, mixed> the event as Google saved it, with its Meet link when it asked for one
+     */
+    public function saveEvent(int $appointmentId, array $event): array
     {
-        $this->putEvent(self::eventId($appointmentId), $event);
+        return $this->putEvent(self::eventId($appointmentId), $event);
     }
 
     public function deleteEvent(int $appointmentId): void
@@ -142,15 +145,23 @@ final class GoogleCalendarClient
         $this->removeEvent(self::eventId($appointmentId));
     }
 
-    public function putEvent(string $eventId, array $event): void
+    /**
+     * Google only reads the conference of an event sent with conferenceDataVersion 1, and then
+     * replaces it along with the rest, so an event with a Meet always carries it.
+     *
+     * @return array<string, mixed>
+     */
+    public function putEvent(string $eventId, array $event): array
     {
-        $response = $this->request()->put('events/'.$eventId, $event);
+        $query = Arr::has($event, 'conferenceData') ? '?conferenceDataVersion=1' : '';
+
+        $response = $this->request()->put('events/'.$eventId.$query, $event);
 
         if ($response->notFound()) {
-            $response = $this->request()->post('events', [...$event, 'id' => $eventId]);
+            $response = $this->request()->post('events'.$query, [...$event, 'id' => $eventId]);
         }
 
-        $response->throw();
+        return $response->throw()->json() ?? [];
     }
 
     public function removeEvent(string $eventId): void

@@ -39,6 +39,7 @@ trait WithRetinaAppointment
             'meeting_mode'        => $appointmentType?->meeting_mode->value,
             'media'               => $appointmentType?->media()?->value,
             'zoom_join_url'       => $appointment->state === AppointmentStateEnum::ACCEPTED ? $appointment->zoomJoinUrl() : null,
+            'google_meet_join_url' => $appointment->state === AppointmentStateEnum::ACCEPTED ? $appointment->googleMeetJoinUrl() : null,
             'location'            => $appointmentType?->location,
             'date_label'          => $startsAt->translatedFormat('l j F Y'),
             'time'                => $startsAt->format('H:i'),

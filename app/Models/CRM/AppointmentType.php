@@ -116,6 +116,11 @@ class AppointmentType extends Model implements Auditable
         return $this->media() === AppointmentTypeMediaEnum::ZOOM;
     }
 
+    public function isGoogleMeetCall(): bool
+    {
+        return $this->media() === AppointmentTypeMediaEnum::GOOGLE_MEET;
+    }
+
     public function attendees(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'appointment_type_user')->withTimestamps();

@@ -77,7 +77,10 @@ class UpdateAppointment extends OrgAction
 
     public function getValidationMessages(): array
     {
-        return $this->appointmentPhoneMessages();
+        return [
+            ...$this->appointmentPhoneMessages(),
+            ...$this->appointmentEmailMessages(),
+        ];
     }
 
     public function prepareForValidation(ActionRequest $request): void

@@ -52,6 +52,7 @@ class AppointmentResource extends JsonResource
             'phone'            => $appointment->phone,
             'whatsapp_url'     => $appointment->appointmentType?->requiresPhone() ? $appointment->whatsappUrl() : null,
             'zoom_join_url'    => $appointment->zoomJoinUrl(),
+            'google_meet_join_url' => $appointment->googleMeetJoinUrl(),
             'number_visitors'  => $appointment->number_visitors,
             'notes'            => $appointment->notes,
             'visitor'          => match (true) {

@@ -44,6 +44,7 @@ const props = defineProps<{
         phone: string | null
         whatsapp_url: string | null
         zoom_join_url: string | null
+        google_meet_join_url: string | null
         number_visitors: number
         notes: string | null
         visitor: { type: string, label: string, name: string, route: RouteDefinition } | null
@@ -168,6 +169,11 @@ const statusMessage = computed(() => ({
                             <FontAwesomeIcon icon="fal fa-video" class="text-gray-400" fixed-width aria-hidden="true" />
                             <a v-if="appointment.zoom_join_url" :href="appointment.zoom_join_url" target="_blank" rel="noopener" class="break-all text-[--app-accent] hover:underline">{{ appointment.zoom_join_url }}</a>
                             <span v-else class="text-gray-500">{{ ctrans("The Zoom meeting is created when the appointment is accepted") }}</span>
+                        </li>
+                        <li v-if="appointment.appointment_type.media === 'google_meet'" class="flex flex-wrap items-center gap-2">
+                            <FontAwesomeIcon icon="fal fa-video" class="text-gray-400" fixed-width aria-hidden="true" />
+                            <a v-if="appointment.google_meet_join_url" :href="appointment.google_meet_join_url" target="_blank" rel="noopener" class="break-all text-[--app-accent] hover:underline">{{ appointment.google_meet_join_url }}</a>
+                            <span v-else class="text-gray-500">{{ ctrans("The Google Meet is created when the appointment is written into the shop's Google Calendar") }}</span>
                         </li>
                         <li v-if="appointment.appointment_type.meeting_mode === 'store_visit'" class="flex gap-2">
                             <FontAwesomeIcon icon="fal fa-users" class="mt-0.5 text-gray-400" fixed-width aria-hidden="true" />
