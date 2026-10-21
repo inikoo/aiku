@@ -56,6 +56,14 @@ export type WebpageIssueGroup = {
     }>
 }
 
+export type WebpageStateField = {
+    can_change: boolean
+    redirect_webpage_id: number | null
+    default_storefront: Record<string, unknown> | null
+    init_options: Record<string, unknown>[] | null
+    fetch_params: Record<string, string | null>
+}
+
 export type ShopProductSetting = {
     id: number
     shop: { code: string, name: string }
@@ -83,6 +91,7 @@ export type ShopProductSetting = {
         index_page: boolean
         follow_link: boolean
         structured_data: string | object | null
+        state_field: WebpageStateField
         update_route: routeType
         publish_route: routeType
         workshop_route: routeType | null

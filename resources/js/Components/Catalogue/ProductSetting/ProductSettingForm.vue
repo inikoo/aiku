@@ -11,6 +11,7 @@ import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { InputGroup, InputGroupAddon, InputNumber, InputText, Textarea, ToggleSwitch } from "primevue"
 import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
+import ToggleStateWebpage from "@/Components/Forms/Fields/ToggleStateWebpage.vue"
 import RichTextField from "@/Components/Catalogue/ProductSetting/RichTextField.vue"
 import { productSettingActionsId, settingFieldId, type MasterProductData, type SharedInformationValue, type ShopProductSetting } from "@/Components/Catalogue/ProductSetting/types"
 
@@ -30,7 +31,7 @@ type ContentKey = "name" | "description" | "description_extra"
 type FollowMode = "follow" | "customise"
 
 type SettingForm = {
-    state: "online" | "offline"
+    state_data: { state: string, redirect_webpage_id: number | null }
     title: string
     description: string
     url: string
@@ -64,7 +65,7 @@ const formFromShop = (shop: ShopProductSetting): SettingForm => {
     })
 
     return {
-        state: shop.webpage?.state === "live" ? "online" : "offline",
+        state_data: { state: shop.webpage?.state ?? "", redirect_webpage_id: shop.webpage?.state_field.redirect_webpage_id ?? null },
         title: shop.webpage?.title ?? "",
         description: shop.webpage?.description ?? "",
         url: shop.webpage?.url ?? "",
@@ -91,7 +92,13 @@ watch(() => props.shop, (shop) => {
     errors.value = {}
 })
 
-const isLive = computed(() => props.shop.webpage?.state === "live")
+const isFirstPublish = computed(() => ["in_process", "ready"].includes(props.shop.webpage?.state ?? ""))
+
+const isStateChanged = computed(() => JSON.stringify(form.value.state_data) !== JSON.stringify(savedForm.value.state_data))
+
+const needsPublish = computed(() => form.value.state_data.state === "live" && isFirstPublish.value)
+
+const isRedirectMissing = computed(() => form.value.state_data.state === "closed" && !form.value.state_data.redirect_webpage_id)
 
 const webpagePayload = computed(() => {
     const payload: Record<string, unknown> = {}
@@ -100,6 +107,10 @@ const webpagePayload = computed(() => {
         if (form.value[key] !== savedForm.value[key]) {
             payload[key] = form.value[key]
         }
+    }
+
+    if (isStateChanged.value && !needsPublish.value) {
+        payload.state_data = form.value.state_data.state === "closed" ? { ...form.value.state_data } : { state: form.value.state_data.state }
     }
 
     for (const key of Object.keys(contentUpdateKeys) as ContentKey[]) {
@@ -123,8 +134,6 @@ const productPayload = computed(() => {
 
     return price.mode === "customise" && price.value !== savedPrice.value ? { price: price.value } : {}
 })
-
-const needsPublish = computed(() => form.value.state === "online" && !isLive.value)
 
 const changeCount = computed(() => Object.keys(webpagePayload.value).length + Object.keys(productPayload.value).length + (needsPublish.value ? 1 : 0))
 
@@ -200,7 +209,7 @@ const errorsFrom = (error: unknown) =>
 
 const publish = async () => {
     const webpage = props.shop.webpage
-    if (!webpage || !changeCount.value || structuredDataCheck.value.error) {
+    if (!webpage || !changeCount.value || structuredDataCheck.value.error || isRedirectMissing.value) {
         return
     }
 
@@ -253,11 +262,6 @@ const followOptions = [
     { label: ctrans("Customise"), value: "customise" as FollowMode, tone: "primary" as const },
 ]
 
-const stateOptions = computed(() => [
-    { label: ctrans("Offline"), value: "offline" as const, tone: "red" as const, disabled: isLive.value },
-    { label: ctrans("Online"), value: "online" as const, tone: "emerald" as const },
-])
-
 const contentFields = computed(() => [
     { key: "name" as ContentKey, suggestionField: "product_name", label: ctrans("Product name"), isLong: false },
     { key: "description" as ContentKey, suggestionField: "top_desc", label: ctrans("Description"), isLong: true },
@@ -300,7 +304,7 @@ const [DefineMasterValue, MasterValue] = createReusableTemplate<{ value: string 
                 <Button
                     type="primary"
                     :label="changeCount ? ctrans('Publish (:count)', { count: String(changeCount) }) : ctrans('Publish')"
-                    :disabled="!canEdit || !shop.webpage || !changeCount || isSaving || !!structuredDataCheck.error"
+                    :disabled="!canEdit || !shop.webpage || !changeCount || isSaving || !!structuredDataCheck.error || isRedirectMissing"
                     :loading="isSaving"
                     @click="publish"/>
             </div>
@@ -311,10 +315,18 @@ const [DefineMasterValue, MasterValue] = createReusableTemplate<{ value: string 
                 <h3 class="font-semibold text-gray-900">1 · {{ ctrans("Page status") }}</h3>
                 <span class="text-xs text-gray-500">{{ ctrans("Product page in the :shop shop", { shop: shop.shop.code }) }}</span>
             </header>
-            <div v-if="shop.webpage" class="flex flex-wrap items-center gap-3">
-                <span class="text-sm font-medium text-gray-700">{{ ctrans("State") }} <span class="text-red-500">*</span></span>
-                <SegmentedToggle v-model="form.state" :options="stateOptions" :ariaLabel="ctrans('State')" />
+            <div v-if="shop.webpage && !shop.webpage.state_field.can_change" class="flex items-start gap-2 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                <FontAwesomeIcon :icon="faExclamationTriangle" class="mt-0.5" fixed-width aria-hidden="true" />
+                {{ ctrans("This product is set as a part of a variant. Therefore editing this webpage state is disabled") }}
             </div>
+            <fieldset v-else-if="shop.webpage" :disabled="!canEdit" class="space-y-2">
+                <span class="text-sm font-medium text-gray-700">{{ ctrans("State") }} <span class="text-red-500">*</span></span>
+                <ToggleStateWebpage :form="form" fieldName="state_data" :fieldData="shop.webpage.state_field" />
+                <p v-if="isRedirectMissing" class="text-xs text-red-600">{{ ctrans("Select the webpage visitors are redirected to before setting the page offline") }}</p>
+                <p v-if="errors['state_data.redirect_webpage_id'] || errors['state_data.state']" class="text-xs text-red-600">
+                    {{ errors["state_data.redirect_webpage_id"] ?? errors["state_data.state"] }}
+                </p>
+            </fieldset>
             <div v-else class="text-sm text-red-700">{{ ctrans("This product has no webpage in the shop") }}</div>
         </section>
 

@@ -11,12 +11,14 @@ namespace App\Actions\Catalogue\Product\UI;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithCatalogueAuthorisation;
 use App\Actions\Traits\Authorisations\WithShopPpcPermissions;
+use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
 use App\Models\Helpers\Country;
 use App\Models\Masters\MasterAsset;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
+use App\Models\Web\Webpage;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -189,6 +191,7 @@ class ShowProductSetting extends OrgAction
                 'index_page'       => (bool)$webpage->index_page,
                 'follow_link'      => (bool)$webpage->follow_link,
                 'structured_data'  => Arr::get($webpage->seo_data, 'structured_data'),
+                'state_field'      => $this->getStateField($product, $webpage),
                 'update_route'     => [
                     'name'       => 'grp.models.webpage.update',
                     'parameters' => ['webpage' => $webpage->id],
@@ -217,6 +220,30 @@ class ShowProductSetting extends OrgAction
             'review'        => $webpage ? GetProductSeoReview::run($webpage, $product, $user) : null,
             'audit'         => $audit ? Arr::except($audit, 'checks') : null,
             'shared'        => $this->getSharedInformation($product),
+        ];
+    }
+
+    /**
+     * The "Set online/closed" field of EditWebpage: closing the page needs the webpage its visitors
+     * are redirected to. A product in a variant follows its variant, so its state is not offered.
+     *
+     * @return array<string, mixed>
+     */
+    private function getStateField(Product $product, Webpage $webpage): array
+    {
+        $storefront = Webpage::where('type', WebpageTypeEnum::STOREFRONT)->where('shop_id', $webpage->shop_id)->first();
+
+        return [
+            'can_change'          => !$product->variant_id,
+            'redirect_webpage_id' => $webpage->redirect_webpage_id,
+            'default_storefront'  => $storefront ? getFieldWebpageData($storefront) : null,
+            'init_options'        => $webpage->redirectWebpage ? [getFieldWebpageData($webpage->redirectWebpage)] : null,
+            'fetch_params'        => [
+                'organisation' => $product->organisation->slug,
+                'shop'         => $product->shop->slug,
+                'website'      => $webpage->website?->slug,
+                'webpage'      => $webpage->slug,
+            ],
         ];
     }
 
