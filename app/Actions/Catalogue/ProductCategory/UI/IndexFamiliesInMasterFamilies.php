@@ -154,6 +154,7 @@ class IndexFamiliesInMasterFamilies extends OrgAction
             'product_categories.name',
             'product_categories.state',
             'product_categories.shop_id',
+            'product_categories.organisation_id',
             'product_categories.webpage_id',
             'product_categories.faq',
             'product_categories.description_extra',

@@ -7,6 +7,7 @@
 /** @noinspection PhpUnhandledExceptionInspection */
 
 use App\Actions\Catalogue\ProductCategory\StoreProductCategory;
+use App\Actions\Catalogue\ProductCategory\StoreProductCategoryWebpage;
 use App\Actions\Masters\MasterProductCategory\StoreMasterDepartment;
 use App\Actions\Masters\MasterProductCategory\StoreMasterFamily;
 use App\Actions\Masters\MasterProductCategory\UI\GetMasterFamilyCompleteness;
@@ -123,6 +124,22 @@ test('families in shop page shows each shop family status, workflow and page sco
             ->has('index.data.0.workflow.steps', 4)
             ->where('index.data.0.page_score', null)
             ->where('index.data.0.public_url', null)
+            ->etc());
+});
+
+test('families in shop page scores shop families that have a webpage', function () {
+    $familyData = ProductCategory::factory()->definition();
+    data_set($familyData, 'type', ProductCategoryTypeEnum::FAMILY->value);
+    data_set($familyData, 'master_product_category_id', $this->masterFamily->id);
+    $shopFamily = StoreProductCategory::make()->action($this->shop, $familyData);
+    $shopFamily->webpage ?? StoreProductCategoryWebpage::make()->action($shopFamily);
+
+    get(route('grp.masters.master_shops.show.master_families.families', [$this->masterFamily->masterShop->slug, $this->masterFamily->slug]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Org/Catalogue/Families')
+            ->has('index.data', 1)
+            ->whereType('index.data.0.page_score', 'integer')
             ->etc());
 });
 
