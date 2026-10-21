@@ -213,7 +213,7 @@ const stateHelp: Record<string, string> = {
                     <span class="text-xs text-gray-400">{{ ctrans("Ad spend over the period divided by the new buyers the channel brought in") }}</span>
                     <div v-if="paidChannels.length" class="mt-4 flex h-56 items-end justify-around gap-4">
                         <div v-for="channel in paidChannels" :key="channel.type"
-                             v-tooltip="`${channel.name} · ${money(channel.spend)} / ${channel.buyers} ${ctrans('buyers')}`"
+                             v-tooltip="ctrans(':channel · :spend spend ÷ :buyers buyers = :cac per buyer', { channel: channel.name, spend: money(channel.spend), buyers: locale.number(channel.buyers), cac: channel.cac !== null ? money(channel.cac) : '—' })"
                              class="flex h-full flex-1 flex-col items-center justify-end gap-2">
                             <span class="text-sm font-medium text-gray-800 tabular-nums">{{ channel.cac !== null ? money(channel.cac) : "—" }}</span>
                             <div class="w-full max-w-16 rounded-t" :style="{ height: channel.cac !== null ? `${Math.max(2, channel.cac / maxCac * 150)}px` : '2px', background: channelColor(channel.type) }" />
@@ -234,7 +234,7 @@ const stateHelp: Record<string, string> = {
                 </div>
                 <div v-if="windowReached" class="mt-5 space-y-2.5">
                     <div v-for="row in revenueRows" :key="row.type"
-                         v-tooltip="`${row.name} · ${money(row.figures.revenue)} / ${row.figures.buyers} ${ctrans('buyers')}`"
+                         v-tooltip="ctrans(':channel · :revenue revenue ÷ :buyers buyers = :perBuyer per buyer', { channel: row.name, revenue: money(row.figures.revenue), buyers: locale.number(row.figures.buyers), perBuyer: row.figures.revenue_per_buyer !== null ? money(row.figures.revenue_per_buyer) : '—' })"
                          class="grid grid-cols-[8rem_minmax(0,1fr)_6rem] md:grid-cols-[11rem_minmax(0,1fr)_7rem] items-center gap-3">
                         <span class="truncate text-sm" :class="row.type === 'no_first_touch' ? 'italic text-gray-500' : 'text-gray-700'">{{ row.name }}</span>
                         <div class="relative h-4 rounded-r-[4px]" :style="{ background: BAR_TRACK_COLOR }">
