@@ -9,6 +9,7 @@
 namespace App\Models\Fulfilment;
 
 use App\Enums\Fulfilment\PalletReturn\PalletReturnItemNoSetReasonStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnCourierEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Models\Dispatching\Shipment;
@@ -106,6 +107,7 @@ use App\Models\SysAdmin\User;
  * @property int|null $packer_user_id
  * @property int $number_items_waiting_crm
  * @property bool $is_shipping_by_external
+ * @property PalletReturnCourierEnum|null $customer_courier
  * @property PalletReturnItemNoSetReasonStateEnum $not_setup_reason
  * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
@@ -156,6 +158,7 @@ class PalletReturn extends Model implements HasMedia, Auditable
         'parcels'          => 'array',
         'state'            => PalletReturnStateEnum::class,
         'type'             => PalletReturnTypeEnum::class,
+        'customer_courier' => PalletReturnCourierEnum::class,
         'not_setup_reason' => PalletReturnItemNoSetReasonStateEnum::class,
         'in_process_at'    => 'datetime',
         'submitted_at'     => 'datetime',

@@ -81,6 +81,7 @@ use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Fulfilment\RentalAgreement\UpdateRentalAgreement;
 use App\Actions\Fulfilment\Space\StoreSpace;
 use App\Actions\Fulfilment\Space\UpdateSpace;
+use App\Actions\Fulfilment\StoredItem\AttachStoredItemManual;
 use App\Actions\Fulfilment\StoredItem\AttachStoredItemToReturn;
 use App\Actions\Fulfilment\StoredItem\DeleteStoredItem;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
@@ -180,6 +181,14 @@ use Illuminate\Http\Request;
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Exceptions\Fulfilment\PalletReturnStockShortException;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\AttachPalletReturnAttachment;
+use App\Actions\Fulfilment\PalletReturn\Pdf\PdfPalletReturnParcelDocuments;
+use App\Actions\Fulfilment\PalletReturn\Pdf\PdfPalletReturnShippingLabel;
+use App\Actions\Fulfilment\PalletReturn\UI\GetPalletReturnActions;
+use App\Actions\Fulfilment\PalletReturn\UI\GetPalletReturnBoxStats;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnAttachmentScopeEnum;
+use App\Enums\Fulfilment\StoredItem\StoredItemAttachmentScopeEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnCourierEnum;
 
 use function Pest\Laravel\actingAs;
 
@@ -2857,6 +2866,78 @@ test('a stored item return short of stock cannot be submitted', function (Pallet
 
     $shortPalletReturn->items()->delete();
     $shortPalletReturn->delete();
+})->depends('create second pallet return');
+
+test('customer documents of a return print in one click and its own shipping label needs a courier', function (PalletReturn $palletReturn) {
+    SendPalletReturnNotification::shouldRun()
+        ->andReturn();
+
+    $palletStoredItem = PalletReturnItem::where('pallet_return_id', $palletReturn->id)
+        ->whereNotNull('pallet_stored_item_id')
+        ->firstOrFail()
+        ->palletStoredItem;
+
+    $documentsReturn = StorePalletReturn::make()->actionWithStoredItems(
+        $palletReturn->fulfilmentCustomer,
+        [
+            'warehouse_id' => $this->warehouse->id,
+        ]
+    );
+    AttachStoredItemToReturn::make()->action($documentsReturn, $palletStoredItem, ['quantity_ordered' => 1]);
+
+    $pdf = function (string $name, int $pages = 1): UploadedFile {
+        $mpdf = new \Mpdf\Mpdf(['tempDir' => sys_get_temp_dir()]);
+        for ($page = 1; $page <= $pages; $page++) {
+            if ($page > 1) {
+                $mpdf->AddPage();
+            }
+            $mpdf->WriteHTML($name.' page '.$page.' '.uniqid());
+        }
+
+        return UploadedFile::fake()->createWithContent($name, $mpdf->Output('', 'S'));
+    };
+    $pageCount = fn (string $content): int => (new \setasign\Fpdi\PdfReader\PdfReader(new \setasign\Fpdi\PdfParser\PdfParser(\setasign\Fpdi\PdfParser\StreamReader::createByString($content))))->getPageCount();
+    $printKeys = fn (): array => collect(GetPalletReturnActions::run($documentsReturn->refresh(), true))->pluck('key')->intersect(['print-documents', 'print-shipping-label'])->values()->all();
+
+    AttachPalletReturnAttachment::run($documentsReturn, $pdf('first-label.pdf'), PalletReturnAttachmentScopeEnum::SHIPPING_LABEL);
+    AttachPalletReturnAttachment::run($documentsReturn, $pdf('label.pdf'), PalletReturnAttachmentScopeEnum::SHIPPING_LABEL);
+    AttachPalletReturnAttachment::run($documentsReturn, $pdf('invoice.pdf', 2), PalletReturnAttachmentScopeEnum::INVOICE);
+    AttachStoredItemManual::run($palletStoredItem->storedItem, $pdf('manual.pdf'));
+    AttachPalletReturnAttachment::run($documentsReturn, $pdf('notes.pdf'), PalletReturnAttachmentScopeEnum::OTHER);
+
+    $labels = $documentsReturn->attachments()->wherePivot('scope', PalletReturnAttachmentScopeEnum::SHIPPING_LABEL->value)->get();
+
+    expect($labels)->toHaveCount(1)
+        ->and($labels->first()->file_name)->toBe('label.pdf')
+        ->and($printKeys())->toBe([])
+        ->and(fn () => SubmitPalletReturn::run($documentsReturn->refresh(), []))->toThrow(ValidationException::class, 'Choose the courier (DPD, Royal Mail) for the shipping label attached to this return.')
+        ->and($documentsReturn->refresh()->state)->toBe(PalletReturnStateEnum::IN_PROCESS);
+
+    UpdatePalletReturn::make()->action($documentsReturn, ['customer_courier' => PalletReturnCourierEnum::ROYAL_MAIL->value]);
+    SubmitPalletReturn::run($documentsReturn->refresh(), []);
+
+    $customerShipping = GetPalletReturnBoxStats::run($documentsReturn->refresh(), $documentsReturn->fulfilmentCustomer)['customer_shipping'];
+
+    expect($documentsReturn->state)->toBe(PalletReturnStateEnum::SUBMITTED)
+        ->and($documentsReturn->customer_courier)->toBe(PalletReturnCourierEnum::ROYAL_MAIL)
+        ->and($customerShipping['courier_label'])->toBe('Royal Mail')
+        ->and($customerShipping['shipping_label']['name'])->toBe('label.pdf')
+        ->and($printKeys())->toBe(['print-documents', 'print-shipping-label']);
+
+    $documentsPdf = PdfPalletReturnParcelDocuments::run($documentsReturn);
+    $labelPdf     = PdfPalletReturnShippingLabel::run($documentsReturn);
+
+    expect($documentsPdf->headers->get('Content-Type'))->toBe('application/pdf')
+        ->and($pageCount($documentsPdf->getContent()))->toBe(3)
+        ->and($pageCount($labelPdf->getContent()))->toBe(1);
+
+    expect(PalletReturnAttachmentScopeEnum::tryFrom('Manual'))->toBeNull()
+        ->and($palletStoredItem->storedItem->attachments()->wherePivot('scope', StoredItemAttachmentScopeEnum::MANUAL->value)->count())->toBe(1);
+
+    $palletStoredItem->storedItem->attachments()->detach();
+    $documentsReturn->attachments()->detach();
+    $documentsReturn->items()->delete();
+    $documentsReturn->delete();
 })->depends('create second pallet return');
 
 test('submit second pallet return', function (PalletReturn $palletReturn) {

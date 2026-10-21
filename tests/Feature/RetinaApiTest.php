@@ -35,6 +35,7 @@ use Illuminate\Support\Facades\DB;
 use App\Actions\Dropshipping\Portfolio\StorePortfolio;
 use App\Actions\Ordering\Order\UpdateState\SubmitOrder;
 use App\Enums\Ordering\Order\OrderPayStatusEnum;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 use Laravel\Sanctum\Sanctum;
@@ -644,6 +645,71 @@ test('retina api fulfilment order line is capped by the stock free on the pallet
 
     $response->assertUnprocessable();
     expect($response->json('errors.message.0'))->toBe('api-no-stock-item is out of stock.');
+});
+
+test('retina api fulfilment order takes the customer documents and courier', function () {
+    Sanctum::actingAs($this->fulfilmentChannel, ['retina', 'retina:read', 'retina:write']);
+
+    $client = StoreCustomerClient::make()->action(
+        $this->fulfilmentChannel,
+        CustomerClient::factory()->definition()
+    );
+    $palletReturnId = postJson(route('retina.api.fulfilment.order.store', $client))->assertCreated()->json('data.id');
+
+    $pdf = fn (string $name) => UploadedFile::fake()->createWithContent($name, "%PDF-1.4\n% ".uniqid()."\n%%EOF");
+
+    $response = postJson(route('retina.api.fulfilment.order.attachment.store', $palletReturnId), [
+        'scope' => 'Shipping label',
+        'file'  => UploadedFile::fake()->create('label.png', 10, 'image/png'),
+    ]);
+    $response->assertUnprocessable();
+    $response->assertJsonValidationErrors(['file']);
+
+    postJson(route('retina.api.fulfilment.order.attachment.store', $palletReturnId), [
+        'scope' => 'Shipping label',
+        'file'  => $pdf('first-label.pdf'),
+    ])->assertSuccessful();
+
+    $response = postJson(route('retina.api.fulfilment.order.attachment.store', $palletReturnId), [
+        'scope' => 'Shipping label',
+        'file'  => $pdf('label.pdf'),
+    ]);
+    $response->assertSuccessful();
+    $response->assertJsonPath('data.scope', 'Shipping label');
+    $response->assertJsonPath('data.file_name', 'label.pdf');
+
+    $invoiceId = postJson(route('retina.api.fulfilment.order.attachment.store', $palletReturnId), [
+        'scope' => 'Invoice',
+        'file'  => $pdf('invoice.pdf'),
+    ])->assertSuccessful()->json('data.id');
+
+    postJson(route('retina.api.fulfilment.order.attachment.store', $palletReturnId), [
+        'scope' => 'Receipt',
+        'file'  => $pdf('receipt.pdf'),
+    ])->assertUnprocessable()->assertJsonValidationErrors(['scope']);
+
+    $response = getJson(route('retina.api.fulfilment.order.attachment.index', $palletReturnId));
+    $response->assertOk();
+    expect(collect($response->json('data'))->pluck('file_name', 'scope')->all())->toBe([
+        'Shipping label' => 'label.pdf',
+        'Invoice'        => 'invoice.pdf',
+    ]);
+
+    deleteJson(route('retina.api.fulfilment.order.attachment.delete', [$palletReturnId, $invoiceId]))->assertOk();
+    deleteJson(route('retina.api.fulfilment.order.attachment.delete', [$palletReturnId, $invoiceId]))->assertNotFound();
+    expect(getJson(route('retina.api.fulfilment.order.attachment.index', $palletReturnId))->json('data'))->toHaveCount(1);
+
+    patchJson(route('retina.api.fulfilment.order.update', $palletReturnId), [
+        'customer_courier' => 'ups',
+    ])->assertUnprocessable()->assertJsonValidationErrors(['customer_courier']);
+
+    patchJson(route('retina.api.fulfilment.order.update', $palletReturnId), [
+        'customer_courier' => 'dpd',
+    ])->assertOk();
+
+    getJson(route('retina.api.fulfilment.order.show', $palletReturnId))
+        ->assertOk()
+        ->assertJsonPath('data.customer_courier', 'dpd');
 });
 
 // ---- Fulfilment: portfolios ----

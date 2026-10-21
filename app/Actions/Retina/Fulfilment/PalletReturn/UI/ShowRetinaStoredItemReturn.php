@@ -19,6 +19,7 @@ use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\Retina\Fulfilment\Basket\UI\IndexRetinaFulfilmentBaskets;
 use App\Actions\Retina\Fulfilment\UI\ShowRetinaStorageDashboard;
 use App\Actions\RetinaAction;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnAttachmentScopeEnum;
 use App\Enums\UI\Fulfilment\PalletReturnTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
 use App\Http\Resources\Fulfilment\PalletReturnItemsWithStoredItemsResource;
@@ -201,12 +202,7 @@ class ShowRetinaStoredItemReturn extends RetinaAction
                     ]
                 ],
 
-                'option_attach_file' => [
-                    [
-                        'name' => __('Other'),
-                        'code' => 'Other'
-                    ]
-                ],
+                'option_attach_file' => PalletReturnAttachmentScopeEnum::options(),
 
                 'data' => PalletReturnResource::make($palletReturn),
 

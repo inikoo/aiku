@@ -8,6 +8,8 @@
 
 namespace App\Actions\Fulfilment\PalletReturn\UI;
 
+use App\Enums\Fulfilment\PalletReturn\PalletReturnAttachmentScopeEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnCourierEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Http\Resources\Dispatching\ShipmentsResource;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
@@ -44,6 +46,12 @@ class GetPalletReturnBoxStats
             'parcels'   => $palletReturn->parcels,
             'shipments' => $palletReturn?->shipments ? ShipmentsResource::collection($palletReturn->shipments()->with('shipper')->get())->toArray(request()) : null,
             'platform_customer' => Arr::get($palletReturn->data, 'destination'),
+            'customer_shipping' => [
+                'courier'         => $palletReturn->customer_courier?->value,
+                'courier_label'   => $palletReturn->customer_courier ? PalletReturnCourierEnum::labels()[$palletReturn->customer_courier->value] : null,
+                'courier_options' => PalletReturnCourierEnum::options(),
+                'shipping_label'  => $this->getCustomerShippingLabel($palletReturn, $fromRetina),
+            ],
             'delivery_state'      => PalletReturnStateEnum::stateIcon()[$palletReturn->state->value],
             'order_summary'       => [
                 [
@@ -191,4 +199,25 @@ class GetPalletReturnBoxStats
         return $invoiceData;
     }
 
+
+    private function getCustomerShippingLabel(PalletReturn $palletReturn, bool $fromRetina): ?array
+    {
+        $label = $palletReturn->attachments()
+            ->wherePivot('scope', PalletReturnAttachmentScopeEnum::SHIPPING_LABEL->value)
+            ->first();
+
+        if (!$label) {
+            return null;
+        }
+
+        return [
+            'name'           => $label->file_name,
+            'download_route' => [
+                'name'       => $fromRetina ? 'retina.models.attachment.download' : 'grp.media.download',
+                'parameters' => [
+                    'media' => $label->ulid
+                ]
+            ],
+        ];
+    }
 }

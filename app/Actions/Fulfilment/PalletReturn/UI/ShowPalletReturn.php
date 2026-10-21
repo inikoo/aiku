@@ -16,6 +16,7 @@ use App\Actions\Fulfilment\PalletReturn\UI\Traits\WithShowPalletReturnHelpers;
 use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnAttachmentScopeEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Enums\UI\Fulfilment\PalletReturnTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
@@ -260,12 +261,7 @@ class ShowPalletReturn extends OrgAction
 
                 'can_edit_transactions' => true,
 
-                'option_attach_file' => [
-                    [
-                        'name' => __('Other'),
-                        'code' => 'Other'
-                    ]
-                ],
+                'option_attach_file' => PalletReturnAttachmentScopeEnum::options(),
 
                 PalletReturnTabsEnum::PALLETS->value => $this->tab == PalletReturnTabsEnum::PALLETS->value ?
                     fn () => PalletReturnItemsUIResource::collection(IndexPalletsInReturnPalletWholePallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))

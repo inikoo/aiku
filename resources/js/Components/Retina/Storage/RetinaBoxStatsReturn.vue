@@ -9,7 +9,9 @@ import { router } from "@inertiajs/vue3";
 import Popover from "@/Components/Popover.vue";
 import { PalletDelivery, BoxStats, PalletReturn, PDRNotes } from "@/types/Pallet";
 import Modal from "@/Components/Utils/Modal.vue";
-import { Switch, SwitchGroup, SwitchLabel } from "@headlessui/vue";
+import ToggleSwitch from "primevue/toggleswitch";
+import RadioButton from "primevue/radiobutton";
+import Select from "primevue/select";
 import { computed, inject, onMounted, onUnmounted, ref } from "vue";
 import { capitalize } from "@/Composables/capitalize";
 import { routeType } from "@/types/route";
@@ -21,12 +23,12 @@ import CustomerAddressManagementModal from "@/Components/Utils/CustomerAddressMa
 import DeliveryAddressManagementModal from "@/Components/Utils/DeliveryAddressManagementModal.vue";
 import Textarea from "primevue/textarea";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { faBuilding, faIdCardAlt, faMapMarkerAlt, faPencil, faPenSquare, faCalendarDay } from "@fal";
+import { faBuilding, faIdCardAlt, faMapMarkerAlt, faPencil, faPenSquare, faCalendarDay, faShippingFast } from "@fal";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import PalletEditCustomerReference from "@/Components/Pallet/PalletEditCustomerReference.vue";
 import { AddressManagement } from "@/types/PureComponent/Address";
 
-library.add(faBuilding, faIdCardAlt, faMapMarkerAlt, faPenSquare, faPencil, faCalendarDay);
+library.add(faBuilding, faIdCardAlt, faMapMarkerAlt, faPenSquare, faPencil, faCalendarDay, faShippingFast);
 
 const props = defineProps<{
   box_stats: BoxStats
@@ -185,6 +187,36 @@ function updateCollectionType() {
 }
 
 
+const selectedCourier = ref<string | null>(props.box_stats?.customer_shipping?.courier ?? null);
+const isLoadingCourier = ref(false);
+
+function updateCourier() {
+  router.patch(
+    route(props.address_management.updateRoute.name, props.address_management.updateRoute.parameters),
+    { customer_courier: selectedCourier.value },
+    {
+      preserveScroll: true,
+      onStart: () => (isLoadingCourier.value = true),
+      onSuccess: () => {
+        notify({
+          title: ctrans("Success"),
+          text: ctrans("Courier updated"),
+          type: "success"
+        });
+      },
+      onError: () => {
+        selectedCourier.value = props.box_stats?.customer_shipping?.courier ?? null;
+        notify({
+          title: ctrans("Something went wrong"),
+          text: ctrans("Failed to update the courier, try again"),
+          type: "error"
+        });
+      },
+      onFinish: () => (isLoadingCourier.value = false)
+    }
+  );
+}
+
 // Update notes for thirdParty
 function updateCollectionNotes() {
   router.patch(
@@ -334,45 +366,25 @@ const disableBeforeToday = (date: Date) => {
             <span class="sr-only">Delivery address</span>
             <FontAwesomeIcon icon="fal fa-map-marker-alt" size="xs" class="text-gray-400" fixed-width aria-hidden="true" />
           </dt>
-          <SwitchGroup as="div" class="flex items-center">
-            <Switch
-              v-model="computedEnabled"
-              :class="[computedEnabled ? 'bg-indigo-600' : 'bg-gray-200']"
-              class="relative inline-flex h-6 w-11 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2">
-							<span
-                aria-hidden="true"
-                :class="[computedEnabled ? 'translate-x-5' : 'translate-x-0']"
-                class="pointer-events-none inline-block h-5 w-5 transform bg-white rounded-full shadow transition duration-200 ease-in-out" />
-            </Switch>
-            <SwitchLabel as="span" class="ml-3 text-sm font-medium text-gray-900">
+          <div class="flex items-center">
+            <ToggleSwitch v-model="computedEnabled" inputId="return-for-collection" class="return-toggle" />
+            <label for="return-for-collection" class="ml-3 text-sm font-medium text-gray-900 cursor-pointer">
               {{ ctrans("For collection") }}
-            </SwitchLabel>
-          </SwitchGroup>
+            </label>
+          </div>
         </dl>
 
         <div v-if="data_pallet.is_collection" class="w-full">
           <span class="block mb-1">{{ ctrans("Collection by:") }}</span>
           <div class="flex space-x-4">
-            <label class="inline-flex items-center">
-              <input
-                type="radio"
-                value="myself"
-                v-model="collectionBy"
-                @change="updateCollectionType"
-                class="form-radio"
-              />
-              <span class="ml-2">{{ ctrans("My Self") }}</span>
-            </label>
-            <label class="inline-flex items-center">
-              <input
-                type="radio"
-                value="thirdParty"
-                v-model="collectionBy"
-                @change="updateCollectionType"
-                class="form-radio"
-              />
-              <span class="ml-2">{{ ctrans("Third Party") }}</span>
-            </label>
+            <div class="inline-flex items-center">
+              <RadioButton v-model="collectionBy" inputId="collection-by-myself" value="myself" class="return-radio" @change="updateCollectionType" />
+              <label for="collection-by-myself" class="ml-2 cursor-pointer">{{ ctrans("My Self") }}</label>
+            </div>
+            <div class="inline-flex items-center">
+              <RadioButton v-model="collectionBy" inputId="collection-by-third-party" value="thirdParty" class="return-radio" @change="updateCollectionType" />
+              <label for="collection-by-third-party" class="ml-2 cursor-pointer">{{ ctrans("Third Party") }}</label>
+            </div>
           </div>
 
           <div v-if="collectionBy === 'thirdParty'" class="mt-3">
@@ -393,10 +405,49 @@ const disableBeforeToday = (date: Date) => {
             <span v-html="box_stats.fulfilment_customer?.address?.value?.formatted_address" />
             <div
               @click="() => (isDeliveryAddressManagementModal = true)"
-              class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
+              class="whitespace-nowrap select-none text-gray-500 hover:text-[--app-accent] underline cursor-pointer">
               <span>{{ctrans('Edit')}}</span>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Courier & shipping label -->
+      <div v-if="!data_pallet.is_collection && box_stats.customer_shipping" class="flex flex-col w-full gap-y-1 mb-1">
+        <dl class="flex items-center gap-x-2">
+          <dt v-tooltip="ctrans('Courier')" class="flex-none">
+            <span class="sr-only">{{ ctrans("Courier") }}</span>
+            <FontAwesomeIcon icon="fal fa-shipping-fast" size="xs" class="text-gray-400" fixed-width aria-hidden="true" />
+          </dt>
+          <dd class="w-full">
+            <Select
+              v-model="selectedCourier"
+              :options="box_stats.customer_shipping.courier_options"
+              optionLabel="name"
+              optionValue="code"
+              :placeholder="ctrans('Courier of your label')"
+              :disabled="data_pallet.state !== 'in_process' || isLoadingCourier"
+              :loading="isLoadingCourier"
+              showClear
+              size="small"
+              class="w-full"
+              @change="updateCourier"
+            />
+          </dd>
+        </dl>
+        <div class="text-xs text-gray-500">
+          <template v-if="box_stats.customer_shipping.shipping_label">
+            {{ ctrans("Your shipping label") }}:
+            <a
+              :href="route(box_stats.customer_shipping.shipping_label.download_route.name, box_stats.customer_shipping.shipping_label.download_route.parameters)"
+              target="_blank"
+              class="underline hover:text-[--app-accent]">
+              {{ box_stats.customer_shipping.shipping_label.name }}
+            </a>
+          </template>
+          <template v-else>
+            {{ ctrans("No shipping label attached, we will supply one. To use your own, attach it as Shipping label in the Attachments tab.") }}
+          </template>
         </div>
       </div>
     </BoxStatPallet>
@@ -458,3 +509,20 @@ const disableBeforeToday = (date: Date) => {
   </Modal>
   </div>
 </template>
+
+<style scoped>
+:deep(.return-toggle) {
+  --p-toggleswitch-checked-background: var(--app-accent);
+  --p-toggleswitch-checked-hover-background: var(--app-accent-strong);
+  --p-toggleswitch-focus-ring-color: var(--app-accent);
+}
+
+:deep(.return-radio) {
+  --p-radiobutton-checked-background: var(--app-accent);
+  --p-radiobutton-checked-border-color: var(--app-accent);
+  --p-radiobutton-checked-hover-background: var(--app-accent-strong);
+  --p-radiobutton-checked-hover-border-color: var(--app-accent-strong);
+  --p-radiobutton-icon-checked-color: var(--app-accent-text);
+  --p-radiobutton-focus-ring-color: var(--app-accent);
+}
+</style>

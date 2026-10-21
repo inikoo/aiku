@@ -17,6 +17,7 @@ use App\Models\Catalogue\ProductCategory;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\StoredItem;
 use App\Models\Goods\TradeUnit;
 use App\Models\Goods\TradeUnitFamily;
 use App\Models\GoodsIn\StockDelivery;
@@ -34,7 +35,7 @@ class DetachAttachmentFromModel extends OrgAction
     use AsAction;
     use WithAttachmentEditAuthorisation;
 
-    public function handle(Employee|TradeUnit|Agent|Supplier|Customer|PurchaseOrder|StockDelivery|Order|Invoice|PalletDelivery|PalletReturn|TradeUnitFamily|Product|ProductCategory $model, Media $attachment): Employee|TradeUnit|Agent|Supplier|Customer|PurchaseOrder|StockDelivery|Order|Invoice|PalletDelivery|PalletReturn|TradeUnitFamily|Product|ProductCategory
+    public function handle(Employee|TradeUnit|Agent|Supplier|Customer|PurchaseOrder|StockDelivery|Order|Invoice|PalletDelivery|PalletReturn|StoredItem|TradeUnitFamily|Product|ProductCategory $model, Media $attachment): Employee|TradeUnit|Agent|Supplier|Customer|PurchaseOrder|StockDelivery|Order|Invoice|PalletDelivery|PalletReturn|StoredItem|TradeUnitFamily|Product|ProductCategory
     {
         $scope = $model->attachments()->where('media.id', $attachment->id)->first()?->pivot->scope;
         $model->attachments()->detach($attachment->id);
@@ -158,5 +159,13 @@ class DetachAttachmentFromModel extends OrgAction
         $this->initialisation($palletReturn->organisation, []);
 
         $this->handle($palletReturn, $attachment);
+    }
+
+    public function inStoredItem(StoredItem $storedItem, Media $attachment): void
+    {
+        abort_unless($this->canChangeAttachments(request()->user(), $storedItem), 403);
+        $this->initialisation($storedItem->organisation, []);
+
+        $this->handle($storedItem, $attachment);
     }
 }

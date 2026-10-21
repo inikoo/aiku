@@ -10,7 +10,10 @@
 namespace App\Actions\Helpers\Media;
 
 use App\Actions\Catalogue\Product\CloneProductAttachmentsFromTradeUnits;
+use App\Actions\Fulfilment\PalletReturn\AttachPalletReturnAttachment;
+use App\Actions\Fulfilment\StoredItem\AttachStoredItemManual;
 use App\Actions\OrgAction;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnAttachmentScopeEnum;
 use App\Enums\Goods\TradeUnit\TradeAttachmentScopeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Catalogue\Product;
@@ -18,6 +21,7 @@ use App\Models\Catalogue\ProductCategory;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\StoredItem;
 use App\Models\Goods\TradeUnit;
 use App\Models\Goods\TradeUnitFamily;
 use App\Models\GoodsIn\StockDelivery;
@@ -36,6 +40,10 @@ class AttachAttachmentToModel extends OrgAction
 {
     use WithAttachmentEditAuthorisation;
 
+    private ?PalletReturn $palletReturn = null;
+
+    private ?StoredItem $storedItem = null;
+
     public function authorize(ActionRequest $request): bool
     {
         if ($this->asAction) {
@@ -47,12 +55,28 @@ class AttachAttachmentToModel extends OrgAction
         return $model && $this->canChangeAttachments($request->user(), $model);
     }
 
-    public function handle(Employee|TradeUnit|Agent|Supplier|Customer|PurchaseOrder|StockDelivery|Order|Invoice|PalletDelivery|PalletReturn|Product|TradeUnitFamily|ProductCategory $model, array $modelData): void
+    public function handle(Employee|TradeUnit|Agent|Supplier|Customer|PurchaseOrder|StockDelivery|Order|Invoice|PalletDelivery|PalletReturn|StoredItem|Product|TradeUnitFamily|ProductCategory $model, array $modelData): void
     {
         if ($model instanceof TradeUnit && $model->documentsTradeUnit && in_array(Arr::get($modelData, 'scope'), TradeAttachmentScopeEnum::substanceScopes())) {
             throw ValidationException::withMessages([
                 'scope' => __('This trade unit takes its IFRA, SDS, CLP and allergen documents from :code, upload them there', ['code' => $model->documentsTradeUnit->code]),
             ]);
+        }
+
+        if ($model instanceof PalletReturn) {
+            foreach (Arr::get($modelData, 'attachments') as $file) {
+                AttachPalletReturnAttachment::run($model, $file, PalletReturnAttachmentScopeEnum::from(Arr::get($modelData, 'scope')), Arr::get($modelData, 'caption'));
+            }
+
+            return;
+        }
+
+        if ($model instanceof StoredItem) {
+            foreach (Arr::get($modelData, 'attachments') as $file) {
+                AttachStoredItemManual::run($model, $file, Arr::get($modelData, 'caption'));
+            }
+
+            return;
         }
 
         foreach (Arr::get($modelData, 'attachments') as $attachment) {
@@ -90,6 +114,19 @@ class AttachAttachmentToModel extends OrgAction
 
     public function rules(): array
     {
+        if ($this->palletReturn) {
+            return [
+                'attachments'   => ['required', 'array'],
+                'attachments.*' => AttachPalletReturnAttachment::fileRules(),
+                'scope'         => AttachPalletReturnAttachment::scopeRules(),
+                'caption'       => ['sometimes', 'nullable', 'string', 'max:255'],
+            ];
+        }
+
+        if ($this->storedItem) {
+            return AttachStoredItemManual::rules();
+        }
+
         return [
             'attachments' => ['required', 'array'],
             'attachments.*' => ['required', 'file', 'max:50000'],
@@ -101,7 +138,7 @@ class AttachAttachmentToModel extends OrgAction
         ];
     }
 
-    public function action(Employee|TradeUnit|Agent|Supplier|Customer|PurchaseOrder|StockDelivery|Order|Invoice|PalletDelivery|PalletReturn|Product|TradeUnitFamily|ProductCategory $model, array $modelData): void
+    public function action(Employee|TradeUnit|Agent|Supplier|Customer|PurchaseOrder|StockDelivery|Order|Invoice|PalletDelivery|PalletReturn|StoredItem|Product|TradeUnitFamily|ProductCategory $model, array $modelData): void
     {
         $this->asAction = true;
         $this->initialisationFromGroup(group(), $modelData);
@@ -188,8 +225,17 @@ class AttachAttachmentToModel extends OrgAction
 
     public function inPalletReturn(PalletReturn $palletReturn, ActionRequest $request): void
     {
+        $this->palletReturn = $palletReturn;
         $this->initialisation($palletReturn->organisation, $request);
 
         $this->handle($palletReturn, $this->validatedData);
+    }
+
+    public function inStoredItem(StoredItem $storedItem, ActionRequest $request): void
+    {
+        $this->storedItem = $storedItem;
+        $this->initialisation($storedItem->organisation, $request);
+
+        $this->handle($storedItem, $this->validatedData);
     }
 }

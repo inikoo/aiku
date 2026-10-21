@@ -19,6 +19,7 @@ use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\Inventory\WithFulfilmentWarehouseAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnAttachmentScopeEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
@@ -369,12 +370,7 @@ class ShowWarehouseStoredItemReturn extends OrgAction
                     ]
                 ],
                 'can_edit_transactions' => false,
-                'option_attach_file'    => [
-                    [
-                        'name' => __('Other'),
-                        'code' => 'Other'
-                    ]
-                ],
+                'option_attach_file'    => PalletReturnAttachmentScopeEnum::options(),
                 'stored_items_count'    => $palletReturn->storedItems()->count(),
                 'shipments' => [
                     'button_label' => $shipmentButtonLabel,

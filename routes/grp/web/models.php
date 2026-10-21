@@ -263,6 +263,8 @@ use App\Actions\Fulfilment\PalletReturn\DeletePalletReturnAddress;
 use App\Actions\Fulfilment\PalletReturn\DetachPalletFromReturn;
 use App\Actions\Fulfilment\PalletReturn\DispatchPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\Pdf\PdfPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\Pdf\PdfPalletReturnParcelDocuments;
+use App\Actions\Fulfilment\PalletReturn\Pdf\PdfPalletReturnShippingLabel;
 use App\Actions\Fulfilment\PalletReturn\Pdf\PdfPickingPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\Pdf\PdfPickingStoredItemReturn;
 use App\Actions\Fulfilment\PalletReturn\PickedPalletReturnWithStoredItems;
@@ -1199,6 +1201,8 @@ Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(
     Route::get('stored-item-picking-pdf', PdfPickingStoredItemReturn::class)->name('stored_item_picking.pdf');
     Route::get('pallet-picking-pdf', PdfPickingPalletReturn::class)->name('pallet_picking.pdf');
     Route::get('pdf', PdfPalletReturn::class)->name('pdf');
+    Route::get('print-documents-pdf', PdfPalletReturnParcelDocuments::class)->name('print.documents');
+    Route::get('print-shipping-label-pdf', PdfPalletReturnShippingLabel::class)->name('print.shipping_label');
 
     Route::post('/shipment-from-fulfilment', CreateShipmentInPalletReturnInFulfilment::class)->name('shipment_from_fulfilment.store');
     Route::post('/shipment-from-warehouse', CreateShipmentInPalletReturnInWarehouse::class)->name('shipment_from_warehouse.store');
@@ -1664,6 +1668,8 @@ Route::patch('/manufacture-break/{manufactureBreak:id}/end', EndManufactureBreak
 Route::patch('stored-items/{storedItem:id}', UpdateStoredItem::class)->name('stored-items.update');
 
 Route::patch('stored-items/{storedItem:id}/mark-as-discontinuing', MarkStoredItemAsDiscontinuing::class)->name('stored-items.mark-as-discontinuing');
+Route::post('stored-items/{storedItem:id}/attachment/attach', [AttachAttachmentToModel::class, 'inStoredItem'])->name('stored-items.attachment.attach');
+Route::delete('stored-items/{storedItem:id}/attachment/{attachment:id}/detach', [DetachAttachmentFromModel::class, 'inStoredItem'])->name('stored-items.attachment.detach')->withoutScopedBindings();
 
 Route::patch('/group-settings', UpdateGroupSettings::class)->name('group-settings.update');
 Route::patch('/group/seo-api-budget', UpdateSeoApiBudget::class)->name('group.seo_api_budget.update');

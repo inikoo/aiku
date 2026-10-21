@@ -19,10 +19,11 @@ import DatePicker from '@vuepic/vue-datepicker'
 import Modal from "@/Components/Utils/Modal.vue"
 import { routeType } from "@/types/route"
 import OrderSummary from "@/Components/Summary/OrderSummary.vue"
-import { Switch, SwitchGroup, SwitchLabel } from "@headlessui/vue"
+import ToggleSwitch from "primevue/toggleswitch"
+import RadioButton from "primevue/radiobutton"
 import Popover from '@/Components/Popover.vue'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faQuestionCircle, faPencil, faPenSquare, faCalendarDay, faExternalLink, faExchange, faHashtag } from "@fal"
+import { faQuestionCircle, faPencil, faPenSquare, faCalendarDay, faExternalLink, faExchange, faHashtag, faShippingFast } from "@fal"
 import { faCubes } from "@fas"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import DeliveryAddressManagementModal from "@/Components/Utils/DeliveryAddressManagementModal.vue"
@@ -40,7 +41,7 @@ import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
 import { AddressManagement } from "@/types/PureComponent/Address";
 import { useTruncate } from "@/Composables/useTruncate"
 import PureMultiselectInfiniteScroll from "@/Components/Pure/PureMultiselectInfiniteScroll.vue"
-library.add(faQuestionCircle, faPencil, faPenSquare, faCalendarDay, faExternalLink, faCubes, faExchange, faHashtag)
+library.add(faQuestionCircle, faPencil, faPenSquare, faCalendarDay, faExternalLink, faCubes, faExchange, faHashtag, faShippingFast)
 
 const props = defineProps<{
 
@@ -686,21 +687,13 @@ const base64HtmlToPdf = async (base64: string, index) => {
 						<span class="sr-only">Delivery address</span>
 						<FontAwesomeIcon icon="fal fa-map-marker-alt" size="xs" class="text-gray-400" fixed-width aria-hidden="true" />
 					</dt>
-					<SwitchGroup v-if="!isWarehouseDispatchingPalletReturnPage" as="div" class="flex items-center">
-						<Switch
-							v-model="computedEnabled"
-							:class="[computedEnabled ? 'bg-indigo-600' : 'bg-gray-200']"
-							class="relative inline-flex h-6 w-11 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2">
-							<span
-								aria-hidden="true"
-								:class="[computedEnabled ? 'translate-x-5' : 'translate-x-0']"
-								class="pointer-events-none inline-block h-5 w-5 transform bg-white rounded-full shadow transition duration-200 ease-in-out" />
-						</Switch>
-						<SwitchLabel as="span" class="ml-3">
+					<div v-if="!isWarehouseDispatchingPalletReturnPage" class="flex items-center">
+						<ToggleSwitch v-model="computedEnabled" inputId="return-for-collection" class="return-toggle" />
+						<label for="return-for-collection" class="ml-3 cursor-pointer">
 							{{ ctrans("For collection") }}
-						</SwitchLabel>
-					</SwitchGroup>
-					<div v-else class="border-l-4 border-indigo-300 bg-indigo-50 px-2 py-0.5">
+						</label>
+					</div>
+					<div v-else class="border-l-4 border-[--app-accent-muted] bg-[--app-accent-soft] px-2 py-0.5">
 						{{ ctrans("For Collection") }}: {{ dataPalletReturn.is_collection ? ctrans("Yes") : ctrans("No") }}
 					</div>
 				</div>
@@ -709,26 +702,14 @@ const base64HtmlToPdf = async (base64: string, index) => {
 					<div v-if="!isWarehouseDispatchingPalletReturnPage" class="flex flex-col gap-y-2">
 						<span>{{ ctrans("Collection by:") }}</span>
 						<div class="flex gap-x-4">
-							<label class="inline-flex items-center">
-								<input
-									type="radio"
-									value="myself"
-									v-model="collectionBy"
-									@change="updateCollectionType"
-									class="form-radio"
-								/>
-								<span class="ml-2">{{ ctrans("My Self") }}</span>
-							</label>
-							<label class="inline-flex items-center">
-								<input
-									type="radio"
-									value="thirdParty"
-									v-model="collectionBy"
-									@change="updateCollectionType"
-									class="form-radio"
-								/>
-								<span class="ml-2">{{ ctrans("Third Party") }}</span>
-							</label>
+							<div class="inline-flex items-center">
+								<RadioButton v-model="collectionBy" inputId="collection-by-myself" value="myself" class="return-radio" @change="updateCollectionType" />
+								<label for="collection-by-myself" class="ml-2 cursor-pointer">{{ ctrans("My Self") }}</label>
+							</div>
+							<div class="inline-flex items-center">
+								<RadioButton v-model="collectionBy" inputId="collection-by-third-party" value="thirdParty" class="return-radio" @change="updateCollectionType" />
+								<label for="collection-by-third-party" class="ml-2 cursor-pointer">{{ ctrans("Third Party") }}</label>
+							</div>
 						</div>
 					</div>
 
@@ -757,7 +738,7 @@ const base64HtmlToPdf = async (base64: string, index) => {
 						<div
 							v-if="!isWarehouseDispatchingPalletReturnPage"
 							@click="() => (isDeliveryAddressManagementModal = true)"
-							class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
+							class="whitespace-nowrap select-none text-gray-500 hover:text-[--app-accent] underline cursor-pointer">
               <span>{{ctrans('Edit')}}</span>
 						</div>
 					</div>
@@ -806,6 +787,25 @@ const base64HtmlToPdf = async (base64: string, index) => {
 							</span>
 						</li>
 					</ul>
+				</div>
+			</div>
+
+			<!-- Section: Customer's courier and shipping label -->
+			<div v-if="!dataPalletReturn.is_collection && (boxStats.customer_shipping?.courier || boxStats.customer_shipping?.shipping_label)" class="flex gap-x-1 py-0.5">
+				<FontAwesomeIcon v-tooltip="ctrans('Customer shipping')" icon="fal fa-shipping-fast" class="text-gray-400" fixed-width aria-hidden="true" />
+				<div class="w-full text-sm">
+					<div>
+						{{ ctrans("Courier") }}: {{ boxStats.customer_shipping.courier_label || ctrans("Not set") }}
+					</div>
+					<div v-if="boxStats.customer_shipping.shipping_label">
+						{{ ctrans("Customer's label") }}:
+						<a
+							:href="route(boxStats.customer_shipping.shipping_label.download_route.name, boxStats.customer_shipping.shipping_label.download_route.parameters)"
+							target="_blank"
+							class="text-gray-500 underline hover:text-[--app-accent]">
+							{{ boxStats.customer_shipping.shipping_label.name }}
+						</a>
+					</div>
 				</div>
 			</div>
 
@@ -916,10 +916,10 @@ const base64HtmlToPdf = async (base64: string, index) => {
             <div v-if="hasPickingUsers || canChangePicker || canChangePacker" class="mb-1 border-t border-gray-300 pt-1">
 				<div class="text-sm font-semibold text-gray-600">{{ pickingTitle }}</div>
 				<div class="flex flex-wrap gap-2 text-sm">
-					<div v-if="showPickerInfo" class="border-l-4 border-indigo-300 bg-indigo-50 px-2 py-0.5">
+					<div v-if="showPickerInfo" class="border-l-4 border-[--app-accent-muted] bg-[--app-accent-soft] px-2 py-0.5">
 						<span class="font-semibold text-gray-700">{{ ctrans('Picker') }}:</span> {{ dataPalletReturn?.picker_user?.contact_name || '-' }}
 					</div>
-					<div v-if="showPackerInfo" class=" border-l-4 border-indigo-300 bg-indigo-50 px-2 py-0.5">
+					<div v-if="showPackerInfo" class=" border-l-4 border-[--app-accent-muted] bg-[--app-accent-soft] px-2 py-0.5">
 						<span class="font-semibold text-gray-700">{{ ctrans('Packer') }}:</span> {{ dataPalletReturn?.packer_user?.contact_name || '-' }}
 					</div>
 					<Button
@@ -1178,5 +1178,20 @@ const base64HtmlToPdf = async (base64: string, index) => {
 <style scoped lang="scss">
 :deep(.country) {
 	@apply font-medium text-sm;
+}
+
+:deep(.return-toggle) {
+	--p-toggleswitch-checked-background: var(--app-accent);
+	--p-toggleswitch-checked-hover-background: var(--app-accent-strong);
+	--p-toggleswitch-focus-ring-color: var(--app-accent);
+}
+
+:deep(.return-radio) {
+	--p-radiobutton-checked-background: var(--app-accent);
+	--p-radiobutton-checked-border-color: var(--app-accent);
+	--p-radiobutton-checked-hover-background: var(--app-accent-strong);
+	--p-radiobutton-checked-hover-border-color: var(--app-accent-strong);
+	--p-radiobutton-icon-checked-color: var(--app-accent-text);
+	--p-radiobutton-focus-ring-color: var(--app-accent);
 }
 </style>

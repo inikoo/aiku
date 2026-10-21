@@ -12,6 +12,7 @@ use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Models\Dropshipping\Portfolio;
 use App\Models\Dropshipping\TiktokUserHasProduct;
 use App\Models\Inventory\Warehouse;
+use App\Models\Traits\HasAttachments;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\InOrganisation;
 use Eloquent;
@@ -22,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use OwenIt\Auditing\Contracts\Auditable;
+use Spatie\MediaLibrary\HasMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -54,6 +56,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $last_audit_at
  * @property int|null $last_stored_item_audit_delta_id
  * @property int|null $last_stored_item_audit_id
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $attachments
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\Fulfilment\Fulfilment|null $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer|null $fulfilmentCustomer
@@ -70,9 +73,10 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder<static>|StoredItem query()
  * @mixin Eloquent
  */
-class StoredItem extends Model implements Auditable
+class StoredItem extends Model implements HasMedia, Auditable
 {
     use HasSlug;
+    use HasAttachments;
     use HasHistory;
     use InOrganisation;
 

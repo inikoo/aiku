@@ -12,6 +12,7 @@ use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithModelAddressActions;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnCourierEnum;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
@@ -111,6 +112,7 @@ class UpdatePalletReturn extends OrgAction
             'parcels' => ['sometimes', 'array'],
             'picker_user_id' => ['sometimes', 'nullable', Rule::exists('users', 'id')],
             'packer_user_id' => ['sometimes', 'nullable', Rule::exists('users', 'id')],
+            'customer_courier' => ['sometimes', 'nullable', Rule::enum(PalletReturnCourierEnum::class)],
         ];
     }
 

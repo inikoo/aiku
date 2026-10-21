@@ -25,6 +25,7 @@ class SubmitPalletReturn extends OrgAction
     {
         DB::transaction(function () use ($palletReturn, $modelData) {
             $this->ensureReturnIsInProcess($palletReturn);
+            $this->ensureShippingLabelHasCourier($palletReturn);
             $this->ensureStockIsAvailable($palletReturn);
 
             $modelData['submitted_at'] = now();

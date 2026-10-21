@@ -8,7 +8,9 @@
 
 namespace App\Actions\Fulfilment\PalletReturn\UI;
 
+use App\Actions\Fulfilment\PalletReturn\Pdf\WithPalletReturnPrintDocuments;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnAttachmentScopeEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
@@ -20,6 +22,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
 class GetPalletReturnActions
 {
     use AsObject;
+    use WithPalletReturnPrintDocuments;
 
     private bool $isSupervisor = false;
     private string $deleteIcon = 'fal fa-trash-alt';
@@ -51,7 +54,7 @@ class GetPalletReturnActions
             $actions = [];
         }
 
-        return $this->addCancelButton($palletReturn, $this->addPdf($palletReturn, $actions));
+        return $this->addCancelButton($palletReturn, $this->addPrintButtons($palletReturn, $this->addPdf($palletReturn, $actions)));
     }
 
 
@@ -490,6 +493,53 @@ class GetPalletReturnActions
                 'key'    => 'action',
                 'route'  => [
                     'name'       => 'grp.models.pallet-return.pdf',
+                    'parameters' => [
+                        'palletReturn' => $palletReturn->id
+                    ]
+                ]
+            ];
+        }
+
+        return $actions;
+    }
+
+    public function addPrintButtons(PalletReturn $palletReturn, array $actions): array
+    {
+        if (in_array($palletReturn->state, [PalletReturnStateEnum::IN_PROCESS, PalletReturnStateEnum::CANCEL])) {
+            return $actions;
+        }
+
+        $attachedScopes = $palletReturn->attachments()->pluck('model_has_attachments.scope')->unique();
+
+        if ($attachedScopes->intersect(PalletReturnAttachmentScopeEnum::parcelDocumentScopes())->isNotEmpty() || $this->productManualsQuery($palletReturn)->exists()) {
+            $actions[] = [
+                'type'    => 'button',
+                'style'   => 'tertiary',
+                'label'   => __('Print documents'),
+                'tooltip' => __('Invoice, delivery note and leaflets attached to the return, and the manuals of its products, in one PDF'),
+                'target'  => '_blank',
+                'icon'    => 'fal fa-print',
+                'key'     => 'print-documents',
+                'route'   => [
+                    'name'       => 'grp.models.pallet-return.print.documents',
+                    'parameters' => [
+                        'palletReturn' => $palletReturn->id
+                    ]
+                ]
+            ];
+        }
+
+        if ($attachedScopes->contains(PalletReturnAttachmentScopeEnum::SHIPPING_LABEL->value) || $palletReturn->shipments()->exists()) {
+            $actions[] = [
+                'type'    => 'button',
+                'style'   => 'tertiary',
+                'label'   => __('Print label'),
+                'tooltip' => __('The shipping label the customer attached, or the labels of the shipments'),
+                'target'  => '_blank',
+                'icon'    => 'fal fa-print',
+                'key'     => 'print-shipping-label',
+                'route'   => [
+                    'name'       => 'grp.models.pallet-return.print.shipping_label',
                     'parameters' => [
                         'palletReturn' => $palletReturn->id
                     ]

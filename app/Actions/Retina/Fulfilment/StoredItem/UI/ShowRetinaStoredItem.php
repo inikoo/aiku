@@ -15,13 +15,16 @@ use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemMovements;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemPallets;
 use App\Actions\Fulfilment\StoredItemAuditDelta\UI\IndexStoredItemAuditDeltas;
 use App\Actions\Helpers\History\UI\IndexHistory;
+use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\Retina\Fulfilment\StoredItems\UI\IndexRetinaStoredItems;
 use App\Actions\RetinaAction;
+use App\Enums\Fulfilment\StoredItem\StoredItemAttachmentScopeEnum;
 use App\Enums\UI\Fulfilment\StoredItemTabsEnum;
 use App\Http\Resources\Fulfilment\PalletsInStoredItemResource;
 use App\Http\Resources\Fulfilment\StoredItemAuditDeltasResource;
 use App\Http\Resources\Fulfilment\StoredItemMovementsResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
+use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\Fulfilment\StoredItem;
 use Inertia\Inertia;
@@ -77,6 +80,25 @@ class ShowRetinaStoredItem extends RetinaAction
                 ],
 
 
+                'attachmentRoutes' => [
+                    'attachRoute' => [
+                        'name'       => 'retina.models.stored-items.attachment.attach',
+                        'parameters' => [
+                            'storedItem' => $storedItem->id,
+                        ],
+                        'method'     => 'post'
+                    ],
+                    'detachRoute' => [
+                        'name'       => 'retina.models.stored-items.attachment.detach',
+                        'parameters' => [
+                            'storedItem' => $storedItem->id,
+                        ],
+                        'method'     => 'delete'
+                    ]
+                ],
+
+                'option_attach_file' => StoredItemAttachmentScopeEnum::options(),
+
                 StoredItemTabsEnum::SHOWCASE->value => $this->tab == StoredItemTabsEnum::SHOWCASE->value ?
                     fn () => GetStoredItemShowcase::run($storedItem)
                     : Inertia::optional(fn () => GetStoredItemShowcase::run($storedItem)),
@@ -93,6 +115,10 @@ class ShowRetinaStoredItem extends RetinaAction
                     fn () =>  StoredItemMovementsResource::collection(IndexStoredItemMovements::run($storedItem, StoredItemTabsEnum::MOVEMENTS->value))
                     : Inertia::optional(fn () => StoredItemMovementsResource::collection(IndexStoredItemMovements::run($storedItem, StoredItemTabsEnum::MOVEMENTS->value))),
 
+                StoredItemTabsEnum::ATTACHMENTS->value => $this->tab == StoredItemTabsEnum::ATTACHMENTS->value ?
+                    fn () => AttachmentsResource::collection(IndexAttachments::run($storedItem, StoredItemTabsEnum::ATTACHMENTS->value))
+                    : Inertia::optional(fn () => AttachmentsResource::collection(IndexAttachments::run($storedItem, StoredItemTabsEnum::ATTACHMENTS->value))),
+
                 StoredItemTabsEnum::HISTORY->value => $this->tab == StoredItemTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($storedItem, StoredItemTabsEnum::HISTORY->value))
                     : Inertia::optional(fn () => HistoryResource::collection(IndexHistory::run($storedItem, StoredItemTabsEnum::HISTORY->value))),
@@ -101,7 +127,8 @@ class ShowRetinaStoredItem extends RetinaAction
         )->table(IndexHistory::make()->tableStructure(prefix: StoredItemTabsEnum::HISTORY->value))
             ->table(IndexStoredItemAuditDeltas::make()->tableStructure($storedItem, StoredItemTabsEnum::AUDITS->value))
             ->table(IndexStoredItemMovements::make()->tableStructure($storedItem, StoredItemTabsEnum::MOVEMENTS->value))
-            ->table(IndexStoredItemPallets::make()->tableStructure($storedItem, StoredItemTabsEnum::PALLETS->value));
+            ->table(IndexStoredItemPallets::make()->tableStructure($storedItem, StoredItemTabsEnum::PALLETS->value))
+            ->table(IndexAttachments::make()->tableStructure(StoredItemTabsEnum::ATTACHMENTS->value));
     }
 
 

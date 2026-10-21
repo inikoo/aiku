@@ -19,6 +19,7 @@ use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnAttachmentScopeEnum;
 use App\Enums\UI\Fulfilment\PalletReturnTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
 use App\Http\Resources\Fulfilment\PalletReturnItemsWithStoredItemsResource;
@@ -241,12 +242,7 @@ class ShowStoredItemReturn extends OrgAction
                 ],
 
                 'can_edit_transactions' => true,
-                'option_attach_file'    => [
-                    [
-                        'name' => __('Other'),
-                        'code' => 'Other'
-                    ]
-                ],
+                'option_attach_file'    => PalletReturnAttachmentScopeEnum::options(),
                 'stored_items_count'    => $palletReturn->storedItems()->count(),
                 'shipments' => [
                     'submit_route' => [

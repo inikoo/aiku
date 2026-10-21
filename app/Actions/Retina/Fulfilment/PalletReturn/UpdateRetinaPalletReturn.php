@@ -10,6 +10,7 @@ namespace App\Actions\Retina\Fulfilment\PalletReturn;
 
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\RetinaAction;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnCourierEnum;
 use App\Models\Fulfilment\PalletReturn;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
@@ -47,6 +48,7 @@ class UpdateRetinaPalletReturn extends RetinaAction
             'customer_notes'   => ['sometimes', 'nullable', 'string', 'max:4000'],
             'internal_notes' => ['sometimes', 'nullable', 'string', 'max:4000'],
             'collection_notes' => ['sometimes', 'nullable', 'string', 'max:4000'],
+            'customer_courier' => ['sometimes', 'nullable', Rule::enum(PalletReturnCourierEnum::class)],
         ];
     }
 

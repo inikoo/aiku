@@ -291,6 +291,8 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->whereNumber('pallet')->gro
 
 Route::post('stored-items', StoreRetinaStoredItem::class)->name('stored-items.store');
 Route::patch('stored-items/{storedItem:id}', UpdateRetinaStoredItem::class)->name('stored-items.update')->whereNumber('storedItem');
+Route::post('stored-items/{storedItem:id}/attachment/attach', [AttachRetinaAttachmentToModel::class, 'inStoredItem'])->name('stored-items.attachment.attach')->whereNumber('storedItem');
+Route::delete('stored-items/{storedItem:id}/attachment/{attachment:id}/detach', [DetachRetinaAttachmentFromModel::class, 'inStoredItem'])->name('stored-items.attachment.detach')->withoutScopedBindings()->whereNumber(['storedItem', 'attachment']);
 Route::post('stored-items/bulk-edit/import', ImportRetinaStoredItem::class)->name('stored-items.bulk_edit.import');
 
 Route::name('customer.')->prefix('customer/{customer:id}')->whereNumber('customer')->group(function () {

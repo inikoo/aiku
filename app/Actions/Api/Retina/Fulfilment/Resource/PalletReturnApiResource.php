@@ -65,6 +65,7 @@ class PalletReturnApiResource extends JsonResource
             'state'                 => $this->state,
             'type'                  => $this->type,
             'customer_reference'    => $this->customer_reference,
+            'customer_courier'      => $this->customer_courier,
             'number_pallets'        => $this->number_pallets,
             'number_stored_items'     => $this->number_stored_items,
             'number_services'       => $this->number_services,

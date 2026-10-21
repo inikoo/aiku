@@ -13,6 +13,7 @@ use App\Actions\RetinaAction;
 use App\Actions\Traits\WithRetinaCustomerOwnedRouteModels;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\StoredItem;
 use App\Models\Helpers\Media;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -20,7 +21,7 @@ class DetachRetinaAttachmentFromModel extends RetinaAction
 {
     use WithRetinaCustomerOwnedRouteModels;
 
-    public function handle(PalletDelivery|PalletReturn $model, Media $attachment): PalletDelivery|PalletReturn
+    public function handle(PalletDelivery|PalletReturn|StoredItem $model, Media $attachment): PalletDelivery|PalletReturn|StoredItem
     {
         $model->attachments()->detach($attachment->id);
 
@@ -40,5 +41,12 @@ class DetachRetinaAttachmentFromModel extends RetinaAction
         $this->initialisation($request);
 
         $this->handle($palletReturn, $attachment);
+    }
+
+    public function inStoredItem(StoredItem $storedItem, Media $attachment, ActionRequest $request): void
+    {
+        $this->initialisation($request);
+
+        $this->handle($storedItem, $attachment);
     }
 }

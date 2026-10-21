@@ -17,6 +17,8 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletReturns;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePalletReturns;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnAttachmentScopeEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnCourierEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
@@ -26,6 +28,7 @@ use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\PalletReturnItem;
 use App\Models\Fulfilment\PalletStoredItem;
 use Illuminate\Support\Collection;
+use Illuminate\Validation\ValidationException;
 
 trait WithSubmitConformPalletReturn
 {
@@ -65,6 +68,17 @@ trait WithSubmitConformPalletReturn
         }
 
         return $palletReturn;
+    }
+
+    public function ensureShippingLabelHasCourier(PalletReturn $palletReturn): void
+    {
+        if ($palletReturn->customer_courier || !$palletReturn->attachments()->wherePivot('scope', PalletReturnAttachmentScopeEnum::SHIPPING_LABEL->value)->exists()) {
+            return;
+        }
+
+        throw ValidationException::withMessages([
+            'customer_courier' => __('Choose the courier (:couriers) for the shipping label attached to this return.', ['couriers' => implode(', ', PalletReturnCourierEnum::labels())]),
+        ]);
     }
 
     public function ensureStockIsAvailable(PalletReturn $palletReturn): void
