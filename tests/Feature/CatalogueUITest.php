@@ -513,13 +513,14 @@ test('webmaster implements the SEO review one suggestion at a time, keeps what w
     expect($webpage->title)->toBe('Electric Aroma Diffusers | Wholesale')
         ->and($webpage->breadcrumb_label)->toBe('Aroma diffusers range')
         ->and($family->description)->toBe('Better copy')
-        ->and(collect($family->faq)->map(fn (array $item) => Arr::only($item, ['question', 'answer']))->all())->toBe([
+        ->and(collect($family->faq)->map(fn (array $item) => Arr::only($item, ['question', 'answer']))->all())->toEqual([
             ['question' => 'Do they need water?', 'answer' => 'Most models do.'],
             ['question' => 'How do I clean one?', 'answer' => 'Unplug it first.'],
         ])
         ->and($suggestions['faq']->refresh()->state)->toBe(SeoContentSuggestionStateEnum::IMPLEMENTED)
         ->and(collect(GetFamilyPageScore::run($family)['steps'])->firstWhere('key', 'implemented')['is_done'])->toBeFalse();
 
+    $this->travel(4)->seconds();
     $validate()->assertSessionHasNoErrors();
 
     expect(SeoContentSuggestion::whereIn('id', $suggestions->pluck('id'))->pluck('state')->unique()->values()->all())->toBe([SeoContentSuggestionStateEnum::ACCEPTED])

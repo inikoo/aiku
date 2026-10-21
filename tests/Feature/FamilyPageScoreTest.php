@@ -70,6 +70,7 @@ test('checks read from the site audit are not checked before the page is crawled
         'field'         => 'title',
         'current_value' => 'Family title',
         'suggestion'    => 'Better family title',
+        'reason'        => SeoContentSuggestion::REASON_SEO_REVIEW,
         'state'         => SeoContentSuggestionStateEnum::PENDING,
     ]);
 

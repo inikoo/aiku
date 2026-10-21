@@ -2435,7 +2435,7 @@ test('pre-order settings saved on a master family apply to every master product 
     $editRoute = route('grp.masters.master_shops.show.master_families.edit', [$masterShop->slug, $masterFamily->slug]);
 
     get($editRoute)->assertInertia(fn (AssertableInertia $page) => $page
-        ->where('formData.blueprint', fn ($blueprint) => collect($blueprint)->contains(
+        ->where('extraSections', fn ($sections) => collect($sections)->contains(
             fn ($section) => data_get($section, 'fields.pre_order_lead_time_days') !== null
                 && data_get($section, 'fields.pre_order_lead_time_days.value') === null
                 && data_get($section, 'fields.is_back_order.value') === false
@@ -2448,7 +2448,7 @@ test('pre-order settings saved on a master family apply to every master product 
         ->pre_order_lead_time_days->toBe(14));
 
     get($editRoute)->assertInertia(fn (AssertableInertia $page) => $page
-        ->where('formData.blueprint', fn ($blueprint) => collect($blueprint)->contains(
+        ->where('extraSections', fn ($sections) => collect($sections)->contains(
             fn ($section) => data_get($section, 'fields.pre_order_lead_time_days.value') === 14
                 && data_get($section, 'fields.is_back_order.value') === true
         )));

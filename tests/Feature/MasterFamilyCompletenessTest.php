@@ -19,6 +19,7 @@ use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Catalogue\ProductCategory;
+use Illuminate\Support\Facades\Config;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -32,6 +33,8 @@ beforeEach(function () {
     $this->group      = createGroup();
     $this->adminGuest = createAdminGuest($this->group);
     list($this->organisation, $this->user, $this->shop) = createShop();
+    createWebsite($this->shop);
+    Config::set('inertia.testing.page_paths', [resource_path('js/Pages/Grp')]);
     actingAs($this->adminGuest->getUser());
 
     $masterShop = StoreMasterShop::make()->action($this->group, [

@@ -142,7 +142,12 @@ class EditMasterFamily extends OrgAction
                 'faqField'             => [
                     'master_product_category_id' => $masterProductCategory->id,
                 ],
-                'extraSections'        => $isAromaShop ? [
+                'extraSections'        => [
+                    $this->preOrderEditFieldsSection(
+                        $this->sharedPreOrderValues($masterProductCategory),
+                        __('Saving applies it to all :count master products in this family and their shop products. Shown off or empty when the products differ.', ['count' => $masterProductCategory->masterAssets()->count()])
+                    ),
+                    ...($isAromaShop ? [
                     [
                         'label'  => __('Customize'),
                         'fields' => [
@@ -154,10 +159,6 @@ class EditMasterFamily extends OrgAction
                                 'master_product_category_id' => $masterProductCategory->id,
                             ],
                         ],
-                        $this->preOrderEditFieldsSection(
-                            $this->sharedPreOrderValues($masterProductCategory),
-                            __('Saving applies it to all :count master products in this family and their shop products. Shown off or empty when the products differ.', ['count' => $masterProductCategory->masterAssets()->count()])
-                        ),
                     ],
                     [
                         'label'  => __('Storage & Shelf Life'),
@@ -197,7 +198,8 @@ class EditMasterFamily extends OrgAction
                             ],
                         ],
                     ],
-                ] : [],
+                ] : []),
+                ],
                 'completeness'         => GetMasterFamilyCompleteness::run($masterProductCategory),
                 'shopsCount'           => GetMasterFamilyShopsStatus::run($masterProductCategory)['total'],
                 'familiesRoute'        => [
