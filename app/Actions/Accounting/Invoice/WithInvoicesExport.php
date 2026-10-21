@@ -120,6 +120,88 @@ trait WithInvoicesExport
         return max(0.0, $ordered - (float)$transaction->quantity);
     }
 
+    /**
+     * Each bundle line gets its components, with what of each was supplied.
+     *
+     * A bundle is picked as the org stocks of its components, so a component left unpicked is read
+     * from the delivery note lines of the bundle's transaction: the invoice shows it as not supplied
+     * instead of listing it inside the bundle as if it had shipped (HELP-4186). Credit notes keep the
+     * bundle composition, they have no delivery of their own.
+     */
+    public function attachBundleComponents(Collection $transactions, bool $readSupply): void
+    {
+        $bundleTransactions = $transactions->filter(fn ($transaction) => $transaction->model?->is_bundle && $transaction->model->bundle?->items?->count());
+
+        if ($bundleTransactions->isEmpty()) {
+            return;
+        }
+
+        $deliveryNoteItems = collect();
+        $componentOrgStockIds = collect();
+        if ($readSupply) {
+            $deliveryNoteItems = DB::table('delivery_note_items')
+                ->whereIn('transaction_id', $bundleTransactions->pluck('transaction_id')->filter()->unique())
+                ->get(['transaction_id', 'org_stock_id', 'quantity_required', DB::raw('coalesce(quantity_dispatched, quantity_picked, 0) as quantity_supplied')])
+                ->groupBy('transaction_id');
+
+            $componentOrgStockIds = DB::table('product_has_org_stocks')
+                ->whereIn('product_id', $bundleTransactions->flatMap(fn ($transaction) => $transaction->model->bundle->items->pluck('item_id'))->unique())
+                ->get(['product_id', 'org_stock_id'])
+                ->groupBy('product_id')
+                ->map(fn ($rows) => $rows->pluck('org_stock_id')->all());
+        }
+
+        foreach ($bundleTransactions as $transaction) {
+            $ordered       = (float)($transaction->transaction?->quantity_ordered ?? 0);
+            $invoicedRatio = $ordered > 0 ? min(1.0, (float)$transaction->quantity / $ordered) : null;
+
+            $transaction->bundle_components = $transaction->model->bundle->items->map(function ($bundleItem) use ($readSupply, $ordered, $invoicedRatio, $transaction, $deliveryNoteItems, $componentOrgStockIds) {
+                $product   = $bundleItem->item;
+                $perBundle = (float)($bundleItem->quantity ?? 1);
+
+                $quantity    = $perBundle;
+                $notSupplied = 0.0;
+                if ($readSupply && $invoicedRatio !== null) {
+                    $suppliedRatio = $this->bundleComponentSuppliedRatio(
+                        $deliveryNoteItems->get($transaction->transaction_id, collect()),
+                        $componentOrgStockIds->get($bundleItem->item_id, [])
+                    ) ?? $invoicedRatio;
+
+                    $quantity    = round($perBundle * $ordered * $suppliedRatio, 3);
+                    $notSupplied = round($perBundle * $ordered - $quantity, 3);
+                }
+
+                return (object)[
+                    'product'               => $product,
+                    'quantity'              => $quantity,
+                    'quantity_not_supplied' => $notSupplied,
+                    'unit_price'            => (float)$product?->price,
+                    'amount'                => (float)$product?->price * $quantity,
+                ];
+            });
+        }
+    }
+
+    /**
+     * Share of a bundle component that was supplied, or null when none of its org stocks is on the delivery note.
+     *
+     * Dispatched quantities are stored at 3 decimals, so the required ones are read at 3 too: a twelfth
+     * of a pack dispatched as 0.083 is the whole of the 0.083333 required.
+     *
+     * @param  array<int>  $componentOrgStockIds
+     */
+    public function bundleComponentSuppliedRatio(Collection $deliveryNoteItems, array $componentOrgStockIds): ?float
+    {
+        $items    = $deliveryNoteItems->whereIn('org_stock_id', $componentOrgStockIds);
+        $required = (float)$items->sum(fn ($item) => round((float)$item->quantity_required, 3));
+
+        if ($required <= 0) {
+            return null;
+        }
+
+        return min(1.0, (float)$items->sum(fn ($item) => round((float)$item->quantity_supplied, 3)) / $required);
+    }
+
     public function isFullyOutOfStockLine(object $transaction, array $outOfStockTransactionIds): bool
     {
         return in_array($transaction->transaction_id, $outOfStockTransactionIds)
@@ -232,6 +314,8 @@ trait WithInvoicesExport
 
             return $transaction;
         })->sortBy(fn ($transaction) => strtolower($transaction->historicAsset?->code ?? ''));
+
+        $this->attachBundleComponents($transactions, $invoice->type == InvoiceTypeEnum::INVOICE);
 
         $pdfColumns = GetInvoicePdfColumns::run($invoice);
 
