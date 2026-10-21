@@ -36,7 +36,7 @@ const props = defineProps<{
 }>()
 
 
-const editable = ref(props.data.editable ?? true)
+const editable = computed(() => props.data?.editable ?? true)
 const loadingSubmit = ref<string | null>(null)
 const activeCategory = ref<string | null>(null)
 const uploadProgress = reactive<Record<string, number>>({})
