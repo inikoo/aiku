@@ -26,6 +26,8 @@ class ProcessReviewReminderPerOutbox
 
         $baseQuery = DB::table('customers');
         $baseQuery->where('customers.shop_id', $outbox->shop_id);
+        $baseQuery->join('customer_comms', 'customers.id', '=', 'customer_comms.customer_id');
+        $baseQuery->where('customer_comms.is_subscribed_to_review_reminder', true);
 
         $baseQuery->rightJoin('orders', function ($join) use ($compareDate, $lastSentAt) {
             $join->on('customers.id', '=', 'orders.customer_id')

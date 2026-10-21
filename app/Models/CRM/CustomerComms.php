@@ -68,6 +68,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $gold_reward_reminder_unsubscribed_author_id
  * @property string|null $gold_reward_reminder_unsubscribed_origin_type EmailBulkRun|Mailshot|Website|Customer (Customer is used when a user unsubscribes from aiku UI)
  * @property string|null $gold_reward_reminder_unsubscribed_origin_id
+ * @property bool $is_subscribed_to_review_reminder
+ * @property string|null $review_reminder_unsubscribed_at
+ * @property string|null $review_reminder_unsubscribed_author_type Customer|User
+ * @property string|null $review_reminder_unsubscribed_author_id
+ * @property string|null $review_reminder_unsubscribed_origin_type EmailBulkRun|Mailshot|Website|Customer (Customer is used when a user unsubscribes from aiku UI)
+ * @property string|null $review_reminder_unsubscribed_origin_id
  * @property bool $is_subscribed_to_whatsapp_newsletter
  * @property string|null $whatsapp_newsletter_unsubscribed_at
  * @property string|null $whatsapp_newsletter_unsubscribed_author_type Customer|User

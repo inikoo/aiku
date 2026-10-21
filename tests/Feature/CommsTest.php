@@ -165,6 +165,10 @@ use App\Models\Helpers\Snapshot;
 use App\Models\Web\Website;
 use Config;
 use Illuminate\Support\Facades\DB;
+use App\Models\Helpers\Address;
+use App\Actions\Ordering\Order\StoreOrder;
+use App\Http\Resources\CRM\CustomerResource;
+use App\Actions\CRM\CustomerComms\UpdateCustomerComms;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Inertia\Testing\AssertableInertia;
@@ -190,6 +194,7 @@ use App\Actions\Comms\Outbox\PriceChangeNotification\RunPriceChangeNotificationE
 use App\Actions\Comms\Outbox\ProcessOutboxTimeSeriesRecords;
 use App\Actions\Comms\Outbox\RedoOutboxTimeSeries;
 use App\Actions\Comms\EmailBulkRun\UI\IndexOutboxEmailBulkRuns;
+use App\Actions\Comms\Outbox\ReviewReminder\ProcessReviewReminderPerOutbox;
 use App\Actions\Comms\Outbox\ReviewReminder\ProcessReviewReminderRecipients;
 use App\Actions\Comms\Outbox\ReviewReminder\RunReviewReminderEmailBulkRuns;
 use App\Actions\Comms\Outbox\StoreWorkshopOutboxTemplate;
@@ -3492,6 +3497,39 @@ test('send review reminder email', function () {
     $outbox->refresh();
 
     expect($outbox->emailBulkRuns()->count())->toBeGreaterThanOrEqual(1);
+});
+
+test('customer unsubscribed from review requests gets no review reminder', function () {
+    $customer = StoreCustomer::make()->action($this->shop, Customer::factory()->definition());
+    $order    = StoreOrder::make()->action($customer, [
+        'reference'        => 'REVIEW-'.$customer->id,
+        'date'             => date('Y-m-d'),
+        'delivery_address' => new Address(Address::factory()->definition()),
+        'billing_address'  => new Address(Address::factory()->definition()),
+    ]);
+
+    UpdateCustomerComms::run($customer->comms, ['is_subscribed_to_review_reminder' => false]);
+    expect($customer->comms->refresh()->review_reminder_unsubscribed_at)->not->toBeNull()
+        ->and(collect(CustomerResource::make($customer->refresh())->getArray()['email_subscriptions']['subscriptions'])->pluck('field'))
+        ->toContain('is_subscribed_to_review_reminder');
+
+    $outbox = $this->shop->outboxes()->where('code', OutboxCode::REVIEW_REMINDER->value)->first();
+    $outbox->update(['days_after' => 10, 'last_sent_at' => null]);
+    $order->update([
+        'state'         => OrderStateEnum::DISPATCHED,
+        'dispatched_at' => now()->subDays(10)->endOfDay(),
+    ]);
+
+    PublishOutbox::make()->action($outbox, ['layout' => '{}', 'compiled_layout' => '<div>test</div>']);
+    ProcessReviewReminderPerOutbox::run($outbox);
+
+    expect(DB::table('email_bulk_run_recipients')->where('recipient_type', 'Customer')->where('recipient_id', $customer->id)->exists())->toBeFalse();
+
+    UpdateCustomerComms::run($customer->comms, ['is_subscribed_to_review_reminder' => true]);
+    $outbox->update(['last_sent_at' => null]);
+    ProcessReviewReminderPerOutbox::run($outbox);
+
+    expect(DB::table('email_bulk_run_recipients')->where('recipient_type', 'Customer')->where('recipient_id', $customer->id)->exists())->toBeTrue();
 });
 
 test('cannot activate review reminder outbox without days_after', function () {

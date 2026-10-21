@@ -375,6 +375,7 @@ const CHANNEL_LABELS: Record<string, string> = {
     basket_reminder: ctrans("Basket reminder"),
     price_change_notification: ctrans("Price changes"),
     gold_reward_reminder: ctrans("Gold reward reminder"),
+    review_reminder: ctrans("Review requests"),
     whatsapp_newsletter: ctrans("WhatsApp newsletter"),
 }
 
