@@ -83,6 +83,7 @@ class CallApiPacketaShipping extends OrgAction
             Arr::get($parentResource, 'to_company_name'),
             Arr::get($parentResource, 'to_address.address_line_1'),
             Arr::get($parentResource, 'to_address.address_line_2'),
+            $parent->shipping_notes,
         ]);
         $addressId   = $lockerCode ? self::PL_INPOST_PACZKOMATY_BOX : $this->getAddressIdByCountryCode($countryCode, $weight);
         if (is_null($addressId)) {
@@ -244,7 +245,7 @@ class CallApiPacketaShipping extends OrgAction
             return null;
         }
 
-        if (preg_match('/\b([A-Z]{3}\d{2,3}[A-Z]{0,4})\b/', $text, $matches)) {
+        if (preg_match('/(?<!-)\b([A-Z]{3,4}\d{2,3}[A-Z]{0,4})\b/', $text, $matches)) {
             return $matches[1];
         }
 
