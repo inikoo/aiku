@@ -473,6 +473,23 @@ test('an external shop offers offline email replies and a customer mailbox only 
         ->and($sections->has('Chat'))->toBeFalse();
 });
 
+test('an external shop can be set up for meta ads and social media', function () {
+    $external = \App\Models\Catalogue\Shop::factory()->make()->toArray();
+    $external['type'] = \App\Enums\Catalogue\Shop\ShopTypeEnum::EXTERNAL->value;
+    $externalShop     = \App\Actions\Catalogue\Shop\StoreShop::run($this->organisation, $external);
+
+    actingAs($this->user);
+    $sections = collect(
+        get(route('grp.org.shops.show.settings.edit', [$this->organisation->slug, $externalShop->slug]))
+            ->assertOk()
+            ->viewData('page')['props']['formData']['blueprint']
+    )->keyBy('label');
+
+    expect($sections->get('Meta Ads')['fields'])->toHaveKey('meta_ads_ad_account_id')
+        ->and($sections->get('Social media (Meta)')['fields'])->toHaveKeys(['meta_social_facebook_page_id', 'meta_social_instagram_account_id'])
+        ->and($sections->has('Google Ads'))->toBeFalse();
+});
+
 test('a non external shop with chat disabled loses chat permissions', function () {
     $this->shop->update(['settings' => array_merge($this->shop->settings ?? [], ['chat' => ['enabled' => false]])]);
     $this->shop->refresh();

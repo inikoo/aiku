@@ -10,11 +10,13 @@
 namespace App\Actions\Procurement\AgentGoodsReceipt;
 
 use App\Actions\OrgAction;
+use App\Actions\Procurement\PurchaseOrder\MarkPurchaseOrderStage;
 use App\Actions\Procurement\AgentWarehouseStock\ImportAgentWarehouseStocksFromContainerList;
 use App\Actions\Procurement\AgentWarehouseStock\UI\IndexAgentProductsInProduction;
 use App\Actions\Procurement\WithAgentOrganisation;
 use App\Enums\Procurement\AgentGoodsReceipt\AgentGoodsReceiptStateEnum;
 use App\Enums\Procurement\AgentWarehouseStock\AgentWarehouseStockStateEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Models\Procurement\AgentGoodsReceipt;
 use App\Models\Procurement\AgentWarehouseStock;
 use App\Models\Procurement\PurchaseOrder;
@@ -34,7 +36,8 @@ use Lorisleiva\Actions\ActionRequest;
  * Records one delivery the agent received from a supplier as a goods receipt, booked against the purchase order lines
  * still in production: each line becomes warehouse stock, received and not checked yet, and leaves the In production
  * page once received in full. The signed delivery note can be photographed with it. Goods arriving show the supplier
- * started making the order, so its production start is set when it was not yet.
+ * started making the order, so its production start is set when it was not yet, and once every line of the order is
+ * received in full the supplier has finished making it, so its production done is set too.
  */
 class StoreAgentGoodsReceipt extends OrgAction
 {
@@ -152,12 +155,31 @@ class StoreAgentGoodsReceipt extends OrgAction
                     Carbon::parse($receivedAt)->toDateString()
                 ));
 
+            $purchaseOrders->whereIn('id', $inProduction->pluck('purchase_order_id')->unique())
+                ->whereNull('produced_at')
+                ->filter(fn (PurchaseOrder $purchaseOrder) => $this->isReceivedInFull($purchaseOrder))
+                ->each(fn (PurchaseOrder $purchaseOrder) => MarkPurchaseOrderStage::make()->action($purchaseOrder, [
+                    'field'  => 'produced_at',
+                    'date'   => Carbon::parse($receivedAt)->toDateString(),
+                    'reason' => __('Goods receipt :reference: all goods of this order arrived at the agent warehouse', ['reference' => $receipt->reference]),
+                ]));
+
             return $receipt;
         });
 
         UploadAgentGoodsReceiptAttachments::make()->saveFiles($receipt, Arr::get($modelData, 'attachments', []));
 
         return $receipt;
+    }
+
+    private function isReceivedInFull(PurchaseOrder $purchaseOrder): bool
+    {
+        return $purchaseOrder->purchaseOrderTransactions()
+            ->leftJoinSub(IndexAgentProductsInProduction::receivedLines(), 'received_lines', 'received_lines.purchase_order_transaction_id', 'purchase_order_transactions.id')
+            ->whereNotNull('purchase_order_transactions.supplier_product_id')
+            ->whereIn('purchase_order_transactions.state', [PurchaseOrderTransactionStateEnum::SUBMITTED, PurchaseOrderTransactionStateEnum::CONFIRMED])
+            ->whereRaw('purchase_order_transactions.quantity_ordered > coalesce(received_lines.quantity_accepted, 0)')
+            ->doesntExist();
     }
 
     public function rules(): array

@@ -152,6 +152,8 @@ class EditShop extends OrgAction
             __('Chat widget'),
             __('Appointment widget'),
             __('Zoom'),
+            __('Meta Ads'),
+            __('Social media (Meta)'),
         ];
         $salesChannels          = SalesChannel::orderBy('id')->get();
         $salesChannelFields     = [];

@@ -9,6 +9,7 @@
 namespace App\Actions\UI\Marketing;
 
 use App\Actions\CRM\SocialMedia\GetSocialMediaPerformance;
+use App\Actions\CRM\SocialMedia\SyncShopFromMeta;
 use App\Actions\Helpers\Upload\UI\IndexUploadReports;
 use App\Actions\OrgAction;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
@@ -30,7 +31,7 @@ class ShowSocialMediaDashboard extends OrgAction
         $isGroup = $this->parent instanceof Group;
         $title   = __('Social media');
         $user    = $request->user();
-        $shops   = $this->parent->shops()->orderBy('name')->get();
+        $shops   = $this->parent->shops()->with('organisation')->orderBy('name')->get();
 
         return Inertia::render(
             'Org/Marketing/SocialMediaDashboard',
@@ -53,6 +54,17 @@ class ShowSocialMediaDashboard extends OrgAction
                         'id'    => $shop->id,
                         'name'  => $shop->name,
                         'route' => ['name' => 'grp.models.shop.social_media.upload', 'parameters' => ['shop' => $shop->id]],
+                    ])
+                    ->values(),
+                'meta_sync'    => fn () => $shops
+                    ->filter(fn (Shop $shop) => $user->authTo("marketing.$shop->id.edit"))
+                    ->map(fn (Shop $shop) => [
+                        'id'         => $shop->id,
+                        'slug'       => $shop->slug,
+                        'name'       => $shop->name,
+                        'route'      => ['name' => 'grp.models.shop.social_media.sync', 'parameters' => ['shop' => $shop->id]],
+                        'edit_route' => ['name' => 'grp.org.shops.show.settings.edit', 'parameters' => ['organisation' => $shop->organisation->slug, 'shop' => $shop->slug]],
+                        ...SyncShopFromMeta::status($shop),
                     ])
                     ->values(),
                 'export_route' => $isGroup

@@ -19,12 +19,21 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
+ * Only Meta is offered for now, Facebook and Instagram, organic and paid: TikTok is left out of the
+ * platforms and the paid channels until its figures are synced too.
+ *
  * Organic figures are the posts published in the period, as last exported; followers come from the
  * accounts' daily exports. Paid figures are the Meta ad spend fetched every night and the revenue
  * attribution credits to it, in the parent's currency.
+ *
+ * Views, interactions, link clicks and visits are the accounts' own daily figures where an account
+ * has them for the period, and the sum of its posts where it does not: a page's daily views also
+ * count what it shows outside its posts of the period. Viewers are people, counted once a day, so a
+ * period is given as the average day rather than a sum that would count the same person every day.
  */
 class GetSocialMediaPerformance
 {
@@ -36,7 +45,7 @@ class GetSocialMediaPerformance
     private const int TOP_POSTS = 50;
 
     /**
-     * @param array{shop?: string|null, country?: string|null, platform?: string|null} $filters
+     * @param array{shop?: string|null, country?: string|null, platform?: string|null, compare?: string, compare_from?: string|null, compare_to?: string|null} $filters
      */
     public function handle(Organisation|Group $parent, ?Carbon $from, ?Carbon $to, array $filters = []): array
     {
@@ -44,7 +53,7 @@ class GetSocialMediaPerformance
         $shops    = $this->filteredShops($allShops, $filters);
         $platform = SocialMediaPlatformEnum::tryFrom((string) ($filters['platform'] ?? ''));
 
-        [$previousFrom, $previousTo] = $this->previousPeriod($from, $to);
+        [$previousFrom, $previousTo] = $this->comparisonPeriod($from, $to, $filters);
 
         $isOrganisation = $parent instanceof Organisation;
         $costColumn     = $isOrganisation ? 'org_amount' : 'grp_amount';
@@ -57,6 +66,9 @@ class GetSocialMediaPerformance
         $paid            = $this->paidTotals($paidChannels);
         $previousPaid    = $previousFrom ? $this->paidTotals($this->paidChannels($shops, $adTypes, $previousFrom, $previousTo, $costColumn, $revenueColumn)) : null;
 
+        $platforms = $this->platforms($shops, $platform, $from, $to);
+        $formats   = $this->formats($shops, $platform, $from, $to);
+
         return [
             'from'          => $from?->toDateString(),
             'to'            => $to?->toDateString(),
@@ -64,9 +76,12 @@ class GetSocialMediaPerformance
             'previous_to'   => $previousTo?->toDateString(),
             'currency_code' => $parent->currency->code,
             'filters'       => [
-                'shop'     => $filters['shop'] ?? null,
-                'country'  => $filters['country'] ?? null,
-                'platform' => $platform?->value,
+                'shop'         => $filters['shop'] ?? null,
+                'country'      => $filters['country'] ?? null,
+                'platform'     => $platform?->value,
+                'compare'      => $filters['compare'] ?? 'previous',
+                'compare_from' => $filters['compare_from'] ?? null,
+                'compare_to'   => $filters['compare_to'] ?? null,
             ],
             'options'       => $this->options($allShops),
             'data_until'    => $this->dataUntil($allShops),
@@ -75,8 +90,9 @@ class GetSocialMediaPerformance
                 'previous' => $previousOrganic ? array_merge($previousOrganic, $previousPaid) : null,
             ],
             'trend'         => $this->trend($shops, $platform, $from, $to),
-            'platforms'     => $this->platforms($shops, $platform, $from, $to),
-            'formats'       => $this->formats($shops, $platform, $from, $to),
+            'platforms'     => $platforms,
+            'formats'       => $formats,
+            'insight'       => $this->insight($organic, $previousOrganic, $paid, $platforms, $formats),
             'top_posts'     => $this->topPosts($shops, $platform, $from, $to),
             'accounts'      => $this->accounts($shops, $platform, $from, $to),
             'paid'          => [
@@ -120,6 +136,25 @@ class GetSocialMediaPerformance
     }
 
     /**
+     * The period the figures are compared with: the same number of days just before (the default),
+     * the same dates a year earlier, or a range chosen by hand.
+     *
+     * @param array<string, mixed> $filters
+     *
+     * @return array{0: Carbon|null, 1: Carbon|null}
+     */
+    private function comparisonPeriod(?Carbon $from, ?Carbon $to, array $filters): array
+    {
+        return match ($filters['compare'] ?? 'previous') {
+            'year'   => $from ? [$from->copy()->subYear()->startOfDay(), ($to ?? now())->copy()->subYear()->endOfDay()] : [null, null],
+            'custom' => isset($filters['compare_from'], $filters['compare_to']) && $filters['compare_from'] <= $filters['compare_to']
+                ? [Carbon::parse($filters['compare_from'])->startOfDay(), Carbon::parse($filters['compare_to'])->endOfDay()]
+                : $this->previousPeriod($from, $to),
+            default  => $this->previousPeriod($from, $to),
+        };
+    }
+
+    /**
      * @return array{0: Carbon|null, 1: Carbon|null}
      */
     private function previousPeriod(?Carbon $from, ?Carbon $to): array
@@ -146,7 +181,7 @@ class GetSocialMediaPerformance
             SocialMediaPlatformEnum::FACEBOOK  => [TrafficSourcesTypeEnum::META_ADS->value],
             SocialMediaPlatformEnum::INSTAGRAM => [TrafficSourcesTypeEnum::INSTAGRAM_ADS->value],
             SocialMediaPlatformEnum::TIKTOK    => [TrafficSourcesTypeEnum::TIKTOK_ADS->value],
-            null                               => [TrafficSourcesTypeEnum::META_ADS->value, TrafficSourcesTypeEnum::INSTAGRAM_ADS->value, TrafficSourcesTypeEnum::TIKTOK_ADS->value],
+            null                               => [TrafficSourcesTypeEnum::META_ADS->value, TrafficSourcesTypeEnum::INSTAGRAM_ADS->value],
         };
     }
 
@@ -181,7 +216,7 @@ class GetSocialMediaPerformance
     /**
      * @param Collection<int, Shop> $shops
      *
-     * @return array{posts: int, reach: int, impressions: int, engagements: int, engagement_rate: float|null, link_clicks: int, followers: int|null, follower_growth: int|null}
+     * @return array{posts: int, reach: int, impressions: int, engagements: int, engagement_rate: float|null, views: int, interactions: int, interaction_rate: float|null, avg_daily_viewers: int|null, visits: int|null, new_follows: int|null, link_clicks: int, followers: int|null, followers_accounts: int, follower_growth: int|null}
      */
     private function organicTotals(Collection $shops, ?SocialMediaPlatformEnum $platform, ?Carbon $from, ?Carbon $to): array
     {
@@ -203,16 +238,127 @@ class GetSocialMediaPerformance
             ? $followers->only($before->keys()->all())->sum() - $before->sum()
             : null;
 
+        $views        = $this->dailyOrPosts($shops, $platform, $from, $to, 'impressions', 'p.impressions');
+        $interactions = $this->dailyOrPosts($shops, $platform, $from, $to, 'engagements', self::ENGAGEMENTS);
+        $visits       = $this->dailySum($accountIds, $from, $to, 'profile_visits');
+
         return [
-            'posts'           => (int) $totals->posts,
-            'reach'           => (int) $totals->reach,
-            'impressions'     => (int) $totals->impressions,
-            'engagements'     => (int) $totals->engagements,
-            'engagement_rate' => $this->rate((int) $totals->engagements, (int) $totals->reach),
-            'link_clicks'     => (int) $totals->link_clicks,
-            'followers'       => $followers->isNotEmpty() ? (int) $followers->sum() : null,
-            'follower_growth' => $growthFromFollowers ?? ((int) $newFollows ?: ((int) $totals->follows ?: null)),
+            'posts'             => (int) $totals->posts,
+            'reach'             => (int) $totals->reach,
+            'impressions'       => (int) $totals->impressions,
+            'engagements'       => (int) $totals->engagements,
+            'engagement_rate'   => $this->rate((int) $totals->engagements, (int) $totals->reach),
+            'views'             => $views,
+            'interactions'      => $interactions,
+            'interaction_rate'  => $this->rate($interactions, $views),
+            'avg_daily_viewers' => $this->averageDailyViewers($accountIds, $from, $to),
+            'visits'            => $visits,
+            'new_follows'       => $this->dailySum($accountIds, $from, $to, 'new_follows'),
+            'link_clicks'       => $this->dailyOrPosts($shops, $platform, $from, $to, 'link_clicks', 'p.link_clicks'),
+            'followers'         => $followers->isNotEmpty() ? (int) $followers->sum() : null,
+            'followers_accounts' => $followers->count(),
+            'follower_growth'   => $growthFromFollowers ?? ((int) $newFollows ?: ((int) $totals->follows ?: null)),
         ];
+    }
+
+    /**
+     * The accounts' daily figure where an account has one in the period, and its posts' where not.
+     *
+     * @param Collection<int, Shop> $shops
+     */
+    private function dailyOrPosts(Collection $shops, ?SocialMediaPlatformEnum $platform, ?Carbon $from, ?Carbon $to, string $dailyColumn, string $postExpression): int
+    {
+        $daily = $this->dailyByAccount($this->accountsQuery($shops, $platform)->pluck('a.id'), $from, $to, $dailyColumn);
+
+        $fromPosts = $this->posts($shops, $platform, $from, $to)
+            ->whereNotIn('a.id', $daily->keys()->all())
+            ->sum(DB::raw($postExpression));
+
+        return (int) $daily->sum() + (int) $fromPosts;
+    }
+
+    /**
+     * @return Collection<int, int> account id => the column summed over the period, for the accounts that report it
+     */
+    private function dailyByAccount(Collection $accountIds, ?Carbon $from, ?Carbon $to, string $column): Collection
+    {
+        return DB::table('social_media_account_daily_stats')
+            ->whereIn('social_media_account_id', $accountIds)
+            ->whereNotNull($column)
+            ->when($from, fn (Builder $query) => $query->where('date', '>=', $from->toDateString()))
+            ->when($to, fn (Builder $query) => $query->where('date', '<=', $to->toDateString()))
+            ->groupBy('social_media_account_id')
+            ->selectRaw("social_media_account_id, SUM($column) as total")
+            ->pluck('total', 'social_media_account_id')
+            ->map(fn ($total) => (int) $total);
+    }
+
+    private function dailySum(Collection $accountIds, ?Carbon $from, ?Carbon $to, string $column): ?int
+    {
+        $daily = $this->dailyByAccount($accountIds, $from, $to, $column);
+
+        return $daily->isEmpty() ? null : (int) $daily->sum();
+    }
+
+    /**
+     * Viewers across the accounts on an average day of the period, over the days that report them.
+     */
+    private function averageDailyViewers(Collection $accountIds, ?Carbon $from, ?Carbon $to): ?int
+    {
+        $average = DB::query()
+            ->fromSub(
+                DB::table('social_media_account_daily_stats')
+                    ->whereIn('social_media_account_id', $accountIds)
+                    ->whereNotNull('reach')
+                    ->when($from, fn (Builder $query) => $query->where('date', '>=', $from->toDateString()))
+                    ->when($to, fn (Builder $query) => $query->where('date', '<=', $to->toDateString()))
+                    ->groupBy('date')
+                    ->selectRaw('date, SUM(reach) as viewers'),
+                'days'
+            )
+            ->avg('viewers');
+
+        return $average === null ? null : (int) round((float) $average);
+    }
+
+    /**
+     * One sentence on what moved the period, built only from the figures on screen: where the views
+     * came from, which format earned the most per post and how views changed.
+     *
+     * @param array<string, mixed>             $organic
+     * @param array<string, mixed>|null        $previous
+     * @param array<string, mixed>             $paid
+     * @param array<int, array<string, mixed>> $platforms
+     * @param array<int, array<string, mixed>> $formats
+     */
+    private function insight(array $organic, ?array $previous, array $paid, array $platforms, array $formats): ?string
+    {
+        $parts = [];
+
+        $leader = collect($platforms)->filter(fn (array $row) => $row['views'] > 0)->sortByDesc('views')->first();
+        if ($leader && count($platforms) > 1 && $leader['views_share'] !== null) {
+            $parts[] = __(':platform brought :share% of views.', ['platform' => $leader['label'], 'share' => round($leader['views_share'])]);
+        }
+
+        $bestFormat = collect($formats)->filter(fn (array $row) => $row['posts'] > 0)->sortByDesc('average_reach')->values();
+        if ($bestFormat->count() > 1 && $bestFormat[0]['average_reach'] > 0) {
+            $parts[] = __(':format reached :reach people per post on average, the most of any format.', ['format' => $bestFormat[0]['label'], 'reach' => number_format($bestFormat[0]['average_reach'])]);
+        }
+
+        if ($previous !== null && ($previous['views'] ?? 0) > 0) {
+            $change = round(($organic['views'] - $previous['views']) / $previous['views'] * 100);
+            if ($change !== 0.0) {
+                $parts[] = $change > 0
+                    ? __('Views rose :change% on the previous period.', ['change' => abs($change)])
+                    : __('Views fell :change% on the previous period.', ['change' => abs($change)]);
+            }
+        }
+
+        if ($organic['views'] > 0 && ($paid['ad_impressions'] ?? 0) > 0) {
+            $parts[] = __('Ads were shown :impressions times beside :views views.', ['impressions' => number_format($paid['ad_impressions']), 'views' => number_format($organic['views'])]);
+        }
+
+        return $parts === [] ? null : implode(' ', $parts);
     }
 
     /**
@@ -249,10 +395,13 @@ class GetSocialMediaPerformance
     /**
      * @param array<int, array<string, mixed>> $channels
      *
-     * @return array{spend: float, revenue: float, orders: float, roas: float|null, cpa: float|null, ad_impressions: int, ad_clicks: int, ctr: float|null}
+     * @return array{spend: float, revenue: float, orders: float, roas: float|null, cpa: float|null, ad_impressions: int, ad_clicks: int, ctr: float|null, meta_purchases: float, meta_value: float, meta_roas: float|null}
      */
     private function paidTotals(array $channels): array
     {
+        $metaValue = (float) array_sum(array_column($channels, 'meta_value'));
+        $metaCost  = (float) array_sum(array_column($channels, 'meta_cost'));
+
         $spend       = round(array_sum(array_column($channels, 'spend')), 2);
         $revenue     = round(array_sum(array_column($channels, 'revenue')), 2);
         $orders      = round(array_sum(array_column($channels, 'orders')), 2);
@@ -268,6 +417,29 @@ class GetSocialMediaPerformance
             'ad_impressions' => $impressions,
             'ad_clicks'      => $clicks,
             'ctr'            => $this->rate($clicks, $impressions),
+            'meta_purchases' => round((float) array_sum(array_column($channels, 'meta_purchases')), 2),
+            'meta_value'     => round($metaValue, 2),
+            'meta_roas'      => $metaCost > 0 ? round($metaValue / $metaCost, 2) : null,
+        ];
+    }
+
+    /**
+     * What Meta itself reports the ads sold: its pixel's purchases and their value, divided by the
+     * spend in the ad account's own currency, the figures Ads Manager shows. Beside the ROAS above,
+     * which is the revenue of the orders Aiku credits to the ads.
+     *
+     * @return array{meta_purchases: float, meta_value: float, meta_cost: float, meta_roas: float|null}
+     */
+    private function metaPurchases(?object $metrics): array
+    {
+        $value = (float) ($metrics->meta_value ?? 0);
+        $cost  = (float) ($metrics->meta_cost ?? 0);
+
+        return [
+            'meta_purchases' => round((float) ($metrics->meta_purchases ?? 0), 2),
+            'meta_value'     => round($value, 2),
+            'meta_cost'      => round($cost, 2),
+            'meta_roas'      => $cost > 0 ? round($value / $cost, 2) : null,
         ];
     }
 
@@ -293,6 +465,7 @@ class GetSocialMediaPerformance
                 $shown   = (int) ($metrics[$type]->impressions ?? 0);
 
                 return [
+                    ...$this->metaPurchases($metrics[$type] ?? null),
                     'type'        => $type,
                     'label'       => TrafficSourcesTypeEnum::labels()[$type] ?? $type,
                     'spend'       => round($spend, 2),
@@ -312,7 +485,7 @@ class GetSocialMediaPerformance
     /**
      * @param array<int, string> $adTypes
      *
-     * @return Collection<int|string, object{impressions: int, clicks: int}>
+     * @return Collection<int|string, object{impressions: int, clicks: int, meta_purchases: float, meta_value: float, meta_cost: float}>
      */
     private function adMetrics(Collection $shops, array $adTypes, ?Carbon $from, ?Carbon $to, string $groupBy): Collection
     {
@@ -324,7 +497,7 @@ class GetSocialMediaPerformance
             ->when($from, fn (Builder $query) => $query->where('m.date', '>=', $from->toDateString()))
             ->when($to, fn (Builder $query) => $query->where('m.date', '<=', $to->toDateString()))
             ->groupBy($groupBy)
-            ->selectRaw("$groupBy as bucket, SUM(m.impressions) as impressions, SUM(m.clicks) as clicks")
+            ->selectRaw("$groupBy as bucket, SUM(m.impressions) as impressions, SUM(m.clicks) as clicks, SUM(m.conversions) as meta_purchases, SUM(m.source_conversions_value) as meta_value, SUM(m.source_cost) as meta_cost")
             ->get()
             ->keyBy('bucket');
     }
@@ -349,7 +522,7 @@ class GetSocialMediaPerformance
             ->join('organisations as o', 'o.id', '=', 's.organisation_id')
             ->whereIn('ts.shop_id', $shops->pluck('id'))
             ->whereIn('ts.type', $adTypes)
-            ->select('tc.id', 'tc.name', 'ts.type', 's.name as shop_name', 'o.name as organisation_name')
+            ->select('tc.id', 'tc.name', 'tc.reference', 'ts.type', 'ts.shop_id', 's.name as shop_name', 'o.name as organisation_name')
             ->get()
             ->map(function ($campaign) use ($spend, $revenue, $orders, $metrics, $isGroup) {
                 $spent     = round((float) ($spend[$campaign->id] ?? 0), 2);
@@ -359,6 +532,8 @@ class GetSocialMediaPerformance
                 $shown     = (int) ($metrics[$campaign->id]->impressions ?? 0);
 
                 return [
+                    ...$this->metaPurchases($metrics[$campaign->id] ?? null),
+                    'key'           => $campaign->shop_id.'|'.($campaign->reference !== null ? Str::after($campaign->reference, TrafficSourcesTypeEnum::INSTAGRAM_CAMPAIGN_PREFIX) : 'id'.$campaign->id),
                     'name'          => $campaign->name,
                     'channel'       => TrafficSourcesTypeEnum::labels()[$campaign->type] ?? $campaign->type,
                     'owner'         => $isGroup ? $campaign->organisation_name.' · '.$campaign->shop_name : $campaign->shop_name,
@@ -373,15 +548,58 @@ class GetSocialMediaPerformance
                 ];
             })
             ->filter(fn (array $campaign) => $campaign['spend'] > 0 || $campaign['revenue'] > 0)
+            ->groupBy('key')
+            ->map(fn (Collection $placements) => $this->wholeCampaign($placements))
             ->sortByDesc('spend')
             ->values()
             ->all();
     }
 
     /**
+     * One Meta campaign runs on Facebook and on Instagram, and its spend is kept per placement. Ads
+     * Manager shows the campaign as one row, so the placements are added up here, the rates taken
+     * from the sums, and each placement's spend kept beside it.
+     *
+     * @param Collection<int, array<string, mixed>> $placements
+     *
+     * @return array<string, mixed>
+     */
+    private function wholeCampaign(Collection $placements): array
+    {
+        $sum = fn (string $key) => round((float) $placements->sum($key), 2);
+
+        $spent       = $sum('spend');
+        $earned      = $sum('revenue');
+        $orders      = $sum('orders');
+        $clicks      = (int) $placements->sum('clicks');
+        $impressions = (int) $placements->sum('impressions');
+        $metaValue   = $sum('meta_value');
+        $metaCost    = $sum('meta_cost');
+
+        return [
+            'name'           => $placements->pluck('name')->first(fn ($name) => !is_numeric($name)) ?? $placements->first()['name'],
+            'channel'        => $placements->pluck('channel')->unique()->implode(' + '),
+            'placements'     => $placements->sortByDesc('spend')->map(fn (array $placement) => ['channel' => $placement['channel'], 'spend' => $placement['spend']])->values()->all(),
+            'owner'          => $placements->first()['owner'],
+            'spend'          => $spent,
+            'revenue'        => $earned,
+            'orders'         => $orders,
+            'impressions'    => $impressions,
+            'clicks'         => $clicks,
+            'ctr'            => $this->rate($clicks, $impressions),
+            'cpa'            => $orders > 0 ? round($spent / $orders, 2) : null,
+            'roas'           => $spent > 0 ? round($earned / $spent, 2) : null,
+            'meta_purchases' => $sum('meta_purchases'),
+            'meta_value'     => $metaValue,
+            'meta_cost'      => $metaCost,
+            'meta_roas'      => $metaCost > 0 ? round($metaValue / $metaCost, 2) : null,
+        ];
+    }
+
+    /**
      * @param Collection<int, Shop> $shops
      *
-     * @return array{bucket: string, points: array<int, array{date: string, posts: int, reach: int, engagements: int, followers: int|null}>}
+     * @return array{bucket: string, points: array<int, array{date: string, posts: int, reach: int, engagements: int, views: int, interactions: int, followers: int|null}>}
      */
     private function trend(Collection $shops, ?SocialMediaPlatformEnum $platform, ?Carbon $from, ?Carbon $to): array
     {
@@ -398,10 +616,19 @@ class GetSocialMediaPerformance
             ->get()
             ->keyBy(fn ($row) => (string) $row->bucket);
 
+        $withHistory = DB::table('social_media_account_daily_stats')
+            ->whereIn('social_media_account_id', $this->accountsQuery($shops, $platform)->pluck('a.id'))
+            ->whereNotNull('followers')
+            ->when($from, fn (Builder $query) => $query->where('date', '>=', $from->toDateString()))
+            ->when($to, fn (Builder $query) => $query->where('date', '<=', $to->toDateString()))
+            ->groupBy('social_media_account_id')
+            ->havingRaw('COUNT(*) > 1')
+            ->pluck('social_media_account_id');
+
         $followers = DB::query()
             ->fromSub(
                 DB::table('social_media_account_daily_stats')
-                    ->whereIn('social_media_account_id', $this->accountsQuery($shops, $platform)->pluck('a.id'))
+                    ->whereIn('social_media_account_id', $withHistory)
                     ->whereNotNull('followers')
                     ->when($from, fn (Builder $query) => $query->where('date', '>=', $from->toDateString()))
                     ->when($to, fn (Builder $query) => $query->where('date', '<=', $to->toDateString()))
@@ -416,7 +643,10 @@ class GetSocialMediaPerformance
             ->pluck('followers', 'bucket')
             ->mapWithKeys(fn ($value, $key) => [(string) $key => (int) $value]);
 
-        $dates = $posts->keys()->merge($followers->keys())->unique()->sort()->values();
+        $views        = $this->bucketDailyOrPosts($shops, $platform, $from, $to, $bucket, 'impressions', 'p.impressions');
+        $interactions = $this->bucketDailyOrPosts($shops, $platform, $from, $to, $bucket, 'engagements', self::ENGAGEMENTS);
+
+        $dates = $posts->keys()->merge($followers->keys())->merge($views->keys())->merge($interactions->keys())->unique()->sort()->values();
 
         if ($from && $bucket === 'day') {
             $dates = collect(range(0, (int) $from->copy()->startOfDay()->diffInDays(($to ?? now())->copy()->startOfDay())))
@@ -426,13 +656,43 @@ class GetSocialMediaPerformance
         return [
             'bucket' => $bucket,
             'points' => $dates->map(fn (string $date) => [
-                'date'        => $date,
-                'posts'       => (int) ($posts[$date]->posts ?? 0),
-                'reach'       => (int) ($posts[$date]->reach ?? 0),
-                'engagements' => (int) ($posts[$date]->engagements ?? 0),
-                'followers'   => $followers[$date] ?? null,
+                'date'         => $date,
+                'posts'        => (int) ($posts[$date]->posts ?? 0),
+                'reach'        => (int) ($posts[$date]->reach ?? 0),
+                'engagements'  => (int) ($posts[$date]->engagements ?? 0),
+                'views'        => $views[$date] ?? 0,
+                'interactions' => $interactions[$date] ?? 0,
+                'followers'    => $followers[$date] ?? null,
             ])->values()->all(),
         ];
+    }
+
+    /**
+     * @param Collection<int, Shop> $shops
+     *
+     * @return Collection<string, int> bucket date => the accounts' daily figure where they have one, their posts' where not
+     */
+    private function bucketDailyOrPosts(Collection $shops, ?SocialMediaPlatformEnum $platform, ?Carbon $from, ?Carbon $to, string $bucket, string $dailyColumn, string $postExpression): Collection
+    {
+        $dailyAccounts = $this->dailyByAccount($this->accountsQuery($shops, $platform)->pluck('a.id'), $from, $to, $dailyColumn)->keys()->all();
+
+        $daily = DB::table('social_media_account_daily_stats')
+            ->whereIn('social_media_account_id', $dailyAccounts)
+            ->whereNotNull($dailyColumn)
+            ->when($from, fn (Builder $query) => $query->where('date', '>=', $from->toDateString()))
+            ->when($to, fn (Builder $query) => $query->where('date', '<=', $to->toDateString()))
+            ->groupByRaw("date_trunc('$bucket', date)")
+            ->selectRaw("date_trunc('$bucket', date)::date as bucket, SUM($dailyColumn) as total")
+            ->pluck('total', 'bucket');
+
+        $fromPosts = $this->posts($shops, $platform, $from, $to)
+            ->whereNotIn('a.id', $dailyAccounts)
+            ->groupByRaw("date_trunc('$bucket', p.published_at)")
+            ->selectRaw("date_trunc('$bucket', p.published_at)::date as bucket, SUM($postExpression) as total")
+            ->pluck('total', 'bucket');
+
+        return $daily->keys()->merge($fromPosts->keys())->unique()
+            ->mapWithKeys(fn ($date) => [(string) $date => (int) ($daily[$date] ?? 0) + (int) ($fromPosts[$date] ?? 0)]);
     }
 
     /**
@@ -452,18 +712,33 @@ class GetSocialMediaPerformance
             ->selectRaw('a.platform, SUM(a.followers) as followers')
             ->pluck('followers', 'platform');
 
-        $totalReach = (int) $rows->sum('reach');
+        $rows  = $rows->keyBy('platform');
+        $views = $followers->keys()->merge($rows->keys())->unique()
+            ->mapWithKeys(fn (string $value) => [$value => $this->dailyOrPosts($shops, SocialMediaPlatformEnum::from($value), $from, $to, 'impressions', 'p.impressions')]);
 
-        return $rows->map(fn ($row) => [
-            'platform'        => $row->platform,
-            'label'           => SocialMediaPlatformEnum::labels()[$row->platform] ?? $row->platform,
-            'posts'           => (int) $row->posts,
-            'reach'           => (int) $row->reach,
-            'share'           => $this->rate((int) $row->reach, $totalReach),
-            'engagements'     => (int) $row->engagements,
-            'engagement_rate' => $this->rate((int) $row->engagements, (int) $row->reach),
-            'followers'       => isset($followers[$row->platform]) ? (int) $followers[$row->platform] : null,
-        ])->sortByDesc('reach')->values()->all();
+        $totalReach = (int) $rows->sum('reach');
+        $totalViews = (int) $views->sum();
+
+        return $views->keys()->map(function (string $value) use ($rows, $views, $followers, $totalReach, $totalViews) {
+            $row = $rows[$value] ?? null;
+
+            return [
+                'platform'        => $value,
+                'label'           => SocialMediaPlatformEnum::labels()[$value] ?? $value,
+                'posts'           => (int) ($row->posts ?? 0),
+                'reach'           => (int) ($row->reach ?? 0),
+                'share'           => $this->rate((int) ($row->reach ?? 0), $totalReach),
+                'views'           => $views[$value],
+                'views_share'     => $this->rate($views[$value], $totalViews),
+                'engagements'     => (int) ($row->engagements ?? 0),
+                'engagement_rate' => $this->rate((int) ($row->engagements ?? 0), (int) ($row->reach ?? 0)),
+                'followers'       => isset($followers[$value]) ? (int) $followers[$value] : null,
+            ];
+        })
+            ->filter(fn (array $row) => $row['posts'] > 0 || $row['views'] > 0)
+            ->sortByDesc(fn (array $row) => [$row['reach'], $row['views']])
+            ->values()
+            ->all();
     }
 
     /**
@@ -540,18 +815,25 @@ class GetSocialMediaPerformance
     {
         $posts = $this->posts($shops, $platform, $from, $to)
             ->groupBy('a.id')
-            ->selectRaw('a.id, COUNT(*) as posts, SUM(p.reach) as reach, SUM('.self::ENGAGEMENTS.') as engagements, SUM(p.link_clicks) as link_clicks')
+            ->selectRaw('a.id, COUNT(*) as posts, SUM(p.reach) as reach, SUM(p.impressions) as impressions, SUM('.self::ENGAGEMENTS.') as engagements, SUM(p.link_clicks) as link_clicks')
             ->get()
             ->keyBy('id');
+
+        $accountIds   = $this->accountsQuery($shops, $platform)->pluck('a.id');
+        $dailyViews   = $this->dailyByAccount($accountIds, $from, $to, 'impressions');
+        $dailyActions = $this->dailyByAccount($accountIds, $from, $to, 'engagements');
+        $dailyClicks  = $this->dailyByAccount($accountIds, $from, $to, 'link_clicks');
 
         $shopsById = $shops->keyBy('id');
 
         return $this->accountsQuery($shops, $platform)
             ->select('a.id', 'a.name', 'a.username', 'a.platform', 'a.shop_id', 'a.followers', 'a.followers_at')
             ->get()
-            ->map(function ($account) use ($posts, $shopsById) {
-                $row  = $posts[$account->id] ?? null;
-                $shop = $shopsById[$account->shop_id];
+            ->map(function ($account) use ($posts, $shopsById, $dailyViews, $dailyActions, $dailyClicks) {
+                $row          = $posts[$account->id] ?? null;
+                $shop         = $shopsById[$account->shop_id];
+                $views        = $dailyViews[$account->id] ?? (int) ($row->impressions ?? 0);
+                $interactions = $dailyActions[$account->id] ?? (int) ($row->engagements ?? 0);
 
                 return [
                     'id'              => $account->id,
@@ -567,11 +849,14 @@ class GetSocialMediaPerformance
                     'posts'           => (int) ($row->posts ?? 0),
                     'reach'           => (int) ($row->reach ?? 0),
                     'engagements'     => (int) ($row->engagements ?? 0),
-                    'link_clicks'     => (int) ($row->link_clicks ?? 0),
+                    'link_clicks'     => $dailyClicks[$account->id] ?? (int) ($row->link_clicks ?? 0),
                     'engagement_rate' => $this->rate((int) ($row->engagements ?? 0), (int) ($row->reach ?? 0)),
+                    'views'           => $views,
+                    'interactions'    => $interactions,
+                    'interaction_rate' => $this->rate($interactions, $views),
                 ];
             })
-            ->sortByDesc('reach')
+            ->sortByDesc(fn (array $account) => [$account['views'], $account['reach']])
             ->values()
             ->all();
     }
@@ -596,6 +881,7 @@ class GetSocialMediaPerformance
             'countries' => $shops->pluck('country')->filter()->unique('id')->sortBy('name')
                 ->map(fn ($country) => ['code' => $country->code, 'name' => $country->name])->values()->all(),
             'platforms' => collect(SocialMediaPlatformEnum::labels())
+                ->except(SocialMediaPlatformEnum::TIKTOK->value)
                 ->map(fn (string $label, string $value) => ['value' => $value, 'label' => $label])->values()->all(),
         ];
     }

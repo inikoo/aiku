@@ -54,6 +54,7 @@ class IndexDeliveryNoteItemsInPickingSessionStateActive extends OrgAction
             ->defaultSort('locations.sort_code', 'org_stocks.code')
             ->select([
                 'delivery_note_items.id',
+                'delivery_note_items.organisation_id',
                 'delivery_note_items.state',
                 'delivery_note_items.quantity_required',
                 'delivery_note_items.replacement_reason',

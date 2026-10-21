@@ -41,6 +41,14 @@ return [
     'suggestion_critic_model' => env('CHAT_SUGGESTION_CRITIC_MODEL', 'deepseek/deepseek-v4.1-flash'),
     'learning_model' => env('CHAT_LEARNING_MODEL', 'gpt-4o-mini'),
 
+    // When the hourly Aiku routine (Claude Code with the aiku tools) works a team's unopened chats: on the hour,
+    // weekdays, from an hour before the team starts until its last working hour, in the team's time zone.
+    'aiku_routine' => [
+        'time_zones' => ['ES' => 'Europe/Paris', 'SK' => 'Europe/Paris', 'AW' => 'Europe/London', 'Aroma' => 'Europe/London'],
+        'from_hour'  => 7,
+        'until_hour' => 15,
+    ],
+
     // Hiding a real customer is worse than showing a junk mail, so the bar is low.
     'spam_rescue_min_probability' => (float) env('CHAT_SPAM_RESCUE_MIN_PROBABILITY', 0.3),
 

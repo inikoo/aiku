@@ -86,6 +86,7 @@ const lowStockTooltip = (item: { quantity_ordered: number | string, available_qu
 // Section: Quantity
 const listState = ref({})
 const isLoading = ref<string | boolean>(false)
+const isRemoving = computed(() => typeof isLoading.value === "string" && isLoading.value.startsWith("unselect"))
 
 const buildGtmBasketPayload = (item: any, quantity: number) => {
     return buildGtmProductPayload(
@@ -249,7 +250,8 @@ const isOffersData = (offersData: any): boolean => {
                         :href="item.deleteRoute?.name ? route(item.deleteRoute.name, item.deleteRoute.parameters) : '#'"
                         as="button" :method="item.deleteRoute.method"
                         :aria-label="ctrans('Remove from basket')"
-                        class="-mr-1.5 flex items-center justify-start self-stretch w-10 pl-2.5 rounded-l-md border border-r-0 border-gray-200 bg-white text-gray-400 opacity-60 transition hover:opacity-100 hover:text-red-500 hover:bg-red-50"
+                        class="-mr-1.5 flex items-center justify-start self-stretch w-10 pl-2.5 rounded-l-md border border-r-0 border-gray-200 bg-white text-gray-400 opacity-60 transition hover:opacity-100 hover:text-red-500 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-400"
+                        :disabled="isRemoving"
                         @start="() => isLoading = 'unselect' + item.id"
                         @finish="() => isLoading = false"
                         @success="() => { pushRemoveFromBasket(item); layout.reload_handle() }"
@@ -348,7 +350,8 @@ const isOffersData = (offersData: any): boolean => {
                                         :href="item.deleteRoute?.name ? route(item.deleteRoute.name, item.deleteRoute.parameters) : '#'"
                                         as="button" :method="item.deleteRoute.method"
                                         :aria-label="ctrans('Remove from basket')"
-                                        class="-mr-1.5 flex items-center justify-start self-stretch w-[4.625rem] pl-[1.125rem] rounded-l-md border border-r-0 border-gray-200 bg-white text-gray-400 opacity-60 transition hover:opacity-100 hover:text-red-500 hover:bg-red-50"
+                                        class="-mr-1.5 flex items-center justify-start self-stretch w-[4.625rem] pl-[1.125rem] rounded-l-md border border-r-0 border-gray-200 bg-white text-gray-400 opacity-60 transition hover:opacity-100 hover:text-red-500 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-400"
+                        :disabled="isRemoving"
                                         @start="() => isLoading = 'unselect' + item.id"
                                         @finish="() => isLoading = false"
                                         @success="() => { pushRemoveFromBasket(item); layout.reload_handle() }"

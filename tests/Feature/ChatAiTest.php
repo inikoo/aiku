@@ -376,6 +376,17 @@ test('a question about an order gets a draft written from that customer\'s order
         ->and($draft->facts['order_facts']['order']['reference'])->toBe($reference)
         ->and($draft->facts['order_facts']['order']['dispatched_on'])->toBe('2026-09-22');
 
+    $email = ChatSession::create([
+        'ulid'                    => (string) Str::ulid(),
+        'status'                  => ChatSessionStatusEnum::ACTIVE,
+        'channel'                 => ChatChannelEnum::EMAIL,
+        'shop_id'                 => $this->shop->id,
+        'web_user_id'             => $webUser->id,
+        'last_visitor_message_at' => now(),
+    ]);
+    $ask($email, 'Hello, where is my order please? I have not received it yet');
+    expect(\App\Actions\Chat\ChatSession\DraftChatReply::make()->handle($email))->toBeNull();
+
     // The model is handed the facts, and only this customer's: the order is in what it was sent.
     \Illuminate\Support\Facades\Http::assertSent(fn ($request) => str_contains($request->body(), $reference));
 
@@ -655,7 +666,7 @@ test('a draft goes to the customer without staff only out of hours, only once ea
     outOfHoursTestCleanUp($schedule, [$session]);
 });
 
-test('an email out of hours gets one automatic reply, the AI answer or the closed-now reply, never both', function () {
+test('an email out of hours gets the closed-now reply at once and never an AI answer, even on a topic that earned one', function () {
     config([
         'chat.out_of_hours_reply'        => true,
         'chat.ai_drafts'                 => true,
@@ -720,25 +731,14 @@ test('an email out of hours gets one automatic reply, the AI answer or the close
         ]);
     }
 
-    // The closed-now email waits, so the AI answer goes instead of it.
-    expect(\App\Actions\Chat\ChatSession\SendOutOfHoursReply::makeJob($answered, $trigger($answered))->delay)->not->toBeNull();
-
-    $draft = \App\Actions\Chat\ChatSession\DraftChatReply::make()->handle($answered->refresh());
-    expect($draft->status)->toBe(\App\Enums\CRM\Livechat\ChatAiDraftStatusEnum::AUTO_SENT)
-        ->and(\App\Actions\Chat\ChatSession\SendOutOfHoursReply::make()->handle($answered, $trigger($answered)))->toBeFalse()
+    expect(\App\Actions\Chat\ChatSession\SendOutOfHoursReply::makeJob($answered, $trigger($answered))->delay)->toBeNull()
+        ->and(\App\Actions\Chat\ChatSession\DraftChatReply::make()->handle($answered->refresh()))->toBeNull()
+        ->and(\App\Actions\Chat\ChatSession\SendOutOfHoursReply::make()->handle($answered, $trigger($answered)))->toBeTrue()
         ->and($automaticMails($answered))->toBe(1);
 
-    // The closed-now email got there first: the draft waits for staff instead of a second email.
-    $closedFirst = $emailFrom();
-    expect(\App\Actions\Chat\ChatSession\SendOutOfHoursReply::make()->handle($closedFirst, $trigger($closedFirst)))->toBeTrue()
-        ->and(\App\Actions\Chat\ChatSession\DraftChatReply::make()->handle($closedFirst->refresh())->status)->toBe(\App\Enums\CRM\Livechat\ChatAiDraftStatusEnum::PENDING)
-        ->and($automaticMails($closedFirst))->toBe(1);
-
-    foreach ([$answered, $closedFirst] as $session) {
-        \Illuminate\Support\Facades\Cache::forget('chat-out-of-hours-email:'.sha1($session->metadata['email_from']));
-        \App\Models\Chat\ChatAiDraft::where('chat_session_id', $session->id)->delete();
-    }
-    outOfHoursTestCleanUp($schedule, [$answered, $closedFirst]);
+    \Illuminate\Support\Facades\Cache::forget('chat-out-of-hours-email:'.sha1($answered->metadata['email_from']));
+    \App\Models\Chat\ChatAiDraft::where('chat_session_id', $answered->id)->delete();
+    outOfHoursTestCleanUp($schedule, [$answered]);
 });
 
 test('what agents keep telling different customers is learned and put to staff once enough customers heard it, and only a person turns it on', function () {

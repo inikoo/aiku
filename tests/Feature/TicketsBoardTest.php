@@ -819,3 +819,32 @@ test('jev fills in the kind and module nobody set, replaces a set one only when 
     expect($setByStaff->refresh()->kind)->toBe(TicketKindEnum::AURORA)
         ->and($setByStaff->module)->toBe(TicketModuleEnum::CHAT);
 });
+
+test('the board loads ticket people, escalations and images up front, so more tickets add no queries', function () {
+    $raise = function () {
+        $parent = StoreTicket::make()->action($this->group, ['subject' => 'Board load '.Str::random(6), 'assignee_id' => $this->user->id]);
+        $child  = StoreTicket::make()->action($this->group, ['subject' => 'Escalated '.Str::random(6), 'assignee_id' => $this->user->id]);
+        $child->update(['model_type' => 'Ticket', 'model_id' => $parent->id]);
+    };
+
+    request()->setUserResolver(fn () => $this->user);
+
+    $countBoardQueries = function () {
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+        \App\Actions\Helpers\Ticket\UI\ShowTicketsBoard::make()->handle($this->group);
+        DB::disableQueryLog();
+
+        return count(DB::getQueryLog());
+    };
+
+    $raise();
+    $countBoardQueries();
+    $queries = $countBoardQueries();
+
+    foreach (range(1, 3) as $ticket) {
+        StoreTicket::make()->action($this->group, ['subject' => 'Board load '.Str::random(6), 'assignee_id' => $this->user->id]);
+    }
+
+    expect($countBoardQueries())->toBe($queries);
+});

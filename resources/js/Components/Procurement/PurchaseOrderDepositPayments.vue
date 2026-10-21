@@ -12,13 +12,13 @@ import Textarea from "primevue/textarea"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faCheck, faCheckCircle, faInfoCircle, faPaperclip, faTimes, faUndo } from "@fal"
+import { faCheck, faCheckCircle, faInfoCircle, faPaperclip, faPlus, faTimes, faUndo } from "@fal"
 import { useLocaleStore } from "@/Stores/locale"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { ctrans } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
 
-library.add(faCheck, faCheckCircle, faInfoCircle, faPaperclip, faTimes, faUndo)
+library.add(faCheck, faCheckCircle, faInfoCircle, faPaperclip, faPlus, faTimes, faUndo)
 
 export interface DepositPayment {
 	id: number
@@ -210,9 +210,9 @@ const undoPayment = () => {
 			</li>
 		</ul>
 
-		<Button v-if="payments.can_confirm && !isFullyPaid" type="tertiary" size="xs" :label="ctrans('Pay deposit')" @click="openPayDialog">
+		<Button v-if="payments.can_confirm && !isFullyPaid" type="tertiary" size="xs" full :label="ctrans('Pay deposit')" :tooltip="ctrans('Click to record a deposit paid to the supplier')" @click="openPayDialog">
 			<template #icon>
-				<FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" />
+				<FontAwesomeIcon icon="fal fa-plus" class="text-green-600" fixed-width aria-hidden="true" />
 			</template>
 		</Button>
 

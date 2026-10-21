@@ -257,7 +257,7 @@ class IndexTickets extends OrgAction
             ->where('tickets.group_id', $group->id)
             ->visibleTo(request()->user())
             ->leftJoin('users', 'users.id', '=', 'tickets.assignee_id')
-            ->with(['reporter', 'customer', 'assignee', 'collaborators', 'organisation', 'source', 'qaUser']);
+            ->with(TicketResource::eagerLoads());
 
         $this->whereCreatedIn($queryBuilder, $this->createdInterval(), 'tickets.created_at');
 
