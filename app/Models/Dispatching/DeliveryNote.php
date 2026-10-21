@@ -8,6 +8,7 @@
 
 namespace App\Models\Dispatching;
 
+use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateQuantityInLocations;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStateEnum;
@@ -333,6 +334,23 @@ class DeliveryNote extends Model implements Auditable
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    protected static function booted(): void
+    {
+        $hydrateOrgStocksToBePicked = function (DeliveryNote $deliveryNote) {
+            foreach ($deliveryNote->deliveryNoteItems()->whereNotNull('org_stock_id')->distinct()->pluck('org_stock_id') as $orgStockId) {
+                OrgStockHydrateQuantityInLocations::dispatch($orgStockId)->delay(2);
+            }
+        };
+
+        static::updated(function (DeliveryNote $deliveryNote) use ($hydrateOrgStocksToBePicked) {
+            if ($deliveryNote->wasChanged('state')) {
+                $hydrateOrgStocksToBePicked($deliveryNote);
+            }
+        });
+        static::deleted($hydrateOrgStocksToBePicked);
+        static::restored($hydrateOrgStocksToBePicked);
     }
 
     public function orders(): BelongsToMany

@@ -159,7 +159,7 @@ class GetOrgStockShowcase
                         'quantity_to_be_picked'        => [
                             'icon_state' => [
                                 'icon'    => 'fas fa-shopping-basket',
-                                'tooltip' => __("Parts been picked"),
+                                'tooltip' => __("Parts to be picked"),
                             ],
                             'value'            => $orgStock->quantity_to_be_picked,
                             'value_fractional' => $this->getFractionalQuantity($orgStock->quantity_to_be_picked, $orgStock->packed_in),

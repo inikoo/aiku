@@ -25,6 +25,8 @@ use App\Actions\Inventory\OrgStock\ForecastOrgStockDemand;
 use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateQuantityInLocations;
 use App\Actions\Inventory\OrgStock\StoreOrgStock;
 use App\Enums\Goods\Stock\StockStateEnum;
+use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
+use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStateEnum;
 use App\Enums\Inventory\LocationStock\LocationStockTypeEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\Inventory\OrgStockMovement\OrgStockMovementTypeEnum;
@@ -174,6 +176,30 @@ describe('warehouse instrumentation', function () {
 
         expect(Picking::where('delivery_note_id', $deliveryNote->id)->first()->last_picked_at)->toBeNull()
             ->and(Packing::where('delivery_note_id', $deliveryNote->id)->first()->done_at)->toBeNull();
+    });
+
+    test('stock on an open delivery note still to be picked is held back from what is available', function () {
+        $isAikuStockControl = $this->organisation->is_aiku_stock_control;
+        DB::table('organisations')->where('id', $this->organisation->id)->update(['is_aiku_stock_control' => true]);
+
+        [$deliveryNote, $deliveryNoteItem] = packedDeliveryNote($this);
+        $orgStock = $deliveryNoteItem->orgStock;
+
+        expect((float)$orgStock->refresh()->quantity_to_be_picked)->toBe(0.0)
+            ->and((float)$orgStock->quantity_available)->toBe(90.0);
+
+        $deliveryNote->update(['state' => DeliveryNoteStateEnum::HANDLING]);
+        $deliveryNoteItem->update(['state' => DeliveryNoteItemStateEnum::HANDLING, 'quantity_required' => 25]);
+
+        expect((float)$orgStock->refresh()->quantity_to_be_picked)->toBe(15.0)
+            ->and((float)$orgStock->quantity_available)->toBe(75.0);
+
+        $deliveryNote->update(['state' => DeliveryNoteStateEnum::CANCELLED]);
+
+        expect((float)$orgStock->refresh()->quantity_to_be_picked)->toBe(0.0)
+            ->and((float)$orgStock->quantity_available)->toBe(90.0);
+
+        DB::table('organisations')->where('id', $this->organisation->id)->update(['is_aiku_stock_control' => $isAikuStockControl]);
     });
 
     test('lines swept up by marking a whole note packed are flagged so rates can exclude them', function () {

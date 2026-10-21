@@ -16,6 +16,7 @@ use App\Actions\Ordering\PreOrder\AllocatePreOrderStock;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateReplenishments;
 use App\Actions\Production\PartnerShippingList\ReleaseUncoveredPrePicks;
 use App\Actions\Production\RawMaterial\Hydrators\RawMaterialHydrateFromOrgStock;
+use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Models\Inventory\OrgStock;
 use App\Models\Production\RawMaterial;
 use App\Models\SysAdmin\Organisation;
@@ -61,6 +62,10 @@ class OrgStockHydrateQuantityInLocations implements ShouldBeUnique
             ->where('locations.is_goods_out', true)
             ->sum('location_org_stocks.quantity');
 
+        if ($orgStock->organisation->is_aiku_stock_control) {
+            $orgStock->quantity_to_be_picked = $this->getQuantityToBePicked($orgStock->id);
+        }
+
         /* Goods that arrived for a pre-order are kept for it while its balance is due (HELP-3432). */
         $quantityAvailable = $quantityInLocations - $quantityInGoodsOut - $orgStock->quantity_in_submitted_orders - $orgStock->quantity_to_be_picked - $orgStock->quantity_reserved_for_pre_orders;
 
@@ -82,6 +87,7 @@ class OrgStockHydrateQuantityInLocations implements ShouldBeUnique
         $orgStock->update([
             'quantity_in_locations' => $quantityInLocations,
             'quantity_available'    => $quantityAvailable,
+            'quantity_to_be_picked' => $orgStock->quantity_to_be_picked,
         ]);
 
         if ($orgStock->wasChanged('quantity_available')) {
@@ -146,6 +152,28 @@ class OrgStockHydrateQuantityInLocations implements ShouldBeUnique
     }
 
 
+
+    /**
+     * Stock on a delivery note still waiting to be picked is promised to that customer (HELP-4177).
+     * It leaves the location when picked, so only what has not been picked or set as not picked counts.
+     */
+    public function getQuantityToBePicked(int $orgStockId): float
+    {
+        $openStates = [
+            DeliveryNoteStateEnum::UNASSIGNED->value,
+            DeliveryNoteStateEnum::QUEUED->value,
+            DeliveryNoteStateEnum::HANDLING->value,
+            DeliveryNoteStateEnum::HANDLING_BLOCKED->value,
+        ];
+
+        return (float)DB::table('delivery_note_items')
+            ->join('delivery_notes', 'delivery_notes.id', 'delivery_note_items.delivery_note_id')
+            ->where('delivery_note_items.org_stock_id', $orgStockId)
+            ->whereIn('delivery_note_items.state', $openStates)
+            ->whereIn('delivery_notes.state', $openStates)
+            ->whereNull('delivery_notes.deleted_at')
+            ->sum(DB::raw('greatest(delivery_note_items.quantity_required - coalesce(delivery_note_items.quantity_picked, 0) - coalesce(delivery_note_items.quantity_not_picked, 0), 0)'));
+    }
 
     public function asCommand(Command $command): int
     {
