@@ -116,10 +116,12 @@ class UpdateMasterProductInformation extends OrgAction
     {
         $data = $validator->getData();
 
-        $netWeight      = Arr::get($data, 'marketing_weight', $this->masterAsset->marketing_weight);
-        $shippingWeight = Arr::get($data, 'gross_weight', $this->masterAsset->gross_weight);
-        if ($netWeight && $shippingWeight && $shippingWeight < $netWeight) {
-            $validator->errors()->add('gross_weight', __('The shipping weight cannot be below the net weight'));
+        if (Arr::hasAny($data, ['marketing_weight', 'gross_weight'])) {
+            $netWeight      = Arr::get($data, 'marketing_weight', $this->masterAsset->marketing_weight);
+            $shippingWeight = Arr::get($data, 'gross_weight', $this->masterAsset->gross_weight);
+            if ($netWeight && $shippingWeight && $shippingWeight < $netWeight) {
+                $validator->errors()->add('gross_weight', __('The shipping weight cannot be below the net weight'));
+            }
         }
 
         $hasTradeUnitData = Arr::hasAny($data, ['marketing_weight', 'gross_weight', 'dimensions_cm', 'marketing_ingredients', 'origin_country_id']);

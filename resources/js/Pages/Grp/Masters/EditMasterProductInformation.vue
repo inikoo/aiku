@@ -297,12 +297,12 @@ const save = () => {
                     <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                         <div>
                             <label for="net-weight" class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Net weight (g)") }}</label>
-                            <InputNumber v-model="form.marketing_weight" inputId="net-weight" :min="0" :useGrouping="false" fluid :disabled="!canEdit || !information.is_editable" :invalid="!!errorOf('marketing_weight')" />
+                            <InputNumber v-model="form.marketing_weight" inputId="net-weight" :min="0" :useGrouping="false" fluid disabled :invalid="!!errorOf('marketing_weight')" />
                             <p class="mt-1 text-xs" :class="errorOf('marketing_weight') ? 'text-red-600' : 'text-gray-500'">{{ errorOf("marketing_weight") ?? ctrans("Weight of the product itself") }}</p>
                         </div>
                         <div>
                             <label for="shipping-weight" class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Shipping weight (g)") }}</label>
-                            <InputNumber v-model="form.gross_weight" inputId="shipping-weight" :min="0" :useGrouping="false" fluid :disabled="!canEdit || !information.is_editable" :invalid="!!errorOf('gross_weight')" />
+                            <InputNumber v-model="form.gross_weight" inputId="shipping-weight" :min="0" :useGrouping="false" fluid disabled :invalid="!!errorOf('gross_weight')" />
                             <p class="mt-1 text-xs" :class="errorOf('gross_weight') ? 'text-red-600' : 'text-gray-500'">{{ errorOf("gross_weight") ?? ctrans("Weight including packaging") }}</p>
                         </div>
                     </div>
@@ -312,7 +312,7 @@ const save = () => {
                         <div class="grid grid-cols-3 gap-3">
                             <div v-for="side in [{ key: 'l' as const, label: ctrans('Length') }, { key: 'w' as const, label: ctrans('Width') }, { key: 'h' as const, label: ctrans('Height') }]" :key="side.key">
                                 <label :for="`dimension-${side.key}`" class="mb-1 block text-xs text-gray-500">{{ side.label }}</label>
-                                <InputNumber v-model="form.dimensions_cm[side.key]" :inputId="`dimension-${side.key}`" :min="1" :maxFractionDigits="2" :useGrouping="false" fluid :disabled="!canEdit || !information.is_editable" :invalid="!!errorOf('dimensions_cm')" />
+                                <InputNumber v-model="form.dimensions_cm[side.key]" :inputId="`dimension-${side.key}`" :min="1" :maxFractionDigits="2" :useGrouping="false" fluid disabled :invalid="!!errorOf('dimensions_cm')" />
                             </div>
                         </div>
                         <p v-if="errorOf('dimensions_cm')" class="mt-1 text-xs text-red-600">{{ errorOf("dimensions_cm") }}</p>
@@ -327,14 +327,14 @@ const save = () => {
                             autoResize
                             fluid
                             :placeholder="ctrans('e.g. Glass reservoir, ABS plastic base')"
-                            :disabled="!canEdit || !information.is_editable"
+                            disabled
                         />
                     </div>
 
                     <div class="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
                         <div>
                             <label for="barcode" class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Barcode (EAN)") }}</label>
-                            <InputText id="barcode" v-model="form.barcode" :placeholder="ctrans('8, 12 or 13 digits')" fluid :disabled="!canEdit" :invalid="!!errorOf('barcode')" />
+                            <InputText id="barcode" v-model="form.barcode" :placeholder="ctrans('8, 12 or 13 digits')" fluid disabled :invalid="!!errorOf('barcode')" />
                             <p class="mt-1 text-xs" :class="errorOf('barcode') ? 'text-red-600' : 'text-gray-500'">
                                 {{ errorOf("barcode") ?? ctrans("8, 12 or 13 digits, and a free barcode of the barcode pool (not used by another product or trade unit)") }}
                             </p>
@@ -351,7 +351,7 @@ const save = () => {
                                 showClear
                                 fluid
                                 :placeholder="ctrans('Not set')"
-                                :disabled="!canEdit || !information.is_editable"
+                                disabled
                             />
                         </div>
                     </div>
