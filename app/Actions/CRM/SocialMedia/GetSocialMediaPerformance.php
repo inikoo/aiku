@@ -19,9 +19,13 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
+ * Only Meta is offered for now, Facebook and Instagram, organic and paid: TikTok is left out of the
+ * platforms and the paid channels until its figures are synced too.
+ *
  * Organic figures are the posts published in the period, as last exported; followers come from the
  * accounts' daily exports. Paid figures are the Meta ad spend fetched every night and the revenue
  * attribution credits to it, in the parent's currency.
@@ -177,7 +181,7 @@ class GetSocialMediaPerformance
             SocialMediaPlatformEnum::FACEBOOK  => [TrafficSourcesTypeEnum::META_ADS->value],
             SocialMediaPlatformEnum::INSTAGRAM => [TrafficSourcesTypeEnum::INSTAGRAM_ADS->value],
             SocialMediaPlatformEnum::TIKTOK    => [TrafficSourcesTypeEnum::TIKTOK_ADS->value],
-            null                               => [TrafficSourcesTypeEnum::META_ADS->value, TrafficSourcesTypeEnum::INSTAGRAM_ADS->value, TrafficSourcesTypeEnum::TIKTOK_ADS->value],
+            null                               => [TrafficSourcesTypeEnum::META_ADS->value, TrafficSourcesTypeEnum::INSTAGRAM_ADS->value],
         };
     }
 
@@ -390,10 +394,13 @@ class GetSocialMediaPerformance
     /**
      * @param array<int, array<string, mixed>> $channels
      *
-     * @return array{spend: float, revenue: float, orders: float, roas: float|null, cpa: float|null, ad_impressions: int, ad_clicks: int, ctr: float|null}
+     * @return array{spend: float, revenue: float, orders: float, roas: float|null, cpa: float|null, ad_impressions: int, ad_clicks: int, ctr: float|null, meta_purchases: float, meta_value: float, meta_roas: float|null}
      */
     private function paidTotals(array $channels): array
     {
+        $metaValue = (float) array_sum(array_column($channels, 'meta_value'));
+        $metaCost  = (float) array_sum(array_column($channels, 'meta_cost'));
+
         $spend       = round(array_sum(array_column($channels, 'spend')), 2);
         $revenue     = round(array_sum(array_column($channels, 'revenue')), 2);
         $orders      = round(array_sum(array_column($channels, 'orders')), 2);
@@ -409,6 +416,29 @@ class GetSocialMediaPerformance
             'ad_impressions' => $impressions,
             'ad_clicks'      => $clicks,
             'ctr'            => $this->rate($clicks, $impressions),
+            'meta_purchases' => round((float) array_sum(array_column($channels, 'meta_purchases')), 2),
+            'meta_value'     => round($metaValue, 2),
+            'meta_roas'      => $metaCost > 0 ? round($metaValue / $metaCost, 2) : null,
+        ];
+    }
+
+    /**
+     * What Meta itself reports the ads sold: its pixel's purchases and their value, divided by the
+     * spend in the ad account's own currency, the figures Ads Manager shows. Beside the ROAS above,
+     * which is the revenue of the orders Aiku credits to the ads.
+     *
+     * @return array{meta_purchases: float, meta_value: float, meta_cost: float, meta_roas: float|null}
+     */
+    private function metaPurchases(?object $metrics): array
+    {
+        $value = (float) ($metrics->meta_value ?? 0);
+        $cost  = (float) ($metrics->meta_cost ?? 0);
+
+        return [
+            'meta_purchases' => round((float) ($metrics->meta_purchases ?? 0), 2),
+            'meta_value'     => round($value, 2),
+            'meta_cost'      => round($cost, 2),
+            'meta_roas'      => $cost > 0 ? round($value / $cost, 2) : null,
         ];
     }
 
@@ -434,6 +464,7 @@ class GetSocialMediaPerformance
                 $shown   = (int) ($metrics[$type]->impressions ?? 0);
 
                 return [
+                    ...$this->metaPurchases($metrics[$type] ?? null),
                     'type'        => $type,
                     'label'       => TrafficSourcesTypeEnum::labels()[$type] ?? $type,
                     'spend'       => round($spend, 2),
@@ -453,7 +484,7 @@ class GetSocialMediaPerformance
     /**
      * @param array<int, string> $adTypes
      *
-     * @return Collection<int|string, object{impressions: int, clicks: int}>
+     * @return Collection<int|string, object{impressions: int, clicks: int, meta_purchases: float, meta_value: float, meta_cost: float}>
      */
     private function adMetrics(Collection $shops, array $adTypes, ?Carbon $from, ?Carbon $to, string $groupBy): Collection
     {
@@ -465,7 +496,7 @@ class GetSocialMediaPerformance
             ->when($from, fn (Builder $query) => $query->where('m.date', '>=', $from->toDateString()))
             ->when($to, fn (Builder $query) => $query->where('m.date', '<=', $to->toDateString()))
             ->groupBy($groupBy)
-            ->selectRaw("$groupBy as bucket, SUM(m.impressions) as impressions, SUM(m.clicks) as clicks")
+            ->selectRaw("$groupBy as bucket, SUM(m.impressions) as impressions, SUM(m.clicks) as clicks, SUM(m.conversions) as meta_purchases, SUM(m.source_conversions_value) as meta_value, SUM(m.source_cost) as meta_cost")
             ->get()
             ->keyBy('bucket');
     }
@@ -490,7 +521,7 @@ class GetSocialMediaPerformance
             ->join('organisations as o', 'o.id', '=', 's.organisation_id')
             ->whereIn('ts.shop_id', $shops->pluck('id'))
             ->whereIn('ts.type', $adTypes)
-            ->select('tc.id', 'tc.name', 'ts.type', 's.name as shop_name', 'o.name as organisation_name')
+            ->select('tc.id', 'tc.name', 'tc.reference', 'ts.type', 'ts.shop_id', 's.name as shop_name', 'o.name as organisation_name')
             ->get()
             ->map(function ($campaign) use ($spend, $revenue, $orders, $metrics, $isGroup) {
                 $spent     = round((float) ($spend[$campaign->id] ?? 0), 2);
@@ -500,6 +531,8 @@ class GetSocialMediaPerformance
                 $shown     = (int) ($metrics[$campaign->id]->impressions ?? 0);
 
                 return [
+                    ...$this->metaPurchases($metrics[$campaign->id] ?? null),
+                    'key'           => $campaign->shop_id.'|'.($campaign->reference !== null ? Str::after($campaign->reference, TrafficSourcesTypeEnum::INSTAGRAM_CAMPAIGN_PREFIX) : 'id'.$campaign->id),
                     'name'          => $campaign->name,
                     'channel'       => TrafficSourcesTypeEnum::labels()[$campaign->type] ?? $campaign->type,
                     'owner'         => $isGroup ? $campaign->organisation_name.' · '.$campaign->shop_name : $campaign->shop_name,
@@ -514,9 +547,52 @@ class GetSocialMediaPerformance
                 ];
             })
             ->filter(fn (array $campaign) => $campaign['spend'] > 0 || $campaign['revenue'] > 0)
+            ->groupBy('key')
+            ->map(fn (Collection $placements) => $this->wholeCampaign($placements))
             ->sortByDesc('spend')
             ->values()
             ->all();
+    }
+
+    /**
+     * One Meta campaign runs on Facebook and on Instagram, and its spend is kept per placement. Ads
+     * Manager shows the campaign as one row, so the placements are added up here, the rates taken
+     * from the sums, and each placement's spend kept beside it.
+     *
+     * @param Collection<int, array<string, mixed>> $placements
+     *
+     * @return array<string, mixed>
+     */
+    private function wholeCampaign(Collection $placements): array
+    {
+        $sum = fn (string $key) => round((float) $placements->sum($key), 2);
+
+        $spent       = $sum('spend');
+        $earned      = $sum('revenue');
+        $orders      = $sum('orders');
+        $clicks      = (int) $placements->sum('clicks');
+        $impressions = (int) $placements->sum('impressions');
+        $metaValue   = $sum('meta_value');
+        $metaCost    = $sum('meta_cost');
+
+        return [
+            'name'           => $placements->pluck('name')->first(fn ($name) => !is_numeric($name)) ?? $placements->first()['name'],
+            'channel'        => $placements->pluck('channel')->unique()->implode(' + '),
+            'placements'     => $placements->sortByDesc('spend')->map(fn (array $placement) => ['channel' => $placement['channel'], 'spend' => $placement['spend']])->values()->all(),
+            'owner'          => $placements->first()['owner'],
+            'spend'          => $spent,
+            'revenue'        => $earned,
+            'orders'         => $orders,
+            'impressions'    => $impressions,
+            'clicks'         => $clicks,
+            'ctr'            => $this->rate($clicks, $impressions),
+            'cpa'            => $orders > 0 ? round($spent / $orders, 2) : null,
+            'roas'           => $spent > 0 ? round($earned / $spent, 2) : null,
+            'meta_purchases' => $sum('meta_purchases'),
+            'meta_value'     => $metaValue,
+            'meta_cost'      => $metaCost,
+            'meta_roas'      => $metaCost > 0 ? round($metaValue / $metaCost, 2) : null,
+        ];
     }
 
     /**
@@ -539,10 +615,19 @@ class GetSocialMediaPerformance
             ->get()
             ->keyBy(fn ($row) => (string) $row->bucket);
 
+        $withHistory = DB::table('social_media_account_daily_stats')
+            ->whereIn('social_media_account_id', $this->accountsQuery($shops, $platform)->pluck('a.id'))
+            ->whereNotNull('followers')
+            ->when($from, fn (Builder $query) => $query->where('date', '>=', $from->toDateString()))
+            ->when($to, fn (Builder $query) => $query->where('date', '<=', $to->toDateString()))
+            ->groupBy('social_media_account_id')
+            ->havingRaw('COUNT(*) > 1')
+            ->pluck('social_media_account_id');
+
         $followers = DB::query()
             ->fromSub(
                 DB::table('social_media_account_daily_stats')
-                    ->whereIn('social_media_account_id', $this->accountsQuery($shops, $platform)->pluck('a.id'))
+                    ->whereIn('social_media_account_id', $withHistory)
                     ->whereNotNull('followers')
                     ->when($from, fn (Builder $query) => $query->where('date', '>=', $from->toDateString()))
                     ->when($to, fn (Builder $query) => $query->where('date', '<=', $to->toDateString()))
@@ -795,6 +880,7 @@ class GetSocialMediaPerformance
             'countries' => $shops->pluck('country')->filter()->unique('id')->sortBy('name')
                 ->map(fn ($country) => ['code' => $country->code, 'name' => $country->name])->values()->all(),
             'platforms' => collect(SocialMediaPlatformEnum::labels())
+                ->except(SocialMediaPlatformEnum::TIKTOK->value)
                 ->map(fn (string $label, string $value) => ['value' => $value, 'label' => $label])->values()->all(),
         ];
     }

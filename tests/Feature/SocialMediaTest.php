@@ -10,6 +10,7 @@
 
 use App\Actions\CRM\SocialMedia\GetSocialMediaPerformance;
 use App\Actions\CRM\SocialMedia\ImportSocialMediaInsights;
+use App\Actions\CRM\SocialMedia\SyncShopFromMeta;
 use App\Console\Commands\FetchMetaSocialInsights;
 use App\Enums\CRM\SocialMedia\SocialMediaPlatformEnum;
 use App\Enums\CRM\SocialMedia\SocialMediaPostTypeEnum;
@@ -351,7 +352,8 @@ it('shows the social media dashboard to marketing users', function () {
             ->component('Org/Marketing/SocialMediaDashboard')
             ->where('title', 'Social media')
             ->has('upload_shops')
-            ->has('export_route'));
+            ->has('export_route')
+            ->where('meta_sync', fn ($shops) => collect($shops)->contains(fn ($shop) => $shop['id'] === $this->shop->id && $shop['organic'] === false && $shop['paid'] === false)));
 
     $this->get(route('grp.marketing.social_media.dashboard'))->assertOk();
 });
@@ -457,6 +459,14 @@ function fakeMetaSocialGraph(array &$requests): void
                     ['name' => 'reach', 'values' => [['value' => 650, 'end_time' => '2026-08-05T07:00:00+0000']]],
                     ['name' => 'follower_count', 'values' => [['value' => 9, 'end_time' => '2026-08-05T07:00:00+0000']]],
                 ])->whereIn('name', explode(',', $query['metric'] ?? ''))->values()->all()]),
+                ($query['metric'] ?? null) === 'follows_and_unfollows' => Http::response(['data' => [[
+                    'name'        => 'follows_and_unfollows',
+                    'period'      => 'day',
+                    'total_value' => ['breakdowns' => [['dimension_keys' => ['follow_type'], 'results' => [
+                        ['dimension_values' => ['FOLLOWER'], 'value' => 5],
+                        ['dimension_values' => ['NON_FOLLOWER'], 'value' => 2],
+                    ]]]],
+                ]]]),
                 str_contains($query['metric'] ?? '', 'website_clicks') => Http::response(['error' => ['message' => '(#100) metric[0] must be one of the following values']], 400),
                 default => Http::response(['data' => collect(['views' => 700, 'total_interactions' => 45, 'profile_views' => 12])
                     ->only(explode(',', $query['metric'] ?? ''))
@@ -538,6 +548,23 @@ describe('fetching meta organic insights', function () {
             ->and($instagram->dailyStats()->where('date', '2026-08-04')->sole()->new_follows)->toBe(9);
     });
 
+    it('works instagram followers of past days back from today through each day\'s follows and unfollows', function () {
+        $requests = [];
+        fakeMetaSocialGraph($requests);
+        $this->travelTo(Carbon::parse('2026-09-01 10:00'));
+
+        Artisan::call('social-media:fetch-meta', ['shop' => $this->shop->slug, '--date' => '2026-08-31', '--days' => 31]);
+
+        $instagram = $this->shop->socialMediaAccounts()->where('platform', 'instagram')->sole();
+        $followers = $instagram->dailyStats()->whereNotNull('followers')->pluck('followers', 'date')->mapWithKeys(fn ($value, $date) => [Carbon::parse($date)->toDateString() => $value]);
+
+        expect($followers['2026-09-01'])->toBe(2000)
+            ->and($followers['2026-08-31'])->toBe(2000)
+            ->and($followers['2026-08-30'])->toBe(1997)
+            ->and($followers['2026-08-02'])->toBe(1913)
+            ->and($followers->has('2026-08-01'))->toBeFalse();
+    });
+
     it('fills the account a csv upload created instead of adding a second one', function () {
         ImportSocialMediaInsights::make()->handle($this->shop, socialCsv('instagram-followers.csv', [
             'Date,Instagram followers',
@@ -599,6 +626,38 @@ describe('fetching meta organic insights', function () {
             ->and($reel->shares)->toBe(7)
             ->and($reel->reactions)->toBe(40)
             ->and(collect($requests)->filter(fn (string $url) => str_contains($url, '/111/posts') && str_contains($url, 'limit=50'))->every(fn (string $url) => !str_contains(urldecode($url), 'comments.summary')))->toBeTrue();
+    });
+
+    it('syncs a brand from meta on request and remembers how it went', function () {
+        $requests = [];
+        fakeMetaSocialGraph($requests);
+
+        $this->postJson(route('grp.models.shop.social_media.sync', ['shop' => $this->shop->id]))->assertOk();
+
+        $status = SyncShopFromMeta::status($this->shop->refresh());
+
+        expect($this->shop->socialMediaAccounts()->count())->toBe(2)
+            ->and($status['organic'])->toBeTrue()
+            ->and($status['paid'])->toBeFalse()
+            ->and($status['running'])->toBeFalse()
+            ->and($status['last_sync']['ok'])->toBeTrue()
+            ->and($status['organic_updated_at'])->not->toBeNull();
+
+        $this->postJson(route('grp.models.shop.social_media.sync', ['shop' => $this->shop->id]))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('shop');
+    });
+
+    it('says a brand is not set up for meta rather than syncing it', function () {
+        $settings = $this->shop->settings;
+        data_forget($settings, 'meta_social');
+        $this->shop->update(['settings' => $settings]);
+
+        $this->postJson(route('grp.models.shop.social_media.sync', ['shop' => $this->shop->id]))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('shop');
+
+        expect($this->shop->socialMediaAccounts()->count())->toBe(0);
     });
 
     it('reports a meta error as a failure and writes nothing on a dry run', function () {

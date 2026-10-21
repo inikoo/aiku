@@ -79,6 +79,7 @@ class FetchMetaSocialInsights extends Command
         'page_media_view'              => 'impressions',
         'page_daily_follows_unique'    => 'new_follows',
         'page_views_total'             => 'profile_visits',
+        'page_follows'                 => 'followers',
     ];
 
     public const string INSTAGRAM_MEDIA_METRICS = 'reach,views,saved,shares';
@@ -263,6 +264,7 @@ class FetchMetaSocialInsights extends Command
         ));
 
         $this->storeFollowers($account, data_get($profile, 'followers_count'));
+        $this->storeFollowerHistory($account, data_get($profile, 'followers_count'), $this->instagramNetFollows($instagramId, $accountSince, $until, $token));
 
         return [$posts, $days];
     }
@@ -372,6 +374,77 @@ class FetchMetaSocialInsights extends Command
         }
 
         return $byDate;
+    }
+
+    /**
+     * Instagram gives no follower count for past days, only how many accounts followed and unfollowed
+     * on each one, so a day's net change is asked for one day at a time.
+     *
+     * @return array<string, int> date => followers gained less followers lost
+     */
+    private function instagramNetFollows(string $instagramId, Carbon $since, Carbon $until, string $token): array
+    {
+        $net = [];
+
+        for ($day = $since->copy()->startOfDay(); $day->lte($until); $day->addDay()) {
+            try {
+                $response = $this->get($this->url($instagramId.'/insights'), [
+                    'metric'      => 'follows_and_unfollows',
+                    'metric_type' => 'total_value',
+                    'breakdown'   => 'follow_type',
+                    'period'      => 'day',
+                    'since'       => $day->timestamp,
+                    'until'       => $day->copy()->addDay()->timestamp,
+                ], $token);
+            } catch (\RuntimeException) {
+                $this->unavailable[] = 'instagram follows_and_unfollows';
+
+                return $net;
+            }
+
+            $byType = collect(data_get($response, 'data.0.total_value.breakdowns.0.results', []))
+                ->mapWithKeys(fn (array $result) => [data_get($result, 'dimension_values.0') => (int) data_get($result, 'value', 0)]);
+
+            $net[$day->toDateString()] = ($byType['FOLLOWER'] ?? 0) - ($byType['NON_FOLLOWER'] ?? 0);
+        }
+
+        return $net;
+    }
+
+    /**
+     * The follower count of each past day, worked back from today's count through each later day's net
+     * change. It stops at the first day whose change Meta did not give, and today's change, not asked
+     * for, counts as none.
+     *
+     * @param array<string, int> $netByDate
+     */
+    private function storeFollowerHistory(SocialMediaAccount $account, mixed $followers, array $netByDate): void
+    {
+        if ($followers === null || $netByDate === [] || $this->option('dry-run')) {
+            return;
+        }
+
+        $count = (int) $followers;
+        $day   = now()->startOfDay();
+
+        while (true) {
+            $change = $day->isToday() ? ($netByDate[$day->toDateString()] ?? 0) : ($netByDate[$day->toDateString()] ?? null);
+            if ($change === null) {
+                return;
+            }
+
+            $count -= $change;
+            $day->subDay();
+
+            if (!isset($netByDate[$day->toDateString()])) {
+                return;
+            }
+
+            SocialMediaAccountDailyStat::updateOrCreate(
+                ['social_media_account_id' => $account->id, 'date' => $day->toDateString()],
+                ['followers' => $count]
+            );
+        }
     }
 
     /**

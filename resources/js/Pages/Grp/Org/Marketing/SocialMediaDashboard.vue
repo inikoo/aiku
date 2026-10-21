@@ -5,7 +5,8 @@
   -->
 
 <script setup lang="ts">
-import { computed, inject, ref, watch } from 'vue'
+import { computed, inject, onBeforeUnmount, ref, watch } from 'vue'
+import axios from 'axios'
 import { Deferred, Head, router } from '@inertiajs/vue3'
 import { route } from 'ziggy-js'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
@@ -28,6 +29,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import {
     faAd, faArrowDown, faArrowUp, faBookmark, faChartLine, faClone, faExternalLink, faFileExport, faFilm,
     faHashtag, faHeart, faHistory, faImage, faInfoCircle, faSpinnerThird, faTimes, faUpload, faVideo,
+    faSyncAlt, faCheck, faExclamationTriangle, faCog,
 } from '@fal'
 import { PageHeadingTypes } from '@/types/PageHeading'
 import { routeType } from '@/types/route'
@@ -37,7 +39,8 @@ import { Line } from 'vue-chartjs'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Filler, Tooltip, Legend)
 library.add(faAd, faArrowDown, faArrowUp, faBookmark, faChartLine, faClone, faExternalLink, faFileExport, faFilm,
-    faHashtag, faHeart, faHistory, faImage, faInfoCircle, faSpinnerThird, faTimes, faUpload, faVideo)
+    faHashtag, faHeart, faHistory, faImage, faInfoCircle, faSpinnerThird, faTimes, faUpload, faVideo,
+    faSyncAlt, faCheck, faExclamationTriangle, faCog)
 
 interface Kpis {
     posts: number
@@ -62,6 +65,9 @@ interface Kpis {
     ad_impressions: number
     ad_clicks: number
     ctr: number | null
+    meta_purchases: number
+    meta_value: number
+    meta_roas: number | null
 }
 
 interface Post {
@@ -109,9 +115,23 @@ interface Performance {
     top_posts: Post[]
     accounts: { id: number, name: string, username: string | null, platform: string, platform_label: string, shop_name: string, shop_slug: string, country_code: string, followers: number | null, followers_at: string | null, posts: number, reach: number, engagements: number, link_clicks: number, engagement_rate: number | null, views: number, interactions: number, interaction_rate: number | null }[]
     paid: {
-        channels: { type: string, label: string, spend: number, revenue: number, orders: number, roas: number | null, impressions: number, clicks: number, ctr: number | null }[]
-        campaigns: { name: string, channel: string, owner: string | null, spend: number, revenue: number, orders: number, impressions: number, clicks: number, ctr: number | null, cpa: number | null, roas: number | null }[]
+        channels: { type: string, label: string, spend: number, revenue: number, orders: number, roas: number | null, impressions: number, clicks: number, ctr: number | null, meta_purchases: number, meta_roas: number | null }[]
+        campaigns: { name: string, channel: string, placements: { channel: string, spend: number }[], owner: string | null, spend: number, revenue: number, orders: number, impressions: number, clicks: number, ctr: number | null, cpa: number | null, roas: number | null, meta_purchases: number, meta_value: number, meta_roas: number | null }[]
     }
+}
+
+interface MetaSync {
+    id: number
+    slug: string
+    name: string
+    route: routeType
+    edit_route: routeType
+    organic: boolean
+    paid: boolean
+    running: boolean
+    last_sync: { finished_at: string, ok: boolean, message: string | null } | null
+    organic_updated_at: string | null
+    paid_updated_at: string | null
 }
 
 const props = defineProps<{
@@ -120,6 +140,7 @@ const props = defineProps<{
     intervals: Intervals
     settings: Settings
     upload_shops: { id: number, name: string, route: routeType }[]
+    meta_sync?: MetaSync[]
     export_route: routeType
     performance?: Performance
     uploads?: { data: any[], meta?: any }
@@ -298,7 +319,7 @@ const overviewKpis = computed<Kpi[]>(() => {
         audienceKpi.value,
         kpi('link_clicks', ctrans('Link clicks'), short(c.link_clicks), delta(c.link_clicks, p?.link_clicks)),
         kpi('spend', ctrans('Paid spend'), money(c.spend), delta(c.spend, p?.spend, { lowerIsBetter: true }), c.orders ? count(c.orders) + ' ' + ctrans('orders') : undefined),
-        kpi('roas', ctrans('ROAS'), ratio(c.roas), delta(c.roas, p?.roas), c.revenue ? money(c.revenue) + ' ' + ctrans('attributed') : undefined, ctrans('Attributed revenue divided by spend.')),
+        kpi('meta_roas', ctrans('ROAS'), ratio(c.meta_roas), delta(c.meta_roas, p?.meta_roas), c.meta_purchases ? count(c.meta_purchases) + ' ' + ctrans('purchases') : undefined, ctrans('Purchase value Meta reports for the ads, divided by spend, as Ads Manager shows it.')),
     ]
 })
 
@@ -323,10 +344,10 @@ const paidKpis = computed<Kpi[]>(() => {
     return [
         kpi('spend', ctrans('Spend'), money(c.spend), delta(c.spend, p?.spend, { lowerIsBetter: true })),
         kpi('revenue', ctrans('Revenue'), money(c.revenue), delta(c.revenue, p?.revenue), c.orders ? count(c.orders) + ' ' + ctrans('orders') : undefined),
-        kpi('roas', ctrans('ROAS'), ratio(c.roas), delta(c.roas, p?.roas)),
+        kpi('roas', ctrans('ROAS · Aiku'), ratio(c.roas), delta(c.roas, p?.roas), undefined, ctrans('Revenue of the orders Aiku credits to the ads, divided by spend.')),
+        kpi('meta_roas', ctrans('ROAS · Meta'), ratio(c.meta_roas), delta(c.meta_roas, p?.meta_roas), count(c.meta_purchases) + ' ' + ctrans('Meta purchases') + ' · ' + money(c.meta_value), ctrans('Purchase value Meta\'s pixel reports for the ads, divided by spend: the figure Ads Manager shows. Meta counts by its own attribution window, so it is usually higher than the orders Aiku credits.')),
         kpi('cpa', ctrans('CPA'), money(c.cpa), delta(c.cpa, p?.cpa, { lowerIsBetter: true }), undefined, ctrans('Spend divided by attributed orders.')),
-        kpi('ctr', ctrans('CTR'), pct(c.ctr, 2), delta(c.ctr, p?.ctr, { points: true }), short(c.ad_impressions) + ' ' + ctrans('impressions')),
-        kpi('clicks', ctrans('Clicks'), short(c.ad_clicks), delta(c.ad_clicks, p?.ad_clicks)),
+        kpi('ctr', ctrans('CTR'), pct(c.ctr, 2), delta(c.ctr, p?.ctr, { points: true }), short(c.ad_clicks) + ' ' + ctrans('clicks') + ' · ' + short(c.ad_impressions) + ' ' + ctrans('impressions')),
     ]
 })
 
@@ -363,6 +384,7 @@ const lineDataset = (label: string, data: number[], color: string, fill: boolean
     backgroundColor: fill ? color + '22' : 'transparent',
     fill,
     tension: 0.3,
+    cubicInterpolationMode: 'monotone' as const,
     pointRadius: 0,
     pointHoverRadius: 4,
     pointHoverBackgroundColor: color,
@@ -381,7 +403,7 @@ const engagementsChart = computed(() => ({
 }))
 const followersChart = computed(() => ({
     labels: trendLabels.value,
-    datasets: [lineDataset(ctrans('Followers'), (props.performance?.trend.points ?? []).map(point => point.followers ?? NaN), SERIES.followers, false)],
+    datasets: [{ ...lineDataset(ctrans('Followers'), (props.performance?.trend.points ?? []).map(point => point.followers ?? NaN), SERIES.followers, false), pointRadius: 2, spanGaps: true }],
 }))
 
 const chartOptions = (showX: boolean, beginAtZero = true) => ({
@@ -445,6 +467,47 @@ const hasOrganic = computed(() => props.performance?.data_until !== null && prop
 /* Every ROAS pill says the same thing: paid back or not. Colour is information here. */
 const roasClass = (roas: number | null) => roas === null ? 'bg-gray-100 text-gray-400' : roas >= 1 ? 'bg-green-50 text-green-700 ring-1 ring-green-200' : 'bg-red-50 text-red-700 ring-1 ring-red-200'
 
+/* Sync from Meta: one brand at a time, since every brand has its own Page, Instagram account and
+   ad account. A brand that is not set up says so and links to its settings instead. While a sync
+   runs the list is refreshed every few seconds, and the figures once it has finished. */
+const isSyncOpen = ref(false)
+const syncErrors = ref<Record<number, string>>({})
+const syncShops = computed(() => (props.meta_sync ?? []).filter(shop => !shopFilter.value || shop.slug === shopFilter.value))
+const selectedSync = computed(() => shopFilter.value ? (props.meta_sync ?? []).find(shop => shop.slug === shopFilter.value) ?? null : null)
+const isSetUp = (shop: MetaSync) => shop.organic || shop.paid
+const anyRunning = computed(() => (props.meta_sync ?? []).some(shop => shop.running))
+const time = (value: string | null | undefined) => value ? useFormatTime(value, { formatTime: 'hm' }) : '–'
+
+let pollTimer: ReturnType<typeof setInterval> | null = null
+const stopPolling = () => {
+    if (pollTimer) clearInterval(pollTimer)
+    pollTimer = null
+}
+const startPolling = () => {
+    if (pollTimer) return
+    pollTimer = setInterval(() => router.reload({ only: ['meta_sync'] }), 8000)
+}
+watch(anyRunning, (running, wasRunning) => {
+    if (running) {
+        startPolling()
+        return
+    }
+    stopPolling()
+    if (wasRunning) applyFilters()
+}, { immediate: true })
+onBeforeUnmount(stopPolling)
+
+const syncShop = async (shop: MetaSync) => {
+    syncErrors.value = { ...syncErrors.value, [shop.id]: '' }
+    try {
+        await axios.post(route(shop.route.name, shop.route.parameters))
+        router.reload({ only: ['meta_sync'] })
+    } catch (error: any) {
+        syncErrors.value = { ...syncErrors.value, [shop.id]: error?.response?.data?.errors?.shop?.[0] ?? error?.response?.data?.message ?? ctrans('The sync could not start') }
+    }
+}
+const syncAll = () => syncShops.value.filter(shop => isSetUp(shop) && !shop.running).forEach(syncShop)
+
 /* Upload: the import lands on one shop, so the shop is chosen first and the modal opens after.
    The platform is only needed for a single-metric chart export whose title does not name it. */
 const isUploadOpen = ref(false)
@@ -456,7 +519,6 @@ const uploadPlatformOptions = [
     { label: ctrans('Detect'), value: '' },
     { label: 'Facebook', value: 'facebook' },
     { label: 'Instagram', value: 'instagram' },
-    { label: 'TikTok', value: 'tiktok' },
 ]
 
 const startUpload = () => {
@@ -487,7 +549,7 @@ const uploadSpreadsheet = computed(() => uploadShop.value ? {
     },
 } as any : undefined)
 
-const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Business Suite (Insights → Export data → Content, or Results/Audience per day) and TikTok Studio. Content exports add or update posts; daily exports add followers, reach and visits per day. Re-uploading a period updates its figures, it never duplicates them.')
+const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Business Suite (Insights → Export data → Content, or a chart\'s Export for one figure per day). Content exports add or update posts; daily exports add followers, views and visits per day. Re-uploading a period updates its figures, it never duplicates them.')
 </script>
 
 <template>
@@ -501,6 +563,9 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
             <a :href="exportHref" download>
                 <Button icon="fal fa-file-export" :label="ctrans('Export posts')" type="tertiary" />
             </a>
+            <Button v-if="meta_sync?.length" icon="fal fa-sync-alt" :label="ctrans('Sync from Meta')" type="tertiary" data-test="social-sync-open" @click="isSyncOpen = true">
+                <template #icon><FontAwesomeIcon icon="fal fa-sync-alt" :spin="anyRunning" class="text-[--app-accent]" fixed-width /></template>
+            </Button>
             <Button v-if="uploadShopOptions.length" icon="fal fa-upload" :label="ctrans('Import export')" type="tertiary" @click="startUpload" />
         </template>
     </PageHeading>
@@ -537,6 +602,16 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                         <span class="h-1.5 w-1.5 rounded-full bg-amber-500" />
                         {{ ctrans('No data imported yet') }}
                     </span>
+                    <button v-if="selectedSync && !isSetUp(selectedSync)" type="button" class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2 py-0.5 text-xs text-amber-700 ring-1 ring-amber-200 hover:bg-amber-100" data-test="social-sync-not-set-up" @click="isSyncOpen = true">
+                        <FontAwesomeIcon icon="fal fa-exclamation-triangle" fixed-width />
+                        {{ ctrans('Not connected to Meta') }}
+                    </button>
+                    <button v-else-if="selectedSync" type="button" class="inline-flex items-center gap-1.5 rounded-full bg-gray-50 px-2 py-0.5 text-xs text-gray-600 ring-1 ring-gray-200 hover:bg-gray-100" @click="isSyncOpen = true">
+                        <FontAwesomeIcon icon="fal fa-sync-alt" :spin="selectedSync.running" fixed-width />
+                        <template v-if="selectedSync.running">{{ ctrans('Syncing from Meta…') }}</template>
+                        <template v-else-if="selectedSync.last_sync">{{ ctrans('Synced') }} {{ time(selectedSync.last_sync.finished_at) }}</template>
+                        <template v-else>{{ ctrans('Not synced yet') }}</template>
+                    </button>
                     <FontAwesomeIcon v-if="isReloading" icon="fal fa-spinner-third" spin class="text-gray-400 text-xs" fixed-width />
 
                     <div class="ml-auto flex flex-wrap items-center gap-2">
@@ -572,7 +647,6 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                             <p>{{ ctrans('This dashboard is fed by the exports the platforms already produce. Nothing is typed in by hand.') }}</p>
                             <ol class="list-decimal pl-5 space-y-1">
                                 <li>{{ ctrans('Meta Business Suite: Insights → Export data → Content, for the period you want; Results or Audience per day for followers and reach.') }}</li>
-                                <li>{{ ctrans('TikTok Studio: Analytics → Download data, as CSV.') }}</li>
                                 <li>{{ ctrans('Upload the file here with Import export, choosing the brand it belongs to. Re-uploading a period updates it, it never duplicates it.') }}</li>
                             </ol>
                             <Button v-if="uploadShopOptions.length" icon="fal fa-upload" :label="ctrans('Import export')" type="tertiary" class="mt-2" @click="startUpload" />
@@ -690,7 +764,7 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                         </div>
                                         <div class="text-right shrink-0">
                                             <div class="tabular-nums text-gray-900">{{ money(channel.spend) }}</div>
-                                            <span class="inline-block rounded-full px-2 py-0.5 text-xs tabular-nums" :class="roasClass(channel.roas)">{{ ctrans('ROAS') }} {{ ratio(channel.roas) }}</span>
+                                            <span class="inline-block rounded-full px-2 py-0.5 text-xs tabular-nums" :class="roasClass(channel.meta_roas)" v-tooltip="ctrans('ROAS as Ads Manager reports it')">{{ ctrans('ROAS') }} {{ ratio(channel.meta_roas) }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -866,7 +940,7 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                     <!-- Paid -->
                     <template v-else-if="currentTab === 'paid'">
                         <p class="text-xs text-gray-500 max-w-3xl">
-                            {{ ctrans('Paid figures come from the nightly Meta Ads sync and the sales attributed to those ads. ROAS and CPA use attributed revenue and orders, so they move as invoices are raised.') }}
+                            {{ ctrans('Paid figures come from the nightly Meta Ads sync. ROAS · Aiku and CPA use the orders Aiku credits to the ads, so they move as invoices are raised; ROAS · Meta and Meta purchases are what Ads Manager reports.') }}
                             <span class="text-gray-400">{{ ctrans('All figures in') }} {{ currency }}.</span>
                         </p>
 
@@ -901,7 +975,7 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                         </div>
                                         <div class="mt-1 flex justify-between text-xs text-gray-400 tabular-nums">
                                             <span>{{ short(channel.impressions) }} {{ ctrans('impressions') }} · {{ short(channel.clicks) }} {{ ctrans('clicks') }} · {{ ctrans('CTR') }} {{ pct(channel.ctr, 2) }}</span>
-                                            <span>{{ ctrans('ROAS') }} {{ ratio(channel.roas) }}</span>
+                                            <span>{{ ctrans('ROAS') }} {{ ratio(channel.roas) }} · {{ ctrans('Meta') }} {{ ratio(channel.meta_roas) }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -917,23 +991,37 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                                 <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Spend') }}</th>
                                                 <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Clicks') }}</th>
                                                 <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('CTR') }}</th>
-                                                <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Orders') }}</th>
+                                                <th class="font-normal pb-2 pr-3 text-right" v-tooltip="ctrans('Orders Aiku credits to the campaign')">{{ ctrans('Orders · Aiku') }}</th>
                                                 <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('CPA') }}</th>
-                                                <th class="font-normal pb-2 text-right">{{ ctrans('ROAS') }}</th>
+                                                <th class="font-normal pb-2 pr-3 text-right" v-tooltip="ctrans('Revenue of the orders Aiku credits, divided by spend')">{{ ctrans('ROAS · Aiku') }}</th>
+                                                <th class="font-normal pb-2 pr-3 text-right" v-tooltip="ctrans('Purchases Meta reports, as in Ads Manager')">{{ ctrans('Meta purchases') }}</th>
+                                                <th class="font-normal pb-2 pr-3 text-right" v-tooltip="ctrans('Purchase conversion value Meta reports, as in Ads Manager')">{{ ctrans('Purchase value · Meta') }}</th>
+                                                <th class="font-normal pb-2 pr-3 text-right" v-tooltip="ctrans('Spend divided by the purchases Meta reports, as in Ads Manager')">{{ ctrans('Cost per purchase') }}</th>
+                                                <th class="font-normal pb-2 text-right" v-tooltip="ctrans('Purchase value Meta reports, divided by spend, as in Ads Manager')">{{ ctrans('Meta ROAS') }}</th>
                                             </tr>
                                         </thead>
                                         <tbody class="divide-y divide-gray-100">
                                             <tr v-for="campaign in campaigns" :key="campaign.channel + campaign.name" class="hover:bg-gray-50">
                                                 <td class="py-2 pr-3 max-w-xs">
                                                     <div class="truncate text-gray-800">{{ campaign.name }}</div>
-                                                    <div class="text-xs text-gray-400">{{ campaign.channel }}<span v-if="campaign.owner"> · {{ campaign.owner }}</span></div>
+                                                    <div class="text-xs text-gray-400">
+                                                        <template v-if="campaign.placements.length > 1">
+                                                            <span v-for="(placement, index) in campaign.placements" :key="placement.channel">{{ index ? ' + ' : '' }}{{ placement.channel }} {{ money(placement.spend) }}</span>
+                                                        </template>
+                                                        <template v-else>{{ campaign.channel }}</template>
+                                                        <span v-if="campaign.owner"> · {{ campaign.owner }}</span>
+                                                    </div>
                                                 </td>
                                                 <td class="py-2 pr-3 text-right tabular-nums">{{ money(campaign.spend) }}</td>
                                                 <td class="py-2 pr-3 text-right tabular-nums">{{ short(campaign.clicks) }}</td>
                                                 <td class="py-2 pr-3 text-right tabular-nums">{{ pct(campaign.ctr, 2) }}</td>
                                                 <td class="py-2 pr-3 text-right tabular-nums">{{ count(campaign.orders) }}</td>
                                                 <td class="py-2 pr-3 text-right tabular-nums">{{ money(campaign.cpa) }}</td>
-                                                <td class="py-2 text-right"><span class="inline-block rounded-full px-2 py-0.5 text-xs tabular-nums" :class="roasClass(campaign.roas)">{{ ratio(campaign.roas) }}</span></td>
+                                                <td class="py-2 pr-3 text-right"><span class="inline-block rounded-full px-2 py-0.5 text-xs tabular-nums" :class="roasClass(campaign.roas)">{{ ratio(campaign.roas) }}</span></td>
+                                                <td class="py-2 pr-3 text-right tabular-nums">{{ count(campaign.meta_purchases) }}</td>
+                                                <td class="py-2 pr-3 text-right tabular-nums">{{ money(campaign.meta_value) }}</td>
+                                                <td class="py-2 pr-3 text-right tabular-nums">{{ money(campaign.meta_purchases ? campaign.spend / campaign.meta_purchases : null) }}</td>
+                                                <td class="py-2 text-right"><span class="inline-block rounded-full px-2 py-0.5 text-xs tabular-nums" :class="roasClass(campaign.meta_roas)">{{ ratio(campaign.meta_roas) }}</span></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -966,6 +1054,52 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
             </div>
         </Deferred>
     </div>
+
+    <Dialog v-model:visible="isSyncOpen" modal :header="ctrans('Sync from Meta')" :style="{ width: '46rem' }" :breakpoints="{ '768px': '95vw' }">
+        <p class="text-xs text-gray-500">{{ ctrans('Every brand has its own Facebook Page, Instagram account and Meta Ads account, so each is synced on its own: the organic figures of the last :organic days and the ad spend of the last :paid days. Figures also sync by themselves every night.', { organic: 28, paid: 7 }) }}</p>
+        <ul class="mt-3 divide-y divide-gray-100" data-test="social-sync-list">
+            <li v-for="shop in syncShops" :key="shop.id" class="py-3 flex flex-col sm:flex-row sm:items-center gap-3">
+                <div class="min-w-0 flex-1">
+                    <div class="text-sm font-medium text-gray-800">{{ shop.name }}</div>
+                    <div class="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs">
+                        <span :class="shop.organic ? 'text-gray-600' : 'text-amber-700'">
+                            <FontAwesomeIcon :icon="shop.organic ? 'fal fa-check' : 'fal fa-exclamation-triangle'" :class="shop.organic ? 'text-green-600' : ''" fixed-width />
+                            {{ ctrans('Organic') }}:
+                            <template v-if="shop.organic">{{ ctrans('updated') }} {{ time(shop.organic_updated_at) }}</template>
+                            <template v-else>{{ ctrans('no Facebook Page or Instagram account set') }}</template>
+                        </span>
+                        <span :class="shop.paid ? 'text-gray-600' : 'text-amber-700'">
+                            <FontAwesomeIcon :icon="shop.paid ? 'fal fa-check' : 'fal fa-exclamation-triangle'" :class="shop.paid ? 'text-green-600' : ''" fixed-width />
+                            {{ ctrans('Paid') }}:
+                            <template v-if="shop.paid">{{ ctrans('updated') }} {{ time(shop.paid_updated_at) }}</template>
+                            <template v-else>{{ ctrans('no Meta Ads account set') }}</template>
+                        </span>
+                    </div>
+                    <div v-if="shop.running" class="mt-1 text-xs text-gray-500"><FontAwesomeIcon icon="fal fa-spinner-third" spin fixed-width /> {{ ctrans('Syncing… the figures refresh when it is done.') }}</div>
+                    <div v-else-if="shop.last_sync" class="mt-1 text-xs" :class="shop.last_sync.ok ? 'text-gray-500' : 'text-red-600'">
+                        <FontAwesomeIcon :icon="shop.last_sync.ok ? 'fal fa-check' : 'fal fa-exclamation-triangle'" fixed-width />
+                        {{ ctrans('Last sync') }} {{ time(shop.last_sync.finished_at) }}<template v-if="!shop.last_sync.ok">: {{ shop.last_sync.message }}</template>
+                    </div>
+                    <div v-if="syncErrors[shop.id]" class="mt-1 text-xs text-red-600">{{ syncErrors[shop.id] }}</div>
+                </div>
+                <div class="shrink-0">
+                    <Button v-if="isSetUp(shop)" :label="shop.running ? ctrans('Syncing…') : ctrans('Sync now')" type="tertiary" size="s" :disabled="shop.running" :data-test="'social-sync-' + shop.slug" @click="syncShop(shop)">
+                        <template #icon><FontAwesomeIcon icon="fal fa-sync-alt" :spin="shop.running" class="text-[--app-accent]" fixed-width /></template>
+                    </Button>
+                    <a v-else :href="route(shop.edit_route.name, shop.edit_route.parameters)" class="inline-flex">
+                        <Button :label="ctrans('Set up in Edit shop')" type="tertiary" size="s">
+                            <template #icon><FontAwesomeIcon icon="fal fa-cog" class="text-gray-500" fixed-width /></template>
+                        </Button>
+                    </a>
+                </div>
+            </li>
+        </ul>
+        <div v-if="syncShops.filter(isSetUp).length > 1" class="mt-3 flex justify-end">
+            <Button :label="ctrans('Sync all set-up brands')" type="tertiary" :disabled="anyRunning" @click="syncAll">
+                <template #icon><FontAwesomeIcon icon="fal fa-sync-alt" class="text-[--app-accent]" fixed-width /></template>
+            </Button>
+        </div>
+    </Dialog>
 
     <Dialog v-model:visible="isShopPickerOpen" modal :header="ctrans('Which brand is this export for?')" :style="{ width: '28rem' }">
         <template v-if="uploadShopOptions.length > 1">
