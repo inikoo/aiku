@@ -216,7 +216,7 @@ class GetSocialMediaPerformance
     /**
      * @param Collection<int, Shop> $shops
      *
-     * @return array{posts: int, reach: int, impressions: int, engagements: int, engagement_rate: float|null, views: int, interactions: int, interaction_rate: float|null, avg_daily_viewers: int|null, visits: int|null, new_follows: int|null, link_clicks: int, followers: int|null, follower_growth: int|null}
+     * @return array{posts: int, reach: int, impressions: int, engagements: int, engagement_rate: float|null, views: int, interactions: int, interaction_rate: float|null, avg_daily_viewers: int|null, visits: int|null, new_follows: int|null, link_clicks: int, followers: int|null, followers_accounts: int, follower_growth: int|null}
      */
     private function organicTotals(Collection $shops, ?SocialMediaPlatformEnum $platform, ?Carbon $from, ?Carbon $to): array
     {
@@ -256,6 +256,7 @@ class GetSocialMediaPerformance
             'new_follows'       => $this->dailySum($accountIds, $from, $to, 'new_follows'),
             'link_clicks'       => $this->dailyOrPosts($shops, $platform, $from, $to, 'link_clicks', 'p.link_clicks'),
             'followers'         => $followers->isNotEmpty() ? (int) $followers->sum() : null,
+            'followers_accounts' => $followers->count(),
             'follower_growth'   => $growthFromFollowers ?? ((int) $newFollows ?: ((int) $totals->follows ?: null)),
         ];
     }

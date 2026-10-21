@@ -98,15 +98,19 @@ class ExportSocialMediaPosts extends OrgAction
                 'new_follows'       => __('New follows'),
                 'followers'         => __('Followers'),
                 'spend'             => __('Paid spend'),
-                'revenue'           => __('Attributed revenue'),
-                'roas'              => __('ROAS'),
-                'cpa'               => __('Cost per order'),
+                'revenue'           => __('Attributed revenue · Aiku'),
+                'orders'            => __('Orders · Aiku'),
+                'roas'              => __('ROAS · Aiku'),
+                'cpa'               => __('Cost per order · Aiku'),
+                'meta_purchases'    => __('Purchases · Meta'),
+                'meta_value'        => __('Purchase value · Meta'),
+                'meta_roas'         => __('ROAS · Meta'),
                 'ad_impressions'    => __('Ad impressions'),
                 'ad_clicks'         => __('Ad clicks'),
                 'ctr'               => __('CTR %'),
             ] as $key => $label) {
                 $now    = $current[$key] ?? null;
-                $before = $previous[$key] ?? null;
+                $before = $key === 'followers' && ($previous['followers_accounts'] ?? null) !== ($current['followers_accounts'] ?? null) ? null : ($previous[$key] ?? null);
                 fputcsv($output, [$label, $now, $before, $now !== null && $before ? round(($now - $before) / abs($before) * 100, 1) : null]);
             }
 

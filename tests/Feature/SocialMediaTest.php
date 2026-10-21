@@ -384,6 +384,10 @@ it('exports the period as a summary report beside the compared period', function
     expect($csv)->toContain(__('Social media report'))
         ->and($csv)->toContain(__('Views'))
         ->and($csv)->toContain(__('Share of views %'))
+        ->and($csv)->toContain(__('ROAS · Aiku'))
+        ->and($csv)->toContain(__('ROAS · Meta'))
+        ->and($csv)->toContain(__('Purchase value · Meta'))
+        ->and($csv)->not->toContain("\nROAS,")
         ->and($csv)->toContain('Halloween range reveal');
 });
 
