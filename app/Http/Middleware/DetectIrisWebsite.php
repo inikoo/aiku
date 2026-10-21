@@ -58,6 +58,7 @@ class DetectIrisWebsite
         if (!$website) {
             abort(404, 'Not found');
         }
+        $website->loadMissing(['organisation', 'group']);
         $shop = $website->shop;
 
         return array_merge(

@@ -199,3 +199,32 @@ test('UI Index fulfilment physical goods (return)', function () {
     $this->assertNotEmpty($responseData);
     $response->assertStatus(200);
 });
+
+test('pinned fulfilment services are listed first', function () {
+    $shop = $this->fulfilment->shop;
+
+    $service = StoreService::make()->action($shop, [
+        'code'  => 'PIN'.uniqid(),
+        'name'  => 'Pinned service',
+        'state' => ServiceStateEnum::ACTIVE,
+        'price' => 10,
+        'unit'  => RentalUnitEnum::DAY->value,
+    ]);
+
+    $this->patch(route('grp.models.fulfilment.services.update', $service->id), ['is_pinned' => true])
+        ->assertRedirect();
+
+    expect($service->refresh()->is_pinned)->toBeTrue();
+
+    $response = $this->getJson(route('grp.json.fulfilment.return.services.index', [$this->fulfilment->slug, $this->palletReturn->slug]))
+        ->assertOk();
+
+    $pinnedFlags = collect($response->json('data'))->pluck('is_pinned');
+
+    expect($response->json('data.0.is_pinned'))->toBeTrue()
+        ->and($pinnedFlags->values()->all())->toBe($pinnedFlags->sortDesc()->values()->all());
+
+    $this->patch(route('grp.models.fulfilment.services.update', $service->id), ['is_pinned' => false]);
+
+    expect($service->refresh()->is_pinned)->toBeFalse();
+});

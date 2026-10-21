@@ -49,7 +49,7 @@ class StoreBulkNewProductToCurrentWooCommerce extends OrgAction
         ];
 
         foreach ($portfolios->values()->chunk(100) as $portfolioChunk) {
-            StoreBulkDispatchProductToCurrentWooCommerce::dispatch($customerSalesChannel, $portfolioChunk, $bulkProgress, $portfolioChunk->keys()->first());
+            StoreBulkDispatchProductToCurrentWooCommerce::dispatch($customerSalesChannel, $portfolioChunk, $bulkProgress);
         }
     }
 

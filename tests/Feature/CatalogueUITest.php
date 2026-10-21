@@ -73,6 +73,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use App\Models\SysAdmin\Guest;
+use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -80,6 +81,7 @@ use function Pest\Laravel\get;
 use function Pest\Laravel\patch;
 use function Pest\Laravel\getJson;
 use function Pest\Laravel\patchJson;
+use function Pest\Laravel\postJson;
 
 uses()->group('ui');
 
@@ -1245,7 +1247,10 @@ test('website pages swap imgproxy urls for short signed links that serve the sam
         ->and($serve($shortOriginal))->toBe($original)
         ->and($serve(str_replace('0x600', 'rs::0:600::', $shortThumb)))->toBe($thumb)
         ->and($serve(str_replace('0x600', '0x1200', $shortThumb)))->toBeNull()
-        ->and($serve(str_replace('.avif', '.png', $shortThumb)))->toBeNull();
+        ->and($serve(str_replace('.avif', '.png', $shortThumb)))->toBeNull()
+        ->and($serve(str_replace('.jpeg', '', $shortOriginal)))->toBe($original)
+        ->and($serve(str_replace('.jpeg', '.png', $shortOriginal)))->toBeNull()
+        ->and($serve(str_replace('.jpeg', '.a1', $shortOriginal)))->toBeNull();
 
     \Illuminate\Support\Facades\Http::fake(['media.test/*' => \Illuminate\Support\Facades\Http::response('avif-bytes', 200, ['Content-Type' => 'image/avif'])]);
     $this->get(Str::after($shortThumb, 'https://www.shop.test'))
@@ -1264,6 +1269,16 @@ test('website pages swap imgproxy urls for short signed links that serve the sam
 
     \Illuminate\Support\Facades\Http::fake(fn () => throw new \Illuminate\Http\Client\ConnectionException('cURL error 28'));
     $this->get(Str::after($shortThumb, 'https://www.shop.test'))->assertStatus(504)->assertHeader('Cache-Control', 'max-age=60, public');
+
+    config(['img-proxy.accel_location' => '/_imgproxy/']);
+    \Illuminate\Support\Facades\Http::fake();
+    $this->get(Str::after($shortThumb, 'https://www.shop.test'))
+        ->assertOk()
+        ->assertHeader('X-Accel-Redirect', '/_imgproxy'.Str::after($thumb, 'https://media.test'))
+        ->assertHeader('Cache-Control', 'max-age=60, public')
+        ->assertHeader('Content-Type', 'application/octet-stream');
+    $this->get(Str::after($shortOriginal, 'https://www.shop.test'))->assertHeader('X-Accel-Redirect', '/_imgproxy'.Str::after($original, 'https://media.test'));
+    \Illuminate\Support\Facades\Http::assertNothingSent();
 });
 
 test('products export ends with the weight unit columns', function () {
@@ -2089,6 +2104,39 @@ test('a compliance editor sees supply chain, goods and products, and edits only 
 
     patch(route('grp.models.product.update', $this->product->id), ['price' => 1])->assertForbidden();
     patch(route('grp.models.trade-unit.update', $tradeUnit->id), ['gpsr_warnings' => 'x'])->assertForbidden();
+});
+
+test('a compliance editor pastes an ingredients list onto a trade unit', function () {
+    setPermissionsTeamId($this->group->id);
+    $newUser = fn () => StoreGuest::make()->action(
+        $this->group,
+        array_merge(Guest::factory()->definition(), ['positions' => []])
+    )->getUser();
+
+    $tradeUnit  = $this->product->tradeUnits()->first();
+    $ingredient = 'Compliance pasted '.Str::random(8);
+
+    $viewer = $newUser();
+    $viewer->givePermissionTo('compliance.view');
+    actingAs($viewer);
+    postJson(route('grp.json.ingredients.parse'), ['text' => $ingredient])->assertForbidden();
+
+    $compliance = $newUser();
+    $compliance->givePermissionTo(['compliance.view', 'compliance.edit']);
+    actingAs($compliance);
+
+    postJson(route('grp.json.ingredients.parse'), ['text' => $ingredient.'*'])
+        ->assertOk()
+        ->assertJsonPath('0.name', $ingredient)
+        ->assertJsonPath('0.is_new', true);
+
+    $slug = postJson(route('grp.json.ingredients.parse'), ['text' => $ingredient, 'commit' => true])
+        ->assertOk()
+        ->json('0.slug');
+
+    patch(route('grp.models.trade-unit.update', $tradeUnit->id), ['ingredients' => [$slug]])->assertSessionHasNoErrors();
+
+    expect($tradeUnit->refresh()->ingredients()->pluck('slug')->all())->toBe([$slug]);
 });
 
 test('only goods, masters or media editors change trade unit media, and attachments follow the edit permission of their model', function () {

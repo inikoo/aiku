@@ -39,6 +39,10 @@ class MonitorDatabaseReplicas
 
     public const int BACKUP_REPORT_STALE_MINUTES = 30;
 
+    public const int DELAYED_CATCH_UP_HOURS = 13;
+
+    public const string DELAYED_SLOT = 'replica_helio_delayed';
+
     public const string STANZA = 'aiku';
 
     public const string PGBACKREST_CACHE_KEY = 'devops:pgbackrest';
@@ -91,7 +95,7 @@ class MonitorDatabaseReplicas
     }
 
     /**
-     * @return Collection<int, object{slot_name: string, active: bool, wal_status: string|null, retained_bytes: int|null, client_addr: string|null, state: string|null, unapplied_bytes: int|null}>
+     * @return Collection<int, object{slot_name: string, active: bool, wal_status: string|null, retained_bytes: int|null, client_addr: string|null, state: string|null, unapplied_bytes: int|null, primary_started_at: string}>
      */
     public function replicas(): Collection
     {
@@ -102,7 +106,8 @@ class MonitorDatabaseReplicas
                    pg_wal_lsn_diff(pg_current_wal_lsn(), s.restart_lsn)::bigint as retained_bytes,
                    host(r.client_addr) as client_addr,
                    r.state,
-                   pg_wal_lsn_diff(r.flush_lsn, r.replay_lsn)::bigint as unapplied_bytes
+                   pg_wal_lsn_diff(r.flush_lsn, r.replay_lsn)::bigint as unapplied_bytes,
+                   pg_postmaster_start_time() as primary_started_at
             from pg_replication_slots s
             left join pg_stat_replication r on r.pid = s.active_pid
             where s.slot_type = 'physical'
@@ -112,7 +117,7 @@ class MonitorDatabaseReplicas
 
     /**
      * @param  array<string, string>|null  $expectedSlots
-     * @return array<int, array{slot: string, label: string, status: string, issue: string|null, active: bool, wal_status: string|null, retained_bytes: int|null, client_addr: string|null, state: string|null, unapplied_bytes: int|null}>
+     * @return array<int, array{slot: string, label: string, status: string, issue: string|null, note: string|null, reconnects_at: string|null, active: bool, wal_status: string|null, retained_bytes: int|null, client_addr: string|null, state: string|null, unapplied_bytes: int|null}>
      */
     public function report(?Collection $replicas = null, ?array $expectedSlots = null): array
     {
@@ -123,9 +128,11 @@ class MonitorDatabaseReplicas
             $label         = $expectedSlots[$replica->slot_name] ?? $replica->slot_name;
             $retainedBytes = $replica->retained_bytes === null ? null : (int) $replica->retained_bytes;
             $retained      = $this->gigabytes($retainedBytes);
+            $reconnectsAt  = $this->delayedReconnectsAt($replica);
 
             [$status, $issue] = match (true) {
                 $replica->wal_status === 'lost'               => ['broken', "$label (`$replica->slot_name`) fell too far behind and the primary cut it off. It has to be copied again from the primary."],
+                $reconnectsAt !== null                        => ['catching_up', null],
                 !$replica->active                             => ['broken', "$label (`$replica->slot_name`) is disconnected. The primary is keeping $retained of changes for it and cuts it off at 100 GB."],
                 $replica->wal_status === 'unreserved'         => ['warning', "$label (`$replica->slot_name`) is $retained behind and about to be cut off by the primary."],
                 $retainedBytes > self::BEHIND_WARNING_BYTES   => ['warning', "$label (`$replica->slot_name`) is connected but has not received $retained of changes."],
@@ -137,6 +144,8 @@ class MonitorDatabaseReplicas
                 'label'              => $label,
                 'status'             => $status,
                 'issue'              => $issue,
+                'note'               => $reconnectsAt ? 'The primary restarted at '.CarbonImmutable::parse($replica->primary_started_at)->utc()->format('j M H:i')." UTC. The replica first applies the 12 hours of changes it already holds, then reconnects by itself around {$reconnectsAt->utc()->format('H:i')} UTC. The primary is keeping $retained of changes for it." : null,
+                'reconnects_at'      => $reconnectsAt?->toIso8601String(),
                 'active'             => (bool) $replica->active,
                 'wal_status'         => $replica->wal_status,
                 'retained_bytes'     => $retainedBytes,
@@ -152,6 +161,8 @@ class MonitorDatabaseReplicas
                 'label'              => $label,
                 'status'             => 'broken',
                 'issue'              => "$label (`$slot`) no longer exists on the primary. It has to be copied again from the primary.",
+                'note'               => null,
+                'reconnects_at'      => null,
                 'active'             => false,
                 'wal_status'         => null,
                 'retained_bytes'     => null,
@@ -248,6 +259,21 @@ class MonitorDatabaseReplicas
         $failing = $lastFailed && (!$lastArchived || $lastFailed->isAfter($lastArchived)) ? ' and the last attempts failed' : '';
 
         return ["No WAL has reached Cloudflare R2 $since$failing. Point-in-time recovery stops at that moment, and boro keeps the unsent WAL on its disk. Check `pgbackrest --stanza=aiku check` on boro."];
+    }
+
+    /**
+     * A restart of the primary drops the delayed replica's connection, and it only
+     * reconnects once it has applied the 12 hours of WAL it already received.
+     */
+    protected function delayedReconnectsAt(object $replica): ?CarbonImmutable
+    {
+        if ($replica->slot_name !== self::DELAYED_SLOT || $replica->active || $replica->wal_status === 'unreserved' || empty($replica->primary_started_at)) {
+            return null;
+        }
+
+        $primaryStartedAt = CarbonImmutable::parse($replica->primary_started_at);
+
+        return $primaryStartedAt->isAfter(now()->subHours(self::DELAYED_CATCH_UP_HOURS)) ? $primaryStartedAt->addHours(12) : null;
     }
 
     protected function gigabytes(?int $bytes): string

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 
+import SupplierProductsShowcaseBox from "@/Components/SupplyChain/SupplierProductsShowcaseBox.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { computed, inject, ref, useTemplateRef } from "vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -155,6 +156,7 @@ const props = defineProps<{
 			}
 			images: any
 			main_image: ImageTS
+			supplier_products?: InstanceType<typeof SupplierProductsShowcaseBox>["$props"]["supplierProducts"]
 
 		}
 
@@ -550,6 +552,8 @@ const isModalProductForSale = ref(false)
 					:mood="triangleMood"
 				/>
 			</div>
+
+			<SupplierProductsShowcaseBox v-if="data.supplier_products?.length" discreet :supplierProducts="data.supplier_products" class="mr-3 mt-4 px-2 text-center" />
         </div>
 
 		<!-- <div>

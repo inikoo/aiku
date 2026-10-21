@@ -118,6 +118,7 @@ class UpdateService extends OrgAction
             'fixed_price'              => ['sometimes', 'boolean'],
             'active'                   => ['sometimes', 'boolean'],
             'is_public'                => ['sometimes', 'boolean'],
+            'is_pinned'                => ['sometimes', 'boolean'],
 
         ];
     }

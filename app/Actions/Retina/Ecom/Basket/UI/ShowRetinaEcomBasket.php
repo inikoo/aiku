@@ -78,6 +78,8 @@ class ShowRetinaEcomBasket extends RetinaAction
         $isOrder = $order instanceof Order;
 
 
+        $basketPreOrders = $order ? GetBasketPreOrders::run($order) : null;
+
         if ($order) {
             $charges         = $this->getBasketCharges($order);
             $premiumDispatch = $charges['premium_dispatch'];
@@ -272,8 +274,8 @@ class ShowRetinaEcomBasket extends RetinaAction
                 'transactions'       => $order ? RetinaEcomBasketTransactionsResources::collection(IndexBasketTransactions::run($order)) : null,
                 'gr_gifts'           => $grGifts,
                 'missed_offers'      => $order ? $this->getMissedOffers($order) : [],
-                'stock_issues'       => $order ? $this->getBasketStockIssues($order) : ['low_stock' => [], 'out_of_stock' => []],
-                'pre_orders'         => $order ? GetBasketPreOrders::run($order) : null,
+                'stock_issues'       => $order ? $this->getBasketStockIssues($order, $basketPreOrders) : ['low_stock' => [], 'out_of_stock' => []],
+                'pre_orders'         => $basketPreOrders,
             ]
         )->table(
             IndexBasketTransactions::make()->tableStructure()

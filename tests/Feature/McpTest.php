@@ -2652,6 +2652,24 @@ describe('customer service tools', function () {
             ->assertOk()->assertSee('internal_notes')->assertSee('scheme compliance');
     });
 
+    test('an internal note needs no enrolment and is still signed by Aiku while a reply is refused', function () {
+        $this->user->update(['can_use_mcp_customer_service' => false]);
+        $notes = fn () => $this->chat->chatEvents()->where('event_type', App\Enums\CRM\Livechat\ChatEventTypeEnum::INTERNAL_NOTE)->count();
+        $baseline = $notes();
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'add_note', 'message' => 'Dispatched 15 Oct, DPD 0658.', 'confirm' => true, 'request_text' => 'post the note'])
+            ->assertOk()->assertSee('note_id');
+
+        $note = $this->chat->chatEvents()->where('event_type', App\Enums\CRM\Livechat\ChatEventTypeEnum::INTERNAL_NOTE)->latest('id')->first();
+
+        expect($notes())->toBe($baseline + 1)
+            ->and($note->actor_type)->toBe(App\Enums\CRM\Livechat\ChatActorTypeEnum::AI)
+            ->and($note->payload['requested_by_user_id'])->toBe($this->user->id);
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'reply', 'message' => 'Sorry', 'confirm' => true, 'request_text' => 'reply'])
+            ->assertHasErrors(['not enabled for this user']);
+    });
+
     test('changes notes, products and delivery address of a submitted order, and refuses a dispatched one', function () {
         [, $other] = createProduct($this->shop);
         $order     = StoreOrder::make()->action($this->csCustomer, []);
@@ -2746,6 +2764,124 @@ describe('customer service tools', function () {
             ->assertHasErrors(['was not delivered on']);
     });
 
+    test('a draft carries one-click claim and task buttons, the facts checked and its PRE tickets, and each button runs once', function () {
+        App\Actions\Helpers\Translations\DetectLanguageWithJev::shouldRun()->andReturn(App\Models\Helpers\Language::firstWhere('code', 'en'));
+        $order = StoreOrder::make()->action($this->csCustomer, []);
+        App\Actions\Ordering\Transaction\StoreTransaction::make()->action($order, $this->product->historicAsset, ['quantity_ordered' => 2]);
+        App\Actions\Ordering\Order\UpdateState\SubmitOrder::make()->action($order->refresh());
+        $deliveryNote = App\Actions\Ordering\Order\UpdateState\SendOrderToWarehouse::make()->action($order->refresh(), []);
+        $item         = $deliveryNote->deliveryNoteItems()->firstOrFail();
+        $item->update(['quantity_picked' => $item->quantity_required, 'quantity_dispatched' => $item->quantity_required]);
+        $invoice      = App\Actions\Ordering\Order\GenerateInvoiceFromOrder::make()->action($order->refresh());
+        App\Actions\Accounting\Invoice\PayInvoice::make()->action(
+            $invoice->refresh(),
+            App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProviderAccount::make()->action(
+                $this->organisation,
+                App\Models\Accounting\PaymentServiceProvider::where('type', App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum::CASH->value)->first(),
+                ['code' => 'MCD'.mt_rand(1000, 9999), 'name' => 'Draft action account']
+            ),
+            [
+                'amount' => $invoice->total_amount,
+                'status' => App\Enums\Accounting\Payment\PaymentStatusEnum::SUCCESS->value,
+                'state'  => App\Enums\Accounting\Payment\PaymentStateEnum::COMPLETED->value,
+            ]
+        );
+        $order->update(['state' => OrderStateEnum::DISPATCHED, 'dispatched_at' => now()->subDay()]);
+        $premonition = App\Actions\Helpers\Ticket\StoreTicket::make()->action($this->organisation->group, ['subject' => 'Claim list repeats '.$order->reference, 'type' => 'premonition']);
+        $refund      = ['type' => 'claim', 'order' => $order->reference, 'resolution' => 'refund_to_balance', 'items' => [['code' => $this->product->code, 'quantity' => 1]], 'reason' => 'damaged_in_transit'];
+        $task        = ['type' => 'task', 'label' => 'Ask the warehouse to check the box', 'subject' => 'Check the box of '.$order->reference, 'department' => 'warehouse'];
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'save_draft', 'message' => 'Sorry it arrived broken, we have refunded it.', 'actions' => [[...$refund, 'items' => [['code' => $this->product->code, 'quantity' => 5]]]]])
+            ->assertHasErrors(['Action 1: Only 2 of']);
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, [
+            'action'       => 'save_draft',
+            'message'      => 'Sorry it arrived broken, we have refunded it.',
+            'staff_note'   => 'Before sending: refund the broken one.',
+            'checked'      => [$order->reference.' dispatched yesterday', 'No refund given yet'],
+            'premonitions' => [$premonition->reference, 'PRE-9999'],
+            'actions'      => [$refund, $task],
+        ])->assertOk();
+
+        $draft = App\Actions\Chat\ChatSession\DraftChatReply::pendingDraft($this->chat);
+        $this->actingAs($this->user);
+        $shown = App\Actions\Chat\ChatSession\HandleChatAiDraft::make()->asController($this->chat)->getData(true)['data'];
+
+        expect($shown['checked'])->toBe([$order->reference.' dispatched yesterday', 'No refund given yet'])
+            ->and($shown['premonitions'])->toHaveCount(1)
+            ->and($shown['premonitions'][0])->toMatchArray(['reference' => $premonition->reference, 'fixed' => false])
+            ->and($shown['actions'][0])->toMatchArray(['index' => 0, 'type' => 'claim', 'done' => false, 'available' => true])
+            ->and($shown['actions'][0]['label'])->toStartWith('Refund ')
+            ->and($shown['actions'][1])->toMatchArray(['index' => 1, 'type' => 'task', 'label' => 'Ask the warehouse to check the box']);
+
+        App\Actions\Helpers\Translations\Translate::shouldRun()->andReturnUsing(fn (?string $text) => '[sk] '.$text);
+        $language = $this->user->language_id;
+        $this->user->update(['language_id' => App\Models\Helpers\Language::where('code', 'sk')->value('id')]);
+        postJson(route('grp.api.chats.ai_drafts.translate', [$draft->id]))->assertOk()
+            ->assertJsonPath('data.staff_note', '[sk] Before sending: refund the broken one.')
+            ->assertJsonPath('data.checked.1', '[sk] No refund given yet')
+            ->assertJsonPath('data.labels.1', '[sk] Ask the warehouse to check the box');
+        $this->user->update(['language_id' => $language]);
+
+        $balance = (float) $this->csCustomer->refresh()->balance;
+        postJson(route('grp.api.chats.ai_drafts.action', [$draft->id, 0]))->assertOk()->assertJsonPath('data.done', true);
+        postJson(route('grp.api.chats.ai_drafts.action', [$draft->id, 0]))->assertStatus(409);
+        expect((float) $this->csCustomer->refresh()->balance)->toBeGreaterThan($balance)
+            ->and($order->invoices()->where('type', App\Enums\Accounting\Invoice\InvoiceTypeEnum::REFUND)->count())->toBe(1);
+
+        $facts = $draft->refresh()->facts;
+        $draft->update(['facts' => array_replace_recursive($facts, ['actions' => [1 => ['assignee' => 'nobody-'.uniqid()]]])]);
+        postJson(route('grp.api.chats.ai_drafts.action', [$draft->id, 1]))->assertStatus(422)->assertJsonPath('message', fn ($message) => str_contains($message, 'There is no user'));
+        $draft->update(['facts' => $facts]);
+
+        $done = postJson(route('grp.api.chats.ai_drafts.action', [$draft->id, 1]))->assertOk()->json('data');
+        expect($done['label'])->toStartWith('TASK-')
+            ->and(App\Models\Tasks\StaffTask::where('subject', 'Check the box of '.$order->reference)->where('department', 'warehouse')->where('requester_id', $this->user->id)->exists())->toBeTrue();
+
+        $discarded = App\Models\Chat\ChatAiDraft::create([
+            'group_id' => $this->shop->group_id, 'organisation_id' => $this->shop->organisation_id, 'shop_id' => $this->shop->id,
+            'chat_session_id' => $this->chat->id, 'topic' => App\Enums\CRM\Livechat\ChatTopicEnum::OTHER, 'text' => 'Old draft',
+            'status' => App\Enums\CRM\Livechat\ChatAiDraftStatusEnum::DISCARDED, 'facts' => ['actions' => [$refund]],
+        ]);
+        postJson(route('grp.api.chats.ai_drafts.action', [$discarded->id, 0]))->assertStatus(422);
+        $discarded->delete();
+
+        $premonition->update(['status' => App\Enums\Helpers\Ticket\TicketStatusEnum::RESOLVED, 'resolved_at' => now()->addMinute()]);
+        $this->chat->update(['last_visitor_message_at' => now(), 'last_agent_message_at' => null]);
+        Illuminate\Support\Facades\Auth::setUser($this->user);
+        $listed = collect(json_decode((string) app(App\Mcp\Tools\CustomerServiceInboxTool::class)->handle(new Laravel\Mcp\Request(['limit' => 50, 'premonition_fixed_only' => true]))->content(), true)['waiting'] ?? []);
+
+        expect(App\Actions\Chat\ChatSession\HandleChatAiDraft::make()->asController($this->chat)->getData(true)['data']['premonitions'][0]['fixed'])->toBeTrue()
+            ->and($listed->firstWhere('chat_id', $this->chat->ulid))->toMatchArray(['premonition_fixed' => true]);
+    });
+
+    test('a pack of several stocks is claimed in the products ordered, not the stocks picked', function () {
+        $this->product->orgStocks()->updateExistingPivot($this->product->orgStocks()->first()->id, ['quantity' => 3]);
+        $order = StoreOrder::make()->action($this->csCustomer, []);
+        App\Actions\Ordering\Transaction\StoreTransaction::make()->action($order, $this->product->historicAsset, ['quantity_ordered' => 2]);
+        App\Actions\Ordering\Order\UpdateState\SubmitOrder::make()->action($order->refresh());
+        $deliveryNote = App\Actions\Ordering\Order\UpdateState\SendOrderToWarehouse::make()->action($order->refresh(), []);
+        $item         = $deliveryNote->deliveryNoteItems()->firstOrFail();
+        $item->update(['quantity_picked' => $item->quantity_required, 'quantity_dispatched' => $item->quantity_required]);
+        $order->update(['state' => OrderStateEnum::DISPATCHED, 'dispatched_at' => now()->subDay()]);
+
+        expect((float) $item->quantity_required)->toBe(6.0);
+
+        Illuminate\Support\Facades\Auth::setUser($this->user);
+        $claimable = json_decode((string) app(App\Mcp\Tools\CustomerServiceChatTool::class)->handle(new Laravel\Mcp\Request(['chat_id' => $this->chat->ulid, 'order' => $order->reference]))->content(), true)['order']['claim']['claimable'];
+        expect($claimable)->toHaveCount(1)
+            ->and($claimable[0])->toMatchArray(['code' => $this->product->code, 'ordered' => 2, 'claimable' => 2]);
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceClaimTool::class, ['order' => $order->reference, 'resolution' => 'replacement', 'items' => [['code' => $this->product->code, 'quantity' => 3]]])
+            ->assertHasErrors(['left to claim']);
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceClaimTool::class, ['order' => $order->reference, 'resolution' => 'replacement', 'items' => [['code' => $this->product->code, 'quantity' => 1]], 'confirm' => true, 'request_text' => 'send one pack'])
+            ->assertOk();
+
+        $replacement = $order->deliveryNotes()->where('type', App\Enums\Dispatching\DeliveryNote\DeliveryNoteTypeEnum::REPLACEMENT)->sole();
+        expect((float) $replacement->deliveryNoteItems()->sole()->quantity_required)->toBe(3.0);
+    });
+
     test('lists the chats waiting on the user, and drops one once it is answered or a colleague holds it', function () {
         $this->chat->update(['last_visitor_message_at' => now()->subMinutes(20), 'last_agent_message_at' => null]);
 
@@ -2753,6 +2889,43 @@ describe('customer service tools', function () {
             ->assertOk()
             ->assertSee($this->chat->ulid)
             ->assertSee('20 minutes ago');
+
+        $this->chat->messages()->whereIn('sender_type', ['guest', 'user'])->update(['is_read' => true]);
+        $customerMessage = App\Models\Chat\ChatMessage::create([
+            'chat_session_id' => $this->chat->id,
+            'message_type'    => App\Enums\CRM\Livechat\ChatMessageTypeEnum::TEXT,
+            'sender_type'     => App\Enums\CRM\Livechat\ChatSenderTypeEnum::USER,
+            'message_text'    => 'Is my order on its way?',
+        ]);
+        $listed = function (array $arguments) {
+            Illuminate\Support\Facades\Auth::setUser($this->user);
+            $response = app(App\Mcp\Tools\CustomerServiceInboxTool::class)->handle(new Laravel\Mcp\Request(['limit' => 50] + $arguments));
+
+            return collect(json_decode((string) $response->content(), true)['waiting'] ?? [])->firstWhere('chat_id', $this->chat->ulid);
+        };
+
+        expect($listed(['unopened_only' => true]))->toMatchArray(['unopened' => true, 'shop_slug' => $this->shop->slug])
+            ->and($listed(['unopened_only' => true, 'shops' => [$this->shop->slug]]))->not->toBeNull()
+            ->and($listed(['unopened_only' => true, 'shops' => ['no-such-shop']]))->toBeNull()
+            ->and($listed([]))->not->toHaveKey('draft_waiting');
+
+        $this->travel(1)->minutes();
+        $note = App\Actions\Chat\ChatSession\StoreChatEvent::make()->internalNote($this->chat, 'Checked: nothing to confirm yet.', $this->user->id);
+        expect($listed(['unopened_only' => true]))->toBeNull()
+            ->and($listed([]))->toMatchArray(['unopened' => true]);
+        $note->delete();
+        $this->travelBack();
+
+        App\Models\Chat\ChatAiDraft::create([
+            'group_id' => $this->shop->group_id, 'organisation_id' => $this->shop->organisation_id, 'shop_id' => $this->shop->id,
+            'chat_session_id' => $this->chat->id, 'trigger_message_id' => $customerMessage->id, 'topic' => App\Enums\CRM\Livechat\ChatTopicEnum::OTHER,
+            'text' => 'On its way.', 'status' => App\Enums\CRM\Livechat\ChatAiDraftStatusEnum::PENDING,
+        ]);
+        $customerMessage->update(['is_read' => true, 'read_at' => now()]);
+
+        expect($listed(['unopened_only' => true]))->toBeNull()
+            ->and($listed([]))->toMatchArray(['draft_waiting' => true])
+            ->and($listed([]))->not->toHaveKey('unopened');
 
         $this->chat->update(['last_agent_message_at' => now()]);
 
@@ -2801,7 +2974,7 @@ describe('customer service tools', function () {
             ->assertOk()->assertSee('Nothing was sent');
         $first = App\Actions\Chat\ChatSession\DraftChatReply::pendingDraft($this->chat);
 
-        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'save_draft', 'message' => 'Sorry about that, could you send a photo of the box too?'])
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'save_draft', 'message' => 'Sorry about that, could you send a photo of the box too?', 'staff_note' => 'Before sending: check the box photo from the warehouse.'])
             ->assertOk();
         $draft = App\Actions\Chat\ChatSession\DraftChatReply::pendingDraft($this->chat);
 
@@ -2815,7 +2988,9 @@ describe('customer service tools', function () {
         Illuminate\Support\Facades\Event::assertDispatched(App\Events\BroadcastChatAiDraft::class);
 
         $this->actingAs($this->user);
-        expect(App\Actions\Chat\ChatSession\HandleChatAiDraft::make()->asController($this->chat)->getData(true)['data']['assistant']['of'])->toBe($this->user->contact_name);
+        $shown = App\Actions\Chat\ChatSession\HandleChatAiDraft::make()->asController($this->chat)->getData(true)['data'];
+        expect($shown['assistant']['of'])->toBe($this->user->contact_name)
+            ->and($shown['staff_note'])->toBe('Before sending: check the box photo from the warehouse.');
 
         $this->user->update(['can_use_mcp_customer_service' => false]);
         ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'save_draft', 'message' => 'Sorry'])

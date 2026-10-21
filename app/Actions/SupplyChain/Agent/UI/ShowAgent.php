@@ -31,6 +31,8 @@ use App\Http\Resources\SupplyChain\SupplierProductsResource;
 use App\Http\Resources\SupplyChain\SuppliersResource;
 use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Organisation;
+use App\Actions\Goods\ProductDevelopment\ProductDevelopmentAccess;
+use App\Actions\Goods\ProductDevelopment\UI\GetRelatedProductDevelopments;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -134,6 +136,12 @@ class ShowAgent extends OrgAction
                     ],
                 ],
                 'attachmentScopes' => SupplyChainAttachmentScopeEnum::options(),
+
+                'productDevelopments' => (new ProductDevelopmentAccess())->canSeeAny($request->user())
+
+                    ? ['rows' => GetRelatedProductDevelopments::make()->forAgent($agent, $request->user())]
+
+                    : null,
 
                 'agreement' => GetAgreement::run($agent, null, $request->user()),
 

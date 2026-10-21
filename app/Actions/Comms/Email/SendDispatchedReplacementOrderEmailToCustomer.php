@@ -56,6 +56,7 @@ class SendDispatchedReplacementOrderEmailToCustomer extends OrgAction
         $outbox = $dispatchedEmail->outbox;
 
         $order->dispatchedEmails()->attach($dispatchedEmail, ['outbox_id' => $outbox->id]);
+        $deliveryNote->dispatchedEmails()->attach($dispatchedEmail, ['outbox_id' => $outbox->id]);
 
         $orderUrl   = $this->getOrderLink($order);
 

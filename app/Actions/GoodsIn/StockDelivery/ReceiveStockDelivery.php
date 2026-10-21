@@ -2,6 +2,7 @@
 
 namespace App\Actions\GoodsIn\StockDelivery;
 
+use App\Actions\GoodsIn\StockDeliveryPackingCheck\CreateStockDeliveryPackingChecks;
 use App\Actions\Traits\Authorisations\WithGoodsInBookInAuthorisation;
 use App\Actions\GoodsIn\StockDelivery\Traits\HasStockDeliveryHydrators;
 use App\Actions\GoodsIn\StockDeliveryItem\Traits\WithStockDeliveryItemStatePropagation;
@@ -73,6 +74,7 @@ class ReceiveStockDelivery extends OrgAction
         UpdatePurchaseOrdersDeliveryStateFromStockDelivery::run($stockDelivery);
 
         rescue(fn () => ReportLateStockDeliveryPurchaseOrders::run($stockDelivery));
+        rescue(fn () => CreateStockDeliveryPackingChecks::run($stockDelivery));
 
         $this->runStockDeliveryHydrators($stockDelivery);
 

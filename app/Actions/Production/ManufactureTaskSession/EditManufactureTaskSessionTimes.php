@@ -87,6 +87,9 @@ class EditManufactureTaskSessionTimes extends OrgAction
                 'time_edited_by'      => $this->editor?->id,
                 'time_edited_at'      => now(),
             ]);
+            if ($session->left_open_after_shift_at) {
+                $session->shift_end_resolved_at ??= now();
+            }
 
             CalculateManufactureTaskSessionBreakMinutes::run($session, $endedAt);
             if (empty($modelData['impossible_rate_confirmed']) && CloseManufactureTaskSession::make()->isImpossibleRate($session)) {

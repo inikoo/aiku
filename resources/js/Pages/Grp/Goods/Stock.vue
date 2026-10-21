@@ -19,7 +19,7 @@ import {
 } from '@fal';
 import { computed, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
-import TableSupplierProducts from "@/Components/Tables/Grp/SupplyChain/TableSupplierProducts.vue";
+import TableStockSupplierProducts from "@/Components/Tables/Grp/Goods/TableStockSupplierProducts.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import StockShowcase from "@/Components/Showcases/Grp/StockShowcase.vue";
 import { capitalize } from "@/Composables/capitalize"
@@ -57,6 +57,8 @@ const props = defineProps<{
     trade_units?: object
     sales?: object
     history?: object
+    supplier_products?: object
+    can_set_preferred_supplier?: boolean
 
 }>()
 
@@ -70,7 +72,7 @@ const component = computed(() => {
         showcase: StockShowcase,
         sales_analysis: SalesAnalysis,
         sales: ProductCategoryTimeSeriesTable,
-        supplier_products: TableSupplierProducts,
+        supplier_products: TableStockSupplierProducts,
         org_stocks: TableOrgStocks,
         trade_units: TableTradeUnits,
         history: TableHistories,
@@ -86,5 +88,5 @@ const component = computed(() => {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
-    <component :is="component" :data="props[currentTab]" :tab="currentTab" :salesAnalysisTeaser="sales_analysis_teaser"></component>
+    <component :is="component" :data="props[currentTab]" :tab="currentTab" :salesAnalysisTeaser="sales_analysis_teaser" :canSetPreferred="can_set_preferred_supplier"></component>
 </template>

@@ -441,6 +441,39 @@ test('create master sub department', function (MasterProductCategory $masterDepa
     return $masterSubDepartment;
 })->depends('create master department');
 
+test('a master sub department is created under a department picked on the create page', function () {
+    $masterShop       = createFreshMasterShop();
+    $masterDepartment = StoreMasterDepartment::make()->action($masterShop, ['code' => 'DEPT-'.uniqid(), 'name' => 'Picked Department']);
+    $otherShopDepartment = StoreMasterDepartment::make()->action(createFreshMasterShop(), ['code' => 'DEPT-'.uniqid(), 'name' => 'Other Shop Department']);
+
+    get(route('grp.masters.master_shops.show.master_sub_departments.create', [$masterShop->slug]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('formData.blueprint.0.fields.master_department_id.required', true)
+            ->where('formData.blueprint.0.fields.master_department_id.readonly', false)
+            ->where('formData.blueprint.0.fields.master_department_id.value', null)
+            ->where('formData.blueprint.0.fields.master_department_id.noAutoSelect', true)
+            ->where('formData.blueprint.0.fields.master_department_id.blockSubmitWhenEmpty', true)
+            ->where('formData.blueprint.0.fields.master_department_id.options', [['value' => $masterDepartment->id, 'label' => $masterDepartment->code.' - Picked Department']]));
+
+    get(route('grp.masters.master_shops.show.master_departments.show.master_sub_departments.create', [$masterShop->slug, $masterDepartment->slug]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('formData.blueprint.0.fields.master_department_id.readonly', true)
+            ->where('formData.blueprint.0.fields.master_department_id.value', $masterDepartment->id));
+
+    $store = fn (array $data) => post(route('grp.models.master_shops.master_sub_department.store', [$masterShop->id]), array_merge(['code' => 'SUB-'.uniqid(), 'name' => 'Picked Sub'], $data));
+
+    $store([])->assertSessionHasErrors('master_department_id');
+    $store(['master_department_id' => $otherShopDepartment->id])->assertSessionHasErrors('master_department_id');
+    $store(['master_department_id' => $masterDepartment->id])->assertSessionHasNoErrors()->assertRedirect();
+
+    $masterSubDepartment = MasterProductCategory::where('master_shop_id', $masterShop->id)->where('type', MasterProductCategoryTypeEnum::SUB_DEPARTMENT)->sole();
+
+    expect($masterSubDepartment->master_department_id)->toBe($masterDepartment->id)
+        ->and($masterSubDepartment->master_parent_id)->toBe($masterDepartment->id);
+});
+
 test('UI Edit Master SubDepartment', function (MasterProductCategory $masterSubDepartment) {
     $masterDepartment = $masterSubDepartment->parent;
 
@@ -714,8 +747,8 @@ test('update master shop', function (MasterShop $masterShop) {
         ]
     );
     $group = $masterShop->group;
-    expect($group->goodsStats->number_master_shops)->toBe(1)
-        ->and($group->goodsStats->number_current_master_shops)->toBe(0);
+    expect($group->goodsStats->number_master_shops)->toBe($group->masterShops()->count())
+        ->and($group->goodsStats->number_current_master_shops)->toBe($group->masterShops()->where('status', true)->count());
 })->depends('create master shop');
 
 test('create master shop from command', function () {
@@ -729,8 +762,8 @@ test('create master shop from command', function () {
 
     $group = $this->group->refresh();
 
-    expect($group->goodsStats->number_master_shops)->toBe(2)
-        ->and($group->goodsStats->number_current_master_shops)->toBe(1);
+    expect($group->goodsStats->number_master_shops)->toBe($group->masterShops()->count())
+        ->and($group->goodsStats->number_current_master_shops)->toBe($group->masterShops()->where('status', true)->count());
 });
 
 test('assign master shop to shop', function () {

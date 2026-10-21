@@ -1986,6 +1986,14 @@ test('sizes sharing documents show the source trade unit IFRA, SDS and allergen 
         ->and($suggestions->pluck('id'))->not->toContain($sameNameOtherLine->id)
         ->and($suggestions->pluck('id'))->not->toContain($sameLineOtherOil->id);
 
+    $firstShareNumber           = (string) ($number + 2);
+    [$firstShareSource]         = $sizeOf('EOTKG-'.$firstShareNumber, 'Rosetest Essential Oil (KG)');
+    [$firstShareSize]           = $sizeOf('PrEOTUL-'.$firstShareNumber, 'Rosetest 50ml - Unlabelled');
+    [$firstShareLookalike]      = $sizeOf('EOTSC-'.$firstShareNumber, 'Rosetest Essential Oil 10ml - Special Label');
+    $firstShareSuggestions      = collect($attachmentsTab($firstShareSource)['documents_sharing']['suggestions'])->keyBy('id');
+    expect($firstShareSuggestions[$firstShareSize->id]['checked'])->toBeTrue()
+        ->and($firstShareSuggestions[$firstShareLookalike->id]['checked'])->toBeFalse();
+
     \Pest\Laravel\withHeaders(['X-Inertia' => 'true'])->post(route('grp.models.trade-unit.share_documents', $sourceTradeUnit->id), ['trade_units' => [$sizeTradeUnit->id]])->assertRedirect();
     $this->flushHeaders();
 

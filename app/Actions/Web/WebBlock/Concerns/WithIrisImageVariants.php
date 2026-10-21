@@ -54,9 +54,6 @@ trait WithIrisImageVariants
         if (in_array('avif', config('img-proxy.formats')) && !$media->is_animated) {
             $formats[] = 'avif';
         }
-        if (in_array('webp', config('img-proxy.formats'))) {
-            $formats[] = 'webp';
-        }
 
         $srcSets = [];
         foreach ($formats as $format) {

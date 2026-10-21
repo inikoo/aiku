@@ -51,3 +51,31 @@ test('explicit secondary wins over fallback', function () use ($subject, $galler
 
     expect($result['secondary']['gallery']['original'])->toBe('front.jpg');
 });
+
+test('card galleries offer avif and the original, never webp', function () use ($subject, $gallery) {
+    $result = $subject->cardWebImages([
+        'main' => ['gallery' => $gallery('main.jpg') + ['webp_2x' => 'main.jpg.2x.webp', 'avif' => 'main.jpg.avif']],
+    ]);
+
+    expect($result['main']['gallery'])->toEqual(['avif' => 'main.jpg.avif', 'original' => 'main.jpg']);
+});
+
+test('storefront webpage data drops every webp image url', function () {
+    $webpageData = [
+        'title'  => 'webp',
+        'blocks' => [
+            ['image' => ['original' => 'a.jpg', 'avif' => 'a.avif', 'webp' => 'a.webp', 'webp_2x' => 'a2.webp']],
+            ['srcset' => ['original' => 'a.jpg 320w', 'webp' => 'a.webp 320w']],
+            ['settings' => ['webp' => ['kept' => true]]],
+        ],
+    ];
+
+    expect(App\Actions\Web\Webpage\Iris\ShowIrisWebpage::make()->withoutWebpImages($webpageData))->toBe([
+        'title'  => 'webp',
+        'blocks' => [
+            ['image' => ['original' => 'a.jpg', 'avif' => 'a.avif']],
+            ['srcset' => ['original' => 'a.jpg 320w']],
+            ['settings' => ['webp' => ['kept' => true]]],
+        ],
+    ]);
+});

@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from "vue"
 import axios from "axios"
 import { ctrans } from "@/Composables/useTrans"
+import { subscribeThisDevice } from "@/Composables/useWebPushDevice"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faCircle, faCheckDouble, faCommentLines, faAt, faQuestionCircle, faBell } from "@fal"
 import { faCheckCircle as fasCheckCircle } from "@fas"
@@ -58,11 +59,6 @@ const channelReason = (channel: { value: string, available?: boolean, unavailabl
     return channel.value === "browser" ? browserBlockedReason.value ?? undefined : undefined
 }
 
-const urlBase64ToUint8Array = (base64: string): Uint8Array => {
-    const padded = (base64 + "=".repeat((4 - base64.length % 4) % 4)).replace(/-/g, "+").replace(/_/g, "/")
-    return Uint8Array.from(atob(padded), char => char.charCodeAt(0))
-}
-
 onMounted(async () => {
     if (!isSupported || !push.value?.public_key) {
         return
@@ -76,20 +72,13 @@ const enableOnThisDevice = async () => {
         return
     }
     pushError.value = null
-    permission.value = await Notification.requestPermission()
-    if (permission.value !== "granted") {
-        return
-    }
     isBusy.value = true
     try {
-        const registration = await navigator.serviceWorker.register("/aiku-sw.js", { scope: "/" })
-        await navigator.serviceWorker.ready
-        const subscription = await registration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(push.value.public_key),
-        })
-        await axios.post(route(push.value.store_route.name), subscription.toJSON())
-        deviceEndpoint.value = subscription.endpoint
+        const endpoint = await subscribeThisDevice(push.value.public_key, push.value.store_route.name)
+        permission.value = Notification.permission
+        if (endpoint) {
+            deviceEndpoint.value = endpoint
+        }
     } catch (error) {
         pushError.value = ctrans("Could not enable notifications on this device")
     } finally {

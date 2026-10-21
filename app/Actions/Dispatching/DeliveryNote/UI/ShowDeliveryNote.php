@@ -22,6 +22,7 @@ use App\Actions\Dispatching\DeliveryNoteItem\WithDeliveryNoteItemPickingCounts;
 use App\Actions\Dispatching\Picking\Picker\Json\GetPickerUsers;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
+use App\Actions\Ordering\Order\UI\IndexDispatchedEmailsInOrder;
 use App\Actions\Ordering\Order\UI\ShowOrder;
 use App\Actions\Dispatching\DeliveryNote\WithDeliveryNoteLeaflets;
 use App\Actions\Dispatching\DeliveryNote\WithDeliveryNotePackaging;
@@ -51,6 +52,7 @@ use App\Exports\Dispatching\DeliveryNoteTariffCodesExport;
 use App\Http\Resources\Dispatching\ShipmentsResource;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Http\Resources\History\HistoryResource;
+use App\Http\Resources\Ordering\DispatchedEmailsInOrderResource;
 use App\Http\Resources\Ordering\PickersResource;
 use App\Http\Resources\Procurement\ReturnDeliveryNoteResource;
 use App\Models\Catalogue\Shop;
@@ -1506,6 +1508,10 @@ class ShowDeliveryNote extends OrgAction
                 fn () => HistoryResource::collection(IndexHistory::run($deliveryNote, DeliveryNoteTabsEnum::HISTORY->value))
                 : Inertia::optional(fn () => HistoryResource::collection(IndexHistory::run($deliveryNote, DeliveryNoteTabsEnum::HISTORY->value))),
 
+            DeliveryNoteTabsEnum::DISPATCHED_EMAILS->value => $this->tab == DeliveryNoteTabsEnum::DISPATCHED_EMAILS->value ?
+                fn () => DispatchedEmailsInOrderResource::collection(IndexDispatchedEmailsInOrder::run(parent: $deliveryNote, prefix: DeliveryNoteTabsEnum::DISPATCHED_EMAILS->value))
+                : Inertia::optional(fn () => DispatchedEmailsInOrderResource::collection(IndexDispatchedEmailsInOrder::run(parent: $deliveryNote, prefix: DeliveryNoteTabsEnum::DISPATCHED_EMAILS->value))),
+
             DeliveryNoteTabsEnum::TARIFF_CODES->value => $this->tab == DeliveryNoteTabsEnum::TARIFF_CODES->value ?
                 fn () => DeliveryNoteTariffCodeResource::collection(IndexDeliveryNoteTariffCodes::run($deliveryNote, DeliveryNoteTabsEnum::TARIFF_CODES->value))
                 : Inertia::optional(fn () => DeliveryNoteTariffCodeResource::collection(IndexDeliveryNoteTariffCodes::run($deliveryNote, DeliveryNoteTabsEnum::TARIFF_CODES->value))),
@@ -1575,6 +1581,7 @@ class ShowDeliveryNote extends OrgAction
 
         $inertiaResponse->table(IndexHistory::make()->tableStructure(DeliveryNoteTabsEnum::HISTORY->value));
         $inertiaResponse->table(IndexDeliveryNoteTariffCodes::make()->tableStructure($deliveryNote, DeliveryNoteTabsEnum::TARIFF_CODES->value));
+        $inertiaResponse->table(IndexDispatchedEmailsInOrder::make()->tableStructure(DeliveryNoteTabsEnum::DISPATCHED_EMAILS->value));
 
         return $inertiaResponse;
     }

@@ -4,7 +4,6 @@
  * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
-import { BrowserAgent } from '@newrelic/browser-agent/loaders/browser-agent'
 import "./bootstrap";
 import "../css/app.css";
 import { createApp, h } from "vue";
@@ -24,48 +23,6 @@ import { ZiggyVue } from "ziggy-js";
 import { setAgentOrganisations, withAgentRoutes } from "@/Composables/useAgentRoutes";
 import { ctrans } from "@/Composables/useTrans";
 import { sentryDenyUrls, sentryIgnoreErrors } from "@/Composables/sentryNoise";
-
-if (import.meta.env.VITE_NEW_RELIC_BROWSER_ENABLED) {
-  const options = {
-    "info": {
-      "applicationID": import.meta.env.VITE_NEW_RELIC_BROWSER_AIKU,
-      "beacon": "bam.nr-data.net",
-      "errorBeacon": "bam.nr-data.net",
-      "licenseKey": import.meta.env.VITE_NEW_RELIC_BROWSER_LICENCE_KEY,
-      "sa": 1
-    },
-    "init": {
-      "ajax": {
-        "deny_list": [
-          "bam.nr-data.net"
-        ]
-      },
-      "browser_consent_mode": {
-        "enabled": false
-      },
-      "distributed_tracing": {
-        "enabled": true
-      },
-      "performance": {
-        "capture_detail": false,
-        "capture_marks": false,
-        "capture_measures": true
-      },
-      "privacy": {
-        "cookies_enabled": true
-      }
-    },
-    "loader_config": {
-      "accountID": import.meta.env.VITE_NEW_RELIC_BROWSER_ACCOUNT_ID,
-      "agentID": import.meta.env.VITE_NEW_RELIC_BROWSER_AIKU,
-      "applicationID": import.meta.env.VITE_NEW_RELIC_BROWSER_AIKU,
-      "licenseKey": import.meta.env.VITE_NEW_RELIC_BROWSER_LICENCE_KEY,
-      "trustKey":  import.meta.env.VITE_NEW_RELIC_BROWSER_ACCOUNT_ID
-    }
-  }
-  const nrba = new BrowserAgent(options)
-
-}
 
 const appName = "aiku";
 

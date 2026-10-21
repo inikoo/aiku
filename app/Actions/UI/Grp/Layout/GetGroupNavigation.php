@@ -8,6 +8,7 @@
 
 namespace App\Actions\UI\Grp\Layout;
 
+use App\Actions\Goods\ProductDevelopment\ProductDevelopmentAccess;
 use App\Models\Helpers\Ticket;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Arr;
@@ -72,6 +73,11 @@ class GetGroupNavigation
                 ],
             ],
         ];
+
+        $canSeeProductDevelopments = (new ProductDevelopmentAccess())->canSeeAny($user);
+        if ($canSeeProductDevelopments) {
+            $groupNavigation['product-developments'] = $this->getProductDevelopmentsNavs();
+        }
 
         if ($user->hasAnyPermission(['goods.view','masters.view'])) {
             $groupNavigation['trade-units'] = $this->getTradeUnitsNavs();
@@ -275,11 +281,48 @@ class GetGroupNavigation
 
         if (!$user->hasGroupAccess()) {
             $modules = $user->worksOnlyForAgents() ? ['tickets'] : ['tickets', 'projects'];
+            if ($canSeeProductDevelopments) {
+                $modules[] = 'product-developments';
+            }
 
             return Arr::only($groupNavigation, $user->canViewSales() ? ['dashboard', ...$modules] : $modules);
         }
 
         return $groupNavigation;
+    }
+
+    private function getProductDevelopmentsNavs(): array
+    {
+        return [
+            'label'   => __('Product development'),
+            'icon'    => ['fal', 'fa-lightbulb-on'],
+            'root'    => 'grp.product_developments.',
+            'route'   => [
+                'name' => 'grp.product_developments.index',
+            ],
+            'topMenu' => [
+                'subSections' => [
+                    [
+                        'label' => __('List'),
+                        'icon'  => ['fal', 'fa-list'],
+                        'root'  => 'grp.product_developments.index',
+                        'route' => ['name' => 'grp.product_developments.index', 'parameters' => []],
+                    ],
+                    [
+                        'label' => __('Board'),
+                        'icon'  => ['fal', 'fa-columns'],
+                        'root'  => 'grp.product_developments.board',
+                        'route' => ['name' => 'grp.product_developments.board', 'parameters' => []],
+                    ],
+                    [
+                        'label' => __('Waiting on me'),
+                        'icon'  => ['fal', 'fa-hourglass-half'],
+                        'root'  => 'grp.product_developments.waiting_on_me',
+                        'route' => ['name' => 'grp.product_developments.waiting_on_me', 'parameters' => []],
+                    ],
+                ],
+            ],
+        ];
     }
 
     private function getTradeUnitsNavs(): array

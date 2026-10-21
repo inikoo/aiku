@@ -481,6 +481,20 @@ test('the new email customer picker lists word-start matches before names that o
     expect(array_search($startsWithSearch->id, $ids))->toBeLessThan(array_search($containsSearch->id, $ids));
 });
 
+test('the customer picker searches a name typed with a comma or sent as a list instead of failing', function () {
+    $customer = StoreCustomer::make()->action($this->shop, Customer::factory()->definition());
+    $customer->update(['name' => 'Commaqx, Janeqx', 'email' => 'comma.picker@example.com']);
+
+    actingAs($this->user);
+
+    $ids = fn (array $filter) => collect($this->get(route('grp.json.shop.customers', ['shop' => $this->shop->id] + $filter))
+        ->assertOk()->json('data'))->pluck('id')->all();
+
+    expect($ids(['filter[global]' => 'Commaqx, Janeqx']))->toContain($customer->id)
+        ->and($ids(['filter[global][]' => 'Commaqx']))->toContain($customer->id)
+        ->and($ids(['filter[phone]' => '0770,0900']))->toBeArray();
+});
+
 test('an email reply does not also send a chat notification, and carries the shop sender name and an html signature', function () {
     \Illuminate\Support\Facades\Queue::fake();
 

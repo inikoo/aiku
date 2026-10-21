@@ -35,6 +35,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use DateTimeInterface;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
@@ -63,6 +64,8 @@ use App\Models\Traits\HasSearch;
  * @property EmployeeTypeEnum $type
  * @property EmployeeStateEnum $state
  * @property ArtisanPayTypeEnum $artisan_pay_type
+ * @property \Illuminate\Support\Carbon|null $guru_since
+ * @property \Illuminate\Support\Carbon|null $guru_until
  * @property \Illuminate\Support\Carbon|null $employment_start_at
  * @property \Illuminate\Support\Carbon|null $employment_end_at
  * @property array<array-key, mixed>|null $emergency_contact
@@ -170,6 +173,8 @@ class Employee extends Model implements HasMedia, Auditable
         'religion' => 'string',
         'emergency_contact' => 'array',
         'artisan_pay_type' => ArtisanPayTypeEnum::class,
+        'guru_since' => 'date',
+        'guru_until' => 'date',
     ];
     //ss
 
@@ -214,6 +219,7 @@ class Employee extends Model implements HasMedia, Auditable
         'insurance_number',
         'religion',
         'probation_period_days',
+        'artisan_pay_type',
     ];
 
     protected array $attributeModifiers = [
@@ -506,6 +512,17 @@ class Employee extends Model implements HasMedia, Auditable
         return $this->getCurrentDepartment();
     }
 
+    public function isGuruOn(?DateTimeInterface $moment): bool
+    {
+        if (!$moment || !$this->guru_since) {
+            return false;
+        }
+
+        $day = Carbon::parse($moment)->utc()->toDateString();
+
+        return $day >= $this->guru_since->toDateString()
+            && (!$this->guru_until || $day <= $this->guru_until->toDateString());
+    }
 
     public function toSearchableArray(): array
     {

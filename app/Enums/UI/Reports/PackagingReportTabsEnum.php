@@ -17,9 +17,12 @@ enum PackagingReportTabsEnum: string
     use HasTabs;
 
     case COMPLETENESS = 'completeness';
+    case EXPOSURE     = 'exposure';
     case UK_RETURN    = 'uk_return';
     case EU_RETURN    = 'eu_return';
     case SHIPMENT     = 'shipment';
+    case INBOUND      = 'inbound';
+    case SNAPSHOTS    = 'snapshots';
     case EXPORTS      = 'exports';
 
     public function blueprint(): array
@@ -28,6 +31,10 @@ enum PackagingReportTabsEnum: string
             self::COMPLETENESS => [
                 'title' => __('Completeness'),
                 'icon'  => 'fal fa-tasks',
+            ],
+            self::EXPOSURE => [
+                'title' => __('Exposure'),
+                'icon'  => 'fal fa-globe-europe',
             ],
             self::UK_RETURN => [
                 'title' => __('UK return'),
@@ -40,6 +47,14 @@ enum PackagingReportTabsEnum: string
             self::SHIPMENT => [
                 'title' => __('Shipment packaging'),
                 'icon'  => 'fal fa-box-open',
+            ],
+            self::INBOUND => [
+                'title' => __('Inbound packing'),
+                'icon'  => 'fal fa-box-open',
+            ],
+            self::SNAPSHOTS => [
+                'title' => __('Audit snapshots'),
+                'icon'  => 'fal fa-archive',
             ],
             self::EXPORTS => [
                 'title' => __('Spreadsheet exports'),

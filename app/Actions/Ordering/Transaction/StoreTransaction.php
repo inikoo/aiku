@@ -52,7 +52,7 @@ class StoreTransaction extends OrgAction
                 OrderStateEnum::CREATING,
                 OrderStateEnum::SUBMITTED
             ])) {
-                $transaction = $order->transactions->where('model_type', 'Product')->where('model_id', $historicAsset->asset->model_id)->where('is_gift', false)->first();
+                $transaction = $order->transactions()->where('model_type', 'Product')->where('model_id', $historicAsset->asset->model_id)->where('is_gift', false)->orderBy('id')->first();
                 if ($transaction) {
                     return UpdateTransaction::make()->action($transaction, [
                         'quantity_ordered' => (float)$transaction->quantity_ordered + (float)data_get($modelData, 'quantity_ordered', 0)

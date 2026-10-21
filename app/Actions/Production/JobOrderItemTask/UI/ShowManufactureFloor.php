@@ -23,6 +23,8 @@ use App\Models\Production\ArtefactManufactureTask;
 use App\Models\Production\JobOrder;
 use App\Models\Production\JobOrderItemTask;
 use App\Models\Production\ManufacturePayBand;
+use App\Models\Production\ManufacturePreparationReason;
+use App\Models\Helpers\Language;
 use App\Actions\Production\ManufactureBreak\StartManufactureBreak;
 use App\Models\Production\ManufactureBreak;
 use App\Enums\Production\Artisan\ArtisanPayTypeEnum;
@@ -100,6 +102,8 @@ class ShowManufactureFloor extends OrgAction
             ->where('state', ManufactureTaskSessionStateEnum::OPEN)
             ->with(['jobOrderItemTask.jobOrderItem.artefact', 'jobOrderItemTask.jobOrderItem.employee', 'jobOrderItemTask.jobOrder.employee', 'manufactureTask', 'jobOrder'])
             ->first();
+        $shiftEndPause    = $openSession?->shiftEndPause();
+        $shiftEndPausedAt = $shiftEndPause?->started_at ?? $openSession?->left_open_after_shift_at;
 
         $workingOnBy = ManufactureTaskSession::where('production_id', $production->id)
             ->where('state', ManufactureTaskSessionStateEnum::OPEN)
@@ -234,6 +238,8 @@ class ShowManufactureFloor extends OrgAction
                     'planned_minutes' => $openBreak->planned_minutes,
                     'started_at'      => $openBreak->started_at,
                     'is_clocked_out'  => (bool) $openBreak->clock_out_clocking_id,
+                    'is_shift_end'    => $shiftEndPause?->id === $openBreak->id,
+                    'worked_seconds'  => $openSession?->workedSecondsUntil($openBreak->started_at),
                     'end_route'       => [
                         'name'       => 'grp.models.manufacture-break.end',
                         'parameters' => ['manufactureBreak' => $openBreak->id],
@@ -265,6 +271,17 @@ class ShowManufactureFloor extends OrgAction
                     'band_feedback' => $this->bandFeedback($openSession),
                     'break_minutes' => (int) $openSession->break_minutes,
                     'left_open_after_shift_at' => $openSession->left_open_after_shift_at,
+                    'shift_end'     => $openSession->left_open_after_shift_at && !$openSession->isNonProductive() ? [
+                        'paused_at'      => $shiftEndPausedAt,
+                        'worked_seconds' => $openSession->workedSecondsUntil($shiftEndPausedAt),
+                        'answer'         => $openSession->shift_end_answer,
+                        'is_resolved'    => (bool) $openSession->shift_end_resolved_at,
+                        'continue_route' => [
+                            'name'       => 'grp.models.manufacture-task-session.continue_after_shift',
+                            'parameters' => ['manufactureTaskSession' => $openSession->id],
+                            'method'     => 'patch',
+                        ],
+                    ] : null,
                     'carry'         => $openSession->is_combined ? null : SettleShortJobOrderItemTask::make()->preview($openSession->jobOrderItemTask),
                 ] : null),
                 'artisan'      => $this->employee?->contact_name,
@@ -318,6 +335,13 @@ class ShowManufactureFloor extends OrgAction
             ],
             'band_feedback' => null,
             'break_minutes' => (int) $session->break_minutes,
+            'preparation_reasons' => $session->activity_type == ManufactureTaskSessionActivityTypeEnum::PREPARATION
+                ? ManufacturePreparationReason::forProduction($session->production)->map(fn (ManufacturePreparationReason $reason) => [
+                    'id'       => $reason->id,
+                    'label'    => $reason->nameIn(Language::where('code', app()->getLocale())->first()),
+                    'is_other' => $reason->is_other,
+                ])->all()
+                : null,
         ];
     }
 
@@ -436,6 +460,7 @@ class ShowManufactureFloor extends OrgAction
             'task_code'           => $task->manufactureTask->code,
             'task_name'           => $task->manufactureTask->name,
             'is_piece_rate'       => (bool) $task->manufactureTask->is_piece_rate,
+            'is_quantity_only'    => (bool) $task->manufactureTask->is_quantity_only,
             'artefact_code'       => $members->map(fn (JobOrderItemTask $member) => $member->jobOrderItem->artefact->code)->unique()->implode(' + '),
             'artefact_name'       => $isCombined ? __('Combined batch') : $task->jobOrderItem->artefact->name,
             'job_order_reference' => $members->map(fn (JobOrderItemTask $member) => $member->jobOrder->reference)->unique()->implode(', '),

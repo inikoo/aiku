@@ -649,3 +649,74 @@ test('a pre-order product in the search results is flagged so its picture is not
         $this->shop->update(['settings' => $originalSettings]);
     }
 });
+
+test('full page search category facets read every category picture in one query, with the same facets as one category at a time', function () {
+    [, $seed] = createProduct($this->shop);
+
+    $newFamilyWithPictureAndProduct = function () use ($seed) {
+        $familyData = \App\Models\Catalogue\ProductCategory::factory()->definition();
+        data_set($familyData, 'type', \App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum::FAMILY->value);
+        $family = \App\Actions\Catalogue\ProductCategory\StoreProductCategory::make()->action($seed->department, $familyData);
+
+        $picture = \App\Models\Helpers\Media::create([
+            'group_id'              => $this->organisation->group_id,
+            'ulid'                  => (string) Str::ulid(),
+            'uuid'                  => (string) Str::uuid(),
+            'name'                  => 'family-picture',
+            'file_name'             => 'family-picture.png',
+            'mime_type'             => 'image/png',
+            'disk'                  => 'local',
+            'collection_name'       => 'photo',
+            'size'                  => 4,
+            'manipulations'         => [],
+            'custom_properties'     => [],
+            'generated_conversions' => [],
+            'responsive_images'     => [],
+        ]);
+        \Illuminate\Support\Facades\DB::table('product_categories')->where('id', $family->id)->update(['image_id' => $picture->id]);
+
+        $product = \App\Actions\Catalogue\Product\StoreProduct::make()->action($seed->family, array_merge(
+            \App\Models\Catalogue\Product::factory()->definition(),
+            ['trade_units' => [['id' => $seed->tradeUnits->first()->id, 'quantity' => 1]], 'price' => 100]
+        ));
+        \Illuminate\Support\Facades\DB::table('products')->where('id', $product->id)->update(['family_id' => $family->id]);
+
+        return [$family->fresh(), $product->id];
+    };
+
+    $action  = \App\Actions\Search\SearchIrisCataloguePage::make();
+    $shop    = $this->shop;
+    $website = $this->website;
+    (function () use ($shop, $website) {
+        $this->shop    = $shop;
+        $this->website = $website;
+    })->call($action);
+
+    $countedFamilyFacets = function (array $productIds) use ($action) {
+        \Illuminate\Support\Facades\DB::flushQueryLog();
+        \Illuminate\Support\Facades\DB::enableQueryLog();
+        $families = (fn () => $this->categoryFacets($productIds))->call($action)['families'];
+        $queries  = count(\Illuminate\Support\Facades\DB::getQueryLog());
+        \Illuminate\Support\Facades\DB::disableQueryLog();
+
+        return [$families, $queries];
+    };
+
+    [$firstFamily, $firstProductId] = $newFamilyWithPictureAndProduct();
+    [, $queriesForOneFamily]        = $countedFamilyFacets([$firstProductId]);
+
+    $created = collect([[$firstFamily, $firstProductId], $newFamilyWithPictureAndProduct(), $newFamilyWithPictureAndProduct()]);
+    [$families, $queriesForThreeFamilies] = $countedFamilyFacets($created->pluck(1)->all());
+
+    $expected = $created->map(fn ($pair) => [
+        'id'    => $pair[0]->id,
+        'name'  => $pair[0]->name,
+        'count' => 1,
+        'url'   => null,
+        'image' => $pair[0]->imageSources(200, 200),
+    ])->sortBy('id')->values()->all();
+
+    expect(collect($families)->sortBy('id')->values()->all())->toEqual($expected)
+        ->and(collect($expected)->pluck('image')->filter()->count())->toBe(3)
+        ->and($queriesForThreeFamilies)->toBe($queriesForOneFamily);
+});

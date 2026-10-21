@@ -210,7 +210,7 @@ class StoreWooCommerceProduct extends RetinaAction
                     'errors_response' => null
                 ]);
 
-                UpdatePlatformPortfolioLog::dispatch($logs, [
+                UpdatePlatformPortfolioLog::run($logs, [
                     'status' => PlatformPortfolioLogsStatusEnum::OK
                 ]);
             } else {
@@ -218,7 +218,7 @@ class StoreWooCommerceProduct extends RetinaAction
                     'errors_response' => $this->portfolioErrorResponse($result)
                 ]);
 
-                UpdatePlatformPortfolioLog::dispatch($logs, [
+                UpdatePlatformPortfolioLog::run($logs, [
                     'status' => PlatformPortfolioLogsStatusEnum::FAIL,
                     'response' => $result
                 ]);
@@ -233,7 +233,7 @@ class StoreWooCommerceProduct extends RetinaAction
             ]);
 
             if ($logs) {
-                UpdatePlatformPortfolioLog::dispatch($logs, [
+                UpdatePlatformPortfolioLog::run($logs, [
                     'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
                     'response' => $e->getMessage()
                 ]);

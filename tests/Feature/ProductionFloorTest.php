@@ -667,6 +667,50 @@ test('closing a step at ten times its target rate needs a manager badge or pin',
     expect($task->refresh()->state)->toBe(JobOrderItemTaskStateEnum::DONE);
 });
 
+test('a quantity only step records who made it and when with no hours and no rate prompt, an hourly step without target never asks a manager', function () {
+    $user = $this->guest->getUser();
+
+    $modelData                  = Employee::factory()->make(['organisation_id' => $this->organisation->id])->toArray();
+    $modelData['worker_number'] = 'W'.rand(10000, 99999);
+    $modelData['alias']         = 'Alias '.rand(10000, 99999);
+    $hourly                     = StoreEmployee::make()->action($this->organisation, $modelData);
+    $hourly->update(['artisan_pay_type' => \App\Enums\Production\Artisan\ArtisanPayTypeEnum::HOURLY]);
+
+    $filling = stepTestManufactureTask($this->production, 'FILLQ', 'Filling to order');
+    $filling->update(['is_piece_rate' => true, 'is_quantity_only' => true, 'standard_rate' => 5]);
+    $this->artefact->manufactureTasks()->sync([$filling->id => ['position' => 1, 'units_per_artefact' => 1]]);
+    $jobOrder = StoreJobOrder::make()->action($this->production, []);
+    $item     = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 2]);
+    ConfirmJobOrder::make()->action($jobOrder);
+    $task = $item->tasks()->first();
+
+    $session = StartManufactureTaskSession::make()->action($user, $task);
+    $session->update(['employee_id' => $hourly->id, 'started_at' => now()->subMinutes(40)]);
+    get(route('grp.org.productions.show.floor', [$this->organisation->slug, $this->production->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('open_session.task.is_quantity_only', true)->etc());
+
+    expect(fn () => CloseManufactureTaskSession::make()->action($session->refresh(), ['quantity_made' => 3]))
+        ->toThrow(ValidationException::class, 'a manager must authorise the extra 1');
+    $session = CloseManufactureTaskSession::make()->action($session->refresh(), ['quantity_made' => 2])->refresh();
+    expect($session->state)->toBe(ManufactureTaskSessionStateEnum::CLOSED)
+        ->and($session->user_id)->toBe($user->id)
+        ->and($session->started_at->equalTo($session->ended_at))->toBeTrue()
+        ->and((float) $session->hours)->toBe(0.0)
+        ->and($task->refresh()->state)->toBe(JobOrderItemTaskStateEnum::DONE);
+
+    $mixing = stepTestManufactureTask($this->production, 'MIXH', 'Mixing hourly');
+    $mixing->update(['is_piece_rate' => false, 'standard_rate' => null]);
+    $this->artefact->manufactureTasks()->sync([$mixing->id => ['position' => 1, 'units_per_artefact' => 1]]);
+    $jobOrder = StoreJobOrder::make()->action($this->production, []);
+    $item     = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 180]);
+    ConfirmJobOrder::make()->action($jobOrder);
+
+    $session = StartManufactureTaskSession::make()->action($user, $item->tasks()->first());
+    $session->update(['employee_id' => $hourly->id, 'started_at' => now()->subMinutes(40)]);
+    CloseManufactureTaskSession::make()->action($session->refresh(), ['quantity_made' => 180]);
+    expect($item->tasks()->first()->state)->toBe(JobOrderItemTaskStateEnum::DONE);
+});
+
 test('a step counted in packs says so on the floor and takes whole packs only', function () {
     $this->artefact->manufactureTasks()->sync([
         $this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 0.125],

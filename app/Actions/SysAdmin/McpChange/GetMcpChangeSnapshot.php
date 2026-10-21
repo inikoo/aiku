@@ -45,7 +45,7 @@ class GetMcpChangeSnapshot
     public const array PRODUCTION_RECORD_FIELDS = [
         'artefact'         => ['id', 'code', 'name', 'state', 'recommended_batch_size', 'shelf_life_days', 'artefact_family_id', 'artefact_department_id', 'org_stock_id', 'trade_unit_id'],
         'raw_material'     => ['id', 'code', 'description', 'type', 'state', 'unit', 'unit_cost', 'org_stock_id', 'trade_unit_id'],
-        'manufacture_task' => ['id', 'code', 'name', 'description', 'status', 'is_piece_rate', 'is_recorded_in_kg'],
+        'manufacture_task' => ['id', 'code', 'name', 'description', 'status', 'is_piece_rate', 'is_recorded_in_kg', 'is_quantity_only'],
     ];
 
     public const array TRADE_UNIT_FIELDS = [

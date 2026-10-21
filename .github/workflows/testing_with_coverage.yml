@@ -24,9 +24,29 @@ env:
   XDEBUG_MODE: 'off'
 
 jobs:
+  changes:
+    name: Commits since the last nightly run?
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
+    steps:
+      - id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ github.event_name }}" != "schedule" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          SINCE=$(date -u -d '25 hours ago' +%Y-%m-%dT%H:%M:%SZ)
+          COMMITS=$(gh api "repos/${{ github.repository }}/commits?sha=main&since=$SINCE&per_page=1" --jq length)
+          echo "changed=$([ "$COMMITS" -gt 0 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          [ "$COMMITS" -gt 0 ] || echo "No commits on main since $SINCE, skipping coverage and bundle sizes." >> "$GITHUB_STEP_SUMMARY"
+
   coverage:
-    name: Coverage → Codecov 📊
-    if: ${{ inputs.only == 'all' || inputs.only == 'coverage' || inputs.only == '' }}
+    name: Coverage → aiku 📊
+    needs: changes
+    if: ${{ needs.changes.outputs.changed == 'true' && (inputs.only == 'all' || inputs.only == 'coverage' || inputs.only == '') }}
     runs-on: [ helio ]
     steps:
       - name: Checkout repo
@@ -79,41 +99,30 @@ jobs:
             echo "::warning::No coverage driver (pcov/xdebug) for php8.4 on this runner, running tests without coverage"
           fi
           sed 's/name="memory_limit" value="5120M"/name="memory_limit" value="-1"/' phpunit.xml > phpunit.coverage.xml
-          /usr/bin/php8.4 -d memory_limit=-1 -d newrelic.enabled=0 vendor/bin/pest --configuration phpunit.coverage.xml --testsuite=Unit,Feature --parallel --processes=${PEST_PROCESSES:-4} $COVERAGE --log-junit junit.xml
-      - name: Upload coverage to Codecov
-        if: ${{ hashFiles('clover.xml') != '' }}
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          slug: Inikoo-Ltd/aiku
-          files: clover.xml
-          flags: backend
-          fail_ci_if_error: true
+          /usr/bin/php8.4 -d memory_limit=-1 vendor/bin/pest --configuration phpunit.coverage.xml --testsuite=Unit,Feature --parallel --processes=${PEST_PROCESSES:-4} $COVERAGE --log-junit junit.xml
+      - name: Report coverage to aiku
+        if: ${{ !cancelled() && hashFiles('clover.xml') != '' }}
+        env:
+          DEVOPS_TOKEN: ${{ secrets.DEVOPS_TOKEN }}
+        run: /usr/bin/php8.4 devops/ci/report-coverage.php clover.xml
       - name: Editorial translation audit
         if: ${{ !cancelled() }}
         continue-on-error: true
         run: |
-          if ! /usr/bin/php8.4 -dxdebug.mode=off -d newrelic.enabled=0 vendor/bin/pest tests/Feature/AikuPublicTest.php --group=editorial; then
+          if ! /usr/bin/php8.4 -dxdebug.mode=off vendor/bin/pest tests/Feature/AikuPublicTest.php --group=editorial; then
             echo "::warning::Documentation translations are missing or stale; see the editorial audit output."
             echo "Documentation translations need attention. See the Editorial translation audit step for missing or stale guides." >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
-      - name: Upload test results to Codecov
-        if: ${{ !cancelled() }}
-        uses: codecov/test-results-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          slug: Inikoo-Ltd/aiku
-          files: junit.xml
-          flags: backend
 
       - name: Stop private Redis
         if: ${{ always() }}
         run: redis-cli -s "$REDIS_SOCKET" shutdown nosave || true
 
   bundle-analysis:
-    name: Bundle analysis → Codecov 📦
-    if: ${{ inputs.only == 'all' || inputs.only == 'bundle' || inputs.only == '' }}
+    name: Bundle sizes → aiku 📦
+    needs: changes
+    if: ${{ needs.changes.outputs.changed == 'true' && (inputs.only == 'all' || inputs.only == 'bundle' || inputs.only == '') }}
     runs-on: [ helio ]
     steps:
       - name: Checkout repo
@@ -127,8 +136,11 @@ jobs:
           ln -s ../../../../../artifacts/fa .
       - name: npm ci
         run: npm ci
-      - name: Build and upload bundle stats
+      - name: Build bundles
         env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           NODE_OPTIONS: --max-old-space-size=8192
         run: npm run build
+      - name: Report bundle sizes to aiku
+        env:
+          DEVOPS_TOKEN: ${{ secrets.DEVOPS_TOKEN }}
+        run: /usr/bin/php8.4 devops/ci/report-bundle-sizes.php grp aiku-public iris retina pupil chat-widget

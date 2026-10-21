@@ -187,7 +187,7 @@ class CallApiDpdGbShipping extends OrgAction
             $modelData['tracking_urls']  = [];
             try {
                 $htmlContent = base64_decode($htmlBase64);
-                $pdfContent  = $this->labelPdf($htmlContent);
+                $pdfContent  = $this->labelPdf($htmlContent, count($parcels));
 
                 $modelData['label']          = base64_encode($pdfContent);
                 $modelData['label_type']     = ShipmentLabelTypeEnum::PDF;
@@ -215,9 +215,9 @@ class CallApiDpdGbShipping extends OrgAction
 
 
     /**
-     * One 102 x 165 mm page, the size of the APC labels on the same thermal printers.
+     * One 102 x 165 mm page per parcel, the size of the APC labels on the same thermal printers.
      */
-    public function labelPdf(string $html): string
+    public function labelPdf(string $html, int $numberParcels): string
     {
         return Browsershot::html($html)
             ->setOption('no-stop-slow-scripts', true)
@@ -225,7 +225,7 @@ class CallApiDpdGbShipping extends OrgAction
             ->paperSize(102, 165)
             ->margins(2, 2, 2, 2)
             ->scale(0.95)
-            ->pages('1')
+            ->pages('1-'.max($numberParcels, 1))
             ->pdf();
     }
 

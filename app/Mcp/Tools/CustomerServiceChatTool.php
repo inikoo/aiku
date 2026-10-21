@@ -271,12 +271,13 @@ class CustomerServiceChatTool extends AikuCustomerServiceTool
                 'max_age_days'  => $claim['max_age_days'],
                 'suggested_reason' => $claim['reason'],
                 'reasons'       => collect($claim['reasons'])->pluck('value')->all(),
-                'claimable'     => collect($claim['lines'])->filter(fn (array $line) => $line['claimable'] > 0)
-                    ->map(fn (array $line) => [
-                        'code'      => $line['code'],
-                        'name'      => $line['name'],
-                        'claimable' => $line['claimable'],
-                        'mentioned_by_customer' => $line['mentioned'],
+                'claimable'     => collect($claim['products'])->filter(fn (array $product) => $product['claimable'] > 0)
+                    ->map(fn (array $product) => [
+                        'code'      => $product['code'],
+                        'name'      => $product['name'],
+                        'ordered'   => $product['ordered'],
+                        'claimable' => $product['claimable'],
+                        'mentioned_by_customer' => $product['mentioned'],
                     ])
                     ->values()
                     ->all(),

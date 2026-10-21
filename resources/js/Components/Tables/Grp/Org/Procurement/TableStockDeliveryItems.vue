@@ -50,10 +50,11 @@ const screenType = inject('screenType', ref('desktop'))
 
 const changingId = ref<number | null>(null)
 
-function reloadStockDelivery() {
-    router.reload({
+function reloadStockDelivery(): Promise<void> {
+    return new Promise(resolve => router.reload({
         only: [props.tab ?? 'items', 'timelines', 'stock_delivery', 'box_stats', 'pageHead', 'tabs', 'queryBuilderProps', 'costing'],
-    })
+        onFinish: () => resolve(),
+    }))
 }
 
 function confirmChangeState(event: MouseEvent, item: any, stateRoute: any, message: string, acceptLabel: string, body: Record<string, unknown> = {}, isDestructive = false) {
@@ -342,8 +343,8 @@ async function saveCbmInContainer(item: any, value: number | null) {
 
     try {
         await axios.patch(route(item.cbmInContainerRoute.name, item.cbmInContainerRoute.parameters), { cbm_in_container: value })
+        await reloadStockDelivery()
         notify({ title: ctrans('Success'), text: ctrans('CBM in container updated'), type: 'success' })
-        reloadStockDelivery()
     } catch (error: any) {
         notify({
             title: ctrans('Something went wrong'),
@@ -386,12 +387,12 @@ async function savePackedInside(item: any, outerItemId: number | null) {
 
     try {
         await axios.patch(route(item.packedInsideRoute.name, item.packedInsideRoute.parameters), { packed_inside_stock_delivery_item_id: outerItemId })
+        await reloadStockDelivery()
         notify({
             title: ctrans('Success'),
             text: outerItemId ? ctrans(':code is packed inside :outer', { code: item.code, outer: lineCodeById.value.get(outerItemId) ?? '' }) : ctrans(':code is not packed inside another product', { code: item.code }),
             type: 'success',
         })
-        reloadStockDelivery()
     } catch (error: any) {
         notify({
             title: ctrans('Something went wrong'),

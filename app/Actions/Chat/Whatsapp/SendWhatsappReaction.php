@@ -91,7 +91,7 @@ class SendWhatsappReaction
         $response = Http::withToken($accessToken)->post($this->whatsappEndpoint($phoneNumberId.'/messages'), [
             'messaging_product' => 'whatsapp',
             'recipient_type'    => 'individual',
-            'to'                => preg_replace('/\D/', '', (string) $metaChatSession->phone_number),
+            ...$metaChatSession->whatsappRecipient(),
             'type'              => 'reaction',
             'reaction'          => [
                 'message_id' => $metaChatMessage->meta_message_id,

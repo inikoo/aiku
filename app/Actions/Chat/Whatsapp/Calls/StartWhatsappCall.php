@@ -36,10 +36,10 @@ class StartWhatsappCall
             return ['ok' => false, 'message' => __('There is already a call in this conversation.'), 'code' => 409];
         }
 
-        $digits = preg_replace('/\D/', '', (string) $metaChatSession->phone_number);
+        $recipient = $metaChatSession->whatsappRecipient();
 
         $dialled = SendWhatsappCallAction::run($metaChatSession->shop, [
-            'to'      => $digits,
+            ...$recipient,
             'action'  => 'connect',
             'session' => ['sdp_type' => 'offer', 'sdp' => $sdpOffer],
         ]);
@@ -65,7 +65,7 @@ class StartWhatsappCall
             'wa_call_id'           => $waCallId,
             'direction'            => MetaChatCallDirectionEnum::BUSINESS_INITIATED,
             'status'               => MetaChatCallStatusEnum::RINGING,
-            'phone_number'         => '+'.$digits,
+            'phone_number'         => isset($recipient['to']) ? '+'.$recipient['to'] : null,
             'ringing_at'           => now(),
             'metadata'             => [],
         ]);

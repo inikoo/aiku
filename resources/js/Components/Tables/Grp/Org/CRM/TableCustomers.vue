@@ -121,6 +121,9 @@ const shortLocation = (location: string[]) => {
         <template #cell(sales_all)="{ item: customer }">
             <div class="text-gray-500">{{ useLocaleStore().currencyFormat(customer.currency_code, customer.sales_all) }}</div>
         </template>
+        <template #cell(order_value_net_amount)="{ item: customer }">
+            <div class="text-gray-500">{{ useLocaleStore().currencyFormat(customer.currency_code, customer.order_value_net_amount) }}</div>
+        </template>
         <template #cell(tags)="{ item: customer }">
             <div v-if="customer.tags && customer.tags.length" class="flex flex-wrap gap-1">
                 <span

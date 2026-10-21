@@ -9,6 +9,7 @@
 namespace App\Actions\CRM\Customer\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
+use App\Actions\Comms\Mailshot\Filters\FilterByOrderValue;
 use App\Actions\CRM\Customer\GetCustomerFilterStructure;
 use App\Actions\CRM\Customer\GetCustomersQueryByRecipe;
 use App\Actions\CRM\TrafficSource\GetAttributionWindow;
@@ -71,6 +72,8 @@ class IndexCustomers extends OrgAction
     private int $upcomingReadyCount = 0;
 
     private int $upcomingOutOfStockCount = 0;
+
+    private ?Closure $largestMatchingOrderNetAmount = null;
 
     protected function recipeHasFilters(array $recipe): bool
     {
@@ -365,6 +368,7 @@ class IndexCustomers extends OrgAction
 
             if (is_array($recipe) && $this->recipeHasFilters($recipe)) {
                 $this->customerFilters = $recipe;
+                $this->largestMatchingOrderNetAmount = (new FilterByOrderValue())->largestMatchingOrderNetAmount($recipe);
 
                 $recipeQuery = GetCustomersQueryByRecipe::run($parent->id, $recipe, false);
 
@@ -435,6 +439,10 @@ class IndexCustomers extends OrgAction
             'number_customer_sales_channels',
         ];
 
+        if ($this->largestMatchingOrderNetAmount) {
+            $allowedSort[] = 'order_value_net_amount';
+        }
+
         if (class_basename($parent) == 'Shop') {
             $queryBuilder->where('customers.shop_id', $parent->id);
         } elseif (class_basename($parent) == 'Group') {
@@ -498,6 +506,10 @@ class IndexCustomers extends OrgAction
                 $query->where('state', UpcomingTransactionStateEnum::READY->value)
                     ->with('product:id,code,name,status');
             }]);
+        }
+
+        if ($this->largestMatchingOrderNetAmount) {
+            $queryBuilder->selectSub($this->largestMatchingOrderNetAmount, 'order_value_net_amount');
         }
 
         $customers = $queryBuilder
@@ -653,7 +665,11 @@ class IndexCustomers extends OrgAction
                 ->column(key: 'last_invoiced_at', label: __('Last Invoice'), canBeHidden: false, sortable: true, searchable: true, type: 'date')
                 ->column(key: 'expected_date_of_next_order', label: __('Next order'), tooltip: __('Estimated from the last invoice and the average time between orders'), canBeHidden: true, sortable: true, type: 'date')
                 ->column(key: 'number_invoices_type_invoice', label: __('Invoices'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'sales_all', label: __('Sales'), canBeHidden: false, sortable: true, searchable: true, align: 'right');
+                ->column(key: 'sales_all', label: __('Sales'), tooltip: __('Net amount invoiced, refunds deducted. Orders not invoiced yet are not counted.'), canBeHidden: false, sortable: true, searchable: true, align: 'right', tooltipIcon: true);
+
+            if ($this->largestMatchingOrderNetAmount) {
+                $table->column(key: 'order_value_net_amount', label: __('Order Net'), tooltip: __('Net amount of the largest order within the By Order Value range, invoiced or not (baskets and cancelled orders excluded).'), canBeHidden: false, sortable: true, align: 'right', tooltipIcon: true);
+            }
 
             /* A customer touched by several channels is only partly this source's, so show the share
                rather than implying the source earned the whole of the sales beside it. */

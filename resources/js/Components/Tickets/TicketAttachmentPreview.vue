@@ -68,9 +68,9 @@ import { ctrans } from "@/Composables/useTrans"
 import { useModalFocusTrap } from "@/Composables/useModalFocusTrap"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faTimes, faChevronLeft, faChevronRight, faExternalLink, faSpinner, faDownload, faFolder, faFile } from "@fal"
+import { faTimes, faChevronLeft, faChevronRight, faExternalLink, faSpinner, faDownload, faFolder, faFile, faSearchPlus, faSearchMinus } from "@fal"
 
-library.add(faTimes, faChevronLeft, faChevronRight, faExternalLink, faSpinner, faDownload, faFolder, faFile)
+library.add(faTimes, faChevronLeft, faChevronRight, faExternalLink, faSpinner, faDownload, faFolder, faFile, faSearchPlus, faSearchMinus)
 
 const props = defineProps<{
     files: TicketAttachment[]
@@ -184,9 +184,119 @@ const loadPreview = async (file: TicketAttachment) => {
     }
 }
 
+/* Image zoom: buttons, wheel and keys zoom, double click toggles, a drag pans, two fingers pinch */
+const MIN_ZOOM = 1
+const MAX_ZOOM = 6
+const ZOOM_STEP = 1.25
+
+const imageFrame = ref<HTMLElement | null>(null)
+const zoom = ref(1)
+const pan = ref({ x: 0, y: 0 })
+const isPanning = ref(false)
+const isPinching = ref(false)
+const pointers = new Map<number, { x: number, y: number }>()
+let panStart: { x: number, y: number, panX: number, panY: number } | null = null
+let pinchStart: { distance: number, zoom: number } | null = null
+
+const isZoomable = computed(() => !!currentFile.value && previewState.value === "ready" && isImageAttachment(currentFile.value))
+const imageTransform = computed(() => `translate(${pan.value.x}px, ${pan.value.y}px) scale(${zoom.value})`)
+
+const resetZoom = () => {
+    zoom.value = 1
+    pan.value = { x: 0, y: 0 }
+}
+
+const clampPan = () => {
+    const frame = imageFrame.value
+    if (!frame || zoom.value <= 1) {
+        pan.value = { x: 0, y: 0 }
+        return
+    }
+    const limitX = (frame.clientWidth * (zoom.value - 1)) / 2
+    const limitY = (frame.clientHeight * (zoom.value - 1)) / 2
+    pan.value = { x: Math.min(Math.max(pan.value.x, -limitX), limitX), y: Math.min(Math.max(pan.value.y, -limitY), limitY) }
+}
+
+/** Zooms keeping the point under (clientX, clientY) still; the frame's centre when no point is given */
+const zoomTo = (target: number, clientX?: number, clientY?: number) => {
+    const next = Math.min(Math.max(target, MIN_ZOOM), MAX_ZOOM)
+    const frame = imageFrame.value
+    if (frame && clientX !== undefined && clientY !== undefined) {
+        const bounds = frame.getBoundingClientRect()
+        const pointX = clientX - (bounds.left + bounds.width / 2)
+        const pointY = clientY - (bounds.top + bounds.height / 2)
+        pan.value = {
+            x: pointX - (next * (pointX - pan.value.x)) / zoom.value,
+            y: pointY - (next * (pointY - pan.value.y)) / zoom.value,
+        }
+    } else {
+        pan.value = { x: (pan.value.x * next) / zoom.value, y: (pan.value.y * next) / zoom.value }
+    }
+    zoom.value = next
+    clampPan()
+}
+
+const zoomIn = () => zoomTo(zoom.value * ZOOM_STEP)
+const zoomOut = () => zoomTo(zoom.value / ZOOM_STEP)
+
+const onWheel = (event: WheelEvent) => {
+    event.preventDefault()
+    zoomTo(zoom.value * (event.deltaY < 0 ? ZOOM_STEP : 1 / ZOOM_STEP), event.clientX, event.clientY)
+}
+
+const onDoubleClick = (event: MouseEvent) => {
+    if (zoom.value > 1) resetZoom()
+    else zoomTo(2, event.clientX, event.clientY)
+}
+
+const pointerDistance = () => {
+    const [first, second] = [...pointers.values()]
+    return Math.hypot(first.x - second.x, first.y - second.y)
+}
+
+const onPointerDown = (event: PointerEvent) => {
+    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId)
+    pointers.set(event.pointerId, { x: event.clientX, y: event.clientY })
+    if (pointers.size === 2) {
+        pinchStart = { distance: pointerDistance(), zoom: zoom.value }
+        isPinching.value = true
+        panStart = null
+    } else if (zoom.value > 1) {
+        panStart = { x: event.clientX, y: event.clientY, panX: pan.value.x, panY: pan.value.y }
+        isPanning.value = true
+    }
+}
+
+const onPointerMove = (event: PointerEvent) => {
+    if (!pointers.has(event.pointerId)) return
+    pointers.set(event.pointerId, { x: event.clientX, y: event.clientY })
+    if (pinchStart && pointers.size === 2) {
+        const [first, second] = [...pointers.values()]
+        zoomTo(pinchStart.zoom * (pointerDistance() / pinchStart.distance), (first.x + second.x) / 2, (first.y + second.y) / 2)
+        return
+    }
+    if (panStart) {
+        pan.value = { x: panStart.panX + event.clientX - panStart.x, y: panStart.panY + event.clientY - panStart.y }
+        clampPan()
+    }
+}
+
+const onPointerUp = (event: PointerEvent) => {
+    pointers.delete(event.pointerId)
+    if (pointers.size < 2) {
+        pinchStart = null
+        isPinching.value = false
+    }
+    if (!pointers.size) {
+        panStart = null
+        isPanning.value = false
+    }
+}
+
 watch(
     () => currentFile.value?.url,
     () => {
+        resetZoom()
         if (currentFile.value) loadPreview(currentFile.value)
     }
 )
@@ -206,7 +316,10 @@ const next = () => {
 }
 
 const onKeydown = (event: KeyboardEvent) => {
-    if (event.key === "Escape") close()
+    if (isZoomable.value && (event.key === "+" || event.key === "=")) zoomIn()
+    else if (isZoomable.value && (event.key === "-" || event.key === "_")) zoomOut()
+    else if (isZoomable.value && event.key === "0") resetZoom()
+    else if (event.key === "Escape") close()
     else if (event.key === "ArrowLeft") previous()
     else if (event.key === "ArrowRight") next()
 }
@@ -228,6 +341,15 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown))
             <div class="mb-2 flex w-full max-w-5xl items-center justify-between gap-4 text-white">
                 <span class="truncate text-sm">{{ currentFile.name }}</span>
                 <div class="flex shrink-0 items-center gap-4">
+                    <div v-if="isZoomable" class="flex items-center gap-1 rounded-md bg-white/10 px-1 text-white/80">
+                        <button type="button" class="rounded p-1.5 text-lg hover:bg-white/10 hover:text-white disabled:opacity-40" :disabled="zoom <= MIN_ZOOM" v-tooltip="ctrans('Zoom out')" :aria-label="ctrans('Zoom out')" @click="zoomOut">
+                            <FontAwesomeIcon icon="fal fa-search-minus" fixed-width />
+                        </button>
+                        <button type="button" class="min-w-[3.25rem] rounded px-1 py-1 text-xs tabular-nums hover:bg-white/10 hover:text-white" v-tooltip="ctrans('Fit to screen')" :aria-label="ctrans('Fit to screen')" @click="resetZoom">{{ Math.round(zoom * 100) }}%</button>
+                        <button type="button" class="rounded p-1.5 text-lg hover:bg-white/10 hover:text-white disabled:opacity-40" :disabled="zoom >= MAX_ZOOM" v-tooltip="ctrans('Zoom in')" :aria-label="ctrans('Zoom in')" @click="zoomIn">
+                            <FontAwesomeIcon icon="fal fa-search-plus" fixed-width />
+                        </button>
+                    </div>
                     <span v-if="files.length > 1" class="text-sm text-white/80">{{ (index ?? 0) + 1 }} / {{ files.length }}</span>
                     <a :href="currentFile.url" target="_blank" rel="noopener" v-tooltip="ctrans('Open in new tab')" class="text-2xl text-white/80 hover:text-white">
                         <FontAwesomeIcon icon="fal fa-external-link" fixed-width />
@@ -249,7 +371,29 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown))
                     <p v-if="unavailableReason" class="mt-1 text-gray-500">{{ unavailableReason }}</p>
                 </div>
             </div>
-            <img v-else-if="isImageAttachment(currentFile)" :key="currentFile.url" :src="currentFile.url" :alt="currentFile.name" class="max-h-[85vh] max-w-full rounded object-contain" @error="markUndisplayable" />
+            <div
+                v-else-if="isImageAttachment(currentFile)"
+                ref="imageFrame"
+                :key="currentFile.url"
+                class="max-h-[85vh] max-w-full touch-none select-none overflow-hidden rounded"
+                :class="zoom > 1 ? (isPanning ? 'cursor-grabbing' : 'cursor-grab') : 'cursor-zoom-in'"
+                @wheel="onWheel"
+                @dblclick="onDoubleClick"
+                @pointerdown="onPointerDown"
+                @pointermove="onPointerMove"
+                @pointerup="onPointerUp"
+                @pointercancel="onPointerUp"
+            >
+                <img
+                    :src="currentFile.url"
+                    :alt="currentFile.name"
+                    class="block max-h-[85vh] max-w-full object-contain will-change-transform"
+                    :class="isPanning || isPinching ? '' : 'transition-transform duration-150 ease-out'"
+                    :style="{ transform: imageTransform, transformOrigin: 'center center' }"
+                    draggable="false"
+                    @error="markUndisplayable"
+                />
+            </div>
             <iframe v-else-if="isPdfAttachment(currentFile)" :key="currentFile.url" :src="currentFile.url" :title="currentFile.name" class="h-[85vh] w-full max-w-5xl rounded bg-white" />
             <video v-else-if="isVideoAttachment(currentFile)" :key="currentFile.url" :src="currentFile.url" controls playsinline preload="metadata" class="max-h-[85vh] w-full max-w-5xl rounded bg-black" @error="markUndisplayable" />
             <div v-else-if="isWordAttachment(currentFile)" ref="wordContainer" :key="currentFile.url" class="h-[85vh] w-full max-w-5xl overflow-auto rounded bg-gray-100" />

@@ -29,6 +29,7 @@ enum TradeUnitTabsEnum: string
     case HISTORY = 'history';
     case ATTACHMENTS = 'attachments';
     case FEEDBACKS = 'feedbacks';
+    case PRODUCT_DEVELOPMENTS = 'product_developments';
 
 
     public function blueprint(): array
@@ -90,6 +91,10 @@ enum TradeUnitTabsEnum: string
             TradeUnitTabsEnum::ORG_STOCKS => [
                 'title' => __('Org SKOs'),
                 'icon'  => 'fal fa-box',
+            ],
+            TradeUnitTabsEnum::PRODUCT_DEVELOPMENTS => [
+                'title' => __('Development'),
+                'icon'  => 'fal fa-lightbulb-on',
             ],
         };
     }

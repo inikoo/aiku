@@ -10,7 +10,7 @@ namespace App\Actions\GoodsIn\StockDelivery;
 
 use App\Actions\OrgAction;
 use App\Actions\Procurement\WithAgentOrganisation;
-use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
+use App\Actions\Traits\Authorisations\WithStockDeliveryDocumentAuthorisation;
 use App\Exports\GoodsIn\StockDeliveryItemsExport;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\SysAdmin\Organisation;
@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
  */
 class ExportStockDeliveryItems extends OrgAction
 {
-    use WithProcurementAuthorisation;
+    use WithStockDeliveryDocumentAuthorisation;
     use WithAgentOrganisation;
 
     public function handle(StockDelivery $stockDelivery): BinaryFileResponse

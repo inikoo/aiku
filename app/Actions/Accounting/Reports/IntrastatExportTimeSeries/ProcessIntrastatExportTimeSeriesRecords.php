@@ -8,7 +8,6 @@
 
 namespace App\Actions\Accounting\Reports\IntrastatExportTimeSeries;
 
-use App\Actions\Accounting\Reports\IntrastatExportTimeSeries\Hydrators\IntrastatExportTimeSeriesHydrateNumberRecords;
 use App\Enums\Accounting\Intrastat\IntrastatDeliveryTermsEnum;
 use App\Enums\Accounting\Intrastat\IntrastatNatureOfTransactionEnum;
 use App\Enums\Accounting\Intrastat\IntrastatTransportModeEnum;
@@ -19,18 +18,25 @@ use App\Enums\Helpers\TaxCategories\TaxCategoryTypeEnum;
 use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Helpers\IntrastatVatNumber;
 use App\Helpers\TimeSeriesPeriodCalculator;
-use App\Models\Accounting\IntrastatExportTimeSeries;
 use App\Models\Helpers\Country;
 use App\Models\SysAdmin\Organisation;
 use Carbon\Carbon;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Support\Facades\DB;
-use Lorisleiva\Actions\Concerns\AsAction;
+use App\Actions\Traits\AsUniqueUntilProcessingAction;
 
-class ProcessIntrastatExportTimeSeriesRecords implements ShouldBeUnique
+class ProcessIntrastatExportTimeSeriesRecords implements ShouldBeUniqueUntilProcessing
 {
-    use AsAction;
+    use AsUniqueUntilProcessingAction;
+
+    /**
+     * Dispatches of a period collapse into one run while it waits, and one arriving while it
+     * runs queues the next run, so a delivery note dispatched mid-run is never left out.
+     */
+    public const int DEBOUNCE_SECONDS = 300;
+
     public string $jobQueue = 'sales_slave';
+
 
     public function getJobUniqueId(int $organisationId, TimeSeriesFrequencyEnum $frequency, string $from, string $to): string
     {
@@ -109,11 +115,21 @@ class ProcessIntrastatExportTimeSeriesRecords implements ShouldBeUnique
             )
             ->get();
 
+        $this->store($organisation, $frequency, $from, $to, $this->aggregate($rawMetrics, $frequency));
+    }
+
+    /**
+     * One row per period and Intrastat declaration line: tariff code, partner country, origin,
+     * tax category, partner VAT and nature of transaction.
+     */
+    protected function aggregate(iterable $rawMetrics, TimeSeriesFrequencyEnum $frequency): array
+    {
         $aggregated = [];
 
         foreach ($rawMetrics as $item) {
-            $partnerTaxNumber = $this->counterpartyVat($item);
-            $tariffCodes      = array_map('trim', explode(',', $item->tariff_code));
+            $partnerTaxNumber    = $this->counterpartyVat($item);
+            $natureOfTransaction = $this->natureOfTransaction($item);
+            $tariffCodes         = array_map('trim', explode(',', $item->tariff_code));
 
             foreach ($tariffCodes as $tariffCode) {
                 $tariffCode = str_replace(' ', '', trim($tariffCode));
@@ -124,27 +140,29 @@ class ProcessIntrastatExportTimeSeriesRecords implements ShouldBeUnique
 
                 ['period' => $period, 'periodFrom' => $periodFrom, 'periodTo' => $periodTo] = TimeSeriesPeriodCalculator::resolvePeriodFromDate(Carbon::parse($item->dispatched_at), $frequency);
 
-                $key = $period . '|' . $tariffCode . '|' . $item->country_id . '|' . ($item->tax_category_id ?? 'null') . '|' . ($partnerTaxNumber ?? 'null') . '|' . ($item->origin_country_id ?? 'null') . '|' . ($item->shop_type ?? 'null') . '|' . ($item->delivery_note_type ?? 'null');
+                $seriesKey = $this->seriesKey($tariffCode, $item->country_id, $item->origin_country_id, $item->tax_category_id, $partnerTaxNumber, $natureOfTransaction->value);
+                $key       = $period.'|'.$seriesKey;
 
                 if (!isset($aggregated[$key])) {
                     $aggregated[$key] = [
-                        'period'             => $period,
-                        'period_from'        => $periodFrom,
-                        'period_to'          => $periodTo,
-                        'tariff_code'        => $tariffCode,
-                        'country_id'         => $item->country_id,
-                        'origin_country_id'  => $item->origin_country_id,
-                        'shop_type'          => $item->shop_type,
-                        'tax_category_id'    => $item->tax_category_id,
-                        'partner_tax_number' => $partnerTaxNumber,
-                        'delivery_note_type' => $item->delivery_note_type,
-                        'quantity'           => 0,
-                        'value'              => 0,
-                        'weight'             => 0,
-                        'delivery_notes'     => [],
-                        'products'           => [],
-                        'invoices'           => [],
-                        'tax_numbers'        => [],
+                        'series_key'            => $seriesKey,
+                        'period'                => $period,
+                        'period_from'           => $periodFrom,
+                        'period_to'             => $periodTo,
+                        'tariff_code'           => $tariffCode,
+                        'country_id'            => $item->country_id,
+                        'origin_country_id'     => $item->origin_country_id,
+                        'tax_category_id'       => $item->tax_category_id,
+                        'partner_tax_number'    => $partnerTaxNumber,
+                        'nature_of_transaction' => $natureOfTransaction,
+                        'delivery_note_type'    => $item->delivery_note_type,
+                        'quantity'              => 0,
+                        'value'                 => 0,
+                        'weight'                => 0,
+                        'delivery_notes'        => [],
+                        'products'              => [],
+                        'invoices'              => [],
+                        'tax_numbers'           => [],
                     ];
                 }
 
@@ -171,69 +189,186 @@ class ProcessIntrastatExportTimeSeriesRecords implements ShouldBeUnique
             }
         }
 
+        return $aggregated;
+    }
+
+    /**
+     * Rebuilds every period of the window: writes the records worked out from the dispatched
+     * delivery notes and removes the ones of the window nothing was dispatched for any more.
+     */
+    protected function store(Organisation $organisation, TimeSeriesFrequencyEnum $frequency, string $from, string $to, array $aggregated): void
+    {
+        $seriesIds       = $this->seriesIds($organisation, $frequency, $aggregated);
+        $frequencyLetter = $frequency->singleLetter();
+        $now             = now()->toDateTimeString();
+
+        $records = [];
         foreach ($aggregated as $data) {
             $partnerTaxNumbers = array_values($data['tax_numbers']);
-            $validCount        = 0;
-            $invalidCount      = 0;
+            $validCount        = count(array_filter($partnerTaxNumbers, fn (array $taxNumber) => $taxNumber['valid']));
 
-            foreach ($partnerTaxNumbers as $taxNumber) {
-                if ($taxNumber['valid']) {
-                    $validCount++;
-                } else {
-                    $invalidCount++;
-                }
-            }
-
-            $natureOfTransaction = match (true) {
-                $data['delivery_note_type'] === DeliveryNoteTypeEnum::REPLACEMENT->value => IntrastatNatureOfTransactionEnum::RETURN_REPLACEMENT,
-                $data['shop_type'] === ShopTypeEnum::DROPSHIPPING->value                 => IntrastatNatureOfTransactionEnum::PRIVATE_CONSUMER,
-                default                                                                  => IntrastatNatureOfTransactionEnum::OUTRIGHT_PURCHASE,
-            };
-
-            $timeSeries = IntrastatExportTimeSeries::firstOrCreate(
-                [
-                    'organisation_id' => $organisation->id,
-                    'tariff_code'     => $data['tariff_code'],
-                    'country_id'         => $data['country_id'],
-                    'origin_country_id'  => $data['origin_country_id'],
-                    'tax_category_id'    => $data['tax_category_id'],
-                    'partner_tax_number' => $data['partner_tax_number'],
-                    'frequency'          => $frequency,
-                ],
-                [
-                    'from' => null,
-                    'to'   => null,
-                ]
-            );
-
-            $timeSeries->records()->updateOrCreate(
-                [
-                    'intrastat_export_time_series_id' => $timeSeries->id,
-                    'period'                          => $data['period'],
-                    'frequency'                       => $frequency->singleLetter(),
-                ],
-                [
-                    'organisation_id'           => $organisation->id,
-                    'from'                      => $data['period_from'],
-                    'to'                        => $data['period_to'],
-                    'quantity'                  => $data['quantity'],
-                    'value_org_currency'        => $data['value'],
-                    'weight'                    => $data['weight'],
-                    'delivery_notes_count'      => count($data['delivery_notes']),
-                    'products_count'            => count($data['products']),
-                    'delivery_note_type'        => $data['delivery_note_type'],
-                    'invoices_count'            => count($data['invoices']),
-                    'partner_tax_numbers'       => empty($partnerTaxNumbers) ? null : $partnerTaxNumbers,
-                    'valid_tax_numbers_count'   => $validCount,
-                    'invalid_tax_numbers_count' => $invalidCount,
-                    'mode_of_transport'         => IntrastatTransportModeEnum::ROAD,
-                    'delivery_terms'            => IntrastatDeliveryTermsEnum::DAP,
-                    'nature_of_transaction'     => $natureOfTransaction,
-                ]
-            );
-
-            IntrastatExportTimeSeriesHydrateNumberRecords::run($timeSeries->id);
+            $records[] = [
+                'intrastat_export_time_series_id' => $seriesIds[$data['series_key']],
+                'frequency'                       => $frequencyLetter,
+                'period'                          => $data['period'],
+                'organisation_id'                 => $organisation->id,
+                'from'                            => $data['period_from']->toDateTimeString(),
+                'to'                              => $data['period_to']->toDateTimeString(),
+                'quantity'                        => $data['quantity'],
+                'value_org_currency'              => $data['value'],
+                'weight'                          => $data['weight'],
+                'delivery_notes_count'            => count($data['delivery_notes']),
+                'products_count'                  => count($data['products']),
+                'delivery_note_type'              => $data['delivery_note_type'],
+                'invoices_count'                  => count($data['invoices']),
+                'partner_tax_numbers'             => empty($partnerTaxNumbers) ? null : json_encode($partnerTaxNumbers),
+                'valid_tax_numbers_count'         => $validCount,
+                'invalid_tax_numbers_count'       => count($partnerTaxNumbers) - $validCount,
+                'mode_of_transport'               => IntrastatTransportModeEnum::ROAD->value,
+                'delivery_terms'                  => IntrastatDeliveryTermsEnum::DAP->value,
+                'nature_of_transaction'           => $data['nature_of_transaction']->value,
+                'created_at'                      => $now,
+                'updated_at'                      => $now,
+            ];
         }
+
+        $existingRecords = DB::table('intrastat_export_time_series_records')
+            ->where('organisation_id', $organisation->id)
+            ->where('frequency', $frequencyLetter)
+            ->whereBetween('from', [$from, $to])
+            ->get(['id', 'intrastat_export_time_series_id', 'period']);
+
+        $written = [];
+        foreach ($records as $record) {
+            $written[$record['intrastat_export_time_series_id'].'|'.$record['period']] = true;
+        }
+
+        $staleRecords = $existingRecords->reject(fn (object $record) => isset($written[$record->intrastat_export_time_series_id.'|'.$record->period]));
+
+        foreach (array_chunk($records, 1000) as $chunk) {
+            $this->upsertChangedRecords($chunk);
+        }
+
+        foreach ($staleRecords->pluck('id')->chunk(1000) as $staleIds) {
+            DB::table('intrastat_export_time_series_records')
+                ->where('frequency', $frequencyLetter)
+                ->whereIn('id', $staleIds->all())
+                ->delete();
+        }
+
+        $this->hydrateSeries(
+            $frequencyLetter,
+            array_unique([...array_column($records, 'intrastat_export_time_series_id'), ...$staleRecords->pluck('intrastat_export_time_series_id')->all()])
+        );
+    }
+
+    /**
+     * Inserts the new records and rewrites an existing one only when one of its figures changed,
+     * so rerunning a period leaves its unchanged rows, and the table, untouched.
+     */
+    protected function upsertChangedRecords(array $records): void
+    {
+        $columns      = array_keys($records[0]);
+        $quoted       = array_map(fn (string $column) => '"'.$column.'"', $columns);
+        $compared     = array_values(array_diff($columns, ['intrastat_export_time_series_id', 'frequency', 'period', 'created_at', 'updated_at']));
+        $rowSql       = '('.implode(', ', array_fill(0, count($columns), '?')).')';
+        $bindings     = [];
+
+        foreach ($records as $record) {
+            array_push($bindings, ...array_values($record));
+        }
+
+        DB::insert(
+            'INSERT INTO intrastat_export_time_series_records ('.implode(', ', $quoted).') VALUES '.implode(', ', array_fill(0, count($records), $rowSql)).'
+            ON CONFLICT (intrastat_export_time_series_id, frequency, period) DO UPDATE SET '
+            .implode(', ', array_map(fn (string $column) => "\"$column\" = EXCLUDED.\"$column\"", [...$compared, 'updated_at'])).'
+            WHERE ('.implode(', ', array_map(fn (string $column) => "intrastat_export_time_series_records.\"$column\"", $compared)).')
+                IS DISTINCT FROM ('.implode(', ', array_map(fn (string $column) => "EXCLUDED.\"$column\"", $compared)).')',
+            $bindings
+        );
+    }
+
+    /**
+     * @return array<string, int> series id by series key, creating the series that are new
+     */
+    protected function seriesIds(Organisation $organisation, TimeSeriesFrequencyEnum $frequency, array $aggregated): array
+    {
+        $existing = fn () => DB::table('intrastat_export_time_series')
+            ->where('organisation_id', $organisation->id)
+            ->where('frequency', $frequency->value)
+            ->get(['id', 'tariff_code', 'country_id', 'origin_country_id', 'tax_category_id', 'partner_tax_number', 'nature_of_transaction'])
+            ->mapWithKeys(fn (object $series) => [
+                $this->seriesKey($series->tariff_code, $series->country_id, $series->origin_country_id, $series->tax_category_id, $series->partner_tax_number, $series->nature_of_transaction) => $series->id,
+            ])
+            ->all();
+
+        $seriesIds = $existing();
+        $now       = now()->toDateTimeString();
+
+        $missing = [];
+        foreach ($aggregated as $data) {
+            if (!isset($seriesIds[$data['series_key']]) && !isset($missing[$data['series_key']])) {
+                $missing[$data['series_key']] = [
+                    'organisation_id'       => $organisation->id,
+                    'tariff_code'           => $data['tariff_code'],
+                    'country_id'            => $data['country_id'],
+                    'origin_country_id'     => $data['origin_country_id'],
+                    'tax_category_id'       => $data['tax_category_id'],
+                    'partner_tax_number'    => $data['partner_tax_number'],
+                    'nature_of_transaction' => $data['nature_of_transaction']->value,
+                    'frequency'             => $frequency->value,
+                    'data'                  => '[]',
+                    'created_at'            => $now,
+                    'updated_at'            => $now,
+                ];
+            }
+        }
+
+        if ($missing) {
+            foreach (array_chunk(array_values($missing), 1000) as $chunk) {
+                DB::table('intrastat_export_time_series')->insertOrIgnore($chunk);
+            }
+            $seriesIds = $existing();
+        }
+
+        return $seriesIds;
+    }
+
+    /**
+     * Number of records and first and last day of each series, written only where they changed.
+     */
+    protected function hydrateSeries(string $frequencyLetter, array $seriesIds): void
+    {
+        foreach (array_chunk($seriesIds, 5000) as $chunk) {
+            DB::update(
+                'UPDATE intrastat_export_time_series AS series
+                SET number_records = records.number_records, "from" = records.first_day, "to" = records.last_day, updated_at = now()
+                FROM (
+                    SELECT ids.id, COUNT(record.id) AS number_records, MIN(record."from")::date AS first_day, MAX(record."to")::date AS last_day
+                    FROM unnest(?::int[]) AS ids(id)
+                    LEFT JOIN intrastat_export_time_series_records AS record
+                        ON record.intrastat_export_time_series_id = ids.id AND record.frequency = ?
+                    GROUP BY ids.id
+                ) AS records
+                WHERE series.id = records.id
+                  AND (series.number_records, series."from", series."to") IS DISTINCT FROM (records.number_records, records.first_day, records.last_day)',
+                ['{'.implode(',', $chunk).'}', $frequencyLetter]
+            );
+        }
+    }
+
+    protected function seriesKey(string $tariffCode, mixed $countryId, mixed $originCountryId, mixed $taxCategoryId, ?string $partnerTaxNumber, ?string $natureOfTransaction): string
+    {
+        return $tariffCode.'|'.$countryId.'|'.($originCountryId ?? 'null').'|'.($taxCategoryId ?? 'null').'|'.($partnerTaxNumber ?? 'null').'|'.($natureOfTransaction ?? 'null');
+    }
+
+    protected function natureOfTransaction(object $item): IntrastatNatureOfTransactionEnum
+    {
+        return match (true) {
+            $item->delivery_note_type === DeliveryNoteTypeEnum::REPLACEMENT->value => IntrastatNatureOfTransactionEnum::RETURN_REPLACEMENT,
+            $item->shop_type === ShopTypeEnum::DROPSHIPPING->value                 => IntrastatNatureOfTransactionEnum::PRIVATE_CONSUMER,
+            default                                                                => IntrastatNatureOfTransactionEnum::OUTRIGHT_PURCHASE,
+        };
     }
 
     protected function counterpartyVat(object $item): ?string

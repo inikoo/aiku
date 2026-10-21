@@ -10,16 +10,16 @@ import { router, usePoll } from "@inertiajs/vue3"
 import { notify } from "@kyvg/vue3-notification"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import Checkbox from "primevue/checkbox"
-import DatePicker from "primevue/datepicker"
 import Dialog from "primevue/dialog"
 import InputText from "primevue/inputtext"
 import Select from "primevue/select"
-import { faFileInvoiceDollar, faCheck, faTimes, faExchange } from "@fal"
+import { faFileInvoiceDollar, faCheck, faTimes, faExchange, faPaperclip } from "@fal"
 import { faSpinnerThird } from "@fad"
 import { faExclamationTriangle, faCheckCircle } from "@fas"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { ctrans } from "@/Composables/useTrans"
 import { useLocaleStore } from "@/Stores/locale"
+import { useFormatTime } from "@/Composables/useFormatTime"
 import { routeType } from "@/types/route"
 
 interface ReviewItem {
@@ -33,13 +33,17 @@ interface ReviewItem {
     invoice_amount: number | null
     quantity_differs: boolean
     amount_differs: boolean
-    proposed_cost: number
+    proposed_cost: number | null
     needs_check: boolean
+    matched_by: string[]
 }
 
 interface InvoiceLine {
+    index: number
     code: string | null
+    barcode?: string | null
     description: string | null
+    suggested_item_id?: number | null
     quantity: number | null
     unit_price: number | null
     amount: number | null
@@ -51,19 +55,26 @@ interface Reading {
     read_at?: string
     applied_at?: string | null
     is_invoice?: boolean
+    issuer?: string | null
     invoice_number?: string | null
     invoice_date?: string | null
     currency?: string | null
     total?: number | null
     charges?: { label: string; amount: number }[]
+    charge_types?: { label: string; value: string }[]
+    shipping_typed_by_hand?: boolean
+    replaces_typed?: { amount: number; currency: string | null } | null
+    not_received?: { amount: number; codes: (string | null)[] } | null
+    not_invoiced?: { amount: number; codes: (string | null)[] } | null
     delivery_currency?: string | null
     currency_mismatch?: boolean
-    currency_unknown?: boolean
     exchange?: number | null
     follow_blockers?: string[]
-    total_mismatch?: boolean
     lines_total?: number
     charges_total?: number
+    problems?: string[]
+    needs_manual_check?: boolean
+    delivery_confirmation?: { phrase: string; reference: string; printed: string[]; dates_fit: boolean | null; left_at: string | null } | null
     can_apply?: boolean
     unmatched?: InvoiceLine[]
     items?: ReviewItem[]
@@ -71,6 +82,7 @@ interface Reading {
 
 interface Invoice {
     media_id: number
+    ulid: string
     name: string
     scope: string
     readRoute: routeType
@@ -79,12 +91,10 @@ interface Invoice {
 }
 
 interface Draft {
-    invoice_number: string
-    invoice_date: string
-    invoice_total: string
-    costs: Record<number, string>
-    charges: Record<number, boolean>
-    assignments: Record<number, number | "not_in_delivery" | "leave_out">
+    assignments: Record<number, number | "not_in_delivery" | null>
+    chargeTypes: (string | null)[]
+    checked: boolean
+    confirmation: string
 }
 
 const props = defineProps<{
@@ -93,6 +103,7 @@ const props = defineProps<{
 }>()
 
 const locale = useLocaleStore()
+const fieldFocusClass = "[&.p-focus]:!border-[--app-accent]"
 const drafts = reactive<Record<string, Draft>>({})
 const openInvoice = ref<number | null>(null)
 const busy = ref<number | null>(null)
@@ -114,12 +125,10 @@ watch(
             }
 
             drafts[draftKey(invoice)] = {
-                invoice_number: reading.invoice_number ?? "",
-                invoice_date: reading.invoice_date ?? "",
-                invoice_total: reading.total == null ? "" : String(reading.total),
-                costs: Object.fromEntries((reading.items ?? []).map((item) => [item.id, String(item.proposed_cost)])),
-                charges: Object.fromEntries((reading.charges ?? []).map((charge, index) => [index, charge.amount > 0])),
-                assignments: Object.fromEntries((reading.unmatched ?? []).map((_, index) => [index, "not_in_delivery"])),
+                assignments: Object.fromEntries((reading.unmatched ?? []).map((line) => [line.index, line.suggested_item_id ?? null])),
+                chargeTypes: (reading.charges ?? []).map(() => null),
+                checked: false,
+                confirmation: "",
             }
         })
     },
@@ -132,16 +141,6 @@ const { start: startPolling, stop: stopPolling } = usePoll(3000, { only: ["invoi
 
 watch(isReading, (reading) => (reading ? startPolling() : stopPolling()), { immediate: true })
 
-const proposedCost = (invoice: Invoice, item: ReviewItem): number => {
-    const draft = drafts[draftKey(invoice)]
-    const assigned = (invoice.reading?.unmatched ?? []).reduce(
-        (sum, line, index) => sum + (draft.assignments[index] === item.id ? Number(line.amount ?? 0) : 0),
-        0
-    )
-
-    return Number(draft.costs[item.id] || 0) + assigned
-}
-
 const read = (invoice: Invoice) => {
     router.post(route(invoice.readRoute.name, invoice.readRoute.parameters), {}, {
         preserveScroll: true,
@@ -151,18 +150,30 @@ const read = (invoice: Invoice) => {
     })
 }
 
-const invoiceCurrency = (reading: Reading) => (reading.currency_mismatch ? reading.currency : reading.delivery_currency)
-
 const assignmentOptions = (reading: Reading) => [
     { label: ctrans("Invoiced but not in the delivery"), value: "not_in_delivery" },
     ...(reading.items ?? []).map((item) => ({ label: `${ctrans("Add to")} ${item.code}`, value: item.id })),
-    { label: ctrans("Leave out"), value: "leave_out" },
 ]
 
-const toDate = (iso: string) => (iso ? new Date(`${iso}T00:00:00`) : null)
+const matchedByLabel = (matchedBy: string[]) =>
+    matchedBy
+        .filter((by) => by !== "supplier_code")
+        .map((by) => ({ sko_code: ctrans("matched by our code"), barcode: ctrans("matched by barcode"), reviewer: ctrans("placed by you") })[by] ?? by)
+        .join(", ")
 
-const toIso = (date: Date | null) =>
-    date ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}` : ""
+const typed = (text: string) => text.trim().replace(/\s+/g, " ").replace(/\.$/, "").toLowerCase()
+
+const canApply = (invoice: Invoice) => {
+    const draft = drafts[draftKey(invoice)]
+    const reading = invoice.reading as Reading
+
+    return Boolean(reading.can_apply)
+        && Object.values(draft.assignments).every((value) => value !== null)
+        && draft.chargeTypes.every((type) => type)
+        && !(reading.shipping_typed_by_hand && draft.chargeTypes.includes("freight"))
+        && (!reading.needs_manual_check || draft.checked)
+        && (!reading.delivery_confirmation || typed(draft.confirmation) === typed(reading.delivery_confirmation.phrase))
+}
 
 const startApply = (invoice: Invoice) => {
     if (!invoice.reading?.currency_mismatch) {
@@ -182,22 +193,19 @@ const choose = (followInvoice: boolean) => {
 
 const apply = (invoice: Invoice, currencyChoice: { follow_invoice?: boolean; exchange?: number } = {}) => {
     const draft = drafts[draftKey(invoice)]
-    const reading = invoice.reading as Reading
 
     router.post(route(invoice.applyRoute.name, invoice.applyRoute.parameters), {
-        invoice_number: draft.invoice_number || null,
-        invoice_date: draft.invoice_date,
-        invoice_total: Number(draft.invoice_total),
-        items: (reading.items ?? []).map((item) => ({ id: item.id, cost: Math.round(proposedCost(invoice, item) * 100) / 100 })),
-        charges: (reading.charges ?? []).filter((_, index) => draft.charges[index]),
-        not_in_delivery: (reading.unmatched ?? [])
-            .filter((line, index) => draft.assignments[index] === "not_in_delivery" && Number(line.amount ?? 0) > 0)
-            .map((line) => ({ label: [line.code, line.description].filter(Boolean).join(" ").slice(0, 255) || ctrans("Invoice line"), amount: line.amount })),
+        read_at: invoice.reading?.read_at,
+        assignments: Object.entries(draft.assignments).map(([index, value]) => ({ index: Number(index), item_id: value === "not_in_delivery" ? null : value })),
+        charge_types: draft.chargeTypes,
+        checked: draft.checked,
+        confirmation: draft.confirmation || null,
         ...currencyChoice,
     }, {
         preserveScroll: true,
         onStart: () => (busy.value = invoice.media_id),
         onFinish: () => (busy.value = null),
+        onSuccess: () => notify({ title: ctrans("The invoice is in the costing"), type: "success" }),
         onError: (errors) => notify({ title: ctrans("The costs were not applied"), text: Object.values(errors).join(" "), type: "error" }),
     })
 }
@@ -220,117 +228,159 @@ const apply = (invoice: Invoice, currencyChoice: { follow_invoice?: boolean; exc
                 <span class="rounded bg-gray-100 px-1.5 py-0.5 text-xs">{{ invoice.scope }}</span>
 
                 <span v-if="invoice.reading?.state === 'reading'" class="flex items-center gap-1 text-gray-500">
-                    <FontAwesomeIcon :icon="faSpinnerThird" spin fixed-width />{{ ctrans("Reading…") }}
+                    <FontAwesomeIcon :icon="faSpinnerThird" spin fixed-width />{{ ctrans("Reading… two readers check it against each other, this takes up to a minute.") }}
                 </span>
                 <span v-else-if="invoice.reading?.state === 'failed'" class="text-red-600">{{ invoice.reading.error }}</span>
                 <span v-else-if="invoice.reading?.applied_at" class="flex items-center gap-1 text-green-600">
                     <FontAwesomeIcon :icon="faCheckCircle" fixed-width />{{ ctrans("In the costing") }}
                 </span>
+                <span v-else-if="invoice.reading?.state === 'read' && invoice.reading.problems?.length" class="text-amber-700">{{ ctrans("Enter it by hand") }}</span>
 
                 <Button v-if="canEdit && invoice.reading?.state !== 'reading' && !invoice.reading?.applied_at"
                     :label="invoice.reading?.state === 'read' ? ctrans('Read again') : ctrans('Read invoice')"
                     type="tertiary" size="xs" :loading="busy === invoice.media_id" @click="read(invoice)" />
-                <Button v-if="invoice.reading?.state === 'read'"
+                <Button v-if="invoice.reading?.state === 'read' && invoice.reading.items"
                     :label="openInvoice === invoice.media_id ? ctrans('Hide') : ctrans('Review invoice')"
                     type="tertiary" size="xs" @click="openInvoice = openInvoice === invoice.media_id ? null : invoice.media_id" />
             </div>
 
-            <div v-if="invoice.reading?.state === 'read' && openInvoice === invoice.media_id && drafts[draftKey(invoice)]" class="mt-2 space-y-3 rounded border border-gray-200 p-3">
-                <div v-if="invoice.reading.is_invoice === false || invoice.reading.currency_mismatch || invoice.reading.total_mismatch" class="space-y-1 text-orange-600">
-                    <div v-if="invoice.reading.is_invoice === false"><FontAwesomeIcon :icon="faExclamationTriangle" fixed-width /> {{ ctrans("This does not look like an invoice.") }}</div>
-                    <div v-if="invoice.reading.currency_mismatch">
-                        <FontAwesomeIcon :icon="faExclamationTriangle" fixed-width />
-                        {{ invoice.reading.currency_unknown
-                            ? ctrans("The invoice is in :invoice, a currency we do not know: enter its costs by hand.", { invoice: invoice.reading.currency ?? "" })
-                            : ctrans("The invoice is in :invoice and the delivery in :delivery: when you apply it you choose whether the delivery follows the invoice.", { invoice: invoice.reading.currency ?? "", delivery: invoice.reading.delivery_currency ?? "" }) }}
-                    </div>
-                    <div v-if="invoice.reading.total_mismatch">
-                        <FontAwesomeIcon :icon="faExclamationTriangle" fixed-width />
-                        {{ ctrans("Lines and charges add up to :sum, the invoice total says :total.", { sum: String(money((invoice.reading.lines_total ?? 0) + (invoice.reading.charges_total ?? 0), invoice.reading.currency)), total: String(money(invoice.reading.total, invoice.reading.currency)) }) }}
-                    </div>
-                </div>
+            <ul v-if="invoice.reading?.state === 'read' && !invoice.reading.items && invoice.reading.problems?.length" class="mt-1 text-amber-700">
+                <li v-for="problem in invoice.reading.problems" :key="problem">{{ problem }}</li>
+            </ul>
 
-                <div v-if="invoice.reading.items?.some((item) => item.needs_check)" class="text-orange-600">
-                    <FontAwesomeIcon :icon="faExclamationTriangle" fixed-width />
-                    {{ ctrans("Some goods costs are far from the order amount, check them before applying: the invoice may count packs or cartons rather than units.") }}
-                </div>
+            <div v-if="invoice.reading?.state === 'read' && invoice.reading.items && openInvoice === invoice.media_id && drafts[draftKey(invoice)]" class="mt-2 space-y-3 rounded border border-gray-200 p-3">
+                <ul v-if="invoice.reading.problems?.length" class="space-y-1 text-amber-700">
+                    <li v-for="problem in invoice.reading.problems" :key="problem" class="flex gap-1.5">
+                        <FontAwesomeIcon :icon="faExclamationTriangle" class="mt-0.5" fixed-width aria-hidden="true" />
+                        <span>{{ problem }}</span>
+                    </li>
+                    <li class="text-gray-600">{{ ctrans("A reading that fails a check is never corrected here: enter the invoice and its costs by hand.") }}</li>
+                </ul>
 
-                <div class="flex flex-wrap gap-3">
-                    <label class="flex items-center gap-1">{{ ctrans("Number") }}
-                        <InputText v-model="drafts[draftKey(invoice)].invoice_number" size="small" class="w-36" />
-                    </label>
-                    <label class="flex items-center gap-1">{{ ctrans("Date") }}
-                        <DatePicker :modelValue="toDate(drafts[draftKey(invoice)].invoice_date)" dateFormat="dd/mm/yy" size="small" class="w-36"
-                            @update:modelValue="(date) => (drafts[draftKey(invoice)].invoice_date = toIso(date as Date | null))" />
-                    </label>
-                    <label class="flex items-center gap-1">{{ ctrans("Total") }}
-                        <InputText v-model="drafts[draftKey(invoice)].invoice_total" type="number" size="small" min="0" step="0.01" class="w-32 tabular-nums" />
-                        <span class="text-gray-400">{{ invoiceCurrency(invoice.reading) }}</span>
-                    </label>
-                </div>
+                <a :href="route('grp.media.download', { id: invoice.ulid })" class="inline-flex items-center gap-1 text-xs text-gray-500 hover:underline">
+                    <FontAwesomeIcon :icon="faPaperclip" fixed-width aria-hidden="true" />{{ ctrans("Open the document") }}
+                </a>
+
+                <dl class="grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-5">
+                    <div><dt class="text-gray-500">{{ ctrans("Issued by") }}</dt><dd class="text-gray-800">{{ invoice.reading.issuer ?? "—" }}</dd></div>
+                    <div><dt class="text-gray-500">{{ ctrans("Invoice reference") }}</dt><dd class="text-gray-800">{{ invoice.reading.invoice_number ?? "—" }}</dd></div>
+                    <div><dt class="text-gray-500">{{ ctrans("Invoice date") }}</dt><dd class="text-gray-800">{{ invoice.reading.invoice_date ? useFormatTime(invoice.reading.invoice_date) : "—" }}</dd></div>
+                    <div><dt class="text-gray-500">{{ ctrans("Currency") }}</dt><dd class="text-gray-800">{{ invoice.reading.currency ?? "—" }}</dd></div>
+                    <div><dt class="text-gray-500">{{ ctrans("Total") }}</dt><dd class="font-medium text-gray-800">{{ money(invoice.reading.total, invoice.reading.currency) }}</dd></div>
+                </dl>
+
+                <p v-if="invoice.reading.currency_mismatch" class="text-amber-700">
+                    <FontAwesomeIcon :icon="faExclamationTriangle" fixed-width aria-hidden="true" />
+                    {{ ctrans("The invoice is in :invoice and the delivery in :delivery: when you apply it you choose whether the delivery follows the invoice.", { invoice: invoice.reading.currency ?? "", delivery: invoice.reading.delivery_currency ?? "" }) }}
+                </p>
 
                 <table class="w-full text-left text-xs">
                     <thead class="text-gray-500">
                         <tr>
-                            <th class="py-1">{{ ctrans("Product") }}</th>
-                            <th class="py-1 text-right">{{ ctrans("Received") }}</th>
-                            <th class="py-1 text-right">{{ ctrans("Invoiced") }}</th>
-                            <th class="py-1 text-right">{{ ctrans("Order amount") }}</th>
-                            <th class="py-1 text-right">{{ ctrans("Invoice amount") }}</th>
-                            <th class="py-1 text-right">{{ ctrans("Goods cost") }}</th>
+                            <th class="whitespace-nowrap py-1">{{ ctrans("Product") }}</th>
+                            <th class="whitespace-nowrap py-1 text-right">{{ ctrans("Received") }}</th>
+                            <th class="whitespace-nowrap py-1 text-right">{{ ctrans("Invoiced") }}</th>
+                            <th class="whitespace-nowrap py-1 text-right">{{ ctrans("Order amount") }}</th>
+                            <th class="whitespace-nowrap py-1 text-right">{{ ctrans("Invoice amount") }}</th>
+                            <th class="whitespace-nowrap py-1 text-right">{{ ctrans("Goods cost") }}</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="item in invoice.reading.items" :key="item.id" class="border-t border-gray-100" :class="item.needs_check ? 'bg-orange-50' : ''">
-                            <td class="py-1"><span class="font-medium">{{ item.code }}</span> {{ item.name }}</td>
-                            <td class="py-1 text-right">{{ locale.number(item.quantity) }}</td>
-                            <td class="py-1 text-right" :class="item.quantity_differs ? 'font-medium text-orange-600' : ''">
+                        <tr v-for="item in invoice.reading.items" :key="item.id" class="border-t border-gray-100" :class="item.needs_check || item.invoice_amount == null ? 'bg-amber-50' : ''">
+                            <td class="py-1">
+                                <span class="font-medium">{{ item.code }}</span> {{ item.name }}
+                                <span v-if="matchedByLabel(item.matched_by)" class="text-gray-400">· {{ matchedByLabel(item.matched_by) }}</span>
+                            </td>
+                            <td class="py-1 text-right tabular-nums">{{ locale.number(item.quantity) }}</td>
+                            <td class="py-1 text-right tabular-nums" :class="item.quantity_differs ? 'font-medium text-amber-700' : ''">
                                 {{ item.invoice_quantity == null ? ctrans("not on invoice") : locale.number(item.invoice_quantity) }}
                             </td>
-                            <td class="py-1 text-right">{{ money(item.expected_amount, invoice.reading.delivery_currency) }}</td>
-                            <td class="py-1 text-right" :class="item.amount_differs ? 'font-medium text-orange-600' : ''">{{ money(item.invoice_amount, invoiceCurrency(invoice.reading)) }}</td>
-                            <td class="py-1 text-right">
-                                <InputText v-model="drafts[draftKey(invoice)].costs[item.id]" type="number" size="small" min="0" step="0.01" class="w-28 text-right tabular-nums" />
-                                <div v-if="proposedCost(invoice, item) !== Number(drafts[draftKey(invoice)].costs[item.id] || 0)" class="text-gray-500">
-                                    = {{ money(proposedCost(invoice, item), invoiceCurrency(invoice.reading)) }}
-                                </div>
-                            </td>
+                            <td class="py-1 text-right tabular-nums">{{ money(item.expected_amount, invoice.reading.delivery_currency) }}</td>
+                            <td class="py-1 text-right tabular-nums" :class="item.amount_differs ? 'font-medium text-amber-700' : ''">{{ money(item.invoice_amount, invoice.reading.currency) }}</td>
+                            <td class="py-1 text-right font-medium tabular-nums">{{ money(item.proposed_cost, invoice.reading.currency) }}</td>
                         </tr>
                     </tbody>
                 </table>
 
+                <p class="text-xs text-gray-500">
+                    {{ ctrans("The amounts are the ones printed on the invoice and cannot be changed here. The goods cost of a line is the invoice price times what was received.") }}
+                </p>
+
                 <div v-if="invoice.reading.unmatched?.length">
-                    <div class="mb-1 font-medium text-orange-600">{{ ctrans("Invoice lines not matched to a product of this delivery") }}</div>
-                    <div v-for="(line, index) in invoice.reading.unmatched" :key="index" class="flex flex-wrap items-center gap-2 text-xs">
+                    <div class="mb-1 font-medium text-amber-700">{{ ctrans("Invoice lines that match no product of this delivery: say where each goes") }}</div>
+                    <div v-for="line in invoice.reading.unmatched" :key="line.index" class="flex flex-wrap items-center gap-2 text-xs">
                         <span class="font-medium">{{ line.code ?? "—" }}</span>
+                        <span v-if="line.barcode" class="text-gray-500">{{ line.barcode }}</span>
                         <span>{{ line.description }}</span>
                         <span>{{ line.quantity == null ? "" : "× " + locale.number(line.quantity) }}</span>
-                        <span class="font-medium">{{ money(line.amount, invoiceCurrency(invoice.reading)) }}</span>
-                        <Select v-if="line.amount != null" v-model="drafts[draftKey(invoice)].assignments[index]" :options="assignmentOptions(invoice.reading)"
-                            optionLabel="label" optionValue="value" size="small" class="w-72" />
+                        <span class="font-medium tabular-nums">{{ money(line.amount, invoice.reading.currency) }}</span>
+                        <Select v-model="drafts[draftKey(invoice)].assignments[line.index]" :options="assignmentOptions(invoice.reading)"
+                            optionLabel="label" optionValue="value" size="small" class="w-72" :class="fieldFocusClass"
+                            :placeholder="ctrans('Choose')" :invalid="drafts[draftKey(invoice)].assignments[line.index] === null" :disabled="!canEdit || !invoice.reading.can_apply" />
+                        <span v-if="line.suggested_item_id && drafts[draftKey(invoice)].assignments[line.index] === line.suggested_item_id" class="text-amber-700">
+                            {{ ctrans("suggested from the description, check it") }}
+                        </span>
                     </div>
                 </div>
 
                 <div v-if="invoice.reading.charges?.length">
-                    <div class="mb-1 font-medium">{{ ctrans("Other charges on the invoice") }}</div>
-                    <label v-for="(charge, index) in invoice.reading.charges" :key="index" class="flex items-center gap-2 text-xs">
-                        <Checkbox v-model="drafts[draftKey(invoice)].charges[index]" binary :disabled="charge.amount <= 0" />
+                    <div class="mb-1 font-medium">{{ ctrans("Other charges on the invoice, added as extra expenses") }}</div>
+                    <div v-for="(charge, index) in invoice.reading.charges" :key="index" class="flex flex-wrap items-center gap-2 text-xs">
                         <span>{{ charge.label }}</span>
-                        <span class="font-medium">{{ money(charge.amount, invoiceCurrency(invoice.reading)) }}</span>
-                        <span v-if="charge.amount > 0" class="text-gray-400">{{ ctrans("add as extra expense") }}</span>
-                        <span v-else class="text-gray-400">{{ ctrans("discounts go into the goods cost of the lines") }}</span>
+                        <span class="font-medium tabular-nums">{{ money(charge.amount, invoice.reading.currency) }}</span>
+                        <Select v-model="drafts[draftKey(invoice)].chargeTypes[index]" :options="invoice.reading.charge_types" optionLabel="label" optionValue="value"
+                            size="small" class="w-60" :class="fieldFocusClass" :placeholder="ctrans('What kind of expense?')"
+                            :invalid="!drafts[draftKey(invoice)].chargeTypes[index]" :disabled="!canEdit || !invoice.reading.can_apply" />
+                    </div>
+                </div>
+
+                <p v-if="invoice.reading.not_received" class="text-amber-700">
+                    <FontAwesomeIcon :icon="faExclamationTriangle" fixed-width aria-hidden="true" />
+                    {{ ctrans("The invoice charges :amount for goods that were not received (:codes): it stays out of the goods cost, ask the supplier for a credit.", { amount: String(money(invoice.reading.not_received.amount, invoice.reading.currency)), codes: invoice.reading.not_received.codes.join(", ") }) }}
+                </p>
+                <p v-if="invoice.reading.not_invoiced" class="text-amber-700">
+                    <FontAwesomeIcon :icon="faExclamationTriangle" fixed-width aria-hidden="true" />
+                    {{ ctrans("More was received than invoiced (:codes): the extra goods are costed at the invoice price, :amount.", { amount: String(money(invoice.reading.not_invoiced.amount, invoice.reading.currency)), codes: invoice.reading.not_invoiced.codes.join(", ") }) }}
+                </p>
+
+                <p v-if="invoice.reading.replaces_typed && invoice.reading.can_apply" class="text-amber-700">
+                    <FontAwesomeIcon :icon="faExclamationTriangle" fixed-width aria-hidden="true" />
+                    {{ ctrans("The invoice typed by hand says :typed, applying replaces it with :total.", { typed: String(money(invoice.reading.replaces_typed.amount, invoice.reading.replaces_typed.currency)), total: String(money(invoice.reading.total, invoice.reading.currency)) }) }}
+                </p>
+
+                <p v-if="invoice.reading.shipping_typed_by_hand && drafts[draftKey(invoice)].chargeTypes.includes('freight')" class="text-red-600">
+                    <FontAwesomeIcon :icon="faExclamationTriangle" fixed-width aria-hidden="true" />
+                    {{ ctrans("Shipping is already entered by hand on this delivery: put the invoice freight there, or remove it, before applying the invoice.") }}
+                </p>
+
+                <label v-if="invoice.reading.needs_manual_check && invoice.reading.can_apply" class="flex items-start gap-2 text-xs text-amber-700">
+                    <Checkbox v-model="drafts[draftKey(invoice)].checked" binary :inputId="`supplier-invoice-reading-checked-${invoice.media_id}`" />
+                    <span>{{ ctrans("This document could not be checked automatically. I have checked every amount, and that it is of this delivery, against the document.") }}</span>
+                </label>
+
+                <div v-if="invoice.reading.delivery_confirmation && invoice.reading.can_apply" class="space-y-2 rounded border p-3"
+                    :class="invoice.reading.delivery_confirmation.dates_fit ? 'border-amber-200 bg-amber-50 text-amber-800' : 'border-red-200 bg-red-50 text-red-700'">
+                    <p>
+                        <FontAwesomeIcon :icon="faExclamationTriangle" fixed-width aria-hidden="true" />
+                        {{ ctrans("The document does not mention :reference or its purchase orders.", { reference: invoice.reading.delivery_confirmation.reference }) }}
+                        <template v-if="invoice.reading.delivery_confirmation.printed.length">
+                            {{ ctrans("It prints these references:") }}
+                            <span class="font-medium">{{ invoice.reading.delivery_confirmation.printed.join(", ") }}</span>
+                        </template>
+                    </p>
+                    <label v-if="canEdit" class="block space-y-1">
+                        <span>{{ ctrans("To add it, type: :phrase", { phrase: invoice.reading.delivery_confirmation.phrase }) }}</span>
+                        <InputText v-model="drafts[draftKey(invoice)].confirmation" size="small" class="w-full" :class="fieldFocusClass" autocomplete="off" :placeholder="invoice.reading.delivery_confirmation.phrase" />
                     </label>
                 </div>
 
-                <div class="flex items-center gap-3">
-                    <Button v-if="canEdit" :label="ctrans('Apply to costing')" type="tertiary" size="xs"
-                        :disabled="!invoice.reading.can_apply || invoice.reading.currency_unknown || !drafts[draftKey(invoice)].invoice_date || drafts[draftKey(invoice)].invoice_total === ''"
+                <div v-if="canEdit && invoice.reading.can_apply" class="flex justify-end">
+                    <Button :label="ctrans('Apply to costing')" type="tertiary" size="xs" :disabled="!canApply(invoice)"
                         :loading="busy === invoice.media_id" @click="startApply(invoice)">
                         <template #icon>
                             <FontAwesomeIcon :icon="faCheck" class="text-green-600" fixed-width aria-hidden="true" />
                         </template>
                     </Button>
-                    <span v-if="!invoice.reading.can_apply" class="text-xs text-gray-500">{{ ctrans("Costs can be applied once the costing has started and until it is done.") }}</span>
                 </div>
             </div>
         </div>

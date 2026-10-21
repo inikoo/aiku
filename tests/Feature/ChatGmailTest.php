@@ -1922,3 +1922,34 @@ test('the marketing folder lists what the shop sent its customers lately and sho
         ->assertOk()
         ->assertJsonPath('html', '<p>15% off incense</p>');
 });
+
+test('a reply in an email conversation with no customer address left is not sent to gmail', function () {
+    \Illuminate\Support\Facades\Http::fake(['*' => \Illuminate\Support\Facades\Http::response(['id' => 'sent1'])]);
+
+    $settings          = $this->shop->settings ?? [];
+    $settings['gmail'] = [
+        'email'         => 'care@shop.test',
+        'refresh_token' => \Illuminate\Support\Facades\Crypt::encryptString('rt'),
+        'history_id'    => '1',
+    ];
+    $this->shop->update(['settings' => $settings]);
+
+    $session = ChatSession::create([
+        'ulid'     => (string) Str::ulid(),
+        'shop_id'  => $this->shop->id,
+        'status'   => ChatSessionStatusEnum::ACTIVE,
+        'channel'          => ChatChannelEnum::EMAIL,
+        'priority'         => ChatPriorityEnum::NORMAL,
+        'ai_model_version' => 'default',
+        'metadata'         => ['ai_summary' => ['summary' => 'profile deleted']],
+    ]);
+    $reply = $session->messages()->create([
+        'message_text' => 'Your profile is deleted',
+        'message_type' => ChatMessageTypeEnum::TEXT,
+        'sender_type'  => ChatSenderTypeEnum::SYSTEM,
+    ]);
+
+    \App\Actions\Comms\Mailbox\SendChatMessageByGmail::run($reply);
+
+    \Illuminate\Support\Facades\Http::assertNotSent(fn (\Illuminate\Http\Client\Request $request) => str_ends_with($request->url(), 'users/me/messages/send'));
+});

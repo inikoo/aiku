@@ -46,6 +46,10 @@ class SendChatMessageByGmail
             return;
         }
 
+        if (! Arr::get($session->metadata, 'email_reply_to') && ! Arr::get($session->metadata, 'email_from')) {
+            return;
+        }
+
         $threadId = Arr::get($session->metadata, 'gmail_thread_id');
 
         $client = GmailClient::forShop($session->shop);

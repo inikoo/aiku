@@ -78,15 +78,39 @@ class RedoIntrastatExportTimeSeries implements ShouldBeUnique
             $to   = $to ?? Carbon::parse($dateRange['to'])->toDateString();
         }
 
-        foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
-            [$periodFrom, $periodTo] = TimeSeriesPeriodCalculator::expandWindowToFullPeriods($frequency, $from, $to);
+        foreach ($this->yearSlices($from, $to) as [$sliceFrom, $sliceTo]) {
+            foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
+                [$periodFrom, $periodTo] = TimeSeriesPeriodCalculator::expandWindowToFullPeriods($frequency, $sliceFrom, $sliceTo);
 
-            if ($async) {
-                ProcessIntrastatExportTimeSeriesRecords::dispatch($organisation->id, $frequency, $periodFrom, $periodTo)->onQueue('sales_slave_historic');
-            } else {
-                ProcessIntrastatExportTimeSeriesRecords::run($organisation->id, $frequency, $periodFrom, $periodTo);
+                if ($async) {
+                    ProcessIntrastatExportTimeSeriesRecords::dispatch($organisation->id, $frequency, $periodFrom, $periodTo)->onQueue('sales_slave_historic');
+                } else {
+                    ProcessIntrastatExportTimeSeriesRecords::run($organisation->id, $frequency, $periodFrom, $periodTo);
+                }
             }
         }
+    }
+
+    /**
+     * A year of an organisation's EU dispatches at a time: a whole history in one run holds
+     * every delivery note line in memory at once. A week across new year is in both slices,
+     * each works it out whole, so it ends the same.
+     *
+     * @return list<array{0: string, 1: string}>
+     */
+    public function yearSlices(string $from, string $to): array
+    {
+        $slices = [];
+        $start  = Carbon::parse($from)->startOfDay();
+        $end    = Carbon::parse($to)->endOfDay();
+
+        while ($start <= $end) {
+            $sliceEnd = $start->copy()->endOfYear()->min($end);
+            $slices[] = [$start->toDateString(), $sliceEnd->toDateString()];
+            $start    = $sliceEnd->copy()->addDay()->startOfDay();
+        }
+
+        return $slices;
     }
 
 }
