@@ -19,6 +19,7 @@ use App\Actions\Catalogue\Shop\UI\CreateShopFromMaster;
 use App\Actions\Masters\MasterAsset\UI\EditMasterProduct;
 use App\Actions\Masters\MasterAsset\UI\EditMasterProductComposition;
 use App\Actions\Masters\MasterAsset\UI\IndexMasterProducts;
+use App\Actions\Masters\MasterAsset\UI\IndexMasterProductsAwaitingBarcode;
 use App\Actions\Masters\MasterAsset\UI\IndexMasterProductsSales;
 use App\Actions\Masters\MasterAsset\UI\IndexMasterProductsInMasterCollection;
 use App\Actions\Masters\MasterAsset\UI\IndexMasterProductsWithMismatch;
@@ -329,6 +330,7 @@ Route::name("master_shops")->prefix('master-shops')
             Route::get('/master-products-orphan', [IndexMasterProductsWithNoFamily::class, 'inMasterShop'])->name('.master_products_orphan');
             Route::get('/master-products-no-price-rrp', [IndexMasterProductsWithNoPriceRRP::class, 'inMasterShop'])->name('.master_products_no_price_rrp');
             Route::get('/master-products-missing-images', [IndexMasterProductsWithNoImage::class, 'inMasterShop'])->name('.master_products_no_image');
+            Route::get('/master-products-awaiting-barcode', [IndexMasterProductsAwaitingBarcode::class, 'inMasterShop'])->name('.master_products_awaiting_barcode');
             Route::get('/master-products-missing-child-description', [IndexMasterProductsWithMissingChildDescription::class, 'inMasterShop'])->name('.master_products_missing_child_description');
 
             Route::prefix('master-collections')->as('.master_collections.')->group(function () {

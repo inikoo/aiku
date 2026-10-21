@@ -104,7 +104,7 @@ trait WithProductOrgStocks
         foreach ($product->orgStocks as $orgStock) {
             foreach ($orgStock->tradeUnits as $tradeUnit) {
                 $tradeUnits[$tradeUnit->id] = [
-                    'quantity' => $orgStock->pivot->quantity * $tradeUnit->pivot->quantity,
+                    'quantity' => wholeTradeUnitQuantity($orgStock->pivot->quantity * $tradeUnit->pivot->quantity),
                 ];
             }
         }
