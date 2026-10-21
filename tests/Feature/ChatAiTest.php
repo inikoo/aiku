@@ -1675,3 +1675,20 @@ test('a delivery zone kept to some postcodes says which, and is matched by postc
         ->and((fn () => $this->zoneCountries($northernIreland))->call(\App\Actions\Chat\ChatSession\GetChatShopFacts::make()))->toBe('United Kingdom (only postcodes matching /^BT/)')
         ->and((fn () => $this->zoneCountries($restOfUk))->call(\App\Actions\Chat\ChatSession\GetChatShopFacts::make()))->toBe('United Kingdom (except postcodes matching /^BT/)');
 });
+
+test('order facts say a submitted order is not in the warehouse yet and whether it is paid', function () {
+    $customer = createOwnCustomer($this->shop, 'facts-unpaid');
+    $reference = 'UNPD'.random_int(100000, 999999);
+    \Illuminate\Support\Facades\DB::table('orders')->insert([
+        'group_id' => $this->shop->group_id, 'organisation_id' => $this->shop->organisation_id, 'shop_id' => $this->shop->id, 'customer_id' => $customer->id,
+        'currency_id' => $this->shop->currency_id, 'tax_category_id' => \App\Models\Helpers\TaxCategory::firstOrFail()->id, 'slug' => 'ord-'.uniqid(), 'reference' => $reference,
+        'state' => 'submitted', 'pay_status' => 'unpaid', 'to_be_paid_by' => 'bank', 'total_amount' => 536.65, 'payment_amount' => 0,
+        'net_amount' => 536.65, 'org_net_amount' => 536.65, 'grp_net_amount' => 536.65, 'status' => \App\Enums\Ordering\Order\OrderStatusEnum::PROCESSING,
+        'payment_data' => '{}', 'data' => '{}', 'date' => now(), 'submitted_at' => now(), 'created_at' => now(), 'updated_at' => now(),
+    ]);
+
+    $facts = \App\Actions\Chat\ChatSession\GetChatOrderFacts::run($customer, "Where is $reference?");
+
+    expect($facts['order']['status'])->toBe('received, not sent to the warehouse yet')
+        ->and($facts['order']['payment'])->toContain("waiting for the customer's bank transfer of 536.65");
+});
