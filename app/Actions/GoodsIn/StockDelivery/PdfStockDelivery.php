@@ -4,7 +4,7 @@ namespace App\Actions\GoodsIn\StockDelivery;
 
 use App\Actions\OrgAction;
 use App\Actions\Procurement\WithAgentOrganisation;
-use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
+use App\Actions\Traits\Authorisations\WithStockDeliveryDocumentAuthorisation;
 use App\Enums\GoodsIn\StockDeliveryItem\StockDeliveryItemStateEnum;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\GoodsIn\StockDeliveryItem;
@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PdfStockDelivery extends OrgAction
 {
-    use WithProcurementAuthorisation;
+    use WithStockDeliveryDocumentAuthorisation;
     use WithAgentOrganisation;
 
     /**

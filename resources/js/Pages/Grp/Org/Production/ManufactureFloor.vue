@@ -73,6 +73,7 @@ interface FloorTask {
     combined: CombinedLine[] | null
     separate_route: null | { name: string, parameters: object }
     start_route: { name: string, parameters: object }
+    is_quantity_only: boolean
 }
 
 const props = defineProps<{
@@ -558,7 +559,7 @@ function startTask(task: FloorTask) {
                     class="rounded-xl bg-[--app-accent] text-[--app-accent-text] text-2xl font-semibold px-16 py-5 disabled:opacity-40"
                     :disabled="processing"
                     @click="startTask(selectedTask)">
-                    {{ ctrans('START') }}
+                    {{ selectedTask.is_quantity_only ? ctrans('ENTER QUANTITY') : ctrans('START') }}
                 </button>
 
                 <div v-if="selectedTask.combined" class="mt-8 rounded-xl border border-gray-200 bg-white text-left">

@@ -10,6 +10,7 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { ctrans } from '@/Composables/useTrans'
 import Dialog from 'primevue/dialog'
 import Password from 'primevue/password'
+import InputText from 'primevue/inputtext'
 import { QrcodeStream } from 'vue-qrcode-reader'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -22,6 +23,7 @@ const props = defineProps<{
         started_at: string
         can_reject?: boolean
         activity?: { type: string, label: string }
+        preparation_reasons?: { id: number, label: string, is_other: boolean }[] | null
         task: {
             task_name: string
             artefact_code: string | null
@@ -34,6 +36,7 @@ const props = defineProps<{
             kg_per_unit?: number | null
             mix_batch_kg?: number | null
             continued_from?: string | null
+            is_quantity_only?: boolean
         }
         carry?: null | { reference: string, units_per_artefact: number, quantity: number }
         close_route: { name: string, parameters: object }
@@ -59,7 +62,7 @@ const props = defineProps<{
 const page = usePage()
 const closeError = computed(() => {
     const errors = page.props.errors as Record<string, string> | undefined
-    return errors?.quantity_made ?? errors?.state ?? errors?.quantity_rejected ?? errors?.non_productive_reason
+    return errors?.quantity_made ?? errors?.state ?? errors?.quantity_rejected ?? errors?.non_productive_reason ?? errors?.preparation_reason_id ?? errors?.preparation_reason_note
 })
 const managerError = computed(() => (page.props.errors as Record<string, string> | undefined)?.manager_code)
 
@@ -92,6 +95,8 @@ const elapsed = computed(() => {
     const s = seconds % 60
     return `${h ? h + ':' : ''}${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 })
+
+const isQuantityOnly = computed(() => !!props.session.task.is_quantity_only)
 
 const finishedBeforeShiftEnd = ref(false)
 const shiftEndQuestion = computed(() => !!props.session.shift_end && !props.session.shift_end.answer && !finishedBeforeShiftEnd.value)
@@ -184,6 +189,10 @@ function onCameraError(error: Error) {
 
 function onDone() {
     if (quantityMade.value === null || notWholePacks.value) return
+    if (isQuantityOnly.value) {
+        confirmDone()
+        return
+    }
     confirming.value = true
 }
 
@@ -201,11 +210,16 @@ function confirmDone() {
     closeSession()
 }
 
+const preparationReasonId = ref<number | null>(null)
+const preparationReasonNote = ref('')
+const isOtherReason = computed(() => !!props.session.preparation_reasons?.find((reason) => reason.id === preparationReasonId.value)?.is_other)
+const canFinishActivity = computed(() => !props.session.preparation_reasons?.length || (preparationReasonId.value !== null && (!isOtherReason.value || preparationReasonNote.value.trim() !== '')))
+
 function finishActivity() {
     processing.value = true
     router.patch(
         route(props.session.close_route.name, props.session.close_route.parameters),
-        {},
+        props.session.preparation_reasons?.length ? { preparation_reason_id: preparationReasonId.value, preparation_reason_note: isOtherReason.value ? preparationReasonNote.value.trim() : null } : {},
         { preserveScroll: true, onFinish: () => { processing.value = false; confirming.value = false } }
     )
 }
@@ -273,13 +287,28 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
         <div v-if="confirming" class="mt-6 rounded-lg border border-green-300 bg-green-50 p-4">
             <div class="text-2xl font-semibold">{{ ctrans('Finish :activity?', { activity: session.activity.label }) }}</div>
             <div class="mt-2 text-lg text-gray-700">{{ ctrans('Time logged') }}: <b class="tabular-nums">{{ elapsed }}</b></div>
+            <template v-if="session.preparation_reasons?.length">
+                <div class="mt-4 text-xl font-semibold">{{ ctrans('Why did you need preparation?') }}</div>
+                <div class="mt-2 grid gap-3 sm:grid-cols-2">
+                    <button v-for="reason in session.preparation_reasons" :key="reason.id" type="button"
+                        class="min-h-20 rounded-lg border-2 px-4 py-3 text-left text-xl font-medium"
+                        :class="preparationReasonId === reason.id ? 'border-[--app-accent] bg-[--app-accent-soft] text-gray-900' : 'border-gray-300 bg-white text-gray-700'"
+                        :aria-pressed="preparationReasonId === reason.id"
+                        @click="preparationReasonId = reason.id">
+                        <FontAwesomeIcon v-if="preparationReasonId === reason.id" :icon="['fal', 'check']" fixed-width class="mr-1 text-[--app-accent]" aria-hidden="true" />
+                        {{ reason.label }}
+                    </button>
+                </div>
+                <InputText v-if="isOtherReason" v-model="preparationReasonNote" :placeholder="ctrans('Type the reason')" :aria-label="ctrans('Type the reason')"
+                    maxlength="500" class="mt-3 w-full !py-4 !text-xl" autofocus />
+            </template>
             <div class="mt-4 grid gap-3 sm:grid-cols-2">
                 <button type="button" class="rounded-lg border border-gray-300 bg-white text-gray-700 text-xl font-semibold py-4"
                     @click="confirming = false">
                     {{ ctrans('Cancel / Go back') }}
                 </button>
                 <button type="button" class="rounded-lg bg-green-600 text-white text-xl font-semibold py-4 disabled:opacity-40"
-                    :disabled="processing" @click="finishActivity">
+                    :disabled="processing || !canFinishActivity" @click="finishActivity">
                     {{ ctrans('Confirm & finish') }}
                 </button>
             </div>
@@ -294,7 +323,7 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
     <div v-else class="rounded-2xl border-2 border-[--app-accent] bg-[--app-accent-soft] p-10">
         <div class="flex items-baseline justify-between">
             <div>
-                <div class="text-xs uppercase tracking-wide text-[--app-accent]">{{ ctrans('Working on') }}</div>
+                <div class="text-xs uppercase tracking-wide text-[--app-accent]">{{ isQuantityOnly ? ctrans('Record quantity made') : ctrans('Working on') }}</div>
                 <div class="text-4xl font-semibold mt-1">{{ session.task.task_name }}</div>
                 <div class="text-2xl text-gray-600 mt-1">
                     {{ session.task.artefact_code }} — {{ session.task.artefact_name }}
@@ -317,7 +346,7 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
                     {{ ctrans('Counted in PACKS of :size (1 pack = :size × :code)', { size: packSize, code: session.task.artefact_code ?? '' }) }}
                 </div>
             </div>
-            <div class="text-right">
+            <div v-if="!isQuantityOnly" class="text-right">
                 <div class="text-7xl font-mono tabular-nums text-[--app-accent-strong]">{{ elapsed }}</div>
                 <div v-if="session.break_minutes" class="text-sm text-gray-500">{{ session.break_minutes }} {{ ctrans('min on break') }}</div>
             </div>
@@ -356,7 +385,7 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
             <div class="text-2xl font-semibold">{{ ctrans('Are you sure you want to finish :step?', { step: session.task.task_name }) }}</div>
             <div class="mt-2 flex flex-wrap gap-x-6 text-lg text-gray-700">
                 <span>{{ ctrans('Step') }}: <b>{{ session.task.task_name }}</b></span>
-                <span>{{ ctrans('Time logged') }}: <b class="tabular-nums">{{ timeLogged }}</b></span>
+                <span v-if="!isQuantityOnly">{{ ctrans('Time logged') }}: <b class="tabular-nums">{{ timeLogged }}</b></span>
                 <span>{{ ctrans('Quantity made') }}: <b class="tabular-nums">{{ quantityMade }}<template v-if="unit"> {{ unit }}</template></b>
                     <b v-if="packSize" class="text-amber-700"> {{ ctrans('packs of :size = :pieces × :code', { size: packSize, pieces: inPieces(quantityMade ?? 0), code: session.task.artefact_code ?? '' }) }}</b>
                 </span>
@@ -516,7 +545,7 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
             </div>
         </div>
 
-        <div v-if="session.band_feedback" class="mt-6 border-t border-[--app-accent-muted] pt-4">
+        <div v-if="session.band_feedback && !isQuantityOnly" class="mt-6 border-t border-[--app-accent-muted] pt-4">
             <div class="text-center text-3xl font-semibold tabular-nums">
                 {{ currentRate.toFixed(1) }} <span class="text-base font-normal text-gray-600">{{ ctrans('units/hour') }}</span>
             </div>

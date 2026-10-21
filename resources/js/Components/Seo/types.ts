@@ -12,13 +12,21 @@ export type SeoKeywordOptions = {
     languages: SelectOption[]
     devices: SelectOption[]
     frequencies: SelectOption[]
+    scopes: SelectOption[]
 }
 
 export type SeoKeywordRoutes = {
     track: routeType & { method: string }
     bulkTrack: routeType & { method: string }
+    bulkDelete: routeType & { method: string }
     storeTag: routeType & { method: string }
     assignTags: routeType & { method: string }
+}
+
+export type SeoCheckNow = {
+    keywords: number
+    cost: number
+    route: routeType
 }
 
 export type SeoKeywordTag = {
@@ -63,6 +71,7 @@ export type SeoKeywordFilterValues = {
 export type SeoResearchQuery = {
     seed: string
     url: string
+    scope: string
     country_code: string
     language_code: string
 }

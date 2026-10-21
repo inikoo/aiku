@@ -24,6 +24,8 @@ use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStageEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionPriceQueryStateEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Http\Resources\Procurement\PurchaseOrdersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\GoodsIn\StockDelivery;
@@ -141,6 +143,7 @@ class IndexPurchaseOrders extends OrgAction
                     'in_production'            => [__('In production'), null],
                     'past_eta'                 => [__('Past ETA, no container'), null],
                     'unconfirmed_over_14_days' => [__('Not confirmed after 14 days'), null],
+                    'waiting_price_answer'     => [__('New supplier price to answer'), null],
                 ],
                 'engine'   => function ($query, $elements) {
                     $query->where(function ($query) use ($elements) {
@@ -161,6 +164,9 @@ class IndexPurchaseOrders extends OrgAction
                         }
                         if (in_array('unconfirmed_over_14_days', $elements)) {
                             $query->orWhereRaw(PurchaseOrderStageEnum::unconfirmedSql(14));
+                        }
+                        if (in_array('waiting_price_answer', $elements)) {
+                            $query->orWhereExists($this->pendingPriceChangesQuery()->select(DB::raw(1)));
                         }
                     });
                 },
@@ -297,6 +303,8 @@ class IndexPurchaseOrders extends OrgAction
             $query->selectSub($this->otherClientsOrdersQuery(), 'other_clients_orders');
         }
 
+        $query->selectSub($this->pendingPriceChangesQuery()->selectRaw('count(*)'), 'number_pending_price_changes');
+
         return $query
             ->defaultSort('-purchase_orders.date')
             ->with([
@@ -320,6 +328,17 @@ class IndexPurchaseOrders extends OrgAction
             ->withBetweenDates(['date'])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
+    }
+
+    /**
+     * Lines of the row's order whose new supplier price the agent asked about and the organisation has not answered yet.
+     */
+    private function pendingPriceChangesQuery(): QueryBuilderForSubquery
+    {
+        return DB::table('purchase_order_transactions')
+            ->whereColumn('purchase_order_transactions.purchase_order_id', 'purchase_orders.id')
+            ->where('purchase_order_transactions.state', PurchaseOrderTransactionStateEnum::SUBMITTED->value)
+            ->where('purchase_order_transactions.price_query_state', PurchaseOrderTransactionPriceQueryStateEnum::PENDING->value);
     }
 
     /**

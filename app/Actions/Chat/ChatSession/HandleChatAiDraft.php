@@ -10,7 +10,13 @@ namespace App\Actions\Chat\ChatSession;
 
 use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Enums\CRM\Livechat\ChatAiDraftStatusEnum;
+use App\Enums\Helpers\Ticket\TicketStatusEnum;
+use App\Enums\Helpers\Ticket\TicketTypeEnum;
+use App\Models\Helpers\Ticket;
+use App\Actions\Helpers\Translations\DetectLanguageWithJev;
+use App\Actions\Helpers\Translations\Translate;
 use App\Models\Chat\ChatAiDraft;
+use App\Models\Helpers\Language;
 use App\Models\Chat\ChatSession;
 use App\Models\Chat\MetaChatSession;
 use App\Models\SysAdmin\User;
@@ -171,9 +177,49 @@ class HandleChatAiDraft
                 'of'     => User::find(data_get($draft->facts, 'user_id'))?->contact_name,
                 'client' => data_get($draft->facts, 'client'),
             ]) : null,
+            'staff_note'  => data_get($draft->facts, 'staff_note'),
+            'checked'     => data_get($draft->facts, 'checked', []),
+            'premonitions' => Ticket::whereIn('reference', data_get($draft->facts, 'premonitions', []))
+                ->where('type', TicketTypeEnum::PREMONITION)
+                ->get(['reference', 'subject', 'status'])
+                ->map(fn (Ticket $ticket) => [
+                    'reference' => $ticket->reference,
+                    'subject'   => $ticket->subject,
+                    'fixed'     => $ticket->status === TicketStatusEnum::RESOLVED,
+                    'url'       => route('grp.tickets.show', $ticket->reference),
+                ])->all(),
+            'actions'     => $chatSession instanceof ChatSession ? RunChatAiDraftAction::views($chatSession, $draft) : [],
             'rating'      => $draft->rating,
             'reason'      => $draft->rating_reason,
         ] : null, 'suggestions' => ClassifyChatTurn::suggestions($chatSession)]);
+    }
+
+    /**
+     * The assistant writes its notes for staff in the organisation's language; a colleague who reads
+     * another one asks for them in their own, one click on the draft, and gets the note, what was
+     * checked and the task buttons translated. The customer's reply is never touched.
+     */
+    public function translateForStaff(ChatAiDraft $chatAiDraft, Request $request): JsonResponse
+    {
+        $session = $chatAiDraft->session();
+
+        if (!$session || !$this->getAuthorisedChatAgent($session)) {
+            return response()->json(['success' => false], 403);
+        }
+
+        $to       = Language::find($request->user()->language_id) ?? Language::where('code', 'en')->firstOrFail();
+        $note     = (string) data_get($chatAiDraft->facts, 'staff_note', '');
+        $checked  = data_get($chatAiDraft->facts, 'checked', []);
+        $labels   = collect(data_get($chatAiDraft->facts, 'actions', []))->filter(fn (array $action) => isset($action['label']))->map(fn (array $action) => $action['label']);
+        $from     = DetectLanguageWithJev::run(trim($note.' '.implode(' ', $checked).' '.$labels->implode(' '))) ?? Language::where('code', 'en')->firstOrFail();
+        $translate = fn (string $text) => Translate::run($text, $from, $to);
+
+        return response()->json(['success' => true, 'data' => [
+            'language'   => $to->name,
+            'staff_note' => $note !== '' ? $translate($note) : null,
+            'checked'    => array_map($translate, $checked),
+            'labels'     => $labels->map($translate)->all(),
+        ]]);
     }
 
     private function decide(ChatAiDraft $chatAiDraft, callable $change): JsonResponse

@@ -23,6 +23,7 @@ import { faUserCog } from '@fas'
 import { routeType } from '@/types/route'
 import EmptyState from '@/Components/Utils/EmptyState.vue'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { useFreshAfterHistoryRestore } from "@/Composables/useFreshAfterHistoryRestore"
 
 library.add(faUserCog, faArrowAltToTop, faArrowAltToBottom, faTh, faBrowser, faCube, faPalette, faCheeseburger, faDraftingCompass, faWindow, faExclamationTriangle)
 
@@ -47,6 +48,8 @@ const props = defineProps<{
     indexRoute: routeType
     can_edit?: boolean
 }>()
+
+const isRefreshingLayout = useFreshAfterHistoryRestore(['snapshot'], () => {})
 
 const isLoading = ref(false)
 const isLoadingTemplate = ref(false)
@@ -251,7 +254,8 @@ const handleDelete = async () => {
         </template>
     </PageHeading>
 
-    <Beetree v-if="builder == 'beefree' && emailEditor === 'beefree'" :updateRoute="updateRoute" :imagesUploadRoute="imagesUploadRoute"
+    <div v-if="isRefreshingLayout" />
+    <Beetree v-else-if="builder == 'beefree' && emailEditor === 'beefree'" :updateRoute="updateRoute" :imagesUploadRoute="imagesUploadRoute"
         :snapshot="snapshot" :mergeTags="mergeTags" :organisationSlug="organisationSlug" @onSave="onSave"
         :shopSlug="shopSlug" @sendTest="openSendTest" @saveTemplate="onSaveTemplate" ref="_beefree" />
 

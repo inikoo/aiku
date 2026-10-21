@@ -24,6 +24,7 @@ import ProductCategoryCard from "@/Components/ProductCategoryCard.vue"
 import SummaryCard from "@/Components/Goods/SummaryCard.vue"
 import SalesAnalysisTeaser from "@/Components/SalesAnalysis/SalesAnalysisTeaser.vue"
 import SalesAnalysisMovers from "@/Components/SalesAnalysis/SalesAnalysisMovers.vue"
+import SupplierProductsShowcaseBox from "@/Components/SupplyChain/SupplierProductsShowcaseBox.vue"
 
 library.add(
 	faCircle,
@@ -64,6 +65,7 @@ const props = defineProps<{
 			private?: string
 		}
 		properties?: any
+		supplier_products?: InstanceType<typeof SupplierProductsShowcaseBox>["$props"]["supplierProducts"]
 	}
 	salesAnalysisTeaser?: object
 }>()
@@ -142,16 +144,19 @@ const validImages = computed(() =>
 		</div>
 
 		<!-- Trade Unit Summary -->
-		<SummaryCard class="min-w-0 self-start">
-			<TradeUnitMasterProductSummary
-				:attachments="data.attachment_box"
-				:publicAttachment="data.attachment_box?.public"
-				:data="data.tradeUnit"
-				:gpsr="data.gpsr"
-				:properties="data.properties"
-				:labelInfo="data.label_info"
-			/>
-		</SummaryCard>
+		<div class="min-w-0 self-start space-y-4">
+			<SummaryCard>
+				<TradeUnitMasterProductSummary
+					:attachments="data.attachment_box"
+					:publicAttachment="data.attachment_box?.public"
+					:data="data.tradeUnit"
+					:gpsr="data.gpsr"
+					:properties="data.properties"
+					:labelInfo="data.label_info"
+				/>
+			</SummaryCard>
+			<SupplierProductsShowcaseBox v-if="data.supplier_products" :supplierProducts="data.supplier_products" />
+		</div>
 
 		<!-- Sales -->
 		<div class="min-w-0">

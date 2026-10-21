@@ -28,6 +28,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $organisation_slug
  * @property mixed $quantity_ordered
  * @property mixed $org_net_amount
+ * @property int|null $number_pending_price_changes
  */
 class PurchaseOrdersResource extends JsonResource
 {
@@ -57,6 +58,7 @@ class PurchaseOrdersResource extends JsonResource
             'supplier_purchase_orders' => $this->supplier_purchase_orders,
             'organisation_name' => $this->organisation_name,
             'organisation_slug' => $this->organisation_slug,
+            'number_pending_price_changes' => (int) $this->number_pending_price_changes,
             'other_clients_orders' => $this->other_clients_orders === null ? null : array_map(
                 fn (array $order) => $order + ['state_label' => PurchaseOrderStateEnum::from($order['state'])->labels()[$order['state']]],
                 json_decode($this->other_clients_orders, true)

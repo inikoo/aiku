@@ -1268,7 +1268,7 @@ test('accepted appointments are reminded by email the day before, once', functio
     ]);
     $appointmentType->attendees()->syncWithoutDetaching([$this->user->id]);
 
-    $nextWeek = now($this->shop->timezone?->name ?? 'UTC')->addDays(9)->format('Y-m-d');
+    $nextWeek = now($this->shop->timezone?->name ?? 'UTC')->addDays(10)->format('Y-m-d');
     $book     = fn (array $modelData = []) => StoreAppointment::make()->action($this->shop, [
         'appointment_type_id' => $appointmentType->id,
         'starts_at'           => $nextWeek.' 12:00',

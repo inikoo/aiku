@@ -25,6 +25,7 @@ use App\Actions\Chat\ChatSession\StoreGuestProfile;
 use App\Actions\Chat\ChatSession\StoreOfflineMessage;
 use App\Actions\Chat\ChatSession\ConfirmSuggestedChatCustomer;
 use App\Actions\Chat\ChatSession\HandleChatAiDraft;
+use App\Actions\Chat\ChatSession\RunChatAiDraftAction;
 use App\Actions\Chat\ChatSession\RaiseChatEngineerTicket;
 use App\Actions\Chat\ChatSession\LinkChatSessionCustomer;
 use App\Actions\Chat\ChatSession\SyncChatSessionByEmail;
@@ -110,6 +111,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/ai-drafts/{chatAiDraft}/take', [HandleChatAiDraft::class, 'take'])->name('ai_drafts.take');
     Route::post('/ai-drafts/{chatAiDraft}/discard', [HandleChatAiDraft::class, 'discard'])->name('ai_drafts.discard');
     Route::post('/ai-drafts/{chatAiDraft}/rate', [HandleChatAiDraft::class, 'rate'])->name('ai_drafts.rate');
+    Route::post('/ai-drafts/{chatAiDraft}/actions/{index}', RunChatAiDraftAction::class)->whereNumber('index')->name('ai_drafts.action');
+    Route::post('/ai-drafts/{chatAiDraft}/translate', [HandleChatAiDraft::class, 'translateForStaff'])->name('ai_drafts.translate');
     Route::get('/meta/sessions/{metaChatSession:ulid}/customer-profile', GetMetaChatCustomerProfile::class)->name('meta.sessions.customer_profile')->withTrashed();
     Route::get('/meta/sessions/{metaChatSession:ulid}/customer-timeline', GetMetaChatCustomerTimeline::class)->name('meta.sessions.customer_timeline')->withTrashed();
     Route::get('/meta/sessions/{metaChatSession:ulid}/tickets', [GetChatSessionTickets::class, 'inMetaChatSession'])->name('meta.sessions.tickets')->withTrashed();

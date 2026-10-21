@@ -86,6 +86,18 @@ class CreateMasterSubDepartment extends OrgAction
                                         'value'    => ProductCategoryTypeEnum::SUB_DEPARTMENT->value,
                                         'readonly' => true
                                     ],
+                                    'master_department_id' => [
+                                        'type'                 => 'select',
+                                        'label'                => __('Department'),
+                                        'required'             => true,
+                                        'searchable'           => true,
+                                        'placeholder'          => __('Please select'),
+                                        'noAutoSelect'         => true,
+                                        'blockSubmitWhenEmpty' => true,
+                                        'options'              => $this->getMasterDepartmentOptions($parent),
+                                        'value'                => $parent instanceof MasterProductCategory ? $parent->id : null,
+                                        'readonly'             => $parent instanceof MasterProductCategory,
+                                    ],
                                     'code' => [
                                         'type'     => 'input',
                                         'label'    => __('Code'),
@@ -119,6 +131,23 @@ class CreateMasterSubDepartment extends OrgAction
         );
     }
 
+
+    /**
+     * @return array<int, array{value: int, label: string}>
+     */
+    private function getMasterDepartmentOptions(MasterProductCategory|MasterShop $parent): array
+    {
+        $masterShop = $parent instanceof MasterShop ? $parent : $parent->masterShop;
+
+        return $masterShop->getMasterDepartments()
+            ->sortBy('code')
+            ->map(fn (MasterProductCategory $masterDepartment) => [
+                'value' => $masterDepartment->id,
+                'label' => $masterDepartment->code.' - '.$masterDepartment->name,
+            ])
+            ->values()
+            ->all();
+    }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {

@@ -19,6 +19,7 @@ use App\Models\Production\JobOrderItem;
 use App\Models\Production\JobOrderItemTask;
 use App\Models\Production\ManufactureTaskSession;
 use App\Models\Production\Production;
+use App\Models\SysAdmin\User;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -33,14 +34,22 @@ class ShowArtisansDashboard extends OrgAction
         return $production;
     }
 
+    /**
+     * The Artisans section shows how each artisan is paid, so only production supervisors, HR, accounting and admins may open it.
+     */
+    public static function canSeeArtisanPay(User $user, Production $production): bool
+    {
+        return $user->authTo([
+            'org-supervisor.'.$production->organisation_id,
+            "productions_operations.$production->id.orchestrate",
+            "human-resources.$production->organisation_id.view",
+            "accounting.$production->organisation_id.view",
+        ]);
+    }
+
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->authTo([
-            'org-supervisor.'.$this->organisation->id,
-            'productions-view.'.$this->organisation->id,
-            "productions_operations.{$this->production->id}.view",
-            "productions_operations.{$this->production->id}.orchestrate",
-        ]);
+        return self::canSeeArtisanPay($request->user(), $this->production);
     }
 
     public function asController(Organisation $organisation, Production $production, ActionRequest $request): Production

@@ -9,6 +9,7 @@
 namespace App\Actions\Comms\Mailshot;
 
 use App\Actions\CRM\Customer\GetCustomersQueryByRecipe;
+use App\Enums\Comms\Mailshot\MailshotTypeEnum;
 use App\Models\Comms\Mailshot;
 use Illuminate\Database\Query\Builder;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -22,6 +23,10 @@ class GetMailshotRecipientsQueryBuilder
      */
     public function handle(Mailshot $mailshot): ?Builder
     {
+        if ($mailshot->type === MailshotTypeEnum::NEWSLETTER) {
+            return PrepareNewsletterRecipients::make()->audienceQuery($mailshot);
+        }
+
         if (!empty($mailshot->recipients_recipe)) {
             return GetCustomersQueryByRecipe::run($mailshot->shop_id, $mailshot->recipients_recipe);
         }

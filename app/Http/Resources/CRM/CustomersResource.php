@@ -27,6 +27,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $last_invoiced_at
  * @property mixed $expected_date_of_next_order
  * @property mixed $sales_all
+ * @property mixed $order_value_net_amount
  * @property mixed $sales_org_currency_all
  * @property mixed $sales_grp_currency_all
  * @property mixed $number_invoices_type_invoice
@@ -86,6 +87,8 @@ class CustomersResource extends JsonResource
             'sales_all'                       => $this->sales_all,
             'sales_org_currency_all'          => $this->sales_org_currency_all,
             'sales_grp_currency_all'          => $this->sales_grp_currency_all,
+            /* Only selected when the shop listing is filtered by order value. */
+            'order_value_net_amount'          => $this->order_value_net_amount ?? null,
             'currency_code'                   => $this->currency_code,
             'balance'                         => $this->balance,
             'tags'                            => $this->whenLoaded('tags', fn () => TagsResource::collection($this->tags)->toArray(request())),

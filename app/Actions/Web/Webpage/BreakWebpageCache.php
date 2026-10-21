@@ -27,6 +27,10 @@ class BreakWebpageCache extends OrgAction implements ShouldBeUnique
 
     public string $jobQueue = 'urgent';
 
+    public int $jobTries = 5;
+
+    public array $jobBackoff = [5, 15, 30, 60];
+
     public function getJobUniqueId(?Webpage $webpage, bool $includeChildren = false): string
     {
         $slug = 'empty';

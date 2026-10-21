@@ -1343,3 +1343,37 @@ test('stock json endpoints refuse users without the warehouse or organisation in
     actingAsUserWithOnlyPermissions($user, ["inventory.{$this->organisation->id}.view"]);
     $this->getJson($orgStocksRoute)->assertOk();
 });
+
+test('stock, sko and trade unit showcases list their supplier products with links to the supplier', function () {
+    $group     = $this->organisation->group;
+    $stock     = createStocks($group)[0];
+    [$orgStock] = createOrgStocks($this->organisation, [$stock]);
+    $tradeUnit = StoreTradeUnit::make()->action($group, TradeUnit::factory()->definition());
+
+    $supplier = StoreSupplier::make()->action($group, Supplier::factory()->definition());
+    OrgSupplier::where('supplier_id', $supplier->id)->where('organisation_id', $this->organisation->id)->exists()
+        || StoreOrgSupplier::make()->action($this->organisation, $supplier);
+    $supplierProduct = StoreSupplierProduct::make()->action($supplier, array_merge(SupplierProduct::factory()->definition(), ['trade_units' => [$tradeUnit->id]]));
+    $stock->supplierProducts()->attach($supplierProduct->id);
+    $orgSupplierProduct = $supplierProduct->orgSupplierProducts()->where('organisation_id', $this->organisation->id)->firstOrFail();
+    $orgStock->orgSupplierProducts()->attach($orgSupplierProduct->id, [
+        'local_priority'                => 1,
+        'status'                        => true,
+        'stock_has_supplier_product_id' => DB::table('stock_has_supplier_products')->where('stock_id', $stock->id)->where('supplier_product_id', $supplierProduct->id)->value('id'),
+    ]);
+
+    $stockRows     = \App\Actions\Goods\Stock\UI\GetStockShowcase::run($stock->fresh())['supplier_products'];
+    $tradeUnitRows = \App\Actions\Goods\TradeUnit\UI\GetTradeUnitShowcase::run($tradeUnit->fresh())['supplier_products'];
+    $orgStockRows  = \App\Actions\SupplyChain\SupplierProduct\UI\GetSupplierProductsShowcaseData::make()->forOrgSupplierProducts($orgStock->fresh()->orgSupplierProducts);
+
+    foreach ([$stockRows, $tradeUnitRows, $orgStockRows] as $rows) {
+        $row = collect($rows)->firstWhere('code', $supplierProduct->code);
+        expect($row)->not->toBeNull()
+            ->and($row['supplier_name'])->toBe($supplier->name)
+            ->and(route($row['route']['name'], $row['route']['parameters']))->toBeString()
+            ->and(route($row['supplier_route']['name'], $row['supplier_route']['parameters']))->toBeString();
+    }
+
+    expect($stockRows[0]['route']['name'])->toBe('grp.supply-chain.supplier_products.show')
+        ->and($orgStockRows[0]['route']['parameters']['orgSupplierProduct'])->toBe($orgSupplierProduct->slug);
+});

@@ -13,6 +13,7 @@ use App\Actions\Production\JobOrderItem\GetOpenJobOrderItemsOffBatch;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Models\HumanResources\Employee;
 use App\Actions\OrgAction;
+use App\Actions\Production\Production\UI\ShowArtisansDashboard;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
 use App\Models\Production\Artefact;
 use App\Models\Production\JobOrder;
@@ -33,12 +34,15 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowJobOrder extends OrgAction
 {
     private bool $canHold = false;
+    private bool $canSeePay = false;
 
     public function authorize(ActionRequest $request): bool
     {
         $jobOrder      = $request->route('jobOrder');
         $isOwnJobOrder = $jobOrder instanceof JobOrder && $jobOrder->employee_id
             && $jobOrder->employee_id == GetUserCurrentEmployee::run($request->user(), $this->organisation->id)?->id;
+
+        $this->canSeePay = ShowArtisansDashboard::canSeeArtisanPay($request->user(), $this->production);
 
         $this->canHold = $request->user()->authTo([
             'org-supervisor.'.$this->organisation->id,
@@ -157,6 +161,7 @@ class ShowJobOrder extends OrgAction
                     'hold'            => $this->holdWithLabel($jobOrder->data['hold'] ?? null),
                     'holds'           => array_map(fn (array $hold) => $this->holdWithLabel($hold), $jobOrder->data['holds'] ?? []),
                 ],
+                'can_see_pay'       => $this->canSeePay,
                 'hold_route'        => $this->canHold && ($isOpen || isset($jobOrder->data['hold'])) ? [
                     'name'       => 'grp.models.job-order.hold',
                     'parameters' => ['jobOrder' => $jobOrder->id],
@@ -282,7 +287,7 @@ class ShowJobOrder extends OrgAction
             ->map(fn (Collection $sessions) => [
                 'activity' => $sessions->first()->activityLabel(),
                 'hours'    => round($sessions->sum(fn (ManufactureTaskSession $session) => $session->paidHours()), 2),
-                'pay'      => $sessions->whereNotNull('pay')->isEmpty() ? null : $currencySymbol.number_format((float) $sessions->sum('pay'), 2),
+                'pay'      => !$this->canSeePay || $sessions->whereNotNull('pay')->isEmpty() ? null : $currencySymbol.number_format((float) $sessions->sum('pay'), 2),
             ])
             ->values()
             ->all();
@@ -310,7 +315,7 @@ class ShowJobOrder extends OrgAction
             'quantity_target' => (float)($lastTask->quantity_required ?? $subJob->quantity),
             'state'           => $state,
             'seconds'         => (int)round($closedWork->sum('hours') * 3600),
-            'reward'          => $currencySymbol.number_format((float)$closedWork->sum('pay'), 2),
+            'reward'          => $this->canSeePay ? $currencySymbol.number_format((float)$closedWork->sum('pay'), 2) : null,
             'can_remove'      => $subJob->tasks->every(fn (JobOrderItemTask $task) => $task->sessions->isEmpty() && $task->sessionShares->isEmpty()),
         ];
     }

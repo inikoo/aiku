@@ -47,6 +47,10 @@ use Illuminate\Support\Collection;
  * @property int $break_minutes
  * @property ManufactureTaskSessionActivityTypeEnum $activity_type
  * @property string|null $non_productive_reason
+ * @property int|null $preparation_reason_id
+ * @property string|null $preparation_reason_note
+ * @property string|null $preparation_reason_note_en
+ * @property int|null $preparation_reason_note_language_id
  * @property numeric|null $hours
  * @property numeric|null $units_per_hour
  * @property int|null $pay_band_id
@@ -79,6 +83,7 @@ use Illuminate\Support\Collection;
  * @property-read \App\Models\Production\JobOrder|null $jobOrder
  * @property-read \App\Models\Production\ManufactureTask|null $manufactureTask
  * @property-read \App\Models\Production\ManufacturePayBand|null $payBand
+ * @property-read \App\Models\Production\ManufacturePreparationReason|null $preparationReason
  * @property-read Organisation $organisation
  * @property-read \App\Models\Production\Production|null $production
  * @property-read User|null $user
@@ -276,6 +281,11 @@ class ManufactureTaskSession extends Model
     public function payBand(): BelongsTo
     {
         return $this->belongsTo(ManufacturePayBand::class, 'pay_band_id');
+    }
+
+    public function preparationReason(): BelongsTo
+    {
+        return $this->belongsTo(ManufacturePreparationReason::class)->withTrashed();
     }
 
     public function shares(): HasMany

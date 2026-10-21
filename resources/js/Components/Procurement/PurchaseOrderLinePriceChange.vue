@@ -13,6 +13,7 @@ import Textarea from "primevue/textarea"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faCheck, faTimes, faTags, faPen } from "@fal"
 import Button from "@/Components/Elements/Buttons/Button.vue"
+import PingIcon from "@/Components/Utils/PingIcon.vue"
 import { ctrans } from "@/Composables/useTrans"
 import { useLocaleStore } from "@/Stores/locale"
 import { notify } from "@kyvg/vue3-notification"
@@ -50,7 +51,19 @@ const money = (unitCost: number | string | null) => locale.currencyFormat(props.
 const query = computed(() => props.item.price_query)
 const isPending = computed(() => query.value?.state === "pending")
 
+const stateStyles: Record<PriceQuery["state"], { icon: typeof faTags; iconClass: string; boxClass: string }> = {
+	pending: { icon: faTags, iconClass: "text-amber-600", boxClass: "border-amber-300 bg-amber-50 text-amber-800" },
+	accepted: { icon: faCheck, iconClass: "text-green-600", boxClass: "border-green-200 bg-green-50 text-green-800" },
+	rejected: { icon: faTimes, iconClass: "text-red-500", boxClass: "border-red-200 bg-red-50 text-red-800" },
+	adjusted: { icon: faPen, iconClass: "text-sky-600", boxClass: "border-sky-200 bg-sky-50 text-sky-800" },
+}
+
+const stateStyle = computed(() => (query.value ? stateStyles[query.value.state] : null))
+
+const isWaitingForAnswer = computed(() => isPending.value && !!props.item.answerPriceRoute)
+
 const dialog = ref<"ask" | "adjust" | null>(null)
+const answeringWith = ref<"accepted" | "rejected" | "adjusted" | null>(null)
 
 const form = useForm<{ price: number | null; note: string | null }>({
 	price: null,
@@ -92,6 +105,7 @@ function answer(answerValue: "accepted" | "rejected" | "adjusted") {
 		return
 	}
 
+	answeringWith.value = answerValue
 	form
 		.transform(() => ({
 			answer: answerValue,
@@ -102,6 +116,7 @@ function answer(answerValue: "accepted" | "rejected" | "adjusted") {
 			preserveScroll: true,
 			onSuccess: () => (dialog.value = null),
 			onError,
+			onFinish: () => (answeringWith.value = null),
 		})
 }
 </script>
@@ -109,35 +124,55 @@ function answer(answerValue: "accepted" | "rejected" | "adjusted") {
 <template>
 	<div>
 		<div v-if="query || item.askPriceRoute" class="space-y-1 text-xs">
-			<div
-				v-if="query"
-				class="space-y-0.5 rounded border px-2 py-1"
-				:class="isPending ? 'border-amber-300 bg-amber-50 text-amber-800' : 'border-gray-200 bg-gray-50 text-gray-600'"
-			>
+			<div v-if="query && stateStyle" class="relative space-y-0.5 rounded border px-2 py-1" :class="stateStyle.boxClass">
+				<PingIcon
+					v-if="isWaitingForAnswer"
+					v-tooltip="ctrans('Waiting for your answer')"
+					class="!absolute -right-1 -top-1 text-[7px] text-amber-500"
+					aria-hidden="true"
+				/>
 				<div class="flex items-center gap-1.5 font-medium">
-					<FontAwesomeIcon :icon="faTags" fixed-width aria-hidden="true" />
+					<FontAwesomeIcon :icon="stateStyle.icon" :class="stateStyle.iconClass" fixed-width aria-hidden="true" />
 					{{ query.label }}
 				</div>
 				<div class="tabular-nums">
 					{{ ctrans("The supplier asks :new, was :old", { new: money(query.unit_cost), old: money(query.previous_unit_cost) }) }}
 					<span class="text-gray-500">({{ costLabel }})</span>
 				</div>
-				<div v-if="query.note" class="italic">{{ query.note }}</div>
+				<div v-if="query.state === 'adjusted'" class="font-semibold tabular-nums">
+					{{ ctrans("New price: :price", { price: money(item.unit_cost) }) }}
+					<span class="font-normal text-gray-500">({{ costLabel }})</span>
+				</div>
+				<div v-if="query.note" class="italic opacity-60">{{ query.note }}</div>
 				<div v-if="query.asked_by" class="text-gray-500">{{ ctrans("Asked by :name", { name: query.asked_by }) }}</div>
 			</div>
 
 			<div v-if="item.answerPriceRoute" class="flex flex-wrap items-center gap-1.5">
-				<Button type="tertiary" size="xs" :label="ctrans('Accept')" :loading="form.processing" @click="answer('accepted')">
+				<Button
+					type="tertiary"
+					size="xs"
+					:label="ctrans('Accept')"
+					:loading="answeringWith === 'accepted'"
+					:disabled="!!answeringWith && answeringWith !== 'accepted'"
+					@click="answer('accepted')"
+				>
 					<template #icon>
 						<FontAwesomeIcon :icon="faCheck" class="text-green-600" fixed-width aria-hidden="true" />
 					</template>
 				</Button>
-				<Button type="tertiary" size="xs" :label="ctrans('Keep old price')" :loading="form.processing" @click="answer('rejected')">
+				<Button
+					type="tertiary"
+					size="xs"
+					:label="ctrans('Keep old price')"
+					:loading="answeringWith === 'rejected'"
+					:disabled="!!answeringWith && answeringWith !== 'rejected'"
+					@click="answer('rejected')"
+				>
 					<template #icon>
 						<FontAwesomeIcon :icon="faTimes" class="text-red-500" fixed-width aria-hidden="true" />
 					</template>
 				</Button>
-				<Button type="tertiary" size="xs" :label="ctrans('Set another price')" @click="openDialog('adjust')">
+				<Button type="tertiary" size="xs" :label="ctrans('Set another price')" :disabled="!!answeringWith" @click="openDialog('adjust')">
 					<template #icon>
 						<FontAwesomeIcon :icon="faPen" class="text-gray-500" fixed-width aria-hidden="true" />
 					</template>

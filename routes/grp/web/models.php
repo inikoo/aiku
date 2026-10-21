@@ -131,6 +131,8 @@ use App\Actions\Comms\Mailshot\DeleteMailshotTemplate;
 use App\Actions\Comms\Mailshot\PublishMailShot;
 use App\Actions\Comms\Mailshot\ResumeMailshot;
 use App\Actions\Comms\Mailshot\SendMailShot;
+use App\Actions\Comms\Mailshot\SendMailshotAbTestWinner;
+use App\Actions\Comms\Mailshot\SetMailshotAbTest;
 use App\Actions\Comms\Mailshot\SetMailshotAsScheduled;
 use App\Actions\Comms\Mailshot\SetMailshotSecondWaveStatus;
 use App\Actions\Comms\Mailshot\StopMailshot;
@@ -325,6 +327,7 @@ use App\Actions\Goods\Barcode\StoreBarcode;
 use App\Actions\Goods\Barcode\UpdateBarcode;
 use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Goods\Stock\UpdateStock;
+use App\Actions\Goods\StockHasSupplierProduct\SetStockPreferredSupplierProduct;
 use App\Actions\Goods\StockFamily\StoreStockFamily;
 use App\Actions\Goods\StockFamily\UpdateStockFamily;
 use App\Actions\Goods\TradeUnit\AttachTradeUnitsToTradeUnitFamily;
@@ -596,6 +599,7 @@ use App\Actions\Production\ManufactureTaskSession\CloseManufactureTaskSession;
 use App\Actions\Production\ManufactureTaskSession\ContinueManufactureTaskSessionAfterShift;
 use App\Actions\Production\ManufactureBreak\StartManufactureBreak;
 use App\Actions\Production\ManufactureTaskSession\StartManufactureNonProductiveSession;
+use App\Actions\Production\Production\UpdateManufacturePreparationReasons;
 use App\Actions\Production\ManufactureBreak\EndManufactureBreak;
 use App\Actions\Production\ManufactureTaskSession\StartManufactureTaskSession;
 use App\Actions\Production\JobOrderItemTask\AssignJobOrderItemTask;
@@ -667,6 +671,7 @@ use App\Actions\Web\Seo\DismissSeoContentSuggestion;
 use App\Actions\Web\Seo\RequestSeoContentSuggestions;
 use App\Actions\Web\Seo\RetrySeoContentBrief;
 use App\Actions\Web\Seo\DeleteSeoTrackedKeyword;
+use App\Actions\Web\Seo\DeleteSeoTrackedKeywords;
 use App\Actions\Web\Seo\RunSeoAiVisibility;
 use App\Actions\Web\Seo\RunSeoBacklinkFetch;
 use App\Actions\Web\Seo\RunSeoRankChecks;
@@ -930,6 +935,7 @@ Route::name('stock.')->prefix('/stock')->group(function () {
     Route::post('/', StoreStock::class)->name('store');
     Route::patch('/{stock:id}', UpdateStock::class)->name('update');
     Route::patch('/{stock:id}/label-mandatory-information', UpdateStockLabelMandatoryInformation::class)->name('label_mandatory_information.update');
+    Route::patch('/{stock:id}/supplier-product/{supplierProduct:id}/set-preferred', SetStockPreferredSupplierProduct::class)->name('supplier_product.set_preferred')->withoutScopedBindings();
 });
 
 Route::post('master-shop', StoreMasterShop::class)->name('master_shop.store');
@@ -1349,6 +1355,7 @@ Route::name('banner.')->prefix('banner/{banner:id}')->group(function () {
 Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
     Route::post('seo/tracked-keywords', StoreSeoTrackedKeyword::class)->name('seo.tracked_keyword.store');
     Route::post('seo/tracked-keywords/bulk', StoreSeoTrackedKeywords::class)->name('seo.tracked_keywords.bulk_store');
+    Route::delete('seo/tracked-keywords', DeleteSeoTrackedKeywords::class)->name('seo.tracked_keywords.delete');
     Route::post('seo/keyword-tags', StoreSeoKeywordTag::class)->name('seo.keyword_tag.store');
     Route::post('seo/keyword-tags/assign', SetSeoKeywordTags::class)->name('seo.keyword_tags.assign');
     Route::post('seo/competitors', StoreSeoCompetitor::class)->name('seo.competitor.store');
@@ -1442,6 +1449,8 @@ Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
         Route::get('convert-to-blog', ConvertMailshotToBlog::class)->name('convert-to-blog')->withoutScopedBindings();
         Route::post('second-wave', SetMailshotSecondWaveStatus::class)->name('second-wave')->withoutScopedBindings();
         Route::patch('second-wave', UpdateMailshotSecondWave::class)->name('second-wave.update')->withoutScopedBindings();
+        Route::post('ab-test', SetMailshotAbTest::class)->name('ab-test')->withoutScopedBindings();
+        Route::post('ab-test/winner', SendMailshotAbTestWinner::class)->name('ab-test.winner')->withoutScopedBindings();
         Route::post('send-test', SendTestEmail::class)->name('send-test');
     });
 
@@ -1722,6 +1731,7 @@ Route::patch('/manufacture-task-session/{manufactureTaskSession:id}/close', Clos
 Route::patch('/manufacture-task-session/{manufactureTaskSession:id}/continue-after-shift', ContinueManufactureTaskSessionAfterShift::class)->name('manufacture-task-session.continue_after_shift')->withoutScopedBindings();
 Route::post('/production/{production:id}/break', StartManufactureBreak::class)->name('production.break.store')->withoutScopedBindings();
 Route::post('/production/{production:id}/non-productive-session', StartManufactureNonProductiveSession::class)->name('production.non_productive_session.store')->withoutScopedBindings();
+Route::patch('/production/{production:id}/preparation-reasons', UpdateManufacturePreparationReasons::class)->name('production.preparation_reasons.update')->withoutScopedBindings();
 Route::patch('/manufacture-break/{manufactureBreak:id}/end', EndManufactureBreak::class)->name('manufacture-break.end')->withoutScopedBindings();
 
 Route::patch('stored-items/{storedItem:id}', UpdateStoredItem::class)->name('stored-items.update');

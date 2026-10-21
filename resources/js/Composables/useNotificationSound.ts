@@ -169,9 +169,9 @@ export const resetUnread = () => {
 
 export const ALERT_SOUNDS = ["chime", "bells", "dingdong", "pop", "marimba", "submarine", "voice", "bird", "boing", "fart", "triumph", "gong", "sparkle", "knock", "genie", "silent"] as const
 export type AlertSound = typeof ALERT_SOUNDS[number]
-export type AlertSoundKind = "chat" | "whatsapp" | "email" | "colleague" | "waiting" | "ticket"
+export type AlertSoundKind = "chat" | "whatsapp" | "email" | "colleague" | "waiting" | "ticket" | "ticket_new" | "ticket_answered" | "ticket_qa"
 
-const DEFAULT_ALERT_SOUNDS: Record<Exclude<AlertSoundKind, "waiting">, AlertSound> = { chat: "chime", whatsapp: "pop", email: "dingdong", colleague: "marimba", ticket: "genie" }
+const DEFAULT_ALERT_SOUNDS: Record<Exclude<AlertSoundKind, "waiting">, AlertSound> = { chat: "chime", whatsapp: "pop", email: "dingdong", colleague: "marimba", ticket: "genie", ticket_new: "voice", ticket_answered: "knock", ticket_qa: "sparkle" }
 
 export const alertSoundLabels = (): Record<AlertSound, string> => ({
 	chime: ctrans("Chime"),

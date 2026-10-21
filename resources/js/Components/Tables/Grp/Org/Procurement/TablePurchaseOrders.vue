@@ -12,14 +12,15 @@ import { PurchaseOrder } from "@/types/purchase-order"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import Icon from "@/Components/Icon.vue"
 import { useLocaleStore } from "@/Stores/locale"
-import { ctrans } from "@/Composables/useTrans"
+import { ctrans, ctransChoice } from "@/Composables/useTrans"
 import { asProcurementRouteName, isAgentOrganisation } from "@/Composables/useAgentRoutes"
 import Button from "@/Components/Elements/Buttons/Button.vue"
+import PingIcon from "@/Components/Utils/PingIcon.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faFileExcel, faTrashAlt } from "@fal"
+import { faFileExcel, faTrashAlt, faTags } from "@fal"
 
-library.add(faFileExcel, faTrashAlt)
+library.add(faFileExcel, faTrashAlt, faTags)
 
 defineProps<{
 	data: {}
@@ -186,13 +187,23 @@ function AgentOrderRoute(purchaseOrder: PurchaseOrder) {
 <template>
 	<Table :resource="data" :name="tab" class="mt-5">
 		<template #cell(reference)="{ item: purchaseOrder }">
-			<Link
-				v-if="PurchaseOrderRoute(purchaseOrder)"
-				:href="PurchaseOrderRoute(purchaseOrder)"
-				class="primaryLink">
-				{{ purchaseOrder.reference }}
-			</Link>
-			<span v-else>{{ purchaseOrder.reference }}</span>
+			<div class="flex items-center gap-1.5 whitespace-nowrap">
+				<Link
+					v-if="PurchaseOrderRoute(purchaseOrder)"
+					:href="PurchaseOrderRoute(purchaseOrder)"
+					class="primaryLink">
+					{{ purchaseOrder.reference }}
+				</Link>
+				<span v-else>{{ purchaseOrder.reference }}</span>
+				<span
+					v-if="purchaseOrder.number_pending_price_changes"
+					v-tooltip="ctransChoice(':count new supplier price waiting for an answer|:count new supplier prices waiting for an answer', purchaseOrder.number_pending_price_changes)"
+					class="relative inline-flex items-center gap-1 rounded-full border border-amber-300 bg-amber-50 px-1.5 text-xs font-medium tabular-nums text-amber-700">
+					<PingIcon v-if="!isInAgentOrganisation" class="!absolute -right-1 -top-1 text-[7px] text-amber-500" aria-hidden="true" />
+					<FontAwesomeIcon :icon="faTags" fixed-width aria-hidden="true" />
+					{{ purchaseOrder.number_pending_price_changes }}
+				</span>
+			</div>
 		</template>
 
 		<template #cell(agent_order_reference)="{ item: purchaseOrder }">

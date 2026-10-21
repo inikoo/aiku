@@ -78,6 +78,7 @@ class UpdateManufactureTask extends OrgAction
             'status'                            => ['sometimes', 'boolean'],
             'is_piece_rate'                     => ['sometimes', 'boolean'],
             'is_recorded_in_kg'                 => ['sometimes', 'boolean'],
+            'is_quantity_only'                  => ['sometimes', 'boolean'],
         ];
     }
 
