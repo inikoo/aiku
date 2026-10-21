@@ -10,7 +10,10 @@ namespace App\Models\Chat;
 
 use App\Models\Helpers\Ticket;
 use App\Models\Tasks\StaffTask;
+use App\Enums\CRM\Livechat\ChatAssignmentStatusEnum;
 use App\Enums\CRM\Livechat\ChatChannelEnum;
+use App\Enums\CRM\Livechat\ChatEventTypeEnum;
+use App\Enums\CRM\Livechat\ChatSenderTypeEnum;
 use App\Enums\CRM\Livechat\ChatPriorityEnum;
 use App\Enums\CRM\Livechat\ChatSessionClosedByTypeEnum;
 use App\Enums\CRM\Livechat\ChatSessionStatusEnum;
@@ -113,6 +116,18 @@ class ChatSession extends Model implements Auditable
     public function scopeSpam($query)
     {
         return $query->where('is_spam', true);
+    }
+
+    /**
+     * The chats the hourly Aiku routine works: the customer wrote and nobody has opened it since,
+     * nobody holds it, and Aiku left no note since the customer last wrote.
+     */
+    public function scopeUnopenedForAiku($query)
+    {
+        return $query->whereHas('messages', fn ($message) => $message->whereIn('sender_type', [ChatSenderTypeEnum::GUEST->value, ChatSenderTypeEnum::USER->value])->where('is_read', false))
+            ->whereDoesntHave('assignments', fn ($assignment) => $assignment->where('status', ChatAssignmentStatusEnum::ACTIVE->value))
+            ->whereNot(fn ($noted) => $noted->whereHas('chatEvents', fn ($event) => $event->where('event_type', ChatEventTypeEnum::INTERNAL_NOTE->value)
+                ->whereColumn('chat_events.created_at', '>', 'chat_sessions.last_visitor_message_at')));
     }
 
 

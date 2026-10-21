@@ -426,11 +426,16 @@ class DraftChatReply implements ShouldBeUnique
     /**
      * @param  array<string, mixed>  $facts
      */
-    private function storeDraft(ChatSession|MetaChatSession $chatSession, ChatMessage|MetaChatMessage $trigger, ChatTopicEnum $topic, array $facts, string $reply): ChatAiDraft
+    private function storeDraft(ChatSession|MetaChatSession $chatSession, ChatMessage|MetaChatMessage $trigger, ChatTopicEnum $topic, array $facts, string $reply): ?ChatAiDraft
     {
         $shop   = $chatSession->shop;
         $shadow = self::isShadow($shop->slug, $facts);
         $draft  = DB::transaction(function () use ($chatSession, $shop, $trigger, $topic, $facts, $reply, $shadow) {
+            $chatSession::lockForUpdate()->find($chatSession->id);
+            if (self::assistantAlreadyDrafted($chatSession, $trigger)) {
+                return null;
+            }
+
             $this->pendingDraft($chatSession)?->update(['status' => ChatAiDraftStatusEnum::SUPERSEDED, 'decided_at' => now()]);
 
             $draft = ChatAiDraft::create([
@@ -452,6 +457,10 @@ class DraftChatReply implements ShouldBeUnique
 
             return $draft;
         });
+
+        if (!$draft) {
+            return null;
+        }
 
         if (!$shadow) {
             SendChatAiAnswer::run($draft);

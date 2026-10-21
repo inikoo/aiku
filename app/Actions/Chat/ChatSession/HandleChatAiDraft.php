@@ -22,6 +22,7 @@ use App\Models\Chat\MetaChatSession;
 use App\Models\SysAdmin\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -178,6 +179,7 @@ class HandleChatAiDraft
                 'client' => data_get($draft->facts, 'client'),
             ]) : null,
             'staff_note'  => data_get($draft->facts, 'staff_note'),
+            'aiku_by'     => data_get($draft->facts, 'mode') !== DraftChatReply::ASSISTANT && $chatSession instanceof ChatSession ? self::nextAikuCheck($chatSession)?->toIso8601String() : null,
             'checked'     => data_get($draft->facts, 'checked', []),
             'premonitions' => Ticket::whereIn('reference', data_get($draft->facts, 'premonitions', []))
                 ->where('type', TicketTypeEnum::PREMONITION)
@@ -220,6 +222,27 @@ class HandleChatAiDraft
             'checked'    => array_map($translate, $checked),
             'labels'     => $labels->map($translate)->all(),
         ]]);
+    }
+
+    /**
+     * The next hourly Aiku routine run that works this chat's team, on the hour within its working
+     * hours, so a quick suggestion can say when a checked draft will replace it; none once the chat
+     * is no longer left for Aiku, because the routine would not work it.
+     */
+    public static function nextAikuCheck(ChatSession $chatSession): ?Carbon
+    {
+        $timeZone = config('chat.aiku_routine.time_zones.'.$chatSession->shop?->organisation?->code);
+
+        if (!$timeZone || !ChatSession::whereKey($chatSession->id)->unopenedForAiku()->exists()) {
+            return null;
+        }
+
+        $run = now($timeZone)->addHour()->startOfHour();
+        for ($hours = 0; $hours < 24 * 7 && ($run->isWeekend() || $run->hour < config('chat.aiku_routine.from_hour') || $run->hour > config('chat.aiku_routine.until_hour')); $hours++) {
+            $run->addHour();
+        }
+
+        return $run;
     }
 
     private function decide(ChatAiDraft $chatAiDraft, callable $change): JsonResponse
