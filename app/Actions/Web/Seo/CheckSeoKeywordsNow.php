@@ -56,8 +56,20 @@ class CheckSeoKeywordsNow extends OrgAction
         return $this->handle($shop, $this->validatedData['tracked_keyword_ids'] ?? null);
     }
 
-    public function htmlResponse(): RedirectResponse
+    public function htmlResponse(int $posted): RedirectResponse
     {
-        return back();
+        if (!$posted) {
+            return back()->with('notification', [
+                'status'      => 'error',
+                'title'       => __('No keyword was checked'),
+                'description' => __('The keywords were checked today or are waiting for their result, the website is not live, or DataForSEO is not set up.'),
+            ]);
+        }
+
+        return back()->with('notification', [
+            'status'      => 'success',
+            'title'       => __('Checking :count keywords in Google', ['count' => $posted]),
+            'description' => __('The positions appear in the Rankings tab within minutes to an hour.'),
+        ]);
     }
 }

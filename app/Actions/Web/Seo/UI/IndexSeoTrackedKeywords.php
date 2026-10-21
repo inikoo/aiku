@@ -9,6 +9,7 @@
 namespace App\Actions\Web\Seo\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Web\Seo\PostSerpTasks;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
 use App\Models\Web\SeoTrackedKeyword;
@@ -71,9 +72,29 @@ class IndexSeoTrackedKeywords extends OrgAction
             ->withQueryString();
 
         $this->attachCountries($shop, $keywords);
+        $this->attachChecks($shop, $keywords);
         $this->attachTags($shop->id, $keywords->getCollection());
 
         return $keywords;
+    }
+
+    /**
+     * Sets `check_ids` and `check_cost` on every keyword of the page: its rows in every country and
+     * device that a check now would queue, and what DataForSEO bills for them.
+     */
+    private function attachChecks(Shop $shop, LengthAwarePaginator $keywords): void
+    {
+        $checks = PostSerpTasks::make()->requestableKeywords($shop)
+            ->whereIn('keyword', $keywords->getCollection()->pluck('keyword'))
+            ->get(['id', 'keyword', 'frequency'])
+            ->groupBy('keyword');
+
+        $keywords->getCollection()->each(function (SeoTrackedKeyword $keyword) use ($checks) {
+            $checkable = $checks->get($keyword->keyword, collect());
+
+            $keyword->setAttribute('check_ids', $checkable->pluck('id')->all());
+            $keyword->setAttribute('check_cost', PostSerpTasks::cost($checkable->pluck('frequency')));
+        });
     }
 
     /**

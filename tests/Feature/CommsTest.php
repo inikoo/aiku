@@ -2378,6 +2378,32 @@ test('ab test needs version A designed first so version B starts as a copy of it
         ->toBe($mailshot->email->liveSnapshot->compiled_layout);
 })->depends('outbox seeded when shop created');
 
+test('ab test copies a version A design that is saved but not yet published', function (Shop $shop) {
+    $outbox   = $shop->outboxes()->where('type', OutboxCodeEnum::MARKETING)->first();
+    $mailshot = StoreMailshot::make()->action($outbox, array_merge(
+        Mailshot::factory()->definition(),
+        ['type' => MailshotTypeEnum::MARKETING, 'subject' => 'Draft offers', 'recipients_recipe' => ['all_customers' => ['value' => true]]]
+    ));
+
+    $this->travel(1)->minute();
+    UpdateWorkshopMailShot::make()->handle($mailshot->refresh(), ['layout' => ['body' => 'Draft body']]);
+
+    $variant = SetMailshotAbTest::make()->action($mailshot->refresh(), ['enabled' => true])->abTestVariant;
+
+    expect($variant->email->unpublishedSnapshot->layout)->toBe(['body' => 'Draft body'])
+        ->and($variant->email->liveSnapshot?->compiled_layout)->toBeNull()
+        ->and($variant->hasEmailDesign())->toBeTrue();
+
+    SetMailshotAbTest::make()->action($mailshot, ['enabled' => false]);
+    UpdateWorkshopMailShot::make()->handle($mailshot->refresh(), ['layout' => ['body' => 'Second draft body']]);
+
+    $restoredVariant = SetMailshotAbTest::make()->action($mailshot->refresh(), ['enabled' => true])->abTestVariant;
+
+    expect($restoredVariant->id)->toBe($variant->id)
+        ->and($restoredVariant->email->unpublishedSnapshot->layout)->toBe(['body' => 'Second draft body'])
+        ->and($restoredVariant->email->liveSnapshot?->compiled_layout)->toBeNull();
+})->depends('outbox seeded when shop created');
+
 test('ab test switched back on restores the same version B refreshed from the latest version A', function (Shop $shop) {
     $mailshot = createMarketingMailshotWithAbTest($shop);
     $variant  = $mailshot->abTestVariant;
