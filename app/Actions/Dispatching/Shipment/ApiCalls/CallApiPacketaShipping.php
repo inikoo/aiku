@@ -29,6 +29,8 @@ class CallApiPacketaShipping extends OrgAction
     use AsAction;
     use WithAttributes;
 
+    public const int PL_INPOST_PACZKOMATY_BOX = 3060;
+
     public function getAccessToken(Shipper $shipper): array
     {
         if (app()->environment('production')) {
@@ -77,7 +79,12 @@ class CallApiPacketaShipping extends OrgAction
         $weight      = collect($parcels)->sum('weight') ?? 0;
         $order       = $parent->orders->first();
         $countryCode = Arr::get($parentResource, 'to_address.country_code', 'CZ');
-        $addressId   = $this->getAddressIdByCountryCode($countryCode, $weight);
+        $lockerCode  = $this->getParcelLockerCode($countryCode, $weight, [
+            Arr::get($parentResource, 'to_company_name'),
+            Arr::get($parentResource, 'to_address.address_line_1'),
+            Arr::get($parentResource, 'to_address.address_line_2'),
+        ]);
+        $addressId   = $lockerCode ? self::PL_INPOST_PACZKOMATY_BOX : $this->getAddressIdByCountryCode($countryCode, $weight);
         if (is_null($addressId)) {
             return [
                 'status'    => 'fail',
@@ -106,11 +113,14 @@ class CallApiPacketaShipping extends OrgAction
             'zip'         => Arr::get($parentResource, 'to_address.postal_code'),
             'note'        => $parent->shipping_notes,
         ];
+        if ($lockerCode) {
+            $packetAttributes['carrierPickupPoint'] = $lockerCode;
+        }
 
         $errorData = [];
         $modelData = [];
         try {
-            $client          = new SoapClient($url);
+            $client          = $this->soapClient($url);
             $apiResponse     = $client->createPacket($apiPassword, $packetAttributes);
             $apiResponseData = json_decode(json_encode($apiResponse), true);
 
@@ -189,6 +199,11 @@ class CallApiPacketaShipping extends OrgAction
         ];
     }
 
+    public function soapClient(string $url): SoapClient
+    {
+        return new SoapClient($url);
+    }
+
     public function getLabel(string $labelID, Shipper $shipper): string
     {
         if (empty($labelID)) {
@@ -196,17 +211,44 @@ class CallApiPacketaShipping extends OrgAction
         }
         $accessToken = $this->getAccessToken($shipper);
         $apiPassword = Arr::get($accessToken, 'api_password');
-        $url         = $this->getBaseUrl().'/api/soap.wsdl';
-        $format      = 'A6 on A6';
-        $offset      = 0;
-        try {
-            $client = new SoapClient($url);
-            $result = $client->packetLabelPdf($apiPassword, $labelID, $format, $offset);
 
-            return base64_encode($result);
+        try {
+            $client = $this->soapClient($this->getBaseUrl().'/api/soap.wsdl');
+            try {
+                $courierNumber = $client->packetCourierNumber($apiPassword, $labelID);
+
+                return base64_encode($client->packetCourierLabelPdf($apiPassword, $labelID, $courierNumber));
+            } catch (SoapFault $e) {
+                if (!isset($e->detail->NotSupportedFault)) {
+                    throw $e;
+                }
+            }
+
+            return base64_encode($client->packetLabelPdf($apiPassword, $labelID, 'A6 on A6', 0));
         } catch (SoapFault $e) {
             return 'Could not retrieve label: '.$e->getMessage();
         }
+    }
+
+    /**
+     * @param  array<int, string|null>  $addressLines
+     */
+    public function getParcelLockerCode(string $countryCode, float $weight, array $addressLines): ?string
+    {
+        if (strtoupper($countryCode) !== 'PL' || $weight >= 15) {
+            return null;
+        }
+
+        $text = implode(' ', array_filter($addressLines));
+        if (!preg_match('/paczkomat|inpost|parcel\s*locker/iu', $text)) {
+            return null;
+        }
+
+        if (preg_match('/\b([A-Z]{3}\d{2,3}[A-Z]{0,4})\b/', $text, $matches)) {
+            return $matches[1];
+        }
+
+        return null;
     }
 
     public function roles(): array
