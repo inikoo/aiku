@@ -38,6 +38,7 @@ watch(() => props.review, resetForm)
 
 const isReadOnly = computed(() => !props.canEdit)
 const writtenCount = computed(() => props.review.fields.filter((field) => isWritten(field)).length)
+const canSend = computed(() => writtenCount.value > 0 || keywords.value.trim() !== "")
 
 const sections = computed(() => [
     { key: "search", title: ctrans("Search appearance"), hint: ctrans("Meta title, meta description, URL and breadcrumb") },
@@ -68,7 +69,9 @@ const send = () => {
             preserveScroll: true,
             preserveState: true,
             onSuccess: () => {
-                notify({ title: ctrans("Suggestions sent"), text: ctrans("The webmaster has a task to implement them."), type: "success" })
+                notify(writtenCount.value
+                    ? { title: ctrans("Suggestions sent"), text: ctrans("The webmaster has a task to implement them."), type: "success" }
+                    : { title: ctrans("Keywords saved"), text: ctrans("No suggestions were written, so no task was created for the webmaster."), type: "success" })
                 emit("sent")
             },
             onError: (validationErrors) => (errors.value = validationErrors as Record<string, string>),
@@ -93,7 +96,7 @@ const send = () => {
                     v-if="!isReadOnly"
                     type="tertiary"
                     :label="ctrans('Create task for webmaster')"
-                    :disabled="!writtenCount || isSending"
+                    :disabled="!canSend || isSending"
                     :loading="isSending"
                     @click="send"
                 >

@@ -127,7 +127,7 @@ class StoreProductSeoReview extends OrgAction
         foreach ($keywords as $keyword) {
             StoreSeoTrackedKeyword::run($shop, [
                 'keyword'       => $keyword,
-                'country_code'  => $shop->country->code,
+                'country_codes' => [$shop->country->code],
                 'language_code' => $shop->language->code,
                 'frequency'     => SeoKeywordFrequencyEnum::ON_REQUEST,
             ])->each(fn (SeoTrackedKeyword $trackedKeyword) => $trackedKeyword->update(['target_webpage_id' => $webpage->id]));
