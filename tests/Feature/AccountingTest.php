@@ -1024,6 +1024,64 @@ test('invoice category invoices list and download the delivery country, within t
         ->and($csv)->not->toContain($otherShopInvoice->reference);
 });
 
+test('billing region and tax code report groups invoices and refunds like Aurora, and opens the invoices behind a row', function () {
+    $originalCountryId = $this->organisation->country_id;
+    $countryId         = fn (string $code) => \App\Models\Helpers\Country::where('code', $code)->value('id');
+    DB::table('organisations')->where('id', $this->organisation->id)->update(['country_id' => $countryId('GB')]);
+    [$standardTax, $euTax] = \App\Models\Helpers\TaxCategory::orderBy('id')->limit(2)->get()->all();
+
+    $newInvoice = function (string $billingCountryCode, int $taxCategoryId, string $type, string $date) use ($countryId) {
+        $invoice = StoreInvoice::make()->action(createCustomer($this->shop), Invoice::factory()->definition());
+        DB::table('invoices')->where('id', $invoice->id)->update([
+            'billing_country_id' => $countryId($billingCountryCode),
+            'tax_category_id'    => $taxCategoryId,
+            'type'               => $type,
+            'in_process'         => false,
+            'date'               => $date,
+            'org_net_amount'     => 100,
+            'tax_amount'         => 20,
+            'total_amount'       => 120,
+            'org_exchange'       => 1,
+        ]);
+
+        return $invoice;
+    };
+
+    try {
+        $gbInvoice   = $newInvoice('GB', $standardTax->id, 'invoice', '2031-02-10 10:00:00');
+        $manxRefund  = $newInvoice('IM', $standardTax->id, 'refund', '2031-02-11 10:00:00');
+        $newInvoice('DE', $euTax->id, 'invoice', '2031-02-12 10:00:00');
+        $newInvoice('GB', $standardTax->id, 'invoice', '2031-04-10 10:00:00');
+        $between     = ['date' => '20310201-20310228'];
+
+        get(route('grp.org.reports.billing-region-tax-code', [$this->organisation->slug, 'between' => $between]))
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->component('Org/Reports/BillingRegionTaxCategoryReport')
+                ->where('data.data', function ($rows) use ($standardTax, $euTax) {
+                    $gbim = collect($rows)->first(fn ($row) => $row['billing_region'] === 'GBIM' && $row['tax_category_id'] === $standardTax->id);
+                    $eu   = collect($rows)->first(fn ($row) => $row['billing_region'] === 'EU' && $row['tax_category_id'] === $euTax->id);
+
+                    return count($rows) === 2
+                        && $gbim['number_invoices'] === 1 && $gbim['number_refunds'] === 1 && (float) $gbim['org_total_amount'] === 240.0
+                        && $eu['number_invoices'] === 1 && $eu['number_refunds'] === 0;
+                })
+                ->where('queryBuilderProps.default.footerRows.data.0.number_invoices', 2)
+                ->where('queryBuilderProps.default.footerRows.data.0.number_refunds', 1)
+                ->where('billing_region_labels.GBIM', 'GB+IM'));
+
+        get(route('grp.org.reports.billing-region-tax-code.invoices', [$this->organisation->slug, 'GBIM', $standardTax->id, 'between' => $between]))
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->component('Org/Reports/BillingRegionTaxCategoryInvoices')
+                ->where('data.data', fn ($rows) => collect($rows)->pluck('reference')->sort()->values()->all() === collect([$gbInvoice->reference, $manxRefund->reference])->sort()->values()->all()));
+
+        get(route('grp.org.reports.billing-region-tax-code.invoices', [$this->organisation->slug, 'Mars', $standardTax->id]))->assertNotFound();
+    } finally {
+        DB::table('organisations')->where('id', $this->organisation->id)->update(['country_id' => $originalCountryId]);
+    }
+});
+
 test('UI Edit invoice categories', function (InvoiceCategory $invoiceCategory) {
     $response = get(route('grp.org.accounting.invoice-categories.edit', [$this->organisation->slug, $invoiceCategory->slug]));
 
