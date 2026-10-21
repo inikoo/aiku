@@ -319,11 +319,28 @@ it('compares the period with the same dates last year or with a range chosen by 
     $lastYear = $period(['compare' => 'year']);
     $custom   = $period(['compare' => 'custom', 'compare_from' => '2026-06-01', 'compare_to' => '2026-06-15']);
     $broken   = $period(['compare' => 'custom', 'compare_from' => '2026-06-15', 'compare_to' => '2026-06-01']);
+    $none     = $period(['compare' => 'none']);
 
     expect([$lastYear['previous_from'], $lastYear['previous_to']])->toBe(['2025-08-01', '2025-08-31'])
         ->and([$custom['previous_from'], $custom['previous_to']])->toBe(['2026-06-01', '2026-06-15'])
         ->and($custom['filters']['compare'])->toBe('custom')
-        ->and([$broken['previous_from'], $broken['previous_to']])->toBe(['2026-07-01', '2026-07-31']);
+        ->and([$broken['previous_from'], $broken['previous_to']])->toBe(['2026-07-01', '2026-07-31'])
+        ->and($none['previous_from'])->toBeNull()
+        ->and($none['kpis']['previous'])->toBeNull()
+        ->and($none['previous_trend'])->toBeNull();
+});
+
+it('lays the compared period over the current one point for point', function () {
+    ImportSocialMediaInsights::make()->handle($this->shop, instagramContentExport());
+
+    $performance = GetSocialMediaPerformance::run($this->organisation, Carbon::parse('2026-08-01')->startOfDay(), Carbon::parse('2026-08-31')->endOfDay(), ['shop' => $this->shop->slug]);
+    $compared    = collect($performance['previous_trend']['points'])->keyBy('date');
+
+    expect($performance['previous_trend']['bucket'])->toBe($performance['trend']['bucket'])
+        ->and($compared->keys()->first())->toBe('2026-07-01')
+        ->and($compared->count())->toBe(count($performance['trend']['points']))
+        ->and($compared['2026-07-20']['posts'])->toBe(1)
+        ->and($performance['kpis']['previous']['followers_accounts'])->toBeInt();
 });
 
 it('filters by platform and leaves out shops outside the filter', function () {

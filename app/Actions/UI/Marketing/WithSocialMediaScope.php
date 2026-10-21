@@ -61,7 +61,7 @@ trait WithSocialMediaScope
             'shop'         => $request->string('shop')->toString() ?: null,
             'country'      => $request->string('country')->toString() ?: null,
             'platform'     => $request->string('platform')->toString() ?: null,
-            'compare'      => in_array($request->string('compare')->toString(), ['previous', 'year', 'custom'], true) ? $request->string('compare')->toString() : 'previous',
+            'compare'      => in_array($request->string('compare')->toString(), ['previous', 'year', 'custom', 'none'], true) ? $request->string('compare')->toString() : 'previous',
             'compare_from' => $date('compare_from'),
             'compare_to'   => $date('compare_to'),
         ];

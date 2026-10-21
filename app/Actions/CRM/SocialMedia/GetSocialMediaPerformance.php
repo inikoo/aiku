@@ -89,7 +89,8 @@ class GetSocialMediaPerformance
                 'current'  => array_merge($organic, $paid),
                 'previous' => $previousOrganic ? array_merge($previousOrganic, $previousPaid) : null,
             ],
-            'trend'         => $this->trend($shops, $platform, $from, $to),
+            'trend'         => $trend = $this->trend($shops, $platform, $from, $to),
+            'previous_trend' => $previousFrom ? $this->trend($shops, $platform, $previousFrom, $previousTo, $trend['bucket']) : null,
             'platforms'     => $platforms,
             'formats'       => $formats,
             'insight'       => $this->insight($organic, $previousOrganic, $paid, $platforms, $formats),
@@ -137,7 +138,7 @@ class GetSocialMediaPerformance
 
     /**
      * The period the figures are compared with: the same number of days just before (the default),
-     * the same dates a year earlier, or a range chosen by hand.
+     * the same dates a year earlier, a range chosen by hand, or none at all.
      *
      * @param array<string, mixed> $filters
      *
@@ -146,6 +147,7 @@ class GetSocialMediaPerformance
     private function comparisonPeriod(?Carbon $from, ?Carbon $to, array $filters): array
     {
         return match ($filters['compare'] ?? 'previous') {
+            'none'   => [null, null],
             'year'   => $from ? [$from->copy()->subYear()->startOfDay(), ($to ?? now())->copy()->subYear()->endOfDay()] : [null, null],
             'custom' => isset($filters['compare_from'], $filters['compare_to']) && $filters['compare_from'] <= $filters['compare_to']
                 ? [Carbon::parse($filters['compare_from'])->startOfDay(), Carbon::parse($filters['compare_to'])->endOfDay()]
@@ -597,14 +599,17 @@ class GetSocialMediaPerformance
     }
 
     /**
+     * A compared period is cut into the buckets of the current one, so the two lines sit point for
+     * point, the way Search Console lays a comparison over the period.
+     *
      * @param Collection<int, Shop> $shops
      *
      * @return array{bucket: string, points: array<int, array{date: string, posts: int, reach: int, engagements: int, views: int, interactions: int, followers: int|null}>}
      */
-    private function trend(Collection $shops, ?SocialMediaPlatformEnum $platform, ?Carbon $from, ?Carbon $to): array
+    private function trend(Collection $shops, ?SocialMediaPlatformEnum $platform, ?Carbon $from, ?Carbon $to, ?string $bucket = null): array
     {
         $days   = $from ? $from->diffInDays($to ?? now()) : PHP_INT_MAX;
-        $bucket = match (true) {
+        $bucket ??= match (true) {
             $days <= 62  => 'day',
             $days <= 400 => 'week',
             default      => 'month',

@@ -42,6 +42,8 @@ library.add(faAd, faArrowDown, faArrowUp, faBookmark, faChartLine, faClone, faEx
     faHashtag, faHeart, faHistory, faImage, faInfoCircle, faSpinnerThird, faTimes, faUpload, faVideo,
     faSyncAlt, faCheck, faExclamationTriangle, faCog)
 
+interface TrendPoint { date: string, posts: number, reach: number, engagements: number, views: number, interactions: number, followers: number | null }
+
 interface Kpis {
     posts: number
     reach: number
@@ -56,6 +58,7 @@ interface Kpis {
     new_follows: number | null
     link_clicks: number
     followers: number | null
+    followers_accounts: number
     follower_growth: number | null
     spend: number
     revenue: number
@@ -108,7 +111,8 @@ interface Performance {
     }
     data_until: string | null
     kpis: { current: Kpis, previous: Kpis | null }
-    trend: { bucket: 'day' | 'week' | 'month', points: { date: string, posts: number, reach: number, engagements: number, views: number, interactions: number, followers: number | null }[] }
+    trend: { bucket: 'day' | 'week' | 'month', points: TrendPoint[] }
+    previous_trend: { bucket: 'day' | 'week' | 'month', points: TrendPoint[] } | null
     platforms: { platform: string, label: string, posts: number, reach: number, share: number | null, views: number, views_share: number | null, engagements: number, engagement_rate: number | null, followers: number | null }[]
     insight: string | null
     formats: { type: string, label: string, posts: number, reach: number, average_reach: number, engagements: number, saves: number, shares: number, engagement_rate: number | null }[]
@@ -201,6 +205,7 @@ const compareOptions = [
     { label: ctrans('vs previous period'), value: 'previous' },
     { label: ctrans('vs same period last year'), value: 'year' },
     { label: ctrans('vs custom range'), value: 'custom' },
+    { label: ctrans('No comparison'), value: 'none' },
 ]
 const onCompareMode = () => {
     if (compareMode.value !== 'custom' || (compareRange.value.from && compareRange.value.to)) applyFilters()
@@ -285,6 +290,33 @@ const kpi = (key: string, label: string, value: string, change: Delta | null, su
 
 const current = computed(() => props.performance?.kpis.current)
 const previous = computed(() => props.performance?.kpis.previous ?? null)
+
+/* Search Console style: beside each figure, the same figure in the compared period. Followers are
+   only set beside each other when both periods count the same accounts. */
+const previousText = (key: string): string | null => {
+    const p = previous.value
+    const c = current.value
+    if (!p || !c) return null
+    const value = (number: number | null | undefined, format: (n: number) => string) => number === null || number === undefined ? '–' : format(number)
+    const formats: Record<string, () => string> = {
+        views: () => value(p.views, short),
+        posts: () => value(p.posts, count),
+        viewers: () => value(p.avg_daily_viewers, short),
+        interactions: () => value(p.interactions, short),
+        interaction_rate: () => pct(p.interaction_rate),
+        visits: () => value(p.visits, short),
+        new_follows: () => value(p.new_follows, short),
+        followers: () => p.followers_accounts === c.followers_accounts ? value(p.followers, short) : '',
+        link_clicks: () => value(p.link_clicks, short),
+        spend: () => money(p.spend),
+        revenue: () => money(p.revenue),
+        roas: () => ratio(p.roas),
+        meta_roas: () => ratio(p.meta_roas),
+        cpa: () => money(p.cpa),
+        ctr: () => pct(p.ctr, 2),
+    }
+    return formats[key]?.() || null
+}
 
 const followersSub = computed(() => {
     const growth = current.value?.follower_growth
@@ -376,6 +408,24 @@ const bucketLabel = (date: string) => {
 }
 
 const trendLabels = computed(() => (props.performance?.trend.points ?? []).map(point => bucketLabel(point.date)))
+
+/* The compared period is laid over the current one point for point, dashed, as Search Console does;
+   each of its points keeps its own date for the tooltip. */
+const comparedPoints = computed(() => props.performance?.previous_trend?.points ?? [])
+const hasComparedTrend = computed(() => comparedPoints.value.some(point => point.views > 0 || point.interactions > 0 || point.followers !== null))
+const comparedRangeLabel = computed(() => props.performance?.previous_from ? day(props.performance.previous_from) + ' – ' + day(props.performance.previous_to) : '')
+const comparedDataset = (label: string, pick: (point: TrendPoint) => number | null, color: string) => ({
+    ...lineDataset(label + ' · ' + ctrans('compared'), (props.performance?.trend.points ?? []).map((_, index) => {
+        const point = comparedPoints.value[index]
+        const value = point ? pick(point) : null
+        return value === null ? NaN : value
+    }), color, false),
+    borderColor: color + 'aa',
+    borderDash: [5, 4],
+    borderWidth: 1.5,
+    spanGaps: true,
+    dates: comparedPoints.value.map(point => bucketLabel(point.date)),
+})
 const hasTrend = computed(() => (props.performance?.trend.points ?? []).some(point => point.views > 0 || point.interactions > 0))
 const hasFollowersTrend = computed(() => (props.performance?.trend.points ?? []).some(point => point.followers !== null))
 
@@ -397,15 +447,24 @@ const lineDataset = (label: string, data: number[], color: string, fill: boolean
    panes rather than fighting over one y axis or inventing a second one. */
 const reachChart = computed(() => ({
     labels: trendLabels.value,
-    datasets: [lineDataset(ctrans('Views'), (props.performance?.trend.points ?? []).map(point => point.views), SERIES.reach, true)],
+    datasets: [
+        lineDataset(ctrans('Views'), (props.performance?.trend.points ?? []).map(point => point.views), SERIES.reach, true),
+        ...(hasComparedTrend.value ? [comparedDataset(ctrans('Views'), point => point.views, SERIES.reach)] : []),
+    ],
 }))
 const engagementsChart = computed(() => ({
     labels: trendLabels.value,
-    datasets: [lineDataset(ctrans('Interactions'), (props.performance?.trend.points ?? []).map(point => point.interactions), SERIES.engagements, false)],
+    datasets: [
+        lineDataset(ctrans('Interactions'), (props.performance?.trend.points ?? []).map(point => point.interactions), SERIES.engagements, false),
+        ...(hasComparedTrend.value ? [comparedDataset(ctrans('Interactions'), point => point.interactions, SERIES.engagements)] : []),
+    ],
 }))
 const followersChart = computed(() => ({
     labels: trendLabels.value,
-    datasets: [{ ...lineDataset(ctrans('Followers'), (props.performance?.trend.points ?? []).map(point => point.followers ?? NaN), SERIES.followers, false), pointRadius: 2, spanGaps: true }],
+    datasets: [
+        { ...lineDataset(ctrans('Followers'), (props.performance?.trend.points ?? []).map(point => point.followers ?? NaN), SERIES.followers, false), pointRadius: 2, spanGaps: true },
+        ...(comparedPoints.value.some(point => point.followers !== null) && previous.value?.followers_accounts === current.value?.followers_accounts ? [comparedDataset(ctrans('Followers'), point => point.followers, SERIES.followers)] : []),
+    ],
 }))
 
 const chartOptions = (showX: boolean, beginAtZero = true) => ({
@@ -421,7 +480,7 @@ const chartOptions = (showX: boolean, beginAtZero = true) => ({
             padding: 8,
             displayColors: false,
             callbacks: {
-                label: (context: any) => context.dataset.label + ': ' + (Number.isNaN(context.parsed.y) ? '–' : locale.number(context.parsed.y)),
+                label: (context: any) => context.dataset.label + (context.dataset.dates ? ' (' + (context.dataset.dates[context.dataIndex] ?? '–') + ')' : '') + ': ' + (Number.isNaN(context.parsed.y) ? '–' : locale.number(context.parsed.y)),
             },
         },
     },
@@ -677,7 +736,18 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                     {{ card.label }}
                                     <FontAwesomeIcon v-if="card.help" v-tooltip="card.help" icon="fal fa-info-circle" class="text-gray-300 cursor-help" fixed-width />
                                 </div>
-                                <div class="mt-1 text-lg tabular-nums text-gray-900">{{ card.value }}</div>
+                                <div class="mt-1 flex items-center justify-between gap-2 tabular-nums">
+                                    <span class="text-lg text-gray-900">{{ card.value }}</span>
+                                    <span v-if="previousText(card.key)" class="w-4 border-t-2 border-gray-500" />
+                                </div>
+                                <template v-if="previousText(card.key)">
+                                    <div class="text-[11px] text-gray-400">{{ performance.period_label }}</div>
+                                    <div class="mt-1 flex items-center justify-between gap-2 tabular-nums" data-test="social-kpi-previous">
+                                        <span class="text-sm text-gray-600">{{ previousText(card.key) }}</span>
+                                        <span class="w-4 border-t-2 border-dashed border-gray-400" />
+                                    </div>
+                                    <div class="text-[11px] text-gray-400">{{ comparedRangeLabel }}</div>
+                                </template>
                                 <div v-if="card.delta" class="mt-0.5 text-xs flex items-center gap-1 tabular-nums" :class="card.delta.direction === 'flat' ? 'text-gray-400' : card.delta.good ? 'text-green-700' : 'text-red-600'">
                                     <FontAwesomeIcon v-if="card.delta.direction !== 'flat'" :icon="card.delta.direction === 'up' ? 'fal fa-arrow-up' : 'fal fa-arrow-down'" fixed-width />
                                     <span>{{ card.delta.text }}</span>
@@ -697,6 +767,7 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                     <div class="flex items-center gap-3 text-xs text-gray-500">
                                         <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm" :style="{ background: SERIES.reach }" />{{ ctrans('Views') }}</span>
                                         <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm" :style="{ background: SERIES.engagements }" />{{ ctrans('Interactions') }}</span>
+                                        <span v-if="hasComparedTrend" class="flex items-center gap-1.5" data-test="social-compared-legend"><span class="w-4 border-t-2 border-dashed border-gray-400" />{{ comparedRangeLabel }}</span>
                                     </div>
                                 </div>
                                 <template v-if="hasTrend">
@@ -794,7 +865,18 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                         <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
                             <div v-for="card in organicKpis" :key="card.key" class="rounded-xl ring-1 ring-gray-200 bg-white p-4">
                                 <div class="text-xs text-gray-400">{{ card.label }}</div>
-                                <div class="mt-1 text-lg tabular-nums text-gray-900">{{ card.value }}</div>
+                                <div class="mt-1 flex items-center justify-between gap-2 tabular-nums">
+                                    <span class="text-lg text-gray-900">{{ card.value }}</span>
+                                    <span v-if="previousText(card.key)" class="w-4 border-t-2 border-gray-500" />
+                                </div>
+                                <template v-if="previousText(card.key)">
+                                    <div class="text-[11px] text-gray-400">{{ performance.period_label }}</div>
+                                    <div class="mt-1 flex items-center justify-between gap-2 tabular-nums" data-test="social-kpi-previous">
+                                        <span class="text-sm text-gray-600">{{ previousText(card.key) }}</span>
+                                        <span class="w-4 border-t-2 border-dashed border-gray-400" />
+                                    </div>
+                                    <div class="text-[11px] text-gray-400">{{ comparedRangeLabel }}</div>
+                                </template>
                                 <div v-if="card.delta" class="mt-0.5 text-xs flex items-center gap-1 tabular-nums" :class="card.delta.direction === 'flat' ? 'text-gray-400' : card.delta.good ? 'text-green-700' : 'text-red-600'">
                                     <FontAwesomeIcon v-if="card.delta.direction !== 'flat'" :icon="card.delta.direction === 'up' ? 'fal fa-arrow-up' : 'fal fa-arrow-down'" fixed-width />
                                     <span>{{ card.delta.text }}</span>
@@ -811,6 +893,7 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                     <div class="flex items-center gap-3 text-xs text-gray-500">
                                         <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm" :style="{ background: SERIES.reach }" />{{ ctrans('Views') }}</span>
                                         <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm" :style="{ background: SERIES.engagements }" />{{ ctrans('Interactions') }}</span>
+                                        <span v-if="hasComparedTrend" class="flex items-center gap-1.5" data-test="social-compared-legend"><span class="w-4 border-t-2 border-dashed border-gray-400" />{{ comparedRangeLabel }}</span>
                                     </div>
                                 </div>
                                 <template v-if="hasTrend">
@@ -966,7 +1049,18 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                     {{ card.label }}
                                     <FontAwesomeIcon v-if="card.help" v-tooltip="card.help" icon="fal fa-info-circle" class="text-gray-300 cursor-help" fixed-width />
                                 </div>
-                                <div class="mt-1 text-lg tabular-nums text-gray-900">{{ card.value }}</div>
+                                <div class="mt-1 flex items-center justify-between gap-2 tabular-nums">
+                                    <span class="text-lg text-gray-900">{{ card.value }}</span>
+                                    <span v-if="previousText(card.key)" class="w-4 border-t-2 border-gray-500" />
+                                </div>
+                                <template v-if="previousText(card.key)">
+                                    <div class="text-[11px] text-gray-400">{{ performance.period_label }}</div>
+                                    <div class="mt-1 flex items-center justify-between gap-2 tabular-nums" data-test="social-kpi-previous">
+                                        <span class="text-sm text-gray-600">{{ previousText(card.key) }}</span>
+                                        <span class="w-4 border-t-2 border-dashed border-gray-400" />
+                                    </div>
+                                    <div class="text-[11px] text-gray-400">{{ comparedRangeLabel }}</div>
+                                </template>
                                 <div v-if="card.delta" class="mt-0.5 text-xs flex items-center gap-1 tabular-nums" :class="card.delta.direction === 'flat' ? 'text-gray-400' : card.delta.good ? 'text-green-700' : 'text-red-600'">
                                     <FontAwesomeIcon v-if="card.delta.direction !== 'flat'" :icon="card.delta.direction === 'up' ? 'fal fa-arrow-up' : 'fal fa-arrow-down'" fixed-width />
                                     <span>{{ card.delta.text }}</span>
