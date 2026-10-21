@@ -478,6 +478,7 @@ class AppServiceProvider extends ServiceProvider
                 'WebLayoutTemplate'                => 'App\Models\Web\WebLayoutTemplate',
                 'Website'                          => 'App\Models\Web\Website',
                 'Webpage'                          => 'App\Models\Web\Webpage',
+                'SeoContentSuggestion'             => 'App\Models\Web\SeoContentSuggestion',
                 'WebBlock'                         => 'App\Models\Web\WebBlock',
                 'WebBlockType'                     => 'App\Models\Web\WebBlockType',
                 'Banner'                           => 'App\Models\Web\Banner',

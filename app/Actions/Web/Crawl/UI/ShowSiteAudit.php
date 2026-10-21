@@ -146,7 +146,7 @@ class ShowSiteAudit extends OrgAction
                 ],
                 'severities'  => CrawlIssueSeverityEnum::labels(),
                 'suggestions' => [
-                    'pending' => SeoContentSuggestion::where('website_id', $website->id)->where('state', SeoContentSuggestionStateEnum::PENDING)->count(),
+                    'pending' => SeoContentSuggestion::where('website_id', $website->id)->whereNot('reason', SeoContentSuggestion::REASON_SEO_REVIEW)->where('state', SeoContentSuggestionStateEnum::PENDING)->count(),
                     'route'   => [
                         'name'       => 'grp.org.shops.show.seo.site_audit.suggestions',
                         'parameters' => Arr::only($request->route()->originalParameters(), ['organisation', 'shop']),

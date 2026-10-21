@@ -39,6 +39,8 @@ import Dialog from "primevue/dialog"
 import Checkbox from "primevue/checkbox"
 import TableRowSelectCheckbox from "@/Components/Table/TableRowSelectCheckbox.vue"
 import TableSelectAllCheckbox from "@/Components/Table/TableSelectAllCheckbox.vue"
+import WorkflowSteps from "@/Components/DataDisplay/WorkflowSteps.vue"
+import ChecklistBar from "@/Components/DataDisplay/ChecklistBar.vue"
 
 
 library.add(faOctopusDeploy, faConciergeBell, faGarage, faExclamationTriangle, faPencil, faThumbtack)
@@ -1219,6 +1221,14 @@ const familyRoute = (item) => {
                 <span class="text-xs italic text-gray-400">{{ ctrans("on demand") }}</span>
             </span>
             <template v-else>{{ item['available_quantity'] ?? 0 }}</template>
+        </template>
+
+        <template #cell(workflow)="{ item: product }">
+            <WorkflowSteps v-if="product.workflow" :steps="product.workflow.steps" :current="product.workflow.current" compact />
+        </template>
+
+        <template #cell(checklist)="{ item: product }">
+            <ChecklistBar v-if="product.checklist" :checklist="product.checklist" />
         </template>
 
         <template #checkbox="data">

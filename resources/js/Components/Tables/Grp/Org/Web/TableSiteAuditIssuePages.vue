@@ -9,6 +9,7 @@ import { route } from "ziggy-js"
 import Table from "@/Components/Table/Table.vue"
 import { ctrans } from "@/Composables/useTrans"
 import { useLocaleStore } from "@/Stores/locale"
+import { crawlIssueDetailText, pathOfUrl } from "@/Composables/crawlIssueDetails"
 
 type IssuePageRow = {
     url: string
@@ -35,64 +36,9 @@ const webpageHref = (page: IssuePageRow) => page.webpage_slug
     ? route("grp.org.shops.show.web.webpages.show", [routeParams.organisation, routeParams.shop, props.websiteSlug, page.webpage_slug])
     : null
 
-const pathOf = (url: string) => {
-    try {
-        const parsed = new URL(url)
+const pathOf = pathOfUrl
 
-        return parsed.pathname + parsed.search
-    } catch {
-        return url
-    }
-}
-
-const detailText = (page: IssuePageRow) => {
-    const details = page.details ?? {}
-
-    switch (props.issueType) {
-        case "http_4xx":
-        case "http_5xx":
-        case "linked_redirect":
-            return details.is_in_sitemap ? ctrans("Listed in the sitemap") : ""
-        case "fetch_failed":
-            return details.error ?? ""
-        case "redirect_chain":
-            return ctrans(":hops hops, ends at :url", { hops: details.hops, url: pathOf(details.final_url ?? "") })
-        case "redirect_loop":
-            return (details.chain ?? []).map(pathOf).join(" > ")
-        case "duplicate_title":
-        case "duplicate_meta_description":
-            return ctrans("Same as :count other pages", { count: locale.number(details.duplicates ?? 0) })
-        case "title_too_long":
-        case "title_too_short":
-            return ctrans(":length characters: :title", { length: details.length, title: details.title })
-        case "meta_description_too_long":
-        case "meta_description_too_short":
-            return ctrans(":length characters", { length: details.length })
-        case "multiple_h1":
-            return ctrans(":count h1 headings", { count: details.h1_count })
-        case "images_without_alt":
-            return ctrans(":count images", { count: details.images })
-        case "slow_response":
-            return ctrans(":seconds s", { seconds: locale.number(Math.round((details.response_ms ?? 0) / 100) / 10) })
-        case "canonical_to_broken":
-            return ctrans(":url answers :status", { url: pathOf(details.canonical ?? ""), status: details.status_code ?? "-" })
-        case "canonical_to_other_page":
-            return pathOf(details.canonical ?? "")
-        case "noindex_in_sitemap":
-            return details.robots_meta ?? ""
-        case "hreflang_invalid_code":
-        case "hreflang_conflicting_code":
-            return (details.codes ?? []).join(", ")
-        case "hreflang_missing_self":
-            return ctrans("Lists :count other versions", { count: locale.number(details.alternates ?? 0) })
-        case "hreflang_to_broken":
-            return (details.alternates ?? []).map((alternate: { url: string, status_code: number | null }) => ctrans(":url answers :status", { url: alternate.url, status: alternate.status_code ?? "-" })).join(", ")
-        case "hreflang_missing_return":
-            return (details.alternates ?? []).join(", ")
-        default:
-            return ""
-    }
-}
+const detailText = (page: IssuePageRow) => crawlIssueDetailText(props.issueType, page.details)
 
 const linkedFrom = (page: IssuePageRow): string[] => page.details?.linked_from ?? []
 </script>

@@ -7,6 +7,7 @@
  */
 
 use App\Actions\Accounting\Invoice\UI\IndexInvoicesInMasterFamily;
+use App\Actions\Accounting\Invoice\UI\IndexInvoicesInProduct;
 use App\Actions\Catalogue\Collection\UI\IndexCollectionsInMasterCollection;
 use App\Actions\Catalogue\Shop\StoreShopFromMaster;
 use App\Actions\Catalogue\Product\UI\IndexProductsInMasterProduct;
@@ -24,6 +25,7 @@ use App\Actions\Masters\MasterAsset\UI\IndexMasterProductsSales;
 use App\Actions\Masters\MasterAsset\UI\IndexMasterProductsInMasterCollection;
 use App\Actions\Masters\MasterAsset\UI\IndexMasterProductsWithMismatch;
 use App\Actions\Masters\MasterAsset\UI\ShowMasterProduct;
+use App\Actions\Masters\MasterAsset\UI\EditMasterProductInformation;
 use App\Actions\Masters\MasterProductCategory\UI\ShowCreateMasterVariant;
 use App\Actions\Masters\MasterAsset\UI\IndexMasterProductsWithMissingChildDescription;
 use App\Actions\Masters\MasterAsset\UI\IndexMasterProductsWithNoFamily;
@@ -283,6 +285,8 @@ Route::name("master_shops")->prefix('master-shops')
                 Route::get('{masterProduct}', ShowMasterProduct::class)->name('show');
                 Route::get('{masterProduct}/edit', EditMasterProduct::class)->name('edit');
                 Route::get('{masterProduct}/composition', EditMasterProductComposition::class)->name('composition');
+                Route::get('{masterProduct}/edit-information', EditMasterProductInformation::class)->name('edit_information');
+                Route::get('{masterProduct}/invoices', [IndexInvoicesInProduct::class, 'inMaster'])->name('invoices');
                 Route::get('{masterProduct}/products', [IndexProductsInMasterProduct::class, 'inMaster'])->name('products');
                 Route::get('{masterProduct}/sales', IndexProductsInMasterProductSales::class)->name('show.sales');
             });

@@ -51,6 +51,8 @@ class GetMasterProductCategoryShowcase
                 'family' => MasterProductCategoryResource::make($productCategory),
                 'tags' => $productCategory->tradeUnitFamily?->tags,
                 'bestSellers' => GetMasterFamilyBestSellers::run($productCategory),
+                'shopsStatus' => GetMasterFamilyShopsStatus::run($productCategory),
+                'completeness' => GetMasterFamilyCompleteness::run($productCategory),
                 'save_route' => [
                     'method' => 'patch',
                     'name'       => 'grp.models.master_product_categories.translations.update',

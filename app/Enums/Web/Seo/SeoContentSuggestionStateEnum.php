@@ -13,7 +13,8 @@ enum SeoContentSuggestionStateEnum: string
 {
     use EnumHelperTrait;
 
-    case PENDING   = 'pending';
-    case ACCEPTED  = 'accepted';
-    case DISMISSED = 'dismissed';
+    case PENDING     = 'pending';
+    case IMPLEMENTED = 'implemented';
+    case ACCEPTED    = 'accepted';
+    case DISMISSED   = 'dismissed';
 }
