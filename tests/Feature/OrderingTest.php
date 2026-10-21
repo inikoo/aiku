@@ -6859,3 +6859,50 @@ test('cancelling an order in the warehouse cancels every line, and the repair ca
 
     expect($liveLines())->toBe(0);
 });
+
+test('a channel order whose small order charge goes with its second line keeps the totals it is paid against (HELP-4176)', function () {
+    $charge = $this->shop->charges()->where('type', ChargeTypeEnum::HANGING)->first() ?? StoreCharge::make()->action($this->shop, [
+        'code'        => 'SOCC',
+        'name'        => 'SOCC',
+        'description' => 'small order charge',
+        'type'        => ChargeTypeEnum::HANGING,
+    ]);
+    $chargeBefore = DB::table('charges')->where('id', $charge->id)->first(['state', 'settings']);
+    $this->beforeApplicationDestroyed(fn () => DB::table('charges')->where('id', $charge->id)->update((array) $chargeBefore));
+    UpdateCharge::make()->action($charge, ['state' => ChargeStateEnum::ACTIVE, 'min_order' => 15, 'amount' => 3], strict: false);
+
+    [, $bulk] = createProduct($this->shop);
+    $products = collect([10, 10])->map(fn ($price) => tap(StoreProduct::make()->action($bulk->family, array_merge(
+        Product::factory()->definition(),
+        ['trade_units' => [['id' => $bulk->tradeUnits->first()->id, 'quantity' => 1]], 'price' => $price]
+    )))->update(['status' => ProductStatusEnum::FOR_SALE, 'available_quantity' => 100]));
+
+    $action = new class () {
+        use \App\Actions\Ordering\Order\Traits\WithPayAndSubmitOrder;
+    };
+
+    foreach (['balance just covers the order' => 0, 'balance covers the old charge too' => 50] as $case => $balanceOverTotal) {
+        $customer = freshCustomerLike($this->shop, $this->customer);
+        $order    = StoreOrder::make()->action($customer, [
+            'date'             => date('Y-m-d'),
+            'delivery_address' => new Address(Address::factory()->definition()),
+            'billing_address'  => new Address(Address::factory()->definition()),
+        ]);
+
+        $chargeLines = fn () => $order->transactions()->where('model_type', 'Charge')->where('model_id', $charge->id)->count();
+
+        StoreTransaction::make()->action($order, $products[0]->currentHistoricProduct, ['quantity_ordered' => 1], strict: false, forceHydrators: true);
+        expect($chargeLines())->toBe(1, $case);
+
+        StoreTransaction::make()->action($order, $products[1]->currentHistoricProduct, ['quantity_ordered' => 1], strict: false, forceHydrators: true);
+
+        $order->customer->update(['balance' => (float) $order->fresh()->total_amount + $balanceOverTotal]);
+
+        $order = $action->payAndSubmitOrder($order)->refresh();
+
+        expect($chargeLines())->toBe(0, $case)
+            ->and((float) $order->payment_amount)->toBe((float) $order->total_amount, $case)
+            ->and($order->pay_detailed_status)->toBe(OrderPayDetailedStatusEnum::PAID, $case)
+            ->and($order->state)->toBe(OrderStateEnum::IN_WAREHOUSE, $case);
+    }
+});
