@@ -21,6 +21,12 @@ export type SeoKeywordRoutes = {
     assignTags: routeType & { method: string }
 }
 
+export type SeoCheckNow = {
+    keywords: number
+    cost: number
+    route: routeType
+}
+
 export type SeoKeywordTag = {
     id: number
     name: string

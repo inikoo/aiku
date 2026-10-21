@@ -15,7 +15,7 @@ import SeoKeywordBulkImport from "@/Components/Seo/SeoKeywordBulkImport.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faChevronDown, faChevronRight, faListUl, faPlus, faTags, faMinus } from "@fal"
+import { faChevronDown, faChevronRight, faListUl, faPlus, faTags, faMinus, faSyncAlt } from "@fal"
 import InputText from "primevue/inputtext"
 import MultiSelect from "primevue/multiselect"
 import Select from "primevue/select"
@@ -23,7 +23,7 @@ import ToggleSwitch from "primevue/toggleswitch"
 import { ctrans } from "@/Composables/useTrans"
 import { useLocaleStore } from "@/Stores/locale"
 import { routeType } from "@/types/route"
-import type { SeoKeywordFilterOptions, SeoKeywordOptions, SeoKeywordRoutes, SeoResearchQuery } from "@/Components/Seo/types"
+import type { SeoCheckNow, SeoKeywordFilterOptions, SeoKeywordOptions, SeoKeywordRoutes, SeoResearchQuery } from "@/Components/Seo/types"
 
 type TrackedCountry = {
     id: number
@@ -46,11 +46,13 @@ type TrackedKeywordRow = {
     avg_monthly_searches: number | null
     tags: { id: number, name: string }[]
     countries: TrackedCountry[]
+    check_ids: number[]
+    check_cost: number
     update_route: routeType & { method: string }
     delete_route: routeType & { method: string }
 }
 
-library.add(faChevronDown, faChevronRight, faListUl, faPlus, faTags, faMinus)
+library.add(faChevronDown, faChevronRight, faListUl, faPlus, faTags, faMinus, faSyncAlt)
 
 defineOptions({ inheritAttrs: false })
 
@@ -166,6 +168,37 @@ const tagSelected = (action: "add" | "remove") => {
     })
 }
 
+const CONFIRM_FROM_USD = 1
+
+const usd = (amount: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: amount < 1 ? 4 : 2 }).format(amount)
+
+const checkNowData = computed<SeoCheckNow | null>(() => (props.data as { checkNow?: SeoCheckNow | null } | undefined)?.checkNow ?? null)
+
+const checking = ref<number | "all" | null>(null)
+const checkError = ref<string | null>(null)
+
+const checkNow = (trackedKeyword?: TrackedKeywordRow) => {
+    if (!checkNowData.value) {
+        return
+    }
+
+    if (!trackedKeyword && checkNowData.value.cost >= CONFIRM_FROM_USD && !window.confirm(ctrans("Check :count keywords in Google now? It costs about :cost of DataForSEO credit.", { count: locale.number(checkNowData.value.keywords), cost: usd(checkNowData.value.cost) }))) {
+        return
+    }
+
+    router.post(route(checkNowData.value.route.name, checkNowData.value.route.parameters), trackedKeyword ? { tracked_keyword_ids: trackedKeyword.check_ids } : {}, {
+        preserveScroll: true,
+        preserveState: true,
+        only: [props.tab],
+        onStart: () => {
+            checking.value = trackedKeyword ? trackedKeyword.id : "all"
+            checkError.value = null
+        },
+        onError: (errors) => checkError.value = Object.values(errors)[0] ?? null,
+        onFinish: () => checking.value = null,
+    })
+}
+
 const labelOf = (options: { value: string, label: string }[], value: string) => options.find((option) => option.value === value)?.label ?? value
 </script>
 
@@ -208,6 +241,19 @@ const labelOf = (options: { value: string, label: string }[], value: string) => 
         </form>
 
         <div v-if="data" class="mx-4 mb-2 flex flex-wrap items-center justify-end gap-2">
+            <span v-if="checkError" role="alert" class="mr-auto text-sm text-red-600">{{ checkError }}</span>
+            <Button
+                v-if="checkNowData"
+                type="tertiary"
+                size="s"
+                icon="fal fa-sync-alt"
+                :label="checkNowData.keywords ? ctrans('Check :count keywords now', { count: locale.number(checkNowData.keywords) }) : ctrans('Check now')"
+                :loading="checking === 'all'"
+                :disabled="!checkNowData.keywords || checking !== null"
+                v-tooltip="checkNowData.keywords
+                    ? ctrans('Reads the Google position of every active keyword not checked today, about :cost of DataForSEO credit. Results arrive in the Rankings tab within minutes to an hour.', { cost: usd(checkNowData.cost) })
+                    : ctrans('Every active keyword was checked today or is waiting for its result.')"
+                @click="checkNow()" />
             <Button v-if="canEdit" type="tertiary" size="s" icon="fal fa-list-ul" :label="ctrans('Add in bulk')" @click="isImporting = true" />
             <Button v-if="canEdit" type="tertiary" size="s" icon="fal fa-tags" :label="ctrans('Manage tags')" @click="isManagingTags = true" />
             <SeoExportButton table="tracked_keywords" />
@@ -292,7 +338,22 @@ const labelOf = (options: { value: string, label: string }[], value: string) => 
             </template>
 
             <template #cell(actions)="{ item: trackedKeyword }: { item: TrackedKeywordRow }">
-                <Button v-if="canEdit" type="tertiary" size="xs" :label="ctrans('Remove')" @click="remove(trackedKeyword)" />
+                <div class="flex items-center justify-end gap-2">
+                    <Button
+                        v-if="checkNowData"
+                        type="tertiary"
+                        size="xs"
+                        icon="fal fa-sync-alt"
+                        :label="ctrans('Check now')"
+                        :loading="checking === trackedKeyword.id"
+                        :disabled="!trackedKeyword.check_ids.length || checking !== null"
+                        :aria-label="ctrans('Check :keyword now', { keyword: trackedKeyword.keyword })"
+                        v-tooltip="trackedKeyword.check_ids.length
+                            ? ctrans('Reads its Google position in :count checks now, about :cost of DataForSEO credit', { count: trackedKeyword.check_ids.length, cost: usd(trackedKeyword.check_cost) })
+                            : ctrans('Already checked today, waiting for the Google result, or not active')"
+                        @click="checkNow(trackedKeyword)" />
+                    <Button v-if="canEdit" type="tertiary" size="xs" :label="ctrans('Remove')" @click="remove(trackedKeyword)" />
+                </div>
             </template>
 
             <template #expandRow="{ item }">
