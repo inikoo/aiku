@@ -669,6 +669,7 @@ use App\Actions\Web\Seo\DismissSeoContentSuggestion;
 use App\Actions\Web\Seo\RequestSeoContentSuggestions;
 use App\Actions\Web\Seo\RetrySeoContentBrief;
 use App\Actions\Web\Seo\DeleteSeoTrackedKeyword;
+use App\Actions\Web\Seo\DeleteSeoTrackedKeywords;
 use App\Actions\Web\Seo\RunSeoAiVisibility;
 use App\Actions\Web\Seo\RunSeoBacklinkFetch;
 use App\Actions\Web\Seo\RunSeoRankChecks;
@@ -1352,6 +1353,7 @@ Route::name('banner.')->prefix('banner/{banner:id}')->group(function () {
 Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
     Route::post('seo/tracked-keywords', StoreSeoTrackedKeyword::class)->name('seo.tracked_keyword.store');
     Route::post('seo/tracked-keywords/bulk', StoreSeoTrackedKeywords::class)->name('seo.tracked_keywords.bulk_store');
+    Route::delete('seo/tracked-keywords', DeleteSeoTrackedKeywords::class)->name('seo.tracked_keywords.delete');
     Route::post('seo/keyword-tags', StoreSeoKeywordTag::class)->name('seo.keyword_tag.store');
     Route::post('seo/keyword-tags/assign', SetSeoKeywordTags::class)->name('seo.keyword_tags.assign');
     Route::post('seo/competitors', StoreSeoCompetitor::class)->name('seo.competitor.store');
