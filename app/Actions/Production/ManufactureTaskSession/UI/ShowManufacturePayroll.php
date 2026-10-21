@@ -9,7 +9,11 @@
 namespace App\Actions\Production\ManufactureTaskSession\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Production\ManufactureArtisanDay\HydrateManufactureArtisanDays;
 use App\Actions\Production\Production\UI\ShowArtisansDashboard;
+use App\Enums\Production\ManufactureArtisanDay\ManufactureArtisanDayResolutionEnum;
+use App\Enums\Production\ManufactureArtisanDay\ManufactureArtisanDayStatusEnum;
+use App\Models\Production\ManufactureArtisanDay;
 use App\Models\Production\Production;
 use App\Actions\Production\ManufactureTaskSession\GetManufacturePayroll;
 use App\InertiaTable\InertiaTable;
@@ -19,6 +23,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -72,6 +77,7 @@ class ShowManufacturePayroll extends OrgAction
     {
         $routeParameters = Arr::only($request->route()->originalParameters(), ['organisation', 'production']);
         $period          = ['from' => $this->from->toDateString(), 'to' => $this->to->toDateString()];
+        $notAuthorised   = $this->notAuthorisedOvertime($this->production, $this->from, $this->to);
 
         return Inertia::render(
             'Org/Production/ManufacturePayroll',
@@ -92,7 +98,8 @@ class ShowManufacturePayroll extends OrgAction
                 ],
                 'data'                 => JsonResource::collection(new LengthAwarePaginator(
                     array_map(fn (array $artisan) => $artisan + [
-                        'route' => [
+                        'not_authorised_overtime' => $notAuthorised[$artisan['user_id']] ?? null,
+                        'route'                   => [
                             'name'       => 'grp.org.productions.show.artisans.payroll.show',
                             'parameters' => $routeParameters + ['user' => $artisan['user_id']] + $period,
                         ],
@@ -102,6 +109,36 @@ class ShowManufacturePayroll extends OrgAction
                 )),
             ]
         )->table($this->tableStructure(GetManufacturePayroll::make()->grandTotal($artisans)));
+    }
+
+    /**
+     * Overtime a supervisor did not authorise stays paid; it is listed here for the accountant and HR to deal with.
+     *
+     * @return array<int, array{minutes: int, days: array<int, array{date: string, minutes: int, note: string|null, by: string|null}>}>
+     */
+    private function notAuthorisedOvertime(Production $production, Carbon $from, Carbon $to): array
+    {
+        HydrateManufactureArtisanDays::run($production, $from, $to);
+
+        return ManufactureArtisanDay::where('production_id', $production->id)
+            ->whereBetween('date', [$from->toDateString(), $to->toDateString()])
+            ->where('status', ManufactureArtisanDayStatusEnum::OVER)
+            ->where('resolution', ManufactureArtisanDayResolutionEnum::NOT_APPROVED)
+            ->whereColumn('resolved_minutes', 'recorded_minutes')
+            ->with('resolvedBy')
+            ->orderBy('date')
+            ->get()
+            ->groupBy('user_id')
+            ->map(fn (Collection $days) => [
+                'minutes' => $days->sum(fn (ManufactureArtisanDay $day) => $day->recorded_minutes - $day->expected_minutes),
+                'days'    => $days->map(fn (ManufactureArtisanDay $day) => [
+                    'date'    => $day->date->toDateString(),
+                    'minutes' => $day->recorded_minutes - $day->expected_minutes,
+                    'note'    => $day->resolution_note,
+                    'by'      => $day->resolvedBy?->contact_name ?: $day->resolvedBy?->username,
+                ])->values()->all(),
+            ])
+            ->all();
     }
 
     public static function payColumns(): array

@@ -1,0 +1,96 @@
+<?php
+
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 21 Oct 2026 16:30:00 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2026, Raul A Perusquia Flores
+ */
+
+namespace App\Actions\Production\ManufactureArtisanDay;
+
+use App\Actions\OrgAction;
+use App\Enums\Production\ManufactureArtisanDay\ManufactureArtisanDayResolutionEnum;
+use App\Enums\Production\ManufactureArtisanDay\ManufactureArtisanDayShortReasonEnum;
+use App\Models\Production\ManufactureArtisanDay;
+use App\Models\SysAdmin\User;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
+use Lorisleiva\Actions\ActionRequest;
+
+/**
+ * A supervisor's answer to a day over or under the shift. Not authorising overtime leaves the hours in payroll: it only
+ * marks them for the accountant and HR, with the reason.
+ */
+class ResolveManufactureArtisanDay extends OrgAction
+{
+    public function handle(ManufactureArtisanDay $day, User $user, array $modelData): ManufactureArtisanDay
+    {
+        $resolution = ManufactureArtisanDayResolutionEnum::from($modelData['resolution']);
+        if (!$resolution->answers($day->status)) {
+            throw ValidationException::withMessages([
+                'resolution' => __('This day is not over or under the shift any more'),
+            ]);
+        }
+
+        $day->update([
+            'resolution'          => $resolution,
+            'resolution_reason'   => $resolution == ManufactureArtisanDayResolutionEnum::REASON_GIVEN ? $modelData['resolution_reason'] : null,
+            'resolution_note'     => $modelData['resolution_note'] ?? null,
+            'resolved_minutes'    => $day->recorded_minutes,
+            'resolved_by_user_id' => $user->id,
+            'resolved_at'         => now(),
+            'is_warning_open'     => false,
+        ]);
+
+        return $day;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'resolution'        => ['required', Rule::enum(ManufactureArtisanDayResolutionEnum::class)],
+            'resolution_reason' => ['required_if:resolution,'.ManufactureArtisanDayResolutionEnum::REASON_GIVEN->value, 'nullable', Rule::enum(ManufactureArtisanDayShortReasonEnum::class)],
+            'resolution_note'   => [
+                'required_if:resolution,'.ManufactureArtisanDayResolutionEnum::NOT_APPROVED->value,
+                'required_if:resolution_reason,'.ManufactureArtisanDayShortReasonEnum::OTHER->value,
+                'nullable',
+                'string',
+                'max:1000',
+            ],
+        ];
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+
+        return $request->user()->authTo([
+            'org-supervisor.'.$this->organisation->id,
+            "productions_operations.{$this->production->id}.orchestrate",
+        ]);
+    }
+
+    public function action(ManufactureArtisanDay $day, User $user, array $modelData): ManufactureArtisanDay
+    {
+        $this->asAction = true;
+        $this->initialisationFromProduction($day->production, $modelData);
+
+        return $this->handle($day, $user, $this->validatedData);
+    }
+
+    public function asController(ManufactureArtisanDay $manufactureArtisanDay, ActionRequest $request): ManufactureArtisanDay
+    {
+        $this->initialisationFromProduction($manufactureArtisanDay->production, $request);
+
+        return $this->handle($manufactureArtisanDay, $request->user(), $this->validatedData);
+    }
+
+    public function htmlResponse(): RedirectResponse
+    {
+        return Redirect::back();
+    }
+}

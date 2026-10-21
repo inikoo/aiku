@@ -10,6 +10,7 @@ namespace App\Actions\Production\ManufactureTaskSession\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Production\Artisan\SetArtisanPayType;
+use App\Actions\Production\ManufactureArtisanDay\HydrateManufactureArtisanDays;
 use App\Actions\Production\Production\UI\ShowArtisansDashboard;
 use App\Enums\Production\Artisan\ArtisanPayTypeEnum;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
@@ -19,6 +20,7 @@ use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionTimeEditRe
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionUnderTargetReasonEnum;
 use App\Models\HumanResources\Employee;
 use App\Models\Production\ArtefactManufactureTask;
+use App\Models\Production\ManufactureArtisanDay;
 use App\Models\Production\JobOrderItemTask;
 use App\Models\Production\ManufactureTask;
 use App\Models\Production\ManufacturePreparationReason;
@@ -275,6 +277,7 @@ class IndexArtisans extends OrgAction
                     'label' => ManufactureTaskSessionTimeEditReasonEnum::labels()[$reason->value],
                 ], ManufactureTaskSessionTimeEditReasonEnum::supervisorReasons()),
                 'left_open'           => $this->leftOpenSessions($production),
+                'daily_hours_warnings' => $this->dailyHoursWarnings($production, $from, $to),
                 'artisan_pay_type'    => $payType,
                 'artisan_pay_types'   => ArtisanPayTypeEnum::labels(),
                 'pay_type_effective_from' => SetArtisanPayType::effectiveFrom()->toDateString(),
@@ -436,6 +439,31 @@ class IndexArtisans extends OrgAction
                 ];
             })
             ->all();
+    }
+
+    /**
+     * @return array{count: int, route: array{name: string, parameters: array<string, mixed>}}
+     */
+    private function dailyHoursWarnings(Production $production, Carbon $from, Carbon $to): array
+    {
+        HydrateManufactureArtisanDays::run($production, $from, $to);
+
+        return [
+            'count' => ManufactureArtisanDay::where('production_id', $production->id)
+                ->whereBetween('date', [$from->toDateString(), $to->toDateString()])
+                ->where('is_warning_open', true)
+                ->count(),
+            'route' => [
+                'name'       => 'grp.org.productions.show.artisans.daily_hours',
+                'parameters' => [
+                    'organisation' => $production->organisation->slug,
+                    'production'   => $production->slug,
+                    'from'         => $from->toDateString(),
+                    'to'           => $to->toDateString(),
+                    'open_only'    => 1,
+                ],
+            ],
+        ];
     }
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array

@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { Head, router } from "@inertiajs/vue3"
+import { Head, Link, router } from "@inertiajs/vue3"
 import { computed, ref, watch } from "vue"
 import DatePicker from "primevue/datepicker"
 import Select from "primevue/select"
@@ -129,6 +129,7 @@ type Props = {
     time_edited: boolean
     time_edit_reasons: { value: string, label: string }[]
     left_open: { id: number, worker: string, task_name: string, job_order_reference: string | null, started_at: string, left_open_after_shift_at: string, paused_at: string | null, ended_at: string | null, status: 'paused' | 'running' | 'closed' }[]
+    daily_hours_warnings: { count: number, route: { name: string, parameters: Record<string, string | number> } }
     artisan_pay_type: string | null
     artisan_pay_types: Record<string, string>
     pay_type_effective_from: string
@@ -575,6 +576,12 @@ const quantityLabel = (quantity: number | string) => Number(quantity).toLocaleSt
                     </tr>
                 </tbody>
             </table>
+        </div>
+
+        <div v-if="daily_hours_warnings.count" class="mb-4 flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-900">
+            <FontAwesomeIcon :icon="['fal', 'exclamation-triangle']" fixed-width aria-hidden="true" />
+            <span>{{ ctrans(':count artisan days over or under the shift to deal with', { count: daily_hours_warnings.count }) }}</span>
+            <Link :href="route(daily_hours_warnings.route.name, daily_hours_warnings.route.parameters)" class="font-medium underline">{{ ctrans('Daily hours') }}</Link>
         </div>
 
         <div v-if="left_open.length" class="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">

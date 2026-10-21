@@ -399,9 +399,9 @@ class Employee extends Model implements HasMedia, Auditable
      *
      * @return array{0: Carbon, 1: Carbon}|array{}|null
      */
-    public function shiftWindowOn(Carbon $moment): ?array
+    public function shiftWindowOn(Carbon $moment, ?WorkSchedule $schedule = null): ?array
     {
-        $schedule = $this->getEffectiveWorkSchedule();
+        $schedule ??= $this->getEffectiveWorkSchedule();
         if (!$schedule) {
             return null;
         }
@@ -420,6 +420,31 @@ class Employee extends Model implements HasMedia, Auditable
         }
 
         return $this->scheduledShift($schedule, $local, $timezone) ?? [];
+    }
+
+    /**
+     * The shift scheduled for a calendar day and its unpaid breaks: null when no schedule says anything, an empty array for a day off.
+     *
+     * @return array{start: Carbon, end: Carbon, unpaid_break_minutes: int}|array{}|null
+     */
+    public function scheduledShiftOn(string $date, ?WorkSchedule $schedule = null): ?array
+    {
+        $schedule ??= $this->getEffectiveWorkSchedule();
+        if (!$schedule) {
+            return null;
+        }
+
+        $timezone = $schedule->timezone?->name ?? $this->organisation?->timezone?->name ?? config('app.timezone');
+        $shift    = $this->scheduledShift($schedule, Carbon::parse($date, $timezone), $timezone);
+        if (!$shift) {
+            return [];
+        }
+
+        $unpaidBreakMinutes = $schedule->days->firstWhere('day_of_week', $shift[0]->dayOfWeekIso)->breaks
+            ->where('is_paid', false)
+            ->sum(fn (WorkScheduleBreak $break) => abs($break->end_time->diffInMinutes($break->start_time)));
+
+        return ['start' => $shift[0], 'end' => $shift[1], 'unpaid_break_minutes' => (int) $unpaidBreakMinutes];
     }
 
     /**

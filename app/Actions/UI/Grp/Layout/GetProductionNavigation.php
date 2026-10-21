@@ -252,6 +252,16 @@ class GetProductionNavigation
                                 'parameters' => [$production->organisation->slug, $production->slug]
                             ],
                         ],
+                        [
+                            'label'   => __('Daily hours'),
+                            'tooltip' => __('Each artisan\'s day against their shift: overtime and short days'),
+                            'icon'    => ['fal', 'fa-user-clock'],
+                            'root'    => 'grp.org.productions.show.artisans.daily_hours',
+                            'route'   => [
+                                'name'       => 'grp.org.productions.show.artisans.daily_hours',
+                                'parameters' => [$production->organisation->slug, $production->slug]
+                            ],
+                        ],
                         ...(ShowArtisansDashboard::canSeeArtisanPay($user, $production) ? [[
                             'label'   => __('Payroll'),
                             'tooltip' => __('Piece-rate payroll export'),
