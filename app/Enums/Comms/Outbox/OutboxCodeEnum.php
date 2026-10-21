@@ -510,16 +510,17 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::NEW_REVIEW,
             OutboxCodeEnum::PRICE_CHANGE,
             OutboxCodeEnum::CHANNEL_ORDER_ON_HOLD,
+            OutboxCodeEnum::NEW_APPOINTMENT,
+            OutboxCodeEnum::PRE_ORDER_UPDATE,
+            OutboxCodeEnum::SEND_PURCHASE_ORDER_TO_SUPPLIER
+            => OutboxBuilderEnum::BLADE,
             OutboxCodeEnum::APPOINTMENT_REQUESTED,
             OutboxCodeEnum::APPOINTMENT_ACCEPTED,
             OutboxCodeEnum::APPOINTMENT_DECLINED,
             OutboxCodeEnum::APPOINTMENT_RESCHEDULED,
             OutboxCodeEnum::APPOINTMENT_CANCELLED,
-            OutboxCodeEnum::APPOINTMENT_REMINDER,
-            OutboxCodeEnum::NEW_APPOINTMENT,
-            OutboxCodeEnum::PRE_ORDER_UPDATE,
-            OutboxCodeEnum::SEND_PURCHASE_ORDER_TO_SUPPLIER
-            => OutboxBuilderEnum::BLADE,
+            OutboxCodeEnum::APPOINTMENT_REMINDER
+            => OutboxBuilderEnum::BEEFREE,
             default => null
         };
     }

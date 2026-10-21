@@ -63,7 +63,7 @@ class SendAppointmentEmail extends OrgAction
 
         $emailHtmlBody = $outbox->builder == OutboxBuilderEnum::BLADE
             ? Arr::get($outbox->emailOngoingRun->email->liveSnapshot->layout, 'blade_template')
-            : $outbox->emailOngoingRun->email->liveSnapshot->compiled_layout;
+            : ($outbox->emailOngoingRun->email->liveSnapshot->compiled_layout ?: view('emails.appointment')->render());
         if (!$emailHtmlBody) {
             $this->releaseReminder($appointment, $code);
 
@@ -95,9 +95,10 @@ class SendAppointmentEmail extends OrgAction
             $emailHtmlBody,
             '',
             additionalData: [
-                'customer_name' => $appointment->contact_name,
-                'shop_name'     => $appointment->shop->name,
+                'customer_name' => e($appointment->contact_name),
+                'shop_name'     => e($appointment->shop->name),
                 'email_body'    => $this->generateBodyHtml($appointment, $code, $previous),
+                ...$this->mergeTagValues($appointment, $previous),
             ],
             senderName: $outbox->emailOngoingRun->senderName(),
             attachments: [
@@ -161,6 +162,23 @@ class SendAppointmentEmail extends OrgAction
         };
     }
 
+    /**
+     * @return array{appointment_date: string, appointment_time: string, appointment_details: string, previous_appointment_date: ?string, decline_reason: ?string, manage_appointment_link: string}
+     */
+    public function mergeTagValues(Appointment $appointment, ?Carbon $previousStartsAt = null): array
+    {
+        $start = $this->localStart($appointment);
+
+        return [
+            'appointment_date'          => $start->translatedFormat('l j F Y'),
+            'appointment_time'          => $start->format('H:i'),
+            'appointment_details'       => $this->detailsTable($appointment),
+            'previous_appointment_date' => $previousStartsAt?->copy()->setTimezone($start->timezone)->translatedFormat('l j F Y, H:i'),
+            'decline_reason'            => $appointment->state_reason ? e($appointment->state_reason) : null,
+            'manage_appointment_link'   => $this->manageLink($appointment),
+        ];
+    }
+
     public function generateBodyHtml(Appointment $appointment, OutboxCodeEnum $code, ?Carbon $previousStartsAt = null): string
     {
         $start = $this->localStart($appointment);
@@ -189,10 +207,8 @@ class SendAppointmentEmail extends OrgAction
         if (in_array($code, [OutboxCodeEnum::APPOINTMENT_REQUESTED, OutboxCodeEnum::APPOINTMENT_ACCEPTED, OutboxCodeEnum::APPOINTMENT_RESCHEDULED, OutboxCodeEnum::APPOINTMENT_REMINDER], true)) {
             $html .= $this->detailsTable($appointment);
 
-            if ($manageUrl = $appointment->manageUrl()) {
-                $html .= $this->paragraph(
-                    __('Cannot make it?').' <a href="'.e($manageUrl).'">'.__('Choose another time or cancel this appointment').'</a>.'
-                );
+            if ($manageLink = $this->manageLink($appointment)) {
+                $html .= $this->paragraph($manageLink);
             }
         }
 
@@ -304,6 +320,15 @@ class SendAppointmentEmail extends OrgAction
     private function visibleGoogleMeetUrl(Appointment $appointment): ?string
     {
         return $appointment->state === AppointmentStateEnum::REQUESTED ? null : $appointment->googleMeetJoinUrl();
+    }
+
+    private function manageLink(Appointment $appointment): string
+    {
+        $manageUrl = $appointment->manageUrl();
+
+        return $manageUrl
+            ? __('Cannot make it?').' <a href="'.e($manageUrl).'">'.__('Choose another time or cancel this appointment').'</a>.'
+            : '';
     }
 
     public function paragraph(string $text): string

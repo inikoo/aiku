@@ -82,10 +82,10 @@ class SeedWebsiteOutboxes
     public function asCommand(Command $command): int
     {
         if ($command->argument('website') == null) {
-            $websites = Website::all();
-            foreach ($websites as $website) {
+            $command->withProgressBar(Website::all(), function (Website $website) {
                 $this->handle($website);
-            }
+            });
+            $command->newLine();
 
             return 0;
         }

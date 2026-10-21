@@ -250,6 +250,13 @@ trait WithSendBulkEmails
             'basket-on-offer-items' => Arr::get($additionalData, 'basket_on_offer_items'),
             'favourites-on-offer-items' => Arr::get($additionalData, 'favourites_on_offer_items'),
 
+            'appointment-date' => Arr::get($additionalData, 'appointment_date'),
+            'appointment-time' => Arr::get($additionalData, 'appointment_time'),
+            'appointment-details' => Arr::get($additionalData, 'appointment_details'),
+            'previous-appointment-date' => Arr::get($additionalData, 'previous_appointment_date'),
+            'decline-reason' => Arr::get($additionalData, 'decline_reason'),
+            'manage-appointment-link' => Arr::get($additionalData, 'manage_appointment_link'),
+
             default => $originalPlaceholder,
         };
     }

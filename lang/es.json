@@ -20882,5 +20882,12 @@
     "Balance by client": "Saldo por cliente",
     "No clients yet": "Aún no hay clientes",
     "Received :received, paid out :paid": "Recibido :received, pagado :paid",
-    "No payment to a supplier recorded yet": "Aún no hay pagos a proveedores registrados"
+    "No payment to a supplier recorded yet": "Aún no hay pagos a proveedores registrados",
+    "Shop Name": "Nombre de la tienda",
+    "Appointment Date": "Fecha de la cita",
+    "Appointment Time": "Hora de la cita",
+    "Appointment Details": "Detalles de la cita",
+    "Previous Appointment Date": "Fecha anterior de la cita",
+    "Decline Reason": "Motivo del rechazo",
+    "Manage Appointment Link": "Enlace para gestionar la cita"
 }

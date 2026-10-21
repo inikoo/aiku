@@ -79,10 +79,11 @@ class SeedShopOutboxes
     public function asCommand(Command $command): int
     {
         $command->info("Seeding shop outboxes");
-        foreach (Shop::all() as $shop) {
+        $command->withProgressBar(Shop::all(), function (Shop $shop) {
             setPermissionsTeamId($shop->group_id);
             $this->handle($shop);
-        }
+        });
+        $command->newLine();
 
         return 0;
     }
