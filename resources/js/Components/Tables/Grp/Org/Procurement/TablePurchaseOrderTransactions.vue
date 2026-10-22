@@ -319,6 +319,13 @@ function isFullyPacked(item: any) {
     return !!warehouse && warehouse.quantity_packed > 0 && warehouse.quantity_packed >= Number(item.quantity_ordered) - 0.001
 }
 
+function isAllInContainers(item: any) {
+    const warehouse = item.agent_warehouse
+    return !!warehouse?.containers?.length && warehouse.quantity_awaiting_delivery <= 0.01
+}
+
+const isLoadedBeforePacking = (item: any) => isAllInContainers(item) && !isFullyPacked(item)
+
 function packItem(item: any) {
     const packRoute = item.agent_warehouse?.pack_route
     if (!packRoute) {
@@ -832,7 +839,17 @@ function orgStockRoute(item: { org_stock_id?: number }) {
             <div class="flex flex-col items-end gap-1.5">
             <div class="flex justify-end items-center gap-2">
                 <span
-                    v-if="item.agent_warehouse?.quantity_packed > 0"
+                    v-if="isLoadedBeforePacking(item)"
+                    class="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-200"
+                    v-tooltip="ctrans('Loaded in a container before it was packed: take it out of the container to pack it')"
+                >
+                    <FontAwesomeIcon :icon="faExclamationTriangle" fixed-width aria-hidden="true" />
+                    <template v-if="item.agent_warehouse.quantity_packed > 0">{{ ctrans('Packed :packed/:ordered', { packed: locale.number(item.agent_warehouse.quantity_packed), ordered: locale.number(Number(item.quantity_ordered)) }) }}</template>
+                    <template v-else>{{ ctrans('Not packed yet') }}</template>
+                </span>
+
+                <span
+                    v-else-if="item.agent_warehouse?.quantity_packed > 0"
                     class="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset"
                     :class="isFullyPacked(item) ? 'bg-green-50 text-green-700 ring-green-200' : 'bg-amber-50 text-amber-700 ring-amber-200'"
                     v-tooltip="isFullyPacked(item) ? ctrans('Every unit of this product is packed') : ctrans(':packed of the :ordered units are packed', { packed: locale.number(item.agent_warehouse.quantity_packed), ordered: locale.number(Number(item.quantity_ordered)) })"
@@ -842,7 +859,7 @@ function orgStockRoute(item: { org_stock_id?: number }) {
                     <template v-else>{{ ctrans('Packed :packed/:ordered', { packed: locale.number(item.agent_warehouse.quantity_packed), ordered: locale.number(Number(item.quantity_ordered)) }) }}</template>
                 </span>
 
-                <a v-if="packingInstructionsUrl(item) && !isFullyPacked(item)" :href="packingInstructionsUrl(item)" target="_blank" rel="noopener">
+                <a v-if="packingInstructionsUrl(item) && !isFullyPacked(item) && !isAllInContainers(item)" :href="packingInstructionsUrl(item)" target="_blank" rel="noopener">
                     <Button
                         :label="ctrans('Packing')"
                         :tooltip="ctrans('Print the packing instructions of this product')"
@@ -853,7 +870,7 @@ function orgStockRoute(item: { org_stock_id?: number }) {
                 </a>
 
                 <Button
-                    v-if="item.agent_warehouse?.pack_route"
+                    v-if="item.agent_warehouse?.pack_route && !isAllInContainers(item)"
                     :label="ctrans('Mark packed')"
                     :tooltip="packTooltip(item)"
                     type="tertiary"
