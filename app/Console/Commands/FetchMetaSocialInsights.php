@@ -71,6 +71,12 @@ class FetchMetaSocialInsights extends Command
     public const string FACEBOOK_POST_REACTION_METRIC = 'post_reactions_by_type_total';
 
     /**
+     * A Page post's promotion_status when an ad boosts or has boosted it; `inactive` and
+     * `ineligible` are posts never boosted.
+     */
+    public const array FACEBOOK_BOOSTED_STATUSES = ['active', 'extendable', 'finished', 'paused', 'pending', 'rejected', 'removed'];
+
+    /**
      * Facebook Page metric per day => the daily stats column it fills.
      *
      * Interactions are not among them: page_post_engagements also counts clicks and engagement on
@@ -201,6 +207,8 @@ class FetchMetaSocialInsights extends Command
         $noClicks  = 'facebook '.self::FACEBOOK_POST_CLICK_METRIC;
         $noReacts  = 'facebook '.self::FACEBOOK_POST_REACTION_METRIC;
 
+        $promotions = $this->facebookPromotions($pageId, $since, $until, $pageToken);
+
         $posts = 0;
         foreach ($this->rowsWithFirstAccepted(
             $this->url($pageId.'/posts'),
@@ -232,11 +240,15 @@ class FetchMetaSocialInsights extends Command
                 'comments'     => (int) data_get($post, 'comments.summary.total_count', 0),
                 'shares'       => (int) data_get($post, 'shares.count', 0),
                 'link_clicks'  => (int) data_get(collect(data_get($post, 'insights.data', []))->firstWhere('name', self::FACEBOOK_POST_CLICK_METRIC), 'values.0.value.link clicks', 0),
+                'is_boosted'   => in_array($promotions[(string) data_get($post, 'id')] ?? null, self::FACEBOOK_BOOSTED_STATUSES, true),
             ]);
             $posts++;
         }
 
-        $days = $this->storeDays($account, $this->eachDailyMetric($pageId, self::FACEBOOK_PAGE_METRICS, $since, $until, $pageToken, 'facebook', self::FACEBOOK_WINDOW_DAYS));
+        $days = $this->storeDays($account, array_replace_recursive(
+            $this->eachDailyMetric($pageId, self::FACEBOOK_PAGE_METRICS, $since, $until, $pageToken, 'facebook', self::FACEBOOK_WINDOW_DAYS),
+            $this->facebookAdViews($pageId, $since, $until, $pageToken)
+        ));
 
         $this->storeFollowers($account, data_get($page, 'followers_count'));
 
@@ -252,14 +264,24 @@ class FetchMetaSocialInsights extends Command
         $profile = $this->get($this->url($instagramId), ['fields' => 'username,name,followers_count'], $token);
         $account = $this->account($shop, SocialMediaPlatformEnum::INSTAGRAM, $instagramId, data_get($profile, 'name'), data_get($profile, 'username'));
 
+        $fields = 'id,caption,media_type,media_product_type,permalink,timestamp,like_count,comments_count,insights.metric('.self::INSTAGRAM_MEDIA_METRICS.')';
+
         $posts = 0;
-        foreach ($this->rows($this->url($instagramId.'/media'), [
-            'fields' => 'id,caption,media_type,media_product_type,permalink,timestamp,like_count,comments_count,insights.metric('.self::INSTAGRAM_MEDIA_METRICS.')',
-            'since'  => $since->copy()->startOfDay()->timestamp,
-            'until'  => $until->copy()->endOfDay()->timestamp,
-            'limit'  => 50,
-        ], $token) as $media) {
+        foreach ($this->rowsWithFirstAccepted(
+            $this->url($instagramId.'/media'),
+            [
+                ['fields' => $fields.',boost_ads_list', 'missing' => []],
+                ['fields' => $fields, 'missing' => ['instagram boosted posts']],
+            ],
+            [
+                'since' => $since->copy()->startOfDay()->timestamp,
+                'until' => $until->copy()->endOfDay()->timestamp,
+                'limit' => 50,
+            ],
+            $token
+        ) as $media) {
             $insights = $this->insightValues($media);
+            $boostAds = collect(data_get($media, 'boost_ads_list.data', []))->pluck('ad_id')->filter()->unique()->values();
 
             $this->storePost($account, (string) data_get($media, 'id'), [
                 'type'         => SocialMediaPostTypeEnum::fromExport(data_get($media, 'media_product_type').' '.data_get($media, 'media_type'), SocialMediaPlatformEnum::INSTAGRAM),
@@ -272,6 +294,8 @@ class FetchMetaSocialInsights extends Command
                 'comments'     => (int) data_get($media, 'comments_count', 0),
                 'shares'       => (int) ($insights['shares'] ?? 0),
                 'saves'        => (int) ($insights['saved'] ?? 0),
+                'is_boosted'   => $boostAds->isNotEmpty(),
+                ...$this->boostFigures($boostAds->all(), $this->adsToken($shop) ?: $token),
             ]);
             $posts++;
         }
@@ -280,16 +304,81 @@ class FetchMetaSocialInsights extends Command
 
         $accountSince = $since->copy()->max($until->copy()->subDays(self::INSTAGRAM_ACCOUNT_MAX_DAYS - 1));
 
-        $days = $this->storeDays($account, array_merge_recursive(
+        $days = $this->storeDays($account, array_replace_recursive(
             $this->eachDailyMetric($instagramId, self::INSTAGRAM_ACCOUNT_METRICS, $since, $until, $token, 'instagram', self::INSTAGRAM_WINDOW_DAYS),
             $this->eachDailyMetric($instagramId, self::INSTAGRAM_FOLLOWER_METRICS, $accountSince, $until, $token, 'instagram', self::INSTAGRAM_WINDOW_DAYS),
-            $this->instagramDailyTotals($instagramId, $since, $until, $token)
+            $this->instagramDailyTotals($instagramId, $since, $until, $token),
+            $this->instagramAdViews($instagramId, $since, $until, $token)
         ));
 
         $this->storeFollowers($account, data_get($profile, 'followers_count'));
         $this->storeFollowerHistory($account, data_get($profile, 'followers_count'), $this->instagramNetFollows($instagramId, $accountSince, $until, $token));
 
         return [$posts, $days];
+    }
+
+    /**
+     * What the ads boosting a post added on top of its organic figures, which is what the Instagram
+     * app counts on the post. Meta keeps them on the ads, so they need a token that may read the ad
+     * account (ads_read); without one the post is still marked boosted, its ad figures left empty.
+     *
+     * @param array<int, string> $adIds
+     *
+     * @return array{ad_views: int|null, ad_reach: int|null, ad_link_clicks: int|null}
+     */
+    private function boostFigures(array $adIds, string $token): array
+    {
+        $figures = ['ad_views' => null, 'ad_reach' => null, 'ad_link_clicks' => null];
+
+        foreach ($adIds as $adId) {
+            try {
+                $row = data_get($this->get($this->url($adId.'/insights'), [
+                    'fields'      => 'impressions,reach,inline_link_clicks',
+                    'date_preset' => 'maximum',
+                ], $token), 'data.0', []);
+            } catch (\RuntimeException) {
+                $this->unavailable[] = 'boost ad figures (the token needs ads_read on the ad account)';
+
+                return $figures;
+            }
+
+            $figures = [
+                'ad_views'       => (int) $figures['ad_views'] + (int) data_get($row, 'impressions', 0),
+                'ad_reach'       => (int) $figures['ad_reach'] + (int) data_get($row, 'reach', 0),
+                'ad_link_clicks' => (int) $figures['ad_link_clicks'] + (int) data_get($row, 'inline_link_clicks', 0),
+            ];
+        }
+
+        return $figures;
+    }
+
+    /**
+     * Each post's promotion status, read on its own so a token that may not see it loses only the
+     * Boosted mark, never the posts.
+     *
+     * @return array<string, string> Meta's post id => promotion status
+     */
+    private function facebookPromotions(string $pageId, Carbon $since, Carbon $until, string $token): array
+    {
+        try {
+            return collect(iterator_to_array($this->rows($this->url($pageId.'/posts'), [
+                'fields' => 'id,promotion_status',
+                'since'  => $since->copy()->startOfDay()->timestamp,
+                'until'  => $until->copy()->endOfDay()->timestamp,
+                'limit'  => 100,
+            ], $token), false))
+                ->mapWithKeys(fn (array $post) => [(string) data_get($post, 'id') => (string) data_get($post, 'promotion_status')])
+                ->all();
+        } catch (\RuntimeException) {
+            $this->unavailable[] = 'facebook boosted posts';
+
+            return [];
+        }
+    }
+
+    private function adsToken(Shop $shop): string
+    {
+        return (string) (data_get($shop->settings, 'meta_ads.access_token') ?: config('services.meta_ads.access_token'));
     }
 
     /**
@@ -394,6 +483,82 @@ class FetchMetaSocialInsights extends Command
                     $available[$name] = $name;
                 }
             }
+        }
+
+        return $byDate;
+    }
+
+    /**
+     * The Page's views of each day that came through ads (boosts and campaigns), which Meta counts
+     * inside the Page's views; the rest of the day's views are organic.
+     *
+     * @return array<string, array{ad_impressions: int}> date => column => value
+     */
+    private function facebookAdViews(string $pageId, Carbon $since, Carbon $until, string $token): array
+    {
+        $byDate = [];
+
+        try {
+            for ($start = $since->copy()->startOfDay(); $start->lte($until); $start->addDays(self::FACEBOOK_WINDOW_DAYS)) {
+                $end = $start->copy()->addDays(self::FACEBOOK_WINDOW_DAYS - 1)->min($until);
+
+                $response = $this->get($this->url($pageId.'/insights'), [
+                    'metric'    => 'page_media_view',
+                    'period'    => 'day',
+                    'breakdown' => 'is_from_ads',
+                    'since'     => $start->timestamp,
+                    'until'     => $end->copy()->addDay()->startOfDay()->timestamp,
+                ], $token);
+
+                foreach (data_get($response, 'data.0.values', []) as $value) {
+                    if (!is_numeric(data_get($value, 'value')) || !array_key_exists('is_from_ads', $value)) {
+                        continue;
+                    }
+
+                    $date = Carbon::parse(data_get($value, 'end_time'))->subDay()->toDateString();
+                    $byDate[$date]['ad_impressions'] = ($byDate[$date]['ad_impressions'] ?? 0) + ((string) $value['is_from_ads'] === '1' ? (int) $value['value'] : 0);
+                }
+            }
+        } catch (\RuntimeException) {
+            $this->unavailable[] = 'facebook views from ads';
+        }
+
+        return $byDate;
+    }
+
+    /**
+     * The account's views of each day that came through ads, Meta's `AD` media product type; asked
+     * for one day at a time, since Instagram splits views only in a total for a range.
+     *
+     * @return array<string, array{ad_impressions: int}> date => column => value
+     */
+    private function instagramAdViews(string $instagramId, Carbon $since, Carbon $until, string $token): array
+    {
+        $byDate = [];
+
+        for ($day = $since->copy()->startOfDay(); $day->lte($until); $day->addDay()) {
+            try {
+                $response = $this->get($this->url($instagramId.'/insights'), [
+                    'metric'      => 'views',
+                    'metric_type' => 'total_value',
+                    'breakdown'   => 'media_product_type',
+                    'period'      => 'day',
+                    'since'       => $day->timestamp,
+                    'until'       => $day->copy()->addDay()->timestamp,
+                ], $token);
+            } catch (\RuntimeException) {
+                $this->unavailable[] = 'instagram views from ads';
+
+                return $byDate;
+            }
+
+            if (!is_numeric(data_get($response, 'data.0.total_value.value'))) {
+                continue;
+            }
+
+            $byDate[$day->toDateString()]['ad_impressions'] = (int) collect(data_get($response, 'data.0.total_value.breakdowns.0.results', []))
+                ->filter(fn (array $result) => data_get($result, 'dimension_values.0') === 'AD')
+                ->sum('value');
         }
 
         return $byDate;

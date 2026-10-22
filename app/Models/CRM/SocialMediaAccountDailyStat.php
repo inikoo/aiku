@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $engagements
  * @property int|null $profile_visits
  * @property int|null $link_clicks
+ * @property int|null $ad_impressions
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read SocialMediaAccount $socialMediaAccount

@@ -359,6 +359,27 @@ it('keeps the most viewed post among the top content even when others drew more 
         ->and($topPosts->sortByDesc('engagements')->first()['engagements'])->toBe(100);
 });
 
+it('splits views into organic and ads and keeps days synced before the split apart', function () {
+    ImportSocialMediaInsights::make()->handle($this->shop, instagramContentExport());
+    $account = $this->shop->socialMediaAccounts()->sole();
+    $account->dailyStats()->create(['date' => '2026-08-05', 'impressions' => 1000, 'ad_impressions' => 900]);
+    $account->dailyStats()->create(['date' => '2026-08-06', 'impressions' => 500]);
+
+    $performance = GetSocialMediaPerformance::run($this->organisation, Carbon::parse('2026-08-01')->startOfDay(), Carbon::parse('2026-08-31')->endOfDay(), ['shop' => $this->shop->slug, 'compare' => 'none']);
+    $views       = $performance['kpis']['current'];
+    $day         = collect($performance['trend']['points'])->firstWhere('date', '2026-08-05');
+
+    expect($views['views'])->toBe(1500)
+        ->and($views['organic_views'])->toBe(100)
+        ->and($views['ad_views'])->toBe(900)
+        ->and($views['unsplit_views'])->toBe(500)
+        ->and($day['organic_views'])->toBe(100)
+        ->and($day['ad_views'])->toBe(900)
+        ->and($performance['accounts'][0]['ad_views'])->toBe(900)
+        ->and($performance['platforms'][0]['organic_views'])->toBe(100)
+        ->and($performance['insight'])->toContain('Ads brought 60% of views');
+});
+
 it('filters by platform and leaves out shops outside the filter', function () {
     ImportSocialMediaInsights::make()->handle($this->shop, instagramContentExport());
 
@@ -433,7 +454,10 @@ function fakeMetaSocialGraph(array &$requests): void
 
         return match ($path) {
             '/v21.0/111' => Http::response(['id' => '111', 'name' => 'AW Gifts Europe', 'followers_count' => 5000, 'access_token' => 'page-token']),
-            '/v21.0/111/posts' => Http::response(isset($query['after'])
+            '/v21.0/ad-1/insights' => Http::response(['data' => [['impressions' => '800', 'reach' => '600', 'inline_link_clicks' => '12']]]),
+            '/v21.0/111/posts' => ($query['fields'] ?? '') === 'id,promotion_status'
+                ? Http::response(['data' => [['id' => '111_1', 'promotion_status' => 'active'], ['id' => '111_2', 'promotion_status' => 'inactive']]])
+                : Http::response(isset($query['after'])
                 ? ['data' => [[
                     'id'            => '111_2',
                     'message'       => 'Brand spotlight',
@@ -467,14 +491,19 @@ function fakeMetaSocialGraph(array &$requests): void
                     ]],
                     'paging' => ['next' => 'https://graph.facebook.com/v21.0/111/posts?after=cursor2&access_token=page-token'],
                 ]),
-            '/v21.0/111/insights' => str_contains($query['metric'] ?? '', 'page_views_total')
+            '/v21.0/111/insights' => ($query['breakdown'] ?? null) === 'is_from_ads'
+                ? Http::response(['data' => [['name' => 'page_media_view', 'period' => 'day', 'values' => [
+                    ['value' => 900, 'end_time' => '2026-08-02T07:00:00+0000', 'is_from_ads' => '0'],
+                    ['value' => 100, 'end_time' => '2026-08-02T07:00:00+0000', 'is_from_ads' => '1'],
+                ]]]])
+                : (str_contains($query['metric'] ?? '', 'page_views_total')
                 ? Http::response(['error' => ['message' => '(#100) The value must be a valid insights metric']], 400)
                 : Http::response(['data' => collect([
                     ['name' => 'page_total_media_view_unique', 'values' => [['value' => 300, 'end_time' => '2026-08-02T07:00:00+0000']]],
                     ['name' => 'page_daily_follows_unique', 'values' => [['value' => 4, 'end_time' => '2026-08-02T07:00:00+0000']]],
                     ['name' => 'page_media_view', 'values' => [['value' => 1000, 'end_time' => '2026-08-02T07:00:00+0000']]],
                     ['name' => 'page_post_engagements', 'values' => [['value' => 25, 'end_time' => '2026-08-02T07:00:00+0000']]],
-                ])->whereIn('name', explode(',', $query['metric'] ?? ''))->values()->all(), 'paging' => ['next' => 'https://graph.facebook.com/v21.0/111/insights?since=later']]),
+                ])->whereIn('name', explode(',', $query['metric'] ?? ''))->values()->all(), 'paging' => ['next' => 'https://graph.facebook.com/v21.0/111/insights?since=later']])),
             '/v21.0/222' => Http::response(['id' => '222', 'username' => 'awgifts.eu', 'name' => 'AW Gifts Europe', 'followers_count' => 2000]),
             '/v21.0/222/media' => Http::response(['data' => [[
                 'id'                 => '1801',
@@ -485,6 +514,7 @@ function fakeMetaSocialGraph(array &$requests): void
                 'timestamp'          => '2026-08-05T10:00:00+0000',
                 'like_count'         => 30,
                 'comments_count'     => 2,
+                'boost_ads_list'     => ['data' => [['ad_id' => 'ad-1', 'ad_status' => 'active']]],
                 'insights'           => ['data' => [
                     ['name' => 'reach', 'values' => [['value' => 900]]],
                     ['name' => 'views', 'values' => [['value' => 1500]]],
@@ -497,6 +527,14 @@ function fakeMetaSocialGraph(array &$requests): void
                     ['name' => 'reach', 'values' => [['value' => 650, 'end_time' => '2026-08-05T07:00:00+0000']]],
                     ['name' => 'follower_count', 'values' => [['value' => 9, 'end_time' => '2026-08-05T07:00:00+0000']]],
                 ])->whereIn('name', explode(',', $query['metric'] ?? ''))->values()->all()]),
+                ($query['breakdown'] ?? null) === 'media_product_type' => Http::response(['data' => [[
+                    'name'        => 'views',
+                    'period'      => 'day',
+                    'total_value' => ['value' => 700, 'breakdowns' => [['dimension_keys' => ['media_product_type'], 'results' => [
+                        ['dimension_values' => ['REEL'], 'value' => 500],
+                        ['dimension_values' => ['AD'], 'value' => 200],
+                    ]]]],
+                ]]]),
                 ($query['metric'] ?? null) === 'follows_and_unfollows' => Http::response(['data' => [[
                     'name'        => 'follows_and_unfollows',
                     'period'      => 'day',
@@ -556,13 +594,17 @@ describe('fetching meta organic insights', function () {
             ->and($reel->reactions)->toBe(40)
             ->and($reel->shares)->toBe(7)
             ->and($page->posts()->where('external_id', '2')->value('type'))->toBe(SocialMediaPostTypeEnum::CAROUSEL)
+            ->and($reel->is_boosted)->toBeTrue()
+            ->and($page->posts()->where('external_id', '2')->value('is_boosted'))->toBeFalse()
             ->and(collect($requests)->filter(fn ($url) => str_contains($url, '/111/posts'))->every(fn ($url) => str_contains($url, 'access_token=page-token')))->toBeTrue()
-            ->and(collect($requests)->filter(fn ($url) => str_contains($url, '/111/insights'))->count())->toBe(count(FetchMetaSocialInsights::FACEBOOK_PAGE_METRICS));
+            ->and(collect($requests)->filter(fn ($url) => str_contains($url, '/111/insights') && !str_contains($url, 'breakdown='))->count())->toBe(count(FetchMetaSocialInsights::FACEBOOK_PAGE_METRICS));
 
         $day = $page->dailyStats()->where('date', '2026-08-01')->sole();
 
         expect($day->reach)->toBe(300)
-            ->and($day->new_follows)->toBe(4);
+            ->and($day->new_follows)->toBe(4)
+            ->and($day->impressions)->toBe(1000)
+            ->and($day->ad_impressions)->toBe(100);
     });
 
     it('stores instagram media and account days, and keeps a re-run to one row each', function () {
@@ -582,8 +624,13 @@ describe('fetching meta organic insights', function () {
             ->and($media->impressions)->toBe(1500)
             ->and($media->saves)->toBe(12)
             ->and($media->reactions)->toBe(30)
+            ->and($media->is_boosted)->toBeTrue()
+            ->and($media->ad_views)->toBe(800)
+            ->and($media->ad_link_clicks)->toBe(12)
             ->and($instagram->dailyStats()->where('date', '2026-08-04')->sole()->reach)->toBe(650)
-            ->and($instagram->dailyStats()->where('date', '2026-08-04')->sole()->new_follows)->toBe(9);
+            ->and($instagram->dailyStats()->where('date', '2026-08-04')->sole()->new_follows)->toBe(9)
+            ->and($instagram->dailyStats()->where('date', '2026-08-04')->sole()->impressions)->toBe(700)
+            ->and($instagram->dailyStats()->where('date', '2026-08-04')->sole()->ad_impressions)->toBe(200);
     });
 
     it('works instagram followers of past days back from today through each day\'s follows and unfollows', function () {
@@ -710,7 +757,7 @@ describe('fetching meta organic insights', function () {
         $requests = [];
         Artisan::call('social-media:fetch-meta', ['shop' => $this->shop->slug, '--date' => '2026-08-31', '--days' => 120]);
 
-        expect(collect($requests)->filter(fn (string $url) => str_contains($url, '/111/insights') && str_contains($url, 'metric=page_media_view&'))->count())->toBe(2);
+        expect(collect($requests)->filter(fn (string $url) => str_contains($url, '/111/insights') && str_contains($url, 'metric=page_media_view&') && !str_contains($url, 'breakdown='))->count())->toBe(2);
     });
 
     it('stops a run before meta\'s usage limit instead of pushing on into a block', function () {
