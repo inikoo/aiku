@@ -20,6 +20,7 @@ import PurchaseOrderItemStockInfo from '@/Components/Procurement/PurchaseOrderIt
 import PurchaseOrderSuggestButton from '@/Components/Procurement/PurchaseOrderSuggestButton.vue'
 import PurchaseOrderLinePriceChange from '@/Components/Procurement/PurchaseOrderLinePriceChange.vue'
 import PurchaseOrderLineAddToContainerDialog from '@/Components/Procurement/PurchaseOrderLineAddToContainerDialog.vue'
+import PingIcon from '@/Components/Utils/PingIcon.vue'
 import { getOrderingLevels, unitsPerOrderingLevel, suggestionAtOrderingLevel, type OrderingLevel } from '@/Composables/useOrderingLevel'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -619,19 +620,20 @@ function orgStockRoute(item: { org_stock_id?: number }) {
                         </button>
                     </template>
                 </div>
-                <Button
-                    v-if="rowsSelectedForContainer.length"
-                    class="mb-1.5"
-                    :label="ctransChoice('Add :count item to container|Add :count items to container', rowsSelectedForContainer.length)"
-                    :tooltip="ctrans('Click to put the selected products in a container in process')"
-                    type="secondary"
-                    size="xs"
-                    @click="openContainerDialog(rowsSelectedForContainer)"
-                >
-                    <template #icon>
-                        <FontAwesomeIcon :icon="faTruckContainer" fixed-width aria-hidden="true" />
-                    </template>
-                </Button>
+                <span v-if="rowsSelectedForContainer.length" class="relative mb-1.5 inline-flex">
+                    <Button
+                        :label="ctransChoice('Add :count item to container|Add :count items to container', rowsSelectedForContainer.length)"
+                        :tooltip="ctrans('Click to put the selected products in a container in process')"
+                        type="secondary"
+                        size="xs"
+                        @click="openContainerDialog(rowsSelectedForContainer)"
+                    >
+                        <template #icon>
+                            <FontAwesomeIcon :icon="faTruckContainer" fixed-width aria-hidden="true" />
+                        </template>
+                    </Button>
+                    <PingIcon class="!absolute -right-0.5 -top-0.5 text-[5px] text-amber-500" aria-hidden="true" />
+                </span>
                 <label
                     v-tooltip="ctrans('When on, Remove and Cancel act straight away without asking to confirm')"
                     class="mb-1.5 flex cursor-pointer items-center gap-2 text-sm"
