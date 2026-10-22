@@ -180,7 +180,7 @@ const maxMix = computed(() => Math.max(1, ...mixRows.value.map(row => row.orders
     <div class="px-4 py-5 md:px-6 space-y-6">
         <div class="flex flex-wrap items-center justify-between gap-3">
             <p class="text-xs text-gray-400">
-                <template v-if="data.from">{{ ctrans("Orders placed since") }} {{ data.from }}<span v-if="data.to"> {{ ctrans("to") }} {{ data.to }}</span></template>
+                <template v-if="data.from">{{ data.to ? ctrans("Orders placed from :from to :to", { from: data.from, to: data.to }) : ctrans("Orders placed since :from", { from: data.from }) }}</template>
                 <span v-if="data.previous" class="block text-gray-500">
                     {{ ctrans("Compared with :label, :from to :to", { label: data.previous.label.toLowerCase(), from: data.previous.requested_from, to: data.previous.requested_to }) }}<span v-if="data.previous.cut_by_tracking">{{ ctrans(", counted from :date when tracking began", { date: data.previous.from ?? "" }) }}</span><span v-if="data.previous.before_tracking" class="text-amber-700">{{ ctrans(": before tracking began, so there is nothing to compare") }}</span>.
                 </span>

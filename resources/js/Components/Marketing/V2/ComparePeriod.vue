@@ -14,7 +14,9 @@ import Button from "@/Components/Elements/Buttons/Button.vue"
 import { ctrans } from "@/Composables/useTrans"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faExchange, faTimes, faCheck } from "@fal"
+import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
+import { faTimes, faCheck } from "@fal"
+import { faExchange } from "@far"
 
 library.add(faExchange, faTimes, faCheck)
 
@@ -58,9 +60,20 @@ const datePickerPt = { pcInputText: { root: { class: "!w-32 !py-1 !text-xs" } } 
 const fieldFocusClass = "[&.p-focus]:!border-[--app-accent] [&_input:focus]:!border-[--app-accent]"
 
 const modeLabel = computed(() => props.compare.options.find(option => option.value === props.compare.mode)?.label)
+const buttonTooltip = computed(() => {
+    if (!props.compare.available) {
+        return ctrans("Pick a period other than All to compare it with another")
+    }
+    return props.compare.mode
+        ? ctrans("Compared with :period (:from to :to)", { period: (modeLabel.value ?? "").toLowerCase(), from: props.compare.from ?? "", to: props.compare.to ?? "" })
+        : ctrans("Compare with another period")
+})
 const canApply = computed(() => !isEnabled.value || mode.value !== "custom" || (customFrom.value !== null && customTo.value !== null))
 
 const toggle = (event: Event) => {
+    if (!props.compare.available) {
+        return
+    }
     isEnabled.value = props.compare.mode !== null
     mode.value = props.compare.mode ?? "previous_period"
     popover.value?.toggle(event)
@@ -92,12 +105,16 @@ const apply = () => {
 </script>
 
 <template>
-    <div class="shrink-0">
-        <span v-tooltip="compare.available ? undefined : ctrans('Pick a period other than All to compare it with another')">
-            <Button type="tertiary" icon="fal fa-exchange" :disabled="!compare.available" :loading="isLoading"
-                    :label="compare.mode ? ctrans('vs :period', { period: modeLabel ?? '' }) : ctrans('Compare')"
-                    @click="toggle" />
-        </span>
+    <div class="flex flex-shrink-0">
+        <button type="button" v-tooltip="buttonTooltip" :aria-label="buttonTooltip" :aria-disabled="!compare.available" @click="toggle"
+                class="flex items-center justify-center rounded border px-2 sm:p-2"
+                :class="[
+                    compare.mode ? 'border-transparent bg-[--app-accent-soft] text-[--app-accent-deep]' : 'border-gray-300 text-gray-400',
+                    compare.available ? 'cursor-pointer hover:bg-gray-200' : 'cursor-not-allowed opacity-50',
+                ]">
+            <LoadingIcon v-if="isLoading" class="text-lg sm:text-2xl" />
+            <FontAwesomeIcon v-else icon="far fa-exchange" fixed-width aria-hidden="true" class="text-lg sm:text-2xl" />
+        </button>
         <Popover ref="popover">
             <div class="w-72 space-y-3 text-sm">
                 <label class="flex items-center gap-2 text-gray-700">
