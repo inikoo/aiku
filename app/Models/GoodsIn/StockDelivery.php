@@ -21,6 +21,7 @@ use App\Models\Helpers\Address;
 use App\Models\Helpers\Currency;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SysAdmin\Organisation;
+use App\Models\SysAdmin\User;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasAttachments;
@@ -29,6 +30,7 @@ use App\Models\Traits\InOrganisation;
 use App\Models\Traits\HasSearch;
 use App\Models\Traits\HasStageMarks;
 use Eloquent;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -312,6 +314,19 @@ class StockDelivery extends Model implements HasMedia, Auditable
             StockDeliveryStateEnum::READY_TO_SHIP,
             StockDeliveryStateEnum::DISPATCHED,
         ], true);
+    }
+
+    /**
+     * An accounting manager updates a costed delivery, or the person they named when they reopened it, until it is finished.
+     */
+    public function canUpdateCosting(User $user): bool
+    {
+        if ($user->authTo("org-supervisor.{$this->organisation_id}.accounting")) {
+            return true;
+        }
+
+        return !$this->is_costed
+            && (int) Arr::get($this->data, 'costing_reopened.assignee_id') === $user->id;
     }
 
     /**

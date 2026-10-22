@@ -15,6 +15,8 @@ import ConfirmDialog from "primevue/confirmdialog"
 import Dialog from "primevue/dialog"
 import DatePicker from "primevue/datepicker"
 import InputText from "primevue/inputtext"
+import Select from "primevue/select"
+import Textarea from "primevue/textarea"
 import { useConfirm } from "primevue/useconfirm"
 import { notify } from "@kyvg/vue3-notification"
 
@@ -224,7 +226,7 @@ const props = defineProps<{
 		viewed_by_agent: boolean
 		can_edit: boolean
 		can_edit_payments: boolean
-		reopened: { at: string, by: string | null, reason: string } | null
+		reopened: { at: string, by: string | null, reason: string, assignee: string | null } | null
 		currency: string | null
 		checklist: any[]
 		org_currency_id: number
@@ -835,7 +837,7 @@ const confirmStartStockDeliveryCosting = (action: any) => {
 
 const updateCostingLoading = ref(false)
 
-const patchCosting = (action: any, data: Record<string, string>, failure: string) => {
+const patchCosting = (action: any, data: Record<string, string | number | null>, failure: string) => {
 	router.patch(route(action.route.name, action.route.parameters), data, {
 		preserveScroll: true,
 		onStart: () => { updateCostingLoading.value = true },
@@ -858,13 +860,21 @@ const confirmReopenStockDeliveryCosting = (action: any) => {
 		rejectProps: { label: ctrans("Cancel"), severity: "secondary", outlined: true },
 		acceptProps: { label: ctrans("Update costing"), severity: "danger" },
 		accept: () => {
-			const reason = window.prompt(ctrans("Why does the costing need to change?"))
-			if (!reason?.trim()) {
-				return
-			}
-			patchCosting(action, { reason: reason.trim() }, ctrans("Failed to update the costing"))
+			reopenCostingReason.value = ""
+			reopenCostingAssigneeId.value = null
+			reopenCostingAction.value = action
 		},
 	})
+}
+
+const reopenCostingAction = ref<any>(null)
+const reopenCostingReason = ref("")
+const reopenCostingAssigneeId = ref<number | null>(null)
+
+const submitReopenStockDeliveryCosting = () => {
+	const action = reopenCostingAction.value
+	reopenCostingAction.value = null
+	patchCosting(action, { reason: reopenCostingReason.value.trim(), assignee_id: reopenCostingAssigneeId.value }, ctrans("Failed to update the costing"))
 }
 
 const confirmFinishStockDeliveryCosting = (action: any) => {
@@ -1467,6 +1477,48 @@ const confirmDeleteStockDelivery = (action: any) => {
 			</div>
 		</BoxStatPallet>
 	</div>
+
+	<Dialog
+		:visible="!!reopenCostingAction"
+		modal
+		:header="ctrans('Update costing')"
+		:style="{ width: '30rem', maxWidth: 'calc(100vw - 2rem)' }"
+		:draggable="false"
+		@update:visible="(visible: boolean) => { if (!visible) reopenCostingAction = null }"
+	>
+		<div class="flex flex-col gap-4">
+			<div class="flex flex-col gap-2">
+				<label for="stock-delivery-reopen-costing-reason" class="font-medium text-gray-700">
+					{{ ctrans("Why does the costing need to change?") }}
+				</label>
+				<Textarea id="stock-delivery-reopen-costing-reason" v-model="reopenCostingReason" rows="3" autoResize fluid />
+			</div>
+			<div class="flex flex-col gap-2">
+				<label for="stock-delivery-reopen-costing-assignee" class="font-medium text-gray-700">
+					{{ ctrans("Who makes the update") }}
+				</label>
+				<Select
+					v-model="reopenCostingAssigneeId"
+					inputId="stock-delivery-reopen-costing-assignee"
+					:options="reopenCostingAction?.assignable_users ?? []"
+					optionLabel="name"
+					optionValue="id"
+					:placeholder="ctrans('Me')"
+					filter
+					showClear
+					fluid
+				/>
+				<span class="text-sm text-gray-500">
+					{{ ctrans("They can change the costs of this delivery and finish the costing, without being an accounting manager.") }}
+				</span>
+			</div>
+		</div>
+
+		<template #footer>
+			<Button :label="ctrans('Cancel')" type="secondary" @click="reopenCostingAction = null" />
+			<Button :label="ctrans('Update costing')" type="save" :disabled="!reopenCostingReason.trim()" @click="submitReopenStockDeliveryCosting" />
+		</template>
+	</Dialog>
 
 	<Dialog
 		:visible="!!estimatedDeliveryDateAction"

@@ -28,6 +28,7 @@ use App\Actions\GoodsIn\StockDelivery\DeleteStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\RemovePurchaseOrderFromStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\DistributeStockDeliveryExtraCost;
 use App\Actions\GoodsIn\StockDelivery\EvaluateStockDeliveryCosting;
+use App\Actions\GoodsIn\StockDelivery\ReopenStockDeliveryCosting;
 use App\Actions\GoodsIn\StockDelivery\GetStockDeliveryHandTypedCosts;
 use App\Actions\GoodsIn\StockDelivery\GetStockDeliveryInvoiceCosting;
 use App\Actions\GoodsIn\StockDelivery\PdfStockDelivery;
@@ -134,7 +135,7 @@ class ShowStockDelivery extends OrgAction
             $isAgent            = $this->organisation->type === OrganisationTypeEnum::AGENT;
 
             $this->procurementPageCanEditPayments  = !$isAgent && $request->user()->authTo(["procurement.{$this->organisation->id}.edit", "accounting.{$this->organisation->id}.edit"]);
-            $this->procurementPageCanUpdateCosting = !$isAgent && $request->user()->authTo("org-supervisor.{$this->organisation->id}.accounting");
+            $this->procurementPageCanUpdateCosting = !$isAgent && $this->stockDelivery->canUpdateCosting($request->user());
 
             return $request->user()->authTo("incoming.{$this->warehouse->id}.view");
         }
@@ -142,7 +143,7 @@ class ShowStockDelivery extends OrgAction
         $this->canEdit          = $request->user()->authTo("procurement.{$this->organisation->id}.edit");
         $isAgent                = $this->organisation->type === OrganisationTypeEnum::AGENT;
         $this->canEditPayments  = !$isAgent && ($this->canEdit || $request->user()->authTo("accounting.{$this->organisation->id}.edit"));
-        $this->canUpdateCosting = !$isAgent && $request->user()->authTo("org-supervisor.{$this->organisation->id}.accounting");
+        $this->canUpdateCosting = !$isAgent && $this->stockDelivery->canUpdateCosting($request->user());
         $this->canBookIn        = $this->authToBookIn($request, 'incoming.%d.edit');
         $this->canUnreceive     = $this->authToBookIn($request, 'supervisor-incoming.%d');
 
@@ -404,6 +405,9 @@ class ShowStockDelivery extends OrgAction
                     'style'   => 'secondary',
                     'icon'    => 'fal fa-edit',
                     'key'     => 'reopen_stock_delivery_costing',
+                    'assignable_users' => ReopenStockDeliveryCosting::assignableUsers($stockDelivery)
+                        ->map(fn (User $user) => ['id' => $user->id, 'name' => $user->contact_name ?: $user->username])
+                        ->values()->all(),
                     'route'   => [
                         'method'     => 'patch',
                         'name'       => 'grp.models.stock-delivery.reopen-costing',
@@ -1309,6 +1313,7 @@ class ShowStockDelivery extends OrgAction
             'at'     => Arr::get($reopened, 'at'),
             'by'     => User::find(Arr::get($reopened, 'user_id'))?->contact_name,
             'reason' => Arr::get($reopened, 'reason'),
+            'assignee' => User::find(Arr::get($reopened, 'assignee_id'))?->contact_name,
         ];
     }
 

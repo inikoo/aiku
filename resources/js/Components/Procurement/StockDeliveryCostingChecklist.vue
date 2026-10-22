@@ -59,7 +59,7 @@ const props = defineProps<{
     costing: {
         is_costed: boolean
         is_partner: boolean
-        reopened: { at: string, by: string | null, reason: string } | null
+        reopened: { at: string, by: string | null, reason: string, assignee: string | null } | null
         unbalanced: Record<string, { allocated: number, amount: number }>
         currency: string | null
         currency_id: number | null
@@ -317,7 +317,9 @@ const removeExtra = (row: CostRow) => {
             <span v-if="costing.is_costed" class="text-sm text-green-600">{{ ctrans("Done") }}</span>
             <span v-else-if="costing.reopened" class="flex items-center gap-1 text-sm text-orange-600">
                 <FontAwesomeIcon icon="fas fa-exclamation-triangle" fixed-width aria-hidden="true" />
-                {{ ctrans("Costing being updated by :name: :reason", { name: costing.reopened.by ?? "", reason: costing.reopened.reason }) }}
+                {{ costing.reopened.assignee
+                    ? ctrans(":by asked :name to update the costing: :reason", { by: costing.reopened.by ?? "", name: costing.reopened.assignee, reason: costing.reopened.reason })
+                    : ctrans("Costing being updated by :name: :reason", { name: costing.reopened.by ?? "", reason: costing.reopened.reason }) }}
             </span>
             <span v-else-if="isInvoiceSection && !costing.is_partner && costing.agent_invoice_missing" class="flex items-center gap-1 text-sm text-orange-500">
                 <FontAwesomeIcon icon="fas fa-exclamation-triangle" fixed-width aria-hidden="true" />
