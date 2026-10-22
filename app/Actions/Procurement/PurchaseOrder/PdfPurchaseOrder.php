@@ -21,7 +21,6 @@ use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderTransaction;
 use App\Models\SysAdmin\Organisation;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Http\Client\Response as ImageResponse;
@@ -74,36 +73,6 @@ class PdfPurchaseOrder extends OrgAction
         $this->loadAgreements(collect([$purchaseOrder]));
 
         return PDF::loadView('procurement.templates.pdf.purchase-order', $this->viewData($purchaseOrder))->output();
-    }
-
-    /**
-     * One PDF for the supplier orders of an agent order, a section per supplier order.
-     *
-     * @param  Collection<int, PurchaseOrder>  $purchaseOrders
-     */
-    public function handleMany(Collection $purchaseOrders): string
-    {
-        $purchaseOrders = $this->withoutCancelled($purchaseOrders);
-        (new EloquentCollection($purchaseOrders->all()))->loadMissing(self::PDF_RELATIONS);
-        $this->loadAgreements($purchaseOrders);
-
-        return PDF::loadView('procurement.templates.pdf.purchase-orders', [
-            'reference'      => $purchaseOrders->first()->agent_order_reference ?? $purchaseOrders->first()->reference,
-            'purchaseOrders' => $purchaseOrders->map(fn (PurchaseOrder $purchaseOrder) => $this->viewData($purchaseOrder))->all(),
-        ])->output();
-    }
-
-    /**
-     * A cancelled supplier order is left out of the agent order, unless every one of them is cancelled.
-     *
-     * @param  Collection<int, PurchaseOrder>  $purchaseOrders
-     * @return Collection<int, PurchaseOrder>
-     */
-    public function withoutCancelled(Collection $purchaseOrders): Collection
-    {
-        $live = $purchaseOrders->reject(fn (PurchaseOrder $purchaseOrder) => $purchaseOrder->state === PurchaseOrderStateEnum::CANCELLED)->values();
-
-        return $live->isEmpty() ? $purchaseOrders : $live;
     }
 
     /**
@@ -220,40 +189,6 @@ class PdfPurchaseOrder extends OrgAction
     public function filename(PurchaseOrder $purchaseOrder): string
     {
         return $this->filenameFor($purchaseOrder->reference);
-    }
-
-    public function inAgentOrder(Organisation $organisation, OrgAgent $orgAgent, string $agentOrderReference, ActionRequest $request): Response
-    {
-        abort_unless($orgAgent->organisation_id === $organisation->id, 404);
-        $this->initialisation($organisation, $request);
-        $this->withImages = $request->boolean('with_images');
-
-        $purchaseOrders = PurchaseOrder::inAgentOrder($orgAgent->organisation_id, $orgAgent->agent_id, $agentOrderReference)
-            ->with(self::PDF_RELATIONS)
-            ->orderBy('parent_code')
-            ->get();
-        abort_if($purchaseOrders->isEmpty(), 404);
-
-        return response($this->handleMany($purchaseOrders), 200)
-            ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'inline; filename="'.$this->filenameFor($agentOrderReference).'"');
-    }
-
-    public function inWholeAgentOrder(Organisation $organisation, PurchaseOrder $purchaseOrder, ActionRequest $request): Response
-    {
-        $this->initialisation($organisation, $request);
-        $this->authorizeProcurementRecord($purchaseOrder);
-        abort_unless($purchaseOrder->isAgentOrder() && $purchaseOrder->agent_order_reference, 404);
-        $this->withImages = $request->boolean('with_images');
-
-        $purchaseOrders = $purchaseOrder->wholeAgentOrder()
-            ->with(self::PDF_RELATIONS)
-            ->orderBy('parent_code')
-            ->get();
-
-        return response($this->handleMany($purchaseOrders), 200)
-            ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'inline; filename="'.$this->filenameFor($purchaseOrder->agent_order_reference).'"');
     }
 
     public function asController(Organisation $organisation, PurchaseOrder $purchaseOrder, ActionRequest $request): Response

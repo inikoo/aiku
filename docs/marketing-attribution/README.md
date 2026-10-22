@@ -9,6 +9,7 @@ Which marketing channel earned which sale, and what it cost to earn it. Live in 
 | [engineering.md](engineering.md) | Engineers. How it works, what to run, what not to break. |
 | [utm-campaign-naming.md](utm-campaign-naming.md) | Whoever builds ad links. The naming standard and its one hard constraint. |
 | [troubleshooting.md](troubleshooting.md) | Symptom → cause → fix, plus the rollback note. |
+| [dashboard-v2-plan.md](dashboard-v2-plan.md) | Plan for the hidden v2 dashboard: linear vs first touch, U-shaped or W-shaped per order, three tabs. |
 
 Advertising spend is imported separately — see [../google-ads-cost-ingestion/README.md](../google-ads-cost-ingestion/README.md).
 

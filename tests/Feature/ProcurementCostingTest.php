@@ -12,7 +12,6 @@ use App\Actions\SupplyChain\StockDeliveryInvoice\EstimateStockDeliveryInvoice;
 use App\Models\SupplyChain\SupplierInvoice;
 use App\Models\SupplyChain\AgentInvoice;
 use App\Enums\SupplyChain\StockDeliveryInvoice\StockDeliveryInvoiceSourceEnum;
-use App\Actions\Procurement\AgentOrder\SendAgentOrderToAgent;
 use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Procurement\ProcurementNote\UI\IndexProcurementNotes;
 use App\Enums\Goods\Stock\StockStateEnum;
@@ -60,6 +59,7 @@ use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrderOrgSupplierProducts;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToSubmitted;
 use App\Actions\Procurement\PurchaseOrderTransaction\StorePurchaseOrderTransaction;
+use App\Actions\Procurement\PurchaseOrderTransaction\CancelPurchaseOrderTransaction;
 use App\Actions\Catalogue\Product\GetProductIncomingStock;
 use App\Enums\Masters\MasterAsset\MasterAssetTypeEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -525,7 +525,7 @@ test('a partly delivered purchase order still shows the lines that are not in th
     }
 
     $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition());
-    StorePurchaseOrderTransaction::make()->action(
+    $orderedLine   = StorePurchaseOrderTransaction::make()->action(
         $purchaseOrder,
         $orgSupplierProducts[0]->supplierProduct->historicSupplierProduct,
         $orderedOrgStock,
@@ -563,6 +563,15 @@ test('a partly delivered purchase order still shows the lines that are not in th
         ->and($ordered['type'])->toBe('purchase_order')
         ->and($ordered['quantity'])->toBe(90.0)
         ->and(collect($incoming)->where('org_stock_code', $deliveredOrgStock->code)->count())->toBe(0);
+
+    $comingSkos = fn () => (float) DB::table('org_stocks')->where('id', $orderedOrgStock->id)
+        ->selectRaw(GetOrganisationStockCoverBuckets::comingSkosExpression('org_stocks').' as coming')->value('coming');
+    $comingBeforeCancel = $comingSkos();
+
+    CancelPurchaseOrderTransaction::make()->action($orderedLine->refresh());
+
+    expect(collect(GetProductIncomingStock::run($product))->firstWhere('reference', $purchaseOrder->reference))->toBeNull()
+        ->and($comingSkos())->toBeLessThan($comingBeforeCancel);
 });
 
 test('sko showcase shows days of cover and the purchase orders still to arrive', function () {
@@ -2687,87 +2696,6 @@ test('suppliers talk to procurement on WhatsApp: routed by phone, answered withi
     $this->organisation->update(['settings' => $originalSettings]);
 });
 
-test('an agent order goes to the agent as one email, its PDF is built without a query per order, and the agent reply reaches every supplier order in it', function () {
-    \App\Actions\SysAdmin\Organisation\Seeders\SeedOrganisationOutboxes::run($this->organisation);
-
-    $originalSettings = $this->organisation->settings;
-    $token            = Str::lower(Str::random(8));
-    $mailbox          = "agent-order-$token@org.test";
-    $agentEmail       = "desk@agent-order-$token.com";
-
-    $settings = $this->organisation->settings ?? [];
-    data_set($settings, 'procurement.gmail', ['email' => $mailbox, 'refresh_token' => \Illuminate\Support\Facades\Crypt::encryptString('rt'), 'connected_at' => now()->toIso8601String()]);
-    $this->organisation->update(['settings' => $settings]);
-
-    $orgAgent                 = createFreshOrgAgent($this);
-    $agentOrganisation        = $orgAgent->agent->organisation;
-    $originalAgentEmail       = $agentOrganisation->email;
-    $agentOrganisation->email = $agentEmail;
-    $agentOrganisation->saveQuietly();
-
-    $orders    = createAgentOrderToSend($this, $orgAgent, 3);
-    $reference = $orders[0]->agent_order_reference;
-    $orderIds  = collect($orders)->pluck('id')->all();
-
-    $queriesToBuildPdf = function (int $numberOfOrders) use ($orderIds): int {
-        $purchaseOrders = PurchaseOrder::whereIn('id', array_slice($orderIds, 0, $numberOfOrders))->orderBy('reference')->get();
-
-        DB::flushQueryLog();
-        DB::enableQueryLog();
-        \App\Actions\Procurement\PurchaseOrder\PdfPurchaseOrder::make()->handleMany($purchaseOrders);
-        $queries = count(DB::getQueryLog());
-        DB::disableQueryLog();
-
-        return $queries;
-    };
-
-    $queriesToBuildPdf(1);
-
-    expect($queriesToBuildPdf(3))->toBe($queriesToBuildPdf(1));
-
-    SendAgentOrderToAgent::run($orderIds, $reference, 'email');
-
-    $links             = \App\Models\Comms\ModelHasDispatchedEmail::where('model_type', 'PurchaseOrder')->whereIn('model_id', $orderIds)->get();
-    $dispatchedEmailId = $links->pluck('dispatched_email_id')->unique()->sole();
-    $sent              = \App\Models\Procurement\SupplierMessage::where('dispatched_email_id', $dispatchedEmailId)->sole();
-
-    expect($links)->toHaveCount(3)
-        ->and($orderIds)->toContain($sent->purchase_order_id)
-        ->and($sent->org_agent_id)->toBe($orgAgent->id)
-        ->and($sent->linkedPurchaseOrders()->pluck('id')->all())->toEqualCanonicalizing($orderIds);
-
-    $this->get(route('grp.org.procurement.supplier_messages.show', [$this->organisation->slug, $sent->id]))
-        ->assertInertia(fn (AssertableInertia $page) => $page
-            ->has('messages.0.purchase_orders', 3)
-            ->where('messages.0.purchase_orders', fn ($purchaseOrders) => collect($purchaseOrders)->pluck('reference')->sort()->values()->all() === collect($orders)->pluck('reference')->sort()->values()->all()));
-
-    \App\Models\Comms\DispatchedEmail::whereKey($dispatchedEmailId)->update(['ses_id' => "ses-$token"]);
-
-    $answer                         = procurementGmailMessage("ao1-$token", "aot1-$token", "Desk <$agentEmail>", $mailbox, 'Re: purchase order');
-    $answer['payload']['headers'][] = ['name' => 'In-Reply-To', 'value' => "<ses-$token@eu-west-1.amazonses.com>"];
-    $answer['payload']['parts'][1]['filename'] = 'Invoice 4411.pdf';
-
-    \Illuminate\Support\Facades\Http::fake([
-        'oauth2.googleapis.com/token' => \Illuminate\Support\Facades\Http::response(['access_token' => 'at']),
-        "gmail.googleapis.com/gmail/v1/users/me/messages/ao1-$token/attachments/*" => \Illuminate\Support\Facades\Http::response(['data' => rtrim(strtr(base64_encode("%PDF invoice $token"), '+/', '-_'), '=')]),
-        "gmail.googleapis.com/gmail/v1/users/me/messages/ao1-$token*" => \Illuminate\Support\Facades\Http::response($answer),
-    ]);
-
-    $reply = \App\Actions\Procurement\SupplierMessage\ProcessProcurementEmail::run($this->organisation->fresh(), "ao1-$token");
-
-    expect($reply->org_agent_id)->toBe($orgAgent->id)
-        ->and($orderIds)->toContain($reply->purchase_order_id)
-        ->and($reply->linkedPurchaseOrders()->pluck('id')->all())->toEqualCanonicalizing($orderIds);
-
-    foreach ($orders as $order) {
-        expect($order->attachments()->wherePivot('scope', 'Invoice')->count())->toBe(1);
-    }
-
-    $agentOrganisation->email = $originalAgentEmail;
-    $agentOrganisation->saveQuietly();
-    $this->organisation->update(['settings' => $originalSettings]);
-});
-
 test('a placed stock delivery costed in Aurora is marked as costed, one costed in aiku or not costed in Aurora is left alone', function () {
     $repair = \App\Actions\Transfers\Aurora\RepairAuroraStockDeliveryCosting::make();
     $token  = random_int(100000, 999999);
@@ -2800,80 +2728,20 @@ test('a placed stock delivery costed in Aurora is marked as costed, one costed i
         ->and($deliveries['aiku']->fresh()->is_costed)->toBeFalse();
 });
 
-test('the agent order PDF leaves out cancelled supplier orders and cancelled lines', function () {
-    $orgAgent          = createFreshOrgAgent($this);
-    [$live, $cancelled] = createAgentOrderToSend($this, $orgAgent, 2);
-    $pdf               = \App\Actions\Procurement\PurchaseOrder\PdfPurchaseOrder::make();
+test('the purchase order PDF prints cancelled lines only on a cancelled order', function () {
+    $orgAgent           = createFreshOrgAgent($this);
+    [$live, $cancelled] = createAgentPurchaseOrders($this, $orgAgent, 2);
+    $pdf                = \App\Actions\Procurement\PurchaseOrder\PdfPurchaseOrder::make();
 
     $cancelled->update(['state' => PurchaseOrderStateEnum::CANCELLED]);
     $cancelled->purchaseOrderTransactions()->update(['state' => \App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum::CANCELLED]);
 
-    expect($pdf->withoutCancelled(collect([$live, $cancelled]))->pluck('id')->all())->toBe([$live->id])
-        ->and($pdf->withoutCancelled(collect([$cancelled]))->pluck('id')->all())->toBe([$cancelled->id])
-        ->and($pdf->lines($cancelled->fresh()))->toHaveCount(1)
+    expect($pdf->lines($cancelled->fresh()))->toHaveCount(1)
         ->and($pdf->lines($live->fresh()))->toHaveCount(1);
 
     $live->purchaseOrderTransactions()->update(['state' => \App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum::CANCELLED]);
 
     expect($pdf->lines($live->fresh()))->toHaveCount(0);
-});
-
-test('the agent order PDF is only served for a reference that has orders under that organisation and org agent', function () {
-    $orgAgent      = createFreshOrgAgent($this);
-    $otherOrgAgent = createFreshOrgAgent($this);
-    $orders        = createAgentOrderToSend($this, $orgAgent, 2);
-    $reference     = $orders[0]->agent_order_reference;
-
-    $pdfRoute = fn (OrgAgent $agent, string $agentOrderReference) => route('grp.org.procurement.org_agents.show.agent_orders.pdf', [$this->organisation->slug, $agent->slug, $agentOrderReference]);
-
-    $this->get($pdfRoute($orgAgent, $reference))->assertOk()->assertHeader('Content-Type', 'application/pdf');
-    $this->get($pdfRoute($orgAgent, "NOPE-$reference"))->assertNotFound();
-    $this->get($pdfRoute($otherOrgAgent, $reference))->assertNotFound();
-});
-
-test('an agent order sent by WhatsApp is one message that answers every supplier order in it', function () {
-    config(['meta.base_endpoint' => 'https://graph.facebook.com', 'meta.whatsapp.api_version' => 'v21.0']);
-
-    $originalSettings = $this->organisation->settings;
-    $token            = Str::lower(Str::random(8));
-    $phoneNumberId    = (string) random_int(100000000, 999999999);
-    $agentPhone       = '8613'.random_int(100000000, 999999999);
-
-    $settings = $this->organisation->settings ?? [];
-    data_set($settings, 'procurement.whatsapp.phone_number_id', $phoneNumberId);
-    data_set($settings, 'procurement.whatsapp.purchase_order_template', 'purchase_order_v1');
-    data_set($settings, 'meta.access_key', 'meta-token');
-    $this->organisation->update(['settings' => $settings]);
-
-    $orgAgent                 = createFreshOrgAgent($this);
-    $agentOrganisation        = $orgAgent->agent->organisation;
-    $originalAgentPhone       = $agentOrganisation->phone;
-    $agentOrganisation->phone = '+'.$agentPhone;
-    $agentOrganisation->saveQuietly();
-
-    $orders    = createAgentOrderToSend($this, $orgAgent, 2);
-    $reference = $orders[0]->agent_order_reference;
-    $orderIds  = collect($orders)->pluck('id')->all();
-
-    \Illuminate\Support\Facades\Http::fake([
-        "graph.facebook.com/v21.0/$phoneNumberId/media"    => \Illuminate\Support\Facades\Http::response(['id' => "media-$token"]),
-        "graph.facebook.com/v21.0/$phoneNumberId/messages" => \Illuminate\Support\Facades\Http::response(['messages' => [['id' => "wamid.ao-$token"]]]),
-    ]);
-
-    SendAgentOrderToAgent::run($orderIds, $reference, 'whatsapp');
-
-    $sent = \App\Models\Procurement\SupplierMessage::where('whatsapp_message_id', "wamid.ao-$token")->sole();
-
-    \Illuminate\Support\Facades\Http::assertSentCount(2);
-
-    expect($sent->channel)->toBe(\App\Enums\Procurement\SupplierMessage\SupplierMessageChannelEnum::WHATSAPP)
-        ->and($sent->org_agent_id)->toBe($orgAgent->id)
-        ->and($orderIds)->toContain($sent->purchase_order_id)
-        ->and($sent->linkedPurchaseOrders()->pluck('id')->all())->toEqualCanonicalizing($orderIds);
-
-    $agentOrganisation->phone = $originalAgentPhone;
-    $agentOrganisation->saveQuietly();
-    $this->organisation->update(['settings' => $originalSettings]);
 });
 
 test('agent organisations get the purchase order outbox, and only that one, so agents can email purchase orders to their suppliers', function () {
@@ -3298,23 +3166,20 @@ test('goods in records the batches a delivery line arrived in and puts them away
         ->and((float) DB::table('org_stock_movement_batches')->where('org_stock_id', $stockDeliveryItem->org_stock_id)->whereIn('batch_code_id', $batches->pluck('batch_code_id'))->sum('quantity'))->toEqualWithDelta(0.0, 0.0001);
 });
 
-test('purchase orders list shows the agent order of a supplier order and searches by it', function () {
+test('purchase orders list still finds a supplier order by its legacy agent order number', function () {
     $orgAgent      = createFreshOrgAgent($this);
     [$orgSupplier] = createAgentOrgSupplierWithProduct($this, $orgAgent);
     $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, []);
-    $purchaseOrder->update(['reference' => 'ZZ'.Str::upper(Str::random(10))]);
-    $agentOrderReference = $purchaseOrder->agent_order_reference;
-
-    expect($agentOrderReference)->not->toBeNull()
-        ->and($purchaseOrder->reference)->not->toContain($agentOrderReference);
+    $legacyNumber  = 'LEGACY'.Str::upper(Str::random(8));
+    $purchaseOrder->update(['agent_order_reference' => $legacyNumber]);
 
     $this->get(route('grp.org.procurement.purchase_orders.index', [
         $this->organisation->slug,
-        'filter[global]' => $agentOrderReference,
+        'filter[global]' => $legacyNumber,
     ]))->assertInertia(fn (AssertableInertia $page) => $page
         ->component('Procurement/PurchaseOrders')
-        ->where('queryBuilderProps.default.columns', fn ($columns) => collect($columns)->firstWhere('key', 'agent_order_reference')['sortable'] === true)
-        ->where('data.data', fn ($rows) => collect($rows)->firstWhere('slug', $purchaseOrder->slug)['agent_order_reference'] === $agentOrderReference)
+        ->where('queryBuilderProps.default.columns', fn ($columns) => collect($columns)->firstWhere('key', 'agent_order_reference') === null)
+        ->where('data.data', fn ($rows) => collect($rows)->pluck('slug')->all() === [$purchaseOrder->slug])
         ->etc());
 
     $this->get(route('grp.org.procurement.purchase_orders.index', [

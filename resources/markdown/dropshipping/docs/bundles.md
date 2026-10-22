@@ -51,7 +51,7 @@ The bundle button only shows on products that are in stock. While a bundle is op
 
 The bundle is now in <b>My Bundles</b>. It works like a row on <b>My Products</b>: press <b>Create new product</b> to create it in your store, or match it to a listing you already have. See [Using My Products](/docs/my-products).
 
-A bundle has its own product code, which is the SKU sent to your store.
+The SKU sent to your store is not the bundle's product code. It is built from the stock codes of the products inside, in lowercase and joined with hyphens: a bundle of GJC-04, GJC-05 and GJC-06 is sent as <b>gjc-04-gjc-05-gjc-06</b>. If the bundle holds more than one of a stock, the quantity is added after it, for example <b>gjc-04-x2</b>.
 
 ## Change or remove a bundle
 

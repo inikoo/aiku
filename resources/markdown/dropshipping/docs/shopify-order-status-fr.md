@@ -1,7 +1,7 @@
 ---
 title: Vos commandes Shopify et leur statut
 summary: Comment les commandes de votre boutique Shopify nous parviennent, comment elles sont payées, ce que signifie chaque statut, pourquoi une commande peut rester Submitted ou ne pas arriver du tout, et ce que nous renvoyons à Shopify.
-date: 2026-09-25
+date: 2026-10-21
 source_date: 2026-09-25
 tags: shopify, commandes, statut, paiement, submitted, non payé, demande de traitement
 category: orders
@@ -59,6 +59,7 @@ Pour en savoir plus sur la page de commande, voir [Consulter vos commandes](/doc
 ## Ce que nous renvoyons à Shopify
 
 - Quand la commande est expédiée, nous la marquons traitée dans Shopify avec le numéro de suivi et le lien. Shopify prévient votre client.
+- Quand un colis que nous avons envoyé avec GLS depuis l'Espagne est livré, nous le marquons aussi <b>Livré</b> dans Shopify, en général dans l'heure qui suit la livraison par GLS. Vous ne pouvez pas le faire vous-même dans Shopify ; c'est nous qui l'envoyons.
 - Quand une commande est annulée, nous fermons la demande dans Shopify. Sur une commande annulée, vous pouvez appuyer sur le bouton de synchronisation (<b>Sync order state</b>) pour renvoyer l'annulation à Shopify. Si Shopify est déjà à jour, vous voyez <b>The order state on Shopify is up-to-date</b>.
 
 ## Une commande n'est pas dans mes Orders

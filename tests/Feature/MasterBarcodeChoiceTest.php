@@ -15,10 +15,12 @@ use App\Actions\Goods\Barcode\AssignNextBarcodeToTradeUnit;
 use App\Actions\Goods\Barcode\Json\GetNextFreeBarcode;
 use App\Actions\Goods\Barcode\StoreBarcode;
 use App\Actions\Goods\Barcode\SyncBarcodeToTradeUnit;
+use App\Actions\Maintenance\Catalogue\RepairTradeUnitQuantityRounding;
 use App\Actions\Maintenance\Goods\RepairBarcodesStatus;
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Masters\MasterAsset\StoreMasterAsset;
 use App\Actions\Masters\MasterAsset\UI\EditMasterProductComposition;
+use App\Actions\Masters\MasterAsset\UI\IndexMasterProductsAwaitingBarcode;
 use App\Actions\Masters\MasterAsset\UpdateMasterAsset;
 use App\Actions\Masters\MasterProductCategory\StoreMasterDepartment;
 use App\Actions\Masters\MasterProductCategory\StoreMasterFamily;
@@ -33,6 +35,8 @@ use App\Models\Goods\ModelHasBarcode;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Barcode;
 use App\Models\Helpers\Language;
+use Illuminate\Support\Facades\DB;
+use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
@@ -437,4 +441,112 @@ test('the barcode edit page needs goods edit, INI-076', function () {
 
     actingAsUserWithOnlyPermissions($user, ['goods.view', 'goods.edit']);
     get($url)->assertOk();
+});
+
+test('a bundle master leaves the awaiting barcode list once its GTIN is chosen, PRE-03', function () {
+    $single = StoreMasterAsset::make()->action($this->masterFamily, [
+        'code'        => 'BC-ONE',
+        'name'        => 'lamp alone',
+        'is_main'     => true,
+        'type'        => MasterAssetTypeEnum::PRODUCT,
+        'price'       => 10,
+        'stocks'      => [],
+        'trade_units' => [
+            ['id' => $this->lamp->id, 'quantity' => 1],
+        ],
+    ]);
+
+    $pack = StoreMasterAsset::make()->action($this->masterFamily, [
+        'code'        => 'BC-SIX',
+        'name'        => 'six lamps',
+        'is_main'     => true,
+        'type'        => MasterAssetTypeEnum::PRODUCT,
+        'price'       => 60,
+        'stocks'      => [],
+        'trade_units' => [
+            ['id' => $this->lamp->id, 'quantity' => 6],
+        ],
+    ]);
+
+    $awaiting = function (array $kinds = ['kit', 'pack']) {
+        $query = $this->masterShop->masterAssets()->getQuery();
+        IndexMasterProductsAwaitingBarcode::whereAwaitingBarcode($query);
+        IndexMasterProductsAwaitingBarcode::whereComposition($query, $kinds);
+
+        return $query->pluck('code')->all();
+    };
+
+    expect($awaiting())->toContain('BC-AST', $pack->code)->not->toContain($single->code)
+        ->and($awaiting(['kit']))->toBe(['BC-AST'])
+        ->and($awaiting(['pack']))->toBe([$pack->code]);
+
+    $this->withoutVite();
+    config()->set('inertia.testing.page_paths', [resource_path('js/Pages/Grp')]);
+    get(route('grp.masters.master_shops.show.master_products_awaiting_barcode', $this->masterShop))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Masters/MasterProductsAwaitingBarcode')
+            ->where('data.data.0.code', 'BC-AST')
+            ->has('data.data', 1)
+            ->where('data.data.0.trade_units', collect([$this->lamp->code, $this->fitting->code])->sort()->implode(', ')));
+
+    UpdateMasterAsset::make()->action($this->masterAsset, ['barcode' => $this->poolBarcode]);
+
+    expect($awaiting())->not->toContain('BC-AST');
+});
+
+test('a trade unit quantity off a whole number only by rounding is stored whole, so the master is one trade unit again', function () {
+    UpdateMasterAsset::make()->action($this->masterAsset, [
+        'trade_units' => [
+            ['id' => $this->lamp->id, 'quantity' => 0.99999996],
+        ],
+    ]);
+    \App\Actions\Catalogue\Product\SyncProductTradeUnits::run($this->product, [
+        ['id' => $this->lamp->id, 'quantity' => 0.99999996],
+    ]);
+
+    expect((float)$this->masterAsset->refresh()->tradeUnits->first()->pivot->quantity)->toBe(1.0)
+        ->and((float)$this->product->refresh()->tradeUnits->first()->pivot->quantity)->toBe(1.0)
+        ->and(collect(EditMasterProductComposition::make()->getBlueprint($this->masterAsset))->firstWhere('label', __('Barcode')))->toBeNull()
+        ->and(wholeTradeUnitQuantity(11.99999999))->toBe(12)
+        ->and(wholeTradeUnitQuantity(0.05))->toBe(0.05)
+        ->and(wholeTradeUnitQuantity(0.0000001))->toBe(0.0000001);
+});
+
+test('the rounding repair changes nothing on a dry run, then makes the quantities whole on master and child without a price review, PRE-03', function () {
+    $drift = function ($model, string $modelType) {
+        DB::table('model_has_trade_units')->where('model_type', $modelType)->where('model_id', $model->id)->delete();
+        DB::table('model_has_trade_units')->insert([
+            ['model_type' => $modelType, 'model_id' => $model->id, 'trade_unit_id' => $this->lamp->id, 'quantity' => 0.99999996, 'created_at' => now(), 'updated_at' => now()],
+            ['model_type' => $modelType, 'model_id' => $model->id, 'trade_unit_id' => $this->fitting->id, 'quantity' => 1, 'created_at' => now(), 'updated_at' => now()],
+        ]);
+    };
+    $drift($this->masterAsset, 'MasterAsset');
+    $drift($this->product, 'Product');
+    $this->product->updateQuietly(['not_follow_master_trade_units' => false]);
+    $this->masterAsset->updateQuietly(['price_review' => null, 'unit' => 'lamp set']);
+
+    $lampQuantity = fn ($model, string $modelType) => (float)DB::table('model_has_trade_units')
+        ->where('model_type', $modelType)->where('model_id', $model->id)->where('trade_unit_id', $this->lamp->id)->value('quantity');
+
+    RepairTradeUnitQuantityRounding::make()->handle(commit: false);
+
+    expect($lampQuantity($this->masterAsset, 'MasterAsset'))->toBe(0.99999996)
+        ->and($lampQuantity($this->product, 'Product'))->toBe(0.99999996);
+
+    RepairTradeUnitQuantityRounding::make()->handle(commit: true);
+
+    expect($lampQuantity($this->masterAsset, 'MasterAsset'))->toBe(1.0)
+        ->and($lampQuantity($this->product, 'Product'))->toBe(1.0)
+        ->and($this->masterAsset->refresh()->price_review)->toBeNull()
+        ->and($this->masterAsset->unit)->toBe('lamp set')
+        ->and($this->masterAsset->tradeUnits)->toHaveCount(2);
+
+    $drift($this->masterAsset, 'MasterAsset');
+    $this->masterAsset->updateQuietly(['unit' => null]);
+
+    RepairTradeUnitQuantityRounding::make()->handle(commit: true);
+
+    expect($lampQuantity($this->masterAsset, 'MasterAsset'))->toBe(0.99999996)
+        ->and($this->masterAsset->refresh()->unit)->toBeNull();
 });

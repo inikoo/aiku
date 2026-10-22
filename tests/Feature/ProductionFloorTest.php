@@ -29,6 +29,7 @@ use App\Actions\Production\JobOrderItem\StoreJobOrderItem;
 use App\Actions\Production\ManufactureTaskSession\CloseManufactureTaskSession;
 use App\Actions\Production\ManufactureTaskSession\StartManufactureTaskSession;
 use App\Actions\Production\ManufactureTaskSession\VoidManufactureTaskSession;
+use App\Enums\Production\Artisan\ArtisanPayTypeEnum;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
 use App\Enums\Production\JobOrderItemTask\JobOrderItemTaskStateEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
@@ -765,7 +766,7 @@ test('a supervisor corrects an entry typed too high and the grown job shrinks ba
 
     $correct = fn (float $quantity) => \App\Actions\Production\ManufactureTaskSession\CorrectManufactureTaskSessionQuantity::make()->action($session->refresh(), ['quantity_made' => $quantity], 'Supervisor');
 
-    expect(fn () => $correct(300))->toThrow(\Illuminate\Validation\ValidationException::class, 'only lower')
+    expect(fn () => $correct(300))->toThrow(\Illuminate\Validation\ValidationException::class, 'Say why')
         ->and(fn () => $correct(6.5))->toThrow(\Illuminate\Validation\ValidationException::class, 'whole packs of 8');
 
     $correct(31);
@@ -781,6 +782,17 @@ test('a supervisor corrects an entry typed too high and the grown job shrinks ba
         ->and((float) $task->refresh()->quantity_required)->toBe(7.0)
         ->and($task->state)->toBe(JobOrderItemTaskStateEnum::IN_PROGRESS)
         ->and($jobOrder->refresh()->data['overproductions'])->toBe([]);
+
+    $raise = fn (float $quantity, ?string $reason) => \App\Actions\Production\ManufactureTaskSession\CorrectManufactureTaskSessionQuantity::make()->action($session->refresh(), ['quantity_made' => $quantity, 'reason' => $reason], 'Supervisor');
+    expect(fn () => $raise(7, null))->toThrow(\Illuminate\Validation\ValidationException::class, 'Say why')
+        ->and(fn () => $raise(8, 'Entered on the wrong session'))->toThrow(\Illuminate\Validation\ValidationException::class, 'Only 1 left');
+
+    $raise(7, 'Entered on the wrong session');
+    expect((float) $session->refresh()->quantity_made)->toBe(7.0)
+        ->and((float) $task->refresh()->quantity_made)->toBe(7.0)
+        ->and($task->state)->toBe(JobOrderItemTaskStateEnum::DONE)
+        ->and($item->refresh()->quantity)->toBe(56)
+        ->and(collect($jobOrder->refresh()->data['corrections'])->last())->toMatchArray(['from' => 6.0, 'to' => 7.0, 'reason' => 'Entered on the wrong session']);
 
     get(route('grp.org.productions.show.artisans.index', [$this->organisation->slug, $this->production->slug]))
         ->assertInertia(fn (AssertableInertia $page) => $page->has('artisans')->etc());
@@ -1204,4 +1216,106 @@ test('a job order line is split between artisans who each work, and are paid for
         ->and($subJobs[0]->refresh()->data)->not->toHaveKey('carried_to');
 
     $this->guest->getUser()->employees()->detach($artisanA->id);
+});
+
+test('my performance shows the artisan only their own finished work, with targets and no money', function () {
+    $this->artefact->manufactureTasks()->sync([$this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1]]);
+    $jobOrder     = StoreJobOrder::make()->action($this->production, []);
+    $jobOrderItem = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 10]);
+    ConfirmJobOrder::make()->action($jobOrder);
+    $task = $jobOrderItem->tasks()->first();
+
+    $mine   = CloseManufactureTaskSession::make()->action(StartManufactureTaskSession::make()->action($this->guest->getUser(), $task), ['quantity_made' => 4]);
+    $theirs = CloseManufactureTaskSession::make()->action(StartManufactureTaskSession::make()->action(stepTestSecondOperator($this->group), $task), ['quantity_made' => 3]);
+
+    $url   = route('grp.org.productions.show.floor.my_performance', [$this->organisation->slug, $this->production->slug]);
+    $props = get($url)->assertOk()->viewData('page')['props'];
+    $rows  = collect($props['data']['data']);
+
+    expect($props['period']['key'])->toBe('this_week')
+        ->and($rows->pluck('id'))->toContain($mine->id)->not->toContain($theirs->id)
+        ->and($props['totals']['quantity_made'])->toBeGreaterThanOrEqual(4.0)
+        ->and(array_keys($props['totals']))->toContain('preparation_hours', 'cleaning_hours', 'on_target')
+        ->and(collect(array_keys($rows->firstWhere('id', $mine->id)))->intersect(['pay', 'earned', 'amount', 'band', 'correct_route', 'void_route', 'times_route']))->toBeEmpty()
+        ->and(json_encode($props))->not->toContain('earned')->not->toContain('"pay"');
+
+    $mine->update(['artisan_pay_type' => ArtisanPayTypeEnum::HOURLY, 'standard_rate' => 999999, 'is_under_target' => false, 'started_at' => $mine->ended_at->copy()->subHour()]);
+    expect(collect(get($url)->viewData('page')['props']['data']['data'])->firstWhere('id', $mine->id)['is_under_target'])->toBeTrue();
+
+    expect(collect(get($url.'?period=last_week')->viewData('page')['props']['data']['data'])->pluck('id'))->not->toContain($mine->id);
+    get($url.'?period=custom')->assertSessionHasErrors(['from', 'to']);
+
+    get(route('grp.org.productions.show.floor', [$this->organisation->slug, $this->production->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('pageHead.actions.0.route.name', 'grp.org.productions.show.floor.my_performance'));
+});
+
+test('a job that cannot be made goes back to the backlog or is cancelled, keeping only what was finished', function () {
+    $this->artefact->manufactureTasks()->sync([$this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1]]);
+    $user = $this->guest->getUser();
+    ManufactureTaskSession::where('user_id', $user->id)->where('state', ManufactureTaskSessionStateEnum::OPEN)->delete();
+
+    $stock    = createStocks($this->group)[0];
+    $orgStock = createOrgStocks($this->organisation, [$stock])[0];
+    \App\Models\Procurement\PartnerShoppingListItem::where('stock_id', $stock->id)->forceDelete();
+    Artefact::where('production_id', $this->production->id)->where('org_stock_id', $orgStock->id)->where('id', '!=', $this->artefact->id)->update(['org_stock_id' => null]);
+    $this->artefact->update(['org_stock_id' => $orgStock->id]);
+    $orgStock->update(['packed_in' => 1]);
+
+    $jobWithLines = function () use ($stock, $orgStock) {
+        $jobOrder = StoreJobOrder::make()->action($this->production, []);
+        $item     = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 10]);
+        ConfirmJobOrder::make()->action($jobOrder);
+        $lines = collect([6, 4])->map(fn (int $quantity) => \App\Models\Procurement\PartnerShoppingListItem::create([
+            'group_id'        => $this->group->id,
+            'organisation_id' => $this->organisation->id,
+            'stock_id'        => $stock->id,
+            'org_stock_id'    => $orgStock->id,
+            'quantity'        => $quantity,
+            'job_order_id'    => $jobOrder->id,
+            'preparing_at'    => now(),
+            'batch_code'      => 'RUN-1',
+        ]));
+
+        return [$jobOrder, $item, $lines];
+    };
+    $cancelUrl = fn (JobOrder $jobOrder) => route('grp.models.job-order.cancel', ['jobOrder' => $jobOrder->id]);
+
+    [$untouched, , $untouchedLines] = $jobWithLines();
+    patch($cancelUrl($untouched), ['mode' => 'backlog', 'kind' => 'other'])->assertSessionHasErrors('reason');
+    patch($cancelUrl($untouched), ['mode' => 'backlog', 'kind' => 'missing_label', 'reason' => 'Labels coming from China'])->assertSessionHasNoErrors();
+
+    $untouched->refresh();
+    $floorReferences = collect(get(route('grp.org.productions.show.floor', [$this->organisation->slug, $this->production->slug]))->viewData('page')['props']['tasks'])->pluck('job_order_reference');
+    expect($untouched->state)->toBe(JobOrderStateEnum::NOT_RECEIVED)
+        ->and($untouched->data['cancellation'])->toMatchArray(['mode' => 'backlog', 'kind' => 'missing_label', 'reason' => 'Labels coming from China', 'user_id' => $user->id, 'units_kept' => 0, 'units_returned' => 10])
+        ->and($untouchedLines->map(fn ($line) => $line->refresh()->only(['job_order_id', 'preparing_at', 'batch_code']))->all())->toBe([['job_order_id' => null, 'preparing_at' => null, 'batch_code' => null], ['job_order_id' => null, 'preparing_at' => null, 'batch_code' => null]])
+        ->and($floorReferences)->not->toContain($untouched->reference);
+
+    $props = get(route('grp.org.productions.show.operations.job-orders.show', [$this->organisation->slug, $this->production->slug, $untouched->slug]))->viewData('page')['props'];
+    expect($props['cancel_route'])->toBeNull()
+        ->and($props['job_order']['cancellation']['kind_label'])->toBe('Missing label');
+
+    [$started, $startedItem, $startedLines] = $jobWithLines();
+    $session = StartManufactureTaskSession::make()->action($user, $startedItem->tasks()->first());
+    expect(fn () => \App\Actions\Production\JobOrder\CancelJobOrder::make()->action($started, ['mode' => 'cancel', 'kind' => 'missing_packaging'], $user))
+        ->toThrow(ValidationException::class);
+    CloseManufactureTaskSession::make()->action($session, ['quantity_made' => 7]);
+
+    \App\Actions\Production\JobOrder\CancelJobOrder::make()->action($started->refresh(), ['mode' => 'cancel', 'kind' => 'missing_packaging'], $user);
+
+    $returned = \App\Models\Procurement\PartnerShoppingListItem::where('parent_id', $startedLines[1]->id)->firstOrFail();
+    expect($started->refresh()->state)->toBe(JobOrderStateEnum::CONFIRMED)
+        ->and($started->data['cancellation'])->toMatchArray(['mode' => 'cancel', 'units_kept' => 7, 'units_returned' => 3])
+        ->and((int) $startedItem->refresh()->quantity)->toBe(7)
+        ->and($startedItem->tasks()->first()->state)->toBe(JobOrderItemTaskStateEnum::DONE)
+        ->and($startedLines[0]->refresh()->job_order_id)->toBe($started->id)
+        ->and((float) $startedLines[1]->refresh()->quantity)->toBe(1.0)
+        ->and($startedLines[1]->job_order_id)->toBe($started->id)
+        ->and((float) $returned->quantity)->toBe(3.0)
+        ->and($returned->job_order_id)->toBeNull();
+
+    expect(fn () => \App\Actions\Production\JobOrder\CancelJobOrder::make()->action($untouched->refresh(), ['mode' => 'cancel', 'kind' => 'other', 'reason' => 'again'], $user))
+        ->toThrow(ValidationException::class);
+    expect(fn () => \App\Actions\Production\JobOrder\CancelJobOrder::make()->action($started->refresh(), ['mode' => 'cancel', 'kind' => 'other', 'reason' => 'again'], $user))
+        ->toThrow(ValidationException::class);
 });

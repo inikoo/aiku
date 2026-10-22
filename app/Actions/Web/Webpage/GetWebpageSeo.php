@@ -62,6 +62,7 @@ class GetWebpageSeo
     {
         return [
             'items'         => SeoContentSuggestion::where('webpage_id', $webpage->id)
+                ->whereNot('reason', SeoContentSuggestion::REASON_SEO_REVIEW)
                 ->where('state', SeoContentSuggestionStateEnum::PENDING)
                 ->orderBy('field')
                 ->get()

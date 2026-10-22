@@ -1434,6 +1434,79 @@ describe('production reward pay bands', function () {
                 ->has('data.data', 4));
     });
 
+    test('each artisan day is checked against the shift: overtime is approved or not, a short day gets a reason, a job left running is not overtime', function () {
+        $friday = now()->startOfWeek()->addDays(4)->setTime(20, 0);
+        $this->travelTo($friday);
+        $employee = employeeOnDayShift($this->organisation);
+        $employee->getEffectiveWorkSchedule()->days->each(fn ($day) => $day->breaks()->create(['start_time' => '11:00:00', 'end_time' => '11:30:00', 'is_paid' => false]));
+        $timezone = $employee->organisation->timezone?->name ?? config('app.timezone');
+        $operator = stepTestSecondOperator($this->group);
+        $at       = fn (int $weekday, string $time) => \Illuminate\Support\Carbon::parse($friday->copy()->startOfWeek()->addDays($weekday)->toDateString().' '.$time, $timezone)->utc();
+        $session  = fn (int $weekday, string $from, string $to, array $extra = []) => timeEditSession($this->payBandJobOrderItemTask, $operator, $at($weekday, $from), $at($weekday, $to), 10, ['employee_id' => $employee->id] + $extra);
+
+        $mondayLong = $session(0, '08:00', '17:00');
+        $session(1, '08:00', '14:00');
+        $session(2, '08:00', '12:00');
+        $session(2, '12:00', '15:30', ['job_order_item_task_id' => null, 'manufacture_task_id' => null, 'activity_type' => \App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum::CLEANING]);
+        $session(3, '08:00', '18:00', ['left_open_after_shift_at' => $at(3, '16:00')]);
+
+        $period = ['from' => $friday->copy()->startOfWeek()->toDateString(), 'to' => $friday->toDateString()];
+        $days   = function () use ($employee, $period) {
+            get(route('grp.org.productions.show.artisans.daily_hours', [$this->organisation->slug, $this->production->slug] + $period))->assertOk();
+
+            return \App\Models\Production\ManufactureArtisanDay::where('employee_id', $employee->id)->orderBy('date')->get()->keyBy(fn ($day) => $day->date->dayOfWeekIso);
+        };
+
+        $week = $days();
+        expect($week)->toHaveCount(4)
+            ->and($week[1]->expected_minutes)->toBe(450)
+            ->and($week[1]->recorded_minutes)->toBe(540)
+            ->and($week[1]->status->value)->toBe('over')
+            ->and($week[2]->recorded_minutes)->toBe(360)
+            ->and($week[2]->status->value)->toBe('under')
+            ->and($week[3]->recorded_minutes)->toBe(450)
+            ->and($week[3]->status->value)->toBe('ok')
+            ->and($week[3]->is_warning_open)->toBeFalse()
+            ->and($week[4]->recorded_minutes)->toBe(0)
+            ->and($week[4]->unchecked_running_jobs)->toBe(1)
+            ->and($week[4]->status->value)->toBe('running_job')
+            ->and($week->where('is_warning_open', true)->keys()->all())->toBe([1, 2, 4]);
+
+        get(route('grp.org.productions.show.artisans.daily_hours', [$this->organisation->slug, $this->production->slug, 'open_only' => 1] + $period))
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->component('Org/Production/ArtisanDays')
+                ->where('tolerance_minutes', 30)
+                ->where('data.data', fn ($rows) => collect($rows)->where('user_id', $operator->id)->pluck('status')->sort()->values()->all() === ['over', 'running_job', 'under']));
+
+        $resolve = \App\Actions\Production\ManufactureArtisanDay\ResolveManufactureArtisanDay::make();
+        expect(fn () => $resolve->action($week[1], $operator, ['resolution' => 'not_approved']))->toThrow(ValidationException::class)
+            ->and(fn () => $resolve->action($week[1], $operator, ['resolution' => 'reason_given', 'resolution_reason' => 'sick']))->toThrow(ValidationException::class);
+
+        $resolve->action($week[1], $operator, ['resolution' => 'not_approved', 'resolution_note' => 'Not asked to stay']);
+        $resolve->action($week[2], $operator, ['resolution' => 'reason_given', 'resolution_reason' => 'sick']);
+        $week = $days();
+        expect($week[1]->is_warning_open)->toBeFalse()
+            ->and($week[1]->resolved_by_user_id)->toBe($operator->id)
+            ->and($week[2]->is_warning_open)->toBeFalse()
+            ->and($week[2]->resolution_reason->value)->toBe('sick');
+
+        get(route('grp.org.productions.show.artisans.payroll', [$this->organisation->slug, $this->production->slug] + $period))
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('data.data', fn ($rows) => collect($rows)->firstWhere('user_id', $operator->id)['not_authorised_overtime']['minutes'] === 90
+                    && collect($rows)->firstWhere('user_id', $operator->id)['working_hours'] == 22.5));
+
+        $mondayLong->update(['ended_at' => $at(0, '16:45')]);
+        expect($days()[1]->recorded_minutes)->toBe(525)
+            ->and($days()[1]->is_warning_open)->toBeTrue();
+
+        \App\Actions\Production\ManufactureArtisanDay\SetManufactureHoursTolerance::make()->action($this->production, $operator, ['tolerance_minutes' => 90, 'effective_from' => $period['from']]);
+        $week = $days();
+        expect($week[1]->tolerance_minutes)->toBe(90)
+            ->and($week[1]->status->value)->toBe('ok')
+            ->and($week[2]->status->value)->toBe('ok')
+            ->and($week->where('is_warning_open', true)->keys()->all())->toBe([4]);
+    });
+
 });
 
 describe('reward sheet import', function () {
@@ -1645,7 +1718,7 @@ test('a task that is not piece rate snapshots a zero rate when its session close
     $this->manufactureTask->update(['is_piece_rate' => true]);
 });
 
-test('the artisans section and job order pay are hidden from foremen and mixers', function () {
+test('the artisans section is hidden from foremen and mixers, and its money from floor supervisors', function () {
     $jobOrder   = StoreJobOrder::make()->action($this->production, []);
     $parameters = [$this->organisation->slug, $this->production->slug];
 
@@ -1675,15 +1748,24 @@ test('the artisans section and job order pay are hidden from foremen and mixers'
     $supervisor = $userWith(["productions_operations.{$this->production->id}"]);
     $accountant = $userWith(["accounting.{$this->organisation->id}.view"]);
 
-    foreach ([$supervisor, $accountant] as $user) {
-        actingAs($user);
-        get(route('grp.org.productions.show.artisans.payroll', $parameters))->assertOk();
-        expect(\App\Actions\UI\Grp\Layout\GetProductionNavigation::run($this->production, $user))->toHaveKey('artisans');
-    }
+    $payrollMenuItem = fn ($user) => collect(\App\Actions\UI\Grp\Layout\GetProductionNavigation::run($this->production, $user)['artisans']['topMenu']['subSections'])
+        ->contains('label', __('Payroll'));
 
     actingAs($supervisor);
+    get(route('grp.org.productions.show.artisans.index', $parameters))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('can_see_pay', false)->where('artisans', fn ($artisans) => collect($artisans)->every(fn ($artisan) => $artisan['earned'] === null)));
+    foreach (['payroll', 'payroll.export'] as $page) {
+        get(route("grp.org.productions.show.artisans.$page", $parameters))->assertForbidden();
+    }
     get(route('grp.org.productions.show.operations.job-orders.show', [...$parameters, $jobOrder->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('can_see_pay', false));
+    expect($payrollMenuItem($supervisor))->toBeFalse();
+
+    actingAs($accountant);
+    get(route('grp.org.productions.show.artisans.payroll', $parameters))->assertOk();
+    get(route('grp.org.productions.show.artisans.index', $parameters))
         ->assertInertia(fn (AssertableInertia $page) => $page->where('can_see_pay', true));
+    expect($payrollMenuItem($accountant))->toBeTrue();
 
     actingAs($this->guest->getUser());
 });

@@ -248,6 +248,25 @@ class Webpage extends Model implements Auditable, HasMedia
         return $this->locked_at !== null;
     }
 
+    /**
+     * The custom JSON-LD as the text the webmaster edits. It is stored as a JSON string, a decoded
+     * array, an empty array left by webpage updates, a legacy [""], or null.
+     */
+    public function structuredDataJson(): ?string
+    {
+        $structuredData = Arr::get($this->seo_data, 'structured_data');
+
+        if (is_string($structuredData)) {
+            return $structuredData !== '' ? $structuredData : null;
+        }
+
+        if (is_array($structuredData) && array_is_list($structuredData)) {
+            $structuredData = array_filter($structuredData, 'filled');
+        }
+
+        return $structuredData ? json_encode($structuredData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) : null;
+    }
+
     public function canBeEditedBy(?User $user): bool
     {
         if (!$this->isLocked()) {

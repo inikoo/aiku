@@ -437,9 +437,21 @@ describe('partner browse', function () {
                 ->component('Procurement/PartnerCoverBucketItems')
                 ->where('bucket', 'out')
                 ->where('bucketLabel', 'Out of stock')
+                ->where('perPage', 25)
+                ->where('perPageOptions', [25, 100, 500])
+                ->where('items.data', fn ($rows) => collect($rows)->every(fn ($row) => collect(['quarterly_usage', 'stock_cover', 'stock_deliveries', 'units_per_pack', 'quantity_ordered', 'other_open_purchase_orders'])
+                    ->every(fn ($key) => array_key_exists($key, (array) $row))))
                 ->has('items.data')
                 ->has('addRoute.name');
         });
+
+        $route = route('grp.org.procurement.org_partners.show.shopping.items.index', [$this->organisation->slug, $this->orgPartner->id]);
+
+        $this->get($route.'?cover=out&per_page=500')
+            ->assertInertia(fn (AssertableInertia $page) => $page->where('perPage', 500)->where('items.per_page', 500));
+
+        $this->get($route.'?cover=out&per_page=9999')
+            ->assertInertia(fn (AssertableInertia $page) => $page->where('perPage', 25)->where('items.per_page', 25));
     });
 });
 

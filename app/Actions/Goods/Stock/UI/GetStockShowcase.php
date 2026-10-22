@@ -104,7 +104,7 @@ class GetStockShowcase
                     'value'      => (float)$orgStocks->sum('quantity_in_submitted_orders'),
                 ],
                 'quantity_to_be_picked'        => [
-                    'icon_state' => ['icon' => 'fas fa-shopping-basket', 'tooltip' => __('Parts been picked')],
+                    'icon_state' => ['icon' => 'fas fa-shopping-basket', 'tooltip' => __('Parts to be picked')],
                     'value'      => (float)$orgStocks->sum('quantity_to_be_picked'),
                 ],
             ],

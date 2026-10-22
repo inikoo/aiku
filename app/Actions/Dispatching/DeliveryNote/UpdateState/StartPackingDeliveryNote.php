@@ -12,9 +12,8 @@ use App\Actions\Dispatching\DeliveryNote\WithDeliveryNoteWorkAuthorisation;
 use App\Actions\Catalogue\Shop\Hydrators\HasDeliveryNoteHydrators;
 use App\Actions\Dispatching\DeliveryNote\Hydrators\DeliveryNoteHydrateItems;
 use App\Actions\Dispatching\DeliveryNote\Hydrators\DeliveryNoteHydratePacker;
-use App\Actions\Dispatching\DeliveryNote\Hydrators\DeliveryNoteHydratePickedBays;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNote;
-use App\Actions\Dispatching\PickedBay\Hydrators\PickedBayHydrateNumberDeliveryNotes;
+use App\Actions\Dispatching\PickedBay\DetachDeliveryNoteFromPickedBays;
 use App\Actions\Ordering\Order\UpdateState\UpdateOrderStateToPacking;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -88,12 +87,7 @@ class StartPackingDeliveryNote extends OrgAction
 
             DeliveryNoteHydrateItems::dispatch($deliveryNote)->delay($this->hydratorsDelay);
 
-            foreach ($deliveryNote->pickedBays as $pickedBay) {
-                DB::table('picked_bay_has_delivery_notes')
-                    ->where('delivery_note_id', $deliveryNote->id)->where('picked_bay_id', $pickedBay->id)->delete();
-                PickedBayHydrateNumberDeliveryNotes::run($pickedBay->id);
-            }
-            DeliveryNoteHydratePickedBays::dispatch($deliveryNote->id);
+            DetachDeliveryNoteFromPickedBays::run($deliveryNote);
 
             return $deliveryNote;
         });

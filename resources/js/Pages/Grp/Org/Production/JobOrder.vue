@@ -23,9 +23,9 @@ import Button from "@/Components/Elements/Buttons/Button.vue"
 import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import InputText from "primevue/inputtext"
 import Select from "primevue/select"
-import { faPauseCircle, faPlayCircle, faCheck, faTimes } from "@fal"
+import { faPauseCircle, faPlayCircle, faCheck, faTimes, faUndo, faBan } from "@fal"
 
-library.add(faSortShapesDown, faPlus, faTrashAlt, faUsers, faLink, faPauseCircle, faPlayCircle, faCheck, faTimes)
+library.add(faSortShapesDown, faPlus, faTrashAlt, faUsers, faLink, faPauseCircle, faPlayCircle, faCheck, faTimes, faUndo, faBan)
 
 interface Hold {
     reason: string
@@ -35,6 +35,17 @@ interface Hold {
     at: string
     cleared_by?: string | null
     cleared_at?: string
+}
+
+interface Cancellation {
+    mode: "backlog" | "cancel"
+    kind: string
+    kind_label: string | null
+    reason: string | null
+    by: string | null
+    at: string
+    units_kept: number
+    units_returned: number
 }
 
 interface ItemTask {
@@ -103,10 +114,13 @@ const props = defineProps<{
         non_productive: { activity: string, hours: number, pay: string | null }[]
         hold: Hold | null
         holds: Hold[]
+        cancellation: Cancellation | null
     }
     can_see_pay: boolean
     hold_route: null | { name: string, parameters: object }
     hold_kind_options: { value: string, label: string }[]
+    cancel_route: null | { name: string, parameters: object }
+    cancel_kind_options: { value: string, label: string }[]
     artisan_options: { id: number, name: string }[]
     update_route: null | { name: string, parameters: object }
     items: Item[]
@@ -323,6 +337,34 @@ function setHold(onHold: boolean) {
     )
 }
 
+const cancelMode = ref<"backlog" | "cancel" | null>(null)
+const cancelKind = ref("missing_label")
+const cancelReason = ref("")
+const cancelErrors = ref<string[]>([])
+const unitsMade = computed(() => props.items.reduce((total, item) => total + item.produced_quantity, 0))
+
+function openCancelDialog(mode: "backlog" | "cancel") {
+    cancelMode.value = mode
+    cancelKind.value = "missing_label"
+    cancelReason.value = ""
+    cancelErrors.value = []
+}
+
+function cancelJobOrder() {
+    if (!props.cancel_route || !cancelMode.value) return
+    processing.value = true
+    router.patch(
+        route(props.cancel_route.name, props.cancel_route.parameters),
+        { mode: cancelMode.value, kind: cancelKind.value, reason: cancelReason.value },
+        {
+            preserveScroll: true,
+            onSuccess: () => cancelMode.value = null,
+            onError: (errors) => cancelErrors.value = Object.values(errors),
+            onFinish: () => processing.value = false,
+        }
+    )
+}
+
 function receiveIntoStock() {
     if (!props.receive_route || !selectedLocation.value) return
     processing.value = true
@@ -370,6 +412,22 @@ function receiveIntoStock() {
                 @click="openHoldDialog">
                 <template #icon><FontAwesomeIcon icon="fal fa-pause-circle" class="text-amber-500" fixed-width aria-hidden="true" /></template>
             </Button>
+            <Button
+                v-if="cancel_route"
+                type="tertiary"
+                :label="ctrans('Back to backlog')"
+                :disabled="processing"
+                @click="openCancelDialog('backlog')">
+                <template #icon><FontAwesomeIcon icon="fal fa-undo" class="text-amber-500" fixed-width aria-hidden="true" /></template>
+            </Button>
+            <Button
+                v-if="cancel_route"
+                type="tertiary"
+                :label="ctrans('Cancel job')"
+                :disabled="processing"
+                @click="openCancelDialog('cancel')">
+                <template #icon><FontAwesomeIcon icon="fal fa-ban" class="text-red-500" fixed-width aria-hidden="true" /></template>
+            </Button>
             <button
                 v-if="confirm_route"
                 type="button"
@@ -379,6 +437,17 @@ function receiveIntoStock() {
             >
                 {{ ctrans('Release to floor') }}
             </button>
+        </div>
+        <div v-if="job_order.cancellation" class="mb-6 flex items-start gap-3 rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-gray-700" role="status">
+            <FontAwesomeIcon :icon="job_order.cancellation.mode === 'backlog' ? 'fal fa-undo' : 'fal fa-ban'" class="mt-0.5 text-red-500" fixed-width aria-hidden="true" />
+            <div class="flex-1">
+                <div class="font-semibold text-red-800">
+                    {{ job_order.cancellation.mode === 'backlog' ? ctrans('Sent back to the backlog') : ctrans('Cancelled') }}<template v-if="job_order.cancellation.kind_label && job_order.cancellation.kind !== 'other'">: {{ job_order.cancellation.kind_label }}</template>
+                </div>
+                <div v-if="job_order.cancellation.reason">{{ job_order.cancellation.reason }}</div>
+                <div v-if="job_order.cancellation.units_kept">{{ ctrans(':kept made units stay on this job, :returned went back to To Produce', { kept: job_order.cancellation.units_kept, returned: job_order.cancellation.units_returned }) }}</div>
+                <div class="text-xs text-gray-500">{{ job_order.cancellation.by ?? '—' }} · {{ useFormatTime(job_order.cancellation.at, { formatTime: 'hm' }) }}</div>
+            </div>
         </div>
         <div v-if="job_order.hold" class="mb-6 flex items-start gap-3 rounded border border-yellow-300 bg-yellow-50 px-4 py-3 text-sm text-gray-700" role="status">
             <FontAwesomeIcon icon="fal fa-pause-circle" class="mt-0.5 text-yellow-600" fixed-width aria-hidden="true" />
@@ -621,6 +690,29 @@ function receiveIntoStock() {
                         <template #icon><FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" /></template>
                     </Button>
                     <Button type="tertiary" :label="ctrans('Put on hold')" :disabled="!holdReason.trim() || processing" @click="setHold(true)">
+                        <template #icon><FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" /></template>
+                    </Button>
+                </div>
+            </form>
+        </Modal>
+
+        <Modal :isOpen="!!cancelMode" width="w-full max-w-md" closeButton @onClose="cancelMode = null">
+            <form class="space-y-3" @submit.prevent="cancelJobOrder">
+                <div class="text-lg font-semibold">
+                    {{ cancelMode === 'backlog' ? ctrans('Send :reference back to the backlog', { reference: job_order.reference }) : ctrans('Cancel :reference', { reference: job_order.reference }) }}
+                </div>
+                <div class="text-sm text-gray-500">
+                    <template v-if="unitsMade">{{ ctrans('The :count units already made stay on this job to be received. The rest is taken off the artisan and the Manufacture Floor and goes back to To Produce.', { count: unitsMade }) }}</template>
+                    <template v-else>{{ ctrans('The job is taken off the artisan and the Manufacture Floor and closed. What it was making goes back to To Produce, to be planned again.') }}</template>
+                </div>
+                <SegmentedToggle v-model="cancelKind" :options="cancel_kind_options" :ariaLabel="ctrans('Why')" />
+                <InputText v-model="cancelReason" class="w-full" maxlength="255" autofocus :placeholder="ctrans('e.g. Labels out of stock, coming from China')" :aria-label="ctrans('Reason')" />
+                <div v-for="error in cancelErrors" :key="error" class="text-sm text-red-600">{{ error }}</div>
+                <div class="flex justify-end gap-2">
+                    <Button type="tertiary" :label="ctrans('Keep the job')" @click="cancelMode = null">
+                        <template #icon><FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" /></template>
+                    </Button>
+                    <Button type="tertiary" :label="cancelMode === 'backlog' ? ctrans('Back to backlog') : ctrans('Cancel job')" :disabled="(cancelKind === 'other' && !cancelReason.trim()) || processing" @click="cancelJobOrder">
                         <template #icon><FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" /></template>
                     </Button>
                 </div>

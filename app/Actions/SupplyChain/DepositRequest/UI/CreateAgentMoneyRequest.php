@@ -13,6 +13,7 @@ use App\Actions\Procurement\WithAgentOrganisation;
 use App\Actions\SupplyChain\DepositRequest\GetAgentMoneyRequestLines;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
 use App\Models\Procurement\OrgAgent;
+use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
@@ -45,7 +46,7 @@ class CreateAgentMoneyRequest extends OrgAction
         $clients = Organisation::whereIn('id', OrgAgent::where('agent_id', $agent->id)->select('organisation_id'))->orderBy('code')->get(['id', 'slug', 'code', 'name']);
         $client  = $clients->firstWhere('slug', $request->string('client')->value()) ?? $clients->first();
         abort_unless($client, 404);
-        $agentOrder = $request->string('agent_order')->value() ?: null;
+        $purchaseOrder = PurchaseOrder::where('organisation_id', $client->id)->where('agent_id', $agent->id)->find($request->integer('purchase_order'));
 
         return Inertia::render(
             'Org/Procurement/AgentMoneyRequestBuilder',
@@ -59,8 +60,8 @@ class CreateAgentMoneyRequest extends OrgAction
                 ],
                 'clients'     => $clients->map(fn (Organisation $organisation) => ['slug' => $organisation->slug, 'label' => $organisation->code.' · '.$organisation->name])->values()->all(),
                 'client'      => ['id' => $client->id, 'slug' => $client->slug, 'code' => $client->code],
-                'agent_order' => $agentOrder,
-                'due'         => GetAgentMoneyRequestLines::run($agent, $client, $agentOrder),
+                'purchase_order' => $purchaseOrder?->reference,
+                'due'         => GetAgentMoneyRequestLines::run($agent, $client, $purchaseOrder?->id),
                 'store_route' => ['name' => 'grp.models.agent.money_request.store', 'parameters' => ['agent' => $agent->id]],
                 'advance_route_name' => 'grp.models.supplier.advance_percentage.update',
             ]

@@ -36,6 +36,11 @@ trait WithPayAndSubmitOrder
             return $order;
         }
 
+        /** The import recalculates the totals through other copies of the order, so this one can still
+         * hold a small order charge that has since gone: the balance was asked for that amount, part
+         * paid or over-charged by it (HELP-4176). */
+        $order->refresh();
+
         $isForbidden = $this->isForbidden($order);
 
         // If forbidden, do not allow payment. So that it stucks at submit order only, and not in warehouse

@@ -118,7 +118,6 @@ const props = defineProps<{
 			id: number
 			reference: string
 			supplier: string | null
-			agent_order_reference: string | null
 			confirmed_at: string | null
 			number_items_awaiting_delivery: number
 			in_this_container: boolean
@@ -290,7 +289,7 @@ const filteredAddablePurchaseOrders = computed(() => {
 	const purchaseOrders = props.add_purchase_orders?.purchase_orders ?? []
 
 	return search
-		? purchaseOrders.filter(purchaseOrder => [purchaseOrder.reference, purchaseOrder.supplier, purchaseOrder.agent_order_reference]
+		? purchaseOrders.filter(purchaseOrder => [purchaseOrder.reference, purchaseOrder.supplier]
 			.some(value => value?.toLowerCase().includes(search)))
 		: purchaseOrders
 })
@@ -1686,7 +1685,7 @@ const confirmDeleteStockDelivery = (action: any) => {
 						</span>
 					</span>
 					<span class="block truncate text-sm text-gray-500">
-						{{ [purchaseOrder.supplier, purchaseOrder.agent_order_reference].filter(Boolean).join(" · ") }}
+						{{ purchaseOrder.supplier }}
 					</span>
 				</span>
 				<span class="whitespace-nowrap text-sm text-gray-500">

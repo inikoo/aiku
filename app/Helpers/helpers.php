@@ -1106,3 +1106,25 @@ if (!function_exists('discountPercentageLabel')) {
         return trimDecimalZeros(round($percentage, 1)).'%';
     }
 }
+
+if (!function_exists('wholeTradeUnitQuantity')) {
+    /**
+     * A product sold as 1 of a 12 pack is stored as 0.08333333 of the pack, and multiplying
+     * back by 12 gives 0.99999996: one trade unit that every screen then reads as a fraction.
+     * Snap such products of rounding to the whole number; real fractions (0.05 kg) are untouched.
+     */
+    function wholeTradeUnitQuantity(int|float|string|null $quantity): int|float|string|null
+    {
+        if ($quantity === null || $quantity === '') {
+            return $quantity;
+        }
+
+        $nearestWholeNumber = round((float)$quantity);
+
+        if ($nearestWholeNumber != 0 && abs((float)$quantity - $nearestWholeNumber) < 0.000001) {
+            return (int)$nearestWholeNumber;
+        }
+
+        return $quantity;
+    }
+}

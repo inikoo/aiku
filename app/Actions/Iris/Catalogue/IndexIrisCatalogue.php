@@ -170,7 +170,7 @@ class IndexIrisCatalogue extends IrisAction
                     'products.updated_at',
                     'products.web_images',
                     'products.price',
-                    'products.rrp',
+                    ...(request()->user('retina') ? ['products.rrp'] : []),
                     'products.available_quantity',
                     'products.gross_weight',
                     'webpages.canonical_url',
@@ -236,7 +236,7 @@ class IndexIrisCatalogue extends IrisAction
             'product' => [
                 'available_quantity',
                 'price',
-                'rrp',
+                ...(request()->user('retina') ? ['rrp'] : []),
             ],
             default => [],
         };
@@ -276,8 +276,11 @@ class IndexIrisCatalogue extends IrisAction
                 $table
                 ->column(key: 'available_quantity', label: __('Stock'), canBeHidden: false, sortable: true, searchable: true, align: 'right')
                 ->column(key: 'gross_weight', label: __('Weight'), canBeHidden: false, align: 'right')
-                ->column(key: 'price', label: __('Price'), type: 'currency', canBeHidden: false, sortable: true, searchable: true, align: 'right')
-                ->column(key: 'rrp', label: __('RRP'), type: 'currency', canBeHidden: false, sortable: true, searchable: true, align: 'right');
+                ->column(key: 'price', label: __('Price'), type: 'currency', canBeHidden: false, sortable: true, searchable: true, align: 'right');
+
+                if (request()->user('retina')) {
+                    $table->column(key: 'rrp', label: __('RRP'), type: 'currency', canBeHidden: false, sortable: true, searchable: true, align: 'right');
+                }
             }
 
             $columns = match ($scope) {

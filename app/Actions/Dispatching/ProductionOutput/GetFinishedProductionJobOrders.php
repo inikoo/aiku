@@ -173,7 +173,6 @@ class GetFinishedProductionJobOrders
         return JobOrder::whereIn('state', [
             JobOrderStateEnum::CONFIRMED,
             JobOrderStateEnum::RECEIVED,
-            JobOrderStateEnum::NOT_RECEIVED,
             JobOrderStateEnum::BOOKING_IN,
             JobOrderStateEnum::BOOKED_IN,
         ])

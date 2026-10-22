@@ -12,6 +12,7 @@ import {computed, inject, ref} from 'vue';
 import {aikuLocaleStructure} from '@/Composables/useLocaleStructure';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import PaymentMethodsWidget from '@/Components/Accounting/PaymentMethodsWidget.vue';
+import InvoiceCountriesWidget from '@/Components/Accounting/InvoiceCountriesWidget.vue';
 import SegmentedToggle from '@/Components/Utils/SegmentedToggle.vue';
 import { ctrans } from "@/Composables/useTrans"
 import { capitalize } from "@/Composables/capitalize"
@@ -19,7 +20,7 @@ import {library} from '@fortawesome/fontawesome-svg-core';
 import {
   faMoneyCheckAlt, faCashRegister, faFileInvoiceDollar, faCoins, faExclamationTriangle, faChartNetwork, faBars, faPiggyBank
 } from '@fal';
-const props = defineProps(['title', 'pageHead', 'flatTreeMaps', 'payment_methods', 'intervals', 'settings', 'uncostedStockDeliveries']);
+const props = defineProps(['title', 'pageHead', 'flatTreeMaps', 'payment_methods', 'invoice_countries', 'intervals', 'settings', 'uncostedStockDeliveries']);
 
 
 
@@ -31,6 +32,7 @@ const paymentIntervalOptions = [
     {label: ctrans('1Y'), value: '1y'},
 ];
 const paymentPeriod = computed(() => props.payment_methods?.periods?.[paymentInterval.value]);
+const invoiceCountriesPeriod = computed(() => props.invoice_countries?.periods?.[paymentInterval.value]);
 const savePaymentInterval = (interval) => {
     axios.patch(route('grp.models.profile.update'), {settings: {selected_interval: interval}});
 };
@@ -62,6 +64,11 @@ library.add(faCoins, faMoneyCheckAlt, faCashRegister, faFileInvoiceDollar, faExc
                 <SegmentedToggle v-model="paymentInterval" :options="paymentIntervalOptions" :ariaLabel="ctrans('Period')" @update:modelValue="savePaymentInterval" />
             </template>
         </PaymentMethodsWidget>
+        <InvoiceCountriesWidget v-if="invoiceCountriesPeriod" :summary="invoiceCountriesPeriod" :tableRoute="invoice_countries.route">
+            <template #actions>
+                <SegmentedToggle v-model="paymentInterval" :options="paymentIntervalOptions" :ariaLabel="ctrans('Period')" @update:modelValue="savePaymentInterval" />
+            </template>
+        </InvoiceCountriesWidget>
         <section v-if="uncostedStockDeliveries" class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
             <div class="mb-3 flex items-center justify-between gap-3">
                 <div class="font-medium text-gray-700">{{ ctrans("Supplier deliveries costing") }}</div>

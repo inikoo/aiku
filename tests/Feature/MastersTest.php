@@ -2346,6 +2346,50 @@ test('bulk trade unit quantity sets units through the master update and reports 
         ->assertExactJson([(string) $masterAsset->id => 0]);
 });
 
+test('handing units back to the composition reads them off a single trade unit and reaches the products, HELP-4190', function () {
+    $masterShop       = createFreshMasterShop();
+    $masterDepartment = StoreMasterDepartment::make()->action($masterShop, [
+        'code' => 'HBU-DEPT-'.uniqid(),
+        'name' => 'Hand Back Units Department',
+    ]);
+    $masterFamily = StoreMasterFamily::make()->action($masterDepartment, [
+        'code' => 'HBU-FAM-'.uniqid(),
+        'name' => 'Hand Back Units Family',
+    ]);
+    $storeMaster = fn (string $code) => StoreMasterAsset::make()->action($masterFamily, [
+        'code'    => $code.uniqid(),
+        'name'    => 'Hand Back Units '.$code,
+        'is_main' => true,
+        'type'    => MasterAssetTypeEnum::PRODUCT,
+        'price'   => 10,
+        'unit'    => 'piece',
+        'stocks'  => [],
+    ]);
+    $giftSet   = $storeMaster('HBU-ST-');
+    $tenMl     = $storeMaster('HBU-10ml-');
+    $tradeUnit = StoreTradeUnit::make()->action(group(), TradeUnit::factory()->definition());
+    $bulkOil   = StoreTradeUnit::make()->action(group(), TradeUnit::factory()->definition());
+    $bulkOil->updateQuietly(['is_divisible' => true]);
+    UpdateMasterAsset::make()->action($giftSet, ['trade_units' => [['id' => $tradeUnit->id, 'quantity' => 3]]]);
+    UpdateMasterAsset::make()->action($tenMl, ['trade_units' => [['id' => $bulkOil->id, 'quantity' => 0.01]]]);
+
+    [, $product] = createProduct($this->shop);
+    $product->updateQuietly(['master_product_id' => $giftSet->id, 'units' => 1, 'has_independent_units' => true, 'not_follow_master_trade_units' => false]);
+    $giftSet->refresh()->updateQuietly(['units' => 1, 'has_independent_units' => true]);
+    $tenMl->refresh()->updateQuietly(['units' => 1, 'has_independent_units' => true]);
+
+    UpdateMasterAsset::make()->action($tenMl, ['trade_units' => [['id' => $bulkOil->id, 'quantity' => 0.01]]]);
+    expect((float) $tenMl->refresh()->units)->toBe(1.0)
+        ->and($tenMl->has_independent_units)->toBeTrue();
+
+    UpdateMasterAsset::make()->action($giftSet, ['units' => 1, 'has_independent_units' => false]);
+
+    expect((float) $giftSet->refresh()->units)->toBe(3.0)
+        ->and($giftSet->has_independent_units)->toBeFalse()
+        ->and((float) $product->refresh()->units)->toBe(3.0)
+        ->and($product->has_independent_units)->toBeFalse();
+});
+
 test('changing the composition flags the master price for review until prices are saved, HELP-3496', function () {
     Queue::fake();
     $masterShop       = createFreshMasterShop();
@@ -2435,7 +2479,7 @@ test('pre-order settings saved on a master family apply to every master product 
     $editRoute = route('grp.masters.master_shops.show.master_families.edit', [$masterShop->slug, $masterFamily->slug]);
 
     get($editRoute)->assertInertia(fn (AssertableInertia $page) => $page
-        ->where('formData.blueprint', fn ($blueprint) => collect($blueprint)->contains(
+        ->where('extraSections', fn ($sections) => collect($sections)->contains(
             fn ($section) => data_get($section, 'fields.pre_order_lead_time_days') !== null
                 && data_get($section, 'fields.pre_order_lead_time_days.value') === null
                 && data_get($section, 'fields.is_back_order.value') === false
@@ -2448,7 +2492,7 @@ test('pre-order settings saved on a master family apply to every master product 
         ->pre_order_lead_time_days->toBe(14));
 
     get($editRoute)->assertInertia(fn (AssertableInertia $page) => $page
-        ->where('formData.blueprint', fn ($blueprint) => collect($blueprint)->contains(
+        ->where('extraSections', fn ($sections) => collect($sections)->contains(
             fn ($section) => data_get($section, 'fields.pre_order_lead_time_days.value') === 14
                 && data_get($section, 'fields.is_back_order.value') === true
         )));

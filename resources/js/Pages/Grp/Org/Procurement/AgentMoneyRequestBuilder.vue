@@ -29,7 +29,6 @@ library.add(faPaperPlane)
 interface DueOrder {
 	purchase_order_id: number
 	reference: string
-	agent_order_reference: string | null
 	supplier_id: number | null
 	supplier_code: string | null
 	supplier_name: string | null
@@ -45,7 +44,7 @@ const props = defineProps<{
 	pageHead: PageHeadingTypes
 	clients: { slug: string; label: string }[]
 	client: { id: number; slug: string; code: string }
-	agent_order: string | null
+	purchase_order: string | null
 	due: {
 		currency_code: string
 		wallet: { received: number; paid: number; balance: number }
@@ -105,7 +104,7 @@ const orderOf = (purchaseOrderId: number | null) => props.due.orders.find((order
 const chosen = computed(() => lines.value.filter((line) => ticked[line.key] && Number(amounts[line.key]) > 0))
 const total = computed(() => chosen.value.reduce((sum, line) => sum + Number(amounts[line.key]), 0))
 
-const reference = ref(props.agent_order ?? "")
+const reference = ref(props.purchase_order ?? "")
 const notes = ref("")
 const sending = ref(false)
 
@@ -161,7 +160,7 @@ const send = () => {
 			<div class="text-xs text-gray-400">{{ ctrans("Wallet balance") }}</div>
 			<div class="font-semibold" :class="due.wallet.balance < 0 ? 'text-red-600' : 'text-gray-800'">{{ money(due.wallet.balance) }}</div>
 		</div>
-		<div v-if="agent_order" class="text-sm text-gray-500">{{ ctrans("Only :reference", { reference: agent_order }) }}</div>
+		<div v-if="purchase_order" class="text-sm text-gray-500">{{ ctrans("Only :reference", { reference: purchase_order }) }}</div>
 	</div>
 
 	<div class="mx-4 mt-4 overflow-x-auto rounded-lg border border-gray-200 bg-white">

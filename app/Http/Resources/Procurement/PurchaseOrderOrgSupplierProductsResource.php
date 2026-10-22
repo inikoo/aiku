@@ -40,7 +40,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property \Illuminate\Support\Collection|null $other_organisations_drafts
  * @property array|null $stock_deliveries
  * @property bool|null $is_partner_org_stock
- * @property array{org_agent_id: int, reference: string}|null $agent_order
  */
 class PurchaseOrderOrgSupplierProductsResource extends JsonResource
 {
@@ -55,17 +54,7 @@ class PurchaseOrderOrgSupplierProductsResource extends JsonResource
                 ],
                 'method'     => 'patch',
             ]
-            : ($this->agent_order
-                ? [
-                    'name'       => 'grp.models.org-agent.agent-order.line.store',
-                    'parameters' => [
-                        'orgAgent'            => $this->agent_order['org_agent_id'],
-                        'orgSupplierProduct'  => $this->id,
-                        'agentOrderReference' => $this->agent_order['reference'],
-                    ],
-                    'method'     => 'post',
-                ]
-                : ($this->is_partner_org_stock
+            : ($this->is_partner_org_stock
                 ? [
                     'name'       => 'grp.models.purchase-order.transaction.store_org_stock',
                     'parameters' => [
@@ -81,7 +70,7 @@ class PurchaseOrderOrgSupplierProductsResource extends JsonResource
                         'orgSupplierProduct' => $this->id,
                     ],
                     'method'     => 'post',
-                ]));
+                ]);
 
         return [
             'id'               => $this->id,

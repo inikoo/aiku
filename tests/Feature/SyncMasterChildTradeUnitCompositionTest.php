@@ -220,3 +220,33 @@ test('shop option narrows which deviants are corrected without breaking the majo
     ]);
     expect(compositionPivotQuantity($deviant->id))->toBe(4.0);
 });
+
+test('a sku composition change asks the masters department to check the masters selling its trade units', function () {
+    $masterAsset    = compositionTestMaster($this->masterFamily, $this->tradeUnitId, 1, 'COMP-ASK-'.uniqid());
+    $requester      = $this->adminGuest->getUser();
+    $openMasterTask = fn () => \App\Models\Tasks\StaffTask::open()->where('data->kind', \App\Actions\Masters\MasterAsset\AskMastersToReviewComposition::TASK_KIND)->where('data->master_shop_id', $this->masterShop->id);
+
+    $stock = \App\Actions\Goods\Stock\StoreStock::make()->action($this->group, \App\Models\Goods\Stock::factory()->definition());
+    $stock->tradeUnits()->sync([$this->tradeUnitId => ['quantity' => 1]]);
+
+    \App\Actions\Goods\Stock\SyncStockTradeUnits::run($stock, [$this->tradeUnitId => ['quantity' => 3]]);
+    expect($openMasterTask()->exists())->toBeFalse();
+
+    \App\Actions\Goods\Stock\SyncStockTradeUnits::run($stock, [$this->tradeUnitId => ['quantity' => 3]], null, $requester->id);
+    expect($openMasterTask()->exists())->toBeFalse();
+
+    \App\Actions\Goods\Stock\SyncStockTradeUnits::run($stock, [$this->tradeUnitId => ['quantity' => 10]], null, $requester->id);
+    $task = $openMasterTask()->sole();
+
+    expect($task->department)->toBe('masters')
+        ->and($task->requester_id)->toBe($requester->id)
+        ->and($task->description)->toContain($masterAsset->code)
+        ->and($task->data['subtasks'])->toHaveCount(1)
+        ->and($task->data['subtasks'][0]['title'])->toContain($masterAsset->code.' sells 1 ×')
+        ->and($task->data['subtasks'][0]['title'])->toContain('now packs 10 ×');
+
+    \App\Actions\Goods\Stock\SyncStockTradeUnits::run($stock, [$this->tradeUnitId => ['quantity' => 5]], null, $requester->id);
+
+    expect($openMasterTask()->sole()->id)->toBe($task->id)
+        ->and($task->refresh()->data['subtasks'])->toHaveCount(2);
+});

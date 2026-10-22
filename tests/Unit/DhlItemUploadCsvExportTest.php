@@ -75,10 +75,21 @@ it('reports each failing row and column against the DHL rules', function () {
 
     expect(array_keys($rows))->toBe([1, 2, 3, 4])
         ->and(array_keys($rows[1]))->toBe([3])
-        ->and(array_keys($rows[2]))->toBe([2, 3])
+        ->and(array_keys($rows[2]))->toBe([3])
         ->and(array_keys($rows[3]))->toBe([8, 10])
         ->and(array_keys($rows[4]))->toBe([4])
         ->and($rows[4][4][0])->toBe('Quantity must be a whole number above 0.');
+});
+
+it('writes descriptions in plain ASCII so hidden non-breaking spaces, dashes and accents do not block the file', function () {
+    $export = new DhlItemUploadCsvExport([
+        dhlLine(['description' => "Satya Incense 15gm -\u{a0}Karma"]),
+        dhlLine(['description' => 'Essential Oils Starter Pack – 6 of Each']),
+        dhlLine(['description' => 'Bombe de bain à la lavande']),
+    ]);
+
+    expect(array_column($export->rows(), 2))->toBe(['Satya Incense 15gm - Karma', 'Essential Oils Starter Pack - 6 of Each', 'Bombe de bain a la lavande'])
+        ->and($export->validate()['rows'])->toBe([]);
 });
 
 it('checks the file as a whole: not empty, at most 250 items, one currency', function () {

@@ -1,7 +1,7 @@
 ---
 title: Uw Shopify-bestellingen en hun status
 summary: Hoe bestellingen uit uw Shopify-winkel ons bereiken, hoe ze worden betaald, wat elke status betekent, waarom een bestelling als Submitted kan blijven wachten of helemaal niet aankomt, en wat we terugsturen naar Shopify.
-date: 2026-09-25
+date: 2026-10-21
 source_date: 2026-09-25
 tags: shopify, bestellingen, status, betaling, ingediend, onbetaald, fulfilmentverzoek
 category: orders
@@ -59,6 +59,7 @@ Voor meer over de bestelpagina, zie [Uw bestellingen bekijken](/docs/reviewing-o
 ## Wat wij terugsturen naar Shopify
 
 - Wordt de bestelling verstuurd, dan markeren wij haar in Shopify als afgehandeld met het trackingnummer en de link. Shopify laat het uw klant weten.
+- Wordt een pakket dat wij met GLS vanuit Spanje hebben verstuurd bezorgd, dan markeren wij het in Shopify ook als <b>Bezorgd</b>, meestal binnen een uur nadat GLS het heeft bezorgd. U kunt dit in Shopify niet zelf instellen; het komt van ons.
 - Wordt een bestelling geannuleerd, dan sluiten wij het verzoek in Shopify. Bij een geannuleerde bestelling kunt u op de synchronisatieknop (<b>Sync order state</b>) drukken om de annulering opnieuw naar Shopify te sturen. Is Shopify al bijgewerkt, dan ziet u <b>The order state on Shopify is up-to-date</b>.
 
 ## Een bestelling staat niet in mijn Orders

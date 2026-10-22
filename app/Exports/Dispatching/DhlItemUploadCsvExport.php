@@ -134,7 +134,7 @@ class DhlItemUploadCsvExport
 
     private function description(array $line): string
     {
-        $description = trim(preg_replace('/\s+/', ' ', str_replace($this->delimiter, ' ', (string) $line['description'])));
+        $description = trim(preg_replace('/\s+/', ' ', str_replace($this->delimiter, ' ', Str::ascii((string) $line['description']))));
         $packSuffix  = $line['pack_units'] > 1 ? ' - pack of '.trimDecimalZeros($line['pack_units']) : '';
 
         return Str::limit($description, 170 - strlen($packSuffix), '').$packSuffix;

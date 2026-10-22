@@ -16,6 +16,7 @@ use App\Actions\Procurement\OrgPartner\GetPartnerLeadTime;
 use App\Actions\Procurement\OrgSupplier\GetSupplierLeadTime;
 use App\Actions\Procurement\OrgSupplier\GetSupplierStockCoverBuckets;
 use App\Enums\Catalogue\HealthRankEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Models\Inventory\OrgStockDiscontinueSuggestion;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
@@ -49,7 +50,7 @@ use App\Actions\Procurement\OrgPartner\GetPartnerLandedCost;
 class IndexPurchaseOrderOrgSupplierProducts extends OrgAction
 {
     use WithProcurementAuthorisation;
-    public function handle(Organisation|OrgSupplier|OrgAgent $parent, ?PurchaseOrder $purchaseOrder, $prefix = null, ?string $agentOrderReference = null): LengthAwarePaginator
+    public function handle(Organisation|OrgSupplier $parent, ?PurchaseOrder $purchaseOrder, $prefix = null): LengthAwarePaginator
     {
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
@@ -59,7 +60,7 @@ class IndexPurchaseOrderOrgSupplierProducts extends OrgAction
 
         $orgStockSub = $this->orgStockSql($orgId);
 
-        $queryBuilder = $this->baseQuery($parent, $purchaseOrder, $agentOrderReference);
+        $queryBuilder = $this->baseQuery($parent, $purchaseOrder);
 
         $paginator = $queryBuilder
             ->defaultSort('supplier_products.code')
@@ -99,17 +100,13 @@ class IndexPurchaseOrderOrgSupplierProducts extends OrgAction
         $this->attachOtherOpenPurchaseOrders($paginator, $orgId, $purchaseOrder?->id);
         $this->attachOtherOrganisationsDrafts($paginator, $orgId);
 
-        if ($parent instanceof OrgAgent) {
-            $paginator->getCollection()->each(fn ($row) => $row->agent_order = ['org_agent_id' => $parent->id, 'reference' => $agentOrderReference]);
-        }
-
         return $paginator;
     }
 
     /**
      * @return array<int, AllowedFilter>
      */
-    private function filters(Organisation|OrgSupplier|OrgAgent $parent, bool $coverApplies = true): array
+    private function filters(Organisation|OrgSupplier $parent, bool $coverApplies = true): array
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -147,7 +144,7 @@ class IndexPurchaseOrderOrgSupplierProducts extends OrgAction
             limit 1)";
     }
 
-    private function baseQuery(Organisation|OrgSupplier|OrgAgent $parent, ?PurchaseOrder $purchaseOrder, ?string $agentOrderReference = null): QueryBuilder
+    private function baseQuery(Organisation|OrgSupplier $parent, ?PurchaseOrder $purchaseOrder): QueryBuilder
     {
         $orgId = $purchaseOrder?->organisation_id ?? $parent->organisation_id;
 
@@ -159,20 +156,12 @@ class IndexPurchaseOrderOrgSupplierProducts extends OrgAction
             ->leftJoin('organisations', 'organisations.id', 'org_supplier_products.organisation_id')
             ->leftJoin('currencies as org_currency', 'org_currency.id', 'organisations.currency_id');
 
-        $queryBuilder->leftJoin('purchase_order_transactions', function ($join) use ($purchaseOrder, $parent, $agentOrderReference) {
-            $join->on('purchase_order_transactions.org_supplier_product_id', '=', 'org_supplier_products.id');
-            if ($parent instanceof OrgAgent) {
-                $join->whereIn('purchase_order_transactions.purchase_order_id', PurchaseOrder::inAgentOrder($parent->organisation_id, $parent->agent_id, (string) $agentOrderReference)
-                    ->where('state', PurchaseOrderStateEnum::IN_PROCESS)
-                    ->select('id'));
-            } else {
-                $join->where('purchase_order_transactions.purchase_order_id', $purchaseOrder->id);
-            }
+        $queryBuilder->leftJoin('purchase_order_transactions', function ($join) use ($purchaseOrder) {
+            $join->on('purchase_order_transactions.org_supplier_product_id', '=', 'org_supplier_products.id')
+                ->where('purchase_order_transactions.purchase_order_id', $purchaseOrder->id);
         });
 
-        if ($parent instanceof OrgAgent) {
-            $queryBuilder->where('org_supplier_products.org_agent_id', $parent->id);
-        } elseif (class_basename($parent) == 'OrgSupplier') {
+        if (class_basename($parent) == 'OrgSupplier') {
             $queryBuilder->where('org_supplier_products.org_supplier_id', $parent->id);
         } else {
             $queryBuilder->where('org_supplier_products.organisation_id', $this->organisation->id);
@@ -268,17 +257,6 @@ class IndexPurchaseOrderOrgSupplierProducts extends OrgAction
         $this->initialisation($orgSupplier->organisation, $request);
 
         return $this->handle($orgSupplier, $purchaseOrder);
-    }
-
-    /**
-     * Every product the organisation buys through the agent, for the agent order: a product goes on its
-     * supplier's order in that agent order.
-     */
-    public function inAgentOrder(OrgAgent $orgAgent, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation($orgAgent->organisation, $request);
-
-        return $this->handle($orgAgent, null, agentOrderReference: (string) $request->query('agentOrderReference'));
     }
 
     public function inOrgPartner(OrgPartner $orgPartner, PurchaseOrder $purchaseOrder, ActionRequest $request): LengthAwarePaginator
@@ -420,6 +398,7 @@ class IndexPurchaseOrderOrgSupplierProducts extends OrgAction
             ])
             ->whereNull('purchase_orders.deleted_at')
             ->whereNull('purchase_order_transactions.deleted_at')
+            ->whereNotIn('purchase_order_transactions.state', [PurchaseOrderTransactionStateEnum::CANCELLED->value, PurchaseOrderTransactionStateEnum::NOT_RECEIVED->value])
             ->whereRaw('purchase_order_transactions.quantity_ordered - ('.$quantityOnDelivery->toSql().') > '.StoreStockDeliveryFromPurchaseOrder::QUANTITY_TOLERANCE, $quantityOnDelivery->getBindings())
             ->orderBy('purchase_orders.id')
             ->select([

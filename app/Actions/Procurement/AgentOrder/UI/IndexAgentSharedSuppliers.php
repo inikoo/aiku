@@ -13,8 +13,10 @@ use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Actions\Procurement\WithAgentOrganisation;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\InertiaTable\InertiaTable;
 use App\Models\Procurement\OrgAgent;
+use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Organisation;
@@ -45,7 +47,10 @@ class IndexAgentSharedSuppliers extends OrgAction
         return DB::table('purchase_orders')
             ->where('purchase_orders.agent_id', $agent->id)
             ->where('purchase_orders.currency_id', $agent->organisation->currency_id)
-            ->whereNotNull('purchase_orders.agent_order_reference')
+            ->where('purchase_orders.parent_type', 'OrgSupplier')
+            ->where(fn (BaseBuilder $query) => $query
+                ->whereNotNull('purchase_orders.agent_order_reference')
+                ->orWhere('purchase_orders.created_at', '>=', PurchaseOrder::AGENT_TRACKING_STARTED_AT))
             ->whereNotNull('purchase_orders.supplier_id')
             ->whereIn('purchase_orders.state', [PurchaseOrderStateEnum::SUBMITTED->value, PurchaseOrderStateEnum::CONFIRMED->value])
             ->whereNull('purchase_orders.deleted_at');
@@ -121,13 +126,14 @@ class IndexAgentSharedSuppliers extends OrgAction
             ->whereIn('purchase_orders.supplier_id', $supplierIds)
             ->join('organisations', 'organisations.id', 'purchase_orders.organisation_id')
             ->orderBy('purchase_orders.date')
-            ->get(['purchase_orders.supplier_id', 'purchase_orders.organisation_id', 'purchase_orders.slug', 'purchase_orders.reference', 'purchase_orders.agent_order_reference', 'purchase_orders.state', 'purchase_orders.date', 'purchase_orders.cost_items', 'organisations.code as client_code'])
+            ->get(['purchase_orders.supplier_id', 'purchase_orders.organisation_id', 'purchase_orders.slug', 'purchase_orders.reference', 'purchase_orders.state', 'purchase_orders.date', 'purchase_orders.cost_items', 'organisations.code as client_code'])
             ->groupBy('supplier_id');
 
         $belowMinimum = DB::table('purchase_order_transactions')
             ->joinSub(self::openOrders($this->agent)->whereIn('purchase_orders.supplier_id', $supplierIds)->select('purchase_orders.id', 'purchase_orders.supplier_id'), 'open_orders', 'open_orders.id', 'purchase_order_transactions.purchase_order_id')
             ->join('supplier_products', 'supplier_products.id', 'purchase_order_transactions.supplier_product_id')
             ->whereNull('purchase_order_transactions.deleted_at')
+            ->whereNotIn('purchase_order_transactions.state', [PurchaseOrderTransactionStateEnum::CANCELLED->value, PurchaseOrderTransactionStateEnum::NOT_RECEIVED->value])
             ->where('supplier_products.minimum_carton_order', '>', 0)
             ->where('supplier_products.units_per_carton', '>', 0)
             ->groupBy('open_orders.supplier_id', 'supplier_products.id', 'supplier_products.minimum_carton_order', 'supplier_products.units_per_carton')
@@ -174,11 +180,10 @@ class IndexAgentSharedSuppliers extends OrgAction
                             'orders'                 => $supplierOrders->map(fn ($order) => [
                                 'client_code'           => $order->client_code,
                                 'reference'             => $order->reference,
-                                'agent_order_reference' => $order->agent_order_reference,
                                 'state_label'           => PurchaseOrderStateEnum::from($order->state)->labels()[$order->state],
                                 'date'                  => $order->date,
                                 'amount'                => round((float) $order->cost_items, 2),
-                                'route'                 => ['name' => 'grp.org.agent.purchase_orders.whole_order', 'parameters' => [$this->organisation->slug, $order->slug]],
+                                'route'                 => ['name' => 'grp.org.agent.purchase_orders.show', 'parameters' => [$this->organisation->slug, $order->slug]],
                             ])->values()->all(),
                             'sheet_route'            => ['name' => 'grp.org.agent.purchase_orders.shared_suppliers.sheet', 'parameters' => [$this->organisation->slug, $supplier->slug]],
                         ]

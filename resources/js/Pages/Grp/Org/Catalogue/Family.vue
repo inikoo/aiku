@@ -35,6 +35,7 @@ import ModalCreateCategoryReviews from "@/Components/Reviews/ModalCreateCategory
 import ProductCategoryRecomendation from "@/Components/Master/ProductCategoryRecomendation.vue"
 import RelatedProductCategory from "@/Components/Master/RelatedProductCategory.vue"
 import SalesAnalysis from "@/Components/SalesAnalysis/SalesAnalysis.vue"
+import FamilyEditPage from "@/Components/Showcases/Grp/FamilyEditPage.vue"
 
 library.add(
     faFolder,
@@ -100,6 +101,7 @@ const props = defineProps<{
     can_edit_offers?: boolean
     related_products? : object
     related_product_category?: object,
+    edit_page?: object
 
 }>()
 
@@ -146,6 +148,7 @@ const component = computed(() => {
         reviews: TableReviews,
         related_products: ProductCategoryRecomendation,
         related_product_category: RelatedProductCategory,
+        edit_page: FamilyEditPage,
     }
     return components[currentTab.value as keyof typeof components] ?? ModelDetails
 })

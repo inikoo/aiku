@@ -37,10 +37,6 @@ use App\Actions\SupplyChain\AgentPayment\UpdateAgentLedgerEntry;
 use App\Actions\SupplyChain\AgentPayment\StoreAgentPayment;
 use App\Actions\SupplyChain\SupplierPayment\DeleteSupplierPayment;
 use App\Actions\SupplyChain\SupplierPayment\StoreSupplierPayment;
-use App\Actions\Procurement\AgentOrder\StoreAgentOrder;
-use App\Actions\Procurement\AgentOrder\StoreAgentOrderLine;
-use App\Actions\Procurement\AgentOrder\DeleteAgentOrder;
-use App\Actions\Procurement\AgentOrder\SubmitAgentOrder;
 use App\Actions\Accounting\CreditTransaction\DecreaseCreditTransactionCustomer;
 use App\Http\Middleware\EnsureNotHandledInAurora;
 use App\Actions\Accounting\CreditTransaction\IncreaseCreditTransactionCustomer;
@@ -543,7 +539,6 @@ use App\Actions\SupplyChain\SupplierChangeRequest\StoreSupplierChangeRequest;
 use App\Actions\Procurement\PurchaseOrder\AttachPurchaseOrderComplianceDocument;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToCancelled;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToConfirmed;
-use App\Actions\Procurement\AgentOrder\ConfirmAgentWholeOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToInProcess;
 use App\Actions\Procurement\PurchaseOrder\SetPurchaseOrderReadyToSend;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToSubmitted;
@@ -585,6 +580,7 @@ use App\Actions\Production\Artefact\UpdateArtefact;
 use App\Actions\Production\Artefact\UpdateArtefactComplianceItem;
 use App\Actions\Production\ArtefactDepartment\StoreArtefactDepartment;
 use App\Actions\Production\ArtefactDepartment\UpdateArtefactDepartment;
+use App\Actions\Production\JobOrder\CancelJobOrder;
 use App\Actions\Production\JobOrder\ConfirmJobOrder;
 use App\Actions\Production\JobOrder\HoldJobOrder;
 use App\Actions\Production\JobOrder\ReceiveJobOrderIntoStock;
@@ -592,6 +588,7 @@ use App\Actions\Production\JobOrder\StoreJobOrder;
 use App\Actions\Production\JobOrderItem\StoreJobOrderItem;
 use App\Actions\Production\JobOrderItem\SplitJobOrderItem;
 use App\Actions\Production\JobOrderItem\UpdateJobOrderItem;
+use App\Actions\Production\ManufactureArtisanDay\ResolveManufactureArtisanDay;
 use App\Actions\Production\ManufactureTaskSession\ReviewUnderTargetManufactureTaskSession;
 use App\Actions\Production\ManufactureTaskSession\CorrectManufactureTaskSessionQuantity;
 use App\Actions\Production\ManufactureTaskSession\EditManufactureTaskSessionTimes;
@@ -685,6 +682,15 @@ use App\Actions\Web\Seo\StoreSeoAiPrompt;
 use App\Actions\Web\Seo\StoreSeoCompetitor;
 use App\Actions\Web\Seo\StoreSeoContentBrief;
 use App\Actions\Web\Seo\StoreSeoTrackedKeyword;
+use App\Actions\Web\Seo\StoreFamilySeoReview;
+use App\Actions\Web\Seo\ImplementFamilySeoSuggestion;
+use App\Actions\Web\Seo\ValidateFamilySeoReview;
+use App\Actions\Web\Seo\StoreProductSeoReview;
+use App\Actions\Web\Seo\ImplementProductSeoSuggestion;
+use App\Actions\Web\Seo\ValidateProductSeoReview;
+use App\Actions\Catalogue\Product\CheckProductWebpage;
+use App\Actions\Catalogue\ProductCategory\CheckFamilyWebpage;
+use App\Actions\Masters\MasterAsset\UpdateMasterProductInformation;
 use App\Actions\Web\Seo\StoreSeoTrackedKeywords;
 use App\Actions\Web\Seo\StoreSeoKeywordTag;
 use App\Actions\Web\Seo\UpdateSeoKeywordTag;
@@ -987,6 +993,7 @@ Route::prefix('master-asset/{masterAsset:id}')->name('master_asset.')->group(fun
     Route::patch('update-prices', UpdateMasterAssetPrices::class)->name('prices.update');
     Route::patch('repair-trade-units', RepairMasterAssetTradeUnitsToChildren::class)->name('repair_mismatch_trade_units');
     Route::post('fix-anomalies', FixMasterAssetAnomaliesFromMaster::class)->name('fix_anomalies');
+    Route::patch('information', UpdateMasterProductInformation::class)->name('information.update');
     Route::post('copy-to-master-shop', CopyMasterAssetToMasterShop::class)->name('copy_to_master_shop');
     Route::post('kill-rebel/{product:id}', KillMasterAssetRebelProduct::class)->name('kill_rebel')->withoutScopedBindings();
     Route::post('kill-all-rebels', KillAllMasterAssetRebelProducts::class)->name('kill_all_rebels');
@@ -1514,6 +1521,14 @@ Route::delete('seo-ai-prompt/{seoAiPrompt:id}', DeleteSeoAiPrompt::class)->name(
 Route::post('webpage/{webpage:id}/seo-content-suggestions', RequestSeoContentSuggestions::class)->name('webpage.seo_content_suggestions.store')->withoutScopedBindings();
 Route::patch('seo-content-suggestion/{seoContentSuggestion:id}/accept', AcceptSeoContentSuggestion::class)->name('seo_content_suggestion.accept');
 Route::patch('seo-content-suggestion/{seoContentSuggestion:id}/dismiss', DismissSeoContentSuggestion::class)->name('seo_content_suggestion.dismiss');
+Route::post('product-category/{productCategory:id}/seo-review', StoreFamilySeoReview::class)->name('product_category.seo_review.store')->withoutScopedBindings();
+Route::patch('product-category/{productCategory:id}/seo-review/{seoContentSuggestion:id}/implement', ImplementFamilySeoSuggestion::class)->name('product_category.seo_review.implement')->withoutScopedBindings();
+Route::post('product-category/{productCategory:id}/seo-review/validate', ValidateFamilySeoReview::class)->name('product_category.seo_review.validate')->withoutScopedBindings();
+Route::post('product/{product:id}/seo-review', StoreProductSeoReview::class)->name('product.seo_review.store')->withoutScopedBindings();
+Route::patch('product/{product:id}/seo-review/{seoContentSuggestion:id}/implement', ImplementProductSeoSuggestion::class)->name('product.seo_review.implement')->withoutScopedBindings();
+Route::post('product/{product:id}/seo-review/validate', ValidateProductSeoReview::class)->name('product.seo_review.validate')->withoutScopedBindings();
+Route::post('product/{product:id}/webpage-check', CheckProductWebpage::class)->name('product.webpage_check.store')->withoutScopedBindings();
+Route::post('family/{family:id}/webpage-check', CheckFamilyWebpage::class)->name('family.webpage_check.store')->withoutScopedBindings();
 
 Route::name('website.')->prefix('website/{website:id}')->group(function () {
     Route::post('site-audit', StartSiteAudit::class)->name('site_audit.store');
@@ -1706,10 +1721,12 @@ Route::patch('/job-order-item/{jobOrderItem:id}/split', SplitJobOrderItem::class
 Route::patch('/job-order/{jobOrder:id}/confirm', ConfirmJobOrder::class)->name('job-order.confirm')->withoutScopedBindings();
 Route::patch('/job-order/{jobOrder:id}/receive', ReceiveJobOrderIntoStock::class)->name('job-order.receive')->withoutScopedBindings();
 Route::patch('/job-order/{jobOrder:id}/hold', HoldJobOrder::class)->name('job-order.hold')->withoutScopedBindings();
+Route::patch('/job-order/{jobOrder:id}/cancel', CancelJobOrder::class)->name('job-order.cancel')->withoutScopedBindings();
 Route::patch('/manufacture-task-session/{manufactureTaskSession:id}/void', VoidManufactureTaskSession::class)->name('manufacture-task-session.void')->withoutScopedBindings();
 Route::patch('/manufacture-task-session/{manufactureTaskSession:id}/correct', CorrectManufactureTaskSessionQuantity::class)->name('manufacture-task-session.correct')->withoutScopedBindings();
 Route::patch('/manufacture-task-session/{manufactureTaskSession:id}/times', EditManufactureTaskSessionTimes::class)->name('manufacture-task-session.times')->withoutScopedBindings();
 Route::patch('/manufacture-task-session/{manufactureTaskSession:id}/under-target-review', ReviewUnderTargetManufactureTaskSession::class)->name('manufacture-task-session.under_target_review')->withoutScopedBindings();
+Route::patch('/manufacture-artisan-day/{manufactureArtisanDay:id}/resolve', ResolveManufactureArtisanDay::class)->name('manufacture-artisan-day.resolve')->withoutScopedBindings();
 Route::post('/artefact/{artefact:id}/artisans', [AttachArtisan::class, 'inArtefact'])->name('artefact.artisans.attach')->withoutScopedBindings();
 Route::delete('/artefact/{artefact:id}/artisans/{employee:id}', [DetachArtisan::class, 'inArtefact'])->name('artefact.artisans.detach')->withoutScopedBindings();
 Route::post('/manufacture-task/{manufactureTask:id}/artisans', [AttachArtisan::class, 'inManufactureTask'])->name('manufacture_task.artisans.attach')->withoutScopedBindings();
@@ -1885,12 +1902,6 @@ Route::post('stock-delivery-claim/{stockDeliveryClaim:id}/update', UpdateStockDe
 Route::name('org-supplier.')->prefix('org-supplier/{orgSupplier:id}')->group(function () {
     Route::post('purchase-order/store', [StorePurchaseOrder::class, 'inOrgSupplier'])->name('purchase-order.store');
 });
-Route::name('org-agent.agent-order.')->prefix('org-agent/{orgAgent:id}/agent-order')->group(function () {
-    Route::post('', StoreAgentOrder::class)->name('store');
-    Route::post('line/{orgSupplierProduct:id}', StoreAgentOrderLine::class)->name('line.store')->withoutScopedBindings();
-    Route::patch('submit', SubmitAgentOrder::class)->name('submit');
-    Route::delete('', DeleteAgentOrder::class)->name('delete');
-});
 Route::name('org-partner.')->prefix('org-partner/{orgPartner:id}')->group(function () {
     Route::post('purchase-order/store', [StorePurchaseOrder::class, 'inOrgPartner'])->name('purchase-order.store');
     Route::post('rescue-purchase-order', StoreRescuePurchaseOrder::class)->name('rescue_purchase_order.store');
@@ -1913,7 +1924,6 @@ Route::name('purchase-order.')->prefix('purchase-order/{purchaseOrder:id}')->gro
     Route::post('note', [StoreProcurementNote::class, 'inPurchaseOrder'])->name('note.store');
     Route::post('agreed-terms/accept', [AcceptAgreedTermDifferences::class, 'inPurchaseOrder'])->name('agreed_terms.accept');
     Route::patch('confirm', UpdatePurchaseOrderStateToConfirmed::class)->name('confirm');
-    Route::patch('agent-order/confirm', ConfirmAgentWholeOrder::class)->name('agent_order.confirm');
     Route::patch('undo-confirm', RevertPurchaseOrderToSubmitted::class)->name('undo-confirm');
     Route::patch('cancel', UpdatePurchaseOrderStateToCancelled::class)->name('cancel');
     Route::post('stock-delivery', StoreStockDeliveryFromPurchaseOrder::class)->name('stock-delivery.store');

@@ -61,6 +61,23 @@ class InvoiceOutOfStockLineTest extends TestCase
         $this->assertEqualsWithDelta(0.333, $this->subject->undeliveredQuantity((object)['quantity' => '0.667', 'transaction' => (object)['quantity_ordered' => '1']]), 0.0001);
     }
 
+    public function testItReadsWhatOfEachBundleComponentWasSupplied(): void
+    {
+        $deliveryNoteItems = collect([
+            (object)['org_stock_id' => 2, 'quantity_required' => '0.250000', 'quantity_supplied' => '0'],
+            (object)['org_stock_id' => 3, 'quantity_required' => '0.166667', 'quantity_supplied' => '0.167000'],
+            (object)['org_stock_id' => 4, 'quantity_required' => '0.200000', 'quantity_supplied' => '0.100000'],
+            (object)['org_stock_id' => 5, 'quantity_required' => '0.083333', 'quantity_supplied' => '0.083000'],
+        ]);
+
+        $this->assertSame(0.0, $this->subject->bundleComponentSuppliedRatio($deliveryNoteItems, [2]));
+        $this->assertSame(1.0, $this->subject->bundleComponentSuppliedRatio($deliveryNoteItems, [3]));
+        $this->assertSame(0.5, $this->subject->bundleComponentSuppliedRatio($deliveryNoteItems, [4]));
+        $this->assertSame(1.0, $this->subject->bundleComponentSuppliedRatio($deliveryNoteItems, [5]));
+        $this->assertNull($this->subject->bundleComponentSuppliedRatio($deliveryNoteItems, [99]));
+        $this->assertNull($this->subject->bundleComponentSuppliedRatio($deliveryNoteItems, []));
+    }
+
     public function testDiscountPercentageLabel(): void
     {
         $this->assertSame('10%', discountPercentageLabel('125.84', '113.26'));

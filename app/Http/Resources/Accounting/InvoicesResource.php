@@ -37,6 +37,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $in_process
  * @property mixed $organisation_code
  * @property mixed $id
+ * @property mixed $delivery_country
+ * @property mixed $delivery_country_code
  *
  */
 class InvoicesResource extends JsonResource
@@ -72,6 +74,8 @@ class InvoicesResource extends JsonResource
             'organisation_code' => $this->organisation_code,
             'organisation_slug' => $this->organisation_slug,
             'in_process'        => $this->in_process,
+            'delivery_country'      => $this->delivery_country,
+            'delivery_country_code' => $this->delivery_country_code,
         ];
     }
 }

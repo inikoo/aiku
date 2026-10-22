@@ -145,6 +145,11 @@ class UpdateProduct extends OrgAction
             if ($orgStocks !== null) {
                 $this->syncOrgStocksToBeDeleted($product, $orgStocks);
             }
+        } elseif (!Arr::has($modelData, 'trade_units') && Arr::has($modelData, 'has_independent_units') && !Arr::get($modelData, 'has_independent_units') && $product->has_independent_units) {
+            $unitsFromComposition = $this->getUnitsFromCurrentTradeUnits($product);
+            if ($unitsFromComposition !== null) {
+                data_set($modelData, 'units', $unitsFromComposition);
+            }
         } elseif (Arr::has($modelData, 'trade_units')) {
             $tradeUnits = Arr::pull($modelData, 'trade_units');
             $tradeUnitsBefore = $this->getTradeUnitQuantities($product);

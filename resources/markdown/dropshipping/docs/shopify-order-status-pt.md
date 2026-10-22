@@ -1,7 +1,7 @@
 ---
 title: As tuas encomendas do Shopify e o seu estado
 summary: Como as encomendas da tua loja Shopify nos chegam, como são pagas, o que cada estado significa, porque é que uma encomenda pode ficar em espera como Submitted ou não chegar de todo, e o que enviamos de volta ao Shopify.
-date: 2026-09-25
+date: 2026-10-21
 source_date: 2026-09-25
 tags: shopify, encomendas, estado, pagamento, submitted, não pago, pedido de expedição
 category: orders
@@ -59,6 +59,7 @@ Para mais sobre a página da encomenda, vê [Rever as tuas encomendas](/docs/rev
 ## O que enviamos de volta ao Shopify
 
 - Quando a encomenda é despachada, marcamo-la como cumprida no Shopify com o número e a ligação de rastreio. O Shopify avisa o teu cliente.
+- Quando uma encomenda que enviámos com a GLS a partir de Espanha é entregue, também a marcamos como <b>Entregue</b> no Shopify, normalmente na hora seguinte à entrega da GLS. Não podes alterar isto tu no Shopify; vem de nós.
 - Quando uma encomenda é cancelada, fechamos o pedido no Shopify. Numa encomenda cancelada podes clicar no botão de sincronizar (<b>Sync order state</b>) para enviares o cancelamento ao Shopify outra vez. Se o Shopify já estiver atualizado vês <b>The order state on Shopify is up-to-date</b>.
 
 ## Uma encomenda não está nas minhas Orders

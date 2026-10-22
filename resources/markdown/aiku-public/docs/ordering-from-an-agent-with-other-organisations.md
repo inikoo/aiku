@@ -50,4 +50,4 @@ Drafts are hidden from the agent until they are submitted. If you submit, your o
 
 ## Who can use it
 
-Purchasing edit permission for your organisation to tick and submit. Purchasing view permission to look. For the agent order itself, see [placing an order through an agent](/docs/placing-an-order-through-an-agent).
+Purchasing edit permission for your organisation to tick and submit. Purchasing view permission to look. For the order to each supplier, see [placing an order through an agent](/docs/placing-an-order-through-an-agent).

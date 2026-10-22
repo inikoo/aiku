@@ -10,8 +10,6 @@
 namespace App\Actions\Dispatching\PickedBay;
 
 use App\Actions\Dispatching\DeliveryNote\WithDeliveryNoteWorkAuthorisation;
-use App\Actions\Dispatching\DeliveryNote\Hydrators\DeliveryNoteHydratePickedBays;
-use App\Actions\Dispatching\PickedBay\Hydrators\PickedBayHydrateNumberDeliveryNotes;
 use App\Actions\OrgAction;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Inventory\PickedBay;
@@ -29,11 +27,7 @@ class ChangePickingBaysDeliveryNote extends OrgAction
     public function handle(DeliveryNote $deliveryNote, array $modelData): DeliveryNote
     {
         return DB::transaction(function () use ($deliveryNote, $modelData) {
-            foreach ($deliveryNote->pickedBays as $pickedBay) {
-                DB::table('picked_bay_has_delivery_notes')
-                    ->where('delivery_note_id', $deliveryNote->id)->where('picked_bay_id', $pickedBay->id)->delete();
-                PickedBayHydrateNumberDeliveryNotes::run($pickedBay->id);
-            }
+            DetachDeliveryNoteFromPickedBays::run($deliveryNote);
 
             $pickedBay = null;
             if (Arr::has($modelData, 'picked_bay') && $modelData['picked_bay']) {
@@ -42,7 +36,6 @@ class ChangePickingBaysDeliveryNote extends OrgAction
             if ($pickedBay) {
                 AttachDeliveryNoteToPickedBay::run($pickedBay, $deliveryNote);
             }
-            DeliveryNoteHydratePickedBays::dispatch($deliveryNote->id);
             return $deliveryNote;
         });
     }

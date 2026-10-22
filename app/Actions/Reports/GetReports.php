@@ -59,6 +59,12 @@ class GetReports extends OrgAction
                 'count' => IndexIntrastatImportReport::make()->inReports($organisation),
             ],
             [
+                'name'  => __('Billing region & tax code'),
+                'icon'  => 'fal fa-globe-europe',
+                'route' => route('grp.org.reports.billing-region-tax-code', $organisation),
+                'count' => null,
+            ],
+            [
                 'name'  => __('Sage Invoices'),
                 'icon'  => 'fal fa-file-invoice',
                 'route' => route('grp.org.reports.sage-invoices', $organisation),

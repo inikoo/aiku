@@ -34,6 +34,11 @@ it('shows nothing for a single trade unit, which states its own pack size', func
         ->and($this->action->getUnitsField(unitsCandidate(false, [6])))->toBeNull();
 });
 
+it('shows the way back to the composition for a single trade unit with units set by hand, HELP-4190', function () {
+    expect($this->action->getUnitsEditability(unitsCandidate(true, [3])))
+        ->toBe(['shown' => true, 'canToggle' => true, 'byHand' => true]);
+});
+
 it('forces units by hand, with nothing to opt out of, when the quantities disagree', function () {
     expect($this->action->getUnitsEditability(unitsCandidate(false, [6, 12])))
         ->toBe(['shown' => true, 'canToggle' => false, 'byHand' => true]);

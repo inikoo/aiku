@@ -80,7 +80,9 @@ class ExportSocialMediaPosts extends OrgAction
             $previous = $report['kpis']['previous'] ?? [];
 
             fputcsv($output, [__('Social media report'), $report['from'], $report['to']]);
-            fputcsv($output, [__('Compared with'), $report['previous_from'], $report['previous_to']]);
+            if ($report['previous_from']) {
+                fputcsv($output, [__('Compared with'), $report['previous_from'], $report['previous_to']]);
+            }
             if ($report['insight']) {
                 fputcsv($output, [__('Insight'), $report['insight']]);
             }

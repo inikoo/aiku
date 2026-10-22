@@ -247,7 +247,7 @@ class ImportAgentLedgerExcel
 
         $purchaseOrders = PurchaseOrder::where('organisation_id', $client->id)
             ->where('agent_id', $agent->id)
-            ->whereIn(DB::raw('lower(agent_order_reference)'), $references)
+            ->where(fn ($query) => $query->whereIn(DB::raw('lower(reference)'), $references)->orWhereIn(DB::raw('lower(agent_order_reference)'), $references))
             ->whereHas('purchaseOrderTransactions.orgStock', fn ($query) => $query->where('code', 'ILIKE', addcslashes($code, '%_\\').'%'))
             ->limit(2)
             ->get(['id', 'supplier_id']);
@@ -268,7 +268,7 @@ class ImportAgentLedgerExcel
 
         $purchaseOrders = PurchaseOrder::where('organisation_id', $client->id)
             ->where('agent_id', $agent->id)
-            ->whereNotNull('agent_order_reference')
+            ->trackedThroughAgent()
             ->whereBetween('date', [$paidOn->copy()->subDays(180), $paidOn->copy()->endOfDay()])
             ->whereHas('purchaseOrderTransactions.orgStock', fn ($query) => $query->where('code', 'ILIKE', addcslashes($code, '%_\\').'%'))
             ->limit(2)

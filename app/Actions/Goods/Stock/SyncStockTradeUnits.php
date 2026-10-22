@@ -14,8 +14,10 @@ use App\Actions\Goods\Stock\Hydrators\StockHydrateGbOrigin;
 use App\Actions\Goods\Stock\Hydrators\StockHydrateGrossWeightFromTradeUnits;
 use App\Actions\Goods\TradeUnit\Hydrators\TradeUnitsHydrateStocks;
 use App\Actions\Inventory\OrgStock\SyncOrgStockTradeUnits;
+use App\Actions\Masters\MasterAsset\AskMastersToReviewComposition;
 use App\Actions\Traits\ModelHydrateSingleTradeUnits;
 use App\Models\Goods\Stock;
+use App\Models\SysAdmin\User;
 use Illuminate\Support\Facades\Bus;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -30,6 +32,9 @@ class SyncStockTradeUnits
      */
     public function handle(Stock $stock, array $tradeUnitsData, ?string $stockStrategy = null, ?int $userId = null): Stock
     {
+        $currentPacking = $stock->tradeUnits()->pluck('model_has_trade_units.quantity', 'trade_units.id')->map(fn ($quantity) => (float) $quantity)->sortKeys()->all();
+        $newPacking     = collect($tradeUnitsData)->map(fn ($pivotData) => (float) $pivotData['quantity'])->sortKeys()->all();
+
         $stock->tradeUnits()->sync($tradeUnitsData);
         $stock->unsetRelation('tradeUnits');
         $stock->unsetRelation('orgStocks');
@@ -52,6 +57,11 @@ class SyncStockTradeUnits
                 ->all();
 
             Bus::chain($jobs)->dispatch();
+        }
+
+        $requester = $userId ? User::find($userId) : null;
+        if ($requester && $currentPacking && $currentPacking != $newPacking) {
+            AskMastersToReviewComposition::dispatch($stock, $requester);
         }
 
         return $stock;

@@ -78,7 +78,7 @@ class IndexOrgAgents extends OrgAction
             'suppliers'            => (int) $orgAgent->stats?->number_org_suppliers,
             'last_submitted_at'    => $this->lastSubmittedAt($orgAgent),
             'pipeline'             => $this->pipeline($orgAgent),
-            'current'              => $this->agentOrderRows($orgAgent)->concat($this->stockDeliveryRows($orgAgent))->values()->all(),
+            'current'              => $this->purchaseOrderRows($orgAgent)->concat($this->stockDeliveryRows($orgAgent))->values()->all(),
         ];
     }
 
@@ -97,9 +97,8 @@ class IndexOrgAgents extends OrgAction
     }
 
     /**
-     * Where the open supplier orders placed through the agent are, counted per supplier order
-     * since the supplier orders of one agent order move at their own pace. Arrival at the
-     * agent's warehouse is not recorded yet, so it is not a stage.
+     * Where the open supplier orders placed through the agent are. Arrival at the agent's
+     * warehouse is not recorded yet, so it is not a stage.
      *
      * @return array{stages: array<int, array{stage: string, label: string, orders: int, value: float}>, late: int, no_eta: int}
      */
@@ -148,44 +147,28 @@ class IndexOrgAgents extends OrgAction
         ];
     }
 
-    /**
-     * Agent orders still being prepared or not yet delivered, each the group of supplier orders
-     * staff placed together, worst state first.
-     */
-    private function agentOrderRows(OrgAgent $orgAgent): Collection
+    private function purchaseOrderRows(OrgAgent $orgAgent): Collection
     {
         $stateLabels = PurchaseOrderStateEnum::labels();
-        $openStates  = array_merge([PurchaseOrderStateEnum::IN_PROCESS->value], GetAgentSupplierPerformance::OPEN_STATES);
 
         return $this->agentPurchaseOrders($orgAgent)
-            ->whereNotNull('agent_order_reference')
-            ->whereIn('state', $openStates)
+            ->whereIn('state', array_merge([PurchaseOrderStateEnum::IN_PROCESS->value], GetAgentSupplierPerformance::OPEN_STATES))
             ->whereNotIn('delivery_state', GetAgentSupplierPerformance::CLOSED_DELIVERY_STATES)
             ->whereRaw("(data -> 'housekeeping') is null")
-            ->groupBy('agent_order_reference')
-            ->selectRaw("agent_order_reference as reference,
-                min(case state when 'in_process' then 1 when 'submitted' then 2 else 3 end) as state_rank,
-                count(*) as supplier_orders,
-                coalesce(sum(number_current_purchase_order_transactions), 0) as lines,
-                coalesce(sum(cost_total * coalesce(org_exchange, 1)), 0) as value,
-                min(coalesce(submitted_at, date, created_at)) as date")
-            ->orderByRaw('min(coalesce(submitted_at, date, created_at))')
+            ->selectRaw('slug, reference, state, number_current_purchase_order_transactions as lines,
+                cost_total * coalesce(org_exchange, 1) as value, coalesce(submitted_at, date, created_at) as date')
+            ->orderByRaw('coalesce(submitted_at, date, created_at)')
             ->get()
-            ->map(function ($agentOrder) use ($orgAgent, $stateLabels) {
-                $state = [1 => PurchaseOrderStateEnum::IN_PROCESS, 2 => PurchaseOrderStateEnum::SUBMITTED, 3 => PurchaseOrderStateEnum::CONFIRMED][$agentOrder->state_rank]->value;
-
-                return [
-                    'type'            => 'agent_order',
-                    'reference'       => $agentOrder->reference,
-                    'state'           => $state,
-                    'state_label'     => $stateLabels[$state],
-                    'lines'           => (int) $agentOrder->lines,
-                    'supplier_orders' => (int) $agentOrder->supplier_orders,
-                    'value'           => round((float) $agentOrder->value, 2),
-                    'date'            => $agentOrder->date,
-                    'url'             => route('grp.org.procurement.org_agents.show.agent_orders.show', [$orgAgent->organisation->slug, $orgAgent->slug, $agentOrder->reference]),
-                ];
-            });
+            ->map(fn ($purchaseOrder) => [
+                'type'        => 'purchase_order',
+                'reference'   => $purchaseOrder->reference,
+                'state'       => $purchaseOrder->state,
+                'state_label' => $stateLabels[$purchaseOrder->state],
+                'lines'       => (int) $purchaseOrder->lines,
+                'value'       => round((float) $purchaseOrder->value, 2),
+                'date'        => $purchaseOrder->date,
+                'url'         => route('grp.org.procurement.org_agents.show.purchase-orders.show', [$orgAgent->organisation->slug, $orgAgent->slug, $purchaseOrder->slug]),
+            ]);
     }
 
     private function stockDeliveryRows(OrgAgent $orgAgent): Collection

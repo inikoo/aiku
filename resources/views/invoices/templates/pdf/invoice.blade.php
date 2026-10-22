@@ -490,12 +490,12 @@
                 </tr>
 
                 {{-- BUNDLE SUB-ITEMS --}}
-                @if($transaction->model?->is_bundle && $transaction->model->bundle?->items?->count())
-                    @foreach($transaction->model->bundle->items as $bundleItem)
-                        @php($linkedProduct = $bundleItem->item)
-                        @php($quantity = $bundleItem->quantity ?? 1)
-                        @php($unitPrice = $linkedProduct->price)
-                        @php($lineTotal = $unitPrice * $quantity)
+                @if(!empty($transaction->bundle_components))
+                    @foreach($transaction->bundle_components->where('quantity', '>', 0) as $bundleComponent)
+                        @php($linkedProduct = $bundleComponent->product)
+                        @php($quantity = trimDecimalZeros($bundleComponent->quantity))
+                        @php($unitPrice = $bundleComponent->unit_price)
+                        @php($lineTotal = $bundleComponent->amount)
                         <tr style="background-color:#fafafa;">
                             <td style="text-align:left; padding-left:20px; color:#555; font-size:8pt;">
                                 ↳ {{ $linkedProduct?->code ?? '' }}
@@ -716,6 +716,14 @@
                 <td style="text-align:right">{{ trimDecimalZeros($transaction->transaction?->quantity_ordered ?? 0) }}</td>
                 <td style="text-align:right">{{ trimDecimalZeros($transaction->quantity_not_supplied ?? 0) }}</td>
             </tr>
+            @foreach(collect($transaction->bundle_components ?? [])->where('quantity_not_supplied', '>', 0) as $bundleComponent)
+                <tr>
+                    <td style="text-align:left; padding-left:20px; font-size:8pt;">↳ {{ $bundleComponent->product?->code }}</td>
+                    <td style="text-align:left; font-size:8pt;" colspan="2">{{ $bundleComponent->product?->name }}</td>
+                    <td></td>
+                    <td style="text-align:right; font-size:8pt;">{{ trimDecimalZeros($bundleComponent->quantity_not_supplied) }}</td>
+                </tr>
+            @endforeach
         @endforeach
         </tbody>
     </table>

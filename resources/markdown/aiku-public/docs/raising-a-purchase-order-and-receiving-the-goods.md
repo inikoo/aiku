@@ -15,7 +15,7 @@ When you buy from an ordinary supplier - not a partner organisation, which has i
 
 Every supplier your organisation buys from directly lives in **Procurement → Suppliers**. Each supplier's page gives you a **Purchase Order** button to start a new order, plus a side menu with **Products**, **Purchase Orders** and **Stock Deliveries** so far.
 
-Some suppliers are only reachable through an **agent** - a person or company who buys on your behalf rather than shipping to you directly. Agents have their own list under **Procurement → Agents**. An order through an agent is still one purchase order per supplier, sent to the agent, and the orders you place together form one **agent order**. See [placing an order through an agent](/docs/placing-an-order-through-an-agent).
+Some suppliers are only reachable through an **agent** - a person or company who buys on your behalf rather than shipping to you directly. Agents have their own list under **Procurement → Agents**. An order through an agent is one purchase order per supplier, numbered in the agent's series and sent to the agent. See [placing an order through an agent](/docs/placing-an-order-through-an-agent).
 
 ## Raising a purchase order
 

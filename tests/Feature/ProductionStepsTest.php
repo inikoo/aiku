@@ -558,14 +558,17 @@ test('a job carried at a part pack still walks whole units, and the bays can be 
         ['quantity_made' => 10, 'outcome' => 'carry_over']
     );
 
+    $outstanding = fn (\App\Models\Production\JobOrder $order) => collect(\App\Actions\Production\JobOrder\GetJobOrderDestinationAllocation::make()->outstanding($order->refresh()))
+        ->map(fn (array $row) => [$row['location_id'], $row['quantity']])->all();
+
+    /* Day two is still being made: day one walks three whole packs, the loose unit waits at the desk. */
+    expect($outstanding($jobOrder))->toBe([[$buyers[0]['bay']->id, 9.0]]);
+
     $carried = \App\Models\Production\JobOrder::where('data->carried_from', $jobOrder->id)->firstOrFail();
     CloseManufactureTaskSession::make()->action(
         StartManufactureTaskSession::make()->action($user, $carried->jobOrderItems()->first()->tasks()->first()),
         ['quantity_made' => 8, 'outcome' => 'complete']
     );
-
-    $outstanding = fn (\App\Models\Production\JobOrder $order) => collect(\App\Actions\Production\JobOrder\GetJobOrderDestinationAllocation::make()->outstanding($order->refresh()))
-        ->map(fn (array $row) => [$row['location_id'], $row['quantity']])->all();
 
     /* The SK line was cut at 3.333 SKOs: it still owes ten units, not 9.999 and a crumb for stock. */
     expect($outstanding($jobOrder))->toBe([[$buyers[0]['bay']->id, 10.0]])
@@ -589,6 +592,64 @@ test('a job carried at a part pack still walks whole units, and the bays can be 
         ->and((float) $carried->jobOrderItems()->first()->quantity_received)->toBe(8.0)
         ->and($inBay($buyers[0]))->toBe(4.0)
         ->and($inBay($buyers[1]))->toBe(2.0);
+});
+
+test('goods made for a partner order that has already shipped go to stock, not to the bay', function () {
+    $this->artefact->manufactureTasks()->sync([$this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1]]);
+    $user = $this->guest->getUser();
+    ManufactureTaskSession::where('user_id', $user->id)->where('state', ManufactureTaskSessionStateEnum::OPEN)->delete();
+
+    $stock    = createStocks($this->group)[0];
+    $orgStock = createOrgStocks($this->organisation, [$stock])[0];
+    \App\Models\Procurement\PartnerShoppingListItem::where('org_stock_id', $orgStock->id)->forceDelete();
+    Artefact::where('production_id', $this->production->id)->where('org_stock_id', $orgStock->id)->where('id', '!=', $this->artefact->id)->update(['org_stock_id' => null]);
+    $this->artefact->update(['org_stock_id' => $orgStock->id]);
+    $orgStock->update(['packed_in' => 1]);
+
+    $warehouse = \App\Actions\Inventory\Warehouse\StoreWarehouse::make()->action($this->organisation, ['code' => 'WH-SHIP', 'name' => 'Shipped warehouse']);
+    $area      = \App\Actions\Inventory\WarehouseArea\StoreWarehouseArea::make()->action($warehouse, ['code' => 'A-SHIP', 'name' => 'Shipped area']);
+    $bay       = \App\Actions\Inventory\Location\StoreLocation::make()->action($area, ['code' => 'SHIP-BAY', 'name' => 'Shipped bay'] + \App\Models\Inventory\Location::factory()->definition());
+    $buyer     = \App\Models\SysAdmin\Organisation::where('code', 'SKBUY')->first()
+        ?? \App\Actions\SysAdmin\Organisation\StoreOrganisation::make()->action($this->group, [
+            'code' => 'SKBUY',
+            'name' => 'SKBUY',
+            'type' => \App\Enums\SysAdmin\Organisation\OrganisationTypeEnum::SHOP,
+        ] + \App\Models\SysAdmin\Organisation::factory()->definition());
+    \App\Models\Procurement\OrgPartner::firstOrCreate(
+        ['group_id' => $this->group->id, 'organisation_id' => $this->organisation->id, 'partner_id' => $buyer->id],
+        ['status' => true],
+    )->update(['goods_out_location_id' => $bay->id, 'cosmetic_goods_out_location_id' => null, 'gb_goods_out_location_id' => null]);
+
+    [, , $shop]  = createShop();
+    [, $product] = createProduct($shop);
+    $transaction = createOrder(createCustomer($shop), $product)->transactions()->firstOrFail();
+
+    $line = \App\Models\Procurement\PartnerShoppingListItem::create([
+        'group_id'                => $this->group->id,
+        'organisation_id'         => $buyer->id,
+        'partner_organisation_id' => $this->organisation->id,
+        'stock_id'                => $stock->id,
+        'org_stock_id'            => createOrgStocks($buyer, [$stock])[0]->id,
+        'quantity'                => 5,
+        'transaction_id'          => $transaction->id,
+    ]);
+
+    $jobOrder = StoreJobOrder::make()->action($this->production, []);
+    $item     = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 5]);
+    ConfirmJobOrder::make()->action($jobOrder);
+    $line->update(['job_order_id' => $jobOrder->id]);
+    CloseManufactureTaskSession::make()->action(StartManufactureTaskSession::make()->action($user, $item->tasks()->first()), ['quantity_made' => 5, 'outcome' => 'complete']);
+
+    $destinations = fn () => collect(\App\Actions\Production\JobOrder\GetJobOrderDestinationAllocation::make()->outstanding($jobOrder->refresh()))->pluck('location_id')->all();
+
+    $state = $transaction->state;
+    $transaction->update(['state' => \App\Enums\Ordering\Transaction\TransactionStateEnum::HANDLING]);
+    expect($destinations())->toBe([$bay->id]);
+
+    $transaction->update(['state' => \App\Enums\Ordering\Transaction\TransactionStateEnum::DISPATCHED]);
+    expect($destinations())->toBe([null]);
+
+    $transaction->update(['state' => $state]);
 });
 
 test('a recipe change does not ask again for a step whose replaced step is already finished', function () {
@@ -1067,6 +1128,9 @@ test('a mix entered on Making by mistake is moved to the mix step and Making goe
     expect($artisansSession['other_steps'])->toHaveCount(1)
         ->and($artisansSession['other_steps'][0])->toMatchArray(['id' => $mix->id, 'unit' => 'kg', 'quantity_left' => 100.8]);
 
+    \App\Actions\Production\Artefact\AttachManufactureTaskToArtefact::make()->action($artefact, ['manufacture_task_id' => $makingTask->id, 'position' => 1, 'units_per_artefact' => 0.3333]);
+    expect((float) $making->refresh()->quantity_required)->toBe(180.0);
+
     $correct = fn (array $data) => \App\Actions\Production\ManufactureTaskSession\CorrectManufactureTaskSessionQuantity::make()->action($session->refresh(), $data, 'Supervisor');
     $otherJobOrder = StoreJobOrder::make()->action($this->production, []);
     $otherStep     = StoreJobOrderItem::make()->action($otherJobOrder, ['artefact_id' => $artefact->id, 'quantity' => 10])->tasks()->first();
@@ -1079,10 +1143,14 @@ test('a mix entered on Making by mistake is moved to the mix step and Making goe
         ->and((float) $moved->quantity_made)->toBe(100.8)
         ->and($moved->standard_rate)->toBeNull()
         ->and((float) $making->refresh()->quantity_made)->toBe(0.0)
+        ->and((float) $making->quantity_required)->toBe(60.0)
         ->and($making->state)->toBe(JobOrderItemTaskStateEnum::TODO)
         ->and((float) $mix->refresh()->quantity_made)->toBe(100.8)
         ->and($mix->state)->toBe(JobOrderItemTaskStateEnum::DONE)
         ->and($jobOrder->refresh()->data['corrections'][0])->toMatchArray(['from_step' => 'Making '.$suffix, 'step' => 'Mixing '.$suffix, 'from' => 180.0, 'to' => 100.8, 'by' => 'Supervisor']);
+
+    $making->update(['quantity_required' => 40]);
+    expect((float) $making->followRecipeWhenNothingRecorded()->quantity_required)->toBe(40.0);
 });
 
 test('the day plan lists the materials its open steps need, the check asks the warehouse in whole boxes, and the warehouse walks them to the factory location', function () {

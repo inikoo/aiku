@@ -35,9 +35,9 @@ class ShowArtisansDashboard extends OrgAction
     }
 
     /**
-     * The Artisans section shows how each artisan is paid, so only production supervisors, HR, accounting and admins may open it.
+     * The Artisans section (performance, hours, units, targets) is for production supervisors, HR, accounting and admins.
      */
-    public static function canSeeArtisanPay(User $user, Production $production): bool
+    public static function canSeeArtisans(User $user, Production $production): bool
     {
         return $user->authTo([
             'org-supervisor.'.$production->organisation_id,
@@ -47,9 +47,17 @@ class ShowArtisansDashboard extends OrgAction
         ]);
     }
 
+    /**
+     * Money (earned, rewards, payroll) is for the production manager (an organisation admin) and accounting only, never floor supervisors.
+     */
+    public static function canSeeArtisanPay(User $user, Production $production): bool
+    {
+        return $user->authTo("accounting.$production->organisation_id.view");
+    }
+
     public function authorize(ActionRequest $request): bool
     {
-        return self::canSeeArtisanPay($request->user(), $this->production);
+        return self::canSeeArtisans($request->user(), $this->production);
     }
 
     public function asController(Organisation $organisation, Production $production, ActionRequest $request): Production

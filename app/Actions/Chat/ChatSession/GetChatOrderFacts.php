@@ -9,7 +9,9 @@
 namespace App\Actions\Chat\ChatSession;
 
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteTypeEnum;
+use App\Enums\Ordering\Order\OrderPayStatusEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
+use App\Enums\Ordering\Order\OrderToBePaidByEnum;
 use App\Models\CRM\Customer;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dispatching\Shipment;
@@ -30,7 +32,7 @@ class GetChatOrderFacts
 
     /** What each state means to somebody waiting for the parcel, for the model to explain. */
     public const array STATE_MEANING = [
-        'submitted'        => 'received, waiting to be picked in the warehouse',
+        'submitted'        => 'received, not sent to the warehouse yet',
         'unassigned'       => 'in the warehouse, waiting to be picked',
         'queued'           => 'in the warehouse, waiting to be picked',
         'in_warehouse'     => 'in the warehouse, waiting to be picked',
@@ -77,7 +79,8 @@ class GetChatOrderFacts
                     'reference' => $recent->reference,
                     'placed'    => $recent->submitted_at?->toDateString() ?? $recent->date?->toDateString(),
                     'status'    => self::STATE_MEANING[$recent->state->value] ?? $recent->state->value,
-                ])->values()->all(),
+                    'payment'   => $this->payment($recent),
+                ])->map(fn (array $recent) => array_filter($recent))->values()->all(),
         ];
     }
 
@@ -110,6 +113,7 @@ class GetChatOrderFacts
             'reference'     => $order->reference,
             'placed'        => $order->submitted_at?->toDateString() ?? $order->date?->toDateString(),
             'status'        => self::STATE_MEANING[$order->state->value] ?? $order->state->value,
+            'payment'       => $this->payment($order),
             'dispatched_on' => $order->dispatched_at?->toDateString(),
             'cancelled_on'  => $order->cancelled_at?->toDateString(),
             'parcels'       => $order->deliveryNotes()->where('type', DeliveryNoteTypeEnum::ORDER)->with('shipments.shipper')->get()
@@ -127,6 +131,21 @@ class GetChatOrderFacts
                 ->values()
                 ->all(),
         ], fn ($value) => $value !== null && $value !== []);
+    }
+
+    private function payment(Order $order): ?string
+    {
+        if ($order->pay_status !== OrderPayStatusEnum::UNPAID) {
+            return $order->pay_status === OrderPayStatusEnum::PAID ? 'paid' : null;
+        }
+
+        $stillToPay = $order->amountStillToPay().' '.$order->currency?->code;
+
+        return match ($order->to_be_paid_by) {
+            OrderToBePaidByEnum::BANK             => "not paid yet, waiting for the customer's bank transfer of $stillToPay",
+            OrderToBePaidByEnum::CASH_ON_DELIVERY => "to be paid cash on delivery, $stillToPay",
+            default                               => "not paid yet, $stillToPay still to pay",
+        };
     }
 
     /**

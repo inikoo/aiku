@@ -56,6 +56,20 @@ trait WithInvoiceCategorySubNavigation
                 ]
             ],
             [
+                "label"    => __('By country'),
+                "route"     => [
+                    "name"       => 'grp.org.accounting.invoice-categories.show.countries.index',
+                    "parameters" => [
+                        'organisation' => $invoiceCategory->organisation->slug,
+                        'invoiceCategory' => $invoiceCategory->slug
+                    ],
+                ],
+                'leftIcon' => [
+                    'icon'    => ['fal', 'fa-globe'],
+                    'tooltip' => __('Invoices by the country they were delivered to')
+                ]
+            ],
+            [
                 "label"    => __('Backlog'),
                 "route"     => [
                     "name"       => 'grp.org.accounting.invoice-categories.show.backlog.index',

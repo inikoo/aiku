@@ -15,7 +15,7 @@ Cuando compras a un proveedor ordinario - no a una organización socia, que tien
 
 Cada proveedor al que tu organización compra directamente vive en **Procurement → Suppliers**. La página de cada proveedor te da un botón **Purchase Order** para iniciar una orden nueva, más un menú lateral con **Products**, **Purchase Orders** y **Stock Deliveries** hasta la fecha.
 
-Algunos proveedores solo son accesibles a través de un **agente** - una persona o empresa que compra en tu nombre en lugar de enviarte directamente. Los agentes tienen su propia lista en **Procurement → Agents**. Un pedido a través de un agente sigue siendo una orden de compra por proveedor, enviada al agente, y los pedidos que haces juntos forman un único **pedido de agente** (agent order). Ver [Hacer un pedido a través de un agente](/docs/placing-an-order-through-an-agent-es).
+Algunos proveedores solo son accesibles a través de un **agente** - una persona o empresa que compra en tu nombre en lugar de enviarte directamente. Los agentes tienen su propia lista en **Procurement → Agents**. Un pedido a través de un agente es una orden de compra por proveedor, numerada en la serie del agente y enviada al agente. Ver [Hacer un pedido a través de un agente](/docs/placing-an-order-through-an-agent-es).
 
 ## Cursar una orden de compra
 

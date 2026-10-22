@@ -124,7 +124,11 @@ class HandleRetinaInertiaRequests extends Middleware
                             ->whereNot('platform_id', 4)
                             ->exists(),
                 ],
-                'iris'        => $this->getIrisData($website, $webUser),
+                'iris'        => array_merge($this->getIrisData($website), [
+                    'google' => [
+                        'client_id' => config('services.google.client_id'),
+                    ],
+                ]),
                 'use_chat'    => $website->settings['enable_chat'] ?? false,
                 'outboxes' => $outBoxes
             ],

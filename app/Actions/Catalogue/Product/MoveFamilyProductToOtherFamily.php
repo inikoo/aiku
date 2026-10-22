@@ -9,6 +9,7 @@
 
 namespace App\Actions\Catalogue\Product;
 
+use App\Actions\Catalogue\Product\Hydrators\ProductHydrateCategoryOffersData;
 use App\Actions\Catalogue\ProductCategory\Hydrators\FamilyHydrateProducts;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithCatalogueEditAuthorisation;
@@ -29,6 +30,7 @@ class MoveFamilyProductToOtherFamily extends OrgAction
         $product->refresh();
 
         FamilyHydrateProducts::dispatch($product->family);
+        ProductHydrateCategoryOffersData::run($product);
 
         return $product;
     }

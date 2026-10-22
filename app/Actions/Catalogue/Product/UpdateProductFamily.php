@@ -9,6 +9,7 @@
 
 namespace App\Actions\Catalogue\Product;
 
+use App\Actions\Catalogue\Product\Hydrators\ProductHydrateCategoryOffersData;
 use App\Actions\Catalogue\Collection\SyncIndirectProductsToCollection;
 use App\Actions\Catalogue\ProductCategory\Hydrators\DepartmentHydrateProducts;
 use App\Actions\Catalogue\ProductCategory\Hydrators\FamilyHydrateProducts;
@@ -64,6 +65,7 @@ class UpdateProductFamily extends OrgAction
         $product->refresh();
 
         if (Arr::hasAny($changes, ['family_id', 'department_id', 'sub_department_id'])) {
+            ProductHydrateCategoryOffersData::run($product);
             BreakProductInWebpagesCache::make()->breakCache($product->webpage);
         }
 

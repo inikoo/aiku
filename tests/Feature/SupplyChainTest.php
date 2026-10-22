@@ -1251,6 +1251,7 @@ test('UI Index suppliers product in supplier', function () {
             ->has('pageHead')
             ->has('data')
             ->has('upload_spreadsheet')
+            ->where('queryBuilderProps.default.columns', fn ($columns) => !collect($columns)->contains('key', 'supplier_name'))
             ->has('breadcrumbs', 4);
     });
 });
@@ -1265,8 +1266,19 @@ test('UI Index free supplier products', function () {
             ->where('title', 'Free Supplier Products')
             ->has('pageHead.subNavigation', 3)
             ->has('data')
+            ->where('data.data.0.supplier_name', fn ($name) => filled($name))
+            ->where('queryBuilderProps.default.columns', fn ($columns) => collect($columns)->contains('key', 'supplier_name'))
             ->has('breadcrumbs', 3);
     });
+});
+
+test('supplier products list finds products by their supplier name', function () {
+    $supplierProduct = SupplierProduct::whereNull('agent_id')->whereNotNull('supplier_id')->first();
+    $supplierName    = $supplierProduct->supplier->name;
+
+    $this->get(route('grp.supply-chain.supplier_products.index', ['filter' => ['global' => $supplierName], 'elements' => ['state' => 'in_process,active,discontinuing,discontinued']]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('data.data', fn ($rows) => collect($rows)->pluck('id')->contains($supplierProduct->id)));
 });
 
 test('UI Index supplier products in agents', function () {

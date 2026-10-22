@@ -3749,6 +3749,19 @@ test('retina login renders the iris login block only when that page is live', fu
         ->and($liveResponse->headers->get('X-AIKU-WEBSITE'))->toBe((string) $website->id);
 })->depends('launch website');
 
+test('retina shares the google client id the iris login block needs to show login with google', function (Website $website) {
+    config()->set('services.google.client_id', 'test-google-client-id');
+
+    $request = Request::create('https://'.$website->domain.'/app/login');
+    $request->merge(['website' => $website]);
+    $request->setLaravelSession(app('session.store'));
+    $request->setRouteResolver(fn () => (new Illuminate\Routing\Route('GET', 'app/login', []))->name('retina.login'));
+
+    $shared = (new App\Http\Middleware\HandleRetinaInertiaRequests())->share($request);
+
+    expect(data_get($shared, 'iris.google.client_id'))->toBe('test-google-client-id');
+})->depends('launch website');
+
 test('retina register renders the iris register dashboard block only when that page is live', function (Website $website) {
     config()->set('iris.cache.webpage_path.ttl', 0);
     config()->set('iris.cache.webpage.ttl', 0);

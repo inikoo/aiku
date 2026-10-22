@@ -8,10 +8,12 @@
 
 namespace App\Console\Commands;
 
+use App\Actions\CRM\SocialMedia\CheckMetaUsage;
 use App\Actions\CRM\TrafficSource\GetTrafficSourceCampaign;
 use App\Actions\CRM\TrafficSource\StoreTrafficSourceCost;
 use App\Enums\CRM\TrafficSource\TrafficSourceCostFetchedViaEnum;
 use App\Enums\CRM\TrafficSource\TrafficSourcesTypeEnum;
+use App\Exceptions\MetaUsageLimitReached;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\TrafficSource;
 use App\Models\CRM\TrafficSourceCampaignMetric;
@@ -92,6 +94,11 @@ class FetchMetaAdsCosts extends Command
             try {
                 $stored = $this->fetchShop($shop, $since, $until);
                 $this->info("{$shop->slug}: {$stored} channel campaign-day(s) of spend.");
+            } catch (MetaUsageLimitReached $e) {
+                $this->error("{$shop->slug}: ".$e->getMessage());
+                Log::warning('Meta Ads cost fetch stopped at the usage limit', ['shop' => $shop->slug, 'error' => $e->getMessage()]);
+
+                return Command::FAILURE;
             } catch (\Throwable $e) {
                 $failed++;
                 $this->error("{$shop->slug}: ".$e->getMessage());
@@ -191,6 +198,8 @@ class FetchMetaAdsCosts extends Command
                 : Http::timeout(60)->get($url, $query);
 
             $query = null;
+
+            CheckMetaUsage::run($response);
 
             if ($response->failed()) {
                 throw new \RuntimeException(

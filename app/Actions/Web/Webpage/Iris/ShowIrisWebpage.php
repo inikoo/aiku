@@ -22,6 +22,7 @@ use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
+use App\Http\Middleware\HideRetailPricesFromIrisVisitors;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -84,6 +85,13 @@ class ShowIrisWebpage
             isLoggedIn: $loggedIn
         );
 
+        $webBlocksForVisitors = HideRetailPricesFromIrisVisitors::withoutHiddenKeys($webBlocks);
+        $isDifferentWhenLoggedIn = $webpage->is_different_when_logged_in || $webBlocksForVisitors !== $webBlocks;
+
+        if (!$loggedIn) {
+            $webBlocks = $webBlocksForVisitors;
+        }
+
 
         $webpageImg = $this->getWebpageShareImageSources($webpage);
         $visibility = $webpage->searchEngineVisibility();
@@ -123,7 +131,7 @@ class ShowIrisWebpage
             'minimum_reviews_to_show'           => Arr::get($webpage->shop->settings, 'reviews.minimum_reviews_to_show', 0),
             'webpage_reviews_count'             => $this->getApprovedReviewsCount($webpage),
             'show_staff_who_reply'              => Arr::get($webpage->shop->settings, 'reviews.show_staff_who_reply', false),
-            'is_different_when_logged_in'       => $webpage->is_different_when_logged_in,
+            'is_different_when_logged_in'       => $isDifferentWhenLoggedIn,
         ];
 
         return array_merge($baseWebpageData, [

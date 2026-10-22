@@ -15,6 +15,7 @@ use App\Actions\Accounting\Payment\CheckoutCom\SweepStuckCheckoutComPaymentApiPo
 use App\Actions\Catalogue\Shop\NotifyShopStockArrivals;
 use App\Actions\Catalogue\RebuildCatalogueRankings;
 use App\Actions\Dispatching\DeliveryNote\SweepStrandedDeliveryNotes;
+use App\Actions\Dispatching\Shipment\ApiCalls\TrackGlsEsShipments;
 use App\Actions\Inventory\OrgStock\ApplyScheduledOrgStockStateChanges;
 use App\Actions\Catalogue\Shop\External\Faire\GetFaireOrdersAllShops;
 use App\Actions\Catalogue\Shop\External\Faire\GetFaireProductsAllShops;
@@ -114,6 +115,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('tickets:cancel_stale')->everyFifteenMinutes()->onOneServer();
         $schedule->command('staff-tasks:nudge')->hourly()->onOneServer();
         $schedule->command('accounting:refresh-payment-methods-dashboard')->everySixHours()->onOneServer()->withoutOverlapping()->runInBackground();
+        $schedule->command('accounting:refresh-invoice-countries-dashboard')->everySixHours()->onOneServer()->withoutOverlapping()->runInBackground();
         $schedule->command('procurement:send-minimum-poke-digests')->everyFifteenMinutes()->onOneServer()->withoutOverlapping();
         $schedule->command('staff-tasks:remind-due')->hourly()->onOneServer();
         $schedule->command('product-developments:remind')->dailyAt('08:00')->timezone('Europe/London')->onOneServer();
@@ -204,6 +206,15 @@ class Kernel extends ConsoleKernel
                     monitorSlug: 'SweepStrandedDeliveryNotes',
                 ),
                 name: 'SweepStrandedDeliveryNotes',
+                type: 'job',
+                scheduledAt: now()->format('H:i')
+            );
+
+            $this->logSchedule(
+                $schedule->job(TrackGlsEsShipments::makeJob())->hourlyAt(40)->withoutOverlapping()->onOneServer()->sentryMonitor(
+                    monitorSlug: 'TrackGlsEsShipments',
+                ),
+                name: 'TrackGlsEsShipments',
                 type: 'job',
                 scheduledAt: now()->format('H:i')
             );

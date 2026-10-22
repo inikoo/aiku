@@ -9,7 +9,7 @@
 import { computed, ref } from "vue"
 import { Link } from "@inertiajs/vue3"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faInboxIn, faClipboardCheck, faChevronDown, faChevronRight, faImage, faBoxCheck, faFilePdf } from "@fal"
+import { faInboxIn, faClipboardCheck, faChevronDown, faChevronRight, faImage, faBoxCheck, faFilePdf, faPencil } from "@fal"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import ZoomableImage from "@/Components/Utils/ZoomableImage.vue"
 import AgentReceiveGoodsButton from "@/Components/Procurement/AgentReceiveGoodsButton.vue"
@@ -212,9 +212,28 @@ function itemStatus(item: ReceiptItem) {
 									<div v-if="item.checked_by" class="mt-0.5 text-gray-400">{{ ctrans("Checked by :name", { name: item.checked_by }) }}</div>
 								</td>
 								<td class="py-1.5 pl-3 text-right">
-									<Button v-if="item.check_route" type="tertiary" size="xs" :label="item.is_checked ? ctrans('Check again') : ctrans('Check')" @click="openCheck(line, item)">
+									<Button
+										v-if="item.check_route && item.is_checked"
+										type="transparent"
+										size="xs"
+										:label="ctrans('Check again')"
+										:tooltip="ctrans('Click to change the check of these goods')"
+										@click="openCheck(line, item)"
+									>
 										<template #icon>
-											<FontAwesomeIcon :icon="faClipboardCheck" class="text-green-600" fixed-width aria-hidden="true" />
+											<FontAwesomeIcon :icon="faPencil" class="text-gray-500" fixed-width aria-hidden="true" />
+										</template>
+									</Button>
+									<Button
+										v-else-if="item.check_route"
+										type="secondary"
+										size="xs"
+										:label="ctrans('Check')"
+										:tooltip="ctrans('Click to check these goods for rejects')"
+										@click="openCheck(line, item)"
+									>
+										<template #icon>
+											<FontAwesomeIcon :icon="faClipboardCheck" fixed-width aria-hidden="true" />
 										</template>
 									</Button>
 								</td>

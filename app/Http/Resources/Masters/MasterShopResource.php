@@ -9,6 +9,7 @@
 
 namespace App\Http\Resources\Masters;
 
+use App\Actions\Masters\MasterAsset\UI\IndexMasterProductsAwaitingBarcode;
 use App\Http\Resources\HasSelfCall;
 use App\Models\Helpers\Currency;
 use App\Models\Masters\MasterShop;
@@ -175,6 +176,19 @@ class MasterShopResource extends JsonResource
         }
 
         $additionalStats[] = [
+            'label'           => __('Bundle Master Products Awaiting Barcode'),
+            'is_negative'     => true,
+            'route'           => [
+                'name'       => 'grp.masters.master_shops.show.master_products_awaiting_barcode',
+                'parameters' => ['masterShop' => $masterShop->slug],
+            ],
+            'icon'            => 'fal fa-barcode',
+            'backgroundColor' => '#fa582761',
+            'color'           => '#df1c1cff',
+            'value'           => $this->numberKitsAwaitingBarcode($this->resource),
+        ];
+
+        $additionalStats[] = [
             'label' => __('Products with Mismatch Family'),
             'is_negative'     => true,
             'route'           => [
@@ -289,5 +303,14 @@ class MasterShopResource extends JsonResource
                 'additionalStatBox'   => $additionalStats
             ])
         ];
+    }
+
+    private function numberKitsAwaitingBarcode(MasterShop $masterShop): int
+    {
+        $query = $masterShop->masterAssets()->getQuery();
+        IndexMasterProductsAwaitingBarcode::whereAwaitingBarcode($query);
+        IndexMasterProductsAwaitingBarcode::whereComposition($query, ['kit']);
+
+        return $query->count();
     }
 }

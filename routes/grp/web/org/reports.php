@@ -8,6 +8,8 @@
 
 use App\Actions\Accounting\CreditTransaction\ExportCustomerCredit;
 use App\Actions\Accounting\CreditTransaction\UI\IndexCustomerCredit;
+use App\Actions\Accounting\Reports\BillingRegionTaxCategory\UI\IndexBillingRegionTaxCategoryInvoices;
+use App\Actions\Accounting\Reports\BillingRegionTaxCategory\UI\IndexBillingRegionTaxCategoryReport;
 use App\Actions\Accounting\Reports\Intrastat\ExportIntrastatAeat;
 use App\Actions\Accounting\Reports\Intrastat\ExportIntrastatExcel;
 use App\Actions\Accounting\Reports\Intrastat\ExportIntrastatImportExcel;
@@ -45,6 +47,9 @@ Route::get('/intrastat/exports/export-excel', ExportIntrastatExcel::class)->name
 
 Route::get('/intrastat/imports', IndexIntrastatImportReport::class)->name('intrastat.imports');
 Route::get('/intrastat/imports/export-excel', ExportIntrastatImportExcel::class)->name('intrastat.imports.export-excel');
+
+Route::get('/billing-region-tax-code', IndexBillingRegionTaxCategoryReport::class)->name('billing-region-tax-code');
+Route::get('/billing-region-tax-code/{billingRegion}/{taxCategory:id}', IndexBillingRegionTaxCategoryInvoices::class)->name('billing-region-tax-code.invoices')->withoutScopedBindings();
 
 Route::get('/sage-invoices', IndexSageInvoicesReport::class)->name('sage-invoices');
 Route::get('/sage-invoices/export', ExportSageInvoices::class)->name('sage-invoices.export');

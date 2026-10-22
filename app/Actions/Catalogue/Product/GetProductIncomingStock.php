@@ -12,6 +12,7 @@ use App\Actions\Procurement\OrgPartner\GetPartnerLeadTime;
 use App\Actions\Procurement\OrgPartner\GetPartnerSupplyDurations;
 use App\Actions\Production\PartnerShippingList\GetPartnerOrdersInTheMaking;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
@@ -281,6 +282,7 @@ class GetProductIncomingStock
                 fn ($query) => $query->whereIn('purchase_order_transactions.org_stock_id', $orgStockIds)
             )
             ->whereNull('purchase_order_transactions.deleted_at')
+            ->whereNotIn('purchase_order_transactions.state', [PurchaseOrderTransactionStateEnum::CANCELLED->value, PurchaseOrderTransactionStateEnum::NOT_RECEIVED->value])
             ->whereNull('purchase_orders.deleted_at')
             ->whereNotIn('purchase_orders.state', [
                 PurchaseOrderStateEnum::IN_PROCESS->value,

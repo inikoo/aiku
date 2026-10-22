@@ -5,7 +5,9 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { EditorContent } from "@tiptap/vue-3"
 import EditorV2 from "./BubleTextEditor/EditorV2.vue"
 import { faTrashAlt } from "@far"
+import { faPlus } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
+import InputText from "primevue/inputtext"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { get, set } from "lodash-es"
 import { ctrans } from "@/Composables/useTrans"
@@ -23,6 +25,7 @@ interface FaqItem {
 const props = defineProps<{
     form: Record<string, any>
     fieldName: string
+    hideAddButton?: boolean
     fieldData: {
         toggle?: string[]
         routeGetInternalLink?: routeType
@@ -108,60 +111,52 @@ const removeFaq = (index: number) => {
     answerKeyMap.value = {}
     syncAnswerKeys()
 }
+
+defineExpose({ addFaq })
 </script>
 
 <template>
-    <div class="space-y-4">
+    <div class="space-y-3">
         <CascadeProgressIndicator :progress="cascadeProgress" />
 
         <div
             v-for="(faq, index) in items"
             :key="index"
-            class="rounded-lg border border-gray-200 p-4 space-y-3"
+            class="space-y-2 rounded-lg border border-gray-200 p-4"
         >
-            <div>
-                <label class="mb-1 block text-sm font-medium">{{ ctrans('Question') }}</label>
-                <input
-                    v-model="faq.question"
-                    type="text"
-                    class="w-full rounded-md border border-gray-300 px-3 py-2"
-                    :placeholder="ctrans('Enter question')"
-                />
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    {{ ctrans("Question :number", { number: index + 1 }) }}
+                </span>
+                <Button type="tertiary" size="xs" v-tooltip="ctrans('Remove question')" @click="removeFaq(index)">
+                    <template #icon>
+                        <FontAwesomeIcon :icon="faTrashAlt" class="text-red-500" fixed-width aria-hidden="true" />
+                    </template>
+                </Button>
             </div>
 
-            <div>
-                <label class="mb-1 block text-sm font-medium">{{ ctrans('Answer') }}</label>
-                <div class="bg-gray-50 border border-gray-300 rounded-md p-2">
-                    <EditorV2
-                        v-model="faq.answer"
-                        :key="answerKeyMap[index]"
-                        :toggle="answerToggle"
-                        :routeGetInternalLink="fieldData.routeGetInternalLink"
-                    >
-                        <template #editor-content="{ editor }">
-                            <EditorContent
-                                :editor="editor"
-                                class="focus:outline-none text-sm text-gray-700 whitespace-pre-wrap leading-6 min-h-[5rem]"
-                            />
-                        </template>
-                    </EditorV2>
-                </div>
-            </div>
+            <InputText v-model="faq.question" class="w-full" :placeholder="ctrans('Enter question')" />
 
-            <div class="flex justify-end">
-                <FontAwesomeIcon
-                    :icon="faTrashAlt"
-                    class="cursor-pointer text-red-500"
-                    @click="removeFaq(index)" fixed-width
-                />
+            <div class="rounded-md border border-gray-300 p-2 focus-within:border-[--app-accent]">
+                <EditorV2
+                    v-model="faq.answer"
+                    :key="answerKeyMap[index]"
+                    :toggle="answerToggle"
+                    :routeGetInternalLink="fieldData.routeGetInternalLink"
+                >
+                    <template #editor-content="{ editor }">
+                        <EditorContent
+                            :editor="editor"
+                            class="min-h-[5rem] whitespace-pre-wrap text-sm leading-6 text-gray-700 focus:outline-none"
+                        />
+                    </template>
+                </EditorV2>
             </div>
         </div>
 
-        <Button
-            class="rounded bg-blue-600 px-4 py-2 text-white"
-            @click="addFaq"
-            :label="ctrans('Add FAQ')"
-        />
+        <p v-if="!items.length" class="text-sm text-gray-500">{{ ctrans("No questions yet") }}</p>
+
+        <Button v-if="!hideAddButton" type="tertiary" :icon="faPlus" :label="ctrans('Add question')" @click="addFaq" />
 
         <p v-if="get(form, ['errors', fieldName])" class="mt-2 text-sm text-red-600">
             {{ form.errors[fieldName] }}

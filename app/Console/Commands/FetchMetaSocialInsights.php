@@ -9,7 +9,9 @@
 namespace App\Console\Commands;
 
 use App\Actions\CRM\SocialMedia\GetSocialMediaAccount;
+use App\Actions\CRM\SocialMedia\CheckMetaUsage;
 use App\Enums\CRM\SocialMedia\SocialMediaPlatformEnum;
+use App\Exceptions\MetaUsageLimitReached;
 use App\Enums\CRM\SocialMedia\SocialMediaPostTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\SocialMediaAccount;
@@ -90,7 +92,13 @@ class FetchMetaSocialInsights extends Command
      * Instagram account metrics Meta gives day by day => the daily stats column they fill.
      */
     public const array INSTAGRAM_ACCOUNT_METRICS = [
-        'reach'          => 'reach',
+        'reach' => 'reach',
+    ];
+
+    /**
+     * Instagram account metrics Meta keeps for the last 30 days only => the daily stats column they fill.
+     */
+    public const array INSTAGRAM_FOLLOWER_METRICS = [
         'follower_count' => 'new_follows',
     ];
 
@@ -106,6 +114,14 @@ class FetchMetaSocialInsights extends Command
     ];
 
     private const int INSTAGRAM_ACCOUNT_MAX_DAYS = 30;
+
+    /**
+     * The longest stretch Meta answers in one insights request: 93 days for a Page, 30 for an
+     * Instagram account. A longer run is asked for in windows of these.
+     */
+    private const int FACEBOOK_WINDOW_DAYS = 90;
+
+    private const int INSTAGRAM_WINDOW_DAYS = 30;
 
     /**
      * @var array<int, string>
@@ -146,6 +162,11 @@ class FetchMetaSocialInsights extends Command
                         : $this->fetchInstagram($shop, $externalId, $since, $until);
 
                     $this->info("{$shop->slug} {$platform->value}: {$posts} post(s), {$days} day(s).");
+                } catch (MetaUsageLimitReached $e) {
+                    $this->error("{$shop->slug} {$platform->value}: ".$e->getMessage());
+                    Log::warning('Meta social insights fetch stopped at the usage limit', ['shop' => $shop->slug, 'platform' => $platform->value, 'error' => $e->getMessage()]);
+
+                    return Command::FAILURE;
                 } catch (\Throwable $e) {
                     $failed++;
                     $this->error("{$shop->slug} {$platform->value}: ".$this->withoutToken($e->getMessage()));
@@ -214,7 +235,7 @@ class FetchMetaSocialInsights extends Command
             $posts++;
         }
 
-        $days = $this->storeDays($account, $this->eachDailyMetric($pageId, self::FACEBOOK_PAGE_METRICS, $since, $until, $pageToken, 'facebook'));
+        $days = $this->storeDays($account, $this->eachDailyMetric($pageId, self::FACEBOOK_PAGE_METRICS, $since, $until, $pageToken, 'facebook', self::FACEBOOK_WINDOW_DAYS));
 
         $this->storeFollowers($account, data_get($page, 'followers_count'));
 
@@ -259,8 +280,9 @@ class FetchMetaSocialInsights extends Command
         $accountSince = $since->copy()->max($until->copy()->subDays(self::INSTAGRAM_ACCOUNT_MAX_DAYS - 1));
 
         $days = $this->storeDays($account, array_merge_recursive(
-            $this->eachDailyMetric($instagramId, self::INSTAGRAM_ACCOUNT_METRICS, $accountSince, $until, $token, 'instagram'),
-            $this->instagramDailyTotals($instagramId, $accountSince, $until, $token)
+            $this->eachDailyMetric($instagramId, self::INSTAGRAM_ACCOUNT_METRICS, $since, $until, $token, 'instagram', self::INSTAGRAM_WINDOW_DAYS),
+            $this->eachDailyMetric($instagramId, self::INSTAGRAM_FOLLOWER_METRICS, $accountSince, $until, $token, 'instagram', self::INSTAGRAM_WINDOW_DAYS),
+            $this->instagramDailyTotals($instagramId, $since, $until, $token)
         ));
 
         $this->storeFollowers($account, data_get($profile, 'followers_count'));
@@ -307,13 +329,13 @@ class FetchMetaSocialInsights extends Command
      *
      * @return array<string, array<string, int>> date => column => value
      */
-    private function eachDailyMetric(string $id, array $metrics, Carbon $since, Carbon $until, string $token, string $platform): array
+    private function eachDailyMetric(string $id, array $metrics, Carbon $since, Carbon $until, string $token, string $platform, int $windowDays): array
     {
         $byDate = [];
 
         foreach ($metrics as $metric => $column) {
             try {
-                foreach ($this->dailyInsights($id, $metric, $since, $until, $token) as $date => $values) {
+                foreach ($this->dailyInsights($id, $metric, $since, $until, $token, $windowDays) as $date => $values) {
                     if (array_key_exists($metric, $values)) {
                         $byDate[$date][$column] = $values[$metric];
                     }
@@ -539,30 +561,34 @@ class FetchMetaSocialInsights extends Command
 
     /**
      * Meta dates a day's value by the end of that day, in the account's time zone: an end_time of the
-     * 2nd at 07:00 UTC is the 1st. One request, never paged: an insights edge's next link is the
-     * following window of time, so following it walks forward for ever.
+     * 2nd at 07:00 UTC is the 1st. One request per window of days, never paged: an insights edge's
+     * next link is the following window of time, so following it walks forward for ever.
      *
      * @return array<string, array<string, int>>
      */
-    private function dailyInsights(string $id, string $metrics, Carbon $since, Carbon $until, string $token): array
+    private function dailyInsights(string $id, string $metrics, Carbon $since, Carbon $until, string $token, int $windowDays): array
     {
         $byDate = [];
 
-        $response = $this->get($this->url($id.'/insights'), [
-            'metric' => $metrics,
-            'period' => 'day',
-            'since'  => $since->copy()->startOfDay()->timestamp,
-            'until'  => $until->copy()->addDay()->startOfDay()->timestamp,
-        ], $token);
+        for ($start = $since->copy()->startOfDay(); $start->lte($until); $start->addDays($windowDays)) {
+            $end = $start->copy()->addDays($windowDays - 1)->min($until);
 
-        foreach (data_get($response, 'data', []) as $metric) {
-            foreach (data_get($metric, 'values', []) as $value) {
-                if (!is_numeric(data_get($value, 'value'))) {
-                    continue;
+            $response = $this->get($this->url($id.'/insights'), [
+                'metric' => $metrics,
+                'period' => 'day',
+                'since'  => $start->timestamp,
+                'until'  => $end->copy()->addDay()->startOfDay()->timestamp,
+            ], $token);
+
+            foreach (data_get($response, 'data', []) as $metric) {
+                foreach (data_get($metric, 'values', []) as $value) {
+                    if (!is_numeric(data_get($value, 'value'))) {
+                        continue;
+                    }
+
+                    $date = Carbon::parse(data_get($value, 'end_time'))->subDay()->toDateString();
+                    $byDate[$date][data_get($metric, 'name')] = (int) data_get($value, 'value');
                 }
-
-                $date = Carbon::parse(data_get($value, 'end_time'))->subDay()->toDateString();
-                $byDate[$date][data_get($metric, 'name')] = (int) data_get($value, 'value');
             }
         }
 
@@ -616,6 +642,8 @@ class FetchMetaSocialInsights extends Command
     {
         $response = $this->http()->get($url.'?'.http_build_query($query + ['access_token' => $token]));
 
+        CheckMetaUsage::run($response);
+
         if ($response->failed()) {
             throw new \RuntimeException('Meta returned '.$response->status().': '.data_get($response->json(), 'error.message', $response->body()));
         }
@@ -639,6 +667,8 @@ class FetchMetaSocialInsights extends Command
             $seen[$next] = true;
 
             $response = $this->http()->get($next);
+
+            CheckMetaUsage::run($response);
 
             if ($response->failed()) {
                 throw new \RuntimeException('Meta returned '.$response->status().': '.data_get($response->json(), 'error.message', $response->body()));

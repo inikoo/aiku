@@ -319,11 +319,28 @@ it('compares the period with the same dates last year or with a range chosen by 
     $lastYear = $period(['compare' => 'year']);
     $custom   = $period(['compare' => 'custom', 'compare_from' => '2026-06-01', 'compare_to' => '2026-06-15']);
     $broken   = $period(['compare' => 'custom', 'compare_from' => '2026-06-15', 'compare_to' => '2026-06-01']);
+    $none     = $period(['compare' => 'none']);
 
     expect([$lastYear['previous_from'], $lastYear['previous_to']])->toBe(['2025-08-01', '2025-08-31'])
         ->and([$custom['previous_from'], $custom['previous_to']])->toBe(['2026-06-01', '2026-06-15'])
         ->and($custom['filters']['compare'])->toBe('custom')
-        ->and([$broken['previous_from'], $broken['previous_to']])->toBe(['2026-07-01', '2026-07-31']);
+        ->and([$broken['previous_from'], $broken['previous_to']])->toBe(['2026-07-01', '2026-07-31'])
+        ->and($none['previous_from'])->toBeNull()
+        ->and($none['kpis']['previous'])->toBeNull()
+        ->and($none['previous_trend'])->toBeNull();
+});
+
+it('lays the compared period over the current one point for point', function () {
+    ImportSocialMediaInsights::make()->handle($this->shop, instagramContentExport());
+
+    $performance = GetSocialMediaPerformance::run($this->organisation, Carbon::parse('2026-08-01')->startOfDay(), Carbon::parse('2026-08-31')->endOfDay(), ['shop' => $this->shop->slug]);
+    $compared    = collect($performance['previous_trend']['points'])->keyBy('date');
+
+    expect($performance['previous_trend']['bucket'])->toBe($performance['trend']['bucket'])
+        ->and($compared->keys()->first())->toBe('2026-07-01')
+        ->and($compared->count())->toBe(count($performance['trend']['points']))
+        ->and($compared['2026-07-20']['posts'])->toBe(1)
+        ->and($performance['kpis']['previous']['followers_accounts'])->toBeInt();
 });
 
 it('filters by platform and leaves out shops outside the filter', function () {
@@ -645,11 +662,52 @@ describe('fetching meta organic insights', function () {
             ->and($status['paid'])->toBeFalse()
             ->and($status['running'])->toBeFalse()
             ->and($status['last_sync']['ok'])->toBeTrue()
+            ->and($status['available_at'])->not->toBeNull()
             ->and($status['organic_updated_at'])->not->toBeNull();
 
         $this->postJson(route('grp.models.shop.social_media.sync', ['shop' => $this->shop->id]))
             ->assertUnprocessable()
-            ->assertJsonValidationErrors('shop');
+            ->assertJsonValidationErrors(['shop' => 'Try again in 10 minutes']);
+
+        $this->travel(SyncShopFromMeta::COOLDOWN_MINS + 1)->minutes();
+
+        expect(SyncShopFromMeta::status($this->shop)['available_at'])->toBeNull();
+
+        $this->postJson(route('grp.models.shop.social_media.sync', ['shop' => $this->shop->id]))->assertOk();
+    });
+
+    it('asks meta for a page\'s days in windows it accepts and syncs a new brand\'s whole history first', function () {
+        $requests = [];
+        fakeMetaSocialGraph($requests);
+
+        $this->postJson(route('grp.models.shop.social_media.sync', ['shop' => $this->shop->id]), ['days' => 45])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('days');
+
+        $this->postJson(route('grp.models.shop.social_media.sync', ['shop' => $this->shop->id]))->assertOk();
+
+        parse_str((string) parse_url(collect($requests)->first(fn (string $url) => str_contains($url, '/111/insights')), PHP_URL_QUERY), $firstWindow);
+
+        expect(Carbon::createFromTimestamp($firstWindow['since'], config('app.timezone'))->toDateString())->toBe(now()->subDay()->subDays(SyncShopFromMeta::MAX_DAYS - 1)->toDateString());
+
+        $requests = [];
+        Artisan::call('social-media:fetch-meta', ['shop' => $this->shop->slug, '--date' => '2026-08-31', '--days' => 120]);
+
+        expect(collect($requests)->filter(fn (string $url) => str_contains($url, '/111/insights') && str_contains($url, 'metric=page_media_view&'))->count())->toBe(2);
+    });
+
+    it('stops a run before meta\'s usage limit instead of pushing on into a block', function () {
+        Http::fake(['graph.facebook.com/*' => Http::response(
+            ['id' => '111', 'name' => 'AW Gifts Europe', 'followers_count' => 5000, 'access_token' => 'page-token'],
+            200,
+            ['X-Business-Use-Case-Usage' => json_encode(['111' => [['type' => 'pages', 'call_count' => 85, 'total_cputime' => 10, 'total_time' => 10, 'estimated_time_to_regain_access' => 12]]])]
+        )]);
+
+        expect(Artisan::call('social-media:fetch-meta', ['shop' => $this->shop->slug, '--date' => '2026-08-31', '--days' => 31]))->toBe(1)
+            ->and(Artisan::output())->toContain('usage limit')
+            ->and($this->shop->socialMediaAccounts()->count())->toBe(0);
+
+        Http::assertSentCount(1);
     });
 
     it('says a brand is not set up for meta rather than syncing it', function () {

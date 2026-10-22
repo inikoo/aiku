@@ -18,9 +18,9 @@ import Button from "@/Components/Elements/Buttons/Button.vue"
 import PingIcon from "@/Components/Utils/PingIcon.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faFileExcel, faTrashAlt, faTags } from "@fal"
+import { faTrashAlt, faTags } from "@fal"
 
-library.add(faFileExcel, faTrashAlt, faTags)
+library.add(faTrashAlt, faTags)
 
 defineProps<{
 	data: {}
@@ -40,6 +40,11 @@ function PurchaseOrderRoute(purchaseOrder: PurchaseOrder) {
 	}
 
 	switch (asProcurementRouteName(route().current())) {
+		case "grp.org.procurement.incoming_purchase_orders.index":
+			return route("grp.org.agent.incoming_purchase_orders.show", [
+				route().params["organisation"],
+				purchaseOrder.slug,
+			])
 		case "grp.org.procurement.purchase_orders.index":
 		case "grp.org.procurement.org_supplier_products.show":
 		case "grp.org.procurement.org_agents.show.supplier_products.show":
@@ -166,22 +171,6 @@ function SupplierFilterHref(purchaseOrder: PurchaseOrder) {
 
 	return `${location.pathname}?${qs.stringify(query)}`
 }
-
-function AgentOrderRoute(purchaseOrder: PurchaseOrder) {
-	if (isInAgentOrganisation && purchaseOrder?.agent_order_reference && purchaseOrder.slug) {
-		return route("grp.org.agent.purchase_orders.whole_order", [route().params["organisation"], purchaseOrder.slug])
-	}
-
-	if (!purchaseOrder?.org_agent_slug || !purchaseOrder?.agent_order_reference) {
-		return null
-	}
-
-	return route("grp.org.procurement.org_agents.show.agent_orders.show", [
-		purchaseOrder.organisation_slug ?? route().params["organisation"],
-		purchaseOrder.org_agent_slug,
-		purchaseOrder.agent_order_reference,
-	])
-}
 </script>
 
 <template>
@@ -204,16 +193,6 @@ function AgentOrderRoute(purchaseOrder: PurchaseOrder) {
 					{{ purchaseOrder.number_pending_price_changes }}
 				</span>
 			</div>
-		</template>
-
-		<template #cell(agent_order_reference)="{ item: purchaseOrder }">
-			<Link
-				v-if="AgentOrderRoute(purchaseOrder)"
-				:href="AgentOrderRoute(purchaseOrder)"
-				class="secondaryLink whitespace-nowrap">
-				{{ purchaseOrder.agent_order_reference }}
-			</Link>
-			<span v-else>{{ purchaseOrder.agent_order_reference }}</span>
 		</template>
 
 		<template #cell(parent_name)="{ item: purchaseOrder }">
@@ -240,6 +219,10 @@ function AgentOrderRoute(purchaseOrder: PurchaseOrder) {
 			</div>
 		</template>
 
+		<template #cell(organisation_name)="{ item: purchaseOrder }">
+			<span v-if="isInAgentOrganisation && purchaseOrder.organisation_code" v-tooltip="purchaseOrder.organisation_name" class="uppercase">{{ purchaseOrder.organisation_code }}</span>
+			<template v-else>{{ purchaseOrder.organisation_name }}</template>
+		</template>
 		<template #cell(state)="{ item: purchaseOrder }">
 			<div class="flex items-center gap-1">
 				<Icon :data="purchaseOrder.state_icon" />
@@ -286,31 +269,6 @@ function AgentOrderRoute(purchaseOrder: PurchaseOrder) {
 					</template>
 				</Button>
 			</div>
-		</template>
-
-		<template #cell(other_clients_orders)="{ item: purchaseOrder }">
-			<div v-if="purchaseOrder.other_clients_orders?.length" class="flex flex-wrap gap-1">
-				<Link
-					v-for="otherOrder in purchaseOrder.other_clients_orders"
-					:key="otherOrder.slug"
-					:href="route('grp.org.agent.purchase_orders.whole_order', [route().params['organisation'], otherOrder.slug])"
-					v-tooltip="otherOrder.state_label"
-					class="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-gray-200 px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-100">
-					<span class="font-semibold uppercase text-gray-700">{{ otherOrder.organisation_code }}</span>
-					<span>{{ otherOrder.agent_order_reference }}</span>
-					<span class="text-gray-400">{{ useLocaleStore().currencyFormat(otherOrder.currency_code, otherOrder.amount) }}</span>
-				</Link>
-			</div>
-			<span v-else class="text-gray-400">-</span>
-		</template>
-
-		<template #cell(downloads)="{ item: purchaseOrder }">
-			<a
-				:href="route('grp.org.agent.purchase_orders.transactions.export', [route().params['organisation'], purchaseOrder.slug])"
-				v-tooltip="ctrans('Download this supplier order (Excel)')"
-				class="text-gray-500 hover:text-gray-700">
-				<FontAwesomeIcon icon="fal fa-file-excel" fixed-width aria-hidden="true" />
-			</a>
 		</template>
 
 		<template #cell(parent)="{ item: purchaseOrder }">

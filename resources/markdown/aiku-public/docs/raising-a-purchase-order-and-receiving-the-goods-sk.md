@@ -15,7 +15,7 @@ Keď nakupujete od bežného dodávateľa - nie od partnerskej organizácie, kto
 
 Každý dodávateľ, od ktorého vaša organizácia nakupuje priamo, sa nachádza v **Procurement → Suppliers**. Stránka každého dodávateľa má tlačidlo **Purchase Order** na založenie novej objednávky, plus bočné menu s **Products**, **Purchase Orders** a doterajšími **Stock Deliveries**.
 
-Niektorí dodávatelia sú dostupní len cez **agenta** - osobu alebo firmu, ktorá nakupuje vo vašom mene namiesto priameho dodávania. Agenti majú vlastný zoznam v **Procurement → Agents**. Objednávka cez agenta je stále jedna objednávka na dodávateľa, odoslaná agentovi, a objednávky, ktoré zadáte spolu, tvoria jednu **agent order** (objednávku agenta). Viď [Zadanie objednávky cez agenta](/docs/placing-an-order-through-an-agent-sk).
+Niektorí dodávatelia sú dostupní len cez **agenta** - osobu alebo firmu, ktorá nakupuje vo vašom mene namiesto priameho dodávania. Agenti majú vlastný zoznam v **Procurement → Agents**. Objednávka cez agenta je jedna objednávka na dodávateľa s číslom zo série agenta, odoslaná agentovi. Viď [Zadanie objednávky cez agenta](/docs/placing-an-order-through-an-agent-sk).
 
 ## Vystavenie objednávky
 

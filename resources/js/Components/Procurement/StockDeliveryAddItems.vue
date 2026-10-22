@@ -26,7 +26,6 @@ type AddableItem = {
 	purchase_order_id: number
 	purchase_order_reference: string
 	supplier: string | null
-	agent_order_reference: string | null
 	code: string | null
 	name: string | null
 	quantity_ordered: number
@@ -68,13 +67,13 @@ const filteredItems = computed(() => {
 	const term = search.value.trim().toLowerCase()
 
 	return term
-		? items.value.filter(item => [item.code, item.name, item.purchase_order_reference, item.supplier, item.agent_order_reference]
+		? items.value.filter(item => [item.code, item.name, item.purchase_order_reference, item.supplier]
 			.some(value => value?.toLowerCase().includes(term)))
 		: items.value
 })
 
 const purchaseOrders = computed(() => {
-	const groups = new Map<number, { id: number; reference: string; supplier: string | null; agent_order_reference: string | null; items: AddableItem[] }>()
+	const groups = new Map<number, { id: number; reference: string; supplier: string | null; items: AddableItem[] }>()
 
 	for (const item of filteredItems.value) {
 		if (!groups.has(item.purchase_order_id)) {
@@ -82,7 +81,6 @@ const purchaseOrders = computed(() => {
 				id: item.purchase_order_id,
 				reference: item.purchase_order_reference,
 				supplier: item.supplier,
-				agent_order_reference: item.agent_order_reference,
 				items: [],
 			})
 		}
@@ -296,7 +294,7 @@ const submit = () => {
 				<label class="sticky top-0 z-10 flex cursor-pointer items-center gap-3 bg-gray-50 px-3 py-2 text-sm">
 					<Checkbox :modelValue="isPurchaseOrderSelected(purchaseOrder)" binary @update:modelValue="togglePurchaseOrder(purchaseOrder)" />
 					<span class="font-semibold text-gray-800">{{ purchaseOrder.reference }}</span>
-					<span class="truncate text-gray-500">{{ [purchaseOrder.supplier, purchaseOrder.agent_order_reference].filter(Boolean).join(" · ") }}</span>
+					<span class="truncate text-gray-500">{{ purchaseOrder.supplier }}</span>
 					<span class="ml-auto whitespace-nowrap text-xs text-gray-500">{{ ctrans("Select whole purchase order") }}</span>
 				</label>
 

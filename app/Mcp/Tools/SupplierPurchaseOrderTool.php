@@ -9,7 +9,6 @@
 namespace App\Mcp\Tools;
 
 use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
-use App\Actions\Procurement\AgentOrder\ResolveAgentOrderReference;
 use App\Actions\Procurement\PurchaseOrder\CalculatePurchaseOrderTotalAmounts;
 use App\Actions\Procurement\PurchaseOrder\Hydrators\PurchaseOrderHydrateTransactions;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
@@ -35,10 +34,10 @@ use Laravel\Mcp\Server\Tool;
 /**
  * The purchase order to an external supplier, placed by an assistant the way a buyer does it on the
  * supplier page: one order being prepared per supplier, lines added from the supplier's products,
- * then submitted. A supplier bought through an agent joins the agent's order as it does in the UI.
+ * then submitted. A supplier bought through an agent gets its own order, sent through the agent.
  * Placing needs can_use_mcp_place_orders.
  */
-#[Description('Purchase orders to external suppliers (not partners or the manufacturing hub), including suppliers bought through an agent. Lines are supplier product or SKO codes with a quantity in units; quantities are rounded up to whole cartons and to the supplier\'s minimum carton order. Without place it previews the order: supplier, agent and agent order, the supplier\'s currency, each line with units, cartons, unit cost and line cost in that currency, the order already being prepared for that supplier with its lines, and the total that placing submits in the buying organisation\'s currency. With place=true, for users enrolled to place orders, it adds the lines to the order being prepared (or a new one) and submits it; it is not emailed to the supplier, send it from the purchase order page. It cannot be undone from the AI changes log. Only place after showing the preview and the user confirmed the supplier, lines and quantities in their own words, passing their request text.')]
+#[Description('Purchase orders to external suppliers (not partners or the manufacturing hub), including suppliers bought through an agent. Lines are supplier product or SKO codes with a quantity in units; quantities are rounded up to whole cartons and to the supplier\'s minimum carton order. Without place it previews the order: supplier, agent, the supplier\'s currency, each line with units, cartons, unit cost and line cost in that currency, the order already being prepared for that supplier with its lines, and the total that placing submits in the buying organisation\'s currency. With place=true, for users enrolled to place orders, it adds the lines to the order being prepared (or a new one) and submits it; it is not emailed to the supplier, send it from the purchase order page. It cannot be undone from the AI changes log. Only place after showing the preview and the user confirmed the supplier, lines and quantities in their own words, passing their request text.')]
 class SupplierPurchaseOrderTool extends Tool
 {
     use WithMcpPermissions;
@@ -136,13 +135,10 @@ class SupplierPurchaseOrderTool extends Tool
             'changed'        => true,
             'order_log_id'   => $this->mcpChange?->id,
             'purchase_order' => $purchaseOrder->reference,
-            'agent_order'    => $purchaseOrder->agent_order_reference,
             'state'          => $purchaseOrder->state->value,
             'lines'          => $purchaseOrder->purchaseOrderTransactions()->count(),
             'total'          => $purchaseOrder->organisation->currency->code.' '.number_format((float) $purchaseOrder->purchaseOrderTransactions()->sum('org_net_amount'), 2),
-            'note'           => $purchaseOrder->agent_order_reference
-                ? "Submitted, not emailed: send it to the agent from Procurement > Agents > the agent > Agent orders > {$purchaseOrder->agent_order_reference}."
-                : 'Submitted, not emailed: send it to the supplier from the purchase order page.',
+            'note'           => 'Submitted, not emailed: send it to the supplier from the purchase order page.',
         ]);
     }
 
@@ -216,7 +212,6 @@ class SupplierPurchaseOrderTool extends Tool
         return [
             'supplier'        => $orgSupplier->supplier->code.' ('.$orgSupplier->supplier->name.')',
             'agent'           => $orgSupplier->orgAgent ? $orgSupplier->orgAgent->agent->organisation->name : null,
-            'agent_order'     => $orgSupplier->orgAgent ? $this->agentOrder($orgSupplier, $beingPrepared) : null,
             'currency'        => $orgSupplier->supplier->currency->code,
             'being_prepared'  => $beingPrepared ? [
                 'reference' => $beingPrepared->reference,
@@ -243,28 +238,6 @@ class SupplierPurchaseOrderTool extends Tool
                 'unit_cost'        => $line['unit_cost'],
                 'cost'             => round($line['units'] * $line['unit_cost'], 2),
             ])->values()->all(),
-        ];
-    }
-
-    /**
-     * Placing submits only this supplier's order; the other suppliers' drafts of the same agent order
-     * stay to be submitted together from the agent's page.
-     *
-     * @return array{reference: string, other_suppliers_being_prepared: array<int, string>, note: string}
-     */
-    private function agentOrder(OrgSupplier $orgSupplier, ?PurchaseOrder $beingPrepared): array
-    {
-        $reference = $beingPrepared?->agent_order_reference ?? ResolveAgentOrderReference::make()->previewAgentOrderReference($orgSupplier->orgAgent);
-
-        return [
-            'reference'                      => $reference,
-            'other_suppliers_being_prepared' => PurchaseOrder::inAgentOrder($orgSupplier->organisation_id, $orgSupplier->orgAgent->agent_id, $reference)
-                ->where('state', PurchaseOrderStateEnum::IN_PROCESS)
-                ->where('parent_id', '!=', $orgSupplier->id)
-                ->orderBy('parent_code')
-                ->pluck('parent_code')
-                ->all(),
-            'note'                           => 'Placing submits only this supplier\'s order. Send it to the agent from Procurement > Agents > the agent > Agent orders; other suppliers\' drafts there are submitted separately.',
         ];
     }
 

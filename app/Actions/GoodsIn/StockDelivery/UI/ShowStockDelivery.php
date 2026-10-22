@@ -1450,7 +1450,6 @@ class ShowStockDelivery extends OrgAction
                     'id'                             => $purchaseOrder->id,
                     'reference'                      => $purchaseOrder->reference,
                     'supplier'                       => $purchaseOrder->parent_name,
-                    'agent_order_reference'          => $purchaseOrder->agent_order_reference,
                     'confirmed_at'                   => $purchaseOrder->confirmed_at,
                     'number_items_awaiting_delivery' => $purchaseOrder->number_items_awaiting_delivery,
                     'in_this_container'              => in_array($purchaseOrder->id, $purchaseOrderIdsInContainer, true),
@@ -1473,7 +1472,7 @@ class ShowStockDelivery extends OrgAction
             ],
             'items' => AddPurchaseOrderItemsToStockDelivery::addableItems($stockDelivery)
                 ->with([
-                    'purchaseOrder:id,reference,parent_name,agent_order_reference',
+                    'purchaseOrder:id,reference,parent_name',
                     'supplierProduct:id,code,name,units_per_pack,units_per_carton',
                     'orgStock:id,code,name,packed_in',
                 ])
@@ -1485,7 +1484,6 @@ class ShowStockDelivery extends OrgAction
                     'purchase_order_id'          => $transaction->purchase_order_id,
                     'purchase_order_reference'   => $transaction->purchaseOrder->reference,
                     'supplier'                   => $transaction->purchaseOrder->parent_name,
-                    'agent_order_reference'      => $transaction->purchaseOrder->agent_order_reference,
                     'code'                       => $transaction->supplierProduct?->code ?? $transaction->orgStock?->code,
                     'name'                       => $transaction->supplierProduct?->name ?? $transaction->orgStock?->name,
                     'quantity_ordered'           => (float) $transaction->quantity_ordered,
