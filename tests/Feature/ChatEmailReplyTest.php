@@ -1230,6 +1230,59 @@ test('an email reply goes to whoever wrote last and copies the colleagues the th
     });
 });
 
+test('an email reply to an accented domain goes to its punycode form, and one to an address no header can carry fails saying so', function () {
+    Bus::fake([\App\Actions\Chat\ChatSession\ProcessChatMessageSideEffects::class, TranslateChatMessage::class, \App\Actions\Comms\Mailbox\SendChatMessageByGmail::class, \App\Actions\Comms\Mailbox\ImportPendingGmailAttachments::class]);
+
+    $settings          = $this->shop->settings ?? [];
+    $settings['gmail'] = [
+        'email'         => 'care@shop.test',
+        'refresh_token' => \Illuminate\Support\Facades\Crypt::encryptString('rt'),
+        'history_id'    => '1',
+    ];
+    $this->shop->update(['settings' => $settings]);
+
+    \Illuminate\Support\Facades\Http::fake([
+        'oauth2.googleapis.com/token'                              => \Illuminate\Support\Facades\Http::response(['access_token' => 'at']),
+        'gmail.googleapis.com/gmail/v1/users/me/messages/idn1*'    => \Illuminate\Support\Facades\Http::response([
+            'id'       => 'idn1',
+            'threadId' => 'idn-thread',
+            'payload'  => [
+                'mimeType' => 'text/plain',
+                'headers'  => [
+                    ['name' => 'From', 'value' => 'info@mémorablemoments.be'],
+                    ['name' => 'To', 'value' => 'care@shop.test'],
+                    ['name' => 'Subject', 'value' => 'Commande'],
+                    ['name' => 'Message-ID', 'value' => '<idn1@mémorablemoments.be>'],
+                ],
+                'body'     => ['data' => rtrim(strtr(base64_encode('Bonjour'), '+/', '-_'), '=')],
+            ],
+        ]),
+        'gmail.googleapis.com/gmail/v1/users/me/labels'            => \Illuminate\Support\Facades\Http::response(['labels' => [['id' => 'L1', 'name' => 'aiku/unmatched']]]),
+        'gmail.googleapis.com/gmail/v1/users/me/messages/send'     => \Illuminate\Support\Facades\Http::response(['id' => 'sent-idn']),
+        'gmail.googleapis.com/*'                                   => \Illuminate\Support\Facades\Http::response([]),
+    ]);
+
+    $session = \App\Actions\Comms\Mailbox\ProcessInboundEmail::run($this->shop, 'idn1')->chatSession->fresh();
+
+    $reply = SendChatMessage::make()->handle($session, [
+        'message_text' => 'Merci',
+        'message_type' => ChatMessageTypeEnum::TEXT->value,
+        'sender_type'  => ChatSenderTypeEnum::SYSTEM->value,
+    ]);
+
+    \App\Actions\Comms\Mailbox\SendChatMessageByGmail::run($reply->fresh());
+
+    \Illuminate\Support\Facades\Http::assertSent(function (\Illuminate\Http\Client\Request $request) {
+        return str_ends_with($request->url(), 'users/me/messages/send')
+            && str_contains(base64_decode(strtr($request['raw'], '-_', '+/')), "To: info@xn--mmorablemoments-bnb.be\r\n");
+    });
+
+    $session->fresh()->update(['metadata' => array_merge($session->fresh()->metadata, ['email_reply_to' => 'jöhn@example.test', 'email_from' => 'jöhn@example.test'])]);
+
+    expect(fn () => \App\Actions\Comms\Mailbox\SendChatMessageByGmail::run($reply->fresh()))
+        ->toThrow(RuntimeException::class, 'is not one Gmail can send to');
+});
+
 test('email reply attaches files while they fit in 18MB and links the rest', function () {
     $megabyte = 1024 * 1024;
     $files    = collect([
