@@ -454,8 +454,9 @@ function fakeMetaSocialGraph(array &$requests): void
                         'reactions'     => ['summary' => ['total_count' => 40]],
                         'comments'      => ['summary' => ['total_count' => 3]],
                         'insights'      => ['data' => [
-                            ['name' => 'post_total_media_view_unique', 'values' => [['value' => 1200]]],
-                            ['name' => 'post_media_view', 'values' => [['value' => 2000]]],
+                            ['name' => 'post_total_media_view_unique', 'period' => 'lifetime', 'values' => [['value' => 1200]]],
+                            ['name' => 'post_media_view', 'period' => 'lifetime', 'values' => [['value' => 2000]]],
+                            ['name' => 'post_total_media_view_unique', 'period' => 'day', 'values' => [['value' => 0, 'end_time' => '2026-08-30T07:00:00+0000'], ['value' => 0, 'end_time' => '2026-08-31T07:00:00+0000']]],
                             ...(str_contains($query['fields'] ?? '', 'post_clicks_by_type')
                                 ? [['name' => 'post_clicks_by_type', 'values' => [['value' => ['link clicks' => 15, 'other clicks' => 4]]]]]
                                 : []),

@@ -952,6 +952,7 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                             <th class="font-normal pb-2 pr-3">{{ ctrans('Content') }}</th>
                                             <th class="font-normal pb-2 pr-3">{{ ctrans('Account') }}</th>
                                             <th class="font-normal pb-2 pr-3">{{ ctrans('Published') }}</th>
+                                            <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Views') }}</th>
                                             <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Viewers') }}</th>
                                             <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Engagements') }}</th>
                                             <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('ER') }}</th>
@@ -977,6 +978,7 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                                 <div class="text-gray-400">{{ post.shop_name }}</div>
                                             </td>
                                             <td class="py-2 pr-3 text-xs text-gray-500 whitespace-nowrap">{{ day(post.published_at) }}</td>
+                                            <td class="py-2 pr-3 text-right tabular-nums" data-test="social-post-views">{{ short(post.impressions) }}</td>
                                             <td class="py-2 pr-3 text-right tabular-nums">{{ short(post.reach) }}</td>
                                             <td class="py-2 pr-3 text-right tabular-nums">{{ short(post.engagements) }}</td>
                                             <td class="py-2 pr-3 text-right"><span class="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs tabular-nums text-gray-700">{{ pct(post.engagement_rate) }}</span></td>
