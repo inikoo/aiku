@@ -16,10 +16,19 @@ use Exception;
  */
 class MetaUsageLimitReached extends Exception
 {
-    public static function make(int $percent, ?int $minutesToWait = null): static
+    public static function make(int $percent, ?int $minutesToWait = null, ?string $limit = null): static
+    {
+        $replace = ['percent' => $percent, 'minutes' => $minutesToWait, 'limit' => $limit ?? __('usage')];
+
+        return new static($minutesToWait
+            ? __('Meta usage limit nearly reached (:limit :percent%), stopped to avoid a block. Try again in about :minutes minutes.', $replace)
+            : __('Meta usage limit nearly reached (:limit :percent%), stopped to avoid a block. Try again later.', $replace));
+    }
+
+    public static function throttled(?int $minutesToWait = null): static
     {
         return new static($minutesToWait
-            ? __('Meta usage limit nearly reached (:percent%), stopped to avoid a block. Try again in about :minutes minutes.', ['percent' => $percent, 'minutes' => $minutesToWait])
-            : __('Meta usage limit nearly reached (:percent%), stopped to avoid a block. Try again later.', ['percent' => $percent]));
+            ? __('Meta usage limit reached: Meta asked to slow down, stopped to avoid a block. Try again in about :minutes minutes.', ['minutes' => $minutesToWait])
+            : __('Meta usage limit reached: Meta asked to slow down, stopped to avoid a block. Try again later.'));
     }
 }

@@ -23,6 +23,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -723,6 +724,28 @@ describe('fetching meta organic insights', function () {
             ->and($this->shop->socialMediaAccounts()->count())->toBe(0);
 
         Http::assertSentCount(1);
+    });
+
+    it('says which meta limit stopped a part and syncs that part again by itself once', function () {
+        Queue::fake();
+        Http::fake(['graph.facebook.com/*' => Http::response(
+            ['id' => '111', 'name' => 'AW Gifts Europe', 'followers_count' => 5000, 'access_token' => 'page-token'],
+            200,
+            ['X-App-Usage' => json_encode(['call_count' => 85, 'total_cputime' => 5, 'total_time' => 5])]
+        )]);
+
+        $result = SyncShopFromMeta::make()->handle($this->shop);
+
+        expect($result['ok'])->toBeFalse()
+            ->and($result['message'])->toContain('app calls 85%')
+            ->and($result['message'])->toContain('sync again by itself')
+            ->and($result['message'])->not->toContain('post(s)');
+
+        SyncShopFromMeta::assertPushed(1);
+
+        SyncShopFromMeta::make()->handle($this->shop, null, ['organic'], true);
+
+        SyncShopFromMeta::assertPushed(1);
     });
 
     it('says a brand is not set up for meta rather than syncing it', function () {
