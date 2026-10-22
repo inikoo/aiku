@@ -801,7 +801,7 @@ class ShowPurchaseOrder extends OrgAction
     }
 
     /**
-     * The seven-stage tracker replaces the state timeline once a supplier or agent order is sent.
+     * The stage tracker replaces the state timeline once a supplier or agent order is sent.
      */
     public function getStages(PurchaseOrder $purchaseOrder): ?array
     {
