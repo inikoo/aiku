@@ -1099,6 +1099,9 @@ test('the ai assistant sets up artefacts, raw materials, tasks and recipes only 
         ->assertOk()->assertSee(['"code":"AI-'.$suffix.'"', '"quantity":0.02']);
     $tool(\App\Mcp\Tools\ProductionRecipeTool::class, ['families' => ['AIF'.$suffix], 'except' => ['AI-'.$suffix]])->assertHasErrors(['No artefacts left']);
 
+    $artefact->orgStock->update(['packed_in' => 10]);
+    $recipe([['task' => 'POUR'.$suffix, 'units_per_artefact' => 10, 'target_per_hour' => null]])->assertHasErrors(['pack_counted_twice', 'AI-'.$suffix.' (10 per SKO)']);
+
     $recipe([['task' => 'NOPE'.$suffix, 'units_per_artefact' => 1, 'target_per_hour' => null]])->assertHasErrors(['task NOPE'.$suffix]);
     expect(fn () => \App\Actions\SysAdmin\McpChange\RevertMcpChange::run(\App\Models\SysAdmin\McpChange::where('label', 'like', 'Create artefact AI-'.$suffix.'%')->firstOrFail(), $user))
         ->toThrow(\Illuminate\Validation\ValidationException::class);

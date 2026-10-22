@@ -32,7 +32,7 @@ use Laravel\Mcp\Server\Tool;
  * Writes through SetArtefactsRecipe, the "change many artefacts at once" action of the artefacts
  * page, so open job orders pick up the new steps exactly as they do from the UI.
  */
-#[Description('Shows or replaces the recipe of artefacts: the production steps (manufacture tasks) in order, how many units of each step one artefact counts as, the target per hour of the step, and the raw materials each step uses per artefact, with their cost. Pick the artefacts by code (artefacts), by whole families (families, by code or slug; discontinued artefacts are left out) or both, and leave some out with except; up to 200 per call. Without steps it shows the recipes and the materials cost of each artefact. With steps every listed artefact gets exactly those steps: steps it has that are not in the list are removed with their raw materials, so pass the whole recipe, not only additions. units_per_artefact is how much of the step one artefact counts as (e.g. 0.1667 when packing is counted in boxes of six tins). When similar artefacts share the steps but differ in an ingredient (e.g. each flavour has its own oil), give the shared raw materials in raw_materials and, for the artefacts that differ, their complete list for that step in artefact_raw_materials. Open job orders that are not received yet pick up the new steps. Create missing tasks or raw materials first with production-records-tool. Risky changes (dropping raw materials, whole families, unusually large numbers) are refused with warnings until called again with accept naming them, which only the user may agree to. Show the user the steps per artefact and write only after they confirmed in their own words, passing their request text. Only for users enrolled to set up production through their assistant.')]
+#[Description('Shows or replaces the recipe of artefacts: the production steps (manufacture tasks) in order, how many units of each step one artefact counts as, the target per hour of the step, and the raw materials each step uses per artefact, with their cost. Pick the artefacts by code (artefacts), by whole families (families, by code or slug; discontinued artefacts are left out) or both, and leave some out with except; up to 200 per call. Without steps it shows the recipes and the materials cost of each artefact. With steps every listed artefact gets exactly those steps: steps it has that are not in the list are removed with their raw materials, so pass the whole recipe, not only additions. units_per_artefact is how much of the step one artefact counts as (e.g. 0.1667 when packing is counted in boxes of six tins). An artefact is one unit (one bottle, one tin), never its SKO: the SKO already says how many units it packs, so a recipe is per unit and a pack of ten is not 10 per artefact. When similar artefacts share the steps but differ in an ingredient (e.g. each flavour has its own oil), give the shared raw materials in raw_materials and, for the artefacts that differ, their complete list for that step in artefact_raw_materials. Open job orders that are not received yet pick up the new steps. Create missing tasks or raw materials first with production-records-tool. Risky changes (dropping raw materials, whole families, unusually large numbers) are refused with warnings until called again with accept naming them, which only the user may agree to. Show the user the steps per artefact and write only after they confirmed in their own words, passing their request text. Only for users enrolled to set up production through their assistant.')]
 class ProductionRecipeTool extends Tool
 {
     use WithMcpPermissions;
@@ -161,6 +161,16 @@ class ProductionRecipeTool extends Tool
         ]))->unique();
         if ($unusual->isNotEmpty()) {
             $warnings['unusual_numbers'] = 'Some numbers are unusually large, check they are not a typo: '.$unusual->implode(', ').'.';
+        }
+
+        $kgTaskIds   = ManufactureTask::whereIn('id', collect($steps)->pluck('manufacture_task_id'))->where('is_recorded_in_kg', true)->pluck('id');
+        $packCounted = $artefacts->load('orgStock')->filter(fn (Artefact $artefact) => $artefact->packedIn() > 1 && collect($steps)->contains(
+            fn (array $step) => !$kgTaskIds->contains($step['manufacture_task_id']) && (float) $step['units_per_artefact'] === (float) $artefact->packedIn()
+        ));
+        if ($packCounted->isNotEmpty()) {
+            $warnings['pack_counted_twice'] = 'An artefact is one unit of its SKO and the SKO already packs several: '
+                .$packCounted->map(fn (Artefact $artefact) => "{$artefact->code} ({$artefact->packedIn()} per SKO)")->implode(', ')
+                .'. A step counting that many per artefact counts the pack twice, so job quantities, the SKOs received and the raw materials used are all off by that factor. Give the step and its raw materials per unit (usually 1).';
         }
 
         $current = GetMcpChangeSnapshot::make()->handle(McpChangeTypeEnum::PRODUCTION_RECIPE, ['artefact_ids' => $artefacts->pluck('id')->all()])['artefacts'];
