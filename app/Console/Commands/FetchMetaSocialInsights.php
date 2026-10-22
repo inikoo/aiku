@@ -20,6 +20,7 @@ use App\Models\CRM\SocialMediaPost;
 use Generator;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
@@ -596,13 +597,17 @@ class FetchMetaSocialInsights extends Command
     }
 
     /**
+     * Meta can answer a post metric twice under one name, its lifetime total and its last days one
+     * by one (`period=day`, often zeros); the lifetime total is the post's figure.
+     *
      * @return array<string, int>
      */
     private function insightValues(array $row): array
     {
         return collect(data_get($row, 'insights.data', []))
             ->filter(fn (array $metric) => is_numeric(data_get($metric, 'values.0.value')))
-            ->mapWithKeys(fn (array $metric) => [data_get($metric, 'name') => (int) data_get($metric, 'values.0.value', 0)])
+            ->groupBy(fn (array $metric) => data_get($metric, 'name'))
+            ->map(fn (Collection $metrics) => (int) data_get($metrics->first(fn (array $metric) => data_get($metric, 'period') !== 'day') ?? $metrics->first(), 'values.0.value', 0))
             ->all();
     }
 

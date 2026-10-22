@@ -26,7 +26,8 @@ use OwenIt\Auditing\Events\AuditCustom;
 
 /**
  * Records the date of a purchase order stage. Stages go in order: skipping one, completing a stage without its
- * gate, backdating or clearing a date needs a reason, written to the order's history.
+ * gate, backdating or clearing a date needs a reason, written to the order's history. Any stage past submitted
+ * means the supplier took the order, so a submitted order is confirmed, unless a price change is still unanswered.
  * Agents mark only their own stages, on their own orders.
  */
 class MarkPurchaseOrderStage extends OrgAction
@@ -57,8 +58,9 @@ class MarkPurchaseOrderStage extends OrgAction
         $date  = $this->stamp(Arr::get($modelData, 'date'));
         $old   = $purchaseOrder->{$field}?->toDateString();
 
-        if (self::confirmsOrder($purchaseOrder, $field, $date) && !$purchaseOrder->numberPendingPriceChanges()) {
+        if (self::confirmsOrder($purchaseOrder, $date) && !$purchaseOrder->numberPendingPriceChanges()) {
             $purchaseOrder = UpdatePurchaseOrderStateToConfirmed::make()->action($purchaseOrder);
+            $purchaseOrder->update(['confirmed_at' => $date->min(now())]);
         }
 
         $purchaseOrder = UpdatePurchaseOrder::make()->action($purchaseOrder, [$field => $date]);
@@ -71,13 +73,9 @@ class MarkPurchaseOrderStage extends OrgAction
         return $purchaseOrder;
     }
 
-    /**
-     * Production starting on a submitted order means the supplier accepted it. Automatic marks (goods receipts,
-     * container lists) leave an order with unanswered price changes submitted instead of failing.
-     */
-    public static function confirmsOrder(PurchaseOrder $purchaseOrder, string $field, mixed $date): bool
+    public static function confirmsOrder(PurchaseOrder $purchaseOrder, mixed $date): bool
     {
-        return $field === 'production_started_at' && $date !== null && $purchaseOrder->state === PurchaseOrderStateEnum::SUBMITTED;
+        return $date !== null && $purchaseOrder->state === PurchaseOrderStateEnum::SUBMITTED;
     }
 
     public static function auditOverride(PurchaseOrder $purchaseOrder, string $field, ?string $old, ?string $new, string $reason): void
@@ -136,12 +134,6 @@ class MarkPurchaseOrderStage extends OrgAction
 
         if (in_array($this->purchaseOrder->state, [PurchaseOrderStateEnum::IN_PROCESS, PurchaseOrderStateEnum::CANCELLED, PurchaseOrderStateEnum::NOT_RECEIVED])) {
             $validator->errors()->add('field', __('Only a submitted order goes through its stages'));
-
-            return;
-        }
-
-        if (!$this->asAction && self::confirmsOrder($this->purchaseOrder, $this->get('field'), $this->get('date')) && $pendingPriceChanges = $this->purchaseOrder->numberPendingPriceChanges()) {
-            $validator->errors()->add('field', UpdatePurchaseOrderStateToConfirmed::pendingPriceChangesMessage($this->purchaseOrder, $pendingPriceChanges));
 
             return;
         }

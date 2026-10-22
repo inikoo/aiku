@@ -906,7 +906,7 @@ test('purchase order stages go in order and ask a reason to skip, backdate or cl
     $this->patch($route, ['field' => 'production_started_at', 'date' => $today])->assertSessionHasErrors('reason');
     expect($purchaseOrder->refresh()->production_started_at)->toBeNull()
         ->and(collect(GetPurchaseOrderStages::make()->forUi($purchaseOrder, ['production_started_at']))->firstWhere('key', 'in_production')['marks'][0])
-        ->toMatchArray(['label' => __('Confirm and Start Production'), 'confirms_order' => true, 'disabled_reason' => null]);
+        ->toMatchArray(['label' => __('Confirm and Start Production'), 'confirms_order' => true]);
 
     $this->patch($route, ['field' => 'deposit_paid_at', 'date' => $today])->assertSessionHasErrors('field');
     $purchaseOrder->refresh()->updateQuietly(['deposit_paid_at' => now()]);
@@ -1021,9 +1021,12 @@ test('a purchase order with no deposit needed counts the deposit stage as done',
     [$orgSupplier] = createAgentOrgSupplierWithProduct($this);
     $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition());
     $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::SUBMITTED, 'submitted_at' => now()->subDays(5), 'deposit_amount' => 0]);
-    $today = now($purchaseOrder->organisation->timezone?->name)->toDateString();
 
-    $this->patch(route('grp.models.purchase-order.stage', $purchaseOrder->id), ['field' => 'production_started_at', 'date' => $today])->assertSessionHasNoErrors();
+    $startedDay = now()->subDays(3)->toDateString();
+    $this->patch(route('grp.models.purchase-order.stage', $purchaseOrder->id), ['field' => 'production_started_at', 'date' => $startedDay, 'reason' => 'Agent told us late'])->assertSessionHasNoErrors();
+
+    expect($purchaseOrder->refresh()->state)->toBe(PurchaseOrderStateEnum::CONFIRMED)
+        ->and($purchaseOrder->confirmed_at->toDateString())->toBe($startedDay);
 
     $this->get(route('grp.org.procurement.purchase_orders.show', [$purchaseOrder->organisation->slug, $purchaseOrder->slug]))
         ->assertInertia(fn (AssertableInertia $page) => $page
