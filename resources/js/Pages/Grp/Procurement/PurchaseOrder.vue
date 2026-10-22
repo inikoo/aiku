@@ -56,7 +56,7 @@ import { notify } from "@kyvg/vue3-notification"
 
 import { useLocaleStore } from "@/Stores/locale"
 import { useTabChange } from "@/Composables/tab-change"
-import type { OrderingLevel } from "@/Composables/useOrderingLevel"
+import { getOrderingLevels, type OrderingLevel } from "@/Composables/useOrderingLevel"
 import { capitalize } from "@/Composables/capitalize"
 import { useFormatTime } from "@/Composables/useFormatTime"
 
@@ -791,6 +791,8 @@ const productsViewOptions = [
 	{ label: ctrans("List"), value: "list", icon: faList },
 ]
 
+const productsLevelOptions = getOrderingLevels().map((level) => ({ label: level.quantity, value: level.key, icon: level.icon }))
+
 const productBucketLabels = computed(() =>
 	Object.fromEntries((props.products?.ordering?.cover ?? []).map((bucket) => [bucket.value, { label: bucket.title, tone: bucket.tone }]))
 )
@@ -1443,7 +1445,8 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 					<Checkbox :modelValue="products.ordering.active.hide_ordered" binary size="small" @update:modelValue="(value: boolean) => filterProducts('hide_ordered', value ? '1' : null)" />
 					{{ ctrans("Hide what is already on order") }}
 				</label>
-				<SegmentedToggle v-model="productsView" class="ml-auto" :options="productsViewOptions" :ariaLabel="ctrans('Show products as cards or as a list')" />
+				<SegmentedToggle v-model="currentLevel" class="ml-auto" :options="productsLevelOptions" :ariaLabel="ctrans('Order in cartons, SKOs or units')" />
+				<SegmentedToggle v-model="productsView" :options="productsViewOptions" :ariaLabel="ctrans('Show products as cards or as a list')" />
 			</div>
 			<AgentOrderingItems
 				:key="`${products.ordering.active.cover}-${products.ordering.active.rank}-${products.ordering.active.hide_ordered}`"
@@ -1452,6 +1455,7 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 				:currency="products.ordering.currency"
 				:bucketLabels="productBucketLabels"
 				:view="productsView"
+				:level="currentLevel"
 				:reloadOnly="['products', 'box_stats', 'pageHead']"
 				tableName="products"
 			/>

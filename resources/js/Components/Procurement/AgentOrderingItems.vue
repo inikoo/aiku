@@ -20,6 +20,7 @@ import { useLocaleStore } from "@/Stores/locale"
 import { notify } from "@kyvg/vue3-notification"
 import axios from "axios"
 import { ctrans, ctransChoice } from "@/Composables/useTrans"
+import { getOrderingLevels, suggestionAtOrderingLevel, unitsPerOrderingLevel, type OrderingLevel } from "@/Composables/useOrderingLevel"
 import { faCheckCircle, faExclamationCircle } from "@fas"
 import { faTrashAlt, faHandPointRight, faBox } from "@fal"
 
@@ -67,7 +68,8 @@ const props = withDefaults(defineProps<{
     view?: "cards" | "list"
     reloadOnly?: string[]
     tableName?: string
-}>(), { bucket: null, view: "list" })
+    level?: OrderingLevel
+}>(), { bucket: null, view: "list", level: "cartons" })
 
 const bucketChip: Record<string, string> = {
     "red-deep": "bg-red-100 text-red-800",
@@ -85,20 +87,25 @@ const locale = useLocaleStore()
 
 const orgCurrency = computed(() => props.currency ?? props.orgAgent?.currency ?? "")
 
-const cartons = ref<Record<number, number>>({})
+const typedUnits = ref<Record<number, number>>({})
 const commitTimers: Record<number, ReturnType<typeof setTimeout>> = {}
 
 const unitsPerCarton = (item: BucketItem) => Math.max(1, item.units_per_carton ?? 1)
 
-const orderedCartons = (item: BucketItem) => Math.round((item.ordered_quantity ?? 0) / unitsPerCarton(item))
+const orderingLevel = computed(() => getOrderingLevels().find((level) => level.key === props.level) ?? getOrderingLevels()[0])
 
-function cartonsFor(item: BucketItem): number {
-    return cartons.value[item.id] ?? orderedCartons(item)
-}
+const isCartonLevel = computed(() => props.level === "cartons")
 
+const unitsFor = (item: BucketItem): number => typedUnits.value[item.id] ?? (Number(item.ordered_quantity) || 0)
 
-function setCartons(item: BucketItem, quantity: number) {
-    cartons.value[item.id] = Math.max(0, quantity)
+const cartonsFor = (item: BucketItem): number => unitsFor(item) / unitsPerCarton(item)
+
+const quantityFor = (item: BucketItem): number => Math.round((unitsFor(item) / unitsPerOrderingLevel(item, props.level)) * 1000) / 1000
+
+const setQuantity = (item: BucketItem, quantity: number) => setUnits(item, quantity * unitsPerOrderingLevel(item, props.level))
+
+function setUnits(item: BucketItem, units: number) {
+    typedUnits.value[item.id] = Math.max(0, Math.round(units * 1000) / 1000)
     if (commitTimers[item.id]) {
         clearTimeout(commitTimers[item.id])
     }
@@ -106,19 +113,18 @@ function setCartons(item: BucketItem, quantity: number) {
 }
 
 function commit(item: BucketItem) {
-    const quantity = cartonsFor(item)
-    const quantityUnits = quantity * unitsPerCarton(item)
-    if (quantityUnits === (item.ordered_quantity ?? 0)) {
+    const quantityUnits = unitsFor(item)
+    if (quantityUnits === (Number(item.ordered_quantity) || 0)) {
         return
     }
 
     const forget = () => {
-        if (cartons.value[item.id] === quantity) {
-            delete cartons.value[item.id]
+        if (typedUnits.value[item.id] === quantityUnits) {
+            delete typedUnits.value[item.id]
         }
     }
     const refuse = (message?: string) => {
-        delete cartons.value[item.id]
+        delete typedUnits.value[item.id]
         notify({
             title: ctrans("Not saved"),
             text: message ?? ctrans("The quantity could not be saved, it is back to what is on the draft"),
@@ -156,7 +162,7 @@ const isPartCarton = (item: BucketItem) => (item.ordered_quantity ?? 0) % unitsP
 const packOf = (item: BucketItem) => Number(item.units_per_pack) || 1
 
 const typedSkos = computed<Record<number, number>>(() =>
-    Object.fromEntries(props.items.data.map((item) => [item.id, (cartonsFor(item) * unitsPerCarton(item)) / packOf(item)]))
+    Object.fromEntries(props.items.data.map((item) => [item.id, unitsFor(item) / packOf(item)]))
 )
 
 const otherCartons = (item: BucketItem) => (item.other_organisations_drafts ?? []).reduce((units, draft) => units + draft.units, 0) / unitsPerCarton(item)
@@ -164,12 +170,18 @@ const otherCartons = (item: BucketItem) => (item.other_organisations_drafts ?? [
 const suggestedCartons = (item: BucketItem, skos: number) =>
     Math.max(Math.ceil((item.minimum_carton_order ?? 1) - otherCartons(item)), Math.ceil((skos * packOf(item)) / unitsPerCarton(item)))
 
-const suggestionLabel = (item: BucketItem, skos: number) =>
-    ctransChoice(":number carton|:number cartons", suggestedCartons(item, skos), { number: locale.number(suggestedCartons(item, skos)) })
+const suggestedQuantity = (item: BucketItem, skos: number) =>
+    isCartonLevel.value ? suggestedCartons(item, skos) : suggestionAtOrderingLevel(item, skos, props.level)
 
-const applySuggestion = (item: BucketItem, skos: number) => {
-    setCartons(item, suggestedCartons(item, skos))
+const suggestionLabel = (item: BucketItem, skos: number) => {
+    const quantity = suggestedQuantity(item, skos)
+    if (isCartonLevel.value) {
+        return ctransChoice(":number carton|:number cartons", quantity, { number: locale.number(quantity) })
+    }
+    return `${locale.number(quantity)} ${quantity === 1 ? orderingLevel.value.singular : orderingLevel.value.quantity}`
 }
+
+const applySuggestion = (item: BucketItem, skos: number) => setQuantity(item, suggestedQuantity(item, skos))
 
 const editMinimumOf = ref<BucketItem | null>(null)
 const isMinimumModalOpen = computed({
@@ -293,16 +305,16 @@ const ownSkoCode = (item: BucketItem) => (item.org_stock_code && item.org_stock_
 
 const stockDeliveryRoute = (slug: string) => route("grp.org.procurement.stock_deliveries.show", [route().params.organisation, slug])
 
-const amountOf = (item: BucketItem) => cartonsFor(item) * unitsPerCarton(item) * Number(item.cost ?? 0)
+const amountOf = (item: BucketItem) => unitsFor(item) * Number(item.cost ?? 0)
 
 const orgAmountOf = (item: BucketItem) =>
     item.org_exchange && item.currency && item.currency !== orgCurrency.value ? amountOf(item) * item.org_exchange : null
 
 const quantityBreakdown = (item: BucketItem) => {
-    const units = cartonsFor(item) * unitsPerCarton(item)
+    const units = unitsFor(item)
     const skos = units / packOf(item)
     const parts = [
-        ctransChoice(":number carton|:number cartons", cartonsFor(item), { number: locale.number(cartonsFor(item)) }),
+        ctransChoice(":number carton|:number cartons", cartonsFor(item), { number: roundCartons(cartonsFor(item)) }),
         ctransChoice(":number SKO|:number SKOs", skos, { number: locale.number(Math.round(skos * 100) / 100) }),
     ]
     if (packOf(item) !== 1) {
@@ -343,7 +355,7 @@ const quantityBreakdown = (item: BucketItem) => {
                                 {{ ctrans("Lead time") }}: <span class="tabular-nums" :class="item.lead_time_measured ? 'text-gray-700' : 'text-gray-400'">{{ item.lead_time_days }}{{ ctrans("d") }} {{ item.lead_time_measured ? ctrans("measured") : ctrans("estimate") }}</span>
                             </div>
                             <div v-if="!item.has_org_stock" class="text-xs font-medium text-violet-600">{{ ctrans("never stocked") }}</div>
-                            <PurchaseOrderItemStockInfo :item="item" :typedSkosById="typedSkos" hideComing inCartons />
+                            <PurchaseOrderItemStockInfo :item="item" :typedSkosById="typedSkos" hideComing :inCartons="isCartonLevel" />
                         </div>
 
                         <div class="mt-auto flex items-end justify-between gap-3 pt-2">
@@ -356,7 +368,7 @@ const quantityBreakdown = (item: BucketItem) => {
     {{ locale.currencyFormat(item.currency ?? orgCurrency, amountOf(item)) }}
     <span v-if="orgAmountOf(item) !== null" class="font-normal text-gray-500">({{ locale.currencyFormat(orgCurrency, orgAmountOf(item)!) }})</span>
 </div>
-                                <div v-if="isPartCarton(item) && cartons[item.id] === undefined" class="text-amber-600">{{ ctrans("The draft holds :units units, not whole cartons", { units: locale.number(item.ordered_quantity) }) }}</div>
+                                <div v-if="isCartonLevel && isPartCarton(item) && typedUnits[item.id] === undefined" class="text-amber-600">{{ ctrans("The draft holds :units units, not whole cartons", { units: locale.number(item.ordered_quantity) }) }}</div>
                                 </div>
 <div v-if="cartonsFor(item) || item.minimum_carton_order" v-tooltip="moqLineTooltip(item)" class="flex cursor-pointer select-none items-center gap-1 pt-1.5 tabular-nums" :class="isMoqShort(item) ? 'font-medium text-red-600' : 'text-gray-500'" @dblclick="editMinimumOf = item">
     <FontAwesomeIcon v-if="isMoqShort(item)" :icon="faExclamationCircle" class="text-red-600" aria-hidden="true" />
@@ -371,13 +383,13 @@ const quantityBreakdown = (item: BucketItem) => {
                             </div>
                             <div class="flex flex-col items-end">
                                 <NumberWithButtonSave
-                                    :modelValue="cartonsFor(item)"
+                                    :modelValue="quantityFor(item)"
                                     :bindToTarget="{ min: 0 }"
                                     allowZero
                                     isWithRefreshModel
                                     noUndoButton
                                     noSaveButton
-                                    @update:modelValue="(value: number) => setCartons(item, value)"
+                                    @update:modelValue="(value: number) => setQuantity(item, value)"
                                 />
                                 <PurchaseOrderSuggestButton :item="item" :typedSkosById="typedSkos" :quantityLabel="(skos: number) => suggestionLabel(item, skos)" @suggest="(skos: number) => applySuggestion(item, skos)" />
                             </div>
@@ -441,7 +453,7 @@ const quantityBreakdown = (item: BucketItem) => {
                             {{ ctrans("Lead time") }}: <span class="tabular-nums" :class="item.lead_time_measured ? 'text-gray-700' : 'text-gray-400'">{{ item.lead_time_days }}{{ ctrans("d") }} {{ item.lead_time_measured ? ctrans("measured") : ctrans("estimate") }}</span>
                         </div>
                         <div v-if="!item.has_org_stock" class="text-xs font-medium text-violet-600">{{ ctrans("never stocked") }}</div>
-                        <PurchaseOrderItemStockInfo :item="item" :typedSkosById="typedSkos" hideComing inCartons />
+                        <PurchaseOrderItemStockInfo :item="item" :typedSkosById="typedSkos" hideComing :inCartons="isCartonLevel" />
                     </div>
                 </template>
                 <template #cell(bucket)="{ item }">
@@ -461,7 +473,7 @@ const quantityBreakdown = (item: BucketItem) => {
     {{ locale.currencyFormat(item.currency ?? orgCurrency, amountOf(item)) }}
     <span v-if="orgAmountOf(item) !== null" class="font-normal text-gray-500">({{ locale.currencyFormat(orgCurrency, orgAmountOf(item)!) }})</span>
 </div>
-                                <div v-if="isPartCarton(item) && cartons[item.id] === undefined" class="text-amber-600">{{ ctrans("The draft holds :units units, not whole cartons", { units: locale.number(item.ordered_quantity) }) }}</div>
+                                <div v-if="isCartonLevel && isPartCarton(item) && typedUnits[item.id] === undefined" class="text-amber-600">{{ ctrans("The draft holds :units units, not whole cartons", { units: locale.number(item.ordered_quantity) }) }}</div>
                     </div>
 <div v-if="cartonsFor(item) || item.minimum_carton_order" v-tooltip="moqLineTooltip(item)" class="flex cursor-pointer select-none items-center gap-1 pt-1.5 tabular-nums" :class="isMoqShort(item) ? 'font-medium text-red-600' : 'text-gray-500'" @dblclick="editMinimumOf = item">
     <FontAwesomeIcon v-if="isMoqShort(item)" :icon="faExclamationCircle" class="text-red-600" aria-hidden="true" />
@@ -474,22 +486,23 @@ const quantityBreakdown = (item: BucketItem) => {
     </template>
 </Button>
                 </template>
+                <template #table-header-cartons>{{ orderingLevel.quantity }}</template>
                 <template #cell(cartons)="{ item }">
                     <div class="flex flex-col items-end">
                         <div class="flex items-center gap-3">
-                            <Button v-if="cartonsFor(item)" type="tertiary" size="xs" :tooltip="ctrans('Remove this product from the purchase order')" :aria-label="ctrans('Remove')" @click="setCartons(item, 0)">
+                            <Button v-if="cartonsFor(item)" type="tertiary" size="xs" :tooltip="ctrans('Remove this product from the purchase order')" :aria-label="ctrans('Remove')" @click="setUnits(item, 0)">
                                 <template #icon>
                                     <FontAwesomeIcon :icon="faTrashAlt" class="text-red-500" fixed-width aria-hidden="true" />
                                 </template>
                             </Button>
                             <NumberWithButtonSave
-                                :modelValue="cartonsFor(item)"
+                                :modelValue="quantityFor(item)"
                                 :bindToTarget="{ min: 0 }"
                                 allowZero
                                 isWithRefreshModel
                                 noUndoButton
                                 noSaveButton
-                                @update:modelValue="(value: number) => setCartons(item, value)"
+                                @update:modelValue="(value: number) => setQuantity(item, value)"
                             />
                         </div>
                         <PurchaseOrderSuggestButton :item="item" :typedSkosById="typedSkos" :quantityLabel="(skos: number) => suggestionLabel(item, skos)" @suggest="(skos: number) => applySuggestion(item, skos)" />

@@ -1980,6 +1980,32 @@ test('adding a product to a purchase order creates the missing org stock', funct
     expect((float)$line->refresh()->net_amount)->toBe(240.0);
 });
 
+test('a supplier product is ordered in SKOs short of a whole carton', function () {
+    $tradeUnit = StoreTradeUnit::make()->action($this->group, TradeUnit::factory()->definition());
+    $stock     = StoreStock::make()->action($this->group, array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE]));
+    SyncStockTradeUnits::run($stock, [$tradeUnit->id => ['quantity' => 1]]);
+
+    $supplierProduct = StoreSupplierProduct::make()->action($this->orgSupplier->supplier, [
+        'code'             => 'oil-25kg-carton',
+        'name'             => 'Oil in 25kg cartons',
+        'cost'             => 16,
+        'trade_units'      => [$tradeUnit->id],
+        'units_per_pack'   => 1,
+        'units_per_carton' => 25
+    ]);
+    $orgSupplierProduct = StoreOrgSupplierProduct::make()->action($this->orgSupplier, $supplierProduct);
+    $purchaseOrder      = $this->orgSupplier->purchaseOrders()->where('state', PurchaseOrderStateEnum::IN_PROCESS)->first()
+        ?? StorePurchaseOrder::make()->action($this->orgSupplier, PurchaseOrder::factory()->definition());
+
+    $this->post(route('grp.models.purchase-order.transaction.store', [$purchaseOrder->id, $orgSupplierProduct->id]), ['quantity_ordered' => 10])
+        ->assertSessionHasNoErrors();
+
+    $line = $purchaseOrder->purchaseOrderTransactions()->where('org_supplier_product_id', $orgSupplierProduct->id)->first();
+
+    expect((float)$line->quantity_ordered)->toBe(10.0)
+        ->and((float)$line->net_amount)->toBe(160.0);
+});
+
 test('staff add notes to a purchase order and read them on its stock delivery', function () {
     $purchaseOrder = $this->purchaseOrder;
     $stockDelivery = $this->stockDelivery;
