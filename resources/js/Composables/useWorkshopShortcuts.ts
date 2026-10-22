@@ -9,6 +9,13 @@ export interface CopiedWebBlock {
     type?: string
 }
 
+export interface DraggedWebBlock {
+    id: number
+    type: string
+    name: string
+    webpageId: number
+}
+
 export interface WorkshopShortcut {
     id: string
     group: string

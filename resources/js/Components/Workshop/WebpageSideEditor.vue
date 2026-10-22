@@ -30,7 +30,7 @@ import { Root, Daum } from '@/types/webBlockTypes'
 import { Root as RootWebpage } from '@/types/webpageTypes'
 import { Collapse } from 'vue-collapsed'
 import { ctrans } from '@/Composables/useTrans'
-import { formatShortcutCombo, CopiedWebBlock } from '@/Composables/useWorkshopShortcuts'
+import { formatShortcutCombo, CopiedWebBlock, DraggedWebBlock } from '@/Composables/useWorkshopShortcuts'
 import WeblockList from '@/Components/CMS/Webpage/WeblockList.vue'
 import WebpageTemplateList from '@/Components/Workshop/WebpageTemplateList.vue'
 import {
@@ -263,6 +263,66 @@ const copyWebBlock = inject<(block: Daum) => void>('copyWebBlock', () => {})
 const pasteWebBlock = inject<(position?: number) => void>('pasteWebBlock', () => {})
 const canReplaceWebBlockContent = inject<(block: Daum | null) => boolean>('canReplaceWebBlockContent', () => false)
 const replaceWebBlockContent = inject<(block: Daum) => void>('replaceWebBlockContent', () => {})
+const dropWebBlock = inject<(block: DraggedWebBlock, position: number) => void>('dropWebBlock', () => {})
+
+const DRAGGED_BLOCK_MIME_TYPE = 'application/x-aiku-web-block'
+const isDraggingInThisWindow = ref(false)
+const externalDropIndex = ref<number | null>(null)
+
+const setDragData = (dataTransfer: DataTransfer, dragEl: HTMLElement) => {
+	isDraggingInThisWindow.value = true
+	dataTransfer.setData('Text', dragEl.textContent ?? '')
+
+	const block = props.webpage.layout.web_blocks[Number(dragEl.dataset.blockIndex)]
+	if (!block || !getCopyPermissions(block)) return
+
+	const draggedBlock: DraggedWebBlock = {
+		id: block.id,
+		type: block.type,
+		name: block.web_block?.layout?.data?.fieldValue?.blocks?.name || block.type,
+		webpageId: props.webpage.id,
+	}
+	dataTransfer.setData(DRAGGED_BLOCK_MIME_TYPE, JSON.stringify(draggedBlock))
+	dataTransfer.effectAllowed = 'copyMove'
+}
+
+const isExternalBlockDrag = (event: DragEvent) =>
+	props.editable && !isDraggingInThisWindow.value && !!event.dataTransfer?.types.includes(DRAGGED_BLOCK_MIME_TYPE)
+
+const getExternalDropIndex = (event: DragEvent) => {
+	const items = Array.from(blockListEl.value?.querySelectorAll<HTMLElement>('[data-block-index]') ?? [])
+	const itemBelowPointer = items.find((item) => {
+		const { top, height } = item.getBoundingClientRect()
+		return event.clientY < top + height / 2
+	})
+	const firstMovableIndex = lockedBlockIds.value.size
+	const index = itemBelowPointer ? Number(itemBelowPointer.dataset.blockIndex) : props.webpage.layout.web_blocks.length
+	return Math.max(index, firstMovableIndex)
+}
+
+const onExternalBlockDragOver = (event: DragEvent) => {
+	if (!isExternalBlockDrag(event)) return
+	event.preventDefault()
+	event.dataTransfer!.dropEffect = 'copy'
+	externalDropIndex.value = getExternalDropIndex(event)
+}
+
+const onExternalBlockDragLeave = (event: DragEvent) => {
+	if (!blockListEl.value?.contains(event.relatedTarget as Node | null)) externalDropIndex.value = null
+}
+
+const onExternalBlockDrop = (event: DragEvent) => {
+	if (!isExternalBlockDrag(event)) return
+	event.preventDefault()
+	const position = getExternalDropIndex(event)
+	externalDropIndex.value = null
+
+	try {
+		dropWebBlock(JSON.parse(event.dataTransfer!.getData(DRAGGED_BLOCK_MIME_TYPE)), position)
+	} catch {
+		externalDropIndex.value = null
+	}
+}
 
 const contextMenuEl = ref<HTMLElement | null>(null)
 const CONTEXT_MENU_MARGIN = 8
@@ -598,7 +658,10 @@ const showBlockVisibilityOptions = computed(
 						</div>
 
 						<!-- Blocks List -->
-						<div ref="blockListEl" class="flex-1 min-h-0 overflow-y-auto">
+						<div ref="blockListEl" class="flex-1 min-h-0 overflow-y-auto"
+							@dragover="onExternalBlockDragOver"
+							@dragleave="onExternalBlockDragLeave"
+							@drop="onExternalBlockDrop">
 						<template v-if="webpage?.layout?.web_blocks.length">
 							<draggable
 								:list="webpage.layout.web_blocks"
@@ -609,6 +672,8 @@ const showBlockVisibilityOptions = computed(
 								group="column"
 								itemKey="id"
 								:disabled="!editable"
+								:setData="setDragData"
+								@end="isDraggingInThisWindow = false"
 								class="space-y-0.5">
 								<template #item="{ element, index }">
 									<div
@@ -616,6 +681,7 @@ const showBlockVisibilityOptions = computed(
 										:data-block-index="index"
 										class="group relative overflow-hidden rounded transition-colors"
 										:class="[
+											externalDropIndex === index ? 'shadow-[inset_0_2px_0_0_var(--app-accent)]' : '',
 											openedBlockSideEditor === index
 												? 'bg-theme text-white'
 												: 'hover:bg-slate-100',
@@ -740,7 +806,7 @@ const showBlockVisibilityOptions = computed(
 													:class="
 														openedBlockSideEditor === index
 															? 'bg-white/20 text-white'
-															: 'bg-indigo-50 text-indigo-600'
+															: 'bg-[--app-accent-soft] text-[--app-accent]'
 													">
 													{{ ctrans('On click') }}
 												</span>
@@ -836,6 +902,8 @@ const showBlockVisibilityOptions = computed(
 									</div>
 								</template>
 							</draggable>
+							<div v-if="externalDropIndex === webpage.layout.web_blocks.length"
+								class="mt-0.5 h-0.5 rounded bg-[--app-accent]" aria-hidden="true" />
 						</template>
 						<div
 							v-else

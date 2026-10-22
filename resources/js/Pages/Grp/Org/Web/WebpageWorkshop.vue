@@ -20,7 +20,7 @@ import { notify } from "@kyvg/vue3-notification";
 import { ctrans } from "@/Composables/useTrans";
 import {
   useWorkshopShortcuts, formatShortcutCombo,
-  WorkshopShortcut, CopiedWebBlock,
+  WorkshopShortcut, CopiedWebBlock, DraggedWebBlock,
 } from "@/Composables/useWorkshopShortcuts";
 import { getCopyPermissions, getDeletePermissions, getHiddenPermissions, getLockedBlockIds } from "@/Composables/getBlueprintWorkshop";
 import { useConfirm } from "primevue/useconfirm";
@@ -1005,6 +1005,10 @@ provide('copiedWebBlock', copiedBlock);
 provide('copyWebBlock', copyBlock);
 provide('pasteWebBlock', pasteBlock);
 provide('canReplaceWebBlockContent', canReplaceBlockContent);
+provide('dropWebBlock', (block: DraggedWebBlock, position: number) => {
+  if (!props.editable || !Number.isInteger(block?.id)) return;
+  duplicateBlock(block.id, position);
+});
 provide('replaceWebBlockContent', replaceBlockContent);
 
 const confirmDeleteSelectedBlock = () => {
