@@ -9,6 +9,7 @@
 namespace App\Actions\UI\AikuPublic;
 
 use Illuminate\Http\Response;
+use Illuminate\Support\Carbon;
 use Lorisleiva\Actions\Concerns\AsController;
 
 class ShowSitemap
@@ -21,6 +22,8 @@ class ShowSitemap
             ['loc' => route('aiku-public.home'), 'lastmod' => BlogPosts::all()->first()['date'] ?? now()],
             ['loc' => route('aiku-public.blog.index'), 'lastmod' => BlogPosts::all()->first()['date'] ?? now()],
             ['loc' => route('aiku-public.docs.index'), 'lastmod' => BlogPosts::all('docs')->first()['date'] ?? now()],
+            ['loc' => route('aiku-public.privacy'), 'lastmod' => Carbon::parse('2026-10-22')],
+            ['loc' => route('aiku-public.terms'), 'lastmod' => Carbon::parse('2026-10-22')],
         ])->concat(
             BlogPosts::all()->map(fn (array $post) => [
                 'loc' => route('aiku-public.blog.show', $post['slug']),
