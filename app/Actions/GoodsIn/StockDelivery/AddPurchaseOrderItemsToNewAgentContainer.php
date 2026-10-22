@@ -13,33 +13,28 @@ use App\Actions\OrgAction;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\Procurement\PurchaseOrder;
-use App\Models\Procurement\PurchaseOrderTransaction;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
  * Opens a new container for the organisation of an agent order, as the agent does from its containers page, and puts
- * units of one of the order's items in it, for when that organisation has no container in process yet.
+ * units of some of the order's items in it, for when that organisation has no container in process yet.
  */
-class AddPurchaseOrderTransactionToNewAgentContainer extends OrgAction
+class AddPurchaseOrderItemsToNewAgentContainer extends OrgAction
 {
     private PurchaseOrder $purchaseOrder;
 
-    public function handle(PurchaseOrderTransaction $purchaseOrderTransaction, array $modelData): StockDelivery
+    public function handle(PurchaseOrder $purchaseOrder, array $modelData): StockDelivery
     {
-        $purchaseOrder = $purchaseOrderTransaction->purchaseOrder;
-
-        return DB::transaction(function () use ($purchaseOrder, $purchaseOrderTransaction, $modelData) {
+        return DB::transaction(function () use ($purchaseOrder, $modelData) {
             $stockDelivery = StoreAgentStockDelivery::make()->action($purchaseOrder->agent, $purchaseOrder->orgAgentOfOrder());
 
             return AddPurchaseOrderItemsToStockDelivery::make()->action($stockDelivery, [
-                'items' => [[
-                    'purchase_order_transaction_id' => $purchaseOrderTransaction->id,
-                    'unit_quantity'                 => $modelData['unit_quantity'],
-                ]],
+                'items' => $modelData['items'],
             ]);
         });
     }
@@ -58,7 +53,14 @@ class AddPurchaseOrderTransactionToNewAgentContainer extends OrgAction
     public function rules(): array
     {
         return [
-            'unit_quantity' => ['required', 'numeric', 'gt:0'],
+            'items'                                 => ['required', 'array', 'min:1'],
+            'items.*.purchase_order_transaction_id' => [
+                'required',
+                'integer',
+                'distinct',
+                Rule::exists('purchase_order_transactions', 'id')->where('purchase_order_id', $this->purchaseOrder->id),
+            ],
+            'items.*.unit_quantity'                 => ['required', 'numeric', 'gt:0'],
         ];
     }
 
@@ -67,19 +69,18 @@ class AddPurchaseOrderTransactionToNewAgentContainer extends OrgAction
         $orgAgent = $this->purchaseOrder->isAgentOrder() ? $this->purchaseOrder->orgAgentOfOrder() : null;
 
         if (!$orgAgent || $this->purchaseOrder->state !== PurchaseOrderStateEnum::CONFIRMED) {
-            $validator->errors()->add('unit_quantity', __('Only the items of a confirmed agent order go in a container'));
+            $validator->errors()->add('items', __('Only the items of a confirmed agent order go in a container'));
         } elseif ($orgAgent->agent->organisation->currency_id !== $this->purchaseOrder->currency_id) {
-            $validator->errors()->add('unit_quantity', __('A new container is in the agent\'s currency, and this order is in another one'));
+            $validator->errors()->add('items', __('A new container is in the agent\'s currency, and this order is in another one'));
         }
     }
 
-    public function asController(PurchaseOrder $purchaseOrder, PurchaseOrderTransaction $purchaseOrderTransaction, ActionRequest $request): StockDelivery
+    public function asController(PurchaseOrder $purchaseOrder, ActionRequest $request): StockDelivery
     {
-        abort_unless($purchaseOrderTransaction->purchase_order_id === $purchaseOrder->id, 404);
         $this->purchaseOrder = $purchaseOrder;
         $this->initialisation($purchaseOrder->organisation, $request);
 
-        return $this->handle($purchaseOrderTransaction, $this->validatedData);
+        return $this->handle($purchaseOrder, $this->validatedData);
     }
 
     public function htmlResponse(): RedirectResponse

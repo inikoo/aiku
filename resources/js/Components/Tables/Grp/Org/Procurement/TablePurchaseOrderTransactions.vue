@@ -23,7 +23,7 @@ import PurchaseOrderLineAddToContainerDialog from '@/Components/Procurement/Purc
 import { getOrderingLevels, unitsPerOrderingLevel, suggestionAtOrderingLevel, type OrderingLevel } from '@/Composables/useOrderingLevel'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faBox, faPallet, faStopCircle, faTrashAlt, faPeopleArrows, faBalanceScale, faExclamationTriangle, faBoxOpen, faBoxCheck, faTruckContainer } from '@fal'
+import { faBox, faPallet, faStopCircle, faTrashAlt, faPeopleArrows, faBalanceScale, faExclamationTriangle, faBoxOpen, faBoxCheck, faTruckContainer, faTimes } from '@fal'
 import { faExclamationCircle, faSpinner, faMinusCircle } from '@fas'
 import ConfirmPopup from 'primevue/confirmpopup'
 import Popover from 'primevue/popover'
@@ -368,12 +368,63 @@ function packTooltip(item: any) {
         : tooltip
 }
 
-const containerDialogItem = ref<any>(null)
+const _table = ref<InstanceType<typeof Table> | null>(null)
+const containerDialogItems = ref<any[]>([])
 const isContainerDialogVisible = ref(false)
+const selectedRows = ref<Record<string, boolean>>({})
 
-function openContainerDialog(item: any) {
-    containerDialogItem.value = item
+const tableRows = computed<any[]>(() => (props.data as any)?.data ?? [])
+const canAddToContainer = (item: any) => !!item.agent_warehouse?.containers_route
+const hasRowsForContainer = computed(() => tableRows.value.some(canAddToContainer))
+const rowsSelectedForContainer = computed(() => tableRows.value.filter((item) => selectedRows.value[item.id] && canAddToContainer(item)))
+
+function onSelectRow(rows: Record<string, boolean>) {
+    selectedRows.value = { ...rows }
+}
+
+function openContainerDialog(items: any[]) {
+    containerDialogItems.value = items
     isContainerDialogVisible.value = true
+}
+
+function onAddedToContainer() {
+    _table.value?.clearSelection()
+    selectedRows.value = {}
+}
+
+const removingContainerKey = ref<string | null>(null)
+
+function removeFromContainer(item: any, container: any) {
+    const removeRoute = container.remove_route
+    router.delete(route(removeRoute.name, removeRoute.parameters), {
+        preserveScroll: true,
+        onStart: () => (removingContainerKey.value = `${item.id}-${container.id}`),
+        onFinish: () => (removingContainerKey.value = null),
+        onSuccess: () => notify({ title: ctrans('Success'), text: ctrans(':code removed from :container', { code: item.code, container: container.reference }), type: 'success' }),
+        onError: (errors: Record<string, string>) => notify({ title: ctrans('Something went wrong'), text: Object.values(errors ?? {})[0], type: 'error' }),
+    })
+}
+
+function confirmRemoveFromContainer(event: MouseEvent, item: any, container: any) {
+    if (!container.remove_route) {
+        return
+    }
+
+    if (isBraveModeActive()) {
+        removeFromContainer(item, container)
+        return
+    }
+
+    confirm.require({
+        target: event.currentTarget as HTMLElement,
+        message: ctrans('Take the :units units of :code out of :container?', { units: locale.number(container.unit_quantity), code: item.code, container: container.reference }),
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: ctrans('Remove'),
+        rejectLabel: ctrans('Cancel'),
+        acceptClass: 'p-button-danger',
+        rejectClass: 'p-button-text',
+        accept: () => removeFromContainer(item, container),
+    })
 }
 
 function confirmDeleteItem(event: MouseEvent, item: any) {
@@ -531,7 +582,17 @@ function orgStockRoute(item: { org_stock_id?: number }) {
 </script>
 
 <template>
-    <Table :resource="data" :name="tab" class="mt-5" :rowColorFunction="cancelledRowClass">
+    <Table
+        ref="_table"
+        :resource="data"
+        :name="tab"
+        class="mt-5"
+        :rowColorFunction="cancelledRowClass"
+        :isCheckBox="hasRowsForContainer"
+        checkboxKey="id"
+        :disabledCheckbox="(item: any) => !canAddToContainer(item)"
+        @onSelectRow="onSelectRow"
+    >
         <template #before-table>
             <div class="flex items-end justify-between gap-3 border-b border-gray-200 px-3 sm:px-4">
                 <div class="flex items-end gap-1">
@@ -551,6 +612,19 @@ function orgStockRoute(item: { org_stock_id?: number }) {
                         </button>
                     </template>
                 </div>
+                <Button
+                    v-if="rowsSelectedForContainer.length"
+                    class="mb-1.5"
+                    :label="ctransChoice('Add :count item to container|Add :count items to container', rowsSelectedForContainer.length)"
+                    :tooltip="ctrans('Click to put the selected products in a container in process')"
+                    type="secondary"
+                    size="xs"
+                    @click="openContainerDialog(rowsSelectedForContainer)"
+                >
+                    <template #icon>
+                        <FontAwesomeIcon :icon="faTruckContainer" fixed-width aria-hidden="true" />
+                    </template>
+                </Button>
                 <label
                     v-tooltip="ctrans('When on, Remove and Cancel act straight away without asking to confirm')"
                     class="mb-1.5 flex cursor-pointer items-center gap-2 text-sm"
@@ -755,6 +829,7 @@ function orgStockRoute(item: { org_stock_id?: number }) {
         </template>
 
         <template #cell(actions)="{ item }">
+            <div class="flex flex-col items-end gap-1.5">
             <div class="flex justify-end items-center gap-2">
                 <span
                     v-if="item.agent_warehouse?.quantity_packed > 0"
@@ -798,7 +873,7 @@ function orgStockRoute(item: { org_stock_id?: number }) {
                     :tooltip="ctrans('Click to put units of this product in a container in process')"
                     type="tertiary"
                     size="xs"
-                    @click="openContainerDialog(item)"
+                    @click="openContainerDialog([item])"
                 >
                     <template #icon>
                         <FontAwesomeIcon :icon="faTruckContainer" class="text-gray-500" fixed-width aria-hidden="true" />
@@ -829,6 +904,33 @@ function orgStockRoute(item: { org_stock_id?: number }) {
                     @click="confirmCancelItem($event, item)"
                 />
 
+            </div>
+
+            <div v-if="item.agent_warehouse?.containers?.length" class="flex flex-wrap justify-end gap-1">
+                <span
+                    v-for="container in item.agent_warehouse.containers"
+                    :key="container.id"
+                    class="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-gray-50 px-2 py-0.5 text-xs text-gray-700 ring-1 ring-inset ring-gray-200"
+                >
+                    <FontAwesomeIcon :icon="faTruckContainer" class="text-gray-400" fixed-width aria-hidden="true" />
+                    <Link v-if="container.show_route" :href="route(container.show_route.name, container.show_route.parameters)" class="secondaryLink">
+                        {{ container.reference }}
+                    </Link>
+                    <span v-else>{{ container.reference }}</span>
+                    <span class="tabular-nums text-gray-500">· {{ locale.number(container.unit_quantity) }}</span>
+                    <button
+                        v-if="container.remove_route"
+                        type="button"
+                        class="ml-0.5 text-gray-400 hover:text-red-600 disabled:opacity-50"
+                        :disabled="removingContainerKey === `${item.id}-${container.id}`"
+                        v-tooltip="ctrans('Click to take this product out of :container', { container: container.reference })"
+                        :aria-label="ctrans('Remove from :container', { container: container.reference })"
+                        @click="confirmRemoveFromContainer($event, item, container)"
+                    >
+                        <FontAwesomeIcon :icon="removingContainerKey === `${item.id}-${container.id}` ? faSpinner : faTimes" :spin="removingContainerKey === `${item.id}-${container.id}`" fixed-width aria-hidden="true" />
+                    </button>
+                </span>
+            </div>
             </div>
         </template>
 
@@ -901,7 +1003,12 @@ function orgStockRoute(item: { org_stock_id?: number }) {
         </template>
     </ConfirmPopup>
 
-    <PurchaseOrderLineAddToContainerDialog v-if="containerDialogItem" v-model:visible="isContainerDialogVisible" :item="containerDialogItem" />
+    <PurchaseOrderLineAddToContainerDialog
+        v-if="containerDialogItems.length"
+        v-model:visible="isContainerDialogVisible"
+        :items="containerDialogItems"
+        @added="onAddedToContainer"
+    />
 
     <ProductImageViewerDialog v-if="viewedImages.length" v-model:visible="isImageViewerVisible" :images="viewedImages" />
 

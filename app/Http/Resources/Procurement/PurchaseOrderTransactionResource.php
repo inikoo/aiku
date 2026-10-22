@@ -10,6 +10,7 @@ namespace App\Http\Resources\Procurement;
 
 use App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryFromPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UI\GetOrgStockBuyingSignals;
+use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionPriceQueryStateEnum;
@@ -183,10 +184,12 @@ class PurchaseOrderTransactionResource extends JsonResource
         $awaiting = max(0, (float) $transaction->getAttribute('quantity_awaiting_delivery'));
         $onContainers = max(0, (float) $transaction->quantity_ordered - $awaiting);
 
+        $canEdit = (bool) $user?->authTo("procurement.$transaction->organisation_id.edit");
+
         $canAddToContainer = $purchaseOrder?->state === PurchaseOrderStateEnum::CONFIRMED
             && $transaction->state === PurchaseOrderTransactionStateEnum::CONFIRMED
             && $awaiting > StoreStockDeliveryFromPurchaseOrder::QUANTITY_TOLERANCE
-            && ($isAgentEditing || $user?->authTo("procurement.$transaction->organisation_id.edit"));
+            && ($isAgentEditing || $canEdit);
 
         return [
             'quantity_packable'                => $packable,
@@ -207,15 +210,40 @@ class PurchaseOrderTransactionResource extends JsonResource
                 'parameters' => ['purchaseOrder' => $transaction->purchase_order_id],
             ] : null,
             'new_container_route'              => $canAddToContainer ? [
-                'name'       => 'grp.models.purchase-order.transaction.new_container',
-                'parameters' => [
-                    'purchaseOrder'            => $transaction->purchase_order_id,
-                    'purchaseOrderTransaction' => $transaction->id,
-                ],
+                'name'       => 'grp.models.purchase-order.new_container',
+                'parameters' => ['purchaseOrder' => $transaction->purchase_order_id],
                 'method'     => 'post',
             ] : null,
             'organisation_code'                => $transaction->organisation?->code,
+            'containers'                       => $this->containersOfLine($transaction, $request, $isAgentEditing || $canEdit),
         ];
+    }
+
+    /**
+     * The containers holding units of the line, linked from the agent's or the buyer's side, and removable while in process.
+     */
+    private function containersOfLine(PurchaseOrderTransaction $transaction, $request, bool $canRemove): array
+    {
+        $viewingOrganisation = $request->route('organisation');
+        $isAgentViewing      = $viewingOrganisation instanceof Organisation && $viewingOrganisation->id !== $transaction->organisation_id;
+
+        return collect(json_decode($transaction->getAttribute('agent_containers') ?? '[]', true))
+            ->map(fn (array $container) => [
+                'id'            => $container['id'],
+                'reference'     => $container['reference'],
+                'unit_quantity' => (float) $container['unit_quantity'],
+                'show_route'    => $viewingOrganisation instanceof Organisation ? [
+                    'name'       => $isAgentViewing ? 'grp.org.agent.stock_deliveries.show' : 'grp.org.procurement.stock_deliveries.show',
+                    'parameters' => [$viewingOrganisation->slug, $container['slug']],
+                ] : null,
+                'remove_route'  => $canRemove && $container['state'] === StockDeliveryStateEnum::IN_PROCESS->value ? [
+                    'name'       => 'grp.models.stock-delivery.purchase_order_items.remove',
+                    'parameters' => ['stockDelivery' => $container['id'], 'purchaseOrderTransaction' => $transaction->id],
+                    'method'     => 'delete',
+                ] : null,
+            ])
+            ->values()
+            ->all();
     }
 
     private function viewingOrganisationId($request): ?int
