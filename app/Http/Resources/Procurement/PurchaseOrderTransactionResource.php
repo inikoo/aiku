@@ -206,6 +206,15 @@ class PurchaseOrderTransactionResource extends JsonResource
                 'name'       => 'grp.json.purchase_order.open_agent_containers',
                 'parameters' => ['purchaseOrder' => $transaction->purchase_order_id],
             ] : null,
+            'new_container_route'              => $canAddToContainer ? [
+                'name'       => 'grp.models.purchase-order.transaction.new_container',
+                'parameters' => [
+                    'purchaseOrder'            => $transaction->purchase_order_id,
+                    'purchaseOrderTransaction' => $transaction->id,
+                ],
+                'method'     => 'post',
+            ] : null,
+            'organisation_code'                => $transaction->organisation?->code,
         ];
     }
 

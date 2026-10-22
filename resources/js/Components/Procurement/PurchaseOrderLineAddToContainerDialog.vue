@@ -35,6 +35,8 @@ const props = defineProps<{
 			quantity_awaiting_delivery: number
 			quantity_packed_not_on_container: number
 			containers_route: routeType | null
+			new_container_route: routeType | null
+			organisation_code: string | null
 		}
 	}
 }>()
@@ -47,7 +49,8 @@ const fieldFocusClass = "[&.p-focus]:!border-[--app-accent] [&_input:focus]:!bor
 
 const containers = ref<Container[]>([])
 const isFetching = ref(false)
-const selectedContainerId = ref<number | null>(null)
+const newContainerOption = "new"
+const selectedContainerId = ref<number | typeof newContainerOption | null>(null)
 const quantity = ref<number | null>(null)
 const isSaving = ref(false)
 
@@ -55,12 +58,17 @@ const awaiting = computed(() => props.item.agent_warehouse.quantity_awaiting_del
 const packedNotOnContainer = computed(() => props.item.agent_warehouse.quantity_packed_not_on_container)
 const notPackedYet = computed(() => Math.max(0, Math.round(((quantity.value ?? 0) - packedNotOnContainer.value) * 1000) / 1000))
 
-const containerOptions = computed(() =>
-	containers.value.map((container) => ({
+const organisationCode = computed(() => props.item.agent_warehouse.organisation_code ?? "")
+
+const containerOptions = computed(() => [
+	...(props.item.agent_warehouse.new_container_route ? [{ id: newContainerOption, label: ctrans("New container for :organisation", { organisation: organisationCode.value }) }] : []),
+	...containers.value.map((container) => ({
 		id: container.id,
 		label: `${container.reference} (${ctrans(":count purchase orders", { count: container.number_purchase_orders })})`,
-	}))
-)
+	})),
+])
+
+const hasFetched = ref(false)
 
 let searchTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -73,6 +81,10 @@ async function fetchContainers(search?: string) {
 	try {
 		const response = await axios.get(route(containersRoute.name, containersRoute.parameters), { params: { search: search || undefined } })
 		containers.value = response.data.data
+		hasFetched.value = true
+		if (!search && !containers.value.length && props.item.agent_warehouse.new_container_route && !selectedContainerId.value) {
+			selectedContainerId.value = newContainerOption
+		}
 	} catch (error: any) {
 		notify({ title: ctrans("Something went wrong"), text: error?.response?.data?.message ?? "", type: "error" })
 	} finally {
@@ -95,6 +107,7 @@ watch(
 		}
 		selectedContainerId.value = null
 		containers.value = []
+		hasFetched.value = false
 		quantity.value = packedNotOnContainer.value > 0 ? Math.min(packedNotOnContainer.value, awaiting.value) : awaiting.value
 		fetchContainers()
 	},
@@ -108,9 +121,20 @@ function submit() {
 		return
 	}
 
+	const newContainerRoute = props.item.agent_warehouse.new_container_route
+	const isNewContainer = selectedContainerId.value === newContainerOption
+
+	if (isNewContainer && !newContainerRoute) {
+		return
+	}
+
 	router.post(
-		route("grp.models.stock-delivery.purchase_order_items.add", { stockDelivery: selectedContainerId.value }),
-		{ items: [{ purchase_order_transaction_id: props.item.id, unit_quantity: quantity.value }] },
+		isNewContainer && newContainerRoute
+			? route(newContainerRoute.name, newContainerRoute.parameters)
+			: route("grp.models.stock-delivery.purchase_order_items.add", { stockDelivery: selectedContainerId.value }),
+		isNewContainer
+			? { unit_quantity: quantity.value }
+			: { items: [{ purchase_order_transaction_id: props.item.id, unit_quantity: quantity.value }] },
 		{
 			preserveScroll: true,
 			onStart: () => (isSaving.value = true),
@@ -146,12 +170,15 @@ function submit() {
 					:filterPlaceholder="ctrans('Search by reference')"
 					:loading="isFetching"
 					:placeholder="ctrans('Choose a container in process')"
-					:emptyMessage="isFetching ? ctrans('Loading…') : ctrans('No container in process')"
+					:emptyMessage="isFetching ? ctrans('Loading…') : ctrans('No container in process for :organisation yet', { organisation: organisationCode })"
 					:emptyFilterMessage="isFetching ? ctrans('Loading…') : ctrans('No container found')"
 					:class="fieldFocusClass"
 					fluid
 					@filter="onFilter"
 				/>
+				<span v-if="hasFetched && !containers.length" class="block text-xs text-gray-500">
+					{{ ctrans("No container in process for :organisation yet, containers of other clients are not listed", { organisation: organisationCode }) }}
+				</span>
 			</label>
 
 			<label class="block space-y-1">

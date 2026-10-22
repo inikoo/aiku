@@ -337,6 +337,7 @@ use App\Actions\Goods\TradeUnitFamily\UI\AssignBrandTagsToTradeUnitFamily;
 use App\Actions\Goods\TradeUnitFamily\UpdateTradeUnitFamily;
 use App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryFromPurchaseOrder;
 use App\Actions\GoodsIn\StockDelivery\AddPurchaseOrdersToStockDelivery;
+use App\Actions\GoodsIn\StockDelivery\AddPurchaseOrderTransactionToNewAgentContainer;
 use App\Actions\GoodsIn\StockDelivery\AddPurchaseOrderItemsToStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\RemovePurchaseOrderFromStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\DeleteStockDelivery;
@@ -1937,6 +1938,7 @@ Route::name('purchase-order.')->prefix('purchase-order/{purchaseOrder:id}')->gro
     Route::post('transactions/{purchaseOrderTransaction:id}/price-change', AskPurchaseOrderTransactionPriceChange::class)->name('transaction.price_change.ask')->withoutScopedBindings();
     Route::patch('transactions/{purchaseOrderTransaction:id}/price-change', AnswerPurchaseOrderTransactionPriceChange::class)->name('transaction.price_change.answer')->withoutScopedBindings();
     Route::patch('transactions/{purchaseOrderTransaction:id}/pack', PackPurchaseOrderTransaction::class)->name('transaction.pack')->withoutScopedBindings();
+    Route::post('transactions/{purchaseOrderTransaction:id}/new-container', AddPurchaseOrderTransactionToNewAgentContainer::class)->name('transaction.new_container')->withoutScopedBindings();
 });
 
 Route::name('email.')->prefix('email/')->group(function () {
