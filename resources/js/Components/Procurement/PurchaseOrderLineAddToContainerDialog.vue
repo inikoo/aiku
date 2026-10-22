@@ -16,7 +16,7 @@ import InputNumber from "primevue/inputnumber"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import Image from "@common/Components/Image.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faCheck, faTimes, faExclamationTriangle } from "@fal"
+import { faCheck, faTimes, faExclamationTriangle, faPlus } from "@fal"
 import { ctrans } from "@/Composables/useTrans"
 import { useLocaleStore } from "@/Stores/locale"
 import { routeType } from "@/types/route"
@@ -52,8 +52,8 @@ const fieldFocusClass = "[&.p-focus]:!border-[--app-accent] [&_input:focus]:!bor
 
 const containers = ref<Container[]>([])
 const isFetching = ref(false)
-const newContainerOption = "new"
-const selectedContainerId = ref<number | typeof newContainerOption | null>(null)
+const selectedContainerId = ref<number | null>(null)
+const isNewContainer = ref(false)
 const quantity = ref<number | null>(null)
 const isSaving = ref(false)
 
@@ -63,13 +63,23 @@ const notPackedYet = computed(() => Math.max(0, Math.round(((quantity.value ?? 0
 
 const organisationCode = computed(() => props.item.agent_warehouse.organisation_code ?? "")
 
-const containerOptions = computed(() => [
-	...(props.item.agent_warehouse.new_container_route ? [{ id: newContainerOption, label: ctrans("New container for :organisation", { organisation: organisationCode.value }) }] : []),
-	...containers.value.map((container) => ({
+const containerOptions = computed(() =>
+	containers.value.map((container) => ({
 		id: container.id,
 		label: `${container.reference} (${ctrans(":count purchase orders", { count: container.number_purchase_orders })})`,
-	})),
-])
+	}))
+)
+
+function chooseNewContainer() {
+	isNewContainer.value = true
+	selectedContainerId.value = null
+}
+
+watch(selectedContainerId, (containerId) => {
+	if (containerId) {
+		isNewContainer.value = false
+	}
+})
 
 const hasFetched = ref(false)
 
@@ -86,7 +96,7 @@ async function fetchContainers(search?: string) {
 		containers.value = response.data.data
 		hasFetched.value = true
 		if (!search && !containers.value.length && props.item.agent_warehouse.new_container_route && !selectedContainerId.value) {
-			selectedContainerId.value = newContainerOption
+			isNewContainer.value = true
 		}
 	} catch (error: any) {
 		notify({ title: ctrans("Something went wrong"), text: error?.response?.data?.message ?? "", type: "error" })
@@ -109,6 +119,7 @@ watch(
 			return
 		}
 		selectedContainerId.value = null
+		isNewContainer.value = false
 		containers.value = []
 		hasFetched.value = false
 		quantity.value = packedNotOnContainer.value > 0 ? Math.min(packedNotOnContainer.value, awaiting.value) : awaiting.value
@@ -117,25 +128,19 @@ watch(
 	{ immediate: true }
 )
 
-const canSubmit = computed(() => !!selectedContainerId.value && !!quantity.value && quantity.value > 0 && quantity.value <= awaiting.value)
+const canSubmit = computed(() => (isNewContainer.value || !!selectedContainerId.value) && !!quantity.value && quantity.value > 0 && quantity.value <= awaiting.value)
 
 function submit() {
-	if (!canSubmit.value || !selectedContainerId.value) {
-		return
-	}
-
 	const newContainerRoute = props.item.agent_warehouse.new_container_route
-	const isNewContainer = selectedContainerId.value === newContainerOption
-
-	if (isNewContainer && !newContainerRoute) {
+	if (!canSubmit.value || (isNewContainer.value && !newContainerRoute)) {
 		return
 	}
 
 	router.post(
-		isNewContainer && newContainerRoute
+		isNewContainer.value && newContainerRoute
 			? route(newContainerRoute.name, newContainerRoute.parameters)
 			: route("grp.models.stock-delivery.purchase_order_items.add", { stockDelivery: selectedContainerId.value }),
-		isNewContainer
+		isNewContainer.value
 			? { unit_quantity: quantity.value }
 			: { items: [{ purchase_order_transaction_id: props.item.id, unit_quantity: quantity.value }] },
 		{
@@ -170,9 +175,14 @@ function submit() {
 				</div>
 			</div>
 
-			<label class="block space-y-1">
+			<div class="space-y-1">
 				<span class="block text-xs text-gray-500">{{ ctrans("Container") }}</span>
+				<div v-if="isNewContainer" class="flex items-center gap-2 rounded-md border border-[--app-accent-muted] bg-[--app-accent-soft] px-3 py-2">
+					<FontAwesomeIcon :icon="faPlus" class="text-[--app-accent]" fixed-width aria-hidden="true" />
+					<span class="text-gray-700">{{ ctrans("A new container for :organisation will be opened", { organisation: organisationCode }) }}</span>
+				</div>
 				<Select
+					v-else
 					v-model="selectedContainerId"
 					:options="containerOptions"
 					optionLabel="label"
@@ -190,7 +200,23 @@ function submit() {
 				<span v-if="hasFetched && !containers.length" class="block text-xs text-gray-500">
 					{{ ctrans("No container in process for :organisation yet, containers of other clients are not listed", { organisation: organisationCode }) }}
 				</span>
-			</label>
+				<button
+					v-if="item.agent_warehouse.new_container_route && !isNewContainer"
+					type="button"
+					class="text-xs text-[--app-accent] underline-offset-2 hover:underline"
+					@click="chooseNewContainer"
+				>
+					{{ ctrans("Or open a new container for :organisation", { organisation: organisationCode }) }}
+				</button>
+				<button
+					v-else-if="isNewContainer && containers.length"
+					type="button"
+					class="text-xs text-[--app-accent] underline-offset-2 hover:underline"
+					@click="isNewContainer = false"
+				>
+					{{ ctrans("Or choose a container in process") }}
+				</button>
+			</div>
 
 			<label class="block space-y-1">
 				<span class="block text-xs text-gray-500">{{ ctrans("Units") }}</span>
