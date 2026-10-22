@@ -712,7 +712,7 @@ class ShowStockDelivery extends OrgAction
     }
 
     /**
-     * Settings first, the CSV and PDF downloads as one group, and dispatching the container last.
+     * Delete first, then Settings, the CSV and PDF downloads as one group, and dispatching the container last.
      */
     private function arrangePageHeadActions(array $actions): array
     {
@@ -721,8 +721,9 @@ class ShowStockDelivery extends OrgAction
         $documents = $actions->filter($isOfKey('csv', 'action'))->values()->all();
 
         return [
+            ...$actions->filter($isOfKey('delete_stock_delivery'))->all(),
             ...$actions->filter($isOfKey('settings'))->all(),
-            ...$actions->reject($isOfKey('settings', 'csv', 'action', 'dispatch_stock_delivery'))->all(),
+            ...$actions->reject($isOfKey('delete_stock_delivery', 'settings', 'csv', 'action', 'dispatch_stock_delivery'))->all(),
             ...($documents ? [['type' => 'buttonGroup', 'key' => 'documents', 'button' => $documents]] : []),
             ...$actions->filter($isOfKey('dispatch_stock_delivery'))->all(),
         ];
