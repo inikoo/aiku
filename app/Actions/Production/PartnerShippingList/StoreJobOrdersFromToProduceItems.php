@@ -85,7 +85,7 @@ class StoreJobOrdersFromToProduceItems extends OrgAction
     public function rules(): array
     {
         return [
-            'ids'   => ['required', 'array', 'min:1'],
+            'ids'   => ['required', 'list', 'min:1'],
             'ids.*' => ['integer'],
             'employee_id' => ['sometimes', 'nullable', 'integer', 'exists:employees,id'],
             'quantity'    => ['sometimes', 'nullable', 'numeric', 'min:1'],
