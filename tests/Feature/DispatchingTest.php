@@ -1608,6 +1608,28 @@ test('short pick keeps submitted order amounts until the note is picked', functi
         ->and((float) $order->net_amount)->toBe((float) $transaction->net_amount);
 });
 
+test('a picked order sent back to handling or waiting gets its submitted amounts back', function () {
+    [$deliveryNote, $item] = handlingDeliveryNoteWithPicking($this, 4);
+    $order        = $deliveryNote->orders()->first();
+    $transaction  = $order->transactions()->first();
+    $submittedNet = (float) $transaction->net_amount;
+
+    StoreNotPickPicking::make()->action($item, $this->user, []);
+    $deliveryNote = \App\Actions\Dispatching\DeliveryNote\UpdateState\UpdateDeliveryNoteStateToPicked::run($deliveryNote->refresh());
+    expect((float) $transaction->refresh()->net_amount)->toBeLessThan($submittedNet);
+
+    \App\Actions\Ordering\Order\UpdateState\UpdateOrderStateToHandlingBlocked::make()->action($order->refresh(), $deliveryNote);
+    expect((float) $transaction->refresh()->net_amount)->toBe($submittedNet)
+        ->and((float) $order->refresh()->net_amount)->toBe($submittedNet);
+
+    \App\Actions\Ordering\Order\UpdateState\UpdateOrderStateToPicked::make()->action($order, $deliveryNote);
+    expect((float) $transaction->refresh()->net_amount)->toBeLessThan($submittedNet);
+
+    \App\Actions\Ordering\Order\UpdateState\UpdateOrderStateToHandling::make()->action($order->refresh());
+    expect((float) $transaction->refresh()->net_amount)->toBe($submittedNet)
+        ->and((float) $order->refresh()->net_amount)->toBe($submittedNet);
+});
+
 test('delivery note finalise and dispatch', function () {
     [$deliveryNote, $item] = handlingDeliveryNoteWithPicking($this);
     $deliveryNote = \App\Actions\Dispatching\DeliveryNote\UpdateState\UpdateDeliveryNoteStateToPicked::run($deliveryNote);

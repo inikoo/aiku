@@ -36,8 +36,9 @@ trait HasOrderStateUpdates
             OrderStateEnum::SUBMITTED,
         ])) {
             /** Until the note is picked a short or missing line is not final - it is waiting, not
-             * lost - so the order keeps the amounts the customer submitted. Only from picked on
-             * are the amounts rewritten to what was actually taken, which is what gets invoiced. */
+             * lost - so the order holds the amounts the customer submitted, and gets them back when a
+             * picked note is sent back to waiting. Only from picked on are the amounts rewritten to what
+             * was actually taken, which is what gets invoiced. */
             $picksAreFinal = $newState->isPickedOrLater();
 
             // INI-1811: Guard, is follow on products must always be 0
@@ -48,12 +49,14 @@ trait HasOrderStateUpdates
                     'status'          => TransactionStatusEnum::PROCESSING,
                     'quantity_picked' => $packedData['quantity'],
                 ];
-                if ($picksAreFinal) {
-                    $transactionData['gross_amount']   = $packedData['gross_amount'];
-                    $transactionData['net_amount']     = $packedData['net_amount'];
-                    $transactionData['org_net_amount'] = $packedData['org_net_amount'];
-                    $transactionData['grp_net_amount'] = $packedData['grp_net_amount'];
-                }
+                $amounts = $picksAreFinal
+                    ? $packedData
+                    : GenerateInvoiceFromOrder::make()->recalculateTransactionTotals($transaction, null);
+
+                $transactionData['gross_amount']   = $amounts['gross_amount'];
+                $transactionData['net_amount']     = $amounts['net_amount'];
+                $transactionData['org_net_amount'] = $amounts['org_net_amount'];
+                $transactionData['grp_net_amount'] = $amounts['grp_net_amount'];
                 if ($newTransactionState !== null) {
                     $transactionData['state'] = $newTransactionState;
                 }
