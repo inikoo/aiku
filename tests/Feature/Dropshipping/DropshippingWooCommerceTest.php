@@ -910,6 +910,30 @@ test('an upload the store gateway times out on is saved as a timeout and picked 
         ->and(PlatformResponseFormatter::make()->message(['<!DOCTYPE html><html><head><title>Maintenance</title></head><body>Back soon</body></html>']))->toContain('web page');
 });
 
+test('an upload to a store that refuses our server records why on the portfolio and in the logs, and is not retried as a timeout', function () {
+    $wooCommerceUser = wooConnect(wooCustomer($this->shop));
+    $channel         = $wooCommerceUser->customerSalesChannel;
+    $channel->update(['can_connect_to_platform' => true]);
+    $portfolio = wooPortfolio($channel, $this->product, null, 'aw-refused-connection');
+
+    Http::swap(new Factory(app(Dispatcher::class)));
+    Http::fake(['*' => Http::failedConnection("cURL error 7: Failed to connect to shop.example.test port 443 after 98 ms: Couldn't connect to server")]);
+    Http::preventStrayRequests();
+
+    $logsBefore = PlatformPortfolioLogs::where('portfolio_id', $portfolio->id)->count();
+
+    StoreNewProductToCurrentWooCommerce::run($wooCommerceUser, $portfolio);
+    $portfolio->refresh();
+    $log = PlatformPortfolioLogs::where('portfolio_id', $portfolio->id)->latest('id')->first();
+
+    expect($portfolio->platform_product_id)->toBeNull()
+        ->and($portfolio->errors_response['message'])->toContain('blocking our servers')
+        ->and(PlatformPortfolioLogs::where('portfolio_id', $portfolio->id)->count())->toBe($logsBefore + 1)
+        ->and($log->type)->toBe(PlatformPortfolioLogsTypeEnum::UPLOAD)
+        ->and($log->status)->toBe(PlatformPortfolioLogsStatusEnum::FAIL)
+        ->and(RetryTimedOutWooUploads::run($channel)->pluck('id')->all())->not->toContain($portfolio->id);
+});
+
 test('an upload that collides with a listed sku adopts the listed product', function () {
     $wooCommerceUser = wooConnect(wooCustomer($this->shop));
     $portfolio       = wooPortfolio($wooCommerceUser->customerSalesChannel, $this->product, null, 'dup-sku');

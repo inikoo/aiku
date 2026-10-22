@@ -9,9 +9,13 @@
 namespace App\Actions\Dropshipping\WooCommerce\Product;
 
 use App\Actions\Traits\Authorisations\WithCustomerSalesChannelEditAuthorisation;
+use App\Actions\Dropshipping\Portfolio\Logs\StorePlatformPortfolioLog;
+use App\Actions\Dropshipping\Portfolio\Logs\UpdatePlatformPortfolioLog;
 use App\Actions\Dropshipping\Portfolio\UpdatePortfolio;
 use App\Actions\Dropshipping\WithPortfolioErrorResponse;
 use App\Actions\OrgAction;
+use App\Enums\Ordering\PlatformLogs\PlatformPortfolioLogsStatusEnum;
+use App\Enums\Ordering\PlatformLogs\PlatformPortfolioLogsTypeEnum;
 use App\Events\UploadProductToSalesChannelProgressEvent;
 use App\Models\Dropshipping\Portfolio;
 use App\Models\Dropshipping\WooCommerceUser;
@@ -68,17 +72,15 @@ class StoreNewProductToCurrentWooCommerce extends OrgAction implements ShouldBeU
     public function handle(WooCommerceUser $wooCommerceUser, Portfolio $portfolio, bool $checkConnection = true, ?array $bulkProgress = null): Portfolio
     {
         try {
-            $result = true;
-            if ($checkConnection) {
-                $result = $wooCommerceUser->checkConnection();
-            }
+            $connection = $checkConnection ? $wooCommerceUser->checkConnectionWithError() : ['success' => true, 'message' => null];
 
-            if ($result) {
+            if ($connection['success']) {
                 $portfolio = StoreWooCommerceProduct::run($wooCommerceUser, $portfolio);
             } else {
                 $wooCommerceUser->customerSalesChannel->update([
                     'ban_stock_update_util' => now()->addSeconds(10)
                 ]);
+                $this->recordConnectionFailure($portfolio, $connection['message'] ?? __('Could not connect to your store, please check your channel connection and try again.'));
             }
         } catch (\Throwable $e) {
             $this->recordPortfolioUploadFailure($portfolio, $e);
@@ -93,6 +95,26 @@ class StoreNewProductToCurrentWooCommerce extends OrgAction implements ShouldBeU
         }
 
         return $portfolio;
+    }
+
+    /**
+     * Must not say "timed out": the nightly RetryTimedOutWooUploads would queue it again while the
+     * store is still turning us away.
+     */
+    private function recordConnectionFailure(Portfolio $portfolio, string $message): void
+    {
+        $log = StorePlatformPortfolioLog::run($portfolio, [
+            'type' => PlatformPortfolioLogsTypeEnum::UPLOAD
+        ]);
+
+        UpdatePlatformPortfolioLog::run($log, [
+            'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
+            'response' => $message
+        ]);
+
+        UpdatePortfolio::run($portfolio, [
+            'errors_response' => $this->portfolioErrorResponse($message)
+        ]);
     }
 
     /**
