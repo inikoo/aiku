@@ -29,9 +29,9 @@ import { PageHeadingTypes } from "@/types/PageHeading"
 import { routeType } from "@/types/route"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faPlus, faTimes, faLightbulbOn, faArrowLeft, faSparkles, faPaintBrush, faTag } from "@fal"
+import { faPlus, faTimes, faLightbulbOn, faArrowLeft, faSparkles, faPaintBrush, faTag, faPaperclip, faFilePdf, faImage, faFilm } from "@fal"
 import { faSave } from "@fas"
-library.add(faPlus, faTimes, faSave, faLightbulbOn, faArrowLeft, faSparkles, faPaintBrush, faTag)
+library.add(faPlus, faTimes, faSave, faLightbulbOn, faArrowLeft, faSparkles, faPaintBrush, faTag, faPaperclip, faFilePdf, faImage, faFilm)
 
 interface Option {
     value: string | number
@@ -64,6 +64,8 @@ interface SkuRow {
     code: string
     name: string
     trade_unit_id: number | null
+    brief: string
+    images: { file: File, url: string }[]
     code_error?: string | null
     checking?: boolean
 }
@@ -83,7 +85,36 @@ const form = reactive({
     brief: "",
 })
 
-const skus = ref<SkuRow[]>([{ mode: "new", code: "", name: "", trade_unit_id: null }])
+const newSku = (): SkuRow => ({ mode: "new", code: "", name: "", trade_unit_id: null, brief: "", images: [] })
+const skus = ref<SkuRow[]>([newSku()])
+
+/* Brief references (PDF) for the range, and reference images per SKU, uploaded with the development */
+const briefFiles = ref<File[]>([])
+const briefInput = ref<HTMLInputElement | null>(null)
+const imageInput = ref<HTMLInputElement | null>(null)
+const imagesFor = ref<SkuRow | null>(null)
+
+function onBriefFilesPicked(event: Event) {
+    const input = event.target as HTMLInputElement
+    briefFiles.value.push(...(input.files ?? []))
+    input.value = ""
+}
+
+function pickImages(sku: SkuRow) {
+    imagesFor.value = sku
+    imageInput.value?.click()
+}
+
+function onImagesPicked(event: Event) {
+    const input = event.target as HTMLInputElement
+    imagesFor.value?.images.push(...[...(input.files ?? [])].map((file) => ({ file, url: URL.createObjectURL(file) })))
+    input.value = ""
+}
+
+function removeImage(sku: SkuRow, index: number) {
+    URL.revokeObjectURL(sku.images[index].url)
+    sku.images.splice(index, 1)
+}
 const members = ref<{ user_id: number | null, role: string | null }[]>([{ user_id: null, role: null }])
 const errors = ref<Record<string, string>>({})
 const saving = ref(false)
@@ -223,12 +254,16 @@ function submit() {
         brief: form.brief || null,
         items: sentRows.map((index) => {
             const sku = skus.value[index]
-            return sku.mode === "existing" ? { trade_unit_id: sku.trade_unit_id } : { code: sku.code, name: sku.name }
+            const details = { brief: sku.brief || null, images: sku.images.map((image) => image.file) }
+            return sku.mode === "existing" ? { trade_unit_id: sku.trade_unit_id, ...details } : { code: sku.code, name: sku.name, ...details }
         }),
+        brief_files: briefFiles.value,
         members: members.value.filter((member) => member.user_id && member.role),
     }
 
+    const hasFiles = briefFiles.value.length > 0 || skus.value.some((sku) => sku.images.length > 0)
     router.post(route(props.storeRoute.name, props.storeRoute.parameters), payload, {
+        forceFormData: hasFiles,
         onStart: () => saving.value = true,
         onFinish: () => saving.value = false,
         onError: (validationErrors) => {
@@ -292,8 +327,30 @@ function submit() {
                     </div>
 
                     <div>
-                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Brief") }}</label>
-                        <Textarea v-model="form.brief" rows="6" autoResize class="w-full" />
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("General brief") }}</label>
+                        <Textarea v-model="form.brief" rows="6" autoResize class="w-full" :placeholder="ctrans('Write the general brief for the range here…')" />
+                        <div class="mt-2 rounded-md border border-dashed border-gray-300 px-3 py-2.5">
+                            <div class="flex flex-wrap items-center gap-3">
+                                <FontAwesomeIcon icon="fal fa-paperclip" class="text-[--app-accent]" fixed-width aria-hidden="true" />
+                                <div class="min-w-0 flex-1 text-xs text-gray-500">
+                                    <span class="text-sm text-gray-900">{{ ctrans("Attach files") }}</span> {{ ctrans("(optional)") }} · {{ ctrans("a concept, mood board or other reference for the designer: PDF, image or video") }}
+                                </div>
+                                <Button type="tertiary" size="xs" :label="ctrans('Upload')" @click="briefInput?.click()">
+                                    <template #icon><FontAwesomeIcon icon="fal fa-paperclip" fixed-width aria-hidden="true" /></template>
+                                </Button>
+                            </div>
+                            <ul v-if="briefFiles.length" class="mt-2 space-y-1">
+                                <li v-for="(file, fileIndex) in briefFiles" :key="fileIndex" class="flex items-center gap-2 rounded bg-gray-50 px-2 py-1 text-sm">
+                                    <FontAwesomeIcon :icon="file.type.startsWith('image/') ? 'fal fa-image' : file.type.startsWith('video/') ? 'fal fa-film' : 'fal fa-file-pdf'" :class="file.type === 'application/pdf' ? 'text-red-500' : 'text-gray-500'" fixed-width aria-hidden="true" />
+                                    <span class="min-w-0 flex-1 truncate">{{ file.name }}</span>
+                                    <button type="button" class="flex h-6 w-6 items-center justify-center rounded text-red-500 hover:bg-red-50" :aria-label="ctrans('Remove')" @click="briefFiles.splice(fileIndex, 1)">
+                                        <FontAwesomeIcon icon="fal fa-times" fixed-width aria-hidden="true" />
+                                    </button>
+                                </li>
+                            </ul>
+                            <p v-if="error('brief_files.0')" class="mt-1 text-xs text-red-600">{{ error("brief_files.0") }}</p>
+                        </div>
+                        <input ref="briefInput" type="file" accept="application/pdf,image/*,video/*" multiple class="hidden" @change="onBriefFilesPicked" />
                     </div>
                 </section>
 
@@ -339,10 +396,29 @@ function submit() {
                             <Button type="tertiary" :tooltip="ctrans('Remove')" class="h-10 w-10 justify-center justify-self-end" @click="skus.splice(index, 1)">
                                 <template #icon><FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" /></template>
                             </Button>
+
+                            <div class="grid gap-2 md:col-span-3 md:grid-cols-[auto_minmax(0,1fr)] md:items-start">
+                                <div class="flex flex-wrap items-center gap-1.5">
+                                    <div v-for="(image, imageIndex) in sku.images" :key="image.url" class="group relative h-12 w-12 overflow-hidden rounded-md border border-gray-200">
+                                        <img :src="image.url" :alt="image.file.name" class="h-full w-full object-cover" />
+                                        <button type="button" class="absolute right-0.5 top-0.5 hidden h-5 w-5 items-center justify-center rounded-full bg-white/90 text-xs text-red-500 shadow group-hover:flex" :aria-label="ctrans('Remove')" @click="removeImage(sku, imageIndex)">
+                                            <FontAwesomeIcon icon="fal fa-times" fixed-width aria-hidden="true" />
+                                        </button>
+                                    </div>
+                                    <button type="button" class="flex h-12 w-12 items-center justify-center rounded-md border border-dashed border-gray-300 text-gray-400 hover:border-[--app-accent] hover:text-[--app-accent]" v-tooltip="ctrans('Add reference images')" :aria-label="ctrans('Add reference images')" @click="pickImages(sku)">
+                                        <FontAwesomeIcon icon="fal fa-plus" fixed-width aria-hidden="true" />
+                                    </button>
+                                </div>
+                                <div>
+                                    <Textarea v-model="sku.brief" rows="1" autoResize class="w-full text-sm" :placeholder="ctrans('Add a short brief for this product…')" />
+                                    <p v-if="error(`items.${index}.images.0`)" class="mt-1 text-xs text-red-600">{{ error(`items.${index}.images.0`) }}</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <Button type="tertiary" :label="ctrans('Add SKU')" class="mt-3" @click="skus.push({ mode: 'new', code: '', name: '', trade_unit_id: null })">
+                    <input ref="imageInput" type="file" accept="image/*" multiple class="hidden" @change="onImagesPicked" />
+                    <Button type="tertiary" :label="ctrans('Add SKU')" class="mt-3" @click="skus.push(newSku())">
                         <template #icon><FontAwesomeIcon icon="fal fa-plus" fixed-width aria-hidden="true" /></template>
                     </Button>
                 </section>

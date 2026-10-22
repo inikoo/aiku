@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $product_development_id
  * @property int $trade_unit_id
  * @property int|null $supplier_product_id
+ * @property string|null $brief the product-specific part of the brief (fragrance, colour, look)
  * @property int $position
  * @property-read ProductDevelopment|null $productDevelopment
  * @property-read TradeUnit|null $tradeUnit

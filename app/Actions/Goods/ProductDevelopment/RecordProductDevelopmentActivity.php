@@ -51,6 +51,10 @@ class RecordProductDevelopmentActivity
 
     public const string SIGN_OFF_WITHDRAWN = 'sign_off_withdrawn';
 
+    public const string SKU_BRIEF_CHANGED = 'sku_brief_changed';
+
+    public const string FILE_REMOVED = 'file_removed';
+
     public const string DESIGN_SECTION_ADDED = 'design_section_added';
 
     public const string DESIGN_SECTION_CHANGED = 'design_section_changed';

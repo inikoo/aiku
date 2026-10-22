@@ -1965,6 +1965,30 @@ test('can create dispatched pallet return pdf', function (PalletReturn $palletRe
         ->and(PdfPalletReturn::run($palletReturn)->getContent())->toStartWith('%PDF');
 })->depends('dispatch pallet return');
 
+test('pallet return pdf shows the return customer reference beside the title, HELP-4184', function (PalletReturn $palletReturn) {
+    $originalCustomerReference = $palletReturn->customer_reference;
+    $renderReturnPdf           = fn () => view('pickings.templates.pdf.return', [
+        'filename'                 => 'pallet-return.pdf',
+        'return'                   => $palletReturn,
+        'customer'                 => $palletReturn->fulfilmentCustomer->customer,
+        'shop'                     => $palletReturn->fulfilment->shop,
+        'organisation'             => $palletReturn->organisation,
+        'pallets'                  => $palletReturn->pallets()->with(['location', 'storedItems'])->get()->keyBy('id'),
+        'stored_items_pallet_data' => collect(),
+    ])->render();
+
+    try {
+        $palletReturn->update(['customer_reference' => 'HELP-4184 Job Ref']);
+        expect($renderReturnPdf())->toContain('Customer&#039;s Reference')->toContain('HELP-4184 Job Ref')
+            ->and(PdfPalletReturn::run($palletReturn)->getContent())->toStartWith('%PDF');
+
+        $palletReturn->update(['customer_reference' => null]);
+        expect($renderReturnPdf())->not->toContain('Customer&#039;s Reference</div>');
+    } finally {
+        $palletReturn->update(['customer_reference' => $originalCustomerReference]);
+    }
+})->depends('dispatch pallet return');
+
 test('pallet return services and documents need a fulfilment permission on the record, INI-076', function (PalletReturn $palletReturn) {
     $unguarded = collect(app('router')->getRoutes()->getRoutes())
         ->filter(fn ($route) => str_starts_with((string) $route->getName(), 'grp.models.') && is_string($route->getAction('uses')))

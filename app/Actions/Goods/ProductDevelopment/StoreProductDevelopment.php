@@ -17,6 +17,7 @@ use App\Actions\OrgAction;
 use App\Actions\UI\Grp\BreakUserUiProps;
 use App\Actions\Traits\Authorisations\WithProductDevelopmentAuthorisation;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentChecklistLevelEnum;
+use App\Enums\Goods\ProductDevelopment\ProductDevelopmentFileScopeEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentMemberRoleEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStageEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStageStateEnum;
@@ -48,6 +49,10 @@ class StoreProductDevelopment extends OrgAction
 
     private ?User $creator = null;
 
+    public const string BRIEF_IMAGE_EXTENSIONS = 'jpg,jpeg,png,webp,heic,heif';
+
+    public const string BRIEF_REFERENCE_EXTENSIONS = 'pdf,jpg,jpeg,png,webp,heic,heif,mp4,mov,webm';
+
     public function authorize(ActionRequest $request): bool
     {
         if ($this->asAction) {
@@ -62,12 +67,13 @@ class StoreProductDevelopment extends OrgAction
         $members = Arr::pull($modelData, 'members', []);
         $items   = Arr::pull($modelData, 'items', []);
         $brandId = Arr::pull($modelData, 'brand_id');
+        $briefFiles = Arr::pull($modelData, 'brief_files', []);
 
         if ($supplierId = Arr::get($modelData, 'supplier_id')) {
             $modelData['agent_id'] = Supplier::find($supplierId)?->agent_id;
         }
 
-        return DB::transaction(function () use ($group, $creator, $modelData, $members, $items, $brandId) {
+        return DB::transaction(function () use ($group, $creator, $modelData, $members, $items, $brandId, $briefFiles) {
             $number = DB::selectOne('SELECT nextval(?) AS number', ['product_development_number_seq'])->number;
 
             /** @var ProductDevelopment $productDevelopment */
@@ -112,10 +118,19 @@ class StoreProductDevelopment extends OrgAction
                     ? TradeUnit::find($item['trade_unit_id'])
                     : $this->createTradeUnit($group, $productDevelopment, $item);
 
-                $productDevelopment->items()->create([
+                $developmentItem = $productDevelopment->items()->create([
                     'trade_unit_id' => $tradeUnit->id,
                     'position'      => $position,
+                    'brief'         => trim((string) ($item['brief'] ?? '')) ?: null,
                 ]);
+
+                if (!empty($item['images'])) {
+                    UploadProductDevelopmentFiles::make()->handle($productDevelopment, $creator, $item['images'], ProductDevelopmentFileScopeEnum::BRIEF_IMAGE, $developmentItem->setRelation('tradeUnit', $tradeUnit));
+                }
+            }
+
+            if ($briefFiles) {
+                UploadProductDevelopmentFiles::make()->handle($productDevelopment, $creator, $briefFiles, ProductDevelopmentFileScopeEnum::BRIEF_REFERENCE, null);
             }
 
             $this->recordCreationActivity($productDevelopment);
@@ -262,6 +277,11 @@ class StoreProductDevelopment extends OrgAction
                 ...self::skuCodeRules($groupId),
             ],
             'items.*.name'         => ['required_without:items.*.trade_unit_id', 'nullable', 'string', 'max:255'],
+            'items.*.brief'        => ['sometimes', 'nullable', 'string', 'max:5000'],
+            'items.*.images'       => ['sometimes', 'array', 'max:'.UploadProductDevelopmentFiles::MAX_FILES],
+            'items.*.images.*'     => ['file', 'max:'.UploadProductDevelopmentFiles::MAX_KILOBYTES, 'extensions:'.self::BRIEF_IMAGE_EXTENSIONS],
+            'brief_files'          => ['sometimes', 'array', 'max:'.UploadProductDevelopmentFiles::MAX_FILES],
+            'brief_files.*'        => ['file', 'max:'.UploadProductDevelopmentFiles::MAX_KILOBYTES, 'extensions:'.self::BRIEF_REFERENCE_EXTENSIONS],
         ];
     }
 
@@ -288,6 +308,8 @@ class StoreProductDevelopment extends OrgAction
             'items.*.code.max'              => __('The code can be at most 64 characters'),
             'items.*.code.not_in'           => __('This word cannot be used as a code'),
             'items.*.name.required_without' => __('Enter a name'),
+            'items.*.images.*.extensions'   => __('Reference images must be JPG, PNG, WEBP or HEIC'),
+            'brief_files.*.extensions'      => __('Brief references must be a PDF, an image or a video'),
         ];
     }
 
