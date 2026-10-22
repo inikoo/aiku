@@ -1,7 +1,5 @@
 <?php
 
-use App\Actions\Helpers\Translations\DetectLanguageWithJev;
-use App\Models\Helpers\Language;
 use App\Enums\CRM\Livechat\ChatMessageTypeEnum;
 use App\Enums\CRM\Livechat\ChatPriorityEnum;
 use App\Enums\CRM\Livechat\ChatSenderTypeEnum;
@@ -13,7 +11,6 @@ use App\Models\Chat\ChatSession;
 use App\Models\Chat\MetaChannel;
 use App\Models\Chat\MetaChatSession;
 use App\Models\CRM\Customer;
-use Illuminate\Http\Request;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Str;
 
@@ -128,33 +125,6 @@ function noiseTestFakeModel(string $verdict, int $confidence): void
             'content' => config('chat.noise.test_answer'),
         ]]]]),
     ]);
-}
-
-/**
- * The model behind the chat drafts: every request gets the given answer.
- */
-function aiDraftTestModel(\Illuminate\Http\Client\Request $request, string $answer): \GuzzleHttp\Promise\PromiseInterface
-{
-    $isQuestionCheck = str_contains((string) data_get($request->data(), 'messages.1.content'), '{"asks":');
-    $isReview        = str_contains((string) data_get($request->data(), 'messages.1.content'), '{"objection":');
-
-    if ($isReview) {
-        return \Illuminate\Support\Facades\Http::response(['choices' => [['message' => ['content' => json_encode(['objection' => '', 'send' => true])]]]]);
-    }
-
-    if ($isQuestionCheck) {
-        return \Illuminate\Support\Facades\Http::response(['choices' => [['message' => ['content' => json_encode(['asks' => data_get(json_decode($answer, true), 'topic', 'other')])]]]]);
-    }
-
-    return \Illuminate\Support\Facades\Http::response(['choices' => [['message' => ['content' => $answer]]]]);
-}
-
-/**
- * The language detector of the chat draft tests reads Spanish from "Hola" and English from anything else.
- */
-function fakeDraftLanguageDetection(): void
-{
-    DetectLanguageWithJev::shouldRun()->andReturnUsing(fn (?string $text) => Language::firstWhere('code', str_contains((string) $text, 'Hola') ? 'es' : 'en'));
 }
 
 function outOfHoursTestSchedule(\App\Models\Catalogue\Shop $shop): \App\Models\HumanResources\WorkSchedule

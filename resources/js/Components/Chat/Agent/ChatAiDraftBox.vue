@@ -9,7 +9,7 @@ import { ref, computed, watch, onBeforeUnmount } from "vue"
 import axios from "axios"
 import { onClickOutside } from "@vueuse/core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faRobot, faBookOpen, faBug, faDatabase, faCommentCheck, faChevronDown, faChevronUp, faStar as faStarEmpty, faExclamationTriangle, faCheck, faBowlingBall, faClipboardCheck, faLanguage } from "@fal"
+import { faChevronDown, faChevronUp, faStar as faStarEmpty, faExclamationTriangle, faCheck, faBowlingBall, faClipboardCheck, faLanguage } from "@fal"
 import { faStar } from "@fas"
 import { ctrans } from "@/Composables/useTrans"
 
@@ -22,7 +22,7 @@ const props = defineProps<{
     assigning?: boolean
 }>()
 
-const emit = defineEmits<{ (e: "use", text: string): void, (e: "action", action: "close" | "wait"): void, (e: "assign-and-use", draftId: number): void }>()
+const emit = defineEmits<{ (e: "use", text: string): void, (e: "assign-and-use", draftId: number): void }>()
 
 interface DraftAction {
     index: number
@@ -39,29 +39,11 @@ interface Draft {
     topic_label: string
     assistant: { of?: string, client?: string } | null
     staff_note?: string | null
-    aiku_by?: string | null
     checked?: string[]
     premonitions?: { reference: string, subject: string, fixed: boolean, url: string }[]
     actions?: DraftAction[]
     rating: number | null
     reason: string | null
-}
-
-interface Guide {
-    title: string
-    summary: string
-    url: string
-    probability: number
-    message?: string
-}
-
-interface Engineer {
-    probability: number
-    platform: string | null
-    platform_label: string | null
-    symptom_label: string | null
-    ticket: { reference: string, subject: string } | null
-    raised?: string | null
 }
 
 const draft = ref<Draft | null>(null)
@@ -72,16 +54,8 @@ const translating = ref(false)
 const confirming = ref<string | null>(null)
 const actionBusy = ref(false)
 let confirmTimer: ReturnType<typeof setTimeout> | null = null
-const guides = ref<Guide[]>([])
-const engineer = ref<Engineer | null>(null)
-const facts = ref<string[]>([])
-const nextStep = ref<{ kind: "close" | "wait" | "owed", probability: number } | null>(null)
-const readingId = ref<number | null>(null)
-const raising = ref(false)
-const raised = ref<{ reference: string, url: string, added: boolean } | null>(null)
 const busy = ref(false)
 const hidden = ref(false)
-const factsOpen = ref(false)
 const draftOpen = ref(false)
 let channel: any = null
 let channelName: string | null = null
@@ -95,12 +69,6 @@ const clear = () => {
     staffTranslation.value = null
     showTranslation.value = false
     if (confirmTimer) clearTimeout(confirmTimer)
-    guides.value = []
-    engineer.value = null
-    facts.value = []
-    nextStep.value = null
-    readingId.value = null
-    factsOpen.value = false
     draftOpen.value = false
 }
 
@@ -123,91 +91,21 @@ const load = async () => {
         if (thisLoad !== latestLoad) return
 
         draft.value = data?.data ?? null
-        guides.value = data?.suggestions?.guides ?? []
-        engineer.value = data?.suggestions?.engineer ?? null
-        facts.value = data?.suggestions?.facts ?? []
-        nextStep.value = data?.suggestions?.next_step ?? null
-        readingId.value = data?.suggestions?.reading_id ?? null
     } catch {
         if (thisLoad === latestLoad) clear()
     }
 }
 
 const usedKey = ref<string | null>(null)
-const suggestionsKey = computed(() => [props.sessionUlid ?? "", readingId.value ?? "", draft.value?.id ?? "", ...guides.value.map((guide) => guide.url)].join("|"))
+const suggestionsKey = computed(() => [props.sessionUlid ?? "", draft.value?.id ?? ""].join("|"))
 const used = computed(() => usedKey.value !== null && usedKey.value === suggestionsKey.value)
-const shownGuides = computed(() => used.value ? [] : guides.value.filter((guide) => !draft.value?.text.includes(guide.url)))
-const main = computed<"draft" | "guide" | "engineer" | "next" | null>(() => {
-    if (used.value) return null
-
-    return draft.value ? "draft" : shownGuides.value.length ? "guide" : engineer.value ? "engineer" : nextStep.value ? "next" : null
-})
+const shown = computed(() => !!draft.value && !used.value)
 const useText = (text: string) => {
     usedKey.value = suggestionsKey.value
     emit("use", text)
 }
 
-const recordUse = (kind: "guide" | "close" | "wait") => {
-    if (!props.sessionUlid) return
-    const url = props.whatsapp
-        ? route("grp.api.chats.meta.sessions.suggestion_used", [props.sessionUlid])
-        : route("grp.api.chats.sessions.suggestion_used", [props.sessionUlid])
-    axios.post(url, { kind, reading_id: readingId.value }).catch(() => null)
-}
-
-const suggestGuide = (guide: Guide) => {
-    useText(guide.message ?? `${guide.title}\n${guide.url}`)
-    recordUse("guide")
-}
-
-const takeNextStep = (action: "close" | "wait") => {
-    recordUse(action)
-    usedKey.value = suggestionsKey.value
-    emit("action", action)
-}
-
-const writingGoodbye = ref(false)
 const failure = ref<string | null>(null)
-
-const writeGoodbye = async () => {
-    if (!props.sessionUlid || writingGoodbye.value) return
-    writingGoodbye.value = true
-    failure.value = null
-    const sessionUlid = props.sessionUlid
-
-    try {
-        const url = props.whatsapp
-            ? route("grp.api.chats.meta.sessions.goodbye", [sessionUlid])
-            : route("grp.api.chats.sessions.goodbye", [sessionUlid])
-        const { data } = await axios.post(url)
-        if (sessionUlid === props.sessionUlid && data?.data?.message) useText(data.data.message)
-    } catch (error: any) {
-        if (sessionUlid === props.sessionUlid) failure.value = error?.response?.data?.message ?? ctrans("No goodbye could be written, please write your own")
-    } finally {
-        writingGoodbye.value = false
-    }
-}
-const alsoGuides = computed(() => main.value === "guide" ? shownGuides.value.slice(1) : shownGuides.value)
-const raisedReference = computed(() => raised.value?.reference ?? engineer.value?.raised ?? null)
-
-const raise = async () => {
-    if (!props.sessionUlid || raising.value) return
-    raising.value = true
-
-    try {
-        const url = props.whatsapp
-            ? route("grp.api.chats.meta.sessions.engineer_ticket", [props.sessionUlid])
-            : route("grp.api.chats.sessions.engineer_ticket", [props.sessionUlid])
-        const sessionUlid = props.sessionUlid
-        const { data } = await axios.post(url)
-        if (sessionUlid === props.sessionUlid) raised.value = data?.data ?? null
-    } catch (error: any) {
-        await load()
-        failure.value = error?.response?.data?.message ?? ctrans("The ticket could not be raised")
-    } finally {
-        raising.value = false
-    }
-}
 
 const decide = async (action: "take" | "discard") => {
     if (!draft.value || busy.value) return
@@ -283,12 +181,6 @@ const checkedLines = computed(() => showTranslation.value && staffTranslation.va
 const actionLabel = (action: DraftAction) => !action.done && showTranslation.value && staffTranslation.value?.labels?.[action.index] ? staffTranslation.value.labels[action.index] : action.label
 const hasStaffText = computed(() => !!(draft.value?.staff_note || draft.value?.checked?.length || draft.value?.actions?.some((action) => action.type === "task")))
 
-const aikuByLabel = (iso: string) => {
-    const when = new Date(iso)
-    const time = when.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-    return when.toDateString() === new Date().toDateString() ? time : `${when.toLocaleDateString([], { weekday: "short" })} ${time}`
-}
-
 const ratingReasons = computed(() => [
     { key: "missing_info", label: ctrans("Missing info we know") },
     { key: "wrong_fact", label: ctrans("Wrong fact") },
@@ -330,7 +222,6 @@ watch(() => props.sessionUlid, () => {
     stopListening()
     usedKey.value = null
     hidden.value = false
-    raised.value = null
     failure.value = null
     load()
     listen()
@@ -340,42 +231,24 @@ onBeforeUnmount(stopListening)
 </script>
 
 <template>
-    <div v-if="main || (used && engineer) || facts.length || failure" class="mb-1.5 text-xs">
+    <div v-if="shown || failure" class="mb-1.5 text-xs">
         <p v-if="failure" class="mb-1 px-1 text-[11px] text-red-600">{{ failure }}</p>
-        <button v-if="main || facts.length || (used && engineer)" type="button" :aria-expanded="!hidden" class="ml-auto flex w-fit items-center gap-1 px-1 text-[11px] text-gray-400 hover:text-gray-600" @click="hidden = !hidden">
+        <button v-if="shown" type="button" :aria-expanded="!hidden" class="ml-auto flex w-fit items-center gap-1 px-1 text-[11px] text-gray-400 hover:text-gray-600" @click="hidden = !hidden">
             <FontAwesomeIcon :icon="hidden ? faChevronUp : faChevronDown" fixed-width />
             {{ hidden ? ctrans("Show suggestion") : ctrans("Hide suggestion") }}
         </button>
         <template v-if="!hidden">
-            <div v-if="facts.length" class="mb-1 flex items-start gap-x-2 px-1 text-[11px] text-gray-500">
-                <span class="flex shrink-0 items-center gap-1"><FontAwesomeIcon :icon="faDatabase" fixed-width class="text-sky-600" />{{ ctrans("In aiku:") }}</span>
-                <ul v-if="factsOpen" class="max-h-24 min-w-0 overflow-y-auto text-gray-700">
-                    <li v-for="fact in facts" :key="fact">{{ fact }}</li>
-                </ul>
-                <span v-else class="min-w-0 truncate text-gray-700" :title="facts.join('\n')">{{ facts[0] }}</span>
-                <button v-if="facts.length > 1" type="button" :aria-expanded="factsOpen" class="shrink-0 text-gray-500 underline hover:text-gray-700" @click="factsOpen = !factsOpen">
-                    {{ factsOpen ? ctrans("less") : ctrans("+:count more", { count: facts.length - 1 }) }}
-                </button>
-            </div>
-            <div v-if="main === 'draft' && draft" class="relative rounded-xl border border-[--app-accent-muted] bg-[--app-accent-soft] px-3 py-2">
-                <button v-if="draft.assistant && hasStaffText" type="button" :disabled="translating" @click="toggleTranslation"
+            <div v-if="shown && draft" class="relative rounded-xl border border-[--app-accent-muted] bg-[--app-accent-soft] px-3 py-2">
+                <button v-if="hasStaffText" type="button" :disabled="translating" @click="toggleTranslation"
                     class="absolute right-7 top-1.5 rounded px-1 text-[11px] text-gray-400 hover:text-gray-700 disabled:opacity-50"
                     :aria-pressed="showTranslation"
                     :title="showTranslation ? ctrans('Show the original') : ctrans('Translate the notes for staff into my language')">
                     <FontAwesomeIcon :icon="faLanguage" fixed-width aria-hidden="true" />
                     <span class="sr-only">{{ showTranslation ? ctrans("Show the original") : ctrans("Translate") }}</span>
                 </button>
-                <img v-if="draft.assistant" src="/art/invader.svg" class="absolute right-2 top-2 h-3.5 select-none"
+                <img src="/art/invader.svg" class="absolute right-2 top-2 h-3.5 select-none"
                     :alt="draft.assistant.of ? ctrans('Draft by Aiku, asked by :name', { name: draft.assistant.of }) : ctrans('Draft by Aiku')"
                     :title="draft.assistant.of ? ctrans('Draft by Aiku, asked by :name', { name: draft.assistant.of }) + (draft.assistant.client ? ` · ${draft.assistant.client}` : '') : ctrans('Draft by Aiku')" />
-                <div v-else class="flex items-center gap-1.5 text-[11px] text-[--app-accent-strong]">
-                    <FontAwesomeIcon :icon="faRobot" fixed-width />
-                    <span>{{ ctrans("Draft written by AI from aiku data") }} · {{ draft.topic_label }}</span>
-                </div>
-                <p v-if="!draft.assistant && draft.aiku_by" class="mt-0.5 flex items-center gap-1 text-[11px] text-gray-500">
-                    <img src="/art/invader.svg" alt="" class="h-3 select-none" />
-                    {{ ctrans("A quick suggestion: Aiku checks this chat properly around :time if nobody takes it first", { time: aikuByLabel(draft.aiku_by) }) }}
-                </p>
                 <div v-if="staffNote || draft.actions?.length" class="mr-12 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-md border border-violet-200 bg-violet-50 px-2 py-1 text-[11px] text-violet-900">
                     <FontAwesomeIcon :icon="faExclamationTriangle" class="text-violet-600" fixed-width aria-hidden="true" />
                     <span v-if="staffNote" class="min-w-0 flex-1 whitespace-pre-line">{{ staffNote }}</span>
@@ -440,88 +313,6 @@ onBeforeUnmount(stopListening)
                 </div>
             </div>
 
-            <div v-else-if="main === 'guide'" class="rounded-xl border border-emerald-200 bg-emerald-50/60 px-3 py-2">
-                <div class="flex items-center gap-1.5 text-[11px] text-emerald-700">
-                    <FontAwesomeIcon :icon="faBookOpen" fixed-width />
-                    <span>{{ ctrans("The answer is probably in this guide") }} · {{ ctrans(":percent% sure", { percent: Math.round(shownGuides[0].probability * 100) }) }}</span>
-                </div>
-                <p class="mt-1 font-medium text-gray-800">{{ shownGuides[0].title }}</p>
-                <p class="mt-0.5 line-clamp-2 text-gray-600" :title="shownGuides[0].summary">{{ shownGuides[0].summary }}</p>
-                <div class="mt-2 flex gap-2">
-                    <a :href="shownGuides[0].url" target="_blank" rel="noopener"
-                        class="rounded-md px-2.5 py-0.5 text-[11px] text-emerald-800 ring-1 ring-inset ring-emerald-300 hover:bg-white">
-                        {{ ctrans("Read guide") }}
-                    </a>
-                    <button v-if="!preview" type="button" @click="suggestGuide(shownGuides[0])"
-                        class="rounded-md bg-emerald-600 px-2.5 py-0.5 text-[11px] font-medium text-white hover:bg-emerald-500">
-                        {{ ctrans("Suggest it to the customer") }}
-                    </button>
-                </div>
-            </div>
-
-            <div v-else-if="main === 'engineer' && engineer" class="rounded-xl border border-amber-200 bg-amber-50/70 px-3 py-2">
-                <div class="flex items-center gap-1.5 text-[11px] text-amber-800">
-                    <FontAwesomeIcon :icon="faBug" fixed-width />
-                    <span>{{ ctrans("This probably needs the programmers") }} · {{ ctrans(":percent% sure", { percent: Math.round(engineer.probability * 100) }) }}</span>
-                </div>
-                <p v-if="engineer.platform_label || engineer.symptom_label" class="mt-1 font-medium text-gray-800">
-                    {{ [engineer.platform_label, engineer.symptom_label].filter(Boolean).join(" · ") }}
-                </p>
-                <p v-if="engineer.ticket && !raisedReference" class="mt-0.5 text-gray-600">
-                    {{ ctrans("Looks like a problem we already know about:") }}
-                    <a :href="route('grp.tickets.show', engineer.ticket.reference)" target="_blank" rel="noopener" class="font-medium underline">{{ engineer.ticket.reference }}</a>
-                    {{ engineer.ticket.subject }}
-                </p>
-                <p v-if="raisedReference" class="mt-1 text-gray-700">
-                    {{ raised?.added ? ctrans("Customer added to") : ctrans("Ticket raised:") }}
-                    <a :href="route('grp.tickets.show', raisedReference)" target="_blank" rel="noopener" class="font-medium underline">{{ raisedReference }}</a>
-                </p>
-                <div v-else-if="!preview" class="mt-2 flex gap-2">
-                    <button type="button" :disabled="raising" @click="raise"
-                        class="rounded-md bg-amber-600 px-2.5 py-0.5 text-[11px] font-medium text-white hover:bg-amber-500 disabled:opacity-50">
-                        {{ engineer.ticket ? ctrans("Add this customer to :reference", { reference: engineer.ticket.reference }) : ctrans("Raise CUS ticket") }}
-                    </button>
-                </div>
-            </div>
-
-            <div v-else-if="main === 'next' && nextStep" class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">
-                <div class="flex items-center gap-1.5 text-[11px] text-gray-600">
-                    <FontAwesomeIcon :icon="faCommentCheck" fixed-width />
-                    <span>{{ nextStep.kind === "close" ? ctrans("The customer seems to be done") : nextStep.kind === "wait" ? ctrans("The customer is sending us something") : ctrans("We still owe this customer something") }} · {{ ctrans(":percent% sure", { percent: Math.round(nextStep.probability * 100) }) }}</span>
-                </div>
-                <p v-if="nextStep.kind === 'owed'" class="mt-1 text-gray-600">{{ ctrans("Check what we promised before closing.") }}</p>
-                <div v-if="!preview && nextStep.kind !== 'owed'" class="mt-2 flex gap-2">
-                    <button v-if="nextStep.kind === 'close'" type="button" :disabled="writingGoodbye" @click="writeGoodbye"
-                        class="rounded-md bg-gray-700 px-2.5 py-0.5 text-[11px] font-medium text-white hover:bg-gray-600 disabled:opacity-50">
-                        {{ writingGoodbye ? ctrans("Writing…") : ctrans("Write a goodbye") }}
-                    </button>
-                    <button v-if="nextStep.kind === 'close'" type="button" @click="takeNextStep('close')"
-                        class="rounded-md px-2.5 py-0.5 text-[11px] text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-white">
-                        {{ ctrans("End chat") }}
-                    </button>
-                    <button v-if="nextStep.kind === 'wait'" type="button" @click="takeNextStep('wait')"
-                        class="rounded-md bg-gray-700 px-2.5 py-0.5 text-[11px] font-medium text-white hover:bg-gray-600">
-                        {{ ctrans("Wait 3 days for them") }}
-                    </button>
-                </div>
-            </div>
-
-            <div v-if="alsoGuides.length || (engineer && main !== 'engineer')" class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 px-1 text-[11px] text-gray-500">
-                <span v-if="main">{{ ctrans("Also:") }}</span>
-                <span v-for="guide in alsoGuides" :key="guide.url" class="flex items-center gap-1">
-                    <FontAwesomeIcon :icon="faBookOpen" fixed-width class="text-emerald-600" />
-                    <a :href="guide.url" target="_blank" rel="noopener" class="text-gray-700 hover:underline" :title="guide.summary">{{ guide.title }}</a>
-                    <button v-if="!preview" type="button" class="text-emerald-700 underline" @click="suggestGuide(guide)">{{ ctrans("suggest") }}</button>
-                </span>
-                <span v-if="engineer && main !== 'engineer'" class="flex items-center gap-1">
-                    <FontAwesomeIcon :icon="faBug" fixed-width class="text-amber-600" />
-                    <span class="text-gray-700">{{ ctrans("Probably needs the programmers") }} ({{ Math.round(engineer.probability * 100) }}%)</span>
-                    <a v-if="raisedReference" :href="route('grp.tickets.show', raisedReference)" target="_blank" rel="noopener" class="font-medium text-amber-800 underline">{{ raisedReference }}</a>
-                    <button v-else-if="!preview" type="button" :disabled="raising" class="text-amber-800 underline disabled:opacity-50" @click="raise">
-                        {{ engineer.ticket ? ctrans("add to :reference", { reference: engineer.ticket.reference }) : ctrans("raise CUS ticket") }}
-                    </button>
-                </span>
-            </div>
         </template>
     </div>
 </template>

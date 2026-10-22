@@ -2926,19 +2926,6 @@ describe('customer service tools', function () {
             ->and($listed(['unopened_only' => true, 'shops' => ['no-such-shop']]))->toBeNull()
             ->and($listed([]))->not->toHaveKey('draft_waiting');
 
-        Illuminate\Support\Facades\Config::set('chat.aiku_routine.time_zones', [$this->shop->organisation->code => 'Europe/London']);
-        $nextCheck = function (string $at) {
-            $this->travelTo(Carbon\Carbon::parse($at, 'Europe/London'));
-            $next = App\Actions\Chat\ChatSession\HandleChatAiDraft::nextAikuCheck($this->chat)?->format('D H:i');
-            $this->travelBack();
-
-            return $next;
-        };
-        expect($nextCheck('2026-10-21 10:30'))->toBe('Wed 11:00')
-            ->and($nextCheck('2026-10-21 15:30'))->toBe('Thu 07:00')
-            ->and($nextCheck('2026-10-23 15:30'))->toBe('Mon 07:00')
-            ->and($nextCheck('2026-10-24 12:00'))->toBe('Mon 07:00');
-
         $this->travel(1)->minutes();
         $note = App\Actions\Chat\ChatSession\StoreChatEvent::make()->internalNote($this->chat, 'Checked: nothing to confirm yet.', $this->user->id);
         expect($listed(['unopened_only' => true]))->toBeNull()
@@ -2956,8 +2943,7 @@ describe('customer service tools', function () {
         $quickDraft->update(['facts' => ['mode' => App\Actions\Chat\ChatSession\DraftChatReply::ASSISTANT]]);
         $customerMessage->update(['is_read' => true, 'read_at' => now()]);
 
-        expect(App\Actions\Chat\ChatSession\HandleChatAiDraft::nextAikuCheck($this->chat))->toBeNull()
-            ->and($listed(['unopened_only' => true]))->toBeNull()
+        expect($listed(['unopened_only' => true]))->toBeNull()
             ->and($listed([]))->toMatchArray(['draft_waiting' => true])
             ->and($listed([]))->not->toHaveKey('unopened');
 
