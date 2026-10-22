@@ -40,6 +40,7 @@ export const demoAppointmentTypes = (): AppointmentTypeOption[] => [
 
 export const demoBook = (appointmentType: AppointmentTypeOption | undefined, date: string, time: string): Promise<AppointmentBookingResult> =>
     new Promise(resolve => setTimeout(() => resolve({
+        state: "accepted",
         appointment_type: appointmentType?.name ?? "",
         starts_at: `${date} ${time}`,
         ends_at: time,

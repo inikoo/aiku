@@ -170,6 +170,8 @@ use App\Actions\CRM\Appointment\AcceptAppointment;
 use App\Actions\CRM\Appointment\DeclineAppointment;
 use App\Actions\CRM\Appointment\RescheduleAppointment;
 use App\Actions\CRM\Appointment\StoreAppointment;
+use App\Actions\CRM\AppointmentBlock\DeleteAppointmentBlock;
+use App\Actions\CRM\AppointmentBlock\StoreAppointmentBlock;
 use App\Actions\CRM\Appointment\UpdateAppointment;
 use App\Actions\CRM\AppointmentStaff\DeleteAppointmentStaff;
 use App\Actions\CRM\AppointmentStaff\StoreAppointmentStaff;
@@ -1383,6 +1385,8 @@ Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
     Route::post('prospect', StoreProspect::class)->name('prospect.store');
     Route::post('appointment', StoreAppointment::class)->name('appointment.store');
     Route::post('appointment-type', StoreAppointmentType::class)->name('appointment_type.store');
+    Route::post('appointment-block', StoreAppointmentBlock::class)->name('appointment_block.store');
+    Route::delete('appointment-block/{appointmentBlock:id}', DeleteAppointmentBlock::class)->name('appointment_block.delete');
     Route::post('appointment-staff', StoreAppointmentStaff::class)->name('appointment_staff.store');
     Route::patch('appointment-staff/{user:id}', UpdateAppointmentStaff::class)->name('appointment_staff.update')->withoutScopedBindings();
     Route::delete('appointment-staff/{user:id}', DeleteAppointmentStaff::class)->name('appointment_staff.delete')->withoutScopedBindings();

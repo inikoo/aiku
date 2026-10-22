@@ -23,6 +23,7 @@ export type AppointmentTypeOption = {
     description?: string | null
     meeting_mode: "store_visit" | "video_call"
     meeting_mode_label: string
+    media?: "whatsapp" | "zoom" | "google_meet" | null
     location?: string | null
     duration_minutes: number
     slots: Record<string, string[]>
@@ -42,6 +43,7 @@ export type AppointmentBookingPayload = {
 }
 
 export type AppointmentBookingResult = {
+    state: "requested" | "accepted"
     appointment_type: string
     starts_at: string
     ends_at: string
@@ -88,6 +90,9 @@ watch(() => props.appointmentTypes, (types) => {
 }, { immediate: true })
 
 const selectedType = computed(() => props.appointmentTypes.find(type => type.id === selectedTypeId.value) ?? null)
+const isWhatsappCall = computed(() => selectedType.value?.meeting_mode === "video_call" && !["zoom", "google_meet"].includes(selectedType.value?.media ?? ""))
+const isZoomCall = computed(() => selectedType.value?.meeting_mode === "video_call" && selectedType.value?.media === "zoom")
+const isGoogleMeetCall = computed(() => selectedType.value?.meeting_mode === "video_call" && selectedType.value?.media === "google_meet")
 
 const toIsoDate = (date: Date): string => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
 const fromIsoDate = (iso: string): Date => {
@@ -168,8 +173,8 @@ const fieldPt = { root: { class: "w-full" } }
 
         <div v-else-if="result" class="mx-auto max-w-2xl rounded-lg border border-slate-200 bg-white px-6 py-12 text-center shadow-[0_1px_8px_rgba(0,0,0,0.08)]">
             <FontAwesomeIcon icon="fas fa-check-circle" class="text-5xl text-green-500" fixed-width aria-hidden="true" />
-            <h3 class="mt-4 text-xl font-bold text-slate-800">{{ ctrans("Your request is sent") }}</h3>
-            <p class="mt-1 text-slate-500">{{ ctrans("We will confirm your appointment shortly.") }}</p>
+            <h3 class="mt-4 text-xl font-bold text-slate-800">{{ result.state === "accepted" ? ctrans("Your appointment is confirmed") : ctrans("Your request is sent") }}</h3>
+            <p v-if="result.state !== 'accepted'" class="mt-1 text-slate-500">{{ ctrans("We will confirm your appointment shortly.") }}</p>
             <p class="mt-1 text-sm text-slate-500">{{ ctrans("We have emailed you the details with a calendar invitation.") }}</p>
             <div class="mx-auto mt-6 max-w-sm space-y-3 rounded-lg border border-slate-200 p-5 text-left text-sm font-semibold text-slate-600">
                 <div class="text-base font-bold text-slate-800">{{ result.appointment_type }}</div>
@@ -237,7 +242,7 @@ const fieldPt = { root: { class: "w-full" } }
                     </div>
                     <div v-if="selectedType.meeting_mode === 'video_call'" class="flex items-start gap-3">
                         <FontAwesomeIcon icon="fal fa-video" fixed-width aria-hidden="true" class="mt-0.5 text-lg text-slate-600" />
-                        <span>{{ ctrans("Video call on WhatsApp") }}</span>
+                        <span>{{ isZoomCall ? ctrans("Video call on Zoom, we email you the link once confirmed") : isGoogleMeetCall ? ctrans("Video call on Google Meet, we email you the link once confirmed") : ctrans("Video call on WhatsApp") }}</span>
                     </div>
                     <div v-if="selectedType.location" class="flex items-start gap-3">
                         <FontAwesomeIcon icon="fal fa-map-marker-alt" fixed-width aria-hidden="true" class="mt-0.5 text-lg text-slate-600" />
@@ -290,7 +295,7 @@ const fieldPt = { root: { class: "w-full" } }
                 </div>
                 <div class="text-sm">
                     <label for="appointment-phone" class="mb-1.5 block font-bold text-slate-800">
-                        <template v-if="selectedType.meeting_mode === 'video_call'">
+                        <template v-if="isWhatsappCall">
                             <FontAwesomeIcon :icon="faWhatsapp" class="text-green-600" fixed-width aria-hidden="true" /> {{ ctrans("WhatsApp number") }} *
                         </template>
                         <template v-else>{{ ctrans("Phone") }}</template>
@@ -307,11 +312,11 @@ const fieldPt = { root: { class: "w-full" } }
                             id: 'appointment-phone',
                             type: 'tel',
                             autocomplete: 'tel',
-                            required: selectedType.meeting_mode === 'video_call',
+                            required: isWhatsappCall,
                             placeholder: ctrans('Enter a phone number'),
                             showDialCode: false,
                         }" />
-                    <span v-if="selectedType.meeting_mode === 'video_call' && !errors.phone" class="mt-1 block text-slate-500">
+                    <span v-if="isWhatsappCall && !errors.phone" class="mt-1 block text-slate-500">
                         {{ ctrans("We call you on WhatsApp.") }}
                     </span>
                     <span v-if="errors.phone" class="mt-1 block text-red-600">{{ errors.phone }}</span>

@@ -31,6 +31,7 @@ enum EmailOngoingRunCodeEnum: string
     case APPOINTMENT_RESCHEDULED = 'appointment_rescheduled';
     case APPOINTMENT_CANCELLED = 'appointment_cancelled';
     case APPOINTMENT_REMINDER = 'appointment_reminder';
+    case NEW_APPOINTMENT = 'new_appointment';
     case PRE_ORDER_UPDATE = 'pre_order_update';
     case PASSWORD_REMINDER = 'password_reminder';
 

@@ -1,6 +1,10 @@
 <script setup lang="ts">
-import { Head, Link } from "@inertiajs/vue3"
-import { computed } from "vue"
+import { Head, Link, router } from "@inertiajs/vue3"
+import { computed, ref } from "vue"
+import axios from "axios"
+import { notify } from "@kyvg/vue3-notification"
+import Button from "@/Components/Elements/Buttons/Button.vue"
+import CopyButton from "@/Components/Utils/CopyButton.vue"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import Icon from "@/Components/Icon.vue"
 import { capitalize } from "@/Composables/capitalize"
@@ -10,9 +14,9 @@ import { PageHeadingTypes } from "@/types/PageHeading"
 import { routeType } from "@/types/route"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faTachometerAlt, faHourglassHalf, faCalendarDay, faCalendarWeek, faCalendarCheck, faHistory, faBan, faTimesCircle, faCheckCircle, faUserSlash } from "@fal"
+import { faTachometerAlt, faHourglassHalf, faCalendarDay, faCalendarWeek, faCalendarCheck, faHistory, faBan, faTimesCircle, faCheckCircle, faUserSlash, faCode, faPowerOff } from "@fal"
 
-library.add(faTachometerAlt, faHourglassHalf, faCalendarDay, faCalendarWeek, faCalendarCheck, faHistory, faBan, faTimesCircle, faCheckCircle, faUserSlash)
+library.add(faTachometerAlt, faHourglassHalf, faCalendarDay, faCalendarWeek, faCalendarCheck, faHistory, faBan, faTimesCircle, faCheckCircle, faUserSlash, faCode, faPowerOff)
 
 type IconData = {
     icon: string | string[]
@@ -69,6 +73,12 @@ const props = defineProps<{
             state_icon: IconData
         }[]
     }
+    widget: {
+        enabled: boolean
+        embed_code: string | null
+        can_toggle: boolean
+        update_route: routeType
+    }
 }>()
 
 const locale = useLocaleStore()
@@ -89,6 +99,26 @@ const breakdowns = computed(() => [
         rows: props.dashboard.staff,
     },
 ])
+
+const isTogglingWidget = ref(false)
+
+const toggleWidget = async (enabled: boolean) => {
+    isTogglingWidget.value = true
+    try {
+        await axios.patch(route(props.widget.update_route.name, props.widget.update_route.parameters), {
+            appointment_widget_enabled: enabled,
+        })
+        router.reload({ only: ["widget"] })
+    } catch {
+        notify({
+            title: ctrans("Something went wrong"),
+            text: ctrans("The booking widget could not be changed. Please try again."),
+            type: "error",
+        })
+    } finally {
+        isTogglingWidget.value = false
+    }
+}
 
 const appointmentUrl = (appointmentId: number) =>
     route("grp.org.shops.show.crm.appointments.show", {
@@ -227,5 +257,34 @@ const appointmentUrl = (appointmentId: number) =>
                 </ul>
             </section>
         </div>
+
+        <section class="rounded-lg border border-gray-200 bg-white p-4">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+                <div class="min-w-0">
+                    <h3 class="flex items-center gap-x-2 font-semibold text-gray-700">
+                        <FontAwesomeIcon icon="fal fa-code" class="text-gray-400" fixed-width aria-hidden="true" />
+                        {{ ctrans("Booking widget for other websites") }}
+                    </h3>
+                    <p class="mt-1 text-sm text-gray-500">
+                        {{ ctrans("Lets customers book from a form on another website. Paste the code where the form should appear: a Custom HTML block in WordPress, a Custom Liquid section in Shopify.") }}
+                    </p>
+                </div>
+                <Button v-if="widget.can_toggle" type="tertiary" :loading="isTogglingWidget"
+                    :label="widget.enabled ? ctrans('Turn off') : ctrans('Turn on')"
+                    @click="toggleWidget(!widget.enabled)">
+                    <template #icon>
+                        <FontAwesomeIcon icon="fal fa-power-off" :class="widget.enabled ? 'text-red-500' : 'text-green-600'" fixed-width aria-hidden="true" />
+                    </template>
+                </Button>
+            </div>
+
+            <div v-if="widget.enabled && widget.embed_code" class="mt-3 flex items-start gap-x-2 rounded-md border border-gray-200 bg-gray-50 p-3">
+                <pre class="min-w-0 flex-1 whitespace-pre-wrap break-all font-mono text-xs text-gray-700">{{ widget.embed_code }}</pre>
+                <CopyButton :text="widget.embed_code" class="text-base" v-tooltip="ctrans('Copy code')" />
+            </div>
+            <p v-else-if="!widget.can_toggle" class="mt-3 text-sm text-gray-400">
+                {{ ctrans("The widget is off. An organisation or shop admin can turn it on here or in the shop settings.") }}
+            </p>
+        </section>
     </div>
 </template>

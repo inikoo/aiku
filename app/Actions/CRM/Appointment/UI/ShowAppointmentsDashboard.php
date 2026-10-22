@@ -2,6 +2,7 @@
 
 namespace App\Actions\CRM\Appointment\UI;
 
+use App\Actions\CRM\Appointment\Widget\AppointmentWidgetKey;
 use App\Actions\CRM\AppointmentType\UI\WithAppointmentsSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithCRMAuthorisation;
@@ -12,6 +13,7 @@ use App\Http\Resources\CRM\AppointmentsResource;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -270,8 +272,31 @@ class ShowAppointmentsDashboard extends OrgAction
                     'subNavigation' => $this->getAppointmentsSubNavigation($this->shop),
                 ],
                 'dashboard'   => $dashboard,
+                'widget'      => $this->getWidget($this->shop, $request),
             ]
         );
+    }
+
+    /**
+     * @return array{enabled: bool, embed_code: string|null, can_toggle: bool, update_route: array{name: string, parameters: array<string, int>}}
+     */
+    private function getWidget(Shop $shop, ActionRequest $request): array
+    {
+        $key       = Arr::get($shop->settings, 'appointments.widget_key');
+        $isEnabled = (bool) Arr::get($shop->settings, 'appointments.widget_enabled', false) && is_string($key) && $key !== '';
+
+        return [
+            'enabled'      => $isEnabled,
+            'embed_code'   => $isEnabled ? AppointmentWidgetKey::make()->embedSnippet($key) : null,
+            'can_toggle'   => $request->user()->authTo(['org-admin.'.$shop->organisation_id, 'shop-admin.'.$shop->id]),
+            'update_route' => [
+                'name'       => 'grp.models.org.shop.update',
+                'parameters' => [
+                    'organisation' => $shop->organisation_id,
+                    'shop'         => $shop->id,
+                ],
+            ],
+        ];
     }
 
     public function getBreadcrumbs(array $routeParameters): array

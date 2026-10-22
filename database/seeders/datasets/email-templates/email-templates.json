@@ -478,7 +478,7 @@
       "customer"
     ]
   },
-   {
+  {
     "outboxes": [
       "credit_balance_notification_for_customer"
     ],
@@ -489,7 +489,7 @@
       "customer"
     ]
   },
-   {
+  {
     "outboxes": [
       "credit_balance_notification_for_user"
     ],
@@ -500,7 +500,7 @@
       "customer"
     ]
   },
-   {
+  {
     "outboxes": [
       "price_change"
     ],
@@ -511,7 +511,7 @@
       "products"
     ]
   },
-   {
+  {
     "outboxes": [
       "chat_notification_to_customer",
       "price_change_notification",
@@ -520,7 +520,7 @@
       "web_user_registration",
       "oos_in_order_notification",
       "review_reminder",
-      "invoice_paid", 
+      "invoice_paid",
       "abandoned_cart_reminder_1",
       "abandoned_cart_reminder_2",
       "abandoned_cart_reminder_3",
@@ -564,12 +564,73 @@
   },
   {
     "outboxes": [
-      "appointment_requested",
-      "appointment_accepted",
-      "appointment_declined",
-      "appointment_rescheduled",
-      "appointment_cancelled",
+      "appointment_requested"
+    ],
+    "name": "Appointment requested",
+    "content": "beefree_appointment_requested.json",
+    "builder": "beefree",
+    "arguments": [
+      "appointment"
+    ]
+  },
+  {
+    "outboxes": [
+      "appointment_accepted"
+    ],
+    "name": "Appointment accepted",
+    "content": "beefree_appointment_accepted.json",
+    "builder": "beefree",
+    "arguments": [
+      "appointment"
+    ]
+  },
+  {
+    "outboxes": [
+      "appointment_declined"
+    ],
+    "name": "Appointment declined",
+    "content": "beefree_appointment_declined.json",
+    "builder": "beefree",
+    "arguments": [
+      "appointment"
+    ]
+  },
+  {
+    "outboxes": [
+      "appointment_rescheduled"
+    ],
+    "name": "Appointment rescheduled",
+    "content": "beefree_appointment_rescheduled.json",
+    "builder": "beefree",
+    "arguments": [
+      "appointment"
+    ]
+  },
+  {
+    "outboxes": [
+      "appointment_cancelled"
+    ],
+    "name": "Appointment cancelled",
+    "content": "beefree_appointment_cancelled.json",
+    "builder": "beefree",
+    "arguments": [
+      "appointment"
+    ]
+  },
+  {
+    "outboxes": [
       "appointment_reminder"
+    ],
+    "name": "Appointment reminder",
+    "content": "beefree_appointment_reminder.json",
+    "builder": "beefree",
+    "arguments": [
+      "appointment"
+    ]
+  },
+  {
+    "outboxes": [
+      "new_appointment"
     ],
     "name": "Appointment notification",
     "content": "appointment_notification.blade.php",

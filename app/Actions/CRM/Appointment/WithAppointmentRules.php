@@ -3,6 +3,7 @@
 namespace App\Actions\CRM\Appointment;
 
 use App\Enums\CRM\Appointment\AppointmentStateEnum;
+use App\Enums\CRM\AppointmentType\AppointmentTypeMeetingModeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Appointment;
 use App\Models\CRM\AppointmentType;
@@ -34,7 +35,7 @@ trait WithAppointmentRules
             ],
             'starts_at'           => [...$required, 'date_format:Y-m-d H:i'],
             'contact_name'        => [...$required, 'string', 'max:255'],
-            'email'               => [...$optional, 'nullable', 'email', 'max:255'],
+            'email'               => $this->appointmentEmailRules($appointmentTypeId ? (int) $appointmentTypeId : null, $isUpdate),
             'phone'               => $this->appointmentPhoneRules($appointmentTypeId ? (int) $appointmentTypeId : null, $isUpdate),
             'number_visitors'     => [...$optional, 'integer', 'min:1', 'max:100'],
             'notes'               => [...$optional, 'nullable', 'string', 'max:5000'],
@@ -44,6 +45,24 @@ trait WithAppointmentRules
                 'integer',
                 Rule::exists('appointment_type_user', 'user_id')->where('appointment_type_id', (int) $appointmentTypeId),
             ],
+        ];
+    }
+
+    protected function appointmentEmailRules(?int $appointmentTypeId, bool $isUpdate): array
+    {
+        $isVideoCall = $appointmentTypeId && AppointmentType::withTrashed()->find($appointmentTypeId)?->meeting_mode === AppointmentTypeMeetingModeEnum::VIDEO_CALL;
+
+        if (!$isVideoCall) {
+            return [...($isUpdate ? ['sometimes'] : []), 'nullable', 'email', 'max:255'];
+        }
+
+        return [...($isUpdate ? ['sometimes'] : []), 'required', 'email', 'max:255'];
+    }
+
+    protected function appointmentEmailMessages(): array
+    {
+        return [
+            'email.required' => __('Video calls need an email, it is where the confirmation and the reminder go.'),
         ];
     }
 

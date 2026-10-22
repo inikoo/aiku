@@ -31,6 +31,7 @@
 /public/shopify/manifest.json
 /public/pupil/manifest.json
 /public/chat-widget
+/public/appointment-widget
 /storage/*.key
 /vendor
 .env

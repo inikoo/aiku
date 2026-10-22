@@ -121,6 +121,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('product-developments:remind')->dailyAt('08:00')->timezone('Europe/London')->onOneServer();
         $schedule->command('appointments:close-past')->everyFifteenMinutes()->onOneServer()->withoutOverlapping();
         $schedule->command('appointments:remind')->everyFifteenMinutes()->onOneServer()->withoutOverlapping();
+        $schedule->command('appointments:reconcile-google-calendar')->everyTwoHours()->onOneServer()->withoutOverlapping();
         $schedule->command('hr:sync-leave-cover-roles')->hourly()->onOneServer()->withoutOverlapping();
         $schedule->command('hr:add-leave-cover-collaborators')->hourly()->onOneServer()->withoutOverlapping();
         $schedule->command('currency:warm')->everyFourHours()->onOneServer()->withoutOverlapping(30);

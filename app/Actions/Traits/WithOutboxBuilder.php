@@ -66,6 +66,10 @@ trait WithOutboxBuilder
             $emailOngoingRun = $this->addEmailOngoingRunToOutbox($case, $outbox);
 
             $emailTemplate = EmailTemplate::where('state', EmailTemplateStateEnum::ACTIVE)
+                ->when(
+                    $case->defaultBuilder() && $case->defaultBuilder() !== OutboxBuilderEnum::BLADE,
+                    fn ($query) => $query->where('builder', '!=', EmailTemplateBuilderEnum::BLADE)
+                )
                 ->whereJsonContains('data->outboxes', $outbox->code)->first();
 
 
@@ -73,9 +77,9 @@ trait WithOutboxBuilder
                 if (!$emailOngoingRun->email) {
                     $this->createEmail($model, $case, $emailOngoingRun, $emailTemplate, $outbox);
                 } elseif ($emailOngoingRun->email->builder == EmailBuilderEnum::BLADE) {
-
-
-                    if ($emailOngoingRun->email->liveSnapshot->layout != $emailTemplate->layout) {
+                    if ($emailTemplate->builder !== EmailTemplateBuilderEnum::BLADE) {
+                        $this->switchBladeEmailToEditableTemplate($outbox, $emailOngoingRun, $emailTemplate);
+                    } elseif ($emailOngoingRun->email->liveSnapshot->layout != $emailTemplate->layout) {
                         $this->createSnapshot($emailOngoingRun, $emailTemplate);
                     }
                     if (!($case->requiresDaysAfter() && $outbox->days_after === null)
@@ -132,6 +136,59 @@ trait WithOutboxBuilder
                 'live_snapshot_id' => $liveSnapShot->id,
             ]
         );
+    }
+
+    /**
+     * An outbox whose seeded template moved from blade to a drag and drop builder takes the new
+     * layout as both its draft and its live version, so staff can edit it in the workshop. The
+     * live version has no compiled HTML until it is published, and the sender falls back meanwhile.
+     *
+     * @throws \Throwable
+     */
+    protected function switchBladeEmailToEditableTemplate(Outbox $outbox, EmailOngoingRun $emailOngoingRun, EmailTemplate $emailTemplate): void
+    {
+        DB::transaction(function () use ($outbox, $emailOngoingRun, $emailTemplate) {
+            $email           = $emailOngoingRun->email;
+            $currentSnapshot = $email->liveSnapshot;
+
+            $snapshotData = [
+                'builder'      => $emailTemplate->builder->value,
+                'layout'       => $emailTemplate->layout,
+                'first_commit' => true,
+                'recyclable'   => false,
+            ];
+
+            $unpublishedSnapshot = StoreEmailSnapshot::make()->action(
+                $email,
+                [...$snapshotData, 'state' => SnapshotStateEnum::UNPUBLISHED],
+                strict: false
+            );
+            $liveSnapshot = StoreEmailSnapshot::make()->action(
+                $email,
+                [...$snapshotData, 'state' => SnapshotStateEnum::LIVE, 'published_at' => now()],
+                strict: false
+            );
+
+            if ($currentSnapshot) {
+                UpdateSnapshot::make()->action(
+                    $currentSnapshot,
+                    [
+                        'state'           => SnapshotStateEnum::HISTORIC,
+                        'published_until' => now()
+                    ]
+                );
+            }
+
+            $email->update([
+                'builder'                 => EmailBuilderEnum::from($emailTemplate->builder->value),
+                'unpublished_snapshot_id' => $unpublishedSnapshot->id,
+                'live_snapshot_id'        => $liveSnapshot->id,
+            ]);
+
+            $outbox->update([
+                'builder' => OutboxBuilderEnum::from($emailTemplate->builder->value),
+            ]);
+        });
     }
 
     /**
