@@ -178,6 +178,36 @@ test('carrying over a job does not ask for, or pay, the earlier steps twice', fu
         ->toThrow(ValidationException::class);
 });
 
+test('a carried job gets the kg already mixed for the whole job as a done mix step, despite float drift (HELP-4235)', function () {
+    $user = auth()->user();
+    ManufactureTaskSession::where('user_id', $user->id)->where('state', ManufactureTaskSessionStateEnum::OPEN)
+        ->update(['state' => ManufactureTaskSessionStateEnum::CLOSED, 'ended_at' => now()]);
+
+    $suffix     = rand(10000, 99999);
+    $mixTask    = StoreManufactureTask::make()->action($this->production, ['code' => 'MXC'.$suffix, 'name' => 'Mixing '.$suffix, 'is_piece_rate' => false, 'is_recorded_in_kg' => true]);
+    $makingTask = StoreManufactureTask::make()->action($this->production, ['code' => 'MKC'.$suffix, 'name' => 'Making '.$suffix, 'is_piece_rate' => true]);
+    $artefact   = StoreArtefact::make()->action($this->production, ['code' => 'ZSS'.$suffix, 'name' => 'Steamer '.$suffix]);
+    $artefact->manufactureTasks()->sync([
+        $mixTask->id    => ['position' => 1, 'units_per_artefact' => 0.039],
+        $makingTask->id => ['position' => 2, 'units_per_artefact' => 1],
+    ]);
+
+    $jobOrder = StoreJobOrder::make()->action($this->production, []);
+    $item     = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $artefact->id, 'quantity' => 2400]);
+    ConfirmJobOrder::make()->action($jobOrder);
+    $mix    = $item->tasks()->where('manufacture_task_id', $mixTask->id)->first();
+    $making = $item->tasks()->where('manufacture_task_id', $makingTask->id)->first();
+
+    CloseManufactureTaskSession::make()->action(StartManufactureTaskSession::make()->action($user, $mix), ['quantity_made' => 93.6]);
+    CloseManufactureTaskSession::make()->action(StartManufactureTaskSession::make()->action($user, $making), ['quantity_made' => 2100, 'outcome' => 'carry_over']);
+
+    $carriedMix = \App\Models\Production\JobOrder::where('data->carried_from', $jobOrder->id)->firstOrFail()
+        ->jobOrderItems()->first()->tasks()->where('manufacture_task_id', $mixTask->id)->first();
+
+    expect((float) $carriedMix->quantity_required)->toBe(0.0)
+        ->and($carriedMix->state)->toBe(JobOrderItemTaskStateEnum::DONE);
+});
+
 test('breaks belong to the artisan, are capped at their planned length and only their overlap is deducted from a session', function () {
     $this->artefact->manufactureTasks()->sync([
         $this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1],

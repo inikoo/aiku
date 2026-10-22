@@ -31,7 +31,7 @@ class CalculateJobOrderItemTaskQuantities
         $quantityRejected = (float) $ownSessions->sum('quantity_rejected') + (float) $shares->sum('quantity_rejected');
 
         $state = JobOrderItemTaskStateEnum::TODO;
-        if ($quantityMade >= $jobOrderItemTask->quantity_required) {
+        if (round($quantityMade, 3) >= round((float) $jobOrderItemTask->quantity_required, 3)) {
             $state = JobOrderItemTaskStateEnum::DONE;
         } elseif ($this->hasBeenWorked($jobOrderItemTask)) {
             $state = JobOrderItemTaskStateEnum::IN_PROGRESS;
