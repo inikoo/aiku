@@ -1457,3 +1457,52 @@ test('the HELP-4211 migration turns a development built the old way into the art
     get(route('grp.product_developments.board'))->assertOk();
     get(route('grp.product_developments.waiting_on_me'))->assertOk();
 });
+
+test('the brief takes PDF references for the range and a short brief with reference images per product, from the create form and on the Brief tab, HELP-4196', function () {
+    $suffix = Str::upper(Str::random(5));
+
+    post(route('grp.models.product_development.store'), [
+        'name'        => 'Scented candles '.$suffix,
+        'type'        => 'new',
+        'brief'       => 'Soft pastel range for spring',
+        'brief_files' => [UploadedFile::fake()->create('moodboard.pdf', 50, 'application/pdf'), UploadedFile::fake()->image('inspiration.jpg'), UploadedFile::fake()->create('walkthrough.mp4', 200, 'video/mp4')],
+        'items'       => [
+            ['code' => 'SC-'.$suffix.'-1', 'name' => 'Lavender candle', 'brief' => 'Lavender, lilac wax', 'images' => [UploadedFile::fake()->image('lavender.jpg'), UploadedFile::fake()->image('jar.jpg')]],
+            ['code' => 'SC-'.$suffix.'-2', 'name' => 'Rose candle'],
+        ],
+    ])->assertRedirect()->assertSessionHasNoErrors();
+
+    $productDevelopment = ProductDevelopment::where('name', 'Scented candles '.$suffix)->firstOrFail();
+    [$lavender, $rose]  = $productDevelopment->items()->orderBy('position')->get()->all();
+    expect($lavender->brief)->toBe('Lavender, lilac wax')
+        ->and($rose->brief)->toBeNull()
+        ->and($productDevelopment->files()->where('scope', 'brief_reference')->count())->toBe(3)
+        ->and($productDevelopment->files()->where('scope', 'brief_image')->where('product_development_item_id', $lavender->id)->count())->toBe(2);
+
+    post(route('grp.models.product_development.store'), [
+        'name' => 'Wrong files '.$suffix, 'type' => 'new', 'brief_files' => [UploadedFile::fake()->create('notes.docx', 10)],
+    ])->assertSessionHasErrors('brief_files.0');
+
+    patch(route('grp.models.product_development.update', ['productDevelopment' => $productDevelopment->id]), ['brief' => 'Soft pastel range for spring and summer'])->assertRedirect();
+    patch(route('grp.models.product_development.item.brief', ['productDevelopmentItem' => $rose->id]), ['brief' => 'Deep red, rose petals'])->assertRedirect();
+    expect($productDevelopment->fresh()->brief)->toBe('Soft pastel range for spring and summer')
+        ->and($rose->fresh()->brief)->toBe('Deep red, rose petals')
+        ->and(collect(GetProductDevelopmentActivity::run($productDevelopment->fresh()))->pluck('sentence'))->toContain(__('Changed the brief of :sku', ['sku' => 'SC-'.$suffix.'-2']));
+
+    get(route('grp.product_developments.show', [$productDevelopment->slug, 'tab' => 'brief']))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('brief.brief_editor.can_edit', true)
+            ->has('brief.brief_editor.references', 3)
+            ->where('brief.brief_editor.products.0.brief', 'Lavender, lilac wax')
+            ->has('brief.brief_editor.products.0.images', 2)
+            ->where('brief.brief_editor.products.1.brief', 'Deep red, rose petals'));
+
+    $image = $productDevelopment->files()->where('scope', 'brief_image')->firstOrFail();
+    \Pest\Laravel\delete(route('grp.models.product_development.brief_file.remove', ['productDevelopmentFile' => $image->id]))->assertRedirect();
+    expect($productDevelopment->files()->where('scope', 'brief_image')->count())->toBe(1);
+
+    $other = UploadProductDevelopmentFiles::make()->action($productDevelopment, $this->user, ['files' => [UploadedFile::fake()->create('notes.pdf', 10, 'application/pdf')], 'scope' => 'other'])[0];
+    \Pest\Laravel\delete(route('grp.models.product_development.brief_file.remove', ['productDevelopmentFile' => $other->id]))->assertSessionHasErrors('file');
+    expect($productDevelopment->files()->whereKey($other->id)->exists())->toBeTrue();
+});

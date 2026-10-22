@@ -11,6 +11,8 @@ use App\Actions\Goods\ProductDevelopment\StoreProductDevelopment;
 use App\Actions\Goods\ProductDevelopment\StoreProductDevelopmentComment;
 use App\Actions\Goods\ProductDevelopment\SyncProductDevelopmentMembers;
 use App\Actions\Goods\ProductDevelopment\UpdateProductDevelopment;
+use App\Actions\Goods\ProductDevelopment\UpdateProductDevelopmentItemBrief;
+use App\Actions\Goods\ProductDevelopment\RemoveProductDevelopmentBriefFile;
 use App\Actions\Goods\ProductDevelopment\UpdateProductDevelopmentChecklistItem;
 use App\Actions\Goods\ProductDevelopment\LinkProductDevelopmentSupplierProduct;
 use App\Actions\Goods\ProductDevelopment\UpdateProductDevelopmentCommentStatus;
@@ -2101,6 +2103,8 @@ Route::name('product_development.')->prefix('product-development')->group(functi
     Route::patch('{productDevelopment:id}/update', UpdateProductDevelopment::class)->name('update')->withoutScopedBindings();
     Route::patch('{productDevelopment:id}/members', SyncProductDevelopmentMembers::class)->name('members.sync')->withoutScopedBindings();
     Route::post('{productDevelopment:id}/files', UploadProductDevelopmentFiles::class)->name('files.upload')->withoutScopedBindings();
+    Route::delete('brief-file/{productDevelopmentFile:id}', RemoveProductDevelopmentBriefFile::class)->name('brief_file.remove')->withoutScopedBindings();
+    Route::patch('item/{productDevelopmentItem:id}/brief', UpdateProductDevelopmentItemBrief::class)->name('item.brief')->withoutScopedBindings();
     Route::post('{productDevelopment:id}/comments', StoreProductDevelopmentComment::class)->name('comments.store')->withoutScopedBindings();
     Route::patch('stage/{productDevelopmentStage:id}/due-date', UpdateProductDevelopmentStageDueDate::class)->name('stage.due_date')->withoutScopedBindings();
     Route::post('checklist-item/{productDevelopmentChecklistItem:id}/factory-photo', UploadProductDevelopmentFactoryPhoto::class)->name('checklist_item.factory_photo')->withoutScopedBindings();

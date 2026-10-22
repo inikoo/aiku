@@ -35,7 +35,7 @@ class UploadProductDevelopmentFiles extends OrgAction
 {
     use WithProductDevelopmentAuthorisation;
 
-    public const string ACCEPTED_EXTENSIONS = 'pdf,ai,psd,jpg,jpeg,png,webp,heic,heif,zip';
+    public const string ACCEPTED_EXTENSIONS = 'pdf,ai,psd,jpg,jpeg,png,webp,heic,heif,zip,mp4,mov,webm';
 
     public const int MAX_FILES = 20;
 
