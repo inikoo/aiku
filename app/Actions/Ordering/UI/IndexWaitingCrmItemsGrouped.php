@@ -19,6 +19,7 @@ use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -61,6 +62,8 @@ class IndexWaitingCrmItemsGrouped extends OrgAction
                 'delivery_notes.reference as delivery_note_reference',
                 'delivery_notes.state as delivery_note_state',
                 'delivery_notes.number_items_waiting_crm as delivery_note_number_items_waiting_crm',
+                'delivery_notes.number_items_waiting_warehouse as delivery_note_number_items_waiting_warehouse',
+                DB::raw('(select count(*) from delivery_note_items where delivery_note_items.delivery_note_id = delivery_notes.id and delivery_note_items.quantity_not_picked > 0) as delivery_note_number_items_not_picked'),
                 'delivery_notes.customer_notes as delivery_note_customer_notes',
                 'delivery_notes.public_notes as delivery_note_public_notes',
                 'orders.internal_notes as delivery_note_internal_notes',

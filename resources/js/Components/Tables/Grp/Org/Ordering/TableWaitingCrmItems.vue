@@ -505,11 +505,28 @@ const submitSendBackWarehouse = () => {
                 <span v-else>{{ item.order_reference }}</span>
             </div>
 
-            <div
-                v-if="item.delivery_note_state === 'handling'"
-                class="mt-1 inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium bg-amber-100 text-amber-700 ring-1 ring-inset ring-amber-400"
-            >
-                {{ ctrans('Still on picking') }}
+            <div class="mt-1 flex flex-wrap gap-1">
+                <div
+                    v-if="item.delivery_note_state === 'handling'"
+                    class="inline-flex items-center whitespace-nowrap rounded px-1.5 py-0.5 text-xs font-medium bg-amber-100 text-amber-700 ring-1 ring-inset ring-amber-400"
+                >
+                    {{ ctrans('Still on picking') }}
+                </div>
+                <div
+                    v-if="item.delivery_note_number_items_waiting_warehouse > 0"
+                    v-tooltip="ctrans('Wait until the warehouse finishes these before contacting the customer')"
+                    class="inline-flex items-center whitespace-nowrap rounded px-1.5 py-0.5 text-xs font-medium bg-amber-100 text-amber-700 ring-1 ring-inset ring-amber-400"
+                >
+                    <FontAwesomeIcon icon="fal fa-hourglass-start" class="mr-1" fixed-width aria-hidden="true" />
+                    {{ ctrans(':count waiting in warehouse', { count: item.delivery_note_number_items_waiting_warehouse }) }}
+                </div>
+                <div
+                    v-if="item.delivery_note_number_items_not_picked > 0"
+                    v-tooltip="ctrans('Lines in this order that will not be sent: not picked by the warehouse, or replaced')"
+                    class="inline-flex items-center whitespace-nowrap rounded px-1.5 py-0.5 text-xs font-medium bg-red-50 text-red-700 ring-1 ring-inset ring-red-300"
+                >
+                    {{ ctrans(':count lines not picked', { count: item.delivery_note_number_items_not_picked }) }}
+                </div>
             </div>
         </template>
 

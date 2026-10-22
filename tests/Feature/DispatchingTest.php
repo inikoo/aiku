@@ -4587,6 +4587,23 @@ test('lines waiting for customer service show the order CRM note and the warehou
         ->and($row['delivery_note_private_warehouse_note'])->toBe('shelf empty');
 });
 
+test('lines waiting for customer service flag other items still waiting in the warehouse or not picked', function () {
+    [$deliveryNote, $item] = handlingDeliveryNoteWithPicking($this);
+
+    $item->update(['quantity_picked' => 0, 'quantity_waiting_crm' => 1, 'quantity_not_picked' => 1]);
+    $deliveryNote->update(['number_items_waiting_crm' => 1, 'number_items_waiting_warehouse' => 2]);
+
+    $rows = get(route('grp.org.shops.show.ordering.backlog.waiting_items', [$this->organisation->slug, $deliveryNote->shop->slug]))
+        ->assertOk()
+        ->viewData('page')['props']['waiting_crm_items']['data'];
+
+    $row = collect($rows)->firstWhere('delivery_note_id', $deliveryNote->id);
+
+    expect($row['delivery_note_number_items_waiting_warehouse'])->toBe(2)
+        ->and($row['delivery_note_number_items_not_picked'])->toBe($deliveryNote->deliveryNoteItems()->where('quantity_not_picked', '>', 0)->count())
+        ->and($row['delivery_note_number_items_not_picked'])->toBeGreaterThanOrEqual(1);
+});
+
 test('lines waiting for customer service carry the product order line net and tax inclusive amounts', function () {
     [$deliveryNote, $item] = handlingDeliveryNoteWithPicking($this);
 
