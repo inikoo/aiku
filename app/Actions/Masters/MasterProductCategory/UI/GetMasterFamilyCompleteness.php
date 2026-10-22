@@ -33,6 +33,8 @@ class GetMasterFamilyCompleteness
             'description_extra'  => [__('Extra description'), $this->hasText($masterFamily->description_extra)],
             'gr_vol_quantity'    => [__('Quantity'), $masterFamily->gr_vol_discount_quantity > 0],
             'gr_vol_discount'    => [__('Discount'), $masterFamily->gr_vol_discount_percentage > 0],
+            'meta_description'   => [__('Meta description'), $this->hasText($masterFamily->meta_description)],
+            'seo_image'          => [__('Share image'), $masterFamily->seo_image_id || $this->hasText($masterFamily->seo_image_url)],
             'faq'                => [
                 $faqQuestions ? trans_choice('FAQ (:count question)|FAQ (:count questions)', $faqQuestions) : __('FAQ'),
                 $faqQuestions > 0

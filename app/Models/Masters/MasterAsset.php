@@ -97,6 +97,9 @@ use App\Models\Traits\HasSearch;
  * @property bool|null $bucket_images images following the buckets
  * @property string|null $description_title
  * @property string|null $description_extra
+ * @property string|null $meta_description
+ * @property int|null $seo_image_id
+ * @property string|null $seo_image_url
  * @property int|null $art1_image_id
  * @property int|null $art2_image_id
  * @property int|null $art3_image_id

@@ -4,6 +4,7 @@ import { computed, nextTick, onMounted, ref, watch } from "vue"
 import { cloneDeep, isEqual } from "lodash-es"
 import InputText from "primevue/inputtext"
 import InputNumber from "primevue/inputnumber"
+import Textarea from "primevue/textarea"
 import Select from "primevue/select"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faCheck, faTimes, faPlus, faCheckCircle, faTrashAlt, faExclamationTriangle } from "@fal"
@@ -12,6 +13,7 @@ import PageHeading from "@/Components/Headings/PageHeading.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import TextEditor from "@/Components/Forms/Fields/TextEditor.vue"
 import InputFaqMaster from "@/Components/Forms/Fields/InputFaqMaster.vue"
+import ImageCropSquare from "@/Components/Forms/Fields/ImageCropSquare.vue"
 import { getComponent } from "@/Composables/Listing/FieldFormList"
 import { capitalize } from "@/Composables/capitalize"
 import { ctrans } from "@/Composables/useTrans"
@@ -34,6 +36,9 @@ const props = defineProps<{
         master_sub_department_id: number | null
         trade_unit_family_id: number | null
         faq: { question: string, answer: string }[] | null
+        meta_description: string | null
+        seo_image: { original: string } | null
+        seo_image_url: string | null
         vol_gr_offer: { item_quantity: number, percentage_off: number }
     }
     departments: { id: number, name: string }[]
@@ -55,6 +60,8 @@ const props = defineProps<{
 
 const DESCRIPTION_WORD_LIMIT = 100
 const DESCRIPTION_EXTRA_WORD_LIMIT = 250
+const META_DESCRIPTION_MIN_LENGTH = 120
+const META_DESCRIPTION_MAX_LENGTH = 155
 const editorToggle = ["bold", "italic", "fontSize", "underline", "bulletList", "undo", "redo", "highlight", "color", "clear"]
 const parentFields = ["master_department_id", "master_sub_department_id"]
 
@@ -71,6 +78,9 @@ const form = useForm<Record<string, any>>({
     master_sub_department_id: props.masterFamily.master_sub_department_id,
     trade_unit_family_id: props.masterFamily.trade_unit_family_id,
     faq: cloneDeep(props.masterFamily.faq ?? []),
+    meta_description: props.masterFamily.meta_description,
+    seo_image: props.masterFamily.seo_image,
+    seo_image_url: props.masterFamily.seo_image_url,
     ...(props.isGoldRewardEligible ? { vol_gr_offer: cloneDeep(props.masterFamily.vol_gr_offer) } : {}),
     ...extraFieldValues,
 })
@@ -121,11 +131,30 @@ const hasVolGrOffer = computed(() => !!(form.vol_gr_offer?.item_quantity && form
 const sectionKeys = computed(() => [
     "category",
     "content",
+    "seo",
     ...(props.isGoldRewardEligible ? ["gold_reward"] : []),
     "faq",
     ...props.extraSections.map(section => section.label),
 ])
 const sectionNumber = (key: string) => sectionKeys.value.indexOf(key) + 1
+
+const metaDescriptionLength = computed(() => form.meta_description?.length ?? 0)
+const isMetaDescriptionLengthOff = computed(() => metaDescriptionLength.value > 0
+    && (metaDescriptionLength.value < META_DESCRIPTION_MIN_LENGTH || metaDescriptionLength.value > META_DESCRIPTION_MAX_LENGTH)
+)
+
+const shareImageField = {
+    hasOther: [
+        {
+            name: "seo_image_url",
+            type: "url",
+            label: ctrans("Or paste an image link"),
+            placeholder: "https://",
+            information: ctrans("Use an externally hosted image as the share image instead of uploading one. Uploading a new image clears it."),
+        },
+    ],
+    options: { minAspectRatio: 1, maxAspectRatio: 3 },
+}
 
 const faqInput = ref<InstanceType<typeof InputFaqMaster> | null>(null)
 
@@ -256,6 +285,32 @@ const save = () => {
                                 </span>
                             </div>
                             <TextEditor :form="form" fieldName="description_extra" :fieldData="{ toggle: editorToggle }" />
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SEO -->
+                <section class="rounded-lg border border-gray-200 bg-white p-5">
+                    <header class="mb-4 flex flex-wrap items-baseline justify-between gap-2">
+                        <h2 class="font-semibold text-gray-900">{{ sectionNumber("seo") }} · {{ ctrans("SEO") }}</h2>
+                    </header>
+
+                    <div class="space-y-4">
+                        <div>
+                            <div class="mb-1 flex items-baseline justify-between">
+                                <label for="meta_description" class="text-xs font-medium text-gray-700">{{ ctrans("Meta description") }}</label>
+                                <span class="text-xs tabular-nums" :class="isMetaDescriptionLengthOff ? 'font-medium text-amber-600' : 'text-gray-400'">
+                                    {{ ctrans(":count / :min-:max characters", { count: metaDescriptionLength, min: META_DESCRIPTION_MIN_LENGTH, max: META_DESCRIPTION_MAX_LENGTH }) }}
+                                </span>
+                            </div>
+                            <Textarea id="meta_description" v-model="form.meta_description" rows="3" autoResize class="w-full" />
+                            <p v-if="form.errors.meta_description" class="mt-1 text-sm text-red-600">{{ form.errors.meta_description }}</p>
+                        </div>
+
+                        <div>
+                            <label class="mb-1 block text-xs font-medium text-gray-700">{{ ctrans("Share image") }}</label>
+                            <p class="mb-2 text-xs text-gray-500">{{ ctrans("The preview image (og:image) shown when the page is shared on social media. Crop ratio from 1:1 to 3:1, served scaled down to fit 1200x1200 pixels.") }}</p>
+                            <ImageCropSquare :form="form" fieldName="seo_image" :fieldData="shareImageField" />
                         </div>
                     </div>
                 </section>

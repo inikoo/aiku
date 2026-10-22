@@ -338,6 +338,40 @@ class EditMasterProduct extends OrgAction
                 ]
             ],
             [
+                'label'  => __('SEO'),
+                'icon'   => 'fa-light fa-search',
+                'fields' => [
+                    'meta_description' => [
+                        'type'        => 'textarea',
+                        'label'       => __('Meta description'),
+                        'information' => __('Used as the meta description of the product pages, 120 to 155 characters.'),
+                        'value'       => $masterProduct->meta_description,
+                    ],
+                    'seo_image'        => [
+                        'type'        => 'image_crop_square',
+                        'label'       => __('Share image'),
+                        'value'       => $masterProduct->seo_image_url
+                            ? ['original' => $masterProduct->seo_image_url]
+                            : $masterProduct->imageSources(1200, 1200, 'seoImage'),
+                        'information' => __('The preview image (og:image) shown when the page is shared on social media. Crop ratio from 1:1 to 3:1, served scaled down to fit 1200x1200 pixels.'),
+                        'hasOther'    => [
+                            [
+                                'name'        => 'seo_image_url',
+                                'type'        => 'url',
+                                'value'       => $masterProduct->seo_image_url,
+                                'label'       => __('Or paste an image link'),
+                                'placeholder' => 'https://',
+                                'information' => __('Use an externally hosted image as the share image instead of uploading one. Uploading a new image clears it.'),
+                            ],
+                        ],
+                        'options'     => [
+                            'minAspectRatio' => 1,
+                            'maxAspectRatio' => 12 / 4,
+                        ],
+                    ],
+                ],
+            ],
+            [
                 'label'  => __('GPSR'),
                 'icon'   => 'fa-light fa-biohazard',
                 'fields' => [

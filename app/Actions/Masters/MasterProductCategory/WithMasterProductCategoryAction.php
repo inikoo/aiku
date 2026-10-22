@@ -60,6 +60,11 @@ trait WithMasterProductCategoryAction
         }
 
         $this->discardBlankStorageGuidelines();
+
+        $seoImageUrl = trim((string)$this->get('seo_image_url', ''));
+        if ($seoImageUrl !== '' && !preg_match('/^[a-z][a-z0-9+.-]*:\/\//i', $seoImageUrl)) {
+            $this->set('seo_image_url', 'https://'.$seoImageUrl);
+        }
     }
 
     public function action(MasterProductCategory $masterProductCategory, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): MasterProductCategory

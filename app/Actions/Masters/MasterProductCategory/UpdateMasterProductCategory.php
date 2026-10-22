@@ -23,6 +23,7 @@ use App\Actions\Masters\MasterShop\Hydrators\MasterShopHydrateMasterSubDepartmen
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateMasterProductCategories;
 use App\Actions\Traits\UI\WithImageCatalogue;
+use App\Actions\Traits\UI\WithImageSeo;
 use App\Enums\Catalogue\MasterProductCategory\MasterProductCategoryTypeEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Helpers\Language;
@@ -39,6 +40,7 @@ use Illuminate\Validation\Validator;
 class UpdateMasterProductCategory extends OrgAction
 {
     use WithImageCatalogue;
+    use WithImageSeo;
     use WithMasterProductCategoryAction;
     use SanitizeInputs;
 
@@ -96,6 +98,16 @@ class UpdateMasterProductCategory extends OrgAction
             } else {
                 data_set($modelData, 'image_id', null, false);
             }
+        }
+
+        if (Arr::has($modelData, 'seo_image_url')) {
+            $modelData['seo_image_url'] = filled($modelData['seo_image_url']) ? $modelData['seo_image_url'] : null;
+        }
+
+        $seoImage = Arr::pull($modelData, 'seo_image');
+        if ($seoImage) {
+            $modelData['seo_image_url'] = null;
+            $masterProductCategory      = $this->processSeoImage(['image' => $seoImage], $masterProductCategory);
         }
 
         if (Arr::has($modelData, 'name_i8n')) {
@@ -332,6 +344,14 @@ class UpdateMasterProductCategory extends OrgAction
             'master_department_id'          => ['sometimes', 'nullable', 'exists:master_product_categories,id'],
             'master_sub_department_id'      => ['sometimes', 'nullable', 'exists:master_product_categories,id'],
             'show_in_website'               => ['sometimes', 'boolean'],
+            'meta_description'              => ['sometimes', 'nullable', 'string', 'max:500'],
+            'seo_image'                     => [
+                'sometimes',
+                'nullable',
+                File::image()
+                    ->max(12 * 1024),
+            ],
+            'seo_image_url'                 => ['sometimes', 'nullable', 'url:http,https', 'max:2048'],
             'image'                         => [
                 'sometimes',
                 'nullable',

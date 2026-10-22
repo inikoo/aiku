@@ -124,6 +124,11 @@ class EditMasterFamily extends OrgAction
                     'master_sub_department_id' => $masterProductCategory->master_sub_department_id,
                     'trade_unit_family_id'     => $masterProductCategory->trade_unit_family_id,
                     'faq'                      => $masterProductCategory->faq,
+                    'meta_description'         => $masterProductCategory->meta_description,
+                    'seo_image'                => $masterProductCategory->seo_image_url
+                        ? ['original' => $masterProductCategory->seo_image_url]
+                        : $masterProductCategory->imageSources(1200, 1200, 'seoImage'),
+                    'seo_image_url'            => $masterProductCategory->seo_image_url,
                     'vol_gr_offer'             => [
                         'item_quantity'  => (int)$masterProductCategory->gr_vol_discount_quantity,
                         'percentage_off' => (float)trimDecimalZeros($masterProductCategory->gr_vol_discount_percentage),

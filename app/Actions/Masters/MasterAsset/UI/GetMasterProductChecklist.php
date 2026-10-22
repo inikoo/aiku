@@ -19,7 +19,8 @@ use Lorisleiva\Actions\Concerns\AsObject;
  * The product information a master product should carry, written once on the master for all the
  * shops. The items are SQL expressions over master_assets, so table rows and the "incomplete
  * information" count share one definition. The webpage checks belong to each shop's product, see
- * GetProductChecklist.
+ * GetProductChecklist, which is why the meta description and share image of the master are
+ * master only items.
  */
 class GetMasterProductChecklist
 {
@@ -33,7 +34,7 @@ class GetMasterProductChecklist
      */
     public function items(string $table = 'master_assets', string $modelType = 'MasterAsset'): array
     {
-        return [
+        $items = [
             'description'           => [
                 'label'  => __('Description'),
                 'filled' => "coalesce(trim({$table}.description), '') <> ''",
@@ -75,6 +76,22 @@ class GetMasterProductChecklist
             'origin_country'        => [
                 'label'  => __('Origin country'),
                 'filled' => "({$table}.origin_country_id is not null or coalesce(trim({$table}.country_of_origin), '') <> '')",
+            ],
+        ];
+
+        if ($table !== 'master_assets') {
+            return $items;
+        }
+
+        return [
+            ...$items,
+            'meta_description' => [
+                'label'  => __('Meta description'),
+                'filled' => "coalesce(trim({$table}.meta_description), '') <> ''",
+            ],
+            'seo_image'        => [
+                'label'  => __('Share image'),
+                'filled' => "({$table}.seo_image_id is not null or coalesce(trim({$table}.seo_image_url), '') <> '')",
             ],
         ];
     }
