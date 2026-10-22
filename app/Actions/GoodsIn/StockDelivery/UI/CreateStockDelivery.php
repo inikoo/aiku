@@ -97,11 +97,13 @@ class CreateStockDelivery extends OrgAction
     private function agentContainerForm(Agent $agent, ActionRequest $request): Response
     {
         $organisationOptions = StoreAgentStockDelivery::orgAgentsOfAgent($agent)
-            ->with('organisation:id,name')
+            ->with('organisation:id,name,country_id', 'organisation.country:id,name')
             ->get()
             ->sortBy(fn (OrgAgent $orgAgent) => $orgAgent->organisation->name)
             ->map(fn (OrgAgent $orgAgent) => [
-                'label' => $orgAgent->organisation->name,
+                'label' => $orgAgent->organisation->country
+                    ? $orgAgent->organisation->name.' ('.$orgAgent->organisation->country->name.')'
+                    : $orgAgent->organisation->name,
                 'value' => $orgAgent->id,
             ])
             ->values();
@@ -152,13 +154,6 @@ class CreateStockDelivery extends OrgAction
                                     'required'    => true,
                                     'options'     => OrgAgentOrderContainerEnum::selectOptions(),
                                     'value'       => OrgAgentOrderContainerEnum::FORTY_FOOT->value,
-                                ],
-                                'currency'     => [
-                                    'type'        => 'input',
-                                    'label'       => __('Currency'),
-                                    'information' => __('A container is always in the currency of the agent.'),
-                                    'disabled'    => true,
-                                    'value'       => $agent->organisation->currency->code.' ('.$agent->organisation->currency->name.')',
                                 ],
                                 'reference'    => [
                                     'type'        => 'input',

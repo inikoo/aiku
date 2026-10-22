@@ -19,10 +19,12 @@ import { useLocaleStore } from '@/Stores/locale'
 import PurchaseOrderItemStockInfo from '@/Components/Procurement/PurchaseOrderItemStockInfo.vue'
 import PurchaseOrderSuggestButton from '@/Components/Procurement/PurchaseOrderSuggestButton.vue'
 import PurchaseOrderLinePriceChange from '@/Components/Procurement/PurchaseOrderLinePriceChange.vue'
+import PurchaseOrderLineAddToContainerDialog from '@/Components/Procurement/PurchaseOrderLineAddToContainerDialog.vue'
+import PingIcon from '@/Components/Utils/PingIcon.vue'
 import { getOrderingLevels, unitsPerOrderingLevel, suggestionAtOrderingLevel, type OrderingLevel } from '@/Composables/useOrderingLevel'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faBox, faPallet, faStopCircle, faTrashAlt, faPeopleArrows, faBalanceScale, faExclamationTriangle, faBoxOpen } from '@fal'
+import { faBox, faPallet, faStopCircle, faTrashAlt, faPeopleArrows, faBalanceScale, faExclamationTriangle, faBoxOpen, faBoxCheck, faTruckContainer, faTimes } from '@fal'
 import { faExclamationCircle, faSpinner, faMinusCircle } from '@fas'
 import ConfirmPopup from 'primevue/confirmpopup'
 import Popover from 'primevue/popover'
@@ -311,6 +313,128 @@ function isBraveModeActive(): boolean {
     return isBraveMode.value
 }
 
+const packingId = ref<number | null>(null)
+
+function isFullyPacked(item: any) {
+    const warehouse = item.agent_warehouse
+    return !!warehouse && warehouse.quantity_packed > 0 && warehouse.quantity_packed >= Number(item.quantity_ordered) - 0.001
+}
+
+function isAllInContainers(item: any) {
+    const warehouse = item.agent_warehouse
+    return !!warehouse?.containers?.length && warehouse.quantity_awaiting_delivery <= 0.01
+}
+
+const isLoadedBeforePacking = (item: any) => isAllInContainers(item) && !isFullyPacked(item)
+
+function packItem(item: any) {
+    const packRoute = item.agent_warehouse?.pack_route
+    if (!packRoute) {
+        return
+    }
+
+    router.patch(route(packRoute.name, packRoute.parameters), {}, {
+        preserveScroll: true,
+        onStart: () => (packingId.value = item.id),
+        onFinish: () => (packingId.value = null),
+        onSuccess: () => notify({ title: ctrans('Success'), text: ctrans(':code packed', { code: item.code }), type: 'success' }),
+        onError: (errors: Record<string, string>) => notify({ title: ctrans('Something went wrong'), text: Object.values(errors ?? {})[0], type: 'error' }),
+    })
+}
+
+function confirmPackItem(event: MouseEvent, item: any) {
+    const warehouse = item.agent_warehouse
+    if (!warehouse?.pack_route) {
+        return
+    }
+
+    if (warehouse.quantity_to_check <= 0 || isBraveModeActive()) {
+        packItem(item)
+        return
+    }
+
+    confirm.require({
+        group: 'pack-item',
+        target: event.currentTarget as HTMLElement,
+        message: ctrans(':units of the :total units of :code are not checked yet. Once packed they can no longer be checked. Pack them anyway?', {
+            units: locale.number(warehouse.quantity_to_check),
+            total: locale.number(warehouse.quantity_packable),
+            code: item.code,
+        }),
+        acceptLabel: ctrans('Pack anyway'),
+        rejectLabel: ctrans('Cancel'),
+        accept: () => packItem(item),
+    })
+}
+
+function packTooltip(item: any) {
+    const warehouse = item.agent_warehouse
+    const tooltip = ctrans('Click to mark the :units received units as packed', { units: locale.number(warehouse.quantity_packable) })
+
+    return warehouse.quantity_to_check > 0
+        ? `${tooltip}. ${ctrans(':units of them are not checked yet', { units: locale.number(warehouse.quantity_to_check) })}`
+        : tooltip
+}
+
+const _table = ref<InstanceType<typeof Table> | null>(null)
+const containerDialogItems = ref<any[]>([])
+const isContainerDialogVisible = ref(false)
+const selectedRows = ref<Record<string, boolean>>({})
+
+const tableRows = computed<any[]>(() => (props.data as any)?.data ?? [])
+const canAddToContainer = (item: any) => !!item.agent_warehouse?.containers_route
+const hasRowsForContainer = computed(() => tableRows.value.some(canAddToContainer))
+const rowsSelectedForContainer = computed(() => tableRows.value.filter((item) => selectedRows.value[item.id] && canAddToContainer(item)))
+
+function onSelectRow(rows: Record<string, boolean>) {
+    selectedRows.value = { ...rows }
+}
+
+function openContainerDialog(items: any[]) {
+    containerDialogItems.value = items
+    isContainerDialogVisible.value = true
+}
+
+function onAddedToContainer() {
+    _table.value?.clearSelection()
+    selectedRows.value = {}
+}
+
+const removingContainerKey = ref<string | null>(null)
+
+function removeFromContainer(item: any, container: any) {
+    const removeRoute = container.remove_route
+    router.delete(route(removeRoute.name, removeRoute.parameters), {
+        preserveScroll: true,
+        onStart: () => (removingContainerKey.value = `${item.id}-${container.id}`),
+        onFinish: () => (removingContainerKey.value = null),
+        onSuccess: () => notify({ title: ctrans('Success'), text: ctrans(':code removed from :container', { code: item.code, container: container.reference }), type: 'success' }),
+        onError: (errors: Record<string, string>) => notify({ title: ctrans('Something went wrong'), text: Object.values(errors ?? {})[0], type: 'error' }),
+    })
+}
+
+function confirmRemoveFromContainer(event: MouseEvent, item: any, container: any) {
+    if (!container.remove_route) {
+        return
+    }
+
+    if (isBraveModeActive()) {
+        removeFromContainer(item, container)
+        return
+    }
+
+    confirm.require({
+        target: event.currentTarget as HTMLElement,
+        message: ctrans('Take the :units units of :code out of :container?', { units: locale.number(container.unit_quantity), code: item.code, container: container.reference }),
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: ctrans('Remove'),
+        rejectLabel: ctrans('Cancel'),
+        acceptClass: 'p-button-danger',
+        rejectClass: 'p-button-text',
+        accept: () => removeFromContainer(item, container),
+    })
+}
+
 function confirmDeleteItem(event: MouseEvent, item: any) {
     if (!item.deleteRoute) {
         return
@@ -466,7 +590,17 @@ function orgStockRoute(item: { org_stock_id?: number }) {
 </script>
 
 <template>
-    <Table :resource="data" :name="tab" class="mt-5" :rowColorFunction="cancelledRowClass">
+    <Table
+        ref="_table"
+        :resource="data"
+        :name="tab"
+        class="mt-5"
+        :rowColorFunction="cancelledRowClass"
+        :isCheckBox="hasRowsForContainer"
+        checkboxKey="id"
+        :disabledCheckbox="(item: any) => !canAddToContainer(item)"
+        @onSelectRow="onSelectRow"
+    >
         <template #before-table>
             <div class="flex items-end justify-between gap-3 border-b border-gray-200 px-3 sm:px-4">
                 <div class="flex items-end gap-1">
@@ -486,6 +620,20 @@ function orgStockRoute(item: { org_stock_id?: number }) {
                         </button>
                     </template>
                 </div>
+                <span v-if="rowsSelectedForContainer.length" class="relative mb-1.5 inline-flex">
+                    <Button
+                        :label="ctransChoice('Add :count item to container|Add :count items to container', rowsSelectedForContainer.length)"
+                        :tooltip="ctrans('Click to put the selected products in a container in process')"
+                        type="secondary"
+                        size="xs"
+                        @click="openContainerDialog(rowsSelectedForContainer)"
+                    >
+                        <template #icon>
+                            <FontAwesomeIcon :icon="faTruckContainer" fixed-width aria-hidden="true" />
+                        </template>
+                    </Button>
+                    <PingIcon class="!absolute -right-0.5 -top-0.5 text-[5px] text-amber-500" aria-hidden="true" />
+                </span>
                 <label
                     v-tooltip="ctrans('When on, Remove and Cancel act straight away without asking to confirm')"
                     class="mb-1.5 flex cursor-pointer items-center gap-2 text-sm"
@@ -690,8 +838,30 @@ function orgStockRoute(item: { org_stock_id?: number }) {
         </template>
 
         <template #cell(actions)="{ item }">
+            <div class="flex flex-col items-end gap-1.5">
             <div class="flex justify-end items-center gap-2">
-                <a v-if="packingInstructionsUrl(item)" :href="packingInstructionsUrl(item)" target="_blank" rel="noopener">
+                <span
+                    v-if="isLoadedBeforePacking(item)"
+                    class="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-200"
+                    v-tooltip="ctrans('Loaded in a container before it was packed: take it out of the container to pack it')"
+                >
+                    <FontAwesomeIcon :icon="faExclamationTriangle" fixed-width aria-hidden="true" />
+                    <template v-if="item.agent_warehouse.quantity_packed > 0">{{ ctrans('Packed :packed/:ordered', { packed: locale.number(item.agent_warehouse.quantity_packed), ordered: locale.number(Number(item.quantity_ordered)) }) }}</template>
+                    <template v-else>{{ ctrans('Not packed yet') }}</template>
+                </span>
+
+                <span
+                    v-else-if="item.agent_warehouse?.quantity_packed > 0"
+                    class="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset"
+                    :class="isFullyPacked(item) ? 'bg-green-50 text-green-700 ring-green-200' : 'bg-amber-50 text-amber-700 ring-amber-200'"
+                    v-tooltip="isFullyPacked(item) ? ctrans('Every unit of this product is packed') : ctrans(':packed of the :ordered units are packed', { packed: locale.number(item.agent_warehouse.quantity_packed), ordered: locale.number(Number(item.quantity_ordered)) })"
+                >
+                    <FontAwesomeIcon :icon="faBoxCheck" fixed-width aria-hidden="true" />
+                    <template v-if="isFullyPacked(item)">{{ ctrans('Packed') }}</template>
+                    <template v-else>{{ ctrans('Packed :packed/:ordered', { packed: locale.number(item.agent_warehouse.quantity_packed), ordered: locale.number(Number(item.quantity_ordered)) }) }}</template>
+                </span>
+
+                <a v-if="packingInstructionsUrl(item) && !isFullyPacked(item) && !isAllInContainers(item)" :href="packingInstructionsUrl(item)" target="_blank" rel="noopener">
                     <Button
                         :label="ctrans('Packing')"
                         :tooltip="ctrans('Print the packing instructions of this product')"
@@ -700,6 +870,34 @@ function orgStockRoute(item: { org_stock_id?: number }) {
                         size="xs"
                     />
                 </a>
+
+                <Button
+                    v-if="item.agent_warehouse?.pack_route && !isAllInContainers(item)"
+                    :label="ctrans('Mark packed')"
+                    :tooltip="packTooltip(item)"
+                    type="tertiary"
+                    size="xs"
+                    :loading="packingId === item.id"
+                    :disabled="packingId === item.id"
+                    @click="confirmPackItem($event, item)"
+                >
+                    <template #icon>
+                        <FontAwesomeIcon :icon="faBoxCheck" class="text-green-600" fixed-width aria-hidden="true" />
+                    </template>
+                </Button>
+
+                <Button
+                    v-if="item.agent_warehouse?.containers_route"
+                    :label="ctrans('Add to container')"
+                    :tooltip="ctrans('Click to put units of this product in a container in process')"
+                    type="tertiary"
+                    size="xs"
+                    @click="openContainerDialog([item])"
+                >
+                    <template #icon>
+                        <FontAwesomeIcon :icon="faTruckContainer" class="text-gray-500" fixed-width aria-hidden="true" />
+                    </template>
+                </Button>
 
                 <Button
                     v-if="item.deleteRoute && state === 'in_process'"
@@ -725,6 +923,33 @@ function orgStockRoute(item: { org_stock_id?: number }) {
                     @click="confirmCancelItem($event, item)"
                 />
 
+            </div>
+
+            <div v-if="item.agent_warehouse?.containers?.length" class="flex flex-wrap justify-end gap-1">
+                <span
+                    v-for="container in item.agent_warehouse.containers"
+                    :key="container.id"
+                    class="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-gray-50 px-2 py-0.5 text-xs text-gray-700 ring-1 ring-inset ring-gray-200"
+                >
+                    <FontAwesomeIcon :icon="faTruckContainer" class="text-gray-400" fixed-width aria-hidden="true" />
+                    <Link v-if="container.show_route" :href="route(container.show_route.name, container.show_route.parameters)" class="secondaryLink">
+                        {{ container.reference }}
+                    </Link>
+                    <span v-else>{{ container.reference }}</span>
+                    <span class="tabular-nums text-gray-500">· {{ locale.number(container.unit_quantity) }}</span>
+                    <button
+                        v-if="container.remove_route"
+                        type="button"
+                        class="ml-0.5 text-gray-400 hover:text-red-600 disabled:opacity-50"
+                        :disabled="removingContainerKey === `${item.id}-${container.id}`"
+                        v-tooltip="ctrans('Click to take this product out of :container', { container: container.reference })"
+                        :aria-label="ctrans('Remove from :container', { container: container.reference })"
+                        @click="confirmRemoveFromContainer($event, item, container)"
+                    >
+                        <FontAwesomeIcon :icon="removingContainerKey === `${item.id}-${container.id}` ? faSpinner : faTimes" :spin="removingContainerKey === `${item.id}-${container.id}`" fixed-width aria-hidden="true" />
+                    </button>
+                </span>
+            </div>
             </div>
         </template>
 
@@ -781,6 +1006,28 @@ function orgStockRoute(item: { org_stock_id?: number }) {
     </Table>
 
     <ConfirmPopup />
+
+    <ConfirmPopup group="pack-item">
+        <template #container="{ message, acceptCallback, rejectCallback }">
+            <div class="w-72 p-3 text-sm">
+                <div class="flex gap-2 text-gray-700">
+                    <FontAwesomeIcon :icon="faExclamationTriangle" class="mt-0.5 text-amber-500" fixed-width aria-hidden="true" />
+                    <p>{{ message.message }}</p>
+                </div>
+                <div class="mt-3 flex justify-end gap-2">
+                    <Button type="negative" size="xs" :label="message.rejectLabel" @click="rejectCallback" />
+                    <Button type="primary" size="xs" :label="message.acceptLabel" @click="acceptCallback" />
+                </div>
+            </div>
+        </template>
+    </ConfirmPopup>
+
+    <PurchaseOrderLineAddToContainerDialog
+        v-if="containerDialogItems.length"
+        v-model:visible="isContainerDialogVisible"
+        :items="containerDialogItems"
+        @added="onAddedToContainer"
+    />
 
     <ProductImageViewerDialog v-if="viewedImages.length" v-model:visible="isImageViewerVisible" :images="viewedImages" />
 
