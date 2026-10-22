@@ -118,6 +118,12 @@ const getWaitingCrmFractional = (deliveryItem: any) => {
                 :trolleys="item.trolleys"
                 :isEditable="!isReadOnly"
             />
+            <dl v-if="item.picked_bays?.length" class="mt-1 border-l-4 border-pink-300 bg-pink-100 pl-1 pr-3 flex items-center w-fit gap-x-1.5 text-sm">
+                <dt>{{ ctrans("Picked bays") }}:</dt>
+                <dd class="font-bold">
+                    {{ item.picked_bays.map((bay: { name: string }) => bay.name).join(", ") }}
+                </dd>
+            </dl>
         </template>
 
         <template #cell(items)="{ item: deliveryNoteRow }">

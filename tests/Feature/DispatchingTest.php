@@ -7248,3 +7248,18 @@ test('picking screen rows load pickings with their locations and batch codes, an
         ->and($pickingRow['location_code'])->toBe($picking->location->code)
         ->and($pickingRow['batch_code_id'])->toBe($picking->batch_code_id ?? (string) $picking->orgStock->main_batch_code_id);
 });
+
+test('waiting items grouped by delivery note show the picked bays of each delivery note', function () {
+    [$deliveryNote] = waitingDeliveryNoteWithItemWaitingForWarehouse($this);
+    $pickedBay      = StorePickedBay::make()->handle($this->warehouse, ['code' => 'BAY'.Str::random(4)]);
+    AttachDeliveryNoteToPickedBay::make()->handle($pickedBay, $deliveryNote);
+
+    actingAs($this->user);
+    get(route('grp.org.warehouses.show.dispatching.waiting_items', [$this->organisation->slug, $this->warehouse->slug, 'tab' => 'grouped_by_delivery_note']))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->where(
+            'grouped_by_delivery_note.data',
+            fn ($rows) => collect($rows)->firstWhere('delivery_note_id', $deliveryNote->id)['picked_bays']
+                == [['id' => $pickedBay->id, 'slug' => $pickedBay->slug, 'name' => $pickedBay->code]]
+        )->etc());
+});
