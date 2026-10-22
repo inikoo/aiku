@@ -10,7 +10,7 @@
 namespace App\Actions\Web\ModelHasWebBlocks;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithWebAuthorisation;
+use App\Actions\Traits\Authorisations\WithWebEditAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Web\WebBlock\StoreWebBlock;
 use App\Actions\Web\Webpage\EnforceFamilyWebBlocksOrder;
@@ -23,9 +23,9 @@ use Lorisleiva\Actions\ActionRequest;
 
 class DuplicateModelHasWebBlock extends OrgAction
 {
-    use WithWebAuthorisation;
+    use WithWebEditAuthorisation;
     use WithActionUpdate;
-
+    use WithPasteWebBlockFromSource;
 
     public function handle(Webpage $webpage, ModelHasWebBlocks $modelHasWebBlocks, array $modelData = []): ModelHasWebBlocks
     {
@@ -43,8 +43,9 @@ class DuplicateModelHasWebBlock extends OrgAction
         $webBlockType = WebBlockType::find($modelHasWebBlocks->webBlock->web_block_type_id);
 
         $webBlock = StoreWebBlock::run($webBlockType, [
-            'layout' => $modelHasWebBlocks->webBlock->layout,
+            'layout' => $this->layoutForWebsite($modelHasWebBlocks->webBlock, $webpage->website),
         ]);
+        $this->copyImages($modelHasWebBlocks->webBlock, $webBlock);
         /** @var ModelHasWebBlocks $modelHasWebBlockCopy */
         $modelHasWebBlockCopy = $webpage->modelHasWebBlocks()->create(
             [
@@ -78,9 +79,12 @@ class DuplicateModelHasWebBlock extends OrgAction
     public function asController(Webpage $webpage, ModelHasWebBlocks $modelHasWebBlock, ActionRequest $request): void
     {
         abort_if($modelHasWebBlock->group_id !== $webpage->group_id, 404);
+        abort_unless($this->canReadSourceShop($request->user(), $modelHasWebBlock->shop), 403);
 
         $this->initialisationFromShop($webpage->shop, $request);
         $this->handle($webpage, $modelHasWebBlock, $this->validatedData);
+
+        $this->flashUnmatchedLinks($request);
     }
 
     public function action(Webpage $webpage, ModelHasWebBlocks $modelHasWebBlock, array $modelData = []): ModelHasWebBlocks

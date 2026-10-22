@@ -6,6 +6,7 @@ export interface CopiedWebBlock {
     id: number
     name: string
     webpageId: number
+    type?: string
 }
 
 export interface WorkshopShortcut {

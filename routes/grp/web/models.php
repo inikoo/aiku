@@ -733,6 +733,7 @@ use App\Actions\Web\ModelHasWebBlocks\DeleteModelHasWebBlocks;
 use App\Actions\Web\ModelHasWebBlocks\DuplicateModelHasWebBlock;
 use App\Actions\Web\ModelHasWebBlocks\StoreModelHasWebBlock;
 use App\Actions\Web\ModelHasWebBlocks\UpdateModelHasWebBlocks;
+use App\Actions\Web\ModelHasWebBlocks\ReplaceModelHasWebBlockContent;
 use App\Actions\Web\ModelHasWebBlocks\UploadImagesToModelHasWebBlocks;
 use App\Actions\Web\Redirect\DeleteRedirect;
 use App\Actions\Web\Redirect\StoreRedirectFromWebpage;
@@ -1628,6 +1629,7 @@ Route::name('model_has_web_block.')->prefix('model-has-web-block')->middleware(E
         Route::patch('', UpdateModelHasWebBlocks::class)->name('update');
         Route::delete('', DeleteModelHasWebBlocks::class)->name('delete');
         Route::post('images', UploadImagesToModelHasWebBlocks::class)->name('images.store');
+        Route::post('replace-content/{source:id}', ReplaceModelHasWebBlockContent::class)->name('replace_content')->withoutScopedBindings();
     });
 });
 
