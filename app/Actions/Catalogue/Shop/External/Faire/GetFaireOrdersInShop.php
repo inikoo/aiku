@@ -41,7 +41,7 @@ class GetFaireOrdersInShop extends OrgAction
     public function handle(Shop $shop, Command|null $command = null): void
     {
         $this->fetchFaireOrders($shop, [
-            'excluded_states' => 'PRE_TRANSIT,IN_TRANSIT,DELIVERED,PENDING_RETAILER_CONFIRMATION,BACKORDERED,CANCELED',
+            'excluded_states' => 'PRE_TRANSIT,IN_TRANSIT,DELIVERED,PENDING_RETAILER_CONFIRMATION,CANCELED',
             'created_at_min'  => Carbon::parse('2026-02-01')->toIsoString(),
         ], $command);
 
@@ -237,7 +237,7 @@ class GetFaireOrdersInShop extends OrgAction
                         ]);
                     }
 
-                    AcceptFaireOrder::run($order);
+                    AcceptFaireOrder::run($order, Arr::get($faireOrder, 'ship_after'));
 
                     UpdateFaireOrder::run($order);
 
