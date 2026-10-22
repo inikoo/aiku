@@ -45,7 +45,7 @@ class PurchaseOrdersResource extends JsonResource
             'agent_name'        => $this->agent_id && $this->relationLoaded('agent') ? $this->agent?->name : null,
             'agent_slug'        => $this->agent_id && $this->relationLoaded('agent') ? $this->agent?->slug : null,
             'org_agent_slug'    => $this->agent_id && $this->parent_type === 'OrgSupplier' && $this->parent && $this->parent->relationLoaded('orgAgent') ? $this->parent->orgAgent?->slug : null,
-            'supplier_slug'     => $this->parent_type === 'OrgSupplier' && $this->parent && $this->parent->relationLoaded('supplier') ? $this->parent->supplier->slug : null,
+            'supplier_slug'     => $this->parent_type === 'OrgSupplier' && $this->parent && $this->parent->relationLoaded('supplier') ? $this->parent->supplier?->slug : null,
             'slug'              => $this->slug,
             'number_current_purchase_order_transactions'   => $this->number_current_purchase_order_transactions,
             'quantity_ordered'  => $this->quantity_ordered,

@@ -113,6 +113,7 @@ use App\Models\Helpers\Currency;
 use App\Models\Inventory\OrgStock;
 use App\Models\GoodsIn\StockDeliveryItem;
 use App\Http\Resources\Procurement\StockDeliveryItemResource;
+use App\Http\Resources\Procurement\PurchaseOrdersResource;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgPartner;
 use App\Actions\Procurement\PurchaseOrderTransaction\UI\IndexPurchaseOrderTransactions;
@@ -3561,3 +3562,15 @@ test('the agent asks the organisation about a new supplier price and confirms on
     $this->post($askRoute, ['unit_cost' => $oldUnitCost + 5])->assertSessionHasErrors('unit_cost');
     actingAs($this->adminGuest->getUser());
 });
+
+test('a purchase order whose supplier was deleted still lists, without a supplier link', function (PurchaseOrder $purchaseOrder) {
+    $supplier = $purchaseOrder->parent->supplier;
+    $supplier->delete();
+
+    $row = PurchaseOrdersResource::make($purchaseOrder->fresh()->load('parent.supplier'))->resolve();
+
+    $supplier->restore();
+
+    expect($row['supplier_slug'])->toBeNull()
+        ->and($row['parent_slug'])->toBe($purchaseOrder->parent->slug);
+})->depends('create purchase order independent supplier');
