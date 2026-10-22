@@ -57,6 +57,7 @@ use App\Models\Web\Webpage;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 
@@ -1544,4 +1545,29 @@ test('iris product detail json leaves out the documents and discounted profit fo
     expect($visitor)->toHaveKey('discounted_price')
         ->not->toHaveKeys(['attachments', 'discounted_profit', 'discounted_margin'])
         ->and($customer)->toHaveKeys(['attachments', 'discounted_profit', 'discounted_margin']);
+});
+
+test('logged-out family page product list leaves out the rrp (HELP-4214)', function () {
+    [, $product] = createProduct($this->shop);
+    $product->updateQuietly(['rrp' => 30, 'price' => 10, 'available_quantity' => 5, 'is_for_sale' => true]);
+    $productWebpage = $product->refresh()->webpage ?? StoreProductWebpage::make()->action($product);
+    PublishWebpage::make()->action($productWebpage, ['comment' => 'rrp visibility test']);
+
+    $webpage      = StoreProductCategoryWebpage::make()->action($product->family);
+    $webBlockType = $this->website->group->webBlockTypes()->where('code', 'products-1')->firstOrFail();
+    StoreModelHasWebBlock::make()->action($webpage, ['web_block_type_id' => $webBlockType->id, 'position' => 0]);
+    $webpage = PublishWebpage::make()->action($webpage, ['comment' => 'rrp visibility test']);
+
+    $productsInBlocks = function (array $webpageData) {
+        $products = collect($webpageData['web_blocks'])->map(fn ($block) => Arr::get($block, 'structure.products'))->filter()->first();
+
+        return $products instanceof Responsable ? $products->toResponse(request())->getData(true) : $products;
+    };
+
+    $loggedOut = $productsInBlocks(ShowIrisWebpage::make()->getWebpageData($webpage->id, [], false));
+    $loggedIn  = $productsInBlocks(ShowIrisWebpage::make()->getWebpageData($webpage->id, [], true));
+
+    expect($loggedOut['data'])->not->toBeEmpty()
+        ->and($loggedOut['data'][0])->toHaveKey('code')->not->toHaveKeys(['rrp', 'rrp_per_unit'])
+        ->and($loggedIn['data'][0])->toHaveKeys(['rrp', 'rrp_per_unit']);
 });

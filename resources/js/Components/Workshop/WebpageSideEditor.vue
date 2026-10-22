@@ -53,6 +53,7 @@ import {
 	faCopy,
 	faPaste,
 	faEdit,
+	faClone,
 } from '@fal'
 import { faBrush, faCogs, faExclamationTriangle, faLayerGroup, faLock, faShapes } from '@fas'
 
@@ -260,6 +261,8 @@ const contextMenu = ref({
 const copiedBlock = inject<Ref<CopiedWebBlock | null>>('copiedWebBlock', ref(null))
 const copyWebBlock = inject<(block: Daum) => void>('copyWebBlock', () => {})
 const pasteWebBlock = inject<(position?: number) => void>('pasteWebBlock', () => {})
+const canReplaceWebBlockContent = inject<(block: Daum | null) => boolean>('canReplaceWebBlockContent', () => false)
+const replaceWebBlockContent = inject<(block: Daum) => void>('replaceWebBlockContent', () => {})
 
 const contextMenuEl = ref<HTMLElement | null>(null)
 const CONTEXT_MENU_MARGIN = 8
@@ -309,6 +312,13 @@ const copyBlock = () => {
 const pasteBlock = (position: number = props.webpage.layout.web_blocks.length) => {
 	if (!copiedBlock.value) return
 	pasteWebBlock(position)
+	closeContextMenu()
+}
+
+const replaceContextBlockContent = () => {
+	if (contextMenu.value.block) {
+		replaceWebBlockContent(contextMenu.value.block)
+	}
 	closeContextMenu()
 }
 
@@ -1021,6 +1031,19 @@ const showBlockVisibilityOptions = computed(
 					<font-awesome-icon :icon="faPaste" fixed-width />
 					{{ ctrans('Paste below') }}
 					<kbd class="ml-auto pl-3 font-sans text-[10px] text-slate-400">{{ formatShortcutCombo(['Mod', 'V']) }}</kbd>
+				</li>
+
+				<!-- Paste content and style -->
+				<li
+					@click="canReplaceWebBlockContent(contextMenu.block) && replaceContextBlockContent()"
+					:class="[
+						'flex items-center gap-2 px-2.5 py-1',
+						canReplaceWebBlockContent(contextMenu.block)
+							? 'hover:bg-slate-100 text-slate-800 cursor-pointer'
+							: 'text-gray-400 cursor-not-allowed pointer-events-none',
+					]">
+					<font-awesome-icon :icon="faClone" fixed-width />
+					{{ ctrans('Paste content and style') }}
 				</li>
 
 				<!-- Toggle Visibility -->

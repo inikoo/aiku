@@ -11,18 +11,21 @@ import { router } from "@inertiajs/vue3"
 import Popover from "primevue/popover"
 import Dialog from "primevue/dialog"
 import Button from "@/Components/Elements/Buttons/Button.vue"
+import TicketAttachmentPreview, { type TicketAttachment } from "@/Components/Tickets/TicketAttachmentPreview.vue"
 import { ctrans } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faCamera, faCheck, faSpinner, faImages, faRedo } from "@fal"
-library.add(faCamera, faCheck, faSpinner, faImages, faRedo)
+import { faCamera, faCheck, faSpinner, faImages, faRedo, faEye } from "@fal"
+library.add(faCamera, faCheck, faSpinner, faImages, faRedo, faEye)
 
 interface Angle {
     key: string
     label: string
     url: string | null
     preview_url: string | null
+    name: string | null
+    mime: string | null
 }
 
 const props = defineProps<{
@@ -52,6 +55,18 @@ function pick(angle: Angle, event: Event) {
     menu?.show(event, event.currentTarget as HTMLElement)
     if (wasOpen) {
         nextTick(() => menu?.alignOverlay?.())
+    }
+}
+
+/** The same full-screen preview as the Files tab, stepping through the angles that have a photo */
+const preview = ref<{ files: TicketAttachment[], index: number | null }>({ files: [], index: null })
+
+function viewImage() {
+    sourceMenu.value?.hide()
+    const photographed = props.value.angles.filter((angle) => angle.url)
+    preview.value = {
+        files: photographed.map((angle) => ({ name: angle.name ?? `${angle.label}.jpg`, url: angle.url!, mime: angle.mime })),
+        index: photographed.findIndex((angle) => angle.key === pendingAngle.value?.key),
     }
 }
 
@@ -249,6 +264,10 @@ onBeforeUnmount(closeCamera)
         <Popover ref="sourceMenu">
             <div class="w-56 text-sm" role="menu">
                 <p v-if="pendingAngle" class="px-2 pb-1.5 text-xs text-gray-500">{{ pendingAngle.label }}</p>
+                <button v-if="pendingAngle?.url" type="button" role="menuitem" class="flex w-full items-center gap-2.5 rounded-md px-2 py-2.5 text-left text-gray-800 hover:bg-gray-50 active:bg-gray-100" @click="viewImage">
+                    <FontAwesomeIcon icon="fal fa-eye" class="text-[--app-accent]" fixed-width aria-hidden="true" />
+                    {{ ctrans("View image") }}
+                </button>
                 <button type="button" role="menuitem" class="flex w-full items-center gap-2.5 rounded-md px-2 py-2.5 text-left text-gray-800 hover:bg-gray-50 active:bg-gray-100" @click="fromPhotos">
                     <FontAwesomeIcon icon="fal fa-images" class="text-[--app-accent]" fixed-width aria-hidden="true" />
                     {{ ctrans("Upload from photos") }}
@@ -285,6 +304,8 @@ onBeforeUnmount(closeCamera)
                 <Button v-else type="primary" full icon="fal fa-camera" :label="ctrans('Capture')" :loading="starting" @click="capture" />
             </div>
         </Dialog>
+
+        <TicketAttachmentPreview v-model:index="preview.index" :files="preview.files" />
 
         <input ref="galleryInput" type="file" accept="image/*" class="hidden" @change="onGalleryPicked" />
         <input ref="cameraInput" type="file" accept="image/*" capture="environment" class="hidden" @change="onCameraPicked" />

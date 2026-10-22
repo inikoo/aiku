@@ -32,7 +32,9 @@ use App\Actions\Web\ExternalLink\CheckExternalLinkStatus;
 use App\Actions\Web\ExternalLink\StoreExternalLink;
 use App\Actions\Web\ModelHasWebBlocks\DeleteModelHasWebBlocks;
 use App\Actions\Web\ModelHasWebBlocks\DuplicateModelHasWebBlock;
+use App\Actions\Web\ModelHasWebBlocks\ReplaceModelHasWebBlockContent;
 use App\Actions\Web\ModelHasWebBlocks\StoreModelHasWebBlock;
+use App\Actions\Web\WebBlock\RemapWebBlockLayoutLinksToWebsite;
 use App\Actions\Web\ModelHasWebBlocks\UpdateModelHasWebBlocks;
 use App\Actions\Web\Redirect\StoreRedirect;
 use App\Actions\Web\Redirect\StoreRedirectFromWebpage;
@@ -408,6 +410,203 @@ test('paste model has web block into another webpage belongs to that webpage', f
         ->and($pastedBlock->model_type)->toBe('Webpage')
         ->and($sourceWebpage->modelHasWebBlocks()->count())->toBe(1)
         ->and($targetWebpage->modelHasWebBlocks()->count())->toBe(1);
+})->depends('create b2b website');
+
+test('paste web block from another store points its links at this store and keeps its images', function (Website $website) {
+    [, , $sourceShop] = createOwnShop('paste-web-block-source');
+    $sourceWebsite    = createWebsite($sourceShop);
+
+    $sharedCode          = 'showroom-'.Str::random(6);
+    $sourceSharedWebpage = StoreWebpage::make()->action($sourceWebsite->storefront, array_merge(Webpage::factory()->definition(), ['code' => $sharedCode]));
+    $targetSharedWebpage = StoreWebpage::make()->action($website->storefront, array_merge(Webpage::factory()->definition(), ['code' => $sharedCode]));
+    $sourceOnlyWebpage   = StoreWebpage::make()->action($sourceWebsite->storefront, Webpage::factory()->definition());
+    $targetWebpage       = StoreWebpage::make()->action($website->storefront, Webpage::factory()->definition());
+
+    $webBlockType = $website->group->webBlockTypes()->where('code', 'text')->first();
+    $sourceBlock  = StoreModelHasWebBlock::make()->action($sourceSharedWebpage, ['web_block_type_id' => $webBlockType->id]);
+    $sourceBlock->webBlock->update(['layout' => [
+        'data' => ['fieldValue' => [
+            'home'     => ['type' => 'internal', 'id' => $sourceWebsite->storefront_id, 'href' => 'https://source.test/', 'workshop' => 'https://grp.test/source'],
+            'showroom' => ['type' => 'internal', 'id' => $sourceSharedWebpage->id, 'href' => $sourceSharedWebpage->canonical_url],
+            'only'     => ['type' => 'internal', 'id' => $sourceOnlyWebpage->id, 'href' => $sourceOnlyWebpage->canonical_url],
+            'external' => ['type' => 'external', 'id' => $sourceOnlyWebpage->id, 'href' => 'https://example.com'],
+            'empty'    => [],
+        ]],
+    ]]);
+
+    $media = \App\Models\Helpers\Media::create([
+        'group_id'              => $website->group_id,
+        'ulid'                  => Str::ulid(),
+        'name'                  => 'pasted block picture',
+        'is_animated'           => false,
+        'file_name'             => 'picture.jpg',
+        'disk'                  => 'media',
+        'collection_name'       => 'default',
+        'size'                  => 1,
+        'manipulations'         => [],
+        'custom_properties'     => [],
+        'generated_conversions' => [],
+        'responsive_images'     => [],
+    ]);
+    DB::table('model_has_media')->insert([
+        'id'         => DB::table('model_has_media')->max('id') + $media->id + 1000,
+        'group_id'   => $website->group_id,
+        'media_id'   => $media->id,
+        'model_type' => 'WebBlock',
+        'model_id'   => $sourceBlock->web_block_id,
+        'scope'      => 'image',
+        'data'       => '{}',
+        'source_id'  => 'paste-web-block-'.$media->id,
+    ]);
+
+    $remapped = RemapWebBlockLayoutLinksToWebsite::run($sourceBlock->webBlock->fresh()->layout, $website);
+    expect($remapped['number_unmatched_links'])->toBe(1);
+
+    $pastedBlock = DuplicateModelHasWebBlock::make()->action($targetWebpage, $sourceBlock->fresh());
+    $fieldValue  = $pastedBlock->webBlock->layout->data->fieldValue;
+
+    expect($fieldValue->home->id)->toBe($website->storefront_id)
+        ->and($fieldValue->home->href)->toBe($website->storefront->canonical_url)
+        ->and($fieldValue->home->workshop)->toBeNull()
+        ->and($fieldValue->showroom->id)->toBe($targetSharedWebpage->id)
+        ->and($fieldValue->showroom->canonical_url)->toBe($targetSharedWebpage->canonical_url)
+        ->and($fieldValue->only->id)->toBe($sourceOnlyWebpage->id)
+        ->and($fieldValue->external->id)->toBe($sourceOnlyWebpage->id)
+        ->and($fieldValue->empty)->toBe([])
+        ->and($sourceBlock->webBlock->fresh()->layout->data->fieldValue->home->id)->toBe($sourceWebsite->storefront_id)
+        ->and($pastedBlock->webBlock->images()->pluck('media.id')->all())->toBe([$media->id]);
+
+    \App\Actions\Web\WebBlock\DeleteWebBlock::make()->handle($sourceBlock->webBlock->fresh());
+
+    expect(\App\Models\Helpers\Media::find($media->id))->not->toBeNull();
+})->depends('create b2b website');
+
+test('paste content and style replaces a block of the same type and keeps where and how it is shown', function (Website $website) {
+    [, , $sourceShop] = createOwnShop('paste-web-block-source');
+    $sourceWebsite    = createWebsite($sourceShop);
+    $sourceWebpage    = StoreWebpage::make()->action($sourceWebsite->storefront, Webpage::factory()->definition());
+    $targetWebpage    = StoreWebpage::make()->action($website->storefront, Webpage::factory()->definition());
+    $textType         = $website->group->webBlockTypes()->where('code', 'text')->first();
+    $otherType        = $website->group->webBlockTypes()->where('code', 'script')->first();
+
+    $sourceBlock = StoreModelHasWebBlock::make()->action($sourceWebpage, ['web_block_type_id' => $textType->id]);
+    $sourceBlock->webBlock->update(['layout' => [
+        'data' => ['fieldValue' => [
+            'value'     => '<p>EU showroom</p>',
+            'container' => ['properties' => ['background' => ['color' => 'red']]],
+            'home'      => ['type' => 'internal', 'id' => $sourceWebsite->storefront_id, 'href' => 'https://source.test/'],
+        ]],
+    ]]);
+    $media = \App\Models\Helpers\Media::create([
+        'group_id'              => $website->group_id,
+        'ulid'                  => Str::ulid(),
+        'name'                  => 'replaced block picture',
+        'is_animated'           => false,
+        'file_name'             => 'picture.jpg',
+        'disk'                  => 'media',
+        'collection_name'       => 'default',
+        'size'                  => 1,
+        'manipulations'         => [],
+        'custom_properties'     => [],
+        'generated_conversions' => [],
+        'responsive_images'     => [],
+    ]);
+    DB::table('model_has_media')->insert([
+        'id'         => DB::table('model_has_media')->max('id') + $media->id + 1000,
+        'group_id'   => $website->group_id,
+        'media_id'   => $media->id,
+        'model_type' => 'WebBlock',
+        'model_id'   => $sourceBlock->web_block_id,
+        'scope'      => 'image',
+        'data'       => '{}',
+    ]);
+
+    $targetBlock = StoreModelHasWebBlock::make()->action($targetWebpage, ['web_block_type_id' => $textType->id]);
+    $targetBlock->update(['show' => false]);
+    $numberHistories = $targetWebpage->webBlockHistories()->count();
+
+    $replaced   = ReplaceModelHasWebBlockContent::make()->action($targetBlock->fresh(), $sourceBlock->fresh());
+    $fieldValue = $replaced->webBlock->fresh()->layout->data->fieldValue;
+
+    expect($replaced->id)->toBe($targetBlock->id)
+        ->and($replaced->web_block_id)->toBe($targetBlock->web_block_id)
+        ->and($replaced->fresh()->show)->toBeFalse()
+        ->and($fieldValue->value)->toBe('<p>EU showroom</p>')
+        ->and($fieldValue->container->properties->background->color)->toBe('red')
+        ->and($fieldValue->home->id)->toBe($website->storefront_id)
+        ->and($replaced->webBlock->images()->pluck('media.id')->all())->toBe([$media->id])
+        ->and($targetWebpage->webBlockHistories()->count())->toBe($numberHistories + 1);
+
+    ReplaceModelHasWebBlockContent::make()->action($targetBlock->fresh(), $sourceBlock->fresh());
+    expect($targetBlock->webBlock->images()->count())->toBe(1);
+
+    $otherBlock = StoreModelHasWebBlock::make()->action($targetWebpage, ['web_block_type_id' => $otherType->id]);
+    expect(fn () => ReplaceModelHasWebBlockContent::make()->action($otherBlock, $sourceBlock->fresh()))
+        ->toThrow(ValidationException::class);
+})->depends('create b2b website');
+
+test('paste content and style needs edit access to this store and read access to the store it comes from', function (Website $website) {
+    [, , $sourceShop] = createOwnShop('paste-web-block-source');
+    $sourceWebpage    = StoreWebpage::make()->action(createWebsite($sourceShop)->storefront, Webpage::factory()->definition());
+    $targetWebpage    = StoreWebpage::make()->action($website->storefront, Webpage::factory()->definition());
+    $webBlockType     = $website->group->webBlockTypes()->where('code', 'text')->first();
+    $sourceBlock      = StoreModelHasWebBlock::make()->action($sourceWebpage, ['web_block_type_id' => $webBlockType->id]);
+    $targetBlock      = StoreModelHasWebBlock::make()->action($targetWebpage, ['web_block_type_id' => $webBlockType->id]);
+    $replace          = fn () => post(route('grp.models.model_has_web_block.replace_content', [
+        'modelHasWebBlocks' => $targetBlock->id,
+        'source'            => $sourceBlock->id,
+    ]));
+
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ["web.{$website->shop_id}.view", "web.{$sourceShop->id}.view"]);
+        $replace()->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($this->user, ["web.{$website->shop_id}.edit"]);
+        $replace()->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($this->user, ["web.{$website->shop_id}.edit", "web.{$sourceShop->id}.view"]);
+        $replace()->assertSuccessful();
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
+})->depends('create b2b website');
+
+test('paste web block needs edit access to this store and read access to the store it comes from', function (Website $website) {
+    [, , $sourceShop] = createOwnShop('paste-web-block-source');
+    $sourceWebpage    = StoreWebpage::make()->action(createWebsite($sourceShop)->storefront, Webpage::factory()->definition());
+    $targetWebpage    = StoreWebpage::make()->action($website->storefront, Webpage::factory()->definition());
+    $webBlockType     = $website->group->webBlockTypes()->where('code', 'text')->first();
+    $sourceBlock      = StoreModelHasWebBlock::make()->action($sourceWebpage, ['web_block_type_id' => $webBlockType->id]);
+    $paste            = fn () => post(route('grp.models.webpage.web_block.duplicate', [
+        'webpage'          => $targetWebpage->id,
+        'modelHasWebBlock' => $sourceBlock->id,
+    ]), ['position' => 0]);
+
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ["websites-view.{$website->organisation_id}", "web.{$sourceShop->id}.view"]);
+        $paste()->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($this->user, ["web.{$website->shop_id}.edit"]);
+        $paste()->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($this->user, ["web.{$website->shop_id}.edit", "web.{$sourceShop->id}.view"]);
+        $paste()->assertSuccessful();
+        expect($targetWebpage->modelHasWebBlocks()->count())->toBe(1);
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
 })->depends('create b2b website');
 
 test('model external link', function () {
