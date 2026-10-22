@@ -28,6 +28,7 @@ class PickAllItemFromWaitingWarehouse extends OrgAction
 {
     use WithDeliveryNoteWorkAuthorisation;
     use WithCalculateTransactionDiscount;
+    use WithPickedBayPrompt;
 
     /**
      * @throws \Throwable
@@ -99,6 +100,7 @@ class PickAllItemFromWaitingWarehouse extends OrgAction
         $this->initialisationFromWarehouse($deliveryNoteItem->deliveryNote->warehouse, $request);
 
         $this->handle($deliveryNoteItem, $request->user(), $this->validatedData);
+        $this->flashPickedBayPrompt($deliveryNoteItem);
     }
 
 

@@ -15,6 +15,7 @@ import { useTabChange } from "@/Composables/tab-change"
 import TableWaitingDeliveryNoteItemsByLocation from '@/Components/Tables/Grp/Org/Dispatching/TableWaitingDeliveryNoteItemsByLocation.vue'
 import TableWaitingDeliveryNoteItemsGrouped from '@/Components/Tables/Grp/Org/Dispatching/TableWaitingDeliveryNoteItemsGrouped.vue'
 import TableWaitingDeliveryNoteItemsGroupedByItem from '@/Components/Tables/Grp/Org/Dispatching/TableWaitingDeliveryNoteItemsGroupedByItem.vue'
+import PickedBayPrompt from '@/Components/Warehouse/DeliveryNotes/PickedBayPrompt.vue'
 
 const props = defineProps<{
     pageHead: PageHeadingTypes
@@ -77,5 +78,6 @@ watch(() => props.tabs.current, (newTab) => {
         :waitingType="waiting_type"
         :highlightDeliveryNoteSlug="highlightedDeliveryNoteSlug"
     />
+    <PickedBayPrompt v-if="!is_read_only" />
 </template>
 

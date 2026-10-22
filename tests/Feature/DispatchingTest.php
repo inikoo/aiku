@@ -3133,6 +3133,55 @@ test('picking upsert from waiting warehouse', function () {
     expect($item->refresh()->pickings()->exists())->toBeTrue();
 });
 
+test('replenishing a waiting line asks to confirm the picked bay of its delivery note', function () {
+    [$deliveryNote, $item] = waitingDeliveryNoteWithItemWaitingForWarehouse($this);
+    $pickedBay             = StorePickedBay::make()->handle($this->warehouse, ['code' => 'BAY'.Str::random(4)]);
+    AttachDeliveryNoteToPickedBay::make()->handle($pickedBay, $deliveryNote);
+    $locationOrgStock = $item->orgStock->locationOrgStocks()->where('quantity', '>=', 4)->first();
+
+    expect(\App\Actions\Dispatching\Picking\PickAllItemFromWaitingWarehouse::pickedBayPrompt($item))->toBeNull();
+
+    $item->update(['locked_at' => null]);
+    actingAs($this->user);
+    post(route('grp.models.delivery_note_item.picking_all_from_waiting_warehouse.store', $item->id), [
+        'location_org_stock_id' => $locationOrgStock->id,
+    ])->assertRedirect()->assertSessionHas('inertia.flash_data.picked_bay_prompt', [
+        'delivery_note'  => [
+            'id'        => $deliveryNote->id,
+            'slug'      => $deliveryNote->slug,
+            'reference' => $deliveryNote->reference,
+            'is_ready'  => true,
+        ],
+        'org_stock_code' => $item->orgStock->code,
+        'picked_bays'    => [['id' => $pickedBay->id, 'code' => $pickedBay->code]],
+    ]);
+
+    expect((float)$item->refresh()->quantity_waiting_warehouse)->toBe(0.0)
+        ->and($deliveryNote->refresh()->state)->toBe(DeliveryNoteStateEnum::PICKED);
+});
+
+test('typing a waiting quantity asks for the picked bay only once nothing is left waiting', function () {
+    [$deliveryNote, $item] = waitingDeliveryNoteWithItemWaitingForWarehouse($this);
+    $locationOrgStock      = $item->orgStock->locationOrgStocks()->where('quantity', '>=', 4)->first();
+    $item->update(['locked_at' => null]);
+    actingAs($this->user);
+
+    post(route('grp.models.delivery_note_item.picking.upsert_from_waiting_warehouse', $item->id), [
+        'location_org_stock_id' => $locationOrgStock->id,
+        'quantity'              => 1,
+    ])->assertRedirect()->assertSessionMissing('inertia.flash_data.picked_bay_prompt');
+
+    $picking = $item->refresh()->pickings()->latest('id')->first();
+
+    post(route('grp.models.delivery_note_item.picking.upsert_from_waiting_warehouse', $item->id), [
+        'location_org_stock_id' => $locationOrgStock->id,
+        'quantity'              => 4,
+        'picking_id'            => $picking->id,
+    ])->assertRedirect()->assertSessionHas('inertia.flash_data.picked_bay_prompt.picked_bays', []);
+
+    expect((float)$item->refresh()->quantity_waiting_warehouse)->toBe(0.0);
+});
+
 test('lowering a pick from the waiting warehouse panel puts the difference back on the shelf', function () {
     $settings = $this->organisation->settings;
     data_set($settings, 'orders.allow_waiting', true);
