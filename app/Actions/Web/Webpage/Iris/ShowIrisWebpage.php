@@ -79,11 +79,11 @@ class ShowIrisWebpage
             ];
         }
 
-        $webBlocks = $this->getIrisWebBlocks(
+        $webBlocks = HideRetailPricesFromIrisVisitors::resolved($this->getIrisWebBlocks(
             webpage: $webpage,
             webBlocks: Arr::get($webpage->published_layout, 'web_blocks', []),
             isLoggedIn: $loggedIn
-        );
+        ));
 
         $webBlocksForVisitors = HideRetailPricesFromIrisVisitors::withoutHiddenKeys($webBlocks);
         $isDifferentWhenLoggedIn = $webpage->is_different_when_logged_in || $webBlocksForVisitors !== $webBlocks;
