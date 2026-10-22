@@ -314,38 +314,57 @@ function isBraveModeActive(): boolean {
 
 const packingId = ref<number | null>(null)
 
-function confirmPackItem(event: MouseEvent, item: any) {
+function isFullyPacked(item: any) {
+    const warehouse = item.agent_warehouse
+    return !!warehouse && warehouse.quantity_packed > 0 && warehouse.quantity_packed >= Number(item.quantity_ordered) - 0.001
+}
+
+function packItem(item: any) {
     const packRoute = item.agent_warehouse?.pack_route
     if (!packRoute) {
         return
     }
 
+    router.patch(route(packRoute.name, packRoute.parameters), {}, {
+        preserveScroll: true,
+        onStart: () => (packingId.value = item.id),
+        onFinish: () => (packingId.value = null),
+        onSuccess: () => notify({ title: ctrans('Success'), text: ctrans(':code packed', { code: item.code }), type: 'success' }),
+        onError: (errors: Record<string, string>) => notify({ title: ctrans('Something went wrong'), text: Object.values(errors ?? {})[0], type: 'error' }),
+    })
+}
+
+function confirmPackItem(event: MouseEvent, item: any) {
+    const warehouse = item.agent_warehouse
+    if (!warehouse?.pack_route) {
+        return
+    }
+
+    if (warehouse.quantity_to_check <= 0 || isBraveModeActive()) {
+        packItem(item)
+        return
+    }
+
     confirm.require({
+        group: 'pack-item',
         target: event.currentTarget as HTMLElement,
-        message: ctrans(':units checked units of :code will be packed, their check can no longer be changed', {
-            units: locale.number(item.agent_warehouse.quantity_packable),
+        message: ctrans(':units of the :total units of :code are not checked yet. Once packed they can no longer be checked. Pack them anyway?', {
+            units: locale.number(warehouse.quantity_to_check),
+            total: locale.number(warehouse.quantity_packable),
             code: item.code,
         }),
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel: ctrans('Mark packed'),
+        acceptLabel: ctrans('Pack anyway'),
         rejectLabel: ctrans('Cancel'),
-        rejectClass: 'p-button-text',
-        accept: () => router.patch(route(packRoute.name, packRoute.parameters), {}, {
-            preserveScroll: true,
-            onStart: () => (packingId.value = item.id),
-            onFinish: () => (packingId.value = null),
-            onSuccess: () => notify({ title: ctrans('Success'), text: ctrans(':code packed', { code: item.code }), type: 'success' }),
-            onError: (errors: Record<string, string>) => notify({ title: ctrans('Something went wrong'), text: Object.values(errors ?? {})[0], type: 'error' }),
-        }),
+        accept: () => packItem(item),
     })
 }
 
 function packTooltip(item: any) {
     const warehouse = item.agent_warehouse
-    const tooltip = ctrans('Click to mark the :units checked units as packed', { units: locale.number(warehouse.quantity_packable) })
+    const tooltip = ctrans('Click to mark the :units received units as packed', { units: locale.number(warehouse.quantity_packable) })
 
     return warehouse.quantity_to_check > 0
-        ? `${tooltip}. ${ctrans(':units units are still to check and stay unpacked', { units: locale.number(warehouse.quantity_to_check) })}`
+        ? `${tooltip}. ${ctrans(':units of them are not checked yet', { units: locale.number(warehouse.quantity_to_check) })}`
         : tooltip
 }
 
@@ -737,7 +756,18 @@ function orgStockRoute(item: { org_stock_id?: number }) {
 
         <template #cell(actions)="{ item }">
             <div class="flex justify-end items-center gap-2">
-                <a v-if="packingInstructionsUrl(item)" :href="packingInstructionsUrl(item)" target="_blank" rel="noopener">
+                <span
+                    v-if="item.agent_warehouse?.quantity_packed > 0"
+                    class="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset"
+                    :class="isFullyPacked(item) ? 'bg-green-50 text-green-700 ring-green-200' : 'bg-amber-50 text-amber-700 ring-amber-200'"
+                    v-tooltip="isFullyPacked(item) ? ctrans('Every unit of this product is packed') : ctrans(':packed of the :ordered units are packed', { packed: locale.number(item.agent_warehouse.quantity_packed), ordered: locale.number(Number(item.quantity_ordered)) })"
+                >
+                    <FontAwesomeIcon :icon="faBoxCheck" fixed-width aria-hidden="true" />
+                    <template v-if="isFullyPacked(item)">{{ ctrans('Packed') }}</template>
+                    <template v-else>{{ ctrans('Packed :packed/:ordered', { packed: locale.number(item.agent_warehouse.quantity_packed), ordered: locale.number(Number(item.quantity_ordered)) }) }}</template>
+                </span>
+
+                <a v-if="packingInstructionsUrl(item) && !isFullyPacked(item)" :href="packingInstructionsUrl(item)" target="_blank" rel="noopener">
                     <Button
                         :label="ctrans('Packing')"
                         :tooltip="ctrans('Print the packing instructions of this product')"
@@ -855,6 +885,21 @@ function orgStockRoute(item: { org_stock_id?: number }) {
     </Table>
 
     <ConfirmPopup />
+
+    <ConfirmPopup group="pack-item">
+        <template #container="{ message, acceptCallback, rejectCallback }">
+            <div class="w-72 p-3 text-sm">
+                <div class="flex gap-2 text-gray-700">
+                    <FontAwesomeIcon :icon="faExclamationTriangle" class="mt-0.5 text-amber-500" fixed-width aria-hidden="true" />
+                    <p>{{ message.message }}</p>
+                </div>
+                <div class="mt-3 flex justify-end gap-2">
+                    <Button type="negative" size="xs" :label="message.rejectLabel" @click="rejectCallback" />
+                    <Button type="primary" size="xs" :label="message.acceptLabel" @click="acceptCallback" />
+                </div>
+            </div>
+        </template>
+    </ConfirmPopup>
 
     <PurchaseOrderLineAddToContainerDialog v-if="containerDialogItem" v-model:visible="isContainerDialogVisible" :item="containerDialogItem" />
 

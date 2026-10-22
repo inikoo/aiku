@@ -22,8 +22,8 @@ use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
- * The agent packs what it received of a purchase order line and already checked: that warehouse stock is packed for
- * the next container, and its check can no longer be changed. Goods not checked yet stay received until they are.
+ * The agent packs what it received of a purchase order line: that warehouse stock is packed for the next container,
+ * and its check can no longer be changed, so goods packed before they were checked stay unchecked.
  */
 class PackPurchaseOrderTransaction extends OrgAction
 {
@@ -42,15 +42,10 @@ class PackPurchaseOrderTransaction extends OrgAction
             ->where('agent_warehouse_stocks.quantity', '>', 0);
     }
 
-    public static function packableStocks(): Builder
-    {
-        return self::receivedStocks()->whereNotNull('agent_goods_receipt_items.checked_at');
-    }
-
     public function handle(PurchaseOrderTransaction $purchaseOrderTransaction): PurchaseOrderTransaction
     {
         DB::transaction(function () use ($purchaseOrderTransaction) {
-            $stockIds = self::packableStocks()
+            $stockIds = self::receivedStocks()
                 ->where('agent_warehouse_stocks.purchase_order_transaction_id', $purchaseOrderTransaction->id)
                 ->pluck('agent_warehouse_stocks.id');
 
@@ -78,12 +73,12 @@ class PackPurchaseOrderTransaction extends OrgAction
 
     public function afterValidator(Validator $validator): void
     {
-        $hasPackable = self::packableStocks()
+        $hasPackable = self::receivedStocks()
             ->where('agent_warehouse_stocks.purchase_order_transaction_id', $this->purchaseOrderTransaction->id)
             ->exists();
 
         if (!$hasPackable) {
-            $validator->errors()->add('pack', __('Nothing of this item is received and checked waiting to be packed'));
+            $validator->errors()->add('pack', __('Nothing of this item is received waiting to be packed'));
         }
     }
 

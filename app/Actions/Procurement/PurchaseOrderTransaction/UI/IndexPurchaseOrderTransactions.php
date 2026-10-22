@@ -193,8 +193,8 @@ class IndexPurchaseOrderTransactions extends OrgAction
     }
 
     /**
-     * What the agent holds of each line: received and checked waiting to be packed, received not checked yet,
-     * packed, and the units not in a container yet.
+     * What the agent holds of each line: received waiting to be packed, the part of it not checked yet, packed,
+     * and the units not in a container yet.
      */
     private function selectAgentWarehouseQuantities(QueryBuilder $query): void
     {
@@ -203,7 +203,7 @@ class IndexPurchaseOrderTransactions extends OrgAction
 
         $quantityOnDelivery = StoreStockDeliveryFromPurchaseOrder::quantityOnDelivery();
 
-        $query->selectSub($ofLine(PackPurchaseOrderTransaction::packableStocks()), 'quantity_packable')
+        $query->selectSub($ofLine(PackPurchaseOrderTransaction::receivedStocks()), 'quantity_packable')
             ->selectSub($ofLine(PackPurchaseOrderTransaction::receivedStocks()->whereNull('agent_goods_receipt_items.checked_at')), 'quantity_to_check')
             ->selectSub($ofLine(DB::table('agent_warehouse_stocks')->where('agent_warehouse_stocks.state', '!=', AgentWarehouseStockStateEnum::RECEIVED->value)), 'quantity_packed')
             ->selectRaw('purchase_order_transactions.quantity_ordered - ('.$quantityOnDelivery->toSql().') as quantity_awaiting_delivery', $quantityOnDelivery->getBindings());
