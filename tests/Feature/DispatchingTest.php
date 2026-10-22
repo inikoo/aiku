@@ -3182,6 +3182,21 @@ test('typing a waiting quantity asks for the picked bay only once nothing is lef
     expect((float)$item->refresh()->quantity_waiting_warehouse)->toBe(0.0);
 });
 
+test('the picked bays list gives each bay its code and searches by it, HELP-4229', function () {
+    $pickedBay      = StorePickedBay::make()->handle($this->warehouse, ['code' => 'zona_'.Str::random(4)]);
+    $otherPickedBay = StorePickedBay::make()->handle($this->warehouse, ['code' => 'other_'.Str::random(4)]);
+    actingAs($this->user);
+
+    getJson(route('grp.json.picked_bays.list', $this->warehouse))
+        ->assertOk()
+        ->assertJsonFragment(['id' => $pickedBay->id, 'code' => $pickedBay->code]);
+
+    getJson(route('grp.json.picked_bays.list', [$this->warehouse, 'filter[global]' => $pickedBay->code]))
+        ->assertOk()
+        ->assertJsonFragment(['code' => $pickedBay->code])
+        ->assertJsonMissing(['code' => $otherPickedBay->code]);
+});
+
 test('lowering a pick from the waiting warehouse panel puts the difference back on the shelf', function () {
     $settings = $this->organisation->settings;
     data_set($settings, 'orders.allow_waiting', true);
