@@ -730,36 +730,6 @@ test('a recipe change does not ask again for a step whose replaced step is alrea
     $this->artefact->manufactureTasks()->sync([$this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1]]);
 });
 
-test('a step dropped from the recipe while a session was open on it leaves the job when that session closes with nothing made', function () {
-    $mixing  = stepTestManufactureTask($this->production, 'MIXL', 'Mixing leftover');
-    $filling = stepTestManufactureTask($this->production, 'FILLL', 'Filling leftover');
-    $this->artefact->manufactureTasks()->sync([$this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1]]);
-
-    $jobOrder    = StoreJobOrder::make()->action($this->production, []);
-    $idleItem    = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 4]);
-    ConfirmJobOrder::make()->action($jobOrder);
-    $idleSession   = StartManufactureTaskSession::make()->action($this->guest->getUser(), $idleItem->tasks()->first());
-    $idleTaskId    = $idleSession->job_order_item_task_id;
-
-    SetArtefactsRecipe::make()->action($this->production, [
-        'artefacts' => [$this->artefact->id],
-        'steps'     => [
-            ['manufacture_task_id' => $mixing->id, 'position' => 1, 'units_per_artefact' => 1],
-            ['manufacture_task_id' => $filling->id, 'position' => 2, 'units_per_artefact' => 1],
-        ],
-    ]);
-    expect($idleItem->tasks()->whereKey($idleTaskId)->exists())->toBeTrue();
-
-    CloseManufactureTaskSession::make()->action($idleSession, ['quantity_made' => 0]);
-
-    expect($idleItem->tasks()->pluck('manufacture_task_id')->all())->toBe([$mixing->id, $filling->id])
-        ->and(ManufactureTaskSession::whereKey($idleSession->id)->exists())->toBeFalse();
-
-    $this->artefact->manufactureTasks()->sync([$this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1]]);
-    $workedJobOrder = StoreJobOrder::make()->action($this->production, []);
-    $workedItem     = StoreJobOrderItem::make()->action($workedJobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 4]);
-    ConfirmJobOrder::make()->action($workedJobOrder);
-    $workedTask    = $workedItem->tasks()->where('manufacture_task_id', $this->manufactureTask->id)->first();
 test('a step added to the recipe is not added to an open job whose later step already has work', function () {
     $packing   = stepTestManufactureTask($this->production, 'PACKL', 'Packing later');
     $shrinking = stepTestManufactureTask($this->production, 'SHRINKN', 'Shrinking new');
@@ -792,6 +762,36 @@ test('a step added to the recipe is not added to an open job whose later step al
     $this->artefact->manufactureTasks()->sync([$this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1]]);
 });
 
+test('a step dropped from the recipe while a session was open on it leaves the job when that session closes with nothing made', function () {
+    $mixing  = stepTestManufactureTask($this->production, 'MIXL', 'Mixing leftover');
+    $filling = stepTestManufactureTask($this->production, 'FILLL', 'Filling leftover');
+    $this->artefact->manufactureTasks()->sync([$this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1]]);
+
+    $jobOrder    = StoreJobOrder::make()->action($this->production, []);
+    $idleItem    = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 4]);
+    ConfirmJobOrder::make()->action($jobOrder);
+    $idleSession   = StartManufactureTaskSession::make()->action($this->guest->getUser(), $idleItem->tasks()->first());
+    $idleTaskId    = $idleSession->job_order_item_task_id;
+
+    SetArtefactsRecipe::make()->action($this->production, [
+        'artefacts' => [$this->artefact->id],
+        'steps'     => [
+            ['manufacture_task_id' => $mixing->id, 'position' => 1, 'units_per_artefact' => 1],
+            ['manufacture_task_id' => $filling->id, 'position' => 2, 'units_per_artefact' => 1],
+        ],
+    ]);
+    expect($idleItem->tasks()->whereKey($idleTaskId)->exists())->toBeTrue();
+
+    CloseManufactureTaskSession::make()->action($idleSession, ['quantity_made' => 0]);
+
+    expect($idleItem->tasks()->pluck('manufacture_task_id')->all())->toBe([$mixing->id, $filling->id])
+        ->and(ManufactureTaskSession::whereKey($idleSession->id)->exists())->toBeFalse();
+
+    $this->artefact->manufactureTasks()->sync([$this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1]]);
+    $workedJobOrder = StoreJobOrder::make()->action($this->production, []);
+    $workedItem     = StoreJobOrderItem::make()->action($workedJobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 4]);
+    ConfirmJobOrder::make()->action($workedJobOrder);
+    $workedTask    = $workedItem->tasks()->where('manufacture_task_id', $this->manufactureTask->id)->first();
     $workedSession = StartManufactureTaskSession::make()->action($this->guest->getUser(), $workedTask);
     $this->artefact->manufactureTasks()->sync([$mixing->id => ['position' => 1, 'units_per_artefact' => 1]]);
     CloseManufactureTaskSession::make()->action($workedSession, ['quantity_made' => 2]);
