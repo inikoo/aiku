@@ -1014,6 +1014,12 @@ test('the agent completes factory photos angle by angle, and a new photo for an 
     expect($photos->fresh()->value['angles']['front'])->not->toBe($firstFront)
         ->and($productDevelopment->files()->find($firstFront)->superseded_at)->not->toBeNull()
         ->and($productDevelopment->files()->where('checklist_item_id', $photos->id)->whereNull('superseded_at')->count())->toBe(6);
+
+    $editor = \App\Actions\Goods\ProductDevelopment\UI\GetProductDevelopmentChecklistEditor::run($productDevelopment->fresh(), $this->user, true);
+    $front  = collect(collect(collect($editor['skus'])->firstWhere('id', $item->id)['rows'])->firstWhere('id', $photos->id)['value']['angles'])->firstWhere('key', 'front');
+    expect($front['name'])->toBe('front.jpg')
+        ->and($front['mime'])->toBe('image/jpeg')
+        ->and($front['url'])->not->toBeNull();
 });
 
 test('concept is uploaded and marked up with pins and freehand lines, and packaging can be skipped with the label opening straight away', function () {

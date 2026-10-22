@@ -121,7 +121,7 @@ class GetProductDevelopmentChecklistEditor
     }
 
     /**
-     * @return array{angles: array<int, array{key: string, label: string, url: string|null, preview_url: string|null}>, upload_route: array<string, mixed>}
+     * @return array{angles: array<int, array{key: string, label: string, url: string|null, preview_url: string|null, name: string|null, mime: string|null}>, upload_route: array<string, mixed>}
      */
     private function factoryPhotos(ProductDevelopmentChecklistItem $row): array
     {
@@ -137,6 +137,8 @@ class GetProductDevelopmentChecklistEditor
                     'label'       => $label,
                     'url'         => $media ? route('grp.media.download', ['media' => $media->ulid]) : null,
                     'preview_url' => $media ? route('grp.media.download', ['media' => $media->ulid, 'inline' => 1]) : null,
+                    'name'        => $media?->name,
+                    'mime'        => $media?->mime_type,
                 ];
             })->values()->all(),
             'upload_route' => ['name' => 'grp.models.product_development.checklist_item.factory_photo', 'parameters' => ['productDevelopmentChecklistItem' => $row->id]],
