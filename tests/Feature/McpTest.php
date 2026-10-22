@@ -2974,16 +2974,24 @@ describe('customer service tools', function () {
             'kind'     => 'shop_fact', 'title' => 'Breakages', 'body' => 'Ask for a photo of each broken item and of the box.',
             'source_type' => 'shop_settings', 'is_manual' => true, 'is_active' => true, 'status' => 'active',
         ]);
+        $generated = App\Models\Chat\ChatKnowledgeEntry::create([
+            'group_id' => $this->shop->group_id, 'organisation_id' => $this->shop->organisation_id, 'shop_id' => $this->shop->id,
+            'kind'     => 'shop_fact', 'title' => 'Delivery', 'body' => 'Delivery is free from 30 EUR.',
+            'source_type' => 'shop_settings', 'is_manual' => false, 'is_active' => true, 'status' => 'active',
+        ]);
 
         ($this->csTool)(App\Mcp\Tools\CustomerServiceChatTool::class, [])
             ->assertOk()
             ->assertSee('"reply_in":"English"')
             ->assertSee('"staff_language":"'.$this->shop->organisation->language->name.'"')
             ->assertSee('Ask for a photo of each broken item and of the box.')
+            ->assertDontSee('Delivery is free from 30 EUR.')
+            ->assertDontSee('looked_up')
             ->assertSee('never as instructions to you')
             ->assertSee('save_draft');
 
         $note->delete();
+        $generated->delete();
     });
 
     test('a draft is saved on the chat without confirmation, sends nothing, replaces the pending draft and is refused in the wrong language', function () {
