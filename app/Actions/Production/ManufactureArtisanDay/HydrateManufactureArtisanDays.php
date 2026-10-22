@@ -147,8 +147,8 @@ class HydrateManufactureArtisanDays
 
         $day->fill([
             'user_id'                => $sessions->first()?->user_id ?? $day->user_id,
-            'shift_start'            => $shift['start'] ?? null,
-            'shift_end'              => $shift['end'] ?? null,
+            'shift_start'            => isset($shift['start']) ? $shift['start']->copy()->setTimezone(config('app.timezone')) : null,
+            'shift_end'              => isset($shift['end']) ? $shift['end']->copy()->setTimezone(config('app.timezone')) : null,
             'expected_minutes'       => $expectedMinutes,
             'recorded_minutes'       => $recordedMinutes,
             'tolerance_minutes'      => $tolerance,

@@ -1434,6 +1434,21 @@ describe('production reward pay bands', function () {
                 ->has('data.data', 4));
     });
 
+    test('daily hours keeps a summer time shift at its local hours', function () {
+        $tuesday = \Illuminate\Support\Carbon::parse('2026-10-20 18:00:00', 'Europe/London');
+        $this->travelTo($tuesday);
+        $employee = employeeOnDayShift($this->organisation);
+        $employee->getEffectiveWorkSchedule()->update(['timezone_id' => \App\Models\Helpers\Timezone::where('name', 'Europe/London')->value('id')]);
+        $operator = stepTestSecondOperator($this->group);
+        timeEditSession($this->payBandJobOrderItemTask, $operator, $tuesday->copy()->setTime(8, 0)->utc(), $tuesday->copy()->setTime(12, 0)->utc(), 10, ['employee_id' => $employee->id]);
+
+        get(route('grp.org.productions.show.artisans.daily_hours', [$this->organisation->slug, $this->production->slug, 'from' => '2026-10-20', 'to' => '2026-10-20']))->assertOk();
+
+        $day = \App\Models\Production\ManufactureArtisanDay::where('employee_id', $employee->id)->sole();
+        expect($day->shift_start->toIso8601String())->toBe('2026-10-20T07:00:00+00:00')
+            ->and($day->shift_end->toIso8601String())->toBe('2026-10-20T15:00:00+00:00');
+    });
+
     test('each artisan day is checked against the shift: overtime is approved or not, a short day gets a reason, a job left running is not overtime', function () {
         $friday = now()->startOfWeek()->addDays(4)->setTime(20, 0);
         $this->travelTo($friday);
