@@ -27,11 +27,11 @@ use App\Actions\Masters\MasterProductCategory\Hydrators\MasterDepartmentHydrateM
 use App\Actions\Masters\MasterProductCategory\Hydrators\MasterFamilyHydrateMasterAssets;
 use App\Actions\Masters\MasterShop\Hydrators\MasterShopHydrateMasterAssets;
 use App\Actions\Masters\MasterShop\Hydrators\MasterShopHydrateNumberMismatches;
+use App\Actions\Masters\WithMasterSeoImage;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateMasterAssets;
 use App\Actions\Traits\Authorisations\WithMastersEditAuthorisation;
 use App\Actions\Traits\Rules\WithNoStrictRules;
-use App\Actions\Traits\UI\WithImageSeo;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithLineTaxCategories;
 use App\Actions\Traits\WithMasterAssetTradeUnits;
@@ -65,7 +65,7 @@ class UpdateMasterAsset extends OrgAction
     use WithLineTaxCategories;
     use WithMasterAssetTradeUnits;
     use WithCustomTradeUnitAudits;
-    use WithImageSeo;
+    use WithMasterSeoImage;
 
     private MasterAsset $masterAsset;
 
@@ -208,7 +208,7 @@ class UpdateMasterAsset extends OrgAction
         $seoImage = Arr::pull($modelData, 'seo_image');
         if ($seoImage) {
             $modelData['seo_image_url'] = null;
-            $masterAsset                = $this->processSeoImage(['image' => $seoImage], $masterAsset);
+            $masterAsset                = $this->processMasterSeoImage($seoImage, $masterAsset);
         }
 
         $tradeUnits = Arr::pull($modelData, 'trade_units', []);

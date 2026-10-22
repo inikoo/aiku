@@ -20,10 +20,10 @@ use App\Actions\Masters\MasterShop\Hydrators\MasterShopHydrateMasterDepartments;
 use App\Actions\Masters\MasterShop\Hydrators\MasterShopHydrateMasterFamilies;
 use App\Actions\Masters\MasterShop\Hydrators\MasterShopHydrateMasterFamiliesWithVolGrDiscount;
 use App\Actions\Masters\MasterShop\Hydrators\MasterShopHydrateMasterSubDepartments;
+use App\Actions\Masters\WithMasterSeoImage;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateMasterProductCategories;
 use App\Actions\Traits\UI\WithImageCatalogue;
-use App\Actions\Traits\UI\WithImageSeo;
 use App\Enums\Catalogue\MasterProductCategory\MasterProductCategoryTypeEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Helpers\Language;
@@ -40,7 +40,7 @@ use Illuminate\Validation\Validator;
 class UpdateMasterProductCategory extends OrgAction
 {
     use WithImageCatalogue;
-    use WithImageSeo;
+    use WithMasterSeoImage;
     use WithMasterProductCategoryAction;
     use SanitizeInputs;
 
@@ -107,7 +107,7 @@ class UpdateMasterProductCategory extends OrgAction
         $seoImage = Arr::pull($modelData, 'seo_image');
         if ($seoImage) {
             $modelData['seo_image_url'] = null;
-            $masterProductCategory      = $this->processSeoImage(['image' => $seoImage], $masterProductCategory);
+            $masterProductCategory      = $this->processMasterSeoImage($seoImage, $masterProductCategory);
         }
 
         if (Arr::has($modelData, 'name_i8n')) {
