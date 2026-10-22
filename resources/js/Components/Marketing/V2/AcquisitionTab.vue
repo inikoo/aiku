@@ -19,6 +19,15 @@ type WindowFigures = {
     state: "final" | "growing" | "not_yet"
 }
 
+type ValueFigures = {
+    buyers: number
+    margin_to_date: number | null
+    cltv: Record<number, number | null>
+    ltv_cac: Record<number, number | null>
+    payback_months: number | null
+    payback_beyond: boolean
+}
+
 type Channel = {
     type: string
     name: string
@@ -28,6 +37,7 @@ type Channel = {
     spend: number
     cac: number | null
     windows: WindowFigures[]
+    value: ValueFigures | null
 }
 
 const props = defineProps<{
@@ -46,7 +56,15 @@ const props = defineProps<{
             paid_cac: number | null
             no_first_touch: number
             no_first_touch_buyers: number
+            paid_value: ValueFigures | null
         }
+        value: {
+            horizons: number[]
+            hydrated_at: string | null
+            average_margin: number | null
+            cost_coverage: number | null
+            cohorts: Record<number, { from: string, to: string, buyers: number }>
+        } | null
         channels: Channel[]
         cohorts: {
             months: { key: string, label: string }[]
@@ -54,7 +72,8 @@ const props = defineProps<{
                 type: string
                 name: string
                 customers: number
-                rows: { key: string, label: string, customers: number, cells: WindowFigures[] }[]
+                is_paid: boolean
+                rows: { key: string, label: string, customers: number, buyers: number, spend: number, cac: number | null, cells: WindowFigures[], value: ValueFigures | null }[]
             }[]
         }
     }
@@ -122,6 +141,40 @@ const cohortChannel = ref(
 )
 const cohort = computed(() => props.data.cohorts.channels.find(channel => channel.type === cohortChannel.value))
 
+const horizon = ref(props.data.value?.horizons[props.data.value.horizons.length - 1] ?? 36)
+const horizonOptions = computed(() => (props.data.value?.horizons ?? []).map(months => ({
+    label: months === 12 ? ctrans("1 year") : ctrans(":years years", { years: months / 12 }),
+    value: months,
+})))
+const horizonLabel = computed(() => horizonOptions.value.find(option => option.value === horizon.value)?.label ?? "")
+
+const valueRows = computed(() => withCustomers.value.filter(channel => (channel.value?.buyers ?? 0) > 0))
+
+const paidValueChannelOptions = computed(() => props.data.cohorts.channels.filter(channel => channel.is_paid).map(channel => ({ label: channel.name, value: channel.type })))
+const paidValueChannel = ref(
+    props.data.cohorts.channels.find(channel => channel.type === "google-ads" && channel.is_paid)?.type
+    ?? props.data.cohorts.channels.find(channel => channel.is_paid)?.type
+)
+const paidValueCohort = computed(() => props.data.cohorts.channels.find(channel => channel.type === paidValueChannel.value))
+
+const ratioText = (ratio: number | null | undefined) => ratio === null || ratio === undefined ? "—" : `${locale.number(ratio)} : 1`
+const ratioClass = (ratio: number | null | undefined) => {
+    if (ratio === null || ratio === undefined) {
+        return "text-gray-400"
+    }
+    return ratio >= 3 ? "bg-green-50 text-green-700 ring-green-200" : ratio >= 1 ? "bg-amber-50 text-amber-800 ring-amber-200" : "bg-red-50 text-red-700 ring-red-200"
+}
+const ratioHelp = ctrans("Lifetime gross margin per buyer over the cost per buyer. Under 1 the buyer costs more than they earn; around 3 is healthy; well above 5 can mean spending too little.")
+
+const paybackText = (value: ValueFigures | null | undefined) => {
+    if (!value || value.payback_months === null) {
+        return value?.payback_beyond ? ctrans("Over :months months", { months: 36 }) : "—"
+    }
+    return value.payback_months < 1 ? ctrans("Under 1 month") : ctrans(":months months", { months: locale.number(value.payback_months) })
+}
+
+const percent = (value: number | null | undefined) => value === null || value === undefined ? "—" : `${locale.number(Math.round(value * 1000) / 10)}%`
+
 const stateHelp: Record<string, string> = {
     final: ctrans("Every customer of this cohort is past this window: the figure is final."),
     growing: ctrans("Some customers of this cohort are still inside this window: the figure keeps growing."),
@@ -158,6 +211,9 @@ const stateHelp: Record<string, string> = {
                 <div class="text-xs opacity-90">{{ ctrans("Paid CAC") }}</div>
                 <div class="mt-1 text-3xl font-semibold tabular-nums">{{ data.totals.paid_cac !== null ? money(data.totals.paid_cac) : "—" }}</div>
                 <div class="mt-0.5 text-xs opacity-90 tabular-nums">{{ money(data.totals.paid_spend) }} {{ ctrans("ad spend") }}</div>
+                <div v-if="data.totals.paid_value?.ltv_cac[horizon]" class="mt-0.5 text-xs opacity-90 tabular-nums" v-tooltip="ratioHelp">
+                    {{ ctrans("LTV:CAC") }} {{ ratioText(data.totals.paid_value.ltv_cac[horizon]) }} · {{ horizonLabel }}
+                </div>
             </div>
             <div class="rounded-xl ring-1 ring-amber-200 bg-amber-50 p-5">
                 <div class="text-xs text-amber-800" v-tooltip="ctrans('No touch in the 90 days before registering.')">{{ ctrans("No first touch") }}</div>
@@ -223,6 +279,107 @@ const stateHelp: Record<string, string> = {
                     <div v-else class="mt-4 py-10 text-center text-sm text-gray-500">{{ ctrans("No paid channel in this period") }}</div>
                 </section>
             </div>
+
+            <section class="rounded-xl ring-1 ring-gray-200 bg-white p-5" aria-labelledby="v2-cltv">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <h2 id="v2-cltv" class="text-sm font-medium text-gray-800">{{ ctrans("Customer lifetime value") }}</h2>
+                        <span class="text-xs text-gray-400">{{ ctrans("Projected gross margin per buyer from their first order, next to what it cost to win them") }}</span>
+                    </div>
+                    <SegmentedToggle v-if="data.value" v-model="horizon" :options="horizonOptions" :ariaLabel="ctrans('Lifetime')" />
+                </div>
+                <template v-if="data.value">
+                    <div class="mt-4 overflow-x-auto">
+                        <table class="w-full min-w-[44rem] text-sm">
+                            <thead class="whitespace-nowrap">
+                                <tr class="border-b border-gray-100 text-xs text-gray-400">
+                                    <th class="pb-2 pr-4 text-left font-normal">{{ ctrans("Channel") }}</th>
+                                    <th class="pb-2 px-3 text-right font-normal">{{ ctrans("Buyers") }}</th>
+                                    <th class="pb-2 px-3 text-right font-normal" v-tooltip="ctrans('Gross margin each buyer has brought so far')">{{ ctrans("Margin so far") }}</th>
+                                    <th class="pb-2 px-3 text-right font-normal" v-tooltip="ctrans('Projected gross margin per buyer over the chosen lifetime')">{{ ctrans("CLTV") }} · {{ horizonLabel }}</th>
+                                    <th class="pb-2 px-3 text-right font-normal">{{ ctrans("CAC") }}</th>
+                                    <th class="pb-2 px-3 text-right font-normal" v-tooltip="ratioHelp">{{ ctrans("LTV:CAC") }}</th>
+                                    <th class="pb-2 pl-3 text-right font-normal" v-tooltip="ctrans('When the projected margin per buyer covers the cost per buyer')">{{ ctrans("Payback") }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="channel in valueRows" :key="channel.type" class="border-b border-gray-50 last:border-0">
+                                    <td class="py-2 pr-4">
+                                        <span class="flex items-center gap-2">
+                                            <span class="h-3 w-3 shrink-0 rounded-sm" :style="{ background: channelColor(channel.type) }" aria-hidden="true" />
+                                            <span :class="channel.type === 'no_first_touch' ? 'italic text-gray-500' : 'text-gray-700'">{{ channel.name }}</span>
+                                        </span>
+                                    </td>
+                                    <td class="py-2 px-3 text-right tabular-nums text-gray-500">{{ locale.number(channel.value!.buyers) }}</td>
+                                    <td class="py-2 px-3 text-right tabular-nums text-gray-500">{{ channel.value!.margin_to_date !== null ? money(channel.value!.margin_to_date) : "—" }}</td>
+                                    <td class="py-2 px-3 text-right font-medium tabular-nums text-gray-900">{{ channel.value!.cltv[horizon] != null ? money(channel.value!.cltv[horizon]!) : "—" }}</td>
+                                    <td class="py-2 px-3 text-right tabular-nums text-gray-700">{{ channel.cac !== null ? money(channel.cac) : "—" }}</td>
+                                    <td class="py-2 px-3 text-right">
+                                        <span v-if="channel.value!.ltv_cac[horizon] != null" class="rounded-md px-2 py-0.5 text-xs font-medium tabular-nums ring-1" :class="ratioClass(channel.value!.ltv_cac[horizon])">
+                                            {{ ratioText(channel.value!.ltv_cac[horizon]) }}
+                                        </span>
+                                        <span v-else class="text-gray-400">—</span>
+                                    </td>
+                                    <td class="py-2 pl-3 text-right tabular-nums text-gray-700 whitespace-nowrap">{{ channel.is_paid ? paybackText(channel.value) : "—" }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="mt-3 text-xs text-gray-400">
+                        {{ ctrans("Projection: what each buyer earned in their first days (up to 90), grown the way this shop's buyers whose first order was between :from and :to grew. Gross margin is the price less the current product cost, without shipping; :coverage of product revenue has a cost, the rest uses the shop average of :margin. Updated :date, every month.", {
+                            from: data.value.cohorts[horizon]?.from ?? "—",
+                            to: data.value.cohorts[horizon]?.to ?? "—",
+                            coverage: percent(data.value.cost_coverage),
+                            margin: percent(data.value.average_margin),
+                            date: data.value.hydrated_at ?? "—",
+                        }) }}
+                    </p>
+                </template>
+                <div v-else class="mt-5 flex min-h-24 items-center justify-center rounded-lg text-sm text-gray-500"
+                     style="background: repeating-linear-gradient(135deg, #f5f5f4 0 12px, #ffffff 12px 24px)">
+                    {{ ctrans("Not calculated yet for this shop: it is worked out on the 1st of every month.") }}
+                </div>
+            </section>
+
+            <section v-if="data.value && paidValueCohort" class="rounded-xl ring-1 ring-gray-200 bg-white p-5" aria-labelledby="v2-cltv-month">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <h2 id="v2-cltv-month" class="text-sm font-medium text-gray-800">{{ ctrans("Spend and lifetime value by month") }} · {{ paidValueCohort.name }}</h2>
+                        <span class="text-xs text-gray-400">{{ ctrans("Ad spend of each month next to the buyers who registered that month, independent of the selected period") }}</span>
+                    </div>
+                    <Select v-model="paidValueChannel" :options="paidValueChannelOptions" optionLabel="label" optionValue="value" class="w-56" :aria-label="ctrans('Channel')" />
+                </div>
+                <div class="mt-4 overflow-x-auto">
+                    <table class="w-full min-w-[40rem] text-sm">
+                        <thead class="whitespace-nowrap">
+                            <tr class="border-b border-gray-100 text-xs text-gray-400">
+                                <th class="pb-2 pr-4 text-left font-normal">{{ ctrans("Registered") }}</th>
+                                <th class="pb-2 px-3 text-right font-normal">{{ ctrans("Ad spend") }}</th>
+                                <th class="pb-2 px-3 text-right font-normal">{{ ctrans("Buyers") }}</th>
+                                <th class="pb-2 px-3 text-right font-normal">{{ ctrans("CAC") }}</th>
+                                <th class="pb-2 px-3 text-right font-normal">{{ ctrans("CLTV") }} · {{ horizonLabel }}</th>
+                                <th class="pb-2 pl-3 text-right font-normal" v-tooltip="ratioHelp">{{ ctrans("LTV:CAC") }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="row in paidValueCohort.rows" :key="row.key" class="border-b border-gray-50 last:border-0">
+                                <td class="py-2 pr-4 whitespace-nowrap text-gray-700">{{ row.label }}</td>
+                                <td class="py-2 px-3 text-right tabular-nums text-gray-700">{{ money(row.spend) }}</td>
+                                <td class="py-2 px-3 text-right tabular-nums text-gray-500">{{ locale.number(row.buyers) }}</td>
+                                <td class="py-2 px-3 text-right tabular-nums text-gray-700">{{ row.cac !== null ? money(row.cac) : "—" }}</td>
+                                <td class="py-2 px-3 text-right font-medium tabular-nums text-gray-900">{{ row.value?.cltv[horizon] != null ? money(row.value.cltv[horizon]!) : "—" }}</td>
+                                <td class="py-2 pl-3 text-right">
+                                    <span v-if="row.value?.ltv_cac[horizon] != null" class="rounded-md px-2 py-0.5 text-xs font-medium tabular-nums ring-1" :class="ratioClass(row.value.ltv_cac[horizon])">
+                                        {{ ratioText(row.value.ltv_cac[horizon]) }}
+                                    </span>
+                                    <span v-else class="text-gray-400">—</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="mt-3 text-xs text-gray-400">{{ ctrans("A month with few buyers swings a lot: read the trend over several months, not one.") }}</p>
+            </section>
 
             <section class="rounded-xl ring-1 ring-gray-200 bg-white p-5" aria-labelledby="v2-rpb">
                 <div class="flex flex-wrap items-center justify-between gap-3">
