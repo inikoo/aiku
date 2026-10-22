@@ -66,9 +66,22 @@ class SqlQueryTool extends Tool
         return Response::json(array_filter([
             'row_count' => count($rows),
             'truncated' => count($rows) > $maxRows,
-            'rows'      => array_slice($rows, 0, $maxRows),
+            'rows'      => array_map($this->encodableRow(...), array_slice($rows, 0, $maxRows)),
             'hint'      => $this->orgStockWriteToolsHint($request, $sql),
         ], fn ($value) => $value !== null));
+    }
+
+    private function encodableRow(object $row): array
+    {
+        return array_map(
+            fn ($value) => match (true) {
+                is_resource($value)                     => '\\x'.bin2hex(stream_get_contents($value)),
+                is_float($value) && is_nan($value)      => 'NaN',
+                is_float($value) && is_infinite($value) => $value > 0 ? 'Infinity' : '-Infinity',
+                default                                 => $value,
+            },
+            (array) $row
+        );
     }
 
     /**

@@ -524,6 +524,16 @@ describe('the sql query tool', function () {
         $response->assertOk()->assertSee('a; it');
     });
 
+    test('bytea and non finite float columns are returned as text instead of failing to encode', function () {
+        $this->user->update(['can_use_mcp_sql' => true]);
+
+        $response = AikuServer::actingAs($this->user)->tool(SqlQueryTool::class, [
+            'sql' => "select decode('cafe', 'hex') as payload, 'NaN'::float8 as not_a_number, '-Infinity'::float8 as minus_infinity",
+        ]);
+
+        $response->assertOk()->assertSee('\\\\xcafe')->assertSee('"not_a_number":"NaN"')->assertSee('"minus_infinity":"-Infinity"');
+    });
+
     test('describe tables without arguments lists every table', function () {
         $this->user->update(['can_use_mcp_sql' => true]);
 
