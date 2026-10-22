@@ -730,6 +730,38 @@ test('a step dropped from the recipe while a session was open on it leaves the j
     $workedItem     = StoreJobOrderItem::make()->action($workedJobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 4]);
     ConfirmJobOrder::make()->action($workedJobOrder);
     $workedTask    = $workedItem->tasks()->where('manufacture_task_id', $this->manufactureTask->id)->first();
+test('a step added to the recipe is not added to an open job whose later step already has work', function () {
+    $packing   = stepTestManufactureTask($this->production, 'PACKL', 'Packing later');
+    $shrinking = stepTestManufactureTask($this->production, 'SHRINKN', 'Shrinking new');
+    $this->artefact->manufactureTasks()->sync([
+        $this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1],
+        $packing->id               => ['position' => 2, 'units_per_artefact' => 1],
+    ]);
+
+    $jobOrder   = StoreJobOrder::make()->action($this->production, []);
+    $packedItem = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 4]);
+    $madeItem   = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 3]);
+    ConfirmJobOrder::make()->action($jobOrder);
+    foreach ([$this->manufactureTask->id, $packing->id] as $taskId) {
+        CloseManufactureTaskSession::make()->action(StartManufactureTaskSession::make()->action($this->guest->getUser(), $packedItem->tasks()->where('manufacture_task_id', $taskId)->first()), ['quantity_made' => 4]);
+    }
+    CloseManufactureTaskSession::make()->action(StartManufactureTaskSession::make()->action($this->guest->getUser(), $madeItem->tasks()->where('manufacture_task_id', $this->manufactureTask->id)->first()), ['quantity_made' => 3]);
+
+    SetArtefactsRecipe::make()->action($this->production, [
+        'artefacts' => [$this->artefact->id],
+        'steps'     => [
+            ['manufacture_task_id' => $this->manufactureTask->id, 'position' => 1, 'units_per_artefact' => 1],
+            ['manufacture_task_id' => $shrinking->id, 'position' => 2, 'units_per_artefact' => 1],
+            ['manufacture_task_id' => $packing->id, 'position' => 3, 'units_per_artefact' => 1],
+        ],
+    ]);
+
+    expect($packedItem->tasks()->where('manufacture_task_id', $shrinking->id)->exists())->toBeFalse()
+        ->and($madeItem->tasks()->orderBy('position')->pluck('manufacture_task_id')->all())->toBe([$this->manufactureTask->id, $shrinking->id, $packing->id]);
+
+    $this->artefact->manufactureTasks()->sync([$this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1]]);
+});
+
     $workedSession = StartManufactureTaskSession::make()->action($this->guest->getUser(), $workedTask);
     $this->artefact->manufactureTasks()->sync([$mixing->id => ['position' => 1, 'units_per_artefact' => 1]]);
     CloseManufactureTaskSession::make()->action($workedSession, ['quantity_made' => 2]);

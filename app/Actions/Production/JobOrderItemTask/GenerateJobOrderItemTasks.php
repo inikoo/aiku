@@ -27,6 +27,8 @@ class GenerateJobOrderItemTasks
      * A step that takes the place of a removed one is not asked for again where the removed step is already
      * finished, so the same work neither holds up the steps after it nor is paid twice.
      *
+     * A step new to the recipe is not added where a step after it already has work, since that work was done without it.
+     *
      * A step with nothing recorded yet, even one already started, follows a change of the recipe's units per
      * artefact; once work is recorded the step keeps what it asked for, so nothing already counted or paid is restated.
      *
@@ -45,10 +47,19 @@ class GenerateJobOrderItemTasks
         }
 
         $finishedTaskIds = $jobOrderItem->tasks()->where('state', JobOrderItemTaskStateEnum::DONE)->pluck('manufacture_task_id');
+        $existingTaskIds = $jobOrderItem->tasks()->pluck('manufacture_task_id');
+        $workedTaskIds   = $jobOrderItem->tasks()->whereNot(fn ($query) => $query->unworked())->pluck('manufacture_task_id');
+        $recipeSteps     = $artefact->manufactureTasks()->get();
 
-        foreach ($artefact->manufactureTasks()->get() as $manufactureTask) {
-            if ($finishedTaskIds->contains($replacedSteps[$manufactureTask->id] ?? null)
-                && $jobOrderItem->tasks()->where('manufacture_task_id', $manufactureTask->id)->doesntExist()) {
+        foreach ($recipeSteps as $manufactureTask) {
+            $isNewStep         = !$existingTaskIds->contains($manufactureTask->id);
+            $laterStepIsWorked = $recipeSteps
+                ->filter(fn (ManufactureTask $step) => $step->pivot->position > $manufactureTask->pivot->position)
+                ->pluck('id')
+                ->intersect($workedTaskIds)
+                ->isNotEmpty();
+
+            if ($isNewStep && ($laterStepIsWorked || $finishedTaskIds->contains($replacedSteps[$manufactureTask->id] ?? null))) {
                 continue;
             }
 
