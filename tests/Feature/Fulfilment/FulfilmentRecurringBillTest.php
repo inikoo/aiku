@@ -730,3 +730,67 @@ test('update quantity from pallet return and Recurring Bill', function (Fulfilme
 
     return $fulfilmentTransaction->fulfilmentCustomer;
 })->depends('add service after return dispatched');
+
+test('bulk add services and physical goods to pallet delivery and return, HELP-4185', function (PalletDelivery $palletDelivery, PalletReturn $palletReturn, Product $product) {
+    $services = Service::where('shop_id', $palletDelivery->fulfilment->shop_id)
+        ->where('is_auto_assign', false)
+        ->orderBy('id')
+        ->limit(2)
+        ->get();
+    expect($services)->toHaveCount(2);
+
+    $palletDelivery->refresh();
+    $recurringBill                  = $palletDelivery->recurringBill;
+    $deliveryServicesBefore         = $palletDelivery->stats->number_services;
+    $deliveryPhysicalGoodsBefore    = $palletDelivery->stats->number_physical_goods;
+    $recurringBillTransactionsBefore = $recurringBill->stats->number_transactions;
+
+    $this->post(route('grp.models.pallet-delivery.transaction.bulk_store', $palletDelivery->id), [
+        'transactions' => [
+            ['historic_asset_id' => $services[0]->current_historic_asset_id, 'quantity' => 2],
+            ['historic_asset_id' => $services[1]->current_historic_asset_id, 'quantity' => 1.5],
+            ['historic_asset_id' => $product->asset->current_historic_asset_id, 'quantity' => 3],
+        ]
+    ])->assertSuccessful()->assertSessionHasNoErrors();
+
+    $palletDelivery->refresh();
+    $recurringBill->refresh();
+    $productTransaction = $palletDelivery->transactions()->where('historic_asset_id', $product->asset->current_historic_asset_id)->latest('id')->first();
+    expect($palletDelivery->stats->number_services)->toBe($deliveryServicesBefore + 2)
+        ->and($palletDelivery->stats->number_physical_goods)->toBe($deliveryPhysicalGoodsBefore + 1)
+        ->and($recurringBill->stats->number_transactions)->toBe($recurringBillTransactionsBefore + 3)
+        ->and((float) $productTransaction->quantity)->toBe(3.0)
+        ->and((float) $productTransaction->net_amount)->toBe(3 * (float) $product->price)
+        ->and($productTransaction->recurringBillTransaction)->not->toBeNull();
+
+    $palletReturn->refresh();
+    $returnServicesBefore = $palletReturn->stats->number_services;
+
+    $this->post(route('grp.models.pallet-return.transaction.bulk_store', $palletReturn->id), [
+        'transactions' => [
+            ['historic_asset_id' => $services[0]->current_historic_asset_id, 'quantity' => 4],
+            ['historic_asset_id' => $services[1]->current_historic_asset_id, 'quantity' => 1],
+        ]
+    ])->assertSuccessful()->assertSessionHasNoErrors();
+
+    $palletReturn->refresh();
+    expect($palletReturn->stats->number_services)->toBe($returnServicesBefore + 2);
+
+    $returnTransactionsBefore = $palletReturn->transactions()->count();
+    $invalidPayloads          = [
+        [],
+        ['transactions' => [['historic_asset_id' => $services[0]->current_historic_asset_id, 'quantity' => 0]]],
+        ['transactions' => [
+            ['historic_asset_id' => $services[0]->current_historic_asset_id, 'quantity' => 1],
+            ['historic_asset_id' => $services[0]->current_historic_asset_id, 'quantity' => 1],
+        ]],
+        ['transactions' => [
+            ['historic_asset_id' => $services[0]->current_historic_asset_id, 'quantity' => 1],
+            ['historic_asset_id' => $services[1]->current_historic_asset_id, 'quantity' => -1],
+        ]],
+    ];
+    foreach ($invalidPayloads as $payload) {
+        $this->post(route('grp.models.pallet-return.transaction.bulk_store', $palletReturn->id), $payload)->assertSessionHasErrors();
+    }
+    expect($palletReturn->transactions()->count())->toBe($returnTransactionsBefore);
+})->depends('Delivery state change and recurring bill transaction monitor', 'setup pallet return (whole pallet)', 'create product in fulfilment shop');

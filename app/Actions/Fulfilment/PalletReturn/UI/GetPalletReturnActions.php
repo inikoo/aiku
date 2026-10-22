@@ -394,7 +394,7 @@ class GetPalletReturnActions
                             'key'     => 'add-service',
                             'tooltip' => __('Add single service'),
                             'route'   => [
-                                'name'       => 'grp.models.pallet-return.transaction.store',
+                                'name'       => 'grp.models.pallet-return.transaction.bulk_store',
                                 'parameters' => [
                                     'palletReturn' => $palletReturn->id
                                 ]
@@ -408,7 +408,7 @@ class GetPalletReturnActions
                             'label'   => __('Physical good'),
                             'tooltip' => __('Add physical good'),
                             'route'   => [
-                                'name'       => 'grp.models.pallet-return.transaction.store',
+                                'name'       => 'grp.models.pallet-return.transaction.bulk_store',
                                 'parameters' => [
                                     'palletReturn' => $palletReturn->id
                                 ]
