@@ -641,6 +641,11 @@ const dispatchStockDelivery = (action: any, data: { reason?: string } = {}) =>
 		},
 	})
 
+const openAttachmentsTab = () => {
+	dispatchWithoutEvidenceAction.value = null
+	handleTabUpdate("attachments")
+}
+
 const confirmDispatchStockDelivery = (action: any) => {
 	if (props.missing_evidence?.length) {
 		dispatchReason.value = ""
@@ -1598,7 +1603,17 @@ const confirmDeleteStockDelivery = (action: any) => {
 			</div>
 		</template>
 		<div class="space-y-3 text-sm text-gray-700">
-			<p>{{ ctrans("Not uploaded yet: :documents. Upload them in the Attachments tab, or give a reason to dispatch without them.", { documents: (missing_evidence ?? []).join(", ") }) }}</p>
+			<div>
+				<p>{{ ctrans("Not uploaded yet:") }}</p>
+				<ul class="mt-1 list-disc space-y-0.5 pl-5">
+					<li v-for="document in missing_evidence ?? []" :key="document">{{ document }}</li>
+				</ul>
+			</div>
+			<p>{{ ctrans("Upload them in the Attachments tab, or give a reason to dispatch without them.") }}</p>
+			<button v-if="tabs.navigation?.attachments" type="button" class="inline-flex items-center gap-1.5 font-medium text-[--app-accent] hover:text-[--app-accent-strong] hover:underline" @click="openAttachmentsTab">
+				<FontAwesomeIcon :icon="faPaperclip" fixed-width aria-hidden="true" />
+				{{ ctrans("Open the Attachments tab") }}
+			</button>
 			<label class="block">
 				<span class="text-gray-600">{{ ctrans("Reason (kept in the delivery's history)") }}</span>
 				<InputText v-model="dispatchReason" class="mt-1 w-full" autofocus maxlength="500" />
