@@ -48,6 +48,7 @@ import Button from "@/Components/Elements/Buttons/Button.vue"
 import {retinaLayoutStructure} from "@/Composables/useRetinaLayoutStructure"
 import {notify} from "@kyvg/vue3-notification"
 import Modal from "@/Components/Utils/Modal.vue"
+import ModalConfirmationDelete from "@/Components/Utils/ModalConfirmationDelete.vue"
 import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
 import PureInput from "@/Components/Pure/PureInput.vue"
 import axios from "axios"
@@ -1034,16 +1035,24 @@ onMounted(() => {
 
         <!-- Column: Actions 3 -->
         <template #cell(delete)="{ item }" v-if=!disabled>
-            <ButtonWithLink
+            <ModalConfirmationDelete
                 v-if="item.platform_status"
-                v-tooltip="ctrans('Unlink product from Shopify')"
-                type="negative"
-                icon="fal fa-unlink"
-                :routeTarget="item.unlink_portfolio"
-                size="xs"
-                :style="'white-r-outline'"
-                :bindToLink="{preserveScroll: true}"
-            />
+                :routeDelete="item.unlink_portfolio"
+                :title="ctrans('Stop syncing :product with your Shopify store?', { product: item.code })"
+                :description="ctrans('The product stays on your Shopify store as it is now, with its current price and stock. We will no longer update it, and price changes made here will not reach it. To take it off your store, delete it in Shopify.')"
+                :noLabel="ctrans('Stop syncing')"
+                noIcon="fal fa-unlink"
+                isFullLoading>
+                <template #default="{ changeModel }">
+                    <Button
+                        v-tooltip="ctrans('Stop syncing with your Shopify store (the product stays on Shopify)')"
+                        type="negative"
+                        icon="fal fa-unlink"
+                        @click="changeModel"
+                        size="xs"
+                        :style="'white-r-outline'" />
+                </template>
+            </ModalConfirmationDelete>
             <ButtonWithLink
                 v-else
                 v-tooltip="ctrans('Remove product')"

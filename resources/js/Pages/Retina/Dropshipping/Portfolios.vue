@@ -1826,7 +1826,7 @@ const layout = inject("layout", layoutStructure)
 				{{
 					pendingBulkAction?.label === "bulk-unlink"
 						? ctrans("Please take a moment before you continue: this cannot be undone. The products will be unlinked from your store and removed from My Products, together with the names, prices and descriptions you set for them. We cannot bring them back for you, so if you change your mind you will need to add them again yourself. The listings stay in your store.")
-						: ctrans("They stay in My Products, but they will no longer be linked to the listings in your store. We cannot undo this for you, so please make sure these are the products you mean.")
+						: ctrans("They stay in My Products, but they will no longer be linked to the listings in your store. We cannot undo this for you, so please make sure these are the products you mean. The listings stay in your store with their current price and stock, and we will no longer update them. To take them off your store, delete them there.")
 				}}
 			</p>
 			<div class="mt-6 flex justify-end gap-x-3">
