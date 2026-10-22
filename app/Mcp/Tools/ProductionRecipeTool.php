@@ -15,6 +15,7 @@ use App\Enums\SysAdmin\McpChange\McpChangeTypeEnum;
 use App\Enums\Production\Artefact\ArtefactStateEnum;
 use App\Models\Production\Artefact;
 use App\Models\Production\ArtefactFamily;
+use App\Models\Production\ArtefactManufactureTask;
 use App\Models\Production\ManufactureTask;
 use App\Models\Production\Production;
 use App\Models\Production\RawMaterial;
@@ -164,8 +165,8 @@ class ProductionRecipeTool extends Tool
         }
 
         $kgTaskIds   = ManufactureTask::whereIn('id', collect($steps)->pluck('manufacture_task_id'))->where('is_recorded_in_kg', true)->pluck('id');
-        $packCounted = $artefacts->load('orgStock')->filter(fn (Artefact $artefact) => $artefact->packedIn() > 1 && collect($steps)->contains(
-            fn (array $step) => !$kgTaskIds->contains($step['manufacture_task_id']) && (float) $step['units_per_artefact'] === (float) $artefact->packedIn()
+        $packCounted = $artefacts->load('orgStock')->filter(fn (Artefact $artefact) => collect($steps)->contains(
+            fn (array $step) => ArtefactManufactureTask::countsSkoPackAgain($artefact, $kgTaskIds->contains($step['manufacture_task_id']), $step['units_per_artefact'])
         ));
         if ($packCounted->isNotEmpty()) {
             $warnings['pack_counted_twice'] = 'An artefact is one unit of its SKO and the SKO already packs several: '

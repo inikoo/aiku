@@ -37,6 +37,26 @@ class ArtefactManufactureTask extends Pivot
     protected $guarded = [];
 
     /**
+     * An artefact is one unit of its SKO, so a step counted in units that asks for the SKO's whole pack
+     * per artefact counts the pack twice: jobs, SKOs received and raw materials all end up off by the
+     * pack size (BOUL family, 20 Oct 2026). Steps recorded in kg are weights, never packs.
+     */
+    public static function countsSkoPackAgain(Artefact $artefact, bool $isRecordedInKg, float|int|string|null $unitsPerArtefact): bool
+    {
+        return !$isRecordedInKg && $artefact->packedIn() > 1 && (float) $unitsPerArtefact === (float) $artefact->packedIn();
+    }
+
+    /**
+     * @param  Collection<int, Artefact>  $artefacts
+     */
+    public static function skoPackCountedAgainMessage(Collection $artefacts): string
+    {
+        return __('An artefact is one unit of its SKO, and the SKO already packs several: :artefacts. Counting that many per artefact counts the pack twice, so the job quantities, the SKOs received and the raw materials used would all be off by that much. Give the step per unit, usually 1.', [
+            'artefacts' => $artefacts->map(fn (Artefact $artefact) => __(':code (:packed_in per SKO)', ['code' => $artefact->code, 'packed_in' => $artefact->packedIn()]))->implode(', '),
+        ]);
+    }
+
+    /**
      * How many artefacts one unit of the step holds, when the step is counted in packs (a tray of 8
      * has units_per_artefact 0.125); null when the step is counted in artefacts or parts of one.
      */

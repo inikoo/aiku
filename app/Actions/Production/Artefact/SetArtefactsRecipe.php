@@ -166,16 +166,35 @@ class SetArtefactsRecipe extends OrgAction
 
     public function afterValidator(Validator $validator): void
     {
-        if ($this->asAction || filter_var($this->get('confirm_open_jobs'), FILTER_VALIDATE_BOOLEAN) || $validator->errors()->isNotEmpty()) {
+        if ($this->asAction || $validator->errors()->isNotEmpty()) {
             return;
         }
 
-        $newUnits = collect($this->get('steps'))->mapWithKeys(fn (array $step) => [(int) $step['manufacture_task_id'] => $step['units_per_artefact']])->all();
+        $steps     = collect($this->get('steps'));
+        $kgTaskIds = ManufactureTask::whereIn('id', $steps->pluck('manufacture_task_id'))->where('is_recorded_in_kg', true)->pluck('id');
+        $artefacts = Artefact::where('production_id', $this->production->id)
+            ->whereIn('id', $this->get('artefacts'))
+            ->with(['orgStock', 'manufactureTasks'])
+            ->get();
+
+        $packCountedAgain = $artefacts->filter(fn (Artefact $artefact) => $steps->contains(
+            fn (array $step) => (float) $artefact->manufactureTasks->find($step['manufacture_task_id'])?->pivot->units_per_artefact !== (float) $step['units_per_artefact']
+                && ArtefactManufactureTask::countsSkoPackAgain($artefact, $kgTaskIds->contains($step['manufacture_task_id']), $step['units_per_artefact'])
+        ));
+        if ($packCountedAgain->isNotEmpty()) {
+            $validator->errors()->add('steps', ArtefactManufactureTask::skoPackCountedAgainMessage($packCountedAgain));
+
+            return;
+        }
+
+        if (filter_var($this->get('confirm_open_jobs'), FILTER_VALIDATE_BOOLEAN)) {
+            return;
+        }
+
+        $newUnits = $steps->mapWithKeys(fn (array $step) => [(int) $step['manufacture_task_id'] => $step['units_per_artefact']])->all();
 
         $message = GenerateJobOrderItemTasks::openJobsConfirmationMessage(
-            Artefact::where('production_id', $this->production->id)
-                ->whereIn('id', $this->get('artefacts'))
-                ->get()
+            $artefacts
                 ->map(fn (Artefact $artefact) => GenerateJobOrderItemTasks::make()->openJobsAffectedBy(
                     $artefact,
                     $newUnits,

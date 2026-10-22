@@ -1102,6 +1102,17 @@ test('the ai assistant sets up artefacts, raw materials, tasks and recipes only 
     $artefact->orgStock->update(['packed_in' => 10]);
     $recipe([['task' => 'POUR'.$suffix, 'units_per_artefact' => 10, 'target_per_hour' => null]])->assertHasErrors(['pack_counted_twice', 'AI-'.$suffix.' (10 per SKO)']);
 
+    $pourTask = ManufactureTask::where('production_id', $this->production->id)->where('code', 'POUR'.$suffix)->firstOrFail();
+    \Pest\Laravel\post(route('grp.models.artefact.manufacture-task.attach', ['artefact' => $artefact->id]), ['manufacture_task_id' => $pourTask->id, 'position' => 1, 'units_per_artefact' => 10])
+        ->assertSessionHasErrors(['units_per_artefact' => ArtefactManufactureTask::skoPackCountedAgainMessage(collect([$artefact->refresh()]))]);
+    \Pest\Laravel\post(route('grp.models.production.artefacts.set_recipe', ['production' => $this->production->id]), ['artefacts' => [$artefact->id], 'steps' => [['manufacture_task_id' => $pourTask->id, 'position' => 1, 'units_per_artefact' => 10]]])
+        ->assertSessionHasErrors('steps');
+    expect((float) $artefact->manufactureTasks()->find($pourTask->id)->pivot->units_per_artefact)->toBe(1.0);
+
+    $artefact->manufactureTasks()->updateExistingPivot($pourTask->id, ['units_per_artefact' => 10]);
+    \Pest\Laravel\post(route('grp.models.artefact.manufacture-task.attach', ['artefact' => $artefact->id]), ['manufacture_task_id' => $pourTask->id, 'position' => 1, 'units_per_artefact' => 10, 'standard_rate' => 50])
+        ->assertSessionHasNoErrors();
+
     $recipe([['task' => 'NOPE'.$suffix, 'units_per_artefact' => 1, 'target_per_hour' => null]])->assertHasErrors(['task NOPE'.$suffix]);
     expect(fn () => \App\Actions\SysAdmin\McpChange\RevertMcpChange::run(\App\Models\SysAdmin\McpChange::where('label', 'like', 'Create artefact AI-'.$suffix.'%')->firstOrFail(), $user))
         ->toThrow(\Illuminate\Validation\ValidationException::class);
