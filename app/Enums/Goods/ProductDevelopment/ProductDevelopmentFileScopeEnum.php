@@ -26,6 +26,8 @@ enum ProductDevelopmentFileScopeEnum: string
     case ARTWORK_FINAL = 'artwork_final';
     case OTHER         = 'other';
     case DESIGN_IMAGE  = 'design_image';
+    case BRIEF_REFERENCE = 'brief_reference';
+    case BRIEF_IMAGE   = 'brief_image';
 
     public static function labels(): array
     {
@@ -40,6 +42,8 @@ enum ProductDevelopmentFileScopeEnum: string
             'artwork_final' => __('Artwork final'),
             'other'         => __('Other'),
             'design_image'  => __('Design image'),
+            'brief_reference' => __('Brief reference'),
+            'brief_image'   => __('Product reference image'),
         ];
     }
 
@@ -54,6 +58,14 @@ enum ProductDevelopmentFileScopeEnum: string
         };
     }
 
+    /**
+     * Files that belong to the brief: shown on the Brief tab, and removable there.
+     */
+    public function isBrief(): bool
+    {
+        return $this === self::BRIEF_REFERENCE || $this === self::BRIEF_IMAGE;
+    }
+
     public function isVersioned(): bool
     {
         return in_array($this, [self::SDS, self::IFRA, self::CPSR, self::DIELINE, self::ARTWORK_FINAL], true);
@@ -61,7 +73,7 @@ enum ProductDevelopmentFileScopeEnum: string
 
     public function isPerSku(): bool
     {
-        return $this->tradeUnitAttachmentScope() !== null || in_array($this, [self::FACTORY_PHOTO, self::DIELINE], true);
+        return $this->tradeUnitAttachmentScope() !== null || in_array($this, [self::FACTORY_PHOTO, self::DIELINE, self::BRIEF_IMAGE], true);
     }
 
     public function icon(): string
@@ -74,6 +86,8 @@ enum ProductDevelopmentFileScopeEnum: string
             self::ARTWORK_DRAFT, self::ARTWORK_FINAL => 'fal fa-palette',
             self::OTHER => 'fal fa-paperclip',
             self::DESIGN_IMAGE => 'fal fa-image',
+            self::BRIEF_REFERENCE => 'fal fa-file-alt',
+            self::BRIEF_IMAGE => 'fal fa-images',
         };
     }
 
@@ -86,6 +100,7 @@ enum ProductDevelopmentFileScopeEnum: string
             self::SDS, self::IFRA, self::CPSR, self::TEST_REPORTS => [ProductDevelopmentMemberRoleEnum::COMPLIANCE],
             self::FACTORY_PHOTO, self::DIELINE => [ProductDevelopmentMemberRoleEnum::DESIGNER],
             self::ARTWORK_DRAFT, self::ARTWORK_FINAL => [ProductDevelopmentMemberRoleEnum::BUYER, ProductDevelopmentMemberRoleEnum::APPROVER],
+            self::BRIEF_REFERENCE, self::BRIEF_IMAGE => [ProductDevelopmentMemberRoleEnum::DESIGNER],
             self::OTHER, self::DESIGN_IMAGE => [],
         };
     }

@@ -122,6 +122,8 @@ class GetProductDevelopmentActivity
                 RecordProductDevelopmentActivity::ARTWORK_SUBMITTED => [__('Sent :artwork v:version for review', ['artwork' => $new['artwork'] ?? '', 'version' => $new['version'] ?? '']), $this->noteChange(__('What changed'), $new['note'] ?? null)],
                 RecordProductDevelopmentActivity::ARTWORK_APPROVED => [__('Approved :artwork v:version', ['artwork' => $new['artwork'] ?? '', 'version' => $new['version'] ?? '']), $this->noteChange(__('Comment'), $new['comment'] ?? null)],
                 RecordProductDevelopmentActivity::ARTWORK_CHANGES_REQUIRED => [__('Asked for changes on :artwork v:version', ['artwork' => $new['artwork'] ?? '', 'version' => $new['version'] ?? '']), $this->noteChange(__('Comment'), $new['comment'] ?? null)],
+                RecordProductDevelopmentActivity::SKU_BRIEF_CHANGED => [__('Changed the brief of :sku', ['sku' => $new['sku'] ?? '']), [['label' => __('Brief'), 'old' => $this->displayValue('brief', $old['brief'] ?? null), 'new' => $this->displayValue('brief', $new['brief'] ?? null)]]],
+                RecordProductDevelopmentActivity::FILE_REMOVED => [__('Removed :file', ['file' => $old['file'] ?? '']), []],
                 RecordProductDevelopmentActivity::MEMBERS_REMOVED => [__('Removed members'), [['label' => __('Members'), 'old' => implode(', ', $old['members'] ?? []), 'new' => null]]],
                 'updated' => [__('Updated the development'), $this->fieldChanges($old, $new)],
                 default => [Str::headline($audit->event), []],
