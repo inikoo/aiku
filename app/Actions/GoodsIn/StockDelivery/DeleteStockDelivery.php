@@ -2,7 +2,6 @@
 
 namespace App\Actions\GoodsIn\StockDelivery;
 
-use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
 use App\Actions\GoodsIn\StockDelivery\Traits\HasStockDeliveryHydrators;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\PurchaseOrder\Hydrators\PurchaseOrderHydrateTransactions;
@@ -11,6 +10,7 @@ use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStateEnum;
 use App\Models\GoodsIn\StockDelivery;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Event;
@@ -21,12 +21,13 @@ use OwenIt\Auditing\Events\AuditCustom;
 
 class DeleteStockDelivery extends OrgAction
 {
-    use WithProcurementEditAuthorisation;
     use AsAction;
     use HasPurchaseOrderHydrators;
     use HasStockDeliveryHydrators;
 
     private StockDelivery $stockDelivery;
+
+    private ?Organisation $agentOrganisation = null;
 
     private const DELETABLE_STATES = [
         StockDeliveryStateEnum::IN_PROCESS,
@@ -84,6 +85,25 @@ class DeleteStockDelivery extends OrgAction
         };
     }
 
+    /**
+     * The organisation's procurement staff, or the agent's staff for the agent's own containers.
+     */
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction || $request->user()->authTo("procurement.{$this->organisation->id}.edit")) {
+            return true;
+        }
+
+        $agentOrganisation = self::isAgentDelivery($this->stockDelivery) ? $this->stockDelivery->agent?->organisation : null;
+        if ($agentOrganisation && $request->user()->authTo("procurement.$agentOrganisation->id.edit")) {
+            $this->agentOrganisation = $agentOrganisation;
+
+            return true;
+        }
+
+        return false;
+    }
+
     public function rules(): array
     {
         return [
@@ -116,6 +136,9 @@ class DeleteStockDelivery extends OrgAction
         if (self::isAgentDelivery($this->stockDelivery)) {
             if ($refusal = self::agentDeliveryRefusal($this->stockDelivery)) {
                 $validator->errors()->add('state', $refusal);
+            }
+            if ($this->agentOrganisation && $this->stockDelivery->state !== StockDeliveryStateEnum::IN_PROCESS) {
+                $validator->errors()->add('state', __('The agent can delete a container only while it is in process'));
             }
             if (!$this->asAction && !self::acceptsResponsibility($this->get('responsibility'))) {
                 $validator->errors()->add('responsibility', __('Type ":phrase" to delete it', ['phrase' => self::RESPONSIBILITY_PHRASE]));
@@ -200,6 +223,10 @@ class DeleteStockDelivery extends OrgAction
 
     public function htmlResponse(?PurchaseOrder $purchaseOrder): RedirectResponse
     {
+        if ($this->agentOrganisation) {
+            return redirect()->route('grp.org.agent.stock_deliveries.index', ['organisation' => $this->agentOrganisation->slug]);
+        }
+
         if (!$purchaseOrder) {
             return redirect()->back();
         }

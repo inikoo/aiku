@@ -10,4 +10,5 @@ export interface Timeline {
     current?: boolean
     sub_label?: string
     format_time?: string
+    description?: string | null
 }

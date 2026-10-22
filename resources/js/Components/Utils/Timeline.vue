@@ -176,6 +176,9 @@ const useFormatTime = (dateIso: string | Date, OptionsTime?: OptionsTime) => {
                         </span>
                         <span v-else>{{ useFormatTime(step.timestamp) }}</span>
                     </div>
+                    <div v-if="step.description" v-tooltip="step.description" class="truncate px-1 text-center text-xxs text-gray-400 md:text-xs">
+                        {{ step.description }}
+                    </div>
                 </SwiperSlide>
             </template>
         </Swiper>
