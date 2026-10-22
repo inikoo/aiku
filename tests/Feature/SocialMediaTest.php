@@ -343,6 +343,21 @@ it('lays the compared period over the current one point for point', function () 
         ->and($performance['kpis']['previous']['followers_accounts'])->toBeInt();
 });
 
+it('keeps the most viewed post among the top content even when others drew more engagements', function () {
+    ImportSocialMediaInsights::make()->handle($this->shop, instagramContentExport());
+    $account = $this->shop->socialMediaAccounts()->sole();
+
+    foreach (range(1, 55) as $number) {
+        $account->posts()->create(['external_id' => 'busy-'.$number, 'type' => SocialMediaPostTypeEnum::IMAGE, 'published_at' => '2026-08-15 10:00:00', 'reach' => 50, 'impressions' => 60, 'reactions' => 100]);
+    }
+    $account->posts()->create(['external_id' => 'seen', 'type' => SocialMediaPostTypeEnum::REEL, 'published_at' => '2026-08-16 10:00:00', 'reach' => 9000, 'impressions' => 20000]);
+
+    $topPosts = collect(GetSocialMediaPerformance::run($this->organisation, Carbon::parse('2026-08-01')->startOfDay(), Carbon::parse('2026-08-31')->endOfDay(), ['shop' => $this->shop->slug])['top_posts']);
+
+    expect($topPosts->sortByDesc('impressions')->first()['impressions'])->toBe(20000)
+        ->and($topPosts->sortByDesc('engagements')->first()['engagements'])->toBe(100);
+});
+
 it('filters by platform and leaves out shops outside the filter', function () {
     ImportSocialMediaInsights::make()->handle($this->shop, instagramContentExport());
 

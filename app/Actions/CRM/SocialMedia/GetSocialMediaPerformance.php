@@ -774,18 +774,30 @@ class GetSocialMediaPerformance
     }
 
     /**
+     * The leading posts by each figure the dashboard ranks them by, engagements, views and viewers,
+     * so a post many saw but few engaged with is still there when the ranking is by views.
+     *
      * @param Collection<int, Shop> $shops
      *
      * @return array<int, array<string, mixed>>
      */
     private function topPosts(Collection $shops, ?SocialMediaPlatformEnum $platform, ?Carbon $from, ?Carbon $to): array
     {
+        $postIds = collect([self::ENGAGEMENTS, 'p.impressions', 'p.reach'])
+            ->flatMap(fn (string $figure) => $this->posts($shops, $platform, $from, $to)
+                ->orderByRaw($figure.' DESC')
+                ->orderByDesc('p.reach')
+                ->limit(self::TOP_POSTS)
+                ->pluck('p.id'))
+            ->unique()
+            ->values();
+
         return $this->posts($shops, $platform, $from, $to)
+            ->whereIn('p.id', $postIds)
             ->join('shops as s', 's.id', '=', 'a.shop_id')
             ->selectRaw('p.id, p.type, p.description, p.permalink, p.published_at, p.reach, p.impressions, p.saves, p.shares, p.comments, p.reactions, p.link_clicks, '.self::ENGAGEMENTS.' as engagements, a.name as account_name, a.platform, s.name as shop_name')
             ->orderByRaw(self::ENGAGEMENTS.' DESC')
             ->orderByDesc('p.reach')
-            ->limit(self::TOP_POSTS)
             ->get()
             ->map(fn ($post) => [
                 'id'              => $post->id,

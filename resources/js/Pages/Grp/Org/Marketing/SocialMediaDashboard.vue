@@ -502,17 +502,18 @@ const platformRows = computed(() => (props.performance?.platforms ?? []).filter(
 const formatRows = computed(() => [...(props.performance?.formats ?? [])].filter(row => row.posts > 0).sort((a, b) => b.average_reach - a.average_reach))
 const maxFormatReach = computed(() => maxOf(formatRows.value.map(row => row.average_reach)))
 
-/* Top content: sorted on the client so the ranking question (by rate, by reach, by volume) is one
-   click, and the long tail opens on request rather than filling the screen. */
-type PostSort = 'engagement_rate' | 'reach' | 'engagements'
+/* Top content: sorted on the client so the ranking question (by rate, by views, by reach, by
+   volume) is one click, and the long tail opens on request rather than filling the screen. */
+type PostSort = 'engagement_rate' | 'impressions' | 'reach' | 'engagements'
 const postSort = ref<PostSort>('engagement_rate')
 const postSortOptions = [
     { label: ctrans('Engagement rate'), value: 'engagement_rate' as PostSort },
+    { label: ctrans('Views'), value: 'impressions' as PostSort },
     { label: ctrans('Viewers'), value: 'reach' as PostSort },
     { label: ctrans('Engagements'), value: 'engagements' as PostSort },
 ]
 const showAllPosts = ref(false)
-const sortedPosts = computed(() => [...(props.performance?.top_posts ?? [])].sort((a, b) => (b[postSort.value] ?? 0) - (a[postSort.value] ?? 0)))
+const sortedPosts = computed(() => [...(props.performance?.top_posts ?? [])].sort((a, b) => (b[postSort.value] ?? 0) - (a[postSort.value] ?? 0)).slice(0, 50))
 const visiblePosts = computed(() => sortedPosts.value.slice(0, showAllPosts.value ? 50 : 10))
 const overviewPosts = computed(() => [...(props.performance?.top_posts ?? [])].sort((a, b) => b.engagement_rate - a.engagement_rate).slice(0, 5))
 const postTitle = (post: Post) => post.description?.trim() || ctrans('Untitled :type', { type: post.type_label })
@@ -815,6 +816,7 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                     <thead class="text-xs text-gray-400 whitespace-nowrap">
                                         <tr class="text-left">
                                             <th class="font-normal pb-2 pr-3">{{ ctrans('Content') }}</th>
+                                            <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Views') }}</th>
                                             <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Viewers') }}</th>
                                             <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Engagements') }}</th>
                                             <th class="font-normal pb-2 text-right">{{ ctrans('ER') }}</th>
@@ -829,6 +831,7 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                                     {{ post.platform_label }} · {{ post.type_label }}
                                                 </div>
                                             </td>
+                                            <td class="py-2 pr-3 text-right tabular-nums">{{ short(post.impressions) }}</td>
                                             <td class="py-2 pr-3 text-right tabular-nums">{{ short(post.reach) }}</td>
                                             <td class="py-2 pr-3 text-right tabular-nums">{{ short(post.engagements) }}</td>
                                             <td class="py-2 text-right"><span class="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs tabular-nums text-gray-700">{{ pct(post.engagement_rate) }}</span></td>
