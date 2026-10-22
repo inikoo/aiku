@@ -112,6 +112,11 @@ class AttachAttachmentToModel extends OrgAction
         }
     }
 
+    public function getValidationAttributes(): array
+    {
+        return $this->palletReturn || $this->storedItem ? ['attachments.*' => __('file')] : [];
+    }
+
     public function rules(): array
     {
         if ($this->palletReturn) {

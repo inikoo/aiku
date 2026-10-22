@@ -588,6 +588,9 @@ test('retina api fulfilment orders flow', function () {
     $palletReturnId = $response->json('data.id');
     $palletReturn    = \App\Models\Fulfilment\PalletReturn::find($palletReturnId);
 
+    expect($palletReturn->is_collection)->toBeFalse()
+        ->and($palletReturn->deliveryAddress->postal_code)->toBe($client->address->postal_code);
+
     $response = getJson(route('retina.api.fulfilment.order.index'));
     $response->assertOk();
     $response->assertJsonStructure([

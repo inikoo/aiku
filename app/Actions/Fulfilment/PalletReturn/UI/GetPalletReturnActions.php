@@ -349,7 +349,10 @@ class GetPalletReturnActions
                 ]
             ];
 
-        $requiresShipmentBeforeDispatch = $this->requireShipping ? !$palletReturn->is_collection && !$palletReturn->shipments()->exists() : false;
+        $requiresShipmentBeforeDispatch = $this->requireShipping
+            && !$palletReturn->is_collection
+            && !$palletReturn->shipments()->exists()
+            && !$palletReturn->attachments()->wherePivot('scope', PalletReturnAttachmentScopeEnum::SHIPPING_LABEL->value)->exists();
         $dispatchTooltip = $requiresShipmentBeforeDispatch
             ? __('Please add shipment before dispatch')
             : ($palletReturn->is_collection ? __('Set as collected') : __('Set as dispatched'));

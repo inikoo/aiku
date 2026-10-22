@@ -60,6 +60,11 @@ class AttachRetinaAttachmentToModel extends RetinaAction
         }
     }
 
+    public function getValidationAttributes(): array
+    {
+        return $this->parent instanceof PalletReturn || $this->parent instanceof StoredItem ? ['attachments.*' => __('file')] : [];
+    }
+
     public function rules(): array
     {
         if ($this->parent instanceof PalletReturn) {

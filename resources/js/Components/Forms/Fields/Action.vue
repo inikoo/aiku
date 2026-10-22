@@ -56,7 +56,7 @@ const handleClick = (action: Action|any) => {
                 }
                 notify({
                     title: ctrans('Something went wrong.'),
-                    text: typeof error === 'string' ? error : Object.values(error || {}).join(', '),
+                    text: typeof error === 'string' ? error : [...new Set(Object.values(error || {}).flat())].join('\n'),
                     type: 'error',
                     duration: 15000,
                 })

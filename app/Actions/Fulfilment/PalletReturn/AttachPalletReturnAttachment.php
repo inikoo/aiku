@@ -10,12 +10,15 @@ namespace App\Actions\Fulfilment\PalletReturn;
 
 use App\Actions\Helpers\Media\SaveModelAttachment;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnAttachmentScopeEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnCourierEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Helpers\Media;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Fluent;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class AttachPalletReturnAttachment
@@ -27,6 +30,12 @@ class AttachPalletReturnAttachment
      */
     public function handle(PalletReturn $palletReturn, UploadedFile $file, PalletReturnAttachmentScopeEnum $scope, ?string $caption = null): Media
     {
+        if ($scope === PalletReturnAttachmentScopeEnum::SHIPPING_LABEL && $palletReturn->state !== PalletReturnStateEnum::IN_PROCESS && !$palletReturn->customer_courier) {
+            throw ValidationException::withMessages([
+                'scope' => __('This return was submitted without a courier (:couriers), so a shipping label cannot be attached to it.', ['couriers' => implode(', ', PalletReturnCourierEnum::labels())]),
+            ]);
+        }
+
         return DB::transaction(function () use ($palletReturn, $file, $scope, $caption) {
             if ($scope === PalletReturnAttachmentScopeEnum::SHIPPING_LABEL) {
                 $palletReturn->attachments()

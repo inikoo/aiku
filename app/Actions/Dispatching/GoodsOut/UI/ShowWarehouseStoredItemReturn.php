@@ -18,6 +18,7 @@ use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\Inventory\WithFulfilmentWarehouseAuthorisation;
+use App\Actions\Fulfilment\PalletReturn\UI\GetPalletReturnActions;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnAttachmentScopeEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
@@ -177,7 +178,10 @@ class ShowWarehouseStoredItemReturn extends OrgAction
                     ]
                 ];
 
-                $requiresShipmentBeforeDispatch = $this->requireShipping ? !$palletReturn->is_collection && !$palletReturn->shipments()->exists() : false;
+                $requiresShipmentBeforeDispatch = $this->requireShipping
+                    && !$palletReturn->is_collection
+                    && !$palletReturn->shipments()->exists()
+                    && !$palletReturn->attachments()->wherePivot('scope', PalletReturnAttachmentScopeEnum::SHIPPING_LABEL->value)->exists();
 
                 $dispatchTooltip = $requiresShipmentBeforeDispatch
                     ? __('Please add shipment before dispatch')
@@ -241,7 +245,7 @@ class ShowWarehouseStoredItemReturn extends OrgAction
             ];
         }
 
-        $actions = $this->getActions($palletReturn);
+        $actions = GetPalletReturnActions::make()->addPrintButtons($palletReturn, $this->getActions($palletReturn));
 
         $isShippingByExternal = $palletReturn->platform?->type === PlatformTypeEnum::TIKTOK;
         $shipmentButtonLabel = $isShippingByExternal ? __('Get shipment from Tiktok') : __('Shipment');

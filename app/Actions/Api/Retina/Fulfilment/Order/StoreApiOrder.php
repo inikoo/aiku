@@ -34,6 +34,11 @@ class StoreApiOrder extends RetinaApiAction
         data_set($modelData, 'type', PalletReturnTypeEnum::STORED_ITEM);
         data_set($modelData, 'warehouse_id', $this->customerSalesChannel->organisation->warehouses->first()->id);
 
+        if ($customerClient->address) {
+            data_set($modelData, 'delivery_address', $customerClient->address);
+            data_set($modelData, 'is_collection', false);
+        }
+
         return StorePalletReturn::run($this->customer->fulfilmentCustomer, $modelData);
     }
 

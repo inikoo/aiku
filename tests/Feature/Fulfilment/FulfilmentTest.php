@@ -2963,6 +2963,13 @@ test('customer documents of a return print in one click and its own shipping lab
         ->and($customerShipping['shipping_label']['name'])->toBe('label.pdf')
         ->and($printKeys())->toBe(['print-documents', 'print-shipping-label']);
 
+    $documentsReturn->update(['customer_courier' => null]);
+
+    expect(fn () => AttachPalletReturnAttachment::run($documentsReturn->refresh(), $pdf('late-label.pdf'), PalletReturnAttachmentScopeEnum::SHIPPING_LABEL))
+        ->toThrow(ValidationException::class, 'This return was submitted without a courier (DPD, Royal Mail), so a shipping label cannot be attached to it.');
+
+    $documentsReturn->update(['customer_courier' => PalletReturnCourierEnum::ROYAL_MAIL]);
+
     $documentsPdf = PdfPalletReturnParcelDocuments::run($documentsReturn);
     $labelPdf     = PdfPalletReturnShippingLabel::run($documentsReturn);
 

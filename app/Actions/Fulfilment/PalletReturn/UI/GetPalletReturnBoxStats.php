@@ -240,7 +240,7 @@ class GetPalletReturnBoxStats
         }
 
         return [
-            'name'           => $label->file_name,
+            'name'           => $label->pivot->caption ? $label->pivot->caption.'.'.pathinfo($label->file_name, PATHINFO_EXTENSION) : $label->file_name,
             'download_route' => [
                 'name'       => $fromRetina ? 'retina.models.attachment.download' : 'grp.media.download',
                 'parameters' => [
