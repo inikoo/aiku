@@ -392,6 +392,7 @@ test('UI show family edit page tab lays out the webpage and content fields with 
             ->where('edit_page.sections.2.cards.0.update_route.name', 'grp.models.webpage.update')
             ->where('edit_page.sections.2.cards.0.fields.title.value', 'Wholesale <b>Aroma</b> Diffusers')
             ->where('edit_page.sections.2.cards.0.check', ['ok' => true, 'note' => 'Contains keyword'])
+            ->where('edit_page.sections.2.cards.2.fields.description.type', 'textarea')
             ->where('edit_page.sections.2.cards.5.update_route.name', 'grp.models.product_category.update')
             ->has('edit_page.sections.2.cards.5.fields.description_title')
             ->has('edit_page.page_score.steps', 4)
@@ -404,6 +405,40 @@ test('UI show family edit page tab lays out the webpage and content fields with 
 
     get(route('grp.org.shops.show.catalogue.families.show', [$this->organisation->slug, $this->shop->slug, $family->slug, 'tab' => FamilyTabsEnum::EDIT_PAGE->value]))
         ->assertInertia(fn (AssertableInertia $page) => $page->where('edit_page.seo_review.structured_data', '')->etc());
+});
+
+test('UI show family edit page translates the meta description from the master family', function () {
+    createWebsite($this->shop);
+
+    $masterShop = StoreMasterShop::make()->action($this->group, [
+        'code' => 'MS-'.uniqid(),
+        'name' => 'Master Shop',
+        'type' => ShopTypeEnum::B2B,
+    ]);
+    $masterDepartment = StoreMasterDepartment::make()->action($masterShop, [
+        'code' => 'MD-'.uniqid(),
+        'name' => 'Master Department',
+    ]);
+    $masterFamily = StoreMasterFamily::make()->action($masterDepartment, [
+        'code' => 'MF-'.uniqid(),
+        'name' => 'Master Family',
+    ]);
+    $masterFamily->updateQuietly(['meta_description' => 'Wholesale aroma diffusers for every room']);
+
+    $family = $this->family->refresh();
+    $family->updateQuietly(['master_product_category_id' => $masterFamily->id]);
+    $webpage = $family->webpage ?? StoreProductCategoryWebpage::make()->action($family);
+    $webpage->updateQuietly(['description' => 'Aroma-Diffusoren im Großhandel']);
+
+    get(route('grp.org.shops.show.catalogue.families.show', [$this->organisation->slug, $this->shop->slug, $family->slug, 'tab' => FamilyTabsEnum::EDIT_PAGE->value]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Org/Catalogue/Family')
+            ->where('edit_page.sections.2.cards.2.update_route.name', 'grp.models.webpage.update')
+            ->where('edit_page.sections.2.cards.2.fields.description.type', 'input_translation')
+            ->where('edit_page.sections.2.cards.2.fields.description.textarea', true)
+            ->where('edit_page.sections.2.cards.2.fields.description.main', 'Wholesale aroma diffusers for every room')
+            ->where('edit_page.sections.2.cards.2.fields.description.value', 'Aroma-Diffusoren im Großhandel')
+            ->etc());
 });
 
 test('SEO team sends a family page review that replaces the last one and moves the workflow on', function () {

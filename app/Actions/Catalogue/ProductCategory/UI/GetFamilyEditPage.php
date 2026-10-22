@@ -102,7 +102,7 @@ class GetFamilyEditPage
             ], !$canEditWebpage) : null,
 
             $webpage ? $this->card(__('Meta description'), $byWebmaster, $webpageRoute, [
-                'description' => $this->bare(['type' => 'textarea', 'maxLength' => 150, 'counter' => true, 'value' => $webpage->description]),
+                'description' => $this->metaDescriptionField($family, $webpage, $languages),
             ], !$canEditWebpage, $descriptionCheck, 'description') : null,
 
             $webpage ? $this->card(__('URL'), $byWebmaster, $webpageRoute, [
@@ -438,6 +438,23 @@ class GetFamilyEditPage
             'reviewed'      => $family->{'is_'.$field.'_reviewed'},
             'review_route'  => ['name' => 'grp.models.product_category.translation_review.store', 'parameters' => ['productCategory' => $family->id]],
         ] + $richText);
+    }
+
+    private function metaDescriptionField(ProductCategory $family, Webpage $webpage, array $languages): array
+    {
+        if (!$family->masterProductCategory) {
+            return $this->bare(['type' => 'textarea', 'maxLength' => 150, 'counter' => true, 'value' => $webpage->description]);
+        }
+
+        return $this->bare([
+            'type'          => 'input_translation',
+            'textarea'      => true,
+            'language_from' => 'en',
+            'main'          => $family->masterProductCategory->meta_description,
+            'languages'     => $languages,
+            'mode'          => 'single',
+            'value'         => $webpage->description,
+        ]);
     }
 
     private function faqField(ProductCategory $family, array $languages): array
