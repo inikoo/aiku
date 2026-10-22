@@ -516,7 +516,10 @@ const costBlocks = computed(() => {
 		...(missingLocalCosts.length ? [ctrans("Missing: :costs", { costs: missingLocalCosts.join(", ") })] : []),
 	].join(" · ")
 	const waitingInvoice = waiting(props.costing.checklist.filter(row => row.type === "agent_invoice" && !row.received_at))[0]
-	const estimates = props.costing.checklist.filter(row => row.is_estimate && !row.is_na).map(row => `${ctrans("Estimated")} ${row.label}: ${row.waiting_label}`)
+	const estimateRows = props.costing.checklist.filter(row => row.is_estimate && !row.is_na)
+	const estimateText = (row: typeof estimateRows[number]) => `${ctrans("Estimated")} ${row.label}: ${row.waiting_label}`
+	const invoiceEstimate = estimateRows.filter(row => row.type === "agent_invoice").map(estimateText)[0]
+	const localEstimates = estimateRows.filter(row => row.type !== "agent_invoice").map(estimateText)
 	const isRising = pendingLocalCosts.some(row => row.is_waiting_for_invoice)
 	const status = (missing: string | null, done: string) =>
 		!isCostingVisible.value || props.costing.is_partner ? null : { isMissing: !!missing, text: missing ?? done }
@@ -530,7 +533,7 @@ const costBlocks = computed(() => {
 		detail: "",
 		balance: invoiceBalance === null ? "" : money(orgCurrency, invoiceBalance),
 		balanceSub: agentInvoice && agentInvoice.balance_due !== null && agentInvoice.currency !== agentInvoice.org_currency ? money(agentInvoice.currency, agentInvoice.balance_due) : "",
-		status: status(props.costing.agent_invoice_missing ? (waitingInvoice ?? ctrans("Invoice not received yet")) : null, ctrans("Invoice received")),
+		status: status(props.costing.agent_invoice_missing ? (waitingInvoice ?? ctrans("Invoice not received yet")) : (invoiceEstimate ?? null), ctrans("Invoice received")),
 	}
 
 	if (props.costing.viewed_by_agent) {
@@ -546,9 +549,9 @@ const costBlocks = computed(() => {
 			balance: serviceInvoiceRows.length ? money(orgCurrency, unpaidLocal) : "",
 			detail: [
 				...(serviceInvoiceRows.length ? [ctrans(":count service invoices, :unpaid unpaid", { count: String(serviceInvoiceRows.length), unpaid: String(serviceInvoiceRows.filter(row => !row.paid_at).length) })] : []),
-				...(estimates.length ? [ctrans(":count estimated", { count: String(estimates.length) })] : []),
+				...(localEstimates.length ? [ctrans(":count estimated", { count: String(localEstimates.length) })] : []),
 			].join(" · "),
-			status: status([localCostsStatus, ...estimates.filter((text, index) => props.costing.checklist.filter(row => row.is_estimate && !row.is_na)[index].type !== "agent_invoice")].filter(Boolean).join(" · ") || null, ctrans("Local costs complete")),
+			status: status([localCostsStatus, ...localEstimates].filter(Boolean).join(" · ") || null, ctrans("Local costs complete")),
 			title: ctrans("Landed costs"),
 			rows: localCosts.map(row => ({
 				label: row.label,
@@ -571,7 +574,7 @@ const costBlocks = computed(() => {
 			status: props.costing.put_away_blocked.length
 				? status(ctrans("Put-away blocked until these costs are in: :costs", { costs: props.costing.put_away_blocked.join(", ") }), "")
 				: props.costing.is_costed
-				? status(estimates.length ? ctrans("Costed with an estimate: the real invoice is still to come") : null, ctrans("Costed"))
+				? status(estimateRows.length ? ctrans("Costed with an estimate: the real invoice is still to come") : null, ctrans("Costed"))
 				: (isRising ? status(ctrans("This total will increase: an invoice is still to come"), "") : null),
 			title: ctrans("Landed total"),
 			rows: [

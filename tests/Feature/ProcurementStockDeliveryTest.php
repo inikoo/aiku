@@ -2552,6 +2552,32 @@ describe('stock delivery costing checklist', function () {
         expect($stockDelivery->refresh()->is_costed)->toBeFalse();
     });
 
+    test('the agent or supplier invoice waiting for its invoice takes an estimate that lets put-away through until the real invoice replaces it', function () {
+        $stockDelivery = $this->costingStockDelivery;
+        $stockDelivery->update(['created_at' => StockDelivery::COSTS_BEFORE_PUT_AWAY_FROM]);
+
+        $invoice = StoreStockDeliveryCost::make()->action($stockDelivery, [
+            'type'                   => StockDeliveryCostTypeEnum::AGENT_INVOICE->value,
+            'is_waiting_for_invoice' => true,
+        ]);
+        expect($stockDelivery->refresh()->costsMissingForPutAway())->toContain('Agent or supplier invoice');
+
+        $invoice = UpdateStockDeliveryCost::make()->action($invoice, ['amount' => 13320]);
+        expect($invoice->is_estimate)->toBeTrue()
+            ->and($invoice->is_waiting_for_invoice)->toBeTrue()
+            ->and($invoice->received_at)->not->toBeNull()
+            ->and($stockDelivery->refresh()->costsMissingForPutAway())->not->toContain('Agent or supplier invoice');
+
+        $invoice = UpdateStockDeliveryCost::make()->action($invoice, [
+            'amount'                 => 6500,
+            'received_at'            => today()->toDateString(),
+            'is_waiting_for_invoice' => false,
+        ]);
+        expect($invoice->is_estimate)->toBeFalse()
+            ->and($invoice->is_waiting_for_invoice)->toBeFalse()
+            ->and((float) $invoice->amount)->toBe(6500.0);
+    });
+
     test('costs in another currency are converted to the delivery currency', function () {
         $stockDelivery = $this->costingStockDelivery;
         $otherCurrency = Currency::whereNotIn('id', [$stockDelivery->currency_id, $stockDelivery->organisation->currency_id])->first();

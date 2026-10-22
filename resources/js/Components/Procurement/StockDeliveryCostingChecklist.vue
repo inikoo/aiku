@@ -472,7 +472,7 @@ const removeExtra = (row: CostRow) => {
                                 </label>
                             </td>
                             <td class="px-3 py-2 align-middle">
-                                <div v-if="row.type !== 'agent_invoice' && (!row.received_at || row.is_waiting_for_invoice) && !row.is_na && !row.from_service_invoices" class="flex items-center gap-2">
+                                <div v-if="(!row.received_at || row.is_waiting_for_invoice) && !row.is_na && !row.from_service_invoices" class="flex items-center gap-2">
                                     <button
                                     type="button"
                                     role="checkbox"
