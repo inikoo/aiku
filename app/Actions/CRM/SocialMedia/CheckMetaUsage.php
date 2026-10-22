@@ -10,6 +10,7 @@ namespace App\Actions\CRM\SocialMedia;
 
 use App\Exceptions\MetaUsageLimitReached;
 use Illuminate\Http\Client\Response;
+use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -35,17 +36,29 @@ class CheckMetaUsage
     public function handle(Response $response): void
     {
         if (in_array((int) data_get($response->json(), 'error.code'), self::THROTTLING_CODES, true)) {
-            throw MetaUsageLimitReached::make(100, $this->minutesToWait($response));
+            throw MetaUsageLimitReached::throttled($this->minutesToWait($response));
         }
 
-        $percent = $this->highestUsage($response);
+        $usage = $this->usageByLimit($response);
+        $limit = (string) $usage->sortDesc()->keys()->first();
 
-        if ($percent >= self::STOP_AT_PERCENT) {
-            throw MetaUsageLimitReached::make($percent, $this->minutesToWait($response));
+        if ($limit !== '' && $usage[$limit] >= self::STOP_AT_PERCENT) {
+            throw MetaUsageLimitReached::make($usage[$limit], $this->minutesToWait($response), $limit);
         }
     }
 
     public function highestUsage(Response $response): int
+    {
+        return (int) $this->usageByLimit($response)->max();
+    }
+
+    /**
+     * How much of each limit Meta reported is used, in percent: the app's own hourly calls, the ad
+     * account, the ads insights throttle and each business use case (pages, instagram, ads insights).
+     *
+     * @return Collection<string, int>
+     */
+    public function usageByLimit(Response $response): Collection
     {
         $app      = (array) json_decode((string) $response->header('X-App-Usage'), true);
         $adUsage  = (array) json_decode((string) $response->header('X-Ad-Account-Usage'), true);
@@ -53,17 +66,17 @@ class CheckMetaUsage
 
         $business = collect((array) json_decode((string) $response->header('X-Business-Use-Case-Usage'), true))
             ->flatten(1)
-            ->filter(fn ($usage) => is_array($usage));
+            ->filter(fn ($usage) => is_array($usage))
+            ->mapWithKeys(fn (array $usage) => ['use case '.data_get($usage, 'type', 'business') => max((int) data_get($usage, 'call_count', 0), (int) data_get($usage, 'total_cputime', 0), (int) data_get($usage, 'total_time', 0))]);
 
-        return (int) collect([
-            data_get($app, 'call_count'),
-            data_get($app, 'total_cputime'),
-            data_get($app, 'total_time'),
-            data_get($adUsage, 'acc_id_util_pct'),
-            data_get($insights, 'app_id_util_pct'),
-            data_get($insights, 'acc_id_util_pct'),
-            ...$business->map(fn (array $usage) => max((int) data_get($usage, 'call_count', 0), (int) data_get($usage, 'total_cputime', 0), (int) data_get($usage, 'total_time', 0))),
-        ])->filter(fn ($value) => is_numeric($value))->max();
+        return collect([
+            'app calls'          => collect([data_get($app, 'call_count'), data_get($app, 'total_cputime'), data_get($app, 'total_time')])->filter(fn ($value) => is_numeric($value))->max(),
+            'ad account'         => data_get($adUsage, 'acc_id_util_pct'),
+            'ads insights (app)' => data_get($insights, 'app_id_util_pct'),
+            'ads insights'       => data_get($insights, 'acc_id_util_pct'),
+        ])->merge($business)
+            ->filter(fn ($value) => is_numeric($value))
+            ->map(fn ($value) => (int) $value);
     }
 
     private function minutesToWait(Response $response): ?int
