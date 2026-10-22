@@ -15,7 +15,6 @@ use App\Actions\Helpers\Translations\GetCatalogueTranslationBrief;
 use App\Actions\Helpers\Translations\Translate;
 use App\Actions\Masters\MasterAsset\UpdateMasterAsset;
 use App\Actions\Masters\MasterProductCategory\Hydrators\MasterDepartmentHydrateMasterSubDepartments;
-use App\Actions\Masters\MasterProductCategory\Hydrators\MasterFamilyHydrateTradeUnitFamilyToChildFamily;
 use App\Actions\Masters\MasterShop\Hydrators\MasterShopHydrateMasterDepartments;
 use App\Actions\Masters\MasterShop\Hydrators\MasterShopHydrateMasterFamilies;
 use App\Actions\Masters\MasterShop\Hydrators\MasterShopHydrateMasterFamiliesWithVolGrDiscount;
@@ -60,10 +59,6 @@ class UpdateMasterProductCategory extends OrgAction
             }
 
             data_set($modelData, 'storage_option', $storageOption);
-        }
-
-        if ($masterProductCategory->type !== MasterProductCategoryTypeEnum::FAMILY) {
-            Arr::pull($modelData, 'trade_unit_family_id'); // Safeguard so only family would have relationship with TradeUnitFamilyId
         }
 
         $originalImageId = $masterProductCategory->image_id;
@@ -268,10 +263,6 @@ class UpdateMasterProductCategory extends OrgAction
             $masterProductCategory->images()->detach($originalImageId);
         }
 
-        if ($masterProductCategory->wasChanged('trade_unit_family_id')) {
-            MasterFamilyHydrateTradeUnitFamilyToChildFamily::make()->action($masterProductCategory);
-        }
-
         if ($masterProductCategory->wasChanged('has_gr_vol_discount')) {
             MasterShopHydrateMasterFamiliesWithVolGrDiscount::dispatch($masterProductCategory->masterShop);
         }
@@ -356,7 +347,6 @@ class UpdateMasterProductCategory extends OrgAction
                 'min:1',
                 'max:100'
             ],
-            'trade_unit_family_id'          => ['sometimes', 'integer', 'exists:trade_unit_families,id'],
             'is_back_order'                 => ['sometimes', 'boolean'],
             'is_made_to_order'              => ['sometimes', 'boolean'],
             'pre_order_deposit_percentage'  => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:100'],

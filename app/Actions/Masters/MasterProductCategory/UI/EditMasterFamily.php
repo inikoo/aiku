@@ -11,7 +11,6 @@
 namespace App\Actions\Masters\MasterProductCategory\UI;
 
 use App\Actions\Catalogue\Product\Traits\WithPreOrderEditFields;
-use App\Actions\Goods\TradeUnitFamily\GetTradeUnitFamilyForFamilies;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithMastersEditAuthorisation;
 use App\Enums\Catalogue\MasterProductCategory\MasterProductCategoryTypeEnum;
@@ -122,7 +121,9 @@ class EditMasterFamily extends OrgAction
                     'description_extra'        => $masterProductCategory->description_extra,
                     'master_department_id'     => $masterProductCategory->master_department_id,
                     'master_sub_department_id' => $masterProductCategory->master_sub_department_id,
-                    'trade_unit_family_id'     => $masterProductCategory->trade_unit_family_id,
+                    'trade_unit_family'        => $masterProductCategory->tradeUnitFamily
+                        ? $masterProductCategory->tradeUnitFamily->code.' ('.$masterProductCategory->tradeUnitFamily->name.')'
+                        : null,
                     'faq'                      => $masterProductCategory->faq,
                     'vol_gr_offer'             => [
                         'item_quantity'  => (int)$masterProductCategory->gr_vol_discount_quantity,
@@ -137,7 +138,6 @@ class EditMasterFamily extends OrgAction
                     ->where('type', MasterProductCategoryTypeEnum::SUB_DEPARTMENT)
                     ->orderBy('name')
                     ->get(['id', 'name', 'master_department_id']),
-                'tradeUnitFamilies'    => array_values(GetTradeUnitFamilyForFamilies::run($masterProductCategory)),
                 'isGoldRewardEligible' => (bool)$masterShop->gold_reward_eligible,
                 'faqField'             => [
                     'master_product_category_id' => $masterProductCategory->id,
