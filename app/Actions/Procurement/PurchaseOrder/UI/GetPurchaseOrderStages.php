@@ -8,12 +8,17 @@
 
 namespace App\Actions\Procurement\PurchaseOrder\UI;
 
+use App\Actions\Procurement\AgentGoodsReceipt\StoreAgentGoodsReceipt;
 use App\Actions\Procurement\PurchaseOrder\MarkPurchaseOrderStage;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
+use App\Enums\Procurement\AgentGoodsReceipt\AgentGoodsReceiptStateEnum;
+use App\Enums\Procurement\AgentWarehouseStock\AgentWarehouseStockStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderAttachmentScopeEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStageEnum as Stage;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Models\GoodsIn\StockDelivery;
+use App\Models\Procurement\AgentGoodsReceipt;
+use App\Models\Procurement\AgentGoodsReceiptItem;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SysAdmin\User;
 use App\Actions\SupplyChain\UI\ShowSupplyChainPurchaseOrderJourney;
@@ -22,12 +27,21 @@ use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * Where a purchase order stands in its seven stages. A delivery stage counts as reached only when every live
+ * Where a purchase order stands in its stages. A delivery stage counts as reached only when every live
  * delivery of the order reached it, dated by the last of them, so the order shows its slowest delivery.
+ * In warehouse is reached when the first goods reach the agent warehouse; it is checked and packed once every
+ * line is received in full and all of it is checked, or packed. It shows only on orders through an agent that
+ * receives goods in its own warehouse, and, as nobody records it by hand, marking a later stage never asks for it.
  */
 class GetPurchaseOrderStages
 {
     use AsObject;
+
+    private const array WAREHOUSE_COLUMNS = ['warehouse_arrived_at', 'warehouse_checked_at', 'warehouse_packed_at'];
+
+    private array $warehouseDates = [];
+
+    private array $usesAgentWarehouse = [];
 
     private const array SHIPPED_STATES = [
         StockDeliveryStateEnum::DISPATCHED,
@@ -54,17 +68,24 @@ class GetPurchaseOrderStages
         $deliveries = $this->liveDeliveries($purchaseOrder);
 
         $stages = [];
-        foreach (Stage::cases() as $stage) {
-            $stages[$stage->value] = $stage->isDeliveryStage()
-                ? $this->deliveryStage($purchaseOrder, $stage, $deliveries)
-                : [
+        foreach ($this->stagesOf($purchaseOrder) as $stage) {
+            $stages[$stage->value] = match (true) {
+                $stage->isDeliveryStage()     => $this->deliveryStage($purchaseOrder, $stage, $deliveries),
+                $stage === Stage::IN_WAREHOUSE => [
+                    'recorded'   => $this->warehouseDates($purchaseOrder)['warehouse_arrived_at'] !== null,
+                    'date'       => $this->warehouseDates($purchaseOrder)['warehouse_arrived_at'],
+                    'user_id'    => null,
+                    'deliveries' => null,
+                ],
+                default => [
                     'recorded'   => $purchaseOrder->{$stage->column()} !== null
                         || ($stage === Stage::SUBMITTED && $purchaseOrder->state !== PurchaseOrderStateEnum::IN_PROCESS)
                         || ($stage === Stage::DEPOSIT_PAID && $this->depositNotRequired($purchaseOrder)),
                     'date'       => $purchaseOrder->{$stage->column()},
                     'user_id'    => $purchaseOrder->stageMarkUserId($stage->column()),
                     'deliveries' => null,
-                ];
+                ],
+            };
         }
 
         $laterReached = false;
@@ -91,7 +112,7 @@ class GetPurchaseOrderStages
                 if ($earlier->position() >= $stage->position()) {
                     break;
                 }
-                if (!$stages[$earlier->value]['recorded']) {
+                if ($earlier !== Stage::IN_WAREHOUSE && isset($stages[$earlier->value]) && !$stages[$earlier->value]['recorded']) {
                     $skipped[] = Stage::labels()[$earlier->value];
                 }
             }
@@ -147,7 +168,7 @@ class GetPurchaseOrderStages
         $fieldLabels = Stage::fieldLabels();
 
         $steps = [];
-        foreach (Stage::cases() as $stage) {
+        foreach ($this->stagesOf($purchaseOrder) as $stage) {
             foreach ($stage->steps() as $column) {
                 $steps[$stage->value][] = $this->step($purchaseOrder, $deliveries, $column);
             }
@@ -164,9 +185,9 @@ class GetPurchaseOrderStages
         $today    = now()->startOfDay();
         $confirmsOrder = MarkPurchaseOrderStage::confirmsOrder($purchaseOrder, $today) && !$purchaseOrder->numberPendingPriceChanges();
 
-        return collect(Stage::cases())->map(fn (Stage $stage) => [
+        return collect($this->stagesOf($purchaseOrder))->values()->map(fn (Stage $stage, int $index) => [
             'key'         => $stage->value,
-            'number'      => $stage->position() + 1,
+            'number'      => $index + 1,
             'label'       => Stage::labels()[$stage->value],
             'description' => Stage::descriptions()[$stage->value],
             'reached'     => $stages[$stage->value]['reached'],
@@ -253,6 +274,58 @@ class GetPurchaseOrderStages
         return trans_choice(':count day after placed|:count days after placed', $days, ['count' => $days]);
     }
 
+    /**
+     * @return Stage[]
+     */
+    private function stagesOf(PurchaseOrder $purchaseOrder): array
+    {
+        $usesAgentWarehouse = $this->usesAgentWarehouse[$purchaseOrder->id]
+            ??= $purchaseOrder->isAgentOrder() && AgentGoodsReceipt::where('agent_id', $purchaseOrder->agent_id)->where('state', AgentGoodsReceiptStateEnum::RECEIVED)->exists();
+
+        return array_values(array_filter(Stage::cases(), fn (Stage $stage) => $stage !== Stage::IN_WAREHOUSE || $usesAgentWarehouse));
+    }
+
+    /**
+     * @return array{warehouse_arrived_at: ?Carbon, warehouse_checked_at: ?Carbon, warehouse_packed_at: ?Carbon}
+     */
+    private function warehouseDates(PurchaseOrder $purchaseOrder): array
+    {
+        return $this->warehouseDates[$purchaseOrder->id] ??= $this->computeWarehouseDates($purchaseOrder);
+    }
+
+    /**
+     * Packed has no date of its own: the warehouse stock's last change is when it was packed, as a check can not
+     * change it afterwards.
+     */
+    private function computeWarehouseDates(PurchaseOrder $purchaseOrder): array
+    {
+        $items = AgentGoodsReceiptItem::where('purchase_order_id', $purchaseOrder->id)
+            ->whereHas('agentGoodsReceipt', fn ($query) => $query->where('state', AgentGoodsReceiptStateEnum::RECEIVED))
+            ->with(['agentGoodsReceipt:id,received_at', 'agentWarehouseStock:id,state,quantity,updated_at'])
+            ->get();
+
+        $dates = array_fill_keys(self::WAREHOUSE_COLUMNS, null);
+        if ($items->isEmpty()) {
+            return $dates;
+        }
+
+        $dates['warehouse_arrived_at'] = Carbon::parse($items->min(fn (AgentGoodsReceiptItem $item) => $item->agentGoodsReceipt->received_at));
+        if (!StoreAgentGoodsReceipt::make()->isReceivedInFull($purchaseOrder)) {
+            return $dates;
+        }
+
+        if ($items->every(fn (AgentGoodsReceiptItem $item) => $item->checked_at !== null)) {
+            $dates['warehouse_checked_at'] = $items->max('checked_at');
+        }
+
+        $stocks = $items->pluck('agentWarehouseStock')->filter(fn ($stock) => $stock && (float) $stock->quantity > 0);
+        if ($stocks->isNotEmpty() && $stocks->every(fn ($stock) => $stock->state !== AgentWarehouseStockStateEnum::RECEIVED)) {
+            $dates['warehouse_packed_at'] = $stocks->max('updated_at');
+        }
+
+        return $dates;
+    }
+
     private function liveDeliveries(PurchaseOrder $purchaseOrder): Collection
     {
         return $purchaseOrder->stockDeliveries()
@@ -302,6 +375,10 @@ class GetPurchaseOrderStages
     private function step(PurchaseOrder $purchaseOrder, Collection $deliveries, string $column): array
     {
         $step = ['key' => $column, 'label' => Stage::fieldLabels()[$column], 'date' => null, 'user_id' => null];
+
+        if (in_array($column, self::WAREHOUSE_COLUMNS)) {
+            return [...$step, 'date' => $this->warehouseDates($purchaseOrder)[$column]];
+        }
 
         if (in_array($column, [...$purchaseOrder->stageMarkColumns(), 'online_at'])) {
             return [...$step, 'date' => $purchaseOrder->{$column}, 'user_id' => $purchaseOrder->stageMarkUserId($column)];
