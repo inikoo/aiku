@@ -1261,6 +1261,15 @@ class Kernel extends ConsoleKernel
             );
 
             $this->logSchedule(
+                $schedule->command('hydrate:shop-customer-value-curve')->monthlyOn(1, '04:00')->timezone('UTC')->onOneServer()->withoutOverlapping()->sentryMonitor(
+                    monitorSlug: 'HydrateShopCustomerValueCurve',
+                ),
+                name: 'HydrateShopCustomerValueCurve',
+                type: 'command',
+                scheduledAt: now()->format('H:i')
+            );
+
+            $this->logSchedule(
                 $schedule->command('hydrate:shop-sales-forecast')->dailyAt('00:40')->timezone('UTC')->onOneServer()->withoutOverlapping()->sentryMonitor(
                     monitorSlug: 'ForecastShopSales',
                 ),

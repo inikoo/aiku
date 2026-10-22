@@ -1527,6 +1527,7 @@ test('a request for a type nobody arranges is no task', function () {
         'meeting_mode'     => AppointmentTypeMeetingModeEnum::STORE_VISIT->value,
         'duration_minutes' => 30,
     ]);
+    $appointmentType->attendees()->detach();
     $appointment = StoreAppointment::make()->action($this->shop, [
         'appointment_type_id' => $appointmentType->id,
         'starts_at'           => now($this->shop->timezone?->name ?? 'UTC')->addDays(4)->format('Y-m-d').' 16:00',
