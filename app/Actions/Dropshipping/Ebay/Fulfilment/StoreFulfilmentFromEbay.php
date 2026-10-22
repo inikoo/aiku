@@ -12,9 +12,9 @@ namespace App\Actions\Dropshipping\Ebay\Fulfilment;
 use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitAndConfirmPalletReturn;
+use App\Actions\Fulfilment\StoredItem\AllocateStoredItemToReturn;
 use App\Actions\OrgAction;
 use App\Actions\Retina\Dropshipping\Client\Traits\WithGeneratedEbayAddress;
-use App\Actions\Retina\Fulfilment\StoredItem\AttachRetinaStoredItemToReturn;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Models\Dropshipping\EbayUser;
@@ -79,15 +79,7 @@ class StoreFulfilmentFromEbay extends OrgAction
                 /** @var StoredItem $storedItem */
                 $storedItem = $ebayUserHasProduct->item;
 
-                $palletStoredItem = $storedItem->palletStoredItems()->where('quantity', '>', 0)->first();
-
-                if (!$palletStoredItem) {
-                    continue;
-                }
-
-                AttachRetinaStoredItemToReturn::run($palletReturn, $palletStoredItem, [
-                    'quantity_ordered' => $ebayProduct['quantity']
-                ]);
+                AllocateStoredItemToReturn::run($palletReturn, $storedItem, (float) $ebayProduct['quantity']);
             }
 
             try {

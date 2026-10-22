@@ -15,10 +15,6 @@ use App\Models\Billables\ModelHasLeaflet;
 use App\Models\Fulfilment\PalletReturn;
 use Lorisleiva\Actions\Concerns\AsObject;
 
-/**
- * Copies the customer's included inserts onto the return when it is submitted, so later changes
- * to the customer's inserts do not change what this return is packed with.
- */
 class StorePalletReturnLeafletsFromCustomer
 {
     use AsObject;

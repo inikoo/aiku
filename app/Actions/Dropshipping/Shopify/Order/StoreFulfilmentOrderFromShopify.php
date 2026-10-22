@@ -12,9 +12,9 @@ use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
 use App\Actions\Dropshipping\CustomerClient\UpdateCustomerClient;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
+use App\Actions\Fulfilment\StoredItem\AllocateStoredItemToReturn;
 use App\Actions\OrgAction;
 use App\Actions\Retina\Dropshipping\Client\Traits\WithGeneratedShopifyAddress;
-use App\Actions\Retina\Fulfilment\StoredItem\AttachRetinaStoredItemToReturn;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\Portfolio;
@@ -90,15 +90,7 @@ class StoreFulfilmentOrderFromShopify extends OrgAction
                         continue;
                     }
 
-                    $palletStoredItem = $storedItem->palletStoredItems()->where('quantity', '>', 0)->first();
-
-                    if (!$palletStoredItem) {
-                        continue;
-                    }
-
-                    AttachRetinaStoredItemToReturn::run($palletReturn, $palletStoredItem, [
-                        'quantity_ordered' => $shopifyProduct['quantity']
-                    ]);
+                    AllocateStoredItemToReturn::run($palletReturn, $storedItem, (float) $shopifyProduct['quantity']);
                 }
             }
 

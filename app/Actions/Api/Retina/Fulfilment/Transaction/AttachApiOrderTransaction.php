@@ -10,7 +10,7 @@
 namespace App\Actions\Api\Retina\Fulfilment\Transaction;
 
 use App\Actions\Api\Retina\Fulfilment\Resource\SKUApiResource;
-use App\Actions\Retina\Fulfilment\StoredItem\AttachRetinaStoredItemToReturn;
+use App\Actions\Fulfilment\StoredItem\AllocateStoredItemToReturn;
 use App\Actions\RetinaApiAction;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Models\Dropshipping\Portfolio;
@@ -30,7 +30,7 @@ class AttachApiOrderTransaction extends RetinaApiAction
     use WithAttributes;
 
     private PalletReturn $palletReturn;
-    private ?PalletStoredItem $palletStoredItem = null;
+    private float $freeQuantity = 0;
     private null|\Eloquent|Model $storedItem;
 
     public function handle(PalletReturn $palletReturn, Portfolio $portfolio, array $modelData): PalletStoredItem
@@ -43,15 +43,15 @@ class AttachApiOrderTransaction extends RetinaApiAction
                 throw ValidationException::withMessages(['message' => 'Item not found.']);
             }
 
-            $palletStoredItem = $this->palletStoredItemToPickFrom($storedItem);
+            $palletStoredItems = AllocateStoredItemToReturn::make()->palletStoredItems($palletReturn, $storedItem);
 
-            if (!$palletStoredItem) {
+            if ($palletStoredItems->isEmpty()) {
                 throw ValidationException::withMessages(['quantity_ordered' => __(':reference is out of stock.', ['reference' => $storedItem->reference])]);
             }
 
-            AttachRetinaStoredItemToReturn::run($palletReturn, $palletStoredItem, $modelData);
+            $allocated = AllocateStoredItemToReturn::run($palletReturn, $storedItem, (float) $modelData['quantity_ordered']);
 
-            return $palletStoredItem;
+            return $allocated->first() ?? $palletStoredItems->first();
         } catch (\Throwable $e) {
             throw ValidationException::withMessages(['message' => $e->getMessage()]);
         }
@@ -60,7 +60,7 @@ class AttachApiOrderTransaction extends RetinaApiAction
     public function rules(): array
     {
         return [
-            'quantity_ordered'    => ['required', 'numeric', 'min:0', 'max:'.($this->palletStoredItem?->getMaxQuantityForReturn($this->palletReturn) ?? 0)],
+            'quantity_ordered'    => ['required', 'numeric', 'min:0', 'max:'.$this->freeQuantity],
         ];
     }
 
@@ -69,11 +69,6 @@ class AttachApiOrderTransaction extends RetinaApiAction
         return [
             'quantity_ordered.max' => __('Only :max available, the rest is already reserved by other open orders.'),
         ];
-    }
-
-    private function palletStoredItemToPickFrom(StoredItem $storedItem): ?PalletStoredItem
-    {
-        return $storedItem->palletStoredItems()->where('quantity', '>', 0)->first();
     }
 
     public function prepareForValidation(ActionRequest $request): void
@@ -100,7 +95,7 @@ class AttachApiOrderTransaction extends RetinaApiAction
         $this->storedItem = $portfolio->item;
         $this->palletReturn = $palletReturn;
         if ($this->storedItem instanceof StoredItem) {
-            $this->palletStoredItem = $this->palletStoredItemToPickFrom($this->storedItem);
+            $this->freeQuantity = AllocateStoredItemToReturn::freeQuantity($palletReturn, $this->storedItem);
         }
         $this->initialisationFromFulfilment($request);
 

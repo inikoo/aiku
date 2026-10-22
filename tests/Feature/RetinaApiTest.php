@@ -647,6 +647,63 @@ test('retina api fulfilment order line is capped by the stock free on the pallet
     expect($response->json('errors.message.0'))->toBe('api-no-stock-item is out of stock.');
 });
 
+test('retina api fulfilment order line is capped by the free stock of the sko across its pallets', function () {
+    Sanctum::actingAs($this->fulfilmentChannel, ['retina', 'retina:read', 'retina:write']);
+
+    $fulfilmentCustomer = $this->fulfilmentCustomer->fulfilmentCustomer;
+    $storedItem         = \App\Actions\Fulfilment\StoredItem\StoreStoredItem::make()->action($fulfilmentCustomer, ['reference' => 'api-two-pallets-item']);
+    $storedItem->update(['state' => \App\Enums\Fulfilment\StoredItem\StoredItemStateEnum::ACTIVE]);
+
+    $storePallet = function (int $quantity) use ($fulfilmentCustomer, $storedItem): \App\Models\Fulfilment\PalletStoredItem {
+        $pallet = \App\Actions\Fulfilment\Pallet\StorePallet::make()->action(
+            $fulfilmentCustomer,
+            array_merge(['warehouse_id' => $this->warehouse->id], \App\Models\Fulfilment\Pallet::factory()->definition())
+        );
+        \App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet::make()->action($pallet, ['stored_item_ids' => [$storedItem->id => ['quantity' => $quantity]]]);
+
+        return \App\Models\Fulfilment\PalletStoredItem::where('pallet_id', $pallet->id)->where('stored_item_id', $storedItem->id)->firstOrFail();
+    };
+
+    $reservedPallet = $storePallet(6);
+    $freePallet     = $storePallet(33);
+
+    $otherReturn = \App\Actions\Fulfilment\PalletReturn\StorePalletReturn::make()->actionWithStoredItems($fulfilmentCustomer, ['warehouse_id' => $this->warehouse->id]);
+    \App\Actions\Fulfilment\StoredItem\AttachStoredItemToReturn::make()->action($otherReturn, $reservedPallet, ['quantity_ordered' => 6]);
+
+    postJson(route('retina.api.fulfilment.portfolios.store'))->assertSuccessful();
+    $portfolio = $this->fulfilmentChannel->portfolios()->where('item_id', $storedItem->id)->firstOrFail();
+
+    $client         = StoreCustomerClient::make()->action($this->fulfilmentChannel, CustomerClient::factory()->definition());
+    $palletReturnId = postJson(route('retina.api.fulfilment.order.store', $client))->assertCreated()->json('data.id');
+    $orderLine      = fn (int $quantity) => postJson(route('retina.api.fulfilment.order.transaction.store', [$palletReturnId, $portfolio->id]), ['quantity_ordered' => $quantity]);
+    $orderedByPallet = fn (): array => \App\Models\Fulfilment\PalletReturnItem::where('pallet_return_id', $palletReturnId)
+        ->orderBy('pallet_stored_item_id')
+        ->pluck('quantity_ordered', 'pallet_stored_item_id')
+        ->map(fn ($quantity) => (int) $quantity)
+        ->all();
+
+    $orderLine(5)->assertSuccessful();
+    expect($orderedByPallet())->toBe([$freePallet->id => 5]);
+
+    $response = $orderLine(34);
+    $response->assertUnprocessable();
+    expect($response->json('errors.quantity_ordered.0'))->toBe('Only 33 available, the rest is already reserved by other open orders.');
+
+    $otherReturn->items()->delete();
+
+    $orderLine(39)->assertSuccessful();
+    expect($orderedByPallet())->toBe([$reservedPallet->id => 6, $freePallet->id => 33]);
+
+    $response = $orderLine(40);
+    $response->assertUnprocessable();
+    expect($response->json('errors.quantity_ordered.0'))->toBe('Only 39 available, the rest is already reserved by other open orders.');
+
+    $orderLine(5)->assertSuccessful();
+    expect($orderedByPallet())->toBe([$freePallet->id => 5]);
+
+    $otherReturn->delete();
+});
+
 test('retina api fulfilment order takes the customer documents and courier', function () {
     Sanctum::actingAs($this->fulfilmentChannel, ['retina', 'retina:read', 'retina:write']);
 

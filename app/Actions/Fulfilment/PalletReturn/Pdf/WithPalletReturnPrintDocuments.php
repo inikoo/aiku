@@ -35,8 +35,6 @@ trait WithPalletReturnPrintDocuments
     }
 
     /**
-     * One copy of the manual of each product on the return.
-     *
      * @return array<int, array{name: string, pdf: string}>
      */
     protected function productManualDocuments(PalletReturn $palletReturn): array

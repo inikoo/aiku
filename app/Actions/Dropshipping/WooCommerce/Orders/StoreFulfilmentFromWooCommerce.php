@@ -10,9 +10,9 @@ namespace App\Actions\Dropshipping\WooCommerce\Orders;
 
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitAndConfirmPalletReturn;
+use App\Actions\Fulfilment\StoredItem\AllocateStoredItemToReturn;
 use App\Actions\OrgAction;
 use App\Actions\Retina\Dropshipping\Client\Traits\WithGeneratedWooCommerceAddress;
-use App\Actions\Retina\Fulfilment\StoredItem\AttachRetinaStoredItemToReturn;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Dropshipping\Portfolio;
 use App\Models\Dropshipping\WooCommerceUser;
@@ -72,15 +72,7 @@ class StoreFulfilmentFromWooCommerce extends OrgAction
                     continue;
                 }
 
-                $palletStoredItem = $storedItem->palletStoredItems()->where('quantity', '>', 0)->first();
-
-                if (!$palletStoredItem) {
-                    continue;
-                }
-
-                AttachRetinaStoredItemToReturn::run($palletReturn, $palletStoredItem, [
-                    'quantity_ordered' => $wooProduct['quantity']
-                ]);
+                AllocateStoredItemToReturn::run($palletReturn, $storedItem, (float) $wooProduct['quantity']);
             }
         }
 
