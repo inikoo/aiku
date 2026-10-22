@@ -12,9 +12,8 @@ namespace App\Actions\Goods\ProductDevelopment\Design;
 use App\Actions\Goods\ProductDevelopment\UploadProductDevelopmentFiles;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithProductDevelopmentAuthorisation;
-use App\Enums\Goods\ProductDevelopment\ProductDevelopmentDesignRoundStatusEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentFileScopeEnum;
-use App\Models\Goods\ProductDevelopmentDesignRound;
+use App\Models\Goods\ProductDevelopmentArtwork;
 use App\Models\Goods\ProductDevelopmentFile;
 use App\Models\SysAdmin\User;
 use Illuminate\Http\UploadedFile;
@@ -29,7 +28,7 @@ class UploadProductDevelopmentDesignImage extends OrgAction
 
     public const int MAX_KILOBYTES = 20480;
 
-    private ProductDevelopmentDesignRound $designRound;
+    private ProductDevelopmentArtwork $artwork;
 
     public function authorize(ActionRequest $request): bool
     {
@@ -37,20 +36,19 @@ class UploadProductDevelopmentDesignImage extends OrgAction
             return true;
         }
 
-        $productDevelopment = $request->route('productDevelopmentDesignRound')->productDevelopment;
+        $productDevelopment = $this->artwork->productDevelopment;
 
         return $this->canViewProductDevelopment($request->user(), $productDevelopment)
-            && $this->productDevelopmentAccess()->canDesign($request->user(), $productDevelopment);
+            && $this->productDevelopmentAccess()->canManageArtwork($request->user(), $productDevelopment);
     }
 
-    public function handle(ProductDevelopmentDesignRound $designRound, User $user, UploadedFile $image): ProductDevelopmentFile
+    public function handle(ProductDevelopmentArtwork $artwork, User $user, UploadedFile $image): ProductDevelopmentFile
     {
-        $productDevelopment = $designRound->productDevelopment;
+        $productDevelopment = $artwork->productDevelopment;
         $media              = UploadProductDevelopmentFiles::make()->storeMedia($productDevelopment, $image, ProductDevelopmentFileScopeEnum::DESIGN_IMAGE, null);
 
         /** @var ProductDevelopmentFile $file */
         $file = $productDevelopment->files()->create([
-            'design_round_id' => $designRound->id,
             'media_id'        => $media->id,
             'scope'           => ProductDevelopmentFileScopeEnum::DESIGN_IMAGE,
             'version'         => 1,
@@ -69,32 +67,26 @@ class UploadProductDevelopmentDesignImage extends OrgAction
 
     public function afterValidator(Validator $validator): void
     {
-        if (ProductDevelopmentDesignRounds::isArtworkLocked($this->designRound->productDevelopment)) {
-            $validator->errors()->add('image', __('The artwork is signed off and locked'));
-
-            return;
-        }
-
-        if ($this->designRound->status !== ProductDevelopmentDesignRoundStatusEnum::DRAFT) {
-            $validator->errors()->add('image', __('Only a draft version can be changed'));
+        if (!UpdateProductDevelopmentArtworkLayout::isEditable($this->artwork)) {
+            $validator->errors()->add('image', __('This artwork cannot be changed now'));
         }
     }
 
-    public function asController(ProductDevelopmentDesignRound $productDevelopmentDesignRound, ActionRequest $request): ProductDevelopmentFile
+    public function asController(ProductDevelopmentArtwork $productDevelopmentArtwork, ActionRequest $request): ProductDevelopmentFile
     {
-        $this->designRound = $productDevelopmentDesignRound;
-        $this->initialisationFromGroup($productDevelopmentDesignRound->productDevelopment->group, $request);
+        $this->artwork = $productDevelopmentArtwork;
+        $this->initialisationFromGroup($productDevelopmentArtwork->productDevelopment->group, $request);
 
-        return $this->handle($productDevelopmentDesignRound, $request->user(), $this->validatedData['image']);
+        return $this->handle($productDevelopmentArtwork, $request->user(), $this->validatedData['image']);
     }
 
-    public function action(ProductDevelopmentDesignRound $designRound, User $user, array $modelData): ProductDevelopmentFile
+    public function action(ProductDevelopmentArtwork $artwork, User $user, array $modelData): ProductDevelopmentFile
     {
         $this->asAction    = true;
-        $this->designRound = $designRound;
-        $this->initialisationFromGroup($designRound->productDevelopment->group, $modelData);
+        $this->artwork  = $artwork;
+        $this->initialisationFromGroup($artwork->productDevelopment->group, $modelData);
 
-        return $this->handle($designRound, $user, $this->validatedData['image']);
+        return $this->handle($artwork, $user, $this->validatedData['image']);
     }
 
     /**

@@ -9,6 +9,7 @@ import Select from "primevue/select"
 import { useLocaleStore } from "@/Stores/locale"
 import { ctrans } from "@/Composables/useTrans"
 import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
+import DeltaBadge from "@/Components/Marketing/V2/DeltaBadge.vue"
 import { BAR_TRACK_COLOR, CHANNEL_COLORS, OTHER_CHANNEL_COLOR, channelColor } from "@/Components/Marketing/V2/palette"
 
 type WindowFigures = {
@@ -26,6 +27,18 @@ type ValueFigures = {
     ltv_cac: Record<number, number | null>
     payback_months: number | null
     payback_beyond: boolean
+}
+
+type Totals = {
+    registrations: number
+    buyers: number
+    paid_registrations: number
+    paid_buyers: number
+    paid_spend: number
+    paid_cac: number | null
+    no_first_touch: number
+    no_first_touch_buyers: number
+    paid_value: ValueFigures | null
 }
 
 type Channel = {
@@ -47,17 +60,18 @@ const props = defineProps<{
         from: string | null
         to: string | null
         windows: number[]
-        totals: {
-            registrations: number
-            buyers: number
-            paid_registrations: number
-            paid_buyers: number
-            paid_spend: number
-            paid_cac: number | null
-            no_first_touch: number
-            no_first_touch_buyers: number
-            paid_value: ValueFigures | null
-        }
+        totals: Totals
+        previous: {
+            from: string | null
+            to: string | null
+            requested_from: string
+            requested_to: string
+            label: string
+            before_tracking: boolean
+            cut_by_tracking: boolean
+            totals: Totals
+            channels: Channel[]
+        } | null
         value: {
             horizons: number[]
             hydrated_at: string | null
@@ -175,6 +189,12 @@ const paybackText = (value: ValueFigures | null | undefined) => {
 
 const percent = (value: number | null | undefined) => value === null || value === undefined ? "—" : `${locale.number(Math.round(value * 1000) / 10)}%`
 
+const previous = computed(() => props.data.previous && !props.data.previous.before_tracking ? props.data.previous : null)
+const previousChannel = (type: string) => previous.value?.channels.find(channel => channel.type === type)
+const share = (part: number, whole: number) => whole > 0 ? part / whole * 100 : null
+const previousShare = (part: keyof Totals, whole: keyof Totals) => previous.value ? share(previous.value.totals[part] as number, previous.value.totals[whole] as number) : null
+const percentText = (value: number) => `${value.toFixed(1)}%`
+
 const stateHelp: Record<string, string> = {
     final: ctrans("Every customer of this cohort is past this window: the figure is final."),
     growing: ctrans("Some customers of this cohort are still inside this window: the figure keeps growing."),
@@ -187,11 +207,16 @@ const stateHelp: Record<string, string> = {
         <p v-if="data.from" class="text-xs text-gray-400">
             {{ ctrans("Customers who registered since") }} {{ data.from }}<span v-if="data.to"> {{ ctrans("to") }} {{ data.to }}</span>
         </p>
+        <p v-if="data.previous" class="-mt-4 text-xs text-gray-500">
+            {{ ctrans("Compared with :label, :from to :to", { label: data.previous.label.toLowerCase(), from: data.previous.requested_from, to: data.previous.requested_to }) }}<span v-if="data.previous.cut_by_tracking">{{ ctrans(", counted from :date when tracking began", { date: data.previous.from ?? "" }) }}</span><span v-if="data.previous.before_tracking" class="text-amber-700">{{ ctrans(": before tracking began, so there is nothing to compare") }}</span>.
+            <span class="text-gray-400">{{ ctrans("Customers of the earlier period have had longer to buy.") }}</span>
+        </p>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
             <div class="rounded-xl ring-1 ring-gray-200 bg-white p-5">
                 <div class="text-xs text-gray-500">{{ ctrans("Registrations") }}</div>
                 <div class="mt-1 text-3xl font-semibold text-gray-900 tabular-nums">{{ locale.number(data.totals.registrations) }}</div>
+                <DeltaBadge v-if="previous" class="mt-1" :current="data.totals.registrations" :previous="previous.totals.registrations" :format="locale.number" />
             </div>
             <div class="rounded-xl ring-1 ring-gray-200 bg-white p-5">
                 <div class="text-xs text-gray-500">{{ ctrans("New buyers") }}</div>
@@ -199,6 +224,7 @@ const stateHelp: Record<string, string> = {
                     <span class="text-3xl font-semibold text-gray-900">{{ locale.number(data.totals.buyers) }}</span>
                     <span class="text-sm text-gray-500">{{ pct(data.totals.buyers, data.totals.registrations) }}</span>
                 </div>
+                <DeltaBadge v-if="previous" class="mt-1" :current="data.totals.buyers" :previous="previous.totals.buyers" :format="locale.number" />
             </div>
             <div class="rounded-xl bg-[--app-accent-soft] ring-1 ring-[--app-accent-muted] p-5">
                 <div class="text-xs text-[--app-accent-deep]">{{ ctrans("Brought by ads") }}</div>
@@ -206,13 +232,18 @@ const stateHelp: Record<string, string> = {
                     <span class="text-3xl font-semibold">{{ pct(data.totals.paid_registrations, data.totals.registrations) }}</span>
                     <span class="text-sm">{{ locale.number(data.totals.paid_buyers) }} {{ ctrans("buyers") }}</span>
                 </div>
+                <DeltaBadge v-if="previous" class="mt-1" :current="share(data.totals.paid_registrations, data.totals.registrations)" :previous="previousShare('paid_registrations', 'registrations')" :format="percentText" />
             </div>
             <div class="rounded-xl bg-[--app-accent] p-5 text-[--app-accent-text]">
                 <div class="text-xs opacity-90">{{ ctrans("Paid CAC") }}</div>
-                <div class="mt-1 text-3xl font-semibold tabular-nums">{{ data.totals.paid_cac !== null ? money(data.totals.paid_cac) : "—" }}</div>
+                <div class="mt-1 flex items-center gap-2">
+                    <span class="text-3xl font-semibold tabular-nums">{{ data.totals.paid_cac !== null ? money(data.totals.paid_cac) : "—" }}</span>
+                    <DeltaBadge v-if="previous" :current="data.totals.paid_cac" :previous="previous.totals.paid_cac" better="down" :format="money" />
+                </div>
                 <div class="mt-0.5 text-xs opacity-90 tabular-nums">{{ money(data.totals.paid_spend) }} {{ ctrans("ad spend") }}</div>
                 <div v-if="data.totals.paid_value?.ltv_cac[horizon]" class="mt-0.5 text-xs opacity-90 tabular-nums" v-tooltip="ratioHelp">
                     {{ ctrans("LTV:CAC") }} {{ ratioText(data.totals.paid_value.ltv_cac[horizon]) }} · {{ horizonLabel }}
+                    <DeltaBadge v-if="previous" class="ml-1" :current="data.totals.paid_value.ltv_cac[horizon]" :previous="previous.totals.paid_value?.ltv_cac[horizon]" :format="ratioText" />
                 </div>
             </div>
             <div class="rounded-xl ring-1 ring-amber-200 bg-amber-50 p-5">
@@ -221,6 +252,7 @@ const stateHelp: Record<string, string> = {
                     <span class="text-3xl font-semibold">{{ pct(data.totals.no_first_touch, data.totals.registrations) }}</span>
                     <span class="text-sm">{{ locale.number(data.totals.no_first_touch) }}</span>
                 </div>
+                <DeltaBadge v-if="previous" class="mt-1" :current="share(data.totals.no_first_touch, data.totals.registrations)" :previous="previousShare('no_first_touch', 'registrations')" better="down" :format="percentText" />
             </div>
         </div>
 
@@ -272,6 +304,7 @@ const stateHelp: Record<string, string> = {
                              v-tooltip="ctrans(':channel · :spend spend ÷ :buyers buyers = :cac per buyer', { channel: channel.name, spend: money(channel.spend), buyers: locale.number(channel.buyers), cac: channel.cac !== null ? money(channel.cac) : '—' })"
                              class="flex h-full flex-1 flex-col items-center justify-end gap-2">
                             <span class="text-sm font-medium text-gray-800 tabular-nums">{{ channel.cac !== null ? money(channel.cac) : "—" }}</span>
+                            <DeltaBadge v-if="previous" :current="channel.cac" :previous="previousChannel(channel.type)?.cac" better="down" :format="money" />
                             <div class="w-full max-w-16 rounded-t" :style="{ height: channel.cac !== null ? `${Math.max(2, channel.cac / maxCac * 150)}px` : '2px', background: channelColor(channel.type) }" />
                             <span class="text-xs text-gray-600 text-center">{{ channel.name }}</span>
                         </div>
@@ -312,13 +345,20 @@ const stateHelp: Record<string, string> = {
                                     </td>
                                     <td class="py-2 px-3 text-right tabular-nums text-gray-500">{{ locale.number(channel.value!.buyers) }}</td>
                                     <td class="py-2 px-3 text-right tabular-nums text-gray-500">{{ channel.value!.margin_to_date !== null ? money(channel.value!.margin_to_date) : "—" }}</td>
-                                    <td class="py-2 px-3 text-right font-medium tabular-nums text-gray-900">{{ channel.value!.cltv[horizon] != null ? money(channel.value!.cltv[horizon]!) : "—" }}</td>
-                                    <td class="py-2 px-3 text-right tabular-nums text-gray-700">{{ channel.cac !== null ? money(channel.cac) : "—" }}</td>
-                                    <td class="py-2 px-3 text-right">
+                                    <td class="py-2 px-3 text-right font-medium tabular-nums text-gray-900 whitespace-nowrap">
+                                        {{ channel.value!.cltv[horizon] != null ? money(channel.value!.cltv[horizon]!) : "—" }}
+                                        <DeltaBadge v-if="previous" class="ml-1" :current="channel.value!.cltv[horizon]" :previous="previousChannel(channel.type)?.value?.cltv[horizon]" :format="money" />
+                                    </td>
+                                    <td class="py-2 px-3 text-right tabular-nums text-gray-700 whitespace-nowrap">
+                                        {{ channel.cac !== null ? money(channel.cac) : "—" }}
+                                        <DeltaBadge v-if="previous" class="ml-1" :current="channel.cac" :previous="previousChannel(channel.type)?.cac" better="down" :format="money" />
+                                    </td>
+                                    <td class="py-2 px-3 text-right whitespace-nowrap">
                                         <span v-if="channel.value!.ltv_cac[horizon] != null" class="rounded-md px-2 py-0.5 text-xs font-medium tabular-nums ring-1" :class="ratioClass(channel.value!.ltv_cac[horizon])">
                                             {{ ratioText(channel.value!.ltv_cac[horizon]) }}
                                         </span>
                                         <span v-else class="text-gray-400">—</span>
+                                        <DeltaBadge v-if="previous" class="ml-1" :current="channel.value!.ltv_cac[horizon]" :previous="previousChannel(channel.type)?.value?.ltv_cac[horizon]" :format="ratioText" />
                                     </td>
                                     <td class="py-2 pl-3 text-right tabular-nums text-gray-700 whitespace-nowrap">{{ channel.is_paid ? paybackText(channel.value) : "—" }}</td>
                                 </tr>

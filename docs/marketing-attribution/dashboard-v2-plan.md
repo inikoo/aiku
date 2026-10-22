@@ -1,6 +1,6 @@
 # Marketing dashboard v2: plan
 
-Status: phases 1–4 built on 21 October 2026, and W-shaped and U-shaped added the same day. Customer lifetime value (CLTV) next to CAC added on 22 October 2026. The rest of phase 5 is still to do.
+Status: phases 1–4 built on 21 October 2026, and W-shaped and U-shaped added the same day. Customer lifetime value (CLTV) next to CAC, and the compare period, added on 22 October 2026. The rest of phase 5 is still to do.
 
 A second marketing dashboard that compares attribution models side by side: **linear** against
 **first touch**, **U-shaped** or **W-shaped**. The current dashboard stays exactly as it is. The new page is reachable
@@ -138,6 +138,29 @@ validation are left out, as `AttachTrafficSourcesToModel` does. A long period on
 now that U- and W-shaped exist the shares should be precomputed into an `order_attribution_shares` table
 when an order is submitted. That is a later phase.
 
+## Compare period
+
+A **Compare** button beside the period bar (Acquisition and Orders, not Journey) sets the period to
+compare with: **Previous period** (the same number of days right before), **Previous month** and
+**Previous year** (the same dates shifted), or **Custom** dates. It lives in the URL (`compare`,
+plus `compare_from` and `compare_to` for custom), so it does not touch the interval the other
+dashboards share, and a link carries it. The page keeps it when the tab changes. With the period
+set to All there is nothing to compare, so the button is disabled.
+
+The compared figures come from the same actions over the other dates, cached the same way, under
+`previous` in each tab's prop. A period that starts before tracking began (7 August 2026) is cut
+there and says so; one that ends before it shows the dates and no changes. Changes show as ▲/▼
+badges, green when good and red when bad (CAC, cost per order and No touch are better down), grey
+for spend. In Acquisition the customers of the earlier period have had longer to buy, so their
+buyers and CLTV read a little higher.
+
+- **Acquisition:** each KPI (paid LTV:CAC included), CAC per paid channel, and CLTV, CAC and LTV:CAC
+  in the lifetime value table.
+- **Orders:** orders and revenue, paid orders under the compared model, No touch share, each
+  channel's compared-model orders or revenue, and per paid channel ROAS, cost per order, spend and
+  orders.
+- Cohort growth and Spend and lifetime value by month are already by month and do not change.
+
 ## Tab 1 · Acquisition, "who brought them in?"
 
 The cohort is the customers who **registered** in the period. Each one counts whole for the channel
@@ -257,7 +280,8 @@ Spend is the period's `traffic_source_costs`, read the way `GetShopMarketingOver
 | `routes/grp/web/org/shops/marketing.php` | One `GET dashboard-v2` route |
 | `resources/js/Pages/Grp/Org/Marketing/MarketingDashboardV2.vue` | Page with tabs |
 | `app/Actions/Catalogue/Shop/Hydrators/ShopHydrateCustomerValueCurve.php` | Monthly value curve per shop for CLTV |
-| `resources/js/Components/Marketing/V2/*` | `AcquisitionTab`, `OrdersTab`, `JourneyTab`, and `palette.ts` with the chart and channel colours |
+| `app/Enums/UI/Marketing/MarketingComparePeriodEnum.php` | Compare modes and their date ranges |
+| `resources/js/Components/Marketing/V2/*` | `AcquisitionTab`, `OrdersTab`, `JourneyTab`, `ComparePeriod`, `DeltaBadge`, and `palette.ts` with the chart and channel colours |
 
 ## Phases
 

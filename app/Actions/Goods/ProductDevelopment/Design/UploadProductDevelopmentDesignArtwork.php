@@ -60,9 +60,8 @@ class UploadProductDevelopmentDesignArtwork extends OrgAction
                 $productDevelopment->files()->whereKey($previousId)->whereNull('superseded_at')->update(['superseded_at' => now()]);
             }
 
-            $media  = UploadProductDevelopmentFiles::make()->storeMedia($productDevelopment, $file, ProductDevelopmentFileScopeEnum::ARTWORK_DRAFT, $designRound->item);
+            $media  = UploadProductDevelopmentFiles::make()->storeMedia($productDevelopment, $file, ProductDevelopmentFileScopeEnum::ARTWORK_DRAFT, null);
             $stored = $productDevelopment->files()->create([
-                'product_development_item_id' => $designRound->product_development_item_id,
                 'design_round_id'             => $designRound->id,
                 'media_id'                    => $media->id,
                 'scope'                       => ProductDevelopmentFileScopeEnum::ARTWORK_DRAFT,
@@ -77,7 +76,6 @@ class UploadProductDevelopmentDesignArtwork extends OrgAction
 
             RecordProductDevelopmentActivity::record($productDevelopment, RecordProductDevelopmentActivity::FILES_UPLOADED, [], [
                 'scope'   => ProductDevelopmentFileScopeEnum::ARTWORK_DRAFT->value,
-                'sku'     => $designRound->item?->tradeUnit?->code,
                 'version' => $designRound->version,
                 'files'   => [$file->getClientOriginalName()],
             ]);
@@ -97,12 +95,6 @@ class UploadProductDevelopmentDesignArtwork extends OrgAction
     {
         if ($this->designRound->status !== ProductDevelopmentDesignRoundStatusEnum::DRAFT) {
             $validator->errors()->add('file', __('Only a draft version can be changed'));
-
-            return;
-        }
-
-        if (($this->designRound->data['source'] ?? null) !== StoreProductDevelopmentDesignVersion::SOURCE_UPLOAD) {
-            $validator->errors()->add('file', __('This version is built in Aiku'));
         }
     }
 

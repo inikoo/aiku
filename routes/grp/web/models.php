@@ -20,7 +20,14 @@ use App\Actions\Goods\ProductDevelopment\RemindProductDevelopmentMembers;
 use App\Actions\Goods\ProductDevelopment\LinkProductDevelopmentPurchaseOrder;
 use App\Actions\Goods\ProductDevelopment\StoreProductDevelopmentPurchaseOrder;
 use App\Actions\Goods\ProductDevelopment\Design\StoreProductDevelopmentDesignVersion;
-use App\Actions\Goods\ProductDevelopment\Design\SkipProductDevelopmentDesignRound;
+use App\Actions\Goods\ProductDevelopment\Design\StoreProductDevelopmentDesignSection;
+use App\Actions\Goods\ProductDevelopment\Design\UpdateProductDevelopmentDesignSection;
+use App\Actions\Goods\ProductDevelopment\Design\DeleteProductDevelopmentDesignSection;
+use App\Actions\Goods\ProductDevelopment\Design\UploadProductDevelopmentArtwork;
+use App\Actions\Goods\ProductDevelopment\Design\StartProductDevelopmentArtworkInAiku;
+use App\Actions\Goods\ProductDevelopment\Design\UpdateProductDevelopmentArtworkLayout;
+use App\Actions\Goods\ProductDevelopment\Design\SubmitProductDevelopmentArtwork;
+use App\Actions\Goods\ProductDevelopment\Design\ReviewProductDevelopmentArtwork;
 use App\Actions\Goods\ProductDevelopment\Design\UpdateProductDevelopmentDesignVersion;
 use App\Actions\Goods\ProductDevelopment\Design\UploadProductDevelopmentDesignImage;
 use App\Actions\Goods\ProductDevelopment\Design\UploadProductDevelopmentDesignArtwork;
@@ -2104,13 +2111,20 @@ Route::name('product_development.')->prefix('product-development')->group(functi
     Route::post('{productDevelopment:id}/remind', RemindProductDevelopmentMembers::class)->name('remind')->withoutScopedBindings();
     Route::patch('{productDevelopment:id}/sign-off', SignOffProductDevelopment::class)->name('sign_off')->withoutScopedBindings();
     Route::patch('comment/{productDevelopmentComment:id}/status', UpdateProductDevelopmentCommentStatus::class)->name('comment.status')->withoutScopedBindings();
-    Route::patch('{productDevelopment:id}/design/skip', SkipProductDevelopmentDesignRound::class)->name('design.skip')->withoutScopedBindings();
     Route::post('{productDevelopment:id}/design', StoreProductDevelopmentDesignVersion::class)->name('design.store')->withoutScopedBindings();
     Route::patch('design/{productDevelopmentDesignRound:id}', UpdateProductDevelopmentDesignVersion::class)->name('design.update')->withoutScopedBindings();
     Route::post('design/{productDevelopmentDesignRound:id}/artwork', UploadProductDevelopmentDesignArtwork::class)->name('design.artwork')->withoutScopedBindings();
-    Route::post('design/{productDevelopmentDesignRound:id}/image', UploadProductDevelopmentDesignImage::class)->name('design.image')->withoutScopedBindings();
     Route::patch('design/{productDevelopmentDesignRound:id}/submit', SubmitProductDevelopmentDesignVersion::class)->name('design.submit')->withoutScopedBindings();
     Route::patch('design/{productDevelopmentDesignRound:id}/review', ReviewProductDevelopmentDesignVersion::class)->name('design.review')->withoutScopedBindings();
+    Route::post('{productDevelopment:id}/design-section', StoreProductDevelopmentDesignSection::class)->name('design_section.store')->withoutScopedBindings();
+    Route::patch('design-section/{productDevelopmentDesignSection:id}', UpdateProductDevelopmentDesignSection::class)->name('design_section.update')->withoutScopedBindings();
+    Route::delete('design-section/{productDevelopmentDesignSection:id}', DeleteProductDevelopmentDesignSection::class)->name('design_section.delete')->withoutScopedBindings();
+    Route::post('design-section/{productDevelopmentDesignSection:id}/artwork', UploadProductDevelopmentArtwork::class)->name('design_section.artwork.upload')->withoutScopedBindings();
+    Route::post('design-section/{productDevelopmentDesignSection:id}/artwork/aiku', StartProductDevelopmentArtworkInAiku::class)->name('design_section.artwork.aiku')->withoutScopedBindings();
+    Route::patch('artwork/{productDevelopmentArtwork:id}/layout', UpdateProductDevelopmentArtworkLayout::class)->name('artwork.layout')->withoutScopedBindings();
+    Route::post('artwork/{productDevelopmentArtwork:id}/image', UploadProductDevelopmentDesignImage::class)->name('artwork.image')->withoutScopedBindings();
+    Route::patch('artwork/{productDevelopmentArtwork:id}/submit', SubmitProductDevelopmentArtwork::class)->name('artwork.submit')->withoutScopedBindings();
+    Route::patch('artwork/{productDevelopmentArtwork:id}/review', ReviewProductDevelopmentArtwork::class)->name('artwork.review')->withoutScopedBindings();
 });
 
 Route::name('trade_unit_family.')->prefix('trade-unit-family')->group(function () {

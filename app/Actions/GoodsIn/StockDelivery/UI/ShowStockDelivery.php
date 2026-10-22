@@ -689,10 +689,13 @@ class ShowStockDelivery extends OrgAction
                 $actions[] = [
                     ...$deleteButton,
                     'responsibility' => [
-                        'phrase'   => DeleteStockDelivery::RESPONSIBILITY_PHRASE,
-                        'warnings' => [
+                        'phrase'            => DeleteStockDelivery::needsResponsibility($stockDelivery) ? DeleteStockDelivery::RESPONSIBILITY_PHRASE : null,
+                        'min_reason_length' => DeleteStockDelivery::MIN_REASON_LENGTH,
+                        'warnings'          => [
                             __('This deletes the container :reference with all its items. Its purchase orders go back to waiting for a container.', ['reference' => $stockDelivery->reference]),
-                            __('Containers are made by the agent now. Delete one only if it was made by mistake, and tell the agent.'),
+                            $this->viewedByAgent
+                                ? __('Delete it only if it was made by mistake.')
+                                : __('Containers are made by the agent now. Delete one only if it was made by mistake, and tell the agent.'),
                         ],
                     ],
                 ];
@@ -709,7 +712,7 @@ class ShowStockDelivery extends OrgAction
     }
 
     /**
-     * Settings first, the CSV and PDF downloads as one group, and dispatching the container last.
+     * Delete first, then Settings, the CSV and PDF downloads as one group, and dispatching the container last.
      */
     private function arrangePageHeadActions(array $actions): array
     {
@@ -718,8 +721,9 @@ class ShowStockDelivery extends OrgAction
         $documents = $actions->filter($isOfKey('csv', 'action'))->values()->all();
 
         return [
+            ...$actions->filter($isOfKey('delete_stock_delivery'))->all(),
             ...$actions->filter($isOfKey('settings'))->all(),
-            ...$actions->reject($isOfKey('settings', 'csv', 'action', 'dispatch_stock_delivery'))->all(),
+            ...$actions->reject($isOfKey('delete_stock_delivery', 'settings', 'csv', 'action', 'dispatch_stock_delivery'))->all(),
             ...($documents ? [['type' => 'buttonGroup', 'key' => 'documents', 'button' => $documents]] : []),
             ...$actions->filter($isOfKey('dispatch_stock_delivery'))->all(),
         ];
@@ -729,6 +733,9 @@ class ShowStockDelivery extends OrgAction
     {
         if ($this->viewedByAgent) {
             $allowedKeys = $this->canEdit ? ['dispatch_stock_delivery', 'edit_estimated_delivery_date', 'csv', 'action'] : ['csv', 'action'];
+            if ($this->canEdit && $stockDelivery->state === StockDeliveryStateEnum::IN_PROCESS) {
+                $allowedKeys[] = 'delete_stock_delivery';
+            }
         } elseif ($this->canEdit) {
             return $this->getActions($stockDelivery);
         } elseif (!$this->canBookIn || $stockDelivery->organisation_id !== $this->organisation->id) {
@@ -947,7 +954,8 @@ class ShowStockDelivery extends OrgAction
 
         $timeline = $purchaseOrders->isNotEmpty() ? $this->getPurchaseOrderTimeline($purchaseOrders) : [];
 
-        $labels = $this->getStateLabels($stockDelivery);
+        $labels      = $this->getStateLabels($stockDelivery);
+        $creatorName = $this->getCreatorName($stockDelivery);
 
         $hiddenUnlessCurrent = [
             StockDeliveryStateEnum::CONFIRMED,
@@ -993,10 +1001,18 @@ class ShowStockDelivery extends OrgAction
                 'timestamp'         => $timestamp ?: $estimatedTimestamp,
                 'timestamp_icon'    => $estimatedTimestamp ? 'fas fa-thumbtack' : null,
                 'timestamp_tooltip' => $estimatedTimestamp ? __('Estimated') : null,
+                'description'       => $case === StockDeliveryStateEnum::IN_PROCESS && $creatorName ? __('by :name', ['name' => $creatorName]) : null,
             ];
         }
 
         return $timeline;
+    }
+
+    private function getCreatorName(StockDelivery $stockDelivery): ?string
+    {
+        $creator = $stockDelivery->audits()->where('event', 'created')->oldest()->first()?->user;
+
+        return $creator ? ($creator->contact_name ?: $creator->username) : null;
     }
 
     public function getBreadcrumbs(StockDelivery $stockDelivery, array $routeParameters, string $suffix = ''): array

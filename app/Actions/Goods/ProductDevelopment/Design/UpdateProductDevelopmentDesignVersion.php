@@ -12,11 +12,9 @@ namespace App\Actions\Goods\ProductDevelopment\Design;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithProductDevelopmentAuthorisation;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentDesignRoundStatusEnum;
-use App\Enums\Goods\ProductDevelopment\ProductDevelopmentFileScopeEnum;
 use App\Models\Goods\ProductDevelopmentDesignRound;
 use App\Models\SysAdmin\User;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
@@ -41,14 +39,8 @@ class UpdateProductDevelopmentDesignVersion extends OrgAction
 
     public function handle(ProductDevelopmentDesignRound $designRound, User $user, array $modelData): ProductDevelopmentDesignRound
     {
-        $data = $designRound->data;
-        if (Arr::has($modelData, 'layout')) {
-            $data['layout'] = ProductDevelopmentDesignLayout::normalise($modelData['layout']);
-        }
-
         $designRound->update([
-            'data'  => $data,
-            'notes' => Arr::has($modelData, 'notes') ? (trim((string) $modelData['notes']) ?: null) : $designRound->notes,
+            'notes' => trim((string) ($modelData['notes'] ?? '')) ?: null,
         ]);
 
         return $designRound;
@@ -57,7 +49,6 @@ class UpdateProductDevelopmentDesignVersion extends OrgAction
     public function rules(): array
     {
         return [
-            ...collect(ProductDevelopmentDesignLayout::rules())->map(fn (array $rules, string $key) => $key === 'layout' ? ['sometimes', ...array_diff($rules, ['required'])] : $rules)->all(),
             'notes' => ['sometimes', 'nullable', 'string', 'max:5000'],
         ];
     }
@@ -65,39 +56,13 @@ class UpdateProductDevelopmentDesignVersion extends OrgAction
     public function afterValidator(Validator $validator): void
     {
         if (ProductDevelopmentDesignRounds::isArtworkLocked($this->designRound->productDevelopment)) {
-            $validator->errors()->add('layout', __('The artwork is signed off and locked'));
+            $validator->errors()->add('notes', __('The artwork is signed off and locked'));
 
             return;
         }
 
         if ($this->designRound->status !== ProductDevelopmentDesignRoundStatusEnum::DRAFT) {
-            $validator->errors()->add('layout', __('Only a draft version can be changed'));
-
-            return;
-        }
-
-        $layout = $this->get('layout');
-        if (!is_array($layout)) {
-            return;
-        }
-
-        if (($this->designRound->data['source'] ?? StoreProductDevelopmentDesignVersion::SOURCE_EDITOR) === StoreProductDevelopmentDesignVersion::SOURCE_UPLOAD) {
-            $validator->errors()->add('layout', __('This version is an uploaded file'));
-
-            return;
-        }
-
-        $imageIds = ProductDevelopmentDesignLayout::imageFileIds($layout);
-        if ($imageIds === []) {
-            return;
-        }
-
-        $known = $this->designRound->productDevelopment->files()
-            ->where('scope', ProductDevelopmentFileScopeEnum::DESIGN_IMAGE->value)
-            ->whereIn('id', $imageIds)
-            ->count();
-        if ($known !== count($imageIds)) {
-            $validator->errors()->add('layout', __('An image on this design is not one of this development\'s design images'));
+            $validator->errors()->add('notes', __('Only a draft version can be changed'));
         }
     }
 

@@ -9,6 +9,9 @@
 
 namespace App\Actions\Goods\ProductDevelopment\UI;
 
+use App\Enums\Goods\ProductDevelopment\ProductDevelopmentArtworkStatusEnum;
+use App\Enums\Goods\ProductDevelopment\ProductDevelopmentDesignRoundEnum;
+use App\Actions\Goods\ProductDevelopment\Design\ProductDevelopmentDesignRounds;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentChecklistItemStateEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentMemberRoleEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStageEnum;
@@ -76,6 +79,21 @@ class GetProductDevelopmentOverview
     }
 
     /**
+     * The designer's work, open from day one: the concept, then one artwork per SKU in each design section.
+     *
+     * @return array{done: int, total: int, missing: int}
+     */
+    private function designTally(ProductDevelopment $productDevelopment): array
+    {
+        $itemIds  = $productDevelopment->items()->pluck('id');
+        $total    = 1 + $productDevelopment->designSections()->count() * $itemIds->count();
+        $done     = (ProductDevelopmentDesignRounds::isApproved($productDevelopment, ProductDevelopmentDesignRoundEnum::CONCEPT) ? 1 : 0)
+            + $productDevelopment->artworks()->whereIn('product_development_item_id', $itemIds)->where('status', ProductDevelopmentArtworkStatusEnum::APPROVED->value)->count();
+
+        return ['done' => $done, 'total' => $total, 'missing' => $total - $done];
+    }
+
+    /**
      * @return array<int, array<string, mixed>>
      */
     private function strip(ProductDevelopment $productDevelopment, Collection $required): array
@@ -126,8 +144,8 @@ class GetProductDevelopmentOverview
         $lastReminder = $this->lastReminder($productDevelopment);
 
         return collect(self::ROLE_CARDS)->map(function (ProductDevelopmentMemberRoleEnum $role) use ($productDevelopment, $required, $roleLabels, $lastReminder) {
-            $tally          = $this->tally($required->where('role', $role));
-            $startsAfterGate = $role === ProductDevelopmentMemberRoleEnum::DESIGNER && $productDevelopment->current_position <= self::GATE_POSITION;
+            $tally           = $role === ProductDevelopmentMemberRoleEnum::DESIGNER ? $this->designTally($productDevelopment) : $this->tally($required->where('role', $role));
+            $startsAfterGate = false;
 
             return [
                 'role'              => $role->value,

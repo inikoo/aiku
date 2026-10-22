@@ -333,6 +333,8 @@ class AppServiceProvider extends ServiceProvider
                 'ProductDevelopmentChecklistItem'  => 'App\Models\Goods\ProductDevelopmentChecklistItem',
                 'ProductDevelopmentFile'           => 'App\Models\Goods\ProductDevelopmentFile',
                 'ProductDevelopmentDesignRound'    => 'App\Models\Goods\ProductDevelopmentDesignRound',
+                'ProductDevelopmentDesignSection'  => 'App\Models\Goods\ProductDevelopmentDesignSection',
+                'ProductDevelopmentArtwork'        => 'App\Models\Goods\ProductDevelopmentArtwork',
                 'ProductDevelopmentStage'          => 'App\Models\Goods\ProductDevelopmentStage',
                 'ProductDevelopmentComment'        => 'App\Models\Goods\ProductDevelopmentComment',
                 'TradeUnitTariffCodeOverride'      => 'App\Models\Goods\TradeUnitTariffCodeOverride',

@@ -1090,6 +1090,7 @@ const confirmDeleteStockDelivery = (action: any) => {
 		:header="ctrans('Delete container')"
 		:route="responsibilityDeleteAction.route"
 		:phrase="responsibilityDeleteAction.responsibility.phrase"
+		:minReasonLength="responsibilityDeleteAction.responsibility.min_reason_length"
 		:warnings="responsibilityDeleteAction.responsibility.warnings"
 	/>
 

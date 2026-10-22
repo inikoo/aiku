@@ -16,7 +16,8 @@ library.add(faExclamationTriangle, faTimes, faTrashAlt)
 const props = defineProps<{
 	header: string
 	route: routeType
-	phrase: string
+	phrase?: string | null
+	minReasonLength?: number
 	warnings: string[]
 	data?: Record<string, unknown>
 }>()
@@ -25,12 +26,11 @@ const visible = defineModel<boolean>("visible", { required: true })
 
 const typed = ref("")
 const reason = ref("")
-const minReasonLength = 10
 const errors = ref<Record<string, string>>({})
 const isDeleting = ref(false)
 
 const normalise = (text: string) => text.trim().replace(/\s+/g, " ").replace(/[.\s]+$/, "").toLowerCase()
-const isAccepted = computed(() => reason.value.trim().length >= minReasonLength && normalise(typed.value) === normalise(props.phrase))
+const isAccepted = computed(() => reason.value.trim().length >= (props.minReasonLength ?? 5) && (!props.phrase || normalise(typed.value) === normalise(props.phrase)))
 
 watch(visible, (isOpen) => {
 	if (isOpen) {
@@ -67,7 +67,7 @@ const destroy = () => {
 				<Textarea v-model="reason" rows="3" autoResize autofocus class="w-full" :invalid="!!errors.reason" />
 			</label>
 
-			<label class="flex flex-col gap-1.5">
+			<label v-if="phrase" class="flex flex-col gap-1.5">
 				<span>
 					{{ ctrans("You take responsibility for anything that goes wrong because of this. To go ahead, type") }}
 					<span class="font-semibold whitespace-nowrap">{{ phrase }}</span>
@@ -79,15 +79,15 @@ const destroy = () => {
 		</div>
 
 		<template #footer>
-			<Button type="tertiary" :label="ctrans('Cancel')" @click="visible = false">
-				<template #icon>
-					<FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" />
-				</template>
+			<Button type="tertiary" :label="ctrans('Cancel')" icon="fal fa-times" @click="visible = false">
+				<!-- <template #icon>
+					<FontAwesomeIcon class="text-red-500" fixed-width aria-hidden="true" />
+				</template> -->
 			</Button>
-			<Button type="tertiary" :label="ctrans('Delete')" :disabled="!isAccepted" :loading="isDeleting" @click="destroy">
-				<template #icon>
-					<FontAwesomeIcon icon="fal fa-trash-alt" class="text-amber-500" fixed-width aria-hidden="true" />
-				</template>
+			<Button type="red" :label="ctrans('Yes, delete container')" icon="fal fa-trash-alt" :disabled="!isAccepted" :loading="isDeleting" @click="destroy">
+				<!-- <template #icon>
+					<FontAwesomeIcon  class="text-amber-500" fixed-width aria-hidden="true" />
+				</template> -->
 			</Button>
 		</template>
 	</Dialog>

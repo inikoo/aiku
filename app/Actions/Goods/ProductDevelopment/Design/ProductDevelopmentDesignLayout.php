@@ -10,6 +10,7 @@
 namespace App\Actions\Goods\ProductDevelopment\Design;
 
 use App\Models\Goods\ProductDevelopment;
+use App\Models\Goods\ProductDevelopmentItem;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentTargetFieldEnum;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
@@ -51,7 +52,7 @@ class ProductDevelopmentDesignLayout
     /**
      * @return array<string, mixed>
      */
-    public static function blank(ProductDevelopment $productDevelopment): array
+    public static function blank(ProductDevelopment $productDevelopment, ?ProductDevelopmentItem $item = null): array
     {
         return [
             'kind'   => self::KIND_BOX,
@@ -59,7 +60,7 @@ class ProductDevelopmentDesignLayout
             'width'  => null,
             'length' => null,
             'height' => null,
-            ...self::sizeFromFirstSku($productDevelopment),
+            ...self::sizeFromSku($item ?? $productDevelopment->items()->with('tradeUnit')->orderBy('id')->first()),
             'faces'  => self::blankFaces(self::FACES),
         ];
     }
@@ -104,9 +105,9 @@ class ProductDevelopmentDesignLayout
     /**
      * @return array{width?: float, length?: float, height?: float, units?: string}
      */
-    private static function sizeFromFirstSku(ProductDevelopment $productDevelopment): array
+    private static function sizeFromSku(?ProductDevelopmentItem $item): array
     {
-        $dimensions = $productDevelopment->items()->with('tradeUnit')->orderBy('id')->first()?->tradeUnit?->marketing_dimensions;
+        $dimensions = $item?->tradeUnit?->marketing_dimensions;
         if (!is_array($dimensions)) {
             return [];
         }

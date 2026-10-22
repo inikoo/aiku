@@ -20,8 +20,7 @@ enum ProductDevelopmentStageEnum: string
     case COMMERCIAL_TERMS    = 'commercial_terms';
     case PACK_CONTENT        = 'pack_content';
     case CONCEPT             = 'concept';
-    case PACKAGING           = 'packaging';
-    case LABEL               = 'label';
+    case ARTWORK             = 'artwork';
     case FINAL_APPROVAL      = 'final_approval';
     case ARTWORK_TO_SUPPLIER = 'artwork_to_supplier';
 
@@ -33,8 +32,7 @@ enum ProductDevelopmentStageEnum: string
             'commercial_terms'    => __('Commercial terms'),
             'pack_content'        => __('Pack content'),
             'concept'             => __('Concept'),
-            'packaging'           => __('Packaging'),
-            'label'               => __('Label'),
+            'artwork'             => __('Artwork'),
             'final_approval'      => __('Final approval'),
             'artwork_to_supplier' => __('Artwork to supplier'),
         ];
@@ -46,10 +44,9 @@ enum ProductDevelopmentStageEnum: string
             self::BRIEF => 1,
             self::PRODUCT_SPECS, self::COMMERCIAL_TERMS, self::PACK_CONTENT => 2,
             self::CONCEPT => 3,
-            self::PACKAGING => 4,
-            self::LABEL => 5,
-            self::FINAL_APPROVAL => 6,
-            self::ARTWORK_TO_SUPPLIER => 7,
+            self::ARTWORK => 4,
+            self::FINAL_APPROVAL => 5,
+            self::ARTWORK_TO_SUPPLIER => 6,
         };
     }
 
@@ -70,7 +67,7 @@ enum ProductDevelopmentStageEnum: string
             self::PRODUCT_SPECS => ProductDevelopmentMemberRoleEnum::AGENT,
             self::COMMERCIAL_TERMS, self::ARTWORK_TO_SUPPLIER => ProductDevelopmentMemberRoleEnum::PURCHASING,
             self::PACK_CONTENT => ProductDevelopmentMemberRoleEnum::COMPLIANCE,
-            self::CONCEPT, self::PACKAGING, self::LABEL => ProductDevelopmentMemberRoleEnum::DESIGNER,
+            self::CONCEPT, self::ARTWORK => ProductDevelopmentMemberRoleEnum::DESIGNER,
         };
     }
 
@@ -88,11 +85,10 @@ enum ProductDevelopmentStageEnum: string
             1 => __('Brief'),
             2 => __('Specs, terms and pack content'),
             3 => __('Concept'),
-            4 => __('Packaging'),
-            5 => __('Label'),
-            6 => __('Final approval'),
-            7 => __('Artwork to supplier'),
-            8 => __('Done'),
+            4 => __('Artwork'),
+            5 => __('Final approval'),
+            6 => __('Artwork to supplier'),
+            7 => __('Done'),
         ];
     }
 
