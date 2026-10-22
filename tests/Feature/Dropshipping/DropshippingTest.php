@@ -1581,6 +1581,39 @@ test('packaging preferences list only active packagings and never preselect a re
             ->where('personalisedMessage', 'Thank you for shopping with us'));
 });
 
+test('a new order takes the customer saved personalised message, and an order message already set is kept', function () {
+    $shop = $this->shop;
+    $shop->update(['settings' => array_replace_recursive($shop->settings ?? [], ['packaging_and_inserts' => ['enabled' => true]])]);
+
+    $suffix    = strtoupper(Str::random(6));
+    $packaging = \App\Actions\Billables\Packaging\StorePackaging::make()->action($shop, [
+        'code'        => 'MSGPK-'.$suffix,
+        'family_code' => 'MSGPK'.$suffix,
+        'name'        => 'Message box',
+        'type'        => \App\Enums\Catalogue\Packaging\PackagingTypeEnum::STANDARD->value,
+        'price'       => 1,
+        'state'       => \App\Enums\Catalogue\Packaging\PackagingStateEnum::ACTIVE->value,
+    ]);
+
+    $customer = StoreCustomer::make()->action($shop, \App\Models\CRM\Customer::factory()->definition());
+    \App\Models\CRM\CustomerHasPackaging::create(['customer_id' => $customer->id, 'packaging_id' => $packaging->id, 'personalised_message' => 'Thank you for shopping with us', 'data' => []]);
+
+    $order = \App\Actions\Ordering\Order\StoreOrder::make()->action($customer, [
+        'date'             => date('Y-m-d'),
+        'customer_id'      => $customer->id,
+        'delivery_address' => new \App\Models\Helpers\Address(\App\Models\Helpers\Address::factory()->definition()),
+        'billing_address'  => new \App\Models\Helpers\Address(\App\Models\Helpers\Address::factory()->definition()),
+    ]);
+
+    expect($order->refresh()->personalised_message)->toBe('Thank you for shopping with us')
+        ->and($order->packaging_id)->toBe($packaging->id);
+
+    $order->update(['personalised_message' => 'Order message', 'insert_types' => null]);
+    \App\Actions\Ordering\Order\ApplyDefaultOrderPackaging::run($order);
+
+    expect($order->refresh()->personalised_message)->toBe('Order message');
+});
+
 test('an ebay match that crashes marks its upload log failed instead of leaving it processing', function () {
     Http::fake(fn ($request) => str_contains($request->url(), 'oauth2/token')
         ? Http::response(['access_token' => 'tok', 'refresh_token' => 'ref', 'expires_in' => 7200])
