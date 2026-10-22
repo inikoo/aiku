@@ -244,6 +244,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomerNote;
 use App\Actions\Fulfilment\FulfilmentCustomer\UpdateFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentTransaction\DeleteFulfilmentTransaction;
+use App\Actions\Fulfilment\FulfilmentTransaction\BulkStoreFulfilmentTransactions;
 use App\Actions\Fulfilment\FulfilmentTransaction\StoreFulfilmentTransaction;
 use App\Actions\Fulfilment\FulfilmentTransaction\UpdateFulfilmentTransaction;
 use App\Actions\Fulfilment\Pallet\AttachPalletsToReturn;
@@ -1232,6 +1233,7 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::post('multiple-pallet', StoreMultiplePalletsFromDelivery::class)->name('multiple-pallets.store');
 
     Route::post('transaction', [StoreFulfilmentTransaction::class, 'inPalletDelivery'])->name('transaction.store');
+    Route::post('transactions', [BulkStoreFulfilmentTransactions::class, 'inPalletDelivery'])->name('transaction.bulk_store');
     Route::patch('delete', DeletePalletDelivery::class)->name('delete');
 
     Route::get('pdf', PdfPalletDelivery::class)->name('pdf');
@@ -1253,6 +1255,7 @@ Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(
     Route::delete('attachment/{attachment:id}/detach', [DetachAttachmentFromModel::class, 'inPalletReturn'])->name('attachment.detach')->withoutScopedBindings();
 
     Route::post('transaction', [StoreFulfilmentTransaction::class, 'inPalletReturn'])->name('transaction.store');
+    Route::post('transactions', [BulkStoreFulfilmentTransactions::class, 'inPalletReturn'])->name('transaction.bulk_store');
     Route::post('pallet', AttachPalletsToReturn::class)->name('pallet.store');
     Route::post('attach-pallet/{pallet:id}', AttachPalletToReturn::class)->name('pallet.attach')->withoutScopedBindings();
     Route::delete('detach-pallet/{pallet:id}', DetachPalletFromReturn::class)->name('pallet.detach');
