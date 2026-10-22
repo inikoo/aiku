@@ -26,6 +26,7 @@ use App\Actions\Production\JobOrderItem\StoreJobOrderItem;
 use App\Actions\Production\ManufactureTaskSession\CloseManufactureTaskSession;
 use App\Actions\Production\ManufactureTaskSession\StartManufactureTaskSession;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
+use App\Models\Production\JobOrderItem;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
 use App\Actions\Production\Production\StoreProduction;
 use App\Actions\Production\RawMaterial\StoreRawMaterial;
@@ -848,6 +849,53 @@ test('a batch made for stock is never offered a goods out bay as its shelf', fun
 
     expect($row['location_code'])->toBe('SHELF-01')
         ->and(collect($row['locations'])->pluck('code')->all())->toBe(['SHELF-01']);
+});
+
+test('a finished product goes to goods in while another product of the same job order is still being made', function () {
+    $user = $this->guest->getUser();
+    \App\Models\Production\ManufactureTaskSession::where('user_id', $user->id)
+        ->where('state', \App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum::OPEN)->delete();
+
+    $artefactFor = function (string $code) {
+        $stock    = \App\Actions\Goods\Stock\StoreStock::make()->action($this->group, array_merge(\App\Models\Goods\Stock::factory()->definition(), ['state' => \App\Enums\Goods\Stock\StockStateEnum::ACTIVE]));
+        $orgStock = \App\Actions\Inventory\OrgStock\StoreOrgStock::make()->action($this->organisation, $stock);
+        $orgStock->update(['packed_in' => 1]);
+        $artefact = StoreArtefact::make()->action($this->production, ['code' => $code, 'name' => $code, 'org_stock_id' => $orgStock->id]);
+        $artefact->manufactureTasks()->sync([$this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1]]);
+
+        return $artefact;
+    };
+
+    $warehouse = \App\Actions\Inventory\Warehouse\StoreWarehouse::make()->action($this->organisation, ['code' => 'WH-PART', 'name' => 'Partial warehouse']);
+    $area      = \App\Actions\Inventory\WarehouseArea\StoreWarehouseArea::make()->action($warehouse, ['code' => 'A-PART', 'name' => 'Partial area']);
+    \App\Actions\Inventory\Location\StoreLocation::make()->action($area, ['code' => 'SHELF-PART', 'name' => 'Partial shelf'] + \App\Models\Inventory\Location::factory()->definition());
+
+    $jobOrder = StoreJobOrder::make()->action($this->production, []);
+    $soap     = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $artefactFor('PART-SOAP')->id, 'quantity' => 12]);
+    $slices   = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $artefactFor('PART-SLICE')->id, 'quantity' => 5]);
+    ConfirmJobOrder::make()->action($jobOrder);
+
+    $make = fn (JobOrderItem $item) => CloseManufactureTaskSession::make()->action(
+        StartManufactureTaskSession::make()->action($user, $item->tasks()->first()),
+        ['quantity_made' => $item->quantity, 'outcome' => 'complete']
+    );
+    $waitingItemIds = fn () => collect(\App\Actions\Dispatching\ProductionOutput\GetFinishedProductionJobOrders::run($warehouse))
+        ->flatMap(fn (array $trip) => collect($trip['jobs'])->flatMap(fn (array $job) => $job['items']))
+        ->pluck('item_id')->intersect([$soap->id, $slices->id])->values()->all();
+
+    $make($soap);
+    expect($waitingItemIds())->toBe([$soap->id]);
+
+    \App\Actions\Dispatching\ProductionOutput\PutAwayFinishedJobOrder::make()->action($warehouse, [$jobOrder->id], 'SHELF-PART', true);
+    expect((float) $soap->refresh()->quantity_received)->toEqual(12.0)
+        ->and($jobOrder->refresh()->state)->toBe(JobOrderStateEnum::CONFIRMED)
+        ->and($waitingItemIds())->toBe([]);
+
+    $make($slices);
+    expect($waitingItemIds())->toBe([$slices->id]);
+
+    \App\Actions\Dispatching\ProductionOutput\PutAwayFinishedJobOrder::make()->action($warehouse, [$jobOrder->id], 'SHELF-PART', true);
+    expect($jobOrder->refresh()->state)->toBe(JobOrderStateEnum::RECEIVED);
 });
 
 test('production for stock is flagged on the backlog and booking it in fulfils the oldest lines', function () {

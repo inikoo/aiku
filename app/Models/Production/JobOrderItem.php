@@ -4,6 +4,7 @@ namespace App\Models\Production;
 
 use App\Enums\Production\JobOrderItem\JobOrderItemStateEnum;
 use App\Enums\Production\JobOrderItem\JobOrderItemStatusEnum;
+use App\Enums\Production\JobOrderItemTask\JobOrderItemTaskStateEnum;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -149,6 +150,11 @@ class JobOrderItem extends Model
         $inRecipe      = $this->tasks->filter(fn (JobOrderItemTask $task) => $recipeTaskIds->contains($task->manufacture_task_id));
 
         return ($inRecipe->isNotEmpty() ? $inRecipe : $this->tasks)->last();
+    }
+
+    public function isFinished(): bool
+    {
+        return !$this->tasks->contains(fn (JobOrderItemTask $task) => $task->state !== JobOrderItemTaskStateEnum::DONE);
     }
 
     public function tasks(): HasMany

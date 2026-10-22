@@ -139,7 +139,7 @@ class ReceiveJobOrderIntoStock extends OrgAction
                 }
             }
 
-            $stillOut = $items->contains(fn (JobOrderItem $item) => round($this->producedQuantity($item) - (float) $item->refresh()->quantity_received, 3) > 0);
+            $stillOut = $items->contains(fn (JobOrderItem $item) => !$item->refresh()->isFinished() || round($this->producedQuantity($item) - (float) $item->quantity_received, 3) > 0);
 
             if (!$stillOut) {
                 $jobOrder->update([
