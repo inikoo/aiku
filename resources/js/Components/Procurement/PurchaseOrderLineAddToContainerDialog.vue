@@ -14,6 +14,7 @@ import Dialog from "primevue/dialog"
 import Select from "primevue/select"
 import InputNumber from "primevue/inputnumber"
 import Button from "@/Components/Elements/Buttons/Button.vue"
+import Image from "@common/Components/Image.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faCheck, faTimes, faExclamationTriangle } from "@fal"
 import { ctrans } from "@/Composables/useTrans"
@@ -31,6 +32,8 @@ const props = defineProps<{
 	item: {
 		id: number
 		code: string
+		name?: string | null
+		image_thumbnail?: object | null
 		agent_warehouse: {
 			quantity_awaiting_delivery: number
 			quantity_packed_not_on_container: number
@@ -159,6 +162,14 @@ function submit() {
 		:draggable="false"
 	>
 		<div class="space-y-4 text-sm">
+			<div class="flex items-center gap-3">
+				<Image :src="item.image_thumbnail" imageCover class="h-16 w-16 shrink-0 overflow-hidden rounded border border-gray-200" />
+				<div class="min-w-0">
+					<div class="whitespace-nowrap font-medium text-gray-800">{{ item.code }}</div>
+					<div v-if="item.name" class="text-xs text-gray-500">{{ item.name }}</div>
+				</div>
+			</div>
+
 			<label class="block space-y-1">
 				<span class="block text-xs text-gray-500">{{ ctrans("Container") }}</span>
 				<Select
