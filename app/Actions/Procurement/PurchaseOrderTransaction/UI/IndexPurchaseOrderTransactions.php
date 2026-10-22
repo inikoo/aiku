@@ -19,6 +19,8 @@ use App\Actions\Inventory\OrgStock\GetOrgStocksQuarterlyUsage;
 use App\Actions\Inventory\OrgStock\GetOrgStocksStockDeliveries;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
+use App\Actions\Procurement\PurchaseOrderTransaction\PackPurchaseOrderTransaction;
+use App\Enums\Procurement\AgentWarehouseStock\AgentWarehouseStockStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
@@ -143,6 +145,10 @@ class IndexPurchaseOrderTransactions extends OrgAction
             $query->where('purchase_order_transactions.purchase_order_id', $parent->id);
         }
 
+        if ($parent->isAgentOrder()) {
+            $this->selectAgentWarehouseQuantities($query);
+        }
+
         if ($parent->state !== PurchaseOrderStateEnum::IN_PROCESS) {
             foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                 $query->whereElementGroup(
@@ -184,6 +190,23 @@ class IndexPurchaseOrderTransactions extends OrgAction
         IndexPurchaseOrderOrgSupplierProducts::make()->attachOtherOpenPurchaseOrders($paginator, $parent->organisation_id, $parent->id);
 
         return $paginator;
+    }
+
+    /**
+     * What the agent holds of each line: received and checked waiting to be packed, received not checked yet,
+     * packed, and the units not in a container yet.
+     */
+    private function selectAgentWarehouseQuantities(QueryBuilder $query): void
+    {
+        $ofLine = fn ($stocks) => $stocks->whereColumn('agent_warehouse_stocks.purchase_order_transaction_id', 'purchase_order_transactions.id')
+            ->selectRaw('coalesce(sum(agent_warehouse_stocks.quantity), 0)');
+
+        $quantityOnDelivery = StoreStockDeliveryFromPurchaseOrder::quantityOnDelivery();
+
+        $query->selectSub($ofLine(PackPurchaseOrderTransaction::packableStocks()), 'quantity_packable')
+            ->selectSub($ofLine(PackPurchaseOrderTransaction::receivedStocks()->whereNull('agent_goods_receipt_items.checked_at')), 'quantity_to_check')
+            ->selectSub($ofLine(DB::table('agent_warehouse_stocks')->where('agent_warehouse_stocks.state', '!=', AgentWarehouseStockStateEnum::RECEIVED->value)), 'quantity_packed')
+            ->selectRaw('purchase_order_transactions.quantity_ordered - ('.$quantityOnDelivery->toSql().') as quantity_awaiting_delivery', $quantityOnDelivery->getBindings());
     }
 
     /**

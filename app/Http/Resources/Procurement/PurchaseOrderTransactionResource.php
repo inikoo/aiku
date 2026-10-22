@@ -8,6 +8,7 @@
 
 namespace App\Http\Resources\Procurement;
 
+use App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryFromPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UI\GetOrgStockBuyingSignals;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStateEnum;
@@ -121,6 +122,7 @@ class PurchaseOrderTransactionResource extends JsonResource
                 ],
                 'method'     => 'patch',
             ] : null,
+            'agent_warehouse'      => $this->agentWarehouse($transaction, $request),
             'cancelRoute'          => $this->isCancellable($transaction) ? [
                 'name'       => 'grp.models.purchase-order.transaction.cancel',
                 'parameters' => [
@@ -156,6 +158,55 @@ class PurchaseOrderTransactionResource extends JsonResource
             && $transaction->purchaseOrder?->state === PurchaseOrderStateEnum::SUBMITTED
             && $this->viewingOrganisationId($request) === $transaction->organisation_id
             && $request->user()?->authTo("procurement.$transaction->organisation_id.edit");
+    }
+
+    /**
+     * What the agent holds of an agent order's line, with packing it for the agent viewing its own order and adding it
+     * to a container for whoever may fill the containers.
+     */
+    private function agentWarehouse(PurchaseOrderTransaction $transaction, $request): ?array
+    {
+        if ($transaction->getAttribute('quantity_awaiting_delivery') === null) {
+            return null;
+        }
+
+        $purchaseOrder       = $transaction->purchaseOrder;
+        $agentOrganisationId = $purchaseOrder?->agent?->organisation_id;
+        $user                = $request->user();
+
+        $isAgentEditing = $agentOrganisationId !== null
+            && $this->viewingOrganisationId($request) === $agentOrganisationId
+            && $user?->authTo("procurement.$agentOrganisationId.edit");
+
+        $packable = (float) $transaction->getAttribute('quantity_packable');
+        $packed   = (float) $transaction->getAttribute('quantity_packed');
+        $awaiting = max(0, (float) $transaction->getAttribute('quantity_awaiting_delivery'));
+        $onContainers = max(0, (float) $transaction->quantity_ordered - $awaiting);
+
+        $canAddToContainer = $purchaseOrder?->state === PurchaseOrderStateEnum::CONFIRMED
+            && $transaction->state === PurchaseOrderTransactionStateEnum::CONFIRMED
+            && $awaiting > StoreStockDeliveryFromPurchaseOrder::QUANTITY_TOLERANCE
+            && ($isAgentEditing || $user?->authTo("procurement.$transaction->organisation_id.edit"));
+
+        return [
+            'quantity_packable'                => $packable,
+            'quantity_to_check'                => (float) $transaction->getAttribute('quantity_to_check'),
+            'quantity_packed'                  => $packed,
+            'quantity_awaiting_delivery'       => $awaiting,
+            'quantity_packed_not_on_container' => max(0, round($packed - $onContainers, 3)),
+            'pack_route'                       => $isAgentEditing && $packable > 0 ? [
+                'name'       => 'grp.models.purchase-order.transaction.pack',
+                'parameters' => [
+                    'purchaseOrder'            => $transaction->purchase_order_id,
+                    'purchaseOrderTransaction' => $transaction->id,
+                ],
+                'method'     => 'patch',
+            ] : null,
+            'containers_route'                 => $canAddToContainer ? [
+                'name'       => 'grp.json.purchase_order.open_agent_containers',
+                'parameters' => ['purchaseOrder' => $transaction->purchase_order_id],
+            ] : null,
+        ];
     }
 
     private function viewingOrganisationId($request): ?int
