@@ -52,12 +52,11 @@ class SubmitProductDevelopmentDesignVersion extends OrgAction
         ]);
 
         $productDevelopment = $designRound->productDevelopment;
-        $roundLabel         = ProductDevelopmentDesignRoundEnum::labels()[$designRound->round->value].($designRound->item ? ' '.$designRound->item->tradeUnit->code : '');
+        $roundLabel         = ProductDevelopmentDesignRoundEnum::labels()[$designRound->round->value];
 
         RecordProductDevelopmentActivity::record($productDevelopment, RecordProductDevelopmentActivity::DESIGN_SUBMITTED, [], [
             'round'   => $designRound->round->value,
             'version' => $designRound->version,
-                'sku'     => $designRound->item?->tradeUnit?->code,
         ]);
 
         $notifier  = NotifyProductDevelopmentUsers::make();
@@ -71,7 +70,7 @@ class SubmitProductDevelopmentDesignVersion extends OrgAction
             UserNotificationEnum::PRODUCT_DEVELOPMENT_TASK,
             __(':round v:version of :code is ready for review', ['round' => $roundLabel, 'version' => $designRound->version, 'code' => $productDevelopment->code]),
             __('Open the design to pin comments, tick the checks and approve or request changes.'),
-            url: route('grp.product_developments.design', ['productDevelopment' => $productDevelopment->slug, 'round' => $designRound->round->value, 'version' => $designRound->version, 'sku' => $designRound->product_development_item_id]),
+            url: route('grp.product_developments.design', ['productDevelopment' => $productDevelopment->slug, 'round' => $designRound->round->value, 'version' => $designRound->version]),
             except: $user,
         );
 
@@ -86,18 +85,8 @@ class SubmitProductDevelopmentDesignVersion extends OrgAction
             return;
         }
 
-        if (($this->designRound->data['source'] ?? StoreProductDevelopmentDesignVersion::SOURCE_EDITOR) === StoreProductDevelopmentDesignVersion::SOURCE_UPLOAD) {
-            if (empty($this->designRound->data['upload']['file_id'] ?? null)) {
-                $validator->errors()->add('file', __('Upload the PDF or picture first'));
-            }
-
-            return;
-        }
-
-        if (!ProductDevelopmentDesignLayout::hasSize($this->designRound->data['layout'] ?? [])) {
-            $validator->errors()->add('layout', ($this->designRound->data['layout']['kind'] ?? null) === ProductDevelopmentDesignLayout::KIND_SHEET
-                ? __('Set the width and height of the label first')
-                : __('Set the width, length and height of the box first'));
+        if (empty($this->designRound->data['upload']['file_id'] ?? null)) {
+            $validator->errors()->add('file', __('Upload the PDF or picture first'));
         }
     }
 

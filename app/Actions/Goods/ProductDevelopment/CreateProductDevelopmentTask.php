@@ -12,6 +12,7 @@ namespace App\Actions\Goods\ProductDevelopment;
 use App\Actions\Tasks\StoreStaffTask;
 use App\Actions\Tasks\SyncStaffTaskCollaborators;
 use App\Actions\Tasks\UpdateStaffTask;
+use App\Actions\Goods\ProductDevelopment\Design\ProductDevelopmentArtworks;
 use App\Actions\Goods\ProductDevelopment\Design\ProductDevelopmentDesignRounds;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentDesignRoundEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentMemberRoleEnum;
@@ -35,8 +36,7 @@ class CreateProductDevelopmentTask
     public const string SEND_ARTWORK     = 'send_approved_artwork';
     public const string CONFIRM_ARTWORK  = 'confirm_artwork_received';
     public const string DESIGN_CONCEPT   = 'design_concept';
-    public const string DESIGN_PACKAGING = 'design_packaging';
-    public const string DESIGN_LABEL     = 'design_label';
+    public const string DESIGN_ARTWORK   = 'design_artwork';
     public const string SIGN_OFF_BUYER   = 'sign_off_buyer';
     public const string SIGN_OFF_COMPLIANCE = 'sign_off_compliance';
 
@@ -47,8 +47,6 @@ class CreateProductDevelopmentTask
 
     public const array DESIGN_TASKS = [
         'concept'   => self::DESIGN_CONCEPT,
-        'packaging' => self::DESIGN_PACKAGING,
-        'label'     => self::DESIGN_LABEL,
     ];
 
     private static bool $syncingProgress = false;
@@ -102,7 +100,7 @@ class CreateProductDevelopmentTask
     {
         $notifier = NotifyProductDevelopmentUsers::make();
 
-        foreach ([self::SPECS, self::COMPLIANCE_SCOPE, self::SEND_ARTWORK, self::CONFIRM_ARTWORK, ...array_values(self::DESIGN_TASKS), ...array_values(self::SIGN_OFF_TASKS)] as $key) {
+        foreach ([self::SPECS, self::COMPLIANCE_SCOPE, self::SEND_ARTWORK, self::CONFIRM_ARTWORK, ...array_values(self::DESIGN_TASKS), self::DESIGN_ARTWORK, ...array_values(self::SIGN_OFF_TASKS)] as $key) {
             if (!$this->isDue($productDevelopment, $key)) {
                 continue;
             }
@@ -210,14 +208,25 @@ class CreateProductDevelopmentTask
 
         if ($round = array_search($key, self::DESIGN_TASKS, true)) {
             $round = ProductDevelopmentDesignRoundEnum::from($round);
-            if (ProductDevelopmentDesignRounds::isSkipped($productDevelopment, $round)) {
-                return $task->status->isOpen() ? [StaffTaskStatusEnum::DONE, __('The :round round was skipped', ['round' => mb_strtolower(ProductDevelopmentDesignRoundEnum::labels()[$round->value])])] : [null, null];
-            }
             if (ProductDevelopmentDesignRounds::isApproved($productDevelopment, $round)) {
                 return [StaffTaskStatusEnum::DONE, __('The :round design is approved', ['round' => mb_strtolower(ProductDevelopmentDesignRoundEnum::labels()[$round->value])])];
             }
 
             return ProductDevelopmentDesignRounds::hasAnyVersion($productDevelopment, $round) && $task->status === StaffTaskStatusEnum::TODO
+                ? [StaffTaskStatusEnum::IN_PROGRESS, null]
+                : [null, null];
+        }
+
+        if ($key === self::DESIGN_ARTWORK) {
+            if (ProductDevelopmentArtworks::isAllApproved($productDevelopment)) {
+                return $task->status->isOpen() ? [StaffTaskStatusEnum::DONE, __('Every artwork is approved')] : [null, null];
+            }
+
+            if ($task->status === StaffTaskStatusEnum::DONE) {
+                return [StaffTaskStatusEnum::IN_PROGRESS, __('An artwork needs approving again')];
+            }
+
+            return ProductDevelopmentArtworks::hasAnyArtwork($productDevelopment) && $task->status === StaffTaskStatusEnum::TODO
                 ? [StaffTaskStatusEnum::IN_PROGRESS, null]
                 : [null, null];
         }
@@ -254,12 +263,8 @@ class CreateProductDevelopmentTask
             self::CONFIRM_ARTWORK => $productDevelopment->current_position === $artworkPosition
                 && $this->existing($productDevelopment, self::SEND_ARTWORK)?->status === StaffTaskStatusEnum::DONE,
             self::SIGN_OFF_BUYER, self::SIGN_OFF_COMPLIANCE => SignOffProductDevelopment::isOpenForSignOff($productDevelopment),
-            self::DESIGN_CONCEPT => $productDevelopment->current_position >= ProductDevelopmentStageEnum::CONCEPT->position()
-                && !ProductDevelopmentDesignRounds::isSettled($productDevelopment, ProductDevelopmentDesignRoundEnum::CONCEPT),
-            self::DESIGN_PACKAGING => ProductDevelopmentDesignRounds::isSettled($productDevelopment, ProductDevelopmentDesignRoundEnum::CONCEPT)
-                && !ProductDevelopmentDesignRounds::isSettled($productDevelopment, ProductDevelopmentDesignRoundEnum::PACKAGING),
-            self::DESIGN_LABEL => ProductDevelopmentDesignRounds::isSettled($productDevelopment, ProductDevelopmentDesignRoundEnum::PACKAGING)
-                && !ProductDevelopmentDesignRounds::isSettled($productDevelopment, ProductDevelopmentDesignRoundEnum::LABEL),
+            self::DESIGN_CONCEPT => !ProductDevelopmentDesignRounds::isSettled($productDevelopment, ProductDevelopmentDesignRoundEnum::CONCEPT),
+            self::DESIGN_ARTWORK => !ProductDevelopmentArtworks::isAllApproved($productDevelopment),
             default => false,
         };
     }
@@ -339,11 +344,17 @@ class CreateProductDevelopmentTask
                 'description' => __('The artwork of :code is approved and locked: send it to the supplier, then mark this task done.', ['code' => $code]),
                 'due_at'      => $stageDue(ProductDevelopmentStageEnum::ARTWORK_TO_SUPPLIER),
             ],
-            self::DESIGN_CONCEPT, self::DESIGN_PACKAGING, self::DESIGN_LABEL => $this->designDefinition($productDevelopment, $key, $stageDue),
+            self::DESIGN_CONCEPT => $this->designDefinition($productDevelopment, $key, $stageDue),
+            self::DESIGN_ARTWORK => [
+                'role'        => ProductDevelopmentMemberRoleEnum::DESIGNER,
+                'subject'     => __('Make the artwork of :family', ['family' => $family]),
+                'description' => __('In the Design tab of :code, upload or build the artwork of every SKU in each design section and send it for review.', ['code' => $code]),
+                'due_at'      => $stageDue(ProductDevelopmentStageEnum::ARTWORK),
+            ],
             self::SIGN_OFF_BUYER, self::SIGN_OFF_COMPLIANCE => [
                 'role'        => ProductDevelopmentMemberRoleEnum::from(array_search($key, self::SIGN_OFF_TASKS, true)),
                 'subject'     => __('Sign off the final artwork of :family', ['family' => $family]),
-                'description' => __('Check the approved concept, packaging and labels of :code and sign them off on the development page. Once the buyer and compliance have both signed, the artwork is locked.', ['code' => $code]),
+                'description' => __('Check the approved concept and artwork of :code and sign them off on the development page. Once the buyer and compliance have both signed, the artwork is locked.', ['code' => $code]),
                 'due_at'      => $stageDue(ProductDevelopmentStageEnum::FINAL_APPROVAL),
             ],
             self::CONFIRM_ARTWORK => [
@@ -366,7 +377,7 @@ class CreateProductDevelopmentTask
         return [
             'role'        => ProductDevelopmentMemberRoleEnum::DESIGNER,
             'subject'     => __('Design the :round of :family', ['round' => mb_strtolower($label), 'family' => $productDevelopment->name]),
-            'description' => __('Open the design of :code, lay out the box and send the :round for review.', ['code' => $productDevelopment->code, 'round' => mb_strtolower($label)]),
+            'description' => __('Open the design of :code, upload the :round and send it for review.', ['code' => $productDevelopment->code, 'round' => mb_strtolower($label)]),
             'due_at'      => $stageDue($round->stage()),
         ];
     }

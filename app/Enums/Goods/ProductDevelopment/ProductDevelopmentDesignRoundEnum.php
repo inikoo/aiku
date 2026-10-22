@@ -11,13 +11,15 @@ namespace App\Enums\Goods\ProductDevelopment;
 
 use App\Enums\EnumHelperTrait;
 
+/**
+ * Only the concept still runs as versioned rounds; packaging and label became design sections with one
+ * artwork per SKU (HELP-4211). Their labels stay so older activity still reads.
+ */
 enum ProductDevelopmentDesignRoundEnum: string
 {
     use EnumHelperTrait;
 
-    case CONCEPT   = 'concept';
-    case PACKAGING = 'packaging';
-    case LABEL     = 'label';
+    case CONCEPT = 'concept';
 
     public static function labels(): array
     {
@@ -28,45 +30,6 @@ enum ProductDevelopmentDesignRoundEnum: string
         ];
     }
 
-    public function previous(): ?self
-    {
-        return match ($this) {
-            self::CONCEPT => null,
-            self::PACKAGING => self::CONCEPT,
-            self::LABEL => self::PACKAGING,
-        };
-    }
-
-    public function next(): ?self
-    {
-        return match ($this) {
-            self::CONCEPT => self::PACKAGING,
-            self::PACKAGING => self::LABEL,
-            self::LABEL => null,
-        };
-    }
-
-    /**
-     * The label is designed for each SKU; concept and packaging for the whole family.
-     */
-    public function isPerSku(): bool
-    {
-        return $this === self::LABEL;
-    }
-
-    public function canBeSkipped(): bool
-    {
-        return $this !== self::CONCEPT;
-    }
-
-    /**
-     * Concept is always an uploaded file; packaging and label can also be built in Aiku.
-     */
-    public function canBeBuiltInAiku(): bool
-    {
-        return $this !== self::CONCEPT;
-    }
-
     public function stage(): ProductDevelopmentStageEnum
     {
         return ProductDevelopmentStageEnum::from($this->value);
@@ -74,10 +37,6 @@ enum ProductDevelopmentDesignRoundEnum: string
 
     public function icon(): string
     {
-        return match ($this) {
-            self::CONCEPT => 'fal fa-lightbulb-on',
-            self::PACKAGING => 'fal fa-box-open',
-            self::LABEL => 'fal fa-tag',
-        };
+        return 'fal fa-lightbulb-on';
     }
 }
