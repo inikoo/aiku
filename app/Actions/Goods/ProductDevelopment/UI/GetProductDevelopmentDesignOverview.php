@@ -2,72 +2,169 @@
 
 /*
  * Author Louis Perez
- * Created on 17-10-2026-12h-40m
+ * Created on 17-10-2026-16h-10m
  * GitHub: https://github.com/louis-perez
  * Copyright 2026
 */
 
 namespace App\Actions\Goods\ProductDevelopment\UI;
 
-use App\Actions\Goods\ProductDevelopment\Design\ProductDevelopmentDesignImages;
+use App\Actions\Goods\ProductDevelopment\Design\DeleteProductDevelopmentDesignSection;
+use App\Actions\Goods\ProductDevelopment\Design\DownloadProductDevelopmentArtwork;
+use App\Actions\Goods\ProductDevelopment\Design\ProductDevelopmentArtworks;
+use App\Actions\Goods\ProductDevelopment\Design\ProductDevelopmentDesignLayout;
 use App\Actions\Goods\ProductDevelopment\Design\ProductDevelopmentDesignRounds;
+use App\Actions\Goods\ProductDevelopment\Design\UpdateProductDevelopmentArtworkLayout;
+use App\Actions\Goods\ProductDevelopment\Design\UploadProductDevelopmentArtwork;
+use App\Actions\Traits\Authorisations\WithProductDevelopmentAuthorisation;
+use App\Enums\Goods\ProductDevelopment\ProductDevelopmentArtworkStatusEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentDesignRoundEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentDesignRoundStatusEnum;
 use App\Models\Goods\ProductDevelopment;
+use App\Models\Goods\ProductDevelopmentArtwork;
+use App\Models\Goods\ProductDevelopmentDesignSection;
+use App\Models\Goods\ProductDevelopmentItem;
+use App\Models\SysAdmin\User;
+use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
- * The Design tab: the latest version of each round, read-only, each opening the design page.
+ * The Design tab: the concept at the top, then each design section with one row per SKU showing its
+ * current artwork, status and the reviewer's last comment.
  */
 class GetProductDevelopmentDesignOverview
 {
     use AsAction;
+    use WithProductDevelopmentAuthorisation;
 
     /**
      * @return array<string, mixed>
      */
-    public function handle(ProductDevelopment $productDevelopment): array
+    public function handle(ProductDevelopment $productDevelopment, User $viewer): array
     {
+        $access    = $this->productDevelopmentAccess();
+        $canManage = $access->canManageArtwork($viewer, $productDevelopment);
+        $canReview = $access->canApproveDesign($viewer, $productDevelopment);
+        $locked    = ProductDevelopmentDesignRounds::isArtworkLocked($productDevelopment);
+        $items     = $productDevelopment->items()->with('tradeUnit')->orderBy('position')->orderBy('id')->get();
+        $sections  = $productDevelopment->designSections()->with(['artworks.media', 'artworks.updatedBy', 'artworks.reviewedBy'])->get();
+
         return [
-            'rounds' => collect(ProductDevelopmentDesignRoundEnum::cases())->map(function (ProductDevelopmentDesignRoundEnum $round) use ($productDevelopment) {
-                $skus = $round->isPerSku()
-                    ? $productDevelopment->items()->with('tradeUnit')->orderBy('id')->get()->map(function ($item) use ($productDevelopment, $round) {
-                        $latest = ProductDevelopmentDesignRounds::latest($productDevelopment, $round, $item->id);
+            'concept'   => $this->concept($productDevelopment),
+            'sections'  => $sections->map(fn (ProductDevelopmentDesignSection $section) => $this->section($productDevelopment, $section, $items, $canManage && !$locked, $canReview && !$locked))->values()->all(),
+            'can_manage' => $canManage && !$locked,
+            'locked'    => $locked,
+            'max_mb'    => (int) (UploadProductDevelopmentArtwork::MAX_KILOBYTES / 1024),
+            'routes'    => [
+                'section_store' => ['name' => 'grp.models.product_development.design_section.store', 'parameters' => ['productDevelopment' => $productDevelopment->id]],
+            ],
+        ];
+    }
 
-                        return [
-                            'id'     => $item->id,
-                            'code'   => $item->tradeUnit->code,
-                            'status' => $latest ? ['label' => ProductDevelopmentDesignRoundStatusEnum::labels()[$latest->status->value], 'color' => $latest->status->color()] : null,
-                            'latest' => $latest,
-                        ];
-                    })
-                    : collect();
-                $latest = $round->isPerSku()
-                    ? $skus->pluck('latest')->filter()->sortByDesc('updated_at')->first()
-                    : ProductDevelopmentDesignRounds::latest($productDevelopment, $round);
+    /**
+     * @return array<string, mixed>
+     */
+    private function concept(ProductDevelopment $productDevelopment): array
+    {
+        $latest = ProductDevelopmentDesignRounds::latest($productDevelopment, ProductDevelopmentDesignRoundEnum::CONCEPT);
 
-                return [
-                    'value'    => $round->value,
-                    'label'    => ProductDevelopmentDesignRoundEnum::labels()[$round->value],
-                    'icon'     => $round->icon(),
-                    'unlocked' => ProductDevelopmentDesignRounds::isUnlocked($productDevelopment, $round),
-                    'skipped'  => ProductDevelopmentDesignRounds::isSkipped($productDevelopment, $round),
-                    'latest'   => $latest ? [
-                        'version' => $latest->version,
-                        'status'  => [
-                            'value' => $latest->status->value,
-                            'label' => ProductDevelopmentDesignRoundStatusEnum::labels()[$latest->status->value],
-                            'color' => $latest->status->color(),
-                            'icon'  => $latest->status->icon(),
-                        ],
-                        ...ShowProductDevelopmentDesign::content($latest),
-                    ] : null,
-                    'progress' => $round->isPerSku() ? ProductDevelopmentDesignRounds::skuProgress($productDevelopment, $round) : null,
-                    'skus'     => $skus->map(fn (array $sku) => [...collect($sku)->except('latest')->all(), 'version' => $sku['latest']?->version])->values()->all(),
-                    'route'    => ['name' => 'grp.product_developments.design', 'parameters' => ['productDevelopment' => $productDevelopment->slug, 'round' => $round->value]],
-                ];
-            })->all(),
-            'images' => ProductDevelopmentDesignImages::forDevelopment($productDevelopment),
+        return [
+            'latest' => $latest ? [
+                'version'      => $latest->version,
+                'status'       => [
+                    'value' => $latest->status->value,
+                    'label' => ProductDevelopmentDesignRoundStatusEnum::labels()[$latest->status->value],
+                    'color' => $latest->status->color(),
+                    'icon'  => $latest->status->icon(),
+                ],
+                'submitted_by' => $latest->submittedBy?->contact_name ?: $latest->submittedBy?->username,
+                'submitted_at' => ($latest->submitted_at ?? $latest->created_at)?->toIso8601String(),
+                ...ShowProductDevelopmentDesign::content($latest),
+            ] : null,
+            'route'  => ['name' => 'grp.product_developments.design', 'parameters' => ['productDevelopment' => $productDevelopment->slug, 'round' => ProductDevelopmentDesignRoundEnum::CONCEPT->value]],
+        ];
+    }
+
+    /**
+     * @param Collection<int, ProductDevelopmentItem> $items
+     *
+     * @return array<string, mixed>
+     */
+    private function section(ProductDevelopment $productDevelopment, ProductDevelopmentDesignSection $section, Collection $items, bool $canManage, bool $canReview): array
+    {
+        $artworks = $section->artworks->keyBy('product_development_item_id');
+        $approved = $items->filter(fn (ProductDevelopmentItem $item) => $artworks->get($item->id)?->status === ProductDevelopmentArtworkStatusEnum::APPROVED)->count();
+        $files    = $items->filter(fn (ProductDevelopmentItem $item) => $this->hasFile($artworks->get($item->id)))->count();
+
+        return [
+            'id'                 => $section->id,
+            'name'               => $section->name,
+            'description'        => $section->description,
+            'packaging_supplier' => $section->packaging_supplier,
+            'editor_kind'        => $section->editor_kind,
+            'needs_compliance_text' => $section->needs_compliance_text,
+            'progress'           => ['done' => $approved, 'total' => $items->count()],
+            'files'              => $files,
+            'can_delete'         => $canManage && DeleteProductDevelopmentDesignSection::isEmpty($section),
+            'rows'               => $items->map(fn (ProductDevelopmentItem $item) => $this->row($productDevelopment, $section, $item, $artworks->get($item->id), $canManage, $canReview))->values()->all(),
+            'routes'             => [
+                'update' => ['name' => 'grp.models.product_development.design_section.update', 'parameters' => ['productDevelopmentDesignSection' => $section->id]],
+                'delete' => ['name' => 'grp.models.product_development.design_section.delete', 'parameters' => ['productDevelopmentDesignSection' => $section->id]],
+                'upload' => ['name' => 'grp.models.product_development.design_section.artwork.upload', 'parameters' => ['productDevelopmentDesignSection' => $section->id]],
+                'aiku'   => ['name' => 'grp.models.product_development.design_section.artwork.aiku', 'parameters' => ['productDevelopmentDesignSection' => $section->id]],
+                'zip'    => ['name' => 'grp.product_developments.design_section.zip', 'parameters' => ['productDevelopment' => $productDevelopment->slug, 'section' => $section->id]],
+            ],
+        ];
+    }
+
+    private function hasFile(?ProductDevelopmentArtwork $artwork): bool
+    {
+        if (!$artwork) {
+            return false;
+        }
+
+        return $artwork->source === ProductDevelopmentArtwork::SOURCE_AIKU
+            ? ProductDevelopmentDesignLayout::hasSize($artwork->layout ?? [])
+            : (bool) $artwork->media_id;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function row(ProductDevelopment $productDevelopment, ProductDevelopmentDesignSection $section, ProductDevelopmentItem $item, ?ProductDevelopmentArtwork $artwork, bool $canManage, bool $canReview): array
+    {
+        $tradeUnit = $item->tradeUnit;
+        $artwork?->setRelation('section', $section)->setRelation('item', $item)->setRelation('productDevelopment', $productDevelopment);
+        $pdfRoute = $this->hasFile($artwork) ? ['name' => 'grp.product_developments.artwork.pdf', 'parameters' => ['productDevelopment' => $productDevelopment->slug, 'artwork' => $artwork->id]] : null;
+
+        return [
+            'item_id'   => $item->id,
+            'code'      => $tradeUnit->code,
+            'name'      => $tradeUnit->name,
+            'image'     => $tradeUnit->image_id ? $tradeUnit->imageSources(96, 96) : null,
+            'status'    => ProductDevelopmentArtworks::statusPayload($artwork),
+            'artwork'   => $artwork ? [
+                'id'             => $artwork->id,
+                'source'         => $artwork->source,
+                'version'        => $artwork->version,
+                'file_name'      => $this->hasFile($artwork) ? DownloadProductDevelopmentArtwork::fileName($artwork) : null,
+                'original_name'  => $artwork->media?->name,
+                'size'           => $artwork->source === ProductDevelopmentArtwork::SOURCE_UPLOAD ? $artwork->media?->size : null,
+                'updated_at'     => $artwork->artwork_updated_at?->toIso8601String(),
+                'updated_by'     => $artwork->updatedBy?->contact_name ?: $artwork->updatedBy?->username,
+                'update_note'    => $artwork->update_note,
+                'review_comment' => $artwork->review_comment,
+                'reviewed_by'    => $artwork->reviewedBy?->contact_name ?: $artwork->reviewedBy?->username,
+                'reviewed_at'    => $artwork->reviewed_at?->toIso8601String(),
+                'pdf_route'      => $pdfRoute,
+                'editor_route'   => $artwork->source === ProductDevelopmentArtwork::SOURCE_AIKU ? ['name' => 'grp.product_developments.artwork', 'parameters' => ['productDevelopment' => $productDevelopment->slug, 'artwork' => $artwork->id]] : null,
+                'can_edit_layout' => $canManage && UpdateProductDevelopmentArtworkLayout::isEditable($artwork),
+                'can_review'     => $canReview && $artwork->status === ProductDevelopmentArtworkStatusEnum::IN_REVIEW,
+                'approval_blocked' => $artwork->status === ProductDevelopmentArtworkStatusEnum::IN_REVIEW ? ProductDevelopmentArtworks::approvalBlockedReason($artwork) : null,
+                'review_route'   => ['name' => 'grp.models.product_development.artwork.review', 'parameters' => ['productDevelopmentArtwork' => $artwork->id]],
+            ] : null,
+            'can_upload' => $canManage,
+            'label_content_route' => ['name' => 'grp.product_developments.json.label_content', 'parameters' => ['productDevelopment' => $productDevelopment->slug, 'item' => $item->id]],
         ];
     }
 }

@@ -10,9 +10,8 @@
 namespace App\Actions\Goods\ProductDevelopment\Design;
 
 use App\Actions\Goods\ProductDevelopment\UI\GetProductDevelopmentLabelContent;
-use App\Actions\Goods\ProductDevelopment\UI\ShowProductDevelopmentDesign;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentFileScopeEnum;
-use App\Models\Goods\ProductDevelopmentDesignRound;
+use App\Models\Goods\ProductDevelopmentArtwork;
 use Illuminate\Support\Arr;
 use Mpdf\Mpdf;
 use Picqer\Barcode\BarcodeGenerator;
@@ -59,18 +58,21 @@ class ProductDevelopmentDesignPdf
     /** @var array<string, mixed> */
     private array $sources;
 
-    public function __construct(private readonly ProductDevelopmentDesignRound $designRound)
+    public function __construct(private readonly ProductDevelopmentArtwork $artwork)
     {
     }
 
-    public static function render(ProductDevelopmentDesignRound $designRound): ?string
+    /**
+     * The artwork built in Aiku as a PDF at its real size, or null when it has no size yet.
+     */
+    public static function render(ProductDevelopmentArtwork $artwork): ?string
     {
-        return (new self($designRound))->draw();
+        return (new self($artwork))->draw();
     }
 
     public function draw(): ?string
     {
-        $layout = ShowProductDevelopmentDesign::content($this->designRound)['layout'];
+        $layout = $this->artwork->layout ? ProductDevelopmentDesignLayout::normalise($this->artwork->layout) : null;
         $size   = $layout ? ProductDevelopmentDesignLayout::netSize($layout) : null;
         if (!$size) {
             return null;
@@ -94,7 +96,7 @@ class ProductDevelopmentDesignPdf
             'tempDir'       => storage_path('app/mpdf'),
         ]);
         $this->mpdf->SetDisplayMode('fullpage');
-        $this->mpdf->SetTitle($this->designRound->productDevelopment->code.' '.$this->designRound->round->value.' v'.$this->designRound->version);
+        $this->mpdf->SetTitle(self::title($this->artwork));
         $this->mpdf->AddPage();
 
         foreach (self::panels($layout) as $panel) {
@@ -603,7 +605,7 @@ class ProductDevelopmentDesignPdf
             return null;
         }
         if (!array_key_exists((int) $fileId, $this->imageBytes)) {
-            $file = $this->designRound->productDevelopment->files()
+            $file = $this->artwork->productDevelopment->files()
                 ->where('scope', ProductDevelopmentFileScopeEnum::DESIGN_IMAGE->value)
                 ->with('media')
                 ->find((int) $fileId);
@@ -639,13 +641,16 @@ class ProductDevelopmentDesignPdf
      */
     private function labelValues(): ?array
     {
-        $itemId = $this->designRound->product_development_item_id;
-        if (!$itemId) {
-            return null;
-        }
-        $productDevelopment = $this->designRound->productDevelopment;
-        $item               = $productDevelopment->items()->with('tradeUnit')->find($itemId);
+        $item = $this->artwork->item()->with('tradeUnit')->first();
 
-        return $item ? GetProductDevelopmentLabelContent::run($productDevelopment, $item)['values'] : null;
+        return $item ? GetProductDevelopmentLabelContent::run($this->artwork->productDevelopment, $item)['values'] : null;
+    }
+
+    /**
+     * The file name without extension: SKU, section and version, e.g. ACBFC-01_Box_V2.
+     */
+    public static function title(ProductDevelopmentArtwork $artwork): string
+    {
+        return $artwork->item->tradeUnit->code.'_'.$artwork->section->name.'_V'.max(1, $artwork->version);
     }
 }

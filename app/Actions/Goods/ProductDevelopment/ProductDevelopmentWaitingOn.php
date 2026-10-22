@@ -11,10 +11,10 @@ namespace App\Actions\Goods\ProductDevelopment;
 
 use App\Actions\Goods\ProductDevelopment\Design\ProductDevelopmentDesignRounds;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentChecklistItemStateEnum;
+use App\Enums\Goods\ProductDevelopment\ProductDevelopmentArtworkStatusEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentDesignRoundEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentDesignRoundStatusEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentMemberRoleEnum;
-use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStageEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentStatusEnum;
 use App\Models\Goods\ProductDevelopment;
 use App\Models\Goods\ProductDevelopmentChecklistItem;
@@ -107,37 +107,67 @@ class ProductDevelopmentWaitingOn
 
     private function designRows(ProductDevelopment $productDevelopment, Collection $rows): void
     {
-        if ($productDevelopment->current_position < ProductDevelopmentStageEnum::CONCEPT->position() || ProductDevelopmentDesignRounds::isArtworkLocked($productDevelopment)) {
+        if (ProductDevelopmentDesignRounds::isArtworkLocked($productDevelopment)) {
             return;
         }
 
-        $roundLabels = ProductDevelopmentDesignRoundEnum::labels();
-        $items       = $productDevelopment->items()->with('tradeUnit')->orderBy('id')->get();
+        $round = ProductDevelopmentDesignRoundEnum::CONCEPT;
+        if (!ProductDevelopmentDesignRounds::isSettled($productDevelopment, $round)) {
+            $latest = ProductDevelopmentDesignRounds::latest($productDevelopment, $round);
+            $label  = ProductDevelopmentDesignRoundEnum::labels()[$round->value];
+            $route  = ['name' => 'grp.product_developments.design', 'parameters' => ['productDevelopment' => $productDevelopment->slug, 'round' => $round->value]];
 
-        foreach (ProductDevelopmentDesignRoundEnum::cases() as $round) {
-            if (!ProductDevelopmentDesignRounds::isUnlocked($productDevelopment, $round) || ProductDevelopmentDesignRounds::isSettled($productDevelopment, $round)) {
-                continue;
+            if (!$latest || in_array($latest->status, [ProductDevelopmentDesignRoundStatusEnum::DRAFT, ProductDevelopmentDesignRoundStatusEnum::CHANGES_REQUESTED], true)) {
+                $rows->push([
+                    'role'   => ProductDevelopmentMemberRoleEnum::DESIGNER->value,
+                    'kind'   => self::KIND_DESIGN,
+                    'label'  => !$latest ? __('Start the :round design', ['round' => $label]) : ($latest->status === ProductDevelopmentDesignRoundStatusEnum::DRAFT ? __('Finish :round v:version and send it for review', ['round' => $label, 'version' => $latest->version]) : __('Make the changes asked on :round v:version', ['round' => $label, 'version' => $latest->version])),
+                    'detail' => null,
+                    'route'  => $route,
+                ]);
+            } elseif ($latest->status === ProductDevelopmentDesignRoundStatusEnum::IN_REVIEW) {
+                $this->reviewRows($latest, $label, $route, $rows);
+            }
+        }
+
+        $this->artworkRows($productDevelopment, $rows);
+    }
+
+    /**
+     * One row per design section: what the designer still has to upload or fix, and what waits for review.
+     */
+    private function artworkRows(ProductDevelopment $productDevelopment, Collection $rows): void
+    {
+        $itemIds = $productDevelopment->items()->pluck('id');
+        $route   = ['name' => 'grp.product_developments.show', 'parameters' => ['productDevelopment' => $productDevelopment->slug, 'tab' => 'design']];
+
+        foreach ($productDevelopment->designSections()->with('artworks')->get() as $section) {
+            $statuses = $itemIds->map(fn (int $itemId) => $section->artworks->firstWhere('product_development_item_id', $itemId)?->status ?? ProductDevelopmentArtworkStatusEnum::NOT_SUBMITTED);
+            $toMake   = $statuses->filter(fn (ProductDevelopmentArtworkStatusEnum $status) => $status === ProductDevelopmentArtworkStatusEnum::NOT_SUBMITTED)->count();
+            $toFix    = $statuses->filter(fn (ProductDevelopmentArtworkStatusEnum $status) => $status === ProductDevelopmentArtworkStatusEnum::CHANGES_REQUIRED)->count();
+            $toReview = $statuses->filter(fn (ProductDevelopmentArtworkStatusEnum $status) => $status === ProductDevelopmentArtworkStatusEnum::IN_REVIEW)->count();
+
+            if ($toMake || $toFix) {
+                $rows->push([
+                    'role'   => ProductDevelopmentMemberRoleEnum::DESIGNER->value,
+                    'kind'   => self::KIND_DESIGN,
+                    'label'  => $toFix
+                        ? trans_choice('Fix :count :section artwork|Fix :count :section artworks', $toFix, ['count' => $toFix, 'section' => $section->name])
+                        : trans_choice('Upload :count :section artwork|Upload :count :section artworks', $toMake, ['count' => $toMake, 'section' => $section->name]),
+                    'detail' => $toFix && $toMake ? trans_choice(':count more to upload|:count more to upload', $toMake, ['count' => $toMake]) : null,
+                    'route'  => $route,
+                ]);
             }
 
-            $scopes = $round->isPerSku() ? $items->map(fn ($item) => [$item->id, $item->tradeUnit->code])->all() : [[null, null]];
-            foreach ($scopes as [$itemId, $sku]) {
-                $latest = ProductDevelopmentDesignRounds::latest($productDevelopment, $round, $itemId);
-                $label  = trim($roundLabels[$round->value].' '.($sku ?? ''));
-                $route  = ['name' => 'grp.product_developments.design', 'parameters' => array_filter(['productDevelopment' => $productDevelopment->slug, 'round' => $round->value, 'sku' => $itemId])];
-
-                if (!$latest || in_array($latest->status, [ProductDevelopmentDesignRoundStatusEnum::DRAFT, ProductDevelopmentDesignRoundStatusEnum::CHANGES_REQUESTED], true)) {
+            if ($toReview) {
+                foreach (ProductDevelopmentAccess::DESIGN_APPROVER_ROLES as $role) {
                     $rows->push([
-                        'role'   => ProductDevelopmentMemberRoleEnum::DESIGNER->value,
-                        'kind'   => self::KIND_DESIGN,
-                        'label'  => !$latest ? __('Start the :round design', ['round' => $label]) : ($latest->status === ProductDevelopmentDesignRoundStatusEnum::DRAFT ? __('Finish :round v:version and send it for review', ['round' => $label, 'version' => $latest->version]) : __('Make the changes asked on :round v:version', ['round' => $label, 'version' => $latest->version])),
+                        'role'   => $role->value,
+                        'kind'   => self::KIND_REVIEW,
+                        'label'  => trans_choice('Review :count :section artwork|Review :count :section artworks', $toReview, ['count' => $toReview, 'section' => $section->name]),
                         'detail' => null,
                         'route'  => $route,
                     ]);
-                    continue;
-                }
-
-                if ($latest->status === ProductDevelopmentDesignRoundStatusEnum::IN_REVIEW) {
-                    $this->reviewRows($latest, $label, $route, $rows);
                 }
             }
         }

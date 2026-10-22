@@ -172,7 +172,7 @@ class StoreAgentGoodsReceipt extends OrgAction
         return $receipt;
     }
 
-    private function isReceivedInFull(PurchaseOrder $purchaseOrder): bool
+    public function isReceivedInFull(PurchaseOrder $purchaseOrder): bool
     {
         return $purchaseOrder->purchaseOrderTransactions()
             ->leftJoinSub(IndexAgentProductsInProduction::receivedLines(), 'received_lines', 'received_lines.purchase_order_transaction_id', 'purchase_order_transactions.id')

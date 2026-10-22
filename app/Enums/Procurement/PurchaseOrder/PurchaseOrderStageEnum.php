@@ -11,8 +11,9 @@ namespace App\Enums\Procurement\PurchaseOrder;
 use App\Enums\EnumHelperTrait;
 
 /**
- * The seven stages a supplier purchase order goes through. The first four are recorded on the purchase order,
- * the last three on each of its stock deliveries, because one order can ship in several deliveries.
+ * The stages a supplier purchase order goes through. Most are recorded on the purchase order, In warehouse comes
+ * from the agent's goods receipts and warehouse stock, so only agent orders have it, and the last three come from
+ * each of its stock deliveries, because one order can ship in several deliveries.
  */
 enum PurchaseOrderStageEnum: string
 {
@@ -21,6 +22,7 @@ enum PurchaseOrderStageEnum: string
     case SUBMITTED = 'submitted';
     case DEPOSIT_PAID = 'deposit_paid';
     case IN_PRODUCTION = 'in_production';
+    case IN_WAREHOUSE = 'in_warehouse';
     case READY = 'ready';
     case SHIPPED = 'shipped';
     case ARRIVED = 'arrived';
@@ -135,6 +137,7 @@ enum PurchaseOrderStageEnum: string
             'submitted'     => __('PO submitted'),
             'deposit_paid'  => __('Deposit paid'),
             'in_production' => __('In production'),
+            'in_warehouse'  => __('In warehouse'),
             'ready'         => __('Ready & QC passed'),
             'shipped'       => __('Shipped'),
             'arrived'       => __('Arrived & cleared'),
@@ -148,6 +151,7 @@ enum PurchaseOrderStageEnum: string
             'submitted'     => __('The order was sent to the supplier or agent'),
             'deposit_paid'  => __('The supplier has the deposit'),
             'in_production' => __('Sample approved and the goods are being made'),
+            'in_warehouse'  => __('Goods arrived at the agent warehouse, checked and packed'),
             'ready'         => __('Goods made and their quality check approved'),
             'shipped'       => __('Goods left the supplier'),
             'arrived'       => __('Goods arrived at the port and cleared customs'),
@@ -167,6 +171,9 @@ enum PurchaseOrderStageEnum: string
             'approved_ready_at'      => __('Approved ready date'),
             'produced_at'            => __('Production done'),
             'qc_passed_at'           => __('QC approved'),
+            'warehouse_arrived_at'   => __('Arrived in warehouse'),
+            'warehouse_checked_at'   => __('Checked'),
+            'warehouse_packed_at'    => __('Packed'),
             'balance_paid_at'        => __('Balance paid'),
             'handed_over_at'         => __('Handed over'),
             'dispatched_at'          => __('Dispatched'),
@@ -189,6 +196,7 @@ enum PurchaseOrderStageEnum: string
             self::SUBMITTED     => 'submitted_at',
             self::DEPOSIT_PAID  => 'deposit_paid_at',
             self::IN_PRODUCTION => 'production_started_at',
+            self::IN_WAREHOUSE  => 'warehouse_arrived_at',
             self::READY         => 'qc_passed_at',
             self::SHIPPED       => 'dispatched_at',
             self::ARRIVED       => 'arrived_at',
@@ -205,6 +213,7 @@ enum PurchaseOrderStageEnum: string
             self::SUBMITTED     => ['confirmed_at'],
             self::DEPOSIT_PAID  => [],
             self::IN_PRODUCTION => ['sample_approved_at', 'proposed_ready_at', 'approved_ready_at'],
+            self::IN_WAREHOUSE  => ['warehouse_arrived_at', 'warehouse_checked_at', 'warehouse_packed_at'],
             self::READY         => ['produced_at', 'balance_paid_at'],
             self::SHIPPED       => ['handed_over_at'],
             self::ARRIVED       => ['customs_released_at', 'compliance_complete_at'],

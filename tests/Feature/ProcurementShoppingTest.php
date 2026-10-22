@@ -1476,6 +1476,44 @@ test('agent receives a purchase order line in batches and rejected units go back
     expect((new PurchaseOrder(['production_started_at' => now()]))->areLinesLockedByProduction())->toBeFalse();
 });
 
+test('agent order in warehouse stage follows its goods receipts, checks and packing', function () {
+    [$orgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $supplierProduct = $orgSupplierProduct->supplierProduct;
+
+    $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition());
+    $line          = StorePurchaseOrderTransaction::make()->action($purchaseOrder, $supplierProduct->historicSupplierProduct, $this->orgStocks[0], [...PurchaseOrderTransaction::factory()->definition(), 'quantity_ordered' => 100]);
+    $purchaseOrder->updateQuietly([
+        'state'              => App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum::SUBMITTED,
+        'delivery_state'     => App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum::IN_PROCESS,
+        'submitted_at'       => now(),
+        'sample_approved_at' => now(),
+    ]);
+    $line->updateQuietly(['state' => App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum::SUBMITTED]);
+
+    $stage = fn () => collect(App\Actions\Procurement\PurchaseOrder\UI\GetPurchaseOrderStages::make()->forUi($purchaseOrder->refresh(), []))->firstWhere('key', 'in_warehouse');
+    $steps = fn () => collect($stage()['steps'])->pluck('date', 'key')->map(fn ($date) => $date !== null)->all();
+    $receive = fn (float $quantity) => App\Actions\Procurement\AgentGoodsReceipt\StoreAgentGoodsReceipt::make()->action($this->agent, [
+        'lines' => [['purchase_order_transaction_id' => $line->id, 'quantity' => $quantity]],
+    ]);
+
+    $first = $receive(60)->items()->sole();
+    expect($stage()['number'])->toBe(4)
+        ->and($stage()['reached'])->toBeTrue()
+        ->and($steps())->toBe(['warehouse_arrived_at' => true, 'warehouse_checked_at' => false, 'warehouse_packed_at' => false]);
+
+    $second = $receive(40)->items()->sole();
+    $check  = App\Actions\Procurement\AgentGoodsReceipt\CheckAgentGoodsReceiptItem::make();
+    $check->handle($first, ['quantity_rejected' => 0]);
+    expect($steps()['warehouse_checked_at'])->toBeFalse();
+
+    $check->handle($second, ['quantity_rejected' => 0]);
+    expect($steps())->toBe(['warehouse_arrived_at' => true, 'warehouse_checked_at' => true, 'warehouse_packed_at' => false]);
+
+    App\Actions\Procurement\PurchaseOrderTransaction\PackPurchaseOrderTransaction::make()->action($line);
+    expect($steps()['warehouse_packed_at'])->toBeTrue()
+        ->and(collect(App\Actions\Procurement\PurchaseOrder\UI\GetPurchaseOrderStages::make()->forUi($purchaseOrder, []))->firstWhere('key', 'ready')['number'])->toBe(5);
+});
+
 test('UI agent shopping dashboard renders', function () {
     $response = $this->get(route('grp.org.procurement.org_agents.show.shopping.dashboard', [$this->organisation->slug, $this->orgAgent->slug]));
     $response->assertOk();

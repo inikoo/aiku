@@ -79,7 +79,6 @@ class ReviewProductDevelopmentDesignVersion extends OrgAction
             RecordProductDevelopmentActivity::record($designRound->productDevelopment, $approved ? RecordProductDevelopmentActivity::DESIGN_APPROVED : RecordProductDevelopmentActivity::DESIGN_CHANGES_REQUESTED, [], [
                 'round'   => $designRound->round->value,
                 'version' => $designRound->version,
-                'sku'     => $designRound->item?->tradeUnit?->code,
             ]);
         });
 
@@ -89,7 +88,7 @@ class ReviewProductDevelopmentDesignVersion extends OrgAction
             $tasks->ensureForDevelopment($productDevelopment->refresh(), $user);
         }
 
-        $roundLabel = ProductDevelopmentDesignRoundEnum::labels()[$designRound->round->value].($designRound->item ? ' '.$designRound->item->tradeUnit->code : '');
+        $roundLabel = ProductDevelopmentDesignRoundEnum::labels()[$designRound->round->value];
         NotifyProductDevelopmentUsers::run(
             $productDevelopment,
             NotifyProductDevelopmentUsers::make()->usersWithRole($productDevelopment, ProductDevelopmentMemberRoleEnum::DESIGNER)->push($designRound->submittedBy),
@@ -98,7 +97,7 @@ class ReviewProductDevelopmentDesignVersion extends OrgAction
                 ? __(':round v:version of :code is approved', ['round' => $roundLabel, 'version' => $designRound->version, 'code' => $productDevelopment->code])
                 : __('Changes requested on :round v:version of :code', ['round' => $roundLabel, 'version' => $designRound->version, 'code' => $productDevelopment->code]),
             $approved ? __('The version is locked.') : __('Read the pinned comments and start the next version.'),
-            url: route('grp.product_developments.design', ['productDevelopment' => $productDevelopment->slug, 'round' => $designRound->round->value, 'version' => $designRound->version, 'sku' => $designRound->product_development_item_id]),
+            url: route('grp.product_developments.design', ['productDevelopment' => $productDevelopment->slug, 'round' => $designRound->round->value, 'version' => $designRound->version]),
             except: $user,
         );
 
