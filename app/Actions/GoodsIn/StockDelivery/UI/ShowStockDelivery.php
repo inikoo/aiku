@@ -689,8 +689,9 @@ class ShowStockDelivery extends OrgAction
                 $actions[] = [
                     ...$deleteButton,
                     'responsibility' => [
-                        'phrase'   => DeleteStockDelivery::RESPONSIBILITY_PHRASE,
-                        'warnings' => [
+                        'phrase'            => DeleteStockDelivery::needsResponsibility($stockDelivery) ? DeleteStockDelivery::RESPONSIBILITY_PHRASE : null,
+                        'min_reason_length' => DeleteStockDelivery::MIN_REASON_LENGTH,
+                        'warnings'          => [
                             __('This deletes the container :reference with all its items. Its purchase orders go back to waiting for a container.', ['reference' => $stockDelivery->reference]),
                             $this->viewedByAgent
                                 ? __('Delete it only if it was made by mistake.')

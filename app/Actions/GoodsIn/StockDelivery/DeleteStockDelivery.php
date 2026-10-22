@@ -44,11 +44,19 @@ class DeleteStockDelivery extends OrgAction
 
     public const RESPONSIBILITY_PHRASE = 'I accept responsibility';
 
-    public const MIN_REASON_LENGTH = 10;
+    public const MIN_REASON_LENGTH = 5;
 
     public static function isAgentDelivery(StockDelivery $stockDelivery): bool
     {
         return $stockDelivery->parent_type === 'OrgAgent';
+    }
+
+    /**
+     * A container still in process has not moved yet, so its reason is enough without the typed phrase.
+     */
+    public static function needsResponsibility(StockDelivery $stockDelivery): bool
+    {
+        return self::isAgentDelivery($stockDelivery) && $stockDelivery->state !== StockDeliveryStateEnum::IN_PROCESS;
     }
 
     public static function acceptsResponsibility(?string $typed): bool
@@ -140,7 +148,7 @@ class DeleteStockDelivery extends OrgAction
             if ($this->agentOrganisation && $this->stockDelivery->state !== StockDeliveryStateEnum::IN_PROCESS) {
                 $validator->errors()->add('state', __('The agent can delete a container only while it is in process'));
             }
-            if (!$this->asAction && !self::acceptsResponsibility($this->get('responsibility'))) {
+            if (!$this->asAction && self::needsResponsibility($this->stockDelivery) && !self::acceptsResponsibility($this->get('responsibility'))) {
                 $validator->errors()->add('responsibility', __('Type ":phrase" to delete it', ['phrase' => self::RESPONSIBILITY_PHRASE]));
             }
             if (!$this->asAction && mb_strlen(trim((string) $this->get('reason'))) < self::MIN_REASON_LENGTH) {
