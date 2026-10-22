@@ -10,6 +10,7 @@ import { InputNumber, InputText, Select, Textarea } from "primevue"
 import Image from "@common/Components/Image.vue"
 import RichTextField from "@/Components/Catalogue/ProductSetting/RichTextField.vue"
 import ProductChecklistCard from "@/Components/Catalogue/ProductSetting/ProductChecklistCard.vue"
+import ImageCropSquare from "@/Components/Forms/Fields/ImageCropSquare.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { ctrans } from "@/Composables/useTrans"
 import { PageHeadingTypes } from "@/types/PageHeading"
@@ -35,6 +36,11 @@ const props = defineProps<{
         description_extra: string
         barcode: string
     }
+    seo: {
+        meta_description: string
+        seo_image: { original: string } | null
+        seo_image_url: string | null
+    }
     information: {
         is_editable: boolean
         trade_unit: { code: string, route: routeType } | null
@@ -57,6 +63,7 @@ type EditForm = {
     description: string
     description_extra: string
     barcode: string
+    meta_description: string
     marketing_weight: number | null
     gross_weight: number | null
     dimensions_cm: Dimensions
@@ -72,6 +79,7 @@ const formFromProps = (): EditForm => ({
     description: props.product.description,
     description_extra: props.product.description_extra,
     barcode: props.product.barcode,
+    meta_description: props.seo.meta_description,
     marketing_weight: props.information.marketing_weight,
     gross_weight: props.information.gross_weight,
     dimensions_cm: { ...props.information.dimensions_cm },
@@ -85,6 +93,28 @@ const savedForm = ref<EditForm>(formFromProps())
 const serverErrors = ref<Record<string, string>>({})
 const isSaving = ref(false)
 const formKey = ref(0)
+
+const META_DESCRIPTION_MIN_LENGTH = 120
+const META_DESCRIPTION_MAX_LENGTH = 155
+const metaDescriptionLength = computed(() => form.value.meta_description.length)
+const isMetaDescriptionLengthOff = computed(() => metaDescriptionLength.value > 0
+    && (metaDescriptionLength.value < META_DESCRIPTION_MIN_LENGTH || metaDescriptionLength.value > META_DESCRIPTION_MAX_LENGTH)
+)
+
+const shareImageFromProps = () => ({ seo_image: props.seo.seo_image as { original: string } | File | null, seo_image_url: props.seo.seo_image_url, errors: {} as Record<string, string | null> })
+const shareImageForm = ref(shareImageFromProps())
+const shareImageField = {
+    hasOther: [
+        {
+            name: "seo_image_url",
+            type: "url" as const,
+            label: ctrans("Or paste an image link"),
+            placeholder: "https://",
+            information: ctrans("Use an externally hosted image as the share image instead of uploading one. Uploading a new image clears it."),
+        },
+    ],
+    options: { minAspectRatio: 1, maxAspectRatio: 3 },
+}
 
 const textOf = (html: string) => html.replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").trim()
 const wordCount = (html: string) => (textOf(html) ? textOf(html).split(/\s+/).length : 0)
@@ -137,6 +167,8 @@ const isFilled = computed<Record<string, boolean>>(() => {
         marketing_ingredients: value.marketing_ingredients.trim() !== "",
         barcode: value.barcode.trim() !== "",
         origin_country: value.origin_country_id !== null,
+        meta_description: value.meta_description.trim() !== "",
+        ...(shareImageForm.value.seo_image instanceof File || shareImageForm.value.seo_image_url ? { seo_image: true } : {}),
     }
 })
 
@@ -153,7 +185,7 @@ const changedPayload = computed(() => {
     const saved = savedForm.value
     const isChanged = (key: keyof EditForm) => JSON.stringify(value[key]) !== JSON.stringify(saved[key])
 
-    for (const key of ["code", "name", "price", "description", "description_extra", "barcode"] as const) {
+    for (const key of ["code", "name", "price", "description", "description_extra", "barcode", "meta_description"] as const) {
         if (isChanged(key)) {
             payload[key] = value[key]
         }
@@ -171,6 +203,12 @@ const changedPayload = computed(() => {
     if (props.shared && isChanged("shared")) {
         payload.shared = value.shared
     }
+    if (shareImageForm.value.seo_image instanceof File) {
+        payload.seo_image = shareImageForm.value.seo_image
+    }
+    if ((shareImageForm.value.seo_image_url ?? null) !== props.seo.seo_image_url) {
+        payload.seo_image_url = shareImageForm.value.seo_image_url
+    }
 
     return payload
 })
@@ -183,7 +221,7 @@ const save = () => {
         return
     }
 
-    router.patch(route(props.update_route.name, props.update_route.parameters), changedPayload.value, {
+    router.post(route(props.update_route.name, props.update_route.parameters), { ...changedPayload.value, _method: "patch" }, {
         preserveScroll: true,
         onStart: () => {
             isSaving.value = true
@@ -192,6 +230,7 @@ const save = () => {
         onSuccess: () => {
             form.value = formFromProps()
             savedForm.value = formFromProps()
+            shareImageForm.value = shareImageFromProps()
             formKey.value++
             notify({ title: ctrans("Saved"), text: ctrans("The product information has been updated"), type: "success" })
         },
@@ -357,9 +396,35 @@ const save = () => {
                     </div>
                 </section>
 
+                <section class="rounded-lg border border-gray-200 bg-white p-4">
+                    <header class="mb-3 flex items-center justify-between gap-3">
+                        <h3 class="font-semibold text-gray-900">4 · {{ ctrans("SEO") }}</h3>
+                        <span class="text-xs text-gray-500">{{ ctrans("Shown in search results and social shares") }}</span>
+                    </header>
+                    <div class="space-y-3">
+                        <div>
+                            <div class="mb-1 flex items-baseline justify-between">
+                                <label for="meta-description" class="text-sm font-medium text-gray-700">{{ ctrans("Meta description") }}</label>
+                                <span class="text-xs tabular-nums" :class="isMetaDescriptionLengthOff ? 'font-medium text-amber-600' : 'text-gray-500'">
+                                    {{ ctrans(":count / :min-:max characters", { count: String(metaDescriptionLength), min: String(META_DESCRIPTION_MIN_LENGTH), max: String(META_DESCRIPTION_MAX_LENGTH) }) }}
+                                </span>
+                            </div>
+                            <Textarea id="meta-description" v-model="form.meta_description" :rows="3" autoResize fluid :disabled="!canEdit" :invalid="!!errorOf('meta_description')" />
+                            <p v-if="errorOf('meta_description')" class="mt-1 text-xs text-red-600">{{ errorOf("meta_description") }}</p>
+                        </div>
+                        <div>
+                            <div class="mb-1 text-sm font-medium text-gray-700">{{ ctrans("Share image") }}</div>
+                            <p class="mb-2 text-xs text-gray-500">{{ ctrans("The preview image (og:image) shown when the page is shared on social media. Crop ratio from 1:1 to 3:1, served scaled down to fit 1200x1200 pixels.") }}</p>
+                            <ImageCropSquare v-if="canEdit" :form="shareImageForm" fieldName="seo_image" :fieldData="shareImageField" />
+                            <Image v-else-if="seo.seo_image" :src="seo.seo_image" :alt="ctrans('Share image')" class="h-40 rounded-md object-cover" />
+                            <p v-if="errorOf('seo_image') ?? errorOf('seo_image_url')" class="mt-1 text-xs text-red-600">{{ errorOf("seo_image") ?? errorOf("seo_image_url") }}</p>
+                        </div>
+                    </div>
+                </section>
+
                 <section v-if="shared" class="rounded-lg border border-gray-200 bg-white p-4">
                     <header class="mb-3 flex items-center justify-between gap-3">
-                        <h3 class="font-semibold text-gray-900">4 · {{ ctrans("Shared information") }}</h3>
+                        <h3 class="font-semibold text-gray-900">5 · {{ ctrans("Shared information") }}</h3>
                         <span class="rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
                             {{ ctrans("Applies to all :count products of :family", { count: String(shared.number_products), family: shared.family_name }) }}
                         </span>

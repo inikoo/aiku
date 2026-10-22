@@ -119,6 +119,13 @@ class EditMasterProductInformation extends OrgAction
                     'description_extra' => $masterAsset->description_extra ?? '',
                     'barcode'           => $masterAsset->barcode ?? '',
                 ],
+                'seo'         => [
+                    'meta_description' => $masterAsset->meta_description ?? '',
+                    'seo_image'        => $masterAsset->seo_image_url
+                        ? ['original' => $masterAsset->seo_image_url]
+                        : $masterAsset->imageSources(1200, 1200, 'seoImage'),
+                    'seo_image_url'    => $masterAsset->seo_image_url,
+                ],
                 'information' => [
                     'is_editable'           => (bool)$tradeUnit,
                     'trade_unit'            => $tradeUnit ? $this->tradeUnitData($tradeUnit) : null,
