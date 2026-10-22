@@ -311,6 +311,7 @@ class IndexWebpages extends OrgAction
         }
 
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
+            $value = is_array($value) ? implode(',', $value) : $value;
             $query->where(function ($query) use ($value) {
                 $value = strip_tags($value);
                 $query->whereAnyWordStartWith('webpages.code', $value)

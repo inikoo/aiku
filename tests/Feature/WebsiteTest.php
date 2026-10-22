@@ -1104,6 +1104,18 @@ test('UI index webpages in fulfilment website', function (Website $website) {
     });
 })->depends('launch fulfilment website from command');
 
+test('UI index webpages search with a comma searches what was typed', function (Website $website) {
+    $response = get(
+        route('grp.org.fulfilments.show.web.webpages.index', [
+            $this->organisation->slug,
+            $this->fulfilment->slug,
+            $website->slug,
+            'filter' => ['global' => 'home, about'],
+        ])
+    );
+    $response->assertOk()->assertInertia(fn (AssertableInertia $page) => $page->component('Org/Web/Webpages'));
+})->depends('launch fulfilment website from command');
+
 test('UI show fulfilment website workshop', function (Website $website) {
     $this->withoutExceptionHandling();
 
