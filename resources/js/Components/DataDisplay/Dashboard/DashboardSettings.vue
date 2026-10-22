@@ -297,6 +297,8 @@ const updateTopCustomersLimit = (value: number) => {
                 </nav>
             </div>
 
+            <slot name="actions" />
+
             <!-- Button: advanced settings -->
             <div
                 v-tooltip="ctrans('Open advanced settings')"

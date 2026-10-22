@@ -205,7 +205,7 @@ const stateHelp: Record<string, string> = {
 <template>
     <div class="px-4 py-5 md:px-6 space-y-6">
         <p v-if="data.from" class="text-xs text-gray-400">
-            {{ ctrans("Customers who registered since") }} {{ data.from }}<span v-if="data.to"> {{ ctrans("to") }} {{ data.to }}</span>
+            {{ data.to ? ctrans("Customers who registered from :from to :to", { from: data.from, to: data.to }) : ctrans("Customers who registered since :from", { from: data.from }) }}
         </p>
         <p v-if="data.previous" class="-mt-4 text-xs text-gray-500">
             {{ ctrans("Compared with :label, :from to :to", { label: data.previous.label.toLowerCase(), from: data.previous.requested_from, to: data.previous.requested_to }) }}<span v-if="data.previous.cut_by_tracking">{{ ctrans(", counted from :date when tracking began", { date: data.previous.from ?? "" }) }}</span><span v-if="data.previous.before_tracking" class="text-amber-700">{{ ctrans(": before tracking began, so there is nothing to compare") }}</span>.

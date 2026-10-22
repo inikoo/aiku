@@ -62,16 +62,17 @@ const handleTabUpdate = (tabSlug: string) => {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead" />
     <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
-    <div class="flex items-start gap-2 pt-3 pr-4 md:pr-6">
-        <div class="min-w-0 flex-1">
-            <DashboardSettings
-                :intervals="intervals"
-                :settings="settings"
-                :currentTab="currentTab"
-                :reloadOnly="['intervals', 'compare', currentTab]"
-            />
-        </div>
-        <ComparePeriod v-if="currentTab !== 'journey'" :compare="compare" :currentTab="currentTab" class="pt-1" />
+    <div class="pt-3">
+        <DashboardSettings
+            :intervals="intervals"
+            :settings="settings"
+            :currentTab="currentTab"
+            :reloadOnly="['intervals', 'compare', currentTab]"
+        >
+            <template #actions>
+                <ComparePeriod v-if="currentTab !== 'journey'" :compare="compare" :currentTab="currentTab" />
+            </template>
+        </DashboardSettings>
     </div>
     <AcquisitionTab v-if="currentTab === 'acquisition' && acquisition" :key="`${acquisition.from}-${acquisition.to}`" :data="acquisition" />
     <OrdersTab v-if="currentTab === 'orders' && orders" :data="orders" />
