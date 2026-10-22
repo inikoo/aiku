@@ -2056,6 +2056,36 @@ test('UI agent browse shows what the other organisations hold on their drafts fo
             ->etc());
 });
 
+test('agent draft purchase order items show our SKO code next to the supplier code', function () {
+    [$orgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $orgSupplierProduct->update(['state' => OrgSupplierProductStateEnum::ACTIVE, 'is_available' => true]);
+    $supplierProduct = $orgSupplierProduct->supplierProduct;
+    $orgStock        = $this->orgStocks[0];
+
+    DB::table('org_stock_has_org_supplier_products')->where('org_supplier_product_id', $orgSupplierProduct->id)->delete();
+    DB::table('org_stock_has_org_supplier_products')->insert([
+        'stock_has_supplier_product_id' => DB::table('stock_has_supplier_products')->where('stock_id', $orgStock->stock_id)->where('supplier_product_id', $supplierProduct->id)->value('id')
+            ?? DB::table('stock_has_supplier_products')->insertGetId(['stock_id' => $orgStock->stock_id, 'supplier_product_id' => $supplierProduct->id]),
+        'org_stock_id'            => $orgStock->id,
+        'org_supplier_product_id' => $orgSupplierProduct->id,
+        'status'                  => true,
+        'local_priority'          => 100,
+        'created_at'              => now(),
+        'updated_at'              => now(),
+    ]);
+
+    expect($orgStock->code)->not->toBe($supplierProduct->code);
+
+    $draft = StorePurchaseOrder::make()->action($orgSupplier, [], strict: false);
+    StorePurchaseOrderTransaction::make()->action($draft, $supplierProduct->historicSupplierProduct, $orgStock, PurchaseOrderTransaction::factory()->definition());
+
+    $this->get(route('grp.org.procurement.org_agents.show.purchase-orders.show', [$this->organisation->slug, $this->orgAgent->slug, $draft->slug]).'?tab=items')
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('items.data.0.code', $supplierProduct->code)
+            ->where('items.data.0.org_stock_code', $orgStock->code)
+            ->etc());
+});
+
 test('agent purchase order products tab hides products whose SKO is discontinued or the supplier no longer has, unless already on the draft', function () {
     [$orgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
     $orgSupplierProduct->update(['state' => OrgSupplierProductStateEnum::ACTIVE, 'is_available' => true]);

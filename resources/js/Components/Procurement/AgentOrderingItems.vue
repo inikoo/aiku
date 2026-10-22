@@ -21,7 +21,7 @@ import { notify } from "@kyvg/vue3-notification"
 import axios from "axios"
 import { ctrans, ctransChoice } from "@/Composables/useTrans"
 import { faCheckCircle, faExclamationCircle } from "@fas"
-import { faTrashAlt, faHandPointRight } from "@fal"
+import { faTrashAlt, faHandPointRight, faBox } from "@fal"
 
 type BucketItem = {
     id: number
@@ -45,6 +45,8 @@ type BucketItem = {
     units_per_pack: number
     org_exchange: number | null
     has_org_stock: boolean
+    org_stock_id?: number | null
+    org_stock_code?: string | null
     stock_in_locations: string | null
     other_organisations_drafts: { organisation_code: string, organisation_name: string, reference?: string, buyer_name?: string | null, units: number }[]
     stock_deliveries?: { coming?: { slug: string, reference: string, state_label: string, quantity: number }[], recent_received?: { slug: string, reference: string, received_at: string, quantity: number }[] } | null
@@ -287,6 +289,8 @@ const pastDeliveriesShown = ref<Record<number, boolean>>({})
 
 const recentDeliveries = (item: BucketItem) => item.stock_deliveries?.recent_received ?? []
 
+const ownSkoCode = (item: BucketItem) => (item.org_stock_code && item.org_stock_code !== item.code ? item.org_stock_code : null)
+
 const stockDeliveryRoute = (slug: string) => route("grp.org.procurement.stock_deliveries.show", [route().params.organisation, slug])
 
 const amountOf = (item: BucketItem) => cartonsFor(item) * unitsPerCarton(item) * Number(item.cost ?? 0)
@@ -320,6 +324,7 @@ const quantityBreakdown = (item: BucketItem) => {
                         <p class="flex items-center justify-between gap-2 text-xs text-gray-400">
                             <span class="truncate">
                                 {{ item.code }}
+                                <template v-if="ownSkoCode(item)"> ({{ ownSkoCode(item) }})</template>
                                 <template v-if="item.supplier_code"> · {{ item.supplier_code }}</template>
                             </span>
                             <span
@@ -409,7 +414,16 @@ const quantityBreakdown = (item: BucketItem) => {
 
             <Table v-else :resource="items" :name="tableName" class="mt-0" rowAlignTop>
                 <template #cell(code)="{ item }">
-                    <span class="font-medium text-gray-800">{{ item.code }}</span>
+                    <div class="font-medium text-gray-800">{{ item.code }}</div>
+                    <Link
+                        v-if="ownSkoCode(item) && item.org_stock_id"
+                        v-tooltip="ctrans('SKU code')"
+                        :href="route('grp.majordomo.redirect_org_stock', [item.org_stock_id])"
+                        class="whitespace-nowrap text-xs text-gray-500 hover:text-gray-700"
+                    >
+                        <FontAwesomeIcon :icon="faBox" aria-hidden="true" fixed-width />
+                        {{ ownSkoCode(item) }}
+                    </Link>
                 </template>
                 <template #cell(image)="{ item }">
                     <div class="h-20 w-20 overflow-hidden rounded bg-gray-50">
