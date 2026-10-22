@@ -122,8 +122,11 @@ class StoreNewProductToCurrentWooCommerce extends OrgAction implements ShouldBeU
      * takes; that one keeps its reservation and waits a beat holding its unique lock, as back in the
      * list a finishing create could pop it while the lock is still held and its dispatch would be
      * dropped.
+     *
+     * $retryUntil is unused but must stay: jobs queued before 22 Oct carry it, and Laravel Actions
+     * only passes the job in when asJob takes more parameters than the job was queued with.
      */
-    public function asJob(JobDecorator $job, WooCommerceUser $wooCommerceUser, Portfolio $portfolio, bool $checkConnection = true, ?array $bulkProgress = null): void
+    public function asJob(JobDecorator $job, WooCommerceUser $wooCommerceUser, Portfolio $portfolio, bool $checkConnection = true, ?array $bulkProgress = null, ?int $retryUntil = null): void
     {
         $hadSlot = null;
 

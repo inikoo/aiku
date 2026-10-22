@@ -1840,6 +1840,20 @@ test('a product upload that waited in the store list for over a day is still cre
     wooClearUploadQueue($wooCommerceUser);
 });
 
+test('a product upload queued with its old retry deadline still gets its job and creates the product', function () {
+    $wooCommerceUser = wooConnect(wooCustomer($this->shop));
+    $portfolio       = wooPortfolio($wooCommerceUser->customerSalesChannel, $this->product, null, 'aw-old-payload');
+    wooClearUploadQueue($wooCommerceUser);
+
+    wooFake(['POST products' => Http::response(wooProduct(803, ['sku' => 'aw-old-payload']), 201)]);
+
+    (new BoundedUniqueJobDecorator(StoreNewProductToCurrentWooCommerce::class, $wooCommerceUser, $portfolio, false, null, now()->addHour()->getTimestamp()))->handle();
+
+    expect($portfolio->refresh()->platform_product_id)->toBe('803');
+
+    wooClearUploadQueue($wooCommerceUser);
+});
+
 test('a create dispatched but not yet started keeps its slot, so a slow worker queue does not drain the store list into jobs waiting for a slot', function () {
     Queue::fake();
     wooFake();
