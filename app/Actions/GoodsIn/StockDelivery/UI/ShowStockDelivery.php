@@ -952,7 +952,8 @@ class ShowStockDelivery extends OrgAction
 
         $timeline = $purchaseOrders->isNotEmpty() ? $this->getPurchaseOrderTimeline($purchaseOrders) : [];
 
-        $labels = $this->getStateLabels($stockDelivery);
+        $labels      = $this->getStateLabels($stockDelivery);
+        $creatorName = $this->getCreatorName($stockDelivery);
 
         $hiddenUnlessCurrent = [
             StockDeliveryStateEnum::CONFIRMED,
@@ -998,10 +999,18 @@ class ShowStockDelivery extends OrgAction
                 'timestamp'         => $timestamp ?: $estimatedTimestamp,
                 'timestamp_icon'    => $estimatedTimestamp ? 'fas fa-thumbtack' : null,
                 'timestamp_tooltip' => $estimatedTimestamp ? __('Estimated') : null,
+                'description'       => $case === StockDeliveryStateEnum::IN_PROCESS && $creatorName ? __('by :name', ['name' => $creatorName]) : null,
             ];
         }
 
         return $timeline;
+    }
+
+    private function getCreatorName(StockDelivery $stockDelivery): ?string
+    {
+        $creator = $stockDelivery->audits()->where('event', 'created')->oldest()->first()?->user;
+
+        return $creator ? ($creator->contact_name ?: $creator->username) : null;
     }
 
     public function getBreadcrumbs(StockDelivery $stockDelivery, array $routeParameters, string $suffix = ''): array
