@@ -8,6 +8,7 @@ import { computed, ref } from "vue"
 import { useLocaleStore } from "@/Stores/locale"
 import { ctrans } from "@/Composables/useTrans"
 import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
+import DeltaBadge from "@/Components/Marketing/V2/DeltaBadge.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faCheckCircle, faExclamationTriangle } from "@fal"
@@ -39,6 +40,18 @@ const props = defineProps<{
         totals: { orders: number, first: number, repeat: number, revenue: number }
         no_touch: Record<ModelKey, { orders: number, revenue: number }>
         channels: Channel[]
+        previous: {
+            from: string | null
+            to: string | null
+            requested_from: string
+            requested_to: string
+            label: string
+            before_tracking: boolean
+            cut_by_tracking: boolean
+            totals: { orders: number, first: number, repeat: number, revenue: number }
+            no_touch: Record<ModelKey, { orders: number, revenue: number }>
+            channels: Channel[]
+        } | null
     }
 }>()
 
@@ -125,6 +138,37 @@ const paidChannels = computed(() => props.data.channels
         costPerOrder: channel.spend > 0 && channel[comparedModel.value].orders > 0 ? channel.spend / channel[comparedModel.value].orders : null,
     })))
 
+const previous = computed(() => props.data.previous && !props.data.previous.before_tracking ? props.data.previous : null)
+const previousChannel = (type: string) => previous.value?.channels.find(channel => channel.type === type)
+const previousMetric = (key: string, isNoTouch: boolean) => {
+    if (!previous.value) {
+        return null
+    }
+    if (isNoTouch) {
+        return previous.value.no_touch[comparedModel.value][metric.value]
+    }
+    return previousChannel(key)?.[comparedModel.value][metric.value] ?? 0
+}
+const previousPaidOrders = computed(() => previous.value
+    ? previous.value.channels.filter(channel => channel.is_paid).reduce((sum, channel) => sum + channel[comparedModel.value].orders, 0)
+    : null)
+const previousPaid = (type: string) => {
+    const channel = previousChannel(type)
+    if (!channel) {
+        return null
+    }
+    const orders = channel[comparedModel.value].orders
+    return {
+        orders,
+        spend: channel.spend,
+        roas: channel.spend > 0 ? channel[comparedModel.value].revenue / channel.spend : null,
+        costPerOrder: channel.spend > 0 && orders > 0 ? channel.spend / orders : null,
+    }
+}
+const share = (part: number, whole: number) => whole > 0 ? part / whole * 100 : null
+const percentText = (value: number) => `${Math.round(value)}%`
+const roasText = (value: number) => `${value.toFixed(2)}×`
+
 const mixRows = computed(() => props.data.channels
     .map(channel => ({ name: channel.name, type: channel.type, ...channel[mixModel.value] }))
     .filter(row => row.orders > 0))
@@ -137,6 +181,9 @@ const maxMix = computed(() => Math.max(1, ...mixRows.value.map(row => row.orders
         <div class="flex flex-wrap items-center justify-between gap-3">
             <p class="text-xs text-gray-400">
                 <template v-if="data.from">{{ ctrans("Orders placed since") }} {{ data.from }}<span v-if="data.to"> {{ ctrans("to") }} {{ data.to }}</span></template>
+                <span v-if="data.previous" class="block text-gray-500">
+                    {{ ctrans("Compared with :label, :from to :to", { label: data.previous.label.toLowerCase(), from: data.previous.requested_from, to: data.previous.requested_to }) }}<span v-if="data.previous.cut_by_tracking">{{ ctrans(", counted from :date when tracking began", { date: data.previous.from ?? "" }) }}</span><span v-if="data.previous.before_tracking" class="text-amber-700">{{ ctrans(": before tracking began, so there is nothing to compare") }}</span>.
+                </span>
             </p>
             <div class="flex items-center gap-3">
                 <span v-tooltip="modelDescription(comparedModel)" class="cursor-help text-xs text-gray-500">{{ ctrans("Compare :model with", { model: modelLabel("linear") }) }}</span>
@@ -147,7 +194,14 @@ const maxMix = computed(() => Math.max(1, ...mixRows.value.map(row => row.orders
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
             <div class="rounded-xl ring-1 ring-gray-200 bg-white p-5">
                 <div class="text-xs text-gray-500">{{ ctrans("Orders") }}</div>
-                <div class="mt-1 text-3xl font-semibold text-gray-900 tabular-nums">{{ locale.number(data.totals.orders) }}</div>
+                <div class="mt-1 flex items-center gap-2">
+                    <span class="text-3xl font-semibold text-gray-900 tabular-nums">{{ locale.number(data.totals.orders) }}</span>
+                    <DeltaBadge v-if="previous" :current="data.totals.orders" :previous="previous.totals.orders" :format="locale.number" />
+                </div>
+                <div class="mt-0.5 flex items-center gap-1.5 text-xs text-gray-500 tabular-nums">
+                    {{ money(data.totals.revenue) }} {{ ctrans("revenue") }}
+                    <DeltaBadge v-if="previous" :current="data.totals.revenue" :previous="previous.totals.revenue" :format="money" />
+                </div>
                 <div v-if="data.totals.orders > 0" class="mt-3 flex h-2 gap-[2px] overflow-hidden rounded-full" aria-hidden="true">
                     <span :style="{ width: pct(data.totals.first, data.totals.orders), background: ORDER_TYPE_COLORS.first }" />
                     <span :style="{ width: pct(data.totals.repeat, data.totals.orders), background: ORDER_TYPE_COLORS.repeat }" />
@@ -166,6 +220,10 @@ const maxMix = computed(() => Math.max(1, ...mixRows.value.map(row => row.orders
                 <div class="mt-1 text-xs text-[--app-accent-deep] tabular-nums">
                     {{ decimal(paidCredit.linear) }} → {{ decimal(paidCredit.compared) }} {{ ctrans("orders") }}
                     <span class="opacity-75">({{ modelLabel("linear") }} → {{ modelLabel(comparedModel) }})</span>
+                </div>
+                <div v-if="previous" class="mt-1 flex items-center gap-1.5 text-xs text-[--app-accent-deep] tabular-nums">
+                    {{ ctrans(":model paid orders", { model: modelLabel(comparedModel) }) }}
+                    <DeltaBadge :current="paidCredit.compared" :previous="previousPaidOrders" :format="decimal" />
                 </div>
             </div>
 
@@ -186,6 +244,7 @@ const maxMix = computed(() => Math.max(1, ...mixRows.value.map(row => row.orders
                 <div class="text-xs text-amber-800">{{ ctrans("No touch") }}</div>
                 <div class="mt-1 text-3xl font-semibold text-amber-800 tabular-nums">
                     {{ pct(data.no_touch[comparedModel].orders, data.totals.orders) }}
+                    <DeltaBadge v-if="previous" class="align-middle" :current="share(data.no_touch[comparedModel].orders, data.totals.orders)" :previous="previous ? share(previous.no_touch[comparedModel].orders, previous.totals.orders) : null" better="down" :format="percentText" />
                 </div>
                 <div class="mt-1 text-xs text-amber-800 tabular-nums">
                     {{ decimal(data.no_touch[comparedModel].orders) }} {{ ctrans("orders") }} · {{ money(data.no_touch[comparedModel].revenue) }}
@@ -230,6 +289,9 @@ const maxMix = computed(() => Math.max(1, ...mixRows.value.map(row => row.orders
                                 <div class="absolute inset-y-0 left-0 rounded-r-[4px]" :style="{ width: barWidth(row.compared), background: row.isNoTouch ? NO_FIRST_TOUCH_COLOR : MODEL_COLORS[comparedModel] }" />
                             </div>
                             <span class="w-24 shrink-0 text-right text-xs font-medium text-gray-800 tabular-nums">{{ format(row.compared) }}</span>
+                            <span v-if="previous" class="w-16 shrink-0 text-right">
+                                <DeltaBadge :current="row.compared" :previous="previousMetric(row.key, row.isNoTouch)" :better="row.isNoTouch ? 'down' : 'up'" :format="format" />
+                            </span>
                         </div>
                     </div>
                     <span v-if="delta(row.linear, row.compared)"
@@ -257,14 +319,24 @@ const maxMix = computed(() => Math.max(1, ...mixRows.value.map(row => row.orders
                             <template v-else>—</template>
                         </span>
                         <span class="text-xs text-gray-500">{{ ctrans("ROAS") }}</span>
+                        <DeltaBadge v-if="previous" :current="channel.roas" :previous="previousPaid(channel.type)?.roas" :format="roasText" />
                     </div>
                     <div v-if="channel.linearRoas !== null" class="mt-0.5 text-xs text-gray-400 tabular-nums">
                         {{ modelLabel("linear") }} {{ channel.linearRoas.toFixed(2) }}×
                     </div>
                     <div class="mt-3 flex flex-wrap gap-2 text-xs text-gray-700 tabular-nums">
-                        <span class="rounded-full bg-gray-100 px-2.5 py-1">{{ ctrans("Cost per order") }} {{ channel.costPerOrder !== null ? money(channel.costPerOrder) : "—" }}</span>
-                        <span class="rounded-full bg-gray-100 px-2.5 py-1">{{ ctrans("Spend") }} {{ money(channel.spend) }}</span>
-                        <span class="rounded-full bg-gray-100 px-2.5 py-1">{{ decimal(channel.orders) }} {{ ctrans("orders") }}</span>
+                        <span class="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1">
+                            {{ ctrans("Cost per order") }} {{ channel.costPerOrder !== null ? money(channel.costPerOrder) : "—" }}
+                            <DeltaBadge v-if="previous" :current="channel.costPerOrder" :previous="previousPaid(channel.type)?.costPerOrder" better="down" :format="money" />
+                        </span>
+                        <span class="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1">
+                            {{ ctrans("Spend") }} {{ money(channel.spend) }}
+                            <DeltaBadge v-if="previous" :current="channel.spend" :previous="previousPaid(channel.type)?.spend ?? 0" better="none" :format="money" />
+                        </span>
+                        <span class="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1">
+                            {{ decimal(channel.orders) }} {{ ctrans("orders") }}
+                            <DeltaBadge v-if="previous" :current="channel.orders" :previous="previousPaid(channel.type)?.orders ?? 0" :format="decimal" />
+                        </span>
                     </div>
                 </div>
             </div>

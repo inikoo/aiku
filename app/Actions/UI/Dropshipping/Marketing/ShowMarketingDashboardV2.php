@@ -12,11 +12,14 @@ use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\TrafficSource\Attribution\GetShopAcquisitionCohorts;
 use App\Actions\CRM\TrafficSource\Attribution\GetShopOrderAttribution;
 use App\Actions\CRM\TrafficSource\Attribution\GetShopOrderJourney;
+use App\Actions\CRM\TrafficSource\GetAttributionStartedAt;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Dashboards\WithMarketingPeriod;
+use App\Enums\UI\Marketing\MarketingComparePeriodEnum;
 use App\Enums\UI\Marketing\MarketingDashboardV2TabsEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -26,6 +29,16 @@ class ShowMarketingDashboardV2 extends OrgAction
     use WithMarketingPeriod;
 
     private ?string $journeyOrder = null;
+
+    private ?MarketingComparePeriodEnum $compareMode = null;
+
+    private ?Carbon $compareFrom = null;
+
+    private ?Carbon $compareTo = null;
+
+    private ?string $customCompareFrom = null;
+
+    private ?string $customCompareTo = null;
 
     public function authorize(ActionRequest $request): bool
     {
@@ -40,7 +53,27 @@ class ShowMarketingDashboardV2 extends OrgAction
 
         $this->journeyOrder = $request->query('order');
 
+        $this->setComparePeriod($request);
+
         return $request;
+    }
+
+    private function setComparePeriod(ActionRequest $request): void
+    {
+        $this->compareMode       = MarketingComparePeriodEnum::tryFrom((string) $request->query('compare'));
+        $this->customCompareFrom = $request->query('compare_from');
+        $this->customCompareTo   = $request->query('compare_to');
+
+        if (!$this->compareMode || !$this->periodFrom) {
+            return;
+        }
+
+        [$this->compareFrom, $this->compareTo] = $this->compareMode->range(
+            $this->periodFrom,
+            $this->periodTo ?? now()->endOfDay(),
+            $this->customCompareFrom,
+            $this->customCompareTo
+        ) ?? [null, null];
     }
 
     public function htmlResponse(ActionRequest $request): Response
@@ -68,6 +101,7 @@ class ShowMarketingDashboardV2 extends OrgAction
                 ],
                 'intervals'   => $this->intervalsProp($request->user()->settings),
                 'settings'    => [],
+                'compare'     => $this->compareProp(),
 
                 MarketingDashboardV2TabsEnum::ACQUISITION->value => $this->tab == MarketingDashboardV2TabsEnum::ACQUISITION->value
                     ? fn () => $this->acquisition()
@@ -82,11 +116,32 @@ class ShowMarketingDashboardV2 extends OrgAction
         );
     }
 
+    /**
+     * @return array{available: bool, mode: string|null, options: array<int, array{value: string, label: string}>, from: string|null, to: string|null, custom_from: string|null, custom_to: string|null, tracking_started_at: string|null}
+     */
+    private function compareProp(): array
+    {
+        return [
+            'available'           => $this->periodFrom !== null,
+            'mode'                => $this->compareFrom ? $this->compareMode?->value : null,
+            'options'             => collect(MarketingComparePeriodEnum::cases())->map(fn (MarketingComparePeriodEnum $mode) => [
+                'value' => $mode->value,
+                'label' => $mode->label(),
+            ])->all(),
+            'from'                => $this->compareFrom?->toDateString(),
+            'to'                  => $this->compareTo?->toDateString(),
+            'custom_from'         => $this->customCompareFrom,
+            'custom_to'           => $this->customCompareTo,
+            'tracking_started_at' => GetAttributionStartedAt::run()?->toDateString(),
+        ];
+    }
+
     private function acquisition(): array
     {
         return array_merge(
             GetShopAcquisitionCohorts::run($this->shop, $this->periodFrom, $this->periodTo),
-            $this->periodLabels()
+            $this->periodLabels(),
+            ['previous' => $this->previous(fn (Carbon $from, Carbon $to) => collect(GetShopAcquisitionCohorts::run($this->shop, $from, $to))->except('cohorts')->all())]
         );
     }
 
@@ -94,8 +149,31 @@ class ShowMarketingDashboardV2 extends OrgAction
     {
         return array_merge(
             GetShopOrderAttribution::run($this->shop, $this->periodFrom, $this->periodTo),
-            $this->periodLabels()
+            $this->periodLabels(),
+            ['previous' => $this->previous(fn (Carbon $from, Carbon $to) => GetShopOrderAttribution::run($this->shop, $from, $to))]
         );
+    }
+
+    /**
+     * The same figures over the compared period, with the dates actually covered: touches exist
+     * only from the day tracking began, so a period that starts earlier is cut there, and one that
+     * ends earlier has nothing to show.
+     */
+    private function previous(callable $figures): ?array
+    {
+        if (!$this->compareFrom) {
+            return null;
+        }
+
+        $startedAt = GetAttributionStartedAt::run();
+
+        return array_merge($figures($this->compareFrom, $this->compareTo), [
+            'requested_from'  => $this->compareFrom->toDateString(),
+            'requested_to'    => $this->compareTo->toDateString(),
+            'label'           => $this->compareMode->label(),
+            'before_tracking' => $startedAt !== null && $this->compareTo->lt($startedAt),
+            'cut_by_tracking' => $startedAt !== null && $this->compareFrom->lt($startedAt) && $this->compareTo->gte($startedAt),
+        ]);
     }
 
     public function getBreadcrumbs(array $routeParameters): array
