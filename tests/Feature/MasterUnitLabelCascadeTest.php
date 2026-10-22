@@ -9,6 +9,7 @@
 use App\Actions\Catalogue\Product\AskShopkeeperToReviewMasterText;
 use App\Actions\Catalogue\Product\AskShopkeeperToUpdateProductUnit;
 use App\Actions\Catalogue\Product\StoreProduct;
+use App\Actions\Catalogue\Product\StoreProductWebpage;
 use App\Actions\Catalogue\Product\UpdateProduct;
 use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
@@ -34,6 +35,7 @@ use App\Models\Helpers\TranslationReview;
 use App\Models\Helpers\TranslationTerm;
 use App\Models\Tasks\StaffTask;
 use Illuminate\Http\Client\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -483,4 +485,41 @@ test('a text the stronger model confirms stays as it is, like a size code, is tr
 
     expect(Translate::run($size, $english, $slovak, 'catalogue', brief: 'brief'))->toBe($size)
         ->and(Translate::run($size, $english, $slovak, 'catalogue', brief: 'brief'))->toBe($size);
+});
+
+test('the master meta description and share image reach the webpages of products in shops that follow the master', function () {
+    createWebsite($this->shop);
+    $webpage = $this->product->webpage ?? StoreProductWebpage::make()->action($this->product);
+
+    $this->shop->updateQuietly([
+        'language_id' => Language::where('code', 'fr')->first()->id,
+        'settings'    => array_merge($this->shop->settings ?? [], ['catalog' => ['product_follow_master' => false]]),
+    ]);
+
+    Translate::mock()->shouldReceive('handle')->never();
+
+    UpdateMasterAsset::make()->action($this->masterAsset, ['meta_description' => 'A lamp that glows like embers']);
+
+    expect($webpage->fresh()->description)->not->toBe('A lamp that glows like embers');
+
+    $this->shop->updateQuietly([
+        'settings' => array_merge($this->shop->settings ?? [], ['catalog' => ['product_follow_master' => true]]),
+    ]);
+
+    Translate::mock()->shouldReceive('handle')->andReturn('Une lampe qui brille comme des braises');
+
+    UpdateMasterAsset::make()->action($this->masterAsset, [
+        'meta_description' => 'A lamp that glows like hot embers',
+        'seo_image'        => UploadedFile::fake()->image('lamp.png', 1200, 630),
+    ]);
+
+    $webpage->refresh();
+
+    expect($webpage->description)->toBe('Une lampe qui brille comme des braises')
+        ->and($webpage->seo_image_id)->toBe($this->masterAsset->refresh()->seo_image_id)
+        ->and($webpage->seo_image_url)->toBeNull();
+
+    UpdateMasterAsset::make()->action($this->masterAsset, ['seo_image_url' => 'https://cdn.example.com/lamp.png']);
+
+    expect($webpage->fresh()->seo_image_url)->toBe('https://cdn.example.com/lamp.png');
 });

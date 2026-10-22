@@ -32,6 +32,7 @@ use App\Actions\Accounting\InvoiceCategory\StoreInvoiceCategory;
 use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Actions\Catalogue\Shop\UpdateShop;
+use App\Actions\Masters\MasterAsset\StoreMasterAsset;
 use App\Actions\Masters\MasterProductCategory\StoreMasterDepartment;
 use App\Actions\Masters\MasterProductCategory\StoreMasterFamily;
 use App\Actions\Masters\MasterShop\StoreMasterShop;
@@ -54,6 +55,7 @@ use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Enums\CRM\Customer\CustomerTradeStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\Masters\MasterAsset\MasterAssetTypeEnum;
 use App\Enums\Dashboards\ShopDashboardSalesTableTabsEnum;
 use App\Enums\Dashboards\ShopDashboardSectionsEnum;
 use App\Enums\UI\Catalogue\DepartmentTabsEnum;
@@ -393,8 +395,11 @@ test('UI show family edit page tab lays out the webpage and content fields with 
             ->where('edit_page.sections.2.cards.0.fields.title.value', 'Wholesale <b>Aroma</b> Diffusers')
             ->where('edit_page.sections.2.cards.0.check', ['ok' => true, 'note' => 'Contains keyword'])
             ->where('edit_page.sections.2.cards.2.fields.description.type', 'textarea')
-            ->where('edit_page.sections.2.cards.5.update_route.name', 'grp.models.product_category.update')
-            ->has('edit_page.sections.2.cards.5.fields.description_title')
+            ->where('edit_page.sections.2.cards.3.update_route.name', 'grp.models.webpage.update')
+            ->where('edit_page.sections.2.cards.3.fields.seo_image.type', 'image_crop_square')
+            ->where('edit_page.sections.2.cards.3.fields.seo_image.hasOther.1.name', 'seo_image_url')
+            ->where('edit_page.sections.2.cards.6.update_route.name', 'grp.models.product_category.update')
+            ->has('edit_page.sections.2.cards.6.fields.description_title')
             ->has('edit_page.page_score.steps', 4)
             ->has('edit_page.seo_issues.groups')
             ->where('edit_page.seo_review.checks.title', ['ok' => true, 'note' => 'Contains keyword'])
@@ -672,6 +677,50 @@ test('webmaster validates a product SEO review with suggestions still pending, w
     expect(GetProductSeoReview::run($webpage, $product, $this->user))
         ->pending->toBe(0)
         ->is_validated->toBeTrue();
+});
+
+test('UI show product setting page shows the master meta description and the webpage share image', function () {
+    createWebsite($this->shop);
+
+    $masterShop = StoreMasterShop::make()->action($this->group, [
+        'code' => 'MS-'.uniqid(),
+        'name' => 'Master Shop',
+        'type' => ShopTypeEnum::B2B,
+    ]);
+    $masterDepartment = StoreMasterDepartment::make()->action($masterShop, [
+        'code' => 'MD-'.uniqid(),
+        'name' => 'Master Department',
+    ]);
+    $masterFamily = StoreMasterFamily::make()->action($masterDepartment, [
+        'code' => 'MF-'.uniqid(),
+        'name' => 'Master Family',
+    ]);
+    $masterAsset = StoreMasterAsset::make()->action($masterFamily, [
+        'code'        => 'MA-'.substr(uniqid(), -6),
+        'name'        => 'Master diffuser',
+        'is_main'     => true,
+        'type'        => MasterAssetTypeEnum::PRODUCT,
+        'price'       => 10,
+        'stocks'      => [],
+        'trade_units' => [['id' => $this->product->tradeUnits()->first()->id, 'quantity' => 1]],
+    ]);
+    $masterAsset->updateQuietly(['meta_description' => 'Wholesale aroma diffusers for every room']);
+
+    $product = $this->product->refresh();
+    $product->updateQuietly(['master_product_id' => $masterAsset->id]);
+    $webpage = $product->webpage ?? StoreProductWebpage::make()->action($product);
+    $webpage->updateQuietly(['seo_image_url' => 'https://cdn.example.com/diffuser.png']);
+
+    get(route('grp.org.shops.show.catalogue.products.all_products.setting', [$this->organisation->slug, $this->shop->slug, $product->slug]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Org/Catalogue/ProductSetting')
+            ->where('master.meta_description', 'Wholesale aroma diffusers for every room')
+            ->where('shop.shop.language_code', $this->shop->language->code)
+            ->where('shop.webpage.seo_image_field.type', 'image_crop_square')
+            ->where('shop.webpage.seo_image_field.value', ['original' => 'https://cdn.example.com/diffuser.png'])
+            ->where('shop.webpage.seo_image_field.hasOther.1.value', 'https://cdn.example.com/diffuser.png')
+            ->etc());
 });
 
 test('UI show family sales analysis tab', function () {

@@ -9,6 +9,7 @@
 use App\Actions\Catalogue\ProductCategory\StoreProductCategory;
 use App\Actions\Catalogue\ProductCategory\StoreProductCategoryWebpage;
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
+use App\Actions\Helpers\Translations\Translate;
 use App\Actions\Masters\MasterAsset\StoreMasterAsset;
 use App\Actions\Masters\MasterAsset\UI\GetMasterProductChecklist;
 use App\Actions\Masters\MasterProductCategory\StoreMasterDepartment;
@@ -216,6 +217,49 @@ test('master family meta description and share image are saved like the webpage 
         ->and($masterFamily->seo_image_url)->toBeNull()
         ->and($masterFamily->seoImage)->not->toBeNull()
         ->and($masterFamily->images()->whereKey($masterFamily->seo_image_id)->exists())->toBeFalse();
+});
+
+test('master family meta description and share image cascade to the webpages of shop families following the master', function () {
+    $familyData = ProductCategory::factory()->definition();
+    data_set($familyData, 'type', ProductCategoryTypeEnum::FAMILY->value);
+    data_set($familyData, 'master_product_category_id', $this->masterFamily->id);
+    $shopFamily = StoreProductCategory::make()->action($this->shop, $familyData);
+    $webpage    = $shopFamily->webpage ?? StoreProductCategoryWebpage::make()->action($shopFamily);
+
+    $settings = $this->shop->settings;
+    data_set($settings, 'catalog.family_follow_master', false);
+    $this->shop->update(['settings' => $settings]);
+
+    Translate::mock()->shouldReceive('handle')->never();
+
+    $this->patch(route('grp.models.master_product_category.update', $this->masterFamily->id), [
+        'meta_description' => 'Handmade soaps for every skin type',
+    ])->assertSessionHasNoErrors();
+
+    expect($webpage->fresh()->description)->not->toBe('Handmade soaps for every skin type');
+
+    data_set($settings, 'catalog.family_follow_master', true);
+    $this->shop->update(['settings' => $settings]);
+
+    Translate::mock()->shouldReceive('handle')->andReturn('Translated meta description');
+
+    $this->patch(route('grp.models.master_product_category.update', $this->masterFamily->id), [
+        'meta_description' => 'Soaps made by hand',
+        'seo_image'        => UploadedFile::fake()->image('share.png', 1200, 630),
+    ])->assertSessionHasNoErrors();
+
+    $masterFamily = $this->masterFamily->fresh();
+    $webpage->refresh();
+
+    expect($webpage->description)->toBe('Translated meta description')
+        ->and($webpage->seo_image_id)->toBe($masterFamily->seo_image_id)
+        ->and($webpage->seo_image_url)->toBeNull();
+
+    $this->patch(route('grp.models.master_product_category.update', $this->masterFamily->id), [
+        'seo_image_url' => 'https://cdn.example.com/share.png',
+    ])->assertSessionHasNoErrors();
+
+    expect($webpage->fresh()->seo_image_url)->toBe('https://cdn.example.com/share.png');
 });
 
 test('master product meta description and share image are saved like the webpage share image and counted in its checklist', function () {

@@ -24,6 +24,7 @@ use App\Actions\Masters\WithMasterSeoImage;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateMasterProductCategories;
 use App\Actions\Traits\UI\WithImageCatalogue;
+use App\Actions\Web\Webpage\UpdateWebpage;
 use App\Enums\Catalogue\MasterProductCategory\MasterProductCategoryTypeEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Helpers\Language;
@@ -211,7 +212,9 @@ class UpdateMasterProductCategory extends OrgAction
             CascadeMasterProductCategoryStorageOptionToChildren::run($masterProductCategory); // TODO: change to dispatch later
         }
 
-        if (Arr::hasAny($changed, ['name', 'description', 'description_title', 'description_extra', 'code', 'category_comparison'])) {
+        $seoImageChanged = $seoImage || Arr::has($changed, 'seo_image_url');
+
+        if ($seoImageChanged || Arr::hasAny($changed, ['name', 'description', 'description_title', 'description_extra', 'code', 'category_comparison', 'meta_description'])) {
 
             $english      = Language::where('code', 'en')->first();
 
@@ -270,6 +273,22 @@ class UpdateMasterProductCategory extends OrgAction
 
                 if ($dataToBeUpdated) {
                     UpdateProductCategory::make()->action($productCategory, $dataToBeUpdated);
+                }
+
+                $webpageData = [];
+                if ($followMaster && $productCategory->webpage) {
+                    if (Arr::has($changed, 'meta_description')) {
+                        $webpageData['description'] = Translate::run($masterProductCategory->meta_description, $english, $shopLanguage, 'catalogue', brief: $brief);
+                    }
+
+                    if ($seoImageChanged) {
+                        $webpageData['seo_image_id']  = $masterProductCategory->seo_image_id;
+                        $webpageData['seo_image_url'] = $masterProductCategory->seo_image_url;
+                    }
+                }
+
+                if ($webpageData) {
+                    UpdateWebpage::make()->action($productCategory->webpage, $webpageData);
                 }
             }
         }

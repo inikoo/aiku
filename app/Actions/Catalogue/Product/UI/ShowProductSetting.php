@@ -11,6 +11,7 @@ namespace App\Actions\Catalogue\Product\UI;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithCatalogueAuthorisation;
 use App\Actions\Traits\Authorisations\WithShopPpcPermissions;
+use App\Actions\Web\Webpage\UI\WithWebpageSeoImageField;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
@@ -33,6 +34,7 @@ class ShowProductSetting extends OrgAction
 {
     use WithCatalogueAuthorisation;
     use WithShopPpcPermissions;
+    use WithWebpageSeoImageField;
 
     public const array TABS = ['setting', 'seo_review', 'validation', 'issues'];
 
@@ -125,6 +127,7 @@ class ShowProductSetting extends OrgAction
             'name'              => $source->name,
             'description'       => $source->description,
             'description_extra' => $source->description_extra,
+            'meta_description'  => $source instanceof MasterAsset ? $source->meta_description : null,
             'price'             => $source->price,
             'currency_code'     => $source instanceof MasterAsset ? $source->group->currency->code : ($product->currency?->code ?? $product->shop->currency->code),
             'marketing_weight'  => $source->marketing_weight,
@@ -149,8 +152,9 @@ class ShowProductSetting extends OrgAction
         return [
             'id'            => $product->id,
             'shop'          => [
-                'code' => $shop->code,
-                'name' => $shop->name,
+                'code'          => $shop->code,
+                'name'          => $shop->name,
+                'language_code' => $shop->language->code,
             ],
             'can_edit_seo'  => $this->canEditSeo($user, $shop),
             'product'       => [
@@ -191,6 +195,7 @@ class ShowProductSetting extends OrgAction
                 'index_page'       => (bool)$webpage->index_page,
                 'follow_link'      => (bool)$webpage->follow_link,
                 'structured_data'  => Arr::get($webpage->seo_data, 'structured_data'),
+                'seo_image_field'  => $this->webpageSeoImageField($webpage),
                 'state_field'      => $this->getStateField($product, $webpage),
                 'update_route'     => [
                     'name'       => 'grp.models.webpage.update',

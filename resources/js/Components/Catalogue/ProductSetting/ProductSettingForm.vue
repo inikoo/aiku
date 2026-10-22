@@ -5,7 +5,7 @@ import { notify } from "@kyvg/vue3-notification"
 import { createReusableTemplate } from "@vueuse/core"
 import { Link } from "@inertiajs/vue3"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faInfoCircle, faExclamationTriangle, faTimes, faSitemap, faExternalLink } from "@fal"
+import { faInfoCircle, faExclamationTriangle, faTimes, faSitemap, faExternalLink, faLanguage } from "@fal"
 import { ctrans } from "@/Composables/useTrans"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 import Button from "@/Components/Elements/Buttons/Button.vue"
@@ -13,6 +13,7 @@ import { InputGroup, InputGroupAddon, InputNumber, InputText, Textarea, ToggleSw
 import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import ToggleStateWebpage from "@/Components/Forms/Fields/ToggleStateWebpage.vue"
 import RichTextField from "@/Components/Catalogue/ProductSetting/RichTextField.vue"
+import FieldForm from "@/Components/Forms/FieldForm.vue"
 import { productSettingActionsId, settingFieldId, type MasterProductData, type SharedInformationValue, type ShopProductSetting } from "@/Components/Catalogue/ProductSetting/types"
 
 const props = defineProps<{
@@ -241,6 +242,29 @@ const publish = async () => {
     }
 }
 
+const isTranslatingMetaDescription = ref(false)
+
+const translateMetaDescription = async () => {
+    isTranslatingMetaDescription.value = true
+
+    try {
+        const { data } = await axios.post(
+            route("grp.models.translate", { languageFrom: "en", languageTo: props.shop.shop.language_code }),
+            { text: props.master.meta_description, catalogue: true },
+            { timeout: 10000 },
+        )
+        form.value.description = data
+    } catch (error) {
+        notify({
+            title: ctrans("Translation Error"),
+            text: (error as { response?: { data?: { message?: string } } })?.response?.data?.message ?? ctrans("Failed to generate translation."),
+            type: "error",
+        })
+    } finally {
+        isTranslatingMetaDescription.value = false
+    }
+}
+
 const focusField = async (suggestionField: string) => {
     const contentKey = suggestionFieldOfContent[suggestionField]
     if (contentKey) {
@@ -397,8 +421,25 @@ const [DefineMasterValue, MasterValue] = createReusableTemplate<{ value: string 
                         <label for="meta-description" class="font-medium text-gray-700">{{ ctrans("Meta description") }}</label>
                         <span class="tabular-nums" :class="form.description.length > 160 ? 'text-red-600' : 'text-gray-400'">{{ form.description.length }} / 160</span>
                     </div>
+                    <div v-if="master.has_master" class="mb-2 flex items-start gap-2">
+                        <div class="flex-1"><MasterValue :value="master.meta_description" /></div>
+                        <Button
+                            v-if="canEdit && master.meta_description"
+                            type="tertiary"
+                            :icon="faLanguage"
+                            :label="ctrans('Translate from master')"
+                            :loading="isTranslatingMetaDescription"
+                            @click="translateMetaDescription"/>
+                    </div>
                     <Textarea id="meta-description" v-model="form.description" :rows="2" autoResize fluid :disabled="!canEdit" :invalid="!!errors.description" />
                     <p v-if="errors.description" class="mt-1 text-xs text-red-600">{{ errors.description }}</p>
+                </div>
+                <div :id="settingFieldId('seo_image')">
+                    <FieldForm
+                        field="seo_image"
+                        :fieldData="{ ...shop.webpage.seo_image_field, readonly: !canEdit }"
+                        :args="{ updateRoute: shop.webpage.update_route }"
+                        :refForms="undefined"/>
                 </div>
                 <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                     <div :id="settingFieldId('url')">

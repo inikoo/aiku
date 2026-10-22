@@ -8,6 +8,7 @@ export type MasterProductData = {
     name: string
     description: string | null
     description_extra: string | null
+    meta_description: string | null
     price: string | number | null
     currency_code: string
     marketing_weight: number | null
@@ -66,7 +67,7 @@ export type WebpageStateField = {
 
 export type ShopProductSetting = {
     id: number
-    shop: { code: string, name: string }
+    shop: { code: string, name: string, language_code: string }
     can_edit_seo: boolean
     product: {
         id: number
@@ -91,6 +92,7 @@ export type ShopProductSetting = {
         index_page: boolean
         follow_link: boolean
         structured_data: string | object | null
+        seo_image_field: Record<string, any>
         state_field: WebpageStateField
         update_route: routeType
         publish_route: routeType

@@ -33,6 +33,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateMasterAssets;
 use App\Actions\Traits\Authorisations\WithMastersEditAuthorisation;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
+use App\Actions\Web\Webpage\UpdateWebpage;
 use App\Actions\Traits\WithLineTaxCategories;
 use App\Actions\Traits\WithMasterAssetTradeUnits;
 use App\Actions\Traits\ModelHydrateSingleTradeUnits;
@@ -501,6 +502,29 @@ class UpdateMasterAsset extends OrgAction
         }
 
         PropagateMasterContentToProducts::run($masterAsset, array_keys($changes));
+
+        $seoImageChanged = $seoImage || $wasChanged('seo_image_url');
+        if ($seoImageChanged || $wasChanged('meta_description')) {
+            $english = Language::where('code', 'en')->first();
+
+            foreach ($masterAsset->products()->with(['shop.language', 'webpage'])->get() as $product) {
+                if (!$product->webpage || !data_get($product->shop->settings, 'catalog.product_follow_master')) {
+                    continue;
+                }
+
+                $webpageData = [];
+                if ($wasChanged('meta_description')) {
+                    $webpageData['description'] = Translate::run($masterAsset->meta_description, $english, $product->shop->language, 'catalogue');
+                }
+
+                if ($seoImageChanged) {
+                    $webpageData['seo_image_id']  = $masterAsset->seo_image_id;
+                    $webpageData['seo_image_url'] = $masterAsset->seo_image_url;
+                }
+
+                UpdateWebpage::make()->action($product->webpage, $webpageData);
+            }
+        }
 
         if ($wasChanged('is_for_sale') && $masterAsset->is_for_sale) {
             MasterAssetHydrateAssets::run($masterAsset->id);
