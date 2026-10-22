@@ -39,6 +39,7 @@ type Item = {
 		containers_route: routeType | null
 		new_container_route: routeType | null
 		organisation_code: string | null
+		is_qc_approved: boolean
 	}
 }
 
@@ -229,6 +230,11 @@ function submit() {
 					{{ ctrans("Or choose a container in process") }}
 				</button>
 			</div>
+
+			<p v-if="warehouse && !warehouse.is_qc_approved" class="flex gap-2 rounded-md border border-amber-200 bg-amber-50 p-2 text-xs text-amber-800">
+				<FontAwesomeIcon :icon="faExclamationTriangle" class="mt-0.5 text-amber-500" fixed-width aria-hidden="true" />
+				<span>{{ ctrans("The QC of this order is not approved yet. The goods can still go in a container, but they will leave without a QC approval unless it is recorded before the container is dispatched.") }}</span>
+			</p>
 
 			<div class="max-h-[50vh] space-y-3 overflow-y-auto">
 				<div v-for="item in items" :key="item.id" class="flex items-start gap-3">

@@ -215,6 +215,7 @@ class PurchaseOrderTransactionResource extends JsonResource
                 'method'     => 'post',
             ] : null,
             'organisation_code'                => $transaction->organisation?->code,
+            'is_qc_approved'                   => $purchaseOrder?->qc_passed_at !== null,
             'containers'                       => $this->containersOfLine($transaction, $request, $isAgentEditing || $canEdit),
         ];
     }
