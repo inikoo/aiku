@@ -2,6 +2,9 @@
 
 namespace App\Actions\CRM\Appointment;
 
+use App\Actions\CRM\Appointment\GoogleCalendar\SyncAppointmentGoogleCalendarEvent;
+use Illuminate\Support\Arr;
+use App\Actions\CRM\Appointment\Zoom\SyncAppointmentZoomMeeting;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\CRM\Appointment\AppointmentStateEnum;
@@ -45,6 +48,11 @@ class UpdateAppointment extends OrgAction
         });
 
         SyncAppointmentStaffTask::run($appointment);
+        SyncAppointmentGoogleCalendarEvent::dispatchFor($appointment);
+
+        if ($appointment->appointmentType?->isZoomCall() || Arr::has($appointment->data, 'zoom')) {
+            SyncAppointmentZoomMeeting::dispatch($appointment->id);
+        }
 
         return $appointment;
     }
@@ -69,7 +77,10 @@ class UpdateAppointment extends OrgAction
 
     public function getValidationMessages(): array
     {
-        return $this->appointmentPhoneMessages();
+        return [
+            ...$this->appointmentPhoneMessages(),
+            ...$this->appointmentEmailMessages(),
+        ];
     }
 
     public function prepareForValidation(ActionRequest $request): void

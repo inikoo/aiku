@@ -93,6 +93,22 @@ class GetOutboxMergeTagByOutbox extends OrgAction
                         OutboxMergeTagsEnum::CUSTOMER_NAME,
                         OutboxMergeTagsEnum::ABANDONED_CART_ITEMS,
                     ]);
+            case OutboxCodeEnum::APPOINTMENT_REQUESTED:
+            case OutboxCodeEnum::APPOINTMENT_ACCEPTED:
+            case OutboxCodeEnum::APPOINTMENT_DECLINED:
+            case OutboxCodeEnum::APPOINTMENT_RESCHEDULED:
+            case OutboxCodeEnum::APPOINTMENT_CANCELLED:
+            case OutboxCodeEnum::APPOINTMENT_REMINDER:
+                return OutboxMergeTagsEnum::filterTags([
+                        OutboxMergeTagsEnum::CUSTOMER_NAME,
+                        OutboxMergeTagsEnum::SHOP_NAME,
+                        OutboxMergeTagsEnum::APPOINTMENT_DATE,
+                        OutboxMergeTagsEnum::APPOINTMENT_TIME,
+                        OutboxMergeTagsEnum::APPOINTMENT_DETAILS,
+                        OutboxMergeTagsEnum::PREVIOUS_APPOINTMENT_DATE,
+                        OutboxMergeTagsEnum::DECLINE_REASON,
+                        OutboxMergeTagsEnum::MANAGE_APPOINTMENT_LINK,
+                    ]);
             default:
                 return GetMailshotMergeTags::run();
         }

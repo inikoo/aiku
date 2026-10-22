@@ -2,6 +2,7 @@
 
 namespace App\Actions\Iris\Appointment;
 
+use App\Enums\CRM\Appointment\AppointmentStateEnum;
 use App\Models\CRM\Appointment;
 use Illuminate\Validation\ValidationException;
 
@@ -40,6 +41,9 @@ trait WithIrisAppointmentAccess
             'appointment_type'   => $appointmentType?->name,
             'meeting_mode'       => $appointmentType?->meeting_mode->value,
             'meeting_mode_label' => $appointmentType?->meeting_mode->label(),
+            'media'              => $appointmentType?->media()?->value,
+            'zoom_join_url'      => $appointment->state === AppointmentStateEnum::ACCEPTED ? $appointment->zoomJoinUrl() : null,
+            'google_meet_join_url' => $appointment->state === AppointmentStateEnum::ACCEPTED ? $appointment->googleMeetJoinUrl() : null,
             'location'           => $appointmentType?->location,
             'duration_minutes'   => $appointmentType?->duration_minutes,
             'date'               => $startsAt->toDateString(),

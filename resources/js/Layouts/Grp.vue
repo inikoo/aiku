@@ -40,9 +40,9 @@ import AlertToast from "@/Components/Utils/AlertToast.vue"
 import { useMediaQuery, useWindowSize } from "@vueuse/core"
 import axios from "axios"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faBellSlash, faShoppingCart, faLifeRing } from "@fal"
+import { faBellSlash, faShoppingCart, faLifeRing, faCalendarAlt } from "@fal"
 
-library.add(faBellSlash, faShoppingCart, faLifeRing)
+library.add(faBellSlash, faShoppingCart, faLifeRing, faCalendarAlt)
 
 
 import "@/Composables/Icon/ImportGrpFalIcon"

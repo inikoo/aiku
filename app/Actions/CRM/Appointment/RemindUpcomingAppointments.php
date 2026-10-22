@@ -11,15 +11,15 @@ use Illuminate\Database\Eloquent\Builder;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
- * The visitor of an accepted appointment is emailed once, the day before. A visitor whose
- * confirmation or new time reached them inside that day already has the details fresh, so the
- * appointment is left alone.
+ * The visitor of an accepted appointment is emailed once, 12 hours before. A visitor whose
+ * confirmation or new time reached them inside those 12 hours already has the details fresh, so
+ * the appointment is left alone.
  */
 class RemindUpcomingAppointments
 {
     use AsAction;
 
-    public const int REMIND_HOURS_BEFORE = 24;
+    public const int REMIND_HOURS_BEFORE = 12;
 
     public string $commandSignature = 'appointments:remind';
 

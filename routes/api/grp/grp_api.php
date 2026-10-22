@@ -7,6 +7,8 @@
  */
 
 
+use App\Actions\CRM\Appointment\Widget\GetAppointmentWidgetConfig;
+use App\Actions\CRM\Appointment\Widget\StoreAppointmentWidgetBooking;
 use Illuminate\Support\Facades\Route;
 use App\Actions\Api\Group\GetApiProfile;
 use App\Actions\Api\Group\Shop\ShowApiShop;
@@ -58,3 +60,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 Route::prefix("chats")
         ->name("chats.")
         ->group(__DIR__ . "/chat_api.php");
+
+Route::prefix('appointments')->name('appointments.')->group(function () {
+    Route::get('widget-config', GetAppointmentWidgetConfig::class)->name('widget.config');
+    Route::post('widget-booking', StoreAppointmentWidgetBooking::class)->name('widget.booking')->middleware('throttle:iris-appointment-booking');
+});

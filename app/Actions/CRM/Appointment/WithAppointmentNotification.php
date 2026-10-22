@@ -3,6 +3,7 @@
 namespace App\Actions\CRM\Appointment;
 
 use App\Actions\Comms\Email\SendAppointmentEmail;
+use App\Actions\Comms\Email\SendNewAppointmentEmailToShop;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Enums\CRM\Appointment\AppointmentStateEnum;
 use App\Models\CRM\Appointment;
@@ -20,6 +21,15 @@ trait WithAppointmentNotification
         };
 
         $this->queueAppointmentEmail($appointment, $code);
+    }
+
+    protected function notifyShopAboutNewAppointment(Appointment $appointment): void
+    {
+        if (!SendNewAppointmentEmailToShop::recipientEmail($appointment->shop)) {
+            return;
+        }
+
+        DB::afterCommit(fn () => SendNewAppointmentEmailToShop::dispatch($appointment->id));
     }
 
     protected function notifyVisitorAboutChange(Appointment $appointment, AppointmentStateEnum $previousState, Carbon $previousStartsAt): void
