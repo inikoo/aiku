@@ -2297,8 +2297,7 @@ test('purchase orders are numbered with the org supplier format, skipping refere
     $orgSupplier = $supplier->orgSuppliers()->where('organisation_id', $this->organisation->id)->first();
     $orderData   = Arr::except(PurchaseOrder::factory()->definition(), 'reference');
 
-    $organisationFormatReference = UpdateOrgSupplier::make()->nextPurchaseOrderReference($orgSupplier);
-    expect($organisationFormatReference)->toStartWith('PO');
+    expect(UpdateOrgSupplier::make()->nextPurchaseOrderReference($orgSupplier))->toBe($supplier->code.'-0001');
 
     UpdateOrgSupplier::make()->action($orgSupplier, [
         'purchase_order_reference_format' => 'Camacho-%04d_UK',
@@ -2320,7 +2319,40 @@ test('purchase orders are numbered with the org supplier format, skipping refere
     $orgSupplier->refresh();
 
     expect($orgSupplier->purchaseOrderSerialReference)->toBeNull()
-        ->and(StorePurchaseOrder::make()->action($orgSupplier, $orderData, strict: false)->reference)->toBe($organisationFormatReference);
+        ->and(StorePurchaseOrder::make()->action($orgSupplier, $orderData, strict: false)->reference)->toBe($supplier->code.'-0001');
+});
+
+test('a supplier without its own number format is numbered from its code, carrying on from its Aurora number', function () {
+    $supplier    = StoreSupplier::make()->action(
+        parent: $this->group,
+        modelData: Supplier::factory()->definition()
+    );
+    $orgSupplier = $supplier->orgSuppliers()->where('organisation_id', $this->organisation->id)->first();
+    $orderData   = Arr::except(PurchaseOrder::factory()->definition(), 'reference');
+
+    StorePurchaseOrder::make()->action($orgSupplier, array_merge($orderData, ['reference' => 'Brow Farm-003']), strict: false)
+        ->update(['source_id' => '4:'.fake()->unique()->numberBetween(900000, 999999), 'created_at' => now()->subDay()]);
+    StorePurchaseOrder::make()->action($orgSupplier, array_merge($orderData, ['reference' => 'Conti-AWChina-071-AROMA']), strict: false);
+
+    expect(UpdateOrgSupplier::make()->nextPurchaseOrderReference($orgSupplier))->toBe($supplier->code.'-0004')
+        ->and(StorePurchaseOrder::make()->action($orgSupplier, $orderData, strict: false)->reference)->toBe($supplier->code.'-0004')
+        ->and($orgSupplier->purchaseOrderSerialReference()->value('format'))->toBe($supplier->code.'-%04d');
+});
+
+test('a supplier whose last Aurora reference ends in a tracking number is numbered from its Aurora order count', function () {
+    $supplier    = StoreSupplier::make()->action(
+        parent: $this->group,
+        modelData: Supplier::factory()->definition()
+    );
+    $orgSupplier = $supplier->orgSuppliers()->where('organisation_id', $this->organisation->id)->first();
+    $orderData   = Arr::except(PurchaseOrder::factory()->definition(), 'reference');
+
+    foreach (['3PDirect-058_AWA' => 2, '3PDirect-8174841_AW' => 1] as $reference => $daysAgo) {
+        StorePurchaseOrder::make()->action($orgSupplier, array_merge($orderData, ['reference' => $reference]), strict: false)
+            ->update(['source_id' => '4:'.fake()->unique()->numberBetween(900000, 999999), 'created_at' => now()->subDays($daysAgo)]);
+    }
+
+    expect(UpdateOrgSupplier::make()->nextPurchaseOrderReference($orgSupplier))->toBe($supplier->code.'-0003');
 });
 
 test('stock deliveries are numbered with the org supplier delivery format, skipping references already used', function () {
@@ -2342,7 +2374,7 @@ test('stock deliveries are numbered with the org supplier delivery format, skipp
 
     expect(UpdateOrgSupplier::make()->nextStockDeliveryReference($orgSupplier))->toBe('Camacho-D0009_UK')
         ->and(UpdateOrgSupplier::make()->newProcurementReference($orgSupplier, SerialReferenceModelEnum::STOCK_DELIVERY))->toBe('Camacho-D0009_UK')
-        ->and(UpdateOrgSupplier::make()->nextPurchaseOrderReference($orgSupplier))->toStartWith('PO');
+        ->and(UpdateOrgSupplier::make()->nextPurchaseOrderReference($orgSupplier))->toBe($supplier->code.'-0001');
 
     UpdateOrgSupplier::make()->action($orgSupplier, ['stock_delivery_reference_format' => null]);
 
