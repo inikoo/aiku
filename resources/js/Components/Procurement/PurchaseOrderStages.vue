@@ -30,6 +30,7 @@ interface Mark {
     skipped: string[]
     planned?: boolean
     suggested?: string | null
+    confirms_order?: boolean
 }
 
 interface Evidence {
@@ -118,6 +119,10 @@ const markTooltips: Record<string, { record: string, edit: string }> = {
 }
 
 function markTooltip(mark: Mark) {
+    if (mark.confirms_order && mark.field === "production_started_at") {
+        return ctrans("Click once the supplier has accepted this order and started making it: it confirms the order and records the date production started")
+    }
+
     const tooltip = markTooltips[mark.field]
     if (tooltip) {
         return ctrans(mark.date ? tooltip.edit : tooltip.record)
@@ -286,6 +291,10 @@ function save() {
         <div class="space-y-4 text-sm">
             <p v-if="editing && markDescriptions[editing.field]" class="text-gray-600">
                 {{ ctrans(markDescriptions[editing.field]) }}
+            </p>
+
+            <p v-if="editing?.confirms_order" class="text-gray-600">
+                {{ ctrans("Saving also confirms this purchase order: work on it means the supplier accepted it.") }}
             </p>
 
             <label class="block space-y-1">

@@ -228,6 +228,10 @@ class ShowStockDelivery extends OrgAction
         $isContainer = DeleteStockDelivery::isAgentDelivery($stockDelivery);
         $modelLabel  = $isContainer ? __('Container') : __('Stock Delivery');
 
+        $missingEvidence = in_array($stockDelivery->state, [StockDeliveryStateEnum::IN_PROCESS, StockDeliveryStateEnum::CONFIRMED, StockDeliveryStateEnum::READY_TO_SHIP])
+            ? DispatchStockDelivery::missingEvidence($stockDelivery)
+            : [];
+
         return Inertia::render(
             'Procurement/StockDelivery',
             [
@@ -248,17 +252,17 @@ class ShowStockDelivery extends OrgAction
                             .($stockDelivery->isManagedByPartner() && $stockDelivery->state !== StockDeliveryStateEnum::DISPATCHED ? ' · '.__('Managed by :partner until dispatched', ['partner' => $stockDelivery->parent?->partner?->name]) : ''),
                     ],
                     'edit'       => $editRoute ? ['route' => $editRoute] : false,
-                    'actions'    => array_merge($this->getUpdateCostingActions($stockDelivery), $this->getBookInLinkAction($stockDelivery, $request), $this->getAllowedActions($stockDelivery), $editRoute ? [['type' => 'button', 'style' => 'edit', 'label' => __('Settings'), 'route' => $editRoute]] : []),
+                    'actions'    => $this->arrangePageHeadActions(array_merge($this->getUpdateCostingActions($stockDelivery), $this->getBookInLinkAction($stockDelivery, $request), $this->getAllowedActions($stockDelivery), $editRoute ? [['type' => 'button', 'style' => 'edit', 'label' => __('Settings'), 'key' => 'settings', 'route' => $editRoute]] : [])),
                 ],
                 'stock_delivery'   => StockDeliveryResource::make($stockDelivery)->toArray($request),
                 'timelines'        => $this->getTimeline($stockDelivery),
                 'box_stats'        => $this->getBoxStats($stockDelivery, $request),
                 'tabs'             => [
                     'current'    => $this->tab,
-                    'navigation' => $this->getTabsNavigation($stockDelivery),
+                    'navigation' => $this->getTabsNavigation($stockDelivery, $missingEvidence),
                 ],
                 'costing'          => $this->getCosting($stockDelivery),
-                'missing_evidence' => in_array($stockDelivery->state, [StockDeliveryStateEnum::IN_PROCESS, StockDeliveryStateEnum::CONFIRMED, StockDeliveryStateEnum::READY_TO_SHIP]) ? DispatchStockDelivery::missingEvidence($stockDelivery) : [],
+                'missing_evidence' => $missingEvidence,
                 'add_purchase_orders' => $this->canAddPurchaseOrders ? $this->getAddPurchaseOrders($stockDelivery) : null,
                 'add_purchase_order_items' => $this->canAddPurchaseOrders ? Inertia::optional(fn () => $this->getAddPurchaseOrderItems($stockDelivery)) : null,
                 'remove_purchase_orders' => $this->canRemovePurchaseOrders ? $this->getRemovePurchaseOrders($stockDelivery) : null,
@@ -702,6 +706,23 @@ class ShowStockDelivery extends OrgAction
         }
 
         return array_merge($actions, [$csvButton, $pdfButton]);
+    }
+
+    /**
+     * Settings first, the CSV and PDF downloads as one group, and dispatching the container last.
+     */
+    private function arrangePageHeadActions(array $actions): array
+    {
+        $actions   = collect($actions)->filter()->values();
+        $isOfKey   = fn (string ...$keys) => fn (array $action) => in_array(Arr::get($action, 'key'), $keys, true);
+        $documents = $actions->filter($isOfKey('csv', 'action'))->values()->all();
+
+        return [
+            ...$actions->filter($isOfKey('settings'))->all(),
+            ...$actions->reject($isOfKey('settings', 'csv', 'action', 'dispatch_stock_delivery'))->all(),
+            ...($documents ? [['type' => 'buttonGroup', 'key' => 'documents', 'button' => $documents]] : []),
+            ...$actions->filter($isOfKey('dispatch_stock_delivery'))->all(),
+        ];
     }
 
     private function getAllowedActions(StockDelivery $stockDelivery): array
@@ -1526,12 +1547,20 @@ class ShowStockDelivery extends OrgAction
             ->all();
     }
 
-    private function getTabsNavigation(StockDelivery $stockDelivery): array
+    /**
+     * @param  string[]  $missingEvidence
+     */
+    private function getTabsNavigation(StockDelivery $stockDelivery, array $missingEvidence): array
     {
         $navigation = Arr::only(StockDeliveryTabsEnum::navigation(), $this->getTabs($stockDelivery));
 
         if (isset($navigation[StockDeliveryTabsEnum::ATTACHMENTS->value])) {
             $navigation[StockDeliveryTabsEnum::ATTACHMENTS->value]['number'] = $stockDelivery->attachments()->count();
+
+            if ($missingEvidence) {
+                $navigation[StockDeliveryTabsEnum::ATTACHMENTS->value]['indicator'] = true;
+                $navigation[StockDeliveryTabsEnum::ATTACHMENTS->value]['title']     = __('Attachments (missing: :documents)', ['documents' => implode(', ', $missingEvidence)]);
+            }
         }
 
         if (!$this->canAddPurchaseOrders && !$stockDelivery->purchaseOrders()->exists()) {

@@ -8,6 +8,7 @@
 
 namespace App\Http\Resources\Procurement;
 
+use App\Actions\GoodsIn\StockDelivery\AddPurchaseOrdersToStockDelivery;
 use App\Actions\GoodsIn\StockDeliveryItem\SetStockDeliveryItemCbmInContainer;
 use App\Enums\GoodsIn\Sowing\SowingTypeEnum;
 use App\Enums\GoodsIn\StockDeliveryItem\StockDeliveryItemStateEnum;
@@ -81,6 +82,8 @@ class StockDeliveryItemResource extends JsonResource
             && $item->stockDelivery?->isInGoodsIn();
 
         $isManagedByPartner = (bool) $item->stockDelivery?->isManagedByPartner();
+        $canChangeShippingState = !$isManagedByPartner && $item->stockDelivery && $request->user()
+            && AddPurchaseOrdersToStockDelivery::userCanAdd($item->stockDelivery, $request->user());
 
         $canPlace = $isEditable && $checked >= 1 && $placed < $checked;
         $canCheck = in_array($item->state, [
@@ -133,12 +136,12 @@ class StockDeliveryItemResource extends JsonResource
             'org_stock_code'        => $item->org_stock_code,
             'org_stock_name'        => $item->org_stock_name,
             'is_new_org_stock'      => $item->org_stock_id && $item->has_been_in_warehouse === false,
-            'confirmRoute'          => !$isManagedByPartner && $item->state === StockDeliveryItemStateEnum::IN_PROCESS ? [
+            'confirmRoute'          => $canChangeShippingState && $item->state === StockDeliveryItemStateEnum::IN_PROCESS ? [
                 'name'       => 'grp.models.stock-delivery-item.confirm',
                 'parameters' => ['stockDeliveryItem' => $item->id],
                 'method'     => 'patch',
             ] : null,
-            'readyToShipRoute'      => !$isManagedByPartner && $item->state === StockDeliveryItemStateEnum::CONFIRMED ? [
+            'readyToShipRoute'      => $canChangeShippingState && $item->state === StockDeliveryItemStateEnum::CONFIRMED ? [
                 'name'       => 'grp.models.stock-delivery-item.ready-to-ship',
                 'parameters' => ['stockDeliveryItem' => $item->id],
                 'method'     => 'patch',

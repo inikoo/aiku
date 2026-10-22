@@ -66,18 +66,15 @@ const shopStatusCards = computed<SummaryCard[]>(() => {
     }
 
     const countByState = Object.fromEntries(props.shops_status.states.map(state => [state.state, state.count]))
-    const alwaysShown = ["active", "discontinuing", "discontinued"]
     const cards: Omit<SummaryCard, "value">[] = [
         { key: "in_process", label: ctrans("In Process"), description: ctrans("Not on sale yet"), tone: "gray" },
         { key: "active", label: ctrans("Active"), description: ctrans("Shops selling this family"), tone: "green" },
         { key: "discontinuing", label: ctrans("Discontinuing"), description: ctrans("Selling remaining stock"), tone: "amber" },
         { key: "discontinued", label: ctrans("Discontinued"), description: ctrans("Pages offline"), tone: "gray" },
-        { key: "inactive", label: ctrans("Inactive"), description: ctrans("Not for sale"), tone: "red" },
+        { key: "inactive", label: ctrans("Not For Sale"), description: ctrans("No product for sale"), tone: "red" },
     ]
 
-    return cards
-        .map(card => ({ ...card, value: countByState[card.key] ?? 0 }))
-        .filter(card => card.value > 0 || alwaysShown.includes(card.key))
+    return cards.map(card => ({ ...card, value: countByState[card.key] ?? 0 }))
 })
 
 const currentTab = ref<string>(props.tabs.current)

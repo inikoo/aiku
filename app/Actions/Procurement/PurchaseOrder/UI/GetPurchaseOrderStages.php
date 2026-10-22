@@ -8,6 +8,7 @@
 
 namespace App\Actions\Procurement\PurchaseOrder\UI;
 
+use App\Actions\Procurement\PurchaseOrder\MarkPurchaseOrderStage;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderAttachmentScopeEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStageEnum as Stage;
@@ -161,6 +162,7 @@ class GetPurchaseOrderStages
         $current  = collect($stages)->filter(fn (array $stage) => $stage['reached'])->keys()->last();
         $expected = $this->expectedDates($purchaseOrder);
         $today    = now()->startOfDay();
+        $confirmsOrder = MarkPurchaseOrderStage::confirmsOrder($purchaseOrder, $today) && !$purchaseOrder->numberPendingPriceChanges();
 
         return collect(Stage::cases())->map(fn (Stage $stage) => [
             'key'         => $stage->value,
@@ -197,7 +199,8 @@ class GetPurchaseOrderStages
                 ->keys()
                 ->map(fn (string $field) => [
                     'field'   => $field,
-                    'label'   => $fieldLabels[$field],
+                    'label'   => $confirmsOrder && $field === 'production_started_at' && $purchaseOrder->{$field} === null ? __('Confirm and Start Production') : $fieldLabels[$field],
+                    'confirms_order' => $confirmsOrder && $purchaseOrder->{$field} === null,
                     'date'    => $purchaseOrder->{$field},
                     'skipped' => $this->skippedBy($purchaseOrder, $field, $stages),
                     'planned' => in_array($field, Stage::PLANNED_FIELDS),
