@@ -185,7 +185,7 @@ function save() {
 
 <template>
     <div>
-    <div class="grid grid-cols-2 gap-px bg-gray-200 border-b border-gray-300 md:grid-cols-4 xl:grid-cols-7">
+    <div class="grid grid-cols-2 gap-px bg-gray-200 border-b border-gray-300 md:grid-cols-4" :class="stages.length > 7 ? 'xl:grid-cols-8' : 'xl:grid-cols-7'">
         <div
             v-for="stage in stages"
             :key="stage.key"

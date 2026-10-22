@@ -96,3 +96,35 @@ test('records and clears skipped faire orders in shop settings', function () {
     $action->clearSkippedFaireOrder($shop, 'bo_1');
     expect($shop->settings['faire']['skipped_orders'])->toBe([]);
 });
+
+test('pulls backordered faire orders so they are shipped from aiku, not from the faire portal', function () {
+    Http::fake(fn () => Http::response(['orders' => [], 'cursor' => null]));
+
+    $shop           = new Shop();
+    $shop->settings = ['faire' => ['access_token' => 'test-token']];
+
+    GetFaireOrdersInShop::make()->handle($shop);
+
+    Http::assertSent(function ($request) {
+        parse_str(parse_url($request->url(), PHP_URL_QUERY) ?: '', $query);
+        $excludedStates = explode(',', $query['excluded_states'] ?? '');
+
+        return isset($query['created_at_min'])
+            && !in_array('BACKORDERED', $excludedStates)
+            && in_array('CANCELED', $excludedStates);
+    });
+});
+
+test('a backorder is accepted on faire no earlier than its ship after date', function () {
+    Carbon\Carbon::setTestNow('2026-10-22 08:00:00');
+
+    $shop           = new Shop();
+    $shop->settings = ['faire' => ['order_from_days' => 6]];
+    $action         = App\Actions\Catalogue\Shop\External\Faire\AcceptFaireOrder::make();
+
+    expect($action->getExpectedShipDate($shop, null)->toDateString())->toBe('2026-10-28')
+        ->and($action->getExpectedShipDate($shop, '2026-10-30T00:00:00.000Z')->toDateString())->toBe('2026-10-30')
+        ->and($action->getExpectedShipDate($shop, '2026-10-20T00:00:00.000Z')->toDateString())->toBe('2026-10-28');
+
+    Carbon\Carbon::setTestNow();
+});
