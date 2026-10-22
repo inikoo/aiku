@@ -90,6 +90,7 @@ const switchMode = (newMode: "percent" | "fixed" | "not_follow") => {
 			<InputNumber
 				@update:modelValue="(value) => (form[valueField] = value)"
 				@input="(event) => (form[valueField] = event.value)"
+				highlightOnFocus
 				:modelValue="amount"
 				:inputClass="'xxs w-[100px]'"
 				:min="-100"

@@ -2015,6 +2015,7 @@ const layout = inject("layout", layoutStructure)
 				<InputNumber
 					@update:modelValue="(value) => (bulkUpdatePriceData.pricing_value = value)"
 					@input="(event) => (bulkUpdatePriceData.pricing_value = event.value)"
+					highlightOnFocus
 					:modelValue="bulkUpdatePriceData.pricing_value"
 					:inputClass="'xxs w-[100px]'"
 					:min="-100"

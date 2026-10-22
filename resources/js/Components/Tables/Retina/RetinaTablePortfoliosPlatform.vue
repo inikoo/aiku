@@ -1476,6 +1476,7 @@ const compTableFilterForSale = computed(() => {
 					<InputNumber
 						@update:modelValue="(value) => selectedEditProduct.pricing_value = value"
 						@input="(event) => selectedEditProduct.pricing_value = event.value"
+						highlightOnFocus
 						:modelValue="selectedEditProduct?.pricing_value"
 						:inputClass="'xxs w-[100px]'"
 						:min="-100"
