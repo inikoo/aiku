@@ -122,7 +122,6 @@ class ShowStockDelivery extends OrgAction
 
     private const array PROCUREMENT_ONLY_TABS = [
         StockDeliveryTabsEnum::ITEMS,
-        StockDeliveryTabsEnum::UNDER_OVER_DELIVERED,
         StockDeliveryTabsEnum::CUSTOMS,
         StockDeliveryTabsEnum::PURCHASE_ORDERS,
     ];
@@ -318,8 +317,8 @@ class ShowStockDelivery extends OrgAction
                     : Inertia::optional(fn () => GetStockDeliveryPackingChecks::run($stockDelivery, $this->canBookIn)),
 
                 StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value => $this->tab == StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value ?
-                    fn () => StockDeliveryUnderOverDeliveredItemResource::collection(IndexStockDeliveryUnderOverDeliveredItems::run($stockDelivery, StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value))
-                    : Inertia::optional(fn () => StockDeliveryUnderOverDeliveredItemResource::collection(IndexStockDeliveryUnderOverDeliveredItems::run($stockDelivery, StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value))),
+                    fn () => $this->getUnderOverDeliveredItems($stockDelivery)
+                    : Inertia::optional(fn () => $this->getUnderOverDeliveredItems($stockDelivery)),
 
                 StockDeliveryTabsEnum::CUSTOMS->value => $this->tab == StockDeliveryTabsEnum::CUSTOMS->value ?
                     fn () => GetStockDeliveryCustoms::run($stockDelivery)
@@ -1613,7 +1612,20 @@ class ShowStockDelivery extends OrgAction
 
     private function hasUnderOverDeliveredTab(StockDelivery $stockDelivery): bool
     {
+        if ($this->goodsIn) {
+            return in_array($stockDelivery->state, [StockDeliveryStateEnum::CHECKED, StockDeliveryStateEnum::BOOKING_IN, StockDeliveryStateEnum::BOOKED_IN, StockDeliveryStateEnum::PLACED], true);
+        }
+
         return in_array($stockDelivery->state, [StockDeliveryStateEnum::BOOKED_IN, StockDeliveryStateEnum::PLACED], true);
+    }
+
+    /**
+     * Booking in sees the differences while it works; resolving them and the claims stay with procurement.
+     */
+    private function getUnderOverDeliveredItems(StockDelivery $stockDelivery): AnonymousResourceCollection
+    {
+        return StockDeliveryUnderOverDeliveredItemResource::collection(IndexStockDeliveryUnderOverDeliveredItems::run($stockDelivery, StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value))
+            ->additional(['read_only' => $this->goodsIn]);
     }
 
     private function hasCustomsTab(StockDelivery $stockDelivery): bool

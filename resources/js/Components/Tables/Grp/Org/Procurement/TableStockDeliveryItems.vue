@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { computed, ref, reactive, watch, inject } from 'vue'
+import { computed, ref, reactive, watch, inject, nextTick } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
 import { notify } from '@kyvg/vue3-notification'
 import axios from 'axios'
@@ -22,7 +22,7 @@ import { routeType } from '@/types/route'
 import { useLocaleStore } from '@/Stores/locale'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faInventory, faBox, faSpellCheck, faBoxCheck, faTrashAlt, faClipboardList, faSeedling, faTruck, faCheck, faClipboardCheck, faCheckDouble, faTimesCircle, faSave, faUndoAlt, faHandHoldingBox, faBoxOpen, faExclamationCircle as falExclamationCircle } from '@fal'
+import { faInventory, faBox, faSpellCheck, faBoxCheck, faTrashAlt, faClipboardList, faSeedling, faTruck, faCheck, faClipboardCheck, faCheckDouble, faTimesCircle, faSave, faUndoAlt, faHandHoldingBox, faBoxOpen, faTimes, faExclamationCircle as falExclamationCircle } from '@fal'
 import { faExclamationCircle, faSpinner } from '@fas'
 import ConfirmPopup from 'primevue/confirmpopup'
 import InputNumber from 'primevue/inputnumber'
@@ -31,7 +31,7 @@ import { Dialog } from 'primevue'
 import { useConfirm } from 'primevue/useconfirm'
 import { ctrans } from '@/Composables/useTrans'
 
-library.add(faInventory, faBox, faSpellCheck, faBoxCheck, faTrashAlt, faExclamationCircle, faSpinner, faClipboardList, faSeedling, faTruck, faCheck, faClipboardCheck, faCheckDouble, faTimesCircle, faSave, faUndoAlt, faHandHoldingBox, faBoxOpen, falExclamationCircle)
+library.add(faInventory, faBox, faSpellCheck, faBoxCheck, faTrashAlt, faExclamationCircle, faSpinner, faClipboardList, faSeedling, faTruck, faCheck, faClipboardCheck, faCheckDouble, faTimesCircle, faSave, faUndoAlt, faHandHoldingBox, faBoxOpen, faTimes, falExclamationCircle)
 
 import DiscontinueSuggestion from "@/Components/Procurement/DiscontinueSuggestion.vue"
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
@@ -176,6 +176,23 @@ const selectedLocationCode = reactive<Record<number, string | null>>({})
 const isModalLocation = ref(false)
 const selectedOtherLocation = reactive<Record<number, { id: number, code: string } | null>>({})
 const selectedItemValue = ref<any>(null)
+const otherLocationItemId = ref<number | null>(null)
+const otherLocationSelect = ref<InstanceType<typeof PureMultiselectInfiniteScroll> | null>(null)
+
+async function startOtherLocation(item: any) {
+    otherLocationItemId.value = item.id
+    await nextTick()
+    otherLocationSelect.value?.multiselectRef?.focus()
+    otherLocationSelect.value?.multiselectRef?.open()
+}
+
+function selectOtherLocation(item: any, location: { id: number, code: string } | null) {
+    if (!location) {
+        return
+    }
+    selectedOtherLocation[item.id] = { id: location.id, code: location.code }
+    otherLocationItemId.value = null
+}
 
 function findLocation(locationsList: any[], locationCode: string | null) {
     return locationsList?.find(location => location.location_code == locationCode) || locationsList?.[0]
@@ -931,13 +948,29 @@ async function savePackedInside(item: any, outerItemId: number | null) {
                     />
                     <span v-else class="text-red-500 italic text-xs">{{ ctrans('No location yet') }}</span>
                     <Button
+                        v-if="otherLocationItemId !== item.id || !item.searchLocationsRoute"
                         v-tooltip="ctrans('Book in to any location in the warehouse')"
                         :label="item.locations?.length || selectedOtherLocation[item.id] ? ctrans('Other location') : ctrans('Choose location')"
                         icon="fal fa-inventory"
                         :type="item.locations?.length || selectedOtherLocation[item.id] ? 'tertiary' : 'secondary'"
                         size="xs"
-                        @click="() => { isModalLocation = true; selectedItemValue = item }"
+                        @click="() => item.searchLocationsRoute ? startOtherLocation(item) : (isModalLocation = true, selectedItemValue = item)"
                     />
+                </div>
+                <div v-if="otherLocationItemId === item.id && item.searchLocationsRoute" class="flex items-center gap-x-1 w-64" @keydown.esc="otherLocationItemId = null">
+                    <PureMultiselectInfiniteScroll
+                        :ref="(el: any) => { otherLocationSelect = el }"
+                        :modelValue="selectedOtherLocation[item.id]?.id ?? null"
+                        :fetchRoute="item.searchLocationsRoute"
+                        labelProp="code"
+                        valueProp="id"
+                        fetchOnOpen
+                        :placeholder="ctrans('Search location code')"
+                        @selectedObject="(location: any) => selectOtherLocation(item, location)"
+                    />
+                    <button type="button" class="h-7 w-7 shrink-0 text-gray-400 hover:text-gray-600" :aria-label="ctrans('Cancel')" @click="otherLocationItemId = null">
+                        <FontAwesomeIcon icon="fal fa-times" fixed-width aria-hidden="true" />
+                    </button>
                 </div>
                 <label
                     v-if="!item.has_picking_location && (item.locations?.length || selectedOtherLocation[item.id])"

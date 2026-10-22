@@ -1709,20 +1709,36 @@ test('UI show stock delivery under over delivered items tab', function () {
     $stockDelivery = UpdateStockDeliveryStateToReceived::make()->action($stockDelivery);
 
     $stockDeliveryItem = SetStockDeliveryItemCheckedQuantity::make()->action($stockDelivery->items()->first(), ['unit_quantity_checked' => 8]);
+
+    expect($stockDelivery->fresh()->state)->toBe(StockDeliveryStateEnum::CHECKED);
+
+    $warehouse      = $this->organisation->warehouses()->oldest('id')->first() ?? createWarehouse();
+    allowGoodsInOn($warehouse, $this->adminGuest->getUser());
+    $procurementUrl = route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]);
+    $goodsInUrl     = route('grp.org.warehouses.show.incoming.stock_deliveries.show', [$this->organisation->slug, $warehouse->slug, $stockDelivery->slug]);
+
+    $this->withoutExceptionHandling();
+
+    $this->get($procurementUrl)->assertInertia(fn (AssertableInertia $page) => $page->missing('tabs.navigation.'.StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value));
+
+    $this->get($goodsInUrl.'?tab='.StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value)->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->has('tabs.navigation.'.StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value)
+            ->where(StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value.'.read_only', true)
+            ->has(StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value.'.data', 1);
+    });
+
     UpsertStockDeliveryItemPlaced::make()->action($stockDeliveryItem, ['quantity' => 8, 'location_org_stock_id' => createLocationOrgStockFor($this, $stockDeliveryItem)->id]);
 
     expect($stockDelivery->fresh()->state)->toBe(StockDeliveryStateEnum::BOOKED_IN);
 
-    $this->withoutExceptionHandling();
-    $response = $this->get(route('grp.org.procurement.stock_deliveries.show', [
-        $this->organisation->slug,
-        $stockDelivery->slug,
-    ]).'?tab='.StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value);
+    $response = $this->get($procurementUrl.'?tab='.StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value);
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Procurement/StockDelivery')
             ->has('tabs.navigation.'.StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value)
+            ->where(StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value.'.read_only', false)
             ->has(
                 StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value.'.data',
                 1,
