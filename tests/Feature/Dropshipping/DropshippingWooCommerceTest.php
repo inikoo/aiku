@@ -1718,6 +1718,7 @@ test('a product upload started for a slot another create took waits a beat holdi
     expect(wooSent('POST', 'products'))->toBeEmpty()
         ->and($portfolio->refresh()->platform_status)->toBeFalse()
         ->and(Redis::lrange($queue, 0, -1))->toBe(['already-waiting'])
+        ->and(Redis::zscore(DispatchWooUploadQueue::reservedKey($wooCommerceUser), $portfolio->id))->not->toBeFalse()
         ->and(wooQueuedCreates())->toBeEmpty();
 
     wooClearUploadQueue($wooCommerceUser);
@@ -1819,25 +1820,54 @@ test('the stock push writes variations under their parent and rechecks a variati
         ->and(UpdateWooCustomerSalesChannelPortfolio::variationParentId($unknown))->toBe(900);
 });
 
-test('a product upload still waiting in the store list when its retry window ends says it timed out so the nightly retry queues it again', function () {
+test('a product upload that waited in the store list for over a day is still created, with its retry window counted from its dispatch', function () {
     Queue::fake();
-    Event::fake([UploadProductToSalesChannelProgressEvent::class]);
     $wooCommerceUser = wooConnect(wooCustomer($this->shop));
-    $portfolio       = wooPortfolio($wooCommerceUser->customerSalesChannel, $this->product, null, 'aw-store-busy-expired');
-    $wooCommerceUser->customerSalesChannel->update(['can_connect_to_platform' => true]);
+    $portfolio       = wooPortfolio($wooCommerceUser->customerSalesChannel, $this->product, null, 'aw-slow-store');
     wooClearUploadQueue($wooCommerceUser);
 
-    wooFake();
-
-    DispatchWooUploadQueue::push($wooCommerceUser, $portfolio, false, ['cache_key' => 'expired', 'total' => 1], now()->subSecond()->getTimestamp());
+    DispatchWooUploadQueue::push($wooCommerceUser, $portfolio, false, ['cache_key' => 'slow', 'total' => 1]);
+    $this->travel(StoreNewProductToCurrentWooCommerce::RETRY_FOR_HOURS + 6)->hours();
     DispatchWooUploadQueue::run($wooCommerceUser);
 
-    expect(wooSent('POST', 'products'))->toBeEmpty()
-        ->and(wooQueuedCreates())->toBeEmpty()
-        ->and(Arr::get($portfolio->refresh()->errors_response, 'message'))->toBe(StoreNewProductToCurrentWooCommerce::GAVE_UP_WAITING_MESSAGE)
-        ->and(RetryTimedOutWooUploads::run($wooCommerceUser->customerSalesChannel)->pluck('id'))->toContain($portfolio->id);
+    $creates = wooQueuedCreates();
 
-    Event::assertDispatched(UploadProductToSalesChannelProgressEvent::class, fn ($event) => $event->statistics['fail'] === 1);
+    expect($creates)->toHaveCount(1)
+        ->and($creates[0]->getParameters()[1]->id)->toBe($portfolio->id)
+        ->and($creates[0]->retryUntil()->getTimestamp())->toBe(now()->addHours(StoreNewProductToCurrentWooCommerce::RETRY_FOR_HOURS)->getTimestamp())
+        ->and(Arr::get($portfolio->refresh()->errors_response, 'message'))->not->toBe(StoreNewProductToCurrentWooCommerce::GAVE_UP_WAITING_MESSAGE);
+
+    wooClearUploadQueue($wooCommerceUser);
+});
+
+test('a create dispatched but not yet started keeps its slot, so a slow worker queue does not drain the store list into jobs waiting for a slot', function () {
+    Queue::fake();
+    wooFake();
+    $wooCommerceUser = wooConnect(wooCustomer($this->shop));
+    $channel         = $wooCommerceUser->customerSalesChannel;
+    wooClearUploadQueue($wooCommerceUser);
+
+    StoreBulkDispatchProductToCurrentWooCommerce::run($channel, wooUploadPortfolios($this, $channel, 6, 'aw-reserved'), ['cache_key' => 'reserved', 'total' => 6]);
+    DispatchWooUploadQueue::run($wooCommerceUser);
+    DispatchWooUploadQueue::run($wooCommerceUser);
+
+    expect(wooQueuedCreates())->toHaveCount(StoreNewProductToCurrentWooCommerce::MAX_CONCURRENT_CREATES_PER_STORE)
+        ->and(Redis::llen(DispatchWooUploadQueue::queueKey($wooCommerceUser)))->toBe(2);
+
+    $job = Mockery::mock(JobDecorator::class);
+    $job->shouldNotReceive('release');
+    StoreNewProductToCurrentWooCommerce::make()->asJob($job, ...wooQueuedCreates()[0]->getParameters());
+
+    expect(wooQueuedCreates())->toHaveCount(StoreNewProductToCurrentWooCommerce::MAX_CONCURRENT_CREATES_PER_STORE + 1)
+        ->and(Redis::llen(DispatchWooUploadQueue::queueKey($wooCommerceUser)))->toBe(1)
+        ->and(Redis::zcard(DispatchWooUploadQueue::reservedKey($wooCommerceUser)))->toBe(StoreNewProductToCurrentWooCommerce::MAX_CONCURRENT_CREATES_PER_STORE);
+
+    $this->travel(DispatchWooUploadQueue::RESERVED_SLOT_SECONDS + 1)->seconds();
+    DispatchWooUploadQueue::run($wooCommerceUser);
+
+    expect(Redis::llen(DispatchWooUploadQueue::queueKey($wooCommerceUser)))->toBe(0);
+
+    wooClearUploadQueue($wooCommerceUser);
 });
 
 test('a product upload the queue gives up on says it timed out', function () {
@@ -1893,7 +1923,7 @@ function wooClearUploadQueue(WooCommerceUser $wooCommerceUser): void
 {
     $funnel = StoreNewProductToCurrentWooCommerce::funnelName($wooCommerceUser);
 
-    Redis::del(DispatchWooUploadQueue::queueKey($wooCommerceUser), ...array_map(fn (int $slot) => $funnel.$slot, range(1, StoreNewProductToCurrentWooCommerce::MAX_CONCURRENT_CREATES_PER_STORE)));
+    Redis::del(DispatchWooUploadQueue::queueKey($wooCommerceUser), DispatchWooUploadQueue::reservedKey($wooCommerceUser), ...array_map(fn (int $slot) => $funnel.$slot, range(1, StoreNewProductToCurrentWooCommerce::MAX_CONCURRENT_CREATES_PER_STORE)));
 }
 
 function wooUploadPortfolios($test, CustomerSalesChannel $channel, int $count, string $skuPrefix): \Illuminate\Support\Collection

@@ -19,7 +19,6 @@ use App\Enums\Ordering\PlatformLogs\PlatformPortfolioLogsTypeEnum;
 use App\Events\UploadProductToSalesChannelProgressEvent;
 use App\Models\Dropshipping\Portfolio;
 use App\Models\Dropshipping\WooCommerceUser;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Queue\MaxAttemptsExceededException;
@@ -49,8 +48,8 @@ class StoreNewProductToCurrentWooCommerce extends OrgAction implements ShouldBeU
     public const int MAX_CONCURRENT_CREATES_PER_STORE = 4;
 
     /**
-     * At 4 creates at a time a store takes ~750 products an hour, so an 8k bulk upload waits in
-     * DispatchWooUploadQueue for ~11h, and an upload's window must outlast the whole upload.
+     * Counted from when the create is dispatched for a free slot: the wait in DispatchWooUploadQueue
+     * does not use it up, as a slow store can take days over a big upload.
      */
     public const int RETRY_FOR_HOURS = 24;
 
@@ -118,12 +117,13 @@ class StoreNewProductToCurrentWooCommerce extends OrgAction implements ShouldBeU
     }
 
     /**
-     * A job only runs once DispatchWooUploadQueue found it a free slot, and frees it to the next in
-     * the store's list. A burst of finishes can start a job for a slot another job then takes; that
-     * one waits a beat holding its unique lock, as back in the list a finishing create could pop it
-     * while the lock is still held and its dispatch would be dropped.
+     * A job only runs once DispatchWooUploadQueue reserved it a free slot, and frees it to the next
+     * in the store's list. A burst of finishes can still start a job for a slot another job then
+     * takes; that one keeps its reservation and waits a beat holding its unique lock, as back in the
+     * list a finishing create could pop it while the lock is still held and its dispatch would be
+     * dropped.
      */
-    public function asJob(JobDecorator $job, WooCommerceUser $wooCommerceUser, Portfolio $portfolio, bool $checkConnection = true, ?array $bulkProgress = null, ?int $retryUntil = null): void
+    public function asJob(JobDecorator $job, WooCommerceUser $wooCommerceUser, Portfolio $portfolio, bool $checkConnection = true, ?array $bulkProgress = null): void
     {
         $hadSlot = null;
 
@@ -134,6 +134,7 @@ class StoreNewProductToCurrentWooCommerce extends OrgAction implements ShouldBeU
                 ->block(0)
                 ->then(
                     function () use ($wooCommerceUser, $portfolio, $checkConnection, $bulkProgress) {
+                        DispatchWooUploadQueue::releaseReservedSlot($wooCommerceUser, $portfolio);
                         $this->handle($wooCommerceUser, $portfolio, $checkConnection, $bulkProgress);
 
                         return true;
@@ -147,6 +148,7 @@ class StoreNewProductToCurrentWooCommerce extends OrgAction implements ShouldBeU
         }
 
         if (!$hadSlot) {
+            DispatchWooUploadQueue::reserveSlot($wooCommerceUser, $portfolio);
             $job->release(DispatchWooUploadQueue::CHECK_AGAIN_SECONDS);
         }
     }
@@ -156,15 +158,6 @@ class StoreNewProductToCurrentWooCommerce extends OrgAction implements ShouldBeU
         return 'woo_product_create_'.$wooCommerceUser->id;
     }
 
-    public function giveUpWaiting(WooCommerceUser $wooCommerceUser, Portfolio $portfolio, ?array $bulkProgress): void
-    {
-        $this->recordGaveUpWaiting($portfolio);
-
-        if ($bulkProgress) {
-            $this->broadcastBulkProgress($wooCommerceUser, $portfolio->refresh(), $bulkProgress);
-        }
-    }
-
     private function recordGaveUpWaiting(Portfolio $portfolio): void
     {
         UpdatePortfolio::run($portfolio, [
@@ -172,12 +165,9 @@ class StoreNewProductToCurrentWooCommerce extends OrgAction implements ShouldBeU
         ]);
     }
 
-    /**
-     * An upload that waited in the store's list keeps the window it was given when it was queued.
-     */
-    public function getJobRetryUntil(WooCommerceUser $wooCommerceUser, Portfolio $portfolio, bool $checkConnection = true, ?array $bulkProgress = null, ?int $retryUntil = null): \DateTimeInterface
+    public function getJobRetryUntil(): \DateTimeInterface
     {
-        return $retryUntil ? Carbon::createFromTimestamp($retryUntil) : now()->addHours(self::RETRY_FOR_HOURS);
+        return now()->addHours(self::RETRY_FOR_HOURS);
     }
 
     /**

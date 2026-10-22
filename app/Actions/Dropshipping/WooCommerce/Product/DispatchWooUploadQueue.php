@@ -37,23 +37,29 @@ class DispatchWooUploadQueue implements ShouldBeUniqueUntilProcessing
         return $wooCommerceUser->id;
     }
 
-    public static function push(WooCommerceUser $wooCommerceUser, Portfolio $portfolio, bool $checkConnection = true, ?array $bulkProgress = null, ?int $retryUntil = null): void
+    /**
+     * A dispatched create holds its slot until a worker starts it, or a store whose creates wait in
+     * a busy queue looks free and the list drains into jobs that wait for a slot: a slow store took
+     * 620 of them past their retry window (customer sales channel 76494, 22 Oct 2026).
+     */
+    public const int RESERVED_SLOT_SECONDS = 600;
+
+    public static function push(WooCommerceUser $wooCommerceUser, Portfolio $portfolio, bool $checkConnection = true, ?array $bulkProgress = null): void
     {
         $queue = self::queueKey($wooCommerceUser);
         $entry = json_encode([
             'portfolio_id'     => $portfolio->id,
             'check_connection' => $checkConnection,
             'bulk_progress'    => $bulkProgress,
-            'retry_until'      => $retryUntil ?? now()->addHours(StoreNewProductToCurrentWooCommerce::RETRY_FOR_HOURS)->getTimestamp(),
         ]);
 
         Redis::rpush($queue, $entry);
-        Redis::expire($queue, (StoreNewProductToCurrentWooCommerce::RETRY_FOR_HOURS + 1) * 3600);
+        self::keepQueue($wooCommerceUser);
     }
 
     /**
-     * An upload that waited past its retry window ends with the timed out message, so the nightly
-     * RetryTimedOutWooUploads queues it again, and still counts in the bulk progress.
+     * Waiting in the list never runs out: a slow store finishes the upload slowly, and each create
+     * gets its retry window when it is dispatched.
      */
     public function handle(WooCommerceUser $wooCommerceUser): void
     {
@@ -64,21 +70,17 @@ class DispatchWooUploadQueue implements ShouldBeUniqueUntilProcessing
             $entry     = json_decode($entry, true);
             $portfolio = Portfolio::find($entry['portfolio_id']);
 
-            if (!$portfolio) {
+            if (!$portfolio || $portfolio->platform_product_id) {
                 continue;
             }
 
-            if ($entry['retry_until'] <= now()->getTimestamp()) {
-                StoreNewProductToCurrentWooCommerce::make()->giveUpWaiting($wooCommerceUser, $portfolio, $entry['bulk_progress']);
-
-                continue;
-            }
-
-            StoreNewProductToCurrentWooCommerce::dispatch($wooCommerceUser, $portfolio, $entry['check_connection'], $entry['bulk_progress'], $entry['retry_until']);
+            self::reserveSlot($wooCommerceUser, $portfolio);
+            StoreNewProductToCurrentWooCommerce::dispatch($wooCommerceUser, $portfolio, $entry['check_connection'], $entry['bulk_progress']);
             $freeSlots--;
         }
 
         if (Redis::llen($queue)) {
+            self::keepQueue($wooCommerceUser);
             self::checkLater($wooCommerceUser);
         }
     }
@@ -93,17 +95,40 @@ class DispatchWooUploadQueue implements ShouldBeUniqueUntilProcessing
         return 'woo_product_create_queue_'.$wooCommerceUser->id;
     }
 
+    public static function reserveSlot(WooCommerceUser $wooCommerceUser, Portfolio $portfolio): void
+    {
+        Redis::zadd(self::reservedKey($wooCommerceUser), now()->getTimestamp(), $portfolio->id);
+        Redis::expire(self::reservedKey($wooCommerceUser), self::RESERVED_SLOT_SECONDS);
+    }
+
+    public static function releaseReservedSlot(WooCommerceUser $wooCommerceUser, Portfolio $portfolio): void
+    {
+        Redis::zrem(self::reservedKey($wooCommerceUser), $portfolio->id);
+    }
+
+    public static function reservedKey(WooCommerceUser $wooCommerceUser): string
+    {
+        return 'woo_product_create_reserved_'.$wooCommerceUser->id;
+    }
+
+    private static function keepQueue(WooCommerceUser $wooCommerceUser): void
+    {
+        Redis::expire(self::queueKey($wooCommerceUser), (StoreNewProductToCurrentWooCommerce::RETRY_FOR_HOURS + 1) * 3600);
+    }
+
     /**
      * ponytail: reads the slot keys of Laravel's ConcurrencyLimiter (funnel name + slot number);
      * on a Redis cluster they would be hash-tagged, read them through the limiter if we move to one.
-     * A create job dispatched but not yet started holds no slot, so a burst of finishes can start a
-     * job too many; it finds the funnel full and waits a beat.
+     * A reservation a lost job never took back stops counting after RESERVED_SLOT_SECONDS.
      */
     private static function freeSlots(WooCommerceUser $wooCommerceUser): int
     {
         $funnel = StoreNewProductToCurrentWooCommerce::funnelName($wooCommerceUser);
         $slots  = array_map(fn (int $slot) => $funnel.$slot, range(1, StoreNewProductToCurrentWooCommerce::MAX_CONCURRENT_CREATES_PER_STORE));
 
-        return count(array_filter(Redis::mget($slots), fn ($holder) => !$holder));
+        $reserved = self::reservedKey($wooCommerceUser);
+        Redis::zremrangebyscore($reserved, '-inf', now()->getTimestamp() - self::RESERVED_SLOT_SECONDS);
+
+        return count(array_filter(Redis::mget($slots), fn ($holder) => !$holder)) - Redis::zcard($reserved);
     }
 }
