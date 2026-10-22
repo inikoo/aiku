@@ -9,6 +9,7 @@
 
 namespace App\Actions\Goods\ProductDevelopment;
 
+use App\Actions\Goods\ProductDevelopment\Design\ProductDevelopmentArtworks;
 use App\Actions\Goods\ProductDevelopment\Design\ProductDevelopmentDesignRounds;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentDesignRoundEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentMemberRoleEnum;
@@ -35,13 +36,13 @@ class GetProductDevelopmentStageGate
             return ['can_move' => false, 'reason' => __('All stages are done'), 'missing' => []];
         }
 
-        $designRound = $this->designRoundAt($productDevelopment->current_position);
-        if ($designRound && !ProductDevelopmentDesignRounds::isSettled($productDevelopment, $designRound)) {
-            return [
-                'can_move' => false,
-                'reason'   => __('Approve a version of the :round design first', ['round' => mb_strtolower(ProductDevelopmentDesignRoundEnum::labels()[$designRound->value])]),
-                'missing'  => [],
-            ];
+        if ($productDevelopment->current_position === ProductDevelopmentStageEnum::CONCEPT->position()
+            && !ProductDevelopmentDesignRounds::isSettled($productDevelopment, ProductDevelopmentDesignRoundEnum::CONCEPT)) {
+            return ['can_move' => false, 'reason' => __('Approve a version of the concept first'), 'missing' => []];
+        }
+
+        if ($productDevelopment->current_position === ProductDevelopmentStageEnum::ARTWORK->position() && !ProductDevelopmentArtworks::isAllApproved($productDevelopment)) {
+            return ['can_move' => false, 'reason' => __('Approve the artwork of every SKU in every design section first'), 'missing' => []];
         }
 
         if ($productDevelopment->current_position === ProductDevelopmentStageEnum::FINAL_APPROVAL->position() && !SignOffProductDevelopment::isFullySigned($productDevelopment)) {
@@ -71,17 +72,6 @@ class GetProductDevelopmentStageGate
             'reason'   => __(':count required items missing (:parts)', ['count' => array_sum($missing), 'parts' => $parts]),
             'missing'  => $missing,
         ];
-    }
-
-    private function designRoundAt(int $position): ?ProductDevelopmentDesignRoundEnum
-    {
-        foreach (ProductDevelopmentDesignRoundEnum::cases() as $round) {
-            if ($round->stage()->position() === $position) {
-                return $round;
-            }
-        }
-
-        return null;
     }
 
     /**

@@ -9,6 +9,7 @@
 
 namespace App\Actions\Goods\ProductDevelopment;
 
+use App\Actions\Goods\ProductDevelopment\Design\ProductDevelopmentArtworks;
 use App\Actions\Goods\ProductDevelopment\Hydrators\ProductDevelopmentHydrateChecklist;
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Goods\TradeUnit\UpdateTradeUnit;
@@ -87,6 +88,7 @@ class StoreProductDevelopment extends OrgAction
             }
 
             $this->createStages($productDevelopment);
+            ProductDevelopmentArtworks::createDefaultSections($productDevelopment);
 
             $firstTimeMemberIds = collect($members)
                 ->pluck('user_id')

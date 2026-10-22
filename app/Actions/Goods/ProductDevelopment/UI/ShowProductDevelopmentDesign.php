@@ -9,8 +9,6 @@
 
 namespace App\Actions\Goods\ProductDevelopment\UI;
 
-use App\Actions\Goods\ProductDevelopment\Design\ProductDevelopmentDesignImages;
-use App\Actions\Goods\ProductDevelopment\Design\ProductDevelopmentDesignLayout;
 use App\Actions\Goods\ProductDevelopment\Design\ProductDevelopmentDesignRounds;
 use App\Actions\Goods\ProductDevelopment\Design\StoreProductDevelopmentDesignVersion;
 use App\Actions\OrgAction;
@@ -29,11 +27,9 @@ class ShowProductDevelopmentDesign extends OrgAction
 {
     use WithProductDevelopmentAuthorisation;
 
-    private ProductDevelopmentDesignRoundEnum $round;
+    private ProductDevelopmentDesignRoundEnum $round = ProductDevelopmentDesignRoundEnum::CONCEPT;
 
     private ?int $versionNumber = null;
-
-    private ?int $itemId = null;
 
     public function handle(ProductDevelopment $productDevelopment): ProductDevelopment
     {
@@ -43,38 +39,9 @@ class ShowProductDevelopmentDesign extends OrgAction
     public function asController(ProductDevelopment $productDevelopment, ActionRequest $request, ?string $round = null): ProductDevelopment
     {
         $this->initialisationFromGroup(group(), $request);
-        $this->round         = $round ? ProductDevelopmentDesignRoundEnum::from($round) : $this->currentRound($productDevelopment);
         $this->versionNumber = $request->integer('version') ?: null;
-        $this->itemId        = $this->round->isPerSku() ? $this->pickItem($productDevelopment, $request->integer('sku') ?: null) : null;
 
         return $this->handle($productDevelopment);
-    }
-
-    /**
-     * The SKU asked for, else the first SKU whose label is not approved yet, else the first SKU.
-     */
-    private function pickItem(ProductDevelopment $productDevelopment, ?int $requested): ?int
-    {
-        $itemIds = $productDevelopment->items()->orderBy('id')->pluck('id');
-        if ($requested && $itemIds->contains($requested)) {
-            return $requested;
-        }
-
-        return $itemIds->first(fn (int $itemId) => !ProductDevelopmentDesignRounds::isApproved($productDevelopment, $this->round, $itemId)) ?? $itemIds->first();
-    }
-
-    /**
-     * The first round without an approved version, so the page opens where the work is.
-     */
-    private function currentRound(ProductDevelopment $productDevelopment): ProductDevelopmentDesignRoundEnum
-    {
-        foreach (ProductDevelopmentDesignRoundEnum::cases() as $round) {
-            if (!ProductDevelopmentDesignRounds::isSettled($productDevelopment, $round)) {
-                return $round;
-            }
-        }
-
-        return ProductDevelopmentDesignRoundEnum::LABEL;
     }
 
     public function htmlResponse(ProductDevelopment $productDevelopment, ActionRequest $request): Response
@@ -83,7 +50,6 @@ class ShowProductDevelopmentDesign extends OrgAction
         $access   = $this->productDevelopmentAccess();
         $versions = $productDevelopment->designRounds
             ->where('round', $this->round)
-            ->where('product_development_item_id', $this->itemId)
             ->sortBy('version')
             ->values();
 
@@ -108,32 +74,8 @@ class ShowProductDevelopmentDesign extends OrgAction
                     'model' => $productDevelopment->code,
                     'title' => $productDevelopment->name,
                 ],
-                'rounds'      => collect(ProductDevelopmentDesignRoundEnum::cases())->map(fn (ProductDevelopmentDesignRoundEnum $round) => [
-                    'value'    => $round->value,
-                    'label'    => ProductDevelopmentDesignRoundEnum::labels()[$round->value],
-                    'icon'     => $round->icon(),
-                    'unlocked' => ProductDevelopmentDesignRounds::isUnlocked($productDevelopment, $round),
-                    'skipped'  => ProductDevelopmentDesignRounds::isSkipped($productDevelopment, $round),
-                    'status'   => $round->isPerSku() ? null : $this->status(ProductDevelopmentDesignRounds::latest($productDevelopment, $round)),
-                    'version'  => $round->isPerSku() ? null : ProductDevelopmentDesignRounds::latest($productDevelopment, $round)?->version,
-                    'progress' => $round->isPerSku() ? ProductDevelopmentDesignRounds::skuProgress($productDevelopment, $round) : null,
-                    'route'    => ['name' => 'grp.product_developments.design', 'parameters' => ['productDevelopment' => $productDevelopment->slug, 'round' => $round->value]],
-                ])->all(),
-                'round'       => ['value' => $this->round->value, 'label' => $roundLabel, 'per_sku' => $this->round->isPerSku()],
-                'skus'        => $this->round->isPerSku() ? $productDevelopment->items()->with('tradeUnit')->orderBy('id')->get()->map(fn ($item) => [
-                    'id'      => $item->id,
-                    'code'    => $item->tradeUnit->code,
-                    'name'    => $item->tradeUnit->name,
-                    'status'  => $this->status(ProductDevelopmentDesignRounds::latest($productDevelopment, $this->round, $item->id)),
-                    'version' => ProductDevelopmentDesignRounds::latest($productDevelopment, $this->round, $item->id)?->version,
-                    'route'   => ['name' => 'grp.product_developments.design', 'parameters' => ['productDevelopment' => $productDevelopment->slug, 'round' => $this->round->value, 'sku' => $item->id]],
-                ])->all() : [],
-                'sku'         => $this->itemId,
-                'labelContent' => $this->round->isPerSku() && $this->itemId
-                    ? GetProductDevelopmentLabelContent::run($productDevelopment, $productDevelopment->items()->with('tradeUnit')->findOrFail($this->itemId))
-                    : null,
+                'round'       => ['value' => $this->round->value, 'label' => $roundLabel],
                 'artworkLocked' => ProductDevelopmentDesignRounds::isArtworkLocked($productDevelopment),
-                'skip'          => $this->skipState($productDevelopment, $user),
                 'versions'    => $versions->map(fn (ProductDevelopmentDesignRound $designRound) => [
                     'id'           => $designRound->id,
                     'version'      => $designRound->version,
@@ -142,24 +84,17 @@ class ShowProductDevelopmentDesign extends OrgAction
                     'submitted_at' => $designRound->submitted_at?->toIso8601String(),
                     'created_at'   => $designRound->created_at?->toIso8601String(),
                     'comments'     => $designRound->comments()->whereNull('parent_id')->count(),
-                    'route'        => ['name' => 'grp.product_developments.design', 'parameters' => array_filter(['productDevelopment' => $productDevelopment->slug, 'round' => $this->round->value, 'version' => $designRound->version, 'sku' => $this->itemId])],
+                    'route'        => ['name' => 'grp.product_developments.design', 'parameters' => ['productDevelopment' => $productDevelopment->slug, 'round' => $this->round->value, 'version' => $designRound->version]],
                 ])->reverse()->values()->all(),
                 'version'     => $selected ? $this->version($selected, $user, $canDesign, $canApprove) : null,
                 'previous'    => $previous ? ['version' => $previous->version, ...self::content($previous)] : null,
-                'images'      => ProductDevelopmentDesignImages::forDevelopment($productDevelopment),
-                'dataSources' => ProductDevelopmentDesignLayout::dataSources(),
                 'comments'    => $selected ? GetProductDevelopmentComments::run($productDevelopment, $selected) : null,
                 'commentStatusRoute' => 'grp.models.product_development.comment.status',
-                'startVersion' => $canDesign && ProductDevelopmentDesignRounds::canStartVersion($productDevelopment, $this->round, $this->itemId) ? [
-                    'route'     => ['name' => 'grp.models.product_development.design.store', 'parameters' => ['productDevelopment' => $productDevelopment->id]],
-                    'round'     => $this->round->value,
-                    'can_build' => $this->round->canBeBuiltInAiku(),
-                    'sku'   => $this->itemId,
+                'startVersion' => $canDesign && ProductDevelopmentDesignRounds::canStartVersion($productDevelopment, $this->round) ? [
+                    'route' => ['name' => 'grp.models.product_development.design.store', 'parameters' => ['productDevelopment' => $productDevelopment->id]],
+                    'round' => $this->round->value,
                     'next'  => (int) $versions->max('version') + 1,
                 ] : null,
-                'lockedReason' => ProductDevelopmentDesignRounds::isUnlocked($productDevelopment, $this->round)
-                    ? null
-                    : __('Approve the :round first', ['round' => mb_strtolower(ProductDevelopmentDesignRoundEnum::labels()[$this->round->previous()?->value ?? ''] ?? '')]),
                 'developmentRoute' => ['name' => 'grp.product_developments.show', 'parameters' => ['productDevelopment' => $productDevelopment->slug, 'tab' => 'design']],
             ]
         );
@@ -193,11 +128,9 @@ class ShowProductDevelopmentDesign extends OrgAction
                 'can_tick'  => $inReview && ($check['by'] === 'agent' ? $canConfirmPrint : $canApprove),
             ])->values()->all(),
             'all_checked' => ProductDevelopmentDesignRounds::allChecksTicked($designRound),
-            'next_round'  => $designRound->round->next() ? ProductDevelopmentDesignRoundEnum::labels()[$designRound->round->next()->value] : null,
             'routes'      => [
                 'update' => ['name' => 'grp.models.product_development.design.update', 'parameters' => ['productDevelopmentDesignRound' => $designRound->id]],
                 'artwork' => ['name' => 'grp.models.product_development.design.artwork', 'parameters' => ['productDevelopmentDesignRound' => $designRound->id]],
-                'image'  => ['name' => 'grp.models.product_development.design.image', 'parameters' => ['productDevelopmentDesignRound' => $designRound->id]],
                 'submit' => ['name' => 'grp.models.product_development.design.submit', 'parameters' => ['productDevelopmentDesignRound' => $designRound->id]],
                 'review' => ['name' => 'grp.models.product_development.design.review', 'parameters' => ['productDevelopmentDesignRound' => $designRound->id]],
             ],
@@ -211,16 +144,11 @@ class ShowProductDevelopmentDesign extends OrgAction
      */
     public static function content(ProductDevelopmentDesignRound $designRound): array
     {
-        $source = $designRound->data['source'] ?? StoreProductDevelopmentDesignVersion::SOURCE_EDITOR;
-        if ($source === StoreProductDevelopmentDesignVersion::SOURCE_EDITOR) {
-            return ['source' => $source, 'layout' => ProductDevelopmentDesignLayout::normalise($designRound->data['layout'] ?? []), 'upload' => null];
-        }
-
         $upload = $designRound->data['upload'] ?? null;
         $media  = $upload ? $designRound->productDevelopment->files()->with('media')->find($upload['file_id'])?->media : null;
 
         return [
-            'source' => $source,
+            'source' => StoreProductDevelopmentDesignVersion::SOURCE_UPLOAD,
             'layout' => null,
             'upload' => $media ? [
                 'kind'        => $upload['kind'],
@@ -228,26 +156,6 @@ class ShowProductDevelopmentDesign extends OrgAction
                 'url'         => route('grp.media.download', ['media' => $media->ulid]),
                 'preview_url' => route('grp.media.download', ['media' => $media->ulid, 'inline' => 1]),
             ] : null,
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>|null
-     */
-    private function skipState(ProductDevelopment $productDevelopment, User $user): ?array
-    {
-        if (!$this->round->canBeSkipped()) {
-            return null;
-        }
-
-        $skipped = $productDevelopment->data['skipped_rounds'][$this->round->value] ?? null;
-        $canEdit = $this->productDevelopmentAccess()->canEdit($user, $productDevelopment) && !ProductDevelopmentDesignRounds::isArtworkLocked($productDevelopment);
-
-        return [
-            'route'    => ['name' => 'grp.models.product_development.design.skip', 'parameters' => ['productDevelopment' => $productDevelopment->id]],
-            'skipped'  => $skipped ? ['by' => $skipped['name'] ?? null, 'at' => $skipped['at'] ?? null] : null,
-            'can_skip' => $canEdit && !$skipped && !ProductDevelopmentDesignRounds::isApproved($productDevelopment, $this->round),
-            'can_undo' => $canEdit && $skipped && !($this->round->next() && ProductDevelopmentDesignRounds::isApproved($productDevelopment, $this->round->next())),
         ];
     }
 

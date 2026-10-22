@@ -9,9 +9,12 @@
 
 use App\Actions\Goods\ProductDevelopment\Json\CheckProductDevelopmentSkuCode;
 use App\Actions\Goods\ProductDevelopment\Json\SearchProductDevelopmentOptions;
-use App\Actions\Goods\ProductDevelopment\Design\DownloadProductDevelopmentDesign;
+use App\Actions\Goods\ProductDevelopment\Design\DownloadProductDevelopmentArtwork;
+use App\Actions\Goods\ProductDevelopment\Design\DownloadProductDevelopmentDesignSection;
+use App\Actions\Goods\ProductDevelopment\UI\ShowProductDevelopmentArtwork;
 use App\Actions\Goods\ProductDevelopment\Json\CheckProductDevelopmentMemberAccess;
 use App\Actions\Goods\ProductDevelopment\Json\GetProductDevelopmentWaitingBadge;
+use App\Actions\Goods\ProductDevelopment\Json\GetProductDevelopmentItemLabelContent;
 use App\Actions\Goods\ProductDevelopment\Json\SearchProductDevelopmentPurchaseOrders;
 use App\Actions\Goods\ProductDevelopment\Json\SearchProductDevelopmentSupplierProducts;
 use App\Actions\Goods\ProductDevelopment\UI\CreateProductDevelopment;
@@ -31,7 +34,10 @@ Route::get('/json/waiting-badge', GetProductDevelopmentWaitingBadge::class)->nam
 Route::get('/json/sku-code', CheckProductDevelopmentSkuCode::class)->name('json.sku_code');
 Route::get('/json/{scope}', SearchProductDevelopmentOptions::class)->name('json.search')->whereIn('scope', SearchProductDevelopmentOptions::SCOPES);
 Route::get('/{productDevelopment:slug}/json/purchase-orders', SearchProductDevelopmentPurchaseOrders::class)->name('json.purchase_orders');
+Route::get('/{productDevelopment:slug}/json/label-content/{item:id}', GetProductDevelopmentItemLabelContent::class)->name('json.label_content')->withoutScopedBindings();
 Route::get('/{productDevelopment:slug}/json/supplier-products', SearchProductDevelopmentSupplierProducts::class)->name('json.supplier_products');
-Route::get('/{productDevelopment:slug}/design/version/{designRound:id}/pdf', DownloadProductDevelopmentDesign::class)->name('design.pdf')->withoutScopedBindings();
-Route::get('/{productDevelopment:slug}/design/{round?}', ShowProductDevelopmentDesign::class)->name('design')->whereIn('round', ['concept', 'packaging', 'label']);
+Route::get('/{productDevelopment:slug}/artwork/{artwork:id}/pdf', DownloadProductDevelopmentArtwork::class)->name('artwork.pdf')->withoutScopedBindings();
+Route::get('/{productDevelopment:slug}/artwork/{artwork:id}', ShowProductDevelopmentArtwork::class)->name('artwork')->withoutScopedBindings();
+Route::get('/{productDevelopment:slug}/design-section/{section:id}/zip', DownloadProductDevelopmentDesignSection::class)->name('design_section.zip')->withoutScopedBindings();
+Route::get('/{productDevelopment:slug}/design/{round?}', ShowProductDevelopmentDesign::class)->name('design')->whereIn('round', ['concept']);
 Route::get('/{productDevelopment:slug}', ShowProductDevelopment::class)->name('show');

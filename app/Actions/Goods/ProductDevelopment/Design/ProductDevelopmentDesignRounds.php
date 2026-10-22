@@ -15,8 +15,8 @@ use App\Models\Goods\ProductDevelopment;
 use App\Models\Goods\ProductDevelopmentDesignRound;
 
 /**
- * Concept, packaging and label run one after the other: a round opens once the previous one has an
- * approved version, and a new version can only start when the round has none yet or was sent back.
+ * The concept runs as versions: a new version can only start when the round has none yet or was sent
+ * back. Packaging and label artwork live in design sections instead (ProductDevelopmentArtworks).
  */
 class ProductDevelopmentDesignRounds
 {
@@ -37,91 +37,34 @@ class ProductDevelopmentDesignRounds
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Builder<ProductDevelopmentDesignRound>|\Illuminate\Database\Eloquent\Relations\HasMany<ProductDevelopmentDesignRound>
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<ProductDevelopmentDesignRound>
      */
-    public static function scope(ProductDevelopment $productDevelopment, ProductDevelopmentDesignRoundEnum $round, ?int $itemId = null)
+    public static function scope(ProductDevelopment $productDevelopment, ProductDevelopmentDesignRoundEnum $round)
     {
-        return $productDevelopment->designRounds()
-            ->where('round', $round->value)
-            ->when(
-                $round->isPerSku(),
-                fn ($query) => $query->where('product_development_item_id', $itemId),
-                fn ($query) => $query->whereNull('product_development_item_id')
-            );
+        return $productDevelopment->designRounds()->where('round', $round->value);
     }
 
-    public static function latest(ProductDevelopment $productDevelopment, ProductDevelopmentDesignRoundEnum $round, ?int $itemId = null): ?ProductDevelopmentDesignRound
+    public static function latest(ProductDevelopment $productDevelopment, ProductDevelopmentDesignRoundEnum $round): ?ProductDevelopmentDesignRound
     {
-        return self::scope($productDevelopment, $round, $itemId)->orderByDesc('version')->first();
+        return self::scope($productDevelopment, $round)->orderByDesc('version')->first();
     }
 
-    /**
-     * A per-SKU round asked without a SKU is approved only once every SKU of the development is.
-     */
-    public static function isApproved(ProductDevelopment $productDevelopment, ProductDevelopmentDesignRoundEnum $round, ?int $itemId = null): bool
+    public static function isApproved(ProductDevelopment $productDevelopment, ProductDevelopmentDesignRoundEnum $round): bool
     {
-        if ($round->isPerSku() && $itemId === null) {
-            $itemIds = $productDevelopment->items()->pluck('id');
-            if ($itemIds->isEmpty()) {
-                return false;
-            }
-            $approved = $productDevelopment->designRounds()
-                ->where('round', $round->value)
-                ->where('status', ProductDevelopmentDesignRoundStatusEnum::APPROVED->value)
-                ->whereIn('product_development_item_id', $itemIds)
-                ->distinct()
-                ->count('product_development_item_id');
-
-            return $approved === $itemIds->count();
-        }
-
-        return self::scope($productDevelopment, $round, $itemId)->where('status', ProductDevelopmentDesignRoundStatusEnum::APPROVED->value)->exists();
-    }
-
-    /**
-     * @return array{done: int, total: int}
-     */
-    public static function skuProgress(ProductDevelopment $productDevelopment, ProductDevelopmentDesignRoundEnum $round): array
-    {
-        $itemIds = $productDevelopment->items()->pluck('id');
-
-        return [
-            'done'  => $productDevelopment->designRounds()
-                ->where('round', $round->value)
-                ->where('status', ProductDevelopmentDesignRoundStatusEnum::APPROVED->value)
-                ->whereIn('product_development_item_id', $itemIds)
-                ->distinct()
-                ->count('product_development_item_id'),
-            'total' => $itemIds->count(),
-        ];
+        return self::scope($productDevelopment, $round)->where('status', ProductDevelopmentDesignRoundStatusEnum::APPROVED->value)->exists();
     }
 
     public static function hasAnyVersion(ProductDevelopment $productDevelopment, ProductDevelopmentDesignRoundEnum $round): bool
     {
-        return $productDevelopment->designRounds()->where('round', $round->value)->exists();
+        return self::scope($productDevelopment, $round)->exists();
     }
 
     /**
-     * Packaging and label can be skipped when a development does not need them; concept never can.
-     */
-    public static function isSkipped(ProductDevelopment $productDevelopment, ProductDevelopmentDesignRoundEnum $round): bool
-    {
-        return !empty($productDevelopment->data['skipped_rounds'][$round->value] ?? null);
-    }
-
-    /**
-     * Done for the rest of the development: approved, or skipped.
+     * Done for the rest of the development. The concept cannot be skipped, so this is approved.
      */
     public static function isSettled(ProductDevelopment $productDevelopment, ProductDevelopmentDesignRoundEnum $round): bool
     {
-        return self::isSkipped($productDevelopment, $round) || self::isApproved($productDevelopment, $round);
-    }
-
-    public static function isUnlocked(ProductDevelopment $productDevelopment, ProductDevelopmentDesignRoundEnum $round): bool
-    {
-        $previous = $round->previous();
-
-        return !$previous || self::isSettled($productDevelopment, $previous);
+        return self::isApproved($productDevelopment, $round);
     }
 
     public static function isArtworkLocked(ProductDevelopment $productDevelopment): bool
@@ -129,13 +72,13 @@ class ProductDevelopmentDesignRounds
         return !empty($productDevelopment->data['artwork_locked_at'] ?? null);
     }
 
-    public static function canStartVersion(ProductDevelopment $productDevelopment, ProductDevelopmentDesignRoundEnum $round, ?int $itemId = null): bool
+    public static function canStartVersion(ProductDevelopment $productDevelopment, ProductDevelopmentDesignRoundEnum $round): bool
     {
-        if (self::isArtworkLocked($productDevelopment) || self::isSkipped($productDevelopment, $round) || !self::isUnlocked($productDevelopment, $round) || ($round->isPerSku() && !$itemId)) {
+        if (self::isArtworkLocked($productDevelopment)) {
             return false;
         }
 
-        $latest = self::latest($productDevelopment, $round, $itemId);
+        $latest = self::latest($productDevelopment, $round);
 
         return !$latest || $latest->status === ProductDevelopmentDesignRoundStatusEnum::CHANGES_REQUESTED;
     }
