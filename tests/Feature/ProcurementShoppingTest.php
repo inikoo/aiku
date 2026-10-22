@@ -2062,6 +2062,8 @@ test('agent draft purchase order items show our SKO code next to the supplier co
     $supplierProduct = $orgSupplierProduct->supplierProduct;
     $orgStock        = $this->orgStocks[0];
 
+    $originalLinks   = DB::table('org_stock_has_org_supplier_products')->where('org_supplier_product_id', $orgSupplierProduct->id)->get()->map(fn ($link) => (array) $link)->all();
+
     DB::table('org_stock_has_org_supplier_products')->where('org_supplier_product_id', $orgSupplierProduct->id)->delete();
     DB::table('org_stock_has_org_supplier_products')->insert([
         'stock_has_supplier_product_id' => DB::table('stock_has_supplier_products')->where('stock_id', $orgStock->stock_id)->where('supplier_product_id', $supplierProduct->id)->value('id')
@@ -2084,6 +2086,9 @@ test('agent draft purchase order items show our SKO code next to the supplier co
             ->where('items.data.0.code', $supplierProduct->code)
             ->where('items.data.0.org_stock_code', $orgStock->code)
             ->etc());
+
+    DB::table('org_stock_has_org_supplier_products')->where('org_supplier_product_id', $orgSupplierProduct->id)->delete();
+    DB::table('org_stock_has_org_supplier_products')->insert($originalLinks);
 });
 
 test('agent purchase order products tab hides products whose SKO is discontinued or the supplier no longer has, unless already on the draft', function () {

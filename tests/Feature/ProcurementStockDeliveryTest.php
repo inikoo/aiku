@@ -3611,7 +3611,7 @@ test('an agent fills a container with part of a line, packs a product inside ano
 
     $this->withoutVite();
     $agentPageActions = collect($this->get(route('grp.org.agent.stock_deliveries.show', [$this->orgAgent->agent->organisation->slug, $container->slug]))->assertOk()->viewData('page')['props']['pageHead']['actions']);
-    expect($agentPageActions->pluck('key')->first())->toBe('settings')
+    expect($agentPageActions->pluck('key')->first())->toBe('delete_stock_delivery')
         ->and($agentPageActions->pluck('key')->last())->toBe('dispatch_stock_delivery')
         ->and(collect($agentPageActions->firstWhere('key', 'documents')['button'])->pluck('key')->all())->toBe(['csv', 'action']);
 

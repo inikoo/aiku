@@ -545,8 +545,23 @@ test('paste content and style replaces a block of the same type and keeps where 
         ->toThrow(ValidationException::class);
 })->depends('create b2b website');
 
+/**
+ * Any access to a shop grants websites-view on its whole organisation, so a source the user can not read has to live in another organisation.
+ */
+function pasteSourceShopInAnotherOrganisation(Website $website): \App\Models\Catalogue\Shop
+{
+    $organisation = \App\Models\SysAdmin\Organisation::where('code', 'pst2')->first()
+        ?? \App\Actions\SysAdmin\Organisation\StoreOrganisation::make()->action(
+            $website->group,
+            array_merge(\App\Models\SysAdmin\Organisation::factory()->definition(), ['code' => 'pst2', 'type' => \App\Enums\SysAdmin\Organisation\OrganisationTypeEnum::SHOP])
+        );
+
+    return $organisation->shops()->first()
+        ?? \App\Actions\Catalogue\Shop\StoreShop::make()->action($organisation, \App\Models\Catalogue\Shop::factory()->definition());
+}
+
 test('paste content and style needs edit access to this store and read access to the store it comes from', function (Website $website) {
-    [, , $sourceShop] = createOwnShop('paste-web-block-source');
+    $sourceShop       = pasteSourceShopInAnotherOrganisation($website);
     $sourceWebpage    = StoreWebpage::make()->action(createWebsite($sourceShop)->storefront, Webpage::factory()->definition());
     $targetWebpage    = StoreWebpage::make()->action($website->storefront, Webpage::factory()->definition());
     $webBlockType     = $website->group->webBlockTypes()->where('code', 'text')->first();
@@ -578,7 +593,7 @@ test('paste content and style needs edit access to this store and read access to
 })->depends('create b2b website');
 
 test('paste web block needs edit access to this store and read access to the store it comes from', function (Website $website) {
-    [, , $sourceShop] = createOwnShop('paste-web-block-source');
+    $sourceShop       = pasteSourceShopInAnotherOrganisation($website);
     $sourceWebpage    = StoreWebpage::make()->action(createWebsite($sourceShop)->storefront, Webpage::factory()->definition());
     $targetWebpage    = StoreWebpage::make()->action($website->storefront, Webpage::factory()->definition());
     $webBlockType     = $website->group->webBlockTypes()->where('code', 'text')->first();
@@ -599,7 +614,7 @@ test('paste web block needs edit access to this store and read access to the sto
         $paste()->assertForbidden();
 
         actingAsUserWithOnlyPermissions($this->user, ["web.{$website->shop_id}.edit", "web.{$sourceShop->id}.view"]);
-        $paste()->assertSuccessful();
+        $paste()->assertRedirect();
         expect($targetWebpage->modelHasWebBlocks()->count())->toBe(1);
     } finally {
         setPermissionsTeamId($this->user->group_id);

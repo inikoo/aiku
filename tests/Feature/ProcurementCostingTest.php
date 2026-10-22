@@ -794,7 +794,7 @@ test('procurement pdf links end in the file name the browser saves it under', fu
 
     $actions = $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $this->stockDelivery->slug]))
         ->assertOk()->viewData('page')['props']['pageHead']['actions'];
-    $pdfRoute = collect($actions)->firstWhere('route.name', 'grp.org.procurement.stock_deliveries.pdf')['route'];
+    $pdfRoute = collect(collect($actions)->firstWhere('key', 'documents')['button'])->firstWhere('route.name', 'grp.org.procurement.stock_deliveries.pdf')['route'];
 
     expect($filename)->toStartWith('SD-143_UK-')->toEndWith('.pdf')
         ->and($pdfRoute['parameters']['filename'])->toBe($filename);
@@ -1344,8 +1344,7 @@ test('a dispatched stock delivery with no products can not be received and is ca
     $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]))
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
-            ->where('pageHead.actions.0.key', 'cancel_stock_delivery')
-            ->where('pageHead.actions', fn ($actions) => collect($actions)->pluck('key')->doesntContain('receive_stock_delivery')));
+            ->where('pageHead.actions', fn ($actions) => collect($actions)->pluck('key')->contains('cancel_stock_delivery') && collect($actions)->pluck('key')->doesntContain('receive_stock_delivery')));
 
     expect(fn () => ReceiveStockDelivery::make()->action($stockDelivery->fresh()))->toThrow(ValidationException::class);
 
