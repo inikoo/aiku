@@ -8,6 +8,8 @@
 
 namespace App\Actions\Procurement\PurchaseOrder\UI;
 
+use App\Actions\Procurement\PurchaseOrder\MarkPurchaseOrderStage;
+use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToConfirmed;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderAttachmentScopeEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStageEnum as Stage;
@@ -197,7 +199,11 @@ class GetPurchaseOrderStages
                 ->keys()
                 ->map(fn (string $field) => [
                     'field'   => $field,
-                    'label'   => $fieldLabels[$field],
+                    'label'   => $this->markConfirmsOrder($purchaseOrder, $field) ? __('Confirm and Start Production') : $fieldLabels[$field],
+                    'confirms_order' => $this->markConfirmsOrder($purchaseOrder, $field),
+                    'disabled_reason' => $this->markConfirmsOrder($purchaseOrder, $field) && ($pendingPriceChanges = $purchaseOrder->numberPendingPriceChanges())
+                        ? UpdatePurchaseOrderStateToConfirmed::pendingPriceChangesMessage($purchaseOrder, $pendingPriceChanges)
+                        : null,
                     'date'    => $purchaseOrder->{$field},
                     'skipped' => $this->skippedBy($purchaseOrder, $field, $stages),
                     'planned' => in_array($field, Stage::PLANNED_FIELDS),
@@ -233,6 +239,11 @@ class GetPurchaseOrderStages
         }
 
         return $expected;
+    }
+
+    private function markConfirmsOrder(PurchaseOrder $purchaseOrder, string $field): bool
+    {
+        return $purchaseOrder->{$field} === null && MarkPurchaseOrderStage::confirmsOrder($purchaseOrder, $field, now());
     }
 
     /**

@@ -57,6 +57,10 @@ class MarkPurchaseOrderStage extends OrgAction
         $date  = $this->stamp(Arr::get($modelData, 'date'));
         $old   = $purchaseOrder->{$field}?->toDateString();
 
+        if (self::confirmsOrder($purchaseOrder, $field, $date) && !$purchaseOrder->numberPendingPriceChanges()) {
+            $purchaseOrder = UpdatePurchaseOrderStateToConfirmed::make()->action($purchaseOrder);
+        }
+
         $purchaseOrder = UpdatePurchaseOrder::make()->action($purchaseOrder, [$field => $date]);
         BroadcastAgentIncomingPurchaseOrdersChanged::dispatchFor($purchaseOrder);
 
@@ -65,6 +69,15 @@ class MarkPurchaseOrderStage extends OrgAction
         }
 
         return $purchaseOrder;
+    }
+
+    /**
+     * Production starting on a submitted order means the supplier accepted it. Automatic marks (goods receipts,
+     * container lists) leave an order with unanswered price changes submitted instead of failing.
+     */
+    public static function confirmsOrder(PurchaseOrder $purchaseOrder, string $field, mixed $date): bool
+    {
+        return $field === 'production_started_at' && $date !== null && $purchaseOrder->state === PurchaseOrderStateEnum::SUBMITTED;
     }
 
     public static function auditOverride(PurchaseOrder $purchaseOrder, string $field, ?string $old, ?string $new, string $reason): void
@@ -123,6 +136,12 @@ class MarkPurchaseOrderStage extends OrgAction
 
         if (in_array($this->purchaseOrder->state, [PurchaseOrderStateEnum::IN_PROCESS, PurchaseOrderStateEnum::CANCELLED, PurchaseOrderStateEnum::NOT_RECEIVED])) {
             $validator->errors()->add('field', __('Only a submitted order goes through its stages'));
+
+            return;
+        }
+
+        if (!$this->asAction && self::confirmsOrder($this->purchaseOrder, $this->get('field'), $this->get('date')) && $pendingPriceChanges = $this->purchaseOrder->numberPendingPriceChanges()) {
+            $validator->errors()->add('field', UpdatePurchaseOrderStateToConfirmed::pendingPriceChangesMessage($this->purchaseOrder, $pendingPriceChanges));
 
             return;
         }

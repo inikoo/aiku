@@ -30,6 +30,8 @@ interface Mark {
     skipped: string[]
     planned?: boolean
     suggested?: string | null
+    confirms_order?: boolean
+    disabled_reason?: string | null
 }
 
 interface Evidence {
@@ -118,6 +120,10 @@ const markTooltips: Record<string, { record: string, edit: string }> = {
 }
 
 function markTooltip(mark: Mark) {
+    if (mark.confirms_order) {
+        return ctrans("Click once the supplier has accepted this order and started making it: it confirms the order and records the date production started")
+    }
+
     const tooltip = markTooltips[mark.field]
     if (tooltip) {
         return ctrans(mark.date ? tooltip.edit : tooltip.record)
@@ -240,20 +246,35 @@ function save() {
             </div>
 
             <div v-if="stage.marks.length" class="mt-2 flex flex-col gap-1">
-                <Button
-                    v-for="mark in stage.marks"
-                    :key="mark.field"
-                    type="tertiary"
-                    size="xs"
-                    full
-                    :label="markLabel(mark)"
-                    :tooltip="markTooltip(mark)"
-                    @click="openMark(mark)"
-                >
-                    <template #icon>
-                        <FontAwesomeIcon :icon="mark.date ? 'fal fa-pencil' : 'fal fa-check'" class="text-gray-500" fixed-width aria-hidden="true" />
-                    </template>
-                </Button>
+                <template v-for="mark in stage.marks" :key="mark.field">
+                    <span v-if="mark.disabled_reason" v-tooltip="mark.disabled_reason" class="block cursor-not-allowed">
+                        <Button
+                            type="tertiary"
+                            size="xs"
+                            full
+                            disabled
+                            class="pointer-events-none"
+                            :label="markLabel(mark)"
+                        >
+                            <template #icon>
+                                <FontAwesomeIcon icon="fal fa-check" class="text-gray-500" fixed-width aria-hidden="true" />
+                            </template>
+                        </Button>
+                    </span>
+                    <Button
+                        v-else
+                        type="tertiary"
+                        size="xs"
+                        full
+                        :label="markLabel(mark)"
+                        :tooltip="markTooltip(mark)"
+                        @click="openMark(mark)"
+                    >
+                        <template #icon>
+                            <FontAwesomeIcon :icon="mark.date ? 'fal fa-pencil' : 'fal fa-check'" class="text-gray-500" fixed-width aria-hidden="true" />
+                        </template>
+                    </Button>
+                </template>
             </div>
 
             <div v-if="stage.key === 'deposit_paid' && deposit" class="mt-2">
@@ -286,6 +307,10 @@ function save() {
         <div class="space-y-4 text-sm">
             <p v-if="editing && markDescriptions[editing.field]" class="text-gray-600">
                 {{ ctrans(markDescriptions[editing.field]) }}
+            </p>
+
+            <p v-if="editing?.confirms_order" class="text-gray-600">
+                {{ ctrans("Saving also confirms this purchase order: the supplier starting production means they accepted it.") }}
             </p>
 
             <label class="block space-y-1">
