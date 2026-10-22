@@ -286,12 +286,13 @@ test('set shipper api credentials from the command', function ($createdShipper) 
     $createdShipper->update($originalApiSettings);
 })->depends('create shipper');
 
-test('dpd gb label pdf keeps one page per parcel', function () {
-    $html = str_repeat('<div style="page-break-after: always">label</div>', 3);
+test('dpd gb label pdf keeps one page per parcel and drops the blank page dpd puts after each label', function () {
+    $html = '<body style="margin:0">'.str_repeat('<div style="height:175mm;page-break-after:always">label</div>', 3).'</body>';
 
     $pdf = (new CallApiDpdGbShipping())->labelPdf($html, 3);
 
-    expect(preg_match_all('/\/Type\s*\/Page[^s]/', $pdf))->toBe(3);
+    expect(preg_match_all('/\/Type\s*\/Page[^s]/', $pdf))->toBe(3)
+        ->and(preg_match('/\/Length 0>>/', $pdf))->toBe(0);
 })->skip(fn () => !is_dir(base_path('node_modules/puppeteer')) && !is_dir(trim((string) shell_exec('npm root -g')).'/puppeteer'), 'puppeteer is not installed');
 
 test('dpd gb login reads the credentials by name whatever their order', function () {
