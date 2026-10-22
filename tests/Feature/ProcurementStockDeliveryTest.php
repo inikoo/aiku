@@ -3609,5 +3609,9 @@ test('an agent fills a container with part of a line, packs a product inside ano
 
     expect(ShowStockDelivery::make()->getStockDeliveryWeightAndVolume($container)['volume'])->toBe(0.85);
 
+    $this->patchJson(route('grp.models.stock-delivery-item.confirm', $outer->id))->assertOk();
+    $this->patchJson(route('grp.models.stock-delivery-item.ready-to-ship', $outer->id))->assertOk();
+    expect($outer->refresh()->state)->toBe(StockDeliveryItemStateEnum::READY_TO_SHIP);
+
     actingAs($this->adminGuest->getUser());
 });

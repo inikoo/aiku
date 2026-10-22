@@ -4,7 +4,7 @@ namespace App\Actions\GoodsIn\StockDeliveryItem;
 
 use App\Actions\GoodsIn\StockDeliveryItem\Traits\WithStockDeliveryItemStatePropagation;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
+use App\Actions\GoodsIn\StockDelivery\AddPurchaseOrdersToStockDelivery;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\GoodsIn\StockDeliveryItem\StockDeliveryItemStateEnum;
 use App\Http\Resources\Procurement\StockDeliveryItemResource;
@@ -14,9 +14,22 @@ use Lorisleiva\Actions\ActionRequest;
 
 class UpdateStateToConfirmedStockDeliveryItem extends OrgAction
 {
-    use WithProcurementEditAuthorisation;
     use WithActionUpdate;
     use WithStockDeliveryItemStatePropagation;
+
+    private StockDeliveryItem $stockDeliveryItem;
+
+    /**
+     * The buying organisation's procurement staff, or the agent's own staff on the agent's container.
+     */
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+
+        return AddPurchaseOrdersToStockDelivery::userCanAdd($this->stockDeliveryItem->stockDelivery, $request->user());
+    }
 
     public function handle(StockDeliveryItem $stockDeliveryItem): StockDeliveryItem
     {
@@ -40,6 +53,7 @@ class UpdateStateToConfirmedStockDeliveryItem extends OrgAction
             throw ValidationException::withMessages(['state' => __('This delivery is managed by the partner until you receive it')]);
         }
 
+        $this->stockDeliveryItem = $stockDeliveryItem;
         $this->initialisation($stockDeliveryItem->organisation, $request);
 
         return $this->handle($stockDeliveryItem);
