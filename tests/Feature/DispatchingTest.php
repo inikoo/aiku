@@ -2292,7 +2292,11 @@ test('change picking bay on delivery note', function () {
 test('a delivery note waiting for the warehouse can be given a picked bay', function () {
     [$deliveryNote] = handlingDeliveryNoteWithPicking($this);
     $deliveryNote->update(['state' => DeliveryNoteStateEnum::HANDLING_BLOCKED]);
+    $deliveryNote->deliveryNoteItems()->update(['quantity_waiting_warehouse' => 1]);
     $pickedBay = StorePickedBay::make()->handle($this->warehouse, ['code' => 'WPB'.Str::random(4)]);
+
+    expect(ShowDeliveryNote::make()->getHandlingBlockedActions($deliveryNote))
+        ->toBe([['type' => 'button', 'key' => 'trigger-set-as-picked-or-packed']]);
 
     \App\Actions\Dispatching\PickedBay\ChangePickingBaysDeliveryNote::run($deliveryNote, ['picked_bay' => $pickedBay->id]);
     \App\Actions\Dispatching\PickedBay\AttachDeliveryNoteToPickedBay::run($pickedBay, $deliveryNote);
@@ -2301,7 +2305,8 @@ test('a delivery note waiting for the warehouse can be given a picked bay', func
     expect($deliveryNote->state)->toBe(DeliveryNoteStateEnum::HANDLING_BLOCKED)
         ->and($pickedBay->refresh()->number_delivery_notes)->toBe(1)
         ->and($deliveryNote->pickedBays->pluck('id')->all())->toBe([$pickedBay->id])
-        ->and($deliveryNote->sort_picked_bays)->toBe($pickedBay->code);
+        ->and($deliveryNote->sort_picked_bays)->toBe($pickedBay->code)
+        ->and(ShowDeliveryNote::make()->getHandlingBlockedActions($deliveryNote))->toBe([]);
 });
 
 test('a delivery note leaves its picked bay when dispatched and can not be put in one once packing started (HELP-4200)', function () {

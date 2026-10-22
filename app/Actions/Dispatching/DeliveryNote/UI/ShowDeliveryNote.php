@@ -254,6 +254,18 @@ class ShowDeliveryNote extends OrgAction
         }
 
         if ($deliveryNote->hasBlockingItems()) {
+            if ($this->allowAction
+                && $deliveryNote->shop->type != ShopTypeEnum::DROPSHIPPING
+                && !$deliveryNote->pickedBays()->exists()
+            ) {
+                return [
+                    [
+                        'type' => 'button',
+                        'key'  => 'trigger-set-as-picked-or-packed',
+                    ]
+                ];
+            }
+
             return [];
         }
 
