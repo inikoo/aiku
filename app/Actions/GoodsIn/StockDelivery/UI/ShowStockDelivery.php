@@ -248,7 +248,7 @@ class ShowStockDelivery extends OrgAction
                             .($stockDelivery->isManagedByPartner() && $stockDelivery->state !== StockDeliveryStateEnum::DISPATCHED ? ' · '.__('Managed by :partner until dispatched', ['partner' => $stockDelivery->parent?->partner?->name]) : ''),
                     ],
                     'edit'       => $editRoute ? ['route' => $editRoute] : false,
-                    'actions'    => array_merge($this->getUpdateCostingActions($stockDelivery), $this->getBookInLinkAction($stockDelivery, $request), $this->getAllowedActions($stockDelivery), $editRoute ? [['type' => 'button', 'style' => 'edit', 'label' => __('Settings'), 'route' => $editRoute]] : []),
+                    'actions'    => $this->arrangePageHeadActions(array_merge($this->getUpdateCostingActions($stockDelivery), $this->getBookInLinkAction($stockDelivery, $request), $this->getAllowedActions($stockDelivery), $editRoute ? [['type' => 'button', 'style' => 'edit', 'label' => __('Settings'), 'key' => 'settings', 'route' => $editRoute]] : [])),
                 ],
                 'stock_delivery'   => StockDeliveryResource::make($stockDelivery)->toArray($request),
                 'timelines'        => $this->getTimeline($stockDelivery),
@@ -702,6 +702,23 @@ class ShowStockDelivery extends OrgAction
         }
 
         return array_merge($actions, [$csvButton, $pdfButton]);
+    }
+
+    /**
+     * Settings first, the CSV and PDF downloads as one group, and dispatching the container last.
+     */
+    private function arrangePageHeadActions(array $actions): array
+    {
+        $actions   = collect($actions)->filter()->values();
+        $isOfKey   = fn (string ...$keys) => fn (array $action) => in_array(Arr::get($action, 'key'), $keys, true);
+        $documents = $actions->filter($isOfKey('csv', 'action'))->values()->all();
+
+        return [
+            ...$actions->filter($isOfKey('settings'))->all(),
+            ...$actions->reject($isOfKey('settings', 'csv', 'action', 'dispatch_stock_delivery'))->all(),
+            ...($documents ? [['type' => 'buttonGroup', 'key' => 'documents', 'button' => $documents]] : []),
+            ...$actions->filter($isOfKey('dispatch_stock_delivery'))->all(),
+        ];
     }
 
     private function getAllowedActions(StockDelivery $stockDelivery): array

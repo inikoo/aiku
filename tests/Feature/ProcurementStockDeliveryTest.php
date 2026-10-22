@@ -1333,7 +1333,7 @@ test('goods in workers book in stock deliveries and only goods in supervisors un
         ->get(route('grp.org.warehouses.show.incoming.stock_deliveries.index', [$this->organisation->slug, $warehouse->slug]))
         ->assertOk();
 
-    expect($keys($actionKeys($worker)))->toBe(['receive_stock_delivery', 'csv', 'action']);
+    expect($keys($actionKeys($worker)))->toBe(['receive_stock_delivery', 'documents']);
 
     $documentRouteParameters = [$this->organisation->slug, $stockDelivery->slug];
     $this->actingAs($worker)->get(route('grp.org.procurement.stock_deliveries.pdf', $documentRouteParameters))->assertOk();
@@ -1342,8 +1342,8 @@ test('goods in workers book in stock deliveries and only goods in supervisors un
 
     $this->actingAs($worker)->patch(route('grp.models.stock-delivery.receive', $stockDelivery->id), ['reason' => 'Invoice not sent yet'])->assertRedirect();
     expect($stockDelivery->refresh()->state)->toBe(StockDeliveryStateEnum::RECEIVED)
-        ->and($keys($actionKeys($worker)))->toBe(['book_in_link', 'csv', 'action'])
-        ->and($keys($actionKeys($supervisor)))->toBe(['book_in_link', 'unreceive_stock_delivery', 'csv', 'action']);
+        ->and($keys($actionKeys($worker)))->toBe(['book_in_link', 'documents'])
+        ->and($keys($actionKeys($supervisor)))->toBe(['book_in_link', 'unreceive_stock_delivery', 'documents']);
 
     $this->actingAs($worker)->patch(route('grp.models.stock-delivery.unreceive', $stockDelivery->id))->assertForbidden();
     $this->actingAs($supervisor)->patch(route('grp.models.stock-delivery.unreceive', $stockDelivery->id))->assertRedirect();
@@ -3594,8 +3594,10 @@ test('an agent fills a container with part of a line, packs a product inside ano
         ->and((new StockDeliveryItemsExport($container))->headings())->toContain('cbm', 'packed_inside');
 
     $this->withoutVite();
-    $agentPageActionKeys = collect($this->get(route('grp.org.agent.stock_deliveries.show', [$this->orgAgent->agent->organisation->slug, $container->slug]))->assertOk()->viewData('page')['props']['pageHead']['actions'])->pluck('key');
-    expect($agentPageActionKeys)->toContain('csv', 'action');
+    $agentPageActions = collect($this->get(route('grp.org.agent.stock_deliveries.show', [$this->orgAgent->agent->organisation->slug, $container->slug]))->assertOk()->viewData('page')['props']['pageHead']['actions']);
+    expect($agentPageActions->pluck('key')->first())->toBe('settings')
+        ->and($agentPageActions->pluck('key')->last())->toBe('dispatch_stock_delivery')
+        ->and(collect($agentPageActions->firstWhere('key', 'documents')['button'])->pluck('key')->all())->toBe(['csv', 'action']);
 
     $this->get(route('grp.org.agent.stock_deliveries.csv', [$this->orgAgent->agent->organisation->slug, $container->slug]))->assertOk();
     $this->get(route('grp.org.agent.stock_deliveries.pdf', [$this->orgAgent->agent->organisation->slug, $container->slug]))->assertOk();

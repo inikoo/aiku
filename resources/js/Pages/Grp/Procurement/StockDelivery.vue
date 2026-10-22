@@ -42,6 +42,7 @@ import TableProcurementNotes from '@/Components/Tables/Grp/Org/Procurement/Table
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import UploadAttachment from "@/Components/Upload/UploadAttachment.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
+import Action from "@/Components/Forms/Fields/Action.vue"
 import BoxStatPallet from "@/Components/Pallet/BoxStatPallet.vue"
 
 import { useLocaleStore } from "@/Stores/locale"
@@ -259,6 +260,8 @@ const currentTab = ref(props.tabs.current)
 const isModalUploadOpen = ref(false)
 const costingSection = ref<"invoice" | "landed" | null>(null)
 const isCostingVisible = computed(() => !["in_process", "cancelled", "not_received"].includes(props.stock_delivery.state))
+const settingsAction = computed(() => props.pageHead.actions?.find((action: any) => action?.key === "settings"))
+const pageHeadWithoutSettings = computed(() => ({ ...props.pageHead, actions: props.pageHead.actions?.filter((action: any) => action?.key !== "settings") }))
 const isInvoiceVisible = computed(() => isCostingVisible.value || (props.stock_delivery.state === "in_process" && !!props.box_stats.invoice_entry?.is_agent))
 
 const component = computed(() => {
@@ -901,32 +904,37 @@ const confirmDeleteStockDelivery = (action: any) => {
 
 <template>
 	<Head :title="capitalize(title)" />
-	<PageHeading :data="pageHead">
-		<template v-if="add_purchase_orders" #otherBefore>
-			<span v-tooltip="add_purchase_orders.purchase_orders.length === 0 ? ctrans('No confirmed purchase orders of this agent are waiting for a container') : ctrans('Pick single items of the purchase orders, and how many of each')">
-				<Button
-					type="tertiary"
-					:label="ctrans('Add items')"
-					:disabled="add_purchase_orders.purchase_orders.length === 0"
-					@click="openAddItems"
-				>
-					<template #icon>
-						<FontAwesomeIcon icon="fal fa-plus" class="text-green-600" fixed-width aria-hidden="true" />
-					</template>
-				</Button>
-			</span>
-			<span v-tooltip="add_purchase_orders.purchase_orders.length === 0 ? ctrans('No confirmed purchase orders of this agent are waiting for a container') : ctrans('Add everything still awaiting delivery on whole purchase orders')">
-				<Button
-					type="tertiary"
-					:label="ctrans('Add purchase orders')"
-					:disabled="add_purchase_orders.purchase_orders.length === 0"
-					@click="openAddPurchaseOrders"
-				>
-					<template #icon>
-						<FontAwesomeIcon icon="fal fa-plus" class="text-green-600" fixed-width aria-hidden="true" />
-					</template>
-				</Button>
-			</span>
+	<PageHeading :data="pageHeadWithoutSettings">
+		<template #otherBefore>
+			<Action v-if="settingsAction" :action="settingsAction" />
+			<div v-if="add_purchase_orders" class="inline-flex divide-x divide-gray-300 overflow-hidden rounded-md border border-gray-300">
+				<span v-tooltip="add_purchase_orders.purchase_orders.length === 0 ? ctrans('No confirmed purchase orders of this agent are waiting for a container') : ctrans('Pick single items of the purchase orders, and how many of each')">
+					<Button
+						type="tertiary"
+						:label="ctrans('Add items')"
+						:disabled="add_purchase_orders.purchase_orders.length === 0"
+						class="rounded-none border-none"
+						@click="openAddItems"
+					>
+						<template #icon>
+							<FontAwesomeIcon icon="fal fa-plus" class="text-green-600" fixed-width aria-hidden="true" />
+						</template>
+					</Button>
+				</span>
+				<span v-tooltip="add_purchase_orders.purchase_orders.length === 0 ? ctrans('No confirmed purchase orders of this agent are waiting for a container') : ctrans('Add everything still awaiting delivery on whole purchase orders')">
+					<Button
+						type="tertiary"
+						:label="ctrans('Add purchase orders')"
+						:disabled="add_purchase_orders.purchase_orders.length === 0"
+						class="rounded-none border-none"
+						@click="openAddPurchaseOrders"
+					>
+						<template #icon>
+							<FontAwesomeIcon icon="fal fa-plus" class="text-green-600" fixed-width aria-hidden="true" />
+						</template>
+					</Button>
+				</span>
+			</div>
 		</template>
 		<template #other>
 			<Button
@@ -939,6 +947,25 @@ const confirmDeleteStockDelivery = (action: any) => {
 					<FontAwesomeIcon icon="fal fa-upload" class="text-green-600" fixed-width aria-hidden="true" />
 				</template>
 			</Button>
+		</template>
+
+		<template #button-group-documents="{ action }">
+			<div class="inline-flex divide-x divide-gray-300 overflow-hidden rounded-md border border-gray-300">
+				<a
+					v-for="button in action.button"
+					:key="button.key"
+					:href="route(button.route.name, button.route.parameters)"
+					:target="button.target"
+				>
+					<Button
+						type="tertiary"
+						:label="button.label"
+						:icon="button.icon"
+						:tooltip="button.tooltip"
+						class="rounded-none border-none"
+					/>
+				</a>
+			</div>
 		</template>
 
 		<template #button-dispatch-stock-delivery="{ action }">
