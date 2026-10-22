@@ -37,6 +37,7 @@ const props = defineProps<{
   set_shelf_life?: object
   set_state?: object
   set_recipe?: object
+  set_mix_batch?: object
   upload_artefacts?: {
     title: {
       label: string
@@ -78,7 +79,7 @@ const component = computed(() => {
     </template>
   </PageHeading>
   <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-  <component :is="component" :tab="currentTab" :data="props[currentTab]" :moveToDepartment="move_to_department" :moveToFamily="move_to_family" :setBatchSize="set_batch_size" :setShelfLife="set_shelf_life" :setState="set_state" :setRecipe="set_recipe"></component>
+  <component :is="component" :tab="currentTab" :data="props[currentTab]" :moveToDepartment="move_to_department" :moveToFamily="move_to_family" :setBatchSize="set_batch_size" :setShelfLife="set_shelf_life" :setState="set_state" :setRecipe="set_recipe" :setMixBatch="set_mix_batch"></component>
 
   <UploadExcel
     v-if="upload_artefacts"

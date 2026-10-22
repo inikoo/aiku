@@ -30,6 +30,7 @@ const props = defineProps<{
     set_batch_size?: object
     set_state?: object
     set_recipe?: object
+    set_mix_batch?: object
     move_families_to_department?: object
     artisans: object
 }>()
@@ -44,7 +45,7 @@ const component = computed(() => ({
 }[currentTab.value]))
 
 const componentProps = computed(() => ({
-    artefacts: { moveToDepartment: props.move_to_department, moveToFamily: props.move_to_family, setBatchSize: props.set_batch_size, setState: props.set_state, setRecipe: props.set_recipe },
+    artefacts: { moveToDepartment: props.move_to_department, moveToFamily: props.move_to_family, setBatchSize: props.set_batch_size, setState: props.set_state, setRecipe: props.set_recipe, setMixBatch: props.set_mix_batch },
     families: { moveToDepartment: props.move_families_to_department },
     history: {},
 }[currentTab.value] ?? {}))
