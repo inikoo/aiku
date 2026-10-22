@@ -17,6 +17,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Spatie\QueryBuilder\AllowedFilter;
 
 /**
  * @method self whereAnyWordStartWith(string $column, string|array $value)
@@ -30,6 +31,34 @@ use Illuminate\Support\Str;
  */
 class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
 {
+    /**
+     * Spatie splits a filter value on commas and turns "true"/"false" into booleans, so a table
+     * search for "Doe, Jane" would reach the global search callbacks as ['Doe', ' Jane'];
+     * they are given back what was typed.
+     */
+    protected function addFiltersToQuery(): void
+    {
+        $this->allowedFilters->each(function (AllowedFilter $filter) {
+            if ($this->isFilterRequested($filter)) {
+                $value = $this->request->filters()->get($filter->getName());
+                if ($filter->getName() === 'global') {
+                    $value = match (true) {
+                        is_array($value) => implode(',', Arr::flatten($value)),
+                        is_bool($value)  => $value ? 'true' : 'false',
+                        default          => $value,
+                    };
+                }
+                $filter->filter($this, $value);
+
+                return;
+            }
+
+            if ($filter->hasDefault()) {
+                $filter->filter($this, $filter->getDefault());
+            }
+        });
+    }
+
     public function whereElementGroup(
         string $key,
         array $allowedElements,

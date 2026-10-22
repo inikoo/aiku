@@ -1116,6 +1116,23 @@ test('UI index webpages search with a comma searches what was typed', function (
     $response->assertOk()->assertInertia(fn (AssertableInertia $page) => $page->component('Org/Web/Webpages'));
 })->depends('launch fulfilment website from command');
 
+test('table global search callbacks get what was typed, not the query builder list or boolean', function (string|array $typed, string $expected) {
+    $received = null;
+
+    \App\Services\QueryBuilder::for(Webpage::class, Request::create('/', 'GET', ['filter' => ['global' => $typed]]))
+        ->allowedFilters([\Spatie\QueryBuilder\AllowedFilter::callback('global', function ($query, string $value) use (&$received) {
+            $received = $value;
+        })]);
+
+    expect($received)->toBe($expected);
+})->with([
+    'comma'  => ['home, about', 'home, about'],
+    'list'   => [['home', 'about'], 'home,about'],
+    'true'   => ['true', 'true'],
+    'false'  => ['false', 'false'],
+    'string' => ['about', 'about'],
+]);
+
 test('UI show fulfilment website workshop', function (Website $website) {
     $this->withoutExceptionHandling();
 
