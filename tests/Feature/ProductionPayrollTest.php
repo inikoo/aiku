@@ -1541,7 +1541,7 @@ describe('production reward pay bands', function () {
         $friday = now()->startOfWeek()->addDays(4)->setTime(20, 0);
         $this->travelTo($friday);
         $employee = employeeOnDayShift($this->organisation);
-        $employee->getEffectiveWorkSchedule()->days->each(fn ($day) => $day->breaks()->create(['start_time' => '11:00:00', 'end_time' => '11:30:00', 'is_paid' => false]));
+        $employee->getEffectiveWorkSchedule()->days->each(fn ($day) => $day->breaks()->create(['start_time' => '12:30:00', 'end_time' => '13:30:00', 'is_paid' => false]));
         $timezone = $employee->organisation->timezone?->name ?? config('app.timezone');
         $operator = stepTestSecondOperator($this->group);
         $at       = fn (int $weekday, string $time) => \Illuminate\Support\Carbon::parse($friday->copy()->startOfWeek()->addDays($weekday)->toDateString().' '.$time, $timezone)->utc();

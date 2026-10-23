@@ -168,6 +168,7 @@ class GetEmployeeShowcase
             'day_of_week' => $day->day_of_week,
             'start_time'  => $day->start_time,
             'end_time'    => $day->end_time,
+            'unpaid_break_minutes' => $day->unpaid_break_minutes,
             'breaks'      => $day->breaks->map(fn ($break) => [
                 'name'       => $break->break_name,
                 'start_time' => $break->start_time?->format('H:i'),

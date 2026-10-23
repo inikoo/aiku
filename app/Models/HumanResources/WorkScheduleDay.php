@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property bool $is_working_day
  * @property string|null $start_time
  * @property string|null $end_time
+ * @property int $unpaid_break_minutes
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\HumanResources\WorkScheduleBreak> $breaks
@@ -34,6 +35,7 @@ class WorkScheduleDay extends Model
         'is_working_day' => 'boolean',
         'start_time'     => 'string',
         'end_time'       => 'string',
+        'unpaid_break_minutes' => 'integer',
     ];
 
     public function workSchedule(): BelongsTo

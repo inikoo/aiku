@@ -479,6 +479,7 @@ class EditEmployee extends OrgAction
                     's' => $day->start_time,
                     'e' => $day->end_time,
                     'w' => (bool) $day->is_working_day,
+                    'ub' => $day->unpaid_break_minutes,
                     'b' => $day->breaks->map(fn ($break) => [
                         's' => $break->start_time?->format('H:i'),
                         'e' => $break->end_time?->format('H:i'),

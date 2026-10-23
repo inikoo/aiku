@@ -3,6 +3,7 @@ import { computed, reactive, watch } from 'vue'
 import { get } from 'lodash-es'
 import DatePicker from 'primevue/datepicker'
 import InputText from 'primevue/inputtext'
+import InputNumber from 'primevue/inputnumber'
 import Checkbox from 'primevue/checkbox'
 import ToggleSwitch from 'primevue/toggleswitch'
 import Button from '@/Components/Elements/Buttons/Button.vue'
@@ -72,7 +73,7 @@ const breaksEqual = (a: BreakRow[], b: BreakRow[]) => {
 const dayColumnWidth = '150px'
 const gridStyle = {
     display: 'grid',
-    gridTemplateColumns: `${dayColumnWidth} 1fr 1fr`,
+    gridTemplateColumns: `${dayColumnWidth} 1fr 1fr 9rem`,
     columnGap: '12px',
 }
 
@@ -80,9 +81,10 @@ const dayLabels: Record<number, string> = {
     1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday', 5: 'Friday', 6: 'Saturday', 7: 'Sunday',
 }
 const allIsos = [1, 2, 3, 4, 5, 6, 7]
+const defaultBreakMinutes = 30
 
 type BreakRow = { name: string; start: Date | null; end: Date | null; paid: boolean }
-type DayRow = { start: Date | null; end: Date | null; breaks: BreakRow[]; working: boolean }
+type DayRow = { start: Date | null; end: Date | null; breakMinutes: number | null; breaks: BreakRow[]; working: boolean }
 type GroupKey = 'weekday' | 'weekend'
 
 const groupDefs: { key: GroupKey; label: string; isos: number[] }[] = [
@@ -91,7 +93,7 @@ const groupDefs: { key: GroupKey; label: string; isos: number[] }[] = [
 ]
 
 const days: Record<number, DayRow> = reactive(
-    Object.fromEntries(allIsos.map(iso => [iso, { start: null, end: null, breaks: [], working: true }]))
+    Object.fromEntries(allIsos.map(iso => [iso, { start: null, end: null, breakMinutes: defaultBreakMinutes, breaks: [], working: true }]))
 )
 
 // The organisation's hours, shown until this employee is given their own.
@@ -104,9 +106,9 @@ const stated = reactive(new Set<number>())
 
 const ui = reactive<Record<GroupKey, boolean>>({ weekday: false, weekend: false })
 
-const group = reactive<Record<GroupKey, { start: Date | null; end: Date | null }>>({
-    weekday: { start: null, end: null },
-    weekend: { start: null, end: null },
+const group = reactive<Record<GroupKey, { start: Date | null; end: Date | null; breakMinutes: number | null }>>({
+    weekday: { start: null, end: null, breakMinutes: null },
+    weekend: { start: null, end: null, breakMinutes: null },
 })
 
 const groupBreaks = reactive<Record<GroupKey, BreakRow[]>>({
@@ -127,10 +129,12 @@ const syncGroupFromDays = (key: GroupKey, isos: number[]) => {
     const worked = workedIsos(isos)
     const first = worked.length ? days[worked[0]] : null
     const consistent = !!first && worked.every(iso => sameTime(days[iso].start, first.start) && sameTime(days[iso].end, first.end))
+    const sameBreakMinutes = !!first && worked.every(iso => days[iso].breakMinutes === first.breakMinutes)
 
     syncingGroupFromDays = true
     group[key].start = consistent ? first!.start : null
     group[key].end = consistent ? first!.end : null
+    group[key].breakMinutes = sameBreakMinutes ? first!.breakMinutes : null
     setTimeout(() => syncingGroupFromDays = false)
 }
 
@@ -154,6 +158,7 @@ const initFromForm = (val: any) => {
 
         days[iso].start = parseTime(dayData?.s ?? null)
         days[iso].end = parseTime(dayData?.e ?? null)
+        days[iso].breakMinutes = dayData?.ub ?? defaultBreakMinutes
         // A day without hours is not a day that is worked, whether it was switched off or
         // simply never filled in.
         days[iso].working = dayData ? (dayData.w ?? true) && !!(dayData.s && dayData.e) : false
@@ -175,7 +180,8 @@ const initFromForm = (val: any) => {
         syncGroupBreaksFromDays(key, isos)
         const first = days[isos[0]]
         ui[key] = ui[key] || isos.some(iso => days[iso].working !== first.working
-            || !sameTime(days[iso].start, first.start) || !sameTime(days[iso].end, first.end))
+            || !sameTime(days[iso].start, first.start) || !sameTime(days[iso].end, first.end)
+            || days[iso].breakMinutes !== first.breakMinutes)
     })
 
     setTimeout(() => hydrating = false)
@@ -204,6 +210,14 @@ groupDefs.forEach(({ key, isos }) => {
         workedIsos(isos).forEach(iso => {
             days[iso].start = group[key].start
             days[iso].end = group[key].end
+        })
+    })
+
+    watch(() => group[key].breakMinutes, (minutes) => {
+        if (hydrating || syncingGroupFromDays || minutes === null) return
+
+        workedIsos(isos).forEach(iso => {
+            days[iso].breakMinutes = minutes
         })
     })
 })
@@ -269,6 +283,7 @@ const buildPayload = () => {
             s,
             e,
             w: true,
+            ub: day.breakMinutes ?? defaultBreakMinutes,
             b: day.breaks
                 .filter(b => b.start && b.end)
                 .map(b => ({
@@ -302,6 +317,10 @@ watch(days, () => {
             {{ ctrans("These are the organisation's hours. Saving gives this employee their own copy, which stops following the organisation's later changes.") }}
         </p>
 
+        <p class="text-xs text-gray-500">
+            {{ ctrans('The unpaid break is taken off the shift when daily hours are checked, whenever it is taken. Break times are optional: they only mark when somebody is away, for example from the chat.') }}
+        </p>
+
         <div class="border rounded-xl overflow-hidden bg-white">
             <div
                 class="items-center px-4 py-2.5 bg-gray-50 text-[11px] font-semibold text-gray-500 uppercase tracking-wide border-b"
@@ -310,6 +329,7 @@ watch(days, () => {
                 <div></div>
                 <div>{{ ctrans('Start') }}</div>
                 <div>{{ ctrans('Finish') }}</div>
+                <div class="pl-3 whitespace-nowrap">{{ ctrans('Unpaid break') }}</div>
             </div>
 
             <template v-for="g in groupDefs" :key="g.key">
@@ -350,6 +370,17 @@ watch(days, () => {
                                 timeOnly fluid :showClear="true"
                                 :disabled="!groupWorking(g.key)"
                                 :placeholder="ctrans('Finish')"
+                                inputClass="text-sm"
+                            />
+                        </div>
+
+                        <div class="pl-3">
+                            <InputNumber
+                                v-model="group[g.key].breakMinutes"
+                                :min="0" :max="720" fluid
+                                :suffix="' ' + ctrans('min')"
+                                :disabled="!groupWorking(g.key)"
+                                :placeholder="ctrans('Varies')"
                                 inputClass="text-sm"
                             />
                         </div>
@@ -418,11 +449,20 @@ watch(days, () => {
                                 />
                             </div>
 
-                            <div v-else class="col-span-2 text-sm italic text-gray-400">
+                            <div v-if="days[iso].working" class="pl-3">
+                                <InputNumber
+                                    v-model="days[iso].breakMinutes"
+                                    :min="0" :max="720" fluid
+                                    :suffix="' ' + ctrans('min')"
+                                    inputClass="text-sm"
+                                />
+                            </div>
+
+                            <div v-else class="col-span-3 text-sm italic text-gray-400">
                                 {{ ctrans('Not a working day') }}
                             </div>
 
-                            <div v-if="days[iso].working && !(days[iso].start && days[iso].end)" class="col-span-3 pl-6 pt-1 text-xs text-gray-400">
+                            <div v-if="days[iso].working && !(days[iso].start && days[iso].end)" class="col-span-4 pl-6 pt-1 text-xs text-gray-400">
                                 {{ ctrans('Without both a start and a finish this day is saved as not worked.') }}
                             </div>
                         </div>

@@ -2060,6 +2060,31 @@ test('can update work schedule working hours', function () {
     expect($updated->days()->where('day_of_week', 1)->where('is_working_day', true)->exists())->toBeTrue();
 });
 
+test('each working day keeps its unpaid break in minutes, 30 unless set', function () {
+    $workSchedule = StoreWorkSchedule::make()->action($this->organisation, [
+        'name'          => 'Schedule With Unpaid Breaks',
+        'type'          => 'default',
+        'working_hours' => ['data' => [
+            1 => ['s' => '08:00', 'e' => '16:00'],
+            2 => ['s' => '08:00', 'e' => '13:00', 'ub' => 0],
+            3 => ['s' => '08:00', 'e' => '16:00', 'ub' => 45],
+            4 => ['s' => '08:00', 'e' => '16:00', 'ub' => -10],
+        ]],
+    ]);
+
+    $minutes = fn () => $workSchedule->days()->orderBy('day_of_week')->pluck('unpaid_break_minutes', 'day_of_week')->all();
+    expect($minutes())->toBe([1 => 30, 2 => 0, 3 => 45, 4 => 0]);
+
+    UpdateWorkSchedule::make()->action($this->organisation, $workSchedule, ['working_hours' => ['data' => [
+        1 => ['s' => '08:00', 'e' => '16:00', 'ub' => 20],
+        2 => ['s' => '08:00', 'e' => '13:00'],
+        3 => ['s' => '08:00', 'e' => '16:00', 'ub' => 45],
+        4 => ['s' => '08:00', 'e' => '16:00', 'ub' => 0],
+    ]]]);
+
+    expect($minutes())->toBe([1 => 20, 2 => 0, 3 => 45, 4 => 0]);
+});
+
 test('can delete work schedule', function () {
     $workSchedule = StoreWorkSchedule::make()->action($this->organisation, [
         'name' => 'Schedule To Delete',

@@ -50,14 +50,17 @@ class UpdateWorkSchedule extends OrgAction
                         $endTime   = null;
                     }
 
-                    $dayModel = $workSchedule->days()->updateOrCreate(
-                        ['day_of_week' => $dayOfWeek],
-                        [
-                            'start_time'     => $startTime,
-                            'end_time'       => $endTime,
-                            'is_working_day' => $isWorkingDay,
-                        ]
-                    );
+                    $dayValues = [
+                        'start_time'     => $startTime,
+                        'end_time'       => $endTime,
+                        'is_working_day' => $isWorkingDay,
+                    ];
+
+                    if (isset($dayData['ub']) && is_numeric($dayData['ub'])) {
+                        $dayValues['unpaid_break_minutes'] = max(0, min(720, (int) $dayData['ub']));
+                    }
+
+                    $dayModel = $workSchedule->days()->updateOrCreate(['day_of_week' => $dayOfWeek], $dayValues);
 
                     $dayModel->breaks()->delete();
 

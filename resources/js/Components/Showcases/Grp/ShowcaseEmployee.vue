@@ -42,6 +42,7 @@ const props = defineProps<{
 				day_of_week: number
 				start_time: string | null
 				end_time: string | null
+				unpaid_break_minutes: number
 				breaks: { name: string | null; start_time: string | null; end_time: string | null }[]
 			}[]
 		}
@@ -194,7 +195,7 @@ const attendanceStats = computed(() => {
 			<div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-100">
 				<div class="flex items-start gap-4">
 					<img v-if="data?.employee?.data?.avatar" :src="data.employee.data.avatar" :alt="data.employee.data.contact_name" class="h-14 w-14 shrink-0 rounded-full object-cover bg-gray-100" />
-					<div v-else class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-lg font-semibold text-indigo-700">{{ initials(data?.employee?.data?.contact_name) }}</div>
+					<div v-else class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[--app-accent-soft] text-lg font-semibold text-[--app-accent-deep]">{{ initials(data?.employee?.data?.contact_name) }}</div>
 					<div class="min-w-0 flex-1">
 						<div class="flex flex-wrap items-center gap-2">
 							<span class="text-lg font-semibold text-gray-800">{{ data?.employee?.data?.contact_name }}</span>
@@ -227,7 +228,7 @@ const attendanceStats = computed(() => {
 					<h3 class="text-sm font-semibold text-gray-700">{{ ctrans("Attendance") }}</h3>
 					<div class="flex items-center gap-3 text-xs">
 						<span class="text-gray-400">{{ ctrans("Last 30 days") }}</span>
-						<Link :href="route('grp.org.hr.employees.show.timesheets.index', route().params)" class="text-indigo-600 hover:underline">{{ ctrans("All timesheets") }}</Link>
+						<Link :href="route('grp.org.hr.employees.show.timesheets.index', route().params)" class="text-gray-600 hover:text-gray-900 hover:underline">{{ ctrans("All timesheets") }}</Link>
 					</div>
 				</div>
 				<dl class="mt-3 grid grid-cols-2 gap-3 md:grid-cols-5">
@@ -249,7 +250,7 @@ const attendanceStats = computed(() => {
 					<tbody class="divide-y divide-gray-100">
 						<tr v-for="row in data.attendance.recent" :key="row.id" class="hover:bg-gray-50">
 							<td class="py-1.5 pr-3">
-								<Link :href="route(row.route.name, row.route.parameters)" class="font-medium text-gray-800 hover:text-indigo-600 hover:underline">{{ useFormatTime(row.date) }}</Link>
+								<Link :href="route(row.route.name, row.route.parameters)" class="font-medium text-gray-800 hover:text-gray-900 hover:underline">{{ useFormatTime(row.date) }}</Link>
 							</td>
 							<td class="py-1.5 px-3 tabular-nums" :class="row.is_late ? 'font-medium text-red-600' : 'text-gray-700'">{{ useHMAP(row.start_at) }}</td>
 							<td class="py-1.5 px-3 tabular-nums text-gray-700">
@@ -272,7 +273,7 @@ const attendanceStats = computed(() => {
 			<div v-if="data?.leave" class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-100">
 				<div class="flex items-center justify-between">
 					<h3 class="text-sm font-semibold text-gray-700">{{ ctrans("Leave") }}</h3>
-					<Link :href="route(data.leave.route.name, data.leave.route.parameters)" class="text-xs text-indigo-600 hover:underline">{{ ctrans("All leaves") }}</Link>
+					<Link :href="route(data.leave.route.name, data.leave.route.parameters)" class="text-xs text-gray-600 hover:text-gray-900 hover:underline">{{ ctrans("All leaves") }}</Link>
 				</div>
 				<dl v-if="data.leave.balance" class="mt-3 grid grid-cols-3 gap-2 text-center">
 					<div class="rounded-lg bg-gray-50 px-2 py-2">
@@ -311,12 +312,13 @@ const attendanceStats = computed(() => {
 						<span class="text-gray-500">{{ ctrans(dayOfWeekLabels[day.day_of_week]) }}</span>
 						<span class="tabular-nums font-medium text-gray-800">
 							{{ formatHM(day.start_time) }} – {{ formatHM(day.end_time) }}
+							<span v-if="day.start_time && day.end_time" class="ml-2 text-xs font-normal text-gray-400">{{ ctrans(":minutes min unpaid break", { minutes: day.unpaid_break_minutes }) }}</span>
 							<span v-for="(brk, index) in day.breaks" :key="index" class="ml-2 text-xs font-normal text-gray-400">{{ brk.name || ctrans("Break") }} {{ formatHM(brk.start_time) }}–{{ formatHM(brk.end_time) }}</span>
 						</span>
 					</div>
 				</div>
 				<div v-else class="mt-2 text-sm text-gray-400">{{ ctrans("No working hours set") }}</div>
-				<Link v-if="data.can_edit !== false" :href="route('grp.org.hr.employees.edit', { ...route().params, section: 'working_hours' })" @start="() => (isVisitWorkingHours = true)" @finish="() => (isVisitWorkingHours = false)" class="mt-3 inline-flex items-center gap-1.5 text-sm text-indigo-600 hover:underline">
+				<Link v-if="data.can_edit !== false" :href="route('grp.org.hr.employees.edit', { ...route().params, section: 'working_hours' })" @start="() => (isVisitWorkingHours = true)" @finish="() => (isVisitWorkingHours = false)" class="mt-3 inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 hover:underline">
 					<FontAwesomeIcon :icon="faPen" fixed-width /> {{ ctrans("Edit working hours") }}
 				</Link>
 			</div>
@@ -331,10 +333,10 @@ const attendanceStats = computed(() => {
 						<div class="min-w-0">
 							<div class="font-mono text-2xl font-semibold tracking-[0.3em] text-gray-800">{{ data.pin }}</div>
 							<div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm">
-								<button v-if="data.can_edit !== false" type="button" class="inline-flex items-center gap-1.5 text-indigo-600 hover:underline disabled:opacity-50" :disabled="isRegeneratingPin" @click="regeneratePin">
+								<button v-if="data.can_edit !== false" type="button" class="inline-flex items-center gap-1.5 text-gray-600 hover:text-gray-900 hover:underline disabled:opacity-50" :disabled="isRegeneratingPin" @click="regeneratePin">
 									<FontAwesomeIcon :icon="faSyncAlt" fixed-width :spin="isRegeneratingPin" /> {{ ctrans("Regenerate") }}
 								</button>
-								<button type="button" class="inline-flex items-center gap-1.5 text-indigo-600 hover:underline" @click="downloadQr">
+								<button type="button" class="inline-flex items-center gap-1.5 text-gray-600 hover:text-gray-900 hover:underline" @click="downloadQr">
 									<FontAwesomeIcon :icon="faDownload" fixed-width /> {{ ctrans("Download QR") }}
 								</button>
 							</div>
@@ -343,7 +345,7 @@ const attendanceStats = computed(() => {
 				</template>
 				<template v-else>
 					<div class="mt-2 text-sm text-gray-400">{{ ctrans("No clocking machine PIN yet") }}</div>
-					<Link :href="route('grp.org.hr.employees.edit', { ...route().params, section: 'pin' })" @start="() => (isVisitClockingMachine = true)" @finish="() => (isVisitClockingMachine = false)" class="mt-3 inline-flex items-center gap-1.5 text-sm text-indigo-600 hover:underline">
+					<Link :href="route('grp.org.hr.employees.edit', { ...route().params, section: 'pin' })" @start="() => (isVisitClockingMachine = true)" @finish="() => (isVisitClockingMachine = false)" class="mt-3 inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 hover:underline">
 						<FontAwesomeIcon :icon="faPlus" fixed-width /> {{ ctrans("Add clocking machine PIN") }}
 					</Link>
 				</template>

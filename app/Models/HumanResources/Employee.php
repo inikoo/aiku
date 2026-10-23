@@ -440,9 +440,7 @@ class Employee extends Model implements HasMedia, Auditable
             return [];
         }
 
-        $unpaidBreakMinutes = $schedule->days->firstWhere('day_of_week', $shift[0]->dayOfWeekIso)->breaks
-            ->where('is_paid', false)
-            ->sum(fn (WorkScheduleBreak $break) => abs($break->end_time->diffInMinutes($break->start_time)));
+        $unpaidBreakMinutes = $schedule->days->firstWhere('day_of_week', $shift[0]->dayOfWeekIso)->unpaid_break_minutes;
 
         return ['start' => $shift[0], 'end' => $shift[1], 'unpaid_break_minutes' => (int) $unpaidBreakMinutes];
     }

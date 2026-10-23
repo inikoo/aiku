@@ -78,7 +78,7 @@ class HydrateManufactureArtisanDays
     private function schedule(Employee $employee): ?WorkSchedule
     {
         if (!array_key_exists($employee->id, $this->schedules)) {
-            $this->schedules[$employee->id] = $employee->getEffectiveWorkSchedule()?->load('days.breaks', 'timezone');
+            $this->schedules[$employee->id] = $employee->getEffectiveWorkSchedule()?->load('days', 'timezone');
         }
 
         return $this->schedules[$employee->id];
@@ -114,7 +114,7 @@ class HydrateManufactureArtisanDays
         $expectedMinutes = match (true) {
             $shift === null => null,
             $shift === []   => 0,
-            default         => (int) round($shift['start']->diffInMinutes($shift['end']) - $shift['unpaid_break_minutes']),
+            default         => max(0, (int) round($shift['start']->diffInMinutes($shift['end']) - $shift['unpaid_break_minutes'])),
         };
 
         $isWaitingForTimesCheck = fn (ManufactureTaskSession $session) => $session->job_order_item_task_id !== null
