@@ -27,6 +27,7 @@ use App\Actions\Goods\ProductDevelopment\Design\UpdateProductDevelopmentDesignSe
 use App\Actions\Goods\ProductDevelopment\Design\DeleteProductDevelopmentDesignSection;
 use App\Actions\Goods\ProductDevelopment\Design\UploadProductDevelopmentArtwork;
 use App\Actions\Goods\ProductDevelopment\Design\StartProductDevelopmentArtworkInAiku;
+use App\Actions\Goods\ProductDevelopment\Design\CancelProductDevelopmentArtworkInAiku;
 use App\Actions\Goods\ProductDevelopment\Design\UpdateProductDevelopmentArtworkLayout;
 use App\Actions\Goods\ProductDevelopment\Design\SubmitProductDevelopmentArtwork;
 use App\Actions\Goods\ProductDevelopment\Design\ReviewProductDevelopmentArtwork;
@@ -2136,6 +2137,7 @@ Route::name('product_development.')->prefix('product-development')->group(functi
     Route::post('design-section/{productDevelopmentDesignSection:id}/artwork', UploadProductDevelopmentArtwork::class)->name('design_section.artwork.upload')->withoutScopedBindings();
     Route::post('design-section/{productDevelopmentDesignSection:id}/artwork/aiku', StartProductDevelopmentArtworkInAiku::class)->name('design_section.artwork.aiku')->withoutScopedBindings();
     Route::patch('artwork/{productDevelopmentArtwork:id}/layout', UpdateProductDevelopmentArtworkLayout::class)->name('artwork.layout')->withoutScopedBindings();
+    Route::delete('artwork/{productDevelopmentArtwork:id}/aiku', CancelProductDevelopmentArtworkInAiku::class)->name('artwork.aiku.cancel')->withoutScopedBindings();
     Route::post('artwork/{productDevelopmentArtwork:id}/image', UploadProductDevelopmentDesignImage::class)->name('artwork.image')->withoutScopedBindings();
     Route::patch('artwork/{productDevelopmentArtwork:id}/submit', SubmitProductDevelopmentArtwork::class)->name('artwork.submit')->withoutScopedBindings();
     Route::patch('artwork/{productDevelopmentArtwork:id}/review', ReviewProductDevelopmentArtwork::class)->name('artwork.review')->withoutScopedBindings();

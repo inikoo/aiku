@@ -251,6 +251,30 @@ function openInAiku(section: Section, row: Row) {
     })
 }
 
+/* Cancel a design still being drawn in Aiku, so a PDF can be uploaded instead */
+
+const cancelAikuFor = ref<{ section: Section, row: Row } | null>(null)
+const cancellingAiku = ref(false)
+
+function askCancelAiku(section: Section, row: Row) {
+    rowMenu.value?.hide()
+    cancelAikuFor.value = { section, row }
+}
+
+function cancelAiku() {
+    const artwork = cancelAikuFor.value?.row.artwork
+    if (!artwork) {
+        return
+    }
+    router.delete(route(artwork.cancel_aiku_route.name, artwork.cancel_aiku_route.parameters), {
+        preserveScroll: true,
+        onStart: () => cancellingAiku.value = true,
+        onFinish: () => cancellingAiku.value = false,
+        onSuccess: () => cancelAikuFor.value = null,
+        onError: (errors) => notify({ title: ctrans("Design not cancelled"), text: firstError(errors), type: "error" }),
+    })
+}
+
 /* Review: the PDF beside the SKU's approved label and pack information */
 
 const reviewDialog = ref<{ section: Section, row: Row, artwork: Artwork, comment: string } | null>(null)
@@ -499,14 +523,18 @@ function sendReview(operation: "approve" | "request_changes") {
                 <template v-if="menuFor.row.can_upload">
                     <button v-if="menuFor.row.artwork?.source !== 'aiku' || menuFor.row.status.value === 'in_review'" type="button" role="menuitem" class="flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-left text-gray-800 hover:bg-gray-50" @click="startUpload(menuFor.section, menuFor.row)">
                         <FontAwesomeIcon icon="fal fa-cloud-upload" class="text-[--app-accent]" fixed-width aria-hidden="true" />
-                        {{ menuFor.row.artwork ? ctrans("Replace with a PDF") : ctrans("Upload PDF") }}
+                        {{ menuFor.row.artwork?.pdf_route ? ctrans("Replace with a PDF") : ctrans("Upload PDF") }}
                     </button>
                     <button v-if="menuFor.row.artwork?.source !== 'upload' || menuFor.row.status.value === 'in_review'" type="button" role="menuitem" class="flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-left text-gray-800 hover:bg-gray-50" @click="openInAiku(menuFor.section, menuFor.row)">
                         <FontAwesomeIcon icon="fal fa-pencil-ruler" class="text-[--app-accent]" fixed-width aria-hidden="true" />
                         {{ menuFor.row.artwork?.source === "aiku" ? (menuFor.row.artwork.can_edit_layout ? ctrans("Continue in Aiku") : ctrans("Make changes in Aiku")) : ctrans("Create in Aiku") }}
                     </button>
                 </template>
-                <Link v-else-if="menuFor.row.artwork?.editor_route" :href="route(menuFor.row.artwork.editor_route.name, menuFor.row.artwork.editor_route.parameters)" role="menuitem" class="flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-left text-gray-800 hover:bg-gray-50">
+                <button v-if="menuFor.row.artwork?.can_cancel_aiku" type="button" role="menuitem" class="flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-left text-gray-800 hover:bg-gray-50" @click="askCancelAiku(menuFor.section, menuFor.row)">
+                    <FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" />
+                    {{ ctrans("Cancel Aiku design") }}
+                </button>
+                <Link v-if="!menuFor.row.can_upload && menuFor.row.artwork?.editor_route" :href="route(menuFor.row.artwork.editor_route.name, menuFor.row.artwork.editor_route.parameters)" role="menuitem" class="flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-left text-gray-800 hover:bg-gray-50">
                     <FontAwesomeIcon icon="fal fa-eye" class="text-[--app-accent]" fixed-width aria-hidden="true" />
                     {{ ctrans("Open in Aiku") }}
                 </Link>
@@ -623,7 +651,20 @@ function sendReview(operation: "approve" | "request_changes") {
             @compare="panelSection && panelRow && startReview(panelSection, panelRow)"
             @upload="panelSection && panelRow && startUpload(panelSection, panelRow)"
             @aiku="panelSection && panelRow && openInAiku(panelSection, panelRow)"
+            @cancelAiku="panelSection && panelRow && askCancelAiku(panelSection, panelRow)"
         />
+
+        <Dialog :visible="!!cancelAikuFor" modal :header="cancelAikuFor ? `${cancelAikuFor.section.name} · ${cancelAikuFor.row.code}` : ''" :style="{ width: '28rem' }" :breakpoints="{ '640px': '94vw' }" @update:visible="(visible) => !visible && (cancelAikuFor = null)">
+            <p class="text-sm text-gray-700">{{ ctrans("Cancel the design being made in Aiku? Its layout is deleted and the artwork can be uploaded as a PDF instead. Versions already sent for review stay in the history.") }}</p>
+            <template #footer>
+                <Button type="tertiary" size="xs" :label="ctrans('Keep the design')" @click="cancelAikuFor = null">
+                    <template #icon><FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" /></template>
+                </Button>
+                <Button type="tertiary" size="xs" :label="ctrans('Cancel Aiku design')" :loading="cancellingAiku" @click="cancelAiku">
+                    <template #icon><FontAwesomeIcon icon="fal fa-exclamation-circle" class="text-amber-500" fixed-width aria-hidden="true" /></template>
+                </Button>
+            </template>
+        </Dialog>
 
         <Dialog :visible="!!versionsFor" modal :header="versionsFor ? ctrans(':section · :sku · versions', { section: versionsFor.section.name, sku: versionsFor.row.code }) : ''" :style="{ width: '32rem' }" :breakpoints="{ '640px': '94vw' }" @update:visible="(visible) => !visible && (versionsFor = null)">
             <ol v-if="versionsFor?.row.artwork" class="divide-y divide-gray-100 text-sm">

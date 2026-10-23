@@ -22,8 +22,8 @@ import { useFormatTime } from "@/Composables/useFormatTime"
 import { routeType } from "@/types/route"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faFilePdf, faEye, faDownload, faPencilRuler, faCloudUpload, faCheck, faUndo, faExclamationCircle, faSpinner, faImage, faColumns, faComments } from "@fal"
-library.add(faFilePdf, faEye, faDownload, faPencilRuler, faCloudUpload, faCheck, faUndo, faExclamationCircle, faSpinner, faImage, faColumns, faComments)
+import { faFilePdf, faEye, faDownload, faPencilRuler, faCloudUpload, faCheck, faUndo, faExclamationCircle, faSpinner, faImage, faColumns, faComments, faTimes } from "@fal"
+library.add(faFilePdf, faEye, faDownload, faPencilRuler, faCloudUpload, faCheck, faUndo, faExclamationCircle, faSpinner, faImage, faColumns, faComments, faTimes)
 
 export interface ArtworkStatus {
     value: string
@@ -54,6 +54,8 @@ export interface Artwork {
     comments: number
     comments_route: routeType
     versions: ArtworkVersion[]
+    can_cancel_aiku: boolean
+    cancel_aiku_route: routeType
 }
 
 export interface ArtworkVersion {
@@ -110,6 +112,7 @@ const emit = defineEmits<{
     compare: []
     upload: []
     aiku: []
+    cancelAiku: []
 }>()
 
 const formatDate = (date: string | null) => date ? useFormatTime(date, { formatTime: "d MMM yyyy" }) : ""
@@ -228,11 +231,14 @@ watch(() => artwork.value?.comments, (count, previous) => {
                 <p v-else class="rounded-md border border-dashed border-amber-300 px-3 py-2.5 text-xs text-amber-700">{{ ctrans("Missing artwork") }}</p>
 
                 <div v-if="row.can_upload || artwork?.editor_route" class="flex flex-wrap gap-2">
-                    <Button v-if="row.can_upload && (artwork?.source !== 'aiku' || row.status.value === 'in_review')" type="tertiary" size="xs" :label="artwork ? ctrans('Replace with a PDF') : ctrans('Upload PDF')" @click="emit('upload')">
+                    <Button v-if="row.can_upload && (artwork?.source !== 'aiku' || row.status.value === 'in_review')" type="tertiary" size="xs" :label="artwork?.pdf_route ? ctrans('Replace with a PDF') : ctrans('Upload PDF')" @click="emit('upload')">
                         <template #icon><FontAwesomeIcon icon="fal fa-cloud-upload" class="text-[--app-accent]" fixed-width aria-hidden="true" /></template>
                     </Button>
                     <Button v-if="(row.can_upload && (artwork?.source !== 'upload' || row.status.value === 'in_review')) || artwork?.editor_route" type="tertiary" size="xs" :label="artwork?.source === 'aiku' ? (!row.can_upload ? ctrans('Open in Aiku') : artwork.can_edit_layout ? ctrans('Continue in Aiku') : ctrans('Make changes in Aiku')) : ctrans('Create in Aiku')" @click="emit('aiku')">
                         <template #icon><FontAwesomeIcon icon="fal fa-pencil-ruler" class="text-[--app-accent]" fixed-width aria-hidden="true" /></template>
+                    </Button>
+                    <Button v-if="artwork?.can_cancel_aiku" type="tertiary" size="xs" :label="ctrans('Cancel Aiku design')" @click="emit('cancelAiku')">
+                        <template #icon><FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" /></template>
                     </Button>
                 </div>
 

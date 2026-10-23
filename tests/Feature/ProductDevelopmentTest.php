@@ -1590,3 +1590,38 @@ test('every artwork version sent for review is kept with its file, note and revi
         ->assertHeader('Content-Disposition', 'attachment; filename="'.$item->tradeUnit->code.'_Box_V1.pdf"');
     get(route('grp.product_developments.artwork.pdf', ['productDevelopment' => $productDevelopment->slug, 'artwork' => $artwork->id, 'version' => 9]))->assertNotFound();
 });
+
+test('a design still being made in Aiku can be cancelled so the artwork is uploaded as a PDF instead, HELP-4245', function () {
+    [$productDevelopment, $people] = developmentWithDesignTeam($this, 1);
+    $item                          = $productDevelopment->items()->firstOrFail();
+    $box                           = $productDevelopment->designSections()->where('name', 'Box')->firstOrFail();
+    approveDesign($productDevelopment, 'concept', $people);
+
+    $artwork = \App\Actions\Goods\ProductDevelopment\Design\StartProductDevelopmentArtworkInAiku::make()->action($box, $people['designer'], ['product_development_item_id' => $item->id]);
+    expect(fn () => uploadArtwork($box, $people['designer'], $item->id))->toThrow(ValidationException::class);
+
+    actingAs($people['designer']);
+    get(route('grp.product_developments.show', [$productDevelopment->slug, 'tab' => 'design']))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('design.sections.0.rows.0.artwork.can_cancel_aiku', true));
+    actingAs($people['buyer']);
+    get(route('grp.product_developments.show', [$productDevelopment->slug, 'tab' => 'design']))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('design.sections.0.rows.0.artwork.can_cancel_aiku', false));
+
+    \Illuminate\Support\Facades\DB::table('product_development_artworks')->where('id', $artwork->id)->update(['status' => 'in_review']);
+    expect(fn () => \App\Actions\Goods\ProductDevelopment\Design\CancelProductDevelopmentArtworkInAiku::make()->action($artwork->fresh()))->toThrow(ValidationException::class);
+    \Illuminate\Support\Facades\DB::table('product_development_artworks')->where('id', $artwork->id)->update(['status' => 'not_submitted']);
+
+    actingAs($people['designer']);
+    \Pest\Laravel\delete(route('grp.models.product_development.artwork.aiku.cancel', ['productDevelopmentArtwork' => $artwork->id]))->assertRedirect();
+    expect($artwork->fresh()->source)->toBeNull()
+        ->and($artwork->fresh()->layout)->toBe([]);
+
+    $uploaded = uploadArtwork($box, $people['designer'], $item->id, 'Done in Illustrator');
+    expect($uploaded->id)->toBe($artwork->id)
+        ->and($uploaded->source)->toBe('upload')
+        ->and($uploaded->version)->toBe(1)
+        ->and(fn () => \App\Actions\Goods\ProductDevelopment\Design\CancelProductDevelopmentArtworkInAiku::make()->action($uploaded->fresh()))->toThrow(ValidationException::class);
+
+    actingAs(newGuestUser($this));
+    \Pest\Laravel\delete(route('grp.models.product_development.artwork.aiku.cancel', ['productDevelopmentArtwork' => $artwork->id]))->assertForbidden();
+});
