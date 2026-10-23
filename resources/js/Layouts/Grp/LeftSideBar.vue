@@ -72,24 +72,24 @@ const chatRoute = computed(() => {
     return { name: isChatAgent ? "grp.chat.inbox" : "grp.chat.reports", parameters: {}, root: "grp.chat." }
 })
 
-const scopedModuleRoute = (module: string) => {
+const scopedModuleRoute = (module: string, page = "index") => {
     const organisation = layout.currentParams?.organisation
     const shop = layout.currentParams?.shop
 
     if (organisation && shop) {
-        return { name: `grp.org.shops.show.${module}.index`, parameters: { organisation, shop }, root: `grp.org.shops.show.${module}.` }
+        return { name: `grp.org.shops.show.${module}.${page}`, parameters: { organisation, shop }, root: `grp.org.shops.show.${module}.` }
     }
 
     if (organisation) {
-        return { name: `grp.org.${module}.index`, parameters: { organisation }, root: `grp.org.${module}.` }
+        return { name: `grp.org.${module}.${page}`, parameters: { organisation }, root: `grp.org.${module}.` }
     }
 
-    return { name: `grp.${module}.index`, parameters: {}, root: `grp.${module}.` }
+    return { name: `grp.${module}.${page}`, parameters: {}, root: `grp.${module}.` }
 }
 
 const tasksRoute = computed(() => scopedModuleRoute("tasks"))
 
-const ticketsRoute = computed(() => scopedModuleRoute("tickets"))
+const ticketsRoute = computed(() => scopedModuleRoute("tickets", "board"))
 
 const bottomLinks = computed(() => allBottomLinks.value.filter((link) => !layout.user?.works_only_for_agents || [tasksRoute.value.name, ticketsRoute.value.name].includes(link.route)))
 
