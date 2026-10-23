@@ -57,6 +57,7 @@ use App\Actions\Inventory\OrgStockMovement\CalculateRunningQuantityOrgStockMovem
 use App\Actions\Inventory\OrgStockMovement\DeleteOrgStockMovement;
 use App\Actions\Inventory\OrgStockMovement\StoreOrgStockMovement;
 use App\Actions\Maintenance\Inventory\OrgStockMovement\RepairPickedOrgStockMovementCost;
+use App\Actions\Maintenance\Inventory\OrgStock\EraseOrgStockHistory;
 use App\Actions\Inventory\OrgStockMovement\UpdateOrgStockMovement;
 use App\Actions\Inventory\Warehouse\DeleteWarehouse;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateLocations;
@@ -80,6 +81,7 @@ use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\OrgStockAuditDelta;
 use App\Models\Inventory\OrgStockFamily;
 use App\Models\Inventory\OrgStockMovement;
+use Illuminate\Support\Str;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use Config;
@@ -887,4 +889,31 @@ test('delete warehouse deletes areas and locations', function () {
     expect(Warehouse::find($warehouseId))->toBeNull()
         ->and(WarehouseArea::find($areaId))->toBeNull()
         ->and(Location::find($locationId))->toBeNull();
+});
+
+test('erase org stock history archives the movements before deleting them and leaves other stock alone', function () {
+    [$orgStock, $location] = costFixStockInLocation($this->group, $this->organisation, 'ERASE-'.Str::random(4));
+    [$otherOrgStock]       = costFixStockInLocation($this->group, $this->organisation, 'KEEP-'.Str::random(4));
+
+    $found = StoreOrgStockMovement::make()->action($orgStock, $location, [
+        'type'       => OrgStockMovementTypeEnum::FOUND,
+        'quantity'   => 1000,
+        'org_amount' => 50000,
+    ], strict: false);
+    StoreOrgStockMovement::make()->action($orgStock, $location, ['type' => OrgStockMovementTypeEnum::PICKED, 'quantity' => -3, 'org_amount' => 0], strict: false);
+    $kept = StoreOrgStockMovement::make()->action($otherOrgStock, $location, ['type' => OrgStockMovementTypeEnum::FOUND, 'quantity' => 5, 'org_amount' => 10], strict: false);
+
+    $erase    = EraseOrgStockHistory::make();
+    $existing = OrgStockMovement::where('org_stock_id', $orgStock->id)->count();
+
+    expect($existing)->toBeGreaterThanOrEqual(2)
+        ->and($erase->handle($orgStock, true)['org_stock_movements'])->toBe($existing)
+        ->and(OrgStockMovement::where('org_stock_id', $orgStock->id)->count())->toBe($existing);
+
+    $erase->handle($orgStock, false);
+
+    expect(OrgStockMovement::where('org_stock_id', $orgStock->id)->count())->toBe(0)
+        ->and(DB::table('help4274_erased_org_stock_movements')->where('org_stock_id', $orgStock->id)->count())->toBe($existing)
+        ->and((float)DB::table('help4274_erased_org_stock_movements')->where('id', $found->id)->value('org_amount'))->toBe(50000.0)
+        ->and(OrgStockMovement::whereKey($kept->id)->exists())->toBeTrue();
 });
